@@ -1,0 +1,57 @@
+msg-service (0.8.7-5) unstable; urgency=low
+
+  * Add #include <sys/stat.h> to support chmod related defines.
+  * Fix DRM content issue(unregistered mo content)
+  * Git : public/pkgs/m/msg-service
+  * Tag : msg-service_0.8.7-5
+
+ -- Jaeyun Jeong <jyjeong@samsung.com>  Fri, 16 Mar 2012 17:54:21 +0900
+
+msg-service (0.8.7-4) unstable; urgency=low
+
+  * Modify plugin configuration file location for FOTA.
+  * Remove the db query which create sample data from msg-service.spec.
+  * Git : public/pkgs/m/msg-service
+  * Tag : msg-service_0.8.7-4
+
+ -- Jaeyun Jeong <jyjeong@samsung.com>  Wed, 14 Mar 2012 20:11:41 +0900
+
+msg-service (0.8.7-3) unstable; urgency=low
+
+  * Fix TC execute failure.
+  * Fix S1-1419(Removed mms raw file issue after rebooting)
+  * Git : public/pkgs/m/msg-service
+  * Tag : msg-service_0.8.7-3
+
+ -- Jaeyun Jeong <jyjeong@samsung.com>  Mon, 27 Feb 2012 21:19:29 +0900
+
+msg-service (0.8.7-2) unstable; urgency=low
+
+  * Remove white spaces.
+  * Global lists for mms are removed
+  * Changed MsgFW's interface are applied for TC
+  * Git : public/pkgs/m/msg-service
+  * Tag : msg-service_0.8.7-2
+
+ -- Soonmin Jung <sm0415.jung@samsung.com>  Tue, 21 Feb 2012 15:30:26 +0900
+
+msg-service (0.8.7-1) unstable; urgency=low
+
+  * Code for removing MMS temp folder applied.
+  * Bug fix request from java mms.
+  * Fix bug related with Nabi S1-1253.
+  * Git : public/pkgs/m/msg-service
+  * Tag : msg-service_0.8.7-1
+
+ -- KeeBum Kim <keebum.kim@samsung.com>  Fri, 17 Feb 2012 16:11:38 +0900
+
+msg-service (0.8.7-0) unstable; urgency=low
+
+  * apply file wrapper
+  * Change search API to support Bada API set.
+  * Apply keep copy option to SMS.
+  * Git : public/pkgs/m/msg-service
+  * Tag : msg-service_0.8.7-0
+
+ -- KeeBum Kim <keebum.kim@samsung.com>  Thu, 09 Feb 2012 18:04:24 +0900
+

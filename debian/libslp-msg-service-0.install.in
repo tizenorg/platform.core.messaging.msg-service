@@ -1,0 +1,9 @@
+@PREFIX@/lib/libmsg_utils.so
+@PREFIX@/lib/libmsg_plugin_manager.so
+@PREFIX@/lib/libmsg_framework_handler.so
+@PREFIX@/lib/libmsg_transaction_manager.so
+@PREFIX@/lib/libmsg_transaction_proxy.so
+@PREFIX@/lib/libmsg_mapi.so
+@PREFIX@/lib/libmsg_mapi.so.*
+@PREFIX@/share/msg-service/plugin.cfg
+etc/*

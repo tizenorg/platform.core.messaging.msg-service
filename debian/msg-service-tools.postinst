@@ -1,0 +1,208 @@
+#!/bin/sh
+set -e
+# Automatically added by dh_makeshlibs
+if [ "$1" = "configure" ]; then
+	ldconfig
+fi
+# End automatically added section
+
+#. /etc/ipkg/functions
+
+#PATH=$PATH:/usr/bin
+#CURRENT_PATH=$PWD
+
+#cd /usr/bin
+
+#initDB
+#rm /opt/dbspace/.msg_service.db*
+
+if [ ! -f /opt/dbspace/.msg_service.db ]
+then
+	sqlite3 /opt/dbspace/.msg_service.db "PRAGMA journal_mode = PERSIST;
+
+	CREATE TABLE MSG_ADDRESS_TABLE(ADDRESS_ID INTEGER PRIMARY KEY, ADDRESS_TYPE INTEGER, RECIPIENT_TYPE INTEGER, ADDRESS_VAL TEXT, CONTACT_ID INTEGER, DISPLAY_NAME TEXT, FIRST_NAME TEXT, LAST_NAME TEXT, IMAGE_PATH TEXT, SYNC_TIME DATETIME, UNREAD_CNT INTEGER DEFAULT 0, SMS_CNT INTEGER DEFAULT 0, MMS_CNT INTEGER DEFAULT 0, MAIN_TYPE INTEGER NOT NULL, SUB_TYPE INTEGER NOT NULL, MSG_DIRECTION INTEGER NOT NULL, MSG_TIME DATETIME, MSG_TEXT TEXT);
+	CREATE TABLE MSG_FOLDER_TABLE(FOLDER_ID INTEGER PRIMARY KEY, FOLDER_NAME TEXT NOT NULL, FOLDER_TYPE INTEGER DEFAULT 0);
+	CREATE TABLE MSG_MESSAGE_TABLE(MSG_ID INTEGER PRIMARY KEY, ADDRESS_ID INTEGER, FOLDER_ID INTEGER, REFERENCE_ID INTEGER, STORAGE_ID INTEGER NOT NULL, MAIN_TYPE INTEGER NOT NULL, SUB_TYPE INTEGER NOT NULL, DISPLAY_TIME DATETIME, DATA_SIZE INTEGER DEFAULT 0, NETWORK_STATUS INTEGER DEFAULT 0, READ_STATUS INTEGER DEFAULT 0, PROTECTED INTEGER DEFAULT 0, PRIORITY INTEGER DEFAULT 0, MSG_DIRECTION INTEGER NOT NULL, SCHEDULED_TIME DATETIME, BACKUP INTEGER DEFAULT 0, SUBJECT TEXT, MSG_DATA TEXT, THUMB_PATH TEXT, MSG_TEXT TEXT, DELIVERY_REPORT_STATUS INTEGER DEFAULT 0, DELIVERY_REPORT_TIME DATETIME, READ_REPORT_STATUS INTEGER DEFAULT 0, READ_REPORT_TIME DATETIME, ATTACHMENT_COUNT INTEGER DEFAULT 0, FOREIGN KEY(ADDRESS_ID) REFERENCES MSG_ADDRESS_TABLE(ADDRESS_ID), FOREIGN KEY(FOLDER_ID) REFERENCES MSG_FOLDER_TABLE(FOLDER_ID));
+	CREATE TABLE MSG_SIM_TABLE(MSG_ID INTEGER, SIM_ID INTEGER NOT NULL, FOREIGN KEY(MSG_ID) REFERENCES MSG_MESSAGE_TABLE(MSG_ID));
+	CREATE TABLE MSG_PUSH_TABLE(MSG_ID INTEGER, ACTION INTEGER, CREATED INTEGER, EXPIRES INTEGER, ID TEXT, HREF TEXT, CONTENT TEXT, FOREIGN KEY(MSG_ID) REFERENCES MSG_MESSAGE_TABLE(MSG_ID));
+	CREATE TABLE MSG_CBMSG_TABLE(MSG_ID INTEGER, CB_MSG_ID INTEGER NOT NULL, FOREIGN KEY(MSG_ID) REFERENCES MSG_MESSAGE_TABLE(MSG_ID));
+	CREATE TABLE MSG_SYNCML_TABLE(MSG_ID INTEGER, EXT_ID INTEGER NOT NULL, PINCODE INTEGER NOT NULL, FOREIGN KEY(MSG_ID) REFERENCES MSG_MESSAGE_TABLE(MSG_ID));
+	CREATE TABLE MSG_SCHEDULED_TABLE(MSG_ID INTEGER, ALARM_ID INTEGER NOT NULL, LISTENER_FD INTEGER NOT NULL, FOREIGN KEY(MSG_ID) REFERENCES MSG_MESSAGE_TABLE(MSG_ID));
+	CREATE TABLE MSG_SMS_SENDOPT_TABLE(MSG_ID INTEGER, DELREP_REQ INTEGER NOT NULL, KEEP_COPY INTEGER NOT NULL, REPLY_PATH INTEGER NOT NULL, FOREIGN KEY(MSG_ID) REFERENCES MSG_MESSAGE_TABLE(MSG_ID));
+	CREATE TABLE MSG_FILTER_TABLE(FILTER_ID INTEGER PRIMARY KEY, FILTER_TYPE INTEGER NOT NULL, FILTER_VALUE TEXT NOT NULL);
+	CREATE TABLE MSG_MMS_MESSAGE_TABLE(REFERENCE_ID INTEGER, TRANSACTION_ID TEXT, MESSAGE_ID TEXT, FWD_MESSAGE_ID TEXT, CONTENTS_LOCATION TEXT, FILE_PATH TEXT, FOREIGN KEY(REFERENCE_ID) REFERENCES MSG_MESSAGE_TABLE(REFERENCE_ID));
+	CREATE TABLE MSG_MMS_ATTR_TABLE(REFERENCE_ID INTEGER, VERSION INTEGER NOT NULL, DATA_TYPE INTEGER DEFAULT -1, DATE DATETIME, HIDE_ADDRESS INTEGER DEFAULT 0, ASK_DELIVERY_REPORT INTEGER DEFAULT 0, REPORT_ALLOWED INTEGER DEFAULT 0, READ_REPORT_ALLOWED_TYPE INTEGER DEFAULT 0, ASK_READ_REPLY INTEGER DEFAULT 0, READ INTEGER DEFAULT 0, READ_REPORT_SEND_STATUS	INTEGER DEFAULT 0, READ_REPORT_SENT INTEGER DEFAULT 0, PRIORITY INTEGER DEFAULT 0, KEEP_COPY INTEGER DEFAULT 0, MSG_SIZE INTEGER NOT NULL, MSG_CLASS INTEGER DEFAULT -1, EXPIRY_TIME DATETIME, CUSTOM_DELIVERY_TIME INTEGER DEFAULT 0, DELIVERY_TIME DATETIME, MSG_STATUS INTEGER DEFAULT -1, FOREIGN KEY(REFERENCE_ID) REFERENCES MSG_MESSAGE_TABLE(REFERENCE_ID));
+
+	CREATE INDEX MSG_ADDRESS_INDEX ON MSG_ADDRESS_TABLE(ADDRESS_ID);
+	CREATE INDEX MSG_FOLDER_INDEX ON MSG_FOLDER_TABLE(FOLDER_ID);
+	CREATE INDEX MSG_MESSAGE_INDEX ON MSG_MESSAGE_TABLE(MSG_ID, ADDRESS_ID, FOLDER_ID);
+
+	INSERT INTO MSG_FOLDER_TABLE VALUES (1, 'INBOX', 1);
+	INSERT INTO MSG_FOLDER_TABLE VALUES (2, 'OUTBOX', 2);
+	INSERT INTO MSG_FOLDER_TABLE VALUES (3, 'SENTBOX', 2);
+	INSERT INTO MSG_FOLDER_TABLE VALUES (4, 'DRAFT', 3);
+	INSERT INTO MSG_FOLDER_TABLE VALUES (5, 'CBMSGBOX', 1);
+
+	INSERT INTO MSG_ADDRESS_TABLE VALUES (0, 0, 0, '', 0, '', '', '', '', 0, 0, 0, 0, 0, 0, 0, 0, '');"
+#	INSERT INTO MSG_ADDRESS_TABLE VALUES (1, 1, 1, '01030016057', 0, '', '', '', '', 0, 0, 2, 0, 1, 0, 1, 1284036008, 'Welcome to SLP world');
+
+#	INSERT INTO MSG_MESSAGE_TABLE VALUES (1, 1, 3, 1, 1, 1, 0, 1284035928, 6, 2, 1, 0, 1, 0, 0, 0, '', '', '', 'Hello.', -1, 0, -1, 0, 0);
+#	INSERT INTO MSG_MESSAGE_TABLE VALUES (2, 1, 1, 2, 1, 1, 0, 1284036008, 20, 6, 1, 0, 1, 1, 0, 0, '', '', '', 'Welcome to SLP world', -1, 0, -1, 0, 0);"
+fi
+
+########## Setting Permission and Owner ###########
+
+if [ ${USER} == "root" ]
+then
+	# 1. executable
+        #chown root:root /usr/bin/msg-server
+	#chown root:root /usr/bin/msg-test-app
+
+	# 2. configuration
+	chown root:root /usr/share/msg-service/plugin.cfg
+#	chown root:root /opt/etc/msg-service/mms_plugin.cfg
+#	chown root:root /opt/etc/msg-service/kdb-setting.sh
+
+	# 3. database
+	chown :6011 /opt/dbspace/.msg_service.db
+	chown :6011 /opt/dbspace/.msg_service.db-journal
+
+	# 4. other files
+	chown root:root /opt/etc/msg-service/A.smi
+	chown root:root /opt/etc/msg-service/P091120_104633.jpg
+	chown root:root /opt/etc/msg-service/Temp0_2.txt
+	chown root:root /opt/etc/msg-service/Temp1_0.txt
+	chown root:root /opt/etc/msg-service/V091120_104905.3gp
+	chown root:root /opt/etc/msg-service/alert_on_call.mp3
+	chown root:root /opt/etc/msg-service/audio.amr
+	chown root:root /usr/share/media/Sherbet.wav
+fi
+
+# Change File Permission
+# 1. executable
+#chmod 700 /usr/bin/msg-server
+#chmod 700 /usr/bin/msg-test-app
+
+# 2. configuration
+chmod 644 /usr/share/msg-service/plugin.cfg
+#chmod 644 /opt/etc/msg-service/mms_plugin.cfg
+#chmod 644 /opt/etc/msg-service/kdb-setting.sh
+
+# 3. database
+chmod 660 /opt/dbspace/.msg_service.db
+chmod 660 /opt/dbspace/.msg_service.db-journal
+
+# 4. other files
+chmod 644 /opt/etc/msg-service/A.smi
+chmod 644 /opt/etc/msg-service/P091120_104633.jpg
+chmod 644 /opt/etc/msg-service/Temp0_2.txt
+chmod 644 /opt/etc/msg-service/Temp1_0.txt
+chmod 644 /opt/etc/msg-service/V091120_104905.3gp
+chmod 644 /opt/etc/msg-service/alert_on_call.mp3
+chmod 644 /opt/etc/msg-service/audio.amr
+chmod 644 /usr/share/media/Sherbet.wav
+
+
+########## Setting Config Value ##########
+
+# General Options
+vconftool set -t bool db/msg/general/keep_copy 1
+vconftool set -t int db/msg/general/alert_tone 0
+vconftool set -t bool db/msg/general/auto_erase 0
+vconftool set -t bool db/msg/general/block_msg 0
+vconftool set -t int db/msg/general/contact_sync_time 0
+
+# SMS Send Options
+vconftool set -t int db/msg/sms_send/dcs 3
+vconftool set -t int db/msg/network_mode 2
+vconftool set -t bool db/msg/sms_send/reply_path 0
+vconftool set -t bool db/msg/sms_send/delivery_report 0
+vconftool set -t int db/msg/sms_send/save_storage 1
+
+# MMS Send Options
+vconftool set -t int db/msg/mms_send/msg_class 0
+vconftool set -t int db/msg/mms_send/priority 1
+vconftool set -t int db/msg/mms_send/expiry_time 0
+vconftool set -t int db/msg/mms_send/custom_delivery 0
+vconftool set -t bool db/msg/mms_send/sender_visibility 0
+vconftool set -t bool db/msg/mms_send/delivery_report 1
+vconftool set -t bool db/msg/mms_send/read_reply 1
+vconftool set -t bool db/msg/mms_send/keep_copy 0
+vconftool set -t bool db/msg/mms_send/body_replying 0
+vconftool set -t bool db/msg/mms_send/hide_recipients 0
+vconftool set -t bool db/msg/mms_send/report_allowed 1
+vconftool set -t int db/msg/mms_send/reply_charging 0
+vconftool set -t int db/msg/mms_send/reply_charging_deadline 0
+vconftool set -t int db/msg/mms_send/reply_charging_size 0
+vconftool set -t int db/msg/mms_send/delivery_time 0
+vconftool set -t int db/msg/mms_send/creation_mode 2
+
+# MMS Receive Options
+vconftool set -t int db/msg/mms_recv/home_network 0
+vconftool set -t int db/msg/mms_recv/abroad_network 0
+vconftool set -t bool db/msg/mms_recv/read_receipt 1
+vconftool set -t bool db/msg/mms_recv/delivery_receipt 1
+vconftool set -t bool db/msg/mms_recv/reject_unknown 0
+vconftool set -t bool db/msg/mms_recv/reject_advertisement 0
+
+# MMS Receive Options
+vconftool set -t int db/msg/mms_style/font_size 30
+vconftool set -t bool db/msg/mms_style/font_style/bold 0
+vconftool set -t bool db/msg/mms_style/font_style/italic 0
+vconftool set -t bool db/msg/mms_style/font_style/underline 0
+vconftool set -t int db/msg/mms_style/font_color/red 0
+vconftool set -t int db/msg/mms_style/font_color/green 0
+vconftool set -t int db/msg/mms_style/font_color/blue 0
+vconftool set -t int db/msg/mms_style/font_color/hue 255
+vconftool set -t int db/msg/mms_style/bg_color/red 255
+vconftool set -t int db/msg/mms_style/bg_color/green 255
+vconftool set -t int db/msg/mms_style/bg_color/blue 255
+vconftool set -t int db/msg/mms_style/bg_color/hue 255
+vconftool set -t int db/msg/mms_style/page_dur 2
+vconftool set -t int db/msg/mms_style/page_custom_dur 0
+vconftool set -t int db/msg/mms_style/page_dur_manual 0
+
+# Push Msg Options
+vconftool set -t bool db/msg/push_msg/recv_option 1
+vconftool set -t int db/msg/push_msg/service_load 1
+
+# CB Msg Options
+vconftool set -t bool db/msg/cb_msg/receive 0
+vconftool set -t bool db/msg/cb_msg/all_channel 0
+vconftool set -t int db/msg/cb_msg/max_sim_count 0
+vconftool set -t int db/msg/cb_msg/channel_count 0
+vconftool set -t bool db/msg/cb_msg/language/0 0
+vconftool set -t bool db/msg/cb_msg/language/1 0
+vconftool set -t bool db/msg/cb_msg/language/2 0
+vconftool set -t bool db/msg/cb_msg/language/3 0
+vconftool set -t bool db/msg/cb_msg/language/4 0
+vconftool set -t bool db/msg/cb_msg/language/5 0
+vconftool set -t bool db/msg/cb_msg/language/6 0
+vconftool set -t bool db/msg/cb_msg/language/7 0
+vconftool set -t bool db/msg/cb_msg/language/8 0
+vconftool set -t bool db/msg/cb_msg/language/9 0
+
+# Voice Mail Options
+vconftool set -t string db/msg/voice_mail/voice_mail_number "12345678"
+
+# MMS Size Options
+vconftool set -t int db/msg/size_opt/msg_size 300
+
+vconftool set -t int db/badge/org.tizen.message 0
+
+if [ ${USER} == "root" ]
+then
+
+	# Msg Count
+	vconftool set -t int db/msg/recv_sms 0 -u 0
+	vconftool set -t int db/msg/recv_mms 0 -u 0
+fi
+
+
+#cd $CURRENT_PATH
+
+
+#mkdir /opt/system/msg-service
+
+#config "msg-service-@MACHINE@"
+

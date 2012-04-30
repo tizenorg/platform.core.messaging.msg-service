@@ -1,0 +1,5 @@
+msgTC/MapiSetting/tslist
+msgTC/MapiStorage/tslist
+msgTC/MapiControl/tslist
+msgTC/MapiTransport/tslist
+msgTC/MapiMessage/tslist
