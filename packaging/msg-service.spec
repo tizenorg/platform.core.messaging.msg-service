@@ -5,6 +5,7 @@ License:        Samsung Proprietary
 Summary:        Messaging Framework Library 
 Group:          System/Libraries
 Source0:	%{name}-%{version}.tar.gz
+Source1001: packaging/msg-service.manifest 
 
 Requires(post): /usr/bin/sqlite3
 Requires(post): /usr/bin/vconftool
@@ -92,6 +93,7 @@ Description: MMS plugin library
 
 
 %build
+cp %{SOURCE1001} .
 cmake . -DCMAKE_INSTALL_PREFIX=%{_prefix}
 make %{?jobs:-j%jobs}
 
@@ -262,6 +264,7 @@ vconftool set -t int db/msg/recv_mms 0 -u 0
 %postun -n mms-plugin -p /sbin/ldconfig
 
 %files
+%manifest msg-service.manifest
 %defattr(-,root,root,-)
 %dir /opt/data/msg-service
 %{_libdir}/libmsg_plugin_manager.so
@@ -275,6 +278,7 @@ vconftool set -t int db/msg/recv_mms 0 -u 0
 %{_sysconfdir}/rc.d/rc5.d/S70msg-server
 
 %files devel
+%manifest msg-service.manifest
 %defattr(-,root,root,-)
 %{_libdir}/libmsg_mapi.so
 %{_libdir}/pkgconfig/msg-service.pc
@@ -282,6 +286,7 @@ vconftool set -t int db/msg/recv_mms 0 -u 0
 
 
 %files tools
+%manifest msg-service.manifest
 %defattr(-,root,root,-)
 %{_bindir}/msg-helper
 %{_bindir}/msg-test-app
@@ -297,10 +302,12 @@ vconftool set -t int db/msg/recv_mms 0 -u 0
 %attr(0644,root,root)/opt/etc/msg-service/alert_on_call.mp3
 
 %files -n sms-plugin
+%manifest msg-service.manifest
 %defattr(-,root,root,-)
 %{_libdir}/libmsg_sms_plugin.so
 
 %files -n mms-plugin
+%manifest msg-service.manifest
 %defattr(-,root,root,-)
 %{_libdir}/libmsg_mms_plugin.so
 %{_libdir}/libmsg_mms_language_pack.so
