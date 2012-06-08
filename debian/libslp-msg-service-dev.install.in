@@ -1,0 +1,2 @@
+@PREFIX@/include/msg-service/*.h
+@PREFIX@/lib/pkgconfig/*.pc

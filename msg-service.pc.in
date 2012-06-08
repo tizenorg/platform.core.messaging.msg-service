@@ -1,0 +1,10 @@
+prefix=/usr
+libdir=${prefix}/lib
+includedir=${prefix}/include
+
+Name: MESSAGE-FRAMEWORK
+Version: @VERSION@
+Description: Messaging Framework
+Requires: glib-2.0
+Libs: -L${libdir} -lmsg_mapi
+Cflags: -I${includedir} -I${includedir}/msg-service

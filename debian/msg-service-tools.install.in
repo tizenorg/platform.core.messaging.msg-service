@@ -1,0 +1,5 @@
+@PREFIX@/bin/*
+@PREFIX@/share/media/*
+@DATADIR@/etc/msg-service/*
+#@DATADIR@/dbspace/.msg_service.db
+#@DATADIR@/dbspace/.msg_service.db-journal

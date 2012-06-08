@@ -1,0 +1,63 @@
+ /*
+  * Copyright 2012  Samsung Electronics Co., Ltd
+  *
+  * Licensed under the Flora License, Version 1.0 (the "License");
+  * you may not use this file except in compliance with the License.
+  * You may obtain a copy of the License at
+  *
+  *    http://www.tizenopensource.org/license
+  *
+  * Unless required by applicable law or agreed to in writing, software
+  * distributed under the License is distributed on an "AS IS" BASIS,
+  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  * See the License for the specific language governing permissions and
+  * limitations under the License.
+  */
+
+
+#include "utc_msg_open_msg_handle.h"
+
+void startup(void)
+{
+}
+void cleanup(void)
+{
+}
+
+void utc_msg_open_msg_handle_001()
+{
+	MSG_ERROR_T err = MSG_SUCCESS;
+	MSG_HANDLE_T msgHandle = NULL;
+
+	err = msg_open_msg_handle(&msgHandle);
+	if (err != MSG_SUCCESS)
+	{
+		tet_printf("utc_msg_open_msg_handle_001 failed");
+		tet_result(TET_FAIL);
+	}
+	else
+	{
+		tet_printf("utc_msg_open_msg_handle_001 passed");
+		tet_result(TET_PASS);
+	}
+
+	msg_close_msg_handle(&msgHandle);
+}
+
+void utc_msg_open_msg_handle_002()
+{
+	MSG_ERROR_T err = MSG_SUCCESS;
+
+	err = msg_open_msg_handle(NULL);
+	if (err != MSG_SUCCESS)
+	{
+		tet_printf("utc_msg_open_msg_handle_001 passed");
+		tet_result(TET_PASS);
+	}
+	else
+	{
+		tet_printf("utc_msg_open_msg_handle_001 failed");
+		tet_result(TET_FAIL);
+	}
+
+}

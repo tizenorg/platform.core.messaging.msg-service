@@ -1,0 +1,8 @@
+msg-service (0.8.7-5) unstable; urgency=low
+
+  * Add #include <sys/stat.h> to support chmod related defines.
+  * Fix DRM content issue(unregistered mo content)
+  * Git : public/pkgs/m/msg-service
+  * Tag : msg-service_0.8.7-5
+
+ -- Jaeyun Jeong <jyjeong@samsung.com>  Fri, 16 Mar 2012 17:54:21 +0900

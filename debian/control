@@ -1,0 +1,44 @@
+Source: msg-service
+Section: libs
+Priority: extra
+Maintainer: Jaeyun Jeong <jyjeong@samsung.com>, Sangkoo Kim <sangkoo.kim@samsung.com>, Seunghwan Lee <sh.cat.lee@samsung.com>, SoonMin Jung <sm0415.jung@samsung.com>, Jae-Young Lee <jy4710.lee@samsung.com>, KeeBum Kim <keebum.kim@samsung.com>
+Build-Depends: debhelper (>= 5), libnetwork-dev, libslp-setting-dev, libglib2.0-dev, libslp-tapi-dev, libslp-db-util-dev, libwbxml2-dev, libxml2-dev, libmm-player-dev, dlog-dev, libcontacts-service-dev, drm-client-dev, drm-trusted-dev, libslp-pm-dev, libmm-fileinfo-dev, libdevman-haptic-dev, libalarm-dev, capi-appfw-application-dev, libmm-session-sdk-dev, libmm-session-dev, libcurl-dev, libnotification-dev, libsecurity-server-client-dev, libmm-utility-dev, libsvi-dev, libmedia-thumbnail-dev
+Standards-Version: 0.1.0
+Homepage: N/A
+
+Package: libslp-msg-service-dev
+XB-Generate-Docs: yes
+Section: libdevel
+Architecture: any
+Depends: libslp-msg-service-0 (= ${Source-Version}), libglib2.0-dev
+Description: Messaging Framework Library (development)
+
+Package: libslp-msg-service-0
+Section: libs
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Messaging Framework Library (Library)
+
+Package: msg-service-tools
+Section: utils
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, libslp-msg-service-0 (= ${Source-Version})
+Description: messaging server application
+
+Package: libslp-sms-plugin
+Section: libs
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, libslp-msg-service-0 (= ${Source-Version})
+Description: SMS Plugin Library
+
+Package: libslp-mms-plugin
+Section: libs
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, libslp-msg-service-0 (= ${Source-Version})
+Description: MMS Plugin Library
+
+Package: libslp-msg-service-0-dbg
+Section: debug
+Architecture: any
+Depends: libslp-msg-service-0 (= ${Source-Version}), msg-service-tools (= ${Source-Version}), ${shlibs:Depends}
+Description: Messaging Framework Library (unstripped)
