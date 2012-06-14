@@ -1,32 +1,18 @@
-/*
-*
-* Copyright (c) 2000-2012 Samsung Electronics Co., Ltd. All Rights Reserved.
-*
-* This file is part of msg-service.
-*
-* Contact: Jaeyun Jeong <jyjeong@samsung.com>
-*          Sangkoo Kim <sangkoo.kim@samsung.com>
-*          Seunghwan Lee <sh.cat.lee@samsung.com>
-*          SoonMin Jung <sm0415.jung@samsung.com>
-*          Jae-Young Lee <jy4710.lee@samsung.com>
-*          KeeBum Kim <keebum.kim@samsung.com>
-*
-* PROPRIETARY/CONFIDENTIAL
-*
-* This software is the confidential and proprietary information of
-* SAMSUNG ELECTRONICS ("Confidential Information"). You shall not
-* disclose such Confidential Information and shall use it only in
-* accordance with the terms of the license agreement you entered
-* into with SAMSUNG ELECTRONICS.
-*
-* SAMSUNG make no representations or warranties about the suitability
-* of the software, either express or implied, including but not limited
-* to the implied warranties of merchantability, fitness for a particular
-* purpose, or non-infringement. SAMSUNG shall not be liable for any
-* damages suffered by licensee as a result of using, modifying or
-* distributing this software or its derivatives.
-*
-*/
+ /*
+  * Copyright 2012  Samsung Electronics Co., Ltd
+  *
+  * Licensed under the Flora License, Version 1.0 (the "License");
+  * you may not use this file except in compliance with the License.
+  * You may obtain a copy of the License at
+  *
+  *    http://www.tizenopensource.org/license
+  *
+  * Unless required by applicable law or agreed to in writing, software
+  * distributed under the License is distributed on an "AS IS" BASIS,
+  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  * See the License for the specific language governing permissions and
+  * limitations under the License.
+  */
 
 #include "MsgDebug.h"
 #include "MsgCppTypes.h"
@@ -39,7 +25,7 @@
 #include "SmsPluginWapPushHandler.h"
 
 
-#include "drm-service.h"
+#include <drm_client.h>
 
 static unsigned short wapPushPortList [] = {0x0b84, 0x0b85, 0x23F0, 0x23F1, 0x23F2, 0x23F3, 0xC34F};
 
@@ -1499,25 +1485,33 @@ void SmsPluginWapPushHandler::handleCOMessage(char* pPushBody, int PushBodyLen, 
 
 void SmsPluginWapPushHandler::handleDrmVer1(char* pPushBody, int PushBodyLen)
 {
-	DRM_RESULT drmRt = DRM_RESULT_SUCCESS;
+	int drmRt = DRM_RETURN_SUCCESS;
 	char* cid = NULL;
 	AutoPtr<char> buf(&cid);
 
 	MSG_DEBUG("Received DRM RIGHTS OBJECT Type WAP Push Message.");
+	drm_request_type_e request_type = DRM_REQUEST_TYPE_REGISTER_LICENSE;
+	drm_register_lic_info_s lic_req_info;
+	drm_register_lic_resp_s lic_resp_info;
 
-	drmRt = drm_svc_register_ro( (unsigned char*)pPushBody, (unsigned int)PushBodyLen,
-									DRM_OMA_DRMV1_RIGHTS, (unsigned char**)&cid,
-									NULL,
-									DRM_ROAP_INIT_FROM_WAPPUSH,
-									NULL);
+	bzero(&lic_req_info, sizeof(drm_register_lic_info_s));
+	bzero(&lic_resp_info, sizeof(drm_register_lic_resp_s));
+	bzero(lic_req_info.lic_data, sizeof(lic_req_info.lic_data));
 
-	if (drmRt == DRM_RESULT_SUCCESS) {
+	memcpy(lic_req_info.lic_data, pPushBody, PushBodyLen);
+
+	lic_req_info.lic_version = DRM_OMA_DRMV1_RIGHTS;
+	lic_req_info.roap_init_src = DRM_ROAP_INIT_FROM_WAPPUSH;
+	lic_req_info.operation_callback.callback = NULL;
+
+	drmRt = drm_process_request(request_type, &lic_req_info, &lic_resp_info);
+	if (drmRt == DRM_RETURN_SUCCESS) {
 		MSG_DEBUG("DRM successfully registed to drm-service.");
-		return;
 	} else {
 		MSG_DEBUG("Fail to regist DRM to drm-service.");
-		return;
 	}
+
+	return;
 }
 
 

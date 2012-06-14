@@ -1,40 +1,28 @@
-/*
-*
-* Copyright (c) 2000-2012 Samsung Electronics Co., Ltd. All Rights Reserved.
-*
-* This file is part of msg-service.
-*
-* Contact: Jaeyun Jeong <jyjeong@samsung.com>
-*          Sangkoo Kim <sangkoo.kim@samsung.com>
-*          Seunghwan Lee <sh.cat.lee@samsung.com>
-*          SoonMin Jung <sm0415.jung@samsung.com>
-*          Jae-Young Lee <jy4710.lee@samsung.com>
-*          KeeBum Kim <keebum.kim@samsung.com>
-*
-* PROPRIETARY/CONFIDENTIAL
-*
-* This software is the confidential and proprietary information of
-* SAMSUNG ELECTRONICS ("Confidential Information"). You shall not
-* disclose such Confidential Information and shall use it only in
-* accordance with the terms of the license agreement you entered
-* into with SAMSUNG ELECTRONICS.
-*
-* SAMSUNG make no representations or warranties about the suitability
-* of the software, either express or implied, including but not limited
-* to the implied warranties of merchantability, fitness for a particular
-* purpose, or non-infringement. SAMSUNG shall not be liable for any
-* damages suffered by licensee as a result of using, modifying or
-* distributing this software or its derivatives.
-*
-*/
+ /*
+  * Copyright 2012  Samsung Electronics Co., Ltd
+  *
+  * Licensed under the Flora License, Version 1.0 (the "License");
+  * you may not use this file except in compliance with the License.
+  * You may obtain a copy of the License at
+  *
+  *    http://www.tizenopensource.org/license
+  *
+  * Unless required by applicable law or agreed to in writing, software
+  * distributed under the License is distributed on an "AS IS" BASIS,
+  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  * See the License for the specific language governing permissions and
+  * limitations under the License.
+  */
 
 #include <string.h>
+#include <drm_client_types.h>
+#include <drm_client.h>
 #include "MmsPluginDrm.h"
 #include "MmsPluginCodec.h"
 #include "MsgMmsTypes.h"
 #include "MsgDrmWrapper.h"
 #include "MsgDebug.h"
-#include "drm-service.h"
+
 
 #ifdef __SUPPORT_DRM__
 
@@ -78,13 +66,13 @@ bool MsgDRM2GetDRMInfo(char *szFilePath, MsgType *pMsgType)
 		return false;
 	}
 
-	char szMimeType[DRM_MAX_TYPE_LEN + 1];
-	char szContentID[DRM_MAX_CID_LEN + 1];
+	char szMimeType[DRM_MAX_LEN_MIME + 1];
+	char szContentID[DRM_MAX_LEN_CID + 1];
 	MSG_DRM_TYPE drmType = MSG_DRM_NONE;
 
 	MsgDrmGetDrmType(szFilePath, &drmType);
-	MsgDrmGetMimeTypeEx(szFilePath, szMimeType, DRM_MAX_TYPE_LEN + 1);
-	MsgDrmGetContentID(szFilePath, szContentID, DRM_MAX_CID_LEN + 1);
+	MsgDrmGetMimeTypeEx(szFilePath, szMimeType, sizeof(szMimeType));
+	MsgDrmGetContentID(szFilePath, szContentID, sizeof(szContentID));
 	MSG_DEBUG("drmType: %d", drmType);
 
 	switch (drmType) {
@@ -107,12 +95,17 @@ bool MsgDRM2GetDRMInfo(char *szFilePath, MsgType *pMsgType)
 
 		pMsgType->drmInfo.contentType = (MsgContentType)_MsgGetCode(MSG_TYPE, szMimeType);
 
-		drm_dcf_header_t dcfHdrInfo;
-		drm_svc_get_dcf_header_info(szFilePath, &dcfHdrInfo);
+		drm_content_info_s dcfHdrInfo;
+		bzero(&dcfHdrInfo, sizeof(drm_content_info_s));
+		drm_get_content_info(szFilePath, &dcfHdrInfo);
 
-		if (dcfHdrInfo.version == DRM_OMA_DRMV1_RIGHTS) {
-			pMsgType->drmInfo.szContentName = MsgRemoveQuoteFromFilename(dcfHdrInfo.headerUnion.headerV1.contentName);
-			pMsgType->drmInfo.szContentDescription = MsgStrCopy(dcfHdrInfo.headerUnion.headerV1.contentDescription);
+		drm_file_info_s fileInfo;
+		bzero(&fileInfo, sizeof(drm_file_info_s));
+		drm_get_file_info(szFilePath,&fileInfo);
+
+		if (fileInfo.oma_info.version == DRM_OMA_DRMV1_RIGHTS) {
+			pMsgType->drmInfo.szContentName = MsgRemoveQuoteFromFilename(dcfHdrInfo.title);
+			pMsgType->drmInfo.szContentDescription = MsgStrCopy(dcfHdrInfo.description);
 		}
 		break;
 

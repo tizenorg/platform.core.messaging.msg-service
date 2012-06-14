@@ -1,3 +1,18 @@
+ /*
+  * Copyright 2012  Samsung Electronics Co., Ltd
+  *
+  * Licensed under the Flora License, Version 1.0 (the "License");
+  * you may not use this file except in compliance with the License.
+  * You may obtain a copy of the License at
+  *
+  *    http://www.tizenopensource.org/license
+  *
+  * Unless required by applicable law or agreed to in writing, software
+  * distributed under the License is distributed on an "AS IS" BASIS,
+  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  * See the License for the specific language governing permissions and
+  * limitations under the License.
+  */
 /**
  *
  * @ingroup   SLP_PG
@@ -89,9 +104,9 @@ The Messaging framework supports various messaging services such as SMS, MMS, Ce
 - int msg_reg_sent_status_callback(MSG_HANDLE_T handle, msg_sent_status_cb cb);
 @n Application should implement a msg_sent_status_cb function and register it into message handle. If the application sends a message, this callback function will be called to report its sending status. msg_reg_set_status_callback function should be called after creation of message handle.
 - int msg_reg_sms_message_callback(MSG_HANDLE_T handle, msg_sms_incoming_cb cb, unsigned short port);
-@n Application should implement a msg_sms_incoming_cb function and register it into message handle. It?™s used to listen to the SMS incoming event invoked by messaging daemon. The incoming message information structure (MSG_MESSAGE_S) can be delivered as a parameter of the callback function.
+@n Application should implement a msg_sms_incoming_cb function and register it into message handle. Itâ€™s used to listen to the SMS incoming event invoked by messaging daemon. The incoming message information structure (MSG_MESSAGE_S) can be delivered as a parameter of the callback function.
 - int msg_reg_mms_conf_message_callback(MSG_HANDLE_T handle, msg_mms_conf_msg_incoming_cb cb, char *app_id);
-@n Application should implement a msg_mms_conf_msg_incoming_cb function and register it into message handle. It?™s used to listen to the MMS incoming event invoked by messaging daemon. The incoming message information structure (MSG_MESSAGE_S) can be delivered as a parameter of the callback function.
+@n Application should implement a msg_mms_conf_msg_incoming_cb function and register it into message handle. Itâ€™s used to listen to the MMS incoming event invoked by messaging daemon. The incoming message information structure (MSG_MESSAGE_S) can be delivered as a parameter of the callback function.
 @code
 #include <stdio.h>
 #include <glib.h>
@@ -240,7 +255,7 @@ free_memory:
 @n msg_set_subject() is a function to set the subject of MMS. The first parameter is the message object which is created by msg_new_message(). The second parameter is the subject you want to set. If setting is successful, the function returns MSG_SUCCESS. Otherwise it returns an error in enum type (_MSG_ERROR_E).
 
 - MMS_MESSAGE_DATA_S* msg_mms_create_message(void);
-@n msg_mms_create_message() allocates a MMS_MESSAGE_DATA_S structure and returns it?™s address. MMS_MESSAGE_DATA_S is needed to represent mms specific data and transfer it to the messaging daemon in the pData parameter of the MSG_MESSAGE_S structure.
+@n msg_mms_create_message() allocates a MMS_MESSAGE_DATA_S structure and returns itâ€™s address. MMS_MESSAGE_DATA_S is needed to represent mms specific data and transfer it to the messaging daemon in the pData parameter of the MSG_MESSAGE_S structure.
 
 - MMS_SMIL_ROOTLAYOUT* msg_mms_set_rootlayout(MMS_MESSAGE_DATA_S* msg, const int width, const int height, const int bgcolor);
 @n msg_mms_set_rootlayout() is a function to set smil root layout. The parameters representing the size and background color of smil root layout should be set.

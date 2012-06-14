@@ -79,7 +79,7 @@ INCLUDE_DIRECTORIES(
 )
 
 INCLUDE(FindPkgConfig)
-pkg_check_modules(mms_plugin_pkgs REQUIRED glib-2.0 network libxml-2.0 drm-service libcurl mm-fileinfo mmutil-jpeg vconf dlog media-thumbnail)
+pkg_check_modules(mms_plugin_pkgs REQUIRED glib-2.0 network libxml-2.0 drm-client libcurl mm-fileinfo mmutil-jpeg vconf dlog media-thumbnail)
 
 FOREACH(flag ${mms_plugin_pkgs_CFLAGS})
 	SET(EXTRA_CFLAGS "${EXTRA_CFLAGS} ${flag}")

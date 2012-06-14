@@ -39,7 +39,7 @@ INCLUDE_DIRECTORIES(
 )
 
 INCLUDE(FindPkgConfig)
-pkg_check_modules(utils_pkgs REQUIRED glib-2.0 vconf db-util contacts-service dlog pmapi mm-session alarm-service notification drm-service)
+pkg_check_modules(utils_pkgs REQUIRED glib-2.0 vconf db-util contacts-service dlog pmapi mm-session alarm-service notification drm-client drm-trusted)
 
 FOREACH(flag ${utils_pkgs_CFLAGS})
 	SET(EXTRA_CFLAGS "${EXTRA_CFLAGS} ${flag}")
