@@ -7,11 +7,12 @@ Group:          System/Libraries
 Source0:	%{name}-%{version}.tar.gz
 Source1001: packaging/msg-service.manifest 
 
-Requires(post): /usr/bin/sqlite3
 Requires(post): /usr/bin/vconftool
 Requires(post): /sbin/ldconfig
 Requires(postun): /sbin/ldconfig
+
 BuildRequires: cmake
+
 BuildRequires: pkgconfig(alarm-service)
 BuildRequires: pkgconfig(contacts-service)
 BuildRequires: pkgconfig(db-util)
@@ -33,6 +34,7 @@ BuildRequires: pkgconfig(mmutil-imgp)
 BuildRequires: pkgconfig(mmutil-jpeg)
 BuildRequires: pkgconfig(security-server)
 BuildRequires: pkgconfig(sensor)
+BuildRequires: pkgconfig(sqlite3)
 BuildRequires: pkgconfig(svi)
 BuildRequires: pkgconfig(tapi)
 BuildRequires: pkgconfig(vconf)
@@ -57,7 +59,6 @@ License:        Samsung Proprietary
 Summary:        Messaging server application
 Requires:       %{name} = %{version}-%{release}
 Group:          TO_BU / FILL_IN
-Requires(post): /usr/bin/sqlite3
 Requires(post): /usr/bin/vconftool
 Requires(post): /sbin/ldconfig
 Requires(postun): /sbin/ldconfig
@@ -107,20 +108,12 @@ ln -s %{_sysconfdir}/rc.d/init.d/msg-server  %{buildroot}%{_sysconfdir}/rc.d/rc3
 mkdir -p  %{buildroot}%{_sysconfdir}/rc.d/rc5.d
 ln -s %{_sysconfdir}/rc.d/init.d/msg-server  %{buildroot}%{_sysconfdir}/rc.d/rc5.d/S70msg-server
 
-
-
 mkdir -p %{buildroot}/opt/data/msg-service
 
-%post tools -p /sbin/ldconfig
-%post -n sms-plugin -p /sbin/ldconfig
-%post -n mms-plugin -p /sbin/ldconfig
-
-%post 
-/sbin/ldconfig
-
-if [ ! -f /opt/dbspace/.msg_service.db ]
+if [ ! -f %{buildroot}/opt/dbspace/.msg_service.db ]
 then
-        sqlite3 /opt/dbspace/.msg_service.db "PRAGMA journal_mode = PERSIST;
+        mkdir -p %{buildroot}/opt/dbspace/
+        sqlite3 %{buildroot}/opt/dbspace/.msg_service.db "PRAGMA journal_mode = PERSIST;
 
         CREATE TABLE MSG_ADDRESS_TABLE(ADDRESS_ID INTEGER PRIMARY KEY, ADDRESS_TYPE INTEGER, RECIPIENT_TYPE INTEGER, ADDRESS_VAL TEXT, CONTACT_ID INTEGER, DISPLAY_NAME TEXT, FIRST_NAME TEXT, LAST_NAME TEXT, IMAGE_PATH TEXT, SYNC_TIME DATETIME, UNREAD_CNT INTEGER DEFAULT 0, SMS_CNT INTEGER DEFAULT 0, MMS_CNT INTEGER DEFAULT 0, MAIN_TYPE INTEGER NOT NULL, SUB_TYPE INTEGER NOT NULL, MSG_DIRECTION INTEGER NOT NULL, MSG_TIME DATETIME, MSG_TEXT TEXT);
         CREATE TABLE MSG_FOLDER_TABLE(FOLDER_ID INTEGER PRIMARY KEY, FOLDER_NAME TEXT NOT NULL, FOLDER_TYPE INTEGER DEFAULT 0);
@@ -151,13 +144,12 @@ then
         INSERT INTO MSG_ADDRESS_TABLE VALUES (0, 0, 0, '', 0, '', '', '', '', 0, 0, 0, 0, 0, 0, 0, 0, '');"
 fi
 
-chown :6011 /opt/dbspace/.msg_service.db
-chown :6011 /opt/dbspace/.msg_service.db-journal
+%post tools -p /sbin/ldconfig
+%post -n sms-plugin -p /sbin/ldconfig
+%post -n mms-plugin -p /sbin/ldconfig
 
-
-chmod 660 /opt/dbspace/.msg_service.db
-chmod 660 /opt/dbspace/.msg_service.db-journal
-
+%post 
+/sbin/ldconfig
 
 ########## Setting Config Value ##########
 # General Options
@@ -276,6 +268,8 @@ vconftool set -t int db/msg/recv_mms 0 -u 0
 %{_sysconfdir}/rc.d/init.d/msg-server
 %{_sysconfdir}/rc.d/rc3.d/S70msg-server
 %{_sysconfdir}/rc.d/rc5.d/S70msg-server
+%config(noreplace) %attr(0660,-,db_msg_service) /opt/dbspace/.msg_service.db
+%config(noreplace) %attr(0660,-,db_msg_service) /opt/dbspace/.msg_service.db-journal
 
 %files devel
 %manifest msg-service.manifest
@@ -283,7 +277,6 @@ vconftool set -t int db/msg/recv_mms 0 -u 0
 %{_libdir}/libmsg_mapi.so
 %{_libdir}/pkgconfig/msg-service.pc
 %{_includedir}/msg-service/*
-
 
 %files tools
 %manifest msg-service.manifest
