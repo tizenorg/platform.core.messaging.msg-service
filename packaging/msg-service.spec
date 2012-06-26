@@ -5,11 +5,14 @@ License:        Samsung
 Summary:        Messaging Framework Library
 Group:          System/Libraries
 Source0:        %{name}-%{version}.tar.gz
+Source101:      msg-service.service
 
 Requires(post): /usr/bin/sqlite3
 Requires(post): /usr/bin/vconftool
 Requires(post): /sbin/ldconfig
 Requires(postun): /sbin/ldconfig
+Requires(post): systemd
+Requires(postun): systemd
 BuildRequires: cmake
 BuildRequires: pkgconfig(alarm-service)
 BuildRequires: pkgconfig(aul)
@@ -102,12 +105,14 @@ make %{?jobs:-j%jobs}
 rm -rf %{buildroot}
 %make_install
 
+mkdir -p %{buildroot}%{_libdir}/systemd/user/tizen-middleware.target.wants
+install -m 0644 %SOURCE101 %{buildroot}%{_libdir}/systemd/user/
+ln -s ../msg-service.service %{buildroot}%{_libdir}/systemd/user/tizen-middleware.target.wants/msg-service.service
+
 mkdir -p  %{buildroot}%{_sysconfdir}/rc.d/rc3.d
 ln -s %{_sysconfdir}/rc.d/init.d/msg-server  %{buildroot}%{_sysconfdir}/rc.d/rc3.d/S70msg-server
 mkdir -p  %{buildroot}%{_sysconfdir}/rc.d/rc5.d
 ln -s %{_sysconfdir}/rc.d/init.d/msg-server  %{buildroot}%{_sysconfdir}/rc.d/rc5.d/S70msg-server
-
-
 
 mkdir -p %{buildroot}/opt/data/msg-service
 
@@ -120,6 +125,7 @@ mkdir -p %{buildroot}/opt/data/msg-service
 
 if [ ! -f /opt/dbspace/.msg_service.db ]
 then
+    mkdir -p %{buildroot}/opt/dbspace/
     sqlite3 /opt/dbspace/.msg_service.db "PRAGMA journal_mode = PERSIST;
 
     CREATE TABLE MSG_CONVERSATION_TABLE ( CONV_ID INTEGER NOT NULL , UNREAD_CNT INTEGER DEFAULT 0 , SMS_CNT INTEGER DEFAULT 0 , MMS_CNT INTEGER DEFAULT 0 , MAIN_TYPE INTEGER NOT NULL , SUB_TYPE INTEGER NOT NULL , MSG_DIRECTION INTEGER NOT NULL , DISPLAY_TIME INTEGER , DISPLAY_NAME TEXT , MSG_TEXT TEXT );
@@ -151,10 +157,8 @@ fi
 chown :6011 /opt/dbspace/.msg_service.db
 chown :6011 /opt/dbspace/.msg_service.db-journal
 
-
 chmod 660 /opt/dbspace/.msg_service.db
 chmod 660 /opt/dbspace/.msg_service.db-journal
-
 
 ########## Setting Config Value (Internal keys) ##########
 # Message Server Status
@@ -282,6 +286,12 @@ vconftool set -t int memory/private/msg-service/sim_changed 0 -i
 vconftool set -t string memory/private/msg-service/sim_imsi "" -i
 vconftool set -t bool memory/private/msg-service/national_sim 0 -i
 
+/sbin/ldconfig
+/bin/systemctl daemon-reload
+if [ "$1" = "1" ]; then
+    systemctl stop msg-service.service
+fi
+
 %postun -p /sbin/ldconfig
 
 %postun tools -p /sbin/ldconfig
@@ -313,6 +323,8 @@ vconftool set -t bool memory/private/msg-service/national_sim 0 -i
 %{_bindir}/msg-server
 %{_datadir}/media/Sherbet.wav
 %attr(0644,root,root)/usr/share/msg-service/plugin.cfg
+%{_libdir}/systemd/user/msg-service.service
+%{_libdir}/systemd/user/tizen-middleware.target.wants/msg-service.service
 
 %files -n sms-plugin
 %defattr(-,root,root,-)
