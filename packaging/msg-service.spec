@@ -5,7 +5,8 @@ License:        Samsung Proprietary
 Summary:        Messaging Framework Library 
 Group:          System/Libraries
 Source0:	%{name}-%{version}.tar.gz
-Source1001: packaging/msg-service.manifest 
+Source101:      msg-service.service
+Source1001:     msg-service.manifest 
 
 Requires(post): /usr/bin/vconftool
 Requires(post): /sbin/ldconfig
@@ -143,6 +144,11 @@ then
 
         INSERT INTO MSG_ADDRESS_TABLE VALUES (0, 0, 0, '', 0, '', '', '', '', 0, 0, 0, 0, 0, 0, 0, 0, '');"
 fi
+
+mkdir -p %{buildroot}%{_libdir}/systemd/user/tizen-middleware.target.wants
+install -m 0644 %SOURCE101 %{buildroot}%{_libdir}/systemd/user/
+ln -s ../msg-service.service %{buildroot}%{_libdir}/systemd/user/tizen-middleware.target.wants/msg-service.service
+
 
 %post tools -p /sbin/ldconfig
 %post -n sms-plugin -p /sbin/ldconfig
@@ -293,6 +299,8 @@ vconftool set -t int db/msg/recv_mms 0 -u 0
 %attr(0644,root,root)/opt/etc/msg-service/A.smi
 %attr(0644,root,root)/opt/etc/msg-service/V091120_104905.3gp
 %attr(0644,root,root)/opt/etc/msg-service/alert_on_call.mp3
+%{_libdir}/systemd/user/msg-service.service
+%{_libdir}/systemd/user/tizen-middleware.target.wants/msg-service.service
 
 %files -n sms-plugin
 %manifest msg-service.manifest
