@@ -1,3 +1,6 @@
+* Mon Jul 02 2012 Patrick McCarty <patrick.mccarty@linux.intel.com> 8c081fb
+- Add a tag to trigger OBS submission
+
 * Tue Jun 26 2012 William Douglas <william.douglas@intel.com> 366ffb6
 - add systemd unit files
 
