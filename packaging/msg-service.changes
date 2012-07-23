@@ -1,3 +1,6 @@
+* Mon Jul 23 2012 Patrick McCarty <patrick.mccarty@linux.intel.com> 884bd67
+- Add missing BuildRequires for drm-client/drm-trusted
+
 * Mon Jul 02 2012 Patrick McCarty <patrick.mccarty@linux.intel.com> 8c081fb
 - Add a tag to trigger OBS submission
 
