@@ -1,7 +1,7 @@
 Name:           msg-service
 Version:        0.8.7
 Release:        5
-License:        Samsung Proprietary
+License:        Flora Software License
 Summary:        Messaging Framework Library 
 Group:          System/Libraries
 Source0:	%{name}-%{version}.tar.gz
@@ -48,7 +48,7 @@ Description: Messaging Framework Library
 
 
 %package devel
-License:        Samsung Proprietary
+License:        Flora Software License
 Summary:        Messaging Framework Library (development)
 Requires:       %{name} = %{version}-%{release}
 Group:          Development/Libraries
@@ -58,7 +58,7 @@ Description: Messaging Framework Library (development)
 
 
 %package tools
-License:        Samsung Proprietary
+License:        Flora Software License
 Summary:        Messaging server application
 Requires:       %{name} = %{version}-%{release}
 Group:          TO_BU / FILL_IN
@@ -71,7 +71,7 @@ Description:  Messaging server application
 
 
 %package -n sms-plugin
-License:        Samsung Proprietary
+License:        Flora Software License
 Summary:        SMS plugin library 
 Requires:       %{name} = %{version}-%{release}
 Group:          System/Libraries
@@ -82,7 +82,7 @@ Requires(postun): /sbin/ldconfig
 Description: SMS plugin library  
 
 %package -n mms-plugin
-License:        Samsung Proprietary
+License:        Flora Software License
 Summary:        MMS plugin library 
 Requires:       %{name} = %{version}-%{release}
 Group:          System/Libraries
