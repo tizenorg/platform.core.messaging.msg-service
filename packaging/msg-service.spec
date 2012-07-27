@@ -162,7 +162,7 @@ chmod 660 /opt/dbspace/.msg_service.db-journal
 
 ########## Setting Config Value (Internal keys) ##########
 # Message Server Status
-vconftool set -t bool memory/msg/ready 0 -i
+vconftool set -t bool memory/msg/ready 0 -i -g 5000
 
 # SMS Send Options
 vconftool set -t int db/msg/network_mode 2
