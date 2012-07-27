@@ -255,6 +255,9 @@ vconftool set -t int db/badge/org.tizen.message 0
 vconftool set -t int db/msg/recv_sms 0 -u 0
 vconftool set -t int db/msg/recv_mms 0 -u 0
 
+# Message server state
+vconftool set -t bool memory/msg/ready 0 -i -g 5000
+
 %postun -p /sbin/ldconfig
 
 %postun tools -p /sbin/ldconfig

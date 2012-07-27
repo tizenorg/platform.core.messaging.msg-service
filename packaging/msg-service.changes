@@ -1,3 +1,6 @@
+* Fri Jul 27 2012 Patrick McCarty <patrick.mccarty@linux.intel.com> 2043b13
+- Set memory/msg/ready in %post to fix msg-server state detection
+
 * Mon Jul 23 2012 Patrick McCarty <patrick.mccarty@linux.intel.com> 884bd67
 - Add missing BuildRequires for drm-client/drm-trusted
 
