@@ -74,3 +74,4 @@ INSTALL(FILES ${CMAKE_BINARY_DIR}/msg-service.pc DESTINATION lib/pkgconfig)
 SET(RC_LOCAL_SCRIPT msg-server)
 INSTALL(PROGRAMS ${RC_LOCAL_SCRIPT} DESTINATION /etc/rc.d/init.d)
 
+INSTALL(FILES ${CMAKE_CURRENT_SOURCE_DIR}/config/msg-service.conf DESTINATION /etc/dbus-1/system.d)

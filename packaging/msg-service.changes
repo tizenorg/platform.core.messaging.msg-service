@@ -1,3 +1,6 @@
+* Fri Aug 10 2012 Patrick McCarty <patrick.mccarty@linux.intel.com> 3165698
+- Add a dbus config for msg-service
+
 * Fri Jul 27 2012 Patrick McCarty <patrick.mccarty@linux.intel.com> 2043b13
 - Set memory/msg/ready in %post to fix msg-server state detection
 

@@ -276,6 +276,7 @@ vconftool set -t bool memory/msg/ready 0 -i -g 5000
 %{_libdir}/libmsg_transaction_manager.so
 %{_libdir}/libmsg_utils.so
 %{_libdir}/libmsg_transaction_proxy.so
+%config %{_sysconfdir}/dbus-1/system.d/msg-service.conf
 %{_sysconfdir}/rc.d/init.d/msg-server
 %{_sysconfdir}/rc.d/rc3.d/S70msg-server
 %{_sysconfdir}/rc.d/rc5.d/S70msg-server
