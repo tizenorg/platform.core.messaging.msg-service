@@ -159,6 +159,8 @@ chown :6011 /opt/dbspace/.msg_service.db-journal
 
 chmod 660 /opt/dbspace/.msg_service.db
 chmod 660 /opt/dbspace/.msg_service.db-journal
+mkdir -p /opt/data/msg-service
+chgrp db_msg_service /opt/data/msg-service
 
 ########## Setting Config Value (Internal keys) ##########
 # Message Server Status
@@ -300,7 +302,7 @@ fi
 
 %files
 %defattr(-,root,root,-)
-%dir /opt/data/msg-service
+%dir %attr(775,root,db_msg_service) /opt/data/msg-service
 %{_libdir}/libmsg_plugin_manager.so
 %{_libdir}/libmsg_mapi.so.*
 %{_libdir}/libmsg_framework_handler.so
