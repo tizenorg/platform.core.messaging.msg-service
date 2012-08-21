@@ -15,11 +15,13 @@ SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_C_FLAGS} ${EXTRA_CFLAGS} -O0 -g -Wall")
 ##########################################################
 
 SET(MSG-HELPER-SRCS
+	${CMAKE_SOURCE_DIR}/msg_helper/MsgSensorWrapper.cpp
 	${CMAKE_SOURCE_DIR}/msg_helper/MsgSoundPlayer.cpp
 	${CMAKE_SOURCE_DIR}/msg_helper/main.cpp
 )
 
 INCLUDE_DIRECTORIES(
+    ${CMAKE_SOURCE_DIR}/include/mapi
 	${CMAKE_SOURCE_DIR}/include/common
 	${CMAKE_SOURCE_DIR}/include/framework
 	${CMAKE_SOURCE_DIR}/include/msg_helper
@@ -27,7 +29,7 @@ INCLUDE_DIRECTORIES(
 )
 
 INCLUDE(FindPkgConfig)
-pkg_check_modules(msg_helper_pkgs REQUIRED glib-2.0 dlog vconf devman_haptic mm-player mm-fileinfo mm-player svi)
+pkg_check_modules(msg_helper_pkgs REQUIRED glib-2.0 dlog vconf devman_haptic mm-player mm-fileinfo mm-player svi sensor)
 
 FOREACH(flag ${msg_helper_pkgs_CFLAGS})
 	SET(EXTRA_CFLAGS "${EXTRA_CFLAGS} ${flag}")

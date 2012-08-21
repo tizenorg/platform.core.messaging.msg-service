@@ -1,18 +1,18 @@
- /*
-  * Copyright 2012  Samsung Electronics Co., Ltd
-  *
-  * Licensed under the Flora License, Version 1.0 (the "License");
-  * you may not use this file except in compliance with the License.
-  * You may obtain a copy of the License at
-  *
-  *    http://www.tizenopensource.org/license
-  *
-  * Unless required by applicable law or agreed to in writing, software
-  * distributed under the License is distributed on an "AS IS" BASIS,
-  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  * See the License for the specific language governing permissions and
-  * limitations under the License.
-  */
+/*
+* Copyright 2012  Samsung Electronics Co., Ltd
+*
+* Licensed under the Flora License, Version 1.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*    http://www.tizenopensource.org/license
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
 
 #include <errno.h>
 
@@ -20,17 +20,19 @@
 #include "MsgException.h"
 #include "MsgGconfWrapper.h"
 #include "SmsPluginParamCodec.h"
+#include "SmsPluginCallback.h"
 #include "SmsPluginSetting.h"
 
 
 extern "C"
 {
-#ifndef _TAPI_NETTEXT_H_
-	#include "ITapiNetText.h"
-	#include "ITapiSim.h"
-#endif
+	#include <tapi_common.h>
+	#include <TelSms.h>
+	#include <TapiUtility.h>
+	#include <ITapiNetText.h>
 }
 
+extern struct tapi_handle *pTapiHandle;
 
 /*==================================================================================================
                                      IMPLEMENTATION OF SmsPluginSetting - Member Functions
@@ -70,7 +72,7 @@ void SmsPluginSetting::initConfigData(MSG_SIM_STATUS_T SimStatus)
 {
 	MSG_BEGIN();
 
-	MSG_ERROR_T	err = MSG_SUCCESS;
+	msg_error_t	err = MSG_SUCCESS;
 
 	// Init SMS Parameter
 	int paramCnt = 0;
@@ -199,9 +201,9 @@ void SmsPluginSetting::getConfigData(MSG_SETTING_S *pSetting)
 }
 
 
-MSG_ERROR_T SmsPluginSetting::addSMSCList(MSG_SMSC_LIST_S *pSmscList)
+msg_error_t SmsPluginSetting::addSMSCList(MSG_SMSC_LIST_S *pSmscList)
 {
-	MSG_ERROR_T err = MSG_SUCCESS;
+	msg_error_t err = MSG_SUCCESS;
 
 	MSG_DEBUG("total_count[%d]", pSmscList->totalCnt);
 	MSG_DEBUG("selected index[%d]", pSmscList->selected);
@@ -286,9 +288,9 @@ MSG_ERROR_T SmsPluginSetting::addSMSCList(MSG_SMSC_LIST_S *pSmscList)
 }
 
 
-MSG_ERROR_T SmsPluginSetting::addCbOpt(MSG_CBMSG_OPT_S *pCbOpt)
+msg_error_t SmsPluginSetting::addCbOpt(MSG_CBMSG_OPT_S *pCbOpt)
 {
-	MSG_ERROR_T err = MSG_SUCCESS;
+	msg_error_t err = MSG_SUCCESS;
 
 	MSG_DEBUG("Receive [%d], All Channel [%d], Max SIM Count [%d]", pCbOpt->bReceive, pCbOpt->bAllChannel, pCbOpt->maxSimCnt);
 
@@ -470,7 +472,7 @@ void SmsPluginSetting::setParamList(const MSG_SMSC_LIST_S *pSMSCList)
 		smsParam.ParamIndicator = ~(smsParam.ParamIndicator);
 		MSG_DEBUG("ParamIndicator = [%02x]", smsParam.ParamIndicator);
 
-		ret = tel_set_sms_parameters((const TelSmsParams_t*)&smsParam, &reqId);
+		ret = tel_set_sms_parameters(pTapiHandle, (const TelSmsParams_t*)&smsParam, TapiEventSetConfigData, NULL);
 
 		if (ret != TAPI_API_SUCCESS)
 			THROW(MsgException::SMS_PLG_ERROR, "tel_set_sms_parameters() Error. [%d]", ret);
@@ -500,7 +502,7 @@ void SmsPluginSetting::getParamList(MSG_SMSC_LIST_S *pSMSCList)
 
 	for (int index = 0; index < paramCnt; index++)
 	{
-		ret = tel_get_sms_parameters(index, &reqId);
+		ret = tel_get_sms_parameters(pTapiHandle, index, TapiEventGetParam, NULL);
 
 		if (ret == TAPI_API_SUCCESS)
 		{
@@ -546,7 +548,7 @@ int SmsPluginSetting::getParamCount()
 
 	int ret = TAPI_API_SUCCESS;
 
-	ret = tel_get_sms_parameter_count(&reqId);
+	ret = tel_get_sms_parameter_count(pTapiHandle, TapiEventGetParamCnt, NULL);
 
 	if (ret == TAPI_API_SUCCESS)
 	{
@@ -567,7 +569,7 @@ bool SmsPluginSetting::getParam(int Index, MSG_SMSC_DATA_S *pSmscData)
 
 	int ret = TAPI_API_SUCCESS;
 
-	ret = tel_get_sms_parameters(Index, &reqId);
+	ret = tel_get_sms_parameters(pTapiHandle, Index, TapiEventGetParam, NULL);
 
 	if (ret == TAPI_API_SUCCESS)
 	{
@@ -615,7 +617,7 @@ bool SmsPluginSetting::setCbConfig(const MSG_CBMSG_OPT_S *pCbOpt)
 		cbConfig.MsgIDs[i] = (unsigned short)pCbOpt->channelData.channelInfo[i].id;
 	}
 
-	ret = tel_set_sms_cb_config(&cbConfig, &reqId);
+	ret = tel_set_sms_cb_config(pTapiHandle, &cbConfig, TapiEventSetConfigData, NULL);
 
 	if (ret == TAPI_API_SUCCESS)
 	{
@@ -647,7 +649,7 @@ bool SmsPluginSetting::getCbConfig(MSG_CBMSG_OPT_S *pCbOpt)
 
 	int ret = TAPI_API_SUCCESS;
 
-	ret = tel_get_sms_cb_config(&reqId);
+	ret = tel_get_sms_cb_config(pTapiHandle, TapiEventGetCBConfig, NULL);
 
 	if (ret == TAPI_API_SUCCESS)
 	{
@@ -870,4 +872,3 @@ SMS_PID_T SmsPluginSetting::convertPid(MSG_SMS_PID_T pid)
 
 	return retPid;
 }
-

@@ -1,18 +1,18 @@
- /*
-  * Copyright 2012  Samsung Electronics Co., Ltd
-  *
-  * Licensed under the Flora License, Version 1.0 (the "License");
-  * you may not use this file except in compliance with the License.
-  * You may obtain a copy of the License at
-  *
-  *    http://www.tizenopensource.org/license
-  *
-  * Unless required by applicable law or agreed to in writing, software
-  * distributed under the License is distributed on an "AS IS" BASIS,
-  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  * See the License for the specific language governing permissions and
-  * limitations under the License.
-  */
+/*
+* Copyright 2012  Samsung Electronics Co., Ltd
+*
+* Licensed under the Flora License, Version 1.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*    http://www.tizenopensource.org/license
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
 
 #include <errno.h>
 
@@ -37,6 +37,7 @@ SmsPluginStorage* SmsPluginStorage::pInstance = NULL;
 
 SmsPluginStorage::SmsPluginStorage()
 {
+
 }
 
 
@@ -59,7 +60,7 @@ SmsPluginStorage* SmsPluginStorage::instance()
 }
 
 
-MSG_ERROR_T SmsPluginStorage::updateSentMsg(MSG_MESSAGE_INFO_S *pMsgInfo, MSG_NETWORK_STATUS_T Status)
+msg_error_t SmsPluginStorage::updateSentMsg(MSG_MESSAGE_INFO_S *pMsgInfo, msg_network_status_t status)
 {
 	MSG_BEGIN();
 
@@ -67,20 +68,25 @@ MSG_ERROR_T SmsPluginStorage::updateSentMsg(MSG_MESSAGE_INFO_S *pMsgInfo, MSG_NE
 
 	memset(sqlQuery, 0x00, sizeof(sqlQuery));
 
-	MSG_DEBUG("Update Msg ID : [%d], Network Status : [%d] ", pMsgInfo->msgId, Status);
+	MSG_DEBUG("Update Msg ID : [%d], Network Status : [%d] ", pMsgInfo->msgId, status);
 
 	/** Move Msg to SENTBOX */
-	if (Status == MSG_NETWORK_SEND_SUCCESS) {
+	if (status == MSG_NETWORK_SEND_SUCCESS) {
 		snprintf(sqlQuery, sizeof(sqlQuery), "UPDATE %s SET NETWORK_STATUS = %d, FOLDER_ID = %d WHERE MSG_ID = %d;",
-					MSGFW_MESSAGE_TABLE_NAME, Status, MSG_SENTBOX_ID, pMsgInfo->msgId);
+					MSGFW_MESSAGE_TABLE_NAME, status, MSG_SENTBOX_ID, pMsgInfo->msgId);
 	} else {
 		snprintf(sqlQuery, sizeof(sqlQuery), "UPDATE %s SET NETWORK_STATUS = %d WHERE MSG_ID = %d;",
-					MSGFW_MESSAGE_TABLE_NAME, Status, pMsgInfo->msgId);
+					MSGFW_MESSAGE_TABLE_NAME, status, pMsgInfo->msgId);
 	}
 
 	if (dbHandle.execQuery(sqlQuery) != MSG_SUCCESS) {
 		MSG_DEBUG("MsgExecQuery() : [%s]", sqlQuery);
 		return MSG_ERR_DB_EXEC;
+	}
+
+	if (status == MSG_NETWORK_SEND_SUCCESS) {
+		MSG_DEBUG("MsgAddPhoneLog() : folderId [%d]", pMsgInfo->folderId);
+		MsgAddPhoneLog(pMsgInfo);
 	}
 
 	MSG_END();
@@ -89,19 +95,19 @@ MSG_ERROR_T SmsPluginStorage::updateSentMsg(MSG_MESSAGE_INFO_S *pMsgInfo, MSG_NE
 }
 
 
-MSG_ERROR_T SmsPluginStorage::addSimMessage(MSG_MESSAGE_INFO_S *pSimMsgInfo)
+msg_error_t SmsPluginStorage::addSimMessage(MSG_MESSAGE_INFO_S *pSimMsgInfo)
 {
-	MSG_ERROR_T err = MSG_SUCCESS;
+	msg_error_t err = MSG_SUCCESS;
 
-	unsigned int msgId = 0;
-	unsigned int addrId = 0;
+	msg_message_id_t msgId = 0;
+	msg_thread_id_t convId = 0;
 	unsigned int simId = 0;
 
 	char sqlQuery[MAX_QUERY_LEN+1];
 
 	dbHandle.beginTrans();
 
-	err = MsgStoAddAddress(&dbHandle, &(pSimMsgInfo->addressList[0]), &addrId);
+	err = MsgStoAddAddress(&dbHandle, pSimMsgInfo, &convId);
 
 	if (err != MSG_SUCCESS) {
 		dbHandle.endTrans(false);
@@ -116,7 +122,7 @@ MSG_ERROR_T SmsPluginStorage::addSimMessage(MSG_MESSAGE_INFO_S *pSimMsgInfo)
 	}
 
 	simId = pSimMsgInfo->msgId;
-	pSimMsgInfo->msgId = (MSG_MESSAGE_ID_T)msgId;
+	pSimMsgInfo->msgId = msgId;
 
 	SMS_CONCAT_SIM_MSG_S concatSimMsg = {0};
 
@@ -145,11 +151,11 @@ MSG_ERROR_T SmsPluginStorage::addSimMessage(MSG_MESSAGE_INFO_S *pSimMsgInfo)
 	/**  Add Message */
 	memset(sqlQuery, 0x00, sizeof(sqlQuery));
 
-	snprintf(sqlQuery, sizeof(sqlQuery), "INSERT INTO %s VALUES (%d, %d, %d, %d, %d, %d, %d, %ld, %d, %d, %d, %d, %d, %d, %ld, %d, ?, '', '', ?, %d, 0, %d, 0, 0);",
-				MSGFW_MESSAGE_TABLE_NAME, msgId, addrId, pSimMsgInfo->folderId, 0, pSimMsgInfo->storageId,
-				pSimMsgInfo->msgType.mainType, pSimMsgInfo->msgType.subType, pSimMsgInfo->displayTime, pSimMsgInfo->dataSize,
-				pSimMsgInfo->networkStatus, pSimMsgInfo->bRead, pSimMsgInfo->bProtected, pSimMsgInfo->priority,
-				pSimMsgInfo->direction, pSimMsgInfo->scheduledTime, pSimMsgInfo->bBackup, MSG_DELIVERY_REPORT_NONE, MSG_READ_REPORT_NONE);
+	snprintf(sqlQuery, sizeof(sqlQuery), "INSERT INTO %s VALUES (%d, %d, %d, %d, %d, %d, %ld, %d, %d, %d, %d, %d, %d, %ld, %d, ?, '', '', ?, %d, 0, %d, 0, 0);",
+			MSGFW_MESSAGE_TABLE_NAME, msgId, convId, pSimMsgInfo->folderId, pSimMsgInfo->storageId,
+			pSimMsgInfo->msgType.mainType, pSimMsgInfo->msgType.subType, pSimMsgInfo->displayTime, pSimMsgInfo->dataSize,
+			pSimMsgInfo->networkStatus, pSimMsgInfo->bRead, pSimMsgInfo->bProtected, pSimMsgInfo->priority,
+			pSimMsgInfo->direction, 0, pSimMsgInfo->bBackup, MSG_DELIVERY_REPORT_NONE, MSG_READ_REPORT_NONE);
 
 	MSG_DEBUG("QUERY : %s", sqlQuery);
 
@@ -180,7 +186,7 @@ MSG_ERROR_T SmsPluginStorage::addSimMessage(MSG_MESSAGE_INFO_S *pSimMsgInfo)
 		for (unsigned int i = 0; i < concatSimMsg.simIdCnt; i++) {
 			memset(sqlQuery, 0x00, sizeof(sqlQuery));
 			snprintf(sqlQuery, sizeof(sqlQuery), "INSERT INTO %s VALUES (%d, %d);",
-						MSGFW_SIM_MSG_TABLE_NAME, msgId, concatSimMsg.simIdList[i]);
+					MSGFW_SIM_MSG_TABLE_NAME, msgId, concatSimMsg.simIdList[i]);
 
 			MSG_DEBUG("QUERY : %s", sqlQuery);
 
@@ -192,7 +198,7 @@ MSG_ERROR_T SmsPluginStorage::addSimMessage(MSG_MESSAGE_INFO_S *pSimMsgInfo)
 	} else {
 		memset(sqlQuery, 0x00, sizeof(sqlQuery));
 		snprintf(sqlQuery, sizeof(sqlQuery), "INSERT INTO %s VALUES (%d, %d);",
-					MSGFW_SIM_MSG_TABLE_NAME, msgId, simId);
+				MSGFW_SIM_MSG_TABLE_NAME, msgId, simId);
 
 		MSG_DEBUG("QUERY : %s", sqlQuery);
 
@@ -202,8 +208,8 @@ MSG_ERROR_T SmsPluginStorage::addSimMessage(MSG_MESSAGE_INFO_S *pSimMsgInfo)
 		}
 	}
 
-	/**  Update Address Info. */
-	if (MsgStoUpdateAddress(&dbHandle, addrId) != MSG_SUCCESS) {
+	/**  Update conversation table. */
+	if (MsgStoUpdateConversation(&dbHandle, convId) != MSG_SUCCESS) {
 		dbHandle.endTrans(false);
 		return MSG_ERR_STORAGE_ERROR;
 	}
@@ -214,11 +220,11 @@ MSG_ERROR_T SmsPluginStorage::addSimMessage(MSG_MESSAGE_INFO_S *pSimMsgInfo)
 }
 
 
-MSG_ERROR_T SmsPluginStorage::addMessage(MSG_MESSAGE_INFO_S *pMsgInfo)
+msg_error_t SmsPluginStorage::addMessage(MSG_MESSAGE_INFO_S *pMsgInfo)
 {
 	MSG_BEGIN();
 
-	MSG_ERROR_T err = MSG_SUCCESS;
+	msg_error_t err = MSG_SUCCESS;
 
 	/**  Check whether storage is full or not */
 	err = checkStorageStatus(pMsgInfo);
@@ -290,12 +296,12 @@ MSG_ERROR_T SmsPluginStorage::addMessage(MSG_MESSAGE_INFO_S *pMsgInfo)
 }
 
 
-MSG_ERROR_T SmsPluginStorage::addSmsMessage(MSG_MESSAGE_INFO_S *pMsgInfo)
+msg_error_t SmsPluginStorage::addSmsMessage(MSG_MESSAGE_INFO_S *pMsgInfo)
 {
-	MSG_ERROR_T err = MSG_SUCCESS;
+	msg_error_t err = MSG_SUCCESS;
 
 	unsigned int rowId = 0;
-	unsigned int addrId = 0;
+	msg_thread_id_t convId = 0;
 
 	char sqlQuery[MAX_QUERY_LEN+1];
 
@@ -303,26 +309,26 @@ MSG_ERROR_T SmsPluginStorage::addSmsMessage(MSG_MESSAGE_INFO_S *pMsgInfo)
 
 	if (pMsgInfo->nAddressCnt > 0) {
 
-		err = MsgStoAddAddress(&dbHandle, &(pMsgInfo->addressList[0]), &addrId);
+		err = MsgStoAddAddress(&dbHandle, pMsgInfo, &convId);
 
 		if (err != MSG_SUCCESS) {
 			dbHandle.endTrans(false);
 			return err;
 		}
 
-		pMsgInfo->addressList[0].threadId = (MSG_THREAD_ID_T)addrId;
+		pMsgInfo->threadId = convId;
 	}
 
 	/**  Add Message Table */
-	rowId = MsgStoAddMessageTable(&dbHandle, pMsgInfo, addrId);
+	rowId = MsgStoAddMessageTable(&dbHandle, pMsgInfo);
 
 	if (rowId <= 0) {
 		dbHandle.endTrans(false);
 		return MSG_ERR_DB_ROW;
 	}
 
-	/** Update Address table */
-	err = MsgStoUpdateAddress(&dbHandle, addrId);
+	/** Update conversation table */
+	err = MsgStoUpdateConversation(&dbHandle, convId);
 
 	if (err != MSG_SUCCESS) {
 		dbHandle.endTrans(false);
@@ -331,8 +337,7 @@ MSG_ERROR_T SmsPluginStorage::addSmsMessage(MSG_MESSAGE_INFO_S *pMsgInfo)
 
 	dbHandle.endTrans(true);
 
-	pMsgInfo->msgId = (MSG_MESSAGE_ID_T)rowId;
-	pMsgInfo->referenceId = (MSG_REFERENCE_ID_T)rowId;
+	pMsgInfo->msgId = (msg_message_id_t)rowId;
 
 	MSG_END();
 
@@ -340,19 +345,19 @@ MSG_ERROR_T SmsPluginStorage::addSmsMessage(MSG_MESSAGE_INFO_S *pMsgInfo)
 }
 
 
-MSG_ERROR_T SmsPluginStorage::updateSmsMessage(MSG_MESSAGE_INFO_S *pMsg)
+msg_error_t SmsPluginStorage::updateSmsMessage(MSG_MESSAGE_INFO_S *pMsg)
 {
-	MSG_ERROR_T err = MSG_SUCCESS;
+	msg_error_t err = MSG_SUCCESS;
 
 	char sqlQuery[MAX_QUERY_LEN+1];
 
-	unsigned int addrId = 0;
+	msg_thread_id_t convId = 0;
 
 	dbHandle.beginTrans();
 
 	if (pMsg->nAddressCnt > 0) {
 
-		err = MsgStoAddAddress(&dbHandle, &(pMsg->addressList[0]), &addrId);
+		err = MsgStoAddAddress(&dbHandle, pMsg, &convId);
 
 		if (err != MSG_SUCCESS) {
 			dbHandle.endTrans(false);
@@ -377,11 +382,10 @@ MSG_ERROR_T SmsPluginStorage::updateSmsMessage(MSG_MESSAGE_INFO_S *pMsg)
 	memset(sqlQuery, 0x00, sizeof(sqlQuery));
 
 	snprintf(sqlQuery, sizeof(sqlQuery), "UPDATE %s SET ADDRESS_ID = %d, FOLDER_ID = %d, STORAGE_ID = %d, MAIN_TYPE = %d, SUB_TYPE = %d, \
-									DISPLAY_TIME = %lu, DATA_SIZE = %d, NETWORK_STATUS = %d, READ_STATUS = %d, \
-									PROTECTED = %d, PRIORITY = %d, MSG_DIRECTION = %d, SCHEDULED_TIME = %lu, BACKUP = %d, SUBJECT = ?, MSG_DATA = ?, THUMB_PATH = ?, MSG_TEXT = ? \
-									WHERE MSG_ID = %d;",
-				MSGFW_MESSAGE_TABLE_NAME, addrId, pMsg->folderId, pMsg->storageId, pMsg->msgType.mainType, pMsg->msgType.subType, pMsg->displayTime, pMsg->dataSize,
-				pMsg->networkStatus, pMsg->bRead, pMsg->bProtected, pMsg->priority, pMsg->direction, pMsg->scheduledTime, pMsg->bBackup, pMsg->msgId);
+			DISPLAY_TIME = %lu, DATA_SIZE = %d, NETWORK_STATUS = %d, READ_STATUS = %d, PROTECTED = %d, PRIORITY = %d, MSG_DIRECTION = %d, \
+			BACKUP = %d, SUBJECT = ?, MSG_DATA = ?, THUMB_PATH = ?, MSG_TEXT = ? WHERE MSG_ID = %d;",
+				MSGFW_MESSAGE_TABLE_NAME, convId, pMsg->folderId, pMsg->storageId, pMsg->msgType.mainType, pMsg->msgType.subType, pMsg->displayTime, pMsg->dataSize,
+				pMsg->networkStatus, pMsg->bRead, pMsg->bProtected, pMsg->priority, pMsg->direction, pMsg->bBackup, pMsg->msgId);
 
 	if (dbHandle.prepareQuery(sqlQuery) != MSG_SUCCESS) {
 		dbHandle.endTrans(false);
@@ -408,14 +412,14 @@ MSG_ERROR_T SmsPluginStorage::updateSmsMessage(MSG_MESSAGE_INFO_S *pMsg)
 
 	dbHandle.finalizeQuery();
 
-	err = MsgStoUpdateAddress(&dbHandle, addrId);
+	err = MsgStoUpdateConversation(&dbHandle, convId);
 
 	if (err != MSG_SUCCESS) {
 		dbHandle.endTrans(false);
 		return MSG_ERR_STORAGE_ERROR;
 	}
 
-	err = MsgStoClearAddressTable(&dbHandle);
+	err = MsgStoClearConversationTable(&dbHandle);
 
 	if (err != MSG_SUCCESS) {
 		dbHandle.endTrans(false);
@@ -428,35 +432,35 @@ MSG_ERROR_T SmsPluginStorage::updateSmsMessage(MSG_MESSAGE_INFO_S *pMsg)
 }
 
 
-MSG_ERROR_T SmsPluginStorage::deleteSmsMessage(MSG_MESSAGE_ID_T MsgId)
+msg_error_t SmsPluginStorage::deleteSmsMessage(msg_message_id_t msgId)
 {
 	MSG_BEGIN();
 
-	MSG_ERROR_T err = MSG_SUCCESS;
+	msg_error_t err = MSG_SUCCESS;
 
 	char sqlQuery[MAX_QUERY_LEN+1];
 
 	 /**  Get SUB_TYPE, STORAGE_ID */
 	memset(sqlQuery, 0x00, sizeof(sqlQuery));
 	snprintf(sqlQuery, sizeof(sqlQuery), "SELECT MAIN_TYPE, SUB_TYPE, FOLDER_ID, ADDRESS_ID \
-				        FROM %s WHERE MSG_ID = %d;",
-			MSGFW_MESSAGE_TABLE_NAME, MsgId);
+			FROM %s WHERE MSG_ID = %d;",
+			MSGFW_MESSAGE_TABLE_NAME, msgId);
 
 	if (dbHandle.prepareQuery(sqlQuery) != MSG_SUCCESS)
 		return MSG_ERR_DB_PREPARE;
 
 	MSG_MESSAGE_TYPE_S msgType;
-	MSG_FOLDER_ID_T folderId;
+	msg_folder_id_t folderId;
 
-	unsigned int addrId;
+	msg_thread_id_t convId;
 
 	if (dbHandle.stepQuery() == MSG_ERR_DB_ROW) {
 		msgType.mainType = dbHandle.columnInt(0);
 		msgType.subType = dbHandle.columnInt(1);
 		folderId = dbHandle.columnInt(2);
-		addrId = dbHandle.columnInt(3);
+		convId = dbHandle.columnInt(3);
 
-		MSG_DEBUG("Main Type:[%d] SubType:[%d] FolderId:[%d] AddressId:[%d]", msgType.mainType, msgType.subType, folderId, addrId);
+		MSG_DEBUG("Main Type:[%d] SubType:[%d] FolderId:[%d] ConversationId:[%d]", msgType.mainType, msgType.subType, folderId, convId);
 	} else {
 		MSG_DEBUG("MsgStepQuery() Error [%s]", sqlQuery);
 		dbHandle.finalizeQuery();
@@ -468,16 +472,7 @@ MSG_ERROR_T SmsPluginStorage::deleteSmsMessage(MSG_MESSAGE_ID_T MsgId)
 	dbHandle.beginTrans();
 
 	memset(sqlQuery, 0x00, sizeof(sqlQuery));
-	snprintf(sqlQuery, sizeof(sqlQuery), "DELETE FROM %s WHERE MSG_ID = %d;", MSGFW_SCHEDULED_MSG_TABLE_NAME, MsgId);
-
-	/** Delete Message from scheduled msg table */
-	if (dbHandle.execQuery(sqlQuery) != MSG_SUCCESS) {
-		dbHandle.endTrans(false);
-		return MSG_ERR_DB_EXEC;
-	}
-
-	memset(sqlQuery, 0x00, sizeof(sqlQuery));
-	snprintf(sqlQuery, sizeof(sqlQuery), "DELETE FROM %s WHERE MSG_ID = %d;", MSGFW_SMS_SENDOPT_TABLE_NAME, MsgId);
+	snprintf(sqlQuery, sizeof(sqlQuery), "DELETE FROM %s WHERE MSG_ID = %d;", MSGFW_SMS_SENDOPT_TABLE_NAME, msgId);
 
 	/**  Delete SMS Send Option */
 	if (dbHandle.execQuery(sqlQuery) != MSG_SUCCESS) {
@@ -487,7 +482,7 @@ MSG_ERROR_T SmsPluginStorage::deleteSmsMessage(MSG_MESSAGE_ID_T MsgId)
 
 	if (msgType.subType == MSG_CB_SMS || msgType.subType == MSG_JAVACB_SMS) {
 		memset(sqlQuery, 0x00, sizeof(sqlQuery));
-		snprintf(sqlQuery, sizeof(sqlQuery), "DELETE FROM %s WHERE MSG_ID = %d;", MSGFW_CB_MSG_TABLE_NAME, MsgId);
+		snprintf(sqlQuery, sizeof(sqlQuery), "DELETE FROM %s WHERE MSG_ID = %d;", MSGFW_CB_MSG_TABLE_NAME, msgId);
 
 		/** Delete Push Message from push table */
 		if (dbHandle.execQuery(sqlQuery) != MSG_SUCCESS) {
@@ -496,7 +491,7 @@ MSG_ERROR_T SmsPluginStorage::deleteSmsMessage(MSG_MESSAGE_ID_T MsgId)
 		}
 	} else if (msgType.subType >= MSG_WAP_SI_SMS && msgType.subType <= MSG_WAP_CO_SMS) {
 		memset(sqlQuery, 0x00, sizeof(sqlQuery));
-		snprintf(sqlQuery, sizeof(sqlQuery), "DELETE FROM %s WHERE MSG_ID = %d;", MSGFW_PUSH_MSG_TABLE_NAME, MsgId);
+		snprintf(sqlQuery, sizeof(sqlQuery), "DELETE FROM %s WHERE MSG_ID = %d;", MSGFW_PUSH_MSG_TABLE_NAME, msgId);
 
 		/**  Delete Push Message from push table */
 		if (dbHandle.execQuery(sqlQuery) != MSG_SUCCESS) {
@@ -505,7 +500,7 @@ MSG_ERROR_T SmsPluginStorage::deleteSmsMessage(MSG_MESSAGE_ID_T MsgId)
 		}
 	} else if (msgType.subType == MSG_SYNCML_CP) {
 		memset(sqlQuery, 0x00, sizeof(sqlQuery));
-		snprintf(sqlQuery, sizeof(sqlQuery), "DELETE FROM %s WHERE MSG_ID = %d;", MSGFW_SYNCML_MSG_TABLE_NAME, MsgId);
+		snprintf(sqlQuery, sizeof(sqlQuery), "DELETE FROM %s WHERE MSG_ID = %d;", MSGFW_SYNCML_MSG_TABLE_NAME, msgId);
 
 		/**  Delete SyncML Message from syncML table */
 		if (dbHandle.execQuery(sqlQuery) != MSG_SUCCESS) {
@@ -515,7 +510,7 @@ MSG_ERROR_T SmsPluginStorage::deleteSmsMessage(MSG_MESSAGE_ID_T MsgId)
 	}
 
 	memset(sqlQuery, 0x00, sizeof(sqlQuery));
-	snprintf(sqlQuery, sizeof(sqlQuery), "DELETE FROM %s WHERE MSG_ID = %d;", MSGFW_MESSAGE_TABLE_NAME, MsgId);
+	snprintf(sqlQuery, sizeof(sqlQuery), "DELETE FROM %s WHERE MSG_ID = %d;", MSGFW_MESSAGE_TABLE_NAME, msgId);
 
 	/** Delete Message from msg table */
 	if (dbHandle.execQuery(sqlQuery) != MSG_SUCCESS) {
@@ -523,14 +518,14 @@ MSG_ERROR_T SmsPluginStorage::deleteSmsMessage(MSG_MESSAGE_ID_T MsgId)
 		return MSG_ERR_DB_EXEC;
 	}
 
-	/**  Clear Address table */
-	if (MsgStoClearAddressTable(&dbHandle) != MSG_SUCCESS) {
+	/**  Clear Conversation table */
+	if (MsgStoClearConversationTable(&dbHandle) != MSG_SUCCESS) {
 		dbHandle.endTrans(false);
 		return MSG_ERR_DB_EXEC;
 	}
 
-	/**  Update Address Info.*/
-	if (MsgStoUpdateAddress(&dbHandle, addrId) != MSG_SUCCESS) {
+	/**  Update conversation table.*/
+	if (MsgStoUpdateConversation(&dbHandle, convId) != MSG_SUCCESS) {
 		dbHandle.endTrans(false);
 		return MSG_ERR_STORAGE_ERROR;
 	}
@@ -553,35 +548,36 @@ MSG_ERROR_T SmsPluginStorage::deleteSmsMessage(MSG_MESSAGE_ID_T MsgId)
 	mmsCnt = MsgStoGetUnreadCnt(&dbHandle, MSG_MMS_TYPE);
 
 	MsgSettingHandleNewMsg(smsCnt, mmsCnt);
-	MsgDeleteNotiByMsgId(MsgId);
+	MsgDeleteNotiByMsgId(msgId);
 
 	return MSG_SUCCESS;
 }
 
 
-MSG_ERROR_T SmsPluginStorage::addCbMessage(MSG_MESSAGE_INFO_S *pMsgInfo)
+msg_error_t SmsPluginStorage::addCbMessage(MSG_MESSAGE_INFO_S *pMsgInfo)
 {
-	MSG_ERROR_T err = MSG_SUCCESS;
+	msg_error_t err = MSG_SUCCESS;
 
-	unsigned int rowId = 0, addrId = 0;
+	unsigned int rowId = 0;
+	msg_thread_id_t convId = 0;
 
 	char sqlQuery[MAX_QUERY_LEN+1];
 
 	dbHandle.beginTrans();
 
 	if (pMsgInfo->nAddressCnt > 0) {
-		err = MsgStoAddAddress(&dbHandle, &(pMsgInfo->addressList[0]), &addrId);
+		err = MsgStoAddAddress(&dbHandle, pMsgInfo, &convId);
 
 		if (err != MSG_SUCCESS) {
 			dbHandle.endTrans(false);
 			return err;
 		}
 
-		pMsgInfo->addressList[0].threadId = (MSG_THREAD_ID_T)addrId;
+		pMsgInfo->threadId = convId;
 	}
 
 	/**  Add Message Table */
-	rowId = MsgStoAddMessageTable(&dbHandle, pMsgInfo, addrId);
+	rowId = MsgStoAddMessageTable(&dbHandle, pMsgInfo);
 
 	if (rowId <= 0) {
 		dbHandle.endTrans(false);
@@ -595,15 +591,15 @@ MSG_ERROR_T SmsPluginStorage::addCbMessage(MSG_MESSAGE_INFO_S *pMsgInfo)
 	memset(sqlQuery, 0x00, sizeof(sqlQuery));
 
 	sprintf(sqlQuery, "INSERT INTO %s VALUES (%d, %d);",
-				MSGFW_CB_MSG_TABLE_NAME, rowId, cbMsgId);
+			MSGFW_CB_MSG_TABLE_NAME, rowId, cbMsgId);
 
 	if (dbHandle.execQuery(sqlQuery) != MSG_SUCCESS) {
 		dbHandle.endTrans(false);
 		return MSG_ERR_DB_EXEC;
 	}
 
-	/**  Update Address Info. */
-	if (MsgStoUpdateAddress(&dbHandle, addrId) != MSG_SUCCESS) {
+	/**  Update conversation table. */
+	if (MsgStoUpdateConversation(&dbHandle, convId) != MSG_SUCCESS) {
 		dbHandle.endTrans(false);
 		return MSG_ERR_STORAGE_ERROR;
 	}
@@ -611,30 +607,29 @@ MSG_ERROR_T SmsPluginStorage::addCbMessage(MSG_MESSAGE_INFO_S *pMsgInfo)
 	dbHandle.endTrans(true);
 
 	/** Assign Msg ID */
-	pMsgInfo->msgId = (MSG_MESSAGE_ID_T)rowId;
-	pMsgInfo->referenceId = (MSG_REFERENCE_ID_T)rowId;
+	pMsgInfo->msgId = (msg_message_id_t)rowId;
 
 	return err;
 }
 
 
-MSG_ERROR_T SmsPluginStorage::addReplaceTypeMsg(MSG_MESSAGE_INFO_S *pMsgInfo)
+msg_error_t SmsPluginStorage::addReplaceTypeMsg(MSG_MESSAGE_INFO_S *pMsgInfo)
 {
-	MSG_ERROR_T err = MSG_SUCCESS;
+	msg_error_t err = MSG_SUCCESS;
 
 	char sqlQuery[MAX_QUERY_LEN+1];
 
-	unsigned int addrId = 0, retCnt = 0;
+	unsigned int retCnt = 0;
+	msg_thread_id_t convId = 0;
 
 	/** Check if new address or not */
-	if (MsgExistAddress(&dbHandle, pMsgInfo->addressList[0].addressVal, &addrId) == true) {
-		MSG_DEBUG("Address Info. exists [%d] [%s]", addrId, pMsgInfo->addressList[0].addressVal);
+	if (MsgExistAddress(&dbHandle, pMsgInfo, &convId) == true) {
+		MSG_DEBUG("Address Info. exists [%d]", convId);
 
 		/**  Find Replace Type Msg : Same Replace Type, Same Origin Address */
 		memset(sqlQuery, 0x00, sizeof(sqlQuery));
-		snprintf(sqlQuery, sizeof(sqlQuery), "SELECT COUNT(*), A.MSG_ID FROM %s A, %s B \
-					     WHERE A.ADDRESS_ID = B.ADDRESS_ID AND A.SUB_TYPE = %d AND B.ADDRESS_ID = %d;",
-				MSGFW_MESSAGE_TABLE_NAME, MSGFW_ADDRESS_TABLE_NAME, pMsgInfo->msgType.subType, addrId);
+		snprintf(sqlQuery, sizeof(sqlQuery), "SELECT COUNT(*), MSG_ID FROM %s WHERE SUB_TYPE = %d AND B.CONV_ID = %d;",
+				MSGFW_MESSAGE_TABLE_NAME, pMsgInfo->msgType.subType, convId);
 
 		if (dbHandle.prepareQuery(sqlQuery) != MSG_SUCCESS)
 			return MSG_ERR_DB_PREPARE;
@@ -663,9 +658,9 @@ MSG_ERROR_T SmsPluginStorage::addReplaceTypeMsg(MSG_MESSAGE_INFO_S *pMsgInfo)
 }
 
 
-MSG_ERROR_T SmsPluginStorage::addWAPMessage(MSG_MESSAGE_INFO_S *pMsgInfo)
+msg_error_t SmsPluginStorage::addWAPMessage(MSG_MESSAGE_INFO_S *pMsgInfo)
 {
-	MSG_ERROR_T err = MSG_SUCCESS;
+	msg_error_t err = MSG_SUCCESS;
 
 	MSG_PUSH_MESSAGE_S pushMsg = {};
 
@@ -728,13 +723,13 @@ MSG_ERROR_T SmsPluginStorage::addWAPMessage(MSG_MESSAGE_INFO_S *pMsgInfo)
 	pMsgInfo->folderId = MSG_INBOX_ID;
 	pMsgInfo->storageId = MSG_STORAGE_PHONE;
 
-	unsigned int addrId = 0;
+	msg_thread_id_t convId = 0;
 
 	dbHandle.beginTrans();
 
 	if (pMsgInfo->nAddressCnt > 0) {
 
-		err = MsgStoAddAddress(&dbHandle, &(pMsgInfo->addressList[0]), &addrId);
+		err = MsgStoAddAddress(&dbHandle, pMsgInfo, &convId);
 
 		if (err != MSG_SUCCESS) {
 			dbHandle.endTrans(false);
@@ -746,7 +741,7 @@ MSG_ERROR_T SmsPluginStorage::addWAPMessage(MSG_MESSAGE_INFO_S *pMsgInfo)
 	unsigned int rowId = 0;
 
 	/** Add Message Table */
-	rowId = MsgStoAddMessageTable(&dbHandle, pMsgInfo, addrId);
+	rowId = MsgStoAddMessageTable(&dbHandle, pMsgInfo);
 
 	if (rowId <= 0) {
 		dbHandle.endTrans(false);
@@ -755,7 +750,7 @@ MSG_ERROR_T SmsPluginStorage::addWAPMessage(MSG_MESSAGE_INFO_S *pMsgInfo)
 
 	/**  add msg_push_table */
 	snprintf (sqlQuery, sizeof(sqlQuery), "INSERT INTO %s VALUES (%d, %d, %lu, %lu, ?, ?, ?)",
-			            MSGFW_PUSH_MSG_TABLE_NAME, pMsgInfo->msgId, pushMsg.action, pushMsg.created, pushMsg.expires);
+			MSGFW_PUSH_MSG_TABLE_NAME, pMsgInfo->msgId, pushMsg.action, pushMsg.created, pushMsg.expires);
 
 	if ((err = dbHandle.prepareQuery(sqlQuery)) != MSG_SUCCESS) {
 		dbHandle.endTrans(false);
@@ -773,24 +768,23 @@ MSG_ERROR_T SmsPluginStorage::addWAPMessage(MSG_MESSAGE_INFO_S *pMsgInfo)
 		return err;
 	}
 
-	/** Update Address Info. */
-	if (MsgStoUpdateAddress(&dbHandle, addrId) != MSG_SUCCESS) {
+	/** Update conversation table. */
+	if (MsgStoUpdateConversation(&dbHandle, convId) != MSG_SUCCESS) {
 		dbHandle.endTrans(false);
 		return MSG_ERR_STORAGE_ERROR;
 	}
 
 	dbHandle.endTrans(true);
 
-	pMsgInfo->msgId = (MSG_MESSAGE_ID_T)rowId;
-	pMsgInfo->referenceId = (MSG_REFERENCE_ID_T)rowId;
+	pMsgInfo->msgId = (msg_message_id_t)rowId;
 
 	return MSG_SUCCESS;
 }
 
 
-MSG_ERROR_T SmsPluginStorage::handleCOWAPMessage(MSG_MESSAGE_INFO_S *pMsgInfo)
+msg_error_t SmsPluginStorage::handleCOWAPMessage(MSG_MESSAGE_INFO_S *pMsgInfo)
 {
-	MSG_ERROR_T err = MSG_SUCCESS;
+	msg_error_t err = MSG_SUCCESS;
 
 	char href[MAX_PUSH_CACHEOP_MAX_URL_LEN+1];
 	char sqlQuery[MAX_QUERY_LEN+1];
@@ -815,8 +809,7 @@ MSG_ERROR_T SmsPluginStorage::handleCOWAPMessage(MSG_MESSAGE_INFO_S *pMsgInfo)
 		strncpy(href, &(pPushMsg->invalObjectUrl[i][0]), MAX_PUSH_CACHEOP_MAX_URL_LEN);
 
 		memset(sqlQuery, 0x00, sizeof(sqlQuery));
-		snprintf (sqlQuery, sizeof(sqlQuery), "SELECT MSG_ID FROM %s WHERE HREF LIKE '%%%s%%';",
-					MSGFW_PUSH_MSG_TABLE_NAME, href);
+		snprintf (sqlQuery, sizeof(sqlQuery), "SELECT MSG_ID FROM %s WHERE HREF LIKE '%%%s%%';", MSGFW_PUSH_MSG_TABLE_NAME, href);
 
 		dbHandle.beginTrans();
 
@@ -827,8 +820,7 @@ MSG_ERROR_T SmsPluginStorage::handleCOWAPMessage(MSG_MESSAGE_INFO_S *pMsgInfo)
 			msgid = dbHandle.getColumnToInt(1);
 
 			memset(sqlQuery, 0x00, sizeof(sqlQuery));
-			snprintf(sqlQuery, sizeof(sqlQuery), "DELETE FROM %s WHERE MSG_ID= %d;",
-       					MSGFW_PUSH_MSG_TABLE_NAME, msgid);
+			snprintf(sqlQuery, sizeof(sqlQuery), "DELETE FROM %s WHERE MSG_ID= %d;", MSGFW_PUSH_MSG_TABLE_NAME, msgid);
 
 			/** Delete Message from Push table */
 			if (dbHandle.execQuery(sqlQuery) != MSG_SUCCESS) {
@@ -838,8 +830,7 @@ MSG_ERROR_T SmsPluginStorage::handleCOWAPMessage(MSG_MESSAGE_INFO_S *pMsgInfo)
 			}
 
 			memset(sqlQuery, 0x00, sizeof(sqlQuery));
-			snprintf(sqlQuery, sizeof(sqlQuery), "DELETE FROM %s WHERE MSG_ID = %d;",
-						MSGFW_MESSAGE_TABLE_NAME, msgid);
+			snprintf(sqlQuery, sizeof(sqlQuery), "DELETE FROM %s WHERE MSG_ID = %d;", MSGFW_MESSAGE_TABLE_NAME, msgid);
 
 			/** Delete Message from msg table */
 			if (dbHandle.execQuery(sqlQuery) != MSG_SUCCESS) {
@@ -855,8 +846,8 @@ MSG_ERROR_T SmsPluginStorage::handleCOWAPMessage(MSG_MESSAGE_INFO_S *pMsgInfo)
 				continue;
 			}
 
-			/** Clear Address table */
-			if (MsgStoClearAddressTable(&dbHandle) != MSG_SUCCESS) {
+			/** Clear Conversation table */
+			if (MsgStoClearConversationTable(&dbHandle) != MSG_SUCCESS) {
 				dbHandle.finalizeQuery();
 				dbHandle.endTrans(false);
 				continue;
@@ -876,8 +867,7 @@ MSG_ERROR_T SmsPluginStorage::handleCOWAPMessage(MSG_MESSAGE_INFO_S *pMsgInfo)
 		strncpy(href, &(pPushMsg->invalObjectUrl[i][0]), MAX_PUSH_CACHEOP_MAX_URL_LEN);
 
 		memset(sqlQuery, 0x00, sizeof(sqlQuery));
-		snprintf(sqlQuery, sizeof(sqlQuery), "SELECT MSG_ID FROM %s WHERE HREF LIKE '%%%s%%'",
-					MSGFW_PUSH_MSG_TABLE_NAME, href);
+		snprintf(sqlQuery, sizeof(sqlQuery), "SELECT MSG_ID FROM %s WHERE HREF LIKE '%%%s%%'", MSGFW_PUSH_MSG_TABLE_NAME, href);
 
 		dbHandle.beginTrans();
 
@@ -888,8 +878,7 @@ MSG_ERROR_T SmsPluginStorage::handleCOWAPMessage(MSG_MESSAGE_INFO_S *pMsgInfo)
 			msgid = dbHandle.getColumnToInt(1);
 
 			memset(sqlQuery, 0x00, sizeof(sqlQuery));
-			sprintf(sqlQuery, "DELETE FROM %s WHERE MSG_ID='%d'",
-						MSGFW_PUSH_MSG_TABLE_NAME, msgid);
+			sprintf(sqlQuery, "DELETE FROM %s WHERE MSG_ID='%d'", MSGFW_PUSH_MSG_TABLE_NAME, msgid);
 
 			/** Delete Message from Push table */
 			if (dbHandle.execQuery(sqlQuery) != MSG_SUCCESS) {
@@ -899,8 +888,7 @@ MSG_ERROR_T SmsPluginStorage::handleCOWAPMessage(MSG_MESSAGE_INFO_S *pMsgInfo)
 			}
 
 			memset(sqlQuery, 0x00, sizeof(sqlQuery));
-			snprintf(sqlQuery, sizeof(sqlQuery), "DELETE FROM %s WHERE MSG_ID = %d;",
-						MSGFW_MESSAGE_TABLE_NAME, msgid);
+			snprintf(sqlQuery, sizeof(sqlQuery), "DELETE FROM %s WHERE MSG_ID = %d;", MSGFW_MESSAGE_TABLE_NAME, msgid);
 
 			/** Delete Message from msg table */
 			if (dbHandle.execQuery(sqlQuery) != MSG_SUCCESS) {
@@ -917,7 +905,7 @@ MSG_ERROR_T SmsPluginStorage::handleCOWAPMessage(MSG_MESSAGE_INFO_S *pMsgInfo)
 			}
 
 			/** Clear Address table */
-			if (MsgStoClearAddressTable(&dbHandle) != MSG_SUCCESS) {
+			if (MsgStoClearConversationTable(&dbHandle) != MSG_SUCCESS) {
 				dbHandle.finalizeQuery();
 				dbHandle.endTrans(false);
 				continue;
@@ -936,9 +924,9 @@ MSG_ERROR_T SmsPluginStorage::handleCOWAPMessage(MSG_MESSAGE_INFO_S *pMsgInfo)
 }
 
 
-MSG_ERROR_T SmsPluginStorage::checkPushMsgValidation(MSG_PUSH_MESSAGE_S *pPushMsg, bool *pbProceed)
+msg_error_t SmsPluginStorage::checkPushMsgValidation(MSG_PUSH_MESSAGE_S *pPushMsg, bool *pbProceed)
 {
-	MSG_ERROR_T err = MSG_SUCCESS;
+	msg_error_t err = MSG_SUCCESS;
 
 	unsigned long oldExpireTime = 0;
 	int rowCnt = 0;
@@ -956,10 +944,10 @@ MSG_ERROR_T SmsPluginStorage::checkPushMsgValidation(MSG_PUSH_MESSAGE_S *pPushMs
 	if (pPushMsg->action == MSG_PUSH_SL_ACTION_EXECUTE_LOW) {
 		memset(sqlQuery, 0x00, sizeof(sqlQuery));
 		snprintf(sqlQuery, sizeof(sqlQuery), "SELECT EXPIRES FROM %s WHERE ID = '%s' AND ACTION = %d",
-					MSGFW_PUSH_MSG_TABLE_NAME, pPushMsg->id, pPushMsg->action);
+				MSGFW_PUSH_MSG_TABLE_NAME, pPushMsg->id, pPushMsg->action);
 	} else {
 		snprintf(sqlQuery, sizeof(sqlQuery), "SELECT EXPIRES FROM %s WHERE ID = '%s'",
-					MSGFW_PUSH_MSG_TABLE_NAME, pPushMsg->id);
+				MSGFW_PUSH_MSG_TABLE_NAME, pPushMsg->id);
 	}
 
 	err = dbHandle.getTable(sqlQuery, &rowCnt);
@@ -983,9 +971,9 @@ MSG_ERROR_T SmsPluginStorage::checkPushMsgValidation(MSG_PUSH_MESSAGE_S *pPushMs
 }
 
 
-MSG_ERROR_T SmsPluginStorage::checkStorageStatus(MSG_MESSAGE_INFO_S *pMsgInfo)
+msg_error_t SmsPluginStorage::checkStorageStatus(MSG_MESSAGE_INFO_S *pMsgInfo)
 {
-	MSG_ERROR_T err = MSG_SUCCESS;
+	msg_error_t err = MSG_SUCCESS;
 
 	err = MsgStoCheckMsgCntFull(&dbHandle, &(pMsgInfo->msgType), pMsgInfo->folderId);
 
@@ -999,7 +987,7 @@ MSG_ERROR_T SmsPluginStorage::checkStorageStatus(MSG_MESSAGE_INFO_S *pMsgInfo)
 			MSG_DEBUG("bAutoErase: %d", bAutoErase);
 
 			if (bAutoErase == true) {
-				MSG_MESSAGE_ID_T msgId;
+				msg_message_id_t msgId;
 
 				/** Find the oldest message's msgId */
 				err = MsgStoGetOldestMessage(&dbHandle, pMsgInfo, &msgId);
@@ -1019,17 +1007,16 @@ MSG_ERROR_T SmsPluginStorage::checkStorageStatus(MSG_MESSAGE_INFO_S *pMsgInfo)
 }
 
 
-MSG_ERROR_T SmsPluginStorage::updateAllAddress()
+msg_error_t SmsPluginStorage::updateAllAddress()
 {
-	MSG_ERROR_T err = MSG_SUCCESS;
+	msg_error_t err = MSG_SUCCESS;
 
 	int rowCnt = 0, index = 1;
 	char sqlQuery[MAX_QUERY_LEN+1];
 
 	memset(sqlQuery, 0x00, sizeof(sqlQuery));
 
-	snprintf(sqlQuery, sizeof(sqlQuery), "SELECT ADDRESS_ID FROM %s",
-				MSGFW_ADDRESS_TABLE_NAME);
+	snprintf(sqlQuery, sizeof(sqlQuery), "SELECT ADDRESS_ID FROM %s", MSGFW_ADDRESS_TABLE_NAME);
 
 	err = dbHandle.getTable(sqlQuery, &rowCnt);
 
@@ -1044,7 +1031,7 @@ MSG_ERROR_T SmsPluginStorage::updateAllAddress()
 
 	for (int i = 0; i < rowCnt; i++) {
 
-		err = MsgStoUpdateAddress(&dbHandle, index++);
+		err = MsgStoUpdateConversation(&dbHandle, index++);
 
 		if (err != MSG_SUCCESS)
 			break;

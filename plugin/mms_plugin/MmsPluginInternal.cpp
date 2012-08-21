@@ -1,18 +1,18 @@
- /*
-  * Copyright 2012  Samsung Electronics Co., Ltd
-  *
-  * Licensed under the Flora License, Version 1.0 (the "License");
-  * you may not use this file except in compliance with the License.
-  * You may obtain a copy of the License at
-  *
-  *    http://www.tizenopensource.org/license
-  *
-  * Unless required by applicable law or agreed to in writing, software
-  * distributed under the License is distributed on an "AS IS" BASIS,
-  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  * See the License for the specific language governing permissions and
-  * limitations under the License.
-  */
+/*
+* Copyright 2012  Samsung Electronics Co., Ltd
+*
+* Licensed under the Flora License, Version 1.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*    http://www.tizenopensource.org/license
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
 
 #include <stdlib.h>
 #include <errno.h>
@@ -134,7 +134,7 @@ void MmsPluginInternal::processReceivedInd(MSG_MESSAGE_INFO_S *pMsgInfo, MSG_REQ
 bool MmsPluginInternal::processNotiInd(MSG_MESSAGE_INFO_S *pMsgInfo, MSG_REQUEST_INFO_S *pRequest)
 {
 	MSG_DEBUG("MmsProcessNotiInd");
-	MSG_ERROR_T	err = MSG_SUCCESS;
+	msg_error_t	err = MSG_SUCCESS;
 
 	MSG_MMS_HOME_RETRIEVE_TYPE_T retrieveType;
 	bool bReportAllowed;
@@ -266,14 +266,14 @@ void MmsPluginInternal::processDeliveryInd(MSG_MESSAGE_INFO_S *pMsgInfo)
 
 	MSG_DEBUG("#### mmsHeader.szMsgID = %s : when received delivery ind####", mmsHeader.szMsgID);
 
-	int tmpId = (MSG_MESSAGE_ID_T)MmsSearchMsgId(mmsHeader.pTo->szAddr, mmsHeader.szMsgID);
+	int tmpId = (msg_message_id_t)MmsSearchMsgId(mmsHeader.pTo->szAddr, mmsHeader.szMsgID);
 
 
 	MSG_DEBUG("tmpId [%d]", tmpId);
 	MSG_DEBUG("mmsHeader.pTo->szAddr [%s]", mmsHeader.pTo->szAddr);
 
 	if (tmpId > 0) {
-		pMsgInfo->msgId = (MSG_MESSAGE_ID_T)tmpId;
+		pMsgInfo->msgId = (msg_message_id_t)tmpId;
 
 		pMsg->mmsAttrib.pMultiStatus = MmsGetMultiStatus(pMsgInfo->msgId);
 
@@ -392,7 +392,7 @@ void MmsPluginInternal::processReadOrgInd(MSG_MESSAGE_INFO_S *pMsgInfo)
 		int tmpId = MmsSearchMsgId(mmsHeader.pFrom->szAddr, mmsHeader.szMsgID);
 
 		if (tmpId > 0) {
-			pMsgInfo->msgId = (MSG_MESSAGE_ID_T)tmpId;
+			pMsgInfo->msgId = (msg_message_id_t)tmpId;
 
 			pMsg->mmsAttrib.pMultiStatus = MmsGetMultiStatus(pMsgInfo->msgId);
 
@@ -484,7 +484,7 @@ void MmsPluginInternal::processSendConf(MSG_MESSAGE_INFO_S *pMsgInfo, mmsTranQEn
 {
 	MSG_BEGIN();
 
-	MSG_ERROR_T err = MSG_SUCCESS;
+	msg_error_t err = MSG_SUCCESS;
 
 	MMS_RECV_DATA_S	recvData = {{0}, };
 
@@ -546,7 +546,7 @@ void MmsPluginInternal::processRetrieveConf(MSG_MESSAGE_INFO_S *pMsgInfo, mmsTra
 	MsgType partHeader;
 	bool bMultipartRelated = false;
 
-	MSG_ERROR_T err = MSG_SUCCESS;
+	msg_error_t err = MSG_SUCCESS;
 	MMS_RECV_DATA_S recvData = {{0}, };
 
 	MmsAttrib attrib;
@@ -716,7 +716,7 @@ void MmsPluginInternal::processForwardConf(MSG_MESSAGE_INFO_S *msgInfo, mmsTranQ
  * @param	iReportAllowed [in] Specifies whether to send deliveryReport to sender or not
  * @return	This function returns true on success, or false on failure.
  */
-bool MmsPluginInternal::encodeNotifyRespInd(char *szTrID, MSG_DELIVERY_REPORT_STATUS_T iStatus, bool bReportAllowed, char *pSendFilePath)
+bool MmsPluginInternal::encodeNotifyRespInd(char *szTrID, msg_delivery_report_status_t iStatus, bool bReportAllowed, char *pSendFilePath)
 {
 	MSG_BEGIN();
 
@@ -864,7 +864,7 @@ bool MmsPluginInternal::getMmsReport(MmsReport mmsReport)
 	return result;
 }
 
-const char *MmsPluginInternal::getMmsDeliveryStatus(MSG_DELIVERY_REPORT_STATUS_T deliveryStatus)
+const char *MmsPluginInternal::getMmsDeliveryStatus(msg_delivery_report_status_t deliveryStatus)
 {
 	MSG_DEBUG("msgStatus= %d", deliveryStatus);
 
@@ -884,7 +884,7 @@ const char *MmsPluginInternal::getMmsDeliveryStatus(MSG_DELIVERY_REPORT_STATUS_T
 	}
 }
 
-const char *MmsPluginInternal::getMmsReadStatus(MSG_READ_REPORT_STATUS_T readStatus)
+const char *MmsPluginInternal::getMmsReadStatus(msg_read_report_status_t readStatus)
 {
 	switch (readStatus) {
 	case MSG_READ_REPORT_IS_READ:

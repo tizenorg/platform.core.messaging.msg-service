@@ -1,18 +1,18 @@
- /*
-  * Copyright 2012  Samsung Electronics Co., Ltd
-  *
-  * Licensed under the Flora License, Version 1.0 (the "License");
-  * you may not use this file except in compliance with the License.
-  * You may obtain a copy of the License at
-  *
-  *    http://www.tizenopensource.org/license
-  *
-  * Unless required by applicable law or agreed to in writing, software
-  * distributed under the License is distributed on an "AS IS" BASIS,
-  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  * See the License for the specific language governing permissions and
-  * limitations under the License.
-  */
+/*
+* Copyright 2012  Samsung Electronics Co., Ltd
+*
+* Licensed under the Flora License, Version 1.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*    http://www.tizenopensource.org/license
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
 
 #ifndef MSG_MMS_MESSAGE_H
 #define MSG_MMS_MESSAGE_H
@@ -25,13 +25,13 @@
 
 int msg_verify_number(const char *raw, char *trimmed);
 int msg_verify_email(const char *raw);
-MSG_ERROR_T _MsgMmsAddPage(MMS_MESSAGE_DATA_S *pMsgData, MMS_PAGE_S *pPage);
-MSG_ERROR_T _MsgMmsAddMedia(MMS_PAGE_S *pPage, MMS_MEDIA_S *pMedia);
-MSG_ERROR_T _MsgMmsAddSmilDoc(char *pSmil, MMS_MESSAGE_DATA_S *pMsgData);
-MSG_ERROR_T _MsgMmsAddAttachment(MMS_MESSAGE_DATA_S *pMsgData, MMS_ATTACH_S *pMedia);
-MSG_ERROR_T _MsgMmsAddRegion(MMS_MESSAGE_DATA_S *pMsgData, MMS_SMIL_REGION * pRegion);
-MSG_ERROR_T _MsgMmsAddTransition(MMS_MESSAGE_DATA_S *pMsgData, MMS_SMIL_TRANSITION *pTransition);
-MSG_ERROR_T _MsgMmsAddMeta(MMS_MESSAGE_DATA_S *pMsgData, MMS_SMIL_META *pMeta);
+msg_error_t _MsgMmsAddPage(MMS_MESSAGE_DATA_S *pMsgData, MMS_PAGE_S *pPage);
+msg_error_t _MsgMmsAddMedia(MMS_PAGE_S *pPage, MMS_MEDIA_S *pMedia);
+msg_error_t _MsgMmsAddSmilDoc(char *pSmil, MMS_MESSAGE_DATA_S *pMsgData);
+msg_error_t _MsgMmsAddAttachment(MMS_MESSAGE_DATA_S *pMsgData, MMS_ATTACH_S *pMedia);
+msg_error_t _MsgMmsAddRegion(MMS_MESSAGE_DATA_S *pMsgData, MMS_SMIL_REGION * pRegion);
+msg_error_t _MsgMmsAddTransition(MMS_MESSAGE_DATA_S *pMsgData, MMS_SMIL_TRANSITION *pTransition);
+msg_error_t _MsgMmsAddMeta(MMS_MESSAGE_DATA_S *pMsgData, MMS_SMIL_META *pMeta);
 
 bool _MsgMmsFindMatchedMedia(MMS_MESSAGE_DATA_S *pMsgData, char *pszFilePath);
 
@@ -46,11 +46,11 @@ int _MsgMmsGetAttachCount(MMS_MESSAGE_DATA_S *pMsgData);
 int _MsgMmsGetTransitionCount(MMS_MESSAGE_DATA_S *pMsgData);
 int _MsgMmsGetMetaCount(MMS_MESSAGE_DATA_S *pMsgData);
 
-MSG_ERROR_T _MsgMmsReleasePageList(MMS_MESSAGE_DATA_S *pMsgData);
-MSG_ERROR_T _MsgMmsReleaseRegionList(MMS_MESSAGE_DATA_S *pMsgData);
-MSG_ERROR_T	_MsgMmsReleaseAttachList(MMS_MESSAGE_DATA_S *pMsgData);
-MSG_ERROR_T _MsgMmsReleaseMetaList(MMS_MESSAGE_DATA_S *pMsgData);
-MSG_ERROR_T _MsgMmsReleaseTransitionList(MMS_MESSAGE_DATA_S *pMsgData);
+msg_error_t _MsgMmsReleasePageList(MMS_MESSAGE_DATA_S *pMsgData);
+msg_error_t _MsgMmsReleaseRegionList(MMS_MESSAGE_DATA_S *pMsgData);
+msg_error_t	_MsgMmsReleaseAttachList(MMS_MESSAGE_DATA_S *pMsgData);
+msg_error_t _MsgMmsReleaseMetaList(MMS_MESSAGE_DATA_S *pMsgData);
+msg_error_t _MsgMmsReleaseTransitionList(MMS_MESSAGE_DATA_S *pMsgData);
 
 char *_MsgMmsSerializeMessageData(const MMS_MESSAGE_DATA_S *pMsgData, unsigned int *pSize);
 bool _MsgMmsDeserializeMessageData(MMS_MESSAGE_DATA_S *pBody, char *pFileData);

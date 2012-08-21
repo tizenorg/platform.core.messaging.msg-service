@@ -1,18 +1,18 @@
- /*
-  * Copyright 2012  Samsung Electronics Co., Ltd
-  *
-  * Licensed under the Flora License, Version 1.0 (the "License");
-  * you may not use this file except in compliance with the License.
-  * You may obtain a copy of the License at
-  *
-  *    http://www.tizenopensource.org/license
-  *
-  * Unless required by applicable law or agreed to in writing, software
-  * distributed under the License is distributed on an "AS IS" BASIS,
-  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  * See the License for the specific language governing permissions and
-  * limitations under the License.
-  */
+/*
+* Copyright 2012  Samsung Electronics Co., Ltd
+*
+* Licensed under the Flora License, Version 1.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*    http://www.tizenopensource.org/license
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
 
 #include <time.h>
 #include <stdlib.h>
@@ -46,10 +46,10 @@ static	char *gpMmsEncodeBuf2 = NULL;
 
 bool _MmsBinaryEncodeSendReqHdr(FILE *pFile, MmsMsg *pMsg);
 bool _MmsBinaryEncodeAckIndHdr(FILE *pFile, char *pTrID, bool bReportAllowed);
-bool _MmsBinaryEncodeNotiRespIndHdr(FILE* pFile, char *pTrID, MSG_DELIVERY_REPORT_STATUS_T iStatus, bool bReportAllowed);
+bool _MmsBinaryEncodeNotiRespIndHdr(FILE* pFile, char *pTrID, msg_delivery_report_status_t iStatus, bool bReportAllowed);
 bool _MmsBinaryEncodeForwardReqHdr(FILE *pFile, char *szContentLocation, char *szForwardTo, char *szForwardCc, char *szForwardBcc);
-bool _MmsBinaryEncodeReadReport10Hdr(FILE *pFile, MmsMsg *pMsg, MSG_READ_REPORT_STATUS_T mmsReadStatus);
-bool _MmsBinaryEncodeReadReport11Hdr(FILE *pFile, MmsMsg *pMsg, MSG_READ_REPORT_STATUS_T mmsReadStatus);
+bool _MmsBinaryEncodeReadReport10Hdr(FILE *pFile, MmsMsg *pMsg, msg_read_report_status_t mmsReadStatus);
+bool _MmsBinaryEncodeReadReport11Hdr(FILE *pFile, MmsMsg *pMsg, msg_read_report_status_t mmsReadStatus);
 
 static 	bool __MmsEncodeSendReq(FILE *pFile, MmsMsg *pMsg, bool bIncludeSendReqHeader);
 static	int MmsBinaryEncodeUintvarLen(UINT32 integer);
@@ -387,7 +387,7 @@ __CATCH:
 
 
 
-bool _MmsBinaryEncodeNotiRespIndHdr(FILE *pFile, char *szTrID, MSG_DELIVERY_REPORT_STATUS_T iStatus, bool bReportAllowed)
+bool _MmsBinaryEncodeNotiRespIndHdr(FILE *pFile, char *szTrID, msg_delivery_report_status_t iStatus, bool bReportAllowed)
 {
 	int length = 0;
 	UINT8 fieldCode = 0xff;
@@ -504,7 +504,7 @@ __CATCH:
 
 
 
-bool _MmsEncodeNotiRespInd(FILE *pFile, char *pTrID, MSG_DELIVERY_REPORT_STATUS_T iStatus, bool bReportAllowed)
+bool _MmsEncodeNotiRespInd(FILE *pFile, char *pTrID, msg_delivery_report_status_t iStatus, bool bReportAllowed)
 {
 	_MmsRegisterEncodeBuffer2(gszMmsEncodeBuf2, MSG_MMS_ENCODE_BUFFER_MAX);
 
@@ -526,7 +526,7 @@ __CATCH:
 
 
 /* Functions for Acknowledge.ind & NotifyResp.ind  (END) ------------------------ */
-bool _MmsEncodeReadReport10(FILE *pFile, MmsMsg *pMsg, MSG_READ_REPORT_STATUS_T mmsReadStatus)
+bool _MmsEncodeReadReport10(FILE *pFile, MmsMsg *pMsg, msg_read_report_status_t mmsReadStatus)
 {
 	char *pText = NULL;
 	MsgMultipart *pPart = NULL;
@@ -654,7 +654,7 @@ __CATCH:
 }
 
 
-bool _MmsEncodeReadReport11(FILE *pFile, MmsMsg *pMsg, MSG_READ_REPORT_STATUS_T mmsReadStatus)
+bool _MmsEncodeReadReport11(FILE *pFile, MmsMsg *pMsg, msg_read_report_status_t mmsReadStatus)
 {
 	_MmsRegisterEncodeBuffer(gszMmsEncodeBuf, MSG_MMS_ENCODE_BUFFER_MAX);
 
@@ -907,7 +907,6 @@ bool _MmsBinaryEncodeSendReqHdr(FILE *pFile, MmsMsg *pMsg)
 			goto __CATCH;
 		}
 
-		/** fixme: Reply-charging-deadline */
 		if (pMsg->mmsAttrib.replyCharge.deadLine.time > 0) {
 			if (__MmsBinaryEncodeTime(pFile, MMS_CODE_REPLYCHARGINGDEADLINE, pMsg->mmsAttrib.replyCharge.deadLine) == false) {
 				MSG_DEBUG("_MmsBinaryEncodeSendReqHdr: replyCharging __MmsBinaryEncodeTime fail\n");
@@ -915,7 +914,6 @@ bool _MmsBinaryEncodeSendReqHdr(FILE *pFile, MmsMsg *pMsg)
 			}
 		}
 
-		/** fixme: Reply-charging-size */
 		if (pMsg->mmsAttrib.replyCharge.chargeSize > 0) {
 			length = MmsBinaryEncodeIntegerLen(pMsg->mmsAttrib.replyCharge.chargeSize);
 
@@ -935,7 +933,6 @@ bool _MmsBinaryEncodeSendReqHdr(FILE *pFile, MmsMsg *pMsg)
 			}
 		}
 
-		/** fixme: Reply-charging-ID  ----> used only when reply message  */
 		if (pMsg->mmsAttrib.replyCharge.szChargeID[0]) {
 			length = MmsBinaryEncodeTextStringLen((UINT8*)pMsg->mmsAttrib.replyCharge.szChargeID);
 			if (length == -1) {
@@ -1019,8 +1016,7 @@ bool MmsBinaryEncodeSendReqHdrContTypeFildCode(FILE *pFile, int msgID)
 	return ret;
 }
 
-
-bool _MmsBinaryEncodeReadReport10Hdr(FILE *pFile, MmsMsg *pMsg, MSG_READ_REPORT_STATUS_T mmsReadStatus)
+bool _MmsBinaryEncodeReadReport10Hdr(FILE *pFile, MmsMsg *pMsg, msg_read_report_status_t mmsReadStatus)
 {
 	int length	= 0;
 	char *szTo	= NULL;
@@ -1169,10 +1165,6 @@ bool _MmsBinaryEncodeReadReport10Hdr(FILE *pFile, MmsMsg *pMsg, MSG_READ_REPORT_
 		goto __CATCH;
 	}
 
-	/* fixme: msgContentType */
-	/* fixme: msgHeader */
-	/* fixme: msgBody */
-
 	/* flush remained data on encoding file */
 	if (MsgWriteDataFromEncodeBuffer(pFile, gpMmsEncodeBuf, &gCurMmsEncodeBuffPos,
 										gMmsEncodeMaxLen, &gMmsEncodeCurOffset) == false) {
@@ -1193,7 +1185,7 @@ __CATCH:
 
 
 
-bool _MmsBinaryEncodeReadReport11Hdr(FILE *pFile, MmsMsg *pMsg, MSG_READ_REPORT_STATUS_T mmsReadStatus)
+bool _MmsBinaryEncodeReadReport11Hdr(FILE *pFile, MmsMsg *pMsg, msg_read_report_status_t mmsReadStatus)
 {
 	UINT8 fieldCode = 0xff;
 	UINT8 fieldValue = 0xff;
@@ -2881,7 +2873,7 @@ static bool MmsBinaryEncodeEncodedString(FILE *pFile, UINT8 *source, int length)
 		goto __CATCH;
 	}
 
-	/* fixme: Write charset on buffer -> integer value not long-integer */
+	/* Write charset on buffer -> integer value not long-integer */
 	if (MmsBinaryEncodeInteger(pFile, charset, charLeng) == false) {
 		MSG_DEBUG("MmsBinaryEncodeEncodedString : MmsBinaryEncodeInteger fail.\n");
 		goto __CATCH;

@@ -1,18 +1,18 @@
- /*
-  * Copyright 2012  Samsung Electronics Co., Ltd
-  *
-  * Licensed under the Flora License, Version 1.0 (the "License");
-  * you may not use this file except in compliance with the License.
-  * You may obtain a copy of the License at
-  *
-  *    http://www.tizenopensource.org/license
-  *
-  * Unless required by applicable law or agreed to in writing, software
-  * distributed under the License is distributed on an "AS IS" BASIS,
-  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  * See the License for the specific language governing permissions and
-  * limitations under the License.
-  */
+/*
+* Copyright 2012  Samsung Electronics Co., Ltd
+*
+* Licensed under the Flora License, Version 1.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*    http://www.tizenopensource.org/license
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
 
 #include "MsgDebug.h"
 #include "MsgPluginManager.h"
@@ -22,15 +22,20 @@
 
 #define DEF_BUF_LEN	128
 
+/*==================================================================================================
+								STATIC FUNCTION PROTOTYPES
+==================================================================================================*/
+static char* msg_clean_country_code(char *src);
+static char* msg_normalize_number(char *src);
 
 /*==================================================================================================
                                      FUNCTION IMPLEMENTATION
 ==================================================================================================*/
-MSG_ERROR_T MsgInitSimConfig(MSG_SIM_STATUS_T SimStatus)
+msg_error_t MsgInitSimConfig(MSG_SIM_STATUS_T SimStatus)
 {
 	MSG_DEBUG("Start to initialize SIM Configuration");
 
-	MSG_ERROR_T err = MSG_SUCCESS;
+	msg_error_t err = MSG_SUCCESS;
 
 	if (SimStatus != MSG_SIM_STATUS_NOT_FOUND)
 	{
@@ -53,9 +58,19 @@ MSG_ERROR_T MsgInitSimConfig(MSG_SIM_STATUS_T SimStatus)
 }
 
 
-MSG_ERROR_T MsgSetConfigData(const MSG_SETTING_S *pSetting)
+msg_error_t MsgSetConfigData(const MSG_SETTING_S *pSetting)
 {
-	MSG_ERROR_T err = MSG_SUCCESS;
+	msg_error_t err = MSG_SUCCESS;
+
+#ifdef USE_GCONF
+	err = MsgGconfGetClient();
+
+	if (err != MSG_SUCCESS)
+	{
+		MSG_DEBUG("Get GConf Client Error");
+		return MSG_ERR_NULL_POINTER;
+	}
+#endif
 
 	MSG_DEBUG("Setting Type : %d", pSetting->type);
 
@@ -63,85 +78,119 @@ MSG_ERROR_T MsgSetConfigData(const MSG_SETTING_S *pSetting)
 	{
 		case MSG_GENERAL_OPT :
 			err = MsgSetGeneralOpt(pSetting);
-		break;
+			break;
 		case MSG_SMS_SENDOPT :
 			err = MsgSetSMSSendOpt(pSetting);
-		break;
+			break;
 		case MSG_SMSC_LIST :
 			err = MsgSetSMSCList(pSetting, true);
-		break;
+			break;
 		case MSG_MMS_SENDOPT :
 			err = MsgSetMMSSendOpt(pSetting);
-		break;
+			break;
 		case MSG_MMS_RECVOPT :
 			err = MsgSetMMSRecvOpt(pSetting);
-		break;
+			break;
 		case MSG_MMS_STYLEOPT :
 			err = MsgSetMMSStyleOpt(pSetting);
-		break;
+			break;
 		case MSG_PUSHMSG_OPT :
 			err = MsgSetPushMsgOpt(pSetting);
-		break;
+			break;
 		case MSG_CBMSG_OPT :
 			err = MsgSetCBMsgOpt(pSetting, true);
-		break;
+			break;
 		case MSG_VOICEMAIL_OPT :
 			err = MsgSetVoiceMailOpt(pSetting);
-		break;
+			break;
 		case MSG_MSGSIZE_OPT:
 			err = MsgSetMsgSizeOpt(pSetting);
+			break;
 		default :
-		break;
+			break;
 	}
+
+#ifdef USE_GCONF
+	MsgGconfUnrefClient();
+#endif
 
 	return err;
 }
 
 
-MSG_ERROR_T MsgGetConfigData(MSG_SETTING_S *pSetting)
+msg_error_t MsgGetConfigData(MSG_SETTING_S *pSetting)
 {
+#ifdef USE_GCONF
+	msg_error_t err = MsgGconfGetClient();
+
+	if (err != MSG_SUCCESS)
+	{
+		MSG_DEBUG("Get GConf Client Error");
+		return MSG_ERR_NULL_POINTER;
+	}
+#endif
+
+	// Check SIM is present or not
+	MSG_SIM_STATUS_T simStatus = (MSG_SIM_STATUS_T)MsgSettingGetInt(MSG_SIM_CHANGED);
+
 	switch (pSetting->type)
 	{
 		case MSG_GENERAL_OPT :
 			MsgGetGeneralOpt(pSetting);
-		break;
+			break;
 		case MSG_SMS_SENDOPT :
 			MsgGetSMSSendOpt(pSetting);
-		break;
+			break;
 		case MSG_SMSC_LIST :
+		{
+			if (simStatus == MSG_SIM_STATUS_NOT_FOUND) {
+				MSG_DEBUG("SIM is not present..");
+				return MSG_ERR_NO_SIM;
+			}
 			MsgGetSMSCList(pSetting);
+		}
 		break;
 		case MSG_MMS_SENDOPT :
 			MsgGetMMSSendOpt(pSetting);
-		break;
+			break;
 		case MSG_MMS_RECVOPT :
 			MsgGetMMSRecvOpt(pSetting);
-		break;
+			break;
 		case MSG_MMS_STYLEOPT :
 			MsgGetMMSStyleOpt(pSetting);
-		break;
+			break;
 		case MSG_PUSHMSG_OPT :
 			MsgGetPushMsgOpt(pSetting);
-		break;
+			break;
 		case MSG_CBMSG_OPT :
+		{
+			if (simStatus == MSG_SIM_STATUS_NOT_FOUND) {
+				MSG_DEBUG("SIM is not present..");
+				return MSG_ERR_NO_SIM;
+			}
 			MsgGetCBMsgOpt(pSetting);
+		}
 		break;
 		case MSG_VOICEMAIL_OPT :
 			MsgGetVoiceMailOpt(pSetting);
-		break;
+			break;
 		case MSG_MSGSIZE_OPT :
 			MsgGetMsgSizeOpt(pSetting);
-		break;
+			break;
 
 		default :
-		break;
+			break;
 	}
+
+#ifdef USE_GCONF
+	MsgGconfUnrefClient();
+#endif
 
 	return MSG_SUCCESS;
 }
 
 
-MSG_ERROR_T MsgSetGeneralOpt(const MSG_SETTING_S *pSetting)
+msg_error_t MsgSetGeneralOpt(const MSG_SETTING_S *pSetting)
 {
 	MSG_GENERAL_OPT_S generalOpt;
 	bool bValue = false;
@@ -168,7 +217,7 @@ MSG_ERROR_T MsgSetGeneralOpt(const MSG_SETTING_S *pSetting)
 }
 
 
-MSG_ERROR_T MsgSetSMSSendOpt(const MSG_SETTING_S *pSetting)
+msg_error_t MsgSetSMSSendOpt(const MSG_SETTING_S *pSetting)
 {
 	MSG_SMS_SENDOPT_S sendOpt;
 	int iValue = 0;
@@ -220,9 +269,9 @@ MSG_ERROR_T MsgSetSMSSendOpt(const MSG_SETTING_S *pSetting)
 }
 
 
-MSG_ERROR_T MsgSetSMSCList(const MSG_SETTING_S *pSetting, bool bSetSim)
+msg_error_t MsgSetSMSCList(const MSG_SETTING_S *pSetting, bool bSetSim)
 {
-	MSG_ERROR_T err = MSG_SUCCESS;
+	msg_error_t err = MSG_SUCCESS;
 
 	for (int index = 0; index < pSetting->option.smscList.totalCnt; index++)
 	{
@@ -240,7 +289,7 @@ MSG_ERROR_T MsgSetSMSCList(const MSG_SETTING_S *pSetting, bool bSetSim)
 		if (err != MSG_SUCCESS)
 		{
 			MSG_DEBUG("Error to set config data in sim [%d]", err);
-			return MSG_ERR_SET_SIM_SET;
+			return err;
 		}
 	}
 
@@ -320,7 +369,7 @@ MSG_ERROR_T MsgSetSMSCList(const MSG_SETTING_S *pSetting, bool bSetSim)
 }
 
 
-MSG_ERROR_T MsgSetMMSSendOpt(const MSG_SETTING_S *pSetting)
+msg_error_t MsgSetMMSSendOpt(const MSG_SETTING_S *pSetting)
 {
 	MSG_MMS_SENDOPT_S sendOpt;
 	int iValue = 0;
@@ -445,7 +494,7 @@ MSG_ERROR_T MsgSetMMSSendOpt(const MSG_SETTING_S *pSetting)
 }
 
 
-MSG_ERROR_T MsgSetMMSRecvOpt(const MSG_SETTING_S *pSetting)
+msg_error_t MsgSetMMSRecvOpt(const MSG_SETTING_S *pSetting)
 {
 	MSG_MMS_RECVOPT_S recvOpt;
 	int iValue = 0;
@@ -505,7 +554,7 @@ MSG_ERROR_T MsgSetMMSRecvOpt(const MSG_SETTING_S *pSetting)
 }
 
 
-MSG_ERROR_T MsgSetMMSStyleOpt(const MSG_SETTING_S *pSetting)
+msg_error_t MsgSetMMSStyleOpt(const MSG_SETTING_S *pSetting)
 {
 	MSG_MMS_STYLEOPT_S styleOpt;
 	int iValue = 0;
@@ -636,7 +685,7 @@ MSG_ERROR_T MsgSetMMSStyleOpt(const MSG_SETTING_S *pSetting)
 	return MSG_SUCCESS;
 }
 
-MSG_ERROR_T MsgSetPushMsgOpt(const MSG_SETTING_S *pSetting)
+msg_error_t MsgSetPushMsgOpt(const MSG_SETTING_S *pSetting)
 {
 	MSG_PUSHMSG_OPT_S pushOpt;
 	int iValue = 0;
@@ -664,9 +713,9 @@ MSG_ERROR_T MsgSetPushMsgOpt(const MSG_SETTING_S *pSetting)
 }
 
 
-MSG_ERROR_T MsgSetCBMsgOpt(const MSG_SETTING_S *pSetting, bool bSetSim)
+msg_error_t MsgSetCBMsgOpt(const MSG_SETTING_S *pSetting, bool bSetSim)
 {
-	MSG_ERROR_T err = MSG_SUCCESS;
+	msg_error_t err = MSG_SUCCESS;
 
 	MSG_CBMSG_OPT_S cbOpt;
 	int iValue = 0;
@@ -674,20 +723,18 @@ MSG_ERROR_T MsgSetCBMsgOpt(const MSG_SETTING_S *pSetting, bool bSetSim)
 
 	memcpy(&cbOpt, &(pSetting->option.cbMsgOpt), sizeof(MSG_CBMSG_OPT_S));
 
-	if (bSetSim == true)
-	{
+	if (bSetSim == true) {
 		cbOpt.maxSimCnt = MsgSettingGetInt(CB_MAX_SIM_COUNT);
 
-		if (cbOpt.channelData.channelCnt > cbOpt.maxSimCnt)
-		{
+		if (cbOpt.channelData.channelCnt > cbOpt.maxSimCnt) {
 			MSG_DEBUG("Channel Count is over Max SIM Count [%d]", cbOpt.channelData.channelCnt);
 			return MSG_ERR_SET_SIM_SET;
 		}
 
-		if (MsgSetConfigInSim(pSetting) != MSG_SUCCESS)
-		{
+		err = MsgSetConfigInSim(pSetting);
+		if (err != MSG_SUCCESS) {
 			MSG_DEBUG("Error to set config data in sim [%d]", err);
-			return MSG_ERR_SET_SIM_SET;
+			return err;
 		}
 	}
 
@@ -763,8 +810,7 @@ MSG_ERROR_T MsgSetCBMsgOpt(const MSG_SETTING_S *pSetting, bool bSetSim)
 	return err;
 }
 
-
-MSG_ERROR_T MsgSetVoiceMailOpt(const MSG_SETTING_S *pSetting)
+msg_error_t MsgSetVoiceMailOpt(const MSG_SETTING_S *pSetting)
 {
 	MSG_VOICEMAIL_OPT_S voiceMailOpt;
 	char *pValue = NULL;
@@ -796,7 +842,7 @@ MSG_ERROR_T MsgSetVoiceMailOpt(const MSG_SETTING_S *pSetting)
 }
 
 
-MSG_ERROR_T MsgSetMsgSizeOpt(const MSG_SETTING_S *pSetting)
+msg_error_t MsgSetMsgSizeOpt(const MSG_SETTING_S *pSetting)
 {
 	MSG_MSGSIZE_OPT_S msgSizeOpt;
 	int iValue = 0;
@@ -827,7 +873,7 @@ void MsgGetSMSSendOpt(MSG_SETTING_S *pSetting)
 {
 	memset(&(pSetting->option.smsSendOpt), 0x00, sizeof(MSG_SMS_SENDOPT_S));
 
-	pSetting->option.smsSendOpt.dcs = (MSG_ENCODE_TYPE_T)MsgSettingGetInt(SMS_SEND_DCS);
+	pSetting->option.smsSendOpt.dcs = (msg_encode_type_t)MsgSettingGetInt(SMS_SEND_DCS);
 
 	pSetting->option.smsSendOpt.netMode = (MSG_SMS_NETWORK_MODE_T)MsgSettingGetInt(SMS_SEND_NETWORK_MODE);
 
@@ -905,7 +951,7 @@ void MsgGetMMSSendOpt(MSG_SETTING_S *pSetting)
 
 	pSetting->option.mmsSendOpt.msgClass = (MSG_MMS_MSG_CLASS_TYPE_T)MsgSettingGetInt(MMS_SEND_MSG_CLASS);
 
-	pSetting->option.mmsSendOpt.priority = (MSG_PRIORITY_TYPE_T)MsgSettingGetInt(MMS_SEND_PRIORITY);
+	pSetting->option.mmsSendOpt.priority = (msg_priority_type_t)MsgSettingGetInt(MMS_SEND_PRIORITY);
 
 	pSetting->option.mmsSendOpt.expiryTime = (MSG_MMS_EXPIRY_TIME_T)MsgSettingGetInt(MMS_SEND_EXPIRY_TIME);
 
@@ -1044,47 +1090,227 @@ void MsgGetCBMsgOpt(MSG_SETTING_S *pSetting)
 	}
 }
 
-
 void MsgGetVoiceMailOpt(MSG_SETTING_S *pSetting)
 {
-	char *tmpValue = NULL;
+        char *tmpValue = NULL;
 
-	memset(&(pSetting->option.voiceMailOpt), 0x00, sizeof(MSG_VOICEMAIL_OPT_S));
+        memset(&(pSetting->option.voiceMailOpt), 0x00, sizeof(MSG_VOICEMAIL_OPT_S));
 
-	tmpValue = MsgSettingGetString(VOICEMAIL_NUMBER);
-	if (tmpValue != NULL) {
-		strncpy(pSetting->option.voiceMailOpt.mailNumber, tmpValue, MAX_PHONE_NUMBER_LEN);
-		free(tmpValue);
-		tmpValue = NULL;
-	}
+        tmpValue = MsgSettingGetString(VOICEMAIL_NUMBER);
+        if (tmpValue != NULL) {
+                strncpy(pSetting->option.voiceMailOpt.mailNumber, tmpValue, MAX_PHONE_NUMBER_LEN);
+                free(tmpValue);
+                tmpValue = NULL;
+        }
 }
 
 
 void MsgGetMsgSizeOpt(MSG_SETTING_S *pSetting)
 {
-	memset(&(pSetting->option.msgSizeOpt), 0x00, sizeof(MSG_MSGSIZE_OPT_S));
+        memset(&(pSetting->option.msgSizeOpt), 0x00, sizeof(MSG_MSGSIZE_OPT_S));
 
-	pSetting->option.msgSizeOpt.nMsgSize = MsgSettingGetInt(MSGSIZE_OPTION);
+        pSetting->option.msgSizeOpt.nMsgSize = MsgSettingGetInt(MSGSIZE_OPTION);
 }
 
 
-MSG_ERROR_T MsgSetConfigInSim(const MSG_SETTING_S *pSetting)
+msg_error_t MsgSetConfigInSim(const MSG_SETTING_S *pSetting)
 {
-	MSG_ERROR_T err = MSG_SUCCESS;
+        msg_error_t err = MSG_SUCCESS;
 
-	MsgPlugin* plg = MsgPluginManager::instance()->getPlugin(MSG_SMS_TYPE);
+        MsgPlugin* plg = MsgPluginManager::instance()->getPlugin(MSG_SMS_TYPE);
 
-	// Get Setting Data from SIM
-	if (plg != NULL)
-		err = plg->setConfigData(pSetting);
-	else
-		err = MSG_ERR_NULL_POINTER;
+        // Get Setting Data from SIM
+        if (plg != NULL)
+                err = plg->setConfigData(pSetting);
+        else
+                err = MSG_ERR_NULL_POINTER;
 
-	if (err != MSG_SUCCESS)
+        if (err != MSG_SUCCESS)
+        {
+                MSG_DEBUG("Error. Error code is %d.", err);
+                return err;
+        }
+
+        return err;
+}
+
+static char* msg_clean_country_code(char *src)
+{
+	int ret = 1;
+
+	switch (src[ret++]-'0')
 	{
-		MSG_DEBUG("Error. Error code is %d.", err);
-		return err;
+		case 1:
+		case 7:
+			break;
+		case 2:
+			switch (src[ret++]-'0')
+			{
+				case 0:
+				case 7:
+					break;
+				case 1:
+				case 2:
+				case 3:
+				case 4:
+				case 5:
+				case 6:
+				case 8:
+				case 9:
+					ret += 1;
+					break;
+				default:
+					MSG_DEBUG("The parameter(src:%s) has invalid character set", src);
+					break;
+			}
+			break;
+		case 3:
+			switch (src[ret++]-'0')
+			{
+				case 0:
+				case 1:
+				case 2:
+				case 3:
+				case 4:
+				case 6:
+				case 9:
+					break;
+				case 5:
+				case 7:
+				case 8:
+					ret += 1;
+					break;
+				default:
+					MSG_DEBUG("The parameter(src:%s) has invalid character set", src);
+					break;
+			}
+			break;
+		case 4:
+			switch (src[ret++]-'0')
+			{
+				case 0:
+				case 1:
+				case 3:
+				case 4:
+				case 5:
+				case 6:
+				case 7:
+				case 8:
+				case 9:
+					break;
+				case 2:
+					ret += 1;
+					break;
+				default:
+					MSG_DEBUG("The parameter(src:%s) has invalid character set", src);
+					break;
+			}
+			break;
+		case 5:
+			switch (src[ret++]-'0')
+			{
+				case 1:
+				case 2:
+				case 3:
+				case 4:
+				case 5:
+				case 6:
+				case 7:
+				case 8:
+					break;
+				case 0:
+				case 9:
+					ret += 1;
+					break;
+				default:
+					MSG_DEBUG("The parameter(src:%s) has invalid character set", src);
+					break;
+			}
+			break;
+		case 6:
+			switch (src[ret++]-'0')
+			{
+				case 0:
+				case 1:
+				case 2:
+				case 3:
+				case 4:
+				case 5:
+				case 6:
+					break;
+				case 7:
+				case 8:
+				case 9:
+					ret += 1;
+					break;
+				default:
+					MSG_DEBUG("The parameter(src:%s) has invalid character set", src);
+					break;
+			}
+			break;
+		case 8:
+			switch (src[ret++]-'0')
+			{
+				case 1:
+				case 2:
+				case 4:
+				case 6:
+					break;
+				case 0:
+				case 3:
+				case 5:
+				case 7:
+				case 8:
+				case 9:
+					ret += 1;
+					break;
+				default:
+					MSG_DEBUG("The parameter(src:%s) has invalid character set", src);
+					break;
+			}
+			break;
+		case 9:
+			switch (src[ret++]-'0')
+			{
+				case 0:
+				case 1:
+				case 2:
+				case 3:
+				case 4:
+				case 5:
+				case 8:
+					break;
+				case 6:
+				case 7:
+				case 9:
+					ret += 1;
+					break;
+				default:
+					MSG_DEBUG("The parameter(src:%s) has invalid character set", src);
+					break;
+			}
+			break;
+		case 0:
+		default:
+			MSG_DEBUG("The parameter(src:%s) has invalid character set", src);
+			return src;
 	}
 
-	return err;
+	return &src[ret];
+}
+
+static char* msg_normalize_number(char *src)
+{
+	char *normalized_number;
+
+	if ('+' == src[0])
+		normalized_number = msg_clean_country_code(src);
+	else if ('0' == src[0])
+		normalized_number = src+1;
+	else
+		normalized_number = src;
+
+	MSG_DEBUG("src = %s, normalized = %s", src, normalized_number);
+
+	return normalized_number;
 }

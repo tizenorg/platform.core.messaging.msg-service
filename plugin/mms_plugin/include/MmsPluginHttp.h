@@ -1,18 +1,18 @@
- /*
-  * Copyright 2012  Samsung Electronics Co., Ltd
-  *
-  * Licensed under the Flora License, Version 1.0 (the "License");
-  * you may not use this file except in compliance with the License.
-  * You may obtain a copy of the License at
-  *
-  *    http://www.tizenopensource.org/license
-  *
-  * Unless required by applicable law or agreed to in writing, software
-  * distributed under the License is distributed on an "AS IS" BASIS,
-  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  * See the License for the specific language governing permissions and
-  * limitations under the License.
-  */
+/*
+* Copyright 2012  Samsung Electronics Co., Ltd
+*
+* Licensed under the Flora License, Version 1.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*    http://www.tizenopensource.org/license
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
 
 #ifndef MMSPLUGINHTTP_H
 #define MMSPLUGINHTTP_H
@@ -23,8 +23,6 @@
 #include "MmsPluginTypes.h"
 #include "MsgMutex.h"
 
-#include <curl/curl.h>
-
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -34,18 +32,16 @@ extern "C" {
 }
 #endif
 
+
 class MmsPluginHttpAgent
 {
 	public:
 		static MmsPluginHttpAgent *instance();
 
-
-		void setHttpWaitingFlag(bool val);
-		bool getHttpWaitingFlag();
-
 		int cmdRequest(MMS_HTTP_CMD_TYPE_T cmdType);
 
 		int setSession(mmsTranQEntity *qEntity);
+
 		void clearSession();
 
 		void SetMMSProfile();
@@ -58,11 +54,8 @@ class MmsPluginHttpAgent
 	private:
 		static MmsPluginHttpAgent *pInstance;
 
-
 		MmsPluginHttpAgent();
 		~MmsPluginHttpAgent();
-
-		bool waiting;
 
 		MMS_PLUGIN_HTTP_CONTEXT_S mmsPlgCd;
 
@@ -91,8 +84,5 @@ enum _MMS_HTTP_HEADER_FIELD_E {
 	MMS_HH_USER_AGENT,
 	MMS_HH_WAP_PROFILE
 };
-void HttpHeaderInfo(curl_slist *responseHeaders, char *szUrl, int ulContentLen);
-bool MsgMmsGetCustomHTTPHeader(MMS_HTTP_HEADER_FIELD_T httpHeaderItem, char *szHeaderBuffer);
-void MsgMmsGetHost(char *szHost, int nBufferLen);
 
 #endif

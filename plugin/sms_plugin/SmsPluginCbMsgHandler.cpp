@@ -1,18 +1,18 @@
- /*
-  * Copyright 2012  Samsung Electronics Co., Ltd
-  *
-  * Licensed under the Flora License, Version 1.0 (the "License");
-  * you may not use this file except in compliance with the License.
-  * You may obtain a copy of the License at
-  *
-  *    http://www.tizenopensource.org/license
-  *
-  * Unless required by applicable law or agreed to in writing, software
-  * distributed under the License is distributed on an "AS IS" BASIS,
-  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  * See the License for the specific language governing permissions and
-  * limitations under the License.
-  */
+/*
+* Copyright 2012  Samsung Electronics Co., Ltd
+*
+* Licensed under the Flora License, Version 1.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*    http://www.tizenopensource.org/license
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
 
 #include <time.h>
 
@@ -106,7 +106,7 @@ void SmsPluginCbMsgHandler::handleCbMsg(TelSmsCbMsg_t *pCbMsg)
 		convertCbMsgToMsginfo(cbMsg, &msgInfo);
 
 		// Add CB Msg into DB
-		MSG_ERROR_T err = MSG_SUCCESS;
+		msg_error_t err = MSG_SUCCESS;
 
 		err = SmsPluginStorage::instance()->addMessage(&msgInfo);
 
@@ -199,6 +199,8 @@ MSG_DEBUG("unpackLen : [%d]", unpackLen);
 			pCbPage->pageLength = unpackLen;
 			pCbPage->pageData[unpackLen] = '\0';
 
+//			pCbPage->pageLength = strlen(pCbPage->pageData);
+//			pCbPage->pageData[pCbPage->pageLength] = '\0';
 		}
 		break;
 
@@ -257,7 +259,6 @@ MSG_DEBUG("In Language Type : [%d], Out Language Type : [%d]", pCbPage->pageHead
 
 	// Get Receive Time
 	pCbPage->pageHeader.recvTime = getRecvTime();
-
 }
 
 
@@ -444,7 +445,7 @@ void SmsPluginCbMsgHandler::MakeCbMsg(SMS_CBMSG_PAGE_S CbPage, SMS_CBMSG_S *pCbM
 
 void SmsPluginCbMsgHandler::convertCbMsgToMsginfo(SMS_CBMSG_S cbMsg, MSG_MESSAGE_INFO_S *pMsgInfo)
 {
-	pMsgInfo->msgId = (MSG_MESSAGE_ID_T)cbMsg.msgId;
+	pMsgInfo->msgId = (msg_message_id_t)cbMsg.msgId;
 
 	pMsgInfo->folderId = MSG_CBMSGBOX_ID;
 

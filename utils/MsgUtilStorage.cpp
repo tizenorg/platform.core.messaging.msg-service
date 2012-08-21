@@ -1,18 +1,18 @@
- /*
-  * Copyright 2012  Samsung Electronics Co., Ltd
-  *
-  * Licensed under the Flora License, Version 1.0 (the "License");
-  * you may not use this file except in compliance with the License.
-  * You may obtain a copy of the License at
-  *
-  *    http://www.tizenopensource.org/license
-  *
-  * Unless required by applicable law or agreed to in writing, software
-  * distributed under the License is distributed on an "AS IS" BASIS,
-  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  * See the License for the specific language governing permissions and
-  * limitations under the License.
-  */
+/*
+* Copyright 2012  Samsung Electronics Co., Ltd
+*
+* Licensed under the Flora License, Version 1.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*    http://www.tizenopensource.org/license
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
 
 #include "MsgDebug.h"
 #include "MsgUtilFile.h"
@@ -32,20 +32,18 @@ static int msgCntLimit[MSG_COUNT_LIMIT_MAILBOX_TYPE_MAX][MSG_COUNT_LIMIT_MSG_TYP
 /*==================================================================================================
                                      FUNCTION IMPLEMENTATION
 ==================================================================================================*/
-unsigned int MsgStoAddMessageTable(MsgDbHandler *pDbHandle, const MSG_MESSAGE_INFO_S *pMsgInfo, unsigned int AddrId)
+unsigned int MsgStoAddMessageTable(MsgDbHandler *pDbHandle, const MSG_MESSAGE_INFO_S *pMsgInfo)
 {
 	MSG_BEGIN();
 
-	MSG_ERROR_T err = MSG_SUCCESS;
+	msg_error_t err = MSG_SUCCESS;
 
-	unsigned int msgId = 0;
+	msg_message_id_t msgId = 0;
 
 	err = pDbHandle->getRowId(MSGFW_MESSAGE_TABLE_NAME, &msgId);
 
 	if (err != MSG_SUCCESS)
-	{
 		return 0;
-	}
 
 	int fileSize = 0;
 
@@ -53,8 +51,7 @@ unsigned int MsgStoAddMessageTable(MsgDbHandler *pDbHandle, const MSG_MESSAGE_IN
 	AutoPtr<char> buf(&pFileData);
 
 	// Get File Data
-	if (pMsgInfo->bTextSms == false)
-	{
+	if (pMsgInfo->bTextSms == false) {
 		if (MsgOpenAndReadFile(pMsgInfo->msgData, &pFileData, &fileSize) == false)
 			return 0;
 
@@ -66,18 +63,15 @@ unsigned int MsgStoAddMessageTable(MsgDbHandler *pDbHandle, const MSG_MESSAGE_IN
 
 	memset(sqlQuery, 0x00, sizeof(sqlQuery));
 
-	snprintf(sqlQuery, sizeof(sqlQuery), "INSERT INTO %s VALUES (%d, %d, %d, %d, %d, %d, %d, %ld, %d, %d, %d, %d, %d, %d, %ld, %d, ?, ?, ?, ?, %d, 0, %d, 0, 0);",
-				MSGFW_MESSAGE_TABLE_NAME, msgId, AddrId, pMsgInfo->folderId, msgId, pMsgInfo->storageId,
-				pMsgInfo->msgType.mainType, pMsgInfo->msgType.subType, pMsgInfo->displayTime, pMsgInfo->dataSize,
-				pMsgInfo->networkStatus, pMsgInfo->bRead, pMsgInfo->bProtected, pMsgInfo->priority,
-				pMsgInfo->direction, pMsgInfo->scheduledTime, pMsgInfo->bBackup, MSG_DELIVERY_REPORT_NONE, MSG_READ_REPORT_NONE);
+	snprintf(sqlQuery, sizeof(sqlQuery), "INSERT INTO %s VALUES (%d, %d, %d, %d, %d, %d, %ld, %d, %d, %d, %d, %d, %d, %ld, %d, ?, ?, ?, ?, %d, 0, %d, 0, 0);",
+			MSGFW_MESSAGE_TABLE_NAME, msgId, pMsgInfo->threadId, pMsgInfo->folderId, pMsgInfo->storageId, pMsgInfo->msgType.mainType,
+			pMsgInfo->msgType.subType, pMsgInfo->displayTime, pMsgInfo->dataSize, pMsgInfo->networkStatus, pMsgInfo->bRead, pMsgInfo->bProtected,
+			pMsgInfo->priority, pMsgInfo->direction, 0, pMsgInfo->bBackup, MSG_DELIVERY_REPORT_NONE, MSG_READ_REPORT_NONE);
 
 	MSG_DEBUG("QUERY : %s", sqlQuery);
 
 	if (pDbHandle->prepareQuery(sqlQuery) != MSG_SUCCESS)
-	{
 		return 0;
-	}
 
 	pDbHandle->bindText(pMsgInfo->subject, 1);
 
@@ -90,8 +84,7 @@ unsigned int MsgStoAddMessageTable(MsgDbHandler *pDbHandle, const MSG_MESSAGE_IN
 	else
 		pDbHandle->bindText(pMsgInfo->msgText, 4);
 
-	if (pDbHandle->stepQuery() != MSG_ERR_DB_DONE)
-	{
+	if (pDbHandle->stepQuery() != MSG_ERR_DB_DONE) {
 		pDbHandle->finalizeQuery();
 		return 0;
 	}
@@ -102,51 +95,44 @@ unsigned int MsgStoAddMessageTable(MsgDbHandler *pDbHandle, const MSG_MESSAGE_IN
 }
 
 
-MSG_ERROR_T MsgStoSetReadStatus(MsgDbHandler *pDbHandle, MSG_MESSAGE_ID_T MsgId, bool bRead)
+msg_error_t MsgStoSetReadStatus(MsgDbHandler *pDbHandle, msg_message_id_t msgId, bool bRead)
 {
 	char sqlQuery[MAX_QUERY_LEN+1];
 
 	memset(sqlQuery, 0x00, sizeof(sqlQuery));
 	snprintf(sqlQuery, sizeof(sqlQuery), "UPDATE %s SET READ_STATUS = %d WHERE MSG_ID = %d;",
-					MSGFW_MESSAGE_TABLE_NAME, (int)bRead, MsgId);
+			MSGFW_MESSAGE_TABLE_NAME, (int)bRead, msgId);
 
 	if (pDbHandle->execQuery(sqlQuery) != MSG_SUCCESS)
 		return MSG_ERR_DB_EXEC;
 
 	// Get MAIN_TYPE, SUB_TYPE, STORAGE_ID
 	memset(sqlQuery, 0x00, sizeof(sqlQuery));
-	snprintf(sqlQuery, sizeof(sqlQuery), "SELECT A.MAIN_TYPE, A.SUB_TYPE, B.CONTACT_ID, B.ADDRESS_ID \
-				        FROM %s A, %s B \
-				     WHERE A.MSG_ID = %d AND A.ADDRESS_ID = B.ADDRESS_ID;",
-			MSGFW_MESSAGE_TABLE_NAME, MSGFW_ADDRESS_TABLE_NAME, MsgId);
+	snprintf(sqlQuery, sizeof(sqlQuery), "SELECT A.MAIN_TYPE, A.SUB_TYPE, B.CONV_ID \
+			FROM %s A, %s B WHERE A.MSG_ID = %d AND A.CONV_ID = B.CONV_ID;",
+			MSGFW_MESSAGE_TABLE_NAME, MSGFW_CONVERSATION_TABLE_NAME, msgId);
 
 	if (pDbHandle->prepareQuery(sqlQuery) != MSG_SUCCESS)
 		return MSG_ERR_DB_PREPARE;
 
 	MSG_MESSAGE_TYPE_S msgType;
-	MSG_CONTACT_ID_T contactId;
-	unsigned int addrId;
+	msg_thread_id_t convId;
 
-	if (pDbHandle->stepQuery() == MSG_ERR_DB_ROW)
-	{
+	if (pDbHandle->stepQuery() == MSG_ERR_DB_ROW) {
 		msgType.mainType = pDbHandle->columnInt(0);
 		msgType.subType = pDbHandle->columnInt(1);
-		contactId = pDbHandle->columnInt(2);
-		addrId = pDbHandle->columnInt(3);
-	}
-	else
-	{
+		convId = pDbHandle->columnInt(2);
+	} else {
 		pDbHandle->finalizeQuery();
 		return MSG_ERR_DB_STEP;
 	}
 
 	pDbHandle->finalizeQuery();
 
-	MSG_DEBUG("Main Type:[%d] SubType:[%d] ContactId:[%d] AddrId:[%d]", msgType.mainType, msgType.subType, contactId, addrId);
+	MSG_DEBUG("Main Type:[%d] SubType:[%d] ConvId:[%d]", msgType.mainType, msgType.subType, convId);
 
-	if (MsgStoUpdateAddress(pDbHandle, addrId) != MSG_SUCCESS)
-	{
-		MSG_DEBUG("MsgStoUpdateAddress() Error");
+	if (MsgStoUpdateConversation(pDbHandle, convId) != MSG_SUCCESS) {
+		MSG_DEBUG("MsgStoUpdateConversation() Error");
 		return MSG_ERR_STORAGE_ERROR;
 	}
 
@@ -157,33 +143,29 @@ MSG_ERROR_T MsgStoSetReadStatus(MsgDbHandler *pDbHandle, MSG_MESSAGE_ID_T MsgId,
 
 	MsgSettingSetIndicator(smsCnt, mmsCnt);
 
-	MsgDeleteNotiByMsgId(MsgId);
+	MsgDeleteNotiByMsgId(msgId);
 
 	return MSG_SUCCESS;
 }
 
 
-MSG_ERROR_T MsgStoGetOldestMessage(MsgDbHandler *pDbHandle, const MSG_MESSAGE_INFO_S *pMsgInfo, MSG_MESSAGE_ID_T *pMsgId)
+msg_error_t MsgStoGetOldestMessage(MsgDbHandler *pDbHandle, const MSG_MESSAGE_INFO_S *pMsgInfo, msg_message_id_t *pMsgId)
 {
 	char sqlQuery[MAX_QUERY_LEN+1];
 
 	memset(sqlQuery, 0x00, sizeof(sqlQuery));
 
-	snprintf(sqlQuery, sizeof(sqlQuery), "SELECT MSG_ID \
-		 						       FROM %s \
-						 		    WHERE SUB_TYPE = %d AND FOLDER_ID = %d AND STORAGE_ID = %d AND PROTECTED = 0 \
-						 		     ORDER BY DISPLAY_TIME ASC",
-				MSGFW_MESSAGE_TABLE_NAME, pMsgInfo->msgType.subType, pMsgInfo->folderId, MSG_STORAGE_PHONE);
+	snprintf(sqlQuery, sizeof(sqlQuery), "SELECT MSG_ID FROM %s \
+			WHERE SUB_TYPE = %d AND FOLDER_ID = %d AND STORAGE_ID = %d AND PROTECTED = 0 \
+			ORDER BY DISPLAY_TIME ASC",
+			MSGFW_MESSAGE_TABLE_NAME, pMsgInfo->msgType.subType, pMsgInfo->folderId, MSG_STORAGE_PHONE);
 
 	if (pDbHandle->prepareQuery(sqlQuery) != MSG_SUCCESS)
 		return MSG_ERR_DB_PREPARE;
 
-	if (pDbHandle->stepQuery() == MSG_ERR_DB_ROW)
-	{
+	if (pDbHandle->stepQuery() == MSG_ERR_DB_ROW) {
 		*pMsgId = pDbHandle->columnInt(0);
-	}
-	else
-	{
+	} else {
 		pDbHandle->finalizeQuery();
 		return MSG_ERR_DB_STEP;
 	}
@@ -194,16 +176,15 @@ MSG_ERROR_T MsgStoGetOldestMessage(MsgDbHandler *pDbHandle, const MSG_MESSAGE_IN
 }
 
 
-MSG_ERROR_T MsgStoCheckMsgCntFull(MsgDbHandler *pDbHandle, const MSG_MESSAGE_TYPE_S* pMsgType, MSG_FOLDER_ID_T FolderId)
+msg_error_t MsgStoCheckMsgCntFull(MsgDbHandler *pDbHandle, const MSG_MESSAGE_TYPE_S* pMsgType, msg_folder_id_t folderId)
 {
 	MSG_BEGIN();
 
-	MSG_ERROR_T err = MSG_SUCCESS;
+	msg_error_t err = MSG_SUCCESS;
 
 	struct statfs buf = {0};
 
-	if (statfs(MSG_DATA_ROOT_PATH, &buf) == -1)
-	{
+	if (statfs(MSG_DATA_ROOT_PATH, &buf) == -1) {
 		MSG_DEBUG("statfs(\"%s\") failed - %d", MSG_DATA_ROOT_PATH);
 		return MSG_ERR_STORAGE_ERROR;
 	}
@@ -218,18 +199,15 @@ MSG_ERROR_T MsgStoCheckMsgCntFull(MsgDbHandler *pDbHandle, const MSG_MESSAGE_TYP
 	else if(freeSpace < MMS_MINIMUM_SPACE && pMsgType->mainType == MSG_MMS_TYPE)
 		err = MSG_ERR_MESSAGE_COUNT_FULL;
 
-	return err;
-
 	MSG_END();
 
 	return err;
 }
 
 
-MSG_ERROR_T MsgStoCountMsgByLimitCategory(MsgDbHandler *pDbHandle, const MSG_MESSAGE_TYPE_S *pMsgType, int *pMsgCount, MSG_FOLDER_ID_T folderId )
+msg_error_t MsgStoCountMsgByLimitCategory(MsgDbHandler *pDbHandle, const MSG_MESSAGE_TYPE_S *pMsgType, int *pMsgCount, msg_folder_id_t folderId)
 {
-	if (pMsgType == NULL)
-	{
+	if (pMsgType == NULL) {
 		MSG_DEBUG("pMsgType is NULL");
 		return MSG_ERR_NULL_POINTER;
 	}
@@ -239,45 +217,33 @@ MSG_ERROR_T MsgStoCountMsgByLimitCategory(MsgDbHandler *pDbHandle, const MSG_MES
 	char sqlQuery[MAX_QUERY_LEN+1];
 	memset(sqlQuery, 0x00, sizeof(sqlQuery));
 
-	if ((pMsgType->mainType == MSG_SMS_TYPE) && (pMsgType->subType == MSG_WAP_SI_SMS ||pMsgType->subType == MSG_WAP_SL_SMS)) // PUSH
-	{
+	if ((pMsgType->mainType == MSG_SMS_TYPE) && (pMsgType->subType == MSG_WAP_SI_SMS ||pMsgType->subType == MSG_WAP_SL_SMS)) { // PUSH
 		snprintf(sqlQuery, sizeof(sqlQuery), "SELECT COUNT(MSG_ID) FROM %s WHERE MAIN_TYPE = %d AND SUB_TYPE IN (%d, %d) AND FOLDER_ID = %d;",
 				MSGFW_MESSAGE_TABLE_NAME, pMsgType->mainType, MSG_WAP_SI_SMS, MSG_WAP_SL_SMS, MSG_INBOX_ID);
-	}
-	else if ((pMsgType->mainType == MSG_SMS_TYPE) && (pMsgType->subType == MSG_CB_SMS)) // CB
-	{
+	} else if ((pMsgType->mainType == MSG_SMS_TYPE) && (pMsgType->subType == MSG_CB_SMS)) { // CB
 		snprintf(sqlQuery, sizeof(sqlQuery), "SELECT COUNT(MSG_ID) FROM %s WHERE MAIN_TYPE = %d AND SUB_TYPE IN (%d) AND FOLDER_ID = %d;",
 				MSGFW_MESSAGE_TABLE_NAME, pMsgType->mainType, MSG_CB_SMS, MSG_CBMSGBOX_ID);
-	}
-	else if ((pMsgType->mainType == MSG_SMS_TYPE) && (pMsgType->subType == MSG_SYNCML_CP)) // Provision
-	{
+	} else if ((pMsgType->mainType == MSG_SMS_TYPE) && (pMsgType->subType == MSG_SYNCML_CP)) { // Provision
 		snprintf(sqlQuery, sizeof(sqlQuery), "SELECT COUNT(MSG_ID) FROM %s WHERE MAIN_TYPE = %d AND SUB_TYPE IN (%d) AND FOLDER_ID = %d;",
 				MSGFW_MESSAGE_TABLE_NAME, pMsgType->mainType, MSG_SYNCML_CP, MSG_INBOX_ID);
-	}
-	else if ((pMsgType->mainType == MSG_SMS_TYPE)) // SMS
-	{
+	} else if ((pMsgType->mainType == MSG_SMS_TYPE)) { // SMS
 		snprintf(sqlQuery, sizeof(sqlQuery), "SELECT COUNT(MSG_ID) FROM %s WHERE MAIN_TYPE = %d AND SUB_TYPE NOT IN (%d, %d, %d, %d) AND FOLDER_ID = %d;",
 				MSGFW_MESSAGE_TABLE_NAME, pMsgType->mainType, MSG_WAP_SI_SMS, MSG_WAP_SL_SMS, MSG_CB_SMS, MSG_SYNCML_CP, MSG_INBOX_ID); // etc SMS
-	}
-	else if ((pMsgType->mainType == MSG_MMS_TYPE) && (pMsgType->subType == MSG_SENDREQ_MMS || pMsgType->subType == MSG_SENDCONF_MMS || pMsgType->subType == MSG_RETRIEVE_AUTOCONF_MMS || pMsgType->subType == MSG_RETRIEVE_MANUALCONF_MMS || pMsgType->subType == MSG_NOTIFICATIONIND_MMS)) // MMS
-	{
+	} else if ((pMsgType->mainType == MSG_MMS_TYPE) &&
+			(pMsgType->subType == MSG_SENDREQ_MMS || pMsgType->subType == MSG_SENDCONF_MMS || pMsgType->subType == MSG_RETRIEVE_AUTOCONF_MMS ||
+					pMsgType->subType == MSG_RETRIEVE_MANUALCONF_MMS || pMsgType->subType == MSG_NOTIFICATIONIND_MMS)) { // MMS
 		snprintf(sqlQuery, sizeof(sqlQuery), "SELECT COUNT(MSG_ID) FROM %s WHERE MAIN_TYPE = %d AND SUB_TYPE IN (%d, %d, %d, %d, %d) AND FOLDER_ID = %d;",
 				MSGFW_MESSAGE_TABLE_NAME, pMsgType->mainType, MSG_SENDREQ_MMS, MSG_SENDCONF_MMS, MSG_RETRIEVE_AUTOCONF_MMS, MSG_RETRIEVE_MANUALCONF_MMS, MSG_NOTIFICATIONIND_MMS, folderId);
-	}
-	else
-	{
+	} else {
 		return MSG_ERR_INVALID_PARAMETER;
 	}
 
 	if (pDbHandle->prepareQuery(sqlQuery) != MSG_SUCCESS)
 		return MSG_ERR_DB_PREPARE;
 
-	if (pDbHandle->stepQuery() == MSG_ERR_DB_ROW)
-	{
+	if (pDbHandle->stepQuery() == MSG_ERR_DB_ROW) {
 		*pMsgCount = pDbHandle->columnInt(0);
-	}
-	else
-	{
+	} else {
 		pDbHandle->finalizeQuery();
 		return MSG_ERR_DB_STEP;
 	}
@@ -288,12 +254,12 @@ MSG_ERROR_T MsgStoCountMsgByLimitCategory(MsgDbHandler *pDbHandle, const MSG_MES
 }
 
 
-int MsgStoCheckMsgCntLimit(const MSG_MESSAGE_TYPE_S* pMsgType, MSG_FOLDER_ID_T FolderId)
+int MsgStoCheckMsgCntLimit(const MSG_MESSAGE_TYPE_S* pMsgType, msg_folder_id_t folderId)
 {
 	int msgboxType = -1;
 	int msgType= -1;
 
-	switch (FolderId)
+	switch (folderId)
 	{
 		case MSG_INBOX_ID :
 			msgboxType = MSG_COUNT_LIMIT_INBOX_TYPE;
@@ -316,7 +282,7 @@ int MsgStoCheckMsgCntLimit(const MSG_MESSAGE_TYPE_S* pMsgType, MSG_FOLDER_ID_T F
 		break;
 
 		default:
-			MSG_DEBUG("Unknown mailbox Type [%d]", FolderId);
+			MSG_DEBUG("Unknown mailbox Type [%d]", folderId);
 		return -1;
 	}
 
@@ -368,68 +334,328 @@ int MsgStoCheckMsgCntLimit(const MSG_MESSAGE_TYPE_S* pMsgType, MSG_FOLDER_ID_T F
 }
 
 
-MSG_ERROR_T MsgStoAddAddress(MsgDbHandler *pDbHandle, const MSG_ADDRESS_INFO_S *pAddrInfo, unsigned int *pAddrId)
+msg_error_t MsgStoAddAddress(MsgDbHandler *pDbHandle, const MSG_MESSAGE_INFO_S *pMsg, msg_thread_id_t *pConvId)
 {
-	MSG_ERROR_T err = MSG_SUCCESS;
+	msg_error_t err = MSG_SUCCESS;
 
 	char sqlQuery[MAX_QUERY_LEN+1];
 
 	// Check if new address or not
-	if (MsgExistAddress(pDbHandle, pAddrInfo->addressVal, pAddrId) == true)
-	{
-		MSG_DEBUG("The address already exists. ID : [%d], Value : [%s]", *pAddrId, pAddrInfo->addressVal);
+	if (MsgExistAddress(pDbHandle, pMsg, pConvId) == true) {
+		MSG_DEBUG("The address already exists. Conversation ID : [%d]", *pConvId);
 		return err;
 	}
 
-	// Get Contact Info
-	MSG_CONTACT_INFO_S contactInfo = {0};
+	MSG_DEBUG("Conversation ID : [%d]", *pConvId);
 
-	err = MsgGetContactInfo(pAddrInfo, &contactInfo);
-
-	if (err != MSG_SUCCESS)
-	{
-		MSG_DEBUG("MsgGetContactInfo() fail [%d]", err);
+	/* conversation insert */
+	err = MsgStoAddConversation(pDbHandle, pConvId);
+	if (err != MSG_SUCCESS) {
+		MSG_DEBUG("MsgStoAddConversation() fail [%d]", err);
 		return err;
 	}
 
-	if (pDbHandle->getRowId(MSGFW_ADDRESS_TABLE_NAME, pAddrId) != MSG_SUCCESS)
-	{
-		return err;
-	}
+	/* insert address in loop */
+	for (int i=0; i<pMsg->nAddressCnt; i++) {
 
-	// Add Address
-	memset(sqlQuery, 0x00, sizeof(sqlQuery));
-	snprintf(sqlQuery, sizeof(sqlQuery), "INSERT INTO %s VALUES (%d, %d, %d, '%s', %d, ?, ?, ?, '%s', 0, 0, 0, 0, 0, 0, 0, 0, '');",
-				MSGFW_ADDRESS_TABLE_NAME, *pAddrId, pAddrInfo->addressType, pAddrInfo->recipientType, pAddrInfo->addressVal,
-				contactInfo.contactId, contactInfo.imagePath);
+		unsigned int addrId;
+		MSG_CONTACT_INFO_S contactInfo = {0};
 
-	if (pDbHandle->prepareQuery(sqlQuery) != MSG_SUCCESS)
-		return MSG_ERR_DB_PREPARE;
+		// Get Contact Info
+		err = MsgGetContactInfo(&(pMsg->addressList[i]), &contactInfo);
 
-	pDbHandle->bindText(contactInfo.displayName, 1);
-	pDbHandle->bindText(contactInfo.firstName, 2);
-	pDbHandle->bindText(contactInfo.lastName, 3);
+		if (err != MSG_SUCCESS) {
+			MSG_DEBUG("MsgGetContactInfo() fail [%d]", err);
+			return err;
+		}
 
-	if (pDbHandle->stepQuery() != MSG_ERR_DB_DONE)
-	{
+		if (pDbHandle->getRowId(MSGFW_ADDRESS_TABLE_NAME, &addrId) != MSG_SUCCESS) {
+			return err;
+		}
+
+		// Add Address
+		memset(sqlQuery, 0x00, sizeof(sqlQuery));
+		snprintf(sqlQuery, sizeof(sqlQuery), "INSERT INTO %s VALUES (%d, %d, %d, %d, '%s', %d, ?, ?, ?, '%s', 0);",
+					MSGFW_ADDRESS_TABLE_NAME, addrId, *pConvId, pMsg->addressList[i].addressType, pMsg->addressList[i].recipientType, pMsg->addressList[i].addressVal,
+					contactInfo.contactId, contactInfo.imagePath);
+
+		MSG_DEBUG("Add Address Info. [%s]", sqlQuery);
+
+		if (pDbHandle->prepareQuery(sqlQuery) != MSG_SUCCESS)
+			return MSG_ERR_DB_PREPARE;
+
+		pDbHandle->bindText(contactInfo.displayName, 1);
+		pDbHandle->bindText(contactInfo.firstName, 2);
+		pDbHandle->bindText(contactInfo.lastName, 3);
+
+		if (pDbHandle->stepQuery() != MSG_ERR_DB_DONE) {
+			pDbHandle->finalizeQuery();
+			return MSG_ERR_DB_STEP;
+		}
+
 		pDbHandle->finalizeQuery();
-		MSG_DEBUG("Add Address Info. Fail [%s]", sqlQuery);
-		return MSG_ERR_DB_STEP;
-	}
 
-	pDbHandle->finalizeQuery();
+		// set conversation display name by conv id
+		MsgStoSetConversationDisplayName(pDbHandle, *pConvId);
+
+	}
 
 	return err;
 }
 
+msg_error_t MsgStoGetAddressByMsgId(MsgDbHandler *pDbHandle, msg_message_id_t msgId, int contactNameOrder, int *nAddressCnt, MSG_ADDRESS_INFO_S *pAddress)
+{
+	char sqlQuery[MAX_QUERY_LEN+1];
+	char firstName[MAX_DISPLAY_NAME_LEN+1];
+	char lastName[MAX_DISPLAY_NAME_LEN+1];
 
-MSG_ERROR_T MsgStoUpdateAddress(MsgDbHandler *pDbHandle, unsigned int AddrId)
+	*nAddressCnt = 0;
+
+	memset(sqlQuery, 0x00, sizeof(sqlQuery));
+	snprintf(sqlQuery, sizeof(sqlQuery), "SELECT A.ADDRESS_TYPE, A.RECIPIENT_TYPE, \
+				A.CONTACT_ID, A.ADDRESS_VAL, A.DISPLAY_NAME, A.FIRST_NAME, A.LAST_NAME \
+				FROM %s A, %s B WHERE A.CONV_ID = B.CONV_ID AND B.MSG_ID = %d;",
+				MSGFW_ADDRESS_TABLE_NAME, MSGFW_MESSAGE_TABLE_NAME, msgId);
+
+	if (pDbHandle->prepareQuery(sqlQuery) != MSG_SUCCESS) {
+		MSG_DEBUG("Query Failed [%s]", sqlQuery);
+		return MSG_ERR_DB_PREPARE;
+	}
+
+	while (pDbHandle->stepQuery() == MSG_ERR_DB_ROW) {
+		memset(firstName, 0x00, sizeof(firstName));
+		memset(lastName, 0x00, sizeof(lastName));
+
+		pAddress[*nAddressCnt].addressType = pDbHandle->columnInt(0);
+		pAddress[*nAddressCnt].recipientType = pDbHandle->columnInt(1);
+		pAddress[*nAddressCnt].contactId = pDbHandle->columnInt(2);
+
+		if (pDbHandle->columnText(3) != NULL)
+			strncpy(pAddress[*nAddressCnt].addressVal, (char *)pDbHandle->columnText(3), MAX_ADDRESS_VAL_LEN);
+
+		if (pDbHandle->columnText(4) != NULL && ((char *)pDbHandle->columnText(4))[0]!='\0') {
+			MSG_DEBUG("displayName  : [%s]", pDbHandle->columnText(4));
+			strncpy(pAddress[*nAddressCnt].displayName, (char *)pDbHandle->columnText(4), MAX_DISPLAY_NAME_LEN);
+		} else {
+			if (pDbHandle->columnText(5) != NULL)
+					strncpy(firstName, (char *)pDbHandle->columnText(5), MAX_DISPLAY_NAME_LEN);
+
+			if (pDbHandle->columnText(6) != NULL)
+					strncpy(lastName, (char *)pDbHandle->columnText(6), MAX_DISPLAY_NAME_LEN);
+
+			if (contactNameOrder == 0) {
+				if (strlen(firstName) > 0) {
+					strncpy(pAddress[*nAddressCnt].displayName, firstName, MAX_DISPLAY_NAME_LEN);
+				}
+				if (strlen(lastName) > 0) {
+					strncat(pAddress[*nAddressCnt].displayName, " ", MAX_DISPLAY_NAME_LEN-strlen(pAddress[*nAddressCnt].displayName));
+					strncat(pAddress[*nAddressCnt].displayName, lastName, MAX_DISPLAY_NAME_LEN-strlen(pAddress[*nAddressCnt].displayName));
+				}
+			} else if (contactNameOrder == 1) {
+				if (strlen(lastName) > 0) {
+					strncpy(pAddress[*nAddressCnt].displayName, lastName, MAX_DISPLAY_NAME_LEN);
+					strncat(pAddress[*nAddressCnt].displayName, " ", MAX_DISPLAY_NAME_LEN-strlen(pAddress[*nAddressCnt].displayName));
+				}
+
+				if (strlen(firstName) > 0) {
+					strncat(pAddress[*nAddressCnt].displayName, firstName, MAX_DISPLAY_NAME_LEN-strlen(pAddress[*nAddressCnt].displayName));
+				}
+			}
+		}
+
+		(*nAddressCnt)++;
+	}
+
+	pDbHandle->finalizeQuery();
+
+	return MSG_SUCCESS;
+}
+
+msg_error_t MsgStoGetAddressByMsgId(MsgDbHandler *pDbHandle, msg_message_id_t msgId, int contactNameOrder, msg_struct_list_s *pAddress)
+{
+	char sqlQuery[MAX_QUERY_LEN+1];
+	char firstName[MAX_DISPLAY_NAME_LEN+1];
+	char lastName[MAX_DISPLAY_NAME_LEN+1];
+
+	pAddress->nCount = 0;
+	pAddress->nCount = NULL;
+
+	memset(sqlQuery, 0x00, sizeof(sqlQuery));
+	snprintf(sqlQuery, sizeof(sqlQuery), "SELECT A.ADDRESS_TYPE, A.RECIPIENT_TYPE, \
+			A.CONTACT_ID, A.ADDRESS_VAL, A.DISPLAY_NAME, A.FIRST_NAME, A.LAST_NAME \
+			FROM %s A, %s B WHERE A.CONV_ID = B.CONV_ID AND B.MSG_ID = %d;",
+			MSGFW_ADDRESS_TABLE_NAME, MSGFW_MESSAGE_TABLE_NAME, msgId);
+
+	if (pDbHandle->prepareQuery(sqlQuery) != MSG_SUCCESS) {
+		MSG_DEBUG("Query Failed [%s]", sqlQuery);
+		return MSG_ERR_DB_PREPARE;
+	}
+
+	msg_struct_s *pTmp = NULL;
+	MSG_ADDRESS_INFO_S *pAddr = NULL;
+
+	pAddress->msg_struct_info = (msg_struct_t *)new char[sizeof(msg_struct_t) * MAX_TO_ADDRESS_CNT];
+
+	for (int i = 0; i < MAX_TO_ADDRESS_CNT; i++) {
+		pAddress->msg_struct_info[i] = (msg_struct_t)new char[sizeof(msg_struct_s)];
+		pTmp = (msg_struct_s *)pAddress->msg_struct_info[i];
+		pTmp->type = MSG_STRUCT_ADDRESS_INFO;
+		pTmp->data = new char[sizeof(MSG_ADDRESS_INFO_S)];
+		memset(pTmp->data, 0x00, sizeof(MSG_ADDRESS_INFO_S));
+	}
+
+
+	while (pDbHandle->stepQuery() == MSG_ERR_DB_ROW) {
+		memset(firstName, 0x00, sizeof(firstName));
+		memset(lastName, 0x00, sizeof(lastName));
+
+		pTmp = (msg_struct_s *)pAddress->msg_struct_info[pAddress->nCount];
+		pAddr = (MSG_ADDRESS_INFO_S *)pTmp->data;
+
+		pAddr->addressType = pDbHandle->columnInt(0);
+		pAddr->recipientType = pDbHandle->columnInt(1);
+		pAddr->contactId = pDbHandle->columnInt(2);
+
+		if (pDbHandle->columnText(3) != NULL)
+					strncpy(pAddr->addressVal, (char *)pDbHandle->columnText(3), MAX_ADDRESS_VAL_LEN);
+
+		if (pDbHandle->columnText(4) != NULL && ((char *)pDbHandle->columnText(4))[0]!='\0') {
+					MSG_DEBUG("displayName  : [%s]", pDbHandle->columnText(4));
+					strncpy(pAddr->displayName, (char *)pDbHandle->columnText(4), MAX_DISPLAY_NAME_LEN);
+		} else {
+			if (pDbHandle->columnText(5) != NULL)
+				strncpy(firstName, (char *)pDbHandle->columnText(5), MAX_DISPLAY_NAME_LEN);
+
+			if (pDbHandle->columnText(6) != NULL)
+				strncpy(lastName, (char *)pDbHandle->columnText(6), MAX_DISPLAY_NAME_LEN);
+
+			if (contactNameOrder == 0) {
+				if (strlen(firstName) > 0) {
+					strncpy(pAddr->displayName, firstName, MAX_DISPLAY_NAME_LEN);
+				}
+
+				if (strlen(lastName) > 0) {
+					strncat(pAddr->displayName, " ", MAX_DISPLAY_NAME_LEN-strlen(pAddr->displayName));
+					strncat(pAddr->displayName, lastName, MAX_DISPLAY_NAME_LEN-strlen(pAddr->displayName));
+				}
+			} else if (contactNameOrder == 1) {
+				if (strlen(lastName) > 0) {
+					strncpy(pAddr->displayName, lastName, MAX_DISPLAY_NAME_LEN);
+					strncat(pAddr->displayName, " ", MAX_DISPLAY_NAME_LEN-strlen(pAddr->displayName));
+				}
+
+				if (strlen(firstName) > 0) {
+					strncat(pAddr->displayName, firstName, MAX_DISPLAY_NAME_LEN-strlen(pAddr->displayName));
+				}
+			}
+		}
+
+		pAddress->nCount++;
+	}
+
+	pDbHandle->finalizeQuery();
+
+	return MSG_SUCCESS;
+}
+
+
+msg_error_t MsgStoGetAddressByConvId(MsgDbHandler *pDbHandle, msg_thread_id_t convId, int contactNameOrder, msg_struct_list_s *pAddrlist)
+{
+	char sqlQuery[MAX_QUERY_LEN+1];
+	char firstName[MAX_DISPLAY_NAME_LEN+1];
+	char lastName[MAX_DISPLAY_NAME_LEN+1];
+	int index = 7;
+	int rowCnt = 0;
+
+	pAddrlist->nCount = 0;
+	pAddrlist->msg_struct_info = NULL;
+
+	memset(sqlQuery, 0x00, sizeof(sqlQuery));
+	snprintf(sqlQuery, sizeof(sqlQuery), "SELECT ADDRESS_TYPE, RECIPIENT_TYPE, \
+			CONTACT_ID, ADDRESS_VAL, DISPLAY_NAME, FIRST_NAME, LAST_NAME \
+			FROM %s WHERE CONV_ID  = %d;",
+			MSGFW_ADDRESS_TABLE_NAME, convId);
+
+	msg_error_t  err = pDbHandle->getTable(sqlQuery, &rowCnt);
+
+	if (err == MSG_ERR_DB_NORECORD) {
+		pDbHandle->freeTable();
+		return MSG_SUCCESS;
+	} else if (err != MSG_SUCCESS) {
+		MSG_DEBUG("sqlQuery is - %s", sqlQuery);
+		pDbHandle->freeTable();
+		return err;
+	}
+
+	pAddrlist->nCount = rowCnt;
+
+	MSG_DEBUG("pAddrlist->nCount [%d]", pAddrlist->nCount);
+
+	msg_struct_s *pTmp = NULL;
+	MSG_ADDRESS_INFO_S *pAddr = NULL;
+
+	pAddrlist->msg_struct_info = (msg_struct_t *)new char[sizeof(msg_struct_t) * MAX_TO_ADDRESS_CNT];
+
+	for (int i = 0; i < MAX_TO_ADDRESS_CNT; i++) {
+		pAddrlist->msg_struct_info[i] = (msg_struct_t)new char[sizeof(msg_struct_s)];
+		pTmp = (msg_struct_s *)pAddrlist->msg_struct_info[i];
+		pTmp->type = MSG_STRUCT_ADDRESS_INFO;
+		pTmp->data = new char[sizeof(MSG_ADDRESS_INFO_S)];
+		memset(pTmp->data, 0x00, sizeof(MSG_ADDRESS_INFO_S));
+	}
+
+	for (int i = 0; i < rowCnt; i++) {
+		pTmp = (msg_struct_s *)pAddrlist->msg_struct_info[i];
+		pAddr = (MSG_ADDRESS_INFO_S *)pTmp->data;
+
+		pAddr->addressType = pDbHandle->getColumnToInt(index++);
+		pAddr->recipientType = pDbHandle->getColumnToInt(index++);
+		pAddr->contactId = pDbHandle->getColumnToInt(index++);
+		pDbHandle->getColumnToString(index++, MAX_ADDRESS_VAL_LEN, pAddr->addressVal);
+		pDbHandle->getColumnToString(index++, MAX_DISPLAY_NAME_LEN, pAddr->displayName);
+		if(!strlen(pAddr->displayName))
+		{
+			pDbHandle->getColumnToString(index++,MAX_DISPLAY_NAME_LEN, firstName);
+			pDbHandle->getColumnToString(index++,MAX_DISPLAY_NAME_LEN, lastName);
+
+			if (contactNameOrder == 0) {
+				if (strlen(firstName) > 0) {
+					strncpy(pAddr->displayName, firstName, MAX_DISPLAY_NAME_LEN);
+				}
+
+				if (strlen(lastName) > 0) {
+					strncat(pAddr->displayName, " ", MAX_DISPLAY_NAME_LEN-strlen(pAddr->displayName));
+					strncat(pAddr->displayName, lastName, MAX_DISPLAY_NAME_LEN-strlen(pAddr->displayName));
+				}
+			} else if (contactNameOrder == 1) {
+				if (strlen(lastName) > 0) {
+					strncpy(pAddr->displayName, lastName, MAX_DISPLAY_NAME_LEN);
+					strncat(pAddr->displayName, " ", MAX_DISPLAY_NAME_LEN-strlen(pAddr->displayName));
+				}
+
+				if (strlen(firstName) > 0) {
+					strncat(pAddr->displayName, firstName, MAX_DISPLAY_NAME_LEN-strlen(pAddr->displayName));
+				}
+			}
+		}
+
+	}
+	pDbHandle->freeTable();
+
+	return MSG_SUCCESS;
+}
+
+
+/* Have to use trigger for this function. */
+msg_error_t MsgStoUpdateConversation(MsgDbHandler *pDbHandle, msg_thread_id_t convId)
 {
 	MSG_BEGIN();
 
-	MSG_ERROR_T err = MSG_SUCCESS;
+	msg_error_t err = MSG_SUCCESS;
 
-	int unreadCnt = 0, smsCnt = 0, mmsCnt = 0;
+	int unreadCnt = 0;
+	int smsCnt = 0;
+	int mmsCnt = 0;
 
 	char msgText[MAX_THREAD_DATA_LEN+1];
 	char sqlQuery[MAX_QUERY_LEN+1];
@@ -437,23 +663,17 @@ MSG_ERROR_T MsgStoUpdateAddress(MsgDbHandler *pDbHandle, unsigned int AddrId)
 	// Get Unread Count
 	memset(sqlQuery, 0x00, sizeof(sqlQuery));
 
-	snprintf(sqlQuery, sizeof(sqlQuery), "SELECT COUNT(MSG_ID) FROM %s \
-				     		   		WHERE ADDRESS_ID = %d \
-				     		        	     AND FOLDER_ID = %d \
-				     		        	     AND READ_STATUS = 0;",
-				MSGFW_MESSAGE_TABLE_NAME, AddrId, MSG_INBOX_ID);
+	snprintf(sqlQuery, sizeof(sqlQuery), "SELECT COUNT(MSG_ID) FROM %s WHERE CONV_ID = %d AND FOLDER_ID = %d AND READ_STATUS = 0;",
+			MSGFW_MESSAGE_TABLE_NAME, convId, MSG_INBOX_ID);
 
 	if (pDbHandle->prepareQuery(sqlQuery) != MSG_SUCCESS)
 		return MSG_ERR_DB_PREPARE;
 
 	err = pDbHandle->stepQuery();
 
-	if (err == MSG_ERR_DB_ROW)
-	{
+	if (err == MSG_ERR_DB_ROW) {
 		unreadCnt = pDbHandle->columnInt(0);
-	}
-	else if (err != MSG_ERR_DB_DONE)
-	{
+	} else if (err != MSG_ERR_DB_DONE) {
 		pDbHandle->finalizeQuery();
 		return MSG_ERR_DB_STEP;
 	}
@@ -463,23 +683,18 @@ MSG_ERROR_T MsgStoUpdateAddress(MsgDbHandler *pDbHandle, unsigned int AddrId)
 	// Get SMS Count
 	memset(sqlQuery, 0x00, sizeof(sqlQuery));
 
-	snprintf(sqlQuery, sizeof(sqlQuery), "SELECT COUNT(MSG_ID) FROM %s \
-				     		   		WHERE ADDRESS_ID = %d \
-				     		        	     AND MAIN_TYPE = %d \
-				     		        	     AND FOLDER_ID > 0 AND FOLDER_ID < %d;",
-				MSGFW_MESSAGE_TABLE_NAME, AddrId, MSG_SMS_TYPE, MSG_CBMSGBOX_ID);
+	snprintf(sqlQuery, sizeof(sqlQuery), "SELECT COUNT(MSG_ID) FROM %s WHERE CONV_ID = %d AND MAIN_TYPE = %d AND FOLDER_ID > 0 AND FOLDER_ID < %d;",
+			MSGFW_MESSAGE_TABLE_NAME, convId, MSG_SMS_TYPE, MSG_SPAMBOX_ID);
 
 	if (pDbHandle->prepareQuery(sqlQuery) != MSG_SUCCESS)
 		return MSG_ERR_DB_PREPARE;
 
 	err = pDbHandle->stepQuery();
 
-	if (err == MSG_ERR_DB_ROW)
-	{
+	if (err == MSG_ERR_DB_ROW) {
 		smsCnt = pDbHandle->columnInt(0);
 	}
-	else if (err != MSG_ERR_DB_DONE)
-	{
+	else if (err != MSG_ERR_DB_DONE) {
 		pDbHandle->finalizeQuery();
 		return MSG_ERR_DB_STEP;
 	}
@@ -490,24 +705,17 @@ MSG_ERROR_T MsgStoUpdateAddress(MsgDbHandler *pDbHandle, unsigned int AddrId)
 	memset(sqlQuery, 0x00, sizeof(sqlQuery));
 
 	snprintf(sqlQuery, sizeof(sqlQuery), "SELECT COUNT(MSG_ID) FROM %s \
-				     		   		WHERE ADDRESS_ID = %d \
-				     		        	     AND MAIN_TYPE = %d \
-				     		        	     AND SUB_TYPE NOT IN (%d, %d, %d) \
-				     		        	     AND FOLDER_ID > 0 AND FOLDER_ID < %d;",
-				MSGFW_MESSAGE_TABLE_NAME, AddrId, MSG_MMS_TYPE, MSG_DELIVERYIND_MMS,
-				MSG_READRECIND_MMS, MSG_READORGIND_MMS, MSG_CBMSGBOX_ID);
+			WHERE CONV_ID = %d AND MAIN_TYPE = %d AND SUB_TYPE NOT IN (%d, %d, %d) AND FOLDER_ID > 0 AND FOLDER_ID < %d;",
+			MSGFW_MESSAGE_TABLE_NAME, convId, MSG_MMS_TYPE, MSG_DELIVERYIND_MMS, MSG_READRECIND_MMS, MSG_READORGIND_MMS, MSG_SPAMBOX_ID);
 
 	if (pDbHandle->prepareQuery(sqlQuery) != MSG_SUCCESS)
 		return MSG_ERR_DB_PREPARE;
 
 	err = pDbHandle->stepQuery();
 
-	if (err == MSG_ERR_DB_ROW)
-	{
+	if (err == MSG_ERR_DB_ROW) {
 		mmsCnt = pDbHandle->columnInt(0);
-	}
-	else if (err != MSG_ERR_DB_DONE)
-	{
+	} else if (err != MSG_ERR_DB_DONE) {
 		pDbHandle->finalizeQuery();
 		return MSG_ERR_DB_STEP;
 	}
@@ -517,24 +725,21 @@ MSG_ERROR_T MsgStoUpdateAddress(MsgDbHandler *pDbHandle, unsigned int AddrId)
 	// Get Latest Msg Data
 	MSG_MAIN_TYPE_T mainType = MSG_UNKNOWN_TYPE;
 	MSG_SUB_TYPE_T subType = MSG_NORMAL_SMS;
-	MSG_DIRECTION_TYPE_T direction = MSG_DIRECTION_TYPE_MO;
+	msg_direction_type_t direction = MSG_DIRECTION_TYPE_MO;
 	time_t msgTime = 0;
 
 	memset(sqlQuery, 0x00, sizeof(sqlQuery));
 
 	snprintf(sqlQuery, sizeof(sqlQuery), "SELECT MAIN_TYPE, SUB_TYPE, MSG_DIRECTION, DISPLAY_TIME, SUBJECT, MSG_TEXT FROM %s \
-				      WHERE ADDRESS_ID = %d \
-				      AND FOLDER_ID > 0 AND FOLDER_ID < %d \
-				      ORDER BY DISPLAY_TIME DESC;",
-				MSGFW_MESSAGE_TABLE_NAME, AddrId, MSG_CBMSGBOX_ID);
+			WHERE CONV_ID = %d AND FOLDER_ID > 0 AND FOLDER_ID < %d ORDER BY DISPLAY_TIME DESC;",
+			MSGFW_MESSAGE_TABLE_NAME, convId, MSG_SPAMBOX_ID);
 
 	if (pDbHandle->prepareQuery(sqlQuery) != MSG_SUCCESS)
 		return MSG_ERR_DB_PREPARE;
 
 	err = pDbHandle->stepQuery();
 
-	if (err == MSG_ERR_DB_ROW)
-	{
+	if (err == MSG_ERR_DB_ROW) {
 		mainType = pDbHandle->columnInt(0);
 		subType = pDbHandle->columnInt(1);
 		direction = pDbHandle->columnInt(2);
@@ -543,27 +748,20 @@ MSG_ERROR_T MsgStoUpdateAddress(MsgDbHandler *pDbHandle, unsigned int AddrId)
 
 		memset(msgText, 0x00, sizeof(msgText));
 
-		if (mainType == MSG_SMS_TYPE)
-		{
+		if (mainType == MSG_SMS_TYPE) {
 			if (pDbHandle->columnText(5) != NULL)
 				strncpy(msgText, (char*)pDbHandle->columnText(5), MAX_THREAD_DATA_LEN);
-		}
-		else if (mainType == MSG_MMS_TYPE)
-		{
-			if (pDbHandle->columnText(4) != NULL)
-			{
+		} else if (mainType == MSG_MMS_TYPE) {
+			if (pDbHandle->columnText(4) != NULL) {
 				strncpy(msgText, (char*)pDbHandle->columnText(4), MAX_THREAD_DATA_LEN);
 			}
 
-			if ((strlen(msgText) <= 0) && (pDbHandle->columnText(5) != NULL) && (subType != MSG_NOTIFICATIONIND_MMS))
-			{
+			if ((strlen(msgText) <= 0) && (pDbHandle->columnText(5) != NULL) && (subType != MSG_NOTIFICATIONIND_MMS)) {
 				memset(msgText, 0x00, sizeof(msgText));
 				strncpy(msgText, (char*)pDbHandle->columnText(5), MAX_THREAD_DATA_LEN);
 			}
 		}
-	}
-	else if (err != MSG_ERR_DB_DONE)
-	{
+	} else if (err != MSG_ERR_DB_DONE) {
 		pDbHandle->finalizeQuery();
 		return MSG_ERR_DB_STEP;
 	}
@@ -573,17 +771,18 @@ MSG_ERROR_T MsgStoUpdateAddress(MsgDbHandler *pDbHandle, unsigned int AddrId)
 	// Update Address Table
 	memset(sqlQuery, 0x00, sizeof(sqlQuery));
 
-	snprintf(sqlQuery, sizeof(sqlQuery), "UPDATE %s SET UNREAD_CNT = %d, SMS_CNT = %d, MMS_CNT = %d, MAIN_TYPE = %d, SUB_TYPE = %d, MSG_DIRECTION = %d, MSG_TIME = %ld, MSG_TEXT = ? \
-				      WHERE ADDRESS_ID = %d;",
-				MSGFW_ADDRESS_TABLE_NAME, unreadCnt, smsCnt, mmsCnt, mainType, subType, direction, msgTime, AddrId);
+	snprintf(sqlQuery, sizeof(sqlQuery), "UPDATE %s SET \
+			UNREAD_CNT = %d, SMS_CNT = %d, MMS_CNT = %d, MAIN_TYPE = %d, SUB_TYPE = %d, MSG_DIRECTION = %d, DISPLAY_TIME = %ld, MSG_TEXT = ? \
+			WHERE CONV_ID = %d;", MSGFW_CONVERSATION_TABLE_NAME, unreadCnt, smsCnt, mmsCnt, mainType, subType, direction, msgTime, convId);
 
-	if (pDbHandle->prepareQuery(sqlQuery) != MSG_SUCCESS)
+	if (pDbHandle->prepareQuery(sqlQuery) != MSG_SUCCESS) {
+		MSG_DEBUG("Query Failed [%s]", sqlQuery);
 		return MSG_ERR_DB_PREPARE;
+	}
 
 	pDbHandle->bindText(msgText, 1);
 
-	if (pDbHandle->stepQuery() != MSG_ERR_DB_DONE)
-	{
+	if (pDbHandle->stepQuery() != MSG_ERR_DB_DONE) {
 		pDbHandle->finalizeQuery();
 		MSG_DEBUG("Update Address Info. Fail [%d] [%s]", err, sqlQuery);
 		return MSG_ERR_DB_STEP;
@@ -597,18 +796,23 @@ MSG_ERROR_T MsgStoUpdateAddress(MsgDbHandler *pDbHandle, unsigned int AddrId)
 }
 
 
-MSG_ERROR_T MsgStoClearAddressTable(MsgDbHandler *pDbHandle)
+/* consider to replcae this function to trigger. */
+msg_error_t MsgStoClearConversationTable(MsgDbHandler *pDbHandle)
 {
-	MSG_ERROR_T err = MSG_SUCCESS;
+	msg_error_t err = MSG_SUCCESS;
 
 	char sqlQuery[MAX_QUERY_LEN+1];
 
 	memset(sqlQuery, 0x00, sizeof(sqlQuery));
 
 	snprintf(sqlQuery, sizeof(sqlQuery), "DELETE FROM %s \
-				     WHERE ADDRESS_ID NOT IN (SELECT ADDRESS_ID FROM %s) \
-				          AND ADDRESS_ID <> 0;",
-				MSGFW_ADDRESS_TABLE_NAME, MSGFW_MESSAGE_TABLE_NAME);
+			WHERE CONV_ID NOT IN (SELECT CONV_ID FROM %s) AND CONV_ID <> 0;",
+			MSGFW_CONVERSATION_TABLE_NAME, MSGFW_MESSAGE_TABLE_NAME);
+
+	err = pDbHandle->execQuery(sqlQuery);
+
+	snprintf(sqlQuery, sizeof(sqlQuery), "DELETE FROM %s WHERE CONV_ID NOT IN (SELECT CONV_ID FROM %s);",
+			MSGFW_ADDRESS_TABLE_NAME, MSGFW_CONVERSATION_TABLE_NAME);
 
 	err = pDbHandle->execQuery(sqlQuery);
 
@@ -629,71 +833,159 @@ void MsgConvertNumber(const char* pSrcNum, char* pDestNum)
 	pDestNum[i] = '\0';
 }
 
-
-bool MsgExistAddress(MsgDbHandler *pDbHandle, const char *pAddress, unsigned int *pAddrId)
+/* Change the function name to conversation related. */
+bool MsgExistAddress(MsgDbHandler *pDbHandle, const MSG_MESSAGE_INFO_S *pMsg, msg_thread_id_t *pConvId)
 {
-	MSG_ERROR_T err = MSG_SUCCESS;
+	msg_error_t err = MSG_SUCCESS;
 
 	char sqlQuery[MAX_QUERY_LEN+1];
 
-	*pAddrId = 0;
+	*pConvId = 0;
 
-	if (strlen(pAddress) > MAX_PRECONFIG_NUM)
-	{
-		char newPhoneNum[MAX_PRECONFIG_NUM+1];
+	if(pMsg->nAddressCnt == 1) {
+		if (strlen(pMsg->addressList[0].addressVal) > MAX_PRECONFIG_NUM) {
+			char newPhoneNum[MAX_PRECONFIG_NUM+1];
 
-		memset(newPhoneNum, 0x00, sizeof(newPhoneNum));
+			memset(newPhoneNum, 0x00, sizeof(newPhoneNum));
 
-		MsgConvertNumber(pAddress, newPhoneNum);
+			MsgConvertNumber(pMsg->addressList[0].addressVal, newPhoneNum);
 
-		memset(sqlQuery, 0x00, sizeof(sqlQuery));
+			memset(sqlQuery, 0x00, sizeof(sqlQuery));
 
-		snprintf(sqlQuery, sizeof(sqlQuery), "SELECT ADDRESS_ID FROM %s WHERE ADDRESS_VAL LIKE '%%%%%s';",
-						MSGFW_ADDRESS_TABLE_NAME, newPhoneNum);
-	}
-	else
-	{
-		memset(sqlQuery, 0x00, sizeof(sqlQuery));
+			snprintf(sqlQuery, sizeof(sqlQuery),
+					"SELECT CONV_ID FROM (SELECT B.CONV_ID FROM %s A, %s B WHERE A.ADDRESS_VAL LIKE '%%%%%s' AND A.CONV_ID=B.CONV_ID) GROUP BY CONV_ID HAVING COUNT(CONV_ID)=1;",
+					MSGFW_ADDRESS_TABLE_NAME, MSGFW_ADDRESS_TABLE_NAME, newPhoneNum);
+		} else {
+			memset(sqlQuery, 0x00, sizeof(sqlQuery));
 
-		snprintf(sqlQuery, sizeof(sqlQuery), "SELECT ADDRESS_ID FROM %s WHERE ADDRESS_VAL = '%s';",
-						MSGFW_ADDRESS_TABLE_NAME, pAddress);
-	}
+			snprintf(sqlQuery, sizeof(sqlQuery),
+					"SELECT CONV_ID FROM (SELECT B.CONV_ID FROM %s A, %s B WHERE A.ADDRESS_VAL = '%s' AND A.CONV_ID=B.CONV_ID) GROUP BY CONV_ID HAVING COUNT(CONV_ID)=1;",
+					MSGFW_ADDRESS_TABLE_NAME, MSGFW_ADDRESS_TABLE_NAME, pMsg->addressList[0].addressVal);
+		}
 
-	int rowCnt = 0, addrId = 0;
+		int rowCnt = 0;
+		msg_thread_id_t convId = 0;
+		err = pDbHandle->getTable(sqlQuery, &rowCnt);
 
-	err = pDbHandle->getTable(sqlQuery, &rowCnt);
+		/* No record or other error */
+		if (err != MSG_SUCCESS) {
+			MSG_DEBUG("Query Failed [%s]", sqlQuery);
+			pDbHandle->freeTable();
+			return false;
+		}
 
-	// No record or other error
-	if (err != MSG_SUCCESS)
-	{
+		if(rowCnt > 0) {
+			convId = pDbHandle->getColumnToInt(1);
+
+			MSG_DEBUG("CONV_ID : [%d]", convId);
+
+			if (convId > 0) {
+				*pConvId = convId;
+				pDbHandle->freeTable();
+				return true;
+			} else {
+				pDbHandle->freeTable();
+				return false;
+			}
+
+			pDbHandle->freeTable();
+		}
+
+	} else { /* multiple address */
+		if (strlen(pMsg->addressList[0].addressVal) > MAX_PRECONFIG_NUM) {
+			char newPhoneNum[MAX_PRECONFIG_NUM+1];
+
+			memset(newPhoneNum, 0x00, sizeof(newPhoneNum));
+
+			MsgConvertNumber(pMsg->addressList[0].addressVal, newPhoneNum);
+
+			memset(sqlQuery, 0x00, sizeof(sqlQuery));
+
+			snprintf(sqlQuery, sizeof(sqlQuery),
+					"SELECT CONV_ID FROM (SELECT B.CONV_ID FROM %s A, %s B WHERE A.ADDRESS_VAL LIKE '%%%%%s' AND A.CONV_ID=B.CONV_ID) GROUP BY CONV_ID HAVING COUNT(CONV_ID)=%d;",
+					MSGFW_ADDRESS_TABLE_NAME, MSGFW_ADDRESS_TABLE_NAME, newPhoneNum, pMsg->nAddressCnt);
+		} else {
+			memset(sqlQuery, 0x00, sizeof(sqlQuery));
+
+			snprintf(sqlQuery, sizeof(sqlQuery),
+					"SELECT CONV_ID FROM (SELECT B.CONV_ID FROM %s A, %s B WHERE A.ADDRESS_VAL = '%s' AND A.CONV_ID=B.CONV_ID) GROUP BY CONV_ID HAVING COUNT(CONV_ID)=%d;",
+					MSGFW_ADDRESS_TABLE_NAME, MSGFW_ADDRESS_TABLE_NAME, pMsg->addressList[0].addressVal, pMsg->nAddressCnt);
+		}
+
+		int rowCnt = 0;
+		int convId = 0;
+
+		MSG_DEBUG("Query [%s]", sqlQuery);
+
+		err = pDbHandle->getTable(sqlQuery, &rowCnt);
+
+		/* No record or other error */
+		if (err != MSG_SUCCESS) {
+			MSG_DEBUG("Query Failed [%s]", sqlQuery);
+			pDbHandle->freeTable();
+			return false;
+		}
+
+		for (int i = 1; i <= rowCnt; i++) {
+			convId = pDbHandle->getColumnToInt(i);
+
+			memset(sqlQuery, 0x00, sizeof(sqlQuery));
+
+			snprintf(sqlQuery, sizeof(sqlQuery),
+					"SELECT COUNT(*) FROM %s WHERE CONV_ID=%d AND (",
+					MSGFW_ADDRESS_TABLE_NAME, convId);
+
+			for (int j = 0; j<(pMsg->nAddressCnt); j++ ) {
+
+				if (j!=0)
+					strncat(sqlQuery, "OR ", MAX_QUERY_LEN-strlen(sqlQuery));
+
+				if (strlen(pMsg->addressList[j].addressVal) > MAX_PRECONFIG_NUM) {
+
+					strncat(sqlQuery, "ADDRESS_VAL LIKE '%%%%", MAX_QUERY_LEN-strlen(sqlQuery));
+
+					char newPhoneNum[MAX_PRECONFIG_NUM+1];
+					memset(newPhoneNum, 0x00, sizeof(newPhoneNum));
+					MsgConvertNumber(pMsg->addressList[j].addressVal, newPhoneNum);
+
+					strncat(sqlQuery, newPhoneNum, MAX_QUERY_LEN-strlen(sqlQuery));
+
+					strncat(sqlQuery, "' ", MAX_QUERY_LEN-strlen(sqlQuery));
+				} else {
+					strncat(sqlQuery, "ADDRESS_VAL = '", MAX_QUERY_LEN-strlen(sqlQuery));
+
+					strncat(sqlQuery, pMsg->addressList[j].addressVal, MAX_QUERY_LEN-strlen(sqlQuery));
+
+					strncat(sqlQuery, "' ", MAX_QUERY_LEN-strlen(sqlQuery));
+				}
+			}
+			strncat(sqlQuery, ");", MAX_QUERY_LEN-strlen(sqlQuery));
+			MSG_DEBUG("Query [%s]", sqlQuery);
+			if (pDbHandle->prepareQuery(sqlQuery) != MSG_SUCCESS) {
+				MSG_DEBUG("Query Failed [%s]", sqlQuery);
+				pDbHandle->freeTable();
+				pDbHandle->finalizeQuery();
+				return false;
+			}
+
+			if (pDbHandle->stepQuery() == MSG_ERR_DB_ROW) {
+				if (pMsg->nAddressCnt == pDbHandle->columnInt(0)) {
+					*pConvId = convId;
+					pDbHandle->finalizeQuery();
+					pDbHandle->freeTable();
+					return true;
+				}
+			}
+			pDbHandle->finalizeQuery();
+		}
 		pDbHandle->freeTable();
-		return false;
 	}
-
-	addrId = pDbHandle->getColumnToInt(1);
-
-	MSG_DEBUG("AddressId : [%d]", addrId);
-
-	if (addrId > 0)
-	{
-		*pAddrId = addrId;
-
-		pDbHandle->freeTable();
-		return true;
-	}
-	else
-	{
-		pDbHandle->freeTable();
-		return false;
-	}
-
-	pDbHandle->freeTable();
 
 	return false;
 }
 
 
-int MsgStoGetUnreadCnt(MsgDbHandler *pDbHandle, MSG_MAIN_TYPE_T MsgType)
+int MsgStoGetUnreadCnt(MsgDbHandler *pDbHandle, MSG_MAIN_TYPE_T msgType)
 {
 	int msgCnt = 0;
 
@@ -701,30 +993,22 @@ int MsgStoGetUnreadCnt(MsgDbHandler *pDbHandle, MSG_MAIN_TYPE_T MsgType)
 
 	memset(sqlQuery, 0x00, sizeof(sqlQuery));
 
-	if (MsgType == MSG_SMS_TYPE)
-	{
+	if (msgType == MSG_SMS_TYPE) {
 		snprintf(sqlQuery, sizeof(sqlQuery), "SELECT COUNT(MSG_ID) FROM %s \
-									WHERE MAIN_TYPE = %d AND SUB_TYPE IN (%d, %d, %d, %d, %d, %d, %d) AND \
-									FOLDER_ID = %d AND READ_STATUS = 0;",
-									MSGFW_MESSAGE_TABLE_NAME, MSG_SMS_TYPE, MSG_NORMAL_SMS, MSG_STATUS_REPORT_SMS, MSG_CONCAT_SIM_SMS, MSG_WAP_SI_SMS, MSG_WAP_SL_SMS, MSG_MWI_VOICE_SMS, MSG_SYNCML_CP, MSG_INBOX_ID);
-	}
-	else if (MsgType == MSG_MMS_TYPE)
-	{
+				WHERE MAIN_TYPE = %d AND SUB_TYPE IN (%d, %d, %d, %d, %d, %d, %d) AND FOLDER_ID = %d AND READ_STATUS = 0;",
+				MSGFW_MESSAGE_TABLE_NAME, MSG_SMS_TYPE, MSG_NORMAL_SMS, MSG_STATUS_REPORT_SMS, MSG_CONCAT_SIM_SMS, MSG_WAP_SI_SMS, MSG_WAP_SL_SMS, MSG_MWI_VOICE_SMS, MSG_SYNCML_CP, MSG_INBOX_ID);
+	} else if (msgType == MSG_MMS_TYPE) {
 		snprintf(sqlQuery, sizeof(sqlQuery), "SELECT COUNT(MSG_ID) FROM %s \
-									WHERE MAIN_TYPE = %d AND SUB_TYPE IN (%d, %d, %d) AND \
-									FOLDER_ID = %d AND READ_STATUS = 0;",
-									MSGFW_MESSAGE_TABLE_NAME, MSG_MMS_TYPE, MSG_RETRIEVE_AUTOCONF_MMS, MSG_RETRIEVE_MANUALCONF_MMS, MSG_NOTIFICATIONIND_MMS, MSG_INBOX_ID);
+				WHERE MAIN_TYPE = %d AND SUB_TYPE IN (%d, %d, %d) AND FOLDER_ID = %d AND READ_STATUS = 0;",
+				MSGFW_MESSAGE_TABLE_NAME, MSG_MMS_TYPE, MSG_RETRIEVE_AUTOCONF_MMS, MSG_RETRIEVE_MANUALCONF_MMS, MSG_NOTIFICATIONIND_MMS, MSG_INBOX_ID);
 	}
 
 	if (pDbHandle->prepareQuery(sqlQuery) != MSG_SUCCESS)
 		return 0;
 
-	if (pDbHandle->stepQuery() == MSG_ERR_DB_ROW)
-	{
+	if (pDbHandle->stepQuery() == MSG_ERR_DB_ROW) {
 		msgCnt = pDbHandle->columnInt(0);
-	}
-	else
-	{
+	} else {
 		pDbHandle->finalizeQuery();
 		return 0;
 	}
@@ -735,33 +1019,28 @@ int MsgStoGetUnreadCnt(MsgDbHandler *pDbHandle, MSG_MAIN_TYPE_T MsgType)
 }
 
 
-MSG_ERROR_T MsgStoAddContactInfo(MsgDbHandler *pDbHandle, MSG_CONTACT_INFO_S *pContactInfo, const char *pNumber)
+msg_error_t MsgStoAddContactInfo(MsgDbHandler *pDbHandle, MSG_CONTACT_INFO_S *pContactInfo, const char *pNumber)
 {
 	char newPhoneNum[MAX_PRECONFIG_NUM+1];
 	char sqlQuery[MAX_QUERY_LEN+1];
 
-	if (strlen(pNumber) > MAX_PRECONFIG_NUM)
-	{
+	if (strlen(pNumber) > MAX_PRECONFIG_NUM) {
 		memset(newPhoneNum, 0x00, sizeof(newPhoneNum));
 		MsgConvertNumber(pNumber, newPhoneNum);
 
 		MSG_DEBUG("Phone Number to Compare : [%s]", newPhoneNum);
 
 		memset(sqlQuery, 0x00, sizeof(sqlQuery));
-		snprintf(sqlQuery, sizeof(sqlQuery), "UPDATE MSG_ADDRESS_TABLE SET CONTACT_ID = %d, DISPLAY_NAME = ?, FIRST_NAME = ?, LAST_NAME = ?, IMAGE_PATH = '%s' \
-										WHERE ADDRESS_VAL LIKE '%%%%%s';",
-									pContactInfo->contactId,
-									pContactInfo->imagePath,
-									newPhoneNum);
-	}
-	else
-	{
+		snprintf(sqlQuery, sizeof(sqlQuery), "UPDATE %s SET \
+				CONTACT_ID = %d, DISPLAY_NAME = ?, FIRST_NAME = ?, LAST_NAME = ?, IMAGE_PATH = '%s' \
+				WHERE ADDRESS_VAL LIKE '%%%%%s';",
+				MSGFW_ADDRESS_TABLE_NAME, pContactInfo->contactId, pContactInfo->imagePath, newPhoneNum);
+	} else {
 		memset(sqlQuery, 0x00, sizeof(sqlQuery));
-		snprintf(sqlQuery, sizeof(sqlQuery), "UPDATE MSG_ADDRESS_TABLE SET CONTACT_ID = %d, DISPLAY_NAME = ?, FIRST_NAME = ?, LAST_NAME = ?, IMAGE_PATH = '%s' \
-										WHERE ADDRESS_VAL = '%s';",
-									pContactInfo->contactId,
-									pContactInfo->imagePath,
-									pNumber);
+		snprintf(sqlQuery, sizeof(sqlQuery), "UPDATE %s SET \
+				CONTACT_ID = %d, DISPLAY_NAME = ?, FIRST_NAME = ?, LAST_NAME = ?, IMAGE_PATH = '%s' \
+				WHERE ADDRESS_VAL = '%s';",
+				MSGFW_ADDRESS_TABLE_NAME, pContactInfo->contactId, pContactInfo->imagePath, pNumber);
 	}
 
 	if (pDbHandle->prepareQuery(sqlQuery) != MSG_SUCCESS)
@@ -773,8 +1052,7 @@ MSG_ERROR_T MsgStoAddContactInfo(MsgDbHandler *pDbHandle, MSG_CONTACT_INFO_S *pC
 
 	pDbHandle->bindText(pContactInfo->lastName, 3);
 
-	if (pDbHandle->stepQuery() != MSG_ERR_DB_DONE)
-	{
+	if (pDbHandle->stepQuery() != MSG_ERR_DB_DONE) {
 		pDbHandle->finalizeQuery();
 		MSG_DEBUG("Update contact Info. Fail [%s]", sqlQuery);
 		return MSG_ERR_DB_STEP;
@@ -786,26 +1064,48 @@ MSG_ERROR_T MsgStoAddContactInfo(MsgDbHandler *pDbHandle, MSG_CONTACT_INFO_S *pC
 }
 
 
-MSG_ERROR_T MsgStoClearContactInfo(MsgDbHandler *pDbHandle, int ContactId)
+msg_error_t MsgStoClearContactInfo(MsgDbHandler *pDbHandle, int contactId)
 {
+	msg_error_t err = MSG_SUCCESS;
+
 	char sqlQuery[MAX_QUERY_LEN+1];
+	int rowCnt = 0;
 
 	memset(sqlQuery, 0x00, sizeof(sqlQuery));
 
-	snprintf(sqlQuery, sizeof(sqlQuery), "UPDATE MSG_ADDRESS_TABLE SET CONTACT_ID = 0, DISPLAY_NAME = '', FIRST_NAME = '', LAST_NAME = '', IMAGE_PATH = '' \
-				WHERE CONTACT_ID = %d;", ContactId);
+	snprintf(sqlQuery, sizeof(sqlQuery), "SELECT DISTINCT(CONV_ID) FROM %s WHERE CONTACT_ID = %d;",
+			MSGFW_ADDRESS_TABLE_NAME, contactId);
 
-	if (pDbHandle->execQuery(sqlQuery) != MSG_SUCCESS)
-	{
+	err = pDbHandle->getTable(sqlQuery, &rowCnt);
+
+	if (err != MSG_SUCCESS) {
+		pDbHandle->freeTable();
+		MSG_DEBUG("[Error]Failed to Get Table");
+		return err;
+	}
+
+	memset(sqlQuery, 0x00, sizeof(sqlQuery));
+	snprintf(sqlQuery, sizeof(sqlQuery), "UPDATE %s SET \
+			CONTACT_ID = 0, DISPLAY_NAME = '', FIRST_NAME = '', LAST_NAME = '', IMAGE_PATH = '' \
+			WHERE CONTACT_ID = %d;",
+			MSGFW_ADDRESS_TABLE_NAME, contactId);
+
+	if (pDbHandle->execQuery(sqlQuery) != MSG_SUCCESS) {
 		MSG_DEBUG("Fail to execute query");
 		return MSG_ERR_DB_EXEC;
 	}
 
-	return MSG_SUCCESS;
+	MsgDbHandler tmpDbHandle;
+	for (int i=1; i<=rowCnt; i++)
+		MsgStoSetConversationDisplayName(&tmpDbHandle, (msg_thread_id_t)pDbHandle->getColumnToInt(i));
+
+	pDbHandle->freeTable();
+
+	return err;
 }
 
 
-MSG_ERROR_T MsgStoClearContactInfo(MsgDbHandler *pDbHandle, int ContactId, const char *pNumber)
+msg_error_t MsgStoClearContactInfo(MsgDbHandler *pDbHandle, int contactId, const char *pNumber)
 {
 	char newPhoneNum[MAX_PRECONFIG_NUM+1];
 	char sqlQuery[MAX_QUERY_LEN+1];
@@ -813,23 +1113,23 @@ MSG_ERROR_T MsgStoClearContactInfo(MsgDbHandler *pDbHandle, int ContactId, const
 	memset(newPhoneNum, 0x00, sizeof(newPhoneNum));
 	memset(sqlQuery, 0x00, sizeof(sqlQuery));
 
-	if (strlen(pNumber) > MAX_PRECONFIG_NUM)
-	{
+	if (strlen(pNumber) > MAX_PRECONFIG_NUM) {
 		MsgConvertNumber(pNumber, newPhoneNum);
 
 		MSG_DEBUG("Phone Number to Compare : [%s]", newPhoneNum);
 
-		snprintf(sqlQuery, sizeof(sqlQuery), "UPDATE MSG_ADDRESS_TABLE SET CONTACT_ID = 0, DISPLAY_NAME = '', FIRST_NAME = '', LAST_NAME = '', IMAGE_PATH = '' \
-    				WHERE CONTACT_ID = %d AND ADDRESS_VAL NOT LIKE '%%%s';", ContactId, newPhoneNum);
-	}
-	else
-	{
-		snprintf(sqlQuery, sizeof(sqlQuery), "UPDATE MSG_ADDRESS_TABLE SET CONTACT_ID = 0, DISPLAY_NAME = '', FIRST_NAME = '', LAST_NAME = '', IMAGE_PATH = '' \
-    				WHERE CONTACT_ID = %d AND ADDRESS_VAL <> '%s';", ContactId, pNumber);
+		snprintf(sqlQuery, sizeof(sqlQuery), "UPDATE %s SET \
+				CONTACT_ID = 0, DISPLAY_NAME = '', FIRST_NAME = '', LAST_NAME = '', IMAGE_PATH = '' \
+				WHERE CONTACT_ID = %d AND ADDRESS_VAL NOT LIKE '%%%s';",
+				MSGFW_ADDRESS_TABLE_NAME, contactId, newPhoneNum);
+	} else {
+		snprintf(sqlQuery, sizeof(sqlQuery), "UPDATE %s SET \
+				CONTACT_ID = 0, DISPLAY_NAME = '', FIRST_NAME = '', LAST_NAME = '', IMAGE_PATH = '' \
+				WHERE CONTACT_ID = %d AND ADDRESS_VAL <> '%s';",
+				MSGFW_ADDRESS_TABLE_NAME, contactId, pNumber);
 	}
 
-	if (pDbHandle->execQuery(sqlQuery) != MSG_SUCCESS)
-	{
+	if (pDbHandle->execQuery(sqlQuery) != MSG_SUCCESS) {
 		MSG_DEBUG("Fail to execute query");
 		return MSG_ERR_DB_EXEC;
 	}
@@ -838,28 +1138,23 @@ MSG_ERROR_T MsgStoClearContactInfo(MsgDbHandler *pDbHandle, int ContactId, const
 }
 
 
-MSG_ERROR_T MsgStoGetMmsRawFilePath(MsgDbHandler *pDbHandle, MSG_MESSAGE_ID_T msgId, char *pFilePath)
+msg_error_t MsgStoGetMmsRawFilePath(MsgDbHandler *pDbHandle, msg_message_id_t msgId, char *pFilePath)
 {
 	char sqlQuery[MAX_QUERY_LEN+1];
 
 	memset(sqlQuery, 0x00, sizeof(sqlQuery));
 
-	snprintf(sqlQuery, sizeof(sqlQuery), "SELECT FILE_PATH FROM %s WHERE REFERENCE_ID IN \
-				(SELECT REFERENCE_ID FROM %s WHERE MSG_ID = %d);",
-				MMS_PLUGIN_MESSAGE_TABLE_NAME, MSGFW_MESSAGE_TABLE_NAME, msgId);
+	snprintf(sqlQuery, sizeof(sqlQuery), "SELECT A.FILE_PATH FROM %s A, %s B \
+			WHERE A.MSG_ID = B.MSG_ID AND B.MSG_ID = %d;",
+			MMS_PLUGIN_MESSAGE_TABLE_NAME, MSGFW_MESSAGE_TABLE_NAME, msgId);
 
 	if (pDbHandle->prepareQuery(sqlQuery) != MSG_SUCCESS)
 		return MSG_ERR_DB_PREPARE;
 
-	if (pDbHandle->stepQuery() == MSG_ERR_DB_ROW)
-	{
+	if (pDbHandle->stepQuery() == MSG_ERR_DB_ROW) {
 		if (pDbHandle->columnText(0) != NULL)
-		{
 			strncpy(pFilePath, (char*)pDbHandle->columnText(0), MSG_FILEPATH_LEN_MAX);
-		}
-	}
-	else
-	{
+	} else {
 		pDbHandle->finalizeQuery();
 		return MSG_ERR_DB_STEP;
 	}
@@ -870,9 +1165,9 @@ MSG_ERROR_T MsgStoGetMmsRawFilePath(MsgDbHandler *pDbHandle, MSG_MESSAGE_ID_T ms
 }
 
 
-bool MsgStoCheckReadReportRequested(MsgDbHandler *pDbHandle, MSG_MESSAGE_ID_T MsgId)
+bool MsgStoCheckReadReportRequested(MsgDbHandler *pDbHandle, msg_message_id_t msgId)
 {
-	MSG_ERROR_T err = MSG_SUCCESS;
+	msg_error_t err = MSG_SUCCESS;
 
 	char sqlQuery[MAX_QUERY_LEN+1];
 	int rowCnt = 0;
@@ -880,21 +1175,19 @@ bool MsgStoCheckReadReportRequested(MsgDbHandler *pDbHandle, MSG_MESSAGE_ID_T Ms
 
 	memset(sqlQuery, 0x00, sizeof(sqlQuery));
 
-	snprintf(sqlQuery, sizeof(sqlQuery), "SELECT ASK_READ_REPLY FROM %s WHERE REFERENCE_ID IN \
-				(SELECT REFERENCE_ID FROM %s WHERE MSG_ID = %d);",
-				MMS_PLUGIN_ATTRIBUTE_TABLE_NAME, MSGFW_MESSAGE_TABLE_NAME, MsgId);
+	snprintf(sqlQuery, sizeof(sqlQuery), "SELECT A.ASK_READ_REPLY FROM %s A, %s B \
+			WHERE A.MSG_ID = B.MSG_ID AND B.MSG_ID = %d;",
+			MMS_PLUGIN_MESSAGE_TABLE_NAME, MSGFW_MESSAGE_TABLE_NAME, msgId);
 
 	err = pDbHandle->getTable(sqlQuery, &rowCnt);
 
-	if (err != MSG_SUCCESS && err != MSG_ERR_DB_NORECORD)
-	{
+	if (err != MSG_SUCCESS && err != MSG_ERR_DB_NORECORD) {
 		pDbHandle->freeTable();
 		MSG_DEBUG("[Error]Failed to Get Table");
 		return bReadReportRequested;
 	}
 
-	if (rowCnt != 1)
-	{
+	if (rowCnt != 1) {
 		pDbHandle->freeTable();
 		MSG_DEBUG("[Error]MSG_ERR_DB_NORECORD");
 		return bReadReportRequested;
@@ -908,9 +1201,9 @@ bool MsgStoCheckReadReportRequested(MsgDbHandler *pDbHandle, MSG_MESSAGE_ID_T Ms
 }
 
 
-bool MsgStoCheckReadReportIsSent(MsgDbHandler *pDbHandle, MSG_MESSAGE_ID_T MsgId)
+bool MsgStoCheckReadReportIsSent(MsgDbHandler *pDbHandle, msg_message_id_t msgId)
 {
-	MSG_ERROR_T err = MSG_SUCCESS;
+	msg_error_t err = MSG_SUCCESS;
 
 	char sqlQuery[MAX_QUERY_LEN+1];
 
@@ -919,21 +1212,19 @@ bool MsgStoCheckReadReportIsSent(MsgDbHandler *pDbHandle, MSG_MESSAGE_ID_T MsgId
 
 	memset(sqlQuery, 0x00, sizeof(sqlQuery));
 
-	snprintf(sqlQuery, sizeof(sqlQuery), "SELECT READ_REPORT_SENT FROM %s WHERE REFERENCE_ID IN \
-				(SELECT REFERENCE_ID FROM %s WHERE MSG_ID = %d);",
-				MMS_PLUGIN_ATTRIBUTE_TABLE_NAME, MSGFW_MESSAGE_TABLE_NAME, MsgId);
+	snprintf(sqlQuery, sizeof(sqlQuery), "SELECT A.READ_REPORT_SENT FROM %s A, %s B \
+			WHERE A.MSG_ID = B.MSG_ID AND B.MSG_ID = %d;",
+			MMS_PLUGIN_MESSAGE_TABLE_NAME, MSGFW_MESSAGE_TABLE_NAME, msgId);
 
 	err = pDbHandle->getTable(sqlQuery, &rowCnt);
 
-	if (err != MSG_SUCCESS && err != MSG_ERR_DB_NORECORD)
-	{
+	if (err != MSG_SUCCESS && err != MSG_ERR_DB_NORECORD) {
 		pDbHandle->freeTable();
 		MSG_DEBUG("[Error]Failed to Get Table");
 		return bReadReportIsSent;
 	}
 
-	if (rowCnt != 1)
-	{
+	if (rowCnt != 1) {
 		pDbHandle->freeTable();
 		MSG_DEBUG("[Error]MSG_ERR_DB_NORECORD");
 		return bReadReportIsSent;
@@ -946,6 +1237,168 @@ bool MsgStoCheckReadReportIsSent(MsgDbHandler *pDbHandle, MSG_MESSAGE_ID_T MsgId
 	return bReadReportIsSent;
 }
 
+
+msg_error_t MsgStoAddConversation(MsgDbHandler *pDbHandle, msg_thread_id_t *pConvId)
+{
+	char sqlQuery[MAX_QUERY_LEN+1];
+
+	if (pDbHandle->getRowId(MSGFW_CONVERSATION_TABLE_NAME, pConvId) != MSG_SUCCESS) {
+		return MSG_ERR_DB_EXEC;
+	}
+
+	// Add Conversation
+	memset(sqlQuery, 0x00, sizeof(sqlQuery));
+	snprintf(sqlQuery, sizeof(sqlQuery), "INSERT INTO %s VALUES (%d, 0, 0, 0, 0, 0, 0, 0, '', '');",
+			MSGFW_CONVERSATION_TABLE_NAME, *pConvId);
+
+	if (pDbHandle->execQuery(sqlQuery) != MSG_SUCCESS) {
+		MSG_DEBUG("Query Failed. [%s]", sqlQuery);
+		return MSG_ERR_DB_EXEC;
+	}
+
+	return MSG_SUCCESS;
+}
+
+
+msg_error_t MsgStoSetConversationDisplayName(MsgDbHandler *pDbHandle, int contactId)
+{
+	msg_error_t err = MSG_SUCCESS;
+	int rowCnt = 0;
+	char displayName[MAX_DISPLAY_NAME_LEN+1];
+	char sqlQuery[MAX_QUERY_LEN+1];
+
+	MSG_DEBUG("contactId [%d]", contactId);
+
+	memset(sqlQuery, 0x00, sizeof(sqlQuery));
+	snprintf(sqlQuery, sizeof(sqlQuery), "SELECT DISTINCT(CONV_ID) FROM %s WHERE CONTACT_ID = %d;",
+			MSGFW_ADDRESS_TABLE_NAME, contactId);
+
+	err = pDbHandle->getTable(sqlQuery, &rowCnt);
+
+	if (err != MSG_SUCCESS && err != MSG_ERR_DB_NORECORD) {
+		pDbHandle->freeTable();
+		MSG_DEBUG("Query Failed [%s]", sqlQuery);
+		return err;
+	}
+
+	int order = MsgGetContactNameOrder();
+	msg_struct_s *pAddrInfo = NULL;
+	MSG_ADDRESS_INFO_S *address = NULL;
+
+	for (int i = 1; i <= rowCnt; i++)
+	{
+		memset(displayName, 0x00, sizeof(displayName));
+		MsgDbHandler tmpDbHandle;
+		msg_struct_list_s addressList = {0,};
+		MsgStoGetAddressByConvId(&tmpDbHandle, (msg_thread_id_t)pDbHandle->getColumnToInt(i), order, &addressList);
+
+		for (int j = 0; j < addressList.nCount; j++)
+		{
+			if (j >0)
+				strncat(displayName, ", ", MAX_DISPLAY_NAME_LEN-strlen(displayName));
+
+			pAddrInfo = (msg_struct_s *)addressList.msg_struct_info[j];
+			address = (MSG_ADDRESS_INFO_S *)pAddrInfo->data;
+
+			if (address->displayName[0] == '\0')
+				strncat(displayName, address->addressVal, MAX_DISPLAY_NAME_LEN-strlen(displayName));
+			else
+				strncat(displayName, address->displayName, MAX_DISPLAY_NAME_LEN-strlen(displayName));
+		}
+
+		memset(sqlQuery, 0x00, sizeof(sqlQuery));
+		snprintf(sqlQuery, sizeof(sqlQuery), "UPDATE %s SET DISPLAY_NAME = ? WHERE CONV_ID = %d;",
+				MSGFW_CONVERSATION_TABLE_NAME, pDbHandle->getColumnToInt(i));
+
+		if (pDbHandle->prepareQuery(sqlQuery) != MSG_SUCCESS) {
+			MSG_DEBUG("Query Failed [%s]", sqlQuery);
+			return MSG_ERR_DB_PREPARE;
+		}
+
+		pDbHandle->bindText(displayName, 1);
+
+		if (pDbHandle->stepQuery() != MSG_ERR_DB_DONE) {
+			pDbHandle->finalizeQuery();
+			MSG_DEBUG("Update Conversation disply name. Fail [%s]", sqlQuery);
+			return MSG_ERR_DB_STEP;
+		}
+
+		pDbHandle->finalizeQuery();
+
+		// free address list
+		for(int j = 0; j < MAX_TO_ADDRESS_CNT; j++){
+			msg_struct_s *pStruct = (msg_struct_s *)addressList.msg_struct_info[j];
+			delete [] (MSG_ADDRESS_INFO_S *)pStruct->data;
+			delete [] (msg_struct_s *)pStruct;
+		}
+	}
+
+	pDbHandle->freeTable();
+
+	return err;
+}
+
+
+msg_error_t MsgStoSetConversationDisplayName(MsgDbHandler *pDbHandle, msg_thread_id_t convId)
+{
+	msg_error_t err = MSG_SUCCESS;
+
+	char displayName[MAX_DISPLAY_NAME_LEN+1];
+	char sqlQuery[MAX_QUERY_LEN+1];
+
+	msg_struct_list_s addressList = {0,};
+
+	int order = MsgGetContactNameOrder();
+	msg_struct_s *pAddrInfo = NULL;
+	MSG_ADDRESS_INFO_S *address = NULL;
+
+	memset(displayName, 0x00, sizeof(displayName));
+
+	MsgStoGetAddressByConvId(pDbHandle, convId, order, &addressList);
+
+	for (int j = 0; j < addressList.nCount; j++)
+	{
+		if (j >0)
+			strncat(displayName, ", ", MAX_DISPLAY_NAME_LEN-strlen(displayName));
+
+		pAddrInfo = (msg_struct_s *)addressList.msg_struct_info[j];
+		address = (MSG_ADDRESS_INFO_S *)pAddrInfo->data;
+
+		if (address->displayName[0] == '\0')
+			strncat(displayName, address->addressVal, MAX_DISPLAY_NAME_LEN-strlen(displayName));
+		else
+			strncat(displayName, address->displayName, MAX_DISPLAY_NAME_LEN-strlen(displayName));
+	}
+
+	memset(sqlQuery, 0x00, sizeof(sqlQuery));
+	snprintf(sqlQuery, sizeof(sqlQuery), "UPDATE %s SET DISPLAY_NAME = ? WHERE CONV_ID = %d;",
+			MSGFW_CONVERSATION_TABLE_NAME, convId);
+
+	if (pDbHandle->prepareQuery(sqlQuery) != MSG_SUCCESS) {
+		MSG_DEBUG("Query Failed [%s]", sqlQuery);
+		return MSG_ERR_DB_PREPARE;
+	}
+
+	pDbHandle->bindText(displayName, 1);
+
+	if (pDbHandle->stepQuery() != MSG_ERR_DB_DONE) {
+		pDbHandle->finalizeQuery();
+		MSG_DEBUG("Update Conversation disply name. Fail [%s]", sqlQuery);
+		return MSG_ERR_DB_STEP;
+	}
+
+	pDbHandle->finalizeQuery();
+
+	for(int j = 0; j < MAX_TO_ADDRESS_CNT; j++){
+		msg_struct_s *pStruct = (msg_struct_s *)addressList.msg_struct_info[j];
+		delete [] (MSG_ADDRESS_INFO_S *)pStruct->data;
+		delete [] (msg_struct_s *)pStruct;
+	}
+
+	return err;
+}
+
+
 char *MsgStoReplaceString(const char *origStr, const char *oldStr, const char *newStr)
 {
 	if (origStr == NULL)
@@ -957,7 +1410,6 @@ char *MsgStoReplaceString(const char *origStr, const char *oldStr, const char *n
 	int matchedCnt = 0;
 	int oldStrLen = 0;
 	int newStrLen = 0;
-	int replaceSize = 0;
 
 	if (g_strcmp0(oldStr, newStr) != 0) {
 		oldStrLen = strlen(oldStr);

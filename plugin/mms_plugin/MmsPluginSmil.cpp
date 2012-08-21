@@ -1,18 +1,18 @@
- /*
-  * Copyright 2012  Samsung Electronics Co., Ltd
-  *
-  * Licensed under the Flora License, Version 1.0 (the "License");
-  * you may not use this file except in compliance with the License.
-  * You may obtain a copy of the License at
-  *
-  *    http://www.tizenopensource.org/license
-  *
-  * Unless required by applicable law or agreed to in writing, software
-  * distributed under the License is distributed on an "AS IS" BASIS,
-  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  * See the License for the specific language governing permissions and
-  * limitations under the License.
-  */
+/*
+* Copyright 2012  Samsung Electronics Co., Ltd
+*
+* Licensed under the Flora License, Version 1.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*    http://www.tizenopensource.org/license
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
 
 #include<stdio.h>
 #include <string.h>
@@ -35,7 +35,7 @@ static MmsSmilDoc *__gpaMmsSmilDoc[MMS_SMIL_MAX_DOC]={NULL, };
 static char gszColor[MMS_SMIL_COLOR_SIZE] = {0, };
 
 
-char *MmsSmilGetPresentationData(MSG_MESSAGE_ID_T msgId)
+char *MmsSmilGetPresentationData(msg_message_id_t msgId)
 {
 	MmsMsg *pMsg;
 
@@ -333,10 +333,6 @@ void MmsSmilGetElement(MMS_MESSAGE_DATA_S *pMmsMsg, xmlNode *a_node)
 					else
 						pMedia->sMedia.sAVI.nDurTime =  MmsSmilGetTime((char *)pAttr->children->content);
 
-#ifdef MMS_SMIL_ANIMATE
-					if (cmd[ELEMENT_ANIMATE])
-						pMedia->sMedia.sAVI.nDur = MmsSmilGetTime((char *)pAttr->children->content);
-#endif
 					break;
 
 				case ATTRIBUTE_SRC:
@@ -410,7 +406,6 @@ void MmsSmilGetElement(MMS_MESSAGE_DATA_S *pMmsMsg, xmlNode *a_node)
 					if (cmd[ELEMENT_TEXT])
 						pMedia->sMedia.sText.nDirection = MmsSmilGetFontDirection((char *)pAttr->children->content);
 					break;
-
 				case ATTRIBUTE_REGION:
 					strncpy(pMedia->regionId, (char *)pAttr->children->content, MAX_SMIL_REGION_ID - 1);
 					break;
@@ -524,39 +519,6 @@ void MmsSmilGetElement(MMS_MESSAGE_DATA_S *pMmsMsg, xmlNode *a_node)
 				case ATTRIBUTE_CONTENT:
 					strncpy(pMeta->szContent, (char *)pAttr->children->content, MAX_SMIL_META_CONTENT - 1);
 					break;
-#ifdef MMS_SMIL_ANIMATE
-				case ATTRIBUTE_ATTRIBUTE_NAME:
-					strcpy(pMedia->sMedia.sAVI.nAttributeName, (char *)pAttr->children->content);
-					break;
-
-				case ATTRIBUTE_ATTRIBUTE_TYPE:
-					strcpy(pMedia->sMedia.sAVI.nAttributeType, (char *)pAttr->children->content);
-					break;
-
-				case ATTRIBUTE_TARGET_ELEMENT:
-					strcpy(pMedia->sMedia.sAVI.nTargetElement, (char *)pAttr->children->content);
-					break;
-
-				case ATTRIBUTE_FROM:
-					pMedia->sMedia.sAVI.nFrom = atoi((char *)pAttr->children->content);
-					break;
-
-				case ATTRIBUTE_TO:
-					pMedia->sMedia.sAVI.nTo = atoi((char *)pAttr->children->content);
-					break;
-
-				case ATTRIBUTE_BY:
-					pMedia->sMedia.sAVI.nBy = atoi((char *)pAttr->children->content);
-					break;
-
-				case ATTRIBUTE_VALUES:
-					pMedia->sMedia.sAVI.nValues = atoi((char *)pAttr->children->content);
-					break;
-
-				case ATTRIBUTE_CALCMODE:
-					strcpy(pMedia->sMedia.sAVI.nCalcMode, (char *)pAttr->children->content);
-					break;
-#endif
 				default:
 					MSG_DEBUG("Undefined Attribute was found!!!!!");
 				}
@@ -968,24 +930,6 @@ int	MmsSmilGetAttrID(char *pString)
 		return ATTRIBUTE_END;
 	else if (!strcmp(pString, "repeatCount"))
 		return ATTRIBUTE_REPEAT_COUNT;
-#ifdef MMS_SMIL_ANIMATE
-	else if (!strcmp(pString, "attributeName"))
-		return ATTRIBUTE_ATTRIBUTE_NAME;
-	else if (!strcmp(pString, "attributeType"))
-		return ATTRIBUTE_ATTRIBUTE_TYPE;
-	else if (!strcmp(pString, "targetElement"))
-		return ATTRIBUTE_TARGET_ELEMENT;
-	else if (!strcmp(pString, "from"))
-		return ATTRIBUTE_FROM;
-	else if (!strcmp(pString, "to"))
-		return ATTRIBUTE_TO;
-	else if (!strcmp(pString, "by"))
-		return ATTRIBUTE_BY;
-	else if (!strcmp(pString, "values"))
-		return ATTRIBUTE_VALUES;
-	else if (!strcmp(pString, "calcMode"))
-		return ATTRIBUTE_CALCMODE;
-#endif
 	else
 		return -1;
 }
@@ -1656,8 +1600,6 @@ bool MmsSmilAddRegion(HMmsSmil hSmilDoc, MMS_SMIL_REGION *pstSmilRegion)
 		} else
 			MSG_DEBUG("There is no attribute in <region> node\n");
 
-		__MmsSmilInsertNode(pstLayoutList, pstRootLayoutList, pstRegion);
-
 		MSG_END();
 		return true;
 	} else {
@@ -1927,7 +1869,6 @@ xmlNode *__MmsCreateMMNode(MMS_MEDIA_S *pstSmilMedia, char *pszContentID)
 	case MMS_SMIL_MEDIA_IMG:
 		pstMedia = xmlNewNode(NULL, (xmlChar *)"img");
 		break;
-
 	default:
 		MSG_DEBUG("Invalid media type. Can't insert such-<media> node.");
 		return NULL;

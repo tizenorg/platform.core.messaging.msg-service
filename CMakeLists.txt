@@ -19,7 +19,6 @@ ADD_SUBDIRECTORY(utils)
 ADD_SUBDIRECTORY(framework)
 ADD_SUBDIRECTORY(proxy)
 ADD_SUBDIRECTORY(mapi)
-ADD_SUBDIRECTORY(test_app)
 ADD_SUBDIRECTORY(plugin/sms_plugin)
 ADD_SUBDIRECTORY(plugin/mms_plugin)
 ADD_SUBDIRECTORY(msg_helper)
@@ -29,16 +28,12 @@ ADD_SUBDIRECTORY(msg_helper)
 # Install Header Files
 ##########################################################
 SET(MAPI-HEADERS
-	${CMAKE_CURRENT_SOURCE_DIR}/include/mapi/MapiControl.h
-	${CMAKE_CURRENT_SOURCE_DIR}/include/mapi/MapiSetting.h
-	${CMAKE_CURRENT_SOURCE_DIR}/include/mapi/MapiStorage.h
-	${CMAKE_CURRENT_SOURCE_DIR}/include/mapi/MapiTransport.h
-	${CMAKE_CURRENT_SOURCE_DIR}/include/mapi/MapiMessage.h
-	${CMAKE_CURRENT_SOURCE_DIR}/include/common/MsgTypes.h
-	${CMAKE_CURRENT_SOURCE_DIR}/include/common/MsgMmsTypes.h
-	${CMAKE_CURRENT_SOURCE_DIR}/include/common/MsgSettingTypes.h
-	${CMAKE_CURRENT_SOURCE_DIR}/include/common/MsgStorageTypes.h
-	${CMAKE_CURRENT_SOURCE_DIR}/include/common/MsgTransportTypes.h
+	${CMAKE_CURRENT_SOURCE_DIR}/include/mapi/msg.h
+	${CMAKE_CURRENT_SOURCE_DIR}/include/mapi/msg_types.h
+	${CMAKE_CURRENT_SOURCE_DIR}/include/mapi/msg_storage.h
+	${CMAKE_CURRENT_SOURCE_DIR}/include/mapi/msg_storage_types.h
+	${CMAKE_CURRENT_SOURCE_DIR}/include/mapi/msg_transport.h
+	${CMAKE_CURRENT_SOURCE_DIR}/include/mapi/msg_transport_types.h
 	${CMAKE_CURRENT_SOURCE_DIR}/SLP_MessagingFW_PG.h )
 INSTALL(FILES ${MAPI-HEADERS} DESTINATION include/msg-service)
 
@@ -48,19 +43,6 @@ INSTALL(FILES ${MAPI-HEADERS} DESTINATION include/msg-service)
 ##########################################################
 
 INSTALL(FILES ${CMAKE_CURRENT_SOURCE_DIR}/config/plugin.cfg DESTINATION /usr/share/msg-service)
-
-INSTALL(FILES ${CMAKE_CURRENT_SOURCE_DIR}/config/alert_on_call.mp3 DESTINATION /opt/etc/msg-service)
-
-SET(MMS-FILES
-	${CMAKE_CURRENT_SOURCE_DIR}/test_app/mms_files/A.smi
-	${CMAKE_CURRENT_SOURCE_DIR}/test_app/mms_files/audio.amr
-	${CMAKE_CURRENT_SOURCE_DIR}/test_app/mms_files/P091120_104633.jpg
-	${CMAKE_CURRENT_SOURCE_DIR}/test_app/mms_files/Temp0_2.txt
-	${CMAKE_CURRENT_SOURCE_DIR}/test_app/mms_files/Temp1_0.txt
-	${CMAKE_CURRENT_SOURCE_DIR}/test_app/mms_files/V091120_104905.3gp
-)
-
-INSTALL(FILES ${MMS-FILES} DESTINATION /opt/etc/msg-service)
 
 SET(RINGTONE-FILES
 	${CMAKE_CURRENT_SOURCE_DIR}/config/message_tone/Sherbet.wav

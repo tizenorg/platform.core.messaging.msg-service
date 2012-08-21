@@ -1,18 +1,18 @@
- /*
-  * Copyright 2012  Samsung Electronics Co., Ltd
-  *
-  * Licensed under the Flora License, Version 1.0 (the "License");
-  * you may not use this file except in compliance with the License.
-  * You may obtain a copy of the License at
-  *
-  *    http://www.tizenopensource.org/license
-  *
-  * Unless required by applicable law or agreed to in writing, software
-  * distributed under the License is distributed on an "AS IS" BASIS,
-  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  * See the License for the specific language governing permissions and
-  * limitations under the License.
-  */
+/*
+* Copyright 2012  Samsung Electronics Co., Ltd
+*
+* Licensed under the Flora License, Version 1.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*    http://www.tizenopensource.org/license
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
 
 #ifndef MSG_STORAGE_HANDLER_H
 #define MSG_STORAGE_HANDLER_H
@@ -22,105 +22,112 @@
 ==================================================================================================*/
 #include "MsgStorageTypes.h"
 #include "MsgSettingTypes.h"
+#include "MsgFilterTypes.h"
 #include "MsgMmsTypes.h"
 #include "MsgTransportTypes.h"
 #include "MsgInternalTypes.h"
 
-
 /*==================================================================================================
                                      FUNCTION PROTOTYPES
 ==================================================================================================*/
-MSG_ERROR_T MsgStoConnectDB();
-MSG_ERROR_T MsgStoDisconnectDB();
+msg_error_t MsgStoConnectDB();
+msg_error_t MsgStoDisconnectDB();
 
-MSG_ERROR_T MsgStoInitDB(bool bSimChanged);
+msg_error_t MsgStoInitDB(bool bSimChanged);
 
-MSG_ERROR_T MsgCreateAddressTable();
-MSG_ERROR_T MsgCreateFolderTable();
-MSG_ERROR_T MsgCreateMsgTable();
-MSG_ERROR_T MsgCreateSimMessageTable();
-MSG_ERROR_T MsgCreateWAPMessageTable();
-MSG_ERROR_T MsgCreateCBMessageTable();
-MSG_ERROR_T MsgCreateSyncMLMessageTable();
-MSG_ERROR_T MsgCreateScheduledMessageTable();
-MSG_ERROR_T MsgCreateSmsSendOptTable();
-MSG_ERROR_T MsgCreateFilterTable();
-MSG_ERROR_T MsgCreateMmsMsgTable();
-MSG_ERROR_T MsgCreateMmsAttributeTable();
-MSG_ERROR_T MsgAddDefaultFolders();
-MSG_ERROR_T MsgAddDefaultAddress();
-MSG_ERROR_T MsgStoResetDatabase();
+msg_error_t MsgCreateConversationTable();
+msg_error_t MsgCreateAddressTable();
+msg_error_t MsgCreateFolderTable();
+msg_error_t MsgCreateMsgTable();
+msg_error_t MsgCreateSimMessageTable();
+msg_error_t MsgCreateWAPMessageTable();
+msg_error_t MsgCreateCBMessageTable();
+msg_error_t MsgCreateSyncMLMessageTable();
+msg_error_t MsgCreateSmsSendOptTable();
+msg_error_t MsgCreateFilterTable();
+msg_error_t MsgCreateMmsTable();
+msg_error_t MsgAddDefaultFolders();
+msg_error_t MsgAddDefaultAddress();
+msg_error_t MsgStoResetDatabase();
 
-MSG_ERROR_T MsgStoAddMessage(MSG_MESSAGE_INFO_S *pMsg, MSG_SENDINGOPT_INFO_S* pSendOptInfo, int addrIdx = 0);
-MSG_ERROR_T MsgStoUpdateMessage(MSG_MESSAGE_INFO_S *pMsg, MSG_SENDINGOPT_INFO_S* pSendOptInfo, int addrIdx = 0);
-MSG_ERROR_T MsgStoUpdateReadStatus(MSG_MESSAGE_ID_T MsgId, bool bRead);
-MSG_ERROR_T MsgStoUpdateThreadReadStatus(MSG_THREAD_ID_T ThreadId);
-MSG_ERROR_T MsgStoUpdateProtectedStatus(MSG_MESSAGE_ID_T MsgId, bool bProtected);
-MSG_ERROR_T MsgStoDeleteMessage(MSG_MESSAGE_ID_T MsgId, bool bCheckIndication);
-MSG_ERROR_T MsgStoDeleteAllMessageInFolder(MSG_FOLDER_ID_T FolderId, bool bOnlyDB, MSG_MSGID_LIST_S *pMsgIdList);
-MSG_ERROR_T MsgStoMoveMessageToFolder(MSG_MESSAGE_ID_T MsgId, MSG_FOLDER_ID_T DestFolderId);
-MSG_ERROR_T MsgStoMoveMessageToStorage(const MSG_MESSAGE_ID_T MsgId, const MSG_STORAGE_ID_T DestStorageId);
-MSG_ERROR_T MsgStoCountMessage(MSG_FOLDER_ID_T FolderId, MSG_COUNT_INFO_S *pCountInfo);
-MSG_ERROR_T MsgStoCountMsgByType(const MSG_MESSAGE_TYPE_S *pMsgType, int *pMsgCount);
-MSG_ERROR_T MsgStoGetMessage(MSG_MESSAGE_ID_T MsgId, MSG_MESSAGE_INFO_S *pMsg, MSG_SENDINGOPT_INFO_S* pSendOptInfo);
-MSG_ERROR_T MsgStoGetFolderViewList(MSG_FOLDER_ID_T FolderId, const MSG_SORT_RULE_S *pSortRule, MSG_LIST_S *pMsgFolderViewList);
-MSG_ERROR_T MsgStoAddSyncMLMessage(MSG_MESSAGE_INFO_S *pMsgInfo, int ExtId, int PinCode);
-MSG_ERROR_T MsgStoGetMsgType(MSG_MESSAGE_ID_T msgId, MSG_MESSAGE_TYPE_S* pMsgType);
-MSG_ERROR_T MsgStoGetText(MSG_MESSAGE_ID_T MsgId, char *pSubject, char *pMsgText);
-MSG_ERROR_T MsgStoGetQuickPanelData(MSG_QUICKPANEL_TYPE_T Type, MSG_MESSAGE_INFO_S *pMsg);
-MSG_ERROR_T MsgStoGetThreadViewList(const MSG_SORT_RULE_S *pSortRule, MSG_THREAD_VIEW_LIST_S *pThreadViewList);
-MSG_ERROR_T MsgStoGetConversationViewList(MSG_THREAD_ID_T ThreadId, MSG_LIST_S *pConvViewList);
-MSG_ERROR_T MsgStoDeleteThreadMessageList(MSG_THREAD_ID_T ThreadId, MSG_MSGID_LIST_S *pMsgIdList);
-MSG_ERROR_T MsgStoCountMsgByContact(const MSG_THREAD_LIST_INDEX_S *pAddrInfo, MSG_THREAD_COUNT_INFO_S *pThreadCountInfo);
-MSG_ERROR_T MsgStoSearchMessage(const char *pSearchString, MSG_THREAD_VIEW_LIST_S *pThreadViewList);
-MSG_ERROR_T MsgStoSearchMessage(const MSG_SEARCH_CONDITION_S *pSearchCon, int offset, int limit, MSG_LIST_S *pMsgList);
-MSG_ERROR_T MsgStoGetMsgIdList(MSG_REFERENCE_ID_T RefId, MSG_MSGID_LIST_S *pMsgIdList);
-MSG_ERROR_T MsgStoGetRejectMsgList(const char *pNumber, MSG_REJECT_MSG_LIST_S *pRejectMsgList);
-MSG_ERROR_T MsgStoGetReportStatus(MSG_MESSAGE_ID_T msgId, MSG_REPORT_STATUS_INFO_S* pReportStatus);
-MSG_ERROR_T MsgStoGetThreadUnreadCnt(MSG_THREAD_ID_T ThreadId, int *cnt);
+msg_error_t MsgStoBackupMessage();
+msg_error_t MsgStoRestoreMessage();
+
+msg_error_t MsgStoAddMessage(MSG_MESSAGE_INFO_S *pMsg, MSG_SENDINGOPT_INFO_S* pSendOptInfo);
+msg_error_t MsgStoUpdateMessage(MSG_MESSAGE_INFO_S *pMsg, MSG_SENDINGOPT_INFO_S* pSendOptInfo);
+msg_error_t MsgStoUpdateReadStatus(msg_message_id_t MsgId, bool bRead);
+msg_error_t MsgStoUpdateThreadReadStatus(msg_thread_id_t ThreadId);
+msg_error_t MsgStoUpdateProtectedStatus(msg_message_id_t MsgId, bool bProtected);
+msg_error_t MsgStoDeleteMessage(msg_message_id_t MsgId, bool bCheckIndication);
+msg_error_t MsgStoDeleteAllMessageInFolder(msg_folder_id_t FolderId, bool bOnlyDB, msg_id_list_s *pMsgIdList);
+msg_error_t MsgStoMoveMessageToFolder(msg_message_id_t MsgId, msg_folder_id_t DestFolderId);
+msg_error_t MsgStoMoveMessageToStorage(const msg_message_id_t MsgId, const msg_storage_id_t DestStorageId);
+msg_error_t MsgStoCountMessage(msg_folder_id_t FolderId, MSG_COUNT_INFO_S *pCountInfo);
+msg_error_t MsgStoCountMsgByType(const MSG_MESSAGE_TYPE_S *pMsgType, int *pMsgCount);
+msg_error_t MsgStoGetMessage(msg_message_id_t MsgId, MSG_MESSAGE_INFO_S *pMsg, MSG_SENDINGOPT_INFO_S* pSendOptInfo);
+msg_error_t MsgStoGetFolderViewList(msg_folder_id_t FolderId, const MSG_SORT_RULE_S *pSortRule, msg_struct_list_s *pMsgFolderViewList);
+msg_error_t MsgStoAddSyncMLMessage(MSG_MESSAGE_INFO_S *pMsgInfo, int ExtId, int PinCode);
+msg_error_t MsgStoGetMsgType(msg_message_id_t msgId, MSG_MESSAGE_TYPE_S* pMsgType);
+msg_error_t MsgStoGetText(msg_message_id_t MsgId, char *pSubject, char *pMsgText);
+msg_error_t MsgStoGetQuickPanelData(msg_quickpanel_type_t Type, MSG_MESSAGE_INFO_S *pMsg);
+msg_error_t MsgStoGetThreadViewList(const MSG_SORT_RULE_S *pSortRule, msg_struct_list_s *pThreadViewList);
+msg_error_t MsgStoGetConversationViewList(msg_thread_id_t ThreadId, msg_struct_list_s *pConvViewList);
+msg_error_t MsgStoDeleteThreadMessageList(msg_thread_id_t ThreadId, msg_id_list_s *pMsgIdList);
+msg_error_t MsgStoCountMsgByContact(const MSG_THREAD_LIST_INDEX_S *pAddrInfo, MSG_THREAD_COUNT_INFO_S *pThreadCountInfo);
+msg_error_t MsgStoSearchMessage(const char *pSearchString, msg_struct_list_s *pThreadViewList);
+msg_error_t MsgStoSearchMessage(const MSG_SEARCH_CONDITION_S *pSearchCon, int offset, int limit, msg_struct_list_s *pMsgList);
+msg_error_t MsgStoGetRejectMsgList(const char *pNumber, msg_struct_list_s *pRejectMsgList);
+msg_error_t MsgStoGetReportStatus(msg_message_id_t msgId, MSG_REPORT_STATUS_INFO_S* pReportStatus);
+msg_error_t MsgStoGetThreadIdByAddress(const MSG_MESSAGE_INFO_S *pMsg, msg_thread_id_t *pThreadId);
+msg_error_t MsgStoGetThreadUnreadCnt(msg_thread_id_t ThreadId, int *cnt);
+msg_error_t MsgStoGetAddressList(const msg_thread_id_t threadId, msg_struct_list_s *pAddrList);
+msg_error_t MsgStoGetThreadInfo(msg_thread_id_t threadId, MSG_THREAD_VIEW_S *pThreadInfo);
+msg_error_t MsgStoGetMessageList(msg_folder_id_t folderId, msg_thread_id_t threadId, msg_message_type_t msgType, msg_storage_id_t storageId, msg_struct_list_s *pMsgList);
 
 // Folder
-MSG_ERROR_T MsgStoAddFolder(const MSG_FOLDER_INFO_S *pFolderInfo);
-MSG_ERROR_T MsgStoUpdateFolder(const MSG_FOLDER_INFO_S *pFolderInfo);
-MSG_ERROR_T MsgStoDeleteFolder(MSG_FOLDER_ID_T FolderId);
-MSG_ERROR_T MsgStoGetFolderList(MSG_FOLDER_LIST_S *pFolderList);
+msg_error_t MsgStoAddFolder(const MSG_FOLDER_INFO_S *pFolderInfo);
+msg_error_t MsgStoUpdateFolder(const MSG_FOLDER_INFO_S *pFolderInfo);
+msg_error_t MsgStoDeleteFolder(msg_folder_id_t FolderId);
+msg_error_t MsgStoGetFolderList(msg_struct_list_s *pFolderList);
+
+// Filter
+msg_error_t MsgStoAddFilter(const MSG_FILTER_S *pFilter);
+msg_error_t MsgStoUpdateFilter(const MSG_FILTER_S *pFilter);
+msg_error_t MsgStoDeleteFilter(msg_filter_id_t FilterId);
+msg_error_t MsgStoGetFilterList(msg_struct_list_s *pFilterList);
 
 // Sim Operation related Functions
-MSG_ERROR_T MsgInitSimMessage(MSG_SIM_STATUS_T SimStatus);
-MSG_ERROR_T MsgStoClearSimMessageInDB();
+msg_error_t MsgInitSimMessage(MSG_SIM_STATUS_T SimStatus);
+msg_error_t MsgStoClearSimMessageInDB();
 
 // Internal Function
-MSG_ERROR_T MsgMakeSortRule(const MSG_SORT_RULE_S *pSortRule, char *pSqlSort);
-MSG_ERROR_T MsgStoGetSmsSendOpt(MSG_MESSAGE_ID_T MsgId, MSG_SENDINGOPT_INFO_S* pSendOpt);
-MSG_ERROR_T MsgStoGetMmsSendOpt(MSG_MESSAGE_ID_T MsgId, MSG_SENDINGOPT_INFO_S* pSendOpt);
-
-// Scheduled Msg
-MSG_ERROR_T MsgStoAddScheduledMessage(MSG_MESSAGE_ID_T MsgID, int AlarmId, int ListenerFd);
-MSG_ERROR_T MsgStoGetScheduledMessage(int AlarmId, MSG_REQUEST_INFO_S *pReqInfo, int *pListenerFd);
-MSG_ERROR_T MsgStoDeleteScheduledMessage(MSG_MESSAGE_ID_T MsgId);
+msg_error_t MsgMakeSortRule(const MSG_SORT_RULE_S *pSortRule, char *pSqlSort);
+msg_error_t MsgStoGetSmsSendOpt(msg_message_id_t MsgId, MSG_SENDINGOPT_INFO_S* pSendOpt);
+msg_error_t MsgStoGetMmsSendOpt(msg_message_id_t MsgId, MSG_SENDINGOPT_INFO_S* pSendOpt);
 
 // SyncML Msg
-MSG_ERROR_T MsgStoGetSyncMLExtId(MSG_MESSAGE_ID_T msgId, int *extId);
-bool MsgStoCheckSyncMLMsgInThread(MSG_THREAD_ID_T threadId);
+msg_error_t MsgStoGetSyncMLExtId(msg_message_id_t msgId, int *extId);
+bool MsgStoCheckSyncMLMsgInThread(msg_thread_id_t threadId);
 
-MSG_ERROR_T MsgStoUpdateMMSMessage(MSG_MESSAGE_INFO_S *pMsg);
-MSG_ERROR_T MsgStoGetContentLocation(MSG_MESSAGE_INFO_S* pMsgInfo);
-MSG_ERROR_T MsgStoSetReadReportSendStatus(MSG_MESSAGE_ID_T msgId, int readReportSendStatus);
+msg_error_t MsgStoUpdateMMSMessage(MSG_MESSAGE_INFO_S *pMsg);
+msg_error_t MsgStoGetContentLocation(MSG_MESSAGE_INFO_S* pMsgInfo);
+msg_error_t MsgStoSetReadReportSendStatus(msg_message_id_t msgId, int readReportSendStatus);
 
-
-///////////////////////////////////////////////////////////////////////////////////
-MSG_ERROR_T MsgStoGetOrgAddressList(MSG_MESSAGE_INFO_S *pMsg);
-MSG_ERROR_T MsgStoUpdateNetworkStatus(MSG_MESSAGE_INFO_S *pMsgInfo, MSG_NETWORK_STATUS_T Status);
-MSG_ERROR_T MsgStoGetSubject(MSG_MESSAGE_ID_T MsgId, char* pSubject);
-MSG_ERROR_T MsgStoGetRecipientList(MSG_MESSAGE_ID_T msgId, MSG_RECIPIENTS_LIST_S *pRecipientList);
-MSG_ERROR_T MsgStoGetReadStatus(MSG_MESSAGE_ID_T MsgId, bool *pReadStatus);
-MSG_ERROR_T MsgStoGetAddrInfo(MSG_MESSAGE_ID_T MsgId, MSG_ADDRESS_INFO_S *pAddrInfo);
 
 ///////////////////////////////////////////////////////////////////////////////////
+// For MMS - will be removed
+msg_error_t MsgStoGetOrgAddressList(MSG_MESSAGE_INFO_S *pMsg);
+msg_error_t MsgStoUpdateNetworkStatus(MSG_MESSAGE_INFO_S *pMsgInfo, msg_network_status_t Status);
+msg_error_t MsgStoGetSubject(msg_message_id_t MsgId, char* pSubject);
+msg_error_t MsgStoGetRecipientList(msg_message_id_t msgId, MSG_RECIPIENTS_LIST_S *pRecipientList);
+msg_error_t MsgStoGetReadStatus(msg_message_id_t MsgId, bool *pReadStatus);
+msg_error_t MsgStoGetAddrInfo(msg_message_id_t MsgId, MSG_ADDRESS_INFO_S *pAddrInfo);
 
-MSG_ERROR_T MsgStoResetNetworkStatus();
-MSG_ERROR_T MsgStoCleanAbnormalMmsData();
-MSG_ERROR_T MsgStoCheckReadReportStatus(MSG_MESSAGE_ID_T msgId);
+///////////////////////////////////////////////////////////////////////////////////
+
+msg_error_t MsgStoResetNetworkStatus();
+msg_error_t MsgStoCleanAbnormalMmsData();
+msg_error_t MsgStoCheckReadReportStatus(msg_message_id_t msgId);
 
 #endif // MSG_STORAGE_HANDLER_H
 

@@ -20,6 +20,7 @@ SET(PLUGIN-MANAGER-SRCS
 )
 
 INCLUDE_DIRECTORIES(
+    ${CMAKE_SOURCE_DIR}/include/mapi
 	${CMAKE_SOURCE_DIR}/include/common
 	${CMAKE_SOURCE_DIR}/include/framework
 	${CMAKE_SOURCE_DIR}/include/utils
@@ -53,6 +54,7 @@ SET(FW-HANDLER-SRCS
 	${CMAKE_SOURCE_DIR}/framework/storage-handler/MsgStorageMessage.cpp
 	${CMAKE_SOURCE_DIR}/framework/storage-handler/MsgStorageMms.cpp
 	${CMAKE_SOURCE_DIR}/framework/storage-handler/MsgStorageFolder.cpp
+	${CMAKE_SOURCE_DIR}/framework/storage-handler/MsgStorageFilter.cpp
 	${CMAKE_SOURCE_DIR}/framework/storage-handler/MsgStorageSim.cpp
 	${CMAKE_SOURCE_DIR}/framework/storage-handler/MsgStorageUtil.cpp
 	${CMAKE_SOURCE_DIR}/framework/submit-handler/MsgSubmitHandler.cpp
@@ -60,6 +62,7 @@ SET(FW-HANDLER-SRCS
 )
 
 INCLUDE_DIRECTORIES(
+    ${CMAKE_SOURCE_DIR}/include/mapi
 	${CMAKE_SOURCE_DIR}/include/common
 	${CMAKE_SOURCE_DIR}/include/framework
 	${CMAKE_SOURCE_DIR}/include/utils
@@ -91,10 +94,12 @@ SET(TRANS-MANAGER-SRCS
 	${CMAKE_SOURCE_DIR}/framework/transaction-manager/MsgCmdHandlerSetting.cpp
 	${CMAKE_SOURCE_DIR}/framework/transaction-manager/MsgCmdHandlerStorage.cpp
 	${CMAKE_SOURCE_DIR}/framework/transaction-manager/MsgCmdHandlerTransport.cpp
+	${CMAKE_SOURCE_DIR}/framework/transaction-manager/MsgCmdHandlerFilter.cpp
 	${CMAKE_SOURCE_DIR}/framework/transaction-manager/MsgTransManager.cpp
 )
 
 INCLUDE_DIRECTORIES(
+    ${CMAKE_SOURCE_DIR}/include/mapi
 	${CMAKE_SOURCE_DIR}/include/common
 	${CMAKE_SOURCE_DIR}/include/framework
 	${CMAKE_SOURCE_DIR}/include/utils
@@ -127,6 +132,7 @@ SET(MAIN-SRCS
 )
 
 INCLUDE_DIRECTORIES(
+    ${CMAKE_SOURCE_DIR}/include/mapi
 	${CMAKE_SOURCE_DIR}/include/common
 	${CMAKE_SOURCE_DIR}/include/framework
 	${CMAKE_SOURCE_DIR}/include/utils

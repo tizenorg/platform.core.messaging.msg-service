@@ -1,18 +1,18 @@
- /*
-  * Copyright 2012  Samsung Electronics Co., Ltd
-  *
-  * Licensed under the Flora License, Version 1.0 (the "License");
-  * you may not use this file except in compliance with the License.
-  * You may obtain a copy of the License at
-  *
-  *    http://www.tizenopensource.org/license
-  *
-  * Unless required by applicable law or agreed to in writing, software
-  * distributed under the License is distributed on an "AS IS" BASIS,
-  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  * See the License for the specific language governing permissions and
-  * limitations under the License.
-  */
+/*
+* Copyright 2012  Samsung Electronics Co., Ltd
+*
+* Licensed under the Flora License, Version 1.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*    http://www.tizenopensource.org/license
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
 
 #include <stdio.h>
 #include <string.h>
@@ -34,74 +34,6 @@ MMS_SMIL_ROOTLAYOUT	rootlayout;
 
 static void __release_glist_element(gpointer data, gpointer user_data);
 static void __release_page_element(gpointer data, gpointer user_data);
-
-int msg_verify_number(const char *raw, char *trimmed)
-{
-	if (!(raw && trimmed)) {
-		MSG_DEBUG("Phone Number is NULL");
-		return MSG_ERR_NULL_POINTER;
-	}
-
-	for (int i = 0, j = 0; raw[i]; i++) {
-		if ((raw[i] >= '0' && raw[i] <= '9') || (raw[i] == ',') || raw[i] == ' ' || raw[i] == '+') {
-			trimmed[j++] = raw[i];
-		} else if (raw[i] == '-') {
-			continue;
-		} else {
-			MSG_DEBUG("Unacceptable character in telephone number: [%c]", raw[i]);
-			return MSG_ERR_INVALID_PARAMETER;
-		}
-	}
-
-	MSG_DEBUG("Trimming [%s]->[%s]", raw, trimmed);
-	return MSG_SUCCESS;
-}
-
-int msg_verify_email(const char *raw)
-{
-	bool onlyNum = true;
-	bool atExist = false;
-
-	if (!raw) {
-		MSG_DEBUG("Email is NULL");
-		return MSG_ERR_NULL_POINTER;
-	}
-
-	for (int i = 0; raw[i]; i++) {
-
-		if (raw[i] == '@') {
-			onlyNum = false;
-
-			if (atExist == false) {
-				atExist = true;
-				continue;
-			} else {
-				MSG_DEBUG("Character [@] is included more than twice in email address.");
-				return MSG_ERR_INVALID_PARAMETER;
-			}
-		}
-
-		if ((raw[i] >= '0' && raw[i] <= '9') || raw[i] == ' ' || raw[i] == '+') {
-			continue;
-		} else if ((raw[i] >= 'a' && raw[i] <= 'z') ||(raw[i] >= 'A' && raw[i] <= 'Z') ||(raw[i] == '.') || raw[i] == '_' || raw[i] == '-') {
-			onlyNum = false;
-			continue;
-		} else if (raw[i] == ',') {
-			if (onlyNum == false && atExist == false) {
-				MSG_DEBUG("Unacceptable type in address.");
-				return MSG_ERR_INVALID_PARAMETER;
-			}
-			atExist = false;
-			onlyNum = true;
-			continue;
-		} else {
-			MSG_DEBUG("Unacceptable character in address : [%c]", raw[i]);
-			return MSG_ERR_INVALID_PARAMETER;
-		}
-	}
-
-	return MSG_SUCCESS;
-}
 
 static void __release_glist_element(gpointer data, gpointer user_data)
 {
@@ -134,7 +66,7 @@ static void __release_page_element(gpointer data, gpointer user_data)
 	}
 }
 
-MSG_ERROR_T _MsgMmsReleasePageList(MMS_MESSAGE_DATA_S *pMsgData)
+msg_error_t _MsgMmsReleasePageList(MMS_MESSAGE_DATA_S *pMsgData)
 {
 	if (pMsgData == NULL) {
 		MSG_DEBUG("pMsgData is NULL");
@@ -152,7 +84,7 @@ MSG_ERROR_T _MsgMmsReleasePageList(MMS_MESSAGE_DATA_S *pMsgData)
 	return MSG_SUCCESS;
 }
 
-MSG_ERROR_T _MsgMmsReleaseRegionList(MMS_MESSAGE_DATA_S *pMsgData)
+msg_error_t _MsgMmsReleaseRegionList(MMS_MESSAGE_DATA_S *pMsgData)
 {
 	if (pMsgData == NULL) {
 		MSG_DEBUG("pMsgData is NULL");
@@ -170,7 +102,7 @@ MSG_ERROR_T _MsgMmsReleaseRegionList(MMS_MESSAGE_DATA_S *pMsgData)
 	return MSG_SUCCESS;
 }
 
-MSG_ERROR_T _MsgMmsReleaseAttachList(MMS_MESSAGE_DATA_S *pMsgData)
+msg_error_t _MsgMmsReleaseAttachList(MMS_MESSAGE_DATA_S *pMsgData)
 {
 	if (pMsgData == NULL) {
 		MSG_DEBUG("pMsgData is NULL");
@@ -188,7 +120,7 @@ MSG_ERROR_T _MsgMmsReleaseAttachList(MMS_MESSAGE_DATA_S *pMsgData)
 	return MSG_SUCCESS;
 }
 
-MSG_ERROR_T _MsgMmsReleaseTransitionList(MMS_MESSAGE_DATA_S *pMsgData)
+msg_error_t _MsgMmsReleaseTransitionList(MMS_MESSAGE_DATA_S *pMsgData)
 {
 	if (pMsgData == NULL) {
 		MSG_DEBUG("pMsgData is NULL");
@@ -206,7 +138,7 @@ MSG_ERROR_T _MsgMmsReleaseTransitionList(MMS_MESSAGE_DATA_S *pMsgData)
 	return MSG_SUCCESS;
 }
 
-MSG_ERROR_T _MsgMmsReleaseMetaList(MMS_MESSAGE_DATA_S *pMsgData)
+msg_error_t _MsgMmsReleaseMetaList(MMS_MESSAGE_DATA_S *pMsgData)
 {
 	if (pMsgData == NULL) {
 		MSG_DEBUG("pMsgData is NULL");
@@ -224,7 +156,7 @@ MSG_ERROR_T _MsgMmsReleaseMetaList(MMS_MESSAGE_DATA_S *pMsgData)
 	return MSG_SUCCESS;
 }
 
-MSG_ERROR_T _MsgMmsAddRegion(MMS_MESSAGE_DATA_S *pMsgData, MMS_SMIL_REGION* pRegion)
+msg_error_t _MsgMmsAddRegion(MMS_MESSAGE_DATA_S *pMsgData, MMS_SMIL_REGION* pRegion)
 {
 	if(pMsgData == NULL || pRegion == NULL)
 		return MSG_ERR_INVALID_PARAMETER;
@@ -235,7 +167,7 @@ MSG_ERROR_T _MsgMmsAddRegion(MMS_MESSAGE_DATA_S *pMsgData, MMS_SMIL_REGION* pReg
 	return MSG_SUCCESS;
 }
 
-MSG_ERROR_T _MsgMmsAddPage(MMS_MESSAGE_DATA_S *pMsgData, MMS_PAGE_S *pPage)
+msg_error_t _MsgMmsAddPage(MMS_MESSAGE_DATA_S *pMsgData, MMS_PAGE_S *pPage)
 {
 	if(pMsgData == NULL || pPage == NULL)
 		return MSG_ERR_INVALID_PARAMETER;
@@ -246,7 +178,7 @@ MSG_ERROR_T _MsgMmsAddPage(MMS_MESSAGE_DATA_S *pMsgData, MMS_PAGE_S *pPage)
 	return MSG_SUCCESS;
 }
 
-MSG_ERROR_T _MsgMmsAddMedia(MMS_PAGE_S* pPage, MMS_MEDIA_S *pMedia)
+msg_error_t _MsgMmsAddMedia(MMS_PAGE_S* pPage, MMS_MEDIA_S *pMedia)
 {
 	if(pPage == NULL || pMedia == NULL)
 		return MSG_ERR_INVALID_PARAMETER;
@@ -262,7 +194,7 @@ MSG_ERROR_T _MsgMmsAddMedia(MMS_PAGE_S* pPage, MMS_MEDIA_S *pMedia)
 	return MSG_SUCCESS;
 }
 
-MSG_ERROR_T _MsgMmsAddTransition(MMS_MESSAGE_DATA_S *pMsgData, MMS_SMIL_TRANSITION* pTransition)
+msg_error_t _MsgMmsAddTransition(MMS_MESSAGE_DATA_S *pMsgData, MMS_SMIL_TRANSITION* pTransition)
 {
 	if(pMsgData == NULL || pTransition == NULL)
 		return MSG_ERR_INVALID_PARAMETER;
@@ -273,7 +205,7 @@ MSG_ERROR_T _MsgMmsAddTransition(MMS_MESSAGE_DATA_S *pMsgData, MMS_SMIL_TRANSITI
 	return MSG_SUCCESS;
 }
 
-MSG_ERROR_T _MsgMmsAddMeta(MMS_MESSAGE_DATA_S *pMsgData, MMS_SMIL_META* pMeta)
+msg_error_t _MsgMmsAddMeta(MMS_MESSAGE_DATA_S *pMsgData, MMS_SMIL_META* pMeta)
 {
 	if(pMsgData == NULL || pMeta == NULL)
 		return MSG_ERR_INVALID_PARAMETER;
@@ -284,7 +216,7 @@ MSG_ERROR_T _MsgMmsAddMeta(MMS_MESSAGE_DATA_S *pMsgData, MMS_SMIL_META* pMeta)
 	return MSG_SUCCESS;
 }
 
-MSG_ERROR_T _MsgMmsAddAttachment(MMS_MESSAGE_DATA_S *pMsgData, MMS_ATTACH_S *pAttach)
+msg_error_t _MsgMmsAddAttachment(MMS_MESSAGE_DATA_S *pMsgData, MMS_ATTACH_S *pAttach)
 {
 	if(pMsgData == NULL || pAttach == NULL)
 		return MSG_ERR_INVALID_PARAMETER;
@@ -319,7 +251,7 @@ bool _MsgMmsFindMatchedMedia(MMS_MESSAGE_DATA_S *pMsgData, char *pszFilePath)
 	return false;
 }
 
-MSG_ERROR_T _MsgMmsAddSmilDoc(char* pSmil, MMS_MESSAGE_DATA_S* pMsgData)
+msg_error_t _MsgMmsAddSmilDoc(char* pSmil, MMS_MESSAGE_DATA_S* pMsgData)
 {
 	MSG_DEBUG("MsgMmsAddSmilDoc");
 

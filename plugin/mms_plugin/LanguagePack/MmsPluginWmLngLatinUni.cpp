@@ -1,18 +1,18 @@
- /*
-  * Copyright 2012  Samsung Electronics Co., Ltd
-  *
-  * Licensed under the Flora License, Version 1.0 (the "License");
-  * you may not use this file except in compliance with the License.
-  * You may obtain a copy of the License at
-  *
-  *    http://www.tizenopensource.org/license
-  *
-  * Unless required by applicable law or agreed to in writing, software
-  * distributed under the License is distributed on an "AS IS" BASIS,
-  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  * See the License for the specific language governing permissions and
-  * limitations under the License.
-  */
+/*
+* Copyright 2012  Samsung Electronics Co., Ltd
+*
+* Licensed under the Flora License, Version 1.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*    http://www.tizenopensource.org/license
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
 
 #include "MsgDebug.h"
 #include "MmsPluginWmLngPack.h"
@@ -358,7 +358,7 @@ MCHAR* __WmLngSwapPCode(MCHAR *mszOutput, MCHAR *mszInput, int length)
 		mszOutput[i] = __WmLngSwapShort(mszInput[i]);
 	}
 
-	mszOutput[i] = NULL;
+	mszOutput[i] = '\0';
 
 	return mszOutput;
 }
@@ -402,7 +402,7 @@ bool WmConvert2PCode(MCHAR *pmszOutText, int outBufSize, char *szInText)
 	byteCount = strlen((char*) szInText);
 
 	if (byteCount == 0)
-		pmszOutText[0] = NULL;
+		pmszOutText[0] = '\0';
 
 	if((WmConvertUTF2PCode(pmszOutText, outBufSize,(UCHAR*)szInText, byteCount) == true)) {
 		return true;
@@ -554,7 +554,7 @@ bool WmConvertLatin2Code2PCode(MCHAR *pmszOutText, int outBufSize, char *szInTex
 			pmszOutText[i] = (MCHAR)(UCHAR)szInText[i];
 	}
 	/* Latin2 -> UNICODE */
-	pmszOutText[strLen] = NULL;
+	pmszOutText[strLen] = '\0';
 
 	return true;
 }
@@ -595,7 +595,7 @@ bool WmConvertLatin3Code2PCode(MCHAR *pmszOutText, int outBufSize, char *szInTex
 			pmszOutText[i] = (MCHAR)(UCHAR)szInText[i];
 	}
 	/* Latin3 -> UNICODE */
-	pmszOutText[strLen] = NULL;
+	pmszOutText[strLen] = '\0';
 
 	return true;
 }
@@ -635,7 +635,7 @@ bool WmConvertLatin4Code2PCode(MCHAR *pmszOutText, int outBufSize, char *szInTex
 			pmszOutText[i] = (MCHAR)(UCHAR)szInText[i];
 	}
 	/* Latin4 -> UNICODE */
-	pmszOutText[strLen] = NULL;
+	pmszOutText[strLen] = '\0';
 
 	return true;
 }
@@ -675,7 +675,7 @@ bool WmConvertLatin8Code2PCode(MCHAR *pmszOutText, int outBufSize, char *szInTex
 			pmszOutText[i] = (MCHAR)(UCHAR)szInText[i];
 	}
 	/* Latin8 -> UNICODE */
-	pmszOutText[strLen] = NULL;
+	pmszOutText[strLen] = '\0';
 
 	return true;
 }
@@ -716,7 +716,7 @@ bool WmConvertWin1251Code2PCode(MCHAR *pmszOutText, int outBufSize, char *szInTe
 			pmszOutText[i] = (MCHAR)(UCHAR)szInText[i];
 	}
 	/* Win1251 -> UNICODE */
-	pmszOutText[strLen] = NULL;
+	pmszOutText[strLen] = '\0';
 
 	return true;
 }
@@ -757,7 +757,7 @@ bool WmConvertKoi8rCode2PCode(MCHAR *pmszOutText, int outBufSize, char *szInText
 			pmszOutText[i] = (MCHAR)(UCHAR)szInText[i];
 	}
 	/* bInKoi8-rTable -> UNICODE */
-	pmszOutText[strLen] = NULL;
+	pmszOutText[strLen] = '\0';
 
 	return true;
 }
@@ -798,7 +798,7 @@ bool WmConvertKoi8uCode2PCode(MCHAR *pmszOutText, int outBufSize, char *szInText
 			pmszOutText[i] = (MCHAR)(UCHAR)szInText[i];
 	}
 	/* bInKoi8uTable -> UNICODE */
-	pmszOutText[strLen] = NULL;
+	pmszOutText[strLen] = '\0';
 
 	return true;
 }
@@ -839,7 +839,7 @@ bool WmConvertLatin15Code2PCode(MCHAR *pmszOutText, int outBufSize, char *szInTe
 			pmszOutText[i] = (MCHAR)(UCHAR)szInText[i];
 	}
 	/* Latin15 -> UNICODE */
-	pmszOutText[strLen] = NULL;
+	pmszOutText[strLen] = '\0';
 
 	return true;
 }
@@ -882,7 +882,7 @@ bool WmConvertLatin5Code2PCode(MCHAR *pmszOutText, int outBufSize, char *szInTex
 			pmszOutText[i] = (MCHAR)(UCHAR)szInText[i];
 	}
 	/* Latin5 -> UNICODE */
-	pmszOutText[strLen] = NULL;
+	pmszOutText[strLen] = '\0';
 
 	return true;
 }
@@ -1003,7 +1003,7 @@ bool WmConvertLatinCode2PCode(MCHAR *pmszOutText, int outBufSize, char *szInText
 
 	/* Latin1 -> UNICODE */
 	__WmLngConvertLatin12Unicode(pmszOutText,(UCHAR*)szInText,strLen);
-	pmszOutText[strLen] = NULL;
+	pmszOutText[strLen] = '\0';
 
 	return true;
 }
@@ -1024,7 +1024,7 @@ bool WmConvertLatinCode2PCodeN(MCHAR *pmszOutText, int outBufSize, char *szInTex
 
 	if (charCount == 0) {
 		MSG_DEBUG("WmConvert2PCodeN: charCount is0\n");
-		pmszOutText[charCount] = NULL;
+		pmszOutText[charCount] = '\0';
 	}
 
 	if (__WmConvertCodeBufferSizeCheck((char*)pmszOutText, outBufSize, charCount) == false) {
@@ -1037,9 +1037,9 @@ bool WmConvertLatinCode2PCodeN(MCHAR *pmszOutText, int outBufSize, char *szInTex
 
 	strLen = strlen((char *)szInText);
 	if(strLen < charCount) {
-		pmszOutText[strLen] = NULL;
+		pmszOutText[strLen] = '\0';
 	} else {
-		pmszOutText[charCount] = NULL;
+		pmszOutText[charCount] = '\0';
 	}
 
 	return true;

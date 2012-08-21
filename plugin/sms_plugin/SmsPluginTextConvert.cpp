@@ -1,18 +1,18 @@
- /*
-  * Copyright 2012  Samsung Electronics Co., Ltd
-  *
-  * Licensed under the Flora License, Version 1.0 (the "License");
-  * you may not use this file except in compliance with the License.
-  * You may obtain a copy of the License at
-  *
-  *    http://www.tizenopensource.org/license
-  *
-  * Unless required by applicable law or agreed to in writing, software
-  * distributed under the License is distributed on an "AS IS" BASIS,
-  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  * See the License for the specific language governing permissions and
-  * limitations under the License.
-  */
+/*
+* Copyright 2012  Samsung Electronics Co., Ltd
+*
+* Licensed under the Flora License, Version 1.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*    http://www.tizenopensource.org/license
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
 
 #include <glib.h>
 
@@ -80,6 +80,12 @@ int SmsPluginTextConvert::convertUTF8ToUCS2(OUT unsigned char *pDestText, IN int
 	int ucs2Length = 0;
 	int remainedBuffer = maxLength;
 
+#ifdef CONVERT_DUMP
+	int srcLen = srcTextLen;
+	const unsigned char * pTempSrcText = pSrcText;
+	const unsigned char * pTempDestText = pDestText;
+#endif
+
 	i = j = 0;
 
 	if(maxLength == 0 || pSrcText == NULL || pDestText ==  NULL)
@@ -119,13 +125,19 @@ int SmsPluginTextConvert::convertUTF8ToUCS2(OUT unsigned char *pDestText, IN int
 		ucs2Length = maxLength - remainedBuffer;
 	}
 
+#ifdef CONVERT_DUMP
+	MSG_DEBUG("\n########## Dump UTF8 -> UCS2\n");
+	convertDumpTextToHex((unsigned char*)pTempSrcText, srcLen);
+	convertDumpTextToHex((unsigned char*)pTempDestText, ucs2Length);
+#endif
+
 	g_iconv_close(cd);
 
 	return ucs2Length;
 }
 
 
-int SmsPluginTextConvert::convertUTF8ToAuto(OUT unsigned char *pDestText, IN int maxLength,  IN const unsigned char *pSrcText, IN int srcTextLen, OUT MSG_ENCODE_TYPE_T *pCharType)
+int SmsPluginTextConvert::convertUTF8ToAuto(OUT unsigned char *pDestText, IN int maxLength,  IN const unsigned char *pSrcText, IN int srcTextLen, OUT msg_encode_type_t *pCharType)
 {
 	int utf8Length = 0;
 	int gsm7bitLength = 0;
@@ -213,6 +225,10 @@ int SmsPluginTextConvert::convertUCS2ToUTF8(OUT unsigned char *pDestText, IN int
 	int remainedBuffer = maxLength;
 	int utf8Length;
 
+#ifdef CONVERT_DUMP
+	int srcLen = srcTextLen;
+	const unsigned char * pTempSrcText = pSrcText;
+#endif
 	unsigned char * pTempDestText = pDestText;
 
 	if (srcTextLen == 0 || pSrcText == NULL || pDestText ==  NULL || maxLength == 0)
@@ -234,6 +250,12 @@ int SmsPluginTextConvert::convertUCS2ToUTF8(OUT unsigned char *pDestText, IN int
 	utf8Length = maxLength - remainedBuffer;
 	pTempDestText[utf8Length] = 0x00;
 
+#ifdef CONVERT_DUMP
+	MSG_DEBUG("\n########## Dump UCS2 -> UTF8\n");
+	convertDumpTextToHex((unsigned char*)pTempSrcText, srcLen);
+	convertDumpTextToHex((unsigned char*)pTempDestText, utf8Length);
+#endif
+
 	g_iconv_close(cd);
 
 	return utf8Length;
@@ -245,6 +267,10 @@ int SmsPluginTextConvert::convertEUCKRToUTF8(OUT unsigned char *pDestText, IN in
 	int remainedBuffer = maxLength;
 	int utf8Length;
 
+#ifdef CONVERT_DUMP
+	int srcLen = srcTextLen;
+	const unsigned char * pTempSrcText = pSrcText;
+#endif
 	unsigned char * pTempDestText = pDestText;
 
 	if(srcTextLen == 0 || pSrcText == NULL || pDestText ==  NULL || maxLength == 0)
@@ -265,6 +291,12 @@ int SmsPluginTextConvert::convertEUCKRToUTF8(OUT unsigned char *pDestText, IN in
 
 	utf8Length = maxLength - remainedBuffer;
 	pTempDestText[utf8Length] = 0x00;
+
+#ifdef CONVERT_DUMP
+	MSG_DEBUG("\n########## Dump EUCKR -> UTF8\n");
+	convertDumpTextToHex((unsigned char*)pTempSrcText, srcLen);
+	convertDumpTextToHex((unsigned char*)pTempDestText, utf8Length);
+#endif
 
 	g_iconv_close(cd);
 
@@ -312,6 +344,8 @@ int SmsPluginTextConvert::convertUCS2ToGSM7bit(OUT unsigned char *pDestText, IN 
 		inText = (upperByte << 8) & 0xFF00;
 
 		inText = inText | lowerByte;
+
+//MSG_DEBUG("inText : [%04x]", inText);
 
 		itExt = extCharList.find(inText);
 
@@ -455,6 +489,12 @@ MSG_DEBUG("no char");
 		}
 	}
 
+#ifdef CONVERT_DUMP
+	MSG_DEBUG("\n########## Dump UCS2 -> GSM7bit\n");
+	convertDumpTextToHex((unsigned char*)pSrcText, srcTextLen);
+	convertDumpTextToHex((unsigned char*)pDestText, outTextLen);
+#endif
+
 	return outTextLen;
 }
 
@@ -484,11 +524,14 @@ int SmsPluginTextConvert::convertUCS2ToGSM7bitAuto(OUT unsigned char *pDestText,
 		inText = (upperByte << 8) & 0xFF00;
 		inText = inText | lowerByte;
 
+//MSG_DEBUG("inText : [%04x]", inText);
+
 		// Check Default Char
 		itChar = ucs2toGSM7DefList.find(inText);
 
 		if (itChar != ucs2toGSM7DefList.end())
 		{
+//MSG_DEBUG("default char");
 			pDestText[outTextLen++] = (unsigned char)itChar->second;
 		}
 		else
@@ -521,6 +564,12 @@ int SmsPluginTextConvert::convertUCS2ToGSM7bitAuto(OUT unsigned char *pDestText,
 			break;
 		}
 	}
+
+#ifdef CONVERT_DUMP
+	MSG_DEBUG("\n########## Dump UCS2 -> GSM7bit\n");
+	convertDumpTextToHex((unsigned char*)pSrcText, srcTextLen);
+	convertDumpTextToHex((unsigned char*)pDestText, outTextLen);
+#endif
 
 	return outTextLen;
 }
@@ -704,6 +753,12 @@ int SmsPluginTextConvert::convertGSM7bitToUCS2(OUT unsigned char *pDestText, IN 
 		maxLength -= 2;
 	}
 
+#ifdef CONVERT_DUMP
+	MSG_DEBUG("\n########## Dump GSM7bit -> UCS2\n");
+	convertDumpTextToHex((unsigned char*)pSrcText, srcTextLen);
+	convertDumpTextToHex((unsigned char*)pDestText, outTextLen);
+#endif
+
 	return outTextLen;
 }
 
@@ -745,7 +800,7 @@ SmsPluginTextConvert::SmsPluginTextConvert()
 	extCharList[0x007C] = SMS_CHAR_GSM7EXT;
 	extCharList[0x007D] = SMS_CHAR_GSM7EXT;
 	extCharList[0x007E] = SMS_CHAR_GSM7EXT;
-	extCharList[0x20AC] = SMS_CHAR_GSM7EXT; // ï¿½ï¿½
+	extCharList[0x20AC] = SMS_CHAR_GSM7EXT; // ¢æ
 
 	extCharList[0x00E7] = SMS_CHAR_TURKISH;
 	extCharList[0x011E] = SMS_CHAR_TURKISH;
@@ -794,7 +849,7 @@ SmsPluginTextConvert::SmsPluginTextConvert()
 	ucs2toGSM7ExtList[0x005E] = 0x14; // ^
 	ucs2toGSM7ExtList[0x007C] = 0x40; // |
 	ucs2toGSM7ExtList[0x007E] = 0x3D; // ~
-	ucs2toGSM7ExtList[0x20AC] = 0x65; // ï¿½ï¿½
+	ucs2toGSM7ExtList[0x20AC] = 0x65; // ¢æ
 
 	// Turkish
 	ucs2toTurkishList[0x005B] = 0x3C; // [
@@ -806,7 +861,7 @@ SmsPluginTextConvert::SmsPluginTextConvert()
 	ucs2toTurkishList[0x005E] = 0x14; // ^
 	ucs2toTurkishList[0x007C] = 0x40; // |
 	ucs2toTurkishList[0x007E] = 0x3D; // ~
-	ucs2toTurkishList[0x20AC] = 0x65; // ï¿½ï¿½
+	ucs2toTurkishList[0x20AC] = 0x65; // ¢æ
 	ucs2toTurkishList[0x00E7] = 0x63; // c LATIN SMALL LETTER S WITH CEDILLA *
 	ucs2toTurkishList[0x011E] = 0x47; // G LATIN CAPITAL LETTER G WITH BREVE
 	ucs2toTurkishList[0x011F] = 0x67; // g LATIN SMALL LETTER G WITH BREVE
@@ -827,7 +882,7 @@ SmsPluginTextConvert::SmsPluginTextConvert()
 	ucs2toSpanishList[0x005E] = 0x14; // ^
 	ucs2toSpanishList[0x007C] = 0x40; // |
 	ucs2toSpanishList[0x007E] = 0x3D; // ~
-	ucs2toSpanishList[0x20AC] = 0x65; // ï¿½ï¿½
+	ucs2toSpanishList[0x20AC] = 0x65; // ¢æ
 	ucs2toSpanishList[0x00C1] = 0x41; // A
 	ucs2toSpanishList[0x00E1] = 0x61; // a
 	ucs2toSpanishList[0x00CD] = 0x49; // I
@@ -847,7 +902,7 @@ SmsPluginTextConvert::SmsPluginTextConvert()
 	ucs2toPortuList[0x005E] = 0x14; // ^
 	ucs2toPortuList[0x007C] = 0x40; // |
 	ucs2toPortuList[0x007E] = 0x3D; // ~
-	ucs2toPortuList[0x20AC] = 0x65; // ï¿½ï¿½
+	ucs2toPortuList[0x20AC] = 0x65; // ¢æ
 	ucs2toPortuList[0x00D4] = 0x0B; // O
 	ucs2toPortuList[0x00F4] = 0x0C; // o
 	ucs2toPortuList[0x00C1] = 0x0E; // A
@@ -868,13 +923,13 @@ SmsPluginTextConvert::SmsPluginTextConvert()
 	ucs2toPortuList[0x00F5] = 0x7C; // o
 	ucs2toPortuList[0x00C2] = 0x61; // A
 	ucs2toPortuList[0x00E2] = 0x7F; // a
-	ucs2toPortuList[0x03A6] = 0x12; // ï¿½ï¿½
-	ucs2toPortuList[0x0393] = 0x13; // ï¿½ï¿½
-	ucs2toPortuList[0x03A9] = 0x15; // ï¿½ï¿½
-	ucs2toPortuList[0x03A0] = 0x16; // ï¿½ï¿½
-	ucs2toPortuList[0x03A8] = 0x17; // ï¿½ï¿½
-	ucs2toPortuList[0x03A3] = 0x18; // ï¿½ï¿½
-	ucs2toPortuList[0x0398] = 0x19; // ï¿½ï¿½
+	ucs2toPortuList[0x03A6] = 0x12; // ¥Õ
+	ucs2toPortuList[0x0393] = 0x13; // ¥Ã
+	ucs2toPortuList[0x03A9] = 0x15; // ¥Ø
+	ucs2toPortuList[0x03A0] = 0x16; // ¥Ð
+	ucs2toPortuList[0x03A8] = 0x17; // ¥×
+	ucs2toPortuList[0x03A3] = 0x18; // ¥Ò
+	ucs2toPortuList[0x0398] = 0x19; // ¥È
 }
 
 

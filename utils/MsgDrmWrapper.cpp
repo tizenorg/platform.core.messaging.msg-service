@@ -1,18 +1,18 @@
- /*
-  * Copyright 2012  Samsung Electronics Co., Ltd
-  *
-  * Licensed under the Flora License, Version 1.0 (the "License");
-  * you may not use this file except in compliance with the License.
-  * You may obtain a copy of the License at
-  *
-  *    http://www.tizenopensource.org/license
-  *
-  * Unless required by applicable law or agreed to in writing, software
-  * distributed under the License is distributed on an "AS IS" BASIS,
-  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  * See the License for the specific language governing permissions and
-  * limitations under the License.
-  */
+/*
+* Copyright 2012  Samsung Electronics Co., Ltd
+*
+* Licensed under the Flora License, Version 1.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*    http://www.tizenopensource.org/license
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
 
 #include "MsgDebug.h"
 #include "MsgDrmWrapper.h"
@@ -172,7 +172,7 @@ bool MsgDrmConvertDmtoDcfType(char *inputFile, char *outputFile)
 		drm_trusted_opn_conv_info_s trusted_open_conv_input;
 		bzero(&trusted_open_conv_input, sizeof(drm_trusted_opn_conv_info_s));
 
-		strncpy(trusted_open_conv_input.filePath, outputFile, DRM_TRUSTED_MAX_FILEPATH_LEN);
+		strncpy(trusted_open_conv_input.filePath, outputFile, DRM_TRUSTED_MAX_FILEPATH_LEN-1);
 		trusted_open_conv_input.install_RO = DRM_TRUSTED_TRUE;
 
 		ret = drm_trusted_open_convert(&trusted_open_conv_input, &hConvert);

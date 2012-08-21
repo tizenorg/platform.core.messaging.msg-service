@@ -1,18 +1,18 @@
- /*
-  * Copyright 2012  Samsung Electronics Co., Ltd
-  *
-  * Licensed under the Flora License, Version 1.0 (the "License");
-  * you may not use this file except in compliance with the License.
-  * You may obtain a copy of the License at
-  *
-  *    http://www.tizenopensource.org/license
-  *
-  * Unless required by applicable law or agreed to in writing, software
-  * distributed under the License is distributed on an "AS IS" BASIS,
-  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  * See the License for the specific language governing permissions and
-  * limitations under the License.
-  */
+/*
+* Copyright 2012  Samsung Electronics Co., Ltd
+*
+* Licensed under the Flora License, Version 1.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*    http://www.tizenopensource.org/license
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
 
 #include "MsgDebug.h"
 #include "MsgCppTypes.h"
@@ -23,7 +23,6 @@
 #include "SmsPluginTransport.h"
 #include "SmsPluginEventHandler.h"
 #include "SmsPluginWapPushHandler.h"
-
 
 #include <drm_client.h>
 
@@ -920,7 +919,6 @@ void SmsPluginWapPushHandler::handleWapPushCallback(char* pPushHeader, char* pPu
 	switch (appCode) {
 	case SMS_WAP_APPLICATION_MMS_UA:
 		MSG_DEBUG("Received MMS Notification");
-
 		handleMMSNotification(pPushBody, PushBodyLen);
 		break;
 
@@ -1050,6 +1048,7 @@ void SmsPluginWapPushHandler::handleMMSNotification(const char *pPushBody, int P
 
 	/** Make MSG_MESSAGE_INFO_S */
 	MSG_MESSAGE_INFO_S msgInfo;
+	memset(&msgInfo, 0x00, sizeof(MSG_MESSAGE_INFO_S));
 
 	createMsgInfo(&msgInfo);
 
@@ -1080,7 +1079,7 @@ void SmsPluginWapPushHandler::handleMMSNotification(const char *pPushBody, int P
 		msgInfo.msgText[msgInfo.dataSize] = '\0';
 	}
 
-	MSG_ERROR_T err = MSG_SUCCESS;
+	msg_error_t err = MSG_SUCCESS;
 
 	/** Add MMS Noti Msg into DB */
 	err = SmsPluginStorage::instance()->addMessage(&msgInfo);
@@ -1229,7 +1228,7 @@ void SmsPluginWapPushHandler::handleSIMessage(char* pPushBody, int PushBodyLen, 
 	xmlFree(xmlDoc);
 	xmlFree(tmpXmlChar);
 
-	MSG_ERROR_T err = MSG_SUCCESS;
+	msg_error_t err = MSG_SUCCESS;
 
 	/** Add WAP Push Msg into DB */
 	err = SmsPluginStorage::instance()->addMessage(&msgInfo);
@@ -1461,7 +1460,7 @@ void SmsPluginWapPushHandler::handleCOMessage(char* pPushBody, int PushBodyLen, 
 
 	msgInfo.dataSize = sizeof(cacheOp);
 
-	MSG_ERROR_T err = MSG_SUCCESS;
+	msg_error_t err = MSG_SUCCESS;
 
 	/** Add WAP Push Msg into DB */
 	err = SmsPluginStorage::instance()->addMessage(&msgInfo);
@@ -1649,7 +1648,7 @@ unsigned long SmsPluginWapPushHandler::convertXmlCharToSec(char* pDate)
 	return nTimeInSec;
 }
 
-MSG_PUSH_ACTION_T SmsPluginWapPushHandler::convertSIActionStrToEnum(char* pAction)
+msg_push_action_t SmsPluginWapPushHandler::convertSIActionStrToEnum(char* pAction)
 {
 	int comp = 0;
 
@@ -1688,7 +1687,7 @@ MSG_PUSH_ACTION_T SmsPluginWapPushHandler::convertSIActionStrToEnum(char* pActio
 
 }
 
-MSG_PUSH_ACTION_T SmsPluginWapPushHandler::convertSLActionStrToEnum(char* pAction)
+msg_push_action_t SmsPluginWapPushHandler::convertSLActionStrToEnum(char* pAction)
 {
 	int comp = 0;
 
@@ -2689,6 +2688,7 @@ void SmsPluginWapPushHandler::wspHeaderDecodeParameter( unsigned char* data, uns
 			break;
 			/* integer */
 		case 0x03 :
+			//param = (unsigned char *)malloc( (size_t)WSP_STANDARD_STR_LEN_MAX );
 			param = new char[WSP_STANDARD_STR_LEN_MAX];
 			if (param == NULL) {
 				MSG_DEBUG("WspLHeaderDecodeParameter: 0x03 MemAlloc failed\n");

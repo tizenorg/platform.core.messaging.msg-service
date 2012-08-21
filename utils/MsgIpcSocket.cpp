@@ -1,18 +1,18 @@
- /*
-  * Copyright 2012  Samsung Electronics Co., Ltd
-  *
-  * Licensed under the Flora License, Version 1.0 (the "License");
-  * you may not use this file except in compliance with the License.
-  * You may obtain a copy of the License at
-  *
-  *    http://www.tizenopensource.org/license
-  *
-  * Unless required by applicable law or agreed to in writing, software
-  * distributed under the License is distributed on an "AS IS" BASIS,
-  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  * See the License for the specific language governing permissions and
-  * limitations under the License.
-  */
+/*
+* Copyright 2012  Samsung Electronics Co., Ltd
+*
+* Licensed under the Flora License, Version 1.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*    http://www.tizenopensource.org/license
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
 
 #include <sys/socket.h>
 #include <sys/un.h>
@@ -38,7 +38,7 @@ MsgIpcClientSocket::MsgIpcClientSocket() : sockfd(-1), remotefd(-1), maxfd(-1)
 }
 
 
-MSG_ERROR_T MsgIpcClientSocket::connect(const char* path)
+msg_error_t MsgIpcClientSocket::connect(const char* path)
 {
 	MSG_BEGIN();
 
@@ -88,7 +88,7 @@ MSG_ERROR_T MsgIpcClientSocket::connect(const char* path)
 }
 
 
-MSG_ERROR_T MsgIpcClientSocket::close()
+msg_error_t MsgIpcClientSocket::close()
 {
 	if (sockfd < 0) {
 		MSG_FATAL("Client socket is not opened (check if you call close twice by accident) [%d]", sockfd);
@@ -214,12 +214,13 @@ int MsgIpcClientSocket::read(char** buf, int* len)
 
 	/*  read the data in subsequence */
 	if ((*len) > 0) {
-		*buf = new char[*len+1];
-		bzero(*buf, *len+1);
-		n = readn(*buf, *len);
+		unsigned int ulen = (unsigned int)*len;
+		*buf = new char[ulen+1];
+		bzero(*buf, ulen+1);
+		n = readn(*buf, ulen);
 
-		if (n !=  *len) {
-			MSG_FATAL("WARNING: read data_size [%d] not matched [%d]", n, *len);
+		if (n !=  ulen) {
+			MSG_FATAL("WARNING: read data_size [%d] not matched [%d]", n, ulen);
 			return CUSTOM_SOCKET_ERROR;
 		}
 	}
@@ -251,7 +252,7 @@ void MsgIpcServerSocket::addfd(int fd)
 		maxfd = fd;
 }
 
-MSG_ERROR_T MsgIpcServerSocket::open(const char* path)
+msg_error_t MsgIpcServerSocket::open(const char* path)
 {
 	MSG_BEGIN();
 
@@ -319,7 +320,7 @@ MSG_ERROR_T MsgIpcServerSocket::open(const char* path)
 	return MSG_SUCCESS;
 }
 
-MSG_ERROR_T MsgIpcServerSocket::accept()
+msg_error_t MsgIpcServerSocket::accept()
 {
 	MSG_BEGIN();
 
@@ -429,12 +430,13 @@ int MsgIpcServerSocket::read(int fd, char** buf, int* len )
 
 	if ((*len) > 0) {
 		/* read the data in subsequence */
-		*buf = new char[*len+1];
-		bzero(*buf, *len+1);
-		n = readn(fd, *buf, *len);
+		unsigned int ulen = (unsigned int)*len;
+		*buf = new char[ulen+1];
+		bzero(*buf, ulen+1);
+		n = readn(fd, *buf, ulen);
 
-		if (n != *len) {
-			MSG_FATAL("WARNING: read data_size [%d] not matched [%d]", n, *len);
+		if (n != ulen) {
+			MSG_FATAL("WARNING: read data_size [%d] not matched [%d]", n, ulen);
 			return CUSTOM_SOCKET_ERROR;
 		}
 	}

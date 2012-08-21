@@ -1,18 +1,18 @@
- /*
-  * Copyright 2012  Samsung Electronics Co., Ltd
-  *
-  * Licensed under the Flora License, Version 1.0 (the "License");
-  * you may not use this file except in compliance with the License.
-  * You may obtain a copy of the License at
-  *
-  *    http://www.tizenopensource.org/license
-  *
-  * Unless required by applicable law or agreed to in writing, software
-  * distributed under the License is distributed on an "AS IS" BASIS,
-  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  * See the License for the specific language governing permissions and
-  * limitations under the License.
-  */
+/*
+* Copyright 2012  Samsung Electronics Co., Ltd
+*
+* Licensed under the Flora License, Version 1.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*    http://www.tizenopensource.org/license
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
 
 #ifndef MMS_PLUGIN_CODEC_H
 #define MMS_PLUGIN_CODEC_H
@@ -209,8 +209,8 @@ typedef struct {
 	MmsReportAllowed reportAllowed;
 	char szContentLocation[MMS_LOCATION_LEN + 1];
 
-	MSG_DELIVERY_REPORT_STATUS_T msgStatus;
-	MSG_READ_REPORT_STATUS_T readStatus;
+	msg_delivery_report_status_t msgStatus;
+	msg_read_report_status_t readStatus;
 
 	MmsReplyCharge replyCharge;
 
@@ -273,10 +273,10 @@ bool _MmsEncodeMsg(void);
 bool _MmsEncodeSendReq(FILE *pFile, MmsMsg *pMsg);
 bool _MmsEncodeTemplate(FILE *pFile, MmsMsg *pMsg);	// just encode MMS Body without any header.
 bool _MmsEncodeAckInd(FILE *pFile, char *szTrID, bool bReportAllowed);
-bool _MmsEncodeNotiRespInd(FILE *pFile, char *szTrID, MSG_DELIVERY_REPORT_STATUS_T iStatus, bool bReportAllowed);
+bool _MmsEncodeNotiRespInd(FILE *pFile, char *szTrID, msg_delivery_report_status_t iStatus, bool bReportAllowed);
 bool _MmsEncodeForwardReq(FILE *pFile, char *szContentLocation, char *szForwardTo, char *szForwardCc, char *szForwardBcc);
-bool _MmsEncodeReadReport10(FILE *pFile, MmsMsg *pMsg, MSG_READ_REPORT_STATUS_T mmsReadStatus);
-bool _MmsEncodeReadReport11(FILE *pFile, MmsMsg *pMsg, MSG_READ_REPORT_STATUS_T mmsReadStatus);
+bool _MmsEncodeReadReport10(FILE *pFile, MmsMsg *pMsg, msg_read_report_status_t mmsReadStatus);
+bool _MmsEncodeReadReport11(FILE *pFile, MmsMsg *pMsg, msg_read_report_status_t mmsReadStatus);
 
 
 bool MmsBinaryEncodeMsgBody(FILE *pFile, MsgType *pType, MsgBody *pBody, int nPartCount, bool bTemplate);//NEW_TEMPLATE
@@ -361,10 +361,10 @@ bool MsgMakeFileName(int iMsgType, char *szFileName, int nUntitleIndex);
 bool MsgMakeFileName(int iMsgType, char *szFileName, MsgDrmType drmType, int nUntitleIndex);
 #endif
 bool MsgGetFileNameWithoutExtension(char *szOutputName, char *szName);
-int MmsGetMediaPartCount(MSG_MESSAGE_ID_T msgId);
+int MmsGetMediaPartCount(msg_message_id_t msgId);
 bool MmsGetMediaPartHeader(int index, MsgType *pHeader);
 bool MmsGetMsgAttrib(MmsMsgID msgID, MmsAttrib *pAttrib);
-bool _MmsReadMsgBody(MSG_MESSAGE_ID_T msgID, bool bSavePartsAsTempFiles, bool bRetrieved, char *retrievedPath);
+bool _MmsReadMsgBody(msg_message_id_t msgID, bool bSavePartsAsTempFiles, bool bRetrieved, char *retrievedPath);
 
 #ifdef __SUPPORT_DRM__
 void _MsgFreeDRMInfo(MsgDRMInfo *pDrmInfo);

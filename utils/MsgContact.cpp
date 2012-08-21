@@ -1,18 +1,18 @@
- /*
-  * Copyright 2012  Samsung Electronics Co., Ltd
-  *
-  * Licensed under the Flora License, Version 1.0 (the "License");
-  * you may not use this file except in compliance with the License.
-  * You may obtain a copy of the License at
-  *
-  *    http://www.tizenopensource.org/license
-  *
-  * Unless required by applicable law or agreed to in writing, software
-  * distributed under the License is distributed on an "AS IS" BASIS,
-  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  * See the License for the specific language governing permissions and
-  * limitations under the License.
-  */
+/*
+* Copyright 2012  Samsung Electronics Co., Ltd
+*
+* Licensed under the Flora License, Version 1.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*    http://www.tizenopensource.org/license
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
 
 extern "C"
 {
@@ -43,34 +43,26 @@ static void MsgContactSvcCallback(void *pData)
 	MsgSyncContact();
 
 	if (ContactDbHandle.disconnect() != MSG_SUCCESS)
-	{
 		MSG_DEBUG("DB Disconnect Fail");
-	}
 }
 
 
-MSG_ERROR_T MsgOpenContactSvc()
+msg_error_t MsgOpenContactSvc()
 {
 	int errCode = CTS_SUCCESS;
 
-	if(!isContactSvcOpened)
-	{
+	if (!isContactSvcOpened) {
 		errCode = contacts_svc_connect();
 
-		if (errCode == CTS_SUCCESS)
-		{
+		if (errCode == CTS_SUCCESS) {
 			MSG_DEBUG("Connect to Contact Service Success");
 			isContactSvcOpened = true;
-		}
-		else
-		{
+		} else {
 			MSG_DEBUG("Connect to Contact Service Fail [%d]", errCode);
 			isContactSvcOpened = false;
 			return MSG_ERR_DB_CONNECT;
 		}
-	}
-	else
-	{
+	} else {
 		MSG_DEBUG("Already connected to Contact Service.");
 	}
 
@@ -78,20 +70,16 @@ MSG_ERROR_T MsgOpenContactSvc()
 }
 
 
-MSG_ERROR_T MsgCloseContactSvc()
+msg_error_t MsgCloseContactSvc()
 {
 	int errCode = CTS_SUCCESS;
 
-	if(isContactSvcOpened)
-	{
+	if (isContactSvcOpened) {
 		errCode = contacts_svc_disconnect();
 
-		if (errCode == CTS_SUCCESS)
-		{
+		if (errCode == CTS_SUCCESS) {
 			MSG_DEBUG("Disconnect to Contact Service Success");
-		}
-		else
-		{
+		} else {
 			MSG_DEBUG("Disconnect to Contact Service Fail [%d]", errCode);
 			return MSG_ERR_DB_DISCONNECT;
 		}
@@ -101,7 +89,7 @@ MSG_ERROR_T MsgCloseContactSvc()
 }
 
 
-MSG_ERROR_T MsgInitContactSvc(MsgContactChangeCB cb)
+msg_error_t MsgInitContactSvc(MsgContactChangeCB cb)
 {
 	int errCode = CTS_SUCCESS;
 
@@ -112,19 +100,15 @@ MSG_ERROR_T MsgInitContactSvc(MsgContactChangeCB cb)
 	errCode = contacts_svc_subscribe_change(CTS_SUBSCRIBE_CONTACT_CHANGE, MsgContactSvcCallback, NULL);
 
 	if (errCode == CTS_SUCCESS)
-	{
 		MSG_DEBUG("Register Contact Service Callback");
-	}
 	else
-	{
 		MSG_DEBUG("Fail to Register Contact Service Callback [%d]", errCode);
-	}
 
 	return MSG_SUCCESS;
 }
 
 
-MSG_ERROR_T MsgGetContactInfo(const MSG_ADDRESS_INFO_S *pAddrInfo, MSG_CONTACT_INFO_S *pContactInfo)
+msg_error_t MsgGetContactInfo(const MSG_ADDRESS_INFO_S *pAddrInfo, MSG_CONTACT_INFO_S *pContactInfo)
 {
 	MSG_BEGIN();
 
@@ -132,8 +116,7 @@ MSG_ERROR_T MsgGetContactInfo(const MSG_ADDRESS_INFO_S *pAddrInfo, MSG_CONTACT_I
 
 	memset(pContactInfo, 0x00, sizeof(MSG_CONTACT_INFO_S));
 
-	if (pAddrInfo->addressType == MSG_ADDRESS_TYPE_PLMN && strlen(pAddrInfo->addressVal) > (MAX_PHONE_NUMBER_LEN+1))
-	{
+	if (pAddrInfo->addressType == MSG_ADDRESS_TYPE_PLMN && strlen(pAddrInfo->addressVal) > (MAX_PHONE_NUMBER_LEN+1)) {
 		MSG_DEBUG("Phone Number is too long [%s]", pAddrInfo->addressVal);
 		return MSG_ERR_INVALID_PARAMETER;
 	}
@@ -151,14 +134,12 @@ MSG_ERROR_T MsgGetContactInfo(const MSG_ADDRESS_INFO_S *pAddrInfo, MSG_CONTACT_I
 
 	index = contacts_svc_find_contact_by(recordType, (char*)pAddrInfo->addressVal);
 
-	if (index > CTS_SUCCESS)
-	{
+	if (index > CTS_SUCCESS) {
 		MSG_DEBUG("Index : [%d]", index);
 		ret = contacts_svc_get_contact(index, &contact);
 	}
 
-	if (ret < 0)
-	{
+	if (ret < 0) {
 		MSG_DEBUG("No Contact Info");
 		return MSG_SUCCESS;
 	}
@@ -167,8 +148,7 @@ MSG_ERROR_T MsgGetContactInfo(const MSG_ADDRESS_INFO_S *pAddrInfo, MSG_CONTACT_I
 
 	ret = contacts_svc_struct_get_value(contact, CTS_CF_NAME_VALUE, &name);
 
-	if (ret != CTS_SUCCESS)
-	{
+	if (ret != CTS_SUCCESS) {
 		MSG_DEBUG("contacts_svc_struct_get_value() Error [%d]", ret);
 		return MSG_SUCCESS;
 	}
@@ -180,26 +160,19 @@ MSG_ERROR_T MsgGetContactInfo(const MSG_ADDRESS_INFO_S *pAddrInfo, MSG_CONTACT_I
 	MSG_DEBUG("Display Name : [%s], First Name : [%s], Last Name : [%s]", strDisplayName, strFirstName, strLastName);
 
 	if (strDisplayName != NULL)
-	{
 		strncpy(pContactInfo->displayName, strDisplayName, MAX_DISPLAY_NAME_LEN);
-	}
 
 	if (strFirstName != NULL)
-	{
 		strncpy(pContactInfo->firstName, strFirstName, MAX_DISPLAY_NAME_LEN);
-	}
 
 	if (strLastName != NULL)
-	{
 		strncpy(pContactInfo->lastName, strLastName, MAX_DISPLAY_NAME_LEN);
-	}
 
 	CTSvalue* base = NULL;
 
 	ret = contacts_svc_struct_get_value(contact, CTS_CF_BASE_INFO_VALUE, &base);
 
-	if (ret != CTS_SUCCESS)
-	{
+	if (ret != CTS_SUCCESS) {
 		MSG_DEBUG("contacts_svc_struct_get_value() Error [%d]", ret);
 		return MSG_SUCCESS;
 	}
@@ -211,9 +184,7 @@ MSG_ERROR_T MsgGetContactInfo(const MSG_ADDRESS_INFO_S *pAddrInfo, MSG_CONTACT_I
 	const char* strImagePath = contacts_svc_value_get_str(base, CTS_BASE_VAL_IMG_PATH_STR);
 
 	if (strImagePath != NULL)
-	{
 		strncpy(pContactInfo->imagePath , strImagePath, MAX_IMAGE_PATH_LEN);
-	}
 
 	MSG_DEBUG("Image Path [%s]", pContactInfo->imagePath);
 
@@ -245,10 +216,9 @@ void MsgSyncContact()
 
 	CTSiter* pIter;
 
-	ret = contacts_svc_get_updated_contacts(0, lastSyncTime, &pIter);
+	ret = contacts_svc_get_updated_contacts(-1, lastSyncTime, &pIter);
 
-	if (ret != CTS_SUCCESS)
-	{
+	if (ret != CTS_SUCCESS) {
 		MSG_DEBUG("contacts_svc_get_updated_contacts() Error [%d]", ret);
 		return;
 	}
@@ -265,14 +235,10 @@ void MsgSyncContact()
 
 		int type = contacts_svc_value_get_int(row_info, CTS_LIST_CHANGE_TYPE_INT);
 
-		if (type == CTS_OPERATION_UPDATED || type == CTS_OPERATION_INSERTED)
-		{
+		if (type == CTS_OPERATION_UPDATED || type == CTS_OPERATION_INSERTED) {
 			MsgUpdateContact(index_num, type);
-		}
-		else // Delete
-		{
+		} else {// Delete
 			MSG_DEBUG("Delete Contact");
-
 			MsgDeleteContact(index_num);
 		}
 
@@ -282,7 +248,6 @@ void MsgSyncContact()
 		contacts_svc_value_free(row_info);
 
 		changed_count++;
-
 	}
 
 	MsgSettingSetInt(CONTACT_SYNC_TIME, lastSyncTime);
@@ -300,8 +265,7 @@ bool MsgInsertContact(MSG_CONTACT_INFO_S *pContactInfo, const char *pNumber)
 	if (!pNumber || strlen(pNumber) <= 0)
 		return false;
 
-	if (MsgStoAddContactInfo(&ContactDbHandle, pContactInfo, pNumber) != MSG_SUCCESS)
-	{
+	if (MsgStoAddContactInfo(&ContactDbHandle, pContactInfo, pNumber) != MSG_SUCCESS) {
 		MSG_DEBUG("Fail to add contact info.");
 		return false;
 	}
@@ -318,8 +282,7 @@ bool MsgUpdateContact(int index, int type)
 
 	ret = contacts_svc_get_contact(index, &contact);
 
-	if (ret != CTS_SUCCESS)
-	{
+	if (ret != CTS_SUCCESS) {
 		MSG_DEBUG("contacts_svc_get_contact() Error [%d]", ret);
 		return false;
 	}
@@ -329,8 +292,7 @@ bool MsgUpdateContact(int index, int type)
 
 	ret = contacts_svc_struct_get_value(contact, CTS_CF_BASE_INFO_VALUE, &base);
 
-	if (ret != CTS_SUCCESS)
-	{
+	if (ret != CTS_SUCCESS) {
 		MSG_DEBUG("contacts_svc_struct_get_value() Error [%d]", ret);
 		return false;
 	}
@@ -344,9 +306,7 @@ bool MsgUpdateContact(int index, int type)
 	const char* strImagePath = contacts_svc_value_get_str(base, CTS_BASE_VAL_IMG_PATH_STR);
 
 	if (strImagePath != NULL)
-	{
 		strncpy(contactInfo.imagePath , strImagePath, MAX_IMAGE_PATH_LEN);
-	}
 
 	MSG_DEBUG("Image Path [%s]", contactInfo.imagePath);
 
@@ -355,8 +315,7 @@ bool MsgUpdateContact(int index, int type)
 
 	ret = contacts_svc_struct_get_value(contact, CTS_CF_NAME_VALUE, &name);
 
-	if (ret != CTS_SUCCESS)
-	{
+	if (ret != CTS_SUCCESS) {
 		MSG_DEBUG("contacts_svc_struct_get_value() Error [%d]", ret);
 		return MSG_SUCCESS;
 	}
@@ -368,19 +327,13 @@ bool MsgUpdateContact(int index, int type)
 	MSG_DEBUG("Display Name : [%s], First Name : [%s], Last Name : [%s]", strDisplayName, strFirstName, strLastName);
 
 	if (strDisplayName != NULL)
-	{
 		strncpy(contactInfo.displayName, strDisplayName, MAX_DISPLAY_NAME_LEN);
-	}
 
 	if (strFirstName != NULL)
-	{
 		strncpy(contactInfo.firstName, strFirstName, MAX_DISPLAY_NAME_LEN);
-	}
 
 	if (strLastName != NULL)
-	{
 		strncpy(contactInfo.lastName, strLastName, MAX_DISPLAY_NAME_LEN);
-	}
 
 	MsgStoClearContactInfo(&ContactDbHandle, index);
 
@@ -393,10 +346,8 @@ bool MsgUpdateContact(int index, int type)
 	cursor = get_list;
 
 	// No phone number in contact
-	if (cursor == NULL)
-	{
+	if (cursor == NULL) {
 		 contacts_svc_struct_free(contact);
-
 		return true;
 	}
 
@@ -409,10 +360,10 @@ bool MsgUpdateContact(int index, int type)
 		MSG_DEBUG("Number = %s", strNumber);
 
 		if (MsgInsertContact(&contactInfo, strNumber) == false)
-		{
 			continue;
-		}
  	}
+
+	MsgStoSetConversationDisplayName(&ContactDbHandle, index);
 
 	contacts_svc_struct_free(contact);
 
@@ -423,9 +374,7 @@ bool MsgUpdateContact(int index, int type)
 bool MsgDeleteContact(int index)
 {
 	if (MsgStoClearContactInfo(&ContactDbHandle, index) != MSG_SUCCESS)
-	{
 		return false;
-	}
 
 	return true;
 }
@@ -445,6 +394,81 @@ int MsgGetContactNameOrder()
 		ret = 1;
 
 	return ret;
+}
+
+
+msg_error_t MsgAddPhoneLog(const MSG_MESSAGE_INFO_S *pMsgInfo)
+{
+	msg_error_t err = MSG_SUCCESS;
+
+	MSG_DEBUG("folderId [%d], number [%s]", pMsgInfo->folderId, pMsgInfo->addressList[0].addressVal);
+
+	CTSvalue* plog;
+
+	plog = contacts_svc_value_new(CTS_VALUE_PHONELOG);
+
+	contacts_svc_value_set_str(plog, CTS_PLOG_VAL_NUMBER_STR, (char*)pMsgInfo->addressList[0].addressVal);
+	contacts_svc_value_set_int(plog, CTS_PLOG_VAL_LOG_TIME_INT, (int)time(NULL));
+
+	char strText[101];
+	memset(strText, 0x00, sizeof(strText));
+
+	if (pMsgInfo->msgType.mainType == MSG_SMS_TYPE) {
+		strncpy(strText, pMsgInfo->msgText, 100);
+		MSG_DEBUG("msgText : %s", strText);
+	} else if (pMsgInfo->msgType.mainType == MSG_MMS_TYPE) {
+		if (strlen(pMsgInfo->subject) > 0 || pMsgInfo->msgType.subType == MSG_NOTIFICATIONIND_MMS) {
+			strncpy(strText, pMsgInfo->subject, 100);
+			MSG_DEBUG("subject : %s", strText);
+		} else {
+			strncpy(strText, pMsgInfo->msgText, 100);
+			MSG_DEBUG("msgText : %s", strText);
+		}
+	}
+
+	contacts_svc_value_set_str(plog, CTS_PLOG_VAL_SHORTMSG_STR, strText);
+	contacts_svc_value_set_int(plog, CTS_PLOG_VAL_MSGID_INT, (int)pMsgInfo->msgId);
+
+	if (pMsgInfo->folderId == MSG_INBOX_ID) {
+		if (pMsgInfo->msgType.mainType == MSG_SMS_TYPE)
+			contacts_svc_value_set_int(plog, CTS_PLOG_VAL_LOG_TYPE_INT, CTS_PLOG_TYPE_SMS_INCOMMING);
+		else if (pMsgInfo->msgType.mainType == MSG_MMS_TYPE)
+			contacts_svc_value_set_int(plog, CTS_PLOG_VAL_LOG_TYPE_INT, CTS_PLOG_TYPE_MMS_INCOMMING);
+	} else if (pMsgInfo->folderId == MSG_OUTBOX_ID) {
+		if (pMsgInfo->msgType.mainType == MSG_SMS_TYPE)
+			contacts_svc_value_set_int(plog, CTS_PLOG_VAL_LOG_TYPE_INT, CTS_PLOG_TYPE_SMS_OUTGOING);
+		else if (pMsgInfo->msgType.mainType == MSG_MMS_TYPE)
+			contacts_svc_value_set_int(plog, CTS_PLOG_VAL_LOG_TYPE_INT, CTS_PLOG_TYPE_MMS_OUTGOING);
+	} else if (pMsgInfo->folderId == MSG_SPAMBOX_ID) {
+		if (pMsgInfo->msgType.mainType == MSG_SMS_TYPE)
+			contacts_svc_value_set_int(plog, CTS_PLOG_VAL_LOG_TYPE_INT, CTS_PLOG_TYPE_SMS_BLOCKED);
+		else if (pMsgInfo->msgType.mainType == MSG_MMS_TYPE)
+			contacts_svc_value_set_int(plog, CTS_PLOG_VAL_LOG_TYPE_INT, CTS_PLOG_TYPE_MMS_BLOCKED);
+	}
+
+ 	int ret = contacts_svc_insert_phonelog(plog);
+
+	if (ret != CTS_SUCCESS)
+		MSG_DEBUG("contacts_svc_insert_phonelog() Failed!!! [%d]", ret);
+
+	contacts_svc_value_free(plog);
+
+	return err;
+}
+
+
+msg_error_t MsgDeletePhoneLog(msg_message_id_t msgId)
+{
+	msg_error_t err = MSG_SUCCESS;
+
+	MSG_DEBUG("MsgDeletePhoneLog [%d]", msgId);
+
+	int ret = contacts_svc_delete_phonelog(CTS_PLOG_DEL_BY_MSGID, msgId);
+
+	if (ret != CTS_SUCCESS)
+		MSG_DEBUG("contacts_svc_delete_phonelog() Failed!!! [%d]", ret);
+
+	return err;
 }
 
 

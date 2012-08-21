@@ -1,18 +1,18 @@
- /*
-  * Copyright 2012  Samsung Electronics Co., Ltd
-  *
-  * Licensed under the Flora License, Version 1.0 (the "License");
-  * you may not use this file except in compliance with the License.
-  * You may obtain a copy of the License at
-  *
-  *    http://www.tizenopensource.org/license
-  *
-  * Unless required by applicable law or agreed to in writing, software
-  * distributed under the License is distributed on an "AS IS" BASIS,
-  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  * See the License for the specific language governing permissions and
-  * limitations under the License.
-  */
+/*
+* Copyright 2012  Samsung Electronics Co., Ltd
+*
+* Licensed under the Flora License, Version 1.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*    http://www.tizenopensource.org/license
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
 
 #include "MsgDebug.h"
 #include "MsgContact.h"
@@ -27,15 +27,14 @@ extern "C"
 /*==================================================================================================
                                      FUNCTION IMPLEMENTATION
 ==================================================================================================*/
-MSG_ERROR_T MsgInsertNoti(MsgDbHandler *pDbHandle, MSG_MESSAGE_INFO_S* pMsg)
+msg_error_t MsgInsertNoti(MsgDbHandler *pDbHandle, MSG_MESSAGE_INFO_S* pMsg)
 {
-
 	notification_h noti = NULL;
 	notification_error_e noti_err = NOTIFICATION_ERROR_NONE;
 	bundle* args;
 
 	int contactId = 0;
-	int threadId = 0;
+	msg_thread_id_t threadId = 0;
 	time_t msgTime = 0;
 	char tempId[6];
 	char addressVal[MAX_ADDRESS_VAL_LEN+1];
@@ -50,11 +49,9 @@ MSG_ERROR_T MsgInsertNoti(MsgDbHandler *pDbHandle, MSG_MESSAGE_INFO_S* pMsg)
 	memset(displayName, 0x00, sizeof(displayName));
 	memset(sqlQuery, 0x00, sizeof(sqlQuery));
 
-	snprintf(sqlQuery, sizeof(sqlQuery), "SELECT A.ADDRESS_ID, A.ADDRESS_VAL, A.DISPLAY_NAME, A.FIRST_NAME, A.LAST_NAME, \
-						B.DISPLAY_TIME, A.CONTACT_ID \
-						FROM %s A, %s B \
-				             WHERE B.MSG_ID=%d AND A.ADDRESS_ID=B.ADDRESS_ID;",
-		MSGFW_ADDRESS_TABLE_NAME, MSGFW_MESSAGE_TABLE_NAME, pMsg->msgId);
+	snprintf(sqlQuery, sizeof(sqlQuery), "SELECT A.CONV_ID, A.ADDRESS_VAL, A.DISPLAY_NAME, A.FIRST_NAME, A.LAST_NAME, B.DISPLAY_TIME, A.CONTACT_ID \
+			FROM %s A, %s B WHERE B.MSG_ID=%d AND A.CONV_ID=B.CONV_ID;",
+			MSGFW_ADDRESS_TABLE_NAME, MSGFW_MESSAGE_TABLE_NAME, pMsg->msgId);
 
 	if (pDbHandle->prepareQuery(sqlQuery) != MSG_SUCCESS)
 		return MSG_ERR_DB_PREPARE;
@@ -243,7 +240,7 @@ MSG_ERROR_T MsgInsertNoti(MsgDbHandler *pDbHandle, MSG_MESSAGE_INFO_S* pMsg)
 }
 
 
-MSG_ERROR_T MsgInsertSmsReportToNoti(MsgDbHandler *pDbHandle, MSG_MESSAGE_ID_T MsgId, MSG_DELIVERY_REPORT_STATUS_T Status)
+msg_error_t MsgInsertSmsReportToNoti(MsgDbHandler *pDbHandle, msg_message_id_t msgId, msg_delivery_report_status_t status)
 {
 	notification_h noti = NULL;
 	notification_error_e noti_err = NOTIFICATION_ERROR_NONE;
@@ -262,10 +259,8 @@ MSG_ERROR_T MsgInsertSmsReportToNoti(MsgDbHandler *pDbHandle, MSG_MESSAGE_ID_T M
 	memset(sqlQuery, 0x00, sizeof(sqlQuery));
 
 	snprintf(sqlQuery, sizeof(sqlQuery), "SELECT A.ADDRESS_VAL, A.DISPLAY_NAME, A.FIRST_NAME, A.LAST_NAME \
-								       FROM %s A, %s B \
-								    WHERE B.MSG_ID = %d \
-								         AND A.ADDRESS_ID = B.ADDRESS_ID;",
-				MSGFW_ADDRESS_TABLE_NAME, MSGFW_MESSAGE_TABLE_NAME, MsgId);
+			FROM %s A, %s B WHERE B.MSG_ID = %d AND A.CONV_ID = B.CONV_ID;",
+			MSGFW_ADDRESS_TABLE_NAME, MSGFW_MESSAGE_TABLE_NAME, msgId);
 
 	if (pDbHandle->prepareQuery(sqlQuery) != MSG_SUCCESS)
 		return MSG_ERR_DB_PREPARE;
@@ -333,7 +328,7 @@ MSG_ERROR_T MsgInsertSmsReportToNoti(MsgDbHandler *pDbHandle, MSG_MESSAGE_ID_T M
 		notification_set_text(noti, NOTIFICATION_TEXT_TYPE_TITLE, displayName, NULL, NOTIFICATION_VARIABLE_TYPE_NONE);
 
 
-	if (Status == MSG_DELIVERY_REPORT_SUCCESS)
+	if (status == MSG_DELIVERY_REPORT_SUCCESS)
 		snprintf(contents, MAX_DISPLAY_NAME_LEN, "Delivered.");
 	else
 		snprintf(contents, MAX_DISPLAY_NAME_LEN, "Deliver Failed.");
@@ -354,14 +349,13 @@ MSG_ERROR_T MsgInsertSmsReportToNoti(MsgDbHandler *pDbHandle, MSG_MESSAGE_ID_T M
 }
 
 
-MSG_ERROR_T MsgInsertMmsReportToNoti(MsgDbHandler *pDbHandle, MSG_MESSAGE_INFO_S* pMsg)
+msg_error_t MsgInsertMmsReportToNoti(MsgDbHandler *pDbHandle, MSG_MESSAGE_INFO_S* pMsg)
 {
-
 	notification_h noti = NULL;
 	notification_error_e noti_err = NOTIFICATION_ERROR_NONE;
 
-	MSG_DELIVERY_REPORT_STATUS_T	deliveryStatus;
-	MSG_READ_REPORT_STATUS_T		readStatus;
+	msg_delivery_report_status_t	deliveryStatus;
+	msg_read_report_status_t		readStatus;
 
 	char addressVal[MAX_ADDRESS_VAL_LEN+1];
 	char firstName[MAX_DISPLAY_NAME_LEN+1], lastName[MAX_DISPLAY_NAME_LEN+1];
@@ -377,9 +371,8 @@ MSG_ERROR_T MsgInsertMmsReportToNoti(MsgDbHandler *pDbHandle, MSG_MESSAGE_INFO_S
 	memset(sqlQuery, 0x00, sizeof(sqlQuery));
 
 	snprintf(sqlQuery, sizeof(sqlQuery), "SELECT A.ADDRESS_VAL, A.DISPLAY_NAME, A.FIRST_NAME, A.LAST_NAME, B.DELIVERY_REPORT_STATUS, B.READ_REPORT_STATUS \
-								       FROM %s A, %s B \
-								    	WHERE B.MSG_ID=%d AND A.ADDRESS_ID=B.ADDRESS_ID;",
-				MSGFW_ADDRESS_TABLE_NAME, MSGFW_MESSAGE_TABLE_NAME, pMsg->msgId);
+			FROM %s A, %s B WHERE B.MSG_ID=%d AND A.CONV_ID=B.CONV_ID;",
+			MSGFW_ADDRESS_TABLE_NAME, MSGFW_MESSAGE_TABLE_NAME, pMsg->msgId);
 
 	if (pDbHandle->prepareQuery(sqlQuery) != MSG_SUCCESS)
 		return MSG_ERR_DB_PREPARE;
@@ -422,8 +415,8 @@ MSG_ERROR_T MsgInsertMmsReportToNoti(MsgDbHandler *pDbHandle, MSG_MESSAGE_INFO_S
 			}
 		}
 
-		deliveryStatus = (MSG_DELIVERY_REPORT_STATUS_T)pDbHandle->columnInt(4);
-		readStatus = (MSG_READ_REPORT_STATUS_T)pDbHandle->columnInt(5);
+		deliveryStatus = (msg_delivery_report_status_t)pDbHandle->columnInt(4);
+		readStatus = (msg_read_report_status_t)pDbHandle->columnInt(5);
 
 	} else {
 		pDbHandle->finalizeQuery();
@@ -545,7 +538,7 @@ MSG_ERROR_T MsgInsertMmsReportToNoti(MsgDbHandler *pDbHandle, MSG_MESSAGE_INFO_S
 }
 
 
-MSG_ERROR_T MsgDeleteNotiByMsgId(MSG_MESSAGE_ID_T msgId)
+msg_error_t MsgDeleteNotiByMsgId(msg_message_id_t msgId)
 {
 
 	notification_error_e noti_err = NOTIFICATION_ERROR_NONE;
@@ -562,7 +555,7 @@ MSG_ERROR_T MsgDeleteNotiByMsgId(MSG_MESSAGE_ID_T msgId)
 }
 
 
-MSG_ERROR_T MsgDeleteNotiByThreadId(MSG_THREAD_ID_T ThreadId)
+msg_error_t MsgDeleteNotiByThreadId(msg_thread_id_t ThreadId)
 {
 	notification_delete_group_by_group_id(NULL, NOTIFICATION_TYPE_NOTI, ThreadId);
 
@@ -570,7 +563,7 @@ MSG_ERROR_T MsgDeleteNotiByThreadId(MSG_THREAD_ID_T ThreadId)
 }
 
 
-MSG_ERROR_T MsgInsertTicker(const char* pTickerMsg, const char* pLocaleTickerMsg)
+msg_error_t MsgInsertTicker(const char* pTickerMsg, const char* pLocaleTickerMsg)
 {
 
 	MSG_DEBUG("pTickerMsg [%s]", pTickerMsg);
@@ -590,7 +583,7 @@ MSG_ERROR_T MsgInsertTicker(const char* pTickerMsg, const char* pLocaleTickerMsg
 		MSG_DEBUG("Fail to notification_set_application : %d", noti_err);
 	}
 
-	noti_err = notification_set_image(noti, NOTIFICATION_IMAGE_TYPE_ICON, CB_MSG_ICON_PATH);
+	noti_err = notification_set_image(noti, NOTIFICATION_IMAGE_TYPE_ICON, NORMAL_MSG_ICON_PATH);
 	if (noti_err != NOTIFICATION_ERROR_NONE) {
 		MSG_DEBUG("Fail to notification_set_image : %d", noti_err);
 	}

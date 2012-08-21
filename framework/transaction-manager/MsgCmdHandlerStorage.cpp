@@ -1,18 +1,18 @@
- /*
-  * Copyright 2012  Samsung Electronics Co., Ltd
-  *
-  * Licensed under the Flora License, Version 1.0 (the "License");
-  * you may not use this file except in compliance with the License.
-  * You may obtain a copy of the License at
-  *
-  *    http://www.tizenopensource.org/license
-  *
-  * Unless required by applicable law or agreed to in writing, software
-  * distributed under the License is distributed on an "AS IS" BASIS,
-  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  * See the License for the specific language governing permissions and
-  * limitations under the License.
-  */
+/*
+* Copyright 2012  Samsung Electronics Co., Ltd
+*
+* Licensed under the Flora License, Version 1.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*    http://www.tizenopensource.org/license
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
 
 #include <stdlib.h>
 
@@ -20,6 +20,7 @@
 #include "MsgUtilFile.h"
 #include "MsgException.h"
 #include "MsgCppTypes.h"
+//#include "MsgSoundPlayer.h"
 #include "MsgUtilFunction.h"
 #include "MsgStorageHandler.h"
 #include "MsgPluginManager.h"
@@ -32,7 +33,7 @@
 ==================================================================================================*/
 int MsgAddMessageHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 {
-	MSG_ERROR_T err = MSG_SUCCESS;
+	msg_error_t err = MSG_SUCCESS;
 
 	char* encodedData = NULL;
 	AutoPtr<char> buf(&encodedData);
@@ -45,54 +46,26 @@ int MsgAddMessageHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 	// Get Sending Option
 	MSG_SENDINGOPT_INFO_S* pSendOptInfo = (MSG_SENDINGOPT_INFO_S*)(pCmd->cmdData + sizeof(MSG_MESSAGE_INFO_S));
 
-	// Add Message with address
-	for (int i = 0; i < pMsgInfo->nAddressCnt; i++)
-	{
-		err = MsgStoAddMessage(pMsgInfo, pSendOptInfo, i);
+	// Add Message
+	err = MsgStoAddMessage(pMsgInfo, pSendOptInfo);
 
-		if (err == MSG_SUCCESS)
-		{
-			MSG_DEBUG("Command Handle Success : MsgStoAddMessage()");
-
-			// Get First Msg Id
-			if (i == 0)
-			{
-				// Encoding Message ID
-				dataSize = MsgEncodeMsgId(&(pMsgInfo->msgId), &encodedData);
-			}
-		}
-		else
-		{
-			MSG_DEBUG("Command Handle Fail : MsgStoAddMessage()");
-		}
-	}
-
-	// Add Message without address
-	if (pMsgInfo->nAddressCnt == 0)
-	{
-		err = MsgStoAddMessage(pMsgInfo, pSendOptInfo);
-
-		if (err == MSG_SUCCESS)
-		{
+	if (err == MSG_SUCCESS) {
 			MSG_DEBUG("Command Handle Success : MsgStoAddMessage()");
 
 			// Encoding Message ID
 			dataSize = MsgEncodeMsgId(&(pMsgInfo->msgId), &encodedData);
-		}
-		else
-		{
+		} else {
 			MSG_DEBUG("Command Handle Fail : MsgStoAddMessage()");
 		}
-	}
 
 	// Delete Temp File for Message Data
 	if (pMsgInfo->bTextSms == false)
 		MsgDeleteFile(pMsgInfo->msgData); //ipc
 
 	//storage change CB
-	MSG_MSGID_LIST_S msgIdList;
-	MSG_MESSAGE_ID_T msgIds[1];
-	memset(&msgIdList, 0x00, sizeof(MSG_MSGID_LIST_S));
+	msg_id_list_s msgIdList;
+	msg_message_id_t msgIds[1];
+	memset(&msgIdList, 0x00, sizeof(msg_id_list_s));
 
 	msgIdList.nCount = 1;
 	msgIds[0] = pMsgInfo->msgId;
@@ -109,7 +82,7 @@ int MsgAddMessageHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 
 int MsgAddSyncMLMessageHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 {
-	MSG_ERROR_T err = MSG_SUCCESS;
+	msg_error_t err = MSG_SUCCESS;
 
 	int eventSize = 0;
 
@@ -131,9 +104,9 @@ int MsgAddSyncMLMessageHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 		// broadcast to listener threads, here
 		MsgTransactionManager::instance()->broadcastIncomingMsgCB(err, &msgInfo);
 		//storage change CB
-		MSG_MSGID_LIST_S msgIdList;
-		MSG_MESSAGE_ID_T msgIds[1];
-		memset(&msgIdList, 0x00, sizeof(MSG_MSGID_LIST_S));
+		msg_id_list_s msgIdList;
+		msg_message_id_t msgIds[1];
+		memset(&msgIdList, 0x00, sizeof(msg_id_list_s));
 
 		msgIdList.nCount = 1;
 		msgIds[0] = msgInfo.msgId;
@@ -155,7 +128,7 @@ int MsgAddSyncMLMessageHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 
 int MsgUpdateMessageHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 {
-	MSG_ERROR_T err = MSG_SUCCESS;
+	msg_error_t err = MSG_SUCCESS;
 
 	int eventSize = 0;
 
@@ -178,9 +151,9 @@ int MsgUpdateMessageHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 		MsgDeleteFile(pMsgInfo->msgData); //ipc
 
 	//storage change CB
-	MSG_MSGID_LIST_S msgIdList;
-	MSG_MESSAGE_ID_T msgIds[1];
-	memset(&msgIdList, 0x00, sizeof(MSG_MSGID_LIST_S));
+	msg_id_list_s msgIdList;
+	msg_message_id_t msgIds[1];
+	memset(&msgIdList, 0x00, sizeof(msg_id_list_s));
 
 	msgIdList.nCount = 1;
 	msgIds[0] = pMsgInfo->msgId;
@@ -197,15 +170,15 @@ int MsgUpdateMessageHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 
 int MsgUpdateReadStatusHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 {
-	MSG_ERROR_T err = MSG_SUCCESS;
+	msg_error_t err = MSG_SUCCESS;
 
 	int eventSize = 0;
 
-	MSG_MESSAGE_ID_T msgId;
+	msg_message_id_t msgId;
 	bool readStatus;
 
-	memcpy(&msgId, (void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN), sizeof(MSG_MESSAGE_ID_T));
-	memcpy(&readStatus, (void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN+sizeof(MSG_MESSAGE_ID_T)), sizeof(bool));
+	memcpy(&msgId, (void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN), sizeof(msg_message_id_t));
+	memcpy(&readStatus, (void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN+sizeof(msg_message_id_t)), sizeof(bool));
 
 	// Update Read Status
 	err = MsgStoUpdateReadStatus(msgId, readStatus);
@@ -228,14 +201,14 @@ int MsgUpdateReadStatusHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 
 int MsgUpdateThreadReadStatusHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 {
-	MSG_ERROR_T err = MSG_SUCCESS;
+	msg_error_t err = MSG_SUCCESS;
 
 	int eventSize = 0;
 
-	MSG_THREAD_ID_T threadId;
+	msg_thread_id_t threadId;
 	int unReadCnt = 0;
 
-	memcpy(&threadId, (void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN), sizeof(MSG_THREAD_ID_T));
+	memcpy(&threadId, (void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN), sizeof(msg_thread_id_t));
 
 	MsgStoGetThreadUnreadCnt(threadId, &unReadCnt);
 
@@ -261,15 +234,15 @@ int MsgUpdateThreadReadStatusHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 
 int MsgUpdateProtectedStatusHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 {
-	MSG_ERROR_T err = MSG_SUCCESS;
+	msg_error_t err = MSG_SUCCESS;
 
 	int eventSize = 0;
 
-	MSG_MESSAGE_ID_T msgId;
+	msg_message_id_t msgId;
 	bool protectedStatus;
 
-	memcpy(&msgId, (void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN), sizeof(MSG_MESSAGE_ID_T));
-	memcpy(&protectedStatus, (void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN+sizeof(MSG_MESSAGE_ID_T)), sizeof(bool));
+	memcpy(&msgId, (void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN), sizeof(msg_message_id_t));
+	memcpy(&protectedStatus, (void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN+sizeof(msg_message_id_t)), sizeof(bool));
 
 	// Update Protected Status
 	err = MsgStoUpdateProtectedStatus(msgId, protectedStatus);
@@ -292,13 +265,13 @@ int MsgUpdateProtectedStatusHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 
 int MsgDeleteMessageHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 {
-	MSG_ERROR_T err = MSG_SUCCESS;
+	msg_error_t err = MSG_SUCCESS;
 
 	int eventSize = 0;
 
 	int extId = 0;
 
-	MSG_MESSAGE_ID_T* msgId = (MSG_MESSAGE_ID_T*)pCmd->cmdData;
+	msg_message_id_t* msgId = (msg_message_id_t*)pCmd->cmdData;
 
 	MsgStoGetSyncMLExtId(*msgId, &extId);
 
@@ -313,9 +286,9 @@ int MsgDeleteMessageHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 			MsgTransactionManager::instance()->broadcastSyncMLMsgOperationCB(err, -1, extId);
 		}
 
-		MSG_MSGID_LIST_S msgIdList;
-		MSG_MESSAGE_ID_T msgIds[1];
-		memset(&msgIdList, 0x00, sizeof(MSG_MSGID_LIST_S));
+		msg_id_list_s msgIdList;
+		msg_message_id_t msgIds[1];
+		memset(&msgIdList, 0x00, sizeof(msg_id_list_s));
 
 		msgIdList.nCount = 1;
 		msgIds[0] = *msgId;
@@ -335,18 +308,18 @@ int MsgDeleteMessageHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 
 int MsgDeleteAllMessageInFolderHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 {
-	MSG_ERROR_T err = MSG_SUCCESS;
+	msg_error_t err = MSG_SUCCESS;
 
 	int eventSize = 0;
 
-	MSG_FOLDER_ID_T* folderId = (MSG_FOLDER_ID_T*)pCmd->cmdData;
+	msg_folder_id_t* folderId = (msg_folder_id_t*)pCmd->cmdData;
 
 	bool bOnlyDB;
-	memcpy(&bOnlyDB, (void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN+sizeof(MSG_FOLDER_ID_T)), sizeof(bool));
+	memcpy(&bOnlyDB, (void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN+sizeof(msg_folder_id_t)), sizeof(bool));
 
 
-	MSG_MSGID_LIST_S msgIdList;
-	memset(&msgIdList, 0x00, sizeof(MSG_MSGID_LIST_S));
+	msg_id_list_s msgIdList;
+	memset(&msgIdList, 0x00, sizeof(msg_id_list_s));
 
 	// Delete Message
 	err = MsgStoDeleteAllMessageInFolder(*folderId, bOnlyDB, &msgIdList);
@@ -370,15 +343,15 @@ int MsgDeleteAllMessageInFolderHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 
 int MsgMoveMessageToFolderHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 {
-	MSG_ERROR_T err = MSG_SUCCESS;
+	msg_error_t err = MSG_SUCCESS;
 
 	int eventSize = 0;
 
-	MSG_MESSAGE_ID_T msgId;
-	MSG_FOLDER_ID_T folderId;
+	msg_message_id_t msgId;
+	msg_folder_id_t folderId;
 
-	memcpy(&msgId, (void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN), sizeof(MSG_MESSAGE_ID_T));
-	memcpy(&folderId, (void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN+sizeof(MSG_MESSAGE_ID_T)), sizeof(MSG_FOLDER_ID_T));
+	memcpy(&msgId, (void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN), sizeof(msg_message_id_t));
+	memcpy(&folderId, (void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN+sizeof(msg_message_id_t)), sizeof(msg_folder_id_t));
 
 	// Move Message
 	err = MsgStoMoveMessageToFolder(msgId, folderId);
@@ -386,9 +359,9 @@ int MsgMoveMessageToFolderHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 	if (err == MSG_SUCCESS) {
 		MSG_DEBUG("Command Handle Success : MsgStoMoveMessageToFolder()");
 
-		MSG_MSGID_LIST_S msgIdList;
-		MSG_MESSAGE_ID_T msgIds[1];
-		memset(&msgIdList, 0x00, sizeof(MSG_MSGID_LIST_S));
+		msg_id_list_s msgIdList;
+		msg_message_id_t msgIds[1];
+		memset(&msgIdList, 0x00, sizeof(msg_id_list_s));
 
 		msgIdList.nCount = 1;
 		msgIds[0] = msgId;
@@ -408,15 +381,15 @@ int MsgMoveMessageToFolderHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 
 int MsgMoveMessageToStorageHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 {
-	MSG_ERROR_T err = MSG_SUCCESS;
+	msg_error_t err = MSG_SUCCESS;
 
 	int eventSize = 0;
 
-	MSG_MESSAGE_ID_T msgId;
-	MSG_STORAGE_ID_T storageId;
+	msg_message_id_t msgId;
+	msg_storage_id_t storageId;
 
-	memcpy(&msgId, (void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN), sizeof(MSG_MESSAGE_ID_T));
-	memcpy(&storageId, (void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN+sizeof(MSG_MESSAGE_ID_T)), sizeof(MSG_STORAGE_ID_T));
+	memcpy(&msgId, (void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN), sizeof(msg_message_id_t));
+	memcpy(&storageId, (void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN+sizeof(msg_message_id_t)), sizeof(msg_storage_id_t));
 
 	// Move Message
 	err = MsgStoMoveMessageToStorage(msgId, storageId);
@@ -439,7 +412,7 @@ int MsgMoveMessageToStorageHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 
 int MsgCountMessageHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 {
-	MSG_ERROR_T err = MSG_SUCCESS;
+	msg_error_t err = MSG_SUCCESS;
 
 	char* encodedData = NULL;
 	AutoPtr<char> buf(&encodedData);
@@ -447,7 +420,7 @@ int MsgCountMessageHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 	int dataSize = 0, eventSize = 0;
 
 	// Get Folder ID
-	MSG_FOLDER_ID_T* folderId = (MSG_FOLDER_ID_T*)pCmd->cmdData;
+	msg_folder_id_t* folderId = (msg_folder_id_t*)pCmd->cmdData;
 
 	// Get Message Count
 	MSG_COUNT_INFO_S countInfo;
@@ -475,7 +448,7 @@ int MsgCountMessageHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 
 int MsgCountMsgByTypeHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 {
-	MSG_ERROR_T err = MSG_SUCCESS;
+	msg_error_t err = MSG_SUCCESS;
 
 	char* encodedData = NULL;
 	AutoPtr<char> buf(&encodedData);
@@ -511,10 +484,10 @@ int MsgCountMsgByTypeHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 
 int MsgGetMessageHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 {
-	MSG_ERROR_T err = MSG_SUCCESS;
+	msg_error_t err = MSG_SUCCESS;
 
 	// Get Message ID
-	MSG_MESSAGE_ID_T* msgId = (MSG_MESSAGE_ID_T*)pCmd->cmdData;
+	msg_message_id_t* msgId = (msg_message_id_t*)pCmd->cmdData;
 
 	char* encodedData = NULL;
 	AutoPtr<char> buf(&encodedData);
@@ -553,14 +526,14 @@ int MsgGetMessageHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 
 int MsgGetFolderViewListHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 {
-	MSG_ERROR_T err = MSG_SUCCESS;
+	msg_error_t err = MSG_SUCCESS;
 
 	// Get Folder ID
-	MSG_FOLDER_ID_T folderId;
+	msg_folder_id_t folderId;
 	MSG_SORT_RULE_S sortRule;
 
-	memcpy(&folderId, (void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN), sizeof(MSG_FOLDER_ID_T));
-	memcpy(&sortRule, (void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN+sizeof(MSG_FOLDER_ID_T)), sizeof(MSG_SORT_RULE_S));
+	memcpy(&folderId, (void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN), sizeof(msg_folder_id_t));
+	memcpy(&sortRule, (void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN+sizeof(msg_folder_id_t)), sizeof(MSG_SORT_RULE_S));
 
 	char* encodedData = NULL;
 	AutoPtr<char> buf(&encodedData);
@@ -568,7 +541,7 @@ int MsgGetFolderViewListHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 	int dataSize = 0, eventSize = 0;
 
 	// Get Message Common Info
-	MSG_LIST_S folderViewList;
+	msg_struct_list_s folderViewList;
 
 	err = MsgStoGetFolderViewList(folderId, &sortRule, &folderViewList);
 
@@ -577,14 +550,14 @@ int MsgGetFolderViewListHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 		MSG_DEBUG("Command Handle Success : MsgStoGetFolderViewList()");
 
 		// Encoding Folder View List Data
-		dataSize = MsgEncodeFolderViewList(&folderViewList, &encodedData);
+//		dataSize = MsgEncodeFolderViewList(&folderViewList, &encodedData);
 
 		MSG_DEBUG("dataSize [%d]", dataSize);
 
-		if (folderViewList.msgInfo != NULL)
+		if (folderViewList.msg_struct_info != NULL)
 		{
-			delete [] folderViewList.msgInfo;
-			folderViewList.msgInfo = NULL;
+			delete [] folderViewList.msg_struct_info;
+			folderViewList.msg_struct_info = NULL;
 		}
 	}
 	else
@@ -602,7 +575,7 @@ int MsgGetFolderViewListHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 
 int MsgAddFolderHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 {
-	MSG_ERROR_T err = MSG_SUCCESS;
+	msg_error_t err = MSG_SUCCESS;
 
 	int eventSize = 0;
 
@@ -630,7 +603,7 @@ int MsgAddFolderHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 
 int MsgUpdateFolderHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 {
-	MSG_ERROR_T err = MSG_SUCCESS;
+	msg_error_t err = MSG_SUCCESS;
 
 	int eventSize = 0;
 
@@ -658,12 +631,12 @@ int MsgUpdateFolderHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 
 int MsgDeleteFolderHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 {
-	MSG_ERROR_T err = MSG_SUCCESS;
+	msg_error_t err = MSG_SUCCESS;
 
 	int eventSize = 0;
 
 	// Get Folder Info
-	MSG_FOLDER_ID_T* pFolderInfo = (MSG_FOLDER_ID_T*)pCmd->cmdData;
+	msg_folder_id_t* pFolderInfo = (msg_folder_id_t*)pCmd->cmdData;
 
 	// Delete Folder
 	err = MsgStoDeleteFolder(*pFolderInfo);
@@ -686,7 +659,7 @@ int MsgDeleteFolderHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 
 int MsgGetFolderListHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 {
-	MSG_ERROR_T err = MSG_SUCCESS;
+	msg_error_t err = MSG_SUCCESS;
 
 	char* encodedData = NULL;
 	AutoPtr<char> buf(&encodedData);
@@ -694,7 +667,7 @@ int MsgGetFolderListHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 	int dataSize = 0, eventSize = 0;
 
 	// Get Storage List
-	MSG_FOLDER_LIST_S folderList;
+	msg_struct_list_s folderList;
 
 	err = MsgStoGetFolderList(&folderList);
 
@@ -705,7 +678,7 @@ int MsgGetFolderListHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 		// Encoding Folder List Data
 		dataSize = MsgEncodeFolderList(&folderList, &encodedData);
 
-		delete [] folderList.folderInfo;
+		delete [] folderList.msg_struct_info;
 	}
 	else
 	{
@@ -721,7 +694,7 @@ int MsgGetFolderListHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 
 int MsgInitSimBySatHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 {
-	MSG_ERROR_T err = MSG_SUCCESS;
+	msg_error_t err = MSG_SUCCESS;
 
 	int eventSize = 0;
 
@@ -737,7 +710,7 @@ int MsgInitSimBySatHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 
 int MsgGetMsgTypeHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 {
-	MSG_ERROR_T err = MSG_SUCCESS;
+	msg_error_t err = MSG_SUCCESS;
 
 	char* encodedData = NULL;
 	AutoPtr<char> buf(&encodedData);
@@ -746,9 +719,9 @@ int MsgGetMsgTypeHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 	int dataSize = 0, eventSize = 0;
 
 	// Get Message ID
-	MSG_MESSAGE_ID_T msgId;
+	msg_message_id_t msgId;
 
-	memcpy(&msgId, (void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN), sizeof(MSG_MESSAGE_ID_T));
+	memcpy(&msgId, (void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN), sizeof(msg_message_id_t));
 
 	// Get Msg Type
 	MSG_MESSAGE_TYPE_S msgType;
@@ -777,7 +750,7 @@ int MsgGetMsgTypeHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 
 int MsgGetThreadViewListHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 {
-	MSG_ERROR_T err = MSG_SUCCESS;
+	msg_error_t err = MSG_SUCCESS;
 
 	MSG_SORT_RULE_S sortRule = {0};
 
@@ -789,7 +762,7 @@ int MsgGetThreadViewListHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 	int dataSize = 0, eventSize = 0;
 
 	// Get Thread View List
-	MSG_THREAD_VIEW_LIST_S msgThreadViewList;
+	msg_struct_list_s msgThreadViewList;
 
 	err = MsgStoGetThreadViewList(&sortRule, &msgThreadViewList);
 
@@ -802,10 +775,10 @@ int MsgGetThreadViewListHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 
 		MSG_DEBUG("dataSize [%d]", dataSize);
 
-		if (msgThreadViewList.msgThreadInfo != NULL)
+		if (msgThreadViewList.msg_struct_info != NULL)
 		{
-			delete [] msgThreadViewList.msgThreadInfo;
-			msgThreadViewList.msgThreadInfo = NULL;
+			delete [] msgThreadViewList.msg_struct_info;
+			msgThreadViewList.msg_struct_info = NULL;
 		}
 	}
 	else
@@ -823,18 +796,18 @@ int MsgGetThreadViewListHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 
 int MsgGetConversationViewListHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 {
-	MSG_ERROR_T err = MSG_SUCCESS;
+	msg_error_t err = MSG_SUCCESS;
 
-	MSG_THREAD_ID_T threadId;
+	msg_thread_id_t threadId;
 
-	memcpy(&threadId, (void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN), sizeof(MSG_THREAD_ID_T));
+	memcpy(&threadId, (void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN), sizeof(msg_thread_id_t));
 
 	char* encodedData = NULL;
 	AutoPtr<char> buf(&encodedData);
 
 	int dataSize = 0, eventSize = 0;
 
-	MSG_LIST_S convViewList;
+	msg_struct_list_s convViewList;
 
 	err = MsgStoGetConversationViewList(threadId, &convViewList);
 
@@ -847,10 +820,10 @@ int MsgGetConversationViewListHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 
 		MSG_DEBUG("dataSize [%d]", dataSize);
 
-		if (convViewList.msgInfo != NULL)
+		if (convViewList.msg_struct_info != NULL)
 		{
-			delete [] convViewList.msgInfo;
-			convViewList.msgInfo = NULL;
+			delete [] convViewList.msg_struct_info;
+			convViewList.msg_struct_info = NULL;
 		}
 	}
 	else
@@ -867,19 +840,19 @@ int MsgGetConversationViewListHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 
 int MsgDeleteThreadMessageListHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 {
-	MSG_ERROR_T err = MSG_SUCCESS;
+	msg_error_t err = MSG_SUCCESS;
 
-	MSG_THREAD_ID_T threadId;
+	msg_thread_id_t threadId;
 	bool isSyncMLMsg = false;
 
-	memcpy(&threadId, (void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN), sizeof(MSG_THREAD_ID_T));
+	memcpy(&threadId, (void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN), sizeof(msg_thread_id_t));
 
 	int eventSize = 0;
 
 	isSyncMLMsg = MsgStoCheckSyncMLMsgInThread(threadId);
 
-	MSG_MSGID_LIST_S msgIdList;
-	memset(&msgIdList, 0x00, sizeof(MSG_MSGID_LIST_S));
+	msg_id_list_s msgIdList;
+	memset(&msgIdList, 0x00, sizeof(msg_id_list_s));
 
 	err = MsgStoDeleteThreadMessageList(threadId, &msgIdList);
 
@@ -909,7 +882,7 @@ int MsgDeleteThreadMessageListHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 
 int MsgCountMsgByContactHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 {
-	MSG_ERROR_T err = MSG_SUCCESS;
+	msg_error_t err = MSG_SUCCESS;
 
 	// Get From address
 	MSG_THREAD_LIST_INDEX_S addrInfo;
@@ -949,10 +922,10 @@ int MsgCountMsgByContactHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 
 int MsgGetQuickPanelDataHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 {
-	MSG_ERROR_T err = MSG_SUCCESS;
+	msg_error_t err = MSG_SUCCESS;
 
 	// Get Message ID
-	MSG_QUICKPANEL_TYPE_T* type = (MSG_QUICKPANEL_TYPE_T*)pCmd->cmdData;
+	msg_quickpanel_type_t* type = (msg_quickpanel_type_t*)pCmd->cmdData;
 
 	char* encodedData = NULL;
 	AutoPtr<char> buf(&encodedData);
@@ -987,7 +960,7 @@ int MsgGetQuickPanelDataHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 
 int MsgResetDatabaseHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 {
-	MSG_ERROR_T err = MSG_SUCCESS;
+	msg_error_t err = MSG_SUCCESS;
 
 	int eventSize = 0;
 
@@ -1008,7 +981,7 @@ int MsgResetDatabaseHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 
 int MsgGetMemSizeHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 {
-	MSG_ERROR_T err = MSG_SUCCESS;
+	msg_error_t err = MSG_SUCCESS;
 
 	char* encodedData = NULL;
 	AutoPtr<char> buf(&encodedData);
@@ -1029,12 +1002,53 @@ int MsgGetMemSizeHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 }
 
 
+int MsgBackupMessageHandler(const MSG_CMD_S *pCmd, char **ppEvent)
+{
+	msg_error_t err = MSG_SUCCESS;
+
+	int eventSize = 0;
+
+	err = MsgStoBackupMessage();
+
+	if (err == MSG_SUCCESS)
+		MSG_DEBUG("Command Handle Success : MsgBackupMessageHandler()");
+	else
+		MSG_DEBUG("Command Handle Fail : MsgBackupMessageHandler()");
+
+	// Make Event Data
+	eventSize = MsgMakeEvent(NULL, 0, MSG_EVENT_BACKUP_MESSAGE, err, (void**)ppEvent);
+
+	return eventSize;
+}
+
+
+int MsgRestoreMessageHandler(const MSG_CMD_S *pCmd, char **ppEvent)
+{
+	msg_error_t err = MSG_SUCCESS;
+
+	int eventSize = 0;
+
+	// Reset DB
+	err = MsgStoRestoreMessage();
+
+	if (err == MSG_SUCCESS)
+		MSG_DEBUG("Command Handle Success : MsgStoRestoreMessage()");
+	else
+		MSG_DEBUG("Command Handle Fail : MsgStoRestoreMessage()");
+
+	// Make Event Data
+	eventSize = MsgMakeEvent(NULL, 0, MSG_EVENT_RESTORE_MESSAGE, err, (void**)ppEvent);
+
+	return eventSize;
+}
+
+
 int MsgGetReportStatusHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 {
-	MSG_ERROR_T err = MSG_SUCCESS;
+	msg_error_t err = MSG_SUCCESS;
 
 	// Get Message ID
-	MSG_MESSAGE_ID_T* msgId = (MSG_MESSAGE_ID_T*)pCmd->cmdData;
+	msg_message_id_t* msgId = (msg_message_id_t*)pCmd->cmdData;
 
 	char* encodedData = NULL;
 	AutoPtr<char> buf(&encodedData);
@@ -1061,6 +1075,84 @@ int MsgGetReportStatusHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 
 	// Make Event Data
 	eventSize = MsgMakeEvent(encodedData, dataSize, MSG_EVENT_GET_REPORT_STATUS, err, (void**)ppEvent);
+
+	return eventSize;
+}
+
+
+int MsgGetThreadIdByAddressHandler(const MSG_CMD_S *pCmd, char **ppEvent)
+{
+	msg_error_t err = MSG_SUCCESS;
+
+	MSG_MESSAGE_INFO_S msgInfo;
+	memset(&msgInfo, 0x00, sizeof(MSG_MESSAGE_INFO_S));
+
+	int *addrCnt = (int *)pCmd->cmdData;
+	MSG_DEBUG("*addrCnt [%d]", *addrCnt);
+
+	msgInfo.nAddressCnt = *addrCnt;
+	for(int i=0; i<(*addrCnt); i++)
+		memcpy(&msgInfo.addressList[i], (MSG_ADDRESS_INFO_S *)(pCmd->cmdData+sizeof(int)+(sizeof(MSG_ADDRESS_INFO_S)*i)), sizeof(MSG_ADDRESS_INFO_S));
+
+	char* encodedData = NULL;
+	AutoPtr<char> buf(&encodedData);
+
+	int dataSize = 0, eventSize = 0;
+
+	msg_thread_id_t threadId;
+
+	err = MsgStoGetThreadIdByAddress(&msgInfo, &threadId);
+
+	if (err == MSG_SUCCESS)
+	{
+		MSG_DEBUG("threadId [%d]", threadId);
+		MSG_DEBUG("Command Handle Success : MsgGetThreadIdByAddressHandler()");
+
+		// Encoding threadId Data
+		dataSize = MsgEncodeThreadId(&threadId, &encodedData);
+	}
+	else
+	{
+		MSG_DEBUG("Command Handle Fail : MsgGetThreadIdByAddressHandler()");
+	}
+
+	// Make Event Data
+	eventSize = MsgMakeEvent(encodedData, dataSize, MSG_EVENT_GET_THREAD_ID_BY_ADDRESS, err, (void**)ppEvent);
+
+	return eventSize;
+}
+
+
+int MsgGetThreadInfoHandler(const MSG_CMD_S *pCmd, char **ppEvent)
+{
+	msg_error_t err = MSG_SUCCESS;
+
+	char* encodedData = NULL;
+	AutoPtr<char> buf(&encodedData);
+
+	int dataSize = 0;
+	int eventSize = 0;
+
+	msg_thread_id_t threadId;
+
+	memcpy(&threadId, (void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN), sizeof(msg_thread_id_t));
+
+	MSG_THREAD_VIEW_S threadInfo;
+	memset(&threadInfo, 0x00, sizeof(threadInfo));
+
+	err = MsgStoGetThreadInfo(threadId, &threadInfo);
+
+	if (err == MSG_SUCCESS) {
+		MSG_DEBUG("Command Handle Success : MsgStoGetThreadInfo()");
+
+		// Encoding thread Info Data
+		dataSize = MsgEncodeThreadInfo(&threadInfo, &encodedData);
+	} else {
+		MSG_DEBUG("Command Handle Fail : MsgStoGetThreadInfo()");
+	}
+
+	// Make Event Data
+	eventSize = MsgMakeEvent(encodedData, dataSize, MSG_EVENT_GET_THREAD_INFO, err, (void**)ppEvent);
 
 	return eventSize;
 }

@@ -1,18 +1,18 @@
- /*
-  * Copyright 2012  Samsung Electronics Co., Ltd
-  *
-  * Licensed under the Flora License, Version 1.0 (the "License");
-  * you may not use this file except in compliance with the License.
-  * You may obtain a copy of the License at
-  *
-  *    http://www.tizenopensource.org/license
-  *
-  * Unless required by applicable law or agreed to in writing, software
-  * distributed under the License is distributed on an "AS IS" BASIS,
-  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  * See the License for the specific language governing permissions and
-  * limitations under the License.
-  */
+/*
+* Copyright 2012  Samsung Electronics Co., Ltd
+*
+* Licensed under the Flora License, Version 1.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*    http://www.tizenopensource.org/license
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
 
 #ifndef __IPCSocket_H__
 #define __IPCSocket_H__
@@ -62,8 +62,8 @@ public:
 	fd_set 	fdSet() { return fds; }
 	int 	fd() { return sockfd; }
 
-	MSG_ERROR_T connect(const char *path);
-	MSG_ERROR_T close();
+	msg_error_t connect(const char *path);
+	msg_error_t close();
 	/* write msg to ipc server */
 	int 	write(const char* buf, int len);
 	/* read msg from ipc server */
@@ -88,8 +88,8 @@ public:
 	fd_set 	fdSet() { return fds; }
 	int 	fd() { return sockfd; }
 
-	MSG_ERROR_T open(const char *path);
-	MSG_ERROR_T accept();
+	msg_error_t open(const char *path);
+	msg_error_t accept();
 	void 		close(int fd);
 
 	/* read msg from client of fd */

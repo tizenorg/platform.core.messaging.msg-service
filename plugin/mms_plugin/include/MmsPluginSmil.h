@@ -1,18 +1,18 @@
- /*
-  * Copyright 2012  Samsung Electronics Co., Ltd
-  *
-  * Licensed under the Flora License, Version 1.0 (the "License");
-  * you may not use this file except in compliance with the License.
-  * You may obtain a copy of the License at
-  *
-  *    http://www.tizenopensource.org/license
-  *
-  * Unless required by applicable law or agreed to in writing, software
-  * distributed under the License is distributed on an "AS IS" BASIS,
-  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  * See the License for the specific language governing permissions and
-  * limitations under the License.
-  */
+/*
+* Copyright 2012  Samsung Electronics Co., Ltd
+*
+* Licensed under the Flora License, Version 1.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*    http://www.tizenopensource.org/license
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
 
 #include <stdio.h>
 #include <string.h>
@@ -96,19 +96,9 @@ typedef enum _SMIL_ATTRIBUTE_T {
 	ATTRIBUTE_BEGIN,
 	ATTRIBUTE_END,
 	ATTRIBUTE_REPEAT_COUNT,
-#ifdef MMS_SMIL_ANIMATE
-	ATTRIBUTE_ATTRIBUTE_NAME,
-	ATTRIBUTE_ATTRIBUTE_TYPE,
-	ATTRIBUTE_TARGET_ELEMENT,
-	ATTRIBUTE_FROM,
-	ATTRIBUTE_TO,
-	ATTRIBUTE_BY,
-	ATTRIBUTE_VALUES,
-	ATTRIBUTE_CALCMODE,
-#endif
 } SMIL_ATTRIBUTE_T;
 
-char *MmsSmilGetPresentationData(MSG_MESSAGE_ID_T msgId);
+char *MmsSmilGetPresentationData(msg_message_id_t msgId);
 bool MmsSmilParseSmilDoc(MMS_MESSAGE_DATA_S *pMmsMsg, char *pSmilDoc);
 void MmsSmilGetElement(MMS_MESSAGE_DATA_S *pMmsMsg, xmlNode *a_node);
 int MmsSmilGetColorValue(xmlChar *content);
@@ -229,20 +219,20 @@ xmlNode *__MmsCreateTextNode(MMS_MEDIA_S *pstSmilMedia, char *pszContentID);
  */
 xmlNode *__MmsCreateMMNode(MMS_MEDIA_S *pstSmilMedia, char *pszContentID);
 
-/**	@fn			static bool __MmsInsertFirstChild(xmlNode *pstParent, xmlNode *pNode)
+/**	@fn			static bool __MmsInsertFirstChild(xmlNode *pstParent, xmlNode *pstCurr)
  *	@brief		Inserts first child to parent node. \n
  *	@param[in]	pstParent specifies Parent node. \n
- *	@param[in]	pNode specifies Child node. \n
+ *	@param[in]	pstCurr specifies Child node. \n
  *	@retval		TRUE				In case of Success. \n
  *	@retval		FALSE				In case of failure. \n
  */
 bool __MmsInsertFirstChild(xmlNode *pParent, xmlNode *pNode);
 
-/**	@fn			static bool __MmsSmilInsertNode(xmlNode *pstParent, xmlNode *pstLeftSibling, xmlNode *pNode)
+/**	@fn			static bool __MmsSmilInsertNode(xmlNode *pstParent, xmlNode *pstLeftSibling, xmlNode *pstCurr)
  *	@brief		Inserts node. \n
  *	@param[in]	pstParent specifies Parent node. \n
  *	@param[in]	pstLeftSibling specifies Left Sibling node. \n
- *	@param[in]	pNode specifies Child node. \n
+ *	@param[in]	pstCurr specifies Child node. \n
  *	@retval		TRUE				In case of Success. \n
  *	@retval		FALSE				In case of failure. \n
  */
@@ -263,7 +253,7 @@ void _MmsSmilSetAttribute(xmlNode *pNode, char *szField, char *szValue);
  */
 char *__MmsSmilFindColorValue(int nValue);
 
-/**	@fn			static xmlNodePtr UtilxmlStringGetNodeList(xmlNodePtr pstNode, char *pszName)
+/**	@fn			static xmlNodePtr UtilxmlStringGetNodeList(xmlNodePtr pstNode, char *pszValue)
  *	@brief		Get node based on pszValue. \n
  *	@param[in]	pNode specifies node. \n
  *	@param[in]	pszName specifies name field. \n

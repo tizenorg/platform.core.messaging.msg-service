@@ -1,18 +1,18 @@
- /*
-  * Copyright 2012  Samsung Electronics Co., Ltd
-  *
-  * Licensed under the Flora License, Version 1.0 (the "License");
-  * you may not use this file except in compliance with the License.
-  * You may obtain a copy of the License at
-  *
-  *    http://www.tizenopensource.org/license
-  *
-  * Unless required by applicable law or agreed to in writing, software
-  * distributed under the License is distributed on an "AS IS" BASIS,
-  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  * See the License for the specific language governing permissions and
-  * limitations under the License.
-  */
+/*
+* Copyright 2012  Samsung Electronics Co., Ltd
+*
+* Licensed under the Flora License, Version 1.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*    http://www.tizenopensource.org/license
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
 
  /**
  *	@file 		MsgPluginInterface.h
@@ -86,7 +86,7 @@ typedef struct _MSG_PLUGIN_LISTENER_S MSG_PLUGIN_LISTENER_S;
  *
  * \param input - handle is Message handle.
  *
- * \return Return Type (int(MSG_ERROR_T)) \n
+ * \return Return Type (int(msg_error_t)) \n
  * - MSG_SUCCESS					Success in operation.
  * - MSG_ERR_NULL_POINTER		Plug-in handle is invalid.
  *
@@ -101,7 +101,7 @@ typedef struct _MSG_PLUGIN_LISTENER_S MSG_PLUGIN_LISTENER_S;
  *
  */
 /*================================================================================================*/
-MSG_ERROR_T MsgPlgCreateHandle(MSG_PLUGIN_HANDLER_S *pPluginHandle);
+msg_error_t MsgPlgCreateHandle(MSG_PLUGIN_HANDLER_S *pPluginHandle);
 
 
  /**
@@ -127,7 +127,7 @@ MSG_ERROR_T MsgPlgCreateHandle(MSG_PLUGIN_HANDLER_S *pPluginHandle);
  *
  * \param input - handle is Message handle.
  *
- * \return Return Type (int(MSG_ERROR_T)) \n
+ * \return Return Type (int(msg_error_t)) \n
  * - MSG_SUCCESS					Success in operation.
  * - MSG_ERR_NULL_POINTER		Plug-in handle is invalid.
  *
@@ -142,7 +142,7 @@ MSG_ERROR_T MsgPlgCreateHandle(MSG_PLUGIN_HANDLER_S *pPluginHandle);
  *
  */
 /*================================================================================================*/
-MSG_ERROR_T MsgPlgDestroyHandle(MSG_PLUGIN_HANDLER_S *pPluginHandle);
+msg_error_t MsgPlgDestroyHandle(MSG_PLUGIN_HANDLER_S *pPluginHandle);
 
 
 
@@ -170,7 +170,7 @@ MSG_ERROR_T MsgPlgDestroyHandle(MSG_PLUGIN_HANDLER_S *pPluginHandle);
  * \par Important notes:
  *	This function MUST be implement by plug-ins..
  *
- * \return Return Type (int(MSG_ERROR_T)) \n
+ * \return Return Type (int(msg_error_t)) \n
  * - MSG_SUCCESS					Success in operation.
  * - MSG_ERR_PLUGIN_REGEVENT	Plug-in's error during operations.
  *
@@ -185,7 +185,7 @@ MSG_ERROR_T MsgPlgDestroyHandle(MSG_PLUGIN_HANDLER_S *pPluginHandle);
  *
  */
 /*================================================================================================*/
-typedef MSG_ERROR_T (*MsgPlgInitialize)();
+typedef msg_error_t (*MsgPlgInitialize)();
 
 
  /**
@@ -212,7 +212,7 @@ typedef MSG_ERROR_T (*MsgPlgInitialize)();
  *
  * \param input - handle is Message handle.
  *
- * \return Return Type (int(MSG_ERROR_T)) \n
+ * \return Return Type (int(msg_error_t)) \n
  * - MSG_SUCCESS					Success in operation.
  * - MSG_ERR_NULL_POINTER		Plug-in handle is invalid.
  *
@@ -227,7 +227,7 @@ typedef MSG_ERROR_T (*MsgPlgInitialize)();
  *
  */
 /*================================================================================================*/
-typedef MSG_ERROR_T (*MsgPlgFinalize)();
+typedef msg_error_t (*MsgPlgFinalize)();
 
 
  /**
@@ -254,7 +254,7 @@ typedef MSG_ERROR_T (*MsgPlgFinalize)();
  *
  * \param input - listener is callback listeners.
  *
- * \return Return Type (int(MSG_ERROR_T)) \n
+ * \return Return Type (int(msg_error_t)) \n
  * - MSG_SUCCESS					Success in operation.
  *
  * \par Prospective clients:
@@ -268,7 +268,7 @@ typedef MSG_ERROR_T (*MsgPlgFinalize)();
  *
  */
 /*================================================================================================*/
-typedef MSG_ERROR_T (*MsgPlgRegisterListener)(MSG_PLUGIN_LISTENER_S *pListener);
+typedef msg_error_t (*MsgPlgRegisterListener)(MSG_PLUGIN_LISTENER_S *pListener);
 
 
  /**
@@ -294,7 +294,7 @@ typedef MSG_ERROR_T (*MsgPlgRegisterListener)(MSG_PLUGIN_LISTENER_S *pListener);
  *
  * \param output - bChanged is a boolean type value which shows sim card status.
  *
- * \return Return Type (int(MSG_ERROR_T)) \n
+ * \return Return Type (int(msg_error_t)) \n
  * - MSG_SUCCESS					Success in operation.
  *
  * \par Prospective clients:
@@ -308,7 +308,7 @@ typedef MSG_ERROR_T (*MsgPlgRegisterListener)(MSG_PLUGIN_LISTENER_S *pListener);
  *
  */
 /*================================================================================================*/
-typedef MSG_ERROR_T (*MsgPlgCheckSimStatus)(MSG_SIM_STATUS_T *pStatus);
+typedef msg_error_t (*MsgPlgCheckSimStatus)(MSG_SIM_STATUS_T *pStatus);
 
 
  /**
@@ -335,7 +335,7 @@ typedef MSG_ERROR_T (*MsgPlgCheckSimStatus)(MSG_SIM_STATUS_T *pStatus);
  *
  * \param input - handle is Message handle.
  *
- * \return Return Type (int(MSG_ERROR_T)) \n
+ * \return Return Type (int(msg_error_t)) \n
  * - MSG_SUCCESS					Success in operation.
  * - MSG_ERR_NULL_POINTER		Plug-in handle is invalid.
  *
@@ -350,7 +350,7 @@ typedef MSG_ERROR_T (*MsgPlgCheckSimStatus)(MSG_SIM_STATUS_T *pStatus);
  *
  */
 /*================================================================================================*/
-typedef MSG_ERROR_T (*MsgPlgCheckDeviceStatus)();
+typedef msg_error_t (*MsgPlgCheckDeviceStatus)();
 
 
 // Transport API
@@ -377,9 +377,8 @@ typedef MSG_ERROR_T (*MsgPlgCheckDeviceStatus)();
  *	This function MUST be implement by plug-ins.
  *
  * \param input - pReqInfo is message data to send.
- * \param input - bReqCb shows callback is required.
  *
- * \return Return Type (int(MSG_ERROR_T)) \n
+ * \return Return Type (int(msg_error_t)) \n
  * - MSG_SUCCESS					Success in operation.
  * - MSG_ERR_PLUGIN_TRANSPORT	Exception is occured in plug-in.
  *
@@ -394,7 +393,7 @@ typedef MSG_ERROR_T (*MsgPlgCheckDeviceStatus)();
  *
  */
 /*================================================================================================*/
-typedef MSG_ERROR_T (*MsgPlgSubmitRequest)(MSG_REQUEST_INFO_S *pReqInfo, bool bReqCb);
+typedef msg_error_t (*MsgPlgSubmitRequest)(MSG_REQUEST_INFO_S *pReqInfo);
 
 
 // Storage API
@@ -423,7 +422,7 @@ typedef MSG_ERROR_T (*MsgPlgSubmitRequest)(MSG_REQUEST_INFO_S *pReqInfo, bool bR
  * \param input - pMsgInfo is the information of message.
  * \param output - pSimIdList is the list of messages saved in SIM card.
  *
- * \return Return Type (int(MSG_ERROR_T)) \n
+ * \return Return Type (int(msg_error_t)) \n
  * - MSG_SUCCESS						Success in operation.
  * - MSG_ERR_PLUGIN_SIM_MSG_FULL	SIM card's capacity for SMS message is full.
  * - MSG_ERR_PLUGIN_STORAGE		Exception is occured in plug-in.
@@ -439,7 +438,7 @@ typedef MSG_ERROR_T (*MsgPlgSubmitRequest)(MSG_REQUEST_INFO_S *pReqInfo, bool bR
  *
  */
 /*================================================================================================*/
-typedef MSG_ERROR_T (*MsgPlgInitSimMessage)();
+typedef msg_error_t (*MsgPlgInitSimMessage)();
 
 
 // Storage API
@@ -468,7 +467,7 @@ typedef MSG_ERROR_T (*MsgPlgInitSimMessage)();
  * \param input - pMsgInfo is the information of message.
  * \param output - pSimIdList is the list of messages saved in SIM card.
  *
- * \return Return Type (int(MSG_ERROR_T)) \n
+ * \return Return Type (int(msg_error_t)) \n
  * - MSG_SUCCESS						Success in operation.
  * - MSG_ERR_PLUGIN_SIM_MSG_FULL	SIM card's capacity for SMS message is full.
  * - MSG_ERR_PLUGIN_STORAGE		Exception is occured in plug-in.
@@ -484,7 +483,7 @@ typedef MSG_ERROR_T (*MsgPlgInitSimMessage)();
  *
  */
 /*================================================================================================*/
-typedef MSG_ERROR_T (*MsgPlgSaveSimMessage)(const MSG_MESSAGE_INFO_S *pMsgInfo, SMS_SIM_ID_LIST_S *pSimIdList);
+typedef msg_error_t (*MsgPlgSaveSimMessage)(const MSG_MESSAGE_INFO_S *pMsgInfo, SMS_SIM_ID_LIST_S *pSimIdList);
 
 
  /**
@@ -510,7 +509,7 @@ typedef MSG_ERROR_T (*MsgPlgSaveSimMessage)(const MSG_MESSAGE_INFO_S *pMsgInfo, 
  *
  * \param input - SimMsgId is the index of the message to delete.
  *
- * \return Return Type (int(MSG_ERROR_T)) \n
+ * \return Return Type (int(msg_error_t)) \n
  * - MSG_SUCCESS						Success in operation.
  * - MSG_ERR_PLUGIN_STORAGE		Exception is occured in plug-in.
  *
@@ -525,7 +524,7 @@ typedef MSG_ERROR_T (*MsgPlgSaveSimMessage)(const MSG_MESSAGE_INFO_S *pMsgInfo, 
  *
  */
 /*================================================================================================*/
-typedef MSG_ERROR_T (*MsgPlgDeleteSimMessage)(MSG_SIM_ID_T SimMsgId);
+typedef msg_error_t (*MsgPlgDeleteSimMessage)(msg_sim_id_t SimMsgId);
 
 
  /**
@@ -551,7 +550,7 @@ typedef MSG_ERROR_T (*MsgPlgDeleteSimMessage)(MSG_SIM_ID_T SimMsgId);
  *
  * \param input - SimMsgId is the index of the message to set read status.
  *
- * \return Return Type (int(MSG_ERROR_T)) \n
+ * \return Return Type (int(msg_error_t)) \n
  * - MSG_SUCCESS						Success in operation.
  * - MSG_ERR_PLUGIN_STORAGE		Exception is occured in plug-in.
  *
@@ -566,7 +565,7 @@ typedef MSG_ERROR_T (*MsgPlgDeleteSimMessage)(MSG_SIM_ID_T SimMsgId);
  *
  */
 /*================================================================================================*/
-typedef MSG_ERROR_T (*MsgPlgSetReadStatus)(MSG_SIM_ID_T SimMsgId);
+typedef msg_error_t (*MsgPlgSetReadStatus)(msg_sim_id_t SimMsgId);
 
 
  /**
@@ -592,7 +591,7 @@ typedef MSG_ERROR_T (*MsgPlgSetReadStatus)(MSG_SIM_ID_T SimMsgId);
  *
  * \param input - SimMsgId is the index of the message to set read status.
  *
- * \return Return Type (int(MSG_ERROR_T)) \n
+ * \return Return Type (int(msg_error_t)) \n
  * - MSG_SUCCESS						Success in operation.
  * - MSG_ERR_PLUGIN_STORAGE		Exception is occured in plug-in.
  *
@@ -607,7 +606,7 @@ typedef MSG_ERROR_T (*MsgPlgSetReadStatus)(MSG_SIM_ID_T SimMsgId);
  *
  */
 /*================================================================================================*/
-typedef MSG_ERROR_T (*MsgPlgSetMemoryStatus)(MSG_ERROR_T Error);
+typedef msg_error_t (*MsgPlgSetMemoryStatus)(msg_error_t Error);
 
 
 // Setting API
@@ -635,7 +634,7 @@ typedef MSG_ERROR_T (*MsgPlgSetMemoryStatus)(MSG_ERROR_T Error);
  *
  * \param input - pSetting is information of configuration.
  *
- * \return Return Type (int(MSG_ERROR_T)) \n
+ * \return Return Type (int(msg_error_t)) \n
  * - MSG_SUCCESS					Success in operation.
  * - MSG_ERR_PLUGIN_SETTING		Exception is occured in plug-in.
  *
@@ -650,7 +649,7 @@ typedef MSG_ERROR_T (*MsgPlgSetMemoryStatus)(MSG_ERROR_T Error);
  *
  */
 /*================================================================================================*/
-typedef MSG_ERROR_T (*MsgPlgInitConfigData)(MSG_SIM_STATUS_T SimStatus);
+typedef msg_error_t (*MsgPlgInitConfigData)(MSG_SIM_STATUS_T SimStatus);
 
 
 // Setting API
@@ -678,7 +677,7 @@ typedef MSG_ERROR_T (*MsgPlgInitConfigData)(MSG_SIM_STATUS_T SimStatus);
  *
  * \param input - pSetting is information of configuration.
  *
- * \return Return Type (int(MSG_ERROR_T)) \n
+ * \return Return Type (int(msg_error_t)) \n
  * - MSG_SUCCESS					Success in operation.
  * - MSG_ERR_PLUGIN_SETTING		Exception is occured in plug-in.
  *
@@ -693,7 +692,7 @@ typedef MSG_ERROR_T (*MsgPlgInitConfigData)(MSG_SIM_STATUS_T SimStatus);
  *
  */
 /*================================================================================================*/
-typedef MSG_ERROR_T (*MsgPlgSetConfigData)(const MSG_SETTING_S *pSetting);
+typedef msg_error_t (*MsgPlgSetConfigData)(const MSG_SETTING_S *pSetting);
 
 
  /**
@@ -720,7 +719,7 @@ typedef MSG_ERROR_T (*MsgPlgSetConfigData)(const MSG_SETTING_S *pSetting);
  *
  * \param input - pSetting is information of configuration.
  *
- * \return Return Type (int(MSG_ERROR_T)) \n
+ * \return Return Type (int(msg_error_t)) \n
  * - MSG_SUCCESS					Success in operation.
  * - MSG_ERR_PLUGIN_SETTING		Exception is occured in plug-in.
  *
@@ -735,7 +734,7 @@ typedef MSG_ERROR_T (*MsgPlgSetConfigData)(const MSG_SETTING_S *pSetting);
  *
  */
 /*================================================================================================*/
-typedef MSG_ERROR_T (*MsgPlgGetConfigData)(MSG_SETTING_S *pSetting);
+typedef msg_error_t (*MsgPlgGetConfigData)(MSG_SETTING_S *pSetting);
 
 // MMS API
 /**
@@ -764,7 +763,7 @@ typedef MSG_ERROR_T (*MsgPlgGetConfigData)(MSG_SETTING_S *pSetting);
 * \param input - pSendOptInfo is information of sending option.
 * \param output - pFileData is the file path of saved MMS message.
 *
-* \return Return Type (int(MSG_ERROR_T)) \n
+* \return Return Type (int(msg_error_t)) \n
 * - MSG_SUCCESS					  Success in operation.
 * - MSG_ERR_PLUGIN_TRANSPORT   Exception is occured in plug-in.
 *
@@ -779,7 +778,7 @@ typedef MSG_ERROR_T (*MsgPlgGetConfigData)(MSG_SETTING_S *pSetting);
 *
 */
 /*================================================================================================*/
-typedef MSG_ERROR_T (*MsgPlgAddMessage)(MSG_MESSAGE_INFO_S *pMsgInfo,  MSG_SENDINGOPT_INFO_S* pSendOptInfo, char* pFileData);
+typedef msg_error_t (*MsgPlgAddMessage)(MSG_MESSAGE_INFO_S *pMsgInfo,  MSG_SENDINGOPT_INFO_S* pSendOptInfo, char* pFileData);
 
 
 /**
@@ -807,7 +806,7 @@ typedef MSG_ERROR_T (*MsgPlgAddMessage)(MSG_MESSAGE_INFO_S *pMsgInfo,  MSG_SENDI
 * \param input - pRequest is information of request options.
 * \param output - bRejects shows the reject status.
 *
-* \return Return Type (int(MSG_ERROR_T)) \n
+* \return Return Type (int(msg_error_t)) \n
 * - MSG_SUCCESS					  Success in operation.
 * - MSG_ERR_PLUGIN_TRANSPORT   Exception is occured in plug-in.
 *
@@ -822,7 +821,7 @@ typedef MSG_ERROR_T (*MsgPlgAddMessage)(MSG_MESSAGE_INFO_S *pMsgInfo,  MSG_SENDI
 *
 */
 /*================================================================================================*/
-typedef MSG_ERROR_T (*MsgPlgProcessReceivedInd)(MSG_MESSAGE_INFO_S *pMsgInfo, MSG_REQUEST_INFO_S* pRequest, bool* bReject);
+typedef msg_error_t (*MsgPlgProcessReceivedInd)(MSG_MESSAGE_INFO_S *pMsgInfo, MSG_REQUEST_INFO_S* pRequest, bool* bReject);
 
 
 /**
@@ -851,7 +850,7 @@ typedef MSG_ERROR_T (*MsgPlgProcessReceivedInd)(MSG_MESSAGE_INFO_S *pMsgInfo, MS
 * \param input - pSendOptInfo is information of sending option.
 * \param output - pFileData is the file path of saved MMS message.
 *
-* \return Return Type (int(MSG_ERROR_T)) \n
+* \return Return Type (int(msg_error_t)) \n
 * - MSG_SUCCESS					  Success in operation.
 * - MSG_ERR_PLUGIN_TRANSPORT   Exception is occured in plug-in.
 *
@@ -866,7 +865,7 @@ typedef MSG_ERROR_T (*MsgPlgProcessReceivedInd)(MSG_MESSAGE_INFO_S *pMsgInfo, MS
 *
 */
 /*================================================================================================*/
-typedef MSG_ERROR_T (*MsgPlgUpdateMessage)(MSG_MESSAGE_INFO_S *pMsgInfo, MSG_SENDINGOPT_INFO_S* pSendOptInfo, char* pFileData);
+typedef msg_error_t (*MsgPlgUpdateMessage)(MSG_MESSAGE_INFO_S *pMsgInfo, MSG_SENDINGOPT_INFO_S* pSendOptInfo, char* pFileData);
 
 
 /**
@@ -895,7 +894,7 @@ typedef MSG_ERROR_T (*MsgPlgUpdateMessage)(MSG_MESSAGE_INFO_S *pMsgInfo, MSG_SEN
 * \param output - pMmsMsg is information of MMS messages detail data.
 * \param output - pDestMsg is file path of MMS message.
 *
-* \return Return Type (int(MSG_ERROR_T)) \n
+* \return Return Type (int(msg_error_t)) \n
 * - MSG_SUCCESS					  Success in operation.
 * - MSG_ERR_PLUGIN_TRANSPORT   Exception is occured in plug-in.
 *
@@ -910,7 +909,7 @@ typedef MSG_ERROR_T (*MsgPlgUpdateMessage)(MSG_MESSAGE_INFO_S *pMsgInfo, MSG_SEN
 *
 */
 /*================================================================================================*/
-typedef MSG_ERROR_T (*MsgPlgGetMmsMessage)(MSG_MESSAGE_INFO_S* pMsg,	MSG_SENDINGOPT_INFO_S* pSendOptInfo, MMS_MESSAGE_DATA_S* pMmsMsg, char** pDestMsg);
+typedef msg_error_t (*MsgPlgGetMmsMessage)(MSG_MESSAGE_INFO_S* pMsg,	MSG_SENDINGOPT_INFO_S* pSendOptInfo, MMS_MESSAGE_DATA_S* pMmsMsg, char** pDestMsg);
 
 
 /**
@@ -936,7 +935,7 @@ typedef MSG_ERROR_T (*MsgPlgGetMmsMessage)(MSG_MESSAGE_INFO_S* pMsg,	MSG_SENDING
 *
 * \param input - pMsgInfo is information of MMS message.
 *
-* \return Return Type (int(MSG_ERROR_T)) \n
+* \return Return Type (int(msg_error_t)) \n
 * - MSG_SUCCESS					  Success in operation.
 * - MSG_ERR_PLUGIN_TRANSPORT   Exception is occured in plug-in.
 *
@@ -951,7 +950,7 @@ typedef MSG_ERROR_T (*MsgPlgGetMmsMessage)(MSG_MESSAGE_INFO_S* pMsg,	MSG_SENDING
 *
 */
 /*================================================================================================*/
-typedef MSG_ERROR_T (*MsgPlgUpdateRejectStatus)(MSG_MESSAGE_INFO_S *pMsgInfo);
+typedef msg_error_t (*MsgPlgUpdateRejectStatus)(MSG_MESSAGE_INFO_S *pMsgInfo);
 
 
 /**
@@ -978,7 +977,7 @@ typedef MSG_ERROR_T (*MsgPlgUpdateRejectStatus)(MSG_MESSAGE_INFO_S *pMsgInfo);
 *
 * \param input - pMsgInfo is information of MMS message.
 *
-* \return Return Type (int(MSG_ERROR_T)) \n
+* \return Return Type (int(msg_error_t)) \n
 * - MSG_SUCCESS					  Success in operation.
 * - MSG_ERR_PLUGIN_TRANSPORT   Exception is occured in plug-in.
 *
@@ -993,7 +992,7 @@ typedef MSG_ERROR_T (*MsgPlgUpdateRejectStatus)(MSG_MESSAGE_INFO_S *pMsgInfo);
 *
 */
 /*================================================================================================*/
-typedef MSG_ERROR_T (*MsgPlgComposeReadReport)(MSG_MESSAGE_INFO_S *pMsgInfo);
+typedef msg_error_t (*MsgPlgComposeReadReport)(MSG_MESSAGE_INFO_S *pMsgInfo);
 
  /**
 
@@ -1019,7 +1018,7 @@ typedef MSG_ERROR_T (*MsgPlgComposeReadReport)(MSG_MESSAGE_INFO_S *pMsgInfo);
  *
  * \param input - pMsgInfo is information of MMS message.
  *
- * \return Return Type (int(MSG_ERROR_T)) \n
+ * \return Return Type (int(msg_error_t)) \n
  * - MSG_SUCCESS					Success in operation.
  * - MSG_ERR_PLUGIN_TRANSPORT	Exception is occured in plug-in.
  *
@@ -1034,17 +1033,17 @@ typedef MSG_ERROR_T (*MsgPlgComposeReadReport)(MSG_MESSAGE_INFO_S *pMsgInfo);
  *
  */
 /*================================================================================================*/
-typedef MSG_ERROR_T (*MsgPlgRestoreMsg)(MSG_MESSAGE_INFO_S *pMsg, char* pRcvdBody, int rcvdBodyLen, char* filePath);
+typedef msg_error_t (*MsgPlgRestoreMsg)(MSG_MESSAGE_INFO_S *pMsg, char* pRcvdBody, int rcvdBodyLen, char* filePath);
 
 
 // framework defined callbacks.
 typedef void (*MsgPlgOnSentStatus)(MSG_SENT_STATUS_S *pSentStatus);
-typedef void (*MsgPlgOnStorageChange)(MSG_STORAGE_CHANGE_TYPE_T storageChangeType, MSG_MESSAGE_INFO_S *pMsgInfo);
-typedef MSG_ERROR_T (*MsgPlgOnMsgIncoming)(MSG_MESSAGE_INFO_S *pMsgInfo);
-typedef MSG_ERROR_T (*MsgPlgOnInitSimBySat)(void);
-typedef MSG_ERROR_T (*MsgPlgOnSyncMLMsgIncoming)(MSG_SYNCML_MESSAGE_DATA_S *pSyncMLData);
-typedef MSG_ERROR_T (*MsgPlgOnLBSMsgIncoming)(MSG_LBS_MESSAGE_DATA_S *pLBSData);
-typedef MSG_ERROR_T (*MsgPlgOnMmsConfIncoming)(MSG_MESSAGE_INFO_S *pMsgInfo, MSG_REQUEST_ID_T *pRequest);
+typedef void (*MsgPlgOnStorageChange)(msg_storage_change_type_t storageChangeType, MSG_MESSAGE_INFO_S *pMsgInfo);
+typedef msg_error_t (*MsgPlgOnMsgIncoming)(MSG_MESSAGE_INFO_S *pMsgInfo);
+typedef msg_error_t (*MsgPlgOnInitSimBySat)(void);
+typedef msg_error_t (*MsgPlgOnSyncMLMsgIncoming)(MSG_SYNCML_MESSAGE_DATA_S *pSyncMLData);
+typedef msg_error_t (*MsgPlgOnLBSMsgIncoming)(MSG_LBS_MESSAGE_DATA_S *pLBSData);
+typedef msg_error_t (*MsgPlgOnMmsConfIncoming)(MSG_MESSAGE_INFO_S *pMsgInfo, msg_request_id_t *pRequest);
 
 
 /*==================================================================================================

@@ -1,18 +1,18 @@
- /*
-  * Copyright 2012  Samsung Electronics Co., Ltd
-  *
-  * Licensed under the Flora License, Version 1.0 (the "License");
-  * you may not use this file except in compliance with the License.
-  * You may obtain a copy of the License at
-  *
-  *    http://www.tizenopensource.org/license
-  *
-  * Unless required by applicable law or agreed to in writing, software
-  * distributed under the License is distributed on an "AS IS" BASIS,
-  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  * See the License for the specific language governing permissions and
-  * limitations under the License.
-  */
+/*
+* Copyright 2012  Samsung Electronics Co., Ltd
+*
+* Licensed under the Flora License, Version 1.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*    http://www.tizenopensource.org/license
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
 
 #include <queue>
 
@@ -37,30 +37,26 @@ extern MsgDbHandler dbHandle;
 /*==================================================================================================
                                      FUNCTION IMPLEMENTATION
 ==================================================================================================*/
-MSG_ERROR_T MsgInitSimMessage(MSG_SIM_STATUS_T SimStatus)
+msg_error_t MsgInitSimMessage(MSG_SIM_STATUS_T SimStatus)
 {
 	MSG_DEBUG("Start SIM Message Initialization");
 
-	MSG_ERROR_T err = MSG_SUCCESS;
+	msg_error_t err = MSG_SUCCESS;
 
 	// Set SIM count of vconf to 0
-	if (MsgSettingSetInt(SIM_USED_COUNT, 0) != MSG_SUCCESS)
-	{
+	if (MsgSettingSetInt(SIM_USED_COUNT, 0) != MSG_SUCCESS) {
 		MSG_DEBUG("Error to set config data [%s]", SIM_USED_COUNT);
 	}
 
-	if (MsgSettingSetInt(SIM_TOTAL_COUNT, 0) != MSG_SUCCESS)
-	{
+	if (MsgSettingSetInt(SIM_TOTAL_COUNT, 0) != MSG_SUCCESS) {
 		MSG_DEBUG("Error to set config data [%s]", SIM_TOTAL_COUNT);
 	}
 
-	if (SimStatus != MSG_SIM_STATUS_NOT_FOUND)
-	{
+	if (SimStatus != MSG_SIM_STATUS_NOT_FOUND) {
 		MSG_MAIN_TYPE_T mainType = MSG_SMS_TYPE;
 		MsgPlugin* plg = MsgPluginManager::instance()->getPlugin(mainType);
 
-		if (plg == NULL)
-		{
+		if (plg == NULL) {
 			MSG_DEBUG("No plugin for %d type", mainType);
 			return MSG_ERR_INVALID_PLUGIN_HANDLE;
 		}
@@ -75,37 +71,32 @@ MSG_ERROR_T MsgInitSimMessage(MSG_SIM_STATUS_T SimStatus)
 }
 
 
-MSG_ERROR_T MsgStoClearSimMessageInDB()
+msg_error_t MsgStoClearSimMessageInDB()
 {
-	MSG_ERROR_T err = MSG_SUCCESS;
+	msg_error_t err = MSG_SUCCESS;
 
 	char sqlQuery[MAX_QUERY_LEN+1];
 
-	queue<MSG_THREAD_ID_T> threadList;
+	queue<msg_thread_id_t> threadList;
 
 	// Get Address ID of SIM Message
 	memset(sqlQuery, 0x00, sizeof(sqlQuery));
 
-	snprintf(sqlQuery, sizeof(sqlQuery), "SELECT DISTINCT(B.ADDRESS_ID) \
-					FROM %s A, %s B \
-				     WHERE A.ADDRESS_ID = B.ADDRESS_ID \
-				          AND A.STORAGE_ID = %d",
-			MSGFW_MESSAGE_TABLE_NAME, MSGFW_ADDRESS_TABLE_NAME, MSG_STORAGE_SIM);
+	snprintf(sqlQuery, sizeof(sqlQuery), "SELECT DISTINCT(CONV_ID) FROM %s WHERE STORAGE_ID = %d",
+			MSGFW_MESSAGE_TABLE_NAME, MSG_STORAGE_SIM);
 
 	int rowCnt = 0;
 
 	err = dbHandle.getTable(sqlQuery, &rowCnt);
 
-	if (err != MSG_SUCCESS && err != MSG_ERR_DB_NORECORD)
-	{
+	if (err != MSG_SUCCESS && err != MSG_ERR_DB_NORECORD) {
 		MSG_DEBUG("sql query is %s.", sqlQuery);
 
 		dbHandle.freeTable();
 		return err;
 	}
 
-	if (rowCnt <= 0)
-	{
+	if (rowCnt <= 0) {
 		dbHandle.freeTable();
 		return MSG_SUCCESS;
 	}
@@ -113,7 +104,7 @@ MSG_ERROR_T MsgStoClearSimMessageInDB()
 	for (int i = 1; i <= rowCnt; i++)
 	{
 		MSG_DEBUG("thread ID : %d", dbHandle.getColumnToInt(i));
-		threadList.push((MSG_THREAD_ID_T)dbHandle.getColumnToInt(i));
+		threadList.push((msg_thread_id_t)dbHandle.getColumnToInt(i));
 	}
 
 	dbHandle.freeTable();
@@ -129,20 +120,18 @@ MSG_ERROR_T MsgStoClearSimMessageInDB()
 		memset(sqlQuery, 0x00, sizeof(sqlQuery));
 
 		snprintf(sqlQuery, sizeof(sqlQuery), "DELETE FROM %s WHERE MSG_ID IN \
-										(SELECT MSG_ID FROM %s WHERE STORAGE_ID = %d);",
-						tableList[i], MSGFW_MESSAGE_TABLE_NAME, MSG_STORAGE_SIM);
+				(SELECT MSG_ID FROM %s WHERE STORAGE_ID = %d);",
+				tableList[i], MSGFW_MESSAGE_TABLE_NAME, MSG_STORAGE_SIM);
 
 		// Delete SIM Message in tables
-		if (dbHandle.execQuery(sqlQuery) != MSG_SUCCESS)
-		{
+		if (dbHandle.execQuery(sqlQuery) != MSG_SUCCESS) {
 			dbHandle.endTrans(false);
 			return MSG_ERR_DB_EXEC;
 		}
 	}
 
-	// Clear Address table
-	if (MsgStoClearAddressTable(&dbHandle) != MSG_SUCCESS)
-	{
+	// Clear Conversation table
+	if (MsgStoClearConversationTable(&dbHandle) != MSG_SUCCESS) {
 		dbHandle.endTrans(false);
 		return MSG_ERR_DB_EXEC;
 	}
@@ -150,12 +139,11 @@ MSG_ERROR_T MsgStoClearSimMessageInDB()
 	// Update Address
 	while (!threadList.empty())
 	{
-		err = MsgStoUpdateAddress(&dbHandle, threadList.front());
+		err = MsgStoUpdateConversation(&dbHandle, threadList.front());
 
 		threadList.pop();
 
-		if (err != MSG_SUCCESS)
-		{
+		if (err != MSG_SUCCESS) {
 			dbHandle.endTrans(false);
 			return err;
 		}

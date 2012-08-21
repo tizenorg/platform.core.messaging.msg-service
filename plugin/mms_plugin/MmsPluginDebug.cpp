@@ -1,18 +1,18 @@
- /*
-  * Copyright 2012  Samsung Electronics Co., Ltd
-  *
-  * Licensed under the Flora License, Version 1.0 (the "License");
-  * you may not use this file except in compliance with the License.
-  * You may obtain a copy of the License at
-  *
-  *    http://www.tizenopensource.org/license
-  *
-  * Unless required by applicable law or agreed to in writing, software
-  * distributed under the License is distributed on an "AS IS" BASIS,
-  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  * See the License for the specific language governing permissions and
-  * limitations under the License.
-  */
+/*
+* Copyright 2012  Samsung Electronics Co., Ltd
+*
+* Licensed under the Flora License, Version 1.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*    http://www.tizenopensource.org/license
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
 
 #include <stdio.h>
 #include "MmsPluginMIME.h"
@@ -338,7 +338,7 @@ const char *MmsDebugGetMmsReportAllowed(MmsReportAllowed reportAllowed)
 }
 
 
-const char *MmsDebugGetMmsReadStatus(MSG_READ_REPORT_STATUS_T readStatus)
+const char *MmsDebugGetMmsReadStatus(msg_read_report_status_t readStatus)
 {
 	_MSG_READ_REPORT_STATUS_E readReport = (_MSG_READ_REPORT_STATUS_E)readStatus;
 
@@ -472,7 +472,7 @@ const char *MmsDebugGetRetrieveStatus(MmsRetrieveStatus retrieveStatus)
 }
 
 
-const char *MmsDebugGetMsgStatus(MSG_DELIVERY_REPORT_STATUS_T msgStatus)
+const char *MmsDebugGetMsgStatus(msg_delivery_report_status_t msgStatus)
 {
 	switch (msgStatus) {
 	case MSG_DELIVERY_REPORT_ERROR:

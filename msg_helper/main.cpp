@@ -1,18 +1,18 @@
- /*
-  * Copyright 2012  Samsung Electronics Co., Ltd
-  *
-  * Licensed under the Flora License, Version 1.0 (the "License");
-  * you may not use this file except in compliance with the License.
-  * You may obtain a copy of the License at
-  *
-  *    http://www.tizenopensource.org/license
-  *
-  * Unless required by applicable law or agreed to in writing, software
-  * distributed under the License is distributed on an "AS IS" BASIS,
-  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  * See the License for the specific language governing permissions and
-  * limitations under the License.
-  */
+/*
+* Copyright 2012  Samsung Electronics Co., Ltd
+*
+* Licensed under the Flora License, Version 1.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*    http://www.tizenopensource.org/license
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
 
 #include <stdio.h>
 #include <glib.h>
@@ -45,7 +45,9 @@ int main(int argc, char** argv)
 
 	MSG_DEBUG("############### Start msg_helper ###############");
 
+#if !GLIB_CHECK_VERSION(2, 31, 0)
 	g_thread_init(NULL);
+#endif
 
 	bool notEnd = false;
 
@@ -71,6 +73,9 @@ int main(int argc, char** argv)
 	{
 		loop = g_main_loop_new(NULL, FALSE);
 
+		if (MsgSensorConnect() == MSG_SUCCESS)
+			if (MsgRegSensorCB(&worker_done) != MSG_SUCCESS)
+				MsgSensorDisconnect();
 
 		if (loop != NULL)
 		{
@@ -82,6 +87,7 @@ int main(int argc, char** argv)
 		else
 		{
 			MSG_DEBUG("Fail to create g_main_loop!!!");
+			MsgSensorDisconnect();
 		}
 	}
 

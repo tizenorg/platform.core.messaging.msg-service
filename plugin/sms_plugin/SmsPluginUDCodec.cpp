@@ -1,18 +1,18 @@
- /*
-  * Copyright 2012  Samsung Electronics Co., Ltd
-  *
-  * Licensed under the Flora License, Version 1.0 (the "License");
-  * you may not use this file except in compliance with the License.
-  * You may obtain a copy of the License at
-  *
-  *    http://www.tizenopensource.org/license
-  *
-  * Unless required by applicable law or agreed to in writing, software
-  * distributed under the License is distributed on an "AS IS" BASIS,
-  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  * See the License for the specific language governing permissions and
-  * limitations under the License.
-  */
+/*
+* Copyright 2012  Samsung Electronics Co., Ltd
+*
+* Licensed under the Flora License, Version 1.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*    http://www.tizenopensource.org/license
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
 
 #include "MsgDebug.h"
 #include "MsgCppTypes.h"
@@ -94,6 +94,9 @@ int SmsPluginUDCodec::decodeUserData(const unsigned char *pTpdu, const int tpduL
 			decodeSize = decode8bitData(pTpdu, bHeaderInd, pUserData, pTPUD);
 			break;
 		case SMS_CHARSET_UCS2:
+			decodeSize = decodeUCS2Data(pTpdu, tpduLen, bHeaderInd, pUserData, pTPUD);
+			break;
+		case SMS_CHARSET_EUCKR:
 			decodeSize = decodeUCS2Data(pTpdu, tpduLen, bHeaderInd, pUserData, pTPUD);
 			break;
 	}
@@ -729,6 +732,7 @@ int SmsPluginUDCodec::pack7bitChar(const unsigned char *pUserData, int dataLen, 
 	{
 		if (shift == 0)
 		{
+
 			pPackData[dstIdx] = pUserData[srcIdx];
 
 			if (srcIdx >= dataLen) break;
@@ -752,13 +756,11 @@ int SmsPluginUDCodec::pack7bitChar(const unsigned char *pUserData, int dataLen, 
 		{
 			pPackData[dstIdx-1] |= pUserData[srcIdx] << shift;
 
-
 			srcIdx++;
 
 			shift--;
 		}
 	}
-
 
 	return dstIdx;
 }
@@ -777,7 +779,6 @@ MSG_DEBUG("dataLen = %d", dataLen);
 	{
 		if (shift == 0)
 		{
-
 			pUnpackData[dstIdx] = pTpdu[srcIdx] & 0x7F;
 
 			shift = 7;
@@ -789,11 +790,9 @@ MSG_DEBUG("dataLen = %d", dataLen);
 
 		if (shift > 0)
 		{
-
 			pUnpackData[dstIdx] = (pTpdu[srcIdx-1] >> shift) + (pTpdu[srcIdx] << (8 - shift));
 
 			pUnpackData[dstIdx] &= 0x7F;
-
 
 			shift--;
 
@@ -803,4 +802,3 @@ MSG_DEBUG("dataLen = %d", dataLen);
 
 	return dstIdx;
 }
-

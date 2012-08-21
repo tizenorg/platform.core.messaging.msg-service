@@ -1,18 +1,18 @@
- /*
-  * Copyright 2012  Samsung Electronics Co., Ltd
-  *
-  * Licensed under the Flora License, Version 1.0 (the "License");
-  * you may not use this file except in compliance with the License.
-  * You may obtain a copy of the License at
-  *
-  *    http://www.tizenopensource.org/license
-  *
-  * Unless required by applicable law or agreed to in writing, software
-  * distributed under the License is distributed on an "AS IS" BASIS,
-  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  * See the License for the specific language governing permissions and
-  * limitations under the License.
-  */
+/*
+* Copyright 2012  Samsung Electronics Co., Ltd
+*
+* Licensed under the Flora License, Version 1.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*    http://www.tizenopensource.org/license
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
 
 #include <errno.h>
 
@@ -478,12 +478,13 @@ void MsgProxyListener::handleEvent(const MSG_EVENT_S* pMsgEvent)
 	{
 		unsigned int chInfo[3] = {0}; //3// reqid, status, object
 
-//		unsigned int* pChInfo = (unsigned int*) pMsgEvent->data;
+		memcpy(&chInfo, (void*)((char*)pMsgEvent+sizeof(MSG_EVENT_TYPE_T)+sizeof(msg_error_t)), sizeof(chInfo));
 
-		memcpy(&chInfo, (void*)((char*)pMsgEvent+sizeof(MSG_EVENT_TYPE_T)+sizeof(MSG_ERROR_T)), sizeof(chInfo));
+		msg_struct_s status = {0,};
+		MSG_SENT_STATUS_S statusData = {(msg_request_id_t)chInfo[0], (msg_network_status_t)chInfo[1]};
 
-		//	[0] = pStatus->reqId;	[1] = pStatus->status;	[2] = chInfo.handleAddr;
-		MSG_SENT_STATUS_S status = {(MSG_REQUEST_ID_T)chInfo[0], (MSG_NETWORK_STATUS_T)chInfo[1]};
+		status.type = MSG_STRUCT_SENT_STATUS_INFO;
+		status.data = (void *)&statusData;
 
 		mx.lock();
 
@@ -497,7 +498,7 @@ void MsgProxyListener::handleEvent(const MSG_EVENT_S* pMsgEvent)
 
 			void* param = it->userParam;
 
-			pfunc((MSG_HANDLE_T)pHandle, &status, param);
+			pfunc((msg_handle_t)pHandle, (msg_struct_t)&status, param);
 		}
 
 		mx.unlock();
@@ -529,22 +530,64 @@ void MsgProxyListener::handleEvent(const MSG_EVENT_S* pMsgEvent)
 			MsgHandle* pHandle = it->hAddr;
 
 			MSG_MESSAGE_INFO_S *pMsgInfo = (MSG_MESSAGE_INFO_S *)pMsgEvent->data;
-			MSG_MESSAGE_S msg = {0};
+			MSG_MESSAGE_HIDDEN_S msgHidden = {0,};
 
-			msg.pData = NULL;
-			msg.pMmsData = NULL;
+			msgHidden.pData = NULL;
+			msgHidden.pMmsData = NULL;
 
-			pHandle->convertMsgStruct(pMsgInfo, &msg);
+			/* Allocate memory for address list of message */
+			msg_struct_list_s *addr_list = (msg_struct_list_s *)new msg_struct_list_s;
+
+			addr_list->nCount = 0;
+			addr_list->msg_struct_info = (msg_struct_t *)new char[sizeof(MSG_ADDRESS_INFO_S *)*MAX_TO_ADDRESS_CNT];
+
+			msg_struct_s *pTmp = NULL;
+
+			for (int i = 0; i < MAX_TO_ADDRESS_CNT; i++) {
+				addr_list->msg_struct_info[i] = (msg_struct_t)new char[sizeof(msg_struct_s)];
+				pTmp = (msg_struct_s *)addr_list->msg_struct_info[i];
+				pTmp->type = MSG_STRUCT_ADDRESS_INFO;
+				pTmp->data = new MSG_ADDRESS_INFO_S;
+				memset(pTmp->data, 0x00, sizeof(MSG_ADDRESS_INFO_S));
+
+				addr_list->msg_struct_info[i] = (msg_struct_t)pTmp;
+			}
+
+			msgHidden.addr_list = addr_list;
+
+			pHandle->convertMsgStruct(pMsgInfo, &msgHidden);
+
+			msg_struct_s msg = {0,};
+			msg.type = MSG_STRUCT_MESSAGE_INFO;
+			msg.data = &msgHidden;
 
 			msg_sms_incoming_cb pfunc = it->pfIncomingCB;
 
 			void* param = it->userParam;
 
-			pfunc((MSG_HANDLE_T)pHandle, (msg_message_t) &msg, param);
+			pfunc((msg_handle_t)pHandle, (msg_struct_t) &msg, param);
 
-			delete [] (char*)msg.pData;
-			if (msg.pMmsData != NULL)
-				delete [] (char*)msg.pMmsData;
+			delete [] (char*)msgHidden.pData;
+			if (msgHidden.pMmsData != NULL)
+				delete [] (char*)msgHidden.pMmsData;
+
+			// address Memory Free
+			if (msgHidden.addr_list!= NULL)
+			{
+				for(int i=0; i<MAX_TO_ADDRESS_CNT; i++) {
+					msg_struct_s * addrInfo = (msg_struct_s *)msgHidden.addr_list->msg_struct_info[i];
+					delete (MSG_ADDRESS_INFO_S *)addrInfo->data;
+					addrInfo->data = NULL;
+					delete (msg_struct_s *)msgHidden.addr_list->msg_struct_info[i];
+					msgHidden.addr_list->msg_struct_info[i] = NULL;
+				}
+
+				delete [] msgHidden.addr_list->msg_struct_info;
+
+				delete msgHidden.addr_list;
+				msgHidden.addr_list = NULL;
+			}
+
 		}
 
 	}
@@ -592,22 +635,62 @@ void MsgProxyListener::handleEvent(const MSG_EVENT_S* pMsgEvent)
 			MsgHandle* pHandle = it->hAddr;
 
 			MSG_MESSAGE_INFO_S *pMsgInfo = (MSG_MESSAGE_INFO_S *)pMsgEvent->data;
-			MSG_MESSAGE_S msg = {0};
+			MSG_MESSAGE_HIDDEN_S msgHidden = {0,};
 
-			msg.pData = NULL;
-			msg.pMmsData = NULL;
+			msgHidden.pData = NULL;
+			msgHidden.pMmsData = NULL;
 
-			pHandle->convertMsgStruct(pMsgInfo, &msg);
+			/* Allocate memory for address list of message */
+			msg_struct_list_s *addr_list = (msg_struct_list_s *)new msg_struct_list_s;
+
+			addr_list->nCount = 0;
+			addr_list->msg_struct_info = (msg_struct_t *)new char[sizeof(MSG_ADDRESS_INFO_S *)*MAX_TO_ADDRESS_CNT];
+
+			msg_struct_s *pTmp = NULL;
+
+			for (int i = 0; i < MAX_TO_ADDRESS_CNT; i++) {
+				addr_list->msg_struct_info[i] = (msg_struct_t)new char[sizeof(msg_struct_s)];
+				pTmp = (msg_struct_s *)addr_list->msg_struct_info[i];
+				pTmp->type = MSG_STRUCT_ADDRESS_INFO;
+				pTmp->data = new MSG_ADDRESS_INFO_S;
+				memset(pTmp->data, 0x00, sizeof(MSG_ADDRESS_INFO_S));
+
+				addr_list->msg_struct_info[i] = (msg_struct_t)pTmp;
+			}
+
+			msgHidden.addr_list = addr_list;
+
+			pHandle->convertMsgStruct(pMsgInfo, &msgHidden);
+
+			msg_struct_s msg = {0,};
+			msg.type = MSG_STRUCT_MESSAGE_INFO;
+			msg.data = &msgHidden;
 
 			msg_mms_conf_msg_incoming_cb pfunc = it->pfMMSConfIncomingCB;
 
 			void* param = it->userParam;
+			pfunc((msg_handle_t)pHandle, (msg_struct_t) &msg, param);
 
-			pfunc((MSG_HANDLE_T)pHandle, (msg_message_t) &msg, param);
+			delete [] (char*)msgHidden.pData;
+			if (msgHidden.pMmsData != NULL)
+				delete [] (char*)msgHidden.pMmsData;
 
-			delete [] (char*)msg.pData;
-			if (msg.pMmsData != NULL)
-				delete [] (char*)msg.pMmsData;
+			// address Memory Free
+			if (msgHidden.addr_list!= NULL)
+			{
+				for(int i=0; i<MAX_TO_ADDRESS_CNT; i++) {
+					msg_struct_s * addrInfo = (msg_struct_s *)msgHidden.addr_list->msg_struct_info[i];
+					delete (MSG_ADDRESS_INFO_S *)addrInfo->data;
+					addrInfo->data = NULL;
+					delete (msg_struct_s *)msgHidden.addr_list->msg_struct_info[i];
+					msgHidden.addr_list->msg_struct_info[i] = NULL;
+				}
+
+				delete [] msgHidden.addr_list->msg_struct_info;
+
+				delete msgHidden.addr_list;
+				msgHidden.addr_list = NULL;
+			}
 
 			// Here the retrieved message will be deleted from native storage.
 			// as of now, msg which have appId is considered as JAVA MMS message and it will be sent and handled in JAVA app.
@@ -636,7 +719,7 @@ void MsgProxyListener::handleEvent(const MSG_EVENT_S* pMsgEvent)
 
 			void* param = it->userParam;
 
-			pfunc((MSG_HANDLE_T)pHandle, pSyncMLData->syncmlType, pSyncMLData->pushBody, pSyncMLData->pushBodyLen, pSyncMLData->wspHeader, pSyncMLData->wspHeaderLen, param);
+			pfunc((msg_handle_t)pHandle, pSyncMLData->syncmlType, pSyncMLData->pushBody, pSyncMLData->pushBodyLen, pSyncMLData->wspHeader, pSyncMLData->wspHeaderLen, param);
 		}
 
 		mx.unlock();
@@ -657,7 +740,7 @@ void MsgProxyListener::handleEvent(const MSG_EVENT_S* pMsgEvent)
 
 			void* param = it->userParam;
 
-			pfunc((MSG_HANDLE_T)pHandle, pLBSData->pushHeader, pLBSData->pushBody, pLBSData->pushBodyLen, param);
+			pfunc((msg_handle_t)pHandle, pLBSData->pushHeader, pLBSData->pushBody, pLBSData->pushBodyLen, param);
 		}
 
 		mx.unlock();
@@ -667,8 +750,8 @@ void MsgProxyListener::handleEvent(const MSG_EVENT_S* pMsgEvent)
 		int msgId;
 		int extId;
 
-		memcpy(&msgId, (void*)((char*)pMsgEvent+sizeof(MSG_EVENT_TYPE_T)+sizeof(MSG_ERROR_T)), sizeof(int));
-		memcpy(&extId, (void*)((char*)pMsgEvent+sizeof(MSG_EVENT_TYPE_T)+sizeof(MSG_ERROR_T)+sizeof(int)), sizeof(int));
+		memcpy(&msgId, (void*)((char*)pMsgEvent+sizeof(MSG_EVENT_TYPE_T)+sizeof(msg_error_t)), sizeof(int));
+		memcpy(&extId, (void*)((char*)pMsgEvent+sizeof(MSG_EVENT_TYPE_T)+sizeof(msg_error_t)+sizeof(int)), sizeof(int));
 
 		MSG_DEBUG("msgId [%d]", msgId);
 		MSG_DEBUG("extId [%d]", extId);
@@ -685,23 +768,23 @@ void MsgProxyListener::handleEvent(const MSG_EVENT_S* pMsgEvent)
 
 			void* param = it->userParam;
 
-			pfunc((MSG_HANDLE_T)pHandle, msgId, extId, param);
+			pfunc((msg_handle_t)pHandle, msgId, extId, param);
 		}
 
 		mx.unlock();
 	}
 	else if (pMsgEvent->eventType == MSG_EVENT_PLG_STORAGE_CHANGE_IND)
 	{
-		MSG_STORAGE_CHANGE_TYPE_T storageChangeType;
-		MSG_MSGID_LIST_S msgIdList;
-		memset(&msgIdList, 0x00, sizeof(MSG_MSGID_LIST_S));
+		msg_storage_change_type_t storageChangeType;
+		msg_id_list_s msgIdList;
+		memset(&msgIdList, 0x00, sizeof(msg_id_list_s));
 
 		// Decode event data
-		memcpy(&storageChangeType, (void*)((char*)pMsgEvent+sizeof(MSG_EVENT_TYPE_T)+sizeof(MSG_ERROR_T)), sizeof(MSG_STORAGE_CHANGE_TYPE_T));
-		memcpy(&msgIdList.nCount, (void*)((char*)pMsgEvent+sizeof(MSG_EVENT_TYPE_T)+sizeof(MSG_ERROR_T)+sizeof(MSG_STORAGE_CHANGE_TYPE_T)), sizeof(int));
+		memcpy(&storageChangeType, (void*)((char*)pMsgEvent+sizeof(MSG_EVENT_TYPE_T)+sizeof(msg_error_t)), sizeof(msg_storage_change_type_t));
+		memcpy(&msgIdList.nCount, (void*)((char*)pMsgEvent+sizeof(MSG_EVENT_TYPE_T)+sizeof(msg_error_t)+sizeof(msg_storage_change_type_t)), sizeof(int));
 
 		if(msgIdList.nCount > 0)
-			msgIdList.msgIdList = (MSG_MESSAGE_ID_T*)((char*)pMsgEvent+sizeof(MSG_EVENT_TYPE_T)+sizeof(MSG_ERROR_T)+sizeof(MSG_STORAGE_CHANGE_TYPE_T)+sizeof(int));
+			msgIdList.msgIdList = (msg_message_id_t*)((char*)pMsgEvent+sizeof(MSG_EVENT_TYPE_T)+sizeof(msg_error_t)+sizeof(msg_storage_change_type_t)+sizeof(int));
 		else
 			msgIdList.msgIdList = NULL;
 
@@ -719,7 +802,7 @@ void MsgProxyListener::handleEvent(const MSG_EVENT_S* pMsgEvent)
 
 			void* param = it->userParam;
 
-			pfunc((MSG_HANDLE_T)pHandle, storageChangeType, &msgIdList, param);
+			pfunc((msg_handle_t)pHandle, storageChangeType, (msg_id_list_s*)&msgIdList, param);
 		}
 
 		mx.unlock();

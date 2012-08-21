@@ -17,11 +17,14 @@ SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_C_FLAGS} ${EXTRA_CFLAGS} -O0 -g -Wall")
 ##########################################################
 
 SET(MAPI-SRCS 
-	${CMAKE_SOURCE_DIR}/mapi/MapiControl.cpp
-	${CMAKE_SOURCE_DIR}/mapi/MapiSetting.cpp
-	${CMAKE_SOURCE_DIR}/mapi/MapiStorage.cpp
-	${CMAKE_SOURCE_DIR}/mapi/MapiTransport.cpp
-	${CMAKE_SOURCE_DIR}/mapi/MapiMessage.cpp
+	${CMAKE_SOURCE_DIR}/mapi/msg_svc.cpp
+	${CMAKE_SOURCE_DIR}/mapi/msg_control.cpp
+	${CMAKE_SOURCE_DIR}/mapi/msg_storage.cpp
+	${CMAKE_SOURCE_DIR}/mapi/msg_transport.cpp
+	${CMAKE_SOURCE_DIR}/mapi/msg_filter.cpp
+	${CMAKE_SOURCE_DIR}/mapi/msg_message.cpp
+	${CMAKE_SOURCE_DIR}/mapi/msg_mms.cpp
+	${CMAKE_SOURCE_DIR}/mapi/msg_setting.cpp
 )
 
 INCLUDE_DIRECTORIES(

@@ -1,18 +1,18 @@
- /*
-  * Copyright 2012  Samsung Electronics Co., Ltd
-  *
-  * Licensed under the Flora License, Version 1.0 (the "License");
-  * you may not use this file except in compliance with the License.
-  * You may obtain a copy of the License at
-  *
-  *    http://www.tizenopensource.org/license
-  *
-  * Unless required by applicable law or agreed to in writing, software
-  * distributed under the License is distributed on an "AS IS" BASIS,
-  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  * See the License for the specific language governing permissions and
-  * limitations under the License.
-  */
+/*
+* Copyright 2012  Samsung Electronics Co., Ltd
+*
+* Licensed under the Flora License, Version 1.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*    http://www.tizenopensource.org/license
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
 
 #include<time.h>
 #include<stdio.h>
@@ -21,13 +21,13 @@
 
 #include "MsgDebug.h"
 #include "MsgUtilFile.h"
+#include "MsgGconfWrapper.h"
 #include "SmsPluginTextConvert.h"
 #include "SmsPluginTransport.h"
 #include "SmsPluginSimMsg.h"
 #include "SmsPluginStorage.h"
 #include "SmsPluginConcatHandler.h"
 #include "SmsPluginEventHandler.h"
-
 
 /*==================================================================================================
                                      IMPLEMENTATION OF SmsPluginEventHandler - Member Functions
@@ -66,9 +66,9 @@ void SmsPluginEventHandler::registerListener(MSG_PLUGIN_LISTENER_S *pListener)
 }
 
 
-void SmsPluginEventHandler::handleSentStatus(int TapiReqId, MSG_NETWORK_STATUS_T NetStatus)
+void SmsPluginEventHandler::handleSentStatus(msg_network_status_t NetStatus)
 {
-	MSG_DEBUG("TapiReqId [%d], NetStatus[%d]", TapiReqId, NetStatus);
+	MSG_DEBUG("NetStatus[%d]", NetStatus);
 
 	SmsPluginTransport::instance()->setNetStatus(NetStatus);
 
@@ -89,17 +89,15 @@ void SmsPluginEventHandler::handleSentStatus(int TapiReqId, MSG_NETWORK_STATUS_T
 		}
 
 		/** Callback to MSG FW */
-		if (sentInfo.reqInfo.bReqCb == true || NetStatus != MSG_NETWORK_SEND_SUCCESS) {
-			MSG_SENT_STATUS_S msgStatus;
+		MSG_SENT_STATUS_S msgStatus;
 
-			msgStatus.reqId = sentInfo.reqInfo.reqId;
-			msgStatus.status = NetStatus;
+		msgStatus.reqId = sentInfo.reqInfo.reqId;
+		msgStatus.status = NetStatus;
 
-			MSG_DEBUG("sentStatus.reqId : %d", msgStatus.reqId);
-			MSG_DEBUG("sentStatus.status : %d", msgStatus.status);
+		MSG_DEBUG("sentStatus.reqId : %d", msgStatus.reqId);
+		MSG_DEBUG("sentStatus.status : %d", msgStatus.status);
 
-			listener.pfSentStatusCb(&msgStatus);
-		}
+		listener.pfSentStatusCb(&msgStatus);
 	}
 }
 
@@ -147,11 +145,10 @@ void SmsPluginEventHandler::handleMsgIncoming(SMS_TPDU_S *pTpdu)
 
 	MSG_DEBUG("###############################################################");
 
-	MSG_ERROR_T err = MSG_SUCCESS;
+	msg_error_t err = MSG_SUCCESS;
 
 	/** Update Status in Report Table */
 	if (msgInfo.msgType.subType == MSG_STATUS_REPORT_SMS) {
-
 		err = SmsPluginStorage::instance()->addMessage(&msgInfo);
 
 		if (err == MSG_SUCCESS) {
@@ -188,7 +185,7 @@ void SmsPluginEventHandler::handleMsgIncoming(SMS_TPDU_S *pTpdu)
 }
 
 
-void SmsPluginEventHandler::handleSyncMLMsgIncoming(MSG_SYNCML_MESSAGE_TYPE_T msgType, char* pPushBody, int PushBodyLen, char* pWspHeader, int WspHeaderLen)
+void SmsPluginEventHandler::handleSyncMLMsgIncoming(msg_syncml_message_type_t msgType, char* pPushBody, int PushBodyLen, char* pWspHeader, int WspHeaderLen)
 {
 	MSG_SYNCML_MESSAGE_DATA_S syncMLData;
 
@@ -225,98 +222,11 @@ void SmsPluginEventHandler::handleLBSMsgIncoming(char* pPushHeader, char* pPushB
 }
 
 
-void SmsPluginEventHandler::handleDftSms(MSG_FOLDER_ID_T FolderId, char* pNumber, char* pData)
-{
-	MSG_ERROR_T err = MSG_SUCCESS;
-
-	MSG_MESSAGE_INFO_S msgInfo;
-	memset(&msgInfo, 0x00, sizeof(MSG_MESSAGE_INFO_S));
-
-	/** Set SMS Type */
-	msgInfo.msgType.mainType = MSG_SMS_TYPE;
-	msgInfo.msgType.subType = MSG_NORMAL_SMS;
-	msgInfo.msgType.classType = MSG_CLASS_NONE;
-
-	/** Set Folder ID */
-	msgInfo.folderId = FolderId;
-
-	msgInfo.networkStatus = MSG_NETWORK_RECEIVED;
-	msgInfo.bRead = false;
-	msgInfo.bProtected = false;
-	msgInfo.priority = MSG_MESSAGE_PRIORITY_NORMAL;
-
-	/** Set SMS Direction */
-	if (FolderId == MSG_INBOX_ID)
-		msgInfo.direction = MSG_DIRECTION_TYPE_MT;
-	else
-		msgInfo.direction = MSG_DIRECTION_TYPE_MO;
-
-	/** Set SMS Time Info */
-	time_t curTime;
-	time(&curTime);
-
-	msgInfo.displayTime = curTime;
-
-	/** Set Address Info */
-	msgInfo.nAddressCnt = 1;
-	msgInfo.addressList[0].addressType = MSG_ADDRESS_TYPE_PLMN;
-
-	if (pNumber != NULL) {
-		strncpy(msgInfo.addressList[0].addressVal, pNumber, MAX_ADDRESS_VAL_LEN);
-	}
-
-	/** Set Port */
-	msgInfo.msgPort.valid = false;
-	msgInfo.msgPort.dstPort = 0;
-	msgInfo.msgPort.srcPort = 0;
-
-	/** Set Subject */
-	memset(msgInfo.subject, 0x00, MAX_SUBJECT_LEN+1);
-
-	/** Set SMS Text */
-	msgInfo.bTextSms = true;
-
-	if (pData != NULL) {
-		strncpy(msgInfo.msgText, pData, MAX_MSG_TEXT_LEN);
-		msgInfo.dataSize = strlen(msgInfo.msgText);
-	} else {
-		memset(msgInfo.msgText, 0x00, sizeof(msgInfo.msgText));
-		msgInfo.dataSize = 0;
-	}
-
-	/** Print MSG_MESSAGE_INFO_S */
-	MSG_DEBUG("############# Convert  tpdu values to Message Info values ####################");
-	MSG_DEBUG("msgInfo.nAddressCnt : %d", msgInfo.nAddressCnt);
-	MSG_DEBUG("msgInfo.addressList[0].addressType : %d", msgInfo.addressList[0].addressType);
-	MSG_DEBUG("msgInfo.addressList[0].addressVal : %s", msgInfo.addressList[0].addressVal);
-	MSG_DEBUG("msgInfo.priority : %d", msgInfo.priority);
-	MSG_DEBUG("msgInfo.bProtected : %d", msgInfo.bProtected);
-	MSG_DEBUG("msgInfo.bRead : %d", msgInfo.bRead);
-	MSG_DEBUG("msgInfo.bTextSms : %d", msgInfo.bTextSms);
-	MSG_DEBUG("msgInfo.direction : %d", msgInfo.direction);
-	MSG_DEBUG("msgInfo.msgType.mainType : %d", msgInfo.msgType.mainType);
-	MSG_DEBUG("msgInfo.msgType.subType : %d", msgInfo.msgType.subType);
-	MSG_DEBUG("msgInfo.msgType.classType : %d", msgInfo.msgType.classType);
-	MSG_DEBUG("msgInfo.displayTime : %s", ctime(&msgInfo.displayTime));
-	MSG_DEBUG("msgInfo.msgPort.valid : %d", msgInfo.msgPort.valid);
-	MSG_DEBUG("msgInfo.encodeType : %d", msgInfo.encodeType);
-	MSG_DEBUG("msgInfo.dataSize : %d", msgInfo.dataSize);
-	if (msgInfo.bTextSms == true)
-		MSG_DEBUG("msgInfo.msgText : %s", msgInfo.msgText);
-	else
-		MSG_DEBUG("msgInfo.msgData : %s", msgInfo.msgData);
-	MSG_DEBUG("###############################################################");
-
-	/** Callback to MSG FW */
-	err = listener.pfMsgIncomingCb(&msgInfo);
-}
-
-
-MSG_ERROR_T SmsPluginEventHandler::callbackMsgIncoming(MSG_MESSAGE_INFO_S *pMsgInfo)
+msg_error_t SmsPluginEventHandler::callbackMsgIncoming(MSG_MESSAGE_INFO_S *pMsgInfo)
 {
 	MSG_BEGIN();
 
-	MSG_ERROR_T err = MSG_SUCCESS;
+	msg_error_t err = MSG_SUCCESS;
 
 	/** Callback to MSG FW */
 	err = listener.pfMsgIncomingCb(pMsgInfo);
@@ -327,17 +237,19 @@ MSG_ERROR_T SmsPluginEventHandler::callbackMsgIncoming(MSG_MESSAGE_INFO_S *pMsgI
 }
 
 
-MSG_ERROR_T SmsPluginEventHandler::callbackInitSimBySat()
+msg_error_t SmsPluginEventHandler::callbackInitSimBySat()
 {
 	/** Callback to MSG FW */
 	return listener.pfInitSimBySatCb();
 }
 
 
-MSG_ERROR_T SmsPluginEventHandler::callbackStorageChange(MSG_STORAGE_CHANGE_TYPE_T storageChangeType, MSG_MESSAGE_INFO_S *pMsgInfo)
+msg_error_t SmsPluginEventHandler::callbackStorageChange(msg_storage_change_type_t storageChangeType, MSG_MESSAGE_INFO_S *pMsgInfo)
 {
 	/** Callback to MSG FW */
 	listener.pfStorageChangeCb(storageChangeType, pMsgInfo);
+
+	return MSG_SUCCESS;
 }
 
 
@@ -564,6 +476,10 @@ void SmsPluginEventHandler::convertDeliverTpduToMsginfo(const SMS_DELIVER_S *pTp
 	} else if (pTpdu->dcs.codingScheme == SMS_CHARSET_UCS2) {
 		msgInfo->encodeType = MSG_ENCODE_UCS2;
 		msgInfo->dataSize = SmsPluginTextConvert::instance()->convertUCS2ToUTF8((unsigned char*)msgInfo->msgText, MAX_MSG_TEXT_LEN, (unsigned char*)pTpdu->userData.data, pTpdu->userData.length);
+	} else if (pTpdu->dcs.codingScheme == SMS_CHARSET_EUCKR) {
+		msgInfo->encodeType = MSG_ENCODE_8BIT;
+		msgInfo->dataSize = SmsPluginTextConvert::instance()->convertEUCKRToUTF8((unsigned char*)msgInfo->msgText, MAX_MSG_TEXT_LEN, (unsigned char*)pTpdu->userData.data, pTpdu->userData.length);
+		return;
 	}
 }
 

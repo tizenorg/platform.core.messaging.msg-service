@@ -1,18 +1,18 @@
- /*
-  * Copyright 2012  Samsung Electronics Co., Ltd
-  *
-  * Licensed under the Flora License, Version 1.0 (the "License");
-  * you may not use this file except in compliance with the License.
-  * You may obtain a copy of the License at
-  *
-  *    http://www.tizenopensource.org/license
-  *
-  * Unless required by applicable law or agreed to in writing, software
-  * distributed under the License is distributed on an "AS IS" BASIS,
-  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  * See the License for the specific language governing permissions and
-  * limitations under the License.
-  */
+/*
+* Copyright 2012  Samsung Electronics Co., Ltd
+*
+* Licensed under the Flora License, Version 1.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*    http://www.tizenopensource.org/license
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
 
 #ifndef MMSTPDUTYPES_H
 #define MMSTPDUTYPES_H
@@ -124,7 +124,7 @@ typedef enum {
 
 typedef struct _mmsTranQEntity {
 	bool isCompleted;
-	MSG_REQUEST_ID_T reqID;
+	msg_request_id_t reqID;
 	int msgId;
 	unsigned int sessionId;
 	char transactionId[MMS_TR_ID_LEN + 1];
@@ -266,14 +266,14 @@ typedef enum {
 #define MMS_HTTP_HDR_ACCEPT_CHARSET "US-ASCII, ISO-8859-1, UTF-8"
 
 //  MMSC Address
-#define NOW_MMSC_URL    "http://165.213.73.234:7082/01030016028=01030016028"
-#define NOW_MMSC_IP      "165.213.73.234"
-#define NOW_MMSC_PROXY   "165.213.73.234"
-#define NOW_MMSC_PROXY_PORT  7082
+#define NOW_MMSC_URL    ""
+#define NOW_MMSC_IP      ""
+#define NOW_MMSC_PROXY   ""
+#define NOW_MMSC_PROXY_PORT
 
 #define DEFAULT_MMSC_URL		NOW_MMSC_URL
 #define DEFAULT_MMSC_IP		NOW_MMSC_IP
-#define DEFAULT_MMSC_PORT	7082
+#define DEFAULT_MMSC_PORT
 #define DEFAULT_HTTP_PROXY	NOW_MMSC_PROXY
 #define DEFAULT_HTTP_PROXY_PORT	NOW_MMSC_PROXY_PORT
 

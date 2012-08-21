@@ -1,18 +1,18 @@
- /*
-  * Copyright 2012  Samsung Electronics Co., Ltd
-  *
-  * Licensed under the Flora License, Version 1.0 (the "License");
-  * you may not use this file except in compliance with the License.
-  * You may obtain a copy of the License at
-  *
-  *    http://www.tizenopensource.org/license
-  *
-  * Unless required by applicable law or agreed to in writing, software
-  * distributed under the License is distributed on an "AS IS" BASIS,
-  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  * See the License for the specific language governing permissions and
-  * limitations under the License.
-  */
+/*
+* Copyright 2012  Samsung Electronics Co., Ltd
+*
+* Licensed under the Flora License, Version 1.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*    http://www.tizenopensource.org/license
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
 
 #ifndef __MSG_DEBUG_H__
 #define __MSG_DEBUG_H__
@@ -28,6 +28,7 @@
 
 #include "MsgTypes.h"
 #include "MsgCmdTypes.h"
+#include "MsgFilterTypes.h"
 
 extern "C"{
 	#include <dlog.h>
@@ -39,7 +40,7 @@ extern "C"{
 ==================================================================================================*/
 #define USER_TAG "MSG_FW"
 
-//#define DLOG_ENABLE
+#define DLOG_ENABLE
 //#define LOG_ENABLE
 
 
@@ -160,8 +161,30 @@ int get_tid();
 #define MSG_BEGIN()
 #define MSG_END()
 
-#define MSG_PROFILE_BEGIN(pfid)
-#define MSG_PROFILE_END(pfid)
+#define MSG_PROFILE_BEGIN(pfid) \
+	unsigned int __prf_l1_##pfid = __LINE__;    \
+	struct timeval __prf_1_##pfid;              \
+	struct timeval __prf_2_##pfid;              \
+	do {                                        \
+		gettimeofday(&__prf_1_##pfid, 0);       \
+	} while (0)
+
+#define MSG_PROFILE_END(pfid) \
+	unsigned int __prf_l2_##pfid = __LINE__;\
+	do { \
+		gettimeofday(&__prf_2_##pfid, 0);\
+		long __ds = __prf_2_##pfid.tv_sec - __prf_1_##pfid.tv_sec;\
+		long __dm = __prf_2_##pfid.tv_usec - __prf_1_##pfid.tv_usec;\
+		if ( __dm < 0 ) { __ds--; __dm = 1000000 + __dm; } \
+		printf("**PROFILE** [MSGFW: %s: %s() %u ~ %u] " #pfid                            \
+		" -> Elapsed Time: %u.%06u seconds\n",                    \
+		rindex(__FILE__, '/')+1,                \
+		__FUNCTION__, \
+		__prf_l1_##pfid,                                         \
+		__prf_l2_##pfid,                                         \
+		(unsigned int)(__ds),                                    \
+		(unsigned int)(__dm));                                   \
+	} while (0)
 
 #endif
 

@@ -1,18 +1,18 @@
- /*
-  * Copyright 2012  Samsung Electronics Co., Ltd
-  *
-  * Licensed under the Flora License, Version 1.0 (the "License");
-  * you may not use this file except in compliance with the License.
-  * You may obtain a copy of the License at
-  *
-  *    http://www.tizenopensource.org/license
-  *
-  * Unless required by applicable law or agreed to in writing, software
-  * distributed under the License is distributed on an "AS IS" BASIS,
-  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  * See the License for the specific language governing permissions and
-  * limitations under the License.
-  */
+/*
+* Copyright 2012  Samsung Electronics Co., Ltd
+*
+* Licensed under the Flora License, Version 1.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*    http://www.tizenopensource.org/license
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
 
 #include <time.h>
 #include <errno.h>
@@ -27,7 +27,7 @@
 /*==================================================================================================
                                      IMPLEMENTATION OF MsgHandle - Transport Member Functions
 ==================================================================================================*/
-MSG_ERROR_T MsgHandle::submitReq(MSG_REQUEST_S* pReq)
+msg_error_t MsgHandle::submitReq(MSG_REQUEST_S* pReq)
 {
 	MSG_BEGIN();
 
@@ -37,13 +37,15 @@ MSG_ERROR_T MsgHandle::submitReq(MSG_REQUEST_S* pReq)
 	MSG_REQUEST_INFO_S reqInfo = {0};
 	char trId[MMS_TR_ID_LEN+1] = {0};
 
-	MSG_MESSAGE_S *reqmsg = (MSG_MESSAGE_S*) pReq->msg;
+	msg_struct_s *msg_s = (msg_struct_s *)pReq->msg;
 
-	if (reqmsg->msgType.subType != MSG_SENDREQ_JAVA_MMS) {
+	MSG_MESSAGE_HIDDEN_S *reqmsg = (MSG_MESSAGE_HIDDEN_S*)msg_s->data;
+
+	if (reqmsg->subType != MSG_SENDREQ_JAVA_MMS) {
 		// In case MMS read report, get address value later.
-		if(reqmsg->msgType.subType != MSG_READREPLY_MMS) {
-			if ((reqmsg->nAddressCnt == 0) || (reqmsg->nAddressCnt > MAX_TO_ADDRESS_CNT)) {
-				MSG_DEBUG("Recipient address count error [%d]", reqmsg->nAddressCnt );
+		if(reqmsg->subType != MSG_READREPLY_MMS) {
+			if ((reqmsg->addr_list->nCount == 0) || (reqmsg->addr_list->nCount > MAX_TO_ADDRESS_CNT)) {
+				MSG_DEBUG("Recipient address count error [%d]", reqmsg->addr_list->nCount );
 				return MSG_ERR_INVALID_MESSAGE;
 			}
 		}
@@ -51,7 +53,7 @@ MSG_ERROR_T MsgHandle::submitReq(MSG_REQUEST_S* pReq)
 		/* Begin: Setting default values for submit request */
 	//	pReq->msg.msgId = 0; 	// Set Request ID: internal use
 	//	pReq->msg.folderId = MSG_OUTBOX_ID; 	// Set Folder ID
-		if (reqmsg->msgType.subType == MSG_RETRIEVE_MMS) {
+		if (reqmsg->subType == MSG_RETRIEVE_MMS) {
 			reqmsg->networkStatus = MSG_NETWORK_RETRIEVING;
 		} else {
 			reqmsg->networkStatus = MSG_NETWORK_SENDING;
@@ -80,7 +82,13 @@ MSG_ERROR_T MsgHandle::submitReq(MSG_REQUEST_S* pReq)
 	// Convert MSG_MESSAGE_S to MSG_MESSAGE_INFO_S
 	convertMsgStruct(reqmsg, &(reqInfo.msgInfo));
 
-	convertSendOptStruct(&(pReq->sendOpt), &(reqInfo.sendOptInfo), reqmsg->msgType);
+	MSG_MESSAGE_TYPE_S msgType = {0,};
+
+	msgType.mainType = reqmsg->mainType;
+	msgType.subType = reqmsg->subType;
+	msgType.classType = reqmsg->classType;
+
+	convertSendOptStruct((const MSG_SENDINGOPT_S *)pReq->sendOpt, &(reqInfo.sendOptInfo), msgType);
 
 	reqInfo.reqId = 0;
 
@@ -95,7 +103,7 @@ MSG_ERROR_T MsgHandle::submitReq(MSG_REQUEST_S* pReq)
 	int cmdSize = sizeof(MSG_CMD_S) + sizeof(MSG_REQUEST_INFO_S) + sizeof(MSG_PROXY_INFO_S);
 
 	// In case of JAVA MMS msg, add trId
-	if (reqmsg->msgType.subType == MSG_SENDREQ_JAVA_MMS)
+	if (reqmsg->subType == MSG_SENDREQ_JAVA_MMS)
 		cmdSize += sizeof(trId);
 
 	char cmdBuf[cmdSize];
@@ -114,7 +122,7 @@ MSG_ERROR_T MsgHandle::submitReq(MSG_REQUEST_S* pReq)
 	memcpy((void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN+sizeof(MSG_REQUEST_INFO_S)), &chInfo, sizeof(MSG_PROXY_INFO_S));
 
 	// In case of JAVA MMS msg, add trId
-	if (reqmsg->msgType.subType == MSG_SENDREQ_JAVA_MMS)
+	if (reqmsg->subType == MSG_SENDREQ_JAVA_MMS)
 		memcpy((void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN+sizeof(MSG_REQUEST_INFO_S)+sizeof(MSG_PROXY_INFO_S)), &trId, sizeof(trId));
 
 	// Send Command to Messaging FW
@@ -141,10 +149,10 @@ MSG_ERROR_T MsgHandle::submitReq(MSG_REQUEST_S* pReq)
 }
 
 
-MSG_ERROR_T MsgHandle::cancelReq(MSG_REQUEST_ID_T reqId)
+msg_error_t MsgHandle::cancelReq(msg_request_id_t reqId)
 {
 	// Allocate Memory to Command Data
-	int cmdSize = sizeof(MSG_CMD_S) + sizeof(MSG_REQUEST_ID_T);
+	int cmdSize = sizeof(MSG_CMD_S) + sizeof(msg_request_id_t);
 
 	char cmdBuf[cmdSize];
 	bzero(cmdBuf, cmdSize);
@@ -158,7 +166,7 @@ MSG_ERROR_T MsgHandle::cancelReq(MSG_REQUEST_ID_T reqId)
 	memcpy(pCmd->cmdCookie, mCookie, MAX_COOKIE_LEN);
 
 	// Copy Command Data
-	memcpy((void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN), &reqId, sizeof(MSG_REQUEST_ID_T));
+	memcpy((void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN), &reqId, sizeof(msg_request_id_t));
 
 	// Send Command to Messaging FW
 	char* pEventData = NULL;
@@ -179,7 +187,7 @@ MSG_ERROR_T MsgHandle::cancelReq(MSG_REQUEST_ID_T reqId)
 }
 
 
-MSG_ERROR_T MsgHandle::regSentStatusCallback(msg_sent_status_cb onStatusChanged, void *pUserParam)
+msg_error_t MsgHandle::regSentStatusCallback(msg_sent_status_cb onStatusChanged, void *pUserParam)
 {
 	if (!onStatusChanged)
 		THROW(MsgException::INVALID_PARAM, "onStatusChanged is null");
@@ -229,7 +237,7 @@ MSG_ERROR_T MsgHandle::regSentStatusCallback(msg_sent_status_cb onStatusChanged,
 }
 
 
-MSG_ERROR_T MsgHandle::regSmsMessageCallback(msg_sms_incoming_cb onMsgIncoming, unsigned short port, void *pUserParam)
+msg_error_t MsgHandle::regSmsMessageCallback(msg_sms_incoming_cb onMsgIncoming, unsigned short port, void *pUserParam)
 {
 	if( (!onMsgIncoming) )
 		THROW(MsgException::INVALID_PARAM, "Param %p", onMsgIncoming);
@@ -284,7 +292,7 @@ MSG_ERROR_T MsgHandle::regSmsMessageCallback(msg_sms_incoming_cb onMsgIncoming, 
 }
 
 
-MSG_ERROR_T MsgHandle::regMmsConfMessageCallback(msg_mms_conf_msg_incoming_cb onMMSConfMsgIncoming, const char *pAppId, void *pUserParam)
+msg_error_t MsgHandle::regMmsConfMessageCallback(msg_mms_conf_msg_incoming_cb onMMSConfMsgIncoming, const char *pAppId, void *pUserParam)
 {
 	if( (!onMMSConfMsgIncoming) )
 		THROW(MsgException::INVALID_PARAM, "Param %p", onMMSConfMsgIncoming);
@@ -341,7 +349,7 @@ MSG_ERROR_T MsgHandle::regMmsConfMessageCallback(msg_mms_conf_msg_incoming_cb on
 }
 
 
-MSG_ERROR_T MsgHandle::regSyncMLMessageCallback(msg_syncml_msg_incoming_cb onSyncMLMsgIncoming, void *pUserParam)
+msg_error_t MsgHandle::regSyncMLMessageCallback(msg_syncml_msg_incoming_cb onSyncMLMsgIncoming, void *pUserParam)
 {
 	if( (!onSyncMLMsgIncoming) )
 		THROW(MsgException::INVALID_PARAM, "Param %p", onSyncMLMsgIncoming);
@@ -394,7 +402,7 @@ MSG_ERROR_T MsgHandle::regSyncMLMessageCallback(msg_syncml_msg_incoming_cb onSyn
 }
 
 
-MSG_ERROR_T MsgHandle::regLBSMessageCallback(msg_lbs_msg_incoming_cb onLBSMsgIncoming, void *pUserParam)
+msg_error_t MsgHandle::regLBSMessageCallback(msg_lbs_msg_incoming_cb onLBSMsgIncoming, void *pUserParam)
 {
 	if( (!onLBSMsgIncoming) )
 		THROW(MsgException::INVALID_PARAM, "Param %p", onLBSMsgIncoming);
@@ -446,7 +454,7 @@ MSG_ERROR_T MsgHandle::regLBSMessageCallback(msg_lbs_msg_incoming_cb onLBSMsgInc
 }
 
 
-MSG_ERROR_T MsgHandle::regSyncMLMessageOperationCallback(msg_syncml_msg_operation_cb onSyncMLMsgOperation, void *pUserParam)
+msg_error_t MsgHandle::regSyncMLMessageOperationCallback(msg_syncml_msg_operation_cb onSyncMLMsgOperation, void *pUserParam)
 {
 	if( (!onSyncMLMsgOperation) )
 		THROW(MsgException::INVALID_PARAM, "Param %p", onSyncMLMsgOperation);
@@ -500,13 +508,13 @@ MSG_ERROR_T MsgHandle::regSyncMLMessageOperationCallback(msg_syncml_msg_operatio
 }
 
 
-MSG_ERROR_T MsgHandle::operateSyncMLMessage(MSG_MESSAGE_ID_T msgId)
+msg_error_t MsgHandle::operateSyncMLMessage(msg_message_id_t msgId)
 {
 	if( msgId < 1)
 		THROW(MsgException::INVALID_PARAM, "Param msgId %d", msgId);
 
 	// Allocate Memory to Command Data
-	int cmdSize = sizeof(MSG_CMD_S) + sizeof(MSG_MESSAGE_ID_T);
+	int cmdSize = sizeof(MSG_CMD_S) + sizeof(msg_message_id_t);
 
 	char cmdBuf[cmdSize];
 	bzero(cmdBuf, cmdSize);
@@ -519,7 +527,7 @@ MSG_ERROR_T MsgHandle::operateSyncMLMessage(MSG_MESSAGE_ID_T msgId)
 	memcpy(pCmd->cmdCookie, mCookie, MAX_COOKIE_LEN);
 
 	// Copy Command Data
-	memcpy((void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN), &msgId, sizeof(MSG_MESSAGE_ID_T));
+	memcpy((void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN), &msgId, sizeof(msg_message_id_t));
 
 	// Send Command to Messaging FW
 	char* pEventData = NULL;

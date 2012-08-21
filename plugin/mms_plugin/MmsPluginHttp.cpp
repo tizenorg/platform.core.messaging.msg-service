@@ -1,62 +1,118 @@
- /*
-  * Copyright 2012  Samsung Electronics Co., Ltd
-  *
-  * Licensed under the Flora License, Version 1.0 (the "License");
-  * you may not use this file except in compliance with the License.
-  * You may obtain a copy of the License at
-  *
-  *    http://www.tizenopensource.org/license
-  *
-  * Unless required by applicable law or agreed to in writing, software
-  * distributed under the License is distributed on an "AS IS" BASIS,
-  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  * See the License for the specific language governing permissions and
-  * limitations under the License.
-  */
+/*
+* Copyright 2012  Samsung Electronics Co., Ltd
+*
+* Licensed under the Flora License, Version 1.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*    http://www.tizenopensource.org/license
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
 
 #include "MmsPluginHttp.h"
 #include "MmsPluginUserAgent.h"
 #include "stdlib.h"
 #include <time.h>
 #include "MmsPluginConnManWrapper.h"
+#include <curl/curl.h>
 
+static bool __httpGetHeaderField(MMS_HTTP_HEADER_FIELD_T httpHeaderItem, char *szHeaderBuffer);
+static void __httpGetHost(char *szHost, int nBufferLen);
+static void __httpAllocHeaderInfo(curl_slist **responseHeaders, char *szUrl, int ulContentLen);
 
+static MMS_NET_ERROR_T __httpReceiveData(void *ptr, size_t size, size_t nmemb, void *userdata);
+static size_t  __httpGetTransactionCB(void *ptr, size_t size, size_t nmemb, void *userdata);
+static size_t  __httpPostTransactionCB(void *ptr, size_t size, size_t nmemb, void *userdata);
 
-void httpGetHostFromUrl(char *pUrl, char *pHost)
+static int __httpCmdInitSession(MMS_PLUGIN_HTTP_DATA_S *httpConfig);
+static int __httpCmdPostTransaction(MMS_PLUGIN_HTTP_DATA_S *httpConfig);
+static int __httpCmdGetTransaction(MMS_PLUGIN_HTTP_DATA_S *httpConfig);
+
+static void __http_print_profile(CURL *curl);
+
+/*==================================================================================================
+                                     FUNCTION IMPLEMENTATION
+==================================================================================================*/
+static void __http_print_profile(CURL *curl)
 {
-	int hostLen = 0;
-	int tailLen = 0;
-	char *tail = NULL;
+	double speed_upload, speed_download, total_time;
+	double size_up, size_down;
+	double content_length;
 
-	if (strstr(pUrl, "HTTP://") == NULL) {
-		tail = strstr(pUrl, "/");
-		if (NULL == tail)
-			tailLen = 0;
-		else
-			tailLen = strlen(tail);
+	char *content_type = NULL;
+	char *ip = NULL;
+	char *url = NULL;
 
-		hostLen = strlen(pUrl) - tailLen;
-		memcpy(pHost, pUrl, hostLen);
-		pHost[hostLen] = '\0';
-	} else {
-		tail = strstr(&pUrl[7], "/");
-		if (NULL == tail)
-			tailLen = 0;
-		else
-			tailLen = strlen(tail);
+	long port;
+	long size;
 
-		hostLen = strlen(pUrl) - tailLen - 7;
-		memcpy(pHost, &pUrl[7], hostLen);
-		pHost[hostLen] = '\0';
-	}
+	MSG_DEBUG("**************************************************************************************************");
+
+	//time
+	curl_easy_getinfo(curl, CURLINFO_TOTAL_TIME, &total_time);
+	MSG_DEBUG("profile http Time: total %.3f seconds", total_time);
+
+	//url
+	curl_easy_getinfo(curl, CURLINFO_EFFECTIVE_URL, &url);
+	MSG_DEBUG("profile http Url: %s", url);
+
+	//size
+	curl_easy_getinfo(curl, CURLINFO_SIZE_UPLOAD, &size_up);
+	MSG_DEBUG("profile http Size: upload %.3f bytes", size_up);
+
+	curl_easy_getinfo(curl, CURLINFO_SIZE_DOWNLOAD, &size_down);
+	MSG_DEBUG("profile http Size: download %.3f bytes", size_down);
+
+	curl_easy_getinfo(curl, CURLINFO_HEADER_SIZE, &size);
+	MSG_DEBUG("profile http Size: header %ld bytes", size);
+
+	curl_easy_getinfo(curl, CURLINFO_REQUEST_SIZE, &size);
+	MSG_DEBUG("profile http Size: request %ld bytes", size);
+
+	//speed
+	curl_easy_getinfo(curl, CURLINFO_SPEED_UPLOAD, &speed_upload);
+	MSG_DEBUG("profile http Speed: upload %.3f bytes/sec", speed_upload);
+
+	curl_easy_getinfo(curl, CURLINFO_SPEED_DOWNLOAD, &speed_download);
+	MSG_DEBUG("profile http Speed: download %.3f bytes/sec", speed_download);
+
+	//content
+	curl_easy_getinfo(curl, CURLINFO_CONTENT_TYPE, &content_type);
+	MSG_DEBUG("profile http Content: type %s", content_type);
+
+	curl_easy_getinfo(curl, CURLINFO_CONTENT_LENGTH_DOWNLOAD, &content_length);
+	MSG_DEBUG("profile http Content: length download %.3f", content_length);
+
+	curl_easy_getinfo(curl, CURLINFO_CONTENT_LENGTH_UPLOAD, &content_length);
+	MSG_DEBUG("profile http Content: length upload %.3f", content_length);
+
+	//ip & port
+	curl_easy_getinfo(curl, CURLINFO_PRIMARY_IP, &ip);
+	MSG_DEBUG("profile http primary: ip %s", ip);
+
+	curl_easy_getinfo(curl, CURLINFO_PRIMARY_PORT, &port);
+	MSG_DEBUG("profile http primary: port %ld", port);
+
+	curl_easy_getinfo(curl, CURLINFO_LOCAL_IP, &ip);
+	MSG_DEBUG("profile http local: ip %s", ip);
+
+	curl_easy_getinfo(curl, CURLINFO_LOCAL_PORT, &port);
+	MSG_DEBUG("profile http local: port %ld", port);
+	MSG_DEBUG("**************************************************************************************************");
 }
 
-void  HttpHeaderInfo(curl_slist **responseHeaders, char *szUrl, int ulContentLen)
+static void __httpAllocHeaderInfo(curl_slist **responseHeaders, char *szUrl, int ulContentLen)
 {
 	char szBuffer[1025] = {0, };
 	char pcheader[HTTP_REQUEST_LEN] = {0, };
 
-	bool nResult = MsgMmsGetCustomHTTPHeader(MMS_HH_CONTENT_TYPE, szBuffer);
+
+	bool nResult = __httpGetHeaderField(MMS_HH_CONTENT_TYPE, szBuffer);
 	if (nResult) {
 		strcat(pcheader,"Content-Type: ");
 		strcat(pcheader, szBuffer);
@@ -76,7 +132,7 @@ void  HttpHeaderInfo(curl_slist **responseHeaders, char *szUrl, int ulContentLen
 
 	memset(szBuffer, 0, 1025);
 	memset(pcheader, 0, HTTP_REQUEST_LEN);
-	nResult = MsgMmsGetCustomHTTPHeader(MMS_HH_HOST, szBuffer);
+	nResult = __httpGetHeaderField(MMS_HH_HOST, szBuffer);
 	if (nResult) {
 		strcat(pcheader, "HOST: ");
 		strcat(pcheader, szBuffer);
@@ -86,7 +142,7 @@ void  HttpHeaderInfo(curl_slist **responseHeaders, char *szUrl, int ulContentLen
 
 	memset(szBuffer, 0, 1025);
 	memset(pcheader, 0, HTTP_REQUEST_LEN);
-	nResult = MsgMmsGetCustomHTTPHeader(MMS_HH_ACCEPT, szBuffer);
+	nResult = __httpGetHeaderField(MMS_HH_ACCEPT, szBuffer);
 	if (nResult) {
 		strcat(pcheader, "Accept: ");
 		strcat(pcheader, szBuffer);
@@ -96,7 +152,7 @@ void  HttpHeaderInfo(curl_slist **responseHeaders, char *szUrl, int ulContentLen
 
 	memset(szBuffer, 0, 1025);
 	memset(pcheader, 0, HTTP_REQUEST_LEN);
-	nResult = MsgMmsGetCustomHTTPHeader(MMS_HH_ACCEPT_CHARSET, szBuffer);
+	nResult = __httpGetHeaderField(MMS_HH_ACCEPT_CHARSET, szBuffer);
 	if (nResult) {
 		strcat(pcheader, "Accept-Charset: ");
 		strcat(pcheader, szBuffer);
@@ -106,7 +162,7 @@ void  HttpHeaderInfo(curl_slist **responseHeaders, char *szUrl, int ulContentLen
 
 	memset(szBuffer, 0, 1025);
 	memset(pcheader, 0, HTTP_REQUEST_LEN);
-	nResult = MsgMmsGetCustomHTTPHeader(MMS_HH_ACCEPT_LANGUAGE, szBuffer);
+	nResult = __httpGetHeaderField(MMS_HH_ACCEPT_LANGUAGE, szBuffer);
 	if (nResult) {
 		strcat(pcheader, "Accept-Language: ");
 		strcat(pcheader, szBuffer);
@@ -116,7 +172,7 @@ void  HttpHeaderInfo(curl_slist **responseHeaders, char *szUrl, int ulContentLen
 
 	memset(szBuffer, 0, 1025);
 	memset(pcheader, 0, HTTP_REQUEST_LEN);
-	nResult = MsgMmsGetCustomHTTPHeader(MMS_HH_ACCEPT_ENCODING, szBuffer);
+	nResult = __httpGetHeaderField(MMS_HH_ACCEPT_ENCODING, szBuffer);
 	if (nResult) {
 		strcat(pcheader, "Accept-Encoding: ");
 		strcat(pcheader, szBuffer);
@@ -126,7 +182,7 @@ void  HttpHeaderInfo(curl_slist **responseHeaders, char *szUrl, int ulContentLen
 
 	memset(szBuffer, 0, 1025);
 	memset(pcheader, 0, HTTP_REQUEST_LEN);
-	nResult = MsgMmsGetCustomHTTPHeader(MMS_HH_USER_AGENT, szBuffer);
+	nResult = __httpGetHeaderField(MMS_HH_USER_AGENT, szBuffer);
 	if (nResult) {
 		strcat(pcheader, "User-Agent: ");
 		strcat(pcheader, szBuffer);
@@ -136,7 +192,7 @@ void  HttpHeaderInfo(curl_slist **responseHeaders, char *szUrl, int ulContentLen
 
 	memset(szBuffer, 0, 1025);
 	memset(pcheader, 0, HTTP_REQUEST_LEN);
-	nResult = MsgMmsGetCustomHTTPHeader(MMS_HH_WAP_PROFILE, szBuffer);
+	nResult = __httpGetHeaderField(MMS_HH_WAP_PROFILE, szBuffer);
 	if (nResult) {
 		strcat(pcheader, "X-wap-profile: ");
 		strcat(pcheader, szBuffer);
@@ -145,7 +201,7 @@ void  HttpHeaderInfo(curl_slist **responseHeaders, char *szUrl, int ulContentLen
 	}
 }
 
-bool MsgMmsGetCustomHTTPHeader(MMS_HTTP_HEADER_FIELD_T httpHeaderItem, char *szHeaderBuffer)
+static bool __httpGetHeaderField(MMS_HTTP_HEADER_FIELD_T httpHeaderItem, char *szHeaderBuffer)
 {
 	bool result;
 
@@ -158,7 +214,7 @@ bool MsgMmsGetCustomHTTPHeader(MMS_HTTP_HEADER_FIELD_T httpHeaderItem, char *szH
 			break;
 
 		case MMS_HH_HOST:
-			MsgMmsGetHost(szHeaderBuffer, 1024);
+			__httpGetHost(szHeaderBuffer, 1024);
 			if (strlen(szHeaderBuffer) > 0)
 				result = true;
 			else
@@ -218,7 +274,7 @@ bool MsgMmsGetCustomHTTPHeader(MMS_HTTP_HEADER_FIELD_T httpHeaderItem, char *szH
 	return result;
 }
 
-void MsgMmsGetHost(char *szHost, int nBufferLen)
+static void __httpGetHost(char *szHost, int nBufferLen)
 {
 	MmsPluginHttpAgent *pHttpAgent = MmsPluginHttpAgent::instance();
 	MMS_PLUGIN_HTTP_DATA_S *httpConfigData = pHttpAgent->getHttpConfigData();
@@ -264,7 +320,7 @@ void MsgMmsGetHost(char *szHost, int nBufferLen)
 }
 
 
-MMS_NET_ERROR_T MmsHttpReadData(void *ptr, size_t size, size_t nmemb, void *userdata)
+static MMS_NET_ERROR_T __httpReceiveData(void *ptr, size_t size, size_t nmemb, void *userdata)
 {
 	MMS_NET_ERROR_T httpRet = eMMS_UNKNOWN;
 
@@ -309,9 +365,9 @@ MMS_NET_ERROR_T MmsHttpReadData(void *ptr, size_t size, size_t nmemb, void *user
 			MSG_DEBUG(" Content Size is Zero");
 
 			if (pMmsPlgCd->final_content_buf != NULL) {
-	       		free(pMmsPlgCd->final_content_buf );
+				free(pMmsPlgCd->final_content_buf );
  				pMmsPlgCd->final_content_buf = NULL;
-       		}
+			}
 
 			httpRet = eMMS_HTTP_EVENT_SENT_ACK_COMPLETED;
 		} else if (pMmsPlgCd->final_content_buf != NULL && pMmsPlgCd->bufOffset != 0) {
@@ -329,25 +385,25 @@ MMS_NET_ERROR_T MmsHttpReadData(void *ptr, size_t size, size_t nmemb, void *user
 }
 
 
-size_t  MmsHttpPostTransactionCB(void *ptr, size_t size, size_t nmemb, void *userdata)
+static size_t  __httpPostTransactionCB(void *ptr, size_t size, size_t nmemb, void *userdata)
 {
 	MSG_DEBUG(" ======  HTTP_EVENT_SENT ========");
 	long length_received = size * nmemb;
-	MmsHttpReadData(ptr, size, nmemb, userdata);
+	__httpReceiveData(ptr, size, nmemb, userdata);
 
 	return length_received;
 }
 
-size_t  MmsHttpGetTransactionCB(void *ptr, size_t size, size_t nmemb, void *userdata)
+static size_t  __httpGetTransactionCB(void *ptr, size_t size, size_t nmemb, void *userdata)
 {
 	MSG_DEBUG(" ======  HTTP_EVENT_RECEIVED ========");
 	long length_received = size * nmemb;
-	MmsHttpReadData(ptr, size, nmemb, userdata);
+	__httpReceiveData(ptr, size, nmemb, userdata);
 
 	return length_received;
 }
 
-int httpCmdInitSession(MMS_PLUGIN_HTTP_DATA_S *httpConfig)
+static int __httpCmdInitSession(MMS_PLUGIN_HTTP_DATA_S *httpConfig)
 {
 	MSG_DEBUG("HttpCmd Init Session");
 
@@ -375,7 +431,7 @@ int httpCmdInitSession(MMS_PLUGIN_HTTP_DATA_S *httpConfig)
 }
 
 
-int httpCmdPostTransaction(MMS_PLUGIN_HTTP_DATA_S *httpConfig)
+static int __httpCmdPostTransaction(MMS_PLUGIN_HTTP_DATA_S *httpConfig)
 {
 	int trId;
 
@@ -395,11 +451,9 @@ int httpCmdPostTransaction(MMS_PLUGIN_HTTP_DATA_S *httpConfig)
 		return eMMS_EXCEPTIONAL_ERROR;
 	}
 
-	MSG_PROFILE_BEGIN(libcurl);
-
 	CURLcode rc = curl_easy_perform(httpConfig->session);
 
-	MSG_PROFILE_END(libcurl);
+	__http_print_profile(httpConfig->session);
 
 	MmsPluginHttpAgent*	httpAgent = MmsPluginHttpAgent::instance();
 	MMS_PLUGIN_HTTP_DATA_S *httpConfigData = httpAgent->getHttpConfigData();
@@ -425,7 +479,7 @@ int httpCmdPostTransaction(MMS_PLUGIN_HTTP_DATA_S *httpConfig)
 	return eMMS_HTTP_SENT_SUCCESS;
 }
 
-int httpCmdGetTransaction(MMS_PLUGIN_HTTP_DATA_S *httpConfig)
+static int __httpCmdGetTransaction(MMS_PLUGIN_HTTP_DATA_S *httpConfig)
 {
 	int trId;
 
@@ -444,6 +498,8 @@ int httpCmdGetTransaction(MMS_PLUGIN_HTTP_DATA_S *httpConfig)
 	}
 
 	CURLcode rc = curl_easy_perform(httpConfig->session);
+
+	__http_print_profile(httpConfig->session);
 
 	MmsPluginHttpAgent*	httpAgent = MmsPluginHttpAgent::instance();
 	MMS_PLUGIN_HTTP_DATA_S *httpConfigData = httpAgent->getHttpConfigData();
@@ -486,11 +542,9 @@ MmsPluginHttpAgent::MmsPluginHttpAgent()
 
 	httpCmdHandler.clear();
 
-	waiting = false;
-
-	httpCmdHandler[eHTTP_CMD_INIT_SESSION] = &httpCmdInitSession;
-	httpCmdHandler[eHTTP_CMD_POST_TRANSACTION] = &httpCmdPostTransaction;
-	httpCmdHandler[eHTTP_CMD_GET_TRANSACTION] = &httpCmdGetTransaction;
+	httpCmdHandler[eHTTP_CMD_INIT_SESSION] = &__httpCmdInitSession;
+	httpCmdHandler[eHTTP_CMD_POST_TRANSACTION] = &__httpCmdPostTransaction;
+	httpCmdHandler[eHTTP_CMD_GET_TRANSACTION] = &__httpCmdGetTransaction;
 }
 
 MmsPluginHttpAgent::~MmsPluginHttpAgent()
@@ -536,17 +590,6 @@ MMS_PLUGIN_HTTP_DATA_S *MmsPluginHttpAgent::getHttpConfigData()
 	return &httpConfigData;
 }
 
-void MmsPluginHttpAgent::setHttpWaitingFlag(bool val)
-{
-	waiting = val;
-}
-
-bool MmsPluginHttpAgent::getHttpWaitingFlag()
-{
-	return waiting;
-}
-
-
 int MmsPluginHttpAgent::setSession(mmsTranQEntity *qEntity)
 {
 	MSG_DEBUG("%s %d", qEntity->pPostData, qEntity->postDataLen);
@@ -557,10 +600,8 @@ int MmsPluginHttpAgent::setSession(mmsTranQEntity *qEntity)
 
 		curl_slist *responseHeaders = NULL;
 
-		HttpHeaderInfo(&responseHeaders, NULL, qEntity->postDataLen);
-		responseHeaders = curl_slist_append(responseHeaders, "Pragma: ");
-		responseHeaders = curl_slist_append(responseHeaders, "Proxy-Connection: ");
-		responseHeaders = curl_slist_append(responseHeaders, "Expect: ");
+		__httpAllocHeaderInfo(&responseHeaders, NULL, qEntity->postDataLen);
+
 		MSG_DEBUG(" === MMSCURI = %s === ", httpConfigData.mmscConfig.mmscUrl);
 
 		httpConfigData.sessionHeader = (void *)responseHeaders;
@@ -573,7 +614,7 @@ int MmsPluginHttpAgent::setSession(mmsTranQEntity *qEntity)
 		curl_easy_setopt(httpConfigData.session, CURLOPT_HTTPHEADER, responseHeaders);
 		curl_easy_setopt(httpConfigData.session, CURLOPT_POSTFIELDS, qEntity->pPostData);
 		curl_easy_setopt(httpConfigData.session, CURLOPT_POSTFIELDSIZE, qEntity->postDataLen);
-		curl_easy_setopt(httpConfigData.session, CURLOPT_WRITEFUNCTION, MmsHttpPostTransactionCB);
+		curl_easy_setopt(httpConfigData.session, CURLOPT_WRITEFUNCTION, __httpPostTransactionCB);
 
 		curl_easy_setopt(httpConfigData.session, CURLOPT_TCP_NODELAY, 1);
 	} else if (qEntity->eHttpCmdType == eHTTP_CMD_GET_TRANSACTION) {
@@ -586,11 +627,9 @@ int MmsPluginHttpAgent::setSession(mmsTranQEntity *qEntity)
 
 	 	MSG_DEBUG("MmsHttpInitTransactionGet  szURL (%s)", szUrl);
 
-		curl_slist *responseHeaders = NULL;
+	 	curl_slist *responseHeaders = NULL;
 
-		HttpHeaderInfo(&responseHeaders, szUrl, 0);
-		responseHeaders = curl_slist_append(responseHeaders, "Pragma: ");
-		responseHeaders = curl_slist_append(responseHeaders, "Proxy-Connection: ");
+		__httpAllocHeaderInfo(&responseHeaders, NULL, 0);
 
 		httpConfigData.sessionHeader = (void *)responseHeaders;
 
@@ -599,7 +638,7 @@ int MmsPluginHttpAgent::setSession(mmsTranQEntity *qEntity)
 	 	curl_easy_setopt(httpConfigData.session, CURLOPT_URL, szUrl);
 		curl_easy_setopt(httpConfigData.session, CURLOPT_NOPROGRESS, true);
 		curl_easy_setopt(httpConfigData.session, CURLOPT_HTTPHEADER, responseHeaders);
-		curl_easy_setopt(httpConfigData.session, CURLOPT_WRITEFUNCTION, MmsHttpGetTransactionCB);
+		curl_easy_setopt(httpConfigData.session, CURLOPT_WRITEFUNCTION, __httpGetTransactionCB);
 	} else {
 		MSG_DEBUG("Unknown eHttpCmdType [%d]", qEntity->eHttpCmdType);
 		return -1;

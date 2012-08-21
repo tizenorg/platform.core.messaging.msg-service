@@ -1,18 +1,18 @@
- /*
-  * Copyright 2012  Samsung Electronics Co., Ltd
-  *
-  * Licensed under the Flora License, Version 1.0 (the "License");
-  * you may not use this file except in compliance with the License.
-  * You may obtain a copy of the License at
-  *
-  *    http://www.tizenopensource.org/license
-  *
-  * Unless required by applicable law or agreed to in writing, software
-  * distributed under the License is distributed on an "AS IS" BASIS,
-  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  * See the License for the specific language governing permissions and
-  * limitations under the License.
-  */
+/*
+* Copyright 2012  Samsung Electronics Co., Ltd
+*
+* Licensed under the Flora License, Version 1.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*    http://www.tizenopensource.org/license
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
 
 #include<stdio.h>
 #include <string.h>
@@ -121,8 +121,8 @@ MmsHeader	mmsHeader =
 
 	/* there is no right default value */
 
-	(MSG_DELIVERY_REPORT_STATUS_T)MSG_DELIVERY_REPORT_NONE,		//MmsMsgStatus			iMsgStatus;
-	(MSG_READ_REPORT_STATUS_T)MSG_READ_REPORT_NONE,		//MmsReadStatus			readStatus;
+	(msg_delivery_report_status_t)MSG_DELIVERY_REPORT_NONE,		//MmsMsgStatus			iMsgStatus;
+	(msg_read_report_status_t)MSG_READ_REPORT_NONE,		//MmsReadStatus			readStatus;
 
 	/* MMS v1.1 ReplyCharge */
 	{
@@ -222,8 +222,8 @@ void _MmsInitHeader()
 	memset(mmsHeader.szContentLocation, 0, MMS_LOCATION_LEN + 1);
 
 
-	mmsHeader.msgStatus = (MSG_DELIVERY_REPORT_STATUS_T)MSG_DELIVERY_REPORT_NONE;
-	mmsHeader.readStatus = (MSG_READ_REPORT_STATUS_T)MSG_READ_REPORT_NONE;
+	mmsHeader.msgStatus = (msg_delivery_report_status_t)MSG_DELIVERY_REPORT_NONE;
+	mmsHeader.readStatus = (msg_read_report_status_t)MSG_READ_REPORT_NONE;
 
 	mmsHeader.replyCharge.chargeType = (MmsReplyChargeType)MMS_REPLY_NONE;
 	mmsHeader.replyCharge.chargeSize = 0;
@@ -753,7 +753,7 @@ bool MmsBinaryDecodeMsgHeader(FILE *pFile, int totalLength)
 				goto __CATCH;
 			}
 
-			mmsHeader.msgStatus =  (MSG_DELIVERY_REPORT_STATUS_T)_MmsGetBinaryType(MmsCodeMsgStatus, (UINT16)(oneByte & 0x7F));
+			mmsHeader.msgStatus =  (msg_delivery_report_status_t)_MmsGetBinaryType(MmsCodeMsgStatus, (UINT16)(oneByte & 0x7F));
 			MSG_DEBUG("MmsBinaryDecodeMsgHeader: msg status=%s \n", MmsDebugGetMsgStatus(mmsHeader.msgStatus)) ;
 			break;
 
@@ -848,7 +848,7 @@ bool MmsBinaryDecodeMsgHeader(FILE *pFile, int totalLength)
 				goto __CATCH;
 			}
 
-			mmsHeader.readStatus =  (MSG_READ_REPORT_STATUS_T)_MmsGetBinaryType(MmsCodeReadStatus, (UINT16)(oneByte & 0x7F));
+			mmsHeader.readStatus =  (msg_read_report_status_t)_MmsGetBinaryType(MmsCodeReadStatus, (UINT16)(oneByte & 0x7F));
 			MSG_DEBUG("MmsBinaryDecodeMsgHeader: read status=%s\n", MmsDebugGetMmsReadStatus(mmsHeader.readStatus));
 			break;
 
@@ -925,11 +925,6 @@ bool MmsBinaryDecodeMsgHeader(FILE *pFile, int totalLength)
 			 * MMS_CODE_PREVIOUSLYSENTBY shall be a pair with MMS_CODE_PREVIOUSLYSENTDATE
 			 */
 
-			/*
-			 * fixme: There is no proper field to store this information.
-			 * Just increase pointer now.
-			 */
-
 			if (__MmsDecodeValueLength(pFile, &valueLength, totalLength) <= 0) {
 				MSG_DEBUG("MmsBinaryDecodeMsgHeader : 1. invalid MMS_CODE_PREVIOUSLYSENTBY \n");
 				goto __CATCH;
@@ -952,11 +947,6 @@ bool MmsBinaryDecodeMsgHeader(FILE *pFile, int totalLength)
 			 * Previously-sent-date-value = Value-length Forwarded-count-value Date-value
 			 * Forwarded-count-value = Integer-value
 			 * MMS_CODE_PREVIOUSLYSENTDATE shall be a pair with MMS_CODE_PREVIOUSLYSENTBY
-			 */
-
-			/*
-			 * fixme: There is no proper field to store this information.
-			 * Just increase pointer now.
 			 */
 
 			if (__MmsDecodeValueLength(pFile, &valueLength, totalLength) <= 0) {
@@ -1067,8 +1057,6 @@ bool MmsBinaryDecodeContentType(FILE *pFile, char *szFilePath, int totalLength)
 
 __CATCH:
 
-	/* fixme: Delete multipart using MmsDeleteMsg() */
-
 	return false;
 }
 #endif
@@ -1159,8 +1147,6 @@ __RETURN:
 	return true;
 
 __CATCH:
-
-	/* fixme: Delete multipart using MmsDeleteMsg() */
 
 	if (pMultipart) {
 		if (pMultipart->pBody) {
@@ -2668,7 +2654,7 @@ bool MmsBinaryDecodeDRMContent(FILE *pFile, char *szFilePath, MsgType *pMsgType,
 	isFileCreated = true;
 	MSG_DEBUG("MmsDrm2GetConvertState() [%d]", MmsDrm2GetConvertState());
 
-	if (pMsgType->type == MIME_APPLICATION_VND_OMA_DRM_MESSAGE && (MmsDrm2GetConvertState()!=MMS_DRM2_CONVERT_FINISH)) {
+	if (pMsgType->type == MIME_APPLICATION_VND_OMA_DRM_MESSAGE && (MmsDrm2GetConvertState() != MMS_DRM2_CONVERT_FINISH)) {
 		MmsDrm2SetConvertState(MMS_DRM2_CONVERT_REQUIRED);
 	} else {
 		if (MsgDRM2GetDRMInfo(szTempFilePath, pMsgType) == false) {
@@ -3015,8 +3001,7 @@ bool MmsDrm2ConvertMsgBody(char *szOriginFilePath)
 					MSG_DEBUG("MsgGetFileSize error");
 					goto __CATCH;
 				}
-				MSG_DEBUG("MmsDrm2ConvertMsgBody: end data part convert(converted data len = %d)\n", nSize);
-				// <-- invoking drm agent api, converting data part end
+				MSG_DEBUG("end data part convert(converted data len = %d)\n", nSize);
 
 				// move file pointer to the head of multipart
 				if (MsgFseek(pFile, curOffset, SEEK_SET) < 0) {
@@ -4345,8 +4330,6 @@ static bool __MmsBinaryDecodeEncodedString(FILE *pFile, char *szBuff, int bufLen
 			strncpy(szBuff, pData, bufLen - 1);
 		}
 
-
-		/* fixme: charset transformation */
 		switch (charSet) {
 		case MSG_CHARSET_UTF16:
 		case MSG_CHARSET_USC2:
@@ -4635,8 +4618,6 @@ MsgHeaderAddress *__MmsDecodeEncodedAddress(FILE *pFile, int totalLength)
 			}
 		}
 
-		/* fixme: charset transformation */
-
 		break;
 	}
 
@@ -4825,7 +4806,7 @@ bool __MmsTextDecodeMsgHeader(FILE *pFile)
    ==========================================================*/
 
 //  to get message body this function should be modified from message raw file.
-bool _MmsReadMsgBody(MSG_MESSAGE_ID_T msgID, bool bSavePartsAsTempFiles, bool bRetrieved, char *retrievedPath)
+bool _MmsReadMsgBody(msg_message_id_t msgID, bool bSavePartsAsTempFiles, bool bRetrieved, char *retrievedPath)
 {
 	FILE *pFile	= NULL;
 	MmsMsg *pMsg = NULL;
@@ -6159,7 +6140,7 @@ bool MsgResolveNestedMultipart(MsgType *pPartType, MsgBody *pPartBody)
 	case MIME_APPLICATION_VND_WAP_MULTIPART_ALTERNATIVE:
 	case MIME_MULTIPART_ALTERNATIVE:
 
-		/* fixme:
+		/*
 		 * Policy: multipart/alternative
 		 * multipart/alternative message has only several parts of media.
 		 * You should choose one of them and make the alternative part
@@ -7655,7 +7636,7 @@ bool MmsAddrUtilRemovePlmnString(char *pszAddr)
 
 	strLen = strlen(pszAddr);
 
-	pszAddrCopy = (char*)malloc(strLen + 1);
+	pszAddrCopy = (char*)calloc(1,strLen + 1);
 	if (!pszAddrCopy) {
 		MSG_DEBUG("MmsAddrUtilRemovePlmnString: pszAddrCopy is NULL, mem alloc failed\n");
 		return false;
@@ -8495,7 +8476,7 @@ bool MsgGetFileNameWithoutExtension (char *szOutputName, char *szName)
 	return true;
 }
 
-int MmsGetMediaPartCount(MSG_MESSAGE_ID_T msgId)
+int MmsGetMediaPartCount(msg_message_id_t msgId)
 {
 	MmsMsg *pMsg;
 

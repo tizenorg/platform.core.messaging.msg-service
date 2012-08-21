@@ -1,18 +1,18 @@
- /*
-  * Copyright 2012  Samsung Electronics Co., Ltd
-  *
-  * Licensed under the Flora License, Version 1.0 (the "License");
-  * you may not use this file except in compliance with the License.
-  * You may obtain a copy of the License at
-  *
-  *    http://www.tizenopensource.org/license
-  *
-  * Unless required by applicable law or agreed to in writing, software
-  * distributed under the License is distributed on an "AS IS" BASIS,
-  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  * See the License for the specific language governing permissions and
-  * limitations under the License.
-  */
+/*
+* Copyright 2012  Samsung Electronics Co., Ltd
+*
+* Licensed under the Flora License, Version 1.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*    http://www.tizenopensource.org/license
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
 
 #ifndef SMS_PLUGIN_EVENT_HANDLER_H
 #define SMS_PLUGIN_EVENT_HANDLER_H
@@ -35,15 +35,14 @@ public:
 	static SmsPluginEventHandler* instance();
 
 	void registerListener(MSG_PLUGIN_LISTENER_S *pListener);
-	void handleSentStatus(int TapiReqId, MSG_NETWORK_STATUS_T NetStatus);
+	void handleSentStatus(msg_network_status_t NetStatus);
 	void handleMsgIncoming(SMS_TPDU_S *pTpdu);
-	void handleSyncMLMsgIncoming(MSG_SYNCML_MESSAGE_TYPE_T msgType, char* pPushBody, int PushBodyLen, char* pWspHeader, int WspHeaderLen);
+	void handleSyncMLMsgIncoming(msg_syncml_message_type_t msgType, char* pPushBody, int PushBodyLen, char* pWspHeader, int WspHeaderLen);
 	void handleLBSMsgIncoming(char* pPushHeader, char* pPushBody, int pushBodyLen);
-	void handleDftSms(MSG_FOLDER_ID_T FolderId, char* pNumber, char* pData);
 
-	MSG_ERROR_T callbackMsgIncoming(MSG_MESSAGE_INFO_S *pMsgInfo);
-	MSG_ERROR_T callbackInitSimBySat();
-	MSG_ERROR_T callbackStorageChange(MSG_STORAGE_CHANGE_TYPE_T storageChangeType, MSG_MESSAGE_INFO_S *pMsgInfo);
+	msg_error_t callbackMsgIncoming(MSG_MESSAGE_INFO_S *pMsgInfo);
+	msg_error_t callbackInitSimBySat();
+	msg_error_t callbackStorageChange(msg_storage_change_type_t storageChangeType, MSG_MESSAGE_INFO_S *pMsgInfo);
 
 	void SetSentInfo(SMS_SENT_INFO_S *pSentInfo);
 

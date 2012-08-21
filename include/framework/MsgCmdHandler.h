@@ -1,18 +1,18 @@
- /*
-  * Copyright 2012  Samsung Electronics Co., Ltd
-  *
-  * Licensed under the Flora License, Version 1.0 (the "License");
-  * you may not use this file except in compliance with the License.
-  * You may obtain a copy of the License at
-  *
-  *    http://www.tizenopensource.org/license
-  *
-  * Unless required by applicable law or agreed to in writing, software
-  * distributed under the License is distributed on an "AS IS" BASIS,
-  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  * See the License for the specific language governing permissions and
-  * limitations under the License.
-  */
+/*
+* Copyright 2012  Samsung Electronics Co., Ltd
+*
+* Licensed under the Flora License, Version 1.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*    http://www.tizenopensource.org/license
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
 
 #ifndef MSG_CMD_HANDLER_H
 #define MSG_CMD_HANDLER_H
@@ -59,6 +59,11 @@ int MsgGetQuickPanelDataHandler(const MSG_CMD_S *pCmd, char **ppEvent);
 int MsgResetDatabaseHandler(const MSG_CMD_S *pCmd, char **ppEvent);
 int MsgGetMemSizeHandler(const MSG_CMD_S *pCmd, char **ppEvent);
 int MsgGetReportStatusHandler(const MSG_CMD_S *pCmd, char **ppEvent);
+int MsgGetThreadIdByAddressHandler(const MSG_CMD_S *pCmd, char **ppEvent);
+int MsgGetThreadInfoHandler(const MSG_CMD_S *pCmd, char **ppEvent);
+
+int MsgBackupMessageHandler(const MSG_CMD_S *pCmd, char **ppEvent);
+int MsgRestoreMessageHandler(const MSG_CMD_S *pCmd, char **ppEvent);
 
 int MsgSetConfigHandler(const MSG_CMD_S *pCmd, char **ppEvent);
 int MsgGetConfigHandler(const MSG_CMD_S *pCmd, char **ppEvent);
@@ -81,9 +86,6 @@ int MsgIncomingSyncMLMsgHandler(const MSG_CMD_S *pCmd, char **ppEvent);
 int MsgIncomingLBSMsgHandler(const MSG_CMD_S *pCmd, char **ppEvent);
 int MsgSyncMLMsgOperationHandler(const MSG_CMD_S *pCmd, char **ppEvent);
 
-MSG_ERROR_T MsgPrepareScheduledMessage(MSG_MESSAGE_INFO_S *pMsgInfo, MSG_SENDINGOPT_INFO_S *pSendOpt, int ListenerFd);
-int MsgCreateScheduledAlarm(MSG_MESSAGE_INFO_S *pMsgInfo);
-int MsgScheduledAlarmCB(int AlarmId, void *pUserParam);
 int MsgIncomingMMSConfMsgHandler(const MSG_CMD_S *pCmd, char **ppEvent);
 int MsgAddFilterHandler(const MSG_CMD_S *pCmd, char **ppEvent);
 int MsgUpdateFilterHandler(const MSG_CMD_S *pCmd, char **ppEvent);
@@ -91,5 +93,14 @@ int MsgDeleteFilterHandler(const MSG_CMD_S *pCmd, char **ppEvent);
 int MsgGetFilterListHandler(const MSG_CMD_S *pCmd, char **ppEvent);
 int MsgSetFilterOperationHandler(const MSG_CMD_S *pCmd, char **ppEvent);
 int MsgGetFilterOperationHandler(const MSG_CMD_S *pCmd, char **ppEvent);
+
+int MsgGetSMSCListHandler(const MSG_CMD_S *pCmd, char **ppEvent);
+int MsgGetCBInfoHandler(const MSG_CMD_S *pCmd, char **ppEvent);
+int MsgGetSmsSendOptHandler(const MSG_CMD_S *pCmd, char **ppEvent);
+int MsgGetMmsSendOptHandler(const MSG_CMD_S *pCmd, char **ppEvent);
+int MsgGetMmsRecvOptHandler(const MSG_CMD_S *pCmd, char **ppEvent);
+int MsgGetPushMsgOptHandler(const MSG_CMD_S *pCmd, char **ppEvent);
+int MsgGetVoiceMsgOptHandler(const MSG_CMD_S *pCmd, char **ppEvent);
+int MsgGetGeneralOptHandler(const MSG_CMD_S *pCmd, char **ppEvent);
 
 #endif // MSG_CMD_HANDLER_H

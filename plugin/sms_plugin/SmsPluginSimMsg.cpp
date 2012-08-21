@@ -1,18 +1,18 @@
- /*
-  * Copyright 2012  Samsung Electronics Co., Ltd
-  *
-  * Licensed under the Flora License, Version 1.0 (the "License");
-  * you may not use this file except in compliance with the License.
-  * You may obtain a copy of the License at
-  *
-  *    http://www.tizenopensource.org/license
-  *
-  * Unless required by applicable law or agreed to in writing, software
-  * distributed under the License is distributed on an "AS IS" BASIS,
-  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  * See the License for the specific language governing permissions and
-  * limitations under the License.
-  */
+/*
+* Copyright 2012  Samsung Electronics Co., Ltd
+*
+* Licensed under the Flora License, Version 1.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*    http://www.tizenopensource.org/license
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
 
 #include <errno.h>
 
@@ -25,8 +25,10 @@
 #include "SmsPluginTransport.h"
 #include "SmsPluginStorage.h"
 #include "SmsPluginEventHandler.h"
+#include "SmsPluginCallback.h"
 #include "SmsPluginSimMsg.h"
 
+extern struct tapi_handle *pTapiHandle;
 
 /*==================================================================================================
                                      IMPLEMENTATION OF SmsPluginSimMsg - Member Functions
@@ -65,11 +67,13 @@ void SmsPluginSimMsg::initSimMessage()
 {
 	MSG_BEGIN();
 
-	MSG_SIM_COUNT_S tmpMsgCnt = {};
+	MSG_SIM_COUNT_S tmpMsgCnt;
+	memset(&tmpMsgCnt, 0x00, sizeof(MSG_SIM_COUNT_S));
 
 	getSimMsgCount(&tmpMsgCnt);
 
-	MSG_MESSAGE_INFO_S tmpMsgInfo = {};
+	MSG_MESSAGE_INFO_S tmpMsgInfo;
+	memset(&tmpMsgInfo, 0x00, sizeof(MSG_MESSAGE_INFO_S));
 
 	for (int i = 0; i < tmpMsgCnt.usedCount; i++)
 	{
@@ -87,12 +91,13 @@ void SmsPluginSimMsg::initSimMessage()
 }
 
 
-MSG_ERROR_T SmsPluginSimMsg::saveSimMessage(const MSG_MESSAGE_INFO_S *pMsgInfo, SMS_SIM_ID_LIST_S *pSimIdList)
+msg_error_t SmsPluginSimMsg::saveSimMessage(const MSG_MESSAGE_INFO_S *pMsgInfo, SMS_SIM_ID_LIST_S *pSimIdList)
 {
 	// Reset Out Parameter
 	pSimIdList->count = 0;
 
 	SMS_TPDU_S tpdu;
+	memset(&tpdu, 0x00, sizeof(SMS_TPDU_S));
 
 	tpdu.tpduType = SMS_TPDU_DELIVER;
 
@@ -104,11 +109,13 @@ MSG_ERROR_T SmsPluginSimMsg::saveSimMessage(const MSG_MESSAGE_INFO_S *pMsgInfo, 
 
 	// Set SMSC Options
 	SMS_ADDRESS_S smsc;
+	memset(&smsc, 0x00, sizeof(SMS_ADDRESS_S));
 	SmsPluginTransport::instance()->setSmscOptions(&smsc);
 
 	// Make SMS_SUBMIT_DATA_S from MSG_REQUEST_INFO_S
 	SMS_SUBMIT_DATA_S submitData;
-	SmsPluginTransport::instance()->msgInfoToSubmitData(pMsgInfo, &submitData, &(tpdu.data.deliver.dcs.codingScheme));
+	memset(&submitData, 0x00, sizeof(SMS_SUBMIT_DATA_S));
+	SmsPluginTransport::instance()->msgInfoToSubmitData(pMsgInfo, &submitData, &(tpdu.data.deliver.dcs.codingScheme), 0);
 
 	// Check sim message full.
 	if (checkSimMsgFull(submitData.segCount) == true)
@@ -137,14 +144,6 @@ MSG_ERROR_T SmsPluginSimMsg::saveSimMessage(const MSG_MESSAGE_INFO_S *pMsgInfo, 
 
 	for (unsigned int segCnt = 0; segCnt < submitData.segCount; segCnt++)
 	{
-		if (submitData.userData[segCnt].header[0].udhType == SMS_UDH_CONCAT_8BIT ||
-			submitData.userData[segCnt].header[0].udhType == SMS_UDH_CONCAT_16BIT)
-		{
-			tpdu.data.deliver.userData.headerCnt = 1;
-
-			SmsPluginTransport::instance()->setConcatHeader(&(submitData.userData[segCnt].header[0]), &(tpdu.data.deliver.userData.header[0]));
-		}
-
 		tpdu.data.deliver.userData.length = submitData.userData[segCnt].length;
 		memcpy(tpdu.data.deliver.userData.data, submitData.userData[segCnt].data, submitData.userData[segCnt].length);
 
@@ -173,7 +172,7 @@ MSG_ERROR_T SmsPluginSimMsg::saveSimMessage(const MSG_MESSAGE_INFO_S *pMsgInfo, 
 		// Save SMS in SIM
 		int ret = 0;
 
-		ret = tel_write_sms_in_sim(&simSmsData, &reqId);
+		ret = tel_write_sms_in_sim(pTapiHandle, &simSmsData, TapiEventSaveSimMsg, NULL);
 
 		if (ret == TAPI_API_SUCCESS)
 		{
@@ -186,7 +185,7 @@ MSG_ERROR_T SmsPluginSimMsg::saveSimMessage(const MSG_MESSAGE_INFO_S *pMsgInfo, 
 			return MSG_ERR_PLUGIN_STORAGE;
 		}
 
-		MSG_SIM_ID_T SimId = 0;
+		msg_sim_id_t SimId = 0;
 
 		bool bResult = false;
 
@@ -222,7 +221,7 @@ MSG_ERROR_T SmsPluginSimMsg::saveSimMessage(const MSG_MESSAGE_INFO_S *pMsgInfo, 
 }
 
 
-MSG_ERROR_T SmsPluginSimMsg::saveClass2Message(const MSG_MESSAGE_INFO_S *pMsgInfo)
+msg_error_t SmsPluginSimMsg::saveClass2Message(const MSG_MESSAGE_INFO_S *pMsgInfo)
 {
 	// Reset Flag
 	bClass2Msg = false;
@@ -243,7 +242,7 @@ MSG_ERROR_T SmsPluginSimMsg::saveClass2Message(const MSG_MESSAGE_INFO_S *pMsgInf
 
 	// Make SMS_SUBMIT_DATA_S from MSG_REQUEST_INFO_S
 	SMS_SUBMIT_DATA_S submitData;
-	SmsPluginTransport::instance()->msgInfoToSubmitData(pMsgInfo, &submitData, &(tpdu.data.deliver.dcs.codingScheme));
+	SmsPluginTransport::instance()->msgInfoToSubmitData(pMsgInfo, &submitData, &(tpdu.data.deliver.dcs.codingScheme), 0);
 
 	// Check sim message full.
 	if (checkSimMsgFull(submitData.segCount) == true)
@@ -290,7 +289,7 @@ MSG_ERROR_T SmsPluginSimMsg::saveClass2Message(const MSG_MESSAGE_INFO_S *pMsgInf
 	// Save Class 2 Msg in SIM
 	int tapiRet = TAPI_API_SUCCESS;
 
-	tapiRet = tel_write_sms_in_sim(&simSmsData, &reqId);
+	tapiRet = tel_write_sms_in_sim(pTapiHandle, &simSmsData, TapiEventSaveSimMsg, NULL);
 
 	if (tapiRet == TAPI_API_SUCCESS)
 	{
@@ -324,12 +323,12 @@ MSG_ERROR_T SmsPluginSimMsg::saveClass2Message(const MSG_MESSAGE_INFO_S *pMsgInf
 }
 
 
-void SmsPluginSimMsg::deleteSimMessage(MSG_SIM_ID_T SimMsgId)
+void SmsPluginSimMsg::deleteSimMessage(msg_sim_id_t SimMsgId)
 {
 	int tapiRet = TAPI_API_SUCCESS;
 	int reqId = 0;
 
-	tapiRet = tel_delete_sms_in_sim((int)SimMsgId, &reqId);
+	tapiRet = tel_delete_sms_in_sim(pTapiHandle, (int)SimMsgId, TapiEventDeleteSimMsg, NULL);
 
 	if (tapiRet == TAPI_API_SUCCESS)
 	{
@@ -340,7 +339,7 @@ void SmsPluginSimMsg::deleteSimMessage(MSG_SIM_ID_T SimMsgId)
 	 	THROW(MsgException::SMS_PLG_ERROR, "########  tel_delete_sms_in_sim Fail !!! req Id : [%d] return : [%d] #######", reqId, tapiRet);
 	}
 
-	MSG_SIM_ID_T SimId = 0;
+	msg_sim_id_t SimId = 0;
 	bool bResult = false;
 
 	bResult = getSimEvent(&SimId);
@@ -356,7 +355,7 @@ void SmsPluginSimMsg::deleteSimMessage(MSG_SIM_ID_T SimMsgId)
 
 		if (usedCnt == totalCnt)
 		{
-			tapiRet = tel_set_sms_memory_status(TAPI_NETTEXT_PDA_MEMORY_STATUS_AVAILABLE, &reqId);
+			tapiRet = tel_set_sms_memory_status(pTapiHandle, TAPI_NETTEXT_PDA_MEMORY_STATUS_AVAILABLE, NULL, NULL);
 
 			if (tapiRet == TAPI_API_SUCCESS)
 			{
@@ -399,15 +398,13 @@ bool SmsPluginSimMsg::checkSimMsgFull(unsigned int SegCnt)
 }
 
 
-void SmsPluginSimMsg::setReadStatus(MSG_SIM_ID_T SimMsgId)
+void SmsPluginSimMsg::setReadStatus(msg_sim_id_t SimMsgId)
 {
 	MSG_DEBUG("Sim Message ID [%d]", SimMsgId);
 
-	int reqId = 0;
-
 	int ret = TAPI_API_SUCCESS;
 
-	ret = tel_set_sms_message_status((int)SimMsgId, TAPI_NETTEXT_STATUS_READ, &reqId);
+	ret = tel_set_sms_message_status(pTapiHandle, (int)SimMsgId, TAPI_NETTEXT_STATUS_READ, NULL, NULL);
 
 	if (ret == TAPI_API_SUCCESS)
 	{
@@ -418,18 +415,18 @@ void SmsPluginSimMsg::setReadStatus(MSG_SIM_ID_T SimMsgId)
 		THROW(MsgException::SMS_PLG_ERROR, "########  tel_set_sms_message_status Fail !!! return : %d #######", ret);
 	}
 
-	MSG_SIM_ID_T SimId = 0;
+	msg_sim_id_t SimId = 0;
 	bool bResult = false;
 
 	bResult = getSimEvent(&SimId);
 
 	if (bResult == true)
 	{
-		MSG_DEBUG("######## Setting Read Status was Successful !!! req Id : [%d] #######", reqId);
+		MSG_DEBUG("######## Setting Read Status was Successful !!! #######");
 	}
 	else
 	{
-	 	THROW(MsgException::SMS_PLG_ERROR, "######## Setting Read Status was Failed !!! req Id : [%d] #######", reqId);
+	 	THROW(MsgException::SMS_PLG_ERROR, "######## Setting Read Status was Failed !!! #######");
 	}
 }
 
@@ -440,7 +437,7 @@ void SmsPluginSimMsg::getSimMsgCount(MSG_SIM_COUNT_S *pSimMsgCnt)
 
 	int ret = TAPI_API_SUCCESS;
 
-	ret = tel_get_sms_count(&reqId);
+	ret = tel_get_sms_count(pTapiHandle, TapiEventGetSimMsgCnt, NULL);
 
 	if (ret == TAPI_API_SUCCESS)
 	{
@@ -462,13 +459,13 @@ void SmsPluginSimMsg::getSimMsgCount(MSG_SIM_COUNT_S *pSimMsgCnt)
 }
 
 
-bool SmsPluginSimMsg::getSimMsg(MSG_SIM_ID_T SimMsgId, MSG_MESSAGE_INFO_S *pMsgInfo)
+bool SmsPluginSimMsg::getSimMsg(msg_sim_id_t SimMsgId, MSG_MESSAGE_INFO_S *pMsgInfo)
 {
 	int reqId = 0;
 
 	int ret = TAPI_API_SUCCESS;
 
-	ret = tel_read_sms_in_sim(SimMsgId, &reqId);
+	ret = tel_read_sms_in_sim(pTapiHandle, SimMsgId, TapiEventGetSimMsg, NULL);
 
 	if (ret == TAPI_API_SUCCESS)
 	{
@@ -653,11 +650,11 @@ bool SmsPluginSimMsg::getSimMsgEvent(MSG_MESSAGE_INFO_S *pMsgInfo)
 }
 
 
-void SmsPluginSimMsg::setSimEvent(MSG_SIM_ID_T SimId, bool bResult)
+void SmsPluginSimMsg::setSimEvent(msg_sim_id_t SimId, bool bResult)
 {
 	if (bClass2Msg == true)
 	{
-		MSG_ERROR_T err = MSG_SUCCESS;
+		msg_error_t err = MSG_SUCCESS;
 
 		simMsgInfo.msgId = SimId;
 
@@ -700,7 +697,7 @@ void SmsPluginSimMsg::setSimEvent(MSG_SIM_ID_T SimId, bool bResult)
 }
 
 
-bool SmsPluginSimMsg::getSimEvent(MSG_SIM_ID_T *pSimId)
+bool SmsPluginSimMsg::getSimEvent(msg_sim_id_t *pSimId)
 {
 	int ret = 0;
 
@@ -724,4 +721,3 @@ bool SmsPluginSimMsg::getSimEvent(MSG_SIM_ID_T *pSimId)
 
 	return bTapiResult;
 }
-

@@ -20,9 +20,11 @@ SET(TRANS-PROXY-SRCS
 	${CMAKE_SOURCE_DIR}/proxy/MsgHandleSetting.cpp
 	${CMAKE_SOURCE_DIR}/proxy/MsgHandleStorage.cpp
 	${CMAKE_SOURCE_DIR}/proxy/MsgHandleTransport.cpp
+	${CMAKE_SOURCE_DIR}/proxy/MsgHandleFilter.cpp
 )
 
 INCLUDE_DIRECTORIES(
+    ${CMAKE_SOURCE_DIR}/include/mapi
 	${CMAKE_SOURCE_DIR}/include/common
 	${CMAKE_SOURCE_DIR}/include/framework
 	${CMAKE_SOURCE_DIR}/include/utils

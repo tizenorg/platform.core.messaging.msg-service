@@ -1,18 +1,18 @@
- /*
-  * Copyright 2012  Samsung Electronics Co., Ltd
-  *
-  * Licensed under the Flora License, Version 1.0 (the "License");
-  * you may not use this file except in compliance with the License.
-  * You may obtain a copy of the License at
-  *
-  *    http://www.tizenopensource.org/license
-  *
-  * Unless required by applicable law or agreed to in writing, software
-  * distributed under the License is distributed on an "AS IS" BASIS,
-  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  * See the License for the specific language governing permissions and
-  * limitations under the License.
-  */
+/*
+* Copyright 2012  Samsung Electronics Co., Ltd
+*
+* Licensed under the Flora License, Version 1.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*    http://www.tizenopensource.org/license
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
 
 #include "MsgDebug.h"
 #include "MsgUtilFunction.h"
@@ -78,11 +78,11 @@ int MsgEncodeCountByMsgType(int MsgCount, char **ppDest)
 }
 
 
-int MsgEncodeMsgId(MSG_MESSAGE_ID_T *pMsgId, char **ppDest)
+int MsgEncodeMsgId(msg_message_id_t *pMsgId, char **ppDest)
 {
 	int dataSize = 0;
 
-	dataSize = (sizeof(MSG_MESSAGE_ID_T));
+	dataSize = (sizeof(msg_message_id_t));
 
 	*ppDest = (char*)new char[dataSize];
 
@@ -131,33 +131,7 @@ int MsgEncodeMsgInfo(MSG_MESSAGE_INFO_S *pMsgInfo, MSG_SENDINGOPT_INFO_S* pSendO
 	return dataSize;
 }
 
-
-int MsgEncodeFolderViewList(MSG_LIST_S *pFolderViewList, char **ppDest)
-{
-	int count = 0, dataSize = 0;
-
-	count = pFolderViewList->nCount;
-
-	dataSize = sizeof(int) + (sizeof(MSG_MESSAGE_S)*count);
-
-	*ppDest = (char*)new char[dataSize];
-
-	void* p = (void*)*ppDest;
-
-	memcpy(p, &count, sizeof(int));
-	p = (void*)((char*)p + sizeof(int));
-
-	for (int i = 0; i < count; i++)
-	{
-		memcpy(p, &(pFolderViewList->msgInfo[i]), sizeof(MSG_MESSAGE_S));
-		p = (void*)((char*)p + sizeof(MSG_MESSAGE_S));
-	}
-
-	return dataSize;
-}
-
-
-int MsgEncodeFolderList(MSG_FOLDER_LIST_S *pFolderList, char **ppDest)
+int MsgEncodeFolderList(msg_struct_list_s *pFolderList, char **ppDest)
 {
 	int count = 0, dataSize = 0;
 
@@ -171,59 +145,56 @@ int MsgEncodeFolderList(MSG_FOLDER_LIST_S *pFolderList, char **ppDest)
 	memcpy(p, &count, sizeof(int));
 	p = (void*)((char*)p + sizeof(int));
 
+	msg_struct_s *folder_info = NULL;
+
 	for (int i = 0; i < count; i++)
 	{
-		memcpy(p, &(pFolderList->folderInfo[i]), sizeof(MSG_FOLDER_INFO_S));
+		folder_info = (msg_struct_s *)pFolderList->msg_struct_info[i];
+		memcpy(p, folder_info->data, sizeof(MSG_FOLDER_INFO_S));
 		p = (void*)((char*)p + sizeof(MSG_FOLDER_INFO_S));
 	}
 
 	return dataSize;
 }
 
-
-int MsgEncodeSetting(MSG_SETTING_S *pSetting, char **ppDest)
+int MsgEncodeFilterList(msg_struct_list_s *pFilterList, char **ppDest)
 {
-	int dataSize = sizeof(MSG_OPTION_TYPE_T);
+	int count = 0, dataSize = 0;
 
-	switch (pSetting->type)
-	{
-		case MSG_GENERAL_OPT :
-			dataSize += sizeof(MSG_GENERAL_OPT_S);
-		break;
-		case MSG_SMS_SENDOPT :
-			dataSize += sizeof(MSG_SMS_SENDOPT_S);
-		break;
-		case MSG_SMSC_LIST :
-			dataSize += sizeof(MSG_SMSC_LIST_S);
-		break;
-		case MSG_MMS_SENDOPT :
-			dataSize += sizeof(MSG_MMS_SENDOPT_S);
-		break;
-		case MSG_MMS_RECVOPT :
-			dataSize += sizeof(MSG_MMS_RECVOPT_S);
-		break;
-		case MSG_MMS_STYLEOPT :
-			dataSize += sizeof(MSG_MMS_STYLEOPT_S);
-		break;
-		case MSG_PUSHMSG_OPT :
-			dataSize += sizeof(MSG_PUSHMSG_OPT_S);
-		break;
-		case MSG_CBMSG_OPT :
-			dataSize += sizeof(MSG_CBMSG_OPT_S);
-		break;
-		case MSG_VOICEMAIL_OPT :
-			dataSize += sizeof(MSG_VOICEMAIL_OPT_S);
-		break;
-		case MSG_MSGSIZE_OPT :
-			dataSize += sizeof(MSG_MSGSIZE_OPT_S);
-		break;
-	}
+	count = pFilterList->nCount;
+	dataSize = sizeof(int) + (sizeof(MSG_FILTER_S)*count);
 
 	*ppDest = (char*)new char[dataSize];
 
 	void* p = (void*)*ppDest;
 
-	memcpy(p, pSetting, dataSize);
+	memcpy(p, &count, sizeof(int));
+	p = (void*)((char*)p + sizeof(int));
+
+	msg_struct_s *filter_info = NULL;
+
+	for (int i = 0; i < count; i++)
+	{
+		filter_info = (msg_struct_s *)pFilterList->msg_struct_info[i];
+		memcpy(p, filter_info->data, sizeof(MSG_FILTER_S));
+		p = (void*)((char*)p + sizeof(MSG_FILTER_S));
+	}
+
+	return dataSize;
+}
+
+
+int MsgEncodeFilterFlag(bool *pSetFlag, char **ppDest)
+{
+	int dataSize = 0;
+
+	dataSize = (sizeof(bool));
+
+	*ppDest = (char*)new char[dataSize];
+
+	void* p = (void*)*ppDest;
+
+	memcpy(p, pSetFlag, dataSize);
 
 	return dataSize;
 }
@@ -245,7 +216,7 @@ int MsgEncodeMsgType(MSG_MESSAGE_TYPE_S *pMsgType, char **ppDest)
 }
 
 
-int MsgEncodeThreadViewList(MSG_THREAD_VIEW_LIST_S *pThreadViewList, char **ppDest)
+int MsgEncodeThreadViewList(msg_struct_list_s *pThreadViewList, char **ppDest)
 {
 	int count = 0, dataSize = 0;
 
@@ -260,9 +231,12 @@ int MsgEncodeThreadViewList(MSG_THREAD_VIEW_LIST_S *pThreadViewList, char **ppDe
 	memcpy(p, &count, sizeof(int));
 	p = (void*)((char*)p + sizeof(int));
 
+	msg_struct_s *thread_info = NULL;
+
 	for (int i = 0; i < count; i++)
 	{
-		memcpy(p, &(pThreadViewList->msgThreadInfo[i]), sizeof(MSG_THREAD_VIEW_S));
+		thread_info = (msg_struct_s *)pThreadViewList->msg_struct_info[i];
+		memcpy(p, thread_info->data, sizeof(MSG_THREAD_VIEW_S));
 		p = (void*)((char*)p + sizeof(MSG_THREAD_VIEW_S));
 	}
 
@@ -270,13 +244,13 @@ int MsgEncodeThreadViewList(MSG_THREAD_VIEW_LIST_S *pThreadViewList, char **ppDe
 }
 
 
-int MsgEncodeConversationViewList(MSG_LIST_S *pConvViewList, char **ppDest)
+int MsgEncodeConversationViewList(msg_struct_list_s *pConvViewList, char **ppDest)
 {
 	int count = 0, dataSize = 0;
 
 	count = pConvViewList->nCount;
 
-	dataSize = sizeof(int) + (sizeof(MSG_LIST_S)*count);
+	dataSize = sizeof(int) + (sizeof(msg_struct_list_s)*count);
 
 	*ppDest = (char*)new char[dataSize];
 
@@ -287,8 +261,8 @@ int MsgEncodeConversationViewList(MSG_LIST_S *pConvViewList, char **ppDest)
 
 	for (int i = 0; i < count; i++)
 	{
-		memcpy(p, &(pConvViewList->msgInfo[i]), sizeof(MSG_LIST_S));
-		p = (void*)((char*)p + sizeof(MSG_LIST_S));
+		memcpy(p, &(pConvViewList->msg_struct_info[i]), sizeof(msg_struct_list_s));
+		p = (void*)((char*)p + sizeof(msg_struct_list_s));
 	}
 
 	return dataSize;
@@ -355,28 +329,28 @@ int MsgEncodeSyncMLOperationData(int msgId, int extId, char **ppDest)
 }
 
 
-int MsgEncodeStorageChangeData(const MSG_STORAGE_CHANGE_TYPE_T storageChangeType, const MSG_MSGID_LIST_S *pMsgIdList, char **ppDest)
+int MsgEncodeStorageChangeData(const msg_storage_change_type_t storageChangeType, const msg_id_list_s *pMsgIdList, char **ppDest)
 {
 	int dataSize = 0;
 	int count = 0;
 
 	count = pMsgIdList->nCount;
 
-	dataSize = sizeof(MSG_STORAGE_CHANGE_TYPE_T) + sizeof(int) + (sizeof(MSG_MESSAGE_ID_T)*count);
+	dataSize = sizeof(msg_storage_change_type_t) + sizeof(int) + (sizeof(msg_message_id_t)*count);
 
 	*ppDest = (char*)new char[dataSize];
 
 	void* p = (void*)*ppDest;
 
-	memcpy(p, &storageChangeType, sizeof(MSG_STORAGE_CHANGE_TYPE_T));
-	p = (void*)((char*)p + sizeof(MSG_STORAGE_CHANGE_TYPE_T));
+	memcpy(p, &storageChangeType, sizeof(msg_storage_change_type_t));
+	p = (void*)((char*)p + sizeof(msg_storage_change_type_t));
 
 	memcpy(p, &count, sizeof(int));
 	p = (void*)((char*)p + sizeof(int));
 
 	for (int i = 0; i < count; i++) {
-		memcpy(p, &(pMsgIdList->msgIdList[i]), sizeof(MSG_MESSAGE_ID_T));
-		p = (void*)((char*)p + sizeof(MSG_MESSAGE_ID_T));
+		memcpy(p, &(pMsgIdList->msgIdList[i]), sizeof(msg_message_id_t));
+		p = (void*)((char*)p + sizeof(msg_message_id_t));
 	}
 
 	return dataSize;
@@ -399,10 +373,45 @@ int MsgEncodeReportStatus(MSG_REPORT_STATUS_INFO_S* pReportStatus, char **ppDest
 }
 
 
-// Decoders
-void MsgDecodeMsgId(char *pSrc, MSG_MESSAGE_ID_T *pMsgId)
+int MsgEncodeThreadId(msg_thread_id_t *pThreadId, char **ppDest)
 {
-	memcpy(pMsgId, pSrc, sizeof(MSG_MESSAGE_ID_T));
+	int dataSize = 0;
+
+	dataSize = (sizeof(msg_thread_id_t));
+
+	*ppDest = (char*)new char[dataSize];
+
+	void* p = (void*)*ppDest;
+
+	memcpy(p, pThreadId, dataSize);
+
+	return dataSize;
+}
+
+
+int MsgEncodeThreadInfo(MSG_THREAD_VIEW_S *pThreadInfo, char **ppDest)
+{
+	int dataSize = 0;
+
+	dataSize = sizeof(MSG_THREAD_VIEW_S);
+
+	*ppDest = (char*)new char[dataSize];
+
+	void* p = (void*)*ppDest;
+
+	memcpy(p, pThreadInfo, sizeof(MSG_THREAD_VIEW_S));
+
+	p = (void*)((char*)p + sizeof(MSG_THREAD_VIEW_S));
+
+	return dataSize;
+}
+
+
+
+// Decoders
+void MsgDecodeMsgId(char *pSrc, msg_message_id_t *pMsgId)
+{
+	memcpy(pMsgId, pSrc, sizeof(msg_message_id_t));
 }
 
 
@@ -427,36 +436,6 @@ void MsgDecodeMsgInfo(char *pSrc, MSG_MESSAGE_INFO_S *pMsgInfo, MSG_SENDINGOPT_I
 	memcpy(pSendOptInfo, pSrc, sizeof(MSG_SENDINGOPT_INFO_S));
 }
 
-
-void MsgDecodeFolderViewList(char *pSrc, MSG_LIST_S *pFolderViewList)
-{
-	int count = 0;
-
-	memcpy(&count, pSrc, sizeof(int));
-	pSrc = pSrc + sizeof(int);
-
-	if( count > 0 )
-	{
-		pFolderViewList->nCount = count;
-		pFolderViewList->msgInfo = (msg_message_t*)new char[sizeof(MSG_MESSAGE_S)*count];
-
-		MSG_MESSAGE_S* pInfoTmp = (MSG_MESSAGE_S*)pFolderViewList->msgInfo;
-
-		for (int i = 0; i < count; i++)
-		{
-			memcpy(pInfoTmp, pSrc, sizeof(MSG_MESSAGE_S));
-			pSrc = pSrc + sizeof(MSG_MESSAGE_S);
-			pInfoTmp++;
-		}
-	}
-	else if ( count == 0 )
-	{
-		pFolderViewList->nCount = count;
-		pFolderViewList->msgInfo = NULL;
-	}
-}
-
-
 void MsgDecodeRecipientList(char *pSrc, MSG_RECIPIENTS_LIST_S *pRecipientList)
 {
 	int count = 0;
@@ -478,66 +457,74 @@ void MsgDecodeRecipientList(char *pSrc, MSG_RECIPIENTS_LIST_S *pRecipientList)
 }
 
 
-void MsgDecodeFolderList(char *pSrc, MSG_FOLDER_LIST_S *pFolderList)
+void MsgDecodeFolderList(char *pSrc, msg_struct_list_s *pFolderList)
 {
 	int count = 0;
 
 	memcpy(&count, pSrc, sizeof(int));
 	pSrc = pSrc + sizeof(int);
 
-	pFolderList->nCount = count;
-	pFolderList->folderInfo = (MSG_FOLDER_INFO_S*)new char[sizeof(MSG_FOLDER_INFO_S)*count];
-
-	MSG_FOLDER_INFO_S* pInfoTmp = pFolderList->folderInfo;
-
-	for (int i = 0; i < count; i++)
+	if( count > 0 )
 	{
-		memcpy(pInfoTmp, pSrc, sizeof(MSG_FOLDER_INFO_S));
-		pSrc = pSrc + sizeof(MSG_FOLDER_INFO_S);
-		pInfoTmp++;
+		pFolderList->nCount = count;
+		pFolderList->msg_struct_info = (msg_struct_t *)new char[sizeof(MSG_FOLDER_INFO_S *)*count];
+
+		msg_struct_s *pInfoTmp = NULL;
+
+		for (int i = 0; i < count; i++)
+		{
+
+			pFolderList->msg_struct_info[i] = (msg_struct_t )new char[sizeof(msg_struct_s)];
+			pInfoTmp = (msg_struct_s *)pFolderList->msg_struct_info[i];
+			pInfoTmp->type = MSG_STRUCT_FOLDER_INFO;
+			pInfoTmp->data = new char[sizeof(MSG_FOLDER_INFO_S)];
+			memcpy(pInfoTmp->data, pSrc, sizeof(MSG_FOLDER_INFO_S));
+			pSrc = pSrc + sizeof(MSG_FOLDER_INFO_S);
+		}
+	}
+	else if ( count == 0 )
+	{
+		pFolderList->nCount = count;
+		pFolderList->msg_struct_info = NULL;
 	}
 }
 
-
-void MsgDecodeSetting(char *pSrc, MSG_SETTING_S *pSetting)
+void MsgDecodeFilterList(char *pSrc, msg_struct_list_s *pFilterList)
 {
-	int dataSize = sizeof(MSG_OPTION_TYPE_T);
+	int count = 0;
 
-	switch (pSetting->type)
+	memcpy(&count, pSrc, sizeof(int));
+	pSrc = pSrc + sizeof(int);
+
+	if( count > 0 )
 	{
-		case MSG_GENERAL_OPT :
-			dataSize += sizeof(MSG_GENERAL_OPT_S);
-		break;
-		case MSG_SMS_SENDOPT :
-			dataSize += sizeof(MSG_SMS_SENDOPT_S);
-		break;
-		case MSG_SMSC_LIST :
-			dataSize += sizeof(MSG_SMSC_LIST_S);
-		break;
-		case MSG_MMS_SENDOPT :
-			dataSize += sizeof(MSG_MMS_SENDOPT_S);
-		break;
-		case MSG_MMS_RECVOPT :
-			dataSize += sizeof(MSG_MMS_RECVOPT_S);
-		break;
-		case MSG_MMS_STYLEOPT :
-			dataSize += sizeof(MSG_MMS_STYLEOPT_S);
-		break;
-		case MSG_PUSHMSG_OPT :
-			dataSize += sizeof(MSG_PUSHMSG_OPT_S);
-		break;
-		case MSG_CBMSG_OPT :
-			dataSize += sizeof(MSG_CBMSG_OPT_S);
-		break;
-		case MSG_VOICEMAIL_OPT :
-			dataSize += sizeof(MSG_VOICEMAIL_OPT_S);
-		break;
-		case MSG_MSGSIZE_OPT :
-			dataSize += sizeof(MSG_MSGSIZE_OPT_S);
-		break;
+		pFilterList->nCount = count;
+		pFilterList->msg_struct_info = (msg_struct_t *)new char[sizeof(MSG_FILTER_S *)*count];
+
+		msg_struct_s *pStructTmp = NULL;
+
+		for (int i = 0; i < count; i++)
+		{
+			pFilterList->msg_struct_info[i] = (msg_struct_t )new char[sizeof(msg_struct_s)];
+			pStructTmp = (msg_struct_s *)pFilterList->msg_struct_info[i];
+			pStructTmp->type = MSG_STRUCT_FILTER;
+			pStructTmp->data = new char[sizeof(MSG_FILTER_S)];
+			memcpy(pStructTmp->data, pSrc, sizeof(MSG_FILTER_S));
+			pSrc = pSrc + sizeof(MSG_FILTER_S);
+		}
+	}
+	else if ( count == 0 )
+	{
+		pFilterList->nCount = count;
+		pFilterList->msg_struct_info = NULL;
 	}
 
-	memcpy(pSetting, pSrc, dataSize);
+}
+
+
+void MsgDecodeFilterFlag(char *pSrc, bool *pSetFlag)
+{
+	memcpy(pSetFlag, pSrc, sizeof(bool));
 }
 
 
@@ -545,65 +532,6 @@ void MsgDecodeMsgType(char *pSrc, MSG_MESSAGE_TYPE_S* pMsgType)
 {
 	memcpy(pMsgType, pSrc, sizeof(MSG_MESSAGE_TYPE_S));
 }
-
-
-void MsgDecodeThreadViewList(char *pSrc, MSG_THREAD_VIEW_LIST_S *pThreadViewList)
-{
-	int count = 0;
-
-	memcpy(&count, pSrc, sizeof(int));
-	pSrc = pSrc + sizeof(int);
-
-	if (count > 0)
-	{
-		pThreadViewList->nCount = count;
-		pThreadViewList->msgThreadInfo = (msg_thread_view_t*)new char[sizeof(MSG_THREAD_VIEW_S)*count];
-
-		MSG_THREAD_VIEW_S* pInfoTmp = (MSG_THREAD_VIEW_S*)pThreadViewList->msgThreadInfo;
-
-		for (int i = 0; i < count; i++)
-		{
-			memcpy(pInfoTmp, pSrc, sizeof(MSG_THREAD_VIEW_S));
-			pSrc = pSrc + sizeof(MSG_THREAD_VIEW_S);
-			pInfoTmp++;
-		}
-	}
-	else if (count == 0)
-	{
-		pThreadViewList->nCount = count;
-		pThreadViewList->msgThreadInfo = NULL;
-	}
-}
-
-
-void MsgDecodeConversationViewList(char *pSrc, MSG_LIST_S *pConvViewList)
-{
-	int count = 0;
-
-	memcpy(&count, pSrc, sizeof(int));
-	pSrc = pSrc + sizeof(int);
-
-	if (count > 0)
-	{
-		pConvViewList->nCount = count;
-		pConvViewList->msgInfo = (msg_message_t*)new char[sizeof(MSG_MESSAGE_S)*count];
-
-		MSG_MESSAGE_S* pInfoTmp = (MSG_MESSAGE_S*)pConvViewList->msgInfo;
-
-		for (int i = 0; i < count; i++)
-		{
-			memcpy(pInfoTmp, pSrc, sizeof(MSG_MESSAGE_S));
-			pSrc = pSrc + sizeof(MSG_MESSAGE_S);
-			pInfoTmp++;
-		}
-	}
-	else if (count == 0)
-	{
-		pConvViewList->nCount = count;
-		pConvViewList->msgInfo = NULL;
-	}
-}
-
 
 void	MsgDecodeContactCount(char *pSrc,  MSG_THREAD_COUNT_INFO_S *pMsgThreadCountList)
 {
@@ -643,8 +571,8 @@ void	MsgDecodeReportStatus(char *pSrc,  MSG_REPORT_STATUS_INFO_S *pReportStatus)
 	if(pSrc == NULL)
 		return;
 
-	memcpy(&count, pSrc, sizeof(MSG_DELIVERY_REPORT_STATUS_T));
-	pSrc = pSrc + sizeof(MSG_DELIVERY_REPORT_STATUS_T);
+	memcpy(&count, pSrc, sizeof(msg_delivery_report_status_t));
+	pSrc = pSrc + sizeof(msg_delivery_report_status_t);
 	pReportStatus->deliveryStatus = count;
 
 
@@ -653,8 +581,8 @@ void	MsgDecodeReportStatus(char *pSrc,  MSG_REPORT_STATUS_INFO_S *pReportStatus)
 	pReportStatus->deliveryStatusTime = count;
 
 
-	memcpy(&count, pSrc, sizeof(MSG_READ_REPORT_STATUS_T));
-	pSrc = pSrc + sizeof(MSG_READ_REPORT_STATUS_T);
+	memcpy(&count, pSrc, sizeof(msg_read_report_status_t));
+	pSrc = pSrc + sizeof(msg_read_report_status_t);
 	pReportStatus->readStatus = count;
 
 
@@ -666,9 +594,18 @@ void	MsgDecodeReportStatus(char *pSrc,  MSG_REPORT_STATUS_INFO_S *pReportStatus)
 	return;
 }
 
+void MsgDecodeThreadId(char *pSrc, msg_thread_id_t *pThreadId)
+{
+	memcpy(pThreadId, pSrc, sizeof(msg_thread_id_t));
+}
+
+void MsgDecodeThreadInfo(char *pSrc, MSG_THREAD_VIEW_S *pThreadInfo)
+{
+	memcpy(pThreadInfo, pSrc, sizeof(MSG_THREAD_VIEW_S));
+}
 
 // Event Encoder
-int MsgMakeEvent(const void *pData, int DataSize, MSG_EVENT_TYPE_T MsgEvent, MSG_ERROR_T MsgError, void **ppEvent)
+int MsgMakeEvent(const void *pData, int DataSize, MSG_EVENT_TYPE_T MsgEvent, msg_error_t MsgError, void **ppEvent)
 {
 	MSG_EVENT_S* pMsgEvent = NULL;
 
@@ -686,4 +623,73 @@ int MsgMakeEvent(const void *pData, int DataSize, MSG_EVENT_TYPE_T MsgEvent, MSG
 		memcpy((void*)pMsgEvent->data, pData, DataSize);
 
 	return (sizeof(MSG_EVENT_S) + DataSize);
+}
+
+int msg_verify_number(const char *raw, char *trimmed)
+{
+	if (!(raw && trimmed)) {
+		MSG_DEBUG("Phone Number is NULL");
+		return MSG_ERR_NULL_POINTER;
+	}
+
+	for (int i=0, j=0 ; raw[i] ; i++) {
+		if ((raw[i] >= '0' && raw[i] <= '9') || raw[i] == '+' || raw[i] == ',' || raw[i] == ' ' \
+				|| raw[i] == '*' ||  raw[i] == '#') {
+			trimmed[j++] = raw[i];
+		} else if (raw[i] == '-') {
+			continue;
+		} else {
+			MSG_DEBUG("Unacceptable character in telephone number: [%c]", raw[i]);
+			return MSG_ERR_INVALID_PARAMETER;
+		}
+	}
+
+	MSG_DEBUG("Trimming [%s]->[%s]", raw, trimmed);
+	return MSG_SUCCESS;
+}
+
+int msg_verify_email(const char *raw)
+{
+	bool onlyNum = true;
+	bool atExist = false;
+
+	if (!raw) {
+		MSG_DEBUG("Email is NULL");
+		return MSG_ERR_NULL_POINTER;
+	}
+
+	for (int i = 0; raw[i]; i++) {
+
+		if (raw[i] == '@') {
+			onlyNum = false;
+
+			if (atExist == false) {
+				atExist = true;
+				continue;
+			} else {
+				MSG_DEBUG("Character [@] is included more than twice in email address.");
+				return MSG_ERR_INVALID_PARAMETER;
+			}
+		}
+
+		if ((raw[i] >= '0' && raw[i] <= '9') || raw[i] == '+' || raw[i] == '*' ||  raw[i] == '#') {
+			continue;
+		} else if ((raw[i] >= 'a' && raw[i] <= 'z') ||(raw[i] >= 'A' && raw[i] <= 'Z') ||(raw[i] == '.') || raw[i] == '_' || raw[i] == '-') {
+			onlyNum = false;
+			continue;
+		} else if (raw[i] == ',') {
+			if (onlyNum == false && atExist == false) {
+				MSG_DEBUG("Unacceptable type in address.");
+				return MSG_ERR_INVALID_PARAMETER;
+			}
+			atExist = false;
+			onlyNum = true;
+			continue;
+		} else {
+			MSG_DEBUG("Unacceptable character in address : [%c]", raw[i]);
+			return MSG_ERR_INVALID_PARAMETER;
+		}
+	}
+
+	return MSG_SUCCESS;
 }

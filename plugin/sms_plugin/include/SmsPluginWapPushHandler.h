@@ -1,18 +1,18 @@
- /*
-  * Copyright 2012  Samsung Electronics Co., Ltd
-  *
-  * Licensed under the Flora License, Version 1.0 (the "License");
-  * you may not use this file except in compliance with the License.
-  * You may obtain a copy of the License at
-  *
-  *    http://www.tizenopensource.org/license
-  *
-  * Unless required by applicable law or agreed to in writing, software
-  * distributed under the License is distributed on an "AS IS" BASIS,
-  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  * See the License for the specific language governing permissions and
-  * limitations under the License.
-  */
+/*
+* Copyright 2012  Samsung Electronics Co., Ltd
+*
+* Licensed under the Flora License, Version 1.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*    http://www.tizenopensource.org/license
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
 
 #ifndef SMS_PLUGIN_WAPPUSH_HANDLER_H
 #define SMS_PLUGIN_WAPPUSH_HANDLER_H
@@ -74,8 +74,8 @@ private:
 	void getXmlDoc(const char* pPushBody, const int PushBodyLen, xmlDocPtr *pXmlDoc, const bool isText);
 	void createMsgInfo(MSG_MESSAGE_INFO_S* pMsgInfo);
 	unsigned long convertXmlCharToSec(char* pDate);
-	MSG_PUSH_ACTION_T convertSIActionStrToEnum(char* pAction);
-	MSG_PUSH_ACTION_T convertSLActionStrToEnum(char* pAction);
+	msg_push_action_t convertSIActionStrToEnum(char* pAction);
+	msg_push_action_t convertSLActionStrToEnum(char* pAction);
 
 	unsigned long wspRetriveUintvarDecode( unsigned char* sourceData, unsigned long* currentPointer );
 	unsigned long wspDecodeUintvar(unsigned long length, unsigned char* userVar );

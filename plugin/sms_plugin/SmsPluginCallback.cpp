@@ -1,18 +1,18 @@
- /*
-  * Copyright 2012  Samsung Electronics Co., Ltd
-  *
-  * Licensed under the Flora License, Version 1.0 (the "License");
-  * you may not use this file except in compliance with the License.
-  * You may obtain a copy of the License at
-  *
-  *    http://www.tizenopensource.org/license
-  *
-  * Unless required by applicable law or agreed to in writing, software
-  * distributed under the License is distributed on an "AS IS" BASIS,
-  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  * See the License for the specific language governing permissions and
-  * limitations under the License.
-  */
+/*
+* Copyright 2012  Samsung Electronics Co., Ltd
+*
+* Licensed under the Flora License, Version 1.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*    http://www.tizenopensource.org/license
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
 
 #include <glib.h>
 #include <pthread.h>
@@ -28,20 +28,17 @@
 #include "SmsPluginTpduCodec.h"
 #include "SmsPluginSimMsg.h"
 #include "SmsPluginSetting.h"
+#include "MsgGconfWrapper.h"
 #include "SmsPluginCallback.h"
 
-extern "C"
-{
-	#include <ITapiProductivity.h>
-}
-
+extern struct tapi_handle *pTapiHandle;
 
 /*==================================================================================================
                                      FUNCTION IMPLEMENTATION
 ==================================================================================================*/
-int TapiEventDeviceReady(const TelTapiEvent_t *pEvent, void*)
+void TapiEventDeviceReady(TapiHandle *handle, int result, void *data, void *user_data)
 {
-	MSG_DEBUG("TapiEventDeviceReady is called. : request id = [%d] status = [%d]", pEvent->RequestId, pEvent->Status);
+	MSG_DEBUG("TapiEventDeviceReady is called. : result = [%d]", result);
 
 	try
 	{
@@ -51,21 +48,20 @@ int TapiEventDeviceReady(const TelTapiEvent_t *pEvent, void*)
 	catch (MsgException& e)
 	{
 		MSG_FATAL("%s", e.what());
-		return e.errorCode();
+		return;
 	}
 
-	return 0;
 }
 
 
-int TapiEventSentStatus(const TelTapiEvent_t *pEvent, void*)
+void TapiEventSentStatus(TapiHandle *handle, int result, void *data, void *user_data)
 {
-	MSG_DEBUG("TapiEventSentStatus is called. : request id = [%d] status = [%d]", pEvent->RequestId, pEvent->Status);
+	MSG_DEBUG("TapiEventSentStatus is called. : result = [%d]", result);
 
-	MSG_NETWORK_STATUS_T netStatus;
+	msg_network_status_t netStatus;
 
 	// Convert TAPI status -> Messaging status
-	if ((TelSmsResponse_t)pEvent->Status == TAPI_NETTEXT_SENDSMS_SUCCESS)
+	if ((TelSmsResponse_t)result == TAPI_NETTEXT_SENDSMS_SUCCESS)
 		netStatus = MSG_NETWORK_SEND_SUCCESS;
 	else
 		netStatus = MSG_NETWORK_SEND_FAIL;
@@ -73,7 +69,7 @@ int TapiEventSentStatus(const TelTapiEvent_t *pEvent, void*)
 	try
 	{
 		// Call Event Handler
-		SmsPluginEventHandler::instance()->handleSentStatus(pEvent->RequestId, netStatus);
+		SmsPluginEventHandler::instance()->handleSentStatus(netStatus);
 
 		// Call SAT Handler
 		SmsPluginSatHandler::instance()->ctrlSms(netStatus);
@@ -81,24 +77,22 @@ int TapiEventSentStatus(const TelTapiEvent_t *pEvent, void*)
 	catch (MsgException& e)
 	{
 		MSG_FATAL("%s", e.what());
-		return e.errorCode();
+		return;
 	}
 
-	return 0;
 }
 
 
-int TapiEventMsgIncoming(const TelTapiEvent_t *pEvent, void*)
+void TapiEventMsgIncoming(TapiHandle *handle, const char *noti_id, void *data, void *user_data)
 {
-	MSG_DEBUG("TapiEventMsgIncoming is called. Red Id [%d]", pEvent->RequestId);
+	MSG_DEBUG("TapiEventMsgIncoming is called. noti_id [%s]", noti_id);
 
-	if (pEvent->Status != TAPI_API_SUCCESS || pEvent->pData == NULL)
-	{
+	if (data == NULL) {
 		MSG_DEBUG("Error. evt->pData is NULL.");
-		return 0;
+		return;
 	}
 
-	TelSmsDatapackageInfo_t* pDataPackage = (TelSmsDatapackageInfo_t*)pEvent->pData;
+	TelSmsDatapackageInfo_t* pDataPackage = (TelSmsDatapackageInfo_t*)data;
 
 	SMS_TPDU_S tpdu;
 
@@ -172,24 +166,23 @@ int TapiEventMsgIncoming(const TelTapiEvent_t *pEvent, void*)
 	catch (MsgException& e)
 	{
 		MSG_FATAL("%s", e.what());
-		return e.errorCode();
+		return;
 	}
 
-	return 0;
 }
 
 
-int TapiEventCbMsgIncoming(const TelTapiEvent_t *pEvent, void*)
+void TapiEventCbMsgIncoming(TapiHandle *handle, int result, void *data, void *user_data)
 {
 	MSG_DEBUG("TapiEventCbMsgIncoming is called.");
 
-	if (pEvent->Status != TAPI_API_SUCCESS || pEvent->pData == NULL)
+	if (result != TAPI_API_SUCCESS || data == NULL)
 	{
 		MSG_DEBUG("Error. evt->pData is NULL.");
-		return 0;
+		return;
 	}
 
-	TelSmsCbMsg_t *pCbMsg = (TelSmsCbMsg_t*)pEvent->pData;
+	TelSmsCbMsg_t *pCbMsg = (TelSmsCbMsg_t*)data;
 
 	try
 	{
@@ -198,54 +191,52 @@ int TapiEventCbMsgIncoming(const TelTapiEvent_t *pEvent, void*)
 	catch (MsgException& e)
 	{
 		MSG_FATAL("%s", e.what());
-		return 0;
+		return;
 	}
 
-	return 0;
 }
 
 
-int TapiEventDeliveryReportCNF(const TelTapiEvent_t *pEvent, void*)
+void TapiEventDeliveryReportCNF(TapiHandle *handle, int result, void *data, void *user_data)
 {
-	MSG_DEBUG("TapiEventDeliveryReportCNF is called. : request id = [%d] status = [%d]", pEvent->RequestId, pEvent->Status);
+	MSG_DEBUG("TapiEventDeliveryReportCNF is called. : result = [%d]", result);
 
-	return 0;
+	return;
 }
 
 
-int TapiEventGetSimMsgCnt(const TelTapiEvent_t *pEvent, void*)
+void TapiEventGetSimMsgCnt(TapiHandle *handle, int result, void *data, void *user_data)
 {
 	MSG_DEBUG("TapiEventGetSimMsgCnt is called.");
 
-	if (pEvent->Status != TAPI_API_SUCCESS || pEvent->pData == NULL)
+	if (result != TAPI_API_SUCCESS || data == NULL)
 	{
-		MSG_DEBUG("Error. evt->pData is NULL.");
+		MSG_DEBUG("Error. data is NULL.");
 		MSG_SIM_COUNT_S simCnt;
 		memset(&simCnt, 0x00, sizeof(MSG_SIM_COUNT_S));
 		SmsPluginSimMsg::instance()->setSimMsgCntEvent(&simCnt);
-		return 0;
+		return;
 	}
 
-	SmsPluginSimMsg::instance()->setSimMsgCntEvent((MSG_SIM_COUNT_S *)pEvent->pData);
+	SmsPluginSimMsg::instance()->setSimMsgCntEvent((MSG_SIM_COUNT_S *)data);
 
-	return 0;
 }
 
 
-int TapiEventGetSimMsg(const TelTapiEvent_t *pEvent, void*)
+void TapiEventGetSimMsg(TapiHandle *handle, int result, void *data, void *user_data)
 {
 	MSG_DEBUG("TapiEventGetSimMsg is called.");
 
-	if (pEvent->Status != TAPI_API_SUCCESS || pEvent->pData == NULL)
+	if (result != TAPI_API_SUCCESS || data == NULL)
 	{
-		MSG_DEBUG("Error!! pEvent->Status [%d]", pEvent->Status);
+		MSG_DEBUG("Error!! pEvent->Status [%d]", result);
 
 		SmsPluginSimMsg::instance()->setSimMsgEvent(NULL, false);
 
-		return 0;
+		return;
 	}
 
-	TelSmsData_t* pSmsTpdu = (TelSmsData_t*)pEvent->pData;
+	TelSmsData_t* pSmsTpdu = (TelSmsData_t*)data;
 
 	// Reading TelSmsData_t
 	MSG_DEBUG ("sim index %d", pSmsTpdu->SimIndex);
@@ -258,7 +249,7 @@ int TapiEventGetSimMsg(const TelTapiEvent_t *pEvent, void*)
 
 		SmsPluginSimMsg::instance()->setSimMsgEvent(NULL, false);
 
-		return 0;
+		return;
 	}
 
 	SMS_TPDU_S tpdu;
@@ -287,7 +278,7 @@ int TapiEventGetSimMsg(const TelTapiEvent_t *pEvent, void*)
 				tpdu.data.deliver.userData.header[i].udhType == SMS_UDH_CONCAT_16BIT)
 			{
 				SmsPluginSimMsg::instance()->setSimMsgEvent(NULL, false);
-				return 0;
+				return;
 			}
 		}
 	}
@@ -302,7 +293,7 @@ int TapiEventGetSimMsg(const TelTapiEvent_t *pEvent, void*)
 				tpdu.data.submit.userData.header[i].udhType == SMS_UDH_CONCAT_16BIT)
 			{
 				SmsPluginSimMsg::instance()->setSimMsgEvent(NULL, false);
-				return 0;
+				return;
 			}
 		}
 	}
@@ -346,62 +337,60 @@ int TapiEventGetSimMsg(const TelTapiEvent_t *pEvent, void*)
 
 	SmsPluginSimMsg::instance()->setSimMsgEvent(&msgInfo, true); // Call Event Handler
 
-	return 0;
 }
 
 
-int TapiEventSaveSimMsg(const TelTapiEvent_t *pEvent, void*)
+void TapiEventSaveSimMsg(TapiHandle *handle, int result, void *data, void *user_data)
 {
-	MSG_DEBUG("TapiEventSaveSimMsg is called. Red Id [%d]", pEvent->RequestId);
+	MSG_DEBUG("TapiEventSaveSimMsg is called. result [%d]", result);
 
-	if (pEvent->Status != TAPI_API_SUCCESS || pEvent->pData == NULL)
+	if (result != TAPI_API_SUCCESS || data == NULL)
 	{
-		MSG_DEBUG("Error. evt->pData is NULL.");
-		SmsPluginSimMsg::instance()->setSimEvent((MSG_SIM_ID_T)0, false);
-		return 0;
+		MSG_DEBUG("Error. data is NULL.");
+		SmsPluginSimMsg::instance()->setSimEvent((msg_sim_id_t)0, false);
+		return;
 	}
 
-	int simId = *((int*)pEvent->pData);
+	int simId = *((int*)data);
 
-	MSG_DEBUG("sim ID : [%d], status : [%d]", simId, (TelSmsCause_t)pEvent->Status);
+	MSG_DEBUG("sim ID : [%d], status : [%d]", simId, (TelSmsCause_t)result);
 
-	SmsPluginSimMsg::instance()->setSimEvent((MSG_SIM_ID_T)simId, true);
+	SmsPluginSimMsg::instance()->setSimEvent((msg_sim_id_t)simId, true);
 
-	return 0;
 }
 
 
-int TapiEventDeleteSimMsg(const TelTapiEvent_t *pEvent, void*)
+void TapiEventDeleteSimMsg(TapiHandle *handle, int result, void *data, void *user_data)
 {
-	MSG_DEBUG("TapiEventDeleteSimMsg is called. Red Id [%d]", pEvent->RequestId);
-	MSG_DEBUG("status : [%d]", (TelSmsCause_t)pEvent->Status);
+	MSG_DEBUG("TapiEventDeleteSimMsg is called. result [%d]", result);
 
-	if (pEvent->Status != TAPI_API_SUCCESS || pEvent->pData == NULL)
+	MSG_DEBUG("status : [%d]", (TelSmsCause_t)result);
+
+	if (result != TAPI_API_SUCCESS || data == NULL)
 	{
-		MSG_DEBUG("Error. evt->pData is NULL.");
-		SmsPluginSimMsg::instance()->setSimEvent((MSG_SIM_ID_T)0, false);
-		return 0;
+		MSG_DEBUG("Error. data is NULL.");
+		SmsPluginSimMsg::instance()->setSimEvent((msg_sim_id_t)0, false);
+		return;
 	}
 
-	int sim_id = *((int*)pEvent->pData);
+	int sim_id = *((int*)data);
 
-	SmsPluginSimMsg::instance()->setSimEvent((MSG_SIM_ID_T)sim_id, true);
+	SmsPluginSimMsg::instance()->setSimEvent((msg_sim_id_t)sim_id, true);
 
-	return 0;
 }
 
 
-int TapiEventSetConfigData(const TelTapiEvent_t *pEvent, void*)
+void TapiEventSetConfigData(TapiHandle *handle, int result, void *data, void *user_data)
 {
 	MSG_DEBUG("TapiEventSetConfigData is called.");
 
-	if (pEvent->pData == NULL)
+	if (data == NULL)
 	{
-		MSG_DEBUG("Error. evt->pData is NULL.");
-		return 0;
+		MSG_DEBUG("Error. data is NULL.");
+		return;
 	}
 
-	TelSmsSetResponse* responseType = (TelSmsSetResponse*)pEvent->pData;
+	TelSmsSetResponse* responseType = (TelSmsSetResponse*)data;
 
 	MSG_DEBUG("responseType : [%d]", *responseType);
 
@@ -434,55 +423,53 @@ int TapiEventSetConfigData(const TelTapiEvent_t *pEvent, void*)
 
 	bool bRet = true;
 
-	MSG_DEBUG("status : [%d]", (TelSmsCause_t)pEvent->Status);
+	MSG_DEBUG("status : [%d]", (TelSmsCause_t)result);
 
-	if ((TelSmsCause_t)pEvent->Status != TAPI_NETTEXT_SUCCESS) bRet = false;
+	if ((TelSmsCause_t)result != TAPI_NETTEXT_SUCCESS) bRet = false;
 
 	if (*responseType == TAPI_NETTEXT_SETMESSAGESTATUS_RSP)
 		SmsPluginSimMsg::instance()->setSimEvent(0, bRet);
 	else
 		SmsPluginSetting::instance()->setResultFromSim(bRet);
 
-	return 0;
 }
 
 
-int TapiEventGetParamCnt(const TelTapiEvent_t *pEvent, void*)
+void TapiEventGetParamCnt(TapiHandle *handle, int result, void *data, void *user_data)
 {
 	MSG_DEBUG("TapiEventGetParamCnt is called.");
 
-	if (pEvent->Status != TAPI_API_SUCCESS || pEvent->pData == NULL)
+	if (result != TAPI_API_SUCCESS || data == NULL)
 	{
 		MSG_DEBUG("Error. evt->pData is NULL.");
 		SmsPluginSetting::instance()->setParamCntEvent(0);
-		return 0;
+		return;
 	}
 
 	int paramCnt = 0;
-	paramCnt = *((int*)pEvent->pData);
+	paramCnt = *((int*)data);
 
 	SmsPluginSetting::instance()->setParamCntEvent(paramCnt);
 
-	return 0;
 }
 
 
-int TapiEventGetParam(const TelTapiEvent_t *pEvent, void*)
+void TapiEventGetParam(TapiHandle *handle, int result, void *data, void *user_data)
 {
 	MSG_DEBUG("TapiEventGetConfigData is called.");
 
-	if (pEvent->Status != TAPI_API_SUCCESS || pEvent->pData == NULL)
+	if (result != TAPI_API_SUCCESS || data == NULL)
 	{
-		MSG_DEBUG("Error. evt->pData is NULL.");
+		MSG_DEBUG("Error. data is NULL.");
 		SmsPluginSetting::instance()->setParamEvent(NULL, -1, false);
-		return 0;
+		return;
 	}
 
-	TelSmsParams_t* smsParam = (TelSmsParams_t*)pEvent->pData;
+	TelSmsParams_t* smsParam = (TelSmsParams_t*)data;
 
 	int alphaIdLen = 0;
 	int addrLen = 0;
-	MSG_SMSC_DATA_S smscData = {};
+	MSG_SMSC_DATA_S smscData = {0, };
 
 	/*Check Alpha ID value*/
 	alphaIdLen = smsParam->AlphaIdLen;
@@ -494,7 +481,7 @@ int TapiEventGetParam(const TelTapiEvent_t *pEvent, void*)
 
 		SmsPluginSetting::instance()->setParamEvent(NULL, -1, false);
 
-		return 0;
+		return;
 	}
 
 
@@ -505,13 +492,13 @@ int TapiEventGetParam(const TelTapiEvent_t *pEvent, void*)
 	{
 		MSG_DEBUG("addrLen is too long: %d", addrLen);
 		SmsPluginSetting::instance()->setParamEvent(NULL, -1, false);
-		return 0;
+		return;
 	}
 	else if(addrLen < 2)
 	{
 		MSG_DEBUG("addrLen is too short: %d", addrLen);
 		SmsPluginSetting::instance()->setParamEvent(NULL, -1, false);
-		return 0;
+		return;
 	}
 
 	MSG_DEBUG("addrLen : %d", addrLen);
@@ -550,7 +537,7 @@ int TapiEventGetParam(const TelTapiEvent_t *pEvent, void*)
 
 		SmsPluginSetting::instance()->setParamEvent(NULL, -1, false);
 
-		return 0;
+		return;
 	}
 
 	/*Get the PID value*/
@@ -608,26 +595,25 @@ int TapiEventGetParam(const TelTapiEvent_t *pEvent, void*)
 
 	SmsPluginSetting::instance()->setParamEvent(&smscData, (int)smsParam->RecordIndex, true);
 
-	return 0;
 }
 
 
-int TapiEventGetCBConfig(const TelTapiEvent_t *pEvent, void*)
+void TapiEventGetCBConfig(TapiHandle *handle, int result, void *data, void *user_data)
 {
 	MSG_DEBUG("TapiEventGetCBConfig is called.");
 
 	MSG_CBMSG_OPT_S cbOpt = {0};
 
-	if (pEvent->Status != TAPI_API_SUCCESS || pEvent->pData == NULL)
+	if (result != TAPI_API_SUCCESS || data == NULL)
 	{
-		MSG_DEBUG("Error. evt->pData is NULL.");
+		MSG_DEBUG("Error. data is NULL.");
 
 		SmsPluginSetting::instance()->setCbConfigEvent(NULL, false);
 
-		return 0;
+		return;
 	}
 
-	TelSmsCbConfig_t* pCBConfig = (TelSmsCbConfig_t*)pEvent->pData;
+	TelSmsCbConfig_t* pCBConfig = (TelSmsCbConfig_t*)data;
 
 	cbOpt.bReceive = (bool)pCBConfig->bCBEnabled;
 
@@ -648,6 +634,10 @@ int TapiEventGetCBConfig(const TelTapiEvent_t *pEvent, void*)
 		cbOpt.channelData.channelCnt = CB_CHANNEL_MAX;
 	}
 
+	if (MsgSettingSetInt(CB_CHANNEL_COUNT, cbOpt.channelData.channelCnt) != MSG_SUCCESS) {
+		MSG_DEBUG("Error to set config data [%s]", CB_CHANNEL_COUNT);
+	}
+
 	MSG_DEBUG("Channel Count [%d]", cbOpt.channelData.channelCnt);
 
 	for (int i = 0; i < cbOpt.channelData.channelCnt; i++)
@@ -661,127 +651,76 @@ int TapiEventGetCBConfig(const TelTapiEvent_t *pEvent, void*)
 
 	SmsPluginSetting::instance()->setCbConfigEvent(&cbOpt, true);
 
-	return 0;
 }
 
 
-int TapiEventSatSmsRefresh(const TelTapiEvent_t *pEvent, void*)
+void TapiEventSatSmsRefresh(TapiHandle *handle, int result, void *data, void *user_data)
 {
 	MSG_DEBUG("TapiEventSatSmsRefresh is called.");
 
-	if (pEvent->Status != TAPI_API_SUCCESS || pEvent->pData == NULL)
+	if (result != TAPI_API_SUCCESS || data == NULL)
 	{
-		MSG_DEBUG("Error. evt->pData is NULL.");
-		return 0;
+		MSG_DEBUG("Error. data is NULL.");
+		return;
 	}
 
 	try
 	{
-		SmsPluginSatHandler::instance()->refreshSms(pEvent->pData);
+		SmsPluginSatHandler::instance()->refreshSms(data);
 	}
 	catch (MsgException& e)
 	{
 		MSG_FATAL("%s", e.what());
-		return e.errorCode();
+		return;
 	}
 
-	return 0;
 }
 
 
-int TapiEventSatSendSms(const TelTapiEvent_t *pEvent, void*)
+void TapiEventSatSendSms(TapiHandle *handle, int result, void *data, void *user_data)
 {
 	MSG_DEBUG("TapiEventSatSendSms is called.");
 
-	if (pEvent->Status != TAPI_API_SUCCESS || pEvent->pData == NULL)
+	if (result != TAPI_API_SUCCESS || data == NULL)
 	{
-		MSG_DEBUG("Error. evt->pData is NULL.");
-		return 0;
+		MSG_DEBUG("Error. data is NULL.");
+		return;
 	}
 
 	try
 	{
-		SmsPluginSatHandler::instance()->sendSms(pEvent->pData);
+		SmsPluginSatHandler::instance()->sendSms(data);
 	}
 	catch (MsgException& e)
 	{
 		MSG_FATAL("%s", e.what());
-		return e.errorCode();
+		return;
 	}
 
-	return 0;
 }
 
 
-int TapiEventSatMoSmsCtrl(const TelTapiEvent_t *pEvent, void*)
+void TapiEventSatMoSmsCtrl(TapiHandle *handle, int result, void *data, void *user_data)
 {
 	MSG_DEBUG("TapiEventSatMoSmsCtrl is called.");
 
-	if (pEvent->Status != TAPI_API_SUCCESS || pEvent->pData == NULL)
+	if (result != TAPI_API_SUCCESS || data == NULL)
 	{
-		MSG_DEBUG("Error. evt->pData is NULL.");
-		return 0;
+		MSG_DEBUG("Error. data is NULL.");
+		return;
 	}
 
 	try
 	{
-		SmsPluginSatHandler::instance()->ctrlSms(pEvent->pData);
+		SmsPluginSatHandler::instance()->ctrlSms(data);
 	}
 	catch (MsgException& e)
 	{
 		MSG_FATAL("%s", e.what());
-		return e.errorCode();
+		return;
 	}
-
-	return 0;
 
 }
-
-
-int TapiEventFactoryDftSms(const TelTapiEvent_t *pEvent, void*)
-{
-	MSG_DEBUG("TapiEventFactoryDftSms is called.");
-
-	if (pEvent->Status != TAPI_API_SUCCESS || pEvent->pData == NULL)
-	{
-		MSG_DEBUG("Error. evt->pData is NULL.");
-		return 0;
-	}
-
-	TelFactoryDftSmsInfo_t* pSmsInfo = (TelFactoryDftSmsInfo_t *)pEvent->pData;
-
-	MSG_FOLDER_ID_T folderId = MSG_INBOX_ID;
-
-	if (pSmsInfo->option == TAPI_FACTORY_DFT_SMS_INBOX)
-	{
-		folderId = MSG_INBOX_ID;
-	}
-	else if (pSmsInfo->option == TAPI_FACTORY_DFT_SMS_DRAFTS)
-	{
-		folderId = MSG_DRAFT_ID;
-	}
-	else if (pSmsInfo->option == TAPI_FACTORY_DFT_SMS_OUTBOX)
-	{
-		folderId = MSG_OUTBOX_ID;
-	}
-	else if (pSmsInfo->option == TAPI_FACTORY_DFT_SMS_SENTBOX)
-	{
-		folderId = MSG_SENTBOX_ID;
-	}
-
-	try
-	{
-		SmsPluginEventHandler::instance()->handleDftSms(folderId, pSmsInfo->number, pSmsInfo->data); // Call Event Handler
-	}
-	catch (MsgException& e)
-	{
-		MSG_FATAL("%s", e.what());
-		return e.errorCode();
-	}
-
-	return 0;
-}
-
 
 /*==================================================================================================
                                      IMPLEMENTATION OF SmsPluginCallback - Member Functions
@@ -819,38 +758,7 @@ void SmsPluginCallback::registerEvent()
 {
 	unsigned int tempId = 0;
 
-	tel_register_event(TAPI_EVENT_NETTEXT_DEVICE_READY_IND, &tempId, (TelAppCallback)&TapiEventDeviceReady, NULL);
-
-	tel_register_event(TAPI_EVENT_NETTEXT_SENTSTATUS_CNF, &tempId, (TelAppCallback)&TapiEventSentStatus, NULL);
-	tel_register_event(TAPI_EVENT_NETTEXT_INCOM_IND, &tempId, (TelAppCallback)&TapiEventMsgIncoming, NULL);
-	tel_register_event(TAPI_EVENT_NETTEXT_CB_INCOM_IND, &tempId, (TelAppCallback)&TapiEventCbMsgIncoming, NULL);
-	tel_register_event(TAPI_EVENT_NETTEXT_DELIVERY_REPORT_CNF, &tempId, (TelAppCallback)&TapiEventDeliveryReportCNF, NULL);
-
-	tel_register_event(TAPI_EVENT_NETTEXT_SAVE_STATUS_CNF, &tempId, (TelAppCallback)&TapiEventSaveSimMsg, NULL);
-	tel_register_event(TAPI_EVENT_NETTEXT_DELETE_STATUS_CNF, &tempId, (TelAppCallback)&TapiEventDeleteSimMsg, NULL);
-	tel_register_event(TAPI_EVENT_NETTEXT_GET_COUNT_CNF, &tempId, (TelAppCallback)&TapiEventGetSimMsgCnt, NULL);
-	tel_register_event(TAPI_EVENT_NETTEXT_READ_SMS_CNF, &tempId, (TelAppCallback)&TapiEventGetSimMsg, NULL);
-
-	tel_register_event(TAPI_EVENT_NETTEXT_SET_REQUEST_CNF, &tempId, (TelAppCallback)&TapiEventSetConfigData, NULL);
-	tel_register_event(TAPI_EVENT_NETTEXT_PARAM_COUNT_IND, &tempId, (TelAppCallback)&TapiEventGetParamCnt, NULL);
-	tel_register_event(TAPI_EVENT_NETTEXT_GET_PARAM_CNF, &tempId, (TelAppCallback)&TapiEventGetParam, NULL);
-	tel_register_event(TAPI_EVENT_NETTEXT_GET_CB_CONFIG_CNF, &tempId, (TelAppCallback)&TapiEventGetCBConfig, NULL);
-
-	tel_register_event(TAPI_EVENT_SAT_SMS_REFRESH_IND, &tempId, (TelAppCallback)&TapiEventSatSmsRefresh, NULL);
-	tel_register_event(TAPI_EVENT_SAT_SEND_SMS_IND, &tempId, (TelAppCallback)&TapiEventSatSendSms, NULL);
-	tel_register_event(TAPI_EVENT_SAT_MO_SMS_CONTROL_IND, &tempId, (TelAppCallback)&TapiEventSatMoSmsCtrl, NULL);
-
-	tel_register_event(TAPI_EVENT_FACTORY_DFT_SMS, &tempId, (TelAppCallback)&TapiEventFactoryDftSms, NULL);
-
-	int tapiRet = TAPI_API_SUCCESS;
-
-	// Register app name to telephony server
-	tapiRet = tel_register_app_name((char*)"org.tizen.msgfw");
-
-	if (tapiRet != TAPI_API_SUCCESS)
-	{
-                THROW(MsgException::SMS_PLG_ERROR, "Failed to register applicatoin name on Telephony Server [%d]", tapiRet);
-	}
+	tel_register_noti_event(pTapiHandle, TAPI_NOTI_SMS_INCOM_MSG, TapiEventMsgIncoming, NULL);
 }
 
 

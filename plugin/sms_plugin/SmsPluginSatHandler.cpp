@@ -1,18 +1,18 @@
- /*
-  * Copyright 2012  Samsung Electronics Co., Ltd
-  *
-  * Licensed under the Flora License, Version 1.0 (the "License");
-  * you may not use this file except in compliance with the License.
-  * You may obtain a copy of the License at
-  *
-  *    http://www.tizenopensource.org/license
-  *
-  * Unless required by applicable law or agreed to in writing, software
-  * distributed under the License is distributed on an "AS IS" BASIS,
-  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  * See the License for the specific language governing permissions and
-  * limitations under the License.
-  */
+/*
+* Copyright 2012  Samsung Electronics Co., Ltd
+*
+* Licensed under the Flora License, Version 1.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*    http://www.tizenopensource.org/license
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
 
 #include "MsgDebug.h"
 #include "MsgCppTypes.h"
@@ -22,15 +22,20 @@
 #include "SmsPluginUDCodec.h"
 #include "SmsPluginSetting.h"
 #include "SmsPluginTransport.h"
+#include "SmsPluginCallback.h"
 #include "SmsPluginEventHandler.h"
 #include "SmsPluginSatHandler.h"
 
 extern "C"
 {
+	#include <tapi_common.h>
+	#include <TelSms.h>
+	#include <TapiUtility.h>
 	#include <ITapiNetText.h>
 	#include <ITapiSat.h>
 }
 
+extern struct tapi_handle *pTapiHandle;
 /*==================================================================================================
                                      IMPLEMENTATION OF SmsPluginCbMsgHandler - Member Functions
 ==================================================================================================*/
@@ -65,66 +70,6 @@ SmsPluginSatHandler* SmsPluginSatHandler::instance()
 
 void SmsPluginSatHandler::refreshSms(void *pData)
 {
-	TelSatRefreshInd_t* pRefreshData = (TelSatRefreshInd_t*)pData;
-
-	if (pRefreshData->appType != TAPI_SAT_REFRESH_MSG)
-	{
-		MSG_DEBUG("App Type is wrong. [%d]", pRefreshData->appType);
-		return;
-	}
-
-	commandId = pRefreshData->commandId;
-
-	switch (pRefreshData->refreshMode)
-	{
-		case TAPI_SAT_REFRESH_SIM_INIT_AND_FULL_FCN :
-		case TAPI_SAT_REFRESH_SIM_INIT_AND_FCN :
-		{
-			for (int i = 0; i < pRefreshData->fileCount; i++)
-			{
-				if ((SMS_SIM_EFILE_NAME_T)pRefreshData->fileId[i].FileName == SMS_SIM_EFILE_USIM_SMSP ||
-					(SMS_SIM_EFILE_NAME_T)pRefreshData->fileId[i].FileName == SMS_SIM_EFILE_SMSP)
-				{
-					bSMSPChanged = true;
-				}
-				else if ((SMS_SIM_EFILE_NAME_T)pRefreshData->fileId[i].FileName == SMS_SIM_EFILE_USIM_CBMI ||
-					(SMS_SIM_EFILE_NAME_T)pRefreshData->fileId[i].FileName == SMS_SIM_EFILE_CBMI)
-				{
-					bCBMIChanged = true;
-				}
-			}
-
-			initSim();
-		}
-		break;
-
-		case TAPI_SAT_REFRESH_FCN :
-		{
-			for (int i = 0; i < pRefreshData->fileCount; i++)
-			{
-				if ((SMS_SIM_EFILE_NAME_T)pRefreshData->fileId[i].FileName == SMS_SIM_EFILE_USIM_SMSP ||
-					(SMS_SIM_EFILE_NAME_T)pRefreshData->fileId[i].FileName == SMS_SIM_EFILE_SMSP)
-				{
-					bSMSPChanged = true;
-				}
-				else if ((SMS_SIM_EFILE_NAME_T)pRefreshData->fileId[i].FileName == SMS_SIM_EFILE_USIM_CBMI ||
-					(SMS_SIM_EFILE_NAME_T)pRefreshData->fileId[i].FileName == SMS_SIM_EFILE_CBMI)
-				{
-					bCBMIChanged = true;
-				}
-			}
-		}
-		break;
-
-		case TAPI_SAT_REFRESH_SIM_INIT :
-		{
-			initSim();
-		}
-		break;
-
-		default:
-		break;
-	}
 }
 
 
@@ -198,7 +143,7 @@ void SmsPluginSatHandler::sendSms(void *pData)
 	int reqId = 0, tapiRet = TAPI_API_SUCCESS;
 
 	// Send SMS
-	tapiRet = tel_send_sms(&pkgInfo, 0, &reqId);
+	tapiRet = tel_send_sms(pTapiHandle, &pkgInfo, 0, TapiEventSentStatus, &reqId);
 
 	if (tapiRet == TAPI_API_SUCCESS)
 	{
@@ -233,7 +178,7 @@ void SmsPluginSatHandler::ctrlSms(void *pData)
 	}
 	else // Send SMS By APP
 	{
-		MSG_NETWORK_STATUS_T netStatus = MSG_NETWORK_NOT_SEND;
+		msg_network_status_t netStatus = MSG_NETWORK_NOT_SEND;
 
 		if (pCtrlData->moSmsCtrlResult == TAPI_SAT_CALL_CTRL_R_NOT_ALLOWED)
 		{
@@ -249,12 +194,12 @@ void SmsPluginSatHandler::ctrlSms(void *pData)
 		}
 
 		// Call Event Handler
-		SmsPluginEventHandler::instance()->handleSentStatus(-1, netStatus);
+		SmsPluginEventHandler::instance()->handleSentStatus(netStatus);
 	}
 }
 
 
-void SmsPluginSatHandler::ctrlSms(MSG_NETWORK_STATUS_T netStatus)
+void SmsPluginSatHandler::ctrlSms(msg_network_status_t netStatus)
 {
 	if (bSendSms == true) // Send SMS By SAT
 	{
@@ -274,7 +219,7 @@ void SmsPluginSatHandler::ctrlSms(MSG_NETWORK_STATUS_T netStatus)
 }
 
 
-void SmsPluginSatHandler::finishSimMsgInit(MSG_ERROR_T Err)
+void SmsPluginSatHandler::finishSimMsgInit(msg_error_t Err)
 {
 	// SAT Handler is initializing SIM now
 	if (bInitSim == true)
@@ -342,6 +287,7 @@ void	SmsPluginSatHandler::initSMSCList()
 	for (int i = 0; i < settingData.option.smscList.totalCnt; i++)
 	{
 		MSG_DEBUG("pid[%d]", settingData.option.smscList.smscData[i].pid);
+//		MSG_DEBUG("dcs[%d]", settingData.option.smscList.smscData[i].dcs);
 		MSG_DEBUG("val_period[%d]", settingData.option.smscList.smscData[i].valPeriod);
 		MSG_DEBUG("name[%s]", settingData.option.smscList.smscData[i].name);
 
@@ -363,7 +309,7 @@ void	SmsPluginSatHandler::initSMSCList()
 	}
 
 	char keyName[128];
-	MSG_ERROR_T err = MSG_SUCCESS;
+	msg_error_t err = MSG_SUCCESS;
 
 	for (int i = 0; i < settingData.option.smscList.totalCnt; i++)
 	{
@@ -445,7 +391,7 @@ void	SmsPluginSatHandler::initCBConfig()
 	}
 
 	char keyName[128];
-	MSG_ERROR_T err = MSG_SUCCESS;
+	msg_error_t err = MSG_SUCCESS;
 
 	for (int i = 0; i < settingData.option.cbMsgOpt.channelData.channelCnt; i++)
 	{
@@ -496,6 +442,9 @@ int SmsPluginSatHandler::handleSatTpdu(unsigned char *pTpdu, unsigned char TpduL
 	MSG_DEBUG("new Msg Ref : %d", pTpdu[pos]);
 
 	pos++;
+
+//	pTpdu[pos++] = SmsPluginTransport::instance()->getMsgRef();
+
 
 	// TP-DA
 	SMS_ADDRESS_S destAddr = {0};
@@ -588,7 +537,7 @@ void SmsPluginSatHandler::sendResult(SMS_SAT_CMD_TYPE_T CmdType, int ResultType)
 
 	int tapiRet = TAPI_API_SUCCESS;
 
-	tapiRet = tel_send_sat_app_exec_result(&satRetInfo);
+	tapiRet = tel_send_sat_app_exec_result(pTapiHandle, &satRetInfo);
 
 	if (tapiRet == TAPI_API_SUCCESS)
 	{

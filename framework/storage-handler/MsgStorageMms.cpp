@@ -1,18 +1,18 @@
- /*
-  * Copyright 2012  Samsung Electronics Co., Ltd
-  *
-  * Licensed under the Flora License, Version 1.0 (the "License");
-  * you may not use this file except in compliance with the License.
-  * You may obtain a copy of the License at
-  *
-  *    http://www.tizenopensource.org/license
-  *
-  * Unless required by applicable law or agreed to in writing, software
-  * distributed under the License is distributed on an "AS IS" BASIS,
-  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  * See the License for the specific language governing permissions and
-  * limitations under the License.
-  */
+/*
+* Copyright 2012  Samsung Electronics Co., Ltd
+*
+* Licensed under the Flora License, Version 1.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*    http://www.tizenopensource.org/license
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
 
 #include "MsgDebug.h"
 #include "MsgCppTypes.h"
@@ -32,14 +32,14 @@ extern MsgDbHandler dbHandle;
 /*==================================================================================================
                                      FUNCTION IMPLEMENTATION
 ==================================================================================================*/
-MSG_ERROR_T MsgStoGetText(MSG_MESSAGE_ID_T MsgId, char *pSubject, char *pMsgText)
+msg_error_t MsgStoGetText(msg_message_id_t msgId, char *pSubject, char *pMsgText)
 {
 	char sqlQuery[MAX_QUERY_LEN+1];
 
 	memset(sqlQuery, 0x00, sizeof(sqlQuery));
 
 	snprintf(sqlQuery, sizeof(sqlQuery), "SELECT SUBJECT, MSG_TEXT FROM %s WHERE MSG_ID = %d;",
-					MSGFW_MESSAGE_TABLE_NAME, MsgId);
+			MSGFW_MESSAGE_TABLE_NAME, msgId);
 
 	if(dbHandle.prepareQuery(sqlQuery) != MSG_SUCCESS)
 		return MSG_ERR_DB_PREPARE;
@@ -66,68 +66,65 @@ MSG_ERROR_T MsgStoGetText(MSG_MESSAGE_ID_T MsgId, char *pSubject, char *pMsgText
 
 
 
-MSG_ERROR_T MsgStoUpdateMMSMessage(MSG_MESSAGE_INFO_S *pMsg)
+msg_error_t MsgStoUpdateMMSMessage(MSG_MESSAGE_INFO_S *pMsg)
 {
 	MSG_BEGIN();
 
-	MSG_ERROR_T err = MSG_SUCCESS;
-	int rowCnt = 0;
 	char sqlQuery[MAX_QUERY_LEN+1];
 
 	memset(sqlQuery, 0x00, sizeof(sqlQuery));
 
 	dbHandle.beginTrans();
 
-	if(pMsg->msgType.subType == MSG_RETRIEVE_AUTOCONF_MMS || pMsg->msgType.subType == MSG_RETRIEVE_MANUALCONF_MMS)
-	{
-		if( pMsg->networkStatus == MSG_NETWORK_RETRIEVE_SUCCESS )
-		{
+	if(pMsg->msgType.subType == MSG_RETRIEVE_AUTOCONF_MMS || pMsg->msgType.subType == MSG_RETRIEVE_MANUALCONF_MMS) {
+		if( pMsg->networkStatus == MSG_NETWORK_RETRIEVE_SUCCESS ) {
 			snprintf(sqlQuery, sizeof(sqlQuery),
-				"UPDATE %s SET MAIN_TYPE = %d, SUB_TYPE = %d, DISPLAY_TIME = %lu, SUBJECT = ?, NETWORK_STATUS = %d, MSG_TEXT = ?, THUMB_PATH = '%s', DATA_SIZE = %d WHERE REFERENCE_ID = %d;",
+					"UPDATE %s SET MAIN_TYPE = %d, SUB_TYPE = %d, DISPLAY_TIME = %lu, SUBJECT = ?, NETWORK_STATUS = %d, MSG_TEXT = ?, THUMB_PATH = '%s', DATA_SIZE = %d WHERE MSG_ID = %d;",
 					MSGFW_MESSAGE_TABLE_NAME, pMsg->msgType.mainType, pMsg->msgType.subType, pMsg->displayTime, pMsg->networkStatus, pMsg->thumbPath,  pMsg->dataSize, pMsg->msgId);
 
-			if (dbHandle.prepareQuery(sqlQuery) != MSG_SUCCESS)
+			if (dbHandle.prepareQuery(sqlQuery) != MSG_SUCCESS) {
+				dbHandle.endTrans(false);
 				return MSG_ERR_DB_PREPARE;
+			}
 
 			dbHandle.bindText(pMsg->subject, 1);
 			dbHandle.bindText(pMsg->msgText, 2);
-		}
-		else if( pMsg->networkStatus == MSG_NETWORK_RETRIEVE_FAIL)
-		{
+		} else if( pMsg->networkStatus == MSG_NETWORK_RETRIEVE_FAIL) {
 			snprintf(sqlQuery, sizeof(sqlQuery),
-				"UPDATE %s SET MAIN_TYPE = %d, SUB_TYPE = %d, SUBJECT = ?, NETWORK_STATUS = %d, MSG_TEXT = ?, THUMB_PATH = '%s' WHERE REFERENCE_ID = %d;",
+					"UPDATE %s SET MAIN_TYPE = %d, SUB_TYPE = %d, SUBJECT = ?, NETWORK_STATUS = %d, MSG_TEXT = ?, THUMB_PATH = '%s' WHERE MSG_ID = %d;",
 					MSGFW_MESSAGE_TABLE_NAME, pMsg->msgType.mainType, pMsg->msgType.subType, pMsg->networkStatus, pMsg->thumbPath,  pMsg->msgId);
 
-			if (dbHandle.prepareQuery(sqlQuery) != MSG_SUCCESS)
+			if (dbHandle.prepareQuery(sqlQuery) != MSG_SUCCESS) {
+				dbHandle.endTrans(false);
 				return MSG_ERR_DB_PREPARE;
+			}
 
 			dbHandle.bindText(pMsg->subject, 1);
 			dbHandle.bindText(pMsg->msgText, 2);
 		}
-	}
-	else if (pMsg->msgType.subType == MSG_SENDREQ_MMS)
-	{
+	} else if (pMsg->msgType.subType == MSG_SENDREQ_MMS) {
 		snprintf(sqlQuery, sizeof(sqlQuery),
-			"UPDATE %s SET MSG_DATA = '%s', MSG_TEXT = ?, THUMB_PATH = '%s' WHERE REFERENCE_ID = %d;",
-				MSGFW_MESSAGE_TABLE_NAME, pMsg->msgData, pMsg->thumbPath, pMsg->referenceId);
+				"UPDATE %s SET MSG_DATA = '%s', MSG_TEXT = ?, THUMB_PATH = '%s' WHERE MSG_ID = %d;",
+				MSGFW_MESSAGE_TABLE_NAME, pMsg->msgData, pMsg->thumbPath, pMsg->msgId);
 
-		if (dbHandle.prepareQuery(sqlQuery) != MSG_SUCCESS)
+		if (dbHandle.prepareQuery(sqlQuery) != MSG_SUCCESS) {
+			dbHandle.endTrans(false);
 			return MSG_ERR_DB_PREPARE;
+		}
 
 		dbHandle.bindText(pMsg->msgText, 1);
-	}
-	else
-	{
+	} else {
 		snprintf(sqlQuery, sizeof(sqlQuery),
-			"UPDATE %s SET MAIN_TYPE = %d, SUB_TYPE = %d, FOLDER_ID = %d, NETWORK_STATUS = %d WHERE REFERENCE_ID = %d;",
-						MSGFW_MESSAGE_TABLE_NAME, pMsg->msgType.mainType, pMsg->msgType.subType, pMsg->folderId, pMsg->networkStatus, pMsg->msgId);
+				"UPDATE %s SET MAIN_TYPE = %d, SUB_TYPE = %d, FOLDER_ID = %d, NETWORK_STATUS = %d WHERE MSG_ID = %d;",
+				MSGFW_MESSAGE_TABLE_NAME, pMsg->msgType.mainType, pMsg->msgType.subType, pMsg->folderId, pMsg->networkStatus, pMsg->msgId);
 
-		if (dbHandle.prepareQuery(sqlQuery) != MSG_SUCCESS)
+		if (dbHandle.prepareQuery(sqlQuery) != MSG_SUCCESS) {
+			dbHandle.endTrans(false);
 			return MSG_ERR_DB_PREPARE;
+		}
 	}
 
-	if (dbHandle.stepQuery() != MSG_ERR_DB_DONE)
-	{
+	if (dbHandle.stepQuery() != MSG_ERR_DB_DONE) {
 		dbHandle.finalizeQuery();
 		dbHandle.endTrans(false);
 		MSG_DEBUG("Update MMS Message. Fail [%s]", sqlQuery);
@@ -136,75 +133,41 @@ MSG_ERROR_T MsgStoUpdateMMSMessage(MSG_MESSAGE_INFO_S *pMsg)
 
 	dbHandle.finalizeQuery();
 
-	unsigned int addrId = 0;
-
-	memset(sqlQuery, 0x00, sizeof(sqlQuery));
+	msg_thread_id_t convId = 0;
+	int row = 0;
 
 	// Get SUB_TYPE, STORAGE_ID
 	memset(sqlQuery, 0x00, sizeof(sqlQuery));
-	snprintf(sqlQuery, sizeof(sqlQuery),
-		"SELECT ADDRESS_ID \
-				        FROM %s \
-				     WHERE MSG_ID = %d;",
-				MSGFW_MESSAGE_TABLE_NAME, pMsg->msgId);
+	snprintf(sqlQuery, sizeof(sqlQuery), "SELECT CONV_ID FROM %s WHERE MSG_ID = %d;",
+			MSGFW_MESSAGE_TABLE_NAME, pMsg->msgId);
 
-	if (dbHandle.prepareQuery(sqlQuery) != MSG_SUCCESS)
-	{
+	if (dbHandle.getTable(sqlQuery, &row) != MSG_SUCCESS) {
+		dbHandle.freeTable();
 		dbHandle.endTrans(false);
 		return MSG_ERR_DB_PREPARE;
 	}
 
-	if (dbHandle.stepQuery() == MSG_ERR_DB_ROW)
-	{
-		addrId = dbHandle.columnInt(0);
+	if (row > 0) {
+		convId = dbHandle.getColumnToInt(1);
 
-		MSG_DEBUG("AddressId:[%d]", addrId);
-	}
-	else
-	{
-		MSG_DEBUG("MsgStepQuery() Error [%s]", sqlQuery);
-		dbHandle.finalizeQuery();
-		dbHandle.endTrans(false);
-		return MSG_ERR_DB_STEP;
-	}
+		MSG_DEBUG("Conversation id:[%d]", convId);
 
-	dbHandle.finalizeQuery();
-
-	memset(sqlQuery, 0x00, sizeof(sqlQuery));
-	snprintf(sqlQuery, sizeof(sqlQuery),
-		"SELECT ADDRESS_ID \
-				        FROM %s \
-				     WHERE REFERENCE_ID = %d;",
-				MSGFW_MESSAGE_TABLE_NAME, pMsg->msgId);
-
-	err = dbHandle.getTable(sqlQuery, &rowCnt);
-
-	if (err != MSG_SUCCESS && err != MSG_ERR_DB_NORECORD)
-	{
-		MSG_DEBUG("Failed to Get Table");
-
-		dbHandle.freeTable();
-		dbHandle.endTrans(false);
-
-		return MSG_ERR_STORAGE_ERROR;
-	}
-
-	for (int i = 1; i <= rowCnt; i++)
-	{
-		addrId = dbHandle.getColumnToInt(i);
-
-		if (MsgStoUpdateAddress(&dbHandle, addrId) != MSG_SUCCESS)
-		{
-			MSG_DEBUG("MsgStoUpdateAddress() Error");
+		if (MsgStoUpdateConversation(&dbHandle, convId) != MSG_SUCCESS) {
+			MSG_DEBUG("MsgStoUpdateConversation() Error");
 			dbHandle.freeTable();
 			dbHandle.endTrans(false);
 
 			return MSG_ERR_STORAGE_ERROR;
 		}
+
+	} else {
+		MSG_DEBUG("MsgStepQuery() Error [%s]", sqlQuery);
+		dbHandle.freeTable();
+		dbHandle.endTrans(false);
+		return MSG_ERR_DB_STEP;
 	}
 
 	dbHandle.freeTable();
-
 	dbHandle.endTrans(true);
 
 	MSG_END();
@@ -213,34 +176,27 @@ MSG_ERROR_T MsgStoUpdateMMSMessage(MSG_MESSAGE_INFO_S *pMsg)
 }
 
 
-MSG_ERROR_T MsgStoGetContentLocation(MSG_MESSAGE_INFO_S* pMsgInfo)
+msg_error_t MsgStoGetContentLocation(MSG_MESSAGE_INFO_S* pMsgInfo)
 {
 	char sqlQuery[MAX_QUERY_LEN+1];
 
 	memset(sqlQuery, 0x00, sizeof(sqlQuery));
 
-	snprintf(sqlQuery, sizeof(sqlQuery), "SELECT CONTENTS_LOCATION FROM %s WHERE REFERENCE_ID IN \
-						(SELECT REFERENCE_ID FROM %s WHERE MSG_ID = %d);",
-						MMS_PLUGIN_MESSAGE_TABLE_NAME, MSGFW_MESSAGE_TABLE_NAME, pMsgInfo->msgId);
+	snprintf(sqlQuery, sizeof(sqlQuery), "SELECT CONTENTS_LOCATION FROM %s WHERE MSG_ID = %d;",
+			MMS_PLUGIN_MESSAGE_TABLE_NAME, pMsgInfo->msgId);
 
 	if (dbHandle.prepareQuery(sqlQuery) != MSG_SUCCESS)
 		return MSG_ERR_DB_PREPARE;
 
-	if (dbHandle.stepQuery() == MSG_ERR_DB_ROW)
-	{
-		if (dbHandle.columnText(0) != NULL)
-		{
+	if (dbHandle.stepQuery() == MSG_ERR_DB_ROW) {
+		if (dbHandle.columnText(0) != NULL) {
 			strncpy(pMsgInfo->msgData, (char*)dbHandle.columnText(0), MAX_MSG_DATA_LEN);
 			pMsgInfo->dataSize = strlen(pMsgInfo->msgData);
-		}
-		else
-		{
+		} else {
 			dbHandle.finalizeQuery();
 			return MSG_ERR_DB_NORECORD;
 		}
-	}
-	else
-	{
+	} else {
 		dbHandle.finalizeQuery();
 		return MSG_ERR_DB_STEP;
 	}
@@ -251,7 +207,7 @@ MSG_ERROR_T MsgStoGetContentLocation(MSG_MESSAGE_INFO_S* pMsgInfo)
 }
 
 
-MSG_ERROR_T MsgStoSetReadReportSendStatus(MSG_MESSAGE_ID_T msgId, int readReportSendStatus)
+msg_error_t MsgStoSetReadReportSendStatus(msg_message_id_t msgId, int readReportSendStatus)
 {
 	bool bReadReportSent = false;
 
@@ -264,10 +220,8 @@ MSG_ERROR_T MsgStoSetReadReportSendStatus(MSG_MESSAGE_ID_T msgId, int readReport
 
 	memset(sqlQuery, 0x00, sizeof(sqlQuery));
 
-	snprintf(sqlQuery, sizeof(sqlQuery), "UPDATE %s SET READ_REPORT_SEND_STATUS = %d, READ_REPORT_SENT = %d WHERE REFERENCE_ID IN \
-					(SELECT REFERENCE_ID FROM %s WHERE MSG_ID = %d);",
-					MMS_PLUGIN_ATTRIBUTE_TABLE_NAME, (MmsRecvReadReportSendStatus)readReportSendStatus, (int)bReadReportSent,
-					MSGFW_MESSAGE_TABLE_NAME, msgId);
+	snprintf(sqlQuery, sizeof(sqlQuery), "UPDATE %s SET READ_REPORT_SEND_STATUS = %d, READ_REPORT_SENT = %d WHERE MSG_ID = %d;",
+			MMS_PLUGIN_MESSAGE_TABLE_NAME, (MmsRecvReadReportSendStatus)readReportSendStatus, (int)bReadReportSent, msgId);
 
 	if (dbHandle.execQuery(sqlQuery) != MSG_SUCCESS)
 		return MSG_ERR_DB_EXEC;
@@ -276,34 +230,21 @@ MSG_ERROR_T MsgStoSetReadReportSendStatus(MSG_MESSAGE_ID_T msgId, int readReport
 }
 
 
-MSG_ERROR_T MsgStoGetOrgAddressList(MSG_MESSAGE_INFO_S *pMsg)
+msg_error_t MsgStoGetOrgAddressList(MSG_MESSAGE_INFO_S *pMsg)
 {
-	MSG_ERROR_T err = MSG_SUCCESS;
+	msg_error_t err = MSG_SUCCESS;
 	char sqlQuery[MAX_QUERY_LEN+1];
-	int referenceId = 0;
 	int rowCnt = 0;
 	int index = 3;
 
 	memset(sqlQuery, 0x00, sizeof(sqlQuery));
-	snprintf(sqlQuery, sizeof(sqlQuery), "SELECT REFERENCE_ID FROM %s WHERE MSG_ID = %d;", MSGFW_MESSAGE_TABLE_NAME, pMsg->msgId);
-
-	if (dbHandle.prepareQuery(sqlQuery) != MSG_SUCCESS)
-		return MSG_ERR_DB_PREPARE;
-
-	if (dbHandle.stepQuery() == MSG_ERR_DB_ROW)
-		referenceId = dbHandle.columnInt(0);
-
-	dbHandle.finalizeQuery();
-
-	memset(sqlQuery, 0x00, sizeof(sqlQuery));
-	snprintf(sqlQuery, sizeof(sqlQuery), "SELECT ADDRESS_TYPE, RECIPIENT_TYPE, ADDRESS_VAL FROM %s WHERE ADDRESS_ID IN \
-				(SELECT ADDRESS_ID FROM %s WHERE REFERENCE_ID = %d);",
-				MSGFW_ADDRESS_TABLE_NAME, MSGFW_MESSAGE_TABLE_NAME, referenceId);
+	snprintf(sqlQuery, sizeof(sqlQuery), "SELECT A.ADDRESS_TYPE, A.RECIPIENT_TYPE, A.ADDRESS_VAL FROM %s A, %s B \
+			WHERE A.CONV_ID = B.CONV_ID AND B.MSG_ID = %d;",
+			MSGFW_ADDRESS_TABLE_NAME, MSGFW_MESSAGE_TABLE_NAME, pMsg->msgId);
 
 	err = dbHandle.getTable(sqlQuery, &rowCnt);
 
-	if (err != MSG_SUCCESS && err != MSG_ERR_DB_NORECORD)
-	{
+	if (err != MSG_SUCCESS && err != MSG_ERR_DB_NORECORD) {
 		dbHandle.freeTable();
 		return err;
 	}
@@ -323,24 +264,21 @@ MSG_ERROR_T MsgStoGetOrgAddressList(MSG_MESSAGE_INFO_S *pMsg)
 }
 
 
-MSG_ERROR_T MsgStoGetSubject(MSG_MESSAGE_ID_T MsgId, char *pSubject)
+msg_error_t MsgStoGetSubject(msg_message_id_t msgId, char *pSubject)
 {
 	char sqlQuery[MAX_QUERY_LEN+1];
 
 	memset(sqlQuery, 0x00, sizeof(sqlQuery));
 
 	snprintf(sqlQuery, sizeof(sqlQuery), "SELECT SUBJECT FROM %s WHERE MSG_ID = %d;",
-				MSGFW_MESSAGE_TABLE_NAME, MsgId);
+			MSGFW_MESSAGE_TABLE_NAME, msgId);
 
 	if (dbHandle.prepareQuery(sqlQuery) != MSG_SUCCESS)
 		return MSG_ERR_DB_PREPARE;
 
-	if (dbHandle.stepQuery() == MSG_ERR_DB_ROW)
-	{
+	if (dbHandle.stepQuery() == MSG_ERR_DB_ROW) {
 		strncpy(pSubject, (char*)dbHandle.columnText(0), MAX_SUBJECT_LEN);
-	}
-	else
-	{
+	} else {
 		dbHandle.finalizeQuery();
 		return MSG_ERR_DB_STEP;
 	}
@@ -351,34 +289,30 @@ MSG_ERROR_T MsgStoGetSubject(MSG_MESSAGE_ID_T MsgId, char *pSubject)
 }
 
 
-MSG_ERROR_T MsgStoUpdateNetworkStatus(MSG_MESSAGE_INFO_S *pMsgInfo, MSG_NETWORK_STATUS_T Status)
+msg_error_t MsgStoUpdateNetworkStatus(MSG_MESSAGE_INFO_S *pMsgInfo, msg_network_status_t status)
 {
 	MSG_BEGIN();
 
-	MSG_ERROR_T err = MSG_SUCCESS;
+	msg_error_t err = MSG_SUCCESS;
 
 	char sqlQuery[MAX_QUERY_LEN+1];
 
 	memset(sqlQuery, 0x00, sizeof(sqlQuery));
 
-	snprintf(sqlQuery, sizeof(sqlQuery), "UPDATE %s SET NETWORK_STATUS = %d WHERE REFERENCE_ID IN \
-						(SELECT REFERENCE_ID FROM %s WHERE MSG_ID = %d);",
-						MSGFW_MESSAGE_TABLE_NAME, Status,
-						MSGFW_MESSAGE_TABLE_NAME, pMsgInfo->msgId);
+	snprintf(sqlQuery, sizeof(sqlQuery), "UPDATE %s SET NETWORK_STATUS = %d WHERE MSG_ID = %d;",
+			MSGFW_MESSAGE_TABLE_NAME, status, pMsgInfo->msgId);
 
 	if (dbHandle.execQuery(sqlQuery) != MSG_SUCCESS)
 		return MSG_ERR_DB_EXEC;
 
 	MSG_END();
-
 	return err;
 }
 
 
-MSG_ERROR_T MsgStoGetRecipientList(MSG_MESSAGE_ID_T msgId, MSG_RECIPIENTS_LIST_S *pRecipientList)
+msg_error_t MsgStoGetRecipientList(msg_message_id_t msgId, MSG_RECIPIENTS_LIST_S *pRecipientList)
 {
-	if (pRecipientList == NULL)
-	{
+	if (pRecipientList == NULL) {
 		MSG_DEBUG("pRecipientList is NULL");
 		return MSG_ERR_NULL_POINTER;
 	}
@@ -389,15 +323,12 @@ MSG_ERROR_T MsgStoGetRecipientList(MSG_MESSAGE_ID_T msgId, MSG_RECIPIENTS_LIST_S
 
 	memset(sqlQuery, 0x00, sizeof(sqlQuery));
 
-	snprintf(sqlQuery, sizeof(sqlQuery), "SELECT B.ADDRESS_TYPE, B.RECIPIENT_TYPE, B.ADDRESS_VAL, B.CONTACT_ID, \
-					B.DISPLAY_NAME, B.FIRST_NAME, B.LAST_NAME \
-					FROM %s A, %s B \
-				     WHERE A.MSG_ID = %d \
-				     	  AND A.ADDRESS_ID = B.ADDRESS_ID;",
-				MSGFW_MESSAGE_TABLE_NAME, MSGFW_ADDRESS_TABLE_NAME, msgId);
+	snprintf(sqlQuery, sizeof(sqlQuery), "SELECT B.ADDRESS_TYPE, B.RECIPIENT_TYPE, \
+			B.ADDRESS_VAL, B.CONTACT_ID, B.DISPLAY_NAME, B.FIRST_NAME, B.LAST_NAME \
+			FROM %s A, %s B WHERE A.MSG_ID = %d AND A.CONV_ID = B.CONV_ID;",
+			MSGFW_MESSAGE_TABLE_NAME, MSGFW_ADDRESS_TABLE_NAME, msgId);
 
-	if (dbHandle.getTable(sqlQuery, &rowCnt) != MSG_SUCCESS)
-	{
+	if (dbHandle.getTable(sqlQuery, &rowCnt) != MSG_SUCCESS) {
 		dbHandle.freeTable();
 		return MSG_ERR_DB_GETTABLE;
 	}
@@ -417,8 +348,6 @@ MSG_ERROR_T MsgStoGetRecipientList(MSG_MESSAGE_ID_T msgId, MSG_RECIPIENTS_LIST_S
 
 	for (int i = 0; i < rowCnt; i++)
 	{
-		pTmp->threadId = 0;
-
 		pTmp->addressType = dbHandle.getColumnToInt(index++);
 		pTmp->recipientType= dbHandle.getColumnToInt(index++);
 
@@ -436,33 +365,23 @@ MSG_ERROR_T MsgStoGetRecipientList(MSG_MESSAGE_ID_T msgId, MSG_RECIPIENTS_LIST_S
 		memset(lastName, 0x00, sizeof(lastName));
 		dbHandle.getColumnToString(index++, MAX_THREAD_NAME_LEN, lastName);
 
-		if (strlen(displayName) <= 0)
-		{
-			if (order == 0)
-			{
+		if (strlen(displayName) <= 0) {
+			if (order == 0) {
 				if (firstName[0] != '\0')
-				{
 					strncpy(displayName, firstName, MAX_DISPLAY_NAME_LEN);
-				}
 
-				if (lastName[0] != '\0')
-				{
+				if (lastName[0] != '\0') {
 					strncat(displayName, " ", MAX_DISPLAY_NAME_LEN-strlen(displayName));
 					strncat(displayName, lastName, MAX_DISPLAY_NAME_LEN-strlen(displayName));
 				}
-			}
-			else if (order == 1)
-			{
-				if (lastName[0] != '\0')
-				{
+			} else if (order == 1) {
+				if (lastName[0] != '\0') {
 					strncpy(displayName, lastName, MAX_DISPLAY_NAME_LEN);
 					strncat(displayName, " ", MAX_DISPLAY_NAME_LEN-strlen(displayName));
 				}
 
 				if (firstName[0] != '\0')
-				{
 					strncat(displayName, firstName, MAX_DISPLAY_NAME_LEN-strlen(displayName));
-				}
 			}
 		}
 
@@ -478,55 +397,20 @@ MSG_ERROR_T MsgStoGetRecipientList(MSG_MESSAGE_ID_T msgId, MSG_RECIPIENTS_LIST_S
 }
 
 
-MSG_ERROR_T MsgStoGetReadStatus(MSG_MESSAGE_ID_T MsgId, bool *pReadStatus)
+msg_error_t MsgStoGetReadStatus(msg_message_id_t msgId, bool *pReadStatus)
 {
 	char sqlQuery[MAX_QUERY_LEN+1];
 
 	memset(sqlQuery, 0x00, sizeof(sqlQuery));
 
 	snprintf(sqlQuery, sizeof(sqlQuery), "SELECT READ_STATUS FROM %s WHERE MSG_ID = %d;",
-							MSGFW_MESSAGE_TABLE_NAME, MsgId);
-
-	if (dbHandle.prepareQuery(sqlQuery) != MSG_SUCCESS)
-		return MSG_ERR_DB_PREPARE;
-
-	if (dbHandle.stepQuery() == MSG_ERR_DB_ROW)
-	{
-		*pReadStatus = (bool)dbHandle.columnInt(0);
-	}
-	else
-	{
-		dbHandle.finalizeQuery();
-		return MSG_ERR_DB_STEP;
-	}
-
-	dbHandle.finalizeQuery();
-
-	return MSG_SUCCESS;
-}
-
-
-MSG_ERROR_T MsgStoGetAddrInfo(MSG_MESSAGE_ID_T MsgId, MSG_ADDRESS_INFO_S *pAddrInfo)
-{
-	char sqlQuery[MAX_QUERY_LEN+1];
-
-	// Add Address
-	memset(sqlQuery, 0x00, sizeof(sqlQuery));
-
-	snprintf(sqlQuery, sizeof(sqlQuery), "SELECT A.ADDRESS_ID, A.ADDRESS_TYPE, A.RECIPIENT_TYPE, A.CONTACT_ID, A.ADDRESS_VAL \
-					FROM %s A, %s B WHERE A.ADDRESS_ID = B.ADDRESS_ID AND B.MSG_ID = %d;",
-					MSGFW_ADDRESS_TABLE_NAME, MSGFW_MESSAGE_TABLE_NAME, MsgId);
+			MSGFW_MESSAGE_TABLE_NAME, msgId);
 
 	if (dbHandle.prepareQuery(sqlQuery) != MSG_SUCCESS)
 		return MSG_ERR_DB_PREPARE;
 
 	if (dbHandle.stepQuery() == MSG_ERR_DB_ROW) {
-		pAddrInfo->threadId = dbHandle.columnInt(0);
-		pAddrInfo->addressType = dbHandle.columnInt(1);
-		pAddrInfo->recipientType = dbHandle.columnInt(2);
-		pAddrInfo->contactId = dbHandle.columnInt(3);
-
-		strncpy(pAddrInfo->addressVal, (char*)dbHandle.columnText(4), MAX_ADDRESS_VAL_LEN);
+		*pReadStatus = (bool)dbHandle.columnInt(0);
 	} else {
 		dbHandle.finalizeQuery();
 		return MSG_ERR_DB_STEP;
@@ -537,3 +421,33 @@ MSG_ERROR_T MsgStoGetAddrInfo(MSG_MESSAGE_ID_T MsgId, MSG_ADDRESS_INFO_S *pAddrI
 	return MSG_SUCCESS;
 }
 
+
+msg_error_t MsgStoGetAddrInfo(msg_message_id_t msgId, MSG_ADDRESS_INFO_S *pAddrInfo)
+{
+	char sqlQuery[MAX_QUERY_LEN+1];
+
+	// Add Address
+	memset(sqlQuery, 0x00, sizeof(sqlQuery));
+
+	snprintf(sqlQuery, sizeof(sqlQuery), "SELECT A.ADDRESS_TYPE, A.RECIPIENT_TYPE, A.CONTACT_ID, A.ADDRESS_VAL \
+			FROM %s A, %s B WHERE A.CONV_ID = B.CONV_ID AND B.MSG_ID = %d;",
+			MSGFW_ADDRESS_TABLE_NAME, MSGFW_MESSAGE_TABLE_NAME, msgId);
+
+	if (dbHandle.prepareQuery(sqlQuery) != MSG_SUCCESS)
+		return MSG_ERR_DB_PREPARE;
+
+	if (dbHandle.stepQuery() == MSG_ERR_DB_ROW) {
+		pAddrInfo->addressType = dbHandle.columnInt(0);
+		pAddrInfo->recipientType = dbHandle.columnInt(1);
+		pAddrInfo->contactId = dbHandle.columnInt(2);
+
+		strncpy(pAddrInfo->addressVal, (char*)dbHandle.columnText(3), MAX_ADDRESS_VAL_LEN);
+	} else {
+		dbHandle.finalizeQuery();
+		return MSG_ERR_DB_STEP;
+	}
+
+	dbHandle.finalizeQuery();
+
+	return MSG_SUCCESS;
+}

@@ -1,18 +1,18 @@
- /*
-  * Copyright 2012  Samsung Electronics Co., Ltd
-  *
-  * Licensed under the Flora License, Version 1.0 (the "License");
-  * you may not use this file except in compliance with the License.
-  * You may obtain a copy of the License at
-  *
-  *    http://www.tizenopensource.org/license
-  *
-  * Unless required by applicable law or agreed to in writing, software
-  * distributed under the License is distributed on an "AS IS" BASIS,
-  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  * See the License for the specific language governing permissions and
-  * limitations under the License.
-  */
+/*
+* Copyright 2012  Samsung Electronics Co., Ltd
+*
+* Licensed under the Flora License, Version 1.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*    http://www.tizenopensource.org/license
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
 
 #include <stdio.h>
 #include "MmsPluginEventHandler.h"
@@ -104,7 +104,7 @@ void MmsPluginTransport::submitRequest(const MSG_REQUEST_INFO_S *pReqInfo)
 		reqItem.eMmsPduType = eMMS_READREPORT_REQ;
 		reqItem.eHttpCmdType = eHTTP_CMD_POST_TRANSACTION;
 		reqItem.pPostData = MsgOpenAndReadMmsFile(pReqInfo->msgInfo.msgData, 0, -1, &reqItem.postDataLen);
-		// remove mms file
+		// remove x-Read-Rec.ind file
 		remove(pReqInfo->msgInfo.msgData);
 		break;
 
@@ -114,6 +114,8 @@ void MmsPluginTransport::submitRequest(const MSG_REQUEST_INFO_S *pReqInfo)
 		reqItem.eMmsPduType = eMMS_READREC_IND;
 		reqItem.eHttpCmdType = eHTTP_CMD_POST_TRANSACTION;
 		reqItem.pPostData = MsgOpenAndReadMmsFile(pReqInfo->msgInfo.msgData, 0, -1, &reqItem.postDataLen);
+		// remove x-Read-Rec.ind file
+		remove(pReqInfo->msgInfo.msgData);
 		break;
 
 	case MSG_FORWARD_MMS:
@@ -130,7 +132,7 @@ void MmsPluginTransport::submitRequest(const MSG_REQUEST_INFO_S *pReqInfo)
 }
 
 
-void MmsPluginTransport::cancelRequest(MSG_REQUEST_ID_T reqId)
+void MmsPluginTransport::cancelRequest(msg_request_id_t reqId)
 {
 
 

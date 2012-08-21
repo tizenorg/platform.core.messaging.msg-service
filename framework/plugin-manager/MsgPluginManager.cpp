@@ -1,18 +1,18 @@
- /*
-  * Copyright 2012  Samsung Electronics Co., Ltd
-  *
-  * Licensed under the Flora License, Version 1.0 (the "License");
-  * you may not use this file except in compliance with the License.
-  * You may obtain a copy of the License at
-  *
-  *    http://www.tizenopensource.org/license
-  *
-  * Unless required by applicable law or agreed to in writing, software
-  * distributed under the License is distributed on an "AS IS" BASIS,
-  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  * See the License for the specific language governing permissions and
-  * limitations under the License.
-  */
+/*
+* Copyright 2012  Samsung Electronics Co., Ltd
+*
+* Licensed under the Flora License, Version 1.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*    http://www.tizenopensource.org/license
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
 
 #include <stdio.h>
 #include <dlfcn.h>
@@ -73,7 +73,7 @@ void MsgSentStatusListener(MSG_SENT_STATUS_S *pSentStatus)
 }
 
 
-void MsgStorageChangeListener(MSG_STORAGE_CHANGE_TYPE_T storageChangeType, MSG_MESSAGE_INFO_S *pMsgInfo)
+void MsgStorageChangeListener(msg_storage_change_type_t storageChangeType, MSG_MESSAGE_INFO_S *pMsgInfo)
 {
 	MSG_BEGIN();
 
@@ -84,7 +84,7 @@ void MsgStorageChangeListener(MSG_STORAGE_CHANGE_TYPE_T storageChangeType, MSG_M
 	client.connect(MSG_SOCKET_PATH);
 
 	// composing command
-	int cmdSize = sizeof(MSG_CMD_S) + sizeof(MSG_MESSAGE_INFO_S) + sizeof(MSG_STORAGE_CHANGE_TYPE_T);
+	int cmdSize = sizeof(MSG_CMD_S) + sizeof(MSG_MESSAGE_INFO_S) + sizeof(msg_storage_change_type_t);
 
 	char cmdBuf[cmdSize];
 	bzero(cmdBuf, cmdSize);
@@ -97,7 +97,7 @@ void MsgStorageChangeListener(MSG_STORAGE_CHANGE_TYPE_T storageChangeType, MSG_M
 	memset(pCmd->cmdCookie, 0x00, MAX_COOKIE_LEN);
 
 	memcpy((void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN), pMsgInfo, sizeof(MSG_MESSAGE_INFO_S));
-	memcpy((void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN+sizeof(MSG_MESSAGE_INFO_S)), &storageChangeType, sizeof(MSG_STORAGE_CHANGE_TYPE_T));
+	memcpy((void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN+sizeof(MSG_MESSAGE_INFO_S)), &storageChangeType, sizeof(msg_storage_change_type_t));
 
 	// Send Command to Transaction Manager
 	client.write(cmdBuf, cmdSize);
@@ -117,7 +117,7 @@ void MsgStorageChangeListener(MSG_STORAGE_CHANGE_TYPE_T storageChangeType, MSG_M
 }
 
 
-MSG_ERROR_T MsgIncomingMessageListener(MSG_MESSAGE_INFO_S *pMsg)
+msg_error_t MsgIncomingMessageListener(MSG_MESSAGE_INFO_S *pMsg)
 {
 	MSG_BEGIN();
 
@@ -175,7 +175,7 @@ MSG_ERROR_T MsgIncomingMessageListener(MSG_MESSAGE_INFO_S *pMsg)
 }
 
 
-MSG_ERROR_T MsgIncomingSyncMLMessageListener(MSG_SYNCML_MESSAGE_DATA_S *pSyncMLData)
+msg_error_t MsgIncomingSyncMLMessageListener(MSG_SYNCML_MESSAGE_DATA_S *pSyncMLData)
 {
 	MSG_BEGIN();
 
@@ -224,7 +224,7 @@ MSG_ERROR_T MsgIncomingSyncMLMessageListener(MSG_SYNCML_MESSAGE_DATA_S *pSyncMLD
 }
 
 
-MSG_ERROR_T MsgIncomingLBSMessageListener(MSG_LBS_MESSAGE_DATA_S *pLBSData)
+msg_error_t MsgIncomingLBSMessageListener(MSG_LBS_MESSAGE_DATA_S *pLBSData)
 {
 	MSG_BEGIN();
 
@@ -273,7 +273,7 @@ MSG_ERROR_T MsgIncomingLBSMessageListener(MSG_LBS_MESSAGE_DATA_S *pLBSData)
 }
 
 
-MSG_ERROR_T MsgInitSimBySatListener()
+msg_error_t MsgInitSimBySatListener()
 {
 	MSG_BEGIN();
 
@@ -316,7 +316,7 @@ MSG_ERROR_T MsgInitSimBySatListener()
 }
 
 /* MMS_Incoming_listener */
-MSG_ERROR_T MsgMmsConfIncomingListener(MSG_MESSAGE_INFO_S *pMsg, MSG_REQUEST_ID_T *pReqId)
+msg_error_t MsgMmsConfIncomingListener(MSG_MESSAGE_INFO_S *pMsg, msg_request_id_t *pReqId)
 {
 	MSG_BEGIN();
 	MSG_DEBUG("pMsg = %s, pReqId = %d ", pMsg->msgData, *pReqId);
@@ -326,7 +326,7 @@ MSG_ERROR_T MsgMmsConfIncomingListener(MSG_MESSAGE_INFO_S *pMsg, MSG_REQUEST_ID_
 	client.connect(MSG_SOCKET_PATH);
 
 	// composing command
-	int cmdSize = sizeof(MSG_CMD_S) + sizeof(MSG_MESSAGE_INFO_S) + sizeof(MSG_REQUEST_ID_T); // cmd type, MSG_MESSAGE_INFO_S, MSG_REQUEST_ID_T
+	int cmdSize = sizeof(MSG_CMD_S) + sizeof(MSG_MESSAGE_INFO_S) + sizeof(msg_request_id_t); // cmd type, MSG_MESSAGE_INFO_S, msg_request_id_t
 	MSG_DEBUG("cmdSize : %d", cmdSize);
 
 	char cmdBuf[cmdSize];
@@ -341,7 +341,7 @@ MSG_ERROR_T MsgMmsConfIncomingListener(MSG_MESSAGE_INFO_S *pMsg, MSG_REQUEST_ID_
 
 	// cmd data
 	memcpy((void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN), pMsg, sizeof(MSG_MESSAGE_INFO_S));
-	memcpy((void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN+sizeof(MSG_MESSAGE_INFO_S)), pReqId, sizeof(MSG_REQUEST_ID_T));
+	memcpy((void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN+sizeof(MSG_MESSAGE_INFO_S)), pReqId, sizeof(msg_request_id_t));
 
 	// Send Command to Messaging FW
 	client.write(cmdBuf, cmdSize);
@@ -390,9 +390,9 @@ MsgPlugin::MsgPlugin(MSG_MAIN_TYPE_T mainType, const char *libPath): mSupportedM
 	dlerror();
 
 	// assign the c function pointers
-	MSG_ERROR_T(*pFunc)(MSG_PLUGIN_HANDLER_S*) = NULL;
+	msg_error_t(*pFunc)(MSG_PLUGIN_HANDLER_S*) = NULL;
 
-	pFunc = (MSG_ERROR_T(*)(MSG_PLUGIN_HANDLER_S*))dlsym(libHandle, "MsgPlgCreateHandle");
+	pFunc = (msg_error_t(*)(MSG_PLUGIN_HANDLER_S*))dlsym(libHandle, "MsgPlgCreateHandle");
 
 	char *error = dlerror();
 
@@ -429,7 +429,7 @@ MsgPlugin::~MsgPlugin()
 }
 
 
-MSG_ERROR_T MsgPlugin::initialize()
+msg_error_t MsgPlugin::initialize()
 {
 	if ( mPlgHandler.pfInitialize != NULL)
 		return mPlgHandler.pfInitialize();
@@ -445,16 +445,16 @@ void MsgPlugin::finalize()
 }
 
 
-MSG_ERROR_T MsgPlugin::submitReq(MSG_REQUEST_INFO_S *pReqInfo, bool bReqCb)
+msg_error_t MsgPlugin::submitReq(MSG_REQUEST_INFO_S *pReqInfo)
 {
 	if (mPlgHandler.pfSubmitRequest != NULL)
-		return mPlgHandler.pfSubmitRequest(pReqInfo, bReqCb);
+		return mPlgHandler.pfSubmitRequest(pReqInfo);
 	else
 		return MSG_ERR_INVALID_PLUGIN_HANDLE;
 }
 
 
-MSG_ERROR_T MsgPlugin::registerListener(MSG_PLUGIN_LISTENER_S *pListener)
+msg_error_t MsgPlugin::registerListener(MSG_PLUGIN_LISTENER_S *pListener)
 {
 	if (mPlgHandler.pfRegisterListener != NULL)
 		return mPlgHandler.pfRegisterListener(pListener);
@@ -463,7 +463,7 @@ MSG_ERROR_T MsgPlugin::registerListener(MSG_PLUGIN_LISTENER_S *pListener)
 }
 
 
-MSG_ERROR_T MsgPlugin::checkSimStatus(MSG_SIM_STATUS_T *pStatus)
+msg_error_t MsgPlugin::checkSimStatus(MSG_SIM_STATUS_T *pStatus)
 {
 	if (mPlgHandler.pfRegisterListener != NULL)
 		return mPlgHandler.pfCheckSimStatus(pStatus);
@@ -472,7 +472,7 @@ MSG_ERROR_T MsgPlugin::checkSimStatus(MSG_SIM_STATUS_T *pStatus)
 }
 
 
-MSG_ERROR_T MsgPlugin::checkDeviceStatus()
+msg_error_t MsgPlugin::checkDeviceStatus()
 {
 	if (mPlgHandler.pfRegisterListener != NULL)
 		return mPlgHandler.pfCheckDeviceStatus();
@@ -481,7 +481,7 @@ MSG_ERROR_T MsgPlugin::checkDeviceStatus()
 }
 
 
-MSG_ERROR_T MsgPlugin::initSimMessage()
+msg_error_t MsgPlugin::initSimMessage()
 {
 	if (mPlgHandler.pfInitSimMessage != NULL)
 		return mPlgHandler.pfInitSimMessage();
@@ -490,7 +490,7 @@ MSG_ERROR_T MsgPlugin::initSimMessage()
 }
 
 
-MSG_ERROR_T MsgPlugin::saveSimMessage(MSG_MESSAGE_INFO_S *pMsgInfo, SMS_SIM_ID_LIST_S *pSimIdList)
+msg_error_t MsgPlugin::saveSimMessage(MSG_MESSAGE_INFO_S *pMsgInfo, SMS_SIM_ID_LIST_S *pSimIdList)
 {
 	if (mPlgHandler.pfSaveSimMessage != NULL)
 		return mPlgHandler.pfSaveSimMessage(pMsgInfo, pSimIdList);
@@ -499,7 +499,7 @@ MSG_ERROR_T MsgPlugin::saveSimMessage(MSG_MESSAGE_INFO_S *pMsgInfo, SMS_SIM_ID_L
 }
 
 
-MSG_ERROR_T MsgPlugin::deleteSimMessage(MSG_SIM_ID_T SimMsgId)
+msg_error_t MsgPlugin::deleteSimMessage(msg_sim_id_t SimMsgId)
 {
 	if (mPlgHandler.pfDeleteSimMessage != NULL)
 		return mPlgHandler.pfDeleteSimMessage(SimMsgId);
@@ -508,7 +508,7 @@ MSG_ERROR_T MsgPlugin::deleteSimMessage(MSG_SIM_ID_T SimMsgId)
 }
 
 
-MSG_ERROR_T MsgPlugin::setReadStatus(MSG_SIM_ID_T SimMsgId)
+msg_error_t MsgPlugin::setReadStatus(msg_sim_id_t SimMsgId)
 {
 	if (mPlgHandler.pfSetReadStatus != NULL)
 		return mPlgHandler.pfSetReadStatus(SimMsgId);
@@ -517,7 +517,7 @@ MSG_ERROR_T MsgPlugin::setReadStatus(MSG_SIM_ID_T SimMsgId)
 }
 
 
-MSG_ERROR_T MsgPlugin::setMemoryStatus(MSG_ERROR_T Error)
+msg_error_t MsgPlugin::setMemoryStatus(msg_error_t Error)
 {
 	if (mPlgHandler.pfSetMemoryStatus != NULL)
 		return mPlgHandler.pfSetMemoryStatus(Error);
@@ -526,7 +526,7 @@ MSG_ERROR_T MsgPlugin::setMemoryStatus(MSG_ERROR_T Error)
 }
 
 
-MSG_ERROR_T MsgPlugin::initConfigData(MSG_SIM_STATUS_T SimStatus)
+msg_error_t MsgPlugin::initConfigData(MSG_SIM_STATUS_T SimStatus)
 {
 	if (mPlgHandler.pfInitConfigData != NULL)
 		return mPlgHandler.pfInitConfigData(SimStatus);
@@ -535,7 +535,7 @@ MSG_ERROR_T MsgPlugin::initConfigData(MSG_SIM_STATUS_T SimStatus)
 }
 
 
-MSG_ERROR_T MsgPlugin::setConfigData(const MSG_SETTING_S *pSetting)
+msg_error_t MsgPlugin::setConfigData(const MSG_SETTING_S *pSetting)
 {
 	if (mPlgHandler.pfSetConfigData != NULL)
 		return mPlgHandler.pfSetConfigData(pSetting);
@@ -544,7 +544,7 @@ MSG_ERROR_T MsgPlugin::setConfigData(const MSG_SETTING_S *pSetting)
 }
 
 
-MSG_ERROR_T MsgPlugin::getConfigData(MSG_SETTING_S *pSetting)
+msg_error_t MsgPlugin::getConfigData(MSG_SETTING_S *pSetting)
 {
 	if (mPlgHandler.pfGetConfigData != NULL)
 		return mPlgHandler.pfGetConfigData(pSetting);
@@ -552,7 +552,7 @@ MSG_ERROR_T MsgPlugin::getConfigData(MSG_SETTING_S *pSetting)
 		return MSG_ERR_INVALID_PLUGIN_HANDLE;
 }
 
-MSG_ERROR_T MsgPlugin::addMessage(MSG_MESSAGE_INFO_S *pMsgInfo, MSG_SENDINGOPT_INFO_S *pSendOptInfo, char *pFileData)
+msg_error_t MsgPlugin::addMessage(MSG_MESSAGE_INFO_S *pMsgInfo, MSG_SENDINGOPT_INFO_S *pSendOptInfo, char *pFileData)
 {
 	if (mPlgHandler.pfAddMessage != NULL) {
 		return mPlgHandler.pfAddMessage(pMsgInfo, pSendOptInfo, pFileData);
@@ -561,7 +561,7 @@ MSG_ERROR_T MsgPlugin::addMessage(MSG_MESSAGE_INFO_S *pMsgInfo, MSG_SENDINGOPT_I
 	}
 }
 
-MSG_ERROR_T MsgPlugin::updateMessage(MSG_MESSAGE_INFO_S *pMsgInfo, MSG_SENDINGOPT_INFO_S *pSendOptInfo, char *pFileData)
+msg_error_t MsgPlugin::updateMessage(MSG_MESSAGE_INFO_S *pMsgInfo, MSG_SENDINGOPT_INFO_S *pSendOptInfo, char *pFileData)
 {
 	if (mPlgHandler.pfUpdateMessage != NULL) {
 		return mPlgHandler.pfUpdateMessage(pMsgInfo, pSendOptInfo, pFileData);
@@ -571,7 +571,7 @@ MSG_ERROR_T MsgPlugin::updateMessage(MSG_MESSAGE_INFO_S *pMsgInfo, MSG_SENDINGOP
 }
 
 
-MSG_ERROR_T MsgPlugin::processReceivedInd(MSG_MESSAGE_INFO_S *pMsgInfo, MSG_REQUEST_INFO_S *pRequest, bool *bReject)
+msg_error_t MsgPlugin::processReceivedInd(MSG_MESSAGE_INFO_S *pMsgInfo, MSG_REQUEST_INFO_S *pRequest, bool *bReject)
 {
 	if (mPlgHandler.pfProcessReceivedInd != NULL) {
 		return mPlgHandler.pfProcessReceivedInd(pMsgInfo, pRequest, bReject);
@@ -581,7 +581,7 @@ MSG_ERROR_T MsgPlugin::processReceivedInd(MSG_MESSAGE_INFO_S *pMsgInfo, MSG_REQU
 }
 
 
-MSG_ERROR_T MsgPlugin::getMmsMessage(MSG_MESSAGE_INFO_S *pMsg, MSG_SENDINGOPT_INFO_S *pSendOptInfo,  MMS_MESSAGE_DATA_S *pMmsMsg, char **pDestMsg)
+msg_error_t MsgPlugin::getMmsMessage(MSG_MESSAGE_INFO_S *pMsg, MSG_SENDINGOPT_INFO_S *pSendOptInfo,  MMS_MESSAGE_DATA_S *pMmsMsg, char **pDestMsg)
 {
 	if (mPlgHandler.pfGetMmsMessage != NULL) {
 		return mPlgHandler.pfGetMmsMessage(pMsg, pSendOptInfo, pMmsMsg, pDestMsg);
@@ -591,7 +591,7 @@ MSG_ERROR_T MsgPlugin::getMmsMessage(MSG_MESSAGE_INFO_S *pMsg, MSG_SENDINGOPT_IN
 }
 
 
-MSG_ERROR_T MsgPlugin::updateRejectStatus(MSG_MESSAGE_INFO_S *pMsgInfo)
+msg_error_t MsgPlugin::updateRejectStatus(MSG_MESSAGE_INFO_S *pMsgInfo)
 {
 	if (mPlgHandler.pfUpdateRejectStatus != NULL) {
 		return mPlgHandler.pfUpdateRejectStatus(pMsgInfo);
@@ -601,7 +601,7 @@ MSG_ERROR_T MsgPlugin::updateRejectStatus(MSG_MESSAGE_INFO_S *pMsgInfo)
 }
 
 
-MSG_ERROR_T MsgPlugin::composeReadReport(MSG_MESSAGE_INFO_S *pMsgInfo)
+msg_error_t MsgPlugin::composeReadReport(MSG_MESSAGE_INFO_S *pMsgInfo)
 {
 	if (mPlgHandler.pfComposeReadReport != NULL) {
 		return mPlgHandler.pfComposeReadReport(pMsgInfo);
@@ -611,7 +611,7 @@ MSG_ERROR_T MsgPlugin::composeReadReport(MSG_MESSAGE_INFO_S *pMsgInfo)
 }
 
 
-MSG_ERROR_T MsgPlugin::restoreMsg(MSG_MESSAGE_INFO_S *pMsgInfo, char* pRecvBody, int rcvdBodyLen, char* filePath)
+msg_error_t MsgPlugin::restoreMsg(MSG_MESSAGE_INFO_S *pMsgInfo, char* pRecvBody, int rcvdBodyLen, char* filePath)
 {
 	if (mPlgHandler.pfRestoreMsg != NULL)
 		return mPlgHandler.pfRestoreMsg(pMsgInfo,pRecvBody, rcvdBodyLen, filePath);

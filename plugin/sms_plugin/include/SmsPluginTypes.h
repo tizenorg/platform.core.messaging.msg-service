@@ -1,18 +1,18 @@
- /*
-  * Copyright 2012  Samsung Electronics Co., Ltd
-  *
-  * Licensed under the Flora License, Version 1.0 (the "License");
-  * you may not use this file except in compliance with the License.
-  * You may obtain a copy of the License at
-  *
-  *    http://www.tizenopensource.org/license
-  *
-  * Unless required by applicable law or agreed to in writing, software
-  * distributed under the License is distributed on an "AS IS" BASIS,
-  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  * See the License for the specific language governing permissions and
-  * limitations under the License.
-  */
+/*
+* Copyright 2012  Samsung Electronics Co., Ltd
+*
+* Licensed under the Flora License, Version 1.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*    http://www.tizenopensource.org/license
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
 
 #ifndef SMS_PLUGIN_TYPES_H
 #define SMS_PLUGIN_TYPES_H
@@ -268,6 +268,7 @@ enum _SMS_CODING_SCHEME_E
 	SMS_CHARSET_8BIT,
 	SMS_CHARSET_UCS2,
 	SMS_CHARSET_AUTO,
+	SMS_CHARSET_EUCKR,
 };
 
 
@@ -777,12 +778,9 @@ typedef struct _SMS_TPDU_S
 
 typedef struct
 {
-	MSG_REQUEST_ID_T		reqId;		/**< Indicates the request ID, which is unique.
-										When applications submit a request to the framework, this value will be set by the framework. */
-	MSG_MESSAGE_INFO_S		msgInfo;	/**< Indicates the message structure to be sent by applications. */
+	msg_request_id_t				reqId;		/**< Indicates the request ID, which is unique. When applications submit a request to the framework, this value will be set by the framework. */
+	MSG_MESSAGE_INFO_S			msgInfo;	/**< Indicates the message structure to be sent by applications. */
 	MSG_SENDINGOPT_INFO_S	sendOptInfo;
-
-	bool 						bReqCb;
 } SMS_REQUEST_INFO_S;
 
 
@@ -931,7 +929,7 @@ typedef struct
 typedef struct
 {
 	unsigned int		simIdCnt;											/**< The total number of SIM Msg ID*/
-	MSG_SIM_ID_T		simIdList[MAX_SEGMENT_NUM];							/**< The SIM Msg ID List */
+	msg_sim_id_t		simIdList[MAX_SEGMENT_NUM];							/**< The SIM Msg ID List */
 	char				msgData[(MAX_MSG_DATA_LEN*MAX_SEGMENT_NUM)+1];		/**< user data */
 } SMS_CONCAT_SIM_MSG_S;
 

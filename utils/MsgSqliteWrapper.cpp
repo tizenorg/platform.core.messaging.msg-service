@@ -1,18 +1,18 @@
- /*
-  * Copyright 2012  Samsung Electronics Co., Ltd
-  *
-  * Licensed under the Flora License, Version 1.0 (the "License");
-  * you may not use this file except in compliance with the License.
-  * You may obtain a copy of the License at
-  *
-  *    http://www.tizenopensource.org/license
-  *
-  * Unless required by applicable law or agreed to in writing, software
-  * distributed under the License is distributed on an "AS IS" BASIS,
-  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  * See the License for the specific language governing permissions and
-  * limitations under the License.
-  */
+/*
+* Copyright 2012  Samsung Electronics Co., Ltd
+*
+* Licensed under the Flora License, Version 1.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*    http://www.tizenopensource.org/license
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
 
 #include <stdio.h>
 #include <stddef.h>
@@ -34,7 +34,7 @@ extern "C"
 ==================================================================================================*/
 __thread sqlite3 *handle = NULL;
 __thread sqlite3_stmt *stmt = NULL;
-__thread char **result = NULL;
+//__thread char **result = NULL;
 
 
 /*==================================================================================================
@@ -61,7 +61,7 @@ MsgDbHandler::~MsgDbHandler()
 }
 
 
-MSG_ERROR_T MsgDbHandler::connect()
+msg_error_t MsgDbHandler::connect()
 {
 	int ret = 0;
 
@@ -94,7 +94,7 @@ MSG_ERROR_T MsgDbHandler::connect()
 }
 
 
-MSG_ERROR_T MsgDbHandler::disconnect()
+msg_error_t MsgDbHandler::disconnect()
 {
 	int ret = 0;
 
@@ -146,7 +146,7 @@ bool MsgDbHandler::checkTableExist(const char *pTableName)
 }
 
 
-MSG_ERROR_T MsgDbHandler::execQuery(const char *pQuery)
+msg_error_t MsgDbHandler::execQuery(const char *pQuery)
 {
 	int ret = 0;
 
@@ -173,7 +173,7 @@ MSG_ERROR_T MsgDbHandler::execQuery(const char *pQuery)
 }
 
 
-MSG_ERROR_T MsgDbHandler::getTable(const char *pQuery, int *pRowCnt)
+msg_error_t MsgDbHandler::getTable(const char *pQuery, int *pRowCnt)
 {
 	int ret = 0;
 
@@ -182,7 +182,7 @@ MSG_ERROR_T MsgDbHandler::getTable(const char *pQuery, int *pRowCnt)
 	if(connect() != MSG_SUCCESS)
 		return MSG_ERR_DB_DISCONNECT;
 
-
+	freeTable();
 	ret = sqlite3_get_table(handle, pQuery, &result, pRowCnt, 0, NULL);
 
 	if (ret == SQLITE_OK)
@@ -216,7 +216,7 @@ void MsgDbHandler::freeTable()
 }
 
 
-MSG_ERROR_T MsgDbHandler::bindText(const char *pBindStr, int index)
+msg_error_t MsgDbHandler::bindText(const char *pBindStr, int index)
 {
 	int ret = 0;
 
@@ -227,7 +227,7 @@ MSG_ERROR_T MsgDbHandler::bindText(const char *pBindStr, int index)
 }
 
 
-MSG_ERROR_T MsgDbHandler::bindBlob(const void * pBindBlob, int size, int index)
+msg_error_t MsgDbHandler::bindBlob(const void * pBindBlob, int size, int index)
 {
 	int ret = 0;
 
@@ -237,7 +237,7 @@ MSG_ERROR_T MsgDbHandler::bindBlob(const void * pBindBlob, int size, int index)
 }
 
 
-MSG_ERROR_T MsgDbHandler::prepareQuery(const char *pQuery)
+msg_error_t MsgDbHandler::prepareQuery(const char *pQuery)
 {
 	int ret = 0;
 
@@ -262,7 +262,7 @@ MSG_ERROR_T MsgDbHandler::prepareQuery(const char *pQuery)
 }
 
 
-MSG_ERROR_T MsgDbHandler::stepQuery()
+msg_error_t MsgDbHandler::stepQuery()
 {
 	int ret = 0;
 
@@ -314,7 +314,7 @@ const void* MsgDbHandler::columnBlob(int ColumnIndex)
 }
 
 
-MSG_ERROR_T MsgDbHandler::beginTrans()
+msg_error_t MsgDbHandler::beginTrans()
 {
 	int ret = 0;
 
@@ -339,7 +339,7 @@ MSG_ERROR_T MsgDbHandler::beginTrans()
 }
 
 
-MSG_ERROR_T MsgDbHandler::endTrans(bool Success)
+msg_error_t MsgDbHandler::endTrans(bool Success)
 {
 	int ret = 0;
 
@@ -418,7 +418,7 @@ void MsgDbHandler::getColumnToString(int RowIndex, int Length, char *pString)
 }
 
 
-MSG_ERROR_T MsgDbHandler::getRowId(const char *pTableName, unsigned int *pRowId)
+msg_error_t MsgDbHandler::getRowId(const char *pTableName, unsigned int *pRowId)
 {
 	int ret = 0, nRowId = 0, nRowCnt = 0;
 	char strQuery[256];

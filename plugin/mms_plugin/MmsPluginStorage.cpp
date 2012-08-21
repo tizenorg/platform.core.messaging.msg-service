@@ -1,18 +1,18 @@
- /*
-  * Copyright 2012  Samsung Electronics Co., Ltd
-  *
-  * Licensed under the Flora License, Version 1.0 (the "License");
-  * you may not use this file except in compliance with the License.
-  * You may obtain a copy of the License at
-  *
-  *    http://www.tizenopensource.org/license
-  *
-  * Unless required by applicable law or agreed to in writing, software
-  * distributed under the License is distributed on an "AS IS" BASIS,
-  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  * See the License for the specific language governing permissions and
-  * limitations under the License.
-  */
+/*
+* Copyright 2012  Samsung Electronics Co., Ltd
+*
+* Licensed under the Flora License, Version 1.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*    http://www.tizenopensource.org/license
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
 
 #include <stdlib.h>
 #include <sys/stat.h>
@@ -34,13 +34,10 @@
 #include "MmsPluginCodec.h"
 #include "MmsPluginSmil.h"
 #include "MmsPluginDrm.h"
-
-#include "media-thumbnail.h"
+#include <media-thumbnail.h>
 #include <mm_util_imgp.h>
 #include <mm_util_jpeg.h>
-
 #include "MsgHelper.h"
-
 
 static void __MmsReleaseMmsLists(MMS_MESSAGE_DATA_S *mms_data)
 {
@@ -90,7 +87,7 @@ void MmsPluginStorage::addMessage(MSG_MESSAGE_INFO_S *pMsgInfo, MSG_SENDINGOPT_I
 {
 	MSG_BEGIN();
 
-	MSG_ERROR_T	err;
+	msg_error_t	err;
 
 	MmsMsg mmsMsg;
 
@@ -103,7 +100,7 @@ void MmsPluginStorage::addMessage(MSG_MESSAGE_INFO_S *pMsgInfo, MSG_SENDINGOPT_I
 		char szTemp[MAX_MSG_DATA_LEN + 1];
 
 		MMS_MESSAGE_DATA_S mmsMsgData;
-
+		bzero(&mmsMsgData,sizeof(MMS_MESSAGE_DATA_S));
 		if (MmsComposeMessage(&mmsMsg, pMsgInfo, pSendOptInfo, &mmsMsgData, pFileData) != true) {
 			_MsgFreeBody(&mmsMsg.msgBody, mmsMsg.msgType.type);
 
@@ -113,81 +110,59 @@ void MmsPluginStorage::addMessage(MSG_MESSAGE_INFO_S *pMsgInfo, MSG_SENDINGOPT_I
 			THROW(MsgException::MMS_PLG_ERROR, "MMS Message Compose Error");
 		}
 
-		if (pMsgInfo->msgId == pMsgInfo->referenceId) {
-			char fileName[MSG_FILENAME_LEN_MAX+1] = {0,};
+		char fileName[MSG_FILENAME_LEN_MAX+1] = {0,};
 
-			FILE *pFile = NULL;
+		FILE *pFile = NULL;
 
-			strcpy(szTemp,pMsgInfo->msgData);
+		strcpy(szTemp,pMsgInfo->msgData);
 
-			snprintf((char *)pMsgInfo->msgData, MAX_MSG_DATA_LEN+1, MSG_DATA_PATH"%d.mms", pMsgInfo->msgId);
+		snprintf((char *)pMsgInfo->msgData, MAX_MSG_DATA_LEN+1, MSG_DATA_PATH"%d.mms", pMsgInfo->msgId);
 
-			if (addMmsMsgToDB(&mmsMsg, pMsgInfo, _MsgMmsGetAttachCount(&mmsMsgData)) != MSG_SUCCESS) {
-				_MsgFreeBody(&mmsMsg.msgBody, mmsMsg.msgType.type);
-				MsgFreeAttrib(&mmsMsg.mmsAttrib);
-				__MmsReleaseMmsLists(&mmsMsgData);
+		if (addMmsMsgToDB(&mmsMsg, pMsgInfo, _MsgMmsGetAttachCount(&mmsMsgData)) != MSG_SUCCESS) {
+			_MsgFreeBody(&mmsMsg.msgBody, mmsMsg.msgType.type);
+			MsgFreeAttrib(&mmsMsg.mmsAttrib);
+			__MmsReleaseMmsLists(&mmsMsgData);
 
-				THROW(MsgException::MMS_PLG_ERROR, "MMS Stroage Error");
-			}
+			THROW(MsgException::MMS_PLG_ERROR, "MMS Stroage Error");
+		}
 
-			strcpy((char *)pMsgInfo->msgData,szTemp);
+		strcpy((char *)pMsgInfo->msgData,szTemp);
 
-			snprintf(fileName, MSG_FILENAME_LEN_MAX+1, MSG_DATA_PATH"%d", mmsMsg.msgID);
+		snprintf(fileName, MSG_FILENAME_LEN_MAX+1, MSG_DATA_PATH"%d", mmsMsg.msgID);
 
-			pFile = MsgOpenMMSFile(fileName);
-			if (!pFile) {
-				_MsgFreeBody(&mmsMsg.msgBody, mmsMsg.msgType.type);
-				MsgFreeAttrib(&mmsMsg.mmsAttrib);
-				__MmsReleaseMmsLists(&mmsMsgData);
-				THROW(MsgException::MMS_PLG_ERROR, "MMS File open Error");
-			}
+		pFile = MsgOpenMMSFile(fileName);
+		if (!pFile) {
+			_MsgFreeBody(&mmsMsg.msgBody, mmsMsg.msgType.type);
+			MsgFreeAttrib(&mmsMsg.mmsAttrib);
+			__MmsReleaseMmsLists(&mmsMsgData);
+			THROW(MsgException::MMS_PLG_ERROR, "MMS File open Error");
+		}
 
-			if (fchmod(fileno(pFile), file_mode) < 0) {
-				_MsgFreeBody(&mmsMsg.msgBody, mmsMsg.msgType.type);
-				MsgFreeAttrib(&mmsMsg.mmsAttrib);
-				__MmsReleaseMmsLists(&mmsMsgData);
-				MsgCloseFile(pFile);
-
-				THROW(MsgException::MMS_PLG_ERROR, "chmod() error: %s", strerror(errno));
-			}
-
-			if (_MmsEncodeSendReq(pFile, &mmsMsg) != true) {
-				_MsgFreeBody(&mmsMsg.msgBody, mmsMsg.msgType.type);
-				MsgFreeAttrib(&mmsMsg.mmsAttrib);
-				__MmsReleaseMmsLists(&mmsMsgData);
-				MsgCloseFile(pFile);
-
-				THROW(MsgException::MMS_PLG_ERROR, "MMS Message Encode Send Req Error");
-			}
-
-			MsgFsync(pFile);	//file is written to device immediately, it prevents missing file data from unexpected power off
+		if (fchmod(fileno(pFile), file_mode) < 0) {
+			_MsgFreeBody(&mmsMsg.msgBody, mmsMsg.msgType.type);
+			MsgFreeAttrib(&mmsMsg.mmsAttrib);
+			__MmsReleaseMmsLists(&mmsMsgData);
 			MsgCloseFile(pFile);
 
-			_MsgFreeBody(&mmsMsg.msgBody, mmsMsg.msgType.type);
-			MsgFreeAttrib(&mmsMsg.mmsAttrib);
-			__MmsReleaseMmsLists(&mmsMsgData);
-		} else {
-			char szTemp[MAX_MSG_DATA_LEN + 1];
-
-			strcpy(szTemp,pMsgInfo->msgData);
-
-			snprintf((char *)pMsgInfo->msgData, MAX_MSG_DATA_LEN+1, MSG_DATA_PATH"%d.mms", pMsgInfo->referenceId);
-
-			if (addMmsMsgToDB(&mmsMsg, pMsgInfo, _MsgMmsGetAttachCount(&mmsMsgData)) != MSG_SUCCESS) {
-				_MsgFreeBody(&mmsMsg.msgBody, mmsMsg.msgType.type);
-				MsgFreeAttrib(&mmsMsg.mmsAttrib);
-				__MmsReleaseMmsLists(&mmsMsgData);
-
-				THROW(MsgException::MMS_PLG_ERROR, "MMS Stroage Error");
-			}
-
-			strcpy((char *)pMsgInfo->msgData,szTemp);
-
-			_MsgFreeBody(&mmsMsg.msgBody, mmsMsg.msgType.type);
-			MsgFreeAttrib(&mmsMsg.mmsAttrib);
-
-			__MmsReleaseMmsLists(&mmsMsgData);
+			THROW(MsgException::MMS_PLG_ERROR, "chmod() error: %s", strerror(errno));
 		}
+
+		if (_MmsEncodeSendReq(pFile, &mmsMsg) != true) {
+			_MsgFreeBody(&mmsMsg.msgBody, mmsMsg.msgType.type);
+			MsgFreeAttrib(&mmsMsg.mmsAttrib);
+			__MmsReleaseMmsLists(&mmsMsgData);
+			MsgCloseFile(pFile);
+
+			THROW(MsgException::MMS_PLG_ERROR, "MMS Message Encode Send Req Error");
+		}
+
+		MsgFsync(pFile);	//file is written to device immediately, it prevents missing file data from unexpected power off
+		MsgCloseFile(pFile);
+
+		_MsgFreeBody(&mmsMsg.msgBody, mmsMsg.msgType.type);
+		MsgFreeAttrib(&mmsMsg.mmsAttrib);
+		__MmsReleaseMmsLists(&mmsMsgData);
+
 	} else if (pMsgInfo->msgType.subType == MSG_NOTIFICATIONIND_MMS) {
 		MSG_DEBUG("######## MmsPlgAddMessage -> MSG_NOTIFICATIONIND_MMS ###########");
 
@@ -211,7 +186,6 @@ void MmsPluginStorage::addMessage(MSG_MESSAGE_INFO_S *pMsgInfo, MSG_SENDINGOPT_I
 			pMsgInfo->networkStatus = MSG_NETWORK_SEND_SUCCESS;
 		else
 			pMsgInfo->networkStatus = MSG_NETWORK_RETRIEVE_SUCCESS;
-
 		strcpy(szTemp,pMsgInfo->msgData);
 		memset(pMsgInfo->msgData, 0, MAX_MSG_DATA_LEN + 1);
 		strncpy(pMsgInfo->msgData, pFileData, MAX_MSG_DATA_LEN);
@@ -219,6 +193,7 @@ void MmsPluginStorage::addMessage(MSG_MESSAGE_INFO_S *pMsgInfo, MSG_SENDINGOPT_I
 		MmsPluginStorage *pStorage = MmsPluginStorage::instance();
 
 		MMS_MESSAGE_DATA_S mmsMsgData;
+		bzero(&mmsMsgData,sizeof(MMS_MESSAGE_DATA_S));
 		if (mmsHeader.msgType.type == MIME_MULTIPART_RELATED || mmsHeader.msgType.type == MIME_APPLICATION_VND_WAP_MULTIPART_RELATED) {
 			char *pSmilDoc;
 			MmsMsg *pMsg = NULL;
@@ -258,12 +233,12 @@ void MmsPluginStorage::addMessage(MSG_MESSAGE_INFO_S *pMsgInfo, MSG_SENDINGOPT_I
 		char filePath[MAX_FULL_PATH_SIZE+1] = {0, };
 		FILE *pFile = NULL;
 
-		MSG_READ_REPORT_STATUS_T readStatus;
-		MSG_MESSAGE_ID_T selectedMsgId;
+		msg_read_report_status_t readStatus;
+		msg_message_id_t selectedMsgId;
 		int	version;
 
-		memcpy(&readStatus, pMsgInfo->msgData, sizeof(MSG_READ_REPORT_STATUS_T));
-		memcpy(&selectedMsgId, pMsgInfo->msgData + sizeof(MSG_READ_REPORT_STATUS_T), sizeof(MSG_MESSAGE_ID_T));
+		memcpy(&readStatus, pMsgInfo->msgData, sizeof(msg_read_report_status_t));
+		memcpy(&selectedMsgId, pMsgInfo->msgData + sizeof(msg_read_report_status_t), sizeof(msg_message_id_t));
 
 		version = MmsPluginStorage::instance()->getMmsVersion(selectedMsgId);
 
@@ -403,19 +378,18 @@ void MmsPluginStorage::addMessage(MSG_MESSAGE_INFO_S *pMsgInfo, MSG_SENDINGOPT_I
 
 void MmsPluginStorage::composeReadReport(MSG_MESSAGE_INFO_S *pMsgInfo)
 {
-	char filePath[MAX_FULL_PATH_SIZE+1] = {0, };
 	FILE *pFile = NULL;
 
-	MSG_READ_REPORT_STATUS_T readStatus;
+	msg_read_report_status_t readStatus;
 	int	version;
 
-	memcpy(&readStatus, pMsgInfo->msgData, sizeof(MSG_READ_REPORT_STATUS_T));
+	memcpy(&readStatus, pMsgInfo->msgData, sizeof(msg_read_report_status_t));
 
 	MSG_DEBUG("pMsgInfo->msgId = %d", pMsgInfo->msgId);
 
 	version = MmsPluginStorage::instance()->getMmsVersion(pMsgInfo->msgId);
 
-	snprintf((char *)pMsgInfo->msgData, MAX_MSG_DATA_LEN+1, MSG_DATA_PATH"%d.mms", pMsgInfo->msgId);
+	snprintf((char *)pMsgInfo->msgData, MAX_MSG_DATA_LEN+1, MSG_DATA_PATH"%d-Read-Rec.ind", pMsgInfo->msgId);
 
 	if (version == 0x90)
 		pMsgInfo->msgType.subType = MSG_READREPLY_MMS;
@@ -424,8 +398,7 @@ void MmsPluginStorage::composeReadReport(MSG_MESSAGE_INFO_S *pMsgInfo)
 
 	MmsComposeReadReportMessage(&mmsMsg, pMsgInfo, pMsgInfo->msgId);
 
-	snprintf(filePath, MAX_FULL_PATH_SIZE+1, MSG_DATA_PATH"%d", mmsMsg.msgID);
-	pFile = MsgOpenMMSFile(filePath);
+	pFile = MsgOpenFile(pMsgInfo->msgData, "wb+");
 	if (!pFile)
 		THROW(MsgException::MMS_PLG_ERROR, "MsgOpenMMSFile Error");
 
@@ -447,7 +420,7 @@ void MmsPluginStorage::composeReadReport(MSG_MESSAGE_INFO_S *pMsgInfo)
 }
 
 
-MSG_ERROR_T MmsPluginStorage::addMmsMsgToDB(MmsMsg *pMmsMsg, const MSG_MESSAGE_INFO_S *pMsgInfo, int attachCnt)
+msg_error_t MmsPluginStorage::addMmsMsgToDB(MmsMsg *pMmsMsg, const MSG_MESSAGE_INFO_S *pMsgInfo, int attachCnt)
 {
 	MSG_BEGIN();
 
@@ -455,50 +428,21 @@ MSG_ERROR_T MmsPluginStorage::addMmsMsgToDB(MmsMsg *pMmsMsg, const MSG_MESSAGE_I
 
 	// Add Message
 	memset(sqlQuery, 0x00, sizeof(sqlQuery));
+	snprintf(sqlQuery, sizeof(sqlQuery), "INSERT INTO %s VALUES (%d, '%s', '%s', '%s', '%s', '%s', %d, %d, %ld, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d);",
+			MMS_PLUGIN_MESSAGE_TABLE_NAME, pMmsMsg->msgID, pMmsMsg->szTrID, pMmsMsg->szMsgID, pMmsMsg->szForwardMsgID, pMmsMsg->szContentLocation,
+			pMsgInfo->msgData, pMmsMsg->mmsAttrib.version, pMmsMsg->mmsAttrib.dataType, pMmsMsg->mmsAttrib.date, pMmsMsg->mmsAttrib.bHideAddress,
+			pMmsMsg->mmsAttrib.bAskDeliveryReport, pMmsMsg->mmsAttrib.bReportAllowed, pMmsMsg->mmsAttrib.readReportAllowedType,
+			pMmsMsg->mmsAttrib.bAskReadReply, pMmsMsg->mmsAttrib.bRead, pMmsMsg->mmsAttrib.readReportSendStatus, pMmsMsg->mmsAttrib.bReadReportSent,
+			pMmsMsg->mmsAttrib.priority, pMmsMsg->mmsAttrib.bLeaveCopy, pMmsMsg->mmsAttrib.msgSize, pMmsMsg->mmsAttrib.msgClass,
+			pMmsMsg->mmsAttrib.expiryTime.time,	pMmsMsg->mmsAttrib.bUseDeliveryCustomTime, pMmsMsg->mmsAttrib.deliveryTime.time, pMmsMsg->mmsAttrib.msgStatus);
 
-	if (checkExistedMessage(pMmsMsg->msgID) == false) {
-		snprintf(sqlQuery, sizeof(sqlQuery), "INSERT INTO %s VALUES (%d, '%s', '%s', '%s', '%s', '%s');",
-					MMS_PLUGIN_MESSAGE_TABLE_NAME, pMmsMsg->msgID, pMmsMsg->szTrID, pMmsMsg->szMsgID, pMmsMsg->szForwardMsgID, pMmsMsg->szContentLocation, pMsgInfo->msgData);
+	MSG_DEBUG("\n!!!!!!!!! QUERY : %s\n", sqlQuery);
 
-		dbHandle.beginTrans();
+	if (dbHandle.execQuery(sqlQuery) != MSG_SUCCESS)
+		return MSG_ERR_DB_EXEC;
 
-		if (dbHandle.execQuery(sqlQuery) != MSG_SUCCESS) {
-			dbHandle.endTrans(false);
-			return MSG_ERR_DB_EXEC;
-		}
-
-		memset(sqlQuery, 0x00, sizeof(sqlQuery));
-
-		snprintf(sqlQuery, sizeof(sqlQuery), "INSERT INTO %s VALUES (%d, %d, %d, %ld, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d);",
-					MMS_PLUGIN_ATTRIBUTE_TABLE_NAME, pMmsMsg->msgID, pMmsMsg->mmsAttrib.version, pMmsMsg->mmsAttrib.dataType,
-												pMmsMsg->mmsAttrib.date, pMmsMsg->mmsAttrib.bHideAddress, pMmsMsg->mmsAttrib.bAskDeliveryReport,
-												pMmsMsg->mmsAttrib.bReportAllowed, pMmsMsg->mmsAttrib.readReportAllowedType, pMmsMsg->mmsAttrib.bAskReadReply,
-												pMmsMsg->mmsAttrib.bRead, pMmsMsg->mmsAttrib.readReportSendStatus, pMmsMsg->mmsAttrib.bReadReportSent,
-												pMmsMsg->mmsAttrib.priority, pMmsMsg->mmsAttrib.bLeaveCopy, pMmsMsg->mmsAttrib.msgSize, pMmsMsg->mmsAttrib.msgClass,
-												pMmsMsg->mmsAttrib.expiryTime.time,	pMmsMsg->mmsAttrib.bUseDeliveryCustomTime, pMmsMsg->mmsAttrib.deliveryTime.time,
-												pMmsMsg->mmsAttrib.msgStatus);
-
-		MSG_DEBUG("\n!!!!!!!!! QUERY : %s\n", sqlQuery);
-
-		if (dbHandle.execQuery(sqlQuery) != MSG_SUCCESS) {
-			dbHandle.endTrans(false);
-			return MSG_ERR_DB_EXEC;
-		}
-
-		if (updateMmsAttachCount(pMmsMsg->msgID, attachCnt) != MSG_SUCCESS) {
-			dbHandle.endTrans(false);
-			return MSG_ERR_DB_EXEC;
-		}
-
-		dbHandle.endTrans(true);
-	} else {
-		MSG_DEBUG("Already existed message");
-
-		if (updateMmsAttachCount(pMmsMsg->msgID, attachCnt) != MSG_SUCCESS) {
-			dbHandle.endTrans(false);
-			return MSG_ERR_DB_EXEC;
-		}
-	}
+	if (updateMmsAttachCount(pMmsMsg->msgID, attachCnt) != MSG_SUCCESS)
+		return MSG_ERR_DB_EXEC;
 
 	MSG_END();
 
@@ -506,11 +450,11 @@ MSG_ERROR_T MmsPluginStorage::addMmsMsgToDB(MmsMsg *pMmsMsg, const MSG_MESSAGE_I
 }
 
 
-MSG_ERROR_T	MmsPluginStorage::plgGetMmsMessage(MSG_MESSAGE_INFO_S *pMsg, MSG_SENDINGOPT_INFO_S *pSendOptInfo, MMS_MESSAGE_DATA_S *pMmsMsg, char **pDestMsg)
+msg_error_t	MmsPluginStorage::plgGetMmsMessage(MSG_MESSAGE_INFO_S *pMsg, MSG_SENDINGOPT_INFO_S *pSendOptInfo, MMS_MESSAGE_DATA_S *pMmsMsg, char **pDestMsg)
 {
 	MSG_BEGIN();
 
-	MSG_ERROR_T	err = MSG_SUCCESS;
+	msg_error_t	err = MSG_SUCCESS;
 
 	int partCnt = 0;
 	unsigned int nSize = 0;
@@ -525,9 +469,8 @@ MSG_ERROR_T	MmsPluginStorage::plgGetMmsMessage(MSG_MESSAGE_INFO_S *pMsg, MSG_SEN
 		char sqlQuery[MAX_QUERY_LEN + 1];
 
 		memset(sqlQuery, 0x00, sizeof(sqlQuery));
-		snprintf(sqlQuery, sizeof(sqlQuery), "SELECT ASK_DELIVERY_REPORT, KEEP_COPY, ASK_READ_REPLY, PRIORITY, EXPIRY_TIME, CUSTOM_DELIVERY_TIME, DELIVERY_TIME FROM %s WHERE REFERENCE_ID IN \
-								(SELECT REFERENCE_ID FROM %s WHERE MSG_ID = %d);",
-								MMS_PLUGIN_ATTRIBUTE_TABLE_NAME, MSGFW_MESSAGE_TABLE_NAME, pMsg->msgId);
+		snprintf(sqlQuery, sizeof(sqlQuery), "SELECT ASK_DELIVERY_REPORT, KEEP_COPY, ASK_READ_REPLY, PRIORITY, EXPIRY_TIME, CUSTOM_DELIVERY_TIME, DELIVERY_TIME \
+				FROM %s WHERE MSG_ID = %d;", MMS_PLUGIN_MESSAGE_TABLE_NAME, pMsg->msgId);
 
 		MSG_DEBUG("### SQLQuery = %s ###", sqlQuery);
 
@@ -557,7 +500,6 @@ MSG_ERROR_T	MmsPluginStorage::plgGetMmsMessage(MSG_MESSAGE_INFO_S *pMsg, MSG_SEN
 			MSG_DEBUG("## deliveryTime = %d ##", pSendOptInfo->option.mmsSendOptInfo.deliveryTime.time);
 		} else {
 			dbHandle.finalizeQuery();
-
 			return MSG_ERR_DB_STEP;
 		}
 
@@ -700,11 +642,11 @@ L_CATCH:
 }
 
 
-MSG_ERROR_T MmsPluginStorage::updateMessage(MSG_MESSAGE_INFO_S *pMsgInfo, MSG_SENDINGOPT_INFO_S *pSendOptInfo, char *pFileData)
+msg_error_t MmsPluginStorage::updateMessage(MSG_MESSAGE_INFO_S *pMsgInfo, MSG_SENDINGOPT_INFO_S *pSendOptInfo, char *pFileData)
 {
 	MSG_BEGIN();
 
-	MSG_ERROR_T	err = MSG_SUCCESS;
+	msg_error_t	err = MSG_SUCCESS;
 
 	MmsMsg mmsMsg;
 	bzero(&mmsMsg, sizeof(mmsMsg));
@@ -717,12 +659,9 @@ MSG_ERROR_T MmsPluginStorage::updateMessage(MSG_MESSAGE_INFO_S *pMsgInfo, MSG_SE
 
 	memset(sqlQuery, 0x00, sizeof(sqlQuery));
 	snprintf(sqlQuery, sizeof(sqlQuery), "UPDATE %s SET ASK_DELIVERY_REPORT = %d, KEEP_COPY = %d, ASK_READ_REPLY = %d, EXPIRY_TIME = %d, CUSTOM_DELIVERY_TIME = %d, DELIVERY_TIME= %d, PRIORITY = %d \
-									WHERE REFERENCE_ID IN \
-									(SELECT REFERENCE_ID FROM %s WHERE MSG_ID = %d);",
-				MMS_PLUGIN_ATTRIBUTE_TABLE_NAME, pSendOptInfo->bDeliverReq, pSendOptInfo->bKeepCopy, pSendOptInfo->option.mmsSendOptInfo.bReadReq,
-												pSendOptInfo->option.mmsSendOptInfo.expiryTime.time, pSendOptInfo->option.mmsSendOptInfo.bUseDeliveryCustomTime,
-												pSendOptInfo->option.mmsSendOptInfo.deliveryTime.time, pSendOptInfo->option.mmsSendOptInfo.priority,
-												MSGFW_MESSAGE_TABLE_NAME, pMsgInfo->msgId);
+			WHERE MSG_ID = %d;", MMS_PLUGIN_MESSAGE_TABLE_NAME, pSendOptInfo->bDeliverReq, pSendOptInfo->bKeepCopy, pSendOptInfo->option.mmsSendOptInfo.bReadReq,
+			pSendOptInfo->option.mmsSendOptInfo.expiryTime.time, pSendOptInfo->option.mmsSendOptInfo.bUseDeliveryCustomTime, pSendOptInfo->option.mmsSendOptInfo.deliveryTime.time,
+			pSendOptInfo->option.mmsSendOptInfo.priority, pMsgInfo->msgId);
 
 	if (dbHandle.execQuery(sqlQuery) != MSG_SUCCESS)
 		return MSG_ERR_DB_EXEC;
@@ -763,7 +702,7 @@ MSG_ERROR_T MmsPluginStorage::updateMessage(MSG_MESSAGE_INFO_S *pMsgInfo, MSG_SE
 }
 
 
-MSG_ERROR_T MmsPluginStorage::updateConfMessage(MSG_MESSAGE_INFO_S *pMsgInfo)
+msg_error_t MmsPluginStorage::updateConfMessage(MSG_MESSAGE_INFO_S *pMsgInfo)
 {
 	MSG_BEGIN();
 
@@ -774,10 +713,8 @@ MSG_ERROR_T MmsPluginStorage::updateConfMessage(MSG_MESSAGE_INFO_S *pMsgInfo)
 	MSG_DEBUG("###### pMsgInfo->msgData = %s #######", pMmsRecvData->retrievedFilePath);
 
 	memset(sqlQuery, 0x00, sizeof(sqlQuery));
-	snprintf(sqlQuery, sizeof(sqlQuery), "UPDATE %s SET MESSAGE_ID = '%s', FILE_PATH = '%s' WHERE REFERENCE_ID IN \
-					(SELECT REFERENCE_ID FROM %s WHERE MSG_ID = %d);",
-					MMS_PLUGIN_MESSAGE_TABLE_NAME, pMmsRecvData->szMsgID, pMmsRecvData->retrievedFilePath,
-					MSGFW_MESSAGE_TABLE_NAME, pMsgInfo->msgId);
+	snprintf(sqlQuery, sizeof(sqlQuery), "UPDATE %s SET MESSAGE_ID = '%s', FILE_PATH = '%s' WHERE MSG_ID = %d;",
+			MMS_PLUGIN_MESSAGE_TABLE_NAME, pMmsRecvData->szMsgID, pMmsRecvData->retrievedFilePath, pMsgInfo->msgId);
 
 	MSG_DEBUG("SQLQuery = %s", sqlQuery);
 
@@ -790,7 +727,7 @@ MSG_ERROR_T MmsPluginStorage::updateConfMessage(MSG_MESSAGE_INFO_S *pMsgInfo)
 }
 
 
-MSG_ERROR_T MmsPluginStorage::updateMsgServerID(MSG_MESSAGE_INFO_S *pMsgInfo, MSG_SENDINGOPT_INFO_S *pSendOptInfo)
+msg_error_t MmsPluginStorage::updateMsgServerID(MSG_MESSAGE_INFO_S *pMsgInfo, MSG_SENDINGOPT_INFO_S *pSendOptInfo)
 {
 	MSG_BEGIN();
 
@@ -799,10 +736,8 @@ MSG_ERROR_T MmsPluginStorage::updateMsgServerID(MSG_MESSAGE_INFO_S *pMsgInfo, MS
 
 	MMS_RECV_DATA_S *pMmsRecvData = (MMS_RECV_DATA_S *)pMsgInfo->msgData;
 
-	snprintf(sqlQuery, sizeof(sqlQuery), "UPDATE %s SET MESSAGE_ID = '%s' WHERE REFERENCE_ID IN \
-					(SELECT REFERENCE_ID FROM %s WHERE MSG_ID = %d);",
-					MMS_PLUGIN_MESSAGE_TABLE_NAME, pMmsRecvData->szMsgID,
-					MSGFW_MESSAGE_TABLE_NAME, pMsgInfo->msgId);
+	snprintf(sqlQuery, sizeof(sqlQuery), "UPDATE %s SET MESSAGE_ID = '%s' WHERE MSG_ID = %d;",
+			MMS_PLUGIN_MESSAGE_TABLE_NAME, pMmsRecvData->szMsgID, pMsgInfo->msgId);
 
 	MSG_DEBUG("SQLQuery = %s", sqlQuery);
 
@@ -811,11 +746,9 @@ MSG_ERROR_T MmsPluginStorage::updateMsgServerID(MSG_MESSAGE_INFO_S *pMsgInfo, MS
 
 	if (pSendOptInfo != NULL) {
 		memset(sqlQuery, 0x00, sizeof(sqlQuery));
-		snprintf(sqlQuery, sizeof(sqlQuery), "UPDATE %s SET ASK_DELIVERY_REPORT = %d, ASK_READ_REPLY = %d, PRIORITY = %d, EXPIRY_TIME = %d WHERE REFERENCE_ID IN \
-						(SELECT REFERENCE_ID FROM %s WHERE MSG_ID = %d);",
-						MMS_PLUGIN_ATTRIBUTE_TABLE_NAME, pSendOptInfo->bDeliverReq, pSendOptInfo->option.mmsSendOptInfo.bReadReq,
-						pSendOptInfo->option.mmsSendOptInfo.priority, pSendOptInfo->option.mmsSendOptInfo.expiryTime.time,
-						MSGFW_MESSAGE_TABLE_NAME, pMsgInfo->msgId);
+		snprintf(sqlQuery, sizeof(sqlQuery), "UPDATE %s SET ASK_DELIVERY_REPORT = %d, ASK_READ_REPLY = %d, PRIORITY = %d, EXPIRY_TIME = %d \
+				WHERE MSG_ID = %d;", MMS_PLUGIN_MESSAGE_TABLE_NAME, pSendOptInfo->bDeliverReq, pSendOptInfo->option.mmsSendOptInfo.bReadReq,
+				pSendOptInfo->option.mmsSendOptInfo.priority, pSendOptInfo->option.mmsSendOptInfo.expiryTime.time, pMsgInfo->msgId);
 
 		MSG_DEBUG("SQLQuery = %s", sqlQuery);
 
@@ -832,14 +765,14 @@ MSG_ERROR_T MmsPluginStorage::updateMsgServerID(MSG_MESSAGE_INFO_S *pMsgInfo, MS
 }
 
 
-MSG_ERROR_T MmsPluginStorage::updateNetStatus(MSG_MESSAGE_ID_T msgId, MSG_NETWORK_STATUS_T netStatus)
+msg_error_t MmsPluginStorage::updateNetStatus(msg_message_id_t msgId, msg_network_status_t netStatus)
 {
 	char sqlQuery[MAX_QUERY_LEN + 1];
 
 	memset(sqlQuery, 0x00, sizeof(sqlQuery));
 
 	snprintf(sqlQuery, sizeof(sqlQuery), "UPDATE %s SET NETWORK_STATUS = %d WHERE MSG_ID = %d;",
-					MSGFW_MESSAGE_TABLE_NAME, netStatus, msgId);
+			MSGFW_MESSAGE_TABLE_NAME, netStatus, msgId);
 
 	if (dbHandle.execQuery(sqlQuery) != MSG_SUCCESS)
 		return MSG_ERR_DB_EXEC;
@@ -848,15 +781,14 @@ MSG_ERROR_T MmsPluginStorage::updateNetStatus(MSG_MESSAGE_ID_T msgId, MSG_NETWOR
 }
 
 
-MSG_ERROR_T MmsPluginStorage::updateDeliveryReport(MSG_MESSAGE_ID_T msgId, MmsMsgMultiStatus *pStatus)
+msg_error_t MmsPluginStorage::updateDeliveryReport(msg_message_id_t msgId, MmsMsgMultiStatus *pStatus)
 {
 	char sqlQuery[MAX_QUERY_LEN + 1];
 
 	memset(sqlQuery, 0x00, sizeof(sqlQuery));
 
-	snprintf(sqlQuery, sizeof(sqlQuery), "UPDATE %s SET DELIVERY_REPORT_STATUS = %d, DELIVERY_REPORT_TIME = %ld \
-				      WHERE MSG_ID = %d;",
-				MSGFW_MESSAGE_TABLE_NAME, pStatus->msgStatus, pStatus->handledTime, msgId);
+	snprintf(sqlQuery, sizeof(sqlQuery), "UPDATE %s SET DELIVERY_REPORT_STATUS = %d, DELIVERY_REPORT_TIME = %ld WHERE MSG_ID = %d;",
+			MSGFW_MESSAGE_TABLE_NAME, pStatus->msgStatus, pStatus->handledTime, msgId);
 
 	if (dbHandle.execQuery(sqlQuery) != MSG_SUCCESS)
 		return MSG_ERR_DB_EXEC;
@@ -865,14 +797,13 @@ MSG_ERROR_T MmsPluginStorage::updateDeliveryReport(MSG_MESSAGE_ID_T msgId, MmsMs
 }
 
 
-MSG_ERROR_T MmsPluginStorage::updateReadReport(MSG_MESSAGE_ID_T msgId, MmsMsgMultiStatus *pStatus)
+msg_error_t MmsPluginStorage::updateReadReport(msg_message_id_t msgId, MmsMsgMultiStatus *pStatus)
 {
 	char sqlQuery[MAX_QUERY_LEN + 1];
 
 	memset(sqlQuery, 0x00, sizeof(sqlQuery));
 
-	snprintf(sqlQuery, sizeof(sqlQuery), "UPDATE %s SET READ_REPORT_STATUS = %d, READ_REPORT_TIME = %lu \
-				      WHERE MSG_ID = %d;",
+	snprintf(sqlQuery, sizeof(sqlQuery), "UPDATE %s SET READ_REPORT_STATUS = %d, READ_REPORT_TIME = %lu WHERE MSG_ID = %d;",
 			MSGFW_MESSAGE_TABLE_NAME, pStatus->readStatus, pStatus->readTime, msgId);
 
 
@@ -883,7 +814,7 @@ MSG_ERROR_T MmsPluginStorage::updateReadReport(MSG_MESSAGE_ID_T msgId, MmsMsgMul
 }
 
 
-MSG_ERROR_T MmsPluginStorage::updateMmsAttrib(MSG_MESSAGE_ID_T msgId, MmsAttrib *attrib, MSG_SUB_TYPE_T msgSubType)
+msg_error_t MmsPluginStorage::updateMmsAttrib(msg_message_id_t msgId, MmsAttrib *attrib, MSG_SUB_TYPE_T msgSubType)
 {
 	MSG_BEGIN();
 
@@ -892,15 +823,11 @@ MSG_ERROR_T MmsPluginStorage::updateMmsAttrib(MSG_MESSAGE_ID_T msgId, MmsAttrib 
 	memset(sqlQuery, 0x00, sizeof(sqlQuery));
 
 	if (msgSubType == MSG_NOTIFICATIONIND_MMS) {
-		snprintf(sqlQuery, sizeof(sqlQuery), "UPDATE %s SET EXPIRY_TIME = %d WHERE REFERENCE_ID IN \
-								(SELECT REFERENCE_ID FROM %s WHERE MSG_ID = %d);",
-								MMS_PLUGIN_ATTRIBUTE_TABLE_NAME, attrib->expiryTime.time,
-								MSGFW_MESSAGE_TABLE_NAME, msgId);
+		snprintf(sqlQuery, sizeof(sqlQuery), "UPDATE %s SET EXPIRY_TIME = %d WHERE MSG_ID = %d;",
+				MMS_PLUGIN_MESSAGE_TABLE_NAME, attrib->expiryTime.time, msgId);
 	} else if (msgSubType == MSG_RETRIEVE_AUTOCONF_MMS || msgSubType == MSG_RETRIEVE_MANUALCONF_MMS) {
-		snprintf(sqlQuery, sizeof(sqlQuery), "UPDATE %s SET ASK_DELIVERY_REPORT = %d, ASK_READ_REPLY = %d, PRIORITY = %d WHERE REFERENCE_ID IN \
-								(SELECT REFERENCE_ID FROM %s WHERE MSG_ID = %d);",
-								MMS_PLUGIN_ATTRIBUTE_TABLE_NAME, attrib->bAskDeliveryReport, attrib->bAskReadReply, attrib->priority,
-								MSGFW_MESSAGE_TABLE_NAME, msgId);
+		snprintf(sqlQuery, sizeof(sqlQuery), "UPDATE %s SET ASK_DELIVERY_REPORT = %d, ASK_READ_REPLY = %d, PRIORITY = %d WHERE MSG_ID = %d;",
+				MMS_PLUGIN_MESSAGE_TABLE_NAME, attrib->bAskDeliveryReport, attrib->bAskReadReply, attrib->priority, msgId);
 	}
 
 	MSG_DEBUG("QUERY : [%s]", sqlQuery);
@@ -914,15 +841,14 @@ MSG_ERROR_T MmsPluginStorage::updateMmsAttrib(MSG_MESSAGE_ID_T msgId, MmsAttrib 
 }
 
 
-MSG_ERROR_T MmsPluginStorage::updateMmsAttachCount(MSG_MESSAGE_ID_T msgId, int count)
+msg_error_t MmsPluginStorage::updateMmsAttachCount(msg_message_id_t msgId, int count)
 {
 	MSG_BEGIN();
 
 	char sqlQuery[MAX_QUERY_LEN + 1];
 
 	memset(sqlQuery, 0x00, sizeof(sqlQuery));
-	snprintf(sqlQuery, sizeof(sqlQuery), "UPDATE %s SET ATTACHMENT_COUNT = %d WHERE MSG_ID = %d;",
-								MSGFW_MESSAGE_TABLE_NAME, count, msgId);
+	snprintf(sqlQuery, sizeof(sqlQuery), "UPDATE %s SET ATTACHMENT_COUNT = %d WHERE MSG_ID = %d;", MSGFW_MESSAGE_TABLE_NAME, count, msgId);
 
 	if (dbHandle.execQuery(sqlQuery) != MSG_SUCCESS) {
 		MSG_DEBUG("Fail to execute query [%s]", sqlQuery);
@@ -934,7 +860,7 @@ MSG_ERROR_T MmsPluginStorage::updateMmsAttachCount(MSG_MESSAGE_ID_T msgId, int c
 	return MSG_SUCCESS;
 }
 
-MmsMsgMultiStatus *MmsPluginStorage::getMultiStatus(MSG_MESSAGE_ID_T msgId)
+MmsMsgMultiStatus *MmsPluginStorage::getMultiStatus(msg_message_id_t msgId)
 {
 	MSG_BEGIN();
 
@@ -944,11 +870,9 @@ MmsMsgMultiStatus *MmsPluginStorage::getMultiStatus(MSG_MESSAGE_ID_T msgId)
 
 	memset(sqlQuery, 0x00, sizeof(sqlQuery));
 
-	snprintf(sqlQuery, sizeof(sqlQuery), "SELECT B.ADDRESS_VAL, A.DELIVERY_REPORT_STATUS, A.DELIVERY_REPORT_TIME, \
-						  A.READ_REPORT_STATUS, A.READ_REPORT_TIME \
-					FROM %s A, %s B \
-				     WHERE A.MSG_ID = %d AND A.ADDRESS_ID = B.ADDRESS_ID;",
-				MSGFW_MESSAGE_TABLE_NAME, MSGFW_ADDRESS_TABLE_NAME, msgId);
+	snprintf(sqlQuery, sizeof(sqlQuery), "SELECT B.ADDRESS_VAL, A.DELIVERY_REPORT_STATUS, A.DELIVERY_REPORT_TIME, A.READ_REPORT_STATUS, A.READ_REPORT_TIME \
+			FROM %s A, %s B WHERE A.MSG_ID = %d AND A.CONV_ID = B.CONV_ID;",
+			MSGFW_MESSAGE_TABLE_NAME, MSGFW_ADDRESS_TABLE_NAME, msgId);
 
 	if (dbHandle.prepareQuery(sqlQuery) != MSG_SUCCESS)
 		MSG_DEBUG("MSG_ERR_DB_PREPARE");
@@ -963,9 +887,9 @@ MmsMsgMultiStatus *MmsPluginStorage::getMultiStatus(MSG_MESSAGE_ID_T msgId)
 			MSG_DEBUG("### szTo = %s ###", pMultiStatus->szTo);
 		}
 
-		pMultiStatus->msgStatus = (MSG_DELIVERY_REPORT_STATUS_T)dbHandle.columnInt(1);
+		pMultiStatus->msgStatus = (msg_delivery_report_status_t)dbHandle.columnInt(1);
 		pMultiStatus->handledTime = dbHandle.columnInt(2);
-		pMultiStatus->readStatus = (MSG_READ_REPORT_STATUS_T)dbHandle.columnInt(3);
+		pMultiStatus->readStatus = (msg_read_report_status_t)dbHandle.columnInt(3);
 		pMultiStatus->readTime = dbHandle.columnInt(4);
 	} else {
 		MSG_DEBUG("MSG_ERR_DB_STEP");
@@ -981,15 +905,16 @@ MmsMsgMultiStatus *MmsPluginStorage::getMultiStatus(MSG_MESSAGE_ID_T msgId)
 }
 
 
-void MmsPluginStorage::getMmsAttrib(MSG_MESSAGE_ID_T msgId, MmsMsg *pMmsMsg)
+void MmsPluginStorage::getMmsAttrib(msg_message_id_t msgId, MmsMsg *pMmsMsg)
 {
 	char sqlQuery[MAX_QUERY_LEN + 1];
 
 	memset(sqlQuery, 0x00, sizeof(sqlQuery));
 
-	snprintf(sqlQuery, sizeof(sqlQuery), "SELECT * FROM %s WHERE REFERENCE_ID IN \
-						(SELECT REFERENCE_ID FROM %s WHERE MSG_ID = %d);",
-						MMS_PLUGIN_ATTRIBUTE_TABLE_NAME, MSGFW_MESSAGE_TABLE_NAME, msgId);
+	snprintf(sqlQuery, sizeof(sqlQuery), "SELECT VERSION, DATA_TYPE,  DATE, HIDE_ADDRESS, ASK_DELIVERY_REPORT, REPORT_ALLOWED, \
+			READ_REPORT_ALLOWED_TYPE, ASK_READ_REPLY, READ, READ_REPORT_SEND_STATUS, READ_REPORT_SENT, PRIORITY, \
+			MSG_SIZE, MSG_CLASS, EXPIRY_TIME, CUSTOM_DELIVERY_TIME, DELIVERY_TIME, MSG_STATUS FROM %s WHERE MSG_ID = %d;",
+			MMS_PLUGIN_MESSAGE_TABLE_NAME, msgId);
 
 	if (dbHandle.prepareQuery(sqlQuery) != MSG_SUCCESS)
 		MSG_DEBUG("MSG_ERR_DB_PREPARE");
@@ -1011,16 +936,16 @@ void MmsPluginStorage::getMmsAttrib(MSG_MESSAGE_ID_T msgId, MmsMsg *pMmsMsg)
 		pMmsMsg->mmsAttrib.msgClass = (MmsMsgClass)dbHandle.columnInt(14);
 		pMmsMsg->mmsAttrib.expiryTime.time = dbHandle.columnInt(15);
 		pMmsMsg->mmsAttrib.deliveryTime.time = dbHandle.columnInt(17);
-		pMmsMsg->mmsAttrib.msgStatus = (MSG_DELIVERY_REPORT_STATUS_T)dbHandle.columnInt(18);
+		pMmsMsg->mmsAttrib.msgStatus = (msg_delivery_report_status_t)dbHandle.columnInt(18);
 	}
 
 	dbHandle.finalizeQuery();
 }
 
 
-MSG_ERROR_T MmsPluginStorage::getMmsMessageId(MSG_MESSAGE_ID_T selectedMsgId, MmsMsg *pMmsMsg)
+msg_error_t MmsPluginStorage::getMmsMessageId(msg_message_id_t selectedMsgId, MmsMsg *pMmsMsg)
 {
-	MSG_ERROR_T err = MSG_SUCCESS;
+	msg_error_t err = MSG_SUCCESS;
 
 	int rowCnt = 0;
 
@@ -1028,9 +953,8 @@ MSG_ERROR_T MmsPluginStorage::getMmsMessageId(MSG_MESSAGE_ID_T selectedMsgId, Mm
 
 	memset(sqlQuery, 0x00, sizeof(sqlQuery));
 
-	snprintf(sqlQuery, sizeof(sqlQuery), "SELECT MESSAGE_ID FROM %s WHERE REFERENCE_ID IN \
-						(SELECT REFERENCE_ID FROM %s WHERE MSG_ID = %d);",
-						MMS_PLUGIN_MESSAGE_TABLE_NAME, MSGFW_MESSAGE_TABLE_NAME, selectedMsgId);
+	snprintf(sqlQuery, sizeof(sqlQuery), "SELECT MESSAGE_ID FROM %s WHERE MSG_ID = %d;",
+			MMS_PLUGIN_MESSAGE_TABLE_NAME, selectedMsgId);
 
 	err = dbHandle.getTable(sqlQuery, &rowCnt);
 
@@ -1054,9 +978,9 @@ MSG_ERROR_T MmsPluginStorage::getMmsMessageId(MSG_MESSAGE_ID_T selectedMsgId, Mm
 }
 
 
-int MmsPluginStorage::getMmsVersion(MSG_MESSAGE_ID_T selectedMsgId)
+int MmsPluginStorage::getMmsVersion(msg_message_id_t selectedMsgId)
 {
-	MSG_ERROR_T err = MSG_SUCCESS;
+	msg_error_t err = MSG_SUCCESS;
 	int rowCnt = 0;
 
 	int	version = 0;
@@ -1065,9 +989,8 @@ int MmsPluginStorage::getMmsVersion(MSG_MESSAGE_ID_T selectedMsgId)
 
 	memset(sqlQuery, 0x00, sizeof(sqlQuery));
 
-	snprintf(sqlQuery, sizeof(sqlQuery), "SELECT VERSION FROM %s WHERE REFERENCE_ID IN \
-						(SELECT REFERENCE_ID FROM %s WHERE MSG_ID = %d);",
-						MMS_PLUGIN_ATTRIBUTE_TABLE_NAME, MSGFW_MESSAGE_TABLE_NAME, selectedMsgId);
+	snprintf(sqlQuery, sizeof(sqlQuery), "SELECT VERSION FROM %s WHERE MSG_ID = %d;",
+			MMS_PLUGIN_MESSAGE_TABLE_NAME, selectedMsgId);
 
 	MSG_DEBUG("SqlQuery = %s", sqlQuery);
 
@@ -1093,15 +1016,14 @@ int MmsPluginStorage::getMmsVersion(MSG_MESSAGE_ID_T selectedMsgId)
 }
 
 
-MSG_ERROR_T MmsPluginStorage::getContentLocation(MSG_MESSAGE_INFO_S *pMsgInfo)
+msg_error_t MmsPluginStorage::getContentLocation(MSG_MESSAGE_INFO_S *pMsgInfo)
 {
 	char sqlQuery[MAX_QUERY_LEN + 1];
 
 	memset(sqlQuery, 0x00, sizeof(sqlQuery));
 
-	snprintf(sqlQuery, sizeof(sqlQuery), "SELECT CONTENTS_LOCATION FROM %s WHERE REFERENCE_ID IN \
-						(SELECT REFERENCE_ID FROM %s WHERE MSG_ID = %d);",
-						MMS_PLUGIN_MESSAGE_TABLE_NAME, MSGFW_MESSAGE_TABLE_NAME, pMsgInfo->msgId);
+	snprintf(sqlQuery, sizeof(sqlQuery), "SELECT CONTENTS_LOCATION FROM %s WHERE MSG_ID = %d;",
+			MMS_PLUGIN_MESSAGE_TABLE_NAME, pMsgInfo->msgId);
 
 	if (dbHandle.prepareQuery(sqlQuery) != MSG_SUCCESS)
 		return MSG_ERR_DB_PREPARE;
@@ -1124,15 +1046,14 @@ MSG_ERROR_T MmsPluginStorage::getContentLocation(MSG_MESSAGE_INFO_S *pMsgInfo)
 
 
 /* reject_msg_support */
-MSG_ERROR_T MmsPluginStorage::getTrID(MSG_MESSAGE_INFO_S *pMsgInfo,char *pszTrID,int nBufferLen)
+msg_error_t MmsPluginStorage::getTrID(MSG_MESSAGE_INFO_S *pMsgInfo,char *pszTrID,int nBufferLen)
 {
 	char sqlQuery[MAX_QUERY_LEN + 1];
 
 	memset(sqlQuery, 0x00, sizeof(sqlQuery));
 
-	snprintf(sqlQuery, sizeof(sqlQuery), "SELECT TRANSACTION_ID FROM %s WHERE REFERENCE_ID IN \
-						(SELECT REFERENCE_ID FROM %s WHERE MSG_ID = %d);",
-						MMS_PLUGIN_MESSAGE_TABLE_NAME, MSGFW_MESSAGE_TABLE_NAME, pMsgInfo->msgId);
+	snprintf(sqlQuery, sizeof(sqlQuery), "SELECT TRANSACTION_ID FROM %s WHERE MSG_ID = %d;",
+			MMS_PLUGIN_MESSAGE_TABLE_NAME, pMsgInfo->msgId);
 
 	if (dbHandle.prepareQuery(sqlQuery) != MSG_SUCCESS)
 		return MSG_ERR_DB_PREPARE;
@@ -1155,15 +1076,14 @@ MSG_ERROR_T MmsPluginStorage::getTrID(MSG_MESSAGE_INFO_S *pMsgInfo,char *pszTrID
 /* reject_msg_support */
 
 
-MSG_ERROR_T MmsPluginStorage::getMmsRawFilePath(MSG_MESSAGE_ID_T msgId, char *pFilepath)
+msg_error_t MmsPluginStorage::getMmsRawFilePath(msg_message_id_t msgId, char *pFilepath)
 {
 	char sqlQuery[MAX_QUERY_LEN + 1];
 
 	memset(sqlQuery, 0x00, sizeof(sqlQuery));
 
-	snprintf(sqlQuery, sizeof(sqlQuery), "SELECT FILE_PATH FROM %s WHERE REFERENCE_ID IN \
-						(SELECT REFERENCE_ID FROM %s WHERE MSG_ID = %d);",
-						MMS_PLUGIN_MESSAGE_TABLE_NAME, MSGFW_MESSAGE_TABLE_NAME, msgId);
+	snprintf(sqlQuery, sizeof(sqlQuery), "SELECT FILE_PATH FROM %s WHERE MSG_ID = %d;",
+			MMS_PLUGIN_MESSAGE_TABLE_NAME, msgId);
 
 	if (dbHandle.prepareQuery(sqlQuery) != MSG_SUCCESS)
 		return MSG_ERR_DB_PREPARE;
@@ -1188,7 +1108,7 @@ int MmsPluginStorage::searchMsgId(char *toNumber, char *szMsgID)
 {
 	int msgId = -1;
 
-	MSG_FOLDER_ID_T	folderId = MSG_SENTBOX_ID;
+	msg_folder_id_t	folderId = MSG_SENTBOX_ID;
 
 	char sqlQuery[MAX_QUERY_LEN + 1];
 
@@ -1197,8 +1117,8 @@ int MmsPluginStorage::searchMsgId(char *toNumber, char *szMsgID)
 	memset(sqlQuery, 0x00, sizeof(sqlQuery));
 
 	snprintf(sqlQuery, sizeof(sqlQuery), "SELECT A.MSG_ID FROM %s A, %s B \
-				 WHERE A.REFERENCE_ID = B.REFERENCE_ID AND A.FOLDER_ID = %d AND B.MESSAGE_ID LIKE '%%%s%%'",
-				MSGFW_MESSAGE_TABLE_NAME, MMS_PLUGIN_MESSAGE_TABLE_NAME, folderId, szMsgID);
+			WHERE A.MSG_ID = B.MSG_ID AND A.FOLDER_ID = %d AND B.MESSAGE_ID LIKE '%%%s%%'",
+			MSGFW_MESSAGE_TABLE_NAME, MMS_PLUGIN_MESSAGE_TABLE_NAME, folderId, szMsgID);
 
 	MSG_DEBUG("sqlQuery [%s]", sqlQuery);
 
@@ -1215,7 +1135,7 @@ int MmsPluginStorage::searchMsgId(char *toNumber, char *szMsgID)
 }
 
 
-MSG_ERROR_T MmsPluginStorage::setReadReportSendStatus(MSG_MESSAGE_ID_T msgId, int readReportSendStatus)
+msg_error_t MmsPluginStorage::setReadReportSendStatus(msg_message_id_t msgId, int readReportSendStatus)
 {
 	bool bReadReportSent = false;
 
@@ -1228,10 +1148,8 @@ MSG_ERROR_T MmsPluginStorage::setReadReportSendStatus(MSG_MESSAGE_ID_T msgId, in
 
 	memset(sqlQuery, 0x00, sizeof(sqlQuery));
 
-	snprintf(sqlQuery, sizeof(sqlQuery), "UPDATE %s SET READ_REPORT_SEND_STATUS = %d, READ_REPORT_SENT = %d WHERE REFERENCE_ID IN \
-					(SELECT REFERENCE_ID FROM %s WHERE MSG_ID = %d);",
-					MMS_PLUGIN_ATTRIBUTE_TABLE_NAME, (MmsRecvReadReportSendStatus)readReportSendStatus, (int)bReadReportSent,
-					MSGFW_MESSAGE_TABLE_NAME, msgId);
+	snprintf(sqlQuery, sizeof(sqlQuery), "UPDATE %s SET READ_REPORT_SEND_STATUS = %d, READ_REPORT_SENT = %d WHERE MSG_ID = %d;",
+			MMS_PLUGIN_MESSAGE_TABLE_NAME, (MmsRecvReadReportSendStatus)readReportSendStatus, (int)bReadReportSent, msgId);
 
 	if (dbHandle.execQuery(sqlQuery) != MSG_SUCCESS)
 		return MSG_ERR_DB_EXEC;
@@ -1240,45 +1158,7 @@ MSG_ERROR_T MmsPluginStorage::setReadReportSendStatus(MSG_MESSAGE_ID_T msgId, in
 }
 
 
-bool MmsPluginStorage::checkExistedMessage(MSG_MESSAGE_ID_T msgId)
-{
-	MSG_ERROR_T err = MSG_SUCCESS;
-
-	char sqlQuery[MAX_QUERY_LEN + 1];
-
-	memset(sqlQuery, 0x00, sizeof(sqlQuery));
-
-	snprintf(sqlQuery, sizeof(sqlQuery), "SELECT REFERENCE_ID FROM %s WHERE REFERENCE_ID IN \
-					(SELECT REFERENCE_ID FROM %s WHERE MSG_ID = %d);",
-					MMS_PLUGIN_MESSAGE_TABLE_NAME, MSGFW_MESSAGE_TABLE_NAME, msgId);
-
-	int rowCnt = 0;
-	int refId = 0;
-
-	err = dbHandle.getTable(sqlQuery, &rowCnt);
-
-	// No record or other error
-	if (err != MSG_SUCCESS) {
-		MSG_DEBUG("result error");
-		dbHandle.freeTable();
-		return false;
-	}
-
-	refId = dbHandle.getColumnToInt(1);
-
-	MSG_DEBUG("refId : [%d]", refId);
-
-	if (rowCnt > 0) {
-		dbHandle.freeTable();
-		return true;
-	} else {
-		dbHandle.freeTable();
-		return false;
-	}
-}
-
-
-MSG_ERROR_T MmsPluginStorage::getMsgText(MMS_MESSAGE_DATA_S *pMmsMsg, char *pMsgText)
+msg_error_t MmsPluginStorage::getMsgText(MMS_MESSAGE_DATA_S *pMmsMsg, char *pMsgText)
 {
 	MMS_PAGE_S *pPage = NULL;
 	MMS_MEDIA_S *pMedia = NULL;
@@ -1328,7 +1208,7 @@ MSG_ERROR_T MmsPluginStorage::getMsgText(MMS_MESSAGE_DATA_S *pMmsMsg, char *pMsg
 }
 
 
-MSG_ERROR_T MmsPluginStorage::makeThumbnail(MMS_MESSAGE_DATA_S *pMmsMsg, char *pThumbnailPath, char *szFileName)
+msg_error_t MmsPluginStorage::makeThumbnail(MMS_MESSAGE_DATA_S *pMmsMsg, char *pThumbnailPath, char *szFileName)
 {
 	MMS_PAGE_S *pPage = NULL;
 	MMS_MEDIA_S *pMedia = NULL;
@@ -1518,11 +1398,11 @@ MSG_ERROR_T MmsPluginStorage::makeThumbnail(MMS_MESSAGE_DATA_S *pMmsMsg, char *p
 }
 
 
-MSG_ERROR_T MmsPluginStorage::addMmsNoti(MSG_MESSAGE_INFO_S *pMsgInfo)
+msg_error_t MmsPluginStorage::addMmsNoti(MSG_MESSAGE_INFO_S *pMsgInfo)
 {
 	MSG_BEGIN();
 
-	MSG_ERROR_T	err = MSG_SUCCESS;
+	msg_error_t	err = MSG_SUCCESS;
 
 	err = MsgInsertMmsReportToNoti(&dbHandle, pMsgInfo);
 
@@ -1532,11 +1412,11 @@ MSG_ERROR_T MmsPluginStorage::addMmsNoti(MSG_MESSAGE_INFO_S *pMsgInfo)
 }
 
 /* This API is not used anywhere now */
-MSG_ERROR_T	MmsPluginStorage::plgGetRestoreMessage(MSG_MESSAGE_INFO_S *pMsg, MSG_SENDINGOPT_INFO_S *pSendOptInfo, MMS_MESSAGE_DATA_S *pMmsMsg, char **pDestMsg, char *filePath)
+msg_error_t	MmsPluginStorage::plgGetRestoreMessage(MSG_MESSAGE_INFO_S *pMsg, MSG_SENDINGOPT_INFO_S *pSendOptInfo, MMS_MESSAGE_DATA_S *pMmsMsg, char **pDestMsg, char *filePath)
 {
 	MSG_BEGIN();
 
-	MSG_ERROR_T	err = MSG_SUCCESS;
+	msg_error_t	err = MSG_SUCCESS;
 	int partCnt = 0;
 	MsgType partHeader;
 	MmsAttrib pMmsAttrib;

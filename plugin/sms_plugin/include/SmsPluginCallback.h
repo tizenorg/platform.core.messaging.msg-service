@@ -1,18 +1,18 @@
- /*
-  * Copyright 2012  Samsung Electronics Co., Ltd
-  *
-  * Licensed under the Flora License, Version 1.0 (the "License");
-  * you may not use this file except in compliance with the License.
-  * You may obtain a copy of the License at
-  *
-  *    http://www.tizenopensource.org/license
-  *
-  * Unless required by applicable law or agreed to in writing, software
-  * distributed under the License is distributed on an "AS IS" BASIS,
-  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  * See the License for the specific language governing permissions and
-  * limitations under the License.
-  */
+/*
+* Copyright 2012  Samsung Electronics Co., Ltd
+*
+* Licensed under the Flora License, Version 1.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*    http://www.tizenopensource.org/license
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
 
 #ifndef SMS_PLUGIN_CALLBACK_H
 #define SMS_PLUGIN_CALLBACK_H
@@ -26,39 +26,40 @@
 
 extern "C"
 {
-	#include <TapiEvent.h>
+	#include <tapi_common.h>
+	#include <TelSms.h>
+	#include <TapiUtility.h>
+	#include <ITapiNetText.h>
 }
 
 /*==================================================================================================
                                      FUNCTION PROTOTYPES
 ==================================================================================================*/
-int TapiEventDeviceReady(const TelTapiEvent_t *pEvent, void*);
+void TapiEventDeviceReady(TapiHandle *handle, int result, void *data, void *user_data);
 
-int TapiEventSentStatus(const TelTapiEvent_t *pEvent, void*);
-int TapiEventMsgIncoming(const TelTapiEvent_t *pEvent, void*);
-int TapiEventCbMsgIncoming(const TelTapiEvent_t *pEvent, void*);
-int TapiEventDeliveryReportCNF(const TelTapiEvent_t *pEvent, void*);
+void TapiEventSentStatus(TapiHandle *handle, int result, void *data, void *user_data);
+void TapiEventMsgIncoming(TapiHandle *handle, int result, void *data, void *user_data);
+void TapiEventCbMsgIncoming(TapiHandle *handle, int result, void *data, void *user_data);
+void TapiEventDeliveryReportCNF(TapiHandle *handle, int result, void *data, void *user_data);
 
-int TapiEventGetSimMsgCnt(const TelTapiEvent_t *pEvent, void*);
-int TapiEventGetSimMsg(const TelTapiEvent_t *pEvent, void*);
-int TapiEventSaveSimMsg(const TelTapiEvent_t *pEvent, void*);
-int TapiEventDeleteSimMsg(const TelTapiEvent_t *pEvent, void*);
+void TapiEventGetSimMsgCnt(TapiHandle *handle, int result, void *data, void *user_data);
+void TapiEventGetSimMsg(TapiHandle *handle, int result, void *data, void *user_data);
+void TapiEventSaveSimMsg(TapiHandle *handle, int result, void *data, void *user_data);
+void TapiEventDeleteSimMsg(TapiHandle *handle, int result, void *data, void *user_data);
 
-int TapiEventSetConfigData(const TelTapiEvent_t *pEvent, void*);
+void TapiEventSetConfigData(TapiHandle *handle, int result, void *data, void *user_data);
 
-int TapiEventGetCBConfig(const TelTapiEvent_t *pEvent, void*);
+void TapiEventGetCBConfig(TapiHandle *handle, int result, void *data, void *user_data);
 
-int TapiEventGetParamCnt(const TelTapiEvent_t *pEvent, void*);
-int TapiEventGetParam(const TelTapiEvent_t *pEvent, void*);
+void TapiEventGetParamCnt(TapiHandle *handle, int result, void *data, void *user_data);
+void TapiEventGetParam(TapiHandle *handle, int result, void *data, void *user_data);
 
-int TapiEventSatSmsRefresh(const TelTapiEvent_t *pEvent, void*);
-int TapiEventSatSendSms(const TelTapiEvent_t *pEvent, void*);
-int TapiEventSatMoSmsCtrl(const TelTapiEvent_t *pEvent, void*);
+void TapiEventSatSmsRefresh(TapiHandle *handle, int result, void *data, void *user_data);
+void TapiEventSatSendSms(TapiHandle *handle, int result, void *data, void *user_data);
+void TapiEventSatMoSmsCtrl(TapiHandle *handle, int result, void *data, void *user_data);
 
-int TapiEventSimFileInfo(const TelTapiEvent_t *pEvent, void*);
-int TapiEventSimReadFile(const TelTapiEvent_t *pEvent, void*);
-
-int TapiEventFactoryDftSms(const TelTapiEvent_t *pEvent, void*);
+void TapiEventSimFileInfo(TapiHandle *handle, int result, void *data, void *user_data);
+void TapiEventSimReadFile(TapiHandle *handle, int result, void *data, void *user_data);
 
 
 /*==================================================================================================

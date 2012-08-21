@@ -1,18 +1,18 @@
- /*
-  * Copyright 2012  Samsung Electronics Co., Ltd
-  *
-  * Licensed under the Flora License, Version 1.0 (the "License");
-  * you may not use this file except in compliance with the License.
-  * You may obtain a copy of the License at
-  *
-  *    http://www.tizenopensource.org/license
-  *
-  * Unless required by applicable law or agreed to in writing, software
-  * distributed under the License is distributed on an "AS IS" BASIS,
-  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  * See the License for the specific language governing permissions and
-  * limitations under the License.
-  */
+/*
+* Copyright 2012  Samsung Electronics Co., Ltd
+*
+* Licensed under the Flora License, Version 1.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*    http://www.tizenopensource.org/license
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
 
 #ifndef MMS_PLUGIN_MESSAGE_H
 #define MMS_PLUGIN_MESSAGE_H
@@ -51,7 +51,7 @@
 #define		MSG_MAILBOX_NAME_LEN		10
 
 #define		MsgContentType						MimeType
-#define		MsgRecipientType					MSG_RECIPIENT_TYPE_T
+#define		MsgRecipientType					msg_recipient_type_t
 #define		MMS_VERSION						0x92
 #define		MSG_STR_ADDR_DELIMETER			";"
 #define		MSG_CH_ADDR_DELIMETER			';'
@@ -262,10 +262,10 @@ typedef enum {
 	MMS_SPECIAL_MSG_TYPE_VOICE_MESSAGE,		//voice message service
 
 	MMS_SPECIAL_MSG_TYPE_VDF_POSTCARD,		//postcard service, or Generic Postcard Service
-	MMS_SPECIAL_MSG_TYPE_POSTCARD_EXT1,		//Stickers Service
-	MMS_SPECIAL_MSG_TYPE_POSTCARD_EXT2,		//Photo 10x15
-	MMS_SPECIAL_MSG_TYPE_POSTCARD_EXT3,		//8 Photos
-	MMS_SPECIAL_MSG_TYPE_POSTCARD_EXT4,		// 4 Photos
+	MMS_SPECIAL_MSG_TYPE_POSTCARD_EXT1,	//Stickers Service
+	MMS_SPECIAL_MSG_TYPE_POSTCARD_EXT2,	//Photo 10x15
+	MMS_SPECIAL_MSG_TYPE_POSTCARD_EXT3,	//8 Photos
+	MMS_SPECIAL_MSG_TYPE_POSTCARD_EXT4,	// 4 Photos
 } MmsSpecialMsgType;
 
 typedef enum {
@@ -305,12 +305,12 @@ typedef	struct _MmsMsgMultiStatus {
 	char szTo[MAX_ADDRESS_VAL_LEN + 1];
 	bool bDeliveryReportIsRead;
 	bool bDeliveyrReportIsLast;
-	MSG_DELIVERY_REPORT_STATUS_T msgStatus;
+	msg_delivery_report_status_t msgStatus;
 	UINT32 handledTime;
 
 	bool bReadReplyIsRead;
 	bool bReadReplyIsLast;
-	MSG_READ_REPORT_STATUS_T readStatus;
+	msg_read_report_status_t readStatus;
 	UINT32 readTime;
 
 	struct _MmsMsgMultiStatus *pNext;
@@ -361,12 +361,12 @@ typedef	struct _MMS_ATTRIB_S {
 	int msgSize;
 	MmsMsgClass msgClass;
 	MmsTimeStruct expiryTime;
-	MmsTimeStruct expiryCustomTime;		// for expiry custom time,
+	MmsTimeStruct expiryCustomTime;
 	MmsTimeStruct deliveryTime;
-	MmsTimeStruct deliveryCustomTime;	// for expiry custom time
+	MmsTimeStruct deliveryCustomTime;
 
 	//for ReadMsg, When Sending notifyResp.ind
-	MSG_DELIVERY_REPORT_STATUS_T msgStatus;
+	msg_delivery_report_status_t msgStatus;
 
 	MmsResponseStatus responseStatus;
 	MmsRetrieveStatus retrieveStatus;
@@ -495,7 +495,7 @@ struct _MsgMessage {
 
 typedef	struct _MMS_MESSAGE_S {
 	MmsAttrib mmsAttrib;
-	MSG_MESSAGE_ID_T msgID;
+	msg_message_id_t msgID;
 	int mailbox;		// mailbox type,MMS_MAILBOX_XXX
 	char szFileName[MSG_FILENAME_LEN_MAX];
 	char szTrID[MMS_TR_ID_LEN + 1];
@@ -529,18 +529,18 @@ MsgMultipart *MmsMakeMultipart(MsgContentType mimeType, char *szTitleName, char 
 bool MmsIsText(int type);
 bool MmsIsVitemContent(int type, char *pszName);
 bool MmsComposeMessage(MmsMsg *pMmsMsg, MSG_MESSAGE_INFO_S *pMsgInfo, MSG_SENDINGOPT_INFO_S *pSendOptInfo, MMS_MESSAGE_DATA_S *pMsgData, char *pFileData);
-void MmsComposeNotiMessage(MmsMsg *pMmsMsg, MSG_MESSAGE_ID_T msgID);
+void MmsComposeNotiMessage(MmsMsg *pMmsMsg, msg_message_id_t msgID);
 bool MmsGetMmsMessageBody(MmsMsg *pMmsMsg, char *retrievedFilePath);
 bool MmsComposeForwardHeader(MmsMsg *pMmsMsg, const MSG_MESSAGE_INFO_S *pMsgInfo);
 bool MmsComposeForwardMessage(MmsMsg *pMmsMsg, char *retrievedFilePath);
 #ifdef MMS_DELIEVERY_IND_ENABLED
-MmsMsgMultiStatus *MmsComposeDeliveryIndMessage(MmsMsg *pMmsMsg, MSG_MESSAGE_ID_T msgId);
+MmsMsgMultiStatus *MmsComposeDeliveryIndMessage(MmsMsg *pMmsMsg, msg_message_id_t msgId);
 #endif
-void MmsComposeReadReportMessage(MmsMsg *pMmsMsg, const MSG_MESSAGE_INFO_S *pMsgInfo, MSG_MESSAGE_ID_T selectedMsgId);
-MmsMsgMultiStatus *MmsGetMultiStatus(MSG_MESSAGE_ID_T msgId);
+void MmsComposeReadReportMessage(MmsMsg *pMmsMsg, const MSG_MESSAGE_INFO_S *pMsgInfo, msg_message_id_t selectedMsgId);
+MmsMsgMultiStatus *MmsGetMultiStatus(msg_message_id_t msgId);
 int MmsSearchMsgId(char *toNumber, char *szMsgID);
-void MmsUpdateDeliveryReport(MSG_MESSAGE_ID_T msgId, MmsMsgMultiStatus *pStatus);
-void MmsUpdateReadReport(MSG_MESSAGE_ID_T msgId, MmsMsgMultiStatus *pStatus);
+void MmsUpdateDeliveryReport(msg_message_id_t msgId, MmsMsgMultiStatus *pStatus);
+void MmsUpdateReadReport(msg_message_id_t msgId, MmsMsgMultiStatus *pStatus);
 MsgMultipart *MmsAllocMultipart(void);
 bool _MsgIsASCII(char *pszText);
 bool _MsgReplaceNonAscii(char *szInText, char **szOutText, char replaceChar);
@@ -551,7 +551,7 @@ char *MsgStrCopy(const char *string);
 char *MsgStrNCopy(const char *string, int length);
 int	MsgStrlen(char *pStr);
 bool _MsgConvertCharToHex(char pSrc, char *pDest);
-MSG_ERROR_T MmsAddAttachment(MMS_MESSAGE_DATA_S *pMsgData, MMS_MEDIA_S *pMedia);
+msg_error_t MmsAddAttachment(MMS_MESSAGE_DATA_S *pMsgData, MMS_MEDIA_S *pMedia);
 bool MmsCheckAdditionalMedia(MMS_MESSAGE_DATA_S *pMsgData, MsgType *partHeader);
 #ifdef __SUPPORT_DRM__
 bool __MsgInitMsgDRMInfo(MsgDRMInfo *pMsgDrmInfo);

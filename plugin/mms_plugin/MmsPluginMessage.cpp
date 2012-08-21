@@ -1,18 +1,18 @@
- /*
-  * Copyright 2012  Samsung Electronics Co., Ltd
-  *
-  * Licensed under the Flora License, Version 1.0 (the "License");
-  * you may not use this file except in compliance with the License.
-  * You may obtain a copy of the License at
-  *
-  *    http://www.tizenopensource.org/license
-  *
-  * Unless required by applicable law or agreed to in writing, software
-  * distributed under the License is distributed on an "AS IS" BASIS,
-  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  * See the License for the specific language governing permissions and
-  * limitations under the License.
-  */
+/*
+* Copyright 2012  Samsung Electronics Co., Ltd
+*
+* Licensed under the Flora License, Version 1.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*    http://www.tizenopensource.org/license
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -897,7 +897,7 @@ bool MmsComposeMessage(MmsMsg *pMmsMsg, MSG_MESSAGE_INFO_S *pMsgInfo, MSG_SENDIN
 	time_t RawTime = 0;
 	time_t nTimeInSecs = 0;
 
-	MSG_ERROR_T	err = MSG_SUCCESS;
+	msg_error_t	err = MSG_SUCCESS;
 
 	// Initialize mmsMsg structure
 	MmsInitMsgAttrib(&pMmsMsg->mmsAttrib);
@@ -990,7 +990,7 @@ bool MmsComposeMessage(MmsMsg *pMmsMsg, MSG_MESSAGE_INFO_S *pMsgInfo, MSG_SENDIN
 	time(&RawTime);
 	timeInfo = localtime(&RawTime);
 	nTimeInSecs = mktime(timeInfo);
-	pMmsMsg->mmsAttrib.date = nTimeInSecs;	// todo: need to subtract timeline value to make GMT+0 time
+	pMmsMsg->mmsAttrib.date = nTimeInSecs;
 
 	//setting subject
 	strcpy(pMmsMsg->mmsAttrib.szSubject, pMsgInfo->subject);
@@ -1098,7 +1098,7 @@ bool MmsComposeMessage(MmsMsg *pMmsMsg, MSG_MESSAGE_INFO_S *pMsgInfo, MSG_SENDIN
 	return true;
 }
 
-void MmsComposeNotiMessage(MmsMsg *pMmsMsg, MSG_MESSAGE_ID_T msgID)
+void MmsComposeNotiMessage(MmsMsg *pMmsMsg, msg_message_id_t msgID)
 {
 	MSG_BEGIN();
 
@@ -1281,7 +1281,7 @@ __CATCH:
 }
 
 #ifdef MMS_DELIEVERY_IND_ENABLED
-MmsMsgMultiStatus *MmsComposeDeliveryIndMessage(MmsMsg *pMmsMsg, MSG_MESSAGE_ID_T msgId)
+MmsMsgMultiStatus *MmsComposeDeliveryIndMessage(MmsMsg *pMmsMsg, msg_message_id_t msgId)
 {
 	MmsMsgMultiStatus *pStatus = NULL;
 	MmsMsgMultiStatus *pLastStatus = NULL;
@@ -1348,7 +1348,7 @@ MmsMsgMultiStatus *MmsComposeDeliveryIndMessage(MmsMsg *pMmsMsg, MSG_MESSAGE_ID_
 }
 #endif
 
-void MmsComposeReadReportMessage(MmsMsg *pMmsMsg, const MSG_MESSAGE_INFO_S *pMsgInfo, MSG_MESSAGE_ID_T selectedMsgId)
+void MmsComposeReadReportMessage(MmsMsg *pMmsMsg, const MSG_MESSAGE_INFO_S *pMsgInfo, msg_message_id_t selectedMsgId)
 {
 	struct tm *timeInfo = NULL;
 	time_t RawTime = 0;
@@ -1403,7 +1403,7 @@ int MmsSearchMsgId(char *toNumber, char *szMsgID)
 	return msgId;
 }
 
-void MmsUpdateDeliveryReport(MSG_MESSAGE_ID_T msgId, MmsMsgMultiStatus *pStatus)
+void MmsUpdateDeliveryReport(msg_message_id_t msgId, MmsMsgMultiStatus *pStatus)
 {
 	MSG_BEGIN();
 
@@ -1412,7 +1412,7 @@ void MmsUpdateDeliveryReport(MSG_MESSAGE_ID_T msgId, MmsMsgMultiStatus *pStatus)
 	MSG_END();
 }
 
-void MmsUpdateReadReport(MSG_MESSAGE_ID_T msgId, MmsMsgMultiStatus *pStatus)
+void MmsUpdateReadReport(msg_message_id_t msgId, MmsMsgMultiStatus *pStatus)
 {
 	MSG_BEGIN();
 
@@ -1421,7 +1421,7 @@ void MmsUpdateReadReport(MSG_MESSAGE_ID_T msgId, MmsMsgMultiStatus *pStatus)
 	MSG_END();
 }
 
-MmsMsgMultiStatus *MmsGetMultiStatus(MSG_MESSAGE_ID_T msgId)
+MmsMsgMultiStatus *MmsGetMultiStatus(msg_message_id_t msgId)
 {
 	MmsMsgMultiStatus *pMultiStatus;
 

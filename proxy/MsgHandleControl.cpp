@@ -1,18 +1,18 @@
- /*
-  * Copyright 2012  Samsung Electronics Co., Ltd
-  *
-  * Licensed under the Flora License, Version 1.0 (the "License");
-  * you may not use this file except in compliance with the License.
-  * You may obtain a copy of the License at
-  *
-  *    http://www.tizenopensource.org/license
-  *
-  * Unless required by applicable law or agreed to in writing, software
-  * distributed under the License is distributed on an "AS IS" BASIS,
-  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  * See the License for the specific language governing permissions and
-  * limitations under the License.
-  */
+/*
+* Copyright 2012  Samsung Electronics Co., Ltd
+*
+* Licensed under the Flora License, Version 1.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*    http://www.tizenopensource.org/license
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
 
 #include <errno.h>
 #include <stdlib.h>
@@ -138,35 +138,43 @@ void MsgHandle::read(char **ppEvent)
 }
 
 
-void MsgHandle::convertMsgStruct(const MSG_MESSAGE_S *pSrc, MSG_MESSAGE_INFO_S *pDest)
+void MsgHandle::convertMsgStruct(const MSG_MESSAGE_HIDDEN_S *pSrc, MSG_MESSAGE_INFO_S *pDest)
 {
 	MSG_BEGIN();
 
 	pDest->msgId = pSrc->msgId;
+	pDest->threadId = pSrc->threadId;
 	pDest->folderId = pSrc->folderId;
-	pDest->referenceId = pSrc->referenceId;
-	pDest->msgType.mainType = pSrc->msgType.mainType;
-	pDest->msgType.subType = pSrc->msgType.subType;
-	pDest->msgType.classType= pSrc->msgType.classType;
+	pDest->msgType.mainType = pSrc->mainType;
+	pDest->msgType.subType = pSrc->subType;
+	pDest->msgType.classType= pSrc->classType;
 	pDest->storageId = pSrc->storageId;
 
-	pDest->nAddressCnt = pSrc->nAddressCnt;
+	msg_struct_list_s *addr_info_s = pSrc->addr_list;
 
-	for (int i = 0; i < pSrc->nAddressCnt; i++)
-	{
-		pDest->addressList[i].threadId = pSrc->addressList[i].threadId;
-		pDest->addressList[i].addressType = pSrc->addressList[i].addressType;
-		pDest->addressList[i].recipientType = pSrc->addressList[i].recipientType;
-		pDest->addressList[i].contactId = pSrc->addressList[i].contactId;
-		strncpy(pDest->addressList[i].addressVal, pSrc->addressList[i].addressVal, MAX_ADDRESS_VAL_LEN);
-		strncpy(pDest->addressList[i].displayName, pSrc->addressList[i].displayName, MAX_DISPLAY_NAME_LEN);
-		pDest->addressList[i].displayName[MAX_DISPLAY_NAME_LEN] = '\0';
+	if (addr_info_s) {
+		msg_struct_s *addr_info = NULL;
+		MSG_ADDRESS_INFO_S *address = NULL;
+
+		pDest->nAddressCnt = addr_info_s->nCount;
+
+		for (int i = 0; i < addr_info_s->nCount; i++)
+		{
+			addr_info = (msg_struct_s *)addr_info_s->msg_struct_info[i];
+			address = (MSG_ADDRESS_INFO_S *)addr_info->data;
+
+			pDest->addressList[i].addressType = address->addressType;
+			pDest->addressList[i].recipientType = address->recipientType;
+			pDest->addressList[i].contactId = address->contactId;
+			strncpy(pDest->addressList[i].addressVal, address->addressVal, MAX_ADDRESS_VAL_LEN);
+			strncpy(pDest->addressList[i].displayName, address->displayName, MAX_DISPLAY_NAME_LEN);
+			pDest->addressList[i].displayName[MAX_DISPLAY_NAME_LEN] = '\0';
+		}
 	}
 
 	strncpy(pDest->replyAddress, pSrc->replyAddress, MAX_PHONE_NUMBER_LEN);
 	strncpy(pDest->subject, pSrc->subject, MAX_SUBJECT_LEN);
 
-	pDest->scheduledTime = pSrc->scheduledTime;
 	pDest->displayTime = pSrc->displayTime;
 	pDest->networkStatus = pSrc->networkStatus;
 	pDest->encodeType = pSrc->encodeType;
@@ -177,16 +185,16 @@ void MsgHandle::convertMsgStruct(const MSG_MESSAGE_S *pSrc, MSG_MESSAGE_INFO_S *
 	pDest->direction = pSrc->direction;
 
 	// Set Port Info.
-	pDest->msgPort.valid = pSrc->msgPort.valid;
+	pDest->msgPort.valid = pSrc->bPortValid;
 
 	if (pDest->msgPort.valid == true) {
-		pDest->msgPort.dstPort = pSrc->msgPort.dstPort;
-		pDest->msgPort.srcPort = pSrc->msgPort.srcPort;
+		pDest->msgPort.dstPort = pSrc->dstPort;
+		pDest->msgPort.srcPort = pSrc->srcPort;
 	}
 
 	MSG_DEBUG("nSize = %d",  pSrc->dataSize);
 
-	if (pSrc->msgType.mainType == MSG_SMS_TYPE){
+	if (pSrc->mainType == MSG_SMS_TYPE){
 		pDest->bTextSms = true;
 		pDest->dataSize = pSrc->dataSize;
 
@@ -219,12 +227,12 @@ void MsgHandle::convertMsgStruct(const MSG_MESSAGE_S *pSrc, MSG_MESSAGE_INFO_S *
 
 		MSG_DEBUG("pData = %s",  pSrc->pData);
 		MSG_DEBUG("msgText = %s",  pDest->msgText);
-	} else if (pSrc->msgType.mainType == MSG_MMS_TYPE) {
+	} else if (pSrc->mainType == MSG_MMS_TYPE) {
 
 		pDest->bTextSms = false;
 		pDest->dataSize = pSrc->dataSize;
 
-		if(pSrc->msgType.subType == MSG_READREPLY_MMS) {
+		if(pSrc->subType == MSG_READREPLY_MMS) {
 			memset(pDest->msgData, 0x00, sizeof(pDest->msgData));
 			memcpy(pDest->msgData, pSrc->pMmsData, pSrc->dataSize);
 		} else {
@@ -236,7 +244,7 @@ void MsgHandle::convertMsgStruct(const MSG_MESSAGE_S *pSrc, MSG_MESSAGE_INFO_S *
 				THROW(MsgException::FILE_ERROR, "MsgCreateFileName error");
 
 			// change file extension in case of java MMS msg
-			if (pSrc->msgType.subType == MSG_SENDREQ_JAVA_MMS) {
+			if (pSrc->subType == MSG_SENDREQ_JAVA_MMS) {
 				char* pFileNameExt;
 				pFileNameExt = strstr(fileName,"DATA");
 				strncpy(pFileNameExt,"JAVA", MAX_COMMON_INFO_SIZE);
@@ -249,6 +257,9 @@ void MsgHandle::convertMsgStruct(const MSG_MESSAGE_S *pSrc, MSG_MESSAGE_INFO_S *
 
 			memset(pDest->msgData, 0x00, sizeof(pDest->msgData));
 			strncpy(pDest->msgData, fileName, MAX_MSG_DATA_LEN);
+			if (pSrc->pData) {
+				strncpy(pDest->msgText, (char*)pSrc->pData, sizeof(pDest->msgText));
+			}
 		}
 	}
 
@@ -256,35 +267,21 @@ void MsgHandle::convertMsgStruct(const MSG_MESSAGE_S *pSrc, MSG_MESSAGE_INFO_S *
 }
 
 
-void MsgHandle::convertMsgStruct(const MSG_MESSAGE_INFO_S *pSrc, MSG_MESSAGE_S *pDest)
+void MsgHandle::convertMsgStruct(const MSG_MESSAGE_INFO_S *pSrc, MSG_MESSAGE_HIDDEN_S *pDest)
 {
 	MSG_BEGIN();
 
 	pDest->msgId = pSrc->msgId;
+	pDest->threadId = pSrc->threadId;
 	pDest->folderId = pSrc->folderId;
-	pDest->referenceId = pSrc->referenceId;
-	pDest->msgType.mainType = pSrc->msgType.mainType;
-	pDest->msgType.subType = pSrc->msgType.subType;
+	pDest->mainType = pSrc->msgType.mainType;
+	pDest->subType = pSrc->msgType.subType;
 	pDest->storageId = pSrc->storageId;
-
-	pDest->nAddressCnt = pSrc->nAddressCnt;
-
-	for (int i = 0; i < pSrc->nAddressCnt; i++)
-	{
-		pDest->addressList[i].threadId = pSrc->addressList[i].threadId;
-		pDest->addressList[i].addressType = pSrc->addressList[i].addressType;
-		pDest->addressList[i].recipientType = pSrc->addressList[i].recipientType;
-		pDest->addressList[i].contactId = pSrc->addressList[i].contactId;
-		strncpy(pDest->addressList[i].addressVal, pSrc->addressList[i].addressVal, MAX_ADDRESS_VAL_LEN);
-		strncpy(pDest->addressList[i].displayName, pSrc->addressList[i].displayName, MAX_DISPLAY_NAME_LEN);
-		pDest->addressList[i].displayName[MAX_DISPLAY_NAME_LEN] = '\0';
-	}
 
 	strncpy(pDest->replyAddress, pSrc->replyAddress, MAX_PHONE_NUMBER_LEN);
 	strncpy(pDest->subject, pSrc->subject, MAX_SUBJECT_LEN);
 
 	pDest->displayTime = pSrc->displayTime;
-	pDest->scheduledTime = pSrc->scheduledTime;
 	pDest->networkStatus = pSrc->networkStatus;
 	pDest->encodeType = pSrc->encodeType;
 	pDest->bRead = pSrc->bRead;
@@ -294,15 +291,34 @@ void MsgHandle::convertMsgStruct(const MSG_MESSAGE_INFO_S *pSrc, MSG_MESSAGE_S *
 	pDest->direction = pSrc->direction;
 
 	// Set Port Info.
-	pDest->msgPort.valid = pSrc->msgPort.valid;
+	pDest->bPortValid = pSrc->msgPort.valid;
 
-	if (pDest->msgPort.valid == true) {
-		pDest->msgPort.dstPort = pSrc->msgPort.dstPort;
-		pDest->msgPort.srcPort = pSrc->msgPort.srcPort;
+	if (pDest->bPortValid == true) {
+		pDest->dstPort = pSrc->msgPort.dstPort;
+		pDest->srcPort = pSrc->msgPort.srcPort;
 	}
 
 	if(pSrc->thumbPath[0] != '\0')
 		strncpy(pDest->thumbPath, pSrc->thumbPath, MSG_FILEPATH_LEN_MAX);
+
+	pDest->addr_list->nCount = pSrc->nAddressCnt;
+
+	msg_struct_s *addr_info_s = NULL;
+	MSG_ADDRESS_INFO_S *addr_info = NULL;
+
+	for (int i = 0; i < pDest->addr_list->nCount; i++)
+	{
+		addr_info_s = (msg_struct_s *)pDest->addr_list->msg_struct_info[i];
+		addr_info = (MSG_ADDRESS_INFO_S *)addr_info_s->data;
+
+		addr_info->addressType = pSrc->addressList[i].addressType;
+		addr_info->recipientType = pSrc->addressList[i].recipientType;
+		addr_info->contactId = pSrc->addressList[i].contactId;
+		strncpy(addr_info->addressVal, pSrc->addressList[i].addressVal, MAX_ADDRESS_VAL_LEN);
+		strncpy(addr_info->displayName, pSrc->addressList[i].displayName, MAX_DISPLAY_NAME_LEN);
+		addr_info->displayName[MAX_DISPLAY_NAME_LEN] = '\0';
+	}
+
 
 	if (pSrc->bTextSms == false) {
 		int fileSize = 0;
@@ -388,29 +404,33 @@ void MsgHandle::convertSendOptStruct(const MSG_SENDINGOPT_S* pSrc, MSG_SENDINGOP
 	MSG_DEBUG("pDest->bKeepCopy = %d", pDest->bKeepCopy);
 
 	if (msgType.mainType == MSG_SMS_TYPE) {
-		pDest->option.smsSendOptInfo.bReplyPath = pSrc->option.smsSendOpt.bReplyPath;
+		msg_struct_s *pStruct = (msg_struct_s *)pSrc->smsSendOpt;
+		SMS_SENDINGOPT_S *pSms = (SMS_SENDINGOPT_S *)pStruct->data;
+		pDest->option.smsSendOptInfo.bReplyPath = pSms->bReplyPath;
 	} else if (msgType.mainType == MSG_MMS_TYPE) {
-		pDest->option.mmsSendOptInfo.priority = pSrc->option.mmsSendOpt.priority;
-		pDest->option.mmsSendOptInfo.bReadReq = pSrc->option.mmsSendOpt.bReadReq;
+		msg_struct_s *pStruct = (msg_struct_s *)pSrc->mmsSendOpt;
+		MMS_SENDINGOPT_S *pMms = (MMS_SENDINGOPT_S *)pStruct->data;
+		pDest->option.mmsSendOptInfo.priority = pMms->priority;
+		pDest->option.mmsSendOptInfo.bReadReq = pMms->bReadReq;
 
-		MSG_DEBUG("pDest->option.mmsSendOpt.priority = %d", pDest->option.mmsSendOptInfo.priority);
-		MSG_DEBUG("pDest->option.mmsSendOpt.bReadReq = %d", pDest->option.mmsSendOptInfo.bReadReq);
+		MSG_DEBUG("pDest->option.mmsSendOpt.priority = %d", pMms->priority);
+		MSG_DEBUG("pDest->option.mmsSendOpt.bReadReq = %d", pMms->bReadReq);
 
-		if (pSrc->option.mmsSendOpt.expiryTime == 0) {
+		if (pMms->expiryTime == 0) {
 			pDest->option.mmsSendOptInfo.expiryTime.type = MMS_TIMETYPE_NONE;
-			pDest->option.mmsSendOptInfo.expiryTime.time = pSrc->option.mmsSendOpt.expiryTime;
+			pDest->option.mmsSendOptInfo.expiryTime.time = pMms->expiryTime;
 		} else {
 			pDest->option.mmsSendOptInfo.expiryTime.type = MMS_TIMETYPE_RELATIVE;
-			pDest->option.mmsSendOptInfo.expiryTime.time = pSrc->option.mmsSendOpt.expiryTime;
+			pDest->option.mmsSendOptInfo.expiryTime.time = pMms->expiryTime;
 		}
 
-		if (pSrc->option.mmsSendOpt.bUseDeliveryCustomTime == true) {
+		if (pMms->bUseDeliveryCustomTime == true) {
 			pDest->option.mmsSendOptInfo.bUseDeliveryCustomTime = true;
 		} else {
 			pDest->option.mmsSendOptInfo.bUseDeliveryCustomTime = false;
 		}
 		pDest->option.mmsSendOptInfo.deliveryTime.type = MMS_TIMETYPE_RELATIVE;
-		pDest->option.mmsSendOptInfo.deliveryTime.time = pSrc->option.mmsSendOpt.deliveryTime;
+		pDest->option.mmsSendOptInfo.deliveryTime.time = pMms->deliveryTime;
 
 		MSG_DEBUG("pDest->option.mmsSendOpt.expiryTime = %d", pDest->option.mmsSendOptInfo.expiryTime.time);
 	}
@@ -430,16 +450,20 @@ void MsgHandle::convertSendOptStruct(const MSG_SENDINGOPT_INFO_S* pSrc, MSG_SEND
 	MSG_DEBUG("pDest->bKeepCopy = %d", pDest->bKeepCopy);
 
 	if (msgType.mainType == MSG_SMS_TYPE) {
-		pDest->option.smsSendOpt.bReplyPath = pSrc->option.smsSendOptInfo.bReplyPath;
+		msg_struct_s *pStruct = (msg_struct_s *)pDest->smsSendOpt;
+		SMS_SENDINGOPT_S *pSms = (SMS_SENDINGOPT_S *)pStruct->data;
+		pSms->bReplyPath = pSrc->option.smsSendOptInfo.bReplyPath;
 	} else if (msgType.mainType == MSG_MMS_TYPE) {
-		pDest->option.mmsSendOpt.priority = pSrc->option.mmsSendOptInfo.priority;
-		pDest->option.mmsSendOpt.bReadReq = pSrc->option.mmsSendOptInfo.bReadReq;
-		pDest->option.mmsSendOpt.expiryTime = pSrc->option.mmsSendOptInfo.expiryTime.time;
-		pDest->option.mmsSendOpt.deliveryTime = pSrc->option.mmsSendOptInfo.deliveryTime.time;
+		msg_struct_s *pStruct = (msg_struct_s *)pDest->mmsSendOpt;
+		MMS_SENDINGOPT_S *pMms = (MMS_SENDINGOPT_S *)pStruct->data;
+		pMms->priority = pSrc->option.mmsSendOptInfo.priority;
+		pMms->bReadReq = pSrc->option.mmsSendOptInfo.bReadReq;
+		pMms->expiryTime = pSrc->option.mmsSendOptInfo.expiryTime.time;
+		pMms->deliveryTime = pSrc->option.mmsSendOptInfo.deliveryTime.time;
 
-		MSG_DEBUG("pDest->option.mmsSendOpt.priority = %d", pDest->option.mmsSendOpt.priority);
-		MSG_DEBUG("pDest->option.mmsSendOpt.bReadReq = %d", pDest->option.mmsSendOpt.bReadReq);
-		MSG_DEBUG("pDest->option.mmsSendOpt.expiryTime = %d", pDest->option.mmsSendOpt.expiryTime);
+		MSG_DEBUG("pDest->option.mmsSendOpt.priority = %d", pMms->priority);
+		MSG_DEBUG("pDest->option.mmsSendOpt.bReadReq = %d", pMms->bReadReq);
+		MSG_DEBUG("pDest->option.mmsSendOpt.expiryTime = %d", pMms->expiryTime);
 	}
 
 	MSG_END();

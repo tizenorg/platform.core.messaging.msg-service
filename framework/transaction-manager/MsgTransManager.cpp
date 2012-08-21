@@ -1,18 +1,18 @@
- /*
-  * Copyright 2012  Samsung Electronics Co., Ltd
-  *
-  * Licensed under the Flora License, Version 1.0 (the "License");
-  * you may not use this file except in compliance with the License.
-  * You may obtain a copy of the License at
-  *
-  *    http://www.tizenopensource.org/license
-  *
-  * Unless required by applicable law or agreed to in writing, software
-  * distributed under the License is distributed on an "AS IS" BASIS,
-  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  * See the License for the specific language governing permissions and
-  * limitations under the License.
-  */
+/*
+* Copyright 2012  Samsung Electronics Co., Ltd
+*
+* Licensed under the Flora License, Version 1.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*    http://www.tizenopensource.org/license
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
 
 #include <errno.h>
 #include <stdlib.h>
@@ -40,8 +40,8 @@
 ==================================================================================================*/
 void MsgContactChangedCallback()
 {
-	MSG_MSGID_LIST_S msgIdList;
-	memset(&msgIdList, 0x00, sizeof(MSG_MSGID_LIST_S));
+	msg_id_list_s msgIdList;
+	memset(&msgIdList, 0x00, sizeof(msg_id_list_s));
 
 	MsgTransactionManager::instance()->broadcastStorageChangeCB(MSG_SUCCESS, MSG_STORAGE_CHANGE_CONTACT, &msgIdList);
 }
@@ -87,8 +87,13 @@ MsgTransactionManager::MsgTransactionManager() : running(false), mx(), cv()
 	handlerMap[MSG_CMD_DELETE_FOLDER] 		= &MsgDeleteFolderHandler;
 	handlerMap[MSG_CMD_GET_FOLDERLIST] 		= &MsgGetFolderListHandler;
 
-	handlerMap[MSG_CMD_SET_CONFIG] 			= &MsgSetConfigHandler;
-	handlerMap[MSG_CMD_GET_CONFIG]			= &MsgGetConfigHandler;
+	handlerMap[MSG_CMD_ADD_FILTER] 			= &MsgAddFilterHandler;
+	handlerMap[MSG_CMD_UPDATE_FILTER]			= &MsgUpdateFilterHandler;
+	handlerMap[MSG_CMD_DELETE_FILTER] 		= &MsgDeleteFilterHandler;
+	handlerMap[MSG_CMD_GET_FILTERLIST] 		= &MsgGetFilterListHandler;
+	handlerMap[MSG_CMD_SET_FILTER_OPERATION] 	= &MsgSetFilterOperationHandler;
+	handlerMap[MSG_CMD_GET_FILTER_OPERATION] 	= &MsgGetFilterOperationHandler;
+
 	handlerMap[MSG_CMD_GET_MSG_TYPE]			= &MsgGetMsgTypeHandler;
 
 	handlerMap[MSG_CMD_SUBMIT_REQ]			= &MsgSubmitReqHandler;
@@ -107,7 +112,7 @@ MsgTransactionManager::MsgTransactionManager() : running(false), mx(), cv()
 	handlerMap[MSG_CMD_PLG_INCOMING_MSG_IND]	= &MsgIncomingMsgHandler;
 	handlerMap[MSG_CMD_PLG_INCOMING_MMS_CONF]	= &MsgIncomingMMSConfMsgHandler;
 
-        handlerMap[MSG_CMD_PLG_INCOMING_SYNCML_IND] = &MsgIncomingSyncMLMsgHandler;
+	handlerMap[MSG_CMD_PLG_INCOMING_SYNCML_IND] = &MsgIncomingSyncMLMsgHandler;
 	handlerMap[MSG_CMD_PLG_INCOMING_LBS_IND] = &MsgIncomingLBSMsgHandler;
 	handlerMap[MSG_CMD_PLG_INIT_SIM_BY_SAT]	= &MsgInitSimBySatHandler;
 
@@ -121,15 +126,42 @@ MsgTransactionManager::MsgTransactionManager() : running(false), mx(), cv()
 	handlerMap[MSG_CMD_RESET_DB] 	= &MsgResetDatabaseHandler;
 	handlerMap[MSG_CMD_GET_MEMSIZE] 	= &MsgGetMemSizeHandler;
 
+	handlerMap[MSG_CMD_BACKUP_MESSAGE] 	= &MsgBackupMessageHandler;
+	handlerMap[MSG_CMD_RESTORE_MESSAGE] = &MsgRestoreMessageHandler;
+
 	handlerMap[MSG_CMD_UPDATE_THREAD_READ] = &MsgUpdateThreadReadStatusHandler;
 
 	handlerMap[MSG_CMD_SYNCML_OPERATION] = &MsgSyncMLMsgOperationHandler;
 	handlerMap[MSG_CMD_GET_REPORT_STATUS]			= &MsgGetReportStatusHandler;
+
+	handlerMap[MSG_CMD_GET_THREAD_ID_BY_ADDRESS] = &MsgGetThreadIdByAddressHandler;
+	handlerMap[MSG_CMD_GET_THREAD_INFO] = &MsgGetThreadInfoHandler;
+
+	handlerMap[MSG_CMD_GET_SMSC_OPT] = &MsgGetConfigHandler;
+	handlerMap[MSG_CMD_GET_CB_OPT] = &MsgGetConfigHandler;
+	handlerMap[MSG_CMD_GET_SMS_SEND_OPT] = &MsgGetConfigHandler;
+	handlerMap[MSG_CMD_GET_MMS_SEND_OPT] = &MsgGetConfigHandler;
+	handlerMap[MSG_CMD_GET_MMS_RECV_OPT] = &MsgGetConfigHandler;
+	handlerMap[MSG_CMD_GET_PUSH_MSG_OPT] = &MsgGetConfigHandler;
+	handlerMap[MSG_CMD_GET_VOICE_MSG_OPT] = &MsgGetConfigHandler;
+	handlerMap[MSG_CMD_GET_GENERAL_MSG_OPT] = &MsgGetConfigHandler;
+	handlerMap[MSG_CMD_GET_MSG_SIZE_OPT] = &MsgGetConfigHandler;
+
+	handlerMap[MSG_CMD_SET_SMSC_OPT] = &MsgSetConfigHandler;
+	handlerMap[MSG_CMD_SET_CB_OPT] = &MsgSetConfigHandler;
+	handlerMap[MSG_CMD_SET_SMS_SEND_OPT] = &MsgSetConfigHandler;
+	handlerMap[MSG_CMD_SET_MMS_SEND_OPT] = &MsgSetConfigHandler;
+	handlerMap[MSG_CMD_SET_MMS_RECV_OPT] = &MsgSetConfigHandler;
+	handlerMap[MSG_CMD_SET_PUSH_MSG_OPT] = &MsgSetConfigHandler;
+	handlerMap[MSG_CMD_SET_VOICE_MSG_OPT] = &MsgSetConfigHandler;
+	handlerMap[MSG_CMD_SET_GENERAL_MSG_OPT] = &MsgSetConfigHandler;
+	handlerMap[MSG_CMD_SET_MSG_SIZE_OPT] = &MsgSetConfigHandler;
 }
 
 
 MsgTransactionManager::~MsgTransactionManager()
 {
+//	pthread_cond_init(&retCV, NULL); // = PTHREAD_COND_INITIALIZER;
 
 }
 
@@ -224,6 +256,7 @@ MSG_PROXY_INFO_S* MsgTransactionManager::getProxyInfo(int reqId)
 
 	if (it == sentMsgMap.end())
 	{
+		//THROW(MsgException::SENT_STATUS_ERROR, "No submit request for %d", reqId);
 		MSG_DEBUG("No sent status cb found (exception: mobile tracker)");
 		return NULL;
 	}
@@ -452,6 +485,8 @@ bool MsgTransactionManager::checkPrivilege(MSG_CMD_TYPE_T CmdType, const char *p
 
 	MSG_DEBUG("cookie size : [%d]", cookieSize);
 
+//	char cookie[MAX_COOKIE_LEN];
+
 	// Get GID
 	if (CmdType == MSG_CMD_REG_INCOMING_SYNCML_MSG_CB)
 	{
@@ -657,7 +692,7 @@ javamms_list& MsgTransactionManager::getJavaMMSList()
 }
 
 
-void MsgTransactionManager::broadcastIncomingMsgCB(const MSG_ERROR_T err, const MSG_MESSAGE_INFO_S *msgInfo)
+void MsgTransactionManager::broadcastIncomingMsgCB(const msg_error_t err, const MSG_MESSAGE_INFO_S *msgInfo)
 {
 	MSG_BEGIN();
 
@@ -690,7 +725,7 @@ void MsgTransactionManager::broadcastIncomingMsgCB(const MSG_ERROR_T err, const 
 }
 
 
-void MsgTransactionManager::broadcastMMSConfCB(const MSG_ERROR_T err, const MSG_MESSAGE_INFO_S *msgInfo, const MMS_RECV_DATA_S *mmsRecvData)
+void MsgTransactionManager::broadcastMMSConfCB(const msg_error_t err, const MSG_MESSAGE_INFO_S *msgInfo, const MMS_RECV_DATA_S *mmsRecvData)
 {
 	MSG_BEGIN();
 
@@ -728,7 +763,7 @@ void MsgTransactionManager::broadcastMMSConfCB(const MSG_ERROR_T err, const MSG_
 }
 
 
-void MsgTransactionManager::broadcastSyncMLMsgCB(const MSG_ERROR_T err, const MSG_SYNCML_MESSAGE_DATA_S *syncMLData)
+void MsgTransactionManager::broadcastSyncMLMsgCB(const msg_error_t err, const MSG_SYNCML_MESSAGE_DATA_S *syncMLData)
 {
 	MSG_BEGIN();
 
@@ -749,7 +784,7 @@ void MsgTransactionManager::broadcastSyncMLMsgCB(const MSG_ERROR_T err, const MS
 }
 
 
-void MsgTransactionManager::broadcastLBSMsgCB(const MSG_ERROR_T err, const MSG_LBS_MESSAGE_DATA_S *lbsData)
+void MsgTransactionManager::broadcastLBSMsgCB(const msg_error_t err, const MSG_LBS_MESSAGE_DATA_S *lbsData)
 {
 	MSG_BEGIN();
 
@@ -770,7 +805,7 @@ void MsgTransactionManager::broadcastLBSMsgCB(const MSG_ERROR_T err, const MSG_L
 }
 
 
-void MsgTransactionManager::broadcastSyncMLMsgOperationCB(const MSG_ERROR_T err, const int msgId, const int extId)
+void MsgTransactionManager::broadcastSyncMLMsgOperationCB(const msg_error_t err, const int msgId, const int extId)
 {
 	MSG_BEGIN();
 
@@ -797,7 +832,7 @@ void MsgTransactionManager::broadcastSyncMLMsgOperationCB(const MSG_ERROR_T err,
 }
 
 
-void MsgTransactionManager::broadcastStorageChangeCB(const MSG_ERROR_T err, const MSG_STORAGE_CHANGE_TYPE_T storageChangeType, const MSG_MSGID_LIST_S *pMsgIdList)
+void MsgTransactionManager::broadcastStorageChangeCB(const msg_error_t err, const msg_storage_change_type_t storageChangeType, const msg_id_list_s *pMsgIdList)
 {
 	MSG_BEGIN();
 

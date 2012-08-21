@@ -1,18 +1,18 @@
- /*
-  * Copyright 2012  Samsung Electronics Co., Ltd
-  *
-  * Licensed under the Flora License, Version 1.0 (the "License");
-  * you may not use this file except in compliance with the License.
-  * You may obtain a copy of the License at
-  *
-  *    http://www.tizenopensource.org/license
-  *
-  * Unless required by applicable law or agreed to in writing, software
-  * distributed under the License is distributed on an "AS IS" BASIS,
-  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  * See the License for the specific language governing permissions and
-  * limitations under the License.
-  */
+/*
+* Copyright 2012  Samsung Electronics Co., Ltd
+*
+* Licensed under the Flora License, Version 1.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*    http://www.tizenopensource.org/license
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
 
 // for sl message browser launch
 #include <app_service.h>
@@ -23,6 +23,7 @@
 #include "MsgUtilStorage.h"
 #include "MsgGconfWrapper.h"
 #include "MsgSoundPlayer.h"
+#include "MsgSpamFilter.h"
 #include "MsgPluginManager.h"
 #include "MsgStorageHandler.h"
 #include "MsgDeliverHandler.h"
@@ -37,11 +38,11 @@ extern MsgDbHandler dbHandle;
 /*==================================================================================================
                                      FUNCTION IMPLEMENTATION
 ==================================================================================================*/
-MSG_ERROR_T MsgHandleMmsConfIncomingMsg(MSG_MESSAGE_INFO_S *pMsgInfo, MSG_REQUEST_ID_T reqID)
+msg_error_t MsgHandleMmsConfIncomingMsg(MSG_MESSAGE_INFO_S *pMsgInfo, msg_request_id_t reqID)
 {
 	MSG_BEGIN();
 
-	MSG_ERROR_T err = MSG_SUCCESS;
+	msg_error_t err = MSG_SUCCESS;
 
 	MSG_DEBUG(" msgtype subtype is [%d]", pMsgInfo->msgType.subType);
 
@@ -101,6 +102,11 @@ MSG_ERROR_T MsgHandleMmsConfIncomingMsg(MSG_MESSAGE_INFO_S *pMsgInfo, MSG_REQUES
 		if (subType == MSG_RETRIEVE_AUTOCONF_MMS) {
 			// play message-tone when MMS retrieved
 			MsgSoundPlayStart();
+
+			// add phone log
+			MSG_DEBUG("Enter MsgAddPhoneLog() for mms message.");
+			MsgAddPhoneLog(pMsgInfo);
+
 			MsgInsertNoti(&dbHandle, pMsgInfo);
 		}  else if (subType == MSG_RETRIEVE_MANUALCONF_MMS) {
 			if (pMsgInfo->networkStatus == MSG_NETWORK_RETRIEVE_SUCCESS) {
@@ -146,38 +152,43 @@ MSG_ERROR_T MsgHandleMmsConfIncomingMsg(MSG_MESSAGE_INFO_S *pMsgInfo, MSG_REQUES
 	return err;
 }
 
-MSG_ERROR_T MsgHandleIncomingMsg(MSG_MESSAGE_INFO_S *pMsgInfo, bool *pSendNoti)
+msg_error_t MsgHandleIncomingMsg(MSG_MESSAGE_INFO_S *pMsgInfo, bool *pSendNoti)
 {
 	MSG_BEGIN();
 
-	MSG_ERROR_T err = MSG_SUCCESS;
+	msg_error_t err = MSG_SUCCESS;
 
 	if (pMsgInfo->msgType.mainType == MSG_SMS_TYPE)
 	{
-		if (pMsgInfo->msgPort.valid == true)
-			return MSG_SUCCESS;
-
 		err = MsgHandleSMS(pMsgInfo, pSendNoti);
 
 		if (err == MSG_SUCCESS && *pSendNoti == true)
 		{
 			MsgSoundPlayStart();
 
-//			if (pMsgInfo->msgType.subType != MSG_STATUS_REPORT_SMS)
-			{
-				int smsCnt = 0, mmsCnt = 0;
+			int smsCnt = 0, mmsCnt = 0;
 
-				smsCnt = MsgStoGetUnreadCnt(&dbHandle, MSG_SMS_TYPE);
-				mmsCnt = MsgStoGetUnreadCnt(&dbHandle, MSG_MMS_TYPE);
+			smsCnt = MsgStoGetUnreadCnt(&dbHandle, MSG_SMS_TYPE);
+			mmsCnt = MsgStoGetUnreadCnt(&dbHandle, MSG_MMS_TYPE);
 
-				MsgSettingHandleNewMsg(smsCnt, mmsCnt);
-				MsgInsertNoti(&dbHandle, pMsgInfo);
-			}
+			MsgSettingHandleNewMsg(smsCnt, mmsCnt);
+			MsgInsertNoti(&dbHandle, pMsgInfo);
 		}
 	}
 	else if (pMsgInfo->msgType.mainType == MSG_MMS_TYPE)
 	{
 		err = MsgHandleMMS(pMsgInfo, pSendNoti);
+	}
+
+	//Add Phone Log Data
+	if ((err == MSG_SUCCESS) &&
+		(pMsgInfo->folderId == MSG_INBOX_ID || pMsgInfo->folderId == MSG_SPAMBOX_ID) &&
+		(pMsgInfo->msgType.mainType == MSG_SMS_TYPE) &&
+		(pMsgInfo->msgType.subType != MSG_WAP_SL_SMS)) {
+
+		MSG_DEBUG("Enter MsgAddPhoneLog() : pMsg->folderId [%d]", pMsgInfo->folderId);
+
+		MsgAddPhoneLog(pMsgInfo);
 	}
 
 	MSG_END();
@@ -186,19 +197,36 @@ MSG_ERROR_T MsgHandleIncomingMsg(MSG_MESSAGE_INFO_S *pMsgInfo, bool *pSendNoti)
 }
 
 
-MSG_ERROR_T MsgHandleSMS(MSG_MESSAGE_INFO_S *pMsgInfo, bool *pSendNoti)
+msg_error_t MsgHandleSMS(MSG_MESSAGE_INFO_S *pMsgInfo, bool *pSendNoti)
 {
-	MSG_ERROR_T err = MSG_SUCCESS;
+	msg_error_t err = MSG_SUCCESS;
 
-	if ((pMsgInfo->msgType.subType >= MSG_WAP_SI_SMS) && (pMsgInfo->msgType.subType <= MSG_WAP_CO_SMS))
-	{
+	if (pMsgInfo->msgType.subType == MSG_NORMAL_SMS) {
+		if (MsgCheckFilter(&dbHandle, pMsgInfo) == true) {
+			// Move to SpamBox
+			err = MsgStoMoveMessageToFolder(pMsgInfo->msgId, MSG_SPAMBOX_ID);
+
+			if (err != MSG_SUCCESS) {
+				MSG_DEBUG("MsgStoMoveMessageToFolder() Error : [%d]", err);
+			} else {
+				pMsgInfo->folderId = MSG_SPAMBOX_ID;
+			}
+
+			// Update Conversation table
+			err = MsgStoUpdateConversation(&dbHandle, pMsgInfo->threadId);
+
+			if (err != MSG_SUCCESS)
+				MSG_DEBUG("MsgStoUpdateConversation() Error : [%d]", err);
+
+			*pSendNoti = false;
+		}
+	} else if ((pMsgInfo->msgType.subType >= MSG_WAP_SI_SMS) && (pMsgInfo->msgType.subType <= MSG_WAP_CO_SMS)) {
 		MSG_DEBUG("Starting WAP Message Incoming.");
 
 		MSG_PUSH_SERVICE_TYPE_T serviceType = (MSG_PUSH_SERVICE_TYPE_T)MsgSettingGetInt(PUSH_SERVICE_TYPE);
 		service_h svc_handle = NULL;
 
-		switch (pMsgInfo->msgType.subType)
-		{
+		switch (pMsgInfo->msgType.subType) {
 			case MSG_WAP_SL_SMS:
 			{
 				*pSendNoti = false;
@@ -239,7 +267,7 @@ MSG_ERROR_T MsgHandleSMS(MSG_MESSAGE_INFO_S *pMsgInfo, bool *pSendNoti)
 					char urlString[MAX_COMMAND_LEN+1];
 					memset(urlString, 0x00, sizeof(urlString));
 
-					snprintf(urlString, MAX_COMMAND_LEN, "message-dialog -m PUSH_MSG_ALWAYS_ASK -u %s &", pMsgInfo->msgText);
+					snprintf(urlString, MAX_COMMAND_LEN, "/opt/apps/org.tizen.message/bin/message-dialog -m PUSH_MSG_ALWAYS_ASK -u %s &", pMsgInfo->msgText);
 
 					system(urlString);
 				}
@@ -254,29 +282,28 @@ MSG_ERROR_T MsgHandleSMS(MSG_MESSAGE_INFO_S *pMsgInfo, bool *pSendNoti)
 			}
 			break;
 		}
-	}
-	else if (pMsgInfo->msgType.subType == MSG_STATUS_REPORT_SMS)
-	{
-		unsigned int addrId = 0;
+	} else if (pMsgInfo->msgType.subType == MSG_STATUS_REPORT_SMS) {
+		msg_thread_id_t convId = 0;
 
 		// Get Address ID
-		MsgExistAddress(&dbHandle, pMsgInfo->addressList[0].addressVal, &addrId);
+		MsgExistAddress(&dbHandle, pMsgInfo, &convId);
 
-		MSG_DEBUG("address ID : [%d], Value : [%s]", addrId, pMsgInfo->addressList[0].addressVal);
+		MSG_DEBUG("Conversation ID : [%d], Value : [%s]", convId, pMsgInfo->addressList[0].addressVal);
 
-		pMsgInfo->addressList[0].threadId = (MSG_THREAD_ID_T)addrId;
+		pMsgInfo->threadId = convId;
 	}
 
 	return err;
 }
 
 
-MSG_ERROR_T MsgHandleMMS(MSG_MESSAGE_INFO_S *pMsgInfo,  bool *pSendNoti)
+msg_error_t MsgHandleMMS(MSG_MESSAGE_INFO_S *pMsgInfo,  bool *pSendNoti)
 {
-	MSG_ERROR_T err = MSG_SUCCESS;
+	msg_error_t err = MSG_SUCCESS;
 
 	MSG_REQUEST_INFO_S request = {0};
 	bool bReject = false;
+	bool bFiltered = false;
 
 	// MMS Received Ind Process Func
 	MSG_MAIN_TYPE_T msgMainType = pMsgInfo->msgType.mainType;
@@ -294,6 +321,12 @@ MSG_ERROR_T MsgHandleMMS(MSG_MESSAGE_INFO_S *pMsgInfo,  bool *pSendNoti)
 
 	// Add into DB
 	if ((pMsgInfo->msgType.subType == MSG_NOTIFICATIONIND_MMS) && bReject == false) {
+		bFiltered = MsgCheckFilter(&dbHandle, pMsgInfo);
+
+		if (bFiltered == true) {
+			pMsgInfo->networkStatus = MSG_NETWORK_RETRIEVE_FAIL;
+			*pSendNoti = false;
+		}
 
 		err = MsgStoAddMessage(pMsgInfo, NULL);
 
@@ -308,7 +341,7 @@ MSG_ERROR_T MsgHandleMMS(MSG_MESSAGE_INFO_S *pMsgInfo,  bool *pSendNoti)
 
 	//In the case of m-notification-ind, we should decide whether to send m-notify-response-ind or http 'Get'
 	//submit request
-	if (pMsgInfo->msgType.subType == MSG_NOTIFICATIONIND_MMS) {
+	if (pMsgInfo->msgType.subType == MSG_NOTIFICATIONIND_MMS && bFiltered == false) {
 		if (request.msgInfo.msgType.subType == MSG_NOTIFYRESPIND_MMS && bReject == false) {
 			MsgSoundPlayStart();
 
@@ -325,7 +358,7 @@ MSG_ERROR_T MsgHandleMMS(MSG_MESSAGE_INFO_S *pMsgInfo,  bool *pSendNoti)
 		request.msgInfo.msgId = pMsgInfo->msgId;
 
 		MSG_DEBUG("-=====================[[[ %s ]]]] =========================", pMsgInfo->msgData);
-		err = plg->submitReq(&request, false);
+		err = plg->submitReq(&request);
 
 		if (err == MSG_SUCCESS) {
 			MSG_DEBUG("Process Message Success : processReceivedInd()");

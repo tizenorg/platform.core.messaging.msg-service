@@ -20,6 +20,7 @@ SET(MMS-LANGUAGE-PACK-SRCS
 )
 
 INCLUDE_DIRECTORIES(
+    ${CMAKE_SOURCE_DIR}/include/mapi
 	${CMAKE_SOURCE_DIR}/include/common
 	${CMAKE_SOURCE_DIR}/include/utils
 	${CMAKE_CURRENT_SOURCE_DIR}/include

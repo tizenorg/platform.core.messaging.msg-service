@@ -1,18 +1,18 @@
- /*
-  * Copyright 2012  Samsung Electronics Co., Ltd
-  *
-  * Licensed under the Flora License, Version 1.0 (the "License");
-  * you may not use this file except in compliance with the License.
-  * You may obtain a copy of the License at
-  *
-  *    http://www.tizenopensource.org/license
-  *
-  * Unless required by applicable law or agreed to in writing, software
-  * distributed under the License is distributed on an "AS IS" BASIS,
-  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  * See the License for the specific language governing permissions and
-  * limitations under the License.
-  */
+/*
+* Copyright 2012  Samsung Electronics Co., Ltd
+*
+* Licensed under the Flora License, Version 1.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*    http://www.tizenopensource.org/license
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
 
 #include <pthread.h>
 
@@ -20,9 +20,10 @@
 #include "MsgCppTypes.h"
 #include "MsgSettingTypes.h"
 #include "MsgGconfWrapper.h"
+#include "MsgUtilFile.h"
 #include "MsgHelper.h"
 
-#include <devman_haptic.h>
+#include <devman_managed.h>
 #include <svi.h>
 
 #include <mm_error.h>
@@ -103,7 +104,8 @@ static int MsgSoundPlayCallback(int message, void *param, void *user_param)
 			MSG_DEBUG("Play is started.");
 			break;
 		case MM_MESSAGE_END_OF_STREAM:
-			MSG_DEBUG("end of stream");
+		case MM_MESSAGE_STATE_INTERRUPTED:
+			MSG_DEBUG("EOS or Interrupted.");
 			MsgSoundPlayStop();
 			if(!bPlaying && !bVibrating)
 				worker_done();
@@ -133,7 +135,7 @@ void* MsgPlayThread(void *data)
 
 	tmpFileFath = MsgSettingGetString(VCONFKEY_SETAPPL_NOTI_MSG_RINGTONE_PATH_STR);
 
-	if (tmpFileFath == NULL) {
+	if (tmpFileFath == NULL || MsgGetFileSize(tmpFileFath) < 1) {
 		msg_tone_file_path = new char[MAX_SOUND_FILE_LEN];
 		strncpy(msg_tone_file_path, DEFAULT_FILE, MAX_SOUND_FILE_LEN-1);
 	} else {
@@ -219,7 +221,7 @@ void* MsgPlayThread(void *data)
 }
 
 
-MSG_ERROR_T MsgSoundPlayUninit()
+msg_error_t MsgSoundPlayUninit()
 {
 	MSG_BEGIN();
 

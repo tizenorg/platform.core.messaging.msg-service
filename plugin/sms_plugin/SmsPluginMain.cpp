@@ -1,18 +1,18 @@
- /*
-  * Copyright 2012  Samsung Electronics Co., Ltd
-  *
-  * Licensed under the Flora License, Version 1.0 (the "License");
-  * you may not use this file except in compliance with the License.
-  * You may obtain a copy of the License at
-  *
-  *    http://www.tizenopensource.org/license
-  *
-  * Unless required by applicable law or agreed to in writing, software
-  * distributed under the License is distributed on an "AS IS" BASIS,
-  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  * See the License for the specific language governing permissions and
-  * limitations under the License.
-  */
+/*
+* Copyright 2012  Samsung Electronics Co., Ltd
+*
+* Licensed under the Flora License, Version 1.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*    http://www.tizenopensource.org/license
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
 
 #include "MsgDebug.h"
 #include "MsgException.h"
@@ -29,15 +29,19 @@
 
 extern "C"
 {
+	#include <tapi_common.h>
+	#include <TelSms.h>
+	#include <TapiUtility.h>
 	#include <ITapiSim.h>
 	#include <ITapiNetText.h>
 }
 
+struct tapi_handle *pTapiHandle = NULL;
 
 /*==================================================================================================
                                      FUNCTION IMPLEMENTATION
 ==================================================================================================*/
-MSG_ERROR_T MsgPlgCreateHandle(MSG_PLUGIN_HANDLER_S *pPluginHandle)
+msg_error_t MsgPlgCreateHandle(MSG_PLUGIN_HANDLER_S *pPluginHandle)
 {
 	if (pPluginHandle == NULL)
 	{
@@ -71,7 +75,7 @@ MSG_ERROR_T MsgPlgCreateHandle(MSG_PLUGIN_HANDLER_S *pPluginHandle)
 }
 
 
-MSG_ERROR_T MsgPlgDestroyHandle(MSG_PLUGIN_HANDLER_S *pPluginHandle)
+msg_error_t MsgPlgDestroyHandle(MSG_PLUGIN_HANDLER_S *pPluginHandle)
 {
 	if (pPluginHandle != NULL)
 	{
@@ -85,16 +89,18 @@ MSG_ERROR_T MsgPlgDestroyHandle(MSG_PLUGIN_HANDLER_S *pPluginHandle)
 }
 
 
-MSG_ERROR_T SmsPlgInitialize()
+msg_error_t SmsPlgInitialize()
 {
 	MSG_BEGIN();
 
-	int tapiRet = TAPI_API_SUCCESS;
+	TapiHandle *ph;
 
-	tapiRet = tel_init();
+	ph = tel_init(NULL);
 
-	if (tapiRet != TAPI_API_SUCCESS)
+	if (!ph)
 		return MSG_ERR_PLUGIN_TAPIINIT;
+
+	pTapiHandle = ph;
 
 	try
 	{
@@ -117,13 +123,13 @@ MSG_ERROR_T SmsPlgInitialize()
 }
 
 
-MSG_ERROR_T SmsPlgFinalize()
+msg_error_t SmsPlgFinalize()
 {
 	MSG_BEGIN();
 
 	SmsPluginCallback::instance()->deRegisterEvent();
 
-	 tel_deinit();
+	tel_deinit(pTapiHandle);
 
 	MSG_END();
 
@@ -131,7 +137,7 @@ MSG_ERROR_T SmsPlgFinalize()
 }
 
 
-MSG_ERROR_T SmsPlgRegisterListener(MSG_PLUGIN_LISTENER_S *pListener)
+msg_error_t SmsPlgRegisterListener(MSG_PLUGIN_LISTENER_S *pListener)
 {
 	MSG_BEGIN();
 
@@ -143,7 +149,7 @@ MSG_ERROR_T SmsPlgRegisterListener(MSG_PLUGIN_LISTENER_S *pListener)
 }
 
 
-MSG_ERROR_T SmsPlgCheckSimStatus(MSG_SIM_STATUS_T *pStatus)
+msg_error_t SmsPlgCheckSimStatus(MSG_SIM_STATUS_T *pStatus)
 {
 	MSG_BEGIN();
 
@@ -152,17 +158,18 @@ MSG_ERROR_T SmsPlgCheckSimStatus(MSG_SIM_STATUS_T *pStatus)
 	TelSimCardStatus_t status = TAPI_SIM_STATUS_CARD_ERROR;
 	int cardChanged = 0;
 
+	// initialize pStatus.
+	*pStatus = MSG_SIM_STATUS_NOT_FOUND;
+
 	// Check SIM Status
 	while (1)
 	{
 		if (tryNum > 30) return MSG_ERR_PLUGIN_TAPIINIT;
 
-		tapiRet = tel_get_sim_init_info(&status, &cardChanged);
+		tapiRet = tel_get_sim_init_info(pTapiHandle, &status, &cardChanged);
 
-		if (tapiRet == TAPI_API_SUCCESS)
-		{
-			if (status == TAPI_SIM_STATUS_SIM_PIN_REQUIRED || status == TAPI_SIM_STATUS_SIM_PUK_REQUIRED)
-			{
+		if (tapiRet == TAPI_API_SUCCESS) {
+			if (status == TAPI_SIM_STATUS_SIM_PIN_REQUIRED || status == TAPI_SIM_STATUS_SIM_PUK_REQUIRED) {
 				MSG_DEBUG("PIN or PUK is required [%d]", status);
 
 				sleep(3);
@@ -170,8 +177,7 @@ MSG_ERROR_T SmsPlgCheckSimStatus(MSG_SIM_STATUS_T *pStatus)
 				continue;
 			}
 
-			if (status == TAPI_SIM_STATUS_SIM_INIT_COMPLETED)
-			{
+			if (status == TAPI_SIM_STATUS_SIM_INIT_COMPLETED) {
 				MSG_DEBUG("SIM status is OK [%d]", status);
 
 				MSG_DEBUG("SIM Changed [%d]", cardChanged);
@@ -182,41 +188,53 @@ MSG_ERROR_T SmsPlgCheckSimStatus(MSG_SIM_STATUS_T *pStatus)
 					*pStatus = MSG_SIM_STATUS_NORMAL;
 
 				break;
-			}
-			else if (status == TAPI_SIM_STATUS_CARD_NOT_PRESENT)
-			{
+			} else if (status == TAPI_SIM_STATUS_CARD_NOT_PRESENT) {
 				MSG_DEBUG("SIM is not present [%d]", status);
-
-				*pStatus = MSG_SIM_STATUS_NOT_FOUND;
-
 				break;
-			}
-			else
-			{
+			} else {
 				MSG_DEBUG("SIM status is not OK [%d]", status);
-
 				tryNum++;
 
 				sleep(3);
 			}
-		}
-		else if (tapiRet == TAPI_API_SIM_NOT_FOUND)
-		{
+		} else if (tapiRet == TAPI_API_SIM_NOT_FOUND) {
 			MSG_DEBUG("tel_get_sim_init_info() result is TAPI_API_SIM_NOT_FOUND");
-
-			*pStatus = MSG_SIM_STATUS_NOT_FOUND;
-
 			break;
-		}
-		else
-		{
+		} else {
 			MSG_DEBUG("tel_get_sim_init_info() result is unknown!!!!!!!!!! [%d]", tapiRet);
-
 			tryNum++;
 
 			sleep(3);
 		}
 	}
+
+
+	char imsi[7];
+	memset(imsi, 0x00, sizeof(imsi));
+
+	// Get IMSI
+	if (*pStatus != MSG_SIM_STATUS_NOT_FOUND)
+	{
+		// Get IMSI
+		TelSimImsiInfo_t imsiInfo = {0};
+
+		tapiRet = tel_get_sim_imsi(pTapiHandle, &imsiInfo);
+
+		if (tapiRet == TAPI_API_SUCCESS)
+		{
+			MSG_DEBUG("tel_get_sim_imsi() Success - MCC [%s], MNC [%s]", imsiInfo.szMcc, imsiInfo.szMnc);
+
+			sprintf(imsi, "%03d%03d", atoi(imsiInfo.szMcc), atoi(imsiInfo.szMnc));
+
+			MSG_DEBUG("IMSI [%d]", atoi(imsi));
+		}
+		else
+		{
+			MSG_DEBUG("tel_get_sim_imsi() Error![%d]", tapiRet);
+		}
+	}
+
+	MsgSettingSetString(MSG_SIM_IMSI, imsi);
 
 	MSG_END();
 
@@ -224,13 +242,13 @@ MSG_ERROR_T SmsPlgCheckSimStatus(MSG_SIM_STATUS_T *pStatus)
 }
 
 
-MSG_ERROR_T SmsPlgCheckDeviceStatus()
+msg_error_t SmsPlgCheckDeviceStatus()
 {
 	MSG_BEGIN();
 
 	int status = 0, tapiRet = TAPI_API_SUCCESS;
 
-	tapiRet = tel_check_sms_device_status(&status);
+	tapiRet = tel_check_sms_device_status(pTapiHandle, &status);
 
 	if (tapiRet != TAPI_API_SUCCESS)
 	{
@@ -239,12 +257,12 @@ MSG_ERROR_T SmsPlgCheckDeviceStatus()
 		return MSG_ERR_PLUGIN_TAPI_FAILED;
 	}
 
-	if (status == TAPI_NETTEXT_DEVICE_READY)
+	if (status == 1)
 	{
 		MSG_DEBUG("Device Is Ready");
 		return MSG_SUCCESS;
 	}
-	else if (status == TAPI_NETTEXT_DEVICE_NOT_READY)
+	else if (status == 0)
 	{
 		MSG_DEBUG("Device Is Not Ready.. Waiting For Ready Callback");
 
@@ -259,7 +277,7 @@ MSG_ERROR_T SmsPlgCheckDeviceStatus()
 }
 
 
-MSG_ERROR_T SmsPlgSubmitRequest(MSG_REQUEST_INFO_S *pReqInfo, bool bReqCb)
+msg_error_t SmsPlgSubmitRequest(MSG_REQUEST_INFO_S *pReqInfo)
 {
 	// Add Submit SMS into DB
 	if ((pReqInfo->msgInfo.msgId == 0) && pReqInfo->msgInfo.msgPort.valid == false) {
@@ -290,8 +308,6 @@ MSG_ERROR_T SmsPlgSubmitRequest(MSG_REQUEST_INFO_S *pReqInfo, bool bReqCb)
 	memcpy(&(request.msgInfo), &(pReqInfo->msgInfo), sizeof(MSG_MESSAGE_INFO_S));
 	memcpy(&(request.sendOptInfo), &(pReqInfo->sendOptInfo), sizeof(MSG_SENDINGOPT_INFO_S));
 
-	request.bReqCb = bReqCb;
-
 	// Add Request into Queue and Start UA Manger
 	SmsPluginUAManager::instance()->addReqEntity(request);
 
@@ -299,8 +315,16 @@ MSG_ERROR_T SmsPlgSubmitRequest(MSG_REQUEST_INFO_S *pReqInfo, bool bReqCb)
 }
 
 
-MSG_ERROR_T SmsPlgInitSimMessage()
+msg_error_t SmsPlgInitSimMessage()
 {
+	// Check SIM is present or not
+	MSG_SIM_STATUS_T simStatus = (MSG_SIM_STATUS_T)MsgSettingGetInt(MSG_SIM_CHANGED);
+
+	if (simStatus == MSG_SIM_STATUS_NOT_FOUND) {
+		MSG_DEBUG("SIM is not present..");
+		return MSG_ERR_NO_SIM;
+	}
+
 	try
 	{
 		SmsPluginSimMsg::instance()->initSimMessage();
@@ -320,9 +344,17 @@ MSG_ERROR_T SmsPlgInitSimMessage()
 }
 
 
-MSG_ERROR_T SmsPlgSaveSimMessage(const MSG_MESSAGE_INFO_S *pMsgInfo, SMS_SIM_ID_LIST_S *pSimIdList)
+msg_error_t SmsPlgSaveSimMessage(const MSG_MESSAGE_INFO_S *pMsgInfo, SMS_SIM_ID_LIST_S *pSimIdList)
 {
-	MSG_ERROR_T err = MSG_SUCCESS;
+	// Check SIM is present or not
+	MSG_SIM_STATUS_T simStatus = (MSG_SIM_STATUS_T)MsgSettingGetInt(MSG_SIM_CHANGED);
+
+	if (simStatus == MSG_SIM_STATUS_NOT_FOUND) {
+		MSG_DEBUG("SIM is not present..");
+		return MSG_ERR_NO_SIM;
+	}
+
+	msg_error_t err = MSG_SUCCESS;
 
 	err = SmsPluginSimMsg::instance()->saveSimMessage(pMsgInfo, pSimIdList);
 
@@ -330,8 +362,16 @@ MSG_ERROR_T SmsPlgSaveSimMessage(const MSG_MESSAGE_INFO_S *pMsgInfo, SMS_SIM_ID_
 }
 
 
-MSG_ERROR_T SmsPlgDeleteSimMessage(MSG_SIM_ID_T SimMsgId)
+msg_error_t SmsPlgDeleteSimMessage(msg_sim_id_t SimMsgId)
 {
+	// Check SIM is present or not
+	MSG_SIM_STATUS_T simStatus = (MSG_SIM_STATUS_T)MsgSettingGetInt(MSG_SIM_CHANGED);
+
+	if (simStatus == MSG_SIM_STATUS_NOT_FOUND) {
+		MSG_DEBUG("SIM is not present..");
+		return MSG_ERR_NO_SIM;
+	}
+
 	try
 	{
 		SmsPluginSimMsg::instance()->deleteSimMessage(SimMsgId);
@@ -351,8 +391,16 @@ MSG_ERROR_T SmsPlgDeleteSimMessage(MSG_SIM_ID_T SimMsgId)
 }
 
 
-MSG_ERROR_T SmsPlgSetReadStatus(MSG_SIM_ID_T SimMsgId)
+msg_error_t SmsPlgSetReadStatus(msg_sim_id_t SimMsgId)
 {
+	// Check SIM is present or not
+	MSG_SIM_STATUS_T simStatus = (MSG_SIM_STATUS_T)MsgSettingGetInt(MSG_SIM_CHANGED);
+
+	if (simStatus == MSG_SIM_STATUS_NOT_FOUND) {
+		MSG_DEBUG("SIM is not present..");
+		return MSG_ERR_NO_SIM;
+	}
+
 	try
 	{
 		SmsPluginSimMsg::instance()->setReadStatus(SimMsgId);
@@ -372,8 +420,16 @@ MSG_ERROR_T SmsPlgSetReadStatus(MSG_SIM_ID_T SimMsgId)
 }
 
 
-MSG_ERROR_T SmsPlgSetMemoryStatus(MSG_ERROR_T Error)
+msg_error_t SmsPlgSetMemoryStatus(msg_error_t Error)
 {
+	// Check SIM is present or not
+	MSG_SIM_STATUS_T simStatus = (MSG_SIM_STATUS_T)MsgSettingGetInt(MSG_SIM_CHANGED);
+
+	if (simStatus == MSG_SIM_STATUS_NOT_FOUND) {
+		MSG_DEBUG("SIM is not present..");
+		return MSG_ERR_NO_SIM;
+	}
+
 	int tapiRet = TAPI_API_SUCCESS, reqId = 0;
 	int status = TAPI_NETTEXT_PDA_MEMORY_STATUS_AVAILABLE;
 
@@ -384,7 +440,7 @@ MSG_ERROR_T SmsPlgSetMemoryStatus(MSG_ERROR_T Error)
 
 	MSG_DEBUG("Set Status : [%d]", status);
 
-	tapiRet = tel_set_sms_memory_status(status, &reqId);
+	tapiRet = tel_set_sms_memory_status(pTapiHandle, status, NULL, NULL);
 
 	if (tapiRet == TAPI_API_SUCCESS)
 	{
@@ -399,8 +455,16 @@ MSG_ERROR_T SmsPlgSetMemoryStatus(MSG_ERROR_T Error)
 }
 
 
-MSG_ERROR_T SmsPlgInitConfigData(MSG_SIM_STATUS_T SimStatus)
+msg_error_t SmsPlgInitConfigData(MSG_SIM_STATUS_T SimStatus)
 {
+	// Check SIM is present or not
+	MSG_SIM_STATUS_T simStatus = (MSG_SIM_STATUS_T)MsgSettingGetInt(MSG_SIM_CHANGED);
+
+	if (simStatus == MSG_SIM_STATUS_NOT_FOUND) {
+		MSG_DEBUG("SIM is not present..");
+		return MSG_ERR_NO_SIM;
+	}
+
 	try
 	{
 		SmsPluginSetting::instance()->initConfigData(SimStatus);
@@ -420,8 +484,16 @@ MSG_ERROR_T SmsPlgInitConfigData(MSG_SIM_STATUS_T SimStatus)
 }
 
 
-MSG_ERROR_T SmsPlgSetConfigData(const MSG_SETTING_S *pSetting)
+msg_error_t SmsPlgSetConfigData(const MSG_SETTING_S *pSetting)
 {
+	// Check SIM is present or not
+	MSG_SIM_STATUS_T simStatus = (MSG_SIM_STATUS_T)MsgSettingGetInt(MSG_SIM_CHANGED);
+
+	if (simStatus == MSG_SIM_STATUS_NOT_FOUND) {
+		MSG_DEBUG("SIM is not present..");
+		return MSG_ERR_NO_SIM;
+	}
+
 	try
 	{
 		SmsPluginSetting::instance()->setConfigData(pSetting);
@@ -441,8 +513,16 @@ MSG_ERROR_T SmsPlgSetConfigData(const MSG_SETTING_S *pSetting)
 }
 
 
-MSG_ERROR_T SmsPlgGetConfigData(MSG_SETTING_S *pSetting)
+msg_error_t SmsPlgGetConfigData(MSG_SETTING_S *pSetting)
 {
+	// Check SIM is present or not
+	MSG_SIM_STATUS_T simStatus = (MSG_SIM_STATUS_T)MsgSettingGetInt(MSG_SIM_CHANGED);
+
+	if (simStatus == MSG_SIM_STATUS_NOT_FOUND) {
+		MSG_DEBUG("SIM is not present..");
+		return MSG_ERR_NO_SIM;
+	}
+
 	try
 	{
 		SmsPluginSetting::instance()->getConfigData(pSetting);
