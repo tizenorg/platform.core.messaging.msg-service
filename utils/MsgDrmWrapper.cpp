@@ -32,8 +32,6 @@
 #include <errno.h>
 #include <drm_client_types.h>
 #include <drm_client.h>
-#include <drm_trusted_client_types.h>
-#include <drm_trusted_client.h>
 
 #define MSG_MAX_DRM_FILE_PATH MSG_FILEPATH_LEN_MAX
 
@@ -106,123 +104,6 @@ bool MsgDrmIsDrmFile(const char *szFilePath)
 /*Added to convert the .dm files in to .dcf files since our platform supports only .dcf :: Start*/
 bool MsgDrmConvertDmtoDcfType(char *inputFile, char *outputFile)
 {
-	if ((NULL == inputFile) || (NULL == outputFile)) {
-		MSG_DEBUG("Invalid Input parameters");
-		return false;
-	}
-
-	if (strstr(inputFile, ".dm")) {
-		MSG_DEBUG("Current File extension is .dm %s", inputFile);
-		int ret;
-
-		FILE *fp = MsgOpenFile(inputFile, "rb");//Check fp
-
-		if (fp == NULL) {
-			MSG_DEBUG("[File Open Fail(Errno=%d)][ErrStr=%s]", errno, strerror(errno));
-			strncpy(outputFile, inputFile, MSG_MAX_DRM_FILE_PATH);
-			return false;
-		}
-
-		if (MsgFseek(fp, 0L, SEEK_END) < 0) {
-			MsgCloseFile(fp);
-			MSG_DEBUG("MsgFseek() returns negative value!!!");
-			return false;
-		}
-		long retVal = MsgFtell(fp);
-
-		if (retVal < 0) {
-			MsgCloseFile(fp);
-			MSG_DEBUG("ftell() returns negative value: [%ld]!!!", retVal);
-			strncpy(outputFile, inputFile, MSG_MAX_DRM_FILE_PATH);
-			return false;
-		}
-
-		unsigned long bufLen = retVal;
-		MSG_DEBUG("fopen buffer len = %d", bufLen);
-		if (MsgFseek(fp, 0, SEEK_SET) < 0) {
-			MsgCloseFile(fp);
-			MSG_DEBUG("MsgFseek() returns negative value!!!");
-			return false;
-		}
-
-		unsigned char *buffer = (unsigned char*)malloc(bufLen);
-		int readed_size = 0;
-		int pathLen = strlen(inputFile);
-
-		if (buffer == NULL) {
-			MsgCloseFile(fp);
-			MSG_DEBUG("malloc is failed ");
-			strncpy(outputFile, inputFile, MSG_MAX_DRM_FILE_PATH);
-			return false;
-		}
-
-		strncpy(outputFile, inputFile, pathLen - 2);
-		strncat(outputFile, "dcf", 3);
-
-		readed_size = MsgReadFile(buffer, 1, bufLen, fp);//Check for error
-		MSG_DEBUG("fread read size = %d", readed_size);
-		if (readed_size == 0) {
-			MsgCloseFile(fp);
-			free(buffer);
-			MSG_DEBUG("MsgReadFile returns 0");
-			return false;
-		}
-
-		DRM_TRUSTED_CONVERT_HANDLE hConvert = NULL;
-		drm_trusted_opn_conv_info_s trusted_open_conv_input;
-		bzero(&trusted_open_conv_input, sizeof(drm_trusted_opn_conv_info_s));
-
-		strncpy(trusted_open_conv_input.filePath, outputFile, DRM_TRUSTED_MAX_FILEPATH_LEN-1);
-		trusted_open_conv_input.install_RO = DRM_TRUSTED_TRUE;
-
-		ret = drm_trusted_open_convert(&trusted_open_conv_input, &hConvert);
-		if (ret != DRM_RETURN_SUCCESS) {
-			free(buffer);
-			MsgCloseFile(fp);
-			MSG_DEBUG("drm_trusted_open_convert() return = failed (%d)", ret);
-			strncpy(outputFile, inputFile, MSG_MAX_DRM_FILE_PATH);
-			return false;
-		}
-
-		drm_trusted_write_conv_info_s trusted_write_conv_input;
-		drm_trusted_write_conv_resp_s trusted_write_conv_output;
-
-		bzero(&trusted_write_conv_input, sizeof(drm_trusted_write_conv_info_s));
-		bzero(&trusted_write_conv_output, sizeof(drm_trusted_write_conv_resp_s));
-
-		trusted_write_conv_input.data = buffer;
-		trusted_write_conv_input.data_len = bufLen;
-
-		/*We can call drm_trusted_write_convert in loop if file size is large*/
-		ret = drm_trusted_write_convert(&trusted_write_conv_input, &trusted_write_conv_output, hConvert);
-		if (ret != DRM_RETURN_SUCCESS) {
-			free(buffer);
-			MsgCloseFile(fp);
-			MSG_DEBUG("drm_trusted_write_convert() return = failed (%d)", ret);
-			strncpy(outputFile, inputFile, MSG_MAX_DRM_FILE_PATH);
-			return false;
-		}
-
-		ret = drm_trusted_close_convert(&hConvert);
-		if (ret != DRM_RETURN_SUCCESS) {
-			free(buffer);
-			MsgCloseFile(fp);
-			MSG_DEBUG("drm_trusted_close_convert() return = failed (%d)", ret);
-			strncpy(outputFile, inputFile, MSG_MAX_DRM_FILE_PATH);
-			return false;
-		}
-
-		MsgCloseFile(fp);
-		free(buffer);
-	} else {
-		MSG_DEBUG("Current File extension is not .dm");
-
-		MSG_DEBUG("inputFile = (%s)", inputFile);
-		strncpy(outputFile, inputFile, MSG_MAX_DRM_FILE_PATH);
-
-		return false;
-	}
-
 	return true;
 }
 
