@@ -30,6 +30,7 @@
 #include "MsgDeliverHandler.h"
 #include "MsgTransManager.h"
 #include "MsgStorageTypes.h"
+#include "MsgSoundPlayer.h"
 
 #include <errno.h>
 #include <glib.h>
@@ -355,6 +356,7 @@ void* InitMsgServer(void*)
 	// Register Callback to get the change of contact
 	MsgInitContactSvc(&MsgContactChangedCallback);
 
+	MsgSoundPlayStart();
 	return (void*)0;
 }
 

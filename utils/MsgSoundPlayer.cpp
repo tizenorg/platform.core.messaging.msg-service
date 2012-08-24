@@ -52,8 +52,12 @@ void MsgSoundPlayStart()
 	if (childpid == 0)
 	{
 		MSG_DEBUG("Child Process - Run helper app for Sound");
+		int nRepeatValue = 0;
 
-		execl("/usr/bin/msg-helper", MSG_SOUND_START, NULL);
+		nRepeatValue = MsgSettingGetInt(MSG_ALERT_TONE);
+
+		if(nRepeatValue != MSG_ALERT_TONE_ONCE)
+			execl("/usr/bin/msg-helper", MSG_SOUND_START, NULL);
 
 		MSG_DEBUG("Faild to run helper app for Sound");
 
