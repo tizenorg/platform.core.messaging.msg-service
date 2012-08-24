@@ -37,5 +37,6 @@ bool MsgSoundSetRepeatAlarm();
 bool MsgSoundCreateRepeatAlarm(int RepeatTime);
 int MsgSoundRepeatAlarmCB(int TimerId, void *pUserParam);
 int MsgSoundGetUnreadMsgCnt();
+void MsgSoundInitRepeatAlarm();
 
 #endif // MSG_SOUND_PLAYER_H

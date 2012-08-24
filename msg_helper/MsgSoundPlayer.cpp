@@ -47,6 +47,25 @@ pthread_cond_t cvMmPlay = PTHREAD_COND_INITIALIZER;
 /*==================================================================================================
                                      FUNCTION IMPLEMENTATION
 ==================================================================================================*/
+
+static gboolean MsgStopAndExit(void* data)
+{
+	MsgSoundPlayStop();
+	if(!bPlaying && !bVibrating)
+		worker_done();
+
+	return FALSE;
+}
+
+static gboolean MsgUninitAndExit(void* data)
+{
+	MsgSoundPlayUninit();
+	if(!bPlaying && !bVibrating)
+		worker_done();
+
+	return FALSE;
+}
+
 static gboolean MsgSoundMelodyTimeout(gpointer data)
 {
 	MSG_BEGIN();
@@ -98,7 +117,7 @@ static int MsgSoundPlayCallback(int message, void *param, void *user_param)
 	{
 		case MM_MESSAGE_ERROR:
 			MSG_DEBUG("ERROR is happened.");
-			MsgSoundPlayUninit();
+			g_idle_add (MsgUninitAndExit, NULL);
 			break;
 		case MM_MESSAGE_BEGIN_OF_STREAM:
 			MSG_DEBUG("Play is started.");
@@ -106,9 +125,7 @@ static int MsgSoundPlayCallback(int message, void *param, void *user_param)
 		case MM_MESSAGE_END_OF_STREAM:
 		case MM_MESSAGE_STATE_INTERRUPTED:
 			MSG_DEBUG("EOS or Interrupted.");
-			MsgSoundPlayStop();
-			if(!bPlaying && !bVibrating)
-				worker_done();
+			g_idle_add (MsgStopAndExit, NULL);
 			break;
 		default:
 			MSG_DEBUG("message = %d", message);

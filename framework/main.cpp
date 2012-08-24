@@ -356,7 +356,8 @@ void* InitMsgServer(void*)
 	// Register Callback to get the change of contact
 	MsgInitContactSvc(&MsgContactChangedCallback);
 
-	MsgSoundPlayStart();
+	MsgSoundInitRepeatAlarm();
+
 	return (void*)0;
 }
 

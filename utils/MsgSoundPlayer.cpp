@@ -52,12 +52,8 @@ void MsgSoundPlayStart()
 	if (childpid == 0)
 	{
 		MSG_DEBUG("Child Process - Run helper app for Sound");
-		int nRepeatValue = 0;
 
-		nRepeatValue = MsgSettingGetInt(MSG_ALERT_TONE);
-
-		if(nRepeatValue != MSG_ALERT_TONE_ONCE)
-			execl("/usr/bin/msg-helper", MSG_SOUND_START, NULL);
+		execl("/usr/bin/msg-helper", MSG_SOUND_START, NULL);
 
 		MSG_DEBUG("Faild to run helper app for Sound");
 
@@ -259,3 +255,49 @@ int MsgSoundGetUnreadMsgCnt()
 	return unreadCnt;
 }
 
+void MsgSoundInitRepeatAlarm()
+{
+	MSG_BEGIN();
+
+	int nRepeatValue = 0;
+	long	nRepeatTime = 0;
+
+	g_bRepeat = false;
+
+	if (MsgSoundGetUnreadMsgCnt() <= 0) {
+		MSG_DEBUG("no unread msg");
+		return;
+	}
+
+	nRepeatValue = MsgSettingGetInt(MSG_ALERT_TONE);
+
+	switch (nRepeatValue)
+	{
+		case MSG_ALERT_TONE_ONCE:
+			nRepeatTime = 0;
+		break;
+
+		case MSG_ALERT_TONE_2MINS:
+			nRepeatTime = 2;
+		break;
+
+		case MSG_ALERT_TONE_5MINS:
+			nRepeatTime = 5;
+		break;
+
+		case MSG_ALERT_TONE_10MINS:
+			nRepeatTime = 10;
+		break;
+
+		default:
+			MSG_DEBUG("Invalid Repetition time");
+		break;
+	}
+
+	MSG_DEBUG("nRepeatTime = %d", nRepeatTime);
+
+	if (nRepeatTime > 0)
+		MsgSoundPlayStart();
+
+	MSG_END();
+}
