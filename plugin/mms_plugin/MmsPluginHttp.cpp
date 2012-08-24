@@ -602,6 +602,9 @@ int MmsPluginHttpAgent::setSession(mmsTranQEntity *qEntity)
 
 		__httpAllocHeaderInfo(&responseHeaders, NULL, qEntity->postDataLen);
 
+		//Disable 'Expect: 100-contine' option
+		responseHeaders = curl_slist_append(responseHeaders, "Expect:");
+
 		MSG_DEBUG(" === MMSCURI = %s === ", httpConfigData.mmscConfig.mmscUrl);
 
 		httpConfigData.sessionHeader = (void *)responseHeaders;
