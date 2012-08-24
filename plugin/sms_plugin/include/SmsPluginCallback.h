@@ -38,8 +38,8 @@ extern "C"
 void TapiEventDeviceReady(TapiHandle *handle, int result, void *data, void *user_data);
 
 void TapiEventSentStatus(TapiHandle *handle, int result, void *data, void *user_data);
-void TapiEventMsgIncoming(TapiHandle *handle, int result, void *data, void *user_data);
-void TapiEventCbMsgIncoming(TapiHandle *handle, int result, void *data, void *user_data);
+void TapiEventMsgIncoming(TapiHandle *handle, const char *noti_id, void *data, void *user_data);
+void TapiEventCbMsgIncoming(TapiHandle *handle, const char *noti_id, void *data, void *user_data);
 void TapiEventDeliveryReportCNF(TapiHandle *handle, int result, void *data, void *user_data);
 
 void TapiEventGetSimMsgCnt(TapiHandle *handle, int result, void *data, void *user_data);
@@ -55,7 +55,7 @@ void TapiEventGetParamCnt(TapiHandle *handle, int result, void *data, void *user
 void TapiEventGetParam(TapiHandle *handle, int result, void *data, void *user_data);
 
 void TapiEventSatSmsRefresh(TapiHandle *handle, int result, void *data, void *user_data);
-void TapiEventSatSendSms(TapiHandle *handle, int result, void *data, void *user_data);
+void TapiEventSatSendSms(TapiHandle *handle, const char *noti_id, void *data, void *user_data);
 void TapiEventSatMoSmsCtrl(TapiHandle *handle, int result, void *data, void *user_data);
 
 void TapiEventSimFileInfo(TapiHandle *handle, int result, void *data, void *user_data);

@@ -172,12 +172,11 @@ void TapiEventMsgIncoming(TapiHandle *handle, const char *noti_id, void *data, v
 }
 
 
-void TapiEventCbMsgIncoming(TapiHandle *handle, int result, void *data, void *user_data)
+void TapiEventCbMsgIncoming(TapiHandle *handle, const char *noti_id, void *data, void *user_data)
 {
-	MSG_DEBUG("TapiEventCbMsgIncoming is called.");
+	MSG_DEBUG("TapiEventCbMsgIncoming is called. noti_id [%s]", noti_id);
 
-	if (result != TAPI_API_SUCCESS || data == NULL)
-	{
+	if (data == NULL) {
 		MSG_DEBUG("Error. evt->pData is NULL.");
 		return;
 	}
@@ -677,11 +676,11 @@ void TapiEventSatSmsRefresh(TapiHandle *handle, int result, void *data, void *us
 }
 
 
-void TapiEventSatSendSms(TapiHandle *handle, int result, void *data, void *user_data)
+void TapiEventSatSendSms(TapiHandle *handle, const char *noti_id, void *data, void *user_data)
 {
 	MSG_DEBUG("TapiEventSatSendSms is called.");
 
-	if (result != TAPI_API_SUCCESS || data == NULL)
+	if (data == NULL)
 	{
 		MSG_DEBUG("Error. data is NULL.");
 		return;
@@ -759,6 +758,10 @@ void SmsPluginCallback::registerEvent()
 	unsigned int tempId = 0;
 
 	tel_register_noti_event(pTapiHandle, TAPI_NOTI_SMS_INCOM_MSG, TapiEventMsgIncoming, NULL);
+	tel_register_noti_event(pTapiHandle, TAPI_NOTI_SMS_CB_INCOM_MSG, TapiEventCbMsgIncoming, NULL);
+//	tel_register_noti_event(pTapiHandle, TAPI_NOTI_SAT_REFRESH, TapiEventSatSmsRefresh, NULL);
+	tel_register_noti_event(pTapiHandle, TAPI_NOTI_SAT_SEND_SMS, TapiEventSatSendSms, NULL);
+//	tel_register_noti_event(pTapiHandle, TAPI_NOTI_SAT_MO_SMS_CTRL, TapiEventSatMoSmsCtrl, NULL);
 }
 
 
