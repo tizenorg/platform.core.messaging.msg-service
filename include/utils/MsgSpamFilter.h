@@ -33,7 +33,5 @@ msg_error_t MsgSetFilterOperation(bool bSetFlag);
 msg_error_t MsgGetFilterOperation(bool *pSetFlag);
 
 bool MsgCheckFilter(MsgDbHandler *pDbHandle, MSG_MESSAGE_INFO_S *pMsgInfo);
-void MsgCalllogDBInit(void);
-void MsgCalllogDBFinish(void);
 
 #endif // MSG_SPAM_FILTER_H

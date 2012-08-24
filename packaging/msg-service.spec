@@ -1,7 +1,7 @@
 Name:           msg-service
 Version:        0.9.0
 Release:        1
-License:        Apache License v2.0
+License:        Samsung
 Summary:        Messaging Framework Library
 Group:          System/Libraries
 Source0:        %{name}-%{version}.tar.gz
@@ -30,7 +30,6 @@ BuildRequires: pkgconfig(mm-player)
 BuildRequires: pkgconfig(mm-session)
 BuildRequires: pkgconfig(network)
 BuildRequires: pkgconfig(notification)
-BuildRequires: pkgconfig(phone-misc)
 BuildRequires: pkgconfig(pmapi)
 BuildRequires: pkgconfig(mmutil-imgp)
 BuildRequires: pkgconfig(mmutil-jpeg)

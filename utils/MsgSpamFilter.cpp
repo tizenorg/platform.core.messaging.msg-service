@@ -20,16 +20,6 @@
 #include "MsgGconfWrapper.h"
 #include "MsgSpamFilter.h"
 
-extern "C" {
-#include <phone-misc.h>
-}
-
-/*==================================================================================================
-                                     VARIABLES
-==================================================================================================*/
-phone_misc_h *calllogHandle = NULL;
-
-
 /*==================================================================================================
                                      FUNCTION IMPLEMENTATION
 ==================================================================================================*/
@@ -93,9 +83,6 @@ bool MsgCheckFilter(MsgDbHandler *pDbHandle, MSG_MESSAGE_INFO_S *pMsgInfo)
 		if (checkNumber[0] == '\0') {
 			if (MsgSettingGetUnknownAutoReject())
 				return true;
-		} else {
-			ret = phone_misc_block_check(calllogHandle, checkNumber);
-			MSG_DEBUG("phone_misc_block_check [%d]", ret);
 		}
 
 		if (ret > 0) {
@@ -253,26 +240,4 @@ bool MsgCheckFilter(MsgDbHandler *pDbHandle, MSG_MESSAGE_INFO_S *pMsgInfo)
 	MSG_END();
 
 	return false;
-}
-
-void MsgCalllogDBInit(void)
-{
-	MSG_BEGIN();
-
-	if (calllogHandle == NULL)
-		calllogHandle = phone_misc_connect();
-
-	MSG_END();
-}
-
-void MsgCalllogDBFinish(void)
-{
-	MSG_BEGIN();
-
-	if (calllogHandle != NULL) {
-		if (phone_misc_disconnect(calllogHandle) == PH_MISC_SUCCESS)
-			calllogHandle = NULL;
-	}
-
-	MSG_END();
 }

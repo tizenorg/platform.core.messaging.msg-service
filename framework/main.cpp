@@ -412,9 +412,6 @@ signal( SIGCHLD, SIG_IGN );
 	// Regist vconf CB.
 	MsgSettingRegVconfCB();
 
-	// Call-log DB init.
-	MsgCalllogDBInit();
-
 	try
 	{
 		// plugin manager initialize
@@ -457,9 +454,6 @@ signal( SIGCHLD, SIG_IGN );
 	{
 		MSG_DEBUG("Fail to start Messaging Framework!!!");
 	}
-
-	// Close calllog DB.
-	MsgCalllogDBFinish();
 
 	// Remove vconf CB
 	MsgSettingRemoveVconfCB();
