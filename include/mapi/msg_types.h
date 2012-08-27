@@ -980,8 +980,10 @@ enum _MSG_READ_REPORT_STATUS_E
  */
 enum _MSG_FILTER_TYPE_E
 {
-	MSG_FILTER_BY_ADDRESS = 0,			/**< Filtered by where the message is come */
-	MSG_FILTER_BY_SUBJECT,				/**< Filtered by sub string in the subject */
+	MSG_FILTER_BY_WORD = 0,			/**< Filtered by sub string in the text */
+	MSG_FILTER_BY_ADDRESS_SAME,			/**< Filtered by address exactly same as */
+	MSG_FILTER_BY_ADDRESS_START,			/**< Filtered by address start with */
+	MSG_FILTER_BY_ADDRESS_INCLUDE,			/**< Filtered by address include */
 };
 
 

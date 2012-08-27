@@ -22,7 +22,6 @@
 #include "MsgContact.h"
 #include "MsgMemory.h"
 #include "MsgGconfWrapper.h"
-#include "MsgSpamFilter.h"
 #include "MsgPluginManager.h"
 #include "MsgSettingHandler.h"
 #include "MsgStorageHandler.h"

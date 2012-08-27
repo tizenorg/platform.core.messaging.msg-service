@@ -50,46 +50,11 @@ msg_error_t MsgGetFilterOperation(bool *pSetFlag)
 }
 
 
-void GetValidNumber(const char *pSrcNum, char *pDestNum)
-{
-	int overLen = 0, i = 0;
-
-	overLen = strlen(pSrcNum) - VALID_ADDRESS_LEN;
-
-	for (i = 0; i < VALID_ADDRESS_LEN; i++)
-		pDestNum[i] = pSrcNum[i+overLen];
-
-	pDestNum[i] = '\0';
-}
-
-
 bool MsgCheckFilter(MsgDbHandler *pDbHandle, MSG_MESSAGE_INFO_S *pMsgInfo)
 {
 	MSG_BEGIN();
 
 	msg_error_t err = MSG_SUCCESS;
-
-	// =======================================================================
-	// Check Block List of Call-log (Auto Reject)
-	// =======================================================================
-	int ret = 0;
-
-	MSG_DEBUG("bAutoReject = [%d], bUnknownAutoReject = [%d]", MsgSettingGetAutoReject(), MsgSettingGetUnknownAutoReject());
-
-	if (MsgSettingGetAutoReject()) {
-		char checkNumber[MAX_ADDRESS_VAL_LEN+1] = {0,};
-		snprintf(checkNumber, MAX_ADDRESS_VAL_LEN, "%s", pMsgInfo->addressList[0].addressVal);
-
-		if (checkNumber[0] == '\0') {
-			if (MsgSettingGetUnknownAutoReject())
-				return true;
-		}
-
-		if (ret > 0) {
-			MSG_DEBUG("Message is Rejected by auto-reject option.");
-			return true;
-		}
-	}
 
 	// =======================================================================
 	// Check Filter Operation
@@ -110,23 +75,16 @@ bool MsgCheckFilter(MsgDbHandler *pDbHandle, MSG_MESSAGE_INFO_S *pMsgInfo)
 
 	MSG_DEBUG("pMsg->addressList[0].addressVal [%s]", pMsgInfo->addressList[0].addressVal);
 
-	char newNumber[VALID_ADDRESS_LEN+1];
 	char sqlQuery[MAX_QUERY_LEN+1];
 
-	if (strlen(pMsgInfo->addressList[0].addressVal) > VALID_ADDRESS_LEN) {
-		memset(newNumber, 0x00, sizeof(newNumber));
-		memset(sqlQuery, 0x00, sizeof(sqlQuery));
+	memset(sqlQuery, 0x00, sizeof(sqlQuery));
 
-		GetValidNumber(pMsgInfo->addressList[0].addressVal, newNumber);
-
-		snprintf(sqlQuery, sizeof(sqlQuery), "SELECT FILTER_ID FROM %s WHERE FILTER_TYPE = %d AND FILTER_VALUE LIKE '%%%s';",
-				MSGFW_FILTER_TABLE_NAME, MSG_FILTER_BY_ADDRESS, newNumber);
-	} else {
-		memset(sqlQuery, 0x00, sizeof(sqlQuery));
-
-		snprintf(sqlQuery, sizeof(sqlQuery), "SELECT FILTER_ID FROM %s WHERE FILTER_TYPE = %d AND FILTER_VALUE = '%s';",
-				MSGFW_FILTER_TABLE_NAME, MSG_FILTER_BY_ADDRESS, pMsgInfo->addressList[0].addressVal);
-	}
+	snprintf(sqlQuery, sizeof(sqlQuery), "SELECT FILTER_ID FROM %s WHERE FILTER_TYPE = %d AND '%s' = FILTER_VALUE \
+			UNION SELECT FILTER_ID FROM %s WHERE FILTER_TYPE = %d AND '%s' LIKE SUBSTR(FILTER_VALUE,1)||'%%' \
+			UNION SELECT FILTER_ID FROM %s WHERE FILTER_TYPE = %d AND '%s' LIKE '%%'||SUBSTR(FILTER_VALUE,1)||'%%';",
+			MSGFW_FILTER_TABLE_NAME, MSG_FILTER_BY_ADDRESS_SAME, pMsgInfo->addressList[0].addressVal,
+			MSGFW_FILTER_TABLE_NAME, MSG_FILTER_BY_ADDRESS_START, pMsgInfo->addressList[0].addressVal,
+			MSGFW_FILTER_TABLE_NAME, MSG_FILTER_BY_ADDRESS_INCLUDE, pMsgInfo->addressList[0].addressVal);
 
 	err = pDbHandle->getTable(sqlQuery, &rowCnt);
 
@@ -141,6 +99,8 @@ bool MsgCheckFilter(MsgDbHandler *pDbHandle, MSG_MESSAGE_INFO_S *pMsgInfo)
 	} else {
 		MSG_DEBUG("Msg is NOT Filtered by Address : [%s]", pMsgInfo->addressList[0].addressVal);
 
+		MSG_DEBUG("sqlQuery [%s]", sqlQuery);
+
 		pDbHandle->freeTable();
 	}
 
@@ -151,7 +111,7 @@ bool MsgCheckFilter(MsgDbHandler *pDbHandle, MSG_MESSAGE_INFO_S *pMsgInfo)
 	memset(sqlQuery, 0x00, sizeof(sqlQuery));
 
 	snprintf(sqlQuery, sizeof(sqlQuery), "SELECT FILTER_VALUE FROM %s WHERE FILTER_TYPE = %d;",
-			MSGFW_FILTER_TABLE_NAME, MSG_FILTER_BY_SUBJECT);
+			MSGFW_FILTER_TABLE_NAME, MSG_FILTER_BY_WORD);
 
 	rowCnt = 0;
 

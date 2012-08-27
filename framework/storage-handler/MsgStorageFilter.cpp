@@ -39,32 +39,8 @@ msg_error_t MsgStoCheckDuplicatedFilter(const MSG_FILTER_S *pFilter)
 
 	memset(sqlQuery, 0x00, sizeof(sqlQuery));
 
-	if (pFilter->filterType == MSG_FILTER_BY_ADDRESS) {
-		if (strlen(pFilter->filterValue) > VALID_ADDRESS_LEN) {
-			char newNumber[VALID_ADDRESS_LEN+1];
-			memset(newNumber, 0x00, sizeof(newNumber));
-
-			int overLen = 0, i = 0;
-
-			overLen = strlen(pFilter->filterValue) - VALID_ADDRESS_LEN;
-
-			for (i = 0; i < VALID_ADDRESS_LEN; i++)
-				newNumber[i] = pFilter->filterValue[i+overLen];
-
-			newNumber[i] = '\0';
-
-			snprintf(sqlQuery, sizeof(sqlQuery), "SELECT FILTER_ID FROM %s \
-					WHERE FILTER_TYPE = %d AND FILTER_VALUE LIKE '%%%s';",
-					MSGFW_FILTER_TABLE_NAME, MSG_FILTER_BY_ADDRESS, newNumber);
-		} else {
-			snprintf(sqlQuery, sizeof(sqlQuery), "SELECT FILTER_ID FROM %s \
-					WHERE FILTER_TYPE = %d AND FILTER_VALUE = '%s';",
-					MSGFW_FILTER_TABLE_NAME, MSG_FILTER_BY_ADDRESS, pFilter->filterValue);
-		}
-	} else {
-		snprintf(sqlQuery, sizeof(sqlQuery), "SELECT FILTER_VALUE FROM %s WHERE FILTER_TYPE = %d AND FILTER_VALUE like '%s';",
-				MSGFW_FILTER_TABLE_NAME, MSG_FILTER_BY_SUBJECT, pFilter->filterValue);
-	}
+	snprintf(sqlQuery, sizeof(sqlQuery), "SELECT FILTER_ID FROM %s WHERE FILTER_TYPE = %d AND FILTER_VALUE = '%s';",
+			MSGFW_FILTER_TABLE_NAME, pFilter->filterType, pFilter->filterValue);
 
 	MSG_DEBUG("sql : %s", sqlQuery);
 
@@ -78,6 +54,7 @@ msg_error_t MsgStoCheckDuplicatedFilter(const MSG_FILTER_S *pFilter)
 	dbHandle.freeTable();
 
 	MSG_END();
+
 	return err;
 }
 
@@ -181,8 +158,7 @@ msg_error_t MsgStoDeleteFilter(msg_filter_id_t filterId)
 
 	memset(sqlQuery, 0x00, sizeof(sqlQuery));
 
-	snprintf(sqlQuery, sizeof(sqlQuery), "DELETE FROM %s WHERE FILTER_ID = %d;",
-			MSGFW_FILTER_TABLE_NAME, filterId);
+	snprintf(sqlQuery, sizeof(sqlQuery), "DELETE FROM %s WHERE FILTER_ID = %d;", MSGFW_FILTER_TABLE_NAME, filterId);
 
 	// Delete Filter
 	if (dbHandle.execQuery(sqlQuery) != MSG_SUCCESS) {
@@ -214,8 +190,7 @@ msg_error_t MsgStoGetFilterList(msg_struct_list_s *pFilterList)
 	// Get filters from DB
 	memset(sqlQuery, 0x00, sizeof(sqlQuery));
 
-	snprintf(sqlQuery, sizeof(sqlQuery), "SELECT FILTER_ID, FILTER_TYPE, FILTER_VALUE FROM %s;",
-			MSGFW_FILTER_TABLE_NAME);
+	snprintf(sqlQuery, sizeof(sqlQuery), "SELECT FILTER_ID, FILTER_TYPE, FILTER_VALUE FROM %s;", MSGFW_FILTER_TABLE_NAME);
 
 	msg_error_t err = MSG_SUCCESS;
 
