@@ -22,6 +22,7 @@
 #include "MsgTypes.h"
 #include "MsgMmsTypes.h"
 #include "MsgMmsMessage.h"
+#include "MsgDebug.h"
 
 #include "msg.h"
 #include "msg_private.h"
@@ -823,10 +824,21 @@ int msg_mms_set_str_value(msg_struct_s *msg_struct, int field, char *value, int 
 			strncpy(mms_media_data->szFileName, value, MSG_FILEPATH_LEN_MAX);
 		} else if (field == MSG_MMS_MEDIA_FILEPATH_STR) {
 			char *filename = NULL;
-			strncpy(mms_media_data->szFilePath, value, MSG_FILEPATH_LEN_MAX);
-			filename = strrchr(value, '/');
-			strncpy(mms_media_data->szFileName, filename + 1, MSG_FILENAME_LEN_MAX-1);
-			strncpy(mms_media_data->szContentID, filename + 1, MSG_MSG_ID_LEN);
+			if (value != NULL) {
+				MSG_DEBUG("media file path = %s", value);
+				strncpy(mms_media_data->szFilePath, value, MSG_FILEPATH_LEN_MAX);
+				filename = strrchr(value, '/');
+				if (filename != NULL) {
+					strncpy(mms_media_data->szFileName, filename + 1, MSG_FILENAME_LEN_MAX-1);
+					strncpy(mms_media_data->szContentID, filename + 1, MSG_MSG_ID_LEN);
+				} else {
+					strncpy(mms_media_data->szFileName, value + 1, MSG_FILENAME_LEN_MAX-1);
+					strncpy(mms_media_data->szContentID, value + 1, MSG_MSG_ID_LEN);
+				}
+			} else {
+				MSG_DEBUG("media file path is NULL");
+				err = MSG_ERR_INVALID_PARAMETER;
+			}
 		} else if (field == MSG_MMS_MEDIA_CONTENT_ID_STR)
 			strncpy(mms_media_data->szContentID, value, MSG_MSG_ID_LEN);
 		else if (field == MSG_MMS_MEDIA_REGION_ID_STR)
@@ -847,13 +859,25 @@ int msg_mms_set_str_value(msg_struct_s *msg_struct, int field, char *value, int 
 		else if (field == MSG_MMS_ATTACH_FILEPATH_STR) {
 			char *filename = NULL;
 			char *filepath = value;
-			mms_attach_data->mediatype = MIME_UNKNOWN;
-			mms_attach_data->fileSize = -1;
 
-			strncpy(mms_attach_data->szFilePath, filepath, MSG_FILEPATH_LEN_MAX-1);
+			if (filepath != NULL) {
+				MSG_DEBUG("attach file path = %s", filepath);
+				mms_attach_data->mediatype = MIME_UNKNOWN;
+				mms_attach_data->fileSize = -1;
 
-			filename = strrchr(filepath, '/');
-			strncpy(mms_attach_data->szFileName, filename + 1, MSG_FILENAME_LEN_MAX-1);
+				strncpy(mms_attach_data->szFilePath, filepath, MSG_FILEPATH_LEN_MAX-1);
+
+				filename = strrchr(filepath, '/');
+				if (filename != NULL) {
+					strncpy(mms_attach_data->szFileName, filename + 1, MSG_FILENAME_LEN_MAX-1);
+				} else {
+					strncpy(mms_attach_data->szFileName, filepath, MSG_FILENAME_LEN_MAX-1);
+				}
+
+			} else {
+				MSG_DEBUG("attach file path is NULL");
+				err = MSG_ERR_INVALID_PARAMETER;
+			}
 		} else if (field == MSG_MMS_ATTACH_DRM_FULLPATH_STR)
 			strncpy(mms_attach_data->szDrm2FullPath, value, MSG_FILEPATH_LEN_MAX);
 		else
