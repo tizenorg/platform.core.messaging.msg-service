@@ -41,6 +41,8 @@ typedef struct _MSG_GOBJECT_CLIENT_S
 #endif
 
 
+typedef void (*_vconf_change_cb)(keynode_t *key, void* data);
+
 /*==================================================================================================
                                      FUNCTION PROTOTYPES
 ==================================================================================================*/
@@ -60,5 +62,6 @@ bool	MsgSettingGetUnknownAutoReject();
 
 void	MsgSettingRegVconfCB();
 void	MsgSettingRemoveVconfCB();
+void MsgSettingRegVconfCBCommon(const char *pKey, _vconf_change_cb pCb);
 
 #endif // MSG_GCONF_WRAPPER_H

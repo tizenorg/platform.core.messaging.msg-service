@@ -265,3 +265,12 @@ void MsgSettingRemoveVconfCB()
 		MSG_DEBUG("Fail to regist vconf CB with [%s]", VCONFKEY_CISSAPPL_AUTO_REJECT_UNKNOWN_BOOL);
 	}
 }
+
+void MsgSettingRegVconfCBCommon(const char *pKey, _vconf_change_cb pCb)
+{
+	if (vconf_notify_key_changed(pKey, pCb, NULL) < 0) {
+		MSG_DEBUG("Fail to regist vconf CB with [%s]", pKey);
+	} else {
+		MSG_DEBUG("Success to regist vconf CB with [%s]", pKey);
+	}
+}

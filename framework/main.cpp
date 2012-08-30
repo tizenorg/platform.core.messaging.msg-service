@@ -285,6 +285,20 @@ void* InitMsgServer(void*)
 {
 	msg_error_t err = MSG_SUCCESS;
 
+	try
+	{
+		// plugin manager initialize
+		MsgPluginManager::instance()->initialize();
+	}
+	catch (MsgException& e)
+	{
+		MSG_FATAL("%s", e.what());
+	}
+	catch (exception& e)
+	{
+		MSG_FATAL("%s", e.what());
+	}
+
 	MSG_MAIN_TYPE_T mainType = MSG_SMS_TYPE;
 	MsgPlugin* plg = MsgPluginManager::instance()->getPlugin(mainType);
 
@@ -413,20 +427,6 @@ signal( SIGCHLD, SIG_IGN );
 
 	// Regist vconf CB.
 	MsgSettingRegVconfCB();
-
-	try
-	{
-		// plugin manager initialize
-		MsgPluginManager::instance()->initialize();
-	}
-	catch (MsgException& e)
-	{
-		MSG_FATAL("%s", e.what());
-	}
-	catch (exception& e)
-	{
-		MSG_FATAL("%s", e.what());
-	}
 
 	pthread_t startThreadId;
 

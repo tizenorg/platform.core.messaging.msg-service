@@ -14,10 +14,13 @@
 * limitations under the License.
 */
 
+#include <errno.h>
+
 #include "MsgDebug.h"
 #include "MsgException.h"
 #include "MsgGconfWrapper.h"
 
+#include "MsgMutex.h"
 #include "SmsPluginTransport.h"
 #include "SmsPluginSimMsg.h"
 #include "SmsPluginStorage.h"
@@ -38,9 +41,20 @@ extern "C"
 
 struct tapi_handle *pTapiHandle = NULL;
 
+Mutex mx;
+CndVar cv;
+
 /*==================================================================================================
                                      FUNCTION IMPLEMENTATION
 ==================================================================================================*/
+static void MsgTapiInitCB(keynode_t *key, void* data)
+{
+	MSG_DEBUG("MsgTapiInitCB is called.");
+	mx.lock();
+	cv.signal();
+	mx.unlock();
+}
+
 msg_error_t MsgPlgCreateHandle(MSG_PLUGIN_HANDLER_S *pPluginHandle)
 {
 	if (pPluginHandle == NULL)
@@ -93,18 +107,28 @@ msg_error_t SmsPlgInitialize()
 {
 	MSG_BEGIN();
 
-	TapiHandle *ph;
+	MSG_DEBUG("set MSG_SIM_CHANGED to MSG_SIM_STATUS_NOT_FOUND.");
+	MsgSettingSetInt(MSG_SIM_CHANGED, MSG_SIM_STATUS_NOT_FOUND);
 
-	ph = tel_init(NULL);
+	bool bReady;
+	MsgSettingGetBool(VCONFKEY_TELEPHONY_READY, &bReady);
+	MSG_DEBUG("Get VCONFKEY_TELEPHONY_READY [%d].", bReady);
 
-	if (!ph)
-		return MSG_ERR_PLUGIN_TAPIINIT;
+	int ret = 0;
 
-	pTapiHandle = ph;
+	if(!bReady) {
+		MsgSettingRegVconfCBCommon(VCONFKEY_TELEPHONY_READY, MsgTapiInitCB);
+		mx.lock();
+		ret = cv.timedwait(mx.pMutex(), 90);
+		mx.unlock();
+	}
 
 	try
 	{
-		SmsPluginCallback::instance()->registerEvent();
+		if (ret != ETIMEDOUT) {
+			pTapiHandle = tel_init(NULL);
+			SmsPluginCallback::instance()->registerEvent();
+		}
 	}
 	catch (MsgException& e)
 	{
@@ -126,6 +150,9 @@ msg_error_t SmsPlgInitialize()
 msg_error_t SmsPlgFinalize()
 {
 	MSG_BEGIN();
+
+	if (!pTapiHandle)
+		return MSG_ERR_PLUGIN_TAPIINIT;
 
 	SmsPluginCallback::instance()->deRegisterEvent();
 
@@ -152,6 +179,9 @@ msg_error_t SmsPlgRegisterListener(MSG_PLUGIN_LISTENER_S *pListener)
 msg_error_t SmsPlgCheckSimStatus(MSG_SIM_STATUS_T *pStatus)
 {
 	MSG_BEGIN();
+
+	if (!pTapiHandle)
+		return MSG_ERR_PLUGIN_TAPIINIT;
 
 	int tryNum = 0, tapiRet = TAPI_API_SUCCESS;
 
@@ -245,6 +275,9 @@ msg_error_t SmsPlgCheckSimStatus(MSG_SIM_STATUS_T *pStatus)
 msg_error_t SmsPlgCheckDeviceStatus()
 {
 	MSG_BEGIN();
+
+	if (!pTapiHandle)
+		return MSG_ERR_PLUGIN_TAPIINIT;
 
 	int status = 0, tapiRet = TAPI_API_SUCCESS;
 
