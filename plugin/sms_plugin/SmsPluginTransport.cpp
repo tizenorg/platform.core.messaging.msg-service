@@ -207,7 +207,6 @@ void SmsPluginTransport::submitRequest(SMS_REQUEST_INFO_S *pReqInfo)
 			else
 			{
 				SmsPluginEventHandler::instance()->handleSentStatus(MSG_NETWORK_SEND_FAIL);
-
 				THROW(MsgException::SMS_PLG_ERROR, "########  TelTapiSmsSend Fail !!! req Id : [%d] return : [%d] #######", reqId, tapiRet);
 			}
 
@@ -219,6 +218,7 @@ void SmsPluginTransport::submitRequest(SMS_REQUEST_INFO_S *pReqInfo)
 			}
 			else
 			{
+				SmsPluginEventHandler::instance()->handleSentStatus(MSG_NETWORK_SEND_FAIL);
 				THROW(MsgException::SMS_PLG_ERROR, "########  Msg Sent was Failed !!! req Id : [%d] return : [%d] #######", reqId, retStatus);
 			}
 
