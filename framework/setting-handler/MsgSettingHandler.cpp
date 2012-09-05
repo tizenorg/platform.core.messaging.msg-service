@@ -746,14 +746,6 @@ msg_error_t MsgSetCBMsgOpt(const MSG_SETTING_S *pSetting, bool bSetSim)
 		}
 	}
 
-	MsgSettingGetBool(CB_ALL_CHANNEL, &bValue);
-	if (bValue != cbOpt.bAllChannel) {
-		if (MsgSettingSetBool(CB_ALL_CHANNEL, cbOpt.bAllChannel) != MSG_SUCCESS) {
-			MSG_DEBUG("Error to set config data [%s]", CB_ALL_CHANNEL);
-			return MSG_ERR_SET_SETTING;
-		}
-	}
-
 	iValue = MsgSettingGetInt(CB_MAX_SIM_COUNT);
 	if (iValue != cbOpt.maxSimCnt) {
 		if (MsgSettingSetInt(CB_MAX_SIM_COUNT, cbOpt.maxSimCnt) != MSG_SUCCESS) {
@@ -780,9 +772,15 @@ msg_error_t MsgSetCBMsgOpt(const MSG_SETTING_S *pSetting, bool bSetSim)
 			break;
 
 		memset(keyName, 0x00, sizeof(keyName));
-		snprintf(keyName, DEF_BUF_LEN, "%s/%d", CB_CHANNEL_ID, i);
+		snprintf(keyName, DEF_BUF_LEN, "%s/%d", CB_CHANNEL_ID_FROM, i);
 
-		if ((err = MsgSettingSetInt(keyName, cbOpt.channelData.channelInfo[i].id)) != MSG_SUCCESS)
+		if ((err = MsgSettingSetInt(keyName, cbOpt.channelData.channelInfo[i].from)) != MSG_SUCCESS)
+			break;
+
+		memset(keyName, 0x00, sizeof(keyName));
+		snprintf(keyName, DEF_BUF_LEN, "%s/%d", CB_CHANNEL_ID_TO, i);
+
+		if ((err = MsgSettingSetInt(keyName, cbOpt.channelData.channelInfo[i].to)) != MSG_SUCCESS)
 			break;
 
 		memset(keyName, 0x00, sizeof(keyName));
@@ -1052,8 +1050,6 @@ void MsgGetCBMsgOpt(MSG_SETTING_S *pSetting)
 
 	MsgSettingGetBool(CB_RECEIVE, &pSetting->option.cbMsgOpt.bReceive);
 
-	MsgSettingGetBool(CB_ALL_CHANNEL, &pSetting->option.cbMsgOpt.bAllChannel);
-
 	pSetting->option.cbMsgOpt.maxSimCnt = MsgSettingGetInt(CB_MAX_SIM_COUNT);
 
 	pSetting->option.cbMsgOpt.channelData.channelCnt = MsgSettingGetInt(CB_CHANNEL_COUNT);
@@ -1066,9 +1062,14 @@ void MsgGetCBMsgOpt(MSG_SETTING_S *pSetting)
 		MsgSettingGetBool(keyName, &pSetting->option.cbMsgOpt.channelData.channelInfo[i].bActivate);
 
 		memset(keyName, 0x00, sizeof(keyName));
-		snprintf(keyName, DEF_BUF_LEN, "%s/%d", CB_CHANNEL_ID, i);
+		snprintf(keyName, DEF_BUF_LEN, "%s/%d", CB_CHANNEL_ID_FROM, i);
+		pSetting->option.cbMsgOpt.channelData.channelInfo[i].from = MsgSettingGetInt(keyName);
+		MSG_DEBUG("channel[%d]: from: %d", i, pSetting->option.cbMsgOpt.channelData.channelInfo[i].from);
 
-		pSetting->option.cbMsgOpt.channelData.channelInfo[i].id = MsgSettingGetInt(keyName);
+		memset(keyName, 0x00, sizeof(keyName));
+		snprintf(keyName, DEF_BUF_LEN, "%s/%d", CB_CHANNEL_ID_TO, i);
+		pSetting->option.cbMsgOpt.channelData.channelInfo[i].to = MsgSettingGetInt(keyName);
+		MSG_DEBUG("channel[%d]: to: %d", i, pSetting->option.cbMsgOpt.channelData.channelInfo[i].to);
 
 		memset(keyName, 0x00, sizeof(keyName));
 		snprintf(keyName, DEF_BUF_LEN, "%s/%d", CB_CHANNEL_NAME, i);
@@ -1076,6 +1077,7 @@ void MsgGetCBMsgOpt(MSG_SETTING_S *pSetting)
 		tmpValue = MsgSettingGetString(keyName);
 		if (tmpValue != NULL) {
 			strncpy(pSetting->option.cbMsgOpt.channelData.channelInfo[i].name, tmpValue, CB_CHANNEL_NAME_MAX);
+			MSG_DEBUG("channel[%d]: channel_name: %s", i, pSetting->option.cbMsgOpt.channelData.channelInfo[i].name);
 			free(tmpValue);
 			tmpValue = NULL;
 		}

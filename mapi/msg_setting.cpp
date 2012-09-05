@@ -593,9 +593,6 @@ bool msg_get_cb_option_bool(void *cb_opt, int field)
 	case MSG_CB_RECEIVE_BOOL :
 		ret = cb_opt_data->bReceive;
 		break;
-	case MSG_CB_RECEIVE_ALL_CHANNEL_BOOL :
-		ret = cb_opt_data->bAllChannel;
-		break;
 	case MSG_CB_LANGUAGE_TYPE_ALL_BOOL :
 		ret = cb_opt_data->bLanguage[MSG_CBLANG_TYPE_ALL];
 		break;
@@ -646,9 +643,6 @@ int msg_set_cb_option_bool(void *cb_opt, int field, bool value)
 	{
 	case MSG_CB_RECEIVE_BOOL :
 		cb_opt_data->bReceive = value;
-		break;
-	case MSG_CB_RECEIVE_ALL_CHANNEL_BOOL :
-		cb_opt_data->bAllChannel = value;
 		break;
 	case MSG_CB_LANGUAGE_TYPE_ALL_BOOL :
 		cb_opt_data->bLanguage[MSG_CBLANG_TYPE_ALL] = value;
@@ -720,8 +714,11 @@ int msg_get_cb_channel_info_int(void *cb_ch_info, int field)
 
 	switch (field)
 	{
-	case MSG_CB_CHANNEL_ID_INT :
-		ret = cb_ch_data->id;
+	case MSG_CB_CHANNEL_ID_FROM_INT :
+		ret = cb_ch_data->from;
+		break;
+	case MSG_CB_CHANNEL_ID_TO_INT :
+		ret = cb_ch_data->to;
 		break;
 	default :
 		break;
@@ -741,8 +738,11 @@ int msg_set_cb_channel_info_int(void *cb_ch_info, int field, int value)
 
 	switch (field)
 	{
-	case MSG_CB_CHANNEL_ID_INT :
-		cb_ch_data->id = value;
+	case MSG_CB_CHANNEL_ID_FROM_INT :
+		cb_ch_data->from = value;
+		break;
+	case MSG_CB_CHANNEL_ID_TO_INT :
+		cb_ch_data->to = value;
 		break;
 	default :
 		ret = MSG_ERR_INVALID_PARAMETER;

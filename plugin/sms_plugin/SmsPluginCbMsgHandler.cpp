@@ -301,42 +301,33 @@ bool SmsPluginCbMsgHandler::checkCbOpt(SMS_CBMSG_PAGE_S CbPage, bool *pJavaMsg)
 		}
 	}
 
-	bool bAllChannel = false;
-	MsgSettingGetBool(CB_ALL_CHANNEL, &bAllChannel);
+	int MsgIdCnt = MsgSettingGetInt(CB_CHANNEL_COUNT);
 
-	// Receive All Channel = FALSE
-	if (!bAllChannel)
+	bool bActivate = false;
+	int MsgId_from = 0, MsgId_to = 0;
+
+	for (int i = 0; i < MsgIdCnt; i++)
 	{
-		MSG_DEBUG("RECEIVE ALL CHANNEL = FALSE");
+		memset(keyName, 0x00, sizeof(keyName));
+		sprintf(keyName, "%s/%d", CB_CHANNEL_ACTIVATE, i);
 
-		int MsgIdCnt = MsgSettingGetInt(CB_CHANNEL_COUNT);
+		MsgSettingGetBool(keyName, &bActivate);
 
-		bool bActivate = false;
-		int MsgId = 0;
+		memset(keyName, 0x00, sizeof(keyName));
+		sprintf(keyName, "%s/%d", CB_CHANNEL_ID_FROM, i);
 
-		for (int i = 0; i < MsgIdCnt; i++)
+		MsgId_from = MsgSettingGetInt(keyName);
+
+		memset(keyName, 0x00, sizeof(keyName));
+		sprintf(keyName, "%s/%d", CB_CHANNEL_ID_TO, i);
+
+		MsgId_to = MsgSettingGetInt(keyName);
+
+		if (bActivate == true && CbPage.pageHeader.msgId >= MsgId_from && CbPage.pageHeader.msgId <= MsgId_to)
 		{
-			memset(keyName, 0x00, sizeof(keyName));
-			sprintf(keyName, "%s/%d", CB_CHANNEL_ACTIVATE, i);
-
-			MsgSettingGetBool(keyName, &bActivate);
-
-			memset(keyName, 0x00, sizeof(keyName));
-			sprintf(keyName, "%s/%d", CB_CHANNEL_ID, i);
-
-			MsgId = MsgSettingGetInt(keyName);
-
-			if (bActivate == true && CbPage.pageHeader.msgId == MsgId)
-			{
-				MSG_DEBUG("FIND CHANNEL = [%d]", MsgId);
-				return true;
-			}
+			MSG_DEBUG("FIND CHANNEL = [%d]", CbPage.pageHeader.msgId);
+			return true;
 		}
-	}
-	else	// Receive All Channel = TRUE
-	{
-		MSG_DEBUG("RECEIVE ALL CHANNEL = TRUE");
-		return true;
 	}
 
 	return false;
@@ -737,18 +728,23 @@ void SmsPluginCbMsgHandler::getDisplayName(unsigned short	MsgId, char *pDisplayN
 	int MsgIdCnt = MsgSettingGetInt(CB_CHANNEL_COUNT);
 
 	char keyName[128];
+	char from[128];
+	char to[128];
 	char strTmp[CB_CHANNEL_NAME_MAX+1];
 
 	for (int i = 0; i < MsgIdCnt; i++)
 	{
-		memset(keyName, 0x00, sizeof(keyName));
-		sprintf(keyName, "%s/%d", CB_CHANNEL_ID, i);
+		memset(from, 0x00, sizeof(from));
+		sprintf(from, "%s/%d", CB_CHANNEL_ID_FROM, i);
 
-		if (MsgId == MsgSettingGetInt(keyName))
+		memset(to, 0x00, sizeof(to));
+		sprintf(to, "%s/%d", CB_CHANNEL_ID_TO, i);
+
+		if (MsgId >= MsgSettingGetInt(from) && MsgId <= MsgSettingGetInt(to))
 		{
 			char *channelName = NULL;
 			MSG_DEBUG("FIND MSG ID = [%d]", MsgId);
-
+#if 0
 			memset(keyName, 0x00, sizeof(keyName));
 			sprintf(keyName, "%s/%d", CB_CHANNEL_NAME, i);
 
@@ -767,6 +763,9 @@ void SmsPluginCbMsgHandler::getDisplayName(unsigned short	MsgId, char *pDisplayN
 				sprintf(pDisplayName, "[%s]", strTmp);
 			else
 				sprintf(pDisplayName, "[%d]", MsgId);
+#else
+			sprintf(pDisplayName, "[%d]", MsgId);
+#endif
 
 			return;
 		}

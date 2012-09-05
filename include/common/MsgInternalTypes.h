@@ -135,7 +135,8 @@
 #define CB_MAX_SIM_COUNT			DEFAULT_CB_MSG_OPT_PATH"/max_sim_count"
 #define CB_CHANNEL_COUNT			DEFAULT_CB_MSG_OPT_PATH"/channel_count"
 #define CB_CHANNEL_ACTIVATE		DEFAULT_CB_MSG_OPT_PATH"/channel_activate"
-#define CB_CHANNEL_ID					DEFAULT_CB_MSG_OPT_PATH"/channel_id"
+#define CB_CHANNEL_ID_FROM		DEFAULT_CB_MSG_OPT_PATH"/channel_id_from"
+#define CB_CHANNEL_ID_TO		DEFAULT_CB_MSG_OPT_PATH"/channel_id_to"
 #define CB_CHANNEL_NAME			DEFAULT_CB_MSG_OPT_PATH"/channel_name"
 #define CB_LANGUAGE					DEFAULT_CB_MSG_OPT_PATH"/language"
 

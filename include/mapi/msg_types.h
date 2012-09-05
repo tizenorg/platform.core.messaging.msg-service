@@ -439,7 +439,8 @@ enum _MSG_STRUCT_CB_OPT_E {
 
 enum _MSG_STRUCT_CB_CHANNEL_INFO_E {
 	MSG_CB_CHANNEL_ACTIVATE_BOOL = MSG_STRUCT_SETTING_CB_CHANNEL_INFO+1,	/**< Indicates whether the CB channel is activate or passive. */
-	MSG_CB_CHANNEL_ID_INT,						/**< Indicates the ID of a CB channel. */
+	MSG_CB_CHANNEL_ID_FROM_INT,						/**< Indicates the ID of a CB channel. */
+	MSG_CB_CHANNEL_ID_TO_INT,						/**< Indicates the ID of a CB channel. */
 	MSG_CB_CHANNEL_NAME_STR						/**< Indicates the name of a CB channel. */
 };
 

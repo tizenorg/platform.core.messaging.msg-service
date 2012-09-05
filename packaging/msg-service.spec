@@ -253,11 +253,10 @@ vconftool set -t bool db/private/msg-service/push_msg/recv_option 1
 vconftool set -t int db/private/msg-service/push_msg/service_load 1
 
 # CB Msg Options
-vconftool set -t bool db/private/msg-service/cb_msg/receive 0
-vconftool set -t bool db/private/msg-service/cb_msg/all_channel 0
+vconftool set -t bool db/private/msg-service/cb_msg/receive 1 -f
 vconftool set -t int db/private/msg-service/cb_msg/max_sim_count 0
 vconftool set -t int db/private/msg-service/cb_msg/channel_count 0
-vconftool set -t bool db/private/msg-service/cb_msg/language/0 0
+vconftool set -t bool db/private/msg-service/cb_msg/language/0 1 -f
 vconftool set -t bool db/private/msg-service/cb_msg/language/1 0
 vconftool set -t bool db/private/msg-service/cb_msg/language/2 0
 vconftool set -t bool db/private/msg-service/cb_msg/language/3 0

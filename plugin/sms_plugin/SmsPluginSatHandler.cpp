@@ -372,12 +372,6 @@ void	SmsPluginSatHandler::initCBConfig()
 		return;
 	}
 
-	if (MsgSettingSetBool(CB_ALL_CHANNEL, settingData.option.cbMsgOpt.bAllChannel) != MSG_SUCCESS)
-	{
-		THROW(MsgException::SMS_PLG_ERROR, "Error to set config data [%s]", CB_ALL_CHANNEL);
-		return;
-	}
-
 	if (MsgSettingSetInt(CB_MAX_SIM_COUNT, settingData.option.cbMsgOpt.maxSimCnt) != MSG_SUCCESS)
 	{
 		THROW(MsgException::SMS_PLG_ERROR, "Error to set config data [%s]", CB_MAX_SIM_COUNT);
@@ -402,9 +396,15 @@ void	SmsPluginSatHandler::initCBConfig()
 			break;
 
 		memset(keyName, 0x00, sizeof(keyName));
-		sprintf(keyName, "%s/%d", CB_CHANNEL_ID, i);
+		sprintf(keyName, "%s/%d", CB_CHANNEL_ID_FROM, i);
 
-		if ((err = MsgSettingSetInt(keyName, settingData.option.cbMsgOpt.channelData.channelInfo[i].id)) != MSG_SUCCESS)
+		if ((err = MsgSettingSetInt(keyName, settingData.option.cbMsgOpt.channelData.channelInfo[i].from)) != MSG_SUCCESS)
+			break;
+
+		memset(keyName, 0x00, sizeof(keyName));
+		sprintf(keyName, "%s/%d", CB_CHANNEL_ID_TO, i);
+
+		if ((err = MsgSettingSetInt(keyName, settingData.option.cbMsgOpt.channelData.channelInfo[i].to)) != MSG_SUCCESS)
 			break;
 
 		memset(keyName, 0x00, sizeof(keyName));

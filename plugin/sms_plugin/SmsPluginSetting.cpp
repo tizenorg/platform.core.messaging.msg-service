@@ -292,25 +292,19 @@ msg_error_t SmsPluginSetting::addCbOpt(MSG_CBMSG_OPT_S *pCbOpt)
 {
 	msg_error_t err = MSG_SUCCESS;
 
-	MSG_DEBUG("Receive [%d], All Channel [%d], Max SIM Count [%d]", pCbOpt->bReceive, pCbOpt->bAllChannel, pCbOpt->maxSimCnt);
+	MSG_DEBUG("Receive [%d], Max SIM Count [%d]", pCbOpt->bReceive, pCbOpt->maxSimCnt);
 
 	MSG_DEBUG("Channel Count [%d]", pCbOpt->channelData.channelCnt);
 
 	for (int i = 0; i < pCbOpt->channelData.channelCnt; i++)
 	{
-		MSG_DEBUG("Channel ID [%d]", pCbOpt->channelData.channelInfo[i].id);
+		MSG_DEBUG("Channel FROM [%d], Channel TO [%d]", pCbOpt->channelData.channelInfo[i].from, pCbOpt->channelData.channelInfo[i].to);
 	}
 
 	// Set Setting Data into Vconf
 	if (MsgSettingSetBool(CB_RECEIVE, pCbOpt->bReceive) != MSG_SUCCESS)
 	{
 		MSG_DEBUG("Error to set config data [%s]", CB_RECEIVE);
-		return MSG_ERR_SET_SETTING;
-	}
-
-	if (MsgSettingSetBool(CB_ALL_CHANNEL, pCbOpt->bAllChannel) != MSG_SUCCESS)
-	{
-		MSG_DEBUG("Error to set config data [%s]", CB_ALL_CHANNEL);
 		return MSG_ERR_SET_SETTING;
 	}
 
@@ -337,9 +331,15 @@ msg_error_t SmsPluginSetting::addCbOpt(MSG_CBMSG_OPT_S *pCbOpt)
 			break;
 
 		memset(keyName, 0x00, sizeof(keyName));
-		sprintf(keyName, "%s/%d", CB_CHANNEL_ID, i);
+		sprintf(keyName, "%s/%d", CB_CHANNEL_ID_FROM, i);
 
-		if ((err = MsgSettingSetInt(keyName, pCbOpt->channelData.channelInfo[i].id)) != MSG_SUCCESS)
+		if ((err = MsgSettingSetInt(keyName, pCbOpt->channelData.channelInfo[i].from)) != MSG_SUCCESS)
+			break;
+
+		memset(keyName, 0x00, sizeof(keyName));
+		sprintf(keyName, "%s/%d", CB_CHANNEL_ID_TO, i);
+
+		if ((err = MsgSettingSetInt(keyName, pCbOpt->channelData.channelInfo[i].to)) != MSG_SUCCESS)
 			break;
 
 		memset(keyName, 0x00, sizeof(keyName));
@@ -362,8 +362,6 @@ void SmsPluginSetting::getCbOpt(MSG_SETTING_S *pSetting)
 
 	MsgSettingGetBool(CB_RECEIVE, &pSetting->option.cbMsgOpt.bReceive);
 
-	MsgSettingGetBool(CB_ALL_CHANNEL, &pSetting->option.cbMsgOpt.bAllChannel);
-
 	pSetting->option.cbMsgOpt.maxSimCnt = MsgSettingGetInt(CB_MAX_SIM_COUNT);
 
 	pSetting->option.cbMsgOpt.channelData.channelCnt = MsgSettingGetInt(CB_CHANNEL_COUNT);
@@ -376,9 +374,14 @@ void SmsPluginSetting::getCbOpt(MSG_SETTING_S *pSetting)
 		MsgSettingGetBool(keyName, &pSetting->option.cbMsgOpt.channelData.channelInfo[i].bActivate);
 
 		memset(keyName, 0x00, sizeof(keyName));
-		sprintf(keyName, "%s/%d", CB_CHANNEL_ID, i);
+		sprintf(keyName, "%s/%d", CB_CHANNEL_ID_FROM, i);
 
-		pSetting->option.cbMsgOpt.channelData.channelInfo[i].id = MsgSettingGetInt(keyName);
+		pSetting->option.cbMsgOpt.channelData.channelInfo[i].from = MsgSettingGetInt(keyName);
+
+		memset(keyName, 0x00, sizeof(keyName));
+		sprintf(keyName, "%s/%d", CB_CHANNEL_ID_TO, i);
+
+		pSetting->option.cbMsgOpt.channelData.channelInfo[i].to = MsgSettingGetInt(keyName);
 
 		memset(keyName, 0x00, sizeof(keyName));
 		sprintf(keyName, "%s/%d", CB_CHANNEL_NAME, i);
@@ -597,25 +600,24 @@ bool SmsPluginSetting::getParam(int Index, MSG_SMSC_DATA_S *pSmscData)
 
 bool SmsPluginSetting::setCbConfig(const MSG_CBMSG_OPT_S *pCbOpt)
 {
-	int reqId = 0;
-
 	int ret = TAPI_API_SUCCESS;
 
 	TelSmsCbConfig_t cbConfig = {};
 
-	cbConfig.bCBEnabled = (int)pCbOpt->bReceive;
+	cbConfig.CBEnabled = (int)pCbOpt->bReceive;
+	cbConfig.Net3gppType = TAPI_NETTEXT_NETTYPE_3GPP;
+	cbConfig.MsgIdMaxCount = pCbOpt->maxSimCnt;
+	cbConfig.MsgIdRangeCount = pCbOpt->channelData.channelCnt;
 
-	if (pCbOpt->bAllChannel == true)
-		cbConfig.SelectedId = 0x01;
-	else
-		cbConfig.SelectedId = 0x02;
-
-	cbConfig.MsgIdCount = pCbOpt->channelData.channelCnt;
-
-	for (int i = 0; i < cbConfig.MsgIdCount; i++)
+	for (int i = 0; i < cbConfig.MsgIdRangeCount; i++)
 	{
-		cbConfig.MsgIDs[i] = (unsigned short)pCbOpt->channelData.channelInfo[i].id;
+		cbConfig.MsgIDs[i].Net3gpp.Selected = (unsigned short)pCbOpt->channelData.channelInfo[i].bActivate;
+		cbConfig.MsgIDs[i].Net3gpp.FromMsgId = (unsigned short)pCbOpt->channelData.channelInfo[i].from;
+		cbConfig.MsgIDs[i].Net3gpp.ToMsgId = (unsigned short)pCbOpt->channelData.channelInfo[i].to;
+
+		MSG_DEBUG("FROM: %d, TO: %d", cbConfig.MsgIDs[i].Net3gpp.FromMsgId, cbConfig.MsgIDs[i].Net3gpp.ToMsgId);
 	}
+	MSG_DEBUG("CBEnabled: %d, range_count: %d", cbConfig.CBEnabled, cbConfig.MsgIdRangeCount);
 
 	ret = tel_set_sms_cb_config(pTapiHandle, &cbConfig, TapiEventSetConfigData, NULL);
 
@@ -645,8 +647,6 @@ bool SmsPluginSetting::setCbConfig(const MSG_CBMSG_OPT_S *pCbOpt)
 
 bool SmsPluginSetting::getCbConfig(MSG_CBMSG_OPT_S *pCbOpt)
 {
-	int reqId = 0;
-
 	int ret = TAPI_API_SUCCESS;
 
 	ret = tel_get_sms_cb_config(pTapiHandle, TapiEventGetCBConfig, NULL);

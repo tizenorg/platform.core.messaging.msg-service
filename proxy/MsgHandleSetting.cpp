@@ -204,7 +204,6 @@ msg_error_t MsgHandle::getCBOption(msg_struct_t msg_struct)
 		memcpy(&cb_opt_tmp, pEvent->data, sizeof(MSG_CBMSG_OPT_S));
 
 		MSG_CBMSG_OPT_HIDDEN_S *pTmp = (MSG_CBMSG_OPT_HIDDEN_S *)cb_opt->data;
-		pTmp->bAllChannel = cb_opt_tmp.bAllChannel;
 		pTmp->bReceive = cb_opt_tmp.bReceive;
 		pTmp->maxSimCnt = cb_opt_tmp.maxSimCnt;
 
@@ -250,7 +249,6 @@ msg_error_t MsgHandle::setCBOption(msg_struct_t msg_struct)
 	MSG_CBMSG_OPT_S cb_opt_tmp = {0,};
 	MSG_CBMSG_OPT_HIDDEN_S *cb_msg_opt = (MSG_CBMSG_OPT_HIDDEN_S *)cb_opt->data;
 
-	cb_opt_tmp.bAllChannel = cb_msg_opt->bAllChannel;
 	cb_opt_tmp.bReceive = cb_msg_opt->bReceive;
 	cb_opt_tmp.maxSimCnt = cb_msg_opt->maxSimCnt;
 	for (int i = 0; i < CB_LANG_TYPE_MAX; i++)
@@ -263,7 +261,7 @@ msg_error_t MsgHandle::setCBOption(msg_struct_t msg_struct)
 
 	for (i = 0; i < cb_opt_tmp.channelData.channelCnt; i++) {
 		pStructTmp = (msg_struct_s *)cb_ch_list->msg_struct_info[i];
-		memcpy(&(cb_opt_tmp.channelData.channelInfo[i]), &pStructTmp->data, sizeof(MSG_CB_CHANNEL_INFO_S));
+		memcpy(&(cb_opt_tmp.channelData.channelInfo[i]), pStructTmp->data, sizeof(MSG_CB_CHANNEL_INFO_S));
 	}
 
 	MSG_SETTING_S pSetting = {0,};

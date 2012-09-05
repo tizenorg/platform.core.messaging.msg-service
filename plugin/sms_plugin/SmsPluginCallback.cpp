@@ -614,18 +614,13 @@ void TapiEventGetCBConfig(TapiHandle *handle, int result, void *data, void *user
 
 	TelSmsCbConfig_t* pCBConfig = (TelSmsCbConfig_t*)data;
 
-	cbOpt.bReceive = (bool)pCBConfig->bCBEnabled;
-
-	if (pCBConfig->SelectedId == 0x01)
-		cbOpt.bAllChannel = true;
-	else if (pCBConfig->SelectedId == 0x02)
-		cbOpt.bAllChannel = false;
+	cbOpt.bReceive = (bool)pCBConfig->CBEnabled;
 
 	cbOpt.maxSimCnt = pCBConfig->MsgIdMaxCount;
 
-	MSG_DEBUG("Receive [%d], All Channel [%d], Max SIM Count [%d]", cbOpt.bReceive, cbOpt.bAllChannel, cbOpt.maxSimCnt);
+	MSG_DEBUG("Receive [%d], Max SIM Count [%d]", cbOpt.bReceive, cbOpt.maxSimCnt);
 
-	cbOpt.channelData.channelCnt = pCBConfig->MsgIdCount;
+	cbOpt.channelData.channelCnt = pCBConfig->MsgIdRangeCount;
 
 	if (cbOpt.channelData.channelCnt > CB_CHANNEL_MAX)
 	{
@@ -641,11 +636,12 @@ void TapiEventGetCBConfig(TapiHandle *handle, int result, void *data, void *user
 
 	for (int i = 0; i < cbOpt.channelData.channelCnt; i++)
 	{
-		cbOpt.channelData.channelInfo[i].bActivate = cbOpt.bReceive;
-		cbOpt.channelData.channelInfo[i].id = pCBConfig->MsgIDs[i];
+		cbOpt.channelData.channelInfo[i].bActivate = pCBConfig->MsgIDs[i].Net3gpp.Selected;
+		cbOpt.channelData.channelInfo[i].from = pCBConfig->MsgIDs[i].Net3gpp.FromMsgId;
+		cbOpt.channelData.channelInfo[i].to = pCBConfig->MsgIDs[i].Net3gpp.ToMsgId;
 		memset(cbOpt.channelData.channelInfo[i].name, 0x00, CB_CHANNEL_NAME_MAX+1);
 
-		MSG_DEBUG("Channel ID [%d]", cbOpt.channelData.channelInfo[i].id);
+		MSG_DEBUG("Channel FROM [%d], Channel TO [%d] ", cbOpt.channelData.channelInfo[i].from, cbOpt.channelData.channelInfo[i].to);
 	}
 
 	SmsPluginSetting::instance()->setCbConfigEvent(&cbOpt, true);

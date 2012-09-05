@@ -235,7 +235,8 @@ typedef struct
 typedef struct
 {
 	bool			bActivate;							/**< Indicates whether the CB channel is activate or passive. */
-	unsigned int 	id;									/**< Indicates the ID of a CB channel. */
+	unsigned int 	from;								/**< Indicates the start ID of a CB channel range. */
+	unsigned int 	to;									/**< Indicates the end ID of a CB channel range. */
 	char			name[CB_CHANNEL_NAME_MAX+1];		/**< Indicates the name of a CB channel. */
 } MSG_CB_CHANNEL_INFO_S;
 
@@ -351,17 +352,15 @@ typedef struct
  */
 typedef struct
 {
-	bool					bReceive;		/**< Indicates whether the CB message is received or not. */
-	bool					bAllChannel;		/**< Indicates whether All Channel's CB message is received or not. */
+	bool				bReceive;		/**< Indicates whether the CB message is received or not. */
 	int					maxSimCnt;		/**< Indicates the number of channels which can be stored in SIM. */
 	MSG_CB_CHANNEL_S	channelData;		/**< Indicates the cell broadcasting channel information. */
-	bool					bLanguage[CB_LANG_TYPE_MAX];		/**< Indicates whether the language name of a cell broadcasting message is set or not. */
+	bool				bLanguage[CB_LANG_TYPE_MAX];		/**< Indicates whether the language name of a cell broadcasting message is set or not. */
 } MSG_CBMSG_OPT_S;
 
 typedef struct
 {
 	bool					bReceive;		/**< Indicates whether the CB message is received or not. */
-	bool					bAllChannel;		/**< Indicates whether All Channel's CB message is received or not. */
 	int					maxSimCnt;		/**< Indicates the number of channels which can be stored in SIM. */
 	msg_struct_list_s	*channelData;		/**< Indicates the cell broadcasting channel information. */
 	bool					bLanguage[CB_LANG_TYPE_MAX];		/**< Indicates whether the language name of a cell broadcasting message is set or not. */
