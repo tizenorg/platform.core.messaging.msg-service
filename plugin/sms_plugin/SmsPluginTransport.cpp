@@ -458,7 +458,7 @@ void SmsPluginTransport::setSmscOptions(SMS_ADDRESS_S *pSmsc)
 void SmsPluginTransport::msgInfoToSubmitData(const MSG_MESSAGE_INFO_S *pMsgInfo, SMS_SUBMIT_DATA_S *pData, SMS_CODING_SCHEME_T *pCharType, int addrIndex)
 {
 	// Destination Address
-	pData->destAddress.ton = SMS_TON_NATIONAL;
+	pData->destAddress.ton = SMS_TON_UNKNOWN;
 	pData->destAddress.npi = SMS_NPI_ISDN;
 
 	memset(pData->destAddress.address, 0x00, MAX_ADDRESS_LEN+1);
