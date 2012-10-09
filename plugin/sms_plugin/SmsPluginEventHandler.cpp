@@ -184,6 +184,24 @@ void SmsPluginEventHandler::handleMsgIncoming(SMS_TPDU_S *pTpdu)
 	}
 }
 
+void SmsPluginEventHandler::handlePushMsgIncoming(char* pPushHeader, char* pPushBody, int pushBodyLen, char *application_id)
+{
+	MSG_PUSH_MESSAGE_DATA_S pushData;
+
+	memset(&pushData, 0x00, sizeof(MSG_PUSH_MESSAGE_DATA_S));
+
+	/** set PUSH data */
+	memcpy(&pushData.pushHeader, pPushHeader, strlen(pPushHeader));
+
+	pushData.pushBodyLen = pushBodyLen;
+	memcpy(pushData.pushBody, pPushBody, pushBodyLen);
+
+	memcpy(pushData.pushAppId, application_id, MAX_WAPPUSH_ID_LEN);
+
+	/** Callback to MSG FW */
+	listener.pfPushMsgIncomingCb(&pushData);
+}
+
 
 void SmsPluginEventHandler::handleSyncMLMsgIncoming(msg_syncml_message_type_t msgType, char* pPushBody, int PushBodyLen, char* pWspHeader, int WspHeaderLen)
 {
@@ -230,6 +248,20 @@ msg_error_t SmsPluginEventHandler::callbackMsgIncoming(MSG_MESSAGE_INFO_S *pMsgI
 
 	/** Callback to MSG FW */
 	err = listener.pfMsgIncomingCb(pMsgInfo);
+
+	MSG_END();
+
+	return err;
+}
+
+msg_error_t SmsPluginEventHandler::callbackCBMsgIncoming(MSG_CB_MSG_S *pCbMsg)
+{
+	MSG_BEGIN();
+
+	msg_error_t err = MSG_SUCCESS;
+
+	/** Callback to MSG FW */
+	err = listener.pfCBMsgIncomingCb(pCbMsg);
 
 	MSG_END();
 

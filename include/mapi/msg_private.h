@@ -50,6 +50,11 @@ int msg_message_set_struct_hnd(void *data, int field, void *value);
 
 void msg_message_copy_message(MSG_MESSAGE_HIDDEN_S *pSrc, MSG_MESSAGE_HIDDEN_S *pDst);
 
+int msg_cb_message_get_int_value(void *data, int field, int *value);
+int msg_cb_message_get_str_value(void *data, int field, char *value, int size);
+
+
+
 
 // filter
 int msg_get_filter_info_int(void *filter, int field);
@@ -142,6 +147,11 @@ int msg_set_general_opt_bool(void *general_opt, int field, bool value);
 int msg_get_msgsize_opt_int(void *size_opt, int field);
 int msg_set_msgsize_opt_int(void *size_opt, int field, int value);
 
+/* Wap Push */
+char* msg_push_config_get_str(void *event_info, int field, int size);
+bool msg_push_config_get_bool(void *event_info, int field);
+int msg_push_config_set_str(void *event_info, int field, char *value, int size);
+int msg_push_config_set_bool(void *event, int field, bool value);
 /* added internal apis for new managed api (storage) */
 int msg_syncml_info_get_int(void *syncml_info, int field);
 int msg_count_info_get_int(void *count_info, int field);

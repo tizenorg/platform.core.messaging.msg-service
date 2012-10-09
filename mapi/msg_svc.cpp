@@ -302,6 +302,10 @@ EXPORT_API msg_struct_t msg_create_struct(int field)
 	case MSG_STRUCT_MMS_SMIL_AVI:
 		msg_struct->data = msg_mms_create_struct_data(field);
 		break;
+	case MSG_STRUCT_PUSH_CONFIG_INFO:
+		msg_struct->data = new MSG_PUSH_EVENT_INFO_S;
+		memset(msg_struct->data, 0x00, sizeof(MSG_PUSH_EVENT_INFO_S));
+		break;
 	}
 
 	return (msg_struct_t) msg_struct;
@@ -639,6 +643,15 @@ EXPORT_API int msg_release_struct(msg_struct_t *msg_struct_handle)
 		*msg_struct_handle = NULL;
 		break;
 	}
+	case MSG_STRUCT_PUSH_CONFIG_INFO:
+	{
+		delete (MSG_PUSH_EVENT_INFO_S*)(msg_struct->data);
+		msg_struct->data = NULL;
+
+		delete msg_struct;
+		*msg_struct_handle = NULL;
+		break;
+	}
 	default :
 		err = MSG_ERR_INVALID_PARAMETER;
 		break;
@@ -736,6 +749,9 @@ EXPORT_API int msg_get_int_value(msg_struct_t msg_struct_handle, int field, int 
 		break;
 	case MSG_STRUCT_SENT_STATUS_INFO :
 		*value = msg_sent_status_get_int((MSG_SENT_STATUS_S *)msg_struct->data, field);
+		break;
+	case MSG_STRUCT_CB_MSG :
+		err = msg_cb_message_get_int_value (msg_struct->data, field, value);
 		break;
 	case MSG_STRUCT_MMS:
 	case MSG_STRUCT_MMS_PAGE:
@@ -847,6 +863,15 @@ EXPORT_API int msg_get_str_value(msg_struct_t msg_struct_handle, int field, char
 	case MSG_STRUCT_SETTING_VOICE_MSG_OPT :
 		err = msg_setting_get_str_value(msg_struct, field, src, size);
 		break;
+	case MSG_STRUCT_PUSH_CONFIG_INFO :
+		ret_str = msg_push_config_get_str(msg_struct->data, field, size);
+		if (ret_str == NULL)
+			err = MSG_ERR_UNKNOWN;
+		else
+			strncpy(src, ret_str, size);
+		break;
+	case MSG_STRUCT_CB_MSG :
+		err = msg_cb_message_get_str_value(msg_struct->data, field, src, size);
 	default :
 		err = MSG_ERR_INVALID_PARAMETER;
 		break;
@@ -1120,6 +1145,9 @@ EXPORT_API int msg_set_str_value(msg_struct_t msg_struct_handle, int field, char
 	case MSG_STRUCT_SETTING_VOICE_MSG_OPT :
 		err = msg_setting_set_str_value(msg_struct, field, value, size);
 		break;
+	case MSG_STRUCT_PUSH_CONFIG_INFO:
+		err = msg_push_config_set_str(msg_struct->data, field, value, size);
+		break;
 	default :
 		err = MSG_ERR_INVALID_PARAMETER;
 		break;
@@ -1176,6 +1204,9 @@ EXPORT_API int msg_set_bool_value(msg_struct_t msg_struct_handle, int field, boo
 	case MSG_STRUCT_SETTING_PUSH_MSG_OPT :
 	case MSG_STRUCT_SETTING_GENERAL_OPT :
 		err = msg_setting_set_bool_value(msg_struct, field, value);
+		break;
+	case MSG_STRUCT_PUSH_CONFIG_INFO:
+		err = msg_push_config_set_bool(msg_struct->data, field, value);
 		break;
 	default :
 		err = MSG_ERR_INVALID_PARAMETER;

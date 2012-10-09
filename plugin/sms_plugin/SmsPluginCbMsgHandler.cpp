@@ -112,9 +112,27 @@ void SmsPluginCbMsgHandler::handleCbMsg(TelSmsCbMsg_t *pCbMsg)
 
 		if (err == MSG_SUCCESS)
 		{
-			// Callback
-			err = SmsPluginEventHandler::instance()->callbackMsgIncoming(&msgInfo);
+			MSG_CB_MSG_S cbOutMsg = {0, };
 
+			cbOutMsg.type = MSG_CB_SMS;
+			cbOutMsg.receivedTime = cbMsg.recvTime;
+			cbOutMsg.serialNum = encodeCbSerialNum (CbMsgPage.pageHeader.serialNum);
+			cbOutMsg.messageId = cbMsg.msgId;
+			cbOutMsg.dcs = CbMsgPage.pageHeader.dcs.rawData;
+			memset (cbOutMsg.cbText, 0x00, sizeof(cbOutMsg.cbText));
+
+			SMS_LANG_INFO_S langInfo = {0};
+
+			langInfo.bSingleShift = false;
+			langInfo.bLockingShift = false;
+
+			if (cbMsg.codingScheme == SMS_CHARSET_7BIT)
+				cbOutMsg.cbTextLen = SmsPluginTextConvert::instance()->convertGSM7bitToUTF8((unsigned char*)cbOutMsg.cbText, sizeof(cbOutMsg.cbText), (unsigned char*)cbMsg.msgData, cbMsg.msgLength, &langInfo);
+			else if (cbMsg.codingScheme == SMS_CHARSET_UCS2)
+				cbOutMsg.cbTextLen = SmsPluginTextConvert::instance()->convertUCS2ToUTF8((unsigned char*)cbOutMsg.cbText, sizeof(cbOutMsg.cbText), (unsigned char*)cbMsg.msgData, cbMsg.msgLength);
+
+
+			err = SmsPluginEventHandler::instance()->callbackCBMsgIncoming(&cbOutMsg);
 			if (err != MSG_SUCCESS)
 			{
 				MSG_DEBUG("callbackMsgIncoming() Error !! [%d]", err);
@@ -128,6 +146,40 @@ void SmsPluginCbMsgHandler::handleCbMsg(TelSmsCbMsg_t *pCbMsg)
 		// Remove From List
 		removeFromPageList(CbMsgPage);
 	}
+	MSG_END();
+}
+
+
+void SmsPluginCbMsgHandler::handleEtwsMsg(TelSmsEtwsMsg_t *pEtwsMsg)
+{
+	MSG_BEGIN();
+	msg_error_t err = MSG_SUCCESS;
+	SMS_ETWS_NETWORK_TYPE_T type = pEtwsMsg->EtwsMsgType;
+	//MSG_MESSAGE_INFO_S msgInfo = {};
+	SMS_ETWS_PRIMARY_S		etwsPn = {0, };
+	MSG_CB_MSG_S			cbOutMsg = {0, };
+
+	if(type != TAPI_NETTEXT_ETWS_PRIMARY)
+	{
+		MSG_DEBUG("The Etws Msg is not supported");
+		return;
+	}
+	DecodeEtwsMsg(pEtwsMsg, &etwsPn);
+	//convertEtwsMsgToMsginfo(CbMsgPage, &msgInfo);
+
+	cbOutMsg.type = MSG_ETWS_SMS;
+	cbOutMsg.receivedTime = etwsPn.recvTime;
+	cbOutMsg.serialNum = encodeCbSerialNum (etwsPn.serialNum);
+	cbOutMsg.messageId = etwsPn.msgId;
+	cbOutMsg.etwsWarningType = etwsPn.warningType;
+	memcpy (cbOutMsg.etwsWarningSecurityInfo, etwsPn.warningSecurityInfo, sizeof(cbOutMsg.etwsWarningSecurityInfo));
+
+	err = SmsPluginEventHandler::instance()->callbackCBMsgIncoming(&cbOutMsg);
+	if (err != MSG_SUCCESS)
+	{
+		MSG_DEBUG("callbackMsgIncoming() Error !! [%d]", err);
+	}
+
 	MSG_END();
 }
 
@@ -222,6 +274,47 @@ MSG_DEBUG("Page Length : [%d], Page Data : [%s]", pCbPage->pageLength, pCbPage->
 }
 
 
+void SmsPluginCbMsgHandler::DecodeEtwsMsg(TelSmsEtwsMsg_t *pEtwsMsg, SMS_ETWS_PRIMARY_S *pEtwsPn)
+{
+	if ( !pEtwsMsg || !pEtwsPn )
+		return;
+
+	if (pEtwsMsg->Length > MAX_ETWS_SIZE)
+		THROW(MsgException::SMS_PLG_ERROR, "ETWS Msg Size is over MAX [%d]", pEtwsMsg->Length);
+
+	unsigned char EtwsData[pEtwsMsg->Length+1];
+
+	memset(EtwsData, 0x00, sizeof(EtwsData));
+	memcpy(EtwsData, pEtwsMsg->szMsgData, pEtwsMsg->Length);
+	EtwsData[pEtwsMsg->Length] = '\0';
+
+	// received time
+	pEtwsPn->recvTime = getRecvTime();
+
+	// Serial Number
+	pEtwsPn->serialNum.geoScope = (EtwsData[0] & 0xC0) >> 6;
+	pEtwsPn->serialNum.msgCode = (EtwsData[0] & 0x3F) << 4;
+	pEtwsPn->serialNum.msgCode |= (EtwsData[1] & 0xF0) >> 4;
+	pEtwsPn->serialNum.updateNum = EtwsData[1] & 0x0F;
+
+	MSG_DEBUG("geoScope : [%d], msgCode : [%d], updateNum : [%d]", pEtwsPn->serialNum.geoScope, pEtwsPn->serialNum.msgCode, pEtwsPn->serialNum.updateNum);
+
+	// Message Identifier
+	pEtwsPn->msgId = (EtwsData[2] << 8) | EtwsData[3];
+	MSG_DEBUG("MSG ID : [%d]", pEtwsPn->msgId);
+
+	// warning type
+	pEtwsPn->warningType = (EtwsData[4] << 8) | EtwsData[5];
+	MSG_DEBUG("warningType : [0x%04x]", pEtwsPn->msgId);
+
+	// warning security information
+	memcpy(pEtwsPn->warningSecurityInfo, &EtwsData[6], sizeof(pEtwsPn->warningSecurityInfo));	// 50bytes
+	for (unsigned int i = 0; i < sizeof(pEtwsPn->warningSecurityInfo); i++)
+	{
+		MSG_DEBUG("warning secu info [%02x]", pEtwsPn->warningSecurityInfo[i] );
+	}
+}
+
 void SmsPluginCbMsgHandler::Decode3gCbMsg(TelSmsCbMsg_t *pCbMsg, SMS_CBMSG_PAGE_S *pCbPage)
 {
 	if (pCbMsg->Length > (MAX_CBMSG_PAGE_SIZE*MAX_CBMSG_PAGE_NUM))
@@ -259,8 +352,52 @@ MSG_DEBUG("In Language Type : [%d], Out Language Type : [%d]", pCbPage->pageHead
 
 	// Get Receive Time
 	pCbPage->pageHeader.recvTime = getRecvTime();
+
+#if 0
+	// Decode CB Data
+	int dataLen = pCbMsg->Length - 6;
+
+	switch (pCbPage->pageHeader.dcs.codingScheme)
+	{
+		case SMS_CHARSET_7BIT :
+		{
+			dataLen = (dataLen*8) / 7;
+
+			if (pCbPage->pageLength > MAX_CBMSG_PAGE_SIZE)
+				THROW(MsgException::SMS_PLG_ERROR, "CB Msg Size is over MAX [%d]", pCbPage->pageLength);
+
+			SmsPluginUDCodec udCodec;
+			int unpackLen = udCodec.unpack7bitChar(&cbData[6], dataLen, 0, pCbPage->pageData);
+			pCbPage->pageData[unpackLen] = '\0';
+
+			pCbPage->pageLength = unpackLen;
+		}
+		break;
+
+		case SMS_CHARSET_8BIT :
+		case SMS_CHARSET_UCS2 :
+		{
+			pCbPage->pageLength = dataLen;
+
+			memcpy(pCbPage->pageData, &cbData[6], pCbPage->pageLength);
+			pCbPage->pageData[pCbPage->pageLength] = '\0';
+		}
+		break;
+	}
+
+MSG_DEBUG("Page Length : [%d], Page Data : [%s]", pCbPage->pageLength, pCbPage->pageData);
+#endif
 }
 
+unsigned short SmsPluginCbMsgHandler::encodeCbSerialNum ( SMS_CBMSG_SERIAL_NUM_S snFields )
+{
+	unsigned short serialNum = 0;
+
+	serialNum = ((snFields.geoScope & 0x03) << 14) | ((snFields.msgCode&0x03FF) << 4) | (snFields.updateNum&0x0F);
+	MSG_DEBUG ("serialNum (%x), geo(%x), mc(%x), un(%x)\n", serialNum, snFields.geoScope, snFields.msgCode, snFields.updateNum);
+
+	return serialNum;
+}
 
 bool SmsPluginCbMsgHandler::checkCbOpt(SMS_CBMSG_PAGE_S CbPage, bool *pJavaMsg)
 {
@@ -534,6 +671,47 @@ void SmsPluginCbMsgHandler::convertCbMsgToMsginfo(SMS_CBMSG_S cbMsg, MSG_MESSAGE
 }
 
 
+void SmsPluginCbMsgHandler::convertEtwsMsgToMsginfo(SMS_CBMSG_PAGE_S EtwsMsg, MSG_MESSAGE_INFO_S *pMsgInfo)
+{
+	pMsgInfo->msgId = (msg_message_id_t)EtwsMsg.pageHeader.msgId;
+
+	pMsgInfo->folderId = MSG_CBMSGBOX_ID;
+
+	// Convert Type values
+	pMsgInfo->msgType.mainType = MSG_SMS_TYPE;
+
+	if (EtwsMsg.cbMsgType == SMS_CBMSG_TYPE_ETWS)
+		pMsgInfo->msgType.subType = MSG_ETWS_SMS;
+
+	pMsgInfo->storageId = MSG_STORAGE_PHONE;
+	pMsgInfo->networkStatus = MSG_NETWORK_RECEIVED;
+	pMsgInfo->bRead = false;
+	pMsgInfo->bProtected = false;
+	pMsgInfo->priority = MSG_MESSAGE_PRIORITY_NORMAL;
+	pMsgInfo->direction = MSG_DIRECTION_TYPE_MT;
+
+	// Temporary
+	pMsgInfo->nAddressCnt = 1;
+
+	pMsgInfo->addressList[0].addressType = MSG_ADDRESS_TYPE_UNKNOWN;
+	pMsgInfo->addressList[0].recipientType = MSG_RECIPIENTS_TYPE_UNKNOWN;
+
+	getDisplayName(EtwsMsg.pageHeader.msgId, pMsgInfo->addressList[0].addressVal);
+	MSG_DEBUG("%s", pMsgInfo->addressList[0].addressVal);
+
+	pMsgInfo->msgPort.valid = false;
+	pMsgInfo->msgPort.dstPort = 0;
+	pMsgInfo->msgPort.srcPort = 0;
+
+	pMsgInfo->displayTime = EtwsMsg.pageHeader.recvTime;
+	MSG_DEBUG("recvTime is %s", ctime(&pMsgInfo->displayTime));
+	MSG_DEBUG("LENGTH %d", EtwsMsg.pageLength);
+	pMsgInfo->bTextSms = true;
+	pMsgInfo->dataSize = EtwsMsg.pageLength;
+	memset(pMsgInfo->msgData, 0x00, sizeof(pMsgInfo->msgData));
+	memcpy(pMsgInfo->msgData, EtwsMsg.pageData, pMsgInfo->dataSize);
+}
+
 void SmsPluginCbMsgHandler::addToPageLiat(SMS_CBMSG_PAGE_S CbPage)
 {
 	CB_PAGE_INFO_S tmpInfo;
@@ -727,10 +905,8 @@ void SmsPluginCbMsgHandler::getDisplayName(unsigned short	MsgId, char *pDisplayN
 {
 	int MsgIdCnt = MsgSettingGetInt(CB_CHANNEL_COUNT);
 
-	char keyName[128];
 	char from[128];
 	char to[128];
-	char strTmp[CB_CHANNEL_NAME_MAX+1];
 
 	for (int i = 0; i < MsgIdCnt; i++)
 	{
@@ -742,7 +918,6 @@ void SmsPluginCbMsgHandler::getDisplayName(unsigned short	MsgId, char *pDisplayN
 
 		if (MsgId >= MsgSettingGetInt(from) && MsgId <= MsgSettingGetInt(to))
 		{
-			char *channelName = NULL;
 			MSG_DEBUG("FIND MSG ID = [%d]", MsgId);
 #if 0
 			memset(keyName, 0x00, sizeof(keyName));

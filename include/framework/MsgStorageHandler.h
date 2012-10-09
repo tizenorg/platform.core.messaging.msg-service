@@ -129,5 +129,9 @@ msg_error_t MsgStoResetNetworkStatus();
 msg_error_t MsgStoCleanAbnormalMmsData();
 msg_error_t MsgStoCheckReadReportStatus(msg_message_id_t msgId);
 
+msg_error_t MsgStoAddPushEvent(MSG_PUSH_EVENT_INFO_S* pPushEvent);
+msg_error_t MsgStoDeletePushEvent(MSG_PUSH_EVENT_INFO_S* pPushEvent);
+msg_error_t MsgStoUpdatePushEvent(MSG_PUSH_EVENT_INFO_S* pSrc, MSG_PUSH_EVENT_INFO_S* pDst);
+
 #endif // MSG_STORAGE_HANDLER_H
 

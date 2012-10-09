@@ -41,6 +41,7 @@
 #define MAX_UD_HEADER_NUM			7
 #define MAX_SAT_TPDU_LEN			175
 #define MAX_CBMSG_PAGE_SIZE		93
+#define MAX_ETWS_SIZE			56
 #define MAX_CBMSG_PAGE_NUM		15
 #define MAX_SIM_SMS_NUM			90
 
@@ -168,8 +169,9 @@ typedef unsigned char SMS_SAT_CMD_TYPE_T;
 
 typedef unsigned short SMS_SIM_EFILE_NAME_T;
 
-
 typedef unsigned char SMS_LANGUAGE_ID_T;
+
+typedef unsigned char SMS_ETWS_NETWORK_TYPE_T;
 
 
 /*==================================================================================================
@@ -462,6 +464,7 @@ enum _SMS_CBMSG_TYPE_E
 	SMS_CBMSG_TYPE_SCHEDULE,		/**< Schedule */
 	SMS_CBMSG_TYPE_CBS41,			/**< CBS41 */
 	SMS_CBMSG_TYPE_JAVACBS,		/**< JAVA-CB Message*/
+	SMS_CBMSG_TYPE_ETWS,
 };
 
 
@@ -852,6 +855,14 @@ typedef struct _SMS_CBMSG_S
 	char							msgData[MAX_CBMSG_PAGE_SIZE*MAX_CBMSG_PAGE_NUM+1];		/**< user data */
 } SMS_CBMSG_S;
 
+typedef struct _SMS_ETWS_PRIMARY_S
+{
+	time_t						recvTime;
+	SMS_CBMSG_SERIAL_NUM_S		serialNum;
+	unsigned short				msgId;
+	unsigned short				warningType;
+	unsigned char				warningSecurityInfo[MAX_ETWS_SIZE-6];
+}SMS_ETWS_PRIMARY_S;
 
 typedef struct _SMS_LANG_INFO_S
 {

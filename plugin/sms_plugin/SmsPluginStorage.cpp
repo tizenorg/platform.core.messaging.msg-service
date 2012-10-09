@@ -256,8 +256,13 @@ msg_error_t SmsPluginStorage::addMessage(MSG_MESSAGE_INFO_S *pMsgInfo)
 		}
 
 	} else if ((pMsgInfo->msgType.subType == MSG_CB_SMS) || (pMsgInfo->msgType.subType == MSG_JAVACB_SMS)) {
-		MSG_DEBUG("Add CB Message");
-		err = addCbMessage(pMsgInfo);
+		/** check add message option */
+		bool bSave = false;
+		MsgSettingGetBool(CB_SAVE, &bSave);
+		if(bSave) {
+			MSG_DEBUG("Add CB Message");
+			err = addCbMessage(pMsgInfo);
+		}
 	} else if ((pMsgInfo->msgType.subType >= MSG_REPLACE_TYPE1_SMS) && (pMsgInfo->msgType.subType <= MSG_REPLACE_TYPE7_SMS)) {
 		MSG_DEBUG("Add Replace SM Type [%d]", pMsgInfo->msgType.subType-3);
 		err = addReplaceTypeMsg(pMsgInfo);
@@ -1038,6 +1043,113 @@ msg_error_t SmsPluginStorage::updateAllAddress()
 	}
 
 	dbHandle.freeTable();
+
+	return err;
+}
+
+
+msg_error_t SmsPluginStorage::getRegisteredPushEvent(char* pPushHeader, int *count, char *application_id)
+{
+	msg_error_t err = MSG_SUCCESS;
+
+	int rowCnt = 0, index = 3;
+
+	char sqlQuery[MAX_QUERY_LEN+1] = {0, };
+
+	memset(sqlQuery, 0x00, sizeof(sqlQuery));
+
+	snprintf(sqlQuery, sizeof(sqlQuery), "SELECT CONTENT_TYPE, APP_ID, APPCODE FROM %s", MSGFW_PUSH_CONFIG_TABLE_NAME);
+
+	err = dbHandle.getTable(sqlQuery, &rowCnt);
+	MSG_DEBUG("rowCnt: %d", rowCnt);
+
+	if (err == MSG_ERR_DB_NORECORD) {
+		dbHandle.freeTable();
+		return MSG_SUCCESS;
+	}
+	else if ( err != MSG_SUCCESS) {
+		dbHandle.freeTable();
+		return err;
+	}
+
+	char content_type[MAX_WAPPUSH_CONTENT_TYPE_LEN + 1];
+	char app_id[MAX_WAPPUSH_ID_LEN + 1];
+	int appcode = 0, default_appcode = 0;
+	bool found = false;
+	char *_content_type = NULL, *_app_id = NULL;
+	*count = 0;
+
+
+	for (int i = 0; i < rowCnt; i++) {
+		memset(content_type, 0, MAX_WAPPUSH_CONTENT_TYPE_LEN);
+		memset(app_id, 0, MAX_WAPPUSH_ID_LEN);
+
+		dbHandle.getColumnToString(index++, MAX_WAPPUSH_CONTENT_TYPE_LEN + 1, content_type);
+		dbHandle.getColumnToString(index++, MAX_WAPPUSH_ID_LEN + 1, app_id);
+		appcode = dbHandle.getColumnToInt(index++);
+
+		//MSG_DEBUG("content_type: %s, app_id: %s", content_type, app_id);
+		_content_type = strcasestr(pPushHeader, content_type);
+		if(_content_type) {
+			_app_id = strcasestr(pPushHeader, app_id);
+			if(appcode)
+				default_appcode = appcode;
+
+			if(_app_id) {
+				PUSH_APPLICATION_INFO_S pInfo = {0, };
+				pInfo.appcode = appcode;
+				MSG_DEBUG("appcode: %d, app_id: %s", pInfo.appcode, app_id);
+				strcpy(application_id, app_id);
+				pushAppInfoList.push_back(pInfo);
+				(*count)++;
+				found = true;
+			}
+		}
+	}
+
+	if(!found)
+	{
+		// perform default action.
+		PUSH_APPLICATION_INFO_S pInfo = {0, };
+		pInfo.appcode = default_appcode;
+		strcpy(application_id, app_id);
+		pushAppInfoList.push_back(pInfo);
+		*count = 1;
+	}
+	dbHandle.freeTable();
+
+	return err;
+}
+
+
+msg_error_t SmsPluginStorage::getnthPushEvent(int index, int *appcode)
+{
+	msg_error_t err = MSG_SUCCESS;
+	if(index > pushAppInfoList.size() - 1)
+		return MSG_ERR_INVALID_PARAMETER;
+
+	std::list<PUSH_APPLICATION_INFO_S>::iterator it = pushAppInfoList.begin();
+	int count = 0;
+	for (; it != pushAppInfoList.end(); it++)
+	{
+		if(index == count){
+			*appcode = it->appcode;
+			break;
+		}
+		count++;
+	}
+
+	return err;
+}
+
+
+msg_error_t SmsPluginStorage::releasePushEvent()
+{
+	msg_error_t err = MSG_SUCCESS;
+	std::list<PUSH_APPLICATION_INFO_S>::iterator it = pushAppInfoList.begin();
+
+	for (; it != pushAppInfoList.end(); it++)
+		it = pushAppInfoList.erase(it);
 
 	return err;
 }

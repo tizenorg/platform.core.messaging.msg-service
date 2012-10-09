@@ -196,6 +196,29 @@ void TapiEventCbMsgIncoming(TapiHandle *handle, const char *noti_id, void *data,
 }
 
 
+void TapiEventEtwsMsgIncoming(TapiHandle *handle, const char *noti_id, void *data, void *user_data)
+{
+	MSG_DEBUG("TapiEventEtwsMsgIncoming is called. noti_id [%s]", noti_id);
+
+	if (data == NULL) {
+		MSG_DEBUG("Error. evt->pData is NULL.");
+		return;
+	}
+
+	TelSmsEtwsMsg_t *pEtwsMsg = (TelSmsEtwsMsg_t*)data;
+
+	try
+	{
+		SmsPluginCbMsgHandler::instance()->handleEtwsMsg(pEtwsMsg);
+	}
+	catch (MsgException& e)
+	{
+		MSG_FATAL("%s", e.what());
+		return;
+	}
+}
+
+
 void TapiEventDeliveryReportCNF(TapiHandle *handle, int result, void *data, void *user_data)
 {
 	MSG_DEBUG("TapiEventDeliveryReportCNF is called. : result = [%d]", result);
@@ -755,6 +778,7 @@ void SmsPluginCallback::registerEvent()
 
 	tel_register_noti_event(pTapiHandle, TAPI_NOTI_SMS_INCOM_MSG, TapiEventMsgIncoming, NULL);
 	tel_register_noti_event(pTapiHandle, TAPI_NOTI_SMS_CB_INCOM_MSG, TapiEventCbMsgIncoming, NULL);
+	tel_register_noti_event(pTapiHandle, TAPI_NOTI_SMS_ETWS_INCOM_MSG, TapiEventEtwsMsgIncoming, NULL);
 //	tel_register_noti_event(pTapiHandle, TAPI_NOTI_SAT_REFRESH, TapiEventSatSmsRefresh, NULL);
 	tel_register_noti_event(pTapiHandle, TAPI_NOTI_SAT_SEND_SMS, TapiEventSatSendSms, NULL);
 //	tel_register_noti_event(pTapiHandle, TAPI_NOTI_SAT_MO_SMS_CTRL, TapiEventSatMoSmsCtrl, NULL);
