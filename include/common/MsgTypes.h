@@ -300,6 +300,14 @@ typedef struct
 }MSG_LBS_MESSAGE_DATA_S;
 
 
+typedef struct
+{
+	char							pushHeader[MAX_WAPPUSH_CONTENTS_LEN];
+	int 							pushBodyLen;
+	char							pushBody[MAX_WAPPUSH_CONTENTS_LEN];
+	char							pushAppId[MAX_WAPPUSH_ID_LEN];
+}MSG_PUSH_MESSAGE_DATA_S;
+
 /**
  *	@brief	Represents the Report Status Data.
  */
@@ -311,6 +319,13 @@ typedef struct
 	time_t							readStatusTime;		/**< Indicates the display time related to the specific operation. */	//MAX_DISPLAY_TIME_LEN
 }MSG_REPORT_STATUS_INFO_S;
 
+typedef struct
+{
+	char contentType[MAX_WAPPUSH_CONTENT_TYPE_LEN];
+	char appId[MAX_WAPPUSH_ID_LEN];
+	char pkgName[MSG_FILEPATH_LEN_MAX];
+	bool bLaunch;
+}MSG_PUSH_EVENT_INFO_S;
 
 /**
  *	@}

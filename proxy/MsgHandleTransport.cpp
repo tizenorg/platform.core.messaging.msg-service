@@ -507,6 +507,116 @@ msg_error_t MsgHandle::regSyncMLMessageOperationCallback(msg_syncml_msg_operatio
 	return pEvent->result;
 }
 
+msg_error_t MsgHandle::regPushMessageCallback(msg_push_msg_incoming_cb onPushMsgIncoming, const char *pAppId, void *pUserParam)
+{
+	if( (!onPushMsgIncoming) )
+		THROW(MsgException::INVALID_PARAM, "Param %p", onPushMsgIncoming);
+
+	MsgProxyListener* eventListener = MsgProxyListener::instance();
+
+	eventListener->start();
+
+	if (eventListener->regPushMessageIncomingEventCB(this, onPushMsgIncoming, pAppId, pUserParam) == false) // callback was already registered, just return SUCCESS
+		return MSG_SUCCESS;
+
+	// Allocate Memory to Command Data
+	int cmdSize = sizeof(MSG_CMD_S) + sizeof(MSG_CMD_REG_INCOMING_PUSH_MSG_CB_S);
+
+	char cmdBuf[cmdSize];
+	bzero(cmdBuf, cmdSize);
+
+	MSG_CMD_S* pCmd = (MSG_CMD_S*) cmdBuf;
+
+	// Set Command Parameters
+	pCmd->cmdType = MSG_CMD_REG_INCOMING_PUSH_MSG_CB;
+
+	// Copy Cookie
+	memcpy(pCmd->cmdCookie, mCookie, MAX_COOKIE_LEN);
+
+	MSG_CMD_REG_INCOMING_PUSH_MSG_CB_S cmdParam = {0};
+
+	cmdParam.listenerFd = eventListener->getRemoteFd(); // fd that is reserved to the "listener thread" by msgfw daemon
+	cmdParam.msgType = MSG_SMS_TYPE;
+
+	if (pAppId)
+		strncpy(cmdParam.appId, pAppId, MAX_WAPPUSH_ID_LEN);
+
+	memcpy((void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN), &cmdParam, sizeof(cmdParam));
+
+	MSG_DEBUG("reg new msg [%s], fd:%d, appId:%s", MsgDbgCmdStr(pCmd->cmdType), cmdParam.listenerFd,  (pAppId)? cmdParam.appId:"NULL" );
+
+	// Send Command to Messaging FW
+	char* pEventData = NULL;
+	AutoPtr<char> eventBuf(&pEventData);
+
+
+	write((char*)pCmd, cmdSize, &pEventData);
+
+	// Get Return Data
+	MSG_EVENT_S* pEvent = (MSG_EVENT_S*)pEventData;
+
+	if (pEvent->eventType != MSG_EVENT_REG_INCOMING_PUSH_MSG_CB)
+	{
+		THROW(MsgException::INVALID_RESULT, "Event Data Error");
+	}
+
+	return pEvent->result;
+}
+
+msg_error_t MsgHandle::regCBMessageCallback(msg_cb_incoming_cb onCBIncoming, bool bSave, void *pUserParam)
+{
+	if( (!onCBIncoming) )
+		THROW(MsgException::INVALID_PARAM, "Param %p", onCBIncoming);
+
+	MsgProxyListener* eventListener = MsgProxyListener::instance();
+
+	eventListener->start();
+
+	if (eventListener->regCBMessageIncomingEventCB(this, onCBIncoming, bSave, pUserParam) == false) // callback was already registered, just return SUCCESS
+		return MSG_SUCCESS;
+
+	// Allocate Memory to Command Data
+	int cmdSize = sizeof(MSG_CMD_S) + sizeof(MSG_CMD_REG_INCOMING_CB_MSG_CB_S); //sizeof(int) + sizeof; // cmd type, listener fd
+
+	char cmdBuf[cmdSize];
+	bzero(cmdBuf, cmdSize);
+
+	MSG_CMD_S* pCmd = (MSG_CMD_S*) cmdBuf;
+
+	// Set Command Parameters
+	pCmd->cmdType = MSG_CMD_REG_INCOMING_CB_MSG_CB;
+
+	// Copy Cookie
+	memcpy(pCmd->cmdCookie, mCookie, MAX_COOKIE_LEN);
+
+	MSG_CMD_REG_CB_INCOMING_MSG_CB_S cmdParam = {0};
+
+	cmdParam.listenerFd = eventListener->getRemoteFd(); // fd that is reserved to the "listener thread" by msgfw daemon
+	cmdParam.msgType = MSG_SMS_TYPE;
+	cmdParam.bsave = bSave;
+
+	memcpy((void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN), &cmdParam, sizeof(cmdParam));
+
+	MSG_DEBUG("reg new msg [%s], fd %d", MsgDbgCmdStr(pCmd->cmdType), cmdParam.listenerFd);
+
+	// Send Command to Messaging FW
+	char* pEventData = NULL;
+	AutoPtr<char> eventBuf(&pEventData);
+
+
+	write((char*)pCmd, cmdSize, &pEventData);
+
+	// Get Return Data
+	MSG_EVENT_S* pEvent = (MSG_EVENT_S*)pEventData;
+
+	if (pEvent->eventType != MSG_EVENT_REG_INCOMING_CB_MSG_CB)
+	{
+		THROW(MsgException::INVALID_RESULT, "Event Data Error");
+	}
+
+	return pEvent->result;
+}
+
 
 msg_error_t MsgHandle::operateSyncMLMessage(msg_message_id_t msgId)
 {

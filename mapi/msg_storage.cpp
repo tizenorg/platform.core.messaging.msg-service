@@ -2278,7 +2278,173 @@ int msg_sms_sendopt_set_bool(void *option, int field, bool value)
 		pOpt->bReplyPath = value;
 		break;
     default:
-		err = MSG_ERR_UNKNOWN;
+    	err = MSG_ERR_UNKNOWN;
+		break;
+    }
+	return err;
+}
+
+EXPORT_API int msg_add_push_event(msg_handle_t handle, const msg_struct_t push_event)
+{
+	msg_error_t err =  MSG_SUCCESS;
+
+	if (handle == NULL || push_event == NULL)
+	{
+		return -EINVAL;
+	}
+
+	MsgHandle* pHandle = (MsgHandle*)handle;
+
+	msg_struct_s *pPush = (msg_struct_s *)push_event;
+
+	try
+	{
+		err = pHandle->addPushEvent((MSG_PUSH_EVENT_INFO_S *)pPush->data);
+	}
+	catch (MsgException& e)
+	{
+		MSG_FATAL("%s", e.what());
+		return MSG_ERR_STORAGE_ERROR;
+	}
+
+	return err;
+}
+
+EXPORT_API int msg_delete_push_event(msg_handle_t handle, const msg_struct_t push_event)
+{
+	msg_error_t err =  MSG_SUCCESS;
+
+	if (handle == NULL || push_event == NULL)
+	{
+		return -EINVAL;
+	}
+
+	MsgHandle* pHandle = (MsgHandle*)handle;
+
+	msg_struct_s *pPush = (msg_struct_s *)push_event;
+
+	try
+	{
+		err = pHandle->deletePushEvent((MSG_PUSH_EVENT_INFO_S *)pPush->data);
+	}
+	catch (MsgException& e)
+	{
+		MSG_FATAL("%s", e.what());
+		return MSG_ERR_STORAGE_ERROR;
+	}
+
+	return err;
+}
+
+EXPORT_API int msg_update_push_event(msg_handle_t handle, const msg_struct_t src_event, const msg_struct_t dst_event)
+{
+	msg_error_t err =  MSG_SUCCESS;
+
+	if (handle == NULL || src_event == NULL || dst_event == NULL)
+	{
+		return -EINVAL;
+	}
+
+	MsgHandle* pHandle = (MsgHandle*)handle;
+
+	msg_struct_s *pSrc = (msg_struct_s *)src_event;
+	msg_struct_s *pDst = (msg_struct_s *)dst_event;
+
+	try
+	{
+		err = pHandle->updatePushEvent((MSG_PUSH_EVENT_INFO_S *)pSrc->data, (MSG_PUSH_EVENT_INFO_S *)pDst->data);
+	}
+	catch (MsgException& e)
+	{
+		MSG_FATAL("%s", e.what());
+		return MSG_ERR_STORAGE_ERROR;
+	}
+
+	return err;
+}
+
+char* msg_push_config_get_str(void *event_info, int field, int size)
+{
+	char *result = NULL;
+	MSG_PUSH_EVENT_INFO_S *pEvent = (MSG_PUSH_EVENT_INFO_S *)event_info;
+	switch(field)
+	{
+    case MSG_PUSH_CONFIG_CONTENT_TYPE_STR:
+		result = pEvent->contentType;
+		break;
+    case MSG_PUSH_CONFIG_APPLICATON_ID_STR:
+		result = pEvent->appId;
+		break;
+    case MSG_PUSH_CONFIG_PACKAGE_NAME_STR:
+		result = pEvent->pkgName;
+		break;
+
+	default:
+		result = NULL;
+		break;
+	}
+	return result;
+}
+
+bool msg_push_config_get_bool(void *event_info, int field)
+{
+	bool result = false;
+	MSG_PUSH_EVENT_INFO_S *pEvent = (MSG_PUSH_EVENT_INFO_S *)event_info;
+	switch(field)
+	{
+    case MSG_PUSH_CONFIG_LAUNCH_BOOL:
+    	result = pEvent->bLaunch;
+		break;
+	default:
+		break;
+	}
+	return result;
+}
+
+int msg_push_config_set_str(void *event_info, int field, char *value, int size)
+{
+	msg_error_t err =  MSG_SUCCESS;
+	if(!event_info || !value)
+		return MSG_ERR_NULL_POINTER;
+    MSG_PUSH_EVENT_INFO_S *pEvent = (MSG_PUSH_EVENT_INFO_S *)event_info;
+    int _len = 0;
+
+    switch(field)
+    {
+    case MSG_PUSH_CONFIG_CONTENT_TYPE_STR:
+        (size > MAX_WAPPUSH_CONTENT_TYPE_LEN)? _len = MAX_WAPPUSH_CONTENT_TYPE_LEN : _len = size;
+		strncpy(pEvent->contentType, value, _len);
+		break;
+    case MSG_PUSH_CONFIG_APPLICATON_ID_STR:
+        (size > MAX_WAPPUSH_ID_LEN)? _len = MAX_WAPPUSH_ID_LEN : _len = size;
+		strncpy(pEvent->appId, value, _len);
+		break;
+    case MSG_PUSH_CONFIG_PACKAGE_NAME_STR:
+        (size > MSG_FILEPATH_LEN_MAX)? _len = MSG_FILEPATH_LEN_MAX : _len = size;
+		strncpy(pEvent->pkgName, value, _len);
+		break;
+    default:
+    	err = MSG_ERR_UNKNOWN;
+		break;
+    }
+
+	return err;
+}
+
+int msg_push_config_set_bool(void *event, int field, bool value)
+{
+	msg_error_t err =  MSG_SUCCESS;
+	if(!event)
+		return MSG_ERR_NULL_POINTER;
+
+	MSG_PUSH_EVENT_INFO_S *pEvent = (MSG_PUSH_EVENT_INFO_S *)event;
+    switch(field)
+    {
+    case MSG_PUSH_CONFIG_LAUNCH_BOOL:
+    	pEvent->bLaunch = value;
+		break;
+    default:
+    	err = MSG_ERR_UNKNOWN;
 		break;
     }
 	return err;

@@ -27,6 +27,7 @@
 #include "SmsPluginTypes.h"
 #include "MsgInternalTypes.h"
 #include "MsgSqliteWrapper.h"
+#include <list>
 
 extern "C"
 {
@@ -53,6 +54,9 @@ public:
 
 	msg_error_t deleteSmsMessage(msg_message_id_t MsgId);
 
+	msg_error_t getRegisteredPushEvent(char* pPushHeader, int *count, char *app_id);
+	msg_error_t getnthPushEvent(int index, int *appcode);
+	msg_error_t releasePushEvent();
 private:
 	SmsPluginStorage();
 	~SmsPluginStorage();
@@ -71,7 +75,8 @@ private:
 	static SmsPluginStorage* pInstance;
 
 	MsgDbHandler dbHandle;
-
+	std::list<PUSH_APPLICATION_INFO_S> pushAppInfoList;
+//	unsigned char tmpMsgRef;
 };
 
 #endif //SMS_PLUGIN_STORAGE_H

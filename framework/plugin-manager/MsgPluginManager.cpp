@@ -223,6 +223,112 @@ msg_error_t MsgIncomingSyncMLMessageListener(MSG_SYNCML_MESSAGE_DATA_S *pSyncMLD
 	return (pEvent->result);
 }
 
+msg_error_t MsgIncomingPushMessageListener(MSG_PUSH_MESSAGE_DATA_S *pPushData)
+{
+	MSG_BEGIN();
+
+	// establish connection to msgfw daemon
+	MsgIpcClientSocket client;
+	client.connect(MSG_SOCKET_PATH);
+
+	// composing command
+	int cmdSize = sizeof(MSG_CMD_S) + sizeof(MSG_PUSH_MESSAGE_DATA_S); // cmd type, MSG_SYNCML_MESSAGE_DATA_S
+
+	MSG_DEBUG("cmdSize: %d", cmdSize);
+
+	char cmdBuf[cmdSize];
+	bzero(cmdBuf, cmdSize);
+	MSG_CMD_S* pCmd = (MSG_CMD_S*) cmdBuf;
+
+	// Set Command Parameters
+	pCmd->cmdType = MSG_CMD_PLG_INCOMING_PUSH_IND;
+
+	memset(pCmd->cmdCookie, 0x00, MAX_COOKIE_LEN);
+
+	memcpy((void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN), pPushData, sizeof(MSG_PUSH_MESSAGE_DATA_S));
+
+	// Send Command to Messaging FW
+	client.write(cmdBuf, cmdSize);
+
+	// Receive result from Transaction Manager
+	char* retBuf = NULL;
+	AutoPtr<char> wrap(&retBuf);
+	int retSize;
+	client.read(&retBuf, &retSize);
+
+	// close connection to msgfw daemon
+	client.close();
+
+	// Decoding the result from FW and Returning it to plugin
+	// the result is used for making delivery report
+	MSG_EVENT_S* pEvent = (MSG_EVENT_S*)retBuf;
+
+	if (pEvent->eventType != MSG_EVENT_PLG_INCOMING_PUSH_MSG_IND)
+		THROW(MsgException::INCOMING_MSG_ERROR, "Wrong result(evt type %d : %s) received", pEvent->eventType, MsgDbgEvtStr(pEvent->eventType));
+
+	MSG_END();
+
+	return (pEvent->result);
+}
+
+
+msg_error_t MsgIncomingCBMessageListener(MSG_CB_MSG_S *pCbMsg)
+{
+	MSG_BEGIN();
+
+	// establish connection to msgfw daemon
+	MsgIpcClientSocket client;
+	client.connect(MSG_SOCKET_PATH);
+
+	// Check Invalid Message Structure
+	if (pCbMsg == NULL)
+	{
+		MSG_DEBUG("pMsg is NULL !!");
+
+		return MSG_ERR_NULL_MESSAGE;
+	}
+
+	// composing command
+	int cmdSize = sizeof(MSG_CMD_S) + sizeof(MSG_CB_MSG_S); // cmd type, MSG_CB_MSG_S
+
+	MSG_DEBUG("cmdSize: %d", cmdSize);
+
+	char cmdBuf[cmdSize];
+	bzero(cmdBuf, cmdSize);
+
+	MSG_CMD_S* pCmd = (MSG_CMD_S*) cmdBuf;
+
+	// Set Command Parameters
+	pCmd->cmdType = MSG_CMD_PLG_INCOMING_CB_IND;
+
+	memset(pCmd->cmdCookie, 0x00, MAX_COOKIE_LEN);
+
+	memcpy((void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN), pCbMsg, sizeof(MSG_CB_MSG_S));
+
+	// Send Command to Messaging FW
+	client.write(cmdBuf, cmdSize);
+
+	char* retBuf = NULL;
+	AutoPtr<char> wrap(&retBuf);
+	int retSize;
+
+	client.read(&retBuf, &retSize);
+
+	// close connection to msgfw daemon
+	client.close();
+
+	// Decoding the result from FW and Returning it to plugin
+	// the result is used for making delivery report
+	MSG_EVENT_S* pEvent = (MSG_EVENT_S*)retBuf;
+
+	if (pEvent->eventType != MSG_EVENT_PLG_INCOMING_CB_MSG_IND)
+		THROW(MsgException::INCOMING_MSG_ERROR, "Wrong result(evt type %d : %s) received", pEvent->eventType, MsgDbgEvtStr(pEvent->eventType));
+
+	MSG_END();
+
+	return (pEvent->result);
+}
+
 
 msg_error_t MsgIncomingLBSMessageListener(MSG_LBS_MESSAGE_DATA_S *pLBSData)
 {
@@ -414,6 +520,8 @@ MsgPlugin::MsgPlugin(MSG_MAIN_TYPE_T mainType, const char *libPath): mSupportedM
 	fwListener.pfSyncMLMsgIncomingCb 	= &MsgIncomingSyncMLMessageListener;
 	fwListener.pfLBSMsgIncomingCb 		= &MsgIncomingLBSMessageListener;
 	fwListener.pfMmsConfIncomingCb = &MsgMmsConfIncomingListener;
+	fwListener.pfPushMsgIncomingCb 		= &MsgIncomingPushMessageListener;
+	fwListener.pfCBMsgIncomingCb 		= &MsgIncomingCBMessageListener;
 
 	if (registerListener(&fwListener) != MSG_SUCCESS)
 		THROW(MsgException::PLUGIN_ERROR, "ERROR to register listener");

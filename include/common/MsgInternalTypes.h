@@ -43,6 +43,8 @@
 #define MAX_THREAD_ADDR_LEN	40
 #define MAX_THREAD_NAME_LEN	195
 #define MAX_THREAD_DATA_LEN	128
+#define MAX_CB_MSG_TEXT_LEN	4200	// 1page max char(93)*max page(15)*max bytes of UTF8 1 char(3)
+#define MAX_ETWS_WARNING_SECURITY_INFO_LEN	50
 
 #define SMS_MINIMUM_SPACE	(3 * 1024)
 #define MMS_MINIMUM_SPACE	(600 * 1024)
@@ -131,7 +133,7 @@
 #define PUSH_SERVICE_TYPE				DEFAULT_PUSH_MSG_OPT_PATH"/service_load"
 
 #define CB_RECEIVE						DEFAULT_CB_MSG_OPT_PATH"/receive"
-#define CB_ALL_CHANNEL				DEFAULT_CB_MSG_OPT_PATH"/all_channel"
+#define CB_SAVE						DEFAULT_CB_MSG_OPT_PATH"/save"
 #define CB_MAX_SIM_COUNT			DEFAULT_CB_MSG_OPT_PATH"/max_sim_count"
 #define CB_CHANNEL_COUNT			DEFAULT_CB_MSG_OPT_PATH"/channel_count"
 #define CB_CHANNEL_ACTIVATE		DEFAULT_CB_MSG_OPT_PATH"/channel_activate"
@@ -323,6 +325,13 @@ typedef struct
 	unsigned short 		port;
 } MSG_CMD_REG_INCOMING_MSG_CB_S;
 
+typedef struct
+{
+	int 				listenerFd;
+	MSG_MAIN_TYPE_T 	msgType;
+	bool 				bsave;
+} MSG_CMD_REG_CB_INCOMING_MSG_CB_S;
+
 
 /**
  *	@brief	Aux data structure for MSG_CMD_REG_INCOMING_MMS_CONF_MSG_CB. \n
@@ -380,12 +389,44 @@ typedef struct
 	MSG_MAIN_TYPE_T 	msgType;
 } MSG_CMD_REG_SYNCML_MSG_OPERATION_CB_S;
 
+typedef struct
+{
+	int 				listenerFd;
+	MSG_MAIN_TYPE_T 	msgType;
+	char appId[MAX_WAPPUSH_ID_LEN+1];
+} MSG_CMD_REG_INCOMING_PUSH_MSG_CB_S;
+
+typedef struct
+{
+	int 				listenerFd;
+	MSG_MAIN_TYPE_T 	msgType;
+	bool				bsave;
+} MSG_CMD_REG_INCOMING_CB_MSG_CB_S;
+
 
 typedef struct
 {
 	int						alarm_id;
 	MSG_REQUEST_INFO_S		reqInfo;
 }MSG_SCHEDULED_MSG_S;
+
+/**
+ *	@brief	Represents a CB message in the framework.
+ */
+typedef struct
+{
+	MSG_SUB_TYPE_T			type;
+	time_t					receivedTime;
+
+	unsigned short			serialNum;
+	unsigned short			messageId;	// Message Identifier
+	unsigned char			dcs;		// data coding scheme
+	int						cbTextLen;	// length of cbText
+	unsigned char			cbText[MAX_CB_MSG_TEXT_LEN];// cb message text (UTF8)
+
+	unsigned short			etwsWarningType;
+	unsigned char			etwsWarningSecurityInfo[MAX_ETWS_WARNING_SECURITY_INFO_LEN];
+} MSG_CB_MSG_S;
 
 
 /*==================================================================================================
@@ -455,6 +496,8 @@ enum _MSG_SUB_TYPE_E
 	MSG_FORWARDCONF_MMS,			/**< MMS Forward Confirm message */
 	MSG_READREPLY_MMS,				/**< MMS Read Reply message */
 	MSG_SENDREQ_JAVA_MMS,  			/**< MMS Send Request message for JAVA MMS */
+
+	MSG_ETWS_SMS,
 };
 
 /**

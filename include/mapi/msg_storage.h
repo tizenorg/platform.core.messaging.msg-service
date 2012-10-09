@@ -2094,6 +2094,11 @@ int msg_get_thread(msg_handle_t handle, msg_thread_id_t thread_id, msg_struct_t 
 
 int msg_get_message_list(msg_handle_t handle, msg_folder_id_t folder_id, msg_thread_id_t thread_id, msg_message_type_t msg_type, msg_storage_id_t storage_id, msg_struct_list_s *msg_list);
 
+int msg_add_push_event(msg_handle_t handle, const msg_struct_t push_event);
+
+int msg_delete_push_event(msg_handle_t handle, const msg_struct_t push_event);
+
+int msg_update_push_event(msg_handle_t handle, const msg_struct_t src_event, const msg_struct_t dst_event);
 /**
  *	@}
  */

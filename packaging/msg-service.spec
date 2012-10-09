@@ -133,6 +133,7 @@ then
     CREATE TABLE MSG_SMS_SENDOPT_TABLE ( MSG_ID INTEGER , DELREP_REQ INTEGER NOT NULL , KEEP_COPY INTEGER NOT NULL , REPLY_PATH INTEGER NOT NULL , FOREIGN KEY(MSG_ID) REFERENCES MSG_MESSAGE_TABLE(MSG_ID) );
     CREATE TABLE MSG_FILTER_TABLE ( FILTER_ID INTEGER PRIMARY KEY , FILTER_TYPE INTEGER NOT NULL , FILTER_VALUE TEXT NOT NULL );
     CREATE TABLE MSG_MMS_MESSAGE_TABLE ( MSG_ID INTEGER , TRANSACTION_ID TEXT , MESSAGE_ID TEXT , FWD_MESSAGE_ID TEXT , CONTENTS_LOCATION TEXT , FILE_PATH TEXT , VERSION INTEGER NOT NULL , DATA_TYPE INTEGER DEFAULT -1 , DATE DATETIME , HIDE_ADDRESS INTEGER DEFAULT 0 , ASK_DELIVERY_REPORT INTEGER DEFAULT 0 , REPORT_ALLOWED INTEGER DEFAULT 0 , READ_REPORT_ALLOWED_TYPE INTEGER DEFAULT 0 , ASK_READ_REPLY INTEGER DEFAULT 0 , READ INTEGER DEFAULT 0 , READ_REPORT_SEND_STATUS INTEGER DEFAULT 0 , READ_REPORT_SENT INTEGER DEFAULT 0 , PRIORITY INTEGER DEFAULT 0 , KEEP_COPY INTEGER DEFAULT 0 , MSG_SIZE INTEGER NOT NULL , MSG_CLASS INTEGER DEFAULT -1 , EXPIRY_TIME DATETIME , CUSTOM_DELIVERY_TIME INTEGER DEFAULT 0 , DELIVERY_TIME DATETIME , MSG_STATUS INTEGER DEFAULT -1 , FOREIGN KEY (MSG_ID) REFERENCES MSG_MESSAGE_TABLE (MSG_ID) );
+    CREATE TABLE MSG_PUSHCFG_TABLE ( PUSH_ID INTEGER , CONTENT_TYPE TEXT, APP_ID TEXT, PKG_NAME TEXT, LAUNCH INTEGER, APPCODE INTEGER, SECURE INTEGER);
 
     CREATE INDEX MSG_CONVERSATION_INDEX ON MSG_CONVERSATION_TABLE(CONV_ID);
     CREATE INDEX MSG_FOLDER_INDEX ON MSG_FOLDER_TABLE(FOLDER_ID);
@@ -145,7 +146,49 @@ then
     INSERT INTO MSG_FOLDER_TABLE VALUES (5, 'CBMSGBOX', 1);
     INSERT INTO MSG_FOLDER_TABLE VALUES (6, 'SPAMBOX', 4);
     INSERT INTO MSG_FOLDER_TABLE VALUES (7, 'SMS TEMPLATE', 5);
-    INSERT INTO MSG_FOLDER_TABLE VALUES (8, 'MMS TEMPLATE', 5);"
+    INSERT INTO MSG_FOLDER_TABLE VALUES (8, 'MMS TEMPLATE', 5);
+
+    INSERT INTO MSG_PUSHCFG_TABLE VALUES (1, 'text/vnd.wap.si', 'X-Wap-Application-Id: x-wap-application:wml.ua', '', 0, 1, 0);
+    INSERT INTO MSG_PUSHCFG_TABLE VALUES (2, 'application/vnd.wap.sic', 'X-Wap-Application-Id: x-wap-application:wml.ua', '', 0, 2, 0);
+    INSERT INTO MSG_PUSHCFG_TABLE VALUES (3, 'text/vnd.wap.sl', 'X-Wap-Application-Id: x-wap-application:wml.ua', '', 0, 3, 0);
+	INSERT INTO MSG_PUSHCFG_TABLE VALUES (4, 'application/vnd.wap.slc', 'X-Wap-Application-Id: x-wap-application:wml.ua', '', 0, 4, 0);
+    INSERT INTO MSG_PUSHCFG_TABLE VALUES (5, 'text/vnd.wap.co', 'X-Wap-Application-Id: x-wap-application:wml.ua', '', 0, 5, 0);
+
+    INSERT INTO MSG_PUSHCFG_TABLE VALUES (6, 'application/vnd.wap.coc', 'X-Wap-Application-Id: x-wap-application:wml.ua', '', 0, 6, 0);
+    INSERT INTO MSG_PUSHCFG_TABLE VALUES (7, 'application/vnd.wap.mms-message', 'X-Wap-Application-Id: x-wap-application:mms.ua', '', 0, 7, 0);
+    INSERT INTO MSG_PUSHCFG_TABLE VALUES (8, 'application/vnd.wap.sia', 'X-Wap-Application-Id: x-wap-application:push.sia', '', 0, 8, 0);
+    INSERT INTO MSG_PUSHCFG_TABLE VALUES (9, 'application/vnd.syncml.dm+wbxml', 'X-Wap-Application-Id: x-wap-application:push.syncml.dm', '', 0, 9, 0);
+    INSERT INTO MSG_PUSHCFG_TABLE VALUES (10, 'application/vnd.syncml.dm+xml', 'X-Wap-Application-Id: x-wap-application:push.syncml.dm', '', 0, 10, 0);
+
+    INSERT INTO MSG_PUSHCFG_TABLE VALUES (11, 'application/vnd.syncml.notification', 'X-Wap-Application-Id: x-wap-application:push.syncml.dm', '', 0, 11, 0);
+    INSERT INTO MSG_PUSHCFG_TABLE VALUES (12, 'application/vnd.syncml.ds.notification', 'X-Wap-Application-Id: x-wap-application:push.syncml.ds', '', 0, 12, 0);
+    INSERT INTO MSG_PUSHCFG_TABLE VALUES (13, 'application/vnd.syncml+wbxml', 'X-Wap-Application-Id:x-wap-application:push.syncml', '', 0, 13, 0);
+    INSERT INTO MSG_PUSHCFG_TABLE VALUES (14, 'application/vnd.wap.locc+wbxml', 'X-Wap-Application-Id: x-wap-application:loc.ua', '', 0, 14, 0);
+    INSERT INTO MSG_PUSHCFG_TABLE VALUES (15, 'application/vnd.wap.loc+xml', 'X-Wap-Application-Id: x-wap-application:loc.ua', '', 0, 15, 0);
+
+    INSERT INTO MSG_PUSHCFG_TABLE VALUES (16, 'application/vnd.oma.dd+xml', 'X-Wap-Application-Id: x-wap-application:loc.ua', '', 0, 16, 0);
+    INSERT INTO MSG_PUSHCFG_TABLE VALUES (17, 'application/vnd.oma.drm.message', 'X-Wap-Application-Id: x-wap-application:drm.ua', '', 0, 17, 0);
+    INSERT INTO MSG_PUSHCFG_TABLE VALUES (18, 'application/vnd.oma.drm.content', 'X-Wap-Application-Id: x-wap-application:drm.ua', '', 0, 18, 0);
+    INSERT INTO MSG_PUSHCFG_TABLE VALUES (19, 'application/vnd.oma.drm.rights+xml', 'X-Wap-Application-Id: x-wap-application:drm.ua', '', 0, 19, 0);
+    INSERT INTO MSG_PUSHCFG_TABLE VALUES (20, 'application/vnd.oma.drm.rights+wbxml', 'X-Wap-Application-Id: x-wap-application:drm.ua', '', 0, 20, 0);
+
+    INSERT INTO MSG_PUSHCFG_TABLE VALUES (21, 'application/vnd.oma.drm.ro+xml', 'X-Wap-Application-Id: x-wap-application:drm.ua', '', 0, 21, 0);
+    INSERT INTO MSG_PUSHCFG_TABLE VALUES (22, 'application/vnd.oma.drm.roap-pdu+xml', 'X-Wap-Application-Id: x-wap-application:drm.ua', '', 0, 22, 0);
+    INSERT INTO MSG_PUSHCFG_TABLE VALUES (23, 'application/vnd.oma.drm.roap-trigger+xml', 'X-Wap-Application-Id: x-wap-application:drm.ua', '', 0, 23, 0);
+    INSERT INTO MSG_PUSHCFG_TABLE VALUES (24, 'application/vnd.oma.drm.roap-trigger+wbxml', 'X-Wap-Application-Id: x-wap-application:drm.ua', '', 0, 24, 0);
+	INSERT INTO MSG_PUSHCFG_TABLE VALUES (25, 'text/vnd.wap.connectivity-xml', 'X-Wap-Application-Id: x-wap-application:drm.ua', '', 0, 26, 0);
+
+	INSERT INTO MSG_PUSHCFG_TABLE VALUES (26, 'application/vnd.wap.connectivity-wbxml', 'X-Wap-Application-Id: x-wap-samsung:provisioning.ua', '', 0, 27, 0);
+	INSERT INTO MSG_PUSHCFG_TABLE VALUES (27, 'application/x-wap-prov.browser-settings', 'X-Wap-Application-Id: x-wap-samsung:provisioning.ua', '', 0, 28, 0);
+	INSERT INTO MSG_PUSHCFG_TABLE VALUES (28, 'application/x-wap-prov.browser-bookmarks', 'X-Wap-Application-Id: x-wap-samsung:provisioning.ua', '', 0, 29, 0);
+	INSERT INTO MSG_PUSHCFG_TABLE VALUES (29, 'application/x-wap-prov.syncset+xml', 'X-Wap-Application-Id: x-wap-samsung:provisioning.ua', '', 0, 30, 0);
+	INSERT INTO MSG_PUSHCFG_TABLE VALUES (30, 'application/x-wap-prov.syncset+wbxml', 'X-Wap-Application-Id: x-wap-samsung:provisioning.ua', '', 0, 31, 0);
+
+	INSERT INTO MSG_PUSHCFG_TABLE VALUES (31, 'text/vnd.wap.emn+xml', 'X-Wap-Application-Id: x-wap-application:emn.ua', '', 0, 32, 0);
+	INSERT INTO MSG_PUSHCFG_TABLE VALUES (32, 'application/vnd.wap.emn+wbxml', 'X-Wap-Application-Id: x-wap-application:emn.ua', '', 0, 33, 0);
+	INSERT INTO MSG_PUSHCFG_TABLE VALUES (33, 'application/vnd.wv.csp.cir', 'X-Wap-Application-Id: x-wap-application:wv.ua', '', 0, 34, 0);
+	INSERT INTO MSG_PUSHCFG_TABLE VALUES (34, 'application/vnd.omaloc-supl-init', 'X-Wap-Application-Id: x-oma-application:ulp.ua', '', 0, 44, 0);
+	INSERT INTO MSG_PUSHCFG_TABLE VALUES (35, 'application/vnd.wap.emn+wbxml', 'X-oma-docomo:xmd.mail.ua', '', 0, 45, 1);"
 fi
 
 chown :6011 /opt/dbspace/.msg_service.db
@@ -254,6 +297,7 @@ vconftool set -t int db/private/msg-service/push_msg/service_load 1
 
 # CB Msg Options
 vconftool set -t bool db/private/msg-service/cb_msg/receive 1 -f
+vconftool set -t bool db/private/msg-service/cb_msg/save 1 -f
 vconftool set -t int db/private/msg-service/cb_msg/max_sim_count 0
 vconftool set -t int db/private/msg-service/cb_msg/channel_count 0
 vconftool set -t bool db/private/msg-service/cb_msg/language/0 1 -f

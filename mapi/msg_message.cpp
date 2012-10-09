@@ -151,6 +151,8 @@ int msg_message_get_int_value(void *data, int field, int *value)
 				*value = MSG_TYPE_SMS_SYNCML;
 			else if (msg_data->subType == MSG_REJECT_SMS)
 				*value = MSG_TYPE_SMS_REJECT;
+			else if (msg_data->subType == MSG_ETWS_SMS)
+				*value = MSG_TYPE_SMS_ETWS_PRIMARY;
 			else
 				*value = MSG_TYPE_SMS;
         }
@@ -260,8 +262,13 @@ int msg_message_get_str_value(void *data, int field, char *value, int size)
 		break;
 	case MSG_MESSAGE_SMS_DATA_STR :
 	case MSG_MESSAGE_MMS_TEXT_STR :
-		if (msg_data->pData != NULL)
-			strncpy(value, (char *)msg_data->pData, size);
+		if (msg_data->pData)
+		{
+			int data_len = 0;
+			(size >= msg_data->dataSize)? (data_len = msg_data->dataSize) : data_len = size;
+			memset(value, 0, size);
+			memcpy(value, msg_data->pData, data_len);
+		}
 		break;
 	default :
 		ret = MSG_ERR_INVALID_PARAMETER;
@@ -442,16 +449,13 @@ int msg_message_set_str_value(void *data, int field, char *value, int size)
 		break;
 	case MSG_MESSAGE_SMS_DATA_STR :
 	{
-		 if (msg_data->pData)
-                        delete [] static_cast<char*>(msg_data->pData);
+		if (msg_data->pData)
+			delete [] static_cast<char*>(msg_data->pData);
 
-                msg_data->dataSize = size;
-
-                msg_data->pData = (void*)new char[msg_data->dataSize+1];
-
-                memcpy((char *)msg_data->pData, value, msg_data->dataSize);
-
-                ((char*) msg_data->pData)[msg_data->dataSize] = '\0';
+		msg_data->dataSize = size;
+		msg_data->pData = (void*)new char[msg_data->dataSize+1];
+		memcpy((char *)msg_data->pData, value, msg_data->dataSize);
+		((char*) msg_data->pData)[msg_data->dataSize] = '\0';
 	}
 		break;
 	default :
@@ -512,6 +516,7 @@ void msg_message_copy_message(MSG_MESSAGE_HIDDEN_S *pSrc, MSG_MESSAGE_HIDDEN_S *
 		{
 			int data_len = strlen((const char *)pSrc->pData);
 			pDst->pData = new char[data_len + 1];
+			memset(pDst->pData, 0x00, data_len + 1);
 			strncpy((char *)pDst->pData, (const char *)pSrc->pData, data_len);
 		}
 	}
@@ -526,6 +531,91 @@ void msg_message_copy_message(MSG_MESSAGE_HIDDEN_S *pSrc, MSG_MESSAGE_HIDDEN_S *
 		memcpy(dst_addr->data, src_addr->data, sizeof(MSG_ADDRESS_INFO_S));
 	}
 }
+
+int msg_cb_message_get_int_value(void *data, int field, int *value)
+{
+	if (!data)
+		return MSG_ERR_NULL_POINTER;
+
+	int ret = MSG_SUCCESS;
+
+	MSG_CB_MSG_S *cb_msg = (MSG_CB_MSG_S *)data;
+
+	*value = 0;
+
+	switch (field)
+	{
+		case MSG_CB_MSG_TYPE_INT :
+			{
+				if ( cb_msg->type == MSG_ETWS_SMS )
+					*value = MSG_TYPE_SMS_ETWS_PRIMARY;
+				else if ( cb_msg->type == MSG_CB_SMS )
+					*value = ((cb_msg->messageId & 0xFFF8) == 0x1100 ) ? MSG_TYPE_SMS_ETWS_SECONDARY : MSG_TYPE_SMS_CB;
+				else
+					ret = MSG_ERR_UNKNOWN;
+			}
+			break;
+		case MSG_CB_MSG_RECV_TIME_INT :
+			*value = cb_msg->receivedTime;
+			break;
+		case MSG_CB_MSG_SERIAL_NUM_INT :
+			*value = cb_msg->serialNum;
+			break;
+		case MSG_CB_MSG_MSG_ID_INT :
+			*value = cb_msg->messageId;
+			break;
+		case MSG_CB_MSG_DCS_INT :
+			*value = (int)cb_msg->dcs;
+			break;
+		case MSG_CB_MSG_CB_TEXT_LEN_INT :
+			*value = cb_msg->cbTextLen;
+			break;
+		case MSG_CB_MSG_ETWS_WARNING_TYPE_INT :
+			*value = cb_msg->etwsWarningType;
+		default :
+			ret = MSG_ERR_INVALID_PARAMETER;
+			break;
+	}
+
+	return ret;
+}
+
+int msg_cb_message_get_str_value(void *data, int field, char *value, int size)
+{
+	if (!data || !value)
+		return MSG_ERR_NULL_POINTER;
+
+	int ret = MSG_SUCCESS;
+
+	MSG_CB_MSG_S *cb_msg = (MSG_CB_MSG_S *)data;
+
+	switch (field) {
+		case MSG_CB_MSG_CB_TEXT_STR:
+			{
+				int	copylen = 0;
+				copylen = (size > cb_msg->cbTextLen) ? cb_msg->cbTextLen : size - 1;
+				memcpy (value, cb_msg->cbText, copylen);
+				value[copylen] = '\0';
+			}
+			break;
+		case MSG_CB_MSG_ETWS_WARNING_SECU_INFO_STR:
+			{
+				if (size < sizeof(cb_msg->etwsWarningSecurityInfo))
+					ret = MSG_ERR_INVALID_PARAMETER;
+				else
+					memcpy (value, cb_msg->etwsWarningSecurityInfo, sizeof(cb_msg->etwsWarningSecurityInfo));
+			}
+			break;
+
+		default :
+			ret = MSG_ERR_INVALID_PARAMETER;
+			break;
+	}
+
+	return ret;
+}
+
+
 
 EXPORT_API int msg_get_mms_struct(msg_struct_t msg_struct_handle, msg_struct_t mms_struct_handle)
 {

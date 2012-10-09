@@ -211,6 +211,59 @@ EXPORT_API int msg_reg_syncml_message_operation_callback(msg_handle_t handle,  m
 }
 
 
+EXPORT_API int msg_reg_push_message_callback(msg_handle_t handle,  msg_push_msg_incoming_cb cb, const char *app_id, void *user_param)
+{
+	msg_error_t err =  MSG_SUCCESS;
+
+	if (handle == NULL || cb == NULL)
+	{
+		return -EINVAL;
+	}
+
+	if (app_id && strlen(app_id) > MAX_WAPPUSH_ID_LEN)
+	{
+		return -EINVAL;
+	}
+
+	MsgHandle* pHandle = (MsgHandle*)handle;
+
+	try
+	{
+		err = pHandle->regPushMessageCallback(cb, app_id, user_param);
+	}
+	catch (MsgException& e)
+	{
+		MSG_FATAL("%s", e.what());
+		return MSG_ERR_CALLBACK_ERROR;
+	}
+
+	return err;
+}
+
+EXPORT_API int msg_reg_cb_message_callback(msg_handle_t handle, msg_cb_incoming_cb  cb, bool bsave, void *user_param)
+{
+	msg_error_t err =  MSG_SUCCESS;
+
+	if (handle == NULL || cb == NULL)
+	{
+		return -EINVAL;
+	}
+
+	MsgHandle* pHandle = (MsgHandle*)handle;
+
+	try
+	{
+		err = pHandle->regCBMessageCallback(cb, bsave, user_param);
+	}
+	catch (MsgException& e)
+	{
+		MSG_FATAL("%s", e.what());
+		return MSG_ERR_CALLBACK_ERROR;
+	}
+
+	return err;
+}
+
 EXPORT_API int msg_syncml_message_operation(msg_handle_t handle,  msg_message_id_t msgId)
 {
 	msg_error_t err =  MSG_SUCCESS;

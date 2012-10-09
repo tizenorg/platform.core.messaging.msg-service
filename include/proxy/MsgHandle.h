@@ -55,7 +55,8 @@ class MsgHandle
 		msg_error_t regMmsConfMessageCallback(msg_mms_conf_msg_incoming_cb onMMSConfMsgIncoming, const char *pAppId, void *pUserParam);
 		msg_error_t regSyncMLMessageCallback(msg_syncml_msg_incoming_cb onSyncMLMsgIncoming, void *pUserParam);
 		msg_error_t regLBSMessageCallback(msg_lbs_msg_incoming_cb onLBSMsgIncoming, void *pUserParam);
-
+		msg_error_t regPushMessageCallback(msg_push_msg_incoming_cb onPushMsgIncoming, const char *pAppId, void *pUserParam);
+		msg_error_t regCBMessageCallback(msg_cb_incoming_cb onCBIncoming, bool bSave, void *pUserParam);
 		msg_error_t regSyncMLMessageOperationCallback(msg_syncml_msg_operation_cb onSyncMLMsgOperation, void *pUserParam);
 
 		msg_error_t operateSyncMLMessage(msg_message_id_t msgId);
@@ -130,6 +131,10 @@ class MsgHandle
 		msg_error_t getThreadIdByAddress(msg_struct_list_s *pAddrList, msg_thread_id_t *pThreadId);
 		msg_error_t getThread(msg_thread_id_t threadId, MSG_THREAD_VIEW_S* pThreadInfo);
 		msg_error_t getMessageList(msg_folder_id_t folderId, msg_thread_id_t threadId, msg_message_type_t msgType, msg_storage_id_t storageId, msg_struct_list_s *pMsgList);
+		// Push Event
+		msg_error_t addPushEvent(MSG_PUSH_EVENT_INFO_S *push_event);
+		msg_error_t deletePushEvent(MSG_PUSH_EVENT_INFO_S *push_event);
+		msg_error_t updatePushEvent(MSG_PUSH_EVENT_INFO_S *pSrc, MSG_PUSH_EVENT_INFO_S *pDst);
 
 		void convertMsgStruct(const MSG_MESSAGE_INFO_S *pSource, MSG_MESSAGE_HIDDEN_S *pDest);
 		void convertSendOptStruct(const MSG_SENDINGOPT_INFO_S* pSrc, MSG_SENDINGOPT_S* pDest, MSG_MESSAGE_TYPE_S msgType);

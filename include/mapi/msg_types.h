@@ -40,9 +40,10 @@
 #define MAX_COMMAND_LEN		1024
 #define MAX_FOLDER_NAME_SIZE		20
 
-#define MAX_WAPPUSH_ID_LEN			40
-#define MAX_WAPPUSH_HREF_LEN		300
-#define MAX_WAPPUSH_CONTENTS_LEN	2048
+#define MAX_WAPPUSH_ID_LEN				100
+#define MAX_WAPPUSH_CONTENT_TYPE_LEN	40
+#define MAX_WAPPUSH_HREF_LEN			300
+#define MAX_WAPPUSH_CONTENTS_LEN		2048
 
 #define MAX_PUSH_CACHEOP_INVALID_OBJECT_MAX	5
 #define MAX_PUSH_CACHEOP_INVALID_SERVICE_MAX	5
@@ -358,6 +359,8 @@ enum _MSG_STRUCT_E {
 	MSG_STRUCT_REJECT_MSG_INFO = 0x4400,			/**< Indicates the MSG_STRUCT_REJECT_MSG_INFO */
 	MSG_STRUCT_REQUEST_INFO = 0x4500,				/**< Indicates the MSG_STRUCT_REQUEST_INFO */
 	MSG_STRUCT_SENT_STATUS_INFO = 0x4600,				/**< Indicates the MSG_STRUCT_SENT_STATUS_INFO */
+	MSG_STRUCT_PUSH_CONFIG_INFO = 0x4700,				/**< Indicates the MSG_STRUCT_PUSH_CONFIG_INFO */
+	MSG_STRUCT_CB_MSG = 0x4800,						/**< Indicates the MSG_STRUCT_PUSH_CONFIG_INFO */
 };
 
 enum _MSG_MESSAGE_INFO_E_ {
@@ -422,7 +425,6 @@ enum _MSG_STRUCT_SETTING_SMSC_INFO_E {
 
 enum _MSG_STRUCT_CB_OPT_E {
 	MSG_CB_RECEIVE_BOOL = MSG_STRUCT_SETTING_CB_OPT+1,		/**< Indicates whether the CB message is received or not. */
-	MSG_CB_RECEIVE_ALL_CHANNEL_BOOL,			/**< Indicates whether All Channel's CB message is received or not. */
 	MSG_CB_MAX_SIM_COUNT_INT,				/**< Indicates the number of channels which can be stored in SIM. */
 	MSG_CB_CHANNEL_LIST_STRUCT,				/**< Indicates the cell broadcasting channel information. */
 	MSG_CB_LANGUAGE_TYPE_ALL_BOOL,
@@ -696,6 +698,24 @@ enum MSG_SENT_STATUS_INFO_E {
 	MSG_SENT_STATUS_NETWORK_STATUS_INT,				/**< Indicates the status of the corresponding request. Refer to enum _MSG_NETWORK_STATUS_E*/
 };
 
+enum MSG_PUSH_CONFIG_INFO_E {
+	MSG_PUSH_CONFIG_CONTENT_TYPE_STR = MSG_STRUCT_PUSH_CONFIG_INFO+1,
+	MSG_PUSH_CONFIG_APPLICATON_ID_STR,
+	MSG_PUSH_CONFIG_PACKAGE_NAME_STR,
+	MSG_PUSH_CONFIG_LAUNCH_BOOL,
+};
+
+enum MSG_CB_MSG_E {
+	MSG_CB_MSG_TYPE_INT	= MSG_STRUCT_CB_MSG+1,		/**<  MSG_TYPE_SMS_CB/ETWS_PRIMARY/ETWS_SECONDARY (see _MSG_MESSAGE_TYPE_E) */
+	MSG_CB_MSG_RECV_TIME_INT,
+	MSG_CB_MSG_SERIAL_NUM_INT,						/**< serial number of CB/ETWS Primary Noti. : 2 bytes binary data */
+	MSG_CB_MSG_MSG_ID_INT,							/**< message identifier of CB/ETWS Primary Noti. */
+	MSG_CB_MSG_DCS_INT,								/**< Data coding scheme of CB MSG. */
+	MSG_CB_MSG_CB_TEXT_LEN_INT,						/**< length of CB text (except NULL) */
+	MSG_CB_MSG_CB_TEXT_STR,							/**< CB text */
+	MSG_CB_MSG_ETWS_WARNING_TYPE_INT,				/**< warning type of ETWS Primary Noti. : 2 bytes binary data */
+	MSG_CB_MSG_ETWS_WARNING_SECU_INFO_STR,			/**< warning security information of ETWS Primary Noti. : 50 bytes binary data */
+};
 
 /**
  *	@brief	Represents the values of a message class type. \n
@@ -728,6 +748,9 @@ enum _MSG_CLASS_TYPE_E
 	MSG_TYPE_MMS, 					/** < Normal MMS Message */
 	MSG_TYPE_MMS_JAVA, 			/** < JAVA MMS Message */
 	MSG_TYPE_MMS_NOTI, 			/** < MMS Notification Message */
+
+	MSG_TYPE_SMS_ETWS_PRIMARY,		/** < CB - ETWS Primary Notification */
+	MSG_TYPE_SMS_ETWS_SECONDARY,	/** < CB - ETWS Secondary Notification */
 };
 
 
