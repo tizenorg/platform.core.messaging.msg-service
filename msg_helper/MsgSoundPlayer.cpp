@@ -24,7 +24,7 @@
 #include "MsgHelper.h"
 
 #include <devman_managed.h>
-#include <svi.h>
+//#include <svi.h>
 
 #include <mm_error.h>
 #include <mm_player.h>
@@ -386,7 +386,7 @@ int MsgSoundPlayMelody(char *pMsgToneFilePath, bool bIncreasing)
 void MsgSoundPlayVibration()
 {
 	MSG_BEGIN();
-
+/*
 	int ret = 0;
 	int vibLevel = 0;
 	char ivtFilePath[MAX_SOUND_FILE_LEN] = {0,};
@@ -400,7 +400,7 @@ void MsgSoundPlayVibration()
 
 		g_timeout_add(MSG_VIBRATION_INTERVAL , MsgSoundVibTimeout, NULL);
 
-		/* set timer to stop vibration, then play melody */
+		// set timer to stop vibration, then play melody
 		svi_get_path(SVI_TYPE_VIB, SVI_VIB_NOTIFICATION_MESSAGE, ivtFilePath, sizeof(ivtFilePath));
 		ret = device_haptic_play_file(dev_handle, ivtFilePath, HAPTIC_TEST_ITERATION, vibLevel);
 
@@ -408,7 +408,7 @@ void MsgSoundPlayVibration()
 			MSG_DEBUG("Fail to play haptic : [%d]", ret);
 		}
 	}
-
+*/
 	MSG_END();
 }
 
