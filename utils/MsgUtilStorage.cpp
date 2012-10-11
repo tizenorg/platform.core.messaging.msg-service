@@ -375,7 +375,7 @@ msg_error_t MsgStoAddAddress(MsgDbHandler *pDbHandle, const MSG_MESSAGE_INFO_S *
 
 		// Add Address
 		memset(sqlQuery, 0x00, sizeof(sqlQuery));
-		snprintf(sqlQuery, sizeof(sqlQuery), "INSERT INTO %s VALUES (%d, %d, %d, %d, '%s', %d, ?, ?, ?, '%s', 0);",
+		snprintf(sqlQuery, sizeof(sqlQuery), "INSERT INTO %s VALUES (%d, %d, %d, %d, '%s', %d, '', ?, ?, '%s', 0);",
 					MSGFW_ADDRESS_TABLE_NAME, addrId, *pConvId, pMsg->addressList[i].addressType, pMsg->addressList[i].recipientType, pMsg->addressList[i].addressVal,
 					contactInfo.contactId, contactInfo.imagePath);
 
@@ -384,9 +384,8 @@ msg_error_t MsgStoAddAddress(MsgDbHandler *pDbHandle, const MSG_MESSAGE_INFO_S *
 		if (pDbHandle->prepareQuery(sqlQuery) != MSG_SUCCESS)
 			return MSG_ERR_DB_PREPARE;
 
-		pDbHandle->bindText(contactInfo.displayName, 1);
-		pDbHandle->bindText(contactInfo.firstName, 2);
-		pDbHandle->bindText(contactInfo.lastName, 3);
+		pDbHandle->bindText(contactInfo.firstName, 1);
+		pDbHandle->bindText(contactInfo.lastName, 2);
 
 		if (pDbHandle->stepQuery() != MSG_ERR_DB_DONE) {
 			pDbHandle->finalizeQuery();
@@ -1032,13 +1031,13 @@ msg_error_t MsgStoAddContactInfo(MsgDbHandler *pDbHandle, MSG_CONTACT_INFO_S *pC
 
 		memset(sqlQuery, 0x00, sizeof(sqlQuery));
 		snprintf(sqlQuery, sizeof(sqlQuery), "UPDATE %s SET \
-				CONTACT_ID = %d, DISPLAY_NAME = ?, FIRST_NAME = ?, LAST_NAME = ?, IMAGE_PATH = '%s' \
+				CONTACT_ID = %d, FIRST_NAME = ?, LAST_NAME = ?, IMAGE_PATH = '%s' \
 				WHERE ADDRESS_VAL LIKE '%%%%%s';",
 				MSGFW_ADDRESS_TABLE_NAME, pContactInfo->contactId, pContactInfo->imagePath, newPhoneNum);
 	} else {
 		memset(sqlQuery, 0x00, sizeof(sqlQuery));
 		snprintf(sqlQuery, sizeof(sqlQuery), "UPDATE %s SET \
-				CONTACT_ID = %d, DISPLAY_NAME = ?, FIRST_NAME = ?, LAST_NAME = ?, IMAGE_PATH = '%s' \
+				CONTACT_ID = %d, FIRST_NAME = ?, LAST_NAME = ?, IMAGE_PATH = '%s' \
 				WHERE ADDRESS_VAL = '%s';",
 				MSGFW_ADDRESS_TABLE_NAME, pContactInfo->contactId, pContactInfo->imagePath, pNumber);
 	}
@@ -1046,11 +1045,9 @@ msg_error_t MsgStoAddContactInfo(MsgDbHandler *pDbHandle, MSG_CONTACT_INFO_S *pC
 	if (pDbHandle->prepareQuery(sqlQuery) != MSG_SUCCESS)
 		return MSG_ERR_DB_PREPARE;
 
-	pDbHandle->bindText(pContactInfo->displayName, 1);
+	pDbHandle->bindText(pContactInfo->firstName, 1);
 
-	pDbHandle->bindText(pContactInfo->firstName, 2);
-
-	pDbHandle->bindText(pContactInfo->lastName, 3);
+	pDbHandle->bindText(pContactInfo->lastName, 2);
 
 	if (pDbHandle->stepQuery() != MSG_ERR_DB_DONE) {
 		pDbHandle->finalizeQuery();
