@@ -149,5 +149,11 @@ typedef struct
 } MSG_SEARCH_CONDITION_S;
 
 
+typedef struct
+{
+	int appcode;
+	char appid[MAX_WAPPUSH_ID_LEN];
+} PUSH_APPLICATION_INFO_S;
+
 #endif // MSG_STORAGE_TYPES_H
 
