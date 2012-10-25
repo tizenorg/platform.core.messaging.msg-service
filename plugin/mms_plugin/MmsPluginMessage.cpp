@@ -34,7 +34,7 @@
 #include "MmsPluginStorage.h"
 #include "MsgMmsMessage.h"
 #include "MsgGconfWrapper.h"
-
+#include "MmsPluginUtil.h"
 #include "MmsPluginSMILValidate.h"
 
 
@@ -304,7 +304,7 @@ bool MmsInsertPresentation(MmsMsg *pMsg, MsgContentType mimeType, char *pData, i
 	pMsg->msgBody.presentationType.param.charset = MSG_CHARSET_UTF8;
 	snprintf(pMsg->msgBody.presentationType.szContentID, MSG_MSG_ID_LEN + 1, "<_S_>");
 
-	snprintf(pMsg->msgType.param.szStart, MSG_MSG_ID_LEN + 1, pMsg->msgBody.presentationType.szContentID);
+	snprintf(pMsg->msgType.param.szStart, MSG_MSG_ID_LEN + 1, "%s", pMsg->msgBody.presentationType.szContentID);
 	pMsg->msgType.param.type = mimeType;
 
 	memset(pMsg->msgBody.pPresentationBody->body.pText, 0, size + 1);
@@ -495,220 +495,7 @@ bool MmsIsVitemContent (int type, char *pszName)
 	return false;
 }
 
-bool _MsgIsASCII(char *pszText)
-{
-	int length = strlen(pszText);
 
-	for (int i = 0; i < length; ++i) {
-		if (!isascii(pszText[i])) {
-			MSG_DEBUG("_MsgIsASCII false.");
-			return false;
-		}
-	}
-
-	MSG_DEBUG("_MsgIsASCII true.");
-	return true;
-}
-
-
-bool _MsgReplaceNonAscii(char *szInText, char **szOutText, char replaceChar)
-{
-	MSG_DEBUG("_MsgReplaceNonAscii");
-	int nCount = 0;
-	int index = 0;
-	int cLen = 0;
-	char *pNew = NULL;
-
-	cLen = strlen(szInText);
-
-	pNew = (char *)malloc(cLen + 1);
-
-	if (pNew == NULL)
-		return false;
-
-	memset(pNew, 0, cLen + 1);
-
-	while (*(szInText+nCount) != '\0') {
-		if (0x0001 <= *(szInText+nCount) && *(szInText+nCount) <= 0x007F) {
-			MSG_DEBUG("_MsgReplaceNonAscii: non ascii characters (1bytes). \n");
-			pNew[index] = szInText[nCount];
-			nCount += 1;
-			index += 1;
-		} else {
-			MSG_DEBUG("_MsgReplaceNonAscii: UTF-8 characters (2bytes). \n");
-			pNew[index] = replaceChar;
-			nCount += 1;
-			index +=1;
-		}
-	}
-
-	*szOutText = pNew;
-	return true;
-}
-
-bool _MsgIsSpace(char *pszText)
-{
-	MSG_DEBUG("_MsgIsSpace");
-	if (!pszText) {
-		MSG_DEBUG("_MsgIsSpace: pszText == NULL!\n");
-		return false;
-	}
-
-	if (strchr(pszText, ' ') != NULL)
-		return true;
-	else
-		return false;
-}
-
-bool _MsgReplaceSpecialChar(char *szInText, char **szOutText, char specialChar)
-{
-	MSG_DEBUG("_MsgReplaceSpecialChar");
-	char *pszOutText = NULL;
-	char szBuf[10] = {0, };
-	char temp[5] = {0, };
-	int cLen = 0;
-	int i = 0;
-
-	if (!szInText) {
-		MSG_DEBUG("_MsgReplaceSpecialChar: szInText == NULL! \n");
-		return false;
-	}
-
-	if (!szOutText)
-		return false;
-
-	cLen = strlen(szInText);
-
-	if (specialChar == ' ') {
-		if ((pszOutText = (char *)malloc(cLen + 1)) == NULL) {
-			MSG_DEBUG("_MsgReplaceSpecialChar : %d line. MemAlloc failed.\n", __LINE__);
-			return false;
-		}
-		memset(pszOutText, 0, cLen + 1);
-
-		*szOutText = pszOutText;
-	}
-
-	for (i = 0; i<cLen; i++) {
-		switch (specialChar) {
-		// changed space to '_'
-		case ' ':
-			pszOutText[i] = (szInText[i] == specialChar) ? '_' : szInText[i];
-			break;
-
-		default:
-			if (szInText[i] != specialChar) {
-				temp[0] = szInText[i];
-				*szOutText = MsgStrAppend(*szOutText, temp);
-				continue;
-			} else {
-				_MsgConvertCharToHex(specialChar, szBuf);
-				*szOutText = MsgStrAppend(*szOutText, (char *)"%");
-				*szOutText = MsgStrAppend(*szOutText, szBuf);
-			}
-			break;
-		}
-	}
-
-	MSG_DEBUG("_MsgReplaceSpecialChar : output text : [%s]\n", pszOutText);
-
-	return true;
-}
-
-char *MsgStrAppend(char *szInputStr1, char *szInputStr2)
-{
-	MSG_DEBUG("MsgStrAppend");
-	char *szOutputStr = NULL;
-
-	if (szInputStr1 == NULL) {
-		szOutputStr = MsgStrCopy(szInputStr2);
-	} else {
-		int length1 = 0;
-		int length2 = 0;
-		length1 = MsgStrlen(szInputStr1);
-		length2 = MsgStrlen(szInputStr2);
-
-		szOutputStr = (char *)malloc(length1 + length2 + 1);
-
-		if (szOutputStr == NULL)
-			goto __CATCH;
-
-		memset(szOutputStr, 0, length1 + length2 + 1);
-
-		strncpy(szOutputStr, szInputStr1, length1);
-
-		if (length2 > 0)
-			strcat(szOutputStr, szInputStr2);
-
-		free(szInputStr1);
-		szInputStr1 = NULL;
-	}
-
-	return szOutputStr;
-
-__CATCH:
-	return NULL;
-}
-
-char *MsgStrCopy(const char *string)
-{
-	char *pDst = NULL;
-
-	if (string) {
-		pDst = (char *)malloc(1 + strlen(string));
-		if (pDst == NULL) {
-			MSG_DEBUG("MsgStrCopy: pDst MemAlloc Fail \n");
-			return NULL;
-		}
-
-		memset(pDst, 0, strlen(string) + 1);
-
-		strcpy(pDst,string);
-
-		return pDst;
-	}
-
-	return NULL;
-}
-
-char *MsgStrNCopy(const char *string, int length)
-{
-	char *pDst = NULL;
-
-	if (string) {
-		pDst = (char *)malloc(1 + length);
-		if (pDst == NULL) {
-			MSG_DEBUG("MsgStrNCopy: pDst MemAlloc Fail \n");
-			return NULL;
-		}
-
-		memset(pDst, 0, length + 1);
-		strncpy(pDst,string, length);
-
-		return pDst;
-	}
-
-	return NULL;
-}
-
-int MsgStrlen(char * pStr)
-{
-	if (pStr == NULL)
-		return 0;
-
-	return strlen(pStr);
-}
-
-bool _MsgConvertCharToHex(char pSrc, char *pDest)
-{
-	static unsigned char saucHex[] = "0123456789ABCDEF";
-
-	pDest[0] = saucHex[pSrc >> 4];
-	pDest[1] = saucHex[pSrc & 0xF];
-	pDest[2] = 0;
-
-	return true;
-}
 
 MsgMultipart *MmsAllocMultipart(void)
 {
@@ -1004,6 +791,7 @@ bool MmsComposeMessage(MmsMsg *pMmsMsg, MSG_MESSAGE_INFO_S *pMsgInfo, MSG_SENDIN
 	if (pageCnt == 0) {	// Multipart mixed
 		pMmsMsg->mmsAttrib.contentType = MIME_APPLICATION_VND_WAP_MULTIPART_MIXED;
 		pMmsMsg->msgType.type = MIME_APPLICATION_VND_WAP_MULTIPART_MIXED;
+		MmsMakePreviewInfo(pMsgInfo->msgId, pMsgData);
 	} else {	// Multipart related
 
 		int RawDataSize = 0;
@@ -1056,7 +844,7 @@ bool MmsComposeMessage(MmsMsg *pMmsMsg, MSG_MESSAGE_INFO_S *pMsgInfo, MSG_SENDIN
 
 		MmsPluginStorage *pStorage = MmsPluginStorage::instance();
 		err = pStorage->getMsgText(pMsgData, pMsgInfo->msgText);
-		err = pStorage->makeThumbnail(pMsgData, pMsgInfo->thumbPath, szFileName);
+		MmsMakePreviewInfo(pMsgInfo->msgId, pMsgData);
 	}
 
 #ifdef FEATURE_JAVA_MMS
@@ -1403,24 +1191,6 @@ int MmsSearchMsgId(char *toNumber, char *szMsgID)
 	return msgId;
 }
 
-void MmsUpdateDeliveryReport(msg_message_id_t msgId, MmsMsgMultiStatus *pStatus)
-{
-	MSG_BEGIN();
-
-	MmsPluginStorage::instance()->updateDeliveryReport(msgId, pStatus);
-
-	MSG_END();
-}
-
-void MmsUpdateReadReport(msg_message_id_t msgId, MmsMsgMultiStatus *pStatus)
-{
-	MSG_BEGIN();
-
-	MmsPluginStorage::instance()->updateReadReport(msgId, pStatus);
-
-	MSG_END();
-}
-
 MmsMsgMultiStatus *MmsGetMultiStatus(msg_message_id_t msgId)
 {
 	MmsMsgMultiStatus *pMultiStatus;
@@ -1463,3 +1233,64 @@ bool __MsgInitMsgDRMInfo(MsgDRMInfo *pMsgDrmInfo)
 	return true;
 }
 #endif
+
+msg_error_t MmsMakePreviewInfo(int msgId, MMS_MESSAGE_DATA_S *pMmsMsg)
+{
+	MMS_PAGE_S *pPage = NULL;
+	MMS_MEDIA_S *pMedia = NULL;
+
+	if (pMmsMsg == NULL)
+		return MSG_ERR_NULL_POINTER;
+
+	if (pMmsMsg->pageCnt > 0) {
+
+		MmsPluginStorage::instance()->insertPreviewInfo(msgId, MSG_MMS_ITEM_TYPE_PAGE, (char *)"pagecount", pMmsMsg->pageCnt);
+
+		pPage = _MsgMmsGetPage(pMmsMsg, 0);
+		for (int j = 0; j < pPage->mediaCnt; j++) {
+
+			pMedia = _MsgMmsGetMedia(pPage, j);
+			MSG_DEBUG("pMedia's Name: %s", pMedia->szFilePath);
+
+			if (pMedia->mediatype == MMS_SMIL_MEDIA_IMG || pMedia->mediatype == MMS_SMIL_MEDIA_VIDEO) {
+				char szFileName[MSG_FILENAME_LEN_MAX+1] = {0, };
+				char thumbPath[MSG_FILEPATH_LEN_MAX+1] = {0, };
+
+				memset(szFileName, 0x00, MSG_FILENAME_LEN_MAX+1);
+				memset(thumbPath, 0x00, MSG_FILEPATH_LEN_MAX);
+
+				snprintf(szFileName, MSG_FILENAME_LEN_MAX+1, "%d.mms",msgId);
+				snprintf(thumbPath, MSG_FILEPATH_LEN_MAX, MSG_THUMBNAIL_PATH"/%s.jpg", szFileName);
+
+				if (pMedia->mediatype == MMS_SMIL_MEDIA_IMG) {
+					if (makeImageThumbnail(pMedia->szFilePath, thumbPath) == true) {
+						MmsPluginStorage::instance()->insertPreviewInfo(msgId, MSG_MMS_ITEM_TYPE_IMG, thumbPath);
+					} else {
+						MSG_DEBUG("Fail of generating thumbnail: %s to %s", pMedia->szFilePath, thumbPath);
+					}
+				} else {
+					if (makeVideoThumbnail(pMedia->szFilePath, thumbPath) == true) {;
+						MmsPluginStorage::instance()->insertPreviewInfo(msgId, MSG_MMS_ITEM_TYPE_VIDEO, thumbPath);
+					} else {
+						MSG_DEBUG("Fail of generating thumbnail: %s to %s", pMedia->szFilePath, thumbPath);
+					}
+				}
+
+			} else if (pMedia->mediatype == MMS_SMIL_MEDIA_AUDIO) {
+				MmsPluginStorage::instance()->insertPreviewInfo(msgId, MSG_MMS_ITEM_TYPE_AUDIO, pMedia->szFileName);
+			}
+		}
+	} else {
+		MSG_DEBUG("There is no page");
+	}
+
+	int attachCnt = _MsgMmsGetAttachCount(pMmsMsg);
+	if (attachCnt > 0) {
+		MMS_ATTACH_S *pAttach = _MsgMmsGetAttachment(pMmsMsg, 0);
+		MmsPluginStorage::instance()->insertPreviewInfo(msgId, MSG_MMS_ITEM_TYPE_ATTACH, pAttach->szFileName, attachCnt);
+	} else {
+		MSG_DEBUG("There is no attachment");
+	}
+
+	return MSG_SUCCESS;
+}

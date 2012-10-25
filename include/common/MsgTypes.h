@@ -311,13 +311,14 @@ typedef struct
 /**
  *	@brief	Represents the Report Status Data.
  */
- typedef struct
+typedef struct
 {
-	msg_delivery_report_status_t	deliveryStatus;		/**< Indicates the message ID of this message. */
-	time_t							deliveryStatusTime;	/**< Indicates the display time related to the specific operation. */	//MAX_DISPLAY_TIME_LEN
-	msg_read_report_status_t		readStatus;			/**< Indicates the message ID of this message. */
-	time_t							readStatusTime;		/**< Indicates the display time related to the specific operation. */	//MAX_DISPLAY_TIME_LEN
-}MSG_REPORT_STATUS_INFO_S;
+	char addressVal[MAX_ADDRESS_VAL_LEN+1];
+	int type;
+	int status;
+	time_t statusTime;
+} MSG_REPORT_STATUS_INFO_S;
+
 
 typedef struct
 {

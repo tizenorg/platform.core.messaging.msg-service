@@ -1597,6 +1597,9 @@ bool MmsSmilAddRegion(HMmsSmil hSmilDoc, MMS_SMIL_REGION *pstSmilRegion)
 			} else if (MMSUI_IMAGE_REGION_FIT_HIDDEN == pstSmilRegion->fit) {
 				xmlSetProp(pstRegion, (const xmlChar *)"fit", (const xmlChar *)"hidden");
 			}
+
+			__MmsSmilInsertNode(pstLayoutList, pstRootLayoutList, pstRegion);
+
 		} else
 			MSG_DEBUG("There is no attribute in <region> node\n");
 

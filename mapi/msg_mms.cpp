@@ -1065,7 +1065,6 @@ EXPORT_API int msg_mms_add_item(msg_struct_t msg_struct_handle, int field, msg_s
 	msg_struct_s *msg_struct = (msg_struct_s *)msg_struct_handle;
 
 	msg_struct_s *msg_struct_item = NULL;
-	void *data = NULL;
 	switch(msg_struct->type) {
 	case MSG_STRUCT_MMS:
 	{

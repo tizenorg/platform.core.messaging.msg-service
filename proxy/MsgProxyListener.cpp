@@ -53,7 +53,7 @@ gboolean readSocket(GIOChannel *source, GIOCondition condition, gpointer data)
 	}
 
 	char* buf = NULL;
-	int len;
+	unsigned int len;
 
 	int n = MsgProxyListener::instance()->readFromSocket(&buf, &len);
 
@@ -984,7 +984,7 @@ int  MsgProxyListener::getRemoteFd()
 }
 
 
-int MsgProxyListener::readFromSocket(char** buf, int* len)
+int MsgProxyListener::readFromSocket(char** buf, unsigned int* len)
 {
 	return cliSock.read(buf, len);
 }

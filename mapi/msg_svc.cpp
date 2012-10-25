@@ -16,8 +16,10 @@
 
 #include <string.h>
 
+#include "MsgDebug.h"
 #include "MsgTypes.h"
 #include "MsgHandle.h"
+#include "MsgTextConvert.h"
 #include "MsgException.h"
 
 #include "msg_private.h"
@@ -42,6 +44,12 @@ EXPORT_API msg_struct_t msg_create_struct(int field)
 	case MSG_STRUCT_MESSAGE_INFO :
 		msg_message_create_struct(msg_struct);
 		break;
+	case MSG_STRUCT_CONV_INFO:
+	{
+		msg_struct->data = (void *)new MSG_CONVERSATION_VIEW_S;
+		memset(msg_struct->data, 0x00, sizeof(MSG_CONVERSATION_VIEW_S));
+		break;
+	}
 	case MSG_STRUCT_FILTER:
 	{
 		msg_struct->data = (void *)new MSG_FILTER_S;
@@ -333,6 +341,22 @@ EXPORT_API int msg_release_struct(msg_struct_t *msg_struct_handle)
 	case MSG_STRUCT_FILTER:
 	{
 		delete (MSG_FILTER_S*)(msg_struct->data);
+		msg_struct->data = NULL;
+
+		delete msg_struct;
+		*msg_struct_handle = NULL;
+		break;
+	}
+	case MSG_STRUCT_CONV_INFO:
+	{
+		MSG_CONVERSATION_VIEW_S *pConv = (MSG_CONVERSATION_VIEW_S*)(msg_struct->data);
+
+		if (pConv->pText) {
+			delete [] pConv->pText;
+			pConv->pText = NULL;
+		}
+
+		delete pConv;
 		msg_struct->data = NULL;
 
 		delete msg_struct;
@@ -643,6 +667,15 @@ EXPORT_API int msg_release_struct(msg_struct_t *msg_struct_handle)
 		*msg_struct_handle = NULL;
 		break;
 	}
+	case MSG_STRUCT_ADDRESS_INFO :
+	{
+		delete (MSG_ADDRESS_INFO_S*)(msg_struct->data);
+		msg_struct->data = NULL;
+
+		delete msg_struct;
+		*msg_struct_handle = NULL;
+		break;
+	}
 	case MSG_STRUCT_PUSH_CONFIG_INFO:
 	{
 		delete (MSG_PUSH_EVENT_INFO_S*)(msg_struct->data);
@@ -674,7 +707,21 @@ int msg_release_list_struct(msg_struct_list_s *msg_struct_list)
 	}
 
 	if(msg_struct_list->nCount > 0) {
-		for(int i = 0; i < msg_struct_list->nCount; i++) {
+		int structType = ((msg_struct_s *)msg_struct_list->msg_struct_info[0])->type;
+		int listCnt = msg_struct_list->nCount;
+
+		switch (structType)
+		{
+		case MSG_STRUCT_ADDRESS_INFO :
+		{
+			listCnt = MAX_TO_ADDRESS_CNT;
+			break;
+		}
+		default :
+			break;
+		}
+
+		for(int i = 0; i < listCnt; i++) {
 			msg_release_struct(&(msg_struct_list->msg_struct_info[i]));
 		}
 	}
@@ -728,6 +775,9 @@ EXPORT_API int msg_get_int_value(msg_struct_t msg_struct_handle, int field, int 
 		break;
 	case MSG_STRUCT_THREAD_INFO :
 		*value = msg_thread_info_get_int(msg_struct->data, field);
+		break;
+	case MSG_STRUCT_CONV_INFO :
+		*value = msg_conv_info_get_int(msg_struct->data, field);
 		break;
 	case MSG_STRUCT_SEARCH_CONDITION :
 		*value = msg_search_condition_get_int(msg_struct->data, field);
@@ -824,6 +874,13 @@ EXPORT_API int msg_get_str_value(msg_struct_t msg_struct_handle, int field, char
 		else
 			strncpy(src, ret_str, size);
 		break;
+	case MSG_STRUCT_CONV_INFO :
+		ret_str = msg_conv_info_get_str(msg_struct->data, field);
+		if (ret_str == NULL)
+			err = MSG_ERR_UNKNOWN;
+		else
+			strncpy(src, ret_str, size);
+		break;
 	case MSG_STRUCT_SEARCH_CONDITION :
 		ret_str = msg_search_condition_get_str(msg_struct->data, field, size);
 		if (ret_str == NULL)
@@ -870,8 +927,16 @@ EXPORT_API int msg_get_str_value(msg_struct_t msg_struct_handle, int field, char
 		else
 			strncpy(src, ret_str, size);
 		break;
+	case MSG_STRUCT_REPORT_STATUS_INFO:
+		ret_str = msg_report_status_get_str(msg_struct->data, field);
+		if (ret_str == NULL)
+			err = MSG_ERR_UNKNOWN;
+		else
+			strncpy(src, ret_str, size);
+		break;
 	case MSG_STRUCT_CB_MSG :
 		err = msg_cb_message_get_str_value(msg_struct->data, field, src, size);
+		break;
 	default :
 		err = MSG_ERR_INVALID_PARAMETER;
 		break;
@@ -894,8 +959,17 @@ EXPORT_API int msg_get_bool_value(msg_struct_t msg_struct_handle, int field, boo
 
 	switch (msg_struct->type)
 	{
+	case MSG_STRUCT_FILTER :
+		*value = msg_get_filter_info_bool(msg_struct->data, field);
+		break;
 	case MSG_STRUCT_MESSAGE_INFO :
 		err = msg_message_get_bool_value(msg_struct->data, field, value);
+		break;
+	case MSG_STRUCT_THREAD_INFO :
+		*value = msg_thread_info_get_bool(msg_struct->data, field);
+		break;
+	case MSG_STRUCT_CONV_INFO:
+		*value = msg_conv_get_bool(msg_struct->data, field);
 		break;
 	case MSG_STRUCT_SENDOPT:
 		*value = msg_sendopt_get_bool(msg_struct->data, field);
@@ -1170,6 +1244,9 @@ EXPORT_API int msg_set_bool_value(msg_struct_t msg_struct_handle, int field, boo
 
 	switch (msg_struct->type)
 	{
+	case MSG_STRUCT_FILTER :
+		err = msg_set_filter_info_bool(msg_struct->data, field, value);
+		break;
 	case MSG_STRUCT_MESSAGE_INFO :
 		err = msg_message_set_bool_value(msg_struct->data, field, value);
 		break;
@@ -1285,4 +1362,96 @@ EXPORT_API msg_struct_t msg_list_nth_data(msg_list_handle_t list_handle, int ind
 EXPORT_API int msg_list_length(msg_list_handle_t list_handle)
 {
 	return (int)g_list_length((GList *)list_handle);
+}
+
+
+EXPORT_API int msg_calculate_text_length(msg_handle_t handle, const char* msg_text, msg_encode_type_t msg_encode_type, unsigned int *text_size, unsigned int *segment_size)
+{
+	msg_error_t err = MSG_SUCCESS;
+
+	try
+	{
+		if (msg_text == NULL || strlen(msg_text) == 0) {
+			err = MSG_ERR_INVALID_PARAMETER;
+			return err;
+		}
+	}
+	catch (exception& e)
+	{
+		MSG_FATAL("%s", e.what());
+		err = MSG_ERR_INVALID_PARAMETER;
+		return err;
+	}
+
+	msg_encode_type_t encodeType = MSG_ENCODE_AUTO;
+	MSG_LANGUAGE_ID_T langId = MSG_LANG_ID_RESERVED;
+
+	int decodeLen = 0;
+	int bufSize = (160*MAX_SEGMENT_NUM) + 1;
+	int textSize = 0;
+
+	textSize = strlen(msg_text);
+
+	unsigned char decodeData[bufSize];
+	memset(decodeData, 0x00, sizeof(decodeData));
+
+	MsgTextConvert textCvt;
+
+	*text_size = 0;
+	*segment_size = 0;
+
+	switch (msg_encode_type)
+	{
+	case MSG_ENCODE_GSM7BIT :
+		decodeLen = textCvt.convertUTF8ToGSM7bit(decodeData, bufSize, (const unsigned char*)msg_text, textSize, &langId);
+		break;
+	case MSG_ENCODE_UCS2 :
+		decodeLen = textCvt.convertUTF8ToUCS2(decodeData, bufSize, (const unsigned char*)msg_text, textSize);
+		break;
+	case MSG_ENCODE_AUTO :
+		decodeLen = textCvt.convertUTF8ToAuto(decodeData, bufSize, (const unsigned char*)msg_text, textSize, &encodeType);
+		break;
+	default :
+		err = MSG_ERR_INVALID_PARAMETER;
+		break;
+	}
+
+	// calculate segment size.
+	int headerLen = 1;
+	int concat = 5;
+	int lang = 3;
+
+	int headerSize = 0;
+	int segSize = 0;
+
+	if (langId != MSG_LANG_ID_RESERVED) {
+		MSG_DEBUG("National Language Exists");
+		headerSize += lang;
+	}
+
+	if (msg_encode_type == MSG_ENCODE_GSM7BIT || encodeType == MSG_ENCODE_GSM7BIT) {
+		MSG_DEBUG("MSG_ENCODE_GSM7BIT");
+
+		if (((decodeLen+headerSize)/160) > 1)
+			segSize = ((140*8) - ((headerLen + concat + headerSize)*8)) / 7;
+		else
+			segSize = 160;
+
+	} else if (msg_encode_type == MSG_ENCODE_UCS2 || encodeType == MSG_ENCODE_UCS2) {
+		MSG_DEBUG("MSG_ENCODE_UCS2");
+
+		if (((decodeLen+headerSize)/140) > 1)
+			segSize = 140 - (headerLen + concat + headerSize);
+		else
+			segSize = 140;
+	} else {
+		MSG_DEBUG("Unsupported encode type.");
+		err = MSG_ERR_INVALID_PARAMETER;
+		return err;
+	}
+
+	*text_size = decodeLen;
+	*segment_size = segSize;
+
+	return err;
 }

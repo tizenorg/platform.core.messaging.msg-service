@@ -126,7 +126,7 @@ void MsgHandle::write(const char *pCmdData, int cmdSize, char **ppEvent)
 
 void MsgHandle::read(char **ppEvent)
 {
-	int dataSize = 0;
+	unsigned int dataSize = 0;
 
 	dataSize = mClientSock.read(ppEvent, &dataSize);
 

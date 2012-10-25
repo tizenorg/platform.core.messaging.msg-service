@@ -18,8 +18,8 @@
 #include <string.h>
 
 #include "MsgDebug.h"
+#include "MsgTextConvert.h"
 #include "SmsPluginUDCodec.h"
-#include "SmsPluginTextConvert.h"
 #include "SmsPluginParamCodec.h"
 
 
@@ -261,6 +261,7 @@ int SmsPluginParamCodec::encodeSMSC(const SMS_ADDRESS_S *pAddress, unsigned char
 int SmsPluginParamCodec::decodeAddress(const unsigned char *pTpdu, SMS_ADDRESS_S *pAddress)
 {
 	int offset = 0, addrLen = 0, bcdLen = 0;
+	MsgTextConvert textCvt;
 	memset(pAddress->address, 0x00, sizeof(pAddress->address));
 
 	addrLen = (int)pTpdu[offset++];
@@ -285,12 +286,12 @@ MSG_DEBUG("npi [%d]", pAddress->npi);
 
 		tmplength = SmsPluginUDCodec::unpack7bitChar(&(pTpdu[offset]), bcdLen, 0, tmpAddress);
 
-		SMS_LANG_INFO_S langInfo = {0};
+		MSG_LANG_INFO_S langInfo = {0,};
 
 		langInfo.bSingleShift = false;
 		langInfo.bLockingShift = false;
 
-		SmsPluginTextConvert::instance()->convertGSM7bitToUTF8((unsigned char*)pAddress->address, MAX_ADDRESS_LEN, (unsigned char*)tmpAddress, tmplength, &langInfo);
+		textCvt.convertGSM7bitToUTF8((unsigned char*)pAddress->address, MAX_ADDRESS_LEN, (unsigned char*)tmpAddress, tmplength, &langInfo);
 	}
 	else if (pAddress->ton == SMS_TON_INTERNATIONAL)
 	{

@@ -21,7 +21,6 @@
 #include "MsgException.h"
 #include "MsgGconfWrapper.h"
 #include "MsgUtilFile.h"
-#include "SmsPluginTextConvert.h"
 #include "SmsPluginUDCodec.h"
 #include "SmsPluginStorage.h"
 #include "SmsPluginEventHandler.h"
@@ -121,17 +120,9 @@ void SmsPluginCbMsgHandler::handleCbMsg(TelSmsCbMsg_t *pCbMsg)
 			cbOutMsg.dcs = CbMsgPage.pageHeader.dcs.rawData;
 			memset (cbOutMsg.cbText, 0x00, sizeof(cbOutMsg.cbText));
 
-			SMS_LANG_INFO_S langInfo = {0};
-
-			langInfo.bSingleShift = false;
-			langInfo.bLockingShift = false;
-
-			if (cbMsg.codingScheme == SMS_CHARSET_7BIT)
-				cbOutMsg.cbTextLen = SmsPluginTextConvert::instance()->convertGSM7bitToUTF8((unsigned char*)cbOutMsg.cbText, sizeof(cbOutMsg.cbText), (unsigned char*)cbMsg.msgData, cbMsg.msgLength, &langInfo);
-			else if (cbMsg.codingScheme == SMS_CHARSET_UCS2)
-				cbOutMsg.cbTextLen = SmsPluginTextConvert::instance()->convertUCS2ToUTF8((unsigned char*)cbOutMsg.cbText, sizeof(cbOutMsg.cbText), (unsigned char*)cbMsg.msgData, cbMsg.msgLength);
-
-
+			cbOutMsg.cbTextLen= convertTextToUtf8((unsigned char*)cbOutMsg.cbText, sizeof(cbOutMsg.cbText), &cbMsg);
+			memset(cbOutMsg.language_type, 0x00, sizeof(cbOutMsg.language_type));
+			memcpy(cbOutMsg.language_type, CbMsgPage.pageHeader.dcs.iso639Lang, 3);
 			err = SmsPluginEventHandler::instance()->callbackCBMsgIncoming(&cbOutMsg);
 			if (err != MSG_SUCCESS)
 			{
@@ -227,7 +218,7 @@ MSG_DEBUG("Total Page : [%d], Page : [%d]", pCbPage->pageHeader.totalPages, pCbP
 	convertLangType(pCbPage->pageHeader.dcs.langType, &(pCbPage->pageHeader.langType));
 
 MSG_DEBUG("In Language Type : [%d], Out Language Type : [%d]", pCbPage->pageHeader.dcs.langType, pCbPage->pageHeader.langType);
-
+MSG_DEBUG("iso639Lang : [%s]", pCbPage->pageHeader.dcs.iso639Lang);
 	// Get Receive Time
 	pCbPage->pageHeader.recvTime = getRecvTime();
 
@@ -243,16 +234,21 @@ MSG_DEBUG("In Language Type : [%d], Out Language Type : [%d]", pCbPage->pageHead
 			dataLen = (dataLen*8) / 7;
 
 			SmsPluginUDCodec udCodec;
-			int unpackLen = udCodec.unpack7bitChar(&cbData[6], dataLen, 0, pCbPage->pageData);
+			char pageData[MAX_CBMSG_PAGE_SIZE+1];
+			int unpackLen = udCodec.unpack7bitChar(&cbData[6], dataLen, 0, pageData);
 
-MSG_DEBUG("dataLen : [%d]", dataLen);
-MSG_DEBUG("unpackLen : [%d]", unpackLen);
+			if(pCbPage->pageHeader.dcs.iso639Lang[0])
+			{
+				unpackLen = unpackLen - 3;
+				memcpy(pCbPage->pageData, &pageData[3], unpackLen);
+			} else {
+				memcpy(pCbPage->pageData, &pageData, unpackLen);
+			}
+
+			MSG_DEBUG("unpackLen : [%d]", unpackLen);
 
 			pCbPage->pageLength = unpackLen;
 			pCbPage->pageData[unpackLen] = '\0';
-
-//			pCbPage->pageLength = strlen(pCbPage->pageData);
-//			pCbPage->pageData[pCbPage->pageLength] = '\0';
 		}
 		break;
 
@@ -261,11 +257,14 @@ MSG_DEBUG("unpackLen : [%d]", unpackLen);
 		{
 			MSG_DEBUG("UCS2");
 
-			memcpy(pCbPage->pageData, &cbData[6], dataLen);
-
-			pCbPage->pageLength = strlen(pCbPage->pageData);
-
-			pCbPage->pageData[pCbPage->pageLength] = '\0';
+			if(pCbPage->pageHeader.dcs.iso639Lang[0])
+			{
+				memcpy(pCbPage->pageData, &cbData[8], dataLen - 2);
+				pCbPage->pageLength = dataLen - 2;
+			} else {
+				memcpy(pCbPage->pageData, &cbData[6], dataLen);
+				pCbPage->pageLength = dataLen;
+			}
 		}
 		break;
 	}
@@ -633,16 +632,8 @@ void SmsPluginCbMsgHandler::convertCbMsgToMsginfo(SMS_CBMSG_S cbMsg, MSG_MESSAGE
 
 	MSG_DEBUG("LENGTH %d CB MSG %s", cbMsg.msgLength, cbMsg.msgData);
 
-	SMS_LANG_INFO_S langInfo = {0};
-
-	langInfo.bSingleShift = false;
-	langInfo.bLockingShift = false;
-
 	// Convert Data values
-	if (cbMsg.codingScheme == SMS_CHARSET_7BIT)
-		pMsgInfo->dataSize = SmsPluginTextConvert::instance()->convertGSM7bitToUTF8((unsigned char*)tmpBuf, bufSize, (unsigned char*)cbMsg.msgData, cbMsg.msgLength, &langInfo);
-	else if (cbMsg.codingScheme == SMS_CHARSET_UCS2)
-		pMsgInfo->dataSize = SmsPluginTextConvert::instance()->convertUCS2ToUTF8((unsigned char*)tmpBuf, bufSize, (unsigned char*)cbMsg.msgData, cbMsg.msgLength);
+	pMsgInfo->dataSize = convertTextToUtf8((unsigned char*)tmpBuf, bufSize, &cbMsg);
 
 	if (pMsgInfo->dataSize > MAX_MSG_TEXT_LEN)
 	{
@@ -710,6 +701,30 @@ void SmsPluginCbMsgHandler::convertEtwsMsgToMsginfo(SMS_CBMSG_PAGE_S EtwsMsg, MS
 	pMsgInfo->dataSize = EtwsMsg.pageLength;
 	memset(pMsgInfo->msgData, 0x00, sizeof(pMsgInfo->msgData));
 	memcpy(pMsgInfo->msgData, EtwsMsg.pageData, pMsgInfo->dataSize);
+}
+
+int SmsPluginCbMsgHandler::convertTextToUtf8 (unsigned char* outBuf, int outBufSize, SMS_CBMSG_S* pCbMsg)
+{
+	int	convertedTextSize = 0;
+	MSG_LANG_INFO_S langInfo = {0,};
+
+	if (!outBuf || !pCbMsg)
+	{
+		MSG_DEBUG ("invalid param.\n");
+		return 0;
+	}
+
+	langInfo.bSingleShift = false;
+	langInfo.bLockingShift = false;
+
+
+	// Convert Data values
+	if (pCbMsg->codingScheme == SMS_CHARSET_7BIT)
+		convertedTextSize = textCvt.convertGSM7bitToUTF8(outBuf, outBufSize, (unsigned char*)pCbMsg->msgData, pCbMsg->msgLength, &langInfo);
+	else if (pCbMsg->codingScheme == SMS_CHARSET_UCS2)
+		convertedTextSize = textCvt.convertUCS2ToUTF8(outBuf, outBufSize, (unsigned char*)pCbMsg->msgData, pCbMsg->msgLength);
+
+	return convertedTextSize;
 }
 
 void SmsPluginCbMsgHandler::addToPageLiat(SMS_CBMSG_PAGE_S CbPage)
@@ -796,10 +811,10 @@ void SmsPluginCbMsgHandler::decodeCbMsgDCS(unsigned char dcsData, const unsigned
 				}
 				else
 				{
-			          	/* Default it to English if pMsgData is NULL */
-			          	pDcs->iso639Lang[0] = 0x45;  /* E */
-			          	pDcs->iso639Lang[1] = 0x4E;  /* N */
-			          	pDcs->iso639Lang[2] = 0x13;  /* CR */
+					/* Default it to English if pMsgData is NULL */
+					pDcs->iso639Lang[0] = 0x45;  /* E */
+					pDcs->iso639Lang[1] = 0x4E;  /* N */
+					pDcs->iso639Lang[2] = 0x13;  /* CR */
 				}
 			}
 		}

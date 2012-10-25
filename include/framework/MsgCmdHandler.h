@@ -35,6 +35,7 @@ int MsgUpdateThreadReadStatusHandler(const MSG_CMD_S *pCmd, char **ppEvent);
 int MsgUpdateProtectedStatusHandler(const MSG_CMD_S *pCmd, char **ppEvent);
 int MsgDeleteMessageHandler(const MSG_CMD_S *pCmd, char **ppEvent);
 int MsgDeleteAllMessageInFolderHandler(const MSG_CMD_S *pCmd, char **ppEvent);
+int MsgDeleteMessageByListHandler(const MSG_CMD_S *pCmd, char **ppEvent);
 int MsgMoveMessageToFolderHandler(const MSG_CMD_S *pCmd, char **ppEvent);
 int MsgMoveMessageToStorageHandler(const MSG_CMD_S *pCmd, char **ppEvent);
 int MsgCountMessageHandler(const MSG_CMD_S *pCmd, char **ppEvent);
@@ -97,17 +98,11 @@ int MsgDeleteFilterHandler(const MSG_CMD_S *pCmd, char **ppEvent);
 int MsgGetFilterListHandler(const MSG_CMD_S *pCmd, char **ppEvent);
 int MsgSetFilterOperationHandler(const MSG_CMD_S *pCmd, char **ppEvent);
 int MsgGetFilterOperationHandler(const MSG_CMD_S *pCmd, char **ppEvent);
+int MsgSetFilterActivationHandler(const MSG_CMD_S *pCmd, char **ppEvent);
+
 int MsgAddPushEventHandler(const MSG_CMD_S *pCmd, char **ppEvent);
 int MsgDeletePushEventHandler(const MSG_CMD_S *pCmd, char **ppEvent);
 int MsgUpdatePushEventHandler(const MSG_CMD_S *pCmd, char **ppEvent);
 
-int MsgGetSMSCListHandler(const MSG_CMD_S *pCmd, char **ppEvent);
-int MsgGetCBInfoHandler(const MSG_CMD_S *pCmd, char **ppEvent);
-int MsgGetSmsSendOptHandler(const MSG_CMD_S *pCmd, char **ppEvent);
-int MsgGetMmsSendOptHandler(const MSG_CMD_S *pCmd, char **ppEvent);
-int MsgGetMmsRecvOptHandler(const MSG_CMD_S *pCmd, char **ppEvent);
-int MsgGetPushMsgOptHandler(const MSG_CMD_S *pCmd, char **ppEvent);
-int MsgGetVoiceMsgOptHandler(const MSG_CMD_S *pCmd, char **ppEvent);
-int MsgGetGeneralOptHandler(const MSG_CMD_S *pCmd, char **ppEvent);
 
 #endif // MSG_CMD_HANDLER_H

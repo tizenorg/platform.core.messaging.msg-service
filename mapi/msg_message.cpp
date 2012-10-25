@@ -265,7 +265,7 @@ int msg_message_get_str_value(void *data, int field, char *value, int size)
 		if (msg_data->pData)
 		{
 			int data_len = 0;
-			(size >= msg_data->dataSize)? (data_len = msg_data->dataSize) : data_len = size;
+			((size_t)size >= msg_data->dataSize)? (data_len = msg_data->dataSize) : data_len = size;
 			memset(value, 0, size);
 			memcpy(value, msg_data->pData, data_len);
 		}
@@ -284,8 +284,6 @@ int msg_message_get_struct_hnd(void *data, int field, void **value)
 		return MSG_ERR_NULL_POINTER;
 
 	int ret = MSG_SUCCESS;
-
-	MSG_MESSAGE_HIDDEN_S *msg_data = (MSG_MESSAGE_HIDDEN_S *)data;
 
 	switch (field) {
 	default :
@@ -354,7 +352,10 @@ int msg_message_set_int_value(void *data, int field, int value)
         } else if (value == MSG_TYPE_SMS_REJECT) {
         	msg_data->mainType = MSG_SMS_TYPE;
         	msg_data->subType = MSG_REJECT_SMS;
-        }
+        }	else if (value == MSG_TYPE_SMS_ETWS_PRIMARY) {
+			msg_data->mainType = MSG_SMS_TYPE;
+			msg_data->subType = MSG_ETWS_SMS;
+		}
         break;
 	}
 	case MSG_MESSAGE_CLASS_TYPE_INT :
@@ -472,8 +473,6 @@ int msg_message_set_struct_hnd(void *data, int field, void *value)
 		return MSG_ERR_NULL_POINTER;
 
 	int ret = MSG_SUCCESS;
-
-	MSG_MESSAGE_HIDDEN_S *msg_data = (MSG_MESSAGE_HIDDEN_S *)data;
 
 	switch (field) {
 	default :
@@ -598,9 +597,17 @@ int msg_cb_message_get_str_value(void *data, int field, char *value, int size)
 				value[copylen] = '\0';
 			}
 			break;
+		case MSG_CB_MSG_LANGUAGE_TYPE_STR:
+			{
+				int	copylen = 0;
+				copylen = ((size_t)size > strlen((const char*)cb_msg->language_type)) ? strlen((const char*)cb_msg->language_type) : size - 1;
+				memcpy (value, cb_msg->language_type, copylen);
+				value[copylen] = '\0';
+			}
+			break;
 		case MSG_CB_MSG_ETWS_WARNING_SECU_INFO_STR:
 			{
-				if (size < sizeof(cb_msg->etwsWarningSecurityInfo))
+				if ((size_t)size < sizeof(cb_msg->etwsWarningSecurityInfo))
 					ret = MSG_ERR_INVALID_PARAMETER;
 				else
 					memcpy (value, cb_msg->etwsWarningSecurityInfo, sizeof(cb_msg->etwsWarningSecurityInfo));

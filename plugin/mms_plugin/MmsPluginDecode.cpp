@@ -37,7 +37,7 @@
 #include "MmsPluginDrm.h"
 #include "MsgDrmWrapper.h"
 #endif
-
+#include "MmsPluginUtil.h"
 
 static bool _MmsBinaryDecodeGetBytes(FILE *pFile, char *szBuff, int bufLen, int totalLength);		/* bufLen < gMmsDecodeMaxLen */
 static bool _MmsBinaryDecodeGetLongBytes(FILE *pFile, char *szBuff, int bufLen, int totalLength);	/* no bufLen limit */
@@ -3411,7 +3411,7 @@ static int __MmsBinaryDecodeUintvar(FILE *pFile, UINT32 *pUintVar, int totalLeng
 			break;
 		}
 
-		if (count > 5) {
+		if (count > 4) {
 			MSG_DEBUG("__MmsBinaryDecodeUintvar : legnth is too long\n");
 			goto __CATCH;
 		}
@@ -7926,7 +7926,7 @@ __CATCH:
 bool _MmsMultipartSaveAsTempFile(MsgType *pPartType, MsgBody *pPartBody, char *pszMailboxPath, char *pszMsgFilename, int index, bool bSave)
 {
 	FILE *pFile = NULL;
-	char *pExt = NULL;
+//	char *pExt = NULL;
 	char szFileName[MSG_FILENAME_LEN_MAX+1] = {0, };	// file name of temp file
 	char szFullPath[MSG_FILEPATH_LEN_MAX] = {0, }; // full absolute path of temp file.
 

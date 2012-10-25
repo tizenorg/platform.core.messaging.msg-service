@@ -15,7 +15,6 @@ SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_C_FLAGS} ${EXTRA_CFLAGS} -O0 -g -Wall")
 ##########################################################
 
 SET(SMS-PLUGIN-SRCS
-	${CMAKE_SOURCE_DIR}/plugin/sms_plugin/SmsPluginTextConvert.cpp
 	${CMAKE_SOURCE_DIR}/plugin/sms_plugin/SmsPluginUDCodec.cpp
 	${CMAKE_SOURCE_DIR}/plugin/sms_plugin/SmsPluginParamCodec.cpp
 	${CMAKE_SOURCE_DIR}/plugin/sms_plugin/SmsPluginTpduCodec.cpp

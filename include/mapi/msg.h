@@ -203,6 +203,7 @@ int msg_delete_filter(msg_handle_t handle, msg_filter_id_t filter_id);
 int msg_get_filter_list(msg_handle_t handle, msg_struct_list_s *filter_list);
 int msg_set_filter_operation(msg_handle_t handle, bool set_flag);
 int msg_get_filter_operation(msg_handle_t handle, bool *set_flag);
+int msg_set_filter_active(msg_handle_t handle, msg_filter_id_t filter_id, bool active);
 
 //setting
 int msg_get_smsc_opt(msg_handle_t handle, msg_struct_t msg_struct);

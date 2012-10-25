@@ -21,8 +21,8 @@
 #include "MsgCppTypes.h"
 #include "MsgException.h"
 #include "MsgGconfWrapper.h"
+#include "MsgNotificationWrapper.h"
 #include "MsgUtilFile.h"
-#include "SmsPluginTextConvert.h"
 #include "SmsPluginParamCodec.h"
 #include "SmsPluginTpduCodec.h"
 #include "SmsPluginEventHandler.h"
@@ -207,6 +207,7 @@ void SmsPluginTransport::submitRequest(SMS_REQUEST_INFO_S *pReqInfo)
 			else
 			{
 				SmsPluginEventHandler::instance()->handleSentStatus(MSG_NETWORK_SEND_FAIL);
+
 				THROW(MsgException::SMS_PLG_ERROR, "########  TelTapiSmsSend Fail !!! req Id : [%d] return : [%d] #######", reqId, tapiRet);
 			}
 
@@ -218,7 +219,10 @@ void SmsPluginTransport::submitRequest(SMS_REQUEST_INFO_S *pReqInfo)
 			}
 			else
 			{
+				MsgInsertTicker("Sending SMS is failed", NULL);
+
 				SmsPluginEventHandler::instance()->handleSentStatus(MSG_NETWORK_SEND_FAIL);
+
 				THROW(MsgException::SMS_PLG_ERROR, "########  Msg Sent was Failed !!! req Id : [%d] return : [%d] #######", reqId, retStatus);
 			}
 
@@ -247,7 +251,7 @@ void SmsPluginTransport::sendDeliverReport(msg_error_t err)
 		tpdu.data.deliverRep.reportType = SMS_REPORT_POSITIVE;
 		response = TAPI_NETTEXT_SENDSMS_SUCCESS;
 
-		tapiRet = tel_set_sms_memory_status(pTapiHandle, TAPI_NETTEXT_PDA_MEMORY_STATUS_AVAILABLE, NULL, NULL);
+		tapiRet = tel_set_sms_memory_status(pTapiHandle, TAPI_NETTEXT_PDA_MEMORY_STATUS_AVAILABLE, TapiEventMemoryStatus, NULL);
 
 		if (tapiRet == TAPI_API_SUCCESS)
 		{
@@ -255,7 +259,7 @@ void SmsPluginTransport::sendDeliverReport(msg_error_t err)
 		}
 		else
 		{
-			MSG_DEBUG("########  tel_set_sms_memory_status() Success !!! req Id : [%d] return : [%d] #######", reqId, tapiRet);
+			MSG_DEBUG("########  tel_set_sms_memory_status() Failed !!! req Id : [%d] return : [%d] #######", reqId, tapiRet);
 		}
 	}
 	else if (err == MSG_ERR_SIM_STORAGE_FULL)
@@ -264,7 +268,7 @@ void SmsPluginTransport::sendDeliverReport(msg_error_t err)
 		tpdu.data.deliverRep.failCause = SMS_FC_MSG_CAPA_EXCEEDED;
 		response = TAPI_NETTEXT_SIM_FULL;
 
-		tapiRet = tel_set_sms_memory_status(pTapiHandle, TAPI_NETTEXT_PDA_MEMORY_STATUS_FULL, NULL, NULL);
+		tapiRet = tel_set_sms_memory_status(pTapiHandle, TAPI_NETTEXT_PDA_MEMORY_STATUS_FULL, TapiEventMemoryStatus, NULL);
 
 		if (tapiRet == TAPI_API_SUCCESS)
 		{
@@ -272,7 +276,7 @@ void SmsPluginTransport::sendDeliverReport(msg_error_t err)
 		}
 		else
 		{
-			MSG_DEBUG("########  tel_set_sms_memory_status() Success !!! req Id : [%d] return : [%d] #######", reqId, tapiRet);
+			MSG_DEBUG("########  tel_set_sms_memory_status() Failed !!! req Id : [%d] return : [%d] #######", reqId, tapiRet);
 		}
 	}
 	else if (err == MSG_ERR_MESSAGE_COUNT_FULL)
@@ -281,7 +285,7 @@ void SmsPluginTransport::sendDeliverReport(msg_error_t err)
 		tpdu.data.deliverRep.failCause = SMS_FC_MSG_CAPA_EXCEEDED;
 		response = TAPI_NETTEXT_ME_FULL;
 
-		tapiRet = tel_set_sms_memory_status(pTapiHandle, TAPI_NETTEXT_PDA_MEMORY_STATUS_FULL, NULL, NULL);
+		tapiRet = tel_set_sms_memory_status(pTapiHandle, TAPI_NETTEXT_PDA_MEMORY_STATUS_FULL, TapiEventMemoryStatus, NULL);
 
 		if (tapiRet == TAPI_API_SUCCESS)
 		{
@@ -289,7 +293,7 @@ void SmsPluginTransport::sendDeliverReport(msg_error_t err)
 		}
 		else
 		{
-			MSG_DEBUG("########  tel_set_sms_memory_status() Success !!! req Id : [%d] return : [%d] #######", reqId, tapiRet);
+			MSG_DEBUG("########  tel_set_sms_memory_status() Failed !!! req Id : [%d] return : [%d] #######", reqId, tapiRet);
 		}
 	}
 	else
@@ -475,14 +479,14 @@ void SmsPluginTransport::msgInfoToSubmitData(const MSG_MESSAGE_INFO_S *pMsgInfo,
 
 	msg_encode_type_t encodeType = MSG_ENCODE_GSM7BIT;
 
-	SMS_LANGUAGE_ID_T langId = SMS_LANG_ID_RESERVED;
+	MSG_LANGUAGE_ID_T langId = MSG_LANG_ID_RESERVED;
 
 	// User Data
 	if (pMsgInfo->bTextSms == true)
 	{
 		if (*pCharType == SMS_CHARSET_7BIT)
 		{
-			decodeLen = SmsPluginTextConvert::instance()->convertUTF8ToGSM7bit(decodeData, bufSize, (unsigned char*)pMsgInfo->msgText, pMsgInfo->dataSize, &langId);
+			decodeLen = textCvt.convertUTF8ToGSM7bit(decodeData, bufSize, (unsigned char*)pMsgInfo->msgText, pMsgInfo->dataSize, &langId);
 		}
 		else if (*pCharType == SMS_CHARSET_8BIT)
 		{
@@ -491,11 +495,11 @@ void SmsPluginTransport::msgInfoToSubmitData(const MSG_MESSAGE_INFO_S *pMsgInfo,
 		}
 		else if (*pCharType == SMS_CHARSET_UCS2)
 		{
-			decodeLen = SmsPluginTextConvert::instance()->convertUTF8ToUCS2(decodeData, bufSize, (unsigned char*)pMsgInfo->msgText, pMsgInfo->dataSize);
+			decodeLen = textCvt.convertUTF8ToUCS2(decodeData, bufSize, (unsigned char*)pMsgInfo->msgText, pMsgInfo->dataSize);
 		}
 		else if (*pCharType == SMS_CHARSET_AUTO)
 		{
-			decodeLen = SmsPluginTextConvert::instance()->convertUTF8ToAuto(decodeData, bufSize, (unsigned char*)pMsgInfo->msgText, pMsgInfo->dataSize, &encodeType);
+			decodeLen = textCvt.convertUTF8ToAuto(decodeData, bufSize, (unsigned char*)pMsgInfo->msgText, pMsgInfo->dataSize, &encodeType);
 			*pCharType = encodeType;
 		}
 	}
@@ -514,7 +518,7 @@ void SmsPluginTransport::msgInfoToSubmitData(const MSG_MESSAGE_INFO_S *pMsgInfo,
 
 		if (*pCharType == SMS_CHARSET_7BIT)
 		{
-			decodeLen = SmsPluginTextConvert::instance()->convertUTF8ToGSM7bit(decodeData, bufSize, (unsigned char*)pFileData, fileSize, &langId);
+			decodeLen = textCvt.convertUTF8ToGSM7bit(decodeData, bufSize, (unsigned char*)pFileData, fileSize, &langId);
 		}
 		else if (*pCharType == SMS_CHARSET_8BIT)
 		{
@@ -523,11 +527,11 @@ void SmsPluginTransport::msgInfoToSubmitData(const MSG_MESSAGE_INFO_S *pMsgInfo,
 		}
 		else if (*pCharType == SMS_CHARSET_UCS2)
 		{
-			decodeLen = SmsPluginTextConvert::instance()->convertUTF8ToUCS2(decodeData, bufSize, (unsigned char*)pFileData, fileSize);
+			decodeLen = textCvt.convertUTF8ToUCS2(decodeData, bufSize, (unsigned char*)pFileData, fileSize);
 		}
 		else if (*pCharType == SMS_CHARSET_AUTO)
 		{
-			decodeLen = SmsPluginTextConvert::instance()->convertUTF8ToAuto(decodeData, bufSize, (unsigned char*)pFileData, fileSize, &encodeType);
+			decodeLen = textCvt.convertUTF8ToAuto(decodeData, bufSize, (unsigned char*)pFileData, fileSize, &encodeType);
 			*pCharType = encodeType;
 		}
 
@@ -627,7 +631,7 @@ MSG_DEBUG("user data [%s]", pData->userData[i].data);
 		}
 
 		// Set User Data Header for National Language Single Shift
-		if (*pCharType == SMS_CHARSET_7BIT && langId != SMS_LANG_ID_RESERVED)
+		if (*pCharType == SMS_CHARSET_7BIT && langId != MSG_LANG_ID_RESERVED)
 		{
 			pData->userData[i].header[headerCnt].udhType = SMS_UDH_SINGLE_SHIFT;
 			pData->userData[i].header[headerCnt].udh.singleShift.langId = langId;
@@ -642,7 +646,7 @@ MSG_DEBUG("user data [%s]", pData->userData[i].data);
 }
 
 
-int SmsPluginTransport::getSegmentSize(SMS_CODING_SCHEME_T CodingScheme, int DataLen, bool bPortNum, SMS_LANGUAGE_ID_T LangId, int ReplyAddrLen)
+int SmsPluginTransport::getSegmentSize(SMS_CODING_SCHEME_T CodingScheme, int DataLen, bool bPortNum, MSG_LANGUAGE_ID_T LangId, int ReplyAddrLen)
 {
 	int headerLen = 1, concat = 5, port = 6, lang = 3, reply = 2;
 	int headerSize = 0, segSize = 0, maxSize = 0;
@@ -664,7 +668,7 @@ int SmsPluginTransport::getSegmentSize(SMS_CODING_SCHEME_T CodingScheme, int Dat
 		headerSize += port;
 	}
 
-	if (LangId != SMS_LANG_ID_RESERVED)
+	if (LangId != MSG_LANG_ID_RESERVED)
 	{
 		MSG_DEBUG("National Language Exists");
 		headerSize += lang;
@@ -679,14 +683,14 @@ int SmsPluginTransport::getSegmentSize(SMS_CODING_SCHEME_T CodingScheme, int Dat
 
 	if (CodingScheme == SMS_CHARSET_7BIT)
 	{
-		if (((DataLen+headerSize)/maxSize) >= 1)
+		if (((DataLen+headerSize)/maxSize) > 1)
 			segSize = ((140*8) - ((headerLen + concat + headerSize)*8)) / 7;
 		else
 			segSize = DataLen;
 	}
 	else if (CodingScheme == SMS_CHARSET_8BIT || CodingScheme == SMS_CHARSET_UCS2)
 	{
-		if (((DataLen+headerSize)/maxSize) >= 1)
+		if (((DataLen+headerSize)/maxSize) > 1)
 			segSize = 140 - (headerLen + concat + headerSize);
 		else
 			segSize = DataLen;

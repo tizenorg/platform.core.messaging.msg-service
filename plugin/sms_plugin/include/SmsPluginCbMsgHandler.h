@@ -26,6 +26,7 @@
 
 using namespace std;
 
+#include "MsgTextConvert.h"
 #include "SmsPluginTypes.h"
 
 extern "C"
@@ -93,6 +94,8 @@ private:
 	void getDisplayName(unsigned short	MsgId, char *pDisplayName);
 
 	vector<CB_PAGE_INFO_S> pageList;
+
+	MsgTextConvert textCvt;
 };
 
 #endif //SMS_PLUGIN_CBMSG_HANDLER_H

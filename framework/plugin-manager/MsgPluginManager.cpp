@@ -63,7 +63,7 @@ void MsgSentStatusListener(MSG_SENT_STATUS_S *pSentStatus)
 
 	char *temp = NULL;
 	AutoPtr<char> wrap(&temp);
-	int len;
+	unsigned int len;
 	client.read(&temp, &len);
 
 	// close connection to msgfw daemon
@@ -107,7 +107,7 @@ void MsgStorageChangeListener(msg_storage_change_type_t storageChangeType, MSG_M
 
 	char *temp = NULL;
 	AutoPtr<char> wrap(&temp);
-	int len;
+	unsigned int len;
 	client.read(&temp, &len);
 
 	// close connection to msgfw daemon
@@ -155,7 +155,7 @@ msg_error_t MsgIncomingMessageListener(MSG_MESSAGE_INFO_S *pMsg)
 
 	char* retBuf = NULL;
 	AutoPtr<char> wrap(&retBuf);
-	int retSize;
+	unsigned int retSize;
 
 	client.read(&retBuf, &retSize);
 
@@ -205,7 +205,7 @@ msg_error_t MsgIncomingSyncMLMessageListener(MSG_SYNCML_MESSAGE_DATA_S *pSyncMLD
 	// Receive result from Transaction Manager
 	char* retBuf = NULL;
 	AutoPtr<char> wrap(&retBuf);
-	int retSize;
+	unsigned int retSize;
 	client.read(&retBuf, &retSize);
 
 	// close connection to msgfw daemon
@@ -253,7 +253,7 @@ msg_error_t MsgIncomingPushMessageListener(MSG_PUSH_MESSAGE_DATA_S *pPushData)
 	// Receive result from Transaction Manager
 	char* retBuf = NULL;
 	AutoPtr<char> wrap(&retBuf);
-	int retSize;
+	unsigned int retSize;
 	client.read(&retBuf, &retSize);
 
 	// close connection to msgfw daemon
@@ -310,7 +310,7 @@ msg_error_t MsgIncomingCBMessageListener(MSG_CB_MSG_S *pCbMsg)
 
 	char* retBuf = NULL;
 	AutoPtr<char> wrap(&retBuf);
-	int retSize;
+	unsigned int retSize;
 
 	client.read(&retBuf, &retSize);
 
@@ -360,7 +360,7 @@ msg_error_t MsgIncomingLBSMessageListener(MSG_LBS_MESSAGE_DATA_S *pLBSData)
 	// Receive result from Transaction Manager
 	char* retBuf = NULL;
 	AutoPtr<char> wrap(&retBuf);
-	int retSize;
+	unsigned int retSize;
 	client.read(&retBuf, &retSize);
 
 	// close connection to msgfw daemon
@@ -404,7 +404,7 @@ msg_error_t MsgInitSimBySatListener()
 	// Receive result from Transaction Manager
 	char* retBuf = NULL;
 	AutoPtr<char> wrap(&retBuf);
-	int retSize;
+	unsigned int retSize;
 	client.read(&retBuf, &retSize);
 
 	// close connection to msgfw daemon
@@ -455,7 +455,7 @@ msg_error_t MsgMmsConfIncomingListener(MSG_MESSAGE_INFO_S *pMsg, msg_request_id_
 	// Receive result from Transaction Manager
 	char *retBuf = NULL;
 	AutoPtr<char> wrap(&retBuf);
-	int retSize = 0;
+	unsigned int retSize = 0;
 	client.read(&retBuf, &retSize);
 
 	// close connection to msgfw daemon
@@ -485,7 +485,7 @@ MsgPlugin::MsgPlugin(MSG_MAIN_TYPE_T mainType, const char *libPath): mSupportedM
 	if (libPath == NULL)
 		THROW(MsgException::INVALID_PARAM, "libPath NULL");
 
-        void* libHandle = NULL;
+	void* libHandle = NULL;
 
 	libHandle = dlopen(libPath, RTLD_NOW);
 

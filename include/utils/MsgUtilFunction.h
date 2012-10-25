@@ -68,7 +68,7 @@ int MsgEncodeSyncMLOperationData(int msgId, int extId, char **ppDest);
 
 int MsgEncodeStorageChangeData(const msg_storage_change_type_t storageChangeType, const msg_id_list_s *pMsgIdList, char **ppDest);
 
-int MsgEncodeReportStatus(MSG_REPORT_STATUS_INFO_S* pReportStatus, char **ppDest);
+int MsgEncodeReportStatus(MSG_REPORT_STATUS_INFO_S* pReportStatus, int count, char **ppDest);
 
 int MsgEncodeThreadId(msg_thread_id_t *pThreadId, char **ppDest);
 
@@ -100,7 +100,7 @@ void	MsgDecodeContactCount(char *pSrc,  MSG_THREAD_COUNT_INFO_S *pMsgThreadCount
 
 void MsgDecodeMemSize(char *pSrc, unsigned int *memsize);
 
-void	MsgDecodeReportStatus(char *pSrc,  MSG_REPORT_STATUS_INFO_S *pReportStatus);
+void MsgDecodeReportStatus(char *pSrc,  msg_struct_list_s *report_list);
 
 void MsgDecodeThreadId(char *pSrc, msg_thread_id_t *pThreadId);
 

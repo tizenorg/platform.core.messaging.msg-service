@@ -22,10 +22,10 @@
 #include "MsgDebug.h"
 #include "MsgUtilFile.h"
 #include "MsgGconfWrapper.h"
-#include "SmsPluginTextConvert.h"
 #include "SmsPluginTransport.h"
 #include "SmsPluginSimMsg.h"
 #include "SmsPluginStorage.h"
+#include "SmsPluginSetting.h"
 #include "SmsPluginConcatHandler.h"
 #include "SmsPluginEventHandler.h"
 
@@ -109,6 +109,15 @@ void SmsPluginEventHandler::handleMsgIncoming(SMS_TPDU_S *pTpdu)
 
 	/** initialize msgInfo */
 	memset(&msgInfo, 0x00, sizeof(MSG_MESSAGE_INFO_S));
+
+	/** check unsupported message */
+	if (pTpdu->tpduType == SMS_TPDU_DELIVER) {
+		if (pTpdu->data.deliver.dcs.codingScheme == SMS_CHARSET_8BIT && pTpdu->data.deliver.pid == 0x11) {
+			MSG_DEBUG("Unsupported message!!");
+			SmsPluginTransport::instance()->sendDeliverReport(MSG_SUCCESS);
+			return;
+		}
+	}
 
 	/** convert to msgInfo */
 	convertTpduToMsginfo(pTpdu, &msgInfo);
@@ -363,20 +372,22 @@ void SmsPluginEventHandler::convertSubmitTpduToMsginfo(const SMS_SUBMIT_S *pTpdu
 
 	/** Convert Data values */
 	if (pTpdu->dcs.codingScheme == SMS_CHARSET_7BIT) {
-		SMS_LANG_INFO_S langInfo = {0};
+		MSG_LANG_INFO_S langInfo = {0,};
 
 		langInfo.bSingleShift = false;
 		langInfo.bLockingShift = false;
 
-		msgInfo->dataSize = SmsPluginTextConvert::instance()->convertGSM7bitToUTF8((unsigned char*)msgInfo->msgText, MAX_MSG_TEXT_LEN, (unsigned char*)pTpdu->userData.data, pTpdu->userData.length, &langInfo);
+		msgInfo->dataSize = textCvt.convertGSM7bitToUTF8((unsigned char*)msgInfo->msgText, MAX_MSG_TEXT_LEN, (unsigned char*)pTpdu->userData.data, pTpdu->userData.length, &langInfo);
 	} else if (pTpdu->dcs.codingScheme == SMS_CHARSET_UCS2) {
-		msgInfo->dataSize = SmsPluginTextConvert::instance()->convertUCS2ToUTF8((unsigned char*)msgInfo->msgText, MAX_MSG_TEXT_LEN, (unsigned char*)pTpdu->userData.data, pTpdu->userData.length);
+		msgInfo->dataSize = textCvt.convertUCS2ToUTF8((unsigned char*)msgInfo->msgText, MAX_MSG_TEXT_LEN, (unsigned char*)pTpdu->userData.data, pTpdu->userData.length);
 	}
 }
 
 
 void SmsPluginEventHandler::convertDeliverTpduToMsginfo(const SMS_DELIVER_S *pTpdu, MSG_MESSAGE_INFO_S *msgInfo)
 {
+	MSG_BEGIN();
+
 	/** Convert Type  values */
 	msgInfo->msgType.mainType = MSG_SMS_TYPE;
 	msgInfo->msgType.subType = convertMsgSubType(pTpdu->pid);
@@ -403,6 +414,7 @@ void SmsPluginEventHandler::convertDeliverTpduToMsginfo(const SMS_DELIVER_S *pTp
 			break;
 		default:
 			msgInfo->msgType.classType = MSG_CLASS_NONE;
+			break;
 	}
 
 	if (pTpdu->dcs.bMWI) {
@@ -443,13 +455,30 @@ void SmsPluginEventHandler::convertDeliverTpduToMsginfo(const SMS_DELIVER_S *pTp
 			msgInfo->msgPort.srcPort = pTpdu->userData.header[i].udh.appPort16bit.originPort;
 		} else if (pTpdu->userData.header[i].udhType == SMS_UDH_SPECIAL_SMS) {
 			msgInfo->msgType.subType = (pTpdu->userData.header[i].udh.specialInd.msgInd+MSG_MWI_VOICE_SMS);
+			msgInfo->bStore = pTpdu->userData.header[i].udh.specialInd.bStore;
+
+			if (pTpdu->userData.header[i].udh.specialInd.waitMsgNum > 0) {
+				SmsPluginSetting::instance()->setMwiInfo(msgInfo->msgType.subType, pTpdu->userData.header[i].udh.specialInd.waitMsgNum);
+			}
 
 			if (pTpdu->userData.length == 0) {
-				sprintf(msgInfo->msgText,"[MWI Message] Total %d Message is waiting.", pTpdu->userData.header[i].udh.specialInd.waitMsgNum);
+				switch (msgInfo->msgType.subType) {
+				case MSG_MWI_VOICE_SMS :
+					sprintf(msgInfo->msgText, "%d new voice message", pTpdu->userData.header[i].udh.specialInd.waitMsgNum);
+					break;
+				case MSG_MWI_FAX_SMS :
+					sprintf(msgInfo->msgText, "%d new fax message", pTpdu->userData.header[i].udh.specialInd.waitMsgNum);
+					break;
+				case MSG_MWI_EMAIL_SMS :
+					sprintf(msgInfo->msgText, "%d new email message", pTpdu->userData.header[i].udh.specialInd.waitMsgNum);
+					break;
+				default :
+					sprintf(msgInfo->msgText, "%d new special message", pTpdu->userData.header[i].udh.specialInd.waitMsgNum);
+					break;
+				}
 				msgInfo->dataSize = strlen(msgInfo->msgText);
 				return;
 			}
-
 		} else if (pTpdu->userData.header[i].udhType == SMS_UDH_ALTERNATE_REPLY_ADDRESS) {
 			strncpy(msgInfo->addressList[0].addressVal, pTpdu->userData.header[i].udh.alternateAddress.address, MAX_ADDRESS_VAL_LEN);
 		}
@@ -484,7 +513,7 @@ void SmsPluginEventHandler::convertDeliverTpduToMsginfo(const SMS_DELIVER_S *pTp
 
 	/** Convert Data values */
 	if (pTpdu->dcs.codingScheme == SMS_CHARSET_7BIT) {
-		SMS_LANG_INFO_S langInfo = {0};
+		MSG_LANG_INFO_S langInfo = {0,};
 
 		langInfo.bSingleShift = false;
 		langInfo.bLockingShift = false;
@@ -500,19 +529,21 @@ void SmsPluginEventHandler::convertDeliverTpduToMsginfo(const SMS_DELIVER_S *pTp
 		}
 
 		msgInfo->encodeType = MSG_ENCODE_GSM7BIT;
-		msgInfo->dataSize = SmsPluginTextConvert::instance()->convertGSM7bitToUTF8((unsigned char*)msgInfo->msgText, MAX_MSG_TEXT_LEN, (unsigned char*)pTpdu->userData.data, pTpdu->userData.length, &langInfo);
+		msgInfo->dataSize = textCvt.convertGSM7bitToUTF8((unsigned char*)msgInfo->msgText, MAX_MSG_TEXT_LEN, (unsigned char*)pTpdu->userData.data, pTpdu->userData.length, &langInfo);
 	} else if (pTpdu->dcs.codingScheme == SMS_CHARSET_8BIT) {
 		msgInfo->encodeType = MSG_ENCODE_8BIT;
 		memcpy(msgInfo->msgText, pTpdu->userData.data, pTpdu->userData.length);
 		msgInfo->dataSize = pTpdu->userData.length;
 	} else if (pTpdu->dcs.codingScheme == SMS_CHARSET_UCS2) {
 		msgInfo->encodeType = MSG_ENCODE_UCS2;
-		msgInfo->dataSize = SmsPluginTextConvert::instance()->convertUCS2ToUTF8((unsigned char*)msgInfo->msgText, MAX_MSG_TEXT_LEN, (unsigned char*)pTpdu->userData.data, pTpdu->userData.length);
+		msgInfo->dataSize = textCvt.convertUCS2ToUTF8((unsigned char*)msgInfo->msgText, MAX_MSG_TEXT_LEN, (unsigned char*)pTpdu->userData.data, pTpdu->userData.length);
 	} else if (pTpdu->dcs.codingScheme == SMS_CHARSET_EUCKR) {
 		msgInfo->encodeType = MSG_ENCODE_8BIT;
-		msgInfo->dataSize = SmsPluginTextConvert::instance()->convertEUCKRToUTF8((unsigned char*)msgInfo->msgText, MAX_MSG_TEXT_LEN, (unsigned char*)pTpdu->userData.data, pTpdu->userData.length);
+		msgInfo->dataSize = textCvt.convertEUCKRToUTF8((unsigned char*)msgInfo->msgText, MAX_MSG_TEXT_LEN, (unsigned char*)pTpdu->userData.data, pTpdu->userData.length);
 		return;
 	}
+
+	MSG_END();
 }
 
 
@@ -658,7 +689,7 @@ bool SmsPluginEventHandler::getDeviceStatus()
 
 	mx.lock();
 
-	ret = cv.timedwait(mx.pMutex(), 10);
+	ret = cv.timedwait(mx.pMutex(), 16);
 
 	mx.unlock();
 

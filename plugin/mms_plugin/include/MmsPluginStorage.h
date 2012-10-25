@@ -43,20 +43,23 @@ public:
 	void composeReadReport(MSG_MESSAGE_INFO_S *pMsgInfo);
 
 	int searchMsgId(char *toNumber, char *szMsgID);
-	int	getMmsVersion(msg_message_id_t selectedMsgId);
+	int getMmsVersion(msg_message_id_t selectedMsgId);
 
-	msg_error_t	updateMessage(MSG_MESSAGE_INFO_S *pMsgInfo, MSG_SENDINGOPT_INFO_S *pSendOptInfo, char *pFileData);
-	msg_error_t	updateConfMessage(MSG_MESSAGE_INFO_S *pMsgInfo);
-	msg_error_t	updateMmsAttrib(msg_message_id_t msgId, MmsAttrib *attrib, MSG_SUB_TYPE_T msgSubType);
+	msg_error_t updateMessage(MSG_MESSAGE_INFO_S *pMsgInfo, MSG_SENDINGOPT_INFO_S *pSendOptInfo, char *pFileData);
+	msg_error_t updateConfMessage(MSG_MESSAGE_INFO_S *pMsgInfo);
+	msg_error_t updateMmsAttrib(msg_message_id_t msgId, MmsAttrib *attrib, MSG_SUB_TYPE_T msgSubType);
 	msg_error_t updateMmsAttachCount(msg_message_id_t msgId, int count);
-	msg_error_t	updateNetStatus(msg_message_id_t msgId, msg_network_status_t netStatus);
-	msg_error_t updateDeliveryReport(msg_message_id_t msgId, MmsMsgMultiStatus *pStatus);
-	msg_error_t	updateReadReport(msg_message_id_t msgId, MmsMsgMultiStatus *pStatus);
-	msg_error_t	setReadReportSendStatus(msg_message_id_t msgId, int readReportSendStatus);
-	msg_error_t	plgGetMmsMessage(MSG_MESSAGE_INFO_S *pMsg,  MSG_SENDINGOPT_INFO_S *pSendOptInfo, MMS_MESSAGE_DATA_S *pMmsMsg, char **pDestMsg);
-	msg_error_t	getContentLocation(MSG_MESSAGE_INFO_S *pMsgInfo);
+	msg_error_t updateNetStatus(msg_message_id_t msgId, msg_network_status_t netStatus);
+
+	msg_error_t insertDeliveryReport(msg_message_id_t msgId, char *address, MmsMsgMultiStatus *pStatus);
+	msg_error_t insertReadReport(msg_message_id_t msgId, char *address, MmsMsgMultiStatus *pStatus);
+	msg_error_t insertPreviewInfo(int msgId, int type, char *value, int count = 0);
+
+	msg_error_t setReadReportSendStatus(msg_message_id_t msgId, int readReportSendStatus);
+	msg_error_t plgGetMmsMessage(MSG_MESSAGE_INFO_S *pMsg,  MSG_SENDINGOPT_INFO_S *pSendOptInfo, MMS_MESSAGE_DATA_S *pMmsMsg, char **pDestMsg);
+	msg_error_t getContentLocation(MSG_MESSAGE_INFO_S *pMsgInfo);
 	msg_error_t getMmsRawFilePath(msg_message_id_t msgId, char *pFilepath);
-	msg_error_t	plgGetRestoreMessage(MSG_MESSAGE_INFO_S *pMsg, MSG_SENDINGOPT_INFO_S *pSendOptInfo, MMS_MESSAGE_DATA_S *pMmsMsg, char **pDestMsg, char *filePath);
+	msg_error_t plgGetRestoreMessage(MSG_MESSAGE_INFO_S *pMsg, MSG_SENDINGOPT_INFO_S *pSendOptInfo, MMS_MESSAGE_DATA_S *pMmsMsg, char **pDestMsg, char *filePath);
 	/* reject_msg_support */
 	msg_error_t getTrID(MSG_MESSAGE_INFO_S *pMsgInfo, char *pszTrID, int nBufferLen);
 	/* reject_msg_support */
@@ -64,8 +67,7 @@ public:
 	msg_error_t updateMsgServerID(MSG_MESSAGE_INFO_S *pMsgInfo, MSG_SENDINGOPT_INFO_S *pSendOptInfo);
 
 	MmsMsgMultiStatus *getMultiStatus(msg_message_id_t msgId);
-	msg_error_t	getMsgText(MMS_MESSAGE_DATA_S *pMmsMsg, char *pMsgText);
-	msg_error_t	makeThumbnail(MMS_MESSAGE_DATA_S *pMmsMsg, char *pThumbnailPath, char *szFileName);
+	msg_error_t getMsgText(MMS_MESSAGE_DATA_S *pMmsMsg, char *pMsgText);
 	msg_error_t addMmsNoti(MSG_MESSAGE_INFO_S *pMsgInfo);
 
 private:

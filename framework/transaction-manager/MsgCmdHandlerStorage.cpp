@@ -341,6 +341,45 @@ int MsgDeleteAllMessageInFolderHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 }
 
 
+int MsgDeleteMessageByListHandler(const MSG_CMD_S *pCmd, char **ppEvent)
+{
+	msg_error_t err = MSG_SUCCESS;
+
+	int eventSize = 0;
+
+	msg_id_list_s msgIdList;
+	memset(&msgIdList, 0x00, sizeof(msg_id_list_s));
+
+	msgIdList.nCount = *((int *)pCmd->cmdData);
+
+	MSG_DEBUG("msgIdList.nCount [%d]", msgIdList.nCount);
+
+	msg_message_id_t msgIds[msgIdList.nCount];
+	memset(msgIds, 0x00, sizeof(msgIds));
+
+	msgIdList.msgIdList = msgIds;
+
+	for (int i=0; i<msgIdList.nCount; i++) {
+		msgIds[i] = *(msg_message_id_t *)(((char*)pCmd->cmdData) + (sizeof(int)*(i+1)));
+	}
+
+	// Delete Message
+	err = MsgStoDeleteMessageByList(&msgIdList);
+
+	if (err == MSG_SUCCESS) {
+		MSG_DEBUG("Command Handle Success : MsgStoDeleteMessageByList()");
+		MsgTransactionManager::instance()->broadcastStorageChangeCB(MSG_SUCCESS, MSG_STORAGE_CHANGE_DELETE, &msgIdList);
+	} else {
+		MSG_DEBUG("Command Handle Fail : MsgStoDeleteMessageByList()");
+	}
+
+	// Make Event Data
+	eventSize = MsgMakeEvent(NULL, 0, MSG_EVENT_DELETE_MESSAGE_BY_LIST, err, (void**)ppEvent);
+
+	return eventSize;
+}
+
+
 int MsgMoveMessageToFolderHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 {
 	msg_error_t err = MSG_SUCCESS;
@@ -843,9 +882,11 @@ int MsgDeleteThreadMessageListHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 	msg_error_t err = MSG_SUCCESS;
 
 	msg_thread_id_t threadId;
+	bool bIncludeProtect = false;
 	bool isSyncMLMsg = false;
 
 	memcpy(&threadId, (void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN), sizeof(msg_thread_id_t));
+	memcpy(&bIncludeProtect, (void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN+sizeof(msg_thread_id_t)), sizeof(bool));
 
 	int eventSize = 0;
 
@@ -854,7 +895,7 @@ int MsgDeleteThreadMessageListHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 	msg_id_list_s msgIdList;
 	memset(&msgIdList, 0x00, sizeof(msg_id_list_s));
 
-	err = MsgStoDeleteThreadMessageList(threadId, &msgIdList);
+	err = MsgStoDeleteThreadMessageList(threadId, bIncludeProtect, &msgIdList);
 
 	if (err == MSG_SUCCESS) {
 		MSG_DEBUG("Command Handle Success : MsgStoDeleteThreadMessageList()");
@@ -871,6 +912,8 @@ int MsgDeleteThreadMessageListHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 	else
 	{
 		MSG_DEBUG("Command Handle Fail : MsgStoDeleteThreadMessageList()");
+		if(msgIdList.msgIdList != NULL)
+			delete [] (char*)msgIdList.msgIdList;
 	}
 
 	// Make Event Data
@@ -1055,18 +1098,17 @@ int MsgGetReportStatusHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 
 	int dataSize = 0, eventSize = 0;
 
-	MSG_REPORT_STATUS_INFO_S reportStatus;
+	MSG_REPORT_STATUS_INFO_S *reportStatus = NULL;
+	int report_count = 0;
 
-	memset(&reportStatus, 0x00, sizeof(MSG_REPORT_STATUS_INFO_S));
-
-	err = MsgStoGetReportStatus(*msgId, &reportStatus);
+	err = MsgStoGetReportStatus(*msgId, &report_count, &reportStatus);
 
 	if (err == MSG_SUCCESS)
 	{
 		MSG_DEBUG("Command Handle Success : MsgGetReportStatusHandler()");
 
 		// Encoding Report Status Data
-		dataSize = MsgEncodeReportStatus(&reportStatus, &encodedData);
+		dataSize = MsgEncodeReportStatus(reportStatus, report_count, &encodedData);
 	}
 	else
 	{
@@ -1153,6 +1195,80 @@ int MsgGetThreadInfoHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 
 	// Make Event Data
 	eventSize = MsgMakeEvent(encodedData, dataSize, MSG_EVENT_GET_THREAD_INFO, err, (void**)ppEvent);
+
+	return eventSize;
+}
+
+int MsgAddPushEventHandler(const MSG_CMD_S *pCmd, char **ppEvent)
+{
+	msg_error_t err = MSG_SUCCESS;
+
+	int eventSize = 0;
+
+	// Get Message Info
+	MSG_PUSH_EVENT_INFO_S* pPushEvent = (MSG_PUSH_EVENT_INFO_S*)pCmd->cmdData;
+
+	// Add Message
+	err = MsgStoAddPushEvent(pPushEvent);
+
+	if (err == MSG_SUCCESS) {
+		MSG_DEBUG("Command Handle Success : MsgStoAddPushEvent()");
+	} else {
+		MSG_DEBUG("Command Handle Fail : MsgStoAddMessage()");
+	}
+
+	// Make Event Data
+	eventSize = MsgMakeEvent(NULL, 0, MSG_EVENT_ADD_PUSH_EVENT, err, (void**)ppEvent);
+
+	return eventSize;
+}
+
+int MsgDeletePushEventHandler(const MSG_CMD_S *pCmd, char **ppEvent)
+{
+	msg_error_t err = MSG_SUCCESS;
+
+	int eventSize = 0;
+
+	// Get Message Info
+	MSG_PUSH_EVENT_INFO_S* pPushEvent = (MSG_PUSH_EVENT_INFO_S*)pCmd->cmdData;
+
+	// Add Message
+	err = MsgStoDeletePushEvent(pPushEvent);
+
+	if (err == MSG_SUCCESS) {
+		MSG_DEBUG("Command Handle Success : MsgStoDeletePushEvent()");
+	} else {
+		MSG_DEBUG("Command Handle Fail : MsgStoDeletePushEvent()");
+	}
+
+	// Make Event Data
+	eventSize = MsgMakeEvent(NULL, 0, MSG_EVENT_DELETE_PUSH_EVENT, err, (void**)ppEvent);
+
+	return eventSize;
+}
+
+int MsgUpdatePushEventHandler(const MSG_CMD_S *pCmd, char **ppEvent)
+{
+	msg_error_t err = MSG_SUCCESS;
+
+
+	int eventSize = 0;
+
+	// Get Message Info
+	MSG_PUSH_EVENT_INFO_S* pSrc = (MSG_PUSH_EVENT_INFO_S*)pCmd->cmdData;
+	MSG_PUSH_EVENT_INFO_S* pDst = (MSG_PUSH_EVENT_INFO_S*)(pCmd->cmdData + sizeof(MSG_PUSH_EVENT_INFO_S));
+
+	// Add Message
+	err = MsgStoUpdatePushEvent(pSrc, pDst);
+
+	if (err == MSG_SUCCESS) {
+		MSG_DEBUG("Command Handle Success : MsgStoUpdatePushEvent()");
+	} else {
+		MSG_DEBUG("Command Handle Fail : MsgStoUpdatePushEvent()");
+	}
+
+	// Make Event Data
+	eventSize = MsgMakeEvent(NULL, 0, MSG_EVENT_UPDATE_PUSH_EVENT, err, (void**)ppEvent);
 
 	return eventSize;
 }

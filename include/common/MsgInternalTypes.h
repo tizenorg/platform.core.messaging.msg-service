@@ -32,7 +32,7 @@
 /*==================================================================================================
                                     DEFINES
 ==================================================================================================*/
-#define MSG_DATA_ROOT_PATH		"/opt/data/msg-service/"
+#define MSG_DATA_ROOT_PATH		"/opt/usr/data/msg-service/"
 #define MSG_DATA_PATH				MSG_DATA_ROOT_PATH"msgdata/"
 #define MSG_SMIL_FILE_PATH		MSG_DATA_ROOT_PATH"smildata/"
 #define MSG_IPC_DATA_PATH			MSG_DATA_ROOT_PATH"ipcdata/"
@@ -44,6 +44,7 @@
 #define MAX_THREAD_NAME_LEN	195
 #define MAX_THREAD_DATA_LEN	128
 #define MAX_CB_MSG_TEXT_LEN	4200	// 1page max char(93)*max page(15)*max bytes of UTF8 1 char(3)
+#define MAX_CB_MSG_LANGUAGE_TYPE_LEN	3
 #define MAX_ETWS_WARNING_SECURITY_INFO_LEN	50
 
 #define SMS_MINIMUM_SPACE	(3 * 1024)
@@ -143,6 +144,7 @@
 #define CB_LANGUAGE					DEFAULT_CB_MSG_OPT_PATH"/language"
 
 #define VOICEMAIL_NUMBER				DEFAULT_VOICE_MAIL_OPT_PATH"/voice_mail_number"
+#define VOICEMAIL_COUNT				DEFAULT_VOICE_MAIL_OPT_PATH"/voice_mail_count"
 
 #define MSGSIZE_OPTION					DEFAULT_MSGSIZE_OPT_PATH"/msg_size"
 
@@ -204,29 +206,30 @@ typedef struct
  */
 typedef struct
 {
-	msg_message_id_t			msgId;																/**< Indicates the message ID of this message. */
-	msg_thread_id_t				threadId;															/**< Indicates the thread ID. */
-	msg_folder_id_t				folderId;															/**< Indicates the folder ID. */
-	MSG_MESSAGE_TYPE_S		msgType;															/**< Indicates the message type such as SMS and MMS */
-	msg_storage_id_t			storageId;															/**< Indicates where the message is saved. */
-	int										nAddressCnt;													/**< Indicates the count of addresses. */
+	msg_message_id_t		msgId;											/**< Indicates the message ID of this message. */
+	msg_thread_id_t			threadId;										/**< Indicates the thread ID. */
+	msg_folder_id_t			folderId;										/**< Indicates the folder ID. */
+	MSG_MESSAGE_TYPE_S		msgType;										/**< Indicates the message type such as SMS and MMS */
+	msg_storage_id_t		storageId;										/**< Indicates where the message is saved. */
+	int						nAddressCnt;									/**< Indicates the count of addresses. */
 	MSG_ADDRESS_INFO_S		addressList[MAX_TO_ADDRESS_CNT];				/**< Indicates the address information list. */
-	char										replyAddress[MAX_PHONE_NUMBER_LEN+1];	/**< Indicates the reply address. */
-	char										subject[MAX_SUBJECT_LEN+1];						/**< Indicates the message subject. */
-	time_t									displayTime;													/**< Indicates the display time related to the specific operation. */
+	char					replyAddress[MAX_PHONE_NUMBER_LEN+1];	/**< Indicates the reply address. */
+	char					subject[MAX_SUBJECT_LEN+1];						/**< Indicates the message subject. */
+	time_t					displayTime;													/**< Indicates the display time related to the specific operation. */
 	msg_network_status_t	networkStatus;													/**< Indicates the network status of the message. */
 	msg_encode_type_t		encodeType;													/**< Indicates the string encoding type. */
-	bool										bRead;																/**< Indicates whether the message is read or not. */
-	bool										bProtected;														/**< Indicates whether the message is protected or not. */
-	bool										bBackup;															/**< Indicates whether the message was restored from PC. */
+	bool					bRead;																/**< Indicates whether the message is read or not. */
+	bool					bProtected;														/**< Indicates whether the message is protected or not. */
+	bool					bBackup;															/**< Indicates whether the message was restored from PC. */
 	msg_priority_type_t		priority;															/**< Indicates the priority of the message. */
 	msg_direction_type_t	direction;															/**< Indicates whether the message is MO or MT (affecting address). */
-	MSG_PORT_INFO_S				msgPort;															/**< Indicates the port number information. */
-	bool										bTextSms;														/**< Indicates whether the message is just a text message or not. */
-	size_t									dataSize;															/**< Indicates the data size. The unit is byte. */
-	char										msgData[MAX_MSG_DATA_LEN+1];					/**< Indicates the message payload information as a body. */
-	char										msgText[MAX_MSG_TEXT_LEN+1];
+	MSG_PORT_INFO_S			msgPort;															/**< Indicates the port number information. */
+	bool						bTextSms;														/**< Indicates whether the message is just a text message or not. */
+	size_t					dataSize;															/**< Indicates the data size. The unit is byte. */
+	char					msgData[MAX_MSG_DATA_LEN+1];					/**< Indicates the message payload information as a body. */
+	char					msgText[MAX_MSG_TEXT_LEN+1];
 	char										thumbPath[MSG_FILEPATH_LEN_MAX];
+	bool 					bStore;
 } MSG_MESSAGE_INFO_S;
 
 typedef struct
@@ -253,7 +256,7 @@ typedef struct
 	unsigned short			dstPort;								/**< Recipient port number, not greater than 16 bit */
 	unsigned short			srcPort;								/**< Sender port number, not greater than 16 bit */
 	int						attachCount;							/**< Indicates the count of attached files in mms. */
-	char					thumbPath[MSG_FILEPATH_LEN_MAX];
+	char					thumbPath[MSG_FILEPATH_LEN_MAX+1];
 	size_t					dataSize;								/**< Indicates the data size. The unit is byte. */
 	void					*pData;									/**< Indicates the message payload information as a body. default character encoding is UTF-8*/
 	void					*pMmsData;								/**< Indicates the message payload information as a body. default character encoding is UTF-8*/
@@ -274,7 +277,37 @@ typedef struct
 	int						unreadCnt;														/**< Indicates the unread messages from the Peer. */
 	int						smsCnt;															/**< Indicates the SMS messages from the Peer. */
 	int						mmsCnt;															/**< Indicates the MMS messages from the Peer. */
+	bool					bProtected;														/**< Indicates whether the thread includes protected messages.  */
 } MSG_THREAD_VIEW_S;
+
+
+/**
+ *	@brief	Represents message information for conversation view.
+ */
+typedef struct
+{
+	msg_message_id_t			msgId;									/**< Indicates the message ID of this message. */
+	msg_thread_id_t			threadId;								/**< Indicates the thread ID of this peer. */
+	MSG_MAIN_TYPE_T			mainType;							/**< Message main type. See enum _MSG_MAIN_TYPE_E */
+	MSG_SUB_TYPE_T			subType;								/**< Message sub type. See enum _MSG_SUB_TYPE_E */
+	msg_folder_id_t			folderId;								/**< Indicates the folder ID. see enum _MSG_FOLDER_TYPE_E */
+	msg_storage_id_t				storageId;								/**< Indicates where the message is saved. see enum _MSG_FOLDER_TYPE_E*/
+	time_t								displayTime;						/**< Indicates the display time related to the specific operation. */
+	time_t								scheduledTime;					/**< Indicates the time to send scheduled message. */
+	msg_network_status_t		networkStatus;						/**< Indicates the network status of the message. */
+	bool									bRead;									/**< Indicates whether the message is read or not. */
+	bool									bProtected;							/**< Indicates whether the message is protected or not. */
+	msg_direction_type_t		direction;								/**< Indicates whether the message is MO or MT, affecting address. */
+	int									pageCount;						/**< Indicates the count of pageCount in mms. */
+	int									attachCount;						/**< Indicates the count of attached files in mms. */
+	char									attachFileName[MSG_FILENAME_LEN_MAX+1];	/**< Indicates the thumbnail path. */
+	char									audioFileName[MSG_FILENAME_LEN_MAX+1];	/**< Indicates the thumbnail path. */
+	char									imageThumbPath[MSG_FILEPATH_LEN_MAX+1];	/**< Indicates the thumbnail path. */
+	char									videoThumbPath[MSG_FILEPATH_LEN_MAX+1];		/**< Indicates the thumbnail path. */
+	char									subject[MAX_SUBJECT_LEN+1];							/**< Indicates the message subject. */
+	size_t								textSize;								/**< Indicates the data size. The unit is byte. */
+	char									*pText;									/**< Indicates the message payload information as a body. default character encoding is UTF-8*/
+} MSG_CONVERSATION_VIEW_S;
 
 
 /**
@@ -426,6 +459,7 @@ typedef struct
 
 	unsigned short			etwsWarningType;
 	unsigned char			etwsWarningSecurityInfo[MAX_ETWS_WARNING_SECURITY_INFO_LEN];
+	unsigned char			language_type[MAX_CB_MSG_LANGUAGE_TYPE_LEN];
 } MSG_CB_MSG_S;
 
 
@@ -511,5 +545,17 @@ enum _MSG_MMS_TRANSACTION_TYPE_E
 	MSG_MMS_UNKNOWN,
 };
 
+/**
+ *	@brief	Represents the values of File Type of MMS. \n
+ *	This enum is used as the value of .
+ */
+enum _MSG_MMS_ITEM_TYPE_E
+{
+	MSG_MMS_ITEM_TYPE_IMG,			/**< Indicates the image media */
+	MSG_MMS_ITEM_TYPE_AUDIO,		/**< Indicates the audio media */
+	MSG_MMS_ITEM_TYPE_VIDEO,		/**< Indicates the video media */
+	MSG_MMS_ITEM_TYPE_ATTACH,		/**< Indicates the attach file */
+	MSG_MMS_ITEM_TYPE_PAGE,	/**< Indicates the page count */
+};
 #endif
 

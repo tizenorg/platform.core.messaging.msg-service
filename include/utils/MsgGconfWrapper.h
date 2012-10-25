@@ -62,6 +62,8 @@ bool	MsgSettingGetUnknownAutoReject();
 
 void	MsgSettingRegVconfCB();
 void	MsgSettingRemoveVconfCB();
+
 void MsgSettingRegVconfCBCommon(const char *pKey, _vconf_change_cb pCb);
+void MsgSettingRemoveVconfCBCommon(const char *pKey, _vconf_change_cb pCb);
 
 #endif // MSG_GCONF_WRAPPER_H

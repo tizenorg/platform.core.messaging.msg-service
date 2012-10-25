@@ -19,12 +19,15 @@
 
 #include "MsgDebug.h"
 #include "MsgUtilFile.h"
+#include "MsgUtilStorage.h"
 #include "MsgException.h"
 #include "MsgGconfWrapper.h"
 #include "MsgPluginManager.h"
 #include "MsgStorageHandler.h"
 #include "MsgSubmitHandler.h"
 
+
+extern MsgDbHandler dbHandle;
 
 /*==================================================================================================
                                      FUNCTION IMPLEMENTATION
@@ -108,7 +111,7 @@ msg_error_t MsgSubmitReqMMS(MSG_REQUEST_INFO_S *pReqInfo)
 
 	if(!plg)
 	{
-		MsgStoUpdateNetworkStatus(&(pReqInfo->msgInfo), MSG_NETWORK_SEND_FAIL);
+		MsgStoUpdateNetworkStatus(&dbHandle, &(pReqInfo->msgInfo), MSG_NETWORK_SEND_FAIL);
 		MSG_DEBUG("No Plugin for %d type", msgMainType);
 
 		return MSG_ERR_INVALID_PLUGIN_HANDLE;
@@ -136,7 +139,7 @@ msg_error_t MsgSubmitReqMMS(MSG_REQUEST_INFO_S *pReqInfo)
 		if(err != MSG_SUCCESS)
 		{
 			MSG_DEBUG("Update Network Status : [%d]", err);
-			MsgStoUpdateNetworkStatus(&(pReqInfo->msgInfo),MSG_NETWORK_SEND_FAIL);
+			MsgStoUpdateNetworkStatus(&dbHandle, &(pReqInfo->msgInfo),MSG_NETWORK_SEND_FAIL);
 		}
 
 		return err;
@@ -174,7 +177,7 @@ msg_error_t MsgSubmitReqMMS(MSG_REQUEST_INFO_S *pReqInfo)
 			pReqInfo->msgInfo.folderId = MSG_OUTBOX_ID;
 			err = MsgStoUpdateMessage(&(pReqInfo->msgInfo), &(pReqInfo->sendOptInfo));
 
-			MsgStoUpdateNetworkStatus(&(pReqInfo->msgInfo), pReqInfo->msgInfo.networkStatus);
+			MsgStoUpdateNetworkStatus(&dbHandle, &(pReqInfo->msgInfo), pReqInfo->msgInfo.networkStatus);
 		} else {
 			//new message case
 			MSG_DEBUG("New Message");
@@ -215,7 +218,7 @@ msg_error_t MsgSubmitReqMMS(MSG_REQUEST_INFO_S *pReqInfo)
 	}
 	else if(pReqInfo->msgInfo.msgType.subType == MSG_RETRIEVE_MMS)
 	{
-		MsgStoUpdateNetworkStatus(&(pReqInfo->msgInfo), pReqInfo->msgInfo.networkStatus);
+		MsgStoUpdateNetworkStatus(&dbHandle, &(pReqInfo->msgInfo), pReqInfo->msgInfo.networkStatus);
 	}
 
 	/* reject_msg_support */
@@ -256,7 +259,7 @@ msg_error_t MsgSubmitReqMMS(MSG_REQUEST_INFO_S *pReqInfo)
 	if(simStatus == MSG_SIM_STATUS_NOT_FOUND)
 	{
 		MSG_DEBUG("SIM is not present...");
-		MsgStoUpdateNetworkStatus(&(pReqInfo->msgInfo), MSG_NETWORK_SEND_FAIL);
+		MsgStoUpdateNetworkStatus(&dbHandle, &(pReqInfo->msgInfo), MSG_NETWORK_SEND_FAIL);
 
 		return MSG_ERR_NO_SIM;
 	}
@@ -270,9 +273,9 @@ msg_error_t MsgSubmitReqMMS(MSG_REQUEST_INFO_S *pReqInfo)
 	if (err != MSG_SUCCESS)
 	{
 		if(pReqInfo->msgInfo.msgType.subType == MSG_RETRIEVE_MMS )
-			MsgStoUpdateNetworkStatus(&(pReqInfo->msgInfo), MSG_NETWORK_RETRIEVE_FAIL);
+			MsgStoUpdateNetworkStatus(&dbHandle, &(pReqInfo->msgInfo), MSG_NETWORK_RETRIEVE_FAIL);
 		else
-			MsgStoUpdateNetworkStatus(&(pReqInfo->msgInfo), MSG_NETWORK_SEND_FAIL);
+			MsgStoUpdateNetworkStatus(&dbHandle, &(pReqInfo->msgInfo), MSG_NETWORK_SEND_FAIL);
 	}
 
 

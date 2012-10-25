@@ -256,10 +256,6 @@ msg_error_t MsgCreateMsgTable()
 				MSG_DATA TEXT , \
 				THUMB_PATH TEXT , \
 				MSG_TEXT TEXT , \
-				DELIVERY_REPORT_STATUS INTEGER DEFAULT 0 , \
-				DELIVERY_REPORT_TIME DATETIME , \
-				READ_REPORT_STATUS INTEGER DEFAULT 0 , \
-				READ_REPORT_TIME DATETIME , \
 				ATTACHMENT_COUNT INTEGER DEFAULT 0 , \
 				FOREIGN KEY(CONV_ID) REFERENCES %s (CONV_ID) , \
 				FOREIGN KEY(FOLDER_ID) REFERENCES %s (FOLDER_ID) );",
@@ -437,7 +433,8 @@ msg_error_t MsgCreateFilterTable()
 				"CREATE TABLE %s ( \
 				FILTER_ID INTEGER PRIMARY KEY , \
 				FILTER_TYPE INTEGER NOT NULL , \
-				FILTER_VALUE TEXT NOT NULL );",
+				FILTER_VALUE TEXT NOT NULL , \
+				FILTER_ACTIVE INTEGER DEFAULT 0);",
 				MSGFW_FILTER_TABLE_NAME);
 
 		err = dbHandle.execQuery(sqlQuery);
@@ -860,5 +857,105 @@ msg_error_t MsgStoUpdateMms(MSG_MESSAGE_INFO_S *pMsg)
 
 msg_error_t MsgStoRestoreMessage()
 {
+	return MSG_SUCCESS;
+}
+
+msg_error_t MsgStoAddPushEvent(MSG_PUSH_EVENT_INFO_S* pPushEvent)
+{
+	msg_error_t err = MSG_SUCCESS;
+	char sqlQuery[MAX_QUERY_LEN+1];
+	unsigned int rowId = 0;
+
+	memset(sqlQuery, 0x00, sizeof(sqlQuery));
+
+	// Check whether Same record exists or not.
+	snprintf(sqlQuery, sizeof(sqlQuery), "SELECT * FROM %s WHERE CONTENT_TYPE LIKE '%s' AND APP_ID LIKE '%s' AND (PKG_NAME LIKE '%s' OR SECURE = 1);",
+			MSGFW_PUSH_CONFIG_TABLE_NAME, pPushEvent->contentType, pPushEvent->appId, pPushEvent->pkgName);
+
+	if (dbHandle.prepareQuery(sqlQuery) != MSG_SUCCESS) {
+		MSG_DEBUG("Query Failed [%s]", sqlQuery);
+		return MSG_ERR_DB_PREPARE;
+	}
+
+	if (dbHandle.stepQuery() == MSG_ERR_DB_ROW) {
+		dbHandle.finalizeQuery();
+		return MSG_ERR_DB_ROW;
+	}
+	dbHandle.finalizeQuery();
+
+	dbHandle.beginTrans();
+	err = dbHandle.getRowId(MSGFW_PUSH_CONFIG_TABLE_NAME, &rowId);
+	memset(sqlQuery, 0x00, sizeof(sqlQuery));
+
+	snprintf(sqlQuery, sizeof(sqlQuery), "INSERT INTO %s VALUES (%d, ?, ?, ?, %d, 0, 0);",
+			MSGFW_PUSH_CONFIG_TABLE_NAME, rowId, pPushEvent->bLaunch);
+
+
+	MSG_DEBUG("QUERY : %s", sqlQuery);
+
+	if (dbHandle.prepareQuery(sqlQuery) != MSG_SUCCESS) {
+		dbHandle.endTrans(false);
+		return MSG_ERR_DB_EXEC;
+	}
+
+	dbHandle.bindText(pPushEvent->contentType, 1);
+	dbHandle.bindText(pPushEvent->appId, 2);
+	dbHandle.bindText(pPushEvent->pkgName, 3);
+
+	if (dbHandle.stepQuery() != MSG_ERR_DB_DONE) {
+		dbHandle.finalizeQuery();
+		dbHandle.endTrans(false);
+		return MSG_ERR_DB_EXEC;
+	}
+
+	dbHandle.finalizeQuery();
+	dbHandle.endTrans(true);
+
+	return MSG_SUCCESS;
+}
+
+
+msg_error_t MsgStoDeletePushEvent(MSG_PUSH_EVENT_INFO_S* pPushEvent)
+{
+	char sqlQuery[MAX_QUERY_LEN+1];
+	dbHandle.beginTrans();
+	memset(sqlQuery, 0x00, sizeof(sqlQuery));
+	snprintf(sqlQuery, sizeof(sqlQuery), "DELETE FROM %s WHERE CONTENT_TYPE LIKE '%s' AND APP_ID LIKE '%s' AND PKG_NAME LIKE '%s';",
+			MSGFW_PUSH_CONFIG_TABLE_NAME, pPushEvent->contentType, pPushEvent->appId, pPushEvent->pkgName);
+
+	if (dbHandle.execQuery(sqlQuery) != MSG_SUCCESS) {
+		dbHandle.endTrans(false);
+		return MSG_ERR_DB_EXEC;
+	}
+	dbHandle.endTrans(true);
+	return MSG_SUCCESS;
+}
+
+msg_error_t MsgStoUpdatePushEvent(MSG_PUSH_EVENT_INFO_S* pSrc, MSG_PUSH_EVENT_INFO_S* pDst)
+{
+	char sqlQuery[MAX_QUERY_LEN+1];
+	dbHandle.beginTrans();
+	memset(sqlQuery, 0x00, sizeof(sqlQuery));
+	snprintf(sqlQuery, sizeof(sqlQuery), "UPDATE %s SET CONTENT_TYPE = ?, APP_ID = ?, PKG_NAME = ?, LAUNCH = %d WHERE CONTENT_TYPE LIKE '%s' AND APP_ID LIKE '%s' AND PKG_NAME LIKE '%s';",
+			MSGFW_PUSH_CONFIG_TABLE_NAME, pDst->bLaunch, pSrc->contentType, pSrc->appId, pSrc->pkgName);
+
+	if (dbHandle.prepareQuery(sqlQuery) != MSG_SUCCESS) {
+		dbHandle.endTrans(false);
+		return MSG_ERR_DB_EXEC;
+	}
+
+	dbHandle.bindText(pDst->contentType, 1);
+	dbHandle.bindText(pDst->appId, 2);
+	dbHandle.bindText(pDst->pkgName, 3);
+
+	if (dbHandle.stepQuery() != MSG_ERR_DB_DONE) {
+		dbHandle.finalizeQuery();
+		dbHandle.endTrans(false);
+		return MSG_ERR_DB_EXEC;
+	}
+
+	dbHandle.finalizeQuery();
+	dbHandle.endTrans(true);
+
 	return MSG_SUCCESS;
 }

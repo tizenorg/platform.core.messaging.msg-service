@@ -21,6 +21,7 @@
 /*==================================================================================================
                                          INCLUDE FILES
 ==================================================================================================*/
+#include "MsgTextConvert.h"
 #include "MsgInternalTypes.h"
 #include "MsgStorageTypes.h"
 #include "MsgSettingTypes.h"
@@ -43,7 +44,9 @@
 #define MAX_CBMSG_PAGE_SIZE		93
 #define MAX_ETWS_SIZE			56
 #define MAX_CBMSG_PAGE_NUM		15
-#define MAX_SIM_SMS_NUM			90
+#define MAX_SIM_SMS_NUM			255
+#define MAX_SIM_XDN_ALPHA_ID_LEN	30
+#define MAX_SIM_MSP_CNT			2
 
 #define SMS_PUSH_XML_HREF_TAG		"href"
 #define SMS_PUSH_XML_SI_ID_TAG		"si-id"
@@ -169,10 +172,13 @@ typedef unsigned char SMS_SAT_CMD_TYPE_T;
 
 typedef unsigned short SMS_SIM_EFILE_NAME_T;
 
-typedef unsigned char SMS_LANGUAGE_ID_T;
 
 typedef unsigned char SMS_ETWS_NETWORK_TYPE_T;
 
+/**
+\brief Represents SIM mailbox type. See enum _SMS_SIM_MAILBOX_TYPE_E
+*/
+typedef unsigned char SMS_SIM_MAILBOX_TYPE_T;
 
 /*==================================================================================================
                                     ENUMS
@@ -541,22 +547,13 @@ enum _SMS_SIM_EFILE_NAME_E
 };
 
 
-enum _SMS_LANGUAGE_ID_E
-{
-	SMS_LANG_ID_RESERVED = 0,
-	SMS_LANG_ID_TURKISH,
-	SMS_LANG_ID_SPANISH,
-	SMS_LANG_ID_PORTUGUESE,
-	SMS_LANG_ID_BENGALI,
-	SMS_LANG_ID_GUJARATI,
-	SMS_LANG_ID_HINDI,
-	SMS_LANG_ID_KANNADA,
-	SMS_LANG_ID_MALAYALAM,
-	SMS_LANG_ID_ORIYA,
-	SMS_LANG_ID_PUNJABI,
-	SMS_LANG_ID_TAMIL,
-	SMS_LANG_ID_TELUGU,
-	SMS_LANG_ID_URDU,
+enum _SMS_SIM_MAILBOX_TYPE_E {
+	MSG_SIM_MAILBOX_VOICE = 0x01,
+	MSG_SIM_MAILBOX_VOICE2 = 0x02,
+	MSG_SIM_MAILBOX_FAX = 0x03,
+	MSG_SIM_MAILBOX_DATA = 0x04,
+	MSG_SIM_MAILBOX_EMAIL = 0x05,
+	MSG_SIM_MAILBOX_OTHER = 0x06,
 };
 
 
@@ -651,18 +648,6 @@ typedef struct _SMS_SPECIAL_INDICATION_S
 } SMS_SPECIAL_INDICATION_S;
 
 
-typedef struct _SMS_SINGLE_SHIFT_S
-{
-	SMS_LANGUAGE_ID_T	langId;
-} SMS_SINGLE_SHIFT_S;
-
-
-typedef struct _SMS_LOCKING_SHIFT_S
-{
-	SMS_LANGUAGE_ID_T	langId;
-} SMS_LOCKING_SHIFT_S;
-
-
 typedef struct _SMS_UDH_S
 {
 	SMS_UDH_TYPE_T udhType;
@@ -674,8 +659,8 @@ typedef struct _SMS_UDH_S
 		SMS_APP_PORT_8BIT_S		appPort8bit;
 		SMS_APP_PORT_16BIT_S		appPort16bit;
 		SMS_SPECIAL_INDICATION_S 	specialInd;
-		SMS_SINGLE_SHIFT_S			singleShift;
-		SMS_LOCKING_SHIFT_S			lockingShift;
+		MSG_SINGLE_SHIFT_S			singleShift;
+		MSG_LOCKING_SHIFT_S			lockingShift;
 		SMS_ADDRESS_S				alternateAddress;
 	} udh;
 } SMS_UDH_S;
@@ -864,15 +849,6 @@ typedef struct _SMS_ETWS_PRIMARY_S
 	unsigned char				warningSecurityInfo[MAX_ETWS_SIZE-6];
 }SMS_ETWS_PRIMARY_S;
 
-typedef struct _SMS_LANG_INFO_S
-{
-	bool							bSingleShift;
-	bool							bLockingShift;
-
-	SMS_LANGUAGE_ID_T			singleLang;
-	SMS_LANGUAGE_ID_T			lockingLang;
-} SMS_LANG_INFO_S;
-
 
 typedef struct _SMS_WSP_CONTENTS_TYPE_S
 {
@@ -905,7 +881,7 @@ typedef struct _SMS_WSP_LANGUAGE_S
 typedef struct _SMS_WSP_HEADER_PARAMETER_S
 {
 	char*         parameterToken;
-	unsigned char parameterCode;
+	unsigned int parameterCode;
 } SMS_WSP_HEADER_PARAMETER_S;
 
 
@@ -943,6 +919,77 @@ typedef struct
 	msg_sim_id_t		simIdList[MAX_SEGMENT_NUM];							/**< The SIM Msg ID List */
 	char				msgData[(MAX_MSG_DATA_LEN*MAX_SEGMENT_NUM)+1];		/**< user data */
 } SMS_CONCAT_SIM_MSG_S;
+
+
+/**
+ *	@brief	Represents Sim Mailbox information
+ */
+typedef struct {
+	int 			b_cphs;
+	int 			rec_index; 								/**< index which stands for the location where record is saved in SIM*/
+	int 			profile_num; 							/**< SIM profile index*/
+	SMS_SIM_MAILBOX_TYPE_T 	mb_type;
+	int 			alpha_id_max_len; 						/**< alpha max length in SIM - READ ONLY*/
+	char 			alpha_id[MAX_SIM_XDN_ALPHA_ID_LEN + 1]; /**< Alpha Identifier */
+	MSG_SMS_TON_T 	ton; 									/**< Type Of Number */
+	MSG_SMS_NPI_T 	npi; 									/**< Number Plan Identity */
+	char 			num[MAX_PHONE_NUMBER_LEN + 1]; 			/**< Dialing Number/SSC String */
+	unsigned char 	cc_id; 									/**< Capability/Configuration Identifier */
+	unsigned char 	ext1_id; 								/**< Extensiion1 Record Identifier */
+} SMS_SIM_MAILBOX_INFO_S;
+
+
+/**
+ *	@brief	Represents Sim Mailbox list
+ */
+typedef struct {
+	int count;
+	SMS_SIM_MAILBOX_INFO_S list[MAX_SIM_MSP_CNT*5]; //max is 10
+} SMS_SIM_MAILBOX_LIST_S;
+
+
+/**
+ *	@brief	Represents Message Waiting Indication
+ */
+typedef struct {
+	int 			rec_index;
+	unsigned char 	indicator_status; 	/**< Indicator Type*/
+	int 			voice_count; 		/**< VoiceMail Count*/
+	int 			fax_count; 			/**< FAX Count*/
+	int 			email_count; 		/**< Email Count*/
+	int			 	other_count; 		/**< Other Count*/
+	int 			video_count; 		/**< VideoMail Count*/
+} SMS_SIM_MWI_NORMAL_INFO_S;
+
+
+/**
+ *	@brief	Represents Message Waiting Indication list
+ */
+typedef struct {
+	int profile_count;
+	SMS_SIM_MWI_NORMAL_INFO_S mw_info[MAX_SIM_MSP_CNT];
+} SMS_SIM_MWI_LIST_S;
+
+
+/**
+ *	@brief	Represents Message Waiting Indication for CPHS
+ */
+typedef struct {
+	int	b_voice1;	/**< VoiceMsgLine1 message waiting flag */
+	int	b_voice2;	/**< VoiceMsgLine2 message waiting flag */
+	int	b_fax;		/**< FAX message waiting flag */
+	int	b_data;		/**< Data message waiting flag */
+} SMS_SIM_MWI_CPHS_INFO_S;
+
+
+/**
+ *	@brief	Represents Message Waiting Indication Information
+ */
+typedef struct {
+	int b_cphs;
+	SMS_SIM_MWI_LIST_S mwi_list;
+	SMS_SIM_MWI_CPHS_INFO_S cphs_mwi;
+} SMS_SIM_MWI_INFO_S;
 
 #endif //SMS_PLUGIN_TYPES_H
 

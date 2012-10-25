@@ -207,7 +207,7 @@ MmsPluginUaManager *MmsPluginUaManager::instance()
 
 void MmsPluginUaManager::start()
 {
-	bool bStart = true;
+//	bool bStart = true;
 
 	MutexLocker lock(mx);
 
@@ -284,7 +284,7 @@ void MmsPluginUaManager::run()
 	MmsPluginHttpAgent *httpAgent = MmsPluginHttpAgent::instance();
 
 	int trId;
-	CURL *session = NULL;
+//	CURL *session = NULL;
 
 	int msgId;
 
@@ -587,7 +587,6 @@ bool MmsPluginUaManager::processReceivedData(int msgId, char *pRcvdBody, int rcv
 	MSG_BEGIN();
 
 	char fileName[MSG_FILENAME_LEN_MAX] = {0};
-	FILE *pFile = NULL;
 
 	MSG_DEBUG(":::%d :%s ", rcvdBodyLen, pRcvdBody);
 

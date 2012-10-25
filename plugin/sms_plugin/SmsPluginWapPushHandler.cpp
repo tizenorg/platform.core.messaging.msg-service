@@ -1227,7 +1227,7 @@ void SmsPluginWapPushHandler::handleMMSNotification(const char *pPushBody, int P
 	/** Convert Type values */
 	msgInfo.msgType.mainType = MSG_MMS_TYPE;
 	msgInfo.msgType.subType = MSG_NOTIFICATIONIND_MMS;
-
+	msgInfo.storageId = MSG_STORAGE_PHONE;
 	msgInfo.dataSize = PushBodyLen;
 
 	if (msgInfo.dataSize > MAX_MSG_TEXT_LEN) {
@@ -2357,7 +2357,7 @@ void SmsPluginWapPushHandler::wspDecodeHeader( unsigned char* sEncodedHeader, un
 								int count = sizeof(wspHeaderApplId)/sizeof(SMS_WSP_HEADER_PARAMETER_S);
 								for(int i = 0; i < count ; ++i)
 								{
-									if(integerValue == wspHeaderApplId[i].parameterCode)
+									if((unsigned int)integerValue == wspHeaderApplId[i].parameterCode)
 									{
 										snprintf((char*)temp, 64, "%s", wspHeaderApplId[i].parameterToken);
 										strncat((char*)temper, (char*)temp, (WSP_STANDARD_STR_LEN_MAX * 5)-strlen(temper)-1);

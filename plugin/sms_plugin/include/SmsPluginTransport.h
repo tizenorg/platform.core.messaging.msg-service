@@ -22,6 +22,7 @@
                                          INCLUDE FILES
 ==================================================================================================*/
 #include "MsgMutex.h"
+#include "MsgTextConvert.h"
 #include "MsgTransportTypes.h"
 #include "MsgSettingTypes.h"
 #include "SmsPluginTypes.h"
@@ -53,7 +54,7 @@ private:
 	SmsPluginTransport();
 	~SmsPluginTransport();
 
-	int getSegmentSize(SMS_CODING_SCHEME_T CodingScheme, int DataLen, bool bPortNum, SMS_LANGUAGE_ID_T LangId, int ReplyAddrLen);
+	int getSegmentSize(SMS_CODING_SCHEME_T CodingScheme, int DataLen, bool bPortNum, MSG_LANGUAGE_ID_T LangId, int ReplyAddrLen);
 	SMS_PID_T convertPid(MSG_SMS_PID_T pid);
 
 	static SmsPluginTransport* pInstance;
@@ -67,6 +68,8 @@ private:
 
 	Mutex mx;
 	CndVar cv;
+
+	MsgTextConvert textCvt;
 };
 
 #endif //SMS_PLUGIN_TRANSPORT_H

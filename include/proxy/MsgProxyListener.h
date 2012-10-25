@@ -139,7 +139,7 @@ public:
 	void handleEvent(const MSG_EVENT_S* ptr);
 
 	int getRemoteFd();
-	int readFromSocket(char** buf, int* len);
+	int readFromSocket(char** buf, unsigned int* len);
 
 private:
 	MsgProxyListener();

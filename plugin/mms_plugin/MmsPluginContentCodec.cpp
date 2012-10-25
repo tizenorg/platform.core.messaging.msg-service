@@ -22,7 +22,7 @@
 #include "MmsPluginMIME.h"
 #include "MmsPluginMessage.h"
 #include "MmsPluginWmLngPack.h"
-
+#include "MmsPluginUtil.h"
 const int MSG_MAX_CH_PER_LINE = 75;
 
 /* ==================================================================

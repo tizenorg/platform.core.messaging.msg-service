@@ -22,6 +22,7 @@
                                          INCLUDE FILES
 ==================================================================================================*/
 #include "MsgMutex.h"
+#include "MsgTextConvert.h"
 #include "MsgPluginInterface.h"
 #include "SmsPluginTypes.h"
 
@@ -72,6 +73,8 @@ private:
 
 	Mutex mx;
 	CndVar cv;
+
+	MsgTextConvert textCvt;
 };
 
 #endif //SMS_PLUGIN_EVENT_HANDLER_H

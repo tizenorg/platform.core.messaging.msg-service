@@ -47,6 +47,8 @@
 
 msg_error_t MsgInsertNoti(MsgDbHandler *pDbHandle, MSG_MESSAGE_INFO_S* pMsg);
 
+msg_error_t MsgInsertNoti(MSG_MESSAGE_INFO_S* pMsg);
+
 msg_error_t MsgInsertSmsReportToNoti(MsgDbHandler *pDbHandle, msg_message_id_t MsgId, msg_delivery_report_status_t Status);
 
 msg_error_t MsgInsertMmsReportToNoti(MsgDbHandler *pDbHandle, MSG_MESSAGE_INFO_S* pMsg);

@@ -22,6 +22,7 @@
 #include "MsgDebug.h"
 #include "MsgUtilFile.h"
 #include "MmsPluginMIME.h"
+#include "MmsPluginUtil.h"
 
 gint _g_time_rev_set = 0;
 gint _g_time_rev = 0;
@@ -1466,7 +1467,7 @@ int MmsBinaryEncodeContentTypeLen(MsgType *pType)
 	if (pType->param.szName[0]) {
 		char* pszName = NULL;
 
-		if (_MsgIsASCII (pType->param.szName)) {
+		if (MsgIsASCII (pType->param.szName)) {
 			MSG_DEBUG("MmsBinaryEncodeContentTypeLen: szName is consisted of ascii char-set chars. \n");
 
 			pszName = (char *)malloc(strlen(pType->param.szName) +1);
@@ -1487,12 +1488,12 @@ int MmsBinaryEncodeContentTypeLen(MsgType *pType)
 		}
 
 		//change empty space to '_' in the file name
-		if (_MsgIsSpace(pszName)) {
+		if (MsgIsSpace(pszName)) {
 			char *pszTempName = NULL;
 
 			MSG_DEBUG("MmsBinaryEncodeContentTypeLen: szName has space(' '). \n");
 
-			_MsgReplaceSpecialChar(pszName, &pszTempName, ' ');
+			MsgReplaceSpecialChar(pszName, &pszTempName, ' ');
 
 			if (pszTempName) {
 				free(pszName);
@@ -1677,7 +1678,7 @@ bool MmsBinaryEncodeContentType(FILE *pFile, MsgType *pType, int typeLength)
 	if (pType->param.szName[0]) {
 		char* pszName = NULL;
 
-		if (_MsgIsASCII (pType->param.szName)) {
+		if (MsgIsASCII (pType->param.szName)) {
 
 			MSG_DEBUG("MmsBinaryEncodeContentType: szName is consisted of ascii char-set chars. \n");
 
@@ -1698,12 +1699,12 @@ bool MmsBinaryEncodeContentType(FILE *pFile, MsgType *pType, int typeLength)
 		}
 
 		//change empty space to '_' in the file name
-		if (_MsgIsSpace(pszName)) {
+		if (MsgIsSpace(pszName)) {
 			char*	pszTempName = NULL;
 
 			MSG_DEBUG("MmsBinaryEncodeContentType: szName has space(' '). \n");
 
-			_MsgReplaceSpecialChar(pszName, &pszTempName, ' ');
+			MsgReplaceSpecialChar(pszName, &pszTempName, ' ');
 
 			if (pszTempName) {
 				free(pszName);
@@ -2302,7 +2303,7 @@ bool MmsBinaryEncodeContentBody(FILE *pFile, MsgBody *pBody)
 			goto __CATCH;
 
 		pBody->offset = _MmsGetEncodeOffset();
-		if(MsgWriteFile(pData, sizeof(char), nRead, pFile) != nRead) {
+		if(MsgWriteFile(pData, sizeof(char), nRead, pFile) != (size_t)nRead) {
 			MSG_DEBUG("MsgWriteFile failed");
 			goto __CATCH;
 		}
@@ -2319,7 +2320,7 @@ bool MmsBinaryEncodeContentBody(FILE *pFile, MsgBody *pBody)
 		}
 	} else if (pBody->body.pText && pBody->size) {
 		pBody->offset = _MmsGetEncodeOffset();
-		if (MsgWriteFile(pBody->body.pText, sizeof(char),pBody->size, pFile) != pBody->size) {
+		if (MsgWriteFile(pBody->body.pText, sizeof(char),(size_t)pBody->size, pFile) != (size_t)pBody->size) {
 			MSG_DEBUG("MsgWriteFile failed");
 			goto __CATCH;
 		}

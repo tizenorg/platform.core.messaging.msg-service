@@ -14,8 +14,8 @@
 * limitations under the License.
 */
 
-#ifndef SMS_PLUGIN_TEXT_CONVERT_H
-#define SMS_PLUGIN_TEXT_CONVERT_H
+#ifndef MSG_TEXT_CONVERT_H
+#define MSG_TEXT_CONVERT_H
 
 
 /*==================================================================================================
@@ -23,7 +23,7 @@
 ==================================================================================================*/
 #include <map>
 
-#include "SmsPluginTypes.h"
+//#include "SmsPluginTypes.h"
 
 
 /*==================================================================================================
@@ -37,25 +37,67 @@
 
 typedef unsigned short WCHAR;
 
-typedef unsigned char SMS_CHAR_TYPE_T;
+typedef unsigned char MSG_CHAR_TYPE_T;
+
+typedef unsigned char MSG_LANGUAGE_ID_T;
 
 
 /*==================================================================================================
                                 ENUMS
 ==================================================================================================*/
-enum _SMS_CHAR_TYPE_E
+enum _MSG_CHAR_TYPE_E
 {
-	SMS_CHAR_DEFAULT = 0,
-	SMS_CHAR_GSM7EXT,
-	SMS_CHAR_TURKISH,
-	SMS_CHAR_SPANISH,
-	SMS_CHAR_PORTUGUESE
+	MSG_CHAR_DEFAULT = 0,
+	MSG_CHAR_GSM7EXT,
+	MSG_CHAR_TURKISH,
+	MSG_CHAR_SPANISH,
+	MSG_CHAR_PORTUGUESE
 };
 
+enum _MSG_LANGUAGE_ID_E
+{
+	MSG_LANG_ID_RESERVED = 0,
+	MSG_LANG_ID_TURKISH,
+	MSG_LANG_ID_SPANISH,
+	MSG_LANG_ID_PORTUGUESE,
+	MSG_LANG_ID_BENGALI,
+	MSG_LANG_ID_GUJARATI,
+	MSG_LANG_ID_HINDI,
+	MSG_LANG_ID_KANNADA,
+	MSG_LANG_ID_MALAYALAM,
+	MSG_LANG_ID_ORIYA,
+	MSG_LANG_ID_PUNJABI,
+	MSG_LANG_ID_TAMIL,
+	MSG_LANG_ID_TELUGU,
+	MSG_LANG_ID_URDU,
+};
 
 /*==================================================================================================
                                      STRUCTURES
 ==================================================================================================*/
+
+typedef struct _MSG_LANG_INFO_S
+{
+	bool							bSingleShift;
+	bool							bLockingShift;
+
+	MSG_LANGUAGE_ID_T			singleLang;
+	MSG_LANGUAGE_ID_T			lockingLang;
+} MSG_LANG_INFO_S;
+
+
+typedef struct _MSG_SINGLE_SHIFT_S
+{
+	MSG_LANGUAGE_ID_T	langId;
+} MSG_SINGLE_SHIFT_S;
+
+
+typedef struct _MSG_LOCKING_SHIFT_S
+{
+	MSG_LANGUAGE_ID_T	langId;
+} MSG_LOCKING_SHIFT_S;
+
+
 // ETSI GSM 03.38 GSM 7 bit Default Alphabet Table -> UCS2
 static const WCHAR g_GSM7BitToUCS2[] =
 {
@@ -209,29 +251,25 @@ static const WCHAR g_PortuLockingToUCS2[] =
 /*==================================================================================================
                                 CLASS DEFINITIONS
 ==================================================================================================*/
-class SmsPluginTextConvert
+class MsgTextConvert
 {
 public:
-	static SmsPluginTextConvert* instance();
+	MsgTextConvert();
+	~MsgTextConvert();
 
-	int convertUTF8ToGSM7bit(OUT unsigned char *pDestText, IN int maxLength,  IN const unsigned char *pSrcText, IN int srcTextLen, OUT SMS_LANGUAGE_ID_T *pLangId);
+	int convertUTF8ToGSM7bit(OUT unsigned char *pDestText, IN int maxLength,  IN const unsigned char *pSrcText, IN int srcTextLen, OUT MSG_LANGUAGE_ID_T *pLangId);
 	int convertUTF8ToUCS2(OUT unsigned char *pDestText, IN int maxLength, IN const unsigned char *pSrcText, IN int srcTextLen);
 	int convertUTF8ToAuto(OUT unsigned char *pDestText, IN int maxLength,  IN const unsigned char *pSrcText, IN int srcTextLen, OUT msg_encode_type_t *pCharType);
 
-	int convertGSM7bitToUTF8(OUT unsigned char *pDestText, IN int maxLength,  IN const unsigned char *pSrcText, IN int srcTextLen, IN SMS_LANG_INFO_S *pLangInfo);
+	int convertGSM7bitToUTF8(OUT unsigned char *pDestText, IN int maxLength,  IN const unsigned char *pSrcText, IN int srcTextLen, IN MSG_LANG_INFO_S *pLangInfo);
 	int convertUCS2ToUTF8(OUT unsigned char *pDestText, IN int maxLength, IN const unsigned char *pSrcText, IN  int srcTextLen);
 	int convertEUCKRToUTF8(OUT unsigned char *pDestText, IN int maxLength, IN const unsigned char *pSrcText, IN  int srcTextLen);
 
 private:
-	SmsPluginTextConvert();
-	virtual ~SmsPluginTextConvert();
-
-	static SmsPluginTextConvert* pInstance;
-
-	int convertUCS2ToGSM7bit(OUT unsigned char *pDestText, IN int maxLength, IN const unsigned char *pSrcText, IN int srcTextLen, OUT SMS_LANGUAGE_ID_T *pLangId);
+	int convertUCS2ToGSM7bit(OUT unsigned char *pDestText, IN int maxLength, IN const unsigned char *pSrcText, IN int srcTextLen, OUT MSG_LANGUAGE_ID_T *pLangId);
 	int convertUCS2ToGSM7bitAuto(OUT unsigned char *pDestText, IN int maxLength, IN const unsigned char *pSrcText, IN int srcTextLen, OUT bool *pUnknown);
 
-	int convertGSM7bitToUCS2(OUT unsigned char *pDestText, IN int maxLength, IN const unsigned char *pSrcText, IN int srcTextLen, IN SMS_LANG_INFO_S *pLangInfo);
+	int convertGSM7bitToUCS2(OUT unsigned char *pDestText, IN int maxLength, IN const unsigned char *pSrcText, IN int srcTextLen, IN MSG_LANG_INFO_S *pLangInfo);
 
 	void convertDumpTextToHex(const unsigned char *pText, int length);
 
@@ -243,5 +281,5 @@ private:
 	std::map<unsigned short, unsigned char> ucs2toPortuList;
 };
 
-#endif //SMS_PLUGIN_TEXT_CONVERT_H
+#endif //MSG_TEXT_CONVERT_H
 

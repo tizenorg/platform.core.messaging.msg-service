@@ -60,11 +60,13 @@ msg_error_t MsgStoUpdateThreadReadStatus(msg_thread_id_t ThreadId);
 msg_error_t MsgStoUpdateProtectedStatus(msg_message_id_t MsgId, bool bProtected);
 msg_error_t MsgStoDeleteMessage(msg_message_id_t MsgId, bool bCheckIndication);
 msg_error_t MsgStoDeleteAllMessageInFolder(msg_folder_id_t FolderId, bool bOnlyDB, msg_id_list_s *pMsgIdList);
+msg_error_t MsgStoDeleteMessageByList(msg_id_list_s *pMsgIdList);
 msg_error_t MsgStoMoveMessageToFolder(msg_message_id_t MsgId, msg_folder_id_t DestFolderId);
 msg_error_t MsgStoMoveMessageToStorage(const msg_message_id_t MsgId, const msg_storage_id_t DestStorageId);
 msg_error_t MsgStoCountMessage(msg_folder_id_t FolderId, MSG_COUNT_INFO_S *pCountInfo);
 msg_error_t MsgStoCountMsgByType(const MSG_MESSAGE_TYPE_S *pMsgType, int *pMsgCount);
 msg_error_t MsgStoGetMessage(msg_message_id_t MsgId, MSG_MESSAGE_INFO_S *pMsg, MSG_SENDINGOPT_INFO_S* pSendOptInfo);
+msg_error_t MsgStoGetConversationViewItem(msg_message_id_t msgId, MSG_CONVERSATION_VIEW_S *pConv);
 msg_error_t MsgStoGetFolderViewList(msg_folder_id_t FolderId, const MSG_SORT_RULE_S *pSortRule, msg_struct_list_s *pMsgFolderViewList);
 msg_error_t MsgStoAddSyncMLMessage(MSG_MESSAGE_INFO_S *pMsgInfo, int ExtId, int PinCode);
 msg_error_t MsgStoGetMsgType(msg_message_id_t msgId, MSG_MESSAGE_TYPE_S* pMsgType);
@@ -72,12 +74,12 @@ msg_error_t MsgStoGetText(msg_message_id_t MsgId, char *pSubject, char *pMsgText
 msg_error_t MsgStoGetQuickPanelData(msg_quickpanel_type_t Type, MSG_MESSAGE_INFO_S *pMsg);
 msg_error_t MsgStoGetThreadViewList(const MSG_SORT_RULE_S *pSortRule, msg_struct_list_s *pThreadViewList);
 msg_error_t MsgStoGetConversationViewList(msg_thread_id_t ThreadId, msg_struct_list_s *pConvViewList);
-msg_error_t MsgStoDeleteThreadMessageList(msg_thread_id_t ThreadId, msg_id_list_s *pMsgIdList);
+msg_error_t MsgStoDeleteThreadMessageList(msg_thread_id_t ThreadId, bool bIncludeProtect, msg_id_list_s *pMsgIdList);
 msg_error_t MsgStoCountMsgByContact(const MSG_THREAD_LIST_INDEX_S *pAddrInfo, MSG_THREAD_COUNT_INFO_S *pThreadCountInfo);
 msg_error_t MsgStoSearchMessage(const char *pSearchString, msg_struct_list_s *pThreadViewList);
 msg_error_t MsgStoSearchMessage(const MSG_SEARCH_CONDITION_S *pSearchCon, int offset, int limit, msg_struct_list_s *pMsgList);
 msg_error_t MsgStoGetRejectMsgList(const char *pNumber, msg_struct_list_s *pRejectMsgList);
-msg_error_t MsgStoGetReportStatus(msg_message_id_t msgId, MSG_REPORT_STATUS_INFO_S* pReportStatus);
+msg_error_t MsgStoGetReportStatus(msg_message_id_t msgId, int *count, MSG_REPORT_STATUS_INFO_S **pReportStatus);
 msg_error_t MsgStoGetThreadIdByAddress(const MSG_MESSAGE_INFO_S *pMsg, msg_thread_id_t *pThreadId);
 msg_error_t MsgStoGetThreadUnreadCnt(msg_thread_id_t ThreadId, int *cnt);
 msg_error_t MsgStoGetAddressList(const msg_thread_id_t threadId, msg_struct_list_s *pAddrList);
@@ -95,6 +97,7 @@ msg_error_t MsgStoAddFilter(const MSG_FILTER_S *pFilter);
 msg_error_t MsgStoUpdateFilter(const MSG_FILTER_S *pFilter);
 msg_error_t MsgStoDeleteFilter(msg_filter_id_t FilterId);
 msg_error_t MsgStoGetFilterList(msg_struct_list_s *pFilterList);
+msg_error_t MsgStoSetFilterActivation(msg_filter_id_t filterId, bool bActive);
 
 // Sim Operation related Functions
 msg_error_t MsgInitSimMessage(MSG_SIM_STATUS_T SimStatus);
@@ -117,7 +120,6 @@ msg_error_t MsgStoSetReadReportSendStatus(msg_message_id_t msgId, int readReport
 ///////////////////////////////////////////////////////////////////////////////////
 // For MMS - will be removed
 msg_error_t MsgStoGetOrgAddressList(MSG_MESSAGE_INFO_S *pMsg);
-msg_error_t MsgStoUpdateNetworkStatus(MSG_MESSAGE_INFO_S *pMsgInfo, msg_network_status_t Status);
 msg_error_t MsgStoGetSubject(msg_message_id_t MsgId, char* pSubject);
 msg_error_t MsgStoGetRecipientList(msg_message_id_t msgId, MSG_RECIPIENTS_LIST_S *pRecipientList);
 msg_error_t MsgStoGetReadStatus(msg_message_id_t MsgId, bool *pReadStatus);

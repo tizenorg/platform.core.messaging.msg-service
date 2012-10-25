@@ -1094,46 +1094,46 @@ void MsgGetCBMsgOpt(MSG_SETTING_S *pSetting)
 
 void MsgGetVoiceMailOpt(MSG_SETTING_S *pSetting)
 {
-        char *tmpValue = NULL;
+	char *tmpValue = NULL;
 
-        memset(&(pSetting->option.voiceMailOpt), 0x00, sizeof(MSG_VOICEMAIL_OPT_S));
+	memset(&(pSetting->option.voiceMailOpt), 0x00, sizeof(MSG_VOICEMAIL_OPT_S));
 
-        tmpValue = MsgSettingGetString(VOICEMAIL_NUMBER);
-        if (tmpValue != NULL) {
-                strncpy(pSetting->option.voiceMailOpt.mailNumber, tmpValue, MAX_PHONE_NUMBER_LEN);
-                free(tmpValue);
-                tmpValue = NULL;
-        }
+	tmpValue = MsgSettingGetString(VOICEMAIL_NUMBER);
+	if (tmpValue != NULL) {
+		strncpy(pSetting->option.voiceMailOpt.mailNumber, tmpValue, MAX_PHONE_NUMBER_LEN);
+		free(tmpValue);
+		tmpValue = NULL;
+	}
 }
 
 
 void MsgGetMsgSizeOpt(MSG_SETTING_S *pSetting)
 {
-        memset(&(pSetting->option.msgSizeOpt), 0x00, sizeof(MSG_MSGSIZE_OPT_S));
+	memset(&(pSetting->option.msgSizeOpt), 0x00, sizeof(MSG_MSGSIZE_OPT_S));
 
-        pSetting->option.msgSizeOpt.nMsgSize = MsgSettingGetInt(MSGSIZE_OPTION);
+	pSetting->option.msgSizeOpt.nMsgSize = MsgSettingGetInt(MSGSIZE_OPTION);
 }
 
 
 msg_error_t MsgSetConfigInSim(const MSG_SETTING_S *pSetting)
 {
-        msg_error_t err = MSG_SUCCESS;
+	msg_error_t err = MSG_SUCCESS;
 
-        MsgPlugin* plg = MsgPluginManager::instance()->getPlugin(MSG_SMS_TYPE);
+	MsgPlugin* plg = MsgPluginManager::instance()->getPlugin(MSG_SMS_TYPE);
 
-        // Get Setting Data from SIM
-        if (plg != NULL)
-                err = plg->setConfigData(pSetting);
-        else
-                err = MSG_ERR_NULL_POINTER;
+	// Get Setting Data from SIM
+	if (plg != NULL)
+		err = plg->setConfigData(pSetting);
+	else
+		err = MSG_ERR_NULL_POINTER;
 
-        if (err != MSG_SUCCESS)
-        {
-                MSG_DEBUG("Error. Error code is %d.", err);
-                return err;
-        }
+	if (err != MSG_SUCCESS)
+	{
+		MSG_DEBUG("Error. Error code is %d.", err);
+		return err;
+	}
 
-        return err;
+	return err;
 }
 
 static char* msg_clean_country_code(char *src)
