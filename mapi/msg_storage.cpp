@@ -422,6 +422,31 @@ EXPORT_API int msg_get_message(msg_handle_t handle, msg_message_id_t msg_id, msg
 	return err;
 }
 
+EXPORT_API int msg_get_conversation(msg_handle_t handle, msg_message_id_t msg_id, msg_struct_t conv)
+{
+	msg_error_t err =  MSG_SUCCESS;
+
+	if (handle == NULL || !conv)
+	{
+		MSG_FATAL("handle or opq_msg is NULL");
+		return -EINVAL;
+	}
+
+	MsgHandle* pHandle = (MsgHandle*)handle;
+
+	msg_struct_s *pMsgStruct = (msg_struct_s *)conv;
+	try
+	{
+		err = pHandle->getConversationViewItem(msg_id, (MSG_CONVERSATION_VIEW_S *)pMsgStruct->data);
+	}
+	catch (MsgException& e)
+	{
+		MSG_FATAL("%s", e.what());
+		return MSG_ERR_STORAGE_ERROR;
+	}
+
+	return err;
+}
 
 EXPORT_API int msg_get_folder_view_list(msg_handle_t handle, msg_folder_id_t folder_id, const msg_struct_t sort_rule, msg_struct_list_s *msg_folder_view_list)
 {

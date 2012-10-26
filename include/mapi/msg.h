@@ -233,6 +233,9 @@ int msg_set_general_opt(msg_handle_t handle, msg_struct_t msg_struct);
 int msg_get_msgsize_opt(msg_handle_t handle, msg_struct_t msg_struct);
 int msg_set_msgsize_opt(msg_handle_t handle, msg_struct_t msg_struct);
 
+// text length calculate
+int msg_calculate_text_length(msg_handle_t handle, const char* msg_text, msg_encode_type_t msg_encode_type, unsigned int *text_size, unsigned int *segment_size);
+
 #ifdef __cplusplus
 }
 #endif
