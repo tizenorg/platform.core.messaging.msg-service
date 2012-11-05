@@ -69,6 +69,7 @@ SET(MMS-PLUGIN-SRCS
 	MmsPluginSmil.cpp
 	MmsPluginSMILValidate.cpp
 	MmsPluginDrm.cpp
+	MmsPluginUtil.cpp
 )
 
 INCLUDE_DIRECTORIES(
