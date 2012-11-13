@@ -275,7 +275,7 @@ msg_error_t MsgHandleSMS(MSG_MESSAGE_INFO_S *pMsgInfo, bool *pSendNoti)
 					char urlString[MAX_COMMAND_LEN+1];
 					memset(urlString, 0x00, sizeof(urlString));
 
-					snprintf(urlString, MAX_COMMAND_LEN, "/opt/apps/org.tizen.message/bin/message-dialog -m PUSH_MSG_ALWAYS_ASK -u %s &", pMsgInfo->msgText);
+					snprintf(urlString, MAX_COMMAND_LEN, "/usr/apps/org.tizen.message/bin/message-dialog -m PUSH_MSG_ALWAYS_ASK -u %s &", pMsgInfo->msgText);
 
 					system(urlString);
 				}
