@@ -244,7 +244,7 @@ msg_error_t MsgStoAddMessage(MSG_MESSAGE_INFO_S *pMsg, MSG_SENDINGOPT_INFO_S *pS
 	// Add Message
 	memset(sqlQuery, 0x00, sizeof(sqlQuery));
 
-	snprintf(sqlQuery, sizeof(sqlQuery), "INSERT INTO %s VALUES (%d, %d, %d, %d, %d, %d, %ld, %d, %d, %d, %d, %d, %d, %ld, %d, ?, ?, ?, ?, 0, 0, 0);",
+	snprintf(sqlQuery, sizeof(sqlQuery), "INSERT INTO %s VALUES (%d, %d, %d, %d, %d, %d, %ld, %d, %d, %d, %d, %d, %d, %ld, %d, ?, ?, ?, ?, 0);",
 			MSGFW_MESSAGE_TABLE_NAME, rowId, convId, pMsg->folderId, pMsg->storageId, pMsg->msgType.mainType, pMsg->msgType.subType,
 			pMsg->displayTime, pMsg->dataSize, pMsg->networkStatus, pMsg->bRead, pMsg->bProtected, pMsg->priority, pMsg->direction,
 			0, pMsg->bBackup);
@@ -932,8 +932,8 @@ msg_error_t MsgStoDeleteAllMessageInFolder(msg_folder_id_t folderId, bool bOnlyD
 	queue<msg_thread_id_t> threadList;
 
 	const char *tableList[] = {MSGFW_PUSH_MSG_TABLE_NAME, MSGFW_CB_MSG_TABLE_NAME,
-						MSGFW_SYNCML_MSG_TABLE_NAME, MSGFW_SMS_SENDOPT_TABLE_NAME, 
-						MMS_PLUGIN_MESSAGE_TABLE_NAME, MSGFW_MMS_PREVIEW_TABLE_NAME, 
+						MSGFW_SYNCML_MSG_TABLE_NAME, MSGFW_SMS_SENDOPT_TABLE_NAME,
+						MMS_PLUGIN_MESSAGE_TABLE_NAME, MSGFW_MMS_PREVIEW_TABLE_NAME,
 						MSGFW_REPORT_TABLE_NAME, MSGFW_MESSAGE_TABLE_NAME};
 
 	int listCnt = sizeof(tableList)/sizeof(char *);
@@ -1260,7 +1260,7 @@ msg_error_t MsgStoDeleteMessageByList(msg_id_list_s *pMsgIdList)
 	queue<msg_thread_id_t> threadList;
 
 	const char *tableList[] = {MSGFW_PUSH_MSG_TABLE_NAME, MSGFW_CB_MSG_TABLE_NAME,
-						MSGFW_SYNCML_MSG_TABLE_NAME, MSGFW_SMS_SENDOPT_TABLE_NAME, 
+						MSGFW_SYNCML_MSG_TABLE_NAME, MSGFW_SMS_SENDOPT_TABLE_NAME,
 						MMS_PLUGIN_MESSAGE_TABLE_NAME,	MSGFW_MESSAGE_TABLE_NAME};
 
 	int listCnt = sizeof(tableList)/sizeof(char *);
@@ -2577,7 +2577,7 @@ msg_error_t MsgStoDeleteThreadMessageList(msg_thread_id_t threadId, bool bInclud
 	int mmsCnt = 0;
 
 	const char *tableList[] = {MSGFW_PUSH_MSG_TABLE_NAME, MSGFW_CB_MSG_TABLE_NAME,
-			MSGFW_SYNCML_MSG_TABLE_NAME, MSGFW_SMS_SENDOPT_TABLE_NAME, 
+			MSGFW_SYNCML_MSG_TABLE_NAME, MSGFW_SMS_SENDOPT_TABLE_NAME,
 			MMS_PLUGIN_MESSAGE_TABLE_NAME, MSGFW_MESSAGE_TABLE_NAME};
 
 	int listCnt = sizeof(tableList)/sizeof(char *);
