@@ -905,3 +905,25 @@ void MsgMmsInitDir()
 
 	closedir(dir);
 }
+
+//mode : R_OK, W_OK, X_OK, or the existence test F_OK.
+bool MsgAccessFile(const char *filepath, int mode)
+{
+	int ret;
+	if (filepath == NULL) {
+		MSG_DEBUG("filepath is NULL");
+		return false;
+	}
+
+	MSG_DEBUG("request access path = %s, mode = %d", filepath, mode);
+
+	ret = access(filepath, mode);
+
+
+	if (ret) {
+		MSG_DEBUG("Fail to access file, ret = %d", ret);
+		return false;
+	}
+
+	return true;
+}

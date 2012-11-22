@@ -623,3 +623,12 @@ bool _MmsSetVersion(int majorVer, int minorVer)
 	return true;
 }
 
+const char *MmsGetTextByCode(MmsCode i, UINT16 code)
+{
+	for (int j = 0; j < MMS_MAX_FIELD_VALUE_COUNT; j++) {
+		if (gMmsField[i][j].binary == code) {
+			return gMmsField[i][j].szText;
+		}
+	}
+	return NULL;
+}

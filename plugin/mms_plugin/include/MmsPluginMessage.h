@@ -542,6 +542,7 @@ int MmsSearchMsgId(char *toNumber, char *szMsgID);
 MsgMultipart *MmsAllocMultipart(void);
 msg_error_t MmsAddAttachment(MMS_MESSAGE_DATA_S *pMsgData, MMS_MEDIA_S *pMedia);
 bool MmsCheckAdditionalMedia(MMS_MESSAGE_DATA_S *pMsgData, MsgType *partHeader);
+bool MmsRemovePims(MMS_MESSAGE_DATA_S *pMsgData);
 #ifdef __SUPPORT_DRM__
 bool __MsgInitMsgDRMInfo(MsgDRMInfo *pMsgDrmInfo);
 #endif

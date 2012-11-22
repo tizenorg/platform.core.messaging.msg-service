@@ -1212,6 +1212,56 @@ bool MmsCheckAdditionalMedia(MMS_MESSAGE_DATA_S *pMsgData, MsgType *partHeader)
 		return true;
 }
 
+/*PIM objects SHALL be supported as attachments to an MM*/
+bool MmsRemovePims(MMS_MESSAGE_DATA_S *pMsgData)
+{
+	GList *cur_page = NULL;
+	GList *cur_media = NULL;
+
+	if (pMsgData == NULL)
+		return false;
+
+	cur_page = pMsgData->pagelist;
+
+	while(cur_page) {
+		MMS_PAGE_S *page = (MMS_PAGE_S *)cur_page->data;
+		if (page) {
+			cur_media = page->medialist;
+
+			while(cur_media) {
+				MMS_MEDIA_S *pMedia = (MMS_MEDIA_S *)cur_media->data;
+				if (pMedia) {
+					int tempType;
+					MsgGetTypeByFileName(&tempType, pMedia->szFilePath);
+					if (tempType == MIME_TEXT_X_VCALENDAR || tempType == MIME_TEXT_X_VCARD) {
+						page->medialist = g_list_remove_all(page->medialist, pMedia);
+						page->mediaCnt = g_list_length(page->medialist);
+						cur_media = page->medialist;
+						free(pMedia);
+					} else {
+						cur_media =  g_list_next(cur_media);
+					}
+				} else {
+					cur_media =  g_list_next(cur_media);
+				}
+			} //cur_media while for remove pims file in list
+
+			if (page->medialist == NULL) {//remove empty page
+				pMsgData->pagelist = g_list_remove_all(pMsgData->pagelist, page);
+				pMsgData->pageCnt = g_list_length(pMsgData->pagelist);
+				cur_page = pMsgData->pagelist;
+				free(page);
+			} else {
+				cur_page =  g_list_next(cur_page);
+			}
+		}
+	}//cur_page while
+
+
+	return true;
+}
+
+
 #ifdef __SUPPORT_DRM__
 bool __MsgInitMsgDRMInfo(MsgDRMInfo *pMsgDrmInfo)
 {

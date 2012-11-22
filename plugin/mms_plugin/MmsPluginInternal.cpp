@@ -310,7 +310,7 @@ void MmsPluginInternal::processReadOrgInd(MSG_MESSAGE_INFO_S *pMsgInfo)
 	pMsgInfo->dataSize  = strlen(pMsgInfo->msgData);
 
 	MSG_DEBUG("read Status = %s", pMsgInfo->msgData);
-	strncpy(pMsgInfo->addressList[0].addressVal, mmsHeader.pTo->szAddr, MAX_ADDRESS_VAL_LEN);
+	strncpy(pMsgInfo->addressList[0].addressVal, mmsHeader.pFrom->szAddr, MAX_ADDRESS_VAL_LEN);
 
 	int tmpId = MmsSearchMsgId(mmsHeader.pFrom->szAddr, mmsHeader.szMsgID);
 	if (tmpId > 0) {

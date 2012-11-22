@@ -241,6 +241,7 @@ UINT16 _MmsGetBinaryValue(MmsCode i, int j);
 int _MmsGetBinaryType(MmsCode i, UINT16 value);
 UINT8 _MmsGetVersion(MmsMsg *pMsg);
 bool _MmsSetVersion(int majorVer, int minorVer);
+const char *MmsGetTextByCode(MmsCode i, UINT16 code);
 
 
 /* Decoding */
