@@ -357,17 +357,21 @@ int MsgEncodeStorageChangeData(const msg_storage_change_type_t storageChangeType
 }
 
 
-int MsgEncodeReportStatus(MSG_REPORT_STATUS_INFO_S* pReportStatus, char **ppDest)
+int MsgEncodeReportStatus(MSG_REPORT_STATUS_INFO_S* pReportStatus, int count, char **ppDest)
 {
 	int dataSize = 0;
 
-	dataSize = (sizeof(MSG_REPORT_STATUS_INFO_S));
+	dataSize = (sizeof(MSG_REPORT_STATUS_INFO_S)*count + sizeof(int));
 
 	*ppDest = (char*)new char[dataSize];
 
 	void* p = (void*)*ppDest;
 
-	memcpy(p, pReportStatus, dataSize);
+	memcpy(p, &count, sizeof(int));
+
+	p = (void*)((int)p + sizeof(int));
+
+	memcpy(p, pReportStatus, sizeof(MSG_REPORT_STATUS_INFO_S)*count);
 
 	return dataSize;
 }
@@ -564,33 +568,39 @@ void	MsgDecodeContactCount(char *pSrc,  MSG_THREAD_COUNT_INFO_S *pMsgThreadCount
 }
 
 
-void	MsgDecodeReportStatus(char *pSrc,  MSG_REPORT_STATUS_INFO_S *pReportStatus)
+void MsgDecodeReportStatus(char *pSrc,  msg_struct_list_s *report_list)
 {
 	int count = 0;
 
 	if(pSrc == NULL)
 		return;
 
-	memcpy(&count, pSrc, sizeof(msg_delivery_report_status_t));
-	pSrc = pSrc + sizeof(msg_delivery_report_status_t);
-	pReportStatus->deliveryStatus = count;
+	memcpy(&count, pSrc, sizeof(int));
+	pSrc = pSrc + sizeof(int);
 
+	report_list->nCount = count;
 
-	memcpy(&count, pSrc, sizeof(time_t));
-	pSrc = pSrc + sizeof(time_t);
-	pReportStatus->deliveryStatusTime = count;
+	msg_struct_t *report_status =  (msg_struct_t *)new char[sizeof(msg_struct_t)*count];
+	for (int i = 0; i < count; i++) {
 
+		msg_struct_s *report_status_item = new msg_struct_s;
+		report_status_item->type = MSG_STRUCT_REPORT_STATUS_INFO;
+		report_status_item->data = new MSG_REPORT_STATUS_INFO_S;
+		memset(report_status_item->data, 0x00, sizeof(MSG_REPORT_STATUS_INFO_S));
 
-	memcpy(&count, pSrc, sizeof(msg_read_report_status_t));
-	pSrc = pSrc + sizeof(msg_read_report_status_t);
-	pReportStatus->readStatus = count;
+		MSG_REPORT_STATUS_INFO_S *report_status_info =  (MSG_REPORT_STATUS_INFO_S *)report_status_item->data;
+		memcpy(report_status_info, pSrc, sizeof(MSG_REPORT_STATUS_INFO_S));
 
+		pSrc = pSrc + sizeof(MSG_REPORT_STATUS_INFO_S);
 
-	memcpy(&count, pSrc, sizeof(time_t));
-	pSrc = pSrc + sizeof(time_t);
-	pReportStatus->readStatusTime = count;
+		report_status[i] = (msg_struct_t)report_status_item;
 
+		MSG_DEBUG("Report_type = %d, status addr = %s, status = %d, time = %d",
+				report_status_info->type, report_status_info->addressVal,
+				report_status_info->status, report_status_info->statusTime);
+	}
 
+	report_list->msg_struct_info = report_status;
 	return;
 }
 

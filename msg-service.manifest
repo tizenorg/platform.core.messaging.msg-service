@@ -1,0 +1,15 @@
+<manifest>
+	<define>
+		<domain name="msg-service" policy="restricted" plist="msg-service-tools"/>
+		<provide>
+			<label name="msg-service::db"/>
+		</provide>
+	</define>
+	<request>
+		<domain name="msg-service"/>
+	</request>
+	<assign>
+		<filesystem path="/usr/lib/libmsg_mapi.so.0" label="_"/>
+		<filesystem path="/usr/lib/libmsg_mapi.so.0.1.0" label="_"/>
+	</assign>
+</manifest>

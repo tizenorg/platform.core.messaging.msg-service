@@ -27,13 +27,13 @@
 /*==================================================================================================
                                          DEFINES
 ==================================================================================================*/
-#define NORMAL_MSG_ICON_PATH	"/opt/apps/org.tizen.message/res/icons/default/small/org.tizen.message.noti.png"
-#define VOICE_MSG_ICON_PATH		"/opt/apps/org.tizen.message/res/icons/default/small/org.tizen.message.voice.png"
-#define CB_MSG_ICON_PATH			"/opt/apps/org.tizen.message/res/icons/default/small/org.tizen.message.noti.png"
-#define NOTI_MSG_ICON_PATH		"/opt/apps/org.tizen.message/res/icons/default/small/org.tizen.message.noti.png"
+#define NORMAL_MSG_ICON_PATH	"/usr/apps/org.tizen.message/res/icons/default/small/org.tizen.message.noti.png"
+#define VOICE_MSG_ICON_PATH		"/usr/apps/org.tizen.message/res/icons/default/small/org.tizen.message.voice.png"
+#define CB_MSG_ICON_PATH			"/usr/apps/org.tizen.message/res/icons/default/small/org.tizen.message.noti.png"
+#define NOTI_MSG_ICON_PATH		"/usr/apps/org.tizen.message/res/icons/default/small/org.tizen.message.noti.png"
 
 #define MSG_APP_PACKAGE_NAME	"message"
-#define MSG_APP_LOCALEDIR			"/opt/apps/org.tizen.message/res/locale"
+#define MSG_APP_LOCALEDIR			"/usr/apps/org.tizen.message/res/locale"
 
 #define SENDING_MULTIMEDIA_MESSAGE_FAILED	"Sending multimedia message failed"
 #define MULTIMEDIA_MESSAGE_SENT					"Multimedia message sent"
@@ -46,6 +46,8 @@
 ==================================================================================================*/
 
 msg_error_t MsgInsertNoti(MsgDbHandler *pDbHandle, MSG_MESSAGE_INFO_S* pMsg);
+
+msg_error_t MsgInsertNoti(MSG_MESSAGE_INFO_S* pMsg);
 
 msg_error_t MsgInsertSmsReportToNoti(MsgDbHandler *pDbHandle, msg_message_id_t MsgId, msg_delivery_report_status_t Status);
 

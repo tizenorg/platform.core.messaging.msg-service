@@ -18,9 +18,6 @@
 #include <sys/stat.h>
 #include <errno.h>
 
-#include <mm_file.h>
-#include <mm_util_jpeg.h>
-
 #include "MsgDebug.h"
 #include "MsgException.h"
 #include "MsgUtilFile.h"
@@ -34,9 +31,6 @@
 #include "MmsPluginCodec.h"
 #include "MmsPluginSmil.h"
 #include "MmsPluginDrm.h"
-#include <media-thumbnail.h>
-#include <mm_util_imgp.h>
-#include <mm_util_jpeg.h>
 #include "MsgHelper.h"
 
 static void __MmsReleaseMmsLists(MMS_MESSAGE_DATA_S *mms_data)
@@ -159,6 +153,13 @@ void MmsPluginStorage::addMessage(MSG_MESSAGE_INFO_S *pMsgInfo, MSG_SENDINGOPT_I
 		MsgFsync(pFile);	//file is written to device immediately, it prevents missing file data from unexpected power off
 		MsgCloseFile(pFile);
 
+		char filepath[MSG_FILEPATH_LEN_MAX+1] = {0,};
+		int size = 0;
+
+		snprintf((char *)filepath, MSG_FILEPATH_LEN_MAX+1, MSG_DATA_PATH"%d.mms", pMsgInfo->msgId);
+		MsgGetFileSize(filepath, &size);
+		pMsgInfo->dataSize = size;
+
 		_MsgFreeBody(&mmsMsg.msgBody, mmsMsg.msgType.type);
 		MsgFreeAttrib(&mmsMsg.mmsAttrib);
 		__MmsReleaseMmsLists(&mmsMsgData);
@@ -212,8 +213,7 @@ void MmsPluginStorage::addMessage(MSG_MESSAGE_INFO_S *pMsgInfo, MSG_SENDINGOPT_I
 			strcpy(szFileName, pMsg->szFileName);
 
 			err = pStorage->getMsgText(&mmsMsgData, pMsgInfo->msgText);
-			err = pStorage->makeThumbnail(&mmsMsgData, pMsgInfo->thumbPath, szFileName);
-
+			MmsMakePreviewInfo(pMsgInfo->msgId, &mmsMsgData);
 			__MmsReleaseMmsLists(&mmsMsgData);
 		}
 
@@ -449,7 +449,6 @@ msg_error_t MmsPluginStorage::addMmsMsgToDB(MmsMsg *pMmsMsg, const MSG_MESSAGE_I
 	return MSG_SUCCESS;
 }
 
-
 msg_error_t	MmsPluginStorage::plgGetMmsMessage(MSG_MESSAGE_INFO_S *pMsg, MSG_SENDINGOPT_INFO_S *pSendOptInfo, MMS_MESSAGE_DATA_S *pMmsMsg, char **pDestMsg)
 {
 	MSG_BEGIN();
@@ -654,7 +653,6 @@ msg_error_t MmsPluginStorage::updateMessage(MSG_MESSAGE_INFO_S *pMsgInfo, MSG_SE
 	char filePath[MAX_FULL_PATH_SIZE+1] = {0, };
 	char sqlQuery[MAX_QUERY_LEN + 1];
 
-	unsigned int addrId = 0;
 	FILE *pFile = NULL;
 
 	memset(sqlQuery, 0x00, sizeof(sqlQuery));
@@ -780,15 +778,18 @@ msg_error_t MmsPluginStorage::updateNetStatus(msg_message_id_t msgId, msg_networ
 	return MSG_SUCCESS;
 }
 
-
-msg_error_t MmsPluginStorage::updateDeliveryReport(msg_message_id_t msgId, MmsMsgMultiStatus *pStatus)
+msg_error_t MmsPluginStorage::insertDeliveryReport(msg_message_id_t msgId, char *address, MmsMsgMultiStatus *pStatus)
 {
 	char sqlQuery[MAX_QUERY_LEN + 1];
-
 	memset(sqlQuery, 0x00, sizeof(sqlQuery));
 
-	snprintf(sqlQuery, sizeof(sqlQuery), "UPDATE %s SET DELIVERY_REPORT_STATUS = %d, DELIVERY_REPORT_TIME = %ld WHERE MSG_ID = %d;",
-			MSGFW_MESSAGE_TABLE_NAME, pStatus->msgStatus, pStatus->handledTime, msgId);
+	//( MSG_ID INTEGER , ADDRESS_VAL TEXT , STATUS_TYPE INTEGER , STATUS INTEGER DEFAULT 0 , TIME DATETIME);
+	snprintf(sqlQuery, sizeof(sqlQuery), "INSERT INTO %s "
+			"(MSG_ID, ADDRESS_VAL, STATUS_TYPE, STATUS, TIME) "
+			"VALUES (%d, '%s', %d, %d, %d);",
+			MSGFW_REPORT_TABLE_NAME, msgId, address, MSG_REPORT_TYPE_DELIVERY, pStatus->msgStatus, (int)pStatus->handledTime);
+
+	MSG_DEBUG("QUERY : [%s]", sqlQuery);
 
 	if (dbHandle.execQuery(sqlQuery) != MSG_SUCCESS)
 		return MSG_ERR_DB_EXEC;
@@ -796,23 +797,24 @@ msg_error_t MmsPluginStorage::updateDeliveryReport(msg_message_id_t msgId, MmsMs
 	return MSG_SUCCESS;
 }
 
-
-msg_error_t MmsPluginStorage::updateReadReport(msg_message_id_t msgId, MmsMsgMultiStatus *pStatus)
+msg_error_t MmsPluginStorage::insertReadReport(msg_message_id_t msgId, char *address, MmsMsgMultiStatus *pStatus)
 {
 	char sqlQuery[MAX_QUERY_LEN + 1];
-
 	memset(sqlQuery, 0x00, sizeof(sqlQuery));
 
-	snprintf(sqlQuery, sizeof(sqlQuery), "UPDATE %s SET READ_REPORT_STATUS = %d, READ_REPORT_TIME = %lu WHERE MSG_ID = %d;",
-			MSGFW_MESSAGE_TABLE_NAME, pStatus->readStatus, pStatus->readTime, msgId);
+	//( MSG_ID INTEGER , ADDRESS_VAL TEXT , STATUS_TYPE INTEGER , STATUS INTEGER DEFAULT 0 , TIME DATETIME);
+	snprintf(sqlQuery, sizeof(sqlQuery), "INSERT INTO %s "
+			"(MSG_ID, ADDRESS_VAL, STATUS_TYPE, STATUS, TIME) "
+			"VALUES (%d, '%s', %d, %d, %d);",
+			MSGFW_REPORT_TABLE_NAME, msgId, address, MSG_REPORT_TYPE_READ, pStatus->readStatus, (int)pStatus->readTime);
 
+	MSG_DEBUG("QUERY : [%s]", sqlQuery);
 
 	if (dbHandle.execQuery(sqlQuery) != MSG_SUCCESS)
 		return MSG_ERR_DB_EXEC;
 
 	return MSG_SUCCESS;
 }
-
 
 msg_error_t MmsPluginStorage::updateMmsAttrib(msg_message_id_t msgId, MmsAttrib *attrib, MSG_SUB_TYPE_T msgSubType)
 {
@@ -826,8 +828,8 @@ msg_error_t MmsPluginStorage::updateMmsAttrib(msg_message_id_t msgId, MmsAttrib 
 		snprintf(sqlQuery, sizeof(sqlQuery), "UPDATE %s SET EXPIRY_TIME = %d WHERE MSG_ID = %d;",
 				MMS_PLUGIN_MESSAGE_TABLE_NAME, attrib->expiryTime.time, msgId);
 	} else if (msgSubType == MSG_RETRIEVE_AUTOCONF_MMS || msgSubType == MSG_RETRIEVE_MANUALCONF_MMS) {
-		snprintf(sqlQuery, sizeof(sqlQuery), "UPDATE %s SET ASK_DELIVERY_REPORT = %d, ASK_READ_REPLY = %d, PRIORITY = %d WHERE MSG_ID = %d;",
-				MMS_PLUGIN_MESSAGE_TABLE_NAME, attrib->bAskDeliveryReport, attrib->bAskReadReply, attrib->priority, msgId);
+		snprintf(sqlQuery, sizeof(sqlQuery), "UPDATE %s SET ASK_DELIVERY_REPORT = %d, ASK_READ_REPLY = %d, PRIORITY = %d, VERSION = %d WHERE MSG_ID = %d;",
+				MMS_PLUGIN_MESSAGE_TABLE_NAME, attrib->bAskDeliveryReport, attrib->bAskReadReply, attrib->priority, attrib->version, msgId);
 	}
 
 	MSG_DEBUG("QUERY : [%s]", sqlQuery);
@@ -1207,196 +1209,25 @@ msg_error_t MmsPluginStorage::getMsgText(MMS_MESSAGE_DATA_S *pMmsMsg, char *pMsg
 	return MSG_SUCCESS;
 }
 
-
-msg_error_t MmsPluginStorage::makeThumbnail(MMS_MESSAGE_DATA_S *pMmsMsg, char *pThumbnailPath, char *szFileName)
+msg_error_t MmsPluginStorage::insertPreviewInfo(int msgId, int type, char *value, int count)
 {
-	MMS_PAGE_S *pPage = NULL;
-	MMS_MEDIA_S *pMedia = NULL;
+	char sqlQuery[MAX_QUERY_LEN + 1];
+	memset(sqlQuery, 0x00, sizeof(sqlQuery));
 
-	bool bThumbnail = false;
+	//(MSG_ID INTEGER, TYPE INTEGER, INFO TEXT)
+	snprintf(sqlQuery, sizeof(sqlQuery),
+			"INSERT INTO %s "
+			"(MSG_ID, TYPE, VALUE, COUNT)"
+			"VALUES (%d, %d, '%s', %d);",
+			MSGFW_MMS_PREVIEW_TABLE_NAME, msgId, type, value, count);
 
-	for (int i = 0; i < pMmsMsg->pageCnt; i++) {
-		pPage = _MsgMmsGetPage(pMmsMsg, i);
-		for (int j = 0; j < pPage->mediaCnt; j++) {
-			pMedia = _MsgMmsGetMedia(pPage, j);
+	MSG_DEBUG("QUERY : [%s]", sqlQuery);
 
-			MSG_DEBUG("pMedia's Name: %s", pMedia->szFilePath);
-
-			if (pMedia->mediatype == MMS_SMIL_MEDIA_IMG) {
-				MSG_DEBUG("Make thumbnail: image");
-
-				char thumbPath[MSG_FILEPATH_LEN_MAX] = {0, };
-
-				snprintf(thumbPath, MSG_FILEPATH_LEN_MAX, MSG_THUMBNAIL_PATH"/%s.jpg", szFileName);
-				int err = -1;
-				err = thumbnail_request_save_to_file(pMedia->szFilePath, MEDIA_THUMB_LARGE, thumbPath);
-				if (err < 0) {
-					MSG_DEBUG("Make thumbnail: image failed");
-					continue;
-				}
-
-				strncpy(pThumbnailPath, thumbPath, MSG_FILEPATH_LEN_MAX);
-
-				bThumbnail = true;
-
-				break;
-			} else if (pMedia->mediatype == MMS_SMIL_MEDIA_VIDEO) {
-				MSG_DEBUG("Make thumbnail: video");
-
-				MMHandleType content_attrs = (MMHandleType)NULL;
-				char *err_attr_name = NULL;
-
-				int fileRet = 0;
-
-				int trackCount = 0;
-
-				mm_file_create_content_attrs(&content_attrs, pMedia->szFilePath);
-
-				fileRet = mm_file_get_attrs(content_attrs, &err_attr_name, MM_FILE_CONTENT_VIDEO_TRACK_COUNT, &trackCount, NULL);
-
-				if (fileRet != 0) {
-					MSG_DEBUG("mm_file_get_attrs fails [%s]", err_attr_name);
-					if (err_attr_name) {
-						free(err_attr_name);
-						err_attr_name = NULL;
-					}
-
-					mm_file_destroy_content_attrs(content_attrs);
-
-					continue;
-				}
-
-				MSG_DEBUG("video track num: %d", trackCount);
-
-				if (trackCount > 0) {
-					int thumbnailWidth = 0;
-					int thumbnailHeight = 0;
-					int thumbnailSize = 0;
-
-					void *thumbnail = NULL;
-
-					fileRet = mm_file_get_attrs(content_attrs, &err_attr_name, MM_FILE_CONTENT_VIDEO_WIDTH, &thumbnailWidth,
-															MM_FILE_CONTENT_VIDEO_HEIGHT, &thumbnailHeight,
-															MM_FILE_CONTENT_VIDEO_THUMBNAIL, &thumbnail, &thumbnailSize,
-															NULL);
-
-					if (fileRet != 0) {
-						MSG_DEBUG("mm_file_get_attrs fails [%s]", err_attr_name);
-						if (err_attr_name) {
-							free(err_attr_name);
-							err_attr_name = NULL;
-						}
-
-						mm_file_destroy_content_attrs(content_attrs);
-
-						continue;
-					}
-
-					MSG_DEBUG("video width: %d", thumbnailWidth);
-					MSG_DEBUG("video height: %d", thumbnailHeight);
-					MSG_DEBUG("video thumbnail: %p", thumbnail);
-
-					if (thumbnail) {
-						char thumbPath[MSG_FILEPATH_LEN_MAX] = {0, };
-
-						snprintf(thumbPath, MSG_FILEPATH_LEN_MAX, MSG_THUMBNAIL_PATH"%s.jpg", szFileName);
-
-						fileRet = mm_util_jpeg_encode_to_file (thumbPath, thumbnail, thumbnailWidth, thumbnailHeight, MM_UTIL_JPEG_FMT_RGB888, 70);
-
-						if (fileRet != 0) {
-							MSG_DEBUG("mm_util_jpeg_encode_to_file fails [%d]", fileRet);
-
-							mm_file_destroy_content_attrs(content_attrs);
-
-							continue;
-						}
-
-						memset(pThumbnailPath, 0x00, MSG_FILEPATH_LEN_MAX);
-
-						strncpy(pThumbnailPath, thumbPath, MSG_FILEPATH_LEN_MAX);
-
-						bThumbnail = true;
-
-					}
-
-					mm_file_destroy_content_attrs(content_attrs);
-
-					break;
-				}
-
-				mm_file_destroy_content_attrs(content_attrs);
-			} else if (pMedia->mediatype == MMS_SMIL_MEDIA_AUDIO) {
-				MSG_DEBUG("Make thumbnail: %s", "audio");
-
-				MMHandleType tag_attrs = (MMHandleType)NULL;
-				char *err_attr_name = NULL;
-				void *artwork = NULL;
-				int artworkSize = 0;
-				int tmpLen = 0;
-				int fileRet = 0;
-
-				if (mm_file_create_tag_attrs(&tag_attrs, pMedia->szFilePath) == 0) {
-
-
-					fileRet = mm_file_get_attrs(tag_attrs, &err_attr_name, MM_FILE_TAG_ARTWORK, &artwork, &tmpLen,
-														MM_FILE_TAG_ARTWORK_SIZE, &artworkSize,
-														NULL);
-
-					mm_file_destroy_tag_attrs(tag_attrs);
-
-					if (fileRet != 0) {
-						MSG_DEBUG("mm_file_get_attrs fails [%s]", err_attr_name);
-						if (err_attr_name) {
-							free(err_attr_name);
-							err_attr_name = NULL;
-						}
-
-						continue;
-					}
-				} else {
-					MSG_DEBUG("mm_file_create_tag_attrs fails");
-					continue;
-				}
-
-				MSG_DEBUG("artwork: %p", artwork);
-				MSG_DEBUG("artwork_size: %d", artworkSize);
-
-				if (artwork) {
-					char thumbPath[MSG_FILEPATH_LEN_MAX] = {0, };
-
-					snprintf(thumbPath, MSG_FILEPATH_LEN_MAX, MSG_THUMBNAIL_PATH"%s.jpg", szFileName);
-
-					FILE *tmp = MsgOpenFile(thumbPath, "wb+");
-
-					if(!tmp) {
-						MSG_DEBUG("MsgOpenFile file error");
-						return MSG_ERR_STORAGE_ERROR;
-					}
-
-					if (MsgWriteFile((char*)artwork, 1, artworkSize, tmp) != (size_t)artworkSize) {
-						MSG_DEBUG("MsgWriteFile error");
-						MsgCloseFile(tmp);
-						return MSG_ERR_STORAGE_ERROR;
-					}
-					MsgFsync(tmp);
-					MsgCloseFile(tmp);
-
-					strncpy(pThumbnailPath, thumbPath, MSG_FILEPATH_LEN_MAX);
-
-					bThumbnail = true;
-
-					break;
-				}
-			}
-		}
-
-		if (bThumbnail == true)
-			break;
-	}
+	if (dbHandle.execQuery(sqlQuery) != MSG_SUCCESS)
+		return MSG_ERR_DB_EXEC;
 
 	return MSG_SUCCESS;
 }
-
 
 msg_error_t MmsPluginStorage::addMmsNoti(MSG_MESSAGE_INFO_S *pMsgInfo)
 {

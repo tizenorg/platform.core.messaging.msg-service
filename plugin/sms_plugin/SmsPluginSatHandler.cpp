@@ -140,10 +140,10 @@ void SmsPluginSatHandler::sendSms(void *pData)
 	memcpy((void*)pkgInfo.Sca, smscAddr, smscLen);
 	pkgInfo.Sca[smscLen] = '\0';
 
-	int reqId = 0, tapiRet = TAPI_API_SUCCESS;
+	int tapiRet = TAPI_API_SUCCESS;
 
 	// Send SMS
-	tapiRet = tel_send_sms(pTapiHandle, &pkgInfo, 0, TapiEventSentStatus, &reqId);
+	tapiRet = tel_send_sms(pTapiHandle, &pkgInfo, 0, TapiEventSentStatus, NULL);
 
 	if (tapiRet == TAPI_API_SUCCESS)
 	{
@@ -430,7 +430,7 @@ int SmsPluginSatHandler::handleSatTpdu(unsigned char *pTpdu, unsigned char TpduL
 
 	// TP-MTI, TP-RD, TP-VPF,  TP-RP, TP-UDHI, TP-SRR
 	// TP-VPF
-	SMS_VPF_T vpf = (SMS_VPF_T)(pTpdu[pos++] & 0x18);
+	SMS_VPF_T vpf = (SMS_VPF_T)(pTpdu[pos++] & 0x18) >> 3;
 
 	// TP-MR
 	unsigned char tmpRef = pTpdu[pos];
@@ -486,7 +486,6 @@ int SmsPluginSatHandler::handleSatTpdu(unsigned char *pTpdu, unsigned char TpduL
 
 	// TP-UDL
 	int udl = pTpdu[pos];
-
 	int retLen = 0;
 
 	if (bIsPackingRequired == true)
@@ -498,7 +497,7 @@ int SmsPluginSatHandler::handleSatTpdu(unsigned char *pTpdu, unsigned char TpduL
 		memcpy(userData.data, &pTpdu[pos+1], udl);
 		userData.data[udl] = '\0';
 
-MSG_DEBUG("user data : %s", userData.data);
+MSG_DEBUG("user data : [%s]", userData.data);
 
 		int encodeSize = SmsPluginUDCodec::encodeUserData(&userData, dcs.codingScheme, (char*)&pTpdu[pos]);
 

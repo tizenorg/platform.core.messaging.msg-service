@@ -28,6 +28,7 @@
 
 static unsigned short wapPushPortList [] = {0x0b84, 0x0b85, 0x23F0, 0x23F1, 0x23F2, 0x23F3, 0xC34F};
 
+#if 0
 const SMS_PUSH_APP_INFO_S pushDefaultApplication [] =
 {
 	{(char*)"text/vnd.wap.si", (char*)"X-Wap-Application-Id: x-wap-application:wml.ua\r\n", SMS_WAP_APPLICATION_PUSH_SI},
@@ -60,13 +61,20 @@ const SMS_PUSH_APP_INFO_S pushDefaultApplication [] =
 	{(char*)"application/vnd.oma.drm.roap-trigger+xml", (char*)"X-Wap-Application-Id: x-wap-application:drm.ua\r\n", SMS_WAP_APPLICATION_DRM_V2_ROAP_TRIGGER_XML},
 	{(char*)"application/vnd.oma.drm.roap-trigger+wbxml", (char*)"X-Wap-Application-Id: x-wap-application:drm.ua\r\n", SMS_WAP_APPLICATION_DRM_V2_ROAP_TRIGGER_WBXML},
 
+	{(char*)"text/vnd.wap.connectivity-xml", (char*)"X-Wap-Application-Id: x-wap-samsung:provisioning.ua\r\n", SMS_WAP_APPLICATION_PUSH_PROVISIONING_XML},
+	{(char*)"application/vnd.wap.connectivity-wbxml", (char*)"X-Wap-Application-Id: x-wap-samsung:provisioning.ua\r\n", SMS_WAP_APPLICATION_PUSH_PROVISIONING_WBXML},
+
+	{(char*)"application/x-wap-prov.browser-settings", (char*)"X-Wap-Application-Id: x-wap-samsung:provisioning.ua\r\n", SMS_WAP_APPLICATION_PUSH_BROWSER_SETTINGS},
+	{(char*)"application/x-wap-prov.browser-bookmarks", (char*)"X-Wap-Application-Id: x-wap-samsung:provisioning.ua\r\n", SMS_WAP_APPLICATION_PUSH_BROWSER_BOOKMARKS},
+	{(char*)"application/x-wap-prov.syncset+xml", (char*)"X-Wap-Application-Id: x-wap-samsung:provisioning.ua\r\n", SMS_WAP_APPLICATION_PUSH_SYNCSET_WBXML},
+	{(char*)"application/x-wap-prov.syncset+wbxml", (char*)"X-Wap-Application-Id: x-wap-samsung:provisioning.ua\r\n", SMS_WAP_APPLICATION_PUSH_SYNCSET_XML},
 	{(char*)"text/vnd.wap.emn+xml", (char*)"X-Wap-Application-Id: x-wap-application:emn.ua\r\n", SMS_WAP_APPLICATION_PUSH_EMAIL_XML},
 	{(char*)"application/vnd.wap.emn+wbxml", (char*)"X-Wap-Application-Id: x-wap-application:emn.ua\r\n", SMS_WAP_APPLICATION_PUSH_EMAIL_WBXML},
 	{(char*)"application/vnd.wv.csp.cir", (char*)"X-Wap-Application-Id: x-wap-application:wv.ua\r\n", SMS_WAP_APPLICATION_PUSH_IMPS_CIR},
 	{(char*)"application/vnd.omaloc-supl-init", (char*)"X-Wap-Application-Id: x-oma-application:ulp.ua\r\n", SMS_WAP_APPLICATION_LBS},
 	{NULL, NULL}
 };
-
+#endif
 
 char gWapCodeBufferLeft[WSP_CODE_BUFFER_LEFT_LEN_MAX];
 char gWapCodeBufferRight[WSP_CODE_BUFFER_RIGHT_LEN_MAX];
@@ -602,7 +610,8 @@ const SMS_WSP_HEADER_PARAMETER_S wspHeaderApplId[] =
 	{ (char*)"x-wap-application:loc.ua",  0x06 },
 	{ (char*)"x-wap-application:syncml.dm", 0x07 },
 	{ (char*)"x-wap-application:drm.ua", 0x08 },
-	{ (char*)"x-wap-application:emn.ua", 0x09 }
+	{ (char*)"x-wap-application:emn.ua", 0x09 },
+	{ (char*)"x-oma-docomo:xmd.mail.ua", 0x905C },
 };
 
 
@@ -743,7 +752,7 @@ bool SmsPluginWapPushHandler::IsWapPushMsg(SMS_USERDATA_S *pUserData)
 	return false;
 }
 
-
+#if 0
 SMS_WAP_APP_CODE_T SmsPluginWapPushHandler::getAppCode(const char *pPushHeader)
 {
 	int appCount = sizeof(pushDefaultApplication)/sizeof(pushDefaultApplication[0]) - 1;
@@ -771,6 +780,7 @@ SMS_WAP_APP_CODE_T SmsPluginWapPushHandler::getAppCode(const char *pPushHeader)
 
 	return appCode;
 }
+#endif
 
 
 void SmsPluginWapPushHandler::copyDeliverData(SMS_DELIVER_S *pDeliver)
@@ -894,7 +904,7 @@ void SmsPluginWapPushHandler::handleWapPushMsg(const char *pUserData, int DataSi
 	MSG_END();
 }
 
-
+#if 0
 void SmsPluginWapPushHandler::handleWapPushCallback(char* pPushHeader, char* pPushBody, int PushBodyLen, char* pWspHeader, int WspHeaderLen, char* pWspBody, int WspBodyLen)
 {
 	MSG_BEGIN();
@@ -1040,7 +1050,169 @@ void SmsPluginWapPushHandler::handleWapPushCallback(char* pPushHeader, char* pPu
 
 	MSG_END();
 }
+#else
+void SmsPluginWapPushHandler::handleWapPushCallback(char* pPushHeader, char* pPushBody, int PushBodyLen, char* pWspHeader, int WspHeaderLen, char* pWspBody, int WspBodyLen)
+{
+	MSG_BEGIN();
 
+	if (pPushBody == NULL) {
+		MSG_DEBUG("pPushBody is NULL");
+		return;
+	}
+
+	msg_error_t err = MSG_SUCCESS;
+	int pushEvt_cnt = 0;
+	char app_id[MAX_WAPPUSH_ID_LEN] = {0,};
+	SmsPluginStorage *storageHandler = SmsPluginStorage::instance();
+
+	err = storageHandler->getRegisteredPushEvent(pPushHeader, &pushEvt_cnt, app_id);
+	MSG_DEBUG("pushEvt_cnt: %d", pushEvt_cnt);
+	if(err != MSG_SUCCESS) {
+		MSG_DEBUG("Fail to get registered push event");
+		return;
+	}
+
+	for(int i = 0; i < pushEvt_cnt; ++i)	{
+
+		/**  check Push message receive setting */
+		bool bPushRecv = false;
+		int appcode = 0;
+		MsgSettingGetBool(PUSH_RECV_OPTION, &bPushRecv);
+
+		storageHandler->getnthPushEvent(i, &appcode);
+		MSG_DEBUG("pushEvt_cnt: %d, appcode: %d", pushEvt_cnt, appcode);
+		if ((bPushRecv == false) && (appcode != SMS_WAP_APPLICATION_MMS_UA)) {
+			MSG_DEBUG("Push Message Receive option is OFF. Drop Push Message.");
+			return;
+		}
+
+		switch (appcode) {
+		case SMS_WAP_APPLICATION_MMS_UA:
+			MSG_DEBUG("Received MMS Notification");
+			handleMMSNotification(pPushBody, PushBodyLen);
+			break;
+
+		case SMS_WAP_APPLICATION_PUSH_SI:
+			MSG_DEBUG("Received WAP Push (Service Indication Textual form)");
+			handleSIMessage(pPushBody, PushBodyLen, true);
+			break;
+
+		case SMS_WAP_APPLICATION_PUSH_SIC:
+			MSG_DEBUG("Received WAP Push (Service Indication Tokenised form)");
+			handleSIMessage(pPushBody, PushBodyLen, false);
+			break;
+
+		case SMS_WAP_APPLICATION_PUSH_SL:
+			MSG_DEBUG("Received WAP Push (Service Loading Textual form)");
+			handleSLMessage(pPushBody, PushBodyLen, true);
+			break;
+
+		case SMS_WAP_APPLICATION_PUSH_SLC:
+			MSG_DEBUG("Received WAP Push (Service Loading Tokenised form)");
+			handleSLMessage(pPushBody, PushBodyLen, false);
+			break;
+
+		case SMS_WAP_APPLICATION_PUSH_CO:
+			MSG_DEBUG("Received WAP Push (Cache Operation Textual form)");
+			handleCOMessage(pPushBody, PushBodyLen, true);
+			break;
+
+		case SMS_WAP_APPLICATION_PUSH_COC:
+			MSG_DEBUG("Received WAP Push (Cache Operation Tokenised form)");
+			handleCOMessage(pPushBody, PushBodyLen, false);
+			break;
+
+		case SMS_WAP_APPLICATION_SYNCML_DM_BOOTSTRAP:
+			MSG_DEBUG("Received DM BOOTSTRAP");
+			SmsPluginEventHandler::instance()->handleSyncMLMsgIncoming(DM_WBXML, pPushBody, PushBodyLen, pWspHeader, WspHeaderLen);
+			break;
+
+		case SMS_WAP_APPLICATION_SYNCML_DM_BOOTSTRAP_XML:
+			MSG_DEBUG("Received DM BOOTSTRAP");
+			SmsPluginEventHandler::instance()->handleSyncMLMsgIncoming(DM_XML, pPushBody, PushBodyLen, pWspHeader, WspHeaderLen);
+			break;
+
+		case SMS_WAP_APPLICATION_PUSH_PROVISIONING_XML:
+			MSG_DEBUG("Received Provisioning");
+			SmsPluginEventHandler::instance()->handleSyncMLMsgIncoming(CP_XML, pPushBody, PushBodyLen, pWspHeader, WspHeaderLen);
+			break;
+
+		case SMS_WAP_APPLICATION_PUSH_PROVISIONING_WBXML:
+			MSG_DEBUG("Received Provisioning");
+			SmsPluginEventHandler::instance()->handleSyncMLMsgIncoming(CP_WBXML, pPushBody, PushBodyLen, pWspHeader, WspHeaderLen);
+			break;
+
+		case SMS_WAP_APPLICATION_PUSH_BROWSER_SETTINGS:
+		case SMS_WAP_APPLICATION_PUSH_BROWSER_BOOKMARKS:
+			MSG_DEBUG("Received Provisioning");
+			SmsPluginEventHandler::instance()->handleSyncMLMsgIncoming(OTHERS, pPushBody, PushBodyLen, pWspHeader, WspHeaderLen);
+			break;
+
+		case SMS_WAP_APPLICATION_SYNCML_DM_NOTIFICATION:
+			MSG_DEBUG("Received DM Notification");
+			SmsPluginEventHandler::instance()->handleSyncMLMsgIncoming(DM_NOTIFICATION, pPushBody, PushBodyLen, pWspHeader, WspHeaderLen);
+			break;
+
+		case SMS_WAP_APPLICATION_SYNCML_DS_NOTIFICATION:
+			MSG_DEBUG("Received DS Notification");
+			SmsPluginEventHandler::instance()->handleSyncMLMsgIncoming(DS_NOTIFICATION, pPushBody, PushBodyLen, pWspHeader, WspHeaderLen);
+			break;
+
+		case SMS_WAP_APPLICATION_SYNCML_DS_NOTIFICATION_WBXML:
+			MSG_DEBUG("Received DS Notification");
+			SmsPluginEventHandler::instance()->handleSyncMLMsgIncoming(DS_WBXML, pPushBody, PushBodyLen, pWspHeader, WspHeaderLen);
+			break;
+
+		case SMS_WAP_APPLICATION_DRM_UA_RIGHTS_XML:
+		case SMS_WAP_APPLICATION_DRM_UA_RIGHTS_WBXML:
+			MSG_DEBUG("Received DRM UA");
+
+			if (pPushBody != NULL)
+				handleDrmVer1(pPushBody, PushBodyLen);
+
+			break;
+
+		case SMS_WAP_APPLICATION_DRM_V2_RO_XML:
+		case SMS_WAP_APPLICATION_DRM_V2_ROAP_PDU_XML:
+		case SMS_WAP_APPLICATION_DRM_V2_ROAP_TRIGGER_XML:
+		case SMS_WAP_APPLICATION_DRM_V2_ROAP_TRIGGER_WBXML:
+			MSG_DEBUG("Received DRM V2");
+			// TODO: DRM V2
+			break;
+
+		case SMS_WAP_APPLICATION_PUSH_EMAIL:
+		case SMS_WAP_APPLICATION_PUSH_EMAIL_XML:
+		case SMS_WAP_APPLICATION_PUSH_EMAIL_WBXML:
+			MSG_DEBUG("Received Email");
+			// TODO: Email
+			break;
+
+		case SMS_WAP_APPLICATION_PUSH_IMPS_CIR:
+			MSG_DEBUG("Received IMPS CIR");
+			// TODO: IMPS CIR
+			break;
+
+		case SMS_WAP_APPLICATION_LBS :
+			MSG_DEBUG("Received LBS related message");
+			SmsPluginEventHandler::instance()->handleLBSMsgIncoming(pPushHeader, pPushBody, PushBodyLen);
+			// TODO: LBS
+			break;
+
+		case SMS_WAP_APPLICATION_PUSH_SIA :
+			MSG_DEBUG("Received SIA");
+			// TODO: SIA
+			break;
+
+		default:
+			SmsPluginEventHandler::instance()->handlePushMsgIncoming(pPushHeader, pPushBody, PushBodyLen, app_id);
+			break;
+		}
+	}
+	storageHandler->releasePushEvent();
+
+	MSG_END();
+}
+#endif
 
 void SmsPluginWapPushHandler::handleMMSNotification(const char *pPushBody, int PushBodyLen)
 {
@@ -1055,7 +1227,7 @@ void SmsPluginWapPushHandler::handleMMSNotification(const char *pPushBody, int P
 	/** Convert Type values */
 	msgInfo.msgType.mainType = MSG_MMS_TYPE;
 	msgInfo.msgType.subType = MSG_NOTIFICATIONIND_MMS;
-
+	msgInfo.storageId = MSG_STORAGE_PHONE;
 	msgInfo.dataSize = PushBodyLen;
 
 	if (msgInfo.dataSize > MAX_MSG_TEXT_LEN) {
@@ -2182,13 +2354,16 @@ void SmsPluginWapPushHandler::wspDecodeHeader( unsigned char* sEncodedHeader, un
 
 								integerValue = wspHeaderDecodeIntegerByLength(fieldValue, fieldValueLen);
 
-								if (integerValue > 0x0A) {
-									MSG_DEBUG("WspLDecodeHeader: integerValue is over limit(0x0A).\n");
-									break;
+								int count = sizeof(wspHeaderApplId)/sizeof(SMS_WSP_HEADER_PARAMETER_S);
+								for(int i = 0; i < count ; ++i)
+								{
+									if((unsigned int)integerValue == wspHeaderApplId[i].parameterCode)
+									{
+										snprintf((char*)temp, 64, "%s", wspHeaderApplId[i].parameterToken);
+										strncat((char*)temper, (char*)temp, (WSP_STANDARD_STR_LEN_MAX * 5)-strlen(temper)-1);
+										break;
+									}
 								}
-
-								snprintf((char*)temp, 64, "%s", wspHeaderApplId[integerValue].parameterToken);
-								strncat((char*)temper, (char*)temp, (WSP_STANDARD_STR_LEN_MAX * 5)-strlen(temper)-1);
 							}
 							break;
 						/* Accept-Application */

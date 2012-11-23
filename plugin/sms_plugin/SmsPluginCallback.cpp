@@ -26,6 +26,7 @@
 #include "SmsPluginSatHandler.h"
 #include "SmsPluginParamCodec.h"
 #include "SmsPluginTpduCodec.h"
+#include "SmsPluginTransport.h"
 #include "SmsPluginSimMsg.h"
 #include "SmsPluginSetting.h"
 #include "MsgGconfWrapper.h"
@@ -36,9 +37,9 @@ extern struct tapi_handle *pTapiHandle;
 /*==================================================================================================
                                      FUNCTION IMPLEMENTATION
 ==================================================================================================*/
-void TapiEventDeviceReady(TapiHandle *handle, int result, void *data, void *user_data)
+void TapiEventDeviceReady(TapiHandle *handle, const char *noti_id, void *data, void *user_data)
 {
-	MSG_DEBUG("TapiEventDeviceReady is called. : result = [%d]", result);
+	MSG_DEBUG("TapiEventDeviceReady is called. : noti_id = [%d]", noti_id);
 
 	try
 	{
@@ -196,6 +197,29 @@ void TapiEventCbMsgIncoming(TapiHandle *handle, const char *noti_id, void *data,
 }
 
 
+void TapiEventEtwsMsgIncoming(TapiHandle *handle, const char *noti_id, void *data, void *user_data)
+{
+	MSG_DEBUG("TapiEventEtwsMsgIncoming is called. noti_id [%s]", noti_id);
+
+	if (data == NULL) {
+		MSG_DEBUG("Error. evt->pData is NULL.");
+		return;
+	}
+
+	TelSmsEtwsMsg_t *pEtwsMsg = (TelSmsEtwsMsg_t*)data;
+
+	try
+	{
+		SmsPluginCbMsgHandler::instance()->handleEtwsMsg(pEtwsMsg);
+	}
+	catch (MsgException& e)
+	{
+		MSG_FATAL("%s", e.what());
+		return;
+	}
+}
+
+
 void TapiEventDeliveryReportCNF(TapiHandle *handle, int result, void *data, void *user_data)
 {
 	MSG_DEBUG("TapiEventDeliveryReportCNF is called. : result = [%d]", result);
@@ -268,6 +292,12 @@ void TapiEventGetSimMsg(TapiHandle *handle, int result, void *data, void *user_d
 
 	if (tpdu.tpduType == SMS_TPDU_DELIVER)
 	{
+		if (tpdu.data.deliver.dcs.codingScheme == SMS_CHARSET_8BIT && tpdu.data.deliver.pid == 0x11) {
+			MSG_DEBUG("Unsupported message!!");
+			SmsPluginSimMsg::instance()->setSimMsgEvent(NULL, false);
+			return;
+		}
+
 		MSG_DEBUG("headerCnt [%d]", tpdu.data.deliver.userData.headerCnt);
 
 		for (int i = 0; i < tpdu.data.deliver.userData.headerCnt; i++)
@@ -283,6 +313,12 @@ void TapiEventGetSimMsg(TapiHandle *handle, int result, void *data, void *user_d
 	}
 	else if (tpdu.tpduType == SMS_TPDU_SUBMIT)
 	{
+		if (tpdu.data.submit.dcs.codingScheme == SMS_CHARSET_8BIT && tpdu.data.submit.pid == 0x11) {
+			MSG_DEBUG("Unsupported message!!");
+			SmsPluginSimMsg::instance()->setSimMsgEvent(NULL, false);
+			return;
+		}
+
 		MSG_DEBUG("headerCnt [%d]", tpdu.data.submit.userData.headerCnt);
 
 		for (int i = 0; i < tpdu.data.submit.userData.headerCnt; i++)
@@ -645,9 +681,80 @@ void TapiEventGetCBConfig(TapiHandle *handle, int result, void *data, void *user
 	}
 
 	SmsPluginSetting::instance()->setCbConfigEvent(&cbOpt, true);
-
 }
 
+void TapiEventSetMailboxInfo(TapiHandle *handle, int result, void *data, void *user_data)
+{
+	MSG_DEBUG("TapiEventSetMailboxInfo is called.");
+}
+
+void TapiEventGetMailboxInfo(TapiHandle *handle, int result, void *data, void *user_data)
+{
+#if 0 // New TAPI
+	MSG_DEBUG("TapiEventGetMailboxInfo is called.");
+
+	if (result != TAPI_SIM_ACCESS_SUCCESS || data == NULL)
+	{
+		MSG_DEBUG("Error. data is NULL.");
+		SmsPluginSetting::instance()->setMailboxInfoEvent(NULL, false);
+
+		return;
+	}
+
+	TelSimMailboxList_t *list = (TelSimMailboxList_t *)data;
+	SMS_SIM_MAILBOX_LIST_S mbList = {0,};
+
+	if (list->count <= 0) {
+		SmsPluginSetting::instance()->setMailboxInfoEvent(NULL, true);
+		return;
+	}
+
+	mbList.count = list->count;
+
+	for (int i = 0; i < mbList.count; i++) {
+		mbList.list[i].b_cphs = list->list[i].b_cphs;
+		mbList.list[i].alpha_id_max_len = list->list[i].alpha_id_max_len;
+		mbList.list[i].mb_type = list->list[i].mb_type;
+		mbList.list[i].profile_num = list->list[i].profile_num;
+		mbList.list[i].rec_index = list->list[i].rec_index;
+		mbList.list[i].ton = list->list[i].ton;
+		mbList.list[i].npi = list->list[i].npi;
+		snprintf(mbList.list[i].alpha_id, sizeof(mbList.list[i].alpha_id), "%s", list->list[i].alpha_id);
+		snprintf(mbList.list[i].num, sizeof(mbList.list[i].num), "%s", list->list[i].num);
+		mbList.list[i].cc_id = list->list[i].cc_id;
+		mbList.list[i].ext1_id = list->list[i].ext1_id;
+	}
+
+	SmsPluginSetting::instance()->setMailboxInfoEvent(&mbList, true);
+#endif
+}
+
+void TapiEventSetMwiInfo(TapiHandle *handle, int result, void *data, void *user_data)
+{
+	MSG_DEBUG("TapiEventSetMwiInfo is called.");
+}
+
+void TapiEventGetMwiInfo(TapiHandle *handle, int result, void *data, void *user_data)
+{
+#if 0 // New TAPI
+	MSG_DEBUG("TapiEventGetMwiInfo is called.");
+
+	if (result != TAPI_SIM_ACCESS_SUCCESS || data == NULL)
+	{
+		MSG_DEBUG("Error. data is NULL.");
+		SmsPluginSetting::instance()->setMwiInfoEvent(NULL, false);
+
+		return;
+	}
+
+	TelSimMessageWaitingResp_t *MwiInfo = (TelSimMessageWaitingResp_t *)data;
+	SMS_SIM_MWI_INFO_S simMwiInfo = {0,};
+
+	memcpy(&simMwiInfo, MwiInfo, sizeof(SMS_SIM_MWI_INFO_S));
+
+	SmsPluginSetting::instance()->setMwiInfoEvent(&simMwiInfo, true);
+#endif
+}
 
 void TapiEventSatSmsRefresh(TapiHandle *handle, int result, void *data, void *user_data)
 {
@@ -694,7 +801,6 @@ void TapiEventSatSendSms(TapiHandle *handle, const char *noti_id, void *data, vo
 
 }
 
-
 void TapiEventSatMoSmsCtrl(TapiHandle *handle, int result, void *data, void *user_data)
 {
 	MSG_DEBUG("TapiEventSatMoSmsCtrl is called.");
@@ -715,6 +821,27 @@ void TapiEventSatMoSmsCtrl(TapiHandle *handle, int result, void *data, void *use
 		return;
 	}
 
+}
+
+void TapiEventMemoryStatus(TapiHandle *handle, int result, void *data, void *user_data)
+{
+	MSG_DEBUG("Tapi result is [%d]", result);
+}
+
+void TapiEventSetMsgStatus(TapiHandle *handle, int result, void *data, void *user_data)
+{
+	MSG_DEBUG("TapiEventSetMsgStatus is called. result [%d]", result);
+
+	if (result != TAPI_API_SUCCESS || data == NULL)
+	{
+		MSG_DEBUG("Error. data is NULL.");
+		SmsPluginSimMsg::instance()->setSimEvent((msg_sim_id_t)0, false);
+		return;
+	}
+
+	msg_sim_id_t sim_id = *((msg_sim_id_t *)user_data);
+
+	SmsPluginSimMsg::instance()->setSimEvent(sim_id, true);
 }
 
 /*==================================================================================================
@@ -751,10 +878,10 @@ SmsPluginCallback* SmsPluginCallback::instance()
 
 void SmsPluginCallback::registerEvent()
 {
-	unsigned int tempId = 0;
-
+	tel_register_noti_event(pTapiHandle, TAPI_NOTI_SMS_DEVICE_READY, TapiEventDeviceReady, NULL);
 	tel_register_noti_event(pTapiHandle, TAPI_NOTI_SMS_INCOM_MSG, TapiEventMsgIncoming, NULL);
 	tel_register_noti_event(pTapiHandle, TAPI_NOTI_SMS_CB_INCOM_MSG, TapiEventCbMsgIncoming, NULL);
+	tel_register_noti_event(pTapiHandle, TAPI_NOTI_SMS_ETWS_INCOM_MSG, TapiEventEtwsMsgIncoming, NULL);
 //	tel_register_noti_event(pTapiHandle, TAPI_NOTI_SAT_REFRESH, TapiEventSatSmsRefresh, NULL);
 	tel_register_noti_event(pTapiHandle, TAPI_NOTI_SAT_SEND_SMS, TapiEventSatSendSms, NULL);
 //	tel_register_noti_event(pTapiHandle, TAPI_NOTI_SAT_MO_SMS_CTRL, TapiEventSatMoSmsCtrl, NULL);

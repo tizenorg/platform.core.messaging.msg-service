@@ -17,25 +17,177 @@
 #include <glib.h>
 
 #include "MsgDebug.h"
-#include "SmsPluginTextConvert.h"
+#include "MsgTextConvert.h"
 
 
 /*==================================================================================================
                                      IMPLEMENTATION OF MsgConvertText - Member Functions
 ==================================================================================================*/
-SmsPluginTextConvert* SmsPluginTextConvert::pInstance = NULL;
 
-
-SmsPluginTextConvert* SmsPluginTextConvert::instance()
+MsgTextConvert::MsgTextConvert()
 {
-	if (!pInstance)
-		pInstance = new SmsPluginTextConvert();
+	extCharList.clear();
+	ucs2toGSM7DefList.clear();
+	ucs2toGSM7ExtList.clear();
+	ucs2toTurkishList.clear();
+	ucs2toSpanishList.clear();
+	ucs2toPortuList.clear();
 
-	return pInstance;
+	extCharList[0x000C] = MSG_CHAR_GSM7EXT;
+	extCharList[0x005B] = MSG_CHAR_GSM7EXT;
+	extCharList[0x005C] = MSG_CHAR_GSM7EXT;
+	extCharList[0x005D] = MSG_CHAR_GSM7EXT;
+	extCharList[0x005E] = MSG_CHAR_GSM7EXT;
+	extCharList[0x007B] = MSG_CHAR_GSM7EXT;
+	extCharList[0x007C] = MSG_CHAR_GSM7EXT;
+	extCharList[0x007D] = MSG_CHAR_GSM7EXT;
+	extCharList[0x007E] = MSG_CHAR_GSM7EXT;
+	extCharList[0x20AC] = MSG_CHAR_GSM7EXT; // ï¿½ï¿½
+
+	extCharList[0x00E7] = MSG_CHAR_TURKISH;
+	extCharList[0x011E] = MSG_CHAR_TURKISH;
+	extCharList[0x011F] = MSG_CHAR_TURKISH;
+	extCharList[0x01E6] = MSG_CHAR_TURKISH;
+	extCharList[0x01E7] = MSG_CHAR_TURKISH;
+	extCharList[0x0130] = MSG_CHAR_TURKISH;
+	extCharList[0x0131] = MSG_CHAR_TURKISH;
+	extCharList[0x015E] = MSG_CHAR_TURKISH;
+	extCharList[0x015F] = MSG_CHAR_TURKISH;
+
+	extCharList[0x00C1] = MSG_CHAR_SPANISH;
+	extCharList[0x00E1] = MSG_CHAR_SPANISH;
+	extCharList[0x00CD] = MSG_CHAR_SPANISH;
+	extCharList[0x00ED] = MSG_CHAR_SPANISH;
+	extCharList[0x00D3] = MSG_CHAR_SPANISH;
+	extCharList[0x00F3] = MSG_CHAR_SPANISH;
+	extCharList[0x00DA] = MSG_CHAR_SPANISH;
+	extCharList[0x00FA] = MSG_CHAR_SPANISH;
+
+	extCharList[0x00D4] = MSG_CHAR_PORTUGUESE;
+	extCharList[0x00F4] = MSG_CHAR_PORTUGUESE;
+	extCharList[0x00CA] = MSG_CHAR_PORTUGUESE;
+	extCharList[0x00EA] = MSG_CHAR_PORTUGUESE;
+	extCharList[0x00C0] = MSG_CHAR_PORTUGUESE;
+	extCharList[0x00E7] = MSG_CHAR_PORTUGUESE;
+	extCharList[0x00C3] = MSG_CHAR_PORTUGUESE;
+	extCharList[0x00E3] = MSG_CHAR_PORTUGUESE;
+	extCharList[0x00D5] = MSG_CHAR_PORTUGUESE;
+	extCharList[0x00F5] = MSG_CHAR_PORTUGUESE;
+	extCharList[0x00C2] = MSG_CHAR_PORTUGUESE;
+	extCharList[0x00E2] = MSG_CHAR_PORTUGUESE;
+
+	for (unsigned char i = 0; i < 128; i++)
+	{
+		ucs2toGSM7DefList[g_GSM7BitToUCS2[i]] = i;
+	}
+
+	// GSM 7 bit Extension
+	ucs2toGSM7ExtList[0x005B] = 0x3C; // [
+	ucs2toGSM7ExtList[0x005D] = 0x3E; // ]
+	ucs2toGSM7ExtList[0x007B] = 0x28; // {
+	ucs2toGSM7ExtList[0x007D] = 0x29; // }
+	ucs2toGSM7ExtList[0x000C] = 0x0A; // Page Break
+	ucs2toGSM7ExtList[0x005C] = 0x2F; /* \ */
+	ucs2toGSM7ExtList[0x005E] = 0x14; // ^
+	ucs2toGSM7ExtList[0x007C] = 0x40; // |
+	ucs2toGSM7ExtList[0x007E] = 0x3D; // ~
+	ucs2toGSM7ExtList[0x20AC] = 0x65; // ï¿½ï¿½
+
+	// Turkish
+	ucs2toTurkishList[0x005B] = 0x3C; // [
+	ucs2toTurkishList[0x005D] = 0x3E; // ]
+	ucs2toTurkishList[0x007B] = 0x28; // {
+	ucs2toTurkishList[0x007D] = 0x29; // }
+	ucs2toTurkishList[0x000C] = 0x0A; // Page Break
+	ucs2toTurkishList[0x005C] = 0x2F; /* \ */
+	ucs2toTurkishList[0x005E] = 0x14; // ^
+	ucs2toTurkishList[0x007C] = 0x40; // |
+	ucs2toTurkishList[0x007E] = 0x3D; // ~
+	ucs2toTurkishList[0x20AC] = 0x65; // ï¿½ï¿½
+	ucs2toTurkishList[0x00E7] = 0x63; // c LATIN SMALL LETTER S WITH CEDILLA *
+	ucs2toTurkishList[0x011E] = 0x47; // G LATIN CAPITAL LETTER G WITH BREVE
+	ucs2toTurkishList[0x011F] = 0x67; // g LATIN SMALL LETTER G WITH BREVE
+	ucs2toTurkishList[0x01E6] = 0x47; // G LATIN CAPITAL LETTER G WITH CARON
+	ucs2toTurkishList[0x01E7] = 0x67; // g LATIN SMALL LETTER G WITH CARON
+	ucs2toTurkishList[0x0130] = 0x49; // I LATIN CAPITAL LETTER I WITH DOT ABOVE
+	ucs2toTurkishList[0x0131] = 0x69; // i LATIN SMALL LETTER DOTLESS
+	ucs2toTurkishList[0x015E] = 0x53; // S LATIN CAPITAL LETTER S WITH CEDILLA *
+	ucs2toTurkishList[0x015F] = 0x73; // s LATIN SMALL LETTER S WITH CEDILLA *
+
+	// Spanish
+	ucs2toSpanishList[0x005B] = 0x3C; // [
+	ucs2toSpanishList[0x005D] = 0x3E; // ]
+	ucs2toSpanishList[0x007B] = 0x28; // {
+	ucs2toSpanishList[0x007D] = 0x29; // }
+	ucs2toSpanishList[0x000C] = 0x0A; // Page Break
+	ucs2toSpanishList[0x005C] = 0x2F; /* \ */
+	ucs2toSpanishList[0x005E] = 0x14; // ^
+	ucs2toSpanishList[0x007C] = 0x40; // |
+	ucs2toSpanishList[0x007E] = 0x3D; // ~
+	ucs2toSpanishList[0x20AC] = 0x65; // ï¿½ï¿½
+	ucs2toSpanishList[0x00C1] = 0x41; // A
+	ucs2toSpanishList[0x00E1] = 0x61; // a
+	ucs2toSpanishList[0x00CD] = 0x49; // I
+	ucs2toSpanishList[0x00ED] = 0x69; // i
+	ucs2toSpanishList[0x00D3] = 0x4F; // O
+	ucs2toSpanishList[0x00F3] = 0x6F; // o
+	ucs2toSpanishList[0x00DA] = 0x55; // U
+	ucs2toSpanishList[0x00FA] = 0x75; // u
+
+	// Portuguese
+	ucs2toPortuList[0x005B] = 0x3C; // [
+	ucs2toPortuList[0x005D] = 0x3E; // ]
+	ucs2toPortuList[0x007B] = 0x28; // {
+	ucs2toPortuList[0x007D] = 0x29; // }
+	ucs2toPortuList[0x000C] = 0x0A; // Page Break
+	ucs2toPortuList[0x005C] = 0x2F; /* \ */
+	ucs2toPortuList[0x005E] = 0x14; // ^
+	ucs2toPortuList[0x007C] = 0x40; // |
+	ucs2toPortuList[0x007E] = 0x3D; // ~
+	ucs2toPortuList[0x20AC] = 0x65; // ï¿½ï¿½
+	ucs2toPortuList[0x00D4] = 0x0B; // O
+	ucs2toPortuList[0x00F4] = 0x0C; // o
+	ucs2toPortuList[0x00C1] = 0x0E; // A
+	ucs2toPortuList[0x00E1] = 0x0F; // a
+	ucs2toPortuList[0x00CA] = 0x1F; // E
+	ucs2toPortuList[0x00EA] = 0x05; // e
+	ucs2toPortuList[0x00C0] = 0x41; // A
+	ucs2toPortuList[0x00E7] = 0x09; // c
+	ucs2toPortuList[0x00CD] = 0x49; // I
+	ucs2toPortuList[0x00ED] = 0x69; // i
+	ucs2toPortuList[0x00D3] = 0x4F; // O
+	ucs2toPortuList[0x00F3] = 0x6F; // o
+	ucs2toPortuList[0x00DA] = 0x55; // U
+	ucs2toPortuList[0x00FA] = 0x75; // u
+	ucs2toPortuList[0x00C3] = 0x61; // A
+	ucs2toPortuList[0x00E3] = 0x7B; // a
+	ucs2toPortuList[0x00D5] = 0x5C; // O
+	ucs2toPortuList[0x00F5] = 0x7C; // o
+	ucs2toPortuList[0x00C2] = 0x61; // A
+	ucs2toPortuList[0x00E2] = 0x7F; // a
+	ucs2toPortuList[0x03A6] = 0x12; // ï¿½ï¿½
+	ucs2toPortuList[0x0393] = 0x13; // ï¿½ï¿½
+	ucs2toPortuList[0x03A9] = 0x15; // ï¿½ï¿½
+	ucs2toPortuList[0x03A0] = 0x16; // ï¿½ï¿½
+	ucs2toPortuList[0x03A8] = 0x17; // ï¿½ï¿½
+	ucs2toPortuList[0x03A3] = 0x18; // ï¿½ï¿½
+	ucs2toPortuList[0x0398] = 0x19; // ï¿½ï¿½
 }
 
 
-int SmsPluginTextConvert::convertUTF8ToGSM7bit(OUT unsigned char *pDestText, IN int maxLength,  IN const unsigned char *pSrcText, IN int srcTextLen, OUT SMS_LANGUAGE_ID_T *pLangId)
+MsgTextConvert::~MsgTextConvert()
+{
+	extCharList.clear();
+	ucs2toGSM7DefList.clear();
+	ucs2toGSM7ExtList.clear();
+	ucs2toTurkishList.clear();
+	ucs2toSpanishList.clear();
+	ucs2toPortuList.clear();
+}
+
+
+
+int MsgTextConvert::convertUTF8ToGSM7bit(OUT unsigned char *pDestText, IN int maxLength,  IN const unsigned char *pSrcText, IN int srcTextLen, OUT MSG_LANGUAGE_ID_T *pLangId)
 {
 	int utf8Length = 0;
 	int gsm7bitLength = 0;
@@ -72,7 +224,7 @@ return :
  		byte length of converted UCS2 characters
 			-1 : converting error
 */
-int SmsPluginTextConvert::convertUTF8ToUCS2(OUT unsigned char *pDestText, IN int maxLength, IN const unsigned char *pSrcText, IN int srcTextLen)
+int MsgTextConvert::convertUTF8ToUCS2(OUT unsigned char *pDestText, IN int maxLength, IN const unsigned char *pSrcText, IN int srcTextLen)
 {
 	int i, j;
 	int textLen;
@@ -137,7 +289,7 @@ int SmsPluginTextConvert::convertUTF8ToUCS2(OUT unsigned char *pDestText, IN int
 }
 
 
-int SmsPluginTextConvert::convertUTF8ToAuto(OUT unsigned char *pDestText, IN int maxLength,  IN const unsigned char *pSrcText, IN int srcTextLen, OUT msg_encode_type_t *pCharType)
+int MsgTextConvert::convertUTF8ToAuto(OUT unsigned char *pDestText, IN int maxLength,  IN const unsigned char *pSrcText, IN int srcTextLen, OUT msg_encode_type_t *pCharType)
 {
 	int utf8Length = 0;
 	int gsm7bitLength = 0;
@@ -191,7 +343,7 @@ int SmsPluginTextConvert::convertUTF8ToAuto(OUT unsigned char *pDestText, IN int
 return:
 		bytelength of UTF8 text
 */
-int SmsPluginTextConvert::convertGSM7bitToUTF8(OUT unsigned char *pDestText, IN int maxLength,  IN const unsigned char *pSrcText, IN int srcTextLen, IN SMS_LANG_INFO_S *pLangInfo)
+int MsgTextConvert::convertGSM7bitToUTF8(OUT unsigned char *pDestText, IN int maxLength,  IN const unsigned char *pSrcText, IN int srcTextLen, IN MSG_LANG_INFO_S *pLangInfo)
 {
 	int utf8Length = 0;
 	int ucs2Length = 0;
@@ -220,7 +372,7 @@ return :
  		byte length of converted UTF8 characters
 			-1 : The alpha isn't the gsm 7bit code
 */
-int SmsPluginTextConvert::convertUCS2ToUTF8(OUT unsigned char *pDestText, IN int maxLength, IN const unsigned char *pSrcText, IN  int srcTextLen)
+int MsgTextConvert::convertUCS2ToUTF8(OUT unsigned char *pDestText, IN int maxLength, IN const unsigned char *pSrcText, IN  int srcTextLen)
 {
 	int remainedBuffer = maxLength;
 	int utf8Length;
@@ -262,7 +414,7 @@ int SmsPluginTextConvert::convertUCS2ToUTF8(OUT unsigned char *pDestText, IN int
 }
 
 
-int SmsPluginTextConvert::convertEUCKRToUTF8(OUT unsigned char *pDestText, IN int maxLength, IN const unsigned char *pSrcText, IN  int srcTextLen)
+int MsgTextConvert::convertEUCKRToUTF8(OUT unsigned char *pDestText, IN int maxLength, IN const unsigned char *pSrcText, IN  int srcTextLen)
 {
 	int remainedBuffer = maxLength;
 	int utf8Length;
@@ -315,7 +467,7 @@ return:
 		bytelength of gsm7bit text
 		-1 : converting error
 */
-int SmsPluginTextConvert::convertUCS2ToGSM7bit(OUT unsigned char *pDestText, IN int maxLength, IN const unsigned char *pSrcText, IN int srcTextLen, OUT SMS_LANGUAGE_ID_T *pLangId)
+int MsgTextConvert::convertUCS2ToGSM7bit(OUT unsigned char *pDestText, IN int maxLength, IN const unsigned char *pSrcText, IN int srcTextLen, OUT MSG_LANGUAGE_ID_T *pLangId)
 {
 	// for UNICODE
 	int outTextLen = 0;
@@ -330,8 +482,8 @@ int SmsPluginTextConvert::convertUCS2ToGSM7bit(OUT unsigned char *pDestText, IN 
 	std::map<unsigned short, unsigned char>::iterator itChar;
 	std::map<unsigned short, unsigned char>::iterator itExt;
 
-	SMS_CHAR_TYPE_T currType = SMS_CHAR_DEFAULT;
-	SMS_CHAR_TYPE_T newType = SMS_CHAR_DEFAULT;
+	MSG_CHAR_TYPE_T currType = MSG_CHAR_DEFAULT;
+	MSG_CHAR_TYPE_T newType = MSG_CHAR_DEFAULT;
 
 	unsigned short inText;
 
@@ -351,7 +503,7 @@ int SmsPluginTextConvert::convertUCS2ToGSM7bit(OUT unsigned char *pDestText, IN 
 
 		if (itExt != extCharList.end())
 		{
-			newType = (SMS_CHAR_TYPE_T)itExt->second;
+			newType = (MSG_CHAR_TYPE_T)itExt->second;
 
 			if (newType >= currType)
 			{
@@ -382,7 +534,7 @@ MSG_DEBUG("default char");
 		}
 		else
 		{
-			if (currType == SMS_CHAR_GSM7EXT)
+			if (currType == MSG_CHAR_GSM7EXT)
 			{
 				itExt = ucs2toGSM7ExtList.find(inText);
 
@@ -403,9 +555,9 @@ MSG_DEBUG("default char");
 					pDestText[outTextLen++] = 0x20;
 				}
 			}
-			else if (currType == SMS_CHAR_TURKISH)
+			else if (currType == MSG_CHAR_TURKISH)
 			{
-				*pLangId = SMS_LANG_ID_TURKISH;
+				*pLangId = MSG_LANG_ID_TURKISH;
 
 				itExt = ucs2toTurkishList.find(inText);
 
@@ -426,9 +578,9 @@ MSG_DEBUG("default char");
 					pDestText[outTextLen++] = 0x20;
 				}
 			}
-			else if (currType == SMS_CHAR_SPANISH)
+			else if (currType == MSG_CHAR_SPANISH)
 			{
-				*pLangId = SMS_LANG_ID_SPANISH;
+				*pLangId = MSG_LANG_ID_SPANISH;
 
 				itExt = ucs2toSpanishList.find(inText);
 
@@ -449,9 +601,9 @@ MSG_DEBUG("default char");
 					pDestText[outTextLen++] = 0x20;
 				}
 			}
-			else if (currType == SMS_CHAR_PORTUGUESE)
+			else if (currType == MSG_CHAR_PORTUGUESE)
 			{
-				*pLangId = SMS_LANG_ID_PORTUGUESE;
+				*pLangId = MSG_LANG_ID_PORTUGUESE;
 
 				itExt = ucs2toPortuList.find(inText);
 
@@ -499,7 +651,7 @@ MSG_DEBUG("no char");
 }
 
 
-int SmsPluginTextConvert::convertUCS2ToGSM7bitAuto(OUT unsigned char *pDestText, IN int maxLength, IN const unsigned char *pSrcText, IN int srcTextLen, OUT bool *pUnknown)
+int MsgTextConvert::convertUCS2ToGSM7bitAuto(OUT unsigned char *pDestText, IN int maxLength, IN const unsigned char *pSrcText, IN int srcTextLen, OUT bool *pUnknown)
 {
 	// for UNICODE
 	int outTextLen = 0;
@@ -585,7 +737,7 @@ int SmsPluginTextConvert::convertUCS2ToGSM7bitAuto(OUT unsigned char *pDestText,
  		byte length of converted UCS2 characters
 			-1 : The alpha isn't the gsm 7bit code
 */
-int SmsPluginTextConvert::convertGSM7bitToUCS2(OUT unsigned char *pDestText, IN int maxLength, IN const unsigned char *pSrcText, IN int srcTextLen, IN SMS_LANG_INFO_S *pLangInfo)
+int MsgTextConvert::convertGSM7bitToUCS2(OUT unsigned char *pDestText, IN int maxLength, IN const unsigned char *pSrcText, IN int srcTextLen, IN MSG_LANG_INFO_S *pLangInfo)
 {
 	int outTextLen = 0;
 	unsigned char lowerByte = 0, upperByte = 0;
@@ -614,7 +766,7 @@ int SmsPluginTextConvert::convertGSM7bitToUCS2(OUT unsigned char *pDestText, IN 
 		{
 			MSG_DEBUG("Locking Shift [%d]", pLangInfo->lockingLang);
 
-			if (pLangInfo->lockingLang == SMS_LANG_ID_TURKISH)
+			if (pLangInfo->lockingLang == MSG_LANG_ID_TURKISH)
 			{
 				// Check Escape
 				if (g_TurkishLockingToUCS2[pSrcText[i]] == 0x001B)
@@ -625,17 +777,17 @@ int SmsPluginTextConvert::convertGSM7bitToUCS2(OUT unsigned char *pDestText, IN 
 					{
 						MSG_DEBUG("Single Shift [%d]", pLangInfo->singleLang);
 
-						if (pLangInfo->singleLang == SMS_LANG_ID_TURKISH)
+						if (pLangInfo->singleLang == MSG_LANG_ID_TURKISH)
 						{
 							lowerByte = g_TurkishSingleToUCS2[pSrcText[i]] & 0x00FF;
 							upperByte = (g_TurkishSingleToUCS2[pSrcText[i]] & 0xFF00) >> 8;
 						}
-						else if (pLangInfo->singleLang == SMS_LANG_ID_SPANISH)
+						else if (pLangInfo->singleLang == MSG_LANG_ID_SPANISH)
 						{
 							lowerByte = g_SpanishSingleToUCS2[pSrcText[i]] & 0x00FF;
 							upperByte = (g_SpanishSingleToUCS2[pSrcText[i]] & 0xFF00) >> 8;
 						}
-						else if (pLangInfo->singleLang == SMS_LANG_ID_PORTUGUESE)
+						else if (pLangInfo->singleLang == MSG_LANG_ID_PORTUGUESE)
 						{
 							lowerByte = g_PortuSingleToUCS2[pSrcText[i]] & 0x00FF;
 							upperByte = (g_PortuSingleToUCS2[pSrcText[i]] & 0xFF00) >> 8;
@@ -658,7 +810,7 @@ int SmsPluginTextConvert::convertGSM7bitToUCS2(OUT unsigned char *pDestText, IN 
 					upperByte = (g_TurkishLockingToUCS2[pSrcText[i]] & 0xFF00) >> 8;
 				}
 			}
-			else if (pLangInfo->lockingLang == SMS_LANG_ID_PORTUGUESE)
+			else if (pLangInfo->lockingLang == MSG_LANG_ID_PORTUGUESE)
 			{
 				// Check Escape
 				if (g_PortuLockingToUCS2[pSrcText[i]] == 0x001B)
@@ -669,17 +821,17 @@ int SmsPluginTextConvert::convertGSM7bitToUCS2(OUT unsigned char *pDestText, IN 
 					{
 						MSG_DEBUG("Single Shift [%d]", pLangInfo->singleLang);
 
-						if (pLangInfo->singleLang == SMS_LANG_ID_TURKISH)
+						if (pLangInfo->singleLang == MSG_LANG_ID_TURKISH)
 						{
 							lowerByte = g_TurkishSingleToUCS2[pSrcText[i]] & 0x00FF;
 							upperByte = (g_TurkishSingleToUCS2[pSrcText[i]] & 0xFF00) >> 8;
 						}
-						else if (pLangInfo->singleLang == SMS_LANG_ID_SPANISH)
+						else if (pLangInfo->singleLang == MSG_LANG_ID_SPANISH)
 						{
 							lowerByte = g_SpanishSingleToUCS2[pSrcText[i]] & 0x00FF;
 							upperByte = (g_SpanishSingleToUCS2[pSrcText[i]] & 0xFF00) >> 8;
 						}
-						else if (pLangInfo->singleLang == SMS_LANG_ID_PORTUGUESE)
+						else if (pLangInfo->singleLang == MSG_LANG_ID_PORTUGUESE)
 						{
 							lowerByte = g_PortuSingleToUCS2[pSrcText[i]] & 0x00FF;
 							upperByte = (g_PortuSingleToUCS2[pSrcText[i]] & 0xFF00) >> 8;
@@ -714,17 +866,17 @@ int SmsPluginTextConvert::convertGSM7bitToUCS2(OUT unsigned char *pDestText, IN 
 				{
 					MSG_DEBUG("Single Shift [%d]", pLangInfo->singleLang);
 
-					if (pLangInfo->singleLang == SMS_LANG_ID_TURKISH)
+					if (pLangInfo->singleLang == MSG_LANG_ID_TURKISH)
 					{
 						lowerByte = g_TurkishSingleToUCS2[pSrcText[i]] & 0x00FF;
 						upperByte = (g_TurkishSingleToUCS2[pSrcText[i]] & 0xFF00) >> 8;
 					}
-					else if (pLangInfo->singleLang == SMS_LANG_ID_SPANISH)
+					else if (pLangInfo->singleLang == MSG_LANG_ID_SPANISH)
 					{
 						lowerByte = g_SpanishSingleToUCS2[pSrcText[i]] & 0x00FF;
 						upperByte = (g_SpanishSingleToUCS2[pSrcText[i]] & 0xFF00) >> 8;
 					}
-					else if (pLangInfo->singleLang == SMS_LANG_ID_PORTUGUESE)
+					else if (pLangInfo->singleLang == MSG_LANG_ID_PORTUGUESE)
 					{
 						lowerByte = g_PortuSingleToUCS2[pSrcText[i]] & 0x00FF;
 						upperByte = (g_PortuSingleToUCS2[pSrcText[i]] & 0xFF00) >> 8;
@@ -763,7 +915,7 @@ int SmsPluginTextConvert::convertGSM7bitToUCS2(OUT unsigned char *pDestText, IN 
 }
 
 
-void SmsPluginTextConvert::convertDumpTextToHex(const unsigned char *pText, int length)
+void MsgTextConvert::convertDumpTextToHex(const unsigned char *pText, int length)
 {
 	printf("\n=======================================\n");
 	printf("   Dump Text To Hex - Length :%d\n", length);
@@ -780,172 +932,3 @@ void SmsPluginTextConvert::convertDumpTextToHex(const unsigned char *pText, int 
 
 	printf("\n=======================================\n\n");
 }
-
-
-SmsPluginTextConvert::SmsPluginTextConvert()
-{
-	extCharList.clear();
-	ucs2toGSM7DefList.clear();
-	ucs2toGSM7ExtList.clear();
-	ucs2toTurkishList.clear();
-	ucs2toSpanishList.clear();
-	ucs2toPortuList.clear();
-
-	extCharList[0x000C] = SMS_CHAR_GSM7EXT;
-	extCharList[0x005B] = SMS_CHAR_GSM7EXT;
-	extCharList[0x005C] = SMS_CHAR_GSM7EXT;
-	extCharList[0x005D] = SMS_CHAR_GSM7EXT;
-	extCharList[0x005E] = SMS_CHAR_GSM7EXT;
-	extCharList[0x007B] = SMS_CHAR_GSM7EXT;
-	extCharList[0x007C] = SMS_CHAR_GSM7EXT;
-	extCharList[0x007D] = SMS_CHAR_GSM7EXT;
-	extCharList[0x007E] = SMS_CHAR_GSM7EXT;
-	extCharList[0x20AC] = SMS_CHAR_GSM7EXT; // ¢æ
-
-	extCharList[0x00E7] = SMS_CHAR_TURKISH;
-	extCharList[0x011E] = SMS_CHAR_TURKISH;
-	extCharList[0x011F] = SMS_CHAR_TURKISH;
-	extCharList[0x01E6] = SMS_CHAR_TURKISH;
-	extCharList[0x01E7] = SMS_CHAR_TURKISH;
-	extCharList[0x0130] = SMS_CHAR_TURKISH;
-	extCharList[0x0131] = SMS_CHAR_TURKISH;
-	extCharList[0x015E] = SMS_CHAR_TURKISH;
-	extCharList[0x015F] = SMS_CHAR_TURKISH;
-
-	extCharList[0x00C1] = SMS_CHAR_SPANISH;
-	extCharList[0x00E1] = SMS_CHAR_SPANISH;
-	extCharList[0x00CD] = SMS_CHAR_SPANISH;
-	extCharList[0x00ED] = SMS_CHAR_SPANISH;
-	extCharList[0x00D3] = SMS_CHAR_SPANISH;
-	extCharList[0x00F3] = SMS_CHAR_SPANISH;
-	extCharList[0x00DA] = SMS_CHAR_SPANISH;
-	extCharList[0x00FA] = SMS_CHAR_SPANISH;
-
-	extCharList[0x00D4] = SMS_CHAR_PORTUGUESE;
-	extCharList[0x00F4] = SMS_CHAR_PORTUGUESE;
-	extCharList[0x00CA] = SMS_CHAR_PORTUGUESE;
-	extCharList[0x00EA] = SMS_CHAR_PORTUGUESE;
-	extCharList[0x00C0] = SMS_CHAR_PORTUGUESE;
-	extCharList[0x00E7] = SMS_CHAR_PORTUGUESE;
-	extCharList[0x00C3] = SMS_CHAR_PORTUGUESE;
-	extCharList[0x00E3] = SMS_CHAR_PORTUGUESE;
-	extCharList[0x00D5] = SMS_CHAR_PORTUGUESE;
-	extCharList[0x00F5] = SMS_CHAR_PORTUGUESE;
-	extCharList[0x00C2] = SMS_CHAR_PORTUGUESE;
-	extCharList[0x00E2] = SMS_CHAR_PORTUGUESE;
-
-	for (unsigned char i = 0; i < 128; i++)
-	{
-		ucs2toGSM7DefList[g_GSM7BitToUCS2[i]] = i;
-	}
-
-	// GSM 7 bit Extension
-	ucs2toGSM7ExtList[0x005B] = 0x3C; // [
-	ucs2toGSM7ExtList[0x005D] = 0x3E; // ]
-	ucs2toGSM7ExtList[0x007B] = 0x28; // {
-	ucs2toGSM7ExtList[0x007D] = 0x29; // }
-	ucs2toGSM7ExtList[0x000C] = 0x0A; // Page Break
-	ucs2toGSM7ExtList[0x005C] = 0x2F; /* \ */
-	ucs2toGSM7ExtList[0x005E] = 0x14; // ^
-	ucs2toGSM7ExtList[0x007C] = 0x40; // |
-	ucs2toGSM7ExtList[0x007E] = 0x3D; // ~
-	ucs2toGSM7ExtList[0x20AC] = 0x65; // ¢æ
-
-	// Turkish
-	ucs2toTurkishList[0x005B] = 0x3C; // [
-	ucs2toTurkishList[0x005D] = 0x3E; // ]
-	ucs2toTurkishList[0x007B] = 0x28; // {
-	ucs2toTurkishList[0x007D] = 0x29; // }
-	ucs2toTurkishList[0x000C] = 0x0A; // Page Break
-	ucs2toTurkishList[0x005C] = 0x2F; /* \ */
-	ucs2toTurkishList[0x005E] = 0x14; // ^
-	ucs2toTurkishList[0x007C] = 0x40; // |
-	ucs2toTurkishList[0x007E] = 0x3D; // ~
-	ucs2toTurkishList[0x20AC] = 0x65; // ¢æ
-	ucs2toTurkishList[0x00E7] = 0x63; // c LATIN SMALL LETTER S WITH CEDILLA *
-	ucs2toTurkishList[0x011E] = 0x47; // G LATIN CAPITAL LETTER G WITH BREVE
-	ucs2toTurkishList[0x011F] = 0x67; // g LATIN SMALL LETTER G WITH BREVE
-	ucs2toTurkishList[0x01E6] = 0x47; // G LATIN CAPITAL LETTER G WITH CARON
-	ucs2toTurkishList[0x01E7] = 0x67; // g LATIN SMALL LETTER G WITH CARON
-	ucs2toTurkishList[0x0130] = 0x49; // I LATIN CAPITAL LETTER I WITH DOT ABOVE
-	ucs2toTurkishList[0x0131] = 0x69; // i LATIN SMALL LETTER DOTLESS
-	ucs2toTurkishList[0x015E] = 0x53; // S LATIN CAPITAL LETTER S WITH CEDILLA *
-	ucs2toTurkishList[0x015F] = 0x73; // s LATIN SMALL LETTER S WITH CEDILLA *
-
-	// Spanish
-	ucs2toSpanishList[0x005B] = 0x3C; // [
-	ucs2toSpanishList[0x005D] = 0x3E; // ]
-	ucs2toSpanishList[0x007B] = 0x28; // {
-	ucs2toSpanishList[0x007D] = 0x29; // }
-	ucs2toSpanishList[0x000C] = 0x0A; // Page Break
-	ucs2toSpanishList[0x005C] = 0x2F; /* \ */
-	ucs2toSpanishList[0x005E] = 0x14; // ^
-	ucs2toSpanishList[0x007C] = 0x40; // |
-	ucs2toSpanishList[0x007E] = 0x3D; // ~
-	ucs2toSpanishList[0x20AC] = 0x65; // ¢æ
-	ucs2toSpanishList[0x00C1] = 0x41; // A
-	ucs2toSpanishList[0x00E1] = 0x61; // a
-	ucs2toSpanishList[0x00CD] = 0x49; // I
-	ucs2toSpanishList[0x00ED] = 0x69; // i
-	ucs2toSpanishList[0x00D3] = 0x4F; // O
-	ucs2toSpanishList[0x00F3] = 0x6F; // o
-	ucs2toSpanishList[0x00DA] = 0x55; // U
-	ucs2toSpanishList[0x00FA] = 0x75; // u
-
-	// Portuguese
-	ucs2toPortuList[0x005B] = 0x3C; // [
-	ucs2toPortuList[0x005D] = 0x3E; // ]
-	ucs2toPortuList[0x007B] = 0x28; // {
-	ucs2toPortuList[0x007D] = 0x29; // }
-	ucs2toPortuList[0x000C] = 0x0A; // Page Break
-	ucs2toPortuList[0x005C] = 0x2F; /* \ */
-	ucs2toPortuList[0x005E] = 0x14; // ^
-	ucs2toPortuList[0x007C] = 0x40; // |
-	ucs2toPortuList[0x007E] = 0x3D; // ~
-	ucs2toPortuList[0x20AC] = 0x65; // ¢æ
-	ucs2toPortuList[0x00D4] = 0x0B; // O
-	ucs2toPortuList[0x00F4] = 0x0C; // o
-	ucs2toPortuList[0x00C1] = 0x0E; // A
-	ucs2toPortuList[0x00E1] = 0x0F; // a
-	ucs2toPortuList[0x00CA] = 0x1F; // E
-	ucs2toPortuList[0x00EA] = 0x05; // e
-	ucs2toPortuList[0x00C0] = 0x41; // A
-	ucs2toPortuList[0x00E7] = 0x09; // c
-	ucs2toPortuList[0x00CD] = 0x49; // I
-	ucs2toPortuList[0x00ED] = 0x69; // i
-	ucs2toPortuList[0x00D3] = 0x4F; // O
-	ucs2toPortuList[0x00F3] = 0x6F; // o
-	ucs2toPortuList[0x00DA] = 0x55; // U
-	ucs2toPortuList[0x00FA] = 0x75; // u
-	ucs2toPortuList[0x00C3] = 0x61; // A
-	ucs2toPortuList[0x00E3] = 0x7B; // a
-	ucs2toPortuList[0x00D5] = 0x5C; // O
-	ucs2toPortuList[0x00F5] = 0x7C; // o
-	ucs2toPortuList[0x00C2] = 0x61; // A
-	ucs2toPortuList[0x00E2] = 0x7F; // a
-	ucs2toPortuList[0x03A6] = 0x12; // ¥Õ
-	ucs2toPortuList[0x0393] = 0x13; // ¥Ã
-	ucs2toPortuList[0x03A9] = 0x15; // ¥Ø
-	ucs2toPortuList[0x03A0] = 0x16; // ¥Ð
-	ucs2toPortuList[0x03A8] = 0x17; // ¥×
-	ucs2toPortuList[0x03A3] = 0x18; // ¥Ò
-	ucs2toPortuList[0x0398] = 0x19; // ¥È
-}
-
-
-SmsPluginTextConvert::~SmsPluginTextConvert()
-{
-	extCharList.clear();
-	ucs2toGSM7DefList.clear();
-	ucs2toGSM7ExtList.clear();
-	ucs2toTurkishList.clear();
-	ucs2toSpanishList.clear();
-	ucs2toPortuList.clear();
-
-	if (pInstance)
-	{
-		delete pInstance;
-		pInstance = NULL;
-	}
-}
-

@@ -913,6 +913,7 @@ handle is Message handle.
 /*================================================================================================*/
 int msg_get_message(msg_handle_t handle, msg_message_id_t msg_id, msg_struct_t msg, msg_struct_t send_opt);
 
+int msg_get_conversation(msg_handle_t handle, msg_message_id_t msg_id, msg_struct_t conv);
 
 /**
 
@@ -1165,7 +1166,7 @@ int msg_get_conversation_view_list(msg_handle_t handle, msg_thread_id_t thread_i
  * \endcode
  */
 /*================================================================================================*/
-int msg_delete_thread_message_list(msg_handle_t handle, msg_thread_id_t thread_id);
+int msg_delete_thread_message_list(msg_handle_t handle, msg_thread_id_t thread_id, bool include_protected_msg);
 
 
 /**
@@ -2078,22 +2079,24 @@ int msg_reg_storage_change_callback(msg_handle_t handle, msg_storage_change_cb c
  * \endcode
  */
 /*================================================================================================*/
-int msg_get_report_status(msg_handle_t handle, msg_message_id_t msg_id, msg_struct_t report_status);
-
-
-
+int msg_get_report_status(msg_handle_t handle, msg_message_id_t msg_id, msg_struct_list_s *report_list);
 
 int msg_get_address_list(msg_handle_t handle, msg_thread_id_t thread_id, msg_struct_list_s *msg_address_list);
 
-
 int msg_get_thread_id_by_address(msg_handle_t handle, msg_struct_list_s *msg_address_list, msg_thread_id_t *thread_id);
-
 
 int msg_get_thread(msg_handle_t handle, msg_thread_id_t thread_id, msg_struct_t msg_thread);
 
-
 int msg_get_message_list(msg_handle_t handle, msg_folder_id_t folder_id, msg_thread_id_t thread_id, msg_message_type_t msg_type, msg_storage_id_t storage_id, msg_struct_list_s *msg_list);
 
+
+int msg_add_push_event(msg_handle_t handle, const msg_struct_t push_event);
+
+int msg_delete_push_event(msg_handle_t handle, const msg_struct_t push_event);
+
+int msg_update_push_event(msg_handle_t handle, const msg_struct_t src_event, const msg_struct_t dst_event);
+
+int msg_delete_msgs_by_list(msg_handle_t handle, msg_id_list_s *msg_id_list);
 /**
  *	@}
  */

@@ -21,6 +21,7 @@
 #include "MsgException.h"
 #include "MsgUtilFile.h"
 #include "MsgProxyListener.h"
+#include "MsgGconfWrapper.h"
 
 
 gboolean readSocket(GIOChannel *source, GIOCondition condition, gpointer data)
@@ -52,7 +53,7 @@ gboolean readSocket(GIOChannel *source, GIOCondition condition, gpointer data)
 	}
 
 	char* buf = NULL;
-	int len;
+	unsigned int len;
 
 	int n = MsgProxyListener::instance()->readFromSocket(&buf, &len);
 
@@ -266,6 +267,70 @@ bool MsgProxyListener::regMMSConfMessageIncomingEventCB(MsgHandle* pMsgHandle, m
 }
 
 
+bool MsgProxyListener::regPushMessageIncomingEventCB(MsgHandle* pMsgHandle, msg_push_msg_incoming_cb pfNewPushMessage, const char *pAppId, void *pUserParam)
+{
+	MutexLocker lock(mx);
+
+	std::list<MSG_PUSH_INCOMING_CB_ITEM_S>::iterator it = newPushMessageCBList.begin();
+
+	for (; it != newPushMessageCBList.end(); it++)
+	{
+		if (it->pfPushIncomingCB == pfNewPushMessage)
+		{
+
+			if(pAppId == NULL)
+			{
+				MSG_DEBUG("msg_push_msg_incoming_cb() callback is already registered!!!");
+
+				return false;
+			}
+			else if(!strncmp(it->appId, pAppId, MAX_WAPPUSH_ID_LEN))
+			{
+				MSG_DEBUG("msg_push_msg_incoming_cb() callback : AppId [%s] is already registered!!!", pAppId);
+
+				it->userParam = pUserParam;
+
+				return false;
+			}
+		}
+	}
+
+	MSG_PUSH_INCOMING_CB_ITEM_S incomingPushCB = {pMsgHandle, pfNewPushMessage, {0}, pUserParam};
+
+	if (pAppId != NULL)
+		strncpy(incomingPushCB.appId, pAppId, MAX_WAPPUSH_ID_LEN);
+
+	newPushMessageCBList.push_back(incomingPushCB);
+
+	return true;
+}
+
+bool MsgProxyListener::regCBMessageIncomingEventCB(MsgHandle* pMsgHandle, msg_cb_incoming_cb pfNewCBMessage, bool bSave, void *pUserParam)
+{
+	MutexLocker lock(mx);
+
+	std::list<MSG_CB_INCOMING_CB_ITEM_S>::iterator it = newCBMessageCBList.begin();
+
+	for (; it != newCBMessageCBList.end(); it++)
+	{
+		if (it->pfCBIncomingCB == pfNewCBMessage)
+		{
+			MSG_DEBUG("msg_CB_incoming_cb() callback : [%p] is already registered!!!", pfNewCBMessage);
+
+			it->bsave = bSave;
+			it->userParam = pUserParam;
+
+			return false;
+		}
+	}
+
+	MSG_CB_INCOMING_CB_ITEM_S incomingCB = {pMsgHandle, pfNewCBMessage, bSave, pUserParam};
+
+	newCBMessageCBList.push_back(incomingCB);
+
+	return true;
+}
+
 bool MsgProxyListener::regSyncMLMessageIncomingEventCB(MsgHandle* pMsgHandle, msg_syncml_msg_incoming_cb pfNewSyncMLMessage, void *pUserParam)
 {
 	MutexLocker lock(mx);
@@ -449,15 +514,57 @@ void MsgProxyListener::clearListOfClosedHandle(MsgHandle* pMsgHandle)
 		}
 	}
 
-	// Storage change Message CB list
-	std::list<MSG_STORAGE_CHANGE_CB_ITEM_S>::iterator it6 = storageChangeCBList.begin();
+	// Push Message CB list
+	std::list<MSG_PUSH_INCOMING_CB_ITEM_S>::iterator it6 = newPushMessageCBList.begin();
 
-	for (; it6 != storageChangeCBList.end(); it6++)
+	for (; it6 != newPushMessageCBList.end(); it6++)
 	{
 		if (it6->hAddr == pMsgHandle)
 		{
-			storageChangeCBList.erase(it6);
-			it6 = storageChangeCBList.begin();
+			newPushMessageCBList.erase(it6);
+			it6 = newPushMessageCBList.begin();
+
+			//Stop client Listener
+			stop();
+		}
+
+	}
+
+	// CB Message CB list
+	std::list<MSG_CB_INCOMING_CB_ITEM_S>::iterator it7 = newCBMessageCBList.begin();
+
+	bool bSave = false;
+	for (; it7 != newCBMessageCBList.end(); it7++)
+	{
+
+		if (it7->hAddr == pMsgHandle)
+		{
+
+			newCBMessageCBList.erase(it7);
+			it7 = newCBMessageCBList.begin();
+
+			//Stop client Listener
+			stop();
+		}
+		else
+		{
+			if(it7->bsave == true)
+				bSave = true;
+		}
+	}
+
+	if(!bSave)
+		MsgSettingSetBool(CB_SAVE, bSave);
+
+	// Storage change Message CB list
+	std::list<MSG_STORAGE_CHANGE_CB_ITEM_S>::iterator it8 = storageChangeCBList.begin();
+
+	for (; it8 != storageChangeCBList.end(); it8++)
+	{
+		if (it8->hAddr == pMsgHandle)
+		{
+			storageChangeCBList.erase(it8);
+			it8 = storageChangeCBList.begin();
 
 			//Stop client Listener
 			stop();
@@ -808,6 +915,54 @@ void MsgProxyListener::handleEvent(const MSG_EVENT_S* pMsgEvent)
 		mx.unlock();
 	}
 
+	else if (pMsgEvent->eventType == MSG_EVENT_PLG_INCOMING_CB_MSG_IND)
+	{
+		MSG_CB_MSG_S *pCbMsg = (MSG_CB_MSG_S *)pMsgEvent->data;
+
+		mx.lock();
+
+		MsgNewCBMessageCBList::iterator it = newCBMessageCBList.begin();
+
+		for( ; it != newCBMessageCBList.end() ; it++)
+		{
+			MsgHandle* pHandle = it->hAddr;
+			msg_struct_s msg = {0,};
+
+			msg.type = MSG_STRUCT_CB_MSG;
+			msg.data = pCbMsg;
+
+			msg_cb_incoming_cb pfunc = it->pfCBIncomingCB;
+
+			void* param = it->userParam;
+
+			pfunc((msg_handle_t)pHandle, (msg_struct_t) &msg, param);
+		}
+
+		mx.unlock();
+	}
+
+	else if ( pMsgEvent->eventType == MSG_EVENT_PLG_INCOMING_PUSH_MSG_IND )
+	{
+		MSG_PUSH_MESSAGE_DATA_S* pPushData = (MSG_PUSH_MESSAGE_DATA_S *)pMsgEvent->data;
+
+		mx.lock();
+
+		MsgNewPushMessageCBList::iterator it = newPushMessageCBList.begin();
+
+		for( ; it != newPushMessageCBList.end() ; it++)
+		{
+			MsgHandle* pHandle = it->hAddr;
+
+			msg_push_msg_incoming_cb pfunc = it->pfPushIncomingCB;
+
+			void* param = it->userParam;
+
+			pfunc((msg_handle_t)pHandle, pPushData->pushHeader, pPushData->pushBody, pPushData->pushBodyLen, param);
+		}
+
+		mx.unlock();
+	}
+
 	MSG_END();
 }
 
@@ -829,7 +984,7 @@ int  MsgProxyListener::getRemoteFd()
 }
 
 
-int MsgProxyListener::readFromSocket(char** buf, int* len)
+int MsgProxyListener::readFromSocket(char** buf, unsigned int* len)
 {
 	return cliSock.read(buf, len);
 }

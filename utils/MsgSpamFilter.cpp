@@ -79,28 +79,26 @@ bool MsgCheckFilter(MsgDbHandler *pDbHandle, MSG_MESSAGE_INFO_S *pMsgInfo)
 
 	memset(sqlQuery, 0x00, sizeof(sqlQuery));
 
-	snprintf(sqlQuery, sizeof(sqlQuery), "SELECT FILTER_ID FROM %s WHERE FILTER_TYPE = %d AND '%s' = FILTER_VALUE \
-			UNION SELECT FILTER_ID FROM %s WHERE FILTER_TYPE = %d AND '%s' LIKE SUBSTR(FILTER_VALUE,1)||'%%' \
-			UNION SELECT FILTER_ID FROM %s WHERE FILTER_TYPE = %d AND '%s' LIKE '%%'||SUBSTR(FILTER_VALUE,1)||'%%';",
-			MSGFW_FILTER_TABLE_NAME, MSG_FILTER_BY_ADDRESS_SAME, pMsgInfo->addressList[0].addressVal,
+	snprintf(sqlQuery, sizeof(sqlQuery), "SELECT FILTER_ID FROM %s WHERE FILTER_TYPE = %d AND '%s' LIKE (CASE WHEN LENGTH(FILTER_VALUE)>%d-1 THEN '%%'||SUBSTR(FILTER_VALUE, LENGTH(FILTER_VALUE)-%d-1) ELSE FILTER_VALUE END) AND FILTER_ACTIVE = 1 \
+			UNION SELECT FILTER_ID FROM %s WHERE FILTER_TYPE = %d AND '%s' LIKE SUBSTR(FILTER_VALUE,1)||'%%' AND FILTER_ACTIVE = 1 \
+			UNION SELECT FILTER_ID FROM %s WHERE FILTER_TYPE = %d AND '%s' LIKE '%%'||SUBSTR(FILTER_VALUE,1)||'%%' AND FILTER_ACTIVE = 1;",
+			MSGFW_FILTER_TABLE_NAME, MSG_FILTER_BY_ADDRESS_SAME, pMsgInfo->addressList[0].addressVal, MAX_PRECONFIG_NUM, MAX_PRECONFIG_NUM,
 			MSGFW_FILTER_TABLE_NAME, MSG_FILTER_BY_ADDRESS_START, pMsgInfo->addressList[0].addressVal,
 			MSGFW_FILTER_TABLE_NAME, MSG_FILTER_BY_ADDRESS_INCLUDE, pMsgInfo->addressList[0].addressVal);
 
 	err = pDbHandle->getTable(sqlQuery, &rowCnt);
 
+	if (err == MSG_ERR_DB_GETTABLE) {
+		MSG_DEBUG("sqlQuery [%s]", sqlQuery);
+	}
+
 	if (rowCnt > 0) {
 		MSG_DEBUG("Msg is Filtered by Address : [%s]", pMsgInfo->addressList[0].addressVal);
-
 		pDbHandle->freeTable();
-
 		pMsgInfo->folderId = MSG_SPAMBOX_ID;
-
 		return true;
 	} else {
 		MSG_DEBUG("Msg is NOT Filtered by Address : [%s]", pMsgInfo->addressList[0].addressVal);
-
-		MSG_DEBUG("sqlQuery [%s]", sqlQuery);
-
 		pDbHandle->freeTable();
 	}
 

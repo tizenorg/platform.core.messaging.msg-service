@@ -17,7 +17,6 @@
 #include "MsgDebug.h"
 #include "MsgCppTypes.h"
 #include "MsgUtilFile.h"
-#include "SmsPluginTextConvert.h"
 #include "SmsPluginStorage.h"
 #include "SmsPluginTransport.h"
 #include "SmsPluginEventHandler.h"
@@ -96,11 +95,12 @@ void SmsPluginConcatHandler::handleConcatMsg(SMS_TPDU_S *pTpdu)
 			memcpy(&(msg.originAddress), &(pTpdu->data.deliver.originAddress), sizeof(SMS_ADDRESS_S));
 			memcpy(&(msg.dcs), &(pTpdu->data.deliver.dcs), sizeof(SMS_DCS_S));
 
+#if 0
 			if (msg.totalSeg > MAX_SEGMENT_NUM) {
 				MSG_DEBUG("Total Segment Count is over Maximum [%d]", msg.totalSeg);
 				return;
 			}
-
+#endif
 			/**  check noneConcatTypeHeader */
 			noneConcatTypeHeader = false;
 
@@ -113,11 +113,12 @@ void SmsPluginConcatHandler::handleConcatMsg(SMS_TPDU_S *pTpdu)
 			memcpy(&(msg.timeStamp.time.absolute), &(pTpdu->data.deliver.timeStamp.time.absolute), sizeof(SMS_TIME_ABS_S));
 			memcpy(&(msg.originAddress), &(pTpdu->data.deliver.originAddress), sizeof(SMS_ADDRESS_S));
 			memcpy(&(msg.dcs), &(pTpdu->data.deliver.dcs), sizeof(SMS_DCS_S));
-
+#if 0
 			if (msg.totalSeg > MAX_SEGMENT_NUM) {
 				MSG_DEBUG("Total Segment Count is over Maximum [%d]", msg.totalSeg);
 				return;
 			}
+#endif
 
 			/**  check noneConcatTypeHeader */
 			noneConcatTypeHeader = false;
@@ -349,20 +350,20 @@ void SmsPluginConcatHandler::convertConcatToMsginfo(const SMS_DELIVER_S *pTpdu, 
 
 	/** Convert Data values */
 	if (pTpdu->dcs.codingScheme == SMS_CHARSET_7BIT) {
-		SMS_LANG_INFO_S langInfo = {0};
+		MSG_LANG_INFO_S langInfo = {0,};
 
 		langInfo.bSingleShift = false;
 		langInfo.bLockingShift = false;
 
 		pMsgInfo->encodeType = MSG_ENCODE_GSM7BIT;
-		pMsgInfo->dataSize = SmsPluginTextConvert::instance()->convertGSM7bitToUTF8((unsigned char*)tmpBuf, bufSize, (unsigned char*)pUserData, DataSize, &langInfo);
+		pMsgInfo->dataSize = textCvt.convertGSM7bitToUTF8((unsigned char*)tmpBuf, bufSize, (unsigned char*)pUserData, DataSize, &langInfo);
 	} else if (pTpdu->dcs.codingScheme == SMS_CHARSET_8BIT) {
 		pMsgInfo->encodeType = MSG_ENCODE_8BIT;
 		memcpy(tmpBuf, pUserData, DataSize);
 		pMsgInfo->dataSize = DataSize;
 	} else if (pTpdu->dcs.codingScheme == SMS_CHARSET_UCS2) {
 		pMsgInfo->encodeType = MSG_ENCODE_UCS2;
-		pMsgInfo->dataSize = SmsPluginTextConvert::instance()->convertUCS2ToUTF8((unsigned char*)tmpBuf, bufSize, (unsigned char*)pUserData, DataSize);
+		pMsgInfo->dataSize = textCvt.convertUCS2ToUTF8((unsigned char*)tmpBuf, bufSize, (unsigned char*)pUserData, DataSize);
 	}
 
 	MSG_DEBUG("Data Size [%d]", pMsgInfo->dataSize);

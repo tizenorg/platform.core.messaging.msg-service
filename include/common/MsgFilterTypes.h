@@ -54,7 +54,8 @@ typedef struct
 {
 	msg_filter_id_t			filterId;			/**< Indicates the filter ID. */
 	msg_filter_type_t		filterType;		/**< Indicates the filter type. */
-	char						filterValue[MAX_FILTER_VALUE_LEN+1];	/**< The value of a filter. */
+	char							filterValue[MAX_FILTER_VALUE_LEN+1];	/**< The value of a filter. */
+	bool							bActive;
 } MSG_FILTER_S;
 
 

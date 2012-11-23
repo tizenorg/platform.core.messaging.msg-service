@@ -60,6 +60,22 @@ typedef struct
 typedef struct
 {
 	MsgHandle* hAddr;
+	msg_push_msg_incoming_cb pfPushIncomingCB;
+	char appId[MAX_WAPPUSH_ID_LEN+1];
+	void* userParam;
+} MSG_PUSH_INCOMING_CB_ITEM_S;
+
+typedef struct
+{
+	MsgHandle* hAddr;
+	msg_cb_incoming_cb pfCBIncomingCB;
+	bool bsave;
+	void* userParam;
+} MSG_CB_INCOMING_CB_ITEM_S;
+
+typedef struct
+{
+	MsgHandle* hAddr;
 	msg_syncml_msg_incoming_cb pfSyncMLIncomingCB;
 	void* userParam;
 } MSG_SYNCML_INCOMING_CB_ITEM_S;
@@ -89,6 +105,8 @@ typedef struct
 typedef std::list<MSG_SENT_STATUS_CB_ITEM_S> MsgSentStatusCBList;
 typedef std::list<MSG_INCOMING_CB_ITEM_S> MsgNewMessageCBList;
 typedef std::list<MSG_MMS_CONF_INCOMING_CB_ITEM_S> MsgNewMMSConfMessageCBList;
+typedef std::list<MSG_PUSH_INCOMING_CB_ITEM_S> MsgNewPushMessageCBList;
+typedef std::list<MSG_CB_INCOMING_CB_ITEM_S> MsgNewCBMessageCBList;
 typedef std::list<MSG_SYNCML_INCOMING_CB_ITEM_S> MsgNewSyncMLMessageCBList;
 typedef std::list<MSG_LBS_INCOMING_CB_ITEM_S> MsgNewLBSMessageCBList;
 typedef std::list<MSG_SYNCML_OPERATION_CB_ITEM_S> MsgOperationSyncMLMessageCBList;
@@ -109,6 +127,8 @@ public:
 	bool regSentStatusEventCB(MsgHandle* pMsgHandle, msg_sent_status_cb pfSentStatus, void *pUserParam);
 	bool regMessageIncomingEventCB(MsgHandle* pMsgHandle, msg_sms_incoming_cb pfNewMessage, int port, void *pUserParam);
 	bool regMMSConfMessageIncomingEventCB(MsgHandle* pMsgHandle, msg_mms_conf_msg_incoming_cb pfNewMMSConfMessage, const char *pAppId, void *pUserParam);
+	bool regPushMessageIncomingEventCB(MsgHandle* pMsgHandle, msg_push_msg_incoming_cb pfNewPushMessage, const char *pAppId, void *pUserParam);
+	bool regCBMessageIncomingEventCB(MsgHandle* pMsgHandle, msg_cb_incoming_cb pfNewCBMessage, bool bSave, void *pUserParam);
 	bool regSyncMLMessageIncomingEventCB(MsgHandle* pMsgHandle, msg_syncml_msg_incoming_cb pfNewSyncMLMessage, void *pUserParam);
 	bool regLBSMessageIncomingEventCB(MsgHandle* pMsgHandle, msg_lbs_msg_incoming_cb pfNewLBSMsgIncoming, void *pUserParam);
 	bool regSyncMLMessageOperationEventCB(MsgHandle* pMsgHandle, msg_syncml_msg_operation_cb pfSyncMLMessageOperation, void *pUserParam);
@@ -119,7 +139,7 @@ public:
 	void handleEvent(const MSG_EVENT_S* ptr);
 
 	int getRemoteFd();
-	int readFromSocket(char** buf, int* len);
+	int readFromSocket(char** buf, unsigned int* len);
 
 private:
 	MsgProxyListener();
@@ -137,6 +157,8 @@ private:
 	MsgSentStatusCBList sentStatusCBList;
 	MsgNewMessageCBList newMessageCBList;
 	MsgNewMMSConfMessageCBList newMMSConfMessageCBList;
+	MsgNewPushMessageCBList newPushMessageCBList;
+	MsgNewCBMessageCBList newCBMessageCBList;
 	MsgNewSyncMLMessageCBList newSyncMLMessageCBList;
 	MsgNewLBSMessageCBList newLBSMessageCBList;
 	MsgOperationSyncMLMessageCBList operationSyncMLMessageCBList;

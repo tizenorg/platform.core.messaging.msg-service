@@ -23,7 +23,7 @@
 #define		MAX_ASCII			256
 #define		MAX_ASCII_NUM		255
 
-static void	 __WmLngReverseKeyCode(UCHAR *pOutStr, MCHAR *pInputStr, UINT len);
+//static void	 __WmLngReverseKeyCode(UCHAR *pOutStr, MCHAR *pInputStr, UINT len);
 static UINT	 __WmLngLatin12UnicodeN(MCHAR *pOutStr, UCHAR *pInputStr, UINT len);
 static int	 __WmLngConvertLatin12Unicode (MCHAR *des, UCHAR *str, UINT len);
 
@@ -1055,6 +1055,7 @@ bool WmConvertLatinCode2PCodeN(MCHAR *pmszOutText, int outBufSize, char *szInTex
  *
  * @see
  */
+/* Unused....
 static void __WmLngReverseKeyCode(UCHAR *pOutStr, MCHAR *pInputStr, UINT len)
 {
 	UCHAR *rear=NULL;
@@ -1083,7 +1084,7 @@ static void __WmLngReverseKeyCode(UCHAR *pOutStr, MCHAR *pInputStr, UINT len)
 		pInputStr = p;
 	}
 }
-
+*/
 
 /*
  * This function convert character Localcode(Latin1) to Processcode(Unicode)

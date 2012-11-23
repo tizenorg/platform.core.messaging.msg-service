@@ -404,7 +404,7 @@ void SmsPluginSimMsg::setReadStatus(msg_sim_id_t SimMsgId)
 
 	int ret = TAPI_API_SUCCESS;
 
-	ret = tel_set_sms_message_status(pTapiHandle, (int)SimMsgId, TAPI_NETTEXT_STATUS_READ, NULL, NULL);
+	ret = tel_set_sms_message_status(pTapiHandle, (int)SimMsgId, TAPI_NETTEXT_STATUS_READ, TapiEventSetMsgStatus, (void *)&SimMsgId);
 
 	if (ret == TAPI_API_SUCCESS)
 	{
@@ -422,7 +422,7 @@ void SmsPluginSimMsg::setReadStatus(msg_sim_id_t SimMsgId)
 
 	if (bResult == true)
 	{
-		MSG_DEBUG("######## Setting Read Status was Successful !!! #######");
+		MSG_DEBUG("######## Setting Read Status was Successful !!!, sim id=[%d] #######", SimId);
 	}
 	else
 	{
@@ -433,8 +433,6 @@ void SmsPluginSimMsg::setReadStatus(msg_sim_id_t SimMsgId)
 
 void SmsPluginSimMsg::getSimMsgCount(MSG_SIM_COUNT_S *pSimMsgCnt)
 {
-	int reqId = 0;
-
 	int ret = TAPI_API_SUCCESS;
 
 	ret = tel_get_sms_count(pTapiHandle, TapiEventGetSimMsgCnt, NULL);
@@ -461,8 +459,6 @@ void SmsPluginSimMsg::getSimMsgCount(MSG_SIM_COUNT_S *pSimMsgCnt)
 
 bool SmsPluginSimMsg::getSimMsg(msg_sim_id_t SimMsgId, MSG_MESSAGE_INFO_S *pMsgInfo)
 {
-	int reqId = 0;
-
 	int ret = TAPI_API_SUCCESS;
 
 	ret = tel_read_sms_in_sim(pTapiHandle, SimMsgId, TapiEventGetSimMsg, NULL);

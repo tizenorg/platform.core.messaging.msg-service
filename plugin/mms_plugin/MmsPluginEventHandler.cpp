@@ -92,6 +92,9 @@ void MmsPluginEventHandler::handleMmsReceivedData(mmsTranQEntity *pRequest, char
 		MmsPluginInternal::instance()->processForwardConf(&msgInfo, pRequest);
 		break;
 
+	case eMMS_READREPORT_CONF:
+		remove(pRetrievedFilePath);
+		break;
 	default:
 		break;
 	}
@@ -105,7 +108,6 @@ void MmsPluginEventHandler::handleMmsError(mmsTranQEntity *pRequest)
 	msg_error_t err = MSG_SUCCESS;
 
 	MSG_MESSAGE_INFO_S msgInfo = {};
-	MMS_RECV_DATA_S	recvData = {{0}, };
 
 	MSG_DEBUG("pRequest->msgId [%d]", pRequest->msgId);
 

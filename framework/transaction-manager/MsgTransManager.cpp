@@ -93,6 +93,7 @@ MsgTransactionManager::MsgTransactionManager() : running(false), mx(), cv()
 	handlerMap[MSG_CMD_GET_FILTERLIST] 		= &MsgGetFilterListHandler;
 	handlerMap[MSG_CMD_SET_FILTER_OPERATION] 	= &MsgSetFilterOperationHandler;
 	handlerMap[MSG_CMD_GET_FILTER_OPERATION] 	= &MsgGetFilterOperationHandler;
+	handlerMap[MSG_CMD_SET_FILTER_ACTIVATION] = &MsgSetFilterActivationHandler;
 
 	handlerMap[MSG_CMD_GET_MSG_TYPE]			= &MsgGetMsgTypeHandler;
 
@@ -104,6 +105,8 @@ MsgTransactionManager::MsgTransactionManager() : running(false), mx(), cv()
 	handlerMap[MSG_CMD_REG_INCOMING_MSG_CB]	= &MsgRegIncomingMsgCallbackHandler;
 	handlerMap[MSG_CMD_REG_INCOMING_MMS_CONF_MSG_CB]	= &MsgRegIncomingMMSConfMsgCallbackHandler;
 	handlerMap[MSG_CMD_REG_INCOMING_SYNCML_MSG_CB]	= &MsgRegIncomingSyncMLMsgCallbackHandler;
+	handlerMap[MSG_CMD_REG_INCOMING_PUSH_MSG_CB]	= &MsgRegIncomingPushMsgCallbackHandler;
+	handlerMap[MSG_CMD_REG_INCOMING_CB_MSG_CB]	= &MsgRegIncomingCBMsgCallbackHandler;
 	handlerMap[MSG_CMD_REG_INCOMING_LBS_MSG_CB]	= &MsgRegIncomingLBSMsgCallbackHandler;
 	handlerMap[MSG_CMD_REG_SYNCML_MSG_OPERATION_CB]	= &MsgRegSyncMLMsgOperationCallbackHandler;
 
@@ -111,6 +114,8 @@ MsgTransactionManager::MsgTransactionManager() : running(false), mx(), cv()
 	handlerMap[MSG_CMD_PLG_STORAGE_CHANGE_IND]	= &MsgStorageChangeHandler;
 	handlerMap[MSG_CMD_PLG_INCOMING_MSG_IND]	= &MsgIncomingMsgHandler;
 	handlerMap[MSG_CMD_PLG_INCOMING_MMS_CONF]	= &MsgIncomingMMSConfMsgHandler;
+	handlerMap[MSG_CMD_PLG_INCOMING_PUSH_IND]	= &MsgIncomingPushMsgHandler;
+	handlerMap[MSG_CMD_PLG_INCOMING_CB_IND]	= &MsgIncomingCBMsgHandler;
 
 	handlerMap[MSG_CMD_PLG_INCOMING_SYNCML_IND] = &MsgIncomingSyncMLMsgHandler;
 	handlerMap[MSG_CMD_PLG_INCOMING_LBS_IND] = &MsgIncomingLBSMsgHandler;
@@ -156,6 +161,11 @@ MsgTransactionManager::MsgTransactionManager() : running(false), mx(), cv()
 	handlerMap[MSG_CMD_SET_VOICE_MSG_OPT] = &MsgSetConfigHandler;
 	handlerMap[MSG_CMD_SET_GENERAL_MSG_OPT] = &MsgSetConfigHandler;
 	handlerMap[MSG_CMD_SET_MSG_SIZE_OPT] = &MsgSetConfigHandler;
+
+	handlerMap[MSG_CMD_ADD_PUSH_EVENT] = &MsgAddPushEventHandler;
+	handlerMap[MSG_CMD_DELETE_PUSH_EVENT] = &MsgDeletePushEventHandler;
+	handlerMap[MSG_CMD_UPDATE_PUSH_EVENT] = &MsgUpdatePushEventHandler;
+	handlerMap[MSG_CMD_DELETE_MESSAGE_BY_LIST] = &MsgDeleteMessageByListHandler;
 }
 
 
@@ -194,9 +204,8 @@ void MsgTransactionManager::run()
 		// set Status;
 		setTMStatus();
 
-		if( select(nfds, &readfds, NULL, NULL, NULL) == -1)
-		{
-			THROW(MsgException::SELECT_ERROR, strerror(errno));
+		if(select(nfds, &readfds, NULL, NULL, NULL) == -1) {
+			THROW(MsgException::SELECT_ERROR, "select error : %s", strerror(errno));
 		}
 
 		try
@@ -296,8 +305,8 @@ void MsgTransactionManager::handleRequest(int fd)
 		return;
 	}
 
-	if (len == 0)
-		THROW(MsgException::INVALID_RESULT, "read buffer size = 0");
+	if (len <= 0)
+		THROW(MsgException::INVALID_RESULT, "read buffer size <= 0");
 
 	char* pEventData = NULL;
 	AutoPtr<char> eventBuf(&pEventData);
@@ -437,6 +446,39 @@ void MsgTransactionManager::cleanup(int fd)
 		else
 		{
 			++lbsmsg_it;
+		}
+	}
+
+	// remove all newPushMsgCBs for fd
+	pushmsg_list::iterator pushmsg_it = newPushMsgCBList.begin();
+
+	while (pushmsg_it != newPushMsgCBList.end())
+	{
+		if (pushmsg_it->listenerFd == fd)
+		{
+			pushmsg_it = newPushMsgCBList.erase(pushmsg_it);
+		}
+		else
+		{
+			++pushmsg_it;
+		}
+	}
+
+	// remove all newCBMsgCBs for fd
+	cbmsg_list::iterator cbmsg_it = newCBMsgCBList.begin();
+	bool bSave = false;
+
+	while (cbmsg_it != newCBMsgCBList.end())
+	{
+		if (cbmsg_it->listenerFd == fd)
+		{
+			cbmsg_it = newCBMsgCBList.erase(cbmsg_it);
+		}
+		else
+		{
+			if(cbmsg_it->bsave == true)
+				bSave = true;
+			++cbmsg_it;
 		}
 	}
 
@@ -584,6 +626,54 @@ void MsgTransactionManager::setMMSConfMsgCB(MSG_CMD_REG_INCOMING_MMS_CONF_MSG_CB
 	newMMSConfMsgCBList.push_back(*pCbInfo);
 }
 
+
+void MsgTransactionManager::setPushMsgCB(MSG_CMD_REG_INCOMING_PUSH_MSG_CB_S *pCbInfo)
+{
+	if (!pCbInfo)
+	{
+		MSG_FATAL("cbinfo NULL");
+		return;
+	}
+
+	pushmsg_list::iterator it = newPushMsgCBList.begin();
+
+	for (; it != newPushMsgCBList.end(); it++)
+	{
+		if ((it->listenerFd == pCbInfo->listenerFd) && (it->msgType == pCbInfo->msgType))
+		{
+			MSG_DEBUG("Duplicated messageCB info fd %d, mType %d", it->listenerFd, it->msgType);
+			return;
+		}
+	}
+
+	newPushMsgCBList.push_back(*pCbInfo);
+}
+
+void MsgTransactionManager::setCBMsgCB(MSG_CMD_REG_INCOMING_CB_MSG_CB_S *pCbInfo)
+{
+	if (!pCbInfo)
+	{
+		MSG_FATAL("cbinfo NULL");
+		return;
+	}
+
+	cbmsg_list::iterator it = newCBMsgCBList.begin();
+
+	for (; it != newCBMsgCBList.end(); it++)
+	{
+		if ((it->listenerFd == pCbInfo->listenerFd) && (it->msgType == pCbInfo->msgType))
+		{
+			MSG_DEBUG("Duplicated messageCB info fd %d, mType %d", it->listenerFd, it->msgType);
+			return;
+		}
+	}
+
+	if(pCbInfo->bsave)
+		MsgSettingSetBool(CB_SAVE, pCbInfo->bsave);
+
+
+	newCBMsgCBList.push_back(*pCbInfo);
+}
 
 void MsgTransactionManager::setSyncMLMsgCB(MSG_CMD_REG_INCOMING_SYNCML_MSG_CB_S *pCbInfo)
 {
@@ -762,6 +852,48 @@ void MsgTransactionManager::broadcastMMSConfCB(const msg_error_t err, const MSG_
 	MSG_END();
 }
 
+void MsgTransactionManager::broadcastPushMsgCB(const msg_error_t err, const MSG_PUSH_MESSAGE_DATA_S *pushData)
+{
+	MSG_BEGIN();
+
+	char* pEventData = NULL;
+	AutoPtr<char> eventBuf(&pEventData);
+
+	int eventSize = MsgMakeEvent(pushData, sizeof(MSG_PUSH_MESSAGE_DATA_S), MSG_EVENT_PLG_INCOMING_PUSH_MSG_IND, err, (void**)(&pEventData));
+
+	pushmsg_list::iterator it = newPushMsgCBList.begin();
+
+	for (; it != newPushMsgCBList.end(); it++)
+	{
+		if (!strcmp(it->appId, pushData->pushAppId))
+		{
+			MSG_DEBUG("Send incoming Push information to listener %d", it->listenerFd);
+			write(it->listenerFd, pEventData, eventSize);
+		}
+	}
+
+	MSG_END();
+}
+
+void MsgTransactionManager::broadcastCBMsgCB(const msg_error_t err, const MSG_CB_MSG_S *cbMsg)
+{
+	MSG_BEGIN();
+
+	char* pEventData = NULL;
+	AutoPtr<char> eventBuf(&pEventData);
+
+	int eventSize = MsgMakeEvent(cbMsg, sizeof(MSG_CB_MSG_S), MSG_EVENT_PLG_INCOMING_CB_MSG_IND, err, (void**)(&pEventData));
+
+	cbmsg_list::iterator it = newCBMsgCBList.begin();
+
+	for (; it != newCBMsgCBList.end(); it++)
+	{
+		MSG_DEBUG("Send incoming CB information to listener %d", it->listenerFd);
+		write(it->listenerFd, pEventData, eventSize);
+	}
+
+	MSG_END();
+}
 
 void MsgTransactionManager::broadcastSyncMLMsgCB(const msg_error_t err, const MSG_SYNCML_MESSAGE_DATA_S *syncMLData)
 {

@@ -133,7 +133,7 @@ msg_error_t MsgHandleMmsConfIncomingMsg(MSG_MESSAGE_INFO_S *pMsgInfo, msg_reques
 			return MSG_ERR_STORAGE_ERROR;
 
 		MSG_DEBUG("pMsg->networkStatus : %d", pMsgInfo->networkStatus);
-		err = MsgStoUpdateNetworkStatus(pMsgInfo, pMsgInfo->networkStatus);
+		err = MsgStoUpdateNetworkStatus(&dbHandle, pMsgInfo, pMsgInfo->networkStatus);
 		if (err != MSG_SUCCESS)
 			return MSG_ERR_STORAGE_ERROR;
 
@@ -165,6 +165,14 @@ msg_error_t MsgHandleIncomingMsg(MSG_MESSAGE_INFO_S *pMsgInfo, bool *pSendNoti)
 		if (err == MSG_SUCCESS && *pSendNoti == true)
 		{
 			MsgSoundPlayStart();
+
+			if (pMsgInfo->msgType.subType >= MSG_MWI_VOICE_SMS && pMsgInfo->msgType.subType <= MSG_MWI_OTHER_SMS) {
+				if (pMsgInfo->bStore == false) {
+					MsgInsertNoti(pMsgInfo);
+					*pSendNoti = false;
+					return err;
+				}
+			}
 
 			int smsCnt = 0, mmsCnt = 0;
 
@@ -267,7 +275,7 @@ msg_error_t MsgHandleSMS(MSG_MESSAGE_INFO_S *pMsgInfo, bool *pSendNoti)
 					char urlString[MAX_COMMAND_LEN+1];
 					memset(urlString, 0x00, sizeof(urlString));
 
-					snprintf(urlString, MAX_COMMAND_LEN, "/opt/apps/org.tizen.message/bin/message-dialog -m PUSH_MSG_ALWAYS_ASK -u %s &", pMsgInfo->msgText);
+					snprintf(urlString, MAX_COMMAND_LEN, "/usr/apps/org.tizen.message/bin/message-dialog -m PUSH_MSG_ALWAYS_ASK -u %s &", pMsgInfo->msgText);
 
 					system(urlString);
 				}
@@ -276,11 +284,11 @@ msg_error_t MsgHandleSMS(MSG_MESSAGE_INFO_S *pMsgInfo, bool *pSendNoti)
 			break;
 
 			case MSG_WAP_SI_SMS:
+				*pSendNoti = true;
+				break;
 			case MSG_WAP_CO_SMS:
-			{
 				*pSendNoti = false;
-			}
-			break;
+				break;
 		}
 	} else if (pMsgInfo->msgType.subType == MSG_STATUS_REPORT_SMS) {
 		msg_thread_id_t convId = 0;

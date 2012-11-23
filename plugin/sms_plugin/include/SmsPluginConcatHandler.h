@@ -27,6 +27,7 @@
 
 using namespace std;
 
+#include "MsgTextConvert.h"
 #include "SmsPluginTypes.h"
 
 
@@ -103,6 +104,8 @@ private:
 	void removeFromConcatList(unsigned short MsgRef);
 
 	vector<SMS_CONCAT_INFO_S> concatList;
+
+	MsgTextConvert textCvt;
 };
 
 #endif //SMS_PLUGIN_CONCAT_HANDLER_H

@@ -207,6 +207,44 @@ int MsgRegIncomingMMSConfMsgCallbackHandler(const MSG_CMD_S *pCmd, char **ppEven
 	return eventSize;
 }
 
+int MsgRegIncomingPushMsgCallbackHandler(const MSG_CMD_S *pCmd, char **ppEvent)
+{
+	// input check
+	if( !pCmd || !ppEvent)
+		THROW(MsgException::INVALID_PARAM, "pCmd or ppEvent is null");
+
+	// Get Message Request
+	MSG_CMD_REG_INCOMING_PUSH_MSG_CB_S *pCmdData = (MSG_CMD_REG_INCOMING_PUSH_MSG_CB_S*) pCmd->cmdData;
+	MSG_DEBUG("Registering incoming Push Msg CB for fd:%d mType:%d appId:%s", pCmdData->listenerFd, pCmdData->msgType, pCmdData->appId);
+
+	// storing dst fd in list
+	MsgTransactionManager::instance()->setPushMsgCB(pCmdData);
+
+	// Make Event Data
+	int eventSize = MsgMakeEvent(NULL, 0, MSG_EVENT_REG_INCOMING_PUSH_MSG_CB, MSG_SUCCESS, (void**)ppEvent);
+
+	return eventSize;
+}
+
+int MsgRegIncomingCBMsgCallbackHandler(const MSG_CMD_S *pCmd, char **ppEvent)
+{
+	// input check
+	if( !pCmd || !ppEvent)
+		THROW(MsgException::INVALID_PARAM, "pCmd or ppEvent is null");
+
+	// Get Message Request
+	MSG_CMD_REG_INCOMING_CB_MSG_CB_S *pCmdData = (MSG_CMD_REG_INCOMING_CB_MSG_CB_S*) pCmd->cmdData;
+	MSG_DEBUG("Registering incoming Push Msg CB for fd:%d mType:%d", pCmdData->listenerFd, pCmdData->msgType);
+
+	// storing dst fd in list
+	MsgTransactionManager::instance()->setCBMsgCB(pCmdData);
+
+	// Make Event Data
+	int eventSize = MsgMakeEvent(NULL, 0, MSG_EVENT_REG_INCOMING_CB_MSG_CB, MSG_SUCCESS, (void**)ppEvent);
+
+	return eventSize;
+}
+
 
 int MsgRegIncomingSyncMLMsgCallbackHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 {
@@ -522,6 +560,69 @@ __BYPASS_UPDATE:
 	return eventsize;
 }
 
+int MsgIncomingPushMsgHandler(const MSG_CMD_S *pCmd, char **ppEvent)
+{
+	MSG_BEGIN();
+	// input check
+	if (!pCmd || !ppEvent)
+		THROW(MsgException::INVALID_PARAM, "pCmd or ppEvent is null");
+
+	MSG_PUSH_MESSAGE_DATA_S pushData;
+	memset(&pushData, 0x00, sizeof(MSG_PUSH_MESSAGE_DATA_S));
+
+	// Get Incoming Message
+	memcpy(&pushData, (void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN), sizeof(MSG_PUSH_MESSAGE_DATA_S));
+
+	int eventSize = 0;
+
+	// broadcast to listener threads, here
+	MsgTransactionManager::instance()->broadcastPushMsgCB(MSG_SUCCESS, &pushData);
+
+	// Make Event Data
+	eventSize = MsgMakeEvent(NULL, 0, MSG_EVENT_PLG_INCOMING_PUSH_MSG_IND, MSG_SUCCESS, (void**)ppEvent);
+
+	MSG_END();
+	return eventSize;
+}
+
+int MsgIncomingCBMsgHandler(const MSG_CMD_S *pCmd, char **ppEvent)
+{
+	MSG_BEGIN();
+
+	msg_error_t err = MSG_SUCCESS;
+	int eventSize = 0;
+
+	// input check
+	if (!pCmd || !ppEvent)
+		THROW(MsgException::INVALID_PARAM, "pCmd or ppEvent is null");
+
+	// Get Incoming Message
+	MSG_CB_MSG_S cbMsg;
+	memset(&cbMsg, 0x00, sizeof(MSG_CB_MSG_S));
+
+	memcpy(&cbMsg, (void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN), sizeof(MSG_CB_MSG_S));
+
+	msg_id_list_s msgIdList;
+	msg_message_id_t msgIds[1];
+	memset(&msgIdList, 0x00, sizeof(msg_id_list_s));
+
+	MsgTransactionManager::instance()->broadcastCBMsgCB(err, &cbMsg);
+
+	bool bSave = false;
+	MsgSettingGetBool(CB_SAVE, &bSave);
+
+	if(bSave && cbMsg.type!= MSG_ETWS_SMS) {
+		msgIdList.nCount = 1;
+		msgIds[0] = (msg_message_id_t)cbMsg.messageId;
+		msgIdList.msgIdList = msgIds;
+		MsgTransactionManager::instance()->broadcastStorageChangeCB(err, MSG_STORAGE_CHANGE_INSERT, &msgIdList);
+	}
+	eventSize = MsgMakeEvent(NULL, 0, MSG_EVENT_PLG_INCOMING_CB_MSG_IND, err, (void**)ppEvent);
+
+	MSG_END();
+
+	return eventSize;
+}
 
 int MsgIncomingSyncMLMsgHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 {

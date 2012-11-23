@@ -62,6 +62,4 @@ class MmsPluginUaManager: public MsgThread
 		MsgThdSafeQ <mmsTranQEntity> mmsTranQ; // transaction q for mms plugin
 };
 
-bool MsgOpenCreateAndOverwriteFile(char *szFullPath, char *szBuff, int totalLength);
-
 #endif // MMSPLUGINUSERAGENT_H

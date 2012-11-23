@@ -246,7 +246,8 @@ msg_error_t SmsPlgCheckSimStatus(MSG_SIM_STATUS_T *pStatus)
 	if (*pStatus != MSG_SIM_STATUS_NOT_FOUND)
 	{
 		// Get IMSI
-		TelSimImsiInfo_t imsiInfo = {0};
+		TelSimImsiInfo_t imsiInfo;
+		memset(&imsiInfo, 0x00, sizeof(TelSimImsiInfo_t));
 
 		tapiRet = tel_get_sim_imsi(pTapiHandle, &imsiInfo);
 
@@ -283,26 +284,23 @@ msg_error_t SmsPlgCheckDeviceStatus()
 
 	tapiRet = tel_check_sms_device_status(pTapiHandle, &status);
 
-	if (tapiRet != TAPI_API_SUCCESS)
-	{
+	if (tapiRet != TAPI_API_SUCCESS) {
 		MSG_DEBUG("tel_check_sms_device_status() Error! [%d], Status [%d]", tapiRet, status);
-
 		return MSG_ERR_PLUGIN_TAPI_FAILED;
 	}
 
-	if (status == 1)
-	{
+	if (status == 1) {
 		MSG_DEBUG("Device Is Ready");
 		return MSG_SUCCESS;
-	}
-	else if (status == 0)
-	{
+	} else if (status == 0) {
 		MSG_DEBUG("Device Is Not Ready.. Waiting For Ready Callback");
 
-		if (SmsPluginEventHandler::instance()->getDeviceStatus() == true)
-		{
+		if (SmsPluginEventHandler::instance()->getDeviceStatus() == true) {
 			MSG_DEBUG("Device Is Ready");
 			return MSG_SUCCESS;
+		} else {
+			MSG_DEBUG("Device Is Not Ready.");
+			return MSG_ERR_PLUGIN_TAPI_FAILED;
 		}
 	}
 
@@ -473,7 +471,7 @@ msg_error_t SmsPlgSetMemoryStatus(msg_error_t Error)
 
 	MSG_DEBUG("Set Status : [%d]", status);
 
-	tapiRet = tel_set_sms_memory_status(pTapiHandle, status, NULL, NULL);
+	tapiRet = tel_set_sms_memory_status(pTapiHandle, status, TapiEventMemoryStatus, NULL);
 
 	if (tapiRet == TAPI_API_SUCCESS)
 	{

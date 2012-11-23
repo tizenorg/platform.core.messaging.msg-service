@@ -98,7 +98,6 @@ typedef struct
 typedef struct
 {
 	msg_contact_id_t	contactId;							/**< Indicates the unique contact ID. */
-	char 				displayName[MAX_DISPLAY_NAME_LEN+1];	/**< Indicates the display name of contact. */
 	char 				firstName[MAX_DISPLAY_NAME_LEN+1];		/**< Indicates the first name of contact. */
 	char 				lastName[MAX_DISPLAY_NAME_LEN+1];		/**< Indicates the last name of contact. */
 	char 				imagePath[MAX_IMAGE_PATH_LEN+1];		/**< Indicates the image path of contact. */
@@ -149,6 +148,12 @@ typedef struct
 	int						reserved;
 } MSG_SEARCH_CONDITION_S;
 
+
+typedef struct
+{
+	int appcode;
+	char appid[MAX_WAPPUSH_ID_LEN];
+} PUSH_APPLICATION_INFO_S;
 
 #endif // MSG_STORAGE_TYPES_H
 

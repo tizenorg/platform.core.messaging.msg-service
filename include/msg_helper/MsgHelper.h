@@ -30,7 +30,7 @@
 #define MAX_SOUND_FILE_LEN 1024
 
 #define DEFAULT_FILE 		"/usr/share/media/Sherbet.wav"
-#define ALERT_ON_CALL_TONE	"/opt/etc/msg-service/alert_on_call.mp3"
+//#define ALERT_ON_CALL_TONE	"/opt/etc/msg-service/alert_on_call.mp3"
 
 #define HAPTIC_TEST_ITERATION 1
 #define MSG_VIBRATION_INTERVAL 3000

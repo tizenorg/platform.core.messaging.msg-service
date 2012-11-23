@@ -887,7 +887,7 @@ void MsgMmsInitDir()
 		return;
 	}
 
-	// Remove temporal Mms folder (/opt/data/msg-service/msgdata/*.dir)
+	// Remove temporal Mms folder (/opt/usr/data/msg-service/msgdata/*.dir)
 	while ((d = readdir(dir)) != NULL) {
 		if (d->d_type == DT_DIR) {
 			if ((strcmp(".", d->d_name) == 0) || (strcmp("..", d->d_name) == 0))

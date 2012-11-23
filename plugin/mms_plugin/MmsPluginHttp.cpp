@@ -172,16 +172,6 @@ static void __httpAllocHeaderInfo(curl_slist **responseHeaders, char *szUrl, int
 
 	memset(szBuffer, 0, 1025);
 	memset(pcheader, 0, HTTP_REQUEST_LEN);
-	nResult = __httpGetHeaderField(MMS_HH_ACCEPT_ENCODING, szBuffer);
-	if (nResult) {
-		strcat(pcheader, "Accept-Encoding: ");
-		strcat(pcheader, szBuffer);
-		MSG_DEBUG("%s", pcheader);
-		*responseHeaders = curl_slist_append(*responseHeaders, pcheader);
-	}
-
-	memset(szBuffer, 0, 1025);
-	memset(pcheader, 0, HTTP_REQUEST_LEN);
 	nResult = __httpGetHeaderField(MMS_HH_USER_AGENT, szBuffer);
 	if (nResult) {
 		strcat(pcheader, "User-Agent: ");
@@ -243,9 +233,9 @@ static bool __httpGetHeaderField(MMS_HTTP_HEADER_FIELD_T httpHeaderItem, char *s
 
 		case MMS_HH_USER_AGENT:
 			{
-				char szUserAgent[1024 + 1] = {0,};
+				char szUserAgent[1024 + 1];
 
-				memset(szUserAgent, 0x00, (sizeof(char) * (1024 + 1) ));
+				memset(szUserAgent, 0x00, sizeof(szUserAgent));
 				snprintf(szUserAgent, 1024, "%s", MSG_MMS_HH_USER_AGENT);
 
 				snprintf((char *)szHeaderBuffer, 1024, "%s", szUserAgent);
@@ -469,10 +459,10 @@ static int __httpCmdPostTransaction(MMS_PLUGIN_HTTP_DATA_S *httpConfig)
 	}
 
 	MSG_DEBUG("## End Transaction ##");
-	MSG_DEBUG("############ trID = %d ###########", trId);
 
 	srandom((unsigned int) time(NULL));
 	trId = random() % 1000000000 + 1;
+	MSG_DEBUG("############ trID = %d ###########", trId);
 
 	httpConfig->transactionId = trId;
 
@@ -515,9 +505,11 @@ static int __httpCmdGetTransaction(MMS_PLUGIN_HTTP_DATA_S *httpConfig)
 	}
 
  	MSG_DEBUG("## End Transaction ##");
-	MSG_DEBUG("############ trID = %d ###########", trId);
+
 	srandom((unsigned int) time(NULL));
 	trId = random() % 1000000000 + 1;
+	MSG_DEBUG("############ trID = %d ###########", trId);
+
 	httpConfig->transactionId = trId;
 
 	return eMMS_HTTP_SENT_SUCCESS;

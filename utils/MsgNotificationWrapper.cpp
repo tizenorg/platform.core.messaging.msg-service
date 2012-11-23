@@ -40,6 +40,7 @@ msg_error_t MsgInsertNoti(MsgDbHandler *pDbHandle, MSG_MESSAGE_INFO_S* pMsg)
 	char addressVal[MAX_ADDRESS_VAL_LEN+1];
 	char firstName[MAX_DISPLAY_NAME_LEN+1], lastName[MAX_DISPLAY_NAME_LEN+1];
 	char displayName[MAX_DISPLAY_NAME_LEN+1];
+	char thumbPath[MAX_IMAGE_PATH_LEN+1];
 	char sqlQuery[MAX_QUERY_LEN+1];
 
 	memset(tempId, 0x00, sizeof(tempId));
@@ -47,9 +48,10 @@ msg_error_t MsgInsertNoti(MsgDbHandler *pDbHandle, MSG_MESSAGE_INFO_S* pMsg)
 	memset(firstName, 0x00, sizeof(firstName));
 	memset(lastName, 0x00, sizeof(lastName));
 	memset(displayName, 0x00, sizeof(displayName));
+	memset(thumbPath, 0x00, sizeof(thumbPath));
 	memset(sqlQuery, 0x00, sizeof(sqlQuery));
 
-	snprintf(sqlQuery, sizeof(sqlQuery), "SELECT A.CONV_ID, A.ADDRESS_VAL, A.DISPLAY_NAME, A.FIRST_NAME, A.LAST_NAME, B.DISPLAY_TIME, A.CONTACT_ID \
+	snprintf(sqlQuery, sizeof(sqlQuery), "SELECT A.CONV_ID, A.ADDRESS_VAL, A.DISPLAY_NAME, A.FIRST_NAME, A.LAST_NAME, B.DISPLAY_TIME, A.CONTACT_ID, A.IMAGE_PATH \
 			FROM %s A, %s B WHERE B.MSG_ID=%d AND A.CONV_ID=B.CONV_ID;",
 			MSGFW_ADDRESS_TABLE_NAME, MSGFW_MESSAGE_TABLE_NAME, pMsg->msgId);
 
@@ -99,6 +101,8 @@ msg_error_t MsgInsertNoti(MsgDbHandler *pDbHandle, MSG_MESSAGE_INFO_S* pMsg)
 		msgTime = (time_t)pDbHandle->columnInt(5);
 
 		contactId = pDbHandle->columnInt(6);
+
+		strncpy(thumbPath, (char*)pDbHandle->columnText(7), MAX_IMAGE_PATH_LEN);
 	} else {
 		pDbHandle->finalizeQuery();
 		return MSG_ERR_DB_STEP;
@@ -130,8 +134,10 @@ msg_error_t MsgInsertNoti(MsgDbHandler *pDbHandle, MSG_MESSAGE_INFO_S* pMsg)
 
 		memset(&tempId, 0x00, sizeof(tempId));
 
-		snprintf(tempId, 5, "%d", threadId);
-		bundle_add(args, "threadId", tempId);
+		bundle_add(args, "type", "msg_id");
+
+	 	snprintf(tempId, 5, "%d", pMsg->msgId);
+		bundle_add(args, "msgId", tempId);
 	} else if (pMsg->msgType.mainType == MSG_SMS_TYPE && pMsg->msgType.classType == MSG_CLASS_0) {
 
 		noti = notification_new(NOTIFICATION_TYPE_NOTI, NOTIFICATION_GROUP_ID_NONE, NOTIFICATION_PRIV_ID_NONE);
@@ -146,11 +152,19 @@ msg_error_t MsgInsertNoti(MsgDbHandler *pDbHandle, MSG_MESSAGE_INFO_S* pMsg)
 			MSG_DEBUG("Fail to notification_set_application : %d", noti_err);
 		}
 
-		snprintf(tempId, 5, "%d", pMsg->msgId);
-		bundle_add(args, "msg_id", tempId);
-	} else if (pMsg->msgType.mainType == MSG_SMS_TYPE && pMsg->msgType.subType == MSG_MWI_VOICE_SMS) {
+		noti_err = notification_set_image(noti, NOTIFICATION_IMAGE_TYPE_ICON, NORMAL_MSG_ICON_PATH);
+		if (noti_err != NOTIFICATION_ERROR_NONE) {
+			MSG_DEBUG("Fail to notification_set_image : %d", noti_err);
+		}
 
-		noti = notification_new(NOTIFICATION_TYPE_NOTI, 1, pMsg->msgId);
+		bundle_add(args, "type", "msg_id");
+
+	 	snprintf(tempId, 5, "%d", pMsg->msgId);
+		bundle_add(args, "msgId", tempId);
+	} else if (pMsg->msgType.mainType == MSG_SMS_TYPE &&
+			(pMsg->msgType.subType >= MSG_MWI_VOICE_SMS && pMsg->msgType.subType <= MSG_MWI_OTHER_SMS)) {
+
+		noti = notification_new(NOTIFICATION_TYPE_NOTI, 1, NOTIFICATION_PRIV_ID_NONE);
 		if (noti == NULL) {
 			MSG_DEBUG("notification_new is failed.");
 			bundle_free(args);
@@ -169,8 +183,9 @@ msg_error_t MsgInsertNoti(MsgDbHandler *pDbHandle, MSG_MESSAGE_INFO_S* pMsg)
 
 		memset(&tempId, 0x00, sizeof(tempId));
 
-		snprintf(tempId, 5, "%d", threadId);
-		bundle_add(args, "threadId", tempId);
+		bundle_add(args, "launch-type", "MO");
+		bundle_add(args, "number", addressVal);
+
 	} else {
 		MSG_DEBUG("notification_new pMsg->msgId [%d]", pMsg->msgId);
 		noti = notification_new(NOTIFICATION_TYPE_NOTI, 1, pMsg->msgId);
@@ -192,14 +207,11 @@ msg_error_t MsgInsertNoti(MsgDbHandler *pDbHandle, MSG_MESSAGE_INFO_S* pMsg)
 
 		memset(&tempId, 0x00, sizeof(tempId));
 
-		snprintf(tempId, 5, "%d", threadId);
-		bundle_add(args, "threadId", tempId);
+		bundle_add(args, "type", "msg_id");
+
+	 	snprintf(tempId, 5, "%d", pMsg->msgId);
+		bundle_add(args, "msgId", tempId);
 	}
-
-	bundle_add(args, "type", "msg_id");
-
- 	snprintf(tempId, 5, "%d", pMsg->msgId);
-	bundle_add(args, "msgId", tempId);
 
 	if (displayName[0] == '\0')
 		notification_set_text(noti, NOTIFICATION_TEXT_TYPE_TITLE, addressVal, NULL, NOTIFICATION_VARIABLE_TYPE_NONE);
@@ -224,6 +236,18 @@ msg_error_t MsgInsertNoti(MsgDbHandler *pDbHandle, MSG_MESSAGE_INFO_S* pMsg)
 		MSG_DEBUG("Fail to notification_set_time : %d", noti_err);
 	}
 
+	if (thumbPath[0] != '\0') {
+		noti_err = notification_set_image(noti, NOTIFICATION_IMAGE_TYPE_THUMBNAIL, thumbPath);
+		if (noti_err != NOTIFICATION_ERROR_NONE) {
+			MSG_DEBUG("Fail to notification_set_image : %d", noti_err);
+		}
+
+		noti_err = notification_set_image(noti, NOTIFICATION_IMAGE_TYPE_THUMBNAIL_FOR_LOCK, thumbPath);
+		if (noti_err != NOTIFICATION_ERROR_NONE) {
+			MSG_DEBUG("Fail to notification_set_image : %d", noti_err);
+		}
+	}
+
 	noti_err = notification_insert(noti, NULL);
 	if (noti_err != NOTIFICATION_ERROR_NONE) {
 		MSG_DEBUG("Fail to notification_insert");
@@ -239,6 +263,84 @@ msg_error_t MsgInsertNoti(MsgDbHandler *pDbHandle, MSG_MESSAGE_INFO_S* pMsg)
 	return MSG_SUCCESS;
 }
 
+msg_error_t MsgInsertNoti(MSG_MESSAGE_INFO_S* pMsg)
+{
+	notification_h noti = NULL;
+	notification_error_e noti_err = NOTIFICATION_ERROR_NONE;
+	bundle* args;
+
+	char addressVal[MAX_ADDRESS_VAL_LEN+1];
+	char displayName[MAX_DISPLAY_NAME_LEN+1];
+
+	memset(addressVal, 0x00, sizeof(addressVal));
+	memset(displayName, 0x00, sizeof(displayName));
+
+	snprintf(addressVal, sizeof(addressVal), "%s", pMsg->addressList[0].addressVal);
+	snprintf(displayName, sizeof(displayName), "%s", pMsg->addressList[0].displayName);
+
+	if (pMsg->msgType.mainType == MSG_SMS_TYPE &&
+			(pMsg->msgType.subType >= MSG_MWI_VOICE_SMS && pMsg->msgType.subType <= MSG_MWI_OTHER_SMS)) {
+
+		args = bundle_create();
+
+		noti = notification_new(NOTIFICATION_TYPE_NOTI, 1, NOTIFICATION_PRIV_ID_NONE);
+		if (noti == NULL) {
+			MSG_DEBUG("notification_new is failed.");
+			bundle_free(args);
+			return MSG_ERR_UNKNOWN;
+		}
+
+		noti_err = notification_set_application(noti, "com.samsung.call");
+		if (noti_err != NOTIFICATION_ERROR_NONE) {
+			MSG_DEBUG("Fail to notification_set_application : %d", noti_err);
+		}
+
+		noti_err = notification_set_image(noti, NOTIFICATION_IMAGE_TYPE_ICON, VOICE_MSG_ICON_PATH);
+		if (noti_err != NOTIFICATION_ERROR_NONE) {
+			MSG_DEBUG("Fail to notification_set_image : %d", noti_err);
+		}
+
+		//FIXME :: Temp code for voice number, 2012.08.16 sangkoo.kim
+		bundle_add(args, "launch-type", "MO");
+		bundle_add(args, "number", pMsg->addressList[0].addressVal);
+
+	} else {
+		return MSG_ERR_INVALID_PARAMETER;
+	}
+
+	if (displayName[0] == '\0')
+		notification_set_text(noti, NOTIFICATION_TEXT_TYPE_TITLE, addressVal, NULL, NOTIFICATION_VARIABLE_TYPE_NONE);
+	else
+		notification_set_text(noti, NOTIFICATION_TEXT_TYPE_TITLE, displayName, NULL, NOTIFICATION_VARIABLE_TYPE_NONE);
+
+	notification_set_text(noti, NOTIFICATION_TEXT_TYPE_CONTENT, pMsg->msgText, NULL, NOTIFICATION_VARIABLE_TYPE_NONE);
+
+	if (args != NULL) {
+		noti_err = notification_set_args(noti, args, NULL);
+		if (noti_err != NOTIFICATION_ERROR_NONE) {
+			MSG_DEBUG("Fail to notification_set_args : %d", noti_err);
+		}
+	}
+
+	noti_err = notification_set_time(noti, pMsg->displayTime);
+	if (noti_err != NOTIFICATION_ERROR_NONE) {
+		MSG_DEBUG("Fail to notification_set_time : %d", noti_err);
+	}
+
+	noti_err = notification_insert(noti, NULL);
+	if (noti_err != NOTIFICATION_ERROR_NONE) {
+		MSG_DEBUG("Fail to notification_insert");
+	}
+
+	noti_err = notification_free(noti);
+	if (noti_err != NOTIFICATION_ERROR_NONE) {
+		MSG_DEBUG("Fail to notification_free");
+	}
+
+	bundle_free(args);
+
+	return MSG_SUCCESS;
+}
 
 msg_error_t MsgInsertSmsReportToNoti(MsgDbHandler *pDbHandle, msg_message_id_t msgId, msg_delivery_report_status_t status)
 {
@@ -354,9 +456,6 @@ msg_error_t MsgInsertMmsReportToNoti(MsgDbHandler *pDbHandle, MSG_MESSAGE_INFO_S
 	notification_h noti = NULL;
 	notification_error_e noti_err = NOTIFICATION_ERROR_NONE;
 
-	msg_delivery_report_status_t	deliveryStatus;
-	msg_read_report_status_t		readStatus;
-
 	char addressVal[MAX_ADDRESS_VAL_LEN+1];
 	char firstName[MAX_DISPLAY_NAME_LEN+1], lastName[MAX_DISPLAY_NAME_LEN+1];
 	char displayName[MAX_DISPLAY_NAME_LEN+1];
@@ -370,17 +469,55 @@ msg_error_t MsgInsertMmsReportToNoti(MsgDbHandler *pDbHandle, MSG_MESSAGE_INFO_S
 	memset(contents, 0x00, sizeof(contents));
 	memset(sqlQuery, 0x00, sizeof(sqlQuery));
 
-	snprintf(sqlQuery, sizeof(sqlQuery), "SELECT A.ADDRESS_VAL, A.DISPLAY_NAME, A.FIRST_NAME, A.LAST_NAME, B.DELIVERY_REPORT_STATUS, B.READ_REPORT_STATUS \
-			FROM %s A, %s B WHERE B.MSG_ID=%d AND A.CONV_ID=B.CONV_ID;",
-			MSGFW_ADDRESS_TABLE_NAME, MSGFW_MESSAGE_TABLE_NAME, pMsg->msgId);
+	int report_status_type;
+	int report_status_value;
+
+	if (pMsg->msgType.subType == MSG_DELIVERYIND_MMS) {
+		report_status_type = MSG_REPORT_TYPE_DELIVERY;
+		MSG_DEBUG("mms subtype is Delivery Report type");
+	} else if (pMsg->msgType.subType == MSG_READORGIND_MMS) {
+		report_status_type = MSG_REPORT_TYPE_READ;
+		MSG_DEBUG("mms subtype is Read Report type");
+	} else {
+		MSG_DEBUG("No matching subtype. subtype [%d]", pMsg->msgType.subType);
+		return MSG_SUCCESS;
+	}
+
+	MSG_ADDRESS_INFO_S *address_info_s = &pMsg->addressList[0];
+	MSG_DEBUG("address info : %s, type : %d", address_info_s->addressVal, address_info_s->addressType);
+
+	if (address_info_s->addressType == MSG_ADDRESS_TYPE_PLMN) {//FIXME: compare 10 char of address
+		snprintf(sqlQuery, sizeof(sqlQuery),
+			"SELECT A.ADDRESS_VAL, A.DISPLAY_NAME, A.FIRST_NAME, A.LAST_NAME, B.STATUS "
+			"FROM %s A, %s B "
+			"WHERE B.MSG_ID=%d AND B.STATUS_TYPE=%d AND A.ADDRESS_VAL LIKE \'%s\';"
+			, MSGFW_ADDRESS_TABLE_NAME, MSGFW_REPORT_TABLE_NAME, pMsg->msgId, report_status_type, address_info_s->addressVal);
+	} else if (address_info_s->addressType == MSG_ADDRESS_TYPE_EMAIL) {//check full
+		snprintf(sqlQuery, sizeof(sqlQuery),
+			"SELECT A.ADDRESS_VAL, A.DISPLAY_NAME, A.FIRST_NAME, A.LAST_NAME, B.STATUS "
+			"FROM %s A, %s B "
+			"WHERE B.MSG_ID=%d AND B.STATUS_TYPE=%d AND A.ADDRESS_VAL=\'%s\';"
+			, MSGFW_ADDRESS_TABLE_NAME, MSGFW_REPORT_TABLE_NAME, pMsg->msgId, report_status_type, address_info_s->addressVal);
+	} else {
+		snprintf(sqlQuery, sizeof(sqlQuery),
+			"SELECT A.ADDRESS_VAL, A.DISPLAY_NAME, A.FIRST_NAME, A.LAST_NAME, B.STATUS "
+			"FROM %s A, %s B "
+			"WHERE B.MSG_ID=%d B.STATUS_TYPE=%d;"
+			, MSGFW_ADDRESS_TABLE_NAME, MSGFW_REPORT_TABLE_NAME, pMsg->msgId, report_status_type);
+	}
+
+	MSG_DEBUG("sqlQuery = [%s]", sqlQuery);
 
 	if (pDbHandle->prepareQuery(sqlQuery) != MSG_SUCCESS)
 		return MSG_ERR_DB_PREPARE;
 
 	if (pDbHandle->stepQuery() == MSG_ERR_DB_ROW) {
-		if (pDbHandle->columnText(0) != NULL)
+		if (pDbHandle->columnText(0) != NULL) {
 			strncpy(addressVal, (char*)pDbHandle->columnText(0), MAX_ADDRESS_VAL_LEN);
-
+			MSG_DEBUG("addressVal is [%s]",addressVal);
+		} else {
+			MSG_DEBUG("address Val is Null");
+		}
 
 		char *pTempDisplayName = (char *)pDbHandle->columnText(1);
 		if (pTempDisplayName != NULL && pTempDisplayName[0] != '\0') {
@@ -415,10 +552,10 @@ msg_error_t MsgInsertMmsReportToNoti(MsgDbHandler *pDbHandle, MSG_MESSAGE_INFO_S
 			}
 		}
 
-		deliveryStatus = (msg_delivery_report_status_t)pDbHandle->columnInt(4);
-		readStatus = (msg_read_report_status_t)pDbHandle->columnInt(5);
+		report_status_value = pDbHandle->columnInt(4);
 
 	} else {
+		MSG_DEBUG("DB Query Result Fail");
 		pDbHandle->finalizeQuery();
 		return MSG_ERR_DB_STEP;
 	}
@@ -443,7 +580,7 @@ msg_error_t MsgInsertMmsReportToNoti(MsgDbHandler *pDbHandle, MSG_MESSAGE_INFO_S
 
 	if (pMsg->msgType.subType == MSG_DELIVERYIND_MMS) {
 
-		switch(deliveryStatus) {
+		switch(report_status_value) {
 		case MSG_DELIVERY_REPORT_NONE:
 			noti_err = notification_free(noti);
 			if (noti_err != NOTIFICATION_ERROR_NONE) {
@@ -497,7 +634,7 @@ msg_error_t MsgInsertMmsReportToNoti(MsgDbHandler *pDbHandle, MSG_MESSAGE_INFO_S
 
 	} else if (pMsg->msgType.subType == MSG_READORGIND_MMS) {
 
-		switch(readStatus) {
+		switch(report_status_value) {
 		case MSG_READ_REPORT_NONE:
 			noti_err = notification_free(noti);
 			if (noti_err != NOTIFICATION_ERROR_NONE)

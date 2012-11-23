@@ -241,122 +241,48 @@ bool MmsPluginInternal::processNotiInd(MSG_MESSAGE_INFO_S *pMsgInfo, MSG_REQUEST
 	return true;
 }
 
-
 void MmsPluginInternal::processDeliveryInd(MSG_MESSAGE_INFO_S *pMsgInfo)
 {
 	MSG_BEGIN();
 
-	MmsMsg *pMsg = NULL;
-	bool bFound = false;
-	MmsMsgMultiStatus *pStatus = NULL;
-	MmsMsgMultiStatus *pLastStatus = NULL;
+	MmsMsgMultiStatus status;
+	memset(&status, 0x00, sizeof(MmsMsgMultiStatus));
 
-	pMsg = (MmsMsg *)malloc(sizeof(MmsMsg));
+	status.msgStatus = mmsHeader.msgStatus;
+	status.handledTime = mmsHeader.date;
+	status.bDeliveryReportIsRead = false;
+	status.bDeliveyrReportIsLast= true;
 
-	if (pMsg == NULL) {
-		MSG_DEBUG("fail to allocation memory.");
-		return;
-	}
+	MmsAddrUtilRemovePlmnString(mmsHeader.pTo->szAddr);
+	MSG_DEBUG("[INFO] [ADDR: %s, MMSID: %s]",mmsHeader.pTo->szAddr, mmsHeader.szMsgID);
 
-	MmsInitMsgAttrib(&pMsg->mmsAttrib);
-
-	pMsgInfo->msgType.mainType 	= MSG_MMS_TYPE;
-	pMsgInfo->msgType.subType 	= MSG_DELIVERYIND_MMS;
+	pMsgInfo->msgType.mainType	= MSG_MMS_TYPE;
+	pMsgInfo->msgType.subType	= MSG_DELIVERYIND_MMS;
 	pMsgInfo->bTextSms = true;
+	pMsgInfo->dataSize = 0;
+	memset(pMsgInfo->msgData, 0x00, MAX_MSG_DATA_LEN + 1);
 
-	MSG_DEBUG("#### mmsHeader.szMsgID = %s : when received delivery ind####", mmsHeader.szMsgID);
+
+	strncpy(pMsgInfo->msgData, getMmsDeliveryStatus(status.msgStatus), MAX_MSG_DATA_LEN);
+	pMsgInfo->dataSize  = strlen(pMsgInfo->msgData);
+	MSG_DEBUG("Delivery Status = %s", pMsgInfo->msgData);
+
+	strncpy(pMsgInfo->addressList[0].addressVal, mmsHeader.pTo->szAddr, MAX_ADDRESS_VAL_LEN);
 
 	int tmpId = (msg_message_id_t)MmsSearchMsgId(mmsHeader.pTo->szAddr, mmsHeader.szMsgID);
-
-
-	MSG_DEBUG("tmpId [%d]", tmpId);
-	MSG_DEBUG("mmsHeader.pTo->szAddr [%s]", mmsHeader.pTo->szAddr);
-
 	if (tmpId > 0) {
+		MSG_DEBUG("Found MSG_ID = %d", tmpId);
+
+		//Insert to Delievery DB
+		MmsPluginStorage::instance()->insertDeliveryReport(tmpId, mmsHeader.pTo->szAddr, &status);
+
 		pMsgInfo->msgId = (msg_message_id_t)tmpId;
 
-		pMsg->mmsAttrib.pMultiStatus = MmsGetMultiStatus(pMsgInfo->msgId);
-
-		pStatus = pMsg->mmsAttrib.pMultiStatus;
-
-		MSG_DEBUG("### pStatus->szTo = %s ###", pStatus->szTo);
-
-		while (pStatus && !bFound) {
-			MSG_DEBUG("### MmsAddrUtilCompareAddr ###");
-			MSG_DEBUG("### mmsHeader.pTo->szAddr = %s ###", mmsHeader.pTo->szAddr);
-			if (MmsAddrUtilCompareAddr( pStatus->szTo, mmsHeader.pTo->szAddr)) {
-				bFound = true;
-				break;
-			}
-
-			pStatus = pStatus->pNext;
-		}
-
-		if (bFound == false) {
-			MSG_DEBUG("### bFound == false ###");
-			/* Queue the delivery report  --------------------------- */
-
-			pStatus = (MmsMsgMultiStatus *)malloc(sizeof(MmsMsgMultiStatus));
-			memset(pStatus, 0, sizeof(MmsMsgMultiStatus));
-
-			pStatus->readStatus = MMS_READSTATUS_NONE;
-			memset(pStatus->szTo, 0, MSG_ADDR_LEN + 1);
-			strncpy(pStatus->szTo, mmsHeader.pTo->szAddr, MSG_ADDR_LEN);
-
-			if (pMsg->mmsAttrib.pMultiStatus == NULL) {
-				/* first delivery report */
-				pMsg->mmsAttrib.pMultiStatus = pStatus;
-			} else {
-				pLastStatus = pMsg->mmsAttrib.pMultiStatus;
-
-				while (pLastStatus->pNext) {
-					pLastStatus = pLastStatus->pNext;
-				}
-
-				pLastStatus->pNext = pStatus;
-				pLastStatus = pStatus;
-			}
-		}
-
-		pStatus->handledTime = mmsHeader.date;
-		pStatus->msgStatus = mmsHeader.msgStatus;
-
-		memset(pMsgInfo->msgData, 0x00, MAX_MSG_DATA_LEN + 1);
-		pMsgInfo->dataSize = 0;
-		strncpy(pMsgInfo->msgData, getMmsDeliveryStatus(pStatus->msgStatus), MAX_MSG_DATA_LEN);
-		pMsgInfo->dataSize  = strlen(pMsgInfo->msgData);
-		pMsgInfo->bTextSms = true;
-		MSG_DEBUG("Delivery Status = %s", pMsgInfo->msgData);
-
-		strncpy(pMsgInfo->addressList[0].addressVal, mmsHeader.pTo->szAddr, MAX_ADDRESS_VAL_LEN);
-
-		pStatus->bDeliveryReportIsRead = false;
-
-		_MmsDataUpdateLastStatus(pMsg);
-
-		pStatus->bDeliveyrReportIsLast= true;
-
-		MmsUpdateDeliveryReport(pMsgInfo->msgId, pStatus);
-
 		MmsPluginStorage::instance()->addMmsNoti(pMsgInfo);
+
 	} else {
-		MSG_DEBUG("Can't not find Message!");
-		memset(pMsgInfo->msgData, 0x00, MAX_MSG_DATA_LEN + 1);
-		pMsgInfo->dataSize = 0;
-		strncpy(pMsgInfo->msgData, getMmsDeliveryStatus(mmsHeader.msgStatus), MAX_MSG_DATA_LEN);
-
-		MSG_DEBUG("Delivery Status = %s", pMsgInfo->msgData);
-
-		pMsgInfo->dataSize  = strlen(pMsgInfo->msgData);
-
-		MmsAddrUtilRemovePlmnString(mmsHeader.pTo->szAddr);
-
-		strncpy(pMsgInfo->addressList[0].addressVal, mmsHeader.pTo->szAddr, MAX_ADDRESS_VAL_LEN);
+		MSG_DEBUG("Can not find MMS message in DB");
 	}
-
-	MsgFreeAttrib(&pMsg->mmsAttrib);
-
-	free(pMsg);
 
 	MSG_END();
 }
@@ -365,19 +291,10 @@ void MmsPluginInternal::processReadOrgInd(MSG_MESSAGE_INFO_S *pMsgInfo)
 {
 	MSG_BEGIN();
 
-	MmsMsg *pMsg = NULL;
-	bool bFound = false;
-	MmsMsgMultiStatus *pStatus = NULL;
-	MmsMsgMultiStatus *pLastStatus = NULL;
-
-	pMsg = (MmsMsg *)malloc(sizeof(MmsMsg));
-
-	if (pMsg == NULL) {
-		MSG_DEBUG("fail to allocation memory.");
+	if (pMsgInfo == NULL) {
+		MSG_DEBUG("parameter err");
 		return;
 	}
-
-	MmsInitMsgAttrib(&pMsg->mmsAttrib);
 
 	pMsgInfo->msgType.mainType = MSG_MMS_TYPE;
 	pMsgInfo->msgType.subType = MSG_READORGIND_MMS;
@@ -386,96 +303,30 @@ void MmsPluginInternal::processReadOrgInd(MSG_MESSAGE_INFO_S *pMsgInfo)
 	MmsAddrUtilRemovePlmnString(mmsHeader.pFrom->szAddr);
 	MmsAddrUtilRemovePlmnString(mmsHeader.pTo->szAddr);
 
-	if (mmsHeader.readStatus != MSG_READ_REPORT_IS_DELETED || (strcmp(mmsHeader.pFrom->szAddr, mmsHeader.pTo->szAddr))) {
-		MSG_DEBUG("#### mmsHeader.szMsgID = %s : when received read orig ind####", mmsHeader.szMsgID);
+	memset(pMsgInfo->msgData, 0x00, MAX_MSG_DATA_LEN + 1);
+	pMsgInfo->dataSize = 0;
 
-		int tmpId = MmsSearchMsgId(mmsHeader.pFrom->szAddr, mmsHeader.szMsgID);
+	strncpy(pMsgInfo->msgData, getMmsReadStatus(mmsHeader.readStatus), MAX_MSG_DATA_LEN);
+	pMsgInfo->dataSize  = strlen(pMsgInfo->msgData);
 
-		if (tmpId > 0) {
-			pMsgInfo->msgId = (msg_message_id_t)tmpId;
+	MSG_DEBUG("read Status = %s", pMsgInfo->msgData);
+	strncpy(pMsgInfo->addressList[0].addressVal, mmsHeader.pTo->szAddr, MAX_ADDRESS_VAL_LEN);
 
-			pMsg->mmsAttrib.pMultiStatus = MmsGetMultiStatus(pMsgInfo->msgId);
+	int tmpId = MmsSearchMsgId(mmsHeader.pFrom->szAddr, mmsHeader.szMsgID);
+	if (tmpId > 0) {
+		pMsgInfo->msgId = (msg_message_id_t)tmpId;
 
-			pStatus = pMsg->mmsAttrib.pMultiStatus;
+		MmsMsgMultiStatus Status;
+		memset(&Status, 0x00, sizeof(MmsMsgMultiStatus));
+		Status.readTime = mmsHeader.date;
+		Status.readStatus = mmsHeader.readStatus;
 
-			MSG_DEBUG("### pStatus->szTo = %s ###", pStatus->szTo);
+		MmsPluginStorage::instance()->insertReadReport(pMsgInfo->msgId, mmsHeader.pFrom->szAddr, &Status);
+		MmsPluginStorage::instance()->addMmsNoti(pMsgInfo);
 
-			while (pStatus && !bFound) {
-				MSG_DEBUG("### MmsAddrUtilCompareAddr ###");
-				MSG_DEBUG("### mmsHeader.pFrom->szAddr = %s ###", mmsHeader.pFrom->szAddr);
-				if (MmsAddrUtilCompareAddr(pStatus->szTo, mmsHeader.pFrom->szAddr)) {
-					bFound = true;
-					break;
-				}
-
-				pStatus = pStatus->pNext;
-			}
-
-			if (bFound == false) {
-				MSG_DEBUG("### bFound == false ###");
-				/* Queue the delivery report  --------------------------- */
-
-				pStatus = (MmsMsgMultiStatus *)malloc(sizeof(MmsMsgMultiStatus));
-				memset(pStatus, 0, sizeof(MmsMsgMultiStatus));
-
-				pStatus->msgStatus = MMS_MSGSTATUS_NONE;
-
-				memset(pStatus->szTo, 0, MSG_ADDR_LEN + 1);
-				strncpy(pStatus->szTo, mmsHeader.pFrom->szAddr, MSG_ADDR_LEN);
-
-				if (pMsg->mmsAttrib.pMultiStatus == NULL) {
-					/* first readOrg report */
-					pMsg->mmsAttrib.pMultiStatus = pStatus;
-				} else {
-					pLastStatus = pMsg->mmsAttrib.pMultiStatus;
-
-					while (pLastStatus->pNext) {
-						pLastStatus = pLastStatus->pNext;
-					}
-
-					pLastStatus->pNext = pStatus;
-					pLastStatus = pStatus;
-				}
-			}
-
-			pStatus->readTime = mmsHeader.date;
-			pStatus->readStatus = mmsHeader.readStatus;
-
-			memset(pMsgInfo->msgData, 0x00, MAX_MSG_DATA_LEN + 1);
-			pMsgInfo->dataSize = 0;
-			strncpy(pMsgInfo->msgData, getMmsReadStatus(pStatus->readStatus), MAX_MSG_DATA_LEN);
-			pMsgInfo->dataSize  = strlen(pMsgInfo->msgData);
-			pMsgInfo->bTextSms = true;
-			MSG_DEBUG("read Status = %s", pMsgInfo->msgData);
-
-			strncpy(pMsgInfo->addressList[0].addressVal, mmsHeader.pTo->szAddr, MAX_ADDRESS_VAL_LEN);
-
-			pStatus->bReadReplyIsRead = false;
-
-			_MmsDataUpdateLastStatus(pMsg);
-
-			pStatus->bReadReplyIsLast= true;
-
-			MmsUpdateReadReport(pMsgInfo->msgId, pStatus);
-
-			MmsPluginStorage::instance()->addMmsNoti(pMsgInfo);
-		} else {
-			MSG_DEBUG("Can't not find Message!");
-			memset(pMsgInfo->msgData, 0x00, MAX_MSG_DATA_LEN + 1);
-			pMsgInfo->dataSize = 0;
-			strncpy(pMsgInfo->msgData, getMmsReadStatus(mmsHeader.readStatus), MAX_MSG_DATA_LEN);
-			pMsgInfo->dataSize  = strlen(pMsgInfo->msgData);
-			MSG_DEBUG("read Status = %s", pMsgInfo->msgData);
-
-			MmsAddrUtilRemovePlmnString(mmsHeader.pTo->szAddr);
-
-			strncpy(pMsgInfo->addressList[0].addressVal, mmsHeader.pTo->szAddr, MAX_ADDRESS_VAL_LEN);
-		}
+	} else {
+		MSG_DEBUG("Can't not find Message!");
 	}
-
-	MsgFreeAttrib(&pMsg->mmsAttrib);
-
-	free(pMsg);
 
 	MSG_END();
 }
@@ -483,8 +334,6 @@ void MmsPluginInternal::processReadOrgInd(MSG_MESSAGE_INFO_S *pMsgInfo)
 void MmsPluginInternal::processSendConf(MSG_MESSAGE_INFO_S *pMsgInfo, mmsTranQEntity *pRequest)
 {
 	MSG_BEGIN();
-
-	msg_error_t err = MSG_SUCCESS;
 
 	MMS_RECV_DATA_S	recvData = {{0}, };
 
@@ -500,6 +349,7 @@ void MmsPluginInternal::processSendConf(MSG_MESSAGE_INFO_S *pMsgInfo, mmsTranQEn
 
 	if (mmsHeader.responseStatus == MMS_RESPSTATUS_OK) {
 		pMsgInfo->networkStatus = MSG_NETWORK_SEND_SUCCESS;
+		pMsgInfo->dataSize = pRequest->postDataLen;
 	} else {
 		pMsgInfo->networkStatus = MSG_NETWORK_SEND_FAIL;
 
@@ -651,8 +501,7 @@ void MmsPluginInternal::processRetrieveConf(MSG_MESSAGE_INFO_S *pMsgInfo, mmsTra
 		strcpy(szFileName, pMsg->szFileName);
 
 		err = pStorage->getMsgText(&msgData, pMsgInfo->msgText);
-		err = pStorage->makeThumbnail(&msgData, pMsgInfo->thumbPath, szFileName);
-
+		MmsMakePreviewInfo(pMsgInfo->msgId, &msgData);
 		bMultipartRelated = true;
 	} else {
 		MSG_DEBUG("Multipart mixed message doesn't support mms conversation");

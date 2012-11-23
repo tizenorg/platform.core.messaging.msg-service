@@ -1,5 +1,5 @@
 Name:           msg-service
-Version:        0.9.0
+Version:        0.9.2
 Release:        1
 License:        Samsung
 Summary:        Messaging Framework Library
@@ -47,7 +47,7 @@ Description: Messaging Framework Library
 
 
 %package devel
-License:        Apache License v2.0
+License:        Flora License v1.0
 Summary:        Messaging Framework Library (development)
 Requires:       %{name} = %{version}-%{release}
 Group:          Development/Libraries
@@ -57,7 +57,7 @@ Description: Messaging Framework Library (development)
 
 
 %package tools
-License:        Apache License v2.0
+License:        Flora License v1.0
 Summary:        Messaging server application
 Requires:       %{name} = %{version}-%{release}
 Group:          TO_BU / FILL_IN
@@ -71,7 +71,7 @@ Description:  Messaging server application
 
 
 %package -n sms-plugin
-License:        Apache License v2.0
+License:        Flora License v1.0
 Summary:        SMS plugin library
 Requires:       %{name} = %{version}-%{release}
 Group:          System/Libraries
@@ -82,7 +82,7 @@ Requires(postun): /sbin/ldconfig
 Description: SMS plugin library
 
 %package -n mms-plugin
-License:        Apache License v2.0
+License:        Flora License v1.0
 Summary:        MMS plugin library
 Requires:       %{name} = %{version}-%{release}
 Group:          System/Libraries
@@ -101,8 +101,9 @@ cmake . -DCMAKE_INSTALL_PREFIX=%{_prefix}
 make %{?jobs:-j%jobs}
 
 %install
-
 rm -rf %{buildroot}
+mkdir -p %{buildroot}/usr/share/license
+
 %make_install
 
 mkdir -p %{buildroot}%{_libdir}/systemd/user/tizen-middleware.target.wants
@@ -114,7 +115,7 @@ ln -s %{_sysconfdir}/rc.d/init.d/msg-server  %{buildroot}%{_sysconfdir}/rc.d/rc3
 mkdir -p  %{buildroot}%{_sysconfdir}/rc.d/rc5.d
 ln -s %{_sysconfdir}/rc.d/init.d/msg-server  %{buildroot}%{_sysconfdir}/rc.d/rc5.d/S70msg-server
 
-mkdir -p %{buildroot}/opt/data/msg-service
+mkdir -p %{buildroot}/opt/usr/data/msg-service
 
 %post tools -p /sbin/ldconfig
 %post -n sms-plugin -p /sbin/ldconfig
@@ -123,22 +124,25 @@ mkdir -p %{buildroot}/opt/data/msg-service
 %post
 /sbin/ldconfig
 
-if [ ! -f /opt/dbspace/.msg_service.db ]
+if [ ! -f /opt/usr/dbspace/.msg_service.db ]
 then
-    mkdir -p %{buildroot}/opt/dbspace/
-    sqlite3 /opt/dbspace/.msg_service.db "PRAGMA journal_mode = PERSIST;
+    mkdir -p %{buildroot}/opt/usr/dbspace/
+    sqlite3 /opt/usr/dbspace/.msg_service.db "PRAGMA journal_mode = PERSIST;
 
     CREATE TABLE MSG_CONVERSATION_TABLE ( CONV_ID INTEGER NOT NULL , UNREAD_CNT INTEGER DEFAULT 0 , SMS_CNT INTEGER DEFAULT 0 , MMS_CNT INTEGER DEFAULT 0 , MAIN_TYPE INTEGER NOT NULL , SUB_TYPE INTEGER NOT NULL , MSG_DIRECTION INTEGER NOT NULL , DISPLAY_TIME INTEGER , DISPLAY_NAME TEXT , MSG_TEXT TEXT );
     CREATE TABLE MSG_ADDRESS_TABLE ( ADDRESS_ID INTEGER PRIMARY KEY , CONV_ID INTEGER  NOT NULL , ADDRESS_TYPE INTEGER , RECIPIENT_TYPE INTEGER , ADDRESS_VAL TEXT , CONTACT_ID INTEGER , DISPLAY_NAME TEXT , FIRST_NAME TEXT , LAST_NAME TEXT , IMAGE_PATH TEXT , SYNC_TIME DATETIME , FOREIGN KEY (CONV_ID) REFERENCES MSG_CONVERSATION_TABLE (CONV_ID) );
     CREATE TABLE MSG_FOLDER_TABLE ( FOLDER_ID INTEGER PRIMARY KEY , FOLDER_NAME TEXT NOT NULL , FOLDER_TYPE INTEGER DEFAULT 0 );
-    CREATE TABLE MSG_MESSAGE_TABLE ( MSG_ID INTEGER PRIMARY KEY , CONV_ID INTEGER NOT NULL , FOLDER_ID INTEGER NOT NULL , STORAGE_ID INTEGER NOT NULL , MAIN_TYPE INTEGER NOT NULL , SUB_TYPE INTEGER NOT NULL , DISPLAY_TIME DATETIME , DATA_SIZE INTEGER DEFAULT 0 , NETWORK_STATUS INTEGER DEFAULT 0 , READ_STATUS INTEGER DEFAULT 0 , PROTECTED INTEGER DEFAULT 0 , PRIORITY INTEGER DEFAULT 0 , MSG_DIRECTION INTEGER NOT NULL , SCHEDULED_TIME DATETIME , BACKUP INTEGER DEFAULT 0 , SUBJECT TEXT , MSG_DATA TEXT , THUMB_PATH TEXT , MSG_TEXT TEXT , DELIVERY_REPORT_STATUS INTEGER DEFAULT 0 , DELIVERY_REPORT_TIME DATETIME , READ_REPORT_STATUS INTEGER DEFAULT 0 , READ_REPORT_TIME DATETIME , ATTACHMENT_COUNT INTEGER DEFAULT 0 , FOREIGN KEY (CONV_ID) REFERENCES MSG_CONVERSATION_TABLE (CONV_ID) , FOREIGN KEY (FOLDER_ID) REFERENCES MSG_FOLDER_TABLE (FOLDER_ID) );
+    CREATE TABLE MSG_MESSAGE_TABLE ( MSG_ID INTEGER PRIMARY KEY , CONV_ID INTEGER NOT NULL , FOLDER_ID INTEGER NOT NULL , STORAGE_ID INTEGER NOT NULL , MAIN_TYPE INTEGER NOT NULL , SUB_TYPE INTEGER NOT NULL , DISPLAY_TIME DATETIME , DATA_SIZE INTEGER DEFAULT 0 , NETWORK_STATUS INTEGER DEFAULT 0 , READ_STATUS INTEGER DEFAULT 0 , PROTECTED INTEGER DEFAULT 0 , PRIORITY INTEGER DEFAULT 0 , MSG_DIRECTION INTEGER NOT NULL , SCHEDULED_TIME DATETIME , BACKUP INTEGER DEFAULT 0 , SUBJECT TEXT , MSG_DATA TEXT , THUMB_PATH TEXT , MSG_TEXT TEXT , ATTACHMENT_COUNT INTEGER DEFAULT 0 , FOREIGN KEY (CONV_ID) REFERENCES MSG_CONVERSATION_TABLE (CONV_ID) , FOREIGN KEY (FOLDER_ID) REFERENCES MSG_FOLDER_TABLE (FOLDER_ID) );
     CREATE TABLE MSG_SIM_TABLE ( MSG_ID INTEGER , SIM_ID INTEGER NOT NULL , FOREIGN KEY(MSG_ID) REFERENCES MSG_MESSAGE_TABLE(MSG_ID) );
     CREATE TABLE MSG_PUSH_TABLE ( MSG_ID INTEGER , ACTION INTEGER , CREATED INTEGER , EXPIRES INTEGER , ID TEXT , HREF TEXT , CONTENT TEXT , FOREIGN KEY(MSG_ID) REFERENCES MSG_MESSAGE_TABLE(MSG_ID) );
     CREATE TABLE MSG_CBMSG_TABLE ( MSG_ID INTEGER , CB_MSG_ID INTEGER NOT NULL , FOREIGN KEY(MSG_ID) REFERENCES MSG_MESSAGE_TABLE(MSG_ID) );
     CREATE TABLE MSG_SYNCML_TABLE ( MSG_ID INTEGER , EXT_ID INTEGER NOT NULL , PINCODE INTEGER NOT NULL , FOREIGN KEY(MSG_ID) REFERENCES MSG_MESSAGE_TABLE(MSG_ID) );
     CREATE TABLE MSG_SMS_SENDOPT_TABLE ( MSG_ID INTEGER , DELREP_REQ INTEGER NOT NULL , KEEP_COPY INTEGER NOT NULL , REPLY_PATH INTEGER NOT NULL , FOREIGN KEY(MSG_ID) REFERENCES MSG_MESSAGE_TABLE(MSG_ID) );
-    CREATE TABLE MSG_FILTER_TABLE ( FILTER_ID INTEGER PRIMARY KEY , FILTER_TYPE INTEGER NOT NULL , FILTER_VALUE TEXT NOT NULL );
+    CREATE TABLE MSG_FILTER_TABLE ( FILTER_ID INTEGER PRIMARY KEY , FILTER_TYPE INTEGER NOT NULL , FILTER_VALUE TEXT NOT NULL , FILTER_ACTIVE INTEGER DEFAULT 0);
     CREATE TABLE MSG_MMS_MESSAGE_TABLE ( MSG_ID INTEGER , TRANSACTION_ID TEXT , MESSAGE_ID TEXT , FWD_MESSAGE_ID TEXT , CONTENTS_LOCATION TEXT , FILE_PATH TEXT , VERSION INTEGER NOT NULL , DATA_TYPE INTEGER DEFAULT -1 , DATE DATETIME , HIDE_ADDRESS INTEGER DEFAULT 0 , ASK_DELIVERY_REPORT INTEGER DEFAULT 0 , REPORT_ALLOWED INTEGER DEFAULT 0 , READ_REPORT_ALLOWED_TYPE INTEGER DEFAULT 0 , ASK_READ_REPLY INTEGER DEFAULT 0 , READ INTEGER DEFAULT 0 , READ_REPORT_SEND_STATUS INTEGER DEFAULT 0 , READ_REPORT_SENT INTEGER DEFAULT 0 , PRIORITY INTEGER DEFAULT 0 , KEEP_COPY INTEGER DEFAULT 0 , MSG_SIZE INTEGER NOT NULL , MSG_CLASS INTEGER DEFAULT -1 , EXPIRY_TIME DATETIME , CUSTOM_DELIVERY_TIME INTEGER DEFAULT 0 , DELIVERY_TIME DATETIME , MSG_STATUS INTEGER DEFAULT -1 , FOREIGN KEY (MSG_ID) REFERENCES MSG_MESSAGE_TABLE (MSG_ID) );
+    CREATE TABLE MSG_MMS_PREVIEW_INFO_TABLE ( MSG_ID INTEGER, TYPE INTEGER, VALUE TEXT, COUNT INTEGER, PRIMARY KEY (MSG_ID, TYPE)  ON CONFLICT REPLACE FOREIGN KEY(MSG_ID) REFERENCES MSG_MESSAGE_TABLE(MSG_ID) ON DELETE CASCADE);
+    CREATE TABLE MSG_REPORT_TABLE ( MSG_ID INTEGER , ADDRESS_VAL TEXT , STATUS_TYPE INTEGER , STATUS INTEGER DEFAULT 0 , TIME DATETIME);
+    CREATE TABLE MSG_PUSHCFG_TABLE ( PUSH_ID INTEGER , CONTENT_TYPE TEXT, APP_ID TEXT, PKG_NAME TEXT, LAUNCH INTEGER, APPCODE INTEGER, SECURE INTEGER);
 
     CREATE INDEX MSG_CONVERSATION_INDEX ON MSG_CONVERSATION_TABLE(CONV_ID);
     CREATE INDEX MSG_FOLDER_INDEX ON MSG_FOLDER_TABLE(FOLDER_ID);
@@ -151,16 +155,57 @@ then
     INSERT INTO MSG_FOLDER_TABLE VALUES (5, 'CBMSGBOX', 1);
     INSERT INTO MSG_FOLDER_TABLE VALUES (6, 'SPAMBOX', 4);
     INSERT INTO MSG_FOLDER_TABLE VALUES (7, 'SMS TEMPLATE', 5);
-    INSERT INTO MSG_FOLDER_TABLE VALUES (8, 'MMS TEMPLATE', 5);"
+    INSERT INTO MSG_FOLDER_TABLE VALUES (8, 'MMS TEMPLATE', 5);
+
+    INSERT INTO MSG_PUSHCFG_TABLE VALUES (1, 'text/vnd.wap.si', 'X-Wap-Application-Id: x-wap-application:wml.ua', '', 0, 1, 0);
+    INSERT INTO MSG_PUSHCFG_TABLE VALUES (2, 'application/vnd.wap.sic', 'X-Wap-Application-Id: x-wap-application:wml.ua', '', 0, 2, 0);
+    INSERT INTO MSG_PUSHCFG_TABLE VALUES (3, 'text/vnd.wap.sl', 'X-Wap-Application-Id: x-wap-application:wml.ua', '', 0, 3, 0);
+	INSERT INTO MSG_PUSHCFG_TABLE VALUES (4, 'application/vnd.wap.slc', 'X-Wap-Application-Id: x-wap-application:wml.ua', '', 0, 4, 0);
+    INSERT INTO MSG_PUSHCFG_TABLE VALUES (5, 'text/vnd.wap.co', 'X-Wap-Application-Id: x-wap-application:wml.ua', '', 0, 5, 0);
+
+    INSERT INTO MSG_PUSHCFG_TABLE VALUES (6, 'application/vnd.wap.coc', 'X-Wap-Application-Id: x-wap-application:wml.ua', '', 0, 6, 0);
+    INSERT INTO MSG_PUSHCFG_TABLE VALUES (7, 'application/vnd.wap.mms-message', 'X-Wap-Application-Id: x-wap-application:mms.ua', '', 0, 7, 0);
+    INSERT INTO MSG_PUSHCFG_TABLE VALUES (8, 'application/vnd.wap.sia', 'X-Wap-Application-Id: x-wap-application:push.sia', '', 0, 8, 0);
+    INSERT INTO MSG_PUSHCFG_TABLE VALUES (9, 'application/vnd.syncml.dm+wbxml', 'X-Wap-Application-Id: x-wap-application:push.syncml.dm', '', 0, 9, 0);
+    INSERT INTO MSG_PUSHCFG_TABLE VALUES (10, 'application/vnd.syncml.dm+xml', 'X-Wap-Application-Id: x-wap-application:push.syncml.dm', '', 0, 10, 0);
+
+    INSERT INTO MSG_PUSHCFG_TABLE VALUES (11, 'application/vnd.syncml.notification', 'X-Wap-Application-Id: x-wap-application:push.syncml.dm', '', 0, 11, 0);
+    INSERT INTO MSG_PUSHCFG_TABLE VALUES (12, 'application/vnd.syncml.ds.notification', 'X-Wap-Application-Id: x-wap-application:push.syncml.ds', '', 0, 12, 0);
+    INSERT INTO MSG_PUSHCFG_TABLE VALUES (13, 'application/vnd.syncml+wbxml', 'X-Wap-Application-Id:x-wap-application:push.syncml', '', 0, 13, 0);
+    INSERT INTO MSG_PUSHCFG_TABLE VALUES (14, 'application/vnd.wap.locc+wbxml', 'X-Wap-Application-Id: x-wap-application:loc.ua', '', 0, 14, 0);
+    INSERT INTO MSG_PUSHCFG_TABLE VALUES (15, 'application/vnd.wap.loc+xml', 'X-Wap-Application-Id: x-wap-application:loc.ua', '', 0, 15, 0);
+
+    INSERT INTO MSG_PUSHCFG_TABLE VALUES (16, 'application/vnd.oma.dd+xml', 'X-Wap-Application-Id: x-wap-application:loc.ua', '', 0, 16, 0);
+    INSERT INTO MSG_PUSHCFG_TABLE VALUES (17, 'application/vnd.oma.drm.message', 'X-Wap-Application-Id: x-wap-application:drm.ua', '', 0, 17, 0);
+    INSERT INTO MSG_PUSHCFG_TABLE VALUES (18, 'application/vnd.oma.drm.content', 'X-Wap-Application-Id: x-wap-application:drm.ua', '', 0, 18, 0);
+    INSERT INTO MSG_PUSHCFG_TABLE VALUES (19, 'application/vnd.oma.drm.rights+xml', 'X-Wap-Application-Id: x-wap-application:drm.ua', '', 0, 19, 0);
+    INSERT INTO MSG_PUSHCFG_TABLE VALUES (20, 'application/vnd.oma.drm.rights+wbxml', 'X-Wap-Application-Id: x-wap-application:drm.ua', '', 0, 20, 0);
+
+    INSERT INTO MSG_PUSHCFG_TABLE VALUES (21, 'application/vnd.oma.drm.ro+xml', 'X-Wap-Application-Id: x-wap-application:drm.ua', '', 0, 21, 0);
+    INSERT INTO MSG_PUSHCFG_TABLE VALUES (22, 'application/vnd.oma.drm.roap-pdu+xml', 'X-Wap-Application-Id: x-wap-application:drm.ua', '', 0, 22, 0);
+    INSERT INTO MSG_PUSHCFG_TABLE VALUES (23, 'application/vnd.oma.drm.roap-trigger+xml', 'X-Wap-Application-Id: x-wap-application:drm.ua', '', 0, 23, 0);
+    INSERT INTO MSG_PUSHCFG_TABLE VALUES (24, 'application/vnd.oma.drm.roap-trigger+wbxml', 'X-Wap-Application-Id: x-wap-application:drm.ua', '', 0, 24, 0);
+	INSERT INTO MSG_PUSHCFG_TABLE VALUES (25, 'text/vnd.wap.connectivity-xml', 'X-Wap-Application-Id: x-wap-application:drm.ua', '', 0, 26, 0);
+
+	INSERT INTO MSG_PUSHCFG_TABLE VALUES (26, 'application/vnd.wap.connectivity-wbxml', 'X-Wap-Application-Id: x-wap-samsung:provisioning.ua', '', 0, 27, 0);
+	INSERT INTO MSG_PUSHCFG_TABLE VALUES (27, 'application/x-wap-prov.browser-settings', 'X-Wap-Application-Id: x-wap-samsung:provisioning.ua', '', 0, 28, 0);
+	INSERT INTO MSG_PUSHCFG_TABLE VALUES (28, 'application/x-wap-prov.browser-bookmarks', 'X-Wap-Application-Id: x-wap-samsung:provisioning.ua', '', 0, 29, 0);
+	INSERT INTO MSG_PUSHCFG_TABLE VALUES (29, 'application/x-wap-prov.syncset+xml', 'X-Wap-Application-Id: x-wap-samsung:provisioning.ua', '', 0, 30, 0);
+	INSERT INTO MSG_PUSHCFG_TABLE VALUES (30, 'application/x-wap-prov.syncset+wbxml', 'X-Wap-Application-Id: x-wap-samsung:provisioning.ua', '', 0, 31, 0);
+
+	INSERT INTO MSG_PUSHCFG_TABLE VALUES (31, 'text/vnd.wap.emn+xml', 'X-Wap-Application-Id: x-wap-application:emn.ua', '', 0, 32, 0);
+	INSERT INTO MSG_PUSHCFG_TABLE VALUES (32, 'application/vnd.wap.emn+wbxml', 'X-Wap-Application-Id: x-wap-application:emn.ua', '', 0, 33, 0);
+	INSERT INTO MSG_PUSHCFG_TABLE VALUES (33, 'application/vnd.wv.csp.cir', 'X-Wap-Application-Id: x-wap-application:wv.ua', '', 0, 34, 0);
+	INSERT INTO MSG_PUSHCFG_TABLE VALUES (34, 'application/vnd.omaloc-supl-init', 'X-Wap-Application-Id: x-oma-application:ulp.ua', '', 0, 44, 0);
+	INSERT INTO MSG_PUSHCFG_TABLE VALUES (35, 'application/vnd.wap.emn+wbxml', 'X-oma-docomo:xmd.mail.ua', '', 0, 45, 1);"
 fi
 
-chown :6011 /opt/dbspace/.msg_service.db
-chown :6011 /opt/dbspace/.msg_service.db-journal
-
-chmod 660 /opt/dbspace/.msg_service.db
-chmod 660 /opt/dbspace/.msg_service.db-journal
-mkdir -p /opt/data/msg-service
-chgrp db_msg_service /opt/data/msg-service
+chown :6011 /opt/usr/dbspace/.msg_service.db
+chown :6011 /opt/usr/dbspace/.msg_service.db-journal
+chmod 660 /opt/usr/dbspace/.msg_service.db
+chmod 660 /opt/usr/dbspace/.msg_service.db-journal
+mkdir -p /opt/usr/data/msg-service
+chgrp db_msg_service /opt/usr/data/msg-service
 
 ########## Setting Config Value (Internal keys) ##########
 vcuid=5000
@@ -261,6 +306,7 @@ vconftool set -t int db/private/msg-service/push_msg/service_load 1 -u $vcuid
 
 # CB Msg Options
 vconftool set -t bool db/private/msg-service/cb_msg/receive 1 -f -u $vcuid
+vconftool set -t bool db/private/msg-service/cb_msg/save 1 -f -u $vcuid
 vconftool set -t int db/private/msg-service/cb_msg/max_sim_count 0 -u $vcuid
 vconftool set -t int db/private/msg-service/cb_msg/channel_count 0 -u $vcuid
 vconftool set -t bool db/private/msg-service/cb_msg/language/0 1 -f -u $vcuid
@@ -275,7 +321,8 @@ vconftool set -t bool db/private/msg-service/cb_msg/language/8 0 -u $vcuid
 vconftool set -t bool db/private/msg-service/cb_msg/language/9 0 -u $vcuid
 
 # Voice Mail Options
-vconftool set -t string db/private/msg-service/voice_mail/voice_mail_number "" -u $vcuid
+vconftool set -t string db/private/msg-service/voice_mail/voice_mail_number "5500" -f -u $vcuid
+vconftool set -t int db/private/msg-service/voice_mail/voice_mail_count 0 -u $vcuid
 
 # MMS Size Options
 vconftool set -t int db/private/msg-service/size_opt/msg_size 300 -u $vcuid
@@ -295,6 +342,12 @@ if [ "$1" = "1" ]; then
     systemctl stop msg-service.service
 fi
 
+/sbin/ldconfig
+/bin/systemctl daemon-reload
+if [ "$1" = "1" ]; then
+    systemctl stop msg-service.service
+fi
+
 %postun -p /sbin/ldconfig
 
 %postun tools -p /sbin/ldconfig
@@ -302,17 +355,16 @@ fi
 %postun -n mms-plugin -p /sbin/ldconfig
 
 %files
+%manifest msg-service.manifest
 %defattr(-,root,root,-)
-%dir %attr(775,root,db_msg_service) /opt/data/msg-service
+%dir %attr(775,root,db_msg_service) /opt/usr/data/msg-service
 %{_libdir}/libmsg_plugin_manager.so
 %{_libdir}/libmsg_mapi.so.*
 %{_libdir}/libmsg_framework_handler.so
 %{_libdir}/libmsg_transaction_manager.so
 %{_libdir}/libmsg_utils.so
 %{_libdir}/libmsg_transaction_proxy.so
-%{_sysconfdir}/rc.d/init.d/msg-server
-%{_sysconfdir}/rc.d/rc3.d/S70msg-server
-%{_sysconfdir}/rc.d/rc5.d/S70msg-server
+/usr/share/license/msg-service/LICENSE
 
 %files devel
 %defattr(-,root,root,-)
@@ -321,24 +373,36 @@ fi
 %{_includedir}/msg-service/*
 
 %files tools
+%manifest msg-service-tools.manifest
 %defattr(-,root,root,-)
 %{_bindir}/msg-helper
 %{_bindir}/msg-server
 %{_datadir}/media/Sherbet.wav
 %attr(0644,root,root)/usr/share/msg-service/plugin.cfg
+%{_sysconfdir}/rc.d/init.d/msg-server
+%{_sysconfdir}/rc.d/rc3.d/S70msg-server
+%{_sysconfdir}/rc.d/rc5.d/S70msg-server
 %{_libdir}/systemd/user/msg-service.service
 %{_libdir}/systemd/user/tizen-middleware.target.wants/msg-service.service
+/usr/share/license/msg-service/LICENSE
 
 %files -n sms-plugin
+%manifest sms-plugin.manifest
 %defattr(-,root,root,-)
 %{_libdir}/libmsg_sms_plugin.so
+/usr/share/license/msg-service/LICENSE
 
 %files -n mms-plugin
+%manifest mms-plugin.manifest
 %defattr(-,root,root,-)
 %{_libdir}/libmsg_mms_plugin.so
 %{_libdir}/libmsg_mms_language_pack.so
+/usr/share/license/msg-service/LICENSE
 
 %changelog
+* Wed Oct 25 2012 Sangkoo Kim <sangkoo.kim@samsung.com>
+- New release version
+
 * Wed Aug 8 2012 KeeBum Kim <keebum.kim@samsung.com>
 - Apply New TAPI.
 - Modify transaction data size of sos recipient list.

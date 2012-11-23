@@ -128,5 +128,9 @@ typedef void (*msg_lbs_msg_incoming_cb)(msg_handle_t handle, const char *push_he
 typedef void (*msg_syncml_msg_operation_cb)(msg_handle_t handle, int msgId, int extId, void *user_param);
 
 
+typedef void (*msg_push_msg_incoming_cb)(msg_handle_t handle, const char *push_header, const char *push_body, int push_body_len, void *user_param);
+
+
+typedef void (*msg_cb_incoming_cb)(msg_handle_t handle, msg_struct_t msg, void *user_param);
 
 #endif /* MSG_TRANSPORT_TYPES_H_ */

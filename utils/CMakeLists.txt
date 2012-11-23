@@ -18,6 +18,7 @@ SET(UTILS-SRCS
 	${CMAKE_SOURCE_DIR}/utils/MsgDebug.cpp
 	${CMAKE_SOURCE_DIR}/utils/MsgException.cpp
 	${CMAKE_SOURCE_DIR}/utils/MsgUtilFunction.cpp
+	${CMAKE_SOURCE_DIR}/utils/MsgTextConvert.cpp
 	${CMAKE_SOURCE_DIR}/utils/MsgIpcSocket.cpp
 	${CMAKE_SOURCE_DIR}/utils/MsgUtilFile.cpp
 	${CMAKE_SOURCE_DIR}/utils/MsgSqliteWrapper.cpp

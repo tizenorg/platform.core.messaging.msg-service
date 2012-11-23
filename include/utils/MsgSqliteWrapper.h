@@ -26,7 +26,7 @@
 /*==================================================================================================
                                     DEFINES
 ==================================================================================================*/
-#define MSGFW_DB_NAME 			"/opt/dbspace/.msg_service.db"
+#define MSGFW_DB_NAME 			"/opt/usr/dbspace/.msg_service.db"
 
 #define MSGFW_MESSAGE_TABLE_NAME				"MSG_MESSAGE_TABLE"
 #define MSGFW_FOLDER_TABLE_NAME					"MSG_FOLDER_TABLE"
@@ -39,7 +39,9 @@
 #define MMS_PLUGIN_MESSAGE_TABLE_NAME		"MSG_MMS_MESSAGE_TABLE"
 #define MSGFW_SYNCML_MSG_TABLE_NAME		"MSG_SYNCML_TABLE"
 #define MSGFW_SMS_SENDOPT_TABLE_NAME		"MSG_SMS_SENDOPT_TABLE"
-
+#define MSGFW_REPORT_TABLE_NAME				"MSG_REPORT_TABLE"
+#define MSGFW_PUSH_CONFIG_TABLE_NAME			"MSG_PUSHCFG_TABLE"
+#define MSGFW_MMS_PREVIEW_TABLE_NAME			"MSG_MMS_PREVIEW_INFO_TABLE"
 #define MAX_QUERY_LEN					3072
 #define MAX_FOLDER_NAME_LEN		20
 #define MAX_ACCOUNT_NAME_LEN	51

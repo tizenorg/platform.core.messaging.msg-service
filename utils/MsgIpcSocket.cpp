@@ -70,7 +70,7 @@ msg_error_t MsgIpcClientSocket::connect(const char* path)
 	/* read remote fd for reg func */
 	char *rfd = NULL;
 	AutoPtr<char> wrap(&rfd);
-	int rlen;
+	unsigned int rlen;
 
 	read(&rfd, &rlen);
 
@@ -117,9 +117,10 @@ void MsgIpcClientSocket::addfd(int fd)
 		maxfd = fd;
 }
 
-int MsgIpcClientSocket::writen (const char *buf, int len)
+int MsgIpcClientSocket::writen (const char *buf, unsigned int len)
 {
-	int nleft, nwrite;
+	unsigned int nleft;
+	int nwrite;
 
 	nleft = len;
 	while (nleft > 0) {
@@ -127,9 +128,9 @@ int MsgIpcClientSocket::writen (const char *buf, int len)
 		if (nwrite < 0) {
 			MSG_FATAL("writen: sockfd [%d] error [%s]",  sockfd, strerror(errno));
 			return nwrite;
-		}
-		else if (nwrite == 0)
+		} else if (nwrite == 0) {
 			break;
+		}
 
 		nleft -= nwrite;
 		buf += nwrite;
@@ -137,14 +138,14 @@ int MsgIpcClientSocket::writen (const char *buf, int len)
 	return (len-nleft);
 }
 
-int MsgIpcClientSocket::write(const char* buf, int len)
+int MsgIpcClientSocket::write(const char* buf, unsigned int len)
 {
 	if (sockfd < 0) {
 		MSG_FATAL("sockfd is not opened [%d]", sockfd);
 		return CUSTOM_SOCKET_ERROR;
 	}
 
-	if (!buf || len <= 0) {
+	if (!buf || len == 0) {
 		MSG_FATAL("buf[%p]	and len[%d] MUST NOT NULL", buf, len);
 		return CUSTOM_SOCKET_ERROR;
 	}
@@ -158,7 +159,7 @@ int MsgIpcClientSocket::write(const char* buf, int len)
 
 	/* send the data in subsequence */
 	n = writen(buf, len);
-	if (n != len) {
+	if ((unsigned int)n != len) {
 		MSG_FATAL("WARNING: write data_size[%d] not matched [%d]", n, len);
 		return CUSTOM_SOCKET_ERROR;
 	}
@@ -166,9 +167,10 @@ int MsgIpcClientSocket::write(const char* buf, int len)
 	return len;
 }
 
-int MsgIpcClientSocket::readn( char *buf, int len )
+int MsgIpcClientSocket::readn( char *buf, unsigned int len )
 {
-	int nleft, nread;
+	unsigned int nleft;
+	int nread;
 
 	nleft = len;
 	while (nleft > 0) {
@@ -176,19 +178,20 @@ int MsgIpcClientSocket::readn( char *buf, int len )
 		if (nread < 0) {
 			MSG_FATAL("WARNING read value %d: %s", nread, strerror(errno));
 			return nread;
-		}
-		else if( nread == 0 )
+		} else if( nread == 0 ) {
 			break;
+		}
 
 		nleft -= nread;
 		buf += nread;
 	}
+
 	return (len-nleft);
 }
 
 
 /* what if the buf is shorter than data? */
-int MsgIpcClientSocket::read(char** buf, int* len)
+int MsgIpcClientSocket::read(char** buf, unsigned int* len)
 {
 	if (sockfd < 0) {
 		MSG_FATAL("socket is not opened [%d]", sockfd);
@@ -205,24 +208,20 @@ int MsgIpcClientSocket::read(char** buf, int* len)
 	if (n == CLOSE_CONNECTION_BY_SIGNAL) { /* if msgfw gets down, it signals to all IPC clients */
 		MSG_FATAL("sockfd [%d] CLOSE_CONNECTION_BY_SIGNAL", sockfd);
 		return n;
-	}
-
-	else if (n != sizeof(int)) {
+	} else if (n != sizeof(int)) {
 		MSG_FATAL("WARNING: read header_size[%d] not matched [%d]", n, sizeof(int));
 		return CUSTOM_SOCKET_ERROR;
 	}
 
 	/*  read the data in subsequence */
-	if ((*len) > 0) {
-		unsigned int ulen = (unsigned int)*len;
-		*buf = new char[ulen+1];
-		bzero(*buf, ulen+1);
-		n = readn(*buf, ulen);
+	unsigned int ulen = (unsigned int)*len;
+	*buf = new char[ulen+1];
+	bzero(*buf, ulen+1);
+	n = readn(*buf, ulen);
 
-		if (n !=  ulen) {
-			MSG_FATAL("WARNING: read data_size [%d] not matched [%d]", n, ulen);
-			return CUSTOM_SOCKET_ERROR;
-		}
+	if ((unsigned int)n !=  ulen) {
+		MSG_FATAL("WARNING: read data_size [%d] not matched [%d]", n, ulen);
+		return CUSTOM_SOCKET_ERROR;
 	}
 
 	return n;
@@ -379,9 +378,9 @@ void MsgIpcServerSocket::close(int fd)
 	MSG_END();
 }
 
-int MsgIpcServerSocket::readn( int fd, char *buf, int len )
+int MsgIpcServerSocket::readn( int fd, char *buf, unsigned int len )
 {
-	int nleft, nread;
+	unsigned int nleft, nread;
 
 	nleft = len;
 	while (nleft > 0) {
@@ -428,14 +427,14 @@ int MsgIpcServerSocket::read(int fd, char** buf, int* len )
 	if (*len == CLOSE_CONNECTION_BY_USER)
 		return *len;
 
-	if ((*len) > 0) {
-		/* read the data in subsequence */
+	/* read the data in subsequence */
+	if (*len > 0) {
 		unsigned int ulen = (unsigned int)*len;
 		*buf = new char[ulen+1];
 		bzero(*buf, ulen+1);
 		n = readn(fd, *buf, ulen);
 
-		if (n != ulen) {
+		if ((unsigned int)n != ulen) {
 			MSG_FATAL("WARNING: read data_size [%d] not matched [%d]", n, ulen);
 			return CUSTOM_SOCKET_ERROR;
 		}
@@ -444,9 +443,10 @@ int MsgIpcServerSocket::read(int fd, char** buf, int* len )
 	return n;
 }
 
-int MsgIpcServerSocket::writen(int fd, const char *buf, int len)
+int MsgIpcServerSocket::writen(int fd, const char *buf, unsigned int len)
 {
-	int nleft, nwrite;
+	unsigned int nleft;
+	int nwrite;
 
 	nleft = len;
 
@@ -458,11 +458,9 @@ int MsgIpcServerSocket::writen(int fd, const char *buf, int len)
 		if (nwrite < 0) {
 			MSG_FATAL("write: %s", strerror(errno));
 			return nwrite;
-		}
-		else if (nwrite == 0) { /* Nothing is send. */
+		} else if (nwrite == 0) { /* Nothing is send. */
 			break;
-		}
-		else {
+		} else {
 			nleft -= nwrite;
 			buf += nwrite;
 		}
@@ -472,7 +470,7 @@ int MsgIpcServerSocket::writen(int fd, const char *buf, int len)
 }
 
 
-int MsgIpcServerSocket::write(int fd, const char* buf, int len)
+int MsgIpcServerSocket::write(int fd, const char* buf, unsigned int len)
 {
 	MSG_BEGIN();
 
@@ -496,7 +494,7 @@ int MsgIpcServerSocket::write(int fd, const char* buf, int len)
 
 	MSG_DEBUG("Writing %d bytes", n);
 
-	if (n != len) {
+	if ((unsigned int)n != len) {
 		MSG_FATAL("Written byte (%d) is not matched to input byte (%d)", n, len);
 		return CUSTOM_SOCKET_ERROR;
 	}

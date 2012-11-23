@@ -239,33 +239,6 @@ bool MsgSettingGetUnknownAutoReject()
 	return bUnknownAutoReject;
 }
 
-
-void MsgSettingRegVconfCB()
-{
-	// Set default values.
-	MsgSettingGetBool(VCONFKEY_CISSAPPL_AUTO_REJECT_BOOL, &bAutoReject);
-	MsgSettingGetBool(VCONFKEY_CISSAPPL_AUTO_REJECT_UNKNOWN_BOOL, &bUnknownAutoReject);
-
-	if (vconf_notify_key_changed(VCONFKEY_CISSAPPL_AUTO_REJECT_BOOL, MsgVconfCB, NULL) < 0) {
-		MSG_DEBUG("Fail to regist vconf CB with [%s]", VCONFKEY_CISSAPPL_AUTO_REJECT_BOOL);
-	}
-
-	if (vconf_notify_key_changed(VCONFKEY_CISSAPPL_AUTO_REJECT_UNKNOWN_BOOL, MsgVconfCB, NULL) < 0) {
-		MSG_DEBUG("Fail to regist vconf CB with [%s]", VCONFKEY_CISSAPPL_AUTO_REJECT_UNKNOWN_BOOL);
-	}
-}
-
-void MsgSettingRemoveVconfCB()
-{
-	if (vconf_ignore_key_changed(VCONFKEY_CISSAPPL_AUTO_REJECT_BOOL, MsgVconfCB) < 0) {
-		MSG_DEBUG("Fail to regist vconf CB with [%s]", VCONFKEY_CISSAPPL_AUTO_REJECT_BOOL);
-	}
-
-	if (vconf_ignore_key_changed(VCONFKEY_CISSAPPL_AUTO_REJECT_UNKNOWN_BOOL, MsgVconfCB) < 0) {
-		MSG_DEBUG("Fail to regist vconf CB with [%s]", VCONFKEY_CISSAPPL_AUTO_REJECT_UNKNOWN_BOOL);
-	}
-}
-
 void MsgSettingRegVconfCBCommon(const char *pKey, _vconf_change_cb pCb)
 {
 	if (vconf_notify_key_changed(pKey, pCb, NULL) < 0) {
@@ -273,4 +246,31 @@ void MsgSettingRegVconfCBCommon(const char *pKey, _vconf_change_cb pCb)
 	} else {
 		MSG_DEBUG("Success to regist vconf CB with [%s]", pKey);
 	}
+}
+
+void MsgSettingRemoveVconfCBCommon(const char *pKey, _vconf_change_cb pCb)
+{
+	if (vconf_ignore_key_changed(pKey, pCb) < 0) {
+		MSG_DEBUG("Fail to remove vconf CB with [%s]", pKey);
+	} else {
+		MSG_DEBUG("Success to remove vconf CB with [%s]", pKey);
+	}
+}
+
+
+void MsgSettingRegVconfCB()
+{
+	// Set default values.
+	MsgSettingGetBool(VCONFKEY_CISSAPPL_AUTO_REJECT_BOOL, &bAutoReject);
+	MsgSettingGetBool(VCONFKEY_CISSAPPL_AUTO_REJECT_UNKNOWN_BOOL, &bUnknownAutoReject);
+
+	MsgSettingRegVconfCBCommon(VCONFKEY_CISSAPPL_AUTO_REJECT_BOOL, MsgVconfCB);
+	MsgSettingRegVconfCBCommon(VCONFKEY_CISSAPPL_AUTO_REJECT_UNKNOWN_BOOL, MsgVconfCB);
+}
+
+void MsgSettingRemoveVconfCB()
+{
+	MsgSettingRemoveVconfCBCommon(VCONFKEY_CISSAPPL_AUTO_REJECT_BOOL, MsgVconfCB);
+	MsgSettingRemoveVconfCBCommon(VCONFKEY_CISSAPPL_AUTO_REJECT_UNKNOWN_BOOL, MsgVconfCB);
+
 }

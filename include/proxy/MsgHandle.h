@@ -55,7 +55,8 @@ class MsgHandle
 		msg_error_t regMmsConfMessageCallback(msg_mms_conf_msg_incoming_cb onMMSConfMsgIncoming, const char *pAppId, void *pUserParam);
 		msg_error_t regSyncMLMessageCallback(msg_syncml_msg_incoming_cb onSyncMLMsgIncoming, void *pUserParam);
 		msg_error_t regLBSMessageCallback(msg_lbs_msg_incoming_cb onLBSMsgIncoming, void *pUserParam);
-
+		msg_error_t regPushMessageCallback(msg_push_msg_incoming_cb onPushMsgIncoming, const char *pAppId, void *pUserParam);
+		msg_error_t regCBMessageCallback(msg_cb_incoming_cb onCBIncoming, bool bSave, void *pUserParam);
 		msg_error_t regSyncMLMessageOperationCallback(msg_syncml_msg_operation_cb onSyncMLMsgOperation, void *pUserParam);
 
 		msg_error_t operateSyncMLMessage(msg_message_id_t msgId);
@@ -68,12 +69,14 @@ class MsgHandle
 		msg_error_t updateProtectedStatus(msg_message_id_t MsgId, bool bProtected);
 		msg_error_t deleteMessage(msg_message_id_t MsgId);
 		msg_error_t deleteAllMessagesInFolder(msg_folder_id_t FolderId, bool bOnlyDB);
+		msg_error_t deleteMessagesByList(msg_id_list_s *pMsgIdList);
 		msg_error_t moveMessageToFolder(msg_message_id_t MsgId, msg_folder_id_t DestFolderId);
 		msg_error_t moveMessageToStorage(msg_message_id_t MsgId, msg_storage_id_t DestStorageId);
 		msg_error_t countMessage(msg_folder_id_t FolderId, MSG_COUNT_INFO_S *pCountInfo);
 		msg_error_t countMsgByType(const MSG_MESSAGE_TYPE_S *pMsgType, int *pMsgCount);
 		msg_error_t countMsgByContact(const MSG_THREAD_LIST_INDEX_INFO_S *pAddrInfo, MSG_THREAD_COUNT_INFO_S *pMsgThreadCountList);
 		msg_error_t getMessage(msg_message_id_t MsgId, MSG_MESSAGE_HIDDEN_S *pMsg, MSG_SENDINGOPT_S *pSendOpt);
+		msg_error_t getConversationViewItem(msg_message_id_t MsgId, MSG_CONVERSATION_VIEW_S *pConv);
 		msg_error_t getFolderViewList(msg_folder_id_t FolderId, const MSG_SORT_RULE_S *pSortRule, msg_struct_list_s *pMsgFolderViewList);
 		msg_error_t addFolder(const MSG_FOLDER_INFO_S *pFolderInfo);
 		msg_error_t updateFolder(const MSG_FOLDER_INFO_S *pFolderInfo);
@@ -82,7 +85,7 @@ class MsgHandle
 
 		msg_error_t getThreadViewList(const MSG_SORT_RULE_S *pSortRule, msg_struct_list_s *pThreadViewList);
 		msg_error_t getConversationViewList(msg_thread_id_t ThreadId, msg_struct_list_s *pConvViewList);
-		msg_error_t deleteThreadMessageList(msg_thread_id_t thread_id);
+		msg_error_t deleteThreadMessageList(msg_thread_id_t thread_id, bool include_protected_msg);
 		msg_error_t getQuickPanelData(msg_quickpanel_type_t Type, MSG_MESSAGE_HIDDEN_S *pMsg);
 		msg_error_t resetDatabase();
 		msg_error_t getMemSize(unsigned int* memsize);
@@ -96,6 +99,7 @@ class MsgHandle
 		msg_error_t getFilterList(msg_struct_list_s *pFilterList);
 		msg_error_t setFilterOperation(bool bSetFlag);
 		msg_error_t getFilterOperation(bool *pSetFlag);
+		msg_error_t setFilterActivation(msg_filter_id_t filter_id, bool active);
 
 		//setting
 		msg_error_t getSMSCOption(msg_struct_t msg_struct);
@@ -126,10 +130,15 @@ class MsgHandle
 		msg_error_t searchMessage(const MSG_SEARCH_CONDITION_S *pSearchCon, int offset, int limit, msg_struct_list_s *pMsgList);
 		msg_error_t getRejectMsgList(const char *pNumber, msg_struct_list_s *pRejectMsgList);
 		msg_error_t regStorageChangeCallback(msg_storage_change_cb onStorageChange, void *pUserParam);
-		msg_error_t getReportStatus(msg_message_id_t msg_id, MSG_REPORT_STATUS_INFO_S *pReport_status);
+		msg_error_t getReportStatus(msg_message_id_t msg_id, msg_struct_list_s *report_list);
 		msg_error_t getThreadIdByAddress(msg_struct_list_s *pAddrList, msg_thread_id_t *pThreadId);
 		msg_error_t getThread(msg_thread_id_t threadId, MSG_THREAD_VIEW_S* pThreadInfo);
 		msg_error_t getMessageList(msg_folder_id_t folderId, msg_thread_id_t threadId, msg_message_type_t msgType, msg_storage_id_t storageId, msg_struct_list_s *pMsgList);
+
+		// Push Event
+		msg_error_t addPushEvent(MSG_PUSH_EVENT_INFO_S *push_event);
+		msg_error_t deletePushEvent(MSG_PUSH_EVENT_INFO_S *push_event);
+		msg_error_t updatePushEvent(MSG_PUSH_EVENT_INFO_S *pSrc, MSG_PUSH_EVENT_INFO_S *pDst);
 
 		void convertMsgStruct(const MSG_MESSAGE_INFO_S *pSource, MSG_MESSAGE_HIDDEN_S *pDest);
 		void convertSendOptStruct(const MSG_SENDINGOPT_INFO_S* pSrc, MSG_SENDINGOPT_S* pDest, MSG_MESSAGE_TYPE_S msgType);

@@ -153,14 +153,10 @@ msg_error_t MsgGetContactInfo(const MSG_ADDRESS_INFO_S *pAddrInfo, MSG_CONTACT_I
 		return MSG_SUCCESS;
 	}
 
-	const char* strDisplayName = contacts_svc_value_get_str(name, CTS_NAME_VAL_DISPLAY_STR);
 	const char* strFirstName = contacts_svc_value_get_str(name, CTS_NAME_VAL_FIRST_STR);
 	const char* strLastName = contacts_svc_value_get_str(name, CTS_NAME_VAL_LAST_STR);
 
-	MSG_DEBUG("Display Name : [%s], First Name : [%s], Last Name : [%s]", strDisplayName, strFirstName, strLastName);
-
-	if (strDisplayName != NULL)
-		strncpy(pContactInfo->displayName, strDisplayName, MAX_DISPLAY_NAME_LEN);
+	MSG_DEBUG("First Name : [%s], Last Name : [%s]", strFirstName, strLastName);
 
 	if (strFirstName != NULL)
 		strncpy(pContactInfo->firstName, strFirstName, MAX_DISPLAY_NAME_LEN);
@@ -320,14 +316,10 @@ bool MsgUpdateContact(int index, int type)
 		return MSG_SUCCESS;
 	}
 
-	const char* strDisplayName = contacts_svc_value_get_str(name, CTS_NAME_VAL_DISPLAY_STR);
 	const char* strFirstName = contacts_svc_value_get_str(name, CTS_NAME_VAL_FIRST_STR);
 	const char* strLastName = contacts_svc_value_get_str(name, CTS_NAME_VAL_LAST_STR);
 
-	MSG_DEBUG("Display Name : [%s], First Name : [%s], Last Name : [%s]", strDisplayName, strFirstName, strLastName);
-
-	if (strDisplayName != NULL)
-		strncpy(contactInfo.displayName, strDisplayName, MAX_DISPLAY_NAME_LEN);
+	MSG_DEBUG("First Name : [%s], Last Name : [%s]", strFirstName, strLastName);
 
 	if (strFirstName != NULL)
 		strncpy(contactInfo.firstName, strFirstName, MAX_DISPLAY_NAME_LEN);

@@ -111,6 +111,40 @@ int MsgDeleteFilterHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 }
 
 
+int MsgSetFilterActivationHandler(const MSG_CMD_S *pCmd, char **ppEvent)
+{
+	msg_error_t err = MSG_SUCCESS;
+
+	int eventSize = 0;
+
+	// Get Filter Structure
+	msg_filter_id_t  *pFilterId = (msg_filter_id_t *)pCmd->cmdData;
+
+	bool setFlag = false;
+
+	memcpy(&setFlag, pCmd->cmdData+sizeof(msg_filter_id_t), sizeof(bool));
+
+	MSG_DEBUG("Filter id : %d", *pFilterId);
+
+	// Delete Filter
+	err = MsgStoSetFilterActivation(*pFilterId, setFlag);
+
+	if (err == MSG_SUCCESS)
+	{
+		MSG_DEBUG("Command Handle Success : MsgStoSetFilterActivation()");
+	}
+	else
+	{
+		MSG_DEBUG("Command Handle Fail : MsgStoSetFilterActivation()");
+	}
+
+	// Make Event Data
+	eventSize = MsgMakeEvent(NULL, 0, MSG_EVENT_SET_FILTER_ACTIVATION, err, (void**)ppEvent);
+
+	return eventSize;
+}
+
+
 int MsgGetFilterListHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 {
 	msg_error_t err = MSG_SUCCESS;

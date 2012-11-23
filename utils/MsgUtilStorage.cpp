@@ -63,10 +63,10 @@ unsigned int MsgStoAddMessageTable(MsgDbHandler *pDbHandle, const MSG_MESSAGE_IN
 
 	memset(sqlQuery, 0x00, sizeof(sqlQuery));
 
-	snprintf(sqlQuery, sizeof(sqlQuery), "INSERT INTO %s VALUES (%d, %d, %d, %d, %d, %d, %ld, %d, %d, %d, %d, %d, %d, %ld, %d, ?, ?, ?, ?, %d, 0, %d, 0, 0);",
+	snprintf(sqlQuery, sizeof(sqlQuery), "INSERT INTO %s VALUES (%d, %d, %d, %d, %d, %d, %ld, %d, %d, %d, %d, %d, %d, %ld, %d, ?, ?, ?, ?, 0, 0, 0);",
 			MSGFW_MESSAGE_TABLE_NAME, msgId, pMsgInfo->threadId, pMsgInfo->folderId, pMsgInfo->storageId, pMsgInfo->msgType.mainType,
 			pMsgInfo->msgType.subType, pMsgInfo->displayTime, pMsgInfo->dataSize, pMsgInfo->networkStatus, pMsgInfo->bRead, pMsgInfo->bProtected,
-			pMsgInfo->priority, pMsgInfo->direction, 0, pMsgInfo->bBackup, MSG_DELIVERY_REPORT_NONE, MSG_READ_REPORT_NONE);
+			pMsgInfo->priority, pMsgInfo->direction, 0, pMsgInfo->bBackup);
 
 	MSG_DEBUG("QUERY : %s", sqlQuery);
 
@@ -375,7 +375,7 @@ msg_error_t MsgStoAddAddress(MsgDbHandler *pDbHandle, const MSG_MESSAGE_INFO_S *
 
 		// Add Address
 		memset(sqlQuery, 0x00, sizeof(sqlQuery));
-		snprintf(sqlQuery, sizeof(sqlQuery), "INSERT INTO %s VALUES (%d, %d, %d, %d, '%s', %d, ?, ?, ?, '%s', 0);",
+		snprintf(sqlQuery, sizeof(sqlQuery), "INSERT INTO %s VALUES (%d, %d, %d, %d, '%s', %d, '', ?, ?, '%s', 0);",
 					MSGFW_ADDRESS_TABLE_NAME, addrId, *pConvId, pMsg->addressList[i].addressType, pMsg->addressList[i].recipientType, pMsg->addressList[i].addressVal,
 					contactInfo.contactId, contactInfo.imagePath);
 
@@ -384,9 +384,8 @@ msg_error_t MsgStoAddAddress(MsgDbHandler *pDbHandle, const MSG_MESSAGE_INFO_S *
 		if (pDbHandle->prepareQuery(sqlQuery) != MSG_SUCCESS)
 			return MSG_ERR_DB_PREPARE;
 
-		pDbHandle->bindText(contactInfo.displayName, 1);
-		pDbHandle->bindText(contactInfo.firstName, 2);
-		pDbHandle->bindText(contactInfo.lastName, 3);
+		pDbHandle->bindText(contactInfo.firstName, 1);
+		pDbHandle->bindText(contactInfo.lastName, 2);
 
 		if (pDbHandle->stepQuery() != MSG_ERR_DB_DONE) {
 			pDbHandle->finalizeQuery();
@@ -478,7 +477,7 @@ msg_error_t MsgStoGetAddressByMsgId(MsgDbHandler *pDbHandle, msg_message_id_t ms
 	char lastName[MAX_DISPLAY_NAME_LEN+1];
 
 	pAddress->nCount = 0;
-	pAddress->nCount = NULL;
+	pAddress->msg_struct_info = NULL;
 
 	memset(sqlQuery, 0x00, sizeof(sqlQuery));
 	snprintf(sqlQuery, sizeof(sqlQuery), "SELECT A.ADDRESS_TYPE, A.RECIPIENT_TYPE, \
@@ -660,11 +659,13 @@ msg_error_t MsgStoUpdateConversation(MsgDbHandler *pDbHandle, msg_thread_id_t co
 	char msgText[MAX_THREAD_DATA_LEN+1];
 	char sqlQuery[MAX_QUERY_LEN+1];
 
+	memset(msgText, 0x00, sizeof(msgText));
+
 	// Get Unread Count
 	memset(sqlQuery, 0x00, sizeof(sqlQuery));
 
-	snprintf(sqlQuery, sizeof(sqlQuery), "SELECT COUNT(MSG_ID) FROM %s WHERE CONV_ID = %d AND FOLDER_ID = %d AND READ_STATUS = 0;",
-			MSGFW_MESSAGE_TABLE_NAME, convId, MSG_INBOX_ID);
+	snprintf(sqlQuery, sizeof(sqlQuery), "SELECT COUNT(MSG_ID) FROM %s WHERE CONV_ID = %d AND FOLDER_ID = %d AND STORAGE_ID = %d AND READ_STATUS = 0;",
+			MSGFW_MESSAGE_TABLE_NAME, convId, MSG_INBOX_ID, MSG_STORAGE_PHONE);
 
 	if (pDbHandle->prepareQuery(sqlQuery) != MSG_SUCCESS)
 		return MSG_ERR_DB_PREPARE;
@@ -683,8 +684,8 @@ msg_error_t MsgStoUpdateConversation(MsgDbHandler *pDbHandle, msg_thread_id_t co
 	// Get SMS Count
 	memset(sqlQuery, 0x00, sizeof(sqlQuery));
 
-	snprintf(sqlQuery, sizeof(sqlQuery), "SELECT COUNT(MSG_ID) FROM %s WHERE CONV_ID = %d AND MAIN_TYPE = %d AND FOLDER_ID > 0 AND FOLDER_ID < %d;",
-			MSGFW_MESSAGE_TABLE_NAME, convId, MSG_SMS_TYPE, MSG_SPAMBOX_ID);
+	snprintf(sqlQuery, sizeof(sqlQuery), "SELECT COUNT(MSG_ID) FROM %s WHERE CONV_ID = %d AND MAIN_TYPE = %d AND FOLDER_ID > %d AND FOLDER_ID < %d AND STORAGE_ID = %d;",
+			MSGFW_MESSAGE_TABLE_NAME, convId, MSG_SMS_TYPE, MSG_ALLBOX_ID, MSG_CBMSGBOX_ID, MSG_STORAGE_PHONE);
 
 	if (pDbHandle->prepareQuery(sqlQuery) != MSG_SUCCESS)
 		return MSG_ERR_DB_PREPARE;
@@ -705,8 +706,9 @@ msg_error_t MsgStoUpdateConversation(MsgDbHandler *pDbHandle, msg_thread_id_t co
 	memset(sqlQuery, 0x00, sizeof(sqlQuery));
 
 	snprintf(sqlQuery, sizeof(sqlQuery), "SELECT COUNT(MSG_ID) FROM %s \
-			WHERE CONV_ID = %d AND MAIN_TYPE = %d AND SUB_TYPE NOT IN (%d, %d, %d) AND FOLDER_ID > 0 AND FOLDER_ID < %d;",
-			MSGFW_MESSAGE_TABLE_NAME, convId, MSG_MMS_TYPE, MSG_DELIVERYIND_MMS, MSG_READRECIND_MMS, MSG_READORGIND_MMS, MSG_SPAMBOX_ID);
+			WHERE CONV_ID = %d AND MAIN_TYPE = %d AND SUB_TYPE NOT IN (%d, %d, %d) AND FOLDER_ID > %d AND FOLDER_ID < %d AND STORAGE_ID = %d;",
+			MSGFW_MESSAGE_TABLE_NAME, convId, MSG_MMS_TYPE, MSG_DELIVERYIND_MMS, MSG_READRECIND_MMS, MSG_READORGIND_MMS,
+			MSG_ALLBOX_ID, MSG_CBMSGBOX_ID, MSG_STORAGE_PHONE);
 
 	if (pDbHandle->prepareQuery(sqlQuery) != MSG_SUCCESS)
 		return MSG_ERR_DB_PREPARE;
@@ -731,8 +733,8 @@ msg_error_t MsgStoUpdateConversation(MsgDbHandler *pDbHandle, msg_thread_id_t co
 	memset(sqlQuery, 0x00, sizeof(sqlQuery));
 
 	snprintf(sqlQuery, sizeof(sqlQuery), "SELECT MAIN_TYPE, SUB_TYPE, MSG_DIRECTION, DISPLAY_TIME, SUBJECT, MSG_TEXT FROM %s \
-			WHERE CONV_ID = %d AND FOLDER_ID > 0 AND FOLDER_ID < %d ORDER BY DISPLAY_TIME DESC;",
-			MSGFW_MESSAGE_TABLE_NAME, convId, MSG_SPAMBOX_ID);
+			WHERE CONV_ID = %d AND FOLDER_ID > %d AND FOLDER_ID < %d AND STORAGE_ID = %d ORDER BY DISPLAY_TIME DESC;",
+			MSGFW_MESSAGE_TABLE_NAME, convId, MSG_ALLBOX_ID, MSG_SPAMBOX_ID, MSG_STORAGE_PHONE);
 
 	if (pDbHandle->prepareQuery(sqlQuery) != MSG_SUCCESS)
 		return MSG_ERR_DB_PREPARE;
@@ -1032,13 +1034,13 @@ msg_error_t MsgStoAddContactInfo(MsgDbHandler *pDbHandle, MSG_CONTACT_INFO_S *pC
 
 		memset(sqlQuery, 0x00, sizeof(sqlQuery));
 		snprintf(sqlQuery, sizeof(sqlQuery), "UPDATE %s SET \
-				CONTACT_ID = %d, DISPLAY_NAME = ?, FIRST_NAME = ?, LAST_NAME = ?, IMAGE_PATH = '%s' \
+				CONTACT_ID = %d, FIRST_NAME = ?, LAST_NAME = ?, IMAGE_PATH = '%s' \
 				WHERE ADDRESS_VAL LIKE '%%%%%s';",
 				MSGFW_ADDRESS_TABLE_NAME, pContactInfo->contactId, pContactInfo->imagePath, newPhoneNum);
 	} else {
 		memset(sqlQuery, 0x00, sizeof(sqlQuery));
 		snprintf(sqlQuery, sizeof(sqlQuery), "UPDATE %s SET \
-				CONTACT_ID = %d, DISPLAY_NAME = ?, FIRST_NAME = ?, LAST_NAME = ?, IMAGE_PATH = '%s' \
+				CONTACT_ID = %d, FIRST_NAME = ?, LAST_NAME = ?, IMAGE_PATH = '%s' \
 				WHERE ADDRESS_VAL = '%s';",
 				MSGFW_ADDRESS_TABLE_NAME, pContactInfo->contactId, pContactInfo->imagePath, pNumber);
 	}
@@ -1046,11 +1048,9 @@ msg_error_t MsgStoAddContactInfo(MsgDbHandler *pDbHandle, MSG_CONTACT_INFO_S *pC
 	if (pDbHandle->prepareQuery(sqlQuery) != MSG_SUCCESS)
 		return MSG_ERR_DB_PREPARE;
 
-	pDbHandle->bindText(pContactInfo->displayName, 1);
+	pDbHandle->bindText(pContactInfo->firstName, 1);
 
-	pDbHandle->bindText(pContactInfo->firstName, 2);
-
-	pDbHandle->bindText(pContactInfo->lastName, 3);
+	pDbHandle->bindText(pContactInfo->lastName, 2);
 
 	if (pDbHandle->stepQuery() != MSG_ERR_DB_DONE) {
 		pDbHandle->finalizeQuery();
@@ -1398,6 +1398,22 @@ msg_error_t MsgStoSetConversationDisplayName(MsgDbHandler *pDbHandle, msg_thread
 	return err;
 }
 
+msg_error_t MsgStoUpdateNetworkStatus(MsgDbHandler *pDbHandle, MSG_MESSAGE_INFO_S *pMsgInfo, msg_network_status_t status)
+{
+	msg_error_t err = MSG_SUCCESS;
+
+	char sqlQuery[MAX_QUERY_LEN+1];
+
+	memset(sqlQuery, 0x00, sizeof(sqlQuery));
+
+	snprintf(sqlQuery, sizeof(sqlQuery), "UPDATE %s SET NETWORK_STATUS = %d WHERE MSG_ID = %d;",
+			MSGFW_MESSAGE_TABLE_NAME, status, pMsgInfo->msgId);
+
+	if (pDbHandle->execQuery(sqlQuery) != MSG_SUCCESS)
+		err = MSG_ERR_DB_EXEC;
+
+	return err;
+}
 
 char *MsgStoReplaceString(const char *origStr, const char *oldStr, const char *newStr)
 {

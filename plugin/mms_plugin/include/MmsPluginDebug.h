@@ -27,39 +27,6 @@ const char *MmsDebugGetRetrieveStatus(MmsRetrieveStatus retrieveStatus);
 const char *MmsDebugGetMsgStatus(msg_delivery_report_status_t msgStatus);
 const char *MmsDebugGetMsgClass(MmsMsgClass msgClass);
 const char *MmsDebugGetDataType(MmsDataType dataType);
-#ifdef MMS_PLUGIN_DEBUG_ENABLE
-bool MmsDebugPrintMsgAttributes(char *pszFunc, MmsAttrib *pAttrib, bool bAll);
-char *MmsDebugGetMsgDrmType(MsgDrmType drmType);
-char *MmsDebugGetDrmDeliveryMode(DrmDeliveryMode deliveryMode);
-char *MmsDebugGetDrmRightState(DrmRightState rightState);
-bool MmsDebugPrintDrmRight(DrmRight *pDrmRight);
-char *MmsDebugPrintMsgDRMStatus(MsgDRMStatus status);
-bool MmsDebugPrintMulitpartEntry(MsgMultipart *pMultipart, int index);
-char *DebugPrintGetRmResultInd(MmsRmResultInd indType);
-char *DebugPrintHttpStatusCode(int status);
-char *DebugPrintRmMethodType(MmsRmMethodType method);
-char *DebugPrintGetMmsRmNetState(MmsRmNetState state);
-char *DebugPrintGetMmsRmEntityState(MmsRmExEntityState stateEx);
-char *MmsDebugPrintMmsRmResult(MmsRmResult result);
-void MmsDebugPrintReqEntityInfo(MmsRmRequest *pEntity);
-char *MmsDebugPrintHttpErrorCode(int errCode);
-char *MmsDebugPrintProtoErrorCode(int errCode);
-char *DebugPrintWspResult(WspResult wspResult);
-char *DebugPrintWspState(MmsRmWapState wspState);
-char *MmsDebugPrintRmPduType(MmsRmPduType pduType);
-char *MmsDebugPrintMailboxType(MsgMailboxType mailboxType);
-#endif
-
-typedef enum {
-	MMS_DEBUG_EV_NONE,
-	MMS_DEBUG_EV_MMS,
-	MMS_DEBUG_EV_SMS,
-	MMS_DEBUG_EV_COMMON,
-	MMS_DEBUG_EV_EMAIL
-
-} MmsDebugEvType;
-
-bool MmsDebugPrintCurrentEventHandler(char *pszFunc, MmsDebugEvType evType);
 
 #endif //MMS_PLUGIN_DEBUG_H
 

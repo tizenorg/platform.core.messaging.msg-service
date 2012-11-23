@@ -244,10 +244,10 @@ msg_error_t MsgStoAddMessage(MSG_MESSAGE_INFO_S *pMsg, MSG_SENDINGOPT_INFO_S *pS
 	// Add Message
 	memset(sqlQuery, 0x00, sizeof(sqlQuery));
 
-	snprintf(sqlQuery, sizeof(sqlQuery), "INSERT INTO %s VALUES (%d, %d, %d, %d, %d, %d, %ld, %d, %d, %d, %d, %d, %d, %ld, %d, ?, ?, ?, ?, %d, 0, %d, 0, 0);",
+	snprintf(sqlQuery, sizeof(sqlQuery), "INSERT INTO %s VALUES (%d, %d, %d, %d, %d, %d, %ld, %d, %d, %d, %d, %d, %d, %ld, %d, ?, ?, ?, ?, 0, 0, 0);",
 			MSGFW_MESSAGE_TABLE_NAME, rowId, convId, pMsg->folderId, pMsg->storageId, pMsg->msgType.mainType, pMsg->msgType.subType,
 			pMsg->displayTime, pMsg->dataSize, pMsg->networkStatus, pMsg->bRead, pMsg->bProtected, pMsg->priority, pMsg->direction,
-			0, pMsg->bBackup, MSG_DELIVERY_REPORT_NONE, MSG_READ_REPORT_NONE);
+			0, pMsg->bBackup);
 
 	MSG_DEBUG("QUERY : %s", sqlQuery);
 
@@ -291,17 +291,8 @@ msg_error_t MsgStoAddMessage(MSG_MESSAGE_INFO_S *pMsg, MSG_SENDINGOPT_INFO_S *pS
 		MMS_MESSAGE_DATA_S mmsMsg;
 		memset(&mmsMsg, 0x00, sizeof(MMS_MESSAGE_DATA_S));
 
-		if (pMsg->dataSize == 0) {
-			MSG_DEBUG("pMsg->dataSize == 0, So Making emtpy MMS body.");
-			char * tempMmsBody = _MsgMmsSerializeMessageData(&mmsMsg, &(pMsg->dataSize));
-			memcpy(&pMsg->msgText, tempMmsBody, pMsg->dataSize);
-			free(tempMmsBody);
-		}
-
 		if (pMsg->msgType.subType != MSG_DELIVERYIND_MMS && pMsg->msgType.subType != MSG_READORGIND_MMS) {
 			MsgPlugin *plg = MsgPluginManager::instance()->getPlugin(MSG_MMS_TYPE);
-
-			//pMsg->msgId = pMsg->refernceId;
 
 			err = plg->addMessage(pMsg, pSendOptInfo, pFileData);
 
@@ -790,7 +781,6 @@ msg_error_t MsgStoDeleteMessage(msg_message_id_t msgId, bool bCheckIndication)
 	} else if (msgType.mainType == MSG_MMS_TYPE) {
 
 		char filePath[MSG_FILEPATH_LEN_MAX] = {0,};
-		char thumbnailpath[MSG_FILEPATH_LEN_MAX] = {0,};
 		char dirPath[MSG_FILEPATH_LEN_MAX]= {0,};
 
 		memset(sqlQuery, 0x00, sizeof(sqlQuery));
@@ -816,16 +806,6 @@ msg_error_t MsgStoDeleteMessage(msg_message_id_t msgId, bool bCheckIndication)
 
 			rmdir(dirPath);
 
-			// remove thumbnail file
-			char *fileName = NULL;
-			fileName = strrchr(filePath, '/');
-
-			snprintf(thumbnailpath, MSG_FILEPATH_LEN_MAX, MSG_THUMBNAIL_PATH"%s.jpg", fileName+1);
-			if(remove(thumbnailpath) == -1)
-				MSG_DEBUG("Fail to delete thumbnail [%s]", thumbnailpath);
-			else
-				MSG_DEBUG("Success to delete thumbnail [%s]", thumbnailpath);
-
 		} else {
 			MSG_DEBUG("MsgStepQuery() Error [%s]", sqlQuery);
 			dbHandle.finalizeQuery();
@@ -835,11 +815,53 @@ msg_error_t MsgStoDeleteMessage(msg_message_id_t msgId, bool bCheckIndication)
 
 		dbHandle.finalizeQuery();
 
+		// remove thumbnail file
+		memset(sqlQuery, 0x00, sizeof(sqlQuery));
+		snprintf(sqlQuery, sizeof(sqlQuery),
+				"SELECT VALUE FROM %s "
+				"WHERE MSG_ID = %d AND (TYPE=%d OR TYPE=%d);",
+				MSGFW_MMS_PREVIEW_TABLE_NAME, msgId, MSG_MMS_ITEM_TYPE_IMG, MSG_MMS_ITEM_TYPE_VIDEO);
+
+		if (dbHandle.prepareQuery(sqlQuery) != MSG_SUCCESS) {
+			dbHandle.endTrans(false);
+			return MSG_ERR_DB_PREPARE;
+		}
+
+		while (dbHandle.stepQuery() == MSG_ERR_DB_ROW) {
+			memset(filePath, 0x00, sizeof(filePath));
+			strncpy(filePath, (char *)dbHandle.columnText(0), MSG_FILEPATH_LEN_MAX);
+			if (remove(filePath) == -1)
+				MSG_DEBUG("Fail to delete file [%s]", filePath);
+			else
+				MSG_DEBUG("Success to delete file [%s]", filePath);
+		}
+
+		dbHandle.finalizeQuery();
+
+		memset(sqlQuery, 0x00, sizeof(sqlQuery));
+		snprintf(sqlQuery, sizeof(sqlQuery), "DELETE FROM %s WHERE MSG_ID = %d;",
+				MSGFW_MMS_PREVIEW_TABLE_NAME, msgId);
+
+		if (dbHandle.execQuery(sqlQuery) != MSG_SUCCESS) {
+			dbHandle.endTrans(false);
+			return MSG_ERR_DB_EXEC;
+		}
+
 		memset(sqlQuery, 0x00, sizeof(sqlQuery));
 		snprintf(sqlQuery, sizeof(sqlQuery), "DELETE FROM %s WHERE MSG_ID = %d;",
 				MMS_PLUGIN_MESSAGE_TABLE_NAME, msgId);
 
 		// Delete Data from MMS table
+		if (dbHandle.execQuery(sqlQuery) != MSG_SUCCESS) {
+			dbHandle.endTrans(false);
+			return MSG_ERR_DB_EXEC;
+		}
+
+		memset(sqlQuery, 0x00, sizeof(sqlQuery));
+		snprintf(sqlQuery, sizeof(sqlQuery), "DELETE FROM %s WHERE MSG_ID = %d;",
+				MSGFW_REPORT_TABLE_NAME, msgId);
+
+		// Delete Data from MMS STATUS table
 		if (dbHandle.execQuery(sqlQuery) != MSG_SUCCESS) {
 			dbHandle.endTrans(false);
 			return MSG_ERR_DB_EXEC;
@@ -911,7 +933,8 @@ msg_error_t MsgStoDeleteAllMessageInFolder(msg_folder_id_t folderId, bool bOnlyD
 
 	const char *tableList[] = {MSGFW_PUSH_MSG_TABLE_NAME, MSGFW_CB_MSG_TABLE_NAME,
 						MSGFW_SYNCML_MSG_TABLE_NAME, MSGFW_SMS_SENDOPT_TABLE_NAME, 
-						MMS_PLUGIN_MESSAGE_TABLE_NAME, MSGFW_MESSAGE_TABLE_NAME};
+						MMS_PLUGIN_MESSAGE_TABLE_NAME, MSGFW_MMS_PREVIEW_TABLE_NAME, 
+						MSGFW_REPORT_TABLE_NAME, MSGFW_MESSAGE_TABLE_NAME};
 
 	int listCnt = sizeof(tableList)/sizeof(char *);
 	int rowCnt = 0;
@@ -1031,7 +1054,6 @@ msg_error_t MsgStoDeleteAllMessageInFolder(msg_folder_id_t folderId, bool bOnlyD
 
 			char filePath[MSG_FILEPATH_LEN_MAX] = {0,};
 			char dirPath[MSG_FILEPATH_LEN_MAX] = {0,};
-			char thumbnailPath[MSG_FILEPATH_LEN_MAX] = {0,};
 
 			//get mms msg id list
 			memset(sqlQuery, 0x00, sizeof(sqlQuery));
@@ -1071,22 +1093,36 @@ msg_error_t MsgStoDeleteAllMessageInFolder(msg_folder_id_t folderId, bool bOnlyD
 				MsgRmRf(dirPath);
 
 				rmdir(dirPath);
-				// delete thumbnail
-
-				char *fileName = NULL;
-				fileName = strrchr(filePath, '/');
-
-				snprintf(thumbnailPath, sizeof(thumbnailPath), MSG_THUMBNAIL_PATH"%s.jpg", fileName+1);
-
-				if (remove(thumbnailPath) == -1)
-					MSG_DEBUG("Fail to delete thumbnail [%s]", thumbnailPath);
-				else
-					MSG_DEBUG("Success to delete thumbnail [%s]", thumbnailPath);
 
 			}
 
 			dbHandle.freeTable();
 		}
+
+		// delete thumbnail
+		char filePath[MSG_FILEPATH_LEN_MAX] = {0,};
+		memset(sqlQuery, 0x00, sizeof(sqlQuery));
+		snprintf(sqlQuery, sizeof(sqlQuery),
+				"SELECT VALUE FROM %s "
+				"WHERE (TYPE=%d OR TYPE=%d) "
+				"AND (MSG_ID IN (SELECT MSG_ID FROM %s WHERE FOLDER_ID = %d));",
+				MSGFW_MMS_PREVIEW_TABLE_NAME, MSG_MMS_ITEM_TYPE_IMG, MSG_MMS_ITEM_TYPE_VIDEO, MSGFW_MESSAGE_TABLE_NAME, folderId);
+
+		if (dbHandle.prepareQuery(sqlQuery) != MSG_SUCCESS) {
+			dbHandle.endTrans(false);
+			return MSG_ERR_DB_PREPARE;
+		}
+
+		while (dbHandle.stepQuery() == MSG_ERR_DB_ROW) {
+			memset(filePath, 0x00, sizeof(filePath));
+			strncpy(filePath, (char *)dbHandle.columnText(0), MSG_FILEPATH_LEN_MAX);
+			if (remove(filePath) == -1)
+				MSG_DEBUG("Fail to delete file [%s]", filePath);
+			else
+				MSG_DEBUG("Success to delete file [%s]", filePath);
+		}
+
+		dbHandle.finalizeQuery();
 
 		memset(sqlQuery, 0x00, sizeof(sqlQuery));
 
@@ -1209,6 +1245,244 @@ FREE_MEMORY:
 
 	return err;
 
+}
+
+
+msg_error_t MsgStoDeleteMessageByList(msg_id_list_s *pMsgIdList)
+{
+	MSG_BEGIN();
+	msg_error_t err = MSG_SUCCESS;
+
+	char sqlQuery[MAX_QUERY_LEN+1];
+	char whereQuery[MAX_QUERY_LEN+1];
+	char sqlQuerySubset[(MAX_QUERY_LEN/5)+1];
+
+	queue<msg_thread_id_t> threadList;
+
+	const char *tableList[] = {MSGFW_PUSH_MSG_TABLE_NAME, MSGFW_CB_MSG_TABLE_NAME,
+						MSGFW_SYNCML_MSG_TABLE_NAME, MSGFW_SMS_SENDOPT_TABLE_NAME, 
+						MMS_PLUGIN_MESSAGE_TABLE_NAME,	MSGFW_MESSAGE_TABLE_NAME};
+
+	int listCnt = sizeof(tableList)/sizeof(char *);
+	int rowCnt = 0;
+
+	memset(whereQuery, 0x00, sizeof(whereQuery));
+
+	if (pMsgIdList->nCount < 1) {
+		return MSG_SUCCESS;
+	} else {
+		for (int i=0; i < pMsgIdList->nCount; i++) {
+			memset(sqlQuerySubset, 0x00, sizeof(sqlQuerySubset));
+			if (i==0)
+				snprintf(sqlQuerySubset, sizeof(sqlQuerySubset), "(MSG_ID = %d ", pMsgIdList->msgIdList[i]);
+			else
+				snprintf(sqlQuerySubset, sizeof(sqlQuerySubset), "OR MSG_ID = %d ", pMsgIdList->msgIdList[i]);
+			strncat(whereQuery, sqlQuerySubset, MAX_QUERY_LEN-strlen(whereQuery));
+		}
+	}
+	strncat(whereQuery, ");", MAX_QUERY_LEN-strlen(whereQuery));
+
+	// Get conversation ID from Folder
+	memset(sqlQuery, 0x00, sizeof(sqlQuery));
+	snprintf(sqlQuery, sizeof(sqlQuery), "SELECT DISTINCT(CONV_ID) FROM %s WHERE ", MSGFW_MESSAGE_TABLE_NAME);
+	strncat(sqlQuery, whereQuery, MAX_QUERY_LEN-strlen(sqlQuery));
+
+	err = dbHandle.getTable(sqlQuery, &rowCnt);
+
+	if (err != MSG_SUCCESS && err != MSG_ERR_DB_NORECORD) {
+		MSG_DEBUG("sql query is %s.", sqlQuery);
+		dbHandle.freeTable();
+		return err;
+	}
+
+	if (rowCnt <= 0) {
+		dbHandle.freeTable();
+		return MSG_SUCCESS;
+	}
+
+	for (int i = 1; i <= rowCnt; i++) {
+		MSG_DEBUG("thread ID : %d", dbHandle.getColumnToInt(i));
+		threadList.push((msg_thread_id_t)dbHandle.getColumnToInt(i));
+	}
+
+	dbHandle.freeTable();
+
+	/*** Delete Sim Message In Folder **/
+	memset(sqlQuery, 0x00, sizeof(sqlQuery));
+	snprintf(sqlQuery, sizeof(sqlQuery), "SELECT MSG_ID FROM %s WHERE STORAGE_ID = %d AND ", MSGFW_MESSAGE_TABLE_NAME, MSG_STORAGE_SIM);
+	strncat(sqlQuery, whereQuery, MAX_QUERY_LEN-strlen(sqlQuery));
+
+	rowCnt = 0;
+
+	err = dbHandle.getTable(sqlQuery, &rowCnt);
+
+	if (err != MSG_SUCCESS && err != MSG_ERR_DB_NORECORD) {
+		MSG_DEBUG("sql query is %s.", sqlQuery);
+		dbHandle.freeTable();
+		return err;
+	}
+
+	for (int i = 1; i <= rowCnt; i++) {
+		err = MsgStoDeleteMessage(dbHandle.getColumnToInt(i), false);
+
+		if (err != MSG_SUCCESS) {
+			MSG_DEBUG("MsgStoDeleteMessage() Error!!!");
+			dbHandle.freeTable();
+			return err;
+		}
+	}
+
+	dbHandle.freeTable();
+	/*** **/
+
+	dbHandle.beginTrans();
+
+	for (int i = 0; i < listCnt; i++) {
+		if (!strcmp(tableList[i], MMS_PLUGIN_MESSAGE_TABLE_NAME)) {
+
+			int rowCnt = 0;
+
+			char filePath[MSG_FILEPATH_LEN_MAX] = {0,};
+			char dirPath[MSG_FILEPATH_LEN_MAX] = {0,};
+			char thumbnailPath[MSG_FILEPATH_LEN_MAX] = {0,};
+
+			//get mms msg id list
+			memset(sqlQuery, 0x00, sizeof(sqlQuery));
+			snprintf(sqlQuery, sizeof(sqlQuery), "SELECT FILE_PATH FROM %s WHERE ", MMS_PLUGIN_MESSAGE_TABLE_NAME);
+			strncat(sqlQuery, whereQuery, MAX_QUERY_LEN-strlen(sqlQuery));
+
+			err = dbHandle.getTable(sqlQuery, &rowCnt);
+			MSG_DEBUG("rowCnt %d", rowCnt);
+
+			if (err != MSG_SUCCESS && err != MSG_ERR_DB_NORECORD) {
+				MSG_DEBUG("sqlQuery [%s]", sqlQuery);
+				dbHandle.freeTable();
+				dbHandle.endTrans(false);
+				return err;
+			}
+
+			for (int i = 1; i <= rowCnt; i++) {
+				memset(filePath, 0x00, sizeof(filePath));
+				dbHandle.getColumnToString(i, MSG_FILEPATH_LEN_MAX, filePath);
+
+				MSG_DEBUG("filePath [%s]", filePath);
+
+				//delete raw file
+				snprintf(dirPath, sizeof(dirPath), "%s.dir", filePath);
+
+				if (remove(filePath) == -1)
+					MSG_DEBUG("Fail to delete file [%s]", filePath);
+				else
+					MSG_DEBUG("Success to delete file [%s]", filePath);
+
+				MsgRmRf(dirPath);
+
+				rmdir(dirPath);
+				// delete thumbnail
+
+				char *fileName = NULL;
+				fileName = strrchr(filePath, '/');
+
+				snprintf(thumbnailPath, sizeof(thumbnailPath), MSG_THUMBNAIL_PATH"%s.jpg", fileName+1);
+
+				if (remove(thumbnailPath) == -1)
+					MSG_DEBUG("Fail to delete thumbnail [%s]", thumbnailPath);
+				else
+					MSG_DEBUG("Success to delete thumbnail [%s]", thumbnailPath);
+			}
+
+			dbHandle.freeTable();
+		}
+
+		memset(sqlQuery, 0x00, sizeof(sqlQuery));
+
+		snprintf(sqlQuery, sizeof(sqlQuery), "DELETE FROM %s WHERE ", tableList[i]);
+		strncat(sqlQuery, whereQuery, MAX_QUERY_LEN-strlen(sqlQuery));
+
+		// Delete Message in specific folder from table
+		err = dbHandle.execQuery(sqlQuery);
+		if (err != MSG_SUCCESS) {
+			MSG_DEBUG("sqlQuery [%s]", sqlQuery);
+			dbHandle.endTrans(false);
+			return err;
+		}
+	}
+
+	// Clear Conversation table
+	err = MsgStoClearConversationTable(&dbHandle);
+	if (err != MSG_SUCCESS) {
+		dbHandle.endTrans(false);
+		return err;
+	}
+
+	// Update Address
+	while (!threadList.empty()) {
+		err = MsgStoUpdateConversation(&dbHandle, threadList.front());
+
+		threadList.pop();
+
+		if (err != MSG_SUCCESS) {
+			dbHandle.endTrans(false);
+			return err;
+		}
+	}
+
+	dbHandle.endTrans(true);
+
+	int smsCnt = 0;
+	int mmsCnt = 0;
+
+	smsCnt = MsgStoGetUnreadCnt(&dbHandle, MSG_SMS_TYPE);
+	mmsCnt = MsgStoGetUnreadCnt(&dbHandle, MSG_MMS_TYPE);
+
+	MsgSettingSetIndicator(smsCnt, mmsCnt);
+
+/*** Create thread  for noti and phone log delete. **/
+	if (pMsgIdList->nCount > 0) {
+		msg_id_list_s *pToDeleteMsgIdList = NULL;
+		pToDeleteMsgIdList = (msg_id_list_s *)new char[sizeof(msg_id_list_s)];
+		memset(pToDeleteMsgIdList, 0x00, sizeof(msg_id_list_s));
+		pToDeleteMsgIdList->nCount = pMsgIdList->nCount;
+		pToDeleteMsgIdList->msgIdList = (msg_message_id_t *)new char[sizeof(msg_message_id_t)*pMsgIdList->nCount];
+		memcpy(pToDeleteMsgIdList->msgIdList, pMsgIdList->msgIdList, sizeof(msg_message_id_t)*pMsgIdList->nCount);
+
+		msg_id_list_s *pToDeleteMsgIdListCpy = NULL;
+		pToDeleteMsgIdListCpy = (msg_id_list_s *)new char[sizeof(msg_id_list_s)];
+		memset(pToDeleteMsgIdListCpy, 0x00, sizeof(msg_id_list_s));
+		pToDeleteMsgIdListCpy->nCount = pMsgIdList->nCount;
+		pToDeleteMsgIdListCpy->msgIdList = (msg_message_id_t *)new char[sizeof(msg_message_id_t)*pMsgIdList->nCount];
+		memcpy(pToDeleteMsgIdListCpy->msgIdList, pMsgIdList->msgIdList, sizeof(msg_message_id_t)*pMsgIdList->nCount);
+
+		if (g_idle_add(startToDeleteNoti, (void *)pToDeleteMsgIdList) == 0) {
+			MSG_DEBUG("startToDeleteNoti not invoked: %s", strerror(errno));
+			// memory free
+			if (pToDeleteMsgIdList != NULL) {
+				//free peer info list
+				if (pToDeleteMsgIdList->msgIdList != NULL)
+					delete [] pToDeleteMsgIdList->msgIdList;
+
+				delete [] pToDeleteMsgIdList;
+			}
+			err = MSG_ERR_UNKNOWN;
+		}
+
+		if (g_idle_add(startToDeletePhoneLog, (void *)pToDeleteMsgIdListCpy) == 0) {
+			MSG_DEBUG("startToDeletePhoneLog not invoked: %s", strerror(errno));
+			// memory free
+			if (pToDeleteMsgIdListCpy != NULL) {
+				//free peer info list
+				if (pToDeleteMsgIdListCpy->msgIdList != NULL)
+					delete [] pToDeleteMsgIdListCpy->msgIdList;
+
+				delete [] pToDeleteMsgIdListCpy;
+			}
+			err = MSG_ERR_UNKNOWN;
+		}
+	}
+/*** **/
+
+	MSG_END();
+	return MSG_SUCCESS;
 }
 
 
@@ -1932,15 +2206,16 @@ msg_error_t MsgStoGetThreadViewList(const MSG_SORT_RULE_S *pSortRule, msg_struct
 	pThreadViewList->msg_struct_info = NULL;
 
 	int rowCnt = 0;
-	int index = 10; // numbers of index
+	int index = 11; // numbers of index
 
 	char sqlQuery[MAX_QUERY_LEN+1];
 	memset(sqlQuery, 0x00, sizeof(sqlQuery));
 
-	snprintf(sqlQuery, sizeof(sqlQuery), "SELECT CONV_ID, UNREAD_CNT, SMS_CNT, MMS_CNT, \
-			MAIN_TYPE, SUB_TYPE, MSG_DIRECTION, DISPLAY_TIME, DISPLAY_NAME, MSG_TEXT \
-			FROM %s WHERE SMS_CNT > 0 OR MMS_CNT > 0 ORDER BY DISPLAY_TIME DESC;",
-			MSGFW_CONVERSATION_TABLE_NAME);
+	snprintf(sqlQuery, sizeof(sqlQuery), "SELECT A.CONV_ID, A.UNREAD_CNT, A.SMS_CNT, A.MMS_CNT, \
+			A.MAIN_TYPE, A.SUB_TYPE, A.MSG_DIRECTION, A.DISPLAY_TIME, A.DISPLAY_NAME, A.MSG_TEXT, \
+			(SELECT COUNT(*) FROM %s B WHERE B.CONV_ID = A.CONV_ID AND B.PROTECTED = 1) AS PROTECTED \
+			FROM %s A WHERE A.SMS_CNT > 0 OR A.MMS_CNT > 0 ORDER BY A.DISPLAY_TIME DESC;",
+			MSGFW_MESSAGE_TABLE_NAME, MSGFW_CONVERSATION_TABLE_NAME);
 
 	msg_error_t  err = dbHandle.getTable(sqlQuery, &rowCnt);
 
@@ -1995,6 +2270,10 @@ msg_error_t MsgStoGetThreadViewList(const MSG_SORT_RULE_S *pSortRule, msg_struct
 
 		memset(pTmp->threadData, 0x00, sizeof(pTmp->threadData));
 		dbHandle.getColumnToString(index++, MAX_THREAD_DATA_LEN, pTmp->threadData);
+
+		int protectedCnt = dbHandle.getColumnToInt(index++);
+		if (protectedCnt > 0)
+			pTmp->bProtected = true;
 	}
 
 	dbHandle.freeTable();
@@ -2002,6 +2281,132 @@ msg_error_t MsgStoGetThreadViewList(const MSG_SORT_RULE_S *pSortRule, msg_struct
 	return MSG_SUCCESS;
 }
 
+msg_error_t MsgStoGetConversationPreview(MSG_CONVERSATION_VIEW_S *pConv)
+{
+	MsgDbHandler dbHandleForInner;
+	char sqlQuery[MAX_QUERY_LEN + 1];
+	int rowCnt;
+	int index = 3;
+	memset(sqlQuery, 0x00, sizeof(sqlQuery));
+
+	if (pConv == NULL)
+		return MSG_ERR_NULL_POINTER;
+
+	//(MSG_ID INTEGER, TYPE INTEGER, VALUE TEXT, COUNT INTEGER)
+	snprintf(sqlQuery, sizeof(sqlQuery),
+			"SELECT TYPE, VALUE, COUNT "
+			"FROM %s WHERE MSG_ID=%d;",
+			MSGFW_MMS_PREVIEW_TABLE_NAME, pConv->msgId);
+
+	MSG_DEBUG("QUERY : [%s]", sqlQuery);
+
+	msg_error_t err = dbHandleForInner.getTable(sqlQuery, &rowCnt);
+	if (err == MSG_SUCCESS) {
+		for (int i = 0; i < rowCnt; i++) {
+			int type = dbHandleForInner.getColumnToInt(index++);
+			if (type == MSG_MMS_ITEM_TYPE_IMG) {
+				dbHandleForInner.getColumnToString(index++, MSG_FILEPATH_LEN_MAX, pConv->imageThumbPath);
+				dbHandleForInner.getColumnToInt(index++);
+			} else if (type == MSG_MMS_ITEM_TYPE_VIDEO) {
+				dbHandleForInner.getColumnToString(index++, MSG_FILEPATH_LEN_MAX, pConv->videoThumbPath);
+				dbHandleForInner.getColumnToInt(index++);
+			} else if (type == MSG_MMS_ITEM_TYPE_AUDIO) {
+				dbHandleForInner.getColumnToString(index++, MSG_FILENAME_LEN_MAX, pConv->audioFileName);
+				dbHandleForInner.getColumnToInt(index++);
+			} else if (type == MSG_MMS_ITEM_TYPE_ATTACH) {
+				dbHandleForInner.getColumnToString(index++, MSG_FILENAME_LEN_MAX, pConv->attachFileName);
+				dbHandleForInner.getColumnToInt(index++);
+			} else if (type == MSG_MMS_ITEM_TYPE_PAGE) {
+				index++;
+				pConv->pageCount = dbHandleForInner.getColumnToInt(index++);
+			} else {
+				MSG_DEBUG("Unknown item type [%d]", type);
+				index+=2;
+			}
+		}
+	}
+
+	dbHandleForInner.freeTable();
+	return MSG_SUCCESS;
+}
+
+msg_error_t MsgStoGetConversationViewItem(msg_message_id_t msgId, MSG_CONVERSATION_VIEW_S *pConv)
+{
+	int rowCnt = 0;
+	int index = 16; /** numbers of index */
+	char sqlQuery[MAX_QUERY_LEN+1];
+
+	memset(sqlQuery, 0x00, sizeof(sqlQuery));
+
+	snprintf(sqlQuery, sizeof(sqlQuery), "SELECT MSG_ID, CONV_ID, FOLDER_ID, STORAGE_ID, MAIN_TYPE, SUB_TYPE, \
+			DISPLAY_TIME, DATA_SIZE, NETWORK_STATUS, READ_STATUS, PROTECTED, \
+			MSG_DIRECTION, SCHEDULED_TIME, SUBJECT, MSG_TEXT, ATTACHMENT_COUNT \
+			FROM %s WHERE MSG_ID=%d;",
+			MSGFW_MESSAGE_TABLE_NAME, msgId);
+
+	msg_error_t err = dbHandle.getTable(sqlQuery, &rowCnt);
+
+	if (err == MSG_ERR_DB_NORECORD) {
+		dbHandle.freeTable();
+		return MSG_SUCCESS;
+	} else if (err != MSG_SUCCESS) {
+		MSG_DEBUG("%s", sqlQuery);
+		dbHandle.freeTable();
+		return err;
+	}
+
+	memset(pConv, 0x00, sizeof(MSG_CONVERSATION_VIEW_S));
+	pConv->pText = NULL;
+
+	pConv->msgId = dbHandle.getColumnToInt(index++);
+	pConv->threadId = dbHandle.getColumnToInt(index++);
+	pConv->folderId = dbHandle.getColumnToInt(index++);
+	pConv->storageId = dbHandle.getColumnToInt(index++);
+	pConv->mainType = dbHandle.getColumnToInt(index++);
+	pConv->subType = dbHandle.getColumnToInt(index++);
+	pConv->displayTime = (time_t)dbHandle.getColumnToInt(index++);
+	pConv->textSize = dbHandle.getColumnToInt(index++);
+	pConv->networkStatus = dbHandle.getColumnToInt(index++);
+	pConv->bRead = dbHandle.getColumnToInt(index++);
+	pConv->bProtected = dbHandle.getColumnToInt(index++);
+	pConv->direction = dbHandle.getColumnToInt(index++);
+	pConv->scheduledTime = (time_t)dbHandle.getColumnToInt(index++);
+
+	dbHandle.getColumnToString(index++, MAX_SUBJECT_LEN, pConv->subject);
+
+	if (pConv->mainType == MSG_MMS_TYPE &&
+		(pConv->networkStatus == MSG_NETWORK_RETRIEVING || pConv->networkStatus == MSG_NETWORK_RETRIEVE_FAIL || pConv->subType == MSG_NOTIFICATIONIND_MMS)) {
+		pConv->pText = NULL;
+		pConv->textSize = 0;
+		index++;
+	} else {
+		if (pConv->mainType == MSG_SMS_TYPE) {
+			pConv->pText = new char[pConv->textSize+2];
+			memset(pConv->pText, 0x00, pConv->textSize+2);
+			dbHandle.getColumnToString(index++, pConv->textSize+1, pConv->pText);
+		} else {
+			char tmpMmsText[MAX_MMS_TEXT_LEN+1];
+			memset(tmpMmsText, 0x00, MAX_MMS_TEXT_LEN+1);
+
+			dbHandle.getColumnToString(index++, MAX_MMS_TEXT_LEN, tmpMmsText);
+
+			pConv->textSize = strlen(tmpMmsText);
+
+			pConv->pText = new char[pConv->textSize+2];
+			memset(pConv->pText, 0x00, pConv->textSize+2);
+
+			strncpy(pConv->pText, tmpMmsText, pConv->textSize+1);
+
+			MsgStoGetConversationPreview(pConv);
+		}
+	}
+
+	pConv->attachCount = dbHandle.getColumnToInt(index++);
+
+	MSG_END();
+
+	return MSG_SUCCESS;
+}
 
 msg_error_t MsgStoGetConversationViewList(msg_thread_id_t threadId, msg_struct_list_s *pConvViewList)
 {
@@ -2011,20 +2416,16 @@ msg_error_t MsgStoGetConversationViewList(msg_thread_id_t threadId, msg_struct_l
 	pConvViewList->msg_struct_info = NULL;
 
 	int rowCnt = 0;
-	int index = 19; /** numbers of index */
-	int order = 0;
+	int index = 16; /** numbers of index */
 	char sqlQuery[MAX_QUERY_LEN+1];
-
-	// get address information.
-	order = MsgGetContactNameOrder();
 
 	memset(sqlQuery, 0x00, sizeof(sqlQuery));
 
 	snprintf(sqlQuery, sizeof(sqlQuery), "SELECT MSG_ID, CONV_ID, FOLDER_ID, STORAGE_ID, MAIN_TYPE, SUB_TYPE, \
-			DISPLAY_TIME, DATA_SIZE, NETWORK_STATUS, READ_STATUS, PROTECTED, BACKUP, PRIORITY, \
-			MSG_DIRECTION, SCHEDULED_TIME, SUBJECT, MSG_TEXT, ATTACHMENT_COUNT, THUMB_PATH \
-			FROM %s WHERE CONV_ID = %d AND FOLDER_ID > %d AND FOLDER_ID < %d ORDER BY DISPLAY_TIME, MSG_ID ASC;",
-			MSGFW_MESSAGE_TABLE_NAME, threadId, MSG_ALLBOX_ID, MSG_SPAMBOX_ID);
+			DISPLAY_TIME, DATA_SIZE, NETWORK_STATUS, READ_STATUS, PROTECTED, \
+			MSG_DIRECTION, SCHEDULED_TIME, SUBJECT, MSG_TEXT, ATTACHMENT_COUNT \
+			FROM %s WHERE CONV_ID = %d AND FOLDER_ID > %d AND FOLDER_ID < %d AND STORAGE_ID = %d ORDER BY DISPLAY_TIME, MSG_ID ASC;",
+			MSGFW_MESSAGE_TABLE_NAME, threadId, MSG_ALLBOX_ID, MSG_CBMSGBOX_ID, MSG_STORAGE_PHONE);
 
 	msg_error_t err = dbHandle.getTable(sqlQuery, &rowCnt);
 
@@ -2042,22 +2443,24 @@ msg_error_t MsgStoGetConversationViewList(msg_thread_id_t threadId, msg_struct_l
 	MSG_DEBUG("pConvViewList->nCount [%d]", pConvViewList->nCount);
 
 	pConvViewList->msg_struct_info = (msg_struct_t *)new char[sizeof(msg_struct_t) * rowCnt];
+	memset(pConvViewList->msg_struct_info, 0x00, sizeof(msg_struct_t) * rowCnt);
 
-	msg_struct_s *msg = NULL;
-	MSG_MESSAGE_HIDDEN_S *pTmp = NULL;
+	msg_struct_s *conv = NULL;
+	MSG_CONVERSATION_VIEW_S *pTmp = NULL;
 
 	for (int i = 0; i < rowCnt; i++) {
 		pConvViewList->msg_struct_info[i] = (msg_struct_t)new char[sizeof(msg_struct_s)];;
+		memset(pConvViewList->msg_struct_info[i], 0x00, sizeof(msg_struct_s));
 
-		msg = (msg_struct_s *)pConvViewList->msg_struct_info[i];
+		conv = (msg_struct_s *)pConvViewList->msg_struct_info[i];
 
-		msg->type = MSG_STRUCT_MESSAGE_INFO;
-		msg->data = new char[sizeof(MSG_MESSAGE_HIDDEN_S)];
+		conv->type = MSG_STRUCT_CONV_INFO;
+		conv->data = new char[sizeof(MSG_CONVERSATION_VIEW_S)];
+		memset(conv->data, 0x00, sizeof(MSG_CONVERSATION_VIEW_S));
 
-		pTmp = (MSG_MESSAGE_HIDDEN_S *)msg->data;
+		pTmp = (MSG_CONVERSATION_VIEW_S *)conv->data;
 
-		pTmp->pData = NULL;
-		pTmp->pMmsData = NULL;
+		pTmp->pText = NULL;
 
 		pTmp->msgId = dbHandle.getColumnToInt(index++);
 		pTmp->threadId = dbHandle.getColumnToInt(index++);
@@ -2066,12 +2469,10 @@ msg_error_t MsgStoGetConversationViewList(msg_thread_id_t threadId, msg_struct_l
 		pTmp->mainType = dbHandle.getColumnToInt(index++);
 		pTmp->subType = dbHandle.getColumnToInt(index++);
 		pTmp->displayTime = (time_t)dbHandle.getColumnToInt(index++);
-		pTmp->dataSize = dbHandle.getColumnToInt(index++);
+		pTmp->textSize = dbHandle.getColumnToInt(index++);
 		pTmp->networkStatus = dbHandle.getColumnToInt(index++);
 		pTmp->bRead = dbHandle.getColumnToInt(index++);
 		pTmp->bProtected = dbHandle.getColumnToInt(index++);
-		pTmp->bBackup = dbHandle.getColumnToInt(index++);
-		pTmp->priority = dbHandle.getColumnToInt(index++);
 		pTmp->direction = dbHandle.getColumnToInt(index++);
 		index++; // This field is reserved.
 
@@ -2079,27 +2480,32 @@ msg_error_t MsgStoGetConversationViewList(msg_thread_id_t threadId, msg_struct_l
 
 		if (pTmp->mainType == MSG_MMS_TYPE &&
 			(pTmp->networkStatus == MSG_NETWORK_RETRIEVING || pTmp->networkStatus == MSG_NETWORK_RETRIEVE_FAIL || pTmp->subType == MSG_NOTIFICATIONIND_MMS)) {
-			pTmp->pData = NULL;
+			pTmp->pText = NULL;
+			pTmp->textSize = 0;
 			index++;
 		} else {
-			pTmp->pData = (void *)new char[pTmp->dataSize+2];
-			memset(pTmp->pData, 0x00, pTmp->dataSize+2);
+			if (pTmp->mainType == MSG_SMS_TYPE) {
+				pTmp->pText = new char[pTmp->textSize+2];
+				memset(pTmp->pText, 0x00, pTmp->textSize+2);
+				dbHandle.getColumnToString(index++, pTmp->textSize+1, pTmp->pText);
+			} else {
+				char tmpMmsText[MAX_MMS_TEXT_LEN+1];
+				memset(tmpMmsText, 0x00, MAX_MMS_TEXT_LEN+1);
 
-			dbHandle.getColumnToString(index++, pTmp->dataSize+1, (char *)pTmp->pData);
+				dbHandle.getColumnToString(index++, MAX_MMS_TEXT_LEN, tmpMmsText);
+
+				pTmp->textSize = strlen(tmpMmsText);
+
+				pTmp->pText = new char[pTmp->textSize+2];
+				memset(pTmp->pText, 0x00, pTmp->textSize+2);
+
+				strncpy(pTmp->pText, tmpMmsText, pTmp->textSize+1);
+			}
 		}
 
 		pTmp->attachCount = dbHandle.getColumnToInt(index++);
 
-		dbHandle.getColumnToString(index++, MSG_FILEPATH_LEN_MAX, pTmp->thumbPath);
-
-		// set address list handle.
-		msg_struct_list_s *addrlist = (msg_struct_list_s *)new msg_struct_list_s;
-		memset(addrlist, 0x00, sizeof(msg_struct_list_s));
-		MsgDbHandler dbHandleForInner;
-		MsgStoGetAddressByConvId(&dbHandleForInner, threadId, order, addrlist);
-
-		pTmp->addr_list = addrlist;
-
+		MsgStoGetConversationPreview(pTmp);
 	}
 
 	dbHandle.freeTable();
@@ -2110,10 +2516,56 @@ msg_error_t MsgStoGetConversationViewList(msg_thread_id_t threadId, msg_struct_l
 }
 
 
-msg_error_t MsgStoDeleteThreadMessageList(msg_thread_id_t threadId, msg_id_list_s *pMsgIdList)
+msg_error_t MsgStoDeleteThreadMessageList(msg_thread_id_t threadId, bool bIncludeProtect, msg_id_list_s *pMsgIdList)
 {
 	msg_error_t err = MSG_SUCCESS;
 
+#if 1
+	char sqlQuery[MAX_QUERY_LEN+1];
+
+	/*** Get msg id list **/
+	int rowCnt = 0;
+	int index = 1;
+
+	memset(sqlQuery, 0x00, sizeof(sqlQuery));
+
+	if (bIncludeProtect) {
+		snprintf(sqlQuery, sizeof(sqlQuery), "SELECT MSG_ID FROM %s WHERE \
+				CONV_ID = %d AND FOLDER_ID > %d AND FOLDER_ID < %d AND STORAGE_ID = %d;",
+				MSGFW_MESSAGE_TABLE_NAME, threadId, MSG_ALLBOX_ID, MSG_CBMSGBOX_ID, MSG_STORAGE_PHONE);
+	} else {
+		snprintf(sqlQuery, sizeof(sqlQuery), "SELECT MSG_ID FROM %s WHERE \
+				CONV_ID = %d AND FOLDER_ID > %d AND FOLDER_ID < %d AND STORAGE_ID = %d AND PROTECTED = 0;",
+				MSGFW_MESSAGE_TABLE_NAME, threadId, MSG_ALLBOX_ID, MSG_CBMSGBOX_ID, MSG_STORAGE_PHONE);
+	}
+
+	err = dbHandle.getTable(sqlQuery, &rowCnt);
+
+	if (err != MSG_SUCCESS && err != MSG_ERR_DB_NORECORD) {
+		MSG_DEBUG("sqlQuery [%s]", sqlQuery);
+		dbHandle.freeTable();
+	}
+
+	if (rowCnt <= 0) {
+		dbHandle.freeTable();
+		err = MSG_SUCCESS;
+	}
+
+	pMsgIdList->nCount = rowCnt;
+
+	MSG_DEBUG("pMsgIdList->nCount [%d]", pMsgIdList->nCount);
+
+	pMsgIdList->msgIdList = (msg_message_id_t *)new char[sizeof(msg_message_id_t) * rowCnt];
+
+	for (int i = 0; i < rowCnt; i++)
+		pMsgIdList->msgIdList[i] = dbHandle.getColumnToInt(index++);
+
+	dbHandle.freeTable();
+	/*** **/
+
+	err = MsgStoDeleteMessageByList(pMsgIdList);
+
+#else
 	char sqlQuery[MAX_QUERY_LEN+1];
 	/*** Get msg id list **/
 	msg_id_list_s *pToDeleteMsgIdList = NULL;
@@ -2134,7 +2586,7 @@ msg_error_t MsgStoDeleteThreadMessageList(msg_thread_id_t threadId, msg_id_list_
 	memset(pToDeleteMsgIdList, 0x00, sizeof(msg_id_list_s));
 
 	memset(sqlQuery, 0x00, sizeof(sqlQuery));
-	snprintf(sqlQuery, sizeof(sqlQuery), "SELECT MSG_ID FROM %s WHERE CONV_ID = %d", MSGFW_MESSAGE_TABLE_NAME, threadId);
+	snprintf(sqlQuery, sizeof(sqlQuery), "SELECT MSG_ID FROM %s WHERE CONV_ID = %d;", MSGFW_MESSAGE_TABLE_NAME, threadId);
 
 	err = dbHandle.getTable(sqlQuery, &rowCnt);
 
@@ -2377,6 +2829,7 @@ FREE_MEMORY:
 		delete [] pToDeleteMsgIdList;
 		pToDeleteMsgIdList = NULL;
 	}
+#endif
 
 	return err;
 }
@@ -2936,28 +3389,44 @@ msg_error_t MsgStoGetSyncMLExtId(msg_message_id_t msgId, int *extId)
 	return MSG_SUCCESS;
 }
 
-
-msg_error_t MsgStoGetReportStatus(msg_message_id_t msgId, MSG_REPORT_STATUS_INFO_S *pReportStatus)
+msg_error_t MsgStoGetReportStatus(msg_message_id_t msgId, int *count, MSG_REPORT_STATUS_INFO_S **pReportStatus)
 {
 	char sqlQuery[MAX_QUERY_LEN+1];
 
 	memset(sqlQuery, 0x00, sizeof(sqlQuery));
+	//MSG_ID INTEGER , ADDRESS_VAL TEXT , STATUS_TYPE INTEGER , STATUS INTEGER DEFAULT 0 , TIME DATETIME)
+	//select * from MSG_REPORT_TABLE where MSG_ID=38 order by ADDRESS_VAL DESC, STATUS_TYPE ASC;
+	snprintf(sqlQuery, sizeof(sqlQuery),
+			"SELECT ADDRESS_VAL, STATUS_TYPE, STATUS, TIME "
+			"FROM %s "
+			"WHERE MSG_ID = %d "
+			"order by ADDRESS_VAL DESC, STATUS_TYPE ASC;"
+			, MSGFW_REPORT_TABLE_NAME, msgId);
 
-	snprintf(sqlQuery, sizeof(sqlQuery), "SELECT DELIVERY_REPORT_STATUS, \
-			DELIVERY_REPORT_TIME, READ_REPORT_STATUS, READ_REPORT_TIME \
-			FROM %s WHERE MSG_ID = %d;", MSGFW_MESSAGE_TABLE_NAME, msgId);
-
-	if (dbHandle.prepareQuery(sqlQuery) != MSG_SUCCESS)
-		return MSG_ERR_DB_PREPARE;
-
-	if (dbHandle.stepQuery() == MSG_ERR_DB_ROW) {
-		pReportStatus->deliveryStatus = (msg_delivery_report_status_t)dbHandle.columnInt(0);
-		pReportStatus->deliveryStatusTime = (time_t)dbHandle.columnInt(1);
-		pReportStatus->readStatus = (msg_read_report_status_t)dbHandle.columnInt(2);
-		pReportStatus->readStatusTime = (time_t)dbHandle.columnInt(3);
+	int rowCnt;
+	msg_error_t  err = dbHandle.getTable(sqlQuery, &rowCnt);
+	if (err != MSG_SUCCESS) {
+		MSG_DEBUG("%s", sqlQuery);
+		dbHandle.freeTable();
+		return err;
 	}
 
-	dbHandle.finalizeQuery();
+	int index = 4;
+
+	*count =  rowCnt;
+	MSG_REPORT_STATUS_INFO_S *report_status = (MSG_REPORT_STATUS_INFO_S*)new char[sizeof(MSG_REPORT_STATUS_INFO_S)*rowCnt];
+	memset(report_status, 0x00, sizeof(MSG_REPORT_STATUS_INFO_S)*rowCnt);
+
+	for (int i = 0; i < rowCnt; i++) {
+		dbHandle.getColumnToString(index++, MAX_ADDRESS_VAL_LEN, report_status[i].addressVal);
+		report_status[i].type = dbHandle.getColumnToInt(index++);
+		report_status[i].status = dbHandle.getColumnToInt(index++);
+		report_status[i].statusTime = (time_t)dbHandle.getColumnToInt(index++);
+
+		MSG_DEBUG("(%d/%d) addr = %s, report_type = %d, report_status = %d, report_time = %d", i, rowCnt, report_status[i].addressVal, report_status[i].type, report_status[i].status, report_status[i].statusTime );
+	}
+
+	*pReportStatus = report_status;
 
 	return MSG_SUCCESS;
 }
@@ -3029,15 +3498,16 @@ msg_error_t MsgStoGetThreadInfo(msg_thread_id_t threadId, MSG_THREAD_VIEW_S *pTh
 	MSG_BEGIN();
 
 	int rowCnt;
-	int index = 10; // numbers of index
+	int index = 11; // numbers of index
 
 	char sqlQuery[MAX_QUERY_LEN+1];
 	memset(sqlQuery, 0x00, sizeof(sqlQuery));
 
-	snprintf(sqlQuery, sizeof(sqlQuery), "SELECT CONV_ID, UNREAD_CNT, SMS_CNT, MMS_CNT, \
-			MAIN_TYPE, SUB_TYPE, MSG_DIRECTION, DISPLAY_TIME, DISPLAY_NAME, MSG_TEXT \
-			FROM %s WHERE CONV_ID = %d;",
-			MSGFW_CONVERSATION_TABLE_NAME, threadId);
+	snprintf(sqlQuery, sizeof(sqlQuery), "SELECT A.CONV_ID, A.UNREAD_CNT, A.SMS_CNT, A.MMS_CNT, \
+			A.MAIN_TYPE, A.SUB_TYPE, A.MSG_DIRECTION, A.DISPLAY_TIME, A.DISPLAY_NAME, A.MSG_TEXT, \
+			(SELECT COUNT(*) FROM %s B WHERE B.CONV_ID = A.CONV_ID AND B.PROTECTED = 1) AS PROTECTED \
+			FROM %s A WHERE A.CONV_ID = %d;",
+			MSGFW_MESSAGE_TABLE_NAME, MSGFW_CONVERSATION_TABLE_NAME, threadId);
 
 	msg_error_t  err = dbHandle.getTable(sqlQuery, &rowCnt);
 

@@ -337,6 +337,45 @@ msg_error_t MsgHandle::deleteAllMessagesInFolder(msg_folder_id_t FolderId, bool 
 }
 
 
+msg_error_t MsgHandle::deleteMessagesByList(msg_id_list_s *pMsgIdList)
+{
+	// Allocate Memory to Command Data
+	int cmdSize = sizeof(MSG_CMD_S) + sizeof(int) + (sizeof(int)*pMsgIdList->nCount);
+
+	char cmdBuf[cmdSize];
+	bzero(cmdBuf, cmdSize);
+	MSG_CMD_S* pCmd = (MSG_CMD_S*)cmdBuf;
+
+	// Set Command Parameters
+	pCmd->cmdType = MSG_CMD_DELETE_MESSAGE_BY_LIST;
+
+	// Copy Cookie
+	memcpy(pCmd->cmdCookie, mCookie, MAX_COOKIE_LEN);
+
+	// Copy Command Data
+	memcpy((void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN), &(pMsgIdList->nCount), sizeof(int));
+	for (int i=0; i<pMsgIdList->nCount; i++) {
+		memcpy((void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN+sizeof(int)+(sizeof(int)*i)), &(pMsgIdList->msgIdList[i]), sizeof(int));
+	}
+
+	// Send Command to Messaging FW
+	char* pEventData = NULL;
+	AutoPtr<char> eventBuf(&pEventData);
+
+
+	write((char*)pCmd, cmdSize, &pEventData);
+
+	// Get Return Data
+	MSG_EVENT_S* pEvent = (MSG_EVENT_S*)pEventData;
+
+	if (pEvent->eventType != MSG_EVENT_DELETE_MESSAGE_BY_LIST) {
+		THROW(MsgException::INVALID_RESULT, "Event Data Error");
+	}
+
+	return pEvent->result;
+}
+
+
 msg_error_t MsgHandle::moveMessageToFolder(msg_message_id_t MsgId, msg_folder_id_t DestFolderId)
 {
 	// Allocate Memory to Command Data
@@ -804,6 +843,18 @@ msg_error_t MsgHandle::getThreadViewList(const MSG_SORT_RULE_S *pSortRule, msg_s
 	return err;
 }
 
+msg_error_t MsgHandle::getConversationViewItem(msg_message_id_t MsgId, MSG_CONVERSATION_VIEW_S *pConv)
+{
+	MSG_BEGIN();
+
+	msg_error_t err =  MSG_SUCCESS;
+
+	MsgStoConnectDB();
+	err = MsgStoGetConversationViewItem(MsgId, pConv);
+	MsgStoDisconnectDB();
+
+	return err;
+}
 
 msg_error_t MsgHandle::getConversationViewList(msg_thread_id_t ThreadId, msg_struct_list_s *pConvViewList)
 {
@@ -858,10 +909,10 @@ msg_error_t MsgHandle::getConversationViewList(msg_thread_id_t ThreadId, msg_str
 }
 
 
-msg_error_t MsgHandle::deleteThreadMessageList(msg_thread_id_t ThreadId)
+msg_error_t MsgHandle::deleteThreadMessageList(msg_thread_id_t ThreadId, bool include_protected_msg)
 {
 	// Allocate Memory to Command Data
-	int cmdSize = sizeof(MSG_CMD_S) + sizeof(MSG_THREAD_LIST_INDEX_S);
+	int cmdSize = sizeof(MSG_CMD_S) + sizeof(msg_thread_id_t) + sizeof(bool);
 
 	char cmdBuf[cmdSize];
 	bzero(cmdBuf, cmdSize);
@@ -875,6 +926,7 @@ msg_error_t MsgHandle::deleteThreadMessageList(msg_thread_id_t ThreadId)
 
 	// Copy Command Data
 	memcpy((void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN), &ThreadId, sizeof(msg_thread_id_t));
+	memcpy((void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN+sizeof(msg_thread_id_t)), &include_protected_msg, sizeof(bool));
 
 	// Send Command to Messaging FW
 	char* pEventData = NULL;
@@ -1219,8 +1271,7 @@ msg_error_t MsgHandle::regStorageChangeCallback(msg_storage_change_cb onStorageC
 	return pEvent->result;
 }
 
-
-msg_error_t MsgHandle::getReportStatus(msg_message_id_t msg_id, MSG_REPORT_STATUS_INFO_S *pReport_status)
+msg_error_t MsgHandle::getReportStatus(msg_message_id_t msg_id, msg_struct_list_s *report_list)
 {
 	// Allocate Memory to Command Data
 	int cmdSize = sizeof(MSG_CMD_S) + sizeof(msg_message_id_t);
@@ -1256,7 +1307,7 @@ msg_error_t MsgHandle::getReportStatus(msg_message_id_t msg_id, MSG_REPORT_STATU
 	if(pEvent->result != MSG_SUCCESS) return pEvent->result;
 
 	// Decode Return Data
-	MsgDecodeReportStatus(pEvent->data, pReport_status);
+	MsgDecodeReportStatus(pEvent->data, report_list);
 
 	return MSG_SUCCESS;
 }
@@ -1394,4 +1445,112 @@ msg_error_t MsgHandle::getMessageList(msg_folder_id_t folderId, msg_thread_id_t 
 	MsgStoDisconnectDB();
 
 	return err;
+}
+
+
+int MsgHandle::addPushEvent(MSG_PUSH_EVENT_INFO_S *pPushEvent)
+{
+	// Allocate Memory to Command Data
+	int cmdSize = sizeof(MSG_CMD_S) + sizeof(MSG_PUSH_EVENT_INFO_S);
+
+	char cmdBuf[cmdSize];
+	bzero(cmdBuf, cmdSize);
+	MSG_CMD_S* pCmd = (MSG_CMD_S*)cmdBuf;
+
+	// Set Command Parameters
+	pCmd->cmdType = MSG_CMD_ADD_PUSH_EVENT;
+
+	// Copy Cookie
+	memcpy(pCmd->cmdCookie, mCookie, MAX_COOKIE_LEN);
+
+	// Copy Command Data
+	memcpy((void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN), pPushEvent, sizeof(MSG_PUSH_EVENT_INFO_S));
+
+	// Send Command to Messaging FW
+	char* pEventData = NULL;
+	AutoPtr<char> eventBuf(&pEventData);
+
+	write((char*)pCmd, cmdSize, &pEventData);
+
+	// Get Return Data
+	MSG_EVENT_S* pEvent = (MSG_EVENT_S*)pEventData;
+
+	if (pEvent->eventType != MSG_EVENT_ADD_PUSH_EVENT)
+	{
+		THROW(MsgException::INVALID_RESULT, "Event Data Error");
+	}
+
+	return pEvent->result;
+}
+
+
+int MsgHandle::deletePushEvent(MSG_PUSH_EVENT_INFO_S *pPushEvent)
+{
+	// Allocate Memory to Command Data
+	int cmdSize = sizeof(MSG_CMD_S) + sizeof(MSG_PUSH_EVENT_INFO_S);
+
+	char cmdBuf[cmdSize];
+	bzero(cmdBuf, cmdSize);
+	MSG_CMD_S* pCmd = (MSG_CMD_S*)cmdBuf;
+
+	// Set Command Parameters
+	pCmd->cmdType = MSG_CMD_DELETE_PUSH_EVENT;
+
+	// Copy Cookie
+	memcpy(pCmd->cmdCookie, mCookie, MAX_COOKIE_LEN);
+
+	// Copy Command Data
+	memcpy((void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN), pPushEvent, sizeof(MSG_PUSH_EVENT_INFO_S));
+
+	// Send Command to Messaging FW
+	char* pEventData = NULL;
+	AutoPtr<char> eventBuf(&pEventData);
+
+	write((char*)pCmd, cmdSize, &pEventData);
+
+	// Get Return Data
+	MSG_EVENT_S* pEvent = (MSG_EVENT_S*)pEventData;
+
+	if (pEvent->eventType != MSG_EVENT_DELETE_PUSH_EVENT)
+	{
+		THROW(MsgException::INVALID_RESULT, "Event Data Error");
+	}
+
+	return pEvent->result;
+}
+
+int MsgHandle::updatePushEvent(MSG_PUSH_EVENT_INFO_S *pSrc, MSG_PUSH_EVENT_INFO_S *pDst)
+{
+	// Allocate Memory to Command Data
+	int cmdSize = sizeof(MSG_CMD_S) +  2 * sizeof(MSG_PUSH_EVENT_INFO_S);
+
+	char cmdBuf[cmdSize];
+	bzero(cmdBuf, cmdSize);
+	MSG_CMD_S* pCmd = (MSG_CMD_S*)cmdBuf;
+
+	// Set Command Parameters
+	pCmd->cmdType = MSG_CMD_UPDATE_PUSH_EVENT;
+
+	// Copy Cookie
+	memcpy(pCmd->cmdCookie, mCookie, MAX_COOKIE_LEN);
+
+	// Copy Command Data
+	memcpy((void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN), pSrc, sizeof(MSG_PUSH_EVENT_INFO_S));
+	memcpy((void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN+sizeof(MSG_PUSH_EVENT_INFO_S)), pDst, sizeof(MSG_PUSH_EVENT_INFO_S));
+
+	// Send Command to Messaging FW
+	char* pEventData = NULL;
+	AutoPtr<char> eventBuf(&pEventData);
+
+	write((char*)pCmd, cmdSize, &pEventData);
+
+	// Get Return Data
+	MSG_EVENT_S* pEvent = (MSG_EVENT_S*)pEventData;
+
+	if (pEvent->eventType != MSG_EVENT_UPDATE_PUSH_EVENT)
+	{
+		THROW(MsgException::INVALID_RESULT, "Event Data Error");
+	}
+
+	return pEvent->result;
 }

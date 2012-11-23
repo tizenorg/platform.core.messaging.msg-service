@@ -104,8 +104,8 @@ msg_error_t MsgStoUpdateMMSMessage(MSG_MESSAGE_INFO_S *pMsg)
 		}
 	} else if (pMsg->msgType.subType == MSG_SENDREQ_MMS) {
 		snprintf(sqlQuery, sizeof(sqlQuery),
-				"UPDATE %s SET MSG_DATA = '%s', MSG_TEXT = ?, THUMB_PATH = '%s' WHERE MSG_ID = %d;",
-				MSGFW_MESSAGE_TABLE_NAME, pMsg->msgData, pMsg->thumbPath, pMsg->msgId);
+				"UPDATE %s SET MSG_DATA = '%s', MSG_TEXT = ?, THUMB_PATH = '%s', DATA_SIZE = %d WHERE MSG_ID = %d;",
+				MSGFW_MESSAGE_TABLE_NAME, pMsg->msgData, pMsg->thumbPath, pMsg->dataSize, pMsg->msgId);
 
 		if (dbHandle.prepareQuery(sqlQuery) != MSG_SUCCESS) {
 			dbHandle.endTrans(false);

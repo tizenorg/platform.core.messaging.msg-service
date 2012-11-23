@@ -50,10 +50,17 @@ int msg_message_set_struct_hnd(void *data, int field, void *value);
 
 void msg_message_copy_message(MSG_MESSAGE_HIDDEN_S *pSrc, MSG_MESSAGE_HIDDEN_S *pDst);
 
+int msg_cb_message_get_int_value(void *data, int field, int *value);
+int msg_cb_message_get_str_value(void *data, int field, char *value, int size);
+
+
+
 
 // filter
+bool msg_get_filter_info_bool(void *filter, int field);
 int msg_get_filter_info_int(void *filter, int field);
 char *msg_get_filter_info_str(void *filter, int field);
+int msg_set_filter_info_bool(void *filter, int field, bool value);
 int msg_set_filter_info_int(void *filter, int field, int value);
 int msg_set_filter_info_str(void *filter, int field, char *value, int size);
 
@@ -142,6 +149,12 @@ int msg_set_general_opt_bool(void *general_opt, int field, bool value);
 int msg_get_msgsize_opt_int(void *size_opt, int field);
 int msg_set_msgsize_opt_int(void *size_opt, int field, int value);
 
+/* Wap Push */
+char* msg_push_config_get_str(void *event_info, int field, int size);
+bool msg_push_config_get_bool(void *event_info, int field);
+int msg_push_config_set_str(void *event_info, int field, char *value, int size);
+int msg_push_config_set_bool(void *event, int field, bool value);
+
 /* added internal apis for new managed api (storage) */
 int msg_syncml_info_get_int(void *syncml_info, int field);
 int msg_count_info_get_int(void *count_info, int field);
@@ -150,13 +163,18 @@ int msg_thread_index_get_int(void *index_info, int field);
 int msg_sortrule_get_int(void *sort_info, int field);
 int msg_folder_info_get_int(void *folder_info, int field);
 int msg_thread_info_get_int(void *data, int field);
+int msg_conv_info_get_int(void *data, int field);
 int msg_search_condition_get_int(void *condition_info, int field);
 int msg_report_status_get_int(void *report_info, int field);
+char* msg_report_status_get_str(void *report_info, int field);
 char* msg_folder_info_get_str(void *folder_info, int field);
 char *msg_thread_info_get_str(void *data, int field);
+char *msg_conv_info_get_str(void *data, int field);
 char* msg_search_condition_get_str(void *condition_info, int field, int size);
 bool msg_sendopt_get_bool(void *send_opt, int field);
 bool msg_sortrule_get_bool(void *sort_rule, int field);
+bool msg_conv_get_bool(void *data, int field);
+bool msg_thread_info_get_bool(void *data, int field);
 int msg_sendopt_get_struct_handle(msg_struct_s *msg_struct, int field, void **value);
 int msg_syncml_get_struct_handle(msg_struct_s *msg_struct, int field, void **value);
 int msg_thread_index_get_struct_handle(msg_struct_s *msg_struct, int field, void **value);

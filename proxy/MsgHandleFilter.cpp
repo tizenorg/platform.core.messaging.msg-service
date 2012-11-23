@@ -253,3 +253,38 @@ msg_error_t MsgHandle::getFilterOperation(bool *pSetFlag)
 	return ret;
 }
 
+msg_error_t MsgHandle::setFilterActivation(msg_filter_id_t filter_id, bool active)
+{
+	// Allocate Memory to Command Data
+	int cmdSize = sizeof(MSG_CMD_S) + sizeof(msg_filter_id_t) + sizeof(bool);
+
+	char cmdBuf[cmdSize];
+	bzero(cmdBuf, cmdSize);
+	MSG_CMD_S* pCmd = (MSG_CMD_S*)cmdBuf;
+
+	// Set Command Parameters
+	pCmd->cmdType = MSG_CMD_SET_FILTER_ACTIVATION;
+
+	// Copy Cookie
+	memcpy(pCmd->cmdCookie, mCookie, MAX_COOKIE_LEN);
+
+	// Copy Command Data
+	memcpy(pCmd->cmdData, &filter_id, sizeof(msg_filter_id_t));
+	memcpy(pCmd->cmdData+sizeof(msg_filter_id_t), &active, sizeof(bool));
+
+	// Send Command to Messaging FW
+	char* pEventData = NULL;
+	AutoPtr<char> eventBuf(&pEventData);
+
+	write((char*)pCmd, cmdSize, &pEventData);
+
+	// Get Return Data
+	MSG_EVENT_S* pEvent = (MSG_EVENT_S*)pEventData;
+
+	if (pEvent->eventType != MSG_EVENT_SET_FILTER_ACTIVATION)
+	{
+		THROW(MsgException::INVALID_RESULT, "Event Data Error");
+	}
+
+	return pEvent->result;
+}

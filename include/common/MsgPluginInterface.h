@@ -1043,6 +1043,8 @@ typedef msg_error_t (*MsgPlgOnMsgIncoming)(MSG_MESSAGE_INFO_S *pMsgInfo);
 typedef msg_error_t (*MsgPlgOnInitSimBySat)(void);
 typedef msg_error_t (*MsgPlgOnSyncMLMsgIncoming)(MSG_SYNCML_MESSAGE_DATA_S *pSyncMLData);
 typedef msg_error_t (*MsgPlgOnLBSMsgIncoming)(MSG_LBS_MESSAGE_DATA_S *pLBSData);
+typedef msg_error_t (*MsgPlgOnPushMsgIncoming)(MSG_PUSH_MESSAGE_DATA_S *pPushData);
+typedef msg_error_t (*MsgPlgOnCBMsgIncoming)(MSG_CB_MSG_S *pCbMsg);
 typedef msg_error_t (*MsgPlgOnMmsConfIncoming)(MSG_MESSAGE_INFO_S *pMsgInfo, msg_request_id_t *pRequest);
 
 
@@ -1057,6 +1059,8 @@ struct _MSG_PLUGIN_LISTENER_S
 	MsgPlgOnInitSimBySat			pfInitSimBySatCb;			/** The function pointer of init SIM callback. */
 	MsgPlgOnSyncMLMsgIncoming	pfSyncMLMsgIncomingCb;	/** The function pointer of receive syncML message callback. */
 	MsgPlgOnLBSMsgIncoming		pfLBSMsgIncomingCb;		/** The function pointer of receive LBS message callback. */
+	MsgPlgOnPushMsgIncoming		pfPushMsgIncomingCb;		/** The function pointer of receive Push message callback. */
+	MsgPlgOnCBMsgIncoming		pfCBMsgIncomingCb;			/** The function pointer of receive cb message callback. */
 	MsgPlgOnMmsConfIncoming 	pfMmsConfIncomingCb;	/** The function pointer of receive MMS conf */
 };
 

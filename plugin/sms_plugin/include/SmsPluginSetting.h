@@ -41,6 +41,9 @@ public:
 	void setParamCntEvent(int ParamCnt);
 	void setParamEvent(const MSG_SMSC_DATA_S *pSmscData, int RecordIdx, bool bSuccess);
 	void setCbConfigEvent(const MSG_CBMSG_OPT_S *pCbOpt, bool bSuccess);
+	void setMailboxInfoEvent(SMS_SIM_MAILBOX_LIST_S *pVoiceOpt, bool bSuccess);
+	void setMwiInfo(MSG_SUB_TYPE_T type, int count);
+	void setMwiInfoEvent(SMS_SIM_MWI_INFO_S *pMwiInfo, bool bSuccess);
 	void setResultFromSim(bool bResult);
 
 private:
@@ -61,9 +64,16 @@ private:
 	bool setCbConfig(const MSG_CBMSG_OPT_S *pCbOpt);
 	bool getCbConfig(MSG_CBMSG_OPT_S *pCbOpt);
 
+	void setVoiceMailInfo(const MSG_VOICEMAIL_OPT_S *pVoiceOpt);
+	bool getVoiceMailInfo(MSG_VOICEMAIL_OPT_S *pVoiceOpt);
+	bool getMwiInfo(void);
+
 	int getParamCntEvent();
 	bool getParamEvent(MSG_SMSC_DATA_S *pSmscData);
 	bool getCbConfigEvent(MSG_CBMSG_OPT_S *pCbOpt);
+
+	bool getMailboxInfoEvent(MSG_VOICEMAIL_OPT_S *pVoiceOpt);
+
 	bool getResultFromSim();
 
 	SMS_PID_T convertPid(MSG_SMS_PID_T pid);
@@ -72,6 +82,10 @@ private:
 
 	MSG_SMSC_DATA_S		smscData;
 	MSG_CBMSG_OPT_S 	cbOpt;
+
+	/* Message Waiting Indicator */
+	SMS_SIM_MAILBOX_LIST_S	simMailboxList;
+	SMS_SIM_MWI_INFO_S	simMwiInfo;
 
 	bool		bTapiResult;
 	int		paramCnt;

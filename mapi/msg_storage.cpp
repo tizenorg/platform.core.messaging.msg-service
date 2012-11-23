@@ -25,7 +25,7 @@
 #include "msg_storage.h"
 
 
-static int msg_thread_get_msg_type(int mainType, int subType);
+static int msg_get_msg_type(int mainType, int subType);
 /*==================================================================================================
                                      FUNCTION IMPLEMENTATION
 ==================================================================================================*/
@@ -218,6 +218,31 @@ EXPORT_API int msg_delete_all_msgs_in_folder(msg_handle_t handle, msg_folder_id_
 }
 
 
+EXPORT_API int msg_delete_msgs_by_list(msg_handle_t handle, msg_id_list_s *msg_id_list)
+{
+	msg_error_t err =  MSG_SUCCESS;
+
+	if (handle == NULL)
+	{
+		return -EINVAL;
+	}
+
+	MsgHandle* pHandle = (MsgHandle*)handle;
+
+	try
+	{
+		err = pHandle->deleteMessagesByList(msg_id_list);
+	}
+	catch (MsgException& e)
+	{
+		MSG_FATAL("%s", e.what());
+		return MSG_ERR_STORAGE_ERROR;
+	}
+
+	return err;
+}
+
+
 EXPORT_API int msg_move_msg_to_folder(msg_handle_t handle, msg_message_id_t msg_id, msg_folder_id_t dest_folder_id)
 {
 	msg_error_t err =  MSG_SUCCESS;
@@ -397,6 +422,31 @@ EXPORT_API int msg_get_message(msg_handle_t handle, msg_message_id_t msg_id, msg
 	return err;
 }
 
+EXPORT_API int msg_get_conversation(msg_handle_t handle, msg_message_id_t msg_id, msg_struct_t conv)
+{
+	msg_error_t err =  MSG_SUCCESS;
+
+	if (handle == NULL || !conv)
+	{
+		MSG_FATAL("handle or opq_msg is NULL");
+		return -EINVAL;
+	}
+
+	MsgHandle* pHandle = (MsgHandle*)handle;
+
+	msg_struct_s *pMsgStruct = (msg_struct_s *)conv;
+	try
+	{
+		err = pHandle->getConversationViewItem(msg_id, (MSG_CONVERSATION_VIEW_S *)pMsgStruct->data);
+	}
+	catch (MsgException& e)
+	{
+		MSG_FATAL("%s", e.what());
+		return MSG_ERR_STORAGE_ERROR;
+	}
+
+	return err;
+}
 
 EXPORT_API int msg_get_folder_view_list(msg_handle_t handle, msg_folder_id_t folder_id, const msg_struct_t sort_rule, msg_struct_list_s *msg_folder_view_list)
 {
@@ -499,7 +549,7 @@ EXPORT_API int msg_get_conversation_view_list(msg_handle_t handle, msg_thread_id
 }
 
 
-EXPORT_API int msg_delete_thread_message_list(msg_handle_t handle, msg_thread_id_t thread_id)
+EXPORT_API int msg_delete_thread_message_list(msg_handle_t handle, msg_thread_id_t thread_id, bool include_protected_msg)
 {
 	msg_error_t err =  MSG_SUCCESS;
 
@@ -512,7 +562,7 @@ EXPORT_API int msg_delete_thread_message_list(msg_handle_t handle, msg_thread_id
 
 	try
 	{
-		err = pHandle->deleteThreadMessageList(thread_id);
+		err = pHandle->deleteThreadMessageList(thread_id, include_protected_msg);
 	}
 	catch (MsgException& e)
 	{
@@ -1101,22 +1151,20 @@ EXPORT_API int msg_reg_storage_change_callback(msg_handle_t handle, msg_storage_
 	return err;
 }
 
-
-EXPORT_API int msg_get_report_status(msg_handle_t handle, msg_message_id_t msg_id, msg_struct_t report_status)
+EXPORT_API int msg_get_report_status(msg_handle_t handle, msg_message_id_t msg_id, msg_struct_list_s *report_list)
 {
 	msg_error_t err =  MSG_SUCCESS;
 
-	if (handle == NULL || msg_id < 1)
+	if (handle == NULL || msg_id < 1 || report_list == NULL)
 	{
 		return -EINVAL;
 	}
 
 	MsgHandle* pHandle = (MsgHandle*)handle;
-	msg_struct_s *pStruct = (msg_struct_s *)report_status;
 
 	try
 	{
-		err = pHandle->getReportStatus(msg_id, (MSG_REPORT_STATUS_INFO_S *)pStruct->data);
+		err = pHandle->getReportStatus(msg_id, report_list);
 	}
 	catch (MsgException& e)
 	{
@@ -1232,7 +1280,7 @@ EXPORT_API int msg_get_message_list(msg_handle_t handle, msg_folder_id_t folder_
 	return err;
 }
 
-static int msg_thread_get_msg_type(int mainType, int subType)
+static int msg_get_msg_type(int mainType, int subType)
 {
 	if (mainType == MSG_SMS_TYPE)
 	{
@@ -1268,7 +1316,7 @@ static int msg_thread_get_msg_type(int mainType, int subType)
 
 int msg_syncml_info_get_int(void *syncml_info, int field)
 {
-	int result = -1;
+	int result = MSG_ERR_INVALID_PARAMETER;
 	MSG_SYNCML_MESSAGE_S *pSync = (MSG_SYNCML_MESSAGE_S *)syncml_info;
 	switch(field)
 	{
@@ -1279,7 +1327,7 @@ int msg_syncml_info_get_int(void *syncml_info, int field)
 		result = pSync->pinCode;
 		break;
 	default:
-		result = -1;
+		result = MSG_ERR_INVALID_PARAMETER;
 		break;
 	}
 	return result;
@@ -1287,7 +1335,7 @@ int msg_syncml_info_get_int(void *syncml_info, int field)
 
 int msg_count_info_get_int(void *count_info, int field)
 {
-	int result = -1;
+	int result = MSG_ERR_INVALID_PARAMETER;
 	MSG_COUNT_INFO_S *pCount = (MSG_COUNT_INFO_S *)count_info;
 	switch(field)
 	{
@@ -1304,7 +1352,7 @@ int msg_count_info_get_int(void *count_info, int field)
 		result = pCount->nMms;
 		break;
 	default:
-		result = -1;
+		result = MSG_ERR_INVALID_PARAMETER;
 		break;
 	}
 	return result;
@@ -1312,7 +1360,7 @@ int msg_count_info_get_int(void *count_info, int field)
 
 int msg_thread_count_get_int(void *count_info, int field)
 {
-	int result = -1;
+	int result = MSG_ERR_INVALID_PARAMETER;
 	MSG_THREAD_COUNT_INFO_S *pCount = (MSG_THREAD_COUNT_INFO_S *)count_info;
 	switch(field)
 	{
@@ -1329,7 +1377,7 @@ int msg_thread_count_get_int(void *count_info, int field)
 		result = pCount->mmsMsgCount;
 		break;
 	default:
-		result = -1;
+		result = MSG_ERR_INVALID_PARAMETER;
 		break;
 	}
 	return result;
@@ -1337,7 +1385,7 @@ int msg_thread_count_get_int(void *count_info, int field)
 
 int msg_thread_index_get_int(void *index_info, int field)
 {
-	int result = -1;
+	int result = MSG_ERR_INVALID_PARAMETER;
 	MSG_THREAD_LIST_INDEX_S *pIndex = (MSG_THREAD_LIST_INDEX_S *)index_info;
 	switch(field)
 	{
@@ -1345,7 +1393,7 @@ int msg_thread_index_get_int(void *index_info, int field)
 		result = pIndex->contactId;
 		break;
 	default:
-		result = -1;
+		result = MSG_ERR_INVALID_PARAMETER;
 		break;
 	}
 	return result;
@@ -1353,7 +1401,7 @@ int msg_thread_index_get_int(void *index_info, int field)
 
 int msg_sortrule_get_int(void *sort_info, int field)
 {
-	int result = -1;
+	int result = MSG_ERR_INVALID_PARAMETER;
 	MSG_SORT_RULE_S *pSort = (MSG_SORT_RULE_S *)sort_info;
 	switch(field)
 	{
@@ -1361,7 +1409,7 @@ int msg_sortrule_get_int(void *sort_info, int field)
 		result = pSort->sortType;
 		break;
 	default:
-		result = -1;
+		result = MSG_ERR_INVALID_PARAMETER;
 		break;
 	}
 	return result;
@@ -1369,7 +1417,7 @@ int msg_sortrule_get_int(void *sort_info, int field)
 
 int msg_folder_info_get_int(void *folder_info, int field)
 {
-	int result = -1;
+	int result = MSG_ERR_INVALID_PARAMETER;
 	MSG_FOLDER_INFO_S *pFolder = (MSG_FOLDER_INFO_S *)folder_info;
 	switch(field)
 	{
@@ -1380,7 +1428,7 @@ int msg_folder_info_get_int(void *folder_info, int field)
 		result = pFolder->folderType;
 		break;
 	default:
-		result = -1;
+		result = MSG_ERR_INVALID_PARAMETER;
 		break;
 	}
 	return result;
@@ -1388,7 +1436,7 @@ int msg_folder_info_get_int(void *folder_info, int field)
 
 int msg_thread_info_get_int(void *data, int field)
 {
-	int result = -1;
+	int result = MSG_ERR_INVALID_PARAMETER;
 	MSG_THREAD_VIEW_S *pThread = (MSG_THREAD_VIEW_S *)data;
 
 	switch(field)
@@ -1397,7 +1445,7 @@ int msg_thread_info_get_int(void *data, int field)
 		result = pThread->threadId;
 		break;
 	case MSG_THREAD_MSG_TYPE_INT :
-		result = msg_thread_get_msg_type(pThread->mainType, pThread->subType);
+		result = msg_get_msg_type(pThread->mainType, pThread->subType);
 		break;
 	case MSG_THREAD_MSG_TIME_INT :
 		result = pThread->threadTime;
@@ -1415,15 +1463,67 @@ int msg_thread_info_get_int(void *data, int field)
 		result = pThread->mmsCnt;
 		break;
 	default:
-		result = -1;
+		result = MSG_ERR_INVALID_PARAMETER;
 		break;
 	}
 	return result;
 }
 
+
+int msg_conv_info_get_int(void *data, int field)
+{
+	int result = MSG_ERR_INVALID_PARAMETER;
+	MSG_CONVERSATION_VIEW_S *pConv = (MSG_CONVERSATION_VIEW_S *)data;
+
+	switch(field)
+	{
+	case MSG_CONV_MSG_ID_INT :
+		result = pConv->msgId;
+		break;
+	case MSG_CONV_MSG_THREAD_ID_INT :
+		result = pConv->threadId;
+		break;
+	case MSG_CONV_MSG_FOLDER_ID_INT :
+		result = pConv->folderId;
+		break;
+	case MSG_CONV_MSG_TYPE_INT :
+		result = msg_get_msg_type(pConv->mainType, pConv->subType);
+		break;
+	case MSG_CONV_MSG_STORAGE_ID_INT :
+		result = pConv->storageId;
+		break;
+	case MSG_CONV_MSG_DISPLAY_TIME_INT :
+		result = pConv->displayTime;
+		break;
+	case MSG_CONV_MSG_SCHEDULED_TIME_INT :
+		result = pConv->scheduledTime;
+		break;
+	case MSG_CONV_MSG_NETWORK_STATUS_INT :
+		result = pConv->networkStatus;
+		break;
+	case MSG_CONV_MSG_DIRECTION_INT :
+		result = pConv->direction;
+		break;
+	case MSG_CONV_MSG_ATTACH_COUNT_INT :
+		result = pConv->attachCount;
+		break;
+	case MSG_CONV_MSG_TEXT_SIZE_INT :
+		result = pConv->textSize;
+		break;
+	case MSG_CONV_MSG_PAGE_COUNT_INT :
+		result = pConv->pageCount;
+		break;
+	default:
+		result = MSG_ERR_INVALID_PARAMETER;
+		break;
+	}
+	return result;
+}
+
+
 int msg_search_condition_get_int(void *condition_info, int field)
 {
-	int result = -1;
+	int result = MSG_ERR_INVALID_PARAMETER;
 	MSG_SEARCH_CONDITION_S *pCond = (MSG_SEARCH_CONDITION_S *)condition_info;
 	switch(field)
 	{
@@ -1437,7 +1537,7 @@ int msg_search_condition_get_int(void *condition_info, int field)
 		result = pCond->reserved;
 		break;
 	default:
-		result = -1;
+		result = MSG_ERR_INVALID_PARAMETER;
 		break;
 	}
 	return result;
@@ -1445,24 +1545,39 @@ int msg_search_condition_get_int(void *condition_info, int field)
 
 int msg_report_status_get_int(void *report_info, int field)
 {
-	int result = -1;
+	int result = MSG_ERR_INVALID_PARAMETER;
 	MSG_REPORT_STATUS_INFO_S *pReport = (MSG_REPORT_STATUS_INFO_S *)report_info;
 	switch(field)
 	{
-	case MSG_REPORT_STATUS_DELIVERY_STATUS_INT:
-		result = pReport->deliveryStatus;
+	case MSG_REPORT_TYPE_INT:
+		result = pReport->type;
 		break;
-	case MSG_REPORT_STATUS_DELIVERY_TIME_INT:
-		result = pReport->deliveryStatusTime;
+	case MSG_REPORT_STATUS_INT:
+		result = pReport->status;
 		break;
-	case MSG_REPORT_STATUS_READ_STATUS_INT:
-		result = pReport->readStatus;
+	case MSG_REPORT_TIME_INT:
+		result = pReport->statusTime;
 		break;
-	case MSG_REPORT_STATUS_READ_TIME_INT:
-		result = pReport->readStatusTime;
-		break;
+
 	default:
-		result = -1;
+		result = MSG_ERR_INVALID_PARAMETER;
+		break;
+	}
+	return result;
+}
+
+char* msg_report_status_get_str(void *report_info, int field)
+{
+	char *result = NULL;
+	MSG_REPORT_STATUS_INFO_S *pReport = (MSG_REPORT_STATUS_INFO_S *)report_info;
+	switch(field)
+	{
+
+	case MSG_REPORT_ADDRESS_STR:
+		result = pReport->addressVal;
+		break;
+
+	default:
 		break;
 	}
 	return result;
@@ -1503,6 +1618,40 @@ char *msg_thread_info_get_str(void *data, int field)
 
 	return ret_str;
 }
+
+
+char *msg_conv_info_get_str(void *data, int field)
+{
+	char *ret_str = NULL;
+	MSG_CONVERSATION_VIEW_S *pConv = (MSG_CONVERSATION_VIEW_S *)data;
+
+	switch(field)
+	{
+	case MSG_CONV_MSG_SUBJECT_STR :
+		ret_str = pConv->subject;
+		break;
+	case MSG_CONV_MSG_ATTACH_NAME_STR :
+		ret_str = pConv->attachFileName;
+		break;
+	case MSG_CONV_MSG_AUDIO_NAME_STR :
+		ret_str = pConv->audioFileName;
+		break;
+	case MSG_CONV_MSG_IMAGE_THUMB_PATH_STR :
+		ret_str = pConv->imageThumbPath;
+		break;
+	case MSG_CONV_MSG_VIDEO_THUMB_PATH_STR :
+		ret_str = pConv->videoThumbPath;
+		break;
+	case MSG_CONV_MSG_TEXT_STR :
+		ret_str = pConv->pText;
+		break;
+	default:
+		break;
+	}
+
+	return ret_str;
+}
+
 
 char* msg_search_condition_get_str(void *condition_info, int field, int size)
 {
@@ -1553,6 +1702,39 @@ bool msg_sortrule_get_bool(void *sort_rule, int field)
 	{
 	case MSG_SORT_RULE_ACSCEND_BOOL:
 		result = pSort->bAscending;
+		break;
+	default:
+		break;
+	}
+	return result;
+}
+
+bool msg_conv_get_bool(void *data, int field)
+{
+	bool result = false;
+	MSG_CONVERSATION_VIEW_S *pConv = (MSG_CONVERSATION_VIEW_S *)data;
+	switch(field)
+	{
+	case MSG_CONV_MSG_READ_BOOL:
+		result = pConv->bRead;
+		break;
+	case MSG_CONV_MSG_PROTECTED_BOOL:
+		result = pConv->bProtected;
+		break;
+	default:
+		break;
+	}
+	return result;
+}
+
+bool msg_thread_info_get_bool(void *data, int field)
+{
+	bool result = false;
+	MSG_THREAD_VIEW_S *pthreadInfo = (MSG_THREAD_VIEW_S *)data;
+	switch(field)
+	{
+	case MSG_THREAD_PROTECTED_BOOL:
+		result = pthreadInfo->bProtected;
 		break;
 	default:
 		break;
@@ -1627,7 +1809,7 @@ int msg_thread_index_get_struct_handle(msg_struct_s *msg_struct, int field, void
 
 int msg_address_info_get_int(void *addr_info, int field)
 {
-	int result = -1;
+	int result = MSG_ERR_INVALID_PARAMETER;
 	MSG_ADDRESS_INFO_S *pAddr = (MSG_ADDRESS_INFO_S *)addr_info;
 	switch(field)
 	{
@@ -1647,7 +1829,7 @@ int msg_address_info_get_int(void *addr_info, int field)
 }
 int msg_mms_sendopt_get_int(void *opt_info, int field)
 {
-	int result = -1;
+	int result = MSG_ERR_INVALID_PARAMETER;
 	MMS_SENDINGOPT_S *pOpt = (MMS_SENDINGOPT_S *)opt_info;
 	switch(field)
 	{
@@ -1668,7 +1850,7 @@ int msg_mms_sendopt_get_int(void *opt_info, int field)
 
 int msg_reject_message_get_int(void *msg_info, int field)
 {
-	int result = -1;
+	int result = MSG_ERR_INVALID_PARAMETER;
 	MSG_REJECT_MSG_INFO_S *pMsg = (MSG_REJECT_MSG_INFO_S *)msg_info;
 	switch(field)
 	{
@@ -1929,25 +2111,23 @@ int msg_report_status_set_int(void *report_info, int field, int value)
 	if(!report_info)
 		return MSG_ERR_NULL_POINTER;
 
-    MSG_REPORT_STATUS_INFO_S *pReport = (MSG_REPORT_STATUS_INFO_S *)report_info;
-    switch(field)
-    {
-    case MSG_REPORT_STATUS_DELIVERY_STATUS_INT:
-		pReport->deliveryStatus = value;
+	MSG_REPORT_STATUS_INFO_S *pReport = (MSG_REPORT_STATUS_INFO_S *)report_info;
+	switch(field)
+	{
+		case MSG_REPORT_TYPE_INT:
+			pReport->type = value;
 		break;
-    case MSG_REPORT_STATUS_DELIVERY_TIME_INT:
-		pReport->deliveryStatusTime = value;
+		case MSG_REPORT_STATUS_INT:
+			pReport->status = value;
 		break;
-    case MSG_REPORT_STATUS_READ_STATUS_INT:
-		pReport->readStatus = value;
+		case MSG_REPORT_TIME_INT:
+			pReport->statusTime = value;
 		break;
-    case MSG_REPORT_STATUS_READ_TIME_INT:
-		pReport->readStatusTime = value;
-		break;
-    default:
+
+		default:
 		err = MSG_ERR_UNKNOWN;
 		break;
-    }
+	}
 
 	return err;
 }
@@ -2278,7 +2458,173 @@ int msg_sms_sendopt_set_bool(void *option, int field, bool value)
 		pOpt->bReplyPath = value;
 		break;
     default:
-		err = MSG_ERR_UNKNOWN;
+    	err = MSG_ERR_UNKNOWN;
+		break;
+    }
+	return err;
+}
+
+EXPORT_API int msg_add_push_event(msg_handle_t handle, const msg_struct_t push_event)
+{
+	msg_error_t err =  MSG_SUCCESS;
+
+	if (handle == NULL || push_event == NULL)
+	{
+		return -EINVAL;
+	}
+
+	MsgHandle* pHandle = (MsgHandle*)handle;
+
+	msg_struct_s *pPush = (msg_struct_s *)push_event;
+
+	try
+	{
+		err = pHandle->addPushEvent((MSG_PUSH_EVENT_INFO_S *)pPush->data);
+	}
+	catch (MsgException& e)
+	{
+		MSG_FATAL("%s", e.what());
+		return MSG_ERR_STORAGE_ERROR;
+	}
+
+	return err;
+}
+
+EXPORT_API int msg_delete_push_event(msg_handle_t handle, const msg_struct_t push_event)
+{
+	msg_error_t err =  MSG_SUCCESS;
+
+	if (handle == NULL || push_event == NULL)
+	{
+		return -EINVAL;
+	}
+
+	MsgHandle* pHandle = (MsgHandle*)handle;
+
+	msg_struct_s *pPush = (msg_struct_s *)push_event;
+
+	try
+	{
+		err = pHandle->deletePushEvent((MSG_PUSH_EVENT_INFO_S *)pPush->data);
+	}
+	catch (MsgException& e)
+	{
+		MSG_FATAL("%s", e.what());
+		return MSG_ERR_STORAGE_ERROR;
+	}
+
+	return err;
+}
+
+EXPORT_API int msg_update_push_event(msg_handle_t handle, const msg_struct_t src_event, const msg_struct_t dst_event)
+{
+	msg_error_t err =  MSG_SUCCESS;
+
+	if (handle == NULL || src_event == NULL || dst_event == NULL)
+	{
+		return -EINVAL;
+	}
+
+	MsgHandle* pHandle = (MsgHandle*)handle;
+
+	msg_struct_s *pSrc = (msg_struct_s *)src_event;
+	msg_struct_s *pDst = (msg_struct_s *)dst_event;
+
+	try
+	{
+		err = pHandle->updatePushEvent((MSG_PUSH_EVENT_INFO_S *)pSrc->data, (MSG_PUSH_EVENT_INFO_S *)pDst->data);
+	}
+	catch (MsgException& e)
+	{
+		MSG_FATAL("%s", e.what());
+		return MSG_ERR_STORAGE_ERROR;
+	}
+
+	return err;
+}
+
+char* msg_push_config_get_str(void *event_info, int field, int size)
+{
+	char *result = NULL;
+	MSG_PUSH_EVENT_INFO_S *pEvent = (MSG_PUSH_EVENT_INFO_S *)event_info;
+	switch(field)
+	{
+    case MSG_PUSH_CONFIG_CONTENT_TYPE_STR:
+		result = pEvent->contentType;
+		break;
+    case MSG_PUSH_CONFIG_APPLICATON_ID_STR:
+		result = pEvent->appId;
+		break;
+    case MSG_PUSH_CONFIG_PACKAGE_NAME_STR:
+		result = pEvent->pkgName;
+		break;
+
+	default:
+		result = NULL;
+		break;
+	}
+	return result;
+}
+
+bool msg_push_config_get_bool(void *event_info, int field)
+{
+	bool result = false;
+	MSG_PUSH_EVENT_INFO_S *pEvent = (MSG_PUSH_EVENT_INFO_S *)event_info;
+	switch(field)
+	{
+    case MSG_PUSH_CONFIG_LAUNCH_BOOL:
+    	result = pEvent->bLaunch;
+		break;
+	default:
+		break;
+	}
+	return result;
+}
+
+int msg_push_config_set_str(void *event_info, int field, char *value, int size)
+{
+	msg_error_t err =  MSG_SUCCESS;
+	if(!event_info || !value)
+		return MSG_ERR_NULL_POINTER;
+    MSG_PUSH_EVENT_INFO_S *pEvent = (MSG_PUSH_EVENT_INFO_S *)event_info;
+    int _len = 0;
+
+    switch(field)
+    {
+    case MSG_PUSH_CONFIG_CONTENT_TYPE_STR:
+        (size > MAX_WAPPUSH_CONTENT_TYPE_LEN)? _len = MAX_WAPPUSH_CONTENT_TYPE_LEN : _len = size;
+		strncpy(pEvent->contentType, value, _len);
+		break;
+    case MSG_PUSH_CONFIG_APPLICATON_ID_STR:
+        (size > MAX_WAPPUSH_ID_LEN)? _len = MAX_WAPPUSH_ID_LEN : _len = size;
+		strncpy(pEvent->appId, value, _len);
+		break;
+    case MSG_PUSH_CONFIG_PACKAGE_NAME_STR:
+        (size > MSG_FILEPATH_LEN_MAX)? _len = MSG_FILEPATH_LEN_MAX : _len = size;
+		strncpy(pEvent->pkgName, value, _len);
+		break;
+    default:
+    	err = MSG_ERR_UNKNOWN;
+		break;
+    }
+
+	return err;
+}
+
+int msg_push_config_set_bool(void *event, int field, bool value)
+{
+	msg_error_t err =  MSG_SUCCESS;
+	if(!event)
+		return MSG_ERR_NULL_POINTER;
+
+	MSG_PUSH_EVENT_INFO_S *pEvent = (MSG_PUSH_EVENT_INFO_S *)event;
+    switch(field)
+    {
+    case MSG_PUSH_CONFIG_LAUNCH_BOOL:
+    	pEvent->bLaunch = value;
+		break;
+    default:
+    	err = MSG_ERR_UNKNOWN;
 		break;
     }
 	return err;

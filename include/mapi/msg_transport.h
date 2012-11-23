@@ -503,6 +503,10 @@ int msg_reg_lbs_message_callback(msg_handle_t handle, msg_lbs_msg_incoming_cb cb
 int msg_reg_syncml_message_operation_callback(msg_handle_t handle,  msg_syncml_msg_operation_cb cb, void *user_param);
 
 
+int msg_reg_push_message_callback(msg_handle_t handle,  msg_push_msg_incoming_cb cb, const char *app_id, void *user_param);
+
+int msg_reg_cb_message_callback(msg_handle_t handle, msg_cb_incoming_cb  cb, bool bsave, void *user_param);
+
 /**
 
  * \par Description:

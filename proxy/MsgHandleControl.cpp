@@ -126,7 +126,7 @@ void MsgHandle::write(const char *pCmdData, int cmdSize, char **ppEvent)
 
 void MsgHandle::read(char **ppEvent)
 {
-	int dataSize = 0;
+	unsigned int dataSize = 0;
 
 	dataSize = mClientSock.read(ppEvent, &dataSize);
 
@@ -359,7 +359,7 @@ void MsgHandle::convertMsgStruct(const MSG_MESSAGE_INFO_S *pSrc, MSG_MESSAGE_HID
 		pDest->dataSize = pSrc->dataSize;
 
 		if (pSrc->msgType.mainType == MSG_SMS_TYPE) {
-			if (pDest->encodeType == MSG_ENCODE_8BIT) {
+			if (pDest->encodeType == MSG_ENCODE_8BIT || pSrc->msgType.subType == MSG_ETWS_SMS) {
 				pDest->pData = (void*)new char[pDest->dataSize];
 				memset(pDest->pData, 0x00, pDest->dataSize);
 				memcpy(pDest->pData, pSrc->msgText, pDest->dataSize);

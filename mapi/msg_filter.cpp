@@ -191,6 +191,51 @@ EXPORT_API int msg_get_filter_operation(msg_handle_t handle, bool *set_flag)
 }
 
 
+EXPORT_API int msg_set_filter_active(msg_handle_t handle, msg_filter_id_t filter_id, bool active)
+{
+	msg_error_t err =  MSG_SUCCESS;
+
+	if (handle == NULL)
+	{
+		return -EINVAL;
+	}
+
+	MsgHandle* pHandle = (MsgHandle*)handle;
+
+	try
+	{
+		err = pHandle->setFilterActivation(filter_id, active);
+	}
+	catch (MsgException& e)
+	{
+		MSG_FATAL("%s", e.what());
+		return MSG_ERR_FILTER_ERROR;
+	}
+
+	return err;
+}
+
+
+bool msg_get_filter_info_bool(void *filter, int field)
+{
+	if (!filter)
+		return MSG_ERR_NULL_POINTER;
+
+	int ret = 0;
+
+	MSG_FILTER_S *filter_data = (MSG_FILTER_S *)filter;
+
+	switch (field)
+	{
+	case MSG_FILTER_ACTIVE_BOOL :
+		ret = filter_data->bActive;
+		break;
+	default :
+		return MSG_ERR_INVALID_PARAMETER;
+	}
+
+	return ret;
+}
 
 
 int msg_get_filter_info_int(void *filter, int field)
@@ -237,6 +282,26 @@ char *msg_get_filter_info_str(void *filter, int field)
 	}
 
 	return ret_str;
+}
+
+int msg_set_filter_info_bool(void *filter, int field, bool value)
+{
+	if (!filter)
+		return MSG_ERR_NULL_POINTER;
+
+	msg_error_t err =  MSG_SUCCESS;
+	MSG_FILTER_S *filter_data = (MSG_FILTER_S *)filter;
+
+	switch (field)
+	{
+	case MSG_FILTER_ACTIVE_BOOL :
+		filter_data->bActive = value;
+		break;
+	default :
+		return MSG_ERR_INVALID_PARAMETER;
+	}
+
+	return err;
 }
 
 int msg_set_filter_info_int(void *filter, int field, int value)

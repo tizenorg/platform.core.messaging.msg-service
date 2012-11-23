@@ -539,22 +539,12 @@ MmsMsgMultiStatus *MmsComposeDeliveryIndMessage(MmsMsg *pMmsMsg, msg_message_id_
 void MmsComposeReadReportMessage(MmsMsg *pMmsMsg, const MSG_MESSAGE_INFO_S *pMsgInfo, msg_message_id_t selectedMsgId);
 MmsMsgMultiStatus *MmsGetMultiStatus(msg_message_id_t msgId);
 int MmsSearchMsgId(char *toNumber, char *szMsgID);
-void MmsUpdateDeliveryReport(msg_message_id_t msgId, MmsMsgMultiStatus *pStatus);
-void MmsUpdateReadReport(msg_message_id_t msgId, MmsMsgMultiStatus *pStatus);
 MsgMultipart *MmsAllocMultipart(void);
-bool _MsgIsASCII(char *pszText);
-bool _MsgReplaceNonAscii(char *szInText, char **szOutText, char replaceChar);
-bool _MsgIsSpace(char *pszText);
-bool _MsgReplaceSpecialChar(char *szInText, char **szOutText, char specialChar);
-char *MsgStrAppend(char *szInputStr1, char *szInputStr2);
-char *MsgStrCopy(const char *string);
-char *MsgStrNCopy(const char *string, int length);
-int	MsgStrlen(char *pStr);
-bool _MsgConvertCharToHex(char pSrc, char *pDest);
 msg_error_t MmsAddAttachment(MMS_MESSAGE_DATA_S *pMsgData, MMS_MEDIA_S *pMedia);
 bool MmsCheckAdditionalMedia(MMS_MESSAGE_DATA_S *pMsgData, MsgType *partHeader);
 #ifdef __SUPPORT_DRM__
 bool __MsgInitMsgDRMInfo(MsgDRMInfo *pMsgDrmInfo);
 #endif
 
+msg_error_t MmsMakePreviewInfo(int msgId, MMS_MESSAGE_DATA_S *pMmsMsg);
 #endif

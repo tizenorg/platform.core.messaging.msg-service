@@ -22,7 +22,7 @@
 #include "MsgMmsTypes.h"
 #include "MsgDrmWrapper.h"
 #include "MsgDebug.h"
-
+#include "MmsPluginUtil.h"
 
 #ifdef __SUPPORT_DRM__
 

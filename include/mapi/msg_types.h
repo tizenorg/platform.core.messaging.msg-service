@@ -40,15 +40,18 @@
 #define MAX_COMMAND_LEN		1024
 #define MAX_FOLDER_NAME_SIZE		20
 
-#define MAX_WAPPUSH_ID_LEN			40
-#define MAX_WAPPUSH_HREF_LEN		300
-#define MAX_WAPPUSH_CONTENTS_LEN	2048
+#define MAX_WAPPUSH_ID_LEN				100
+#define MAX_WAPPUSH_CONTENT_TYPE_LEN	40
+#define MAX_WAPPUSH_HREF_LEN			300
+#define MAX_WAPPUSH_CONTENTS_LEN		2048
 
 #define MAX_PUSH_CACHEOP_INVALID_OBJECT_MAX	5
 #define MAX_PUSH_CACHEOP_INVALID_SERVICE_MAX	5
 #define MAX_PUSH_CACHEOP_MAX_URL_LEN			200
 
 #define MAX_COMMON_INFO_SIZE	20
+
+#define MAX_SEGMENT_NUM			15
 
 /**
  *	@brief	Defines the maximum file path length
@@ -158,6 +161,8 @@
 #define MMS_TR_ID_LEN		40
 #define MMS_MSG_ID_LEN		40
 #define MMS_LOCATION_LEN	100
+
+#define MAX_MMS_TEXT_LEN		2000
 /*==================================================================================================
                                          TYPES
 ==================================================================================================*/
@@ -269,6 +274,13 @@ typedef unsigned int msg_contact_id_t;
 
 
 /**
+  *  @brief	Represents a Report Type.
+ *	The values for this type SHOULD be in _MSG_REPORT_TYPE_E
+  */
+typedef int msg_report_type_t;
+
+
+/**
   *  @brief	Represents a Delivery Report Status.
  *	The values for this type SHOULD be in _MSG_DELIVERY_REPORT_STATUS_E
   */
@@ -319,7 +331,7 @@ enum _MSG_STRUCT_E {
 
 	MSG_STRUCT_MESSAGE_INFO = 0x0200,				/**< Indicates the MSG_STRUCT_MESSAGE_INFO */
 	MSG_STRUCT_THREAD_INFO = 0x0300,
-
+	MSG_STRUCT_CONV_INFO = 0x0400,
 	MSG_STRUCT_MMS = 0x0500,								/**< Indicates the MSG_STRUCT_MMS */
 	MSG_STRUCT_MMS_PAGE = 0x0600,						/**< Indicates the MSG_STRUCT_MMS_PAGE */
 	MSG_STRUCT_MMS_MEDIA = 0x0700,					/**< Indicates the MSG_STRUCT_MMS_MEDIA */
@@ -358,6 +370,8 @@ enum _MSG_STRUCT_E {
 	MSG_STRUCT_REJECT_MSG_INFO = 0x4400,			/**< Indicates the MSG_STRUCT_REJECT_MSG_INFO */
 	MSG_STRUCT_REQUEST_INFO = 0x4500,				/**< Indicates the MSG_STRUCT_REQUEST_INFO */
 	MSG_STRUCT_SENT_STATUS_INFO = 0x4600,				/**< Indicates the MSG_STRUCT_SENT_STATUS_INFO */
+	MSG_STRUCT_PUSH_CONFIG_INFO = 0x4700,				/**< Indicates the MSG_STRUCT_PUSH_CONFIG_INFO */
+	MSG_STRUCT_CB_MSG = 0x4800,						/**< Indicates the MSG_STRUCT_PUSH_CONFIG_INFO */
 };
 
 enum _MSG_MESSAGE_INFO_E_ {
@@ -391,7 +405,8 @@ enum _MSG_MESSAGE_INFO_E_ {
 enum MSG_FILTER_INFO_E {
 	MSG_FILTER_ID_INT = MSG_STRUCT_FILTER+1,		/**< Indicates the filter ID. */
 	MSG_FILTER_TYPE_INT,					/**< Indicates the filter type. See enum _MSG_FILTER_TYPE_E */
-	MSG_FILTER_VALUE_STR,					/**< The value of a filter. */
+	MSG_FILTER_VALUE_STR,					/**< The value of the filter. */
+	MSG_FILTER_ACTIVE_BOOL,					/**< Indicates the activation of the filter. */
 };
 
 enum MSG_STRUCT_THREAD_INFO_E {
@@ -403,7 +418,31 @@ enum MSG_STRUCT_THREAD_INFO_E {
 	MSG_THREAD_DIRECTION_INT,				/**< The latest message direction See enum _MSG_DIRECTION_TYPE_E */
 	MSG_THREAD_UNREAD_COUNT_INT,				/**< Indicates unread count of thread */
 	MSG_THREAD_SMS_COUNT_INT,				/**< Indicates sms message count of thread */
-	MSG_THREAD_MMS_COUNT_INT				/**< Indicates mms message count of thread */
+	MSG_THREAD_MMS_COUNT_INT,				/**< Indicates mms message count of thread */
+	MSG_THREAD_PROTECTED_BOOL		/**< Indicates whether thread includes protected messages. */
+};
+
+enum MSG_STRUCT_CONV_INFO_E {
+	MSG_CONV_MSG_ID_INT = MSG_STRUCT_CONV_INFO+1,		/**< Indicates the message ID of this message. */
+	MSG_CONV_MSG_THREAD_ID_INT,				/**< Indicates the thread ID. */
+	MSG_CONV_MSG_TYPE_INT,													/**< Indicates the message type. See enum _MSG_MESSAGE_TYPE_E */
+	MSG_CONV_MSG_FOLDER_ID_INT,				/**< Indicates the folder ID. see enum _MSG_FOLDER_TYPE_E */
+	MSG_CONV_MSG_STORAGE_ID_INT,										/**< Indicates where the message is saved. see enum _MSG_STORAGE_ID_E*/
+	MSG_CONV_MSG_SUBJECT_STR,											/**< Indicates the message subject. */
+	MSG_CONV_MSG_DISPLAY_TIME_INT,									/**< Indicates the display time related to the specific operation. */
+	MSG_CONV_MSG_SCHEDULED_TIME_INT,								/**< Indicates the time to send scheduled message. */
+	MSG_CONV_MSG_NETWORK_STATUS_INT,							/**< Indicates the network status of the message. See enum _MSG_NETWORK_STATUS_E */
+	MSG_CONV_MSG_READ_BOOL,												/**< Indicates whether the message is read or not. */
+	MSG_CONV_MSG_PROTECTED_BOOL,									/**< Indicates whether the message is protected or not. */
+	MSG_CONV_MSG_DIRECTION_INT,											/**< Indicates whether the message is MO or MT, affecting address. See enum _MSG_DIRECTION_TYPE_E */
+	MSG_CONV_MSG_PAGE_COUNT_INT,									/**< Indicates the count of pages in mms. */
+	MSG_CONV_MSG_ATTACH_COUNT_INT,									/**< Indicates the count of attached files in mms. */
+	MSG_CONV_MSG_ATTACH_NAME_STR,								/**< Indicates the attached file name of message. */
+	MSG_CONV_MSG_AUDIO_NAME_STR,									/**< Indicates the audio file name of message. */
+	MSG_CONV_MSG_IMAGE_THUMB_PATH_STR,						/**< Indicates the image thumbnail path of message. */
+	MSG_CONV_MSG_VIDEO_THUMB_PATH_STR,						/**< Indicates the video thumbnail path of message. */
+	MSG_CONV_MSG_TEXT_SIZE_INT,											/**< Indicates the data size. The unit is byte. */
+	MSG_CONV_MSG_TEXT_STR													/**< Indicates the message payload information as a body. default character encoding is UTF-8*/
 };
 
 enum _MSG_STRUCT_SETTING_SMSC_OPT_E {
@@ -422,7 +461,6 @@ enum _MSG_STRUCT_SETTING_SMSC_INFO_E {
 
 enum _MSG_STRUCT_CB_OPT_E {
 	MSG_CB_RECEIVE_BOOL = MSG_STRUCT_SETTING_CB_OPT+1,		/**< Indicates whether the CB message is received or not. */
-	MSG_CB_RECEIVE_ALL_CHANNEL_BOOL,			/**< Indicates whether All Channel's CB message is received or not. */
 	MSG_CB_MAX_SIM_COUNT_INT,				/**< Indicates the number of channels which can be stored in SIM. */
 	MSG_CB_CHANNEL_LIST_STRUCT,				/**< Indicates the cell broadcasting channel information. */
 	MSG_CB_LANGUAGE_TYPE_ALL_BOOL,
@@ -653,12 +691,13 @@ enum MSG_SEARCH_CONDITION_E {
 	MSG_SEARCH_CONDITION_RESERVED_INT,
 };
 
-enum MSG_REPORT_STATUS_E {
-	MSG_REPORT_STATUS_DELIVERY_STATUS_INT = MSG_STRUCT_REPORT_STATUS_INFO+1,	/**< Indicates the message ID of this message. */
-	MSG_REPORT_STATUS_DELIVERY_TIME_INT,						/**< Indicates the display time related to the specific operation. */
-	MSG_REPORT_STATUS_READ_STATUS_INT,						/**< Indicates the message ID of this message. */
-	MSG_REPORT_STATUS_READ_TIME_INT,						/**< Indicates the display time related to the specific operation. */
+enum MSG_REPORT_E {
+	MSG_REPORT_ADDRESS_STR = MSG_STRUCT_REPORT_STATUS_INFO+1,	/**< Indicates Report address */
+	MSG_REPORT_TYPE_INT,							/**< Indicates Report type. See the msg_report_type_t type*/
+	MSG_REPORT_STATUS_INT,						/**< Indicates Report status. See the msg_delivery_report_status_t or msg_read_report_status_t type*/
+	MSG_REPORT_TIME_INT,							/**< Indicates Report time */
 };
+
 enum MSG_ADDRESS_INFO_E {
 	MSG_ADDRESS_INFO_ADDRESS_TYPE_INT = MSG_STRUCT_ADDRESS_INFO+1,			/**< The type of an address in case of an Email or a mobile phone. See enum _MSG_ADDRESS_TYPE_E */
 	MSG_ADDRESS_INFO_RECIPIENT_TYPE_INT,						/**< The type of recipient address in case of To, Cc, and Bcc. See enum _MSG_RECIPIENT_TYPE_E */
@@ -696,6 +735,25 @@ enum MSG_SENT_STATUS_INFO_E {
 	MSG_SENT_STATUS_NETWORK_STATUS_INT,				/**< Indicates the status of the corresponding request. Refer to enum _MSG_NETWORK_STATUS_E*/
 };
 
+enum MSG_PUSH_CONFIG_INFO_E {
+	MSG_PUSH_CONFIG_CONTENT_TYPE_STR = MSG_STRUCT_PUSH_CONFIG_INFO+1,
+	MSG_PUSH_CONFIG_APPLICATON_ID_STR,
+	MSG_PUSH_CONFIG_PACKAGE_NAME_STR,
+	MSG_PUSH_CONFIG_LAUNCH_BOOL,
+};
+
+enum MSG_CB_MSG_E {
+	MSG_CB_MSG_TYPE_INT	= MSG_STRUCT_CB_MSG+1,		/**<  MSG_TYPE_SMS_CB/ETWS_PRIMARY/ETWS_SECONDARY (see _MSG_MESSAGE_TYPE_E) */
+	MSG_CB_MSG_RECV_TIME_INT,
+	MSG_CB_MSG_SERIAL_NUM_INT,						/**< serial number of CB/ETWS Primary Noti. : 2 bytes binary data */
+	MSG_CB_MSG_MSG_ID_INT,							/**< message identifier of CB/ETWS Primary Noti. */
+	MSG_CB_MSG_DCS_INT,								/**< Data coding scheme of CB MSG. */
+	MSG_CB_MSG_CB_TEXT_LEN_INT,						/**< length of CB text (except NULL) */
+	MSG_CB_MSG_CB_TEXT_STR,							/**< CB text */
+	MSG_CB_MSG_ETWS_WARNING_TYPE_INT,				/**< warning type of ETWS Primary Noti. : 2 bytes binary data */
+	MSG_CB_MSG_ETWS_WARNING_SECU_INFO_STR,			/**< warning security information of ETWS Primary Noti. : 50 bytes binary data */
+	MSG_CB_MSG_LANGUAGE_TYPE_STR,					/**< Language type of CB message data */
+};
 
 /**
  *	@brief	Represents the values of a message class type. \n
@@ -714,7 +772,7 @@ enum _MSG_CLASS_TYPE_E
  *	@brief	Represents the type of Message. More members maybe added if needed \n
  *	This enum is used as the value of msg_message_type_t.
  */
- enum _MSG_MESSAGE_TYPE_E
+enum _MSG_MESSAGE_TYPE_E
 {
  	MSG_TYPE_INVALID = 0,			/** < Invalid Type Message */
 
@@ -725,9 +783,13 @@ enum _MSG_CLASS_TYPE_E
 	MSG_TYPE_SMS_MWI,				/** < MWI SMS Message */
 	MSG_TYPE_SMS_SYNCML,			/** < SyncML CP SMS Message */
 	MSG_TYPE_SMS_REJECT,			/** < Reject Message */
+
 	MSG_TYPE_MMS, 					/** < Normal MMS Message */
 	MSG_TYPE_MMS_JAVA, 			/** < JAVA MMS Message */
 	MSG_TYPE_MMS_NOTI, 			/** < MMS Notification Message */
+
+	MSG_TYPE_SMS_ETWS_PRIMARY,		/** < CB - ETWS Primary Notification */
+	MSG_TYPE_SMS_ETWS_SECONDARY,	/** < CB - ETWS Secondary Notification */
 };
 
 
@@ -973,6 +1035,16 @@ enum _MSG_READ_REPORT_STATUS_E
 	 MSG_READ_REPORT_IS_DELETED  	= 	1	  /**< Indicates the message is deleted */
  };
 
+/**
+ *  	@brief  Represents the values of a Report Type. \n
+ *	This enum is used as the value of msg_read_report_status_t.
+*/
+enum _MSG_REPORT_TYPE_E
+ {
+	 MSG_REPORT_TYPE_DELIVERY	= 	0,	  /**< Indicates the type is delivery report*/
+	 MSG_REPORT_TYPE_READ	= 	1,	  /**< Indicates the type is read report */
+
+ };
 
 // filter
 /**

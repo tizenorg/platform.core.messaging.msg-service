@@ -85,7 +85,7 @@ msg_error_t MsgStoAddFilter(const MSG_FILTER_S *pFilter)
 	// Add Filter
 	memset(sqlQuery, 0x00, sizeof(sqlQuery));
 
-	snprintf(sqlQuery, sizeof(sqlQuery), "INSERT INTO %s VALUES (%d, %d, ?);",
+	snprintf(sqlQuery, sizeof(sqlQuery), "INSERT INTO %s VALUES (%d, %d, ?, 1);",
 			MSGFW_FILTER_TABLE_NAME, rowId, pFilter->filterType);
 
 	MSG_DEBUG("sql : %s", sqlQuery);
@@ -183,14 +183,14 @@ msg_error_t MsgStoGetFilterList(msg_struct_list_s *pFilterList)
 		return MSG_ERR_NULL_POINTER;
 	}
 
-	int rowCnt = 0, index = 3;
+	int rowCnt = 0, index = 4;
 
 	char sqlQuery[MAX_QUERY_LEN+1];
 
 	// Get filters from DB
 	memset(sqlQuery, 0x00, sizeof(sqlQuery));
 
-	snprintf(sqlQuery, sizeof(sqlQuery), "SELECT FILTER_ID, FILTER_TYPE, FILTER_VALUE FROM %s;", MSGFW_FILTER_TABLE_NAME);
+	snprintf(sqlQuery, sizeof(sqlQuery), "SELECT FILTER_ID, FILTER_TYPE, FILTER_VALUE, FILTER_ACTIVE FROM %s;", MSGFW_FILTER_TABLE_NAME);
 
 	msg_error_t err = MSG_SUCCESS;
 
@@ -229,10 +229,35 @@ msg_error_t MsgStoGetFilterList(msg_struct_list_s *pFilterList)
 		pFilter->filterType = dbHandle.getColumnToInt(index++);
 		memset(pFilter->filterValue, 0x00, sizeof(pFilter->filterValue));
 		dbHandle.getColumnToString(index++, MAX_FILTER_VALUE_LEN, pFilter->filterValue);
+		pFilter->bActive = dbHandle.getColumnToInt(index++);
 	}
 
 
 	dbHandle.freeTable();
+
+	MSG_END();
+
+	return MSG_SUCCESS;
+}
+
+
+msg_error_t MsgStoSetFilterActivation(msg_filter_id_t filterId, bool bActive)
+{
+	MSG_BEGIN();
+
+	char sqlQuery[MAX_QUERY_LEN+1];
+
+	// Set Filter Activation
+	memset(sqlQuery, 0x00, sizeof(sqlQuery));
+
+	snprintf(sqlQuery, sizeof(sqlQuery), "UPDATE %s SET FILTER_ACTIVE = %d WHERE FILTER_ID = %d;",
+			MSGFW_FILTER_TABLE_NAME, bActive, filterId);
+
+	MSG_DEBUG("sqlQuery [%s]", sqlQuery);
+
+	if (dbHandle.execQuery(sqlQuery) != MSG_SUCCESS) {
+		return MSG_ERR_DB_EXEC;
+	}
 
 	MSG_END();
 
