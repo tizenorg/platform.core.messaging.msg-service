@@ -163,130 +163,131 @@ mkdir -p /opt/data/msg-service
 chgrp db_msg_service /opt/data/msg-service
 
 ########## Setting Config Value (Internal keys) ##########
+vcuid=5000
 # Message Server Status
-vconftool set -t bool memory/msg/ready 0 -i -g 5000
+vconftool set -t bool memory/msg/ready 0 -i -g 5000 -u $vcuid
 
 # SMS Send Options
-vconftool set -t int db/msg/network_mode 2
+vconftool set -t int db/msg/network_mode 2 -u $vcuid
 
 # New Message Count
-vconftool set -t int db/msg/recv_sms 0
-vconftool set -t int db/msg/recv_mms 0
+vconftool set -t int db/msg/recv_sms 0 -u $vcuid
+vconftool set -t int db/msg/recv_mms 0 -u $vcuid
 
 ########## Setting Config Value (Private keys) ##########
 # General Options
-vconftool set -t bool db/private/msg-service/general/keep_copy 1
-vconftool set -t bool db/private/msg-service/general/auto_erase 0
-vconftool set -t bool db/private/msg-service/general/block_msg 0
-vconftool set -t int db/private/msg-service/general/contact_sync_time 0
+vconftool set -t bool db/private/msg-service/general/keep_copy 1 -u $vcuid
+vconftool set -t bool db/private/msg-service/general/auto_erase 0 -u $vcuid
+vconftool set -t bool db/private/msg-service/general/block_msg 0 -u $vcuid
+vconftool set -t int db/private/msg-service/general/contact_sync_time 0 -u $vcuid
 
 # SMS Send Options
-vconftool set -t int db/private/msg-service/sms_send/dcs 3
-vconftool set -t bool db/private/msg-service/sms_send/reply_path 0
-vconftool set -t bool db/private/msg-service/sms_send/delivery_report 0
-vconftool set -t int db/private/msg-service/sms_send/save_storage 1
+vconftool set -t int db/private/msg-service/sms_send/dcs 3 -u $vcuid
+vconftool set -t bool db/private/msg-service/sms_send/reply_path 0 -u $vcuid
+vconftool set -t bool db/private/msg-service/sms_send/delivery_report 0 -u $vcuid
+vconftool set -t int db/private/msg-service/sms_send/save_storage 1 -u $vcuid
 
 # SMSC
-vconftool set -t int db/private/msg-service/smsc/total_count 1
-vconftool set -t int db/private/msg-service/smsc/selected 0
+vconftool set -t int db/private/msg-service/smsc/total_count 1 -u $vcuid
+vconftool set -t int db/private/msg-service/smsc/selected 0 -u $vcuid
 
-vconftool set -t int db/private/msg-service/smsc/pid/0 1
-vconftool set -t int db/private/msg-service/smsc/val_period/0 255
-vconftool set -t string db/private/msg-service/smsc/name/0 ""
-vconftool set -t int db/private/msg-service/smsc/ton/0 1
-vconftool set -t int db/private/msg-service/smsc/npi/0 1
-vconftool set -t string db/private/msg-service/smsc/address/0 ""
+vconftool set -t int db/private/msg-service/smsc/pid/0 1 -u $vcuid
+vconftool set -t int db/private/msg-service/smsc/val_period/0 255 -u $vcuid
+vconftool set -t string db/private/msg-service/smsc/name/0 "" -u $vcuid
+vconftool set -t int db/private/msg-service/smsc/ton/0 1 -u $vcuid
+vconftool set -t int db/private/msg-service/smsc/npi/0 1 -u $vcuid
+vconftool set -t string db/private/msg-service/smsc/address/0 "" -u $vcuid
 
-vconftool set -t int db/private/msg-service/smsc/pid/1 0
-vconftool set -t int db/private/msg-service/smsc/val_period/1 0
-vconftool set -t string db/private/msg-service/smsc/name/1 ""
-vconftool set -t int db/private/msg-service/smsc/ton/1 0
-vconftool set -t int db/private/msg-service/smsc/npi/1 0
-vconftool set -t string db/private/msg-service/smsc/address/1 ""
+vconftool set -t int db/private/msg-service/smsc/pid/1 0 -u $vcuid
+vconftool set -t int db/private/msg-service/smsc/val_period/1 0 -u $vcuid
+vconftool set -t string db/private/msg-service/smsc/name/1 "" -u $vcuid
+vconftool set -t int db/private/msg-service/smsc/ton/1 0 -u $vcuid
+vconftool set -t int db/private/msg-service/smsc/npi/1 0 -u $vcuid
+vconftool set -t string db/private/msg-service/smsc/address/1 "" -u $vcuid
 
-vconftool set -t int db/private/msg-service/smsc/pid/2 0
-vconftool set -t int db/private/msg-service/smsc/val_period/2 0
-vconftool set -t string db/private/msg-service/smsc/name/2 ""
-vconftool set -t int db/private/msg-service/smsc/ton/2 0
-vconftool set -t int db/private/msg-service/smsc/npi/2 0
-vconftool set -t string db/private/msg-service/smsc/address/2 ""
+vconftool set -t int db/private/msg-service/smsc/pid/2 0 -u $vcuid
+vconftool set -t int db/private/msg-service/smsc/val_period/2 0 -u $vcuid
+vconftool set -t string db/private/msg-service/smsc/name/2 "" -u $vcuid
+vconftool set -t int db/private/msg-service/smsc/ton/2 0 -u $vcuid
+vconftool set -t int db/private/msg-service/smsc/npi/2 0 -u $vcuid
+vconftool set -t string db/private/msg-service/smsc/address/2 "" -u $vcuid
 
 # MMS Send Options
-vconftool set -t int db/private/msg-service/mms_send/msg_class 0
-vconftool set -t int db/private/msg-service/mms_send/priority 1
-vconftool set -t int db/private/msg-service/mms_send/expiry_time 0
-vconftool set -t int db/private/msg-service/mms_send/custom_delivery 0
-vconftool set -t bool db/private/msg-service/mms_send/sender_visibility 0
-vconftool set -t bool db/private/msg-service/mms_send/delivery_report 1
-vconftool set -t bool db/private/msg-service/mms_send/read_reply 1
-vconftool set -t bool db/private/msg-service/mms_send/keep_copy 0
-vconftool set -t bool db/private/msg-service/mms_send/body_replying 0
-vconftool set -t bool db/private/msg-service/mms_send/hide_recipients 0
-vconftool set -t bool db/private/msg-service/mms_send/report_allowed 1
-vconftool set -t int db/private/msg-service/mms_send/reply_charging 0
-vconftool set -t int db/private/msg-service/mms_send/reply_charging_deadline 0
-vconftool set -t int db/private/msg-service/mms_send/reply_charging_size 0
-vconftool set -t int db/private/msg-service/mms_send/delivery_time 0
-vconftool set -t int db/private/msg-service/mms_send/creation_mode 2
+vconftool set -t int db/private/msg-service/mms_send/msg_class 0 -u $vcuid
+vconftool set -t int db/private/msg-service/mms_send/priority 1 -u $vcuid
+vconftool set -t int db/private/msg-service/mms_send/expiry_time 0 -u $vcuid
+vconftool set -t int db/private/msg-service/mms_send/custom_delivery 0 -u $vcuid
+vconftool set -t bool db/private/msg-service/mms_send/sender_visibility 0 -u $vcuid
+vconftool set -t bool db/private/msg-service/mms_send/delivery_report 1 -u $vcuid
+vconftool set -t bool db/private/msg-service/mms_send/read_reply 1 -u $vcuid
+vconftool set -t bool db/private/msg-service/mms_send/keep_copy 0 -u $vcuid
+vconftool set -t bool db/private/msg-service/mms_send/body_replying 0 -u $vcuid
+vconftool set -t bool db/private/msg-service/mms_send/hide_recipients 0 -u $vcuid
+vconftool set -t bool db/private/msg-service/mms_send/report_allowed 1 -u $vcuid
+vconftool set -t int db/private/msg-service/mms_send/reply_charging 0 -u $vcuid
+vconftool set -t int db/private/msg-service/mms_send/reply_charging_deadline 0 -u $vcuid
+vconftool set -t int db/private/msg-service/mms_send/reply_charging_size 0 -u $vcuid
+vconftool set -t int db/private/msg-service/mms_send/delivery_time 0 -u $vcuid
+vconftool set -t int db/private/msg-service/mms_send/creation_mode 2 -u $vcuid
 
 # MMS Receive Options
-vconftool set -t int db/private/msg-service/mms_recv/home_network 0
-vconftool set -t int db/private/msg-service/mms_recv/abroad_network 0
-vconftool set -t bool db/private/msg-service/mms_recv/read_receipt 1
-vconftool set -t bool db/private/msg-service/mms_recv/delivery_receipt 1
-vconftool set -t bool db/private/msg-service/mms_recv/reject_unknown 0
-vconftool set -t bool db/private/msg-service/mms_recv/reject_advertisement 0
+vconftool set -t int db/private/msg-service/mms_recv/home_network 0 -u $vcuid
+vconftool set -t int db/private/msg-service/mms_recv/abroad_network 0 -u $vcuid
+vconftool set -t bool db/private/msg-service/mms_recv/read_receipt 1 -u $vcuid
+vconftool set -t bool db/private/msg-service/mms_recv/delivery_receipt 1 -u $vcuid
+vconftool set -t bool db/private/msg-service/mms_recv/reject_unknown 0 -u $vcuid
+vconftool set -t bool db/private/msg-service/mms_recv/reject_advertisement 0 -u $vcuid
 
 # MMS Receive Options
-vconftool set -t int db/private/msg-service/mms_style/font_size 30
-vconftool set -t bool db/private/msg-service/mms_style/font_style/bold 0
-vconftool set -t bool db/private/msg-service/mms_style/font_style/italic 0
-vconftool set -t bool db/private/msg-service/mms_style/font_style/underline 0
-vconftool set -t int db/private/msg-service/mms_style/font_color/red 255
-vconftool set -t int db/private/msg-service/mms_style/font_color/green 255
-vconftool set -t int db/private/msg-service/mms_style/font_color/blue 255
-vconftool set -t int db/private/msg-service/mms_style/font_color/hue 255
-vconftool set -t int db/private/msg-service/mms_style/bg_color/red 0
-vconftool set -t int db/private/msg-service/mms_style/bg_color/green 0
-vconftool set -t int db/private/msg-service/mms_style/bg_color/blue 0
-vconftool set -t int db/private/msg-service/mms_style/bg_color/hue 255
-vconftool set -t int db/private/msg-service/mms_style/page_dur 2
-vconftool set -t int db/private/msg-service/mms_style/page_custom_dur 0
-vconftool set -t int db/private/msg-service/mms_style/page_dur_manual 0
+vconftool set -t int db/private/msg-service/mms_style/font_size 30 -u $vcuid
+vconftool set -t bool db/private/msg-service/mms_style/font_style/bold 0 -u $vcuid
+vconftool set -t bool db/private/msg-service/mms_style/font_style/italic 0 -u $vcuid
+vconftool set -t bool db/private/msg-service/mms_style/font_style/underline 0 -u $vcuid
+vconftool set -t int db/private/msg-service/mms_style/font_color/red 255 -u $vcuid
+vconftool set -t int db/private/msg-service/mms_style/font_color/green 255 -u $vcuid
+vconftool set -t int db/private/msg-service/mms_style/font_color/blue 255 -u $vcuid
+vconftool set -t int db/private/msg-service/mms_style/font_color/hue 255 -u $vcuid
+vconftool set -t int db/private/msg-service/mms_style/bg_color/red 0 -u $vcuid
+vconftool set -t int db/private/msg-service/mms_style/bg_color/green 0 -u $vcuid
+vconftool set -t int db/private/msg-service/mms_style/bg_color/blue 0 -u $vcuid
+vconftool set -t int db/private/msg-service/mms_style/bg_color/hue 255 -u $vcuid
+vconftool set -t int db/private/msg-service/mms_style/page_dur 2 -u $vcuid
+vconftool set -t int db/private/msg-service/mms_style/page_custom_dur 0 -u $vcuid
+vconftool set -t int db/private/msg-service/mms_style/page_dur_manual 0 -u $vcuid
 
 # Push Msg Options
-vconftool set -t bool db/private/msg-service/push_msg/recv_option 1
-vconftool set -t int db/private/msg-service/push_msg/service_load 1
+vconftool set -t bool db/private/msg-service/push_msg/recv_option 1 -u $vcuid
+vconftool set -t int db/private/msg-service/push_msg/service_load 1 -u $vcuid
 
 # CB Msg Options
-vconftool set -t bool db/private/msg-service/cb_msg/receive 1 -f
-vconftool set -t int db/private/msg-service/cb_msg/max_sim_count 0
-vconftool set -t int db/private/msg-service/cb_msg/channel_count 0
-vconftool set -t bool db/private/msg-service/cb_msg/language/0 1 -f
-vconftool set -t bool db/private/msg-service/cb_msg/language/1 0
-vconftool set -t bool db/private/msg-service/cb_msg/language/2 0
-vconftool set -t bool db/private/msg-service/cb_msg/language/3 0
-vconftool set -t bool db/private/msg-service/cb_msg/language/4 0
-vconftool set -t bool db/private/msg-service/cb_msg/language/5 0
-vconftool set -t bool db/private/msg-service/cb_msg/language/6 0
-vconftool set -t bool db/private/msg-service/cb_msg/language/7 0
-vconftool set -t bool db/private/msg-service/cb_msg/language/8 0
-vconftool set -t bool db/private/msg-service/cb_msg/language/9 0
+vconftool set -t bool db/private/msg-service/cb_msg/receive 1 -f -u $vcuid
+vconftool set -t int db/private/msg-service/cb_msg/max_sim_count 0 -u $vcuid
+vconftool set -t int db/private/msg-service/cb_msg/channel_count 0 -u $vcuid
+vconftool set -t bool db/private/msg-service/cb_msg/language/0 1 -f -u $vcuid
+vconftool set -t bool db/private/msg-service/cb_msg/language/1 0 -u $vcuid
+vconftool set -t bool db/private/msg-service/cb_msg/language/2 0 -u $vcuid
+vconftool set -t bool db/private/msg-service/cb_msg/language/3 0 -u $vcuid
+vconftool set -t bool db/private/msg-service/cb_msg/language/4 0 -u $vcuid
+vconftool set -t bool db/private/msg-service/cb_msg/language/5 0 -u $vcuid
+vconftool set -t bool db/private/msg-service/cb_msg/language/6 0 -u $vcuid
+vconftool set -t bool db/private/msg-service/cb_msg/language/7 0 -u $vcuid
+vconftool set -t bool db/private/msg-service/cb_msg/language/8 0 -u $vcuid
+vconftool set -t bool db/private/msg-service/cb_msg/language/9 0 -u $vcuid
 
 # Voice Mail Options
-vconftool set -t string db/private/msg-service/voice_mail/voice_mail_number ""
+vconftool set -t string db/private/msg-service/voice_mail/voice_mail_number "" -u $vcuid
 
 # MMS Size Options
-vconftool set -t int db/private/msg-service/size_opt/msg_size 300
+vconftool set -t int db/private/msg-service/size_opt/msg_size 300 -u $vcuid
 
 # SIM message count
-vconftool set -t int db/private/msg-service/sim_count/used_cnt 0
-vconftool set -t int db/private/msg-service/sim_count/total_cnt 0
+vconftool set -t int db/private/msg-service/sim_count/used_cnt 0 -u $vcuid
+vconftool set -t int db/private/msg-service/sim_count/total_cnt 0 -u $vcuid
 
 # SIM information
-vconftool set -t int memory/private/msg-service/sim_changed 0 -i
-vconftool set -t string memory/private/msg-service/sim_imsi "" -i
-vconftool set -t bool memory/private/msg-service/national_sim 0 -i
+vconftool set -t int memory/private/msg-service/sim_changed 0 -i -u $vcuid
+vconftool set -t string memory/private/msg-service/sim_imsi "" -i -u $vcuid
+vconftool set -t bool memory/private/msg-service/national_sim 0 -i -u $vcuid
 
 /sbin/ldconfig
 /bin/systemctl daemon-reload
