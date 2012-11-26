@@ -22,7 +22,7 @@
 #include <curl/curl.h>
 
 static bool __httpGetHeaderField(MMS_HTTP_HEADER_FIELD_T httpHeaderItem, char *szHeaderBuffer);
-static void __httpGetHost(char *szHost, int nBufferLen);
+static void __httpGetHost(char *szUrl, char *szHost, int nBufferLen);
 static void __httpAllocHeaderInfo(curl_slist **responseHeaders, char *szUrl, int ulContentLen);
 
 static MMS_NET_ERROR_T __httpReceiveData(void *ptr, size_t size, size_t nmemb, void *userdata);
@@ -114,28 +114,28 @@ static void __httpAllocHeaderInfo(curl_slist **responseHeaders, char *szUrl, int
 
 	bool nResult = __httpGetHeaderField(MMS_HH_CONTENT_TYPE, szBuffer);
 	if (nResult) {
-		strcat(pcheader,"Content-Type: ");
-		strcat(pcheader, szBuffer);
+		snprintf(pcheader, HTTP_REQUEST_LEN, "Content-Type: %s", szBuffer);
 		MSG_DEBUG("%s", pcheader);
 		*responseHeaders = curl_slist_append(*responseHeaders, pcheader);
 	}
 
-	memset(szBuffer, 0, 1025);
-	memset(pcheader, 0, HTTP_REQUEST_LEN);
-	snprintf(szBuffer, 1024, "%d", ulContentLen);
-	if (nResult) {
-		strcat(pcheader, "Content-Length: ");
-		strcat(pcheader, szBuffer);
-		MSG_DEBUG("%s", pcheader);
-		*responseHeaders = curl_slist_append(*responseHeaders, pcheader);
+	if (ulContentLen > 0) {
+		memset(szBuffer, 0, 1025);
+		memset(pcheader, 0, HTTP_REQUEST_LEN);
+		snprintf(szBuffer, 1024, "%d", ulContentLen);
+		if (nResult) {
+			snprintf(pcheader, HTTP_REQUEST_LEN, "Content-Length: %s", szBuffer);
+			MSG_DEBUG("%s", pcheader);
+			*responseHeaders = curl_slist_append(*responseHeaders, pcheader);
+		}
 	}
 
 	memset(szBuffer, 0, 1025);
 	memset(pcheader, 0, HTTP_REQUEST_LEN);
-	nResult = __httpGetHeaderField(MMS_HH_HOST, szBuffer);
-	if (nResult) {
-		strcat(pcheader, "HOST: ");
-		strcat(pcheader, szBuffer);
+
+	__httpGetHost(szUrl, szBuffer, 1024);
+	if (strlen(szBuffer)){
+		snprintf(pcheader, HTTP_REQUEST_LEN, "Host: %s", szBuffer);
 		MSG_DEBUG("%s", pcheader);
 		*responseHeaders = curl_slist_append(*responseHeaders, pcheader);
 	}
@@ -144,8 +144,7 @@ static void __httpAllocHeaderInfo(curl_slist **responseHeaders, char *szUrl, int
 	memset(pcheader, 0, HTTP_REQUEST_LEN);
 	nResult = __httpGetHeaderField(MMS_HH_ACCEPT, szBuffer);
 	if (nResult) {
-		strcat(pcheader, "Accept: ");
-		strcat(pcheader, szBuffer);
+		snprintf(pcheader, HTTP_REQUEST_LEN, "Accept: %s", szBuffer);
 		MSG_DEBUG("%s", pcheader);
 		*responseHeaders = curl_slist_append(*responseHeaders, pcheader);
 	}
@@ -154,8 +153,7 @@ static void __httpAllocHeaderInfo(curl_slist **responseHeaders, char *szUrl, int
 	memset(pcheader, 0, HTTP_REQUEST_LEN);
 	nResult = __httpGetHeaderField(MMS_HH_ACCEPT_CHARSET, szBuffer);
 	if (nResult) {
-		strcat(pcheader, "Accept-Charset: ");
-		strcat(pcheader, szBuffer);
+		snprintf(pcheader, HTTP_REQUEST_LEN, "Accept-Charset: %s", szBuffer);
 		MSG_DEBUG("%s", pcheader);
 		*responseHeaders = curl_slist_append(*responseHeaders, pcheader);
 	}
@@ -164,8 +162,7 @@ static void __httpAllocHeaderInfo(curl_slist **responseHeaders, char *szUrl, int
 	memset(pcheader, 0, HTTP_REQUEST_LEN);
 	nResult = __httpGetHeaderField(MMS_HH_ACCEPT_LANGUAGE, szBuffer);
 	if (nResult) {
-		strcat(pcheader, "Accept-Language: ");
-		strcat(pcheader, szBuffer);
+		snprintf(pcheader, HTTP_REQUEST_LEN, "Accept-Language: %s", szBuffer);
 		MSG_DEBUG("%s", pcheader);
 		*responseHeaders = curl_slist_append(*responseHeaders, pcheader);
 	}
@@ -174,8 +171,7 @@ static void __httpAllocHeaderInfo(curl_slist **responseHeaders, char *szUrl, int
 	memset(pcheader, 0, HTTP_REQUEST_LEN);
 	nResult = __httpGetHeaderField(MMS_HH_USER_AGENT, szBuffer);
 	if (nResult) {
-		strcat(pcheader, "User-Agent: ");
-		strcat(pcheader, szBuffer);
+		snprintf(pcheader, HTTP_REQUEST_LEN, "User-Agent: %s", szBuffer);
 		MSG_DEBUG("%s", pcheader);
 		*responseHeaders = curl_slist_append(*responseHeaders, pcheader);
 	}
@@ -184,11 +180,13 @@ static void __httpAllocHeaderInfo(curl_slist **responseHeaders, char *szUrl, int
 	memset(pcheader, 0, HTTP_REQUEST_LEN);
 	nResult = __httpGetHeaderField(MMS_HH_WAP_PROFILE, szBuffer);
 	if (nResult) {
-		strcat(pcheader, "X-wap-profile: ");
-		strcat(pcheader, szBuffer);
+		snprintf(pcheader, HTTP_REQUEST_LEN, "X-wap-profile: %s", szBuffer);
 		MSG_DEBUG("%s", pcheader);
 		*responseHeaders = curl_slist_append(*responseHeaders, pcheader);
 	}
+
+	if (ulContentLen > 0)//if post transaction then Disable 'Expect: 100-contine' option
+		*responseHeaders = curl_slist_append(*responseHeaders, "Expect:");
 }
 
 static bool __httpGetHeaderField(MMS_HTTP_HEADER_FIELD_T httpHeaderItem, char *szHeaderBuffer)
@@ -201,14 +199,6 @@ static bool __httpGetHeaderField(MMS_HTTP_HEADER_FIELD_T httpHeaderItem, char *s
 		case MMS_HH_CONTENT_TYPE:
 			snprintf((char *)szHeaderBuffer, 1024, "%s", MSG_MMS_HH_CONTENT_TYPE);
 			result = true;
-			break;
-
-		case MMS_HH_HOST:
-			__httpGetHost(szHeaderBuffer, 1024);
-			if (strlen(szHeaderBuffer) > 0)
-				result = true;
-			else
-				result = false;
 			break;
 
 		case MMS_HH_ACCEPT:
@@ -264,17 +254,17 @@ static bool __httpGetHeaderField(MMS_HTTP_HEADER_FIELD_T httpHeaderItem, char *s
 	return result;
 }
 
-static void __httpGetHost(char *szHost, int nBufferLen)
+static void __httpGetHost(char *szUrl, char *szHost, int nBufferLen)
 {
-	MmsPluginHttpAgent *pHttpAgent = MmsPluginHttpAgent::instance();
-	MMS_PLUGIN_HTTP_DATA_S *httpConfigData = pHttpAgent->getHttpConfigData();
+	if (szUrl == NULL || szHost == NULL)
+		return;
 
 	const char *prefixString = "http://";
-	const char *delim = ":/\\=@";
+	const char *delim = "/\\=@";
 
 	int prefixLength = strlen(prefixString);
 
-	char *startPtr = &httpConfigData->mmscConfig.mmscUrl[0];
+	char *startPtr = szUrl;
 	char *movePtr = NULL;
 
 	MSG_DEBUG("startPtr(%s)", startPtr);
@@ -308,7 +298,6 @@ static void __httpGetHost(char *szHost, int nBufferLen)
 		}
 	}
 }
-
 
 static MMS_NET_ERROR_T __httpReceiveData(void *ptr, size_t size, size_t nmemb, void *userdata)
 {
@@ -592,10 +581,7 @@ int MmsPluginHttpAgent::setSession(mmsTranQEntity *qEntity)
 
 		curl_slist *responseHeaders = NULL;
 
-		__httpAllocHeaderInfo(&responseHeaders, NULL, qEntity->postDataLen);
-
-		//Disable 'Expect: 100-contine' option
-		responseHeaders = curl_slist_append(responseHeaders, "Expect:");
+		__httpAllocHeaderInfo(&responseHeaders, httpConfigData.mmscConfig.mmscUrl, qEntity->postDataLen);
 
 		MSG_DEBUG(" === MMSCURI = %s === ", httpConfigData.mmscConfig.mmscUrl);
 
@@ -610,8 +596,8 @@ int MmsPluginHttpAgent::setSession(mmsTranQEntity *qEntity)
 		curl_easy_setopt(httpConfigData.session, CURLOPT_POSTFIELDS, qEntity->pPostData);
 		curl_easy_setopt(httpConfigData.session, CURLOPT_POSTFIELDSIZE, qEntity->postDataLen);
 		curl_easy_setopt(httpConfigData.session, CURLOPT_WRITEFUNCTION, __httpPostTransactionCB);
-
 		curl_easy_setopt(httpConfigData.session, CURLOPT_TCP_NODELAY, 1);
+
 	} else if (qEntity->eHttpCmdType == eHTTP_CMD_GET_TRANSACTION) {
 		MSG_DEBUG("MmsHttpInitTransactionGet  %d pGetData (%s)", qEntity->getDataLen, qEntity->pGetData);
 	   	MSG_DEBUG("MmsHttpInitTransactionGet  mmscURL (%s) ", httpConfigData.mmscConfig.mmscUrl);
@@ -624,7 +610,7 @@ int MmsPluginHttpAgent::setSession(mmsTranQEntity *qEntity)
 
 	 	curl_slist *responseHeaders = NULL;
 
-		__httpAllocHeaderInfo(&responseHeaders, NULL, 0);
+		__httpAllocHeaderInfo(&responseHeaders, szUrl, 0);
 
 		httpConfigData.sessionHeader = (void *)responseHeaders;
 

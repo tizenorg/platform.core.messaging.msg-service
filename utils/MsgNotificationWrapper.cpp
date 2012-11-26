@@ -17,6 +17,7 @@
 #include "MsgDebug.h"
 #include "MsgContact.h"
 #include "MsgStorageTypes.h"
+#include "MsgUtilStorage.h"
 #include "MsgNotificationWrapper.h"
 
 extern "C"
@@ -486,18 +487,35 @@ msg_error_t MsgInsertMmsReportToNoti(MsgDbHandler *pDbHandle, MSG_MESSAGE_INFO_S
 	MSG_ADDRESS_INFO_S *address_info_s = &pMsg->addressList[0];
 	MSG_DEBUG("address info : %s, type : %d", address_info_s->addressVal, address_info_s->addressType);
 
-	if (address_info_s->addressType == MSG_ADDRESS_TYPE_PLMN) {//FIXME: compare 10 char of address
-		snprintf(sqlQuery, sizeof(sqlQuery),
-			"SELECT A.ADDRESS_VAL, A.DISPLAY_NAME, A.FIRST_NAME, A.LAST_NAME, B.STATUS "
-			"FROM %s A, %s B "
-			"WHERE B.MSG_ID=%d AND B.STATUS_TYPE=%d AND A.ADDRESS_VAL LIKE \'%s\';"
-			, MSGFW_ADDRESS_TABLE_NAME, MSGFW_REPORT_TABLE_NAME, pMsg->msgId, report_status_type, address_info_s->addressVal);
+	if (address_info_s->addressType == MSG_ADDRESS_TYPE_PLMN) {
+
+		if (strlen(address_info_s->addressVal) > MAX_PRECONFIG_NUM) {
+			char newPhoneNum[MAX_PRECONFIG_NUM+1];
+
+			memset(newPhoneNum, 0x00, sizeof(newPhoneNum));
+
+			MsgConvertNumber(address_info_s->addressVal, newPhoneNum);
+
+			snprintf(sqlQuery, sizeof(sqlQuery),
+						"SELECT A.ADDRESS_VAL, A.DISPLAY_NAME, A.FIRST_NAME, A.LAST_NAME, B.STATUS "
+						"FROM %s A, %s B "
+						"WHERE B.MSG_ID=%d AND B.STATUS_TYPE=%d AND A.ADDRESS_VAL LIKE '%%%s' AND B.ADDRESS_VAL LIKE \'%%%s\';"
+						, MSGFW_ADDRESS_TABLE_NAME, MSGFW_REPORT_TABLE_NAME, pMsg->msgId, report_status_type, newPhoneNum, newPhoneNum);
+		} else {
+
+			snprintf(sqlQuery, sizeof(sqlQuery),
+				"SELECT A.ADDRESS_VAL, A.DISPLAY_NAME, A.FIRST_NAME, A.LAST_NAME, B.STATUS "
+				"FROM %s A, %s B "
+				"WHERE B.MSG_ID=%d AND B.STATUS_TYPE=%d AND A.ADDRESS_VAL LIKE '%s' AND B.ADDRESS_VAL LIKE '%s';"
+				, MSGFW_ADDRESS_TABLE_NAME, MSGFW_REPORT_TABLE_NAME, pMsg->msgId, report_status_type, address_info_s->addressVal, address_info_s->addressVal);
+		}
+
 	} else if (address_info_s->addressType == MSG_ADDRESS_TYPE_EMAIL) {//check full
 		snprintf(sqlQuery, sizeof(sqlQuery),
 			"SELECT A.ADDRESS_VAL, A.DISPLAY_NAME, A.FIRST_NAME, A.LAST_NAME, B.STATUS "
 			"FROM %s A, %s B "
-			"WHERE B.MSG_ID=%d AND B.STATUS_TYPE=%d AND A.ADDRESS_VAL=\'%s\';"
-			, MSGFW_ADDRESS_TABLE_NAME, MSGFW_REPORT_TABLE_NAME, pMsg->msgId, report_status_type, address_info_s->addressVal);
+			"WHERE B.MSG_ID=%d AND B.STATUS_TYPE=%d AND A.ADDRESS_VAL=\'%s\' AND B.ADDRESS_VAL LIKE \'%s\';"
+			, MSGFW_ADDRESS_TABLE_NAME, MSGFW_REPORT_TABLE_NAME, pMsg->msgId, report_status_type, address_info_s->addressVal, address_info_s->addressVal);
 	} else {
 		snprintf(sqlQuery, sizeof(sqlQuery),
 			"SELECT A.ADDRESS_VAL, A.DISPLAY_NAME, A.FIRST_NAME, A.LAST_NAME, B.STATUS "
@@ -553,7 +571,7 @@ msg_error_t MsgInsertMmsReportToNoti(MsgDbHandler *pDbHandle, MSG_MESSAGE_INFO_S
 		}
 
 		report_status_value = pDbHandle->columnInt(4);
-
+		MSG_DEBUG("report status [type = %d, value = %d]", report_status_type, report_status_value);
 	} else {
 		MSG_DEBUG("DB Query Result Fail");
 		pDbHandle->finalizeQuery();

@@ -171,14 +171,12 @@ void updatePduType(mmsTranQEntity *qEntity)
 	case eMMS_MBOX_DELETE_REQ:
 		qEntity->eMmsPduType = eMMS_MBOX_DELETE_CONF;
 		break;
-
-	MSG_DEBUG("Update PDU Type:");
-	PRINT_PDU_TYPE(qEntity->eMmsPduType);
-
 	default:
 		break;
 	}
 
+	MSG_DEBUG("Update PDU Type:");
+	PRINT_PDU_TYPE(qEntity->eMmsPduType);
 }
 
 MmsPluginUaManager *MmsPluginUaManager::pInstance = NULL;

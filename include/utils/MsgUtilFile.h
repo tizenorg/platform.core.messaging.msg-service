@@ -57,7 +57,7 @@ int MsgRmRf(char *pDirPath);
 unsigned int MsgDu(const char *pDirPath);
 bool MsgAppendFile(const char *pFilePath, const char *pData, int DataSize);
 void MsgMmsInitDir();
-
+bool MsgAccessFile(const char *filepath, int mode);
 
 #endif // MSG_UTIL_FILE_H
 

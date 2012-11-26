@@ -549,6 +549,7 @@ msg_error_t	MmsPluginStorage::plgGetMmsMessage(MSG_MESSAGE_INFO_S *pMsg, MSG_SEN
 		}
 
 		MmsSmilParseSmilDoc(pMmsMsg, pSmilDoc);
+		MmsRemovePims(pMmsMsg);
 		bMultipartRelated = true;
 	}
 
@@ -624,6 +625,7 @@ FREE_CATCH:
 	}
 
 L_CATCH:
+	MSG_END();
 	{
 		MmsMsg *pMsg;
 		MmsPluginStorage::instance()->getMmsMessage(&pMsg);
@@ -637,7 +639,6 @@ L_CATCH:
 
 		return MSG_ERR_STORAGE_ERROR;
 	}
-	MSG_END();
 }
 
 
@@ -1374,6 +1375,7 @@ FREE_CATCH:
 	}
 
 L_CATCH:
+	MSG_END();
 	{
 		MmsMsg *pMsg;
 		MmsPluginStorage::instance()->getMmsMessage(&pMsg);
@@ -1387,7 +1389,6 @@ L_CATCH:
 
 		return MSG_ERR_STORAGE_ERROR;
 	}
-	MSG_END();
 }
 /* This API is not used anywhere now */
 

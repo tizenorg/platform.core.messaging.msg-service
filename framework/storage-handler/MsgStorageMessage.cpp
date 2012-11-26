@@ -244,7 +244,7 @@ msg_error_t MsgStoAddMessage(MSG_MESSAGE_INFO_S *pMsg, MSG_SENDINGOPT_INFO_S *pS
 	// Add Message
 	memset(sqlQuery, 0x00, sizeof(sqlQuery));
 
-	snprintf(sqlQuery, sizeof(sqlQuery), "INSERT INTO %s VALUES (%d, %d, %d, %d, %d, %d, %ld, %d, %d, %d, %d, %d, %d, %ld, %d, ?, ?, ?, ?, 0, 0, 0);",
+	snprintf(sqlQuery, sizeof(sqlQuery), "INSERT INTO %s VALUES (%d, %d, %d, %d, %d, %d, %ld, %d, %d, %d, %d, %d, %d, %ld, %d, ?, ?, ?, ?, 0);",
 			MSGFW_MESSAGE_TABLE_NAME, rowId, convId, pMsg->folderId, pMsg->storageId, pMsg->msgType.mainType, pMsg->msgType.subType,
 			pMsg->displayTime, pMsg->dataSize, pMsg->networkStatus, pMsg->bRead, pMsg->bProtected, pMsg->priority, pMsg->direction,
 			0, pMsg->bBackup);
@@ -932,8 +932,8 @@ msg_error_t MsgStoDeleteAllMessageInFolder(msg_folder_id_t folderId, bool bOnlyD
 	queue<msg_thread_id_t> threadList;
 
 	const char *tableList[] = {MSGFW_PUSH_MSG_TABLE_NAME, MSGFW_CB_MSG_TABLE_NAME,
-						MSGFW_SYNCML_MSG_TABLE_NAME, MSGFW_SMS_SENDOPT_TABLE_NAME, 
-						MMS_PLUGIN_MESSAGE_TABLE_NAME, MSGFW_MMS_PREVIEW_TABLE_NAME, 
+						MSGFW_SYNCML_MSG_TABLE_NAME, MSGFW_SMS_SENDOPT_TABLE_NAME,
+						MMS_PLUGIN_MESSAGE_TABLE_NAME, MSGFW_MMS_PREVIEW_TABLE_NAME,
 						MSGFW_REPORT_TABLE_NAME, MSGFW_MESSAGE_TABLE_NAME};
 
 	int listCnt = sizeof(tableList)/sizeof(char *);
@@ -1260,7 +1260,8 @@ msg_error_t MsgStoDeleteMessageByList(msg_id_list_s *pMsgIdList)
 	queue<msg_thread_id_t> threadList;
 
 	const char *tableList[] = {MSGFW_PUSH_MSG_TABLE_NAME, MSGFW_CB_MSG_TABLE_NAME,
-						MSGFW_SYNCML_MSG_TABLE_NAME, MSGFW_SMS_SENDOPT_TABLE_NAME, 
+						MSGFW_SYNCML_MSG_TABLE_NAME, MSGFW_SMS_SENDOPT_TABLE_NAME,
+						MSGFW_MMS_PREVIEW_TABLE_NAME, MSGFW_REPORT_TABLE_NAME,
 						MMS_PLUGIN_MESSAGE_TABLE_NAME,	MSGFW_MESSAGE_TABLE_NAME};
 
 	int listCnt = sizeof(tableList)/sizeof(char *);
@@ -1378,20 +1379,36 @@ msg_error_t MsgStoDeleteMessageByList(msg_id_list_s *pMsgIdList)
 				MsgRmRf(dirPath);
 
 				rmdir(dirPath);
-				// delete thumbnail
-
-				char *fileName = NULL;
-				fileName = strrchr(filePath, '/');
-
-				snprintf(thumbnailPath, sizeof(thumbnailPath), MSG_THUMBNAIL_PATH"%s.jpg", fileName+1);
-
-				if (remove(thumbnailPath) == -1)
-					MSG_DEBUG("Fail to delete thumbnail [%s]", thumbnailPath);
-				else
-					MSG_DEBUG("Success to delete thumbnail [%s]", thumbnailPath);
 			}
 
 			dbHandle.freeTable();
+		} else if (!strcmp(tableList[i], MSGFW_MMS_PREVIEW_TABLE_NAME)) {
+			char filePath[MSG_FILEPATH_LEN_MAX] = {0,};
+			memset(sqlQuery, 0x00, sizeof(sqlQuery));
+			snprintf(sqlQuery, sizeof(sqlQuery),
+					"SELECT VALUE FROM %s "
+					"WHERE (TYPE=%d OR TYPE=%d) "
+					"AND ",
+					MSGFW_MMS_PREVIEW_TABLE_NAME, MSG_MMS_ITEM_TYPE_IMG, MSG_MMS_ITEM_TYPE_VIDEO);
+
+			strncat(sqlQuery, whereQuery, MAX_QUERY_LEN-strlen(sqlQuery));
+
+			if (dbHandle.prepareQuery(sqlQuery) != MSG_SUCCESS) {
+				dbHandle.endTrans(false);
+				return MSG_ERR_DB_PREPARE;
+			}
+
+			while (dbHandle.stepQuery() == MSG_ERR_DB_ROW) {
+				memset(filePath, 0x00, sizeof(filePath));
+
+				strncpy(filePath, (char *)dbHandle.columnText(0), MSG_FILEPATH_LEN_MAX);
+				if (remove(filePath) == -1)
+					MSG_DEBUG("Fail to delete file [%s]", filePath);
+				else
+					MSG_DEBUG("Success to delete file [%s]", filePath);
+			}
+
+			dbHandle.finalizeQuery();
 		}
 
 		memset(sqlQuery, 0x00, sizeof(sqlQuery));
@@ -1878,7 +1895,7 @@ msg_error_t MsgStoGetMessage(msg_message_id_t msgId, MSG_MESSAGE_INFO_S *pMsg, M
 		msg_error_t err = MSG_SUCCESS;
 		MMS_MESSAGE_DATA_S	mmsMsg;
 		char *pDestMsg = NULL;
-
+		int temp_size = pMsg->dataSize;//save raw file size;
 		// call mms plugin to get mms specific message data
 		MsgPlugin *plg = MsgPluginManager::instance()->getPlugin(pMsg->msgType.mainType);
 		memset(&mmsMsg, 0, sizeof(MMS_MESSAGE_DATA_S));
@@ -1923,6 +1940,8 @@ msg_error_t MsgStoGetMessage(msg_message_id_t msgId, MSG_MESSAGE_INFO_S *pMsg, M
 			strncpy(pMsg->msgData, pDestMsg, pMsg->dataSize);
 			pMsg->bTextSms = true;
 		}
+
+		pMsg->dataSize = temp_size;//raw file size;
 
 		if (pDestMsg) {
 			free(pDestMsg);
@@ -2577,7 +2596,7 @@ msg_error_t MsgStoDeleteThreadMessageList(msg_thread_id_t threadId, bool bInclud
 	int mmsCnt = 0;
 
 	const char *tableList[] = {MSGFW_PUSH_MSG_TABLE_NAME, MSGFW_CB_MSG_TABLE_NAME,
-			MSGFW_SYNCML_MSG_TABLE_NAME, MSGFW_SMS_SENDOPT_TABLE_NAME, 
+			MSGFW_SYNCML_MSG_TABLE_NAME, MSGFW_SMS_SENDOPT_TABLE_NAME,
 			MMS_PLUGIN_MESSAGE_TABLE_NAME, MSGFW_MESSAGE_TABLE_NAME};
 
 	int listCnt = sizeof(tableList)/sizeof(char *);

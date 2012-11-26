@@ -63,7 +63,7 @@ unsigned int MsgStoAddMessageTable(MsgDbHandler *pDbHandle, const MSG_MESSAGE_IN
 
 	memset(sqlQuery, 0x00, sizeof(sqlQuery));
 
-	snprintf(sqlQuery, sizeof(sqlQuery), "INSERT INTO %s VALUES (%d, %d, %d, %d, %d, %d, %ld, %d, %d, %d, %d, %d, %d, %ld, %d, ?, ?, ?, ?, 0, 0, 0);",
+	snprintf(sqlQuery, sizeof(sqlQuery), "INSERT INTO %s VALUES (%d, %d, %d, %d, %d, %d, %ld, %d, %d, %d, %d, %d, %d, %ld, %d, ?, ?, ?, ?, 0);",
 			MSGFW_MESSAGE_TABLE_NAME, msgId, pMsgInfo->threadId, pMsgInfo->folderId, pMsgInfo->storageId, pMsgInfo->msgType.mainType,
 			pMsgInfo->msgType.subType, pMsgInfo->displayTime, pMsgInfo->dataSize, pMsgInfo->networkStatus, pMsgInfo->bRead, pMsgInfo->bProtected,
 			pMsgInfo->priority, pMsgInfo->direction, 0, pMsgInfo->bBackup);

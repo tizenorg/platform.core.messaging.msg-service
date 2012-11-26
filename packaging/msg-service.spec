@@ -207,6 +207,11 @@ chmod 660 /opt/usr/dbspace/.msg_service.db-journal
 mkdir -p /opt/usr/data/msg-service
 chgrp db_msg_service /opt/usr/data/msg-service
 
+if [ -f /usr/lib/rpm-plugins/msm.so ]
+then
+	chsmack -a 'msg-service::db' /opt/usr/dbspace/.msg_service.db*
+fi
+
 ########## Setting Config Value (Internal keys) ##########
 vcuid=5000
 # Message Server Status

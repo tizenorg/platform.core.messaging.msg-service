@@ -250,6 +250,7 @@ void MmsPluginCmAgent::close()
 		}
 
 		deregistration();
+		isCmOpened = false;
 	} else {
 		MSG_DEBUG ("Network Connection is not opened.");
 		return;
