@@ -40,6 +40,9 @@ extern "C"{
 ==================================================================================================*/
 #define USER_TAG "MSG_FW"
 
+#define MSG_SMS_VALID_TAG "VLD_SMS"
+#define MSG_MMS_VALID_TAG "VLD_MMS"
+
 #define DLOG_ENABLE
 //#define LOG_ENABLE
 
@@ -100,6 +103,19 @@ int get_tid();
 		__prf_l2_##pfid,                                         \
 		(unsigned int)(__ds),                                    \
 		(unsigned int)(__dm));                                   \
+	} while (0)
+
+
+#define MSG_SMS_VLD(fmt, ...)\
+	do\
+	{\
+		SLOG(LOG_DEBUG, MSG_SMS_VALID_TAG, "%s, "fmt"\n", __TIMESTAMP__, ##__VA_ARGS__);\
+	} while (0)
+
+#define MSG_MMS_VLD(fmt, ...)\
+	do\
+	{\
+		SLOG(LOG_DEBUG, MSG_MMS_VALID_TAG, "%s, "fmt"\n", __TIMESTAMP__, ##__VA_ARGS__);\
 	} while (0)
 
 #elif defined(LOG_ENABLE)

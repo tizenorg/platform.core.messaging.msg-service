@@ -156,13 +156,19 @@ void SmsPluginSetting::initConfigData(MSG_SIM_STATUS_T SimStatus)
 		if (getVoiceMailInfo(&tmpVoiceMail) == true) {
 			MSG_DEBUG("########  getVoiceMailInfo Success !!! #######");
 		} else {
-			MSG_DEBUG("########  getVoiceMailInfo Fail !!! #######", err);
+			MSG_DEBUG("########  getVoiceMailInfo Fail !!! #######");
 		}
 
 		if (getMwiInfo() == true) {
 			MSG_DEBUG("########  getMwiInfo Success !!! #######");
 		} else {
-			MSG_DEBUG("########  getMwiInfo Fail !!! #######", err);
+			MSG_DEBUG("########  getMwiInfo Fail !!! #######");
+		}
+
+		if (getMsisdnInfo() == true) {
+			MSG_DEBUG("########  getMsisdnInfo Success !!! #######");
+		} else {
+			MSG_DEBUG("########  getMsisdnInfo Fail !!! #######");
 		}
 	}
 

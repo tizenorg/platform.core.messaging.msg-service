@@ -53,7 +53,7 @@
 /*vconf keys*/
 #define MSG_SIM_IMSI			"memory/private/msg-service/sim_imsi"
 #define MSG_SIM_CHANGED	"memory/private/msg-service/sim_changed"
-
+#define MSG_SIM_MSISDN	"memory/private/msg-service/msisdn"
 
 #define DEFAULT_SETTING_PATH				"db/private/msg-service"
 

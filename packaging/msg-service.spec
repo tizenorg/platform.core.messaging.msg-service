@@ -337,6 +337,7 @@ vconftool set -t int db/private/msg-service/sim_count/total_cnt 0
 vconftool set -t int memory/private/msg-service/sim_changed 0 -i
 vconftool set -t string memory/private/msg-service/sim_imsi "" -i
 vconftool set -t bool memory/private/msg-service/national_sim 0 -i
+vconftool set -t string memory/private/msg-service/msisdn "" -i
 
 /sbin/ldconfig
 /bin/systemctl daemon-reload

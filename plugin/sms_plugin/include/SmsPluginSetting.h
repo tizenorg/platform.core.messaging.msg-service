@@ -67,6 +67,7 @@ private:
 	void setVoiceMailInfo(const MSG_VOICEMAIL_OPT_S *pVoiceOpt);
 	bool getVoiceMailInfo(MSG_VOICEMAIL_OPT_S *pVoiceOpt);
 	bool getMwiInfo(void);
+	bool getMsisdnInfo(void);
 
 	int getParamCntEvent();
 	bool getParamEvent(MSG_SMSC_DATA_S *pSmscData);
