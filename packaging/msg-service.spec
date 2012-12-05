@@ -340,12 +340,7 @@ vconftool set -t int db/private/msg-service/sim_count/total_cnt 0 -u $vcuid
 vconftool set -t int memory/private/msg-service/sim_changed 0 -i -u $vcuid
 vconftool set -t string memory/private/msg-service/sim_imsi "" -i -u $vcuid
 vconftool set -t bool memory/private/msg-service/national_sim 0 -i -u $vcuid
-
-/sbin/ldconfig
-/bin/systemctl daemon-reload
-if [ "$1" = "1" ]; then
-    systemctl stop msg-service.service
-fi
+vconftool set -t string memory/private/msg-service/msisdn "" -i -u $vcuid
 
 /sbin/ldconfig
 /bin/systemctl daemon-reload

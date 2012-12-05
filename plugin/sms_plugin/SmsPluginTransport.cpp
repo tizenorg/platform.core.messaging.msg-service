@@ -202,20 +202,37 @@ void SmsPluginTransport::submitRequest(SMS_REQUEST_INFO_S *pReqInfo)
 
 			if (tapiRet == TAPI_API_SUCCESS)
 			{
-				MSG_DEBUG("########  TelTapiSmsSend Success !!! req Id : [%d] return : [%d] #######", reqId, tapiRet);
+				MSG_DEBUG("########  TelTapiSmsSend Success !!! return : [%d] #######", tapiRet);
 			}
 			else
 			{
 				SmsPluginEventHandler::instance()->handleSentStatus(MSG_NETWORK_SEND_FAIL);
 
-				THROW(MsgException::SMS_PLG_ERROR, "########  TelTapiSmsSend Fail !!! req Id : [%d] return : [%d] #######", reqId, tapiRet);
+				THROW(MsgException::SMS_PLG_ERROR, "########  TelTapiSmsSend Fail !!! return : [%d] #######", tapiRet);
 			}
+
+			// Tizen Validation System
+			char *msisdn = NULL;
+			msisdn = MsgSettingGetString(MSG_SIM_MSISDN);
+
+			MSG_SMS_VLD("[SMS INFO] %d, SMS Send Start, %s->%s, %s",  pReqInfo->msgInfo.msgId, \
+																		(msisdn == NULL)?"ME":msisdn, \
+																		pReqInfo->msgInfo.addressList[0].addressVal, \
+																		(tapiRet == TAPI_API_SUCCESS)?"Success":"Fail");
+
+			MSG_SMS_VLD("[SMS TEXT] %d, [%s]", pReqInfo->msgInfo.msgId, pReqInfo->msgInfo.msgText);
 
 			msg_network_status_t retStatus = getNetStatus();
 
+			MSG_SMS_VLD("[SMS INFO] %d, SMS Send End, %s->%s, %s",  pReqInfo->msgInfo.msgId, \
+																	(msisdn == NULL)?"ME":msisdn, \
+																	pReqInfo->msgInfo.addressList[0].addressVal, \
+																	(retStatus == MSG_NETWORK_SEND_SUCCESS)?"Success":"Fail");
+
+
 			if (retStatus == MSG_NETWORK_SEND_SUCCESS)
 			{
-				MSG_DEBUG("########  Msg Sent was Successful !!! req Id : [%d] return : [%d] #######", reqId, retStatus);
+				MSG_DEBUG("########  Msg Sent was Successful !!! return : [%d] #######", retStatus);
 			}
 			else
 			{
@@ -223,7 +240,7 @@ void SmsPluginTransport::submitRequest(SMS_REQUEST_INFO_S *pReqInfo)
 
 				SmsPluginEventHandler::instance()->handleSentStatus(MSG_NETWORK_SEND_FAIL);
 
-				THROW(MsgException::SMS_PLG_ERROR, "########  Msg Sent was Failed !!! req Id : [%d] return : [%d] #######", reqId, retStatus);
+				THROW(MsgException::SMS_PLG_ERROR, "########  Msg Sent was Failed !!! return : [%d] #######", retStatus);
 			}
 
 			if (tpdu.data.submit.userData.headerCnt > 0) tpdu.data.submit.userData.headerCnt--;

@@ -756,6 +756,32 @@ void TapiEventGetMwiInfo(TapiHandle *handle, int result, void *data, void *user_
 #endif
 }
 
+void TapiEventGetMsisdnInfo(TapiHandle *handle, int result, void *data, void *user_data)
+{
+#if 0 // New TAPI
+	MSG_DEBUG("TapiEventGetMsisdnInfo is called.");
+
+	if (result != TAPI_SIM_ACCESS_SUCCESS || data == NULL)
+	{
+		MSG_DEBUG("Error. data is NULL.");
+		return;
+	}
+
+	TelSimMsisdnList_t *list = (TelSimMsisdnList_t *)data;
+
+	for (int i = 0; i < list->count; i++) {
+		if (list->list[i].num[0] != '\0') {
+			if (MsgSettingSetString(MSG_SIM_MSISDN, list->list[i].num) == MSG_SUCCESS)
+				MSG_DEBUG("Get MSISDN from SIM : [%s]", list->list[i].num);
+			else
+				MSG_DEBUG("Getting MSISDN is failed!");
+
+			break;
+		}
+	}
+#endif
+}
+
 void TapiEventSatSmsRefresh(TapiHandle *handle, int result, void *data, void *user_data)
 {
 	MSG_DEBUG("TapiEventSatSmsRefresh is called.");

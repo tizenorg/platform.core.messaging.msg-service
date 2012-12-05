@@ -58,6 +58,8 @@ void TapiEventGetMailboxInfo(TapiHandle *handle, int result, void *data, void *u
 void TapiEventSetMwiInfo(TapiHandle *handle, int result, void *data, void *user_data);
 void TapiEventGetMwiInfo(TapiHandle *handle, int result, void *data, void *user_data);
 
+void TapiEventGetMsisdnInfo(TapiHandle *handle, int result, void *data, void *user_data);
+
 void TapiEventGetParamCnt(TapiHandle *handle, int result, void *data, void *user_data);
 void TapiEventGetParam(TapiHandle *handle, int result, void *data, void *user_data);
 
