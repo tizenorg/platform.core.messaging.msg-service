@@ -914,6 +914,7 @@ handle is Message handle.
 int msg_get_message(msg_handle_t handle, msg_message_id_t msg_id, msg_struct_t msg, msg_struct_t send_opt);
 
 int msg_get_conversation(msg_handle_t handle, msg_message_id_t msg_id, msg_struct_t conv);
+int msg_get_vobject_data(msg_handle_t handle, msg_message_id_t msg_id, void** encoded_data);
 
 /**
 
@@ -1676,6 +1677,8 @@ int msg_get_mem_size(msg_handle_t handle, unsigned int* memsize);
  * None
  *
  * \param input - msg_handle_t  handle is Message handle.
+ * \param input - msg_message_backup_type_t  type is backup_type.
+ * \param input - backup_filepath is path to backup message.
  *
  * \return Return Type int (msg_error_t) \n
  * - MSG_SUCCESS					Success in operation.
@@ -1697,14 +1700,16 @@ int msg_get_mem_size(msg_handle_t handle, unsigned int* memsize);
  *
  * msg_handle_t msgHandle = NULL;
  * msg_error_t err;
+ * msg_message_backup_type_t type = MSG_BACKUP_TYPE_MMS;
+ * const char *filepath = "/backup_mms"
  *
  * ...
- * err = msg_backup_message(&msgHandle);
+ * err = msg_backup_message(&msgHandle, type, filepath);
  * ...
  * \endcode
  */
 /*================================================================================================*/
-int msg_backup_message(msg_handle_t handle);
+int msg_backup_message(msg_handle_t handle, msg_message_backup_type_t type, const char *backup_filepath);
 
 
 /**
@@ -1728,6 +1733,8 @@ int msg_backup_message(msg_handle_t handle);
  * None
  *
  * \param input - msg_handle_t  handle is Message handle.
+ * \param input - backup_filepath is path of backup file for restore.
+ *
  *
  * \return Return Type int (msg_error_t) \n
  * - MSG_SUCCESS					Success in operation.
@@ -1749,13 +1756,14 @@ int msg_backup_message(msg_handle_t handle);
  *
  * msg_handle_t msgHandle = NULL;
  * msg_error_t err;
+ * const char *filepath = "/backup_mms"
   * ...
- * err = msg_restore_message(&msgHandle);
+ * err = msg_restore_message(&msgHandle, filepath);
  * ...
  * \endcode
  */
 /*================================================================================================*/
-int msg_restore_message(msg_handle_t handle);
+int msg_restore_message(msg_handle_t handle, const char *backup_filepath);
 
 
 /**
@@ -2083,9 +2091,12 @@ int msg_get_report_status(msg_handle_t handle, msg_message_id_t msg_id, msg_stru
 
 int msg_get_address_list(msg_handle_t handle, msg_thread_id_t thread_id, msg_struct_list_s *msg_address_list);
 
+
 int msg_get_thread_id_by_address(msg_handle_t handle, msg_struct_list_s *msg_address_list, msg_thread_id_t *thread_id);
 
+
 int msg_get_thread(msg_handle_t handle, msg_thread_id_t thread_id, msg_struct_t msg_thread);
+
 
 int msg_get_message_list(msg_handle_t handle, msg_folder_id_t folder_id, msg_thread_id_t thread_id, msg_message_type_t msg_type, msg_storage_id_t storage_id, msg_struct_list_s *msg_list);
 

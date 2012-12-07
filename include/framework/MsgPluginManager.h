@@ -79,14 +79,14 @@ private:
 	MSG_MAIN_TYPE_T 			mSupportedMsg;
 	MSG_PLUGIN_HANDLER_S 	mPlgHandler;
 
-        void*	 				mLibHandler;    // plugin library pointer
+	void	*mLibHandler;    // plugin library pointer
 };
 
 
 /*==================================================================================================
                                      GLOBAL VARIABLES
 ==================================================================================================*/
-typedef std::map<MSG_MAIN_TYPE_T, MsgPlugin> MsgPluginMap;
+typedef std::map<MSG_MAIN_TYPE_T, MsgPlugin*> MsgPluginMap;
 
 
 /*==================================================================================================

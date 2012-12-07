@@ -717,6 +717,7 @@ int MsgRmRf(char *pDirPath)
 
 	if (path == NULL) {
 		MSG_DEBUG("path is NULL");
+		closedir(dir);
 		return -1;
 	}
 
@@ -824,6 +825,8 @@ unsigned int MsgDu(const char *pDirPath)
 
 			if (fileSize < 0) {
 				MSG_FATAL("error MsgGetFileSize");
+				closedir(dir);
+				free(path);
 				return fileSize;
 			}
 

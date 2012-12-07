@@ -56,104 +56,6 @@ bool delLogRunning = false;
 /*==================================================================================================
                                      FUNCTION FOR THREAD
 ==================================================================================================*/
-static gboolean startToDeleteNoti(void *pVoid)
-{
-	MSG_BEGIN();
-
-	msg_id_list_s *pMsgIdList = (msg_id_list_s *)pVoid;
-
-	MSG_DEBUG("pMsgIdList->nCount [%d]", pMsgIdList->nCount);
-
-	delNotiMx.lock();
-
-	while (delNotiRunning) {
-		delNoticv.wait(delNotiMx.pMutex());
-	}
-
-	delNotiRunning = true;
-
-	for (int i = 0; i < pMsgIdList->nCount; i++) {
-		MsgDeleteNotiByMsgId(pMsgIdList->msgIdList[i]);
-
-		/** sleep for moment */
-		if ((i%100 == 0) && (i != 0))
-			usleep(70000);
-	}
-
-	delNotiRunning = false;
-
-	delNoticv.signal();
-	delNotiMx.unlock();
-
-	// memory free
-	if (pMsgIdList != NULL) {
-		//free peer info list
-		if (pMsgIdList->msgIdList != NULL)
-			delete [] pMsgIdList->msgIdList;
-
-		delete [] pMsgIdList;
-	}
-
-	MSG_END();
-
-	return FALSE;
-}
-
-
-static gboolean startToDeletePhoneLog(void *pVoid)
-{
-	MSG_BEGIN();
-
-	msg_id_list_s *pMsgIdList = (msg_id_list_s *)pVoid;
-
-	MSG_DEBUG("pMsgIdList->nCount [%d]", pMsgIdList->nCount);
-
-	delLogMx.lock();
-
-	while (delLogRunning){
-		delLogcv.wait(delLogMx.pMutex());
-	}
-
-	delLogRunning = true;
-
-	int transBegin = MsgContactSVCBeginTrans();
-
-	for (int i = 0; i < pMsgIdList->nCount; i++) {
-		if (transBegin == 0)
-			MsgDeletePhoneLog(pMsgIdList->msgIdList[i]);
-
-		/** sleep for moment */
-		if ((i%100 == 0) && (i!=0)) {
-			if (transBegin == 0) {
-				MsgContactSVCEndTrans(true);
-				usleep(70000);
-			}
-			transBegin = MsgContactSVCBeginTrans();
-		}
-	}
-
-	if (transBegin == 0)
-		MsgContactSVCEndTrans(true);
-
-	delLogRunning = false;
-
-	delLogcv.signal();
-	delLogMx.unlock();
-
-	// memory free
-	if (pMsgIdList != NULL) {
-		//free peer info list
-		if (pMsgIdList->msgIdList != NULL)
-			delete [] pMsgIdList->msgIdList;
-
-		delete [] pMsgIdList;
-	}
-
-	MSG_END();
-
-	return FALSE;
-}
-
 static gboolean updateUnreadMsgCount(void *pVoid)
 {
 	MSG_BEGIN();
@@ -530,37 +432,7 @@ msg_error_t MsgStoUpdateThreadReadStatus(msg_thread_id_t threadId)
 	msg_error_t err = MSG_SUCCESS;
 
 	int rowCnt = 0;
-	int index = 1;
-	msg_id_list_s *pUnreadMsgIdList = NULL;
-
-	pUnreadMsgIdList = (msg_id_list_s *)new char[sizeof(msg_id_list_s)];
-	memset(pUnreadMsgIdList, 0x00, sizeof(msg_id_list_s));
-
 	char sqlQuery[MAX_QUERY_LEN+1];
-
-	// Get MSG_ID List
-	memset(sqlQuery, 0x00, sizeof(sqlQuery));
-	snprintf(sqlQuery, sizeof(sqlQuery), "SELECT MSG_ID FROM %s A WHERE CONV_ID = %d AND READ_STATUS = 0;",
-			MSGFW_MESSAGE_TABLE_NAME, threadId);
-
-	err = dbHandle.getTable(sqlQuery, &rowCnt);
-
-	if (err != MSG_SUCCESS && err != MSG_ERR_DB_NORECORD) {
-		dbHandle.freeTable();
-		return err;
-	}
-
-	pUnreadMsgIdList->nCount = rowCnt;
-
-	MSG_DEBUG("unreadMsgIdList.nCount [%d]", pUnreadMsgIdList->nCount);
-
-	pUnreadMsgIdList->msgIdList = (msg_message_id_t *)new char[sizeof(msg_message_id_t) * rowCnt];
-
-	for (int i = 0; i < rowCnt; i++)
-		pUnreadMsgIdList->msgIdList[i] = dbHandle.getColumnToInt(index++);
-
-	dbHandle.freeTable();
-
 
 	// Get sim MSG_ID
 	memset(sqlQuery, 0x00, sizeof(sqlQuery));
@@ -601,20 +473,8 @@ msg_error_t MsgStoUpdateThreadReadStatus(msg_thread_id_t threadId)
 		MSG_DEBUG("updateUnreadMsgCount() Error");
 	}
 
-	if (pUnreadMsgIdList->nCount > 0) {
-		if (g_idle_add(startToDeleteNoti, (void *)pUnreadMsgIdList) == 0) {
-			MSG_DEBUG("startToDeleteNoti not invoked: %s", strerror(errno));
-			// memory free
-			if (pUnreadMsgIdList != NULL) {
-				//free peer info list
-				if (pUnreadMsgIdList->msgIdList != NULL)
-					delete [] pUnreadMsgIdList->msgIdList;
+	MsgRefreshNoti();
 
-				delete [] pUnreadMsgIdList;
-			}
-			err = MSG_ERR_UNKNOWN;
-		}
-	}
 	MSG_END();
 
 	return MSG_SUCCESS;
@@ -913,11 +773,12 @@ msg_error_t MsgStoDeleteMessage(msg_message_id_t msgId, bool bCheckIndication)
 
 		MsgSettingSetIndicator(smsCnt, mmsCnt);
 
-		MsgDeleteNotiByMsgId(msgId);
+//		MsgDeleteNotiByMsgId(msgId);
+		MsgRefreshNoti();
 	}
 
 	//Delete phone log
-	MsgDeletePhoneLog(msgId);
+//	MsgDeletePhoneLog(msgId);
 
 	return MSG_SUCCESS;
 }
@@ -970,6 +831,10 @@ msg_error_t MsgStoDeleteAllMessageInFolder(msg_folder_id_t folderId, bool bOnlyD
 	/*** Get msg id list **/
 	msg_id_list_s *pToDeleteMsgIdList = NULL;
 	pToDeleteMsgIdList = (msg_id_list_s *)new char[sizeof(msg_id_list_s)];
+	if (pToDeleteMsgIdList == NULL) {
+		MSG_DEBUG("pToDeleteMsgIdList is NULL.");
+		return MSG_ERR_NULL_POINTER;
+	}
 	memset(pToDeleteMsgIdList, 0x00, sizeof(msg_id_list_s));
 
 	memset(sqlQuery, 0x00, sizeof(sqlQuery));
@@ -1039,7 +904,7 @@ msg_error_t MsgStoDeleteAllMessageInFolder(msg_folder_id_t folderId, bool bOnlyD
 			}
 
 			//Delete phone log
-			MsgDeletePhoneLog(dbHandle.getColumnToInt(i));
+//			MsgDeletePhoneLog(dbHandle.getColumnToInt(i));
 		}
 
 		dbHandle.freeTable();
@@ -1185,18 +1050,8 @@ msg_error_t MsgStoDeleteAllMessageInFolder(msg_folder_id_t folderId, bool bOnlyD
 /*** Create thread  for noti and phone log delete. **/
 	if (!bOnlyDB) {
 		if (pToDeleteMsgIdList->nCount > 0) {
-
-			msg_id_list_s *pToDeleteMsgIdListCpy = NULL;
-			pToDeleteMsgIdListCpy = (msg_id_list_s *)new char[sizeof(msg_id_list_s)];
-			memset(pToDeleteMsgIdListCpy, 0x00, sizeof(msg_id_list_s));
-
-			pToDeleteMsgIdListCpy->nCount = pToDeleteMsgIdList->nCount;
-
-			pToDeleteMsgIdListCpy->msgIdList = (msg_message_id_t *)new char[sizeof(msg_message_id_t)*pToDeleteMsgIdList->nCount];
-			memcpy(pToDeleteMsgIdListCpy->msgIdList, pToDeleteMsgIdList->msgIdList, sizeof(msg_message_id_t)*pToDeleteMsgIdList->nCount);
-
-			if (g_idle_add(startToDeleteNoti, (void *)pToDeleteMsgIdList) == 0) {
-				MSG_DEBUG("startToDeleteNoti not invoked: %s", strerror(errno));
+//			if (g_idle_add(startToDeletePhoneLog, (void *)pToDeleteMsgIdList) == 0) {
+//				MSG_DEBUG("startToDeletePhoneLog not invoked: %s", strerror(errno));
 				// memory free
 				if (pToDeleteMsgIdList != NULL) {
 					//free peer info list
@@ -1205,21 +1060,10 @@ msg_error_t MsgStoDeleteAllMessageInFolder(msg_folder_id_t folderId, bool bOnlyD
 
 					delete [] pToDeleteMsgIdList;
 				}
-				err = MSG_ERR_UNKNOWN;
-			}
+//				err = MSG_ERR_UNKNOWN;
+//			}
 
-			if (g_idle_add(startToDeletePhoneLog, (void *)pToDeleteMsgIdListCpy) == 0) {
-				MSG_DEBUG("startToDeletePhoneLog not invoked: %s", strerror(errno));
-				// memory free
-				if (pToDeleteMsgIdListCpy != NULL) {
-					//free peer info list
-					if (pToDeleteMsgIdListCpy->msgIdList != NULL)
-						delete [] pToDeleteMsgIdListCpy->msgIdList;
-
-					delete [] pToDeleteMsgIdListCpy;
-				}
-				err = MSG_ERR_UNKNOWN;
-			}
+			MsgRefreshNoti();
 		}
 	}
 /*** **/
@@ -1454,6 +1298,7 @@ msg_error_t MsgStoDeleteMessageByList(msg_id_list_s *pMsgIdList)
 
 	MsgSettingSetIndicator(smsCnt, mmsCnt);
 
+#if 0
 /*** Create thread  for noti and phone log delete. **/
 	if (pMsgIdList->nCount > 0) {
 		msg_id_list_s *pToDeleteMsgIdList = NULL;
@@ -1497,6 +1342,9 @@ msg_error_t MsgStoDeleteMessageByList(msg_id_list_s *pMsgIdList)
 		}
 	}
 /*** **/
+#endif
+
+	MsgRefreshNoti();
 
 	MSG_END();
 	return MSG_SUCCESS;
@@ -1505,8 +1353,9 @@ msg_error_t MsgStoDeleteMessageByList(msg_id_list_s *pMsgIdList)
 
 msg_error_t MsgStoMoveMessageToFolder(msg_message_id_t msgId, msg_folder_id_t destFolderId)
 {
+	msg_error_t err = MSG_SUCCESS;
 	MSG_MESSAGE_TYPE_S msgType;
-	msg_thread_id_t convId;
+	msg_thread_id_t convId = 0;
 
 	MsgStoGetMsgType(msgId, &msgType);
 
@@ -1539,9 +1388,9 @@ msg_error_t MsgStoMoveMessageToFolder(msg_message_id_t msgId, msg_folder_id_t de
 	dbHandle.finalizeQuery();
 
 	/* update conversation table */
-	MsgStoUpdateConversation(&dbHandle, convId);
+	err = MsgStoUpdateConversation(&dbHandle, convId);
 
-	return MSG_SUCCESS;
+	return err;
 }
 
 
@@ -1914,7 +1763,7 @@ msg_error_t MsgStoGetMessage(msg_message_id_t msgId, MSG_MESSAGE_INFO_S *pMsg, M
 		// Encode MMS specific data to MMS_MESSAGE_DATA_S
 		if (pMsg->dataSize > MAX_MSG_DATA_LEN) {
 			// Save Message Data into File
-			char tempFileName[MAX_COMMON_INFO_SIZE+1];
+			char tempFileName[MSG_FILENAME_LEN_MAX+1];
 			memset(tempFileName, 0x00, sizeof(tempFileName));
 
 			if (MsgCreateFileName(tempFileName) == false) {
@@ -1934,7 +1783,6 @@ msg_error_t MsgStoGetMessage(msg_message_id_t msgId, MSG_MESSAGE_INFO_S *pMsg, M
 				return MSG_ERR_STORAGE_ERROR;
 			}
 			strncpy(pMsg->msgData, tempFileName, MAX_MSG_DATA_LEN);
-			//pMsg->dataSize = strlen(fileName);
 			pMsg->bTextSms = false;
 		} else {
 			strncpy(pMsg->msgData, pDestMsg, pMsg->dataSize);
@@ -2056,7 +1904,7 @@ msg_error_t MsgStoGetFolderViewList(msg_folder_id_t folderId, const MSG_SORT_RUL
 			index++;
 		} else {
 			pTmp->pData = (void *)new char[pTmp->dataSize + 2];
-			memset(pTmp->pData, 0x00, sizeof(pTmp->pData));
+			memset(pTmp->pData, 0x00, pTmp->dataSize + 2);
 
 			dbHandle.getColumnToString(index++, pTmp->dataSize+1, (char *)pTmp->pData);
 		}
@@ -2128,7 +1976,7 @@ msg_error_t MsgStoAddSyncMLMessage(MSG_MESSAGE_INFO_S *pMsgInfo, int extId, int 
 
 	pMsgInfo->msgId = (msg_message_id_t)rowId;
 
-	MsgSoundPlayStart();
+	MsgSoundPlayStart(false);
 
 	int smsCnt = 0;
 	int mmsCnt = 0;
@@ -2921,21 +2769,10 @@ msg_error_t MsgStoSearchMessage(const char *pSearchString, msg_struct_list_s *pT
 	// Search - Address, Name
 	memset(sqlQuery, 0x00, sizeof(sqlQuery));
 
-	snprintf(sqlQuery, sizeof(sqlQuery), "SELECT C.CONV_ID, C.UNREAD_CNT, C.SMS_CNT, C.MMS_CNT, C.DISPLAY_NAME, \
-			B.MAIN_TYPE, B.SUB_TYPE, B.MSG_DIRECTION, B.DISPLAY_TIME, B.MSG_TEXT \
-			FROM %s A, %s B, %s C \
-			WHERE A.CONV_ID = B.CONV_ID AND B.FOLDER_ID > 0 AND B.FOLDER_ID < %d \
-			AND ( B.MSG_TEXT LIKE '%%%s%%' ESCAPE '\\' \
-			OR B.SUBJECT LIKE '%%%s%%' ESCAPE '\\' \
-			OR A.ADDRESS_VAL LIKE '%%%s%%' ESCAPE '\\' \
-			OR A.DISPLAY_NAME LIKE '%%%s%%' ESCAPE '\\' \
-			OR A.FIRST_NAME LIKE '%%%s%%' ESCAPE '\\' \
-			OR A.LAST_NAME LIKE '%%%s%%' ESCAPE '\\' ) \
-			AND A.CONV_ID = C.CONV_ID \
-			ORDER BY B.DISPLAY_TIME DESC;",
-			MSGFW_ADDRESS_TABLE_NAME, MSGFW_MESSAGE_TABLE_NAME, MSGFW_CONVERSATION_TABLE_NAME,
-			MSG_SPAMBOX_ID, ext2_str, ext2_str, ext2_str, ext2_str, ext2_str, ext2_str);
-
+	snprintf(sqlQuery, sizeof(sqlQuery), "SELECT CONV_ID, UNREAD_CNT, SMS_CNT, MMS_CNT, DISPLAY_NAME, \
+			MAIN_TYPE, SUB_TYPE, MSG_DIRECTION, DISPLAY_TIME, MSG_TEXT \
+			FROM %s WHERE DISPLAY_NAME LIKE '%%%s%%' ESCAPE '\\' ORDER BY DISPLAY_TIME DESC;",
+			MSGFW_CONVERSATION_TABLE_NAME, ext2_str);
 
 	if (ext1_str) {
 		free(ext1_str);
@@ -3213,7 +3050,7 @@ msg_error_t MsgStoSearchMessage(const MSG_SEARCH_CONDITION_S *pSearchCon, int of
 		} else {
 			MSG_DEBUG("pTmp->dataSize [%d]", pTmp->dataSize);
 			pTmp->pData = (void *)new char[pTmp->dataSize + 2];
-			memset(pTmp->pData, 0x00, sizeof(pTmp->pData));
+			memset(pTmp->pData, 0x00, pTmp->dataSize + 2);
 
 			dbHandle.getColumnToString(index++, pTmp->dataSize+1, (char *)pTmp->pData);
 		}
@@ -3561,6 +3398,10 @@ msg_error_t MsgStoGetThreadInfo(msg_thread_id_t threadId, MSG_THREAD_VIEW_S *pTh
 
 		memset(pThreadInfo->threadData, 0x00, sizeof(pThreadInfo->threadData));
 		dbHandle.getColumnToString(index++, MAX_THREAD_DATA_LEN, pThreadInfo->threadData);
+
+		int protectedCnt = dbHandle.getColumnToInt(index++);
+		if (protectedCnt > 0)
+			pThreadInfo->bProtected = true;
 	}
 
 	dbHandle.freeTable();

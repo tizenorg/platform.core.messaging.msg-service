@@ -333,6 +333,10 @@ void MmsSmilGetElement(MMS_MESSAGE_DATA_S *pMmsMsg, xmlNode *a_node)
 					else
 						pMedia->sMedia.sAVI.nDurTime =  MmsSmilGetTime((char *)pAttr->children->content);
 
+#ifdef MMS_SMIL_ANIMATE
+					if (cmd[ELEMENT_ANIMATE])
+						pMedia->sMedia.sAVI.nDur = MmsSmilGetTime((char *)pAttr->children->content);
+#endif
 					break;
 
 				case ATTRIBUTE_SRC:
@@ -345,6 +349,8 @@ void MmsSmilGetElement(MMS_MESSAGE_DATA_S *pMmsMsg, xmlNode *a_node)
 						MmsMsg *pMsg;
 
 						szSrc = MsgChangeHexString((char *)pAttr->children->content);
+						if (szSrc == NULL)
+							break;
 
 						memcpy(pMedia->szSrc, szSrc, strlen(szSrc) + 1);
 						free(szSrc);
@@ -519,6 +525,39 @@ void MmsSmilGetElement(MMS_MESSAGE_DATA_S *pMmsMsg, xmlNode *a_node)
 				case ATTRIBUTE_CONTENT:
 					strncpy(pMeta->szContent, (char *)pAttr->children->content, MAX_SMIL_META_CONTENT - 1);
 					break;
+#ifdef MMS_SMIL_ANIMATE
+				case ATTRIBUTE_ATTRIBUTE_NAME:
+					strcpy(pMedia->sMedia.sAVI.nAttributeName, (char *)pAttr->children->content);
+					break;
+
+				case ATTRIBUTE_ATTRIBUTE_TYPE:
+					strcpy(pMedia->sMedia.sAVI.nAttributeType, (char *)pAttr->children->content);
+					break;
+
+				case ATTRIBUTE_TARGET_ELEMENT:
+					strcpy(pMedia->sMedia.sAVI.nTargetElement, (char *)pAttr->children->content);
+					break;
+
+				case ATTRIBUTE_FROM:
+					pMedia->sMedia.sAVI.nFrom = atoi((char *)pAttr->children->content);
+					break;
+
+				case ATTRIBUTE_TO:
+					pMedia->sMedia.sAVI.nTo = atoi((char *)pAttr->children->content);
+					break;
+
+				case ATTRIBUTE_BY:
+					pMedia->sMedia.sAVI.nBy = atoi((char *)pAttr->children->content);
+					break;
+
+				case ATTRIBUTE_VALUES:
+					pMedia->sMedia.sAVI.nValues = atoi((char *)pAttr->children->content);
+					break;
+
+				case ATTRIBUTE_CALCMODE:
+					strcpy(pMedia->sMedia.sAVI.nCalcMode, (char *)pAttr->children->content);
+					break;
+#endif
 				default:
 					MSG_DEBUG("Undefined Attribute was found!!!!!");
 				}
@@ -930,6 +969,24 @@ int	MmsSmilGetAttrID(char *pString)
 		return ATTRIBUTE_END;
 	else if (!strcmp(pString, "repeatCount"))
 		return ATTRIBUTE_REPEAT_COUNT;
+#ifdef MMS_SMIL_ANIMATE
+	else if (!strcmp(pString, "attributeName"))
+		return ATTRIBUTE_ATTRIBUTE_NAME;
+	else if (!strcmp(pString, "attributeType"))
+		return ATTRIBUTE_ATTRIBUTE_TYPE;
+	else if (!strcmp(pString, "targetElement"))
+		return ATTRIBUTE_TARGET_ELEMENT;
+	else if (!strcmp(pString, "from"))
+		return ATTRIBUTE_FROM;
+	else if (!strcmp(pString, "to"))
+		return ATTRIBUTE_TO;
+	else if (!strcmp(pString, "by"))
+		return ATTRIBUTE_BY;
+	else if (!strcmp(pString, "values"))
+		return ATTRIBUTE_VALUES;
+	else if (!strcmp(pString, "calcMode"))
+		return ATTRIBUTE_CALCMODE;
+#endif
 	else
 		return -1;
 }
@@ -1877,7 +1934,7 @@ xmlNode *__MmsCreateMMNode(MMS_MEDIA_S *pstSmilMedia, char *pszContentID)
 		return NULL;
 	}
 
-	if (pstSmilMedia) {
+	if (pstMedia) {
 		char szFilePathWithCid[MMS_CONTENT_ID_LEN + 5];  	// for "cid:"
 
 		MSG_DEBUG("[Set Attribute] Region Id ");

@@ -69,10 +69,11 @@ class MmsPluginHttpAgent
 #define MSG_MMS_HH_LANGUAGE         "zh-cn, en"
 #define MSG_MMS_HH_ENCODING         "deflate,gzip"
 
-#define MSG_MMS_HH_USER_AGENT		"Tizen", "Mozilla/5.0 (Linux; U; Tizen 1.0; en-us) AppleWebKit/534.46 (KHTML, like Gecko) Mobile Tizen Browser/1.0"
+#define MSG_MMS_HH_USER_AGENT		"Mozilla/5.0 (Linux; U; Tizen 1.0; en-us) AppleWebKit/534.46 (KHTML, like Gecko) Mobile Tizen Browser/1.0"
 #define MSG_MMS_WAP_PROFILE         ""
 
 typedef unsigned int MMS_HTTP_HEADER_FIELD_T;
+
 
 enum _MMS_HTTP_HEADER_FIELD_E {
 	MMS_HH_CONTENT_TYPE,

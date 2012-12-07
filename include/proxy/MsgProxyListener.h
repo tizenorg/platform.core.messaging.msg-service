@@ -140,6 +140,9 @@ public:
 
 	int getRemoteFd();
 	int readFromSocket(char** buf, unsigned int* len);
+#ifdef CHECK_SENT_STATUS_CALLBACK
+	int getSentStatusCbCnt();
+#endif
 
 private:
 	MsgProxyListener();

@@ -519,6 +519,13 @@ bool MsgTransactionManager::checkPrivilege(MSG_CMD_TYPE_T CmdType, const char *p
 		return false;
 	}
 
+#ifdef MSG_FOR_DEBUG
+	for (int i = 0; i < MAX_COOKIE_LEN; i++)
+	{
+		MSG_DEBUG("cookie : [%02x]", pCookie[i]);
+	}
+#endif
+
 	// Check Cookie
 	size_t cookieSize;
 	gid_t gid;

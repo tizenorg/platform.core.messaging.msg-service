@@ -18,10 +18,9 @@
 #include <ctype.h>
 #include "MsgDebug.h"
 #include "MmsPluginCodec.h"
-#include "MmsPluginCodec.h"
+#include "MmsPluginTextConvert.h"
 #include "MmsPluginMIME.h"
 #include "MmsPluginMessage.h"
-#include "MmsPluginWmLngPack.h"
 #include "MmsPluginUtil.h"
 const int MSG_MAX_CH_PER_LINE = 75;
 
@@ -408,14 +407,9 @@ char *_MsgDecodeText(char *pOri)
 	char *pDecQ2 = NULL;
 	bool bEncoding = false;
 	int	nCharset = MSG_CHARSET_UTF8;
-	int	nChar = 0;
-	int	nByte = 0;
 	int	nTemp = 0;
 	char *pReturnStr = NULL;
 	char *pConvertedStr = NULL;
-	MCHAR *mszTempStr = NULL;
-
-	MCHAR *pmszOutTextStr = NULL;
 
 	char szTempBuf[MSG_LOCAL_TEMP_BUF_SIZE] = {0};
 
@@ -452,7 +446,7 @@ char *_MsgDecodeText(char *pOri)
 		     && ((pDecEnd = strstr(pDecQ2 + 1, MSG_STR_DEC_END))!= NULL)) {	//"=?"
 			bEncoding = true;
 
-			/* charset problem
+			/* fixme: charset problem
 			 * pDecStart ~ pDecQ : charSet & MSG_CHARSET_USC2 ~ MSG_CHARSET_UTF8 & LATIN
 			 */
 
@@ -556,440 +550,55 @@ char *_MsgDecodeText(char *pOri)
 		}
 	}
 
+
+
 __RETURN:
 
-	pTemp = pSrc;
+	pTemp = strdup(pSrc);
 	nTemp = strlen(pSrc);
 
-	switch (nCharset) {
-	case MSG_CHARSET_UTF16:
-	case MSG_CHARSET_USC2:
+	{//temp brace;
+		const char *pToCharSet = "UTF-8";
 
-		MSG_DEBUG("_MsgDecodeText: MSG_CHARSET_USC2 \n");
+		UINT16 charset_code =  _MmsGetBinaryValue(MmsCodeCharSet, nCharset);
 
-		if (pTemp) {
-			// mmf file name display patch
-			if (((UINT8)pTemp[0] == 0xFF && (UINT8)pTemp[1] == 0xFE) || ((UINT8)pTemp[0] == 0xFE && (UINT8)pTemp[1] == 0xFF)) {
+		const char *pFromCharSet = MmsPluginTextConvertGetCharSet(charset_code);
 
-				nChar = (nTemp / 2 - 1);
+		if (pFromCharSet != NULL && strcmp(pFromCharSet, pToCharSet) != 0) {//Not UTF-8
+			char *pDest = NULL;
+			int destLen = 0;
 
-				// Re check char-set
-				if (MsgIsUTF8String((unsigned char *)pTemp + 2, nTemp - 2)) {
-					strncpy(pTemp, pTemp + 2, strlen(pTemp + 2));
-					nTemp = nTemp - 2;
-					MSG_DEBUG("_MsgDecodeText: real char-set = MSG_CHARSET_UTF8.\n");
-					break;
-				}
+			if (MmsPluginTextConvert(pToCharSet, pFromCharSet, pTemp, nTemp, &pDest, &destLen) == false) {
+				MSG_DEBUG("MmsPluginTextConvert Fail");
+			}
 
-				mszTempStr = (unsigned short *)malloc(nChar * sizeof(unsigned short));
-				if (mszTempStr == NULL) {
-					MSG_DEBUG("_MsgDecodeText: 1. Memory Full !!! \n");
-					goto __CATCH;
-				}
-
-				memcpy(mszTempStr, ((unsigned short *)pTemp + 1), nChar * sizeof(unsigned short));
-
-				nByte = MsgGetUnicode2UTFCodeSize(((unsigned short *)pTemp + 1), nChar);
-
-				pConvertedStr = (char *)malloc(nByte + 1);
-				if (pConvertedStr) {
-					MsgUnicode2UTF ((unsigned char *)pConvertedStr, nByte + 1, mszTempStr, nChar);
-				}
-			} else {
-				nChar = (nTemp / 2);
-
-				if (nChar == 0) {
-					nChar = 2;
-				}
-
-				// Re check char-set
-				if (MsgIsUTF8String((unsigned char *)pTemp, nTemp)) {
-					MSG_DEBUG("_MsgDecodeText: real char-set = MSG_CHARSET_UTF8.\n");
-					break;
-				}
-
-				mszTempStr = (unsigned short *)malloc(nChar * sizeof(unsigned short));
-				if (mszTempStr == NULL) {
-					MSG_DEBUG("_MsgDecodeText: 2. Memory Full !!! \n");
-					goto __CATCH;
-				}
-
-				memcpy(mszTempStr, ((unsigned short *)pTemp), nChar * sizeof(unsigned short));
-
-				nByte = MsgGetUnicode2UTFCodeSize(((unsigned short *)pTemp), nChar);
-
-				pConvertedStr = (char *)malloc(nByte + 1);
-				if (pConvertedStr) {
-					MsgUnicode2UTF ((unsigned char *)pConvertedStr, nByte + 1, mszTempStr, nChar);
-				}
+			if (pDest) {
+				free(pTemp);
+				pTemp = strdup(pDest);
+				nTemp = destLen;
+				free(pDest);
 			}
 		}
 
-		pTemp = pConvertedStr;
-		nTemp = nByte;
-
-		break;
-
-	case MSG_CHARSET_US_ASCII:
-
-		MSG_DEBUG("_MsgDecodeText: MSG_CHARSET_US_ASCII \n");
-		break;
-
-	case MSG_CHARSET_UTF8:
-
-		/* UTF8 is  default charset of Messenger */
-
-		MSG_DEBUG("_MsgDecodeText: MSG_CHARSET_UTF8 \n");
-
-		break;
-
-	case MSG_CHARSET_ISO_8859_1:
-
-		MSG_DEBUG("_MsgDecodeText: MSG_CHARSET_ISO_8859_1 \n");
-
-		nByte = nTemp * 3;
-
-		pmszOutTextStr = (unsigned short *)malloc(sizeof(MCHAR *) * (nByte + 1));
-		if (pmszOutTextStr == NULL) {
-			MSG_DEBUG("_MsgDecodeText : Out Text String null !!! \n");
-			goto __CATCH;
-		}
-
-		pConvertedStr = (char *)malloc(sizeof(char *) * (nByte + 1));
-		if (pConvertedStr) {
-			WmConvertLatinCode2PCode(pmszOutTextStr, sizeof(MCHAR *) * (nByte + 1), pTemp);
-			WmConvert2LCode(pConvertedStr, sizeof(char *) * (nByte + 1), pmszOutTextStr);
-		}
-
-		if (pmszOutTextStr) {
-			free(pmszOutTextStr);
-			pmszOutTextStr = NULL;
-		}
-
-		pTemp = pConvertedStr;
-		nTemp = nByte;
-
-		break;
-
-	case MSG_CHARSET_ISO_8859_2:
-
-		MSG_DEBUG("_MsgDecodeText: MSG_CHARSET_ISO_8859_2 \n");
-
-		nByte = nTemp * 3;
-
-		pmszOutTextStr = (unsigned short *)malloc(sizeof(MCHAR *) * (nByte + 1));
-		if (pmszOutTextStr == NULL) {
-			MSG_DEBUG("_MsgDecodeText : Out Text String null !!! \n");
-			goto __CATCH;
-		}
-
-		pConvertedStr =  (char *)malloc(sizeof(char *) * (nByte + 1));
-		if (pConvertedStr) {
-			WmConvertLatin2Code2PCode(pmszOutTextStr, sizeof(MCHAR *) * (nByte + 1), pTemp);
-			WmConvert2LCode(pConvertedStr, sizeof(char *) * (nByte + 1), pmszOutTextStr);
-		}
-
-		if (pmszOutTextStr) {
-			free(pmszOutTextStr);
-			pmszOutTextStr = NULL;
-		}
-
-		pTemp = pConvertedStr;
-		nTemp = nByte;
-
-		break;
-
-	case MSG_CHARSET_ISO_8859_3:
-
-		MSG_DEBUG("_MsgDecodeText: MSG_CHARSET_ISO_8859_3 \n");
-
-		nByte = WmGetLatin32UTFCodeSize((unsigned char *)pTemp, nTemp);
-
-		pmszOutTextStr = (unsigned short *)malloc(sizeof(MCHAR *) * (nByte + 1));
-		if (pmszOutTextStr == NULL) {
-			MSG_DEBUG("_MsgDecodeText : Out Text String null !!! \n");
-			goto __CATCH;
-		}
-
-		pConvertedStr = (char *)malloc(sizeof(char *) * (nByte + 1));
-		if (pConvertedStr) {
-			WmConvertLatin3Code2PCode(pmszOutTextStr, sizeof(MCHAR *) * (nByte + 1), pTemp);
-			WmConvert2LCode(pConvertedStr, sizeof(char *) * (nByte + 1), pmszOutTextStr);
-		}
-
-		if (pmszOutTextStr) {
-			free(pmszOutTextStr);
-			pmszOutTextStr = NULL;
-		}
-
-		pTemp = pConvertedStr;
-		nTemp = nByte;
-
-		break;
-
-	case MSG_CHARSET_ISO_8859_4:
-
-		MSG_DEBUG("_MsgDecodeText: MSG_CHARSET_ISO_8859_4 \n");
-
-		nByte = WmGetLatin42UTFCodeSize((unsigned char *)pTemp, nTemp);
-
-		pmszOutTextStr = (unsigned short *)malloc(sizeof(MCHAR *) * (nByte + 1));
-		if (pmszOutTextStr == NULL) {
-			MSG_DEBUG("_MsgDecodeText : Out Text String null !!! \n");
-			goto __CATCH;
-		}
-
-		pConvertedStr = (char *)malloc(sizeof(char *) * (nByte + 1));
-		if (pConvertedStr) {
-			WmConvertLatin4Code2PCode(pmszOutTextStr, sizeof(MCHAR *) * (nByte + 1), pTemp);
-			WmConvert2LCode(pConvertedStr, sizeof(char *) * (nByte + 1), pmszOutTextStr);
-		}
-
-		if (pmszOutTextStr) {
-			free(pmszOutTextStr);
-			pmszOutTextStr = NULL;
-		}
-
-		pTemp = pConvertedStr;
-		nTemp = nByte;
-
-		break;
-
-	case MSG_CHARSET_ISO_8859_5:
-
-		MSG_DEBUG("_MsgDecodeText: MSG_CHARSET_ISO_8859_5 \n");
-
-		nByte = WmGetLatin52UTFCodeSize((unsigned char *)pTemp, nTemp);
-
-		pmszOutTextStr = (unsigned short *)malloc(sizeof(MCHAR *) * (nByte + 1));
-		if (pmszOutTextStr == NULL) {
-			MSG_DEBUG("_MsgDecodeText : Out Text String null !!! \n");
-			goto __CATCH;
-		}
-
-		pConvertedStr = (char *)malloc(sizeof(char *) * (nByte + 1));
-		if (pConvertedStr) {
-			WmConvertLatin5Code2PCode(pmszOutTextStr, sizeof(MCHAR *) * (nByte + 1), pTemp);
-			WmConvert2LCode(pConvertedStr, sizeof(char *) * (nByte + 1), pmszOutTextStr);
-		}
-
-		if (pmszOutTextStr) {
-			free(pmszOutTextStr);
-			pmszOutTextStr = NULL;
-		}
-
-		pTemp = pConvertedStr;
-		nTemp = nByte;
-
-		break;
-
-	case MSG_CHARSET_ISO_8859_7:
-
-		/* Greek */
-		MSG_DEBUG("_MsgDecodeText: MSG_CHARSET_ISO_8859_9 \n");
-
-		nByte = MsgGetLatin72UTFCodeSize((unsigned char *)pTemp, nTemp);
-		pConvertedStr = (char *)malloc( nByte + 1);
-		if (pConvertedStr) {
-			MsgLatin7code2UTF((unsigned char *)pConvertedStr, nByte + 1 , (unsigned char *)pTemp, nTemp);
-		}
-
-		pTemp = pConvertedStr;
-		nTemp = nByte;
-
-		break;
-
-	case MSG_CHARSET_ISO_8859_8:
-
-		MSG_DEBUG("_MsgDecodeText: MSG_CHARSET_ISO_8859_8 \n");
-
-		nByte = WmGetLatin82UTFCodeSize((unsigned char *)pTemp, nTemp);
-
-		pmszOutTextStr = (unsigned short *)malloc(sizeof(MCHAR *) * (nByte + 1));
-		if (pmszOutTextStr == NULL) {
-			MSG_DEBUG("_MsgDecodeText : Out Text String null !!! \n");
-			goto __CATCH;
-		}
-
-		pConvertedStr = (char *)malloc(sizeof(char *) * (nByte + 1));
-		if (pConvertedStr) {
-			WmConvertLatin8Code2PCode(pmszOutTextStr, sizeof(MCHAR *) * (nByte + 1), pTemp);
-			WmConvert2LCode(pConvertedStr, sizeof(char *) * (nByte + 1), pmszOutTextStr);
-		}
-
-		if (pmszOutTextStr) {
-			free(pmszOutTextStr);
-			pmszOutTextStr = NULL;
-		}
-
-		pTemp = pConvertedStr;
-		nTemp = nByte;
-
-		break;
-
-	case MSG_CHARSET_ISO_8859_9:
-		/* Turkish */
-
-		MSG_DEBUG("_MsgDecodeText: MSG_CHARSET_ISO_8859_9 \n");
-
-		nByte = MsgGetLatin52UTFCodeSize((unsigned char *)pTemp, nTemp);
-		pConvertedStr = (char *)malloc(nByte + 1);
-		if (pConvertedStr) {
-			MsgLatin5code2UTF((unsigned char *)pConvertedStr, nByte + 1 , (unsigned char *)pTemp, nTemp);
-		}
-
-		pTemp = pConvertedStr;
-		nTemp = nByte;
-
-		break;
-
-	case MSG_CHARSET_ISO_8859_15:
-
-		MSG_DEBUG("_MsgDecodeText: MSG_CHARSET_ISO_8859_15 \n");
-
-		nByte = WmGetLatin152UTFCodeSize((unsigned char *)pTemp, nTemp);
-
-		pmszOutTextStr = (unsigned short *)malloc(sizeof(MCHAR *) * (nByte + 1));
-		if (pmszOutTextStr == NULL) {
-			MSG_DEBUG("_MsgDecodeText : Out Text String null !!! \n");
-			goto __CATCH;
-		}
-
-		pConvertedStr = (char *)malloc(sizeof(char *) * (nByte + 1));
-		if (pConvertedStr) {
-			WmConvertLatin15Code2PCode(pmszOutTextStr, sizeof(MCHAR *) * (nByte + 1), pTemp);
-			WmConvert2LCode(pConvertedStr, sizeof(char *) * (nByte + 1), pmszOutTextStr);
-		}
-
-		if (pmszOutTextStr) {
-			free(pmszOutTextStr);
-			pmszOutTextStr = NULL;
-		}
-
-		pTemp = pConvertedStr;
-		nTemp = nByte;
-
-		break;
-
-	case MSG_CHARSET_WIN1251:
-	case MSG_CHARSET_WINDOW_1251:
-	case MSG_CHARSET_WINDOWS_1251:
-
-		MSG_DEBUG("_MsgDecodeText: MSG_CHARSET_WINDOWS_1251 \n");
-
-		nByte = nTemp * 3;
-
-		pmszOutTextStr = (unsigned short *)malloc(sizeof(MCHAR *) * (nByte + 1));
-		if (pmszOutTextStr == NULL) {
-			MSG_DEBUG("_MsgDecodeText : Out Text String null !!! \n");
-			goto __CATCH;
-		}
-
-		pConvertedStr = (char *)malloc(sizeof(char *) * (nByte + 1));
-		if (pConvertedStr) {
-			WmConvertWin1251Code2PCode(pmszOutTextStr, sizeof(MCHAR *) * (nByte + 1), pTemp);
-			WmConvert2LCode(pConvertedStr, sizeof(char *) * (nByte + 1), pmszOutTextStr);
-		}
-
-		if (pmszOutTextStr) {
-			free(pmszOutTextStr);
-			pmszOutTextStr = NULL;
-		}
-
-		pTemp = pConvertedStr;
-		nTemp = nByte;
-
-		break;
-
-	case MSG_CHARSET_KOI8_R:
-
-		MSG_DEBUG("_MsgDecodeText: MSG_CHARSET_KOI8_R \n");
-
-		nByte = nTemp * 3;
-
-		pmszOutTextStr = (unsigned short *)malloc(sizeof(MCHAR *) * (nByte + 1));
-		if (pmszOutTextStr == NULL) {
-			MSG_DEBUG("_MsgDecodeText : Out Text String null !!! \n");
-			goto __CATCH;
-		}
-
-		pConvertedStr = (char *)malloc(sizeof(char *) * (nByte + 1));
-		if (pConvertedStr) {
-			WmConvertKoi8rCode2PCode(pmszOutTextStr, sizeof(MCHAR *) * (nByte + 1), pTemp);
-			WmConvert2LCode(pConvertedStr, sizeof(char *) * (nByte + 1), pmszOutTextStr);
-		}
-
-		if (pmszOutTextStr) {
-			free(pmszOutTextStr);
-			pmszOutTextStr = NULL;
-		}
-
-		pTemp = pConvertedStr;
-		nTemp = nByte;
-
-		break;
-
-	case MSG_CHARSET_KOI8_U:
-
-		MSG_DEBUG("_MsgDecodeText: MSG_CHARSET_KOI8_U \n");
-
-		nByte = nTemp * 3;
-
-		pmszOutTextStr = (unsigned short *)malloc(sizeof(MCHAR *) * (nByte + 1));
-		if (pmszOutTextStr == NULL) {
-			MSG_DEBUG("_MsgDecodeText : Out Text String null !!! \n");
-			goto __CATCH;
-		}
-
-		pConvertedStr = (char *)malloc(sizeof(char *) * (nByte + 1));
-		if (pConvertedStr) {
-			WmConvertKoi8uCode2PCode(pmszOutTextStr, sizeof(MCHAR *) * (nByte + 1), pTemp);
-			WmConvert2LCode(pConvertedStr, sizeof(char *) * (nByte + 1), pmszOutTextStr);
-		}
-
-		if (pmszOutTextStr) {
-			free(pmszOutTextStr);
-			pmszOutTextStr = NULL;
-		}
-
-		pTemp = pConvertedStr;
-		nTemp = nByte;
-
-		break;
-
-	default:
-
-		MSG_DEBUG("_MsgDecodeText: Other charsets \n");
-
-		nByte = MsgGetLatin2UTFCodeSize((unsigned char *)pTemp, nTemp);
-		pConvertedStr = (char *)malloc(nByte + 1);
-		if (pConvertedStr) {
-			MsgLatin2UTF((unsigned char *)pConvertedStr, nByte + 1, (unsigned char *)pTemp, nTemp);
-		}
-
-		pTemp = pConvertedStr;
-		nTemp = nByte;
-
-		break;
 	}
 
 	pReturnStr = (char *)malloc(nTemp + 1);
+
 	if (pReturnStr == NULL) {
 		goto __CATCH;
 	}
+
 	memset(pReturnStr, 0, nTemp + 1);
 
-	if (pTemp)
+	if (pTemp) {
 		memcpy(pReturnStr, pTemp, nTemp);
+		free(pTemp);
+		pTemp = NULL;
+	}
 
 	if (pConvertedStr) {
 		free(pConvertedStr);
 		pConvertedStr = NULL;
-	}
-
-	if (mszTempStr) {
-		free(mszTempStr);
-		mszTempStr = NULL;
 	}
 
 	if(pRe) {
@@ -1011,11 +620,6 @@ __CATCH:
 		pConvertedStr = NULL;
 	}
 
-	if (mszTempStr)	{
-		free(mszTempStr);
-		mszTempStr = NULL;
-	}
-
 	if(pRe) {
 		free(pRe);
 		pRe = NULL;
@@ -1024,6 +628,11 @@ __CATCH:
 	if (pSrc != NULL && pSrc != szTempBuf) {
 		free(pSrc);
 		pSrc = NULL;
+	}
+
+	if (pTemp) {
+		free(pTemp);
+		pTemp = NULL;
 	}
 
 	return NULL;

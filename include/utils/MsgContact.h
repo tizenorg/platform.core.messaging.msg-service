@@ -44,8 +44,8 @@ bool MsgDeleteContact(int index);
 
 int MsgGetContactNameOrder();
 
-msg_error_t MsgAddPhoneLog(const MSG_MESSAGE_INFO_S *pMsgInfo);
-msg_error_t MsgDeletePhoneLog(msg_message_id_t msgId);
+void MsgAddPhoneLog(const MSG_MESSAGE_INFO_S *pMsgInfo);
+void MsgDeletePhoneLog(msg_message_id_t msgId);
 
 int MsgContactSVCBeginTrans();
 int MsgContactSVCEndTrans(bool bSuccess);

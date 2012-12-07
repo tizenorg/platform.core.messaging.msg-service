@@ -41,6 +41,7 @@ msg_error_t MsgSetMMSStyleOpt(const MSG_SETTING_S *pSetting);
 msg_error_t MsgSetPushMsgOpt(const MSG_SETTING_S *pSetting);
 msg_error_t MsgSetCBMsgOpt(const MSG_SETTING_S *pSetting, bool bSetSim);
 msg_error_t MsgSetVoiceMailOpt(const MSG_SETTING_S *pSetting);
+msg_error_t MsgSetVoiceMailOpt(const MSG_SETTING_S *pSetting, bool bSetSim);
 msg_error_t MsgSetMsgSizeOpt(const MSG_SETTING_S *pSetting);
 
 void MsgGetGeneralOpt(MSG_SETTING_S *pSetting);

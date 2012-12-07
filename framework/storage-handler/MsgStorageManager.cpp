@@ -20,6 +20,10 @@
 #include <sys/stat.h>
 #include <errno.h>
 
+#include <VMessage.h>
+#include <VCard.h>
+#include "MsgVMessage.h"
+
 #include "MsgDebug.h"
 #include "MsgUtilFile.h"
 #include "MsgUtilStorage.h"
@@ -814,9 +818,79 @@ msg_error_t MsgStoResetDatabase()
 }
 
 
-msg_error_t MsgStoBackupMessage()
+msg_error_t MsgStoBackupMessage(msg_message_backup_type_t type, const char *filepath)
 {
+	msg_error_t	err = MSG_SUCCESS;
+
+	char sqlQuery[MAX_QUERY_LEN+1];
+	int rowCnt = 0;
+	int index = 0;
+	MSG_MESSAGE_INFO_S	 msgInfo = {0, };
+	char*			encoded_data = NULL;
+
+	char fileName[MSG_FILENAME_LEN_MAX+1];
+	memset(fileName, 0x00, sizeof(fileName));
+	strncpy(fileName, filepath, MSG_FILENAME_LEN_MAX);
+	if (remove(fileName) != 0) {
+		MSG_DEBUG("Fail to delete [%s].", fileName);
+	}
+
+	memset(sqlQuery, 0x00, sizeof(sqlQuery));
+
+	MSG_DEBUG("backup type = %d, path = %s", type, filepath);
+
+	if (type == MSG_BACKUP_TYPE_SMS) {
+		snprintf(sqlQuery, sizeof(sqlQuery),
+				"SELECT MSG_ID FROM %s "
+				"WHERE STORAGE_ID = %d AND MAIN_TYPE = %d;",
+				MSGFW_MESSAGE_TABLE_NAME, MSG_STORAGE_PHONE, MSG_SMS_TYPE);
+	} else if (type == MSG_BACKUP_TYPE_MMS) {
+		snprintf(sqlQuery, sizeof(sqlQuery),
+				"SELECT MSG_ID FROM %s "
+				"WHERE STORAGE_ID = %d AND MAIN_TYPE = %d;",
+				MSGFW_MESSAGE_TABLE_NAME, MSG_STORAGE_PHONE, MSG_MMS_TYPE);
+	} else if (type == MSG_BACKUP_TYPE_ALL) {
+		snprintf(sqlQuery, sizeof(sqlQuery),
+				"SELECT MSG_ID FROM %s "
+				"WHERE STORAGE_ID = %d;",
+				MSGFW_MESSAGE_TABLE_NAME, MSG_STORAGE_PHONE);
+
+	}
+
+	err = dbHandle.getTable(sqlQuery, &rowCnt);
+
+	if (err != MSG_SUCCESS) {
+		dbHandle.freeTable();
+		return err;
+	}
+	MSG_DEBUG("backup number = %d", rowCnt);
+
+	for (int i = 0; i < rowCnt; i++) {
+		err = MsgStoGetMessage(dbHandle.getColumnToInt(++index), &msgInfo, NULL);
+		if(err != MSG_SUCCESS) {
+			dbHandle.freeTable();
+			return err;
+		}
+
+		encoded_data = MsgVMessageAddRecord(&dbHandle, &msgInfo);
+
+		if (encoded_data != NULL) {
+			if (MsgAppendFile(fileName, encoded_data, strlen(encoded_data)) == false) {
+				dbHandle.freeTable();
+				free(encoded_data);
+				return MSG_ERR_STORAGE_ERROR;
+			}
+
+			free(encoded_data);
+		}
+
+		memset(&msgInfo, 0, sizeof(MSG_MESSAGE_INFO_S));
+	}
+
+	dbHandle.freeTable();
+	MSG_END();
 	return MSG_SUCCESS;
+
 }
 
 msg_error_t MsgStoUpdateMms(MSG_MESSAGE_INFO_S *pMsg)
@@ -855,8 +929,275 @@ msg_error_t MsgStoUpdateMms(MSG_MESSAGE_INFO_S *pMsg)
 	return MSG_SUCCESS;
 }
 
-msg_error_t MsgStoRestoreMessage()
+msg_error_t MsgStoRestoreMessage(const char *filepath)
 {
+	msg_error_t err = MSG_SUCCESS;
+	MSG_MESSAGE_INFO_S msgInfo = {0,};
+
+	VTree* vMsg = NULL;
+	VObject* pObject = NULL;
+
+	int dataSize = 0;
+
+	char fileName[MSG_FILENAME_LEN_MAX+1];
+	char *pData = NULL;
+	char *pCurrent = NULL;
+	char *pTemp = NULL;
+
+#ifdef MSG_FOR_DEBUG
+	char sample[10000] = "BEGIN:VMSG\r\nX-MESSAGE-TYPE:SMS\r\nX-IRMC-BOX:INBOX\r\nX-SS-DT:20100709T155811Z\r\nBEGIN:VBODY\r\nX-BODY-SUBJECT:hekseh\r\nX-BODY-CONTENTS;ENCODING=BASE64:aGVsbG93b3JsZA==\r\nEND:VBODY\r\nBEGIN:VCARD\r\nVERSION:2.1\r\nTEL:01736510664\r\nEND:VCARD\r\nEND:VMSG\r\n";
+	vMsg = vmsg_decode(sample);
+#else
+	memset(fileName, 0x00, sizeof(fileName));
+	strncpy(fileName, filepath, MSG_FILENAME_LEN_MAX);
+	pData = MsgOpenAndReadMmsFile(fileName, 0, -1, &dataSize);
+	if (pData == NULL)
+		return MSG_ERR_STORAGE_ERROR;
+
+	pCurrent = pData;
+
+	while ((pTemp = strstr(pCurrent, "END:VMSG")) != NULL)
+	{
+		MSG_DEBUG("Start Position: %s", pCurrent);
+
+		while (*pCurrent == '\r' || *pCurrent == '\n')
+			pCurrent++;
+
+		MSG_DEBUG("Start Position2: %s", pCurrent);
+
+		vMsg = vmsg_decode(pCurrent);
+#endif
+
+		pObject = vMsg->pTop;
+
+		memset(&msgInfo, 0x00, sizeof(MSG_MESSAGE_INFO_S));
+
+		while (1)
+		{
+			while (1)
+			{
+				MSG_DEBUG("pObject type [%d], pObject Value [%s]", pObject->property, pObject->pszValue[0]);
+
+				switch (pObject->property)
+				{
+					case VMSG_TYPE_MSGTYPE :
+					{
+						if (!strncmp(pObject->pszValue[0], "SMS", strlen("SMS"))) {
+							msgInfo.msgType.mainType = MSG_SMS_TYPE;
+							msgInfo.msgType.subType = MSG_NORMAL_SMS;
+						} else if (!strncmp(pObject->pszValue[0], "MMS RETRIEVED", strlen("MMS RETRIEVED"))) {
+							msgInfo.msgType.mainType = MSG_MMS_TYPE;
+							msgInfo.msgType.subType = MSG_RETRIEVE_AUTOCONF_MMS;
+						} else if (!strncmp(pObject->pszValue[0], "MMS SEND", strlen("MMS SEND"))) {
+							msgInfo.msgType.mainType = MSG_MMS_TYPE;
+							msgInfo.msgType.subType = MSG_SENDCONF_MMS;
+						} else if (!strncmp(pObject->pszValue[0], "MMS NOTIFICATION", strlen("MMS NOTIFICATION"))) {
+							msgInfo.msgType.mainType = MSG_MMS_TYPE;
+							msgInfo.msgType.subType = MSG_NOTIFICATIONIND_MMS;
+						} else {
+							vmsg_free_vtree_memory(vMsg);
+							return MSG_ERR_STORAGE_ERROR;
+						}
+					}
+					break;
+
+					case VMSG_TYPE_MSGBOX :
+					{
+						if(!strncmp(pObject->pszValue[0], "INBOX", strlen("INBOX"))) {
+							msgInfo.folderId= MSG_INBOX_ID;
+							msgInfo.direction=MSG_DIRECTION_TYPE_MT;
+
+							msgInfo.networkStatus=MSG_NETWORK_RECEIVED;
+						} else if(!strncmp(pObject->pszValue[0], "OUTBOX", strlen("OUTBOX"))) {
+							msgInfo.folderId= MSG_OUTBOX_ID;
+							msgInfo.direction=MSG_DIRECTION_TYPE_MO;
+
+							msgInfo.networkStatus=MSG_NETWORK_SEND_FAIL;
+						} else if(!strncmp(pObject->pszValue[0], "SENTBOX", strlen("SENTBOX"))) {
+							msgInfo.folderId= MSG_SENTBOX_ID;
+							msgInfo.direction=MSG_DIRECTION_TYPE_MO;
+
+							msgInfo.networkStatus=MSG_NETWORK_SEND_SUCCESS;
+						} else if(!strncmp(pObject->pszValue[0], "DRAFTBOX", strlen("DRAFTBOX"))) {
+							msgInfo.folderId=MSG_DRAFT_ID;
+							msgInfo.direction=MSG_DIRECTION_TYPE_MO;
+
+							msgInfo.networkStatus=MSG_NETWORK_NOT_SEND;
+						} else {
+							vmsg_free_vtree_memory(vMsg);
+							return MSG_ERR_STORAGE_ERROR;
+						}
+					}
+					break;
+
+					case VMSG_TYPE_STATUS :
+					{
+						if(!strncmp(pObject->pszValue[0], "READ", strlen("READ"))) {
+							msgInfo.bRead = true;
+						} else if(!strncmp(pObject->pszValue[0], "UNREAD", strlen("UNREAD"))) {
+							msgInfo.bRead = false;
+						} else {
+							vmsg_free_vtree_memory(vMsg);
+							return MSG_ERR_STORAGE_ERROR;
+						}
+					}
+					break;
+
+					case VMSG_TYPE_DATE :
+					{
+						struct tm	displayTime;
+
+						if (!_convert_vdata_str_to_tm(pObject->pszValue[0], &displayTime)) {
+							vmsg_free_vtree_memory( vMsg );
+							return MSG_ERR_STORAGE_ERROR;
+						}
+
+						msgInfo.displayTime = mktime(&displayTime);
+					}
+					break;
+
+					case VMSG_TYPE_SUBJECT :
+					{
+						MSG_DEBUG("subject length is [%d].", strlen(pObject->pszValue[0]));
+
+						if(strlen(pObject->pszValue[0]) > 0) {
+							strncpy(msgInfo.subject, pObject->pszValue[0], MAX_SUBJECT_LEN);
+							if ( msgInfo.subject[strlen(pObject->pszValue[0])-1] == '\r' )
+								msgInfo.subject[strlen(pObject->pszValue[0])-1]= '\0';
+						}
+					}
+					break;
+
+					case VMSG_TYPE_BODY :
+					{
+						if (msgInfo.msgType.mainType == MSG_SMS_TYPE) {
+							if (pObject->numOfBiData > MAX_MSG_DATA_LEN) {
+								msgInfo.bTextSms = false;
+								char fileName[MAX_COMMON_INFO_SIZE + 1];
+								memset(fileName, 0x00, sizeof(fileName));
+
+								if (MsgCreateFileName(fileName) == false) {
+									vmsg_free_vtree_memory(vMsg);
+									return MSG_ERR_STORAGE_ERROR;
+								}
+
+								if (MsgWriteIpcFile(fileName, pObject->pszValue[0], pObject->numOfBiData) == false) {
+									vmsg_free_vtree_memory(vMsg);
+									return MSG_ERR_STORAGE_ERROR;
+								}
+
+								strncpy(msgInfo.msgData, fileName, MAX_MSG_DATA_LEN);
+								msgInfo.dataSize = pObject->numOfBiData;
+							} else {
+								msgInfo.bTextSms = true;
+
+								if(pObject->numOfBiData > 0) {
+									memset(msgInfo.msgText, 0x00, sizeof(msgInfo.msgText));
+									memcpy(msgInfo.msgText, pObject->pszValue[0], pObject->numOfBiData);
+
+									msgInfo.dataSize = pObject->numOfBiData;
+								}
+							}
+						} else {
+							msgInfo.bTextSms = true;
+							if(msgInfo.msgType.subType == MSG_NOTIFICATIONIND_MMS) {
+
+									msgInfo.bTextSms = true;
+
+								// Save Message Data into File
+								char fileName[MAX_COMMON_INFO_SIZE+1];
+								memset(fileName, 0x00, sizeof(fileName));
+
+								if (MsgCreateFileName(fileName) == false) {
+									vmsg_free_vtree_memory(vMsg);
+									return MSG_ERR_STORAGE_ERROR;
+								}
+
+								if (MsgWriteIpcFile(fileName, pObject->pszValue[0], pObject->numOfBiData) == false) {
+									vmsg_free_vtree_memory(vMsg);
+									return MSG_ERR_STORAGE_ERROR;
+								}
+								strncpy(msgInfo.msgData, MSG_IPC_DATA_PATH, MAX_MSG_DATA_LEN);
+								strncat(msgInfo.msgData, fileName, MAX_MSG_DATA_LEN-strlen(msgInfo.msgData));
+								msgInfo.dataSize = strlen(fileName);
+								MsgPlugin* plg = MsgPluginManager::instance()->getPlugin(msgInfo.msgType.mainType);
+								err =  plg->restoreMsg(&msgInfo, pObject->pszValue[0], pObject->numOfBiData, NULL);
+
+							} else {
+//////////////// From here was avaliable
+								char	retrievedFilePath[MAX_FULL_PATH_SIZE] = {0,};
+								MsgPlugin* plg = MsgPluginManager::instance()->getPlugin(msgInfo.msgType.mainType);
+								err =  plg->restoreMsg(&msgInfo, pObject->pszValue[0], pObject->numOfBiData, retrievedFilePath);
+								msgInfo.bTextSms = false;
+
+								char fileName[MAX_COMMON_INFO_SIZE+1];
+								memset(fileName, 0x00, sizeof(fileName));
+
+								if (MsgCreateFileName(fileName) == false) {
+									vmsg_free_vtree_memory(vMsg);
+									return MSG_ERR_STORAGE_ERROR;
+								}
+								MSG_DEBUG("fileName: %s, retrievedFilePath: %s (%d)", fileName, retrievedFilePath, strlen(retrievedFilePath));
+
+								if (MsgWriteIpcFile(fileName, retrievedFilePath, strlen(retrievedFilePath)+ 1) == false) {
+									vmsg_free_vtree_memory(vMsg);
+									return MSG_ERR_STORAGE_ERROR;
+								}
+								strncpy(msgInfo.msgData, fileName, MAX_MSG_DATA_LEN);
+								msgInfo.dataSize = strlen(retrievedFilePath) + 1;
+
+								if (err != MSG_SUCCESS)
+									return vmsg_free_vtree_memory(vMsg);
+///////////////////////////
+							}
+						}
+					}
+					break;
+
+					case VCARD_TYPE_TEL :
+					{
+						msgInfo.nAddressCnt++;
+
+						msgInfo.addressList[msgInfo.nAddressCnt-1].addressType = MSG_ADDRESS_TYPE_PLMN;
+						msgInfo.addressList[msgInfo.nAddressCnt-1].recipientType = MSG_RECIPIENTS_TYPE_TO;
+
+						strncpy(msgInfo.addressList[msgInfo.nAddressCnt-1].addressVal, pObject->pszValue[0], MAX_ADDRESS_VAL_LEN);
+					}
+					break;
+				}
+
+				if (pObject->pSibling != NULL)
+					pObject = pObject->pSibling;
+				else
+					break;
+			}
+
+			if (vMsg->pNext != NULL) {
+				vMsg = vMsg->pNext;
+				pObject = vMsg->pTop;
+			} else {
+				break;
+			}
+		}
+
+		msgInfo.bBackup = true; // Set Backup Flag
+		msgInfo.storageId = MSG_STORAGE_PHONE; // Set Storage Id
+		msgInfo.priority = MSG_MESSAGE_PRIORITY_NORMAL; // Set Priority
+
+		err = MsgStoAddMessage(&msgInfo, NULL);
+		if (err != MSG_SUCCESS) {
+			MSG_DEBUG("MsgStoAddMessage() error : %d", err);
+		}
+
+		if (msgInfo.msgType.mainType == MSG_MMS_TYPE)
+			MsgStoUpdateMms(&msgInfo);
+
+		vmsg_free_vtree_memory(vMsg);
+
+		vMsg = NULL;
+		pCurrent = pTemp + strlen("END:VMSG");
+	}
+
 	return MSG_SUCCESS;
 }
 

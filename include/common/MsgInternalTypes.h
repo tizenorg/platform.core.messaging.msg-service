@@ -37,8 +37,11 @@
 #define MSG_SMIL_FILE_PATH		MSG_DATA_ROOT_PATH"smildata/"
 #define MSG_IPC_DATA_PATH			MSG_DATA_ROOT_PATH"ipcdata/"
 #define MSG_THUMBNAIL_PATH		MSG_DATA_PATH"thumbnails/"
+// temporary
+#define TPDU_LOG_FILE 				MSG_DATA_ROOT_PATH"tpduLog.txt"
+#define MSG_NATIONAL_SIM	"memory/private/msg-service/national_sim"
+#define MSG_SIM_MSISDN	"memory/private/msg-service/msisdn"
 #define MAX_FULL_PATH_SIZE		320	// max length for internal file path
-#define VALID_ADDRESS_LEN 		8
 #define MAX_PRECONFIG_NUM		8
 #define MAX_THREAD_ADDR_LEN	40
 #define MAX_THREAD_NAME_LEN	195
@@ -53,7 +56,6 @@
 /*vconf keys*/
 #define MSG_SIM_IMSI			"memory/private/msg-service/sim_imsi"
 #define MSG_SIM_CHANGED	"memory/private/msg-service/sim_changed"
-#define MSG_SIM_MSISDN	"memory/private/msg-service/msisdn"
 
 #define DEFAULT_SETTING_PATH				"db/private/msg-service"
 
@@ -213,23 +215,23 @@ typedef struct
 	msg_storage_id_t		storageId;										/**< Indicates where the message is saved. */
 	int						nAddressCnt;									/**< Indicates the count of addresses. */
 	MSG_ADDRESS_INFO_S		addressList[MAX_TO_ADDRESS_CNT];				/**< Indicates the address information list. */
-	char					replyAddress[MAX_PHONE_NUMBER_LEN+1];	/**< Indicates the reply address. */
+	char					replyAddress[MAX_PHONE_NUMBER_LEN+1];			/**< Indicates the reply address. */
 	char					subject[MAX_SUBJECT_LEN+1];						/**< Indicates the message subject. */
-	time_t					displayTime;													/**< Indicates the display time related to the specific operation. */
-	msg_network_status_t	networkStatus;													/**< Indicates the network status of the message. */
-	msg_encode_type_t		encodeType;													/**< Indicates the string encoding type. */
-	bool					bRead;																/**< Indicates whether the message is read or not. */
-	bool					bProtected;														/**< Indicates whether the message is protected or not. */
-	bool					bBackup;															/**< Indicates whether the message was restored from PC. */
-	msg_priority_type_t		priority;															/**< Indicates the priority of the message. */
-	msg_direction_type_t	direction;															/**< Indicates whether the message is MO or MT (affecting address). */
-	MSG_PORT_INFO_S			msgPort;															/**< Indicates the port number information. */
-	bool						bTextSms;														/**< Indicates whether the message is just a text message or not. */
-	size_t					dataSize;															/**< Indicates the data size. The unit is byte. */
+	time_t					displayTime;									/**< Indicates the display time related to the specific operation. */
+	msg_network_status_t	networkStatus;									/**< Indicates the network status of the message. */
+	msg_encode_type_t		encodeType;										/**< Indicates the string encoding type. */
+	bool					bRead;											/**< Indicates whether the message is read or not. */
+	bool					bProtected;										/**< Indicates whether the message is protected or not. */
+	bool					bBackup;										/**< Indicates whether the message was restored from PC. */
+	msg_priority_type_t		priority;										/**< Indicates the priority of the message. */
+	msg_direction_type_t	direction;										/**< Indicates whether the message is MO or MT (affecting address). */
+	MSG_PORT_INFO_S			msgPort;										/**< Indicates the port number information. */
+	bool					bTextSms;										/**< Indicates whether the message is just a text message or not. */
+	size_t					dataSize;										/**< Indicates the data size. The unit is byte. */
 	char					msgData[MAX_MSG_DATA_LEN+1];					/**< Indicates the message payload information as a body. */
 	char					msgText[MAX_MSG_TEXT_LEN+1];
-	char										thumbPath[MSG_FILEPATH_LEN_MAX];
-	bool 					bStore;
+	char					thumbPath[MSG_FILEPATH_LEN_MAX+1];
+	bool					bStore;											/**< Indicates whether the message is stored or not if it is MWI message. */
 } MSG_MESSAGE_INFO_S;
 
 typedef struct

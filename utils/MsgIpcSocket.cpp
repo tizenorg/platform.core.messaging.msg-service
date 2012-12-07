@@ -215,8 +215,8 @@ int MsgIpcClientSocket::read(char** buf, unsigned int* len)
 
 	/*  read the data in subsequence */
 	unsigned int ulen = (unsigned int)*len;
-	*buf = new char[ulen+1];
-	bzero(*buf, ulen+1);
+	*buf = new char[ulen];
+	bzero(*buf, ulen);
 	n = readn(*buf, ulen);
 
 	if ((unsigned int)n !=  ulen) {
@@ -380,9 +380,10 @@ void MsgIpcServerSocket::close(int fd)
 
 int MsgIpcServerSocket::readn( int fd, char *buf, unsigned int len )
 {
-	unsigned int nleft, nread;
+	size_t nleft;
+	int nread;
 
-	nleft = len;
+	nleft = (size_t)len;
 	while (nleft > 0) {
 		nread = ::read(fd, (void*)buf, nleft);
 		if (nread < 0) {

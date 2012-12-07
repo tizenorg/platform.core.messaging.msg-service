@@ -262,7 +262,6 @@ void MmsPluginInternal::processDeliveryInd(MSG_MESSAGE_INFO_S *pMsgInfo)
 	pMsgInfo->dataSize = 0;
 	memset(pMsgInfo->msgData, 0x00, MAX_MSG_DATA_LEN + 1);
 
-
 	strncpy(pMsgInfo->msgData, getMmsDeliveryStatus(status.msgStatus), MAX_MSG_DATA_LEN);
 	pMsgInfo->dataSize  = strlen(pMsgInfo->msgData);
 	MSG_DEBUG("Delivery Status = %s", pMsgInfo->msgData);
@@ -277,8 +276,6 @@ void MmsPluginInternal::processDeliveryInd(MSG_MESSAGE_INFO_S *pMsgInfo)
 		MmsPluginStorage::instance()->insertDeliveryReport(tmpId, mmsHeader.pTo->szAddr, &status);
 
 		pMsgInfo->msgId = (msg_message_id_t)tmpId;
-
-		MmsPluginStorage::instance()->addMmsNoti(pMsgInfo);
 
 	} else {
 		MSG_DEBUG("Can not find MMS message in DB");
@@ -322,7 +319,6 @@ void MmsPluginInternal::processReadOrgInd(MSG_MESSAGE_INFO_S *pMsgInfo)
 		Status.readStatus = mmsHeader.readStatus;
 
 		MmsPluginStorage::instance()->insertReadReport(pMsgInfo->msgId, mmsHeader.pFrom->szAddr, &Status);
-		MmsPluginStorage::instance()->addMmsNoti(pMsgInfo);
 
 	} else {
 		MSG_DEBUG("Can't not find Message!");
@@ -458,7 +454,10 @@ void MmsPluginInternal::processRetrieveConf(MSG_MESSAGE_INFO_S *pMsgInfo, mmsTra
 
 		snprintf(fullPath, MAX_FULL_PATH_SIZE+1, "%s%s", MSG_IPC_DATA_PATH, filename + 1);
 
-		rename(pRetrievedFilePath, fullPath);
+		int ret  = rename(pRetrievedFilePath, fullPath);
+		if (ret != 0) {
+			MSG_DEBUG("File rename Error: %s", strerror(errno));
+		}
 
 		if (chmod(fullPath, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP) != 0) {
 			MSG_DEBUG("File Write Error: %s", strerror(errno));
@@ -496,12 +495,12 @@ void MmsPluginInternal::processRetrieveConf(MSG_MESSAGE_INFO_S *pMsgInfo, mmsTra
 
 		pSmilDoc = MmsSmilGetPresentationData(pMsgInfo->msgId);
 		MmsSmilParseSmilDoc(&msgData, pSmilDoc);
+		MmsRemovePims(&msgData);
 
 		MmsPluginStorage::instance()->getMmsMessage(&pMsg);
 		strcpy(szFileName, pMsg->szFileName);
 
 		err = pStorage->getMsgText(&msgData, pMsgInfo->msgText);
-		MmsMakePreviewInfo(pMsgInfo->msgId, &msgData);
 		bMultipartRelated = true;
 	} else {
 		MSG_DEBUG("Multipart mixed message doesn't support mms conversation");
@@ -526,11 +525,31 @@ void MmsPluginInternal::processRetrieveConf(MSG_MESSAGE_INFO_S *pMsgInfo, mmsTra
 
 				strcpy((char *)szBuf, partHeader.param.szFileName);
 				sprintf(partHeader.param.szFileName, MSG_DATA_PATH"%s", szBuf);
-				if (!bMultipartRelated || MmsCheckAdditionalMedia(&msgData, &partHeader))
+				if (!bMultipartRelated || MmsCheckAdditionalMedia(&msgData, &partHeader)) {
+					MMS_ATTACH_S *attachment = NULL;
+					int tempType;
+
+					attachment = (MMS_ATTACH_S *)calloc(sizeof(MMS_ATTACH_S), 1);
+
+					MsgGetTypeByFileName(&tempType, partHeader.param.szFileName);
+					attachment->mediatype = (MimeType)tempType;
+
+					strcpy(attachment->szFilePath, partHeader.param.szFileName);
+
+					strncpy(attachment->szFileName, partHeader.param.szName, MSG_FILENAME_LEN_MAX - 1);
+
+					attachment->fileSize = partHeader.contentSize;
+
+					_MsgMmsAddAttachment(&msgData, attachment);
 					attachCount++;
+
+				}
+
 			}
 		}
 	}
+
+	MmsMakePreviewInfo(pMsgInfo->msgId, &msgData);
 	MSG_DEBUG("attachCount [%d]", attachCount);
 	err = pStorage->updateMmsAttachCount(pMsgInfo->msgId, attachCount);
 

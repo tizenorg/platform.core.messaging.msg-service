@@ -338,8 +338,11 @@ int msg_set_filter_info_str(void *filter, int field, char *value, int size)
 	switch (field)
 	{
 	case MSG_FILTER_VALUE_STR :
-		strncpy(filter_data->filterValue, value, size);
+	{
+		int len = (size > MAX_FILTER_VALUE_LEN)?MAX_FILTER_VALUE_LEN:size;
+		strncpy(filter_data->filterValue, value, len);
 		break;
+	}
 	default :
 		return MSG_ERR_INVALID_PARAMETER;
 	}

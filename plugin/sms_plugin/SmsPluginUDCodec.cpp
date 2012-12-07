@@ -284,9 +284,8 @@ MSG_DEBUG("bHeaderInd = %d", bHeaderInd);
 		{
 			headerLen = decodeHeader(&(pTpdu[offset]), &(pUserData->header[i]));
 
-			if (headerLen <= 0)
-			{
-				MSG_DEBUG("Error to decode User Data Header");
+			if (headerLen <= 0) {
+				MSG_DEBUG("Error to decode User Data Header. headerLen [%d]", headerLen);
 
 				pUserData->length = 0;
 				memset(pUserData->data, 0x00, sizeof(pUserData->data));
@@ -295,6 +294,15 @@ MSG_DEBUG("bHeaderInd = %d", bHeaderInd);
 			}
 
 			offset += headerLen;
+
+			if (offset > (udhl+2)) {
+				MSG_DEBUG("Error to decode User Data Header. offset [%d] > (udhl [%d] + 2)", offset, udhl);
+
+				pUserData->length = 0;
+				memset(pUserData->data, 0x00, sizeof(pUserData->data));
+
+				return 0;
+			}
 
 			pUserData->headerCnt++;
 		}
@@ -317,6 +325,10 @@ MSG_DEBUG("udl = %d", udl);
 MSG_DEBUG("offset = %d", offset);
 
 	pUserData->length = unpack7bitChar(&(pTpdu[offset]), udl, fillBits, pUserData->data);
+
+	//MSG_DEBUG("data = [%s]", pUserData->data);
+	//MSG_DEBUG("length = [%d]", pUserData->length);
+
 
 	return pUserData->length;
 }
@@ -361,9 +373,8 @@ MSG_DEBUG("bHeaderInd = %d", bHeaderInd);
 		{
 			headerLen = decodeHeader(&(pTpdu[offset]), &(pUserData->header[i]));
 
-			if (headerLen <= 0)
-			{
-				MSG_DEBUG("Error to decode User Data Header");
+			if (headerLen <= 0) {
+				MSG_DEBUG("Error to decode User Data Header. headerLen [%d]", headerLen);
 
 				pUserData->length = 0;
 				memset(pUserData->data, 0x00, sizeof(pUserData->data));
@@ -372,6 +383,15 @@ MSG_DEBUG("bHeaderInd = %d", bHeaderInd);
 			}
 
 			offset += headerLen;
+
+			if (offset > (udhl+2)) {
+				MSG_DEBUG("Error to decode User Data Header. offset [%d] > (udhl [%d] + 2)", offset, udhl);
+
+				pUserData->length = 0;
+				memset(pUserData->data, 0x00, sizeof(pUserData->data));
+
+				return 0;
+			}
 
 			pUserData->headerCnt++;
 		}
@@ -435,9 +455,8 @@ MSG_DEBUG("bHeaderInd = %d", bHeaderInd);
 		{
 			headerLen = decodeHeader(&(pTpdu[offset]), &(pUserData->header[i]));
 
-			if (headerLen <= 0)
-			{
-				MSG_DEBUG("Error to decode User Data Header");
+			if (headerLen <= 0) {
+				MSG_DEBUG("Error to decode User Data Header. headerLen [%d]", headerLen);
 
 				pUserData->length = 0;
 				memset(pUserData->data, 0x00, sizeof(pUserData->data));
@@ -446,6 +465,15 @@ MSG_DEBUG("bHeaderInd = %d", bHeaderInd);
 			}
 
 			offset += headerLen;
+
+			if (offset > (udhl+2)) {
+				MSG_DEBUG("Error to decode User Data Header. offset [%d] > (udhl [%d] + 2)", offset, udhl);
+
+				pUserData->length = 0;
+				memset(pUserData->data, 0x00, sizeof(pUserData->data));
+
+				return 0;
+			}
 
 			pUserData->headerCnt++;
 		}
@@ -712,7 +740,11 @@ MSG_DEBUG("lockingShift.langId [%02x]", pHeader->udh.lockingShift.langId);
 		default :
 		{
 			MSG_DEBUG("Not Supported Header Type [%02x]", pHeader->udhType);
-			return 0;
+
+			IEDL = pTpdu[offset++];
+
+			MSG_DEBUG("IEDL [%d]", IEDL);
+			return (offset + IEDL);
 		}
 		break;
 	}
@@ -725,6 +757,8 @@ int SmsPluginUDCodec::pack7bitChar(const unsigned char *pUserData, int dataLen, 
 {
 	int srcIdx = 0, dstIdx = 0, shift = fillBits;
 
+//MSG_DEBUG("dataLen = %d", dataLen);
+
 	if (shift > 0)
 		dstIdx = 1;
 
@@ -732,9 +766,14 @@ int SmsPluginUDCodec::pack7bitChar(const unsigned char *pUserData, int dataLen, 
 	{
 		if (shift == 0)
 		{
+//			if (srcIdx > 0) srcIdx++;
+
+//MSG_DEBUG("pUserData [%02x]", pUserData[srcIdx]);
+//MSG_DEBUG("shift = %d", shift);
 
 			pPackData[dstIdx] = pUserData[srcIdx];
 
+//MSG_DEBUG("pPackData [%02x]", pPackData[dstIdx]);
 			if (srcIdx >= dataLen) break;
 
 			shift = 7;
@@ -744,23 +783,33 @@ int SmsPluginUDCodec::pack7bitChar(const unsigned char *pUserData, int dataLen, 
 
 		if (shift > 1)
 		{
+//MSG_DEBUG("pUserData [%02x]", pUserData[srcIdx]);
+
+//MSG_DEBUG("shift = %d", shift);
 
 			pPackData[dstIdx-1] |= pUserData[srcIdx] << shift;
 			pPackData[dstIdx] = pUserData[srcIdx] >> (8-shift);
 			shift--;
+//MSG_DEBUG("pPackData [%02x]", pPackData[dstIdx]);
 
 			srcIdx++;
 			dstIdx++;
 		}
 		else if (shift == 1)
 		{
+//MSG_DEBUG("pUserData [%02x]", pUserData[srcIdx]);
+//MSG_DEBUG("shift = %d", shift);
 			pPackData[dstIdx-1] |= pUserData[srcIdx] << shift;
+
+//MSG_DEBUG("pPackData [%02x]", pPackData[dstIdx-1]);
 
 			srcIdx++;
 
 			shift--;
 		}
 	}
+
+//MSG_DEBUG("dstIdx = %d", dstIdx);
 
 	return dstIdx;
 }
@@ -779,8 +828,11 @@ MSG_DEBUG("dataLen = %d", dataLen);
 	{
 		if (shift == 0)
 		{
+//MSG_DEBUG("shift = %d", shift);
+
 			pUnpackData[dstIdx] = pTpdu[srcIdx] & 0x7F;
 
+//MSG_DEBUG("UserData[%d] = %02x", dstIdx, pUnpackData[dstIdx]);
 			shift = 7;
 			srcIdx++;
 			dstIdx++;
@@ -790,9 +842,13 @@ MSG_DEBUG("dataLen = %d", dataLen);
 
 		if (shift > 0)
 		{
+//MSG_DEBUG("shift = %d", shift);
+
 			pUnpackData[dstIdx] = (pTpdu[srcIdx-1] >> shift) + (pTpdu[srcIdx] << (8 - shift));
 
 			pUnpackData[dstIdx] &= 0x7F;
+
+//MSG_DEBUG("UserData[%d] = %02x", dstIdx, pUnpackData[dstIdx]);
 
 			shift--;
 
@@ -802,3 +858,4 @@ MSG_DEBUG("dataLen = %d", dataLen);
 
 	return dstIdx;
 }
+

@@ -46,6 +46,7 @@ void TapiEventDeliveryReportCNF(TapiHandle *handle, int result, void *data, void
 void TapiEventGetSimMsgCnt(TapiHandle *handle, int result, void *data, void *user_data);
 void TapiEventGetSimMsg(TapiHandle *handle, int result, void *data, void *user_data);
 void TapiEventSaveSimMsg(TapiHandle *handle, int result, void *data, void *user_data);
+void TapiEventSaveClass2Msg(TapiHandle *handle, int result, void *data, void *user_data);
 void TapiEventDeleteSimMsg(TapiHandle *handle, int result, void *data, void *user_data);
 
 void TapiEventSetConfigData(TapiHandle *handle, int result, void *data, void *user_data);

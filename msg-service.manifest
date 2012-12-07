@@ -11,13 +11,13 @@
 	<assign>
 		<filesystem path="/usr/lib/libmsg_mapi.so.0" label="_"/>
 		<filesystem path="/usr/lib/libmsg_mapi.so.0.1.0" label="_"/>
-                <filesystem path="/usr/lib/libmsg_framework_handler.so" label="_"/>
-                <filesystem path="/usr/lib/libmsg_mms_language_pack.so" label="_"/>
-                <filesystem path="/usr/lib/libmsg_mms_plugin.so" label="_"/>
-                <filesystem path="/usr/lib/libmsg_plugin_manager.so" label="_"/>
-                <filesystem path="/usr/lib/libmsg_sms_plugin.so" label="_"/>
-                <filesystem path="/usr/lib/libmsg_transaction_manager.so" label="_"/>
-                <filesystem path="/usr/lib/libmsg_transaction_proxy.so" label="_"/>
-                <filesystem path="/usr/lib/libmsg_utils.so" label="_"/>
+		<filesystem path="/usr/lib/libmsg_framework_handler.so" label="_"/>
+		<filesystem path="/usr/lib/libmsg_mms_plugin.so" label="_"/>
+		<filesystem path="/usr/lib/libmsg_plugin_manager.so" label="_"/>
+		<filesystem path="/usr/lib/libmsg_sms_plugin.so" label="_"/>
+		<filesystem path="/usr/lib/libmsg_transaction_manager.so" label="_"/>
+		<filesystem path="/usr/lib/libmsg_transaction_proxy.so" label="_"/>
+		<filesystem path="/usr/lib/libmsg_utils.so" label="_"/>
+		<filesystem path="/usr/lib/libmsg_vobject.so" label="_"/>
 	</assign>
 </manifest>

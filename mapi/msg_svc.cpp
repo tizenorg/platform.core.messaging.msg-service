@@ -1364,21 +1364,23 @@ EXPORT_API int msg_list_length(msg_list_handle_t list_handle)
 	return (int)g_list_length((GList *)list_handle);
 }
 
-
 EXPORT_API int msg_calculate_text_length(msg_handle_t handle, const char* msg_text, msg_encode_type_t msg_encode_type, unsigned int *text_size, unsigned int *segment_size)
 {
 	msg_error_t err = MSG_SUCCESS;
 
-	try
-	{
-		if (msg_text == NULL || strlen(msg_text) == 0) {
-			err = MSG_ERR_INVALID_PARAMETER;
-			return err;
-		}
-	}
-	catch (exception& e)
-	{
-		MSG_FATAL("%s", e.what());
+	msg_encode_type_t msg_encode_type_in;
+	err = msg_util_calculate_text_length(msg_text, msg_encode_type, text_size, segment_size, &msg_encode_type_in);
+
+	MSG_DEBUG("msg_encode_type_in [%d]", msg_encode_type_in);
+
+	return err;
+}
+
+EXPORT_API int msg_util_calculate_text_length(const char* msg_text, msg_encode_type_t msg_encode_type_to, unsigned int *text_size, unsigned int *segment_size, msg_encode_type_t *msg_encode_type_in)
+{
+	msg_error_t err = MSG_SUCCESS;
+
+	if (msg_text == NULL || text_size == NULL || segment_size == NULL) {
 		err = MSG_ERR_INVALID_PARAMETER;
 		return err;
 	}
@@ -1390,6 +1392,8 @@ EXPORT_API int msg_calculate_text_length(msg_handle_t handle, const char* msg_te
 	int bufSize = (160*MAX_SEGMENT_NUM) + 1;
 	int textSize = 0;
 
+	bool bAbnormal = false;
+
 	textSize = strlen(msg_text);
 
 	unsigned char decodeData[bufSize];
@@ -1400,10 +1404,10 @@ EXPORT_API int msg_calculate_text_length(msg_handle_t handle, const char* msg_te
 	*text_size = 0;
 	*segment_size = 0;
 
-	switch (msg_encode_type)
+	switch (msg_encode_type_to)
 	{
 	case MSG_ENCODE_GSM7BIT :
-		decodeLen = textCvt.convertUTF8ToGSM7bit(decodeData, bufSize, (const unsigned char*)msg_text, textSize, &langId);
+		decodeLen = textCvt.convertUTF8ToGSM7bit(decodeData, bufSize, (const unsigned char*)msg_text, textSize, &langId, &bAbnormal);
 		break;
 	case MSG_ENCODE_UCS2 :
 		decodeLen = textCvt.convertUTF8ToUCS2(decodeData, bufSize, (const unsigned char*)msg_text, textSize);
@@ -1413,37 +1417,50 @@ EXPORT_API int msg_calculate_text_length(msg_handle_t handle, const char* msg_te
 		break;
 	default :
 		err = MSG_ERR_INVALID_PARAMETER;
+		return err;
 		break;
 	}
 
 	// calculate segment size.
 	int headerLen = 1;
 	int concat = 5;
-	int lang = 3;
+//	int lang = 3;
 
-	int headerSize = 0;
+//	int headerSize = 0;
 	int segSize = 0;
 
-	if (langId != MSG_LANG_ID_RESERVED) {
-		MSG_DEBUG("National Language Exists");
-		headerSize += lang;
-	}
+//	if (langId != MSG_LANG_ID_RESERVED) {
+//		MSG_DEBUG("National Language Exists");
+//		headerSize += lang;
+//	}
 
-	if (msg_encode_type == MSG_ENCODE_GSM7BIT || encodeType == MSG_ENCODE_GSM7BIT) {
+	if (msg_encode_type_to == MSG_ENCODE_GSM7BIT || encodeType == MSG_ENCODE_GSM7BIT) {
 		MSG_DEBUG("MSG_ENCODE_GSM7BIT");
 
-		if (((decodeLen+headerSize)/160) > 1)
-			segSize = ((140*8) - ((headerLen + concat + headerSize)*8)) / 7;
+//		if (((decodeLen+headerSize)/160) > 1)
+//			segSize = ((140*8) - ((headerLen + concat + headerSize)*8)) / 7;
+		if(decodeLen > 160)
+			segSize = ((140*8) - ((headerLen + concat)*8)) / 7;
 		else
 			segSize = 160;
 
-	} else if (msg_encode_type == MSG_ENCODE_UCS2 || encodeType == MSG_ENCODE_UCS2) {
+		if (bAbnormal)
+			*msg_encode_type_in = MSG_ENCODE_GSM7BIT_ABNORMAL;
+		else
+			*msg_encode_type_in = MSG_ENCODE_GSM7BIT;
+
+	} else if (msg_encode_type_to == MSG_ENCODE_UCS2 || encodeType == MSG_ENCODE_UCS2) {
 		MSG_DEBUG("MSG_ENCODE_UCS2");
 
-		if (((decodeLen+headerSize)/140) > 1)
-			segSize = 140 - (headerLen + concat + headerSize);
+//		if (((decodeLen+headerSize)/140) > 1)
+//			segSize = 140 - (headerLen + concat + headerSize);
+		if(decodeLen > 140)
+			segSize = 140 - (headerLen + concat);
 		else
 			segSize = 140;
+
+		*msg_encode_type_in = MSG_ENCODE_UCS2;
+
 	} else {
 		MSG_DEBUG("Unsupported encode type.");
 		err = MSG_ERR_INVALID_PARAMETER;

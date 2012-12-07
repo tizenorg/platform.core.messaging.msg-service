@@ -264,12 +264,18 @@ int msg_message_get_str_value(void *data, int field, char *value, int size)
 	case MSG_MESSAGE_MMS_TEXT_STR :
 		if (msg_data->pData)
 		{
-			int data_len = 0;
-			((size_t)size >= msg_data->dataSize)? (data_len = msg_data->dataSize) : data_len = size;
-			memset(value, 0, size);
-			memcpy(value, msg_data->pData, data_len);
+			if (msg_data->mainType == MSG_SMS_TYPE) {
+				int data_len = 0;
+				((size_t)size >= msg_data->dataSize)? (data_len = msg_data->dataSize) : data_len = size;
+				memset(value, 0, size);
+				memcpy(value, msg_data->pData, data_len);
+			} else if (msg_data->mainType == MSG_MMS_TYPE) {
+				memset(value, 0, size);
+				strncpy(value, (char *)msg_data->pData, size);
+			}
 		}
 		break;
+
 	default :
 		ret = MSG_ERR_INVALID_PARAMETER;
 		break;
@@ -337,22 +343,27 @@ int msg_message_set_int_value(void *data, int field, int value)
 		break;
 	case MSG_MESSAGE_TYPE_INT :
 	{
-        if (value == MSG_TYPE_SMS) {
-        	msg_data->mainType = MSG_SMS_TYPE;
-        	msg_data->subType = MSG_NORMAL_SMS;
-        } else if (value == MSG_TYPE_MMS) {
-        	msg_data->mainType = MSG_MMS_TYPE;
-        	msg_data->subType = MSG_SENDREQ_MMS;
-        } else if (value == MSG_TYPE_MMS_JAVA) {
-        	msg_data->mainType = MSG_MMS_TYPE;
+		if (value == MSG_TYPE_SMS) {
+			msg_data->mainType = MSG_SMS_TYPE;
+			msg_data->subType = MSG_NORMAL_SMS;
+		}
+		else if (value == MSG_TYPE_MMS) {
+			msg_data->mainType = MSG_MMS_TYPE;
+			msg_data->subType = MSG_SENDREQ_MMS;
+		}
+		else if (value == MSG_TYPE_MMS_JAVA) {
+			msg_data->mainType = MSG_MMS_TYPE;
 			msg_data->subType = MSG_SENDREQ_JAVA_MMS;
-        } else if (value == MSG_TYPE_SMS_SYNCML) {
-        	msg_data->mainType = MSG_SMS_TYPE;
-        	msg_data->subType = MSG_SYNCML_CP;
-        } else if (value == MSG_TYPE_SMS_REJECT) {
-        	msg_data->mainType = MSG_SMS_TYPE;
-        	msg_data->subType = MSG_REJECT_SMS;
-        }	else if (value == MSG_TYPE_SMS_ETWS_PRIMARY) {
+		}
+		else if (value == MSG_TYPE_SMS_SYNCML) {
+			msg_data->mainType = MSG_SMS_TYPE;
+			msg_data->subType = MSG_SYNCML_CP;
+		}
+		else if (value == MSG_TYPE_SMS_REJECT) {
+			msg_data->mainType = MSG_SMS_TYPE;
+			msg_data->subType = MSG_REJECT_SMS;
+		}
+		else if (value == MSG_TYPE_SMS_ETWS_PRIMARY) {
 			msg_data->mainType = MSG_SMS_TYPE;
 			msg_data->subType = MSG_ETWS_SMS;
 		}
@@ -529,6 +540,12 @@ void msg_message_copy_message(MSG_MESSAGE_HIDDEN_S *pSrc, MSG_MESSAGE_HIDDEN_S *
 		msg_struct_s *dst_addr = (msg_struct_s *)dst_addrlist->msg_struct_info[i];
 		memcpy(dst_addr->data, src_addr->data, sizeof(MSG_ADDRESS_INFO_S));
 	}
+
+	if (strlen(pSrc->thumbPath) > 0) {
+		memset(pDst->thumbPath, 0x00, sizeof(pDst->thumbPath));
+		memcpy(pDst->thumbPath, pSrc->thumbPath, sizeof(pDst->thumbPath));
+	}
+
 }
 
 int msg_cb_message_get_int_value(void *data, int field, int *value)
@@ -571,6 +588,7 @@ int msg_cb_message_get_int_value(void *data, int field, int *value)
 			break;
 		case MSG_CB_MSG_ETWS_WARNING_TYPE_INT :
 			*value = cb_msg->etwsWarningType;
+			break;
 		default :
 			ret = MSG_ERR_INVALID_PARAMETER;
 			break;

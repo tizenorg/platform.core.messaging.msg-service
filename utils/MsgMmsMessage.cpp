@@ -319,6 +319,10 @@ char* _MsgMmsSerializeMessageData(const MMS_MESSAGE_DATA_S* pMsgData, unsigned i
 							+ sizeof(MsgDrmType) + MSG_FILEPATH_LEN_MAX
 #endif
 							+ MAX_SMIL_TRANSIN_ID + MAX_SMIL_TRANSOUT_ID + 5 * sizeof(int)
+#ifdef MMS_SMIL_ANIMATE
+							+ MAX_SMIL_ANIMATE_ATTRIBUTE_NAME + MAX_SMIL_ANIMATE_ATTRIBUTE_TYPE + MAX_SMIL_ANIMATE_TARGET_ELEMENT
+							+ MAX_SMIL_ANIMATE_CALC_MODE + 5 * sizeof(int)
+#endif
 							);
 					}
 				}
@@ -508,6 +512,35 @@ char* _MsgMmsSerializeMessageData(const MMS_MESSAGE_DATA_S* pMsgData, unsigned i
 
 						memcpy(buf + offset, &(media->sMedia.sAVI.nBgColor), sizeof(int));
 						offset += sizeof(int);
+
+#ifdef MMS_SMIL_ANIMATE
+						memcpy(buf + offset, media->sMedia.sAVI.nAttributeName, MAX_SMIL_ANIMATE_ATTRIBUTE_NAME);
+						offset +=  MAX_SMIL_ANIMATE_ATTRIBUTE_NAME;
+
+						memcpy(buf + offset, media->sMedia.sAVI.nAttributeType, MAX_SMIL_ANIMATE_ATTRIBUTE_TYPE);
+						offset +=  MAX_SMIL_ANIMATE_ATTRIBUTE_TYPE;
+
+						memcpy(buf + offset, media->sMedia.sAVI.nTargetElement, MAX_SMIL_ANIMATE_TARGET_ELEMENT);
+						offset +=  MAX_SMIL_ANIMATE_TARGET_ELEMENT;
+
+						memcpy(buf + offset, &(media->sMedia.sAVI.nFrom), sizeof(int));
+						offset += sizeof(int);
+
+						memcpy(buf + offset, &(media->sMedia.sAVI.nTo), sizeof(int));
+						offset += sizeof(int);
+
+						memcpy(buf + offset, &(media->sMedia.sAVI.nBy), sizeof(int));
+						offset += sizeof(int);
+
+						memcpy(buf + offset, &(media->sMedia.sAVI.nValues), sizeof(int));
+						offset += sizeof(int);
+
+						memcpy(buf + offset, &(media->sMedia.sAVI.nDur), sizeof(int));
+						offset += sizeof(int);
+
+						memcpy(buf + offset, media->sMedia.sAVI.nCalcMode, MAX_SMIL_ANIMATE_CALC_MODE);
+						offset +=  MAX_SMIL_ANIMATE_CALC_MODE;
+#endif
 					}
 				}
 			}
@@ -954,6 +987,34 @@ bool		_MsgMmsDeserializeMessageData(MMS_MESSAGE_DATA_S* pBody, char* pData)
 
 				memcpy(&pMedia->sMedia.sAVI.nBgColor, pData + offset, sizeof(int));
 				offset += sizeof(int);
+#ifdef MMS_SMIL_ANIMATE
+				memcpy(pMedia->sMedia.sAVI.nAttributeName, pData + offset, MAX_SMIL_ANIMATE_ATTRIBUTE_NAME);
+				offset += MAX_SMIL_ANIMATE_ATTRIBUTE_NAME;
+
+				memcpy(pMedia->sMedia.sAVI.nAttributeType, pData + offset, MAX_SMIL_ANIMATE_ATTRIBUTE_TYPE);
+				offset += MAX_SMIL_ANIMATE_ATTRIBUTE_TYPE;
+
+				memcpy(pMedia->sMedia.sAVI.nTargetElement, pData + offset, MAX_SMIL_ANIMATE_TARGET_ELEMENT);
+				offset += MAX_SMIL_ANIMATE_TARGET_ELEMENT;
+
+				memcpy(&pMedia->sMedia.sAVI.nFrom, pData + offset, sizeof(int));
+				offset += sizeof(int);
+
+				memcpy(&pMedia->sMedia.sAVI.nTo, pData + offset, sizeof(int));
+				offset += sizeof(int);
+
+				memcpy(&pMedia->sMedia.sAVI.nBy, pData + offset, sizeof(int));
+				offset += sizeof(int);
+
+				memcpy(&pMedia->sMedia.sAVI.nValues, pData + offset, sizeof(int));
+				offset += sizeof(int);
+
+				memcpy(&pMedia->sMedia.sAVI.nDur, pData + offset, sizeof(int));
+				offset += sizeof(int);
+
+				memcpy(pMedia->sMedia.sAVI.nCalcMode, pData + offset, MAX_SMIL_ANIMATE_CALC_MODE);
+				offset += MAX_SMIL_ANIMATE_CALC_MODE;
+#endif
 			}
 			pPage->medialist = g_list_append(pPage->medialist, pMedia);
 		}

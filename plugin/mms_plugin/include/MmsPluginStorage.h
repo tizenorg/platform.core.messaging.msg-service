@@ -68,7 +68,6 @@ public:
 
 	MmsMsgMultiStatus *getMultiStatus(msg_message_id_t msgId);
 	msg_error_t getMsgText(MMS_MESSAGE_DATA_S *pMmsMsg, char *pMsgText);
-	msg_error_t addMmsNoti(MSG_MESSAGE_INFO_S *pMsgInfo);
 
 private:
 	msg_error_t addMmsMsgToDB(MmsMsg *pMmsMsg, const MSG_MESSAGE_INFO_S *pMsgInfo, int attachCnt = 0);

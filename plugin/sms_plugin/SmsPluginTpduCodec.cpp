@@ -471,6 +471,36 @@ int SmsPluginTpduCodec::decodeDeliver(const unsigned char *pTpdu, int TpduLen, S
 {
 	int offset = 0, udLen = 0;
 
+#if 1
+		char temp[2048];
+		char tempcat[100];
+		memset(temp, 0x00, sizeof(temp));
+		memset(tempcat, 0x00, sizeof(tempcat));
+
+		time_t rawtime;
+		time ( &rawtime );
+
+		sprintf(temp, "[MT] %s", ctime(&rawtime));
+
+		for (int i = 0; i < TpduLen; i++)
+		{
+			sprintf(tempcat, "[%02x]\n", pTpdu[i]);
+			strncat(temp, tempcat, sizeof(temp)-strlen(temp)-1);
+			memset(tempcat, 0x00, sizeof(tempcat));
+		}
+
+
+		sprintf(tempcat, "\n\n\n");
+		strncat(temp, tempcat, sizeof(temp)-strlen(temp)-1);
+
+		//MsgOpenCreateAndOverwriteFile(TPDU_LOG_FILE, temp, strlen(temp));
+		FILE*	pFile=NULL ;
+		pFile = MsgOpenFile(TPDU_LOG_FILE, "a");
+		MsgWriteFile(temp, sizeof(char), strlen(temp), pFile);
+
+		MsgFflush(pFile);
+		MsgCloseFile(pFile);
+#endif
 	// TP-MMS
 	if (pTpdu[offset] & 0x04)
 		pDeliver->bMoreMsg = false;
@@ -518,6 +548,16 @@ int SmsPluginTpduCodec::decodeDeliver(const unsigned char *pTpdu, int TpduLen, S
 
 int SmsPluginTpduCodec::decodeStatusReport(const unsigned char *pTpdu, int TpduLen, SMS_STATUS_REPORT_S *pStatusRep)
 {
+#ifdef LOG_ENABLE
+	printf("\n\n[decodeStatusReport] pTpdu data - Length [%d]\n", TpduLen);
+
+	for (int i = 0; i < TpduLen; i++)
+	{
+		printf(" [%02x]", pTpdu[i]);
+	}
+	printf("\n\n");
+#endif
+
 	int offset = 0, udLen = 0;
 
 	char* address = NULL;

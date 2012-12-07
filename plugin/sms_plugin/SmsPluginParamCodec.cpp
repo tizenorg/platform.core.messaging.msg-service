@@ -292,6 +292,9 @@ MSG_DEBUG("npi [%d]", pAddress->npi);
 		langInfo.bLockingShift = false;
 
 		textCvt.convertGSM7bitToUTF8((unsigned char*)pAddress->address, MAX_ADDRESS_LEN, (unsigned char*)tmpAddress, tmplength, &langInfo);
+
+		if (tmpAddress)
+			delete[] tmpAddress;
 	}
 	else if (pAddress->ton == SMS_TON_INTERNATIONAL)
 	{

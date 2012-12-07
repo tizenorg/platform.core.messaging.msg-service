@@ -56,9 +56,14 @@ bool makeVideoThumbnail(char *srcPath, char *dstPath)
 		return false;
 	}
 
-	mm_file_create_content_attrs(&content_attrs, srcPath);
-	fileRet = mm_file_get_attrs(content_attrs, &err_attr_name, MM_FILE_CONTENT_VIDEO_TRACK_COUNT, &trackCount, NULL);
+	fileRet = mm_file_create_content_attrs(&content_attrs, srcPath);
+	if (fileRet != 0) {
+		mm_file_destroy_content_attrs(content_attrs);
+		MSG_DEBUG("mm_file_create_content_attrs fail [%d]", fileRet);
+		return false;
+	}
 
+	fileRet = mm_file_get_attrs(content_attrs, &err_attr_name, MM_FILE_CONTENT_VIDEO_TRACK_COUNT, &trackCount, NULL);
 	if (fileRet != 0) {
 		MSG_DEBUG("mm_file_get_attrs fails [%s]", err_attr_name);
 

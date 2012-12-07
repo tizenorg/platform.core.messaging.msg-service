@@ -2,6 +2,7 @@
 ##########################################################
 # Set Variables
 ##########################################################
+SET(VOBJECT-LIB msg_vobject)
 SET(UTILS-LIB msg_utils)
 SET(PLUGIN-MANAGER-LIB msg_plugin_manager)
 SET(FW-HANDLER-LIB msg_framework_handler)
@@ -10,11 +11,12 @@ SET(TRANS-PROXY-LIB msg_transaction_proxy)
 SET(MAPI-LIB msg_mapi)
 SET(SMS-PLUGIN-LIB msg_sms_plugin)
 SET(MMS-PLUGIN-LIB msg_mms_plugin)
-SET(MMS-LANGUAGE-PACK-LIB msg_mms_language_pack)
+
 
 ##########################################################
 # Add Subdirectories
 ##########################################################
+ADD_SUBDIRECTORY(vobject-engine)
 ADD_SUBDIRECTORY(utils)
 ADD_SUBDIRECTORY(framework)
 ADD_SUBDIRECTORY(proxy)

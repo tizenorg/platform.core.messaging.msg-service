@@ -103,6 +103,7 @@ static void __http_print_profile(CURL *curl)
 
 	curl_easy_getinfo(curl, CURLINFO_LOCAL_PORT, &port);
 	MSG_DEBUG("profile http local: port %ld", port);
+
 	MSG_DEBUG("**************************************************************************************************");
 }
 
@@ -110,7 +111,6 @@ static void __httpAllocHeaderInfo(curl_slist **responseHeaders, char *szUrl, int
 {
 	char szBuffer[1025] = {0, };
 	char pcheader[HTTP_REQUEST_LEN] = {0, };
-
 
 	bool nResult = __httpGetHeaderField(MMS_HH_CONTENT_TYPE, szBuffer);
 	if (nResult) {
@@ -312,16 +312,32 @@ static MMS_NET_ERROR_T __httpReceiveData(void *ptr, size_t size, size_t nmemb, v
 		if (pMmsPlgCd->final_content_buf == NULL) {
 			MSG_DEBUG("Body Lenghth Read = %d", length_received);
 			pMmsPlgCd->final_content_buf = (unsigned char *)malloc((length_received + 1) * sizeof(unsigned char));
+
+			if (pMmsPlgCd->final_content_buf == NULL) {
+				MSG_DEBUG("malloc fail");
+				return eMMS_HTTP_EVENT_RECV_DATA_ERROR;
+			}
+
 			memset(pMmsPlgCd->final_content_buf,0x0,((length_received + 1) * sizeof(unsigned char)));
 			MSG_DEBUG(" Global g_final_content_buf=%0x", pMmsPlgCd->final_content_buf);
 		} else {
 			//realloc pHttpEvent->bodyLen extra and memset
-			pMmsPlgCd->final_content_buf = (unsigned char *)realloc(pMmsPlgCd->final_content_buf,
+
+			unsigned char * buf = (unsigned char *)realloc(pMmsPlgCd->final_content_buf,
 					(pMmsPlgCd->bufOffset + length_received + 1) * sizeof(unsigned char));
+
+			if (buf == NULL) {
+				MSG_DEBUG("realloc fail");
+				return eMMS_HTTP_EVENT_RECV_DATA_ERROR;
+			}
+
+			pMmsPlgCd->final_content_buf = buf;
 			MSG_DEBUG("Body Lenghth Read = %d Content Length = %d", length_received, pMmsPlgCd->bufOffset);
 			memset((pMmsPlgCd->final_content_buf +pMmsPlgCd->bufOffset), 0x0,
 					((length_received + 1) * sizeof(unsigned char)));
 			MSG_DEBUG(" Global g_final_content_buf=%0x", pMmsPlgCd->final_content_buf);
+
+
 		}
 
 		//copy body

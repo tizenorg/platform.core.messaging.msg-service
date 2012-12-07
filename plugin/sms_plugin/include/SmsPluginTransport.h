@@ -38,6 +38,7 @@ public:
 
 	void submitRequest(SMS_REQUEST_INFO_S *pReqInfo);
 	void sendDeliverReport(msg_error_t err);
+	void sendClass0DeliverReport(msg_error_t err);
 
 	void setSmsSendOptions(SMS_SUBMIT_S *pSubmit);
 	void setSmscOptions(SMS_ADDRESS_S *pSmsc);

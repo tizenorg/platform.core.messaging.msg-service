@@ -24,12 +24,12 @@
 #include "MsgHelper.h"
 
 #include <devman_managed.h>
-//#include <svi.h>
+#include <svi.h>
 
 #include <mm_error.h>
 #include <mm_player.h>
 #include <mm_session_private.h>
-
+#include <mm_sound.h>
 
 extern void worker_done();
 
@@ -142,34 +142,46 @@ void* MsgPlayThread(void *data)
 
 	bool bSoundOn = false;
 	bool bVibrationOn = false;
-	int callStatus = 0;	/* 0 - off, 1 - sound, 2 - vibration */
+	int callStatus = 0;
+	/* 0 - off, 1 - sound, 2 - vibration */
 	int alertOnCall = 0;
+
+	bool isEmergency = false;
+
+	if (data)
+		isEmergency = (bool)data;
 
 	char *msg_tone_file_path = NULL;
 	AutoPtr<char> buf(&msg_tone_file_path);
 
-	char *tmpFileFath = NULL;
+	msg_tone_file_path = new char[MAX_SOUND_FILE_LEN];
 
-	tmpFileFath = MsgSettingGetString(VCONFKEY_SETAPPL_NOTI_MSG_RINGTONE_PATH_STR);
-
-	if (tmpFileFath == NULL || MsgGetFileSize(tmpFileFath) < 1) {
-		msg_tone_file_path = new char[MAX_SOUND_FILE_LEN];
-		strncpy(msg_tone_file_path, DEFAULT_FILE, MAX_SOUND_FILE_LEN-1);
+	if (isEmergency) {
 	} else {
-		msg_tone_file_path = new char[MAX_SOUND_FILE_LEN];
-		strncpy(msg_tone_file_path, tmpFileFath, MAX_SOUND_FILE_LEN-1);
-		free(tmpFileFath);
-		tmpFileFath = NULL;
+		char *tmpFileFath = NULL;
+
+		tmpFileFath = MsgSettingGetString(VCONFKEY_SETAPPL_NOTI_MSG_RINGTONE_PATH_STR);
+
+		if (tmpFileFath == NULL || MsgGetFileSize(tmpFileFath) < 1) {
+			strncpy(msg_tone_file_path, DEFAULT_FILE, MAX_SOUND_FILE_LEN-1);
+		} else {
+			strncpy(msg_tone_file_path, tmpFileFath, MAX_SOUND_FILE_LEN-1);
+			free(tmpFileFath);
+			tmpFileFath = NULL;
+		}
 	}
 
-	MSG_DEBUG("Sound File [%s]", msg_tone_file_path);
+	MSG_DEBUG("Emergency=[%d], Sound File [%s]", isEmergency, msg_tone_file_path);
 
 	MsgSettingGetBool(VCONFKEY_SETAPPL_SOUND_STATUS_BOOL, &bSoundOn);
 	MsgSettingGetBool(VCONFKEY_SETAPPL_VIBRATION_STATUS_BOOL, &bVibrationOn);
 
 	int err = MM_ERROR_NONE;
 
-	err = mm_session_init(MM_SESSION_TYPE_NOTIFY);
+	if (isEmergency)
+		err = mm_session_init(MM_SESSION_TYPE_EMERGENCY);
+	else
+		err = mm_session_init(MM_SESSION_TYPE_NOTIFY);
 
 	if(err != MM_ERROR_NONE)
 		MSG_DEBUG("MM Session Init Failed");
@@ -201,7 +213,7 @@ void* MsgPlayThread(void *data)
 			MSG_DEBUG("Call is active & Alert on Call - Sound");
 
 			if (bSoundOn)
-				MsgSoundPlayMelody(msg_tone_file_path, false);
+				MsgSoundPlayDtmf();
 		} else if (alertOnCall == 2) {
 			MSG_DEBUG("Call is active & Alert on Call - Vibration");
 
@@ -266,7 +278,7 @@ msg_error_t MsgSoundPlayUninit()
 }
 
 
-void MsgSoundPlayStart()
+void MsgSoundPlayStart(bool isEmergency)
 {
 	MSG_BEGIN();
 
@@ -282,7 +294,7 @@ void MsgSoundPlayStart()
 
 	pthread_t tid;
 
-	if (pthread_create(&tid, NULL, &MsgPlayThread, (void*)NULL) == 0) {
+	if (pthread_create(&tid, NULL, &MsgPlayThread, (void*)isEmergency) == 0) {
 		MSG_DEBUG("Ring alert thread created = %d", tid);
 	} else {
 		MSG_DEBUG("Creating Thread was failed");
@@ -386,7 +398,7 @@ int MsgSoundPlayMelody(char *pMsgToneFilePath, bool bIncreasing)
 void MsgSoundPlayVibration()
 {
 	MSG_BEGIN();
-/*
+
 	int ret = 0;
 	int vibLevel = 0;
 	char ivtFilePath[MAX_SOUND_FILE_LEN] = {0,};
@@ -400,7 +412,7 @@ void MsgSoundPlayVibration()
 
 		g_timeout_add(MSG_VIBRATION_INTERVAL , MsgSoundVibTimeout, NULL);
 
-		// set timer to stop vibration, then play melody
+		/* set timer to stop vibration, then play melody */
 		svi_get_path(SVI_TYPE_VIB, SVI_VIB_NOTIFICATION_MESSAGE, ivtFilePath, sizeof(ivtFilePath));
 		ret = device_haptic_play_file(dev_handle, ivtFilePath, HAPTIC_TEST_ITERATION, vibLevel);
 
@@ -408,7 +420,25 @@ void MsgSoundPlayVibration()
 			MSG_DEBUG("Fail to play haptic : [%d]", ret);
 		}
 	}
-*/
+
+	MSG_END();
+}
+
+void MsgSoundPlayDtmf()
+{
+	MSG_BEGIN();
+
+	int ret = 0;
+	int hToneHandle = 0;
+
+	ret = mm_sound_play_tone(MM_SOUND_TONE_PROP_BEEP2, VOLUME_TYPE_SYSTEM, 1.0, 300, &hToneHandle);
+
+	if(ret < 0) {
+		MSG_DEBUG("play tone failed\n");
+	} else {
+		MSG_DEBUG("play tone success\n");
+	}
+
 	MSG_END();
 }
 

@@ -25,6 +25,7 @@
 #include "SmsPluginWapPushHandler.h"
 
 #include <drm_client.h>
+#include <dbus/dbus-glib.h>
 
 static unsigned short wapPushPortList [] = {0x0b84, 0x0b85, 0x23F0, 0x23F1, 0x23F2, 0x23F3, 0xC34F};
 
@@ -810,6 +811,17 @@ void SmsPluginWapPushHandler::handleWapPushMsg(const char *pUserData, int DataSi
 {
 	MSG_BEGIN();
 
+#ifdef MSG_FW_FOR_DEBUG
+	MSG_DEBUG("DataSize [%d]", DataSize);
+
+	MSG_DEBUG("[pUserData]");
+	for (int i = 0; i < DataSize; i++)
+	{
+		printf("[%02x]", pUserData[i]);
+	}
+	printf("\n\n");
+#endif
+
 	unsigned char* pPDUTypeData = (unsigned char*)pUserData;
 	unsigned long PDUTypeDataLen = DataSize;
 
@@ -855,6 +867,17 @@ void SmsPluginWapPushHandler::handleWapPushMsg(const char *pUserData, int DataSi
 			memcpy(pWspHeader, pPDUTypeData, wspHeaderLen);
 		}
 	}
+
+#ifdef MSG_FW_FOR_DEBUG
+	MSG_DEBUG("wspHeaderLen [%d]", wspHeaderLen);
+
+	MSG_DEBUG("[pWspHeader]");
+	for (int i = 0; i < wspHeaderLen; i++)
+	{
+		printf("[%02x]", pWspHeader[i]);
+	}
+	printf("\n\n");
+#endif
 
 	/** return if it is below case error */
 	if (PDUTypeDataLen < wspHeaderLen) {
@@ -1051,6 +1074,61 @@ void SmsPluginWapPushHandler::handleWapPushCallback(char* pPushHeader, char* pPu
 	MSG_END();
 }
 #else
+static void launchProcessByAppcode(int appcode)
+{
+	MSG_BEGIN();
+	GError *error = NULL;
+	DBusGConnection *connection = NULL;
+	DBusGProxy *dbus_proxy;
+
+	switch(appcode){
+		case SMS_WAP_APPLICATION_SYNCML_DM_BOOTSTRAP:
+		case SMS_WAP_APPLICATION_SYNCML_DM_BOOTSTRAP_XML:
+		case SMS_WAP_APPLICATION_PUSH_PROVISIONING_XML:
+		case SMS_WAP_APPLICATION_PUSH_PROVISIONING_WBXML:
+		case SMS_WAP_APPLICATION_PUSH_BROWSER_SETTINGS:
+		case SMS_WAP_APPLICATION_PUSH_BROWSER_BOOKMARKS:
+		case SMS_WAP_APPLICATION_SYNCML_DM_NOTIFICATION:
+			{
+				connection = dbus_g_bus_get(DBUS_BUS_SYSTEM, &error);
+				if (error != NULL) {
+					MSG_DEBUG("Connecting to system bus failed: %s\n", error->message);
+					g_error_free(error);
+					MSG_END();
+				}
+				dbus_proxy = dbus_g_proxy_new_for_name(connection, "com.samsung.omadmagent",
+								       "/com/samsung/omadmagent", "com.samsung.omadmagent");
+				MSG_DEBUG("dbus_proxy %x", dbus_proxy);
+				dbus_g_proxy_call(dbus_proxy, "Hello_Agent", &error, G_TYPE_INVALID, G_TYPE_INVALID);
+				g_object_unref(dbus_proxy);
+				dbus_g_connection_unref(connection);
+				MSG_END();
+			}
+			break;
+		case SMS_WAP_APPLICATION_SYNCML_DS_NOTIFICATION:
+		case SMS_WAP_APPLICATION_SYNCML_DS_NOTIFICATION_WBXML:
+			{
+				connection = dbus_g_bus_get(DBUS_BUS_SYSTEM, &error);
+				if (error != NULL) {
+					MSG_DEBUG("Connecting to system bus failed: %s\n", error->message);
+					g_error_free(error);
+					MSG_END();
+				}
+				dbus_proxy = dbus_g_proxy_new_for_name(connection, "com.samsung.omadsagent",
+										 "/com/samsung/omadsagent", "com.samsung.omadsagent");
+				MSG_DEBUG("dbus_proxy %x", dbus_proxy);
+				dbus_g_proxy_call(dbus_proxy, "Hello_Agent", &error, G_TYPE_INVALID, G_TYPE_INVALID);
+				g_object_unref(dbus_proxy);
+				dbus_g_connection_unref(connection);
+				MSG_END();
+			}
+			break;
+		default:
+			break;
+	}
+	MSG_END();
+}
+
 void SmsPluginWapPushHandler::handleWapPushCallback(char* pPushHeader, char* pPushBody, int PushBodyLen, char* pWspHeader, int WspHeaderLen, char* pWspBody, int WspBodyLen)
 {
 	MSG_BEGIN();
@@ -1085,6 +1163,8 @@ void SmsPluginWapPushHandler::handleWapPushCallback(char* pPushHeader, char* pPu
 			MSG_DEBUG("Push Message Receive option is OFF. Drop Push Message.");
 			return;
 		}
+
+		launchProcessByAppcode(appcode);
 
 		switch (appcode) {
 		case SMS_WAP_APPLICATION_MMS_UA:
@@ -1218,6 +1298,16 @@ void SmsPluginWapPushHandler::handleMMSNotification(const char *pPushBody, int P
 {
 	MSG_BEGIN();
 
+#ifdef MSG_FW_FOR_DEBUG
+	printf("\n\n[handleMMSNotification] Push Body.\n");
+
+	for (int i = 0; i < PushBodyLen; i++)
+	{
+		printf(" [%02x]", pPushBody[i]);
+	}
+	printf("\n\n");
+#endif
+
 	/** Make MSG_MESSAGE_INFO_S */
 	MSG_MESSAGE_INFO_S msgInfo;
 	memset(&msgInfo, 0x00, sizeof(MSG_MESSAGE_INFO_S));
@@ -1234,7 +1324,7 @@ void SmsPluginWapPushHandler::handleMMSNotification(const char *pPushBody, int P
 		msgInfo.bTextSms = false;
 
 		/** Save Message Data into File */
-		char fileName[MAX_COMMON_INFO_SIZE+1];
+		char fileName[MSG_FILENAME_LEN_MAX+1];
 		memset(fileName, 0x00, sizeof(fileName));
 
 		if (MsgCreateFileName(fileName) == false)
@@ -1296,8 +1386,8 @@ void SmsPluginWapPushHandler::handleSIMessage(char* pPushBody, int PushBodyLen, 
 
 	topNode = xmlDocGetRootElement(xmlDoc);
 
-	if (xmlDoc == NULL) {
-		MSG_DEBUG("Empty Document");
+	if (topNode == NULL) {
+		MSG_DEBUG("topNode is NULL");
 		xmlFreeDoc(xmlDoc);
 		return;
 	}
@@ -1369,7 +1459,7 @@ void SmsPluginWapPushHandler::handleSIMessage(char* pPushBody, int PushBodyLen, 
 	strncpy(pushMsg.contents, (char*)tmpXmlChar, MAX_WAPPUSH_CONTENTS_LEN-1);
 
 	/** Write push Msg to file */
-	char fileName[MAX_COMMON_INFO_SIZE+1];
+	char fileName[MSG_FILENAME_LEN_MAX+1];
 	memset(fileName, 0x00, sizeof(fileName));
 
 	if (MsgCreateFileName(fileName) == false) {
@@ -1433,6 +1523,8 @@ void SmsPluginWapPushHandler::handleSLMessage(char* pPushBody, int PushBodyLen, 
 	xmlNodePtr	indNode = NULL;
 
 	xmlChar*		tmpXmlChar = NULL;
+
+	msg_error_t err = MSG_SUCCESS;
 
 	if (pPushBody == NULL) {
 		MSG_DEBUG("pPushBody is NULL \n" );
@@ -1500,7 +1592,7 @@ void SmsPluginWapPushHandler::handleSLMessage(char* pPushBody, int PushBodyLen, 
 	MSG_DEBUG("pushMsg.contents : [%s]", pushMsg.contents);
 
 	/** Write push Msg to file */
-	char fileName[MAX_COMMON_INFO_SIZE+1];
+	char fileName[MSG_FILENAME_LEN_MAX+1];
 	memset(fileName, 0x00, sizeof(fileName));
 
 	if (MsgCreateFileName(fileName) == false)
@@ -1528,7 +1620,10 @@ void SmsPluginWapPushHandler::handleSLMessage(char* pPushBody, int PushBodyLen, 
 	MSG_DEBUG("dataSize : %d", msgInfo.dataSize);
 
 	/** Callback to MSG FW */
-	SmsPluginEventHandler::instance()->callbackMsgIncoming(&msgInfo);
+	err = SmsPluginEventHandler::instance()->callbackMsgIncoming(&msgInfo);
+
+	if (err != MSG_SUCCESS)
+		MSG_DEBUG("callbackMsgIncoming is failed, err=[%d]", err);
 
 	xmlFree(xmlDoc);
 	xmlFree(tmpXmlChar);
@@ -1606,7 +1701,7 @@ void SmsPluginWapPushHandler::handleCOMessage(char* pPushBody, int PushBodyLen, 
 	}
 
 	/**  Write push Msg to file */
-	char fileName[MAX_COMMON_INFO_SIZE+1];
+	char fileName[MSG_FILENAME_LEN_MAX+1];
 	memset(fileName, 0x00, sizeof(fileName));
 
 	if (MsgCreateFileName(fileName) == false) {
@@ -1703,6 +1798,60 @@ void SmsPluginWapPushHandler::createMsgInfo(MSG_MESSAGE_INFO_S* pMsgInfo)
 
 	time_t rawtime = time(NULL);
 
+/*** Comment below lines to save local UTC time..... (it could be used later.)
+
+	if (tmpTimeStamp.format == SMS_TIME_ABSOLUTE) {
+
+		MSG_DEBUG("year : %d", tmpTimeStamp.time.absolute.year);
+		MSG_DEBUG("month : %d", tmpTimeStamp.time.absolute.month);
+		MSG_DEBUG("day : %d", tmpTimeStamp.time.absolute.day);
+		MSG_DEBUG("hour : %d", tmpTimeStamp.time.absolute.hour);
+		MSG_DEBUG("minute : %d", tmpTimeStamp.time.absolute.minute);
+		MSG_DEBUG("second : %d", tmpTimeStamp.time.absolute.second);
+		MSG_DEBUG("timezone : %d", tmpTimeStamp.time.absolute.timeZone);
+
+		char displayTime[32];
+		struct tm * timeTM;
+
+		struct tm timeinfo;
+		memset(&timeinfo, 0x00, sizeof(tm));
+
+		timeinfo.tm_year = (tmpTimeStamp.time.absolute.year + 100);
+		timeinfo.tm_mon = (tmpTimeStamp.time.absolute.month - 1);
+		timeinfo.tm_mday = tmpTimeStamp.time.absolute.day;
+		timeinfo.tm_hour = tmpTimeStamp.time.absolute.hour;
+		timeinfo.tm_min = tmpTimeStamp.time.absolute.minute;
+		timeinfo.tm_sec = tmpTimeStamp.time.absolute.second;
+		timeinfo.tm_isdst = 0;
+
+		rawtime = mktime(&timeinfo);
+
+		MSG_DEBUG("tzname[0] [%s]", tzname[0]);
+		MSG_DEBUG("tzname[1] [%s]", tzname[1]);
+		MSG_DEBUG("timezone [%d]", timezone);
+		MSG_DEBUG("daylight [%d]", daylight);
+
+		memset(displayTime, 0x00, sizeof(displayTime));
+		strftime(displayTime, 32, "%Y-%02m-%02d %T %z", &timeinfo);
+		MSG_DEBUG("displayTime [%s]", displayTime);
+
+		rawtime -= (tmpTimeStamp.time.absolute.timeZone * (3600/4));
+
+		timeTM = localtime(&rawtime);
+		memset(displayTime, 0x00, sizeof(displayTime));
+		strftime(displayTime, 32, "%Y-%02m-%02d %T %z", timeTM);
+		MSG_DEBUG("displayTime [%s]", displayTime);
+
+		rawtime -= timezone;
+
+		timeTM = localtime(&rawtime);
+		memset(displayTime, 0x00, sizeof(displayTime));
+		strftime(displayTime, 32, "%Y-%02m-%02d %T %z", timeTM);
+		MSG_DEBUG("displayTime [%s]", displayTime);
+	}
+
+***/
+
 	pMsgInfo->displayTime = rawtime;
 
 	/**  Convert Address values */
@@ -1759,7 +1908,7 @@ unsigned long SmsPluginWapPushHandler::convertXmlCharToSec(char* pDate)
 	int 			i = 0, index = 0;
 
 	memset(tmpBuf, 0x00, sizeof(tmpBuf));
-	memset(&timeStruct, 0x00, sizeof(&timeStruct));
+	memset(&timeStruct, 0x00, sizeof(struct tm));
 
 	/** check pDate */
 	if (strlen(pDate)<20)
@@ -3033,6 +3182,28 @@ void SmsPluginWapPushHandler::wspHeaderDecodeDateValue( unsigned long length, un
 		}
 	}
 
+#ifdef MSG_FW_FOR_DEBUG
+	/** Date type selection */
+	switch ( wspMachineStatus.dateType )
+	{
+			/* UNIX asciitime function */
+		case UNIX_DATE_TYPE :
+			sprintf( (char*)decodedString, "%s %s %-2u %u:%u:%u %u GMT", wspWeek[pTMData->tm_wday], wspMonth[pTMData->tm_mon],
+					   pTMData->tm_mday, pTMData->tm_hour, pTMData->tm_min, pTMData->tm_sec, pTMData->tm_year + 1900 );
+			break;
+		case RFC1123_DATE_TYPE :
+			sprintf( (char*)decodedString, "%s, %u %s %u %u:%u:%u GMT", wspWeek[pTMData->tm_wday], pTMData->tm_mday,
+					   wspMonth[pTMData->tm_mon], pTMData->tm_year + 1900, pTMData->tm_hour, pTMData->tm_min, pTMData->tm_sec );
+			break;
+		case RFC850_DATE_TYPE :
+			/* Have some Y2K Problems */
+			/* In RFC 850, date is represented like 11-May-99. So Y2K problem always can be occured. So remainer (year divided by 100) is used.			*/
+			sprintf( (char*)decodedString, "%s, %2u-%s-%2u %u:%u:%u GMT", wspWeekDay[pTMData->tm_wday], pTMData->tm_mday,
+					   wspMonth[pTMData->tm_mon], pTMData->tm_year % CENTURY, pTMData->tm_hour, pTMData->tm_min, pTMData->tm_sec );
+
+			break;
+	}
+#endif
 	/**UNIX_DATE_TYPE : */
 	sprintf( (char*)*pDecodedString, "%s %s %-2u %u:%u:%u %u GMT", wspWeek[pTMData->tm_wday], wspMonth[pTMData->tm_mon],
 											pTMData->tm_mday, pTMData->tm_hour, pTMData->tm_min, pTMData->tm_sec, pTMData->tm_year + 1900 );

@@ -37,6 +37,7 @@
 #include "MmsPluginDrm.h"
 #include "MsgDrmWrapper.h"
 #endif
+#include "MmsPluginTextConvert.h"
 #include "MmsPluginUtil.h"
 
 static bool _MmsBinaryDecodeGetBytes(FILE *pFile, char *szBuff, int bufLen, int totalLength);		/* bufLen < gMmsDecodeMaxLen */
@@ -925,6 +926,11 @@ bool MmsBinaryDecodeMsgHeader(FILE *pFile, int totalLength)
 			 * MMS_CODE_PREVIOUSLYSENTBY shall be a pair with MMS_CODE_PREVIOUSLYSENTDATE
 			 */
 
+			/*
+			 * fixme: There is no proper field to store this information.
+			 * Just increase pointer now.
+			 */
+
 			if (__MmsDecodeValueLength(pFile, &valueLength, totalLength) <= 0) {
 				MSG_DEBUG("MmsBinaryDecodeMsgHeader : 1. invalid MMS_CODE_PREVIOUSLYSENTBY \n");
 				goto __CATCH;
@@ -947,6 +953,11 @@ bool MmsBinaryDecodeMsgHeader(FILE *pFile, int totalLength)
 			 * Previously-sent-date-value = Value-length Forwarded-count-value Date-value
 			 * Forwarded-count-value = Integer-value
 			 * MMS_CODE_PREVIOUSLYSENTDATE shall be a pair with MMS_CODE_PREVIOUSLYSENTBY
+			 */
+
+			/*
+			 * fixme: There is no proper field to store this information.
+			 * Just increase pointer now.
 			 */
 
 			if (__MmsDecodeValueLength(pFile, &valueLength, totalLength) <= 0) {
@@ -1015,11 +1026,36 @@ bool MmsBinaryDecodeMsgHeader(FILE *pFile, int totalLength)
 
 __RETURN:
 
+	if (mmsHeader.pTo == NULL && pLastTo) {
+		free(pLastTo);
+	}
+
+	if (mmsHeader.pCc == NULL && pLastCc) {
+		free(pLastCc);
+	}
+
+	if (mmsHeader.pBcc == NULL && pLastBcc) {
+		free(pLastBcc);
+	}
+
 	MSG_DEBUG("MmsBinaryDecodeMsgHeader: success\n");
 	return true;
 
 
 __CATCH:
+
+	if (mmsHeader.pTo == NULL && pLastTo) {
+		free(pLastTo);
+	}
+
+	if (mmsHeader.pCc == NULL && pLastCc) {
+		free(pLastCc);
+	}
+
+	if (mmsHeader.pBcc == NULL && pLastBcc) {
+		free(pLastBcc);
+	}
+
 	MSG_DEBUG("MmsBinaryDecodeMsgHeader: failed\n");
 
 	return false;
@@ -1057,6 +1093,8 @@ bool MmsBinaryDecodeContentType(FILE *pFile, char *szFilePath, int totalLength)
 
 __CATCH:
 
+	/* fixme: Delete multipart using MmsDeleteMsg() */
+
 	return false;
 }
 #endif
@@ -1065,8 +1103,6 @@ bool MmsBinaryDecodeMsgBody(FILE *pFile, char *szFilePath, int totalLength)
 {
 	int length = 0;
 	int offset = 0;
-
-	MsgMultipart *pMultipart = NULL;
 
 	MSG_DEBUG("MmsBinaryDecodeMsgBody:\n");
 
@@ -1120,8 +1156,8 @@ bool MmsBinaryDecodeMsgBody(FILE *pFile, char *szFilePath, int totalLength)
 	default:
 
 		/* Single part message ---------------------------------------------- */
-
-		strcpy(mmsHeader.msgBody.szOrgFilePath, szFilePath);
+		if (szFilePath != NULL)
+			strcpy(mmsHeader.msgBody.szOrgFilePath, szFilePath);
 
 		offset = _MmsGetDecodeOffset();
 		if (offset >= totalLength)
@@ -1147,21 +1183,6 @@ __RETURN:
 	return true;
 
 __CATCH:
-
-	if (pMultipart) {
-		if (pMultipart->pBody) {
-			if (pMultipart->pBody->body.pText) {
-				free(pMultipart->pBody->body.pText);
-				pMultipart->pBody->body.pText = NULL;
-			}
-
-			free(pMultipart->pBody);
-			pMultipart->pBody = NULL;
-		}
-
-		free(pMultipart);
-		pMultipart = NULL;
-	}
 
 	return false;
 }
@@ -1414,10 +1435,6 @@ __RETURN:
 
 __CATCH:
 
-	if (szTypeString) {
-		free(szTypeString);
-		szTypeString = NULL;
-	}
 	return false;
 }
 
@@ -1828,7 +1845,7 @@ bool MmsBinaryDecodePartHeader(FILE *pFile, MsgType *pMsgType, int headerLen, in
 						Well-known-charset = Any-charset | Integer-value
 						; Both are encoded using values from Character Set Assignments table in Assigned Numbers
 						Any-charset = <Octet 128>
-						; Equivalent to the special RFC2616 charset value ¡°*¡±
+						; Equivalent to the special RFC2616 charset value ï¿½ï¿½*ï¿½ï¿½
 					*/
 
 					int	charset = 0;
@@ -1877,7 +1894,7 @@ bool MmsBinaryDecodePartHeader(FILE *pFile, MsgType *pMsgType, int headerLen, in
 				if (szTemp == NULL)
 					goto __CATCH;
 
-				if (_MmsBinaryDecodeGetBytes(pFile, szTemp, valueLength, totalLength) < 0) {
+				if (_MmsBinaryDecodeGetBytes(pFile, szTemp, valueLength, totalLength) == false) {
 					MSG_DEBUG("MmsBinaryDecodePartHeader : default _MmsBinaryDecodeGetBytes() fail\n");
 					if (szTemp) {
 						free(szTemp);
@@ -2272,12 +2289,13 @@ bool MmsBinaryDecodeMultipart(FILE *pFile, char *szFilePath, MsgType *pMsgType, 
 
 			pLastMultipart->pNext	= pMultipart;
 			pLastMultipart			= pMultipart;
+			pPreMultipart = pMultipart;
 		}
 
 		pMsgType->contentSize += pMultipart->pBody->size;
 
 		nEntries--;
-		pPreMultipart = pMultipart;
+
 		MmsDebugPrintMulitpartEntry(pMultipart, index++);
 
 	}
@@ -2516,7 +2534,7 @@ bool __MmsParseDCFInfo(FILE *pFile, MsgDRMInfo *pDrmInfo, int totalLength)
 
 	memset(szContentURI, 0, contentURILen + 1);
 
-	if (_MmsBinaryDecodeGetBytes(pFile, szContentURI, contentURILen + 1, totalLength) < 0) {
+	if (_MmsBinaryDecodeGetBytes(pFile, szContentURI, contentURILen + 1, totalLength) == false) {
 		MSG_DEBUG("__MmsParseDCFInfo : contentType is invalid\n");
 		goto __CATCH;
 	}
@@ -2744,7 +2762,9 @@ bool MmsBinaryDecodeDRMMessage(FILE *pFile, char *szFilePath, MsgType *pMsgType,
 		goto __CATCH;
 	}
 
-	remove(szTempFilePath);
+	if (remove(szTempFilePath) != 0)
+		MSG_DEBUG("remove fail");
+
 	isFileCreated = false;
 
 	if (MmsBinaryDecodeMovePointer(pFile, offset + fullBodyLength, totalLength) == false)
@@ -2759,9 +2779,10 @@ __RETURN:
 	return true;
 
 __CATCH:
-	if (isFileCreated)
-		remove(szTempFilePath);
-
+	if (isFileCreated) {
+		if (remove(szTempFilePath) != 0)
+			MSG_DEBUG("remove fail");
+	}
 	if (pRawData) {
 		free(pRawData);
 		pRawData = NULL;
@@ -2985,6 +3006,11 @@ bool MmsDrm2ConvertMsgBody(char *szOriginFilePath)
 					goto __CATCH;
 				}
 
+				if (pszOrgData) {
+					free(pszOrgData);
+					pszOrgData = NULL;
+				}
+
 				MsgFflush(hFile);
 				MsgCloseFile(hFile);
 
@@ -3110,11 +3136,6 @@ bool MmsDrm2ConvertMsgBody(char *szOriginFilePath)
 		hConvertedFile = NULL;
 	}
 
-	if (hTempFile != NULL) {
-		MsgCloseFile(hTempFile);
-		hTempFile = NULL;
-	}
-
 	if (pszMmsLoadTempBuf) {
 		free(pszMmsLoadTempBuf);
 		pszMmsLoadTempBuf = NULL;
@@ -3123,11 +3144,6 @@ bool MmsDrm2ConvertMsgBody(char *szOriginFilePath)
 	if (pszOrgData) {
 		free(pszOrgData);
 		pszOrgData = NULL;
-	}
-
-	if (hFile != NULL) {
-		MsgCloseFile(hFile);
-		hFile = NULL;
 	}
 
 	remove(szTempFile);
@@ -3168,9 +3184,14 @@ __CATCH:
 		hFile = NULL;
 	}
 
-	remove(szTempFile);
-	remove(szTempFilePath);
-	remove(MMS_DECODE_DRM_CONVERTED_TEMP_FILE);	//remove convertin result if it goes to __CATCH
+	if (remove(szTempFile) != 0)
+		MSG_DEBUG("remove fail");
+
+	if (remove(szTempFilePath) != 0)
+		MSG_DEBUG("remove fail");
+
+	if (remove(MMS_DECODE_DRM_CONVERTED_TEMP_FILE) != 0)
+		MSG_DEBUG("remove fail");	//remove convertin result if it goes to __CATCH
 
 	return false;
 }
@@ -3231,7 +3252,10 @@ __CATCH:
 
 	if (hConvertedFile != NULL) {
 		MsgCloseFile(hConvertedFile);
-		remove(MMS_DECODE_DRM_CONVERTED_TEMP_FILE);
+
+		if (remove(MMS_DECODE_DRM_CONVERTED_TEMP_FILE) != 0)
+			MSG_DEBUG("remove fail");
+
 		hConvertedFile = NULL;
 	}
 
@@ -3836,11 +3860,6 @@ static int __MmsBinaryDecodeQuotedString(FILE *pFile, char *szBuff, int bufLen, 
 
 __RETURN:
 
-	if (pData) {
-		free(pData);
-		pData = NULL;
-	}
-
 	return length;
 
 __CATCH:
@@ -3987,11 +4006,6 @@ static int __MmsBinaryDecodeText(FILE *pFile, char *szBuff, int bufLen, int tota
 	return returnLength;
 
 __RETURN:
-
-	if (pData) {
-		free(pData);
-		pData = NULL;
-	}
 
 	szBuff[0] = '\0';
 	length = 0;
@@ -4174,10 +4188,6 @@ static char* __MmsBinaryDecodeText2(FILE *pFile, int totalLength, int *pLength)
 	return szBuff;
 
 __RETURN:
-	if (pData) {
-		free(pData);
-		pData = NULL;
-	}
 
 	*pLength = 1;
 
@@ -4218,7 +4228,7 @@ static bool __MmsBinaryDecodeCharset(FILE *pFile, UINT32 *nCharSet, int *pCharSe
 	 *						; Both are encoded using values from
 	 *						  Character Set Assignments table in Assigned Numbers
 	 *					 Any-charset = <Octet 128>
-	 *						; Equivalent to the special RFC2616 charset value ¡°*¡±
+	 *						; Equivalent to the special RFC2616 charset value ï¿½ï¿½*ï¿½ï¿½
 	 */
 
 	if (pFile == NULL || nCharSet == NULL || pCharSetLen == NULL)
@@ -4263,16 +4273,11 @@ static bool __MmsBinaryDecodeEncodedString(FILE *pFile, char *szBuff, int bufLen
 	UINT32 valueLength = 0;
 	UINT32 charSet = 0;
 	int charSetLen = 0;
-	int nChar = 0;
-	int nRead2 = 0;
-	int nByte = 0;
 	int nTemp = 0;
 	char *pData = NULL;
 	char *pTempData = NULL;
 	unsigned short *mszTempStr = NULL;
 	char *pConvertedStr = NULL;
-	char *pNewData = NULL;
-
 
 	MSG_DEBUG("__MmsBinaryDecodeEncodedString: decode string..\n");
 
@@ -4330,172 +4335,32 @@ static bool __MmsBinaryDecodeEncodedString(FILE *pFile, char *szBuff, int bufLen
 			strncpy(szBuff, pData, bufLen - 1);
 		}
 
-		switch (charSet) {
-		case MSG_CHARSET_UTF16:
-		case MSG_CHARSET_USC2:
-
-			MSG_DEBUG("__MmsBinaryDecodeEncodedString: MSG_CHARSET_USC2 \n");
+		{//temp brace
 
 			nTemp = strlen(szBuff);
-			pTempData = (char *)malloc(nTemp + 1);
-			if (pTempData == NULL) {
-				MSG_DEBUG("__MmsBinaryDecodeEncodedString: Memory Full \n");
-				goto __CATCH;
+
+			const char *pToCharSet = "UTF-8";
+
+			UINT16 charset_code =  _MmsGetBinaryValue(MmsCodeCharSet, charSet);
+
+			const char *pFromCharSet = MmsPluginTextConvertGetCharSet(charset_code);
+			if (pFromCharSet == NULL || !strcmp(pFromCharSet, pToCharSet)) {
+				return true;
 			}
 
-			memset(pTempData, 0, nTemp + 1);
-			memcpy(pTempData, szBuff, nTemp + 1);
+			char *pDest = NULL;
+			int destLen = 0;
 
-			if (((UINT8)pTempData[0]) == 0xFF && ((UINT8)pTempData[1]) == 0xFE) {
-				if ((nChar = (nTemp / 2 - 1)) <= 0)	{
-					MSG_DEBUG("__MmsBinaryDecodeEncodedString(%d) : nChar is invalid value (%d), charset(%d)\n", __LINE__, nChar, charSet);
-					goto __CATCH ;
-				}
+			if (MmsPluginTextConvert(pToCharSet, pFromCharSet, szBuff, nTemp, &pDest, &destLen) == false) {
+				MSG_DEBUG("MmsPluginTextConvert Fail");
 
-				mszTempStr = (unsigned short*) malloc(nChar * sizeof(unsigned short));
-				if (mszTempStr == NULL) {
-					MSG_DEBUG("MmsGetMediaPartData : 1. Memory Full !!! \n");
-					goto __CATCH;
-				}
-
-				memcpy(mszTempStr, ((unsigned short*)pTempData + 1), nChar * sizeof(unsigned short));
-
-				nByte = MsgGetUnicode2UTFCodeSize(((unsigned short*)pTempData + 1), nChar);
-
-				pConvertedStr = (char *)malloc(nByte + 1);
-				if (pConvertedStr)
-					MsgUnicode2UTF ((unsigned char*)pConvertedStr, nByte + 1, mszTempStr, nChar);
 			} else {
-				if ((nChar = (nTemp / 2)) <= 0) {
-					MSG_DEBUG("__MmsBinaryDecodeEncodedString(%d) : nChar is invalid value (%d), charset(%d)\n", __LINE__, nChar, charSet);
-					goto __CATCH ;
-				}
 
-				mszTempStr = (unsigned short*) malloc(nChar * sizeof(unsigned short));
-				if (mszTempStr == NULL) {
-					MSG_DEBUG("__MmsBinaryDecodeEncodedString: 2. Memory Full !!! \n");
-					goto __CATCH;
-				}
-
-				memcpy(mszTempStr, ((unsigned short*)pTempData), nChar * sizeof(unsigned short));
-
-				nByte = MsgGetUnicode2UTFCodeSize(((unsigned short*)pTempData), nChar);
-
-				pConvertedStr = (char *)malloc(nByte + 1);
-				if (pConvertedStr != NULL)
-					MsgUnicode2UTF ((unsigned char*)pConvertedStr, nByte + 1, mszTempStr, nChar);
+				memset(szBuff, 0x00, bufLen);
+				snprintf(szBuff, destLen, "%s", pDest);
 			}
-
-			if (pConvertedStr != NULL) {
-				pNewData = pConvertedStr;
-				nRead2 = nByte;
-
-				strncpy(szBuff, pNewData, bufLen - 1);
-			}
-
-			break;
-
-		case MSG_CHARSET_US_ASCII:
-
-			MSG_DEBUG("__MmsBinaryDecodeEncodedString: MSG_CHARSET_US_ASCII \n");
-
-		case MSG_CHARSET_UTF8:
-
-			MSG_DEBUG("__MmsBinaryDecodeEncodedString: MSG_CHARSET_UTF8 or Others \n");
-
-			pNewData = pTempData;
-			nRead2 = nTemp;
-
-			break;
-
-		case MSG_CHARSET_ISO_8859_7: /* Greek */
-
-			MSG_DEBUG("__MmsBinaryDecodeEncodedString: MSG_CHARSET_ISO_8859_7 \n");
-
-			nTemp = strlen(szBuff);
-			pTempData = (char *)malloc(nTemp + 1);
-			if (pTempData == NULL)
-			{
-				MSG_DEBUG("__MmsBinaryDecodeEncodedString: Memory Full \n");
-				goto __CATCH;
-			}
-
-			memset(pTempData, 0 , nTemp + 1);
-			memcpy(pTempData, szBuff, nTemp + 1);
-
-			nByte = MsgGetLatin72UTFCodeSize((unsigned char*)pTempData, nTemp);
-			pConvertedStr = (char *)malloc(nByte + 1);
-
-			if (pConvertedStr != NULL) {
-				MsgLatin7code2UTF((unsigned char*)pConvertedStr, nByte + 1, (unsigned char*)pTempData, nTemp);
-
-				pNewData = pConvertedStr;
-				nRead2 = nByte;
-
-				strncpy(szBuff, pNewData, bufLen - 1);
-			}
-
-			break;
-
-		case MSG_CHARSET_ISO_8859_9: /* Turkish */
-
-			MSG_DEBUG("__MmsBinaryDecodeEncodedString: MSG_CHARSET_ISO_8859_9 \n");
-
-			nTemp = strlen(szBuff);
-			pTempData = (char *)malloc(nTemp + 1);
-			if (pTempData == NULL) {
-				MSG_DEBUG("__MmsBinaryDecodeEncodedString: Memory Full \n");
-				goto __CATCH;
-			}
-
-			memset(pTempData, 0 , nTemp + 1);
-			memcpy(pTempData, szBuff, nTemp + 1);
-
-			nByte = MsgGetLatin52UTFCodeSize((unsigned char*)pTempData, nTemp);
-			pConvertedStr = (char *)malloc(nByte + 1);
-
-			if (pConvertedStr != NULL) {
-				MsgLatin5code2UTF((unsigned char*)pConvertedStr, nByte + 1, (unsigned char*)pTempData, nTemp);
-
-				pNewData = pConvertedStr;
-				nRead2 = nByte;
-
-				strncpy(szBuff, pNewData, bufLen - 1);
-			}
-
-			break;
-
-		default:
-
-			MSG_DEBUG("__MmsBinaryDecodeEncodedString: Other charsets \n");
-
-			nTemp = strlen(szBuff);
-			pTempData = (char *)malloc(nTemp + 1);
-			if (pTempData == NULL) {
-				MSG_DEBUG("__MmsBinaryDecodeEncodedString: Memory Full \n");
-				goto __CATCH;
-			}
-
-			memset(pTempData, 0, nTemp + 1);
-			memcpy(pTempData, szBuff, nTemp + 1);
-
-			nByte = MsgGetLatin2UTFCodeSize((unsigned char*)pTempData, nTemp);
-			pConvertedStr = (char *)malloc(nByte + 1);
-
-			if (pConvertedStr != NULL) {
-				MsgLatin2UTF((unsigned char*)pConvertedStr, nByte + 1, (unsigned char*)pTempData, nTemp);
-
-				pNewData = pConvertedStr;
-				nRead2 = nByte;
-
-				strncpy(szBuff, pNewData, bufLen - 1);
-			}
-
-			break;
-
-		} //switch (charset)
-
-	} //switch (__MmsDecodeValueLength....)
+		}
+	}
 
 	if (pData) {
 		free(pData);
@@ -4618,6 +4483,8 @@ MsgHeaderAddress *__MmsDecodeEncodedAddress(FILE *pFile, int totalLength)
 			}
 		}
 
+		/* fixme: charset transformation */
+
 		break;
 	}
 
@@ -4723,6 +4590,9 @@ static int __MmsDecodeGetFilename(FILE *pFile, char *szBuff, int bufLen, int tot
 
 			int		utf8BufSize = 0;
 			utf8BufSize = MsgGetLatin2UTFCodeSize((unsigned char*)pLatinBuff, length);
+			if (utf8BufSize < 3)
+				utf8BufSize = 3;//min value
+
 			pUTF8Buff = (char *)malloc(utf8BufSize + 1);
 			if (pUTF8Buff == NULL) {
 				MSG_DEBUG("__MmsDecodeGetFilename: pUTF8Buff alloc fail \n");
@@ -4832,8 +4702,7 @@ bool _MmsReadMsgBody(msg_message_id_t msgID, bool bSavePartsAsTempFiles, bool bR
 	pMsg->msgID = msgID;
 
 	/*	read from MMS raw file	*/
-	if (szFullPath != NULL)
-		strncpy(pMsg->szFileName, szFullPath + strlen(MSG_DATA_PATH), strlen(szFullPath + strlen(MSG_DATA_PATH)));
+	strncpy(pMsg->szFileName, szFullPath + strlen(MSG_DATA_PATH), strlen(szFullPath + strlen(MSG_DATA_PATH)));
 
 	MSG_DEBUG("szFullPath = (%s)", szFullPath);
 
@@ -5232,8 +5101,8 @@ bool _MsgParseParameter(MsgType *pType, char *pSrc)
 
 				if (pUTF8Buff) {
 					if ((pExt = strrchr(pUTF8Buff, '.')) != NULL) {
-						if ((MSG_FILENAME_LEN_MAX-1) < strlen(pUTF8Buff)) {
-							nameLen = (MSG_FILENAME_LEN_MAX-1) - strlen(pExt);
+						if ((MSG_LOCALE_FILENAME_LEN_MAX-1) < strlen(pUTF8Buff)) {
+							nameLen = (MSG_LOCALE_FILENAME_LEN_MAX-1) - strlen(pExt);
 						} else {
 							nameLen = strlen(pUTF8Buff) - strlen(pExt);
 						}
@@ -5241,7 +5110,7 @@ bool _MsgParseParameter(MsgType *pType, char *pSrc)
 						strncpy(pType->param.szName, pUTF8Buff, nameLen);
 						strcat (pType->param.szName, pExt);
 					} else {
-						strncpy(pType->param.szName, pUTF8Buff, (MSG_FILENAME_LEN_MAX-1));
+						strncpy(pType->param.szName, pUTF8Buff, (MSG_LOCALE_FILENAME_LEN_MAX-1));
 					}
 					free(pUTF8Buff);
 					pUTF8Buff = NULL;
@@ -5435,6 +5304,9 @@ char *MsgConvertLatin2UTF8FileName(char *pSrc)
 
 		length = strlen(pSrc);
 		utf8BufSize = MsgGetLatin2UTFCodeSize((unsigned char*)pSrc, length);
+		if (utf8BufSize < 3)
+			utf8BufSize = 3; //min value
+
 		pUTF8Buff = (char *)malloc(utf8BufSize + 1);
 
 		if (pUTF8Buff == NULL) {
@@ -5476,10 +5348,7 @@ __CATCH:
 		free(pUTF8Buff);
 		pUTF8Buff = NULL;
 	}
-	if (pData) {
-		free(pData);
-		pData = NULL;
-	}
+
 	return NULL;
 }
 
@@ -6140,7 +6009,7 @@ bool MsgResolveNestedMultipart(MsgType *pPartType, MsgBody *pPartBody)
 	case MIME_APPLICATION_VND_WAP_MULTIPART_ALTERNATIVE:
 	case MIME_MULTIPART_ALTERNATIVE:
 
-		/*
+		/* fixme:
 		 * Policy: multipart/alternative
 		 * multipart/alternative message has only several parts of media.
 		 * You should choose one of them and make the alternative part
@@ -6375,11 +6244,12 @@ bool MsgResolveNestedMultipart(MsgType *pPartType, MsgBody *pPartBody)
 
 		if (pSelectedPart == NULL) {
 			MSG_DEBUG("MsgResolveNestedMultipart : MIME_MULTIPART_REPORT [no selected part]\n");
-			MSG_DEBUG("MsgResolveNestedMultipart : MIME_MULTIPART_REPORT [no selected part]\n");
 
 			pRemoveList = pPartBody->body.pMultipart->pNext;
-			pSelectedPart = pPartBody->body.pMultipart;
-			pSelectedPart->pNext = NULL;
+			if (pPartBody->body.pMultipart != NULL) {
+				pSelectedPart = pPartBody->body.pMultipart;
+				pSelectedPart->pNext = NULL;
+			}
 		} else {
 			if (pPrevPart == NULL) {
 				// first part is selected
@@ -6481,10 +6351,6 @@ char *MsgResolveContentURI(char *szSrc)
 	return szReturn;
 
 __CATCH:
-	if (szTemp) {
-		free(szTemp);
-		szTemp = NULL;
-	}
 
 	return NULL;
 }
@@ -6711,17 +6577,17 @@ bool _MsgParsePartHeader(MsgType *pType, const char *pRawData, int nRawData)
 #endif
 			case MSG_FILED_CONTENT_REPLACE_POS:
 				MsgMIMERemoveQuote(szFieldValue);
-				strncpy(pType->szContentRepPos, szFieldValue, sizeof(pType->szContentRepPos));
+				strncpy(pType->szContentRepPos, szFieldValue, sizeof(pType->szContentRepPos) - 1);
 				break;
 
 			case MSG_FILED_CONTENT_REPLACE_SIZE:
 				MsgMIMERemoveQuote(szFieldValue);
-				strncpy(pType->szContentRepSize, szFieldValue, sizeof(pType->szContentRepSize));
+				strncpy(pType->szContentRepSize, szFieldValue, sizeof(pType->szContentRepSize) - 1);
 				break;
 
 			case MSG_FILED_CONTENT_REPLACE_INDEX:
 				MsgMIMERemoveQuote(szFieldValue);
-				strncpy(pType->szContentRepIndex, szFieldValue, sizeof(pType->szContentRepIndex));
+				strncpy(pType->szContentRepIndex, szFieldValue, sizeof(pType->szContentRepIndex) - 1);
 				break;
 
 			default:
@@ -7938,10 +7804,10 @@ bool _MmsMultipartSaveAsTempFile(MsgType *pPartType, MsgBody *pPartBody, char *p
 	}
 
 	if (pPartType->param.szName[0] == '\0' && pPartType->param.szFileName[0] == '\0')
-		strcpy(pPartType->param.szName, pPartType->param.szFileName);
+		snprintf(pPartType->param.szName, sizeof(pPartType->param.szName), "%s", pPartType->param.szFileName);
 
-	if (pPartType->param.szName) {
-		strcpy(szFileName, pPartType->param.szName);
+	if (pPartType->param.szName[0] != '\0') {
+		snprintf(szFileName, MSG_FILENAME_LEN_MAX+1, "%s", pPartType->param.szName);
 	} else {
 		snprintf(szFileName, MSG_FILENAME_LEN_MAX+1, "%lu", (unsigned long)index);
 	}
@@ -8152,6 +8018,8 @@ char *MmsGetBinaryUTF8Data(char *pData, int nRead, int msgEncodingValue, int msg
 				memcpy(mszTempStr, ((unsigned short*)pTemp + 1), nChar * sizeof(unsigned short));
 
 				nByte = MsgGetUnicode2UTFCodeSize(((unsigned short*)pTemp + 1), nChar);
+				if (nByte < 3)
+					nByte = 3; //min value
 
 				pConvertedStr = (char *)malloc(nByte + 1);
 				if (pConvertedStr != NULL)

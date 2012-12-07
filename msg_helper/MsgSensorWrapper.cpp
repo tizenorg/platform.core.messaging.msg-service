@@ -68,7 +68,14 @@ void MsgSensorDisconnect()
 	if (sensorHandler < 0)
 		return;
 
-	sf_stop(sensorHandler);
+	try
+	{
+		sf_stop(sensorHandler);
+	}
+	catch(int exception)
+	{
+		MSG_FATAL("sf_stop error[%d]", exception);
+	}
 	sf_disconnect(sensorHandler);
 }
 

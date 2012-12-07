@@ -156,14 +156,9 @@ void SmsPluginEventHandler::handleMsgIncoming(SMS_TPDU_S *pTpdu)
 
 	msg_error_t err = MSG_SUCCESS;
 
-	/** Update Status in Report Table */
 	if (msgInfo.msgType.subType == MSG_STATUS_REPORT_SMS) {
-		err = SmsPluginStorage::instance()->addMessage(&msgInfo);
-
-		if (err == MSG_SUCCESS) {
-			MSG_DEBUG("callback to msg fw");
-			err = listener.pfMsgIncomingCb(&msgInfo);
-		}
+		/** Status Report Message */
+		err = listener.pfMsgIncomingCb(&msgInfo);
 
 		/** Handling of Fail Case ?? */
 		SmsPluginTransport::instance()->sendDeliverReport(MSG_SUCCESS);
@@ -185,11 +180,31 @@ void SmsPluginEventHandler::handleMsgIncoming(SMS_TPDU_S *pTpdu)
 			if (err == MSG_SUCCESS) {
 				MSG_DEBUG("callback to msg fw");
 				err = listener.pfMsgIncomingCb(&msgInfo);
+			} else {
+				if (msgInfo.msgType.classType == MSG_CLASS_0) {
+					MSG_DEBUG("callback for class0 message to msg fw");
+					if (listener.pfMsgIncomingCb(&msgInfo) != MSG_SUCCESS)
+						MSG_DEBUG("listener.pfMsgIncomingCb is failed!");
+				}
 			}
 
 			/** Send Deliver Report */
-			SmsPluginTransport::instance()->sendDeliverReport(err);
+			if (msgInfo.msgType.classType == MSG_CLASS_0)
+				SmsPluginTransport::instance()->sendClass0DeliverReport(err);
+			else
+				SmsPluginTransport::instance()->sendDeliverReport(err);
 		}
+
+		// Tizen Validation System
+		char *msisdn = NULL;
+		msisdn = MsgSettingGetString(MSG_SIM_MSISDN);
+
+		MSG_SMS_VLD_INFO("%d, SMS Receive, %s->%s, %s",  msgInfo.msgId, \
+																msgInfo.addressList[0].addressVal, \
+																(msisdn == NULL)?"ME":msisdn, \
+																(err == MSG_SUCCESS)?"Success":"Fail");
+
+		MSG_SMS_VLD_TXT("%d, [%s]", msgInfo.msgId, msgInfo.msgText);
 	}
 }
 
@@ -432,6 +447,60 @@ void SmsPluginEventHandler::convertDeliverTpduToMsginfo(const SMS_DELIVER_S *pTp
 
 	time_t rawtime = time(NULL);
 
+/*** Comment below lines to save local UTC time..... (it could be used later.)
+
+	if (pTpdu->timeStamp.format == SMS_TIME_ABSOLUTE) {
+
+		MSG_DEBUG("year : %d", pTpdu->timeStamp.time.absolute.year);
+		MSG_DEBUG("month : %d", pTpdu->timeStamp.time.absolute.month);
+		MSG_DEBUG("day : %d", pTpdu->timeStamp.time.absolute.day);
+		MSG_DEBUG("hour : %d", pTpdu->timeStamp.time.absolute.hour);
+		MSG_DEBUG("minute : %d", pTpdu->timeStamp.time.absolute.minute);
+		MSG_DEBUG("second : %d", pTpdu->timeStamp.time.absolute.second);
+		MSG_DEBUG("timezone : %d", pTpdu->timeStamp.time.absolute.timeZone);
+
+		char displayTime[32];
+		struct tm * timeTM;
+
+		struct tm timeinfo;
+		memset(&timeinfo, 0x00, sizeof(tm));
+
+		timeinfo.tm_year = (pTpdu->timeStamp.time.absolute.year + 100);
+		timeinfo.tm_mon = (pTpdu->timeStamp.time.absolute.month - 1);
+		timeinfo.tm_mday = pTpdu->timeStamp.time.absolute.day;
+		timeinfo.tm_hour = pTpdu->timeStamp.time.absolute.hour;
+		timeinfo.tm_min = pTpdu->timeStamp.time.absolute.minute;
+		timeinfo.tm_sec = pTpdu->timeStamp.time.absolute.second;
+		timeinfo.tm_isdst = 0;
+
+		rawtime = mktime(&timeinfo);
+
+		MSG_DEBUG("tzname[0] [%s]", tzname[0]);
+		MSG_DEBUG("tzname[1] [%s]", tzname[1]);
+		MSG_DEBUG("timezone [%d]", timezone);
+		MSG_DEBUG("daylight [%d]", daylight);
+
+		memset(displayTime, 0x00, sizeof(displayTime));
+		strftime(displayTime, 32, "%Y-%02m-%02d %T %z", &timeinfo);
+		MSG_DEBUG("displayTime [%s]", displayTime);
+
+		rawtime -= (pTpdu->timeStamp.time.absolute.timeZone * (3600/4));
+
+		timeTM = localtime(&rawtime);
+		memset(displayTime, 0x00, sizeof(displayTime));
+		strftime(displayTime, 32, "%Y-%02m-%02d %T %z", timeTM);
+		MSG_DEBUG("displayTime [%s]", displayTime);
+
+		rawtime -= timezone;
+
+		timeTM = localtime(&rawtime);
+		memset(displayTime, 0x00, sizeof(displayTime));
+		strftime(displayTime, 32, "%Y-%02m-%02d %T %z", timeTM);
+		MSG_DEBUG("displayTime [%s]", displayTime);
+	}
+
+***/
+
 	msgInfo->displayTime = rawtime;
 
 	/** Convert Address values */
@@ -457,9 +526,8 @@ void SmsPluginEventHandler::convertDeliverTpduToMsginfo(const SMS_DELIVER_S *pTp
 			msgInfo->msgType.subType = (pTpdu->userData.header[i].udh.specialInd.msgInd+MSG_MWI_VOICE_SMS);
 			msgInfo->bStore = pTpdu->userData.header[i].udh.specialInd.bStore;
 
-			if (pTpdu->userData.header[i].udh.specialInd.waitMsgNum > 0) {
-				SmsPluginSetting::instance()->setMwiInfo(msgInfo->msgType.subType, pTpdu->userData.header[i].udh.specialInd.waitMsgNum);
-			}
+			MSG_DEBUG("Message waiting number : [%d]", pTpdu->userData.header[i].udh.specialInd.waitMsgNum);
+			SmsPluginSetting::instance()->setMwiInfo(msgInfo->msgType.subType, pTpdu->userData.header[i].udh.specialInd.waitMsgNum);
 
 			if (pTpdu->userData.length == 0) {
 				switch (msgInfo->msgType.subType) {
@@ -502,6 +570,7 @@ void SmsPluginEventHandler::convertDeliverTpduToMsginfo(const SMS_DELIVER_S *pTp
 				break;
 			default:
 				msgInfo->encodeType = MSG_ENCODE_8BIT;
+				break;
 		}
 
 		return;
@@ -532,7 +601,7 @@ void SmsPluginEventHandler::convertDeliverTpduToMsginfo(const SMS_DELIVER_S *pTp
 		msgInfo->dataSize = textCvt.convertGSM7bitToUTF8((unsigned char*)msgInfo->msgText, MAX_MSG_TEXT_LEN, (unsigned char*)pTpdu->userData.data, pTpdu->userData.length, &langInfo);
 	} else if (pTpdu->dcs.codingScheme == SMS_CHARSET_8BIT) {
 		msgInfo->encodeType = MSG_ENCODE_8BIT;
-		memcpy(msgInfo->msgText, pTpdu->userData.data, pTpdu->userData.length);
+		memcpy(msgInfo->msgText, pTpdu->userData.data, sizeof(pTpdu->userData.data));
 		msgInfo->dataSize = pTpdu->userData.length;
 	} else if (pTpdu->dcs.codingScheme == SMS_CHARSET_UCS2) {
 		msgInfo->encodeType = MSG_ENCODE_UCS2;
@@ -553,8 +622,11 @@ void SmsPluginEventHandler::convertStatusRepTpduToMsginfo(const SMS_STATUS_REPOR
 	msgInfo->msgType.mainType = MSG_SMS_TYPE;
 	msgInfo->msgType.subType = MSG_STATUS_REPORT_SMS;
 
-	/** set folder id (temporary) */
+	/** set folder id */
 	msgInfo->folderId = MSG_INBOX_ID;
+
+	/** set storage id */
+	msgInfo->storageId = MSG_STORAGE_PHONE;
 
 	switch(pTpdu->dcs.msgClass)
 	{
@@ -572,6 +644,7 @@ void SmsPluginEventHandler::convertStatusRepTpduToMsginfo(const SMS_STATUS_REPOR
 			break;
 		default:
 			msgInfo->msgType.classType = MSG_CLASS_NONE;
+			break;
 	}
 
 	MSG_DEBUG("delivery status : [%d]", pTpdu->status);
@@ -591,6 +664,60 @@ void SmsPluginEventHandler::convertStatusRepTpduToMsginfo(const SMS_STATUS_REPOR
 	memset(msgInfo->subject, 0x00, MAX_SUBJECT_LEN+1);
 
 	time_t rawtime = time(NULL);
+
+/*** Comment below lines to save local UTC time..... (it could be used later.)
+
+	if (pTpdu->timeStamp.format == SMS_TIME_ABSOLUTE) {
+
+		MSG_DEBUG("year : %d", pTpdu->timeStamp.time.absolute.year);
+		MSG_DEBUG("month : %d", pTpdu->timeStamp.time.absolute.month);
+		MSG_DEBUG("day : %d", pTpdu->timeStamp.time.absolute.day);
+		MSG_DEBUG("hour : %d", pTpdu->timeStamp.time.absolute.hour);
+		MSG_DEBUG("minute : %d", pTpdu->timeStamp.time.absolute.minute);
+		MSG_DEBUG("second : %d", pTpdu->timeStamp.time.absolute.second);
+		MSG_DEBUG("timezone : %d", pTpdu->timeStamp.time.absolute.timeZone);
+
+		char displayTime[32];
+		struct tm * timeTM;
+
+		struct tm timeinfo;
+		memset(&timeinfo, 0x00, sizeof(tm));
+
+		timeinfo.tm_year = (pTpdu->timeStamp.time.absolute.year + 100);
+		timeinfo.tm_mon = (pTpdu->timeStamp.time.absolute.month - 1);
+		timeinfo.tm_mday = pTpdu->timeStamp.time.absolute.day;
+		timeinfo.tm_hour = pTpdu->timeStamp.time.absolute.hour;
+		timeinfo.tm_min = pTpdu->timeStamp.time.absolute.minute;
+		timeinfo.tm_sec = pTpdu->timeStamp.time.absolute.second;
+		timeinfo.tm_isdst = 0;
+
+		rawtime = mktime(&timeinfo);
+
+		MSG_DEBUG("tzname[0] [%s]", tzname[0]);
+		MSG_DEBUG("tzname[1] [%s]", tzname[1]);
+		MSG_DEBUG("timezone [%d]", timezone);
+		MSG_DEBUG("daylight [%d]", daylight);
+
+		memset(displayTime, 0x00, sizeof(displayTime));
+		strftime(displayTime, 32, "%Y-%02m-%02d %T %z", &timeinfo);
+		MSG_DEBUG("displayTime [%s]", displayTime);
+
+		rawtime -= (pTpdu->timeStamp.time.absolute.timeZone * (3600/4));
+
+		timeTM = localtime(&rawtime);
+		memset(displayTime, 0x00, sizeof(displayTime));
+		strftime(displayTime, 32, "%Y-%02m-%02d %T %z", timeTM);
+		MSG_DEBUG("displayTime [%s]", displayTime);
+
+		rawtime -= timezone;
+
+		timeTM = localtime(&rawtime);
+		memset(displayTime, 0x00, sizeof(displayTime));
+		strftime(displayTime, 32, "%Y-%02m-%02d %T %z", timeTM);
+		MSG_DEBUG("displayTime [%s]", displayTime);
+	}
+
+***/
 
 	msgInfo->displayTime = rawtime;
 
@@ -616,7 +743,7 @@ void SmsPluginEventHandler::convertStatusRepTpduToMsginfo(const SMS_STATUS_REPOR
 		}
 	}
 
-	memset(msgInfo->msgText, 0x00, sizeof(MAX_MSG_TEXT_LEN+1));
+	memset(msgInfo->msgText, 0x00, sizeof(msgInfo->msgText));
 	msgInfo->dataSize = 0;
 
 	if (pTpdu->status <= SMS_STATUS_SMSC_SPECIFIC_LAST) {

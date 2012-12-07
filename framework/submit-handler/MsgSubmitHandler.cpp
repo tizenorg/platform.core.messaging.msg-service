@@ -331,7 +331,7 @@ void MsgCopyReqInfo(MSG_REQUEST_INFO_S *pSrc, int addrIdx, MSG_REQUEST_INFO_S *p
 {
 	MSG_BEGIN();
 
-	memset(pDest, 0x00, sizeof(pDest));
+	memset(pDest, 0x00, sizeof(MSG_REQUEST_INFO_S));
 
 	// Copy Request ID
 	pDest->reqId = pSrc->reqId;

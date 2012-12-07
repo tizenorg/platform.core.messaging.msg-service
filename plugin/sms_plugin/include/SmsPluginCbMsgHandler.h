@@ -82,7 +82,7 @@ private:
 	bool checkCbOpt(SMS_CBMSG_PAGE_S CbPage, bool *pJavaMsg);
 	unsigned char checkCbPage(SMS_CBMSG_PAGE_S CbPage);
 	void MakeCbMsg(SMS_CBMSG_PAGE_S CbPage, SMS_CBMSG_S *pCbMsg);
-	void convertCbMsgToMsginfo(SMS_CBMSG_S cbMsg, MSG_MESSAGE_INFO_S *pMsgInfo);
+	void convertCbMsgToMsginfo(SMS_CBMSG_S *pCbMsg, MSG_MESSAGE_INFO_S *pMsgInfo);
 	void convertEtwsMsgToMsginfo(SMS_CBMSG_PAGE_S EtwsMsg, MSG_MESSAGE_INFO_S *pMsgInfo);
 	int convertTextToUtf8 (unsigned char* outBuf, int outBufSize, SMS_CBMSG_S* pCbMsg);
 	void addToPageLiat(SMS_CBMSG_PAGE_S CbPage);

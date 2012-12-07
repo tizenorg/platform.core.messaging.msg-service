@@ -362,7 +362,7 @@ int msg_set_smsc_opt_int(void *smsc_opt, int field, int value)
 	switch (field)
 	{
 	case MSG_SMSC_SELECTED_ID_INT :
-		ret = smsc_opt_data->selected;
+		smsc_opt_data->selected = value;
 		break;
 	default :
 		ret = MSG_ERR_INVALID_PARAMETER;

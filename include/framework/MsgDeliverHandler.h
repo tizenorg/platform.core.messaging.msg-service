@@ -29,7 +29,7 @@
 ==================================================================================================*/
 msg_error_t MsgHandleMmsConfIncomingMsg(MSG_MESSAGE_INFO_S *pMsgInfo, msg_request_id_t reqID);
 msg_error_t MsgHandleIncomingMsg(MSG_MESSAGE_INFO_S *pMsgInfo, bool *pSendNoti);
-msg_error_t MsgHandleSMS(MSG_MESSAGE_INFO_S *pMsgInfo, bool *pSendNoti);
+msg_error_t MsgHandleSMS(MSG_MESSAGE_INFO_S *pMsgInfo, bool *pSendNoti, bool *bOnlyNoti);
 msg_error_t MsgHandleMMS(MSG_MESSAGE_INFO_S *pMsgInfo, bool *pSendNoti);
 
 /*==================================================================================================

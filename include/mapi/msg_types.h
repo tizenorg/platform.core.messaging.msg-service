@@ -69,7 +69,7 @@
 /**
  *	@brief	Defines the maximum file name length
  */
-#define	MSG_FILENAME_LEN_MAX		255
+#define	MSG_FILENAME_LEN_MAX	255
 
 /**
  *	@brief	Defines the maximum message id length
@@ -300,6 +300,11 @@ typedef int msg_read_report_status_t;
 */
 typedef unsigned short msg_message_type_t;
 
+/**
+ *	@brief	Represents a Message Backup Type.
+ *	The values for this type SHOULD be in _MSG_MESSAGE_BACKUP_TYPE_E
+*/
+typedef unsigned int msg_message_backup_type_t;
 
 /**
  *	@brief	Represents a thread ID. \n
@@ -353,6 +358,7 @@ enum _MSG_STRUCT_E {
 	MSG_STRUCT_SETTING_VOICE_MSG_OPT = 0x2800,				/**< Indicates the MSG_STRUCT_SETTING_VOICE_MSG_OPT */
 	MSG_STRUCT_SETTING_GENERAL_OPT = 0x2900,				/**< Indicates the MSG_STRUCT_SETTING_GENERAL_OPT */
 	MSG_STRUCT_SETTING_MSGSIZE_OPT = 0x2c00,					/**< Indicates the MSG_STRUCT_SETTING_MSGSIZE_OPT */
+
 
 	MSG_STRUCT_SYNCML_INFO = 0x3100,					/**< Indicates the MSG_STRUCT_SYNCML_INFO */
 	MSG_STRUCT_COUNT_INFO = 0x3200,					/**< Indicates the MSG_STRUCT_COUNT_INFO */
@@ -792,6 +798,16 @@ enum _MSG_MESSAGE_TYPE_E
 	MSG_TYPE_SMS_ETWS_SECONDARY,	/** < CB - ETWS Secondary Notification */
 };
 
+/**
+ *	@brief	Represents the backup type of Message. More members maybe added if needed \n
+ *	This enum is used as the value of msg_message_backup_type_t.
+ */
+enum _MSG_MESSAGE_BACKUP_TYPE_E
+{
+	MSG_BACKUP_TYPE_ALL = 0,
+	MSG_BACKUP_TYPE_SMS,
+	MSG_BACKUP_TYPE_MMS,
+};
 
 /**
  *	@brief	Represents the values of an error code. \n
@@ -962,6 +978,8 @@ enum _MSG_ENCODE_TYPE_E
 	MSG_ENCODE_8BIT,		/**< The string encoding type is 8 BIT */
 	MSG_ENCODE_UCS2,		/**< The string encoding type is UCS2 */
 	MSG_ENCODE_AUTO,		/**< The string encoding type is AUTO */
+
+	MSG_ENCODE_GSM7BIT_ABNORMAL, /**< The string encoding type is GSM7BIT, but abnormal character included */
 };
 
 
@@ -1117,6 +1135,7 @@ typedef enum	_MimeType
 	MIME_APPLICATION_VND_SMAF							= 0x111a,  /**< Indicates the application smaf type */
 	MIME_APPLICATION_VND_RN_REALMEDIA					= 0x111b,  /**< Indicates the application rn real media type */
 	MIME_APPLICATION_VND_SUN_J2ME_JAVA_ARCHIVE		= 0x111c,  /**< Indicates the application j2me java archive type */
+	MIME_APPLICATION_VND_SAMSUNG_THEME				= 0x111d,  /**< Indicates the application samsung theme type */
 	MIME_APPLICATION_VND_EXCEL							= 0x111e,  /**< Indicates the application excel type */
 	MIME_APPLICATION_VND_POWERPOINT					= 0x111f,  /**< Indicates the application power point type */
 	MIME_APPLICATION_VND_MSWORD						= 0x1120,	 /**< Indicates the application ms word type */

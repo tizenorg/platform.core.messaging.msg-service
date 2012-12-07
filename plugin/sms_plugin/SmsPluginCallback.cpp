@@ -96,6 +96,7 @@ void TapiEventMsgIncoming(TapiHandle *handle, const char *noti_id, void *data, v
 	TelSmsDatapackageInfo_t* pDataPackage = (TelSmsDatapackageInfo_t*)data;
 
 	SMS_TPDU_S tpdu;
+	memset(&tpdu, 0x00, sizeof(SMS_TPDU_S));
 
 	// Decode Incoming Message
 	SmsPluginTpduCodec::decodeTpdu(pDataPackage->szData, pDataPackage->MsgLength, &tpdu);
@@ -149,14 +150,26 @@ void TapiEventMsgIncoming(TapiHandle *handle, const char *noti_id, void *data, v
 	{
 		if (tpdu.tpduType == SMS_TPDU_DELIVER)
 		{
-			if (SmsPluginConcatHandler::instance()->IsConcatMsg(&(tpdu.data.deliver.userData)) == true ||
-				SmsPluginWapPushHandler::instance()->IsWapPushMsg(&(tpdu.data.deliver.userData)) == true)
-			{
-				SmsPluginConcatHandler::instance()->handleConcatMsg(&tpdu); // Call Concat Msg Handler
+			if (tpdu.data.deliver.dcs.msgClass == SMS_MSG_CLASS_2) {
+				// For GCF test, 34.2.5.3
+				SmsPluginSimMsg::instance()->setSmsData((const char*)pDataPackage->Sca, (const char *)pDataPackage->szData, pDataPackage->MsgLength);
 			}
-			else
-			{
-				SmsPluginEventHandler::instance()->handleMsgIncoming(&tpdu); // Call Event Handler
+
+			if (tpdu.data.deliver.dcs.codingGroup == SMS_GROUP_DISCARD) {
+				if (tpdu.data.deliver.dcs.bIndActive == false) {
+					SmsPluginSetting::instance()->setMwiInfo(tpdu.data.deliver.dcs.indType + MSG_MWI_VOICE_SMS, 0);
+				}
+				SmsPluginTransport::instance()->sendDeliverReport(MSG_SUCCESS);
+			} else {
+				if (SmsPluginConcatHandler::instance()->IsConcatMsg(&(tpdu.data.deliver.userData)) == true ||
+					SmsPluginWapPushHandler::instance()->IsWapPushMsg(&(tpdu.data.deliver.userData)) == true)
+				{
+					SmsPluginConcatHandler::instance()->handleConcatMsg(&tpdu); // Call Concat Msg Handler
+				}
+				else
+				{
+					SmsPluginEventHandler::instance()->handleMsgIncoming(&tpdu); // Call Event Handler
+				}
 			}
 		}
 		else if (tpdu.tpduType == SMS_TPDU_STATUS_REP)
@@ -299,7 +312,6 @@ void TapiEventGetSimMsg(TapiHandle *handle, int result, void *data, void *user_d
 		}
 
 		MSG_DEBUG("headerCnt [%d]", tpdu.data.deliver.userData.headerCnt);
-
 		for (int i = 0; i < tpdu.data.deliver.userData.headerCnt; i++)
 		{
 			// Handler Concatenated Message
@@ -379,19 +391,29 @@ void TapiEventSaveSimMsg(TapiHandle *handle, int result, void *data, void *user_
 {
 	MSG_DEBUG("TapiEventSaveSimMsg is called. result [%d]", result);
 
-	if (result != TAPI_API_SUCCESS || data == NULL)
-	{
-		MSG_DEBUG("Error. data is NULL.");
-		SmsPluginSimMsg::instance()->setSimEvent((msg_sim_id_t)0, false);
-		return;
-	}
+	int simId = -1;
 
-	int simId = *((int*)data);
+	if (data != NULL)
+		simId = *((int*)data);
+	else
+		MSG_DEBUG("Data(SIM Msg ID) is NULL");
 
-	MSG_DEBUG("sim ID : [%d], status : [%d]", simId, (TelSmsCause_t)result);
+	SmsPluginSimMsg::instance()->setSaveSimMsgEvent(simId, result);
+}
 
-	SmsPluginSimMsg::instance()->setSimEvent((msg_sim_id_t)simId, true);
 
+void TapiEventSaveClass2Msg(TapiHandle *handle, int result, void *data, void *user_data)
+{
+	MSG_DEBUG("TapiEventSaveSimMsg is called. result [%d]", result);
+
+	int simId = -1;
+
+	if (data != NULL)
+		simId = *((int*)data);
+	else
+		MSG_DEBUG("Data(SIM Msg ID) is NULL");
+
+	SmsPluginSimMsg::instance()->setSaveClass2MsgEvent(simId, result);
 }
 
 
@@ -570,6 +592,12 @@ void TapiEventGetParam(TapiHandle *handle, int result, void *data, void *user_da
 	{
 		MSG_DEBUG("SMSC Address is not present");
 
+//		smscData.smscAddr.ton = MSG_TON_UNKNOWN;
+//		smscData.smscAddr.npi = MSG_NPI_UNKNOWN;
+//
+//		memset(smscData.smscAddr.address, 0x00, SMSC_ADDR_MAX+1);
+//		memset(smscData.name, 0x00, SMSC_NAME_MAX+1);
+
 		SmsPluginSetting::instance()->setParamEvent(NULL, -1, false);
 
 		return;
@@ -615,6 +643,20 @@ void TapiEventGetParam(TapiHandle *handle, int result, void *data, void *user_da
 		smscData.pid = MSG_PID_TEXT;
 		MSG_DEBUG("MSG_PID_TEXT is inserted to PID");
 	}
+
+#if 0
+	/*Get the DCS value*/
+	if (0x00 == (0x08 & smsParam->ParamIndicator))
+	{
+		smscList.smscData[index].dcs = smsParam->TpDataCodingScheme;
+		MSG_DEBUG("dcs : %d", smscList.smscData[index].dcs);
+	}
+	else
+	{
+		smscList.smscData[index].dcs = MSG_ENCODE_GSM7BIT;
+		MSG_DEBUG("DCS is not present");
+	}
+#endif
 
 	/*Get the ValidityPeriod value*/
 	if (0x00 == (0x10 & smsParam->ParamIndicator))
@@ -685,12 +727,18 @@ void TapiEventGetCBConfig(TapiHandle *handle, int result, void *data, void *user
 
 void TapiEventSetMailboxInfo(TapiHandle *handle, int result, void *data, void *user_data)
 {
-	MSG_DEBUG("TapiEventSetMailboxInfo is called.");
+	MSG_DEBUG("TapiEventSetMailboxInfo is called. result = [%d]", result);
+
+	bool bRet = true;
+
+	if (result != TAPI_SIM_ACCESS_SUCCESS)
+		bRet = false;
+
+	SmsPluginSetting::instance()->setResultFromSim(bRet);
 }
 
 void TapiEventGetMailboxInfo(TapiHandle *handle, int result, void *data, void *user_data)
 {
-#if 0 // New TAPI
 	MSG_DEBUG("TapiEventGetMailboxInfo is called.");
 
 	if (result != TAPI_SIM_ACCESS_SUCCESS || data == NULL)
@@ -726,17 +774,22 @@ void TapiEventGetMailboxInfo(TapiHandle *handle, int result, void *data, void *u
 	}
 
 	SmsPluginSetting::instance()->setMailboxInfoEvent(&mbList, true);
-#endif
 }
 
 void TapiEventSetMwiInfo(TapiHandle *handle, int result, void *data, void *user_data)
 {
-	MSG_DEBUG("TapiEventSetMwiInfo is called.");
+	MSG_DEBUG("TapiEventSetMwiInfo is called. result = [%d]", result);
+
+	bool bRet = true;
+
+	if (result != TAPI_SIM_ACCESS_SUCCESS)
+		bRet = false;
+
+	SmsPluginSetting::instance()->setResultFromSim(bRet);
 }
 
 void TapiEventGetMwiInfo(TapiHandle *handle, int result, void *data, void *user_data)
 {
-#if 0 // New TAPI
 	MSG_DEBUG("TapiEventGetMwiInfo is called.");
 
 	if (result != TAPI_SIM_ACCESS_SUCCESS || data == NULL)
@@ -753,12 +806,10 @@ void TapiEventGetMwiInfo(TapiHandle *handle, int result, void *data, void *user_
 	memcpy(&simMwiInfo, MwiInfo, sizeof(SMS_SIM_MWI_INFO_S));
 
 	SmsPluginSetting::instance()->setMwiInfoEvent(&simMwiInfo, true);
-#endif
 }
 
 void TapiEventGetMsisdnInfo(TapiHandle *handle, int result, void *data, void *user_data)
 {
-#if 0 // New TAPI
 	MSG_DEBUG("TapiEventGetMsisdnInfo is called.");
 
 	if (result != TAPI_SIM_ACCESS_SUCCESS || data == NULL)
@@ -779,7 +830,6 @@ void TapiEventGetMsisdnInfo(TapiHandle *handle, int result, void *data, void *us
 			break;
 		}
 	}
-#endif
 }
 
 void TapiEventSatSmsRefresh(TapiHandle *handle, int result, void *data, void *user_data)
@@ -826,6 +876,7 @@ void TapiEventSatSendSms(TapiHandle *handle, const char *noti_id, void *data, vo
 	}
 
 }
+
 
 void TapiEventSatMoSmsCtrl(TapiHandle *handle, int result, void *data, void *user_data)
 {

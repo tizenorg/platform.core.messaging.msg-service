@@ -30,6 +30,9 @@
 #include "MsgTransManager.h"
 #include "MsgStorageTypes.h"
 #include "MsgSoundPlayer.h"
+#include "MsgCmdHandler.h"
+#include "MsgUtilStorage.h"
+#include "MsgNotificationWrapper.h"
 
 #include <errno.h>
 #include <glib.h>
@@ -117,7 +120,9 @@ msg_error_t InitMmsDir()
 		}
 	}
 
-	chmod( MSG_IPC_DATA_PATH, S_IRWXU | S_IRWXG ); //public shared file: pass data by file
+	if(chmod( MSG_IPC_DATA_PATH, S_IRWXU | S_IRWXG ) !=0) { //public shared file: pass data by file
+		MSG_DEBUG("Fail to chmod [%s].", MSG_IPC_DATA_PATH);
+	}
 	chown( MSG_IPC_DATA_PATH, 0, 6502 );
 
 	return MSG_SUCCESS;
@@ -179,6 +184,10 @@ void SendMobileTrackerMsg()
 	{
 		MSG_DEBUG("Assign Default Msg");
 		msgText = strdup(MSG_MOBILE_TRACKER_MSG);
+		if (msgText == NULL) {
+			MSG_DEBUG("msgText is NULL.");
+			return;
+		}
 	}
 
 	MSG_DEBUG("mobile tracker msg : [%s]", msgText);
@@ -194,6 +203,8 @@ void SendMobileTrackerMsg()
 	if (orgRecipientList == NULL)
 	{
 		MSG_DEBUG("recipient list is NULL");
+		free(msgText);
+		msgText = NULL;
 		return;
 	}
 
@@ -261,6 +272,9 @@ void SendMobileTrackerMsg()
 
 void* StartMsgServer(void*)
 {
+
+	MsgOpenContactSvc();
+
 	try
 	{
 		MsgTransactionManager::instance()->run();
@@ -276,6 +290,8 @@ void* StartMsgServer(void*)
 
 	if (g_main_loop_is_running(mainloop))
 		g_main_loop_quit(mainloop);
+
+	MsgCloseContactSvc();
 
 	return (void*)0;
 }
@@ -369,6 +385,7 @@ void* InitMsgServer(void*)
 	// Register Callback to get the change of contact
 	MsgInitContactSvc(&MsgContactChangedCallback);
 
+	MsgCleanAndResetNoti();
 	MsgSoundInitRepeatAlarm();
 
 	return (void*)0;

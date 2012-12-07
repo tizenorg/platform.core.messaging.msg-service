@@ -66,6 +66,11 @@ gboolean readSocket(GIOChannel *source, GIOCondition condition, gpointer data)
 	{
 		MSG_DEBUG("Server closed connection");
 		MsgProxyListener::instance()->stop();
+		if (buf)
+		{
+			delete [] buf;
+			buf = NULL;
+		}
 		return FALSE;
 	}
 	else // dataSize < 0
@@ -988,3 +993,16 @@ int MsgProxyListener::readFromSocket(char** buf, unsigned int* len)
 {
 	return cliSock.read(buf, len);
 }
+
+#ifdef CHECK_SENT_STATUS_CALLBACK
+int MsgProxyListener::getSentStatusCbCnt()
+{
+	int cbCnt = 0;
+
+	cbCnt = sentStatusCBList.size();
+
+	MSG_DEBUG("registered sent status callback count : [%d]", cbCnt);
+
+	return cbCnt;
+}
+#endif

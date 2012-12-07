@@ -50,8 +50,8 @@ msg_error_t MsgAddDefaultFolders();
 msg_error_t MsgAddDefaultAddress();
 msg_error_t MsgStoResetDatabase();
 
-msg_error_t MsgStoBackupMessage();
-msg_error_t MsgStoRestoreMessage();
+msg_error_t MsgStoBackupMessage(msg_message_backup_type_t type, const char *filepath);
+msg_error_t MsgStoRestoreMessage(const char *filepath);
 
 msg_error_t MsgStoAddMessage(MSG_MESSAGE_INFO_S *pMsg, MSG_SENDINGOPT_INFO_S* pSendOptInfo);
 msg_error_t MsgStoUpdateMessage(MSG_MESSAGE_INFO_S *pMsg, MSG_SENDINGOPT_INFO_S* pSendOptInfo);
@@ -82,6 +82,7 @@ msg_error_t MsgStoGetRejectMsgList(const char *pNumber, msg_struct_list_s *pReje
 msg_error_t MsgStoGetReportStatus(msg_message_id_t msgId, int *count, MSG_REPORT_STATUS_INFO_S **pReportStatus);
 msg_error_t MsgStoGetThreadIdByAddress(const MSG_MESSAGE_INFO_S *pMsg, msg_thread_id_t *pThreadId);
 msg_error_t MsgStoGetThreadUnreadCnt(msg_thread_id_t ThreadId, int *cnt);
+
 msg_error_t MsgStoGetAddressList(const msg_thread_id_t threadId, msg_struct_list_s *pAddrList);
 msg_error_t MsgStoGetThreadInfo(msg_thread_id_t threadId, MSG_THREAD_VIEW_S *pThreadInfo);
 msg_error_t MsgStoGetMessageList(msg_folder_id_t folderId, msg_thread_id_t threadId, msg_message_type_t msgType, msg_storage_id_t storageId, msg_struct_list_s *pMsgList);

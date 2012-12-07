@@ -24,14 +24,14 @@
 
 #include "MsgStorageHandler.h"
 
-
+#include "MsgVMessage.h"
 /*==================================================================================================
                                      IMPLEMENTATION OF MsgHandle - Storage Member Functions
 ==================================================================================================*/
 int MsgHandle::addMessage(MSG_MESSAGE_HIDDEN_S *pMsg, const MSG_SENDINGOPT_S *pSendOpt)
 {
-	MSG_MESSAGE_INFO_S msgInfo = {0};
-	MSG_SENDINGOPT_INFO_S sendOptInfo;
+	MSG_MESSAGE_INFO_S msgInfo = {0,};
+	MSG_SENDINGOPT_INFO_S sendOptInfo = {0,};
 
 	// Covert MSG_MESSAGE_S to MSG_MESSAGE_INFO_S
 	convertMsgStruct(pMsg, &msgInfo);
@@ -89,7 +89,7 @@ int MsgHandle::addMessage(MSG_MESSAGE_HIDDEN_S *pMsg, const MSG_SENDINGOPT_S *pS
 
 msg_error_t MsgHandle::addSyncMLMessage(const MSG_SYNCML_MESSAGE_S *pSyncMLMsg)
 {
-	MSG_MESSAGE_INFO_S msgInfo;
+	MSG_MESSAGE_INFO_S msgInfo = {0, };
 
 	// Covert MSG_MESSAGE_S to MSG_MESSAGE_INFO_S
 	msg_struct_s *msg = (msg_struct_s *)pSyncMLMsg->msg;
@@ -134,8 +134,8 @@ msg_error_t MsgHandle::addSyncMLMessage(const MSG_SYNCML_MESSAGE_S *pSyncMLMsg)
 
 msg_error_t MsgHandle::updateMessage(const MSG_MESSAGE_HIDDEN_S *pMsg, const MSG_SENDINGOPT_S *pSendOpt)
 {
-	MSG_MESSAGE_INFO_S msgInfo;
-	MSG_SENDINGOPT_INFO_S sendOptInfo;
+	MSG_MESSAGE_INFO_S msgInfo = {0, };
+	MSG_SENDINGOPT_INFO_S sendOptInfo = {0, };
 
 	// Covert MSG_MESSAGE_S to MSG_MESSAGE_INFO_S
 	convertMsgStruct(pMsg, &msgInfo);
@@ -1073,11 +1073,26 @@ msg_error_t MsgHandle::getMemSize(unsigned int* memsize)
 	return MSG_SUCCESS;
 }
 
-
-msg_error_t MsgHandle::backupMessage()
+msg_error_t MsgHandle::backupMessage(msg_message_backup_type_t type, const char *backup_filepath)
 {
+	if (backup_filepath == NULL)
+		return MSG_ERR_NULL_POINTER;
+
+	//Create an empty file for writing.
+	//If a file with the same name already exists its content is erased
+	//and the file is treated as a new empty file.
+	FILE *pFile = MsgOpenFile(backup_filepath, "w");
+	if (pFile == NULL) {
+		MSG_DEBUG("File Open error");
+		return MSG_ERR_STORAGE_ERROR;
+	}
+	MsgCloseFile(pFile);
+
+	char path[MSG_FILEPATH_LEN_MAX+1] = {0,};
+	strncpy(path, backup_filepath, MSG_FILEPATH_LEN_MAX);
+
 	// Allocate Memory to Command Data
-	int cmdSize = sizeof(MSG_CMD_S);
+	int cmdSize = sizeof(MSG_CMD_S) + sizeof(msg_message_backup_type_t) + sizeof(path);
 
 	char cmdBuf[cmdSize];
 	bzero(cmdBuf, cmdSize);
@@ -1088,11 +1103,12 @@ msg_error_t MsgHandle::backupMessage()
 
 	// Copy Cookie
 	memcpy(pCmd->cmdCookie, mCookie, MAX_COOKIE_LEN);
+	memcpy((void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN), &type, sizeof(msg_message_backup_type_t));
+	memcpy((void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN+sizeof(msg_message_backup_type_t)), (char *)path, sizeof(path));
 
 	// Send Command to Messaging FW
 	char* pEventData = NULL;
 	AutoPtr<char> eventBuf(&pEventData);
-
 
 	write((char*)pCmd, cmdSize, &pEventData);
 
@@ -1109,11 +1125,21 @@ msg_error_t MsgHandle::backupMessage()
 	return MSG_SUCCESS;
 }
 
-
-msg_error_t MsgHandle::restoreMessage()
+msg_error_t MsgHandle::restoreMessage(const char *backup_filepath)
 {
+	if (backup_filepath == NULL)
+		return MSG_ERR_NULL_POINTER;
+
+	if (MsgAccessFile(backup_filepath, R_OK) == false) {
+		MSG_DEBUG("File access error");
+		return MSG_ERR_UNKNOWN;
+	}
+
+	char path[MSG_FILEPATH_LEN_MAX+1] = {0,};
+	strncpy(path, backup_filepath, MSG_FILEPATH_LEN_MAX);
+
 	// Allocate Memory to Command Data
-	int cmdSize = sizeof(MSG_CMD_S);
+	int cmdSize = sizeof(MSG_CMD_S) + sizeof(path);
 
 	char cmdBuf[cmdSize];
 	bzero(cmdBuf, cmdSize);
@@ -1124,6 +1150,7 @@ msg_error_t MsgHandle::restoreMessage()
 
 	// Copy Cookie
 	memcpy(pCmd->cmdCookie, mCookie, MAX_COOKIE_LEN);
+	memcpy((void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN), (char *)path, sizeof(path));
 
 	// Send Command to Messaging FW
 	char* pEventData = NULL;
@@ -1553,4 +1580,65 @@ int MsgHandle::updatePushEvent(MSG_PUSH_EVENT_INFO_S *pSrc, MSG_PUSH_EVENT_INFO_
 	}
 
 	return pEvent->result;
+}
+
+msg_error_t MsgHandle::getVobject(msg_message_id_t MsgId, void** encodedData)
+{
+	// Allocate Memory to Command Data
+	int cmdSize = sizeof(MSG_CMD_S) + sizeof(msg_message_id_t);
+	char *encode_data = NULL;
+	char cmdBuf[cmdSize];
+	bzero(cmdBuf, cmdSize);
+	MSG_CMD_S* pCmd = (MSG_CMD_S*)cmdBuf;
+
+	// Set Command Parameters
+	pCmd->cmdType = MSG_CMD_GET_MSG;
+
+	// Copy Cookie
+	memcpy(pCmd->cmdCookie, mCookie, MAX_COOKIE_LEN);
+
+	// Copy Command Data
+	memcpy((void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN), &MsgId, sizeof(msg_message_id_t));
+
+	// Send Command to Messaging FW
+	char* pEventData = NULL;
+	AutoPtr<char> eventBuf(&pEventData);
+
+
+	write((char*)pCmd, cmdSize, &pEventData);
+
+	// Get Return Data
+	MSG_EVENT_S* pEvent = (MSG_EVENT_S*)pEventData;
+
+	if (pEvent->eventType != MSG_EVENT_GET_MSG)
+	{
+		THROW(MsgException::INVALID_RESULT, "Event Data Error");
+	}
+
+	if(pEvent->result != MSG_SUCCESS)
+		return pEvent->result;
+
+	// Decode Return Data
+	MSG_MESSAGE_INFO_S msgInfo = {0,};
+	MSG_SENDINGOPT_INFO_S sendOptInfo = {0,};
+
+	MsgDecodeMsgInfo(pEvent->data, &msgInfo, &sendOptInfo);
+
+	//Convert MSG_MESSAGE_INFO_S to
+	encode_data = MsgVMessageEncode(&msgInfo);
+	if (encode_data) {
+		*encodedData = (void*)encode_data;
+	} else {
+		MSG_DEBUG("Error Encode data");
+		*encodedData = NULL;
+	}
+
+	// Delete Temp File
+	if (msgInfo.bTextSms == false)
+	{
+		// Delete Temp File
+		MsgDeleteFile(msgInfo.msgData); //ipc
+	}
+
+	return MSG_SUCCESS;
 }

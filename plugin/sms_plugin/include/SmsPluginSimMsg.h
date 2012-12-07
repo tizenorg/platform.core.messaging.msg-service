@@ -53,7 +53,11 @@ public:
 
 	void setSimMsgCntEvent(const MSG_SIM_COUNT_S *pSimMsgCnt);
 	void setSimMsgEvent(const MSG_MESSAGE_INFO_S *pMsgInfo, bool bSuccess);
+	void setSaveSimMsgEvent(int simMsgId, int result);
+	void setSaveClass2MsgEvent(int simMsgId, int result);
 	void setSimEvent(msg_sim_id_t SimId, bool bResult);
+
+	void setSmsData(const char *sca, const char *szData, int msgLength);
 
 private:
 	SmsPluginSimMsg();
@@ -71,7 +75,7 @@ private:
 
 	static SmsPluginSimMsg* pInstance;
 
-	msg_sim_id_t 			simMsgId;
+	msg_sim_id_t				simMsgId;
 
 	MSG_SIM_COUNT_S			simMsgCnt;
 
@@ -81,7 +85,8 @@ private:
 	unsigned int 				totalCnt;
 
 	bool						bTapiResult;
-	bool						bClass2Msg;
+
+	SMS_DATA_INFO_S			simMsgDataInfo;
 
 	Mutex mx;
 	CndVar cv;

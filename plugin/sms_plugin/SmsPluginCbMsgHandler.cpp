@@ -102,7 +102,7 @@ void SmsPluginCbMsgHandler::handleCbMsg(TelSmsCbMsg_t *pCbMsg)
 		MakeCbMsg(CbMsgPage, &cbMsg);
 
 		// Convert to MSG_MESSAGE_INFO_S
-		convertCbMsgToMsginfo(cbMsg, &msgInfo);
+		convertCbMsgToMsginfo(&cbMsg, &msgInfo);
 
 		// Add CB Msg into DB
 		msg_error_t err = MSG_SUCCESS;
@@ -322,7 +322,7 @@ void SmsPluginCbMsgHandler::Decode3gCbMsg(TelSmsCbMsg_t *pCbMsg, SMS_CBMSG_PAGE_
 	char cbData[(MAX_CBMSG_PAGE_SIZE*MAX_CBMSG_PAGE_NUM)+1];
 
 	memset(cbData, 0x00, sizeof(cbData));
-	memcpy(cbData, pCbMsg->szMsgData, pCbMsg->Length);
+	memcpy(cbData, pCbMsg->szMsgData, sizeof(pCbMsg->szMsgData));
 	cbData[pCbMsg->Length] = '\0';
 
 	pCbPage->cbMsgType = (SMS_CBMSG_TYPE_T)cbData[0];
@@ -570,21 +570,21 @@ void SmsPluginCbMsgHandler::MakeCbMsg(SMS_CBMSG_PAGE_S CbPage, SMS_CBMSG_S *pCbM
 }
 
 
-void SmsPluginCbMsgHandler::convertCbMsgToMsginfo(SMS_CBMSG_S cbMsg, MSG_MESSAGE_INFO_S *pMsgInfo)
+void SmsPluginCbMsgHandler::convertCbMsgToMsginfo(SMS_CBMSG_S *pCbMsg, MSG_MESSAGE_INFO_S *pMsgInfo)
 {
-	pMsgInfo->msgId = (msg_message_id_t)cbMsg.msgId;
+	pMsgInfo->msgId = (msg_message_id_t)pCbMsg->msgId;
 
 	pMsgInfo->folderId = MSG_CBMSGBOX_ID;
 
 	// Convert Type values
 	pMsgInfo->msgType.mainType = MSG_SMS_TYPE;
 
-	if (cbMsg.cbMsgType == SMS_CBMSG_TYPE_CBS)
+	if (pCbMsg->cbMsgType == SMS_CBMSG_TYPE_CBS)
 		pMsgInfo->msgType.subType = MSG_CB_SMS;
-	else if (cbMsg.cbMsgType == SMS_CBMSG_TYPE_JAVACBS)
+	else if (pCbMsg->cbMsgType == SMS_CBMSG_TYPE_JAVACBS)
 		pMsgInfo->msgType.subType = MSG_JAVACB_SMS;
 
-	switch(cbMsg.classType)
+	switch(pCbMsg->classType)
 	{
 		case SMS_MSG_CLASS_0:
 			pMsgInfo->msgType.classType = MSG_CLASS_0;
@@ -600,6 +600,7 @@ void SmsPluginCbMsgHandler::convertCbMsgToMsginfo(SMS_CBMSG_S cbMsg, MSG_MESSAGE
 			break;
 		default:
 			pMsgInfo->msgType.classType = MSG_CLASS_NONE;
+			break;
 	}
 
 	pMsgInfo->storageId = MSG_STORAGE_PHONE;
@@ -615,32 +616,32 @@ void SmsPluginCbMsgHandler::convertCbMsgToMsginfo(SMS_CBMSG_S cbMsg, MSG_MESSAGE
 	pMsgInfo->addressList[0].addressType = MSG_ADDRESS_TYPE_UNKNOWN;
 	pMsgInfo->addressList[0].recipientType = MSG_RECIPIENTS_TYPE_UNKNOWN;
 
-	getDisplayName(cbMsg.msgId, pMsgInfo->addressList[0].addressVal);
+	getDisplayName(pCbMsg->msgId, pMsgInfo->addressList[0].addressVal);
 	MSG_DEBUG("%s", pMsgInfo->addressList[0].addressVal);
 
 	pMsgInfo->msgPort.valid = false;
 	pMsgInfo->msgPort.dstPort = 0;
 	pMsgInfo->msgPort.srcPort = 0;
 
-	pMsgInfo->displayTime = cbMsg.recvTime;
+	pMsgInfo->displayTime = pCbMsg->recvTime;
 	MSG_DEBUG("recvTime is %s", ctime(&pMsgInfo->displayTime));
 
-	int bufSize = cbMsg.msgLength*2;
+	int bufSize = pCbMsg->msgLength*2;
 
 	char tmpBuf[bufSize];
 	memset(tmpBuf, 0x00, sizeof(tmpBuf));
 
-	MSG_DEBUG("LENGTH %d CB MSG %s", cbMsg.msgLength, cbMsg.msgData);
+	MSG_DEBUG("LENGTH %d CB MSG %s", pCbMsg->msgLength, pCbMsg->msgData);
 
 	// Convert Data values
-	pMsgInfo->dataSize = convertTextToUtf8((unsigned char*)tmpBuf, bufSize, &cbMsg);
+	pMsgInfo->dataSize = convertTextToUtf8((unsigned char*)tmpBuf, bufSize, pCbMsg);
 
 	if (pMsgInfo->dataSize > MAX_MSG_TEXT_LEN)
 	{
 		pMsgInfo->bTextSms = false;
 
 		// Save Message Data into File
-		char fileName[MAX_COMMON_INFO_SIZE+1];
+		char fileName[MSG_FILENAME_LEN_MAX+1];
 		memset(fileName, 0x00, sizeof(fileName));
 
 		if (MsgCreateFileName(fileName) == false)

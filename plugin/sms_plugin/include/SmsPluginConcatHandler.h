@@ -88,7 +88,9 @@ public:
 
 	bool IsConcatMsg(SMS_USERDATA_S *pUserData);
 	void handleConcatMsg(SMS_TPDU_S *pTpdu);
+//	void handleConcatMsg(SMS_TPDU_S *pTpdu, msg_sim_id_t SimMsgId, bool bRead);
 
+//	void handleBrokenMsg();
 
 private:
 	SmsPluginConcatHandler();
@@ -100,10 +102,15 @@ private:
 	int makeConcatUserData(unsigned short MsgRef, char **ppTotalData);
 
 	void convertConcatToMsginfo(const SMS_DELIVER_S *pTpdu, const char *pUserData, int DataSize, MSG_MESSAGE_INFO_S *pMsgInfo);
+//	void convertSimMsgToMsginfo(const SMS_CONCAT_MSG_S *pConcatMsg, const char *pUserData, int DataSize, MSG_MESSAGE_INFO_S *pMsgInfo);
 
 	void removeFromConcatList(unsigned short MsgRef);
 
+//	void addToSimIdList(unsigned short MsgRef, msg_sim_id_t SimMsgId);
+//	void removeFromSimIdList(unsigned short MsgRef);
+
 	vector<SMS_CONCAT_INFO_S> concatList;
+//	vector<SMS_SIM_ID_S> simIdList;
 
 	MsgTextConvert textCvt;
 };

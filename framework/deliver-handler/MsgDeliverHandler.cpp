@@ -101,7 +101,7 @@ msg_error_t MsgHandleMmsConfIncomingMsg(MSG_MESSAGE_INFO_S *pMsgInfo, msg_reques
 
 		if (subType == MSG_RETRIEVE_AUTOCONF_MMS) {
 			// play message-tone when MMS retrieved
-			MsgSoundPlayStart();
+			MsgSoundPlayStart(false);
 
 			// add phone log
 			MSG_DEBUG("Enter MsgAddPhoneLog() for mms message.");
@@ -158,29 +158,25 @@ msg_error_t MsgHandleIncomingMsg(MSG_MESSAGE_INFO_S *pMsgInfo, bool *pSendNoti)
 
 	msg_error_t err = MSG_SUCCESS;
 
-	if (pMsgInfo->msgType.mainType == MSG_SMS_TYPE)
-	{
-		err = MsgHandleSMS(pMsgInfo, pSendNoti);
+	if (pMsgInfo->msgType.mainType == MSG_SMS_TYPE) {
 
-		if (err == MSG_SUCCESS && *pSendNoti == true)
-		{
-			MsgSoundPlayStart();
+		bool bOnlyNoti = false;
 
-			if (pMsgInfo->msgType.subType >= MSG_MWI_VOICE_SMS && pMsgInfo->msgType.subType <= MSG_MWI_OTHER_SMS) {
-				if (pMsgInfo->bStore == false) {
-					MsgInsertNoti(pMsgInfo);
-					*pSendNoti = false;
-					return err;
-				}
+		err = MsgHandleSMS(pMsgInfo, pSendNoti, &bOnlyNoti);
+
+		if (err == MSG_SUCCESS) {
+			MsgSoundPlayStart(false);
+			if (*pSendNoti == true) {
+				int smsCnt = 0, mmsCnt = 0;
+
+				smsCnt = MsgStoGetUnreadCnt(&dbHandle, MSG_SMS_TYPE);
+				mmsCnt = MsgStoGetUnreadCnt(&dbHandle, MSG_MMS_TYPE);
+
+				MsgSettingHandleNewMsg(smsCnt, mmsCnt);
+				MsgInsertNoti(&dbHandle, pMsgInfo);
+			} else if (bOnlyNoti == true) {
+				MsgInsertNoti(pMsgInfo);
 			}
-
-			int smsCnt = 0, mmsCnt = 0;
-
-			smsCnt = MsgStoGetUnreadCnt(&dbHandle, MSG_SMS_TYPE);
-			mmsCnt = MsgStoGetUnreadCnt(&dbHandle, MSG_MMS_TYPE);
-
-			MsgSettingHandleNewMsg(smsCnt, mmsCnt);
-			MsgInsertNoti(&dbHandle, pMsgInfo);
 		}
 	}
 	else if (pMsgInfo->msgType.mainType == MSG_MMS_TYPE)
@@ -205,7 +201,7 @@ msg_error_t MsgHandleIncomingMsg(MSG_MESSAGE_INFO_S *pMsgInfo, bool *pSendNoti)
 }
 
 
-msg_error_t MsgHandleSMS(MSG_MESSAGE_INFO_S *pMsgInfo, bool *pSendNoti)
+msg_error_t MsgHandleSMS(MSG_MESSAGE_INFO_S *pMsgInfo, bool *pSendNoti, bool *bOnlyNoti)
 {
 	msg_error_t err = MSG_SUCCESS;
 
@@ -291,15 +287,15 @@ msg_error_t MsgHandleSMS(MSG_MESSAGE_INFO_S *pMsgInfo, bool *pSendNoti)
 				break;
 		}
 	} else if (pMsgInfo->msgType.subType == MSG_STATUS_REPORT_SMS) {
-		msg_thread_id_t convId = 0;
+		*pSendNoti = false;
+		*bOnlyNoti = true;
+	} else if (pMsgInfo->msgType.subType >= MSG_MWI_VOICE_SMS && pMsgInfo->msgType.subType <= MSG_MWI_OTHER_SMS) {
+		if (pMsgInfo->bStore == false) {
+			*pSendNoti = false;
+			*bOnlyNoti = true;
+		}
+	} 
 
-		// Get Address ID
-		MsgExistAddress(&dbHandle, pMsgInfo, &convId);
-
-		MSG_DEBUG("Conversation ID : [%d], Value : [%s]", convId, pMsgInfo->addressList[0].addressVal);
-
-		pMsgInfo->threadId = convId;
-	}
 
 	return err;
 }
@@ -343,15 +339,17 @@ msg_error_t MsgHandleMMS(MSG_MESSAGE_INFO_S *pMsgInfo,  bool *pSendNoti)
 			return err;
 		}
 	} else if (pMsgInfo->msgType.subType == MSG_READORGIND_MMS || pMsgInfo->msgType.subType == MSG_DELIVERYIND_MMS) {
-		MsgSoundPlayStart();
-		*pSendNoti = false;
+		if (MsgInsertMmsReportToNoti(&dbHandle, pMsgInfo) == MSG_SUCCESS) {
+			MsgSoundPlayStart(false);
+			*pSendNoti = false;
+		}
 	}
 
 	//In the case of m-notification-ind, we should decide whether to send m-notify-response-ind or http 'Get'
 	//submit request
 	if (pMsgInfo->msgType.subType == MSG_NOTIFICATIONIND_MMS && bFiltered == false) {
 		if (request.msgInfo.msgType.subType == MSG_NOTIFYRESPIND_MMS && bReject == false) {
-			MsgSoundPlayStart();
+			MsgSoundPlayStart(false);
 
 			int smsCnt = 0;
 			int mmsCnt = 0;

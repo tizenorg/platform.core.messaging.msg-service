@@ -26,7 +26,7 @@
 #include <sys/vfs.h>
 
 
-static int msgCntLimit[MSG_COUNT_LIMIT_MAILBOX_TYPE_MAX][MSG_COUNT_LIMIT_MSG_TYPE_MAX] = {{1500, 500, 0, 50, 50}, {50, 50, 0, 0, 0}, {1000, 250, 0, 0, 0}, {50, 50, 0, 0, 0}, {0, 0, 200, 0, 0}};
+static int msgCntLimit[MSG_COUNT_LIMIT_MAILBOX_TYPE_MAX][MSG_COUNT_LIMIT_MSG_TYPE_MAX] = {{10, 10, 0, 10, 10}, {5, 10, 0, 0, 0}, {10, 10, 0, 0, 0}, {10, 10, 0, 0, 0}, {0, 0, 10, 0, 0}};
 
 
 /*==================================================================================================
@@ -143,7 +143,8 @@ msg_error_t MsgStoSetReadStatus(MsgDbHandler *pDbHandle, msg_message_id_t msgId,
 
 	MsgSettingSetIndicator(smsCnt, mmsCnt);
 
-	MsgDeleteNotiByMsgId(msgId);
+//	MsgDeleteNotiByMsgId(msgId);
+	MsgRefreshNoti();
 
 	return MSG_SUCCESS;
 }
@@ -181,23 +182,22 @@ msg_error_t MsgStoCheckMsgCntFull(MsgDbHandler *pDbHandle, const MSG_MESSAGE_TYP
 	MSG_BEGIN();
 
 	msg_error_t err = MSG_SUCCESS;
+		struct statfs buf = {0};
 
-	struct statfs buf = {0};
+		if (statfs(MSG_DATA_ROOT_PATH, &buf) == -1) {
+			MSG_DEBUG("statfs(\"%s\") failed - %d", MSG_DATA_ROOT_PATH);
+			return MSG_ERR_STORAGE_ERROR;
+		}
 
-	if (statfs(MSG_DATA_ROOT_PATH, &buf) == -1) {
-		MSG_DEBUG("statfs(\"%s\") failed - %d", MSG_DATA_ROOT_PATH);
-		return MSG_ERR_STORAGE_ERROR;
-	}
+		unsigned long freeSpace = (buf.f_bfree * buf.f_bsize);
 
-	unsigned long freeSpace = (buf.f_bfree * buf.f_bsize);
+		MSG_DEBUG("f_bfree [%d] f_bsize [%d]", buf.f_bfree, buf.f_bsize);
+		MSG_DEBUG("Free space of storage is [%ul] MB.", freeSpace);
 
-	MSG_DEBUG("f_bfree [%d] f_bsize [%d]", buf.f_bfree, buf.f_bsize);
-	MSG_DEBUG("Free space of storage is [%ul] MB.", freeSpace);
-
-	if (freeSpace < SMS_MINIMUM_SPACE && pMsgType->mainType == MSG_SMS_TYPE)
-		err = MSG_ERR_MESSAGE_COUNT_FULL;
-	else if(freeSpace < MMS_MINIMUM_SPACE && pMsgType->mainType == MSG_MMS_TYPE)
-		err = MSG_ERR_MESSAGE_COUNT_FULL;
+		if (freeSpace < SMS_MINIMUM_SPACE && pMsgType->mainType == MSG_SMS_TYPE)
+			err = MSG_ERR_MESSAGE_COUNT_FULL;
+		else if(freeSpace < MMS_MINIMUM_SPACE && pMsgType->mainType == MSG_MMS_TYPE)
+			err = MSG_ERR_MESSAGE_COUNT_FULL;
 
 	MSG_END();
 
@@ -889,8 +889,6 @@ bool MsgExistAddress(MsgDbHandler *pDbHandle, const MSG_MESSAGE_INFO_S *pMsg, ms
 				pDbHandle->freeTable();
 				return false;
 			}
-
-			pDbHandle->freeTable();
 		}
 
 	} else { /* multiple address */
@@ -1045,8 +1043,10 @@ msg_error_t MsgStoAddContactInfo(MsgDbHandler *pDbHandle, MSG_CONTACT_INFO_S *pC
 				MSGFW_ADDRESS_TABLE_NAME, pContactInfo->contactId, pContactInfo->imagePath, pNumber);
 	}
 
-	if (pDbHandle->prepareQuery(sqlQuery) != MSG_SUCCESS)
+	if (pDbHandle->prepareQuery(sqlQuery) != MSG_SUCCESS) {
+		MSG_DEBUG("sqlQuery [%s]", sqlQuery);
 		return MSG_ERR_DB_PREPARE;
+	}
 
 	pDbHandle->bindText(pContactInfo->firstName, 1);
 

@@ -20,6 +20,7 @@
 
 #include "MsgDebug.h"
 #include "MsgUtilStorage.h"
+#include "MsgNotificationWrapper.h"
 #include "MsgGconfWrapper.h"
 
 #ifdef USE_GCONF
@@ -37,6 +38,7 @@ bool bUnknownAutoReject = false;
 /*==================================================================================================
                                      DEFINES
 ==================================================================================================*/
+#define MSG_UNREAD_CNT		"db/badge/org.tizen.message"
 
 
 /*==================================================================================================
@@ -180,6 +182,23 @@ int MsgSettingGetBool(const char *pKey, bool *pVal)
 	return retVal;
 }
 
+void MsgChangePmState()
+{
+	MSG_BEGIN();
+	int callStatus = 0;
+
+	callStatus = MsgSettingGetInt(VCONFKEY_CALL_STATE);
+	MSG_DEBUG("Call Status = %d", callStatus);
+
+	if (callStatus > VCONFKEY_CALL_OFF && callStatus < VCONFKEY_CALL_STATE_MAX) {
+		MSG_DEBUG("Call is activated. Do not turn on the lcd.");
+	} else {
+		MSG_DEBUG("Call is activated. Turn on the lcd.");
+		pm_change_state(LCD_NORMAL);
+	}
+
+	MSG_END();
+}
 
 msg_error_t MsgSettingHandleNewMsg(int SmsCnt, int MmsCnt)
 {
@@ -201,7 +220,7 @@ msg_error_t MsgSettingHandleNewMsg(int SmsCnt, int MmsCnt)
 	else
 	{
 		MSG_DEBUG("New Message.");
-		pm_change_state(LCD_NORMAL);
+		MsgChangePmState();
 	}
 
 	MSG_END();
@@ -218,12 +237,11 @@ msg_error_t MsgSettingSetIndicator(int SmsCnt, int MmsCnt)
 	if (MsgSettingSetInt(VCONFKEY_MESSAGE_RECV_MMS_STATE, MmsCnt) != 0)
 		return MSG_ERR_SET_SETTING;
 
-	/* Not used currently.
 	int sumCnt = SmsCnt + MmsCnt;
 
-	if (MsgSettingSetInt(MSG_UNREAD_CNT, sumCnt) != 0)
+//	if (MsgSettingSetInt(MSG_UNREAD_CNT, sumCnt) != 0)
+	if (MsgInsertBadge(sumCnt) != MSG_SUCCESS)
 		return MSG_ERR_SET_SETTING;
-	*/
 
 	return MSG_SUCCESS;
 }

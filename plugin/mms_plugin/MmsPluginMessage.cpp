@@ -391,11 +391,6 @@ bool MmsInsertPartFromFile(MmsMsg *pMsg, char *szTitleName, char *szOrgFilePath,
 
 		if (MmsIsText(pMsg->msgType.type) == true) {
 			pMsg->msgType.param.charset = MSG_CHARSET_UTF8;
-			if (pMultipart)
-				pMultipart->type.encoding	= MSG_ENCODING_8BIT;
-		} else {
-			if (pMultipart)
-				pMultipart->type.encoding	= MSG_ENCODING_BINARY;
 		}
 
 		strncpy(pMsg->msgBody.szOrgFilePath, szOrgFilePath, MSG_FILEPATH_LEN_MAX - 1);
@@ -508,7 +503,7 @@ MsgMultipart *MmsAllocMultipart(void)
 
 	pMultipart->pBody = (MsgBody *)malloc(sizeof(MsgBody));
 
-	if (pMultipart == NULL)
+	if (pMultipart->pBody == NULL)
 		goto __CATCH;
 
 	MmsInitMsgType(&pMultipart->type);
@@ -777,7 +772,7 @@ bool MmsComposeMessage(MmsMsg *pMmsMsg, MSG_MESSAGE_INFO_S *pMsgInfo, MSG_SENDIN
 	time(&RawTime);
 	timeInfo = localtime(&RawTime);
 	nTimeInSecs = mktime(timeInfo);
-	pMmsMsg->mmsAttrib.date = nTimeInSecs;
+	pMmsMsg->mmsAttrib.date = nTimeInSecs;	// todo: need to subtract timeline value to make GMT+0 time
 
 	//setting subject
 	strcpy(pMmsMsg->mmsAttrib.szSubject, pMsgInfo->subject);
@@ -878,8 +873,10 @@ bool MmsComposeMessage(MmsMsg *pMmsMsg, MSG_MESSAGE_INFO_S *pMsgInfo, MSG_SENDIN
 	for (int i = 0; i < _MsgMmsGetAttachCount(pMsgData); ++i) {
 		MMS_ATTACH_S *pMedia = _MsgMmsGetAttachment(pMsgData, i);
 		if (pMedia->szFilePath[0] != 0) {
-			if (!MmsInsertPartFromFile(pMmsMsg, pMedia->szFileName, pMedia->szFilePath, NULL))
+			if (!MmsInsertPartFromFile(pMmsMsg, pMedia->szFileName, pMedia->szFilePath, NULL)) {
+				free(pMedia);
 				return false;
+			}
 		}
 	}
 

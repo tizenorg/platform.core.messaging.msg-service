@@ -422,6 +422,30 @@ EXPORT_API int msg_get_message(msg_handle_t handle, msg_message_id_t msg_id, msg
 	return err;
 }
 
+EXPORT_API int msg_get_vobject_data(msg_handle_t handle, msg_message_id_t msg_id, void** result_data)
+{
+	msg_error_t err =  MSG_SUCCESS;
+
+	if (handle == NULL || result_data == NULL)
+	{
+		MSG_FATAL("handle or result_data is NULL");
+		return -EINVAL;
+	}
+
+	MsgHandle* pHandle = (MsgHandle*)handle;
+
+	try
+	{
+		err = pHandle->getVobject(msg_id, result_data);
+	}
+	catch (MsgException& e)
+	{
+		MSG_FATAL("%s", e.what());
+		return MSG_ERR_STORAGE_ERROR;
+	}
+
+	return err;
+}
 EXPORT_API int msg_get_conversation(msg_handle_t handle, msg_message_id_t msg_id, msg_struct_t conv)
 {
 	msg_error_t err =  MSG_SUCCESS;
@@ -808,19 +832,20 @@ EXPORT_API int msg_generate_message(msg_handle_t handle, msg_message_type_t msg_
 		catch (MsgException& e)
 		{
 			MSG_FATAL("%s", e.what());
+			msg_release_struct((msg_struct_t *)&msg_s);
 			return MSG_ERR_STORAGE_ERROR;
 		}
 
 		if (msg_type == MSG_TYPE_MMS && msgInfo->pMmsData) //free pMmsData directly. It is added to enhance performance
 			delete [] static_cast<char*>(msgInfo->pMmsData);
 
+		msg_release_struct((msg_struct_t *)&msg_s);
+
 		if (err < 0)
 		{
 			MSG_DEBUG("err [%d]", err);
 			return err;
 		}
-
-		msg_release_struct((msg_struct_t *)&msg_s);
 	}
 
 	return MSG_SUCCESS;
@@ -904,16 +929,17 @@ EXPORT_API int msg_generate_sms(msg_handle_t handle, msg_folder_id_t folder_id, 
 		catch (MsgException& e)
 		{
 			MSG_FATAL("%s", e.what());
+			msg_release_struct((msg_struct_t *)&msg_s);
 			return MSG_ERR_STORAGE_ERROR;
 		}
+
+		msg_release_struct((msg_struct_t *)&msg_s);
 
 		if (err < 0)
 		{
 			MSG_DEBUG("err [%d]", err);
 			return err;
 		}
-
-		msg_release_struct((msg_struct_t *)&msg_s);
 	}
 
 	return MSG_SUCCESS;
@@ -997,11 +1023,11 @@ EXPORT_API int msg_get_mem_size(msg_handle_t handle, unsigned int* memsize)
 
 }
 
-EXPORT_API int msg_backup_message(msg_handle_t handle)
+EXPORT_API int msg_backup_message(msg_handle_t handle, msg_message_backup_type_t type, const char *backup_filepath)
 {
 	msg_error_t err =  MSG_SUCCESS;
 
-	if (handle == NULL)
+	if (handle == NULL || backup_filepath == NULL)
 	{
 		return -EINVAL;
 	}
@@ -1010,7 +1036,7 @@ EXPORT_API int msg_backup_message(msg_handle_t handle)
 
 	try
 	{
-		err = pHandle->backupMessage();
+		err = pHandle->backupMessage(type, backup_filepath);
 	}
 	catch (MsgException& e)
 	{
@@ -1022,11 +1048,11 @@ EXPORT_API int msg_backup_message(msg_handle_t handle)
 }
 
 
-EXPORT_API int msg_restore_message(msg_handle_t handle)
+EXPORT_API int msg_restore_message(msg_handle_t handle, const char *backup_filepath)
 {
 	msg_error_t err =  MSG_SUCCESS;
 
-	if (handle == NULL)
+	if (handle == NULL || backup_filepath == NULL)
 	{
 		return -EINVAL;
 	}
@@ -1035,7 +1061,7 @@ EXPORT_API int msg_restore_message(msg_handle_t handle)
 
 	try
 	{
-		err = pHandle->restoreMessage();
+		err = pHandle->restoreMessage(backup_filepath);
 	}
 	catch (MsgException& e)
 	{
@@ -2109,7 +2135,7 @@ int msg_report_status_set_int(void *report_info, int field, int value)
 {
 	msg_error_t err =  MSG_SUCCESS;
 	if(!report_info)
-		return MSG_ERR_NULL_POINTER;
+	return MSG_ERR_NULL_POINTER;
 
 	MSG_REPORT_STATUS_INFO_S *pReport = (MSG_REPORT_STATUS_INFO_S *)report_info;
 	switch(field)

@@ -247,9 +247,9 @@ typedef struct
 	unsigned long			received;
 	unsigned long			created;
 	unsigned long			expires;
-	char					id[MAX_WAPPUSH_ID_LEN];
-	char					href[MAX_WAPPUSH_HREF_LEN];
-	char					contents[MAX_WAPPUSH_CONTENTS_LEN];
+	char					id[MAX_WAPPUSH_ID_LEN + 1];
+	char					href[MAX_WAPPUSH_HREF_LEN + 1];
+	char					contents[MAX_WAPPUSH_CONTENTS_LEN + 1];
 } MSG_PUSH_MESSAGE_S;
 
 
@@ -260,8 +260,8 @@ typedef struct
 {
 	int		invalObjectCnt;
 	int		invalServiceCnt;
-	char		invalObjectUrl[MAX_PUSH_CACHEOP_INVALID_OBJECT_MAX][MAX_PUSH_CACHEOP_MAX_URL_LEN];
-	char		invalServiceUrl[MAX_PUSH_CACHEOP_INVALID_SERVICE_MAX][MAX_PUSH_CACHEOP_MAX_URL_LEN];
+	char		invalObjectUrl[MAX_PUSH_CACHEOP_INVALID_OBJECT_MAX][MAX_PUSH_CACHEOP_MAX_URL_LEN + 1];
+	char		invalServiceUrl[MAX_PUSH_CACHEOP_INVALID_SERVICE_MAX][MAX_PUSH_CACHEOP_MAX_URL_LEN + 1];
 } MSG_PUSH_CACHEOP_S;
 
 
@@ -283,9 +283,9 @@ typedef struct
 {
 	msg_syncml_message_type_t 	syncmlType;
 	int                                             	pushBodyLen;
-	char                                            	pushBody[MAX_WAPPUSH_CONTENTS_LEN];
+	char                                            	pushBody[MAX_WAPPUSH_CONTENTS_LEN + 1];
 	int 								wspHeaderLen;
-	char 							wspHeader[MAX_WAPPUSH_CONTENTS_LEN];
+	char 							wspHeader[MAX_WAPPUSH_CONTENTS_LEN + 1];
 }MSG_SYNCML_MESSAGE_DATA_S;
 
 
@@ -294,18 +294,18 @@ typedef struct
  */
  typedef struct
 {
-	char							pushHeader[MAX_WAPPUSH_CONTENTS_LEN];
+	char							pushHeader[MAX_WAPPUSH_CONTENTS_LEN + 1];
 	int 							pushBodyLen;
-	char							pushBody[MAX_WAPPUSH_CONTENTS_LEN];
+	char							pushBody[MAX_WAPPUSH_CONTENTS_LEN + 1];
 }MSG_LBS_MESSAGE_DATA_S;
 
 
 typedef struct
 {
-	char							pushHeader[MAX_WAPPUSH_CONTENTS_LEN];
+	char							pushHeader[MAX_WAPPUSH_CONTENTS_LEN + 1];
 	int 							pushBodyLen;
-	char							pushBody[MAX_WAPPUSH_CONTENTS_LEN];
-	char							pushAppId[MAX_WAPPUSH_ID_LEN];
+	char							pushBody[MAX_WAPPUSH_CONTENTS_LEN + 1];
+	char							pushAppId[MAX_WAPPUSH_ID_LEN + 1];
 }MSG_PUSH_MESSAGE_DATA_S;
 
 /**
@@ -313,7 +313,7 @@ typedef struct
  */
 typedef struct
 {
-	char addressVal[MAX_ADDRESS_VAL_LEN+1];
+	char addressVal[MAX_ADDRESS_VAL_LEN + 1];
 	int type;
 	int status;
 	time_t statusTime;
@@ -322,9 +322,9 @@ typedef struct
 
 typedef struct
 {
-	char contentType[MAX_WAPPUSH_CONTENT_TYPE_LEN];
-	char appId[MAX_WAPPUSH_ID_LEN];
-	char pkgName[MSG_FILEPATH_LEN_MAX];
+	char contentType[MAX_WAPPUSH_CONTENT_TYPE_LEN + 1];
+	char appId[MAX_WAPPUSH_ID_LEN + 1];
+	char pkgName[MSG_FILEPATH_LEN_MAX + 1];
 	bool bLaunch;
 }MSG_PUSH_EVENT_INFO_S;
 

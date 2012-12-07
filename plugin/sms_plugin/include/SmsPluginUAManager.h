@@ -37,7 +37,7 @@ public:
 
 	//virtual void start();
 
-	void addReqEntity(SMS_REQUEST_INFO_S request);
+	void addReqEntity(SMS_REQUEST_INFO_S *request);
 
 private:
 	SmsPluginUAManager();

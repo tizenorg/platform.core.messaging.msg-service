@@ -25,8 +25,6 @@
 /*==================================================================================================
 								STATIC FUNCTION PROTOTYPES
 ==================================================================================================*/
-static char* msg_clean_country_code(char *src);
-static char* msg_normalize_number(char *src);
 
 /*==================================================================================================
                                      FUNCTION IMPLEMENTATION
@@ -101,7 +99,7 @@ msg_error_t MsgSetConfigData(const MSG_SETTING_S *pSetting)
 			err = MsgSetCBMsgOpt(pSetting, true);
 			break;
 		case MSG_VOICEMAIL_OPT :
-			err = MsgSetVoiceMailOpt(pSetting);
+			err = MsgSetVoiceMailOpt(pSetting, true);
 			break;
 		case MSG_MSGSIZE_OPT:
 			err = MsgSetMsgSizeOpt(pSetting);
@@ -212,6 +210,16 @@ msg_error_t MsgSetGeneralOpt(const MSG_SETTING_S *pSetting)
 			return MSG_ERR_SET_SETTING;
 		}
 	}
+
+#ifdef	__NOT_USED_BY_DESIGN_CHANGE__
+	iValue = MsgSettingGetInt(MSG_ALERT_TONE);
+	if (iValue != (int)generalOpt.alertTone) {
+		if (MsgSettingSetInt(MSG_ALERT_TONE, (int)generalOpt.alertTone) != MSG_SUCCESS) {
+			MSG_DEBUG("Error to set config data [%s]", MSG_ALERT_TONE);
+			return MSG_ERR_SET_SETTING;
+		}
+	}
+#endif	/* __NOT_USED_BY_DESIGN_CHANGE__ */
 
 	return MSG_SUCCESS;
 }
@@ -440,6 +448,13 @@ msg_error_t MsgSetMMSSendOpt(const MSG_SETTING_S *pSetting)
 			return MSG_ERR_SET_SETTING;
 		}
 	}
+#ifdef	__NOT_USED_BY_DESIGN_CHANGE__
+	if (MsgSettingSetBool(MMS_SEND_KEEP_COPY, sendOpt.bKeepCopy) != MSG_SUCCESS)
+	{
+		MSG_DEBUG("Error to set config data [%s]", MMS_SEND_KEEP_COPY);
+		return MSG_ERR_SET_SETTING;
+	}
+#endif	/* __NOT_USED_BY_DESIGN_CHANGE__ */
 
 	MsgSettingGetBool(MMS_SEND_BODY_REPLYING, &bValue);
 	if (bValue != sendOpt.bBodyReplying) {
@@ -808,10 +823,12 @@ msg_error_t MsgSetCBMsgOpt(const MSG_SETTING_S *pSetting, bool bSetSim)
 	return err;
 }
 
-msg_error_t MsgSetVoiceMailOpt(const MSG_SETTING_S *pSetting)
+
+msg_error_t MsgSetVoiceMailOpt(const MSG_SETTING_S *pSetting, bool bSetSim)
 {
 	MSG_VOICEMAIL_OPT_S voiceMailOpt;
 	char *pValue = NULL;
+	msg_error_t err = MSG_SUCCESS;
 
 	memcpy(&voiceMailOpt, &(pSetting->option.voiceMailOpt), sizeof(MSG_VOICEMAIL_OPT_S));
 
@@ -819,15 +836,20 @@ msg_error_t MsgSetVoiceMailOpt(const MSG_SETTING_S *pSetting)
 	if (pValue != NULL && strcmp(pValue, voiceMailOpt.mailNumber) == 0) {
 		/* Value is same with previous one. Therefore, we don't need to save it. */
 	} else {
-		if (MsgSettingSetString(VOICEMAIL_NUMBER, voiceMailOpt.mailNumber) != MSG_SUCCESS) {
-			MSG_DEBUG("Error to set config data [%s]", VOICEMAIL_NUMBER);
+		if (bSetSim == true) {
+			err = MsgSetConfigInSim(pSetting);
 
-			if (pValue != NULL) {
-				free(pValue);
-				pValue = NULL;
+			if (err == MSG_SUCCESS) {
+				err = MsgSettingSetString(VOICEMAIL_NUMBER, voiceMailOpt.mailNumber);
+				if (err != MSG_SUCCESS)
+					MSG_DEBUG("Error to set config data [%s]", VOICEMAIL_NUMBER);
+			} else {
+				MSG_DEBUG("Error to set config data in sim [%d]", err);
 			}
-
-			return MSG_ERR_SET_SETTING;
+		} else {
+			err = MsgSettingSetString(VOICEMAIL_NUMBER, voiceMailOpt.mailNumber);
+			if (err != MSG_SUCCESS)
+				MSG_DEBUG("Error to set config data [%s]", VOICEMAIL_NUMBER);
 		}
 	}
 
@@ -836,7 +858,7 @@ msg_error_t MsgSetVoiceMailOpt(const MSG_SETTING_S *pSetting)
 		pValue = NULL;
 	}
 
-	return MSG_SUCCESS;
+	return err;
 }
 
 
@@ -864,6 +886,12 @@ void MsgGetGeneralOpt(MSG_SETTING_S *pSetting)
 	memset(&(pSetting->option.generalOpt), 0x00, sizeof(MSG_GENERAL_OPT_S));
 
 	MsgSettingGetBool(MSG_KEEP_COPY, &pSetting->option.generalOpt.bKeepCopy);
+
+#ifdef	__NOT_USED_BY_DESIGN_CHANGE__
+	pSetting->option.generalOpt.alertTone = (MSG_ALERT_TONE_T)MsgSettingGetInt(MSG_ALERT_TONE);
+
+	MsgSettingGetBool(MSG_AUTO_ERASE, &pSetting->option.generalOpt.bAutoErase);
+#endif	/* __NOT_USED_BY_DESIGN_CHANGE__ */
 }
 
 
@@ -900,6 +928,13 @@ void MsgGetSMSCList(MSG_SETTING_S *pSetting)
 		snprintf(keyName, DEF_BUF_LEN, "%s/%d", SMSC_PID, i);
 
 		pSetting->option.smscList.smscData[i].pid = (MSG_SMS_PID_T)MsgSettingGetInt(keyName);
+
+#ifdef	__NOT_USED_BY_DESIGN_CHANGE__
+		memset(keyName, 0x00, sizeof(keyName));
+		snprintf(keyName, DEF_BUF_LEN, "%s/%d", SMSC_DCS, i);
+
+		pSetting->option.smscList.smscData[i].dcs = (msg_encode_type_t)MsgSettingGetInt(keyName);
+#endif	/* __NOT_USED_BY_DESIGN_CHANGE__ */
 
 		memset(keyName, 0x00, sizeof(keyName));
 		snprintf(keyName, DEF_BUF_LEN, "%s/%d", SMSC_VAL_PERIOD, i);
@@ -962,6 +997,10 @@ void MsgGetMMSSendOpt(MSG_SETTING_S *pSetting)
 	MsgSettingGetBool(MMS_SEND_DELIVERY_REPORT, &pSetting->option.mmsSendOpt.bDeliveryReport);
 
 	MsgSettingGetBool(MMS_SEND_READ_REPLY, &pSetting->option.mmsSendOpt.bReadReply);
+
+#ifdef	__NOT_USED_BY_DESIGN_CHANGE__
+	MsgSettingGetBool(MSG_KEEP_COPY, &pSetting->option.mmsSendOpt.bKeepCopy);
+#endif	/* __NOT_USED_BY_DESIGN_CHANGE__ */
 
 	MsgSettingGetBool(MMS_SEND_BODY_REPLYING, &pSetting->option.mmsSendOpt.bBodyReplying);
 
@@ -1136,183 +1175,253 @@ msg_error_t MsgSetConfigInSim(const MSG_SETTING_S *pSetting)
 	return err;
 }
 
-static char* msg_clean_country_code(char *src)
+#ifdef	__NOT_USED_BY_ENV_CHANGE__
+void MsgSetDefaultConfig()
 {
-	int ret = 1;
+	bool bTmp = false;
+	char keyName[128];
 
-	switch (src[ret++]-'0')
-	{
-		case 1:
-		case 7:
-			break;
-		case 2:
-			switch (src[ret++]-'0')
-			{
-				case 0:
-				case 7:
-					break;
-				case 1:
-				case 2:
-				case 3:
-				case 4:
-				case 5:
-				case 6:
-				case 8:
-				case 9:
-					ret += 1;
-					break;
-				default:
-					MSG_DEBUG("The parameter(src:%s) has invalid character set", src);
-					break;
-			}
-			break;
-		case 3:
-			switch (src[ret++]-'0')
-			{
-				case 0:
-				case 1:
-				case 2:
-				case 3:
-				case 4:
-				case 6:
-				case 9:
-					break;
-				case 5:
-				case 7:
-				case 8:
-					ret += 1;
-					break;
-				default:
-					MSG_DEBUG("The parameter(src:%s) has invalid character set", src);
-					break;
-			}
-			break;
-		case 4:
-			switch (src[ret++]-'0')
-			{
-				case 0:
-				case 1:
-				case 3:
-				case 4:
-				case 5:
-				case 6:
-				case 7:
-				case 8:
-				case 9:
-					break;
-				case 2:
-					ret += 1;
-					break;
-				default:
-					MSG_DEBUG("The parameter(src:%s) has invalid character set", src);
-					break;
-			}
-			break;
-		case 5:
-			switch (src[ret++]-'0')
-			{
-				case 1:
-				case 2:
-				case 3:
-				case 4:
-				case 5:
-				case 6:
-				case 7:
-				case 8:
-					break;
-				case 0:
-				case 9:
-					ret += 1;
-					break;
-				default:
-					MSG_DEBUG("The parameter(src:%s) has invalid character set", src);
-					break;
-			}
-			break;
-		case 6:
-			switch (src[ret++]-'0')
-			{
-				case 0:
-				case 1:
-				case 2:
-				case 3:
-				case 4:
-				case 5:
-				case 6:
-					break;
-				case 7:
-				case 8:
-				case 9:
-					ret += 1;
-					break;
-				default:
-					MSG_DEBUG("The parameter(src:%s) has invalid character set", src);
-					break;
-			}
-			break;
-		case 8:
-			switch (src[ret++]-'0')
-			{
-				case 1:
-				case 2:
-				case 4:
-				case 6:
-					break;
-				case 0:
-				case 3:
-				case 5:
-				case 7:
-				case 8:
-				case 9:
-					ret += 1;
-					break;
-				default:
-					MSG_DEBUG("The parameter(src:%s) has invalid character set", src);
-					break;
-			}
-			break;
-		case 9:
-			switch (src[ret++]-'0')
-			{
-				case 0:
-				case 1:
-				case 2:
-				case 3:
-				case 4:
-				case 5:
-				case 8:
-					break;
-				case 6:
-				case 7:
-				case 9:
-					ret += 1;
-					break;
-				default:
-					MSG_DEBUG("The parameter(src:%s) has invalid character set", src);
-					break;
-			}
-			break;
-		case 0:
-		default:
-			MSG_DEBUG("The parameter(src:%s) has invalid character set", src);
-			return src;
+	// Set Default General SendOpt
+	if (MsgSettingGetBool(MSG_KEEP_COPY, &bTmp) < 0)
+		MsgSettingSetBool(MSG_KEEP_COPY, true);
+
+	if (MsgSettingGetInt(MSG_ALERT_TONE) < 0)
+		MsgSettingSetInt(MSG_ALERT_TONE, (int)MSG_ALERT_TONE_ONCE);
+
+	if (MsgSettingGetBool(MSG_AUTO_ERASE, &bTmp) < 0)
+		MsgSettingGetBool(MSG_AUTO_ERASE, false);
+
+	// Set Default SMS SendOpt
+	if (MsgSettingGetInt(SMS_SEND_DCS) < 0)
+		MsgSettingSetInt(SMS_SEND_DCS, (int)MSG_ENCODE_AUTO);
+
+	if (MsgSettingGetInt(SMS_SEND_NETWORK_MODE) < 0)
+		MsgSettingSetInt(SMS_SEND_NETWORK_MODE, (int)MSG_SMS_NETWORK_CS_ONLY);
+
+	if (MsgSettingGetBool(SMS_SEND_REPLY_PATH, &bTmp) < 0)
+		MsgSettingSetBool(SMS_SEND_REPLY_PATH, false);
+
+	if (MsgSettingGetBool(SMS_SEND_DELIVERY_REPORT, &bTmp) < 0)
+		MsgSettingSetBool(SMS_SEND_DELIVERY_REPORT, false);
+
+	if (MsgSettingGetInt(SMS_SEND_SAVE_STORAGE) < 0)
+		MsgSettingSetInt(SMS_SEND_SAVE_STORAGE, (int)MSG_SMS_SAVE_STORAGE_PHONE);
+
+	// Set Default SMSC List
+	if (MsgSettingGetInt(SMSC_SELECTED) < 0)
+		MsgSettingSetInt(SMSC_SELECTED, 0);
+
+	if (MsgSettingGetInt(SMSC_TOTAL_COUNT) < 0)
+		MsgSettingSetInt(SMSC_TOTAL_COUNT, 1);
+
+	memset(keyName, 0x00, sizeof(keyName));
+	sprintf(keyName, "%s/%d", SMSC_PID, 0);
+
+	if (MsgSettingGetInt(keyName) < 0)
+		MsgSettingSetInt(keyName, (int)MSG_PID_TEXT);
+
+	memset(keyName, 0x00, sizeof(keyName));
+	sprintf(keyName, "%s/%d", SMSC_VAL_PERIOD, MSG_VAL_MAXIMUM);
+
+	if (MsgSettingGetInt(keyName) < 0)
+		MsgSettingSetInt(keyName, 0);
+
+	memset(keyName, 0x00, sizeof(keyName));
+	sprintf(keyName, "%s/%d", SMSC_NAME, 0);
+
+	char *smscName = NULL;
+
+	smscName = MsgSettingGetString(keyName);
+
+	if (smscName == NULL) {
+		MsgSettingSetString(keyName, (char*)"SMS Centre 1");
+	} else {
+		free(smscName);
+		smscName = NULL;
 	}
 
-	return &src[ret];
+	memset(keyName, 0x00, sizeof(keyName));
+	sprintf(keyName, "%s/%d", SMSC_TON, 0);
+
+	if (MsgSettingGetInt(keyName) < 0)
+		MsgSettingSetInt(keyName, (int)MSG_TON_INTERNATIONAL);
+
+	memset(keyName, 0x00, sizeof(keyName));
+	sprintf(keyName, "%s/%d", SMSC_NPI, 0);
+
+	if (MsgSettingGetInt(keyName) < 0)
+		MsgSettingSetInt(keyName, (int)MSG_NPI_ISDN);
+
+	memset(keyName, 0x00, sizeof(keyName));
+	sprintf(keyName, "%s/%d", SMSC_ADDRESS, 0);
+
+	char *smscAddress = NULL;
+
+	smscAddress = MsgSettingGetString(keyName);
+
+	if (smscAddress == NULL) {
+		MsgSettingSetString(keyName, (char*)"8210911111");
+	} else {
+		free(smscAddress);
+		smscAddress = NULL;
+	}
+
+	// Set Default MMS Send Opt
+	if (MsgSettingGetInt(MMS_SEND_MSG_CLASS) < 0)
+		MsgSettingSetInt(MMS_SEND_MSG_CLASS, (int)MSG_CLASS_AUTO);
+
+	if (MsgSettingGetInt(MMS_SEND_PRIORITY) < 0)
+		MsgSettingSetInt(MMS_SEND_PRIORITY, (int)MSG_MESSAGE_PRIORITY_NORMAL);
+
+	if (MsgSettingGetInt(MMS_SEND_EXPIRY_TIME) < 0)
+		MsgSettingSetInt(MMS_SEND_EXPIRY_TIME, 86400);
+
+	if (MsgSettingGetInt(MMS_SEND_DELIVERY_TIME) < 0)
+		MsgSettingSetInt(MMS_SEND_DELIVERY_TIME, 0);
+
+	if (MsgSettingGetInt(MMS_SEND_CUSTOM_DELIVERY) < 0)
+		MsgSettingSetInt(MMS_SEND_CUSTOM_DELIVERY, 0);
+
+	if (MsgSettingGetBool(MMS_SEND_SENDER_VISIBILITY, &bTmp) < 0)
+		MsgSettingSetBool(MMS_SEND_SENDER_VISIBILITY, false);
+
+	if (MsgSettingGetBool(MMS_SEND_DELIVERY_REPORT, &bTmp) < 0)
+		MsgSettingSetBool(MMS_SEND_DELIVERY_REPORT, true);
+
+	if (MsgSettingGetBool(MMS_SEND_READ_REPLY, &bTmp) < 0)
+		MsgSettingSetBool(MMS_SEND_READ_REPLY, false);
+
+	if (MsgSettingGetBool(MMS_SEND_KEEP_COPY, &bTmp) < 0)
+		MsgSettingSetBool(MMS_SEND_KEEP_COPY, false);
+
+	if (MsgSettingGetBool(MMS_SEND_BODY_REPLYING, &bTmp) < 0)
+		MsgSettingSetBool(MMS_SEND_BODY_REPLYING, false);
+
+	if (MsgSettingGetBool(MMS_SEND_HIDE_RECIPIENTS, &bTmp) < 0)
+		MsgSettingSetBool(MMS_SEND_HIDE_RECIPIENTS, false);
+
+	if (MsgSettingGetInt(MMS_SEND_REPLY_CHARGING) < 0)
+		MsgSettingSetInt(MMS_SEND_REPLY_CHARGING, (int)MSG_REPLY_CHARGING_NONE);
+
+	if (MsgSettingGetInt(MMS_SEND_REPLY_CHARGING_DEADLINE) < 0)
+		MsgSettingSetInt(MMS_SEND_REPLY_CHARGING_DEADLINE, 0);
+
+	if (MsgSettingGetInt(MMS_SEND_REPLY_CHARGING_SIZE) < 0)
+		MsgSettingSetInt(MMS_SEND_REPLY_CHARGING_SIZE, 0);
+
+	// Set Default MMS Recv Opt
+	if (MsgSettingGetInt(MMS_RECV_HOME_NETWORK) < 0)
+		MsgSettingSetInt(MMS_RECV_HOME_NETWORK, (int)MSG_HOME_AUTO_DOWNLOAD);
+
+	if (MsgSettingGetInt(MMS_RECV_ABROAD_NETWORK) < 0)
+		MsgSettingSetInt(MMS_RECV_ABROAD_NETWORK, (int)MSG_ABROAD_RESTRICTED);
+
+	if (MsgSettingGetInt(MMS_RECV_READ_RECEIPT) < 0)
+		MsgSettingSetInt(MMS_RECV_READ_RECEIPT, (int)MSG_SEND_READ_REPORT_NEVER);
+
+	if (MsgSettingGetBool(MMS_RECV_DELIVERY_RECEIPT, &bTmp) < 0)
+		MsgSettingSetBool(MMS_RECV_DELIVERY_RECEIPT, true);
+
+	if (MsgSettingGetBool(MMS_RECV_REJECT_UNKNOWN, &bTmp) < 0)
+		MsgSettingSetBool(MMS_RECV_REJECT_UNKNOWN, false);
+
+	if (MsgSettingGetBool(MMS_RECV_REJECT_ADVERTISE, &bTmp) < 0)
+		MsgSettingSetBool(MMS_RECV_REJECT_ADVERTISE, false);
+
+	// Set Default MMS Style Opt
+	if (MsgSettingGetInt(MMS_STYLE_FONT_SIZE) < 0)
+		MsgSettingSetInt(MMS_STYLE_FONT_SIZE, 30);
+
+	if (MsgSettingGetInt(MMS_STYLE_FONT_STYLE) < 0)
+		MsgSettingSetInt(MMS_STYLE_FONT_STYLE, 0);
+
+	if (MsgSettingGetInt(MMS_STYLE_FONT_COLOR_RED) < 0)
+		MsgSettingSetInt(MMS_STYLE_FONT_COLOR_RED, 0);
+
+	if (MsgSettingGetInt(MMS_STYLE_FONT_COLOR_GREEN) < 0)
+		MsgSettingSetInt(MMS_STYLE_FONT_COLOR_GREEN, 0);
+
+	if (MsgSettingGetInt(MMS_STYLE_FONT_COLOR_BLUE) < 0)
+		MsgSettingSetInt(MMS_STYLE_FONT_COLOR_BLUE, 0);
+
+	if (MsgSettingGetInt(MMS_STYLE_FONT_COLOR_HUE) < 0)
+		MsgSettingSetInt(MMS_STYLE_FONT_COLOR_HUE, 255);
+
+	if (MsgSettingGetInt(MMS_STYLE_BG_COLOR_RED) < 0)
+		MsgSettingSetInt(MMS_STYLE_BG_COLOR_RED, 255);
+
+	if (MsgSettingGetInt(MMS_STYLE_BG_COLOR_GREEN) < 0)
+		MsgSettingSetInt(MMS_STYLE_BG_COLOR_GREEN, 255);
+
+	if (MsgSettingGetInt(MMS_STYLE_BG_COLOR_BLUE) < 0)
+		MsgSettingSetInt(MMS_STYLE_BG_COLOR_BLUE, 255);
+
+	if (MsgSettingGetInt(MMS_STYLE_BG_COLOR_HUE) < 0)
+		MsgSettingSetInt(MMS_STYLE_FONT_COLOR_HUE, 255);
+
+	if (MsgSettingGetInt(MMS_STYLE_PAGE_DUR) < 0)
+		MsgSettingSetInt(MMS_STYLE_PAGE_DUR, 2);
+
+	if (MsgSettingGetInt(MMS_STYLE_PAGE_CUSTOM_DUR) < 0)
+		MsgSettingSetInt(MMS_STYLE_PAGE_CUSTOM_DUR, 0);
+
+	if (MsgSettingGetInt(MMS_STYLE_PAGE_DUR_MANUAL) < 0)
+		MsgSettingSetInt(MMS_STYLE_PAGE_DUR_MANUAL, 0);
+
+	// Set Default Push Msg Opt
+	if (MsgSettingGetBool(PUSH_RECV_OPTION, &bTmp) < 0)
+		MsgSettingSetBool(PUSH_RECV_OPTION, false);
+
+	if (MsgSettingGetInt(PUSH_SERVICE_TYPE) < 0)
+		MsgSettingSetInt(PUSH_SERVICE_TYPE, (int)MSG_PUSH_SERVICE_PROMPT);
+
+	// Set Default Cb Msg Opt
+	if (MsgSettingGetBool(CB_RECEIVE, &bTmp) < 0)
+		MsgSettingSetBool(CB_RECEIVE, false);
+
+	if (MsgSettingGetBool(CB_ALL_CHANNEL, &bTmp) < 0)
+		MsgSettingSetBool(CB_ALL_CHANNEL, false);
+
+	if (MsgSettingGetInt(CB_MAX_SIM_COUNT) < 0)
+		MsgSettingSetInt(CB_MAX_SIM_COUNT, 0);
+
+	if (MsgSettingGetInt(CB_CHANNEL_COUNT) < 0)
+		MsgSettingSetInt(CB_CHANNEL_COUNT, 0);
+
+	for (int i = MSG_CBLANG_TYPE_ALL; i < MSG_CBLANG_TYPE_MAX; i++)
+	{
+		memset(keyName, 0x00, sizeof(keyName));
+		sprintf(keyName, "%s/%d", CB_LANGUAGE, i);
+
+		if (MsgSettingGetBool(keyName, &bTmp) < 0)
+			MsgSettingSetBool(keyName, false);
+	}
+
+	// Set Default SOS Msg Opt
+	if (MsgSettingGetBool(SOS_SEND_OPTION, &bTmp) < 0)
+		MsgSettingSetBool(SOS_SEND_OPTION, false);
+
+	if (MsgSettingGetInt(SOS_RECIPIENT_COUNT) < 0)
+		MsgSettingSetInt(SOS_RECIPIENT_COUNT, 0);
+
+	if (MsgSettingGetInt(SOS_REPEAT_COUNT) < 0)
+		MsgSettingSetInt(SOS_REPEAT_COUNT, (int)MSG_SOS_REPEAT_ONCE);
+
+	char *tmpValue = NULL;
+
+	tmpValue = MsgSettingGetString(keyName);
+
+	if (tmpValue == NULL) {
+		MsgSettingSetString(keyName, NULL);
+	} else {
+		free(tmpValue);
+		tmpValue = NULL;
+	}
+
+	if (MsgSettingGetInt(SOS_ALERT_TYPE) < 0)
+		MsgSettingSetInt(SOS_ALERT_TYPE, (int)MSG_SOS_ALERT_TYPE_SOS);
+
+	if (MsgSettingGetInt(MSGSIZE_OPTION) < 0)
+		MsgSettingSetInt(MSGSIZE_OPTION, 300);
 }
-
-static char* msg_normalize_number(char *src)
-{
-	char *normalized_number;
-
-	if ('+' == src[0])
-		normalized_number = msg_clean_country_code(src);
-	else if ('0' == src[0])
-		normalized_number = src+1;
-	else
-		normalized_number = src;
-
-	MSG_DEBUG("src = %s, normalized = %s", src, normalized_number);
-
-	return normalized_number;
-}
+#endif	/* __NOT_USED_BY_ENV_CHANGE__ */

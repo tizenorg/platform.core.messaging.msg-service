@@ -30,6 +30,7 @@
 #include "MsgTransManager.h"
 #include "MsgPluginManager.h"
 #include "MsgCmdHandler.h"
+#include "MsgUtilStorage.h"
 
 #include <alarm.h>
 
@@ -104,18 +105,22 @@ int MsgSubmitReqHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 		err = MsgStoDeleteMessage(reqInfo.msgInfo.msgId, true);
 
 	/** send storage CB */
+	msg_id_list_s msgIdList;
+	msg_message_id_t msgIds[1];
+	memset(&msgIdList, 0x00, sizeof(msg_id_list_s));
+
+	msgIdList.nCount = 1;
+	msgIds[0] = reqInfo.msgInfo.msgId;
+	msgIdList.msgIdList = msgIds;
+
 	if ((err == MSG_SUCCESS || err != MSG_ERR_PLUGIN_STORAGE) && bNewMsg && reqInfo.msgInfo.msgPort.valid == false) {
-
-		msg_id_list_s msgIdList;
-		msg_message_id_t msgIds[1];
-		memset(&msgIdList, 0x00, sizeof(msg_id_list_s));
-
-		msgIdList.nCount = 1;
-		msgIds[0] = reqInfo.msgInfo.msgId;
-		msgIdList.msgIdList = msgIds;
-
 		MsgTransactionManager::instance()->broadcastStorageChangeCB(MSG_SUCCESS, MSG_STORAGE_CHANGE_INSERT, &msgIdList);
+	} else if (err == MSG_ERR_SECURITY_ERROR) { // Case of MDM enabled, it returns MSG_ERR_SECURITY_ERROR.
+		MsgTransactionManager::instance()->broadcastStorageChangeCB(MSG_SUCCESS, MSG_STORAGE_CHANGE_UPDATE, &msgIdList);
+	} else {
+		MSG_DEBUG("No need to broadcast storage change CB");
 	}
+
 	return eventSize;
 }
 

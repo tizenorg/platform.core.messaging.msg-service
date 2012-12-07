@@ -28,13 +28,12 @@
 ==================================================================================================*/
 EXPORT_API int msg_open_msg_handle(msg_handle_t *handle)
 {
-	MsgHandle* pHandle = new MsgHandle();
-
 	if (handle == NULL)
 	{
 		MSG_FATAL("Input Paramter is NULL");
 		return -EINVAL;
 	}
+	MsgHandle* pHandle = new MsgHandle();
 
 	// Create MsgHandle
 	*handle = (msg_handle_t)pHandle;

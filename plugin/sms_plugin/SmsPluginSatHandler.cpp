@@ -70,6 +70,68 @@ SmsPluginSatHandler* SmsPluginSatHandler::instance()
 
 void SmsPluginSatHandler::refreshSms(void *pData)
 {
+	/*
+	TelSatRefreshInd_t* pRefreshData = (TelSatRefreshInd_t*)pData;
+
+	if (pRefreshData->appType != TAPI_SAT_REFRESH_MSG)
+	{
+		MSG_DEBUG("App Type is wrong. [%d]", pRefreshData->appType);
+		return;
+	}
+
+	commandId = pRefreshData->commandId;
+
+	switch (pRefreshData->refreshMode)
+	{
+		case TAPI_SAT_REFRESH_SIM_INIT_AND_FULL_FCN :
+		case TAPI_SAT_REFRESH_SIM_INIT_AND_FCN :
+		{
+			for (int i = 0; i < pRefreshData->fileCount; i++)
+			{
+				if ((SMS_SIM_EFILE_NAME_T)pRefreshData->fileId[i].FileName == SMS_SIM_EFILE_USIM_SMSP ||
+					(SMS_SIM_EFILE_NAME_T)pRefreshData->fileId[i].FileName == SMS_SIM_EFILE_SMSP)
+				{
+					bSMSPChanged = true;
+				}
+				else if ((SMS_SIM_EFILE_NAME_T)pRefreshData->fileId[i].FileName == SMS_SIM_EFILE_USIM_CBMI ||
+					(SMS_SIM_EFILE_NAME_T)pRefreshData->fileId[i].FileName == SMS_SIM_EFILE_CBMI)
+				{
+					bCBMIChanged = true;
+				}
+			}
+
+			initSim();
+		}
+		break;
+
+		case TAPI_SAT_REFRESH_FCN :
+		{
+			for (int i = 0; i < pRefreshData->fileCount; i++)
+			{
+				if ((SMS_SIM_EFILE_NAME_T)pRefreshData->fileId[i].FileName == SMS_SIM_EFILE_USIM_SMSP ||
+					(SMS_SIM_EFILE_NAME_T)pRefreshData->fileId[i].FileName == SMS_SIM_EFILE_SMSP)
+				{
+					bSMSPChanged = true;
+				}
+				else if ((SMS_SIM_EFILE_NAME_T)pRefreshData->fileId[i].FileName == SMS_SIM_EFILE_USIM_CBMI ||
+					(SMS_SIM_EFILE_NAME_T)pRefreshData->fileId[i].FileName == SMS_SIM_EFILE_CBMI)
+				{
+					bCBMIChanged = true;
+				}
+			}
+		}
+		break;
+
+		case TAPI_SAT_REFRESH_SIM_INIT :
+		{
+			initSim();
+		}
+		break;
+
+		default:
+		break;
+	}
+	*/
 }
 
 
@@ -318,6 +380,14 @@ void	SmsPluginSatHandler::initSMSCList()
 
 		if ((err = MsgSettingSetInt(keyName, (int)settingData.option.smscList.smscData[i].pid)) != MSG_SUCCESS)
 			break;
+
+#if 0
+		memset(keyName, 0x00, sizeof(keyName));
+		sprintf(keyName, "%s/%d", SMSC_DCS, i);
+
+		if ((err = MsgSettingSetInt(keyName, (int)settingData.option.smscList.smscData[i].dcs)) != MSG_SUCCESS)
+			break;
+#endif
 
 		memset(keyName, 0x00, sizeof(keyName));
 		sprintf(keyName, "%s/%d", SMSC_VAL_PERIOD, i);

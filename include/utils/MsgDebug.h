@@ -106,16 +106,34 @@ int get_tid();
 	} while (0)
 
 
-#define MSG_SMS_VLD(fmt, ...)\
+#define MSG_SMS_VLD_INFO(fmt, ...)\
 	do\
 	{\
-		SLOG(LOG_DEBUG, MSG_SMS_VALID_TAG, "%s, "fmt"\n", __TIMESTAMP__, ##__VA_ARGS__);\
+		SLOG(LOG_DEBUG, MSG_SMS_VALID_TAG, "[SMS INFO]%s, "fmt"\n", __TIMESTAMP__, ##__VA_ARGS__);\
 	} while (0)
 
-#define MSG_MMS_VLD(fmt, ...)\
+#define MSG_SMS_VLD_TXT(fmt, ...)\
 	do\
 	{\
-		SLOG(LOG_DEBUG, MSG_MMS_VALID_TAG, "%s, "fmt"\n", __TIMESTAMP__, ##__VA_ARGS__);\
+		SLOG(LOG_DEBUG, MSG_SMS_VALID_TAG, "[SMS_TEXT]%s, "fmt"\n", __TIMESTAMP__, ##__VA_ARGS__);\
+	} while (0)
+
+#define MSG_MMS_VLD_INFO(fmt, ...)\
+	do\
+	{\
+		SLOG(LOG_DEBUG, MSG_MMS_VALID_TAG, "[MMS INFO]%s, "fmt"\n", __TIMESTAMP__, ##__VA_ARGS__);\
+	} while (0)
+
+#define MSG_MMS_VLD_TXT(fmt, ...)\
+	do\
+	{\
+		SLOG(LOG_DEBUG, MSG_MMS_VALID_TAG, "[MMS TEXT]%s, "fmt"\n", __TIMESTAMP__, ##__VA_ARGS__);\
+	} while (0)
+
+#define MSG_MMS_VLD_FILE(fmt, ...)\
+	do\
+	{\
+		SLOG(LOG_DEBUG, MSG_MMS_VALID_TAG, "[MMS FILE]%s, "fmt"\n", __TIMESTAMP__, ##__VA_ARGS__);\
 	} while (0)
 
 #elif defined(LOG_ENABLE)

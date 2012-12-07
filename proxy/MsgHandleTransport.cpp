@@ -34,6 +34,11 @@ msg_error_t MsgHandle::submitReq(MSG_REQUEST_S* pReq)
 	if (pReq == NULL)
 		THROW(MsgException::INVALID_PARAM, "pReq is NULL");
 
+#ifdef CHECK_SENT_STATUS_CALLBACK
+	if (MsgProxyListener::instance()->getSentStatusCbCnt() <= 0)
+		THROW(MsgException::SENT_STATUS_ERROR,"Register sent status callback");
+#endif
+
 	MSG_REQUEST_INFO_S reqInfo = {0};
 	char trId[MMS_TR_ID_LEN+1] = {0};
 

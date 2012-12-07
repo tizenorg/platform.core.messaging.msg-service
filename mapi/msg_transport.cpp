@@ -555,6 +555,7 @@ EXPORT_API int msg_mms_send_read_report(msg_handle_t handle, msg_message_id_t ms
 	read_report_datasize = sizeof(msg_read_report_status_t);
 	read_report_data = (void *)calloc(read_report_datasize, 1);
 	if(read_report_data == NULL) {
+		msg_release_struct(&req_t);
 		return MSG_ERR_MEMORY_ERROR;
 	}
 

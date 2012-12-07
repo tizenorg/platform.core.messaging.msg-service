@@ -485,11 +485,11 @@ MsgPlugin::MsgPlugin(MSG_MAIN_TYPE_T mainType, const char *libPath): mSupportedM
 	if (libPath == NULL)
 		THROW(MsgException::INVALID_PARAM, "libPath NULL");
 
-	void* libHandle = NULL;
+	mLibHandler = NULL;
 
-	libHandle = dlopen(libPath, RTLD_NOW);
+	mLibHandler = dlopen(libPath, RTLD_NOW);
 
-	if (!libHandle)
+	if (!mLibHandler)
 		THROW(MsgException::PLUGIN_ERROR, "ERROR dlopen library : [%s] [%s]", libPath, dlerror());
 
 	// Clear Error
@@ -498,7 +498,7 @@ MsgPlugin::MsgPlugin(MSG_MAIN_TYPE_T mainType, const char *libPath): mSupportedM
 	// assign the c function pointers
 	msg_error_t(*pFunc)(MSG_PLUGIN_HANDLER_S*) = NULL;
 
-	pFunc = (msg_error_t(*)(MSG_PLUGIN_HANDLER_S*))dlsym(libHandle, "MsgPlgCreateHandle");
+	pFunc = (msg_error_t(*)(MSG_PLUGIN_HANDLER_S*))dlsym(mLibHandler, "MsgPlgCreateHandle");
 
 	char *error = dlerror();
 
@@ -526,14 +526,15 @@ MsgPlugin::MsgPlugin(MSG_MAIN_TYPE_T mainType, const char *libPath): mSupportedM
 	if (registerListener(&fwListener) != MSG_SUCCESS)
 		THROW(MsgException::PLUGIN_ERROR, "ERROR to register listener");
 
-//	dlclose(libHandle);
 }
 
 
 MsgPlugin::~MsgPlugin()
 {
-
-
+	this->finalize();
+	// close mLibHandler.
+	if (mLibHandler != NULL)
+		dlclose(mLibHandler);
 }
 
 
@@ -766,8 +767,8 @@ void MsgPluginManager::finalize()
 
 	for (it = plgMap.begin(); it != plgMap.end(); it++)
 	{
-		MsgPlugin temp = it->second;
-		temp.finalize();
+		MsgPlugin *temp = it->second;
+		delete temp;
 	}
 
 	plgMap.clear();
@@ -799,7 +800,7 @@ void MsgPluginManager::loadPlugins(const char* path)
 		if (pDupPlgCheck)
 			THROW(MsgException::PLUGIN_ERROR, "Plugin for type %d is duplicated", mainType);
 
-		MsgPlugin newPlg(mainType, libPath);
+		MsgPlugin *newPlg = new MsgPlugin(mainType, libPath);
 
 		plgMap.insert(make_pair(mainType, newPlg));
 	}
@@ -816,6 +817,6 @@ MsgPlugin* MsgPluginManager::getPlugin(MSG_MAIN_TYPE_T mainType)
 	if (it == plgMap.end())
 		return NULL;
 
-	return &(it->second);
+	return it->second;
 }
 

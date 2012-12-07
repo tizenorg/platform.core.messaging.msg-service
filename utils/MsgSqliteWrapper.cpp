@@ -50,8 +50,10 @@ MsgDbHandler::MsgDbHandler()
 
 MsgDbHandler::~MsgDbHandler()
 {
-	if(handle != NULL)
-		disconnect();
+	if(handle != NULL) {
+		if (disconnect() != MSG_SUCCESS)
+			MSG_DEBUG("disconnect is failed!!");
+	}
 
 	if(stmt != NULL)
 		finalizeQuery();

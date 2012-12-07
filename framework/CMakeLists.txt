@@ -66,6 +66,7 @@ INCLUDE_DIRECTORIES(
 	${CMAKE_SOURCE_DIR}/include/common
 	${CMAKE_SOURCE_DIR}/include/framework
 	${CMAKE_SOURCE_DIR}/include/utils
+	${CMAKE_SOURCE_DIR}/vobject-engine/include	
 )
 
 INCLUDE(FindPkgConfig)

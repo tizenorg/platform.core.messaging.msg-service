@@ -1050,9 +1050,15 @@ int MsgBackupMessageHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 	msg_error_t err = MSG_SUCCESS;
 
 	int eventSize = 0;
+	char path[MSG_FILEPATH_LEN_MAX+1] = {0,};
+	msg_message_backup_type_t type;
 
-	err = MsgStoBackupMessage();
+	memcpy(&type, (void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN), sizeof(msg_message_backup_type_t));
+	memcpy(&path, (void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN+sizeof(msg_message_backup_type_t)), sizeof(path));
 
+	MSG_DEBUG("type = %d, path = %s", type, path);
+
+	err = MsgStoBackupMessage(type, path);
 	if (err == MSG_SUCCESS)
 		MSG_DEBUG("Command Handle Success : MsgBackupMessageHandler()");
 	else
@@ -1070,9 +1076,11 @@ int MsgRestoreMessageHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 	msg_error_t err = MSG_SUCCESS;
 
 	int eventSize = 0;
-
+	char path[MSG_FILEPATH_LEN_MAX+1] = {0,};
+	memcpy(&path, (void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN), sizeof(path));
+	MSG_DEBUG("path = %s", path);
 	// Reset DB
-	err = MsgStoRestoreMessage();
+	err = MsgStoRestoreMessage(path);
 
 	if (err == MSG_SUCCESS)
 		MSG_DEBUG("Command Handle Success : MsgStoRestoreMessage()");
@@ -1133,7 +1141,7 @@ int MsgGetThreadIdByAddressHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 	MSG_DEBUG("*addrCnt [%d]", *addrCnt);
 
 	msgInfo.nAddressCnt = *addrCnt;
-	for(int i=0; i<(*addrCnt); i++)
+	for(int i=0; i<msgInfo.nAddressCnt; i++)
 		memcpy(&msgInfo.addressList[i], (MSG_ADDRESS_INFO_S *)(pCmd->cmdData+sizeof(int)+(sizeof(MSG_ADDRESS_INFO_S)*i)), sizeof(MSG_ADDRESS_INFO_S));
 
 	char* encodedData = NULL;
@@ -1198,6 +1206,196 @@ int MsgGetThreadInfoHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 
 	return eventSize;
 }
+
+
+#ifdef MMS_REPORT_OPERATIONS
+int MsgCheckReadReportRequestedHandler(const MSG_CMD_S *pCmd, char **ppEvent)
+{
+	MSG_DEBUG();
+	msg_error_t err = MSG_SUCCESS;
+
+	char* encodedData = NULL;
+	AutoPtr<char> buf(&encodedData);
+
+	int dataSize = 0, eventSize = 0;
+
+	// Get Message ID
+	msg_message_id_t* MsgId = (msg_message_id_t*)pCmd->cmdData;
+
+	// Check ReadReport Is Requested
+	bool	bReadReportRequested;
+
+	bReadReportRequested = MsgStoCheckReadReportRequested(*MsgId);
+	if (err == MSG_SUCCESS)
+	{
+		MSG_DEBUG("Command Handle Success : MsgStoCheckSendReadReport()");
+
+		// Encoding ReadReportIsSent Data
+		dataSize = MsgEncodeReadReportRequested(bReadReportRequested, &encodedData);
+	}
+	else
+	{
+		MSG_DEBUG("Command Handle Fail : MsgStoCheckReadReportIsSent()");
+	}
+
+	// Make Event Data
+	eventSize = MsgMakeStorageEvent(encodedData, dataSize, MSG_EVENT_PLG_CHECK_READ_REPORT_REQUESTED, err, (void**)ppEvent);
+
+	return eventSize;
+}
+
+
+int MsgCheckReadReportIsSentHandler(const MSG_CMD_S *pCmd, char **ppEvent)
+{
+	MSG_DEBUG();
+	msg_error_t err = MSG_SUCCESS;
+
+	char* encodedData = NULL;
+	AutoPtr<char> buf(&encodedData);
+
+	int dataSize = 0, eventSize = 0;
+
+	// Get Message ID
+	msg_message_id_t* MsgId = (msg_message_id_t*)pCmd->cmdData;
+
+	// Check ReadReport Is Sent
+	bool	bReadReportIsSent;
+
+	MSG_DEBUG("#### MSGID = %d ####", *MsgId);
+
+	bReadReportIsSent = MsgStoCheckReadReportIsSent(*MsgId);
+	MSG_DEBUG("######## 1. bReadStatusIsSent = %d #######", bReadReportIsSent);
+	if (err == MSG_SUCCESS)
+	{
+		MSG_DEBUG("Command Handle Success : MsgStoCheckReadReportIsSent()");
+
+		// Encoding ReadReportIsSent Data
+		dataSize = MsgEncodeReadReportIsSent(bReadReportIsSent, &encodedData);
+	}
+	else
+	{
+		MSG_DEBUG("Command Handle Fail : MsgStoCheckReadReportIsSent()");
+	}
+
+	// Make Event Data
+	eventSize = MsgMakeStorageEvent(encodedData, dataSize, MSG_EVENT_PLG_CHECK_READ_REPORT_IS_SENT, err, (void**)ppEvent);
+
+	return eventSize;
+}
+
+
+int MsgSetReadReportSendStatusHandler(const MSG_CMD_S *pCmd, char **ppEvent)
+{
+	MSG_DEBUG();
+	msg_error_t err = MSG_SUCCESS;
+
+	char* encodedData = NULL;
+	AutoPtr<char> buf(&encodedData);
+
+	int dataSize = 0, eventSize = 0;
+
+	// Get Message ID
+	msg_message_id_t msgId;
+	int	readReportSendStatus;
+
+	memcpy(&msgId, (char*)pCmd + sizeof(MSG_CMD_TYPE_T), sizeof(msg_message_id_t));
+	memcpy(&readReportSendStatus, (char*)pCmd + sizeof(MSG_CMD_TYPE_T) + sizeof(msg_message_id_t), sizeof(int));
+
+	// Set Read Report Send Status
+	err = MsgStoSetReadReportSendStatus(msgId, readReportSendStatus);
+
+	if (err == MSG_SUCCESS)
+	{
+		MSG_DEBUG("Command Handle Success : MsgStoUpdateReadStatus()");
+	}
+	else
+	{
+		MSG_DEBUG("Command Handle Fail : MsgStoUpdateReadStatus()");
+	}
+
+	// Make Event Data
+	eventSize = MsgMakeStorageEvent(encodedData, dataSize, MSG_EVENT_PLG_SET_READ_REPORT_SEND_STATUS, err, (void**)ppEvent);
+
+	return eventSize;
+}
+
+
+int MsgGetMmsVersionHandler(const MSG_CMD_S *pCmd, char **ppEvent)
+{
+	MSG_DEBUG();
+	msg_error_t err = MSG_SUCCESS;
+
+	char* encodedData = NULL;
+	AutoPtr<char> buf(&encodedData);
+
+	int dataSize = 0, eventSize = 0;
+
+	// Get Message ID
+	msg_message_id_t* MsgId = (msg_message_id_t*)pCmd->cmdData;
+
+	// Check ReadReport Is Sent
+	int	version;
+
+	MSG_DEBUG("#### MSGID = %d ####", *MsgId);
+
+	version = MsgStoGetMmsVersion(*MsgId);
+	MSG_DEBUG("######## 1. version = %x #######", version);
+	if (err == MSG_SUCCESS)
+	{
+		MSG_DEBUG("Command Handle Success : MsgStoCheckReadReportIsSent()");
+
+		// Encoding ReadReportIsSent Data
+		dataSize = MsgEncodeMmsVersion(version, &encodedData);
+	}
+	else
+	{
+		MSG_DEBUG("Command Handle Fail : MsgStoCheckReadReportIsSent()");
+	}
+
+	// Make Event Data
+	eventSize = MsgMakeStorageEvent(encodedData, dataSize, MSG_EVENT_PLG_GET_MMS_VERSION, err, (void**)ppEvent);
+
+	return eventSize;
+}
+
+
+int MsgGetMmsStatusInfoHandler(const MSG_CMD_S *pCmd, char **ppEvent)
+{
+	MSG_DEBUG();
+	msg_error_t err = MSG_SUCCESS;
+
+	char* encodedData = NULL;
+	AutoPtr<char> buf(&encodedData);
+
+	int dataSize = 0, eventSize = 0;
+
+	// Get Message ID
+	msg_message_id_t* MsgId = (msg_message_id_t*)pCmd->cmdData;
+
+	MMS_STATUS_INFO_S mmsStatusInfo;
+
+	MSG_DEBUG("#### MSGID = %d ####", *MsgId);
+
+	err = MsgStoGetMmsStatusInfo(*MsgId,&mmsStatusInfo);
+	if (err == MSG_SUCCESS)
+	{
+		MSG_DEBUG("Command Handle Success : MsgGetMmsStatusInfoHandler()");
+
+		// Encoding ReadReportIsSent Data
+		dataSize = MsgEncodeMmsStatusInfo(&mmsStatusInfo, &encodedData);
+	}
+	else
+	{
+		MSG_DEBUG("Command Handle Fail : MsgGetMmsStatusInfoHandler()");
+	}
+
+	// Make Event Data
+	eventSize = MsgMakeStorageEvent(encodedData, dataSize, MSG_EVENT_PLG_GET_MMS_STATUS_INFO, err, (void**)ppEvent);
+
+	return eventSize;
+}
+#endif
+
 
 int MsgAddPushEventHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 {

@@ -108,7 +108,8 @@ msg_error_t SmsPlgInitialize()
 	MSG_BEGIN();
 
 	MSG_DEBUG("set MSG_SIM_CHANGED to MSG_SIM_STATUS_NOT_FOUND.");
-	MsgSettingSetInt(MSG_SIM_CHANGED, MSG_SIM_STATUS_NOT_FOUND);
+	if (MsgSettingSetInt(MSG_SIM_CHANGED, MSG_SIM_STATUS_NOT_FOUND) != MSG_SUCCESS)
+		MSG_DEBUG("MsgSettingSetInt is failed!!");
 
 	bool bReady;
 	MsgSettingGetBool(VCONFKEY_TELEPHONY_READY, &bReady);
@@ -262,7 +263,13 @@ msg_error_t SmsPlgCheckSimStatus(MSG_SIM_STATUS_T *pStatus)
 		else
 		{
 			MSG_DEBUG("tel_get_sim_imsi() Error![%d]", tapiRet);
+
+			MsgSettingSetBool(MSG_NATIONAL_SIM, false);
 		}
+	}
+	else
+	{
+		MsgSettingSetBool(MSG_NATIONAL_SIM, false);
 	}
 
 	MsgSettingSetString(MSG_SIM_IMSI, imsi);
@@ -310,11 +317,16 @@ msg_error_t SmsPlgCheckDeviceStatus()
 
 msg_error_t SmsPlgSubmitRequest(MSG_REQUEST_INFO_S *pReqInfo)
 {
+	msg_error_t err = MSG_SUCCESS;
+
 	// Add Submit SMS into DB
-	if ((pReqInfo->msgInfo.msgId == 0) && pReqInfo->msgInfo.msgPort.valid == false) {
-		if (SmsPluginStorage::instance()->addMessage(&(pReqInfo->msgInfo)) != MSG_SUCCESS) {
-		 	MSG_DEBUG("########  addMessage Fail !!");
-			return MSG_ERR_PLUGIN_STORAGE;
+	if (pReqInfo->msgInfo.msgId == 0) {
+		if (pReqInfo->msgInfo.msgPort.valid == false) {
+			err = SmsPluginStorage::instance()->addMessage(&(pReqInfo->msgInfo));
+			if (err != MSG_SUCCESS) {
+				MSG_DEBUG("########  addMessage Fail !!");
+				return MSG_ERR_PLUGIN_STORAGE;
+			}
 		}
 	}
 
@@ -332,15 +344,22 @@ msg_error_t SmsPlgSubmitRequest(MSG_REQUEST_INFO_S *pReqInfo)
 		return MSG_ERR_NO_SIM;
 	}
 
-	SMS_REQUEST_INFO_S request = {};
+	SMS_REQUEST_INFO_S *request = NULL;
 
-	request.reqId = pReqInfo->reqId;
+	request = (SMS_REQUEST_INFO_S *)calloc(1, sizeof(SMS_REQUEST_INFO_S));
 
-	memcpy(&(request.msgInfo), &(pReqInfo->msgInfo), sizeof(MSG_MESSAGE_INFO_S));
-	memcpy(&(request.sendOptInfo), &(pReqInfo->sendOptInfo), sizeof(MSG_SENDINGOPT_INFO_S));
+	if (request != NULL) {
+		request->reqId = pReqInfo->reqId;
 
-	// Add Request into Queue and Start UA Manger
-	SmsPluginUAManager::instance()->addReqEntity(request);
+		memcpy(&(request->msgInfo), &(pReqInfo->msgInfo), sizeof(MSG_MESSAGE_INFO_S));
+		memcpy(&(request->sendOptInfo), &(pReqInfo->sendOptInfo), sizeof(MSG_SENDINGOPT_INFO_S));
+
+		/* Add Request into Queue and Start UA Manger */
+		SmsPluginUAManager::instance()->addReqEntity(request);
+
+		free(request);
+	}
+
 
 	return MSG_SUCCESS;
 }
@@ -461,7 +480,7 @@ msg_error_t SmsPlgSetMemoryStatus(msg_error_t Error)
 		return MSG_ERR_NO_SIM;
 	}
 
-	int tapiRet = TAPI_API_SUCCESS, reqId = 0;
+	int tapiRet = TAPI_API_SUCCESS;
 	int status = TAPI_NETTEXT_PDA_MEMORY_STATUS_AVAILABLE;
 
 	if (Error == MSG_ERR_SIM_STORAGE_FULL || Error == MSG_ERR_MESSAGE_COUNT_FULL)
@@ -475,11 +494,11 @@ msg_error_t SmsPlgSetMemoryStatus(msg_error_t Error)
 
 	if (tapiRet == TAPI_API_SUCCESS)
 	{
-		MSG_DEBUG("########  tel_set_sms_memory_status() Success !!! req Id : [%d] #######", reqId);
+		MSG_DEBUG("########  tel_set_sms_memory_status() Success !!! #######");
 	}
 	else
 	{
-		MSG_DEBUG("########  tel_set_sms_memory_status() Success !!! req Id : [%d] return : [%d] #######", reqId, tapiRet);
+		MSG_DEBUG("########  tel_set_sms_memory_status() Success !!! return : [%d] #######", tapiRet);
 	}
 
 	return MSG_SUCCESS;

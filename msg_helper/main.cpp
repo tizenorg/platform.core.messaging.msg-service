@@ -59,12 +59,17 @@ int main(int argc, char** argv)
 
 	MSG_DEBUG("argv[0] [%s] ", argv[0]);
 
-	if(strcmp(argv[0],MSG_SOUND_START)==0)
+	if(g_strcmp0(argv[0], MSG_NORMAL_SOUND_START) == 0)
 	{
-		MsgSoundPlayStart();
+		MsgSoundPlayStart(false);
 		notEnd = true;
 	}
-	else if(strcmp(argv[0],MSG_SOUND_STOP)==0)
+	if(g_strcmp0(argv[0], MSG_EMERGENCY_SOUND_START) == 0)
+	{
+		MsgSoundPlayStart(true);
+		notEnd = true;
+	}
+	else if(g_strcmp0(argv[0],MSG_SOUND_STOP) == 0)
 	{
 		MsgSoundPlayStop();
 	}

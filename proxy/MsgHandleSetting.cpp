@@ -83,6 +83,7 @@ msg_error_t MsgHandle::getSMSCOption(msg_struct_t msg_struct)
 
 		MSG_SMSC_LIST_HIDDEN_S *pTmp = (MSG_SMSC_LIST_HIDDEN_S *)smsc_opt->data;
 
+		pTmp->selected = smsc_list_tmp.selected;
 		pTmp->smsc_list->nCount = smsc_list_tmp.totalCnt;
 
 		msg_struct_s *pStructTmp = NULL;
@@ -137,7 +138,7 @@ msg_error_t MsgHandle::setSMSCOption(msg_struct_t msg_struct)
 	MSG_SETTING_S pSetting = {0,};
 
 	pSetting.type = optionType;
-	memcpy(&(pSetting.option), &smsc_list_tmp, sizeof(MSG_SMSC_LIST_S));
+	memcpy(&(pSetting.option.smscList), &smsc_list_tmp, sizeof(MSG_SMSC_LIST_S));
 
     // Copy Command Data
     memcpy(pCmd->cmdData, &pSetting, cmdSize-sizeof(MSG_CMD_S));

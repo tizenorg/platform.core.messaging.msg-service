@@ -33,6 +33,7 @@
 MsgHandle::MsgHandle() : mCounter(0), mClientSock()
 {
 	memset(mConnectionId, 0x00, sizeof(mConnectionId));
+	memset(mCookie, 0x00, sizeof(mCookie));
 }
 
 
@@ -59,18 +60,17 @@ void MsgHandle::openHandle()
 	}
 
 	// Get Cookie Size
-	cookieSize = security_server_get_cookie_size();
+//	cookieSize = security_server_get_cookie_size();
 
-	MSG_DEBUG("cookie size : [%d]", cookieSize);
+//	MSG_DEBUG("cookie size : [%d]", cookieSize);
 
 	// Request Cookie
-	ret = security_server_request_cookie(mCookie, cookieSize);
+//	ret = security_server_request_cookie(mCookie, cookieSize);
 
-	if (ret < 0) {
-
-		MSG_DEBUG("security_server_request_cookie() error!! [%d]", ret);
-		return;
-	}
+//	if (ret < 0) {
+//		MSG_DEBUG("security_server_request_cookie() error!! [%d]", ret);
+//		return;
+//	}
 
 	// Open Socket IPC
 	connectSocket();
@@ -112,14 +112,23 @@ void MsgHandle::write(const char *pCmdData, int cmdSize, char **ppEvent)
 		THROW(MsgException::INVALID_PARAM, "Param is NULL");
 	}
 
+	int ret = 0;
+
 	// Send Command to MSG FW
-	mClientSock.write(pCmdData, cmdSize);
+	ret = mClientSock.write(pCmdData, cmdSize);
+	if (ret < 0)
+		THROW(MsgException::IPC_ERROR, "IPC write error");
 
-	// Receive Result from MSG FW
-	read(ppEvent);
+	while(1)
+	{
+		// Receive Result from MSG FW
+		read(ppEvent);
 
-	if (ppEvent == NULL) {
-		THROW(MsgException::INVALID_RESULT, "event is NULL");
+		if(!CheckEventData(*ppEvent)) {
+			delete [] (*ppEvent);
+		} else {
+			break;
+		}
 	}
 }
 
@@ -132,8 +141,6 @@ void MsgHandle::read(char **ppEvent)
 
 	if (dataSize == 0) {
 		THROW(MsgException::IPC_ERROR, "Server closed connection");
-	} else if(dataSize < 0) {
-		THROW(MsgException::IPC_ERROR, "negative length??? %d", dataSize);
 	}
 }
 
@@ -237,7 +244,7 @@ void MsgHandle::convertMsgStruct(const MSG_MESSAGE_HIDDEN_S *pSrc, MSG_MESSAGE_I
 			memcpy(pDest->msgData, pSrc->pMmsData, pSrc->dataSize);
 		} else {
 			// Save Message Data into File
-			char fileName[MAX_COMMON_INFO_SIZE+1];
+			char fileName[MSG_FILENAME_LEN_MAX+1];
 			memset(fileName, 0x00, sizeof(fileName));
 
 			if(MsgCreateFileName(fileName) == false)
@@ -247,7 +254,7 @@ void MsgHandle::convertMsgStruct(const MSG_MESSAGE_HIDDEN_S *pSrc, MSG_MESSAGE_I
 			if (pSrc->subType == MSG_SENDREQ_JAVA_MMS) {
 				char* pFileNameExt;
 				pFileNameExt = strstr(fileName,"DATA");
-				strncpy(pFileNameExt,"JAVA", MAX_COMMON_INFO_SIZE);
+				strncpy(pFileNameExt,"JAVA", MSG_FILENAME_LEN_MAX);
 			}
 
 			MSG_DEBUG("Save Message Data into file : size[%d] name[%s]", pDest->dataSize, fileName);
@@ -258,7 +265,12 @@ void MsgHandle::convertMsgStruct(const MSG_MESSAGE_HIDDEN_S *pSrc, MSG_MESSAGE_I
 			memset(pDest->msgData, 0x00, sizeof(pDest->msgData));
 			strncpy(pDest->msgData, fileName, MAX_MSG_DATA_LEN);
 			if (pSrc->pData) {
-				strncpy(pDest->msgText, (char*)pSrc->pData, sizeof(pDest->msgText));
+				strncpy(pDest->msgText, (char*)pSrc->pData, MAX_MSG_TEXT_LEN);
+			}
+
+			if (strlen(pSrc->thumbPath) > 0) {
+				memset(pDest->thumbPath, 0x00, sizeof(pDest->thumbPath));
+				memcpy(pDest->thumbPath, pSrc->thumbPath, sizeof(pDest->thumbPath));
 			}
 		}
 	}
@@ -509,4 +521,30 @@ int MsgHandle::getSettingCmdSize(MSG_OPTION_TYPE_T optionType)
 	}
 
 	return cmdSize;
+}
+
+
+bool MsgHandle::CheckEventData(char *pEventData)
+{
+	MSG_EVENT_S* pEvent = (MSG_EVENT_S*)pEventData;
+
+	switch (pEvent->eventType)
+	{
+	case MSG_EVENT_PLG_SENT_STATUS_CNF :
+	case MSG_EVENT_PLG_INCOMING_MSG_IND :
+	case MSG_EVENT_PLG_INCOMING_MMS_CONF :
+	case MSG_EVENT_PLG_INCOMING_SYNCML_MSG_IND :
+	case MSG_EVENT_PLG_INCOMING_LBS_MSG_IND :
+	case MSG_EVENT_SYNCML_OPERATION :
+	case MSG_EVENT_PLG_STORAGE_CHANGE_IND :
+	case MSG_EVENT_PLG_INCOMING_CB_MSG_IND :
+	case MSG_EVENT_PLG_INCOMING_PUSH_MSG_IND :
+		return false;
+		break;
+	default :
+		return true;
+		break;
+	}
+
+	return true;
 }

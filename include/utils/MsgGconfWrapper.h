@@ -54,6 +54,7 @@ char* 			MsgSettingGetString(const char *pKey);
 int 				MsgSettingGetInt(const char *pKey);
 int 				MsgSettingGetBool(const char *pKey, bool *pVal);
 
+void 	MsgChangePmState();
 msg_error_t 	MsgSettingHandleNewMsg(int SmsCnt, int MmsCnt);
 msg_error_t 	MsgSettingSetIndicator(int SmsCnt, int MmsCnt);
 

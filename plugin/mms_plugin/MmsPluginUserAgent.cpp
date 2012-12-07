@@ -619,8 +619,18 @@ bool MmsPluginUaManager::processReceivedData(int msgId, char *pRcvdBody, int rcv
 			MmsDrm2SetConvertState(MMS_DRM2_CONVERT_FINISH);
 
 			if (bRetToConvert) {
-				remove(mmsHeader.msgType.szOrgFilePath);
-				rename(MMS_DECODE_DRM_CONVERTED_TEMP_FILE, mmsHeader.msgType.szOrgFilePath);
+				int ret;
+				ret = remove(mmsHeader.msgType.szOrgFilePath);
+				if (ret != 0) {
+					MSG_DEBUG("remove fail\n");
+					goto ERR_MMS_UA_PROCESS_CONF;
+				}
+
+				ret = rename(MMS_DECODE_DRM_CONVERTED_TEMP_FILE, mmsHeader.msgType.szOrgFilePath);
+				if (ret != 0) {
+					MSG_DEBUG("rename fail\n");
+					goto ERR_MMS_UA_PROCESS_CONF;
+				}
 
 				if (MmsDrm2ReadMsgConvertedBody(&pMsg, true, true, retrievedFilePath) == false) {
 					MSG_DEBUG("MmsLoadMsg:MmsDrm2ReadMsgConvertedBody() returns false\n");

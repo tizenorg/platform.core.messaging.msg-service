@@ -288,28 +288,6 @@ msg_error_t MsgStoGetSubject(msg_message_id_t msgId, char *pSubject)
 	return MSG_SUCCESS;
 }
 
-
-msg_error_t MsgStoUpdateNetworkStatus(MSG_MESSAGE_INFO_S *pMsgInfo, msg_network_status_t status)
-{
-	MSG_BEGIN();
-
-	msg_error_t err = MSG_SUCCESS;
-
-	char sqlQuery[MAX_QUERY_LEN+1];
-
-	memset(sqlQuery, 0x00, sizeof(sqlQuery));
-
-	snprintf(sqlQuery, sizeof(sqlQuery), "UPDATE %s SET NETWORK_STATUS = %d WHERE MSG_ID = %d;",
-			MSGFW_MESSAGE_TABLE_NAME, status, pMsgInfo->msgId);
-
-	if (dbHandle.execQuery(sqlQuery) != MSG_SUCCESS)
-		return MSG_ERR_DB_EXEC;
-
-	MSG_END();
-	return err;
-}
-
-
 msg_error_t MsgStoGetRecipientList(msg_message_id_t msgId, MSG_RECIPIENTS_LIST_S *pRecipientList)
 {
 	if (pRecipientList == NULL) {

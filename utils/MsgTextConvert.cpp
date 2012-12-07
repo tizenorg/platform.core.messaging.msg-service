@@ -187,7 +187,7 @@ MsgTextConvert::~MsgTextConvert()
 
 
 
-int MsgTextConvert::convertUTF8ToGSM7bit(OUT unsigned char *pDestText, IN int maxLength,  IN const unsigned char *pSrcText, IN int srcTextLen, OUT MSG_LANGUAGE_ID_T *pLangId)
+int MsgTextConvert::convertUTF8ToGSM7bit(OUT unsigned char *pDestText, IN int maxLength,  IN const unsigned char *pSrcText, IN int srcTextLen, OUT MSG_LANGUAGE_ID_T *pLangId, OUT bool *bIncludeAbnormalChar)
 {
 	int utf8Length = 0;
 	int gsm7bitLength = 0;
@@ -212,7 +212,7 @@ int MsgTextConvert::convertUTF8ToGSM7bit(OUT unsigned char *pDestText, IN int ma
 	MSG_DEBUG("max dest Length = %d", maxLength);
 
 	ucs2Length = convertUTF8ToUCS2((unsigned char*)pUCS2Text, maxUCS2Length * sizeof(WCHAR), pSrcText, srcTextLen);
-	gsm7bitLength = convertUCS2ToGSM7bit(pDestText, maxLength, (unsigned char*)pUCS2Text, ucs2Length, pLangId);
+	gsm7bitLength = convertUCS2ToGSM7bit(pDestText, maxLength, (unsigned char*)pUCS2Text, ucs2Length, pLangId, bIncludeAbnormalChar);
 
 	return gsm7bitLength;
 }
@@ -467,7 +467,7 @@ return:
 		bytelength of gsm7bit text
 		-1 : converting error
 */
-int MsgTextConvert::convertUCS2ToGSM7bit(OUT unsigned char *pDestText, IN int maxLength, IN const unsigned char *pSrcText, IN int srcTextLen, OUT MSG_LANGUAGE_ID_T *pLangId)
+int MsgTextConvert::convertUCS2ToGSM7bit(OUT unsigned char *pDestText, IN int maxLength, IN const unsigned char *pSrcText, IN int srcTextLen, OUT MSG_LANGUAGE_ID_T *pLangId, OUT bool *bIncludeAbnormalChar)
 {
 	// for UNICODE
 	int outTextLen = 0;
@@ -553,6 +553,7 @@ MSG_DEBUG("default char");
 				else
 				{
 					pDestText[outTextLen++] = 0x20;
+					*bIncludeAbnormalChar = true;
 				}
 			}
 			else if (currType == MSG_CHAR_TURKISH)
@@ -576,6 +577,7 @@ MSG_DEBUG("default char");
 				else
 				{
 					pDestText[outTextLen++] = 0x20;
+					*bIncludeAbnormalChar = true;
 				}
 			}
 			else if (currType == MSG_CHAR_SPANISH)
@@ -599,6 +601,7 @@ MSG_DEBUG("default char");
 				else
 				{
 					pDestText[outTextLen++] = 0x20;
+					*bIncludeAbnormalChar = true;
 				}
 			}
 			else if (currType == MSG_CHAR_PORTUGUESE)
@@ -625,11 +628,13 @@ MSG_DEBUG("ucs2toPortuList : [%02x]", (unsigned char)itExt->second);
 				{
 MSG_DEBUG("no char");
 					pDestText[outTextLen++] = 0x20;
+					*bIncludeAbnormalChar = true;
 				}
 			}
 			else
 			{
 				pDestText[outTextLen++] = 0x20;
+				*bIncludeAbnormalChar = true;
 			}
 		}
 

@@ -54,8 +54,8 @@
  *	@brief	Represents text information.
  */
 typedef struct  {
-	char			szTransInId[MAX_SMIL_TRANSIN_ID];  /**< Indicates the In SMIL transition id */
-	char			szTransOutId[MAX_SMIL_TRANSOUT_ID]; /**< Indicates the Out SMIL transition id */
+	char			szTransInId[MAX_SMIL_TRANSIN_ID + 1];  /**< Indicates the In SMIL transition id */
+	char			szTransOutId[MAX_SMIL_TRANSOUT_ID + 1]; /**< Indicates the Out SMIL transition id */
 	int				nRepeat; /**< Indicates the text needs to be displayed repeatedly */
 	int				nBegin;  /**< Indicates the begin time */
 	int				nEnd;	/**< Indicates the end time */
@@ -74,8 +74,8 @@ typedef struct  {
  *	@brief	Represents video information.
  */
 typedef struct {
-	char			szTransInId[MAX_SMIL_TRANSIN_ID]; /**< Indicates the In SMIL transition id */
-	char			szTransOutId[MAX_SMIL_TRANSOUT_ID];  /**< Indicates the Out SMIL transition id */
+	char			szTransInId[MAX_SMIL_TRANSIN_ID + 1]; /**< Indicates the In SMIL transition id */
+	char			szTransOutId[MAX_SMIL_TRANSOUT_ID + 1];  /**< Indicates the Out SMIL transition id */
 	int				nRepeat; /**< Indicates the video needs to be displayed repeatedly */
 	int				nBegin;	 /**< Indicates the begin time */
 	int				nEnd;	/**< Indicates the end time */
@@ -90,14 +90,14 @@ typedef struct
 {
 	MmsSmilMediaType	mediatype; /**< Indicates the SMIL media type. see enum MmsSmilMediaType */
 
-	char			szSrc[MSG_FILEPATH_LEN_MAX];/**< Indicates the media source name */
-	char			szFileName[MSG_FILENAME_LEN_MAX]; /**< Indicates the file name */
-	char			szFilePath[MSG_FILEPATH_LEN_MAX]; /**< Indicates the file path */
-	char			szContentID[MSG_MSG_ID_LEN+1]; /**< Indicates the content id */
-	char			regionId[MAX_SMIL_REGION_ID]; /**< Indicates the region id */
-	char			szAlt[MAX_SMIL_ALT_LEN]; /**< Indicates the alternative text to be displayed in failure case */
+	char			szSrc[MSG_FILEPATH_LEN_MAX + 1];/**< Indicates the media source name */
+	char			szFileName[MSG_FILENAME_LEN_MAX + 1]; /**< Indicates the file name */
+	char			szFilePath[MSG_FILEPATH_LEN_MAX + 1]; /**< Indicates the file path */
+	char			szContentID[MSG_MSG_ID_LEN + 1]; /**< Indicates the content id */
+	char			regionId[MAX_SMIL_REGION_ID + 1]; /**< Indicates the region id */
+	char			szAlt[MAX_SMIL_ALT_LEN + 1]; /**< Indicates the alternative text to be displayed in failure case */
 	MsgDrmType		drmType; /**< Indicates the drm type. see enum MsgDrmType */
-	char			szDrm2FullPath[MSG_FILEPATH_LEN_MAX];  /**< Indicates the fullpath of the DRM */
+	char			szDrm2FullPath[MSG_FILEPATH_LEN_MAX + 1];  /**< Indicates the fullpath of the DRM */
 	union{
 		MmsSmilText	sText;  /**< Indicates the text attributes */
 		MmsSmilAVI	sAVI; /**< Indicates the video attributes */
@@ -110,11 +110,11 @@ typedef struct
 typedef struct
 {
 	MimeType	mediatype;	/**< Indicates the file mime type. see enum MimeType */
-	char		szFileName[MSG_FILENAME_LEN_MAX]; /**< Indicates the file name */
-	char		szFilePath[MSG_FILEPATH_LEN_MAX]; /**< Indicates the file path */
+	char		szFileName[MSG_FILENAME_LEN_MAX + 1]; /**< Indicates the file name */
+	char		szFilePath[MSG_FILEPATH_LEN_MAX + 1]; /**< Indicates the file path */
 	int		fileSize;	 /**< Indicates the size of the file */
 	MsgDrmType	drmType; /**< Indicates the drm type. see enum MsgDrmType */
-	char		szDrm2FullPath[MSG_FILEPATH_LEN_MAX]; /**< Indicates the fullpath of the DRM */
+	char		szDrm2FullPath[MSG_FILEPATH_LEN_MAX + 1]; /**< Indicates the fullpath of the DRM */
 }MMS_ATTACH_S;
 
 /**
@@ -147,7 +147,7 @@ typedef struct
  */
 typedef struct
 {
-	char				szID[MAX_SMIL_REGION_ID]; /**< Indicates the ID of region information */
+	char				szID[MAX_SMIL_REGION_ID + 1]; /**< Indicates the ID of region information */
 	MMS_LENGTH		nLeft; /**< Indicates the left co-ordinate of the region */
 	MMS_LENGTH		nTop; /**< Indicates the top co-ordinate of the region */
 	MMS_LENGTH		width; /**< Indicates the width of the region */
@@ -173,10 +173,10 @@ typedef struct
  */
 typedef struct
 {
-	char			szID[MAX_SMIL_TRANSITION_ID];	/**< Indicates the ID of transition information */
-	MmsSmilTransType	nType;					/**< Indicates the transition type. see enum MmsSmilTransType */
+	char					szID[MAX_SMIL_TRANSITION_ID + 1];	/**< Indicates the ID of transition information */
+	MmsSmilTransType		nType;					/**< Indicates the transition type. see enum MmsSmilTransType */
 	MmsSmilTransSubType	nSubType;				/**< Indicates the transition sub type. see enum MmsSmilTransSubType */
-	int			nDur;					/**< Indicates the transition duration */
+	int					nDur;					/**< Indicates the transition duration */
 }MMS_SMIL_TRANSITION;
 
 
@@ -185,9 +185,9 @@ typedef struct
  */
 typedef struct
 {
-	char		szID[MAX_SMIL_META_ID];				/**< Indicates the ID of meta information */
-	char		szName[MAX_SMIL_META_NAME];		/**< Indicates the Name */
-	char		szContent[MAX_SMIL_META_CONTENT];	/**< Indicates the content */
+	char		szID[MAX_SMIL_META_ID + 1];				/**< Indicates the ID of meta information */
+	char		szName[MAX_SMIL_META_NAME + 1];		/**< Indicates the Name */
+	char		szContent[MAX_SMIL_META_CONTENT + 1];	/**< Indicates the content */
 }MMS_SMIL_META;
 
 
@@ -197,8 +197,8 @@ typedef struct
 typedef struct
 {
 	bool 			valid;										/**< Indicates whether application id information is used or not. */
-	char 			appId[MAX_MMS_JAVA_APPID_LEN+1];			/**< application id, it should not exceed 32 chars */
-	char 			replyToAppId[MAX_MMS_JAVA_APPID_LEN+1];	/**< reply to application id, application id, it should not exceeded 32 chars */
+	char 			appId[MAX_MMS_JAVA_APPID_LEN + 1];			/**< application id, it should not exceed 32 chars */
+	char 			replyToAppId[MAX_MMS_JAVA_APPID_LEN + 1];	/**< reply to application id, application id, it should not exceeded 32 chars */
 }MMS_APPID_INFO_S;
 
 
@@ -207,9 +207,9 @@ typedef struct
 
 typedef struct
 {
-	char					szMsgID[MMS_MSG_ID_LEN+1];
-	char					retrievedFilePath[MAX_FULL_PATH_SIZE_S];
-	char					szTrID[MMS_TR_ID_LEN+1];
+	char					szMsgID[MMS_MSG_ID_LEN + 1];
+	char					retrievedFilePath[MAX_FULL_PATH_SIZE_S + 1];
+	char					szTrID[MMS_TR_ID_LEN + 1];
 	MMS_APPID_INFO_S	msgAppId;
 }MMS_RECV_DATA_S;
 
@@ -219,7 +219,7 @@ typedef struct
  */
 typedef struct _MMS_MESSAGE_DATA_S
 {
-	char					szSmilFilePath[MSG_FILEPATH_LEN_MAX];	/**< Indicates the SMIL file path */
+	char					szSmilFilePath[MSG_FILEPATH_LEN_MAX + 1];	/**< Indicates the SMIL file path */
 	int						pageCnt;	/**< The count of the SMIL pages */
 	GList					*pagelist;	/**< The pointer to SMIL pages list */
 	int						regionCnt;	/**< The count of the SMIL regions */

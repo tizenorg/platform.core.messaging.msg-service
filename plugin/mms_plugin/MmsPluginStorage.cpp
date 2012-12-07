@@ -157,7 +157,10 @@ void MmsPluginStorage::addMessage(MSG_MESSAGE_INFO_S *pMsgInfo, MSG_SENDINGOPT_I
 		int size = 0;
 
 		snprintf((char *)filepath, MSG_FILEPATH_LEN_MAX+1, MSG_DATA_PATH"%d.mms", pMsgInfo->msgId);
-		MsgGetFileSize(filepath, &size);
+		if (MsgGetFileSize(filepath, &size) == false) {
+			THROW(MsgException::MMS_PLG_ERROR, "MMS Message MsgGetFileSize Error");
+		}
+
 		pMsgInfo->dataSize = size;
 
 		_MsgFreeBody(&mmsMsg.msgBody, mmsMsg.msgType.type);
@@ -517,8 +520,16 @@ msg_error_t	MmsPluginStorage::plgGetMmsMessage(MSG_MESSAGE_INFO_S *pMsg, MSG_SEN
 			MmsDrm2SetConvertState(MMS_DRM2_CONVERT_FINISH);
 
 			if (bRetToConvert) {
-				remove(mmsHeader.msgType.szOrgFilePath);
-				rename(MMS_DECODE_DRM_CONVERTED_TEMP_FILE, mmsHeader.msgType.szOrgFilePath);
+				int ret;
+				ret = remove(mmsHeader.msgType.szOrgFilePath);
+				if (ret != 0) {
+					MSG_DEBUG("remove fail\n");
+				}
+
+				ret = rename(MMS_DECODE_DRM_CONVERTED_TEMP_FILE, mmsHeader.msgType.szOrgFilePath);
+				if (ret != 0) {
+					MSG_DEBUG("rename fail\n");
+				}
 
 				if (MmsDrm2ReadMsgConvertedBody(pMsg, true, false, NULL) == false) {
 					MSG_DEBUG("MmsLoadMsg:MmsDrm2ReadMsgConvertedBody() returns false\n");
@@ -612,9 +623,6 @@ msg_error_t	MmsPluginStorage::plgGetMmsMessage(MSG_MESSAGE_INFO_S *pMsg, MSG_SEN
 
 	pMsg->dataSize = nSize;
 
-	if (err != MSG_SUCCESS)
-		MSG_DEBUG("MmsPlgUpdateMessage : Update MMS Message Failed");
-
 	MSG_END();
 
 	return err;
@@ -625,6 +633,7 @@ FREE_CATCH:
 	}
 
 L_CATCH:
+	MSG_DEBUG("MmsPlgUpdateMessage : Update MMS Message Failed");
 	MSG_END();
 	{
 		MmsMsg *pMsg;
@@ -1176,7 +1185,7 @@ msg_error_t MmsPluginStorage::getMsgText(MMS_MESSAGE_DATA_S *pMmsMsg, char *pMsg
 		for (int j = 0; j < pPage->mediaCnt; ++j) {
 			pMedia = _MsgMmsGetMedia(pPage, j);
 
-			if (pMedia->mediatype == MMS_SMIL_MEDIA_TEXT && pMedia->szFilePath != NULL) {
+			if (pMedia->mediatype == MMS_SMIL_MEDIA_TEXT) {
 				pMmsMsgText = MsgOpenAndReadMmsFile(pMedia->szFilePath, 0, -1, &textLen);
 				if (pMmsMsgText)
 					strncpy(pMsgText, pMmsMsgText, MAX_MSG_TEXT_LEN);
@@ -1230,19 +1239,6 @@ msg_error_t MmsPluginStorage::insertPreviewInfo(int msgId, int type, char *value
 	return MSG_SUCCESS;
 }
 
-msg_error_t MmsPluginStorage::addMmsNoti(MSG_MESSAGE_INFO_S *pMsgInfo)
-{
-	MSG_BEGIN();
-
-	msg_error_t	err = MSG_SUCCESS;
-
-	err = MsgInsertMmsReportToNoti(&dbHandle, pMsgInfo);
-
-	MSG_END();
-
-	return err;
-}
-
 /* This API is not used anywhere now */
 msg_error_t	MmsPluginStorage::plgGetRestoreMessage(MSG_MESSAGE_INFO_S *pMsg, MSG_SENDINGOPT_INFO_S *pSendOptInfo, MMS_MESSAGE_DATA_S *pMmsMsg, char **pDestMsg, char *filePath)
 {
@@ -1268,8 +1264,16 @@ msg_error_t	MmsPluginStorage::plgGetRestoreMessage(MSG_MESSAGE_INFO_S *pMsg, MSG
 			MmsDrm2SetConvertState(MMS_DRM2_CONVERT_FINISH);
 
 			if (bRetToConvert) {
-				remove(mmsHeader.msgType.szOrgFilePath);
-				rename(MMS_DECODE_DRM_CONVERTED_TEMP_FILE, mmsHeader.msgType.szOrgFilePath);
+				int ret;
+				ret = remove(mmsHeader.msgType.szOrgFilePath);
+				if (ret != 0) {
+					MSG_DEBUG("remove fail\n");
+				}
+
+				ret = rename(MMS_DECODE_DRM_CONVERTED_TEMP_FILE, mmsHeader.msgType.szOrgFilePath);
+				if (ret != 0) {
+					MSG_DEBUG("rename fail\n");
+				}
 
 				if (MmsDrm2ReadMsgConvertedBody(pMsg, true, false, NULL) == false) {
 					MSG_DEBUG("MmsLoadMsg:MmsDrm2ReadMsgConvertedBody() returns false\n");
@@ -1360,10 +1364,6 @@ msg_error_t	MmsPluginStorage::plgGetRestoreMessage(MSG_MESSAGE_INFO_S *pMsg, MSG
 
 
 	pMsg->dataSize = nSize;
-
-	if (err != MSG_SUCCESS)
-		MSG_DEBUG("MmsPlgUpdateMessage : Update MMS Message Failed");
-
 	MSG_END();
 
 	return err;
@@ -1375,6 +1375,7 @@ FREE_CATCH:
 	}
 
 L_CATCH:
+	MSG_DEBUG("MmsPlgUpdateMessage : Update MMS Message Failed");
 	MSG_END();
 	{
 		MmsMsg *pMsg;

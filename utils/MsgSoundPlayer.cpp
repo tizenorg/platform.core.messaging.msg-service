@@ -36,7 +36,7 @@ static alarm_id_t g_alarmId = 0;
 ==================================================================================================*/
 
 
-void MsgSoundPlayStart()
+void MsgSoundPlayStart(bool isEmergency)
 {
 	MSG_BEGIN();
 
@@ -53,7 +53,10 @@ void MsgSoundPlayStart()
 	{
 		MSG_DEBUG("Child Process - Run helper app for Sound");
 
-		execl("/usr/bin/msg-helper", MSG_SOUND_START, NULL);
+		if (isEmergency)
+			execl("/usr/bin/msg-helper", MSG_EMERGENCY_SOUND_START, NULL);
+		else
+			execl("/usr/bin/msg-helper", MSG_NORMAL_SOUND_START, NULL);
 
 		MSG_DEBUG("Faild to run helper app for Sound");
 
@@ -201,7 +204,7 @@ bool MsgSoundCreateRepeatAlarm(int RepeatTime)
 	alarmmgr_set_type(alarm_info, ALARM_TYPE_VOLATILE);
 	alarmmgr_add_alarm_with_localtime(alarm_info, NULL, &g_alarmId);
 
-	retval = alarmmgr_set_cb(MsgSoundRepeatAlarmCB, NULL);
+	retval = alarmmgr_set_cb(MsgSoundRepeatAlarmCB, (void *)alarm_info);
 
 	if (retval != 0)
 	{
@@ -223,16 +226,18 @@ int MsgSoundRepeatAlarmCB(int TimerId, void *pUserParam)
 {
 	MSG_BEGIN();
 
+	alarm_info_t *alarm_info = (alarm_info_t *)pUserParam;
+
 	g_bRepeat = false;
 
-	if (MsgSoundGetUnreadMsgCnt() <= 0)
-	{
+	if (MsgSoundGetUnreadMsgCnt() <= 0) {
 		MSG_DEBUG("no unread msg");
-
-		return 0;
+	} else {
+		MsgSoundPlayStart(false);
 	}
 
-	MsgSoundPlayStart();
+	if (alarmmgr_free_alarm(alarm_info) != ALARMMGR_RESULT_SUCCESS)
+		MSG_DEBUG("alarmmgr_free_alarm is failed");
 
 	MSG_END();
 
@@ -297,7 +302,7 @@ void MsgSoundInitRepeatAlarm()
 	MSG_DEBUG("nRepeatTime = %d", nRepeatTime);
 
 	if (nRepeatTime > 0)
-		MsgSoundPlayStart();
+		MsgSoundPlayStart(false);
 
 	MSG_END();
 }

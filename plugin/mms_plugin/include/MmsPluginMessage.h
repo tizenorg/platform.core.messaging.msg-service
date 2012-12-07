@@ -159,7 +159,7 @@ typedef enum {
 typedef enum {
 	MMS_MSGSTATUS_NONE = -1,	// backward compatibility
 	MMS_MSGSTATUS_ERROR = -1,	// error return in Get method
-	MMS_MSGSTATUS_EXPIRED = 0,
+	MMS_MSGSTATUS_EXPIRED = 0,	// This value SHOULD not be used in the M-NotifyResp.ind PDU.
 	MMS_MSGSTATUS_RETRIEVED = 1,
 	MMS_MSGSTATUS_REJECTED = 2,
 	MMS_MSGSTATUS_DEFERRED = 3,
@@ -173,7 +173,7 @@ typedef enum {
 typedef	enum {
 	MMS_READSTATUS_NONE = -1,			// no touch status
 	MMS_IS_READ = 0,
-	MMS_IS_DELETED = 1
+	MMS_IS_DELETED = 1	// Deleted without being read
 } MmsReadStatus;
 
 

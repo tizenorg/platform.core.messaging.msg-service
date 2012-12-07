@@ -281,11 +281,6 @@ static bool __MmsBinaryEncodeMmsVersion2(FILE *pFile)
 		goto __CATCH;
 	}
 
-	if (majorVer < 1) {
-		MSG_DEBUG("__MmsBinaryEncodeMmsVersion2: invalid major version (%d)\n", majorVer);
-		goto __CATCH;
-	}
-
 	if ((gMmsEncodeMaxLen2 - gCurMmsEncodeBuffPos2) < 2) {
 		if (MsgWriteDataFromEncodeBuffer(pFile, gpMmsEncodeBuf2, &gCurMmsEncodeBuffPos2,
 											gMmsEncodeMaxLen2, &gMmsEncodeCurOffset2) == false) {
@@ -908,6 +903,7 @@ bool _MmsBinaryEncodeSendReqHdr(FILE *pFile, MmsMsg *pMsg)
 			goto __CATCH;
 		}
 
+		/** fixme: Reply-charging-deadline */
 		if (pMsg->mmsAttrib.replyCharge.deadLine.time > 0) {
 			if (__MmsBinaryEncodeTime(pFile, MMS_CODE_REPLYCHARGINGDEADLINE, pMsg->mmsAttrib.replyCharge.deadLine) == false) {
 				MSG_DEBUG("_MmsBinaryEncodeSendReqHdr: replyCharging __MmsBinaryEncodeTime fail\n");
@@ -915,6 +911,7 @@ bool _MmsBinaryEncodeSendReqHdr(FILE *pFile, MmsMsg *pMsg)
 			}
 		}
 
+		/** fixme: Reply-charging-size */
 		if (pMsg->mmsAttrib.replyCharge.chargeSize > 0) {
 			length = MmsBinaryEncodeIntegerLen(pMsg->mmsAttrib.replyCharge.chargeSize);
 
@@ -934,6 +931,7 @@ bool _MmsBinaryEncodeSendReqHdr(FILE *pFile, MmsMsg *pMsg)
 			}
 		}
 
+		/** fixme: Reply-charging-ID  ----> used only when reply message  */
 		if (pMsg->mmsAttrib.replyCharge.szChargeID[0]) {
 			length = MmsBinaryEncodeTextStringLen((UINT8*)pMsg->mmsAttrib.replyCharge.szChargeID);
 			if (length == -1) {
@@ -1016,6 +1014,221 @@ bool MmsBinaryEncodeSendReqHdrContTypeFildCode(FILE *pFile, int msgID)
 
 	return ret;
 }
+
+#if 0
+bool
+_MmsBinaryEncodeForwardReqHdr(FILE* pFile, char* szContentLocation, char* szForwardTo, char* szForwardCc, char* szForwardBcc)
+{
+	int		length	= 0;
+	UINT8	fieldCode = 0xff;
+	UINT8	fieldValue = 0xff;
+	UINT32	date	= 0;
+
+
+	__MmsCleanEncodeBuff();
+
+	/* msgType */
+	fieldCode  = _MmsGetBinaryValue(MmsCodeFieldCode, MMS_CODE_MSGTYPE) | 0x80;
+	fieldValue = _MmsGetBinaryValue(MmsCodeMsgType, MMS_MSGTYPE_FORWARD_REQ) | 0x80;
+	if (__MmsBinaryEncodeFieldCodeAndValue(pFile, fieldCode, fieldValue) == false)
+	{
+		MSG_DEBUG("_MmsBinaryEncodeForwardReqHdr: msgType error\n");
+		goto __CATCH;
+	}
+
+
+	/* trID (other type of message) */
+	if (__MmsBinaryEncodeTrID(pFile, NULL, 0) == false)
+	{
+		MSG_DEBUG("_MmsBinaryEncodeForwardReqHdr: __MmsBinaryEncodeTrID error\n");
+		goto __CATCH;
+	}
+
+
+	/* MMS version (currently we use 1.0 : VDF Spain's version) */
+	if (__MmsBinaryEncodeMmsVersion(pFile) == false)
+	{
+		MSG_DEBUG("_MmsBinaryEncodeForwardReqHdr: __MmsBinaryEncodeMmsVersion error\n");
+		goto __CATCH;
+	}
+
+
+	/* Date = Long-integer */
+	if (!__MmsBinaryEncodeDate(pFile))
+	{
+			MSG_DEBUG("_MmsBinaryEncodeSendReqHdr: __MmsBinaryEncodeDate error\n");
+			goto __CATCH;
+	}
+
+	/* From : Insert Token mode */
+	if (__MmsBinaryEncodeFrom(pFile) == false)
+	{
+		MSG_DEBUG("_MmsBinaryEncodeForwardReqHdr: __MmsBinaryEncodeFrom fail\n");
+		goto __CATCH;
+	}
+
+
+	/* To = Encoded-string */
+	if (__MmsBinaryEncodeAddress(pFile,
+								  MMS_CODE_TO,
+								  szForwardTo) == false)
+	{
+		MSG_DEBUG("_MmsBinaryEncodeForwardReqHdr: To __MmsBinaryEncodeAddress fail\n");
+		goto __CATCH;
+	}
+
+
+	/* Cc = Encoded-string */
+	if (__MmsBinaryEncodeAddress(pFile,
+								  MMS_CODE_CC,
+								  szForwardCc) == false)
+	{
+		MSG_DEBUG("_MmsBinaryEncodeForwardReqHdr: Cc __MmsBinaryEncodeAddress fail\n");
+		goto __CATCH;
+	}
+
+
+	/* Bcc = Encoded-string */
+	if (__MmsBinaryEncodeAddress(pFile,
+								  MMS_CODE_BCC,
+								  szForwardBcc) == false)
+	{
+		MSG_DEBUG("_MmsBinaryEncodeForwardReqHdr: Bcc __MmsBinaryEncodeAddress fail\n");
+		goto __CATCH;
+	}
+
+
+	/* Expiry Time  : Value-length Absolute-token Date-value */
+	if (gMmsSetup.sendSetup.bExpiryUseCustomTime == true) //jhlee expiry time use custom time
+	{
+		if (__MmsBinaryEncodeTime(pFile,
+							   MMS_CODE_EXPIRYTIME,
+							   gMmsSetup.sendSetup.expiryCustomTime) == false)
+		{
+			MSG_DEBUG("_MmsBinaryEncodeForwardReqHdr: expiryTime __MmsBinaryEncodeTime fail\n");
+			goto __CATCH;
+		}
+	}
+	else
+	{
+		if (__MmsBinaryEncodeTime(pFile,
+							   MMS_CODE_EXPIRYTIME,
+							   gMmsSetup.sendSetup.expiryTime) == false)
+		{
+			MSG_DEBUG("_MmsBinaryEncodeForwardReqHdr: expiryTime __MmsBinaryEncodeTime fail\n");
+			goto __CATCH;
+		}
+
+	}
+
+
+	/* Delivery Time  : Value-length Absolute-token Date-value */
+	if (__MmsBinaryEncodeTime(pFile,
+							   MMS_CODE_DELIVERYTIME,
+							   gMmsSetup.sendSetup.deliveryTime) == false)
+	{
+		MSG_DEBUG("_MmsBinaryEncodeForwardReqHdr: deliveryTime __MmsBinaryEncodeTime fail\n");
+		goto __CATCH;
+	}
+
+
+	/* Report Allowed */
+	fieldCode  = _MmsGetBinaryValue(MmsCodeFieldCode, MMS_CODE_REPORTALLOWED) | 0x80;
+	if (gMmsSetup.recvSetup.bSendDeliveryReport)
+		fieldValue  = _MmsGetBinaryValue(MmsCodeReportAllowed,
+										  MMS_REPORTALLOWED_YES) | 0x80;
+	else
+		fieldValue  = _MmsGetBinaryValue(MmsCodeReportAllowed,
+										  MMS_REPORTALLOWED_NO) | 0x80;
+	if (__MmsBinaryEncodeFieldCodeAndValue(pFile, fieldCode, fieldValue) == false)
+	{
+		MSG_DEBUG("_MmsBinaryEncodeForwardReqHdr: Report Allowed error\n");
+		goto __CATCH;
+	}
+
+
+	/* Delivery Report */
+	fieldCode  = _MmsGetBinaryValue(MmsCodeFieldCode, MMS_CODE_DELIVERYREPORT) | 0x80;
+	if (gMmsSetup.recvSetup.bSendDeliveryReport)
+		fieldValue  = _MmsGetBinaryValue(MmsCodeDeliveryReport,
+										  MMS_REPORT_YES) | 0x80;
+	else
+		fieldValue  = _MmsGetBinaryValue(MmsCodeDeliveryReport,
+										  MMS_REPORT_NO) | 0x80;
+	if (__MmsBinaryEncodeFieldCodeAndValue(pFile, fieldCode, fieldValue) == false)
+	{
+		MSG_DEBUG("_MmsBinaryEncodeForwardReqHdr: Report Allowed error\n");
+		goto __CATCH;
+	}
+
+
+	/* Read Reply */
+	fieldCode  = _MmsGetBinaryValue(MmsCodeFieldCode, MMS_CODE_READREPLY) | 0x80;
+	if (gMmsSetup.recvSetup.bSendDeliveryReport)
+		fieldValue  = _MmsGetBinaryValue(MmsCodeReadReply,
+										  MMS_REPORT_YES) | 0x80;
+	else
+		fieldValue  = _MmsGetBinaryValue(MmsCodeReadReply,
+										  MMS_REPORT_NO) | 0x80;
+	if (__MmsBinaryEncodeFieldCodeAndValue(pFile, fieldCode, fieldValue) == false)
+	{
+		MSG_DEBUG("_MmsBinaryEncodeForwardReqHdr: Read Reply error\n");
+		goto __CATCH;
+	}
+
+
+	/* Content Location */
+	if (szContentLocation[0])
+	{
+		length = MmsBinaryEncodeTextStringLen((UINT8*)szContentLocation);
+		if (length == -1)
+		{
+			MSG_DEBUG("_MmsBinaryEncodeForwardReqHdr: szContentLocation MmsBinaryEncodeTextStringLen fail\n");
+			goto __CATCH;
+		}
+
+		if ((gMmsEncodeMaxLen - gCurMmsEncodeBuffPos) < (length + 1))	// + fieldCode
+		{
+			if (MsgWriteDataFromEncodeBuffer(pFile,
+								gpMmsEncodeBuf,
+								&gCurMmsEncodeBuffPos,
+								gMmsEncodeMaxLen,
+								&gMmsEncodeCurOffset) == false)
+			{
+				MSG_DEBUG("_MmsBinaryEncodeSendReqHdr: MsgWriteDataFromEncodeBuffer fail \n");
+				goto __CATCH;
+			}
+		}
+
+		gpMmsEncodeBuf[gCurMmsEncodeBuffPos++] = _MmsGetBinaryValue(MmsCodeFieldCode,
+																	  MMS_CODE_CONTENTLOCATION) | 0x80;
+		if (MmsBinaryEncodeTextString(pFile, (UINT8*)szContentLocation, length) == false)
+		{
+			MSG_DEBUG("_MmsBinaryEncodeForwardReqHdr: szContentLocation MmsBinaryEncodeTextString fail\n");
+			goto __CATCH;
+		}
+	}
+
+	/* flush remained data on encoding file */
+	if (MsgWriteDataFromEncodeBuffer(pFile,
+						  gpMmsEncodeBuf,
+						  &gCurMmsEncodeBuffPos,
+						  gMmsEncodeMaxLen,
+						  &gMmsEncodeCurOffset) == false)
+	{
+		MSG_DEBUG("_MmsBinaryEncodeForwardReqHdr: remained data MsgWriteDataFromEncodeBuffer fail \n");
+		goto __CATCH;
+	}
+
+	return true;
+
+__CATCH:
+
+	MsgWriteDataFromEncodeBuffer(pFile, gpMmsEncodeBuf, &gCurMmsEncodeBuffPos, gMmsEncodeMaxLen, &gMmsEncodeCurOffset);
+	return false;
+}
+#endif
+
 
 bool _MmsBinaryEncodeReadReport10Hdr(FILE *pFile, MmsMsg *pMsg, msg_read_report_status_t mmsReadStatus)
 {
@@ -1165,6 +1378,10 @@ bool _MmsBinaryEncodeReadReport10Hdr(FILE *pFile, MmsMsg *pMsg, msg_read_report_
 		MSG_DEBUG("_MmsBinaryEncodeReadReport10Hdr: Sender Visible error\n");
 		goto __CATCH;
 	}
+
+	/* fixme: msgContentType */
+	/* fixme: msgHeader */
+	/* fixme: msgBody */
 
 	/* flush remained data on encoding file */
 	if (MsgWriteDataFromEncodeBuffer(pFile, gpMmsEncodeBuf, &gCurMmsEncodeBuffPos,
@@ -1844,7 +2061,7 @@ bool MmsBinaryEncodeContentType(FILE *pFile, MsgType *pType, int typeLength)
 		}
 
 		/* start = Text-string ----------------------- */
-		if (pType->param.szStart && pType->param.szStart[0]) {
+		if (pType->param.szStart[0]) {
 			/* start = Text-string */
 			length  = MmsBinaryEncodeTextStringLen((UINT8*)pType->param.szStart);
 			if (length == -1) {
@@ -2874,7 +3091,7 @@ static bool MmsBinaryEncodeEncodedString(FILE *pFile, UINT8 *source, int length)
 		goto __CATCH;
 	}
 
-	/* Write charset on buffer -> integer value not long-integer */
+	/* fixme: Write charset on buffer -> integer value not long-integer */
 	if (MmsBinaryEncodeInteger(pFile, charset, charLeng) == false) {
 		MSG_DEBUG("MmsBinaryEncodeEncodedString : MmsBinaryEncodeInteger fail.\n");
 		goto __CATCH;
@@ -3032,11 +3249,6 @@ static bool __MmsBinaryEncodeMmsVersion(FILE *pFile)
 
 	if (pFile == NULL) {
 		MSG_DEBUG("__MmsBinaryEncodeMmsVersion: invalid input file \n");
-		goto __CATCH;
-	}
-
-	if (majorVer < 1) {
-		MSG_DEBUG("__MmsBinaryEncodeMmsVersion: invalid major version (%d)\n", majorVer);
 		goto __CATCH;
 	}
 

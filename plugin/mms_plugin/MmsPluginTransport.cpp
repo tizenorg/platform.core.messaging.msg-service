@@ -80,14 +80,18 @@ void MmsPluginTransport::submitRequest(const MSG_REQUEST_INFO_S *pReqInfo)
 		break;
 
 	case MSG_NOTIFYRESPIND_MMS:
+	{
 		MSG_DEBUG("######### MANUAL RETRIEVE : SEND NOTIFY RESPONSE IND");
 		reqItem.msgId = pReqInfo->msgInfo.msgId;
 		reqItem.eMmsPduType = eMMS_NOTIFYRESP_IND;
 		reqItem.eHttpCmdType = eHTTP_CMD_POST_TRANSACTION;
 		reqItem.pPostData = MsgOpenAndReadMmsFile(pReqInfo->msgInfo.msgData, 0, -1, &reqItem.postDataLen);
-		remove(pReqInfo->msgInfo.msgData);
+		int ret = remove(pReqInfo->msgInfo.msgData);
+		if (ret != 0) {
+			MSG_DEBUG("remove fail\n");
+		}
 		break;
-
+	}
 	case MSG_RETRIEVE_MMS:
 		MSG_DEBUG("######### MANUAL RETRIEVE : GET TRANSACTION");
 		reqItem.msgId = pReqInfo->msgInfo.msgId;
@@ -99,25 +103,33 @@ void MmsPluginTransport::submitRequest(const MSG_REQUEST_INFO_S *pReqInfo)
 		break;
 
 	case MSG_READREPLY_MMS:
+	{
 		MSG_DEBUG("######### SEND READ REPORT : POST TRANSACTION");
 		reqItem.msgId = pReqInfo->msgInfo.msgId;
 		reqItem.eMmsPduType = eMMS_READREPORT_REQ;
 		reqItem.eHttpCmdType = eHTTP_CMD_POST_TRANSACTION;
 		reqItem.pPostData = MsgOpenAndReadMmsFile(pReqInfo->msgInfo.msgData, 0, -1, &reqItem.postDataLen);
 		// remove x-Read-Rec.ind file
-		remove(pReqInfo->msgInfo.msgData);
+		int ret = remove(pReqInfo->msgInfo.msgData);
+		if (ret != 0) {
+			MSG_DEBUG("remove fail\n");
+		}
 		break;
-
+	}
 	case MSG_READRECIND_MMS:
+	{
 		MSG_DEBUG("######### SEND READREC IND : POST TRANSACTION");
 		reqItem.msgId = pReqInfo->msgInfo.msgId;
 		reqItem.eMmsPduType = eMMS_READREC_IND;
 		reqItem.eHttpCmdType = eHTTP_CMD_POST_TRANSACTION;
 		reqItem.pPostData = MsgOpenAndReadMmsFile(pReqInfo->msgInfo.msgData, 0, -1, &reqItem.postDataLen);
 		// remove x-Read-Rec.ind file
-		remove(pReqInfo->msgInfo.msgData);
+		int ret = remove(pReqInfo->msgInfo.msgData);
+		if (ret != 0) {
+			MSG_DEBUG("remove fail\n");
+		}
 		break;
-
+	}
 	case MSG_FORWARD_MMS:
 		MSG_DEBUG("######### SEND FORWARD MSG : POST TRANSACTION");
 		reqItem.msgId = pReqInfo->msgInfo.msgId;

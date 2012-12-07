@@ -49,6 +49,7 @@ SmsPluginSetting::SmsPluginSetting()
 	// Initialize member variables
 	memset(&smscData, 0x00, sizeof(MSG_SMSC_DATA_S));
 	memset(&cbOpt, 0x00, sizeof(MSG_CBMSG_OPT_S));
+	memset(&simMailboxList, 0x00, sizeof(SMS_SIM_MAILBOX_LIST_S));
 
 	bTapiResult = false;
 	paramCnt = 0;
@@ -182,6 +183,11 @@ void SmsPluginSetting::setConfigData(const MSG_SETTING_S *pSetting)
 
 	switch (pSetting->type)
 	{
+#if 0
+		case MSG_SMS_SENDOPT :
+			setNetworkMode(&pSetting->option.smsSendOpt);
+			break;
+#endif
 		case MSG_SMSC_LIST :
 			setParamList(&pSetting->option.smscList);
 			break;
@@ -239,20 +245,17 @@ msg_error_t SmsPluginSetting::addSMSCList(MSG_SMSC_LIST_S *pSmscList)
 
 	char keyName[128];
 
-	if (MsgSettingSetInt(SMSC_TOTAL_COUNT, pSmscList->totalCnt) != MSG_SUCCESS)
-	{
+	if (MsgSettingSetInt(SMSC_TOTAL_COUNT, pSmscList->totalCnt) != MSG_SUCCESS) {
 		MSG_DEBUG("Error to set config data [%s]", SMSC_TOTAL_COUNT);
 		return MSG_ERR_SET_SETTING;
 	}
 
-	if (MsgSettingSetInt(SMSC_SELECTED, pSmscList->selected) != MSG_SUCCESS)
-	{
+	if (MsgSettingSetInt(SMSC_SELECTED, pSmscList->selected) != MSG_SUCCESS) {
 		MSG_DEBUG("Error to set config data [%s]", SMSC_SELECTED);
 		return MSG_ERR_SET_SETTING;
 	}
 
-	for (int i = 0; i < pSmscList->totalCnt; i++)
-	{
+	for (int i = 0; i < pSmscList->totalCnt; i++) {
 		memset(keyName, 0x00, sizeof(keyName));
 		sprintf(keyName, "%s/%d", SMSC_PID, i);
 
@@ -297,8 +300,7 @@ msg_error_t SmsPluginSetting::addSMSCList(MSG_SMSC_LIST_S *pSmscList)
 			break;
 	}
 
-	if (err != MSG_SUCCESS)
-	{
+	if (err != MSG_SUCCESS) {
 		MSG_DEBUG("Error to set config data [%s]", keyName);
 	}
 
@@ -320,28 +322,24 @@ msg_error_t SmsPluginSetting::addCbOpt(MSG_CBMSG_OPT_S *pCbOpt)
 	}
 
 	// Set Setting Data into Vconf
-	if (MsgSettingSetBool(CB_RECEIVE, pCbOpt->bReceive) != MSG_SUCCESS)
-	{
+	if (MsgSettingSetBool(CB_RECEIVE, pCbOpt->bReceive) != MSG_SUCCESS) {
 		MSG_DEBUG("Error to set config data [%s]", CB_RECEIVE);
 		return MSG_ERR_SET_SETTING;
 	}
 
-	if (MsgSettingSetInt(CB_MAX_SIM_COUNT, pCbOpt->maxSimCnt) != MSG_SUCCESS)
-	{
+	if (MsgSettingSetInt(CB_MAX_SIM_COUNT, pCbOpt->maxSimCnt) != MSG_SUCCESS) {
 		MSG_DEBUG("Error to set config data [%s]", CB_MAX_SIM_COUNT);
 		return MSG_ERR_SET_SETTING;
 	}
 
-	if (MsgSettingSetInt(CB_CHANNEL_COUNT, pCbOpt->channelData.channelCnt) != MSG_SUCCESS)
-	{
+	if (MsgSettingSetInt(CB_CHANNEL_COUNT, pCbOpt->channelData.channelCnt) != MSG_SUCCESS) {
 		MSG_DEBUG("Error to set config data [%s]", CB_CHANNEL_COUNT);
 		return MSG_ERR_SET_SETTING;
 	}
 
 	char keyName[128];
 
-	for (int i = 0; i < pCbOpt->channelData.channelCnt; i++)
-	{
+	for (int i = 0; i < pCbOpt->channelData.channelCnt; i++) {
 		memset(keyName, 0x00, sizeof(keyName));
 		sprintf(keyName, "%s/%d", CB_CHANNEL_ACTIVATE, i);
 
@@ -384,8 +382,7 @@ void SmsPluginSetting::getCbOpt(MSG_SETTING_S *pSetting)
 
 	pSetting->option.cbMsgOpt.channelData.channelCnt = MsgSettingGetInt(CB_CHANNEL_COUNT);
 
-	for (int i = 0; i < pSetting->option.cbMsgOpt.channelData.channelCnt; i++)
-	{
+	for (int i = 0; i < pSetting->option.cbMsgOpt.channelData.channelCnt; i++) {
 		memset(keyName, 0x00, sizeof(keyName));
 		sprintf(keyName, "%s/%d", CB_CHANNEL_ACTIVATE, i);
 
@@ -414,8 +411,7 @@ void SmsPluginSetting::getCbOpt(MSG_SETTING_S *pSetting)
 		}
 	}
 
-	for (int i = MSG_CBLANG_TYPE_ALL; i < MSG_CBLANG_TYPE_MAX; i++)
-	{
+	for (int i = MSG_CBLANG_TYPE_ALL; i < MSG_CBLANG_TYPE_MAX; i++) {
 		memset(keyName, 0x00, sizeof(keyName));
 		sprintf(keyName, "%s/%d", CB_LANGUAGE, i);
 
@@ -433,8 +429,7 @@ void SmsPluginSetting::setParamList(const MSG_SMSC_LIST_S *pSMSCList)
 
 	int ret = TAPI_API_SUCCESS;
 
-	for (int index = 0; index < pSMSCList->totalCnt; index++)
-	{
+	for (int index = 0; index < pSMSCList->totalCnt; index++) {
 		/*Setting the SMSP Record index value*/
 		smsParam.RecordIndex = (unsigned char)index;
 
@@ -445,8 +440,7 @@ void SmsPluginSetting::setParamList(const MSG_SMSC_LIST_S *pSMSCList)
 		smsParam.AlphaIdLen = strlen(pSMSCList->smscData[index].name);
 		MSG_DEBUG("AlphaIdLen = %ld", smsParam.AlphaIdLen);
 
-		if (smsParam.AlphaIdLen > 0 &&  smsParam.AlphaIdLen <= SMSC_NAME_MAX)
-		{
+		if (smsParam.AlphaIdLen > 0 &&  smsParam.AlphaIdLen <= SMSC_NAME_MAX) {
 			memcpy(smsParam.szAlphaId, pSMSCList->smscData[index].name, smsParam.AlphaIdLen);
 			smsParam.szAlphaId[smsParam.AlphaIdLen] = '\0';
 			MSG_DEBUG("szAlphaId = %s", smsParam.szAlphaId);
@@ -454,8 +448,7 @@ void SmsPluginSetting::setParamList(const MSG_SMSC_LIST_S *pSMSCList)
 
 		smsParam.ParamIndicator = 0x00;
 
-		if (strlen(pSMSCList->smscData[index].smscAddr.address) > 0)
-		{
+		if (strlen(pSMSCList->smscData[index].smscAddr.address) > 0) {
 			smsParam.ParamIndicator |= 0x02 ;  //enable 2nd Bit
 			MSG_DEBUG("ParamIndicator = [%02x]", smsParam.ParamIndicator);
 
@@ -471,9 +464,7 @@ void SmsPluginSetting::setParamList(const MSG_SMSC_LIST_S *pSMSCList)
 			MSG_DEBUG("address = %s", pSMSCList->smscData[index].smscAddr.address);
 
 			smsParam.TpSvcCntrAddr.DialNumLen = SmsPluginParamCodec::encodeSMSC(pSMSCList->smscData[index].smscAddr.address, smsParam.TpSvcCntrAddr.szDiallingNum);
-		}
-		else
-		{
+		} else {
 			MSG_DEBUG("SMSC Addr is not present");
 		}
 
@@ -519,25 +510,18 @@ void SmsPluginSetting::getParamList(MSG_SMSC_LIST_S *pSMSCList)
 
 	MSG_SMSC_DATA_S tmpSmscData = {};
 
-	for (int index = 0; index < paramCnt; index++)
-	{
+	for (int index = 0; index < paramCnt; index++) {
 		ret = tel_get_sms_parameters(pTapiHandle, index, TapiEventGetParam, NULL);
 
-		if (ret == TAPI_API_SUCCESS)
-		{
+		if (ret == TAPI_API_SUCCESS) {
 			MSG_DEBUG("######## tel_get_sms_parameters() Success !!! #######");
-		}
-		else
-		{
+		} else {
 			THROW(MsgException::SMS_PLG_ERROR, "######## tel_get_sms_parameters() Fail !!! return : %d #######", ret);
 		}
 
-		if (getParamEvent(&tmpSmscData) == true)
-		{
+		if (getParamEvent(&tmpSmscData) == true) {
 			MSG_DEBUG("######## Get Parameter was Successful !!! #######");
-		}
-		else
-		{
+		} else {
 		 	THROW(MsgException::SMS_PLG_ERROR, "######## Get Parameter was Failed !!! #######");
 		}
 
@@ -567,12 +551,9 @@ int SmsPluginSetting::getParamCount()
 
 	ret = tel_get_sms_parameter_count(pTapiHandle, TapiEventGetParamCnt, NULL);
 
-	if (ret == TAPI_API_SUCCESS)
-	{
+	if (ret == TAPI_API_SUCCESS) {
 		MSG_DEBUG("######## tel_get_sms_parameter_count() Success !!! #######");
-	}
-	else
-	{
+	} else {
 		THROW(MsgException::SMS_PLG_ERROR, "tel_get_sms_parameter_count() Error. [%d]", ret);
 	}
 
@@ -586,22 +567,16 @@ bool SmsPluginSetting::getParam(int Index, MSG_SMSC_DATA_S *pSmscData)
 
 	ret = tel_get_sms_parameters(pTapiHandle, Index, TapiEventGetParam, NULL);
 
-	if (ret == TAPI_API_SUCCESS)
-	{
+	if (ret == TAPI_API_SUCCESS) {
 		MSG_DEBUG("######## tel_get_sms_parameters() Success !!! #######");
-	}
-	else
-	{
+	} else {
 		MSG_DEBUG("######## tel_get_sms_parameters() Fail !!! return : %d #######", ret);
 		return false;
 	}
 
-	if (getParamEvent(pSmscData) == true)
-	{
+	if (getParamEvent(pSmscData) == true) {
 		MSG_DEBUG("######## Get Parameter was Successful !!! #######");
-	}
-	else
-	{
+	} else {
 	 	MSG_DEBUG("######## Get Parameter was Failed !!! #######");
 		return false;
 	}
@@ -621,8 +596,7 @@ bool SmsPluginSetting::setCbConfig(const MSG_CBMSG_OPT_S *pCbOpt)
 	cbConfig.MsgIdMaxCount = pCbOpt->maxSimCnt;
 	cbConfig.MsgIdRangeCount = pCbOpt->channelData.channelCnt;
 
-	for (int i = 0; i < cbConfig.MsgIdRangeCount; i++)
-	{
+	for (int i = 0; i < cbConfig.MsgIdRangeCount; i++) {
 		cbConfig.MsgIDs[i].Net3gpp.Selected = (unsigned short)pCbOpt->channelData.channelInfo[i].bActivate;
 		cbConfig.MsgIDs[i].Net3gpp.FromMsgId = (unsigned short)pCbOpt->channelData.channelInfo[i].from;
 		cbConfig.MsgIDs[i].Net3gpp.ToMsgId = (unsigned short)pCbOpt->channelData.channelInfo[i].to;
@@ -633,22 +607,16 @@ bool SmsPluginSetting::setCbConfig(const MSG_CBMSG_OPT_S *pCbOpt)
 
 	ret = tel_set_sms_cb_config(pTapiHandle, &cbConfig, TapiEventSetConfigData, NULL);
 
-	if (ret == TAPI_API_SUCCESS)
-	{
+	if (ret == TAPI_API_SUCCESS) {
 		MSG_DEBUG("######## tel_set_sms_cb_config() Success !!! #######");
-	}
-	else
-	{
+	} else {
 		MSG_DEBUG("######## tel_set_sms_cb_config() Fail !!! return : %d #######", ret);
 		return false;
 	}
 
-	if (getResultFromSim() == true)
-	{
+	if (getResultFromSim() == true) {
 		MSG_DEBUG("######## Set Cb Config was Successful !!! #######");
-	}
-	else
-	{
+	} else {
 	 	MSG_DEBUG("######## Set Cb Config was Failed !!! #######");
 		return false;
 	}
@@ -663,22 +631,16 @@ bool SmsPluginSetting::getCbConfig(MSG_CBMSG_OPT_S *pCbOpt)
 
 	ret = tel_get_sms_cb_config(pTapiHandle, TapiEventGetCBConfig, NULL);
 
-	if (ret == TAPI_API_SUCCESS)
-	{
+	if (ret == TAPI_API_SUCCESS) {
 		MSG_DEBUG("######## tel_get_sms_cb_config() Success !!! #######");
-	}
-	else
-	{
+	} else {
 		MSG_DEBUG("######## tel_get_sms_cb_config() Fail !!! return : %d #######", ret);
 		return false;
 	}
 
-	if (getCbConfigEvent(pCbOpt) == true)
-	{
+	if (getCbConfigEvent(pCbOpt) == true) {
 		MSG_DEBUG("######## Get Cb Config was Successful !!! #######");
-	}
-	else
-	{
+	} else {
 	 	MSG_DEBUG("######## Get Cb Config was Failed !!! #######");
 		return false;
 	}
@@ -688,7 +650,6 @@ bool SmsPluginSetting::getCbConfig(MSG_CBMSG_OPT_S *pCbOpt)
 
 void SmsPluginSetting::setVoiceMailInfo(const MSG_VOICEMAIL_OPT_S *pVoiceOpt)
 {
-#if 0 // New TAPI
 	int ret = TAPI_API_SUCCESS;
 
 	TelSimMailBoxNumber_t mailboxInfo = {0,};
@@ -717,22 +678,23 @@ void SmsPluginSetting::setVoiceMailInfo(const MSG_VOICEMAIL_OPT_S *pVoiceOpt)
 
 	ret = tel_set_sim_mailbox_info(pTapiHandle, &mailboxInfo, TapiEventSetMailboxInfo, NULL);
 
-	if (ret == TAPI_API_SUCCESS)
-	{
+	if (ret == TAPI_API_SUCCESS) {
 		MSG_DEBUG("######## tel_set_sim_mailbox_info() Success !!! #######");
-	}
-	else
-	{
+	} else {
 		MSG_DEBUG("######## tel_set_sim_mailbox_info() Fail !!! return : %d #######", ret);
 	}
 
+	if (getResultFromSim() == true) {
+		MSG_DEBUG("######## Set mailbox info Success !!! #######");
+	} else {
+		THROW(MsgException::SMS_PLG_ERROR, "########  Set mailbox info Failed !!!#######");
+	}
+
 	return;
-#endif
 }
 
 bool SmsPluginSetting::getVoiceMailInfo(MSG_VOICEMAIL_OPT_S *pVoiceOpt)
 {
-#if 0 // New TAPI
 	int ret = TAPI_API_SUCCESS;
 
 	ret = tel_get_sim_mailbox_info(pTapiHandle, TapiEventGetMailboxInfo, NULL);
@@ -751,13 +713,11 @@ bool SmsPluginSetting::getVoiceMailInfo(MSG_VOICEMAIL_OPT_S *pVoiceOpt)
 		return false;
 	}
 
-#endif
 	return true;
 }
 
 void SmsPluginSetting::setMwiInfo(MSG_SUB_TYPE_T type, int count)
 {
-#if 0 // New TAPI
 	if (type < MSG_MWI_VOICE_SMS || type > MSG_MWI_OTHER_SMS) {
 		MSG_DEBUG("Invalid parameter");
 		return;
@@ -786,10 +746,8 @@ void SmsPluginSetting::setMwiInfo(MSG_SUB_TYPE_T type, int count)
 			simMwiInfo.mwi_list.mw_info[0].fax_count = count;
 		else if (type == MSG_MWI_EMAIL_SMS)
 			simMwiInfo.mwi_list.mw_info[0].email_count = count;
-		else if (type == MSG_MWI_OTHER_SMS)
+		else // MSG_MWI_OTHER_SMS
 			simMwiInfo.mwi_list.mw_info[0].other_count = count;
-		else
-			MSG_DEBUG("No match type [%d]", type);
 
 		mwReq.mw_data_u.mw.rec_index = simMwiInfo.mwi_list.mw_info[0].rec_index;
 		mwReq.mw_data_u.mw.indicator_status = simMwiInfo.mwi_list.mw_info[0].indicator_status;
@@ -810,14 +768,18 @@ void SmsPluginSetting::setMwiInfo(MSG_SUB_TYPE_T type, int count)
 		MSG_DEBUG("######## tel_set_sim_messagewaiting_info() Fail !!! return : %d #######", ret);
 	}
 
+	if (getResultFromSim() == true) {
+		MSG_DEBUG("######## Set message waiting info Success !!! #######");
+	} else {
+		MSG_DEBUG("######## Set message waiting info fail !!! #######");
+	}
+
 	return;
-#endif
 }
 
 
 bool SmsPluginSetting::getMwiInfo(void)
 {
-#if 0 // New TAPI
 	int ret = TAPI_API_SUCCESS;
 
 	ret = tel_get_sim_messagewaiting_info(pTapiHandle, TapiEventGetMwiInfo, NULL);
@@ -835,9 +797,29 @@ bool SmsPluginSetting::getMwiInfo(void)
 	 	MSG_DEBUG("######## Get Mainbox info was Failed !!! #######");
 		return false;
 	}
-#endif
+
 	return true;
 }
+
+
+bool SmsPluginSetting::getMsisdnInfo(void)
+{
+	int ret = TAPI_API_SUCCESS;
+	bool result = true;
+
+	ret = tel_get_sim_msisdn(pTapiHandle, TapiEventGetMsisdnInfo, NULL);
+
+	if (ret == TAPI_API_SUCCESS) {
+		result = true;
+		MSG_DEBUG("######## tel_get_sim_msisdn() Success !!! #######");
+	} else {
+		result = false;
+		MSG_DEBUG("######## tel_get_sim_msisdn() Fail !!! return : %d #######", ret);
+	}
+
+	return result;
+}
+
 
 void SmsPluginSetting::setParamCntEvent(int ParamCnt)
 {
@@ -861,8 +843,7 @@ int SmsPluginSetting::getParamCntEvent()
 
 	mx.unlock();
 
-	if (ret == ETIMEDOUT)
-	{
+	if (ret == ETIMEDOUT) {
 		MSG_DEBUG("WARNING: TAPI callback TIME-OUT");
 		return 0;
 	}
@@ -879,8 +860,7 @@ void SmsPluginSetting::setParamEvent(const MSG_SMSC_DATA_S *pSmscData, int Recor
 
 	memset(&smscData, 0x00, sizeof(MSG_SMSC_DATA_S));
 
-	if (bTapiResult == true)
-	{
+	if (bTapiResult == true) {
 		MSG_DEBUG("Success to get parameter data");
 
 		selectedParam = RecordIdx;
@@ -906,16 +886,14 @@ bool SmsPluginSetting::getParamEvent(MSG_SMSC_DATA_S *pSmscData)
 
 	mx.unlock();
 
-	if (ret == ETIMEDOUT)
-	{
+	if (ret == ETIMEDOUT) {
 		MSG_DEBUG("WARNING: TAPI callback TIME-OUT");
 		return false;
 	}
 
 	memset(pSmscData, 0x00, sizeof(MSG_SMSC_DATA_S));
 
-	if (bTapiResult == true)
-	{
+	if (bTapiResult == true) {
 		memcpy(pSmscData, &smscData, sizeof(MSG_SMSC_DATA_S));
 	}
 
@@ -931,8 +909,7 @@ void SmsPluginSetting::setCbConfigEvent(const MSG_CBMSG_OPT_S *pCbOpt, bool bSuc
 
 	memset(&cbOpt, 0x00, sizeof(MSG_CBMSG_OPT_S));
 
-	if (bTapiResult == true)
-	{
+	if (bTapiResult == true) {
 		MSG_DEBUG("Success to get cb config data");
 
 		memcpy(&cbOpt, pCbOpt, sizeof(MSG_CBMSG_OPT_S));
@@ -956,16 +933,14 @@ bool SmsPluginSetting::getCbConfigEvent(MSG_CBMSG_OPT_S *pCbOpt)
 
 	mx.unlock();
 
-	if (ret == ETIMEDOUT)
-	{
+	if (ret == ETIMEDOUT) {
 		MSG_DEBUG("WARNING: TAPI callback TIME-OUT");
 		return false;
 	}
 
 	memset(pCbOpt, 0x00, sizeof(MSG_CBMSG_OPT_S));
 
-	if (bTapiResult == true)
-	{
+	if (bTapiResult == true) {
 		memcpy(pCbOpt, &cbOpt, sizeof(MSG_CBMSG_OPT_S));
 	}
 
@@ -981,8 +956,7 @@ void SmsPluginSetting::setMailboxInfoEvent(SMS_SIM_MAILBOX_LIST_S *pMailboxList,
 
 	memset(&simMailboxList, 0x00, sizeof(SMS_SIM_MAILBOX_LIST_S));
 
-	if (bTapiResult == true)
-	{
+	if (bTapiResult == true) {
 		int i = 0;
 
 		if (pMailboxList && pMailboxList->count > 0) {
@@ -992,7 +966,17 @@ void SmsPluginSetting::setMailboxInfoEvent(SMS_SIM_MAILBOX_LIST_S *pMailboxList,
 			for (i = 0; i < pMailboxList->count ; i++) {
 				MSG_DEBUG("Mailbox list[%d] type=[%d] address = [%s]", i, pMailboxList->list[i].mb_type, pMailboxList->list[i].num);
 				if (pMailboxList->list[i].mb_type == TAPI_SIM_MAILBOX_VOICE) {
-					MsgSettingSetString(VOICEMAIL_NUMBER, pMailboxList->list[i].num);
+					char mailNumber[MAX_PHONE_NUMBER_LEN+1];
+					memset(mailNumber, 0x00 , sizeof(mailNumber));
+					if (simMailboxList.list[i].ton == MSG_TON_INTERNATIONAL && simMailboxList.list[i].num[0] != '+') {
+						snprintf(mailNumber, MAX_PHONE_NUMBER_LEN, "+%s", simMailboxList.list[i].num);
+						MSG_DEBUG("MSG_TON_INTERNATIONAL [%s]", mailNumber);
+					} else {
+						snprintf(mailNumber, MAX_PHONE_NUMBER_LEN, "%s", simMailboxList.list[i].num);
+						MSG_DEBUG("[%s]", mailNumber);
+					}
+					if (MsgSettingSetString(VOICEMAIL_NUMBER, mailNumber) != MSG_SUCCESS)
+						MSG_DEBUG("MsgSettingSetString is failed!!");
 					break;
 				}
 			}
@@ -1016,19 +1000,22 @@ bool SmsPluginSetting::getMailboxInfoEvent(MSG_VOICEMAIL_OPT_S *pVoiceOpt)
 
 	mx.unlock();
 
-	if (ret == ETIMEDOUT)
-	{
+	if (ret == ETIMEDOUT) {
 		MSG_DEBUG("WARNING: TAPI callback TIME-OUT");
 		return false;
 	}
 
 	memset(pVoiceOpt, 0x00, sizeof(MSG_VOICEMAIL_OPT_S));
 
-	if (bTapiResult == true)
-	{
+	if (bTapiResult == true) {
 		for(int i = 0; i < simMailboxList.count; i++) {
 			if (simMailboxList.list[i].mb_type == MSG_SIM_MAILBOX_VOICE) {
-				snprintf(pVoiceOpt->mailNumber, sizeof(pVoiceOpt->mailNumber), "%s", simMailboxList.list[i].num);
+				if (simMailboxList.list[i].ton == MSG_TON_INTERNATIONAL && simMailboxList.list[i].num[0] != '+') {
+					snprintf(pVoiceOpt->mailNumber, sizeof(pVoiceOpt->mailNumber), "+%s", simMailboxList.list[i].num);
+				} else {
+					snprintf(pVoiceOpt->mailNumber, sizeof(pVoiceOpt->mailNumber), "%s", simMailboxList.list[i].num);
+				}
+
 				break;
 			}
 		}
@@ -1045,8 +1032,7 @@ void SmsPluginSetting::setMwiInfoEvent(SMS_SIM_MWI_INFO_S *pMwiInfo, bool bSucce
 
 	memset(&simMwiInfo, 0x00, sizeof(SMS_SIM_MWI_INFO_S));
 
-	if (bTapiResult == true)
-	{
+	if (bTapiResult == true) {
 		int mwi_cnt = 0;
 		int index = 0;
 
@@ -1072,7 +1058,8 @@ void SmsPluginSetting::setMwiInfoEvent(SMS_SIM_MWI_INFO_S *pMwiInfo, bool bSucce
 					mwi_cnt = simMwiInfo.cphs_mwi.b_voice1;
 				}
 
-				MsgSettingSetInt(VOICEMAIL_COUNT, mwi_cnt);
+				if (MsgSettingSetInt(VOICEMAIL_COUNT, mwi_cnt) != MSG_SUCCESS)
+					MSG_DEBUG("MsgSettingSetInt is failed!!");
 
 				if (mwi_cnt > 0) {
 					MSG_MESSAGE_INFO_S msgInfo = {0,};
@@ -1086,7 +1073,7 @@ void SmsPluginSetting::setMwiInfoEvent(SMS_SIM_MWI_INFO_S *pMwiInfo, bool bSucce
 
 					snprintf(msgInfo.msgText, sizeof(msgInfo.msgText), "%d new voice message", mwi_cnt);
 
-					MsgSoundPlayStart();
+					MsgSoundPlayStart(false);
 					MsgInsertNoti(&msgInfo);
 				}
 				break;
@@ -1121,8 +1108,7 @@ bool SmsPluginSetting::getResultFromSim()
 
 	mx.unlock();
 
-	if (ret == ETIMEDOUT)
-	{
+	if (ret == ETIMEDOUT) {
 		MSG_DEBUG("WARNING: TAPI callback TIME-OUT");
 		return false;
 	}
@@ -1162,3 +1148,4 @@ SMS_PID_T SmsPluginSetting::convertPid(MSG_SMS_PID_T pid)
 
 	return retPid;
 }
+

@@ -991,5 +991,14 @@ typedef struct {
 	SMS_SIM_MWI_CPHS_INFO_S cphs_mwi;
 } SMS_SIM_MWI_INFO_S;
 
+/**
+ *	@brief	Represents Message Data Information from Telephony.
+ */
+typedef struct {
+	unsigned char sca[MAX_ADDRESS_LEN]; /**< Service Center address */
+	int msgLength; /**< Size of array szData (which is actual TPDU message) */
+	unsigned char szData[MAX_TPDU_DATA_LEN + 1]; /**< SMS TPDU message */
+} SMS_DATA_INFO_S;
+
 #endif //SMS_PLUGIN_TYPES_H
 

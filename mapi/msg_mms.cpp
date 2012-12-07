@@ -43,14 +43,14 @@ typedef struct
 {
 	MmsSmilMediaType	mediatype; /**< Indicates the SMIL media type. see enum MmsSmilMediaType */
 
-	char			szSrc[MSG_FILEPATH_LEN_MAX];/**< Indicates the media source name */
-	char			szFileName[MSG_FILENAME_LEN_MAX]; /**< Indicates the file name */
-	char			szFilePath[MSG_FILEPATH_LEN_MAX]; /**< Indicates the file path */
-	char			szContentID[MSG_MSG_ID_LEN+1]; /**< Indicates the content id */
-	char			regionId[MAX_SMIL_REGION_ID]; /**< Indicates the region id */
-	char			szAlt[MAX_SMIL_ALT_LEN]; /**< Indicates the alternative text to be displayed in failure case */
+	char			szSrc[MSG_FILEPATH_LEN_MAX + 1];/**< Indicates the media source name */
+	char			szFileName[MSG_FILENAME_LEN_MAX + 1]; /**< Indicates the file name */
+	char			szFilePath[MSG_FILEPATH_LEN_MAX + 1]; /**< Indicates the file path */
+	char			szContentID[MSG_MSG_ID_LEN + 1]; /**< Indicates the content id */
+	char			regionId[MAX_SMIL_REGION_ID + 1]; /**< Indicates the region id */
+	char			szAlt[MAX_SMIL_ALT_LEN + 1]; /**< Indicates the alternative text to be displayed in failure case */
 	MsgDrmType		drmType; /**< Indicates the drm type. see enum MsgDrmType */
-	char			szDrm2FullPath[MSG_FILEPATH_LEN_MAX];  /**< Indicates the fullpath of the DRM */
+	char			szDrm2FullPath[MSG_FILEPATH_LEN_MAX + 1];  /**< Indicates the fullpath of the DRM */
 	msg_struct_s *pText;
 	msg_struct_s *pAVI;
 } MMS_MEDIA_HIDDEN_S;
@@ -829,10 +829,10 @@ int msg_mms_set_str_value(msg_struct_s *msg_struct, int field, char *value, int 
 				strncpy(mms_media_data->szFilePath, value, MSG_FILEPATH_LEN_MAX);
 				filename = strrchr(value, '/');
 				if (filename != NULL) {
-					strncpy(mms_media_data->szFileName, filename + 1, MSG_FILENAME_LEN_MAX-1);
+					strncpy(mms_media_data->szFileName, filename + 1, MSG_FILENAME_LEN_MAX);
 					strncpy(mms_media_data->szContentID, filename + 1, MSG_MSG_ID_LEN);
 				} else {
-					strncpy(mms_media_data->szFileName, value + 1, MSG_FILENAME_LEN_MAX-1);
+					strncpy(mms_media_data->szFileName, value + 1, MSG_FILENAME_LEN_MAX);
 					strncpy(mms_media_data->szContentID, value + 1, MSG_MSG_ID_LEN);
 				}
 			} else {
@@ -865,13 +865,13 @@ int msg_mms_set_str_value(msg_struct_s *msg_struct, int field, char *value, int 
 				mms_attach_data->mediatype = MIME_UNKNOWN;
 				mms_attach_data->fileSize = -1;
 
-				strncpy(mms_attach_data->szFilePath, filepath, MSG_FILEPATH_LEN_MAX-1);
+				strncpy(mms_attach_data->szFilePath, filepath, MSG_FILEPATH_LEN_MAX);
 
 				filename = strrchr(filepath, '/');
 				if (filename != NULL) {
-					strncpy(mms_attach_data->szFileName, filename + 1, MSG_FILENAME_LEN_MAX-1);
+					strncpy(mms_attach_data->szFileName, filename + 1, MSG_FILENAME_LEN_MAX);
 				} else {
-					strncpy(mms_attach_data->szFileName, filepath, MSG_FILENAME_LEN_MAX-1);
+					strncpy(mms_attach_data->szFileName, filepath, MSG_FILENAME_LEN_MAX);
 				}
 
 			} else {
@@ -908,9 +908,9 @@ int msg_mms_set_str_value(msg_struct_s *msg_struct, int field, char *value, int 
 		if (field == MSG_MMS_META_ID_STR)
 			strncpy(mms_meta_data->szID, value, MAX_SMIL_META_ID);
 		else if (field == MSG_MMS_META_NAME_STR)
-			strncpy(mms_meta_data->szID, value, MAX_SMIL_META_NAME);
+			strncpy(mms_meta_data->szName, value, MAX_SMIL_META_NAME);
 		else if (field == MSG_MMS_META_CONTENT_STR)
-			strncpy(mms_meta_data->szID, value, MAX_SMIL_META_CONTENT);
+			strncpy(mms_meta_data->szContent, value, MAX_SMIL_META_CONTENT);
 		else
 			err = MSG_ERR_INVALID_PARAMETER;
 	}
@@ -1127,7 +1127,7 @@ void convert_to_media_data(const msg_struct_s *pSrc, MMS_MEDIA_S *pDest)
 	memcpy(dst_media->szSrc, src_media->szSrc, MSG_FILEPATH_LEN_MAX);
 	memcpy(dst_media->szFileName, src_media->szFileName, MSG_FILEPATH_LEN_MAX);
 	memcpy(dst_media->szFilePath, src_media->szFilePath, MSG_FILEPATH_LEN_MAX);
-	memcpy(dst_media->szContentID, src_media->szContentID, MSG_MSG_ID_LEN+1);
+	memcpy(dst_media->szContentID, src_media->szContentID, MSG_MSG_ID_LEN);
 	memcpy(dst_media->regionId, src_media->regionId, MAX_SMIL_REGION_ID);
 	memcpy(dst_media->szAlt, src_media->szAlt, MAX_SMIL_ALT_LEN);
 
@@ -1154,7 +1154,7 @@ void convert_from_media_data(const MMS_MEDIA_S *pSrc, msg_struct_s *pDest)
 	memcpy(dst_media->szSrc, src_media->szSrc, MSG_FILEPATH_LEN_MAX);
 	memcpy(dst_media->szFileName, src_media->szFileName, MSG_FILEPATH_LEN_MAX);
 	memcpy(dst_media->szFilePath, src_media->szFilePath, MSG_FILEPATH_LEN_MAX);
-	memcpy(dst_media->szContentID, src_media->szContentID, MSG_MSG_ID_LEN+1);
+	memcpy(dst_media->szContentID, src_media->szContentID, MSG_MSG_ID_LEN);
 	memcpy(dst_media->regionId, src_media->regionId, MAX_SMIL_REGION_ID);
 	memcpy(dst_media->szAlt, src_media->szAlt, MAX_SMIL_ALT_LEN);
 

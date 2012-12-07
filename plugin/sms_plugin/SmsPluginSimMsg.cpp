@@ -43,7 +43,7 @@ SmsPluginSimMsg::SmsPluginSimMsg()
 	usedCnt = 0;
 	totalCnt = 0;
 	bTapiResult = false;
-	bClass2Msg = false;
+	memset(&simMsgDataInfo, 0x00, sizeof(simMsgDataInfo));
 }
 
 
@@ -130,7 +130,7 @@ msg_error_t SmsPluginSimMsg::saveSimMessage(const MSG_MESSAGE_INFO_S *pMsgInfo, 
 	if (submitData.segCount > 1)
 		tpdu.data.deliver.bHeaderInd = true;
 
-	int bufLen = 0, reqId = 0;
+	int bufLen = 0;
 
 	char buf[MAX_TPDU_DATA_LEN];
 
@@ -162,6 +162,14 @@ msg_error_t SmsPluginSimMsg::saveSimMessage(const MSG_MESSAGE_INFO_S *pMsgInfo, 
 		simSmsData.SmsData.szData[bufLen] = 0;
 		simSmsData.SmsData.MsgLength = bufLen;
 
+#ifdef MSG_FOR_DEBUG
+		MSG_DEBUG("Sim Message.");
+		for (int j = 0; j < simSmsData.SmsData.MsgLength; j++)
+		{
+			MSG_DEBUG("[%02x]", simSmsData.SmsData.szData[j]);
+		}
+#endif
+
 		MSG_DEBUG("Read Status [%d]", pMsgInfo->bRead);
 
 		if (pMsgInfo->bRead == true)
@@ -176,11 +184,11 @@ msg_error_t SmsPluginSimMsg::saveSimMessage(const MSG_MESSAGE_INFO_S *pMsgInfo, 
 
 		if (ret == TAPI_API_SUCCESS)
 		{
-			MSG_DEBUG("########  tel_write_sms_in_sim Success !!! req Id : [%d] #######", reqId);
+			MSG_DEBUG("########  tel_write_sms_in_sim Success !!!#######");
 		}
 		else
 		{
-		 	MSG_DEBUG("########  tel_write_sms_in_sim Fail !!! req Id : [%d] return : [%d] #######", reqId, ret);
+		 	MSG_DEBUG("########  tel_write_sms_in_sim Fail !!! return : [%d] #######", ret);
 
 			return MSG_ERR_PLUGIN_STORAGE;
 		}
@@ -195,7 +203,7 @@ msg_error_t SmsPluginSimMsg::saveSimMessage(const MSG_MESSAGE_INFO_S *pMsgInfo, 
 
 		if (bResult == true)
 		{
-			MSG_DEBUG("########  Saving Msg was Successful !!! req Id : [%d] SIM ID : [%d] #######", reqId, SimId);
+			MSG_DEBUG("########  Saving Msg was Successful !!! SIM ID : [%d] #######", SimId);
 
 			usedCnt = MsgSettingGetInt(SIM_USED_COUNT);
 
@@ -211,7 +219,7 @@ msg_error_t SmsPluginSimMsg::saveSimMessage(const MSG_MESSAGE_INFO_S *pMsgInfo, 
 		}
 		else
 		{
-		 	MSG_DEBUG("########  Saving Msg was Failed !!! req Id : [%d] SIM ID : [%d] #######", reqId, SimId);
+		 	MSG_DEBUG("########  Saving Msg was Failed !!! SIM ID : [%d] #######", SimId);
 
 			return MSG_ERR_PLUGIN_STORAGE;
 		}
@@ -224,8 +232,6 @@ msg_error_t SmsPluginSimMsg::saveSimMessage(const MSG_MESSAGE_INFO_S *pMsgInfo, 
 msg_error_t SmsPluginSimMsg::saveClass2Message(const MSG_MESSAGE_INFO_S *pMsgInfo)
 {
 	// Reset Flag
-	bClass2Msg = false;
-
 	SMS_TPDU_S tpdu;
 
 	tpdu.tpduType = SMS_TPDU_DELIVER;
@@ -233,14 +239,7 @@ msg_error_t SmsPluginSimMsg::saveClass2Message(const MSG_MESSAGE_INFO_S *pMsgInf
 	// Set SMS TPDU Options
 	setSmsOptions(&(tpdu.data.deliver));
 
-	// Set TimeStamp
-	convertTimeStamp(pMsgInfo, &(tpdu.data.deliver));
-
-	// Set SMSC Options
-	SMS_ADDRESS_S smsc;
-	SmsPluginTransport::instance()->setSmscOptions(&smsc);
-
-	// Make SMS_SUBMIT_DATA_S from MSG_REQUEST_INFO_S
+	// Make SMS_SUBMIT_DATA_S from MSG_REQUEST_INFO_S to get segment count
 	SMS_SUBMIT_DATA_S submitData;
 	SmsPluginTransport::instance()->msgInfoToSubmitData(pMsgInfo, &submitData, &(tpdu.data.deliver.dcs.codingScheme), 0);
 
@@ -249,70 +248,36 @@ msg_error_t SmsPluginSimMsg::saveClass2Message(const MSG_MESSAGE_INFO_S *pMsgInf
 	{
 		MSG_DEBUG("SIM storage is full.");
 
+		SmsPluginTransport::instance()->sendDeliverReport(MSG_ERR_SIM_STORAGE_FULL);
+
 		return MSG_ERR_SIM_STORAGE_FULL;
 	}
 
-	tpdu.data.deliver.userData.headerCnt = 0;
+	// Create TelSmsData_t data
+	TelSmsData_t simSmsData = {0,};
 
-	int bufLen = 0, reqId = 0;
+	memcpy(&simSmsData.SmsData.Sca, &simMsgDataInfo.sca, sizeof(simSmsData.SmsData.Sca));
+	memcpy(&simSmsData.SmsData.szData, &simMsgDataInfo.szData, sizeof(simSmsData.SmsData.szData)-1);
+	simSmsData.SmsData.MsgLength = simMsgDataInfo.msgLength;
 
-	char buf[MAX_TPDU_DATA_LEN];
-
-	int addrLen = strlen(submitData.destAddress.address);
-
-	tpdu.data.deliver.originAddress.ton = submitData.destAddress.ton;
-	tpdu.data.deliver.originAddress.npi = submitData.destAddress.npi;
-
-	memcpy(tpdu.data.deliver.originAddress.address, submitData.destAddress.address, addrLen);
-	tpdu.data.deliver.originAddress.address[addrLen] = '\0';
-
-	tpdu.data.deliver.userData.length = submitData.userData[0].length;
-	memcpy(tpdu.data.deliver.userData.data, submitData.userData[0].data, submitData.userData[0].length);
-
-	memset(buf, 0x00, sizeof(buf));
-
-	// Encode SMS-DELIVER TPDU
-	bufLen = SmsPluginTpduCodec::encodeTpdu(&tpdu, buf);
-
-	// Make Telephony Structure
-	TelSmsData_t simSmsData;
-	memset((void*)&simSmsData, 0x00, sizeof(simSmsData));
-
-	// Set TPDU data
-	memcpy((void*)simSmsData.SmsData.szData, buf, bufLen);
-
-	simSmsData.SmsData.szData[bufLen] = 0;
-	simSmsData.SmsData.MsgLength = bufLen;
-
+	// Set message status
 	simSmsData.MsgStatus = TAPI_NETTEXT_STATUS_UNREAD;
 
 	// Save Class 2 Msg in SIM
 	int tapiRet = TAPI_API_SUCCESS;
 
-	tapiRet = tel_write_sms_in_sim(pTapiHandle, &simSmsData, TapiEventSaveSimMsg, NULL);
+	tapiRet = tel_write_sms_in_sim(pTapiHandle, &simSmsData, TapiEventSaveClass2Msg, NULL);
 
 	if (tapiRet == TAPI_API_SUCCESS)
 	{
-		MSG_DEBUG("########  tel_write_sms_in_sim Success !!! req Id : [%d] #######", reqId);
-
-		// Set Flag
-		bClass2Msg = true;
-
 		memset(&simMsgInfo, 0x00, sizeof(MSG_MESSAGE_INFO_S));
 		memcpy(&simMsgInfo, pMsgInfo, sizeof(MSG_MESSAGE_INFO_S));
 
-		usedCnt = MsgSettingGetInt(SIM_USED_COUNT);
-
-		usedCnt++;
-
-		if (MsgSettingSetInt(SIM_USED_COUNT, usedCnt) != MSG_SUCCESS)
-		{
-			MSG_DEBUG("Error to set config data [%s]", SIM_USED_COUNT);
-		}
+		MSG_DEBUG("########  tel_write_sms_in_sim Success !!! #######");
 	}
 	else
 	{
-	 	MSG_DEBUG("########  tel_write_sms_in_sim Fail !!! req Id : [%d] return : [%d] #######", reqId, tapiRet);
+	 	MSG_DEBUG("########  tel_write_sms_in_sim Fail !!! return : [%d] #######", tapiRet);
 
 		SmsPluginTransport::instance()->sendDeliverReport(MSG_ERR_STORAGE_ERROR);
 
@@ -326,17 +291,16 @@ msg_error_t SmsPluginSimMsg::saveClass2Message(const MSG_MESSAGE_INFO_S *pMsgInf
 void SmsPluginSimMsg::deleteSimMessage(msg_sim_id_t SimMsgId)
 {
 	int tapiRet = TAPI_API_SUCCESS;
-	int reqId = 0;
 
 	tapiRet = tel_delete_sms_in_sim(pTapiHandle, (int)SimMsgId, TapiEventDeleteSimMsg, NULL);
 
 	if (tapiRet == TAPI_API_SUCCESS)
 	{
-		MSG_DEBUG("########  tel_delete_sms_in_sim Success !!! req Id : [%d] #######", reqId);
+		MSG_DEBUG("########  tel_delete_sms_in_sim Success !!! #######");
 	}
 	else
 	{
-	 	THROW(MsgException::SMS_PLG_ERROR, "########  tel_delete_sms_in_sim Fail !!! req Id : [%d] return : [%d] #######", reqId, tapiRet);
+	 	THROW(MsgException::SMS_PLG_ERROR, "########  tel_delete_sms_in_sim Fail !!! return : [%d] #######", tapiRet);
 	}
 
 	msg_sim_id_t SimId = 0;
@@ -348,7 +312,7 @@ void SmsPluginSimMsg::deleteSimMessage(msg_sim_id_t SimMsgId)
 
 	if (bResult == true)
 	{
-		MSG_DEBUG("########  Deleting Msg was Successful !!! req Id : [%d] SIM ID : [%d] #######", reqId, SimId);
+		MSG_DEBUG("########  Deleting Msg was Successful !!! SIM ID : [%d] #######", SimId);
 
 		usedCnt = MsgSettingGetInt(SIM_USED_COUNT);
 		totalCnt = MsgSettingGetInt(SIM_TOTAL_COUNT);
@@ -359,11 +323,11 @@ void SmsPluginSimMsg::deleteSimMessage(msg_sim_id_t SimMsgId)
 
 			if (tapiRet == TAPI_API_SUCCESS)
 			{
-				MSG_DEBUG("########  tel_set_sms_memory_status() Success !!! req Id : [%d] #######", reqId);
+				MSG_DEBUG("########  tel_set_sms_memory_status() Success !!! #######");
 			}
 			else
 			{
-				MSG_DEBUG("########  tel_set_sms_memory_status() Success !!! req Id : [%d] return : [%d] #######", reqId, tapiRet);
+				MSG_DEBUG("########  tel_set_sms_memory_status() Success !!! return : [%d] #######", tapiRet);
 			}
 		}
 
@@ -376,7 +340,7 @@ void SmsPluginSimMsg::deleteSimMessage(msg_sim_id_t SimMsgId)
 	}
 	else
 	{
-	 	THROW(MsgException::SMS_PLG_ERROR, "########  Deleting Msg was Failed !!! req Id : [%d] SIM ID : [%d] #######", reqId, SimId);
+	 	THROW(MsgException::SMS_PLG_ERROR, "########  Deleting Msg was Failed !!! SIM ID : [%d] #######", SimId);
 	}
 }
 
@@ -595,7 +559,6 @@ bool SmsPluginSimMsg::getSimMsgCntEvent(MSG_SIM_COUNT_S *pSimMsgCnt)
 	return true;
 }
 
-
 void SmsPluginSimMsg::setSimMsgEvent(const MSG_MESSAGE_INFO_S *pMsgInfo, bool bSuccess)
 {
 	mx.lock();
@@ -646,20 +609,47 @@ bool SmsPluginSimMsg::getSimMsgEvent(MSG_MESSAGE_INFO_S *pMsgInfo)
 }
 
 
-void SmsPluginSimMsg::setSimEvent(msg_sim_id_t SimId, bool bResult)
+void SmsPluginSimMsg::setSaveSimMsgEvent(int simMsgId, int result)
 {
-	if (bClass2Msg == true)
-	{
-		msg_error_t err = MSG_SUCCESS;
+	msg_error_t err = MSG_SUCCESS;
 
-		simMsgInfo.msgId = SimId;
+	mx.lock();
 
-		// Add Deliver Class2 Msg into DB
-		err = SmsPluginStorage::instance()->addSmsMessage(&simMsgInfo);
+	if (result != TAPI_NETTEXT_SENDSMS_SUCCESS) {
+		if (result == TAPI_NETTEXT_ROUTING_NOT_AVAILABLE)
+			err = MSG_ERR_SIM_STORAGE_FULL;
+		else
+			err = MSG_ERR_UNKNOWN;
+	}
+
+	if (err == MSG_SUCCESS)
+		bTapiResult = true;
+	else
+		bTapiResult = false;
+
+	cv.signal();
+
+	mx.unlock();
+
+	// Send Deliver Report
+	SmsPluginTransport::instance()->sendDeliverReport(err);
+
+}
+
+
+void SmsPluginSimMsg::setSaveClass2MsgEvent(int simMsgId, int result)
+{
+	msg_error_t err = MSG_SUCCESS;
+
+	if (result == TAPI_NETTEXT_SENDSMS_SUCCESS && simMsgId >= 0) {
+
+		simMsgInfo.msgId = simMsgId;
+
+		err = SmsPluginStorage::instance()->addSimMessage(&simMsgInfo);
 
 		if (err == MSG_SUCCESS)
 		{
-			MSG_DEBUG("addMessage() Success !!");
+			MSG_DEBUG("addSimMessage() Success !!");
 
 			// Callback
 			err = SmsPluginEventHandler::instance()->callbackMsgIncoming(&simMsgInfo);
@@ -668,28 +658,40 @@ void SmsPluginSimMsg::setSimEvent(msg_sim_id_t SimId, bool bResult)
 			{
 				MSG_DEBUG("callbackMsgIncoming() Error !! [%d]", err);
 			}
-		}
-		else
-		{
+
+			usedCnt = MsgSettingGetInt(SIM_USED_COUNT);
+
+			usedCnt++;
+
+			if (MsgSettingSetInt(SIM_USED_COUNT, usedCnt) != MSG_SUCCESS)
+			{
+				MSG_DEBUG("Error to set config data [%s]", SIM_USED_COUNT);
+			}
+		} else	{
 			MSG_DEBUG("addMessage() Error !! [%d]", err);
 		}
-
-		// Send Deliver Report
-		SmsPluginTransport::instance()->sendDeliverReport(err);
-
-		bClass2Msg = false;
+	} else {
+			if (result == TAPI_NETTEXT_ROUTING_NOT_AVAILABLE)
+				err = MSG_ERR_SIM_STORAGE_FULL;
+			else
+				err = MSG_ERR_UNKNOWN;
 	}
-	else
-	{
-		mx.lock();
 
-		simMsgId = SimId;
-		bTapiResult = bResult;
+	// Send Deliver Report
+	SmsPluginTransport::instance()->sendDeliverReport(err);
+}
 
-		cv.signal();
 
-		mx.unlock();
-	}
+void SmsPluginSimMsg::setSimEvent(msg_sim_id_t SimId, bool bResult)
+{
+	mx.lock();
+
+	simMsgId = SimId;
+	bTapiResult = bResult;
+
+	cv.signal();
+
+	mx.unlock();
 }
 
 
@@ -716,4 +718,15 @@ bool SmsPluginSimMsg::getSimEvent(msg_sim_id_t *pSimId)
 	MSG_DEBUG("Returned SimMsgId is %d.", simMsgId);
 
 	return bTapiResult;
+}
+
+void SmsPluginSimMsg::setSmsData(const char *sca, const char *szData, int msgLength)
+{
+	MSG_DEBUG("Set SMS data(class2 message)");
+
+	memset(&simMsgDataInfo, 0x00, sizeof(simMsgDataInfo));
+
+	memcpy(&simMsgDataInfo.sca, sca, sizeof(simMsgDataInfo.sca)-1);
+	memcpy(&simMsgDataInfo.szData, szData, sizeof(simMsgDataInfo.szData)-1);
+	simMsgDataInfo.msgLength = msgLength;
 }

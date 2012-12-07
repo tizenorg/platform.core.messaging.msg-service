@@ -43,8 +43,8 @@ class MsgHandle
 		virtual ~MsgHandle();
 
 		// Control
-        	void openHandle();
-        	void closeHandle(MsgHandle* pHandle);
+		void openHandle();
+		void closeHandle(MsgHandle* pHandle);
 
 		// Transport
 		msg_error_t submitReq(MSG_REQUEST_S* pReq);
@@ -122,9 +122,9 @@ class MsgHandle
 		msg_error_t setMsgSizeOpt(msg_struct_t msg_struct);
 
 		//Backup & Restore
-		msg_error_t backupMessage();
-		msg_error_t restoreMessage();
-
+		msg_error_t backupMessage(msg_message_backup_type_t type, const char *backup_filepath);
+		msg_error_t restoreMessage(const char *backup_filepath);
+		msg_error_t getVobject(msg_message_id_t MsgId, void** encodedData);
 		// ETC
 		msg_error_t searchMessage(const char *pSearchString, msg_struct_list_s *pThreadViewList);
 		msg_error_t searchMessage(const MSG_SEARCH_CONDITION_S *pSearchCon, int offset, int limit, msg_struct_list_s *pMsgList);
@@ -146,19 +146,20 @@ class MsgHandle
 	private:
 		void connectSocket();
 		void	disconnectSocket();
-        	void write(const char *pCmd, int CmdSize, char **ppEvent);
+		void write(const char *pCmd, int CmdSize, char **ppEvent);
 		void read(char **ppEvent);
-        	void generateConnectionId(char *ConnectionId);
+		void generateConnectionId(char *ConnectionId);
 		void convertMsgStruct(const MSG_MESSAGE_HIDDEN_S *pSource, MSG_MESSAGE_INFO_S *pDest);
 		void convertSendOptStruct(const MSG_SENDINGOPT_S* pSrc, MSG_SENDINGOPT_INFO_S* pDest, MSG_MESSAGE_TYPE_S msgType);
 		int getSettingCmdSize(MSG_OPTION_TYPE_T optionType);
+		bool CheckEventData(char *pEventData);
 
-		char		mConnectionId[20];
-		short	mCounter;
+		char mConnectionId[20];
+		short mCounter;
 
-		char 				mCookie[MAX_COOKIE_LEN];
+		char mCookie[MAX_COOKIE_LEN];
 
-		MsgIpcClientSocket	mClientSock;
+		MsgIpcClientSocket mClientSock;
 };
 
 #endif // MSG_HANDLE_H

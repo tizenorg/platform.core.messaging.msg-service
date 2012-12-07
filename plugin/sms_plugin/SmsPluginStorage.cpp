@@ -37,7 +37,11 @@ SmsPluginStorage* SmsPluginStorage::pInstance = NULL;
 
 SmsPluginStorage::SmsPluginStorage()
 {
-
+/*** No need to connect DB anymore.
+	if (dbHandle.connect() != MSG_SUCCESS) {
+		MSG_DEBUG("DB Connect Fail");
+	}
+***/
 }
 
 
@@ -64,6 +68,9 @@ msg_error_t SmsPluginStorage::updateSentMsg(MSG_MESSAGE_INFO_S *pMsgInfo, msg_ne
 {
 	MSG_BEGIN();
 
+/***  Comment below line to not save the time value after sent status (it could be used later.)
+	time_t curTime = time(NULL);
+***/
 	char sqlQuery[MAX_QUERY_LEN+1];
 
 	memset(sqlQuery, 0x00, sizeof(sqlQuery));
@@ -89,11 +96,88 @@ msg_error_t SmsPluginStorage::updateSentMsg(MSG_MESSAGE_INFO_S *pMsgInfo, msg_ne
 		MsgAddPhoneLog(pMsgInfo);
 	}
 
+
 	MSG_END();
 
 	return MSG_SUCCESS;
 }
 
+#ifdef SMS_REPORT_OPERATION
+msg_error_t SmsPluginStorage::updateMsgRef(msg_message_id_t MsgId, unsigned char MsgRef)
+{
+	MSG_BEGIN();
+
+	char sqlQuery[MAX_QUERY_LEN+1];
+
+	memset(sqlQuery, 0x00, sizeof(sqlQuery));
+
+	snprintf(sqlQuery, sizeof(sqlQuery), "UPDATE %s SET MSG_REF = %d WHERE MSG_ID = %d;",
+				MSGFW_REPORT_TABLE_NAME, (int)MsgRef, MsgId);
+
+	if (dbHandle.execQuery(sqlQuery) != MSG_SUCCESS) {
+		MSG_DEBUG("Query Failed : [%s]", sqlQuery);
+		return MSG_ERR_DB_EXEC;
+	}
+
+	/** Set Message Reference for updating report table */
+	tmpMsgRef = MsgRef;
+
+	MSG_DEBUG("MsgRef : %d", MsgRef);
+
+	MSG_END();
+
+	return MSG_SUCCESS;
+}
+
+
+msg_error_t SmsPluginStorage::updateStatusReport(unsigned char MsgRef, msg_delivery_report_status_t Status, time_t DeliveryTime)
+{
+	MSG_BEGIN();
+
+	MSG_DEBUG("tmpMsgRef : %d", tmpMsgRef);
+
+	char sqlQuery[MAX_QUERY_LEN+1];
+
+	/** Get Msg Id for Quickpanel Noti */
+	msg_message_id_t msgId = 0;
+
+	memset(sqlQuery, 0x00, sizeof(sqlQuery));
+	snprintf(sqlQuery, sizeof(sqlQuery), "SELECT MSG_ID FROM %s WHERE MSG_REF = %d;",
+					MSGFW_REPORT_TABLE_NAME, (int)tmpMsgRef);
+
+	if (dbHandle.prepareQuery(sqlQuery) != MSG_SUCCESS)
+		return MSG_ERR_DB_PREPARE;
+
+	if (dbHandle.stepQuery() == MSG_ERR_DB_ROW)
+		msgId = dbHandle.columnInt(0);
+
+	dbHandle.finalizeQuery();
+
+	/** Update Status */
+	memset(sqlQuery, 0x00, sizeof(sqlQuery));
+	snprintf(sqlQuery, sizeof(sqlQuery), "UPDATE %s SET MSG_REF = -1, DELIVERY_REPORT_STATUS = %d, DELIVERY_REPORT_TIME = %lu WHERE MSG_REF = %d;",
+					MSGFW_REPORT_TABLE_NAME, Status, DeliveryTime, (int)tmpMsgRef);
+
+	if (dbHandle.execQuery(sqlQuery) != MSG_SUCCESS) {
+		MSG_DEBUG("Query Failed : [%s]", sqlQuery);
+		return MSG_ERR_DB_EXEC;
+	}
+
+	/** Insert Quickpanel Noti */
+	msg_error_t ret = MSG_SUCCESS;
+
+	ret = MsgInsertSmsNotiToQuickpanel(&dbHandle, msgId, Status);
+
+	if (ret != MSG_SUCCESS) {
+		MSG_DEBUG("MsgInsertSmsNotiToQuickpanel() Failed : [%d]", ret);
+		return ret;
+	}
+
+	MSG_END();
+
+	return MSG_SUCCESS;
+}
+#endif
 
 msg_error_t SmsPluginStorage::addSimMessage(MSG_MESSAGE_INFO_S *pSimMsgInfo)
 {
@@ -113,6 +197,8 @@ msg_error_t SmsPluginStorage::addSimMessage(MSG_MESSAGE_INFO_S *pSimMsgInfo)
 		dbHandle.endTrans(false);
 		return err;
 	}
+
+	pSimMsgInfo->threadId = convId;
 
 	err = dbHandle.getRowId(MSGFW_MESSAGE_TABLE_NAME, &msgId);
 
@@ -230,6 +316,12 @@ msg_error_t SmsPluginStorage::addMessage(MSG_MESSAGE_INFO_S *pMsgInfo)
 	err = checkStorageStatus(pMsgInfo);
 
 	if (err != MSG_SUCCESS) {
+		if (pMsgInfo->msgType.classType == MSG_CLASS_0) {
+			pMsgInfo->folderId = 0;
+			if (addSmsMessage(pMsgInfo) != MSG_SUCCESS) {
+				MSG_DEBUG("addSmsMessage is failed!");
+			}
+		}
 		return err;
 	}
 
@@ -551,7 +643,8 @@ msg_error_t SmsPluginStorage::deleteSmsMessage(msg_message_id_t msgId)
 	mmsCnt = MsgStoGetUnreadCnt(&dbHandle, MSG_MMS_TYPE);
 
 	MsgSettingHandleNewMsg(smsCnt, mmsCnt);
-	MsgDeleteNotiByMsgId(msgId);
+//	MsgDeleteNotiByMsgId(msgId);
+	MsgRefreshNoti();
 
 	return MSG_SUCCESS;
 }

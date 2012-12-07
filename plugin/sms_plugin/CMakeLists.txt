@@ -40,7 +40,7 @@ INCLUDE_DIRECTORIES(
 )
 
 INCLUDE(FindPkgConfig)
-pkg_check_modules(sms_plugin_pkgs REQUIRED glib-2.0 tapi libxml-2.0 libwbxml2 drm-client dlog vconf)
+pkg_check_modules(sms_plugin_pkgs REQUIRED glib-2.0 tapi libxml-2.0 libwbxml2 drm-client dlog vconf dbus-glib-1)
 
 FOREACH(flag ${sms_plugin_pkgs_CFLAGS})
 	SET(EXTRA_CFLAGS "${EXTRA_CFLAGS} ${flag}")

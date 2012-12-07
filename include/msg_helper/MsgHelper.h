@@ -24,7 +24,8 @@
 					DEFINES
 ==================================================================================================*/
 
-#define MSG_SOUND_START	"SOUND_START"
+#define MSG_NORMAL_SOUND_START	"NORMAL_SOUND_START"
+#define MSG_EMERGENCY_SOUND_START	"EMERGENCY_SOUND_START"
 #define MSG_SOUND_STOP		"SOUND_STOP"
 
 #define MAX_SOUND_FILE_LEN 1024
@@ -43,10 +44,11 @@ typedef void (*msg_sensor_cb)();
 
 // SoundPlayer
 msg_error_t MsgSoundPlayUninit();
-void MsgSoundPlayStart();
+void MsgSoundPlayStart(bool isEmergency);
 void MsgSoundPlayStop();
 int MsgSoundPlayMelody(char *pMsgToneFilePath, bool bIncreasing);
 void MsgSoundPlayVibration();
+void MsgSoundPlayDtmf();
 
 //Sensor FW wrapper.
 msg_error_t MsgSensorConnect();

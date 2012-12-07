@@ -96,7 +96,7 @@ void MsgDecodeFilterFlag(char *pSrc, bool *pSetFlag);
 
 void MsgDecodeMsgType(char *pSrc, MSG_MESSAGE_TYPE_S* pMsgType);
 
-void	MsgDecodeContactCount(char *pSrc,  MSG_THREAD_COUNT_INFO_S *pMsgThreadCountList);
+void MsgDecodeContactCount(char *pSrc,  MSG_THREAD_COUNT_INFO_S *pMsgThreadCountList);
 
 void MsgDecodeMemSize(char *pSrc, unsigned int *memsize);
 

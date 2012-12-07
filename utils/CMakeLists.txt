@@ -27,6 +27,7 @@ SET(UTILS-SRCS
 	${CMAKE_SOURCE_DIR}/utils/MsgGconfWrapper.cpp
 	${CMAKE_SOURCE_DIR}/utils/MsgContact.cpp
 	${CMAKE_SOURCE_DIR}/utils/MsgNotificationWrapper.cpp
+	${CMAKE_SOURCE_DIR}/utils/MsgVMessage.cpp
 	${CMAKE_SOURCE_DIR}/utils/MsgMemory.cpp
 	${CMAKE_SOURCE_DIR}/utils/MsgMmsMessage.cpp
 	${CMAKE_SOURCE_DIR}/utils/MsgSpamFilter.cpp
@@ -39,10 +40,11 @@ INCLUDE_DIRECTORIES(
 	${CMAKE_SOURCE_DIR}/include/framework
 	${CMAKE_SOURCE_DIR}/include/msg_helper
 	${CMAKE_SOURCE_DIR}/include/utils
+	${CMAKE_SOURCE_DIR}/vobject-engine/include
 )
 
 INCLUDE(FindPkgConfig)
-pkg_check_modules(utils_pkgs REQUIRED glib-2.0 vconf db-util contacts-service dlog pmapi mm-session alarm-service notification drm-client)
+pkg_check_modules(utils_pkgs REQUIRED glib-2.0 vconf db-util contacts-service2 dlog pmapi mm-session alarm-service notification drm-client)
 
 FOREACH(flag ${utils_pkgs_CFLAGS})
 	SET(EXTRA_CFLAGS "${EXTRA_CFLAGS} ${flag}")
