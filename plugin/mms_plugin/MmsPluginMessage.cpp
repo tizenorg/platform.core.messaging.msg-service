@@ -1302,12 +1302,18 @@ msg_error_t MmsMakePreviewInfo(int msgId, MMS_MESSAGE_DATA_S *pMmsMsg)
 			if (pMedia->mediatype == MMS_SMIL_MEDIA_IMG || pMedia->mediatype == MMS_SMIL_MEDIA_VIDEO) {
 				char szFileName[MSG_FILENAME_LEN_MAX+1] = {0, };
 				char thumbPath[MSG_FILEPATH_LEN_MAX+1] = {0, };
+				char *pszExt = NULL;
 
 				memset(szFileName, 0x00, MSG_FILENAME_LEN_MAX+1);
 				memset(thumbPath, 0x00, MSG_FILEPATH_LEN_MAX);
 
 				snprintf(szFileName, MSG_FILENAME_LEN_MAX+1, "%d.mms",msgId);
-				snprintf(thumbPath, MSG_FILEPATH_LEN_MAX, MSG_THUMBNAIL_PATH"/%s.jpg", szFileName);
+
+				if ((pszExt = strrchr(pMedia->szFilePath, '.')) != NULL && !strcasecmp(pszExt, ".png")) {
+					snprintf(thumbPath, MSG_FILEPATH_LEN_MAX, MSG_THUMBNAIL_PATH"/%s.png", szFileName);
+				} else {
+					snprintf(thumbPath, MSG_FILEPATH_LEN_MAX, MSG_THUMBNAIL_PATH"/%s.jpg", szFileName);
+				}
 
 				if (pMedia->mediatype == MMS_SMIL_MEDIA_IMG) {
 					if (makeImageThumbnail(pMedia->szFilePath, thumbPath) == true) {
