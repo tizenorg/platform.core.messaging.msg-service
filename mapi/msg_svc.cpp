@@ -1364,18 +1364,6 @@ EXPORT_API int msg_list_length(msg_list_handle_t list_handle)
 	return (int)g_list_length((GList *)list_handle);
 }
 
-EXPORT_API int msg_calculate_text_length(msg_handle_t handle, const char* msg_text, msg_encode_type_t msg_encode_type, unsigned int *text_size, unsigned int *segment_size)
-{
-	msg_error_t err = MSG_SUCCESS;
-
-	msg_encode_type_t msg_encode_type_in;
-	err = msg_util_calculate_text_length(msg_text, msg_encode_type, text_size, segment_size, &msg_encode_type_in);
-
-	MSG_DEBUG("msg_encode_type_in [%d]", msg_encode_type_in);
-
-	return err;
-}
-
 EXPORT_API int msg_util_calculate_text_length(const char* msg_text, msg_encode_type_t msg_encode_type_to, unsigned int *text_size, unsigned int *segment_size, msg_encode_type_t *msg_encode_type_in)
 {
 	msg_error_t err = MSG_SUCCESS;
