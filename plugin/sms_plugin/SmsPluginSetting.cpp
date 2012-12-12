@@ -975,8 +975,11 @@ void SmsPluginSetting::setMailboxInfoEvent(SMS_SIM_MAILBOX_LIST_S *pMailboxList,
 						snprintf(mailNumber, MAX_PHONE_NUMBER_LEN, "%s", simMailboxList.list[i].num);
 						MSG_DEBUG("[%s]", mailNumber);
 					}
-					if (MsgSettingSetString(VOICEMAIL_NUMBER, mailNumber) != MSG_SUCCESS)
-						MSG_DEBUG("MsgSettingSetString is failed!!");
+
+					if (mailNumber[0] != '\0') {
+						if (MsgSettingSetString(VOICEMAIL_NUMBER, mailNumber) != MSG_SUCCESS)
+							MSG_DEBUG("MsgSettingSetString is failed!!");
+					}
 					break;
 				}
 			}
