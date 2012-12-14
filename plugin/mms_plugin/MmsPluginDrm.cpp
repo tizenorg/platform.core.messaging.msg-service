@@ -78,7 +78,7 @@ bool MsgDRM2GetDRMInfo(char *szFilePath, MsgType *pMsgType)
 	switch (drmType) {
 	case MSG_DRM_FORWARD_LOCK:
 		pMsgType->drmInfo.drmType = MSG_DRM_TYPE_FL;
-		pMsgType->drmInfo.contentType = (MsgContentType)_MsgGetCode(MSG_TYPE, szMimeType);
+		pMsgType->drmInfo.contentType = (MimeType)_MsgGetCode(MSG_TYPE, szMimeType);
 		if (MsgCopyDrmInfo(pMsgType) == false) {
 			MSG_DEBUG("MsgDRM2GetDRMInfo : MsgCopyDrmInfo failed");
 			return false;
@@ -93,7 +93,7 @@ bool MsgDRM2GetDRMInfo(char *szFilePath, MsgType *pMsgType)
 	case MSG_DRM_SEPARATE_DELIVERY:
 		pMsgType->drmInfo.drmType = MSG_DRM_TYPE_SD;
 
-		pMsgType->drmInfo.contentType = (MsgContentType)_MsgGetCode(MSG_TYPE, szMimeType);
+		pMsgType->drmInfo.contentType = (MimeType)_MsgGetCode(MSG_TYPE, szMimeType);
 
 		drm_content_info_s dcfHdrInfo;
 		bzero(&dcfHdrInfo, sizeof(drm_content_info_s));

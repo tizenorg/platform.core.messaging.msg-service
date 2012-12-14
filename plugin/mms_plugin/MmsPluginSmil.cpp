@@ -26,8 +26,9 @@
 #include "MsgMmsMessage.h"
 
 #include "MsgTypes.h"
-#include "MmsPluginSetup.h"
 #include "MsgUtilFile.h"
+
+#define MSG_STDSTR_SHORT			0x7F
 
 /* static variables */
 static char gszEmptyRawDoc[] = "<smil><head><layout></layout></head><body></body></smil>";

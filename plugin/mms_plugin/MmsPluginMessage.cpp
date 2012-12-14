@@ -276,7 +276,7 @@ int MmsGetSmilRawData(MMS_MESSAGE_DATA_S *pMsgBody, char **pRawdata)
 }
 
 
-bool MmsInsertPresentation(MmsMsg *pMsg, MsgContentType mimeType, char *pData, int size)
+bool MmsInsertPresentation(MmsMsg *pMsg, MimeType mimeType, char *pData, int size)
 {
 	MSG_DEBUG("MmsInsertPresentation");
 
@@ -335,7 +335,7 @@ bool MmsInsertPartFromFile(MmsMsg *pMsg, char *szTitleName, char *szOrgFilePath,
 	MsgMultipart *pMultipart = NULL;
 	MsgMultipart *pLastPart = NULL;
 	int nFileSize;
-	MsgContentType mimeType = MIME_UNKNOWN;
+	MimeType mimeType = MIME_UNKNOWN;
 	char *pExt = NULL;
 
 	pExt = strrchr(szOrgFilePath, '.');
@@ -530,7 +530,7 @@ __CATCH:
 
 
 
-MsgMultipart *MmsMakeMultipart(MsgContentType mimeType, char *szTitleName, char *szOrgFilePath, void *pData, int offset, int size, char *szContentID)
+MsgMultipart *MmsMakeMultipart(MimeType mimeType, char *szTitleName, char *szOrgFilePath, void *pData, int offset, int size, char *szContentID)
 {
 	MsgMultipart *pMultipart = NULL;
 
@@ -965,9 +965,7 @@ bool MmsGetMmsMessageBody(MmsMsg *pMmsMsg, char *retrievedFilePath)
 		goto __CATCH;
 	}
 
-	_MmsRegisterDecodeBuffer(gszMmsLoadBuf1,
-							  gszMmsLoadBuf2,
-							  MSG_MMS_DECODE_BUFFER_MAX);
+	MmsRegisterDecodeBuffer();
 
 	if (MmsBinaryDecodeMsgHeader(pFile, nSize) == false) {
 		MSG_DEBUG( "_MmsReadMsgBody: MmsBinaryDecodeMsgHeader fail...\n");
@@ -981,7 +979,7 @@ bool MmsGetMmsMessageBody(MmsMsg *pMmsMsg, char *retrievedFilePath)
 
 	/* Set mmsHeader.msgType & msgBody to pMsg ----------- */
 
-	pMmsMsg->mmsAttrib.contentType = (MsgContentType)mmsHeader.msgType.type;
+	pMmsMsg->mmsAttrib.contentType = (MimeType)mmsHeader.msgType.type;
 
 	memcpy(&(pMmsMsg->msgType), &(mmsHeader.msgType), sizeof(MsgType));
 	memcpy(&(pMmsMsg->msgBody), &(mmsHeader.msgBody), sizeof(MsgBody));
@@ -1025,7 +1023,7 @@ bool MmsGetMmsMessageBody(MmsMsg *pMmsMsg, char *retrievedFilePath)
 			if ((mmsHeader.msgType.type == MIME_APPLICATION_VND_WAP_MULTIPART_MIXED) ||
 				(mmsHeader.msgType.type == MIME_MULTIPART_MIXED)) {
 				if ((pMmsMsg->nPartCount >= attachmax ) && (pMultipart->pNext != NULL)) {
-					_MsgFreeBody(pMultipart->pNext->pBody, pMultipart->pNext->type.type);
+					MsgFreeBody(pMultipart->pNext->pBody, pMultipart->pNext->type.type);
 
 					free(pMultipart->pNext->pBody);
 					pMultipart->pNext->pBody = NULL;
@@ -1044,22 +1042,22 @@ bool MmsGetMmsMessageBody(MmsMsg *pMmsMsg, char *retrievedFilePath)
 	}
 
 	//call before processing urgent event.
-	_MmsInitHeader();
-	_MmsUnregisterDecodeBuffer();
+	MmsInitHeader();
+	MmsUnregisterDecodeBuffer();
 
 	return true;
 
 __CATCH:
 
-	_MmsInitHeader();
-	_MmsUnregisterDecodeBuffer();
+	MmsInitHeader();
+	MmsUnregisterDecodeBuffer();
 
 	if (pFile != NULL) {
 		MsgCloseFile(pFile);
 		pFile = NULL;
 	}
 
-	_MsgFreeBody(&pMmsMsg->msgBody, pMmsMsg->msgType.type);
+	MsgFreeBody(&pMmsMsg->msgBody, pMmsMsg->msgType.type);
 	MSG_DEBUG("_MmsReadMsgBody:    E  N  D    ( fail )    ******************** \n");
 
 	return false;

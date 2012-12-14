@@ -24,7 +24,6 @@
 #include "MsgSqliteWrapper.h"
 #include "MmsPluginMessage.h"
 
-
 /*==================================================================================================
 							CLASS DEFINITIONS
 ==================================================================================================*/
@@ -59,7 +58,7 @@ public:
 	msg_error_t plgGetMmsMessage(MSG_MESSAGE_INFO_S *pMsg,  MSG_SENDINGOPT_INFO_S *pSendOptInfo, MMS_MESSAGE_DATA_S *pMmsMsg, char **pDestMsg);
 	msg_error_t getContentLocation(MSG_MESSAGE_INFO_S *pMsgInfo);
 	msg_error_t getMmsRawFilePath(msg_message_id_t msgId, char *pFilepath);
-	msg_error_t plgGetRestoreMessage(MSG_MESSAGE_INFO_S *pMsg, MSG_SENDINGOPT_INFO_S *pSendOptInfo, MMS_MESSAGE_DATA_S *pMmsMsg, char **pDestMsg, char *filePath);
+
 	/* reject_msg_support */
 	msg_error_t getTrID(MSG_MESSAGE_INFO_S *pMsgInfo, char *pszTrID, int nBufferLen);
 	/* reject_msg_support */

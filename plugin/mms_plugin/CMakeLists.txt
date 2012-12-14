@@ -14,6 +14,9 @@ MESSAGE("Build type: ${CMAKE_BUILD_TYPE}")
 ##########################################################
 
 SET(MMS-PLUGIN-SRCS
+	MmsPluginCodecCommon.cpp
+	MmsPluginDecode.cpp
+	MmsPluginEncode.cpp
 	MmsPluginTextConvert.cpp
 	MmsPluginTransport.cpp
 	MmsPluginMain.cpp
@@ -21,16 +24,12 @@ SET(MMS-PLUGIN-SRCS
 	MmsPluginStorage.cpp
 	MmsPluginMessage.cpp
 	MmsPluginMIME.cpp
-	MmsPluginDecode.cpp
 	MmsPluginAvCodec.cpp
 	MmsPluginDebug.cpp
 	MmsPluginConnManWrapper.cpp
 	MmsPluginUserAgent.cpp
 	MmsPluginHttp.cpp
-	MmsPluginEncode.cpp
-	MmsPluginCodec.cpp
 	MmsPluginInternal.cpp
-	MmsPluginContentCodec.cpp
 	MmsPluginSmil.cpp
 	MmsPluginSMILValidate.cpp
 	MmsPluginDrm.cpp
@@ -60,6 +59,7 @@ ADD_DEFINITIONS("-DPREFIX=\"${CMAKE_INSTALL_PREFIX}\"")
 #ADD_DEFINITIONS("-DWno-write-strings")
 
 SET(CMAKE_EXE_LINKER_FLAGS "-Wl,--as-needed")
+SET(CMAKE_SHARED_LINKER_FLAGS "-Wl,--no-undefined")
 
 ADD_LIBRARY(${MMS-PLUGIN-LIB} SHARED ${MMS-PLUGIN-SRCS})
 TARGET_LINK_LIBRARIES(${MMS-PLUGIN-LIB} ${mms_plugin_pkgs_LDFLAGS} ${UTILS-LIB})

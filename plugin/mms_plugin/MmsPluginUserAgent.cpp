@@ -588,8 +588,8 @@ bool MmsPluginUaManager::processReceivedData(int msgId, char *pRcvdBody, int rcv
 
 	MSG_DEBUG(":::%d :%s ", rcvdBodyLen, pRcvdBody);
 
-	_MmsInitHeader();
-	_MmsRegisterDecodeBuffer(gszMmsLoadBuf1,  gszMmsLoadBuf2, MSG_MMS_DECODE_BUFFER_MAX);
+	MmsInitHeader();
+	MmsRegisterDecodeBuffer();
 
 	if (MsgCreateFileName(fileName) == false)
 		return false;
@@ -604,7 +604,7 @@ bool MmsPluginUaManager::processReceivedData(int msgId, char *pRcvdBody, int rcv
 		return false;
 	}
 
-	if (_MmsReadMsgBody(msgId, true, true, retrievedFilePath) == false) {
+	if (MmsReadMsgBody(msgId, true, true, retrievedFilePath) == false) {
 		MSG_DEBUG("The MMS Message might include drm contents!!!");
 
 #ifdef __SUPPORT_DRM__
@@ -651,13 +651,13 @@ ERR_MMS_UA_PROCESS_CONF:
 		MmsPluginStorage::instance()->getMmsMessage(&pMsg);
 
 
-		_MmsInitHeader();
-		_MmsUnregisterDecodeBuffer();
+		MmsInitHeader();
+		MmsUnregisterDecodeBuffer();
 
 #ifdef __SUPPORT_DRM__
-		_MsgFreeDRMInfo(&pMsg->msgType.drmInfo);
+		MsgFreeDRMInfo(&pMsg->msgType.drmInfo);
 #endif
-		_MsgFreeBody(&pMsg->msgBody, pMsg->msgType.type);
+		MsgFreeBody(&pMsg->msgBody, pMsg->msgType.type);
 
 		return false;
 	}

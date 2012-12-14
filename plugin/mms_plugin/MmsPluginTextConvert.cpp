@@ -14,8 +14,6 @@
 * limitations under the License.
 */
 #include <glib.h>
-#include <stdlib.h>
-#include <ctype.h>
 #include "MmsPluginMIME.h"
 #include "MmsPluginCodec.h"
 #include "MmsPluginTextConvert.h"

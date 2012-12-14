@@ -295,8 +295,9 @@ msg_error_t MmsRestoreMsg(MSG_MESSAGE_INFO_S *pMsgInfo, char *pRcvBody, int rcvd
 
 	if (pMsgInfo->msgType.subType == MSG_NOTIFICATIONIND_MMS) {
 		FILE *pFile;
-		_MmsInitHeader();
-		_MmsRegisterDecodeBuffer(gszMmsLoadBuf1,  gszMmsLoadBuf2, MSG_MMS_DECODE_BUFFER_MAX);
+
+		MmsInitHeader();
+		MmsRegisterDecodeBuffer();
 
 		if ((pFile = MsgOpenFile(pMsgInfo->msgData, "rb+")) == NULL) {
 			MSG_DEBUG("File Open Error: %s", pMsgInfo->msgData);
