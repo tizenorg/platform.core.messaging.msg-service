@@ -127,7 +127,7 @@ mkdir -p %{buildroot}/opt/usr/data/msg-service
 
 if [ ! -f /opt/usr/dbspace/.msg_service.db ]
 then
-    mkdir -p %{buildroot}/opt/usr/dbspace/
+    mkdir -p /opt/usr/dbspace/
     sqlite3 /opt/usr/dbspace/.msg_service.db "PRAGMA journal_mode = PERSIST;
 
     CREATE TABLE MSG_CONVERSATION_TABLE (
