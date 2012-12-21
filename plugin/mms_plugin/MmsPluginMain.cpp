@@ -14,27 +14,18 @@
 * limitations under the License.
 */
 
-#include <glib.h>
-#include <pthread.h>
 #include <stdio.h>
-#include <time.h>
-
+#include "MsgException.h"
+#include "MsgGconfWrapper.h"
+#include "MsgUtilFile.h"
+#include "MmsPluginDebug.h"
 #include "MmsPluginTypes.h"
 #include "MmsPluginMain.h"
 #include "MmsPluginTransport.h"
-#include "MsgDebug.h"
-#include "MsgException.h"
-
-#include "MmsPluginMain.h"
-#include "MmsPluginMessage.h"
 #include "MmsPluginStorage.h"
 #include "MmsPluginInternal.h"
 #include "MmsPluginEventHandler.h"
-#include "MsgGconfWrapper.h"
 #include "MmsPluginCodec.h"
-#include "MsgUtilFile.h"
-#include "MmsPluginUserAgent.h"
-
 
 /*==================================================================================================
 							FUNCTION IMPLEMENTATION

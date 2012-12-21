@@ -14,7 +14,10 @@
 * limitations under the License.
 */
 
-#include "MsgTypes.h"
+#ifndef MMS_PLUGIN_AVCODEC_H
+#define MMS_PLUGIN_AVCODEC_H
+
+#include "MmsPluginTypes.h"
 
 #define	FILEEXT_MAX	5
 
@@ -89,4 +92,7 @@ typedef enum {
 
 } AvCodecType;
 
+
 AvCodecType	AvGetFileCodecType(const char *szFileName);
+
+#endif //MMS_PLUGIN_AVCODEC_H

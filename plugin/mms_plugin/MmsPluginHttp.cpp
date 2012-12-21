@@ -14,12 +14,13 @@
 * limitations under the License.
 */
 
+#include <stdlib.h>
+#include <time.h>
+#include <curl/curl.h>
+#include "MmsPluginDebug.h"
 #include "MmsPluginHttp.h"
 #include "MmsPluginUserAgent.h"
-#include "stdlib.h"
-#include <time.h>
 #include "MmsPluginConnManWrapper.h"
-#include <curl/curl.h>
 
 static bool __httpGetHeaderField(MMS_HTTP_HEADER_FIELD_T httpHeaderItem, char *szHeaderBuffer);
 static void __httpGetHost(char *szUrl, char *szHost, int nBufferLen);
@@ -557,7 +558,7 @@ void MmsPluginHttpAgent::SetMMSProfile()
 
 	MmsPluginCmAgent::instance()->getHomeURL(mmscConfig->mmscUrl);
 	if (strlen(mmscConfig->mmscUrl) < 1) {
-		strcpy(mmscConfig->mmscUrl, DEFAULT_MMSC_URL);
+		MSG_DEBUG("##### get Home URL Error");
 	}
 
 	MmsPluginCmAgent::instance()->getProxyAddr(mmscConfig->httpProxyIpAddr);

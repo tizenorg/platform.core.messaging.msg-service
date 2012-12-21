@@ -17,6 +17,7 @@
 #ifndef MMS_PLUGIN_ENCODE_H
 #define MMS_PLUGIN_ENCODE_H
 
+#include <stdio.h>
 #include "MmsPluginCodecTypes.h"
 #include "MmsPluginCodecCommon.h"
 #include "MmsPluginMessage.h"
@@ -33,4 +34,4 @@ bool MmsEncodeNotiRespInd(FILE *pFile, char *szTrID, msg_delivery_report_status_
 bool MmsEncodeReadReport10(FILE *pFile, MmsMsg *pMsg, msg_read_report_status_t mmsReadStatus);
 bool MmsEncodeReadReport11(FILE *pFile, MmsMsg *pMsg, msg_read_report_status_t mmsReadStatus);
 
-#endif
+#endif //MMS_PLUGIN_ENCODE_H

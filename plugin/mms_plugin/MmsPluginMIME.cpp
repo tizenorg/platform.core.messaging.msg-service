@@ -17,9 +17,9 @@
 #include <string>
 #include <stdlib.h>
 #include "MmsPluginMIME.h"
-#include "MsgDebug.h"
-
+#include "MmsPluginDebug.h"
 #include "MmsPluginSmil.h"
+
 #ifndef	NULL
 #define	NULL	0
 #endif

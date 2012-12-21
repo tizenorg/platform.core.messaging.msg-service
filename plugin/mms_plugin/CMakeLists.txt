@@ -25,7 +25,6 @@ SET(MMS-PLUGIN-SRCS
 	MmsPluginMessage.cpp
 	MmsPluginMIME.cpp
 	MmsPluginAvCodec.cpp
-	MmsPluginDebug.cpp
 	MmsPluginConnManWrapper.cpp
 	MmsPluginUserAgent.cpp
 	MmsPluginHttp.cpp
@@ -56,7 +55,8 @@ SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${EXTRA_CFLAGS}")
 SET(CMAKE_CXX_FLAGS_DEBUG "-O2 -g")
 
 ADD_DEFINITIONS("-DPREFIX=\"${CMAKE_INSTALL_PREFIX}\"")
-#ADD_DEFINITIONS("-DWno-write-strings")
+ADD_DEFINITIONS("-DFEATURE_JAVA_MMS")
+ADD_DEFINITIONS("-D__SUPPORT_DRM__")
 
 SET(CMAKE_EXE_LINKER_FLAGS "-Wl,--as-needed")
 SET(CMAKE_SHARED_LINKER_FLAGS "-Wl,--no-undefined")

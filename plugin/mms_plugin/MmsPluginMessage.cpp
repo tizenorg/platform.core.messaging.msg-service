@@ -18,143 +18,21 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
-#include <ctype.h>
 
-#include "MsgTypes.h"
 #include "MsgCppTypes.h"
-#include "MsgException.h"
 #include "MsgStorageTypes.h"
 #include "MsgSettingTypes.h"
+#include "MsgUtilFile.h"
+#include "MsgGconfWrapper.h"
+#include "MsgMmsMessage.h"
+#include "MmsPluginTypes.h"
+#include "MmsPluginDebug.h"
 #include "MmsPluginMessage.h"
 #include "MmsPluginMIME.h"
 #include "MmsPluginAvCodec.h"
-#include "MsgUtilFile.h"
-#include "MsgDebug.h"
-#include "MmsPluginCodec.h"
 #include "MmsPluginStorage.h"
-#include "MsgMmsMessage.h"
-#include "MsgGconfWrapper.h"
-#include "MmsPluginUtil.h"
 #include "MmsPluginSMILValidate.h"
-
-
-bool MmsInitMsgAttrib(MmsAttrib *pAttrib)
-{
-	MSG_DEBUG("MmsInitMsgAttrib");
-
-	pAttrib->bAskDeliveryReport = false;
-
-	pAttrib->bAskReadReply = false;
-	pAttrib->bRead = false;
-	pAttrib->bReportAllowed = false;
-	pAttrib->readReportAllowedType = MMS_RECEIVE_READ_REPORT_ALLOWED;
-	pAttrib->readReportSendStatus = MMS_RECEIVE_READ_REPORT_NO_SEND;
-	pAttrib->bReadReportSent = false;
-
-	pAttrib->bHideAddress = false;
-	pAttrib->date = 0;
-	pAttrib->bUseDeliveryCustomTime = false;
-	pAttrib->deliveryTime.type = MMS_TIMETYPE_RELATIVE;
-	pAttrib->deliveryTime.time = 0;
-	pAttrib->bUseExpiryCustomTime = false;
-	pAttrib->expiryTime.type = MMS_TIMETYPE_RELATIVE;
-	pAttrib->expiryTime.time = 0;
-	memset(&pAttrib->expiryTime, 0, sizeof(MmsTimeStruct));
-	pAttrib->msgClass = MMS_MSGCLASS_PERSONAL;
-	pAttrib->msgStatus = MSG_DELIVERY_REPORT_NONE;
-	pAttrib->priority = MMS_PRIORITY_NORMAL;
-	pAttrib->responseStatus = MMS_RESPSTATUS_ERROR;
-	pAttrib->retrieveStatus = MMS_RETRSTATUS_ERROR;
-	pAttrib->contentType = MIME_UNKNOWN;
-	pAttrib->msgSize = 0;
-	pAttrib->bLeaveCopy = true;
-
-	pAttrib->specialMsgType = MMS_SPECIAL_MSG_TYPE_NONE;
-#ifdef __SUPPORT_DRM__
-	pAttrib->drmType = MSG_DRM_TYPE_NONE;
-	pAttrib->roWaitingTimerMax = 0;
-	pAttrib->pszDrmData = NULL;
-#endif
-	pAttrib->version = MMS_VERSION;
-
-	memset(pAttrib->szFrom, 0, MSG_LOCALE_ADDR_LEN + 10);
-	memset(pAttrib->szResponseText, 0, MMS_LOCALE_RESP_TEXT_LEN + 1);
-	memset(pAttrib->szRetrieveText, 0, MMS_LOCALE_RESP_TEXT_LEN + 1);
-	memset(pAttrib->szSubject, 0, MSG_LOCALE_SUBJ_LEN + 1);
-	pAttrib->szTo = NULL;
-	pAttrib->szCc = NULL;
-	pAttrib->szBcc = NULL;
-
-	pAttrib->pMultiStatus = NULL;
-
-	pAttrib->replyCharge.chargeType = MMS_REPLY_NONE;
-	memset(&pAttrib->replyCharge.deadLine , 0, sizeof(MmsTimeStruct));
-	pAttrib->replyCharge.chargeSize = 0;
-	memset(pAttrib->replyCharge.szChargeID, 0, MMS_MSG_ID_LEN);
-
-	return true;
-}
-
-bool MmsInitMsgType(MsgType *pMsgType)
-{
-	MSG_DEBUG("MmsInitMsgType");
-	pMsgType->offset = 0;
-	pMsgType->size = 0;
-	pMsgType->contentSize = 0;
-	pMsgType->disposition = -1;
-	pMsgType->encoding = -1;
-	pMsgType->type = MIME_UNKNOWN;
-	pMsgType->section = -1;
-
-	pMsgType->szOrgFilePath[0] = '\0';
-	pMsgType->szContentID[0] = '\0';
-	pMsgType->szContentLocation[0] = '\0';
-
-	pMsgType->szContentRepPos[0] = '\0';
-	pMsgType->szContentRepSize[0] = '\0';
-	pMsgType->szContentRepIndex[0] = '\0';
-
-	MmsInitMsgContentParam(&pMsgType->param);
-#ifdef __SUPPORT_DRM__
-	__MsgInitMsgDRMInfo(&pMsgType->drmInfo);
-#endif
-
-	return true;
-}
-
-bool MmsInitMsgBody(MsgBody *pMsgBody)
-{
-	MSG_DEBUG("MmsInitMsgBody");
-	pMsgBody->offset = 0;
-	pMsgBody->size = 0;
-	pMsgBody->body.pText = NULL;
-
-	MmsInitMsgType(&pMsgBody->presentationType);
-	pMsgBody->pPresentationBody = NULL;
-
-	memset(pMsgBody->szOrgFilePath, 0, MSG_FILEPATH_LEN_MAX);
-
-	return true;
-}
-
-bool MmsInitMsgContentParam(MsgContentParam *pMsgContentParam)
-{
-	MSG_DEBUG("MmsInitMsgContentParam");
-	pMsgContentParam->charset = MSG_CHARSET_UNKNOWN;
-	pMsgContentParam->type = MIME_UNKNOWN;
-	pMsgContentParam->szBoundary[0] = '\0';
-	pMsgContentParam->szFileName[0] = '\0';
-	pMsgContentParam->szName[0] = '\0';
-	pMsgContentParam->szStart[0] = '\0';
-	pMsgContentParam->szStartInfo[0] = '\0';
-	pMsgContentParam->pPresentation = NULL;
-	pMsgContentParam->reportType = MSG_PARAM_REPORT_TYPE_UNKNOWN; // only used as parameter of Content-Type: multipart/report; report-type
-#ifdef FEATURE_JAVA_MMS
-	pMsgContentParam->szApplicationID = NULL;
-	pMsgContentParam->szReplyToApplicationID = NULL;
-#endif
-	return true;
-}
+#include "MmsPluginUtil.h"
 
 bool MmsSetMsgAddressList(MmsAttrib *pAttrib, const MSG_MESSAGE_INFO_S * pMsgInfo)
 {
@@ -940,197 +818,6 @@ void MmsComposeNotiMessage(MmsMsg *pMmsMsg, msg_message_id_t msgID)
 	MSG_END();
 }
 
-bool MmsGetMmsMessageBody(MmsMsg *pMmsMsg, char *retrievedFilePath)
-{
-	FILE *pFile	= NULL;
-	MsgMultipart *pMultipart = NULL;
-	int attachmax = MSG_ATTACH_MAX;
-	int nSize = 0;
-
-	/*	read from MMS raw file	*/
-	if (retrievedFilePath)
-		strncpy(pMmsMsg->szFileName, retrievedFilePath + strlen(MSG_DATA_PATH), strlen(retrievedFilePath + strlen(MSG_DATA_PATH)));
-	else
-		goto __CATCH;
-
-	pFile = MsgOpenFile(retrievedFilePath, "rb");
-
-	if (pFile == NULL) {
-		MSG_DEBUG( "_MmsReadMsgBody: invalid mailbox\n");
-		goto __CATCH;
-	}
-
-	if (MsgGetFileSize(retrievedFilePath, &nSize) == false) {
-		MSG_DEBUG("MsgGetFileSize: failed");
-		goto __CATCH;
-	}
-
-	MmsRegisterDecodeBuffer();
-
-	if (MmsBinaryDecodeMsgHeader(pFile, nSize) == false) {
-		MSG_DEBUG( "_MmsReadMsgBody: MmsBinaryDecodeMsgHeader fail...\n");
-		goto __CATCH;
-	}
-
-	if (MmsBinaryDecodeMsgBody(pFile, retrievedFilePath, nSize) == false) {
-		MSG_DEBUG( "_MmsReadMsgBody: MmsBinaryDecodeMsgBody fail\n");
-		goto __CATCH;
-	}
-
-	/* Set mmsHeader.msgType & msgBody to pMsg ----------- */
-
-	pMmsMsg->mmsAttrib.contentType = (MimeType)mmsHeader.msgType.type;
-
-	memcpy(&(pMmsMsg->msgType), &(mmsHeader.msgType), sizeof(MsgType));
-	memcpy(&(pMmsMsg->msgBody), &(mmsHeader.msgBody), sizeof(MsgBody));
-
-	MSG_DEBUG("#############################");
-	MSG_DEBUG("## pMmsMsg->msgType.type = %d ##", pMmsMsg->msgType.type);
-	MSG_DEBUG("## pMmsMsg->msgType.szContentID = %s ##", pMmsMsg->msgType.szContentID);
-	MSG_DEBUG("## pMmsMsg->msgType.szContentLocation = %s ##", pMmsMsg->msgType.szContentLocation);
-	MSG_DEBUG("#############################");
-
-	if (pMmsMsg->msgBody.pPresentationBody) {
-		if(MsgFseek(pFile, pMmsMsg->msgBody.pPresentationBody->offset, SEEK_SET) < 0)
-			goto __CATCH;
-
-		pMmsMsg->msgBody.pPresentationBody->body.pText = (char *)malloc(pMmsMsg->msgBody.pPresentationBody->size + 1);
-		if (pMmsMsg->msgBody.pPresentationBody->body.pText == NULL)
-			goto __CATCH;
-
-		memset(pMmsMsg->msgBody.pPresentationBody->body.pText, 0, pMmsMsg->msgBody.pPresentationBody->size + 1);
-		ULONG nRead = 0;
-		nRead = MsgReadFile(pMmsMsg->msgBody.pPresentationBody->body.pText, sizeof(char), pMmsMsg->msgBody.pPresentationBody->size, pFile);
-
-		if (nRead == 0)
-			goto __CATCH;
-	}
-
-	MsgCloseFile(pFile);
-	pFile = NULL;
-
-	/* nPartCount */
-	pMmsMsg->nPartCount = 0;
-
-	if (MsgIsMultipart(mmsHeader.msgType.type) == true) {
-		pMultipart = pMmsMsg->msgBody.body.pMultipart;
-		while (pMultipart) {
-			pMmsMsg->nPartCount++;
-
-			if (pMultipart->type.type == MIME_TEXT_PLAIN)
-				attachmax++;
-
-			if ((mmsHeader.msgType.type == MIME_APPLICATION_VND_WAP_MULTIPART_MIXED) ||
-				(mmsHeader.msgType.type == MIME_MULTIPART_MIXED)) {
-				if ((pMmsMsg->nPartCount >= attachmax ) && (pMultipart->pNext != NULL)) {
-					MsgFreeBody(pMultipart->pNext->pBody, pMultipart->pNext->type.type);
-
-					free(pMultipart->pNext->pBody);
-					pMultipart->pNext->pBody = NULL;
-
-					free(pMultipart->pNext);
-
-					pMultipart->pNext = NULL;
-					break;
-				}
-			}
-			pMultipart = pMultipart->pNext;
-		}
-	} else {
-		if (pMmsMsg->msgBody.size > 0)
-			pMmsMsg->nPartCount++;
-	}
-
-	//call before processing urgent event.
-	MmsInitHeader();
-	MmsUnregisterDecodeBuffer();
-
-	return true;
-
-__CATCH:
-
-	MmsInitHeader();
-	MmsUnregisterDecodeBuffer();
-
-	if (pFile != NULL) {
-		MsgCloseFile(pFile);
-		pFile = NULL;
-	}
-
-	MsgFreeBody(&pMmsMsg->msgBody, pMmsMsg->msgType.type);
-	MSG_DEBUG("_MmsReadMsgBody:    E  N  D    ( fail )    ******************** \n");
-
-	return false;
-}
-
-#ifdef MMS_DELIEVERY_IND_ENABLED
-MmsMsgMultiStatus *MmsComposeDeliveryIndMessage(MmsMsg *pMmsMsg, msg_message_id_t msgId)
-{
-	MmsMsgMultiStatus *pStatus = NULL;
-	MmsMsgMultiStatus *pLastStatus = NULL;
-	bool bFound = false;
-
-	MmsInitMsgAttrib(&pMmsMsg->mmsAttrib);
-	MmsInitMsgType(&pMmsMsg->msgType);
-	MmsInitMsgBody(&pMmsMsg->msgBody);
-
-	pMmsMsg->mmsAttrib.version = mmsHeader.version;
-
-	pMmsMsg->mmsAttrib.pMultiStatus = MmsGetMultiStatus(msgId);
-
-	pStatus = pMmsMsg->mmsAttrib.pMultiStatus;
-
-	MSG_DEBUG("### pStatus->szTo = %s ###", pStatus->szTo);
-
-	while (pStatus && !bFound) {
-		MSG_DEBUG("### MmsAddrUtilCompareAddr ###");
-		MSG_DEBUG("### mmsHeader.pTo->szAddr = %s ###", mmsHeader.pTo->szAddr);
-		if (MmsAddrUtilCompareAddr(pStatus->szTo, mmsHeader.pTo->szAddr)) {
-			bFound = true;
-			break;
-		}
-
-		pStatus = pStatus->pNext;
-	}
-
-	if (bFound == false) {
-		MSG_DEBUG("### bFound == false ###");
-		/* Queue the delivery report  --------------------------- */
-
-		pStatus = (MmsMsgMultiStatus *)malloc(sizeof(MmsMsgMultiStatus));
-		memset(pStatus, 0, sizeof(MmsMsgMultiStatus));
-
-		pStatus->readStatus = MMS_READSTATUS_NONE;
-
-		memset(pStatus->szTo, 0, MSG_ADDR_LEN + 1);
-		strncpy(pStatus->szTo, mmsHeader.pTo->szAddr, MSG_ADDR_LEN);
-
-		if (pMmsMsg->mmsAttrib.pMultiStatus == NULL) {
-			/* first delivery report */
-			pMmsMsg->mmsAttrib.pMultiStatus = pStatus;
-		} else {
-			pLastStatus = pMmsMsg->mmsAttrib.pMultiStatus;
-			while (pLastStatus->pNext) {
-				pLastStatus = pLastStatus->pNext;
-			}
-
-			pLastStatus->pNext = pStatus;
-			pLastStatus = pStatus;
-		}
-	}
-
-	pStatus->handledTime = mmsHeader.date;
-	pStatus->msgStatus = mmsHeader.msgStatus;
-	pStatus->bDeliveryReportIsRead = false;
-
-	_MmsDataUpdateLastStatus(pMmsMsg);
-
-	pStatus->bDeliveyrReportIsLast = true;
-
-	return pStatus;
-}
-#endif
-
 void MmsComposeReadReportMessage(MmsMsg *pMmsMsg, const MSG_MESSAGE_INFO_S *pMsgInfo, msg_message_id_t selectedMsgId)
 {
 	struct tm *timeInfo = NULL;
@@ -1184,19 +871,6 @@ int MmsSearchMsgId(char *toNumber, char *szMsgID)
 	MSG_END();
 
 	return msgId;
-}
-
-MmsMsgMultiStatus *MmsGetMultiStatus(msg_message_id_t msgId)
-{
-	MmsMsgMultiStatus *pMultiStatus;
-
-	pMultiStatus = MmsPluginStorage::instance()->getMultiStatus(msgId);
-
-	MSG_DEBUG("### szTo = %s ###", pMultiStatus->szTo);
-
-	MSG_END();
-
-	return pMultiStatus;
 }
 
 bool MmsCheckAdditionalMedia(MMS_MESSAGE_DATA_S *pMsgData, MsgType *partHeader)
@@ -1255,29 +929,6 @@ bool MmsRemovePims(MMS_MESSAGE_DATA_S *pMsgData)
 
 	return true;
 }
-
-
-#ifdef __SUPPORT_DRM__
-bool __MsgInitMsgDRMInfo(MsgDRMInfo *pMsgDrmInfo)
-{
-	pMsgDrmInfo->contentType = MIME_UNKNOWN;
-	pMsgDrmInfo->drmType = MSG_DRM_TYPE_NONE;
-
-	pMsgDrmInfo->szContentName = NULL;
-	pMsgDrmInfo->szContentURI = NULL;
-	pMsgDrmInfo->szContentDescription = NULL;
-	pMsgDrmInfo->szContentVendor = NULL;
-	pMsgDrmInfo->szRightIssuer = NULL;
-	pMsgDrmInfo->szDrm2FullPath = NULL;
-	pMsgDrmInfo->roWaitingTimerMax = 0;
-	pMsgDrmInfo->bFwdLock = false;
-	pMsgDrmInfo->bNoScreen = false;
-	pMsgDrmInfo->bNoRingTone = false;
-	pMsgDrmInfo->pszContentType = NULL;
-
-	return true;
-}
-#endif
 
 msg_error_t MmsMakePreviewInfo(int msgId, MMS_MESSAGE_DATA_S *pMmsMsg)
 {

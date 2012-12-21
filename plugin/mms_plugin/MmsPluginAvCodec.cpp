@@ -14,8 +14,8 @@
 * limitations under the License.
 */
 
-#include "MmsPluginAvCodec.h"
 #include <string.h>
+#include "MmsPluginAvCodec.h"
 
 AvCodecType	AvGetFileCodecType(const char *szFileName)
 {

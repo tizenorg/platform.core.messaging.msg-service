@@ -14,19 +14,19 @@
 * limitations under the License.
 */
 
-#include<stdio.h>
+#include <stdio.h>
 #include <string.h>
 #include <sys/stat.h>
 #include <ctype.h>
-#include "MmsPluginSmil.h"
-#include "MmsPluginMessage.h"
-#include "MmsPluginStorage.h"
-#include "MsgDebug.h"
-#include "MmsPluginCodec.h"
-#include "MsgMmsMessage.h"
 
-#include "MsgTypes.h"
+#include "MsgMmsMessage.h"
 #include "MsgUtilFile.h"
+#include "MmsPluginTypes.h"
+#include "MmsPluginSmil.h"
+#include "MmsPluginMIME.h"
+#include "MmsPluginStorage.h"
+#include "MmsPluginDebug.h"
+#include "MmsPluginCodec.h"
 
 #define MSG_STDSTR_SHORT			0x7F
 

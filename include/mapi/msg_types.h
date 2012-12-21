@@ -69,7 +69,7 @@
 /**
  *	@brief	Defines the maximum file name length
  */
-#define	MSG_FILENAME_LEN_MAX	255
+#define	MSG_FILENAME_LEN_MAX	1024
 
 /**
  *	@brief	Defines the maximum message id length

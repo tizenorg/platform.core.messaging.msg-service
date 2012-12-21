@@ -17,17 +17,9 @@
 #ifndef MMS_PLUGIN_EVENT_HANDLER_H
 #define MMS_PLUGIN_EVENT_HANDLER_H
 
-
-/*==================================================================================================
-							INCLUDE FILES
-==================================================================================================*/
 #include "MsgPluginInterface.h"
 #include "MmsPluginTypes.h"
-#include "MmsPluginMessage.h"
 
-/*==================================================================================================
-							CLASS DEFINITIONS
-==================================================================================================*/
 class MmsPluginEventHandler
 {
 public:
@@ -48,4 +40,3 @@ private:
 };
 
 #endif //MMS_PLUGIN_EVENT_HANDLER_H
-

@@ -17,8 +17,7 @@
 #ifndef MMS_PLUGIN_CODEC_TYPE_H
 #define MMS_PLUGIN_CODEC_TYPE_H
 
-#include "msg_types.h"
-#include "MsgTypes.h"
+#include "MmsPluginTypes.h"
 
 #define	MMS_MAJOR_VERSION			1
 
@@ -54,7 +53,18 @@
 #define	MSG_LOCALE_ADDR_LEN				(3 * MAX_ADDRESS_VAL_LEN)
 #define	MSG_BOUNDARY_LEN					70
 #define	MSG_LOCALE_NAME_LEN				150
-#define	MSG_LOCALE_FILENAME_LEN_MAX		(3 * 255)
+#define	MSG_LOCALE_FILENAME_LEN_MAX		(3 * MSG_FILENAME_LEN_MAX)
+#define	MMS_READ_REPORT_STRING_READ		"Read:"
+#define	MMS_READ_REPORT_STRING_DELETED	"Deleted:"
+
+#define	MSG_ATTACH_MAX		20
+#define	MSG_STR_ADDR_DELIMETER			";"
+
+#define	MMS_TEXT_LEN 2000
+#define	MSG_CH_ADDR_DELIMETER ';'
+#define	MSG_MMS_STR_ADDR_DELIMETER	MSG_STR_ADDR_DELIMETER
+#define	MSG_MMS_CH_ADDR_DELIMETER	MSG_CH_ADDR_DELIMETER
+
 
 typedef unsigned int 			UINT;
 typedef unsigned long int		UINT32;
@@ -551,4 +561,4 @@ typedef struct _MMS_MESSAGE_S {
 	MsgBody msgBody;
 } MmsMsg;
 
-#endif
+#endif //MMS_PLUGIN_CODEC_TYPE_H

@@ -15,13 +15,12 @@
 */
 
 #include <stdio.h>
-#include "MmsPluginEventHandler.h"
-#include "MmsPluginTransport.h"
 #include "MsgUtilFile.h"
-#include "MmsPluginCodec.h"
-#include "MmsPluginMessage.h"
+#include "MmsPluginDebug.h"
+#include "MmsPluginTypes.h"
+#include "MmsPluginTransport.h"
 #include "MmsPluginUserAgent.h"
-
+#include "MsgGconfWrapper.h"
 
 /*==================================================================================================
                                      IMPLEMENTATION OF MmsPluginTransport - Member Functions
@@ -57,6 +56,9 @@ void MmsPluginTransport::submitRequest(const MSG_REQUEST_INFO_S *pReqInfo)
 	reqItem.isCompleted = false;
 	reqItem.reqID = pReqInfo->reqId;
 
+	char *msisdn = NULL;
+	msisdn = MsgSettingGetString(MSG_SIM_MSISDN);
+
 	MSG_DEBUG("pReqInfo->msgInfo.msgType.subType [%d]", pReqInfo->msgInfo.msgType.subType);
 
 	switch (pReqInfo->msgInfo.msgType.subType) {
@@ -67,6 +69,7 @@ void MmsPluginTransport::submitRequest(const MSG_REQUEST_INFO_S *pReqInfo)
 		reqItem.eMmsPduType = eMMS_SEND_REQ;
 		reqItem.eHttpCmdType = eHTTP_CMD_POST_TRANSACTION;
 		reqItem.pPostData = MsgOpenAndReadMmsFile(pReqInfo->msgInfo.msgData, 0, -1, &reqItem.postDataLen);
+		MSG_MMS_VLD_INFO("%d, MMS Send Start %s->%s, Success", pReqInfo->msgInfo.msgId, (msisdn == NULL)?"ME":msisdn, pReqInfo->msgInfo.addressList[0].addressVal);
 		break;
 
 	case MSG_GET_MMS:
@@ -77,9 +80,10 @@ void MmsPluginTransport::submitRequest(const MSG_REQUEST_INFO_S *pReqInfo)
 		reqItem.getDataLen = pReqInfo->msgInfo.dataSize;
 		reqItem.pGetData = (char *)malloc(reqItem.getDataLen);
 		memcpy(reqItem.pGetData, pReqInfo->msgInfo.msgData, reqItem.getDataLen);
+		MSG_MMS_VLD_INFO("%d, MMS Receive Auto Start %s->%s, Success", pReqInfo->msgInfo.msgId, pReqInfo->msgInfo.addressList[0].addressVal, (msisdn == NULL)?"ME":msisdn);
 		break;
 
-	case MSG_NOTIFYRESPIND_MMS:
+	case MSG_NOTIFYRESPIND_MMS: //reject
 	{
 		MSG_DEBUG("######### MANUAL RETRIEVE : SEND NOTIFY RESPONSE IND");
 		reqItem.msgId = pReqInfo->msgInfo.msgId;
@@ -100,6 +104,7 @@ void MmsPluginTransport::submitRequest(const MSG_REQUEST_INFO_S *pReqInfo)
 		reqItem.getDataLen = pReqInfo->msgInfo.dataSize;
 		reqItem.pGetData = (char *)malloc(reqItem.getDataLen);
 		memcpy(reqItem.pGetData, pReqInfo->msgInfo.msgData, reqItem.getDataLen);
+		MSG_MMS_VLD_INFO("%d, MMS Receive Manual Start %s->%s, Success", pReqInfo->msgInfo.msgId, pReqInfo->msgInfo.addressList[0].addressVal, (msisdn == NULL)?"ME":msisdn);
 		break;
 
 	case MSG_READREPLY_MMS:
@@ -136,13 +141,13 @@ void MmsPluginTransport::submitRequest(const MSG_REQUEST_INFO_S *pReqInfo)
 		reqItem.eMmsPduType = eMMS_SEND_REQ;
 		reqItem.eHttpCmdType = eHTTP_CMD_POST_TRANSACTION;
 		reqItem.pPostData = MsgOpenAndReadMmsFile(pReqInfo->msgInfo.msgData, 0, -1, &reqItem.postDataLen);
+		MSG_MMS_VLD_INFO("%d, MMS Send Start %s->%s, Success", pReqInfo->msgInfo.msgId, (msisdn == NULL)?"ME":msisdn, pReqInfo->msgInfo.addressList[0].addressVal);
 		break;
 	}
 
 	MmsPluginUaManager::instance()->addMmsReqEntity(reqItem);
 	MmsPluginUaManager::instance()->start();
 }
-
 
 void MmsPluginTransport::cancelRequest(msg_request_id_t reqId)
 {

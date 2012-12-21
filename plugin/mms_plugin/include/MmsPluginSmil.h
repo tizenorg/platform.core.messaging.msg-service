@@ -14,17 +14,14 @@
 * limitations under the License.
 */
 
-#include <stdio.h>
-#include <string.h>
-#include <sys/stat.h>
-#include <libxml/parser.h>
-#include <libxml/tree.h>
-#include "MsgTypes.h"
-#include "MsgMmsTypes.h"
-#include "MmsPluginCodec.h"
-
 #ifndef MMS_PLUGIN_SMIL_H
 #define MMS_PLUGIN_SMIL_H
+
+#include <libxml/parser.h>
+#include <libxml/tree.h>
+
+#include "MsgMmsTypes.h"
+#include "MmsPluginCodecTypes.h"
 
 typedef enum _SMIL_ELEMENT_T {
 	ELEMENT_SMIL,
@@ -262,5 +259,3 @@ char *__MmsSmilFindColorValue(int nValue);
 xmlNodePtr UtilxmlStringGetNodeList(xmlNodePtr pstNode, char *pszName);
 
 #endif//MMS_PLUGIN_SMIL_H
-
-

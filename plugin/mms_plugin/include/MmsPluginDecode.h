@@ -17,15 +17,13 @@
 #ifndef MMS_PLUGIN_DECODE_H
 #define MMS_PLUGIN_DECODE_H
 
-#include "MmsPluginMessage.h"
+#include "MmsPluginTypes.h"
+#include "MmsPluginCodecTypes.h"
 
 typedef struct _MsgHeaderAddress	MsgHeaderAddress;
 
 typedef int MmsMsgID;
 
-/*==================================================================================================
-							Structures
-==================================================================================================*/
 typedef enum {
 	MSG_PRESENTATION_NONE = -1,
 	MSG_PRESENTATION_FIRSTPART,		//Content-type == type parameter
@@ -132,4 +130,4 @@ bool MmsDrm2ConvertMsgBody(char *szOriginFilePath);
 bool MmsDrm2ReadMsgConvertedBody(MSG_MESSAGE_INFO_S *pMsg, bool bSavePartsAsTempFiles, bool bRetrieved, char *retrievedPath);
 #endif
 
-#endif
+#endif //MMS_PLUGIN_DECODE_H

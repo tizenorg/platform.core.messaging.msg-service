@@ -32,5 +32,25 @@ unsigned char *MsgDecodeQuotePrintable(unsigned char *pSrc, unsigned long srcLen
 
 char *MsgDecodeText(char *pOri);
 
+const char *MmsDebugGetMimeType(MimeType mimeType);
+const char *MmsDebugGetMmsReport(MmsReport report);
+const char *MmsDebugGetMmsReportAllowed(MmsReportAllowed reportAllowed);
+const char *MmsDebugGetMmsReadStatus(msg_read_report_status_t readStatus);
+const char *MmsDebugGetMsgType(MmsMsgType msgType);
+const char *MmsDebugGetResponseStatus(MmsResponseStatus responseStatus);
+const char *MmsDebugGetRetrieveStatus(MmsRetrieveStatus retrieveStatus);
+const char *MmsDebugGetMsgStatus(msg_delivery_report_status_t msgStatus);
+const char *MmsDebugGetMsgClass(MmsMsgClass msgClass);
+const char *MmsDebugGetDataType(MmsDataType dataType);
 
-#endif
+bool MmsInitMsgType(MsgType *pMsgType);
+bool MmsInitMsgBody(MsgBody *pMsgBody);
+bool MmsInitMsgContentParam(MsgContentParam *pMsgContentParam);
+bool MmsInitMsgAttrib(MmsAttrib *pAttrib);
+
+#ifdef __SUPPORT_DRM__
+bool MmsInitMsgDRMInfo(MsgDRMInfo *pMsgDrmInfo);
+#endif//__SUPPORT_DRM__
+
+
+#endif //MMS_PLUGIN_CODEC_COMMON_H

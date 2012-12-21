@@ -20,22 +20,24 @@
 #include <stdlib.h>
 #include <errno.h>
 
-#include "MsgDebug.h"
-#include "MsgException.h"
+#include "MsgUtilFile.h"
+
+#include "MmsPluginDebug.h"
 #include "MmsPluginDecode.h"
 #include "MmsPluginCodecCommon.h"
 #include "MmsPluginStorage.h"
-#include "MsgUtilFile.h"
 #include "MmsPluginDebug.h"
-#include "MsgSettingTypes.h"
+#include "MmsPluginMIME.h"
 #include "MmsPluginAvCodec.h"
 #include "MmsPluginSmil.h"
+#include "MmsPluginTextConvert.h"
+#include "MmsPluginUtil.h"
+
 #ifdef __SUPPORT_DRM__
 #include "MmsPluginDrm.h"
 #include "MsgDrmWrapper.h"
 #endif
-#include "MmsPluginTextConvert.h"
-#include "MmsPluginUtil.h"
+
 
 /*Decode wsp*/
 static int __MmsGetDecodeOffset(void);
@@ -5118,7 +5120,7 @@ static bool __MsgInitMsgType(MsgType *pMsgType)
 
 	__MsgInitMsgContentParam(&pMsgType->param);
 #ifdef __SUPPORT_DRM__
-	__MsgInitMsgDRMInfo(&pMsgType->drmInfo);
+	MmsInitMsgDRMInfo(&pMsgType->drmInfo);
 #endif
 
 	return true;

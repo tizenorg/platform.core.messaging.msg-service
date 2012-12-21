@@ -17,11 +17,12 @@
 #include <string.h>
 #include <drm_client_types.h>
 #include <drm_client.h>
-#include "MmsPluginDrm.h"
-#include "MmsPluginCodec.h"
 #include "MsgMmsTypes.h"
 #include "MsgDrmWrapper.h"
-#include "MsgDebug.h"
+#include "MmsPluginDrm.h"
+#include "MmsPluginCodec.h"
+#include "MmsPluginMIME.h"
+#include "MmsPluginDebug.h"
 #include "MmsPluginUtil.h"
 
 #ifdef __SUPPORT_DRM__

@@ -17,18 +17,8 @@
 #ifndef MMS_PLUGIN_TEXT_CONVERT_H
 #define MMS_PLUGIN_TEXT_CONVERT_H
 
-#include <glib.h>
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 const char *MmsPluginTextConvertGetCharSet(int MIBEnum);
 
 bool MmsPluginTextConvert(const char *pToCodeSet, const char *pFromCodeSet, const char *pSrc, int srcLen, char **ppDest, int *pDestLen);
 
-#ifdef __cplusplus
-}
-#endif
-
-#endif
+#endif //MMS_PLUGIN_TEXT_CONVERT_H

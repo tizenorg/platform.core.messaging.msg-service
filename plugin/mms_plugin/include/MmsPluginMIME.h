@@ -14,14 +14,10 @@
 * limitations under the License.
 */
 
-#ifndef _UTY_MIME_H_
-#define _UTY_MIME_H_
+#ifndef MMS_PLUGIN_MIME_H
+#define MMS_PLUGIN_MIME_H
 
-#include "MsgMmsTypes.h"
-
-#ifdef __cplusplus
-extern "C" {
-#endif /* __cplusplus */
+#include "MmsPluginTypes.h"
 
 #define		MSG_CH_CR						'\r'
 #define		MSG_CH_LF						'\n'
@@ -50,8 +46,6 @@ extern "C" {
 #define		MSG_STR_DOUBLE_HYPEN		"--"
 #define		MSG_STR_BOUNDARY_DEL		"\r\n--"
 
-#define		MSG_MMS_STR_ADDR_DELIMETER	MSG_STR_ADDR_DELIMETER
-#define		MSG_MMS_CH_ADDR_DELIMETER	MSG_CH_ADDR_DELIMETER
 #define		MSG_MMS_CH_EMAIL_AT			'@'
 
 
@@ -275,10 +269,5 @@ char *MimeGetMimeStringFromMimeInt(int mimeType);
 char *MsgGetString(MsgHeaderField tableId, int code);
 char *_MsgSkipWS3(char *s);
 int	_MsgGetCode(MsgHeaderField tableId, char *pStr);
-#ifdef __cplusplus
-}
-#endif /* __cplusplus */
 
-#endif // _UTY_MIME_H_
-
-
+#endif // MMS_PLUGIN_MIME_H

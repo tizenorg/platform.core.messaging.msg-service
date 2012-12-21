@@ -18,21 +18,17 @@
 #include <errno.h>
 #include <sys/stat.h>
 
-#include "MsgDebug.h"
 #include "MsgUtilFile.h"
 #include "MsgException.h"
+#include "MsgSettingTypes.h"
 #include "MsgMmsMessage.h"
-#include "MsgTransportTypes.h"
 #include "MsgGconfWrapper.h"
-#include "MsgSoundPlayer.h"
 #include "MsgStorageHandler.h"
+#include "MmsPluginDebug.h"
 #include "MmsPluginTypes.h"
 #include "MmsPluginCodec.h"
 #include "MmsPluginInternal.h"
 #include "MmsPluginStorage.h"
-#include "MmsPluginHttp.h"
-#include "MmsPluginCodec.h"
-#include "MsgNotificationWrapper.h"
 #include "MmsPluginSmil.h"
 
 /*==================================================================================================
@@ -355,6 +351,17 @@ void MmsPluginInternal::processSendConf(MSG_MESSAGE_INFO_S *pMsgInfo, mmsTranQEn
 		strncpy(pMsgInfo->msgText, responseText, MMS_LOCALE_RESP_TEXT_LEN);
 	}
 
+	MSG_ADDRESS_INFO_S addressinfo = {0,};
+	char *msisdn = NULL;
+	msisdn = MsgSettingGetString(MSG_SIM_MSISDN);
+
+	MmsPluginStorage::instance()->getAddressInfo(pMsgInfo->msgId, &addressinfo);
+
+	MSG_MMS_VLD_INFO("%d, MMS Send End %s->%s %s", pMsgInfo->msgId
+													, (msisdn == NULL)?"ME":msisdn
+													, addressinfo.addressVal
+													, (pMsgInfo->networkStatus == MSG_NETWORK_SEND_SUCCESS)?"Success":"Fail");
+
 	// set message-id from mmsc
 	strncpy(recvData.szMsgID, mmsHeader.szMsgID, MMS_MSG_ID_LEN);
 	strncpy(recvData.szTrID, mmsHeader.szTrID, MMS_TR_ID_LEN);
@@ -429,6 +436,17 @@ void MmsPluginInternal::processRetrieveConf(MSG_MESSAGE_INFO_S *pMsgInfo, mmsTra
 		pMsgInfo->msgType.subType = MSG_NOTIFICATIONIND_MMS;
 	}
 
+	char *msisdn = NULL;
+	msisdn = MsgSettingGetString(MSG_SIM_MSISDN);
+
+	if (mmsHeader.pFrom)
+		MmsAddrUtilRemovePlmnString(mmsHeader.pFrom->szAddr);
+
+	MSG_MMS_VLD_INFO("%d, MMS Receive %s End %s->%s %s", pMsgInfo->msgId
+														, (pRequest->eMmsPduType == eMMS_RETRIEVE_AUTO_CONF)?"Auto":"Manual"
+														, (mmsHeader.pFrom)?mmsHeader.pFrom->szAddr:"YOU"
+														, (msisdn == NULL)?"ME":msisdn
+														, (pMsgInfo->networkStatus == MSG_NETWORK_RETRIEVE_SUCCESS)?"Success":"Fail");
 	pMsgInfo->dataSize = pRequest->getDataLen;
 
 	// set message-id & MMS TPDU file path

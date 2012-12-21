@@ -16,12 +16,10 @@
 
 #ifndef MMS_PLUGIN_CODEC_H
 #define MMS_PLUGIN_CODEC_H
-/*==================================================================================================
-							HEADER
-==================================================================================================*/
+
 #include "MmsPluginCodecTypes.h"
 #include "MmsPluginCodecCommon.h"
 #include "MmsPluginEncode.h"
 #include "MmsPluginDecode.h"
 
-#endif
+#endif //MMS_PLUGIN_CODEC_H

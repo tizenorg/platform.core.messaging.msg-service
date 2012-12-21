@@ -17,16 +17,9 @@
 #ifndef MMS_PLUGIN_STORAGE_H
 #define MMS_PLUGIN_STORAGE_H
 
-/*==================================================================================================
-							INCLUDE FILES
-==================================================================================================*/
-#include "MsgStorageTypes.h"
 #include "MsgSqliteWrapper.h"
-#include "MmsPluginMessage.h"
+#include "MmsPluginCodecTypes.h"
 
-/*==================================================================================================
-							CLASS DEFINITIONS
-==================================================================================================*/
 class MmsPluginStorage
 {
 public:
@@ -62,10 +55,9 @@ public:
 	/* reject_msg_support */
 	msg_error_t getTrID(MSG_MESSAGE_INFO_S *pMsgInfo, char *pszTrID, int nBufferLen);
 	/* reject_msg_support */
-
+	msg_error_t getAddressInfo(msg_message_id_t msgId, MSG_ADDRESS_INFO_S *pAddrInfo);
 	msg_error_t updateMsgServerID(MSG_MESSAGE_INFO_S *pMsgInfo, MSG_SENDINGOPT_INFO_S *pSendOptInfo);
 
-	MmsMsgMultiStatus *getMultiStatus(msg_message_id_t msgId);
 	msg_error_t getMsgText(MMS_MESSAGE_DATA_S *pMmsMsg, char *pMsgText);
 
 private:

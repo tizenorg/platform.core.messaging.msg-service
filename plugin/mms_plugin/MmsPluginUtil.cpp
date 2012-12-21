@@ -17,19 +17,22 @@
 #include <mm_file.h>
 #include <mm_util_jpeg.h>
 #include <mm_util_imgp.h>
-
 #include <media-thumbnail.h>
-
-//----str
 #include <ctype.h>
-
-#include "MsgDebug.h"
+#include "MsgUtilFile.h"
+#include "MmsPluginDebug.h"
 #include "MmsPluginUtil.h"
+
 
 bool makeImageThumbnail(char *srcPath, char *dstPath)
 {
 	if (srcPath == NULL || dstPath == NULL) {
-		MSG_DEBUG("Make thumbnail: failed [Invalid Parameter]");
+		MSG_DEBUG(MMS_DEBUG_STR_INVALID_PARAM" src = %p, dst = %p", srcPath, dstPath);
+		return false;
+	}
+
+	if (MsgAccessFile(srcPath, R_OK) == false) {
+		MSG_DEBUG("not exist source file [%s]", srcPath);
 		return false;
 	}
 
@@ -37,6 +40,11 @@ bool makeImageThumbnail(char *srcPath, char *dstPath)
 	err = thumbnail_request_save_to_file(srcPath, MEDIA_THUMB_LARGE, dstPath);
 	if (err < 0) {
 		MSG_DEBUG("Make thumbnail: failed");
+		return false;
+	}
+
+	if (MsgAccessFile(dstPath, F_OK) == false) {
+		MSG_DEBUG("not exist result file [%s]", dstPath);
 		return false;
 	}
 
@@ -52,7 +60,12 @@ bool makeVideoThumbnail(char *srcPath, char *dstPath)
 	int trackCount = 0;
 
 	if (srcPath == NULL || dstPath == NULL) {
-		MSG_DEBUG("Make thumbnail: failed [Invalid Parameter]");
+		MSG_DEBUG(MMS_DEBUG_STR_INVALID_PARAM" src = %p, dst = %p", srcPath, dstPath);
+		return false;
+	}
+
+	if (MsgAccessFile(srcPath, R_OK) == false) {
+		MSG_DEBUG("not exist source file [%s]", srcPath);
 		return false;
 	}
 
@@ -122,36 +135,52 @@ bool makeVideoThumbnail(char *srcPath, char *dstPath)
 		return false;
 	}
 
+	if (MsgAccessFile(dstPath, F_OK) == false) {
+		MSG_DEBUG("not exist result file [%s]", dstPath);
+		return false;
+	}
+
 	MSG_DEBUG("Make thumbnail: success [%s]", dstPath);
 	mm_file_destroy_content_attrs(content_attrs);
 	return true;
 }
 
-//----------------------------------------------------------------------
 bool MsgIsASCII(char *pszText)
 {
+	if (pszText == NULL) {
+		MSG_DEBUG(MMS_DEBUG_STR_INVALID_PARAM" pszText = %p", pszText);
+		return false;
+	}
+
 	int length = strlen(pszText);
+	if (length <= 0) {
+		MSG_DEBUG("Input parameter is NULL string");
+		return false;
+	}
 
 	for (int i = 0; i < length; ++i) {
 		if (!isascii(pszText[i])) {
-			MSG_DEBUG("_MsgIsASCII false.");
+			MSG_DEBUG("It is not Ascii code");
 			return false;
 		}
 	}
 
-	MSG_DEBUG("_MsgIsASCII true.");
+	MSG_DEBUG("It is Ascii code");
 	return true;
 }
 
-
 bool MsgReplaceNonAscii(char *szInText, char **szOutText, char replaceChar)
 {
-	MSG_DEBUG("_MsgReplaceNonAscii");
+
 	int nCount = 0;
 	int index = 0;
 	int cLen = 0;
 	char *pNew = NULL;
 
+	if (szInText == NULL || szOutText == NULL) {
+		MSG_DEBUG(MMS_DEBUG_STR_INVALID_PARAM" szInText = %p, szOutText = %p", szInText, szOutText);
+		return false;
+	}
 	cLen = strlen(szInText);
 
 	pNew = (char *)malloc(cLen + 1);
@@ -163,12 +192,12 @@ bool MsgReplaceNonAscii(char *szInText, char **szOutText, char replaceChar)
 
 	while (*(szInText+nCount) != '\0') {
 		if (0x0001 <= *(szInText+nCount) && *(szInText+nCount) <= 0x007F) {
-			MSG_DEBUG("_MsgReplaceNonAscii: non ascii characters (1bytes). \n");
+			MSG_DEBUG("non ascii characters (1bytes). \n");
 			pNew[index] = szInText[nCount];
 			nCount += 1;
 			index += 1;
 		} else {
-			MSG_DEBUG("_MsgReplaceNonAscii: UTF-8 characters (2bytes). \n");
+			MSG_DEBUG("UTF-8 characters (2bytes). \n");
 			pNew[index] = replaceChar;
 			nCount += 1;
 			index +=1;
@@ -181,40 +210,38 @@ bool MsgReplaceNonAscii(char *szInText, char **szOutText, char replaceChar)
 
 bool MsgIsSpace(char *pszText)
 {
-	MSG_DEBUG("_MsgIsSpace");
 	if (!pszText) {
-		MSG_DEBUG("_MsgIsSpace: pszText == NULL!\n");
+		MSG_DEBUG(MMS_DEBUG_STR_INVALID_PARAM);
 		return false;
 	}
 
-	if (strchr(pszText, ' ') != NULL)
-		return true;
-	else
+	if (strchr(pszText, ' ') == NULL) {
+		MSG_DEBUG("space is Not exist");
 		return false;
+	}
+
+	MSG_DEBUG("space exist");
+	return true;
 }
 
 bool MsgReplaceSpecialChar(char *szInText, char **szOutText, char specialChar)
 {
-	MSG_DEBUG("_MsgReplaceSpecialChar");
 	char *pszOutText = NULL;
 	char szBuf[10] = {0, };
 	char temp[5] = {0, };
 	int cLen = 0;
 	int i = 0;
 
-	if (!szInText) {
-		MSG_DEBUG("_MsgReplaceSpecialChar: szInText == NULL! \n");
+	if (!szInText || !szOutText) {
+		MSG_DEBUG(MMS_DEBUG_STR_INVALID_PARAM" szInText = %p, szOutText = %p", szInText, szOutText);
 		return false;
 	}
-
-	if (!szOutText)
-		return false;
 
 	cLen = strlen(szInText);
 
 	if (specialChar == ' ') {
 		if ((pszOutText = (char *)malloc(cLen + 1)) == NULL) {
-			MSG_DEBUG("_MsgReplaceSpecialChar : %d line. MemAlloc failed.\n", __LINE__);
+			MSG_DEBUG("%d line. MemAlloc failed.\n", __LINE__);
 			return false;
 		}
 		memset(pszOutText, 0, cLen + 1);
@@ -243,14 +270,13 @@ bool MsgReplaceSpecialChar(char *szInText, char **szOutText, char specialChar)
 		}
 	}
 
-	MSG_DEBUG("_MsgReplaceSpecialChar : output text : [%s]\n", pszOutText);
+	MSG_DEBUG("output text : [%s]\n", pszOutText);
 
 	return true;
 }
 
 char *MsgStrAppend(char *szInputStr1, char *szInputStr2)
 {
-	MSG_DEBUG("MsgStrAppend");
 	char *szOutputStr = NULL;
 
 	if (szInputStr1 == NULL) {
@@ -290,7 +316,7 @@ char *MsgStrCopy(const char *string)
 	if (string) {
 		pDst = (char *)malloc(1 + strlen(string));
 		if (pDst == NULL) {
-			MSG_DEBUG("MsgStrCopy: pDst MemAlloc Fail \n");
+			MSG_DEBUG("pDst MemAlloc Fail \n");
 			return NULL;
 		}
 

@@ -14,18 +14,20 @@
 * limitations under the License.
 */
 
-#include <glib.h>
-#include <curl/curl.h>
-#include "MmsPluginUserAgent.h"
-#include "MmsPluginEventHandler.h"
-#include "MsgGconfWrapper.h"
-#include "MmsPluginInternal.h"
-#include "MsgUtilFile.h"
-#include "MmsPluginCodec.h"
 #include "MsgException.h"
+#include "MsgUtilFile.h"
+#include "MsgGconfWrapper.h"
+
+
+#include "MmsPluginDebug.h"
+#include "MmsPluginUserAgent.h"
+#include "MmsPluginHttp.h"
+#include "MmsPluginConnManWrapper.h"
+#include "MmsPluginEventHandler.h"
+#include "MmsPluginInternal.h"
+#include "MmsPluginCodec.h"
 #include "MmsPluginDrm.h"
 #include "MmsPluginStorage.h"
-
 
 extern MmsHeader mmsHeader;
 

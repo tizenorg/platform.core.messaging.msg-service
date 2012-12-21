@@ -18,17 +18,15 @@
 #include <sys/stat.h>
 #include <errno.h>
 
-#include "MsgDebug.h"
 #include "MsgException.h"
 #include "MsgUtilFile.h"
 #include "MsgMmsMessage.h"
-#include "MsgNotificationWrapper.h"
-#include "MsgUtilStorage.h"
+#include "MsgStorageTypes.h"
+#include "MmsPluginDebug.h"
 #include "MmsPluginStorage.h"
-#include "MmsPluginCodec.h"
+#include "MmsPluginMessage.h"
 #include "MmsPluginSmil.h"
 #include "MmsPluginDrm.h"
-#include "MsgHelper.h"
 
 static void __MmsReleaseMmsLists(MMS_MESSAGE_DATA_S *mms_data)
 {
@@ -38,6 +36,7 @@ static void __MmsReleaseMmsLists(MMS_MESSAGE_DATA_S *mms_data)
 	_MsgMmsReleaseTransitionList(mms_data);
 	_MsgMmsReleaseMetaList(mms_data);
 }
+
 
 /*==================================================================================================
                                      IMPLEMENTATION OF SmsPluginStorage - Member Functions
@@ -869,51 +868,6 @@ msg_error_t MmsPluginStorage::updateMmsAttachCount(msg_message_id_t msgId, int c
 	return MSG_SUCCESS;
 }
 
-MmsMsgMultiStatus *MmsPluginStorage::getMultiStatus(msg_message_id_t msgId)
-{
-	MSG_BEGIN();
-
-	MmsMsgMultiStatus *pMultiStatus = NULL;
-
-	char sqlQuery[MAX_QUERY_LEN + 1];
-
-	memset(sqlQuery, 0x00, sizeof(sqlQuery));
-
-	snprintf(sqlQuery, sizeof(sqlQuery), "SELECT B.ADDRESS_VAL, A.DELIVERY_REPORT_STATUS, A.DELIVERY_REPORT_TIME, A.READ_REPORT_STATUS, A.READ_REPORT_TIME \
-			FROM %s A, %s B WHERE A.MSG_ID = %d AND A.CONV_ID = B.CONV_ID;",
-			MSGFW_MESSAGE_TABLE_NAME, MSGFW_ADDRESS_TABLE_NAME, msgId);
-
-	if (dbHandle.prepareQuery(sqlQuery) != MSG_SUCCESS)
-		MSG_DEBUG("MSG_ERR_DB_PREPARE");
-
-	if (dbHandle.stepQuery() == MSG_ERR_DB_ROW) {
-		pMultiStatus = (MmsMsgMultiStatus *)malloc(sizeof(MmsMsgMultiStatus));
-
-		memset(pMultiStatus, 0, sizeof(MmsMsgMultiStatus));
-
-		if (dbHandle.columnText(0) != NULL) {
-			strncpy(pMultiStatus->szTo, (char *)dbHandle.columnText(0), (strlen((char *)dbHandle.columnText(0)) > MAX_ADDRESS_VAL_LEN ? MAX_ADDRESS_VAL_LEN : strlen((char *)dbHandle.columnText(0))));
-			MSG_DEBUG("### szTo = %s ###", pMultiStatus->szTo);
-		}
-
-		pMultiStatus->msgStatus = (msg_delivery_report_status_t)dbHandle.columnInt(1);
-		pMultiStatus->handledTime = dbHandle.columnInt(2);
-		pMultiStatus->readStatus = (msg_read_report_status_t)dbHandle.columnInt(3);
-		pMultiStatus->readTime = dbHandle.columnInt(4);
-	} else {
-		MSG_DEBUG("MSG_ERR_DB_STEP");
-	}
-
-	/* possible NULL pointer dereference*/
-	if (pMultiStatus != NULL)
-		pMultiStatus->pNext = NULL;
-
-	dbHandle.finalizeQuery();
-
-	return pMultiStatus;
-}
-
-
 void MmsPluginStorage::getMmsAttrib(msg_message_id_t msgId, MmsMsg *pMmsMsg)
 {
 	char sqlQuery[MAX_QUERY_LEN + 1];
@@ -1083,6 +1037,36 @@ msg_error_t MmsPluginStorage::getTrID(MSG_MESSAGE_INFO_S *pMsgInfo,char *pszTrID
 	return MSG_SUCCESS;
 }
 /* reject_msg_support */
+
+msg_error_t MmsPluginStorage::getAddressInfo(msg_message_id_t msgId, MSG_ADDRESS_INFO_S *pAddrInfo)
+{
+	char sqlQuery[MAX_QUERY_LEN+1];
+
+	// Add Address
+	memset(sqlQuery, 0x00, sizeof(sqlQuery));
+
+	snprintf(sqlQuery, sizeof(sqlQuery), "SELECT A.ADDRESS_TYPE, A.RECIPIENT_TYPE, A.CONTACT_ID, A.ADDRESS_VAL \
+			FROM %s A, %s B WHERE A.CONV_ID = B.CONV_ID AND B.MSG_ID = %d;",
+			MSGFW_ADDRESS_TABLE_NAME, MSGFW_MESSAGE_TABLE_NAME, msgId);
+
+	if (dbHandle.prepareQuery(sqlQuery) != MSG_SUCCESS)
+		return MSG_ERR_DB_PREPARE;
+
+	if (dbHandle.stepQuery() == MSG_ERR_DB_ROW) {
+		pAddrInfo->addressType = dbHandle.columnInt(0);
+		pAddrInfo->recipientType = dbHandle.columnInt(1);
+		pAddrInfo->contactId = dbHandle.columnInt(2);
+
+		strncpy(pAddrInfo->addressVal, (char*)dbHandle.columnText(3), MAX_ADDRESS_VAL_LEN);
+	} else {
+		dbHandle.finalizeQuery();
+		return MSG_ERR_DB_STEP;
+	}
+
+	dbHandle.finalizeQuery();
+
+	return MSG_SUCCESS;
+}
 
 
 msg_error_t MmsPluginStorage::getMmsRawFilePath(msg_message_id_t msgId, char *pFilepath)

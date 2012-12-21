@@ -16,14 +16,15 @@
 
 #include <time.h>
 #include <stdlib.h>
-
+#include <stdio.h>
+#include "MsgUtilFile.h"
+#include "MmsPluginDebug.h"
 #include "MmsPluginEncode.h"
 #include "MmsPluginCodecTypes.h"
 #include "MmsPluginCodecCommon.h"
-#include "MsgDebug.h"
-#include "MsgUtilFile.h"
 #include "MmsPluginMIME.h"
 #include "MmsPluginUtil.h"
+
 
 /**  Sending message related variables  ------------------------ */
 static	char gszMmsEncodeBuf[MSG_MMS_ENCODE_BUFFER_MAX] = {0, };

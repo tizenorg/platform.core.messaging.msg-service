@@ -15,6 +15,7 @@
 */
 
 #include "MmsPluginConnManWrapper.h"
+#include "MmsPluginDebug.h"
 
 void network_print_profile(net_profile_info_t *ProfInfo)
 {

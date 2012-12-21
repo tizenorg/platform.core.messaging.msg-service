@@ -15,18 +15,14 @@
 */
 
 #ifndef MMS_PLUGIN_DEBUG_H
-#define	MMS_PLUGIN_DEBUG_H
+#define MMS_PLUGIN_DEBUG_H
 
-const char *MmsDebugGetMimeType(MimeType mimeType);
-const char *MmsDebugGetMmsReport(MmsReport report);
-const char *MmsDebugGetMmsReportAllowed(MmsReportAllowed reportAllowed);
-const char *MmsDebugGetMmsReadStatus(msg_read_report_status_t readStatus);
-const char *MmsDebugGetMsgType(MmsMsgType msgType);
-const char *MmsDebugGetResponseStatus(MmsResponseStatus responseStatus);
-const char *MmsDebugGetRetrieveStatus(MmsRetrieveStatus retrieveStatus);
-const char *MmsDebugGetMsgStatus(msg_delivery_report_status_t msgStatus);
-const char *MmsDebugGetMsgClass(MmsMsgClass msgClass);
-const char *MmsDebugGetDataType(MmsDataType dataType);
+#include "MsgDebug.h"
+
+#define MMS_DEBUG_STR_FAILED "Failed"
+#define MMS_DEBUG_STR_SUCCESS "Success"
+#define MMS_DEBUG_STR_INVALID_PARAM "Invalid Parameter"
+#define MMS_DEBUG_STR_FILE_NOT_EXIST "File not exist"
+
 
 #endif //MMS_PLUGIN_DEBUG_H
-

@@ -56,17 +56,6 @@
 #define	MMS_V1_2								// MMS Version : MMS_V1_0 / MMS_V1_1 / MMS_V1_2
 
 /**
- *	@brief	Defines the enabled DRM support
- */
-#define	__SUPPORT_DRM__
-
-/**
- *	@brief	Defines the enabled JAVA MMS Application Id
- */
-#define FEATURE_JAVA_MMS
-
-
-/**
  *	@brief	Defines message struct handle.
  */
 

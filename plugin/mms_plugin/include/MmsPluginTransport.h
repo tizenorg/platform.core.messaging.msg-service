@@ -17,19 +17,8 @@
 #ifndef MMS_PLUGIN_TRANSPORT_H
 #define MMS_PLUGIN_TRANSPORT_H
 
-
-/*==================================================================================================
-							INCLUDE FILES
-==================================================================================================*/
-#include <map>
-
-#include "MsgTransportTypes.h"
 #include "MmsPluginTypes.h"
 
-
-/*==================================================================================================
-							CLASS DEFINITIONS
-==================================================================================================*/
 class MmsPluginTransport
 {
 	public:
@@ -50,4 +39,3 @@ class MmsPluginTransport
 };
 
 #endif //MMS_PLUGIN_TRANSPORT_H
-
