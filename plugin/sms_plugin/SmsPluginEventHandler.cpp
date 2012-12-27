@@ -208,7 +208,7 @@ void SmsPluginEventHandler::handleMsgIncoming(SMS_TPDU_S *pTpdu)
 	}
 }
 
-void SmsPluginEventHandler::handlePushMsgIncoming(char* pPushHeader, char* pPushBody, int pushBodyLen, char *application_id)
+void SmsPluginEventHandler::handlePushMsgIncoming(char* pPushHeader, char* pPushBody, int pushBodyLen, char *application_id, char *content_type)
 {
 	MSG_PUSH_MESSAGE_DATA_S pushData;
 
@@ -221,6 +221,7 @@ void SmsPluginEventHandler::handlePushMsgIncoming(char* pPushHeader, char* pPush
 	memcpy(pushData.pushBody, pPushBody, pushBodyLen);
 
 	memcpy(pushData.pushAppId, application_id, MAX_WAPPUSH_ID_LEN);
+	memcpy(pushData.pushContentType, content_type, MAX_WAPPUSH_CONTENT_TYPE_LEN);
 
 	/** Callback to MSG FW */
 	listener.pfPushMsgIncomingCb(&pushData);

@@ -1149,7 +1149,7 @@ msg_error_t SmsPluginStorage::updateAllAddress()
 }
 
 
-msg_error_t SmsPluginStorage::getRegisteredPushEvent(char* pPushHeader, int *count, char *application_id)
+msg_error_t SmsPluginStorage::getRegisteredPushEvent(char* pPushHeader, int *count, char *application_id, char *contentType)
 {
 	msg_error_t err = MSG_SUCCESS;
 
@@ -1201,6 +1201,7 @@ msg_error_t SmsPluginStorage::getRegisteredPushEvent(char* pPushHeader, int *cou
 				pInfo.appcode = appcode;
 				MSG_DEBUG("appcode: %d, app_id: %s", pInfo.appcode, app_id);
 				strcpy(application_id, app_id);
+				strcpy(contentType, content_type);
 				pushAppInfoList.push_back(pInfo);
 				(*count)++;
 				found = true;
@@ -1214,6 +1215,7 @@ msg_error_t SmsPluginStorage::getRegisteredPushEvent(char* pPushHeader, int *cou
 		PUSH_APPLICATION_INFO_S pInfo = {0, };
 		pInfo.appcode = default_appcode;
 		strcpy(application_id, app_id);
+		strcpy(contentType, content_type);
 		pushAppInfoList.push_back(pInfo);
 		*count = 1;
 	}

@@ -295,6 +295,7 @@ typedef struct
 	int 							pushBodyLen;
 	char							pushBody[MAX_WAPPUSH_CONTENTS_LEN + 1];
 	char							pushAppId[MAX_WAPPUSH_ID_LEN + 1];
+	char							pushContentType[MAX_WAPPUSH_CONTENT_TYPE_LEN + 1];
 }MSG_PUSH_MESSAGE_DATA_S;
 
 /**

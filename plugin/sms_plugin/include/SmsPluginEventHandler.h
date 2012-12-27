@@ -40,7 +40,7 @@ public:
 	void handleMsgIncoming(SMS_TPDU_S *pTpdu);
 	void handleSyncMLMsgIncoming(msg_syncml_message_type_t msgType, char* pPushBody, int PushBodyLen, char* pWspHeader, int WspHeaderLen);
 	void handleLBSMsgIncoming(char* pPushHeader, char* pPushBody, int pushBodyLen);
-	void handlePushMsgIncoming(char* pPushHeader, char* pPushBody, int pushBodyLen, char *app_id);
+	void handlePushMsgIncoming(char* pPushHeader, char* pPushBody, int pushBodyLen, char *app_id, char *content_type);
 
 	msg_error_t callbackMsgIncoming(MSG_MESSAGE_INFO_S *pMsgInfo);
 	msg_error_t callbackCBMsgIncoming(MSG_CB_MSG_S *pCbMsg);

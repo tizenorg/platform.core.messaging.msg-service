@@ -1141,9 +1141,10 @@ void SmsPluginWapPushHandler::handleWapPushCallback(char* pPushHeader, char* pPu
 	msg_error_t err = MSG_SUCCESS;
 	int pushEvt_cnt = 0;
 	char app_id[MAX_WAPPUSH_ID_LEN] = {0,};
+	char content_type[MAX_WAPPUSH_CONTENT_TYPE_LEN] = {0,};
 	SmsPluginStorage *storageHandler = SmsPluginStorage::instance();
 
-	err = storageHandler->getRegisteredPushEvent(pPushHeader, &pushEvt_cnt, app_id);
+	err = storageHandler->getRegisteredPushEvent(pPushHeader, &pushEvt_cnt, app_id, content_type);
 	MSG_DEBUG("pushEvt_cnt: %d", pushEvt_cnt);
 	if(err != MSG_SUCCESS) {
 		MSG_DEBUG("Fail to get registered push event");
@@ -1284,7 +1285,7 @@ void SmsPluginWapPushHandler::handleWapPushCallback(char* pPushHeader, char* pPu
 			break;
 
 		default:
-			SmsPluginEventHandler::instance()->handlePushMsgIncoming(pPushHeader, pPushBody, PushBodyLen, app_id);
+			SmsPluginEventHandler::instance()->handlePushMsgIncoming(pPushHeader, pPushBody, PushBodyLen, app_id, content_type);
 			break;
 		}
 	}

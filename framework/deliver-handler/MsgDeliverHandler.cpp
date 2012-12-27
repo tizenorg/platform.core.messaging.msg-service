@@ -205,6 +205,11 @@ msg_error_t MsgHandleSMS(MSG_MESSAGE_INFO_S *pMsgInfo, bool *pSendNoti, bool *bO
 {
 	msg_error_t err = MSG_SUCCESS;
 
+	if (pMsgInfo->msgPort.valid == true) {
+			*pSendNoti = false;
+			*bOnlyNoti = false;
+			return MSG_SUCCESS;
+	}
 	if (pMsgInfo->msgType.subType == MSG_NORMAL_SMS) {
 		if (MsgCheckFilter(&dbHandle, pMsgInfo) == true) {
 			// Move to SpamBox
@@ -223,6 +228,7 @@ msg_error_t MsgHandleSMS(MSG_MESSAGE_INFO_S *pMsgInfo, bool *pSendNoti, bool *bO
 				MSG_DEBUG("MsgStoUpdateConversation() Error : [%d]", err);
 
 			*pSendNoti = false;
+			*bOnlyNoti = false;
 		}
 	} else if ((pMsgInfo->msgType.subType >= MSG_WAP_SI_SMS) && (pMsgInfo->msgType.subType <= MSG_WAP_CO_SMS)) {
 		MSG_DEBUG("Starting WAP Message Incoming.");
