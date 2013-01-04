@@ -170,6 +170,15 @@ static void __httpAllocHeaderInfo(curl_slist **responseHeaders, char *szUrl, int
 
 	memset(szBuffer, 0, 1025);
 	memset(pcheader, 0, HTTP_REQUEST_LEN);
+	nResult = __httpGetHeaderField(MMS_HH_ACCEPT_ENCODING, szBuffer);
+	if (nResult) {
+		snprintf(pcheader, HTTP_REQUEST_LEN, "Accept-Encoding: %s", szBuffer);
+		MSG_DEBUG("%s", pcheader);
+		*responseHeaders = curl_slist_append(*responseHeaders, pcheader);
+	}
+
+	memset(szBuffer, 0, 1025);
+	memset(pcheader, 0, HTTP_REQUEST_LEN);
 	nResult = __httpGetHeaderField(MMS_HH_USER_AGENT, szBuffer);
 	if (nResult) {
 		snprintf(pcheader, HTTP_REQUEST_LEN, "User-Agent: %s", szBuffer);
