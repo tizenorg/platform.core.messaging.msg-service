@@ -819,37 +819,16 @@ int MmsSmilGetMediaSrcForNormalMsg(char *szOutbuf, char *szInBuf, MsgMultipart *
 
 		if (strcasecmp(szContentID, szInBuf) == 0) {
 			strcpy(szOutbuf, pPart->type.param.szFileName);
-			MSG_DEBUG("match with szContentID.");
+			MSG_DEBUG("match with szContentID");
 			goto RETURN;
-		} else {
-			char *szInFileName = strrchr(szInBuf, '/');
-
-			if (szInFileName == NULL) {
-				szInFileName = szInBuf;
-			} else
-				szInFileName++;
-
-			if (strcasecmp(szContentLI, szInFileName) == 0) {
-				strcpy(szOutbuf, pPart->type.param.szFileName);
-				MSG_DEBUG("match with szContentLI.");
-				goto RETURN;
-			} else if (strcasecmp(pPart->type.param.szName, szInBuf) == 0) {
-				strcpy(szOutbuf, pPart->type.param.szFileName);
-				MSG_DEBUG("match with pPart->type.param.szName.");
-				goto RETURN;
-			} else if (strlen(szContentID) > 4) {
-				if (strcasecmp(strtok(szContentID, "."), strtok(szInBuf, ".")) == 0) {
-					strcpy(szOutbuf, pPart->type.param.szFileName);
-					MSG_DEBUG("only name is match with szContentID.");
-					goto RETURN;
-				}
-			} else if (strlen(szContentLI) > 4) {
-				if (strcasecmp(strtok(szContentLI, "."), strtok(szInBuf, ".")) == 0) {
-					strcpy(szOutbuf, pPart->type.param.szFileName);
-					MSG_DEBUG("only name is match with szContentLI.");
-					goto RETURN;
-				}
-			}
+		} else if (strcasecmp(szContentLI, szInBuf) == 0) {
+			strcpy(szOutbuf, pPart->type.param.szFileName);
+			MSG_DEBUG("match with szContentLocation");
+			goto RETURN;
+		} else if (strcasecmp(pPart->type.param.szName, szInBuf) == 0) {
+			strcpy(szOutbuf, pPart->type.param.szFileName);
+			MSG_DEBUG("match with Parameter Name");
+			goto RETURN;
 		}
 
 		nPart++;

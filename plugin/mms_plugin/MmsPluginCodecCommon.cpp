@@ -903,7 +903,6 @@ char *MsgDecodeText(char *pOri)
 	int	nCharset = MSG_CHARSET_UTF8;
 	int	nTemp = 0;
 	char *pReturnStr = NULL;
-	char *pConvertedStr = NULL;
 
 	char szTempBuf[MSG_LOCAL_TEMP_BUF_SIZE] = {0};
 
@@ -946,6 +945,8 @@ char *MsgDecodeText(char *pOri)
 
 			*pDecQ = '\0';
 			nCharset = _MsgGetCode(MSG_CHARSET, pDecStart + 2);
+			if(nCharset < 0)
+				goto __CATCH;
 			*pDecQ = MSG_CH_QUESTION;
 		}
 
@@ -1090,11 +1091,6 @@ __RETURN:
 		pTemp = NULL;
 	}
 
-	if (pConvertedStr) {
-		free(pConvertedStr);
-		pConvertedStr = NULL;
-	}
-
 	if(pRe) {
 		free(pRe);
 		pRe = NULL;
@@ -1108,11 +1104,6 @@ __RETURN:
 	return pReturnStr;
 
 __CATCH:
-
-	if (pConvertedStr) {
-		free(pConvertedStr);
-		pConvertedStr = NULL;
-	}
 
 	if(pRe) {
 		free(pRe);
@@ -1801,4 +1792,183 @@ bool MmsInitMsgDRMInfo(MsgDRMInfo *pMsgDrmInfo)
 
 	return true;
 }
+
+void MmsReleaseMsgDRMInfo(MsgDRMInfo *pDrmInfo)
+{
+	MSG_DEBUG("_MsgFreeDRMInfo: S T A R T  !!! \n");
+
+	if (pDrmInfo == NULL) {
+		MSG_DEBUG("pDrmInfo is NULL");
+		return;
+	}
+
+	if (pDrmInfo->szContentDescription) {
+		free(pDrmInfo->szContentDescription);
+		pDrmInfo->szContentDescription = NULL;
+	}
+
+	if (pDrmInfo->szContentVendor) {
+		free(pDrmInfo->szContentVendor);
+		pDrmInfo->szContentVendor = NULL;
+	}
+
+	if (pDrmInfo->szContentName) {
+		free(pDrmInfo->szContentName);
+		pDrmInfo->szContentName = NULL;
+	}
+
+	if (pDrmInfo->szContentURI) {
+		free(pDrmInfo->szContentURI);
+		pDrmInfo->szContentURI = NULL;
+	}
+
+	if (pDrmInfo->szRightIssuer) {
+		free(pDrmInfo->szRightIssuer);
+		pDrmInfo->szRightIssuer = NULL;
+	}
+
+	if (pDrmInfo->szDrm2FullPath) {
+		free(pDrmInfo->szDrm2FullPath);
+		pDrmInfo->szDrm2FullPath = NULL;
+	}
+
+	pDrmInfo->contentType = MIME_UNKNOWN;
+	pDrmInfo->drmType = MSG_DRM_TYPE_NONE;
+}
+
 #endif
+
+bool MmsReleaseMmsAttrib(MmsAttrib *pAttrib)
+{
+	MSG_BEGIN();
+
+	if (pAttrib == NULL) {
+		MSG_DEBUG("pAttrib is NULL");
+		return false;
+	}
+
+	if (pAttrib->szTo) {
+		free(pAttrib->szTo);
+		pAttrib->szTo = NULL;
+	}
+
+	if (pAttrib->szCc) {
+		free(pAttrib->szCc);
+		pAttrib->szCc = NULL;
+	}
+
+	if (pAttrib->szBcc) {
+		free(pAttrib->szBcc);
+		pAttrib->szBcc = NULL;
+	}
+
+	//check if pMultiStatus should be freed or not, because pMultiStatus is not allocated
+	if (pAttrib->pMultiStatus) {
+		MmsMsgMultiStatus *pMultiStatus = pAttrib->pMultiStatus;
+		MmsMsgMultiStatus *pCurStatus = NULL;
+
+		while (pMultiStatus != NULL ) {
+			pCurStatus = pMultiStatus;
+			pMultiStatus = pMultiStatus->pNext;
+
+			if (pCurStatus) {
+				free(pCurStatus);
+				pCurStatus = NULL;
+			}
+		}
+
+		pAttrib->pMultiStatus = NULL;
+	}
+
+
+	MSG_END();
+
+	return true;
+}
+
+bool MmsReleaseMsgBody(MsgBody *pBody, int type)
+{
+	MSG_BEGIN();
+
+	if (pBody == NULL) {
+		MSG_DEBUG("pBody == NULL \n" );
+		MSG_END();
+
+		return false;
+	}
+
+	switch (type) {
+	case MIME_MULTIPART_REPORT:
+	case MIME_APPLICATION_VND_OMA_DRM_MESSAGE:
+	case MIME_APPLICATION_VND_WAP_MULTIPART_MIXED:
+	case MIME_APPLICATION_VND_WAP_MULTIPART_RELATED:
+	case MIME_APPLICATION_VND_WAP_MULTIPART_ASTERIC:
+	case MIME_MULTIPART_MIXED:
+	case MIME_MULTIPART_RELATED:
+	case MIME_MULTIPART_ALTERNATIVE:
+	case MIME_APPLICATION_VND_WAP_MULTIPART_ALTERNATIVE:
+		{
+			MsgMultipart *pMulti = pBody->body.pMultipart;
+			MsgMultipart *pCurrPart = NULL;
+			MsgBody *pPresentation = pBody->pPresentationBody;
+			while (pMulti != NULL) {
+				pCurrPart = pMulti;
+
+				pMulti = pMulti->pNext;
+
+				if (pCurrPart) {
+#ifdef __SUPPORT_DRM__
+					MmsReleaseMsgDRMInfo(&pCurrPart->type.drmInfo);
+#endif
+
+					if (pCurrPart->pBody) {
+						if (pCurrPart->pBody->body.pBinary) {
+							free(pCurrPart->pBody->body.pBinary);
+							pCurrPart->pBody->body.pBinary = NULL;
+						}
+						free(pCurrPart->pBody);
+						pCurrPart->pBody = NULL;
+					}
+					free(pCurrPart);
+					pCurrPart = NULL;
+				}
+			}
+
+			pBody->body.pMultipart = NULL;
+
+			if (pPresentation) {
+				if (pPresentation->body.pText) {
+					free(pPresentation->body.pText);
+					pPresentation->body.pText = NULL;
+				}
+				free(pPresentation);
+				pBody->pPresentationBody = NULL;
+			}
+
+			MmsInitMsgType(&pBody->presentationType);
+
+			break;
+		}
+
+	default:
+		/* Any single part */
+		if (pBody->body.pBinary) {
+			free(pBody->body.pBinary);
+			pBody->body.pBinary = NULL;
+		}
+
+		break;
+	}
+
+	MSG_END();
+	return true;
+}
+
+void MmsReleaseMmsMsg(MmsMsg *pMmsMsg)
+{
+	if (pMmsMsg) {
+		MmsReleaseMsgBody(&pMmsMsg->msgBody, pMmsMsg->msgType.type);
+		MmsReleaseMmsAttrib(&pMmsMsg->mmsAttrib);
+		bzero(pMmsMsg, sizeof(MmsMsg));
+	}
+}

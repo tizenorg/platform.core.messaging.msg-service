@@ -50,7 +50,11 @@ bool MmsInitMsgAttrib(MmsAttrib *pAttrib);
 
 #ifdef __SUPPORT_DRM__
 bool MmsInitMsgDRMInfo(MsgDRMInfo *pMsgDrmInfo);
+void MmsReleaseMsgDRMInfo(MsgDRMInfo *pDrmInfo);
 #endif//__SUPPORT_DRM__
 
+bool MmsReleaseMsgBody(MsgBody *pBody, int type);
+bool MmsReleaseMmsAttrib(MmsAttrib *pAttrib);
+void MmsReleaseMmsMsg(MmsMsg *pMmsMsg);
 
 #endif //MMS_PLUGIN_CODEC_COMMON_H

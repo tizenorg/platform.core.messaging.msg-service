@@ -17,6 +17,8 @@
 #ifndef MMS_PLUGIN_UTIL_H
 #define MMS_PLUGIN_UTIL_H
 
+#include <stdio.h>
+
 bool makeImageThumbnail(char *srcPath, char *dstPath);
 bool makeVideoThumbnail(char *srcPath, char *dstPath);
 
@@ -29,5 +31,5 @@ char *MsgStrCopy(const char *string);
 char *MsgStrNCopy(const char *string, int length);
 int	MsgStrlen(char *pStr);
 bool MsgConvertCharToHex(char pSrc, char *pDest);
-
+FILE *MmsFileOpen(char *pFileName);
 #endif //MMS_PLUGIN_UTIL_H

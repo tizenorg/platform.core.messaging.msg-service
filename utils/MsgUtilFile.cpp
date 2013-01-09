@@ -253,7 +253,8 @@ bool MsgOpenAndReadFile(const char *pFileName, char **ppData, int *pDataSize)
 		return false;
 	}
 
-	*ppData = new char[FileSize];
+	*ppData = new char[FileSize+1];
+	memset(*ppData, 0x00, (FileSize+1));
 
 	if (MsgFseek(pFile, 0L, SEEK_SET) < 0) {
 		MsgCloseFile(pFile);
@@ -815,6 +816,8 @@ unsigned int MsgDu(const char *pDirPath)
 
 			if (dirSize == 0) {
 				MSG_FATAL("error MsgDu");
+				closedir(dir);
+				free(path);
 				return dirSize;
 			}
 

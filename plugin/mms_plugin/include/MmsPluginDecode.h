@@ -107,8 +107,6 @@ bool MmsBinaryDecodeMsgHeader(FILE *pFile, int totalLength);
 bool MmsBinaryDecodeMsgBody(FILE *pFile, char *szFilePath, int totalLength);
 bool MmsReadMsgBody(msg_message_id_t msgID, bool bSavePartsAsTempFiles, bool bRetrieved, char *retrievedPath);
 
-bool MsgFreeBody(MsgBody *pBody, int type);
-bool MsgFreeAttrib(MmsAttrib *pAttrib);
 
 char *MsgChangeHexString(char *pOrg);
 char *MsgResolveContentURI(char *szSrc);
@@ -124,7 +122,6 @@ bool MmsGetMediaPartHeader(int index, MsgType *pHeader);
 bool MmsGetMsgAttrib(MmsMsgID msgID, MmsAttrib *pAttrib);
 
 #ifdef __SUPPORT_DRM__
-void MsgFreeDRMInfo(MsgDRMInfo *pDrmInfo);
 bool MsgCopyDrmInfo(MsgType *pPartType);
 bool MmsDrm2ConvertMsgBody(char *szOriginFilePath);
 bool MmsDrm2ReadMsgConvertedBody(MSG_MESSAGE_INFO_S *pMsg, bool bSavePartsAsTempFiles, bool bRetrieved, char *retrievedPath);

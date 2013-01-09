@@ -47,7 +47,7 @@ msg_error_t MsgSoundPlayUninit();
 void MsgSoundPlayStart(bool isEmergency);
 void MsgSoundPlayStop();
 int MsgSoundPlayMelody(char *pMsgToneFilePath, bool bIncreasing);
-void MsgSoundPlayVibration();
+void MsgSoundPlayVibration(bool isOnCall);
 void MsgSoundPlayDtmf();
 
 //Sensor FW wrapper.

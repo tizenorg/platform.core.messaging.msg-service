@@ -107,7 +107,7 @@ msg_error_t MsgHandleMmsConfIncomingMsg(MSG_MESSAGE_INFO_S *pMsgInfo, msg_reques
 			MSG_DEBUG("Enter MsgAddPhoneLog() for mms message.");
 			MsgAddPhoneLog(pMsgInfo);
 
-			MsgInsertNoti(&dbHandle, pMsgInfo);
+			MsgInsertNoti(pMsgInfo);
 		}  else if (subType == MSG_RETRIEVE_MANUALCONF_MMS) {
 			if (pMsgInfo->networkStatus == MSG_NETWORK_RETRIEVE_SUCCESS) {
 				MSG_DEBUG("Manual success");
@@ -164,7 +164,7 @@ msg_error_t MsgHandleIncomingMsg(MSG_MESSAGE_INFO_S *pMsgInfo, bool *pSendNoti)
 
 		err = MsgHandleSMS(pMsgInfo, pSendNoti, &bOnlyNoti);
 
-		if (err == MSG_SUCCESS) {
+		if (err == MSG_SUCCESS&& ((*pSendNoti)||bOnlyNoti)) {
 			MsgSoundPlayStart(false);
 			if (*pSendNoti == true) {
 				int smsCnt = 0, mmsCnt = 0;
@@ -173,7 +173,7 @@ msg_error_t MsgHandleIncomingMsg(MSG_MESSAGE_INFO_S *pMsgInfo, bool *pSendNoti)
 				mmsCnt = MsgStoGetUnreadCnt(&dbHandle, MSG_MMS_TYPE);
 
 				MsgSettingHandleNewMsg(smsCnt, mmsCnt);
-				MsgInsertNoti(&dbHandle, pMsgInfo);
+				MsgInsertNoti(pMsgInfo);
 			} else if (bOnlyNoti == true) {
 				MsgInsertNoti(pMsgInfo);
 			}
@@ -364,7 +364,7 @@ msg_error_t MsgHandleMMS(MSG_MESSAGE_INFO_S *pMsgInfo,  bool *pSendNoti)
 			mmsCnt = MsgStoGetUnreadCnt(&dbHandle, MSG_MMS_TYPE);
 
 			MsgSettingHandleNewMsg(smsCnt, mmsCnt);
-			MsgInsertNoti(&dbHandle, pMsgInfo);
+			MsgInsertNoti(pMsgInfo);
 		}
 
 		request.msgInfo.msgId = pMsgInfo->msgId;

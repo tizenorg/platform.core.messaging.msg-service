@@ -45,8 +45,8 @@ MsgHandle::~MsgHandle()
 
 void MsgHandle::openHandle()
 {
-	int ret = 0;
-	size_t cookieSize;
+//	int ret = 0;
+//	size_t cookieSize;
 
 	bool bReady = false;
 
@@ -209,7 +209,7 @@ void MsgHandle::convertMsgStruct(const MSG_MESSAGE_HIDDEN_S *pSrc, MSG_MESSAGE_I
 
 		if (pSrc->dataSize > MAX_MSG_TEXT_LEN) {
 			// Save Message Data into File
-			char fileName[MAX_COMMON_INFO_SIZE+1];
+			char fileName[MSG_FILENAME_LEN_MAX+1];
 			memset(fileName, 0x00, sizeof(fileName));
 
 			if(MsgCreateFileName(fileName) == false)
@@ -403,7 +403,7 @@ void MsgHandle::convertSendOptStruct(const MSG_SENDINGOPT_S* pSrc, MSG_SENDINGOP
 
 	pDest->bSetting = pSrc->bSetting;
 
-	if (pDest->bSetting == false) {
+	if (pSrc->bSetting == false) {
 		MSG_DEBUG("No Sending Option");
 		return;
 	}
@@ -417,34 +417,46 @@ void MsgHandle::convertSendOptStruct(const MSG_SENDINGOPT_S* pSrc, MSG_SENDINGOP
 
 	if (msgType.mainType == MSG_SMS_TYPE) {
 		msg_struct_s *pStruct = (msg_struct_s *)pSrc->smsSendOpt;
-		SMS_SENDINGOPT_S *pSms = (SMS_SENDINGOPT_S *)pStruct->data;
-		pDest->option.smsSendOptInfo.bReplyPath = pSms->bReplyPath;
+		if(pStruct)
+		{
+			SMS_SENDINGOPT_S *pSms = (SMS_SENDINGOPT_S *)pStruct->data;
+			if(pSms)
+			{
+				pDest->option.smsSendOptInfo.bReplyPath = pSms->bReplyPath;
+			}
+		}
 	} else if (msgType.mainType == MSG_MMS_TYPE) {
 		msg_struct_s *pStruct = (msg_struct_s *)pSrc->mmsSendOpt;
-		MMS_SENDINGOPT_S *pMms = (MMS_SENDINGOPT_S *)pStruct->data;
-		pDest->option.mmsSendOptInfo.priority = pMms->priority;
-		pDest->option.mmsSendOptInfo.bReadReq = pMms->bReadReq;
+		if(pStruct)
+		{
+			MMS_SENDINGOPT_S *pMms = (MMS_SENDINGOPT_S *)pStruct->data;
+			if(pMms)
+			{
+				pDest->option.mmsSendOptInfo.priority = pMms->priority;
+				pDest->option.mmsSendOptInfo.bReadReq = pMms->bReadReq;
 
-		MSG_DEBUG("pDest->option.mmsSendOpt.priority = %d", pMms->priority);
-		MSG_DEBUG("pDest->option.mmsSendOpt.bReadReq = %d", pMms->bReadReq);
+				MSG_DEBUG("pDest->option.mmsSendOpt.priority = %d", pMms->priority);
+				MSG_DEBUG("pDest->option.mmsSendOpt.bReadReq = %d", pMms->bReadReq);
 
-		if (pMms->expiryTime == 0) {
-			pDest->option.mmsSendOptInfo.expiryTime.type = MMS_TIMETYPE_NONE;
-			pDest->option.mmsSendOptInfo.expiryTime.time = pMms->expiryTime;
-		} else {
-			pDest->option.mmsSendOptInfo.expiryTime.type = MMS_TIMETYPE_RELATIVE;
-			pDest->option.mmsSendOptInfo.expiryTime.time = pMms->expiryTime;
+				if (pMms->expiryTime == 0) {
+					pDest->option.mmsSendOptInfo.expiryTime.type = MMS_TIMETYPE_NONE;
+					pDest->option.mmsSendOptInfo.expiryTime.time = pMms->expiryTime;
+				} else {
+					pDest->option.mmsSendOptInfo.expiryTime.type = MMS_TIMETYPE_RELATIVE;
+					pDest->option.mmsSendOptInfo.expiryTime.time = pMms->expiryTime;
+				}
+
+				if (pMms->bUseDeliveryCustomTime == true) {
+					pDest->option.mmsSendOptInfo.bUseDeliveryCustomTime = true;
+				} else {
+					pDest->option.mmsSendOptInfo.bUseDeliveryCustomTime = false;
+				}
+				pDest->option.mmsSendOptInfo.deliveryTime.type = MMS_TIMETYPE_RELATIVE;
+				pDest->option.mmsSendOptInfo.deliveryTime.time = pMms->deliveryTime;
+
+				MSG_DEBUG("pDest->option.mmsSendOpt.expiryTime = %d", pDest->option.mmsSendOptInfo.expiryTime.time);
+			}
 		}
-
-		if (pMms->bUseDeliveryCustomTime == true) {
-			pDest->option.mmsSendOptInfo.bUseDeliveryCustomTime = true;
-		} else {
-			pDest->option.mmsSendOptInfo.bUseDeliveryCustomTime = false;
-		}
-		pDest->option.mmsSendOptInfo.deliveryTime.type = MMS_TIMETYPE_RELATIVE;
-		pDest->option.mmsSendOptInfo.deliveryTime.time = pMms->deliveryTime;
-
-		MSG_DEBUG("pDest->option.mmsSendOpt.expiryTime = %d", pDest->option.mmsSendOptInfo.expiryTime.time);
 	}
 
 	MSG_END();

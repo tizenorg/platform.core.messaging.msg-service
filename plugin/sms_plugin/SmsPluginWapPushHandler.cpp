@@ -24,6 +24,7 @@
 #include "SmsPluginEventHandler.h"
 #include "SmsPluginWapPushHandler.h"
 
+
 #include <drm_client.h>
 #include <dbus/dbus-glib.h>
 
@@ -1074,6 +1075,7 @@ void SmsPluginWapPushHandler::handleWapPushCallback(char* pPushHeader, char* pPu
 	MSG_END();
 }
 #else
+
 static void launchProcessByAppcode(int appcode)
 {
 	MSG_BEGIN();
@@ -1128,6 +1130,7 @@ static void launchProcessByAppcode(int appcode)
 	}
 	MSG_END();
 }
+
 
 void SmsPluginWapPushHandler::handleWapPushCallback(char* pPushHeader, char* pPushBody, int PushBodyLen, char* pWspHeader, int WspHeaderLen, char* pWspBody, int WspBodyLen)
 {
@@ -1260,13 +1263,14 @@ void SmsPluginWapPushHandler::handleWapPushCallback(char* pPushHeader, char* pPu
 			MSG_DEBUG("Received DRM V2");
 			// TODO: DRM V2
 			break;
-
+#if 0
 		case SMS_WAP_APPLICATION_PUSH_EMAIL:
 		case SMS_WAP_APPLICATION_PUSH_EMAIL_XML:
 		case SMS_WAP_APPLICATION_PUSH_EMAIL_WBXML:
 			MSG_DEBUG("Received Email");
 			// TODO: Email
 			break;
+#endif
 
 		case SMS_WAP_APPLICATION_PUSH_IMPS_CIR:
 			MSG_DEBUG("Received IMPS CIR");

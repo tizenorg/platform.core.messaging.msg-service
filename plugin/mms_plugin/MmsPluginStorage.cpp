@@ -92,9 +92,9 @@ void MmsPluginStorage::addMessage(MSG_MESSAGE_INFO_S *pMsgInfo, MSG_SENDINGOPT_I
 		MMS_MESSAGE_DATA_S mmsMsgData;
 		bzero(&mmsMsgData,sizeof(MMS_MESSAGE_DATA_S));
 		if (MmsComposeMessage(&mmsMsg, pMsgInfo, pSendOptInfo, &mmsMsgData, pFileData) != true) {
-			MsgFreeBody(&mmsMsg.msgBody, mmsMsg.msgType.type);
+			MmsReleaseMsgBody(&mmsMsg.msgBody, mmsMsg.msgType.type);
 
-			MsgFreeAttrib(&mmsMsg.mmsAttrib);
+			MmsReleaseMmsAttrib(&mmsMsg.mmsAttrib);
 			__MmsReleaseMmsLists(&mmsMsgData);
 
 			THROW(MsgException::MMS_PLG_ERROR, "MMS Message Compose Error");
@@ -109,8 +109,8 @@ void MmsPluginStorage::addMessage(MSG_MESSAGE_INFO_S *pMsgInfo, MSG_SENDINGOPT_I
 		snprintf((char *)pMsgInfo->msgData, MAX_MSG_DATA_LEN+1, MSG_DATA_PATH"%d.mms", pMsgInfo->msgId);
 
 		if (addMmsMsgToDB(&mmsMsg, pMsgInfo, _MsgMmsGetAttachCount(&mmsMsgData)) != MSG_SUCCESS) {
-			MsgFreeBody(&mmsMsg.msgBody, mmsMsg.msgType.type);
-			MsgFreeAttrib(&mmsMsg.mmsAttrib);
+			MmsReleaseMsgBody(&mmsMsg.msgBody, mmsMsg.msgType.type);
+			MmsReleaseMmsAttrib(&mmsMsg.mmsAttrib);
 			__MmsReleaseMmsLists(&mmsMsgData);
 
 			THROW(MsgException::MMS_PLG_ERROR, "MMS Stroage Error");
@@ -122,15 +122,15 @@ void MmsPluginStorage::addMessage(MSG_MESSAGE_INFO_S *pMsgInfo, MSG_SENDINGOPT_I
 
 		pFile = MsgOpenMMSFile(fileName);
 		if (!pFile) {
-			MsgFreeBody(&mmsMsg.msgBody, mmsMsg.msgType.type);
-			MsgFreeAttrib(&mmsMsg.mmsAttrib);
+			MmsReleaseMsgBody(&mmsMsg.msgBody, mmsMsg.msgType.type);
+			MmsReleaseMmsAttrib(&mmsMsg.mmsAttrib);
 			__MmsReleaseMmsLists(&mmsMsgData);
 			THROW(MsgException::MMS_PLG_ERROR, "MMS File open Error");
 		}
 
 		if (fchmod(fileno(pFile), file_mode) < 0) {
-			MsgFreeBody(&mmsMsg.msgBody, mmsMsg.msgType.type);
-			MsgFreeAttrib(&mmsMsg.mmsAttrib);
+			MmsReleaseMsgBody(&mmsMsg.msgBody, mmsMsg.msgType.type);
+			MmsReleaseMmsAttrib(&mmsMsg.mmsAttrib);
 			__MmsReleaseMmsLists(&mmsMsgData);
 			MsgCloseFile(pFile);
 
@@ -138,8 +138,8 @@ void MmsPluginStorage::addMessage(MSG_MESSAGE_INFO_S *pMsgInfo, MSG_SENDINGOPT_I
 		}
 
 		if (MmsEncodeSendReq(pFile, &mmsMsg) != true) {
-			MsgFreeBody(&mmsMsg.msgBody, mmsMsg.msgType.type);
-			MsgFreeAttrib(&mmsMsg.mmsAttrib);
+			MmsReleaseMsgBody(&mmsMsg.msgBody, mmsMsg.msgType.type);
+			MmsReleaseMmsAttrib(&mmsMsg.mmsAttrib);
 			__MmsReleaseMmsLists(&mmsMsgData);
 			MsgCloseFile(pFile);
 
@@ -159,8 +159,8 @@ void MmsPluginStorage::addMessage(MSG_MESSAGE_INFO_S *pMsgInfo, MSG_SENDINGOPT_I
 
 		pMsgInfo->dataSize = size;
 
-		MsgFreeBody(&mmsMsg.msgBody, mmsMsg.msgType.type);
-		MsgFreeAttrib(&mmsMsg.mmsAttrib);
+		MmsReleaseMsgBody(&mmsMsg.msgBody, mmsMsg.msgType.type);
+		MmsReleaseMmsAttrib(&mmsMsg.mmsAttrib);
 		__MmsReleaseMmsLists(&mmsMsgData);
 
 	} else if (pMsgInfo->msgType.subType == MSG_NOTIFICATIONIND_MMS) {
@@ -170,7 +170,7 @@ void MmsPluginStorage::addMessage(MSG_MESSAGE_INFO_S *pMsgInfo, MSG_SENDINGOPT_I
 
 		//Need to store mms specific data (contents location, TrID, ExpiryTime, Delivery Report, message ID)
 		if (addMmsMsgToDB(&mmsMsg, pMsgInfo) != MSG_SUCCESS) {
-			MsgFreeBody(&mmsMsg.msgBody, mmsMsg.msgType.type);
+			MmsReleaseMsgBody(&mmsMsg.msgBody, mmsMsg.msgType.type);
 			THROW(MsgException::MMS_PLG_ERROR, "MMS Stroage Error");
 		}
 	} else if (pMsgInfo->msgType.subType == MSG_SENDCONF_MMS || pMsgInfo->msgType.subType == MSG_RETRIEVE_AUTOCONF_MMS) {
@@ -217,14 +217,14 @@ void MmsPluginStorage::addMessage(MSG_MESSAGE_INFO_S *pMsgInfo, MSG_SENDINGOPT_I
 		}
 
 		if (addMmsMsgToDB(pMsg, pMsgInfo) != MSG_SUCCESS) {
-			MsgFreeBody(&mmsMsg.msgBody, mmsMsg.msgType.type);
+			MmsReleaseMsgBody(&mmsMsg.msgBody, mmsMsg.msgType.type);
 
 			THROW(MsgException::MMS_PLG_ERROR, "MMS Stroage Error");
 		}
 		memset(pMsgInfo->msgData, 0, MAX_MSG_DATA_LEN + 1);
 		strcpy((char *)pMsgInfo->msgData,szTemp);
 
-		MsgFreeBody(&mmsMsg.msgBody, mmsMsg.msgType.type);
+		MmsReleaseMsgBody(&mmsMsg.msgBody, mmsMsg.msgType.type);
 
 	} else if (pMsgInfo->msgType.subType == MSG_READREPLY_MMS || pMsgInfo->msgType.subType == MSG_READRECIND_MMS) {
 		MSG_DEBUG("######## MmsPlgAddMessage -> MSG_READREPLY_MMS || MSG_READRECIND_MMS ###########");
@@ -246,8 +246,8 @@ void MmsPluginStorage::addMessage(MSG_MESSAGE_INFO_S *pMsgInfo, MSG_SENDINGOPT_I
 		MmsComposeReadReportMessage(&mmsMsg, pMsgInfo, selectedMsgId);
 
 		if (addMmsMsgToDB(&mmsMsg, pMsgInfo) != MSG_SUCCESS) {
-			MsgFreeBody(&mmsMsg.msgBody, mmsMsg.msgType.type);
-			MsgFreeAttrib(&mmsMsg.mmsAttrib);
+			MmsReleaseMsgBody(&mmsMsg.msgBody, mmsMsg.msgType.type);
+			MmsReleaseMmsAttrib(&mmsMsg.mmsAttrib);
 
 			THROW(MsgException::MMS_PLG_ERROR, "MMS Stroage Error");
 		}
@@ -255,8 +255,8 @@ void MmsPluginStorage::addMessage(MSG_MESSAGE_INFO_S *pMsgInfo, MSG_SENDINGOPT_I
 		snprintf(filePath, MAX_FULL_PATH_SIZE+1, MSG_DATA_PATH"%d", mmsMsg.msgID);
 		pFile = MsgOpenMMSFile(filePath);
 		if (!pFile) {
-			MsgFreeBody(&mmsMsg.msgBody, mmsMsg.msgType.type);
-			MsgFreeAttrib(&mmsMsg.mmsAttrib);
+			MmsReleaseMsgBody(&mmsMsg.msgBody, mmsMsg.msgType.type);
+			MmsReleaseMmsAttrib(&mmsMsg.mmsAttrib);
 			MsgCloseFile(pFile);
 			pFile = NULL;
 
@@ -264,8 +264,8 @@ void MmsPluginStorage::addMessage(MSG_MESSAGE_INFO_S *pMsgInfo, MSG_SENDINGOPT_I
 		}
 
 		if (fchmod(fileno(pFile), file_mode) < 0) {
-			MsgFreeBody(&mmsMsg.msgBody, mmsMsg.msgType.type);
-			MsgFreeAttrib(&mmsMsg.mmsAttrib);
+			MmsReleaseMsgBody(&mmsMsg.msgBody, mmsMsg.msgType.type);
+			MmsReleaseMmsAttrib(&mmsMsg.mmsAttrib);
 			MsgCloseFile(pFile);
 			pFile = NULL;
 
@@ -275,7 +275,7 @@ void MmsPluginStorage::addMessage(MSG_MESSAGE_INFO_S *pMsgInfo, MSG_SENDINGOPT_I
 		if (version == 0x90) {
 			MSG_DEBUG("### version 1.0 ###");
 			if (MmsEncodeReadReport10(pFile, &mmsMsg, readStatus) != true) {
-				MsgFreeAttrib(&mmsMsg.mmsAttrib);
+				MmsReleaseMmsAttrib(&mmsMsg.mmsAttrib);
 				MsgCloseFile(pFile);
 				pFile = NULL;
 
@@ -284,7 +284,7 @@ void MmsPluginStorage::addMessage(MSG_MESSAGE_INFO_S *pMsgInfo, MSG_SENDINGOPT_I
 		} else {
 			MSG_DEBUG("### version 1.1 ###");
 			if (MmsEncodeReadReport11(pFile, &mmsMsg, readStatus) != true) {
-				MsgFreeAttrib(&mmsMsg.mmsAttrib);
+				MmsReleaseMmsAttrib(&mmsMsg.mmsAttrib);
 				MsgCloseFile(pFile);
 				pFile = NULL;
 
@@ -296,9 +296,9 @@ void MmsPluginStorage::addMessage(MSG_MESSAGE_INFO_S *pMsgInfo, MSG_SENDINGOPT_I
 		MsgCloseFile(pFile);
 		pFile = NULL;
 
-		MsgFreeBody(&mmsMsg.msgBody, mmsMsg.msgType.type);
+		MmsReleaseMsgBody(&mmsMsg.msgBody, mmsMsg.msgType.type);
 
-		MsgFreeAttrib(&mmsMsg.mmsAttrib);
+		MmsReleaseMmsAttrib(&mmsMsg.mmsAttrib);
 
 	} else if (pMsgInfo->msgType.subType == MSG_FORWARD_MMS) {
 		MSG_DEBUG("######## MmsPlgAddMessage -> MSG_FORWARD_MMS ###########");
@@ -309,8 +309,8 @@ void MmsPluginStorage::addMessage(MSG_MESSAGE_INFO_S *pMsgInfo, MSG_SENDINGOPT_I
 		MMS_MESSAGE_DATA_S mmsMsgData;
 
 		if (MmsComposeMessage(&mmsMsg, pMsgInfo, pSendOptInfo, &mmsMsgData, pFileData) != true) {
-			MsgFreeBody(&mmsMsg.msgBody, mmsMsg.msgType.type);
-			MsgFreeAttrib(&mmsMsg.mmsAttrib);
+			MmsReleaseMsgBody(&mmsMsg.msgBody, mmsMsg.msgType.type);
+			MmsReleaseMmsAttrib(&mmsMsg.mmsAttrib);
 			__MmsReleaseMmsLists(&mmsMsgData);
 
 			THROW(MsgException::MMS_PLG_ERROR, "MMS Message Compose Error");
@@ -321,8 +321,8 @@ void MmsPluginStorage::addMessage(MSG_MESSAGE_INFO_S *pMsgInfo, MSG_SENDINGOPT_I
 		snprintf((char *)pMsgInfo->msgData, MAX_MSG_DATA_LEN + 1, MSG_DATA_PATH"%d.mms", pMsgInfo->msgId);
 
 		if (addMmsMsgToDB(&mmsMsg, pMsgInfo, _MsgMmsGetAttachCount(&mmsMsgData)) != MSG_SUCCESS) {
-			MsgFreeBody(&mmsMsg.msgBody, mmsMsg.msgType.type);
-			MsgFreeAttrib(&mmsMsg.mmsAttrib);
+			MmsReleaseMsgBody(&mmsMsg.msgBody, mmsMsg.msgType.type);
+			MmsReleaseMmsAttrib(&mmsMsg.mmsAttrib);
 			__MmsReleaseMmsLists(&mmsMsgData);
 
 			THROW(MsgException::MMS_PLG_ERROR, "MMS Stroage Error");
@@ -334,8 +334,8 @@ void MmsPluginStorage::addMessage(MSG_MESSAGE_INFO_S *pMsgInfo, MSG_SENDINGOPT_I
 
 		pFile = MsgOpenMMSFile(filePath);
 		if (!pFile) {
-			MsgFreeBody(&mmsMsg.msgBody, mmsMsg.msgType.type);
-			MsgFreeAttrib(&mmsMsg.mmsAttrib);
+			MmsReleaseMsgBody(&mmsMsg.msgBody, mmsMsg.msgType.type);
+			MmsReleaseMmsAttrib(&mmsMsg.mmsAttrib);
 			__MmsReleaseMmsLists(&mmsMsgData);
 			MsgCloseFile(pFile);
 			pFile = NULL;
@@ -344,8 +344,8 @@ void MmsPluginStorage::addMessage(MSG_MESSAGE_INFO_S *pMsgInfo, MSG_SENDINGOPT_I
 		}
 
 		if (fchmod(fileno(pFile), file_mode) < 0) {
-			MsgFreeBody(&mmsMsg.msgBody, mmsMsg.msgType.type);
-			MsgFreeAttrib(&mmsMsg.mmsAttrib);
+			MmsReleaseMsgBody(&mmsMsg.msgBody, mmsMsg.msgType.type);
+			MmsReleaseMmsAttrib(&mmsMsg.mmsAttrib);
 			__MmsReleaseMmsLists(&mmsMsgData);
 			MsgCloseFile(pFile);
 			pFile = NULL;
@@ -354,8 +354,8 @@ void MmsPluginStorage::addMessage(MSG_MESSAGE_INFO_S *pMsgInfo, MSG_SENDINGOPT_I
 		}
 
 		if (MmsEncodeSendReq(pFile, &mmsMsg) != true) {
-			MsgFreeBody(&mmsMsg.msgBody, mmsMsg.msgType.type);
-			MsgFreeAttrib(&mmsMsg.mmsAttrib);
+			MmsReleaseMsgBody(&mmsMsg.msgBody, mmsMsg.msgType.type);
+			MmsReleaseMmsAttrib(&mmsMsg.mmsAttrib);
 			__MmsReleaseMmsLists(&mmsMsgData);
 			MsgCloseFile(pFile);
 			pFile = NULL;
@@ -366,8 +366,8 @@ void MmsPluginStorage::addMessage(MSG_MESSAGE_INFO_S *pMsgInfo, MSG_SENDINGOPT_I
 		MsgCloseFile(pFile);
 		pFile = NULL;
 
-		MsgFreeBody(&mmsMsg.msgBody, mmsMsg.msgType.type);
-		MsgFreeAttrib(&mmsMsg.mmsAttrib);
+		MmsReleaseMsgBody(&mmsMsg.msgBody, mmsMsg.msgType.type);
+		MmsReleaseMmsAttrib(&mmsMsg.mmsAttrib);
 		__MmsReleaseMmsLists(&mmsMsgData);
 	}
 
@@ -460,7 +460,7 @@ msg_error_t	MmsPluginStorage::plgGetMmsMessage(MSG_MESSAGE_INFO_S *pMsg, MSG_SEN
 	MsgType partHeader;
 	MmsAttrib pMmsAttrib;
 
-	char szBuf[MSG_FILEPATH_LEN_MAX] = {0, };
+	char szBuf[MSG_FILEPATH_LEN_MAX + 1] = {0, };
 	bool bMultipartRelated = false;
 
 	if (pSendOptInfo != NULL) {
@@ -576,9 +576,9 @@ msg_error_t	MmsPluginStorage::plgGetMmsMessage(MSG_MESSAGE_INFO_S *pMsg, MSG_SEN
 
 		if (partHeader.contentSize > 0) {
 			if (!strcasecmp(partHeader.param.szFileName, "cid:")) {
-				strncpy((char *)szBuf, &partHeader.param.szFileName[4], MSG_FILEPATH_LEN_MAX - 1);
+				strncpy((char *)szBuf, &partHeader.param.szFileName[4], MSG_FILEPATH_LEN_MAX);
 			} else {
-				strcpy((char *)szBuf, partHeader.param.szFileName);
+				strncpy((char *)szBuf, partHeader.param.szFileName, MSG_FILEPATH_LEN_MAX);
 			}
 			sprintf(partHeader.param.szFileName, MSG_DATA_PATH"%s", szBuf);
 
@@ -613,9 +613,9 @@ msg_error_t	MmsPluginStorage::plgGetMmsMessage(MSG_MESSAGE_INFO_S *pMsg, MSG_SEN
 	MmsInitHeader();
 	MmsUnregisterDecodeBuffer();
 #ifdef __SUPPORT_DRM__
-	MsgFreeDRMInfo(&pStoMmsMsg->msgType.drmInfo);
+	MmsReleaseMsgDRMInfo(&pStoMmsMsg->msgType.drmInfo);
 #endif
-	MsgFreeBody(&pStoMmsMsg->msgBody, pStoMmsMsg->msgType.type);
+	MmsReleaseMsgBody(&pStoMmsMsg->msgBody, pStoMmsMsg->msgType.type);
 
 	pMsg->dataSize = nSize;
 
@@ -638,9 +638,9 @@ L_CATCH:
 
 		MmsUnregisterDecodeBuffer();
 #ifdef __SUPPORT_DRM__
-		MsgFreeDRMInfo(&pMsg->msgType.drmInfo);
+		MmsReleaseMsgDRMInfo(&pMsg->msgType.drmInfo);
 #endif
-		MsgFreeBody(&pMsg->msgBody, pMsg->msgType.type);
+		MmsReleaseMsgBody(&pMsg->msgBody, pMsg->msgType.type);
 
 		return MSG_ERR_STORAGE_ERROR;
 	}
@@ -673,8 +673,8 @@ msg_error_t MmsPluginStorage::updateMessage(MSG_MESSAGE_INFO_S *pMsgInfo, MSG_SE
 	MMS_MESSAGE_DATA_S mmsMsgData;
 
 	if (MmsComposeMessage(&mmsMsg, pMsgInfo, pSendOptInfo, &mmsMsgData, pFileData) != true) {
-		MsgFreeBody(&mmsMsg.msgBody, mmsMsg.msgType.type);
-		MsgFreeAttrib(&mmsMsg.mmsAttrib);
+		MmsReleaseMsgBody(&mmsMsg.msgBody, mmsMsg.msgType.type);
+		MmsReleaseMmsAttrib(&mmsMsg.mmsAttrib);
 		__MmsReleaseMmsLists(&mmsMsgData);
 
 		THROW(MsgException::MMS_PLG_ERROR, "MMS Message Compose Error");
@@ -685,8 +685,8 @@ msg_error_t MmsPluginStorage::updateMessage(MSG_MESSAGE_INFO_S *pMsgInfo, MSG_SE
 	pFile = MsgOpenMMSFile(filePath);
 
 	if (MmsEncodeSendReq(pFile, &mmsMsg) != true) {
-		MsgFreeBody(&mmsMsg.msgBody, mmsMsg.msgType.type);
-		MsgFreeAttrib(&mmsMsg.mmsAttrib);
+		MmsReleaseMsgBody(&mmsMsg.msgBody, mmsMsg.msgType.type);
+		MmsReleaseMmsAttrib(&mmsMsg.mmsAttrib);
 		__MmsReleaseMmsLists(&mmsMsgData);
 		MsgCloseFile(pFile);
 
@@ -695,8 +695,8 @@ msg_error_t MmsPluginStorage::updateMessage(MSG_MESSAGE_INFO_S *pMsgInfo, MSG_SE
 
 	MsgCloseFile(pFile);
 
-	MsgFreeBody(&mmsMsg.msgBody, mmsMsg.msgType.type);
-	MsgFreeAttrib(&mmsMsg.mmsAttrib);
+	MmsReleaseMsgBody(&mmsMsg.msgBody, mmsMsg.msgType.type);
+	MmsReleaseMmsAttrib(&mmsMsg.mmsAttrib);
 
 	__MmsReleaseMmsLists(&mmsMsgData);
 

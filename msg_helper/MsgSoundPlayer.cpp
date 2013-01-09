@@ -23,13 +23,11 @@
 #include "MsgUtilFile.h"
 #include "MsgHelper.h"
 
-#include <devman_managed.h>
-#include <svi.h>
-
 #include <mm_error.h>
 #include <mm_player.h>
 #include <mm_session_private.h>
 #include <mm_sound.h>
+#include <feedback.h>
 
 extern void worker_done();
 
@@ -39,7 +37,6 @@ extern void worker_done();
 static MMHandleType hPlayerHandle = 0;
 static bool bPlaying = false;
 static bool bVibrating = false;
-static int dev_handle;
 
 pthread_mutex_t muMmPlay = PTHREAD_MUTEX_INITIALIZER;
 pthread_cond_t cvMmPlay = PTHREAD_COND_INITIALIZER;
@@ -78,38 +75,6 @@ static gboolean MsgSoundMelodyTimeout(gpointer data)
 
 	return FALSE;
 }
-
-
-static gboolean MsgSoundVibTimeout(gpointer data)
-{
-	MSG_BEGIN();
-
-	int ret = 0;
-
-	if (bVibrating == true) {
-		ret = device_haptic_stop_play(dev_handle);
-
-		if (ret != 0) {
-			MSG_DEBUG("Fail to stop haptic : [%d]", ret);
-		}
-
-		ret = device_haptic_close(dev_handle);
-
-		if (ret != 0) {
-			MSG_DEBUG("Fail to close haptic : [%d]", ret);
-		}
-
-		bVibrating = false;
-	}
-
-	if(!bPlaying && !bVibrating)
-		worker_done();
-
-	MSG_END();
-
-	return FALSE;
-}
-
 
 static int MsgSoundPlayCallback(int message, void *param, void *user_param)
 {
@@ -218,14 +183,14 @@ void* MsgPlayThread(void *data)
 			MSG_DEBUG("Call is active & Alert on Call - Vibration");
 
 			if (bVibrationOn)
-				MsgSoundPlayVibration();
+				MsgSoundPlayVibration(true);
 		}
 	} else{
 		MSG_DEBUG("Call is not active");
 
 		if (bVibrationOn) {
 			MSG_DEBUG("Play vibration.");
-			MsgSoundPlayVibration();
+			MsgSoundPlayVibration(false);
 		}
 
 		if (bSoundOn) {
@@ -395,30 +360,32 @@ int MsgSoundPlayMelody(char *pMsgToneFilePath, bool bIncreasing)
 }
 
 
-void MsgSoundPlayVibration()
+void MsgSoundPlayVibration(bool isOnCall)
 {
 	MSG_BEGIN();
 
 	int ret = 0;
-	int vibLevel = 0;
-	char ivtFilePath[MAX_SOUND_FILE_LEN] = {0,};
 
-	vibLevel = MsgSettingGetInt(VCONFKEY_SETAPPL_NOTI_VIBRATION_LEVEL_INT);
+	ret = feedback_initialize();
 
-	if (vibLevel > 0) {
-		bVibrating = true;
+	if (ret != FEEDBACK_ERROR_NONE) {
+		MSG_DEBUG("Fail to feedback_initialize : [%d]", ret);
+		return;
+	}
 
-		dev_handle = device_haptic_open(DEV_IDX_0, 0);
+	if (isOnCall)
+		ret = feedback_play_type(FEEDBACK_TYPE_VIBRATION, FEEDBACK_PATTERN_MESSAGE_ON_CALL);
+	else
+		ret = feedback_play_type(FEEDBACK_TYPE_VIBRATION, FEEDBACK_PATTERN_MESSAGE);
 
-		g_timeout_add(MSG_VIBRATION_INTERVAL , MsgSoundVibTimeout, NULL);
+	if (ret != FEEDBACK_ERROR_NONE)
+		MSG_DEBUG("Fail to feedback_play_type");
 
-		/* set timer to stop vibration, then play melody */
-		svi_get_path(SVI_TYPE_VIB, SVI_VIB_NOTIFICATION_MESSAGE, ivtFilePath, sizeof(ivtFilePath));
-		ret = device_haptic_play_file(dev_handle, ivtFilePath, HAPTIC_TEST_ITERATION, vibLevel);
+	ret = feedback_deinitialize();
 
-		if (ret != 0) {
-			MSG_DEBUG("Fail to play haptic : [%d]", ret);
-		}
+	if (ret != FEEDBACK_ERROR_NONE) {
+		MSG_DEBUG("Fail to feedback_deinitialize : [%d]", ret);
+		return;
 	}
 
 	MSG_END();

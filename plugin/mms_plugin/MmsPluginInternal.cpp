@@ -378,9 +378,9 @@ void MmsPluginInternal::processSendConf(MSG_MESSAGE_INFO_S *pMsgInfo, mmsTranQEn
 	MmsPluginStorage::instance()->getMmsMessage(&pMsg);
 	MmsInitHeader();
 #ifdef __SUPPORT_DRM__
-	MsgFreeDRMInfo(&pMsg->msgType.drmInfo);
+	MmsReleaseMsgDRMInfo(&pMsg->msgType.drmInfo);
 #endif
-	MsgFreeBody(&pMsg->msgBody, pMsg->msgType.type);
+	MmsReleaseMsgBody(&pMsg->msgBody, pMsg->msgType.type);
 
 
 	MSG_END();
@@ -536,7 +536,7 @@ void MmsPluginInternal::processRetrieveConf(MSG_MESSAGE_INFO_S *pMsgInfo, mmsTra
 			}
 
 			if (partHeader.contentSize > 0) {
-				char szBuf[MSG_FILEPATH_LEN_MAX];
+				char szBuf[MSG_FILEPATH_LEN_MAX + 1];
 
 				strcpy((char *)szBuf, partHeader.param.szFileName);
 				sprintf(partHeader.param.szFileName, MSG_DATA_PATH"%s", szBuf);
@@ -580,9 +580,9 @@ void MmsPluginInternal::processRetrieveConf(MSG_MESSAGE_INFO_S *pMsgInfo, mmsTra
 	pStorage->getMmsMessage(&pMsg);
 	MmsInitHeader();
 #ifdef __SUPPORT_DRM__
-	MsgFreeDRMInfo(&pMsg->msgType.drmInfo);
+	MmsReleaseMsgDRMInfo(&pMsg->msgType.drmInfo);
 #endif
-	MsgFreeBody(&pMsg->msgBody, pMsg->msgType.type);
+	MmsReleaseMsgBody(&pMsg->msgBody, pMsg->msgType.type);
 
 	MSG_END();
 }

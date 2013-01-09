@@ -38,7 +38,7 @@ SET(MMS-PLUGIN-SRCS
 INCLUDE_DIRECTORIES(
 	${CMAKE_SOURCE_DIR}/include/common
 	${CMAKE_SOURCE_DIR}/include/framework
-	${CMAKE_SOURCE_DIR}/include/msg_helper
+	#${CMAKE_SOURCE_DIR}/include/msg_helper
 	${CMAKE_SOURCE_DIR}/include/utils
 	${CMAKE_SOURCE_DIR}/include/mapi
 	${CMAKE_CURRENT_SOURCE_DIR}/include

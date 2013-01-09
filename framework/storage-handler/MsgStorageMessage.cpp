@@ -473,7 +473,7 @@ msg_error_t MsgStoUpdateThreadReadStatus(msg_thread_id_t threadId)
 		MSG_DEBUG("updateUnreadMsgCount() Error");
 	}
 
-	MsgRefreshNoti();
+	MsgRefreshNoti(false);
 
 	MSG_END();
 
@@ -508,9 +508,8 @@ msg_error_t MsgStoDeleteMessage(msg_message_id_t msgId, bool bCheckIndication)
 
 	// Get SUB_TYPE, STORAGE_ID
 	memset(sqlQuery, 0x00, sizeof(sqlQuery));
-	snprintf(sqlQuery, sizeof(sqlQuery), "SELECT A.MAIN_TYPE, A.SUB_TYPE, A.FOLDER_ID, A.STORAGE_ID, A.READ_STATUS, B.CONV_ID \
-			FROM %s A, %s B WHERE A.MSG_ID = %d AND A.CONV_ID = B.CONV_ID;",
-			MSGFW_MESSAGE_TABLE_NAME, MSGFW_CONVERSATION_TABLE_NAME, msgId);
+	snprintf(sqlQuery, sizeof(sqlQuery), "SELECT MAIN_TYPE, SUB_TYPE, FOLDER_ID, STORAGE_ID, READ_STATUS, CONV_ID \
+			FROM %s WHERE MSG_ID = %d;", MSGFW_MESSAGE_TABLE_NAME, msgId);
 
 	if (dbHandle.prepareQuery(sqlQuery) != MSG_SUCCESS) {
 		MSG_DEBUG("Query Failed [%s]", sqlQuery);
@@ -737,18 +736,19 @@ msg_error_t MsgStoDeleteMessage(msg_message_id_t msgId, bool bCheckIndication)
 		return MSG_ERR_DB_EXEC;
 	}
 
-	// Clear Conversation table
-	if (MsgStoClearConversationTable(&dbHandle) != MSG_SUCCESS) {
-		dbHandle.endTrans(false);
-		return MSG_ERR_DB_EXEC;
-	}
+	if (convId > 0) {
+		// Clear Conversation table
+		if (MsgStoClearConversationTable(&dbHandle) != MSG_SUCCESS) {
+			dbHandle.endTrans(false);
+			return MSG_ERR_DB_EXEC;
+		}
 
-	// Update conversation table.
-	if (MsgStoUpdateConversation(&dbHandle, convId) != MSG_SUCCESS) {
-		dbHandle.endTrans(false);
-		return MSG_ERR_STORAGE_ERROR;
+		// Update conversation table.
+		if (MsgStoUpdateConversation(&dbHandle, convId) != MSG_SUCCESS) {
+			dbHandle.endTrans(false);
+			return MSG_ERR_STORAGE_ERROR;
+		}
 	}
-
 	dbHandle.endTrans(true);
 
 	if (msgType.mainType == MSG_SMS_TYPE && folderId == MSG_INBOX_ID) {
@@ -773,12 +773,8 @@ msg_error_t MsgStoDeleteMessage(msg_message_id_t msgId, bool bCheckIndication)
 
 		MsgSettingSetIndicator(smsCnt, mmsCnt);
 
-//		MsgDeleteNotiByMsgId(msgId);
-		MsgRefreshNoti();
+		MsgRefreshNoti(false);
 	}
-
-	//Delete phone log
-//	MsgDeletePhoneLog(msgId);
 
 	return MSG_SUCCESS;
 }
@@ -1063,7 +1059,7 @@ msg_error_t MsgStoDeleteAllMessageInFolder(msg_folder_id_t folderId, bool bOnlyD
 //				err = MSG_ERR_UNKNOWN;
 //			}
 
-			MsgRefreshNoti();
+			MsgRefreshNoti(false);
 		}
 	}
 /*** **/
@@ -1189,7 +1185,7 @@ msg_error_t MsgStoDeleteMessageByList(msg_id_list_s *pMsgIdList)
 
 			char filePath[MSG_FILEPATH_LEN_MAX] = {0,};
 			char dirPath[MSG_FILEPATH_LEN_MAX] = {0,};
-			char thumbnailPath[MSG_FILEPATH_LEN_MAX] = {0,};
+//			char thumbnailPath[MSG_FILEPATH_LEN_MAX] = {0,};
 
 			//get mms msg id list
 			memset(sqlQuery, 0x00, sizeof(sqlQuery));
@@ -1301,32 +1297,12 @@ msg_error_t MsgStoDeleteMessageByList(msg_id_list_s *pMsgIdList)
 #if 0
 /*** Create thread  for noti and phone log delete. **/
 	if (pMsgIdList->nCount > 0) {
-		msg_id_list_s *pToDeleteMsgIdList = NULL;
-		pToDeleteMsgIdList = (msg_id_list_s *)new char[sizeof(msg_id_list_s)];
-		memset(pToDeleteMsgIdList, 0x00, sizeof(msg_id_list_s));
-		pToDeleteMsgIdList->nCount = pMsgIdList->nCount;
-		pToDeleteMsgIdList->msgIdList = (msg_message_id_t *)new char[sizeof(msg_message_id_t)*pMsgIdList->nCount];
-		memcpy(pToDeleteMsgIdList->msgIdList, pMsgIdList->msgIdList, sizeof(msg_message_id_t)*pMsgIdList->nCount);
-
 		msg_id_list_s *pToDeleteMsgIdListCpy = NULL;
 		pToDeleteMsgIdListCpy = (msg_id_list_s *)new char[sizeof(msg_id_list_s)];
 		memset(pToDeleteMsgIdListCpy, 0x00, sizeof(msg_id_list_s));
 		pToDeleteMsgIdListCpy->nCount = pMsgIdList->nCount;
 		pToDeleteMsgIdListCpy->msgIdList = (msg_message_id_t *)new char[sizeof(msg_message_id_t)*pMsgIdList->nCount];
 		memcpy(pToDeleteMsgIdListCpy->msgIdList, pMsgIdList->msgIdList, sizeof(msg_message_id_t)*pMsgIdList->nCount);
-
-		if (g_idle_add(startToDeleteNoti, (void *)pToDeleteMsgIdList) == 0) {
-			MSG_DEBUG("startToDeleteNoti not invoked: %s", strerror(errno));
-			// memory free
-			if (pToDeleteMsgIdList != NULL) {
-				//free peer info list
-				if (pToDeleteMsgIdList->msgIdList != NULL)
-					delete [] pToDeleteMsgIdList->msgIdList;
-
-				delete [] pToDeleteMsgIdList;
-			}
-			err = MSG_ERR_UNKNOWN;
-		}
 
 		if (g_idle_add(startToDeletePhoneLog, (void *)pToDeleteMsgIdListCpy) == 0) {
 			MSG_DEBUG("startToDeletePhoneLog not invoked: %s", strerror(errno));
@@ -1344,7 +1320,7 @@ msg_error_t MsgStoDeleteMessageByList(msg_id_list_s *pMsgIdList)
 /*** **/
 #endif
 
-	MsgRefreshNoti();
+	MsgRefreshNoti(false);
 
 	MSG_END();
 	return MSG_SUCCESS;
@@ -1683,7 +1659,7 @@ msg_error_t MsgStoGetMessage(msg_message_id_t msgId, MSG_MESSAGE_INFO_S *pMsg, M
 				strncpy(msgData, (char *)dbHandle.columnText(16), pMsg->dataSize);
 
 				// Save Message Data into File
-				char fileName[MAX_COMMON_INFO_SIZE+1];
+				char fileName[MSG_FILENAME_LEN_MAX+1];
 				memset(fileName, 0x00, sizeof(fileName));
 
 				if (MsgCreateFileName(fileName) == false) {
@@ -1986,7 +1962,7 @@ msg_error_t MsgStoAddSyncMLMessage(MSG_MESSAGE_INFO_S *pMsgInfo, int extId, int 
 
 	MsgSettingHandleNewMsg(smsCnt, mmsCnt);
 
-	MsgInsertNoti(&dbHandle, pMsgInfo);
+	MsgInsertNoti(pMsgInfo);
 
 	MSG_END();
 
@@ -2387,7 +2363,6 @@ msg_error_t MsgStoDeleteThreadMessageList(msg_thread_id_t threadId, bool bInclud
 {
 	msg_error_t err = MSG_SUCCESS;
 
-#if 1
 	char sqlQuery[MAX_QUERY_LEN+1];
 
 	/*** Get msg id list **/
@@ -2431,272 +2406,6 @@ msg_error_t MsgStoDeleteThreadMessageList(msg_thread_id_t threadId, bool bInclud
 	/*** **/
 
 	err = MsgStoDeleteMessageByList(pMsgIdList);
-
-#else
-	char sqlQuery[MAX_QUERY_LEN+1];
-	/*** Get msg id list **/
-	msg_id_list_s *pToDeleteMsgIdList = NULL;
-
-	int rowCnt = 0;
-	int index = 1;
-	// Set Indicator
-	int smsCnt = 0;
-	int mmsCnt = 0;
-
-	const char *tableList[] = {MSGFW_PUSH_MSG_TABLE_NAME, MSGFW_CB_MSG_TABLE_NAME,
-			MSGFW_SYNCML_MSG_TABLE_NAME, MSGFW_SMS_SENDOPT_TABLE_NAME,
-			MMS_PLUGIN_MESSAGE_TABLE_NAME, MSGFW_MESSAGE_TABLE_NAME};
-
-	int listCnt = sizeof(tableList)/sizeof(char *);
-
-	pToDeleteMsgIdList = (msg_id_list_s *)new char[sizeof(msg_id_list_s)];
-	memset(pToDeleteMsgIdList, 0x00, sizeof(msg_id_list_s));
-
-	memset(sqlQuery, 0x00, sizeof(sqlQuery));
-	snprintf(sqlQuery, sizeof(sqlQuery), "SELECT MSG_ID FROM %s WHERE CONV_ID = %d;", MSGFW_MESSAGE_TABLE_NAME, threadId);
-
-	err = dbHandle.getTable(sqlQuery, &rowCnt);
-
-	if (err != MSG_SUCCESS && err != MSG_ERR_DB_NORECORD) {
-		MSG_DEBUG("sqlQuery [%s]", sqlQuery);
-
-		dbHandle.freeTable();
-
-		goto FREE_MEMORY;
-	}
-
-	if (rowCnt <= 0) {
-		dbHandle.freeTable();
-		err = MSG_SUCCESS;
-
-		goto FREE_MEMORY;
-	}
-
-	pToDeleteMsgIdList->nCount = rowCnt;
-
-	MSG_DEBUG("pToDeleteMsgIdList->nCount [%d]", pToDeleteMsgIdList->nCount);
-
-	pToDeleteMsgIdList->msgIdList = (msg_message_id_t *)new char[sizeof(msg_message_id_t) * rowCnt];
-
-	for (int i = 0; i < rowCnt; i++)
-		pToDeleteMsgIdList->msgIdList[i] = dbHandle.getColumnToInt(index++);
-
-	dbHandle.freeTable();
-	/*** **/
-
-	/*** Delete Sim Message **/
-	memset(sqlQuery, 0x00, sizeof(sqlQuery));
-
-	snprintf(sqlQuery, sizeof(sqlQuery), "SELECT MSG_ID FROM %s WHERE CONV_ID = %d AND STORAGE_ID = %d",
-			MSGFW_MESSAGE_TABLE_NAME, threadId, MSG_STORAGE_SIM);
-
-	rowCnt = 0;
-
-	err = dbHandle.getTable(sqlQuery, &rowCnt);
-
-	if (err != MSG_SUCCESS && err != MSG_ERR_DB_NORECORD) {
-		MSG_DEBUG("sqlQuery [%s]", sqlQuery);
-
-		dbHandle.freeTable();
-
-		goto FREE_MEMORY;
-	}
-
-	for (int i = 1; i <= rowCnt; i++) {
-		err = MsgStoDeleteMessage(dbHandle.getColumnToInt(i), false);
-
-		if (err != MSG_SUCCESS) {
-			MSG_DEBUG("MsgStoDeleteMessage() Error!!!");
-
-			dbHandle.freeTable();
-
-			goto FREE_MEMORY;
-		}
-	}
-
-	dbHandle.freeTable();
-	/*** **/
-
-	dbHandle.beginTrans();
-
-	for (int i = 0; i < listCnt; i++) {
-		if (!strcmp(tableList[i], MMS_PLUGIN_MESSAGE_TABLE_NAME)) {
-
-			int rowCnt = 0;
-
-			//get mms msg id list
-			memset(sqlQuery, 0x00, sizeof(sqlQuery));
-			snprintf(sqlQuery, sizeof(sqlQuery), "SELECT FILE_PATH FROM %s A, %s B\
-					WHERE A.CONV_ID = %d AND A.MAIN_TYPE = %d AND A.MSG_ID = B.MSG_ID;",
-					MSGFW_MESSAGE_TABLE_NAME, MMS_PLUGIN_MESSAGE_TABLE_NAME, threadId, MSG_MMS_TYPE);
-
-			err = dbHandle.getTable(sqlQuery, &rowCnt);
-			MSG_DEBUG("rowCnt %d", rowCnt);
-
-			if (err != MSG_SUCCESS && err != MSG_ERR_DB_NORECORD) {
-				MSG_DEBUG("sqlQuery [%s]", sqlQuery);
-
-				dbHandle.freeTable();
-				dbHandle.endTrans(false);
-
-				goto FREE_MEMORY;
-			}
-
-			for (int i = 1; i <= rowCnt; i++) {
-
-				char filePath[MSG_FILEPATH_LEN_MAX] = {0,};
-				char dirPath[MSG_FILEPATH_LEN_MAX] = {0,};
-				char thumbnailPath[MSG_FILEPATH_LEN_MAX] = {0,};
-
-				dbHandle.getColumnToString(i, MSG_FILEPATH_LEN_MAX, filePath);
-
-				MSG_DEBUG("filePath [%s]", filePath);
-
-				//delete raw file
-				snprintf(dirPath, sizeof(dirPath), "%s.dir", filePath);
-
-				if (remove(filePath) == -1)
-					MSG_DEBUG("Fail to delete file [%s]", filePath);
-				else
-					MSG_DEBUG("Success to delete file [%s]", filePath);
-
-				MsgRmRf(dirPath);
-
-				// remove directory also
-				rmdir(dirPath);
-
-				// delete thumbnail
-				char *fileName = NULL;
-				fileName = strrchr(filePath, '/');
-
-				snprintf(thumbnailPath, sizeof(thumbnailPath), MSG_THUMBNAIL_PATH"%s.jpg", fileName+1);
-
-				if (remove(thumbnailPath) == -1)
-					MSG_DEBUG("Fail to delete thumbnail [%s]", thumbnailPath);
-				else
-					MSG_DEBUG("Success to delete thumbnail [%s]", thumbnailPath);
-			}
-
-			dbHandle.freeTable();
-		}
-
-		memset(sqlQuery, 0x00, sizeof(sqlQuery));
-		snprintf(sqlQuery, sizeof(sqlQuery), "DELETE FROM %s WHERE MSG_ID IN \
-				(SELECT MSG_ID FROM %s WHERE CONV_ID = %d);",
-				tableList[i], MSGFW_MESSAGE_TABLE_NAME, threadId);
-
-		// Delete Message in specific folder from table
-		if (dbHandle.execQuery(sqlQuery) != MSG_SUCCESS) {
-			MSG_DEBUG("sqlQuery [%s]", sqlQuery);
-			dbHandle.endTrans(false);
-			err = MSG_ERR_DB_EXEC;
-
-			goto FREE_MEMORY;
-		}
-	}
-
-	// Clear Conversation table
-	if (MsgStoClearConversationTable(&dbHandle) != MSG_SUCCESS) {
-		dbHandle.endTrans(false);
-		err = MSG_ERR_DB_EXEC;
-
-		goto FREE_MEMORY;
-	}
-
-	dbHandle.endTrans(true);
-
-	MSG_MESSAGE_TYPE_S msgType;
-
-	msgType.mainType = MSG_SMS_TYPE;
-	msgType.subType = MSG_NORMAL_SMS;
-	msgType.classType = MSG_CLASS_NONE;
-
-	// Set memory status in SIM
-	if (MsgStoCheckMsgCntFull(&dbHandle, &msgType, MSG_INBOX_ID) == MSG_SUCCESS) {
-		MSG_DEBUG("Set Memory Status");
-
-		MsgPlugin *plg = MsgPluginManager::instance()->getPlugin(MSG_SMS_TYPE);
-
-		if (plg == NULL) {
-			MSG_DEBUG("SMS Plug-in is NULL");
-			err = MSG_ERR_NULL_POINTER;
-
-			goto FREE_MEMORY;
-		}
-
-		plg->setMemoryStatus(MSG_SUCCESS);
-	}
-
-	// Set Indicator
-	smsCnt = MsgStoGetUnreadCnt(&dbHandle, MSG_SMS_TYPE);
-	mmsCnt = MsgStoGetUnreadCnt(&dbHandle, MSG_MMS_TYPE);
-
-	MsgSettingSetIndicator(smsCnt, mmsCnt);
-
-/*** Set pMsgIdList **/
-	if (pMsgIdList != NULL && pToDeleteMsgIdList->nCount > 0) {
-		pMsgIdList->nCount = pToDeleteMsgIdList->nCount;
-
-		pMsgIdList->msgIdList = (msg_message_id_t *)new char[sizeof(msg_message_id_t)*pToDeleteMsgIdList->nCount];
-		memcpy(pMsgIdList->msgIdList, pToDeleteMsgIdList->msgIdList, sizeof(msg_message_id_t)*pToDeleteMsgIdList->nCount);
-	}
-/*** **/
-
-	/*** Create thread  for noti and phone log delete. **/
-	if (pToDeleteMsgIdList->nCount > 0) {
-		msg_id_list_s *pToDeleteMsgIdListCpy = NULL;
-		pToDeleteMsgIdListCpy = (msg_id_list_s *)new char[sizeof(msg_id_list_s)];
-		memset(pToDeleteMsgIdListCpy, 0x00, sizeof(msg_id_list_s));
-
-		pToDeleteMsgIdListCpy->nCount = pToDeleteMsgIdList->nCount;
-
-		pToDeleteMsgIdListCpy->msgIdList = (msg_message_id_t *)new char[sizeof(msg_message_id_t)*pToDeleteMsgIdList->nCount];
-		memcpy(pToDeleteMsgIdListCpy->msgIdList, pToDeleteMsgIdList->msgIdList, sizeof(msg_message_id_t)*pToDeleteMsgIdList->nCount);
-
-		if (g_idle_add(startToDeleteNoti, (void *)pToDeleteMsgIdList) == 0) {
-			MSG_DEBUG("startToDeleteNoti not invoked: %s", strerror(errno));
-			// memory free
-			if (pToDeleteMsgIdList != NULL) {
-				//free peer info list
-				if (pToDeleteMsgIdList->msgIdList != NULL)
-					delete [] pToDeleteMsgIdList->msgIdList;
-
-				delete [] pToDeleteMsgIdList;
-			}
-			err = MSG_ERR_UNKNOWN;
-		}
-
-		if (g_idle_add(startToDeletePhoneLog, (void *)pToDeleteMsgIdListCpy) == 0) {
-			MSG_DEBUG("startToDeletePhoneLog not invoked: %s", strerror(errno));
-			// memory free
-			if (pToDeleteMsgIdListCpy != NULL) {
-				//free peer info list
-				if (pToDeleteMsgIdListCpy->msgIdList != NULL)
-					delete [] pToDeleteMsgIdListCpy->msgIdList;
-
-				delete [] pToDeleteMsgIdListCpy;
-			}
-			err = MSG_ERR_UNKNOWN;
-		}
-	}
-	/*** **/
-
-	return MSG_SUCCESS;
-
-FREE_MEMORY:
-	MSG_DEBUG("Error case Free Memory");
-	// memory free
-	if (pToDeleteMsgIdList != NULL) {
-		//free peer info list
-		if (pToDeleteMsgIdList->msgIdList != NULL) {
-			delete [] pToDeleteMsgIdList->msgIdList;
-			pToDeleteMsgIdList->msgIdList = NULL;
-		}
-
-		delete [] pToDeleteMsgIdList;
-		pToDeleteMsgIdList = NULL;
-	}
-#endif
 
 	return err;
 }

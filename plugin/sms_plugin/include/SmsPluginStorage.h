@@ -52,6 +52,8 @@ public:
 	msg_error_t addMessage(MSG_MESSAGE_INFO_S *pMsgInfo);
 	msg_error_t addSmsMessage(MSG_MESSAGE_INFO_S *pMsgInfo);
 
+	msg_error_t addSmsSendOption(MSG_MESSAGE_INFO_S *pMsg, MSG_SENDINGOPT_INFO_S *pSendOptInfo);
+
 	msg_error_t deleteSmsMessage(msg_message_id_t MsgId);
 
 	msg_error_t getRegisteredPushEvent(char* pPushHeader, int *count, char *app_id, char *content_type);

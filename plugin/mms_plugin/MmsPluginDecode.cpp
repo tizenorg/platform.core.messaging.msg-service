@@ -79,9 +79,6 @@ static int __MmsBinaryDecodeContentType(FILE *pFile, MsgType *pMsgType, int tota
 static bool __MmsBinaryDecodeDRMContent(FILE *pFile, char *szFilePath, MsgType *pMsgType, MsgBody *pMsgBody, unsigned int bodyLength, int totalLength);
 #endif
 
-static bool __MsgInitMsgBody(MsgBody *pMsgBody);
-static bool __MsgInitMsgType(MsgType *pMsgType);
-
 //util funcion
 static void __MsgRemoveFilePath(char *pSrc);
 static bool __MsgChangeSpace(char *pOrg, char **ppNew);
@@ -108,7 +105,6 @@ static bool __MsgResolveNestedMultipart(MsgType *pPartType, MsgBody *pPartBody);
 static bool __MsgIsHexChar(char *pSrc);
 static char __MsgConvertHexValue(char *pSrc);
 static int __MsgConvertCharToInt(char ch);
-static bool __MsgInitMsgContentParam(MsgContentParam *pMsgContentParam);
 static bool __MsgCopyNestedMsgType(MsgType *pMsgType1, MsgType *pMsgType2);
 static bool __MsgCopyNestedMsgParam(MsgContentParam *pParam1, MsgContentParam *pParam2);
 static bool __MsgIsMultipartMixed(int type);
@@ -2461,7 +2457,8 @@ __RETURN:
 
 __CATCH:
 	if (isFileCreated)
-		remove(szTempFilePath);
+		if(remove(szTempFilePath) != 0)
+			MSG_DEBUG("remove fail");
 
 	if (pRawData) {
 		free(pRawData);
@@ -2818,13 +2815,10 @@ bool MmsDrm2ConvertMsgBody(char *szOriginFilePath)
 		pszMmsLoadTempBuf = NULL;
 	}
 
-	if (pszOrgData) {
-		free(pszOrgData);
-		pszOrgData = NULL;
-	}
-
-	remove(szTempFile);
-	remove(szTempFilePath);
+	if(remove(szTempFile) != 0)
+		MSG_DEBUG("remove fail");
+	if(remove(szTempFilePath) != 0)
+		MSG_DEBUG("remove fail");
 
 	return true;
 
@@ -2886,9 +2880,9 @@ bool MmsDrm2ReadMsgConvertedBody(MSG_MESSAGE_INFO_S *pMsg, bool bSavePartsAsTemp
 	MmsPluginStorage::instance()->getMmsMessage(&pMmsMsg);
 	MmsUnregisterDecodeBuffer();
 #ifdef __SUPPORT_DRM__
-	MsgFreeDRMInfo(&pMmsMsg->msgType.drmInfo);
+	MmsReleaseMsgDRMInfo(&pMmsMsg->msgType.drmInfo);
 #endif
-	MsgFreeBody(&pMmsMsg->msgBody, pMmsMsg->msgType.type);
+	MmsReleaseMsgBody(&pMmsMsg->msgBody, pMmsMsg->msgType.type);
 
 	if (MmsReadMsgBody(pMsg->msgId, bSavePartsAsTempFiles, bRetrieved, retrievedPath) == false) {
 		MSG_DEBUG("MmsDrm2ReadMsgConvertedBody: _MmsReadMsgBody with converted file is failed\n");
@@ -3876,9 +3870,6 @@ static bool __MmsBinaryDecodeEncodedString(FILE *pFile, char *szBuff, int bufLen
 	int charSetLen = 0;
 	int nTemp = 0;
 	char *pData = NULL;
-	char *pTempData = NULL;
-	unsigned short *mszTempStr = NULL;
-	char *pConvertedStr = NULL;
 
 	MSG_DEBUG("__MmsBinaryDecodeEncodedString: decode string..\n");
 
@@ -3946,6 +3937,10 @@ static bool __MmsBinaryDecodeEncodedString(FILE *pFile, char *szBuff, int bufLen
 
 			const char *pFromCharSet = MmsPluginTextConvertGetCharSet(charset_code);
 			if (pFromCharSet == NULL || !strcmp(pFromCharSet, pToCharSet)) {
+				if (pData) {
+					free(pData);
+					pData = NULL;
+				}
 				return true;
 			}
 
@@ -3968,22 +3963,6 @@ static bool __MmsBinaryDecodeEncodedString(FILE *pFile, char *szBuff, int bufLen
 		pData = NULL;
 	}
 
-	if (pTempData) {
-		free(pTempData);
-		pTempData = NULL;
-	}
-
-	if (mszTempStr) {
-		free(mszTempStr);
-		mszTempStr = NULL;
-	}
-
-	if (pConvertedStr) {
-		free(pConvertedStr);
-		pConvertedStr = NULL;
-	}
-
-
 	return true;
 
 __CATCH:
@@ -3991,21 +3970,6 @@ __CATCH:
 	if (pData) {
 		free(pData);
 		pData = NULL;
-	}
-
-	if (pTempData) {
-		free(pTempData);
-		pTempData = NULL;
-	}
-
-	if (mszTempStr) {
-		free(mszTempStr);
-		mszTempStr = NULL;
-	}
-
-	if (pConvertedStr) {
-		free(pConvertedStr);
-		pConvertedStr = NULL;
 	}
 
 	return false;
@@ -4363,7 +4327,7 @@ bool MmsReadMsgBody(msg_message_id_t msgID, bool bSavePartsAsTempFiles, bool bRe
 
 			if ((mmsHeader.msgType.type == MIME_APPLICATION_VND_WAP_MULTIPART_MIXED)||(mmsHeader.msgType.type == MIME_MULTIPART_MIXED)) {
 				if ((pMsg->nPartCount >= attachmax)&&(pMultipart->pNext != NULL)) {
-					MsgFreeBody(pMultipart->pNext->pBody, pMultipart->pNext->type.type);
+					MmsReleaseMsgBody(pMultipart->pNext->pBody, pMultipart->pNext->type.type);
 
 					free(pMultipart->pNext->pBody);
 					pMultipart->pNext->pBody= NULL;
@@ -4455,10 +4419,10 @@ __CATCH:
 	}
 
 #ifdef __SUPPORT_DRM__
-	MsgFreeDRMInfo(&pMsg->msgType.drmInfo);
+	MmsReleaseMsgDRMInfo(&pMsg->msgType.drmInfo);
 #endif
 
-	MsgFreeBody(&pMsg->msgBody, pMsg->msgType.type);
+	MmsReleaseMsgBody(&pMsg->msgBody, pMsg->msgType.type);
 	MSG_DEBUG("_MmsReadMsgBody:    E  N  D    (fail)    ******************** \n");
 
 	return false;
@@ -5075,8 +5039,8 @@ static MsgMultipart *__MsgAllocMultipart(void)
 		goto __CATCH;
 	}
 
-	__MsgInitMsgType(&pMultipart->type);
-	__MsgInitMsgBody(pMultipart->pBody);
+	MmsInitMsgType(&pMultipart->type);
+	MmsInitMsgBody(pMultipart->pBody);
 
 	pMultipart->pNext = NULL;
 
@@ -5095,70 +5059,6 @@ __CATCH:
 	}
 
 	return NULL;
-}
-
-static bool __MsgInitMsgType(MsgType *pMsgType)
-{
-	pMsgType->offset = 0;
-	pMsgType->size = 0;
-	pMsgType->contentSize = 0;
-	pMsgType->disposition = 0;
-	pMsgType->encoding = 0;
-	pMsgType->type = MIME_UNKNOWN;
-#ifdef FEATURE_JAVA_MMS_MIME
-	pMsgType->szMimeString[0] ='\0';
-#endif
-	pMsgType->section = 0;
-
-	pMsgType->szOrgFilePath[0] = '\0';
-	pMsgType->szContentID[0] = '\0';
-	pMsgType->szContentLocation[0] = '\0';
-
-	pMsgType->szContentRepPos[0] = '\0';
-	pMsgType->szContentRepSize[0] = '\0';
-	pMsgType->szContentRepIndex[0] = '\0';
-
-	__MsgInitMsgContentParam(&pMsgType->param);
-#ifdef __SUPPORT_DRM__
-	MmsInitMsgDRMInfo(&pMsgType->drmInfo);
-#endif
-
-	return true;
-}
-
-static bool __MsgInitMsgContentParam(MsgContentParam *pMsgContentParam)
-{
-	pMsgContentParam->charset = MSG_CHARSET_UNKNOWN;
-	pMsgContentParam->type = MIME_UNKNOWN;
-	pMsgContentParam->szBoundary[0] = '\0';
-	pMsgContentParam->szFileName[0] = '\0';
-	pMsgContentParam->szName[0] = '\0';
-#ifdef FEATURE_JAVA_MMS
-	pMsgContentParam->szApplicationID = NULL;
-	pMsgContentParam->szReplyToApplicationID = NULL;
-#endif
-	pMsgContentParam->szStart[0] = '\0';
-	pMsgContentParam->szStartInfo[0] = '\0';
-	pMsgContentParam->pPresentation = NULL;
-
-	pMsgContentParam->reportType = MSG_PARAM_REPORT_TYPE_UNKNOWN; //  add only used as parameter of Content-Type: multipart/report; report-type
-
-	return true;
-}
-
-static bool __MsgInitMsgBody(MsgBody *pMsgBody)
-{
-	pMsgBody->offset = 0;
-	pMsgBody->size = 0;
-	pMsgBody->body.pText = NULL;
-	pMsgBody->szOrgFilePath[0] = '\0';
-
-	__MsgInitMsgType(&pMsgBody->presentationType);
-	pMsgBody->pPresentationBody = NULL;
-
-	memset(pMsgBody->szOrgFilePath, 0, MSG_FILEPATH_LEN_MAX);
-
-	return true;
 }
 
 static MsgPresentationFactor __MsgIsPresentationEx(MsgType *multipartType, char* szStart, MimeType typeParam)
@@ -5254,7 +5154,7 @@ static void __MsgConfirmPresentationPart(MsgType *pMsgType, MsgBody *pMsgBody, M
 				pMsgBody->size -= pPresentationInfo->pCurPresentation->pBody->size;
 				if (pPresentationInfo->pCurPresentation) {
 #ifdef __SUPPORT_DRM__
-					MsgFreeDRMInfo(&pPresentationInfo->pCurPresentation->type.drmInfo);
+					MmsReleaseMsgDRMInfo(&pPresentationInfo->pCurPresentation->type.drmInfo);
 #endif
 					free(pPresentationInfo->pCurPresentation);
 					pPresentationInfo->pCurPresentation = NULL;
@@ -5287,7 +5187,7 @@ static void __MsgConfirmPresentationPart(MsgType *pMsgType, MsgBody *pMsgBody, M
 				pNextPart = pNextPart->pNext;
 
 				if (pRemovePart->pBody) {
-					MsgFreeBody(pRemovePart->pBody, pRemovePart->type.type);
+					MmsReleaseMsgBody(pRemovePart->pBody, pRemovePart->type.type);
 					free(pRemovePart->pBody);
 					pRemovePart->pBody = NULL;
 				}
@@ -5297,9 +5197,9 @@ static void __MsgConfirmPresentationPart(MsgType *pMsgType, MsgBody *pMsgBody, M
 			}
 		} else {
 #ifdef __SUPPORT_DRM__
-			MsgFreeDRMInfo(&pMsgBody->presentationType.drmInfo);
+			MmsReleaseMsgDRMInfo(&pMsgBody->presentationType.drmInfo);
 #endif
-			__MsgInitMsgType(&pMsgBody->presentationType);
+			MmsInitMsgType(&pMsgBody->presentationType);
 			pMsgBody->pPresentationBody = NULL;
 		}
 	}
@@ -5325,48 +5225,6 @@ static bool __MsgIsPresentablePart(int type)
 }
 
 #ifdef __SUPPORT_DRM__
-void MsgFreeDRMInfo(MsgDRMInfo *pDrmInfo)
-{
-	MSG_DEBUG("_MsgFreeDRMInfo: S T A R T  !!! \n");
-
-	if (pDrmInfo == NULL) {
-		MSG_DEBUG("pDrmInfo is NULL");
-		return;
-	}
-
-	if (pDrmInfo->szContentDescription) {
-		free(pDrmInfo->szContentDescription);
-		pDrmInfo->szContentDescription = NULL;
-	}
-
-	if (pDrmInfo->szContentVendor) {
-		free(pDrmInfo->szContentVendor);
-		pDrmInfo->szContentVendor = NULL;
-	}
-
-	if (pDrmInfo->szContentName) {
-		free(pDrmInfo->szContentName);
-		pDrmInfo->szContentName = NULL;
-	}
-
-	if (pDrmInfo->szContentURI) {
-		free(pDrmInfo->szContentURI);
-		pDrmInfo->szContentURI = NULL;
-	}
-
-	if (pDrmInfo->szRightIssuer) {
-		free(pDrmInfo->szRightIssuer);
-		pDrmInfo->szRightIssuer = NULL;
-	}
-
-	if (pDrmInfo->szDrm2FullPath) {
-		free(pDrmInfo->szDrm2FullPath);
-		pDrmInfo->szDrm2FullPath = NULL;
-	}
-
-	pDrmInfo->contentType = MIME_UNKNOWN;
-	pDrmInfo->drmType = MSG_DRM_TYPE_NONE;
-}
 
 bool MsgCopyDrmInfo(MsgType *pPartType)
 {
@@ -5428,134 +5286,7 @@ static bool __MsgIsText(int type)
 	}
 }
 
-bool MsgFreeAttrib(MmsAttrib *pAttrib)
-{
-	MSG_BEGIN();
 
-	if (pAttrib == NULL) {
-		MSG_DEBUG("pAttrib is NULL");
-		return false;
-	}
-
-	if (pAttrib->szTo) {
-		free(pAttrib->szTo);
-		pAttrib->szTo = NULL;
-	}
-
-	if (pAttrib->szCc) {
-		free(pAttrib->szCc);
-		pAttrib->szCc = NULL;
-	}
-
-	if (pAttrib->szBcc) {
-		free(pAttrib->szBcc);
-		pAttrib->szBcc = NULL;
-	}
-
-	//check if pMultiStatus should be freed or not, because pMultiStatus is not allocated
-	if (pAttrib->pMultiStatus) {
-		MmsMsgMultiStatus *pMultiStatus = pAttrib->pMultiStatus;
-		MmsMsgMultiStatus *pCurStatus = NULL;
-
-		while (pMultiStatus != NULL ) {
-			pCurStatus = pMultiStatus;
-			pMultiStatus = pMultiStatus->pNext;
-
-			if (pCurStatus) {
-				free(pCurStatus);
-				pCurStatus = NULL;
-			}
-		}
-
-		pAttrib->pMultiStatus = NULL;
-	}
-
-
-	MSG_END();
-
-	return true;
-}
-
-bool MsgFreeBody(MsgBody *pBody, int type)
-{
-	MSG_DEBUG("_MsgFreeBody: S T A R T  !!! \n") ;
-
-	if (pBody == NULL) {
-		MSG_DEBUG("_MsgFreeBody: pBody == NULL \n" );
-		MSG_DEBUG("_MsgFreeBody: E  N  D   (End)!!! \n") ;
-
-		return false;
-	}
-
-	switch (type) {
-	case MIME_MULTIPART_REPORT:
-	case MIME_APPLICATION_VND_OMA_DRM_MESSAGE:
-	case MIME_APPLICATION_VND_WAP_MULTIPART_MIXED:
-	case MIME_APPLICATION_VND_WAP_MULTIPART_RELATED:
-	case MIME_APPLICATION_VND_WAP_MULTIPART_ASTERIC:
-	case MIME_MULTIPART_MIXED:
-	case MIME_MULTIPART_RELATED:
-	case MIME_MULTIPART_ALTERNATIVE:
-	case MIME_APPLICATION_VND_WAP_MULTIPART_ALTERNATIVE:
-		{
-			MsgMultipart *pMulti = pBody->body.pMultipart;
-			MsgMultipart *pCurrPart = NULL;
-			MsgBody *pPresentation = pBody->pPresentationBody;
-			while (pMulti != NULL) {
-				pCurrPart = pMulti;
-
-				pMulti = pMulti->pNext;
-
-				if (pCurrPart) {
-#ifdef __SUPPORT_DRM__
-					MsgFreeDRMInfo(&pCurrPart->type.drmInfo);
-#endif
-
-					if (pCurrPart->pBody) {
-						if (pCurrPart->pBody->body.pBinary) {
-							free(pCurrPart->pBody->body.pBinary);
-							pCurrPart->pBody->body.pBinary = NULL;
-						}
-						free(pCurrPart->pBody);
-						pCurrPart->pBody = NULL;
-					}
-					free(pCurrPart);
-					pCurrPart = NULL;
-				}
-			}
-
-			pBody->body.pMultipart = NULL;
-
-			if (pPresentation) {
-				if (pPresentation->body.pText) {
-					free(pPresentation->body.pText);
-					pPresentation->body.pText = NULL;
-				}
-				free(pPresentation);
-				pBody->pPresentationBody = NULL;
-			}
-
-			__MsgInitMsgType(&pBody->presentationType);
-
-			break;
-		}
-
-	default:
-		/* Any single part */
-
-		if (pBody->body.pBinary) {
-			free(pBody->body.pBinary);
-			pBody->body.pBinary = NULL;
-		}
-
-		break;
-	}
-
-	MSG_DEBUG("_MsgFreeBody: E  N  D  (Successfully) !!! \n") ;
-
-	return true;
-
-}
 
 static bool __MsgResolveNestedMultipart(MsgType *pPartType, MsgBody *pPartBody)
 {
@@ -5622,9 +5353,9 @@ static bool __MsgResolveNestedMultipart(MsgType *pPartType, MsgBody *pPartBody)
 
 		if (pRemoveList) {
 #ifdef __SUPPORT_DRM__
-			MsgFreeDRMInfo(&pRemoveList->type.drmInfo);
+			MmsReleaseMsgDRMInfo(&pRemoveList->type.drmInfo);
 #endif
-			MsgFreeBody(pRemoveList->pBody, pRemoveList->type.type);
+			MmsReleaseMsgBody(pRemoveList->pBody, pRemoveList->type.type);
 
 			free(pRemoveList->pBody);
 			free(pRemoveList);
@@ -5640,7 +5371,7 @@ static bool __MsgResolveNestedMultipart(MsgType *pPartType, MsgBody *pPartBody)
 
 		if (pSelectedPart != NULL) {
 #ifdef __SUPPORT_DRM__
-			MsgFreeDRMInfo(&pSelectedPart->type.drmInfo);
+			MmsReleaseMsgDRMInfo(&pSelectedPart->type.drmInfo);
 #endif
 
 			if (pSelectedPart->pBody != NULL) {
@@ -5696,7 +5427,7 @@ static bool __MsgResolveNestedMultipart(MsgType *pPartType, MsgBody *pPartBody)
 
 				if (pSelectedPart) {
 #ifdef __SUPPORT_DRM__
-					MsgFreeDRMInfo(&pSelectedPart->type.drmInfo);
+					MmsReleaseMsgDRMInfo(&pSelectedPart->type.drmInfo);
 #endif
 					free(pSelectedPart->pBody);
 					free(pSelectedPart);
@@ -5704,7 +5435,7 @@ static bool __MsgResolveNestedMultipart(MsgType *pPartType, MsgBody *pPartBody)
 				pSelectedPart = pTmpMultipart;
 			} else if (__MsgIsMultipartRelated(pSelectedPart->type.type) && pPrevPart != NULL) {
 				pPrevPart->pNext = pTmpMultipart = pSelectedPart->pNext;
-				MsgFreeBody(pSelectedPart->pBody, pSelectedPart->type.type);
+				MmsReleaseMsgBody(pSelectedPart->pBody, pSelectedPart->type.type);
 
 				free(pSelectedPart->pBody);
 				free(pSelectedPart);
@@ -5769,7 +5500,7 @@ static bool __MsgResolveNestedMultipart(MsgType *pPartType, MsgBody *pPartBody)
 				pPartType->type = pSelectedPart->type.type;
 
 #ifdef __SUPPORT_DRM__
-				MsgFreeDRMInfo(&pSelectedPart->type.drmInfo);
+				MmsReleaseMsgDRMInfo(&pSelectedPart->type.drmInfo);
 #endif
 				free(pSelectedPart->pBody);
 				free(pSelectedPart);
@@ -5830,9 +5561,9 @@ static bool __MsgResolveNestedMultipart(MsgType *pPartType, MsgBody *pPartBody)
 
 		while (pTmpMultipart) {
 #ifdef __SUPPORT_DRM__
-			MsgFreeDRMInfo(&pTmpMultipart->type.drmInfo);
+			MmsReleaseMsgDRMInfo(&pTmpMultipart->type.drmInfo);
 #endif
-			MsgFreeBody(pTmpMultipart->pBody, pTmpMultipart->type.type);
+			MmsReleaseMsgBody(pTmpMultipart->pBody, pTmpMultipart->type.type);
 			pNextRemovePart = pTmpMultipart->pNext;
 
 			free(pTmpMultipart->pBody);
@@ -5850,7 +5581,7 @@ static bool __MsgResolveNestedMultipart(MsgType *pPartType, MsgBody *pPartBody)
 
 		if (pSelectedPart != NULL) {
 #ifdef __SUPPORT_DRM__
-			MsgFreeDRMInfo(&pSelectedPart->type.drmInfo);
+			MmsReleaseMsgDRMInfo(&pSelectedPart->type.drmInfo);
 #endif
 			if (pSelectedPart->pBody != NULL) {
 				free(pSelectedPart->pBody);
@@ -6028,6 +5759,9 @@ static int __MsgConvertCharToInt(char ch)
 
 static bool __MsgCopyNestedMsgType(MsgType *pMsgType1, MsgType *pMsgType2)
 {
+	if(!pMsgType1 || !pMsgType2)
+		return false;
+
 	if (pMsgType1->section == INVALID_HOBJ)
 		pMsgType1->section = pMsgType2->section;
 
@@ -7069,7 +6803,6 @@ __CATCH:
 static bool __MmsMultipartSaveAsTempFile(MsgType *pPartType, MsgBody *pPartBody, char *pszMailboxPath, char *pszMsgFilename, int index, bool bSave)
 {
 	FILE *pFile = NULL;
-//	char *pExt = NULL;
 	char szFileName[MSG_FILENAME_LEN_MAX+1] = {0, };	// file name of temp file
 	char szFullPath[MSG_FILEPATH_LEN_MAX] = {0, }; // full absolute path of temp file.
 
@@ -7538,13 +7271,14 @@ static bool __MsgMakeFileName(int iMsgType, char *szFileName, MsgDrmType drmType
 				strncpy(szText, szTempFileName, pExt+1 - szFileName);
 			}
 		} else {
-			if (strrchr(szTempFileName, '.'))
+			pExt = strrchr(szTempFileName, '.');
+			if (pExt == NULL) {
+				memset(szText, 0, MSG_FILENAME_LEN_MAX+1);
+				strncpy(szText, szTempFileName, MSG_FILENAME_LEN_MAX - 1);
+				strcat(szText, ".");
+			} else  {
 				return true;
-
-			memset(szText, 0, MSG_FILENAME_LEN_MAX+1);
-			strncpy(szText, szTempFileName, MSG_FILENAME_LEN_MAX - 1);
-		//temporary commented to save file as original name.
-			pExt = strrchr(szFileName, '.');
+			}
 		}
 	} else {
 		if (nUntitleIndex >= 1) {
@@ -7645,7 +7379,7 @@ bool MmsGetMediaPartHeader(int index, MsgType *pHeader)
 
 	MmsPluginStorage::instance()->getMmsMessage(&pMsg);
 
-	__MsgInitMsgType(pHeader);
+	MmsInitMsgType(pHeader);
 
 
 	/* Requires header of non-presentation */

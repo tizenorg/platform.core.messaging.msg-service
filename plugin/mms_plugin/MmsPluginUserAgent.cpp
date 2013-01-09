@@ -657,9 +657,9 @@ ERR_MMS_UA_PROCESS_CONF:
 		MmsUnregisterDecodeBuffer();
 
 #ifdef __SUPPORT_DRM__
-		MsgFreeDRMInfo(&pMsg->msgType.drmInfo);
+		MmsReleaseMsgDRMInfo(&pMsg->msgType.drmInfo);
 #endif
-		MsgFreeBody(&pMsg->msgBody, pMsg->msgType.type);
+		MmsReleaseMsgBody(&pMsg->msgBody, pMsg->msgType.type);
 
 		return false;
 	}

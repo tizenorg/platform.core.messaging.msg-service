@@ -19,6 +19,8 @@
 #include <mm_util_imgp.h>
 #include <media-thumbnail.h>
 #include <ctype.h>
+#include <errno.h>
+#include <sys/stat.h>
 #include "MsgUtilFile.h"
 #include "MmsPluginDebug.h"
 #include "MmsPluginUtil.h"
@@ -337,7 +339,7 @@ char *MsgStrNCopy(const char *string, int length)
 	if (string) {
 		pDst = (char *)malloc(1 + length);
 		if (pDst == NULL) {
-			MSG_DEBUG("MsgStrNCopy: pDst MemAlloc Fail \n");
+			MSG_DEBUG("pDst MemAlloc Fail \n");
 			return NULL;
 		}
 
@@ -367,4 +369,39 @@ bool MsgConvertCharToHex(char pSrc, char *pDest)
 	pDest[2] = 0;
 
 	return true;
+}
+
+
+FILE *MmsFileOpen(char *pFileName)
+{
+	int len;
+	mode_t file_mode = (S_IRUSR | S_IWUSR);
+
+	if (!pFileName) {
+		MSG_DEBUG("pFileName NULL: %s", strerror(errno));
+		return NULL;
+	}
+
+	MSG_DEBUG("pFileName = %s", pFileName);
+
+	FILE *pFile = MsgOpenFile(pFileName, "wb+");
+
+	if (pFile == NULL) {
+		MSG_FATAL("File Open Error: %s", strerror(errno));
+		return NULL;
+	}
+
+	if (MsgFseek(pFile, 0L, SEEK_CUR) < 0) {
+		MsgCloseFile(pFile);
+		MSG_DEBUG("File Read Error: %s", strerror(errno));
+		return NULL;
+	}
+
+	if (fchmod(fileno(pFile), file_mode) < 0) {
+		MsgCloseFile(pFile);
+		MSG_DEBUG("File chmod Error: %s", strerror(errno));
+		return NULL;
+	}
+
+	return pFile;
 }

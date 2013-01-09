@@ -185,7 +185,6 @@ const char * MsgDbgCmdStr(MSG_CMD_TYPE_T cmdType)
 
 		case MSG_CMD_GET_MSG_SIZE_OPT:
 			return "MSG_CMD_GET_MSG_SIZE_OPT";
-
 		case MSG_CMD_SET_SMSC_OPT:
 			return "MSG_CMD_SET_SMSC_OPT";
 
@@ -225,6 +224,7 @@ const char * MsgDbgCmdStr(MSG_CMD_TYPE_T cmdType)
 			return "MSG_CMD_DELETE_PUSH_EVENT";
 		case MSG_CMD_UPDATE_PUSH_EVENT:
 			return "MSG_CMD_UPDATE_PUSH_EVENT";
+
 		default:
 			return "Unknown Command Type!!!";
 	}

@@ -29,7 +29,7 @@ INCLUDE_DIRECTORIES(
 )
 
 INCLUDE(FindPkgConfig)
-pkg_check_modules(msg_helper_pkgs REQUIRED glib-2.0 dlog vconf devman_haptic mm-fileinfo mm-player mm-sound svi sensor)
+pkg_check_modules(msg_helper_pkgs REQUIRED glib-2.0 dlog vconf mm-fileinfo mm-player mm-sound sensor feedback)
 
 FOREACH(flag ${msg_helper_pkgs_CFLAGS})
 	SET(EXTRA_CFLAGS "${EXTRA_CFLAGS} ${flag}")

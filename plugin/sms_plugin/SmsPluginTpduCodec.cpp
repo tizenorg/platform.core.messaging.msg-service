@@ -21,7 +21,6 @@
 #include "MsgCppTypes.h"
 #include "MsgException.h"
 #include "MsgGconfWrapper.h"
-#include "MsgUtilFile.h"
 
 #include "SmsPluginTpduCodec.h"
 #include "SmsPluginParamCodec.h"
@@ -471,36 +470,16 @@ int SmsPluginTpduCodec::decodeDeliver(const unsigned char *pTpdu, int TpduLen, S
 {
 	int offset = 0, udLen = 0;
 
-#if 1
-		char temp[2048];
-		char tempcat[100];
-		memset(temp, 0x00, sizeof(temp));
-		memset(tempcat, 0x00, sizeof(tempcat));
 
-		time_t rawtime;
-		time ( &rawtime );
-
-		sprintf(temp, "[MT] %s", ctime(&rawtime));
-
-		for (int i = 0; i < TpduLen; i++)
-		{
-			sprintf(tempcat, "[%02x]\n", pTpdu[i]);
-			strncat(temp, tempcat, sizeof(temp)-strlen(temp)-1);
-			memset(tempcat, 0x00, sizeof(tempcat));
-		}
+	char tpduTmp[(TpduLen*2)+1];
+	memset(tpduTmp, 0x00, sizeof(tpduTmp));
+	for (int i = 0; i < TpduLen; i++) {
+		snprintf(tpduTmp+(i*2), sizeof(tpduTmp)-(i*2), "%02X", pTpdu[i]);
+	}
+	MSG_DEBUG("Deliver TPDU.");
+	MSG_DEBUG("[%s]", tpduTmp);
 
 
-		sprintf(tempcat, "\n\n\n");
-		strncat(temp, tempcat, sizeof(temp)-strlen(temp)-1);
-
-		//MsgOpenCreateAndOverwriteFile(TPDU_LOG_FILE, temp, strlen(temp));
-		FILE*	pFile=NULL ;
-		pFile = MsgOpenFile(TPDU_LOG_FILE, "a");
-		MsgWriteFile(temp, sizeof(char), strlen(temp), pFile);
-
-		MsgFflush(pFile);
-		MsgCloseFile(pFile);
-#endif
 	// TP-MMS
 	if (pTpdu[offset] & 0x04)
 		pDeliver->bMoreMsg = false;

@@ -738,7 +738,7 @@ void MsgProxyListener::handleEvent(const MSG_EVENT_S* pMsgEvent)
 		strncpy(tempFileName, pMmsRecvData->retrievedFilePath, MSG_FILENAME_LEN_MAX);
 
 		memset(pMsgInfo->msgData, 0, MAX_MSG_DATA_LEN+1);
-		memcpy(pMsgInfo->msgData, tempFileName + strlen(MSG_DATA_PATH), strlen(tempFileName));
+		memcpy(pMsgInfo->msgData, tempFileName + strlen(MSG_DATA_PATH), MAX_MSG_DATA_LEN);
 
 		it = matchList.begin();
 
