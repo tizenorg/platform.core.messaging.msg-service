@@ -83,7 +83,7 @@ void MsgSmsCBNoti(MSG_MESSAGE_INFO_S* pMsg, notification_h noti, bundle* args)
 
 	memset(tempId, 0x00, sizeof(tempId));
 
-	noti_err = notification_set_application(noti, "org.tizen.message");
+	noti_err = notification_set_application(noti, "8r4r5ddzzn.Messages");
 	if (noti_err != NOTIFICATION_ERROR_NONE) {
 		MSG_DEBUG("Fail to notification_set_application : %d", noti_err);
 	}
@@ -174,7 +174,7 @@ void MsgSmsReportNoti(MSG_MESSAGE_INFO_S* pMsg, notification_h noti, bundle* arg
 
 	memset(tempId, 0x00, sizeof(tempId));
 
-	noti_err = notification_set_application(noti, "org.tizen.message");
+	noti_err = notification_set_application(noti, "8r4r5ddzzn.Messages");
 	if (noti_err != NOTIFICATION_ERROR_NONE) {
 		MSG_DEBUG("Fail to notification_set_application : %d", noti_err);
 	}
@@ -460,7 +460,7 @@ msg_error_t MsgInsertMmsReportToNoti(MsgDbHandler *pDbHandle, MSG_MESSAGE_INFO_S
 		return MSG_ERR_UNKNOWN;
 	}
 
-	noti_err = notification_set_application(noti, "org.tizen.message");
+	noti_err = notification_set_application(noti, "8r4r5ddzzn.Messages");
 	if (noti_err != NOTIFICATION_ERROR_NONE) {
 		MSG_DEBUG("Fail to notification_set_application : %d", noti_err);
 	}
@@ -728,7 +728,7 @@ msg_error_t MsgRefreshNoti(bool bWithTicker)
 
 		notiPrivId = 0;
 	}
-	noti_err = notification_set_application(noti, "org.tizen.message");
+	noti_err = notification_set_application(noti, "8r4r5ddzzn.Messages");
 	if (noti_err != NOTIFICATION_ERROR_NONE) {
 		MSG_DEBUG("Fail to notification_set_application : %d", noti_err);
 	}
@@ -887,7 +887,7 @@ msg_error_t MsgInsertTicker(const char* pTickerMsg, const char* pLocaleTickerMsg
 		return MSG_ERR_UNKNOWN;
 	}
 
-	noti_err = notification_set_application(noti, "org.tizen.message");
+	noti_err = notification_set_application(noti, "8r4r5ddzzn.Messages");
 	if (noti_err != NOTIFICATION_ERROR_NONE) {
 		MSG_DEBUG("Fail to notification_set_application : %d", noti_err);
 	}
