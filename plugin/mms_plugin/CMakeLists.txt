@@ -14,6 +14,9 @@ MESSAGE("Build type: ${CMAKE_BUILD_TYPE}")
 ##########################################################
 
 SET(MMS-PLUGIN-SRCS
+	MmsPluginCodecCommon.cpp
+	MmsPluginDecode.cpp
+	MmsPluginEncode.cpp
 	MmsPluginTextConvert.cpp
 	MmsPluginTransport.cpp
 	MmsPluginMain.cpp
@@ -21,16 +24,11 @@ SET(MMS-PLUGIN-SRCS
 	MmsPluginStorage.cpp
 	MmsPluginMessage.cpp
 	MmsPluginMIME.cpp
-	MmsPluginDecode.cpp
 	MmsPluginAvCodec.cpp
-	MmsPluginDebug.cpp
 	MmsPluginConnManWrapper.cpp
 	MmsPluginUserAgent.cpp
 	MmsPluginHttp.cpp
-	MmsPluginEncode.cpp
-	MmsPluginCodec.cpp
 	MmsPluginInternal.cpp
-	MmsPluginContentCodec.cpp
 	MmsPluginSmil.cpp
 	MmsPluginSMILValidate.cpp
 	MmsPluginDrm.cpp
@@ -40,7 +38,7 @@ SET(MMS-PLUGIN-SRCS
 INCLUDE_DIRECTORIES(
 	${CMAKE_SOURCE_DIR}/include/common
 	${CMAKE_SOURCE_DIR}/include/framework
-	${CMAKE_SOURCE_DIR}/include/msg_helper
+	#${CMAKE_SOURCE_DIR}/include/msg_helper
 	${CMAKE_SOURCE_DIR}/include/utils
 	${CMAKE_SOURCE_DIR}/include/mapi
 	${CMAKE_CURRENT_SOURCE_DIR}/include
@@ -57,9 +55,11 @@ SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${EXTRA_CFLAGS}")
 SET(CMAKE_CXX_FLAGS_DEBUG "-O2 -g")
 
 ADD_DEFINITIONS("-DPREFIX=\"${CMAKE_INSTALL_PREFIX}\"")
-#ADD_DEFINITIONS("-DWno-write-strings")
+ADD_DEFINITIONS("-DFEATURE_JAVA_MMS")
+ADD_DEFINITIONS("-D__SUPPORT_DRM__")
 
 SET(CMAKE_EXE_LINKER_FLAGS "-Wl,--as-needed")
+SET(CMAKE_SHARED_LINKER_FLAGS "-Wl,--no-undefined")
 
 ADD_LIBRARY(${MMS-PLUGIN-LIB} SHARED ${MMS-PLUGIN-SRCS})
 TARGET_LINK_LIBRARIES(${MMS-PLUGIN-LIB} ${mms_plugin_pkgs_LDFLAGS} ${UTILS-LIB})

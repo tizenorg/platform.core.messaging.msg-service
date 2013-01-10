@@ -413,7 +413,11 @@ int MsgIncomingMsgHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 	if (sendNoti == true) {
 		MsgTransactionManager::instance()->broadcastIncomingMsgCB(err, &msgInfo);
 		MsgTransactionManager::instance()->broadcastStorageChangeCB(err, MSG_STORAGE_CHANGE_INSERT, &msgIdList);
-	} else if (msgInfo.folderId == MSG_SPAMBOX_ID) {
+	} else if(msgInfo.msgPort.valid)
+	{
+		MsgTransactionManager::instance()->broadcastIncomingMsgCB(err, &msgInfo);
+	}
+	else if (msgInfo.folderId == MSG_SPAMBOX_ID) {
 		MsgTransactionManager::instance()->broadcastStorageChangeCB(err, MSG_STORAGE_CHANGE_INSERT, &msgIdList);
 	}
 
@@ -568,6 +572,9 @@ __BYPASS_UPDATE:
 int MsgIncomingPushMsgHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 {
 	MSG_BEGIN();
+
+	int eventSize = 0;
+
 	// input check
 	if (!pCmd || !ppEvent)
 		THROW(MsgException::INVALID_PARAM, "pCmd or ppEvent is null");
@@ -578,7 +585,7 @@ int MsgIncomingPushMsgHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 	// Get Incoming Message
 	memcpy(&pushData, (void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN), sizeof(MSG_PUSH_MESSAGE_DATA_S));
 
-	int eventSize = 0;
+
 
 	// broadcast to listener threads, here
 	MsgTransactionManager::instance()->broadcastPushMsgCB(MSG_SUCCESS, &pushData);

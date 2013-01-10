@@ -301,6 +301,8 @@ void* InitMsgServer(void*)
 {
 	msg_error_t err = MSG_SUCCESS;
 
+	MsgOpenContactSvc();
+
 	try
 	{
 		// plugin manager initialize
@@ -335,6 +337,9 @@ void* InitMsgServer(void*)
 		MsgReleaseMemory();
 		return (void*)0;
 	}
+
+	// Clear and reset notification
+	MsgCleanAndResetNoti();
 
 	MSG_SIM_STATUS_T simStatus = MSG_SIM_STATUS_NORMAL;
 
@@ -379,13 +384,9 @@ void* InitMsgServer(void*)
 
 	MsgReleaseMemory();
 
-	// Try to connect contact server  if it is not opened.
-	MsgOpenContactSvc();
-
 	// Register Callback to get the change of contact
 	MsgInitContactSvc(&MsgContactChangedCallback);
 
-	MsgCleanAndResetNoti();
 	MsgSoundInitRepeatAlarm();
 
 	return (void*)0;

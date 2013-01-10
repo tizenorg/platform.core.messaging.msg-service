@@ -29,6 +29,7 @@
 #include "SmsPluginConcatHandler.h"
 #include "SmsPluginEventHandler.h"
 
+
 /*==================================================================================================
                                      IMPLEMENTATION OF SmsPluginEventHandler - Member Functions
 ==================================================================================================*/
@@ -117,6 +118,15 @@ void SmsPluginEventHandler::handleMsgIncoming(SMS_TPDU_S *pTpdu)
 			SmsPluginTransport::instance()->sendDeliverReport(MSG_SUCCESS);
 			return;
 		}
+	}
+
+	/** check discard & indicator inactive message **/
+	if (pTpdu->data.deliver.dcs.bMWI == true &&
+			pTpdu->data.deliver.dcs.bIndActive == false &&
+			pTpdu->data.deliver.dcs.codingGroup == SMS_GROUP_DISCARD) {
+		MSG_DEBUG("Discard and no-indication message!!");
+		SmsPluginTransport::instance()->sendDeliverReport(MSG_SUCCESS);
+		return;
 	}
 
 	/** convert to msgInfo */
@@ -208,7 +218,7 @@ void SmsPluginEventHandler::handleMsgIncoming(SMS_TPDU_S *pTpdu)
 	}
 }
 
-void SmsPluginEventHandler::handlePushMsgIncoming(char* pPushHeader, char* pPushBody, int pushBodyLen, char *application_id)
+void SmsPluginEventHandler::handlePushMsgIncoming(char* pPushHeader, char* pPushBody, int pushBodyLen, char *application_id, char *content_type)
 {
 	MSG_PUSH_MESSAGE_DATA_S pushData;
 
@@ -221,6 +231,7 @@ void SmsPluginEventHandler::handlePushMsgIncoming(char* pPushHeader, char* pPush
 	memcpy(pushData.pushBody, pPushBody, pushBodyLen);
 
 	memcpy(pushData.pushAppId, application_id, MAX_WAPPUSH_ID_LEN);
+	memcpy(pushData.pushContentType, content_type, MAX_WAPPUSH_CONTENT_TYPE_LEN);
 
 	/** Callback to MSG FW */
 	listener.pfPushMsgIncomingCb(&pushData);
@@ -526,6 +537,9 @@ void SmsPluginEventHandler::convertDeliverTpduToMsginfo(const SMS_DELIVER_S *pTp
 			msgInfo->msgType.subType = (pTpdu->userData.header[i].udh.specialInd.msgInd+MSG_MWI_VOICE_SMS);
 			msgInfo->bStore = pTpdu->userData.header[i].udh.specialInd.bStore;
 
+			if (pTpdu->dcs.codingGroup == SMS_GROUP_DISCARD)
+				msgInfo->bStore = false;
+
 			MSG_DEBUG("Message waiting number : [%d]", pTpdu->userData.header[i].udh.specialInd.waitMsgNum);
 			SmsPluginSetting::instance()->setMwiInfo(msgInfo->msgType.subType, pTpdu->userData.header[i].udh.specialInd.waitMsgNum);
 
@@ -818,12 +832,10 @@ bool SmsPluginEventHandler::getDeviceStatus()
 
 	ret = cv.timedwait(mx.pMutex(), 16);
 
-	mx.unlock();
-
 	if (ret == ETIMEDOUT) {
 		MSG_DEBUG("WARNING: DEVICE STATUS TIME-OUT");
 		devStatus = false;
 	}
-
+	mx.unlock();
 	return devStatus;
 }

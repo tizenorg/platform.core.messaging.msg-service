@@ -14,66 +14,129 @@
 * limitations under the License.
 */
 
-#include<stdio.h>
+#include <stdio.h>
 #include <string.h>
 #include <sys/stat.h>
 #include <stdlib.h>
 #include <errno.h>
 
-#include "MsgDebug.h"
-#include "MsgException.h"
-#include "MmsPluginMessage.h"
-#include "MmsPluginStorage.h"
 #include "MsgUtilFile.h"
-#include "MmsPluginCodec.h"
+
 #include "MmsPluginDebug.h"
-#include "MsgSettingTypes.h"
-#include "MsgSettingHandler.h"
-#include "MmsPluginInternal.h"
-#include "MmsPluginAvCodec.h"
+#include "MmsPluginDecode.h"
+#include "MmsPluginCodecCommon.h"
 #include "MmsPluginStorage.h"
+#include "MmsPluginDebug.h"
+#include "MmsPluginMIME.h"
+#include "MmsPluginAvCodec.h"
 #include "MmsPluginSmil.h"
+#include "MmsPluginTextConvert.h"
+#include "MmsPluginUtil.h"
+
 #ifdef __SUPPORT_DRM__
 #include "MmsPluginDrm.h"
 #include "MsgDrmWrapper.h"
 #endif
-#include "MmsPluginTextConvert.h"
-#include "MmsPluginUtil.h"
 
-static bool _MmsBinaryDecodeGetBytes(FILE *pFile, char *szBuff, int bufLen, int totalLength);		/* bufLen < gMmsDecodeMaxLen */
-static bool _MmsBinaryDecodeGetLongBytes(FILE *pFile, char *szBuff, int bufLen, int totalLength);	/* no bufLen limit */
-static bool _MmsBinaryDecodeGetOneByte(FILE *pFile, UINT8 *pOneByte, int totalLength);
 
+/*Decode wsp*/
+static int __MmsGetDecodeOffset(void);
+static bool __MmsDecodeInitialize(void);
+static void __MmsCleanDecodeBuff(void);
+static bool __MmsBinaryDecodeMovePointer(FILE *pFile, int offset, int totalLength);
+static bool	__MmsBinaryDecodeCheckAndDecreaseLength(int *pLength, int valueLength);
+
+static bool __MmsBinaryDecodeGetBytes(FILE *pFile, char *szBuff, int bufLen, int totalLength);		/* bufLen < gMmsDecodeMaxLen */
+static bool __MmsBinaryDecodeGetLongBytes(FILE *pFile, char *szBuff, int bufLen, int totalLength);	/* no bufLen limit */
+static bool __MmsBinaryDecodeGetOneByte(FILE *pFile, UINT8 *pOneByte, int totalLength);
+
+static UINT32 __MmsHeaderDecodeIntegerByLength(FILE *pFile, UINT32 length, int totalLength);
+
+static bool __MmsBinaryDecodeInteger(FILE *pFile, UINT32 *pInteger, int *pIntLen, int totalLength);
+static bool __MmsDecodeLongInteger(FILE *pFile, UINT32 *pLongInteger, int totalLength);
 static int __MmsBinaryDecodeUintvar(FILE *pFile, UINT32 *pUintVar, int totalLength);
 static int __MmsDecodeValueLength(FILE *pFile, UINT32 *pValueLength, int totalLength);
 static int __MmsDecodeValueLength2(FILE *pFile, UINT32 *pValueLength, int totalLength);
+static int __MmsBinaryDecodeText(FILE *pFile, char *szBuff, int bufLen, int totalLength);
+static char *__MmsBinaryDecodeText2(FILE *pFile, int totalLength, int *pLength);
 static int __MmsBinaryDecodeQuotedString(FILE *pFile, char *szBuff, int bufLen, int totalLength);
 static bool __MmsBinaryDecodeEncodedString(FILE *pFile, char *szBuff, int bufLen, int totalLength);
-static bool __MmsBinaryDecodeInteger(FILE *pFile, UINT32 *pInteger, int *pIntLen, int totalLength);
+
 static bool __MmsBinaryDecodeCharset(FILE *pFile, UINT32 *nCharSet, int *pCharSetLen, int totalLength);
-static char *__MmsBinaryDecodeText2(FILE *pFile, int totalLength, int *pLength);
-static int __MmsBinaryDecodeText(FILE *pFile, char *szBuff, int bufLen, int totalLength);
-static UINT32 __MmsHeaderDecodeIntegerByLength(FILE *pFile, UINT32 length, int totalLength);
-static bool __MmsDecodeLongInteger(FILE *pFile, UINT32 *pLongInteger, int totalLength);
 static int __MmsDecodeGetFilename(FILE *pFile, char *szBuff, int bufLen, int totalLength);
 static MsgHeaderAddress *__MmsDecodeEncodedAddress(FILE *pFile, int totalLength);
 
+static bool __MmsBinaryDecodeMultipart(FILE *pFile, char *szFilePath, MsgType *pMsgType, MsgBody *pMsgBody, int totalLength);
+static bool __MmsBinaryDecodeEachPart(FILE *pFile, char *szFilePath, MsgType *pMsgType, MsgBody *pMsgBody, int totalLength);
+static bool __MmsBinaryDecodePartHeader(FILE *pFile, MsgType *pMsgType, int headerLen, int totalLength);
+static bool __MmsBinaryDecodePartBody(FILE *pFile, UINT32 bodyLength, int totalLength);
+static bool __MmsBinaryDecodeEntries(FILE *pFile, UINT32 *npEntries, int totalLength);
+static bool __MmsBinaryDecodeParameter(FILE *pFile, MsgType *pMsgType, int valueLength, int totalLength);
+
+static int __MmsBinaryDecodeContentType(FILE *pFile, MsgType *pMsgType, int totalLength);
+
 #ifdef __SUPPORT_DRM__
-bool __MmsParseDCFInfo(FILE *pFile, MsgDRMInfo *pDrmInfo, int totalLength);
-bool __MmsParseDCFHdr(FILE *pFile, MsgDRMInfo *pDrmInfo, UINT32 headerLen, int totalLength);
-bool MmsBinaryDecodeDRMMessage(FILE *pFile, char *szFilePath, MsgType *pMsgType, MsgBody *pMsgBody, unsigned int fullBodyLength, int totalLength);
-bool MmsBinaryDecodeDRMContent(FILE *pFile, char *szFilePath, MsgType *pMsgType, MsgBody *pMsgBody, unsigned int bodyLength, int totalLength);
+static bool __MmsBinaryDecodeDRMContent(FILE *pFile, char *szFilePath, MsgType *pMsgType, MsgBody *pMsgBody, unsigned int bodyLength, int totalLength);
 #endif
 
-static bool MmsBinaryDecodeMovePointer(FILE *pFile, int offset, int totalLength);
-bool MmsBinaryIsTextEncodedPart(FILE *pFile, int totalLength);
-static bool	__MmsBinaryDecodeCheckAndDecreaseLength(int *pLength, int valueLength);
+//util funcion
+static void __MsgRemoveFilePath(char *pSrc);
+static bool __MsgChangeSpace(char *pOrg, char **ppNew);
+static void __MsgConfirmPresentationPart(MsgType *pMsgType, MsgBody *pMsgBody, MsgPresentaionInfo *pPresentationInfo);
+static MsgPresentationFactor __MsgIsPresentationEx(MsgType *multipartType, char* szStart, MimeType typeParam);
+static bool __MsgLoadDataToDecodeBuffer(FILE *pFile, char **ppBuf, int *pPtr, int *pOffset, char *pInBuf1, char *pInBuf2, int maxLen, int *npRead, int endOfFile);
+static bool __MsgFreeHeaderAddress(MsgHeaderAddress *pAddr);
+static bool __MsgCheckFileNameHasInvalidChar(char *szName);
 
-bool __MmsTextDecodeMsgHeader(FILE *pFile);
-bool MmsTextDecodeMsgBody(FILE *pFile);
+static bool __MsgReplaceInvalidFileNameChar(char *szInText, char replaceChar);
+static char *__MsgGetStringUntilDelimiter(char *pszString, char delimiter);
+static bool __MsgParseParameter(MsgType *pType, char *pSrc);
+static char *__MsgSkipWS(char *s);
+static char *__MsgSkipComment(char *s, long trim);
+static MsgMultipart *__MsgAllocMultipart(void);
 
-char gszMmsLoadBuf1[MSG_MMS_DECODE_BUFFER_MAX + 1] = {0, };
-char gszMmsLoadBuf2[MSG_MMS_DECODE_BUFFER_MAX + 1] = {0, };
+static char *__MsgConvertLatin2UTF8FileName(char *pSrc);
+static bool __MsgIsUTF8String(unsigned char *szSrc, int nChar);
+static bool __MsgIsPercentSign(char *pSrc);
+static bool __MsgIsMultipartRelated(int type);
+static bool __MsgIsPresentablePart(int type);
+static bool __MsgIsText(int type);
+static bool __MsgResolveNestedMultipart(MsgType *pPartType, MsgBody *pPartBody);
+static bool __MsgIsHexChar(char *pSrc);
+static char __MsgConvertHexValue(char *pSrc);
+static int __MsgConvertCharToInt(char ch);
+static bool __MsgCopyNestedMsgType(MsgType *pMsgType1, MsgType *pMsgType2);
+static bool __MsgCopyNestedMsgParam(MsgContentParam *pParam1, MsgContentParam *pParam2);
+static bool __MsgIsMultipartMixed(int type);
+
+static bool __MsgIsInvalidFileNameChar(char ch);
+
+static int __MsgGetLatin2UTFCodeSize(unsigned char *szSrc, int nChar);
+static int __MsgLatin5code2UTF(unsigned char *des, int outBufSize, unsigned char *szSrc, int nChar);
+static int __MsgGetLatin52UTFCodeSize(unsigned char *szSrc, int nChar);
+static int __MsgLatin2UTF(unsigned char *des, int outBufSize, unsigned char *szSrc, int nChar);
+static int __MsgLatin7code2UTF(unsigned char *des, int outBufSize, unsigned char *szSrc, int nChar);
+static int __MsgGetLatin72UTFCodeSize(unsigned char *szSrc, int nChar);
+static int __MsgUnicode2UTF(unsigned char *des, int outBufSize, unsigned short *szSrc, int nChar);
+static int __MsgGetUnicode2UTFCodeSize(unsigned short *szSrc, int nChar);
+static bool __MmsAddrUtilCheckEmailAddress(char *pszAddr);
+static int __MsgCutUTFString(unsigned char *des, int outBufSize, unsigned char *szSrc, int nChar);
+static void __MsgMIMERemoveQuote(char *szSrc);
+static bool __MmsMultipartSaveAsTempFile(MsgType *pPartType, MsgBody *pPartBody, char *pszMailboxPath, char *pszMsgFilename, int index, bool bSave);
+
+static bool __MmsGetMediaPartData(MsgType *pPartType, MsgBody *pPartBody, FILE *pFile);
+static char *__MmsGetBinaryUTF8Data(char *pData, int nRead, int msgEncodingValue, int msgTypeValue, int msgCharsetValue, int *npRead);
+
+#ifndef	__SUPPORT_DRM__
+static bool __MsgMakeFileName(int iMsgType, char *szFileName, int nUntitleIndex);
+#else
+static bool __MsgMakeFileName(int iMsgType, char *szFileName, MsgDrmType drmType, int nUntitleIndex);
+#endif
+
+static bool __MmsDebugPrintMulitpartEntry(MsgMultipart *pMultipart, int index);
+
+static char gszMmsLoadBuf1[MSG_MMS_DECODE_BUFFER_MAX + 1] = {0, };
+static char gszMmsLoadBuf2[MSG_MMS_DECODE_BUFFER_MAX + 1] = {0, };
 
 static char *gpCurMmsDecodeBuff = NULL;
 static int gCurMmsDecodeBuffPos = 0;	/* next decoding position in gpCurMmsDecodeBuff  */
@@ -143,48 +206,16 @@ MmsHeader	mmsHeader =
 const UINT32 MMS_UINTVAR_LENGTH_1 =  0x0000007f;		//7bit
 const UINT32 MMS_UINTVAR_LENGTH_2 =  0x00003fff;		//14bit
 const UINT32 MMS_UINTVAR_LENGTH_3 =  0x001fffff;		//21bit
-
 #endif
 
-
-bool _MmsDecodeInitialize(void)
+static bool __MmsDecodeInitialize(void)
 {
 	MmsInitMsgType(&mmsHeader.msgType);
 	MmsInitMsgBody(&mmsHeader.msgBody);
-
 	return true;
 }
 
-bool __MmsSetMmsHeaderOwner(int msgID, char* pszNewOwner)
-{
-	if (pszNewOwner) {
-		// set new owner
-		MSG_DEBUG("__MmsSetMmsHeaderOwner: set (%s, msgID=%d)\n", pszNewOwner, msgID);
-
-		if ((mmsHeader.pszOwner = (char*)malloc(strlen(pszNewOwner) + 1)) == NULL)
-			return false;
-
-		memset (mmsHeader.pszOwner, 0, strlen(pszNewOwner) + 1) ;
-
-		strcpy(mmsHeader.pszOwner, pszNewOwner);
-		mmsHeader.bActive = true;
-		mmsHeader.msgID = msgID;
-	} else {
-		// delete current owner
-		if (mmsHeader.pszOwner)	{
-			MSG_DEBUG("__MmsSetMmsHeaderOwner: free (%s %d)\n", mmsHeader.pszOwner, msgID);
-			free(mmsHeader.pszOwner);
-			mmsHeader.pszOwner = NULL;
-		}
-		mmsHeader.bActive = false;
-		mmsHeader.msgID = -1;
-	}
-
-	return true;
-}
-
-
-void _MmsInitHeader()
+void MmsInitHeader()
 {
 	mmsHeader.type = MMS_MSGTYPE_ERROR;
 
@@ -192,10 +223,10 @@ void _MmsInitHeader()
 	mmsHeader.version = MMS_VERSION;
 	mmsHeader.date = 0;
 
-	MsgFreeHeaderAddress(mmsHeader.pFrom);
-	MsgFreeHeaderAddress(mmsHeader.pTo);
-	MsgFreeHeaderAddress(mmsHeader.pCc);
-	MsgFreeHeaderAddress(mmsHeader.pBcc);
+	__MsgFreeHeaderAddress(mmsHeader.pFrom);
+	__MsgFreeHeaderAddress(mmsHeader.pTo);
+	__MsgFreeHeaderAddress(mmsHeader.pCc);
+	__MsgFreeHeaderAddress(mmsHeader.pBcc);
 
 	mmsHeader.pFrom	= NULL;
 	mmsHeader.pTo = NULL;
@@ -239,12 +270,10 @@ void _MmsInitHeader()
 	mmsHeader.drmType = MSG_DRM_TYPE_NONE;
 #endif
 
-	_MmsDecodeInitialize();
+	__MmsDecodeInitialize();
 }
 
-
-
-void _MmsCleanDecodeBuff(void)
+static void __MmsCleanDecodeBuff(void)
 {
 	memset(gpMmsDecodeBuf1, 0, gMmsDecodeMaxLen + 1);
 	memset(gpMmsDecodeBuf2, 0, gMmsDecodeMaxLen + 1);
@@ -253,19 +282,18 @@ void _MmsCleanDecodeBuff(void)
 	gMmsDecodeBufLen = 0;
 }
 
-
-void _MmsRegisterDecodeBuffer(char *pInBuff1, char *pInBuff2, int maxLen)
+void MmsRegisterDecodeBuffer()
 {
-	gpMmsDecodeBuf1 = pInBuff1;
-	gpMmsDecodeBuf2 = pInBuff2;
+	gpMmsDecodeBuf1 = gszMmsLoadBuf1;
+	gpMmsDecodeBuf2 = gszMmsLoadBuf2;
 	gpCurMmsDecodeBuff = NULL;
 	gCurMmsDecodeBuffPos = 0;
-	gMmsDecodeMaxLen = maxLen;
+	gMmsDecodeMaxLen = MSG_MMS_DECODE_BUFFER_MAX;
 	gMmsDecodeCurOffset = 0;
 	gMmsDecodeBufLen = 0;
 }
 
-void _MmsUnregisterDecodeBuffer(void)
+void MmsUnregisterDecodeBuffer(void)
 {
 	gpMmsDecodeBuf1 = NULL;
 	gpMmsDecodeBuf2 = NULL;
@@ -277,11 +305,10 @@ void _MmsUnregisterDecodeBuffer(void)
 }
 
 
-int _MmsGetDecodeOffset(void)
+static int __MmsGetDecodeOffset(void)
 {
 	return (gMmsDecodeCurOffset - gMmsDecodeBufLen + gCurMmsDecodeBuffPos);
 }
-
 
 static bool __MmsBinaryDecodeCheckAndDecreaseLength(int *pLength, int valueLength)
 {
@@ -356,32 +383,32 @@ bool MmsBinaryDecodeMsgHeader(FILE *pFile, int totalLength)
 	char *pLimitData = NULL;
 	int nRead = 0;
 
-	MSG_DEBUG("MmsBinaryDecodeMsgHeader: pFile=%d, total len=%d\n", pFile, totalLength);
+	MSG_DEBUG("pFile=%d, total len=%d\n", pFile, totalLength);
 
-	_MmsCleanDecodeBuff();
+	__MmsCleanDecodeBuff();
 
-	if (MsgLoadDataToDecodeBuffer(pFile, &gpCurMmsDecodeBuff, &gCurMmsDecodeBuffPos,
+	if (__MsgLoadDataToDecodeBuffer(pFile, &gpCurMmsDecodeBuff, &gCurMmsDecodeBuffPos,
 								   &gMmsDecodeCurOffset, gpMmsDecodeBuf1, gpMmsDecodeBuf2,
 								   gMmsDecodeMaxLen, &gMmsDecodeBufLen, totalLength) == false) {
-		MSG_DEBUG("MmsBinaryDecodeMsgHeader: fail to load to buffer \n");
+		MSG_DEBUG("fail to load to buffer \n");
 		goto __CATCH;
 	}
 
-	while (_MmsBinaryDecodeGetOneByte(pFile, &oneByte, totalLength)) {
+	while (__MmsBinaryDecodeGetOneByte(pFile, &oneByte, totalLength)) {
 		fieldCode = oneByte & 0x7f;
 
-		switch (_MmsGetBinaryType(MmsCodeFieldCode, fieldCode)) {
+		switch (MmsGetBinaryType(MmsCodeFieldCode, fieldCode)) {
 		case MMS_CODE_RESPONSESTATUS:
 
-			if (_MmsBinaryDecodeGetOneByte(pFile, &oneByte, totalLength) == false) {
-				MSG_DEBUG("MmsBinaryDecodeMsgHeader: responseStatus GetOneByte fail\n");
+			if (__MmsBinaryDecodeGetOneByte(pFile, &oneByte, totalLength) == false) {
+				MSG_DEBUG("responseStatus GetOneByte fail\n");
 				goto __CATCH;
 			}
 
-			fieldValue = _MmsGetBinaryType(MmsCodeResponseStatus, (UINT16)(oneByte & 0x7F));
+			fieldValue = MmsGetBinaryType(MmsCodeResponseStatus, (UINT16)(oneByte & 0x7F));
 
 			if (fieldValue == 0xFFFF) {
-				MSG_DEBUG("MmsBinaryDecodeMsgHeader: responseStatus error\n");
+				MSG_DEBUG("responseStatus error\n");
 				goto __CATCH;
 			}
 
@@ -393,21 +420,21 @@ bool MmsBinaryDecodeMsgHeader(FILE *pFile, int totalLength)
 
 			mmsHeader.responseStatus = (MmsResponseStatus)fieldValue;
 
-			MSG_DEBUG("MmsBinaryDecodeMsgHeader: response status = %s\n", MmsDebugGetResponseStatus(mmsHeader.responseStatus));
+			MSG_DEBUG("response status = %s\n", MmsDebugGetResponseStatus(mmsHeader.responseStatus));
 
 			break;
 
 		case MMS_CODE_RETRIEVESTATUS:
 
-			if (_MmsBinaryDecodeGetOneByte(pFile, &oneByte, totalLength) == false) {
-				MSG_DEBUG("MmsBinaryDecodeMsgHeader: retrieveStatus GetOneByte fail\n");
+			if (__MmsBinaryDecodeGetOneByte(pFile, &oneByte, totalLength) == false) {
+				MSG_DEBUG("retrieveStatus GetOneByte fail\n");
 				goto __CATCH;
 			}
 
-			fieldValue = _MmsGetBinaryType(MmsCodeRetrieveStatus, (UINT16)(oneByte & 0x7F));
+			fieldValue = MmsGetBinaryType(MmsCodeRetrieveStatus, (UINT16)(oneByte & 0x7F));
 
 			if (fieldValue == 0xFFFF) {
-				MSG_DEBUG("MmsBinaryDecodeMsgHeader: retrieveStatus error\n");
+				MSG_DEBUG("retrieveStatus error\n");
 				goto __CATCH;
 			}
 
@@ -419,7 +446,7 @@ bool MmsBinaryDecodeMsgHeader(FILE *pFile, int totalLength)
 
 			mmsHeader.retrieveStatus = (MmsRetrieveStatus)fieldValue;
 
-			MSG_DEBUG("MmsBinaryDecodeMsgHeader: retrieve status = %s\n",
+			MSG_DEBUG("retrieve status = %s\n",
 															MmsDebugGetRetrieveStatus(mmsHeader.retrieveStatus));
 
 			break;
@@ -427,53 +454,53 @@ bool MmsBinaryDecodeMsgHeader(FILE *pFile, int totalLength)
 		case MMS_CODE_RESPONSETEXT:
 
 			if (__MmsBinaryDecodeEncodedString(pFile, mmsHeader.szResponseText, MMS_LOCALE_RESP_TEXT_LEN + 1, totalLength) == false) {
-				MSG_DEBUG("MmsBinaryDecodeMsgHeader : invalid MMS_CODE_RESPONSETEXT \n");
+				MSG_DEBUG("invalid MMS_CODE_RESPONSETEXT \n");
 				goto __CATCH;
 			}
 
-			MSG_DEBUG("MmsBinaryDecodeMsgHeader: response text = %s\n", mmsHeader.szResponseText);
+			MSG_DEBUG("response text = %s\n", mmsHeader.szResponseText);
 			break;
 
 		case MMS_CODE_RETRIEVETEXT:
 
 			if (__MmsBinaryDecodeEncodedString(pFile, mmsHeader.szRetrieveText, MMS_LOCALE_RESP_TEXT_LEN + 1, totalLength) == false) {
-				MSG_DEBUG("MmsBinaryDecodeMsgHeader : invalid MMS_CODE_RETRIEVETEXT \n");
+				MSG_DEBUG("invalid MMS_CODE_RETRIEVETEXT \n");
 				goto __CATCH;
 			}
 
-			MSG_DEBUG("MmsBinaryDecodeMsgHeader: retrieve text = %s\n", mmsHeader.szResponseText);
+			MSG_DEBUG("retrieve text = %s\n", mmsHeader.szResponseText);
 			break;
 
 		case MMS_CODE_MSGID:
 
 			if (__MmsBinaryDecodeText(pFile, mmsHeader.szMsgID, MMS_MSG_ID_LEN + 1, totalLength) < 0) {
-				MSG_DEBUG("MmsBinaryDecodeMsgHeader : MMS_CODE_MSGID is invalid\n");
+				MSG_DEBUG("MMS_CODE_MSGID is invalid\n");
 				goto __CATCH;
 			}
 
-			MSG_DEBUG("MmsBinaryDecodeMsgHeader: msg id = %s\n", mmsHeader.szMsgID);
+			MSG_DEBUG("msg id = %s\n", mmsHeader.szMsgID);
 
 			if (MsgStrlen (mmsHeader.szMsgID) > 2)
-				MsgMIMERemoveQuote (mmsHeader.szMsgID);
+				__MsgMIMERemoveQuote (mmsHeader.szMsgID);
 
 			break;
 
 		case MMS_CODE_SUBJECT:
 
 			if (__MmsBinaryDecodeEncodedString(pFile, mmsHeader.szSubject, MSG_LOCALE_SUBJ_LEN + 1, totalLength) == false) {
-				MSG_DEBUG("MmsBinaryDecodeMsgHeader : invalid MMS_CODE_SUBJECT \n");
+				MSG_DEBUG("invalid MMS_CODE_SUBJECT \n");
 				goto __CATCH;
 			}
 
 			pLimitData = (char *)malloc(MSG_LOCALE_SUBJ_LEN + 1);
 
 			if (pLimitData == NULL) {
-				MSG_DEBUG("MmsBinaryDecodeMsgHeader : pLimitData malloc fail \n");
+				MSG_DEBUG("pLimitData malloc fail \n");
 				goto __CATCH;
 			}
 
-			nRead = MsgCutUTFString((unsigned char*)pLimitData, MSG_LOCALE_SUBJ_LEN + 1, (unsigned char*)mmsHeader.szSubject, MSG_SUBJ_LEN);
-			MSG_DEBUG("MmsBinaryDecodeMsgHeader : Subject edit.. \n");
+			nRead = __MsgCutUTFString((unsigned char*)pLimitData, MSG_LOCALE_SUBJ_LEN + 1, (unsigned char*)mmsHeader.szSubject, MSG_SUBJ_LEN);
+			MSG_DEBUG("Subject edit.. \n");
 
 			if (nRead > MSG_LOCALE_SUBJ_LEN) {
 				memset(mmsHeader.szSubject, 0 , sizeof(mmsHeader.szSubject));
@@ -488,7 +515,7 @@ bool MmsBinaryDecodeMsgHeader(FILE *pFile, int totalLength)
 				pLimitData = NULL;
 			}
 
-			MSG_DEBUG("MmsBinaryDecodeMsgHeader: subject = %s\n", mmsHeader.szSubject);
+			MSG_DEBUG("subject = %s\n", mmsHeader.szSubject);
 			break;
 
 		case MMS_CODE_FROM:
@@ -496,12 +523,12 @@ bool MmsBinaryDecodeMsgHeader(FILE *pFile, int totalLength)
 			/* Value-length (Address-present-token Encoded-string-value | Insert-address-token) */
 
 			if (__MmsDecodeValueLength(pFile, &valueLength, totalLength) <= 0) {
-				MSG_DEBUG("MmsBinaryDecodeMsgHeader : MMS_CODE_FROM is invalid\n");
+				MSG_DEBUG("MMS_CODE_FROM is invalid\n");
 				goto __CATCH;
 			}
 
-			if (_MmsBinaryDecodeGetOneByte(pFile, &oneByte, totalLength) == false) {
-				MSG_DEBUG("MmsBinaryDecodeMsgHeader: MMS_CODE_FROM GetOneByte fail\n");
+			if (__MmsBinaryDecodeGetOneByte(pFile, &oneByte, totalLength) == false) {
+				MSG_DEBUG("MMS_CODE_FROM GetOneByte fail\n");
 				goto __CATCH;
 			}
 
@@ -509,11 +536,11 @@ bool MmsBinaryDecodeMsgHeader(FILE *pFile, int totalLength)
 
 			valueLength--;
 
-			if (oneByte == (_MmsGetBinaryValue(MmsCodeAddressType, MMS_ADDRESS_PRESENT_TOKEN)|0x80)) {
+			if (oneByte == (MmsGetBinaryValue(MmsCodeAddressType, MMS_ADDRESS_PRESENT_TOKEN)|0x80)) {
 				if (valueLength > 0) {
 					mmsHeader.pFrom = __MmsDecodeEncodedAddress(pFile, totalLength);
 					if (mmsHeader.pFrom == NULL) {
-						MSG_DEBUG("MmsBinaryDecodeMsgHeader : MMS_CODE_FROM __MmsDecodeEncodedAddress fail\n");
+						MSG_DEBUG("MMS_CODE_FROM __MmsDecodeEncodedAddress fail\n");
 						goto __CATCH;
 					}
 				} else {
@@ -532,14 +559,14 @@ bool MmsBinaryDecodeMsgHeader(FILE *pFile, int totalLength)
 					mmsHeader.pFrom->pNext = NULL;
 				}
 
-				MSG_DEBUG("MmsBinaryDecodeMsgHeader: from = %s\n", mmsHeader.pFrom->szAddr);
+				MSG_DEBUG("from = %s\n", mmsHeader.pFrom->szAddr);
 				// DRM_TEMPLATE - end
-			} else if (oneByte == (_MmsGetBinaryValue(MmsCodeAddressType, MMS_INSERT_ADDRESS_TOKEN)|0x80)) {
+			} else if (oneByte == (MmsGetBinaryValue(MmsCodeAddressType, MMS_INSERT_ADDRESS_TOKEN)|0x80)) {
 				/* Present Token only */
-				MSG_DEBUG("MmsBinaryDecodeMsgHeader : MMS_CODE_FROM insert token\n");
+				MSG_DEBUG("MMS_CODE_FROM insert token\n");
 			} else {
 				/* from data broken */
-				MSG_DEBUG("MmsBinaryDecodeMsgHeader: from addr broken\n");
+				MSG_DEBUG("from addr broken\n");
 				gCurMmsDecodeBuffPos--;
 				goto __CATCH;
 			}
@@ -549,7 +576,7 @@ bool MmsBinaryDecodeMsgHeader(FILE *pFile, int totalLength)
 
 			pAddr = __MmsDecodeEncodedAddress(pFile, totalLength);
 			if (pAddr == NULL) {
-				MSG_DEBUG("MmsBinaryDecodeMsgHeader : MMS_CODE_TO __MmsDecodeEncodedAddress fail\n");
+				MSG_DEBUG("MMS_CODE_TO __MmsDecodeEncodedAddress fail\n");
 				goto __CATCH;
 			}
 
@@ -562,14 +589,14 @@ bool MmsBinaryDecodeMsgHeader(FILE *pFile, int totalLength)
 				pLastTo = pAddr;
 			}
 
-			MSG_DEBUG("MmsBinaryDecodeMsgHeader: to = %s\n", mmsHeader.pTo->szAddr);
+			MSG_DEBUG("to = %s\n", mmsHeader.pTo->szAddr);
 			break;
 
 		case MMS_CODE_BCC:
 
 			pAddr = __MmsDecodeEncodedAddress(pFile, totalLength);
 			if (pAddr == NULL) {
-				MSG_DEBUG("MmsBinaryDecodeMsgHeader : MMS_CODE_BCC __MmsDecodeEncodedAddress fail\n");
+				MSG_DEBUG("MMS_CODE_BCC __MmsDecodeEncodedAddress fail\n");
 				goto __CATCH;
 			}
 
@@ -582,14 +609,14 @@ bool MmsBinaryDecodeMsgHeader(FILE *pFile, int totalLength)
 				pLastBcc = pAddr;
 			}
 
-			MSG_DEBUG("MmsBinaryDecodeMsgHeader: bcc = %s\n", mmsHeader.pBcc->szAddr);
+			MSG_DEBUG("bcc = %s\n", mmsHeader.pBcc->szAddr);
 			break;
 
 		case MMS_CODE_CC:
 
 			pAddr = __MmsDecodeEncodedAddress(pFile, totalLength);
 			if (pAddr == NULL) {
-				MSG_DEBUG("MmsBinaryDecodeMsgHeader : MMS_CODE_CC __MmsDecodeEncodedAddress fail\n");
+				MSG_DEBUG("MMS_CODE_CC __MmsDecodeEncodedAddress fail\n");
 				goto __CATCH;
 			}
 
@@ -601,44 +628,44 @@ bool MmsBinaryDecodeMsgHeader(FILE *pFile, int totalLength)
 					pLastCc->pNext = pAddr;
 				pLastCc	= pAddr;
 			}
-			MSG_DEBUG("MmsBinaryDecodeMsgHeader: cc = %s\n", mmsHeader.pCc->szAddr);
+			MSG_DEBUG("cc = %s\n", mmsHeader.pCc->szAddr);
 			break;
 
 		case MMS_CODE_CONTENTLOCATION:
 
 			if (__MmsBinaryDecodeText(pFile, mmsHeader.szContentLocation, MMS_LOCATION_LEN + 1, totalLength) < 0) {
-				MSG_DEBUG("MmsBinaryDecodeMsgHeader : MMS_CODE_CONTENTLOCATION is invalid\n");
+				MSG_DEBUG("MMS_CODE_CONTENTLOCATION is invalid\n");
 				goto __CATCH;
 			}
-			MSG_DEBUG("MmsBinaryDecodeMsgHeader: content location = %s\n", mmsHeader.szContentLocation);
+			MSG_DEBUG("content location = %s\n", mmsHeader.szContentLocation);
 			break;
 
 		case MMS_CODE_DATE:
 
 			if (__MmsDecodeLongInteger(pFile, (UINT32*)&mmsHeader.date, totalLength) == false) {
-				MSG_DEBUG("MmsBinaryDecodeMsgHeader : MMS_CODE_DATE is invalid\n");
+				MSG_DEBUG("MMS_CODE_DATE is invalid\n");
 				goto __CATCH;
 			}
-			MSG_DEBUG("MmsBinaryDecodeMsgHeader: date = %d\n", mmsHeader.date);
+			MSG_DEBUG("date = %d\n", mmsHeader.date);
 			break;
 
 		case MMS_CODE_DELIVERYREPORT:
 
-			if (_MmsBinaryDecodeGetOneByte(pFile, &oneByte, totalLength) == false) {
-				MSG_DEBUG("MmsBinaryDecodeMsgHeader: deliveryReport GetOneByte fail\n");
+			if (__MmsBinaryDecodeGetOneByte(pFile, &oneByte, totalLength) == false) {
+				MSG_DEBUG("deliveryReport GetOneByte fail\n");
 				goto __CATCH;
 			}
 
-			fieldValue = _MmsGetBinaryType(MmsCodeDeliveryReport, (UINT16)(oneByte & 0x7F));
+			fieldValue = MmsGetBinaryType(MmsCodeDeliveryReport, (UINT16)(oneByte & 0x7F));
 
 			if (fieldValue == 0xFFFF) {
-				MSG_DEBUG("MmsBinaryDecodeMsgHeader: deliveryReport error\n");
+				MSG_DEBUG("deliveryReport error\n");
 				goto __CATCH;
 			}
 
 			mmsHeader.deliveryReport = (MmsReport)fieldValue;
 
-			MSG_DEBUG("MmsBinaryDecodeMsgHeader: delivery report=%s\n", MmsDebugGetMmsReport(mmsHeader.deliveryReport));
+			MSG_DEBUG("delivery report=%s\n", MmsDebugGetMmsReport(mmsHeader.deliveryReport));
 			break;
 
 		case MMS_CODE_DELIVERYTIME:
@@ -646,24 +673,24 @@ bool MmsBinaryDecodeMsgHeader(FILE *pFile, int totalLength)
 			/* value_length (absolute-token Long-integer | Relative-token Long-integer) */
 
 			if (__MmsDecodeValueLength(pFile, &valueLength, totalLength) <= 0) {
-				MSG_DEBUG("MmsBinaryDecodeMsgHeader : invalid MMS_CODE_DELIVERYTIME \n");
+				MSG_DEBUG("invalid MMS_CODE_DELIVERYTIME \n");
 				goto __CATCH;
 			}
 
-			if (_MmsBinaryDecodeGetOneByte(pFile, &oneByte, totalLength) == false) {
-				MSG_DEBUG("MmsBinaryDecodeMsgHeader: delivery time GetOneByte fail\n");
+			if (__MmsBinaryDecodeGetOneByte(pFile, &oneByte, totalLength) == false) {
+				MSG_DEBUG("delivery time GetOneByte fail\n");
 				goto __CATCH;
 			}
 
 			//DRM_TEMPLATE - start
 			valueLength--;
 
-			if (oneByte == (_MmsGetBinaryValue(MmsCodeTimeType, MMS_TIMETYPE_ABSOLUTE)|0x80)) {
+			if (oneByte == (MmsGetBinaryValue(MmsCodeTimeType, MMS_TIMETYPE_ABSOLUTE)|0x80)) {
 				mmsHeader.deliveryTime.type = MMS_TIMETYPE_ABSOLUTE;
 
 				if (valueLength > 0) {
 					if (__MmsDecodeLongInteger(pFile, (UINT32*)&mmsHeader.deliveryTime.time, totalLength) == false)	{
-						MSG_DEBUG("MmsBinaryDecodeMsgHeader : invalid MMS_CODE_DELIVERYTIME\n");
+						MSG_DEBUG("invalid MMS_CODE_DELIVERYTIME\n");
 						goto __CATCH;
 					}
 				}
@@ -672,11 +699,11 @@ bool MmsBinaryDecodeMsgHeader(FILE *pFile, int totalLength)
 				mmsHeader.deliveryTime.type = MMS_TIMETYPE_RELATIVE;
 
 				if (__MmsBinaryDecodeInteger(pFile, (UINT32*)&mmsHeader.deliveryTime.time, &tmpIntLen, totalLength) == false) {
-					MSG_DEBUG("MmsBinaryDecodeMsgHeader : __MmsBinaryDecodeInteger fail...\n");
+					MSG_DEBUG("__MmsBinaryDecodeInteger fail...\n");
 					goto __CATCH;
 				}
 			}
-			MSG_DEBUG("MmsBinaryDecodeMsgHeader: delivery type=%d, time=%d\n", mmsHeader.deliveryTime.type, mmsHeader.deliveryTime.time);
+			MSG_DEBUG("delivery type=%d, time=%d\n", mmsHeader.deliveryTime.type, mmsHeader.deliveryTime.time);
 			break;
 
 		case MMS_CODE_EXPIRYTIME:
@@ -684,24 +711,24 @@ bool MmsBinaryDecodeMsgHeader(FILE *pFile, int totalLength)
 			/* value_length(absolute-token Long-integer | Relative-token Long-integer) */
 
 			if (__MmsDecodeValueLength(pFile, &valueLength, totalLength) <= 0) {
-				MSG_DEBUG("MmsBinaryDecodeMsgHeader : invalid MMS_CODE_EXPIRYTIME \n");
+				MSG_DEBUG("invalid MMS_CODE_EXPIRYTIME \n");
 				goto __CATCH;
 			}
 
-			if (_MmsBinaryDecodeGetOneByte(pFile, &oneByte, totalLength) == false) {
-				MSG_DEBUG("MmsBinaryDecodeMsgHeader: expiry time GetOneByte fail\n");
+			if (__MmsBinaryDecodeGetOneByte(pFile, &oneByte, totalLength) == false) {
+				MSG_DEBUG("expiry time GetOneByte fail\n");
 				goto __CATCH;
 			}
 
 			// DRM_TEMPLATE - start
 			valueLength--;
 
-			if (oneByte == (_MmsGetBinaryValue(MmsCodeTimeType, MMS_TIMETYPE_ABSOLUTE)|0x80)) {
+			if (oneByte == (MmsGetBinaryValue(MmsCodeTimeType, MMS_TIMETYPE_ABSOLUTE)|0x80)) {
 				mmsHeader.expiryTime.type = MMS_TIMETYPE_ABSOLUTE;
 
 				if (valueLength > 0) {
 					if (__MmsDecodeLongInteger(pFile, (UINT32*)&mmsHeader.expiryTime.time, totalLength) == false) {
-						MSG_DEBUG("MmsBinaryDecodeMsgHeader : MMS_CODE_EXPIRYTIME is invalid\n");
+						MSG_DEBUG("MMS_CODE_EXPIRYTIME is invalid\n");
 						goto __CATCH;
 					}
 				}
@@ -710,103 +737,103 @@ bool MmsBinaryDecodeMsgHeader(FILE *pFile, int totalLength)
 				mmsHeader.expiryTime.type = MMS_TIMETYPE_RELATIVE;
 
 				if (__MmsBinaryDecodeInteger(pFile, (UINT32*)&mmsHeader.expiryTime.time, &tmpIntLen, totalLength) == false) {
-					MSG_DEBUG("MmsBinaryDecodeMsgHeader : __MmsBinaryDecodeInteger fail...\n");
+					MSG_DEBUG("__MmsBinaryDecodeInteger fail...\n");
 					goto __CATCH;
 				}
 			}
-			MSG_DEBUG("MmsBinaryDecodeMsgHeader: expiry = %d\n", mmsHeader.expiryTime.time);
+			MSG_DEBUG("expiry = %d\n", mmsHeader.expiryTime.time);
 			break;
 
 		case MMS_CODE_MSGCLASS:
 
 			/* Class-value = Class-identifier | Token Text */
 
-			if (_MmsBinaryDecodeGetOneByte(pFile, &oneByte, totalLength) == false) {
-				MSG_DEBUG("MmsBinaryDecodeMsgHeader: msgClass GetOneByte fail\n");
+			if (__MmsBinaryDecodeGetOneByte(pFile, &oneByte, totalLength) == false) {
+				MSG_DEBUG("msgClass GetOneByte fail\n");
 				goto __CATCH;
 			}
 
 			if (oneByte > 0x7f) {
 				/* Class-identifier */
-				mmsHeader.msgClass = (MmsMsgClass)_MmsGetBinaryType(MmsCodeMsgClass, (UINT16)(oneByte & 0x7F));
+				mmsHeader.msgClass = (MmsMsgClass)MmsGetBinaryType(MmsCodeMsgClass, (UINT16)(oneByte & 0x7F));
 			} else {
 				if (__MmsBinaryDecodeText(pFile, szGarbageBuff, MSG_STDSTR_LONG, totalLength) < 0) {
-					MSG_DEBUG("MmsBinaryDecodeMsgHeader: 1. __MmsBinaryDecodeText fail. (class)\n");
+					MSG_DEBUG("1. __MmsBinaryDecodeText fail. (class)\n");
 					goto __CATCH;
 				}
 			}
-			MSG_DEBUG("MmsBinaryDecodeMsgHeader: msg class=%s\n", MmsDebugGetMsgClass(mmsHeader.msgClass));
+			MSG_DEBUG("msg class=%s\n", MmsDebugGetMsgClass(mmsHeader.msgClass));
 			break;
 
 		case MMS_CODE_MSGSIZE:
 
 			if (__MmsDecodeLongInteger(pFile, (UINT32*)&mmsHeader.msgSize, totalLength) == false) {
-				MSG_DEBUG("MmsBinaryDecodeMsgHeader : MMS_CODE_MSGSIZE is invalid\n");
+				MSG_DEBUG("MMS_CODE_MSGSIZE is invalid\n");
 				goto __CATCH;
 			}
-			MSG_DEBUG("MmsBinaryDecodeMsgHeader: msg size = %d\n", mmsHeader.msgSize);
+			MSG_DEBUG("msg size = %d\n", mmsHeader.msgSize);
 			break;
 
 		case MMS_CODE_MSGSTATUS:
 
-			if (_MmsBinaryDecodeGetOneByte(pFile, &oneByte, totalLength) == false) {
-				MSG_DEBUG("MmsBinaryDecodeMsgHeader: msgStatus GetOneByte fail\n");
+			if (__MmsBinaryDecodeGetOneByte(pFile, &oneByte, totalLength) == false) {
+				MSG_DEBUG("msgStatus GetOneByte fail\n");
 				goto __CATCH;
 			}
 
-			mmsHeader.msgStatus =  (msg_delivery_report_status_t)_MmsGetBinaryType(MmsCodeMsgStatus, (UINT16)(oneByte & 0x7F));
-			MSG_DEBUG("MmsBinaryDecodeMsgHeader: msg status=%s \n", MmsDebugGetMsgStatus(mmsHeader.msgStatus)) ;
+			mmsHeader.msgStatus =  (msg_delivery_report_status_t)MmsGetBinaryType(MmsCodeMsgStatus, (UINT16)(oneByte & 0x7F));
+			MSG_DEBUG("msg status=%s \n", MmsDebugGetMsgStatus(mmsHeader.msgStatus)) ;
 			break;
 
 		case MMS_CODE_MSGTYPE:
 
-			if (_MmsBinaryDecodeGetOneByte(pFile, &oneByte, totalLength) == false) {
-				MSG_DEBUG("MmsBinaryDecodeMsgHeader: msgStatus GetOneByte fail\n");
+			if (__MmsBinaryDecodeGetOneByte(pFile, &oneByte, totalLength) == false) {
+				MSG_DEBUG("msgStatus GetOneByte fail\n");
 				goto __CATCH;
 			}
 
-			mmsHeader.type = (MmsMsgType)_MmsGetBinaryType(MmsCodeMsgType, (UINT16)(oneByte & 0x7F));
-			MSG_DEBUG("MmsBinaryDecodeMsgHeader: msg type=%s\n", MmsDebugGetMsgType(mmsHeader.type));
+			mmsHeader.type = (MmsMsgType)MmsGetBinaryType(MmsCodeMsgType, (UINT16)(oneByte & 0x7F));
+			MSG_DEBUG("msg type=%s\n", MmsDebugGetMsgType(mmsHeader.type));
 			break;
 
 		case MMS_CODE_PRIORITY:
 
-			if (_MmsBinaryDecodeGetOneByte(pFile, &oneByte, totalLength) == false) {
-				MSG_DEBUG("MmsBinaryDecodeMsgHeader: msgStatus GetOneByte fail\n");
+			if (__MmsBinaryDecodeGetOneByte(pFile, &oneByte, totalLength) == false) {
+				MSG_DEBUG("msgStatus GetOneByte fail\n");
 				goto __CATCH;
 			}
-			mmsHeader.priority = (MmsPriority)_MmsGetBinaryType(MmsCodePriority, (UINT16)(oneByte & 0x7F));
-			MSG_DEBUG("MmsBinaryDecodeMsgHeader: priority=%d\n", mmsHeader.priority);
+			mmsHeader.priority = (MmsPriority)MmsGetBinaryType(MmsCodePriority, (UINT16)(oneByte & 0x7F));
+			MSG_DEBUG("priority=%d\n", mmsHeader.priority);
 			break;
 
 		case MMS_CODE_READREPLY:
 
-			if (_MmsBinaryDecodeGetOneByte(pFile, &oneByte, totalLength) == false) {
-				MSG_DEBUG("MmsBinaryDecodeMsgHeader: msgStatus GetOneByte fail\n");
+			if (__MmsBinaryDecodeGetOneByte(pFile, &oneByte, totalLength) == false) {
+				MSG_DEBUG("msgStatus GetOneByte fail\n");
 				goto __CATCH;
 			}
-			mmsHeader.readReply = (MmsReport)_MmsGetBinaryType(MmsCodeReadReply, (UINT16)(oneByte & 0x7F));
-			MSG_DEBUG("MmsBinaryDecodeMsgHeader: read reply=%s \n", MmsDebugGetMmsReport(mmsHeader.readReply));
+			mmsHeader.readReply = (MmsReport)MmsGetBinaryType(MmsCodeReadReply, (UINT16)(oneByte & 0x7F));
+			MSG_DEBUG("read reply=%s \n", MmsDebugGetMmsReport(mmsHeader.readReply));
 			break;
 
 		case MMS_CODE_REPORTALLOWED:
 
-			if (_MmsBinaryDecodeGetOneByte(pFile, &oneByte, totalLength) == false) {
-				MSG_DEBUG("MmsBinaryDecodeMsgHeader: msgStatus GetOneByte fail\n");
+			if (__MmsBinaryDecodeGetOneByte(pFile, &oneByte, totalLength) == false) {
+				MSG_DEBUG("msgStatus GetOneByte fail\n");
 				goto __CATCH;
 			}
-			mmsHeader.reportAllowed =  (MmsReportAllowed)_MmsGetBinaryType(MmsCodeReportAllowed, (UINT16)(oneByte & 0x7F));
-			MSG_DEBUG("MmsBinaryDecodeMsgHeader: mmsHeader.reportAllowed=%d\n", MmsDebugGetMmsReportAllowed(mmsHeader.reportAllowed));
+			mmsHeader.reportAllowed =  (MmsReportAllowed)MmsGetBinaryType(MmsCodeReportAllowed, (UINT16)(oneByte & 0x7F));
+			MSG_DEBUG("mmsHeader.reportAllowed=%d\n", MmsDebugGetMmsReportAllowed(mmsHeader.reportAllowed));
 			break;
 
 		case MMS_CODE_SENDERVISIBILLITY:
 
-			if (_MmsBinaryDecodeGetOneByte(pFile, &oneByte, totalLength) == false) {
-				MSG_DEBUG("MmsBinaryDecodeMsgHeader: msgStatus GetOneByte fail\n");
+			if (__MmsBinaryDecodeGetOneByte(pFile, &oneByte, totalLength) == false) {
+				MSG_DEBUG("msgStatus GetOneByte fail\n");
 				goto __CATCH;
 			}
-			mmsHeader.hideAddress= (MmsSenderVisible)!(_MmsGetBinaryType(MmsCodeSenderVisibility, (UINT16)(oneByte &0x7F)));
-			MSG_DEBUG("MmsBinaryDecodeMsgHeader: sender visible=%d \n", mmsHeader.hideAddress);
+			mmsHeader.hideAddress= (MmsSenderVisible)!(MmsGetBinaryType(MmsCodeSenderVisibility, (UINT16)(oneByte &0x7F)));
+			MSG_DEBUG("sender visible=%d \n", mmsHeader.hideAddress);
 			break;
 
 		case MMS_CODE_TRID:
@@ -815,17 +842,17 @@ bool MmsBinaryDecodeMsgHeader(FILE *pFile, int totalLength)
 				MSG_DEBUG("Transaction ID Too Long \n");
 				goto __CATCH;
 			}
-			MSG_DEBUG("MmsBinaryDecodeMsgHeader: trID = %s\n", mmsHeader.szTrID);
+			MSG_DEBUG("trID = %s\n", mmsHeader.szTrID);
 			break;
 
 		case MMS_CODE_VERSION:
-			if (_MmsBinaryDecodeGetOneByte(pFile, &oneByte, totalLength) == false) {
-				MSG_DEBUG("MmsBinaryDecodeMsgHeader: msgStatus GetOneByte fail\n");
+			if (__MmsBinaryDecodeGetOneByte(pFile, &oneByte, totalLength) == false) {
+				MSG_DEBUG("msgStatus GetOneByte fail\n");
 				goto __CATCH;
 			}
 			mmsHeader.version = oneByte;
 
-			MSG_DEBUG("MmsBinaryDecodeMsgHeader: ver = 0x%x\n", mmsHeader.version);
+			MSG_DEBUG("ver = 0x%x\n", mmsHeader.version);
 			break;
 
 		case MMS_CODE_CONTENTTYPE:
@@ -844,26 +871,26 @@ bool MmsBinaryDecodeMsgHeader(FILE *pFile, int totalLength)
 
 			/* Read-status-value = Read | Deleted without being read */
 
-			if (_MmsBinaryDecodeGetOneByte(pFile, &oneByte, totalLength) == false) {
-				MSG_DEBUG("MmsBinaryDecodeMsgHeader: msgStatus GetOneByte fail\n");
+			if (__MmsBinaryDecodeGetOneByte(pFile, &oneByte, totalLength) == false) {
+				MSG_DEBUG("msgStatus GetOneByte fail\n");
 				goto __CATCH;
 			}
 
-			mmsHeader.readStatus =  (msg_read_report_status_t)_MmsGetBinaryType(MmsCodeReadStatus, (UINT16)(oneByte & 0x7F));
-			MSG_DEBUG("MmsBinaryDecodeMsgHeader: read status=%s\n", MmsDebugGetMmsReadStatus(mmsHeader.readStatus));
+			mmsHeader.readStatus =  (msg_read_report_status_t)MmsGetBinaryType(MmsCodeReadStatus, (UINT16)(oneByte & 0x7F));
+			MSG_DEBUG("read status=%s\n", MmsDebugGetMmsReadStatus(mmsHeader.readStatus));
 			break;
 
 		case MMS_CODE_REPLYCHARGING:
 
 			/* Reply-charging-value = Requested | Requested text only | Accepted | Accepted text only */
 
-			if (_MmsBinaryDecodeGetOneByte(pFile, &oneByte, totalLength) == false) {
-				MSG_DEBUG("MmsBinaryDecodeMsgHeader: msgStatus GetOneByte fail\n");
+			if (__MmsBinaryDecodeGetOneByte(pFile, &oneByte, totalLength) == false) {
+				MSG_DEBUG("msgStatus GetOneByte fail\n");
 				goto __CATCH;
 			}
 
-			mmsHeader.replyCharge.chargeType =  (MmsReplyChargeType)_MmsGetBinaryType(MmsCodeReplyCharging, (UINT16)(oneByte & 0x7F));
-			MSG_DEBUG("MmsBinaryDecodeMsgHeader: mmsHeader.reply charge=%d\n", mmsHeader.replyCharge.chargeType);
+			mmsHeader.replyCharge.chargeType =  (MmsReplyChargeType)MmsGetBinaryType(MmsCodeReplyCharging, (UINT16)(oneByte & 0x7F));
+			MSG_DEBUG("mmsHeader.reply charge=%d\n", mmsHeader.replyCharge.chargeType);
 			break;
 
 		case MMS_CODE_REPLYCHARGINGDEADLINE:
@@ -871,16 +898,16 @@ bool MmsBinaryDecodeMsgHeader(FILE *pFile, int totalLength)
 			/* Reply-charging-deadline-value = Value-length (Absolute-token Date-value | Relative-token Delta-seconds-value) */
 
 			if (__MmsDecodeValueLength(pFile, &valueLength, totalLength) <= 0) {
-				MSG_DEBUG("MmsBinaryDecodeMsgHeader : invalid MMS_CODE_REPLYCHARGINGDEADLINE \n");
+				MSG_DEBUG("invalid MMS_CODE_REPLYCHARGINGDEADLINE \n");
 				goto __CATCH;
 			}
 
-			if (_MmsBinaryDecodeGetOneByte(pFile, &oneByte, totalLength) == false) {
-				MSG_DEBUG("MmsBinaryDecodeMsgHeader: msgStatus GetOneByte fail\n");
+			if (__MmsBinaryDecodeGetOneByte(pFile, &oneByte, totalLength) == false) {
+				MSG_DEBUG("msgStatus GetOneByte fail\n");
 				goto __CATCH;
 			}
 
-			if (oneByte == (_MmsGetBinaryValue(MmsCodeTimeType, MMS_TIMETYPE_ABSOLUTE) | 0x80)) {
+			if (oneByte == (MmsGetBinaryValue(MmsCodeTimeType, MMS_TIMETYPE_ABSOLUTE) | 0x80)) {
 				mmsHeader.replyCharge.deadLine.type = MMS_TIMETYPE_ABSOLUTE;
 			} else {
 				mmsHeader.replyCharge.deadLine.type = MMS_TIMETYPE_RELATIVE;
@@ -891,7 +918,7 @@ bool MmsBinaryDecodeMsgHeader(FILE *pFile, int totalLength)
 
 			if (valueLength > 0) {
 				if (__MmsDecodeLongInteger(pFile, (UINT32*)&mmsHeader.replyCharge.deadLine.time, totalLength) == false) {
-					MSG_DEBUG("MmsBinaryDecodeMsgHeader : MMS_CODE_REPLYCHARGINGDEADLINE is invalid\n");
+					MSG_DEBUG("MMS_CODE_REPLYCHARGINGDEADLINE is invalid\n");
 					goto __CATCH;
 				}
 			}
@@ -903,7 +930,7 @@ bool MmsBinaryDecodeMsgHeader(FILE *pFile, int totalLength)
 			/* Reply-charging-ID-value = Text-string */
 
 			if (__MmsBinaryDecodeText(pFile, mmsHeader.replyCharge.szChargeID, MMS_MSG_ID_LEN + 1, totalLength) < 0) {
-				MSG_DEBUG("MmsBinaryDecodeMsgHeader: 1. __MmsBinaryDecodeText fail. (szReplyChargingID)\n");
+				MSG_DEBUG("1. __MmsBinaryDecodeText fail. (szReplyChargingID)\n");
 				goto __CATCH;
 			}
 			break;
@@ -913,7 +940,7 @@ bool MmsBinaryDecodeMsgHeader(FILE *pFile, int totalLength)
 			/* Reply-charging-size-value = Long-integer */
 
 			if (__MmsDecodeLongInteger(pFile, (UINT32*)&mmsHeader.replyCharge.chargeSize, totalLength) == false) {
-				MSG_DEBUG("MmsBinaryDecodeMsgHeader : MMS_CODE_REPLYCHARGINGSIZE is invalid\n");
+				MSG_DEBUG("MMS_CODE_REPLYCHARGINGSIZE is invalid\n");
 				goto __CATCH;
 			}
 			break;
@@ -932,17 +959,17 @@ bool MmsBinaryDecodeMsgHeader(FILE *pFile, int totalLength)
 			 */
 
 			if (__MmsDecodeValueLength(pFile, &valueLength, totalLength) <= 0) {
-				MSG_DEBUG("MmsBinaryDecodeMsgHeader : 1. invalid MMS_CODE_PREVIOUSLYSENTBY \n");
+				MSG_DEBUG("1. invalid MMS_CODE_PREVIOUSLYSENTBY \n");
 				goto __CATCH;
 			}
 
 			if (__MmsBinaryDecodeInteger(pFile, &tmpInteger, &tmpIntLen, totalLength) == false) {
-				MSG_DEBUG("MmsBinaryDecodeMsgHeader : 2. invalid MMS_CODE_PREVIOUSLYSENTBY \n");
+				MSG_DEBUG("2. invalid MMS_CODE_PREVIOUSLYSENTBY \n");
 				goto __CATCH;
 			}
 
 			if (__MmsBinaryDecodeEncodedString(pFile, szGarbageBuff, MSG_STDSTR_LONG, totalLength) == false) {
-				MSG_DEBUG("MmsBinaryDecodeMsgHeader : invalid MMS_CODE_RETRIEVETEXT \n");
+				MSG_DEBUG("invalid MMS_CODE_RETRIEVETEXT \n");
 				goto __CATCH;
 			}
 			break;
@@ -961,21 +988,20 @@ bool MmsBinaryDecodeMsgHeader(FILE *pFile, int totalLength)
 			 */
 
 			if (__MmsDecodeValueLength(pFile, &valueLength, totalLength) <= 0) {
-				MSG_DEBUG("MmsBinaryDecodeMsgHeader : 1. invalid MMS_CODE_PREVIOUSLYSENTDATE \n");
+				MSG_DEBUG("1. invalid MMS_CODE_PREVIOUSLYSENTDATE \n");
 				goto __CATCH;
 			}
 
 			if (__MmsBinaryDecodeInteger(pFile, &tmpInteger, &tmpIntLen, totalLength) == false) {
-				MSG_DEBUG("MmsBinaryDecodeMsgHeader : 2. invalid MS_CODE_PREVIOUSLYSENTDATE \n");
+				MSG_DEBUG("2. invalid MS_CODE_PREVIOUSLYSENTDATE \n");
 				goto __CATCH;
 			}
 
 			if (__MmsDecodeLongInteger(pFile, (UINT32*)&tmpInteger, totalLength) == false) {
-				MSG_DEBUG("MmsBinaryDecodeMsgHeader : 3. invalid MMS_CODE_PREVIOUSLYSENTDATE \n");
+				MSG_DEBUG("3. invalid MMS_CODE_PREVIOUSLYSENTDATE \n");
 				goto __CATCH;
 			}
 			break;
-
 
 		default:
 
@@ -994,7 +1020,7 @@ bool MmsBinaryDecodeMsgHeader(FILE *pFile, int totalLength)
 
 				oneByte = 0x00;
 
-				offset = _MmsGetDecodeOffset();
+				offset = __MmsGetDecodeOffset();
 				if (offset >= totalLength)
 					goto __RETURN;
 
@@ -1002,11 +1028,11 @@ bool MmsBinaryDecodeMsgHeader(FILE *pFile, int totalLength)
 
 				while ((oneByte < 0x80) && (remainLength > 0)) {
 					if (__MmsBinaryDecodeCheckAndDecreaseLength(&remainLength, 1) == false) {
-						MSG_DEBUG("MmsBinaryDecodeMsgHeader: __MmsBinaryDecodeCheckAndDecreaseLength fail\n");
+						MSG_DEBUG("__MmsBinaryDecodeCheckAndDecreaseLength fail\n");
 						goto __CATCH;
 					}
-					if (_MmsBinaryDecodeGetOneByte(pFile, &oneByte, totalLength) == false) {
-						MSG_DEBUG("MmsBinaryDecodeMsgHeader: responseStatus GetOneByte fail\n");
+					if (__MmsBinaryDecodeGetOneByte(pFile, &oneByte, totalLength) == false) {
+						MSG_DEBUG("responseStatus GetOneByte fail\n");
 						goto __CATCH;
 					}
 				}
@@ -1017,7 +1043,7 @@ bool MmsBinaryDecodeMsgHeader(FILE *pFile, int totalLength)
 			break;
 		}	/* switch */
 
-		offset = _MmsGetDecodeOffset();
+		offset = __MmsGetDecodeOffset();
 		if (offset >= totalLength)
 			goto __RETURN;
 
@@ -1038,7 +1064,7 @@ __RETURN:
 		free(pLastBcc);
 	}
 
-	MSG_DEBUG("MmsBinaryDecodeMsgHeader: success\n");
+	MSG_DEBUG("success\n");
 	return true;
 
 
@@ -1056,78 +1082,40 @@ __CATCH:
 		free(pLastBcc);
 	}
 
-	MSG_DEBUG("MmsBinaryDecodeMsgHeader: failed\n");
+	MSG_DEBUG("failed\n");
 
 	return false;
 }
-
-#ifdef FEATURE_JAVA_MMS
-// for JAVA MMS AppId - check later whether it can be handled by MmsBinaryDecodeMsgHeader
-bool MmsBinaryDecodeContentType(FILE *pFile, char *szFilePath, int totalLength)
-{
-	int length	= 0;
-
-	MSG_DEBUG("MmsBinaryDecodeContentType:\n");
-
-	if (szFilePath != NULL)
-		strncpy(mmsHeader.msgType.szOrgFilePath, szFilePath, strlen(szFilePath));
-	mmsHeader.msgType.offset = _MmsGetDecodeOffset() - 1;		// + Content-Type code value
-
-	// read data(2K) from msg file(/User/Msg/Inbox/5) to gpCurMmsDecodeBuff for decoding
-	if (MsgLoadDataToDecodeBuffer(pFile, &gpCurMmsDecodeBuff, &gCurMmsDecodeBuffPos,
-									&gMmsDecodeCurOffset, gpMmsDecodeBuf1, gpMmsDecodeBuf2,
-									gMmsDecodeMaxLen, &gMmsDecodeBufLen, totalLength) == false) {
-		MSG_DEBUG("MmsBinaryDecodeContentType: fail to load to buffer \n");
-		goto __CATCH;
-	}
-
-	// msg's type [ex] related, mixed, single part (jpg, amr and etc)
-	length = MmsBinaryDecodeContentType(pFile, &mmsHeader.msgType, totalLength);
-	if (length == -1) {
-		MSG_DEBUG("MmsBinaryDecodeContentType: MMS_CODE_CONTENTTYPE is fail\n");
-		goto __CATCH;
-	}
-	MSG_DEBUG("Content-Type: Application-ID:%s Reply-To-Application-ID:%s",mmsHeader.msgType.param.szApplicationID, mmsHeader.msgType.param.szReplyToApplicationID);
-
-	return true;
-
-__CATCH:
-
-	/* fixme: Delete multipart using MmsDeleteMsg() */
-
-	return false;
-}
-#endif
 
 bool MmsBinaryDecodeMsgBody(FILE *pFile, char *szFilePath, int totalLength)
 {
+	MSG_BEGIN();
+
 	int length = 0;
 	int offset = 0;
-
-	MSG_DEBUG("MmsBinaryDecodeMsgBody:\n");
 
 	if (szFilePath != NULL)
 		strncpy(mmsHeader.msgType.szOrgFilePath, szFilePath , strlen(szFilePath));
 
-	mmsHeader.msgType.offset = _MmsGetDecodeOffset() - 1;		// + Content-Type code value
+	mmsHeader.msgType.offset = __MmsGetDecodeOffset() - 1;		// + Content-Type code value
 
 	// read data(2K) from msg file(/User/Msg/Inbox/5) to gpCurMmsDecodeBuff for decoding
-	if (MsgLoadDataToDecodeBuffer(pFile, &gpCurMmsDecodeBuff, &gCurMmsDecodeBuffPos,
+	if (__MsgLoadDataToDecodeBuffer(pFile, &gpCurMmsDecodeBuff, &gCurMmsDecodeBuffPos,
 									&gMmsDecodeCurOffset, gpMmsDecodeBuf1, gpMmsDecodeBuf2,
 									gMmsDecodeMaxLen, &gMmsDecodeBufLen, totalLength) == false) {
-		MSG_DEBUG("MmsBinaryDecodeMsgBody: fail to load to buffer \n");
+		MSG_DEBUG("fail to load to buffer \n");
 		goto __CATCH;
 	}
 
 	// msg's type [ex] related, mixed, single part (jpg, amr and etc)
-	length = MmsBinaryDecodeContentType(pFile, &mmsHeader.msgType, totalLength);
+	length = __MmsBinaryDecodeContentType(pFile, &mmsHeader.msgType, totalLength);
 	if (length == -1) {
-		MSG_DEBUG("MmsBinaryDecodeMsgBody: MMS_CODE_CONTENTTYPE is fail\n");
+		MSG_DEBUG("MMS_CODE_CONTENTTYPE is fail\n");
 		goto __CATCH;
 	}
 
-	mmsHeader.msgType.size	 = length + 1;						// + Content-Type code value
-	mmsHeader.msgBody.offset = _MmsGetDecodeOffset();
+	mmsHeader.msgType.size	 = length + 1; // + Content-Type code value
+	mmsHeader.msgBody.offset = __MmsGetDecodeOffset();
 
 	switch (mmsHeader.msgType.type) {
 	case MIME_APPLICATION_VND_WAP_MULTIPART_MIXED:
@@ -1141,14 +1129,14 @@ bool MmsBinaryDecodeMsgBody(FILE *pFile, char *szFilePath, int totalLength)
 	case MIME_APPLICATION_VND_OMA_DRM_MESSAGE:
 	case MIME_APPLICATION_VND_OMA_DRM_CONTENT:
 
-		MSG_DEBUG("__MmsBinaryMsgBodyDecode: Decode multipart\n");
+		MSG_DEBUG("Decode multipart\n");
 
-		offset = _MmsGetDecodeOffset();
+		offset = __MmsGetDecodeOffset();
 		if (offset >= totalLength)
 			goto __RETURN;
 
-		if (MmsBinaryDecodeMultipart(pFile, szFilePath, &mmsHeader.msgType, &mmsHeader.msgBody, totalLength) == false) {
-			MSG_DEBUG("__MmsBinaryMsgBodyDecode: MmsBinaryDecodeMultipart is fail.\n");
+		if (__MmsBinaryDecodeMultipart(pFile, szFilePath, &mmsHeader.msgType, &mmsHeader.msgBody, totalLength) == false) {
+			MSG_DEBUG("MmsBinaryDecodeMultipart is fail.\n");
 			goto __CATCH;
 		}
 		break;
@@ -1159,12 +1147,12 @@ bool MmsBinaryDecodeMsgBody(FILE *pFile, char *szFilePath, int totalLength)
 		if (szFilePath != NULL)
 			strcpy(mmsHeader.msgBody.szOrgFilePath, szFilePath);
 
-		offset = _MmsGetDecodeOffset();
+		offset = __MmsGetDecodeOffset();
 		if (offset >= totalLength)
 			goto __RETURN;
 
-		if (MmsBinaryDecodePartBody(pFile, totalLength - mmsHeader.msgBody.offset, totalLength) == false) {
-			MSG_DEBUG("__MmsBinaryMsgBodyDecode: MmsBinaryDecodePartBody is fail.(Single Part)\n");
+		if (__MmsBinaryDecodePartBody(pFile, totalLength - mmsHeader.msgBody.offset, totalLength) == false) {
+			MSG_DEBUG("MmsBinaryDecodePartBody is fail.(Single Part)\n");
 			goto __CATCH;
 		}
 
@@ -1179,27 +1167,14 @@ bool MmsBinaryDecodeMsgBody(FILE *pFile, char *szFilePath, int totalLength)
 #endif
 
 __RETURN:
-
+	MSG_END();
 	return true;
 
 __CATCH:
-
 	return false;
 }
 
-#if MMS_ENABLE_EXTEND_CFM
-// DRM (Extended)CFM
-//	Get Extended CFM value.
-static bool __MmsConvertString2Bool(char *pszValue)
-{
-	if (!strcasecmp(pszValue, "no"))
-		return true;
-
-	return false;
-}
-#endif
-
-bool MmsBinaryDecodeParameter(FILE *pFile, MsgType *pMsgType, int valueLength, int totalLength)
+static bool __MmsBinaryDecodeParameter(FILE *pFile, MsgType *pMsgType, int valueLength, int totalLength)
 {
 	UINT8 oneByte = 0;
 	int charSetLen = 0;
@@ -1216,11 +1191,11 @@ bool MmsBinaryDecodeParameter(FILE *pFile, MsgType *pMsgType, int valueLength, i
 	 * WAP-230-WSP-20010118-p, Proposed Version 18 January 2001 (pp.107)
 	 */
 
-	MSG_DEBUG("MmsBinaryDecodeParameter: \n");
+	MSG_BEGIN();
 
 	while (valueLength > 0) {
-		if (_MmsBinaryDecodeGetOneByte(pFile, &oneByte, totalLength) == false) {
-			MSG_DEBUG("MmsBinaryDecodeContentType: paramCode _MmsBinaryDecodeGetOneByte fail\n");
+		if (__MmsBinaryDecodeGetOneByte(pFile, &oneByte, totalLength) == false) {
+			MSG_DEBUG("paramCode _MmsBinaryDecodeGetOneByte fail\n");
 			goto __CATCH;
 		}
 
@@ -1251,8 +1226,8 @@ bool MmsBinaryDecodeParameter(FILE *pFile, MsgType *pMsgType, int valueLength, i
 				goto __CATCH;
 			}
 
-			if (MsgCheckFileNameHasInvalidChar(pMsgType->param.szName)) {
-				_MsgReplaceInvalidFileNameChar(pMsgType->param.szName, '_');
+			if (__MsgCheckFileNameHasInvalidChar(pMsgType->param.szName)) {
+				__MsgReplaceInvalidFileNameChar(pMsgType->param.szName, '_');
 			}
 
 			if (__MmsBinaryDecodeCheckAndDecreaseLength(&valueLength, length) == false)
@@ -1269,8 +1244,8 @@ bool MmsBinaryDecodeParameter(FILE *pFile, MsgType *pMsgType, int valueLength, i
 				goto __CATCH;
 			}
 
-			if (MsgCheckFileNameHasInvalidChar(pMsgType->param.szFileName)) {
-				_MsgReplaceInvalidFileNameChar(pMsgType->param.szFileName, '_');
+			if (__MsgCheckFileNameHasInvalidChar(pMsgType->param.szFileName)) {
+				__MsgReplaceInvalidFileNameChar(pMsgType->param.szFileName, '_');
 			}
 
 			if (__MmsBinaryDecodeCheckAndDecreaseLength(&valueLength, length) == false)
@@ -1280,13 +1255,13 @@ bool MmsBinaryDecodeParameter(FILE *pFile, MsgType *pMsgType, int valueLength, i
 
 		case 0x89: //type = Constrained-encoding = Extension-Media | Short-integer
 
-			if (_MmsBinaryDecodeGetOneByte(pFile, &oneByte, totalLength) == false) {
-				MSG_DEBUG("MmsBinaryDecodeContentType: type _MmsBinaryDecodeGetOneByte fail\n");
+			if (__MmsBinaryDecodeGetOneByte(pFile, &oneByte, totalLength) == false) {
+				MSG_DEBUG("type _MmsBinaryDecodeGetOneByte fail\n");
 				goto __CATCH;
 			}
 
 			if (oneByte > 0x7f) {
-				pMsgType->param.type = _MmsGetBinaryType(MmsCodeContentType,
+				pMsgType->param.type = MmsGetBinaryType(MmsCodeContentType,
 														  (UINT16)(oneByte & 0x7f));
 				if (__MmsBinaryDecodeCheckAndDecreaseLength(&valueLength, 1) == false)
 					goto __RETURN;
@@ -1295,7 +1270,7 @@ bool MmsBinaryDecodeParameter(FILE *pFile, MsgType *pMsgType, int valueLength, i
 
 				textLength = 0;
 				szTypeString = __MmsBinaryDecodeText2(pFile, totalLength, &textLength);
-				pMsgType->param.type = _MmsGetTextType(MmsCodeContentType, szTypeString);
+				pMsgType->param.type = MmsGetTextType(MmsCodeContentType, szTypeString);
 
 				if (szTypeString) {
 					free(szTypeString);
@@ -1347,7 +1322,7 @@ bool MmsBinaryDecodeParameter(FILE *pFile, MsgType *pMsgType, int valueLength, i
 		default:
 
 			if (paramCode > 0x7F) {
-				MSG_DEBUG("MmsBinaryDecodeContentType: Unsupported parameter\n");
+				MSG_DEBUG("Unsupported parameter\n");
 
 				// In case of the last byte of Parameter field, it should be returned without decreasing the gCurMmsDecodeBuffPos value.
 				valueLength++;
@@ -1378,7 +1353,7 @@ bool MmsBinaryDecodeParameter(FILE *pFile, MsgType *pMsgType, int valueLength, i
 				/* Text-value */
 
 				if (__MmsBinaryDecodeInteger(pFile, &integer, &intLen, totalLength) == true) {
-					MSG_DEBUG("MmsBinaryDecodeContentType: Unsupported parameter(%d)\n", integer);
+					MSG_DEBUG("Unsupported parameter(%d)\n", integer);
 					if (__MmsBinaryDecodeCheckAndDecreaseLength(&valueLength, intLen) == false)
 						goto __RETURN;
 				} else {
@@ -1406,14 +1381,14 @@ bool MmsBinaryDecodeParameter(FILE *pFile, MsgType *pMsgType, int valueLength, i
 						free(szTypeValue);
 						szTypeValue = NULL;
 
-						MSG_DEBUG("MmsBinaryDecodeContentType: Unsupported parameter(%s)\n", szTypeValue);
+						MSG_DEBUG("Unsupported parameter(%s)\n", szTypeValue);
 						if (__MmsBinaryDecodeCheckAndDecreaseLength(&valueLength, textLength) == false)
 							goto __RETURN;
 					}
 				}
 
 				if (szTypeString) {
-					MSG_DEBUG("MmsBinaryDecodeContentType: Unsupported parameter(%s)\n", szTypeString);
+					MSG_DEBUG("Unsupported parameter(%s)\n", szTypeString);
 					free(szTypeString);
 					szTypeString = NULL;
 				}
@@ -1438,8 +1413,6 @@ __CATCH:
 	return false;
 }
 
-
-
 /**
  * Decode Encoded Content type
  *
@@ -1447,7 +1420,7 @@ __CATCH:
  * @param	pMsgType		[out] Decoded MsgType
  * @return 	Decoded address list
  */
-int MmsBinaryDecodeContentType(FILE *pFile, MsgType *pMsgType, int totalLength)
+static int __MmsBinaryDecodeContentType(FILE *pFile, MsgType *pMsgType, int totalLength)
 {
 	UINT8 oneByte = 0;
 	char *szTypeString = NULL;
@@ -1466,8 +1439,7 @@ int MmsBinaryDecodeContentType(FILE *pFile, MsgType *pMsgType, int totalLength)
 	 * Media-type			= (Well-known-media | Extension-Media) *(Parameter)
 	 */
 
-	MSG_DEBUG("MmsBinaryDecodeContentType: decoding content type..\n");
-
+	MSG_DEBUG("decoding content type..\n");
 
 	length = __MmsDecodeValueLength(pFile, (UINT32*)&valueLength, totalLength);
 	if (length <= 0) {
@@ -1478,14 +1450,14 @@ int MmsBinaryDecodeContentType(FILE *pFile, MsgType *pMsgType, int totalLength)
 		 * Short-integer     = OCTET(1xxx xxxx)
 		 */
 
-		if (_MmsBinaryDecodeGetOneByte(pFile, &oneByte, totalLength) == false) {
-			MSG_DEBUG("MmsBinaryDecodeContentType: Constrained-media _MmsBinaryDecodeGetOneByte fail\n");
+		if (__MmsBinaryDecodeGetOneByte(pFile, &oneByte, totalLength) == false) {
+			MSG_DEBUG("Constrained-media _MmsBinaryDecodeGetOneByte fail\n");
 			goto __CATCH;
 		}
 
 		if (oneByte > 0x7F) {
 			/* Short-integer */
-			pMsgType->type = _MmsGetBinaryType(MmsCodeContentType, (UINT16)(oneByte & 0x7F));
+			pMsgType->type = MmsGetBinaryType(MmsCodeContentType, (UINT16)(oneByte & 0x7F));
 			length = 1;
 		} else {
 			char *pszTemp = NULL;
@@ -1497,14 +1469,14 @@ int MmsBinaryDecodeContentType(FILE *pFile, MsgType *pMsgType, int totalLength)
 			szTypeString = __MmsBinaryDecodeText2(pFile, totalLength, &textLength);
 
 			if (szTypeString && (strchr(szTypeString, ';')) != NULL) {
-				pszTemp = _MsgGetStringUntilDelimiter(szTypeString, ';');
+				pszTemp = __MsgGetStringUntilDelimiter(szTypeString, ';');
 				if (pszTemp) {
 					free(szTypeString);
 					szTypeString = pszTemp;
 				}
 			}
 
-			pMsgType->type = _MmsGetTextType(MmsCodeContentType, szTypeString);
+			pMsgType->type = MmsGetTextType(MmsCodeContentType, szTypeString);
 
 			length = textLength;
 
@@ -1521,14 +1493,14 @@ int MmsBinaryDecodeContentType(FILE *pFile, MsgType *pMsgType, int totalLength)
 
 		length += valueLength;
 
-		if (_MmsBinaryDecodeGetOneByte(pFile, &oneByte, totalLength) == false) {
-			MSG_DEBUG("MmsBinaryDecodeContentType: Well-known-media _MmsBinaryDecodeGetOneByte fail\n");
+		if (__MmsBinaryDecodeGetOneByte(pFile, &oneByte, totalLength) == false) {
+			MSG_DEBUG("Well-known-media _MmsBinaryDecodeGetOneByte fail\n");
 			goto __CATCH;
 		}
 
 		if (oneByte > 0x7F) {
 			/* Well-known-media */
-			pMsgType->type = _MmsGetBinaryType(MmsCodeContentType, (UINT16)(oneByte & 0x7F));
+			pMsgType->type = MmsGetBinaryType(MmsCodeContentType, (UINT16)(oneByte & 0x7F));
 			valueLength--;
 		} else {
 			/* Extension-Media */
@@ -1536,7 +1508,7 @@ int MmsBinaryDecodeContentType(FILE *pFile, MsgType *pMsgType, int totalLength)
 
 			textLength = 0;
 			szTypeString = __MmsBinaryDecodeText2(pFile, totalLength, &textLength);
-			pMsgType->type = _MmsGetTextType(MmsCodeContentType, szTypeString);
+			pMsgType->type = MmsGetTextType(MmsCodeContentType, szTypeString);
 			valueLength -= textLength;
 
 			if (szTypeString) {
@@ -1545,11 +1517,11 @@ int MmsBinaryDecodeContentType(FILE *pFile, MsgType *pMsgType, int totalLength)
 			}
 		}
 
-		MSG_DEBUG("MmsBinaryDecodeContentType: content type=%s\n", MmsDebugGetMimeType((MimeType)pMsgType->type));
+		MSG_DEBUG("content type=%s\n", MmsDebugGetMimeType((MimeType)pMsgType->type));
 
 
-		if (MmsBinaryDecodeParameter(pFile, pMsgType, valueLength, totalLength) == false) {
-			MSG_DEBUG("MmsBinaryDecodeContentType: Content-Type parameter fail\n");
+		if (__MmsBinaryDecodeParameter(pFile, pMsgType, valueLength, totalLength) == false) {
+			MSG_DEBUG("Content-Type parameter fail\n");
 			goto __CATCH;
 		}
 	}
@@ -1560,8 +1532,7 @@ __CATCH:
 	return -1;
 }
 
-
-bool MmsBinaryDecodePartHeader(FILE *pFile, MsgType *pMsgType, int headerLen, int totalLength)
+static bool __MmsBinaryDecodePartHeader(FILE *pFile, MsgType *pMsgType, int headerLen, int totalLength)
 {
 	UINT8 fieldCode	= 0xff;
 	int length = 0;
@@ -1591,8 +1562,8 @@ bool MmsBinaryDecodePartHeader(FILE *pFile, MsgType *pMsgType, int headerLen, in
 	 */
 
 	while (headerLen > 0) {
-		if (_MmsBinaryDecodeGetOneByte(pFile, &oneByte, totalLength) == false) {
-			MSG_DEBUG("MmsBinaryDecodePartHeader: field code GetOneByte fail\n");
+		if (__MmsBinaryDecodeGetOneByte(pFile, &oneByte, totalLength) == false) {
+			MSG_DEBUG("field code GetOneByte fail\n");
 			goto __CATCH;
 		}
 
@@ -1628,8 +1599,8 @@ bool MmsBinaryDecodePartHeader(FILE *pFile, MsgType *pMsgType, int headerLen, in
 
 				textLength = strlen(pLatinBuff);
 
-				if (MsgLatin2UTF ((unsigned char*)pMsgType->szContentLocation, MMS_CONTENT_ID_LEN + 1, (unsigned char*)pLatinBuff, textLength) < 0) {
-					MSG_DEBUG("MmsBinaryDecodePartHeader: MsgLatin2UTF fail \n");
+				if (__MsgLatin2UTF ((unsigned char*)pMsgType->szContentLocation, MMS_CONTENT_ID_LEN + 1, (unsigned char*)pLatinBuff, textLength) < 0) {
+					MSG_DEBUG("MsgLatin2UTF fail \n");
 					goto __CATCH;
 				}
 
@@ -1663,8 +1634,8 @@ bool MmsBinaryDecodePartHeader(FILE *pFile, MsgType *pMsgType, int headerLen, in
 				}
 
 				textLength = strlen(pLatinBuff);
-				if (MsgLatin2UTF ((unsigned char*)pMsgType->szContentID, MMS_CONTENT_ID_LEN + 1, (unsigned char*)pLatinBuff, textLength) < 0) {
-					MSG_DEBUG("MmsBinaryDecodePartHeader: MsgLatin2UTF fail \n");
+				if (__MsgLatin2UTF ((unsigned char*)pMsgType->szContentID, MMS_CONTENT_ID_LEN + 1, (unsigned char*)pLatinBuff, textLength) < 0) {
+					MSG_DEBUG("MsgLatin2UTF fail \n");
 					goto __CATCH;
 				}
 				free(pLatinBuff);
@@ -1694,8 +1665,8 @@ bool MmsBinaryDecodePartHeader(FILE *pFile, MsgType *pMsgType, int headerLen, in
 
 				}
 
-				if (_MmsBinaryDecodeGetOneByte(pFile, &oneByte, totalLength) == false) {
-					MSG_DEBUG("MmsBinaryDecodePartHeader: Disposition value GetOneByte fail\n");
+				if (__MmsBinaryDecodeGetOneByte(pFile, &oneByte, totalLength) == false) {
+					MSG_DEBUG("Disposition value GetOneByte fail\n");
 					goto __CATCH;
 				}
 
@@ -1703,18 +1674,18 @@ bool MmsBinaryDecodePartHeader(FILE *pFile, MsgType *pMsgType, int headerLen, in
 					valueLength--;
 
 				if (oneByte >= 0x80) {
-					pMsgType->disposition = _MmsGetBinaryType(MmsCodeMsgDisposition, (UINT16)(oneByte & 0x7F));
+					pMsgType->disposition = MmsGetBinaryType(MmsCodeMsgDisposition, (UINT16)(oneByte & 0x7F));
 
 					if (pMsgType->disposition == INVALID_HOBJ) {
-						MSG_DEBUG("MmsBinaryDecodePartHeader : Content-Disposition _MmsGetBinaryType fail.\n");
+						MSG_DEBUG("MmsBinaryDecodePartHeader : Content-Disposition MmsGetBinaryType fail.\n");
 						pMsgType->disposition = MSG_DISPOSITION_ATTACHMENT;		// default
 					}
 
 					if (__MmsBinaryDecodeCheckAndDecreaseLength(&headerLen, 1) == false)
 						goto __RETURN;
 
-					if (MmsBinaryDecodeParameter(pFile, pMsgType, valueLength, totalLength) == false) {
-						MSG_DEBUG("MmsBinaryDecodePartHeader: Disposition parameter fail\n");
+					if (__MmsBinaryDecodeParameter(pFile, pMsgType, valueLength, totalLength) == false) {
+						MSG_DEBUG("Disposition parameter fail\n");
 						goto __CATCH;
 					}
 
@@ -1743,9 +1714,9 @@ bool MmsBinaryDecodePartHeader(FILE *pFile, MsgType *pMsgType, int headerLen, in
 
 					valueLength -= textLength;
 
-					if (MmsBinaryDecodeParameter(pFile, pMsgType, valueLength, totalLength) == false)
+					if (__MmsBinaryDecodeParameter(pFile, pMsgType, valueLength, totalLength) == false)
 					{
-						MSG_DEBUG("MmsBinaryDecodePartHeader: Disposition parameter fail\n");
+						MSG_DEBUG("Disposition parameter fail\n");
 						goto __CATCH;
 					}
 
@@ -1758,8 +1729,8 @@ bool MmsBinaryDecodePartHeader(FILE *pFile, MsgType *pMsgType, int headerLen, in
 
 			case 0x0B:	//Content-Encoding
 
-				if (_MmsBinaryDecodeGetOneByte(pFile, &oneByte, totalLength) == false) {
-					MSG_DEBUG("MmsBinaryDecodePartHeader: Disposition value GetOneByte fail\n");
+				if (__MmsBinaryDecodeGetOneByte(pFile, &oneByte, totalLength) == false) {
+					MSG_DEBUG("Disposition value GetOneByte fail\n");
 					goto __CATCH;
 				}
 
@@ -1867,7 +1838,7 @@ bool MmsBinaryDecodePartHeader(FILE *pFile, MsgType *pMsgType, int headerLen, in
 					}
 
 					if (charset > 0)
-						_MmsGetBinaryType(MmsCodeCharSet, (UINT16)charset);
+						MmsGetBinaryType(MmsCodeCharSet, (UINT16)charset);
 
 					if (__MmsBinaryDecodeCheckAndDecreaseLength(&headerLen, charSetLen) == false)
 						goto __RETURN;
@@ -1894,7 +1865,7 @@ bool MmsBinaryDecodePartHeader(FILE *pFile, MsgType *pMsgType, int headerLen, in
 				if (szTemp == NULL)
 					goto __CATCH;
 
-				if (_MmsBinaryDecodeGetBytes(pFile, szTemp, valueLength, totalLength) == false) {
+				if (__MmsBinaryDecodeGetBytes(pFile, szTemp, valueLength, totalLength) == false) {
 					MSG_DEBUG("MmsBinaryDecodePartHeader : default _MmsBinaryDecodeGetBytes() fail\n");
 					if (szTemp) {
 						free(szTemp);
@@ -1914,7 +1885,7 @@ bool MmsBinaryDecodePartHeader(FILE *pFile, MsgType *pMsgType, int headerLen, in
 			 * Application-specific-value = Text-string
 			 */
 
-			MSG_DEBUG(" MmsBinaryDecodePartHeader: Application-header = Token-text Application-specific-value \n");
+			MSG_DEBUG(" Application-header = Token-text Application-specific-value \n");
 
 			gCurMmsDecodeBuffPos--;
 
@@ -1923,14 +1894,14 @@ bool MmsBinaryDecodePartHeader(FILE *pFile, MsgType *pMsgType, int headerLen, in
 			textLength = 0;
 			pCode = __MmsBinaryDecodeText2(pFile, totalLength, &textLength);
 			if (pCode == NULL) {
-				MSG_DEBUG("MmsBinaryDecodePartHeader: pCode is null\n");
+				MSG_DEBUG("pCode is null\n");
 				goto __CATCH;
 			}
 
 			if (__MmsBinaryDecodeCheckAndDecreaseLength(&headerLen, textLength) == false)
 				goto __RETURN;
 
-			MSG_DEBUG(" MmsBinaryDecodePartHeader: Token-text (%s) \n", pCode);
+			MSG_DEBUG(" Token-text (%s) \n", pCode);
 
 
 			/* Application-specific-value */
@@ -1938,11 +1909,11 @@ bool MmsBinaryDecodePartHeader(FILE *pFile, MsgType *pMsgType, int headerLen, in
 			textLength = 0;
 			pValue = __MmsBinaryDecodeText2(pFile, totalLength, &textLength);
 			if (pValue == NULL) {
-				MSG_DEBUG("MmsBinaryDecodePartHeader: pValue is null\n");
+				MSG_DEBUG("pValue is null\n");
 				goto __CATCH;
 			}
 
-			MSG_DEBUG(" MmsBinaryDecodePartHeader: Application-specific-value (%s) \n", pValue);
+			MSG_DEBUG(" Application-specific-value (%s) \n", pValue);
 
 
 			pParam = strchr(pValue, MSG_CH_ADDR_DELIMETER);
@@ -1951,9 +1922,9 @@ bool MmsBinaryDecodePartHeader(FILE *pFile, MsgType *pMsgType, int headerLen, in
 				*pParam = '\0';
 			}
 
-			switch (_MmsGetTextType(MmsCodeMsgBodyHeaderCode, pCode)) {
+			switch (MmsGetTextType(MmsCodeMsgBodyHeaderCode, pCode)) {
 			case MMS_BODYHDR_TRANSFERENCODING:		// Content-Transfer-Encoding
-				pMsgType->encoding = _MmsGetTextType(MmsCodeContentTransferEncoding, pValue);
+				pMsgType->encoding = MmsGetTextType(MmsCodeContentTransferEncoding, pValue);
 				break;
 
 			case MMS_BODYHDR_CONTENTID:				// Content-ID
@@ -1964,13 +1935,13 @@ bool MmsBinaryDecodePartHeader(FILE *pFile, MsgType *pMsgType, int headerLen, in
 					goto __CATCH;
 				}
 
-				MsgMIMERemoveQuote (pValue);
+				__MsgMIMERemoveQuote (pValue);
 				strncpy(pLatinBuff, pValue, MMS_MSG_ID_LEN);
 
 				length = strlen(pLatinBuff);
-				if (MsgLatin2UTF ((unsigned char*)pMsgType->szContentID, MMS_CONTENT_ID_LEN + 1, (unsigned char*)pLatinBuff, length) < 0)
+				if (__MsgLatin2UTF ((unsigned char*)pMsgType->szContentID, MMS_CONTENT_ID_LEN + 1, (unsigned char*)pLatinBuff, length) < 0)
 				{
-					MSG_DEBUG("MmsBinaryDecodePartHeader: MsgLatin2UTF fail \n");
+					MSG_DEBUG("MsgLatin2UTF fail \n");
 					goto __CATCH;
 				}
 
@@ -1987,8 +1958,8 @@ bool MmsBinaryDecodePartHeader(FILE *pFile, MsgType *pMsgType, int headerLen, in
 				strncpy(pLatinBuff, pValue, MMS_MSG_ID_LEN);
 
 				length = strlen(pLatinBuff);
-				if (MsgLatin2UTF ((unsigned char*)pMsgType->szContentLocation, MMS_CONTENT_ID_LEN + 1, (unsigned char*)pLatinBuff, length) < 0) {
-					MSG_DEBUG("MmsBinaryDecodePartHeader: MsgLatin2UTF fail \n");
+				if (__MsgLatin2UTF ((unsigned char*)pMsgType->szContentLocation, MMS_CONTENT_ID_LEN + 1, (unsigned char*)pLatinBuff, length) < 0) {
+					MSG_DEBUG("MsgLatin2UTF fail \n");
 					goto __CATCH;
 				}
 
@@ -1997,7 +1968,7 @@ bool MmsBinaryDecodePartHeader(FILE *pFile, MsgType *pMsgType, int headerLen, in
 				break;
 
 			case MMS_BODYHDR_DISPOSITION:			// Content-Disposition
-				pMsgType->disposition = _MmsGetTextType(MmsCodeMsgDisposition, pValue);
+				pMsgType->disposition = MmsGetTextType(MmsCodeMsgDisposition, pValue);
 				break;
 
 			case MMS_BODYHDR_X_OMA_DRM_SEPARATE_DELIVERY:	// DRM RO WAITING
@@ -2009,7 +1980,7 @@ bool MmsBinaryDecodePartHeader(FILE *pFile, MsgType *pMsgType, int headerLen, in
 			}
 
 			if (pParam) {
-				_MsgParseParameter(pMsgType, pParam + 1);
+				__MsgParseParameter(pMsgType, pParam + 1);
 				*pParam = ch;
 			}
 			if (pCode) {
@@ -2069,8 +2040,7 @@ __CATCH:
 	return false;
 }
 
-
-bool MmsBinaryDecodeEntries(FILE *pFile, UINT32 *npEntries, int totalLength)
+static bool __MmsBinaryDecodeEntries(FILE *pFile, UINT32 *npEntries, int totalLength)
 {
 	int length = 0;
 
@@ -2079,7 +2049,7 @@ bool MmsBinaryDecodeEntries(FILE *pFile, UINT32 *npEntries, int totalLength)
 		goto __CATCH;
 	}
 
-	MSG_DEBUG("MmsBinaryDecodeEntries: Number of Entries = %d\n", *npEntries);
+	MSG_DEBUG("Number of Entries = %d\n", *npEntries);
 
 	return true;
 
@@ -2087,9 +2057,7 @@ __CATCH:
 	return false;
 }
 
-
-
-bool MmsBinaryDecodePartBody(FILE *pFile, UINT32 bodyLength, int totalLength)
+static bool __MmsBinaryDecodePartBody(FILE *pFile, UINT32 bodyLength, int totalLength)
 {
 	int offset = 0;
 
@@ -2098,27 +2066,26 @@ bool MmsBinaryDecodePartBody(FILE *pFile, UINT32 bodyLength, int totalLength)
 	 * the only information used with msgBody.
 	 * If you need, add here more information
 	 */
+	MSG_BEGIN();
 
-	MSG_DEBUG("MmsBinaryDecodePartBody: \n");
-
-	offset = _MmsGetDecodeOffset();
+	offset = __MmsGetDecodeOffset();
 	offset += bodyLength;
 
 	if (MsgFseek(pFile, offset, SEEK_SET) < 0) {
-		MSG_DEBUG("MmsBinaryDecodePartBody: fail to seek file pointer \n");
+		MSG_DEBUG("fail to seek file pointer \n");
 		goto __CATCH;
 	}
 
-	_MmsCleanDecodeBuff();
+	__MmsCleanDecodeBuff();
 
 	gMmsDecodeCurOffset = offset;
 
 	if (offset >= totalLength)
 		goto __RETURN;
 
-	if (MsgLoadDataToDecodeBuffer(pFile, &gpCurMmsDecodeBuff, &gCurMmsDecodeBuffPos, &gMmsDecodeCurOffset,
+	if (__MsgLoadDataToDecodeBuffer(pFile, &gpCurMmsDecodeBuff, &gCurMmsDecodeBuffPos, &gMmsDecodeCurOffset,
 								   gpMmsDecodeBuf1, gpMmsDecodeBuf2, gMmsDecodeMaxLen, &gMmsDecodeBufLen, totalLength) == false) {
-		MSG_DEBUG("_MmsBinaryDecodeGetOneByte: fail to load to buffer \n");
+		MSG_DEBUG("fail to load to buffer \n");
 		goto __CATCH;
 	}
 
@@ -2131,27 +2098,26 @@ __CATCH:
 	return false;
 }
 
-
-static bool MmsBinaryDecodeMovePointer(FILE *pFile, int offset, int totalLength)
+static bool __MmsBinaryDecodeMovePointer(FILE *pFile, int offset, int totalLength)
 {
 	if (offset > totalLength)
 		goto __RETURN;
 
 	if (MsgFseek(pFile, offset, SEEK_SET) < 0) {
-		MSG_DEBUG("MmsBinaryDecodeMovePointer: fail to seek file pointer \n");
+		MSG_DEBUG("fail to seek file pointer \n");
 		goto __CATCH;
 	}
 
-	_MmsCleanDecodeBuff();
+	__MmsCleanDecodeBuff();
 
 	gMmsDecodeCurOffset = offset;
 
 	if (offset == totalLength)
 		goto __RETURN;
 
-	if (MsgLoadDataToDecodeBuffer(pFile, &gpCurMmsDecodeBuff, &gCurMmsDecodeBuffPos, &gMmsDecodeCurOffset,
+	if (__MsgLoadDataToDecodeBuffer(pFile, &gpCurMmsDecodeBuff, &gCurMmsDecodeBuffPos, &gMmsDecodeCurOffset,
 									gpMmsDecodeBuf1, gpMmsDecodeBuf2, gMmsDecodeMaxLen, &gMmsDecodeBufLen, totalLength) == false) {
-		MSG_DEBUG("MmsBinaryDecodeMovePointer: fail to load to buffer \n");
+		MSG_DEBUG("fail to load to buffer \n");
 		goto __CATCH;
 	}
 
@@ -2162,71 +2128,7 @@ __CATCH:
 	return false;
 }
 
-
-bool MmsBinaryIsTextEncodedPart(FILE *pFile, int totalLength)
-{
-	UINT8 oneByte	= 0;
-	int byteCount = 0;
-
-	byteCount++;				//check 0x0D
-
-	if (_MmsBinaryDecodeGetOneByte(pFile, &oneByte, totalLength) == false)
-		goto __CATCH;
-
-	if (oneByte != 0x0D) {
-		//it can be started "--" without 0x0D 0x0A
-		if (oneByte != 0x2D) {
-			goto __CATCH;
-		} else {
-			byteCount++;		// check 0x2D ('-')
-			if (_MmsBinaryDecodeGetOneByte(pFile, &oneByte, totalLength) == false)
-				goto __CATCH;
-
-			if (oneByte != 0x2D) {
-				goto __CATCH;
-			} else {
-				goto __RETURN;
-			}
-		}
-	} else {
-		byteCount++;			//check 0x0A
-		if (_MmsBinaryDecodeGetOneByte(pFile, &oneByte, totalLength) == false)
-			goto __CATCH;
-
-		if (oneByte != 0x0A) {
-			goto __CATCH;
-		} else {
-			byteCount++;		// check 0x2D ('-')
-			if (_MmsBinaryDecodeGetOneByte(pFile, &oneByte, totalLength) == false)
-				goto __CATCH;
-
-			if (oneByte != 0x2D) {
-				goto __CATCH;
-			} else {
-				byteCount++;	// check 0x2D ('-')
-				if (_MmsBinaryDecodeGetOneByte(pFile, &oneByte, totalLength) == false)
-					goto __CATCH;
-
-				if (oneByte != 0x2D) {
-					goto __CATCH;
-				} else {
-					goto __RETURN;
-				}
-			}
-		}
-	}
-
-__RETURN:
-	gCurMmsDecodeBuffPos -= byteCount;
-	return true;
-
-__CATCH:
-	gCurMmsDecodeBuffPos -= byteCount;
-	return false;
-}
-
-
-bool MmsBinaryDecodeMultipart(FILE *pFile, char *szFilePath, MsgType *pMsgType, MsgBody *pMsgBody, int totalLength)
+static bool __MmsBinaryDecodeMultipart(FILE *pFile, char *szFilePath, MsgType *pMsgType, MsgBody *pMsgBody, int totalLength)
 {
 	UINT32 nEntries = 0;
 	MsgMultipart *pMultipart = NULL;
@@ -2238,36 +2140,36 @@ bool MmsBinaryDecodeMultipart(FILE *pFile, char *szFilePath, MsgType *pMsgType, 
 	MsgPresentationFactor factor = MSG_PRESENTATION_NONE;
 	MsgPresentaionInfo presentationInfo;
 
-	MSG_DEBUG("MmsBinaryDecodeMultipart: total length=%d\n", totalLength);
+	MSG_DEBUG("total length=%d\n", totalLength);
 
 	presentationInfo.factor = MSG_PRESENTATION_NONE;
 	presentationInfo.pCurPresentation = NULL;
 	presentationInfo.pPrevPart = NULL;
 
-	if (MmsBinaryDecodeEntries(pFile, &nEntries, totalLength) == false) {
-		MSG_DEBUG("MmsBinaryDecodeMultipart: MmsBinaryDecodeEntries is fail.\n");
+	if (__MmsBinaryDecodeEntries(pFile, &nEntries, totalLength) == false) {
+		MSG_DEBUG("MmsBinaryDecodeEntries is fail.\n");
 		goto __CATCH;
 	}
 
 	while (nEntries) {
-		MSG_DEBUG("MmsBinaryDecodeMultipart: decoding %dth multipart\n", index);
+		MSG_DEBUG("decoding %dth multipart\n", index);
 
-		offset = _MmsGetDecodeOffset();
+		offset = __MmsGetDecodeOffset();
 		if (offset >= totalLength)
 			goto __RETURN;
 
-		if ((pMultipart = MsgAllocMultipart()) == NULL) {
-			MSG_DEBUG("MmsBinaryDecodeMultipart: MsgAllocMultipart Fail \n");
+		if ((pMultipart = __MsgAllocMultipart()) == NULL) {
+			MSG_DEBUG("MsgAllocMultipart Fail \n");
 			goto __CATCH;
 		}
 
-		if (MmsBinaryDecodeEachPart(pFile, szFilePath, &(pMultipart->type), pMultipart->pBody, totalLength) == false) {
-			MSG_DEBUG("MmsBinaryDecodeMultipart: MmsBinaryDecodeEachPart is fail.(nEntries = %d)\n", nEntries);
+		if (__MmsBinaryDecodeEachPart(pFile, szFilePath, &(pMultipart->type), pMultipart->pBody, totalLength) == false) {
+			MSG_DEBUG("MmsBinaryDecodeEachPart is fail.(nEntries = %d)\n", nEntries);
 			goto __CATCH;
 		}
 
 		if (pMsgType->param.type == MIME_APPLICATION_SMIL) {
-			factor = MsgIsPresentationEx(&(pMultipart->type), pMsgType->param.szStart, (MimeType)pMsgType->param.type);
+			factor = __MsgIsPresentationEx(&(pMultipart->type), pMsgType->param.szStart, (MimeType)pMsgType->param.type);
 		} else {
 			factor = MSG_PRESENTATION_NONE;
 		}
@@ -2296,7 +2198,7 @@ bool MmsBinaryDecodeMultipart(FILE *pFile, char *szFilePath, MsgType *pMsgType, 
 
 		nEntries--;
 
-		MmsDebugPrintMulitpartEntry(pMultipart, index++);
+		__MmsDebugPrintMulitpartEntry(pMultipart, index++);
 
 	}
 
@@ -2305,9 +2207,9 @@ bool MmsBinaryDecodeMultipart(FILE *pFile, char *szFilePath, MsgType *pMsgType, 
 #ifdef	__SUPPORT_DRM__
 	if (MmsDrm2GetConvertState() != MMS_DRM2_CONVERT_REQUIRED)
 #endif
-		MsgConfirmPresentationPart(pMsgType, pMsgBody, &presentationInfo);
+		__MsgConfirmPresentationPart(pMsgType, pMsgBody, &presentationInfo);
 
-	if (MsgResolveNestedMultipart(pMsgType, pMsgBody) == false) {
+	if (__MsgResolveNestedMultipart(pMsgType, pMsgBody) == false) {
 		MSG_DEBUG("MmsBinaryDecodeMultipart : MsgResolveNestedMultipart failed \n");
 		goto __CATCH;
 	}
@@ -2319,8 +2221,7 @@ __CATCH:
 	return false;
 }
 
-
-bool MmsBinaryDecodeEachPart(FILE *pFile, char *szFilePath, MsgType *pMsgType, MsgBody *pMsgBody, int totalLength)
+static bool __MmsBinaryDecodeEachPart(FILE *pFile, char *szFilePath, MsgType *pMsgType, MsgBody *pMsgBody, int totalLength)
 {
 	int	length = 0;
 	bool bSuccess = false;
@@ -2337,7 +2238,7 @@ bool MmsBinaryDecodeEachPart(FILE *pFile, char *szFilePath, MsgType *pMsgType, M
 		goto __CATCH;
 	}
 
-	offset = _MmsGetDecodeOffset();
+	offset = __MmsGetDecodeOffset();
 	if (offset >= totalLength)
 		goto __RETURN;
 
@@ -2350,7 +2251,7 @@ bool MmsBinaryDecodeEachPart(FILE *pFile, char *szFilePath, MsgType *pMsgType, M
 	}
 
 
-	offset = _MmsGetDecodeOffset();
+	offset = __MmsGetDecodeOffset();
 	if (offset >= totalLength)
 		goto __RETURN;
 
@@ -2359,32 +2260,32 @@ bool MmsBinaryDecodeEachPart(FILE *pFile, char *szFilePath, MsgType *pMsgType, M
 	if (szFilePath != NULL)
 		strncpy(pMsgType->szOrgFilePath, szFilePath, strlen(szFilePath));
 
-	pMsgType->offset = _MmsGetDecodeOffset();
+	pMsgType->offset = __MmsGetDecodeOffset();
 	pMsgType->size = headerLength;
 	pMsgType->contentSize = bodyLength;
 
 	if (pMsgType->offset > totalLength)
 		goto __RETURN;
 
-	length = MmsBinaryDecodeContentType(pFile, pMsgType, totalLength);
+	length = __MmsBinaryDecodeContentType(pFile, pMsgType, totalLength);
 	if (length <= 0) {
 		MSG_DEBUG("MmsBinaryDecodeEachPart: Decode contentType Fail \n");
 		goto __CATCH;
 	}
 
-	offset = _MmsGetDecodeOffset();
+	offset = __MmsGetDecodeOffset();
 	if (offset >= totalLength)
 		goto __RETURN;
 
 
 	/* Part Header */
 
-	if (MmsBinaryDecodePartHeader(pFile, pMsgType, headerLength - length, totalLength) == false) {
+	if (__MmsBinaryDecodePartHeader(pFile, pMsgType, headerLength - length, totalLength) == false) {
 		MSG_DEBUG("MmsBinaryDecodeEachPart: Decode contentHeader Fail \n");
 		goto __CATCH;
 	}
 
-	offset = _MmsGetDecodeOffset();
+	offset = __MmsGetDecodeOffset();
 	if (offset >= totalLength)
 		goto __RETURN;
 
@@ -2393,7 +2294,7 @@ bool MmsBinaryDecodeEachPart(FILE *pFile, char *szFilePath, MsgType *pMsgType, M
 	if (szFilePath != NULL)
 		strncpy(pMsgBody->szOrgFilePath, szFilePath, strlen(szFilePath));
 
-	pMsgBody->offset = _MmsGetDecodeOffset();
+	pMsgBody->offset = __MmsGetDecodeOffset();
 	pMsgBody->size	 = bodyLength;
 
 	if (pMsgBody->offset > totalLength)
@@ -2411,12 +2312,12 @@ bool MmsBinaryDecodeEachPart(FILE *pFile, char *szFilePath, MsgType *pMsgType, M
 
 		MSG_DEBUG("MmsBinaryDecodeEachPart: Decode multipart\n");
 
-		if (MmsBinaryDecodeMultipart(pFile, szFilePath, pMsgType, pMsgBody, totalLength) == false) {
+		if (__MmsBinaryDecodeMultipart(pFile, szFilePath, pMsgType, pMsgBody, totalLength) == false) {
 			MSG_DEBUG("MmsBinaryDecodeEachPart: MmsBinaryDecodeMultipart is fail.\n");
 			goto __CATCH;
 		}
 
-		offset = _MmsGetDecodeOffset();
+		offset = __MmsGetDecodeOffset();
 		if (offset >= totalLength)
 			goto __RETURN;
 
@@ -2430,18 +2331,18 @@ bool MmsBinaryDecodeEachPart(FILE *pFile, char *szFilePath, MsgType *pMsgType, M
 
 		if (MmsDrm2GetConvertState() != MMS_DRM2_CONVERT_NOT_FIXED && MmsDrm2GetConvertState() != MMS_DRM2_CONVERT_REQUIRED) {
 
-			if (MmsBinaryDecodeDRMContent(pFile, szFilePath, pMsgType, pMsgBody, bodyLength, totalLength) == false)
+			if (__MmsBinaryDecodeDRMContent(pFile, szFilePath, pMsgType, pMsgBody, bodyLength, totalLength) == false)
 				goto __CATCH;
 		} else {
 			MmsDrm2SetConvertState(MMS_DRM2_CONVERT_REQUIRED);
 
-			bSuccess = MmsBinaryDecodePartBody(pFile, bodyLength, totalLength);
+			bSuccess = __MmsBinaryDecodePartBody(pFile, bodyLength, totalLength);
 			if (bSuccess == false) {
 				MSG_DEBUG("MmsBinaryDecodeEachPart: Decode contentBody Fail \n");
 				goto __CATCH;
 			}
 		}
-		offset = _MmsGetDecodeOffset();
+		offset = __MmsGetDecodeOffset();
 		if (offset >= totalLength)
 			goto __RETURN;
 
@@ -2451,10 +2352,10 @@ bool MmsBinaryDecodeEachPart(FILE *pFile, char *szFilePath, MsgType *pMsgType, M
 
 		MSG_DEBUG("MmsBinaryDecodeEachPart: MIME_APPLICATION_VND_OMA_DRM_CONTENT Part \n");
 
-		if (MmsBinaryDecodeDRMContent(pFile, szFilePath, pMsgType, pMsgBody, bodyLength, totalLength) == false)
+		if (__MmsBinaryDecodeDRMContent(pFile, szFilePath, pMsgType, pMsgBody, bodyLength, totalLength) == false)
 			goto __CATCH;
 
-		offset = _MmsGetDecodeOffset();
+		offset = __MmsGetDecodeOffset();
 		if (offset >= totalLength)
 			goto __RETURN;
 
@@ -2464,13 +2365,13 @@ bool MmsBinaryDecodeEachPart(FILE *pFile, char *szFilePath, MsgType *pMsgType, M
 	default:
 		MSG_DEBUG("MmsBinaryDecodeEachPart: Other normal Part \n");
 
-		bSuccess = MmsBinaryDecodePartBody(pFile, bodyLength, totalLength);
+		bSuccess = __MmsBinaryDecodePartBody(pFile, bodyLength, totalLength);
 		if (bSuccess == false) {
 			MSG_DEBUG("MmsBinaryDecodeEachPart: Decode contentBody Fail \n");
 			goto __CATCH;
 		}
 
-		offset = _MmsGetDecodeOffset();
+		offset = __MmsGetDecodeOffset();
 		if (offset >= totalLength)
 			goto __RETURN;
 
@@ -2489,149 +2390,7 @@ __CATCH:
 }
 
 #ifdef __SUPPORT_DRM__
-bool __MmsParseDCFInfo(FILE *pFile, MsgDRMInfo *pDrmInfo, int totalLength)
-{
-	UINT8 version = 0;
-	UINT8 contentTypeLen = 0;
-	UINT8 contentURILen = 0;
-	char *szContentType	= NULL;
-	char *szContentURI = NULL;
-
-	if (_MmsBinaryDecodeGetOneByte(pFile, &version, totalLength) == false) {
-		MSG_DEBUG("__MmsParseDCFInfo: [version] GetOneByte fail\n");
-		goto __CATCH;
-	}
-
-	if (_MmsBinaryDecodeGetOneByte(pFile, &contentTypeLen, totalLength) == false) {
-		MSG_DEBUG("__MmsParseDCFInfo: [contentTypeLen] GetOneByte fail\n");
-		goto __CATCH;
-	}
-
-	if (_MmsBinaryDecodeGetOneByte(pFile, &contentURILen, totalLength) == false) {
-		MSG_DEBUG("__MmsParseDCFInfo: [contentURILen] GetOneByte fail\n");
-		goto __CATCH;
-	}
-
-	//Get media content-type (mime-type)
-	szContentType = (char *)malloc(contentTypeLen + 1);
-	if (szContentType == NULL)
-		goto __CATCH;
-
-	memset(szContentType, 0, contentTypeLen + 1);
-
-	if (_MmsBinaryDecodeGetBytes(pFile, szContentType, contentTypeLen + 1, totalLength) < 0) {
-		MSG_DEBUG("__MmsParseDCFInfo : contentType is invalid\n");
-		goto __CATCH;
-	}
-	gCurMmsDecodeBuffPos--;
-	pDrmInfo->contentType = (MsgContentType)_MsgGetCode(MSG_TYPE, szContentType);
-
-
-	//Get content-ID - 1.remover "cid:",   2.resolve "%hexa",   3.and copy the string
-	szContentURI = (char *)malloc(contentURILen + 1);
-	if (szContentURI == NULL)
-		goto __CATCH;
-
-	memset(szContentURI, 0, contentURILen + 1);
-
-	if (_MmsBinaryDecodeGetBytes(pFile, szContentURI, contentURILen + 1, totalLength) == false) {
-		MSG_DEBUG("__MmsParseDCFInfo : contentType is invalid\n");
-		goto __CATCH;
-	}
-	gCurMmsDecodeBuffPos--;
-	pDrmInfo->szContentURI = MsgResolveContentURI(szContentURI);
-
-
-	if (szContentType) {
-		free(szContentType);
-		szContentType = NULL;
-	}
-
-	if (szContentURI) {
-		free(szContentURI);
-		szContentURI = NULL;
-	}
-	return true;
-
-
-__CATCH:
-
-	if (szContentType) {
-		free(szContentType);
-		szContentType = NULL;
-	}
-
-	if (szContentURI) {
-		free(szContentURI);
-		szContentURI = NULL;
-	}
-	return false;
-
-}
-
-
-bool __MmsParseDCFHdr(FILE *pFile, MsgDRMInfo *pDrmInfo, UINT32 headerLen, int totalLength)
-{
-	char *szDCFHdr = NULL;
-	MsgType partType;
-	ULONG nRead = 0;
-	int offset = 0;
-
-	/* add to parse DCF header such as,
-	 *  Right-Issuer, Content-Name, and Content-Description.
-	 */
-
-	szDCFHdr = (char *)malloc(headerLen + 1);
-	if (szDCFHdr == NULL) {
-		MSG_DEBUG("__MmsParseDCFHdr: szDCFHdr alloc fail\n");
-		goto __CATCH;
-	}
-	memset(szDCFHdr, 0, headerLen + 1);
-
-	offset = _MmsGetDecodeOffset();
-	if (offset >= totalLength)
-		goto __RETURN;
-
-	if (MsgFseek(pFile, offset, SEEK_SET) < 0)
-		goto __CATCH;
-
-	if ((nRead = MsgReadFile(szDCFHdr, sizeof(char), headerLen, pFile)) == 0){
-		goto __CATCH;
-	}
-	szDCFHdr[nRead] = '\0';
-
-	_MsgInitMsgType(&partType);
-	_MsgParsePartHeader(&partType, szDCFHdr, headerLen);
-
-	pDrmInfo->szContentName = partType.drmInfo.szContentName;
-	pDrmInfo->szContentVendor = partType.drmInfo.szContentVendor;
-	pDrmInfo->szContentDescription = partType.drmInfo.szContentDescription;
-	pDrmInfo->szRightIssuer = partType.drmInfo.szRightIssuer;
-
-	if (MmsBinaryDecodeMovePointer(pFile, offset + headerLen, totalLength) == false)
-		goto __CATCH;
-
-__RETURN:
-
-	if (szDCFHdr) {
-		free(szDCFHdr);
-		szDCFHdr = NULL;
-	}
-
-	return true;
-
-__CATCH:
-
-	if (szDCFHdr) {
-		free(szDCFHdr);
-		szDCFHdr = NULL;
-	}
-
-	return false;
-}
-
-
-bool MmsBinaryDecodeDRMContent(FILE *pFile, char *szFilePath, MsgType *pMsgType, MsgBody *pMsgBody, unsigned int bodyLength, int totalLength)
+static bool __MmsBinaryDecodeDRMContent(FILE *pFile, char *szFilePath, MsgType *pMsgType, MsgBody *pMsgBody, unsigned int bodyLength, int totalLength)
 {
 	int offset = 0;
 	char szTempFilePath[MSG_FILEPATH_LEN_MAX] = MSG_DATA_PATH"drm.dcf";
@@ -2640,7 +2399,7 @@ bool MmsBinaryDecodeDRMContent(FILE *pFile, char *szFilePath, MsgType *pMsgType,
 
 	MSG_DEBUG("bodyLength: %d\n", bodyLength);
 
-	offset = _MmsGetDecodeOffset();
+	offset = __MmsGetDecodeOffset();
 
 	if (offset >= totalLength)
 		goto __RETURN;
@@ -2684,7 +2443,7 @@ bool MmsBinaryDecodeDRMContent(FILE *pFile, char *szFilePath, MsgType *pMsgType,
 	remove(szTempFilePath);
 	isFileCreated = false;
 
-	if (MmsBinaryDecodeMovePointer(pFile, offset + bodyLength, totalLength) == false)
+	if (__MmsBinaryDecodeMovePointer(pFile, offset + bodyLength, totalLength) == false)
 		goto __CATCH;
 
 __RETURN:
@@ -2698,95 +2457,14 @@ __RETURN:
 
 __CATCH:
 	if (isFileCreated)
-		remove(szTempFilePath);
-
-	if (pRawData) {
-		free(pRawData);
-		pRawData = NULL;
-	}
-
-	return false;
-}
-
-
-bool MmsBinaryDecodeDRMMessage(FILE *pFile, char *szFilePath, MsgType *pMsgType, MsgBody *pMsgBody, unsigned int fullBodyLength, int totalLength)
-{
-	int offset = 0;
-	char szTempFilePath[MSG_FILEPATH_LEN_MAX] = "/User/Msg/Mms/Temp/drm.dm";
-	char *pRawData = NULL;
-	bool isFileCreated = false;
-
-	offset = _MmsGetDecodeOffset();
-	if (offset >= totalLength)
-		goto __RETURN;
-
-	if (szFilePath != NULL)
-		strncpy(pMsgBody->szOrgFilePath, szFilePath, strlen(szFilePath));
-	if (szFilePath != NULL)
-		strncpy(pMsgType->szOrgFilePath, szFilePath, strlen(szFilePath));
-
-	pRawData = (char *)malloc(fullBodyLength);
-	if (pRawData == NULL) {
-		MSG_DEBUG("pRawData alloc FAIL \n");
-		goto __CATCH;
-	}
-
-	if (MsgFseek(pFile, offset,  SEEK_SET) < 0) {
-		MSG_DEBUG("MsgFseek() returns -1 \n");
-		goto __CATCH;
-	}
-
-	if (MsgReadFile(pRawData, sizeof(char), fullBodyLength, pFile)!= (size_t)fullBodyLength) {
-		MSG_DEBUG("FmReadFile() returns false \n");
-		goto __CATCH;
-	}
-
-	if (MsgOpenCreateAndOverwriteFile(szTempFilePath, pRawData, fullBodyLength) == false) {
-		MSG_DEBUG("MsgOpenCreateAndOverwriteFile() returns false \n");
-		goto __CATCH;
-	}
-	isFileCreated = true;
-
-	if (strstr(szTempFilePath, ".dm")) {
-		char szConvertedFilePath[MSG_FILEPATH_LEN_MAX] = {0,};
-
-		if (MsgDrmConvertDmtoDcfType(szTempFilePath, szConvertedFilePath)) {
-			remove(szTempFilePath);
-			memset(szTempFilePath, 0, MSG_FILEPATH_LEN_MAX);
-			strncpy(szTempFilePath, szConvertedFilePath, MSG_FILEPATH_LEN_MAX-1);
-		}
-	}
-
-	if (MsgDRM2GetDRMInfo(szTempFilePath, pMsgType) == false) {
-		MSG_DEBUG("MsgDRM2GetDRMInfo() returns false \n");
-		goto __CATCH;
-	}
-
-	if (remove(szTempFilePath) != 0)
-		MSG_DEBUG("remove fail");
-
-	isFileCreated = false;
-
-	if (MmsBinaryDecodeMovePointer(pFile, offset + fullBodyLength, totalLength) == false)
-		goto __CATCH;
-
-__RETURN:
-
-	if (pRawData) {
-		free(pRawData);
-		pRawData = NULL;
-	}
-	return true;
-
-__CATCH:
-	if (isFileCreated) {
-		if (remove(szTempFilePath) != 0)
+		if(remove(szTempFilePath) != 0)
 			MSG_DEBUG("remove fail");
-	}
+
 	if (pRawData) {
 		free(pRawData);
 		pRawData = NULL;
 	}
+
 	return false;
 }
 
@@ -2811,7 +2489,6 @@ static int __MmsDrm2BinaryEncodeUintvarLen(UINT32 integer)
 
 	return length;
 }
-
 
 static bool __MmsDrm2BinaryEncodeUintvar(UINT32 integer, int length, char *pszOutput)
 {
@@ -2849,7 +2526,6 @@ static bool __MmsDrm2BinaryEncodeUintvar(UINT32 integer, int length, char *pszOu
 	return true;
 }
 
-
 static int __MmsDrm2GetEntriesValueLength(FILE *pFile, int orgOffset)
 {
 	char szEntries[5] = {0, };
@@ -2877,7 +2553,6 @@ static int __MmsDrm2GetEntriesValueLength(FILE *pFile, int orgOffset)
 	return j;
 }
 
-
 static bool __MmsDrm2WriteDataToConvertedFile(FILE *pSrcFile, FILE *pDestinationFile, char *pszMmsLoadTempBuf, int length, int bufLen)
 {
 	int loadLen = 0, totalLoadLen = 0, nRead = 0;
@@ -2902,7 +2577,6 @@ static bool __MmsDrm2WriteDataToConvertedFile(FILE *pSrcFile, FILE *pDestination
 
 	return true;
 }
-
 
 /*************************************************************************
  * description : make new message file converting CD & FL part of original message file to SD type
@@ -3141,13 +2815,10 @@ bool MmsDrm2ConvertMsgBody(char *szOriginFilePath)
 		pszMmsLoadTempBuf = NULL;
 	}
 
-	if (pszOrgData) {
-		free(pszOrgData);
-		pszOrgData = NULL;
-	}
-
-	remove(szTempFile);
-	remove(szTempFilePath);
+	if(remove(szTempFile) != 0)
+		MSG_DEBUG("remove fail");
+	if(remove(szTempFilePath) != 0)
+		MSG_DEBUG("remove fail");
 
 	return true;
 
@@ -3196,84 +2867,24 @@ __CATCH:
 	return false;
 }
 
-
 /*************************************************************************
  * description : Function for decoding a converted file
  * argument : void
  * return value
     - bool :  result of converting
 **************************************************************************/
-bool MmsDrm2DecodeConvertedMsg(int msgID, char *pszFullPath)
-{
-	FILE *hConvertedFile = NULL;
-	int	nSize = 0;
-
-	MSG_DEBUG("MmsDrm2DecodeConvertedMsg: start re-decoding~~~~~~\n");
-
-	// free
-	_MsgFreeDRMInfo(&mmsHeader.msgType.drmInfo);
-	_MsgFreeBody(&mmsHeader.msgBody, mmsHeader.msgType.type);
-
-	_MmsInitHeader();
-	_MmsUnregisterDecodeBuffer();
-
-	// start decoding
-	_MmsRegisterDecodeBuffer(gszMmsLoadBuf1, gszMmsLoadBuf2, MSG_MMS_DECODE_BUFFER_MAX);
-
-	// open converted file
-	if ((hConvertedFile = MsgOpenFile(MMS_DECODE_DRM_CONVERTED_TEMP_FILE, "rb")) == NULL) {
-		MSG_DEBUG("MmsDrm2ReDecodeMsg: opening temporary file failed\n");
-		goto __CATCH;
-	}
-
-	if (MsgGetFileSize(MMS_DECODE_DRM_CONVERTED_TEMP_FILE, &nSize) == false) {
-		MSG_DEBUG("MsgGetFileSize: failed\n");
-		goto __CATCH;
-	}
-
-	if (!MmsBinaryDecodeMsgHeader(hConvertedFile, nSize)) {
-		MSG_DEBUG("MmsDrm2ReDecodeMsg: decoding header(binary mode) failed\n");
-		goto __CATCH;
-	}
-
-	if (!MmsBinaryDecodeMsgBody(hConvertedFile, pszFullPath, nSize)) {
-		MSG_DEBUG("MmsDrm2ReDecodeMsg: decoding body failed\n");
-		goto __CATCH;
-	}
-
-	if (hConvertedFile != NULL) {
-		MsgCloseFile(hConvertedFile);
-		hConvertedFile = NULL;
-	}
-
-	return true;
-
-__CATCH:
-
-	if (hConvertedFile != NULL) {
-		MsgCloseFile(hConvertedFile);
-
-		if (remove(MMS_DECODE_DRM_CONVERTED_TEMP_FILE) != 0)
-			MSG_DEBUG("remove fail");
-
-		hConvertedFile = NULL;
-	}
-
-	return false;
-}
-
 
 bool MmsDrm2ReadMsgConvertedBody(MSG_MESSAGE_INFO_S *pMsg, bool bSavePartsAsTempFiles, bool bRetrieved, char *retrievedPath)
 {
 	MmsMsg *pMmsMsg;
 	MmsPluginStorage::instance()->getMmsMessage(&pMmsMsg);
-	_MmsUnregisterDecodeBuffer();
+	MmsUnregisterDecodeBuffer();
 #ifdef __SUPPORT_DRM__
-	_MsgFreeDRMInfo(&pMmsMsg->msgType.drmInfo);
+	MmsReleaseMsgDRMInfo(&pMmsMsg->msgType.drmInfo);
 #endif
-	_MsgFreeBody(&pMmsMsg->msgBody, pMmsMsg->msgType.type);
+	MmsReleaseMsgBody(&pMmsMsg->msgBody, pMmsMsg->msgType.type);
 
-	if (_MmsReadMsgBody(pMsg->msgId, bSavePartsAsTempFiles, bRetrieved, retrievedPath) == false) {
+	if (MmsReadMsgBody(pMsg->msgId, bSavePartsAsTempFiles, bRetrieved, retrievedPath) == false) {
 		MSG_DEBUG("MmsDrm2ReadMsgConvertedBody: _MmsReadMsgBody with converted file is failed\n");
 		return false;
 	}
@@ -3289,7 +2900,7 @@ bool MmsDrm2ReadMsgConvertedBody(MSG_MESSAGE_INFO_S *pMsg, bool bSavePartsAsTemp
  *
  * --------------------------------------------------------------------*/
 
-bool _MmsBinaryDecodeGetOneByte(FILE *pFile, UINT8 *pOneByte, int totalLength)
+bool __MmsBinaryDecodeGetOneByte(FILE *pFile, UINT8 *pOneByte, int totalLength)
 {
 	int length = gMmsDecodeMaxLen - gCurMmsDecodeBuffPos;
 
@@ -3300,7 +2911,7 @@ bool _MmsBinaryDecodeGetOneByte(FILE *pFile, UINT8 *pOneByte, int totalLength)
 	}
 
 	if (length < 1) {
-		if (MsgLoadDataToDecodeBuffer(pFile, &gpCurMmsDecodeBuff, &gCurMmsDecodeBuffPos, &gMmsDecodeCurOffset,
+		if (__MsgLoadDataToDecodeBuffer(pFile, &gpCurMmsDecodeBuff, &gCurMmsDecodeBuffPos, &gMmsDecodeCurOffset,
 									   gpMmsDecodeBuf1, gpMmsDecodeBuf2, gMmsDecodeMaxLen, &gMmsDecodeBufLen, totalLength) == false) {
 			MSG_DEBUG("_MmsBinaryDecodeGetOneByte: fail to load to buffer \n");
 			goto __CATCH;
@@ -3315,11 +2926,10 @@ __CATCH:
 	return false;
 }
 
-
 /*
  * @remark: bufLen < gMmsDecodeMaxLen
  */
-bool _MmsBinaryDecodeGetBytes(FILE *pFile, char *szBuff, int bufLen, int totalLength)
+bool __MmsBinaryDecodeGetBytes(FILE *pFile, char *szBuff, int bufLen, int totalLength)
 {
 	int length = gMmsDecodeMaxLen - gCurMmsDecodeBuffPos;
 	int i = 0;
@@ -3331,7 +2941,7 @@ bool _MmsBinaryDecodeGetBytes(FILE *pFile, char *szBuff, int bufLen, int totalLe
 	memset(szBuff, 0, bufLen);
 
 	if (length < bufLen) {
-		if (MsgLoadDataToDecodeBuffer(pFile, &gpCurMmsDecodeBuff, &gCurMmsDecodeBuffPos, &gMmsDecodeCurOffset,
+		if (__MsgLoadDataToDecodeBuffer(pFile, &gpCurMmsDecodeBuff, &gCurMmsDecodeBuffPos, &gMmsDecodeCurOffset,
 									   gpMmsDecodeBuf1, gpMmsDecodeBuf2, gMmsDecodeMaxLen, &gMmsDecodeBufLen, totalLength) == false) {
 			MSG_DEBUG("_MmsBinaryDecodeGetBytes: fail to load to buffer \n");
 			goto __CATCH;
@@ -3350,9 +2960,7 @@ __CATCH:
 	return false;
 }
 
-
-
-bool _MmsBinaryDecodeGetLongBytes(FILE *pFile, char *szBuff, int bufLen, int totalLength)
+bool __MmsBinaryDecodeGetLongBytes(FILE *pFile, char *szBuff, int bufLen, int totalLength)
 {
 	int iPos = 0;
 
@@ -3361,14 +2969,14 @@ bool _MmsBinaryDecodeGetLongBytes(FILE *pFile, char *szBuff, int bufLen, int tot
 
 	memset(szBuff, 0, bufLen);
 
-	if (MsgLoadDataToDecodeBuffer(pFile, &gpCurMmsDecodeBuff, &gCurMmsDecodeBuffPos, &gMmsDecodeCurOffset,
+	if (__MsgLoadDataToDecodeBuffer(pFile, &gpCurMmsDecodeBuff, &gCurMmsDecodeBuffPos, &gMmsDecodeCurOffset,
 								   gpMmsDecodeBuf1, gpMmsDecodeBuf2, gMmsDecodeMaxLen, &gMmsDecodeBufLen, totalLength) == false) {
 		MSG_DEBUG("_MmsBinaryDecodeGetLongBytes: fail to load to buffer \n");
 		goto __CATCH;
 	}
 
 	while ((bufLen - iPos) >= gMmsDecodeMaxLen) {
-		if (_MmsBinaryDecodeGetBytes(pFile, szBuff + iPos, gMmsDecodeMaxLen, totalLength) == false) {
+		if (__MmsBinaryDecodeGetBytes(pFile, szBuff + iPos, gMmsDecodeMaxLen, totalLength) == false) {
 			MSG_DEBUG("_MmsBinaryDecodeGetLongBytes: 1. _MmsBinaryDecodeGetBytes fail \n");
 			goto __CATCH;
 		}
@@ -3377,7 +2985,7 @@ bool _MmsBinaryDecodeGetLongBytes(FILE *pFile, char *szBuff, int bufLen, int tot
 	}
 
 	if ((bufLen - iPos) > 0) {
-		if (_MmsBinaryDecodeGetBytes(pFile, szBuff + iPos, (bufLen - iPos), totalLength) == false) {
+		if (__MmsBinaryDecodeGetBytes(pFile, szBuff + iPos, (bufLen - iPos), totalLength) == false) {
 			MSG_DEBUG("_MmsBinaryDecodeGetLongBytes: 2. _MmsBinaryDecodeGetBytes fail \n");
 			goto __CATCH;
 		}
@@ -3390,7 +2998,6 @@ bool _MmsBinaryDecodeGetLongBytes(FILE *pFile, char *szBuff, int bufLen, int tot
 __CATCH:
 	return false;
 }
-
 
 /**
  * Decode uintvar to 32bit unsigned integer
@@ -3417,7 +3024,7 @@ static int __MmsBinaryDecodeUintvar(FILE *pFile, UINT32 *pUintVar, int totalLeng
 		return -1;
 
 	if (length < 5) {
-		if (MsgLoadDataToDecodeBuffer(pFile, &gpCurMmsDecodeBuff, &gCurMmsDecodeBuffPos, &gMmsDecodeCurOffset,
+		if (__MsgLoadDataToDecodeBuffer(pFile, &gpCurMmsDecodeBuff, &gCurMmsDecodeBuffPos, &gMmsDecodeCurOffset,
 									   gpMmsDecodeBuf1, gpMmsDecodeBuf2, gMmsDecodeMaxLen, &gMmsDecodeBufLen, totalLength) == false) {
 			MSG_DEBUG("__MmsBinaryDecodeUintvar: fail to load to buffer \n");
 			goto __CATCH;
@@ -3425,7 +3032,7 @@ static int __MmsBinaryDecodeUintvar(FILE *pFile, UINT32 *pUintVar, int totalLeng
 	}
 
 	while (true) {
-		if (_MmsBinaryDecodeGetOneByte(pFile, &oneByte, totalLength) == false)
+		if (__MmsBinaryDecodeGetOneByte(pFile, &oneByte, totalLength) == false)
 			goto __CATCH;
 
 		if (oneByte > 0x7f)	{
@@ -3453,7 +3060,6 @@ __CATCH:
 	return -1;
 }
 
-
 /**
  * Decode uintvar to 32bit unsigned integer by uintvar length
  *
@@ -3478,7 +3084,7 @@ static UINT32 __MmsHeaderDecodeIntegerByLength(FILE *pFile, UINT32 length, int t
 
 	if (length == 1)
 	{
-		if (_MmsBinaryDecodeGetOneByte(pFile, &oneByte, totalLength) == false) {
+		if (__MmsBinaryDecodeGetOneByte(pFile, &oneByte, totalLength) == false) {
 			MSG_DEBUG("__MmsHeaderDecodeIntegerByLength: _MmsBinaryDecodeGetOneByte fail\n");
 			return oneByte;
 		}
@@ -3500,7 +3106,7 @@ static UINT32 __MmsHeaderDecodeIntegerByLength(FILE *pFile, UINT32 length, int t
 	}
 	memset(pData, 0, length + 1);
 
-	if (_MmsBinaryDecodeGetBytes(pFile, pData, length + 1, totalLength) == false) {
+	if (__MmsBinaryDecodeGetBytes(pFile, pData, length + 1, totalLength) == false) {
 		MSG_DEBUG("__MmsHeaderDecodeIntegerByLength: _MmsBinaryDecodeGetOneByte fail\n");
 		goto __CATCH;
 	}
@@ -3527,7 +3133,6 @@ __CATCH:
 	return returner.integer;
 }
 
-
 /**
  * Decode uintvar to 32bit unsigned integer by uintvar length
  *
@@ -3551,7 +3156,7 @@ static bool __MmsBinaryDecodeInteger(FILE *pFile, UINT32 *pInteger, int *pIntLen
 	returner.integer = 0;
 	*pIntLen		 = 0;
 
-	if (_MmsBinaryDecodeGetOneByte(pFile, &oneByte, totalLength) == false) {
+	if (__MmsBinaryDecodeGetOneByte(pFile, &oneByte, totalLength) == false) {
 		MSG_DEBUG("__MmsBinaryDecodeInteger: GetOneByte fail\n");
 		return false;
 	}
@@ -3566,7 +3171,7 @@ static bool __MmsBinaryDecodeInteger(FILE *pFile, UINT32 *pInteger, int *pIntLen
 		memset(pData, 0, oneByte + 1);
 
 		// Even NULL is copied in the _MmsBinaryDecodeGetBytes
-		if (_MmsBinaryDecodeGetBytes(pFile, pData, oneByte + 1, totalLength) == false) {
+		if (__MmsBinaryDecodeGetBytes(pFile, pData, oneByte + 1, totalLength) == false) {
 			MSG_DEBUG("__MmsBinaryDecodeInteger: GetBytes fail\n");
 			goto __CATCH;
 		}
@@ -3613,7 +3218,6 @@ __CATCH:
 	return false;
 }
 
-
 /**
  * Decode uintvar to 32bit unsigned integer by uintvar length
  *
@@ -3638,7 +3242,7 @@ static int __MmsDecodeValueLength(FILE *pFile, UINT32 *pValueLength, int totalLe
 
 	*pValueLength = 0;
 
-	if (_MmsBinaryDecodeGetOneByte(pFile, &oneByte, totalLength) == false) {
+	if (__MmsBinaryDecodeGetOneByte(pFile, &oneByte, totalLength) == false) {
 		gCurMmsDecodeBuffPos--;
 		goto __CATCH;
 	}
@@ -3671,8 +3275,6 @@ __CATCH:
 	return -1;
 }
 
-
-
 /**
  * Decode uintvar to 32bit unsigned integer by uintvar length
  *
@@ -3698,7 +3300,7 @@ static int __MmsDecodeValueLength2(FILE *pFile, UINT32 *pValueLength, int totalL
 
 	*pValueLength = 0;
 
-	if (_MmsBinaryDecodeGetOneByte(pFile, &oneByte, totalLength) == false) {
+	if (__MmsBinaryDecodeGetOneByte(pFile, &oneByte, totalLength) == false) {
 		gCurMmsDecodeBuffPos--;
 		goto __CATCH;
 	}
@@ -3731,8 +3333,6 @@ __CATCH:
 	return -1;
 }
 
-
-
 /**
  * Decode QuotedString
  *
@@ -3759,7 +3359,7 @@ static int __MmsBinaryDecodeQuotedString(FILE *pFile, char *szBuff, int bufLen, 
 
 	memset(szBuff, 0, bufLen);
 
-	if (MsgLoadDataToDecodeBuffer(pFile, &gpCurMmsDecodeBuff, &gCurMmsDecodeBuffPos, &gMmsDecodeCurOffset,
+	if (__MsgLoadDataToDecodeBuffer(pFile, &gpCurMmsDecodeBuff, &gCurMmsDecodeBuffPos, &gMmsDecodeCurOffset,
 						  			 gpMmsDecodeBuf1, gpMmsDecodeBuf2, gMmsDecodeMaxLen, &gMmsDecodeBufLen, totalLength) == false) {
 		MSG_DEBUG("__MmsBinaryDecodeQuotedString: 1. fail to load to buffer \n");
 		goto __CATCH;
@@ -3794,7 +3394,7 @@ static int __MmsBinaryDecodeQuotedString(FILE *pFile, char *szBuff, int bufLen, 
 
 		memset(pData, 0, gMmsDecodeBufLen + 1);
 
-		if (_MmsBinaryDecodeGetBytes(pFile, pData, gMmsDecodeBufLen, totalLength) == false)
+		if (__MmsBinaryDecodeGetBytes(pFile, pData, gMmsDecodeBufLen, totalLength) == false)
 			goto __CATCH;
 
 		returnLength += gMmsDecodeBufLen;
@@ -3817,7 +3417,7 @@ static int __MmsBinaryDecodeQuotedString(FILE *pFile, char *szBuff, int bufLen, 
 			pData = NULL;
 		}
 
-		if (MsgLoadDataToDecodeBuffer(pFile, &gpCurMmsDecodeBuff, &gCurMmsDecodeBuffPos, &gMmsDecodeCurOffset,
+		if (__MsgLoadDataToDecodeBuffer(pFile, &gpCurMmsDecodeBuff, &gCurMmsDecodeBuffPos, &gMmsDecodeCurOffset,
 							 			gpMmsDecodeBuf1, gpMmsDecodeBuf2, gMmsDecodeMaxLen, &gMmsDecodeBufLen, totalLength) == false) {
 			MSG_DEBUG("__MmsBinaryDecodeText: 2. fail to load to buffer \n");
 			goto __CATCH;
@@ -3830,7 +3430,7 @@ static int __MmsBinaryDecodeQuotedString(FILE *pFile, char *szBuff, int bufLen, 
 		if (pData == NULL)
 			goto __CATCH;
 
-		if (_MmsBinaryDecodeGetBytes(pFile, pData, length, totalLength) == false)
+		if (__MmsBinaryDecodeGetBytes(pFile, pData, length, totalLength) == false)
 			goto __CATCH;
 
 		returnLength += length;
@@ -3872,7 +3472,6 @@ __CATCH:
 	return -1;
 }
 
-
 /**
  * Decode Text
  *
@@ -3900,13 +3499,13 @@ static int __MmsBinaryDecodeText(FILE *pFile, char *szBuff, int bufLen, int tota
 	if (pFile == NULL || szBuff == NULL || bufLen <= 0)
 		return -1;
 
-	offset = _MmsGetDecodeOffset();
+	offset = __MmsGetDecodeOffset();
 	if (offset >= totalLength)
 		goto __RETURN;
 
 	memset(szBuff, 0, bufLen);
 
-	if (MsgLoadDataToDecodeBuffer(pFile, &gpCurMmsDecodeBuff, &gCurMmsDecodeBuffPos, &gMmsDecodeCurOffset,
+	if (__MsgLoadDataToDecodeBuffer(pFile, &gpCurMmsDecodeBuff, &gCurMmsDecodeBuffPos, &gMmsDecodeCurOffset,
 						  			gpMmsDecodeBuf1, gpMmsDecodeBuf2, gMmsDecodeMaxLen, &gMmsDecodeBufLen, totalLength) == false) {
 		MSG_DEBUG("__MmsBinaryDecodeText: 1. fail to load to buffer \n");
 		goto __CATCH;
@@ -3937,7 +3536,7 @@ static int __MmsBinaryDecodeText(FILE *pFile, char *szBuff, int bufLen, int tota
 
 		memset(pData, 0, gMmsDecodeBufLen + 1);
 
-		if (_MmsBinaryDecodeGetBytes(pFile, pData, gMmsDecodeBufLen, totalLength) == false)
+		if (__MmsBinaryDecodeGetBytes(pFile, pData, gMmsDecodeBufLen, totalLength) == false)
 			goto __CATCH;
 
 		if ((bufLen - iPos) > 0) {
@@ -3961,7 +3560,7 @@ static int __MmsBinaryDecodeText(FILE *pFile, char *szBuff, int bufLen, int tota
 
 		returnLength += gMmsDecodeBufLen;
 
-		if (MsgLoadDataToDecodeBuffer(pFile, &gpCurMmsDecodeBuff, &gCurMmsDecodeBuffPos, &gMmsDecodeCurOffset,
+		if (__MsgLoadDataToDecodeBuffer(pFile, &gpCurMmsDecodeBuff, &gCurMmsDecodeBuffPos, &gMmsDecodeCurOffset,
 									   gpMmsDecodeBuf1, gpMmsDecodeBuf2, gMmsDecodeMaxLen, &gMmsDecodeBufLen, totalLength) == false) {
 			MSG_DEBUG("__MmsBinaryDecodeText: 2. fail to load to buffer \n");
 			goto __CATCH;
@@ -3976,7 +3575,7 @@ static int __MmsBinaryDecodeText(FILE *pFile, char *szBuff, int bufLen, int tota
 
 		memset(pData, 0, length);
 
-		if (_MmsBinaryDecodeGetBytes(pFile, pData, length, totalLength) == false)
+		if (__MmsBinaryDecodeGetBytes(pFile, pData, length, totalLength) == false)
 			goto __CATCH;
 
 		if ((bufLen - iPos) > 0) {
@@ -4010,7 +3609,7 @@ __RETURN:
 	szBuff[0] = '\0';
 	length = 0;
 
-	MmsBinaryDecodeMovePointer(pFile, offset, totalLength);
+	__MmsBinaryDecodeMovePointer(pFile, offset, totalLength);
 
 	return length;
 
@@ -4023,7 +3622,6 @@ __CATCH:
 
 	return -1;
 }
-
 
 static char* __MmsBinaryDecodeText2(FILE *pFile, int totalLength, int *pLength)
 {
@@ -4045,11 +3643,11 @@ static char* __MmsBinaryDecodeText2(FILE *pFile, int totalLength, int *pLength)
 		goto __CATCH;
 
 	*pLength = 0;
-	offset = _MmsGetDecodeOffset();
+	offset = __MmsGetDecodeOffset();
 	if (offset >= totalLength)
 		goto __RETURN;
 
-	if (MsgLoadDataToDecodeBuffer(pFile, &gpCurMmsDecodeBuff, &gCurMmsDecodeBuffPos, &gMmsDecodeCurOffset,
+	if (__MsgLoadDataToDecodeBuffer(pFile, &gpCurMmsDecodeBuff, &gCurMmsDecodeBuffPos, &gMmsDecodeCurOffset,
 								   gpMmsDecodeBuf1, gpMmsDecodeBuf2, gMmsDecodeMaxLen, &gMmsDecodeBufLen, totalLength) == false) {
 		MSG_DEBUG("__MmsBinaryDecodeTextLen: 1. fail to load to buffer \n");
 		goto __CATCH;
@@ -4084,7 +3682,7 @@ static char* __MmsBinaryDecodeText2(FILE *pFile, int totalLength, int *pLength)
 
 		memset(pData, 0, gMmsDecodeBufLen + 1);
 
-		if (_MmsBinaryDecodeGetBytes(pFile, pData, gMmsDecodeBufLen, totalLength) == false)
+		if (__MmsBinaryDecodeGetBytes(pFile, pData, gMmsDecodeBufLen, totalLength) == false)
 			goto __CATCH;
 
 		if (szBuff == NULL)	{
@@ -4122,7 +3720,7 @@ static char* __MmsBinaryDecodeText2(FILE *pFile, int totalLength, int *pLength)
 
 		*pLength += gMmsDecodeBufLen;
 
-		if (MsgLoadDataToDecodeBuffer(pFile,
+		if (__MsgLoadDataToDecodeBuffer(pFile,
 							   &gpCurMmsDecodeBuff,
 							   &gCurMmsDecodeBuffPos,
 							   &gMmsDecodeCurOffset,
@@ -4144,7 +3742,7 @@ static char* __MmsBinaryDecodeText2(FILE *pFile, int totalLength, int *pLength)
 			goto __CATCH;
 		}
 
-		if (_MmsBinaryDecodeGetBytes(pFile, pData, length, totalLength) == false) {
+		if (__MmsBinaryDecodeGetBytes(pFile, pData, length, totalLength) == false) {
 			goto __CATCH;
 		}
 
@@ -4191,7 +3789,7 @@ __RETURN:
 
 	*pLength = 1;
 
-	MmsBinaryDecodeMovePointer(pFile, offset, totalLength);
+	__MmsBinaryDecodeMovePointer(pFile, offset, totalLength);
 
 	return szBuff;
 
@@ -4209,7 +3807,6 @@ __CATCH:
 
 	return NULL;
 }
-
 
 /**
  * Decode Charset
@@ -4245,10 +3842,10 @@ static bool __MmsBinaryDecodeCharset(FILE *pFile, UINT32 *nCharSet, int *pCharSe
 		return true;
 	}
 
-	*nCharSet = _MmsGetBinaryType(MmsCodeCharSet, (UINT16)integer);
+	*nCharSet = MmsGetBinaryType(MmsCodeCharSet, (UINT16)integer);
 
 	if (*nCharSet == MIME_UNKNOWN) {
-		MSG_DEBUG("__MmsBinaryDecodeCharset : _MmsGetBinaryType fail..\n");
+		MSG_DEBUG("__MmsBinaryDecodeCharset : MmsGetBinaryType fail..\n");
 		*nCharSet = MSG_CHARSET_UNKNOWN;
 	}
 
@@ -4257,8 +3854,6 @@ static bool __MmsBinaryDecodeCharset(FILE *pFile, UINT32 *nCharSet, int *pCharSe
 __CATCH:
 	return false;
 }
-
-
 
 /**
  * Decode EncodedString
@@ -4275,9 +3870,6 @@ static bool __MmsBinaryDecodeEncodedString(FILE *pFile, char *szBuff, int bufLen
 	int charSetLen = 0;
 	int nTemp = 0;
 	char *pData = NULL;
-	char *pTempData = NULL;
-	unsigned short *mszTempStr = NULL;
-	char *pConvertedStr = NULL;
 
 	MSG_DEBUG("__MmsBinaryDecodeEncodedString: decode string..\n");
 
@@ -4327,7 +3919,7 @@ static bool __MmsBinaryDecodeEncodedString(FILE *pFile, char *szBuff, int bufLen
 				goto __CATCH;
 			}
 
-			if (_MmsBinaryDecodeGetLongBytes(pFile, pData, valueLength - charSetLen, totalLength) == false) {
+			if (__MmsBinaryDecodeGetLongBytes(pFile, pData, valueLength - charSetLen, totalLength) == false) {
 				MSG_DEBUG("__MmsBinaryDecodeEncodedString : _MmsBinaryDecodeGetLongBytes fail.\n");
 				goto __CATCH;
 			}
@@ -4341,10 +3933,14 @@ static bool __MmsBinaryDecodeEncodedString(FILE *pFile, char *szBuff, int bufLen
 
 			const char *pToCharSet = "UTF-8";
 
-			UINT16 charset_code =  _MmsGetBinaryValue(MmsCodeCharSet, charSet);
+			UINT16 charset_code =  MmsGetBinaryValue(MmsCodeCharSet, charSet);
 
 			const char *pFromCharSet = MmsPluginTextConvertGetCharSet(charset_code);
 			if (pFromCharSet == NULL || !strcmp(pFromCharSet, pToCharSet)) {
+				if (pData) {
+					free(pData);
+					pData = NULL;
+				}
 				return true;
 			}
 
@@ -4367,22 +3963,6 @@ static bool __MmsBinaryDecodeEncodedString(FILE *pFile, char *szBuff, int bufLen
 		pData = NULL;
 	}
 
-	if (pTempData) {
-		free(pTempData);
-		pTempData = NULL;
-	}
-
-	if (mszTempStr) {
-		free(mszTempStr);
-		mszTempStr = NULL;
-	}
-
-	if (pConvertedStr) {
-		free(pConvertedStr);
-		pConvertedStr = NULL;
-	}
-
-
 	return true;
 
 __CATCH:
@@ -4390,21 +3970,6 @@ __CATCH:
 	if (pData) {
 		free(pData);
 		pData = NULL;
-	}
-
-	if (pTempData) {
-		free(pTempData);
-		pTempData = NULL;
-	}
-
-	if (mszTempStr) {
-		free(mszTempStr);
-		mszTempStr = NULL;
-	}
-
-	if (pConvertedStr) {
-		free(pConvertedStr);
-		pConvertedStr = NULL;
 	}
 
 	return false;
@@ -4477,7 +4042,7 @@ MsgHeaderAddress *__MmsDecodeEncodedAddress(FILE *pFile, int totalLength)
 				goto __CATCH;
 			}
 
-			if (_MmsBinaryDecodeGetLongBytes(pFile, pAddrStr, valueLength - charSetLen, totalLength) == false) {
+			if (__MmsBinaryDecodeGetLongBytes(pFile, pAddrStr, valueLength - charSetLen, totalLength) == false) {
 				MSG_DEBUG("__MmsDecodeEncodedAddress : _MmsBinaryDecodeGetLongBytes fail.\n");
 				goto __CATCH;
 			}
@@ -4530,7 +4095,7 @@ static bool __MmsDecodeLongInteger(FILE *pFile, UINT32 *pLongInteger, int totalL
 
 	*pLongInteger = 0;
 
-	if (_MmsBinaryDecodeGetOneByte(pFile, &oneByte, totalLength) == false)
+	if (__MmsBinaryDecodeGetOneByte(pFile, &oneByte, totalLength) == false)
 		goto __CATCH;
 
 	if (oneByte > 31)
@@ -4585,11 +4150,11 @@ static int __MmsDecodeGetFilename(FILE *pFile, char *szBuff, int bufLen, int tot
 			szSrc2 = NULL;
 		}
 
-		if (MsgIsUTF8String((unsigned char*)pLatinBuff, strlen(pLatinBuff)) == false) {
+		if (__MsgIsUTF8String((unsigned char*)pLatinBuff, strlen(pLatinBuff)) == false) {
 			length = strlen(pLatinBuff);
 
 			int		utf8BufSize = 0;
-			utf8BufSize = MsgGetLatin2UTFCodeSize((unsigned char*)pLatinBuff, length);
+			utf8BufSize = __MsgGetLatin2UTFCodeSize((unsigned char*)pLatinBuff, length);
 			if (utf8BufSize < 3)
 				utf8BufSize = 3;//min value
 
@@ -4599,14 +4164,14 @@ static int __MmsDecodeGetFilename(FILE *pFile, char *szBuff, int bufLen, int tot
 				goto __CATCH;
 			}
 
-			if (MsgLatin2UTF ((unsigned char*)pUTF8Buff, utf8BufSize + 1, (unsigned char*)pLatinBuff, length) < 0) {
+			if (__MsgLatin2UTF ((unsigned char*)pUTF8Buff, utf8BufSize + 1, (unsigned char*)pLatinBuff, length) < 0) {
 				MSG_DEBUG("__MmsDecodeGetFilename: MsgLatin2UTF fail \n");
 				goto __CATCH;
 			}
 			free(pLatinBuff);
 			pLatinBuff = NULL;
 		} else {
-			pTmpBuff = _MsgDecodeText(pLatinBuff);
+			pTmpBuff = MsgDecodeText(pLatinBuff);
 			pUTF8Buff = pTmpBuff;
 			free (pLatinBuff);
 			pLatinBuff = NULL;
@@ -4649,26 +4214,6 @@ __CATCH:
 	return -1;
 }
 
-
-/* ==========================================================
-
-	   T  E  X  T         D  E  C  O  D  I  N  G
-
-   ==========================================================*/
-
-
-bool MmsTextDecodeMsgBody(FILE *pFile)
-{
-	MSG_DEBUG("MmsTextDecodeMsgBody: \n");
-	return false;
-}
-
-bool __MmsTextDecodeMsgHeader(FILE *pFile)
-{
-	return true;
-}
-
-
 /* ==========================================================
 
 	   M  M  S        D  E  C  O  D  I  N  G
@@ -4676,7 +4221,7 @@ bool __MmsTextDecodeMsgHeader(FILE *pFile)
    ==========================================================*/
 
 //  to get message body this function should be modified from message raw file.
-bool _MmsReadMsgBody(msg_message_id_t msgID, bool bSavePartsAsTempFiles, bool bRetrieved, char *retrievedPath)
+bool MmsReadMsgBody(msg_message_id_t msgID, bool bSavePartsAsTempFiles, bool bRetrieved, char *retrievedPath)
 {
 	FILE *pFile	= NULL;
 	MmsMsg *pMsg = NULL;
@@ -4691,7 +4236,7 @@ bool _MmsReadMsgBody(msg_message_id_t msgID, bool bSavePartsAsTempFiles, bool bR
 	MmsPluginStorage::instance()->getMmsMessage(&pMsg);
 	memset(pMsg, 0, sizeof(MmsMsg));
 
-	_MmsInitHeader();
+	MmsInitHeader();
 
 	if (bRetrieved && (retrievedPath != NULL)) {
 		strncpy(szFullPath, retrievedPath, (strlen(retrievedPath) > MSG_FILEPATH_LEN_MAX ? MSG_FILEPATH_LEN_MAX:strlen(retrievedPath)));
@@ -4718,7 +4263,7 @@ bool _MmsReadMsgBody(msg_message_id_t msgID, bool bSavePartsAsTempFiles, bool bR
 		goto __CATCH;
 	}
 
-	_MmsRegisterDecodeBuffer(gszMmsLoadBuf1, gszMmsLoadBuf2, MSG_MMS_DECODE_BUFFER_MAX);
+	MmsRegisterDecodeBuffer();
 
 	if (MmsBinaryDecodeMsgHeader(pFile, nSize) == false) {
 		MSG_DEBUG("_MmsReadMsgBody: MmsBinaryDecodeMsgHeader fail...\n");
@@ -4744,7 +4289,7 @@ bool _MmsReadMsgBody(msg_message_id_t msgID, bool bSavePartsAsTempFiles, bool bR
 
 	/* Set mmsHeader.msgType & msgBody to pMsg ----------- */
 
-	pMsg->mmsAttrib.contentType = (MsgContentType)mmsHeader.msgType.type;
+	pMsg->mmsAttrib.contentType = (MimeType)mmsHeader.msgType.type;
 
 	memcpy(&(pMsg->msgType), &(mmsHeader.msgType), sizeof(MsgType));
 	memcpy(&(pMsg->msgBody), &(mmsHeader.msgBody), sizeof(MsgBody));
@@ -4782,7 +4327,7 @@ bool _MmsReadMsgBody(msg_message_id_t msgID, bool bSavePartsAsTempFiles, bool bR
 
 			if ((mmsHeader.msgType.type == MIME_APPLICATION_VND_WAP_MULTIPART_MIXED)||(mmsHeader.msgType.type == MIME_MULTIPART_MIXED)) {
 				if ((pMsg->nPartCount >= attachmax)&&(pMultipart->pNext != NULL)) {
-					_MsgFreeBody(pMultipart->pNext->pBody, pMultipart->pNext->type.type);
+					MmsReleaseMsgBody(pMultipart->pNext->pBody, pMultipart->pNext->type.type);
 
 					free(pMultipart->pNext->pBody);
 					pMultipart->pNext->pBody= NULL;
@@ -4803,12 +4348,6 @@ bool _MmsReadMsgBody(msg_message_id_t msgID, bool bSavePartsAsTempFiles, bool bR
 	/* 	make temporary	*/
 	snprintf(szTempMediaDir, MSG_FILEPATH_LEN_MAX, MSG_DATA_PATH"%s.dir", pMsg->szFileName);
 
-	///////////////////////////////////////////////
-	// call before processing urgent event.
-	//_MmsInitHeader();
-	//_MmsUnregisterDecodeBuffer();
-	///////////////////////////////////////////////
-
 	if (MsgIsMultipart(pMsg->msgType.type) == true) {
 		int partIndex = 0;
 		pMultipart = pMsg->msgBody.body.pMultipart;
@@ -4826,7 +4365,7 @@ bool _MmsReadMsgBody(msg_message_id_t msgID, bool bSavePartsAsTempFiles, bool bR
 
 		while (pMultipart) {
 
-			if (_MmsMultipartSaveAsTempFile(&pMultipart->type, pMultipart->pBody,
+			if (__MmsMultipartSaveAsTempFile(&pMultipart->type, pMultipart->pBody,
 											(char*)MSG_DATA_PATH, pMsg->szFileName, partIndex, bSavePartsAsTempFiles) == false)
 				goto __CATCH;
 
@@ -4848,7 +4387,7 @@ bool _MmsReadMsgBody(msg_message_id_t msgID, bool bSavePartsAsTempFiles, bool bR
 				}
 			}
 
-			if (_MmsMultipartSaveAsTempFile( &pMsg->msgType, &pMsg->msgBody,
+			if (__MmsMultipartSaveAsTempFile( &pMsg->msgType, &pMsg->msgBody,
 											(char*)MSG_DATA_PATH, pMsg->szFileName, 0, bSavePartsAsTempFiles) == false)
 				goto __CATCH;
 		}
@@ -4871,8 +4410,8 @@ RETURN:
 
 __CATCH:
 
-	_MmsInitHeader();
-	_MmsUnregisterDecodeBuffer();
+	MmsInitHeader();
+	MmsUnregisterDecodeBuffer();
 
 	if (pFile != NULL) {
 		MsgCloseFile(pFile);
@@ -4880,17 +4419,16 @@ __CATCH:
 	}
 
 #ifdef __SUPPORT_DRM__
-	_MsgFreeDRMInfo(&pMsg->msgType.drmInfo);
+	MmsReleaseMsgDRMInfo(&pMsg->msgType.drmInfo);
 #endif
 
-	_MsgFreeBody(&pMsg->msgBody, pMsg->msgType.type);
+	MmsReleaseMsgBody(&pMsg->msgBody, pMsg->msgType.type);
 	MSG_DEBUG("_MmsReadMsgBody:    E  N  D    (fail)    ******************** \n");
 
 	return false;
 }
 
-
-bool MsgFreeHeaderAddress(MsgHeaderAddress *pAddr)
+static bool __MsgFreeHeaderAddress(MsgHeaderAddress *pAddr)
 {
 	MsgHeaderAddress *pTempAddr = NULL;
 
@@ -4910,7 +4448,7 @@ bool MsgFreeHeaderAddress(MsgHeaderAddress *pAddr)
 	return true;
 }
 
-bool MsgCheckFileNameHasInvalidChar(char *szName)
+static bool __MsgCheckFileNameHasInvalidChar(char *szName)
 {
 	int	strLen = 0;
 	int i = 0;
@@ -4925,7 +4463,7 @@ bool MsgCheckFileNameHasInvalidChar(char *szName)
 	return false;
 }
 
-bool _MsgReplaceInvalidFileNameChar(char *szInText, char replaceChar)
+static bool __MsgReplaceInvalidFileNameChar(char *szInText, char replaceChar)
 {
 	int nCount = 0;
 	int totalLength = 0;
@@ -4946,7 +4484,7 @@ bool _MsgReplaceInvalidFileNameChar(char *szInText, char replaceChar)
 	return true;
 }
 
-char *_MsgGetStringUntilDelimiter(char *pszString, char delimiter)
+static char *__MsgGetStringUntilDelimiter(char *pszString, char delimiter)
 {
 	char *pszBuffer = NULL;
 	char *pszStrDelimiter = NULL;
@@ -5000,8 +4538,8 @@ char *MsgChangeHexString(char *pOrg)
 			if (pOrg[cIndex+1] != 0 && pOrg[cIndex+2] != 0) 	{
 				snprintf(szBuf, sizeof(szBuf), "%c%c", pOrg[cIndex+1], pOrg[cIndex+2]); // read two chars after '%'
 
-				if (MsgIsHexChar(szBuf) == true) { // check the two character is between  0 ~ F
-					OneChar = _MsgConvertHexValue(szBuf);
+				if (__MsgIsHexChar(szBuf) == true) { // check the two character is between  0 ~ F
+					OneChar = __MsgConvertHexValue(szBuf);
 
 					pNew[index] = OneChar;
 					index++;
@@ -5015,7 +4553,7 @@ char *MsgChangeHexString(char *pOrg)
 	return pNew;
 }
 
-bool _MsgParseParameter(MsgType *pType, char *pSrc)
+static bool __MsgParseParameter(MsgType *pType, char *pSrc)
 {
 	char *pName = NULL;
 	char *pValue = NULL;
@@ -5031,7 +4569,7 @@ bool _MsgParseParameter(MsgType *pType, char *pSrc)
 	char *pUTF8Buff	= NULL;
 
 	while (pSrc != NULL) {
-		pSrc = _MsgSkipWS(pSrc);
+		pSrc = __MsgSkipWS(pSrc);
 		if (pSrc == NULL) {
 			/* End of parse parameter */
 			return true;
@@ -5069,9 +4607,9 @@ bool _MsgParseParameter(MsgType *pType, char *pSrc)
 				if ((pTest = strchr(pValue, MSG_CH_QUOT)) != NULL)
 					*pTest = MSG_CH_NULL;
 
-				pDec = _MsgDecodeText(pValue);		// Api is to long, consider Add to another file (MsgMIMECodec.c)
+				pDec = MsgDecodeText(pValue);		// Api is to long, consider Add to another file (MsgMIMECodec.c)
 			} else {
-				pDec = _MsgDecodeText(pName);
+				pDec = MsgDecodeText(pName);
 			}
 
 			switch (_MsgGetCode(MSG_PARAM, pSrc)) {
@@ -5097,7 +4635,7 @@ bool _MsgParseParameter(MsgType *pType, char *pSrc)
 
 				memset (pType->param.szName, 0, MSG_LOCALE_FILENAME_LEN_MAX + 1);
 
-				pUTF8Buff = MsgConvertLatin2UTF8FileName(pDec);
+				pUTF8Buff = __MsgConvertLatin2UTF8FileName(pDec);
 
 				if (pUTF8Buff) {
 					if ((pExt = strrchr(pUTF8Buff, '.')) != NULL) {
@@ -5115,7 +4653,7 @@ bool _MsgParseParameter(MsgType *pType, char *pSrc)
 					free(pUTF8Buff);
 					pUTF8Buff = NULL;
 
-					if (_MsgChangeSpace(pType->param.szName, &szSrc) == true) {
+					if (__MsgChangeSpace(pType->param.szName, &szSrc) == true) {
 						if (szSrc)
 							strncpy(pType->param.szName, szSrc , strlen(szSrc));
 					}
@@ -5126,7 +4664,7 @@ bool _MsgParseParameter(MsgType *pType, char *pSrc)
 					}
 
 					// Remvoe '/', ex) Content-Type: image/gif; name="images/vf7.gif"
-					_MsgRemoveFilePath(pType->param.szName);
+					__MsgRemoveFilePath(pType->param.szName);
 				} else {
 					MSG_DEBUG("_MsgParseParameter: MsgConvertLatin2UTF8FileName(%s) return NULL\n", pDec);
 				}
@@ -5138,7 +4676,7 @@ bool _MsgParseParameter(MsgType *pType, char *pSrc)
 
 				memset (pType->param.szFileName, 0, MSG_FILENAME_LEN_MAX+1);
 
-				pUTF8Buff = MsgConvertLatin2UTF8FileName(pDec);
+				pUTF8Buff = __MsgConvertLatin2UTF8FileName(pDec);
 
 				if (pUTF8Buff) {
 					if ((pExt = strrchr(pUTF8Buff, '.')) != NULL) {
@@ -5156,7 +4694,7 @@ bool _MsgParseParameter(MsgType *pType, char *pSrc)
 					free(pUTF8Buff);
 					pUTF8Buff = NULL;
 
-					if (_MsgChangeSpace(pType->param.szFileName, &szSrc) == true)
+					if (__MsgChangeSpace(pType->param.szFileName, &szSrc) == true)
 						strcpy(pType->param.szFileName, szSrc);
 
 					if (szSrc) {
@@ -5165,7 +4703,7 @@ bool _MsgParseParameter(MsgType *pType, char *pSrc)
 					}
 
 					// Remvoe '/', ex) Content-Type: image/gif; name="images/vf7.gif"
-					_MsgRemoveFilePath(pType->param.szFileName);
+					__MsgRemoveFilePath(pType->param.szFileName);
 				} else {
 					MSG_DEBUG("_MsgParseParameter: MsgConvertLatin2UTF8FileName(%s) return NULL\n", pDec);
 				}
@@ -5234,7 +4772,7 @@ bool _MsgParseParameter(MsgType *pType, char *pSrc)
 	return true;
 }
 
-char *_MsgSkipWS(char *s)
+static char *__MsgSkipWS(char *s)
 {
 	while (true) {
 		if ((*s == MSG_CH_CR) || (*s == MSG_CH_LF) || (*s == MSG_CH_SP)	|| (*s == MSG_CH_TAB)) {
@@ -5245,7 +4783,7 @@ char *_MsgSkipWS(char *s)
 	}
 }
 
-char *__MsgSkipComment (char *s,long trim)
+static char *__MsgSkipComment (char *s,long trim)
 {
 
 	char *ret;
@@ -5291,19 +4829,19 @@ char *__MsgSkipComment (char *s,long trim)
 	return NULL;
 }
 
-char *MsgConvertLatin2UTF8FileName(char *pSrc)
+static char *__MsgConvertLatin2UTF8FileName(char *pSrc)
 {
 	char *pUTF8Buff  = NULL;
 	char *pData = NULL;
 
 
 	//convert utf8 string
-	if (MsgIsUTF8String((unsigned char*)pSrc, strlen(pSrc)) == false) {
+	if (__MsgIsUTF8String((unsigned char*)pSrc, strlen(pSrc)) == false) {
 		int length  = 0;
 		int utf8BufSize = 0;
 
 		length = strlen(pSrc);
-		utf8BufSize = MsgGetLatin2UTFCodeSize((unsigned char*)pSrc, length);
+		utf8BufSize = __MsgGetLatin2UTFCodeSize((unsigned char*)pSrc, length);
 		if (utf8BufSize < 3)
 			utf8BufSize = 3; //min value
 
@@ -5314,7 +4852,7 @@ char *MsgConvertLatin2UTF8FileName(char *pSrc)
 			goto __CATCH;
 		}
 
-		if (MsgLatin2UTF ((unsigned char*)pUTF8Buff, utf8BufSize + 1, (unsigned char*)pSrc, length) < 0) {
+		if (__MsgLatin2UTF ((unsigned char*)pUTF8Buff, utf8BufSize + 1, (unsigned char*)pSrc, length) < 0) {
 			MSG_DEBUG("MsgConvertLatin2UTF8FileName: MsgLatin2UTF fail \n");
 			goto __CATCH;
 		}
@@ -5331,7 +4869,7 @@ char *MsgConvertLatin2UTF8FileName(char *pSrc)
 	}
 
 	//convert hex string
-	if (MsgIsPercentSign(pUTF8Buff) == true) {
+	if (__MsgIsPercentSign(pUTF8Buff) == true) {
 		pData = MsgChangeHexString(pUTF8Buff);
 		if (pData) {
 			strcpy(pUTF8Buff, pData);
@@ -5352,7 +4890,7 @@ __CATCH:
 	return NULL;
 }
 
-bool _MsgChangeSpace(char *pOrg, char **ppNew)
+static bool __MsgChangeSpace(char *pOrg, char **ppNew)
 {
 	char *pNew = NULL;
 	int cLen = 0;
@@ -5385,7 +4923,7 @@ bool _MsgChangeSpace(char *pOrg, char **ppNew)
 	return true;
 }
 
-void _MsgRemoveFilePath(char *pSrc)
+static void __MsgRemoveFilePath(char *pSrc)
 {
 	// Remvoe '/', ex) Content-Type: image/gif; name="images/vf7.gif"
 	char *pPath = NULL;
@@ -5421,7 +4959,7 @@ void _MsgRemoveFilePath(char *pSrc)
 	}
 }
 
-bool MsgIsUTF8String(unsigned char *szSrc, int nChar)
+static bool __MsgIsUTF8String(unsigned char *szSrc, int nChar)
 {
 	MSG_DEBUG("MsgIsUTF8String: --------------- \n");
 
@@ -5467,7 +5005,7 @@ __CATCH:
 	return false;
 }
 
-bool MsgIsPercentSign(char *pSrc)
+static bool __MsgIsPercentSign(char *pSrc)
 {
 	char *pCh = NULL;
 	bool bRet = false;
@@ -5483,7 +5021,7 @@ bool MsgIsPercentSign(char *pSrc)
 	return bRet;
 }
 
-MsgMultipart *MsgAllocMultipart(void)
+static MsgMultipart *__MsgAllocMultipart(void)
 {
 	MsgMultipart *pMultipart = NULL;
 
@@ -5501,8 +5039,8 @@ MsgMultipart *MsgAllocMultipart(void)
 		goto __CATCH;
 	}
 
-	_MsgInitMsgType(&pMultipart->type);
-	_MsgInitMsgBody(pMultipart->pBody);
+	MmsInitMsgType(&pMultipart->type);
+	MmsInitMsgBody(pMultipart->pBody);
 
 	pMultipart->pNext = NULL;
 
@@ -5523,74 +5061,7 @@ __CATCH:
 	return NULL;
 }
 
-bool _MsgInitMsgType(MsgType *pMsgType)
-{
-	pMsgType->offset = 0;
-	pMsgType->size = 0;
-	pMsgType->contentSize = 0;
-	pMsgType->disposition = 0;
-	pMsgType->encoding = 0;
-	pMsgType->type = MIME_UNKNOWN;
-#ifdef FEATURE_JAVA_MMS_MIME
-	pMsgType->szMimeString[0] ='\0';
-#endif
-	pMsgType->section = 0;
-
-	pMsgType->szOrgFilePath[0] = '\0';
-	pMsgType->szContentID[0] = '\0';
-	pMsgType->szContentLocation[0] = '\0';
-
-	pMsgType->szContentRepPos[0] = '\0';
-	pMsgType->szContentRepSize[0] = '\0';
-	pMsgType->szContentRepIndex[0] = '\0';
-
-	__MsgInitMsgContentParam(&pMsgType->param);
-#ifdef __SUPPORT_DRM__
-	__MsgInitMsgDRMInfo(&pMsgType->drmInfo);
-#endif
-
-	return true;
-}
-
-
-bool __MsgInitMsgContentParam(MsgContentParam *pMsgContentParam)
-{
-	pMsgContentParam->charset = MSG_CHARSET_UNKNOWN;
-	pMsgContentParam->type = MIME_UNKNOWN;
-	pMsgContentParam->szBoundary[0] = '\0';
-	pMsgContentParam->szFileName[0] = '\0';
-	pMsgContentParam->szName[0] = '\0';
-#ifdef FEATURE_JAVA_MMS
-	pMsgContentParam->szApplicationID = NULL;
-	pMsgContentParam->szReplyToApplicationID = NULL;
-#endif
-	pMsgContentParam->szStart[0] = '\0';
-	pMsgContentParam->szStartInfo[0] = '\0';
-	pMsgContentParam->pPresentation = NULL;
-
-	pMsgContentParam->reportType = MSG_PARAM_REPORT_TYPE_UNKNOWN; //  add only used as parameter of Content-Type: multipart/report; report-type
-
-	return true;
-}
-
-
-bool _MsgInitMsgBody(MsgBody *pMsgBody)
-{
-	pMsgBody->offset = 0;
-	pMsgBody->size = 0;
-	pMsgBody->body.pText = NULL;
-	pMsgBody->szOrgFilePath[0] = '\0';
-
-	_MsgInitMsgType(&pMsgBody->presentationType);
-	pMsgBody->pPresentationBody = NULL;
-
-	memset(pMsgBody->szOrgFilePath, 0, MSG_FILEPATH_LEN_MAX);
-
-	return true;
-}
-
-
-MsgPresentationFactor MsgIsPresentationEx(MsgType *multipartType, char* szStart, MsgContentType typeParam)
+static MsgPresentationFactor __MsgIsPresentationEx(MsgType *multipartType, char* szStart, MimeType typeParam)
 {
 	char szTmpStart[MSG_MSG_ID_LEN + 3] = { 0, };
 	char szTmpContentID[MSG_MSG_ID_LEN + 3] = { 0, };
@@ -5652,13 +5123,13 @@ MsgPresentationFactor MsgIsPresentationEx(MsgType *multipartType, char* szStart,
 	}
 }
 
-void MsgConfirmPresentationPart(MsgType *pMsgType, MsgBody *pMsgBody, MsgPresentaionInfo *pPresentationInfo)
+static void __MsgConfirmPresentationPart(MsgType *pMsgType, MsgBody *pMsgBody, MsgPresentaionInfo *pPresentationInfo)
 {
 	MSG_BEGIN();
 	MsgMultipart *pNextPart = NULL;
 	MsgMultipart *pRemovePart = NULL;
 
-	if (MsgIsMultipartRelated(pMsgType->type)) {
+	if (__MsgIsMultipartRelated(pMsgType->type)) {
 		// assign the multipart to presentation part
 		// remove the multipart(pCurPresentation) which is presentation part from the linked list.
 		// if there is no presentation part -> assign first multipart to presentation part by force.
@@ -5668,7 +5139,7 @@ void MsgConfirmPresentationPart(MsgType *pMsgType, MsgBody *pMsgBody, MsgPresent
 			pPresentationInfo->factor			= MSG_PRESENTATION_NONE;
 		}
 
-		if (pPresentationInfo->pCurPresentation != NULL && MsgIsPresentablePart(pPresentationInfo->pCurPresentation->type.type)) {
+		if (pPresentationInfo->pCurPresentation != NULL && __MsgIsPresentablePart(pPresentationInfo->pCurPresentation->type.type)) {
 			/* Presentable Part is some MARK-UP page, such as SMIL, HTML, WML, XHTML.
 			 * In this case, COPY the Presentation part and leave other multiparts.
 			 */
@@ -5683,7 +5154,7 @@ void MsgConfirmPresentationPart(MsgType *pMsgType, MsgBody *pMsgBody, MsgPresent
 				pMsgBody->size -= pPresentationInfo->pCurPresentation->pBody->size;
 				if (pPresentationInfo->pCurPresentation) {
 #ifdef __SUPPORT_DRM__
-					_MsgFreeDRMInfo(&pPresentationInfo->pCurPresentation->type.drmInfo);
+					MmsReleaseMsgDRMInfo(&pPresentationInfo->pCurPresentation->type.drmInfo);
 #endif
 					free(pPresentationInfo->pCurPresentation);
 					pPresentationInfo->pCurPresentation = NULL;
@@ -5698,7 +5169,7 @@ void MsgConfirmPresentationPart(MsgType *pMsgType, MsgBody *pMsgBody, MsgPresent
 					pPresentationInfo->pCurPresentation = NULL;
 				}
 			}
-		} else if (pPresentationInfo->pCurPresentation != NULL && MsgIsText(pPresentationInfo->pCurPresentation->type.type)) {
+		} else if (pPresentationInfo->pCurPresentation != NULL && __MsgIsText(pPresentationInfo->pCurPresentation->type.type)) {
 			/* NON-Presentable Part is some PLAIN part such as, text/plain, multipart/alternative.
 			 * In this case, leave the Presentation part as a multipart and remove other multiparts.
 			 */
@@ -5716,7 +5187,7 @@ void MsgConfirmPresentationPart(MsgType *pMsgType, MsgBody *pMsgBody, MsgPresent
 				pNextPart = pNextPart->pNext;
 
 				if (pRemovePart->pBody) {
-					_MsgFreeBody(pRemovePart->pBody, pRemovePart->type.type);
+					MmsReleaseMsgBody(pRemovePart->pBody, pRemovePart->type.type);
 					free(pRemovePart->pBody);
 					pRemovePart->pBody = NULL;
 				}
@@ -5726,16 +5197,16 @@ void MsgConfirmPresentationPart(MsgType *pMsgType, MsgBody *pMsgBody, MsgPresent
 			}
 		} else {
 #ifdef __SUPPORT_DRM__
-			_MsgFreeDRMInfo(&pMsgBody->presentationType.drmInfo);
+			MmsReleaseMsgDRMInfo(&pMsgBody->presentationType.drmInfo);
 #endif
-			_MsgInitMsgType(&pMsgBody->presentationType);
+			MmsInitMsgType(&pMsgBody->presentationType);
 			pMsgBody->pPresentationBody = NULL;
 		}
 	}
 	MSG_END();
 }
 
-bool MsgIsMultipartRelated(int type)
+static bool __MsgIsMultipartRelated(int type)
 {
 	if (type == MIME_MULTIPART_RELATED || type == MIME_APPLICATION_VND_WAP_MULTIPART_RELATED) {
 		return true;
@@ -5744,7 +5215,7 @@ bool MsgIsMultipartRelated(int type)
 	}
 }
 
-bool MsgIsPresentablePart(int type)
+static bool __MsgIsPresentablePart(int type)
 {
 	if (type == MIME_TEXT_HTML || type == MIME_TEXT_VND_WAP_WML || type == MIME_APPLICATION_SMIL) {
 		return true;
@@ -5754,56 +5225,6 @@ bool MsgIsPresentablePart(int type)
 }
 
 #ifdef __SUPPORT_DRM__
-void _MsgFreeDRMInfo(MsgDRMInfo *pDrmInfo)
-{
-	MSG_DEBUG("_MsgFreeDRMInfo: S T A R T  !!! \n");
-
-	if (pDrmInfo == NULL) {
-		MSG_DEBUG("pDrmInfo is NULL");
-		return;
-	}
-
-	if (pDrmInfo->szContentDescription) {
-		free(pDrmInfo->szContentDescription);
-		pDrmInfo->szContentDescription = NULL;
-	}
-
-	if (pDrmInfo->szContentVendor) {
-		free(pDrmInfo->szContentVendor);
-		pDrmInfo->szContentVendor = NULL;
-	}
-
-	if (pDrmInfo->szContentName) {
-		free(pDrmInfo->szContentName);
-		pDrmInfo->szContentName = NULL;
-	}
-
-	if (pDrmInfo->szContentURI) {
-		free(pDrmInfo->szContentURI);
-		pDrmInfo->szContentURI = NULL;
-	}
-
-	if (pDrmInfo->szRightIssuer) {
-		free(pDrmInfo->szRightIssuer);
-		pDrmInfo->szRightIssuer = NULL;
-	}
-
-	if (pDrmInfo->szDrm2FullPath) {
-		free(pDrmInfo->szDrm2FullPath);
-		pDrmInfo->szDrm2FullPath = NULL;
-	}
-
-#if MMS_ENABLE_EXTEND_CFM
-	// DRM (Extended)CFM
-	if (pDrmInfo->pszContentType) {
-		free(pDrmInfo->pszContentType);
-		pDrmInfo->pszContentType = NULL;
-	}
-#endif
-
-	pDrmInfo->contentType = MIME_UNKNOWN;
-	pDrmInfo->drmType = MSG_DRM_TYPE_NONE;
-}
 
 bool MsgCopyDrmInfo(MsgType *pPartType)
 {
@@ -5846,7 +5267,7 @@ bool MsgCopyDrmInfo(MsgType *pPartType)
 			strcpy (pPartType->param.szName + fileNameLen, pExt);
 		} else {
 			strncpy(pPartType->param.szName, pTmpBuf, MSG_LOCALE_FILENAME_LEN_MAX);
-			MsgMakeFileName(pPartType->type, pPartType->param.szName, MSG_DRM_TYPE_NONE, 0);
+			__MsgMakeFileName(pPartType->type, pPartType->param.szName, MSG_DRM_TYPE_NONE, 0);
 		}
 	}
 
@@ -5855,7 +5276,7 @@ bool MsgCopyDrmInfo(MsgType *pPartType)
 
 #endif
 
-bool MsgIsText(int type)
+static bool __MsgIsText(int type)
 {
 	if (type == MIME_TEXT_PLAIN || type == MIME_TEXT_HTML || type == MIME_TEXT_VND_WAP_WML ||
 		type == MIME_TEXT_X_VNOTE || type == MIME_APPLICATION_SMIL || type == MIME_TEXT_X_IMELODY) {
@@ -5865,136 +5286,9 @@ bool MsgIsText(int type)
 	}
 }
 
-bool MsgFreeAttrib(MmsAttrib *pAttrib)
-{
-	MSG_BEGIN();
-
-	if (pAttrib == NULL) {
-		MSG_DEBUG("pAttrib is NULL");
-		return false;
-	}
-
-	if (pAttrib->szTo) {
-		free(pAttrib->szTo);
-		pAttrib->szTo = NULL;
-	}
-
-	if (pAttrib->szCc) {
-		free(pAttrib->szCc);
-		pAttrib->szCc = NULL;
-	}
-
-	if (pAttrib->szBcc) {
-		free(pAttrib->szBcc);
-		pAttrib->szBcc = NULL;
-	}
-
-	//check if pMultiStatus should be freed or not, because pMultiStatus is not allocated
-	if (pAttrib->pMultiStatus) {
-		MmsMsgMultiStatus *pMultiStatus = pAttrib->pMultiStatus;
-		MmsMsgMultiStatus *pCurStatus = NULL;
-
-		while (pMultiStatus != NULL ) {
-			pCurStatus = pMultiStatus;
-			pMultiStatus = pMultiStatus->pNext;
-
-			if (pCurStatus) {
-				free(pCurStatus);
-				pCurStatus = NULL;
-			}
-		}
-
-		pAttrib->pMultiStatus = NULL;
-	}
 
 
-	MSG_END();
-
-	return true;
-}
-
-bool _MsgFreeBody(MsgBody *pBody, int type)
-{
-	MSG_DEBUG("_MsgFreeBody: S T A R T  !!! \n") ;
-
-	if (pBody == NULL) {
-		MSG_DEBUG("_MsgFreeBody: pBody == NULL \n" );
-		MSG_DEBUG("_MsgFreeBody: E  N  D   (End)!!! \n") ;
-
-		return false;
-	}
-
-	switch (type) {
-	case MIME_MULTIPART_REPORT:
-	case MIME_APPLICATION_VND_OMA_DRM_MESSAGE:
-	case MIME_APPLICATION_VND_WAP_MULTIPART_MIXED:
-	case MIME_APPLICATION_VND_WAP_MULTIPART_RELATED:
-	case MIME_APPLICATION_VND_WAP_MULTIPART_ASTERIC:
-	case MIME_MULTIPART_MIXED:
-	case MIME_MULTIPART_RELATED:
-	case MIME_MULTIPART_ALTERNATIVE:
-	case MIME_APPLICATION_VND_WAP_MULTIPART_ALTERNATIVE:
-		{
-			MsgMultipart *pMulti = pBody->body.pMultipart;
-			MsgMultipart *pCurrPart = NULL;
-			MsgBody *pPresentation = pBody->pPresentationBody;
-			while (pMulti != NULL) {
-				pCurrPart = pMulti;
-
-				pMulti = pMulti->pNext;
-
-				if (pCurrPart) {
-#ifdef __SUPPORT_DRM__
-					_MsgFreeDRMInfo(&pCurrPart->type.drmInfo);
-#endif
-
-					if (pCurrPart->pBody) {
-						if (pCurrPart->pBody->body.pBinary) {
-							free(pCurrPart->pBody->body.pBinary);
-							pCurrPart->pBody->body.pBinary = NULL;
-						}
-						free(pCurrPart->pBody);
-						pCurrPart->pBody = NULL;
-					}
-					free(pCurrPart);
-					pCurrPart = NULL;
-				}
-			}
-
-			pBody->body.pMultipart = NULL;
-
-			if (pPresentation) {
-				if (pPresentation->body.pText) {
-					free(pPresentation->body.pText);
-					pPresentation->body.pText = NULL;
-				}
-				free(pPresentation);
-				pBody->pPresentationBody = NULL;
-			}
-
-			_MsgInitMsgType(&pBody->presentationType);
-
-			break;
-		}
-
-	default:
-		/* Any single part */
-
-		if (pBody->body.pBinary) {
-			free(pBody->body.pBinary);
-			pBody->body.pBinary = NULL;
-		}
-
-		break;
-	}
-
-	MSG_DEBUG("_MsgFreeBody: E  N  D  (Successfully) !!! \n") ;
-
-	return true;
-
-}
-
-bool MsgResolveNestedMultipart(MsgType *pPartType, MsgBody *pPartBody)
+static bool __MsgResolveNestedMultipart(MsgType *pPartType, MsgBody *pPartBody)
 {
 	MSG_BEGIN();
 	MsgMultipart *pTmpMultipart = NULL;
@@ -6059,15 +5353,15 @@ bool MsgResolveNestedMultipart(MsgType *pPartType, MsgBody *pPartBody)
 
 		if (pRemoveList) {
 #ifdef __SUPPORT_DRM__
-			_MsgFreeDRMInfo(&pRemoveList->type.drmInfo);
+			MmsReleaseMsgDRMInfo(&pRemoveList->type.drmInfo);
 #endif
-			_MsgFreeBody(pRemoveList->pBody, pRemoveList->type.type);
+			MmsReleaseMsgBody(pRemoveList->pBody, pRemoveList->type.type);
 
 			free(pRemoveList->pBody);
 			free(pRemoveList);
 		}
 
-		if (MsgCopyNestedMsgType(pPartType, &(pSelectedPart->type)) == false) {
+		if (__MsgCopyNestedMsgType(pPartType, &(pSelectedPart->type)) == false) {
 			MSG_DEBUG("MsgResolveNestedMultipart : MsgPriorityCopyMsgType failed \n");
 			goto __CATCH;
 		}
@@ -6077,7 +5371,7 @@ bool MsgResolveNestedMultipart(MsgType *pPartType, MsgBody *pPartBody)
 
 		if (pSelectedPart != NULL) {
 #ifdef __SUPPORT_DRM__
-			_MsgFreeDRMInfo(&pSelectedPart->type.drmInfo);
+			MmsReleaseMsgDRMInfo(&pSelectedPart->type.drmInfo);
 #endif
 
 			if (pSelectedPart->pBody != NULL) {
@@ -6098,7 +5392,7 @@ bool MsgResolveNestedMultipart(MsgType *pPartType, MsgBody *pPartBody)
 		pSelectedPart = pPartBody->body.pMultipart;
 
 		while (pSelectedPart) {
-			if (MsgIsMultipartMixed(pSelectedPart->type.type)) {
+			if (__MsgIsMultipartMixed(pSelectedPart->type.type)) {
 
 				if (pSelectedPart->pBody == NULL) {
 					MSG_DEBUG("MsgResolveNestedMultipart :pSelectedPart->pBody(1) is NULL\n");
@@ -6133,15 +5427,15 @@ bool MsgResolveNestedMultipart(MsgType *pPartType, MsgBody *pPartBody)
 
 				if (pSelectedPart) {
 #ifdef __SUPPORT_DRM__
-					_MsgFreeDRMInfo(&pSelectedPart->type.drmInfo);
+					MmsReleaseMsgDRMInfo(&pSelectedPart->type.drmInfo);
 #endif
 					free(pSelectedPart->pBody);
 					free(pSelectedPart);
 				}
 				pSelectedPart = pTmpMultipart;
-			} else if (MsgIsMultipartRelated(pSelectedPart->type.type) && pPrevPart != NULL) {
+			} else if (__MsgIsMultipartRelated(pSelectedPart->type.type) && pPrevPart != NULL) {
 				pPrevPart->pNext = pTmpMultipart = pSelectedPart->pNext;
-				_MsgFreeBody(pSelectedPart->pBody, pSelectedPart->type.type);
+				MmsReleaseMsgBody(pSelectedPart->pBody, pSelectedPart->type.type);
 
 				free(pSelectedPart->pBody);
 				free(pSelectedPart);
@@ -6206,7 +5500,7 @@ bool MsgResolveNestedMultipart(MsgType *pPartType, MsgBody *pPartBody)
 				pPartType->type = pSelectedPart->type.type;
 
 #ifdef __SUPPORT_DRM__
-				_MsgFreeDRMInfo(&pSelectedPart->type.drmInfo);
+				MmsReleaseMsgDRMInfo(&pSelectedPart->type.drmInfo);
 #endif
 				free(pSelectedPart->pBody);
 				free(pSelectedPart);
@@ -6267,9 +5561,9 @@ bool MsgResolveNestedMultipart(MsgType *pPartType, MsgBody *pPartBody)
 
 		while (pTmpMultipart) {
 #ifdef __SUPPORT_DRM__
-			_MsgFreeDRMInfo(&pTmpMultipart->type.drmInfo);
+			MmsReleaseMsgDRMInfo(&pTmpMultipart->type.drmInfo);
 #endif
-			_MsgFreeBody(pTmpMultipart->pBody, pTmpMultipart->type.type);
+			MmsReleaseMsgBody(pTmpMultipart->pBody, pTmpMultipart->type.type);
 			pNextRemovePart = pTmpMultipart->pNext;
 
 			free(pTmpMultipart->pBody);
@@ -6277,7 +5571,7 @@ bool MsgResolveNestedMultipart(MsgType *pPartType, MsgBody *pPartBody)
 			pTmpMultipart = pNextRemovePart;
 		}
 
-		if (MsgCopyNestedMsgType(pPartType, &(pSelectedPart->type)) == false) {
+		if (__MsgCopyNestedMsgType(pPartType, &(pSelectedPart->type)) == false) {
 			MSG_DEBUG("MsgResolveNestedMultipart : MsgPriorityCopyMsgType failed \n");
 			goto __CATCH;
 		}
@@ -6287,7 +5581,7 @@ bool MsgResolveNestedMultipart(MsgType *pPartType, MsgBody *pPartBody)
 
 		if (pSelectedPart != NULL) {
 #ifdef __SUPPORT_DRM__
-			_MsgFreeDRMInfo(&pSelectedPart->type.drmInfo);
+			MmsReleaseMsgDRMInfo(&pSelectedPart->type.drmInfo);
 #endif
 			if (pSelectedPart->pBody != NULL) {
 				free(pSelectedPart->pBody);
@@ -6355,257 +5649,6 @@ __CATCH:
 	return NULL;
 }
 
-bool _MsgParsePartHeader(MsgType *pType, const char *pRawData, int nRawData)
-{
-	char ch = '\0';
-	int cRaw = nRawData;
-	char *pFieldLine = NULL;
-	char *pFieldValue = NULL;
-	char *szFieldValue = NULL;
-	char *szSrc = NULL;
-	int nLen = 0;
-	char fieldLine[MSG_LINE_LEN] = {0, }; //temporary line buffer
-	int length = 0;
-
-	char szTempBuf[MSG_LOCAL_TEMP_BUF_SIZE];
-
-	while ((cRaw > 0) && *pRawData != MSG_CH_LF) {
-		memset(fieldLine, 0, MSG_LINE_LEN);
-		pFieldLine = fieldLine;
-
-		ch = MSG_CH_SP; //remember previous character.
-
-		while (ch) {
-			switch (ch = *pRawData++) {
-			case MSG_CH_CR: //'\r'
-				if (*pRawData == MSG_CH_LF)
-					break;
-
-			case MSG_CH_LF: //'\n'
-				if (*pRawData != MSG_CH_SP && *pRawData != MSG_CH_TAB) {
-					ch = MSG_CH_NULL;
-					*pFieldLine = ch;
-					pFieldLine++;
-				}
-				break;
-
-			case MSG_CH_TAB: //'\t'
-				*pFieldLine = MSG_CH_SP;
-				pFieldLine++;
-				break;
-
-			default:
-				*pFieldLine = ch;
-				pFieldLine++;
-				break;
-			}
-
-			if (--cRaw <= 0) {  //If is the last character of header
-				*pFieldLine = MSG_CH_NULL;
-				pFieldLine++;
-			}
-		}
-
-
-		if ((pFieldValue =  strchr(fieldLine, MSG_CH_COLON)) != NULL) {
-			char*	pTemp = pFieldValue;
-			char*	pValue = NULL;
-
-			*pFieldValue++ = MSG_CH_NULL; //remove ':'
-
-			while (*pFieldValue == MSG_CH_SP) //remove space ' '
-				pFieldValue++;
-
-			while ((fieldLine < pTemp--) && (*pTemp == MSG_CH_SP))
-				*pTemp = MSG_CH_NULL;
-
-			nLen = strlen(pFieldValue);
-
-			if (nLen >= MSG_LOCAL_TEMP_BUF_SIZE) {
-				szFieldValue = (char *)malloc(nLen + 1);
-				memset(szFieldValue, 0 , nLen + 1);
-				memcpy(szFieldValue, pFieldValue, nLen + 1);
-			} else {
-				memset(szTempBuf, 0, MSG_LOCAL_TEMP_BUF_SIZE);
-				strcpy(szTempBuf, pFieldValue);
-				szFieldValue = szTempBuf;
-			}
-
-			if (MsgStrcpyWithoutCRLF(szFieldValue, &szSrc) == true) {
-				if (szSrc != NULL)
-					strncpy(szFieldValue, szSrc, strlen(szSrc));
-			}
-			if (szSrc) {
-				free(szSrc);
-				szSrc = NULL;
-			}
-
-			switch (_MsgGetCode(MSG_FIELD, fieldLine)) {
-			case MSG_FIELD_CONTENT_ID:
-				if ((pTemp = strchr(szFieldValue, MSG_CH_SEMICOLON)) != NULL)
-					*pTemp++ = MSG_CH_NULL;
-
-				pValue = _MsgDecodeText(szFieldValue);
-				memset (pType->szContentID, 0, MSG_MSG_ID_LEN + 1);
-
-				if (pValue) {
-					// support CD & SD
-					length = MsgStrlen(pValue);
-					if (pValue[0] == '<' && pValue[length-1] == '>') {
-						strncpy(pType->szContentID, pValue + 1, length - 2);
-					} else {
-						strncpy(pType->szContentID, pValue, MSG_MSG_ID_LEN);
-					}
-
-					MSG_DEBUG("_MsgParsePartHeader: Content-ID = %s     %s\n", pFieldValue, pType->szContentID);
-
-					if (pTemp != NULL)
-						_MsgParseParameter(pType, pTemp);
-
-					free(pValue);
-					pValue = NULL;
-				}
-
-				break;
-
-			case MSG_FIELD_CONTENT_LOCATION:
-				if ((pTemp = strchr(szFieldValue, MSG_CH_SEMICOLON)) != NULL)
-					*pTemp++ = MSG_CH_NULL;
-
-				pValue = _MsgDecodeText(szFieldValue);
-				memset (pType->szContentLocation, 0, MSG_MSG_ID_LEN + 1);
-
-				if (pValue) {
-					strncpy(pType->szContentLocation, pValue, MSG_MSG_ID_LEN);
-
-					MSG_DEBUG("_MsgParsePartHeader: Content-Location = %s     %s\n", pFieldValue, pType->szContentLocation);
-
-					if (pTemp != NULL)
-						_MsgParseParameter(pType, pTemp);
-
-					free(pValue);
-					pValue = NULL;
-				}
-
-				break;
-
-			case MSG_FIELD_CONTENT_TYPE:
-				if ((pTemp = strchr(szFieldValue, MSG_CH_SEMICOLON)) == NULL) {
-					if ((pTemp = strchr(szFieldValue, MSG_CH_SP)) != NULL)
-						*pTemp++ = MSG_CH_NULL;
-				} else {
-					*pTemp++ = MSG_CH_NULL;
-				}
-
-				pType->type = _MsgGetCode(MSG_TYPE, szFieldValue);
-
-				MSG_DEBUG("_MsgParsePartHeader: Content-Type = %s     %d\n", pFieldValue, pType->type);
-
-				if (pType->type == INVALID_HOBJ)
-					pType->type = MIME_UNKNOWN;
-
-				if (pTemp != NULL)
-					_MsgParseParameter(pType, pTemp);
-
-				break;
-
-			case MSG_FIELD_CONTENT_TRANSFER_ENCODING:
-				if ((pTemp = strchr(szFieldValue, MSG_CH_SEMICOLON)) == NULL) {
-					if ((pTemp = strchr(szFieldValue, MSG_CH_SP)) != NULL)
-						*pTemp++ = MSG_CH_NULL;
-				} else {
-					*pTemp++ = MSG_CH_NULL;
-				}
-
-				pType->encoding = _MsgGetCode(MSG_ENCODING, szFieldValue);
-
-				MSG_DEBUG("_MsgParsePartHeader: Content-Encoding = %s     %d\n", pFieldValue, pType->encoding);
-
-				if (pTemp != NULL)
-					_MsgParseParameter(pType, pTemp);
-
-				break;
-
-			case MSG_FIELD_CONTENT_DISPOSITION:
-				if ((pTemp = strchr(szFieldValue, MSG_CH_SEMICOLON)) == NULL) {
-					if ((pTemp = strchr(szFieldValue, MSG_CH_SP)) != NULL)
-						*pTemp++ = MSG_CH_NULL;
-				} else {
-					*pTemp++ = MSG_CH_NULL;
-				}
-
-				pType->disposition = _MsgGetCode(MSG_DISPOSITION, szFieldValue);
-
-				MSG_DEBUG("_MsgParsePartHeader: Content-Disposition = %s     %d\n", pFieldValue, pType->disposition);
-
-				if (pTemp != NULL)
-					_MsgParseParameter(pType, pTemp);
-
-				break;
-
-#ifdef __SUPPORT_DRM__
-
-			case MSG_FIELD_CONTENT_NAME:
-				/* add to parse DCF header such as,
-				 * Right-Issuer, Content-Name, and Content-Description.
-				 */
-				MsgMIMERemoveQuote(szFieldValue);
-				pType->drmInfo.szContentName = MsgStrCopy(szFieldValue);
-				break;
-
-			case MSG_FIELD_CONTENT_DESCRIPTION:
-				MsgMIMERemoveQuote(szFieldValue);
-				pType->drmInfo.szContentDescription = MsgStrCopy(szFieldValue);
-				break;
-
-			case MSG_FIELD_CONTENT_VENDOR:
-				MsgMIMERemoveQuote(szFieldValue);
-				pType->drmInfo.szContentVendor = MsgStrCopy(szFieldValue);
-				break;
-
-			case MSG_FIELD_RIGHT_ISSUER:
-				MsgMIMERemoveQuote(szFieldValue);
-				pType->drmInfo.szRightIssuer = MsgStrCopy(szFieldValue);
-				break;
-
-
-			case MSG_FIELD_DRM_CONVERTED:
-				MsgMIMERemoveQuote(szFieldValue);
-				pType->nDrmConvertedStatus = atoi(szFieldValue);
-				break;
-
-#endif
-			case MSG_FILED_CONTENT_REPLACE_POS:
-				MsgMIMERemoveQuote(szFieldValue);
-				strncpy(pType->szContentRepPos, szFieldValue, sizeof(pType->szContentRepPos) - 1);
-				break;
-
-			case MSG_FILED_CONTENT_REPLACE_SIZE:
-				MsgMIMERemoveQuote(szFieldValue);
-				strncpy(pType->szContentRepSize, szFieldValue, sizeof(pType->szContentRepSize) - 1);
-				break;
-
-			case MSG_FILED_CONTENT_REPLACE_INDEX:
-				MsgMIMERemoveQuote(szFieldValue);
-				strncpy(pType->szContentRepIndex, szFieldValue, sizeof(pType->szContentRepIndex) - 1);
-				break;
-
-			default:
-				MSG_DEBUG("_MsgParsePartHeader: Unhandled field \n");
-				break;
-			}
-		}
-
-		if (szFieldValue != NULL && szFieldValue != szTempBuf) {
-			free(szFieldValue);
-			szFieldValue = NULL;
-		}
-
-	}
-
-	return true;
-}
-
 char *MsgRemoveQuoteFromFilename(char *pSrc)
 {
 	int cLen = 0;	// length of pBuff
@@ -6660,7 +5703,7 @@ bool MsgIsMultipart(int type)
 }
 
 
-bool MsgIsHexChar(char *pSrc)
+static bool __MsgIsHexChar(char *pSrc)
 {
 	int cIndex = 0;
 	int cLen = 0;
@@ -6680,7 +5723,7 @@ bool MsgIsHexChar(char *pSrc)
 	return bRet;
 }
 
-char _MsgConvertHexValue(char *pSrc)
+static char __MsgConvertHexValue(char *pSrc)
 {
 	int ch = 0;
 	int cIndex = 0;
@@ -6701,7 +5744,7 @@ char _MsgConvertHexValue(char *pSrc)
 	return ResultChar;
 }
 
-int __MsgConvertCharToInt(char ch)
+static int __MsgConvertCharToInt(char ch)
 {
 	if (ch>='0' && ch<='9') {
 		return ch - '0';
@@ -6714,8 +5757,11 @@ int __MsgConvertCharToInt(char ch)
 	}
 }
 
-bool MsgCopyNestedMsgType(MsgType *pMsgType1, MsgType *pMsgType2)
+static bool __MsgCopyNestedMsgType(MsgType *pMsgType1, MsgType *pMsgType2)
 {
+	if(!pMsgType1 || !pMsgType2)
+		return false;
+
 	if (pMsgType1->section == INVALID_HOBJ)
 		pMsgType1->section = pMsgType2->section;
 
@@ -6768,7 +5814,7 @@ bool MsgCopyNestedMsgType(MsgType *pMsgType1, MsgType *pMsgType2)
 	pMsgType1->size = pMsgType2->size;
 	pMsgType1->type = pMsgType2->type;
 
-	MsgCopyNestedMsgParam(&(pMsgType1->param), &(pMsgType2->param));
+	__MsgCopyNestedMsgParam(&(pMsgType1->param), &(pMsgType2->param));
 
 	if (pMsgType1->param.szName[0]) {
 #ifdef __SUPPORT_DRM__
@@ -6779,8 +5825,7 @@ bool MsgCopyNestedMsgType(MsgType *pMsgType1, MsgType *pMsgType2)
 	return true;
 }
 
-
-bool MsgCopyNestedMsgParam(MsgContentParam *pParam1, MsgContentParam *pParam2)
+static bool __MsgCopyNestedMsgParam(MsgContentParam *pParam1, MsgContentParam *pParam2)
 {
 	if (pParam1->charset == MSG_CHARSET_UNKNOWN)
 		pParam1->charset = pParam2->charset;
@@ -6809,47 +5854,13 @@ bool MsgCopyNestedMsgParam(MsgContentParam *pParam1, MsgContentParam *pParam2)
 	return true;
 }
 
-bool MsgIsMultipartMixed(int type)
+static bool __MsgIsMultipartMixed(int type)
 {
 	if (type == MIME_APPLICATION_VND_WAP_MULTIPART_MIXED || type == MIME_MULTIPART_MIXED) {
 		return true;
 	} else {
 		return false;
 	}
-}
-
-bool MsgStrcpyWithoutCRLF(char *pOrg, char **ppNew)
-{
-	int nLen = 0;
-	int	i = 0;
-	int index = 0;
-	char*	pDest = NULL;
-
-
-	nLen = strlen(pOrg);
-
-	pDest = (char *)malloc(nLen + 1);
-
-	if (pDest == NULL) {
-		MSG_DEBUG("MsgStrcpyWithoutCRLF: malloc is failed\n");
-		return false;
-	}
-
-	memset(pDest, 0 , (nLen + 1));
-
-	for (i = 0; i < nLen ; i++) {
-		if (i < nLen - 2) {
-			if ((pOrg[i] == MSG_CH_CR && pOrg[i+1] == MSG_CH_LF && pOrg[i+2] == MSG_CH_TAB) ||
-				(pOrg[i] == MSG_CH_CR && pOrg[i+1] == MSG_CH_LF && pOrg[i+2] == MSG_CH_SP)) {
-				i+=2;
-				continue;
-			}
-		}
-		pDest[index++] = pOrg[i];
-	}
-	*ppNew = pDest;
-
-	return true;
 }
 
 bool MmsGetMsgAttrib(MmsMsgID msgID, MmsAttrib* pAttrib)
@@ -6869,7 +5880,7 @@ bool MmsGetMsgAttrib(MmsMsgID msgID, MmsAttrib* pAttrib)
 	return true;
 }
 
-bool __MsgIsInvalidFileNameChar(char ch)
+static bool __MsgIsInvalidFileNameChar(char ch)
 {
 	if ((ch == 0x5C /* \ */) ||
 		(ch == 0x2F /* / */) ||
@@ -6885,7 +5896,7 @@ bool __MsgIsInvalidFileNameChar(char ch)
 	return false;
 }
 
-bool _MmsDataUpdateLastStatus(MmsMsg *pMsg)
+bool MmsDataUpdateLastStatus(MmsMsg *pMsg)
 {
 	MmsMsgMultiStatus*	pStatus = NULL;
 
@@ -6930,7 +5941,7 @@ bool MmsAddrUtilCompareAddr(char *pszAddr1, char *pszAddr2)
 	return false;
 }
 
-int MsgGetLatin2UTFCodeSize(unsigned char *szSrc, int nChar)
+static int __MsgGetLatin2UTFCodeSize(unsigned char *szSrc, int nChar)
 {
 	int nCount = 0;
 
@@ -6956,7 +5967,7 @@ int MsgGetLatin2UTFCodeSize(unsigned char *szSrc, int nChar)
 	return nCount;
 }
 
-int MsgLatin5code2UTF(unsigned char *des, int outBufSize, unsigned char *szSrc, int nChar)
+static int __MsgLatin5code2UTF(unsigned char *des, int outBufSize, unsigned char *szSrc, int nChar)
 {
 	unsigned char *org;
 	unsigned char t1;
@@ -7106,7 +6117,7 @@ __RETURN:
 	return(des-org);
 }
 
-int MsgGetLatin52UTFCodeSize(unsigned char *szSrc, int nChar)
+static int __MsgGetLatin52UTFCodeSize(unsigned char *szSrc, int nChar)
 {
 	int nCount = 0;
 
@@ -7135,7 +6146,7 @@ int MsgGetLatin52UTFCodeSize(unsigned char *szSrc, int nChar)
 	return nCount;
 }
 
-int MsgLatin2UTF(unsigned char *des, int outBufSize, unsigned char *szSrc, int nChar)
+static int __MsgLatin2UTF(unsigned char *des, int outBufSize, unsigned char *szSrc, int nChar)
 {
 	unsigned char*	org;
 	unsigned char	t1, t2;
@@ -7184,7 +6195,7 @@ __RETURN:
 }
 
 
-int MsgLatin7code2UTF(unsigned char *des, int outBufSize, unsigned char *szSrc, int nChar)
+static int __MsgLatin7code2UTF(unsigned char *des, int outBufSize, unsigned char *szSrc, int nChar)
 {
 	unsigned char *org;
 	unsigned char t1;
@@ -7347,7 +6358,7 @@ __RETURN:
 	return(des - org);
 }
 
-int MsgGetLatin72UTFCodeSize(unsigned char *szSrc, int nChar)
+static int __MsgGetLatin72UTFCodeSize(unsigned char *szSrc, int nChar)
 {
 	int nCount = 0;
 
@@ -7379,7 +6390,7 @@ int MsgGetLatin72UTFCodeSize(unsigned char *szSrc, int nChar)
 	return nCount;
 }
 
-int MsgUnicode2UTF(unsigned char *des, int outBufSize, unsigned short *szSrc, int nChar)
+static int __MsgUnicode2UTF(unsigned char *des, int outBufSize, unsigned short *szSrc, int nChar)
 {
 	unsigned char *org;
 	unsigned char t1;
@@ -7447,7 +6458,7 @@ __RETURN:
 	return (des - org);
 }
 
-int MsgGetUnicode2UTFCodeSize(unsigned short *szSrc, int nChar)
+static int __MsgGetUnicode2UTFCodeSize(unsigned short *szSrc, int nChar)
 {
 	int nCount = 0;
 
@@ -7477,7 +6488,7 @@ int MsgGetUnicode2UTFCodeSize(unsigned short *szSrc, int nChar)
 	return nCount;
 }
 
-bool MmsAddrUtilCheckEmailAddress(char *pszAddr)
+static bool __MmsAddrUtilCheckEmailAddress(char *pszAddr)
 {
 	if (!pszAddr || pszAddr[0] == 0)
 		return false;
@@ -7518,7 +6529,7 @@ bool MmsAddrUtilRemovePlmnString(char *pszAddr)
 		char*	pszStrEnd = NULL;
 		int		addressLen = 0;
 
-		if (MmsAddrUtilCheckEmailAddress(pszAddrCopy))
+		if (__MmsAddrUtilCheckEmailAddress(pszAddrCopy))
 			pszStrEnd = strstr(pszStrStart, "/TYPE=PLMN");
 		else
 			pszStrEnd = strstr(pszStrStart, "/");
@@ -7569,7 +6580,7 @@ bool MmsAddrUtilRemovePlmnString(char *pszAddr)
 	return true;
 }
 
-int MsgCutUTFString(unsigned char *des, int outBufSize, unsigned char *szSrc, int nChar)
+static int __MsgCutUTFString(unsigned char *des, int outBufSize, unsigned char *szSrc, int nChar)
 {
 	unsigned char *org;
 
@@ -7628,7 +6639,7 @@ __RETURN:
 	return (des - org);
 }
 
-void MsgMIMERemoveQuote(char *szSrc)
+static void __MsgMIMERemoveQuote(char *szSrc)
 {
 	int		length = 0;
 
@@ -7642,7 +6653,7 @@ void MsgMIMERemoveQuote(char *szSrc)
 	}
 }
 
-bool MsgLoadDataToDecodeBuffer(FILE *pFile, char **ppBuf, int *pPtr, int *pOffset, char *pInBuf1, char *pInBuf2, int maxLen, int *pBufLen, int endOfFile)
+static bool __MsgLoadDataToDecodeBuffer(FILE *pFile, char **ppBuf, int *pPtr, int *pOffset, char *pInBuf1, char *pInBuf2, int maxLen, int *pBufLen, int endOfFile)
 {
 	MSG_BEGIN();
 	int nRead = 0;
@@ -7789,10 +6800,9 @@ __CATCH:
  *	@param	index			: used for file naming
  *	@param	bSave			: if true, file will be save otherwise just filename will be stored.
  */
-bool _MmsMultipartSaveAsTempFile(MsgType *pPartType, MsgBody *pPartBody, char *pszMailboxPath, char *pszMsgFilename, int index, bool bSave)
+static bool __MmsMultipartSaveAsTempFile(MsgType *pPartType, MsgBody *pPartBody, char *pszMailboxPath, char *pszMsgFilename, int index, bool bSave)
 {
 	FILE *pFile = NULL;
-//	char *pExt = NULL;
 	char szFileName[MSG_FILENAME_LEN_MAX+1] = {0, };	// file name of temp file
 	char szFullPath[MSG_FILEPATH_LEN_MAX] = {0, }; // full absolute path of temp file.
 
@@ -7814,9 +6824,9 @@ bool _MmsMultipartSaveAsTempFile(MsgType *pPartType, MsgBody *pPartBody, char *p
 
 
 #ifndef __SUPPORT_DRM__
-	MsgMakeFileName(pPartType->type, szFileName, 0);	//FL & CD -> extension(.dm) SD -> extension(.dcf)
+	__MsgMakeFileName(pPartType->type, szFileName, 0);	//FL & CD -> extension(.dm) SD -> extension(.dcf)
 #else
-	MsgMakeFileName(pPartType->type, szFileName, pPartType->drmInfo.drmType, 0);	//FL & CD -> extension(.dm) SD -> extension(.dcf)
+	__MsgMakeFileName(pPartType->type, szFileName, pPartType->drmInfo.drmType, 0);	//FL & CD -> extension(.dm) SD -> extension(.dcf)
 	if (MsgDRMIsForwardLockType(pPartType->drmInfo.drmType))
 		MsgChangeDrm2FileName(szFileName);
 #endif
@@ -7835,7 +6845,7 @@ bool _MmsMultipartSaveAsTempFile(MsgType *pPartType, MsgBody *pPartBody, char *p
 			goto __CATCH;
 		}
 
-		if (MmsGetMediaPartData(pPartType, pPartBody, pFile) == false) {
+		if (__MmsGetMediaPartData(pPartType, pPartBody, pFile) == false) {
 			MSG_DEBUG("MmsGetMediaPartData fail [index:%d]\n", index);
 			goto __CATCH;
 		}
@@ -7867,9 +6877,7 @@ __CATCH:
 	return false;
 }
 
-
-
-bool MmsGetMediaPartData(MsgType *pPartType, MsgBody *pPartBody, FILE* pFile)
+static bool __MmsGetMediaPartData(MsgType *pPartType, MsgBody *pPartBody, FILE* pFile)
 {
 	int nRead = 0;
 	int nRead2 = 0;
@@ -7912,10 +6920,10 @@ bool MmsGetMediaPartData(MsgType *pPartType, MsgBody *pPartBody, FILE* pFile)
 		goto __RETURN;
 	}
 
-	pNewData = MmsGetBinaryUTF8Data(pData, nRead, msgEncodingValue, msgTypeValue, msgCharsetValue, &nRead2);
+	pNewData = __MmsGetBinaryUTF8Data(pData, nRead, msgEncodingValue, msgTypeValue, msgCharsetValue, &nRead2);
 	pPartType->encoding = MSG_ENCODING_BINARY;
 
-	if (MsgIsText(msgTypeValue))
+	if (__MsgIsText(msgTypeValue))
 		pPartType->param.charset = MSG_CHARSET_UTF8;
 
 	if (MsgWriteFile(pNewData, sizeof(char), nRead2,  pFile) != (size_t)nRead2) {
@@ -7953,7 +6961,7 @@ __CATCH:
 	return false;
 }
 
-char *MmsGetBinaryUTF8Data(char *pData, int nRead, int msgEncodingValue, int msgTypeValue, int msgCharsetValue, int *npRead)
+static char *__MmsGetBinaryUTF8Data(char *pData, int nRead, int msgEncodingValue, int msgTypeValue, int msgCharsetValue, int *npRead)
 {
 	int nChar = 0;
 	int nByte = 0;
@@ -7969,7 +6977,7 @@ char *MmsGetBinaryUTF8Data(char *pData, int nRead, int msgEncodingValue, int msg
 	switch (msgEncodingValue) {
 	case MSG_ENCODING_BASE64:
 
-		pConvertedData = (char*)_MsgDecodeBase64((UCHAR*)pData, (ULONG)nRead, (ULONG*)&nByte);
+		pConvertedData = (char*)MsgDecodeBase64((UCHAR*)pData, (ULONG)nRead, (ULONG*)&nByte);
 		MSG_DEBUG("MmsGetBinaryUTF8Data : MSG_ENCODING_BASE64     bodyLength = %d \n", nByte);
 
 		pTemp = pConvertedData;
@@ -7979,7 +6987,7 @@ char *MmsGetBinaryUTF8Data(char *pData, int nRead, int msgEncodingValue, int msg
 
 	case MSG_ENCODING_QUOTE_PRINTABLE:
 
-		pConvertedData = (char*)_MsgDecodeQuotePrintable((UCHAR*)pData, (ULONG)nRead, (ULONG*)&nByte);
+		pConvertedData = (char*)MsgDecodeQuotePrintable((UCHAR*)pData, (ULONG)nRead, (ULONG*)&nByte);
 		MSG_DEBUG("MmsGetBinaryUTF8Data: MSG_ENCODING_QUOTE_PRINTABLE     bodyLength = %d \n", nByte);
 
 		pTemp = pConvertedData;
@@ -7997,7 +7005,7 @@ char *MmsGetBinaryUTF8Data(char *pData, int nRead, int msgEncodingValue, int msg
 		break;
 	}
 
-	if (MsgIsText(msgTypeValue)) {
+	if (__MsgIsText(msgTypeValue)) {
 		/* charset converting */
 
 		switch (msgCharsetValue) {
@@ -8017,13 +7025,13 @@ char *MmsGetBinaryUTF8Data(char *pData, int nRead, int msgEncodingValue, int msg
 
 				memcpy(mszTempStr, ((unsigned short*)pTemp + 1), nChar * sizeof(unsigned short));
 
-				nByte = MsgGetUnicode2UTFCodeSize(((unsigned short*)pTemp + 1), nChar);
+				nByte = __MsgGetUnicode2UTFCodeSize(((unsigned short*)pTemp + 1), nChar);
 				if (nByte < 3)
 					nByte = 3; //min value
 
 				pConvertedStr = (char *)malloc(nByte + 1);
 				if (pConvertedStr != NULL)
-					MsgUnicode2UTF ((unsigned char*)pConvertedStr, nByte + 1, mszTempStr, nChar);
+					__MsgUnicode2UTF ((unsigned char*)pConvertedStr, nByte + 1, mszTempStr, nChar);
 			} else {
 				nChar = (nTemp / 2);
 
@@ -8035,11 +7043,11 @@ char *MmsGetBinaryUTF8Data(char *pData, int nRead, int msgEncodingValue, int msg
 
 				memcpy(mszTempStr, ((unsigned short*)pTemp), nChar * sizeof(unsigned short));
 
-				nByte = MsgGetUnicode2UTFCodeSize(((unsigned short*)pTemp), nChar);
+				nByte = __MsgGetUnicode2UTFCodeSize(((unsigned short*)pTemp), nChar);
 
 				pConvertedStr = (char *)malloc(nByte + 1);
 				if (pConvertedStr)
-					MsgUnicode2UTF ((unsigned char*)pConvertedStr, nByte + 1, mszTempStr, nChar);
+					__MsgUnicode2UTF ((unsigned char*)pConvertedStr, nByte + 1, mszTempStr, nChar);
 			}
 
 			if (pConvertedStr != NULL)
@@ -8077,10 +7085,10 @@ char *MmsGetBinaryUTF8Data(char *pData, int nRead, int msgEncodingValue, int msg
 
 			MSG_DEBUG("MmsGetBinaryUTF8Data: MSG_CHARSET_ISO_8859_7 \n");
 
-			nByte = MsgGetLatin72UTFCodeSize((unsigned char*)pTemp, nTemp);
+			nByte = __MsgGetLatin72UTFCodeSize((unsigned char*)pTemp, nTemp);
 			pConvertedStr = (char *)malloc(nByte + 1);
 			if (pConvertedStr)
-				MsgLatin7code2UTF((unsigned char*)pConvertedStr, nByte + 1, (unsigned char*)pTemp, nTemp);
+				__MsgLatin7code2UTF((unsigned char*)pConvertedStr, nByte + 1, (unsigned char*)pTemp, nTemp);
 
 			pNewData = pConvertedStr;
 			*npRead = nByte + 1;
@@ -8092,10 +7100,10 @@ char *MmsGetBinaryUTF8Data(char *pData, int nRead, int msgEncodingValue, int msg
 			/* Turkish */
 			MSG_DEBUG("MmsGetBinaryUTF8Data: MSG_CHARSET_ISO_8859_9 \n");
 
-			nByte = MsgGetLatin52UTFCodeSize((unsigned char*)pTemp, nTemp);
+			nByte = __MsgGetLatin52UTFCodeSize((unsigned char*)pTemp, nTemp);
 			pConvertedStr = (char *)malloc(nByte + 1);
 			if (pConvertedStr)
-					MsgLatin5code2UTF((unsigned char*)pConvertedStr, nByte + 1, (unsigned char*)pTemp, nTemp);
+					__MsgLatin5code2UTF((unsigned char*)pConvertedStr, nByte + 1, (unsigned char*)pTemp, nTemp);
 
 			pNewData = pConvertedStr;
 			*npRead = nByte + 1;
@@ -8106,10 +7114,10 @@ char *MmsGetBinaryUTF8Data(char *pData, int nRead, int msgEncodingValue, int msg
 
 			MSG_DEBUG("MmsGetBinaryUTF8Data: Other charsets \n");
 
-			nByte = MsgGetLatin2UTFCodeSize((unsigned char*)pTemp, nTemp);
+			nByte = __MsgGetLatin2UTFCodeSize((unsigned char*)pTemp, nTemp);
 			pConvertedStr = (char *)malloc(nByte + 1);
 			if (pConvertedStr)
-				MsgLatin2UTF((unsigned char*)pConvertedStr, nByte + 1, (unsigned char*)pTemp, nTemp);
+				__MsgLatin2UTF((unsigned char*)pConvertedStr, nByte + 1, (unsigned char*)pTemp, nTemp);
 
 			pNewData = pConvertedStr;
 			*npRead = nByte + 1;
@@ -8171,7 +7179,7 @@ __CATCH:
 }
 
 #ifndef __SUPPORT_DRM__
-bool MsgMakeFileName(int iMsgType, char *szFileName, int nUntitleIndex)
+static bool __MsgMakeFileName(int iMsgType, char *szFileName, int nUntitleIndex)
 {
 	char szText[MSG_FILENAME_LEN_MAX+1]={0,};
 	char szTemp[MSG_FILENAME_LEN_MAX+1]={0,};
@@ -8237,7 +7245,7 @@ __CATCH:
 	}
 }
 #else
-bool MsgMakeFileName(int iMsgType, char *szFileName, MsgDrmType drmType, int nUntitleIndex)
+static bool __MsgMakeFileName(int iMsgType, char *szFileName, MsgDrmType drmType, int nUntitleIndex)
 {
 	char szText[MSG_FILENAME_LEN_MAX+1]={0,};
 	char szTemp[MSG_FILENAME_LEN_MAX+1]={0,};
@@ -8263,13 +7271,14 @@ bool MsgMakeFileName(int iMsgType, char *szFileName, MsgDrmType drmType, int nUn
 				strncpy(szText, szTempFileName, pExt+1 - szFileName);
 			}
 		} else {
-			if (strrchr(szTempFileName, '.'))
+			pExt = strrchr(szTempFileName, '.');
+			if (pExt == NULL) {
+				memset(szText, 0, MSG_FILENAME_LEN_MAX+1);
+				strncpy(szText, szTempFileName, MSG_FILENAME_LEN_MAX - 1);
+				strcat(szText, ".");
+			} else  {
 				return true;
-
-			memset(szText, 0, MSG_FILENAME_LEN_MAX+1);
-			strncpy(szText, szTempFileName, MSG_FILENAME_LEN_MAX - 1);
-		//temporary commented to save file as original name.
-			pExt = strrchr(szFileName, '.');
+			}
 		}
 	} else {
 		if (nUntitleIndex >= 1) {
@@ -8370,7 +7379,7 @@ bool MmsGetMediaPartHeader(int index, MsgType *pHeader)
 
 	MmsPluginStorage::instance()->getMmsMessage(&pMsg);
 
-	_MsgInitMsgType(pHeader);
+	MmsInitMsgType(pHeader);
 
 
 	/* Requires header of non-presentation */
@@ -8396,7 +7405,7 @@ bool MmsGetMediaPartHeader(int index, MsgType *pHeader)
 	return true;
 }
 
-bool MmsDebugPrintMulitpartEntry(MsgMultipart *pMultipart, int index)
+static bool __MmsDebugPrintMulitpartEntry(MsgMultipart *pMultipart, int index)
 {
 	MSG_DEBUG("------------------------------\n");
 	MSG_DEBUG("%dth multipart info\n", index);
@@ -8423,4 +7432,3 @@ bool MmsDebugPrintMulitpartEntry(MsgMultipart *pMultipart, int index)
 	MSG_DEBUG("------------------------------\n");
 	return true;
 }
-

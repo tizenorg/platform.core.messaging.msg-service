@@ -56,17 +56,6 @@
 #define	MMS_V1_2								// MMS Version : MMS_V1_0 / MMS_V1_1 / MMS_V1_2
 
 /**
- *	@brief	Defines the enabled DRM support
- */
-#define	__SUPPORT_DRM__
-
-/**
- *	@brief	Defines the enabled JAVA MMS Application Id
- */
-#define FEATURE_JAVA_MMS
-
-
-/**
  *	@brief	Defines message struct handle.
  */
 
@@ -306,6 +295,7 @@ typedef struct
 	int 							pushBodyLen;
 	char							pushBody[MAX_WAPPUSH_CONTENTS_LEN + 1];
 	char							pushAppId[MAX_WAPPUSH_ID_LEN + 1];
+	char							pushContentType[MAX_WAPPUSH_CONTENT_TYPE_LEN + 1];
 }MSG_PUSH_MESSAGE_DATA_S;
 
 /**

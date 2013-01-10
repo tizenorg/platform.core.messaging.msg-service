@@ -28,7 +28,7 @@ extern "C"
 /*==================================================================================================
                                      VARIABLES
 ==================================================================================================*/
-//static bool isContactSvcOpened = false;
+__thread bool isContactSvcConnected = false;
 
 MsgDbHandler ContactDbHandle;
 
@@ -51,20 +51,20 @@ msg_error_t MsgOpenContactSvc()
 {
 	int errCode = CONTACTS_ERROR_NONE;
 
-//	if (!isContactSvcOpened) {
+	if (!isContactSvcConnected) {
 		errCode = contacts_connect2();
 
 		if (errCode == CONTACTS_ERROR_NONE) {
 			MSG_DEBUG("Connect to Contact Service Success");
-//			isContactSvcOpened = true;
+			isContactSvcConnected = true;
 		} else {
 			MSG_DEBUG("Connect to Contact Service Fail [%d]", errCode);
-//			isContactSvcOpened = false;
+			isContactSvcConnected = false;
 			return MSG_ERR_DB_CONNECT;
 		}
-//	} else {
-//		MSG_DEBUG("Already connected to Contact Service.");
-//	}
+	} else {
+		MSG_DEBUG("Already connected to Contact Service.");
+	}
 
 	return MSG_SUCCESS;
 }
@@ -74,7 +74,7 @@ msg_error_t MsgCloseContactSvc()
 {
 	int errCode = CONTACTS_ERROR_NONE;
 
-//	if (isContactSvcOpened) {
+	if (isContactSvcConnected) {
 		errCode = contacts_disconnect2();
 
 		if (errCode == CONTACTS_ERROR_NONE) {
@@ -83,7 +83,7 @@ msg_error_t MsgCloseContactSvc()
 			MSG_DEBUG("Disconnect to Contact Service Fail [%d]", errCode);
 			return MSG_ERR_DB_DISCONNECT;
 		}
-//	}
+	}
 
 	return MSG_SUCCESS;
 }
@@ -92,6 +92,11 @@ msg_error_t MsgCloseContactSvc()
 msg_error_t MsgInitContactSvc(MsgContactChangeCB cb)
 {
 	int errCode = CONTACTS_ERROR_NONE;
+
+	if (!isContactSvcConnected) {
+		MSG_DEBUG("Contact Service Not Opened.");
+		return MSG_ERR_UNKNOWN;
+	}
 
 	if (cb != NULL)
 		cbFunction = cb;
@@ -115,6 +120,11 @@ msg_error_t MsgGetContactInfo(const MSG_ADDRESS_INFO_S *pAddrInfo, MSG_CONTACT_I
 	MSG_DEBUG("Address Type [%d], Address Value [%s]", pAddrInfo->addressType, pAddrInfo->addressVal);
 
 	memset(pContactInfo, 0x00, sizeof(MSG_CONTACT_INFO_S));
+
+	if (!isContactSvcConnected) {
+		MSG_DEBUG("Contact Service Not Opened.");
+		return MSG_ERR_UNKNOWN;
+	}
 
 	if (pAddrInfo->addressType == MSG_ADDRESS_TYPE_PLMN && strlen(pAddrInfo->addressVal) > (MAX_PHONE_NUMBER_LEN+1)) {
 		MSG_DEBUG("Phone Number is too long [%s]", pAddrInfo->addressVal);
@@ -361,7 +371,8 @@ void MsgSyncContact()
 		}
 	}
 
-	MsgSettingSetInt(CONTACT_SYNC_TIME, finalSyncTime);
+	if(MsgSettingSetInt(CONTACT_SYNC_TIME, finalSyncTime) != MSG_SUCCESS)
+		MSG_DEBUG("MsgSettingSetInt fail : CONTACT_SYNC_TIME");
 	MSG_DEBUG("lastSyncTime : %d", finalSyncTime);
 
 	contacts_list_destroy(contactsList, true);
@@ -520,6 +531,12 @@ bool MsgDeleteContact(int index)
 
 int MsgGetContactNameOrder()
 {
+
+	if (!isContactSvcConnected) {
+		MSG_DEBUG("Contact Service Not Opened.");
+		return 0; // return default value : FIRSTLAST
+	}
+
 	int ret = CONTACTS_ERROR_NONE;
 
 	contacts_name_display_order_e order = CONTACTS_NAME_DISPLAY_ORDER_FIRSTLAST;
@@ -539,69 +556,84 @@ int MsgGetContactNameOrder()
 
 void MsgAddPhoneLog(const MSG_MESSAGE_INFO_S *pMsgInfo)
 {
-	int ret = 0;
-
-	MSG_DEBUG("folderId [%d], number [%s]", pMsgInfo->folderId, pMsgInfo->addressList[0].addressVal);
-
-	contacts_record_h plog = NULL;
-
-	ret = contacts_record_create(_contacts_phone_log._uri, &plog);
-	if (ret != CONTACTS_ERROR_NONE) {
-		MSG_DEBUG("contacts_record_create() Error [%d]", ret);
-		contacts_record_destroy(plog, true);
+	if (!isContactSvcConnected) {
+		MSG_DEBUG("Contact Service Not Opened.");
+		return;
 	}
 
-	contacts_record_set_str(plog, _contacts_phone_log.address, (char*)pMsgInfo->addressList[0].addressVal);
-	contacts_record_set_int(plog, _contacts_phone_log.log_time, (int)time(NULL));
+	if(pMsgInfo->nAddressCnt < 1) {
+		MSG_DEBUG("address count is [%d]", pMsgInfo->nAddressCnt);
+		return;
+	}
 
-	char strText[101];
-	memset(strText, 0x00, sizeof(strText));
+	for (int i = 0; pMsgInfo->nAddressCnt > i; i++) {
+		int ret = 0;
+		contacts_record_h plog = NULL;
 
-	if (pMsgInfo->msgType.mainType == MSG_SMS_TYPE) {
-		strncpy(strText, pMsgInfo->msgText, 100);
-		MSG_DEBUG("msgText : %s", strText);
-	} else if (pMsgInfo->msgType.mainType == MSG_MMS_TYPE) {
-		if (strlen(pMsgInfo->subject) > 0 || pMsgInfo->msgType.subType == MSG_NOTIFICATIONIND_MMS) {
-			strncpy(strText, pMsgInfo->subject, 100);
-			MSG_DEBUG("subject : %s", strText);
-		} else {
+		ret = contacts_record_create(_contacts_phone_log._uri, &plog);
+		if (ret != CONTACTS_ERROR_NONE) {
+			MSG_DEBUG("contacts_record_create() Error [%d]", ret);
+			contacts_record_destroy(plog, true);
+			break;
+		}
+
+		contacts_record_set_str(plog, _contacts_phone_log.address, (char*)pMsgInfo->addressList[i].addressVal);
+		contacts_record_set_int(plog, _contacts_phone_log.log_time, (int)time(NULL));
+
+		char strText[101];
+		memset(strText, 0x00, sizeof(strText));
+
+		if (pMsgInfo->msgType.mainType == MSG_SMS_TYPE) {
 			strncpy(strText, pMsgInfo->msgText, 100);
 			MSG_DEBUG("msgText : %s", strText);
+		} else if (pMsgInfo->msgType.mainType == MSG_MMS_TYPE) {
+			if (strlen(pMsgInfo->subject) > 0 || pMsgInfo->msgType.subType == MSG_NOTIFICATIONIND_MMS) {
+				strncpy(strText, pMsgInfo->subject, 100);
+				MSG_DEBUG("subject : %s", strText);
+			} else {
+				strncpy(strText, pMsgInfo->msgText, 100);
+				MSG_DEBUG("msgText : %s", strText);
+			}
 		}
+
+		contacts_record_set_str(plog, _contacts_phone_log.extra_data2, strText);
+		contacts_record_set_int(plog, _contacts_phone_log.extra_data1, (int)pMsgInfo->msgId);
+
+		if (pMsgInfo->folderId == MSG_INBOX_ID) {
+			if (pMsgInfo->msgType.mainType == MSG_SMS_TYPE)
+				contacts_record_set_int(plog, _contacts_phone_log.log_type, CONTACTS_PLOG_TYPE_SMS_INCOMMING);
+			else if (pMsgInfo->msgType.mainType == MSG_MMS_TYPE)
+				contacts_record_set_int(plog, _contacts_phone_log.log_type, CONTACTS_PLOG_TYPE_MMS_INCOMMING);
+		} else if (pMsgInfo->folderId == MSG_OUTBOX_ID) {
+			if (pMsgInfo->msgType.mainType == MSG_SMS_TYPE)
+				contacts_record_set_int(plog, _contacts_phone_log.log_type, CONTACTS_PLOG_TYPE_SMS_OUTGOING);
+			else if (pMsgInfo->msgType.mainType == MSG_MMS_TYPE)
+				contacts_record_set_int(plog, _contacts_phone_log.log_type, CONTACTS_PLOG_TYPE_MMS_OUTGOING);
+		} else if (pMsgInfo->folderId == MSG_SPAMBOX_ID) {
+			if (pMsgInfo->msgType.mainType == MSG_SMS_TYPE)
+				contacts_record_set_int(plog, _contacts_phone_log.log_type, CONTACTS_PLOG_TYPE_SMS_BLOCKED);
+			else if (pMsgInfo->msgType.mainType == MSG_MMS_TYPE)
+				contacts_record_set_int(plog, _contacts_phone_log.log_type, CONTACTS_PLOG_TYPE_MMS_BLOCKED);
+		}
+
+		ret = contacts_db_insert_record(plog, NULL);
+		if (ret != CONTACTS_ERROR_NONE) {
+			MSG_DEBUG("contacts_db_insert_record() Error [%d]", ret);
+		}
+
+		contacts_record_destroy(plog, true);
 	}
-
-	contacts_record_set_str(plog, _contacts_phone_log.extra_data2, strText);
-	contacts_record_set_int(plog, _contacts_phone_log.extra_data1, (int)pMsgInfo->msgId);
-
-	if (pMsgInfo->folderId == MSG_INBOX_ID) {
-		if (pMsgInfo->msgType.mainType == MSG_SMS_TYPE)
-			contacts_record_set_int(plog, _contacts_phone_log.log_type, CONTACTS_PLOG_TYPE_SMS_INCOMMING);
-		else if (pMsgInfo->msgType.mainType == MSG_MMS_TYPE)
-			contacts_record_set_int(plog, _contacts_phone_log.log_type, CONTACTS_PLOG_TYPE_MMS_INCOMMING);
-	} else if (pMsgInfo->folderId == MSG_OUTBOX_ID) {
-		if (pMsgInfo->msgType.mainType == MSG_SMS_TYPE)
-			contacts_record_set_int(plog, _contacts_phone_log.log_type, CONTACTS_PLOG_TYPE_SMS_OUTGOING);
-		else if (pMsgInfo->msgType.mainType == MSG_MMS_TYPE)
-			contacts_record_set_int(plog, _contacts_phone_log.log_type, CONTACTS_PLOG_TYPE_MMS_OUTGOING);
-	} else if (pMsgInfo->folderId == MSG_SPAMBOX_ID) {
-		if (pMsgInfo->msgType.mainType == MSG_SMS_TYPE)
-			contacts_record_set_int(plog, _contacts_phone_log.log_type, CONTACTS_PLOG_TYPE_SMS_BLOCKED);
-		else if (pMsgInfo->msgType.mainType == MSG_MMS_TYPE)
-			contacts_record_set_int(plog, _contacts_phone_log.log_type, CONTACTS_PLOG_TYPE_MMS_BLOCKED);
-	}
-
- 	ret = contacts_db_insert_record(plog, NULL);
-	if (ret != CONTACTS_ERROR_NONE) {
-		MSG_DEBUG("contacts_db_insert_record() Error [%d]", ret);
-	}
-
-	contacts_record_destroy(plog, true);
 }
 
 
 void MsgDeletePhoneLog(msg_message_id_t msgId)
 {
 	MSG_DEBUG("MsgDeletePhoneLog [%d]", msgId);
+
+	if (!isContactSvcConnected) {
+		MSG_DEBUG("Contact Service Not Opened.");
+		return;
+	}
 
 	int ret = CONTACTS_ERROR_NONE;
 	int index = 0;

@@ -14,21 +14,13 @@
 * limitations under the License.
 */
 
-#include<stdio.h>
-#include<stdlib.h>
+#include <stdio.h>
+#include <stdlib.h>
 
-#include "MsgDebug.h"
-#include "MsgUtilFile.h"
-#include "MsgMmsTypes.h"
-#include "MsgSoundPlayer.h"
-#include "MsgStorageHandler.h"
-#include "MmsPluginTransport.h"
+#include "MmsPluginTypes.h"
+#include "MmsPluginDebug.h"
 #include "MmsPluginEventHandler.h"
-#include "MmsPluginCodec.h"
 #include "MmsPluginInternal.h"
-#include "MmsPluginSmil.h"
-#include "MsgMmsMessage.h"
-
 
 /*==================================================================================================
                                      IMPLEMENTATION OF SmsPluginEventHandler - Member Functions

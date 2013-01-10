@@ -768,12 +768,6 @@ void SmsPluginSetting::setMwiInfo(MSG_SUB_TYPE_T type, int count)
 		MSG_DEBUG("######## tel_set_sim_messagewaiting_info() Fail !!! return : %d #######", ret);
 	}
 
-	if (getResultFromSim() == true) {
-		MSG_DEBUG("######## Set message waiting info Success !!! #######");
-	} else {
-		MSG_DEBUG("######## Set message waiting info fail !!! #######");
-	}
-
 	return;
 }
 
@@ -878,10 +872,9 @@ bool SmsPluginSetting::getParamEvent(MSG_SMSC_DATA_S *pSmscData)
 {
 	int ret = 0;
 
-	bTapiResult = false;
-
 	mx.lock();
 
+	bTapiResult = false;
 	ret = cv.timedwait(mx.pMutex(), 10);
 
 	mx.unlock();
@@ -925,10 +918,9 @@ bool SmsPluginSetting::getCbConfigEvent(MSG_CBMSG_OPT_S *pCbOpt)
 {
 	int ret = 0;
 
-	bTapiResult = false;
-
 	mx.lock();
 
+	bTapiResult = false;
 	ret = cv.timedwait(mx.pMutex(), 10);
 
 	mx.unlock();
@@ -975,8 +967,11 @@ void SmsPluginSetting::setMailboxInfoEvent(SMS_SIM_MAILBOX_LIST_S *pMailboxList,
 						snprintf(mailNumber, MAX_PHONE_NUMBER_LEN, "%s", simMailboxList.list[i].num);
 						MSG_DEBUG("[%s]", mailNumber);
 					}
-					if (MsgSettingSetString(VOICEMAIL_NUMBER, mailNumber) != MSG_SUCCESS)
-						MSG_DEBUG("MsgSettingSetString is failed!!");
+
+					if (mailNumber[0] != '\0') {
+						if (MsgSettingSetString(VOICEMAIL_NUMBER, mailNumber) != MSG_SUCCESS)
+							MSG_DEBUG("MsgSettingSetString is failed!!");
+					}
 					break;
 				}
 			}
@@ -992,10 +987,9 @@ bool SmsPluginSetting::getMailboxInfoEvent(MSG_VOICEMAIL_OPT_S *pVoiceOpt)
 {
 	int ret = 0;
 
-	bTapiResult = false;
-
 	mx.lock();
 
+	bTapiResult = false;
 	ret = cv.timedwait(mx.pMutex(), 10);
 
 	mx.unlock();

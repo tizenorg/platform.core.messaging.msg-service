@@ -380,9 +380,6 @@ msg_error_t SmsPluginStorage::addMessage(MSG_MESSAGE_INFO_S *pMsgInfo)
 			}
 			break;
 		}
-	} else if (pMsgInfo->msgType.subType == MSG_STATUS_REPORT_SMS) {
-		MSG_DEBUG("Add Status Report");
-		err = addSmsMessage(pMsgInfo);
 	}
 
 	if (err == MSG_SUCCESS) {
@@ -439,6 +436,47 @@ msg_error_t SmsPluginStorage::addSmsMessage(MSG_MESSAGE_INFO_S *pMsgInfo)
 	MSG_END();
 
 	return MSG_SUCCESS;
+}
+
+msg_error_t SmsPluginStorage::addSmsSendOption(MSG_MESSAGE_INFO_S *pMsg, MSG_SENDINGOPT_INFO_S *pSendOptInfo)
+{
+	MSG_BEGIN();
+
+	msg_error_t err = MSG_SUCCESS;
+
+	if (pSendOptInfo->bSetting == false) {
+		MsgSettingGetBool(SMS_SEND_DELIVERY_REPORT, &pSendOptInfo->bDeliverReq);
+		MsgSettingGetBool(SMS_SEND_REPLY_PATH, &pSendOptInfo->option.smsSendOptInfo.bReplyPath);
+
+		if (pSendOptInfo->bDeliverReq || pSendOptInfo->option.smsSendOptInfo.bReplyPath) {
+			pSendOptInfo->bSetting = true;
+			MsgSettingGetBool(MSG_KEEP_COPY, &pSendOptInfo->bKeepCopy);
+		}
+	}
+
+	if (pSendOptInfo->bSetting == true) {
+		char sqlQuery[MAX_QUERY_LEN+1];
+
+		dbHandle.beginTrans();
+
+		memset(sqlQuery, 0x00, sizeof(sqlQuery));
+		snprintf(sqlQuery, sizeof(sqlQuery), "INSERT INTO %s VALUES (%d, %d, %d, %d);",
+				MSGFW_SMS_SENDOPT_TABLE_NAME, pMsg->msgId, pSendOptInfo->bDeliverReq,
+				pSendOptInfo->bKeepCopy, pSendOptInfo->option.smsSendOptInfo.bReplyPath);
+
+		MSG_DEBUG("Query = [%s]", sqlQuery);
+
+		if (dbHandle.execQuery(sqlQuery) != MSG_SUCCESS) {
+			dbHandle.endTrans(false);
+			err = MSG_ERR_DB_EXEC;
+		} else {
+			dbHandle.endTrans(true);
+		}
+	}
+
+	MSG_END();
+
+	return err;
 }
 
 
@@ -643,8 +681,7 @@ msg_error_t SmsPluginStorage::deleteSmsMessage(msg_message_id_t msgId)
 	mmsCnt = MsgStoGetUnreadCnt(&dbHandle, MSG_MMS_TYPE);
 
 	MsgSettingHandleNewMsg(smsCnt, mmsCnt);
-//	MsgDeleteNotiByMsgId(msgId);
-	MsgRefreshNoti();
+	MsgRefreshNoti(false);
 
 	return MSG_SUCCESS;
 }
@@ -1149,7 +1186,7 @@ msg_error_t SmsPluginStorage::updateAllAddress()
 }
 
 
-msg_error_t SmsPluginStorage::getRegisteredPushEvent(char* pPushHeader, int *count, char *application_id)
+msg_error_t SmsPluginStorage::getRegisteredPushEvent(char* pPushHeader, int *count, char *application_id, char *contentType)
 {
 	msg_error_t err = MSG_SUCCESS;
 
@@ -1201,6 +1238,7 @@ msg_error_t SmsPluginStorage::getRegisteredPushEvent(char* pPushHeader, int *cou
 				pInfo.appcode = appcode;
 				MSG_DEBUG("appcode: %d, app_id: %s", pInfo.appcode, app_id);
 				strcpy(application_id, app_id);
+				strcpy(contentType, content_type);
 				pushAppInfoList.push_back(pInfo);
 				(*count)++;
 				found = true;
@@ -1214,6 +1252,7 @@ msg_error_t SmsPluginStorage::getRegisteredPushEvent(char* pPushHeader, int *cou
 		PUSH_APPLICATION_INFO_S pInfo = {0, };
 		pInfo.appcode = default_appcode;
 		strcpy(application_id, app_id);
+		strcpy(contentType, content_type);
 		pushAppInfoList.push_back(pInfo);
 		*count = 1;
 	}

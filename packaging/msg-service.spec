@@ -19,7 +19,6 @@ BuildRequires: pkgconfig(aul)
 BuildRequires: pkgconfig(capi-appfw-application)
 BuildRequires: pkgconfig(contacts-service2)
 BuildRequires: pkgconfig(db-util)
-BuildRequires: pkgconfig(devman_haptic)
 BuildRequires: pkgconfig(dlog)
 BuildRequires: pkgconfig(drm-client)
 BuildRequires: pkgconfig(glib-2.0)
@@ -42,6 +41,7 @@ BuildRequires: pkgconfig(sensor)
 BuildRequires: pkgconfig(svi)
 BuildRequires: pkgconfig(tapi)
 BuildRequires: pkgconfig(vconf)
+BuildRequires: pkgconfig(feedback)
 
 %description
 Description: Messaging Framework Library
@@ -127,7 +127,7 @@ mkdir -p %{buildroot}/opt/usr/data/msg-service
 
 if [ ! -f /opt/usr/dbspace/.msg_service.db ]
 then
-    mkdir -p %{buildroot}/opt/usr/dbspace/
+    mkdir -p /opt/usr/dbspace/
     sqlite3 /opt/usr/dbspace/.msg_service.db "PRAGMA journal_mode = PERSIST;
 
     CREATE TABLE MSG_CONVERSATION_TABLE (

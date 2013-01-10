@@ -608,7 +608,8 @@ void SmsPluginConcatHandler::convertConcatToMsginfo(const SMS_DELIVER_S *pTpdu, 
 		}
 	}
 
-	int bufSize = (MAX_MSG_DATA_LEN*MAX_SEGMENT_NUM) + 1;
+	//int bufSize = (MAX_MSG_DATA_LEN*MAX_SEGMENT_NUM) + 1;
+	int bufSize = (DataSize*4) + 1; // For UTF8
 
 	char tmpBuf[bufSize];
 	memset(tmpBuf, 0x00, sizeof(tmpBuf));

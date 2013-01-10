@@ -1459,8 +1459,11 @@ __VMsgTypeEncode( VObject *pTypeObj, char *pType )
 			return NULL;
 		}
 		memset( pRes, '\0', ( len + 30 ) );
-		memcpy( pRes, pEncode, len );
-		VFREE(pEncode);
+		if(pEncode)
+		{
+			memcpy( pRes, pEncode, len );
+			VFREE(pEncode);
+		}
 	}
 
 	if((pRes = (char *)realloc(pRes, strlen(pRes) + 3)) == NULL)

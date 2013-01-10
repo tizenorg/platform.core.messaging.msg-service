@@ -14,15 +14,18 @@
 * limitations under the License.
 */
 
+#ifndef MMS_PLUGIN_DRM_H
+#define MMS_PLUGIN_DRM_H
+
 #include "MsgMmsTypes.h"
-#include "MmsPluginMessage.h"
+#include "MmsPluginCodecTypes.h"
 
 #ifdef __SUPPORT_DRM__
 
 #define	MMS_DECODE_DRM_CONVERTED_TEMP_FILE MSG_DATA_PATH"Mms_Decode_Drm_Converted"
 #define	MMS_MIMETYPELENGTH 50
 
-typedef	enum {
+typedef enum {
 	MMS_DRM2_CONVERT_NONE,
 	MMS_DRM2_CONVERT_NOT_FIXED,
 	MMS_DRM2_CONVERT_REQUIRED,
@@ -36,4 +39,7 @@ bool MsgDRM2GetDRMInfo(char *szFilePath, MsgType *pMsgType);
 bool MsgDRMIsForwardLockType(MsgDrmType drmType);
 bool MsgChangeDrm2FileName(char *szFileName);
 bool MsgIsDCFFile(char *szFilePath);
-#endif
+
+#endif //__SUPPORT_DRM__
+
+#endif //MMS_PLUGIN_DRM_H

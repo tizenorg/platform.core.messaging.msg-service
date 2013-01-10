@@ -14,12 +14,10 @@
 * limitations under the License.
 */
 #include <glib.h>
-#include <stdlib.h>
-#include <ctype.h>
+#include "MmsPluginDebug.h"
 #include "MmsPluginMIME.h"
 #include "MmsPluginCodec.h"
 #include "MmsPluginTextConvert.h"
-#include "MsgDebug.h"
 #include "MmsPluginUtil.h"
 
 const char *MmsPluginTextConvertGetCharSet(int MIBEnum)

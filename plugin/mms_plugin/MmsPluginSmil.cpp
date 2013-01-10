@@ -14,20 +14,21 @@
 * limitations under the License.
 */
 
-#include<stdio.h>
+#include <stdio.h>
 #include <string.h>
 #include <sys/stat.h>
 #include <ctype.h>
-#include "MmsPluginSmil.h"
-#include "MmsPluginMessage.h"
-#include "MmsPluginStorage.h"
-#include "MsgDebug.h"
-#include "MmsPluginCodec.h"
-#include "MsgMmsMessage.h"
 
-#include "MsgTypes.h"
-#include "MmsPluginSetup.h"
+#include "MsgMmsMessage.h"
 #include "MsgUtilFile.h"
+#include "MmsPluginTypes.h"
+#include "MmsPluginSmil.h"
+#include "MmsPluginMIME.h"
+#include "MmsPluginStorage.h"
+#include "MmsPluginDebug.h"
+#include "MmsPluginCodec.h"
+
+#define MSG_STDSTR_SHORT			0x7F
 
 /* static variables */
 static char gszEmptyRawDoc[] = "<smil><head><layout></layout></head><body></body></smil>";
@@ -340,43 +341,44 @@ void MmsSmilGetElement(MMS_MESSAGE_DATA_S *pMmsMsg, xmlNode *a_node)
 					break;
 
 				case ATTRIBUTE_SRC:
-					{
-						char *szSrc;
-						char szTmpSrc[MSG_FILEPATH_LEN_MAX] = {0,};
-						char szOutBuf[MSG_FILEPATH_LEN_MAX] = {0, };
-						int cLen;
-						MsgMultipart *pPart = NULL;
-						MmsMsg *pMsg;
+				{
+					char *szSrc;
+					char szTmpSrc[MSG_FILEPATH_LEN_MAX] = {0,};
+					char szOutBuf[MSG_FILEPATH_LEN_MAX] = {0, };
+					int cLen;
+					int ret;
+					MsgMultipart *pPart = NULL;
+					MmsMsg *pMsg;
 
-						szSrc = MsgChangeHexString((char *)pAttr->children->content);
-						if (szSrc == NULL)
-							break;
+					szSrc = MsgChangeHexString((char *)pAttr->children->content);
+					if (szSrc == NULL)
+						break;
 
-						memcpy(pMedia->szSrc, szSrc, strlen(szSrc) + 1);
-						free(szSrc);
+					memcpy(pMedia->szSrc, szSrc, strlen(szSrc) + 1);
+					free(szSrc);
 
-						cLen = strlen(pMedia->szSrc);
-						if (!strncasecmp(pMedia->szSrc, "cid:", 4)) {
-							strncpy(szTmpSrc, pMedia->szSrc + 4, cLen - 4);
-							szTmpSrc[cLen - 4] = '\0';
-						} else {
-							strncpy(szTmpSrc, pMedia->szSrc, cLen);
-							szTmpSrc[cLen] = '\0';
-						}
+					cLen = strlen(pMedia->szSrc);
+					if (!strncasecmp(pMedia->szSrc, "cid:", 4)) {
+						strncpy(szTmpSrc, pMedia->szSrc + 4, cLen - 4);
+						szTmpSrc[cLen - 4] = '\0';
+					} else {
+						strncpy(szTmpSrc, pMedia->szSrc, cLen);
+						szTmpSrc[cLen] = '\0';
+					}
 
-						MmsPluginStorage::instance()->getMmsMessage(&pMsg);
-						pPart = pMsg->msgBody.body.pMultipart;
+					MmsPluginStorage::instance()->getMmsMessage(&pMsg);
+					pPart = pMsg->msgBody.body.pMultipart;
 #ifndef __SUPPORT_DRM__
-						MmsSmilGetMediaSrcForNormalMsg(szOutBuf, szTmpSrc, pPart);
+					ret = MmsSmilGetMediaSrcForNormalMsg(szOutBuf, szTmpSrc, pPart);
 #else
-						MmsSmilGetMediaSrcForNormalMsg(szOutBuf, szTmpSrc, pPart, pMedia);
+					ret = MmsSmilGetMediaSrcForNormalMsg(szOutBuf, szTmpSrc, pPart, pMedia);
 #endif
-
+					if (ret >= 0 && strlen(szOutBuf) > 0) {
 						strcpy(pMedia->szSrc, szOutBuf);
 						MmsSmilGetMediaFilePath(pMedia, szTmpSrc, pMsg->msgID);
 					}
 					break;
-
+				}
 				case ATTRIBUTE_COLOR:
 					if (cmd[ELEMENT_TEXT])
 						pMedia->sMedia.sText.nColor = MmsSmilGetColorValue(pAttr->children->content);
@@ -817,37 +819,16 @@ int MmsSmilGetMediaSrcForNormalMsg(char *szOutbuf, char *szInBuf, MsgMultipart *
 
 		if (strcasecmp(szContentID, szInBuf) == 0) {
 			strcpy(szOutbuf, pPart->type.param.szFileName);
-			MSG_DEBUG("match with szContentID.");
+			MSG_DEBUG("match with szContentID");
 			goto RETURN;
-		} else {
-			char *szInFileName = strrchr(szInBuf, '/');
-
-			if (szInFileName == NULL) {
-				szInFileName = szInBuf;
-			} else
-				szInFileName++;
-
-			if (strcasecmp(szContentLI, szInFileName) == 0) {
-				strcpy(szOutbuf, pPart->type.param.szFileName);
-				MSG_DEBUG("match with szContentLI.");
-				goto RETURN;
-			} else if (strcasecmp(pPart->type.param.szName, szInBuf) == 0) {
-				strcpy(szOutbuf, pPart->type.param.szFileName);
-				MSG_DEBUG("match with pPart->type.param.szName.");
-				goto RETURN;
-			} else if (strlen(szContentID) > 4) {
-				if (strcasecmp(strtok(szContentID, "."), strtok(szInBuf, ".")) == 0) {
-					strcpy(szOutbuf, pPart->type.param.szFileName);
-					MSG_DEBUG("only name is match with szContentID.");
-					goto RETURN;
-				}
-			} else if (strlen(szContentLI) > 4) {
-				if (strcasecmp(strtok(szContentLI, "."), strtok(szInBuf, ".")) == 0) {
-					strcpy(szOutbuf, pPart->type.param.szFileName);
-					MSG_DEBUG("only name is match with szContentLI.");
-					goto RETURN;
-				}
-			}
+		} else if (strcasecmp(szContentLI, szInBuf) == 0) {
+			strcpy(szOutbuf, pPart->type.param.szFileName);
+			MSG_DEBUG("match with szContentLocation");
+			goto RETURN;
+		} else if (strcasecmp(pPart->type.param.szName, szInBuf) == 0) {
+			strcpy(szOutbuf, pPart->type.param.szFileName);
+			MSG_DEBUG("match with Parameter Name");
+			goto RETURN;
 		}
 
 		nPart++;

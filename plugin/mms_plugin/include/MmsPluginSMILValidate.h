@@ -17,17 +17,8 @@
 #ifndef MMS_PLUGIN_SMIL_VALIDATE_H
 #define MMS_PLUGIN_SMIL_VALIDATE_H
 
-
-/*==================================================================================================
- *                                     HEADER
- *==================================================================================================*/
-#include "MsgTypes.h"
 #include "MsgMmsTypes.h"
-#include "MmsPluginMessage.h"
 
-/*==================================================================================================
- *                                     DEFINE
- *==================================================================================================*/
 /**
  *	@brief	Represents the default values of SMIL root layout. \n
  */
@@ -86,10 +77,6 @@ enum MSG_SMIL_ERR_E {
 	MSG_SMIL_ERR_INVALID_PAGE_DUR,
 	MSG_SMIL_ERR_INVALID_PARAM,
 };
-
-/*==================================================================================================
- *                                     FUNCTIONS
- *==================================================================================================*/
 
 /**	@fn		MSG_SMIL_ERR_E MsgMMSCreateSMIL(MMS_MESSAGE_DATA_S *pMsgData)
  *	@brief	Creates a SMIL buffer based on the Message handle.
@@ -174,4 +161,4 @@ MSG_SMIL_ERR_E _MsgMMSAddDefaultFullSMILRegion(MMS_MESSAGE_DATA_S *pMsgData);
  */
 MSG_SMIL_ERR_E _MsgMMSValidateSMILPage(MMS_MESSAGE_DATA_S *pMsgData, bool bRegAdded);
 
-#endif // MMS_PLUGIN_SMIL_ENCODE_H
+#endif //MMS_PLUGIN_SMIL_ENCODE_H

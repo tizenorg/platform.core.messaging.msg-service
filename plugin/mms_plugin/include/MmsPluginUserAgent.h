@@ -14,19 +14,13 @@
 * limitations under the License.
 */
 
-#ifndef MMSPLUGINUSERAGENT_H
-#define MMSPLUGINUSERAGENT_H
+#ifndef MMS_PLUGIN_USERAGENT_H
+#define MMS_PLUGIN_USERAGENT_H
 
-#include <pthread.h>
-#include <vector>
-
-#include "MsgDebug.h"
+#include "MsgThread.h"
 #include "MsgMutex.h"
 #include "MsgQueue.h"
 #include "MmsPluginTypes.h"
-#include "MmsPluginConnManWrapper.h"
-#include "MmsPluginHttp.h"
-#include "MsgThread.h"
 
 class MmsPluginUaManager: public MsgThread
 {
@@ -62,4 +56,4 @@ class MmsPluginUaManager: public MsgThread
 		MsgThdSafeQ <mmsTranQEntity> mmsTranQ; // transaction q for mms plugin
 };
 
-#endif // MMSPLUGINUSERAGENT_H
+#endif //MMS_PLUGIN_USERAGENT_H

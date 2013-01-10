@@ -584,10 +584,9 @@ bool SmsPluginSimMsg::getSimMsgEvent(MSG_MESSAGE_INFO_S *pMsgInfo)
 {
 	int ret = 0;
 
-	bTapiResult = false;
-
 	mx.lock();
 
+	bTapiResult = false;
 	ret = cv.timedwait(mx.pMutex(), 10);
 
 	mx.unlock();
@@ -699,10 +698,9 @@ bool SmsPluginSimMsg::getSimEvent(msg_sim_id_t *pSimId)
 {
 	int ret = 0;
 
-	bTapiResult = false;
-
 	mx.lock();
 
+	bTapiResult = false;
 	ret = cv.timedwait(mx.pMutex(), 10);
 
 	mx.unlock();

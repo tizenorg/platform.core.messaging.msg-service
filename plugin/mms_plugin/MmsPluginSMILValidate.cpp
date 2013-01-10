@@ -14,11 +14,11 @@
 * limitations under the License.
 */
 
-#include "MmsPluginSMILValidate.h"
-#include "MsgDebug.h"
-#include "MsgUtilFile.h"
-#include "MmsPluginSmil.h"
 #include "MsgMmsMessage.h"
+#include "MmsPluginDebug.h"
+#include "MmsPluginSMILValidate.h"
+#include "MmsPluginSmil.h"
+
 
 #define MSG_RETURN_VAL_IF_FAIL(Expr, Val)			 		\
 		if (!(Expr)) {										\

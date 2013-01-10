@@ -21,8 +21,8 @@
 #include "MsgCppTypes.h"
 #include "MsgException.h"
 #include "MsgGconfWrapper.h"
-#include "MsgNotificationWrapper.h"
 #include "MsgUtilFile.h"
+#include "MsgNotificationWrapper.h"
 #include "SmsPluginParamCodec.h"
 #include "SmsPluginTpduCodec.h"
 #include "SmsPluginEventHandler.h"
@@ -35,7 +35,6 @@ extern "C"
 	#include <ITapiNetText.h>
 }
 
-#define MSG_DEBUG_BY_FILE
 
 extern struct tapi_handle *pTapiHandle;
 
@@ -72,7 +71,7 @@ void SmsPluginTransport::submitRequest(SMS_REQUEST_INFO_S *pReqInfo)
 {
 	MSG_BEGIN();
 
-	SMS_TPDU_S tpdu;
+	SMS_TPDU_S tpdu = {0,};
 
 	tpdu.tpduType = SMS_TPDU_SUBMIT;
 
@@ -94,6 +93,16 @@ void SmsPluginTransport::submitRequest(SMS_REQUEST_INFO_S *pReqInfo)
 		MSG_DEBUG("DCS is changed by application : [%d]", tpdu.data.submit.dcs.codingScheme);
 	}
 
+#ifdef MSG_SMS_REPORT
+	// Update Msg Ref into Report Table
+	if (tpdu.data.submit.bStatusReport == true)
+	{
+		MSG_DEBUG("Update Msg Ref [%d] in Report Table", tpdu.data.submit.msgRef);
+
+		SmsPluginStorage::instance()->updateMsgRef(pReqInfo->msgInfo.msgId, tpdu.data.submit.msgRef);
+	}
+#endif
+
 	// Set SMSC Options
 	SMS_ADDRESS_S smsc;
 	setSmscOptions(&smsc);
@@ -114,12 +123,17 @@ void SmsPluginTransport::submitRequest(SMS_REQUEST_INFO_S *pReqInfo)
 
 		int smscLen = SmsPluginParamCodec::encodeSMSC(&smsc, smscAddr);
 
-		if (smscLen <= 0) return;
-
-		for (j = 0; j < smscLen; j++)
-		{
-			MSG_DEBUG("pSCAInfo [%02x]", smscAddr[j]);
+		if (smscLen <= 0) {
+			MSG_DEBUG("smscLen <= 0");
+			return;
 		}
+
+		char smscAddrTmp[(smscLen*2)+1];
+		memset(smscAddrTmp, 0x00, sizeof(smscAddrTmp));
+		for (j = 0; j < smscLen; j++) {
+			snprintf(smscAddrTmp+(j*2), sizeof(smscAddrTmp)-(j*2), "%02X", smscAddr[j]);
+		}
+		MSG_DEBUG("pSCAInfo [%s]", smscAddrTmp);
 
 		int bufLen = 0;
 
@@ -138,11 +152,9 @@ void SmsPluginTransport::submitRequest(SMS_REQUEST_INFO_S *pReqInfo)
 			tpdu.data.submit.destAddress.address[MAX_ADDRESS_LEN] = '\0';
 		}
 
-#ifdef MSG_FOR_DEBUG
 MSG_DEBUG("ton [%d]", tpdu.data.submit.destAddress.ton);
 MSG_DEBUG("npi [%d]", tpdu.data.submit.destAddress.npi);
 MSG_DEBUG("address [%s]", tpdu.data.submit.destAddress.address);
-#endif
 
 		bool bStatusReport = false;
 
@@ -184,55 +196,17 @@ MSG_DEBUG("address [%s]", tpdu.data.submit.destAddress.address);
 			memcpy((void*)pkgInfo.Sca, smscAddr, smscLen);
 			pkgInfo.Sca[smscLen] = '\0';
 
-#ifdef MSG_FOR_DEBUG
-			MSG_DEBUG("[submitRequest] TPDU.");
 
-			for (j = 0; j < pkgInfo.MsgLength; j++)
-			{
-				MSG_DEBUG("[%02x]", pkgInfo.szData[j]);
+			char pkgInfoTmp[(pkgInfo.MsgLength*2)+1];
+			memset(pkgInfoTmp, 0x00, sizeof(pkgInfoTmp));
+			for (j = 0; j < pkgInfo.MsgLength; j++) {
+				snprintf(pkgInfoTmp+(j*2), sizeof(pkgInfoTmp)-(j*2), "%02X", pkgInfo.szData[j]);
 			}
+			MSG_DEBUG("Submit Request TPDU.");
+			MSG_DEBUG("[%s]", pkgInfoTmp);
 
-			for (j = 0; j < smscLen; j++)
-			{
-				MSG_DEBUG("pkgInfo.pSCA [%02x]", pkgInfo.Sca[j]);
-			}
-#endif
-
-#ifdef MSG_DEBUG_BY_FILE
-			char temp[2048];
-			char tempcat[100];
-			memset(temp, 0x00, sizeof(temp));
-			memset(tempcat, 0x00, sizeof(tempcat));
-
-			time_t rawtime;
-			time(&rawtime);
-
-			snprintf(temp, sizeof(temp), "[MO] %s", ctime(&rawtime));
-
-			for (j = 0; j < pkgInfo.MsgLength; j++)
-			{
-				snprintf(tempcat, sizeof(tempcat), "[%02x]\n", pkgInfo.szData[j]);
-				strncat(temp, tempcat, sizeof(temp)-strlen(temp)-1);
-				memset(tempcat, 0x00, sizeof(tempcat));
-			}
-
-
-			snprintf(tempcat, sizeof(tempcat), "\n\n\n");
-			strncat(temp, tempcat, sizeof(temp)-strlen(temp)-1);
-
-			//MSG_DEBUG("temp [%s], length [%d]", temp, strlen(temp));
-
-			//MsgOpenCreateAndOverwriteFile(TPDU_LOG_FILE, temp, strlen(temp));
-			FILE*	pFile=NULL ;
-			pFile = MsgOpenFile(TPDU_LOG_FILE, "a");
-			MsgWriteFile(temp, sizeof(char), strlen(temp), pFile);
-
-			MsgFflush(pFile);
-			MsgCloseFile(pFile);
-
-#endif
-
-			SMS_SENT_INFO_S sentInfo = {};
+			SMS_SENT_INFO_S sentInfo;
+			memset(&sentInfo, 0x00, sizeof(SMS_SENT_INFO_S));
 
 			bool bMoreMsg = FALSE;
 
@@ -262,13 +236,13 @@ MSG_DEBUG("address [%s]", tpdu.data.submit.destAddress.address);
 
 			if (tapiRet == TAPI_API_SUCCESS)
 			{
-				MSG_DEBUG("########  TelTapiSmsSend Success !!! return : [%d] #######", tapiRet);
+				MSG_DEBUG("########  tel_send_sms Success !!! return : [%d] #######", tapiRet);
 			}
 			else
 			{
 				SmsPluginEventHandler::instance()->handleSentStatus(MSG_NETWORK_SEND_FAIL);
 
-				THROW(MsgException::SMS_PLG_ERROR, "########  TelTapiSmsSend Fail !!! return : [%d] #######", tapiRet);
+				THROW(MsgException::SMS_PLG_ERROR, "########  tel_send_sms Fail !!! return : [%d] #######", tapiRet);
 			}
 
 			// Tizen Validation System
@@ -747,7 +721,7 @@ void SmsPluginTransport::msgInfoToSubmitData(const MSG_MESSAGE_INFO_S *pMsgInfo,
 
 		// Read Message Data from File
 		if (MsgOpenAndReadFile(pMsgInfo->msgData, &pFileData, &fileSize) == false)
-		THROW(MsgException::FILE_ERROR, "MsgOpenAndReadFile error");
+			THROW(MsgException::FILE_ERROR, "MsgOpenAndReadFile error");
 
 		MSG_DEBUG("file size : [%d] file data : [%s]", fileSize, pFileData);
 
@@ -771,7 +745,8 @@ void SmsPluginTransport::msgInfoToSubmitData(const MSG_MESSAGE_INFO_S *pMsgInfo,
 		}
 
 		// Delete File
-		MsgDeleteFile(pMsgInfo->msgData);
+		if (pMsgInfo->nAddressCnt == (addrIndex + 1))
+			MsgDeleteFile(pMsgInfo->msgData);
 	}
 
 MSG_DEBUG("decode length : [%d]", decodeLen);

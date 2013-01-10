@@ -143,8 +143,7 @@ msg_error_t MsgStoSetReadStatus(MsgDbHandler *pDbHandle, msg_message_id_t msgId,
 
 	MsgSettingSetIndicator(smsCnt, mmsCnt);
 
-//	MsgDeleteNotiByMsgId(msgId);
-	MsgRefreshNoti();
+	MsgRefreshNoti(false);
 
 	return MSG_SUCCESS;
 }
@@ -359,17 +358,17 @@ msg_error_t MsgStoAddAddress(MsgDbHandler *pDbHandle, const MSG_MESSAGE_INFO_S *
 	for (int i=0; i<pMsg->nAddressCnt; i++) {
 
 		unsigned int addrId;
-		MSG_CONTACT_INFO_S contactInfo = {0};
+		MSG_CONTACT_INFO_S contactInfo;
+		memset(&contactInfo, 0x00, sizeof(MSG_CONTACT_INFO_S));
 
 		// Get Contact Info
-		err = MsgGetContactInfo(&(pMsg->addressList[i]), &contactInfo);
-
-		if (err != MSG_SUCCESS) {
-			MSG_DEBUG("MsgGetContactInfo() fail [%d]", err);
-			return err;
+		if (MsgGetContactInfo(&(pMsg->addressList[i]), &contactInfo) != MSG_SUCCESS) {
+			MSG_DEBUG("MsgGetContactInfo() fail.");
 		}
 
-		if (pDbHandle->getRowId(MSGFW_ADDRESS_TABLE_NAME, &addrId) != MSG_SUCCESS) {
+		err = pDbHandle->getRowId(MSGFW_ADDRESS_TABLE_NAME, &addrId);
+		if (err != MSG_SUCCESS) {
+			MSG_DEBUG("pDbHandle->getRowId fail. [%d]", err);
 			return err;
 		}
 
@@ -643,7 +642,6 @@ msg_error_t MsgStoGetAddressByConvId(MsgDbHandler *pDbHandle, msg_thread_id_t co
 
 	return MSG_SUCCESS;
 }
-
 
 /* Have to use trigger for this function. */
 msg_error_t MsgStoUpdateConversation(MsgDbHandler *pDbHandle, msg_thread_id_t convId)

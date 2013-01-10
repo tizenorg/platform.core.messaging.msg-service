@@ -17,18 +17,9 @@
 #ifndef MMS_PLUGIN_INTERNAL_H
 #define MMS_PLUGIN_INTERNAL_H
 
-/*==================================================================================================
-							INCLUDE FILES
-==================================================================================================*/
-#include "MsgStorageTypes.h"
-#include "MsgTypes.h"
-#include "MsgTransportTypes.h"
-#include "MmsPluginMessage.h"
 #include "MmsPluginTypes.h"
+#include "MmsPluginCodecTypes.h"
 
-/*==================================================================================================
-							CLASS DEFINITIONS
-==================================================================================================*/
 class MmsPluginInternal
 {
 	public:
@@ -55,4 +46,5 @@ class MmsPluginInternal
 		const char *getMmsDeliveryStatus(msg_delivery_report_status_t deliveryStatus);
 		const char *getMmsReadStatus(msg_read_report_status_t readStatus);
 };
-#endif
+
+#endif //MMS_PLUGIN_INTERNAL_H

@@ -429,6 +429,7 @@ typedef struct
 	int 				listenerFd;
 	MSG_MAIN_TYPE_T 	msgType;
 	char appId[MAX_WAPPUSH_ID_LEN+1];
+	char content_type[MAX_WAPPUSH_CONTENT_TYPE_LEN+1];
 } MSG_CMD_REG_INCOMING_PUSH_MSG_CB_S;
 
 typedef struct

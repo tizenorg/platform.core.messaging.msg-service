@@ -14,17 +14,12 @@
 * limitations under the License.
 */
 
-#ifndef MMSPLUGINCONNMANWRAPPER_H
-#define MMSPLUGINCONNMANWRAPPER_H
+#ifndef MMS_PLUGIN_CONNMAN_H
+#define MMS_PLUGIN_CONNMAN_H
 
 #include <network-cm-intf.h>
 #include <network-pm-intf.h>
-
-#include "MsgDebug.h"
-
-#include "MmsPluginTypes.h"
 #include "MsgMutex.h"
-
 
 class MmsPluginCmAgent
 {
@@ -69,5 +64,4 @@ private:
 	net_profile_info_t mmsProfile;
 };
 
-#endif
-
+#endif //MMS_PLUGIN_CONNMAN_H

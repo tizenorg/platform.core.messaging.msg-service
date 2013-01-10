@@ -90,8 +90,8 @@ msg_error_t MsgSubmitReqSMS(MSG_REQUEST_INFO_S *pReqInfo)
 	if (pReqInfo->msgInfo.msgPort.valid == false) {
 		pReqInfo->msgInfo.folderId = MSG_OUTBOX_ID;
 
-		if (pReqInfo->msgInfo.msgId > 0 && (pReqInfo->msgInfo.folderId == MSG_DRAFT_ID || pReqInfo->msgInfo.folderId == MSG_OUTBOX_ID))
-			err = MsgStoUpdateMessage(&(pReqInfo->msgInfo), &(pReqInfo->sendOptInfo));
+	if (pReqInfo->msgInfo.msgId > 0 && (pReqInfo->msgInfo.folderId == MSG_DRAFT_ID || pReqInfo->msgInfo.folderId == MSG_OUTBOX_ID))
+		err = MsgStoUpdateMessage(&(pReqInfo->msgInfo), &(pReqInfo->sendOptInfo));
 	}
 
 	err = plg->submitReq(pReqInfo);

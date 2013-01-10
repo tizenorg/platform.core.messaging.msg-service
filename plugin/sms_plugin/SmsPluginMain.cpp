@@ -327,6 +327,10 @@ msg_error_t SmsPlgSubmitRequest(MSG_REQUEST_INFO_S *pReqInfo)
 				MSG_DEBUG("########  addMessage Fail !!");
 				return MSG_ERR_PLUGIN_STORAGE;
 			}
+			if (SmsPluginStorage::instance()->addSmsSendOption(&(pReqInfo->msgInfo), &(pReqInfo->sendOptInfo)) != MSG_SUCCESS) {
+				MSG_DEBUG("########  addSmsSendOption Fail !!");
+				return MSG_ERR_PLUGIN_STORAGE;
+			}
 		}
 	}
 

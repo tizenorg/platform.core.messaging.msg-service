@@ -14,27 +14,18 @@
 * limitations under the License.
 */
 
-#include <glib.h>
-#include <pthread.h>
 #include <stdio.h>
-#include <time.h>
-
+#include "MsgException.h"
+#include "MsgGconfWrapper.h"
+#include "MsgUtilFile.h"
+#include "MmsPluginDebug.h"
 #include "MmsPluginTypes.h"
 #include "MmsPluginMain.h"
 #include "MmsPluginTransport.h"
-#include "MsgDebug.h"
-#include "MsgException.h"
-
-#include "MmsPluginMain.h"
-#include "MmsPluginMessage.h"
 #include "MmsPluginStorage.h"
 #include "MmsPluginInternal.h"
 #include "MmsPluginEventHandler.h"
-#include "MsgGconfWrapper.h"
 #include "MmsPluginCodec.h"
-#include "MsgUtilFile.h"
-#include "MmsPluginUserAgent.h"
-
 
 /*==================================================================================================
 							FUNCTION IMPLEMENTATION
@@ -295,8 +286,9 @@ msg_error_t MmsRestoreMsg(MSG_MESSAGE_INFO_S *pMsgInfo, char *pRcvBody, int rcvd
 
 	if (pMsgInfo->msgType.subType == MSG_NOTIFICATIONIND_MMS) {
 		FILE *pFile;
-		_MmsInitHeader();
-		_MmsRegisterDecodeBuffer(gszMmsLoadBuf1,  gszMmsLoadBuf2, MSG_MMS_DECODE_BUFFER_MAX);
+
+		MmsInitHeader();
+		MmsRegisterDecodeBuffer();
 
 		if ((pFile = MsgOpenFile(pMsgInfo->msgData, "rb+")) == NULL) {
 			MSG_DEBUG("File Open Error: %s", pMsgInfo->msgData);

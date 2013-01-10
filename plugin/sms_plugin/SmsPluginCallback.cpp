@@ -114,6 +114,7 @@ void TapiEventMsgIncoming(TapiHandle *handle, const char *noti_id, void *data, v
 		MSG_DEBUG("tpdu.data.deliver.dcs.msgClass : %d", tpdu.data.deliver.dcs.msgClass);
 		MSG_DEBUG("tpdu.data.deliver.dcs.codingScheme : %d", tpdu.data.deliver.dcs.codingScheme);
 		MSG_DEBUG("tpdu.data.deliver.dcs.codingGroup : %d", tpdu.data.deliver.dcs.codingGroup);
+		MSG_DEBUG("tpdu.data.deliver.dcs.bIndActive : %d", tpdu.data.deliver.dcs.bIndActive);
 		MSG_DEBUG("tpdu.data.deliver.originAddress.address : %s", tpdu.data.deliver.originAddress.address);
 		MSG_DEBUG("tpdu.data.deliver.timeStamp.time : %d/%d/%d %d:%d:%d ", tpdu.data.deliver.timeStamp.time.absolute.year, tpdu.data.deliver.timeStamp.time.absolute.month, tpdu.data.deliver.timeStamp.time.absolute.day,
 			tpdu.data.deliver.timeStamp.time.absolute.hour, tpdu.data.deliver.timeStamp.time.absolute.minute, tpdu.data.deliver.timeStamp.time.absolute.second);
@@ -155,21 +156,14 @@ void TapiEventMsgIncoming(TapiHandle *handle, const char *noti_id, void *data, v
 				SmsPluginSimMsg::instance()->setSmsData((const char*)pDataPackage->Sca, (const char *)pDataPackage->szData, pDataPackage->MsgLength);
 			}
 
-			if (tpdu.data.deliver.dcs.codingGroup == SMS_GROUP_DISCARD) {
-				if (tpdu.data.deliver.dcs.bIndActive == false) {
-					SmsPluginSetting::instance()->setMwiInfo(tpdu.data.deliver.dcs.indType + MSG_MWI_VOICE_SMS, 0);
-				}
-				SmsPluginTransport::instance()->sendDeliverReport(MSG_SUCCESS);
-			} else {
-				if (SmsPluginConcatHandler::instance()->IsConcatMsg(&(tpdu.data.deliver.userData)) == true ||
-					SmsPluginWapPushHandler::instance()->IsWapPushMsg(&(tpdu.data.deliver.userData)) == true)
-				{
-					SmsPluginConcatHandler::instance()->handleConcatMsg(&tpdu); // Call Concat Msg Handler
-				}
-				else
-				{
-					SmsPluginEventHandler::instance()->handleMsgIncoming(&tpdu); // Call Event Handler
-				}
+			if (SmsPluginConcatHandler::instance()->IsConcatMsg(&(tpdu.data.deliver.userData)) == true ||
+				SmsPluginWapPushHandler::instance()->IsWapPushMsg(&(tpdu.data.deliver.userData)) == true)
+			{
+				SmsPluginConcatHandler::instance()->handleConcatMsg(&tpdu); // Call Concat Msg Handler
+			}
+			else
+			{
+				SmsPluginEventHandler::instance()->handleMsgIncoming(&tpdu); // Call Event Handler
 			}
 		}
 		else if (tpdu.tpduType == SMS_TPDU_STATUS_REP)
@@ -779,13 +773,6 @@ void TapiEventGetMailboxInfo(TapiHandle *handle, int result, void *data, void *u
 void TapiEventSetMwiInfo(TapiHandle *handle, int result, void *data, void *user_data)
 {
 	MSG_DEBUG("TapiEventSetMwiInfo is called. result = [%d]", result);
-
-	bool bRet = true;
-
-	if (result != TAPI_SIM_ACCESS_SUCCESS)
-		bRet = false;
-
-	SmsPluginSetting::instance()->setResultFromSim(bRet);
 }
 
 void TapiEventGetMwiInfo(TapiHandle *handle, int result, void *data, void *user_data)

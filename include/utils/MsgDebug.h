@@ -39,7 +39,8 @@ extern "C"{
                                     DEFINES
 ==================================================================================================*/
 #define USER_TAG "MSG_FW"
-
+#undef LOG_TAG
+#define LOG_TAG "MSG_SERVICE"
 #define MSG_SMS_VALID_TAG "VLD_SMS"
 #define MSG_MMS_VALID_TAG "VLD_MMS"
 
@@ -58,25 +59,25 @@ int get_tid();
 #define MSG_FATAL(fmt, ...) \
 	do \
 	{\
-		SLOG(LOG_ERROR, USER_TAG, "[%s: %s(): %d] ERROR << " fmt " >>\n\n", rindex(__FILE__, '/')+1,  __FUNCTION__, __LINE__, ##__VA_ARGS__);\
+		SLOGD(" ERROR << " fmt " >>\n\n", ##__VA_ARGS__);\
 	} while (0)
 
 #define MSG_DEBUG(fmt, ...)\
 	do\
 	{\
-		SLOG(LOG_DEBUG, USER_TAG, "[%s: %s(): %d] " fmt"\n\n", rindex(__FILE__, '/')+1,  __FUNCTION__, __LINE__, ##__VA_ARGS__);\
+		SLOGD(fmt"\n\n", ##__VA_ARGS__);\
 	} while (0)
 
 #define MSG_BEGIN() \
 	do\
     {\
-		SLOG(LOG_DEBUG, USER_TAG, "[%s: %s(): %d] BEGIN >>>> \n\n", rindex(__FILE__, '/')+1,  __FUNCTION__, __LINE__ );\
+		SLOGD(" BEGIN >>>> \n\n");\
     } while( 0 )
 
 #define MSG_END() \
 	do\
     {\
-		SLOG(LOG_DEBUG, USER_TAG, "[%s: %s(): %d] END   <<<<  \n\n", rindex(__FILE__, '/')+1,  __FUNCTION__, __LINE__ );\
+		SLOGD(" END   <<<<  \n\n");\
     } \
     while( 0 )
 

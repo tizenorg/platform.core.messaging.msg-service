@@ -271,7 +271,8 @@ if(strlen(pMsg->subject) > 0)
 		}
 		MSG_DEBUG("FILE SIZE IS %d", fileSize);
 		msgText = (char *)calloc(1, fileSize);
-		memcpy(msgText, pFileData, fileSize);
+		if(pFileData)
+			memcpy(msgText, pFileData, fileSize);
 		pObject->numOfBiData = fileSize;
 		pObject->pszValue[0] = msgText;
 		pObject->valueCount = 1;
@@ -567,7 +568,8 @@ if(strlen(pMsg->subject) > 0)
 		}
 		MSG_DEBUG("FILE SIZE IS %d", fileSize);
 		msgText = (char *)calloc(1, fileSize);
-		memcpy(msgText, pFileData, fileSize);
+		if(pFileData)
+			memcpy(msgText, pFileData, fileSize);
 		pObject->numOfBiData = fileSize;
 		pObject->pszValue[0] = msgText;
 		pObject->valueCount = 1;

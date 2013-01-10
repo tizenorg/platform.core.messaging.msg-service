@@ -393,7 +393,7 @@ int SmsPluginParamCodec::decodeDCS(const unsigned char *pTpdu, SMS_DCS_S *pDCS)
 		pDCS->msgClass = SMS_MSG_CLASS_NONE;
 
 		pDCS->bMWI = true;
-		pDCS->bIndActive = (((dcs & 0x08) >> 3) == 1)? false:true;
+		pDCS->bIndActive = (((dcs & 0x08) >> 3) == 1)? true:false;
 		pDCS->indType = (SMS_INDICATOR_TYPE_T)(dcs & 0x03);
 	}
 	else if (((dcs & 0xF0) >> 4) == 0x0D)
@@ -404,7 +404,7 @@ int SmsPluginParamCodec::decodeDCS(const unsigned char *pTpdu, SMS_DCS_S *pDCS)
 		pDCS->msgClass = SMS_MSG_CLASS_NONE;
 
 		pDCS->bMWI = true;
-		pDCS->bIndActive = (((dcs & 0x08) >> 3) == 1)? false:true;
+		pDCS->bIndActive = (((dcs & 0x08) >> 3) == 1)? true:false;
 		pDCS->indType = (SMS_INDICATOR_TYPE_T)(dcs & 0x03);
 	}
 	else if (((dcs & 0xF0) >> 4) == 0x0E)
