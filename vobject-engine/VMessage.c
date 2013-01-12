@@ -1189,6 +1189,7 @@ vmsg_encode( VTree *pVMsgRaw )
 					if (encoded == NULL) {
 						VDATA_TRACE(  "vcard_encode() failed\n");
 						VFREE(pTemp);
+						VFREE(pVMsgRes);
 						VDATA_TRACE_END
 						return NULL;
 					}
@@ -1210,6 +1211,7 @@ vmsg_encode( VTree *pVMsgRaw )
 					VDATA_TRACE("pTemp : %s", encoded);
 					VFREE( pTemp );
 					VFREE( encoded );
+					VFREE(pVMsgRes);
 					break;
 				}
 				else
@@ -1431,7 +1433,8 @@ __VMsgTypeEncode( VObject *pTypeObj, char *pType )
 			VDATA_TRACE_END
 			return NULL;
 		}
-		_VQPEncode( pRes, pEncode );
+		if(pEncode)
+			_VQPEncode( pRes, pEncode );
 		VFREE(pEncode);
 			}
 	else if(enc & pMsgEncList[1].flag )

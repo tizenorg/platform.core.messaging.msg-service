@@ -559,7 +559,8 @@ void MsgProxyListener::clearListOfClosedHandle(MsgHandle* pMsgHandle)
 	}
 
 	if(!bSave)
-		MsgSettingSetBool(CB_SAVE, bSave);
+		if(MsgSettingSetBool(CB_SAVE, bSave) != MSG_SUCCESS)
+			MSG_DEBUG("MsgSettingSetBool FAIL: CB_SAVE");
 
 	// Storage change Message CB list
 	std::list<MSG_STORAGE_CHANGE_CB_ITEM_S>::iterator it8 = storageChangeCBList.begin();

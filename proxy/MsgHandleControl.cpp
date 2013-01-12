@@ -119,17 +119,13 @@ void MsgHandle::write(const char *pCmdData, int cmdSize, char **ppEvent)
 	if (ret < 0)
 		THROW(MsgException::IPC_ERROR, "IPC write error");
 
-	while(1)
-	{
-		// Receive Result from MSG FW
-		read(ppEvent);
+	// Receive Result from MSG FW
+	read(ppEvent);
 
-		if(!CheckEventData(*ppEvent)) {
-			delete [] (*ppEvent);
-		} else {
-			break;
-		}
+	if (*ppEvent == NULL) {
+		THROW(MsgException::INVALID_RESULT, "event is NULL");
 	}
+
 }
 
 

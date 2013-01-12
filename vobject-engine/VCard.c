@@ -1342,7 +1342,8 @@ __VCardTypeEncode( VObject *pTypeObj, char *pType )
 			VDATA_TRACE_END
 			return NULL;
 		}
-		_VQPEncode( pRes, pEncode );
+		if(pEncode)
+			_VQPEncode( pRes, pEncode );
 		VFREE(pEncode);
 			}
 	else if(enc & pEncList[1].flag ) {
