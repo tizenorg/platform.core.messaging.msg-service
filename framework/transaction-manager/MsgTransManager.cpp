@@ -676,7 +676,8 @@ void MsgTransactionManager::setCBMsgCB(MSG_CMD_REG_INCOMING_CB_MSG_CB_S *pCbInfo
 	}
 
 	if(pCbInfo->bsave)
-		MsgSettingSetBool(CB_SAVE, pCbInfo->bsave);
+		if(MsgSettingSetBool(CB_SAVE, pCbInfo->bsave) != MSG_SUCCESS)
+			MSG_DEBUG("MsgSettingSetBool FAIL: CB_SAVE");
 
 
 	newCBMsgCBList.push_back(*pCbInfo);

@@ -2184,13 +2184,15 @@ static bool __MmsBinaryDecodeMultipart(FILE *pFile, char *szFilePath, MsgType *p
 		if (pMsgBody->body.pMultipart == NULL) {
 			/* first multipart */
 			pMsgBody->body.pMultipart = pMultipart;
-			pLastMultipart			  = pMultipart;
-			pPreMultipart			  = NULL;
-		} else if (pLastMultipart != NULL) {
-			pPreMultipart = pLastMultipart;
+		}
 
-			pLastMultipart->pNext	= pMultipart;
-			pLastMultipart			= pMultipart;
+		if (pLastMultipart == NULL) {
+			/* first multipart */
+			pLastMultipart = pMultipart;
+			pPreMultipart = NULL;
+		} else {
+			pLastMultipart->pNext = pMultipart;
+			pLastMultipart = pMultipart;
 			pPreMultipart = pMultipart;
 		}
 
@@ -2440,7 +2442,8 @@ static bool __MmsBinaryDecodeDRMContent(FILE *pFile, char *szFilePath, MsgType *
 		}
 	}
 
-	remove(szTempFilePath);
+	if(remove(szTempFilePath) != 0)
+		MSG_DEBUG("remove fail");
 	isFileCreated = false;
 
 	if (__MmsBinaryDecodeMovePointer(pFile, offset + bodyLength, totalLength) == false)

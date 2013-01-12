@@ -134,7 +134,7 @@ msg_error_t MsgSubmitReqMMS(MSG_REQUEST_INFO_S *pReqInfo)
 		MSG_DEBUG("JAVA MMS PDU filepath:%s", pReqInfo->msgInfo.msgData);
 
 		// submit request
-		plg->submitReq(pReqInfo);
+		err = plg->submitReq(pReqInfo);
 
 		if(err != MSG_SUCCESS)
 		{

@@ -328,7 +328,8 @@ void* InitMsgServer(void*)
 	}
 
 	// Set Msg FW Ready Flag
-	MsgSettingSetBool(VCONFKEY_MSG_SERVER_READY, true);
+	if(MsgSettingSetBool(VCONFKEY_MSG_SERVER_READY, true) != MSG_SUCCESS)
+		MSG_DEBUG("MsgSettingSetBool FAIL : VCONFKEY_MSG_SERVER_READY");
 	MSG_DEBUG("### VCONFKEY_MSG_SERVER_READY ###");
 
 	if (plg == NULL) {
@@ -432,7 +433,8 @@ signal( SIGCHLD, SIG_IGN );
 	MSG_DEBUG("===========START MESSAGING FRAMEWORK==========");
 
 	// Reset message server ready flag
-	MsgSettingSetBool(VCONFKEY_MSG_SERVER_READY, false);
+	if(MsgSettingSetBool(VCONFKEY_MSG_SERVER_READY, false) != MSG_SUCCESS)
+		MSG_DEBUG("MsgSettingSetBool FAIL: VCONFKEY_MSG_SERVER_READY");
 
 	// Connect to DB
 	//	MsgStoConnectDB();

@@ -305,17 +305,10 @@ int MsgSoundPlayMelody(char *pMsgToneFilePath, bool bIncreasing)
 {
 	int err = MM_ERROR_NONE;
 
-	/* Setting fade in,out */
-	err = mm_player_set_attribute(hPlayerHandle, NULL, "sound_priority", 2, NULL);
-
-	if (err != MM_ERROR_NONE) {
-		MSG_DEBUG("error setting the profile attr");
-		return err;
-	}
-
-	/* Setting the Volume */
+	/* Setting fade in/out, Volume */
 	err = mm_player_set_attribute(hPlayerHandle, NULL, "sound_volume_type", MM_SOUND_VOLUME_TYPE_NOTIFICATION,
-													"profile_uri", pMsgToneFilePath, strlen(pMsgToneFilePath), NULL);
+													"profile_uri", pMsgToneFilePath, strlen(pMsgToneFilePath),
+													"sound_priority", 2, NULL);
 
 	if (err != MM_ERROR_NONE) {
 		MSG_DEBUG("error setting the profile attr");
