@@ -2151,6 +2151,9 @@ static bool __MmsBinaryDecodeMultipart(FILE *pFile, char *szFilePath, MsgType *p
 		goto __CATCH;
 	}
 
+	if (pMsgBody->body.pMultipart != NULL)
+		pLastMultipart = pMsgBody->body.pMultipart;
+
 	while (nEntries) {
 		MSG_DEBUG("decoding %dth multipart\n", index);
 
@@ -2181,13 +2184,9 @@ static bool __MmsBinaryDecodeMultipart(FILE *pFile, char *szFilePath, MsgType *p
 			presentationInfo.pCurPresentation = pMultipart;
 		}
 
-		if (pMsgBody->body.pMultipart == NULL) {
-			/* first multipart */
-			pMsgBody->body.pMultipart = pMultipart;
-		}
-
 		if (pLastMultipart == NULL) {
 			/* first multipart */
+			pMsgBody->body.pMultipart = pMultipart;
 			pLastMultipart = pMultipart;
 			pPreMultipart = NULL;
 		} else {
@@ -5579,10 +5578,11 @@ static bool __MsgResolveNestedMultipart(MsgType *pPartType, MsgBody *pPartBody)
 			goto __CATCH;
 		}
 
-		if (pSelectedPart->pBody != NULL)
-			memcpy(pPartBody, pSelectedPart->pBody, sizeof(MsgBody));
-
 		if (pSelectedPart != NULL) {
+
+			if (pSelectedPart->pBody != NULL)
+				memcpy(pPartBody, pSelectedPart->pBody, sizeof(MsgBody));
+
 #ifdef __SUPPORT_DRM__
 			MmsReleaseMsgDRMInfo(&pSelectedPart->type.drmInfo);
 #endif
