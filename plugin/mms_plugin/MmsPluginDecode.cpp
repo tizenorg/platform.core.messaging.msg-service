@@ -2219,6 +2219,16 @@ __RETURN:
 	return true;
 
 __CATCH:
+	if (pMultipart) {
+		if (pMultipart->pBody) {
+			free(pMultipart->pBody);
+			pMultipart->pBody = NULL;
+		}
+
+		free(pMultipart);
+		pMultipart = NULL;
+	}
+
 	return false;
 }
 
