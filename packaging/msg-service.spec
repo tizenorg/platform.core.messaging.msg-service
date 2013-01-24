@@ -503,7 +503,7 @@ fi
 %{_libdir}/libmsg_utils.so
 %{_libdir}/libmsg_transaction_proxy.so
 %{_libdir}/libmsg_vobject.so
-/usr/share/license/msg-service/LICENSE
+/usr/share/license/msg-service/LICENSE.Flora
 
 %files devel
 %defattr(-,root,root,-)
@@ -523,19 +523,19 @@ fi
 %{_sysconfdir}/rc.d/rc5.d/S70msg-server
 %{_libdir}/systemd/user/msg-service.service
 %{_libdir}/systemd/user/tizen-middleware.target.wants/msg-service.service
-/usr/share/license/msg-service/LICENSE
+/usr/share/license/msg-service/LICENSE.Flora
 
 %files -n sms-plugin
 %manifest sms-plugin.manifest
 %defattr(-,root,root,-)
 %{_libdir}/libmsg_sms_plugin.so
-/usr/share/license/msg-service/LICENSE
+/usr/share/license/msg-service/LICENSE.Flora
 
 %files -n mms-plugin
 %manifest mms-plugin.manifest
 %defattr(-,root,root,-)
 %{_libdir}/libmsg_mms_plugin.so
-/usr/share/license/msg-service/LICENSE
+/usr/share/license/msg-service/LICENSE.Flora
 
 %changelog
 * Wed Oct 25 2012 Sangkoo Kim <sangkoo.kim@samsung.com>
