@@ -100,6 +100,8 @@ void MmsPluginStorage::addMessage(MSG_MESSAGE_INFO_S *pMsgInfo, MSG_SENDINGOPT_I
 			THROW(MsgException::MMS_PLG_ERROR, "MMS Message Compose Error");
 		}
 
+		MmsPrintFileInfoForVLD(&mmsMsgData);
+
 		char fileName[MSG_FILENAME_LEN_MAX+1] = {0,};
 
 		FILE *pFile = NULL;
