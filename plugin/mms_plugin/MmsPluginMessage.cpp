@@ -938,6 +938,8 @@ msg_error_t MmsMakePreviewInfo(int msgId, MMS_MESSAGE_DATA_S *pMmsMsg)
 	if (pMmsMsg == NULL)
 		return MSG_ERR_NULL_POINTER;
 
+	MmsPluginStorage::instance()->removePreviewInfo(msgId); //remove exist previnfo
+
 	if (pMmsMsg->pageCnt > 0) {
 
 		MmsPluginStorage::instance()->insertPreviewInfo(msgId, MSG_MMS_ITEM_TYPE_PAGE, (char *)"pagecount", pMmsMsg->pageCnt);
@@ -995,4 +997,40 @@ msg_error_t MmsMakePreviewInfo(int msgId, MMS_MESSAGE_DATA_S *pMmsMsg)
 	}
 
 	return MSG_SUCCESS;
+}
+
+void MmsPrintFileInfoForVLD(MMS_MESSAGE_DATA_S *pMmsMsg)
+{
+	MMS_PAGE_S *pPage = NULL;
+	MMS_MEDIA_S *pMedia = NULL;
+
+	if (pMmsMsg == NULL)
+		return;
+
+	if (pMmsMsg->pageCnt > 0) {
+		for (int i = 0; i < pMmsMsg->pageCnt; i++) {
+
+			pPage = _MsgMmsGetPage(pMmsMsg, i);
+
+			if (pPage == NULL)
+				continue;
+
+			for (int j = 0; j < pPage->mediaCnt; j++) {
+
+				pMedia = _MsgMmsGetMedia(pPage, j);
+				if (pMedia == NULL)
+					continue;
+
+				MSG_MMS_VLD_FILE("[%s], %d", pMedia->szFilePath, MsgGetFileSize(pMedia->szFilePath));
+			}
+		}
+	}
+
+	int attachCnt = _MsgMmsGetAttachCount(pMmsMsg);
+	if (attachCnt > 0) {
+		for (int i = 0; i < pMmsMsg->pageCnt; i++) {
+		MMS_ATTACH_S *pAttach = _MsgMmsGetAttachment(pMmsMsg, i);
+		MSG_MMS_VLD_FILE("[%s], %d", pAttach->szFilePath, MsgGetFileSize(pAttach->szFilePath));
+		}
+	}
 }

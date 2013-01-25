@@ -42,5 +42,5 @@ bool MmsCheckAdditionalMedia(MMS_MESSAGE_DATA_S *pMsgData, MsgType *partHeader);
 bool MmsRemovePims(MMS_MESSAGE_DATA_S *pMsgData);
 
 msg_error_t MmsMakePreviewInfo(int msgId, MMS_MESSAGE_DATA_S *pMmsMsg);
-
+void MmsPrintFileInfoForVLD(MMS_MESSAGE_DATA_S *pMmsMsg);
 #endif //MMS_PLUGIN_MESSAGE_H
