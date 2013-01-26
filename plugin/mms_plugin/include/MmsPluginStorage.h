@@ -47,6 +47,8 @@ public:
 	msg_error_t insertReadReport(msg_message_id_t msgId, char *address, MmsMsgMultiStatus *pStatus);
 	msg_error_t insertPreviewInfo(int msgId, int type, char *value, int count = 0);
 
+	msg_error_t removePreviewInfo(int msgId);
+
 	msg_error_t setReadReportSendStatus(msg_message_id_t msgId, int readReportSendStatus);
 	msg_error_t plgGetMmsMessage(MSG_MESSAGE_INFO_S *pMsg,  MSG_SENDINGOPT_INFO_S *pSendOptInfo, MMS_MESSAGE_DATA_S *pMmsMsg, char **pDestMsg);
 	msg_error_t getContentLocation(MSG_MESSAGE_INFO_S *pMsgInfo);

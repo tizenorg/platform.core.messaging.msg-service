@@ -697,6 +697,16 @@ msg_error_t MmsPluginStorage::updateMessage(MSG_MESSAGE_INFO_S *pMsgInfo, MSG_SE
 
 	MsgCloseFile(pFile);
 
+	int size = 0;
+	bzero(filePath, sizeof(filePath));
+	snprintf((char *)filePath, MAX_FULL_PATH_SIZE+1, MSG_DATA_PATH"%d.mms", pMsgInfo->msgId);
+	if (MsgGetFileSize(filePath, &size) == false) {
+		THROW(MsgException::MMS_PLG_ERROR, "MMS Message MsgGetFileSize Error");
+	}
+
+	pMsgInfo->dataSize = size;
+
+
 	MmsReleaseMsgBody(&mmsMsg.msgBody, mmsMsg.msgType.type);
 	MmsReleaseMmsAttrib(&mmsMsg.mmsAttrib);
 
@@ -1213,6 +1223,48 @@ msg_error_t MmsPluginStorage::insertPreviewInfo(int msgId, int type, char *value
 			"(MSG_ID, TYPE, VALUE, COUNT)"
 			"VALUES (%d, %d, '%s', %d);",
 			MSGFW_MMS_PREVIEW_TABLE_NAME, msgId, type, value, count);
+
+	MSG_DEBUG("QUERY : [%s]", sqlQuery);
+
+	if (dbHandle.execQuery(sqlQuery) != MSG_SUCCESS)
+		return MSG_ERR_DB_EXEC;
+
+	return MSG_SUCCESS;
+}
+
+msg_error_t MmsPluginStorage::removePreviewInfo(int msgId)
+{
+	char sqlQuery[MAX_QUERY_LEN + 1];
+	char filePath[MSG_FILEPATH_LEN_MAX] = {0,};
+
+	// remove thumbnail file
+	memset(sqlQuery, 0x00, sizeof(sqlQuery));
+	snprintf(sqlQuery, sizeof(sqlQuery),
+			"SELECT VALUE FROM %s "
+			"WHERE MSG_ID = %d AND (TYPE=%d OR TYPE=%d);",
+			MSGFW_MMS_PREVIEW_TABLE_NAME, msgId, MSG_MMS_ITEM_TYPE_IMG, MSG_MMS_ITEM_TYPE_VIDEO);
+
+	if (dbHandle.prepareQuery(sqlQuery) != MSG_SUCCESS) {
+		return MSG_ERR_DB_PREPARE;
+	}
+
+	while (dbHandle.stepQuery() == MSG_ERR_DB_ROW) {
+
+		memset(filePath, 0x00, sizeof(filePath));
+		strncpy(filePath, (char *)dbHandle.columnText(0), MSG_FILEPATH_LEN_MAX);
+		if (remove(filePath) == -1)
+			MSG_DEBUG("Fail to delete file [%s]", filePath);
+		else
+			MSG_DEBUG("Success to delete file [%s]", filePath);
+	}
+
+	dbHandle.finalizeQuery();
+
+	memset(sqlQuery, 0x00, sizeof(sqlQuery));
+	//(MSG_ID INTEGER, TYPE INTEGER, INFO TEXT)
+	snprintf(sqlQuery, sizeof(sqlQuery),
+			"DELETE FROM %s WHERE MSG_ID= %d;",
+			MSGFW_MMS_PREVIEW_TABLE_NAME, msgId);
 
 	MSG_DEBUG("QUERY : [%s]", sqlQuery);
 

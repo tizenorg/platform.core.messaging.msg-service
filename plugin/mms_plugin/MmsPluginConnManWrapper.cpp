@@ -14,6 +14,7 @@
 * limitations under the License.
 */
 
+#include <errno.h>
 #include "MmsPluginConnManWrapper.h"
 #include "MmsPluginDebug.h"
 
