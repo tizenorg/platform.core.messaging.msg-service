@@ -231,7 +231,7 @@ void MsgTransactionManager::run()
 		}
 
 		// Release Memory
-		MsgReleaseMemory();
+		//MsgReleaseMemory();
 	}
 }
 
