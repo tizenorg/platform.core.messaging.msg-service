@@ -1706,10 +1706,10 @@ bool msg_sendopt_get_bool(void *send_opt, int field)
 	switch(field)
 	{
 	case MSG_SEND_OPT_SETTING_BOOL:
-		result = sendopt->bDeliverReq;
+		result = sendopt->bSetting;
 		break;
 	case MSG_SEND_OPT_KEEPCOPY_BOOL:
-		result = sendopt->bDeliverReq;
+		result = sendopt->bKeepCopy;
 		break;
 	case MSG_SEND_OPT_DELIVER_REQ_BOOL:
 		result = sendopt->bDeliverReq;
@@ -2213,10 +2213,10 @@ int msg_sendopt_set_bool(void *send_opt, int field, bool value)
     switch(field)
     {
     case MSG_SEND_OPT_SETTING_BOOL:
-		sendopt->bDeliverReq = value;
+		sendopt->bSetting = value;
 		break;
     case MSG_SEND_OPT_KEEPCOPY_BOOL:
-		sendopt->bDeliverReq = value;
+		sendopt->bKeepCopy = value;
 		break;
     case MSG_SEND_OPT_DELIVER_REQ_BOOL:
 		sendopt->bDeliverReq = value;
