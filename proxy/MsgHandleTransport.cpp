@@ -24,6 +24,8 @@
 #include "MsgHandle.h"
 
 
+#define MAX_ADDRESS_LEN 			21 // including '+'
+
 /*==================================================================================================
                                      IMPLEMENTATION OF MsgHandle - Transport Member Functions
 ==================================================================================================*/
@@ -86,6 +88,17 @@ msg_error_t MsgHandle::submitReq(MSG_REQUEST_S* pReq)
 
 	// Convert MSG_MESSAGE_S to MSG_MESSAGE_INFO_S
 	convertMsgStruct(reqmsg, &(reqInfo.msgInfo));
+
+	/* Check address validation */
+	if (reqInfo.msgInfo.msgType.mainType == MSG_SMS_TYPE) {
+		for(int i=0; i<reqmsg->addr_list->nCount; i++) {
+				if (reqInfo.msgInfo.addressList[i].addressVal[0] == '+' && strlen(reqInfo.msgInfo.addressList[i].addressVal)>MAX_ADDRESS_LEN) {
+					return MSG_ERR_INVALID_PARAMETER;
+				} else if (strlen(reqInfo.msgInfo.addressList[i].addressVal)>(MAX_ADDRESS_LEN-1)) {
+					return MSG_ERR_INVALID_PARAMETER;
+				}
+		}
+	}
 
 	MSG_MESSAGE_TYPE_S msgType = {0,};
 
