@@ -1028,7 +1028,7 @@ void MmsPrintFileInfoForVLD(MMS_MESSAGE_DATA_S *pMmsMsg)
 
 	int attachCnt = _MsgMmsGetAttachCount(pMmsMsg);
 	if (attachCnt > 0) {
-		for (int i = 0; i < pMmsMsg->pageCnt; i++) {
+		for (int i = 0; i < pMmsMsg->attachCnt; i++) {
 		MMS_ATTACH_S *pAttach = _MsgMmsGetAttachment(pMmsMsg, i);
 		MSG_MMS_VLD_FILE("[%s], %d", pAttach->szFilePath, MsgGetFileSize(pAttach->szFilePath));
 		}
