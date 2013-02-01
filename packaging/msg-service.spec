@@ -346,6 +346,9 @@ chgrp db_msg_service /opt/usr/data/msg-service
 if [ -f /usr/lib/rpm-plugins/msm.so ]
 then
 	chsmack -a 'msg-service::db' /opt/usr/dbspace/.msg_service.db*
+        chsmack -a "_" -e "_" /etc/rc.d/init.d/msg-server
+        chsmack -a "_" -e "_" /etc/rc.d/rc3.d/S70msg-server
+        chsmack -a "_" -e "_" /etc/rc.d/rc5.d/S70msg-server
 fi
 
 ########## Setting Config Value (Internal keys) ##########
