@@ -138,7 +138,7 @@ msg_error_t MsgGetContactInfo(const MSG_ADDRESS_INFO_S *pAddrInfo, MSG_CONTACT_I
 	contacts_filter_h filter = NULL;
 	contacts_list_h contacts = NULL;
 
-	if (pAddrInfo->addressType == MSG_ADDRESS_TYPE_PLMN) {
+	if (pAddrInfo->addressType == MSG_ADDRESS_TYPE_PLMN || pAddrInfo->addressType == MSG_ADDRESS_TYPE_UNKNOWN) {
 		ret = contacts_query_create(_contacts_contact_number._uri, &query);
 		ret = contacts_filter_create(_contacts_contact_number._uri, &filter);
 
@@ -177,7 +177,7 @@ msg_error_t MsgGetContactInfo(const MSG_ADDRESS_INFO_S *pAddrInfo, MSG_CONTACT_I
 
 	contacts_record_h contact = NULL;
 
-	if (pAddrInfo->addressType == MSG_ADDRESS_TYPE_PLMN) {
+	if (pAddrInfo->addressType == MSG_ADDRESS_TYPE_PLMN || pAddrInfo->addressType == MSG_ADDRESS_TYPE_UNKNOWN) {
 		contacts_record_h number = NULL;
 
 		ret = contacts_list_get_current_record_p(contacts, &number);
@@ -329,7 +329,7 @@ void MsgSyncContact()
 		return;
 	}
 
-	for (unsigned int i = 0; i < changed_count; i++);
+	for (unsigned int i = 0; i < changed_count; i++)
 	{
 		int index_num = 0;
 		int type = 0;
