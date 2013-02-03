@@ -91,6 +91,13 @@ msg_error_t MsgCloseContactSvc()
 
 msg_error_t MsgInitContactSvc(MsgContactChangeCB cb)
 {
+	msg_error_t err = MSG_SUCCESS;
+
+	if ((err = MsgOpenContactSvc()) != MSG_SUCCESS) {
+		MSG_DEBUG("MsgOpenContactSvc fail.");
+		return err;
+	}
+
 	int errCode = CONTACTS_ERROR_NONE;
 
 	if (!isContactSvcConnected) {
@@ -117,14 +124,21 @@ msg_error_t MsgGetContactInfo(const MSG_ADDRESS_INFO_S *pAddrInfo, MSG_CONTACT_I
 {
 	MSG_BEGIN();
 
-	MSG_DEBUG("Address Type [%d], Address Value [%s]", pAddrInfo->addressType, pAddrInfo->addressVal);
+	msg_error_t err = MSG_SUCCESS;
 
-	memset(pContactInfo, 0x00, sizeof(MSG_CONTACT_INFO_S));
+	if ((err = MsgOpenContactSvc()) != MSG_SUCCESS) {
+		MSG_DEBUG("MsgOpenContactSvc fail.");
+		return err;
+	}
 
 	if (!isContactSvcConnected) {
 		MSG_DEBUG("Contact Service Not Opened.");
 		return MSG_ERR_UNKNOWN;
 	}
+
+	MSG_DEBUG("Address Type [%d], Address Value [%s]", pAddrInfo->addressType, pAddrInfo->addressVal);
+
+	memset(pContactInfo, 0x00, sizeof(MSG_CONTACT_INFO_S));
 
 	if (pAddrInfo->addressType == MSG_ADDRESS_TYPE_PLMN && strlen(pAddrInfo->addressVal) > (MAX_PHONE_NUMBER_LEN+1)) {
 		MSG_DEBUG("Phone Number is too long [%s]", pAddrInfo->addressVal);
@@ -531,6 +545,12 @@ bool MsgDeleteContact(int index)
 
 int MsgGetContactNameOrder()
 {
+	msg_error_t err = MSG_SUCCESS;
+
+	if ((err = MsgOpenContactSvc()) != MSG_SUCCESS) {
+		MSG_DEBUG("MsgOpenContactSvc fail.");
+		return 0;
+	}
 
 	if (!isContactSvcConnected) {
 		MSG_DEBUG("Contact Service Not Opened.");
@@ -556,6 +576,13 @@ int MsgGetContactNameOrder()
 
 void MsgAddPhoneLog(const MSG_MESSAGE_INFO_S *pMsgInfo)
 {
+	msg_error_t err = MSG_SUCCESS;
+
+	if ((err = MsgOpenContactSvc()) != MSG_SUCCESS) {
+		MSG_DEBUG("MsgOpenContactSvc fail.");
+		return;
+	}
+
 	if (!isContactSvcConnected) {
 		MSG_DEBUG("Contact Service Not Opened.");
 		return;
@@ -628,6 +655,13 @@ void MsgAddPhoneLog(const MSG_MESSAGE_INFO_S *pMsgInfo)
 
 void MsgDeletePhoneLog(msg_message_id_t msgId)
 {
+	msg_error_t err = MSG_SUCCESS;
+
+	if ((err = MsgOpenContactSvc()) != MSG_SUCCESS) {
+		MSG_DEBUG("MsgOpenContactSvc fail.");
+		return;
+	}
+
 	MSG_DEBUG("MsgDeletePhoneLog [%d]", msgId);
 
 	if (!isContactSvcConnected) {
