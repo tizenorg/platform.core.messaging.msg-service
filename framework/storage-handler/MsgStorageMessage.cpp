@@ -101,25 +101,6 @@ msg_error_t MsgStoAddMessage(MSG_MESSAGE_INFO_S *pMsg, MSG_SENDINGOPT_INFO_S *pS
 		pMsg->threadId = convId;
 	}
 
-
-	///////// temporary code for draft message in conversation view.
-	if(convId > 0 && pMsg->folderId == MSG_DRAFT_ID) {
-		memset(sqlQuery, 0x00, sizeof(sqlQuery));
-
-		snprintf(sqlQuery, sizeof(sqlQuery),
-				"DELETE FROM %s WHERE CONV_ID = %d AND FOLDER_ID = %d;",
-				MSGFW_MESSAGE_TABLE_NAME, convId, MSG_DRAFT_ID);
-
-		MSG_DEBUG("sqlQuery [%s]", sqlQuery);
-
-		err = dbHandle.execQuery(sqlQuery);
-
-		if (err != MSG_SUCCESS) {
-			MSG_DEBUG("fail to delete draft messages.");
-		}
-	}
-	////////
-
 	err = dbHandle.getRowId(MSGFW_MESSAGE_TABLE_NAME, &rowId);
 
 	if (err != MSG_SUCCESS) {
@@ -229,6 +210,47 @@ msg_error_t MsgStoUpdateMessage(MSG_MESSAGE_INFO_S *pMsg, MSG_SENDINGOPT_INFO_S 
 
 	dbHandle.beginTrans();
 
+	MSG_MAIN_TYPE_T	prevType;
+	memset(sqlQuery, 0x00, sizeof(sqlQuery));
+	snprintf(sqlQuery, sizeof(sqlQuery), "SELECT MAIN_TYPE FROM %s WHERE MSG_ID = %d;",
+			MSGFW_MESSAGE_TABLE_NAME, pMsg->msgId);
+
+	MSG_DEBUG("QUERY : %s", sqlQuery);
+
+	if (dbHandle.prepareQuery(sqlQuery) != MSG_SUCCESS) {
+		dbHandle.endTrans(false);
+		return MSG_ERR_DB_PREPARE;
+	}
+
+	if (dbHandle.stepQuery() != MSG_ERR_DB_ROW) {
+		dbHandle.finalizeQuery();
+		dbHandle.endTrans(false);
+		return MSG_ERR_STORAGE_ERROR;
+	}
+
+	prevType = dbHandle.columnInt(0);
+	dbHandle.finalizeQuery();
+
+	//check msg type with previous type
+	if (prevType != pMsg->msgType.mainType) {
+		MSG_DEBUG("different msg type to update [prev : %d], [current : %d]", prevType, pMsg->msgType.mainType);
+
+		err = MsgStoDeleteMessage(pMsg->msgId, false);
+		if (err != MSG_SUCCESS) {
+			dbHandle.endTrans(false);
+			return err;
+		}
+
+		err = MsgStoAddMessage(pMsg, pSendOptInfo);
+		if (err != MSG_SUCCESS) {
+			dbHandle.endTrans(false);
+			return err;
+		}
+
+		dbHandle.endTrans(false);
+		return err;
+	}
+
 	if (pMsg->nAddressCnt > 0) {
 		err = MsgStoAddAddress(&dbHandle, pMsg, &convId);
 
@@ -337,6 +359,16 @@ msg_error_t MsgStoUpdateMessage(MSG_MESSAGE_INFO_S *pMsg, MSG_SENDINGOPT_INFO_S 
 		if (err != MSG_SUCCESS) {
 			dbHandle.endTrans(false);
 			return MSG_ERR_STORAGE_ERROR;
+		}
+
+		if (pMsg->msgType.subType == MSG_SENDREQ_MMS) {
+			MSG_DEBUG("pMsg->msgText: %s, pMsg->thumbPath: %s ", pMsg->msgText, pMsg->thumbPath);
+
+			err = MsgStoUpdateMMSMessage(pMsg);
+
+			if (err != MSG_SUCCESS) {
+				return MSG_ERR_STORAGE_ERROR;
+			}
 		}
 	}
 

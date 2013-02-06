@@ -113,8 +113,12 @@ int MsgSubmitReqHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 	msgIds[0] = reqInfo.msgInfo.msgId;
 	msgIdList.msgIdList = msgIds;
 
-	if ((err == MSG_SUCCESS || err != MSG_ERR_PLUGIN_STORAGE) && bNewMsg && reqInfo.msgInfo.msgPort.valid == false) {
-		MsgTransactionManager::instance()->broadcastStorageChangeCB(MSG_SUCCESS, MSG_STORAGE_CHANGE_INSERT, &msgIdList);
+	if ((err == MSG_SUCCESS || err != MSG_ERR_PLUGIN_STORAGE) && reqInfo.msgInfo.msgPort.valid == false) {
+		if (bNewMsg) {
+			MsgTransactionManager::instance()->broadcastStorageChangeCB(MSG_SUCCESS, MSG_STORAGE_CHANGE_INSERT, &msgIdList);
+		} else {
+			MsgTransactionManager::instance()->broadcastStorageChangeCB(MSG_SUCCESS, MSG_STORAGE_CHANGE_UPDATE, &msgIdList);
+		}
 	} else if (err == MSG_ERR_SECURITY_ERROR) { // Case of MDM enabled, it returns MSG_ERR_SECURITY_ERROR.
 		MsgTransactionManager::instance()->broadcastStorageChangeCB(MSG_SUCCESS, MSG_STORAGE_CHANGE_UPDATE, &msgIdList);
 	} else {

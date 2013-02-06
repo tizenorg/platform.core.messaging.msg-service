@@ -175,7 +175,7 @@ msg_error_t MmsUpdateMessage(MSG_MESSAGE_INFO_S *pMsgInfo, MSG_SENDINGOPT_INFO_S
 	msg_error_t err = MSG_SUCCESS;
 
 	try {
-		if (pMsgInfo->networkStatus == MSG_NETWORK_NOT_SEND) {
+		if (pMsgInfo->networkStatus == MSG_NETWORK_NOT_SEND || pMsgInfo->networkStatus == MSG_NETWORK_SENDING) {
 			err = MmsPluginStorage::instance()->updateMessage(pMsgInfo, pSendOptInfo, pFileData);
 		} else {
 			//[Update Message ID & File path only in case of retrieve. Else update Message ID]
