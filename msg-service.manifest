@@ -20,4 +20,9 @@
 		<filesystem path="/usr/lib/libmsg_utils.so" label="_"/>
 		<filesystem path="/usr/lib/libmsg_vobject.so" label="_"/>
 	</assign>
+        <permit>
+                <smack permit="com.samsung.quickpanel" type="rx"/>
+                <smack permit="com.samsung.indicator" type="rwx"/>
+                <smack permit="com.samsung.lockscreen" type="rx"/>
+        </permit>
 </manifest>
