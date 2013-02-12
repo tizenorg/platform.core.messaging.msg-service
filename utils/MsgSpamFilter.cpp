@@ -16,6 +16,7 @@
 
 #include "MsgDebug.h"
 #include "MsgUtilFile.h"
+#include "MsgContact.h"
 #include "MsgCppTypes.h"
 #include "MsgGconfWrapper.h"
 #include "MsgSpamFilter.h"
@@ -176,10 +177,22 @@ bool MsgCheckFilter(MsgDbHandler *pDbHandle, MSG_MESSAGE_INFO_S *pMsgInfo)
 		MSG_DEBUG("pData [%s]", pData);
 
 		if (strcasestr(pData, filterValue) != NULL) {
-			MSG_DEBUG("Msg is Filtered by Subject [%s] Data [%s]", filterValue, pData);
 
-			bFiltered = true;
-			break;
+			MSG_CONTACT_INFO_S contactInfo;
+			memset(&contactInfo, 0x00, sizeof(MSG_CONTACT_INFO_S));
+
+			// Get Contact Info
+			if (MsgGetContactInfo(&(pMsgInfo->addressList[0]), &contactInfo) == MSG_SUCCESS) {
+				if (contactInfo.contactId > 0) {
+					MSG_DEBUG("Msg is Filtered by Subject [%s] Data [%s], but address is in contact. Skip.", filterValue, pData);
+				} else {
+					MSG_DEBUG("Msg is Filtered by Subject [%s] Data [%s]", filterValue, pData);
+					bFiltered = true;
+					break;
+				}
+			} else {
+				MSG_DEBUG("MsgGetContactInfo() fail.");
+			}
 		}
 	}
 
