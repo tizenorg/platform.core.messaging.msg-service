@@ -50,7 +50,7 @@ void msg_message_create_struct(msg_struct_s *msg_struct)
 	msg->dataSize = 0;
 	msg->pData = NULL;
 	msg->pMmsData = NULL;
-
+	msg->mmsDataSize = 0;
 	/* Allocate memory for address list of message */
 	msg_struct_list_s *addr_list = (msg_struct_list_s *)new msg_struct_list_s;
 
@@ -86,6 +86,7 @@ int msg_message_release(msg_struct_s **msg_struct)
 	if (msg->pMmsData) {
 		delete [] static_cast<char*>(msg->pMmsData);
 		msg->pMmsData = NULL;
+		msg->mmsDataSize = 0;
 	}
 
 	// Memory Free
@@ -514,22 +515,23 @@ void msg_message_copy_message(MSG_MESSAGE_HIDDEN_S *pSrc, MSG_MESSAGE_HIDDEN_S *
 	pDst->direction = pSrc->direction;
 	pDst->bPortValid = pSrc->bPortValid;
 	pDst->dataSize = pSrc->dataSize;
+	pDst->mmsDataSize = pSrc->mmsDataSize;
 	memcpy(pDst->subject, pSrc->subject, sizeof(pDst->subject));
-	if(pSrc->dataSize)
+
+	if(pSrc->pMmsData && pSrc->mmsDataSize)
 	{
-		if(pSrc->pMmsData)
-		{
-			pDst->pMmsData = new char[pSrc->dataSize + 1];
-			memcpy(pDst->pMmsData, pSrc->pMmsData, pSrc->dataSize);
-		}
-		if(pSrc->pData)
-		{
-			int data_len = strlen((const char *)pSrc->pData);
-			pDst->pData = new char[data_len + 1];
-			memset(pDst->pData, 0x00, data_len + 1);
-			strncpy((char *)pDst->pData, (const char *)pSrc->pData, data_len);
-		}
+		pDst->pMmsData = new char[pSrc->mmsDataSize];
+		memcpy(pDst->pMmsData, pSrc->pMmsData, pSrc->mmsDataSize);
 	}
+
+	if(pSrc->dataSize && pSrc->pData)
+	{
+		int data_len = strlen((const char *)pSrc->pData);
+		pDst->pData = new char[data_len + 1];
+		memset(pDst->pData, 0x00, data_len + 1);
+		strncpy((char *)pDst->pData, (const char *)pSrc->pData, data_len);
+	}
+
 	msg_struct_list_s *src_addrlist = pSrc->addr_list;
 	msg_struct_list_s *dst_addrlist = pDst->addr_list;
 	dst_addrlist->nCount = src_addrlist->nCount;
@@ -704,7 +706,7 @@ EXPORT_API int msg_set_mms_struct(msg_struct_t msg_struct_handle, msg_struct_t m
 
 	convert_to_mmsdata(mms_struct, tmp_mms_data);
 
-	msg_data->pMmsData = _MsgMmsSerializeMessageData(tmp_mms_data, &(msg_data->dataSize));
+	msg_data->pMmsData = _MsgMmsSerializeMessageData(tmp_mms_data, &(msg_data->mmsDataSize));
 
 	_MsgMmsReleasePageList(tmp_mms_data);
 	_MsgMmsReleaseRegionList(tmp_mms_data);

@@ -237,7 +237,12 @@ void MsgHandle::convertMsgStruct(const MSG_MESSAGE_HIDDEN_S *pSrc, MSG_MESSAGE_I
 
 		if(pSrc->subType == MSG_READREPLY_MMS) {
 			memset(pDest->msgData, 0x00, sizeof(pDest->msgData));
-			memcpy(pDest->msgData, pSrc->pMmsData, pSrc->dataSize);
+
+			if (pSrc->mmsDataSize < MAX_MSG_DATA_LEN)
+				memcpy(pDest->msgData, pSrc->pMmsData, pSrc->mmsDataSize);
+			else
+				memcpy(pDest->msgData, pSrc->pMmsData, MAX_MSG_DATA_LEN);
+
 		} else {
 			// Save Message Data into File
 			char fileName[MSG_FILENAME_LEN_MAX+1];
@@ -253,9 +258,8 @@ void MsgHandle::convertMsgStruct(const MSG_MESSAGE_HIDDEN_S *pSrc, MSG_MESSAGE_I
 				strncpy(pFileNameExt,"JAVA", MSG_FILENAME_LEN_MAX);
 			}
 
-			MSG_DEBUG("Save Message Data into file : size[%d] name[%s]", pDest->dataSize, fileName);
-
-			if (MsgWriteIpcFile(fileName, (char*)pSrc->pMmsData, pSrc->dataSize) == false)
+			MSG_DEBUG("Save Message Data into file : size[%d] name[%s]", pSrc->mmsDataSize, fileName);
+			if (MsgWriteIpcFile(fileName, (char*)pSrc->pMmsData, pSrc->mmsDataSize) == false)
 				THROW(MsgException::FILE_ERROR, "MsgWriteIpcFile error");
 
 			memset(pDest->msgData, 0x00, sizeof(pDest->msgData));
@@ -338,7 +342,7 @@ void MsgHandle::convertMsgStruct(const MSG_MESSAGE_INFO_S *pSrc, MSG_MESSAGE_HID
 
 		// Get Message Data from File
 		if (pSrc->networkStatus != MSG_NETWORK_RETRIEVE_FAIL) {
-			MSG_DEBUG("Get Message Data from file : size[%d] name[%s]\n", pDest->dataSize, pSrc->msgData);
+
 			if (MsgOpenAndReadFile(pSrc->msgData, &pFileData, &fileSize) == false)
 				THROW(MsgException::FILE_ERROR, "MsgOpenAndReadFile error");
 
@@ -358,9 +362,11 @@ void MsgHandle::convertMsgStruct(const MSG_MESSAGE_INFO_S *pSrc, MSG_MESSAGE_HID
 					memset(pDest->pData, 0x00, strlen(pSrc->msgText)+1);
 					strncpy((char*)pDest->pData, pSrc->msgText, strlen(pSrc->msgText));
 				}
+				pDest->mmsDataSize = fileSize;
 				pDest->pMmsData = (void*)new char[fileSize];
 				memset(pDest->pMmsData, 0x00, fileSize);
 				memcpy(pDest->pMmsData, pFileData, fileSize);
+				MSG_DEBUG("Get Message Data from file : size[%d] name[%s]", pDest->mmsDataSize, pSrc->msgData);
 			}
 		}
 	} else {
@@ -383,6 +389,7 @@ void MsgHandle::convertMsgStruct(const MSG_MESSAGE_INFO_S *pSrc, MSG_MESSAGE_HID
 				strncpy((char*)pDest->pData, pSrc->msgText, strlen(pSrc->msgText));
 			}
 
+			pDest->mmsDataSize = pDest->dataSize;
 			pDest->pMmsData = (void*)new char[pDest->dataSize];
 			memset(pDest->pMmsData, 0x00, pDest->dataSize);
 			memcpy(pDest->pMmsData, pSrc->msgData, pDest->dataSize);

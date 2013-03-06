@@ -311,7 +311,7 @@ char* _MsgMmsSerializeMessageData(const MMS_MESSAGE_DATA_S* pMsgData, unsigned i
 							+ sizeof(MsgDrmType) + MSG_FILEPATH_LEN_MAX
 #endif
 							+ MAX_SMIL_TRANSIN_ID + MAX_SMIL_TRANSOUT_ID +
-							7 * sizeof(int) + 3* sizeof(bool) + sizeof(MmsTextDirection) + sizeof(MmsSmilFontType));
+							7 * sizeof(int) + 4* sizeof(bool) + sizeof(MmsTextDirection) /*+ sizeof(MmsSmilFontType)*/);
 					} else {
 						bufsize += (sizeof(MmsSmilMediaType) + MSG_FILENAME_LEN_MAX + 2 * MSG_FILEPATH_LEN_MAX + MSG_MSG_ID_LEN + 1
 							+ MAX_SMIL_ALT_LEN + MAX_SMIL_REGION_ID

@@ -262,6 +262,7 @@ typedef struct
 	size_t					dataSize;								/**< Indicates the data size. The unit is byte. */
 	void					*pData;									/**< Indicates the message payload information as a body. default character encoding is UTF-8*/
 	void					*pMmsData;								/**< Indicates the message payload information as a body. default character encoding is UTF-8*/
+	size_t					mmsDataSize;
 } MSG_MESSAGE_HIDDEN_S;
 
 /**
