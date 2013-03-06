@@ -356,7 +356,7 @@ int msg_mms_get_int_value(msg_struct_s *msg_struct, int field, int *value)
 	break;
 	case MSG_STRUCT_MMS_MEDIA:
 	{
-		MMS_MEDIA_S *mms_media_data = (MMS_MEDIA_S *)msg_struct->data;
+		MMS_MEDIA_HIDDEN_S *mms_media_data = (MMS_MEDIA_HIDDEN_S *)msg_struct->data;
 		if (field == MSG_MMS_MEDIA_TYPE_INT)
 			*value = mms_media_data->mediatype;
 		else if (field == MSG_MMS_MEDIA_DRM_TYPE_INT)
@@ -464,7 +464,7 @@ int msg_mms_get_str_value(msg_struct_s *msg_struct, int field, char *value, int 
 	switch(msg_struct->type) {
 	case MSG_STRUCT_MMS_MEDIA:
 	{
-		MMS_MEDIA_S *mms_media_data = (MMS_MEDIA_S *)msg_struct->data;
+		MMS_MEDIA_HIDDEN_S *mms_media_data = (MMS_MEDIA_HIDDEN_S *)msg_struct->data;
 		if (field == MSG_MMS_MEDIA_SRC_STR)
 			strncpy(value, mms_media_data->szSrc, size);
 		else if (field == MSG_MMS_MEDIA_FILENAME_STR)
@@ -709,7 +709,7 @@ int msg_mms_set_int_value(msg_struct_s *msg_struct, int field, int value)
 	break;
 	case MSG_STRUCT_MMS_MEDIA:
 	{
-		MMS_MEDIA_S *mms_media_data = (MMS_MEDIA_S *)msg_struct->data;
+		MMS_MEDIA_HIDDEN_S *mms_media_data = (MMS_MEDIA_HIDDEN_S *)msg_struct->data;
 		if (field == MSG_MMS_MEDIA_TYPE_INT)
 			mms_media_data->mediatype = (MmsSmilMediaType)value;
 		else if (field == MSG_MMS_MEDIA_DRM_TYPE_INT)
@@ -817,7 +817,7 @@ int msg_mms_set_str_value(msg_struct_s *msg_struct, int field, char *value, int 
 	switch(msg_struct->type) {
 	case MSG_STRUCT_MMS_MEDIA:
 	{
-		MMS_MEDIA_S *mms_media_data = (MMS_MEDIA_S *)msg_struct->data;
+		MMS_MEDIA_HIDDEN_S *mms_media_data = (MMS_MEDIA_HIDDEN_S *)msg_struct->data;
 		if (field == MSG_MMS_MEDIA_SRC_STR)
 			strncpy(mms_media_data->szSrc, value, MSG_FILEPATH_LEN_MAX);
 		else if (field == MSG_MMS_MEDIA_FILENAME_STR) {
