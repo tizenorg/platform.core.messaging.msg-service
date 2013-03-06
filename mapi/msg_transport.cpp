@@ -512,9 +512,9 @@ EXPORT_API int msg_mms_send_message(msg_handle_t handle, msg_struct_t req)
 
 	MSG_MESSAGE_HIDDEN_S *reqmsg = (MSG_MESSAGE_HIDDEN_S*)msg_s->data;
 
-	if (reqmsg->dataSize <= 0)
+	if (reqmsg->mmsDataSize <= 0)
 	{
-		MSG_FATAL("MMS data size is invalid");
+		MSG_FATAL("MMS data size is invalid [%d]", reqmsg->mmsDataSize);
 		return MSG_ERR_INVALID_PARAMETER;
 	}
 
@@ -571,6 +571,7 @@ EXPORT_API int msg_mms_send_read_report(msg_handle_t handle, msg_message_id_t ms
 	reqmsg->subType = MSG_READREPLY_MMS;
 
 	reqmsg->dataSize = read_report_datasize;
+	reqmsg->mmsDataSize = read_report_datasize;
 	reqmsg->pMmsData = read_report_data;
 
 	err = msg_submit_req(handle, req_t);
