@@ -1,0 +1,10 @@
+
+[Unit]
+Description=Start the msg-server
+
+[Service]
+ExecStart=/usr/bin/msg-server
+
+[Install]
+WantedBy=tizen-middleware.target
+
