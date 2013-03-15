@@ -357,7 +357,6 @@ int msg_mms_get_int_value(msg_struct_s *msg_struct, int field, int *value)
 	case MSG_STRUCT_MMS_MEDIA:
 	{
 		MMS_MEDIA_HIDDEN_S *mms_media_data = (MMS_MEDIA_HIDDEN_S *)msg_struct->data;
-		
 		if (field == MSG_MMS_MEDIA_TYPE_INT)
 			*value = mms_media_data->mediatype;
 		else if (field == MSG_MMS_MEDIA_DRM_TYPE_INT)

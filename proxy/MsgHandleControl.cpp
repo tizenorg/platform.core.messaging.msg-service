@@ -342,6 +342,7 @@ void MsgHandle::convertMsgStruct(const MSG_MESSAGE_INFO_S *pSrc, MSG_MESSAGE_HID
 
 		// Get Message Data from File
 		if (pSrc->networkStatus != MSG_NETWORK_RETRIEVE_FAIL) {
+
 			if (MsgOpenAndReadFile(pSrc->msgData, &pFileData, &fileSize) == false)
 				THROW(MsgException::FILE_ERROR, "MsgOpenAndReadFile error");
 

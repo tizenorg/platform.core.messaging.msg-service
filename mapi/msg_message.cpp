@@ -51,7 +51,6 @@ void msg_message_create_struct(msg_struct_s *msg_struct)
 	msg->pData = NULL;
 	msg->pMmsData = NULL;
 	msg->mmsDataSize = 0;
-	
 	/* Allocate memory for address list of message */
 	msg_struct_list_s *addr_list = (msg_struct_list_s *)new msg_struct_list_s;
 
