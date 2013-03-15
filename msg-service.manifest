@@ -19,5 +19,7 @@
 		<filesystem path="/usr/lib/libmsg_transaction_proxy.so" label="_"/>
 		<filesystem path="/usr/lib/libmsg_utils.so" label="_"/>
 		<filesystem path="/usr/lib/libmsg_vobject.so" label="_"/>
+		<filesystem path="/usr/lib/systemd/user/msg-service.service" label="_" exec_label="none" />
+		<filesystem path="/usr/lib/systemd/user/tizen-middleware.target.wants/msg-service.service" label="_" exec_label="none" />
 	</assign>
 </manifest>

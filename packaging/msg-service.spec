@@ -1,6 +1,6 @@
 Name:           msg-service
 Version:        0.9.2
-Release:        1
+Release:        2
 License:        Samsung
 Summary:        Messaging Framework Library
 Group:          System/Libraries

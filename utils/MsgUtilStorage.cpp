@@ -843,7 +843,7 @@ bool MsgExistAddress(MsgDbHandler *pDbHandle, const MSG_MESSAGE_INFO_S *pMsg, ms
 	*pConvId = 0;
 
 	if(pMsg->nAddressCnt == 1) {
-		if (strlen(pMsg->addressList[0].addressVal) > MAX_PRECONFIG_NUM) {
+		if (strlen(pMsg->addressList[0].addressVal) > MAX_PRECONFIG_NUM && pMsg->addressList[0].addressType == MSG_ADDRESS_TYPE_PLMN) {
 			char newPhoneNum[MAX_PRECONFIG_NUM+1];
 
 			memset(newPhoneNum, 0x00, sizeof(newPhoneNum));
@@ -890,7 +890,7 @@ bool MsgExistAddress(MsgDbHandler *pDbHandle, const MSG_MESSAGE_INFO_S *pMsg, ms
 		}
 
 	} else { /* multiple address */
-		if (strlen(pMsg->addressList[0].addressVal) > MAX_PRECONFIG_NUM) {
+		if (strlen(pMsg->addressList[0].addressVal) > MAX_PRECONFIG_NUM && pMsg->addressList[0].addressType == MSG_ADDRESS_TYPE_PLMN) {
 			char newPhoneNum[MAX_PRECONFIG_NUM+1];
 
 			memset(newPhoneNum, 0x00, sizeof(newPhoneNum));
