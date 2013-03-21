@@ -14,6 +14,8 @@
 * limitations under the License.
 */
 
+#include <sys/utsname.h>
+
 #include "MsgException.h"
 #include "MsgUtilFile.h"
 #include "MsgGconfWrapper.h"
@@ -294,6 +296,62 @@ void MmsPluginUaManager::run()
 			wait();
 			unlock();
 		}
+
+
+		{ // Check is it emulator or not.
+			struct utsname buf;
+			int ret = uname(&buf);
+
+			if (ret == 0) {
+				MSG_DEBUG("System runs on [%s].", buf.machine);
+				if (strncmp(buf.machine, "i686", 4) == 0) {
+					MSG_DEBUG("Running on Emulator mode.");
+
+					int mmsResult = MsgSettingGetInt(VCONFKEY_TELEPHONY_MMS_SENT_STATUS);
+
+					MSG_DEBUG("MMS result has to be [%d]", mmsResult);
+
+					while (!mmsTranQ.empty()) {
+						MSG_DEBUG("###### mmsTranQ.size [%d]", mmsTranQ.size());
+
+						mmsTranQEntity reqEntity;
+						memset(&reqEntity, 0, sizeof(mmsTranQEntity));
+
+						mmsTranQ.front(&reqEntity);
+
+						if (mmsResult > 0) {
+							// For MMS send fail.
+							MmsPluginEventHandler::instance()->handleMmsError(&reqEntity);
+							mmsTranQ.pop_front();
+						} else {
+							// For MMS send success.
+							MSG_DEBUG("conf received successfully");
+
+							reqEntity.eMmsPduType = eMMS_SEND_CONF;
+
+							try {
+								MmsPluginEventHandler::instance()->handleMmsReceivedData(&reqEntity, NULL);
+							} catch (MsgException& e) {
+								MSG_FATAL("%s", e.what());
+								break;
+							} catch (exception& e) {
+								MSG_FATAL("%s", e.what());
+								break;
+							}
+
+							mmsTranQ.pop_front();
+						}
+					}
+
+					mmsTranQ.clear();
+					MutexLocker locker(mx);
+					running = false;
+
+					return;
+				}
+			}
+		}
+
 
 		// Request CM Open
 		if (!(cmAgent->open())) {
