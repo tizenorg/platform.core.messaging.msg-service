@@ -457,7 +457,7 @@ msg_error_t	MmsPluginStorage::plgGetMmsMessage(MSG_MESSAGE_INFO_S *pMsg, MSG_SEN
 	msg_error_t	err = MSG_SUCCESS;
 
 	int partCnt = 0;
-	unsigned int nSize = 0;
+	size_t nSize = 0;
 
 	MsgType partHeader;
 	MmsAttrib pMmsAttrib;

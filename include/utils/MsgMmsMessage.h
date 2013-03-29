@@ -52,7 +52,7 @@ msg_error_t	_MsgMmsReleaseAttachList(MMS_MESSAGE_DATA_S *pMsgData);
 msg_error_t _MsgMmsReleaseMetaList(MMS_MESSAGE_DATA_S *pMsgData);
 msg_error_t _MsgMmsReleaseTransitionList(MMS_MESSAGE_DATA_S *pMsgData);
 
-char *_MsgMmsSerializeMessageData(const MMS_MESSAGE_DATA_S *pMsgData, unsigned int *pSize);
+char *_MsgMmsSerializeMessageData(const MMS_MESSAGE_DATA_S *pMsgData, size_t *pSize);
 bool _MsgMmsDeserializeMessageData(MMS_MESSAGE_DATA_S *pBody, char *pFileData);
 bool _MsgMmsSetRootLayout(MMS_MESSAGE_DATA_S *pMmsMsg, MMS_SMIL_ROOTLAYOUT *pRootlayout);
 

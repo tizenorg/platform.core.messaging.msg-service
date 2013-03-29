@@ -27,7 +27,7 @@
                                          INCLUDE FILES
 ==================================================================================================*/
 #include "MsgMmsTypes.h"
-
+#include <inttypes.h>
 
 /*==================================================================================================
                                     DEFINES
@@ -345,10 +345,14 @@ typedef struct
 typedef struct
 {
 	int						listenerFd;		/**< Rx fd for status cnf */
+#ifdef __x86_64__
+	uint64_t				handleAddr;		/**< Handle address for status cnf */
+#else
 	unsigned int			handleAddr;		/**< Handle address for status cnf */
+#endif
 	msg_message_id_t		sentMsgId;		/**< The ID of a sent message for updating message status */
-} MSG_PROXY_INFO_S;
 
+} MSG_PROXY_INFO_S;
 
 /**
  *	@brief	Aux data structure for MSG_CMD_REG_INCOMING_MSG_CB. \n

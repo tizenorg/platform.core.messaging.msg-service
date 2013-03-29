@@ -277,7 +277,7 @@ msg_error_t _MsgMmsAddSmilDoc(char* pSmil, MMS_MESSAGE_DATA_S* pMsgData)
 }
 
 
-char* _MsgMmsSerializeMessageData(const MMS_MESSAGE_DATA_S* pMsgData, unsigned int *pSize)
+char* _MsgMmsSerializeMessageData(const MMS_MESSAGE_DATA_S* pMsgData, size_t *pSize)
 {
 	MSG_DEBUG("MsgMmsSerializeMessageData");
 

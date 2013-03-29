@@ -369,7 +369,7 @@ int MsgEncodeReportStatus(MSG_REPORT_STATUS_INFO_S* pReportStatus, int count, ch
 
 	memcpy(p, &count, sizeof(int));
 
-	p = (void*)((int)p + sizeof(int));
+	p = (void*)(p + sizeof(int));
 
 	memcpy(p, pReportStatus, sizeof(MSG_REPORT_STATUS_INFO_S)*count);
 

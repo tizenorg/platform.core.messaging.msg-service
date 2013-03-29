@@ -8,7 +8,6 @@ IF("${CMAKE_BUILD_TYPE}" STREQUAL "")
 ENDIF("${CMAKE_BUILD_TYPE}" STREQUAL "")
 MESSAGE("Build type: ${CMAKE_BUILD_TYPE}")
 
-
 ##########################################################
 # Define MMS Plugin
 ##########################################################
@@ -64,5 +63,5 @@ SET(CMAKE_SHARED_LINKER_FLAGS "-Wl,--no-undefined")
 ADD_LIBRARY(${MMS-PLUGIN-LIB} SHARED ${MMS-PLUGIN-SRCS})
 TARGET_LINK_LIBRARIES(${MMS-PLUGIN-LIB} ${mms_plugin_pkgs_LDFLAGS} ${UTILS-LIB})
 
-INSTALL(TARGETS ${MMS-PLUGIN-LIB} LIBRARY DESTINATION lib)
+INSTALL(TARGETS ${MMS-PLUGIN-LIB} LIBRARY DESTINATION ${LIB_INSTALL_DIR})
 

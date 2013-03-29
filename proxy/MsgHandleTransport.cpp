@@ -115,7 +115,11 @@ msg_error_t MsgHandle::submitReq(MSG_REQUEST_S* pReq)
 
 	chInfo.listenerFd = MsgProxyListener::instance()->getRemoteFd();
 
+#ifdef __x86_64__
+	chInfo.handleAddr = (uint64_t) this;
+#else
 	chInfo.handleAddr = (unsigned int) this;
+#endif
 
 	/* Allocate Memory to Command Data */
 	int cmdSize = sizeof(MSG_CMD_S) + sizeof(MSG_REQUEST_INFO_S) + sizeof(MSG_PROXY_INFO_S);

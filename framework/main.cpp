@@ -461,7 +461,9 @@ signal( SIGCHLD, SIG_IGN );
 
 	mainloop = g_main_loop_new(NULL, FALSE);
 
-	g_type_init();
+#if !GLIB_CHECK_VERSION(2,35,0)
+	g_type_init ();
+#endif
 
 	g_idle_add(InitThreadFunc, NULL);
 

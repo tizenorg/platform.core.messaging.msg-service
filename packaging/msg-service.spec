@@ -98,7 +98,7 @@ Description: MMS plugin library
 
 
 %build
-cmake . -DCMAKE_INSTALL_PREFIX=%{_prefix}
+%cmake .
 make %{?jobs:-j%jobs}
 
 %install
@@ -107,9 +107,9 @@ mkdir -p %{buildroot}/usr/share/license
 
 %make_install
 
-mkdir -p %{buildroot}%{_libdir}/systemd/user/tizen-middleware.target.wants
-install -m 0644 %SOURCE101 %{buildroot}%{_libdir}/systemd/user/
-ln -s ../msg-service.service %{buildroot}%{_libdir}/systemd/user/tizen-middleware.target.wants/msg-service.service
+mkdir -p %{buildroot}/usr/lib/systemd/user/tizen-middleware.target.wants
+install -m 0644 %SOURCE101 %{buildroot}/usr/lib/systemd/user/
+ln -s ../msg-service.service %{buildroot}/usr/lib/systemd/user/tizen-middleware.target.wants/msg-service.service
 
 mkdir -p  %{buildroot}%{_sysconfdir}/rc.d/rc3.d
 ln -s %{_sysconfdir}/rc.d/init.d/msg-server  %{buildroot}%{_sysconfdir}/rc.d/rc3.d/S70msg-server
@@ -524,8 +524,8 @@ fi
 %{_sysconfdir}/rc.d/init.d/msg-server
 %{_sysconfdir}/rc.d/rc3.d/S70msg-server
 %{_sysconfdir}/rc.d/rc5.d/S70msg-server
-%{_libdir}/systemd/user/msg-service.service
-%{_libdir}/systemd/user/tizen-middleware.target.wants/msg-service.service
+/usr/lib/systemd/user/msg-service.service
+/usr/lib/systemd/user/tizen-middleware.target.wants/msg-service.service
 /usr/share/license/msg-service/LICENSE.Flora
 
 %files -n sms-plugin
