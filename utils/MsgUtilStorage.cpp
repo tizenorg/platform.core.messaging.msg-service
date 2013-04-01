@@ -843,25 +843,11 @@ bool MsgExistAddress(MsgDbHandler *pDbHandle, const MSG_MESSAGE_INFO_S *pMsg, ms
 	*pConvId = 0;
 
 	if(pMsg->nAddressCnt == 1) {
-		if (strlen(pMsg->addressList[0].addressVal) > MAX_PRECONFIG_NUM && pMsg->addressList[0].addressType == MSG_ADDRESS_TYPE_PLMN) {
-			char newPhoneNum[MAX_PRECONFIG_NUM+1];
+		memset(sqlQuery, 0x00, sizeof(sqlQuery));
 
-			memset(newPhoneNum, 0x00, sizeof(newPhoneNum));
-
-			MsgConvertNumber(pMsg->addressList[0].addressVal, newPhoneNum);
-
-			memset(sqlQuery, 0x00, sizeof(sqlQuery));
-
-			snprintf(sqlQuery, sizeof(sqlQuery),
-					"SELECT CONV_ID FROM (SELECT B.CONV_ID FROM %s A, %s B WHERE A.ADDRESS_VAL LIKE '%%%%%s' AND A.CONV_ID=B.CONV_ID) GROUP BY CONV_ID HAVING COUNT(CONV_ID)=1;",
-					MSGFW_ADDRESS_TABLE_NAME, MSGFW_ADDRESS_TABLE_NAME, newPhoneNum);
-		} else {
-			memset(sqlQuery, 0x00, sizeof(sqlQuery));
-
-			snprintf(sqlQuery, sizeof(sqlQuery),
-					"SELECT CONV_ID FROM (SELECT B.CONV_ID FROM %s A, %s B WHERE A.ADDRESS_VAL = '%s' AND A.CONV_ID=B.CONV_ID) GROUP BY CONV_ID HAVING COUNT(CONV_ID)=1;",
-					MSGFW_ADDRESS_TABLE_NAME, MSGFW_ADDRESS_TABLE_NAME, pMsg->addressList[0].addressVal);
-		}
+		snprintf(sqlQuery, sizeof(sqlQuery),
+				"SELECT CONV_ID FROM (SELECT B.CONV_ID FROM %s A, %s B WHERE A.ADDRESS_VAL = '%s' AND A.CONV_ID=B.CONV_ID) GROUP BY CONV_ID HAVING COUNT(CONV_ID)=1;",
+				MSGFW_ADDRESS_TABLE_NAME, MSGFW_ADDRESS_TABLE_NAME, pMsg->addressList[0].addressVal);
 
 		int rowCnt = 0;
 		msg_thread_id_t convId = 0;
@@ -890,25 +876,11 @@ bool MsgExistAddress(MsgDbHandler *pDbHandle, const MSG_MESSAGE_INFO_S *pMsg, ms
 		}
 
 	} else { /* multiple address */
-		if (strlen(pMsg->addressList[0].addressVal) > MAX_PRECONFIG_NUM && pMsg->addressList[0].addressType == MSG_ADDRESS_TYPE_PLMN) {
-			char newPhoneNum[MAX_PRECONFIG_NUM+1];
+		memset(sqlQuery, 0x00, sizeof(sqlQuery));
 
-			memset(newPhoneNum, 0x00, sizeof(newPhoneNum));
-
-			MsgConvertNumber(pMsg->addressList[0].addressVal, newPhoneNum);
-
-			memset(sqlQuery, 0x00, sizeof(sqlQuery));
-
-			snprintf(sqlQuery, sizeof(sqlQuery),
-					"SELECT CONV_ID FROM (SELECT B.CONV_ID FROM %s A, %s B WHERE A.ADDRESS_VAL LIKE '%%%%%s' AND A.CONV_ID=B.CONV_ID) GROUP BY CONV_ID HAVING COUNT(CONV_ID)=%d;",
-					MSGFW_ADDRESS_TABLE_NAME, MSGFW_ADDRESS_TABLE_NAME, newPhoneNum, pMsg->nAddressCnt);
-		} else {
-			memset(sqlQuery, 0x00, sizeof(sqlQuery));
-
-			snprintf(sqlQuery, sizeof(sqlQuery),
-					"SELECT CONV_ID FROM (SELECT B.CONV_ID FROM %s A, %s B WHERE A.ADDRESS_VAL = '%s' AND A.CONV_ID=B.CONV_ID) GROUP BY CONV_ID HAVING COUNT(CONV_ID)=%d;",
-					MSGFW_ADDRESS_TABLE_NAME, MSGFW_ADDRESS_TABLE_NAME, pMsg->addressList[0].addressVal, pMsg->nAddressCnt);
-		}
+		snprintf(sqlQuery, sizeof(sqlQuery),
+				"SELECT CONV_ID FROM (SELECT B.CONV_ID FROM %s A, %s B WHERE A.ADDRESS_VAL = '%s' AND A.CONV_ID=B.CONV_ID) GROUP BY CONV_ID HAVING COUNT(CONV_ID)=%d;",
+				MSGFW_ADDRESS_TABLE_NAME, MSGFW_ADDRESS_TABLE_NAME, pMsg->addressList[0].addressVal, pMsg->nAddressCnt);
 
 		int rowCnt = 0;
 		int convId = 0;
@@ -938,24 +910,11 @@ bool MsgExistAddress(MsgDbHandler *pDbHandle, const MSG_MESSAGE_INFO_S *pMsg, ms
 				if (j!=0)
 					strncat(sqlQuery, "OR ", MAX_QUERY_LEN-strlen(sqlQuery));
 
-				if (strlen(pMsg->addressList[j].addressVal) > MAX_PRECONFIG_NUM) {
+				strncat(sqlQuery, "ADDRESS_VAL = '", MAX_QUERY_LEN-strlen(sqlQuery));
 
-					strncat(sqlQuery, "ADDRESS_VAL LIKE '%%%%", MAX_QUERY_LEN-strlen(sqlQuery));
+				strncat(sqlQuery, pMsg->addressList[j].addressVal, MAX_QUERY_LEN-strlen(sqlQuery));
 
-					char newPhoneNum[MAX_PRECONFIG_NUM+1];
-					memset(newPhoneNum, 0x00, sizeof(newPhoneNum));
-					MsgConvertNumber(pMsg->addressList[j].addressVal, newPhoneNum);
-
-					strncat(sqlQuery, newPhoneNum, MAX_QUERY_LEN-strlen(sqlQuery));
-
-					strncat(sqlQuery, "' ", MAX_QUERY_LEN-strlen(sqlQuery));
-				} else {
-					strncat(sqlQuery, "ADDRESS_VAL = '", MAX_QUERY_LEN-strlen(sqlQuery));
-
-					strncat(sqlQuery, pMsg->addressList[j].addressVal, MAX_QUERY_LEN-strlen(sqlQuery));
-
-					strncat(sqlQuery, "' ", MAX_QUERY_LEN-strlen(sqlQuery));
-				}
+				strncat(sqlQuery, "' ", MAX_QUERY_LEN-strlen(sqlQuery));
 			}
 			strncat(sqlQuery, ");", MAX_QUERY_LEN-strlen(sqlQuery));
 			MSG_DEBUG("Query [%s]", sqlQuery);
@@ -1019,27 +978,13 @@ int MsgStoGetUnreadCnt(MsgDbHandler *pDbHandle, MSG_MAIN_TYPE_T msgType)
 
 msg_error_t MsgStoAddContactInfo(MsgDbHandler *pDbHandle, MSG_CONTACT_INFO_S *pContactInfo, const char *pNumber)
 {
-	char newPhoneNum[MAX_PRECONFIG_NUM+1];
 	char sqlQuery[MAX_QUERY_LEN+1];
 
-	if (strlen(pNumber) > MAX_PRECONFIG_NUM) {
-		memset(newPhoneNum, 0x00, sizeof(newPhoneNum));
-		MsgConvertNumber(pNumber, newPhoneNum);
-
-		MSG_DEBUG("Phone Number to Compare : [%s]", newPhoneNum);
-
-		memset(sqlQuery, 0x00, sizeof(sqlQuery));
-		snprintf(sqlQuery, sizeof(sqlQuery), "UPDATE %s SET \
-				CONTACT_ID = %d, FIRST_NAME = ?, LAST_NAME = ?, IMAGE_PATH = '%s' \
-				WHERE ADDRESS_VAL LIKE '%%%%%s';",
-				MSGFW_ADDRESS_TABLE_NAME, pContactInfo->contactId, pContactInfo->imagePath, newPhoneNum);
-	} else {
-		memset(sqlQuery, 0x00, sizeof(sqlQuery));
-		snprintf(sqlQuery, sizeof(sqlQuery), "UPDATE %s SET \
-				CONTACT_ID = %d, FIRST_NAME = ?, LAST_NAME = ?, IMAGE_PATH = '%s' \
-				WHERE ADDRESS_VAL = '%s';",
-				MSGFW_ADDRESS_TABLE_NAME, pContactInfo->contactId, pContactInfo->imagePath, pNumber);
-	}
+	memset(sqlQuery, 0x00, sizeof(sqlQuery));
+	snprintf(sqlQuery, sizeof(sqlQuery), "UPDATE %s SET \
+			CONTACT_ID = %d, FIRST_NAME = ?, LAST_NAME = ?, IMAGE_PATH = '%s' \
+			WHERE ADDRESS_VAL = '%s';",
+			MSGFW_ADDRESS_TABLE_NAME, pContactInfo->contactId, pContactInfo->imagePath, pNumber);
 
 	if (pDbHandle->prepareQuery(sqlQuery) != MSG_SUCCESS) {
 		MSG_DEBUG("sqlQuery [%s]", sqlQuery);

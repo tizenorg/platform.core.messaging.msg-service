@@ -156,7 +156,7 @@ msg_error_t MsgGetContactInfo(const MSG_ADDRESS_INFO_S *pAddrInfo, MSG_CONTACT_I
 		ret = contacts_query_create(_contacts_contact_number._uri, &query);
 		ret = contacts_filter_create(_contacts_contact_number._uri, &filter);
 
-		ret = contacts_filter_add_str(filter, _contacts_contact_number.number_filter, CONTACTS_MATCH_EXACTLY, pAddrInfo->addressVal);
+		ret = contacts_filter_add_str(filter, _contacts_contact_number.number, CONTACTS_MATCH_EXACTLY, pAddrInfo->addressVal);
 
 	} else if (pAddrInfo->addressType == MSG_ADDRESS_TYPE_EMAIL) {
 		ret = contacts_query_create(_contacts_contact_email._uri, &query);
