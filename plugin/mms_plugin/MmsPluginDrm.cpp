@@ -70,6 +70,7 @@ bool MsgDRM2GetDRMInfo(char *szFilePath, MsgType *pMsgType)
 	char szMimeType[DRM_MAX_LEN_MIME + 1];
 	char szContentID[DRM_MAX_LEN_CID + 1];
 	MSG_DRM_TYPE drmType = MSG_DRM_NONE;
+	int ret = 0;
 
 	MsgDrmGetDrmType(szFilePath, &drmType);
 	MsgDrmGetMimeTypeEx(szFilePath, szMimeType, sizeof(szMimeType));
@@ -98,11 +99,13 @@ bool MsgDRM2GetDRMInfo(char *szFilePath, MsgType *pMsgType)
 
 		drm_content_info_s dcfHdrInfo;
 		bzero(&dcfHdrInfo, sizeof(drm_content_info_s));
-		drm_get_content_info(szFilePath, &dcfHdrInfo);
+		ret = drm_get_content_info(szFilePath, &dcfHdrInfo);
+		MSG_DEBUG("drm_get_content_info is failed, ret=[%d]", ret);
 
 		drm_file_info_s fileInfo;
 		bzero(&fileInfo, sizeof(drm_file_info_s));
-		drm_get_file_info(szFilePath,&fileInfo);
+		ret = drm_get_file_info(szFilePath, &fileInfo);
+		MSG_DEBUG("drm_get_file_info is failed, ret=[%d]", ret);
 
 		if (fileInfo.oma_info.version == DRM_OMA_DRMV1_RIGHTS) {
 			pMsgType->drmInfo.szContentName = MsgRemoveQuoteFromFilename(dcfHdrInfo.title);

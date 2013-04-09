@@ -30,7 +30,6 @@
 #include "MmsPluginInternal.h"
 #include "MmsPluginStorage.h"
 #include "MmsPluginSmil.h"
-
 /*==================================================================================================
                                      IMPLEMENTATION OF MmsPluginInternal - Member Functions
 ==================================================================================================*/
@@ -261,7 +260,7 @@ void MmsPluginInternal::processDeliveryInd(MSG_MESSAGE_INFO_S *pMsgInfo)
 
 	strncpy(pMsgInfo->addressList[0].addressVal, mmsHeader.pTo->szAddr, MAX_ADDRESS_VAL_LEN);
 
-	int tmpId = (msg_message_id_t)MmsSearchMsgId(mmsHeader.pTo->szAddr, mmsHeader.szMsgID);
+	int tmpId = (msg_message_id_t)MmsPluginStorage::instance()->searchMsgId(mmsHeader.pTo->szAddr, mmsHeader.szMsgID);
 	if (tmpId > 0) {
 		MSG_DEBUG("Found MSG_ID = %d", tmpId);
 
@@ -302,7 +301,7 @@ void MmsPluginInternal::processReadOrgInd(MSG_MESSAGE_INFO_S *pMsgInfo)
 	MSG_DEBUG("read Status = %s", pMsgInfo->msgData);
 	strncpy(pMsgInfo->addressList[0].addressVal, mmsHeader.pFrom->szAddr, MAX_ADDRESS_VAL_LEN);
 
-	int tmpId = MmsSearchMsgId(mmsHeader.pFrom->szAddr, mmsHeader.szMsgID);
+	int tmpId = MmsPluginStorage::instance()->searchMsgId(mmsHeader.pFrom->szAddr, mmsHeader.szMsgID);
 	if (tmpId > 0) {
 		pMsgInfo->msgId = (msg_message_id_t)tmpId;
 
@@ -433,7 +432,8 @@ void MmsPluginInternal::processRetrieveConf(MSG_MESSAGE_INFO_S *pMsgInfo, mmsTra
 		pMsgInfo->networkStatus = MSG_NETWORK_RETRIEVE_FAIL;
 		pMsgInfo->folderId = MSG_INBOX_ID;
 		// If failed MMS Retrieve, then saved as MMS Noti Ind Message.
-		pMsgInfo->msgType.subType = MSG_NOTIFICATIONIND_MMS;
+		// It will changed in MsgHandleMmsConfIncomingMsg
+		//pMsgInfo->msgType.subType = MSG_NOTIFICATIONIND_MMS;
 	}
 
 	char *msisdn = NULL;
@@ -569,11 +569,7 @@ void MmsPluginInternal::processRetrieveConf(MSG_MESSAGE_INFO_S *pMsgInfo, mmsTra
 	err = pStorage->updateMmsAttachCount(pMsgInfo->msgId, attachCount);
 
 	if (bMultipartRelated) {
-		_MsgMmsReleasePageList(&msgData);
-		_MsgMmsReleaseRegionList(&msgData);
-		_MsgMmsReleaseAttachList(&msgData);
-		_MsgMmsReleaseTransitionList(&msgData);
-		_MsgMmsReleaseMetaList(&msgData);
+		MsgMmsReleaseMmsLists(&msgData);
 	}
 
 	MmsMsg *pMsg = NULL;

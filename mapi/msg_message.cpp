@@ -671,11 +671,8 @@ EXPORT_API int msg_get_mms_struct(msg_struct_t msg_struct_handle, msg_struct_t m
 
 	convert_from_mmsdata(tmp_mms_data, mms_struct);
 
-	_MsgMmsReleasePageList(tmp_mms_data);
-	_MsgMmsReleaseRegionList(tmp_mms_data);
-	_MsgMmsReleaseAttachList(tmp_mms_data);
-	_MsgMmsReleaseTransitionList(tmp_mms_data);
-	_MsgMmsReleaseMetaList(tmp_mms_data);
+	MsgMmsReleaseMmsLists(tmp_mms_data);
+
 	free(tmp_mms_data);
 
 	return ret;
@@ -708,11 +705,8 @@ EXPORT_API int msg_set_mms_struct(msg_struct_t msg_struct_handle, msg_struct_t m
 
 	msg_data->pMmsData = _MsgMmsSerializeMessageData(tmp_mms_data, &(msg_data->mmsDataSize));
 
-	_MsgMmsReleasePageList(tmp_mms_data);
-	_MsgMmsReleaseRegionList(tmp_mms_data);
-	_MsgMmsReleaseAttachList(tmp_mms_data);
-	_MsgMmsReleaseTransitionList(tmp_mms_data);
-	_MsgMmsReleaseMetaList(tmp_mms_data);
+	MsgMmsReleaseMmsLists(tmp_mms_data);
+
 	free(tmp_mms_data);
 	return ret;
 }

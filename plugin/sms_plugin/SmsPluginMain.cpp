@@ -50,9 +50,17 @@ CndVar cv;
 static void MsgTapiInitCB(keynode_t *key, void* data)
 {
 	MSG_DEBUG("MsgTapiInitCB is called.");
-	mx.lock();
-	cv.signal();
-	mx.unlock();
+
+	bool bTelRdy = false;
+	bTelRdy = vconf_keynode_get_bool(key);
+
+	MSG_DEBUG("bTelRdy [%d]", bTelRdy);
+
+	if (bTelRdy) {
+		mx.lock();
+		cv.signal();
+		mx.unlock();
+	}
 }
 
 msg_error_t MsgPlgCreateHandle(MSG_PLUGIN_HANDLER_S *pPluginHandle)
@@ -111,7 +119,7 @@ msg_error_t SmsPlgInitialize()
 	if (MsgSettingSetInt(MSG_SIM_CHANGED, MSG_SIM_STATUS_NOT_FOUND) != MSG_SUCCESS)
 		MSG_DEBUG("MsgSettingSetInt is failed!!");
 
-	bool bReady;
+	bool bReady = false;
 	MsgSettingGetBool(VCONFKEY_TELEPHONY_READY, &bReady);
 	MSG_DEBUG("Get VCONFKEY_TELEPHONY_READY [%d].", bReady);
 
@@ -129,6 +137,8 @@ msg_error_t SmsPlgInitialize()
 		if (ret != ETIMEDOUT) {
 			pTapiHandle = tel_init(NULL);
 			SmsPluginCallback::instance()->registerEvent();
+		} else {
+			MSG_DEBUG("MsgTapiInitCB is time out.");
 		}
 	}
 	catch (MsgException& e)

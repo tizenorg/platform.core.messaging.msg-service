@@ -206,7 +206,7 @@ msg_error_t MmsGetMmsMessage(MSG_MESSAGE_INFO_S *pMsg, MSG_SENDINGOPT_INFO_S *pS
 	msg_error_t	err = MSG_SUCCESS;
 
 	try {
-		err = MmsPluginStorage::instance()->plgGetMmsMessage(pMsg, pSendOptInfo, pMmsMsg, pDestMsg);
+		err = MmsPluginStorage::instance()->plgGetMmsMessage(pMsg, pSendOptInfo, pDestMsg);
 	} catch (MsgException& e) {
 		MSG_FATAL("%s", e.what());
 		return MSG_ERR_PLUGIN_STORAGE;
@@ -318,3 +318,20 @@ msg_error_t MmsRestoreMsg(MSG_MESSAGE_INFO_S *pMsgInfo, char *pRcvBody, int rcvd
 	return MSG_SUCCESS;
 }
 
+msg_error_t MmsDeleteMessage(msg_message_id_t msgId)
+{
+	MSG_BEGIN();
+
+	try {
+		MmsPluginStorage::instance()->deleteMmsMessage(msgId);
+	} catch (MsgException& e) {
+		MSG_FATAL("%s", e.what());
+		return MSG_ERR_PLUGIN_STORAGE;
+	} catch (exception& e) {
+		MSG_FATAL("%s", e.what());
+		return MSG_ERR_PLUGIN_STORAGE;
+	}
+
+	MSG_END();
+	return MSG_SUCCESS;
+}

@@ -68,10 +68,8 @@ void MmsPluginEventHandler::handleMmsReceivedData(mmsTranQEntity *pRequest, char
 		listener.pfMmsConfIncomingCb(&msgInfo, &pRequest->reqID);
 
 		//MsgDeleteFile(pRetrievedFilePath + strlen(MSG_DATA_PATH)); // not ipc
-		if (pRetrievedFilePath) {
-			if (remove(pRetrievedFilePath) != 0)
-				MSG_DEBUG("remove fail");
-		}
+		if (remove(pRetrievedFilePath) != 0)
+			MSG_DEBUG("remove fail");
 		break;
 
 	// received data is retrieve-conf
@@ -88,10 +86,8 @@ void MmsPluginEventHandler::handleMmsReceivedData(mmsTranQEntity *pRequest, char
 		break;
 
 	case eMMS_READREPORT_CONF:
-		if (pRetrievedFilePath) {
-			if (remove(pRetrievedFilePath) != 0)
-				MSG_DEBUG("remove fail");
-		}
+		if (remove(pRetrievedFilePath) != 0)
+			MSG_DEBUG("remove fail");
 		break;
 	default:
 		break;
@@ -105,7 +101,8 @@ void MmsPluginEventHandler::handleMmsError(mmsTranQEntity *pRequest)
 
 	msg_error_t err = MSG_SUCCESS;
 
-	MSG_MESSAGE_INFO_S msgInfo = {};
+	MSG_MESSAGE_INFO_S msgInfo;
+	memset(&msgInfo, 0x00, sizeof(MSG_MESSAGE_INFO_S));
 
 	MSG_DEBUG("pRequest->msgId [%d]", pRequest->msgId);
 

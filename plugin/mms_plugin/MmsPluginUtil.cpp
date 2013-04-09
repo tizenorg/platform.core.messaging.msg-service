@@ -41,7 +41,7 @@ bool makeImageThumbnail(char *srcPath, char *dstPath)
 	int err = -1;
 	err = thumbnail_request_save_to_file(srcPath, MEDIA_THUMB_LARGE, dstPath);
 	if (err < 0) {
-		MSG_DEBUG("Make thumbnail: failed");
+		MSG_DEBUG("Make thumbnail: failed, err = %d", err);
 		return false;
 	}
 
@@ -404,4 +404,23 @@ FILE *MmsFileOpen(char *pFileName)
 	}
 
 	return pFile;
+}
+
+void removeLessGreaterMark(const char *szSrcID, char *szDest, int destSize)
+{
+	char szBuf[MSG_MSG_ID_LEN + 1] = {0, };
+	int cLen = strlen(szSrcID);
+
+	if (cLen > 1 && szSrcID[0] == '<' && szSrcID[cLen - 1] == '>') {
+		strncpy(szBuf, &szSrcID[1], cLen - 2);
+		szBuf[cLen - 2] = '\0';
+	} else if (cLen > 1 && szSrcID[0] == '"' && szSrcID[cLen-1] == '"') {
+		strncpy(szBuf, &szSrcID[1], cLen - 2);
+		szBuf[cLen - 2] = '\0';
+	} else {
+		strncpy(szBuf, szSrcID, cLen);
+		szBuf[cLen] = '\0';
+	}
+
+	snprintf(szDest, destSize, "%s", szBuf);
 }

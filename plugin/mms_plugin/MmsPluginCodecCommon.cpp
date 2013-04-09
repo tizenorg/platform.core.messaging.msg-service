@@ -1128,7 +1128,7 @@ static char gszDebugStringBuf[50];
 
 static char *MmsDebugPrintUnknownValue(int value)
 {
-	printf(gszDebugStringBuf, "unknown value(%d)", value);
+	snprintf(gszDebugStringBuf, sizeof(gszDebugStringBuf), "unknown value(%d)", value);
 	return gszDebugStringBuf;
 }
 

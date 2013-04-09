@@ -40,13 +40,15 @@ msg_error_t MmsProcessReceivedInd(MSG_MESSAGE_INFO_S *pMsgInfo, MSG_REQUEST_INFO
 
 msg_error_t MmsUpdateMessage(MSG_MESSAGE_INFO_S *pMsgInfo, MSG_SENDINGOPT_INFO_S *pSendOptInfo, char *pFileData);
 
-msg_error_t MmsGetMmsMessage(MSG_MESSAGE_INFO_S *pMsg,  MSG_SENDINGOPT_INFO_S *pSendOptInfo, MMS_MESSAGE_DATA_S *pMmsMsg, char **pDestMsg);
+msg_error_t MmsGetMmsMessage(MSG_MESSAGE_INFO_S *pMsg, MSG_SENDINGOPT_INFO_S *pSendOptInfo, MMS_MESSAGE_DATA_S *pMmsMsg, char **pDestMsg);
 
 msg_error_t MmsUpdateRejectStatus(MSG_MESSAGE_INFO_S *pMsgInfo);
 
 msg_error_t MmsComposeReadReport(MSG_MESSAGE_INFO_S *pMsgInfo);
 
 msg_error_t MmsRestoreMsg(MSG_MESSAGE_INFO_S *pMsgInfo, char *pRcvBody, int rcvdBodyLen, char *filePath);
+
+msg_error_t MmsDeleteMessage(msg_message_id_t msgId);
 
 #ifdef __cplusplus
 }

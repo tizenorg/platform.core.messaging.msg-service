@@ -783,7 +783,7 @@ MSG_DEBUG("reply address : [%s]", pMsgInfo->replyAddress);
 MSG_DEBUG("segment size : [%d], pData->segCount : [%d]", segSize, pData->segCount);
 
 	if (pData->segCount > MAX_SEGMENT_NUM)
-	 	THROW(MsgException::SMS_PLG_ERROR, "Segment Count is over maximum : %d", pData->segCount);
+		THROW(MsgException::SMS_PLG_ERROR, "Segment Count is over maximum : %d", pData->segCount);
 
 	int headerCnt = 0;
 
@@ -893,14 +893,14 @@ int SmsPluginTransport::getSegmentSize(SMS_CODING_SCHEME_T CodingScheme, int Dat
 
 	if (CodingScheme == SMS_CHARSET_7BIT)
 	{
-		if (((DataLen+headerSize)/maxSize) >= 1)
+		if ((DataLen+headerSize) > maxSize)
 			segSize = ((140*8) - ((headerLen + concat + headerSize)*8)) / 7;
 		else
 			segSize = DataLen;
 	}
 	else if (CodingScheme == SMS_CHARSET_8BIT || CodingScheme == SMS_CHARSET_UCS2)
 	{
-		if (((DataLen+headerSize)/maxSize) >= 1)
+		if ((DataLen+headerSize) > maxSize)
 			segSize = 140 - (headerLen + concat + headerSize);
 		else
 			segSize = DataLen;

@@ -313,11 +313,13 @@ void MmsSmilGetElement(MMS_MESSAGE_DATA_S *pMmsMsg, xmlNode *a_node)
 					break;
 
 				case ATTRIBUTE_BGCOLOR:
-					if (cmd[ELEMENT_ROOTLAYOUT])
+					if (cmd[ELEMENT_ROOTLAYOUT]) {
+						rootlayout.bBgColor = true;
 						rootlayout.bgColor = MmsSmilGetColorValue(pAttr->children->content);
-					else if (cmd[ELEMENT_REGION])
+					} else if (cmd[ELEMENT_REGION]) {
+						pRegion->bBgColor = true;
 						pRegion->bgColor = MmsSmilGetColorValue(pAttr->children->content);
-					else if (cmd[ELEMENT_TEXT])
+					} else if (cmd[ELEMENT_TEXT])
 						pMedia->sMedia.sText.nBgColor = MmsSmilGetColorValue(pAttr->children->content);
 					else
 						pMedia->sMedia.sAVI.nBgColor = MmsSmilGetColorValue(pAttr->children->content);
@@ -904,7 +906,7 @@ int	MmsSmilGetAttrID(char *pString)
 		return ATTRIBUTE_HEIGHT;
 	else if (!strcmp(pString, "fit"))
 		return ATTRIBUTE_FIT;
-	else if (!strcmp(pString, "backgroundColor"))
+	else if (!strcmp(pString, "backgroundColor") || !strcmp(pString, "background-color"))
 		return ATTRIBUTE_BGCOLOR;
 	else if (!strcmp(pString, "dur"))
 		return ATTRIBUTE_DUR;
@@ -1419,9 +1421,10 @@ bool MmsSmilAddRootLayout(HMmsSmil hSmilDoc, MMS_SMIL_ROOTLAYOUT *pstSmilRootLay
 		}
 		MSG_DEBUG("Root Layout Element Name = %s", (char *)pstRootLayout->name);
 
-		if (pstSmilRootLayout->bgColor != SP_NO_COLOR_SET) {	// Replace value later
+		if (pstSmilRootLayout->bBgColor == true) {	// Replace value later
 			xmlSetProp(pstRootLayout, (const xmlChar *)"backgroundColor", (const xmlChar *)__MmsSmilFindColorValue(pstSmilRootLayout->bgColor));
 		}
+
 		MSG_DEBUG(" Set Width");
 		if (true == pstSmilRootLayout->width.bUnitPercent) {
 			snprintf(szBuf, MSG_STDSTR_SHORT, "%d%%", pstSmilRootLayout->width.value);
@@ -1548,11 +1551,12 @@ bool MmsSmilAddRegion(HMmsSmil hSmilDoc, MMS_SMIL_REGION *pstSmilRegion)
 			if (strlen(pstSmilRegion->szID) > 0) {
 				xmlSetProp(pstRegion, (const xmlChar *)"id", (const xmlChar *)pstSmilRegion->szID);
 			}
-			MSG_DEBUG(" [Set Attribute] : BkGrd Color");
-			// Default Color WHITE, always send
-			if (pstSmilRegion->bgColor != SP_NO_COLOR_SET) {
+
+			if (pstSmilRegion->bBgColor == true) {
+				MSG_DEBUG(" [Set Attribute] : BkGrd Color");
 				xmlSetProp(pstRegion, (const xmlChar *)"backgroundColor", (const xmlChar *)__MmsSmilFindColorValue(pstSmilRegion->bgColor));
 			}
+
 			MSG_DEBUG(" [Set Attribute] : Width");
 
 			if (true == pstSmilRegion->width.bUnitPercent) {
@@ -2140,3 +2144,517 @@ xmlNodePtr UtilxmlStringGetNodeList(xmlNodePtr pstNode, char *pszName)
 	return NULL;
 }
 
+void MmsSmilGetElementOnlyLayout(MMS_MESSAGE_DATA_S *pMmsMsg, xmlNode *a_node)
+{
+	MSG_BEGIN();
+
+	int elementType;
+	int attrType;
+	MMS_SMIL_ROOTLAYOUT rootlayout = {};
+	static bool cmd[ELEMENT_MAX] = {false, };
+	static MMS_SMIL_REGION *pRegion;
+	static MMS_PAGE_S *pPage;
+	static MMS_MEDIA_S *pMedia;
+	static MMS_SMIL_TRANSITION *pTransition;
+	static MMS_SMIL_META *pMeta;
+
+	xmlNode *cur_node = NULL;
+
+	for (cur_node = a_node; cur_node; cur_node = cur_node->next) {
+		MSG_DEBUG("******* node, name: %s ***\n", cur_node->name);
+
+		if (cur_node->type == XML_ELEMENT_NODE) {
+			// Get Smil Element =====================================================
+			MSG_DEBUG("*** node type: Element, name: %s ***\n", cur_node->name);
+
+			switch (elementType = MmsSmilGetElementID((char *)cur_node->name)) {
+			case ELEMENT_ROOTLAYOUT:
+				memset(cmd, 0, ELEMENT_MAX);
+				cmd[ELEMENT_ROOTLAYOUT] = true;
+				break;
+
+			case ELEMENT_REGION:
+				pRegion = (MMS_SMIL_REGION *)calloc(1, sizeof(MMS_SMIL_REGION));
+				memset(cmd, 0, ELEMENT_MAX);
+				cmd[ELEMENT_REGION] = true;
+				break;
+
+			case ELEMENT_TRANSITION:
+				pTransition = (MMS_SMIL_TRANSITION *)calloc(1, sizeof(MMS_SMIL_TRANSITION));
+				memset(cmd, 0, ELEMENT_MAX);
+				cmd[ELEMENT_TRANSITION] = true;
+				break;
+
+			case ELEMENT_META:
+				pMeta = (MMS_SMIL_META *)calloc(1, sizeof(MMS_SMIL_META));
+				memset(cmd, 0, ELEMENT_MAX);
+				cmd[ELEMENT_META] = true;
+				break;
+
+			case ELEMENT_PAR:
+				pPage = (MMS_PAGE_S *)calloc(1, sizeof(MMS_PAGE_S));
+				memset(cmd, 0, ELEMENT_MAX);
+				cmd[ELEMENT_PAR] = true;
+				break;
+
+			case ELEMENT_PARAM: // Need to check the original element type
+				break;
+
+			case ELEMENT_TEXT:
+				pMedia = (MMS_MEDIA_S *)calloc(1, sizeof(MMS_MEDIA_S));
+				pMedia->mediatype = MMS_SMIL_MEDIA_TEXT;
+				memset(cmd, 0, ELEMENT_MAX);
+				cmd[ELEMENT_TEXT] = true;
+				break;
+
+			case ELEMENT_IMG:
+				pMedia = (MMS_MEDIA_S *)calloc(1, sizeof(MMS_MEDIA_S));
+				pMedia->mediatype = MMS_SMIL_MEDIA_IMG;
+				memset(cmd, 0, ELEMENT_MAX);
+				cmd[ELEMENT_IMG] = true;
+				break;
+
+			case ELEMENT_AUDIO:
+				pMedia = (MMS_MEDIA_S *)calloc(1, sizeof(MMS_MEDIA_S));
+				pMedia->mediatype = MMS_SMIL_MEDIA_AUDIO;
+				memset(cmd, 0, ELEMENT_MAX);
+				cmd[ELEMENT_AUDIO] = true;
+				break;
+
+			case ELEMENT_VIDEO:
+				pMedia = (MMS_MEDIA_S *)calloc(1, sizeof(MMS_MEDIA_S));
+				pMedia->mediatype = MMS_SMIL_MEDIA_VIDEO;
+				memset(cmd, 0, ELEMENT_MAX);
+				cmd[ELEMENT_VIDEO] = true;
+				break;
+
+			case ELEMENT_REF:
+				pMedia = (MMS_MEDIA_S *)calloc(1, sizeof(MMS_MEDIA_S));
+				pMedia->mediatype = MMS_SMIL_MEDIA_IMG_OR_VIDEO;
+				memset(cmd, 0, ELEMENT_MAX);
+				cmd[ELEMENT_REF] = true;
+				break;
+
+			case ELEMENT_ANIMATE:
+				pMedia = (MMS_MEDIA_S *)calloc(1, sizeof(MMS_MEDIA_S));
+				pMedia->mediatype = MMS_SMIL_MEDIA_ANIMATE;
+				memset(cmd, 0, ELEMENT_MAX);
+				cmd[ELEMENT_ANIMATE] = true;
+				break;
+
+			default:
+				memset(cmd, 0, ELEMENT_MAX);
+				break;
+			}
+
+			//Get Smil Attribute =====================================================
+			xmlAttr *pAttr = cur_node->properties;
+			SMIL_ATTRIBUTE_T paramType = ATTRIBUTE_UNKNOWN;
+
+			for ( ; pAttr; pAttr = pAttr->next) {
+				MSG_DEBUG("AttributeType: (%s, %s) ", pAttr->name, pAttr->children->content);
+				switch (attrType = MmsSmilGetAttrID((char *)pAttr->name)) {
+				case ATTRIBUTE_ID:
+					{
+						if (cmd[ELEMENT_REGION]) {
+							strncpy(pRegion->szID, (char *)pAttr->children->content, MAX_SMIL_REGION_ID - 1);
+						} else if (cmd[ELEMENT_TRANSITION]) {
+							strncpy(pTransition->szID, (char *)pAttr->children->content, MAX_SMIL_TRANSITION_ID - 1);
+						} else if (cmd[ELEMENT_META]) {
+							strncpy(pMeta->szID, (char *)pAttr->children->content, MAX_SMIL_META_ID - 1);
+						}
+					}
+					break;
+
+				case ATTRIBUTE_TOP:
+					{
+						int bUnitPercent;
+						int value;
+
+						if (strchr((char *)pAttr->children->content, '%'))
+							bUnitPercent = true;
+						else
+							bUnitPercent = false;
+
+						value = atoi((char *)pAttr->children->content);
+
+						if (cmd[ELEMENT_REGION]) {
+							pRegion->nTop.bUnitPercent = bUnitPercent;
+							pRegion->nTop.value = value;
+						}
+					}
+					break;
+
+				case ATTRIBUTE_LEFT:
+					{
+						int bUnitPercent;
+						int value;
+
+						if (strchr((char *)pAttr->children->content, '%'))
+							bUnitPercent = true;
+						else
+							bUnitPercent = false;
+
+						value = atoi((char *)pAttr->children->content);
+
+						if (cmd[ELEMENT_REGION]) {
+							pRegion->nLeft.bUnitPercent = bUnitPercent;
+							pRegion->nLeft.value = value;
+						}
+					}
+					break;
+
+
+				case ATTRIBUTE_WIDTH:
+					{
+						int bUnitPercent;
+						int value;
+
+						if (strchr((char *)pAttr->children->content, '%'))
+							bUnitPercent = true;
+						else
+							bUnitPercent = false;
+
+						value = atoi((char *)pAttr->children->content);
+
+						if (cmd[ELEMENT_ROOTLAYOUT]) {
+							rootlayout.width.bUnitPercent = bUnitPercent;
+							rootlayout.width.value = value;
+						} else if (cmd[ELEMENT_REGION]) {
+							pRegion->width.bUnitPercent = bUnitPercent;
+							pRegion->width.value = value;
+						}
+					}
+					break;
+
+				case ATTRIBUTE_HEIGHT:
+					{
+						int bUnitPercent;
+						int value;
+
+						if (strchr((char *)pAttr->children->content, '%'))
+							bUnitPercent = true;
+						else
+							bUnitPercent = false;
+
+						value = atoi((char *)pAttr->children->content);
+
+						if (cmd[ELEMENT_ROOTLAYOUT]) {
+							rootlayout.height.bUnitPercent = bUnitPercent;
+							rootlayout.height.value = value;
+						} else if (cmd[ELEMENT_REGION]) {
+							pRegion->height.bUnitPercent = bUnitPercent;
+							pRegion->height.value = value;
+						}
+					}
+					break;
+
+				case ATTRIBUTE_FIT:
+					if (cmd[ELEMENT_REGION]) {
+						if (!strcmp((char *)pAttr->children->content, "meet")) {
+							pRegion->fit = MMSUI_IMAGE_REGION_FIT_MEET;
+						} else {
+							pRegion->fit = MMSUI_IMAGE_REGION_FIT_HIDDEN;
+						}
+					}
+					break;
+
+				case ATTRIBUTE_BGCOLOR:
+					if (cmd[ELEMENT_ROOTLAYOUT]) {
+						rootlayout.bBgColor = true;
+						rootlayout.bgColor = MmsSmilGetColorValue(pAttr->children->content);
+					} else if (cmd[ELEMENT_REGION]) {
+						pRegion->bBgColor = true;
+						pRegion->bgColor = MmsSmilGetColorValue(pAttr->children->content);
+					} else if (cmd[ELEMENT_TEXT])
+						pMedia->sMedia.sText.nBgColor = MmsSmilGetColorValue(pAttr->children->content);
+					else
+						pMedia->sMedia.sAVI.nBgColor = MmsSmilGetColorValue(pAttr->children->content);
+
+					break;
+
+				case ATTRIBUTE_DUR:
+					if (cmd[ELEMENT_PAR])
+						pPage->nDur =  MmsSmilGetTime((char *)pAttr->children->content);
+					else if (cmd[ELEMENT_TRANSITION])
+						pTransition->nDur =  MmsSmilGetTime((char *)pAttr->children->content);
+					else if (cmd[ELEMENT_TEXT])
+						pMedia->sMedia.sText.nDurTime =  MmsSmilGetTime((char *)pAttr->children->content);
+					else
+						pMedia->sMedia.sAVI.nDurTime =  MmsSmilGetTime((char *)pAttr->children->content);
+
+#ifdef MMS_SMIL_ANIMATE
+					if (cmd[ELEMENT_ANIMATE])
+						pMedia->sMedia.sAVI.nDur = MmsSmilGetTime((char *)pAttr->children->content);
+#endif
+					break;
+
+				case ATTRIBUTE_SRC:
+				{
+					char *szSrc;
+					char szContentID[MSG_MSG_ID_LEN + 1] = {0,};
+					int cLen;
+
+					szSrc = MsgChangeHexString((char *)pAttr->children->content);
+					if (szSrc == NULL)
+						break;
+
+					snprintf(szContentID, sizeof(szContentID), "%s", szSrc);
+					free(szSrc);
+
+					cLen = strlen(szContentID);
+					if (!strncasecmp(szContentID, "cid:", 4)) {
+						strncpy(pMedia->szContentID, szContentID + 4, cLen - 4);
+						pMedia->szContentID[cLen - 4] = '\0';
+					} else {
+						strncpy(pMedia->szContentID, szContentID, cLen);
+						pMedia->szContentID[cLen] = '\0';
+					}
+					break;
+				}
+				case ATTRIBUTE_COLOR:
+					if (cmd[ELEMENT_TEXT])
+						pMedia->sMedia.sText.nColor = MmsSmilGetColorValue(pAttr->children->content);
+					break;
+
+				case ATTRIBUTE_SIZE:
+					if (cmd[ELEMENT_TEXT])
+						pMedia->sMedia.sText.nSize = atoi((char *)pAttr->children->content);
+					break;
+
+				case ATTRIBUTE_BOLD:
+					if (cmd[ELEMENT_TEXT]) {
+						pMedia->sMedia.sText.bBold = MmsSmilGetFontAttrib((char *)pAttr->children->content);
+					}
+					break;
+
+				case ATTRIBUTE_UNDERLINE:
+					if (cmd[ELEMENT_TEXT])
+						pMedia->sMedia.sText.bUnderLine = MmsSmilGetFontAttrib((char *)pAttr->children->content);
+					break;
+
+				case ATTRIBUTE_ITALIC:
+					if (cmd[ELEMENT_TEXT])
+						pMedia->sMedia.sText.bItalic = MmsSmilGetFontAttrib((char *)pAttr->children->content);
+					break;
+
+				case ATTRIBUTE_REVERSE:
+					if (cmd[ELEMENT_TEXT])
+						pMedia->sMedia.sText.bReverse = MmsSmilGetFontAttrib((char *)pAttr->children->content);
+					break;
+
+				case ATTRIBUTE_DIRECTION:
+					if (cmd[ELEMENT_TEXT])
+						pMedia->sMedia.sText.nDirection = MmsSmilGetFontDirection((char *)pAttr->children->content);
+					break;
+				case ATTRIBUTE_REGION:
+					strncpy(pMedia->regionId, (char *)pAttr->children->content, MAX_SMIL_REGION_ID - 1);
+					break;
+
+				case ATTRIBUTE_TRANSIN:
+					if (cmd[ELEMENT_TEXT])
+						strncpy(pMedia->sMedia.sText.szTransInId, (char *)pAttr->children->content, MAX_SMIL_TRANSIN_ID - 1);
+					else
+						strncpy(pMedia->sMedia.sAVI.szTransInId, (char *)pAttr->children->content, MAX_SMIL_TRANSIN_ID - 1);
+					break;
+
+				case ATTRIBUTE_TRANSOUT:
+					if (cmd[ELEMENT_TEXT])
+						strncpy(pMedia->sMedia.sText.szTransOutId, (char *)pAttr->children->content, MAX_SMIL_TRANSOUT_ID - 1);
+					else
+						strncpy(pMedia->sMedia.sAVI.szTransOutId, (char *)pAttr->children->content, MAX_SMIL_TRANSOUT_ID - 1);
+					break;
+
+				case ATTRIBUTE_BEGIN:
+					if (cmd[ELEMENT_TEXT])
+						pMedia->sMedia.sText.nBegin = MmsSmilGetTime((char *)pAttr->children->content);
+					else
+						pMedia->sMedia.sAVI.nBegin = MmsSmilGetTime((char *)pAttr->children->content);
+					break;
+
+				case ATTRIBUTE_END:
+					if (cmd[ELEMENT_TEXT])
+						pMedia->sMedia.sText.nEnd = MmsSmilGetTime((char *)pAttr->children->content);
+					else
+						pMedia->sMedia.sAVI.nEnd = MmsSmilGetTime((char *)pAttr->children->content);
+					break;
+
+				case ATTRIBUTE_REPEAT_COUNT:
+					if (cmd[ELEMENT_TEXT])
+						pMedia->sMedia.sText.nRepeat = atoi((char *)pAttr->children->content);
+					else
+						pMedia->sMedia.sAVI.nRepeat = atoi((char *)pAttr->children->content);
+					break;
+
+				case ATTRIBUTE_NAME:
+					if (!strcmp((char *)pAttr->children->content, "foreground-color") || !strcmp((char *)pAttr->children->content, "foregroundcolor"))
+						paramType = ATTRIBUTE_FGCOLOR;
+					else if (!strcmp((char *)pAttr->children->content, "background-color") || !strcmp((char *)pAttr->children->content, "backgroundcolor"))
+						paramType = ATTRIBUTE_BGCOLOR;
+					else if (!strcmp((char *)pAttr->children->content, "textsize"))
+						paramType = ATTRIBUTE_SIZE;
+					else if (!strcmp((char *)pAttr->children->content, "textattribute"))
+						paramType = ATTRIBUTE_TEXTFORMAT;
+
+					if (cmd[ELEMENT_META])
+						strncpy(pMeta->szName, (char *)pAttr->children->content, MAX_SMIL_META_NAME - 1);
+					break;
+
+				case ATTRIBUTE_VALUE:
+					if (paramType == ATTRIBUTE_SIZE && cmd[ELEMENT_TEXT])
+						pMedia->sMedia.sText.nSize = MmsSmilGetFontSizeValue((char *)pAttr->children->content);
+					else if (paramType == ATTRIBUTE_FGCOLOR && cmd[ELEMENT_TEXT])
+						pMedia->sMedia.sText.nColor =  MmsSmilGetColorValue(pAttr->children->content);
+					else if (paramType == ATTRIBUTE_BGCOLOR && cmd[ELEMENT_TEXT])
+						pMedia->sMedia.sText.nBgColor =  MmsSmilGetColorValue(pAttr->children->content);
+					else if (paramType == ATTRIBUTE_TEXTFORMAT && cmd[ELEMENT_TEXT]) {
+						MmsSmilFontType fontType;
+
+						fontType = MmsSmilGetFontTypeValue((char *)pAttr->children->content);
+
+						if (fontType == MMS_SMIL_FONT_TYPE_BOLD)
+							pMedia->sMedia.sText.bBold = true;
+						else
+							pMedia->sMedia.sText.bBold = false;
+
+						if (fontType == MMS_SMIL_FONT_TYPE_ITALIC)
+							pMedia->sMedia.sText.bItalic = true;
+						else
+							pMedia->sMedia.sText.bItalic = false;
+
+						if (fontType == MMS_SMIL_FONT_TYPE_UNDERLINE)
+							pMedia->sMedia.sText.bUnderLine = true;
+						else
+							pMedia->sMedia.sText.bUnderLine = false;
+					}
+					break;
+
+				case ATTRIBUTE_ALT:
+					strncpy(pMedia->szAlt, (char *)pAttr->children->content, MAX_SMIL_ALT_LEN - 1);
+					break;
+
+				case ATTRIBUTE_TYPE:
+					pTransition->nType = (MmsSmilTransType)atoi((char *)pAttr->children->content);
+
+					switch (pTransition->nType) {
+					case MMS_SMIL_TRANS_SLIDEWIPE:
+						pTransition->nSubType = MMS_SMIL_TRANS_SUB_FROM_LEFT;
+						break;
+					case MMS_SMIL_TRANS_BARWIPE:
+						pTransition->nSubType = MMS_SMIL_TRANS_SUB_TOP_TO_BOTTOM;
+						break;
+					case MMS_SMIL_TRANS_BARNDOORWIPE:
+						pTransition->nSubType = MMS_SMIL_TRANS_SUB_HORIZONTAL;
+						break;
+					default:
+						pTransition->nSubType = MMS_SMIL_TRANS_SUB_NONE;
+						break;
+					}
+
+					break;
+
+				case ATTRIBUTE_SUBTYPE:
+					pTransition->nSubType = (MmsSmilTransSubType)atoi((char *)pAttr->children->content);
+					break;
+
+				case ATTRIBUTE_CONTENT:
+					strncpy(pMeta->szContent, (char *)pAttr->children->content, MAX_SMIL_META_CONTENT - 1);
+					break;
+#ifdef MMS_SMIL_ANIMATE
+				case ATTRIBUTE_ATTRIBUTE_NAME:
+					strcpy(pMedia->sMedia.sAVI.nAttributeName, (char *)pAttr->children->content);
+					break;
+
+				case ATTRIBUTE_ATTRIBUTE_TYPE:
+					strcpy(pMedia->sMedia.sAVI.nAttributeType, (char *)pAttr->children->content);
+					break;
+
+				case ATTRIBUTE_TARGET_ELEMENT:
+					strcpy(pMedia->sMedia.sAVI.nTargetElement, (char *)pAttr->children->content);
+					break;
+
+				case ATTRIBUTE_FROM:
+					pMedia->sMedia.sAVI.nFrom = atoi((char *)pAttr->children->content);
+					break;
+
+				case ATTRIBUTE_TO:
+					pMedia->sMedia.sAVI.nTo = atoi((char *)pAttr->children->content);
+					break;
+
+				case ATTRIBUTE_BY:
+					pMedia->sMedia.sAVI.nBy = atoi((char *)pAttr->children->content);
+					break;
+
+				case ATTRIBUTE_VALUES:
+					pMedia->sMedia.sAVI.nValues = atoi((char *)pAttr->children->content);
+					break;
+
+				case ATTRIBUTE_CALCMODE:
+					strcpy(pMedia->sMedia.sAVI.nCalcMode, (char *)pAttr->children->content);
+					break;
+#endif
+				default:
+					MSG_DEBUG("Undefined Attribute was found!!!!!");
+				}
+			}
+
+			if (paramType == ATTRIBUTE_UNKNOWN && cmd[ELEMENT_REGION]) {
+				// Insert a region to region list
+				_MsgMmsAddRegion(pMmsMsg, pRegion);
+			} else if (paramType == ATTRIBUTE_UNKNOWN && cmd[ELEMENT_PAR]) {
+				//Insert a page to page list
+				_MsgMmsAddPage(pMmsMsg, pPage);
+			} else if (paramType == ATTRIBUTE_UNKNOWN && (cmd[ELEMENT_TEXT] ||cmd[ELEMENT_IMG] ||cmd[ELEMENT_AUDIO] ||cmd[ELEMENT_VIDEO] ||cmd[ELEMENT_ANIMATE] || cmd[ELEMENT_REF])) {
+				//Insert a media to media list
+				_MsgMmsAddMedia(pPage, pMedia);
+			} else if (paramType == ATTRIBUTE_UNKNOWN && cmd[ELEMENT_ROOTLAYOUT]) {
+				_MsgMmsSetRootLayout(pMmsMsg, &rootlayout);
+			} else if (paramType == ATTRIBUTE_UNKNOWN && cmd[ELEMENT_TRANSITION]) {
+				//Insert a transition to transition list
+				_MsgMmsAddTransition(pMmsMsg, pTransition);
+			} else if (paramType == ATTRIBUTE_UNKNOWN && cmd[ELEMENT_META]) {
+				//Insert a meta to meta list
+				_MsgMmsAddMeta(pMmsMsg, pMeta);
+			}
+
+			paramType = ATTRIBUTE_UNKNOWN;
+		}
+
+		MmsSmilGetElementOnlyLayout(pMmsMsg, cur_node->children);
+	}
+
+	MSG_END();
+}
+
+bool MmsSmilParseSmilDocOnlyLayout(MMS_MESSAGE_DATA_S *pMmsMsg, char *pSmilDoc)
+{
+	xmlDocPtr doc;
+	xmlNodePtr cur;
+	MSG_DEBUG("%s", pSmilDoc);
+	doc = xmlParseMemory(pSmilDoc, strlen(pSmilDoc));
+
+	if (doc == NULL) {
+		MSG_DEBUG("Document not parsed successfully. \n");
+		return false;
+	}
+
+	cur = xmlDocGetRootElement(doc);
+
+	if (cur == NULL) {
+		MSG_DEBUG("empty document\n");
+		xmlFreeDoc(doc);
+		return false;
+	}
+
+	if (xmlStrcmp(cur->name, (const xmlChar *) "smil")) {
+		MSG_DEBUG("document of the wrong type, root node != smil");
+		xmlFreeDoc(doc);
+		return false;
+	}
+
+	MmsSmilGetElementOnlyLayout(pMmsMsg, cur);
+
+	xmlFreeDoc(doc);
+
+	return true;
+}

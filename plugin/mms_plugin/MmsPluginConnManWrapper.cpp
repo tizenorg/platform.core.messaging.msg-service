@@ -439,10 +439,8 @@ int MmsPluginCmAgent::getProxyPort()
 
 	if (proxyAddrLength > 0) {
 		char *pPort = strchr(mmsProfile.ProfileInfo.Pdp.net_info.ProxyAddr, ':') + 1;
-		if (pPort)
-			return atoi(pPort);
-		else
-			return -1;
+		/* pPort cannot be NULL */
+		return atoi(pPort);
 	}
 
 	return -1;

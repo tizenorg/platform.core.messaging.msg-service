@@ -32,4 +32,5 @@ char *MsgStrNCopy(const char *string, int length);
 int	MsgStrlen(char *pStr);
 bool MsgConvertCharToHex(char pSrc, char *pDest);
 FILE *MmsFileOpen(char *pFileName);
+void removeLessGreaterMark(const char *szSrcID, char *szDest, int destSize);
 #endif //MMS_PLUGIN_UTIL_H

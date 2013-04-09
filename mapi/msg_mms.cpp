@@ -66,6 +66,28 @@ static void __msg_mms_release_meta(msg_struct_s *meta_struct);
 /*==================================================================================================
                                      FUNCTION IMPLEMENTATION
 ==================================================================================================*/
+static void __removeLessGreaterMark(const char *szSrcID, char *szDest, int destSize)
+{
+	char szBuf[MSG_MSG_ID_LEN + 1] = {0, };
+	int cLen = strlen(szSrcID);
+
+	if (cLen == 0)
+		return;
+
+	if (cLen > 1 && szSrcID[0] == '<' && szSrcID[cLen - 1] == '>') {
+		strncpy(szBuf, &szSrcID[1], cLen - 2);
+		szBuf[cLen - 2] = '\0';
+	} else if (cLen > 1 && szSrcID[0] == '"' && szSrcID[cLen-1] == '"') {
+		strncpy(szBuf, &szSrcID[1], cLen - 2);
+		szBuf[cLen - 2] = '\0';
+	} else {
+		strncpy(szBuf, szSrcID, cLen);
+		szBuf[cLen] = '\0';
+	}
+
+	snprintf(szDest, destSize, "%s", szBuf);
+}
+
 static inline void *get_msg_struct_data(msg_struct_s *msg_struct)
 {
 	if (msg_struct == NULL)
@@ -471,9 +493,10 @@ int msg_mms_get_str_value(msg_struct_s *msg_struct, int field, char *value, int 
 			strncpy(value, mms_media_data->szFileName, size);
 		else if (field == MSG_MMS_MEDIA_FILEPATH_STR)
 			strncpy(value, mms_media_data->szFilePath, size);
-		else if (field == MSG_MMS_MEDIA_CONTENT_ID_STR)
-			strncpy(value, mms_media_data->szContentID, size);
-		else if (field == MSG_MMS_MEDIA_REGION_ID_STR)
+		else if (field == MSG_MMS_MEDIA_CONTENT_ID_STR) {
+			if (strlen(mms_media_data->szContentID) > 0)
+				snprintf(value, size, "<%s>", mms_media_data->szContentID);
+		}else if (field == MSG_MMS_MEDIA_REGION_ID_STR)
 			strncpy(value, mms_media_data->regionId, size);
 		else if (field == MSG_MMS_MEDIA_ALTERNATIVE_STR)
 			strncpy(value, mms_media_data->szAlt, size);
@@ -568,6 +591,8 @@ int msg_mms_get_bool_value(msg_struct_s *msg_struct, int field, bool *value)
 			*value = mms_data->rootlayout.width.bUnitPercent;
 		else if (field == MSG_MMS_ROOTLAYOUT_HEIGHT_PERCENT_BOOL)
 			*value = mms_data->rootlayout.height.bUnitPercent;
+		else if (field == MSG_MMS_ROOTLAYOUT_BGCOLOR_BOOL)
+			*value = mms_data->rootlayout.bBgColor;
 		else
 			err = MSG_ERR_INVALID_PARAMETER;
 	}
@@ -583,6 +608,8 @@ int msg_mms_get_bool_value(msg_struct_s *msg_struct, int field, bool *value)
 			*value = mms_region_data->width.bUnitPercent;
 		else if (field == MSG_MMS_REGION_LENGTH_HEIGHT_PERCENT_BOOL)
 			*value = mms_region_data->height.bUnitPercent;
+		else if (field == MSG_MMS_REGION_BGCOLOR_BOOL)
+			*value = mms_region_data->bBgColor;
 		else
 			err = MSG_ERR_INVALID_PARAMETER;
 	}
@@ -682,8 +709,10 @@ int msg_mms_set_int_value(msg_struct_s *msg_struct, int field, int value)
 			mms_data->rootlayout.width.value = value;
 		else if (field == MSG_MMS_ROOTLAYOUT_HEIGHT_INT)
 			mms_data->rootlayout.height.value = value;
-		else if (field == MSG_MMS_ROOTLAYOUT_BGCOLOR_INT)
+		else if (field == MSG_MMS_ROOTLAYOUT_BGCOLOR_INT) {
+			mms_data->rootlayout.bBgColor = true;
 			mms_data->rootlayout.bgColor = value;
+		}
 		else
 			err = MSG_ERR_INVALID_PARAMETER;
 	}
@@ -742,9 +771,10 @@ int msg_mms_set_int_value(msg_struct_s *msg_struct, int field, int value)
 			mms_region_data->width.value = value;
 		else if (field == MSG_MMS_REGION_LENGTH_HEIGHT_INT)
 			mms_region_data->height.value = value;
-		else if (field == MSG_MMS_REGION_BGCOLOR_INT)
+		else if (field == MSG_MMS_REGION_BGCOLOR_INT) {
+			mms_region_data->bBgColor = true;
 			mms_region_data->bgColor = value;
-		else if (field == MSG_MMS_REGION_FIT_TYPE_INT)
+		} else if (field == MSG_MMS_REGION_FIT_TYPE_INT)
 			mms_region_data->fit = (REGION_FIT_TYPE_T)value;
 		else
 			err = MSG_ERR_INVALID_PARAMETER;
@@ -840,8 +870,8 @@ int msg_mms_set_str_value(msg_struct_s *msg_struct, int field, char *value, int 
 				err = MSG_ERR_INVALID_PARAMETER;
 			}
 		} else if (field == MSG_MMS_MEDIA_CONTENT_ID_STR)
-			strncpy(mms_media_data->szContentID, value, MSG_MSG_ID_LEN);
-		else if (field == MSG_MMS_MEDIA_REGION_ID_STR)
+			__removeLessGreaterMark(value, mms_media_data->szContentID, MSG_MSG_ID_LEN);
+		 else if (field == MSG_MMS_MEDIA_REGION_ID_STR)
 			strncpy(mms_media_data->regionId, value, MAX_SMIL_REGION_ID);
 		else if (field == MSG_MMS_MEDIA_ALTERNATIVE_STR)
 			strncpy(mms_media_data->szAlt, value, MAX_SMIL_ALT_LEN);

@@ -375,6 +375,7 @@ typedef struct _MmsMsgMultiStatus {
 
 typedef struct _MMS_ATTRIB_S {
 	MimeType contentType;
+	MmsMsgType msgType;
 	MmsDataType dataType;
 	UINT32 date;
 	UINT8 version;

@@ -102,6 +102,10 @@ typedef struct
 		MmsSmilText	sText;  /**< Indicates the text attributes */
 		MmsSmilAVI	sAVI; /**< Indicates the video attributes */
 	} sMedia;
+
+	char szContentType[MSG_MSG_ID_LEN + 1];
+	char szContentLocation[MSG_MSG_ID_LEN + 1];
+
 }MMS_MEDIA_S;
 
 /**
@@ -115,6 +119,8 @@ typedef struct
 	int		fileSize;	 /**< Indicates the size of the file */
 	MsgDrmType	drmType; /**< Indicates the drm type. see enum MsgDrmType */
 	char		szDrm2FullPath[MSG_FILEPATH_LEN_MAX + 1]; /**< Indicates the fullpath of the DRM */
+	char szContentType[MSG_MSG_ID_LEN + 1];
+
 }MMS_ATTACH_S;
 
 /**
@@ -152,6 +158,7 @@ typedef struct
 	MMS_LENGTH		nTop; /**< Indicates the top co-ordinate of the region */
 	MMS_LENGTH		width; /**< Indicates the width of the region */
 	MMS_LENGTH		height; /**< Indicates the width of the region */ // '%' rate should be supported
+	bool			bBgColor;	/**< Indicates the background color set in the region */
 	int				bgColor;	/**< Indicates the background color of the region */
 	REGION_FIT_TYPE_T	fit;	/**< Indicates the fit type. see enum REGION_FIT_TYPE_T */
 
@@ -164,6 +171,7 @@ typedef struct
 {
 	MMS_LENGTH	width;		/**< Indicates the width of the root layout */
 	MMS_LENGTH	height;		/**< Indicates the height of the root layout */ // '%' rate should be supported
+	bool		bBgColor;	/**< Indicates the background color set in the root layout */
 	int			bgColor;		/**< Indicates the background color of the root layout */
 }MMS_SMIL_ROOTLAYOUT;
 
@@ -213,12 +221,36 @@ typedef struct
 	MMS_APPID_INFO_S	msgAppId;
 }MMS_RECV_DATA_S;
 
+typedef struct _MMS_HEADER_DATA_S
+{
+	char messageID[MSG_MSG_ID_LEN + 1];
+	char trID[MSG_MSG_ID_LEN + 1];
+	char contentLocation[MSG_MSG_ID_LEN + 1];
+	char szContentType[MSG_MSG_ID_LEN + 1];//string : ex) application/vnd.wap.multipart.related
+	int contentType;//MimeType : ex) application/vnd.wap.multipart.related
+	int messageType;//MmsMsgType : ex) sendreq
+	int mmsVersion;//1.0 1.3
+	int messageClass;//Personal | Advertisement | Informational | Auto
+	int contentClass;//text | image-basic| image-rich | video-basic | video-rich | megapixel | content-basic | content-rich
+	int mmsPriority;//_MSG_PRIORITY_TYPE_E : Low | Normal | High
+} MMS_HEADER_DATA_S;
+
+typedef struct
+{
+	MimeType	type;	/**< Indicates the multipart mime type. see enum MimeType */
+	char		szContentType[MSG_MSG_ID_LEN + 1];		/**< Indicates the content type */
+	char		szFileName[MSG_FILENAME_LEN_MAX + 1];		/**< Indicates the file name */
+	char		szFilePath[MSG_FILEPATH_LEN_MAX + 1];		/**< Indicates the file path */
+	char		szContentID[MSG_MSG_ID_LEN + 1];		/**< Indicates the content id */
+	char		szContentLocation[MSG_MSG_ID_LEN + 1];	/**< Indicates the content Location */
+} MMS_MULTIPART_DATA_S;
 
 /**
  *	@brief	Represents MMS message data.
  */
 typedef struct _MMS_MESSAGE_DATA_S
 {
+	int 					backup_type; //normal = 0|| backup = 1;
 	char					szSmilFilePath[MSG_FILEPATH_LEN_MAX + 1];	/**< Indicates the SMIL file path */
 	int						pageCnt;	/**< The count of the SMIL pages */
 	GList					*pagelist;	/**< The pointer to SMIL pages list */
@@ -232,13 +264,8 @@ typedef struct _MMS_MESSAGE_DATA_S
 	GList 					*metalist;	/**< The pointer to SMIL meta list */
 	MMS_SMIL_ROOTLAYOUT		rootlayout;	/**< Indicates the root layout information */
 	MMS_APPID_INFO_S 		msgAppId;
-}MMS_MESSAGE_DATA_S;
-
-/**
- *	@}
- */
-
-
+	MMS_HEADER_DATA_S header;
+	MMS_MULTIPART_DATA_S smil;
+} MMS_MESSAGE_DATA_S;
 
 #endif
-

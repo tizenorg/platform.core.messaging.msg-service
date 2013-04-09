@@ -101,6 +101,7 @@ extern MmsHeader mmsHeader;
 
 /* Decoding */
 void MmsInitHeader();
+void MmsReleaseHeader(MmsHeader *mms);
 void MmsRegisterDecodeBuffer();
 void MmsUnregisterDecodeBuffer(void);
 bool MmsBinaryDecodeMsgHeader(FILE *pFile, int totalLength);

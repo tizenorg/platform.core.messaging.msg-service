@@ -50,7 +50,7 @@ public:
 	msg_error_t removePreviewInfo(int msgId);
 
 	msg_error_t setReadReportSendStatus(msg_message_id_t msgId, int readReportSendStatus);
-	msg_error_t plgGetMmsMessage(MSG_MESSAGE_INFO_S *pMsg,  MSG_SENDINGOPT_INFO_S *pSendOptInfo, MMS_MESSAGE_DATA_S *pMmsMsg, char **pDestMsg);
+	msg_error_t plgGetMmsMessage(MSG_MESSAGE_INFO_S *pMsg, MSG_SENDINGOPT_INFO_S *pSendOptInfo, char **pDestMsg);
 	msg_error_t getContentLocation(MSG_MESSAGE_INFO_S *pMsgInfo);
 	msg_error_t getMmsRawFilePath(msg_message_id_t msgId, char *pFilepath);
 
@@ -62,9 +62,15 @@ public:
 
 	msg_error_t getMsgText(MMS_MESSAGE_DATA_S *pMmsMsg, char *pMsgText);
 
+	msg_error_t deleteMmsMessage(int msgId);
+
+	void getMmsFromDB(msg_message_id_t msgId, MmsMsg *pMmsMsg);
+
+
+
 private:
 	msg_error_t addMmsMsgToDB(MmsMsg *pMmsMsg, const MSG_MESSAGE_INFO_S *pMsgInfo, int attachCnt = 0);
-
+	msg_error_t addMmsMsgToDB(MmsMsg *pMmsMsg, const char *raw_filepath);
 	static MmsPluginStorage *pInstance;
 
 	MsgDbHandler dbHandle;

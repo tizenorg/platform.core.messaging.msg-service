@@ -554,6 +554,7 @@ enum MSG_MMS_INFO_E {
 	MSG_MMS_ROOTLAYOUT_HEIGHT_INT,					/**< Indicates the height of the root layout */
 	MSG_MMS_ROOTLAYOUT_HEIGHT_PERCENT_BOOL,				/**< Indicates the length is in percentage(%) or not */
 	MSG_MMS_ROOTLAYOUT_BGCOLOR_INT,					/**< Indicates the background color of the root layout */
+	MSG_MMS_ROOTLAYOUT_BGCOLOR_BOOL,				/**< Indicates the background color is set in the root layout */
 };
 
 //MSG_MMS_PAGE
@@ -603,6 +604,7 @@ enum MSG_MMS_REGION_INFO_E {
 	MSG_MMS_REGION_LENGTH_HEIGHT_PERCENT_BOOL,			/**< Indicates the length is in percentage(%) or not */
 	MSG_MMS_REGION_BGCOLOR_INT,					/**< Indicates the background color of the region */
 	MSG_MMS_REGION_FIT_TYPE_INT,					/**< Indicates the fit type. see enum REGION_FIT_TYPE_T */
+	MSG_MMS_REGION_BGCOLOR_BOOL,				/**< Indicates the background color is set in the region */
 };
 
 enum MSG_MMS_META_INFO_E {

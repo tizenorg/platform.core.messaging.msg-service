@@ -258,4 +258,8 @@ char *__MmsSmilFindColorValue(int nValue);
  */
 xmlNodePtr UtilxmlStringGetNodeList(xmlNodePtr pstNode, char *pszName);
 
+
+bool MmsSmilParseSmilDocOnlyLayout(MMS_MESSAGE_DATA_S *pMmsMsg, char *pSmilDoc);
+
+
 #endif//MMS_PLUGIN_SMIL_H

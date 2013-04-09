@@ -20,27 +20,29 @@
 #include "MmsPluginTypes.h"
 #include "MmsPluginCodec.h"
 
-bool MmsSetMsgAddressList(MmsAttrib *pAttrib, const MSG_MESSAGE_INFO_S *pMsgInfo);
-char *MmsComposeAddress(const MSG_MESSAGE_INFO_S *pMsgInfo, int recipientType);
-bool MmsGetMsgBodyfromMsgInfo(const MSG_MESSAGE_INFO_S *pMsgInfo, MMS_MESSAGE_DATA_S *pMsgBody, char *pFileData);
-bool MmsGetSmilRawData(MMS_MESSAGE_DATA_S *pMsgBody, char *pRawData, int *nSize);
-bool MmsInsertPresentation(MmsMsg *pMsg, MimeType mimeType, char *pData, int size);
-bool MmsInsertPartFromFile(MmsMsg *pMsg, char *szTitleName, char *szOrgFilePath, char *szContentID);
-bool MmsGetTypeByFileName(int *type, char *szFileName);
-MsgMultipart *MmsMakeMultipart(MimeType mimeType, char *szTitleName, char *szOrgFilePath, void *pData, int offset, int size, char *szContentID);
+MsgMultipart *MmsAllocMultipart(void);
+MsgMultipart *MmsMakeMultipart(MimeType mimeType, char *szTitleName, char *szOrgFilePath, char *szContentID, char *szContentLocation);
 
 bool MmsIsMultipart(int type);
 bool MmsIsText(int type);
 bool MmsIsVitemContent(int type, char *pszName);
-MsgMultipart *MmsAllocMultipart(void);
 
 bool MmsComposeMessage(MmsMsg *pMmsMsg, MSG_MESSAGE_INFO_S *pMsgInfo, MSG_SENDINGOPT_INFO_S *pSendOptInfo, MMS_MESSAGE_DATA_S *pMsgData, char *pFileData);
 void MmsComposeNotiMessage(MmsMsg *pMmsMsg, msg_message_id_t msgID);
 void MmsComposeReadReportMessage(MmsMsg *pMmsMsg, const MSG_MESSAGE_INFO_S *pMsgInfo, msg_message_id_t selectedMsgId);
-int MmsSearchMsgId(char *toNumber, char *szMsgID);
+bool MmsComposeSendReq(MmsMsg *pMmsMsg, MSG_MESSAGE_INFO_S *pMsgInfo, MSG_SENDINGOPT_INFO_S *pSendOptInfo, MMS_MESSAGE_DATA_S *pMsgData);
+
+
+bool MmsEncodeMmsMessage(MmsMsg *pMmsMsg, const char *raw_filepath);
+
+bool MmsMakeMmsData(MmsMsg *pMsg, MMS_MESSAGE_DATA_S *pMmsMsg);
+
 bool MmsCheckAdditionalMedia(MMS_MESSAGE_DATA_S *pMsgData, MsgType *partHeader);
+
 bool MmsRemovePims(MMS_MESSAGE_DATA_S *pMsgData);
 
 msg_error_t MmsMakePreviewInfo(int msgId, MMS_MESSAGE_DATA_S *pMmsMsg);
+
 void MmsPrintFileInfoForVLD(MMS_MESSAGE_DATA_S *pMmsMsg);
+int MmsUpdatePreviewData(MSG_MESSAGE_INFO_S *pMsgInfo);
 #endif //MMS_PLUGIN_MESSAGE_H
