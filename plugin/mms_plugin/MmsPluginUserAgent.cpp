@@ -304,7 +304,8 @@ void MmsPluginUaManager::run()
 
 			if (ret == 0) {
 				MSG_DEBUG("System runs on [%s].", buf.machine);
-				if (strncmp(buf.machine, "i686", 4) == 0) {
+				//if (strncmp(buf.machine, "i686", 4) == 0) {
+				if(strcasestr(buf.machine, "emulated")) {
 					MSG_DEBUG("Running on Emulator mode.");
 
 					int mmsResult = MsgSettingGetInt(VCONFKEY_TELEPHONY_MMS_SENT_STATUS);
