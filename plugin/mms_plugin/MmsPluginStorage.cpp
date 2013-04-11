@@ -1244,6 +1244,9 @@ msg_error_t MmsPluginStorage::getMsgText(MMS_MESSAGE_DATA_S *pMmsMsg, char *pMsg
 	int textLen = 0;
 	bool bText = false;
 
+	if (pMmsMsg == NULL)
+		return MSG_ERR_NULL_POINTER;
+
 	// Get the text data from the 1st slide.
 	for (int i = 0; i< pMmsMsg->pageCnt; ++i) {
 		pPage = _MsgMmsGetPage(pMmsMsg, i);
