@@ -51,12 +51,12 @@ static void MsgTapiInitCB(keynode_t *key, void* data)
 {
 	MSG_DEBUG("MsgTapiInitCB is called.");
 
-	int tapi_state;
-	tapi_state = vconf_keynode_get_int(key);
+	bool bTelRdy = false;
+	bTelRdy = vconf_keynode_get_bool(key);
 
-	MSG_DEBUG("tapi_state [%d]", tapi_state);
+	MSG_DEBUG("bTelRdy [%d]", bTelRdy);
 
-	if (tapi_state == VCONFKEY_TELEPHONY_TAPI_STATE_READY) {
+	if (bTelRdy) {
 		mx.lock();
 		cv.signal();
 		mx.unlock();
@@ -119,14 +119,14 @@ msg_error_t SmsPlgInitialize()
 	if (MsgSettingSetInt(MSG_SIM_CHANGED, MSG_SIM_STATUS_NOT_FOUND) != MSG_SUCCESS)
 		MSG_DEBUG("MsgSettingSetInt is failed!!");
 
-	int tapi_state;
-	tapi_state = MsgSettingGetInt(VCONFKEY_TELEPHONY_TAPI_STATE);
-	MSG_DEBUG("Get VCONFKEY_TELEPHONY_TAPI_STATE [%d].", tapi_state);
+	bool bReady = false;
+	MsgSettingGetBool(VCONFKEY_TELEPHONY_READY, &bReady);
+	MSG_DEBUG("Get VCONFKEY_TELEPHONY_READY [%d].", bReady);
 
 	int ret = 0;
 
-	if(tapi_state != VCONFKEY_TELEPHONY_TAPI_STATE_READY) {
-		MsgSettingRegVconfCBCommon(VCONFKEY_TELEPHONY_TAPI_STATE, MsgTapiInitCB);
+	if(!bReady) {
+		MsgSettingRegVconfCBCommon(VCONFKEY_TELEPHONY_READY, MsgTapiInitCB);
 		mx.lock();
 		ret = cv.timedwait(mx.pMutex(), 90);
 		mx.unlock();
