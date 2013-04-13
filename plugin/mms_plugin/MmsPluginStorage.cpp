@@ -1429,7 +1429,7 @@ msg_error_t MmsPluginStorage::plgGetMmsMessage(MSG_MESSAGE_INFO_S *pMsg, MSG_SEN
 	unsigned int nSize = 0;
 	bool bMultipartRelated = false;
 
-	bzero(pMmsMsg, sizeof(pMmsMsg));
+	bzero(pMmsMsg, sizeof(MMS_MESSAGE_DATA_S));
 	pMmsMsg->regionCnt = 0;
 	pMmsMsg->pageCnt = 0;
 	pMmsMsg->attachCnt = 0;
@@ -1526,9 +1526,11 @@ msg_error_t MmsPluginStorage::plgGetMmsMessage(MSG_MESSAGE_INFO_S *pMsg, MSG_SEN
 	return err;
 
 FREE_CATCH:
+	/*
 	if (bMultipartRelated) {
 		MsgMmsReleaseMmsLists(pMmsMsg);
 	}
+	*/
 
 L_CATCH:
 	MSG_DEBUG("MmsPlgUpdateMessage : Update MMS Message Failed");

@@ -441,7 +441,7 @@ MsgMultipart *MmsMakeMultipart(MimeType mimeType, char *szTitleName, char *szOrg
 	MsgMultipart *pMultipart = NULL;
 
 	if ((pMultipart = MmsAllocMultipart()) == NULL)
-		goto __CATCH;
+		return NULL;
 
 	pMultipart->type.type = mimeType;
 
@@ -475,23 +475,6 @@ MsgMultipart *MmsMakeMultipart(MimeType mimeType, char *szTitleName, char *szOrg
 		pMultipart->pBody->size = MsgGetFileSize(szOrgFilePath);
 	}
 	return pMultipart;
-
-__CATCH:
-
-	if (pMultipart) {
-		if (pMultipart->pBody) {
-			if (pMultipart->pBody->body.pText) {
-				free(pMultipart->pBody->body.pText);
-				pMultipart->pBody->body.pText = NULL;
-			}
-			free(pMultipart->pBody);
-			pMultipart->pBody = NULL;
-		}
-		free(pMultipart);
-		pMultipart = NULL;
-	}
-
-	return NULL;
 }
 
 bool MmsGetTypeByFileName(int *type, char *szFileName)
@@ -1309,7 +1292,7 @@ bool MmsMakeMmsData(MmsMsg *pMsg, MMS_MESSAGE_DATA_S *pMmsMsg)
 {
 	MSG_BEGIN();
 
-	bzero(pMmsMsg, sizeof(pMmsMsg));
+	bzero(pMmsMsg, sizeof(MMS_MESSAGE_DATA_S));
 	pMmsMsg->regionCnt = 0;
 	pMmsMsg->pageCnt = 0;
 	pMmsMsg->attachCnt = 0;

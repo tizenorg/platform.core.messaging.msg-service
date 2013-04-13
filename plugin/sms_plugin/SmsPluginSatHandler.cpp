@@ -169,7 +169,7 @@ void SmsPluginSatHandler::sendSms(void *pData)
 	memset((void*)pkgInfo.szData, 0x00, sizeof(pkgInfo.szData));
 	memcpy((void*)pkgInfo.szData, tpdu, tpduLen);
 
-	pkgInfo.szData[tpduLen] = '\0';
+	pkgInfo.szData[tpduLen - 1] = '\0';
 	pkgInfo.MsgLength = tpduLen;
 
 	// Set SMSC Address
