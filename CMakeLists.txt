@@ -62,3 +62,7 @@ INSTALL(FILES ${CMAKE_CURRENT_SOURCE_DIR}/packaging/msg-service.service DESTINAT
 
 # LICENSE file
 INSTALL(FILES ${CMAKE_SOURCE_DIR}/LICENSE.Flora DESTINATION /usr/share/license/msg-service)
+
+#Install sysinfo file to provide which features are supported.
+INSTALL(FILES ${CMAKE_SOURCE_DIR}/sysinfo-message.xml DESTINATION /etc/config)
+INSTALL(FILES ${CMAKE_SOURCE_DIR}/sysinfo-message.emul.xml DESTINATION /etc/config)

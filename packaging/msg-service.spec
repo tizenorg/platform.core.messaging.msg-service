@@ -104,6 +104,7 @@ make %{?jobs:-j%jobs}
 %install
 rm -rf %{buildroot}
 mkdir -p %{buildroot}/usr/share/license
+mkdir -p %{buildroot}/etc/config
 
 %make_install
 
@@ -117,6 +118,14 @@ mkdir -p  %{buildroot}%{_sysconfdir}/rc.d/rc5.d
 ln -s %{_sysconfdir}/rc.d/init.d/msg-server  %{buildroot}%{_sysconfdir}/rc.d/rc5.d/S70msg-server
 
 mkdir -p %{buildroot}/opt/usr/data/msg-service
+
+%if 0%{?simulator}
+rm %{buildroot}/etc/config/sysinfo-message.xml
+mv %{buildroot}/etc/config/sysinfo-message.emul.xml %{buildroot}/etc/config/sysinfo-message.xml
+%else
+rm %{buildroot}/etc/config/sysinfo-message.emul.xml
+%endif
+
 
 %post tools -p /sbin/ldconfig
 %post -n sms-plugin -p /sbin/ldconfig
@@ -527,6 +536,8 @@ fi
 /usr/lib/systemd/user/msg-service.service
 /usr/lib/systemd/user/tizen-middleware.target.wants/msg-service.service
 /usr/share/license/msg-service/LICENSE.Flora
+/etc/config/sysinfo-message.xml
+
 
 %files -n sms-plugin
 %manifest sms-plugin.manifest
