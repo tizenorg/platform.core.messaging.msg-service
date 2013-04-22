@@ -1258,6 +1258,11 @@ msg_error_t MsgHandle::regStorageChangeCallback(msg_storage_change_cb onStorageC
 
 	eventListener->start();
 
+	int clientFd = eventListener->getRemoteFd(); // fd that is reserved to the "listener thread" by msgfw daemon
+
+	if (clientFd < 0)
+		return MSG_ERR_TRANSPORT_ERROR;
+
 	if (eventListener->regStorageChangeEventCB(this, onStorageChange, pUserParam) == false) // callback was already registered, just return SUCCESS
 		return MSG_SUCCESS;
 
@@ -1273,7 +1278,7 @@ msg_error_t MsgHandle::regStorageChangeCallback(msg_storage_change_cb onStorageC
 	// Copy Cookie
 	memcpy(pCmd->cmdCookie, mCookie, MAX_COOKIE_LEN);
 
-	int listenerFd = eventListener->getRemoteFd(); // fd that is reserved to the "listener thread" by msgfw daemon
+	int listenerFd = clientFd;
 
 	MSG_DEBUG("remote fd %d", listenerFd);
 

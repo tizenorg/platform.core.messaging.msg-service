@@ -218,6 +218,11 @@ msg_error_t MsgHandle::regSentStatusCallback(msg_sent_status_cb onStatusChanged,
 
 	eventListener->start();
 
+	int clientFd = eventListener->getRemoteFd(); // fd that is reserved to the "listener thread" by msgfw daemon
+
+	if (clientFd < 0)
+		return MSG_ERR_TRANSPORT_ERROR;
+
 	if (eventListener->regSentStatusEventCB(this, onStatusChanged, pUserParam) == false) // callback was already registered, just return SUCCESS
 		return MSG_SUCCESS;
 
@@ -233,7 +238,7 @@ msg_error_t MsgHandle::regSentStatusCallback(msg_sent_status_cb onStatusChanged,
 	// Copy Cookie
 	memcpy(pCmd->cmdCookie, mCookie, MAX_COOKIE_LEN);
 
-	int listenerFd = eventListener->getRemoteFd(); // fd that is reserved to the "listener thread" by msgfw daemon
+	int listenerFd = clientFd;
 
 	MSG_DEBUG("remote fd %d", listenerFd);
 
@@ -268,6 +273,11 @@ msg_error_t MsgHandle::regSmsMessageCallback(msg_sms_incoming_cb onMsgIncoming, 
 
 	eventListener->start();
 
+	int clientFd = eventListener->getRemoteFd(); // fd that is reserved to the "listener thread" by msgfw daemon
+
+	if (clientFd < 0)
+		return MSG_ERR_TRANSPORT_ERROR;
+
 	if (eventListener->regMessageIncomingEventCB(this, onMsgIncoming, port, pUserParam) == false) // callback was already registered, just return SUCCESS
 		return MSG_SUCCESS;
 
@@ -287,7 +297,7 @@ msg_error_t MsgHandle::regSmsMessageCallback(msg_sms_incoming_cb onMsgIncoming, 
 
 	MSG_CMD_REG_INCOMING_MSG_CB_S cmdParam = {0};
 
-	cmdParam.listenerFd = eventListener->getRemoteFd(); // fd that is reserved to the "listener thread" by msgfw daemon
+	cmdParam.listenerFd = clientFd;
 	cmdParam.msgType = MSG_SMS_TYPE;
 	cmdParam.port = port;
 
@@ -323,6 +333,11 @@ msg_error_t MsgHandle::regMmsConfMessageCallback(msg_mms_conf_msg_incoming_cb on
 
 	eventListener->start();
 
+	int clientFd = eventListener->getRemoteFd(); // fd that is reserved to the "listener thread" by msgfw daemon
+
+	if (clientFd < 0)
+		return MSG_ERR_TRANSPORT_ERROR;
+
 	if (eventListener->regMMSConfMessageIncomingEventCB(this, onMMSConfMsgIncoming, pAppId, pUserParam) == false) // callback was already registered, just return SUCCESS
 		return MSG_SUCCESS;
 
@@ -342,7 +357,7 @@ msg_error_t MsgHandle::regMmsConfMessageCallback(msg_mms_conf_msg_incoming_cb on
 
 	MSG_CMD_REG_INCOMING_MMS_CONF_MSG_CB_S cmdParam = {0};
 
-	cmdParam.listenerFd = eventListener->getRemoteFd(); // fd that is reserved to the "listener thread" by msgfw daemon
+	cmdParam.listenerFd = clientFd;
 	cmdParam.msgType = MSG_MMS_TYPE;
 
 	if (pAppId)
@@ -380,6 +395,11 @@ msg_error_t MsgHandle::regSyncMLMessageCallback(msg_syncml_msg_incoming_cb onSyn
 
 	eventListener->start();
 
+	int clientFd = eventListener->getRemoteFd(); // fd that is reserved to the "listener thread" by msgfw daemon
+
+	if (clientFd < 0)
+		return MSG_ERR_TRANSPORT_ERROR;
+
 	if (eventListener->regSyncMLMessageIncomingEventCB(this, onSyncMLMsgIncoming, pUserParam) == false) // callback was already registered, just return SUCCESS
 		return MSG_SUCCESS;
 
@@ -399,7 +419,7 @@ msg_error_t MsgHandle::regSyncMLMessageCallback(msg_syncml_msg_incoming_cb onSyn
 
 	MSG_CMD_REG_INCOMING_SYNCML_MSG_CB_S cmdParam = {0};
 
-	cmdParam.listenerFd = eventListener->getRemoteFd(); // fd that is reserved to the "listener thread" by msgfw daemon
+	cmdParam.listenerFd = clientFd;
 	cmdParam.msgType = MSG_SMS_TYPE;
 
 	memcpy((void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN), &cmdParam, sizeof(cmdParam));
@@ -433,6 +453,11 @@ msg_error_t MsgHandle::regLBSMessageCallback(msg_lbs_msg_incoming_cb onLBSMsgInc
 
 	eventListener->start();
 
+	int clientFd = eventListener->getRemoteFd(); // fd that is reserved to the "listener thread" by msgfw daemon
+
+	if (clientFd < 0)
+		return MSG_ERR_TRANSPORT_ERROR;
+
 	if (eventListener->regLBSMessageIncomingEventCB(this, onLBSMsgIncoming, pUserParam) == false) // callback was already registered, just return SUCCESS
 		return MSG_SUCCESS;
 
@@ -450,7 +475,7 @@ msg_error_t MsgHandle::regLBSMessageCallback(msg_lbs_msg_incoming_cb onLBSMsgInc
 
 	MSG_CMD_REG_INCOMING_LBS_MSG_CB_S cmdParam = {0};
 
-	cmdParam.listenerFd = eventListener->getRemoteFd(); // fd that is reserved to the "listener thread" by msgfw daemon
+	cmdParam.listenerFd = clientFd;
 	cmdParam.msgType = MSG_SMS_TYPE;
 
 	memcpy((void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN), &cmdParam, sizeof(cmdParam));
@@ -485,6 +510,11 @@ msg_error_t MsgHandle::regSyncMLMessageOperationCallback(msg_syncml_msg_operatio
 
 	eventListener->start();
 
+	int clientFd = eventListener->getRemoteFd(); // fd that is reserved to the "listener thread" by msgfw daemon
+
+	if (clientFd < 0)
+		return MSG_ERR_TRANSPORT_ERROR;
+
 	if (eventListener->regSyncMLMessageOperationEventCB(this, onSyncMLMsgOperation, pUserParam) == false) // callback was already registered, just return SUCCESS
 		return MSG_SUCCESS;
 
@@ -504,7 +534,7 @@ msg_error_t MsgHandle::regSyncMLMessageOperationCallback(msg_syncml_msg_operatio
 
 	MSG_CMD_REG_SYNCML_MSG_OPERATION_CB_S cmdParam = {0};
 
-	cmdParam.listenerFd = eventListener->getRemoteFd(); // fd that is reserved to the "listener thread" by msgfw daemon
+	cmdParam.listenerFd = clientFd;
 	cmdParam.msgType = MSG_SMS_TYPE;
 
 	memcpy((void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN), &cmdParam, sizeof(cmdParam));
@@ -538,6 +568,11 @@ msg_error_t MsgHandle::regPushMessageCallback(msg_push_msg_incoming_cb onPushMsg
 
 	eventListener->start();
 
+	int clientFd = eventListener->getRemoteFd(); // fd that is reserved to the "listener thread" by msgfw daemon
+
+	if (clientFd < 0)
+		return MSG_ERR_TRANSPORT_ERROR;
+
 	if (eventListener->regPushMessageIncomingEventCB(this, onPushMsgIncoming, pAppId, pUserParam) == false) // callback was already registered, just return SUCCESS
 		return MSG_SUCCESS;
 
@@ -557,7 +592,7 @@ msg_error_t MsgHandle::regPushMessageCallback(msg_push_msg_incoming_cb onPushMsg
 
 	MSG_CMD_REG_INCOMING_PUSH_MSG_CB_S cmdParam = {0};
 
-	cmdParam.listenerFd = eventListener->getRemoteFd(); // fd that is reserved to the "listener thread" by msgfw daemon
+	cmdParam.listenerFd = clientFd;
 	cmdParam.msgType = MSG_SMS_TYPE;
 
 	if (pAppId)
@@ -594,6 +629,11 @@ msg_error_t MsgHandle::regCBMessageCallback(msg_cb_incoming_cb onCBIncoming, boo
 
 	eventListener->start();
 
+	int clientFd = eventListener->getRemoteFd(); // fd that is reserved to the "listener thread" by msgfw daemon
+
+	if (clientFd < 0)
+		return MSG_ERR_TRANSPORT_ERROR;
+
 	if (eventListener->regCBMessageIncomingEventCB(this, onCBIncoming, bSave, pUserParam) == false) // callback was already registered, just return SUCCESS
 		return MSG_SUCCESS;
 
@@ -613,7 +653,7 @@ msg_error_t MsgHandle::regCBMessageCallback(msg_cb_incoming_cb onCBIncoming, boo
 
 	MSG_CMD_REG_CB_INCOMING_MSG_CB_S cmdParam = {0};
 
-	cmdParam.listenerFd = eventListener->getRemoteFd(); // fd that is reserved to the "listener thread" by msgfw daemon
+	cmdParam.listenerFd = clientFd; // fd that is reserved to the "listener thread" by msgfw daemon
 	cmdParam.msgType = MSG_SMS_TYPE;
 	cmdParam.bsave = bSave;
 

@@ -82,8 +82,10 @@ msg_error_t MsgSubmitReqSMS(MSG_REQUEST_INFO_S *pReqInfo)
 	MSG_MAIN_TYPE_T mainType = pReqInfo->msgInfo.msgType.mainType;
 	MsgPlugin* plg = MsgPluginManager::instance()->getPlugin(mainType);
 
-	if (plg == NULL)
-		THROW(MsgException::PLUGIN_ERROR, "No plugin for %d type", mainType);
+	if (plg == NULL) {
+		MSG_DEBUG("No Plugin for %d type", mainType);
+		return MSG_ERR_UNKNOWN;
+	}
 
 	// If MSG ID > 0 -> MSG in DRAFT
 	// Move Folder to OUTBOX

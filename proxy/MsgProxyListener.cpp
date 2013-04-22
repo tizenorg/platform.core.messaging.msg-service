@@ -975,18 +975,11 @@ void MsgProxyListener::handleEvent(const MSG_EVENT_S* pMsgEvent)
 
 int  MsgProxyListener::getRemoteFd()
 {
-	MutexLocker lock(mx);
-
 	int tmpFd = cliSock.getRemoteFd();
 
 	MSG_DEBUG("listener fd [%d]", tmpFd);
 
-	if( tmpFd == -1 )
-	{
-		cv.wait(mx.pMutex());
-	}
-
-	return cliSock.getRemoteFd();
+	return tmpFd;
 }
 
 
