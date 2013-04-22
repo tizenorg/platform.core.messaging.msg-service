@@ -1569,8 +1569,8 @@ void MmsPluginStorage::addMessage(MSG_MESSAGE_INFO_S *pMsgInfo, MSG_SENDINGOPT_I
 			goto __CATCH;
 		}
 
-		if (MmsComposeSendReq(&mmsMsg, pMsgInfo, pSendOptInfo, &mmsMsgData) != true) {
-			MSG_DEBUG("Fail to Compose Backup Message");
+		if (MmsComposeMessage(&mmsMsg, pMsgInfo, pSendOptInfo, &mmsMsgData, pFileData) != true) {
+			MSG_DEBUG("Fail to Compose Message");
 			goto __CATCH;
 		}
 
