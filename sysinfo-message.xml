@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <sys-info>
 	<default>
-		<key id="mms-support" string="false"/>
+		<key id="mms-support" string="true"/>
 		<key id="cbs-support" string="false"/>
 	</default>
 </sys-info>
