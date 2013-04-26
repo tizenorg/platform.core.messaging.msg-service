@@ -373,14 +373,16 @@ void MmsPluginInternal::processSendConf(MSG_MESSAGE_INFO_S *pMsgInfo, mmsTranQEn
 
 	pMsgInfo->displayTime = curTime;
 
+
+	MmsInitHeader();
+#if 0 // Not Need Release
 	MmsMsg *pMsg = NULL;
 	MmsPluginStorage::instance()->getMmsMessage(&pMsg);
-	MmsInitHeader();
 #ifdef __SUPPORT_DRM__
 	MmsReleaseMsgDRMInfo(&pMsg->msgType.drmInfo);
 #endif
 	MmsReleaseMsgBody(&pMsg->msgBody, pMsg->msgType.type);
-
+#endif
 
 	MSG_END();
 }
