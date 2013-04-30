@@ -2616,12 +2616,11 @@ msg_error_t MsgStoSearchMessage(const MSG_SEARCH_CONDITION_S *pSearchCon, int of
 
 	memset(sqlQuery, 0x00, sizeof(sqlQuery));
 
-	snprintf(sqlQuery, sizeof(sqlQuery), "SELECT A.MSG_ID, A.CONV_ID, A.FOLDER_ID, A.STORAGE_ID, A.MAIN_TYPE, A.SUB_TYPE, \
-			A.DISPLAY_TIME, A.DATA_SIZE, A.NETWORK_STATUS, A.READ_STATUS, A.PROTECTED, A.BACKUP, A.PRIORITY, \
-			A.MSG_DIRECTION, A.SCHEDULED_TIME, A.SUBJECT, A.MSG_TEXT, B.ADDRESS_TYPE, B.RECIPIENT_TYPE, \
-			B.CONTACT_ID, B.ADDRESS_VAL, B.DISPLAY_NAME, B.FIRST_NAME, B.LAST_NAME, A.ATTACHMENT_COUNT, A.THUMB_PATH \
-			FROM %s A, %s B \
-			WHERE A.CONV_ID = B.CONV_ID AND B.ADDRESS_ID <> 0 ",
+	snprintf(sqlQuery, sizeof(sqlQuery), "SELECT A.MSG_ID, A.CONV_ID, A.FOLDER_ID, A.STORAGE_ID, A.MAIN_TYPE, A.SUB_TYPE, "
+			"A.DISPLAY_TIME, A.DATA_SIZE, A.NETWORK_STATUS, A.READ_STATUS, A.PROTECTED, A.BACKUP, A.PRIORITY, "
+			"A.MSG_DIRECTION, A.SCHEDULED_TIME, A.SUBJECT, A.MSG_TEXT, B.ADDRESS_TYPE, B.RECIPIENT_TYPE, "
+			"B.CONTACT_ID, B.ADDRESS_VAL, B.DISPLAY_NAME, B.FIRST_NAME, B.LAST_NAME, A.ATTACHMENT_COUNT, A.THUMB_PATH "
+			"FROM %s A, %s B WHERE A.CONV_ID = B.CONV_ID AND B.ADDRESS_ID <> 0 ",
 			MSGFW_MESSAGE_TABLE_NAME, MSGFW_ADDRESS_TABLE_NAME);
 
 	//// folder
@@ -2676,12 +2675,13 @@ msg_error_t MsgStoSearchMessage(const MSG_SEARCH_CONDITION_S *pSearchCon, int of
 		ext2_str = MsgStoReplaceString(ext1_str, "%", "\\%");
 
 		memset(sqlQuerySubset, 0x00, sizeof(sqlQuerySubset));
-		snprintf(sqlQuerySubset, sizeof(sqlQuerySubset), "AND ( A.MSG_TEXT LIKE '%%%s%%' ESCAPE '\\' \
-				OR A.SUBJECT LIKE '%%%s%%' ESCAPE '\\' \
-				OR B.ADDRESS_VAL LIKE '%%%s%%' ESCAPE '\\' \
-				OR B.DISPLAY_NAME LIKE '%%%s%%' ESCAPE '\\' \
-				OR B.FIRST_NAME LIKE '%%%s%%' ESCAPE '\\' \
-				OR B.LAST_NAME LIKE '%%%s%%' ESCAPE '\\') ",
+		snprintf(sqlQuerySubset, sizeof(sqlQuerySubset),
+				"AND ( A.MSG_TEXT LIKE '%%%s%%' ESCAPE '\\' "
+				"OR A.SUBJECT LIKE '%%%s%%' ESCAPE '\\' "
+				"OR B.ADDRESS_VAL LIKE '%%%s%%' ESCAPE '\\' "
+				"OR B.DISPLAY_NAME LIKE '%%%s%%' ESCAPE '\\' "
+				"OR B.FIRST_NAME LIKE '%%%s%%' ESCAPE '\\' "
+				"OR B.LAST_NAME LIKE '%%%s%%' ESCAPE '\\') ",
 				ext2_str, ext2_str, ext2_str, ext2_str, ext2_str, ext2_str);
 		strncat(sqlQuery, sqlQuerySubset, MAX_QUERY_LEN-strlen(sqlQuery));
 
@@ -2722,9 +2722,9 @@ msg_error_t MsgStoSearchMessage(const MSG_SEARCH_CONDITION_S *pSearchCon, int of
 	memset(sqlQuerySubset, 0x00, sizeof(sqlQuerySubset));
 
 	if (offset >= 0 && limit > 0)
-		snprintf(sqlQuerySubset, sizeof(sqlQuerySubset), "ORDER BY A.DISPLAY_TIME DESC LIMIT %d OFFSET %d;", limit, offset);
+		snprintf(sqlQuerySubset, sizeof(sqlQuerySubset), "GROUP BY A.MSG_ID ORDER BY A.DISPLAY_TIME DESC LIMIT %d OFFSET %d;", limit, offset);
 	else
-		snprintf(sqlQuerySubset, sizeof(sqlQuerySubset), "ORDER BY A.DISPLAY_TIME DESC;");
+		snprintf(sqlQuerySubset, sizeof(sqlQuerySubset), "GROUP BY A.MSG_ID ORDER BY A.DISPLAY_TIME DESC;");
 
 	strncat(sqlQuery, sqlQuerySubset, MAX_QUERY_LEN-strlen(sqlQuery));
 
