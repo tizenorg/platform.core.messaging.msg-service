@@ -320,27 +320,24 @@ void MsgTransactionManager::handleRequest(int fd)
 	if (pCmd->cmdType > MSG_CMD_NUM)
 		THROW(MsgException::OUT_OF_RANGE, "request CMD is not defined");
 
-	if (pCmd->cmdType < MSG_CMD_GET_REPORT_STATUS)
-	{
-		// check privilege
-		if (checkPrivilege(pCmd->cmdType, pCmd->cmdCookie) == false)
-		{
+	// check privilege
+	if (checkPrivilege(fd, pCmd->cmdType) == false) {
+		MSG_DEBUG("No Privilege rule. Not allowed.");
 #ifdef MSG_CHECK_PRIVILEGE
-			eventSize = sizeof(MSG_EVENT_S);
+		eventSize = sizeof(MSG_EVENT_S);
 
-			pEventData = new char[eventSize];
+		pEventData = new char[eventSize];
 
-			MSG_EVENT_S* pMsgEvent = (MSG_EVENT_S*)pEventData;
+		MSG_EVENT_S* pMsgEvent = (MSG_EVENT_S*)pEventData;
 
-			pMsgEvent->eventType = pCmd->cmdType;
-			pMsgEvent->result = MSG_ERR_SECURITY_ERROR;
+		pMsgEvent->eventType = pCmd->cmdType;
+		pMsgEvent->result = MSG_ERR_SECURITY_ERROR;
 
-			MSG_DEBUG("Replying to fd [%d], size [%d]", fd, eventSize);
-			servSock.write(fd, pEventData, eventSize);
+		MSG_DEBUG("Replying to fd [%d], size [%d]", fd, eventSize);
+		servSock.write(fd, pEventData, eventSize);
 
-			return;
+		return;
 #endif
-		}
 	}
 
 	// determine the handler based on pCmd->cmdType
@@ -504,78 +501,65 @@ void MsgTransactionManager::cleanup(int fd)
 }
 
 
-bool MsgTransactionManager::checkPrivilege(MSG_CMD_TYPE_T CmdType, const char *pCookie)
+bool MsgTransactionManager::checkPrivilege(int fd, MSG_CMD_TYPE_T CmdType)
 {
-	if (CmdType >= MSG_CMD_PLG_SENT_STATUS_CNF && CmdType <= MSG_CMD_PLG_INIT_SIM_BY_SAT)
+	bool bAllowed = true;
+	switch(CmdType)
 	{
-		MSG_DEBUG("Request from Plug-in");
-		return true;
-	}
-
-	// Get Cookie from APP
-	if (pCookie == NULL)
+	case MSG_CMD_GET_MSG:
+	case MSG_CMD_COUNT_MSG:
+	case MSG_CMD_COUNT_BY_MSGTYPE:
 	{
-		MSG_DEBUG("Cookie is NULL");
-		return false;
-	}
-
-#ifdef MSG_FOR_DEBUG
-	for (int i = 0; i < MAX_COOKIE_LEN; i++)
-	{
-		MSG_DEBUG("cookie : [%02x]", pCookie[i]);
-	}
-#endif
-
-	// Check Cookie
-	size_t cookieSize;
-	gid_t gid;
-
-	cookieSize = security_server_get_cookie_size();
-
-	MSG_DEBUG("cookie size : [%d]", cookieSize);
-
-//	char cookie[MAX_COOKIE_LEN];
-
-	// Get GID
-	if (CmdType == MSG_CMD_REG_INCOMING_SYNCML_MSG_CB)
-	{
-		MSG_DEBUG("get GID for message_sync");
-		gid = security_server_get_gid("message_sync");
-	}
-	else if (CmdType == MSG_CMD_REG_INCOMING_LBS_MSG_CB)
-	{
-		MSG_DEBUG("get GID for message_lbs");
-		gid = security_server_get_gid("message_lbs");
-	}
-	else
-	{
-		MSG_DEBUG("get GID for message");
-		gid = security_server_get_gid("message");
-	}
-
-	MSG_DEBUG("gid [%d]", gid);
-
-	int retVal = 0;
-
-	retVal = security_server_check_privilege(pCookie, gid);
-
-	if (retVal < 0)
-	{
-		if (retVal == SECURITY_SERVER_API_ERROR_ACCESS_DENIED)
-		{
-			MSG_DEBUG("access denied !! [%d]", retVal);
+		int ret = security_server_check_privilege_by_sockfd(fd, "msg-service::read", "rw");
+		if (ret == SECURITY_SERVER_API_ERROR_ACCESS_DENIED) {
+			MSG_DEBUG("No msg-service::read rw rule.");
+			bAllowed = false;
 		}
-		else
-		{
-			MSG_DEBUG("fail to check privilege [%d]", retVal);
+	}
+	break;
+	case MSG_CMD_OPEN_HANDLE:
+	case MSG_CMD_SUBMIT_REQ:
+	case MSG_CMD_SET_CB_OPT:
+	case MSG_CMD_ADD_PUSH_EVENT:
+	case MSG_CMD_DELETE_PUSH_EVENT:
+	{
+		int ret = security_server_check_privilege_by_sockfd(fd, "msg-service::write", "rw");
+		if (ret == SECURITY_SERVER_API_ERROR_ACCESS_DENIED) {
+			MSG_DEBUG("No msg-service::write rw rule.");
+			bAllowed = false;
 		}
-
-		return false;
+	}
+	break;
+	case MSG_CMD_REG_INCOMING_MSG_CB:
+	{
+		int ret = security_server_check_privilege_by_sockfd(fd, "msg-service::smstrigger", "rw");
+		if (ret == SECURITY_SERVER_API_ERROR_ACCESS_DENIED) {
+			MSG_DEBUG("No msg-service::smstrigger rw rule.");
+			bAllowed = false;
+		}
+	}
+	break;
+	case MSG_CMD_REG_INCOMING_CB_MSG_CB:
+	{
+		int ret = security_server_check_privilege_by_sockfd(fd, "msg-service::cellbroadcast", "rw");
+		if (ret == SECURITY_SERVER_API_ERROR_ACCESS_DENIED) {
+			MSG_DEBUG("No msg-service::cellbroadcast rw rule.");
+			bAllowed = false;
+		}
+	}
+	break;
+	case MSG_CMD_REG_INCOMING_PUSH_MSG_CB:
+	{
+		int ret = security_server_check_privilege_by_sockfd(fd, "msg-service::wappush", "rw");
+		if (ret == SECURITY_SERVER_API_ERROR_ACCESS_DENIED) {
+			MSG_DEBUG("No msg-service::wappush rw rule.");
+			bAllowed = false;
+		}
+	}
+	break;
 	}
 
-	MSG_DEBUG("privilege check success !!");
-
-	return true;
+	return bAllowed;
 }
 
 
