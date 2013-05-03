@@ -2,11 +2,11 @@
 	<request>
 		<domain name="msg-service"/>
 	</request>
-        
-	<assign>
-                <filesystem path="/etc/rc.d/init.d/msg-server" label="_" exec_label="none"/>
-                <filesystem path="/etc/rc.d/rc3.d/S70msg-server" label="_" exec_label="none"/>
-                <filesystem path="/etc/rc.d/rc5.d/S70msg-server" label="_" exec_label="none"/>
-        </assign>
 
+	<assign>
+		<filesystem path="/etc/rc.d/init.d/msg-server" label="_" exec_label="none"/>
+		<filesystem path="/etc/rc.d/rc3.d/S70msg-server" label="_" exec_label="none"/>
+		<filesystem path="/etc/rc.d/rc5.d/S70msg-server" label="_" exec_label="none"/>
+		<filesystem path="/etc/config/sysinfo-message.xml" label="_"/>
+	</assign>
 </manifest>
