@@ -111,7 +111,7 @@ mkdir -p %{buildroot}/var/log/msgfw
 %make_install
 
 mkdir -p %{buildroot}/usr/lib/systemd/user/tizen-middleware.target.wants
-install -m 0644 %SOURCE101 %{buildroot}/usr/lib/systemd/user/
+#install -m 0644 %SOURCE101 %{buildroot}/usr/lib/systemd/user/
 ln -s ../msg-service.service %{buildroot}/usr/lib/systemd/user/tizen-middleware.target.wants/msg-service.service
 ln -s ../msg-service-log.service %{buildroot}/usr/lib/systemd/user/tizen-middleware.target.wants/msg-service-log.service
 
@@ -541,6 +541,7 @@ fi
 /usr/lib/systemd/user/tizen-middleware.target.wants/msg-service.service
 /usr/lib/systemd/user/tizen-middleware.target.wants/msg-service-log.service
 /usr/share/license/msg-service/LICENSE.Flora
+/opt/etc/smack/accesses.d/msg-service.rule
 /etc/config/sysinfo-message.xml
 
 %attr(0755,app,app)/var/log/msgfw
