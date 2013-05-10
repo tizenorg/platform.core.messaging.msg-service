@@ -100,7 +100,7 @@ private:
 
 	void handleRequest(int fd);
 	void cleanup(int fd);
-	bool checkPrivilege(MSG_CMD_TYPE_T CmdType, const char *pCookie);
+	bool checkPrivilege(int fd, MSG_CMD_TYPE_T CmdType);
 
 	static MsgTransactionManager* pInstance;
 

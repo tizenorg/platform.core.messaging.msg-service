@@ -2,7 +2,11 @@
 	<define>
 		<domain name="msg-service" policy="restricted" plist="msg-service-tools"/>
 		<provide>
-			<label name="msg-service::db"/>
+			<label name="msg-service::read"/>
+			<label name="msg-service::write"/>
+			<label name="msg-service::smstrigger"/>
+			<label name="msg-service::cellbroadcast"/>
+			<label name="msg-service::wappush"/>
 		</provide>
 	</define>
 	<request>

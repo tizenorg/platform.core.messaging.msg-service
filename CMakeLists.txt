@@ -64,6 +64,9 @@ INSTALL(FILES ${CMAKE_CURRENT_SOURCE_DIR}/packaging/msg-service-log.service DEST
 # LICENSE file
 INSTALL(FILES ${CMAKE_SOURCE_DIR}/LICENSE.Flora DESTINATION /usr/share/license/msg-service)
 
+# SMACK rule file
+INSTALL(FILES ${CMAKE_SOURCE_DIR}/msg-service.rule DESTINATION /opt/etc/smack/accesses.d/)
+
 #Install sysinfo file to provide which features are supported.
 INSTALL(FILES ${CMAKE_SOURCE_DIR}/sysinfo-message.xml DESTINATION /etc/config)
 INSTALL(FILES ${CMAKE_SOURCE_DIR}/sysinfo-message.emul.xml DESTINATION /etc/config)
