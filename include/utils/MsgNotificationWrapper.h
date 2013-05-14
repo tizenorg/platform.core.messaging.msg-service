@@ -29,22 +29,25 @@
 ==================================================================================================*/
 #define MSG_APP_PACKAGE_NAME	"message"
 #define MSG_SYS_PACKAGE_NAME	"sys_string"
-#define NORMAL_MSG_ICON_PATH	"/usr/apps/org.tizen.message/res/icons/default/small/org.tizen.message.noti.png"
-#define VOICE_MSG_ICON_PATH		"/usr/apps/org.tizen.message/res/icons/default/small/org.tizen.message.voice.png"
-#define CB_MSG_ICON_PATH			"/usr/apps/org.tizen.message/res/icons/default/small/org.tizen.message.noti.png"
-#define NOTI_MSG_ICON_PATH		"/usr/apps/org.tizen.message/res/icons/default/small/org.tizen.message.noti.png"
+#define NORMAL_MSG_ICON_PATH		"/opt/usr/apps/8r4r5ddzzn/shared/res/screen-density-xhigh/mainmenu.png"
+#define VOICE_MSG_ICON_PATH			"/opt/usr/apps/8r4r5ddzzn/shared/res/screen-density-xhigh/mainmenu.png"
+#define CB_MSG_ICON_PATH				"/opt/usr/apps/8r4r5ddzzn/shared/res/screen-density-xhigh/mainmenu.png"
+#define NOTI_MSG_ICON_PATH			"/opt/usr/apps/8r4r5ddzzn/shared/res/screen-density-xhigh/mainmenu.png"
 
 #define MSG_APP_LOCALEDIR			"/usr/apps/org.tizen.message/res/locale"
+
 #define SENDING_MULTIMEDIA_MESSAGE_FAILED	"Sending multimedia message failed"
 #define MULTIMEDIA_MESSAGE_SENT					"Multimedia message sent"
 #define RETRIEVING_MESSAGE_FAILED					"Retrieving message failed"
 #define MESSAGE_RETRIEVED								"Message retrieved"
-#define SMS_MESSAGE_SENT					"Message sent"
-#define SMS_MESSAGE_SENDING_FAIL			"Sending message failed"
+#define SMS_MESSAGE_SENT								"Message sent"
+#define SMS_MESSAGE_SENDING_FAIL					"Sending message failed"
+
 #define MESSAGE						"Message"
 #define NEW_MESSAGE				"New message"
 #define NEW_MESSAGES			"New messages"
-#define MSG_SYS_LOCALEDIR			"/usr/share/locale"
+
+#define MSG_SYS_LOCALEDIR	"/usr/share/locale"
 
 #define NOTIFICATION_PRIV_ID DEFAULT_SETTING_PATH"/notification_priv_id"
 

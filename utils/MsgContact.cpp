@@ -492,10 +492,12 @@ bool MsgUpdateContact(int index, int type)
 		return false;
 	}
 
+	MSG_DEBUG("_contacts_contact.number count [%d]", count);
+
 	if (count > 0) {
 		for(unsigned int i=0; i < count; i++)
 		{
-			MSG_DEBUG("Add Contact Data");
+			MSG_DEBUG("Add Number Contact Data");
 
 			contacts_record_h number = NULL;
 
@@ -521,9 +523,47 @@ bool MsgUpdateContact(int index, int type)
 				}
 			}
 		}
-	} else {// No phone number in contact
+	}
+
+	count = 0;
+	ret = contacts_record_get_child_record_count(contact, _contacts_contact.email, &count);
+	if (ret != CONTACTS_ERROR_NONE) {
+		MSG_DEBUG("contacts_record_get_child_record_count() Error [%d]", ret);
 		contacts_record_destroy(contact, true);
-		return true;
+		return false;
+	}
+
+	MSG_DEBUG("_contacts_contact.email count [%d]", count);
+
+	if (count > 0) {
+		for(unsigned int i=0; i < count; i++)
+		{
+			MSG_DEBUG("Add Email Contact Data");
+
+			contacts_record_h email = NULL;
+
+			ret = contacts_record_get_child_record_at_p(contact, _contacts_contact.email, i, &email);
+			if (ret != CONTACTS_ERROR_NONE) {
+				MSG_DEBUG("contacts_record_get_child_record_at_p() Error [%d]", ret);
+				contacts_record_destroy(contact, true);
+				return false;
+			}
+
+			char* strNumber = NULL;
+			ret = contacts_record_get_str_p(email, _contacts_email.email, &strNumber);
+			if (ret != CONTACTS_ERROR_NONE) {
+				MSG_DEBUG("contacts_record_get_str_p() Error [%d]", ret);
+				contacts_record_destroy(contact, true);
+				return false;
+			}
+
+			if (strNumber != NULL) {
+				MSG_DEBUG("email = %s", strNumber);
+				if (!MsgInsertContact(&contactInfo, strNumber)) {
+					MSG_DEBUG("MsgInsertContact fail.");
+				}
+			}
+		}
 	}
 
 	MsgStoSetConversationDisplayName(&ContactDbHandle, index);
