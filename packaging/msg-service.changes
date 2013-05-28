@@ -1,2 +1,5 @@
+* Tue May 28 2013 Baptiste DURAND <baptiste.durand@eurogiciel.fr> accepted/tizen/20130520.101103@c0c217f
+- Fix spec file according to rmplint rules
+
 * Tue May 28 2013 Baptiste DURAND <baptiste.durand@eurogiciel.fr> accepted/tizen/20130520.101103@95626c3
 - Fix x86_64 build-install Compliance
