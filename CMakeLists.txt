@@ -43,7 +43,7 @@ INSTALL(FILES ${MAPI-HEADERS} DESTINATION include/msg-service)
 ##########################################################
 # Install etc Files
 ##########################################################
-
+CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/config/plugin.cfg.in ${CMAKE_CURRENT_SOURCE_DIR}/config/plugin.cfg @ONLY)
 INSTALL(FILES ${CMAKE_CURRENT_SOURCE_DIR}/config/plugin.cfg DESTINATION /usr/share/msg-service)
 
 SET(RINGTONE-FILES

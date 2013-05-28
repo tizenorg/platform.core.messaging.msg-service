@@ -1,0 +1,7 @@
+[sms-plugin]
+type=sms
+path=@LIB_INSTALL_DIR@/libmsg_sms_plugin.so
+
+[mms-plugin]
+type=mms
+path=@LIB_INSTALL_DIR@/libmsg_mms_plugin.so

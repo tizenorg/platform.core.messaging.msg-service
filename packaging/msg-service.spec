@@ -355,7 +355,7 @@ chmod 660 /opt/usr/dbspace/.msg_service.db-journal
 mkdir -p /opt/usr/data/msg-service
 chgrp db_msg_service /opt/usr/data/msg-service
 
-if [ -f /usr/lib/rpm-plugins/msm.so ]
+if [ -f %{_libdir}/rpm-plugins/msm.so ]
 then
 	chsmack -a 'msg-service::db' /opt/usr/dbspace/.msg_service.db*
         chsmack -a "_" -e "_" /etc/rc.d/init.d/msg-server
