@@ -110,10 +110,10 @@ mkdir -p %{buildroot}/var/log/msgfw
 
 %make_install
 
-mkdir -p %{buildroot}/usr/lib/systemd/user/tizen-middleware.target.wants
-#install -m 0644 %SOURCE101 %{buildroot}/usr/lib/systemd/user/
-ln -s ../msg-service.service %{buildroot}/usr/lib/systemd/user/tizen-middleware.target.wants/msg-service.service
-ln -s ../msg-service-log.service %{buildroot}/usr/lib/systemd/user/tizen-middleware.target.wants/msg-service-log.service
+mkdir -p %{buildroot}%{_unitdir_user}/tizen-middleware.target.wants
+#install -m 0644 %SOURCE101 %{buildroot}%{_unitdir_user}/
+ln -s ../msg-service.service %{buildroot}%{_unitdir_user}/tizen-middleware.target.wants/msg-service.service
+ln -s ../msg-service-log.service %{buildroot}%{_unitdir_user}/tizen-middleware.target.wants/msg-service-log.service
 
 mkdir -p  %{buildroot}%{_sysconfdir}/rc.d/rc3.d
 ln -s %{_sysconfdir}/rc.d/init.d/msg-server  %{buildroot}%{_sysconfdir}/rc.d/rc3.d/S70msg-server
@@ -536,10 +536,10 @@ fi
 %{_sysconfdir}/rc.d/init.d/msg-server
 %{_sysconfdir}/rc.d/rc3.d/S70msg-server
 %{_sysconfdir}/rc.d/rc5.d/S70msg-server
-/usr/lib/systemd/user/msg-service.service
-/usr/lib/systemd/user/msg-service-log.service
-/usr/lib/systemd/user/tizen-middleware.target.wants/msg-service.service
-/usr/lib/systemd/user/tizen-middleware.target.wants/msg-service-log.service
+%{_unitdir_user}/msg-service.service
+%{_unitdir_user}/msg-service-log.service
+%{_unitdir_user}/tizen-middleware.target.wants/msg-service.service
+%{_unitdir_user}/tizen-middleware.target.wants/msg-service-log.service
 /usr/share/license/msg-service/LICENSE.Flora
 /opt/etc/smack/accesses.d/msg-service.rule
 /etc/config/sysinfo-message.xml
