@@ -6,6 +6,7 @@ Summary:        Messaging Framework Library
 Group:          System/Libraries
 Source0:        %{name}-%{version}.tar.gz
 Source101:      msg-service.service
+Source1001: 	msg-service.manifest
 
 Requires(post): /usr/bin/sqlite3
 Requires(post): /usr/bin/vconftool
@@ -95,6 +96,7 @@ Description: MMS plugin library
 
 %prep
 %setup -q
+cp %{SOURCE1001} .
 
 
 %build
@@ -500,7 +502,7 @@ fi
 %postun -n mms-plugin -p /sbin/ldconfig
 
 %files
-%manifest msg-service.manifest
+%manifest %{name}.manifest
 %defattr(-,root,root,-)
 %dir %attr(775,root,db_msg_service) /opt/usr/data/msg-service
 %{_libdir}/libmsg_plugin_manager.so
@@ -513,13 +515,14 @@ fi
 /usr/share/license/msg-service/LICENSE.Flora
 
 %files devel
+%manifest %{name}.manifest
 %defattr(-,root,root,-)
 %{_libdir}/libmsg_mapi.so
 %{_libdir}/pkgconfig/msg-service.pc
 %{_includedir}/msg-service/*
 
 %files tools
-%manifest msg-service-tools.manifest
+%manifest %{name}.manifest
 %defattr(-,root,root,-)
 %{_bindir}/msg-helper
 %{_bindir}/msg-server
@@ -540,13 +543,13 @@ fi
 
 
 %files -n sms-plugin
-%manifest sms-plugin.manifest
+%manifest %{name}.manifest
 %defattr(-,root,root,-)
 %{_libdir}/libmsg_sms_plugin.so
 /usr/share/license/msg-service/LICENSE.Flora
 
 %files -n mms-plugin
-%manifest mms-plugin.manifest
+%manifest %{name}.manifest
 %defattr(-,root,root,-)
 %{_libdir}/libmsg_mms_plugin.so
 /usr/share/license/msg-service/LICENSE.Flora
