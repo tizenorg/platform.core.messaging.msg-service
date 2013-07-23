@@ -5,7 +5,6 @@ Description=Start the msg-server
 [Service]
 ExecStart=/usr/bin/msg-server
 Nice=5
-OOMScoreAdjust=-100
 Restart=always
 
 [Install]
