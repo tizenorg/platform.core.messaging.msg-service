@@ -49,7 +49,11 @@ EXPORT_API int msg_submit_req(msg_handle_t handle, msg_struct_t req)
 	catch (MsgException& e)
 	{
 		MSG_FATAL("%s", e.what());
-		return MSG_ERR_TRANSPORT_ERROR;
+
+		if ((e.errorCode() == MsgException::IPC_ERROR) || (e.errorCode() == MsgException::FILE_ERROR))
+			return MSG_ERR_STORAGE_ERROR;
+		else
+			return MSG_ERR_TRANSPORT_ERROR;
 	}
 
 	return err;

@@ -50,7 +50,7 @@ bool MsgExistAddress(MsgDbHandler *pDbHandle, const MSG_MESSAGE_INFO_S *pMsg, ms
 
 int MsgStoGetUnreadCnt(MsgDbHandler *pDbHandle, MSG_MAIN_TYPE_T MsgType);
 msg_error_t MsgStoAddContactInfo(MsgDbHandler *pDbHandle, MSG_CONTACT_INFO_S *pContactInfo, const char *pNumber);
-msg_error_t MsgStoClearContactInfo(MsgDbHandler *pDbHandle, int ContactId);
+msg_error_t MsgStoResetContactInfo(MsgDbHandler *pDbHandle, int ContactId);
 msg_error_t MsgStoClearContactInfo(MsgDbHandler *pDbHandle, int ContactId, const char *pNumber);
 msg_error_t MsgStoGetMmsRawFilePath(MsgDbHandler *pDbHandle, msg_message_id_t msgId, char *pFilePath);
 bool MsgStoCheckReadReportRequested(MsgDbHandler *pDbHandle, msg_message_id_t MsgId);
@@ -58,5 +58,6 @@ bool MsgStoCheckReadReportIsSent(MsgDbHandler *pDbHandle, msg_message_id_t MsgId
 msg_error_t MsgStoUpdateNetworkStatus(MsgDbHandler *pDbHandle, MSG_MESSAGE_INFO_S *pMsgInfo, msg_network_status_t status);
 char *MsgStoReplaceString(const char *org_str, const char *old_str, const char *new_str);
 void MsgConvertNumber(const char* pSrcNum, char* pDestNum);
+msg_error_t MsgStoRefreshConversationDisplayName();
 #endif // MSG_UTIL_STORAGE_H
 

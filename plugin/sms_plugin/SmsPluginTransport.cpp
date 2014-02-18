@@ -286,7 +286,7 @@ MSG_DEBUG("address [%s]", tpdu.data.submit.destAddress.address);
 			}
 			else
 			{
-				MsgInsertTicker("Sending SMS is failed", NULL);
+				//MsgInsertTicker("Sending SMS is failed", NULL);
 				MsgInsertTicker("Sending SMS is failed", SMS_MESSAGE_SENDING_FAIL);
 
 				SmsPluginEventHandler::instance()->handleSentStatus(MSG_NETWORK_SEND_FAIL);

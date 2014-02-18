@@ -460,13 +460,14 @@ int MsgIncomingMMSConfMsgHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 	msgIds[0] = msgInfo.msgId;
 	msgIdList.msgIdList = msgIds;
 
-	err = MsgStoGetAddrInfo(msgInfo.msgId, &(msgInfo.addressList[0]));
+	//err = MsgStoGetAddrInfo(msgInfo.msgId, &(msgInfo.addressList[0]));
+	err = MsgStoGetOrgAddressList(&msgInfo);
 
 	if (err == MSG_SUCCESS) {
-		MSG_DEBUG("MmsStoGetAddrInfo() success.");
-		msgInfo.nAddressCnt = 1;
+		MSG_DEBUG("MsgStoGetOrgAddressList() success.");
+//		msgInfo.nAddressCnt = 1;
 	} else {
-		MSG_DEBUG("MmsStoGetAddrInfo() fail.");
+		MSG_DEBUG("MsgStoGetOrgAddressList() fail.");
 	}
 
 	if(msgInfo.msgType.subType == MSG_RETRIEVE_AUTOCONF_MMS || msgInfo.msgType.subType == MSG_RETRIEVE_MANUALCONF_MMS) {

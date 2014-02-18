@@ -20,6 +20,8 @@
 #include <network-cm-intf.h>
 #include <network-pm-intf.h>
 #include "MsgMutex.h"
+#include <glib.h>
+#include "net_connection.h"
 
 class MmsPluginCmAgent
 {
@@ -32,23 +34,17 @@ public:
 
 	bool getCmStatus() { return isCmOpened; }
 
-	void processCBdatas(net_event_info_t *event_cb, void *user_data);
+	void open_callback(connection_error_e result, void* user_data);
+	void close_callback(connection_error_e result, void* user_data);
 
-	bool getDeviceName(char *deviceName);
-	bool getHomeURL(char *homeURL);
-	bool getProxyAddr(char *proxyAddr);
-	int getProxyPort();
-
+	bool getInterfaceName(const char **deviceName);
+	bool getProxyAddr(const char **proxyAddr);
+	bool getHomeUrl(const char **homeURL);
 private:
 	MmsPluginCmAgent();
 	~MmsPluginCmAgent();
 
 	static MmsPluginCmAgent *pInstance;
-
-	/* register/deregister is called once at initialization/finalization of MMS plugin */
-	bool registration();
-	void deregistration();
-
 
 	void lock() { mx.lock(); }
 	void unlock() { mx.unlock(); }
@@ -56,12 +52,15 @@ private:
 	void setCmStatus() { isCmOpened = true; }
 	void resetCmStatus() { isCmOpened = false; }
 
-	// shared variable between CmAgent and Dnet callback
 	bool isCmOpened;
+	bool isCmRegistered;
+
+	char *home_url;
+	char *interface_name;
+	char *proxy_address;
 	Mutex mx;
 	CndVar cv;
 
-	net_profile_info_t mmsProfile;
 };
 
 #endif //MMS_PLUGIN_CONNMAN_H

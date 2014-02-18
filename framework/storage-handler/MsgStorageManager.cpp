@@ -924,7 +924,8 @@ msg_error_t MsgStoUpdateMms(MSG_MESSAGE_INFO_S *pMsg)
 		dbHandle.finalizeQuery();
 		dbHandle.endTrans(true);
 	} else {
-		MsgStoUpdateMMSMessage(pMsg);
+		if (MsgStoUpdateMMSMessage(pMsg) != MSG_SUCCESS)
+			MSG_DEBUG("MsgStoUpdateMMSMessage is failed");
 	}
 	return MSG_SUCCESS;
 }

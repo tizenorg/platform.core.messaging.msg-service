@@ -25,6 +25,7 @@
 #include "MsgStorageHandler.h"
 #include "MsgPluginManager.h"
 #include "MsgTransManager.h"
+#include "MsgContact.h"
 #include "MsgCmdHandler.h"
 
 
@@ -1467,6 +1468,22 @@ int MsgUpdatePushEventHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 
 	// Make Event Data
 	eventSize = MsgMakeEvent(NULL, 0, MSG_EVENT_UPDATE_PUSH_EVENT, err, (void**)ppEvent);
+
+	return eventSize;
+}
+
+
+int MsgContactSyncEventHandler(const MSG_CMD_S *pCmd, char **ppEvent)
+{
+	msg_error_t err = MSG_SUCCESS;
+
+
+	int eventSize = 0;
+
+	MsgSyncContact();
+
+	// Make Event Data
+	eventSize = MsgMakeEvent(NULL, 0, MSG_EVNET_CONTACT_SYNC, err, (void**)ppEvent);
 
 	return eventSize;
 }

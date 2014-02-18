@@ -166,6 +166,8 @@ MsgTransactionManager::MsgTransactionManager() : running(false), mx(), cv()
 	handlerMap[MSG_CMD_DELETE_PUSH_EVENT] = &MsgDeletePushEventHandler;
 	handlerMap[MSG_CMD_UPDATE_PUSH_EVENT] = &MsgUpdatePushEventHandler;
 	handlerMap[MSG_CMD_DELETE_MESSAGE_BY_LIST] = &MsgDeleteMessageByListHandler;
+
+	handlerMap[MSG_CMD_CONTACT_SYNC] = &MsgContactSyncEventHandler;
 }
 
 

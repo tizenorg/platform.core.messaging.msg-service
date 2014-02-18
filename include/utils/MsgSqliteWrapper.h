@@ -42,16 +42,20 @@
 #define MSGFW_REPORT_TABLE_NAME				"MSG_REPORT_TABLE"
 #define MSGFW_PUSH_CONFIG_TABLE_NAME			"MSG_PUSHCFG_TABLE"
 #define MSGFW_MMS_PREVIEW_TABLE_NAME			"MSG_MMS_PREVIEW_INFO_TABLE"
+
+#define MSGFW_TMP_MSGID_TABLE_NAME			"MSG_TMP_MSGID_TABLE"
+
 #define MAX_QUERY_LEN					3072
 #define MAX_FOLDER_NAME_LEN		20
 #define MAX_ACCOUNT_NAME_LEN	51
 
+#define MSGFW_DB_ESCAPE_CHAR		'\\'
 
 /*==================================================================================================
                                      FUNCTION PROTOTYPES
 ==================================================================================================*/
 void	MsgReleaseMemoryDB();
-
+msg_error_t MsgConvertStrWithEscape(const char *input, char **output);
 
 /*==================================================================================================
                                      CLASS DEFINITIONS

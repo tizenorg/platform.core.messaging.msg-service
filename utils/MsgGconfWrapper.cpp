@@ -58,6 +58,10 @@ static void MsgVconfCB(keynode_t *key, void* data)
 	} else if (!strcmp(keyStr, VCONFKEY_CISSAPPL_AUTO_REJECT_UNKNOWN_BOOL)) {
 		bUnknownAutoReject = vconf_keynode_get_bool(key);
 		MSG_DEBUG("[%s] key CB called. set to [%d].", VCONFKEY_CISSAPPL_AUTO_REJECT_UNKNOWN_BOOL, bUnknownAutoReject);
+	} else if (!strcmp(keyStr, VCONFKEY_CONTACTS_SVC_NAME_DISPLAY_ORDER)) {
+		int contactDisplayOrder = vconf_keynode_get_int(key);
+		MSG_DEBUG("[%s] key CB called. Apply [%d]", VCONFKEY_CONTACTS_SVC_NAME_DISPLAY_ORDER, contactDisplayOrder);
+		MsgStoRefreshConversationDisplayName();
 	} else {
 		MSG_DEBUG("key did not match.");
 	}
@@ -284,11 +288,12 @@ void MsgSettingRegVconfCB()
 
 	MsgSettingRegVconfCBCommon(VCONFKEY_CISSAPPL_AUTO_REJECT_BOOL, MsgVconfCB);
 	MsgSettingRegVconfCBCommon(VCONFKEY_CISSAPPL_AUTO_REJECT_UNKNOWN_BOOL, MsgVconfCB);
+	MsgSettingRegVconfCBCommon(VCONFKEY_CONTACTS_SVC_NAME_DISPLAY_ORDER, MsgVconfCB);
 }
 
 void MsgSettingRemoveVconfCB()
 {
 	MsgSettingRemoveVconfCBCommon(VCONFKEY_CISSAPPL_AUTO_REJECT_BOOL, MsgVconfCB);
 	MsgSettingRemoveVconfCBCommon(VCONFKEY_CISSAPPL_AUTO_REJECT_UNKNOWN_BOOL, MsgVconfCB);
-
+	MsgSettingRemoveVconfCBCommon(VCONFKEY_CONTACTS_SVC_NAME_DISPLAY_ORDER, MsgVconfCB);
 }

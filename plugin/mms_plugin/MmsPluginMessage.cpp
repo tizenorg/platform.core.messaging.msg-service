@@ -647,7 +647,7 @@ bool MmsComposeMessage(MmsMsg *pMmsMsg, MSG_MESSAGE_INFO_S *pMsgInfo, MSG_SENDIN
 
 	//setting adddress
 	MmsSetMsgAddressList(&pMmsMsg->mmsAttrib, pMsgInfo);
-	MmsGetMsgBodyfromMsgInfo(pMsgInfo, pMsgData, pFileData);
+	//MmsGetMsgBodyfromMsgInfo(pMsgInfo, pMsgData, pFileData);
 
 	int pageCnt = _MsgMmsGetPageCount(pMsgData);
 
@@ -1539,16 +1539,23 @@ bool MmsComposeSendReq(MmsMsg *pMmsMsg, MSG_MESSAGE_INFO_S *pMsgInfo, MSG_SENDIN
 			for (int j = 0; j < mediaCnt; ++j) {
 				MMS_MEDIA_S *pMedia = _MsgMmsGetMedia(pPage, j);
 				if (pMedia->szFilePath[0] != 0) {
-					MMS_MULTIPART_DATA_S pMultipart;
-					bzero(&pMultipart, sizeof(MMS_MULTIPART_DATA_S));
-					snprintf(pMultipart.szContentID, sizeof(pMultipart.szContentID), "%s", pMedia->szContentID);
-					snprintf(pMultipart.szContentLocation, sizeof(pMultipart.szContentLocation), "%s", pMedia->szContentLocation);
-					snprintf(pMultipart.szFileName, sizeof(pMultipart.szFileName), "%s", pMedia->szFileName);
-					snprintf(pMultipart.szFilePath, sizeof(pMultipart.szFilePath), "%s", pMedia->szFilePath);
-					snprintf(pMultipart.szContentType, sizeof(pMultipart.szContentType), "%s", pMedia->szContentType);
+					MMS_MULTIPART_DATA_S *pMultipart = (MMS_MULTIPART_DATA_S *)calloc(1, sizeof(MMS_MULTIPART_DATA_S));
+					if (pMultipart) {
+						snprintf(pMultipart->szContentID, sizeof(pMultipart->szContentID), "%s", pMedia->szContentID);
+						snprintf(pMultipart->szContentLocation, sizeof(pMultipart->szContentLocation), "%s", pMedia->szContentLocation);
+						snprintf(pMultipart->szFileName, sizeof(pMultipart->szFileName), "%s", pMedia->szFileName);
+						snprintf(pMultipart->szFilePath, sizeof(pMultipart->szFilePath), "%s", pMedia->szFilePath);
+						snprintf(pMultipart->szContentType, sizeof(pMultipart->szContentType), "%s", pMedia->szContentType);
 
-					if (!MmsInsertPartFromMultipart(pMmsMsg, &pMultipart))
-						return false;
+						if (!MmsInsertPartFromMultipart(pMmsMsg, pMultipart)) {
+							free(pMultipart);
+							pMultipart = NULL;
+							return false;
+						}
+
+						free(pMultipart);
+						pMultipart = NULL;
+					}
 				}
 			}
 		}
@@ -1558,16 +1565,23 @@ bool MmsComposeSendReq(MmsMsg *pMmsMsg, MSG_MESSAGE_INFO_S *pMsgInfo, MSG_SENDIN
 	for (int i = 0; i < _MsgMmsGetAttachCount(pMsgData); ++i) {
 		MMS_ATTACH_S *pMedia = _MsgMmsGetAttachment(pMsgData, i);
 		if (pMedia->szFilePath[0] != 0) {
-			MMS_MULTIPART_DATA_S pMultipart;
-			bzero(&pMultipart, sizeof(MMS_MULTIPART_DATA_S));
-			snprintf(pMultipart.szContentID, sizeof(pMultipart.szContentID), "%s", pMedia->szFileName);
-			snprintf(pMultipart.szContentLocation, sizeof(pMultipart.szContentLocation), "%s", pMedia->szFileName);
-			snprintf(pMultipart.szFileName, sizeof(pMultipart.szFileName), "%s", pMedia->szFileName);
-			snprintf(pMultipart.szFilePath, sizeof(pMultipart.szFilePath), "%s", pMedia->szFilePath);
-			snprintf(pMultipart.szContentType, sizeof(pMultipart.szContentType), "%s", pMedia->szContentType);
+			MMS_MULTIPART_DATA_S *pMultipart = (MMS_MULTIPART_DATA_S *)calloc(1, sizeof(MMS_MULTIPART_DATA_S));
+			if (pMultipart) {
+				snprintf(pMultipart->szContentID, sizeof(pMultipart->szContentID), "%s", pMedia->szFileName);
+				snprintf(pMultipart->szContentLocation, sizeof(pMultipart->szContentLocation), "%s", pMedia->szFileName);
+				snprintf(pMultipart->szFileName, sizeof(pMultipart->szFileName), "%s", pMedia->szFileName);
+				snprintf(pMultipart->szFilePath, sizeof(pMultipart->szFilePath), "%s", pMedia->szFilePath);
+				snprintf(pMultipart->szContentType, sizeof(pMultipart->szContentType), "%s", pMedia->szContentType);
 
-			if (!MmsInsertPartFromMultipart(pMmsMsg, &pMultipart))
-				return false;
+				if (!MmsInsertPartFromMultipart(pMmsMsg, pMultipart)) {
+					free(pMultipart);
+					pMultipart = NULL;
+					return false;
+				}
+
+				free(pMultipart);
+				pMultipart = NULL;
+			}
 		}
 	}
 

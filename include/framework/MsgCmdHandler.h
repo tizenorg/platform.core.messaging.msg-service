@@ -104,5 +104,7 @@ int MsgAddPushEventHandler(const MSG_CMD_S *pCmd, char **ppEvent);
 int MsgDeletePushEventHandler(const MSG_CMD_S *pCmd, char **ppEvent);
 int MsgUpdatePushEventHandler(const MSG_CMD_S *pCmd, char **ppEvent);
 
+int MsgContactSyncEventHandler(const MSG_CMD_S *pCmd, char **ppEvent);
+
 
 #endif // MSG_CMD_HANDLER_H

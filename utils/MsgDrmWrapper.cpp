@@ -189,7 +189,7 @@ bool MsgDrmGetContentID(const char *szFileName, char *szContentID, int nContentI
 
 	char strTemp[MSG_MAX_DRM_FILE_PATH + 1] = {0,};
 
-	strncpy(strTemp, szFileName, sizeof(strTemp));
+	strncpy(strTemp, szFileName, MSG_MAX_DRM_FILE_PATH);
 
 	drm_content_info_s  content_info;
 	memset(&content_info, 0x00, sizeof(drm_content_info_s));

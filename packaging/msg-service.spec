@@ -1,7 +1,7 @@
 Name:           msg-service
-Version:        0.9.2
-Release:        3
-License:        Samsung
+Version:        0.9.3
+Release:        1
+License:        Flora-1.1
 Summary:        Messaging Framework Library
 Group:          System/Libraries
 Source0:        %{name}-%{version}.tar.gz
@@ -20,6 +20,7 @@ Requires(post): systemd
 Requires(postun): systemd
 BuildRequires: cmake
 BuildRequires: pkgconfig(alarm-service)
+BuildRequires: pkgconfig(appsvc)
 BuildRequires: pkgconfig(aul)
 BuildRequires: pkgconfig(capi-appfw-application)
 BuildRequires: pkgconfig(contacts-service2)
@@ -47,13 +48,14 @@ BuildRequires: pkgconfig(svi)
 BuildRequires: pkgconfig(tapi)
 BuildRequires: pkgconfig(vconf)
 BuildRequires: pkgconfig(feedback)
+BuildRequires: pkgconfig(capi-network-connection)
 
 %description
 Description: Messaging Framework Library
 
 
 %package devel
-License:        Flora License v1.0
+License:        Flora License v1.1
 Summary:        Messaging Framework Library (development)
 Requires:       %{name} = %{version}-%{release}
 Group:          Development/Libraries
@@ -63,7 +65,7 @@ Description: Messaging Framework Library (development)
 
 
 %package tools
-License:        Flora License v1.0
+License:        Flora License v1.1
 Summary:        Messaging server application
 Requires:       %{name} = %{version}-%{release}
 Group:          TO_BU / FILL_IN
@@ -77,7 +79,7 @@ Description:  Messaging server application
 
 
 %package -n sms-plugin
-License:        Flora License v1.0
+License:        Flora License v1.1
 Summary:        SMS plugin library
 Requires:       %{name} = %{version}-%{release}
 Group:          System/Libraries
@@ -88,7 +90,7 @@ Requires(postun): /sbin/ldconfig
 Description: SMS plugin library
 
 %package -n mms-plugin
-License:        Flora License v1.0
+License:        Flora License v1.1
 Summary:        MMS plugin library
 Requires:       %{name} = %{version}-%{release}
 Group:          System/Libraries
@@ -297,6 +299,9 @@ then
 	LAUNCH INTEGER,
 	APPCODE INTEGER,
 	SECURE INTEGER );
+
+	CREATE TABLE MSG_TMP_MSGID_TABLE (
+	MSG_ID INTEGER );
 
     CREATE INDEX MSG_CONVERSATION_INDEX ON MSG_CONVERSATION_TABLE(CONV_ID);
     CREATE INDEX MSG_FOLDER_INDEX ON MSG_FOLDER_TABLE(FOLDER_ID);

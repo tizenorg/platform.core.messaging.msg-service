@@ -600,10 +600,10 @@ __VCardGetParamVal( char* pVCardRaw, int* pStatus, int* pDLen )
 
 	pBuf = (char *)malloc(len);
 	if(len < 1 || (pBuf  == NULL)) {
-		if (pBuf) {
-			free(pBuf);
-			pBuf = NULL;
-		}
+//		if (pBuf) {
+//			free(pBuf);
+//			pBuf = NULL;
+//		}
 
 		return NULL;
 	}
@@ -904,6 +904,7 @@ vcard_decode( char *pCardRaw )
 						if(start_status == 1) {
 							goto CATCH;
 						}
+
 						if ( ( pVCard = ( VTree* )malloc( sizeof( VTree ) ) ) == NULL ) {
 							start_status = 1;
 							goto CATCH;

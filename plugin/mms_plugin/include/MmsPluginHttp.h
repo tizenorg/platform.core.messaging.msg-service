@@ -19,6 +19,7 @@
 
 #include <map>
 #include "MmsPluginTypes.h"
+#include "MsgMutex.h"
 
 #define MSG_MMS_HH_CONTENT_TYPE     "application/vnd.wap.mms-message"
 #define MSG_MMS_HH_ACCEPT           "application/vnd.wap.mms-message, */*"
@@ -43,23 +44,46 @@ enum _MMS_HTTP_HEADER_FIELD_E {
 	MMS_HH_WAP_PROFILE
 };
 
+typedef enum _MMS_HTTP_TRANSACTION_TYPE_E {
+	MMS_HTTP_TRANSACTION_TYPE_UNKNOWN = 0,
+	MMS_HTTP_TRANSACTION_TYPE_GET,
+	MMS_HTTP_TRANSACTION_TYPE_POST,
+} MMS_HTTP_TRANSACTION_TYPE_E;
+
+typedef enum _MMS_HTTP_ERROR_E {
+	MMS_HTTP_ERROR_NONE = 0,
+	MMS_HTTP_ERROR_ABORT,
+	MMS_HTTP_ERROR_TRANSACTION_TYPE,
+	MMS_HTTP_ERROR_TRANSACTION,
+} MMS_HTTP_ERROR_E;
+
+typedef struct _http_session_info_s {
+	MMS_HTTP_TRANSACTION_TYPE_E transaction_type;
+	const char *url;
+	const char *proxy;
+	const char *interface;
+	const char *post_data;
+	unsigned int post_data_len;
+	char *response_data;
+	unsigned int response_data_len;
+} http_request_info_s;
+
 class MmsPluginHttpAgent
 {
 	public:
 		static MmsPluginHttpAgent *instance();
 
-		int cmdRequest(MMS_HTTP_CMD_TYPE_T cmdType);
+		MMS_HTTP_ERROR_E httpRequest(http_request_info_s &request_info);
 
-		int setSession(mmsTranQEntity *qEntity);
+		void setAbortFlag(){
+			MutexLocker locker(mx);
+			abort = true;
+		};
 
-		void clearSession();
-
-		void SetMMSProfile();
-
-		MMS_PLUGIN_HTTP_DATA_S *getHttpConfigData();
-		MMS_PLUGIN_HTTP_CONTEXT_S *getMmsPldCd();
-
-		MMS_PLUGIN_HTTP_DATA_S httpConfigData;
+		bool getAbortFlag(){
+			MutexLocker locker(mx);
+			return abort;
+		};
 
 	private:
 		static MmsPluginHttpAgent *pInstance;
@@ -67,9 +91,24 @@ class MmsPluginHttpAgent
 		MmsPluginHttpAgent();
 		~MmsPluginHttpAgent();
 
-		MMS_PLUGIN_HTTP_CONTEXT_S mmsPlgCd;
+		void initSession();
+		MMS_HTTP_ERROR_E setSession(http_request_info_s &request_info);
+		MMS_HTTP_ERROR_E startTransaction();
+		void clearSession();
 
-		std::map<MMS_HTTP_CMD_TYPE_T,int(*)(MMS_PLUGIN_HTTP_DATA_S *)> httpCmdHandler;
+		void initAbortFlag(){
+			MutexLocker locker(mx);
+			abort = false;
+		};
+
+		MMS_HTTP_TRANSACTION_TYPE_E transaction_type;
+
+		void *session_header;
+		void *session_option;
+
+		FILE *respfile;
+		bool abort;
+		Mutex mx;
 };
 
 #endif //MMS_PLUGIN_HTTP_H

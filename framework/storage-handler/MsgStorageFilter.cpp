@@ -33,25 +33,39 @@ msg_error_t MsgStoCheckDuplicatedFilter(const MSG_FILTER_S *pFilter)
 	MSG_BEGIN();
 
 	msg_error_t err = MSG_SUCCESS;
-	int rowCnt = 0;
 
+	char *filterStr = NULL;
 	char sqlQuery[MAX_QUERY_LEN+1];
 
-	memset(sqlQuery, 0x00, sizeof(sqlQuery));
+	MsgConvertStrWithEscape(pFilter->filterValue, &filterStr);
 
-	snprintf(sqlQuery, sizeof(sqlQuery), "SELECT FILTER_ID FROM %s WHERE FILTER_TYPE = %d AND FILTER_VALUE = '%s';",
-			MSGFW_FILTER_TABLE_NAME, pFilter->filterType, pFilter->filterValue);
+	memset(sqlQuery, 0x00, sizeof(sqlQuery));
+	snprintf(sqlQuery, sizeof(sqlQuery), "SELECT FILTER_ID FROM %s WHERE FILTER_TYPE = %d AND FILTER_VALUE = ?;",
+			MSGFW_FILTER_TABLE_NAME, pFilter->filterType);
 
 	MSG_DEBUG("sql : %s", sqlQuery);
 
-	err = dbHandle.getTable(sqlQuery, &rowCnt);
+	if (dbHandle.prepareQuery(sqlQuery) != MSG_SUCCESS)
+	{
+	        if (filterStr)
+        		free(filterStr);
+		return MSG_ERR_DB_EXEC;
+	}
 
-	if (err == MSG_SUCCESS)
+	dbHandle.bindText(filterStr, 1);
+
+	err = dbHandle.stepQuery();
+
+	if (err == MSG_ERR_DB_ROW) {
 		err = MSG_ERR_FILTER_DUPLICATED;
-	else if (err == MSG_ERR_DB_NORECORD)
+	} else if (err == MSG_ERR_DB_DONE) {
 		err = MSG_SUCCESS;
+	}
 
-	dbHandle.freeTable();
+	dbHandle.finalizeQuery();
+
+	if (filterStr)
+		free(filterStr);
 
 	MSG_END();
 

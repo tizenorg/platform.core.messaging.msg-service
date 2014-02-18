@@ -140,7 +140,7 @@ msg_error_t MmsAddMessage(MSG_MESSAGE_INFO_S *pMsgInfo, MSG_SENDINGOPT_INFO_S *p
 		return MSG_ERR_PLUGIN_TRANSPORT;
 	}
 
-	MSG_END();
+	//MSG_END();
 
 	return MSG_SUCCESS;
 }

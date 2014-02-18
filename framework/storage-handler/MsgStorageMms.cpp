@@ -74,8 +74,6 @@ msg_error_t MsgStoUpdateMMSMessage(MSG_MESSAGE_INFO_S *pMsg)
 
 	memset(sqlQuery, 0x00, sizeof(sqlQuery));
 
-	dbHandle.beginTrans();
-
 	if(pMsg->msgType.subType == MSG_RETRIEVE_AUTOCONF_MMS || pMsg->msgType.subType == MSG_RETRIEVE_MANUALCONF_MMS) {
 		if( pMsg->networkStatus == MSG_NETWORK_RETRIEVE_SUCCESS ) {
 			snprintf(sqlQuery, sizeof(sqlQuery),
@@ -83,7 +81,6 @@ msg_error_t MsgStoUpdateMMSMessage(MSG_MESSAGE_INFO_S *pMsg)
 					MSGFW_MESSAGE_TABLE_NAME, pMsg->msgType.mainType, pMsg->msgType.subType, pMsg->displayTime, pMsg->networkStatus, pMsg->thumbPath,  pMsg->dataSize, pMsg->msgId);
 
 			if (dbHandle.prepareQuery(sqlQuery) != MSG_SUCCESS) {
-				dbHandle.endTrans(false);
 				return MSG_ERR_DB_PREPARE;
 			}
 
@@ -95,7 +92,6 @@ msg_error_t MsgStoUpdateMMSMessage(MSG_MESSAGE_INFO_S *pMsg)
 					MSGFW_MESSAGE_TABLE_NAME, pMsg->msgType.mainType, pMsg->msgType.subType, pMsg->networkStatus, pMsg->thumbPath,  pMsg->msgId);
 
 			if (dbHandle.prepareQuery(sqlQuery) != MSG_SUCCESS) {
-				dbHandle.endTrans(false);
 				return MSG_ERR_DB_PREPARE;
 			}
 
@@ -108,7 +104,6 @@ msg_error_t MsgStoUpdateMMSMessage(MSG_MESSAGE_INFO_S *pMsg)
 				MSGFW_MESSAGE_TABLE_NAME, pMsg->msgData, pMsg->thumbPath, pMsg->dataSize, pMsg->msgId);
 
 		if (dbHandle.prepareQuery(sqlQuery) != MSG_SUCCESS) {
-			dbHandle.endTrans(false);
 			return MSG_ERR_DB_PREPARE;
 		}
 
@@ -119,14 +114,12 @@ msg_error_t MsgStoUpdateMMSMessage(MSG_MESSAGE_INFO_S *pMsg)
 				MSGFW_MESSAGE_TABLE_NAME, pMsg->msgType.mainType, pMsg->msgType.subType, pMsg->folderId, pMsg->networkStatus, pMsg->msgId);
 
 		if (dbHandle.prepareQuery(sqlQuery) != MSG_SUCCESS) {
-			dbHandle.endTrans(false);
 			return MSG_ERR_DB_PREPARE;
 		}
 	}
 
 	if (dbHandle.stepQuery() != MSG_ERR_DB_DONE) {
 		dbHandle.finalizeQuery();
-		dbHandle.endTrans(false);
 		MSG_DEBUG("Update MMS Message. Fail [%s]", sqlQuery);
 		return MSG_ERR_DB_STEP;
 	}
@@ -143,7 +136,6 @@ msg_error_t MsgStoUpdateMMSMessage(MSG_MESSAGE_INFO_S *pMsg)
 
 	if (dbHandle.getTable(sqlQuery, &row) != MSG_SUCCESS) {
 		dbHandle.freeTable();
-		dbHandle.endTrans(false);
 		return MSG_ERR_DB_PREPARE;
 	}
 
@@ -155,20 +147,16 @@ msg_error_t MsgStoUpdateMMSMessage(MSG_MESSAGE_INFO_S *pMsg)
 		if (MsgStoUpdateConversation(&dbHandle, convId) != MSG_SUCCESS) {
 			MSG_DEBUG("MsgStoUpdateConversation() Error");
 			dbHandle.freeTable();
-			dbHandle.endTrans(false);
-
 			return MSG_ERR_STORAGE_ERROR;
 		}
 
 	} else {
 		MSG_DEBUG("MsgStepQuery() Error [%s]", sqlQuery);
 		dbHandle.freeTable();
-		dbHandle.endTrans(false);
 		return MSG_ERR_DB_STEP;
 	}
 
 	dbHandle.freeTable();
-	dbHandle.endTrans(true);
 
 	MSG_END();
 

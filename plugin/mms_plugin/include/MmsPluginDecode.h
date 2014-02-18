@@ -97,7 +97,7 @@ typedef struct {
 	MsgBody msgBody;
 } MmsHeader;
 
-extern MmsHeader mmsHeader;
+extern __thread MmsHeader mmsHeader;
 
 /* Decoding */
 void MmsInitHeader();

@@ -3179,7 +3179,7 @@ void SmsPluginWapPushHandler::wspHeaderDecodeDateValue( unsigned long length, un
 
 	/* check date value validity */
 	{
-		if (( pTMData->tm_wday > 6 ) || (pTMData->tm_mon > 12 ) || (pTMData->tm_mday >  31 ))
+		if (( pTMData->tm_wday > 6 ) || (pTMData->tm_mon > 11 ) || (pTMData->tm_mday >  31 ))
 		{
 			MSG_DEBUG( "WspLHeaderDecodeDateValue: Date decode fail %d, %d, %d \n", pTMData->tm_wday, pTMData->tm_mon, pTMData->tm_mday );
 			strncpy( (char*)*pDecodedString, "Decoding Failed", WSP_STANDARD_STR_LEN_MAX-1);

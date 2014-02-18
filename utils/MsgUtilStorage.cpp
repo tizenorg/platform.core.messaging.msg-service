@@ -374,7 +374,7 @@ msg_error_t MsgStoAddAddress(MsgDbHandler *pDbHandle, const MSG_MESSAGE_INFO_S *
 
 		// Add Address
 		memset(sqlQuery, 0x00, sizeof(sqlQuery));
-		snprintf(sqlQuery, sizeof(sqlQuery), "INSERT INTO %s VALUES (%d, %d, %d, %d, '%s', %d, '', ?, ?, '%s', 0);",
+		snprintf(sqlQuery, sizeof(sqlQuery), "INSERT INTO %s VALUES (%d, %d, %d, %d, '%s', %d, ?, ?, ?, '%s', 0);",
 					MSGFW_ADDRESS_TABLE_NAME, addrId, *pConvId, pMsg->addressList[i].addressType, pMsg->addressList[i].recipientType, pMsg->addressList[i].addressVal,
 					contactInfo.contactId, contactInfo.imagePath);
 
@@ -383,8 +383,9 @@ msg_error_t MsgStoAddAddress(MsgDbHandler *pDbHandle, const MSG_MESSAGE_INFO_S *
 		if (pDbHandle->prepareQuery(sqlQuery) != MSG_SUCCESS)
 			return MSG_ERR_DB_PREPARE;
 
-		pDbHandle->bindText(contactInfo.firstName, 1);
-		pDbHandle->bindText(contactInfo.lastName, 2);
+		pDbHandle->bindText(contactInfo.displayName, 1);
+		pDbHandle->bindText(contactInfo.firstName, 2);
+		pDbHandle->bindText(contactInfo.lastName, 3);
 
 		if (pDbHandle->stepQuery() != MSG_ERR_DB_DONE) {
 			pDbHandle->finalizeQuery();
@@ -611,8 +612,7 @@ msg_error_t MsgStoGetAddressByConvId(MsgDbHandler *pDbHandle, msg_thread_id_t co
 		pAddr->contactId = pDbHandle->getColumnToInt(index++);
 		pDbHandle->getColumnToString(index++, MAX_ADDRESS_VAL_LEN, pAddr->addressVal);
 		pDbHandle->getColumnToString(index++, MAX_DISPLAY_NAME_LEN, pAddr->displayName);
-		if(!strlen(pAddr->displayName))
-		{
+		if(!strlen(pAddr->displayName)) {
 			pDbHandle->getColumnToString(index++,MAX_DISPLAY_NAME_LEN, firstName);
 			pDbHandle->getColumnToString(index++,MAX_DISPLAY_NAME_LEN, lastName);
 
@@ -635,6 +635,9 @@ msg_error_t MsgStoGetAddressByConvId(MsgDbHandler *pDbHandle, msg_thread_id_t co
 					strncat(pAddr->displayName, firstName, MAX_DISPLAY_NAME_LEN-strlen(pAddr->displayName));
 				}
 			}
+		} else {
+			index++; // firstname
+			index++; // lastname
 		}
 
 	}
@@ -981,9 +984,13 @@ msg_error_t MsgStoAddContactInfo(MsgDbHandler *pDbHandle, MSG_CONTACT_INFO_S *pC
 	char sqlQuery[MAX_QUERY_LEN+1];
 
 	memset(sqlQuery, 0x00, sizeof(sqlQuery));
-	snprintf(sqlQuery, sizeof(sqlQuery), "UPDATE %s SET \
-			CONTACT_ID = %d, FIRST_NAME = ?, LAST_NAME = ?, IMAGE_PATH = '%s' \
-			WHERE ADDRESS_VAL = '%s';",
+	snprintf(sqlQuery, sizeof(sqlQuery), "UPDATE %s SET "
+			"CONTACT_ID = %d, "
+			"DISPLAY_NAME = ?, "
+			"FIRST_NAME = ?, "
+			"LAST_NAME = ?, "
+			"IMAGE_PATH = '%s' "
+			"WHERE ADDRESS_VAL = '%s';",
 			MSGFW_ADDRESS_TABLE_NAME, pContactInfo->contactId, pContactInfo->imagePath, pNumber);
 
 	if (pDbHandle->prepareQuery(sqlQuery) != MSG_SUCCESS) {
@@ -991,9 +998,9 @@ msg_error_t MsgStoAddContactInfo(MsgDbHandler *pDbHandle, MSG_CONTACT_INFO_S *pC
 		return MSG_ERR_DB_PREPARE;
 	}
 
-	pDbHandle->bindText(pContactInfo->firstName, 1);
-
-	pDbHandle->bindText(pContactInfo->lastName, 2);
+	pDbHandle->bindText(pContactInfo->displayName, 1);
+	pDbHandle->bindText(pContactInfo->firstName, 2);
+	pDbHandle->bindText(pContactInfo->lastName, 3);
 
 	if (pDbHandle->stepQuery() != MSG_ERR_DB_DONE) {
 		pDbHandle->finalizeQuery();
@@ -1007,16 +1014,17 @@ msg_error_t MsgStoAddContactInfo(MsgDbHandler *pDbHandle, MSG_CONTACT_INFO_S *pC
 }
 
 
-msg_error_t MsgStoClearContactInfo(MsgDbHandler *pDbHandle, int contactId)
+msg_error_t MsgStoResetContactInfo(MsgDbHandler *pDbHandle, int contactId)
 {
 	msg_error_t err = MSG_SUCCESS;
 
 	char sqlQuery[MAX_QUERY_LEN+1];
 	int rowCnt = 0;
+	int index = 2;
 
 	memset(sqlQuery, 0x00, sizeof(sqlQuery));
 
-	snprintf(sqlQuery, sizeof(sqlQuery), "SELECT DISTINCT(CONV_ID) FROM %s WHERE CONTACT_ID = %d;",
+	snprintf(sqlQuery, sizeof(sqlQuery), "SELECT ADDRESS_VAL, CONV_ID FROM %s WHERE CONTACT_ID = %d;",
 			MSGFW_ADDRESS_TABLE_NAME, contactId);
 
 	err = pDbHandle->getTable(sqlQuery, &rowCnt);
@@ -1027,20 +1035,21 @@ msg_error_t MsgStoClearContactInfo(MsgDbHandler *pDbHandle, int contactId)
 		return err;
 	}
 
-	memset(sqlQuery, 0x00, sizeof(sqlQuery));
-	snprintf(sqlQuery, sizeof(sqlQuery), "UPDATE %s SET \
-			CONTACT_ID = 0, DISPLAY_NAME = '', FIRST_NAME = '', LAST_NAME = '', IMAGE_PATH = '' \
-			WHERE CONTACT_ID = %d;",
-			MSGFW_ADDRESS_TABLE_NAME, contactId);
-
-	if (pDbHandle->execQuery(sqlQuery) != MSG_SUCCESS) {
-		MSG_DEBUG("Fail to execute query");
-		return MSG_ERR_DB_EXEC;
-	}
-
 	MsgDbHandler tmpDbHandle;
-	for (int i=1; i<=rowCnt; i++)
-		MsgStoSetConversationDisplayName(&tmpDbHandle, (msg_thread_id_t)pDbHandle->getColumnToInt(i));
+	for (int i=0; i<rowCnt; i++) {
+
+		MSG_CONTACT_INFO_S contactInfo;
+		memset(&contactInfo, 0x00, sizeof(MSG_CONTACT_INFO_S));
+		MSG_ADDRESS_INFO_S addrInfo;
+		memset(&addrInfo, 0x00, sizeof(MSG_ADDRESS_INFO_S));
+
+		pDbHandle->getColumnToString(index++, MAX_ADDRESS_VAL_LEN, addrInfo.addressVal);
+
+		MsgGetContactInfo(&addrInfo, &contactInfo);
+		MsgStoAddContactInfo(&tmpDbHandle, &contactInfo, addrInfo.addressVal);
+
+		MsgStoSetConversationDisplayName(&tmpDbHandle, (msg_thread_id_t)pDbHandle->getColumnToInt(index++));
+	}
 
 	pDbHandle->freeTable();
 
@@ -1403,4 +1412,36 @@ char *MsgStoReplaceString(const char *origStr, const char *oldStr, const char *n
 	}
 
 	return replaceStr;
+}
+
+
+msg_error_t MsgStoRefreshConversationDisplayName()
+{
+	msg_error_t err = MSG_SUCCESS;
+	MsgDbHandler dbHandle;
+	int rowCnt = 0;
+	char displayName[MAX_DISPLAY_NAME_LEN+1];
+	char sqlQuery[MAX_QUERY_LEN+1];
+
+	memset(sqlQuery, 0x00, sizeof(sqlQuery));
+	snprintf(sqlQuery, sizeof(sqlQuery),
+			"SELECT DISTINCT(CONTACT_ID) FROM %s;",
+			MSGFW_ADDRESS_TABLE_NAME);
+
+	err = dbHandle.getTable(sqlQuery, &rowCnt);
+
+	if (err != MSG_SUCCESS && err != MSG_ERR_DB_NORECORD) {
+		dbHandle.freeTable();
+		MSG_DEBUG("Query Failed [%s]", sqlQuery);
+		return err;
+	}
+
+	for (int i = 1; i <= rowCnt; i++)
+	{
+		MsgUpdateContact(dbHandle.getColumnToInt(i), -1);
+	}
+
+	dbHandle.freeTable();
+
+	return err;
 }

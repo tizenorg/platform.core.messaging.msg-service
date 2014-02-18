@@ -42,22 +42,12 @@ __thread sqlite3_stmt *stmt = NULL;
 ==================================================================================================*/
 MsgDbHandler::MsgDbHandler()
 {
-	handle = NULL;
-	stmt = NULL;
 	result = NULL;
 }
 
 
 MsgDbHandler::~MsgDbHandler()
 {
-	if(handle != NULL) {
-		if (disconnect() != MSG_SUCCESS)
-			MSG_DEBUG("disconnect is failed!!");
-	}
-
-	if(stmt != NULL)
-		finalizeQuery();
-
 	if(result != NULL)
 		freeTable();
 }
@@ -472,3 +462,36 @@ void MsgReleaseMemoryDB()
 	MSG_DEBUG("freed memory size (bytes) : [%d]", freeSize);
 }
 
+
+msg_error_t MsgConvertStrWithEscape(const char *input, char **output)
+{
+	if (input == NULL || output == NULL || strlen(input) == 0) {
+		MSG_DEBUG("MSG_ERR_INVALID_PARAMETER");
+		return MSG_ERR_INVALID_PARAMETER;
+	}
+
+	int inputSize = 0;
+	int i = 0;
+	int j = 0;
+
+	inputSize = strlen(input);
+	MSG_DEBUG("Size of input string [%d]", inputSize);
+
+	char tmpStr[(inputSize*2)+3];
+	memset(tmpStr, 0x00, sizeof(tmpStr));
+
+	tmpStr[j++] = '%';
+
+	for(i=0;i<inputSize;i++) {
+		if (input[i] == '\'' || input[i] == '_' || input[i] == '%' || input[i] == '\\') {
+			tmpStr[j++] = MSGFW_DB_ESCAPE_CHAR;
+		}
+		tmpStr[j++] = input[i];
+	}
+	tmpStr[j++] = '%';
+	tmpStr[j] = '\0';
+
+	*output = strdup(tmpStr);
+
+	return MSG_SUCCESS;
+}

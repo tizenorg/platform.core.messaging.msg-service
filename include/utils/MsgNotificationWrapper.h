@@ -30,9 +30,6 @@
 #define MSG_APP_PACKAGE_NAME	"message"
 #define MSG_SYS_PACKAGE_NAME	"sys_string"
 #define NORMAL_MSG_ICON_PATH		"/opt/usr/apps/8r4r5ddzzn/shared/res/screen-density-xhigh/mainmenu.png"
-#define VOICE_MSG_ICON_PATH			"/opt/usr/apps/8r4r5ddzzn/shared/res/screen-density-xhigh/mainmenu.png"
-#define CB_MSG_ICON_PATH				"/opt/usr/apps/8r4r5ddzzn/shared/res/screen-density-xhigh/mainmenu.png"
-#define NOTI_MSG_ICON_PATH			"/opt/usr/apps/8r4r5ddzzn/shared/res/screen-density-xhigh/mainmenu.png"
 
 #define MSG_APP_LOCALEDIR			"/usr/apps/org.tizen.message/res/locale"
 
@@ -50,6 +47,8 @@
 #define MSG_SYS_LOCALEDIR	"/usr/share/locale"
 
 #define NOTIFICATION_PRIV_ID DEFAULT_SETTING_PATH"/notification_priv_id"
+#define VOICE_NOTI_ID_1 DEFAULT_SETTING_PATH"/voice_noti_id1"
+#define CB_NOTI_PRIV_ID DEFAULT_SETTING_PATH"/cb_noti_priv_id"
 
 /*==================================================================================================
                                      FUNCTION PROTOTYPES
@@ -59,9 +58,12 @@ msg_error_t MsgInsertNoti(MSG_MESSAGE_INFO_S* pMsg);
 msg_error_t MsgInsertMmsReportToNoti(MsgDbHandler *pDbHandle, MSG_MESSAGE_INFO_S* pMsg);
 
 msg_error_t MsgRefreshNoti(bool bWithTicker);
+msg_error_t MsgRefreshCBNoti(bool bWithTicker);
 msg_error_t MsgCleanAndResetNoti();
 
 msg_error_t MsgInsertTicker(const char* pTickerMsg, const char* pLocaleTickerMsg);
 msg_error_t MsgInsertBadge(unsigned int unreadMsgCnt);
+
+msg_error_t MsgClearVoiceNoti(MSG_SUB_TYPE_T subType);
 
 #endif // MSG_QUICKPANEL_WRAPPER_H

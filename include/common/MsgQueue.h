@@ -32,6 +32,7 @@ public:
 	int size();
 	bool empty();
 	void clear();
+	bool checkExist(T const & qItem, bool(cmp)(T const &, T const &));
 private:
 	Mutex mx;
 	std::list <T> q;
@@ -92,6 +93,19 @@ template <typename T> void MsgThdSafeQ<T>::clear()
 {
 	MutexLocker lock(mx);
 	q.clear();
+}
+
+template <typename T> bool MsgThdSafeQ<T>::checkExist(T const & qItem, bool(cmp)(T const &, T const &))
+{
+	MutexLocker lock(mx);
+
+	for(typename list<T>::iterator iterPos = q.begin(); iterPos != q.end(); ++iterPos) 	{
+
+		if (cmp(qItem, *iterPos) == true)
+			return true;
+	}
+
+	return false;
 }
 
 #endif // __MsgThdSafeQ_H__

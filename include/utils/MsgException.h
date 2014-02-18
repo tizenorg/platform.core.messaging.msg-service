@@ -69,6 +69,7 @@ public:
 		SECURITY_ERROR,
 		SERVER_READY_ERROR = 13,
 
+		REQ_EXIST_ERROR,
 		// dont erase NUM_ERRORS. place a new error code in ahead of NUM_ERRORS
 		NUM_ERRORS
 	};

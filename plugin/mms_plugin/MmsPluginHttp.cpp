@@ -22,23 +22,42 @@
 #include "MmsPluginUserAgent.h"
 #include "MmsPluginConnManWrapper.h"
 
-static bool __httpGetHeaderField(MMS_HTTP_HEADER_FIELD_T httpHeaderItem, char *szHeaderBuffer);
-static void __httpGetHost(char *szUrl, char *szHost, int nBufferLen);
-static void __httpAllocHeaderInfo(curl_slist **responseHeaders, char *szUrl, int ulContentLen);
+#define MMS_FREE(obj)\
+	if (obj){\
+		free(obj);\
+		obj = NULL;\
+	}
 
-static MMS_NET_ERROR_T __httpReceiveData(void *ptr, size_t size, size_t nmemb, void *userdata);
-static size_t  __httpGetTransactionCB(void *ptr, size_t size, size_t nmemb, void *userdata);
-static size_t  __httpPostTransactionCB(void *ptr, size_t size, size_t nmemb, void *userdata);
-
-static int __httpCmdInitSession(MMS_PLUGIN_HTTP_DATA_S *httpConfig);
-static int __httpCmdPostTransaction(MMS_PLUGIN_HTTP_DATA_S *httpConfig);
-static int __httpCmdGetTransaction(MMS_PLUGIN_HTTP_DATA_S *httpConfig);
 
 static void __http_print_profile(CURL *curl);
+static int __http_debug_cb (CURL *input_curl, curl_infotype input_info_type, char *input_data , size_t input_size, void *input_void);
+
+static void __httpAllocHeaderInfo(curl_slist **responseHeaders, char *szUrl, int ulContentLen);
+static bool __httpGetHeaderField(MMS_HTTP_HEADER_FIELD_T httpHeaderItem, char *szHeaderBuffer);
+static void __httpGetHost(char *szUrl, char *szHost, int nBufferLen);
 
 /*==================================================================================================
                                      FUNCTION IMPLEMENTATION
 ==================================================================================================*/
+static int __http_progress_cb(void *clientp, double dltotal, double dlnow, double ultotal, double ulnow)
+{
+	MSG_DEBUG("download(%.0f/%.0f) : upload(%.0f/%.0f)", dlnow, dltotal, ulnow, ultotal);
+	return 0;
+}
+
+static int __http_debug_cb (CURL *input_curl, curl_infotype input_info_type, char *input_data , size_t input_size, void *input_void)
+{
+	MSG_DEBUG("curl_infotype [%d] : %s", input_info_type, input_data);
+	return 0;
+}
+
+static size_t __http_write_response_cb(void *ptr, size_t size, size_t nmemb, void *data)
+{
+	MSG_BEGIN();
+	FILE *writehere = (FILE *)data;
+	return fwrite(ptr, size, nmemb, writehere);
+}
+
 static void __http_print_profile(CURL *curl)
 {
 	double speed_upload, speed_download, total_time;
@@ -167,7 +186,7 @@ static void __httpAllocHeaderInfo(curl_slist **responseHeaders, char *szUrl, int
 		MSG_DEBUG("%s", pcheader);
 		*responseHeaders = curl_slist_append(*responseHeaders, pcheader);
 	}
-
+/* NOW not support gzip, deflate encoding in MMS Plugin
 	memset(szBuffer, 0, 1025);
 	memset(pcheader, 0, HTTP_REQUEST_LEN);
 	nResult = __httpGetHeaderField(MMS_HH_ACCEPT_ENCODING, szBuffer);
@@ -176,7 +195,7 @@ static void __httpAllocHeaderInfo(curl_slist **responseHeaders, char *szUrl, int
 		MSG_DEBUG("%s", pcheader);
 		*responseHeaders = curl_slist_append(*responseHeaders, pcheader);
 	}
-
+*/
 	memset(szBuffer, 0, 1025);
 	memset(pcheader, 0, HTTP_REQUEST_LEN);
 	nResult = __httpGetHeaderField(MMS_HH_USER_AGENT, szBuffer);
@@ -309,232 +328,117 @@ static void __httpGetHost(char *szUrl, char *szHost, int nBufferLen)
 	}
 }
 
-static MMS_NET_ERROR_T __httpReceiveData(void *ptr, size_t size, size_t nmemb, void *userdata)
+static int __http_multi_perform(void *session)
 {
-	MMS_NET_ERROR_T httpRet = eMMS_UNKNOWN;
+	MSG_BEGIN();
 
-	MmsPluginHttpAgent *pHttpAgent = MmsPluginHttpAgent::instance();
-	MMS_PLUGIN_HTTP_CONTEXT_S *pMmsPlgCd = pHttpAgent->getMmsPldCd();
-	long length_received = size * nmemb;
+	CURLM *multi_handle;
+	CURLMcode rcm;
 
-	if (length_received) {
-		//Save the received buffer in a safe place.
-		if (pMmsPlgCd->final_content_buf == NULL) {
-			MSG_DEBUG("Body Lenghth Read = %d", length_received);
-			pMmsPlgCd->final_content_buf = (unsigned char *)malloc((length_received + 1) * sizeof(unsigned char));
+	int still_running;
+	int ret = 0;
+	bool abort_flag = false;
 
-			if (pMmsPlgCd->final_content_buf == NULL) {
-				MSG_DEBUG("malloc fail");
-				return eMMS_HTTP_EVENT_RECV_DATA_ERROR;
-			}
+	CURLMsg *msg;
+	int msgs_left;
 
-			memset(pMmsPlgCd->final_content_buf,0x0,((length_received + 1) * sizeof(unsigned char)));
-			MSG_DEBUG(" Global g_final_content_buf=%0x", pMmsPlgCd->final_content_buf);
-		} else {
-			//realloc pHttpEvent->bodyLen extra and memset
+	multi_handle = curl_multi_init();
 
-			unsigned char * buf = (unsigned char *)realloc(pMmsPlgCd->final_content_buf,
-					(pMmsPlgCd->bufOffset + length_received + 1) * sizeof(unsigned char));
+	if (curl_multi_add_handle(multi_handle, session) != 0) {
+		MSG_DEBUG("curl_multi_add_handle is failed");
+		curl_multi_cleanup(multi_handle);
+		return -1;
+	}
 
-			if (buf == NULL) {
-				MSG_DEBUG("realloc fail");
-				return eMMS_HTTP_EVENT_RECV_DATA_ERROR;
-			}
+	/* we start some action by calling perform right away */
+	rcm = curl_multi_perform(multi_handle, &still_running);
+	MSG_DEBUG("curl_multi_perform first end : rcm = %d, still_running = %d", rcm, still_running);
 
-			pMmsPlgCd->final_content_buf = buf;
-			MSG_DEBUG("Body Lenghth Read = %d Content Length = %d", length_received, pMmsPlgCd->bufOffset);
-			memset((pMmsPlgCd->final_content_buf +pMmsPlgCd->bufOffset), 0x0,
-					((length_received + 1) * sizeof(unsigned char)));
-			MSG_DEBUG(" Global g_final_content_buf=%0x", pMmsPlgCd->final_content_buf);
+	do {
+		struct timeval timeout;
+		int rc; /* select() return code */
 
+		fd_set fdread;
+		fd_set fdwrite;
+		fd_set fdexcep;
+		int maxfd = -1;
 
+		long curl_timeo = -1;
+
+		FD_ZERO(&fdread);
+		FD_ZERO(&fdwrite);
+		FD_ZERO(&fdexcep);
+
+		/* set a suitable timeout to play around with */
+		timeout.tv_sec = 10;
+		timeout.tv_usec = 0;
+
+		curl_multi_timeout(multi_handle, &curl_timeo);
+		if(curl_timeo >= 0) {
+			MSG_DEBUG("curl_timeo = %ld", curl_timeo);
+			timeout.tv_sec = curl_timeo / 1000;
+			if(timeout.tv_sec > 1)
+				timeout.tv_sec = 1;
+			else
+				timeout.tv_usec = (curl_timeo % 1000) * 1000;
 		}
 
-		//copy body
-		if (pMmsPlgCd->final_content_buf != NULL) {
-			memcpy( pMmsPlgCd->final_content_buf + pMmsPlgCd->bufOffset, ptr, length_received);
-			MSG_DEBUG("Current g_bufOffset =%d", pMmsPlgCd->bufOffset);
-			/*  Content  Received */
-			MSG_DEBUG("Total Content received PTR =%0X, Content Size =%d", pMmsPlgCd->final_content_buf,
-						pMmsPlgCd->bufOffset);
-			pMmsPlgCd->bufOffset = pMmsPlgCd->bufOffset + length_received;
-			httpRet = eMMS_UNKNOWN;
+		curl_multi_fdset(multi_handle, &fdread, &fdwrite, &fdexcep, &maxfd);
+
+		/* In a real-world program you OF COURSE check the return code of the
+		function calls.  On success, the value of maxfd is guaranteed to be
+		greater or equal than -1.  We call select(maxfd + 1, ...), specially in
+		case of (maxfd == -1), we call select(0, ...), which is basically equal
+		to sleep. */
+
+		rc = select(maxfd+1, &fdread, &fdwrite, &fdexcep, &timeout);
+
+		switch(rc) {
+			case -1:
+				/* select error */
+				MSG_DEBUG("select error");
+			break;
+			case 0: /* timeout */
+			default: /* action */
+				rcm = curl_multi_perform(multi_handle, &still_running);
+			break;
 		}
-	} else {
-		MSG_DEBUG("End of Data transfer");
-		MSG_DEBUG("MmsHttpReadData Buffer Size = %d", pMmsPlgCd->bufOffset);
-		MSG_DEBUG("MmsHttpReadData Buffer = %s", pMmsPlgCd->final_content_buf);
 
-		if (pMmsPlgCd->bufOffset == 0) {
-			/*  This is applicable when - M-ReadRec.inf,M-Ack.ind, M-NotifyResp.ind posted  */
-			MSG_DEBUG(" Content Size is Zero");
+		abort_flag = MmsPluginHttpAgent::instance()->getAbortFlag();
+		if (abort_flag == true) {
+			MSG_DEBUG("abort flag is Set");
+			ret = -1;
+		}
 
-			if (pMmsPlgCd->final_content_buf != NULL) {
-				free(pMmsPlgCd->final_content_buf );
- 				pMmsPlgCd->final_content_buf = NULL;
+		MSG_DEBUG("curl_multi_perform end : rcm = %d, still_running = %d, abort_flag = %d", rcm, still_running, abort_flag);
+
+	} while(still_running && (abort_flag == false));
+
+	while ((msg = curl_multi_info_read(multi_handle, &msgs_left))) {
+		if (msg->msg == CURLMSG_DONE) {
+
+			if (msg->easy_handle == session) {
+				MSG_DEBUG("HTTP transfer completed with status %d", msg->data.result);
+				curl_multi_remove_handle(multi_handle, session);
+			} else {
+				MSG_DEBUG("Unknown handle HTTP transfer completed with status %d", msg->data.result);
 			}
-
-			httpRet = eMMS_HTTP_EVENT_SENT_ACK_COMPLETED;
-		} else if (pMmsPlgCd->final_content_buf != NULL && pMmsPlgCd->bufOffset != 0) {
-			// Process Http Data
-			MSG_DEBUG(" Send Received Data to UA");
-			httpRet = eMMS_HTTP_RECV_DATA; // eMMS_HTTP_RECV_DATA;
-		} else {
-			httpRet = eMMS_UNKNOWN; // check later
 		}
-
-		return httpRet;
 	}
 
-	return httpRet;
-}
+	curl_multi_cleanup(multi_handle);
 
-
-static size_t  __httpPostTransactionCB(void *ptr, size_t size, size_t nmemb, void *userdata)
-{
-	MSG_DEBUG(" ======  HTTP_EVENT_SENT ========");
-	long length_received = size * nmemb;
-	__httpReceiveData(ptr, size, nmemb, userdata);
-
-	return length_received;
-}
-
-static size_t  __httpGetTransactionCB(void *ptr, size_t size, size_t nmemb, void *userdata)
-{
-	MSG_DEBUG(" ======  HTTP_EVENT_RECEIVED ========");
-	long length_received = size * nmemb;
-	__httpReceiveData(ptr, size, nmemb, userdata);
-
-	return length_received;
-}
-
-static int __httpCmdInitSession(MMS_PLUGIN_HTTP_DATA_S *httpConfig)
-{
-	MSG_DEBUG("HttpCmd Init Session");
-
-	char proxyAddr[MAX_IPV4_LENGTH + 1] = {0};
-
-	snprintf(proxyAddr, MAX_IPV4_LENGTH + 1, "%s:%d", httpConfig->mmscConfig.httpProxyIpAddr, httpConfig->mmscConfig.proxyPortNo);
-	MSG_DEBUG("profileId [%d], proxyAddr [%s]", httpConfig->currentProfileId, proxyAddr);
-
-	CURL *curl_session = curl_easy_init();
-	if (NULL == curl_session) {
-		MSG_DEBUG("curl_easy_init() failed");
-		return eMMS_HTTP_SESSION_OPEN_FAILED;
-	}
-
-	int curl_status = curl_easy_setopt(curl_session, CURLOPT_PROXY, proxyAddr);
-	if (curl_status != CURLM_OK) {
-		MSG_DEBUG("curl_easy_setopt(): CURLOPT_PROXY failed");
-		curl_easy_cleanup(curl_session);
-		return eMMS_HTTP_SESSION_OPEN_FAILED;
-	}
-
-	httpConfig->session = curl_session;
-
-	return eMMS_HTTP_SESSION_INIT;
-}
-
-
-static int __httpCmdPostTransaction(MMS_PLUGIN_HTTP_DATA_S *httpConfig)
-{
-	int trId;
-
-	MSG_DEBUG("HttpCmd Post Transaction");
-	MSG_DEBUG(" === HTTP Agent Thread : Signal ==> eMMS_HTTP_SIGNAL_POST_TRANSACTION");
-
-	char deviceName[1024] = {0,};
-
-	MmsPluginCmAgent::instance()->getDeviceName(deviceName);
-
-	MSG_DEBUG("deviceName: [%s]", deviceName);
-	int curl_status = curl_easy_setopt(httpConfig->session, CURLOPT_INTERFACE, deviceName);
-
-	if (curl_status != CURLM_OK) {
-		MSG_DEBUG("curl_easy_setopt(): CURLOPT_INTERFACE failed");
-
-		return eMMS_EXCEPTIONAL_ERROR;
-	}
-
-	CURLcode rc = curl_easy_perform(httpConfig->session);
-
-	__http_print_profile(httpConfig->session);
-
-	MmsPluginHttpAgent*	httpAgent = MmsPluginHttpAgent::instance();
-	MMS_PLUGIN_HTTP_DATA_S *httpConfigData = httpAgent->getHttpConfigData();
-	if (httpConfigData->sessionHeader) {
-		curl_slist_free_all((curl_slist *)httpConfigData->sessionHeader);
-		httpConfigData->sessionHeader = NULL;
-	}
-
-	if (CURLE_OK != rc) {
-		MSG_DEBUG("curl_easy_perform return error rc[%d]", rc);
-
-		return eMMS_HTTP_ERROR_NETWORK;
-	}
-
-	MSG_DEBUG("## End Transaction ##");
-
-	srandom((unsigned int) time(NULL));
-	trId = random() % 1000000000 + 1;
-	MSG_DEBUG("############ trID = %d ###########", trId);
-
-	httpConfig->transactionId = trId;
-
-	return eMMS_HTTP_SENT_SUCCESS;
-}
-
-static int __httpCmdGetTransaction(MMS_PLUGIN_HTTP_DATA_S *httpConfig)
-{
-	int trId;
-
-	MSG_DEBUG("HttpCmd Get Transaction");
-	MSG_DEBUG(" === HTTP Agent Thread : Signal ==> eMMS_HTTP_SIGNAL_GET_TRANSACTION");
-
-	char deviceName[1024] = {0,};
-	MmsPluginCmAgent::instance()->getDeviceName(deviceName);
-	MSG_DEBUG("deviceName: [%s]", deviceName);
-
-	int curl_status = curl_easy_setopt(httpConfig->session, CURLOPT_INTERFACE, deviceName);
-	if (curl_status != CURLM_OK) {
-		MSG_DEBUG("curl_easy_setopt(): CURLOPT_INTERFACE failed");
-
-		return eMMS_EXCEPTIONAL_ERROR;
-	}
-
-	CURLcode rc = curl_easy_perform(httpConfig->session);
-
-	__http_print_profile(httpConfig->session);
-
-	MmsPluginHttpAgent*	httpAgent = MmsPluginHttpAgent::instance();
-	MMS_PLUGIN_HTTP_DATA_S *httpConfigData = httpAgent->getHttpConfigData();
-	if (httpConfigData->sessionHeader) {
-		curl_slist_free_all((curl_slist *)httpConfigData->sessionHeader);
-		httpConfigData->sessionHeader = NULL;
-	}
-
-	if (CURLE_OK != rc) {
-		MSG_DEBUG("curl_easy_perform return error = %d", rc);
-
-		return eMMS_HTTP_ERROR_NETWORK;
-	}
-
- 	MSG_DEBUG("## End Transaction ##");
-
-	srandom((unsigned int) time(NULL));
-	trId = random() % 1000000000 + 1;
-	MSG_DEBUG("############ trID = %d ###########", trId);
-
-	httpConfig->transactionId = trId;
-
-	return eMMS_HTTP_SENT_SUCCESS;
+	MSG_END();
+	return ret;
 }
 
 MmsPluginHttpAgent *MmsPluginHttpAgent::pInstance = NULL;
 MmsPluginHttpAgent *MmsPluginHttpAgent::instance()
 {
 	if (!pInstance)
+	{
 		pInstance = new MmsPluginHttpAgent();
+	}
 
 	return pInstance;
 }
@@ -542,136 +446,255 @@ MmsPluginHttpAgent *MmsPluginHttpAgent::instance()
 
 MmsPluginHttpAgent::MmsPluginHttpAgent()
 {
-	MSG_DEBUG("MmsPluginHttpAgent()");
+	MSG_BEGIN();
 
-	bzero(&httpConfigData, sizeof(httpConfigData));
-	bzero(&mmsPlgCd, sizeof(mmsPlgCd));
+	abort = false;
+	respfile = NULL;
+	session_header = NULL;
+	session_option = NULL;
 
-	httpCmdHandler.clear();
-
-	httpCmdHandler[eHTTP_CMD_INIT_SESSION] = &__httpCmdInitSession;
-	httpCmdHandler[eHTTP_CMD_POST_TRANSACTION] = &__httpCmdPostTransaction;
-	httpCmdHandler[eHTTP_CMD_GET_TRANSACTION] = &__httpCmdGetTransaction;
+	transaction_type = MMS_HTTP_TRANSACTION_TYPE_UNKNOWN;
+	MSG_END();
 }
 
 MmsPluginHttpAgent::~MmsPluginHttpAgent()
 {
-
-}
-
-void MmsPluginHttpAgent::SetMMSProfile()
-{
 	MSG_BEGIN();
 
-	MMSC_CONFIG_DATA_S *mmscConfig = &(httpConfigData.mmscConfig);
-
-	MmsPluginCmAgent::instance()->getHomeURL(mmscConfig->mmscUrl);
-	if (strlen(mmscConfig->mmscUrl) < 1) {
-		MSG_DEBUG("##### get Home URL Error");
+	if (session_header) {
+		MSG_DEBUG("session header is exist : free session header");
+		curl_slist_free_all((curl_slist *)session_header);
+		session_header = NULL;
 	}
 
-	MmsPluginCmAgent::instance()->getProxyAddr(mmscConfig->httpProxyIpAddr);
-	mmscConfig->proxyPortNo = MmsPluginCmAgent::instance()->getProxyPort();
+	if (session_option) {
+		MSG_DEBUG("session is exist : cleanup session");
+		curl_easy_cleanup(session_option);
+		session_option = NULL;
+	}
 
 	MSG_END();
 }
 
-int MmsPluginHttpAgent::cmdRequest(MMS_HTTP_CMD_TYPE_T cmdType)
+void MmsPluginHttpAgent::initSession()
 {
-	MSG_DEBUG("cmdRequest:%x", cmdType);
+	MSG_BEGIN();
 
-	int ret = 0;
+	this->transaction_type = MMS_HTTP_TRANSACTION_TYPE_UNKNOWN;
 
-	ret = httpCmdHandler[cmdType](&httpConfigData);
-
-	return ret;
-}
-
-MMS_PLUGIN_HTTP_CONTEXT_S* MmsPluginHttpAgent::getMmsPldCd()
-{
-	return &mmsPlgCd;
-}
-
-MMS_PLUGIN_HTTP_DATA_S *MmsPluginHttpAgent::getHttpConfigData()
-{
-	return &httpConfigData;
-}
-
-int MmsPluginHttpAgent::setSession(mmsTranQEntity *qEntity)
-{
-	MSG_DEBUG("%s %d", qEntity->pPostData, qEntity->postDataLen);
-
-	if (qEntity->eHttpCmdType == eHTTP_CMD_POST_TRANSACTION) {
-		MSG_DEBUG("HttpCmd Post Transaction");
-		MSG_DEBUG(" === HTTP Agent Thread : Signal ==> eMMS_HTTP_SIGNAL_POST_TRANSACTION");
-
-		curl_slist *responseHeaders = NULL;
-
-		__httpAllocHeaderInfo(&responseHeaders, httpConfigData.mmscConfig.mmscUrl, qEntity->postDataLen);
-
-		MSG_DEBUG(" === MMSCURI = %s === ", httpConfigData.mmscConfig.mmscUrl);
-
-		httpConfigData.sessionHeader = (void *)responseHeaders;
-
-		MSG_DEBUG("## Start Transaction : Post ##");
-		curl_easy_setopt(httpConfigData.session, CURLOPT_VERBOSE, true);
-		curl_easy_setopt(httpConfigData.session, CURLOPT_POST, true);
-	 	curl_easy_setopt(httpConfigData.session, CURLOPT_URL, httpConfigData.mmscConfig.mmscUrl);
-		curl_easy_setopt(httpConfigData.session, CURLOPT_NOPROGRESS, true);
-		curl_easy_setopt(httpConfigData.session, CURLOPT_HTTPHEADER, responseHeaders);
-		curl_easy_setopt(httpConfigData.session, CURLOPT_POSTFIELDS, qEntity->pPostData);
-		curl_easy_setopt(httpConfigData.session, CURLOPT_POSTFIELDSIZE, qEntity->postDataLen);
-		curl_easy_setopt(httpConfigData.session, CURLOPT_WRITEFUNCTION, __httpPostTransactionCB);
-		curl_easy_setopt(httpConfigData.session, CURLOPT_TCP_NODELAY, 1);
-
-	} else if (qEntity->eHttpCmdType == eHTTP_CMD_GET_TRANSACTION) {
-		MSG_DEBUG("MmsHttpInitTransactionGet  %d pGetData (%s)", qEntity->getDataLen, qEntity->pGetData);
-	   	MSG_DEBUG("MmsHttpInitTransactionGet  mmscURL (%s) ", httpConfigData.mmscConfig.mmscUrl);
-
-		char szUrl[MAX_MMSC_URL_LEN] = {0, };
-
-		memcpy(szUrl, qEntity->pGetData, qEntity->getDataLen);
-
-	 	MSG_DEBUG("MmsHttpInitTransactionGet  szURL (%s)", szUrl);
-
-	 	curl_slist *responseHeaders = NULL;
-
-		__httpAllocHeaderInfo(&responseHeaders, szUrl, 0);
-
-		httpConfigData.sessionHeader = (void *)responseHeaders;
-
-		MSG_DEBUG("## Start Transaction : Get ##");
-		curl_easy_setopt(httpConfigData.session, CURLOPT_VERBOSE, true);
-	 	curl_easy_setopt(httpConfigData.session, CURLOPT_URL, szUrl);
-		curl_easy_setopt(httpConfigData.session, CURLOPT_NOPROGRESS, true);
-		curl_easy_setopt(httpConfigData.session, CURLOPT_HTTPHEADER, responseHeaders);
-		curl_easy_setopt(httpConfigData.session, CURLOPT_WRITEFUNCTION, __httpGetTransactionCB);
-	} else {
-		MSG_DEBUG("Unknown eHttpCmdType [%d]", qEntity->eHttpCmdType);
-		return -1;
+	if (session_header) {
+		MSG_DEBUG("session header is exist : free session header");
+		curl_slist_free_all((curl_slist *)session_header);
+		session_header = NULL;
 	}
 
-	return 0;
-}
+	if (session_option) {
+		MSG_DEBUG("session is exist : cleanup session");
+		curl_easy_cleanup(session_option);
+		session_option = NULL;
+	}
 
+	if (respfile) {
+		fclose(respfile);
+		respfile = NULL;
+	}
+
+	initAbortFlag();
+
+	MSG_END();
+}
 
 void MmsPluginHttpAgent::clearSession()
 {
 	MSG_BEGIN();
 
-	if (httpConfigData.sessionHeader) {
-		curl_slist_free_all((curl_slist *)httpConfigData.sessionHeader);
-		httpConfigData.sessionHeader = NULL;
+	this->transaction_type = MMS_HTTP_TRANSACTION_TYPE_UNKNOWN;
+
+	if (session_header) {
+		MSG_DEBUG("session header is exist : free session header");
+		curl_slist_free_all((curl_slist *)session_header);
+		session_header = NULL;
 	}
 
-	if (httpConfigData.session == NULL) {
-		MSG_DEBUG("[Error]httpConfigData.session is NULL");
-		return;
+	if (session_option) {
+		MSG_DEBUG("session is exist : cleanup session");
+		curl_easy_cleanup(session_option);
+		session_option = NULL;
 	}
 
-	curl_easy_cleanup(httpConfigData.session);
+	if (respfile) {
+		fclose(respfile);
+		respfile = NULL;
+	}
 
-	httpConfigData.session = NULL;
+	initAbortFlag();
+	MSG_END();
+}
+
+MMS_HTTP_ERROR_E MmsPluginHttpAgent::setSession(http_request_info_s &request_info)
+{
+	MSG_BEGIN();
+	MMS_HTTP_ERROR_E http_error = MMS_HTTP_ERROR_NONE;
+	int content_len = 0;
+	char *url = NULL;
+
+	// Verify request info
+	if (request_info.transaction_type != MMS_HTTP_TRANSACTION_TYPE_GET
+			&& request_info.transaction_type != MMS_HTTP_TRANSACTION_TYPE_POST)
+	{
+		MSG_ERR("transaction_type of request_info is Invaild [%d]", request_info.transaction_type);
+		goto __CATCH;
+	}
+
+	if (request_info.transaction_type == MMS_HTTP_TRANSACTION_TYPE_POST) {
+
+		if (request_info.post_data == NULL || request_info.post_data_len == 0) {
+			MSG_ERR("post data info is Invaild");
+			goto __CATCH;
+		}
+	}
+
+	if (request_info.url == NULL || request_info.proxy == NULL || request_info.interface == NULL) {
+		MSG_ERR("request_info parameter invalid url [%s], proxy [%s] interface [%s]", request_info.url, request_info.proxy, request_info.interface);
+		goto __CATCH;
+	}
+
+	//Set type
+	this->transaction_type = request_info.transaction_type;
+	MSG_DEBUG("set transaction type [%d]", this->transaction_type);
+
+	//Set http Headers
+	if (this->transaction_type == MMS_HTTP_TRANSACTION_TYPE_POST) {
+		content_len = request_info.post_data_len;
+	} else { //MMS_HTTP_TRANSACTION_TYPE_GET
+		content_len = 0;
+	}
+
+	url = strdup(request_info.url);
+
+	if (url) {
+		__httpAllocHeaderInfo((curl_slist**)&session_header, url, content_len);
+		if (session_header == NULL) {
+			MSG_ERR("Failed to __httpAllocHeaderInfo");
+			goto __CATCH;
+		}
+
+		free(url);
+		url = NULL;
+	} else {
+		MSG_ERR("Failed to strdup");
+		goto __CATCH;
+	}
+
+
+	//Set curl option
+	session_option = curl_easy_init();
+	if (session_option == NULL) {
+		MSG_DEBUG("curl_easy_init() failed");
+		goto __CATCH;
+	}
+
+	curl_easy_setopt(session_option, CURLOPT_PROXY, request_info.proxy);
+	curl_easy_setopt(session_option, CURLOPT_VERBOSE, true);
+	curl_easy_setopt(session_option, CURLOPT_URL, request_info.url);
+	curl_easy_setopt(session_option, CURLOPT_NOPROGRESS, true);
+	curl_easy_setopt(session_option, CURLOPT_HTTPHEADER, session_header);
+	curl_easy_setopt(session_option, CURLOPT_DEBUGFUNCTION , __http_debug_cb);
+	curl_easy_setopt(session_option, CURLOPT_INTERFACE, request_info.interface);
+	//curl_easy_setopt(httpConfigData.session, CURLOPT_PROGRESSFUNCTION, __http_progress_cb); //for debug
+
+	if (respfile) {
+		curl_easy_setopt(session_option, CURLOPT_WRITEFUNCTION, __http_write_response_cb);
+		curl_easy_setopt(session_option, CURLOPT_WRITEDATA, respfile);
+	}
+
+	if (transaction_type == MMS_HTTP_TRANSACTION_TYPE_POST) {
+		curl_easy_setopt(session_option, CURLOPT_POST, true);
+	 	curl_easy_setopt(session_option, CURLOPT_POSTFIELDS, request_info.post_data);
+		curl_easy_setopt(session_option, CURLOPT_POSTFIELDSIZE, request_info.post_data_len);
+	//	curl_easy_setopt(session_option, CURLOPT_TCP_NODELAY, 1);
+	}
 
 	MSG_END();
+	return http_error;
+
+__CATCH:
+
+	clearSession();
+
+	MSG_END();
+	return http_error;
+}
+
+MMS_HTTP_ERROR_E MmsPluginHttpAgent::startTransaction()
+{
+	MSG_BEGIN();
+	MMS_HTTP_ERROR_E http_error = MMS_HTTP_ERROR_NONE;
+
+	int rc = __http_multi_perform(session_option);
+
+	__http_print_profile(session_option);
+
+	if (rc != 0) {
+		MSG_DEBUG("curl_easy_perform return error rc [%d]", rc);
+		http_error = MMS_HTTP_ERROR_TRANSACTION;
+	}
+
+	MSG_END();
+	return http_error;
+}
+
+MMS_HTTP_ERROR_E MmsPluginHttpAgent::httpRequest(http_request_info_s &request_info)
+{
+	MSG_BEGIN();
+
+	const char *conf_filename = MSG_DATA_PATH"mms.conf";
+
+	MMS_HTTP_ERROR_E http_error = MMS_HTTP_ERROR_NONE;
+
+	this->initSession();
+
+	respfile = fopen(conf_filename, "wb");
+
+	//set session
+	http_error = this->setSession(request_info);
+	if (http_error != MMS_HTTP_ERROR_NONE) {
+		MSG_DEBUG("Fail to setSession");
+		goto __CATCH;
+	}
+
+	//transaction
+	http_error = this->startTransaction();
+	if (http_error != MMS_HTTP_ERROR_NONE) {
+		MSG_DEBUG("Fail to startTransaction");
+		goto __CATCH;
+	}
+
+	//close conf file & load response data
+	if (respfile) {
+
+		fclose(respfile);
+		respfile = NULL;
+
+		if (g_file_get_contents(conf_filename, &request_info.response_data, &request_info.response_data_len, NULL) == false) {
+			MSG_DEBUG("Fail to g_file_get_contents");
+		}
+	}
+
+	this->clearSession();
+
+	MSG_END();
+	return http_error;
+
+__CATCH:
+
+	if (respfile) {
+		fclose(respfile);
+		respfile = NULL;
+	}
+
+	this->clearSession();
+
+	MSG_END();
+	return http_error;
 }

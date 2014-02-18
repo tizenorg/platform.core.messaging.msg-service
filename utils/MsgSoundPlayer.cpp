@@ -199,10 +199,14 @@ bool MsgSoundCreateRepeatAlarm(int RepeatTime)
 
 	target_time.sec = current_tm.tm_sec;
 
-	alarmmgr_set_time(alarm_info, target_time);
-	alarmmgr_set_repeat_mode(alarm_info, ALARM_REPEAT_MODE_ONCE, 0);
-	alarmmgr_set_type(alarm_info, ALARM_TYPE_VOLATILE);
-	alarmmgr_add_alarm_with_localtime(alarm_info, NULL, &g_alarmId);
+	retval = alarmmgr_set_time(alarm_info, target_time);
+	MSG_DEBUG("alarmmgr_set_time return = [%d]", retval);
+	retval = alarmmgr_set_repeat_mode(alarm_info, ALARM_REPEAT_MODE_ONCE, 0);
+	MSG_DEBUG("alarmmgr_set_repeat_mode return = [%d]", retval);
+	retval = alarmmgr_set_type(alarm_info, ALARM_TYPE_VOLATILE);
+	MSG_DEBUG("alarmmgr_set_type return = [%d]", retval);
+	retval = alarmmgr_add_alarm_with_localtime(alarm_info, NULL, &g_alarmId);
+	MSG_DEBUG("alarmmgr_add_alarm_with_localtime return = [%d]", retval);
 
 	retval = alarmmgr_set_cb(MsgSoundRepeatAlarmCB, (void *)alarm_info);
 

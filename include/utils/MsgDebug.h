@@ -78,8 +78,47 @@ int get_tid();
 	do\
     {\
 		SLOGD(" END   <<<<  \n\n");\
-    } \
-    while( 0 )
+    } while( 0 )
+
+#define MSG_INFO(fmt, args...)\
+	do\
+	{\
+		SLOGI("* Info * " fmt "\n\n", ##args);\
+	} while( 0 )
+
+#define MSG_WARN(fmt, args...)\
+	do {\
+		SLOGW("* Warning * " fmt "\n\n", ##args)\
+	} while( 0 )
+
+#define MSG_ERR(fmt, args...)\
+	do {\
+		SLOGE("* Error * " fmt "\n\n", ##args);\
+	} while( 0 )
+
+
+#define MSG_ERR_RET_VM(expr, val, fmt, arg...)\
+	do {\
+		if (expr) {\
+			MSG_ERR(fmt, ##arg);\
+			return (val);\
+		}\
+	} while (0)
+
+#define MSG_ERR_RET_M(expr, fmt, arg...)\
+	do {\
+		if (expr) {\
+			MSG_ERR(fmt, ##arg);\
+			return;\
+		}\
+	} while (0)
+
+#define MSG_WARN_M(expr, fmt, arg...)\
+	do {\
+		if (expr) {\
+			MSG_WARN(fmt, ##arg);\
+		}\
+	} while (0)
 
 #define MSG_PROFILE_BEGIN(pfid) \
 	unsigned int __prf_l1_##pfid = __LINE__;    \
