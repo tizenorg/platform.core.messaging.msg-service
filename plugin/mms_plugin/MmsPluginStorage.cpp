@@ -933,7 +933,7 @@ msg_error_t MmsPluginStorage::plgGetMmsMessage(MSG_MESSAGE_INFO_S *pMsg, MSG_SEN
 	MMS_MESSAGE_DATA_S tempMmsMsgData = {0,};
 	MMS_MESSAGE_DATA_S *pMmsMsg = &tempMmsMsgData;
 
-	unsigned int nSize = 0;
+	size_t nSize = 0;
 
 	bzero(pMmsMsg, sizeof(MMS_MESSAGE_DATA_S));
 	pMmsMsg->regionCnt = 0;
