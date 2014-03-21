@@ -227,7 +227,7 @@ bool MsgOpenAndReadFile(const char *pFileName, char **ppData, int *pDataSize)
 
 	char fullPath[MAX_FULL_PATH_SIZE] = {0};
 
-	snprintf(fullPath, MAX_FULL_PATH_SIZE, MSG_IPC_DATA_PATH"%s", pFileName);
+	snprintf(fullPath, MAX_FULL_PATH_SIZE, "%s/%s", MSG_IPC_DATA_PATH, pFileName);
 	MSG_DEBUG("open file name: %s", fullPath);
 
 
@@ -302,7 +302,7 @@ bool MsgWriteIpcFile(const char *pFileName, const char *pData, int DataSize)
 
 	char fullPath[MAX_FULL_PATH_SIZE] = {0};
 
-	snprintf(fullPath, MAX_FULL_PATH_SIZE, MSG_IPC_DATA_PATH"%s", pFileName);
+	snprintf(fullPath, MAX_FULL_PATH_SIZE, "%s/%s", MSG_IPC_DATA_PATH, pFileName);
 
 	FILE *pFile = MsgOpenFile(fullPath, "wb+");
 
@@ -347,7 +347,7 @@ int MsgReadSmilFile(const char *pFileName, char **ppData)
 	int	nSize = 0;
 	char fullPath[MAX_FULL_PATH_SIZE] = {0};
 
-	snprintf(fullPath, MAX_FULL_PATH_SIZE, MSG_SMIL_FILE_PATH"%s", pFileName);
+	snprintf(fullPath, MAX_FULL_PATH_SIZE, "%s/%s", MSG_SMIL_FILE_PATH, pFileName);
 
 	MSG_DEBUG("open file name: %s", fullPath);
 
@@ -452,7 +452,7 @@ void MsgDeleteFile(const char *pFileName)
 	char fullPath[MAX_FULL_PATH_SIZE] = {0};
 
 	try {
-		snprintf(fullPath, MAX_FULL_PATH_SIZE, MSG_IPC_DATA_PATH"%s", pFileName);
+		snprintf(fullPath, MAX_FULL_PATH_SIZE, "%s/%s", MSG_IPC_DATA_PATH, pFileName);
 
 		MSG_DEBUG("%s", fullPath);
 
@@ -475,7 +475,7 @@ void MsgDeleteSmilFile(const char *pFileName)
 	try {
 		char fullPath[MAX_FULL_PATH_SIZE] = {0};
 
-		snprintf(fullPath, MAX_FULL_PATH_SIZE, MSG_SMIL_FILE_PATH"%s", pFileName);
+		snprintf(fullPath, MAX_FULL_PATH_SIZE, "%s/%s", MSG_SMIL_FILE_PATH, pFileName);
 
 		if (remove(fullPath) != 0)
 			MSG_FATAL("File Delete Error [%s]: %s", fullPath, strerror(errno));
@@ -901,7 +901,7 @@ void MsgMmsInitDir()
 
 			if(strstr(d->d_name, ".dir") != NULL) {
 				char filePath[MSG_FILEPATH_LEN_MAX] = {0,};
-				snprintf(filePath, MSG_FILEPATH_LEN_MAX, MSG_DATA_PATH"%s", d->d_name);
+				snprintf(filePath, MSG_FILEPATH_LEN_MAX, "%s/%s", MSG_DATA_PATH, d->d_name);
 
 				MsgRmRf(filePath);
 				rmdir(filePath);

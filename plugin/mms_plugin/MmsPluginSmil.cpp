@@ -1030,7 +1030,7 @@ bool MmsSmilGetMediaFilePath(MMS_MEDIA_S *pMedia, char *pszTemp, int msgID)
 		return false;
 	}
 
-	snprintf(pMedia->szFilePath, MSG_FILEPATH_LEN_MAX, "%s%s", MSG_DATA_PATH, pMedia->szSrc);
+	snprintf(pMedia->szFilePath, MSG_FILEPATH_LEN_MAX, "%s/%s", MSG_DATA_PATH, pMedia->szSrc);
 	MSG_DEBUG("pMedia's filePath: %s", pMedia->szFilePath);
 
 	__MmsGetRealFileName(pMedia->mediatype, pMedia->szSrc, pMedia->szFileName, msgID);
@@ -1138,7 +1138,7 @@ bool MMSGenerateSmilBuffer(MMS_MESSAGE_DATA_S *pstMsgBody)
 	}
 
 	char fullpath[MSG_FILEPATH_LEN_MAX] = {0,};
-	snprintf(fullpath, MSG_FILEPATH_LEN_MAX, MSG_SMIL_FILE_PATH"%s", pstMsgBody->szSmilFilePath);
+	snprintf(fullpath, MSG_FILEPATH_LEN_MAX, "%s/%s", MSG_SMIL_FILE_PATH, pstMsgBody->szSmilFilePath);
 
 	if (MsgWriteSmilFile(fullpath, pszRawData, strlen(pszRawData) + 1) == false) {
 		MSG_DEBUG("MMSGenerateSmilBuffer: MsgWriteSmilFile failed");

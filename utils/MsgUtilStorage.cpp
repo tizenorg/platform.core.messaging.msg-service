@@ -24,7 +24,10 @@
 
 #include <sys/stat.h>
 #include <sys/vfs.h>
+#include <errno.h>
+#include <fcntl.h>
 
+#define DB_MSG_SERVICE_GROUPE	6011
 
 static int msgCntLimit[MSG_COUNT_LIMIT_MAILBOX_TYPE_MAX][MSG_COUNT_LIMIT_MSG_TYPE_MAX] = {{10, 10, 0, 10, 10}, {5, 10, 0, 0, 0}, {10, 10, 0, 0, 0}, {10, 10, 0, 0, 0}, {0, 0, 10, 0, 0}};
 
@@ -182,10 +185,23 @@ msg_error_t MsgStoCheckMsgCntFull(MsgDbHandler *pDbHandle, const MSG_MESSAGE_TYP
 
 	msg_error_t err = MSG_SUCCESS;
 		struct statfs buf = {0};
+		int fd, ret;
 
 		if (statfs(MSG_DATA_ROOT_PATH, &buf) == -1) {
 			MSG_DEBUG("statfs(\"%s\") failed - %d", MSG_DATA_ROOT_PATH);
-			return MSG_ERR_STORAGE_ERROR;
+			if (mkdir(MSG_DATA_ROOT_PATH, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH) < 0) {
+				MSG_DEBUG("Error while mkdir %s", MSG_DATA_ROOT_PATH);
+				return MSG_ERR_STORAGE_ERROR;
+			} else {
+				fd = creat(MSG_DATA_ROOT_PATH, 0755);
+				if (0 <= fd){
+					ret = fchown(fd, -1, DB_MSG_SERVICE_GROUPE);
+					if (-1 == ret){
+						MSG_DEBUG("Failed to fchown on %s",MSG_DATA_ROOT_PATH);
+					}
+					close(fd);
+				}
+			}
 		}
 
 		unsigned long freeSpace = (buf.f_bfree * buf.f_bsize);

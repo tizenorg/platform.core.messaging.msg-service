@@ -2418,11 +2418,20 @@ __CATCH:
 static bool __MmsBinaryDecodeDRMContent(FILE *pFile, char *szFilePath, MsgType *pMsgType, MsgBody *pMsgBody, unsigned int bodyLength, int totalLength)
 {
 	int offset = 0;
-	char szTempFilePath[MSG_FILEPATH_LEN_MAX] = MSG_DATA_PATH"drm.dcf";
+	char szTempFilePath[MSG_FILEPATH_LEN_MAX];
 	char *pRawData = NULL;
 	bool isFileCreated = false;
+	int lenght;
 
 	MSG_DEBUG("bodyLength: %d\n", bodyLength);
+
+	lenght = snprintf(NULL,0,"%s/drm.dcf",MSG_DATA_PATH);
+	if (lenght >= MSG_FILEPATH_LEN_MAX){
+		MSG_DEBUG("File path lenght is too long ");
+		goto __CATCH;
+	}
+
+	snprintf(szTempFilePath,lenght,"%s/drm.dcf",MSG_DATA_PATH);
 
 	offset = __MmsGetDecodeOffset();
 
@@ -2614,15 +2623,33 @@ bool MmsDrm2ConvertMsgBody(char *szOriginFilePath)
 	FILE *hTempFile = NULL;
 	FILE *hFile = NULL;
 	MsgMultipart *pMultipart = NULL;
-	char szTempFilePath[MSG_FILEPATH_LEN_MAX] = MSG_DATA_PATH"Drm_Convert";
-	char szTempFile[MSG_FILEPATH_LEN_MAX] = MSG_DATA_PATH"temp.dm";
+	char szTempFilePath[MSG_FILEPATH_LEN_MAX];
+	char szTempFile[MSG_FILEPATH_LEN_MAX];
 	char *pszMmsLoadTempBuf = NULL;
 	char *pszOrgData = NULL;
 	int length = 0;
 	int bufLen = MMS_DRM2_CONVERT_BUFFER_MAX;
 	int curOffset = 0;
-
+	int lenghtFilePath;
 	MSG_DEBUG("start convert~~~~~~");
+
+	lenghtFilePath = snprintf(NULL,0,"%s/Drm_Convert",MSG_DATA_PATH);
+
+	if (lenghtFilePath >= MSG_FILEPATH_LEN_MAX){
+		MSG_DEBUG("File path lenght is too long ");
+		goto __CATCH;
+	}
+
+	snprintf(szTempFilePath,lenghtFilePath,"%s/Drm_Convert",MSG_DATA_PATH);
+
+	lenghtFilePath = snprintf(NULL,0,"%s/temp.dm",MSG_DATA_PATH);
+
+	if (lenghtFilePath >= MSG_FILEPATH_LEN_MAX){
+		MSG_DEBUG("File path lenght is too long ");
+		goto __CATCH;
+	}
+
+	snprintf(szTempFilePath,lenghtFilePath,"%s/temp.dm",MSG_DATA_PATH);
 
 	pFile = MsgOpenFile(szOriginFilePath, "rb");
 	if (pFile == NULL) {
@@ -4376,7 +4403,7 @@ bool MmsReadMsgBody(msg_message_id_t msgID, bool bSavePartsAsTempFiles, bool bRe
 	}
 
 	/* 	make temporary	*/
-	snprintf(szTempMediaDir, MSG_FILEPATH_LEN_MAX, MSG_DATA_PATH"%s.dir", pMsg->szFileName);
+	snprintf(szTempMediaDir, MSG_FILEPATH_LEN_MAX, "%s/%s.dir", MSG_DATA_PATH, pMsg->szFileName);
 
 	if (MsgIsMultipart(pMsg->msgType.type) == true) {
 		int partIndex = 0;

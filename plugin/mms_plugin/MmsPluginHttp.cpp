@@ -648,7 +648,7 @@ MMS_HTTP_ERROR_E MmsPluginHttpAgent::httpRequest(http_request_info_s &request_in
 {
 	MSG_BEGIN();
 
-	const char *conf_filename = MSG_DATA_PATH"mms.conf";
+	const char *conf_filename = tzplatform_mkpath4(TZ_USER_DATA,"msg-service","msgdata","mms.conf");
 
 	MMS_HTTP_ERROR_E http_error = MMS_HTTP_ERROR_NONE;
 

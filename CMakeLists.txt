@@ -12,6 +12,12 @@ SET(MAPI-LIB msg_mapi)
 SET(SMS-PLUGIN-LIB msg_sms_plugin)
 SET(MMS-PLUGIN-LIB msg_mms_plugin)
 
+##########################################################
+# Add Definition
+##########################################################
+#IF(DEFINED MSGFW_DB_SCHEMA)
+#	ADD_DEFINITIONS(-DMSGFW_DB_SCHEMA=\"${MSGFW_DB_SCHEMA}\")
+#ENDIF(DEFINED MSGFW_DB_SCHEMA)
 
 ##########################################################
 # Add Subdirectories
@@ -44,27 +50,26 @@ INSTALL(FILES ${MAPI-HEADERS} DESTINATION include/msg-service)
 # Install etc Files
 ##########################################################
 CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/config/plugin.cfg.in ${CMAKE_CURRENT_SOURCE_DIR}/config/plugin.cfg @ONLY)
-INSTALL(FILES ${CMAKE_CURRENT_SOURCE_DIR}/config/plugin.cfg DESTINATION /usr/share/msg-service)
+INSTALL(FILES ${CMAKE_CURRENT_SOURCE_DIR}/config/plugin.cfg DESTINATION ${SHARE_INSTALL_PREFIX}/msg-service)
 
 SET(RINGTONE-FILES
 	${CMAKE_CURRENT_SOURCE_DIR}/config/message_tone/Sherbet.wav
 )
 
-INSTALL(FILES ${RINGTONE-FILES} DESTINATION /usr/share/media/)
+INSTALL(FILES ${RINGTONE-FILES} DESTINATION ${SHARE_INSTALL_PREFIX}/media/)
 
 CONFIGURE_FILE(msg-service.pc.in msg-service.pc @ONLY)
 INSTALL(FILES ${CMAKE_BINARY_DIR}/msg-service.pc DESTINATION ${LIB_INSTALL_DIR}/pkgconfig)
 
 SET(RC_LOCAL_SCRIPT msg-server)
-INSTALL(PROGRAMS ${RC_LOCAL_SCRIPT} DESTINATION /etc/rc.d/init.d)
+INSTALL(PROGRAMS ${RC_LOCAL_SCRIPT} DESTINATION ${SYSCONF_INSTALL_DIR}/rc.d/init.d)
 
-INSTALL(FILES ${CMAKE_CURRENT_SOURCE_DIR}/packaging/msg-service.service DESTINATION /usr/lib/systemd/user)
-INSTALL(FILES ${CMAKE_CURRENT_SOURCE_DIR}/packaging/msg-service-log.service DESTINATION /usr/lib/systemd/user)
+INSTALL(FILES ${CMAKE_CURRENT_SOURCE_DIR}/packaging/msg-service.service DESTINATION ${UNITDIR_USER})
+INSTALL(FILES ${CMAKE_CURRENT_SOURCE_DIR}/packaging/msg-service-log.service DESTINATION ${UNITDIR_USER})
 
-# LICENSE file
-INSTALL(FILES ${CMAKE_SOURCE_DIR}/LICENSE.Flora DESTINATION /usr/share/license/msg-service)
-
+# db init script
+INSTALL(FILES ${CMAKE_SOURCE_DIR}/msg_service-init-DB.sh DESTINATION ${TZ_SYS_SHARE}/msg-service)
 
 #Install sysinfo file to provide which features are supported.
-INSTALL(FILES ${CMAKE_SOURCE_DIR}/sysinfo-message.xml DESTINATION /etc/config)
-INSTALL(FILES ${CMAKE_SOURCE_DIR}/sysinfo-message.emul.xml DESTINATION /etc/config)
+INSTALL(FILES ${CMAKE_SOURCE_DIR}/sysinfo-message.xml DESTINATION ${SYSCONF_INSTALL_DIR}/config)
+INSTALL(FILES ${CMAKE_SOURCE_DIR}/sysinfo-message.emul.xml DESTINATION ${SYSCONF_INSTALL_DIR}/config)

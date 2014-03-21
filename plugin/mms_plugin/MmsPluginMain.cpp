@@ -303,7 +303,7 @@ msg_error_t MmsRestoreMsg(MSG_MESSAGE_INFO_S *pMsgInfo, char *pRcvBody, int rcvd
 		MSG_DEBUG(":::%d :%s ",rcvdBodyLen, pRcvBody);
 
 		if (filePath) {
-			snprintf(filePath, MAX_FULL_PATH_SIZE, MSG_DATA_PATH"BODY_%lu.DATA", random() % 1000000000 + 1);
+			snprintf(filePath, MAX_FULL_PATH_SIZE, "%s/BODY_%lu.DATA", MSG_DATA_PATH, random() % 1000000000 + 1);
 		} else {
 			return MSG_ERR_NULL_POINTER;
 		}

@@ -27,7 +27,7 @@ INCLUDE_DIRECTORIES(
 )
 
 INCLUDE(FindPkgConfig)
-pkg_check_modules(plugin_manager_pkgs REQUIRED glib-2.0 dlog vconf)
+pkg_check_modules(plugin_manager_pkgs REQUIRED glib-2.0 dlog vconf libtzplatform-config)
 
 FOREACH(flag ${plugin_manager_pkgs_CFLAGS})
 	SET(EXTRA_CFLAGS "${EXTRA_CFLAGS} ${flag}")

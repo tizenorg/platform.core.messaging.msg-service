@@ -22,7 +22,7 @@
 
 #ifdef __SUPPORT_DRM__
 
-#define	MMS_DECODE_DRM_CONVERTED_TEMP_FILE MSG_DATA_PATH"Mms_Decode_Drm_Converted"
+#define	MMS_DECODE_DRM_CONVERTED_TEMP_FILE tzplatform_mkpath4(TZ_USER_DATA,"msg-service","msgdata","Mms_Decode_Drm_Converted")
 #define	MMS_MIMETYPELENGTH 50
 
 typedef enum {

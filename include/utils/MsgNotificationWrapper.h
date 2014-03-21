@@ -29,7 +29,7 @@
 ==================================================================================================*/
 #define MSG_APP_PACKAGE_NAME	"message"
 #define MSG_SYS_PACKAGE_NAME	"sys_string"
-#define NORMAL_MSG_ICON_PATH		"/opt/usr/apps/8r4r5ddzzn/shared/res/screen-density-xhigh/mainmenu.png"
+#define NORMAL_MSG_ICON_PATH		tzplatform_mkpath(TZ_USER_APP,"8r4r5ddzzn/shared/res/screen-density-xhigh/mainmenu.png")
 
 #define MSG_APP_LOCALEDIR			"/usr/apps/org.tizen.message/res/locale"
 

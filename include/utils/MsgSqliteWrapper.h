@@ -20,13 +20,14 @@
 /*==================================================================================================
                                     INCLUDE FILES
 ==================================================================================================*/
+#include <tzplatform_config.h>
 #include "MsgTypes.h"
 
 
 /*==================================================================================================
                                     DEFINES
 ==================================================================================================*/
-#define MSGFW_DB_NAME 			"/opt/usr/dbspace/.msg_service.db"
+#define MSGFW_DB_NAME 			tzplatform_mkpath(TZ_USER_DB,".msg_service.db")
 
 #define MSGFW_MESSAGE_TABLE_NAME				"MSG_MESSAGE_TABLE"
 #define MSGFW_FOLDER_TABLE_NAME					"MSG_FOLDER_TABLE"
@@ -56,6 +57,7 @@
 ==================================================================================================*/
 void	MsgReleaseMemoryDB();
 msg_error_t MsgConvertStrWithEscape(const char *input, char **output);
+int	XSystem(const char *argv[]);
 
 /*==================================================================================================
                                      CLASS DEFINITIONS

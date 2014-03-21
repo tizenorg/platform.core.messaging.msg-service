@@ -82,7 +82,7 @@ void MmsPluginStorage::composeReadReport(MSG_MESSAGE_INFO_S *pMsgInfo)
 
 	version = MmsPluginStorage::instance()->getMmsVersion(pMsgInfo->msgId);
 
-	snprintf((char *)pMsgInfo->msgData, MAX_MSG_DATA_LEN+1, MSG_DATA_PATH"%d-Read-Rec.ind", pMsgInfo->msgId);
+	snprintf((char *)pMsgInfo->msgData, MAX_MSG_DATA_LEN+1, "%s/%d-Read-Rec.ind", MSG_DATA_PATH, pMsgInfo->msgId);
 
 	if (version == 0x90)
 		pMsgInfo->msgType.subType = MSG_READREPLY_MMS;
@@ -205,7 +205,7 @@ msg_error_t MmsPluginStorage::updateMessage(MSG_MESSAGE_INFO_S *pMsgInfo, MSG_SE
 		}
 
 		//mms file
-		snprintf(raw_filepath, sizeof(raw_filepath), MSG_DATA_PATH"%d.mms", pMsgInfo->msgId);
+		snprintf(raw_filepath, sizeof(raw_filepath), "%s/%d.mms", MSG_DATA_PATH, pMsgInfo->msgId);
 
 		//encode mms
 		if (MmsEncodeMmsMessage(&mmsMsg, raw_filepath) == false) {
@@ -228,7 +228,7 @@ msg_error_t MmsPluginStorage::updateMessage(MSG_MESSAGE_INFO_S *pMsgInfo, MSG_SE
 			}
 		}
 
-		snprintf(raw_filedir, sizeof(raw_filedir), MSG_DATA_PATH"%d.mms.dir", pMsgInfo->msgId);
+		snprintf(raw_filedir, sizeof(raw_filedir), "%s/%d.mms.dir", MSG_DATA_PATH, pMsgInfo->msgId);
 		MsgRmRf(raw_filedir);
 		rmdir(raw_filedir);
 
@@ -1085,7 +1085,7 @@ void MmsPluginStorage::addMessage(MSG_MESSAGE_INFO_S *pMsgInfo, MSG_SENDINGOPT_I
 		}
 
 		//mms file
-		snprintf(raw_filepath, sizeof(raw_filepath), MSG_DATA_PATH"%d.mms", pMsgInfo->msgId);
+		snprintf(raw_filepath, sizeof(raw_filepath), "%s/%d.mms", MSG_DATA_PATH, pMsgInfo->msgId);
 
 		//encode mms
 		if (MmsEncodeMmsMessage(pMmsMsg, raw_filepath) == false) {

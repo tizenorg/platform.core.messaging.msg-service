@@ -131,7 +131,7 @@ msg_error_t MsgSubmitReqMMS(MSG_REQUEST_INFO_S *pReqInfo)
 		// copy whole of MMS PDU filepath to msgData
 		strncpy(fileName, pReqInfo->msgInfo.msgData, MAX_COMMON_INFO_SIZE);
 		memset(pReqInfo->msgInfo.msgData, 0x00, MAX_MSG_DATA_LEN+1);
-		snprintf(pReqInfo->msgInfo.msgData, MAX_MSG_DATA_LEN+1, MSG_IPC_DATA_PATH"%s", fileName);
+		snprintf(pReqInfo->msgInfo.msgData, MAX_MSG_DATA_LEN+1, "%s/%s", MSG_IPC_DATA_PATH, fileName);
 
 		MSG_DEBUG("JAVA MMS PDU filepath:%s", pReqInfo->msgInfo.msgData);
 
@@ -237,7 +237,7 @@ msg_error_t MsgSubmitReqMMS(MSG_REQUEST_INFO_S *pReqInfo)
 		case MSG_FORWARD_MMS:
 			MsgDeleteFile(pReqInfo->msgInfo.msgData);
 			memset(pReqInfo->msgInfo.msgData, 0x00, MAX_MSG_DATA_LEN+1);
-			snprintf(pReqInfo->msgInfo.msgData, MAX_MSG_DATA_LEN+1, MSG_DATA_PATH"%d.mms", pReqInfo->msgInfo.msgId);
+			snprintf(pReqInfo->msgInfo.msgData, MAX_MSG_DATA_LEN+1, "%s/%d.mms", MSG_DATA_PATH, pReqInfo->msgInfo.msgId);
 			break;
 
 		case MSG_READREPLY_MMS:

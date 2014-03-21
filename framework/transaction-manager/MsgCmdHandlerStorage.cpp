@@ -15,6 +15,9 @@
 */
 
 #include <stdlib.h>
+#include <errno.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 
 #include "MsgDebug.h"
 #include "MsgUtilFile.h"
@@ -28,6 +31,7 @@
 #include "MsgContact.h"
 #include "MsgCmdHandler.h"
 
+#define DB_MSG_SERVICE_GROUPE	6011
 
 /*==================================================================================================
                                      FUNCTION IMPLEMENTATION
@@ -1026,6 +1030,8 @@ int MsgResetDatabaseHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 int MsgGetMemSizeHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 {
 	msg_error_t err = MSG_SUCCESS;
+	struct stat sts;
+	int ret,fd;
 
 	char* encodedData = NULL;
 	AutoPtr<char> buf(&encodedData);
@@ -1034,6 +1040,19 @@ int MsgGetMemSizeHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 
 	// Get Memory size
 	unsigned int memsize = 0;
+
+	ret = stat(MSG_DATA_ROOT_PATH, &sts);
+	if (ret == -1 && errno == ENOENT){
+		mkdir(MSG_DATA_ROOT_PATH, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+		fd = creat(MSG_DATA_ROOT_PATH, 0755);
+		if (0 <= fd){
+			ret = fchown(fd, -1, DB_MSG_SERVICE_GROUPE);
+			if (-1 == ret){
+				MSG_DEBUG("Failed to fchown on %s",MSG_DATA_ROOT_PATH);
+			}
+			close(fd);
+		}
+	}
 
 	memsize = MsgDu(MSG_DATA_ROOT_PATH);
 

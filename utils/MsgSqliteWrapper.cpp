@@ -19,6 +19,9 @@
 #include <unistd.h>
 #include <string.h>
 #include <stdlib.h>
+#include <sys/stat.h>
+#include <errno.h>
+#include <sys/wait.h>
 
 #include "MsgDebug.h"
 #include "MsgSqliteWrapper.h"
@@ -28,6 +31,7 @@ extern "C"
 	#include <db-util.h>
 }
 
+#define MSGFW_DB_INIT_SCRIPT	tzplatform_mkpath(TZ_SYS_SHARE,"msg-service/msg_service-init-DB.sh")
 
 /*==================================================================================================
                                      VARIABLES
@@ -52,17 +56,28 @@ MsgDbHandler::~MsgDbHandler()
 		freeTable();
 }
 
-
 msg_error_t MsgDbHandler::connect()
 {
 	int ret = 0;
+	struct stat sts;
 
 	if (handle == NULL)
 	{
 		char strDBName[64];
 
 		memset(strDBName, 0x00, sizeof(strDBName));
+		if (strlen(MSGFW_DB_NAME) >= 64){
+			MSG_DEBUG("DB path is too long");
+			return MSG_ERR_DB_CONNECT;
+		}
 		snprintf(strDBName, 64, "%s", MSGFW_DB_NAME);
+
+		/* Check if the DB exists; if not, create it and initialize it */
+		ret = stat(MSGFW_DB_NAME, &sts);
+		if (ret == -1 && errno == ENOENT){
+			const char *argv_script[] = {"/bin/sh", MSGFW_DB_INIT_SCRIPT, NULL };
+			ret = XSystem(argv_script);
+		}
 
 		ret = db_util_open(strDBName, &handle, DB_UTIL_REGISTER_HOOK_METHOD);
 
@@ -494,4 +509,37 @@ msg_error_t MsgConvertStrWithEscape(const char *input, char **output)
 	*output = strdup(tmpStr);
 
 	return MSG_SUCCESS;
+}
+
+int XSystem(const char *argv[])
+{
+	int status = 0;
+	pid_t pid;
+	pid = fork();
+	switch (pid) {
+	case -1:
+		perror("fork failed");
+		return -1;
+	case 0:
+		/* child */
+		execvp(argv[0], (char *const *)argv);
+		_exit(-1);
+	default:
+		/* parent */
+		break;
+	}
+	if (waitpid(pid, &status, 0) == -1) {
+		perror("waitpid failed");
+		return -1;
+	}
+	if (WIFSIGNALED(status)) {
+		perror("signal");
+		return -1;
+	}
+	if (!WIFEXITED(status)) {
+		/* shouldn't happen */
+		perror("should not happen");
+		return -1;
+	}
+	return WEXITSTATUS(status);
 }

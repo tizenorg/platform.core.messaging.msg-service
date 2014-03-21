@@ -110,7 +110,7 @@ msg_error_t InitMmsDir()
 
 			// if IPC data path is already exist, clear all files in folder.
 			char exeStr[1024];
-			snprintf(exeStr, 1024, "rm %s*.DATA", MSG_IPC_DATA_PATH);
+			snprintf(exeStr, 1024, "rm %s/*.DATA", MSG_IPC_DATA_PATH);
 			system(exeStr);
 		}
 		else

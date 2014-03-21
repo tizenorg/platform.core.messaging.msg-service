@@ -72,7 +72,7 @@ void MmsPluginInternal::processReceivedInd(MSG_MESSAGE_INFO_S *pMsgInfo, MSG_REQ
 		if(MsgWriteIpcFile(fileName, pMsgInfo->msgText, pMsgInfo->dataSize) == false)
 			THROW(MsgException::FILE_ERROR, "MsgWriteIpcFile error");
 
-		snprintf(fullPath, MAX_FULL_PATH_SIZE+1, MSG_IPC_DATA_PATH"%s", fileName);
+		snprintf(fullPath, MAX_FULL_PATH_SIZE+1, "%s/%s", MSG_IPC_DATA_PATH, fileName);
 
 		memset(pMsgInfo->msgData, 0x00, sizeof(pMsgInfo->msgData));
 		memcpy(pMsgInfo->msgData, fullPath, strlen(fullPath));
@@ -469,7 +469,7 @@ void MmsPluginInternal::processRetrieveConf(MSG_MESSAGE_INFO_S *pMsgInfo, mmsTra
 		char *filename = NULL;
 		filename = strrchr(pRetrievedFilePath, '/');
 
-		snprintf(fullPath, MAX_FULL_PATH_SIZE+1, "%s%s", MSG_IPC_DATA_PATH, filename + 1);
+		snprintf(fullPath, MAX_FULL_PATH_SIZE+1, "%s/%s", MSG_IPC_DATA_PATH, filename + 1);
 
 		int ret  = rename(pRetrievedFilePath, fullPath);
 		if (ret != 0) {
@@ -541,7 +541,7 @@ void MmsPluginInternal::processRetrieveConf(MSG_MESSAGE_INFO_S *pMsgInfo, mmsTra
 				char szBuf[MSG_FILEPATH_LEN_MAX + 1];
 
 				strcpy((char *)szBuf, partHeader.param.szFileName);
-				sprintf(partHeader.param.szFileName, MSG_DATA_PATH"%s", szBuf);
+				sprintf(partHeader.param.szFileName, "%s/%s", MSG_DATA_PATH, szBuf);
 				if (!bMultipartRelated || MmsCheckAdditionalMedia(&msgData, &partHeader)) {
 					MMS_ATTACH_S *attachment = NULL;
 					int tempType;
@@ -608,7 +608,7 @@ bool MmsPluginInternal::encodeNotifyRespInd(char *szTrID, msg_delivery_report_st
 	if (MsgCreateFileName(pTempFileName) == false)
 		return false;
 
-	snprintf(pTempFilePath, MAX_FULL_PATH_SIZE, MSG_DATA_PATH"%s.noti.ind", pTempFileName);
+	snprintf(pTempFilePath, MAX_FULL_PATH_SIZE, "%s/%s.noti.ind", MSG_DATA_PATH, pTempFileName);
 
 	pFile = MsgOpenMMSFile(pTempFilePath);
 
@@ -653,7 +653,7 @@ bool MmsPluginInternal::encodeAckInd(char *szTrID, bool bReportAllowed, char *pS
 	if (MsgCreateFileName(pTempFileName) == false)
 		return false;
 
-	snprintf(pTempFilePath, MAX_FULL_PATH_SIZE, MSG_DATA_PATH"%s.ack.ind", pTempFileName);
+	snprintf(pTempFilePath, MAX_FULL_PATH_SIZE, "%s/%s.ack.ind", MSG_DATA_PATH, pTempFileName);
 
 	pFile = MsgOpenMMSFile(pTempFilePath);
 	if (!pFile) {

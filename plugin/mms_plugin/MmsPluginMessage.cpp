@@ -959,9 +959,9 @@ msg_error_t MmsMakePreviewInfo(int msgId, MMS_MESSAGE_DATA_S *pMmsMsg)
 				snprintf(szFileName, MSG_FILENAME_LEN_MAX+1, "%d.mms",msgId);
 
 				if ((pszExt = strrchr(pMedia->szFilePath, '.')) != NULL && !strcasecmp(pszExt, ".png")) {
-					snprintf(thumbPath, MSG_FILEPATH_LEN_MAX, MSG_THUMBNAIL_PATH"/%s.png", szFileName);
+					snprintf(thumbPath, MSG_FILEPATH_LEN_MAX, "%s/%s.png", MSG_THUMBNAIL_PATH, szFileName);
 				} else {
-					snprintf(thumbPath, MSG_FILEPATH_LEN_MAX, MSG_THUMBNAIL_PATH"/%s.jpg", szFileName);
+					snprintf(thumbPath, MSG_FILEPATH_LEN_MAX, "%s/%s.jpg", MSG_THUMBNAIL_PATH, szFileName);
 				}
 
 				if (pMedia->mediatype == MMS_SMIL_MEDIA_IMG) {
@@ -1315,7 +1315,7 @@ bool MmsMakeMmsData(MmsMsg *pMsg, MMS_MESSAGE_DATA_S *pMmsMsg)
 				snprintf(pMmsMsg->smil.szContentID, MSG_MSG_ID_LEN, "%s", pMsg->msgBody.presentationType.szContentID);
 				snprintf(pMmsMsg->smil.szContentLocation, MSG_MSG_ID_LEN, "%s", pMsg->msgBody.presentationType.szContentLocation);
 				snprintf(pMmsMsg->smil.szFileName, MSG_FILENAME_LEN_MAX, "%s", pMsg->msgBody.presentationType.param.szName);
-				snprintf(pMmsMsg->smil.szFilePath, MSG_FILEPATH_LEN_MAX, MSG_DATA_PATH"%s", pMsg->msgBody.presentationType.param.szFileName);
+				snprintf(pMmsMsg->smil.szFilePath, MSG_FILEPATH_LEN_MAX, "%s/%s", MSG_DATA_PATH, pMsg->msgBody.presentationType.param.szFileName);
 			}
 		} else {
 			MSG_DEBUG("Not Exist pPresentationBody");

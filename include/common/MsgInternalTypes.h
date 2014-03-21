@@ -28,17 +28,18 @@
 ==================================================================================================*/
 #include "MsgMmsTypes.h"
 #include <inttypes.h>
+#include <tzplatform_config.h>
 
 /*==================================================================================================
                                     DEFINES
 ==================================================================================================*/
-#define MSG_DATA_ROOT_PATH		"/opt/usr/data/msg-service/"
-#define MSG_DATA_PATH				MSG_DATA_ROOT_PATH"msgdata/"
-#define MSG_SMIL_FILE_PATH		MSG_DATA_ROOT_PATH"smildata/"
-#define MSG_IPC_DATA_PATH			MSG_DATA_ROOT_PATH"ipcdata/"
-#define MSG_THUMBNAIL_PATH		MSG_DATA_PATH"thumbnails/"
+#define MSG_DATA_ROOT_PATH		tzplatform_mkpath(TZ_USER_DATA,"msg-service")
+#define MSG_DATA_PATH			tzplatform_mkpath3(TZ_USER_DATA,"msg-service","msgdata")
+#define MSG_SMIL_FILE_PATH		tzplatform_mkpath3(TZ_USER_DATA,"msg-service","smildata")
+#define MSG_IPC_DATA_PATH		tzplatform_mkpath3(TZ_USER_DATA,"msg-service","ipcdata")
+#define MSG_THUMBNAIL_PATH		tzplatform_mkpath4(TZ_USER_DATA,"msg-service","ipcdata","thumbnails")
 // temporary
-#define TPDU_LOG_FILE 				MSG_DATA_ROOT_PATH"tpduLog.txt"
+#define TPDU_LOG_FILE 			tzplatform_mkpath3(TZ_USER_DATA,"msg-service","tpduLog.txt")
 #define MSG_NATIONAL_SIM	"memory/private/msg-service/national_sim"
 #define MSG_SIM_MSISDN	"memory/private/msg-service/msisdn"
 #define MAX_FULL_PATH_SIZE		320	// max length for internal file path

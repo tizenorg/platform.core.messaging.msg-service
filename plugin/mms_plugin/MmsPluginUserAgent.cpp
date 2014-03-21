@@ -690,7 +690,7 @@ bool MmsPluginUaManager::processReceivedData(int msgId, char *pRcvdBody, int rcv
 	if (MsgCreateFileName(fileName) == false)
 		return false;
 
-	snprintf(retrievedFilePath, MSG_FILEPATH_LEN_MAX, MSG_DATA_PATH"%s", fileName);
+	snprintf(retrievedFilePath, MSG_FILEPATH_LEN_MAX, "%s/%s", MSG_DATA_PATH, fileName);
 
 	MSG_DEBUG("retrievedFilePaths [%s]", retrievedFilePath);
 
