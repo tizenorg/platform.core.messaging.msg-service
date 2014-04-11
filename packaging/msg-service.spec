@@ -545,7 +545,6 @@ fi
 %{_unitdir_user}/tizen-middleware.target.wants/msg-service.service
 %{_unitdir_user}/tizen-middleware.target.wants/msg-service-log.service
 /usr/share/license/msg-service/LICENSE.Flora
-/opt/etc/smack/accesses.d/msg-service.rule
 /etc/config/sysinfo-message.xml
 
 %attr(0755,app,app)/var/log/msgfw
