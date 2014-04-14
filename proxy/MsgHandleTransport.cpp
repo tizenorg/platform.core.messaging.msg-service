@@ -115,7 +115,7 @@ msg_error_t MsgHandle::submitReq(MSG_REQUEST_S* pReq)
 
 	chInfo.listenerFd = MsgProxyListener::instance()->getRemoteFd();
 
-#ifdef __x86_64__
+#if defined(__x86_64__) || defined(__aarch64__)
 	chInfo.handleAddr = (uint64_t) this;
 #else
 	chInfo.handleAddr = (unsigned int) this;
