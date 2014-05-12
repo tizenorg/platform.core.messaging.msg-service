@@ -363,6 +363,7 @@ chown :6011 /opt/usr/dbspace/.msg_service.db
 chown :6011 /opt/usr/dbspace/.msg_service.db-journal
 chmod 660 /opt/usr/dbspace/.msg_service.db
 chmod 660 /opt/usr/dbspace/.msg_service.db-journal
+chsmack -a 'User' /opt/usr/dbspace/.msg_service.db*
 mkdir -p /opt/usr/data/msg-service
 chgrp db_msg_service /opt/usr/data/msg-service
 
