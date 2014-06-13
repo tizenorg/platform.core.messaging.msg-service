@@ -132,8 +132,6 @@ ln -s %{_sysconfdir}/rc.d/init.d/msg-server  %{buildroot}%{_sysconfdir}/rc.d/rc3
 mkdir -p  %{buildroot}%{_sysconfdir}/rc.d/rc5.d
 ln -s %{_sysconfdir}/rc.d/init.d/msg-server  %{buildroot}%{_sysconfdir}/rc.d/rc5.d/S70msg-server
 
-mkdir -p %{buildroot}/opt/usr/data/msg-service
-
 %if 0%{?simulator}
 rm %{buildroot}/etc/config/sysinfo-message.xml
 mv %{buildroot}/etc/config/sysinfo-message.emul.xml %{buildroot}/etc/config/sysinfo-message.xml
