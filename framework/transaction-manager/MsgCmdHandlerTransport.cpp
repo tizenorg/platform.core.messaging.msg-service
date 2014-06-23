@@ -366,7 +366,7 @@ int MsgSentStatusHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 		return MsgMakeEvent(NULL, 0, MSG_EVENT_PLG_SENT_STATUS_CNF, MSG_SUCCESS, (void**)ppEvent);
 	}
 
-#ifdef __x86_64__
+#if defined(__x86_64__) || defined(__aarch64__)
 	uint64_t ret[3] = {0}; //3// reqid, status, object
 #else
 	unsigned int ret[3] = {0}; //3// reqid, status, object
@@ -555,7 +555,7 @@ __BYPASS_UPDATE:
 				return MsgMakeEvent(NULL, 0, MSG_EVENT_PLG_SENT_STATUS_CNF, MSG_SUCCESS, (void**)ppEvent);
 			}
 
-#ifdef __x86_64__
+#if defined(__x86_64__) || defined(__aarch64__)
 			uint64_t ret[3] = {0}; //3// reqid, status, object
 #else
 			unsigned int ret[3] = {0}; //3// reqid, status, object

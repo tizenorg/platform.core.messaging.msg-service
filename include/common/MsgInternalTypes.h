@@ -346,7 +346,7 @@ typedef struct
 typedef struct
 {
 	int						listenerFd;		/**< Rx fd for status cnf */
-#ifdef __x86_64__
+#if defined(__x86_64__) || defined(__aarch64__)
 	uint64_t				handleAddr;		/**< Handle address for status cnf */
 #else
 	unsigned int			handleAddr;		/**< Handle address for status cnf */
