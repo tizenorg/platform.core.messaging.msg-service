@@ -18,6 +18,7 @@
 #include <mm_util_jpeg.h>
 #include <mm_util_imgp.h>
 #include <media-thumbnail.h>
+#include <tzplatform_config.h>
 #include <ctype.h>
 #include <errno.h>
 #include <sys/stat.h>
@@ -39,7 +40,7 @@ bool makeImageThumbnail(char *srcPath, char *dstPath)
 	}
 
 	int err = -1;
-	err = thumbnail_request_save_to_file(srcPath, MEDIA_THUMB_LARGE, dstPath);
+	err = thumbnail_request_save_to_file(srcPath, MEDIA_THUMB_LARGE, dstPath, tzplatform_getuid(TZ_USER_NAME));
 	if (err < 0) {
 		MSG_DEBUG("Make thumbnail: failed, err = %d", err);
 		return false;
