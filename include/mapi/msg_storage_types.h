@@ -119,8 +119,6 @@ enum _MSG_FOLDER_ID_E
 	MSG_DRAFT_ID = 4,
 	MSG_CBMSGBOX_ID = 5,
 	MSG_SPAMBOX_ID = 6,
-//	MSG_SMS_TEMPLATE_ID = 7,
-//	MSG_MMS_TEMPLATE_ID = 8,
 
 	// new folder should be placed here
 
