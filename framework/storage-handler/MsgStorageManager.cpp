@@ -1,17 +1,20 @@
 /*
-* Copyright 2012-2013  Samsung Electronics Co., Ltd
-*
-* Licensed under the Flora License, Version 1.1 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*    http://floralicense.org/license/
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
+ * msg-service
+ *
+ * Copyright (c) 2000 - 2014 Samsung Electronics Co., Ltd. All rights reserved
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
 */
 
 #include <stdio.h>
@@ -644,52 +647,6 @@ msg_error_t MsgAddDefaultFolders()
 		memset(sqlQuery, 0x00, sizeof(sqlQuery));
 		snprintf(sqlQuery, sizeof(sqlQuery), "INSERT INTO %s VALUES (%d, 'SPAMBOX', %d);",
 				MSGFW_FOLDER_TABLE_NAME, MSG_SPAMBOX_ID, MSG_FOLDER_TYPE_SPAMBOX);
-
-		if (dbHandle.execQuery(sqlQuery) != MSG_SUCCESS)
-			return MSG_ERR_DB_EXEC;
-	}
-
-	// SMS TEMPLATE
-	memset(sqlQuery, 0x00, sizeof(sqlQuery));
-	snprintf(sqlQuery, sizeof(sqlQuery), "SELECT COUNT(*) FROM %s WHERE FOLDER_ID = %d;",
-			MSGFW_FOLDER_TABLE_NAME, MSG_SMS_TEMPLATE_ID);
-
-	if (dbHandle.getTable(sqlQuery, &nRowCnt) != MSG_SUCCESS) {
-		dbHandle.freeTable();
-		return MSG_ERR_DB_GETTABLE;
-	}
-
-	nResult = dbHandle.getColumnToInt(1);
-
-	dbHandle.freeTable();
-
-	if (nResult == 0) {
-		memset(sqlQuery, 0x00, sizeof(sqlQuery));
-		snprintf(sqlQuery, sizeof(sqlQuery), "INSERT INTO %s VALUES (%d, 'SMS TEMPLATE', %d);",
-				MSGFW_FOLDER_TABLE_NAME, MSG_SMS_TEMPLATE_ID, MSG_FOLDER_TYPE_TEMPLATE);
-
-		if (dbHandle.execQuery(sqlQuery) != MSG_SUCCESS)
-			return MSG_ERR_DB_EXEC;
-	}
-
-	// MMS TEMPLATE
-	memset(sqlQuery, 0x00, sizeof(sqlQuery));
-	snprintf(sqlQuery, sizeof(sqlQuery), "SELECT COUNT(*) FROM %s WHERE FOLDER_ID = %d;",
-			MSGFW_FOLDER_TABLE_NAME, MSG_MMS_TEMPLATE_ID);
-
-	if (dbHandle.getTable(sqlQuery, &nRowCnt) != MSG_SUCCESS) {
-		dbHandle.freeTable();
-		return MSG_ERR_DB_GETTABLE;
-	}
-
-	nResult = dbHandle.getColumnToInt(1);
-
-	dbHandle.freeTable();
-
-	if (nResult == 0) {
-		memset(sqlQuery, 0x00, sizeof(sqlQuery));
-		snprintf(sqlQuery, sizeof(sqlQuery), "INSERT INTO %s VALUES (%d, 'MMS TEMPLATE', %d);",
-				MSGFW_FOLDER_TABLE_NAME, MSG_MMS_TEMPLATE_ID, MSG_FOLDER_TYPE_TEMPLATE);
 
 		if (dbHandle.execQuery(sqlQuery) != MSG_SUCCESS)
 			return MSG_ERR_DB_EXEC;

@@ -1,17 +1,20 @@
 /*
-* Copyright 2012-2013  Samsung Electronics Co., Ltd
-*
-* Licensed under the Flora License, Version 1.1 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*    http://floralicense.org/license/
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
+ * msg-service
+ *
+ * Copyright (c) 2000 - 2014 Samsung Electronics Co., Ltd. All rights reserved
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
 */
 
 #include <mm_file.h>
@@ -40,7 +43,8 @@ bool makeImageThumbnail(char *srcPath, char *dstPath)
 	}
 
 	int err = -1;
-	err = thumbnail_request_save_to_file(srcPath, MEDIA_THUMB_LARGE, dstPath, tzplatform_getuid(TZ_USER_NAME));
+//	err = thumbnail_request_save_to_file(srcPath, MEDIA_THUMB_LARGE, dstPath, tzplatform_getuid(TZ_USER_NAME));
+	err = thumbnail_request_save_to_file(srcPath, MEDIA_THUMB_LARGE, dstPath);
 	if (err < 0) {
 		MSG_DEBUG("Make thumbnail: failed, err = %d", err);
 		return false;

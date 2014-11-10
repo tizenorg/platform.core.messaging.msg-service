@@ -170,8 +170,6 @@ then
     INSERT INTO MSG_FOLDER_TABLE VALUES (4, 'DRAFT', 3);
     INSERT INTO MSG_FOLDER_TABLE VALUES (5, 'CBMSGBOX', 1);
     INSERT INTO MSG_FOLDER_TABLE VALUES (6, 'SPAMBOX', 4);
-    INSERT INTO MSG_FOLDER_TABLE VALUES (7, 'SMS TEMPLATE', 5);
-    INSERT INTO MSG_FOLDER_TABLE VALUES (8, 'MMS TEMPLATE', 5);
 
     INSERT INTO MSG_PUSHCFG_TABLE VALUES (1, 'text/vnd.wap.si', 'X-Wap-Application-Id: x-wap-application:wml.ua', '', 0, 1, 0);
     INSERT INTO MSG_PUSHCFG_TABLE VALUES (2, 'application/vnd.wap.sic', 'X-Wap-Application-Id: x-wap-application:wml.ua', '', 0, 2, 0);
