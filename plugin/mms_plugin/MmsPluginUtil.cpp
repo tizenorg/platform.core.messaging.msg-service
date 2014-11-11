@@ -43,8 +43,7 @@ bool makeImageThumbnail(char *srcPath, char *dstPath)
 	}
 
 	int err = -1;
-//	err = thumbnail_request_save_to_file(srcPath, MEDIA_THUMB_LARGE, dstPath, tzplatform_getuid(TZ_USER_NAME));
-	err = thumbnail_request_save_to_file(srcPath, MEDIA_THUMB_LARGE, dstPath);
+	err = thumbnail_request_save_to_file(srcPath, MEDIA_THUMB_LARGE, dstPath, tzplatform_getuid(TZ_USER_NAME));
 	if (err < 0) {
 		MSG_DEBUG("Make thumbnail: failed, err = %d", err);
 		return false;
