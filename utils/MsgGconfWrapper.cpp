@@ -49,7 +49,7 @@ bool bUnknownAutoReject = false;
 ==================================================================================================*/
 static void MsgVconfCB(keynode_t *key, void* data)
 {
-	char *keyStr = NULL;
+	const char *keyStr = NULL;
 	keyStr = vconf_keynode_get_name(key);
 
 	if (!keyStr)
