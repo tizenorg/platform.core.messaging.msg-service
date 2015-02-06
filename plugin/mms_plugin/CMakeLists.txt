@@ -45,7 +45,7 @@ INCLUDE_DIRECTORIES(
 )
 
 INCLUDE(FindPkgConfig)
-pkg_check_modules(mms_plugin_pkgs REQUIRED glib-2.0 network libxml-2.0 drm-client libcurl mm-fileinfo mmutil-jpeg vconf dlog media-thumbnail capi-network-connection libtzplatform-config)
+pkg_check_modules(mms_plugin_pkgs REQUIRED glib-2.0 network libxml-2.0 drm-client libcurl mm-fileinfo mmutil-imgp mmutil-jpeg vconf dlog media-thumbnail capi-network-connection libtzplatform-config)
 
 FOREACH(flag ${mms_plugin_pkgs_CFLAGS})
 	SET(EXTRA_CFLAGS "${EXTRA_CFLAGS} ${flag}")
