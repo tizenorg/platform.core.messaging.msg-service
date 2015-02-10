@@ -22,7 +22,7 @@
 #include "MsgGconfWrapper.h"
 #include "MsgHelper.h"
 
-#include <sensor.h>
+#include <sensor_internal.h>
 
 /*==================================================================================================
                                      VARIABLES
