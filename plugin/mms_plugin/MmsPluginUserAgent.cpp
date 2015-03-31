@@ -352,7 +352,8 @@ void MmsPluginUaManager::run()
 				if(strcasestr(buf.machine, "emulated")) {
 					MSG_DEBUG("Running on Emulator mode.");
 
-					int mmsResult = MsgSettingGetInt(VCONFKEY_TELEPHONY_MMS_SENT_STATUS);
+//					int mmsResult = MsgSettingGetInt(VCONFKEY_TELEPHONY_MMS_SENT_STATUS);
+					int mmsResult = 0;
 
 					MSG_DEBUG("MMS result has to be [%d]", mmsResult);
 
