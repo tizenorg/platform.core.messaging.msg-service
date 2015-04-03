@@ -1,33 +1,31 @@
 /*
- * msg-service
- *
- * Copyright (c) 2000 - 2014 Samsung Electronics Co., Ltd. All rights reserved
+ * Copyright (c) 2014 Samsung Electronics Co., Ltd. All rights reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
 */
 
 #ifndef __MsgThdSafeQ_H__
 #define __MsgThdSafeQ_H__
 
-#include <queue>
 #include "MsgMutex.h"
 #include <list>
 
-template <typename T> class MsgThdSafeQ
+
+template <typename T> 
+class MsgSimpleQ
 {
 public:
-	MsgThdSafeQ(){};
+	MsgSimpleQ(){};
 	void pop_front ();
 	bool front(T* qItem);
 	void push_front(T const & input);
@@ -36,28 +34,22 @@ public:
 	bool empty();
 	void clear();
 	bool checkExist(T const & qItem, bool(cmp)(T const &, T const &));
+	void remove(T const & qItem, bool(cmp)(T const &, T const &) );
 private:
-	Mutex mx;
 	std::list <T> q;
 };
 
-/*
-	mx variable guarantees atomic operation in multi-threaded environment.
-	For example, when a thread is executing Pop(), other threads
-	trying to execute one of Pop, Push, Size, Empty are locked.
-*/
-
-template <typename T> void MsgThdSafeQ<T>::pop_front()
+template <typename T> 
+void MsgSimpleQ<T>::pop_front()
 {
-	MutexLocker lock(mx);
 	if( q.empty() ) return;
 
 	q.pop_front();
 }
 
-template <typename T> bool MsgThdSafeQ<T>::front(T* qItem)
+template <typename T> 
+bool MsgSimpleQ<T>::front(T* qItem)
 {
-	MutexLocker lock(mx);
 	if( qItem == NULL || q.empty() )
 		return false; // Fail
 
@@ -67,41 +59,40 @@ template <typename T> bool MsgThdSafeQ<T>::front(T* qItem)
 }
 
 
-template <typename T> void MsgThdSafeQ<T>::push_back(T const & qItem)
+template <typename T> 
+void MsgSimpleQ<T>::push_back(T const & qItem)
 {
-	MutexLocker lock(mx);
 	q.push_back(qItem);
 }
 
-template <typename T> void MsgThdSafeQ<T>::push_front(T const & qItem)
+template <typename T> void 
+MsgSimpleQ<T>::push_front(T const & qItem)
 {
-	MutexLocker lock(mx);
 	q.push_front(qItem);
 }
 
 
-template <typename T> int MsgThdSafeQ<T>::size()
+template <typename T> 
+int MsgSimpleQ<T>::size()
 {
-	MutexLocker lock(mx);
 	return q.size();
 }
 
-template <typename T> bool MsgThdSafeQ<T>::empty()
+template <typename T> 
+bool MsgSimpleQ<T>::empty()
 {
-	MutexLocker lock(mx);
 	return q.empty();
 }
 
-template <typename T> void MsgThdSafeQ<T>::clear()
+template <typename T> 
+void MsgSimpleQ<T>::clear()
 {
-	MutexLocker lock(mx);
 	q.clear();
 }
 
-template <typename T> bool MsgThdSafeQ<T>::checkExist(T const & qItem, bool(cmp)(T const &, T const &))
+template <typename T> 
+bool MsgSimpleQ<T>::checkExist(T const & qItem, bool(cmp)(T const &, T const &))
 {
-	MutexLocker lock(mx);
-
 	for(typename list<T>::iterator iterPos = q.begin(); iterPos != q.end(); ++iterPos) 	{
 
 		if (cmp(qItem, *iterPos) == true)
@@ -111,5 +102,16 @@ template <typename T> bool MsgThdSafeQ<T>::checkExist(T const & qItem, bool(cmp)
 	return false;
 }
 
+template <typename T>
+void MsgSimpleQ<T>::remove(T const & qItem, bool(cmp)(T const &, T const &))
+{
+	for(typename list<T>::iterator iterPos = q.begin(); iterPos != q.end(); ) 	{
+
+		if (cmp(qItem, *iterPos) == true)
+			q.erase(iterPos++);
+		else
+			++iterPos;
+	}
+}
 #endif // __MsgThdSafeQ_H__
 

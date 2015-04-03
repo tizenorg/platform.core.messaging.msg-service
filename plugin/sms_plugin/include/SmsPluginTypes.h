@@ -1,20 +1,17 @@
 /*
- * msg-service
- *
- * Copyright (c) 2000 - 2014 Samsung Electronics Co., Ltd. All rights reserved
+ * Copyright (c) 2014 Samsung Electronics Co., Ltd. All rights reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
 */
 
 #ifndef SMS_PLUGIN_TYPES_H
@@ -37,19 +34,23 @@
 #define MAX_USER_DATA_LEN 			160
 #define MAX_GSM_7BIT_DATA_LEN 		160
 #define MAX_UCS2_DATA_LEN 			140
-#define MAX_TPDU_DATA_LEN			165
+//#define MAX_TPDU_DATA_LEN			165
+//CID 321400: Making MAX_TPDU_DATA_LEN same as TAPI_NETTEXT_SMDATA_SIZE_MAX of TelSms.h to prevent any buffer overflow
+#define MAX_TPDU_DATA_LEN			255
+#define MAX_SMS_SEND_RETRY			4
 #define MAX_SMSC_LEN 				20
 #define MAX_ADD_PARAM_LEN			12
 #define MAX_ABS_TIME_PARAM_LEN		7
 #define MAX_REL_TIME_PARAM_LEN		1
 #define MAX_UD_HEADER_NUM			7
 #define MAX_SAT_TPDU_LEN			175
-#define MAX_CBMSG_PAGE_SIZE		93
+#define MAX_CBMSG_PAGE_SIZE		1252
 #define MAX_ETWS_SIZE			56
 #define MAX_CBMSG_PAGE_NUM		15
 #define MAX_SIM_SMS_NUM			255
-#define MAX_SIM_XDN_ALPHA_ID_LEN	30
+#define MAX_SIM_IMSI_NUM		20
 #define MAX_SIM_MSP_CNT			2
+#define MAX_TELEPHONY_HANDLE_CNT	3
 
 #define SMS_PUSH_XML_HREF_TAG		"href"
 #define SMS_PUSH_XML_SI_ID_TAG		"si-id"
@@ -66,122 +67,53 @@
                                          TYPES
 ==================================================================================================*/
 
-/**
-\brief Represents TPDU Type.
-*/
-typedef unsigned char SMS_TPDU_TYPE_T;
+typedef unsigned char SMS_TPDU_TYPE_T;		/* _SMS_TPDU_TYPE_E */
 
-/**
-\brief Represents TPDU Type.
-*/
-typedef unsigned char SMS_VPF_T;
+typedef unsigned char SMS_VPF_T;		/* _SMS_VPF_E */
 
-/**
-\brief Represents TPDU Type.
-*/
-typedef unsigned char SMS_TON_T;
+typedef unsigned char SMS_TON_T;		/* _SMS_TON_E */
 
-/**
-\brief Represents TPDU Type.
-*/
-typedef unsigned char SMS_NPI_T;
+typedef unsigned char SMS_NPI_T;		/* _SMS_NPI_E */
 
-/**
-\brief Represents TPDU Type.
-*/
-typedef unsigned char SMS_PID_T;
+typedef unsigned char SMS_PID_T;		/* _SMS_PID_E */
 
+typedef unsigned char SMS_MSG_CLASS_T;		/* _SMS_MSG_CLASS_E */
 
-/**
-\brief Represents TPDU Type.
-*/
-typedef unsigned char SMS_MSG_CLASS_T;
+typedef unsigned char SMS_CODING_SCHEME_T;	/* _SMS_CODING_SCHEME_E */
 
+typedef unsigned char SMS_CODING_GROUP_T;	/* _SMS_CODING_GROUP_E */
 
-/**
-\brief Represents TPDU Type.
-*/
-typedef unsigned char SMS_CODING_SCHEME_T;
+typedef unsigned char SMS_INDICATOR_TYPE_T;	/* _SMS_INDICATOR_TYPE_E */
 
+typedef unsigned char SMS_TIME_FORMAT_T;	/* _SMS_TIME_FORMAT_E */
 
-/**
-\brief Represents TPDU Type.
-*/
-typedef unsigned char SMS_CODING_GROUP_T;
+typedef unsigned char SMS_FAIL_CAUSE_T;		/* _SMS_FAIL_CAUSE_E */
 
+typedef unsigned char SMS_STATUS_T;		/* _SMS_STATUS_E */
 
-/**
-\brief Represents TPDU Type.
-*/
-typedef unsigned char SMS_INDICATOR_TYPE_T;
+typedef unsigned char SMS_REF_NUMBER_T;		/* _SMS_REF_NUMBER_E */
 
+typedef unsigned char SMS_REPORT_TYPE_T;	/* _SMS_REPORT_TYPE_E */
 
-/**
-\brief Represents TPDU Type.
-*/
-typedef unsigned char SMS_TIME_FORMAT_T;
+typedef unsigned char SMS_UDH_TYPE_T;		/* _SMS_UDH_TYPE_E */
 
+typedef unsigned char SMS_WAP_APP_CODE_T;	/* _SMS_WAP_APP_CODE_E */
 
-/**
-\brief Represents TPDU Type.
-*/
-typedef unsigned char SMS_FAIL_CAUSE_T;
+typedef unsigned char SMS_CB_NETWORK_TYPE_T;	/* _SMS_CB_NETWORK_TYPE_E */
 
+typedef unsigned char SMS_CBMSG_TYPE_T;		/* _SMS_CBMSG_TYPE_E */
 
-/**
-\brief Represents TPDU Type.
-*/
-typedef unsigned char SMS_STATUS_T;
+typedef unsigned char SMS_CBMSG_LANG_TYPE_T;	/* _SMS_CBMSG_LANG_TYPE_E */
 
+typedef unsigned char SMS_CBMSG_CODING_GROUP_T;	/* _SMS_CBMSG_CODING_GROUP_E */
 
-/**
-\brief Represents TPDU Type.
-*/
-typedef unsigned char SMS_REF_NUMBER_T;
+typedef unsigned char SMS_SAT_CMD_TYPE_T;	/* _SMS_SAT_CMD_TYPE_E */
 
+typedef unsigned short SMS_SIM_EFILE_NAME_T;	/* _SMS_SIM_EFILE_NAME_E */
 
-/**
-\brief Represents TPDU Type.
-*/
-typedef unsigned char SMS_REPORT_TYPE_T;
+typedef unsigned char SMS_SIM_MAILBOX_TYPE_T;	/* _SMS_SIM_MAILBOX_TYPE_E */
 
-
-/**
-\brief Represents TPDU Type.
-*/
-typedef unsigned char SMS_UDH_TYPE_T;
-
-
-/**
-\brief Represents WAP Push App Code.
-*/
-typedef unsigned char SMS_WAP_APP_CODE_T;
-
-
-typedef unsigned char SMS_CB_NETWORK_TYPE_T;
-
-
-typedef unsigned char SMS_CBMSG_TYPE_T;
-
-
-typedef unsigned char SMS_CBMSG_LANG_TYPE_T;
-
-
-typedef unsigned char SMS_CBMSG_CODING_GROUP_T;
-
-
-typedef unsigned char SMS_SAT_CMD_TYPE_T;
-
-
-typedef unsigned short SMS_SIM_EFILE_NAME_T;
-
-
-typedef unsigned char SMS_ETWS_NETWORK_TYPE_T;
-
-/**
-\brief Represents SIM mailbox type. See enum _SMS_SIM_MAILBOX_TYPE_E
-*/
-typedef unsigned char SMS_SIM_MAILBOX_TYPE_T;
+typedef unsigned char SMS_NETWORK_STATUS_T;	/* _SMS_NETWORK_STATUS_E */
 
 /*==================================================================================================
                                     ENUMS
@@ -297,6 +229,7 @@ enum _SMS_CODING_GROUP_E
 enum _SMS_INDICATOR_TYPE_E
 {
 	SMS_VOICE_INDICATOR = 0,
+	SMS_VOICE2_INDICATOR, // Only for CPSH
 	SMS_FAX_INDICATOR,
 	SMS_EMAIL_INDICATOR,
 	SMS_OTHER_INDICATOR,
@@ -340,6 +273,7 @@ enum _SMS_STATUS_E
 	SMS_STATUS_TRY_NO_RESPONSE = 0x22,
 	SMS_STATUS_TRY_SERVICE_REJECTED = 0x23,
 	SMS_STATUS_TRY_QOS_NOT_AVAILABLE = 0x24,
+	SMS_STATUS_TRY_REQUEST_PENDING = 0x30,
 
 	SMS_STATUS_PERM_REMOTE_ERROR = 0x40,
 	SMS_STATUS_PERM_IMCOMPATIBLE_DEST = 0x41,
@@ -386,6 +320,8 @@ enum _SMS_UDH_TYPE_E
 	SMS_UDH_SRC_IND = 0x07,
 	SMS_UDH_CONCAT_16BIT = 0x08,
 	SMS_UDH_WCMP = 0x09,
+	SMS_UDH_EMS_FIRST = 0x0a,
+	SMS_UDH_EMS_LAST = 0x1f,
 	SMS_UDH_ALTERNATE_REPLY_ADDRESS = 0x22,
 	SMS_UDH_SINGLE_SHIFT = 0x24,
 	SMS_UDH_LOCKING_SHIFT = 0x25,
@@ -551,12 +487,27 @@ enum _SMS_SIM_EFILE_NAME_E
 
 
 enum _SMS_SIM_MAILBOX_TYPE_E {
-	MSG_SIM_MAILBOX_VOICE = 0x01,
-	MSG_SIM_MAILBOX_VOICE2 = 0x02,
-	MSG_SIM_MAILBOX_FAX = 0x03,
-	MSG_SIM_MAILBOX_DATA = 0x04,
-	MSG_SIM_MAILBOX_EMAIL = 0x05,
-	MSG_SIM_MAILBOX_OTHER = 0x06,
+	SMS_SIM_MAILBOX_VOICE = 0x01,
+	SMS_SIM_MAILBOX_VOICE2 = 0x02,
+	SMS_SIM_MAILBOX_FAX = 0x03,
+	SMS_SIM_MAILBOX_DATA = 0x04,
+	SMS_SIM_MAILBOX_EMAIL = 0x05,
+	SMS_SIM_MAILBOX_OTHER = 0x06,
+};
+
+
+enum _SMS_NETWORK_STATUS_E {
+	SMS_NETWORK_SEND_SUCCESS = 0x00,
+	SMS_NETWORK_SENDING,
+	SMS_NETWORK_SEND_FAIL,
+	SMS_NETWORK_SEND_FAIL_TIMEOUT,
+	SMS_NETWORK_SEND_FAIL_MANDATORY_INFO_MISSING,
+	SMS_NETWORK_SEND_FAIL_TEMPORARY,
+	SMS_NETWORK_SEND_FAIL_BY_MO_CONTROL_WITH_MOD,
+	SMS_NETWORK_SEND_FAIL_BY_MO_CONTROL_NOT_ALLOWED,
+	SMS_NETWORK_SEND_FAIL_FDN_RESTRICED,
+	SMS_NETWORK_SEND_FAIL_NO_ROUTING,
+	SMS_NETWORK_SEND_PENDING,
 };
 
 
@@ -828,7 +779,7 @@ typedef struct _SMS_CBMSG_PAGE_S
 	SMS_CBMSG_TYPE_T			cbMsgType;							/*CBS Msg or SCHEDULE Msg or CBS41 Msg */
 	SMS_CBMSG_HEADER_S		 	pageHeader;							/**< CB Message Header */
 	int							pageLength;							/**< message string length */
-	char							pageData[MAX_CBMSG_PAGE_SIZE+1];		/**< user data */
+	char							pageData[MAX_CBMSG_PAGE_SIZE*8/7+1];		/**< user data */
 } SMS_CBMSG_PAGE_S;
 
 
@@ -840,7 +791,7 @@ typedef struct _SMS_CBMSG_S
 	SMS_CODING_SCHEME_T		codingScheme;						/**< How to encode a message. */
 	time_t						recvTime;							/**< Msg Recv Time */
 	int							msgLength;							/**< message string length */
-	char							msgData[MAX_CBMSG_PAGE_SIZE*MAX_CBMSG_PAGE_NUM+1];		/**< user data */
+	char							msgData[MAX_CBMSG_PAGE_SIZE*8/7*MAX_CBMSG_PAGE_NUM+1];		/**< user data */
 } SMS_CBMSG_S;
 
 typedef struct _SMS_ETWS_PRIMARY_S
@@ -939,6 +890,7 @@ typedef struct {
 	char 			num[MAX_PHONE_NUMBER_LEN + 1]; 			/**< Dialing Number/SSC String */
 	unsigned char 	cc_id; 									/**< Capability/Configuration Identifier */
 	unsigned char 	ext1_id; 								/**< Extensiion1 Record Identifier */
+	int				num_len;									/**< Length of the original number read from SIM*/
 } SMS_SIM_MAILBOX_INFO_S;
 
 
@@ -995,13 +947,31 @@ typedef struct {
 } SMS_SIM_MWI_INFO_S;
 
 /**
+ *	@brief	Represents SIM MSISDN Information
+ */
+typedef struct {
+	char 	simMsisdn[MAX_SIM_MSISDN_LEN + 1];
+	int 	sim_index;
+} SMS_SIM_MSISDN_INFO_S;
+
+
+/**
  *	@brief	Represents Message Data Information from Telephony.
  */
 typedef struct {
 	unsigned char sca[MAX_ADDRESS_LEN]; /**< Service Center address */
 	int msgLength; /**< Size of array szData (which is actual TPDU message) */
 	unsigned char szData[MAX_TPDU_DATA_LEN + 1]; /**< SMS TPDU message */
+	int totalSegment;	/** total segment count of TPDU message */
 } SMS_DATA_INFO_S;
 
-#endif //SMS_PLUGIN_TYPES_H
 
+/**
+ *	@brief	Represents Telephony Handle from Telephony.
+ */
+typedef struct {
+	int count;
+	struct tapi_handle *handle[MAX_TELEPHONY_HANDLE_CNT]; //max is 3
+} SMS_TELEPHONY_HANDLE_LIST_S;
+
+#endif //SMS_PLUGIN_TYPES_H

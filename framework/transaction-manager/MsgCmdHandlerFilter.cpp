@@ -1,20 +1,17 @@
 /*
- * msg-service
- *
- * Copyright (c) 2000 - 2014 Samsung Electronics Co., Ltd. All rights reserved
+ * Copyright (c) 2014 Samsung Electronics Co., Ltd. All rights reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
 */
 
 #include "MsgDebug.h"
@@ -169,7 +166,15 @@ int MsgGetFilterListHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 		// Encoding Filter List Data
 		dataSize = MsgEncodeFilterList(&filterList, &encodedData);
 
-		delete [] filterList.msg_struct_info;
+		if (filterList.msg_struct_info) {
+			msg_struct_s *msg_struct;
+			for (int i = 0; i < filterList.nCount; i++) {
+				msg_struct = (msg_struct_s *)filterList.msg_struct_info[i];
+				delete (MSG_FILTER_S *)msg_struct->data;
+				delete msg_struct;
+			}
+			g_free(filterList.msg_struct_info);
+		}
 	}
 	else
 	{

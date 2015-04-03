@@ -1,20 +1,17 @@
 /*
- * msg-service
- *
- * Copyright (c) 2000 - 2014 Samsung Electronics Co., Ltd. All rights reserved
+ * Copyright (c) 2014 Samsung Electronics Co., Ltd. All rights reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
 */
 
 #ifndef SMS_PLUGIN_STORAGE_H
@@ -48,38 +45,44 @@ class SmsPluginStorage
 public:
 	static SmsPluginStorage* instance();
 
+	msg_error_t insertMsgRef(MSG_MESSAGE_INFO_S *pMsg, unsigned char msgRef, int index);
+	msg_error_t updateMsgDeliverStatus(MSG_MESSAGE_INFO_S *pMsgInfo, unsigned char msgRef);
+
 	msg_error_t updateSentMsg(MSG_MESSAGE_INFO_S *pMsgInfo, msg_network_status_t Status);
+//	msg_error_t updateMsgRef(msg_message_id_t MsgId, unsigned char MsgRef);
+//	msg_error_t updateStatusReport(unsigned char MsgRef, msg_delivery_report_status_t Status, time_t DeliveryTime);
 
-	msg_error_t addSimMessage(MSG_MESSAGE_INFO_S *pSimMsgInfo);
+	msg_error_t addSimMessage(MSG_MESSAGE_INFO_S *pSimMsgInfo, int *simIdList);
+	msg_error_t insertSimMessage(int simId, int msgId);
+	msg_error_t deleteSimMessage(int sim_idx, int simId);
 
-	msg_error_t addMessage(MSG_MESSAGE_INFO_S *pMsgInfo);
+	msg_error_t checkMessage(MSG_MESSAGE_INFO_S *pMsgInfo);
 	msg_error_t addSmsMessage(MSG_MESSAGE_INFO_S *pMsgInfo);
-
+	msg_error_t deleteSmsMessage(msg_message_id_t msgId);
+#if 0
+	msg_error_t isReceivedCBMessage(SMS_CBMSG_PAGE_S CbPage);
+	msg_error_t insertReceivedCBMessage(SMS_CBMSG_PAGE_S CbPage);
+#endif
 	msg_error_t addSmsSendOption(MSG_MESSAGE_INFO_S *pMsg, MSG_SENDINGOPT_INFO_S *pSendOptInfo);
 
-	msg_error_t deleteSmsMessage(msg_message_id_t MsgId);
+	msg_error_t getReplaceSimMsg(const MSG_MESSAGE_INFO_S *pMsg, int *pMsgId, int *pSimId);
 
-	msg_error_t getRegisteredPushEvent(char* pPushHeader, int *count, char *app_id, char *content_type);
+	msg_error_t checkStorageStatus(MSG_MESSAGE_INFO_S *pMsgInfo);
+	msg_error_t getRegisteredPushEvent(char* pPushHeader, int *count, char *app_id, int app_id_len, char *content_type, int content_type_len);
 	msg_error_t getnthPushEvent(int index, int *appcode);
 	msg_error_t releasePushEvent();
 private:
 	SmsPluginStorage();
 	~SmsPluginStorage();
 
-	msg_error_t updateSmsMessage(MSG_MESSAGE_INFO_S *pMsgInfo);
-
-	msg_error_t addCbMessage(MSG_MESSAGE_INFO_S *pMsgInfo);
-	msg_error_t addReplaceTypeMsg(MSG_MESSAGE_INFO_S *pMsgInfo);
-	msg_error_t addWAPMessage(MSG_MESSAGE_INFO_S *pMsgInfo);
-	msg_error_t handleCOWAPMessage(MSG_MESSAGE_INFO_S *pMsgInfo);
-	msg_error_t checkPushMsgValidation(MSG_PUSH_MESSAGE_S *pPushMsg, bool *pbProceed);
-
-	msg_error_t checkStorageStatus(MSG_MESSAGE_INFO_S *pMsgInfo);
-	msg_error_t updateAllAddress();
+	msg_error_t addClass2Message(MSG_MESSAGE_INFO_S *pMsgInfo);
 
 	static SmsPluginStorage* pInstance;
+	static void* class2_thread(void *data);
 
-	MsgDbHandler dbHandle;
+	MSG_MESSAGE_INFO_S msgInfo;
+	MSG_ADDRESS_INFO_S addrInfo;
+
 	std::list<PUSH_APPLICATION_INFO_S> pushAppInfoList;
 //	unsigned char tmpMsgRef;
 };

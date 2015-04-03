@@ -1,20 +1,17 @@
 /*
- * msg-service
- *
- * Copyright (c) 2000 - 2014 Samsung Electronics Co., Ltd. All rights reserved
+ * Copyright (c) 2014 Samsung Electronics Co., Ltd. All rights reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
 */
 
 #include <stdio.h>
@@ -34,11 +31,11 @@
 #include "MmsPluginDebug.h"
 #include "MmsPluginMessage.h"
 #include "MmsPluginMIME.h"
-#include "MmsPluginAvCodec.h"
 #include "MmsPluginStorage.h"
-#include "MmsPluginSMILValidate.h"
-#include "MmsPluginSmil.h"
 #include "MmsPluginUtil.h"
+#include "MmsPluginTcs.h"
+#include "MsgSmil.h"
+#include "MmsPluginAppBase.h"
 
 #define PRINT_KEY_VAL_STR(key, val)\
 if (val) {\
@@ -51,71 +48,78 @@ MSG_DEBUG("%-20s: %d", key, val);\
 }\
 
 static MsgMultipart *MmsGetNthMultipart(MmsMsg *pMsg, int index);
+static MsgMultipart *MmsMakeMultipart(MimeType mimeType, char *szTitleName, char *szOrgFilePath, char *szContentID, char *szContentLocation);
 static bool MmsSetMsgAddressList(MmsAttrib *pAttrib, const MSG_MESSAGE_INFO_S *pMsgInfo);
 static char *MmsComposeAddress(const MSG_MESSAGE_INFO_S *pMsgInfo, int recipientType);
-static bool MmsGetSmilRawData(MMS_MESSAGE_DATA_S *pMsgBody, char *pRawData, int *nSize);
 static bool MmsInsertPresentation(MmsMsg *pMsg, MimeType mimeType, const char *content_id, char *pData, int size);
-static bool MmsInsertPartFromFile(MmsMsg *pMsg, char *szTitleName, char *szOrgFilePath, char *szContentID);
 static bool MmsInsertPartFromMultipart(MmsMsg *pMsg, MMS_MULTIPART_DATA_S *pNewMultipart);
-static bool MmsGetTypeByFileName(int *type, char *szFileName);
 static bool MmsInsertPartToMmsData(MMS_MESSAGE_DATA_S *pMsgData, MMS_MULTIPART_DATA_S *pMultipart);
+static bool MmsInsertMixedPartToMmsData(MMS_MESSAGE_DATA_S *pMsgData, MMS_MULTIPART_DATA_S *pMultipart);
+static void printMmsAttribute(MmsAttrib *pAttrib);
+
+bool convertMediaToMultipart(MMS_MEDIA_S *pSrcMedia, MMS_MULTIPART_DATA_S *pDestMultipart);
+bool convertAttachToMultipart(MMS_ATTACH_S *pSrcMedia, MMS_MULTIPART_DATA_S *pDestMultipart);
+MMSList * MmsConvertAddressToNewStyle(const char *szAddr);
+char *MmsConvertAddressToOldStyle(MMSList *pAddressList);
+
+void printMmsAttribute(MmsAttrib *pAttrib)
+{
+	MSG_ERR_RET_M(pAttrib == NULL, "attribute is NULL");
+
+	MSG_DEBUG("# LeaveCopy [%d]", pAttrib->bLeaveCopy);
+	MSG_DEBUG("# DeliveryTime type [%d], time [%d]", pAttrib->deliveryTime.type, pAttrib->deliveryTime.time);
+	MSG_DEBUG("# ExpiryTime type [%d], time [%d]", pAttrib->expiryTime.type, pAttrib->expiryTime.time);
+	MSG_DEBUG("# Priority [%d]", pAttrib->priority);
+	MSG_DEBUG("# AskDeliveryReport [%d]", pAttrib->bAskDeliveryReport);
+	MSG_DEBUG("# AskReadReply [%d]", pAttrib->bAskReadReply);
+}
 
 bool MmsSetMsgAddressList(MmsAttrib *pAttrib, const MSG_MESSAGE_INFO_S * pMsgInfo)
 {
-	MSG_DEBUG("MmsSetMsgAddressList");
+	MSG_BEGIN();
+
 	pAttrib->szTo = MmsComposeAddress(pMsgInfo, MSG_RECIPIENTS_TYPE_TO);
-	MSG_DEBUG("To address: %s", pAttrib->szTo);
-	pAttrib->szCc = MmsComposeAddress(pMsgInfo, MSG_RECIPIENTS_TYPE_CC);
-	MSG_DEBUG("Cc address: %s", pAttrib->szCc);
-	pAttrib->szBcc = MmsComposeAddress(pMsgInfo, MSG_RECIPIENTS_TYPE_BCC);
-	MSG_DEBUG("Bcc address: %s", pAttrib->szBcc);
-
-	return true;
-}
-
-void MmsSetMsgMultiStatus(MmsAttrib *pAttrib, const MSG_MESSAGE_INFO_S *pMsgInfo)
-{
-	int	nAddressCnt = 0;
-
-	nAddressCnt = pMsgInfo->nAddressCnt;
-
-	for (int i = 0; i < nAddressCnt; ++i) {
-		pAttrib->pMultiStatus = (MmsMsgMultiStatus *)malloc(sizeof(MmsMsgMultiStatus));
-
-		memset(pAttrib->pMultiStatus->szTo, 0, MAX_ADDRESS_VAL_LEN + 1);
-		strncpy(pAttrib->pMultiStatus->szTo, pMsgInfo->addressList[i].addressVal, MAX_ADDRESS_VAL_LEN);
-
-		MSG_DEBUG("### pMultistatus->szTo = %s ####", pAttrib->pMultiStatus->szTo);
-		pAttrib->pMultiStatus->bDeliveryReportIsRead = false;
-		pAttrib->pMultiStatus->bDeliveyrReportIsLast = false;
-		pAttrib->pMultiStatus->msgStatus = MMS_MSGSTATUS_NONE;
-		pAttrib->pMultiStatus->handledTime = 0;
-		pAttrib->pMultiStatus->bReadReplyIsRead = false;
-		pAttrib->pMultiStatus->bReadReplyIsLast = false;
-		pAttrib->pMultiStatus->readStatus = MMS_READSTATUS_NONE;
-		pAttrib->pMultiStatus->readTime = 0;
-
-		pAttrib->pMultiStatus = pAttrib->pMultiStatus->pNext;
+	if (pAttrib->szTo) {
+		MSG_SEC_DEBUG("To address: %s", pAttrib->szTo);
 	}
+
+	pAttrib->szCc = MmsComposeAddress(pMsgInfo, MSG_RECIPIENTS_TYPE_CC);
+	if (pAttrib->szCc) {
+		MSG_SEC_DEBUG("Cc address: %s", pAttrib->szCc);
+	}
+
+	pAttrib->szBcc = MmsComposeAddress(pMsgInfo, MSG_RECIPIENTS_TYPE_BCC);
+	if (pAttrib->szBcc) {
+		MSG_SEC_DEBUG("Bcc address: %s", pAttrib->szBcc);
+	}
+
+	MSG_END();
+	return true;
 }
 
 char *MmsComposeAddress(const MSG_MESSAGE_INFO_S *pMsgInfo, int recipientType)
 {
-	MSG_DEBUG("MmsComposeAddress");
+	MSG_BEGIN();
 	int	addrLen = 0;
 	int	nAddressCnt = 0;
 	int nRecpCnt = 0;
 	char pString[MSG_LOCALE_NAME_LEN + MSG_ADDR_LEN + 3] = {0, };
 	char *szCompose;
+	const char *typePlmn = "/TYPE=PLMN";
 
 	nAddressCnt = pMsgInfo->nAddressCnt;
 
 	// Calculate allocated buffer size
 	for (int i = 0; i < nAddressCnt; ++i) {
-		MSG_DEBUG("recipientType: %d, address value: %s", pMsgInfo->addressList[i].recipientType, pMsgInfo->addressList[i].addressVal);
+
+		MSG_SEC_DEBUG("recipientType: %d, address value: %s", pMsgInfo->addressList[i].recipientType, pMsgInfo->addressList[i].addressVal);
+
+		if (pMsgInfo->addressList[i].recipientType == MSG_RECIPIENTS_TYPE_UNKNOWN)
+			pMsgInfo->addressList[i].recipientType = MSG_RECIPIENTS_TYPE_TO;
+
 		if (pMsgInfo->addressList[i].recipientType == recipientType) {
 			if (pMsgInfo->addressList[i].addressType == MSG_ADDRESS_TYPE_PLMN) {
-				addrLen += strlen(MsgGetString(MSG_ADDR_TYPE, MSG_ADDR_TYPE_PHONE));
+				addrLen += strlen(typePlmn);
 				addrLen += strlen(pMsgInfo->addressList[i].addressVal);
 			} else if (pMsgInfo->addressList[i].addressType == MSG_ADDRESS_TYPE_EMAIL) {
 				addrLen += strlen(pMsgInfo->addressList[i].addressVal);
@@ -134,49 +138,23 @@ char *MmsComposeAddress(const MSG_MESSAGE_INFO_S *pMsgInfo, int recipientType)
 	for (int i = 0; i < nAddressCnt; ++i) {
 		if (pMsgInfo->addressList[i].recipientType == recipientType) {
 			if (strlen(szCompose) > 0)
-				strcat(szCompose, MSG_STR_ADDR_DELIMETER);
+				g_strlcat(szCompose, MSG_STR_ADDR_DELIMETER, addrLen + 1);
 
 			memset(pString, 0x00, (MSG_LOCALE_NAME_LEN + MSG_ADDR_LEN + 3) * sizeof(char));
 			if (pMsgInfo->addressList[i].addressType == MSG_ADDRESS_TYPE_PLMN) {
-				snprintf(pString, MSG_LOCALE_NAME_LEN + MSG_ADDR_LEN + 3, "%s%s", pMsgInfo->addressList[i].addressVal, MsgGetString(MSG_ADDR_TYPE, MSG_ADDR_TYPE_PHONE));
+				snprintf(pString, MSG_LOCALE_NAME_LEN + MSG_ADDR_LEN + 3, "%s%s", pMsgInfo->addressList[i].addressVal, typePlmn);
 				MSG_DEBUG("%s", pString);
 			} else if (pMsgInfo->addressList[i].addressType == MSG_ADDRESS_TYPE_EMAIL) {
 				snprintf(pString, MSG_LOCALE_NAME_LEN + MSG_ADDR_LEN + 3, "%s", pMsgInfo->addressList[i].addressVal);
 			} else
 				; // Need to consider IPV4, IPV6, and Alias formatted address
 
-			strcat(szCompose, pString);
+			g_strlcat(szCompose, pString, addrLen + 1);
 		}
 	}
 
-	return szCompose;
-}
-
-
-bool MmsGetMsgBodyfromMsgInfo(const MSG_MESSAGE_INFO_S *pMsgInfo, MMS_MESSAGE_DATA_S *pMsgBody, char *pFileData)
-{
-	MSG_DEBUG("MmsGetMsgBodyfromMsgInfo");
-	memset(pMsgBody, 0, sizeof(MMS_MESSAGE_DATA_S));
-
-	if (pMsgInfo->bTextSms == false) {	 //if  the message body was stored in file.
-		_MsgMmsDeserializeMessageData(pMsgBody, pFileData);
-	}
-
-	return true;
-}
-
-bool MmsGetSmilRawData(MMS_MESSAGE_DATA_S *pMsgBody, char **pRawdata)
-{
-	MSG_BEGIN();
-
-	if (MsgReadSmilFile(pMsgBody->szSmilFilePath, pRawdata) < 0)
-		return false;
-
-	MsgDeleteSmilFile(pMsgBody->szSmilFilePath);
-
 	MSG_END();
-
-	return true;
+	return szCompose;
 }
 
 bool MmsInsertPresentation(MmsMsg *pMsg, MimeType mimeType, const char *content_id, char *pData, int size)
@@ -237,214 +215,12 @@ __CATCH:
 	return false;
 }
 
-bool MmsInsertPartFromFile(MmsMsg *pMsg, char *szTitleName, char *szOrgFilePath, char *szContentID)
-{
-	MSG_DEBUG("MmsInsertPartFromFile");
-
-	MsgMultipart *pMultipart = NULL;
-	MsgMultipart *pLastPart = NULL;
-	int nFileSize;
-	MimeType mimeType = MIME_UNKNOWN;
-	char *pExt = NULL;
-
-	pExt = strrchr(szOrgFilePath, '.');
-
-	if (pExt == NULL || pExt[0] == '\0' || strrchr(pExt, '/'))
-		mimeType = MIME_UNKNOWN;
-	else {
-		if (strcasecmp(pExt, ".dcf") == 0)
-			mimeType = MIME_APPLICATION_VND_OMA_DRM_CONTENT;
-		else {
-			if (MmsGetTypeByFileName((int *)&mimeType, szOrgFilePath) == false)
-				goto __CATCH;
-		}
-	}
-
-	MSG_DEBUG("MmsInsertPartFromFile: type = %d, name = %s, filepath = %s, cid = %s", mimeType, szTitleName, szOrgFilePath, szContentID);
-
-	if (mimeType == MIME_UNKNOWN)
-		mimeType = MIME_APPLICATION_OCTET_STREAM;
-
-	if (MmsIsMultipart(pMsg->msgType.type) == true) {
-		/* Insert as a multipart */
-		if (MsgGetFileSize(szOrgFilePath, &nFileSize) == false) {
-			MSG_DEBUG("MsgGetFileSize: failed");
-			goto __CATCH;
-		}
-
-		pMultipart = MmsMakeMultipart(mimeType, szTitleName, szOrgFilePath, szContentID, NULL);
-		if (pMultipart == NULL)
-			goto __CATCH;
-
-		if (pMsg->mmsAttrib.contentType == MIME_APPLICATION_VND_WAP_MULTIPART_MIXED ||
-			pMsg->mmsAttrib.contentType == MIME_MULTIPART_MIXED)
-			pMultipart->type.disposition = MSG_DISPOSITION_ATTACHMENT;
-
-		if (pMsg->msgBody.body.pMultipart == NULL) {
-			pMsg->msgBody.body.pMultipart = pMultipart;
-		} else {
-			pLastPart = pMsg->msgBody.body.pMultipart;
-			while (pLastPart->pNext) {
-				pLastPart = pLastPart->pNext;
-			}
-
-			pLastPart->pNext = pMultipart;
-		}
-
-		pMsg->msgBody.size += pMultipart->pBody->size;
-		pMsg->msgType.contentSize += pMultipart->pBody->size;
-	} else {
-		/* Single part - Insert as a message body */
-		if (pMsg->mmsAttrib.contentType != mimeType || pMsg->msgType.type != mimeType)
-			goto __CATCH;
-
-		strncpy(pMsg->msgType.param.szName, szTitleName, MSG_LOCALE_FILENAME_LEN_MAX);
-
-		if (MmsIsText(pMsg->msgType.type) == true) {
-			pMsg->msgType.param.charset = MSG_CHARSET_UTF8;
-		}
-
-		strncpy(pMsg->msgBody.szOrgFilePath, szOrgFilePath, MSG_FILEPATH_LEN_MAX - 1);
-		if (MsgGetFileSize(szOrgFilePath, &nFileSize) == false) {
-			MSG_DEBUG("MsgGetFileSize: failed");
-			goto __CATCH;
-		}
-
-		pMsg->msgBody.offset = 0;
-		pMsg->msgBody.size = nFileSize;
-		pMsg->msgType.contentSize = nFileSize;
-	}
-
-	pMsg->nPartCount++;
-
-	return true;
-
-__CATCH:
-	return false;
-
-}
-
-bool MmsIsMultipart(int type)
-{
-	MSG_DEBUG("MmsIsMultipart");
-	if (type == MIME_MULTIPART_RELATED ||
-		type == MIME_APPLICATION_VND_WAP_MULTIPART_MIXED ||
-		type == MIME_APPLICATION_VND_WAP_MULTIPART_RELATED ||
-		type == MIME_APPLICATION_VND_WAP_MULTIPART_ASTERIC ||
-		type == MIME_MULTIPART_MIXED ||
-		type == MIME_MULTIPART_REPORT) {
-		return true;
-	} else {
-		return false;
-	}
-}
-
-bool MmsIsText(int type)
-{
-	if (type == MIME_TEXT_PLAIN ||
-		type == MIME_TEXT_HTML ||
-		type == MIME_TEXT_VND_WAP_WML ||
-		type == MIME_TEXT_X_VCARD ||
-		type == MIME_TEXT_X_VCALENDAR ||
-		type == MIME_TEXT_X_VNOTE ||
-		type == MIME_APPLICATION_SMIL ||
-		type == MIME_TEXT_X_IMELODY) {
-		MSG_DEBUG("MmsIsText true.");
-		return true;
-	} else {
-		MSG_DEBUG("MmsIsText false.");
-		return false;
-	}
-}
-
-bool MmsIsVitemContent (int type, char *pszName)
-{
-	switch (type) {
-
-/*
-*	To make Encoding information right.
-*		case MIME_TEXT_X_VCARD :
-*		case MIME_TEXT_X_VCALENDAR :
-*		case MIME_TEXT_X_VNOTE :	// vnt
-*		{
-*			MSG_DEBUG("MmsIsVitemContent true.");
-*			return true;
-*		}
-*
-*/
-	case MIME_TEXT_X_VCARD:
-	case MIME_TEXT_X_VCALENDAR:
-	case MIME_TEXT_X_VNOTE:	// vnt
-	case MIME_TEXT_PLAIN:		// vbm - It SHOULD be distinguished from a normal text file.
-		{
-			char *pszExt = NULL;
-
-			if (!pszName)
-				break;
-
-			// search file extension.
-			if ((pszExt = strrchr(pszName, '.')) == NULL)
-				break;
-
-			if (!strcasecmp(pszExt, ".vbm")) {
-				MSG_DEBUG("MmsIsVitemContent true.");
-				return true;
-			}
-		}
-		break;
-
-	default:
-		break;
-	}
-
-	MSG_DEBUG("MmsIsVitemContent false.");
-	return false;
-}
-
-
-
-MsgMultipart *MmsAllocMultipart(void)
-{
-	MsgMultipart *pMultipart = NULL;
-
-	pMultipart = (MsgMultipart *)malloc(sizeof(MsgMultipart));
-
-	if (pMultipart == NULL)
-		goto __CATCH;
-
-	pMultipart->pBody = (MsgBody *)malloc(sizeof(MsgBody));
-
-	if (pMultipart->pBody == NULL)
-		goto __CATCH;
-
-	MmsInitMsgType(&pMultipart->type);
-	MmsInitMsgBody(pMultipart->pBody);
-
-	pMultipart->pNext = NULL;
-
-	return pMultipart;
-
-__CATCH:
-
-	if (pMultipart) {
-		if (pMultipart->pBody) {
-			free(pMultipart->pBody);
-			pMultipart->pBody = NULL;
-		}
-
-		free(pMultipart);
-		pMultipart = NULL;
-	}
-
-	return NULL;
-}
-
 MsgMultipart *MmsMakeMultipart(MimeType mimeType, char *szTitleName, char *szOrgFilePath, char *szContentID, char *szContentLocation)
 {
 	MsgMultipart *pMultipart = NULL;
 
 	if ((pMultipart = MmsAllocMultipart()) == NULL)
-		return NULL;
+		goto __CATCH;
 
 	pMultipart->type.type = mimeType;
 
@@ -463,7 +239,7 @@ MsgMultipart *MmsMakeMultipart(MimeType mimeType, char *szTitleName, char *szOrg
 		snprintf(pMultipart->type.szContentLocation, MSG_MSG_ID_LEN + 1, "%s", szContentLocation);
 	}
 
-	if (MmsIsText(mimeType) == true) {
+	if (MmsIsTextType(mimeType) == true) {
 		if (!MmsIsVitemContent (mimeType, pMultipart->type.param.szName)) {
 			pMultipart->type.param.charset = MSG_CHARSET_UTF8;
 		}
@@ -474,284 +250,15 @@ MsgMultipart *MmsMakeMultipart(MimeType mimeType, char *szTitleName, char *szOrg
 
 	if (szOrgFilePath) {
 		strncpy(pMultipart->pBody->szOrgFilePath, szOrgFilePath, MSG_FILEPATH_LEN_MAX - 1);
+		strncpy(pMultipart->type.szOrgFilePath, szOrgFilePath, MSG_FILEPATH_LEN_MAX - 1);
 		pMultipart->pBody->offset = 0;
 		pMultipart->pBody->size = MsgGetFileSize(szOrgFilePath);
 	}
 	return pMultipart;
-}
-
-bool MmsGetTypeByFileName(int *type, char *szFileName)
-{
-	char *pExt   = NULL;
-	AvCodecType AvType = AV_CODEC_NONE;
-
-	/* AVMS unknown or text/image file format identify type from file extention  */
-
-	pExt = strrchr(szFileName, '.');
-	if (pExt == NULL || pExt[0] == '\0')
-		goto __CATCH;
-
-	pExt++;
-
-	if (strcasecmp(pExt, "mp4") == 0 || strcasecmp(pExt, "mpeg4") == 0 ||
-		strcasecmp(pExt, "3gp") == 0 || strcasecmp(pExt, "3gpp") == 0) {
-		/* Audio / Video format. If file exists already, AvGetFileCodecType() can identify the format  */
-		if (szFileName[0] != '/')
-			goto __CATCH;
-
-		AvType = AvGetFileCodecType(szFileName);
-
-		switch (AvType) {
-		case AV_DEC_AUDIO_MPEG4:
-			*type = MIME_AUDIO_MP4;//*type = MIME_AUDIO_3GPP;
-			break;
-
-		case AV_DEC_VIDEO_MPEG4:
-			*type = MIME_VIDEO_MP4;
-			break;
-
-		default:
-			*type = MIME_VIDEO_3GPP;
-			break;
-		}
-		return true;
-	}
-
-	if (strcasecmp(pExt, "amr") == 0) {
-		*type = MIME_AUDIO_AMR;
-		return true;
-	} else if ((strcasecmp(pExt, "mid") == 0) || (strcasecmp(pExt, "midi") == 0)) {
-		*type = MIME_AUDIO_MIDI;
-		return true;
-	} else if (strcasecmp(pExt, "imy") == 0) {
-		*type = MIME_TEXT_X_IMELODY;
-		return true;
-	}
-
-	*type = MimeGetMimeFromExtInt((const char *)pExt);
-
-	return true;
 
 __CATCH:
 
-	*type = MIME_UNKNOWN;
-	return false;
-
-}
-
-bool MmsComposeMessage(MmsMsg *pMmsMsg, MSG_MESSAGE_INFO_S *pMsgInfo, MSG_SENDINGOPT_INFO_S *pSendOptInfo, MMS_MESSAGE_DATA_S *pMsgData, char *pFileData)
-{
-	MSG_BEGIN();
-
-	char *pRawData = NULL;
-	AutoPtr<char> buf(&pRawData);
-
-	struct tm *timeInfo = NULL;
-	time_t RawTime = 0;
-	time_t nTimeInSecs = 0;
-
-	msg_error_t	err = MSG_SUCCESS;
-
-	// Initialize mmsMsg structure
-	MmsInitMsgAttrib(&pMmsMsg->mmsAttrib);
-	MmsInitMsgType(&pMmsMsg->msgType);
-	MmsInitMsgBody(&pMmsMsg->msgBody);
-
-	// setting mmsMsg structure
-	pMmsMsg->mailbox = pMsgInfo->folderId;
-	pMmsMsg->msgID = pMsgInfo->msgId;
-
-	memset(pMmsMsg->szTrID, 0, MMS_TR_ID_LEN + 1);
-	memset(pMmsMsg->szContentLocation, 0, MMS_LOCATION_LEN + 1);
-	memset(pMmsMsg->szMsgID, 0, MMS_MSG_ID_LEN + 1);
-	memset(pMmsMsg->szForwardMsgID, 0, MMS_MSG_ID_LEN + 1);
-
-	pMmsMsg->mmsAttrib.dataType = MMS_DATATYPE_DRAFT;
-
-	MSG_DEBUG("## delivery = %d ##", pSendOptInfo->bDeliverReq);
-	MSG_DEBUG("## read = %d ##", pSendOptInfo->option.mmsSendOptInfo.bReadReq);
-	MSG_DEBUG("## priority = %d ##", pSendOptInfo->option.mmsSendOptInfo.priority);
-	MSG_DEBUG("## expiryTime = %d ##", pSendOptInfo->option.mmsSendOptInfo.expiryTime.time);
-
-	if (pSendOptInfo->bSetting == false) {
-		unsigned int expiryTime;
-		MSG_MMS_DELIVERY_TIME_T deliveryTime;
-
-		pMmsMsg->mmsAttrib.priority = (MmsPriority)MsgSettingGetInt(MMS_SEND_PRIORITY);
-
-		MsgSettingGetBool(MMS_SEND_DELIVERY_REPORT, &pMmsMsg->mmsAttrib.bAskDeliveryReport);
-		MsgSettingGetBool(MMS_SEND_READ_REPLY, &pMmsMsg->mmsAttrib.bAskReadReply);
-		MsgSettingGetBool(MSG_KEEP_COPY, &pMmsMsg->mmsAttrib.bLeaveCopy);
-
-		expiryTime = (unsigned int)MsgSettingGetInt(MMS_SEND_EXPIRY_TIME);
-
-		if (expiryTime == 0)
-			pMmsMsg->mmsAttrib.expiryTime.type = MMS_TIMETYPE_NONE;
-		else {
-			pMmsMsg->mmsAttrib.expiryTime.type = MMS_TIMETYPE_RELATIVE;
-			pMmsMsg->mmsAttrib.expiryTime.time = expiryTime;
-		}
-
-		deliveryTime = (MSG_MMS_DELIVERY_TIME_T)MsgSettingGetInt(MMS_SEND_DELIVERY_TIME);
-
-		if (deliveryTime == MSG_DELIVERY_TIME_CUSTOM) {
-			pMmsMsg->mmsAttrib.bUseDeliveryCustomTime = true;
-
-			pMmsMsg->mmsAttrib.deliveryTime.type = MMS_TIMETYPE_RELATIVE;
-			pMmsMsg->mmsAttrib.deliveryTime.time = (unsigned int)MsgSettingGetInt(MMS_SEND_CUSTOM_DELIVERY);
-		} else {
-			pMmsMsg->mmsAttrib.bUseDeliveryCustomTime = false;
-
-			pMmsMsg->mmsAttrib.deliveryTime.type = MMS_TIMETYPE_RELATIVE;
-			pMmsMsg->mmsAttrib.deliveryTime.time = (unsigned int)deliveryTime;
-		}
-	} else {
-		pMmsMsg->mmsAttrib.priority = (MmsPriority)pSendOptInfo->option.mmsSendOptInfo.priority;
-		pMmsMsg->mmsAttrib.bAskDeliveryReport = pSendOptInfo->bDeliverReq;
-		pMmsMsg->mmsAttrib.bAskReadReply = pSendOptInfo->option.mmsSendOptInfo.bReadReq;
-		pMmsMsg->mmsAttrib.expiryTime.type = pSendOptInfo->option.mmsSendOptInfo.expiryTime.type;
-		pMmsMsg->mmsAttrib.bLeaveCopy = pSendOptInfo->bKeepCopy;
-
-		if (pMmsMsg->mmsAttrib.expiryTime.type != MMS_TIMETYPE_NONE)
-			pMmsMsg->mmsAttrib.expiryTime.time = pSendOptInfo->option.mmsSendOptInfo.expiryTime.time;
-
-		pMmsMsg->mmsAttrib.bUseDeliveryCustomTime = pSendOptInfo->option.mmsSendOptInfo.bUseDeliveryCustomTime;
-		pMmsMsg->mmsAttrib.deliveryTime.type = pSendOptInfo->option.mmsSendOptInfo.deliveryTime.type;
-		pMmsMsg->mmsAttrib.deliveryTime.time = pSendOptInfo->option.mmsSendOptInfo.deliveryTime.time;
-	}
-
-	MSG_DEBUG("pSendOptInfo->bSetting = %d", pSendOptInfo->bSetting);
-	MSG_DEBUG("pMmsMsg->mmsAttrib.bLeaveCopy = %d", pMmsMsg->mmsAttrib.bLeaveCopy);
-	MSG_DEBUG("pMmsMsg->mmsAttrib.bUseDeliveryCustomTime = %d", pMmsMsg->mmsAttrib.bUseDeliveryCustomTime);
-	MSG_DEBUG("pMmsMsg->mmsAttrib.deliveryTime.type = %d", pMmsMsg->mmsAttrib.deliveryTime.type);
-	MSG_DEBUG("pMmsMsg->mmsAttrib.deliveryTime.time = %d", pMmsMsg->mmsAttrib.deliveryTime.time);
-
-	/* MMS-1.3-con-739 */
-	pMmsMsg->mmsAttrib.msgClass = (MmsMsgClass)MsgSettingGetInt(MMS_SEND_MSG_CLASS);
-	/* MMS-1.3-con-739 */
-#ifdef MMS_13_CON_742_ENABLED
-	/* MMS-1.3-con-742 */
-	pMmsMsg->mmsAttrib.deliveryTime.time = (unsigned int)MsgSettingGetInt(MMS_SEND_DELIVERY_TIME);
-	/* MMS-1.3-con-742 */
-#endif
-
-	MSG_DEBUG("@@@ pMmsMsg->mmsAttrib.bAskDeliveryReport = %d @@@", pMmsMsg->mmsAttrib.bAskDeliveryReport);
-	MSG_DEBUG("@@@ pMmsMsg->mmsAttrib.bAskReadReply = %d @@@", pMmsMsg->mmsAttrib.bAskReadReply);
-	MSG_DEBUG("@@@ pMmsMsg->mmsAttrib.priority = %d @@@", pMmsMsg->mmsAttrib.priority);
-
-	// setting date
-	time(&RawTime);
-	timeInfo = localtime(&RawTime);
-	nTimeInSecs = mktime(timeInfo);
-	pMmsMsg->mmsAttrib.date = nTimeInSecs;	// todo: need to subtract timeline value to make GMT+0 time
-
-	//setting subject
-	strcpy(pMmsMsg->mmsAttrib.szSubject, pMsgInfo->subject);
-
-	//setting adddress
-	MmsSetMsgAddressList(&pMmsMsg->mmsAttrib, pMsgInfo);
-	//MmsGetMsgBodyfromMsgInfo(pMsgInfo, pMsgData, pFileData);
-
-	int pageCnt = _MsgMmsGetPageCount(pMsgData);
-
-	if (pageCnt == 0) {	// Multipart mixed
-		pMmsMsg->mmsAttrib.contentType = MIME_APPLICATION_VND_WAP_MULTIPART_MIXED;
-		pMmsMsg->msgType.type = MIME_APPLICATION_VND_WAP_MULTIPART_MIXED;
-		MmsMakePreviewInfo(pMsgInfo->msgId, pMsgData);
-	} else {	// Multipart related
-
-		int RawDataSize = 0;
-
-		time_t RawTime = 0;
-		time(&RawTime);
-		snprintf(pMsgData->szSmilFilePath, MSG_FILEPATH_LEN_MAX, "%lu", RawTime);
-
-		MsgMMSCreateSMIL(pMsgData);
-
-		RawDataSize = MmsGetSmilRawData(pMsgData, &pRawData);
-		if (RawDataSize < 0) {
-			MSG_DEBUG("Smil file size is less than 0");
-			return false;
-		}
-		MSG_DEBUG("%s", pRawData);
-		if (pRawData)
-			MmsInsertPresentation(pMmsMsg, MIME_APPLICATION_SMIL, NULL, pRawData, strlen(pRawData));
-
-		pMmsMsg->mmsAttrib.contentType = MIME_APPLICATION_VND_WAP_MULTIPART_RELATED;
-		pMmsMsg->msgType.type = MIME_APPLICATION_VND_WAP_MULTIPART_RELATED;
-
-		for (int i = 0; i < pageCnt; ++i) {
-			MMS_PAGE_S *pPage = _MsgMmsGetPage(pMsgData, i);
-			int mediaCnt = pPage->mediaCnt;
-			MSG_DEBUG("PAGE %d's media Cnt: %d", i+1, mediaCnt);
-
-			for (int j = 0; j < mediaCnt; ++j) {
-				MMS_MEDIA_S *pMedia = _MsgMmsGetMedia(pPage, j);
-
-				switch (pMedia->mediatype) {
-				case MMS_SMIL_MEDIA_IMG:
-				case MMS_SMIL_MEDIA_VIDEO:
-				case MMS_SMIL_MEDIA_AUDIO:
-				case MMS_SMIL_MEDIA_TEXT:
-					if (pMedia->szFilePath[0] != 0) {
-						if (!MmsInsertPartFromFile(pMmsMsg, pMedia->szFileName, pMedia->szFilePath, pMedia->szContentID))
-							return false;
-					}
-					break;
-
-				default:
-					break;
-				}
-			}
-		}
-
-		char szFileName[MSG_FILENAME_LEN_MAX+1] = {0, };;
-		snprintf(szFileName, MSG_FILENAME_LEN_MAX+1, "%d.mms", pMsgInfo->msgId);
-
-		MmsPluginStorage *pStorage = MmsPluginStorage::instance();
-		err = pStorage->getMsgText(pMsgData, pMsgInfo->msgText);
-		MmsMakePreviewInfo(pMsgInfo->msgId, pMsgData);
-	}
-
-#ifdef FEATURE_JAVA_MMS
-	MSG_DEBUG("msgAppId: valid:%d appId:%s replyToAppId:%s", pMsgData->msgAppId.valid, pMsgData->msgAppId.appId, pMsgData->msgAppId.replyToAppId);
-	if (pMsgData->msgAppId.valid) {	// check if msgAppId.valid is true, both appId and replytoappId must have a meaning data
-		if (pMsgData->msgAppId.appId[0] != 0) {
-			pMmsMsg->msgType.param.szApplicationID = (char *)malloc(strlen(pMsgData->msgAppId.appId) + 1);
-			if (pMmsMsg->msgType.param.szApplicationID == NULL) {
-				MSG_DEBUG("Error: out of Memory");
-				return false;
-			}
-			memset(pMmsMsg->msgType.param.szApplicationID, 0, strlen(pMsgData->msgAppId.appId) + 1);
-
-			strcpy(pMmsMsg->msgType.param.szApplicationID, pMsgData->msgAppId.appId);
-		}
-
-		if (pMsgData->msgAppId.replyToAppId[0] != 0) {
-			pMmsMsg->msgType.param.szReplyToApplicationID = (char *)malloc(strlen(pMsgData->msgAppId.replyToAppId) + 1);
-			if (pMmsMsg->msgType.param.szReplyToApplicationID == NULL) {
-				MSG_DEBUG("Error: out of Memory");
-				return false;
-			}
-			memset(pMmsMsg->msgType.param.szReplyToApplicationID, 0, strlen(pMsgData->msgAppId.replyToAppId) + 1);
-
-			strcpy(pMmsMsg->msgType.param.szReplyToApplicationID, pMsgData->msgAppId.replyToAppId);
-		}
-	}
-#endif
-
-	//Processing Attachment List
-	for (int i = 0; i < _MsgMmsGetAttachCount(pMsgData); ++i) {
-		MMS_ATTACH_S *pMedia = _MsgMmsGetAttachment(pMsgData, i);
-		if (pMedia->szFilePath[0] != 0) {
-			if (!MmsInsertPartFromFile(pMmsMsg, pMedia->szFileName, pMedia->szFilePath, NULL)) {
-				free(pMedia);
-				return false;
-			}
-		}
-	}
-
-	return true;
+	return NULL;
 }
 
 void MmsComposeNotiMessage(MmsMsg *pMmsMsg, msg_message_id_t msgID)
@@ -841,7 +348,7 @@ void MmsComposeReadReportMessage(MmsMsg *pMmsMsg, const MSG_MESSAGE_INFO_S *pMsg
 	MmsPluginStorage::instance()->getMmsMessageId(selectedMsgId, pMmsMsg);
 
 	//setting subject
-	strcpy(pMmsMsg->mmsAttrib.szSubject, pMsgInfo->subject);
+	snprintf(pMmsMsg->mmsAttrib.szSubject, sizeof(pMmsMsg->mmsAttrib.szSubject), "%s", pMsgInfo->subject);
 
 	//setting adddress
 	MmsSetMsgAddressList(&pMmsMsg->mmsAttrib, pMsgInfo);
@@ -850,154 +357,53 @@ void MmsComposeReadReportMessage(MmsMsg *pMmsMsg, const MSG_MESSAGE_INFO_S *pMsg
 		strncpy(pMmsMsg->mmsAttrib.szFrom, pMmsMsg->mmsAttrib.szTo, strlen(pMmsMsg->mmsAttrib.szTo));
 }
 
-bool MmsFindMatchedMedia(MMS_MESSAGE_DATA_S *pMsgData, char *pszFilePath)
+msg_error_t MmsMakeMultipartThumbnailInfo(MMS_MULTIPART_DATA_S *pMultipart, char *thumbnail_path)
 {
-	if (pMsgData == NULL || pszFilePath == NULL)
-		return false;
-
-	if (pMsgData->pagelist) {
-		for (int pageIdx = 0; pageIdx < pMsgData->pageCnt; pageIdx++) {
-			MMS_PAGE_S *page = (MMS_PAGE_S *)g_list_nth_data(pMsgData->pagelist, pageIdx);
-
-			if (page && page->medialist) {
-				for (int mediaIdx = 0; mediaIdx < page->mediaCnt; mediaIdx++) {
-					MMS_MEDIA_S *media = (MMS_MEDIA_S *)g_list_nth_data(page->medialist, mediaIdx);
-					if (media) {
-						if (strcmp(pszFilePath, media->szFilePath) == 0)
-							return true;
-					}
-				}
-			}
-		}
-	}
-
-	return false;
-}
-
-bool MmsCheckAdditionalMedia(MMS_MESSAGE_DATA_S *pMsgData, MsgType *partHeader)
-{
-	if (MmsFindMatchedMedia(pMsgData, partHeader->param.szFileName))
-		return false;
-	else
-		return true;
-}
-
-/*PIM objects SHALL be supported as attachments to an MM*/
-bool MmsRemovePims(MMS_MESSAGE_DATA_S *pMsgData)
-{
-	GList *cur_page = NULL;
-	GList *cur_media = NULL;
-
-	if (pMsgData == NULL)
-		return false;
-
-	cur_page = pMsgData->pagelist;
-
-	while(cur_page) {
-		MMS_PAGE_S *page = (MMS_PAGE_S *)cur_page->data;
-		if (page) {
-			cur_media = page->medialist;
-
-			while(cur_media) {
-				MMS_MEDIA_S *pMedia = (MMS_MEDIA_S *)cur_media->data;
-				if (pMedia) {
-					int tempType;
-					MsgGetTypeByFileName(&tempType, pMedia->szFilePath);
-					if (tempType == MIME_TEXT_X_VCALENDAR || tempType == MIME_TEXT_X_VCARD) {
-						page->medialist = g_list_remove_all(page->medialist, pMedia);
-						page->mediaCnt = g_list_length(page->medialist);
-						cur_media = page->medialist;
-						free(pMedia);
-					} else {
-						cur_media =  g_list_next(cur_media);
-					}
-				} else {
-					cur_media =  g_list_next(cur_media);
-				}
-			} //cur_media while for remove pims file in list
-
-			if (page->medialist == NULL) {//remove empty page
-				pMsgData->pagelist = g_list_remove_all(pMsgData->pagelist, page);
-				pMsgData->pageCnt = g_list_length(pMsgData->pagelist);
-				cur_page = pMsgData->pagelist;
-				free(page);
-			} else {
-				cur_page =  g_list_next(cur_page);
-			}
-		}
-	}//cur_page while
-
-
-	return true;
-}
-
-msg_error_t MmsMakePreviewInfo(int msgId, MMS_MESSAGE_DATA_S *pMmsMsg)
-{
-	MMS_PAGE_S *pPage = NULL;
-	MMS_MEDIA_S *pMedia = NULL;
-
-	if (pMmsMsg == NULL)
+	if (pMultipart == NULL || thumbnail_path == NULL)
 		return MSG_ERR_NULL_POINTER;
 
-	MmsPluginStorage::instance()->removePreviewInfo(msgId); //remove exist previnfo
+//	if (MimeGetMainTypeString(MimeGetMimeStringFromMimeInt(pMultipart->type)) != MIME_MAINTYPE_VIDEO)
+//		return MSG_ERR_INVALID_PARAMETER;
 
-	if (pMmsMsg->pageCnt > 0) {
+	char szFileName[MSG_FILENAME_LEN_MAX+1] = {0, };
+	char szFileNameWoExt[MSG_FILENAME_LEN_MAX+1] = {0, };
+	char thumbPath[MSG_FILEPATH_LEN_MAX+1] = {0, };
+	char *pszExt = NULL;
+	char *pszOrgFileName = NULL;
 
-		MmsPluginStorage::instance()->insertPreviewInfo(msgId, MSG_MMS_ITEM_TYPE_PAGE, (char *)"pagecount", pMmsMsg->pageCnt);
+	memset(szFileName, 0x00, MSG_FILENAME_LEN_MAX+1);
+	memset(thumbPath, 0x00, MSG_FILEPATH_LEN_MAX);
 
-		pPage = _MsgMmsGetPage(pMmsMsg, 0);
-		for (int j = 0; j < pPage->mediaCnt; j++) {
+	MSG_DEBUG("drm type = %d, %s", pMultipart->drmType, pMultipart->szFilePath);
 
-			pMedia = _MsgMmsGetMedia(pPage, j);
-			MSG_DEBUG("pMedia's Name: %s", pMedia->szFilePath);
+	if (pMultipart->drmType == MSG_DRM_TYPE_NONE) {
+		pszOrgFileName = strrchr(pMultipart->szFilePath, '/');
+		pszExt = strrchr(pMultipart->szFilePath, '.');
 
-			if (pMedia->mediatype == MMS_SMIL_MEDIA_IMG || pMedia->mediatype == MMS_SMIL_MEDIA_VIDEO) {
-				char szFileName[MSG_FILENAME_LEN_MAX+1] = {0, };
-				char thumbPath[MSG_FILEPATH_LEN_MAX+1] = {0, };
-				char *pszExt = NULL;
-
-				memset(szFileName, 0x00, MSG_FILENAME_LEN_MAX+1);
-				memset(thumbPath, 0x00, MSG_FILEPATH_LEN_MAX);
-
-				snprintf(szFileName, MSG_FILENAME_LEN_MAX+1, "%d.mms",msgId);
-
-				if ((pszExt = strrchr(pMedia->szFilePath, '.')) != NULL && !strcasecmp(pszExt, ".png")) {
-					snprintf(thumbPath, MSG_FILEPATH_LEN_MAX, "%s/%s.png", MSG_THUMBNAIL_PATH, szFileName);
-				} else {
-					snprintf(thumbPath, MSG_FILEPATH_LEN_MAX, "%s/%s.jpg", MSG_THUMBNAIL_PATH, szFileName);
-				}
-
-				if (pMedia->mediatype == MMS_SMIL_MEDIA_IMG) {
-					if (makeImageThumbnail(pMedia->szFilePath, thumbPath) == true) {
-						MmsPluginStorage::instance()->insertPreviewInfo(msgId, MSG_MMS_ITEM_TYPE_IMG, thumbPath);
-					} else {
-						MSG_DEBUG("Fail of generating thumbnail: %s to %s", pMedia->szFilePath, thumbPath);
-					}
-				} else {
-					if (makeImageThumbnail(pMedia->szFilePath, thumbPath) == true) {
-						MmsPluginStorage::instance()->insertPreviewInfo(msgId, MSG_MMS_ITEM_TYPE_VIDEO, thumbPath);
-					} else {
-						MSG_DEBUG("Fail of generating thumbnail: %s to %s", pMedia->szFilePath, thumbPath);
-					}
-				}
-
-			} else if (pMedia->mediatype == MMS_SMIL_MEDIA_AUDIO) {
-				MmsPluginStorage::instance()->insertPreviewInfo(msgId, MSG_MMS_ITEM_TYPE_AUDIO, pMedia->szFileName);
-			}
+		if (NULL == pszOrgFileName || NULL == pszExt) {
+			MSG_DEBUG("Fail in getting filename without extension string");
+			return MSG_ERR_PLUGIN_STORAGE;
 		}
-	} else {
-		MSG_DEBUG("There is no page");
+
+		strncpy(szFileNameWoExt, pszOrgFileName + 1, strlen(pszOrgFileName + 1) - strlen(pszExt));
+		snprintf(szFileName, MSG_FILENAME_LEN_MAX+1, "thumb_msg_%s", szFileNameWoExt);
+
+		if (!strcasecmp(pszExt, ".png")) {
+			snprintf(thumbPath, MSG_FILEPATH_LEN_MAX, MSG_THUMBNAIL_PATH"%s.png", szFileName);
+		} else {
+			snprintf(thumbPath, MSG_FILEPATH_LEN_MAX, MSG_THUMBNAIL_PATH"%s.jpg", szFileName);
+		}
+
+		if (MmsMakeImageThumbnail(pMultipart->szFilePath, thumbPath) == true) {
+			memcpy(thumbnail_path, &thumbPath, strlen(thumbPath));
+			MSG_DEBUG("Generated thumbnail: %s ", thumbnail_path);
+			return MSG_SUCCESS;
+		} else {
+			MSG_DEBUG("Fail of generating thumbnail: %s to %s", pMultipart->szFilePath, thumbPath);
+		}
 	}
 
-	int attachCnt = _MsgMmsGetAttachCount(pMmsMsg);
-	if (attachCnt > 0) {
-		MMS_ATTACH_S *pAttach = _MsgMmsGetAttachment(pMmsMsg, 0);
-		MmsPluginStorage::instance()->insertPreviewInfo(msgId, MSG_MMS_ITEM_TYPE_ATTACH, pAttach->szFileName, attachCnt);
-	} else {
-		MSG_DEBUG("There is no attachment");
-	}
-
-	return MSG_SUCCESS;
+	return MSG_ERR_PLUGIN_STORAGE;
 }
 
 void MmsPrintFileInfoForVLD(MMS_MESSAGE_DATA_S *pMmsMsg)
@@ -1036,42 +442,34 @@ void MmsPrintFileInfoForVLD(MMS_MESSAGE_DATA_S *pMmsMsg)
 	}
 }
 
-MMS_MEDIA_S *MmsFindMediaWithCID(MMS_MESSAGE_DATA_S *pMsgData, const char *szContentID)
+bool IsMatchedMedia(MMS_MEDIA_S *media, MMS_MULTIPART_DATA_S *pMultipart)
 {
+	if (strlen(pMultipart->szContentID) > 0) {
 
-	if (pMsgData == NULL || szContentID == NULL || strlen(szContentID) == 0) {
-		MSG_DEBUG("Invalid Parameter pMsgData = %p, szContentID = %p", pMsgData, szContentID);
-		return NULL;
+		char szTempContentID[MSG_MSG_ID_LEN + 1] = {0,};
+		MmsRemoveLessGreaterChar(pMultipart->szContentID, szTempContentID, sizeof(szTempContentID));
+
+		if (strcmp(media->szContentID,  szTempContentID) == 0) {
+			return true;
+		}
+
+		if (strcmp(media->szContentLocation,  szTempContentID) == 0) {
+			return true;
+		}
 	}
 
-	if (pMsgData->pagelist) {
-		for (int pageIdx = 0; pageIdx < pMsgData->pageCnt; pageIdx++) {
+	if (strlen(pMultipart->szContentLocation) > 0) {
+		if (strcmp(media->szContentID,  pMultipart->szContentLocation) == 0) {
+			return true;
+		}
 
-			MMS_PAGE_S *page = (MMS_PAGE_S *)g_list_nth_data(pMsgData->pagelist, pageIdx);
-
-			if (page && page->medialist) {
-
-				for (int mediaIdx = 0; mediaIdx < page->mediaCnt; mediaIdx++) {
-
-					MMS_MEDIA_S *media = (MMS_MEDIA_S *)g_list_nth_data(page->medialist, mediaIdx);
-
-					if (media) {
-						if (strcmp(media->szContentID,  szContentID) == 0) {
-							MSG_DEBUG("Find media with Content ID [%s] from pMsgData", szContentID);
-							return media;
-						}
-
-					} else {
-						MSG_DEBUG("Error media NULL");
-						return NULL;
-					}
-				} //end for media list
-			}
-		} //end for page list
+		if (strcmp(media->szContentLocation,  pMultipart->szContentLocation) == 0) {
+			return true;
+		}
 	}
 
-	MSG_DEBUG("Not exist Matched media with [%s]", szContentID);
-	return NULL;
+	MSG_DEBUG("There is not matched media cid [%s], cl, [%s], multipart cid [%s], cl, [%s]", media->szContentID, media->szContentLocation, pMultipart->szContentID, pMultipart->szContentLocation);
+	return false;
 }
 
 MsgMultipart *MmsGetNthMultipart(MmsMsg *pMsg, int index)
@@ -1099,55 +497,77 @@ MsgMultipart *MmsGetNthMultipart(MmsMsg *pMsg, int index)
 	return NULL;
 }
 
+bool MmsFindAndInsertPart(MMS_MESSAGE_DATA_S *pMsgData, MMS_MULTIPART_DATA_S *pMultipart)
+{
+	bool insert_media = false;
+
+	if (pMsgData->pagelist) {
+		for (int pageIdx = 0; pageIdx < pMsgData->pageCnt; pageIdx++) {
+
+			MMS_PAGE_S *page = (MMS_PAGE_S *)g_list_nth_data(pMsgData->pagelist, pageIdx);
+
+			if (page && page->medialist) {
+
+				for (int mediaIdx = 0; mediaIdx < page->mediaCnt; mediaIdx++) {
+
+					MMS_MEDIA_S *media = (MMS_MEDIA_S *)g_list_nth_data(page->medialist, mediaIdx);
+
+					if (media) { // add media
+						if (IsMatchedMedia(media, pMultipart) == true) { //matched media
+
+//							if (media->mediatype == MMS_SMIL_MEDIA_IMG_OR_VIDEO) { // ref type is not insert part
+//								MSG_DEBUG("## Matched but media type is ref ##");
+//								return false;
+//							}
+
+							insert_media = true;
+							media->drmType = pMultipart->drmType;
+							snprintf(media->szFilePath, sizeof(media->szFilePath), "%s", pMultipart->szFilePath);
+							snprintf(media->szFileName, sizeof(media->szFileName), "%s", pMultipart->szFileName);
+							snprintf(media->szContentID, sizeof(media->szContentID), "%s", pMultipart->szContentID);
+							snprintf(media->szContentLocation, sizeof(media->szContentLocation), "%s", pMultipart->szContentLocation);
+							snprintf(media->szContentType, sizeof(media->szContentType), "%s", pMultipart->szContentType);
+
+							MSG_SEC_DEBUG("InsertPart to pageIndx [%d] mediaIdx[%d] media[%p] : path = [%s], name = [%s], cid = [%s], cl = [%s], ct = [%s]"\
+									, pageIdx, mediaIdx, media, media->szFilePath, media->szFileName, media->szContentID, media->szContentLocation, media->szContentType);
+						}
+					}
+				} //end for media list
+			}
+		} //end for page list
+	}
+
+	return insert_media;
+}
+
 bool MmsInsertPartToMmsData(MMS_MESSAGE_DATA_S *pMsgData, MMS_MULTIPART_DATA_S *pMultipart)
 {
-	MMS_MEDIA_S * match_media = NULL;
-	bool isPimsFile = false;
-	int tempType;//MimeType
+	MSG_BEGIN();
+
+	bool isInsert = false;
 
 	if (pMsgData == NULL || pMultipart == NULL) {
 		return false;
 	}
 
-	//for pims file add to attach
-	MsgGetTypeByFileName(&tempType, pMultipart->szFilePath);
-	if (tempType == MIME_TEXT_X_VCALENDAR || tempType == MIME_TEXT_X_VCARD) {
-		MSG_DEBUG("Pims File");
-		isPimsFile = true;
-	} else {
+	isInsert = MmsFindAndInsertPart(pMsgData, pMultipart);
 
-		if (strlen(pMultipart->szContentID) > 0) {
-			char szTempContentID[MSG_MSG_ID_LEN + 1] = {0,};
-			removeLessGreaterMark(pMultipart->szContentID, szTempContentID, sizeof(szTempContentID));
-			match_media = MmsFindMediaWithCID(pMsgData, szTempContentID);
-
-			if (match_media == NULL && strlen(pMultipart->szContentLocation) > 0 ) {
-				match_media = MmsFindMediaWithCID(pMsgData, pMultipart->szContentLocation);
-			}
-
-		} else {
-			MSG_DEBUG("ContentID is NULL");
-			match_media = NULL;
-		}
-
-	}
-
-	if (match_media && isPimsFile == false) { // set file path
-		snprintf(match_media->szFilePath, sizeof(match_media->szFilePath), "%s", pMultipart->szFilePath);
-		snprintf(match_media->szFileName, sizeof(match_media->szFileName), "%s", pMultipart->szFileName);
-		snprintf(match_media->szContentID, sizeof(match_media->szContentID), "%s", pMultipart->szContentID);
-		snprintf(match_media->szContentLocation, sizeof(match_media->szContentLocation), "%s", pMultipart->szContentLocation);
-		snprintf(match_media->szContentType, sizeof(match_media->szContentType), "%s", pMultipart->szContentType);
-	} else { // add attach
-
+	if (isInsert == false) {
 		MMS_ATTACH_S *attachment = NULL;
 		attachment = (MMS_ATTACH_S *)calloc(sizeof(MMS_ATTACH_S), 1);
+		attachment->drmType = pMultipart->drmType;
 
-		attachment->mediatype = (MimeType)tempType;
-		snprintf(attachment->szContentType, sizeof(attachment->szContentType), "%s", pMultipart->szContentType);
+		if (strlen(pMultipart->szContentType) > 0) {
+			snprintf(attachment->szContentType, sizeof(attachment->szContentType), "%s", pMultipart->szContentType);
+			attachment->mediatype =  pMultipart->type;
+		}
+
 		snprintf(attachment->szFilePath, sizeof(attachment->szFilePath), "%s", pMultipart->szFilePath);
 		snprintf(attachment->szFileName, sizeof(attachment->szFileName), "%s", pMultipart->szFileName);
 		attachment->fileSize = MsgGetFileSize(attachment->szFilePath);
+
+		MSG_SEC_DEBUG("Insert Attach to attachment[%p] : path = [%s], name = [%s], ct = [%s], size = [%d]"\
+						, attachment, attachment->szFilePath, attachment->szFileName, attachment->szContentType, attachment->fileSize);
 
 		if (_MsgMmsAddAttachment(pMsgData, attachment) != MSG_SUCCESS) {
 			g_free(attachment);
@@ -1155,63 +575,87 @@ bool MmsInsertPartToMmsData(MMS_MESSAGE_DATA_S *pMsgData, MMS_MULTIPART_DATA_S *
 		}
 	}
 
+	MSG_END();
 	return true;
 }
 
-bool MmsEncodeMmsMessage(MmsMsg *pMmsMsg, const char *raw_filepath)
+bool MmsInsertMixedPartToMmsData(MMS_MESSAGE_DATA_S *pMsgData, MMS_MULTIPART_DATA_S *pMultipart)
 {
-	bool encode_ret = false;
-	mode_t file_mode = (S_IRUSR | S_IWUSR);
+	MSG_BEGIN();
 
-	if (pMmsMsg == NULL || raw_filepath == NULL) {
-		MSG_DEBUG("Invalid Parameter pMmsMsg = %p , raw_filepath = %p", pMmsMsg, raw_filepath);
+	if (pMsgData == NULL || pMultipart == NULL) {
 		return false;
 	}
 
-	FILE *pFile = MsgOpenFile(raw_filepath, "wb+");
+	MimeMainType mainType = MimeGetMainTypeInt(pMultipart->type);
+	MmsSmilMediaType mediatype = MMS_SMIL_MEDIA_INVALID;
 
-	if (pFile == NULL) {
-		MSG_FATAL("File Open Error: %s", strerror(errno));
-		goto __CATCH;
-	}
-
-	if (MsgFseek(pFile, 0L, SEEK_CUR) < 0) {
-		MSG_DEBUG("File Fseek Error: %s", strerror(errno));
-		goto __CATCH;
-	}
-
-	if (fchmod(fileno(pFile), file_mode) < 0) {
-		MSG_DEBUG("File chmod Error: %s", strerror(errno));
-		goto __CATCH;
-	}
-
-	switch(pMmsMsg->mmsAttrib.msgType)
-	{
-		case MMS_MSGTYPE_SEND_REQ:
-		case MMS_MSGTYPE_SEND_CONF:
-			encode_ret = MmsEncodeSendReq(pFile, pMmsMsg);
-			if (encode_ret == false) {
-				MSG_DEBUG("Fail to MmsEncodeSendReq");
-				goto __CATCH;
-			}
+	switch(mainType) {
+	case MIME_MAINTYPE_AUDIO:
+		mediatype = MMS_SMIL_MEDIA_AUDIO;
 		break;
-		default:
-			MSG_DEBUG("Not Support msg type : %d", pMmsMsg->mmsAttrib.msgType);
-			goto __CATCH;
+	case MIME_MAINTYPE_IMAGE:
+		mediatype = MMS_SMIL_MEDIA_IMG;
+		break;
+	case MIME_MAINTYPE_TEXT:
+		mediatype = MMS_SMIL_MEDIA_TEXT;
+		break;
+	case MIME_MAINTYPE_VIDEO:
+		mediatype = MMS_SMIL_MEDIA_VIDEO;
+		break;
+	default :
+		mediatype = MMS_SMIL_MEDIA_INVALID;
 		break;
 	}
 
-	MsgFsync(pFile);	//file is written to device immediately, it prevents missing file data from unexpected power off
-	MsgCloseFile(pFile);
+	if (mediatype != MMS_SMIL_MEDIA_INVALID) {
+		MMS_PAGE_S *pPage = (MMS_PAGE_S *)calloc(1, sizeof(MMS_PAGE_S));
+		MMS_MEDIA_S *media = (MMS_MEDIA_S *)calloc(1, sizeof(MMS_MEDIA_S));
 
+		media->mediatype = mediatype;
+		media->drmType = pMultipart->drmType;
+		snprintf(media->szFilePath, sizeof(media->szFilePath), "%s", pMultipart->szFilePath);
+		snprintf(media->szFileName, sizeof(media->szFileName), "%s", pMultipart->szFileName);
+		snprintf(media->szContentID, sizeof(media->szContentID), "%s", pMultipart->szContentID);
+		snprintf(media->szContentLocation, sizeof(media->szContentLocation), "%s", pMultipart->szContentLocation);
+		snprintf(media->szContentType, sizeof(media->szContentType), "%s", pMultipart->szContentType);
+
+		MSG_SEC_DEBUG("InsertPart to media[%p] type[%d] : path = [%s], name = [%s], cid = [%s], cl = [%s], ct = [%s]"\
+				, media, mediatype,  media->szFilePath, media->szFileName, media->szContentID, media->szContentLocation, media->szContentType);
+
+		if (_MsgMmsAddMedia(pPage, media) != MSG_SUCCESS) {
+			g_free(pPage);
+			g_free(media);
+			return false;
+		}
+
+		if (_MsgMmsAddPage(pMsgData, pPage) != MSG_SUCCESS) {
+			g_free(pPage);
+			g_free(media);
+			return false;
+		}
+
+	} else {
+		MMS_ATTACH_S *attachment = NULL;
+		attachment = (MMS_ATTACH_S *)calloc(sizeof(MMS_ATTACH_S), 1);
+
+		attachment->mediatype =  pMultipart->type;
+		attachment->drmType = pMultipart->drmType;
+		snprintf(attachment->szContentType, sizeof(attachment->szContentType), "%s", pMultipart->szContentType);
+		snprintf(attachment->szFilePath, sizeof(attachment->szFilePath), "%s", pMultipart->szFilePath);
+		snprintf(attachment->szFileName, sizeof(attachment->szFileName), "%s", pMultipart->szFileName);
+		attachment->fileSize = MsgGetFileSize(attachment->szFilePath);
+		MSG_SEC_DEBUG("Insert Attach to attachment[%p] : path = [%s], name = [%s], ct = [%s], size = [%d]"\
+						, attachment, attachment->szFilePath, attachment->szFileName, attachment->szContentType, attachment->fileSize);
+
+		if (_MsgMmsAddAttachment(pMsgData, attachment) != MSG_SUCCESS) {
+			g_free(attachment);
+			return false;
+		}
+	}
+
+	MSG_END();
 	return true;
-
-__CATCH:
-	if (pFile) {
-		MsgCloseFile(pFile);
-	}
-
-	return false;
 }
 
 bool MmsInsertPartFromMultipart(MmsMsg *pMsg, MMS_MULTIPART_DATA_S *pNewMultipart)
@@ -1219,31 +663,9 @@ bool MmsInsertPartFromMultipart(MmsMsg *pMsg, MMS_MULTIPART_DATA_S *pNewMultipar
 	MsgMultipart *pMultipart = NULL;
 	MsgMultipart *pLastPart = NULL;
 
-	MimeType mimeType = MIME_UNKNOWN;
-	char *pExt = NULL;
-
-	pExt = strrchr(pNewMultipart->szFilePath, '.');
-
-	if (pExt == NULL || pExt[0] == '\0' || strrchr(pExt, '/')) {
-		//mimeType = MIME_UNKNOWN;
-		mimeType = MimeGetMimeIntFromMimeString(pNewMultipart->szContentType);
-	} else {
-		if (strcasecmp(pExt, ".dcf") == 0)
-			mimeType = MIME_APPLICATION_VND_OMA_DRM_CONTENT;
-		else {
-			if (MmsGetTypeByFileName((int *)&mimeType, pNewMultipart->szFilePath) == false)
-				goto __CATCH;
-		}
-	}
-
-	MSG_DEBUG("type = %d, name = %s, filepath = %s, cid = %s, cl = %s", mimeType, pNewMultipart->szFileName, pNewMultipart->szFilePath, pNewMultipart->szContentID, pNewMultipart->szContentLocation);
-
-	if (mimeType == MIME_UNKNOWN)
-		mimeType = MIME_APPLICATION_OCTET_STREAM;
-
 	if (MmsIsMultipart(pMsg->msgType.type) == true) {
 		/* Insert as a multipart */
-		pMultipart = MmsMakeMultipart(mimeType, pNewMultipart->szFileName, pNewMultipart->szFilePath, pNewMultipart->szContentID, pNewMultipart->szContentLocation);
+		pMultipart = MmsMakeMultipart(pNewMultipart->type, pNewMultipart->szFileName, pNewMultipart->szFilePath, pNewMultipart->szContentID, pNewMultipart->szContentLocation);
 
 		if (pMultipart == NULL)
 			goto __CATCH;
@@ -1267,12 +689,12 @@ bool MmsInsertPartFromMultipart(MmsMsg *pMsg, MMS_MULTIPART_DATA_S *pNewMultipar
 		pMsg->msgType.contentSize += pMultipart->pBody->size;
 	} else {
 		/* Single part - Insert as a message body */
-		if (pMsg->mmsAttrib.contentType != mimeType || pMsg->msgType.type != mimeType)
+		if (pMsg->mmsAttrib.contentType != pNewMultipart->type || pMsg->msgType.type != pNewMultipart->type)
 			goto __CATCH;
 
 		strncpy(pMsg->msgType.param.szName, pNewMultipart->szFileName, MSG_LOCALE_FILENAME_LEN_MAX);
 
-		if (MmsIsText(pMsg->msgType.type) == true) {
+		if (MmsIsTextType(pMsg->msgType.type) == true) {
 			pMsg->msgType.param.charset = MSG_CHARSET_UTF8;
 		}
 
@@ -1291,11 +713,11 @@ __CATCH:
 
 }
 
-bool MmsMakeMmsData(MmsMsg *pMsg, MMS_MESSAGE_DATA_S *pMmsMsg)
+bool MmsConvertMsgData(MmsMsg *pMsg, MMS_MESSAGE_DATA_S *pMmsMsg)
 {
 	MSG_BEGIN();
 
-	bzero(pMmsMsg, sizeof(MMS_MESSAGE_DATA_S));
+	//bzero(pMmsMsg, sizeof(MMS_MESSAGE_DATA_S));
 	pMmsMsg->regionCnt = 0;
 	pMmsMsg->pageCnt = 0;
 	pMmsMsg->attachCnt = 0;
@@ -1305,12 +727,11 @@ bool MmsMakeMmsData(MmsMsg *pMsg, MMS_MESSAGE_DATA_S *pMmsMsg)
 
 	if (pMsg->mmsAttrib.contentType == MIME_MULTIPART_RELATED || pMsg->mmsAttrib.contentType == MIME_APPLICATION_VND_WAP_MULTIPART_RELATED) {
 		char *pSmilDoc = NULL;
-
 		if (pMsg->msgBody.pPresentationBody) {
 			if (pMsg->msgBody.pPresentationBody->body.pText) {
 				pSmilDoc = pMsg->msgBody.pPresentationBody->body.pText;
 				if (pSmilDoc) {
-					MmsSmilParseSmilDocOnlyLayout(pMmsMsg, pSmilDoc);
+					MsgSmilParseSmilDoc(pMmsMsg, pSmilDoc);
 				}
 
 				pMmsMsg->smil.type = MIME_APPLICATION_SMIL;
@@ -1318,37 +739,106 @@ bool MmsMakeMmsData(MmsMsg *pMsg, MMS_MESSAGE_DATA_S *pMmsMsg)
 				snprintf(pMmsMsg->smil.szContentID, MSG_MSG_ID_LEN, "%s", pMsg->msgBody.presentationType.szContentID);
 				snprintf(pMmsMsg->smil.szContentLocation, MSG_MSG_ID_LEN, "%s", pMsg->msgBody.presentationType.szContentLocation);
 				snprintf(pMmsMsg->smil.szFileName, MSG_FILENAME_LEN_MAX, "%s", pMsg->msgBody.presentationType.param.szName);
-				snprintf(pMmsMsg->smil.szFilePath, MSG_FILEPATH_LEN_MAX, "%s/%s", MSG_DATA_PATH, pMsg->msgBody.presentationType.param.szFileName);
+				snprintf(pMmsMsg->smil.szFilePath, MSG_FILEPATH_LEN_MAX, "%s%s", MSG_DATA_PATH, pMsg->msgBody.presentationType.param.szFileName);
 			}
 		} else {
 			MSG_DEBUG("Not Exist pPresentationBody");
 		}
 	}
 
-	int partCnt = pMsg->nPartCount;
+	/*If mms content type is TEXTPLAN add to First Page*/
+	if (pMsg->mmsAttrib.contentType == MIME_TEXT_PLAIN) {
+		MsgType partHeader;
+		int partCnt = pMsg->nPartCount;
 
-	for (int i = 0; i < partCnt; ++i) {
+		if (partCnt <= 0) {
+			MSG_DEBUG("partCnt=%d\n", partCnt );
+		} else {
 
-		MsgMultipart *multipart = MmsGetNthMultipart(pMsg, i);
-		MMS_MULTIPART_DATA_S pMultipart;
+			if (MmsGetMediaPartHeader(0, &partHeader) == false) {
+				MSG_DEBUG("Failed to get MediaPart MmsGetMediaPartHeader" );
+				goto FREE_CATCH;
+			}
 
-		if (multipart == NULL) {
-			MSG_DEBUG("multipart is NULL [%d]", i);
-			goto FREE_CATCH;
+			if (partHeader.contentSize > 0) {
+				char szBuf[MSG_FILEPATH_LEN_MAX + 1] = {0,};
+				MMS_PAGE_S *page = NULL;
+				MMS_MEDIA_S *media = NULL;
+
+				snprintf(szBuf, sizeof(szBuf), "%s", partHeader.param.szFileName);
+				snprintf(partHeader.param.szFileName, sizeof(partHeader.param.szFileName), "%s%s", MSG_DATA_PATH, szBuf);
+
+				page =  (MMS_PAGE_S *)calloc(1, sizeof(MMS_PAGE_S));
+				if (page == NULL) {
+					MSG_FATAL("page allocation error");
+					goto FREE_CATCH;
+				}
+
+				media = (MMS_MEDIA_S *)calloc(1, sizeof(MMS_MEDIA_S));
+				if (media == NULL) {
+					MSG_FATAL("media allocation error");
+					free(page);
+					goto FREE_CATCH;
+				}
+
+				media->mediatype = MMS_SMIL_MEDIA_TEXT;
+				snprintf(media->szFilePath, sizeof(media->szFilePath), "%s", partHeader.param.szFileName);
+				snprintf(media->szFileName, sizeof(media->szFileName), "%s", partHeader.param.szName);
+				snprintf(media->szContentID, sizeof(media->szContentID), "%s", partHeader.szContentID);
+				snprintf(media->szContentLocation, sizeof(media->szContentLocation), "%s", partHeader.szContentLocation);
+
+				_MsgMmsAddMedia(page, media);
+
+				_MsgMmsAddPage(pMmsMsg, page);
+			}
+
 		}
+	} else {
 
-		bzero(&pMultipart, sizeof(MMS_MULTIPART_DATA_S));
-		snprintf(pMultipart.szContentID, sizeof(pMultipart.szContentID), "%s", multipart->type.szContentID);
-		snprintf(pMultipart.szContentLocation, sizeof(pMultipart.szContentLocation), "%s", multipart->type.szContentLocation);
-		snprintf(pMultipart.szFileName, sizeof(pMultipart.szFileName), "%s", multipart->type.param.szName);
-		snprintf(pMultipart.szFilePath, sizeof(pMultipart.szFilePath), "%s", multipart->pBody->szOrgFilePath);
-		snprintf(pMultipart.szContentType, sizeof(pMultipart.szContentType), "%s",MimeGetMimeStringFromMimeInt(multipart->type.type));
+		int partCnt = pMsg->nPartCount;
 
-		if (MmsInsertPartToMmsData(pMmsMsg, &pMultipart) == false) {
-			MSG_DEBUG("Fail to MmsSetMultipartToMmsData");
-			goto FREE_CATCH;
+		for (int i = 0; i < partCnt; ++i) {
+
+			MsgMultipart *multipart = MmsGetNthMultipart(pMsg, i);
+			MMS_MULTIPART_DATA_S pMultipart;
+
+			if (multipart == NULL) {
+				MSG_DEBUG("multipart is NULL [%d]", i);
+				goto FREE_CATCH;
+			}
+
+			bzero(&pMultipart, sizeof(MMS_MULTIPART_DATA_S));
+
+			pMultipart.type = (MimeType)multipart->type.type;
+			MSG_DEBUG("Mime Type : %s :%d", MimeGetMimeStringFromMimeInt(multipart->type.type), multipart->type.type);
+			snprintf(pMultipart.szContentID, sizeof(pMultipart.szContentID), "%s", multipart->type.szContentID);
+			snprintf(pMultipart.szContentLocation, sizeof(pMultipart.szContentLocation), "%s", multipart->type.szContentLocation);
+			snprintf(pMultipart.szFileName, sizeof(pMultipart.szFileName), "%s", multipart->type.param.szName);
+			snprintf(pMultipart.szFilePath, sizeof(pMultipart.szFilePath), "%s", multipart->pBody->szOrgFilePath);
+			snprintf(pMultipart.szContentType, sizeof(pMultipart.szContentType), "%s",MimeGetMimeStringFromMimeInt(multipart->type.type));
+
+			if (multipart->type.drmInfo.drmType != MSG_DRM_TYPE_NONE) {
+				pMultipart.drmType = multipart->type.drmInfo.drmType;
+			}
+
+			_MsgMmsMultipartPrint(&pMultipart);
+
+			if (pMsg->mmsAttrib.contentType == MIME_MULTIPART_RELATED || pMsg->mmsAttrib.contentType == MIME_APPLICATION_VND_WAP_MULTIPART_RELATED) {
+				if (MmsInsertPartToMmsData(pMmsMsg, &pMultipart) == false) {
+					MSG_DEBUG("Fail to MmsSetMultipartToMmsData");
+					goto FREE_CATCH;
+				}
+			} else {
+				if (MmsInsertMixedPartToMmsData(pMmsMsg, &pMultipart) == false) {
+					MSG_DEBUG("Fail to MmsSetMultipartToMmsData");
+					goto FREE_CATCH;
+				}
+			}
 		}
 	}
+
+	_MsgMmsRemoveEmptyObject(pMmsMsg);
+
 	MSG_END();
 	return true;
 FREE_CATCH:
@@ -1390,239 +880,584 @@ void MmsPrintMmsMsg(const MmsMsg *pMmsMsg)
 
 }
 
-bool MmsComposeSendReq(MmsMsg *pMmsMsg, MSG_MESSAGE_INFO_S *pMsgInfo, MSG_SENDINGOPT_INFO_S *pSendOptInfo, MMS_MESSAGE_DATA_S *pMsgData)
+int MmsUpdateMultipartList(MSG_MESSAGE_INFO_S *pMsgInfo)
+{
+	MSG_BEGIN();
+	MMSList *multipart_list = NULL;
+
+	if (MmsPluginStorage::instance()->getMultipartList(pMsgInfo->msgId, &multipart_list) != MSG_SUCCESS)
+		return -1;
+
+	for (int i = 0; i < (int)g_list_length(multipart_list); i++) {
+		MMS_MULTIPART_DATA_S *pMultipart = (MMS_MULTIPART_DATA_S *)g_list_nth_data(multipart_list, i);
+		MmsPluginStorage::instance()->updateMultipart(pMsgInfo->msgId, true, pMultipart);
+	}
+
+	MSG_END();
+	return 0;
+}
+
+int MmsUpdatePreviewData(MSG_MESSAGE_INFO_S *pMsgInfo)
 {
 	MSG_BEGIN();
 
-	char *pRawData = NULL;
-	AutoPtr<char> buf(&pRawData);
-	struct tm *timeInfo = NULL;
-	time_t RawTime = 0;
-	time_t nTimeInSecs = 0;
+	char szFullPath[MSG_FILEPATH_LEN_MAX] = {0, };
+	MmsMsg mmsMsg;
+
+	memset(&mmsMsg, 0, sizeof(MmsMsg));
+
+	MmsPluginStorage::instance()->getMmsRawFilePath(pMsgInfo->msgId, szFullPath, sizeof(szFullPath));
+	MmsPluginDecoder::instance()->decodeMmsPdu(&mmsMsg, pMsgInfo->msgId, szFullPath);
+
+	{//make Preview info for APP
+		MmsPluginAppBase appBase(&mmsMsg);
+		appBase.makePreviewInfo(pMsgInfo->msgId, true, szFullPath);
+		appBase.getFirstPageTextFilePath(pMsgInfo->msgText, sizeof(pMsgInfo->msgText));
+	}
+	MmsReleaseMmsMsg(&mmsMsg);
+	MSG_END();
+	return 0;
+}
+
+//MmsMsg -> MMS_DATA_S
+bool MmsConvertMmsData(MmsMsg *pMmsMsg, MMS_DATA_S *pMmsData)
+{
+	MSG_BEGIN();
+
+	MMS_HEADER_DATA_S *pHeaderData = pMmsData->header;
+	if (pHeaderData) {
+
+		snprintf(pHeaderData->messageID,  sizeof(pHeaderData->messageID), "%s", pMmsMsg->szMsgID);
+		snprintf(pHeaderData->trID,  sizeof(pHeaderData->trID), "%s", pMmsMsg->szTrID);
+		snprintf(pHeaderData->contentLocation,  sizeof(pHeaderData->contentLocation), "%s", pMmsMsg->szContentLocation);
+		snprintf(pHeaderData->szContentType,  sizeof(pHeaderData->szContentType), "%s", MimeGetMimeStringFromMimeInt(pMmsMsg->mmsAttrib.contentType));
+
+		pHeaderData->messageType = pMmsMsg->mmsAttrib.msgType;
+		pHeaderData->mmsVersion = pMmsMsg->mmsAttrib.version;
+		pHeaderData->messageClass = pMmsMsg->mmsAttrib.msgClass;
+		pHeaderData->contentClass = 0;
+		pHeaderData->mmsPriority = pMmsMsg->mmsAttrib.priority;
+		pHeaderData->expiry.type = pMmsMsg->mmsAttrib.expiryTime.type;
+		pHeaderData->expiry.time = pMmsMsg->mmsAttrib.expiryTime.time;
+
+		pHeaderData->bDeliveryReport = pMmsMsg->mmsAttrib.bAskDeliveryReport;
+		pHeaderData->date = pMmsMsg->mmsAttrib.date;
+		pHeaderData->mmsVersion = pMmsMsg->mmsAttrib.version;
+
+		pHeaderData->bReadReport = pMmsMsg->mmsAttrib.bAskReadReply;
+		pHeaderData->bHideAddress = pMmsMsg->mmsAttrib.bHideAddress;
+
+		snprintf(pHeaderData->szSubject, sizeof(pHeaderData->szSubject), "%s", pMmsMsg->mmsAttrib.szSubject);
+
+		pHeaderData->to = MmsConvertAddressToNewStyle(pMmsMsg->mmsAttrib.szTo);
+		pHeaderData->cc = MmsConvertAddressToNewStyle(pMmsMsg->mmsAttrib.szCc);
+		pHeaderData->bcc = MmsConvertAddressToNewStyle(pMmsMsg->mmsAttrib.szBcc);
+
+		snprintf(pHeaderData->szFrom, sizeof(pHeaderData->szFrom), "%s", pMmsMsg->mmsAttrib.szFrom);
+	}
+
+	if (pMmsMsg->mmsAttrib.contentType == MIME_MULTIPART_RELATED || pMmsMsg->mmsAttrib.contentType == MIME_APPLICATION_VND_WAP_MULTIPART_RELATED) {
+
+		MMS_MULTIPART_DATA_S *pMultipart = MsgMmsCreateMultipart();
+
+		pMultipart->type = MIME_APPLICATION_SMIL;
+		snprintf(pMultipart->szContentType, sizeof(pMultipart->szContentType), "%s", "application/smil");
+		snprintf(pMultipart->szContentID, sizeof(pMultipart->szContentID), "%s", pMmsMsg->msgBody.presentationType.szContentID);
+		snprintf(pMultipart->szContentLocation, sizeof(pMultipart->szContentLocation), "%s", pMmsMsg->msgBody.presentationType.szContentLocation);
+		snprintf(pMultipart->szFileName, sizeof(pMultipart->szFileName), "%s", pMmsMsg->msgBody.presentationType.param.szName);
+		snprintf(pMultipart->szFilePath, sizeof(pMultipart->szFilePath), MSG_DATA_PATH"%s", pMmsMsg->msgBody.presentationType.param.szFileName);
+
+		pMmsData->smil = pMultipart;
+	}
+
+	int partCnt = pMmsMsg->nPartCount;
+
+	for (int i = 0; i < partCnt; ++i) {
+
+		MsgMultipart *multipart = MmsGetNthMultipart(pMmsMsg, i);
+
+		if (multipart) {
+
+			MMS_MULTIPART_DATA_S *pMultipart = MsgMmsCreateMultipart();
+
+			pMultipart->type = (MimeType)multipart->type.type;
+
+			snprintf(pMultipart->szContentType, sizeof(pMultipart->szContentType), "%s",MimeGetMimeStringFromMimeInt(multipart->type.type));
+			snprintf(pMultipart->szContentID, sizeof(pMultipart->szContentID), "%s", multipart->type.szContentID);
+			snprintf(pMultipart->szContentLocation, sizeof(pMultipart->szContentLocation), "%s", multipart->type.szContentLocation);
+			snprintf(pMultipart->szFileName, sizeof(pMultipart->szFileName), "%s", multipart->type.param.szName);
+			snprintf(pMultipart->szFilePath, sizeof(pMultipart->szFilePath), "%s", multipart->pBody->szOrgFilePath);
+
+#ifdef __SUPPORT_DRM__
+			if (multipart->type.drmInfo.drmType != MSG_DRM_TYPE_NONE) {
+				pMultipart->drmType = multipart->type.drmInfo.drmType;
+			}
+#endif
+			pMmsData->multipartlist = g_list_append(pMmsData->multipartlist, pMultipart);
+		}
+	}
+
+	MSG_END();
+	return true;
+}
+
+//For Encode raw file
+bool MmsConvertMmsMsg(MmsMsg *pMmsMsg, MMS_DATA_S *pMmsData)
+{
+	MSG_BEGIN();
 
 	// Initialize mmsMsg structure
 	MmsInitMsgAttrib(&pMmsMsg->mmsAttrib);
 	MmsInitMsgType(&pMmsMsg->msgType);
 	MmsInitMsgBody(&pMmsMsg->msgBody);
 
-	// setting mmsMsg structure
-	pMmsMsg->mailbox = pMsgInfo->folderId;
-	pMmsMsg->msgID = pMsgInfo->msgId;
-
-	memset(pMmsMsg->szTrID, 0, MMS_TR_ID_LEN + 1);
-	memset(pMmsMsg->szContentLocation, 0, MMS_LOCATION_LEN + 1);
-	memset(pMmsMsg->szMsgID, 0, MMS_MSG_ID_LEN + 1);
-	memset(pMmsMsg->szForwardMsgID, 0, MMS_MSG_ID_LEN + 1);
-
 	pMmsMsg->mmsAttrib.dataType = MMS_DATATYPE_DRAFT;
-	pMmsMsg->mmsAttrib.msgType = MMS_MSGTYPE_SEND_REQ;
 
-	if (pSendOptInfo->bSetting == false) {
-		unsigned int expiryTime;
-		MSG_MMS_DELIVERY_TIME_T deliveryTime;
+	MMS_HEADER_DATA_S *pHeaderData = pMmsData->header;
 
-		pMmsMsg->mmsAttrib.priority = (MmsPriority)MsgSettingGetInt(MMS_SEND_PRIORITY);
+	if (pHeaderData) {
 
-		MsgSettingGetBool(MMS_SEND_DELIVERY_REPORT, &pMmsMsg->mmsAttrib.bAskDeliveryReport);
-		MsgSettingGetBool(MMS_SEND_READ_REPLY, &pMmsMsg->mmsAttrib.bAskReadReply);
-		MsgSettingGetBool(MSG_KEEP_COPY, &pMmsMsg->mmsAttrib.bLeaveCopy);
-
-		expiryTime = (unsigned int)MsgSettingGetInt(MMS_SEND_EXPIRY_TIME);
-
-		if (expiryTime == 0)
-			pMmsMsg->mmsAttrib.expiryTime.type = MMS_TIMETYPE_NONE;
-		else {
-			pMmsMsg->mmsAttrib.expiryTime.type = MMS_TIMETYPE_RELATIVE;
-			pMmsMsg->mmsAttrib.expiryTime.time = expiryTime;
+		if (strlen(pHeaderData->contentLocation) > 0) {
+			snprintf(pMmsMsg->szContentLocation, sizeof(pMmsMsg->szContentLocation), "%s", pHeaderData->contentLocation);
 		}
 
-		deliveryTime = (MSG_MMS_DELIVERY_TIME_T)MsgSettingGetInt(MMS_SEND_DELIVERY_TIME);
+		pMmsMsg->mmsAttrib.contentType = (MimeType)pHeaderData->contentType;
+		pMmsMsg->msgType.type = pHeaderData->contentType;
+		pMmsMsg->mmsAttrib.date = pHeaderData->date;
+		pMmsMsg->mmsAttrib.bAskDeliveryReport = pHeaderData->bDeliveryReport;
+		pMmsMsg->mmsAttrib.deliveryTime.type = pHeaderData->delivery.type;
+		pMmsMsg->mmsAttrib.deliveryTime.time = pHeaderData->delivery.time;
+		pMmsMsg->mmsAttrib.expiryTime.type = pHeaderData->expiry.type;
+		pMmsMsg->mmsAttrib.expiryTime.time = pHeaderData->expiry.time;
+		pMmsMsg->mmsAttrib.msgClass = (MmsMsgClass)pHeaderData->messageClass;
 
-		if (deliveryTime == MSG_DELIVERY_TIME_CUSTOM) {
-			pMmsMsg->mmsAttrib.bUseDeliveryCustomTime = true;
-
-			pMmsMsg->mmsAttrib.deliveryTime.type = MMS_TIMETYPE_RELATIVE;
-			pMmsMsg->mmsAttrib.deliveryTime.time = (unsigned int)MsgSettingGetInt(MMS_SEND_CUSTOM_DELIVERY);
-		} else {
-			pMmsMsg->mmsAttrib.bUseDeliveryCustomTime = false;
-
-			pMmsMsg->mmsAttrib.deliveryTime.type = MMS_TIMETYPE_RELATIVE;
-			pMmsMsg->mmsAttrib.deliveryTime.time = (unsigned int)deliveryTime;
+		if (strlen(pHeaderData->messageID) > 0) {
+			snprintf(pMmsMsg->szMsgID, sizeof(pMmsMsg->szMsgID), "%s", pHeaderData->messageID);
 		}
-	} else {
-		pMmsMsg->mmsAttrib.priority = (MmsPriority)pSendOptInfo->option.mmsSendOptInfo.priority;
-		pMmsMsg->mmsAttrib.bAskDeliveryReport = pSendOptInfo->bDeliverReq;
-		pMmsMsg->mmsAttrib.bAskReadReply = pSendOptInfo->option.mmsSendOptInfo.bReadReq;
-		pMmsMsg->mmsAttrib.expiryTime.type = pSendOptInfo->option.mmsSendOptInfo.expiryTime.type;
-		pMmsMsg->mmsAttrib.bLeaveCopy = pSendOptInfo->bKeepCopy;
 
-		if (pMmsMsg->mmsAttrib.expiryTime.type != MMS_TIMETYPE_NONE)
-			pMmsMsg->mmsAttrib.expiryTime.time = pSendOptInfo->option.mmsSendOptInfo.expiryTime.time;
+		pMmsMsg->mmsAttrib.msgType = (MmsMsgType)pHeaderData->messageType;
+		pMmsMsg->mmsAttrib.version  = pHeaderData->mmsVersion;
+		pMmsMsg->mmsAttrib.priority = (MmsPriority)pHeaderData->mmsPriority;
+		pMmsMsg->mmsAttrib.bAskReadReply = pHeaderData->bReadReport;
+		pMmsMsg->mmsAttrib.bHideAddress = pHeaderData->bHideAddress;
 
-		pMmsMsg->mmsAttrib.bUseDeliveryCustomTime = pSendOptInfo->option.mmsSendOptInfo.bUseDeliveryCustomTime;
-		pMmsMsg->mmsAttrib.deliveryTime.type = pSendOptInfo->option.mmsSendOptInfo.deliveryTime.type;
-		pMmsMsg->mmsAttrib.deliveryTime.time = pSendOptInfo->option.mmsSendOptInfo.deliveryTime.time;
-	}
-
-	MSG_DEBUG("pSendOptInfo->bSetting = %d", pSendOptInfo->bSetting);
-	MSG_DEBUG("pMmsMsg->mmsAttrib.bLeaveCopy = %d", pMmsMsg->mmsAttrib.bLeaveCopy);
-
-	MSG_DEBUG("pMmsMsg->mmsAttrib.bUseDeliveryCustomTime = %d", pMmsMsg->mmsAttrib.bUseDeliveryCustomTime);
-	MSG_DEBUG("pMmsMsg->mmsAttrib.deliveryTime.type = %d", pMmsMsg->mmsAttrib.deliveryTime.type);
-	MSG_DEBUG("pMmsMsg->mmsAttrib.deliveryTime.time = %d", pMmsMsg->mmsAttrib.deliveryTime.time);
-
-	MSG_DEBUG("pMmsMsg->mmsAttrib.priority = %d", pMmsMsg->mmsAttrib.priority);
-
-	MSG_DEBUG("pMmsMsg->mmsAttrib.bAskDeliveryReport = %d", pMmsMsg->mmsAttrib.bAskDeliveryReport);
-	MSG_DEBUG("pMmsMsg->mmsAttrib.bAskReadReply = %d", pMmsMsg->mmsAttrib.bAskReadReply);
-
-	MSG_DEBUG("pMmsMsg->mmsAttrib.expiryTime.type = %d", pMmsMsg->mmsAttrib.expiryTime.type);
-	MSG_DEBUG("pMmsMsg->mmsAttrib.expiryTime.time = %d", pMmsMsg->mmsAttrib.expiryTime.time);
-
-	/* MMS-1.3-con-739 */
-	pMmsMsg->mmsAttrib.msgClass = (MmsMsgClass)MsgSettingGetInt(MMS_SEND_MSG_CLASS);
-	/* MMS-1.3-con-739 */
-#ifdef MMS_13_CON_742_ENABLED
-	/* MMS-1.3-con-742 */
-	pMmsMsg->mmsAttrib.deliveryTime.time = (unsigned int)MsgSettingGetInt(MMS_SEND_DELIVERY_TIME);
-	/* MMS-1.3-con-742 */
-#endif
-
-	// setting date
-	time(&RawTime);
-	timeInfo = localtime(&RawTime);
-	nTimeInSecs = mktime(timeInfo);
-	pMmsMsg->mmsAttrib.date = nTimeInSecs;	// todo: need to subtract timeline value to make GMT+0 time
-
-	//setting subject
-	strcpy(pMmsMsg->mmsAttrib.szSubject, pMsgInfo->subject);
-
-	//setting adddress
-	MmsSetMsgAddressList(&pMmsMsg->mmsAttrib, pMsgInfo);
-
-	//default type mixed
-	pMmsMsg->mmsAttrib.contentType = MIME_APPLICATION_VND_WAP_MULTIPART_MIXED;
-	pMmsMsg->msgType.type = MIME_APPLICATION_VND_WAP_MULTIPART_MIXED;
-
-	int pageCnt = _MsgMmsGetPageCount(pMsgData);
-
-	if (pageCnt >  0) {	// Multipart related
-
-		int RawDataSize = 0;
-		time_t RawTime = 0;
-		time(&RawTime);
-
-		snprintf(pMsgData->szSmilFilePath, MSG_FILEPATH_LEN_MAX, "%lu", RawTime);
-
-		MsgMMSCreateSMIL(pMsgData);
-
-		RawDataSize = MmsGetSmilRawData(pMsgData, &pRawData);
-		if (RawDataSize < 0) {
-			MSG_DEBUG("Smil file size is less than 0");
-			return false;
+		if (strlen(pHeaderData->trID) > 0) {
+			snprintf(pMmsMsg->szTrID, sizeof(pMmsMsg->szTrID), "%s", pHeaderData->trID);
 		}
-		MSG_DEBUG("%s", pRawData);
-		if (pRawData)
-			MmsInsertPresentation(pMmsMsg, MIME_APPLICATION_SMIL, NULL, pRawData, strlen(pRawData));
 
-		pMmsMsg->mmsAttrib.contentType = MIME_APPLICATION_VND_WAP_MULTIPART_RELATED;
-		pMmsMsg->msgType.type = MIME_APPLICATION_VND_WAP_MULTIPART_RELATED;
 
-	}
+		snprintf(pMmsMsg->mmsAttrib.szSubject, sizeof(pMmsMsg->mmsAttrib.szSubject), "%s", pHeaderData->szSubject);
 
-	if (pMmsMsg->msgType.type == MIME_APPLICATION_VND_WAP_MULTIPART_RELATED) {
+		pMmsMsg->mmsAttrib.szTo = MmsConvertAddressToOldStyle(pHeaderData->to);
+		pMmsMsg->mmsAttrib.szCc = MmsConvertAddressToOldStyle(pHeaderData->cc);
+		pMmsMsg->mmsAttrib.szBcc = MmsConvertAddressToOldStyle(pHeaderData->bcc);
 
-		int pageCnt = _MsgMmsGetPageCount(pMsgData);
+		snprintf(pMmsMsg->mmsAttrib.szFrom, sizeof(pMmsMsg->mmsAttrib.szFrom), "%s", pHeaderData->szFrom);
+	} //CID 41988: Moving all de-referencing of pHeaderData inside null-check block
 
-		for (int i = 0; i < pageCnt; ++i) {
-			MMS_PAGE_S *pPage = _MsgMmsGetPage(pMsgData, i);
-			int mediaCnt = pPage->mediaCnt;
-			MSG_DEBUG("PAGE %d's media Cnt: %d", i+1, mediaCnt);
+	printMmsAttribute(&pMmsMsg->mmsAttrib);
 
-			for (int j = 0; j < mediaCnt; ++j) {
-				MMS_MEDIA_S *pMedia = _MsgMmsGetMedia(pPage, j);
-				if (pMedia->szFilePath[0] != 0) {
-					MMS_MULTIPART_DATA_S *pMultipart = (MMS_MULTIPART_DATA_S *)calloc(1, sizeof(MMS_MULTIPART_DATA_S));
-					if (pMultipart) {
-						snprintf(pMultipart->szContentID, sizeof(pMultipart->szContentID), "%s", pMedia->szContentID);
-						snprintf(pMultipart->szContentLocation, sizeof(pMultipart->szContentLocation), "%s", pMedia->szContentLocation);
-						snprintf(pMultipart->szFileName, sizeof(pMultipart->szFileName), "%s", pMedia->szFileName);
-						snprintf(pMultipart->szFilePath, sizeof(pMultipart->szFilePath), "%s", pMedia->szFilePath);
-						snprintf(pMultipart->szContentType, sizeof(pMultipart->szContentType), "%s", pMedia->szContentType);
+	if (pMmsData->multipartlist) {
 
-						if (!MmsInsertPartFromMultipart(pMmsMsg, pMultipart)) {
-							free(pMultipart);
-							pMultipart = NULL;
-							return false;
-						}
+		if (pMmsData->smil) {
 
-						free(pMultipart);
-						pMultipart = NULL;
-					}
+			MMS_MULTIPART_DATA_S *smil_multipart = pMmsData->smil;
+
+			if (smil_multipart) {
+
+				pMmsMsg->mmsAttrib.contentType = MIME_APPLICATION_VND_WAP_MULTIPART_RELATED;
+				pMmsMsg->msgType.type = MIME_APPLICATION_VND_WAP_MULTIPART_RELATED;
+
+				gchar *contents = NULL;
+				gsize length = 0;
+
+				if (MsgAccessFile(smil_multipart->szFilePath, F_OK)) {
+					g_file_get_contents(smil_multipart->szFilePath, &contents, &length, NULL);
+
+					MmsInsertPresentation(pMmsMsg, MIME_APPLICATION_SMIL, NULL, contents, length);
+
+					g_free(contents);
+
+				} else {
+					contents = smil_multipart->pMultipartData;
+					length = smil_multipart->nMultipartDataLen;
+
+					MmsInsertPresentation(pMmsMsg, MIME_APPLICATION_SMIL, NULL, contents, length);
 				}
 			}
+		} else {
+			pMmsMsg->mmsAttrib.contentType = MIME_APPLICATION_VND_WAP_MULTIPART_MIXED;
+			pMmsMsg->msgType.type = MIME_APPLICATION_VND_WAP_MULTIPART_MIXED;
 		}
-	}
 
-	//Processing Attachment List
-	for (int i = 0; i < _MsgMmsGetAttachCount(pMsgData); ++i) {
-		MMS_ATTACH_S *pMedia = _MsgMmsGetAttachment(pMsgData, i);
-		if (pMedia->szFilePath[0] != 0) {
-			MMS_MULTIPART_DATA_S *pMultipart = (MMS_MULTIPART_DATA_S *)calloc(1, sizeof(MMS_MULTIPART_DATA_S));
-			if (pMultipart) {
-				snprintf(pMultipart->szContentID, sizeof(pMultipart->szContentID), "%s", pMedia->szFileName);
-				snprintf(pMultipart->szContentLocation, sizeof(pMultipart->szContentLocation), "%s", pMedia->szFileName);
-				snprintf(pMultipart->szFileName, sizeof(pMultipart->szFileName), "%s", pMedia->szFileName);
-				snprintf(pMultipart->szFilePath, sizeof(pMultipart->szFilePath), "%s", pMedia->szFilePath);
-				snprintf(pMultipart->szContentType, sizeof(pMultipart->szContentType), "%s", pMedia->szContentType);
+		int len = g_list_length(pMmsData->multipartlist);
 
-				if (!MmsInsertPartFromMultipart(pMmsMsg, pMultipart)) {
-					free(pMultipart);
-					pMultipart = NULL;
+		for (int i = 0; i < len; i++) {
+
+			MMS_MULTIPART_DATA_S *multipart = (MMS_MULTIPART_DATA_S *)g_list_nth_data(pMmsData->multipartlist, i);
+
+			if (multipart) {
+				if (multipart->type == MIME_UNKNOWN)
+					multipart->type = MimeGetMimeIntFromMimeString(multipart->szContentType);
+
+				if (MmsInsertPartFromMultipart(pMmsMsg, multipart) == false) {
 					return false;
 				}
-
-				free(pMultipart);
-				pMultipart = NULL;
 			}
+		} //end for
+	}
+
+	MSG_END();
+	return true;
+}
+
+char *MmsConvertAddressToOldStyle(MMSList *pAddressList)
+{
+	MSG_BEGIN();
+	int	addrLen = 0;
+	int	nAddressCnt = 0;
+	char pString[MSG_LOCALE_NAME_LEN + MSG_ADDR_LEN + 3] = {0, };
+	char *szCompose = NULL;
+
+	nAddressCnt = g_list_length(pAddressList);
+
+	// Calculate allocated buffer size
+	for (int i = 0; i < nAddressCnt; ++i) {
+
+		MMS_ADDRESS_DATA_S * pAddressData = (MMS_ADDRESS_DATA_S *)g_list_nth_data(pAddressList, i);
+		if (pAddressData) {
+			MSG_SEC_DEBUG("address type : %d, address value: %s", pAddressData->address_type, pAddressData->address_val);
+			if (pAddressData->address_type == MSG_ADDRESS_TYPE_PLMN) {
+				addrLen += strlen("/TYPE=PLMN");
+				addrLen += strlen(pAddressData->address_val);
+			} else {
+				addrLen += strlen(pAddressData->address_val);
+			}
+		}
+	}
+
+	if (nAddressCnt > 1)
+		addrLen = addrLen + nAddressCnt - 1;
+
+	szCompose = (char *)calloc(addrLen + 1, 1);
+
+	// Address String copy
+	for (int i = 0; i < nAddressCnt; ++i) {
+
+		MMS_ADDRESS_DATA_S * pAddressData = (MMS_ADDRESS_DATA_S *)g_list_nth_data(pAddressList, i);
+
+		if (pAddressData) {
+			if (strlen(szCompose) > 0)
+				strcat(szCompose, MSG_STR_ADDR_DELIMETER);
+
+			memset(pString, 0x00, (MSG_LOCALE_NAME_LEN + MSG_ADDR_LEN + 3) * sizeof(char));
+			if (pAddressData->address_type == MSG_ADDRESS_TYPE_PLMN) {
+				snprintf(pString, MSG_LOCALE_NAME_LEN + MSG_ADDR_LEN + 3, "%s%s", pAddressData->address_val, "/TYPE=PLMN");
+				MSG_DEBUG("%s", pString);
+			} else {
+				snprintf(pString, MSG_LOCALE_NAME_LEN + MSG_ADDR_LEN + 3, "%s", pAddressData->address_val);
+			}
+
+			strcat(szCompose, pString);
+		}
+
+	}
+
+	MSG_END();
+	return szCompose;
+
+}
+
+MMSList * MmsConvertAddressToNewStyle(const char *szAddr)
+{
+	MMSList *pAddressList = NULL;
+	MMS_ADDRESS_DATA_S *pAddressData = NULL;
+
+	char *pTempChar = NULL;
+	char *pStartPtr= NULL;
+	char *pEndPtr= NULL;
+
+	if (szAddr == NULL)
+		return NULL;
+
+	pTempChar = strdup(szAddr);
+
+	pStartPtr = pTempChar;
+
+	while (pStartPtr && pStartPtr[0]) {
+
+		int addLen = 0;
+		char tempAddress[512] = {0,};
+		char tempAddress2[512] = {0,};
+
+		pEndPtr = strchr(pStartPtr, MSG_CH_SEMICOLON);
+
+		if (pEndPtr) {
+			addLen = pEndPtr - pStartPtr;
+		} else {
+			addLen = strlen(pStartPtr);
+		}
+
+		if (addLen) {
+			strncpy(tempAddress, pStartPtr, addLen);
+			int addr_type;
+			int addLen2;
+			char *pSlash = strchr(tempAddress, '/');
+
+			if (pSlash) {
+				addLen2 = pSlash - tempAddress;
+				addr_type = MSG_ADDRESS_TYPE_PLMN;
+			} else {
+				addLen2 = strlen(tempAddress);
+				addr_type = MSG_ADDRESS_TYPE_EMAIL;
+			}
+
+			if (addLen2) {
+				strncpy(tempAddress2, tempAddress, addLen2);
+				pAddressData = MsgMmsCreateAddress(addr_type, tempAddress2);
+			}
+
+			if (pAddressData)
+				pAddressList = g_list_append(pAddressList, pAddressData);
+
+			pStartPtr = pStartPtr + addLen + 1;
+		} else {
+			break;
+		}
+	}
+
+	if (pTempChar)
+		free(pTempChar);
+
+	MSG_END();
+	return pAddressList;
+}
+
+bool convertMediaToMultipart(MMS_MEDIA_S *pSrcMedia, MMS_MULTIPART_DATA_S *pDestMultipart)
+{
+	bzero(pDestMultipart, sizeof(MMS_MULTIPART_DATA_S));
+
+	snprintf(pDestMultipart->szContentID, sizeof(pDestMultipart->szContentID), "%s", pSrcMedia->szContentID);
+	snprintf(pDestMultipart->szContentLocation, sizeof(pDestMultipart->szContentLocation), "%s", pSrcMedia->szContentLocation);
+	snprintf(pDestMultipart->szFileName, sizeof(pDestMultipart->szFileName), "%s", pSrcMedia->szFileName);
+	snprintf(pDestMultipart->szFilePath, sizeof(pDestMultipart->szFilePath), "%s", pSrcMedia->szFilePath);
+
+
+	if (strlen(pSrcMedia->szContentType) > 0) {
+		snprintf(pDestMultipart->szContentType, sizeof(pDestMultipart->szContentType), "%s", pSrcMedia->szContentType);
+		pDestMultipart->type = MimeGetMimeIntFromMimeString(pSrcMedia->szContentType);
+
+	} else {
+		MimeMainType mainType = MIME_MAINTYPE_UNKNOWN;
+		MimeType pMimeType = MIME_UNKNOWN;
+		const char *pszMimeType = NULL;
+
+		if (pSrcMedia->mediatype == MMS_SMIL_MEDIA_IMG)
+			mainType = MIME_MAINTYPE_IMAGE;
+		else if (pSrcMedia->mediatype == MMS_SMIL_MEDIA_AUDIO)
+			mainType = MIME_MAINTYPE_AUDIO;
+		else if (pSrcMedia->mediatype ==  MMS_SMIL_MEDIA_VIDEO)
+			mainType = MIME_MAINTYPE_VIDEO;
+		else if (pSrcMedia->mediatype == MMS_SMIL_MEDIA_TEXT)
+			mainType = MIME_MAINTYPE_TEXT;
+
+		MmsGetMimeTypeFromFileName(mainType, pSrcMedia->szFilePath, &pMimeType, &pszMimeType);
+
+		if (pszMimeType) {
+			snprintf(pDestMultipart->szContentType, sizeof(pDestMultipart->szContentType), "%s", pszMimeType);
+			pDestMultipart->type = pMimeType;
+		} else {
+			snprintf(pDestMultipart->szContentType, sizeof(pDestMultipart->szContentType), "%s", "application/octet-stream");
+			pDestMultipart->type = MIME_APPLICATION_OCTET_STREAM;
 		}
 	}
 
 	return true;
 }
 
-int MmsUpdatePreviewData(MSG_MESSAGE_INFO_S *pMsgInfo)
+bool convertAttachToMultipart(MMS_ATTACH_S *pSrcMedia, MMS_MULTIPART_DATA_S *pDestMultipart)
 {
-	MSG_BEGIN();
-	MmsMsg *pMmsMsg;
-	MMS_MESSAGE_DATA_S msgData = {0,};
+	bzero(pDestMultipart, sizeof(MMS_MULTIPART_DATA_S));
 
-	MmsPluginStorage::instance()->getMmsMessage(&pMmsMsg);
+	snprintf(pDestMultipart->szFileName, sizeof(pDestMultipart->szFileName), "%s", pSrcMedia->szFileName);
+	snprintf(pDestMultipart->szFilePath, sizeof(pDestMultipart->szFilePath), "%s", pSrcMedia->szFilePath);
 
-	MmsReleaseMmsMsg(pMmsMsg);
+	if (strlen(pSrcMedia->szContentType) > 0) {
+		snprintf(pDestMultipart->szContentType, sizeof(pDestMultipart->szContentType), "%s", pSrcMedia->szContentType);
+		pDestMultipart->type = MimeGetMimeIntFromMimeString(pSrcMedia->szContentType);
+	} else {
 
-	if (MmsReadMsgBody(pMsgInfo->msgId, true, false, NULL) == false) {
-		MSG_DEBUG("Fail to MmsReadMsgBody");
-		goto __CATCH;
+		MimeMainType mainType = MIME_MAINTYPE_UNKNOWN;
+		MimeType pMimeType = MIME_UNKNOWN;
+		const char *pszMimeType = NULL;
+
+		MmsGetMimeTypeFromFileName(mainType, pSrcMedia->szFilePath, &pMimeType, &pszMimeType);
+
+		if (pszMimeType) {
+			snprintf(pDestMultipart->szContentType, sizeof(pDestMultipart->szContentType), "%s", pszMimeType);
+			pDestMultipart->type = pMimeType;
+		} else {
+			snprintf(pDestMultipart->szContentType, sizeof(pDestMultipart->szContentType), "%s", "application/octet-stream");
+			pDestMultipart->type = MIME_APPLICATION_OCTET_STREAM;
+		}
 	}
 
-	if (MmsMakeMmsData(pMmsMsg, &msgData) == false) {
-		MSG_DEBUG("Fail to makeMmsMessageData");
-		goto __CATCH;
-	}
-
-	MmsMakePreviewInfo(pMsgInfo->msgId, &msgData);
-
-	MmsPluginStorage::instance()->getMsgText(&msgData, pMsgInfo->msgText);
-
-	MmsReleaseMmsMsg(pMmsMsg);
-	MsgMmsReleaseMmsLists(&msgData);
-
-	MSG_END();
-	return 0;
-
-__CATCH:
-	MmsReleaseMmsMsg(pMmsMsg);
-	MsgMmsReleaseMmsLists(&msgData);
-	return -1;
+	return true;
 }
+
+bool convertMsgMultipartToMultipart(MsgMultipart *pSrcMultipart, MMS_MULTIPART_DATA_S *pDestMultipart)
+{
+	pDestMultipart->type = (MimeType)pSrcMultipart->type.type;
+
+	MSG_DEBUG("Mime Type : %s :%d", MimeGetMimeStringFromMimeInt(pSrcMultipart->type.type), pSrcMultipart->type.type);
+	snprintf(pDestMultipart->szContentID, sizeof(pDestMultipart->szContentID), "%s", pSrcMultipart->type.szContentID);
+	snprintf(pDestMultipart->szContentLocation, sizeof(pDestMultipart->szContentLocation), "%s", pSrcMultipart->type.szContentLocation);
+	snprintf(pDestMultipart->szFileName, sizeof(pDestMultipart->szFileName), "%s", pSrcMultipart->type.param.szName);
+	snprintf(pDestMultipart->szFilePath, sizeof(pDestMultipart->szFilePath), "%s", pSrcMultipart->pBody->szOrgFilePath);
+
+	snprintf(pDestMultipart->szContentType, sizeof(pDestMultipart->szContentType), "%s", MimeGetMimeStringFromMimeInt(pSrcMultipart->type.type));
+
+	if (pSrcMultipart->type.drmInfo.drmType != MSG_DRM_TYPE_NONE) {
+		pDestMultipart->drmType = pSrcMultipart->type.drmInfo.drmType;
+	}
+
+	return true;
+}
+
+gint __compare_str(gconstpointer a, gconstpointer b)
+{
+	return g_strcmp0((char *)a, (char *)b);
+}
+
+// change file name to Ascii & space -> '_'
+// If replaced filename is duplicated, then it append number
+bool MmsChangeFileNameToAscii(MMS_MESSAGE_DATA_S *pMsgData)
+{
+	int pageCnt;
+	int mediaCnt;
+	int attachCnt;
+
+	GList *r_list = NULL;//renamed file list
+
+	pageCnt = g_list_length(pMsgData->pagelist);
+
+	for (int i = 0; i < pageCnt; i++) {
+		MMS_PAGE_S *pPage = NULL;
+		pPage = (MMS_PAGE_S *)g_list_nth_data(pMsgData->pagelist, i);
+		if (pPage == NULL) {
+			//CID 355351: Freeing r_list in case of error too to prevent memory leak
+			if (r_list != NULL)
+				g_list_free(r_list);
+			return false;
+		}
+
+		mediaCnt = g_list_length(pPage->medialist);
+		for (int j = 0; j < mediaCnt; j++) {
+			MMS_MEDIA_S *pMedia = NULL;
+			pMedia = (MMS_MEDIA_S *)g_list_nth_data(pPage->medialist, j);
+			if (pMedia == NULL) {
+				//CID 355351: Freeing r_list in case of error too to prevent memory leak
+				if (r_list != NULL)
+					g_list_free(r_list);
+				return false;
+			}
+
+			if (strlen(pMedia->szFileName) > 0) {
+				char *str = NULL;
+
+				MmsReplaceSpaceChar(pMedia->szFileName);
+
+				str = MmsReplaceNonAsciiUtf8(pMedia->szFileName, '_');
+
+				if (str) {
+					int count = 1;
+					char *str2 = g_strdup(str);
+					char *ext = strrchr(str, '.');
+
+					if (ext == NULL || *(ext + 1) == '\0') {
+						ext = NULL;
+					} else {
+						*ext = '\0';
+						ext = ext + 1;
+					}
+
+					while (g_list_find_custom(r_list, str2, __compare_str) != NULL) {
+
+						g_free(str2);
+
+						if (ext)
+							str2 = g_strdup_printf("%s_%d.%s", str, count++, ext);
+						else
+							str2 = g_strdup_printf("%s_%d", str, count++);
+					}
+
+					g_free(str);
+
+					snprintf(pMedia->szFileName, sizeof(pMedia->szFileName), "%s", str2);
+
+					MSG_DEBUG("replace filename [%s]", pMedia->szFileName);
+
+					r_list = g_list_append(r_list, pMedia->szFileName);
+
+					g_free(str2);
+				}
+			}
+		}//end for media
+	}//end for page
+
+	attachCnt = g_list_length(pMsgData->attachlist);
+	for (int i = 0; i < attachCnt; i++) {
+		MMS_ATTACH_S *pAttach = NULL;
+		pAttach = (MMS_ATTACH_S *)g_list_nth_data(pMsgData->attachlist, i);
+		if (pAttach == NULL) {
+			//CID 355351: Freeing r_list in case of error too to prevent memory leak
+			if(r_list != NULL)
+				g_list_free(r_list);
+			return false;
+		}
+
+		if (strlen(pAttach->szFileName) > 0) {
+			char *str = NULL;
+
+			MmsReplaceSpaceChar(pAttach->szFileName);
+
+			str = MmsReplaceNonAsciiUtf8(pAttach->szFileName, '_');
+			if (str) {
+				int count = 1;
+				char *str2 = g_strdup(str);
+				char *ext = strrchr(str, '.');
+
+				if (ext == NULL || *(ext + 1) == '\0') {
+					ext = NULL;
+				} else {
+					*ext = '\0';
+					ext = ext + 1;
+				}
+
+				while (g_list_find_custom(r_list, str2, __compare_str) != NULL) {
+
+					g_free(str2);
+
+					if (ext)
+						str2 = g_strdup_printf("%s_%d.%s", str, count++, ext);
+					else
+						str2 = g_strdup_printf("%s_%d", str, count++);
+				}
+
+				g_free(str);
+
+				snprintf(pAttach->szFileName, sizeof(pAttach->szFileName), "%s", str2);
+
+				MSG_DEBUG("replace filename [%s]", pAttach->szFileName);
+
+				g_free(str2);
+			}
+		}
+
+	}//end for attach
+
+	g_list_free(r_list);
+
+	return true;
+}
+

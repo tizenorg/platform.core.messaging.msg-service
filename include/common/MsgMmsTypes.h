@@ -1,20 +1,17 @@
 /*
- * msg-service
- *
- * Copyright (c) 2000 - 2014 Samsung Electronics Co., Ltd. All rights reserved
+ * Copyright (c) 2014 Samsung Electronics Co., Ltd. All rights reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
 */
 
 #ifndef MSG_MMS_TYPES_H
@@ -48,6 +45,7 @@
  *	@{
  */
 
+typedef GList MMSList;
 
 /*==================================================================================================
                                          STRUCTURES
@@ -108,8 +106,7 @@ typedef struct
 
 	char szContentType[MSG_MSG_ID_LEN + 1];
 	char szContentLocation[MSG_MSG_ID_LEN + 1];
-
-}MMS_MEDIA_S;
+} MMS_MEDIA_S;
 
 /**
  *	@brief	Represents attachment information.
@@ -124,7 +121,7 @@ typedef struct
 	char		szDrm2FullPath[MSG_FILEPATH_LEN_MAX + 1]; /**< Indicates the fullpath of the DRM */
 	char szContentType[MSG_MSG_ID_LEN + 1];
 
-}MMS_ATTACH_S;
+} MMS_ATTACH_S;
 
 /**
  *	@brief	Represents SMIL page information.
@@ -149,7 +146,7 @@ typedef struct
 {
 	bool 	bUnitPercent; /**< Indicates the length is in percentage(%) or not */
 	int	value;	/**< Indicates the value for length */
-}MMS_LENGTH;
+} MMS_LENGTH;
 
 /**
  *	@brief	Represents SMIL region information.
@@ -165,7 +162,7 @@ typedef struct
 	int				bgColor;	/**< Indicates the background color of the region */
 	REGION_FIT_TYPE_T	fit;	/**< Indicates the fit type. see enum REGION_FIT_TYPE_T */
 
-}MMS_SMIL_REGION;
+} MMS_SMIL_REGION;
 
 /**
  *	@brief	Represents SMIL root layout information.
@@ -224,28 +221,102 @@ typedef struct
 	MMS_APPID_INFO_S	msgAppId;
 }MMS_RECV_DATA_S;
 
+typedef struct _MMS_ADDRESS_DATA_S {
+	int address_type;
+	char *address_val;
+} MMS_ADDRESS_DATA_S;
+
+/**
+ *	@brief	Represents MMS header data.
+ */
 typedef struct _MMS_HEADER_DATA_S
 {
-	char messageID[MSG_MSG_ID_LEN + 1];
-	char trID[MSG_MSG_ID_LEN + 1];
-	char contentLocation[MSG_MSG_ID_LEN + 1];
+	MMSList *bcc;//	Bcc
+	MMSList *cc;//	Cc
+	char contentLocation[MMS_LOCATION_LEN + 1];
 	char szContentType[MSG_MSG_ID_LEN + 1];//string : ex) application/vnd.wap.multipart.related
-	int contentType;//MimeType : ex) application/vnd.wap.multipart.related
+	unsigned long int date;
+	bool bDeliveryReport; //	X-Mms-Delivery-Report
+	MmsTimeStruct delivery; //	X-Mms-Delivery-Time
+	MmsTimeStruct expiry;
+	char szFrom[254 * 3  + 11]; //"/TYPE=PLMN", /"TYPE=IPv4", "/TYPE=IPv6" //	From
+	int messageClass;//Personal | Advertisement | Informational | Auto
+	char messageID[MSG_MSG_ID_LEN + 1];
 	int messageType;//MmsMsgType : ex) sendreq
 	int mmsVersion;//1.0 1.3
-	int messageClass;//Personal | Advertisement | Informational | Auto
-	int contentClass;//text | image-basic| image-rich | video-basic | video-rich | megapixel | content-basic | content-rich
+	int messageSize; //X-Mms-Message-Size
 	int mmsPriority;//_MSG_PRIORITY_TYPE_E : Low | Normal | High
+	bool bReadReport;//	X-Mms-Read-Report
+//	X-Mms-Report-Allowed
+//	X-Mms-Response-Status
+//	X-Mms-Response-Text
+	bool bHideAddress;//	X-Mms-Sender-Visibility
+	msg_delivery_report_status_t mmsStatus;//	X-Mms-Status
+	char szSubject[MAX_SUBJECT_LEN + 1];//	Subject
+	MMSList *to;//	Cc//	To
+	char trID[MSG_MSG_ID_LEN + 1];
+//	X-Mms-Retrieve-Status
+//	X-Mms-Retrieve-Text
+//	X-Mms-Read-Status
+//	X-Mms-Reply-Charging
+//	X-Mms-Reply-Charging-Deadline
+//	X-Mms-Reply-Charging-ID
+//	X-Mms-Reply-Charging-Size
+//	X-Mms-Previously-Sent-By
+//	X-Mms-Previously-Sent-Date
+//	X-Mms-Store
+//	X-Mms-MM-State
+//	X-Mms-MM-Flags
+//	X-Mms-Store-Status
+//	X-Mms-Store-Status-Text
+//	X-Mms-Stored
+//	X-Mms-Attributes
+//	X-Mms-Totals
+//	X-Mms-Mbox-Totals
+//	X-Mms-Quotas
+//	X-Mms-Mbox-Quotas
+//	X-Mms-Message-Count
+//	Content
+//	X-Mms-Start
+//	Additional-headers
+//	X-Mms-Distribution-Indicator
+//	X-Mms-Element-Descriptor
+//	X-Mms-Limit
+//	X-Mms-Recommended-Retrieval-Mode
+//	X-Mms-Recommended-Retrieval-Mode-Text
+//	X-Mms-Status-Text
+//	X-Mms-Applic-ID
+//	X-Mms-Reply-Applic-ID
+//	X-Mms-Aux-Applic-Info
+	int contentClass;//text | image-basic| image-rich | video-basic | video-rich | megapixel | content-basic | content-rich
+//	X-Mms-DRM-Content
+//	X-Mms-Adaptation-Allowed
+//	X-Mms-Replace-ID
+//	X-Mms-Cancel-ID
+//	X-Mms-Cancel-Status
+//------------------------------------------------------------------
+	int contentType;//MimeType : ex) application/vnd.wap.multipart.related
+
 } MMS_HEADER_DATA_S;
 
+/**
+ *	@brief	Represents MMS multipart data.
+ */
 typedef struct
 {
 	MimeType	type;	/**< Indicates the multipart mime type. see enum MimeType */
 	char		szContentType[MSG_MSG_ID_LEN + 1];		/**< Indicates the content type */
 	char		szFileName[MSG_FILENAME_LEN_MAX + 1];		/**< Indicates the file name */
-	char		szFilePath[MSG_FILEPATH_LEN_MAX + 1];		/**< Indicates the file path */
 	char		szContentID[MSG_MSG_ID_LEN + 1];		/**< Indicates the content id */
 	char		szContentLocation[MSG_MSG_ID_LEN + 1];	/**< Indicates the content Location */
+	MsgDrmType		drmType; /**< Indicates the drm type. see enum MsgDrmType */
+
+	char		szFilePath[MSG_FILEPATH_LEN_MAX + 1];		/**< Indicates the file path */
+	char *pMultipartData;
+	size_t nMultipartDataLen;
+	int		tcs_bc_level;	/** detect malware type **/
+	int 	malware_allow;
+	char		szThumbFilePath[MSG_FILEPATH_LEN_MAX + 1];		/**< Indicates the thubnail file path */
 } MMS_MULTIPART_DATA_S;
 
 /**
@@ -267,8 +338,19 @@ typedef struct _MMS_MESSAGE_DATA_S
 	GList 					*metalist;	/**< The pointer to SMIL meta list */
 	MMS_SMIL_ROOTLAYOUT		rootlayout;	/**< Indicates the root layout information */
 	MMS_APPID_INFO_S 		msgAppId;
-	MMS_HEADER_DATA_S header;
-	MMS_MULTIPART_DATA_S smil;
+	MMS_HEADER_DATA_S header;//use for scloud
+	MMS_MULTIPART_DATA_S smil;//use for scloud
 } MMS_MESSAGE_DATA_S;
+
+/**
+ *	@brief	Represents MMS message data.
+ */
+typedef struct
+{
+	int backup_type; //none = 0 || scloud backup = 1 || kies backup = 2;
+	MMS_HEADER_DATA_S *header; /**< The header struct of MMS*/
+	MMS_MULTIPART_DATA_S *smil;
+	MMSList *multipartlist;	/**< list of MMS_MULTIPART_DATA_S*/
+} MMS_DATA_S;
 
 #endif

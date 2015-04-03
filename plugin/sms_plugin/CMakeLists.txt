@@ -30,17 +30,20 @@ SET(SMS-PLUGIN-SRCS
 	${CMAKE_SOURCE_DIR}/plugin/sms_plugin/SmsPluginUAManager.cpp
 	${CMAKE_SOURCE_DIR}/plugin/sms_plugin/SmsPluginCallback.cpp
 	${CMAKE_SOURCE_DIR}/plugin/sms_plugin/SmsPluginMain.cpp
+	${CMAKE_SOURCE_DIR}/plugin/sms_plugin/SmsPluginDSHandler.cpp
 )
 
 INCLUDE_DIRECTORIES(
     ${CMAKE_SOURCE_DIR}/include/mapi
 	${CMAKE_SOURCE_DIR}/include/common
 	${CMAKE_SOURCE_DIR}/include/utils
+	${CMAKE_SOURCE_DIR}/include/externals
 	${CMAKE_CURRENT_SOURCE_DIR}/include
 )
 
 INCLUDE(FindPkgConfig)
-pkg_check_modules(sms_plugin_pkgs REQUIRED glib-2.0 tapi libxml-2.0 libwbxml2 drm-client dlog vconf dbus-glib-1)
+pkg_check_modules(sms_plugin_pkgs REQUIRED glib-2.0 tapi libxml-2.0 libwbxml2 dlog vconf gio-2.0 db-util)
+#capi-telephony
 
 FOREACH(flag ${sms_plugin_pkgs_CFLAGS})
 	SET(EXTRA_CFLAGS "${EXTRA_CFLAGS} ${flag}")
@@ -53,7 +56,7 @@ ADD_DEFINITIONS("-DPREFIX=\"${CMAKE_INSTALL_PREFIX}\"")
 SET(CMAKE_EXE_LINKER_FLAGS "-Wl,--as-needed")
 
 ADD_LIBRARY(${SMS-PLUGIN-LIB} SHARED ${SMS-PLUGIN-SRCS})
-TARGET_LINK_LIBRARIES(${SMS-PLUGIN-LIB} ${sms_plugin_pkgs_LDFLAGS} ${UTILS-LIB})
+TARGET_LINK_LIBRARIES(${SMS-PLUGIN-LIB} ${sms_plugin_pkgs_LDFLAGS} ${UTILS-LIB} ${EXTERNALS-LIB})
 
-INSTALL(TARGETS ${SMS-PLUGIN-LIB} LIBRARY DESTINATION ${LIB_INSTALL_DIR})
+INSTALL(TARGETS ${SMS-PLUGIN-LIB} LIBRARY DESTINATION lib)
 

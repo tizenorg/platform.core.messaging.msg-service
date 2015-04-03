@@ -1,20 +1,17 @@
 /*
- * msg-service
- *
- * Copyright (c) 2000 - 2014 Samsung Electronics Co., Ltd. All rights reserved
+ * Copyright (c) 2014 Samsung Electronics Co., Ltd. All rights reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
 */
 
 #ifndef SMS_PLUGIN_WAPPUSH_HANDLER_H
@@ -41,7 +38,6 @@
 #define WSP_CODE_BUFFER_LEFT_LEN_MAX	1024
 #define WSP_CODE_BUFFER_RIGHT_LEN_MAX	2048
 
-#define  MemFree(x)  {if(x != NULL) free(x);x=NULL;}
 #define  AcStrlen(x) ((x==NULL)?0:strlen(x))
 #define MIN(a,b)  (((a)  <  (b)) ? (a)  :  (b))
 
@@ -58,8 +54,8 @@ public:
 	bool IsWapPushMsg(SMS_USERDATA_S *pUserData);
 
 	void copyDeliverData(SMS_DELIVER_S *pDeliver);
-	void handleWapPushMsg(const char *pUserData, int DataSize);
-	void handleWapPushCallback(char* pPushHeader, char* pPushBody, int PushBodyLen, char* pWspHeader, int WspHeaderLen, char* pWspBody, int WspBodyLen);
+	void handleWapPushMsg(const char *pUserData, int DataSize, int simIndex);
+	void handleWapPushCallback(char* pPushHeader, char* pPushBody, int PushBodyLen, char* pWspHeader, int WspHeaderLen, char* pWspBody, int WspBodyLen, int simIndex);
 
 private:
 	SmsPluginWapPushHandler();
@@ -69,13 +65,14 @@ private:
 
 	SMS_WAP_APP_CODE_T getAppCode(const char *pPushHeader);
 
-	void handleMMSNotification(const char *pPushBody, int PushBodyLen);
-	void handleSIMessage(char* pPushBody, int PushBodyLen, bool isText);
-	void handleSLMessage(char* pPushBody, int PushBodyLen, bool isText);
-	void handleCOMessage(char* pPushBody, int PushBodyLen, bool isText);
+	void handleMMSNotification(const char *pPushBody, int PushBodyLen, int simIndex);
+	void handleSIMessage(char* pPushBody, int PushBodyLen, bool isText, int simIndex);
+	void handleSLMessage(char* pPushBody, int PushBodyLen, bool isText, int simIndex);
+	void handleCOMessage(char* pPushBody, int PushBodyLen, bool isText, int simIndex);
 	void handleDrmVer1(char* pPushBody, int PushBodyLen);
 	void getXmlDoc(const char* pPushBody, const int PushBodyLen, xmlDocPtr *pXmlDoc, const bool isText);
 	void createMsgInfo(MSG_MESSAGE_INFO_S* pMsgInfo);
+	void getDisplayName(MSG_SUB_TYPE_T subType, char* displayName);
 	unsigned long convertXmlCharToSec(char* pDate);
 	msg_push_action_t convertSIActionStrToEnum(char* pAction);
 	msg_push_action_t convertSLActionStrToEnum(char* pAction);

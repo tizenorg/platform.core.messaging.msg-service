@@ -1,20 +1,17 @@
 /*
- * msg-service
- *
- * Copyright (c) 2000 - 2014 Samsung Electronics Co., Ltd. All rights reserved
+ * Copyright (c) 2014 Samsung Electronics Co., Ltd. All rights reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
 */
 
 #include <stdio.h>
@@ -24,6 +21,7 @@
 #include "MsgUtilFile.h"
 #include "MsgException.h"
 #include "MsgIpcSocket.h"
+#include "MsgUtilFunction.h"
 #include "MsgCmdTypes.h"
 #include "MsgGconfWrapper.h"
 #include "MsgPluginManager.h"
@@ -41,7 +39,17 @@ void MsgSentStatusListener(MSG_SENT_STATUS_S *pSentStatus)
 
 	// establish connection to msgfw daemon
 	MsgIpcClientSocket client;
-	client.connect(MSG_SOCKET_PATH);
+	try
+	{
+		client.connect(MSG_SOCKET_PATH);
+	}
+	catch (MsgException& e)
+	{
+		MSG_FATAL("%s", e.what());
+		return;
+	}
+
+
 
 	// composing command
 	int cmdSize = sizeof(MSG_CMD_S) + sizeof(MSG_SENT_STATUS_S); // cmd type, MSG_SENT_STATUS
@@ -84,7 +92,15 @@ void MsgStorageChangeListener(msg_storage_change_type_t storageChangeType, MSG_M
 
 	// establish connection to msgfw daemon
 	MsgIpcClientSocket client;
+	try
+	{
 	client.connect(MSG_SOCKET_PATH);
+	}
+	catch (MsgException& e)
+	{
+		MSG_FATAL("%s", e.what());
+		return;
+	}
 
 	// composing command
 	int cmdSize = sizeof(MSG_CMD_S) + sizeof(MSG_MESSAGE_INFO_S) + sizeof(msg_storage_change_type_t);
@@ -126,7 +142,15 @@ msg_error_t MsgIncomingMessageListener(MSG_MESSAGE_INFO_S *pMsg)
 
 	// establish connection to msgfw daemon
 	MsgIpcClientSocket client;
-	client.connect(MSG_SOCKET_PATH);
+	try
+	{
+		client.connect(MSG_SOCKET_PATH);
+	}
+	catch (MsgException& e)
+	{
+		MSG_FATAL("%s", e.what());
+		return MSG_ERR_UNKNOWN;
+	}
 
 	// Check Invalid Message Structure
 	if (pMsg == NULL)
@@ -136,8 +160,13 @@ msg_error_t MsgIncomingMessageListener(MSG_MESSAGE_INFO_S *pMsg)
 		return MSG_ERR_NULL_MESSAGE;
 	}
 
+	// Allocate Memory to Command Data
+	char* encodedData = NULL;
+	AutoPtr<char> buf(&encodedData);
+	int dataSize = MsgEncodeMsgInfo(pMsg, &encodedData);
+
 	// composing command
-	int cmdSize = sizeof(MSG_CMD_S) + sizeof(MSG_MESSAGE_INFO_S); // cmd type, MSG_MESSAGE_INFO_S
+	int cmdSize = sizeof(MSG_CMD_S) + dataSize; // cmd type, MSG_MESSAGE_INFO_S
 
 	MSG_DEBUG("cmdSize: %d", cmdSize);
 
@@ -151,7 +180,7 @@ msg_error_t MsgIncomingMessageListener(MSG_MESSAGE_INFO_S *pMsg)
 
 	memset(pCmd->cmdCookie, 0x00, MAX_COOKIE_LEN);
 
-	memcpy((void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN), pMsg, sizeof(MSG_MESSAGE_INFO_S));
+	memcpy((void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN), encodedData, dataSize);
 
 	// Send Command to Messaging FW
 	client.write(cmdBuf, cmdSize);
@@ -170,7 +199,12 @@ msg_error_t MsgIncomingMessageListener(MSG_MESSAGE_INFO_S *pMsg)
 	MSG_EVENT_S* pEvent = (MSG_EVENT_S*)retBuf;
 
 	if (pEvent->eventType != MSG_EVENT_PLG_INCOMING_MSG_IND)
-		THROW(MsgException::INCOMING_MSG_ERROR, "Wrong result(evt type %d : %s) received", pEvent->eventType, MsgDbgEvtStr(pEvent->eventType));
+		MSG_FATAL("Wrong result(evt type %d : %s) received", pEvent->eventType, MsgDbgEvtStr(pEvent->eventType));
+		//THROW(MsgException::INCOMING_MSG_ERROR, "Wrong result(evt type %d : %s) received", pEvent->eventType, MsgDbgEvtStr(pEvent->eventType));
+
+#ifdef FEATURE_SMS_CDMA
+	memcpy(&(pMsg->msgId), pEvent->data, sizeof(msg_message_id_t));
+#endif
 
 	MSG_END();
 
@@ -184,7 +218,15 @@ msg_error_t MsgIncomingSyncMLMessageListener(MSG_SYNCML_MESSAGE_DATA_S *pSyncMLD
 
 	// establish connection to msgfw daemon
 	MsgIpcClientSocket client;
-	client.connect(MSG_SOCKET_PATH);
+	try
+	{
+		client.connect(MSG_SOCKET_PATH);
+	}
+	catch (MsgException& e)
+	{
+		MSG_FATAL("%s", e.what());
+		return MSG_ERR_UNKNOWN;
+	}
 
 	// composing command
 	int cmdSize = sizeof(MSG_CMD_S) + sizeof(MSG_SYNCML_MESSAGE_DATA_S); // cmd type, MSG_SYNCML_MESSAGE_DATA_S
@@ -219,7 +261,8 @@ msg_error_t MsgIncomingSyncMLMessageListener(MSG_SYNCML_MESSAGE_DATA_S *pSyncMLD
 	MSG_EVENT_S* pEvent = (MSG_EVENT_S*)retBuf;
 
 	if (pEvent->eventType != MSG_EVENT_PLG_INCOMING_SYNCML_MSG_IND)
-		THROW(MsgException::INCOMING_MSG_ERROR, "Wrong result(evt type %d : %s) received", pEvent->eventType, MsgDbgEvtStr(pEvent->eventType));
+		MSG_FATAL("Wrong result(evt type %d : %s) received", pEvent->eventType, MsgDbgEvtStr(pEvent->eventType));
+		//THROW(MsgException::INCOMING_MSG_ERROR, "Wrong result(evt type %d : %s) received", pEvent->eventType, MsgDbgEvtStr(pEvent->eventType));
 
 	MSG_END();
 
@@ -232,7 +275,15 @@ msg_error_t MsgIncomingPushMessageListener(MSG_PUSH_MESSAGE_DATA_S *pPushData)
 
 	// establish connection to msgfw daemon
 	MsgIpcClientSocket client;
-	client.connect(MSG_SOCKET_PATH);
+	try
+	{
+		client.connect(MSG_SOCKET_PATH);
+	}
+	catch (MsgException& e)
+	{
+		MSG_FATAL("%s", e.what());
+		return MSG_ERR_UNKNOWN;
+	}
 
 	// composing command
 	int cmdSize = sizeof(MSG_CMD_S) + sizeof(MSG_PUSH_MESSAGE_DATA_S); // cmd type, MSG_SYNCML_MESSAGE_DATA_S
@@ -267,7 +318,8 @@ msg_error_t MsgIncomingPushMessageListener(MSG_PUSH_MESSAGE_DATA_S *pPushData)
 	MSG_EVENT_S* pEvent = (MSG_EVENT_S*)retBuf;
 
 	if (pEvent->eventType != MSG_EVENT_PLG_INCOMING_PUSH_MSG_IND)
-		THROW(MsgException::INCOMING_MSG_ERROR, "Wrong result(evt type %d : %s) received", pEvent->eventType, MsgDbgEvtStr(pEvent->eventType));
+		MSG_FATAL("Wrong result(evt type %d : %s) received", pEvent->eventType, MsgDbgEvtStr(pEvent->eventType));
+		//THROW(MsgException::INCOMING_MSG_ERROR, "Wrong result(evt type %d : %s) received", pEvent->eventType, MsgDbgEvtStr(pEvent->eventType));
 
 	MSG_END();
 
@@ -275,13 +327,21 @@ msg_error_t MsgIncomingPushMessageListener(MSG_PUSH_MESSAGE_DATA_S *pPushData)
 }
 
 
-msg_error_t MsgIncomingCBMessageListener(MSG_CB_MSG_S *pCbMsg)
+msg_error_t MsgIncomingCBMessageListener(MSG_CB_MSG_S *pCbMsg, MSG_MESSAGE_INFO_S *pMsgInfo)
 {
 	MSG_BEGIN();
 
 	// establish connection to msgfw daemon
 	MsgIpcClientSocket client;
-	client.connect(MSG_SOCKET_PATH);
+	try
+	{
+		client.connect(MSG_SOCKET_PATH);
+	}
+	catch (MsgException& e)
+	{
+		MSG_FATAL("%s", e.what());
+		return MSG_ERR_UNKNOWN;
+	}
 
 	// Check Invalid Message Structure
 	if (pCbMsg == NULL)
@@ -290,9 +350,18 @@ msg_error_t MsgIncomingCBMessageListener(MSG_CB_MSG_S *pCbMsg)
 
 		return MSG_ERR_NULL_MESSAGE;
 	}
+	int cmdSize = 0;
+
+	// Allocate Memory to Command Data
+	char* encodedData = NULL;
+	AutoPtr<char> buf(&encodedData);
+	int dataSize = MsgEncodeMsgInfo(pMsgInfo, &encodedData);
 
 	// composing command
-	int cmdSize = sizeof(MSG_CMD_S) + sizeof(MSG_CB_MSG_S); // cmd type, MSG_CB_MSG_S
+	if(pCbMsg->type == MSG_ETWS_SMS)
+		cmdSize = sizeof(MSG_CMD_S) + sizeof(MSG_CB_MSG_S); // cmd type, MSG_CB_MSG_S
+	else
+		cmdSize = sizeof(MSG_CMD_S) + sizeof(MSG_CB_MSG_S) + dataSize; // cmd type, MSG_CB_MSG_S
 
 	MSG_DEBUG("cmdSize: %d", cmdSize);
 
@@ -307,6 +376,9 @@ msg_error_t MsgIncomingCBMessageListener(MSG_CB_MSG_S *pCbMsg)
 	memset(pCmd->cmdCookie, 0x00, MAX_COOKIE_LEN);
 
 	memcpy((void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN), pCbMsg, sizeof(MSG_CB_MSG_S));
+
+	if(pCbMsg->type != MSG_ETWS_SMS)
+		memcpy((void*)((char*)pCmd + sizeof(MSG_CMD_TYPE_T)+ MAX_COOKIE_LEN + sizeof(MSG_CB_MSG_S)), encodedData, dataSize);
 
 	// Send Command to Messaging FW
 	client.write(cmdBuf, cmdSize);
@@ -325,7 +397,8 @@ msg_error_t MsgIncomingCBMessageListener(MSG_CB_MSG_S *pCbMsg)
 	MSG_EVENT_S* pEvent = (MSG_EVENT_S*)retBuf;
 
 	if (pEvent->eventType != MSG_EVENT_PLG_INCOMING_CB_MSG_IND)
-		THROW(MsgException::INCOMING_MSG_ERROR, "Wrong result(evt type %d : %s) received", pEvent->eventType, MsgDbgEvtStr(pEvent->eventType));
+		MSG_FATAL("Wrong result(evt type %d : %s) received", pEvent->eventType, MsgDbgEvtStr(pEvent->eventType));
+		//THROW(MsgException::INCOMING_MSG_ERROR, "Wrong result(evt type %d : %s) received", pEvent->eventType, MsgDbgEvtStr(pEvent->eventType));
 
 	MSG_END();
 
@@ -339,7 +412,15 @@ msg_error_t MsgIncomingLBSMessageListener(MSG_LBS_MESSAGE_DATA_S *pLBSData)
 
 	// establish connection to msgfw daemon
 	MsgIpcClientSocket client;
-	client.connect(MSG_SOCKET_PATH);
+	try
+	{
+		client.connect(MSG_SOCKET_PATH);
+	}
+	catch (MsgException& e)
+	{
+		MSG_FATAL("%s", e.what());
+		return MSG_ERR_UNKNOWN;
+	}
 
 	// composing command
 	int cmdSize = sizeof(MSG_CMD_S) + sizeof(MSG_LBS_MESSAGE_DATA_S); // cmd type, MSG_LBS_MESSAGE_DATA_S
@@ -374,7 +455,8 @@ msg_error_t MsgIncomingLBSMessageListener(MSG_LBS_MESSAGE_DATA_S *pLBSData)
 	MSG_EVENT_S* pEvent = (MSG_EVENT_S*)retBuf;
 
 	if (pEvent->eventType != MSG_EVENT_PLG_INCOMING_LBS_MSG_IND)
-		THROW(MsgException::INCOMING_MSG_ERROR, "Wrong result(evt type %d : %s) received", pEvent->eventType, MsgDbgEvtStr(pEvent->eventType));
+		MSG_FATAL("Wrong result(evt type %d : %s) received", pEvent->eventType, MsgDbgEvtStr(pEvent->eventType));
+		//THROW(MsgException::INCOMING_MSG_ERROR, "Wrong result(evt type %d : %s) received", pEvent->eventType, MsgDbgEvtStr(pEvent->eventType));
 
 	MSG_END();
 
@@ -388,7 +470,15 @@ msg_error_t MsgInitSimBySatListener()
 
 	// establish connection to msgfw daemon
 	MsgIpcClientSocket client;
-	client.connect(MSG_SOCKET_PATH);
+	try
+	{
+		client.connect(MSG_SOCKET_PATH);
+	}
+	catch (MsgException& e)
+	{
+		MSG_FATAL("%s", e.what());
+		return MSG_ERR_UNKNOWN;
+	}
 
 	// composing command
 	int cmdSize = sizeof(MSG_CMD_S);
@@ -417,7 +507,8 @@ msg_error_t MsgInitSimBySatListener()
 	MSG_EVENT_S* pEvent = (MSG_EVENT_S*)retBuf;
 
 	if (pEvent->eventType != MSG_EVENT_PLG_INIT_SIM_BY_SAT)
-		THROW(MsgException::INVALID_RESULT, "Wrong result(evt type %d : %s) received", pEvent->eventType, MsgDbgEvtStr(pEvent->eventType));
+		MSG_FATAL("Wrong result(evt type %d : %s) received", pEvent->eventType, MsgDbgEvtStr(pEvent->eventType));
+		//THROW(MsgException::INVALID_RESULT, "Wrong result(evt type %d : %s) received", pEvent->eventType, MsgDbgEvtStr(pEvent->eventType));
 
 	MSG_END();
 
@@ -428,14 +519,27 @@ msg_error_t MsgInitSimBySatListener()
 msg_error_t MsgMmsConfIncomingListener(MSG_MESSAGE_INFO_S *pMsg, msg_request_id_t *pReqId)
 {
 	MSG_BEGIN();
-	MSG_DEBUG("pMsg = %s, pReqId = %d ", pMsg->msgData, *pReqId);
+	MSG_SEC_DEBUG("pMsg = %s, pReqId = %d ", pMsg->msgData, *pReqId);
 
 	// establish connection to msgfw daemon
 	MsgIpcClientSocket client;
-	client.connect(MSG_SOCKET_PATH);
+	try
+	{
+		client.connect(MSG_SOCKET_PATH);
+	}
+	catch (MsgException& e)
+	{
+		MSG_FATAL("%s", e.what());
+		return MSG_ERR_UNKNOWN;
+	}
+
+	// Allocate Memory to Command Data
+	char* encodedData = NULL;
+	AutoPtr<char> buf(&encodedData);
+	int dataSize = MsgEncodeMsgInfo(pMsg, &encodedData);
 
 	// composing command
-	int cmdSize = sizeof(MSG_CMD_S) + sizeof(MSG_MESSAGE_INFO_S) + sizeof(msg_request_id_t); // cmd type, MSG_MESSAGE_INFO_S, msg_request_id_t
+	int cmdSize = sizeof(MSG_CMD_S) + sizeof(msg_request_id_t) + dataSize; // cmd type, MSG_MESSAGE_INFO_S, msg_request_id_t
 	MSG_DEBUG("cmdSize : %d", cmdSize);
 
 	char cmdBuf[cmdSize];
@@ -449,8 +553,8 @@ msg_error_t MsgMmsConfIncomingListener(MSG_MESSAGE_INFO_S *pMsg, msg_request_id_
 	memset(pCmd->cmdCookie, 0x00, MAX_COOKIE_LEN); // cmd cookie
 
 	// cmd data
-	memcpy((void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN), pMsg, sizeof(MSG_MESSAGE_INFO_S));
-	memcpy((void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN+sizeof(MSG_MESSAGE_INFO_S)), pReqId, sizeof(msg_request_id_t));
+	memcpy((void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN), pReqId, sizeof(msg_request_id_t));
+	memcpy((void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN + sizeof(msg_request_id_t)), encodedData, dataSize);
 
 	// Send Command to Messaging FW
 	client.write(cmdBuf, cmdSize);
@@ -464,12 +568,305 @@ msg_error_t MsgMmsConfIncomingListener(MSG_MESSAGE_INFO_S *pMsg, msg_request_id_
 	// close connection to msgfw daemon
 	client.close();
 
-	//Decoding the result from FW and Returning it to plugin
-	// the result is used for making delivery report
+	// Decoding the result from FW and Returning it to plugin
 	MSG_EVENT_S *pEvent = (MSG_EVENT_S *)retBuf;
 
-	if(pEvent->eventType != MSG_EVENT_PLG_INCOMING_MMS_CONF && pEvent->eventType != MSG_EVENT_PLG_SENT_STATUS_CNF)
-		THROW(MsgException::INCOMING_MSG_ERROR, "Wrong result(evt type %d : %s) received", pEvent->eventType, MsgDbgEvtStr(pEvent->eventType));
+	if(pEvent->eventType != MSG_EVENT_PLG_INCOMING_MMS_CONF)
+		MSG_FATAL("Wrong result(evt type %d : %s) received", pEvent->eventType, MsgDbgEvtStr(pEvent->eventType));
+		//THROW(MsgException::INCOMING_MSG_ERROR, "Wrong result(evt type %d : %s) received", pEvent->eventType, MsgDbgEvtStr(pEvent->eventType));
+
+	MSG_END();
+
+	return (pEvent->result);
+}
+
+
+msg_error_t MsgSimMessageListener(MSG_MESSAGE_INFO_S *pMsg, int *simIdList, msg_message_id_t *retMsgId, int size)
+{
+	MSG_BEGIN();
+
+	// establish connection to msgfw daemon
+	MsgIpcClientSocket client;
+	try
+	{
+		client.connect(MSG_SOCKET_PATH);
+	}
+	catch (MsgException& e)
+	{
+		MSG_FATAL("%s", e.what());
+		return MSG_ERR_UNKNOWN;
+	}
+
+	// Check Invalid Message Structure
+	if (pMsg == NULL)
+	{
+		MSG_DEBUG("pMsg is NULL !!");
+
+		return MSG_ERR_NULL_MESSAGE;
+	}
+
+	// Allocate Memory to Command Data
+	char* encodedData = NULL;
+	AutoPtr<char> buf(&encodedData);
+	int dataSize = MsgEncodeMsgInfo(pMsg, &encodedData);
+
+	char* encodedData2 = NULL;
+	AutoPtr<char> buf2(&encodedData2);
+	encodedData2 = (char*)new char[dataSize + sizeof(int) + (sizeof(int)*size) + 1];
+
+	char *offset = NULL;
+	memcpy(encodedData2, encodedData, dataSize);
+	offset = encodedData2+dataSize;
+
+	memcpy(offset, &size, sizeof(int));
+	offset += sizeof(int);
+	MSG_DEBUG("size [%d]", size);
+
+	memcpy(offset, simIdList, (sizeof(int)*size));
+
+	MSG_DEBUG("simIdList[0] [%d]", simIdList[0]);
+
+	dataSize += ((sizeof(int)*size) + 1);
+
+	// composing command
+	int cmdSize = sizeof(MSG_CMD_S) + dataSize; // cmd type, MSG_MESSAGE_INFO_S
+
+	MSG_DEBUG("cmdSize: %d", cmdSize);
+
+	char cmdBuf[cmdSize];
+	bzero(cmdBuf, cmdSize);
+
+	MSG_CMD_S* pCmd = (MSG_CMD_S*) cmdBuf;
+
+	// Set Command Parameters
+	pCmd->cmdType = MSG_CMD_ADD_SIM_MSG;
+
+	memset(pCmd->cmdCookie, 0x00, MAX_COOKIE_LEN);
+
+	memcpy((void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN), encodedData2, dataSize);
+
+	// Send Command to Messaging FW
+	client.write(cmdBuf, cmdSize);
+
+	char* retBuf = NULL;
+	AutoPtr<char> wrap(&retBuf);
+	unsigned int retSize;
+
+	client.read(&retBuf, &retSize);
+
+	// close connection to msgfw daemon
+	client.close();
+
+	// Decoding the result from FW and Returning it to plugin
+	// the result is used for making delivery report
+	MSG_EVENT_S* pEvent = (MSG_EVENT_S*)retBuf;
+
+	if (pEvent->eventType != MSG_EVENT_ADD_SIM_MSG)
+		MSG_FATAL("Wrong result(evt type %d : %s) received", pEvent->eventType, MsgDbgEvtStr(pEvent->eventType));
+		//THROW(MsgException::INCOMING_MSG_ERROR, "Wrong result(evt type %d : %s) received", pEvent->eventType, MsgDbgEvtStr(pEvent->eventType));
+
+	//CID 48645: pEvent->data is an array hence null check is not required on it.
+	if (retMsgId) {
+		memcpy(retMsgId, pEvent->data, sizeof(msg_message_id_t));
+		MSG_DEBUG("Saved SIM message ID = [%d]", *retMsgId);
+	}
+
+	MSG_END();
+
+	return (pEvent->result);
+}
+
+msg_error_t MsgResendMessageListener(void)
+{
+	// establish connection to msgfw daemon
+	MsgIpcClientSocket client;
+	try
+	{
+		client.connect(MSG_SOCKET_PATH);
+	}
+	catch (MsgException& e)
+	{
+		MSG_FATAL("%s", e.what());
+		return MSG_ERR_UNKNOWN;
+	}
+
+	// composing command
+	int cmdSize = sizeof(MSG_CMD_S);
+
+	char cmdBuf[cmdSize];
+	bzero(cmdBuf, cmdSize);
+
+	MSG_CMD_S* pCmd = (MSG_CMD_S*)cmdBuf;
+
+	// Set Command Parameters
+	pCmd->cmdType = MSG_CMD_PLG_RESEND_MESSAGE;
+
+	// Send Command to Transaction Manager
+	client.write(cmdBuf, cmdSize);
+
+	// Receive result from Transaction Manager
+	char* retBuf = NULL;
+	AutoPtr<char> wrap(&retBuf);
+	unsigned int retSize;
+	client.read(&retBuf, &retSize);
+
+	// close connection to msgfw daemon
+	client.close();
+
+	// Decoding the result from FW and Returning it to plugin
+	MSG_EVENT_S* pEvent = (MSG_EVENT_S*)retBuf;
+
+	if (pEvent->eventType != MSG_EVENT_PLG_RESEND_MESSAGE)
+		MSG_FATAL("Wrong result(evt type %d : %s) received", pEvent->eventType, MsgDbgEvtStr(pEvent->eventType));
+		//THROW(MsgException::INVALID_RESULT, "Wrong result(evt type %d : %s) received", pEvent->eventType, MsgDbgEvtStr(pEvent->eventType));
+
+	MSG_END();
+
+	return (pEvent->result);
+}
+
+#ifdef FEATURE_SMS_CDMA
+bool MsgCheckUniquenessListener(MSG_UNIQUE_INDEX_S *p_msg, msg_message_id_t msgId, bool bInsert)
+{
+	MSG_BEGIN();
+
+	// establish connection to msgfw daemon
+	MsgIpcClientSocket client;
+	try
+	{
+		client.connect(MSG_SOCKET_PATH);
+	}
+	catch (MsgException& e)
+	{
+		MSG_FATAL("%s", e.what());
+		return MSG_ERR_UNKNOWN;
+	}
+
+	// Check Invalid Message Structure
+	if (p_msg == NULL)
+	{
+		MSG_DEBUG("p_msg is NULL !!");
+
+		return MSG_ERR_NULL_MESSAGE;
+	}
+
+	// Allocate Memory to Command Data
+	char* encodedData = NULL;
+	AutoPtr<char> buf(&encodedData);
+
+	int dataSize = sizeof(bool) + sizeof(msg_message_id_t) + sizeof(MSG_UNIQUE_INDEX_S);
+
+	encodedData = (char*)new char[dataSize];
+
+	MSG_DEBUG("Encoded Teleservice Msg Id = [%d]", p_msg->tele_msgId);
+	MSG_DEBUG("Encoded Address = [%s]", p_msg->address);
+	MSG_DEBUG("Encoded Sub Address = [%s]", p_msg->sub_address);
+
+	void* p = (void*)encodedData;
+
+	memcpy(p, &(bInsert), sizeof(bool));
+	p = (void*)((char*)p + sizeof(bool));
+
+	memcpy(p, &(msgId), sizeof(msg_message_id_t));
+	p = (void*)((char*)p + sizeof(msg_message_id_t));
+
+	memcpy(p, p_msg, sizeof(MSG_UNIQUE_INDEX_S));
+	p = (void*)((char*)p + sizeof(MSG_UNIQUE_INDEX_S));
+
+	// composing command
+	int cmdSize = sizeof(MSG_CMD_S) + dataSize; // cmd type, MSG_MESSAGE_INFO_S
+
+	MSG_DEBUG("cmdSize: %d", cmdSize);
+
+	char cmdBuf[cmdSize];
+	bzero(cmdBuf, cmdSize);
+
+	MSG_CMD_S* pCmd = (MSG_CMD_S*) cmdBuf;
+
+	// Set Command Parameters
+	pCmd->cmdType = MSG_CMD_PLG_CHECK_UNIQUENESS;
+
+	memset(pCmd->cmdCookie, 0x00, MAX_COOKIE_LEN);
+
+	memcpy((void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN), encodedData, dataSize);
+
+	// Send Command to Messaging FW
+	client.write(cmdBuf, cmdSize);
+
+	char* retBuf = NULL;
+	AutoPtr<char> wrap(&retBuf);
+	unsigned int retSize;
+
+	client.read(&retBuf, &retSize);
+
+	// close connection to msgfw daemon
+	client.close();
+
+	// Decoding the result from FW and Returning it to plugin
+	// the result is used for making delivery report
+	MSG_EVENT_S* pEvent = (MSG_EVENT_S*)retBuf;
+
+	if (pEvent->eventType != MSG_EVENT_PLG_CHECK_UNIQUENESS)
+		MSG_FATAL("Wrong result(evt type %d : %s) received", pEvent->eventType, MsgDbgEvtStr(pEvent->eventType));
+		//THROW(MsgException::INCOMING_MSG_ERROR, "Wrong result(evt type %d : %s) received", pEvent->eventType, MsgDbgEvtStr(pEvent->eventType));
+
+	MSG_END();
+
+	if (pEvent->result == MSG_SUCCESS)
+		return true;
+	else
+		return false;
+}
+#endif
+
+msg_error_t MsgSimImsiListener(int sim_idx)
+{
+	MSG_BEGIN();
+
+	// establish connection to msgfw daemon
+	MsgIpcClientSocket client;
+	try
+	{
+		client.connect(MSG_SOCKET_PATH);
+	}
+	catch (MsgException& e)
+	{
+		MSG_FATAL("%s", e.what());
+		return MSG_ERR_UNKNOWN;
+	}
+
+	// composing command
+	int cmdSize = sizeof(MSG_CMD_S) + sizeof(int);
+
+	char cmdBuf[cmdSize];
+	bzero(cmdBuf, cmdSize);
+
+	MSG_CMD_S* pCmd = (MSG_CMD_S*)cmdBuf;
+
+	// Set Command Parameters
+	pCmd->cmdType = MSG_CMD_UPDATE_IMSI;
+
+	memset(pCmd->cmdCookie, 0x00, MAX_COOKIE_LEN);
+	memcpy((void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN), (const void *)&sim_idx, sizeof(int));
+
+	// Send Command to Transaction Manager
+	client.write(cmdBuf, cmdSize);
+
+	// Receive result from Transaction Manager
+	char* retBuf = NULL;
+	AutoPtr<char> wrap(&retBuf);
+	unsigned int retSize;
+	client.read(&retBuf, &retSize);
+
+	// close connection to msgfw daemon
+	client.close();
+
+	// Decoding the result from FW and Returning it to plugin
+	MSG_EVENT_S* pEvent = (MSG_EVENT_S*)retBuf;
+
+	if (pEvent->eventType != MSG_EVENT_UPDATE_IMSI)
+		MSG_FATAL("Wrong result(evt type %d : %s) received", pEvent->eventType, MsgDbgEvtStr(pEvent->eventType));
+		//THROW(MsgException::INVALID_RESULT, "Wrong result(evt type %d : %s) received", pEvent->eventType, MsgDbgEvtStr(pEvent->eventType));
 
 	MSG_END();
 
@@ -511,24 +908,29 @@ MsgPlugin::MsgPlugin(MSG_MAIN_TYPE_T mainType, const char *libPath): mSupportedM
 	if ((*pFunc)(&mPlgHandler) != MSG_SUCCESS)
 		THROW(MsgException::PLUGIN_ERROR, "ERROR to create plugin handle");
 
-	// Initialize Plug-in
-	if (initialize() != MSG_SUCCESS)
-		THROW(MsgException::PLUGIN_ERROR, "ERROR to initialize plugin");
-
 	MSG_PLUGIN_LISTENER_S fwListener = {0};
-	fwListener.pfSentStatusCb 			= &MsgSentStatusListener;
-	fwListener.pfStorageChangeCb 		= &MsgStorageChangeListener;
-	fwListener.pfMsgIncomingCb 		= &MsgIncomingMessageListener;
-	fwListener.pfInitSimBySatCb			= &MsgInitSimBySatListener;
+	fwListener.pfSentStatusCb 					= &MsgSentStatusListener;
+	fwListener.pfStorageChangeCb 			= &MsgStorageChangeListener;
+	fwListener.pfMsgIncomingCb 				= &MsgIncomingMessageListener;
+	fwListener.pfInitSimBySatCb				= &MsgInitSimBySatListener;
 	fwListener.pfSyncMLMsgIncomingCb 	= &MsgIncomingSyncMLMessageListener;
 	fwListener.pfLBSMsgIncomingCb 		= &MsgIncomingLBSMessageListener;
-	fwListener.pfMmsConfIncomingCb = &MsgMmsConfIncomingListener;
+	fwListener.pfMmsConfIncomingCb 		= &MsgMmsConfIncomingListener;
 	fwListener.pfPushMsgIncomingCb 		= &MsgIncomingPushMessageListener;
-	fwListener.pfCBMsgIncomingCb 		= &MsgIncomingCBMessageListener;
+	fwListener.pfCBMsgIncomingCb 			= &MsgIncomingCBMessageListener;
+	fwListener.pfSimMsgIncomingCb 		= &MsgSimMessageListener;
+	fwListener.pfResendMessageCb 		= &MsgResendMessageListener;
+#ifdef FEATURE_SMS_CDMA
+	fwListener.pfCheckUniquenessCb		= &MsgCheckUniquenessListener;
+#endif
+	fwListener.pfSimInitImsiCb 		= &MsgSimImsiListener;
 
 	if (registerListener(&fwListener) != MSG_SUCCESS)
 		THROW(MsgException::PLUGIN_ERROR, "ERROR to register listener");
 
+	// Initialize Plug-in
+	if (initialize() != MSG_SUCCESS)
+		THROW(MsgException::PLUGIN_ERROR, "ERROR to initialize plugin");
 }
 
 
@@ -575,33 +977,6 @@ msg_error_t MsgPlugin::registerListener(MSG_PLUGIN_LISTENER_S *pListener)
 }
 
 
-msg_error_t MsgPlugin::checkSimStatus(MSG_SIM_STATUS_T *pStatus)
-{
-	if (mPlgHandler.pfRegisterListener != NULL)
-		return mPlgHandler.pfCheckSimStatus(pStatus);
-	else
-		return MSG_ERR_INVALID_PLUGIN_HANDLE;
-}
-
-
-msg_error_t MsgPlugin::checkDeviceStatus()
-{
-	if (mPlgHandler.pfRegisterListener != NULL)
-		return mPlgHandler.pfCheckDeviceStatus();
-	else
-		return MSG_ERR_INVALID_PLUGIN_HANDLE;
-}
-
-
-msg_error_t MsgPlugin::initSimMessage()
-{
-	if (mPlgHandler.pfInitSimMessage != NULL)
-		return mPlgHandler.pfInitSimMessage();
-	else
-		return MSG_ERR_INVALID_PLUGIN_HANDLE;
-}
-
-
 msg_error_t MsgPlugin::saveSimMessage(MSG_MESSAGE_INFO_S *pMsgInfo, SMS_SIM_ID_LIST_S *pSimIdList)
 {
 	if (mPlgHandler.pfSaveSimMessage != NULL)
@@ -610,7 +985,33 @@ msg_error_t MsgPlugin::saveSimMessage(MSG_MESSAGE_INFO_S *pMsgInfo, SMS_SIM_ID_L
 		return MSG_ERR_INVALID_PLUGIN_HANDLE;
 }
 
+#ifndef FEATURE_SMS_CDMA
+msg_error_t MsgPlugin::deleteSimMessage(msg_sim_slot_id_t sim_idx, msg_sim_id_t SimMsgId)
+{
+	if (mPlgHandler.pfDeleteSimMessage != NULL)
+		return mPlgHandler.pfDeleteSimMessage(sim_idx, SimMsgId);
+	else
+		return MSG_ERR_INVALID_PLUGIN_HANDLE;
+}
 
+
+msg_error_t MsgPlugin::setReadStatus(msg_sim_slot_id_t sim_idx, msg_sim_id_t SimMsgId)
+{
+	if (mPlgHandler.pfSetReadStatus != NULL)
+		return mPlgHandler.pfSetReadStatus(sim_idx, SimMsgId);
+	else
+		return MSG_ERR_INVALID_PLUGIN_HANDLE;
+}
+
+
+msg_error_t MsgPlugin::setMemoryStatus(msg_sim_slot_id_t sim_idx, msg_error_t Error)
+{
+	if (mPlgHandler.pfSetMemoryStatus != NULL)
+		return mPlgHandler.pfSetMemoryStatus(sim_idx, Error);
+	else
+		return MSG_ERR_INVALID_PLUGIN_HANDLE;
+}
+#else
 msg_error_t MsgPlugin::deleteSimMessage(msg_sim_id_t SimMsgId)
 {
 	if (mPlgHandler.pfDeleteSimMessage != NULL)
@@ -636,17 +1037,7 @@ msg_error_t MsgPlugin::setMemoryStatus(msg_error_t Error)
 	else
 		return MSG_ERR_INVALID_PLUGIN_HANDLE;
 }
-
-
-msg_error_t MsgPlugin::initConfigData(MSG_SIM_STATUS_T SimStatus)
-{
-	if (mPlgHandler.pfInitConfigData != NULL)
-		return mPlgHandler.pfInitConfigData(SimStatus);
-	else
-		return MSG_ERR_INVALID_PLUGIN_HANDLE;
-}
-
-
+#endif
 msg_error_t MsgPlugin::setConfigData(const MSG_SETTING_S *pSetting)
 {
 	if (mPlgHandler.pfSetConfigData != NULL)
@@ -693,10 +1084,10 @@ msg_error_t MsgPlugin::processReceivedInd(MSG_MESSAGE_INFO_S *pMsgInfo, MSG_REQU
 }
 
 
-msg_error_t MsgPlugin::getMmsMessage(MSG_MESSAGE_INFO_S *pMsg, MSG_SENDINGOPT_INFO_S *pSendOptInfo,  MMS_MESSAGE_DATA_S *pMmsMsg, char **pDestMsg)
+msg_error_t MsgPlugin::getMmsMessage(MSG_MESSAGE_INFO_S *pMsg, MSG_SENDINGOPT_INFO_S *pSendOptInfo, char **pDestMsg)
 {
 	if (mPlgHandler.pfGetMmsMessage != NULL) {
-		return mPlgHandler.pfGetMmsMessage(pMsg, pSendOptInfo, pMmsMsg, pDestMsg);
+		return mPlgHandler.pfGetMmsMessage(pMsg, pSendOptInfo, pDestMsg);
 	} else {
 		return MSG_ERR_INVALID_PLUGIN_HANDLE;
 	}
@@ -731,6 +1122,14 @@ msg_error_t MsgPlugin::restoreMsg(MSG_MESSAGE_INFO_S *pMsgInfo, char* pRecvBody,
 		return MSG_ERR_INVALID_PLUGIN_HANDLE;
 }
 
+msg_error_t MsgPlugin::getDefaultNetworkSimId(int *SimId)
+{
+	if (mPlgHandler.pfGetDefaultNetworkSimId != NULL)
+		return mPlgHandler.pfGetDefaultNetworkSimId(SimId);
+	else
+		return MSG_ERR_INVALID_PLUGIN_HANDLE;
+}
+
 
 /*==================================================================================================
                                      IMPLEMENTATION OF MsgPluginManager - Member Functions
@@ -755,12 +1154,31 @@ MsgPluginManager::MsgPluginManager()
 
 void MsgPluginManager::initialize()
 {
-	char path[64];
+	int plg_len = sizeof(__msg_plg_items)/sizeof(MSG_PLG_TABLE_T);
+	for (int i=0; i < plg_len; i++) {
+		MsgPlugin* pDupPlgCheck = checkPlugin(__msg_plg_items[i].type);
 
-	memset(path, 0x00, sizeof(path));
-	snprintf(path, sizeof(path), "%s%s", MSG_PLUGIN_CFG_PATH, MSG_PLUGIN_CFG_NAME);
+		if (pDupPlgCheck) {
+			MSG_DEBUG("Plugin for type %d is duplicated", __msg_plg_items[i].type);
+			continue;
+		}
 
-	loadPlugins(path);
+		MsgPlugin *newPlg = NULL;
+
+		try
+		{
+			newPlg = new MsgPlugin(__msg_plg_items[i].type, __msg_plg_items[i].path);
+		}
+		catch (MsgException& e)
+		{
+			MSG_FATAL("%s", e.what());
+			continue;
+		}
+
+		if (newPlg)
+			plgMap.insert(make_pair(__msg_plg_items[i].type, newPlg));
+
+	}
 }
 
 
@@ -778,41 +1196,7 @@ void MsgPluginManager::finalize()
 }
 
 
-void MsgPluginManager::loadPlugins(const char* path)
-{
-	/* read plugins from configuration file */
-	FILE* fp = MsgOpenFile(path, "rt");
-
-	MsgPlgConfig plgConf = MsgPlgConfig(fp);
-
-	for (int i=0; i < plgConf.titleCount(); i++)
-	{
-		MsgPlgToken tok;
-
-		plgConf.token(i, 0, tok);
-		const char* content = tok.getVal();
-
-		MSG_MAIN_TYPE_T mainType = strstr(content,"sms")? MSG_SMS_TYPE:
-							(strstr(content,"mms")? MSG_MMS_TYPE: MSG_UNKNOWN_TYPE);
-
-		plgConf.token(i, 1, tok);
-		const char* libPath = tok.getVal();
-
-		MsgPlugin* pDupPlgCheck = getPlugin(mainType);
-
-		if (pDupPlgCheck)
-			THROW(MsgException::PLUGIN_ERROR, "Plugin for type %d is duplicated", mainType);
-
-		MsgPlugin *newPlg = new MsgPlugin(mainType, libPath);
-
-		plgMap.insert(make_pair(mainType, newPlg));
-	}
-
-	MsgCloseFile(fp);
-}
-
-
-MsgPlugin* MsgPluginManager::getPlugin(MSG_MAIN_TYPE_T mainType)
+MsgPlugin* MsgPluginManager::checkPlugin(MSG_MAIN_TYPE_T mainType)
 {
 	/* Implementing the content */
 	MsgPluginMap::iterator it = plgMap.find(mainType);
@@ -821,5 +1205,20 @@ MsgPlugin* MsgPluginManager::getPlugin(MSG_MAIN_TYPE_T mainType)
 		return NULL;
 
 	return it->second;
+}
+
+
+MsgPlugin* MsgPluginManager::getPlugin(MSG_MAIN_TYPE_T mainType)
+{
+	MsgPlugin *plugin = NULL;
+
+	if (plgMap.size() == 0) {
+		MSG_INFO("Msg plugin is initializing again");
+		initialize();
+	}
+
+	plugin = checkPlugin(mainType);
+
+	return plugin;
 }
 

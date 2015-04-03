@@ -1,20 +1,17 @@
 /*
- * msg-service
- *
- * Copyright (c) 2000 - 2014 Samsung Electronics Co., Ltd. All rights reserved
+ * Copyright (c) 2014 Samsung Electronics Co., Ltd. All rights reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
 */
 
 #ifndef MSG_TEXT_CONVERT_H
@@ -38,7 +35,7 @@
 
 #define MAX_DUMP_COLUMN	16
 
-typedef unsigned short WCHAR;
+typedef unsigned long WCHAR;
 
 typedef unsigned char MSG_CHAR_TYPE_T;
 
@@ -257,24 +254,33 @@ static const WCHAR g_PortuLockingToUCS2[] =
 class MsgTextConvert
 {
 public:
-	MsgTextConvert();
-	~MsgTextConvert();
+	static MsgTextConvert* instance();
 
 	int convertUTF8ToGSM7bit(OUT unsigned char *pDestText, IN int maxLength,  IN const unsigned char *pSrcText, IN int srcTextLen, OUT MSG_LANGUAGE_ID_T *pLangId, OUT bool *bIncludeAbnormalChar);
 	int convertUTF8ToUCS2(OUT unsigned char *pDestText, IN int maxLength, IN const unsigned char *pSrcText, IN int srcTextLen);
+#ifndef FEATURE_SMS_CDMA
+	int convertUTF8ToAuto(OUT unsigned char *pDestText, IN int maxLength,  IN const unsigned char *pSrcText, IN int srcTextLen, OUT MSG_LANGUAGE_ID_T *pLangId, OUT msg_encode_type_t *pCharType);
+#else
 	int convertUTF8ToAuto(OUT unsigned char *pDestText, IN int maxLength,  IN const unsigned char *pSrcText, IN int srcTextLen, OUT msg_encode_type_t *pCharType);
+#endif
 
 	int convertGSM7bitToUTF8(OUT unsigned char *pDestText, IN int maxLength,  IN const unsigned char *pSrcText, IN int srcTextLen, IN MSG_LANG_INFO_S *pLangInfo);
 	int convertUCS2ToUTF8(OUT unsigned char *pDestText, IN int maxLength, IN const unsigned char *pSrcText, IN  int srcTextLen);
 	int convertEUCKRToUTF8(OUT unsigned char *pDestText, IN int maxLength, IN const unsigned char *pSrcText, IN  int srcTextLen);
+	int convertSHIFTJISToUTF8(OUT unsigned char *pDestText, IN int maxLength, IN const unsigned char *pSrcText, IN  int srcTextLen);
 
 private:
+	MsgTextConvert();
+	~MsgTextConvert();
+
 	int convertUCS2ToGSM7bit(OUT unsigned char *pDestText, IN int maxLength, IN const unsigned char *pSrcText, IN int srcTextLen, OUT MSG_LANGUAGE_ID_T *pLangId, OUT bool *bIncludeAbnormalChar);
-	int convertUCS2ToGSM7bitAuto(OUT unsigned char *pDestText, IN int maxLength, IN const unsigned char *pSrcText, IN int srcTextLen, OUT bool *pUnknown);
+	int convertUCS2ToASCII(OUT unsigned char *pDestText, IN int maxLength, IN const unsigned char *pSrcText, IN int srcTextLen, OUT bool *pUnknown);
 
 	int convertGSM7bitToUCS2(OUT unsigned char *pDestText, IN int maxLength, IN const unsigned char *pSrcText, IN int srcTextLen, IN MSG_LANG_INFO_S *pLangInfo);
 
 	void convertDumpTextToHex(const unsigned char *pText, int length);
+
+	static MsgTextConvert* pInstance;
 
 	std::map<unsigned short, unsigned char> extCharList;
 	std::map<unsigned short, unsigned char> ucs2toGSM7DefList;
@@ -282,6 +288,9 @@ private:
 	std::map<unsigned short, unsigned char> ucs2toTurkishList;
 	std::map<unsigned short, unsigned char> ucs2toSpanishList;
 	std::map<unsigned short, unsigned char> ucs2toPortuList;
+
+	std::map<unsigned short, unsigned char> replaceCharList;
+
 };
 
 #endif //MSG_TEXT_CONVERT_H

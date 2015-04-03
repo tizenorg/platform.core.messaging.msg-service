@@ -1,20 +1,17 @@
 /*
- * msg-service
- *
- * Copyright (c) 2000 - 2014 Samsung Electronics Co., Ltd. All rights reserved
+ * Copyright (c) 2014 Samsung Electronics Co., Ltd. All rights reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
 */
 
 #include <sys/socket.h>
@@ -22,15 +19,17 @@
 #include <sys/ioctl.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <sys/smack.h>
 
 #include <errno.h>
 #include <unistd.h>
 #include <errno.h>
 
+
 #include "MsgDebug.h"
 #include "MsgException.h"
 #include "MsgIpcSocket.h"
-
+#include "MsgZoneManager.h"
 
 /*==================================================================================================
                                      IMPLEMENTATION OF MsgIpcClientSocket - Member Functions
@@ -64,11 +63,18 @@ msg_error_t MsgIpcClientSocket::connect(const char* path)
 	int len = strlen(serverSA.sun_path) + sizeof(serverSA.sun_family);
 
 	if (::connect(sockfd, (struct sockaddr *)&serverSA, len) == CUSTOM_SOCKET_ERROR) {
-		THROW(MsgException::IPC_ERROR,"cannot connect server %s", strerror(errno));
+		if(errno == EACCES)
+			THROW(MsgException::SECURITY_ERROR,"cannot connect server %s", strerror(errno));
+		else
+			THROW(MsgException::IPC_ERROR,"cannot connect server %s", strerror(errno));
 	}
 
 	/* add fd for select() */
 	addfd(sockfd);
+
+	if (!wait_for_reply()) {
+		THROW(MsgException::IPC_ERROR, "wait_for_reply() error");
+	}
 
 	/* read remote fd for reg func */
 	char *rfd = NULL;
@@ -192,6 +198,39 @@ int MsgIpcClientSocket::readn( char *buf, unsigned int len )
 	return (len-nleft);
 }
 
+bool MsgIpcClientSocket::wait_for_reply ()
+{
+	int err = -1;
+	fd_set fds;
+	struct timeval tv;
+
+	if (sockfd < 0) {
+		MSG_FATAL ("Invalid file description : [%d]", sockfd);
+		return false;
+	}
+
+	FD_ZERO(&fds);
+	FD_SET(sockfd, &fds);
+
+	tv.tv_sec  = 5; /* should be tuned */
+	tv.tv_usec = 0;
+
+	MSG_DEBUG ("wait for response [%d]", sockfd);
+	err = select(sockfd + 1, &fds, NULL, NULL, &tv);
+	if (err == -1) {
+		MSG_FATAL("select error[%d] fd[%d]", errno, sockfd);
+		return false;
+	}
+	else if (err == 0) {
+		MSG_FATAL ("select timeout fd[%d]", sockfd);
+		return false;
+	}
+
+	if (FD_ISSET(sockfd, &fds)) return true;
+
+	return false;
+}
+
 
 /* what if the buf is shorter than data? */
 int MsgIpcClientSocket::read(char** buf, unsigned int* len)
@@ -309,7 +348,17 @@ msg_error_t MsgIpcServerSocket::open(const char* path)
 		MSG_FATAL("chmod: %s", strerror(errno));
 		return MSG_ERR_UNKNOWN;
 	}
+#if 0
+	if (smack_setlabel(path, "*", SMACK_LABEL_IPIN) != 0) {
+		MSG_FATAL("smack_setlabel error");
+		return MSG_ERR_UNKNOWN;
+	}
 
+	if (smack_setlabel(path, "@", SMACK_LABEL_IPOUT) != 0) {
+		MSG_FATAL("smack_setlabel error");
+		return MSG_ERR_UNKNOWN;
+	}
+#endif
 	if (listen(sockfd, CUSTOM_SOCKET_BACKLOG) == CUSTOM_SOCKET_ERROR) {
 		MSG_FATAL("listen: %s", strerror(errno));
 		return MSG_ERR_UNKNOWN;
@@ -338,6 +387,10 @@ msg_error_t MsgIpcServerSocket::accept()
 	if (fd < 0) {
 		MSG_FATAL("accept: %s", strerror(errno));
 		return MSG_ERR_UNKNOWN;
+	}
+
+	if(!MsgZoneIsAllowed(fd)) {
+		return MSG_ERR_NOT_ALLOWED_ZONE;
 	}
 
 	addfd(fd);

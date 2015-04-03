@@ -1,20 +1,17 @@
 /*
- * msg-service
- *
- * Copyright (c) 2000 - 2014 Samsung Electronics Co., Ltd. All rights reserved
+ * Copyright (c) 2014 Samsung Electronics Co., Ltd. All rights reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
 */
 
 #include <string.h>
@@ -24,6 +21,7 @@
 #include "MsgHandle.h"
 #include "MsgTextConvert.h"
 #include "MsgException.h"
+#include "MsgMemory.h"
 
 #include "msg_private.h"
 #include "msg.h"
@@ -34,13 +32,23 @@
 		})\
 
 
+void __msg_release_list_item(gpointer data)
+{
+	if (data == NULL)
+		return;
+
+	msg_release_struct((msg_struct_t*)(&data));
+}
+
 
 EXPORT_API msg_struct_t msg_create_struct(int field)
 {
+	CHECK_MSG_SUPPORTED_RETURN_NULL(MSG_TELEPHONY_FEATURE);
 	msg_struct_s *msg_struct = new msg_struct_s;
 	memset(msg_struct, 0x00, sizeof(msg_struct_s));
 
 	msg_struct->type = field;
+	msg_struct->data = NULL;
 
 	switch(field)
 	{
@@ -145,6 +153,20 @@ EXPORT_API msg_struct_t msg_create_struct(int field)
 		memset(msg_struct->data, 0x00, sizeof(MSG_SEARCH_CONDITION_S));
 		break;
 	}
+	case MSG_STRUCT_MSG_LIST_CONDITION:
+	{
+		msg_struct->data = new MSG_LIST_CONDITION_S;
+		memset(msg_struct->data, 0x00, sizeof(MSG_LIST_CONDITION_S));
+
+		msg_struct_s *pStruct = new msg_struct_s;
+		((MSG_LIST_CONDITION_S *)msg_struct->data)->sortRule = (msg_struct_t)pStruct;
+
+		pStruct->type = MSG_STRUCT_SORT_RULE;
+		pStruct->data = new MSG_SORT_RULE_S;
+		memset(pStruct->data, 0x00, sizeof(MSG_SORT_RULE_S));
+
+		break;
+	}
 	case MSG_STRUCT_REPORT_STATUS_INFO:
 	{
 		msg_struct->data = new MSG_REPORT_STATUS_INFO_S;
@@ -157,13 +179,14 @@ EXPORT_API msg_struct_t msg_create_struct(int field)
         memset(msg_struct->data, 0x00, sizeof(MSG_SMSC_LIST_HIDDEN_S));
 
         MSG_SMSC_LIST_HIDDEN_S *pTmp = (MSG_SMSC_LIST_HIDDEN_S *)msg_struct->data;
+        pTmp->simIndex = MSG_SIM_SLOT_ID_1; // default sim index
 
         msg_struct_list_s *smsc_list = (msg_struct_list_s *)new msg_struct_list_s;
         memset(smsc_list, 0x00, sizeof(msg_struct_list_s));
 
         pTmp->smsc_list = smsc_list;
 
-        smsc_list->msg_struct_info = (msg_struct_t *)new char[sizeof(msg_struct_t)*SMSC_LIST_MAX];
+        smsc_list->msg_struct_info = (msg_struct_t *)calloc(SMSC_LIST_MAX, sizeof(msg_struct_t));
 
         msg_struct_s *pStructTmp = NULL;
 
@@ -188,11 +211,12 @@ EXPORT_API msg_struct_t msg_create_struct(int field)
         memset(msg_struct->data, 0x00, sizeof(MSG_CBMSG_OPT_HIDDEN_S));
 
         MSG_CBMSG_OPT_HIDDEN_S *pTmp = (MSG_CBMSG_OPT_HIDDEN_S *)msg_struct->data;
+        pTmp->simIndex = MSG_SIM_SLOT_ID_1; // default sim index
 
         pTmp->channelData = (msg_struct_list_s *)new msg_struct_list_s;
         memset(pTmp->channelData, 0x00, sizeof(msg_struct_list_s));
 
-        pTmp->channelData->msg_struct_info = (msg_struct_t *)new char[sizeof(msg_struct_t)*CB_CHANNEL_MAX];
+        pTmp->channelData->msg_struct_info = (msg_struct_t *)calloc(CB_CHANNEL_MAX, sizeof(msg_struct_t));
 
         msg_struct_s *pStructTmp = NULL;
 
@@ -241,6 +265,8 @@ EXPORT_API msg_struct_t msg_create_struct(int field)
 	{
 		msg_struct->data = new MSG_VOICEMAIL_OPT_S;
 		memset(msg_struct->data, 0x00, sizeof(MSG_VOICEMAIL_OPT_S));
+		MSG_VOICEMAIL_OPT_S *pTmp = (MSG_VOICEMAIL_OPT_S *)msg_struct->data;
+		pTmp->simIndex = MSG_SIM_SLOT_ID_1; // default sim index
 		break;
 	}
 	case MSG_STRUCT_SETTING_GENERAL_OPT :
@@ -311,11 +337,16 @@ EXPORT_API msg_struct_t msg_create_struct(int field)
 	case MSG_STRUCT_MMS_META:
 	case MSG_STRUCT_MMS_SMIL_TEXT:
 	case MSG_STRUCT_MMS_SMIL_AVI:
+	case MSG_STRUCT_MULTIPART_INFO:
 		msg_struct->data = msg_mms_create_struct_data(field);
 		break;
 	case MSG_STRUCT_PUSH_CONFIG_INFO:
 		msg_struct->data = new MSG_PUSH_EVENT_INFO_S;
 		memset(msg_struct->data, 0x00, sizeof(MSG_PUSH_EVENT_INFO_S));
+		break;
+	default :
+		delete msg_struct;
+		return NULL;
 		break;
 	}
 
@@ -323,7 +354,7 @@ EXPORT_API msg_struct_t msg_create_struct(int field)
 }
 
 
-EXPORT_API int msg_release_struct(msg_struct_t *msg_struct_handle)
+static int _release_msg_struct(msg_struct_t *msg_struct_handle)
 {
 	msg_error_t err = MSG_SUCCESS;
 
@@ -353,6 +384,11 @@ EXPORT_API int msg_release_struct(msg_struct_t *msg_struct_handle)
 	case MSG_STRUCT_CONV_INFO:
 	{
 		MSG_CONVERSATION_VIEW_S *pConv = (MSG_CONVERSATION_VIEW_S*)(msg_struct->data);
+
+		if (pConv->multipart_list) {
+			g_list_free_full((GList *)pConv->multipart_list, __msg_release_list_item);
+			pConv->multipart_list = NULL;
+		}
 
 		if (pConv->pText) {
 			delete [] pConv->pText;
@@ -473,6 +509,24 @@ EXPORT_API int msg_release_struct(msg_struct_t *msg_struct_handle)
 
 		break;
 	}
+	case MSG_STRUCT_MSG_LIST_CONDITION:
+	{
+		MSG_LIST_CONDITION_S *pCond = (MSG_LIST_CONDITION_S*)(msg_struct->data);
+		MSG_SORT_RULE_S *pSortRule = (MSG_SORT_RULE_S *)(((msg_struct_s *)pCond->sortRule)->data);
+
+		delete (MSG_SORT_RULE_S *)pSortRule;
+		((msg_struct_s *)pCond->sortRule)->data = NULL;
+		delete (msg_struct_s *)pCond->sortRule;
+		pCond->sortRule = NULL;
+
+		delete (MSG_LIST_CONDITION_S*)(msg_struct->data);
+		msg_struct->data = NULL;
+
+		delete msg_struct;
+		*msg_struct_handle = NULL;
+
+		break;
+	}
 	case MSG_STRUCT_REPORT_STATUS_INFO:
 	{
 		delete (MSG_REPORT_STATUS_INFO_S*)(msg_struct->data);
@@ -545,6 +599,7 @@ EXPORT_API int msg_release_struct(msg_struct_t *msg_struct_handle)
 	case MSG_STRUCT_MMS_META:
 	case MSG_STRUCT_MMS_SMIL_TEXT:
 	case MSG_STRUCT_MMS_SMIL_AVI:
+	case MSG_STRUCT_MULTIPART_INFO:
 	{
 		msg_mms_release_struct(&msg_struct);
 		*msg_struct_handle = NULL;
@@ -561,13 +616,15 @@ EXPORT_API int msg_release_struct(msg_struct_t *msg_struct_handle)
 
 		for (int i = 0; i < SMSC_LIST_MAX; i++) {
 			smsc_info = (msg_struct_s *)smsc_list->msg_struct_info[i];
-			delete [] (MSG_SMSC_DATA_S*)(smsc_info->data);
-			delete [] smsc_info;
+			delete (MSG_SMSC_DATA_S*)(smsc_info->data);
+			delete smsc_info;
 		}
 
-		delete [] smsc_list->msg_struct_info;
+		g_free(smsc_list->msg_struct_info);
 
-		delete [] (MSG_SMSC_LIST_HIDDEN_S*)pTmp;
+		delete smsc_list;
+
+		delete pTmp;
 		msg_struct->data = NULL;
 
 		delete msg_struct;
@@ -594,13 +651,15 @@ EXPORT_API int msg_release_struct(msg_struct_t *msg_struct_handle)
 
 		for (int i = 0; i < CB_CHANNEL_MAX; i++) {
 			cb_info = (msg_struct_s *)cb_list->msg_struct_info[i];
-			delete [] (MSG_CB_CHANNEL_INFO_S*)(cb_info->data);
-			delete [] cb_info;
+			delete (MSG_CB_CHANNEL_INFO_S*)(cb_info->data);
+			delete cb_info;
 		}
 
-		delete [] cb_list->msg_struct_info;
+		g_free(cb_list->msg_struct_info);
 
-		delete [] (MSG_CBMSG_OPT_HIDDEN_S*)pTmp;
+		delete cb_list;
+
+		delete pTmp;
 		msg_struct->data = NULL;
 
 		delete msg_struct;
@@ -688,6 +747,15 @@ EXPORT_API int msg_release_struct(msg_struct_t *msg_struct_handle)
 		*msg_struct_handle = NULL;
 		break;
 	}
+	case MSG_STRUCT_MEDIA_INFO:
+	{
+		delete (MSG_MEDIA_INFO_S*)(msg_struct->data);
+		msg_struct->data = NULL;
+
+		delete msg_struct;
+		*msg_struct_handle = NULL;
+		break;
+	}
 	default :
 		err = MSG_ERR_INVALID_PARAMETER;
 		break;
@@ -696,8 +764,21 @@ EXPORT_API int msg_release_struct(msg_struct_t *msg_struct_handle)
 	return err;
 }
 
-int msg_release_list_struct(msg_struct_list_s *msg_struct_list)
+EXPORT_API int msg_release_struct(msg_struct_t *msg_struct_handle)
 {
+	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_FEATURE);
+
+	int ret = _release_msg_struct(msg_struct_handle);
+
+	// Release Memory
+	MsgReleaseMemory();
+
+	return ret;
+}
+
+EXPORT_API int msg_release_list_struct(msg_struct_list_s *msg_struct_list)
+{
+	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_FEATURE);
 	msg_error_t err = MSG_SUCCESS;
 
 	if (msg_struct_list == NULL)
@@ -715,29 +796,35 @@ int msg_release_list_struct(msg_struct_list_s *msg_struct_list)
 
 		switch (structType)
 		{
-		case MSG_STRUCT_ADDRESS_INFO :
-		{
-			listCnt = MAX_TO_ADDRESS_CNT;
-			break;
-		}
+//		case MSG_STRUCT_ADDRESS_INFO :
+//		{
+//			listCnt = MAX_TO_ADDRESS_CNT;
+//			break;
+//		}
 		default :
 			break;
 		}
 
 		for(int i = 0; i < listCnt; i++) {
-			msg_release_struct(&(msg_struct_list->msg_struct_info[i]));
+			_release_msg_struct(&(msg_struct_list->msg_struct_info[i]));
 		}
 	}
 
 	//free peer info list
-	delete [] msg_struct_list->msg_struct_info;
+	g_free(msg_struct_list->msg_struct_info);
 	msg_struct_list->msg_struct_info = NULL;
+
+	msg_struct_list->nCount = 0;
+
+	// Release Memory
+	MsgReleaseMemory();
 
 	return err;
 }
 
 EXPORT_API int msg_get_int_value(msg_struct_t msg_struct_handle, int field, int *value)
 {
+	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_FEATURE);
 
 	msg_error_t err = MSG_SUCCESS;
 
@@ -785,6 +872,9 @@ EXPORT_API int msg_get_int_value(msg_struct_t msg_struct_handle, int field, int 
 	case MSG_STRUCT_SEARCH_CONDITION :
 		*value = msg_search_condition_get_int(msg_struct->data, field);
 		break;
+	case MSG_STRUCT_MSG_LIST_CONDITION :
+		*value = msg_list_condition_get_int(msg_struct->data, field);
+		break;
 	case MSG_STRUCT_REPORT_STATUS_INFO :
 		*value = msg_report_status_get_int(msg_struct->data, field);
 		break;
@@ -815,6 +905,7 @@ EXPORT_API int msg_get_int_value(msg_struct_t msg_struct_handle, int field, int 
 	case MSG_STRUCT_MMS_META:
 	case MSG_STRUCT_MMS_SMIL_TEXT:
 	case MSG_STRUCT_MMS_SMIL_AVI:
+	case MSG_STRUCT_MULTIPART_INFO:
 		err = msg_mms_get_int_value(msg_struct, field, value);
 		break;
 	case MSG_STRUCT_SETTING_SMSC_OPT :
@@ -827,7 +918,11 @@ EXPORT_API int msg_get_int_value(msg_struct_t msg_struct_handle, int field, int 
 	case MSG_STRUCT_SETTING_PUSH_MSG_OPT :
 	case MSG_STRUCT_SETTING_GENERAL_OPT :
 	case MSG_STRUCT_SETTING_MSGSIZE_OPT :
+	case MSG_STRUCT_SETTING_VOICE_MSG_OPT :
 		err = msg_setting_get_int_value(msg_struct, field, value);
+		break;
+	case MSG_STRUCT_MEDIA_INFO :
+		err = msg_media_item_get_int(msg_struct->data, field, value);
 		break;
 	default :
 		err = MSG_ERR_INVALID_PARAMETER;
@@ -839,6 +934,7 @@ EXPORT_API int msg_get_int_value(msg_struct_t msg_struct_handle, int field, int 
 
 EXPORT_API int msg_get_str_value(msg_struct_t msg_struct_handle, int field, char *src, int size)
 {
+	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_FEATURE);
 	msg_error_t err = MSG_SUCCESS;
 
 	if (msg_struct_handle == NULL)
@@ -891,6 +987,13 @@ EXPORT_API int msg_get_str_value(msg_struct_t msg_struct_handle, int field, char
 		else
 			strncpy(src, ret_str, size);
 		break;
+	case MSG_STRUCT_MSG_LIST_CONDITION :
+		ret_str = msg_list_condition_get_str(msg_struct->data, field, size);
+		if (ret_str == NULL)
+			err = MSG_ERR_UNKNOWN;
+		else
+			strncpy(src, ret_str, size);
+		break;
 
 	case MSG_STRUCT_ADDRESS_INFO :
 		ret_str = msg_address_info_get_str(msg_struct->data, field, size);
@@ -907,6 +1010,13 @@ EXPORT_API int msg_get_str_value(msg_struct_t msg_struct_handle, int field, char
 		else
 			strncpy(src, ret_str, size);
 		break;
+	case MSG_STRUCT_MEDIA_INFO :
+		ret_str = msg_media_item_get_str(msg_struct->data, field, size);
+		if (ret_str == NULL)
+			err = MSG_ERR_UNKNOWN;
+		else
+			strncpy(src, ret_str, size);
+		break;
 	case MSG_STRUCT_MMS:
 	case MSG_STRUCT_MMS_PAGE:
 	case MSG_STRUCT_MMS_MEDIA:
@@ -916,8 +1026,10 @@ EXPORT_API int msg_get_str_value(msg_struct_t msg_struct_handle, int field, char
 	case MSG_STRUCT_MMS_META:
 	case MSG_STRUCT_MMS_SMIL_TEXT:
 	case MSG_STRUCT_MMS_SMIL_AVI:
+	case MSG_STRUCT_MULTIPART_INFO:
 		err = msg_mms_get_str_value(msg_struct, field, src, size);
 		break;
+	case MSG_STRUCT_SETTING_GENERAL_OPT :
 	case MSG_STRUCT_SETTING_SMSC_INFO :
 	case MSG_STRUCT_SETTING_CB_CHANNEL_INFO :
 	case MSG_STRUCT_SETTING_VOICE_MSG_OPT :
@@ -950,6 +1062,7 @@ EXPORT_API int msg_get_str_value(msg_struct_t msg_struct_handle, int field, char
 
 EXPORT_API int msg_get_bool_value(msg_struct_t msg_struct_handle, int field, bool *value)
 {
+	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_FEATURE);
 	msg_error_t err = MSG_SUCCESS;
 
 	if (msg_struct_handle == NULL)
@@ -979,6 +1092,9 @@ EXPORT_API int msg_get_bool_value(msg_struct_t msg_struct_handle, int field, boo
 		break;
 	case MSG_STRUCT_SORT_RULE:
 		*value = msg_sortrule_get_bool(msg_struct->data, field);
+		break;
+	case MSG_STRUCT_MSG_LIST_CONDITION:
+		*value = msg_list_condition_get_bool(msg_struct->data, field);
 		break;
 	case MSG_STRUCT_MMS_SENDOPT:
 		*value = msg_mms_sendopt_get_bool(msg_struct->data, field);
@@ -1016,6 +1132,7 @@ EXPORT_API int msg_get_bool_value(msg_struct_t msg_struct_handle, int field, boo
 
 EXPORT_API int msg_get_struct_handle(msg_struct_t msg_struct_handle, int field, msg_struct_t *value)
 {
+	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_FEATURE);
 	msg_error_t err = MSG_SUCCESS;
 
 	if (msg_struct_handle == NULL)
@@ -1040,6 +1157,9 @@ EXPORT_API int msg_get_struct_handle(msg_struct_t msg_struct_handle, int field, 
 	case MSG_STRUCT_THREAD_LIST_INDEX:
 		err = msg_thread_index_get_struct_handle(msg_struct, field, (void **)value);
 		break;
+	case MSG_STRUCT_MSG_LIST_CONDITION:
+		err = msg_list_condition_get_struct_handle(msg_struct, field, (void **)value);
+		break;
 	case MSG_STRUCT_MMS_MEDIA:
 		err = msg_mms_get_struct_handle(msg_struct, field, (msg_struct_s**)value);
 		break;
@@ -1056,6 +1176,7 @@ EXPORT_API int msg_get_struct_handle(msg_struct_t msg_struct_handle, int field, 
 
 EXPORT_API int msg_get_list_handle(msg_struct_t msg_struct_handle, int field, void **value)
 {
+	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_FEATURE);
 	msg_error_t err = MSG_SUCCESS;
 
 	if (msg_struct_handle == NULL)
@@ -1070,6 +1191,9 @@ EXPORT_API int msg_get_list_handle(msg_struct_t msg_struct_handle, int field, vo
 	{
 	case MSG_STRUCT_MESSAGE_INFO :
 		err = msg_message_get_list_hnd(msg_struct->data, field, value);
+		break;
+	case MSG_STRUCT_CONV_INFO:
+		err = msg_conversation_get_list_hnd(msg_struct->data, field, value);
 		break;
 	case MSG_STRUCT_MMS:
 	case MSG_STRUCT_MMS_PAGE:
@@ -1089,6 +1213,7 @@ EXPORT_API int msg_get_list_handle(msg_struct_t msg_struct_handle, int field, vo
 
 EXPORT_API int msg_set_int_value(msg_struct_t msg_struct_handle, int field, int value)
 {
+	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_FEATURE);
 	msg_error_t err = MSG_SUCCESS;
 
 	if (msg_struct_handle == NULL)
@@ -1128,6 +1253,9 @@ EXPORT_API int msg_set_int_value(msg_struct_t msg_struct_handle, int field, int 
 	case MSG_STRUCT_SEARCH_CONDITION :
 		err = msg_search_condition_set_int(msg_struct->data, field, value);
 		break;
+	case MSG_STRUCT_MSG_LIST_CONDITION :
+		err = msg_list_condition_set_int(msg_struct->data, field, value);
+		break;
 	case MSG_STRUCT_REPORT_STATUS_INFO :
 		err = msg_report_status_set_int(msg_struct->data, field, value);
 		break;
@@ -1164,6 +1292,7 @@ EXPORT_API int msg_set_int_value(msg_struct_t msg_struct_handle, int field, int 
 	case MSG_STRUCT_SETTING_PUSH_MSG_OPT :
 	case MSG_STRUCT_SETTING_GENERAL_OPT :
 	case MSG_STRUCT_SETTING_MSGSIZE_OPT :
+	case MSG_STRUCT_SETTING_VOICE_MSG_OPT :
 		err = msg_setting_set_int_value(msg_struct, field, value);
 		break;
 	default :
@@ -1176,6 +1305,7 @@ EXPORT_API int msg_set_int_value(msg_struct_t msg_struct_handle, int field, int 
 
 EXPORT_API int msg_set_str_value(msg_struct_t msg_struct_handle, int field, char *value, int size)
 {
+	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_FEATURE);
 	msg_error_t err = MSG_SUCCESS;
 
 	if (msg_struct_handle == NULL)
@@ -1200,6 +1330,9 @@ EXPORT_API int msg_set_str_value(msg_struct_t msg_struct_handle, int field, char
 	case MSG_STRUCT_SEARCH_CONDITION :
 		err = msg_search_condition_set_str(msg_struct->data, field, value, size);
 		break;
+	case MSG_STRUCT_MSG_LIST_CONDITION :
+		err = msg_list_condition_set_str(msg_struct->data, field, value, size);
+		break;
 	case MSG_STRUCT_ADDRESS_INFO :
 		err = msg_address_info_set_str(msg_struct->data, field, value, size);
 		break;
@@ -1215,8 +1348,10 @@ EXPORT_API int msg_set_str_value(msg_struct_t msg_struct_handle, int field, char
 	case MSG_STRUCT_MMS_META:
 	case MSG_STRUCT_MMS_SMIL_TEXT:
 	case MSG_STRUCT_MMS_SMIL_AVI:
+	case MSG_STRUCT_MULTIPART_INFO:
 		err = msg_mms_set_str_value(msg_struct, field, value, size);
 		break;
+	case MSG_STRUCT_SETTING_GENERAL_OPT :
 	case MSG_STRUCT_SETTING_SMSC_INFO :
 	case MSG_STRUCT_SETTING_CB_CHANNEL_INFO :
 	case MSG_STRUCT_SETTING_VOICE_MSG_OPT :
@@ -1224,6 +1359,9 @@ EXPORT_API int msg_set_str_value(msg_struct_t msg_struct_handle, int field, char
 		break;
 	case MSG_STRUCT_PUSH_CONFIG_INFO:
 		err = msg_push_config_set_str(msg_struct->data, field, value, size);
+		break;
+	case MSG_STRUCT_MEDIA_INFO :
+		err = msg_media_info_set_str(msg_struct->data, field, value, size);
 		break;
 	default :
 		err = MSG_ERR_INVALID_PARAMETER;
@@ -1235,6 +1373,7 @@ EXPORT_API int msg_set_str_value(msg_struct_t msg_struct_handle, int field, char
 
 EXPORT_API int msg_set_bool_value(msg_struct_t msg_struct_handle, int field, bool value)
 {
+	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_FEATURE);
 	msg_error_t err = MSG_SUCCESS;
 
 	if (msg_struct_handle == NULL)
@@ -1258,6 +1397,9 @@ EXPORT_API int msg_set_bool_value(msg_struct_t msg_struct_handle, int field, boo
 		break;
 	case MSG_STRUCT_SORT_RULE:
 		err = msg_sortrule_set_bool(msg_struct->data, field, value);
+		break;
+	case MSG_STRUCT_MSG_LIST_CONDITION:
+		err = msg_list_condition_set_bool(msg_struct->data, field, value);
 		break;
 	case MSG_STRUCT_MMS_SENDOPT:
 		err = msg_mms_sendopt_set_bool(msg_struct->data, field, value);
@@ -1298,6 +1440,7 @@ EXPORT_API int msg_set_bool_value(msg_struct_t msg_struct_handle, int field, boo
 
 EXPORT_API int msg_set_struct_handle(msg_struct_t msg_struct_handle, int field, msg_struct_t value)
 {
+	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_FEATURE);
 	msg_error_t err = MSG_SUCCESS;
 
 	if (msg_struct_handle == NULL)
@@ -1322,6 +1465,9 @@ EXPORT_API int msg_set_struct_handle(msg_struct_t msg_struct_handle, int field, 
 	case MSG_STRUCT_THREAD_LIST_INDEX:
 		err = msg_thread_index_set_struct_handle(msg_struct, field, (msg_struct_s *)value);
 		break;
+	case MSG_STRUCT_MSG_LIST_CONDITION:
+		err = msg_list_condition_set_struct_handle(msg_struct, field, (msg_struct_s *)value);
+		break;
 	case MSG_STRUCT_MMS_MEDIA:
 		err = msg_mms_set_struct_handle(msg_struct, field, (msg_struct_s *)value);
 		break;
@@ -1338,6 +1484,7 @@ EXPORT_API int msg_set_struct_handle(msg_struct_t msg_struct_handle, int field, 
 
 EXPORT_API int msg_set_list_handle(msg_struct_t msg_struct_handle, int field, void *value)
 {
+	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_FEATURE);
 	msg_error_t err = MSG_SUCCESS;
 
 	if (msg_struct_handle == NULL)
@@ -1348,27 +1495,102 @@ EXPORT_API int msg_set_list_handle(msg_struct_t msg_struct_handle, int field, vo
 	if (msg_struct->data == NULL)
 		return MSG_ERR_NULL_POINTER;
 
+#if 0 // No operations
 	switch (msg_struct->type)
 	{
 	default :
 		err = MSG_ERR_INVALID_PARAMETER;
 		break;
 	}
+#endif
+
+	return err;
+}
+
+EXPORT_API int msg_list_add_item(msg_struct_t msg_struct_handle, int field, msg_struct_t *item)
+{
+	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_FEATURE);
+	if (msg_struct_handle == NULL || item == NULL) {
+		return MSG_ERR_NULL_POINTER;
+	}
+
+	msg_error_t err = MSG_SUCCESS;
+	msg_struct_s *msg_struct = (msg_struct_s *)msg_struct_handle;
+
+	switch(msg_struct->type) {
+	case MSG_STRUCT_MESSAGE_INFO:
+	{
+		err = msg_message_list_append(msg_struct_handle, field, item);
+	}
+	break;
+	case MSG_STRUCT_MMS:
+	case MSG_STRUCT_MMS_PAGE:
+	{
+		err = msg_mms_list_append(msg_struct_handle, field, item);
+	}
+	break;
+	default :
+		err = MSG_ERR_INVALID_PARAMETER;
+		break;
+	}
+
 	return err;
 }
 
 EXPORT_API msg_struct_t msg_list_nth_data(msg_list_handle_t list_handle, int index)
 {
+	CHECK_MSG_SUPPORTED_RETURN_NULL(MSG_TELEPHONY_FEATURE);
+	if (list_handle == NULL) {
+		return NULL;
+	}
+
 	return (msg_struct_t)g_list_nth_data((GList *)list_handle,(guint)index);
 }
 
 EXPORT_API int msg_list_length(msg_list_handle_t list_handle)
 {
+	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_FEATURE);
+	if (list_handle == NULL) {
+		return 0;
+	}
+
 	return (int)g_list_length((GList *)list_handle);
 }
 
+EXPORT_API int msg_list_clear(msg_struct_t msg_struct_handle, int field)
+{
+	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_FEATURE);
+	if (msg_struct_handle == NULL) {
+		return MSG_ERR_NULL_POINTER;
+	}
+
+	msg_error_t err = MSG_SUCCESS;
+	msg_struct_s *msg_struct = (msg_struct_s *)msg_struct_handle;
+
+	switch(msg_struct->type) {
+	case MSG_STRUCT_MESSAGE_INFO:
+	{
+		err = msg_message_list_clear(msg_struct_handle, field);
+	}
+	break;
+//	case MSG_STRUCT_MMS:
+//	case MSG_STRUCT_MMS_PAGE:
+//	{
+//		err = msg_mms_list_append(msg_struct_handle, field, item);
+//	}
+//	break;
+	default :
+		err = MSG_ERR_INVALID_PARAMETER;
+		break;
+	}
+
+	return err;
+}
+
+
 EXPORT_API int msg_util_calculate_text_length(const char* msg_text, msg_encode_type_t msg_encode_type_to, unsigned int *text_size, unsigned int *segment_size, msg_encode_type_t *msg_encode_type_in)
 {
+	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_FEATURE);
 	msg_error_t err = MSG_SUCCESS;
 
 	if (msg_text == NULL || text_size == NULL || segment_size == NULL) {
@@ -1380,17 +1602,19 @@ EXPORT_API int msg_util_calculate_text_length(const char* msg_text, msg_encode_t
 	MSG_LANGUAGE_ID_T langId = MSG_LANG_ID_RESERVED;
 
 	int decodeLen = 0;
-	int bufSize = (160*MAX_SEGMENT_NUM) + 1;
+	int bufSize = 0;
 	int textSize = 0;
 
 	bool bAbnormal = false;
 
 	textSize = strlen(msg_text);
 
-	unsigned char decodeData[bufSize];
+	bufSize = textSize * 4;
+
+	unsigned char decodeData[bufSize+1];
 	memset(decodeData, 0x00, sizeof(decodeData));
 
-	MsgTextConvert textCvt;
+	MsgTextConvert *textCvt = MsgTextConvert::instance();
 
 	*text_size = 0;
 	*segment_size = 0;
@@ -1398,13 +1622,17 @@ EXPORT_API int msg_util_calculate_text_length(const char* msg_text, msg_encode_t
 	switch (msg_encode_type_to)
 	{
 	case MSG_ENCODE_GSM7BIT :
-		decodeLen = textCvt.convertUTF8ToGSM7bit(decodeData, bufSize, (const unsigned char*)msg_text, textSize, &langId, &bAbnormal);
+		decodeLen = textCvt->convertUTF8ToGSM7bit(decodeData, bufSize, (const unsigned char*)msg_text, textSize, &langId, &bAbnormal);
 		break;
 	case MSG_ENCODE_UCS2 :
-		decodeLen = textCvt.convertUTF8ToUCS2(decodeData, bufSize, (const unsigned char*)msg_text, textSize);
+		decodeLen = textCvt->convertUTF8ToUCS2(decodeData, bufSize, (const unsigned char*)msg_text, textSize);
 		break;
 	case MSG_ENCODE_AUTO :
-		decodeLen = textCvt.convertUTF8ToAuto(decodeData, bufSize, (const unsigned char*)msg_text, textSize, &encodeType);
+#ifndef FEATURE_SMS_CDMA
+		decodeLen = textCvt->convertUTF8ToAuto(decodeData, bufSize, (const unsigned char*)msg_text, textSize, &langId, &encodeType);
+#else
+		decodeLen = textCvt->convertUTF8ToAuto(decodeData, bufSize, (const unsigned char*)msg_text, textSize, &encodeType);
+#endif
 		break;
 	default :
 		err = MSG_ERR_INVALID_PARAMETER;
@@ -1413,27 +1641,28 @@ EXPORT_API int msg_util_calculate_text_length(const char* msg_text, msg_encode_t
 	}
 
 	// calculate segment size.
-	int headerLen = 1;
+	int headerLen = 0;
 	int concat = 5;
-//	int lang = 3;
+	int lang = 3;
 
-//	int headerSize = 0;
+	int headerSize = 0;
 	int segSize = 0;
 
-//	if (langId != MSG_LANG_ID_RESERVED) {
-//		MSG_DEBUG("National Language Exists");
-//		headerSize += lang;
-//	}
+	if (langId != MSG_LANG_ID_RESERVED) {
+		MSG_DEBUG("National Language Exists");
+		headerSize += lang;
+		headerLen = 1;
+	}
 
 	if (msg_encode_type_to == MSG_ENCODE_GSM7BIT || encodeType == MSG_ENCODE_GSM7BIT) {
 		MSG_DEBUG("MSG_ENCODE_GSM7BIT");
 
-//		if (((decodeLen+headerSize)/160) > 1)
-//			segSize = ((140*8) - ((headerLen + concat + headerSize)*8)) / 7;
-		if(decodeLen > 160)
-			segSize = ((140*8) - ((headerLen + concat)*8)) / 7;
+		if ((decodeLen + headerSize) > 160) {
+			headerLen = 1;
+			segSize = ((140 - (headerLen + concat + headerSize)) * 8)/7;
+		}
 		else
-			segSize = 160;
+			segSize = ((140 - headerLen - headerSize) * 8) / 7;
 
 		if (bAbnormal)
 			*msg_encode_type_in = MSG_ENCODE_GSM7BIT_ABNORMAL;
@@ -1445,9 +1674,10 @@ EXPORT_API int msg_util_calculate_text_length(const char* msg_text, msg_encode_t
 
 //		if (((decodeLen+headerSize)/140) > 1)
 //			segSize = 140 - (headerLen + concat + headerSize);
-		if(decodeLen > 140)
+		if (decodeLen > 140) {
+			headerLen = 1;
 			segSize = 140 - (headerLen + concat);
-		else
+		} else
 			segSize = 140;
 
 		*msg_encode_type_in = MSG_ENCODE_UCS2;
@@ -1457,6 +1687,8 @@ EXPORT_API int msg_util_calculate_text_length(const char* msg_text, msg_encode_t
 		err = MSG_ERR_INVALID_PARAMETER;
 		return err;
 	}
+
+	MSG_DEBUG("decodeLen [%d] segSize [%d]", decodeLen, segSize);
 
 	*text_size = decodeLen;
 	*segment_size = segSize;

@@ -1,20 +1,17 @@
 /*
- * msg-service
- *
- * Copyright (c) 2000 - 2014 Samsung Electronics Co., Ltd. All rights reserved
+ * Copyright (c) 2014 Samsung Electronics Co., Ltd. All rights reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
 */
 
 #include "MsgDebug.h"
@@ -160,6 +157,15 @@ MSG_DEBUG("dataLen [%d]", pUserData->length);
 MSG_DEBUG("packSize [%d]", packSize);
 MSG_DEBUG("encodeLen [%d]", encodeLen);
 
+#if 0
+printf("\n\n[encodeGSMData] userData data.\n");
+for (int j = 0; j < encodeLen; j++)
+{
+	printf(" [%02x]", pEncodeData[j]);
+}
+printf("\n\n");
+#endif
+
 	return encodeLen;
 }
 
@@ -241,6 +247,15 @@ MSG_DEBUG("dataLen [%d]", pUserData->length);
 	memcpy(&(pEncodeData[offset]), pUserData->data, pUserData->length);
 
 	encodeLen = offset + pUserData->length;
+
+#if 0
+printf("\n\n[encodeUCS2Data] userData data.\n");
+for (int j = 0; j < encodeLen; j++)
+{
+	printf(" [%02x]", pEncodeData[j]);
+}
+printf("\n\n");
+#endif
 
 	return encodeLen;
 }
@@ -579,6 +594,11 @@ int SmsPluginUDCodec::encodeHeader(const SMS_UDH_S header, char *pEncodeHeader)
 
 			addrLen = SmsPluginParamCodec::encodeAddress(&(header.udh.alternateAddress), &encodedAddr);
 
+//MSG_DEBUG("addrLen : %d", addrLen);
+
+//for (int i = 0; i < addrLen; i++)
+//	MSG_DEBUG("header.udh.alternateAddress.address : [%02x]", encodedAddr[i]);
+
 			// IEDL
 			pEncodeHeader[offset++] = addrLen;
 
@@ -712,7 +732,7 @@ MSG_DEBUG("Decoding special sms udh.");
 
 			offset += SmsPluginParamCodec::decodeAddress(&pTpdu[offset], &(pHeader->udh.alternateAddress));
 
-MSG_DEBUG("alternate reply address [%s]", pHeader->udh.alternateAddress.address);
+			MSG_SEC_DEBUG("alternate reply address [%s]", pHeader->udh.alternateAddress.address);
 		}
 		break;
 
@@ -777,11 +797,11 @@ int SmsPluginUDCodec::pack7bitChar(const unsigned char *pUserData, int dataLen, 
 			pPackData[dstIdx] = pUserData[srcIdx];
 
 //MSG_DEBUG("pPackData [%02x]", pPackData[dstIdx]);
-			if (srcIdx >= dataLen) break;
-
 			shift = 7;
 			srcIdx++;
 			dstIdx++;
+
+			if (srcIdx >= dataLen) break;
 		}
 
 		if (shift > 1)

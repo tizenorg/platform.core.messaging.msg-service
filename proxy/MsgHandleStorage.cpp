@@ -1,20 +1,17 @@
 /*
- * msg-service
- *
- * Copyright (c) 2000 - 2014 Samsung Electronics Co., Ltd. All rights reserved
+ * Copyright (c) 2014 Samsung Electronics Co., Ltd. All rights reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
 */
 
 #include "MsgDebug.h"
@@ -25,8 +22,6 @@
 #include "MsgProxyListener.h"
 #include "MsgHandle.h"
 
-#include "MsgStorageHandler.h"
-
 #include "MsgVMessage.h"
 /*==================================================================================================
                                      IMPLEMENTATION OF MsgHandle - Storage Member Functions
@@ -35,6 +30,9 @@ int MsgHandle::addMessage(MSG_MESSAGE_HIDDEN_S *pMsg, const MSG_SENDINGOPT_S *pS
 {
 	MSG_MESSAGE_INFO_S msgInfo = {0,};
 	MSG_SENDINGOPT_INFO_S sendOptInfo = {0,};
+
+	msgInfo.addressList = NULL;
+	AutoPtr<MSG_ADDRESS_INFO_S> addressListBuf(&msgInfo.addressList);
 
 	// Covert MSG_MESSAGE_S to MSG_MESSAGE_INFO_S
 	convertMsgStruct(pMsg, &msgInfo);
@@ -49,7 +47,11 @@ int MsgHandle::addMessage(MSG_MESSAGE_HIDDEN_S *pMsg, const MSG_SENDINGOPT_S *pS
 	convertSendOptStruct(pSendOpt, &sendOptInfo, msgType);
 
 	// Allocate Memory to Command Data
-	int cmdSize = sizeof(MSG_CMD_S) + sizeof(MSG_MESSAGE_INFO_S) + sizeof(MSG_SENDINGOPT_INFO_S);
+	char* encodedData = NULL;
+	AutoPtr<char> buf(&encodedData);
+	int dataSize = MsgEncodeMsgInfo(&msgInfo, &sendOptInfo, &encodedData);
+
+	int cmdSize = sizeof(MSG_CMD_S) + dataSize;
 
 	char cmdBuf[cmdSize];
 	bzero(cmdBuf, cmdSize);
@@ -62,8 +64,7 @@ int MsgHandle::addMessage(MSG_MESSAGE_HIDDEN_S *pMsg, const MSG_SENDINGOPT_S *pS
 	memcpy(pCmd->cmdCookie, mCookie, MAX_COOKIE_LEN);
 
 	// Copy Command Data
-	memcpy((void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN), &msgInfo, sizeof(MSG_MESSAGE_INFO_S));
-	memcpy((void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN+sizeof(MSG_MESSAGE_INFO_S)), &sendOptInfo, sizeof(MSG_SENDINGOPT_INFO_S));
+	memcpy((void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN), encodedData, dataSize);
 
 	// Send Command to Messaging FW
 	char* pEventData = NULL;
@@ -74,12 +75,16 @@ int MsgHandle::addMessage(MSG_MESSAGE_HIDDEN_S *pMsg, const MSG_SENDINGOPT_S *pS
 	// Get Return Data
 	MSG_EVENT_S* pEvent = (MSG_EVENT_S*)pEventData;
 
+	if (pEvent == NULL)
+		THROW(MsgException::INVALID_RESULT, "Event is NULL");
+
 	if (pEvent->eventType != MSG_EVENT_ADD_MSG)
 	{
 		THROW(MsgException::INVALID_RESULT, "Event Data Error");
 	}
 
-	if (pEvent->result != MSG_SUCCESS) return pEvent->result;
+	if (pEvent->result != MSG_SUCCESS)
+		return pEvent->result;
 
 	msg_message_id_t msgId = 0;
 
@@ -92,14 +97,22 @@ int MsgHandle::addMessage(MSG_MESSAGE_HIDDEN_S *pMsg, const MSG_SENDINGOPT_S *pS
 
 msg_error_t MsgHandle::addSyncMLMessage(const MSG_SYNCML_MESSAGE_S *pSyncMLMsg)
 {
-	MSG_MESSAGE_INFO_S msgInfo = {0, };
+	MSG_MESSAGE_INFO_S msgInfo;
+	memset(&msgInfo, 0x00, sizeof(MSG_MESSAGE_INFO_S));
+
+	msgInfo.addressList = NULL;
+	AutoPtr<MSG_ADDRESS_INFO_S> addressListBuf(&msgInfo.addressList);
 
 	// Covert MSG_MESSAGE_S to MSG_MESSAGE_INFO_S
 	msg_struct_s *msg = (msg_struct_s *)pSyncMLMsg->msg;
 	convertMsgStruct((MSG_MESSAGE_HIDDEN_S *)msg->data, &msgInfo);
 
 	// Allocate Memory to Command Data
-	int cmdSize = sizeof(MSG_CMD_S) + sizeof(int) + sizeof(int) + sizeof(MSG_MESSAGE_INFO_S);
+	char* encodedData = NULL;
+	AutoPtr<char> buf(&encodedData);
+	int dataSize = MsgEncodeMsgInfo(&msgInfo, &encodedData);
+
+	int cmdSize = sizeof(MSG_CMD_S) + sizeof(int) + sizeof(int) + dataSize;
 
 	char cmdBuf[cmdSize];
 	bzero(cmdBuf, cmdSize);
@@ -114,7 +127,7 @@ msg_error_t MsgHandle::addSyncMLMessage(const MSG_SYNCML_MESSAGE_S *pSyncMLMsg)
 	// Copy Command Data
 	memcpy((void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN), &pSyncMLMsg->extId, sizeof(int));
 	memcpy((void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN+sizeof(int)), &pSyncMLMsg->pinCode, sizeof(int));
-	memcpy((void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN+sizeof(int)+sizeof(int)), &msgInfo, sizeof(MSG_MESSAGE_INFO_S));
+	memcpy((void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN+sizeof(int)+sizeof(int)), encodedData, dataSize);
 
 	// Send Command to Messaging FW
 	char* pEventData = NULL;
@@ -126,10 +139,20 @@ msg_error_t MsgHandle::addSyncMLMessage(const MSG_SYNCML_MESSAGE_S *pSyncMLMsg)
 	// Get Return Data
 	MSG_EVENT_S* pEvent = (MSG_EVENT_S*)pEventData;
 
+	if (pEvent == NULL)
+		THROW(MsgException::INVALID_RESULT, "Event is NULL");
+
 	if (pEvent->eventType != MSG_EVENT_ADD_SYNCML_MSG)
 	{
 		THROW(MsgException::INVALID_RESULT, "Event Data Error");
 	}
+
+	msg_message_id_t msgId = 0;
+
+	// Decode Return Data
+	MsgDecodeMsgId(pEvent->data, &msgId);
+
+	((MSG_MESSAGE_HIDDEN_S *)msg->data)->msgId = msgId;
 
 	return pEvent->result;
 }
@@ -140,10 +163,13 @@ msg_error_t MsgHandle::updateMessage(const MSG_MESSAGE_HIDDEN_S *pMsg, const MSG
 	MSG_MESSAGE_INFO_S msgInfo = {0, };
 	MSG_SENDINGOPT_INFO_S sendOptInfo = {0, };
 
+	msgInfo.addressList = NULL;
+	AutoPtr<MSG_ADDRESS_INFO_S> addressListBuf(&msgInfo.addressList);
+
 	// Covert MSG_MESSAGE_S to MSG_MESSAGE_INFO_S
 	convertMsgStruct(pMsg, &msgInfo);
 
-	if(pSendOpt != NULL) {
+	if (pSendOpt != NULL) {
 		MSG_MESSAGE_TYPE_S msgType = {0,};
 
 		msgType.mainType = pMsg->mainType;
@@ -154,7 +180,11 @@ msg_error_t MsgHandle::updateMessage(const MSG_MESSAGE_HIDDEN_S *pMsg, const MSG
 	}
 
 	// Allocate Memory to Command Data
-	int cmdSize = sizeof(MSG_CMD_S) + sizeof(MSG_MESSAGE_INFO_S) + sizeof(MSG_SENDINGOPT_INFO_S);
+	char* encodedData = NULL;
+	AutoPtr<char> buf(&encodedData);
+	int dataSize = MsgEncodeMsgInfo(&msgInfo, &sendOptInfo, &encodedData);
+
+	int cmdSize = sizeof(MSG_CMD_S) + dataSize;
 
 	char cmdBuf[cmdSize];
 	bzero(cmdBuf, cmdSize);
@@ -167,18 +197,19 @@ msg_error_t MsgHandle::updateMessage(const MSG_MESSAGE_HIDDEN_S *pMsg, const MSG
 	memcpy(pCmd->cmdCookie, mCookie, MAX_COOKIE_LEN);
 
 	// Copy Command Data
-	memcpy((void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN), &msgInfo, sizeof(MSG_MESSAGE_INFO_S));
-	memcpy((void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN+sizeof(MSG_MESSAGE_INFO_S)), &sendOptInfo, sizeof(MSG_SENDINGOPT_INFO_S));
+	memcpy((void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN), encodedData, dataSize);
 
 	// Send Command to Messaging FW
 	char* pEventData = NULL;
 	AutoPtr<char> eventBuf(&pEventData);
 
-
 	write((char*)pCmd, cmdSize, &pEventData);
 
 	// Get Return Data
 	MSG_EVENT_S* pEvent = (MSG_EVENT_S*)pEventData;
+
+	if (pEvent == NULL)
+		THROW(MsgException::INVALID_RESULT, "Event is NULL");
 
 	if (pEvent->eventType != MSG_EVENT_UPDATE_MSG)
 	{
@@ -212,13 +243,54 @@ msg_error_t MsgHandle::updateReadStatus(msg_message_id_t MsgId, bool bRead)
 	char* pEventData = NULL;
 	AutoPtr<char> eventBuf(&pEventData);
 
+	write((char*)pCmd, cmdSize, &pEventData);
+
+	// Get Return Data
+	MSG_EVENT_S* pEvent = (MSG_EVENT_S*)pEventData;
+
+	if (pEvent == NULL)
+		THROW(MsgException::INVALID_RESULT, "Event is NULL");
+
+	if (pEvent->eventType != MSG_EVENT_UPDATE_READ)
+	{
+		THROW(MsgException::INVALID_RESULT, "Event Data Error");
+	}
+
+	return pEvent->result;
+}
+
+
+msg_error_t MsgHandle::setConversationToRead(msg_thread_id_t ThreadId)
+{
+	// Allocate Memory to Command Data
+	int cmdSize = sizeof(MSG_CMD_S) + sizeof(msg_thread_id_t);
+
+	char cmdBuf[cmdSize];
+	bzero(cmdBuf, cmdSize);
+	MSG_CMD_S* pCmd = (MSG_CMD_S*)cmdBuf;
+
+	// Set Command Parameters
+	pCmd->cmdType = MSG_CMD_UPDATE_THREAD_READ;
+
+	// Copy Cookie
+	memcpy(pCmd->cmdCookie, mCookie, MAX_COOKIE_LEN);
+
+	// Copy Command Data
+	memcpy((void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN), &ThreadId, sizeof(msg_thread_id_t));
+
+	// Send Command to Messaging FW
+	char* pEventData = NULL;
+	AutoPtr<char> eventBuf(&pEventData);
 
 	write((char*)pCmd, cmdSize, &pEventData);
 
 	// Get Return Data
 	MSG_EVENT_S* pEvent = (MSG_EVENT_S*)pEventData;
 
-	if (pEvent->eventType != MSG_EVENT_UPDATE_READ)
+	if (pEvent == NULL)
+		THROW(MsgException::INVALID_RESULT, "Event is NULL");
+
+	if (pEvent->eventType != MSG_EVENT_UPDATE_THREAD_READ)
 	{
 		THROW(MsgException::INVALID_RESULT, "Event Data Error");
 	}
@@ -250,11 +322,13 @@ msg_error_t MsgHandle::updateProtectedStatus(msg_message_id_t MsgId, bool bProte
 	char* pEventData = NULL;
 	AutoPtr<char> eventBuf(&pEventData);
 
-
 	write((char*)pCmd, cmdSize, &pEventData);
 
 	// Get Return Data
 	MSG_EVENT_S* pEvent = (MSG_EVENT_S*)pEventData;
+
+	if (pEvent == NULL)
+		THROW(MsgException::INVALID_RESULT, "Event is NULL");
 
 	if (pEvent->eventType != MSG_EVENT_UPDATE_PROTECTED)
 	{
@@ -287,11 +361,13 @@ msg_error_t MsgHandle::deleteMessage(msg_message_id_t MsgId)
 	char* pEventData = NULL;
 	AutoPtr<char> eventBuf(&pEventData);
 
-
 	write((char*)pCmd, cmdSize, &pEventData);
 
 	// Get Return Data
 	MSG_EVENT_S* pEvent = (MSG_EVENT_S*)pEventData;
+
+	if (pEvent == NULL)
+		THROW(MsgException::INVALID_RESULT, "Event is NULL");
 
 	if (pEvent->eventType != MSG_EVENT_DELETE_MSG)
 	{
@@ -325,11 +401,13 @@ msg_error_t MsgHandle::deleteAllMessagesInFolder(msg_folder_id_t FolderId, bool 
 	char* pEventData = NULL;
 	AutoPtr<char> eventBuf(&pEventData);
 
-
 	write((char*)pCmd, cmdSize, &pEventData);
 
 	// Get Return Data
 	MSG_EVENT_S* pEvent = (MSG_EVENT_S*)pEventData;
+
+	if (pEvent == NULL)
+		THROW(MsgException::INVALID_RESULT, "Event is NULL");
 
 	if (pEvent->eventType != MSG_EVENT_DELALL_MSGINFOLDER)
 	{
@@ -365,11 +443,13 @@ msg_error_t MsgHandle::deleteMessagesByList(msg_id_list_s *pMsgIdList)
 	char* pEventData = NULL;
 	AutoPtr<char> eventBuf(&pEventData);
 
-
 	write((char*)pCmd, cmdSize, &pEventData);
 
 	// Get Return Data
 	MSG_EVENT_S* pEvent = (MSG_EVENT_S*)pEventData;
+
+	if (pEvent == NULL)
+		THROW(MsgException::INVALID_RESULT, "Event is NULL");
 
 	if (pEvent->eventType != MSG_EVENT_DELETE_MESSAGE_BY_LIST) {
 		THROW(MsgException::INVALID_RESULT, "Event Data Error");
@@ -402,11 +482,13 @@ msg_error_t MsgHandle::moveMessageToFolder(msg_message_id_t MsgId, msg_folder_id
 	char* pEventData = NULL;
 	AutoPtr<char> eventBuf(&pEventData);
 
-
 	write((char*)pCmd, cmdSize, &pEventData);
 
 	// Get Return Data
 	MSG_EVENT_S* pEvent = (MSG_EVENT_S*)pEventData;
+
+	if (pEvent == NULL)
+		THROW(MsgException::INVALID_RESULT, "Event is NULL");
 
 	if (pEvent->eventType != MSG_EVENT_MOVE_MSGTOFOLDER)
 	{
@@ -440,11 +522,13 @@ msg_error_t MsgHandle::moveMessageToStorage(msg_message_id_t MsgId, msg_storage_
 	char* pEventData = NULL;
 	AutoPtr<char> eventBuf(&pEventData);
 
-
 	write((char*)pCmd, cmdSize, &pEventData);
 
 	// Get Return Data
 	MSG_EVENT_S* pEvent = (MSG_EVENT_S*)pEventData;
+
+	if (pEvent == NULL)
+		THROW(MsgException::INVALID_RESULT, "Event is NULL");
 
 	if (pEvent->eventType != MSG_EVENT_MOVE_MSGTOSTORAGE)
 	{
@@ -477,18 +561,21 @@ msg_error_t MsgHandle::countMessage(msg_folder_id_t FolderId, MSG_COUNT_INFO_S *
 	char* pEventData = NULL;
 	AutoPtr<char> eventBuf(&pEventData);
 
-
 	write((char*)pCmd, cmdSize, &pEventData);
 
 	// Get Return Data
 	MSG_EVENT_S* pEvent = (MSG_EVENT_S*)pEventData;
+
+	if (pEvent == NULL)
+		THROW(MsgException::INVALID_RESULT, "Event is NULL");
 
 	if (pEvent->eventType != MSG_EVENT_COUNT_MSG)
 	{
 		THROW(MsgException::INVALID_RESULT, "Event Data Error");
 	}
 
-	if(pEvent->result != MSG_SUCCESS) return pEvent->result;
+	if (pEvent->result != MSG_SUCCESS)
+		return pEvent->result;
 
 	// Decode Return Data
 	MsgDecodeCountInfo(pEvent->data, pCountInfo);
@@ -524,12 +611,16 @@ msg_error_t MsgHandle::countMsgByType(const MSG_MESSAGE_TYPE_S *pMsgType, int *p
 	// Get Return Data
 	MSG_EVENT_S* pEvent = (MSG_EVENT_S*)pEventData;
 
+	if (pEvent == NULL)
+		THROW(MsgException::INVALID_RESULT, "Event is NULL");
+
 	if (pEvent->eventType != MSG_EVENT_COUNT_BY_MSGTYPE)
 	{
 		THROW(MsgException::INVALID_RESULT, "Event Data Error");
 	}
 
-	if(pEvent->result != MSG_SUCCESS) return pEvent->result;
+	if (pEvent->result != MSG_SUCCESS)
+		return pEvent->result;
 
 	// Decode Return Data
 	memcpy(pMsgCount, (void*)((char*)pEvent+sizeof(MSG_EVENT_TYPE_T)+sizeof(msg_error_t)), sizeof(int));
@@ -567,12 +658,16 @@ msg_error_t MsgHandle::countMsgByContact(const MSG_THREAD_LIST_INDEX_INFO_S *pAd
 	// Get Return Data
 	MSG_EVENT_S* pEvent = (MSG_EVENT_S*)pEventData;
 
+	if (pEvent == NULL)
+		THROW(MsgException::INVALID_RESULT, "Event is NULL");
+
 	if (pEvent->eventType != MSG_EVENT_GET_CONTACT_COUNT)
 	{
 		THROW(MsgException::INVALID_RESULT, "Event Data Error");
 	}
 
-	if(pEvent->result != MSG_SUCCESS) return pEvent->result;
+	if (pEvent->result != MSG_SUCCESS)
+		return pEvent->result;
 
 	// Decode Return Data
 	MsgDecodeContactCount(pEvent->data, pMsgThreadCountList);
@@ -609,23 +704,29 @@ msg_error_t MsgHandle::getMessage(msg_message_id_t MsgId, MSG_MESSAGE_HIDDEN_S *
 	// Get Return Data
 	MSG_EVENT_S* pEvent = (MSG_EVENT_S*)pEventData;
 
-	if (pEvent->eventType != MSG_EVENT_GET_MSG)
-	{
+	if (pEvent == NULL)
+		THROW(MsgException::INVALID_RESULT, "Event is NULL");
+
+	if (pEvent->eventType != MSG_EVENT_GET_MSG) {
 		THROW(MsgException::INVALID_RESULT, "Event Data Error");
 	}
 
-	if(pEvent->result != MSG_SUCCESS)
+	if (pEvent->result != MSG_SUCCESS)
 		return pEvent->result;
 
 	// Decode Return Data
 	MSG_MESSAGE_INFO_S msgInfo;
 	MSG_SENDINGOPT_INFO_S sendOptInfo;
+
+	msgInfo.addressList = NULL;
+	AutoPtr<MSG_ADDRESS_INFO_S> addressListBuf(&msgInfo.addressList);
+
 	MsgDecodeMsgInfo(pEvent->data, &msgInfo, &sendOptInfo);
 
 	// Covert MSG_MESSAGE_INFO_S to MSG_MESSAGE_HIDDEN_S
 	convertMsgStruct(&msgInfo, pMsg);
 
-	if(pSendOpt != NULL) {
+	if (pSendOpt != NULL) {
 		MSG_MESSAGE_TYPE_S msgType = {0,};
 
 		msgType.mainType = pMsg->mainType;
@@ -650,13 +751,13 @@ msg_error_t MsgHandle::getFolderViewList(msg_folder_id_t FolderId, const MSG_SOR
 {
 	msg_error_t err = MSG_SUCCESS;
 
-	err = MsgStoConnectDB();
-
-	if (err != MSG_SUCCESS)
-	{
-		MSG_DEBUG("MsgStoConnectDB() Error!!");
-		return err;
-	}
+//	err = MsgStoConnectDB();
+//
+//	if (err != MSG_SUCCESS)
+//	{
+//		MSG_DEBUG("MsgStoConnectDB() Error!!");
+//		return err;
+//	}
 
 	err = MsgStoGetFolderViewList(FolderId, (MSG_SORT_RULE_S *)pSortRule, pMsgFolderViewList);
 
@@ -666,7 +767,7 @@ msg_error_t MsgHandle::getFolderViewList(msg_folder_id_t FolderId, const MSG_SOR
 		return err;
 	}
 
-	MsgStoDisconnectDB();
+//	MsgStoDisconnectDB();
 
 	return err;
 }
@@ -694,11 +795,13 @@ msg_error_t MsgHandle::addFolder(const MSG_FOLDER_INFO_S *pFolderInfo)
 	char* pEventData = NULL;
 	AutoPtr<char> eventBuf(&pEventData);
 
-
 	write((char*)pCmd, cmdSize, &pEventData);
 
 	// Get Return Data
 	MSG_EVENT_S* pEvent = (MSG_EVENT_S*)pEventData;
+
+	if (pEvent == NULL)
+		THROW(MsgException::INVALID_RESULT, "Event is NULL");
 
 	if (pEvent->eventType != MSG_EVENT_ADD_FOLDER)
 	{
@@ -731,18 +834,20 @@ msg_error_t MsgHandle::updateFolder(const MSG_FOLDER_INFO_S *pFolderInfo)
 	char* pEventData = NULL;
 	AutoPtr<char> eventBuf(&pEventData);
 
-
 	write((char*)pCmd, cmdSize, &pEventData);
 
 	// Get Return Data
 	MSG_EVENT_S* pEvent = (MSG_EVENT_S*)pEventData;
+
+	if (pEvent == NULL)
+		THROW(MsgException::INVALID_RESULT, "Event is NULL");
 
 	if (pEvent->eventType != MSG_EVENT_UPDATE_FOLDER)
 	{
 		THROW(MsgException::INVALID_RESULT, "Event Data Error");
 	}
 
-	return pEvent->result;;
+	return pEvent->result;
 }
 
 
@@ -768,11 +873,13 @@ msg_error_t MsgHandle::deleteFolder(msg_folder_id_t FolderId)
 	char* pEventData = NULL;
 	AutoPtr<char> eventBuf(&pEventData);
 
-
 	write((char*)pCmd, cmdSize, &pEventData);
 
 	// Get Return Data
 	MSG_EVENT_S* pEvent = (MSG_EVENT_S*)pEventData;
+
+	if (pEvent == NULL)
+		THROW(MsgException::INVALID_RESULT, "Event is NULL");
 
 	if (pEvent->eventType != MSG_EVENT_DELETE_FOLDER)
 	{
@@ -807,12 +914,16 @@ msg_error_t MsgHandle::getFolderList(msg_struct_list_s *pFolderList)
 	// Get Return Data
 	MSG_EVENT_S* pEvent = (MSG_EVENT_S*)pEventData;
 
+	if (pEvent == NULL)
+		THROW(MsgException::INVALID_RESULT, "Event is NULL");
+
 	if (pEvent->eventType != MSG_EVENT_GET_FOLDERLIST)
 	{
 		THROW(MsgException::INVALID_RESULT, "Event Data Error");
 	}
 
-	if(pEvent->result != MSG_SUCCESS) return pEvent->result;
+	if (pEvent->result != MSG_SUCCESS)
+		return pEvent->result;
 
 	// Decode Return Data
 	MsgDecodeFolderList(pEvent->data, pFolderList);
@@ -825,13 +936,13 @@ msg_error_t MsgHandle::getThreadViewList(const MSG_SORT_RULE_S *pSortRule, msg_s
 {
 	msg_error_t err =  MSG_SUCCESS;
 
-	err = MsgStoConnectDB();
-
-	if (err != MSG_SUCCESS)
-	{
-		MSG_DEBUG("MsgStoConnectDB() Error!!");
-		return err;
-	}
+//	err = MsgStoConnectDB();
+//
+//	if (err != MSG_SUCCESS)
+//	{
+//		MSG_DEBUG("MsgStoConnectDB() Error!!");
+//		return err;
+//	}
 
 	err = MsgStoGetThreadViewList(pSortRule, pThreadViewList);
 
@@ -841,55 +952,21 @@ msg_error_t MsgHandle::getThreadViewList(const MSG_SORT_RULE_S *pSortRule, msg_s
 		return err;
 	}
 
-	MsgStoDisconnectDB();
+//	MsgStoDisconnectDB();
 
-	return err;
-}
-
-msg_error_t MsgHandle::getConversationViewItem(msg_message_id_t MsgId, MSG_CONVERSATION_VIEW_S *pConv)
-{
-	MSG_BEGIN();
-
-	msg_error_t err =  MSG_SUCCESS;
-
-	MsgStoConnectDB();
-	err = MsgStoGetConversationViewItem(MsgId, pConv);
-	MsgStoDisconnectDB();
-
-	return err;
-}
-
-msg_error_t MsgHandle::getConversationViewList(msg_thread_id_t ThreadId, msg_struct_list_s *pConvViewList)
-{
-	MSG_BEGIN();
-
-	msg_error_t err =  MSG_SUCCESS;
-
-	MsgStoConnectDB();
-	err = MsgStoGetConversationViewList(ThreadId, pConvViewList);
-	MsgStoDisconnectDB();
-
-	if(err != MSG_SUCCESS)
-		return err;
-
-
-// Update Read Status for the Thead ID
-#if 1
+#if 0
 	// Allocate Memory to Command Data
-	int cmdSize = sizeof(MSG_CMD_S) + sizeof(msg_thread_id_t);
+	int cmdSize = sizeof(MSG_CMD_S) + sizeof(MSG_SORT_RULE_S);
 
 	char cmdBuf[cmdSize];
 	bzero(cmdBuf, cmdSize);
 	MSG_CMD_S* pCmd = (MSG_CMD_S*)cmdBuf;
 
 	// Set Command Parameters
-	pCmd->cmdType = MSG_CMD_UPDATE_THREAD_READ;
-
-	// Copy Cookie
-	memcpy(pCmd->cmdCookie, mCookie, MAX_COOKIE_LEN);
+	pCmd->cmdType = MSG_CMD_GET_THREADVIEWLIST;
 
 	// Copy Command Data
-	memcpy((void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN), &ThreadId, sizeof(msg_thread_id_t));
+	memcpy((void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)), pSortRule, sizeof(MSG_SORT_RULE_S));
 
 	// Send Command to Messaging FW
 	char* pEventData = NULL;
@@ -900,11 +977,49 @@ msg_error_t MsgHandle::getConversationViewList(msg_thread_id_t ThreadId, msg_str
 	// Get Return Data
 	MSG_EVENT_S* pEvent = (MSG_EVENT_S*)pEventData;
 
-	if (pEvent->eventType != MSG_EVENT_UPDATE_THREAD_READ)
+	if (pEvent == NULL)
+		THROW(MsgException::INVALID_RESULT, "Event is NULL");
+
+	if (pEvent->eventType != MSG_EVENT_GET_THREADVIEWLIST)
 	{
 		THROW(MsgException::INVALID_RESULT, "Event Data Error");
 	}
+
+	if (pEvent->result != MSG_SUCCESS)
+		return pEvent->result;
+
+	// Decode Return Data
+	MsgDecodeThreadViewList(pEvent->data, pMsgThreadViewList);
 #endif
+
+	return err;
+}
+
+msg_error_t MsgHandle::getConversationViewItem(msg_message_id_t MsgId, MSG_CONVERSATION_VIEW_S *pConv)
+{
+	MSG_BEGIN();
+
+	msg_error_t err =  MSG_SUCCESS;
+
+//	MsgStoConnectDB();
+	err = MsgStoGetConversationViewItem(MsgId, pConv);
+//	MsgStoDisconnectDB();
+
+	return err;
+}
+
+msg_error_t MsgHandle::getConversationViewList(msg_thread_id_t ThreadId, msg_struct_list_s *pConvViewList)
+{
+	MSG_BEGIN();
+
+	msg_error_t err =  MSG_SUCCESS;
+
+//	MsgStoConnectDB();
+	err = MsgStoGetConversationViewList(ThreadId, pConvViewList);
+//	MsgStoDisconnectDB();
+
+	if (err != MSG_SUCCESS)
+		return err;
 
 	MSG_END();
 
@@ -935,18 +1050,21 @@ msg_error_t MsgHandle::deleteThreadMessageList(msg_thread_id_t ThreadId, bool in
 	char* pEventData = NULL;
 	AutoPtr<char> eventBuf(&pEventData);
 
-
 	write((char*)pCmd, cmdSize, &pEventData);
 
 	// Get Return Data
 	MSG_EVENT_S* pEvent = (MSG_EVENT_S*)pEventData;
+
+	if (pEvent == NULL)
+		THROW(MsgException::INVALID_RESULT, "Event is NULL");
 
 	if (pEvent->eventType != MSG_EVENT_DELETE_THREADMESSAGELIST)
 	{
 		THROW(MsgException::INVALID_RESULT, "Event Data Error");
 	}
 
-	if(pEvent->result != MSG_SUCCESS) return pEvent->result;
+	if (pEvent->result != MSG_SUCCESS)
+		return pEvent->result;
 
 	return MSG_SUCCESS;
 }
@@ -979,17 +1097,26 @@ msg_error_t MsgHandle::getQuickPanelData(msg_quickpanel_type_t Type, MSG_MESSAGE
 	// Get Return Data
 	MSG_EVENT_S* pEvent = (MSG_EVENT_S*)pEventData;
 
+	if (pEvent == NULL)
+		THROW(MsgException::INVALID_RESULT, "Event is NULL");
+
 	if (pEvent->eventType != MSG_EVENT_GET_QUICKPANEL_DATA)
 	{
 		THROW(MsgException::INVALID_RESULT, "Event Data Error");
 	}
 
-	if(pEvent->result != MSG_SUCCESS) return pEvent->result;
+	if (pEvent->result != MSG_SUCCESS)
+		return pEvent->result;
 
 	// Decode Return Data
 	MSG_MESSAGE_INFO_S msgInfo;
 
-	memcpy(&msgInfo, (void*)((char*)pEvent+sizeof(MSG_EVENT_TYPE_T)+sizeof(msg_error_t)), sizeof(MSG_MESSAGE_INFO_S));
+	memset(&msgInfo, 0x00, sizeof(MSG_MESSAGE_INFO_S));
+
+	msgInfo.addressList = NULL;
+	AutoPtr<MSG_ADDRESS_INFO_S> addressListBuf(&msgInfo.addressList);
+
+	MsgDecodeMsgInfo((char *)pEvent->data, &msgInfo);
 
 	// Covert MSG_MESSAGE_INFO_S to MSG_MESSAGE_S
 	convertMsgStruct(&msgInfo, pMsg);
@@ -1029,6 +1156,9 @@ msg_error_t MsgHandle::resetDatabase()
 	// Get Return Data
 	MSG_EVENT_S* pEvent = (MSG_EVENT_S*)pEventData;
 
+	if (pEvent == NULL)
+		THROW(MsgException::INVALID_RESULT, "Event is NULL");
+
 	if (pEvent->eventType != MSG_EVENT_RESET_DB)
 	{
 		THROW(MsgException::INVALID_RESULT, "Event Data Error");
@@ -1057,18 +1187,21 @@ msg_error_t MsgHandle::getMemSize(unsigned int* memsize)
 	char* pEventData = NULL;
 	AutoPtr<char> eventBuf(&pEventData);
 
-
 	write((char*)pCmd, cmdSize, &pEventData);
 
 	// Get Return Data
 	MSG_EVENT_S* pEvent = (MSG_EVENT_S*)pEventData;
+
+	if (pEvent == NULL)
+		THROW(MsgException::INVALID_RESULT, "Event is NULL");
 
 	if (pEvent->eventType != MSG_EVENT_GET_MEMSIZE)
 	{
 		THROW(MsgException::INVALID_RESULT, "Event Data Error");
 	}
 
-	if(pEvent->result != MSG_SUCCESS) return pEvent->result;
+	if (pEvent->result != MSG_SUCCESS)
+		return pEvent->result;
 
 	// Decode Return Data
 	MsgDecodeMemSize(pEvent->data, memsize);
@@ -1118,12 +1251,16 @@ msg_error_t MsgHandle::backupMessage(msg_message_backup_type_t type, const char 
 	// Get Return Data
 	MSG_EVENT_S* pEvent = (MSG_EVENT_S*)pEventData;
 
+	if (pEvent == NULL)
+		THROW(MsgException::INVALID_RESULT, "Event is NULL");
+
 	if (pEvent->eventType != MSG_EVENT_BACKUP_MESSAGE)
 	{
 		THROW(MsgException::INVALID_RESULT, "Event Data Error");
 	}
 
-	if(pEvent->result != MSG_SUCCESS) return pEvent->result;
+	if (pEvent->result != MSG_SUCCESS)
+		return pEvent->result;
 
 	return MSG_SUCCESS;
 }
@@ -1159,18 +1296,21 @@ msg_error_t MsgHandle::restoreMessage(const char *backup_filepath)
 	char* pEventData = NULL;
 	AutoPtr<char> eventBuf(&pEventData);
 
-
 	write((char*)pCmd, cmdSize, &pEventData);
 
 	// Get Return Data
 	MSG_EVENT_S* pEvent = (MSG_EVENT_S*)pEventData;
+
+	if (pEvent == NULL)
+		THROW(MsgException::INVALID_RESULT, "Event is NULL");
 
 	if (pEvent->eventType != MSG_EVENT_RESTORE_MESSAGE)
 	{
 		THROW(MsgException::INVALID_RESULT, "Event Data Error");
 	}
 
-	if(pEvent->result != MSG_SUCCESS) return pEvent->result;
+	if (pEvent->result != MSG_SUCCESS)
+		return pEvent->result;
 
 	return MSG_SUCCESS;
 }
@@ -1180,13 +1320,13 @@ msg_error_t MsgHandle::searchMessage(const char *pSearchString, msg_struct_list_
 {
 	msg_error_t err =  MSG_SUCCESS;
 
-	err = MsgStoConnectDB();
-
-	if (err != MSG_SUCCESS)
-	{
-		MSG_DEBUG("MsgStoConnectDB() Error!!");
-		return err;
-	}
+//	err = MsgStoConnectDB();
+//
+//	if (err != MSG_SUCCESS)
+//	{
+//		MSG_DEBUG("MsgStoConnectDB() Error!!");
+//		return err;
+//	}
 
 	err = MsgStoSearchMessage(pSearchString, pThreadViewList);
 
@@ -1196,31 +1336,7 @@ msg_error_t MsgHandle::searchMessage(const char *pSearchString, msg_struct_list_
 		return err;
 	}
 
-	MsgStoDisconnectDB();
-
-	return err;
-}
-
-
-msg_error_t MsgHandle::searchMessage(const MSG_SEARCH_CONDITION_S *pSearchCon, int offset, int limit, msg_struct_list_s *pMsgList)
-{
-	msg_error_t err =  MSG_SUCCESS;
-
-	err = MsgStoConnectDB();
-
-	if (err != MSG_SUCCESS) {
-		MSG_DEBUG("MsgStoConnectDB() Error!!");
-		return err;
-	}
-
-	err = MsgStoSearchMessage(pSearchCon, offset, limit, pMsgList);
-
-	if (err != MSG_SUCCESS) {
-		MSG_DEBUG("MsgStoSearchMessage() Error!!");
-		return err;
-	}
-
-	MsgStoDisconnectDB();
+//	MsgStoDisconnectDB();
 
 	return err;
 }
@@ -1230,13 +1346,13 @@ msg_error_t MsgHandle::getRejectMsgList(const char *pNumber, msg_struct_list_s *
 {
 	msg_error_t err =  MSG_SUCCESS;
 
-	err = MsgStoConnectDB();
-
-	if (err != MSG_SUCCESS)
-	{
-		MSG_DEBUG("MsgStoConnectDB() Error!!");
-		return err;
-	}
+//	err = MsgStoConnectDB();
+//
+//	if (err != MSG_SUCCESS)
+//	{
+//		MSG_DEBUG("MsgStoConnectDB() Error!!");
+//		return err;
+//	}
 
 	err = MsgStoGetRejectMsgList(pNumber, pRejectMsgList);
 
@@ -1246,7 +1362,7 @@ msg_error_t MsgHandle::getRejectMsgList(const char *pNumber, msg_struct_list_s *
 		return err;
 	}
 
-	MsgStoDisconnectDB();
+//	MsgStoDisconnectDB();
 
 	return err;
 }
@@ -1259,15 +1375,15 @@ msg_error_t MsgHandle::regStorageChangeCallback(msg_storage_change_cb onStorageC
 
 	MsgProxyListener* eventListener = MsgProxyListener::instance();
 
-	eventListener->start();
+	eventListener->start(this);
 
-	int clientFd = eventListener->getRemoteFd(); // fd that is reserved to the "listener thread" by msgfw daemon
+	int remoteFd = eventListener->getRemoteFd(); // fd that is reserved to the "listener thread" by msgfw daemon
 
-	if (clientFd < 0)
-		return MSG_ERR_TRANSPORT_ERROR;
+	if (remoteFd == -1 )
+		return MSG_ERR_INVALID_MSGHANDLE;
 
-	if (eventListener->regStorageChangeEventCB(this, onStorageChange, pUserParam) == false) // callback was already registered, just return SUCCESS
-		return MSG_SUCCESS;
+	if (eventListener->regStorageChangeEventCB(this, onStorageChange, pUserParam) == false)
+		return MSG_ERR_INVALID_PARAMETER;
 
 	// Allocate Memory to Command Data
 	int cmdSize = sizeof(MSG_CMD_S) + sizeof(int); // cmd type, listenerFd
@@ -1281,13 +1397,11 @@ msg_error_t MsgHandle::regStorageChangeCallback(msg_storage_change_cb onStorageC
 	// Copy Cookie
 	memcpy(pCmd->cmdCookie, mCookie, MAX_COOKIE_LEN);
 
-	int listenerFd = clientFd;
+	MSG_DEBUG("remote fd %d", remoteFd);
 
-	MSG_DEBUG("remote fd %d", listenerFd);
+	memcpy((void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN), &remoteFd, sizeof(remoteFd));
 
-	memcpy((void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN), &listenerFd, sizeof(listenerFd));
-
-	MSG_DEBUG("reg status [%d : %s], %d", pCmd->cmdType, MsgDbgCmdStr(pCmd->cmdType), listenerFd);
+	MSG_DEBUG("reg status [%d : %s], %d", pCmd->cmdType, MsgDbgCmdStr(pCmd->cmdType), remoteFd);
 
 	// Send Command to Messaging FW
 	char* pEventData = NULL;
@@ -1297,6 +1411,9 @@ msg_error_t MsgHandle::regStorageChangeCallback(msg_storage_change_cb onStorageC
 
 	// Get Return Data
 	MSG_EVENT_S* pEvent = (MSG_EVENT_S*)pEventData;
+
+	if (pEvent == NULL)
+		THROW(MsgException::INVALID_RESULT, "Event is NULL");
 
 	if (pEvent->eventType != MSG_EVENT_REG_STORAGE_CHANGE_CB)
 	{
@@ -1315,6 +1432,9 @@ msg_error_t MsgHandle::getReportStatus(msg_message_id_t msg_id, msg_struct_list_
 	bzero(cmdBuf, cmdSize);
 	MSG_CMD_S* pCmd = (MSG_CMD_S*)cmdBuf;
 
+	report_list->nCount = 0;
+	report_list->msg_struct_info = NULL;
+
 	// Set Command Parameters
 	pCmd->cmdType = MSG_CMD_GET_REPORT_STATUS;
 
@@ -1328,18 +1448,21 @@ msg_error_t MsgHandle::getReportStatus(msg_message_id_t msg_id, msg_struct_list_
 	char* pEventData = NULL;
 	AutoPtr<char> eventBuf(&pEventData);
 
-
 	write((char*)pCmd, cmdSize, &pEventData);
 
 	// Get Return Data
 	MSG_EVENT_S* pEvent = (MSG_EVENT_S*)pEventData;
+
+	if (pEvent == NULL)
+		THROW(MsgException::INVALID_RESULT, "Event is NULL");
 
 	if (pEvent->eventType != MSG_EVENT_GET_REPORT_STATUS)
 	{
 		THROW(MsgException::INVALID_RESULT, "Event Data Error");
 	}
 
-	if(pEvent->result != MSG_SUCCESS) return pEvent->result;
+	if (pEvent->result != MSG_SUCCESS)
+		return pEvent->result;
 
 	// Decode Return Data
 	MsgDecodeReportStatus(pEvent->data, report_list);
@@ -1352,13 +1475,13 @@ msg_error_t MsgHandle::getAddressList(const msg_thread_id_t threadId, msg_struct
 {
 	msg_error_t err =  MSG_SUCCESS;
 
-	err = MsgStoConnectDB();
-
-	if (err != MSG_SUCCESS)
-	{
-		MSG_DEBUG("MsgStoConnectDB() Error!!");
-		return err;
-	}
+//	err = MsgStoConnectDB();
+//
+//	if (err != MSG_SUCCESS)
+//	{
+//		MSG_DEBUG("MsgStoConnectDB() Error!!");
+//		return err;
+//	}
 
 	err = MsgStoGetAddressList(threadId, (msg_struct_list_s *)pAddrList);
 
@@ -1368,7 +1491,7 @@ msg_error_t MsgHandle::getAddressList(const msg_thread_id_t threadId, msg_struct
 		return err;
 	}
 
-	MsgStoDisconnectDB();
+//	MsgStoDisconnectDB();
 
 	return err;
 }
@@ -1400,18 +1523,72 @@ msg_error_t MsgHandle::getThreadIdByAddress(msg_struct_list_s *pAddrList, msg_th
 	char* pEventData = NULL;
 	AutoPtr<char> eventBuf(&pEventData);
 
-
 	write((char*)pCmd, cmdSize, &pEventData);
 
 	// Get Return Data
 	MSG_EVENT_S* pEvent = (MSG_EVENT_S*)pEventData;
+
+	if (pEvent == NULL)
+		THROW(MsgException::INVALID_RESULT, "Event is NULL");
 
 	if (pEvent->eventType != MSG_EVENT_GET_THREAD_ID_BY_ADDRESS)
 	{
 		THROW(MsgException::INVALID_RESULT, "Event Data Error");
 	}
 
-	if(pEvent->result != MSG_SUCCESS) return pEvent->result;
+	if (pEvent->result != MSG_SUCCESS)
+		return pEvent->result;
+
+	// Decode Return Data
+	MsgDecodeThreadId(pEvent->data, pThreadId);
+
+	return MSG_SUCCESS;
+}
+
+
+msg_error_t MsgHandle::getThreadIdByAddress(msg_list_handle_t msg_address_list, msg_thread_id_t *pThreadId)
+{
+	int addrCnt = (int)g_list_length((GList *)msg_address_list);
+
+	// Allocate Memory to Command Data
+	int cmdSize = sizeof(MSG_CMD_S) + sizeof(int) + (sizeof(MSG_ADDRESS_INFO_S)*addrCnt);
+
+	char cmdBuf[cmdSize];
+	bzero(cmdBuf, cmdSize);
+	MSG_CMD_S* pCmd = (MSG_CMD_S*)cmdBuf;
+
+	// Set Command Parameters
+	pCmd->cmdType = MSG_CMD_GET_THREAD_ID_BY_ADDRESS;
+
+	// Copy Cookie
+	memcpy(pCmd->cmdCookie, mCookie, MAX_COOKIE_LEN);
+
+	// Copy Command Data
+	memcpy((void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN), &addrCnt, sizeof(int));
+	int addSize = sizeof(MSG_ADDRESS_INFO_S);
+	for(int i=0; i<addrCnt; i++) {
+		memcpy((void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+sizeof(addrCnt)+(addSize*i)+MAX_COOKIE_LEN), ((msg_struct_s *)(g_list_nth_data((GList *)msg_address_list,(guint)i)))->data, sizeof(MSG_ADDRESS_INFO_S));
+	}
+
+	// Send Command to Messaging FW
+	char* pEventData = NULL;
+	AutoPtr<char> eventBuf(&pEventData);
+
+	write((char*)pCmd, cmdSize, &pEventData);
+
+	// Get Return Data
+	MSG_EVENT_S* pEvent = (MSG_EVENT_S*)pEventData;
+
+	if (pEvent == NULL)
+		THROW(MsgException::INVALID_RESULT, "Event is NULL");
+
+	if (pEvent->eventType != MSG_EVENT_GET_THREAD_ID_BY_ADDRESS)
+	{
+		THROW(MsgException::INVALID_RESULT, "Event Data Error");
+	}
+
+	if (pEvent->result != MSG_SUCCESS)
+		return pEvent->result;
 
 	// Decode Return Data
 	MsgDecodeThreadId(pEvent->data, pThreadId);
@@ -1447,6 +1624,9 @@ msg_error_t MsgHandle::getThread(msg_thread_id_t threadId, MSG_THREAD_VIEW_S* pT
 	// Get Return Data
 	MSG_EVENT_S* pEvent = (MSG_EVENT_S*)pEventData;
 
+	if (pEvent == NULL)
+		THROW(MsgException::INVALID_RESULT, "Event is NULL");
+
 	if (pEvent->eventType != MSG_EVENT_GET_THREAD_INFO)
 	{
 		THROW(MsgException::INVALID_RESULT, "Event Data Error");
@@ -1459,25 +1639,40 @@ msg_error_t MsgHandle::getThread(msg_thread_id_t threadId, MSG_THREAD_VIEW_S* pT
 }
 
 
-msg_error_t MsgHandle::getMessageList(msg_folder_id_t folderId, msg_thread_id_t threadId, msg_message_type_t msgType, msg_storage_id_t storageId, msg_struct_list_s *pMsgList)
+msg_error_t MsgHandle::getMessageList(const MSG_LIST_CONDITION_S *pListCond, msg_struct_list_s *pMsgList)
 {
 	msg_error_t err =  MSG_SUCCESS;
 
-	err = MsgStoConnectDB();
+//	err = MsgStoConnectDB();
+//
+//	if (err != MSG_SUCCESS) {
+//		MSG_DEBUG("MsgStoConnectDB() Error!!");
+//		return err;
+//	}
+
+	err = MsgStoGetMessageList(pListCond, pMsgList);
 
 	if (err != MSG_SUCCESS) {
-		MSG_DEBUG("MsgStoConnectDB() Error!!");
+		MSG_DEBUG("MsgStoGetMessageList() Error!!");
 		return err;
 	}
 
-	err = MsgStoGetMessageList(folderId, threadId, msgType, storageId, pMsgList);
+//	MsgStoDisconnectDB();
+
+	return err;
+}
+
+
+msg_error_t MsgHandle::getMediaList(const msg_thread_id_t thread_id, msg_list_handle_t *pMediaList)
+{
+	msg_error_t err =  MSG_SUCCESS;
+
+	err = MsgStoGetMediaList(thread_id, pMediaList);
 
 	if (err != MSG_SUCCESS) {
-		MSG_DEBUG("MsgStoSearchMessage() Error!!");
+		MSG_DEBUG("MsgStoGetFmMediaList() Error!!");
 		return err;
 	}
-
-	MsgStoDisconnectDB();
 
 	return err;
 }
@@ -1509,6 +1704,9 @@ int MsgHandle::addPushEvent(MSG_PUSH_EVENT_INFO_S *pPushEvent)
 
 	// Get Return Data
 	MSG_EVENT_S* pEvent = (MSG_EVENT_S*)pEventData;
+
+	if (pEvent == NULL)
+		THROW(MsgException::INVALID_RESULT, "Event is NULL");
 
 	if (pEvent->eventType != MSG_EVENT_ADD_PUSH_EVENT)
 	{
@@ -1546,6 +1744,9 @@ int MsgHandle::deletePushEvent(MSG_PUSH_EVENT_INFO_S *pPushEvent)
 	// Get Return Data
 	MSG_EVENT_S* pEvent = (MSG_EVENT_S*)pEventData;
 
+	if (pEvent == NULL)
+		THROW(MsgException::INVALID_RESULT, "Event is NULL");
+
 	if (pEvent->eventType != MSG_EVENT_DELETE_PUSH_EVENT)
 	{
 		THROW(MsgException::INVALID_RESULT, "Event Data Error");
@@ -1581,6 +1782,9 @@ int MsgHandle::updatePushEvent(MSG_PUSH_EVENT_INFO_S *pSrc, MSG_PUSH_EVENT_INFO_
 
 	// Get Return Data
 	MSG_EVENT_S* pEvent = (MSG_EVENT_S*)pEventData;
+
+	if (pEvent == NULL)
+		THROW(MsgException::INVALID_RESULT, "Event is NULL");
 
 	if (pEvent->eventType != MSG_EVENT_UPDATE_PUSH_EVENT)
 	{
@@ -1618,17 +1822,23 @@ msg_error_t MsgHandle::getVobject(msg_message_id_t MsgId, void** encodedData)
 	// Get Return Data
 	MSG_EVENT_S* pEvent = (MSG_EVENT_S*)pEventData;
 
+	if (pEvent == NULL)
+		THROW(MsgException::INVALID_RESULT, "Event is NULL");
+
 	if (pEvent->eventType != MSG_EVENT_GET_MSG)
 	{
 		THROW(MsgException::INVALID_RESULT, "Event Data Error");
 	}
 
-	if(pEvent->result != MSG_SUCCESS)
+	if (pEvent->result != MSG_SUCCESS)
 		return pEvent->result;
 
 	// Decode Return Data
 	MSG_MESSAGE_INFO_S msgInfo = {0,};
 	MSG_SENDINGOPT_INFO_S sendOptInfo = {0,};
+
+	msgInfo.addressList = NULL;
+	AutoPtr<MSG_ADDRESS_INFO_S> addressListBuf(&msgInfo.addressList);
 
 	MsgDecodeMsgInfo(pEvent->data, &msgInfo, &sendOptInfo);
 

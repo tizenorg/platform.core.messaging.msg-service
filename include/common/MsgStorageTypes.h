@@ -1,20 +1,17 @@
 /*
- * msg-service
- *
- * Copyright (c) 2000 - 2014 Samsung Electronics Co., Ltd. All rights reserved
+ * Copyright (c) 2014 Samsung Electronics Co., Ltd. All rights reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
 */
 
 #ifndef MSG_STORAGE_TYPES_H
@@ -94,10 +91,15 @@ typedef struct
 typedef struct
 {
 	msg_contact_id_t	contactId;							/**< Indicates the unique contact ID. */
-	char 				firstName[MAX_DISPLAY_NAME_LEN+1];		/**< Indicates the first name of contact. */
-	char 				lastName[MAX_DISPLAY_NAME_LEN+1];		/**< Indicates the last name of contact. */
-	char 				displayName[MAX_DISPLAY_NAME_LEN+1];		/**< Indicates the display name of contact. */
-	char 				imagePath[MAX_IMAGE_PATH_LEN+1];		/**< Indicates the image path of contact. */
+	int						addrbookId;							/**< Indicates the address book ID. */
+	char 					firstName[MAX_DISPLAY_NAME_LEN+1];		/**< Indicates the first name of contact. */
+	char 					lastName[MAX_DISPLAY_NAME_LEN+1];		/**< Indicates the last name of contact. */
+	char 					middleName[MAX_DISPLAY_NAME_LEN+1];		/**< Indicates the middle name of contact. */
+	char 					prefix[MAX_DISPLAY_NAME_LEN+1];		/**< Indicates the prefix of contact. */
+	char 					suffix[MAX_DISPLAY_NAME_LEN+1];		/**< Indicates the suffix of contact. */
+	char 					imagePath[MAX_IMAGE_PATH_LEN+1];		/**< Indicates the image path of contact. */
+	char						alerttonePath[MSG_FILEPATH_LEN_MAX+1];		/**< Indicates the message alert tone path of contact. */
+	char						vibrationPath[MSG_FILEPATH_LEN_MAX+1];		/**< Indicates the vibration path of contact. */
 } MSG_CONTACT_INFO_S;
 
 
@@ -108,7 +110,7 @@ typedef struct
  */
 typedef struct
 {
-	msg_sort_type_t	sortType;		/**< Indicates the sort type */
+	msg_sort_type_t	sortType;		/**< Indicates the sort type, See enum _MSG_SORT_TYPE_E */
 	bool					bAscending;		/**< Indicates the sort order which is ascending or descending */
 }MSG_SORT_RULE_S;
 
@@ -144,6 +146,29 @@ typedef struct
 	char						*pSearchVal;
 	int						reserved;
 } MSG_SEARCH_CONDITION_S;
+
+
+/**
+ *	@brief	Represents Message list condition values.
+ */
+typedef struct
+{
+	msg_folder_id_t			folderId;
+	msg_thread_id_t			threadId;
+	msg_storage_id_t			storageId;
+	msg_message_type_t	msgType;
+	bool								bProtected;
+	bool								bScheduled;
+	char								*pAddressVal;
+	char								*pTextVal;
+	bool								bAnd;
+	time_t							fromTime;
+	time_t							toTime;
+	int								offset;
+	int								limit;
+	msg_struct_t					sortRule;
+	int							simIndex;
+} MSG_LIST_CONDITION_S;
 
 
 typedef struct

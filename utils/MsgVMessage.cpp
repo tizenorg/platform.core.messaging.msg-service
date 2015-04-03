@@ -1,20 +1,17 @@
 /*
- * msg-service
- *
- * Copyright (c) 2000 - 2014 Samsung Electronics Co., Ltd. All rights reserved
+ * Copyright (c) 2014 Samsung Electronics Co., Ltd. All rights reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
 */
 
 #include <VMessage.h>
@@ -27,7 +24,8 @@
 #include "MsgUtilFile.h"
 #include "MsgCppTypes.h"
 #include "MsgVMessage.h"
-
+#include "MsgMmsMessage.h"
+#include "MsgSerialize.h"
 
 /*==================================================================================================
                                      DEFINES
@@ -110,7 +108,6 @@ char* MsgVMessageAddRecord(MsgDbHandler *pDbHandle, MSG_MESSAGE_INFO_S* pMsg)
 	VTree *		pCurrent= NULL;
 	struct tm	display_time;
 	char*		encoded_data = NULL;
-	int			err = MSG_SUCCESS;
 
 	VTree* pMessage = NULL;
 	if (pMessage == NULL) {
@@ -180,6 +177,7 @@ char* MsgVMessageAddRecord(MsgDbHandler *pDbHandle, MSG_MESSAGE_INFO_S* pMsg)
 	INSERT_VMSG_OBJ;
 
 	pObject->property = VMSG_TYPE_DATE;
+	tzset();
 	localtime_r(&(pMsg->displayTime), &display_time);
 	pObject->pszValue[0] = _convert_tm_to_vdata_str(&display_time);
 	pObject->valueCount = 1;
@@ -256,11 +254,11 @@ if(strlen(pMsg->subject) > 0)
 	{
 		//Insert VBody for mms raw data;
 		char* pFileData = NULL;
-
+		MMS_DATA_S *pMmsData = NULL;
 		int		fileSize = 0;
 		char*	msgText = NULL;
+#if 0
 		char		filePath[MSG_FILEPATH_LEN_MAX] = {0, };
-
 		if(pMsg->msgType.subType == MSG_NOTIFICATIONIND_MMS)
 			pFileData = MsgOpenAndReadMmsFile(pMsg->msgData, 0, -1, &fileSize);
 
@@ -273,10 +271,53 @@ if(strlen(pMsg->subject) > 0)
 
 			pFileData = MsgOpenAndReadMmsFile(filePath, 0, -1, &fileSize);
 		}
-		MSG_DEBUG("FILE SIZE IS %d", fileSize);
+#else
+
+		if (pMsg->bTextSms == false) {
+			if (MsgOpenAndReadFile(pMsg->msgData, &pFileData, &fileSize) == false) {
+				//CID 16205: Memory leak in case of failure
+				if (pFileData) {
+					free(pFileData);
+					pFileData = NULL;
+				}
+				goto __CATCH_FAIL__;
+			}
+		} else {
+			fileSize = strlen(pMsg->msgData);
+			pFileData = (char *)calloc(1, fileSize+1);
+			snprintf(pFileData, fileSize, "%s", pMsg->msgData);
+		}
+
+		//CID 46178: Pulling up the null check
+		if (pFileData) {
+			if (MsgDeserializeMmsData(pFileData, fileSize, &pMmsData) != 0) {
+				MSG_DEBUG("Fail to Deserialize Message Data");
+				goto __CATCH_FAIL__;
+			}
+
+			free(pFileData);
+			pFileData = NULL;
+		}
+
+		MsgMmsSetMultipartListData(pMmsData);//app file -> data
+
+		int serializedDataSize = 0;
+
+		serializedDataSize = MsgSerializeMms(pMmsData, &pFileData);
+
+		if (pFileData) {
+			fileSize = serializedDataSize;
+		}
+
+		MsgMmsRelease(&pMmsData);
+
+#endif
+		MSG_DEBUG("FILE SIZE IS %d, %s", fileSize, pFileData);
 		msgText = (char *)calloc(1, fileSize);
 		if(pFileData)
 			memcpy(msgText, pFileData, fileSize);
+
+
 		pObject->numOfBiData = fileSize;
 		pObject->pszValue[0] = msgText;
 		pObject->valueCount = 1;
@@ -477,6 +518,7 @@ char *MsgVMessageEncode(MSG_MESSAGE_INFO_S *pMsg)
 	INSERT_VMSG_OBJ;
 
 	pObject->property = VMSG_TYPE_DATE;
+	tzset();
 	localtime_r(&(pMsg->displayTime), &display_time);
 	pObject->pszValue[0] = _convert_tm_to_vdata_str(&display_time);
 	pObject->valueCount = 1;

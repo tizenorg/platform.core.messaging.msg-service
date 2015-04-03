@@ -1,33 +1,35 @@
 /*
- * msg-service
- *
- * Copyright (c) 2000 - 2014 Samsung Electronics Co., Ltd. All rights reserved
+ * Copyright (c) 2014 Samsung Electronics Co., Ltd. All rights reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
 */
 
+#include <errno.h>
 #include "MsgDebug.h"
 #include "MsgCppTypes.h"
 #include "MsgException.h"
 #include "MsgGconfWrapper.h"
+#include "MsgNotificationWrapper.h"
+#include "MsgUtilStorage.h"
 #include "SmsPluginParamCodec.h"
 #include "SmsPluginUDCodec.h"
+#include "SmsPluginTpduCodec.h"
 #include "SmsPluginSetting.h"
 #include "SmsPluginTransport.h"
 #include "SmsPluginCallback.h"
 #include "SmsPluginEventHandler.h"
 #include "SmsPluginSatHandler.h"
+#include "SmsPluginDSHandler.h"
 
 extern "C"
 {
@@ -38,7 +40,6 @@ extern "C"
 	#include <ITapiSat.h>
 }
 
-extern struct tapi_handle *pTapiHandle;
 /*==================================================================================================
                                      IMPLEMENTATION OF SmsPluginCbMsgHandler - Member Functions
 ==================================================================================================*/
@@ -49,7 +50,6 @@ SmsPluginSatHandler::SmsPluginSatHandler()
 {
 	commandId = 0;
 
-	bSendSms = false;
 	bInitSim = false;
 	bSMSPChanged = false;
 	bCBMIChanged = false;
@@ -71,7 +71,7 @@ SmsPluginSatHandler* SmsPluginSatHandler::instance()
 }
 
 
-void SmsPluginSatHandler::refreshSms(void *pData)
+void SmsPluginSatHandler::refreshSms(struct tapi_handle *handle, void *pData)
 {
 	/*
 	TelSatRefreshInd_t* pRefreshData = (TelSatRefreshInd_t*)pData;
@@ -138,11 +138,9 @@ void SmsPluginSatHandler::refreshSms(void *pData)
 }
 
 
-void SmsPluginSatHandler::sendSms(void *pData)
+void SmsPluginSatHandler::sendSms(struct tapi_handle *handle, void *pData)
 {
 	TelSatSendSmsIndSmsData_t* pSmsData = (TelSatSendSmsIndSmsData_t*)pData;
-
-	bSendSms = true;
 
 	commandId = pSmsData->commandId;
 
@@ -159,9 +157,16 @@ void SmsPluginSatHandler::sendSms(void *pData)
 	// Modify Parameters, Pack User Data
 	tpduLen = handleSatTpdu(tpdu, pSmsData->smsTpdu.dataLen, pSmsData->bIsPackingRequired);
 
-	if (tpduLen <= 0 || tpduLen > MAX_TPDU_DATA_LEN)
-	{
-		sendResult(SMS_SAT_CMD_SEND_SMS, TAPI_SAT_R_BEYOND_ME_CAPABILITIES);
+	if (tpduLen <= 0) {
+		sendResult(handle, SMS_SAT_CMD_SEND_SMS, TAPI_SAT_R_SUCCESS);
+		return;
+	} //else if (tpduLen > MAX_TPDU_DATA_LEN) {
+	else if (tpduLen > MAX_SAT_TPDU_LEN) {	//CID 358478: replacing check against MAX_TPDU_DATA_LEN (255) with check
+											//			against MAX_SAT_TPDU_LEN (175).
+											//			as mentioned above "The TPDU Maximum Length at SAT side is 175".
+											//			Earlier MAX_TPDU_DATA_LEN was increased from 165 to 255 which creates confusion for prevent tool.
+											//			Prevent tool thinks that it can take value of 255 and cause buffer overflow during memcpy below.
+		sendResult(handle, SMS_SAT_CMD_SEND_SMS, TAPI_SAT_R_BEYOND_ME_CAPABILITIES);
 		return;
 	}
 
@@ -172,31 +177,33 @@ void SmsPluginSatHandler::sendSms(void *pData)
 	memset((void*)pkgInfo.szData, 0x00, sizeof(pkgInfo.szData));
 	memcpy((void*)pkgInfo.szData, tpdu, tpduLen);
 
-	pkgInfo.szData[tpduLen - 1] = '\0';
+	pkgInfo.szData[tpduLen] = '\0';
 	pkgInfo.MsgLength = tpduLen;
+	pkgInfo.format = TAPI_NETTEXT_NETTYPE_3GPP;
 
 	// Set SMSC Address
-	SMS_ADDRESS_S smsc;
+	SMS_ADDRESS_S smsc = {0,};
+	int simIndex = SmsPluginDSHandler::instance()->getSimIndex(handle);
 
 	if (pSmsData->address.diallingNumberLen > 0)
 	{
 		smsc.ton = pSmsData->address.ton;
 		smsc.npi = pSmsData->address.npi;
-		memcpy(smsc.address, pSmsData->address.diallingNumber, pSmsData->address.diallingNumberLen);
-		smsc.address[pSmsData->address.diallingNumberLen] = '\0';
+		snprintf(smsc.address, sizeof(smsc.address), "%s", pSmsData->address.diallingNumber);
 
-		MSG_DEBUG("SCA TON[%d], NPI[%d], LEN[%d], ADDR[%s]", smsc.ton, smsc.npi, strlen(smsc.address), smsc.address);
+		MSG_SEC_DEBUG("SCA TON[%d], NPI[%d], LEN[%d], ADDR[%s]", smsc.ton, smsc.npi, strlen(smsc.address), smsc.address);
 	}
 	else
 	{
 		// Set SMSC Options
-		SmsPluginTransport::instance()->setSmscOptions(&smsc);
+		SmsPluginTransport::instance()->setSmscOptions(simIndex, &smsc);
 	}
 
 	unsigned char smscAddr[MAX_SMSC_LEN];
-	memset(smscAddr, 0x00, sizeof(smscAddr));
+	int smscLen = 0;
 
-	int smscLen = SmsPluginParamCodec::encodeSMSC(&smsc, smscAddr);
+	memset(smscAddr, 0x00, sizeof(smscAddr));
+	smscLen = SmsPluginParamCodec::encodeSMSC(&smsc, smscAddr);
 
 	if (smscLen <= 0) return;
 
@@ -208,24 +215,45 @@ void SmsPluginSatHandler::sendSms(void *pData)
 	int tapiRet = TAPI_API_SUCCESS;
 
 	// Send SMS
-	tapiRet = tel_send_sms(pTapiHandle, &pkgInfo, 0, TapiEventSentStatus, NULL);
+	tapiRet = tel_send_sms(handle, &pkgInfo, 0, TapiEventSatSmsSentStatus, NULL);
 
 	if (tapiRet == TAPI_API_SUCCESS)
 	{
 		MSG_DEBUG("########  TelTapiSmsSend Success !!! return : %d #######", tapiRet);
+
 	}
 	else
 	{
 		MSG_DEBUG("########  TelTapiSmsSend Fail !!! return : %d #######", tapiRet);
-		sendResult(SMS_SAT_CMD_SEND_SMS, TAPI_SAT_R_BEYOND_ME_CAPABILITIES);
+		sendResult(handle, SMS_SAT_CMD_SEND_SMS, TAPI_SAT_R_BEYOND_ME_CAPABILITIES);
 	}
 }
 
 
-void SmsPluginSatHandler::ctrlSms(void *pData)
+void SmsPluginSatHandler::ctrlSms(struct tapi_handle *handle, void *pData)
 {
+	if (!pData) {
+		MSG_DEBUG("pData is NULL");
+		return;
+	}
+
 	TelSatMoSmCtrlIndData_t* pCtrlData = (TelSatMoSmCtrlIndData_t*)pData;
 
+#if 0 // sangkoo 13.11.28
+	if (bSendSmsbySat == true) {// Send SMS By SAT
+		MSG_DEBUG("Event Noti for sending message by SAT : result = [%d]", pCtrlData->moSmsCtrlResult);
+	} else { // Send SMS By APP
+		SmsPluginTransport::instance()->setMoCtrlStatus(pCtrlData);
+	}
+#else
+	if (pCtrlData->moSmsCtrlResult == TAPI_SAT_CALL_CTRL_R_NOT_ALLOWED) {
+		MsgInsertTicker("Sending message failed : blocked by call control", NULL, true, 0);
+	}
+#endif
+
+	return;
+
+#if 0
 	if (bSendSms == true) // Send SMS By SAT
 	{
 		if (pCtrlData->moSmsCtrlResult == TAPI_SAT_CALL_CTRL_R_NOT_ALLOWED)
@@ -261,29 +289,43 @@ void SmsPluginSatHandler::ctrlSms(void *pData)
 		// Call Event Handler
 		SmsPluginEventHandler::instance()->handleSentStatus(netStatus);
 	}
+#endif
 }
 
 
-void SmsPluginSatHandler::ctrlSms(msg_network_status_t netStatus)
+void SmsPluginSatHandler::ctrlSms(struct tapi_handle *handle, SMS_NETWORK_STATUS_T smsStatus)
 {
-	if (bSendSms == true) // Send SMS By SAT
-	{
-		if (netStatus == MSG_NETWORK_SEND_SUCCESS)
-		{
-			MSG_DEBUG("Sending SMS by SAT is OK");
+	MSG_DEBUG("SMS network status = [%d]", smsStatus);
 
-			sendResult(SMS_SAT_CMD_SEND_SMS, TAPI_SAT_R_SUCCESS);
-		}
-		else if (netStatus == MSG_NETWORK_SEND_FAIL)
-		{
-			MSG_DEBUG("Sending SMS by SAT is failed");
-
-			sendResult(SMS_SAT_CMD_SEND_SMS, TAPI_SAT_R_SMS_RP_ERROR);
-		}
+	if (smsStatus == SMS_NETWORK_SEND_SUCCESS) {
+		MSG_DEBUG("Sending SMS by SAT is OK");
+		sendResult(handle, SMS_SAT_CMD_SEND_SMS, TAPI_SAT_R_SUCCESS);
+	} else if (smsStatus == SMS_NETWORK_SEND_FAIL) {
+		MSG_ERR("Sending SMS by SAT is failed");
+		sendResult(handle, SMS_SAT_CMD_SEND_SMS, TAPI_SAT_R_SMS_RP_ERROR);
+	} else if (smsStatus == SMS_NETWORK_SEND_FAIL_MANDATORY_INFO_MISSING){
+		MSG_ERR("Sending SMS by SAT is failed, but result is 'success'");
+		//sendResult(SMS_SAT_CMD_SEND_SMS, TAPI_SAT_R_ERROR_REQUIRED_VALUES_ARE_MISSING);
+		sendResult(handle, SMS_SAT_CMD_SEND_SMS, TAPI_SAT_R_SUCCESS);
+	} else if (smsStatus == SMS_NETWORK_SEND_FAIL_BY_MO_CONTROL_NOT_ALLOWED){
+		MSG_ERR("Sending SMS is failed by MO control");
+		sendResult(handle, SMS_SAT_CMD_SEND_SMS, TAPI_SAT_R_INTRCTN_WITH_CC_OR_SMS_CTRL_PRMNT_PRBLM);
+	} else if (smsStatus == SMS_NETWORK_SEND_FAIL_NO_ROUTING){
+		MSG_ERR("Sending SMS is failed by no routing");
+		sendResult(handle, SMS_SAT_CMD_SEND_SMS, TAPI_SAT_R_NETWORK_UNABLE_TO_PROCESS_COMMAND);
+	} else { /*Default case*/
+		MSG_ERR("Sending SMS by SAT is failed");
+		sendResult(handle, SMS_SAT_CMD_SEND_SMS, TAPI_SAT_R_SMS_RP_ERROR);
 	}
+
+#if 0 //P150109-07114 : no ticker and sound for sending SAT sms failure case.
+	if (smsStatus != SMS_NETWORK_SEND_SUCCESS) {
+		MsgInsertTicker("Sending SMS is failed", SMS_MESSAGE_SENDING_FAIL, true, 0);
+	}
+#endif
 }
 
-
+#if 0
 void SmsPluginSatHandler::finishSimMsgInit(msg_error_t Err)
 {
 	// SAT Handler is initializing SIM now
@@ -354,11 +396,11 @@ void	SmsPluginSatHandler::initSMSCList()
 		MSG_DEBUG("pid[%d]", settingData.option.smscList.smscData[i].pid);
 //		MSG_DEBUG("dcs[%d]", settingData.option.smscList.smscData[i].dcs);
 		MSG_DEBUG("val_period[%d]", settingData.option.smscList.smscData[i].valPeriod);
-		MSG_DEBUG("name[%s]", settingData.option.smscList.smscData[i].name);
+		MSG_SEC_DEBUG("name[%s]", settingData.option.smscList.smscData[i].name);
 
 		MSG_DEBUG("ton[%d]", settingData.option.smscList.smscData[i].smscAddr.ton);
 		MSG_DEBUG("npi[%d]", settingData.option.smscList.smscData[i].smscAddr.npi);
-		MSG_DEBUG("address[%s]", settingData.option.smscList.smscData[i].smscAddr.address);
+		MSG_SEC_DEBUG("address[%s]", settingData.option.smscList.smscData[i].smscAddr.address);
 	}
 
 	if (MsgSettingSetInt(SMSC_SELECTED, settingData.option.smscList.selected) != MSG_SUCCESS)
@@ -373,51 +415,51 @@ void	SmsPluginSatHandler::initSMSCList()
 		return;
 	}
 
-	char keyName[128];
+	char keyName[MAX_VCONFKEY_NAME_LEN];
 	msg_error_t err = MSG_SUCCESS;
 
 	for (int i = 0; i < settingData.option.smscList.totalCnt; i++)
 	{
 		memset(keyName, 0x00, sizeof(keyName));
-		sprintf(keyName, "%s/%d", SMSC_PID, i);
+		snprintf(keyName, sizeof(keyName), "%s/%d", SMSC_PID, i);
 
 		if ((err = MsgSettingSetInt(keyName, (int)settingData.option.smscList.smscData[i].pid)) != MSG_SUCCESS)
 			break;
 
 #if 0
 		memset(keyName, 0x00, sizeof(keyName));
-		sprintf(keyName, "%s/%d", SMSC_DCS, i);
+		snprintf(keyName, sizeof(keyName), "%s/%d", SMSC_DCS, i);
 
 		if ((err = MsgSettingSetInt(keyName, (int)settingData.option.smscList.smscData[i].dcs)) != MSG_SUCCESS)
 			break;
 #endif
 
 		memset(keyName, 0x00, sizeof(keyName));
-		sprintf(keyName, "%s/%d", SMSC_VAL_PERIOD, i);
+		snprintf(keyName, sizeof(keyName), "%s/%d", SMSC_VAL_PERIOD, i);
 
 		if ((err = MsgSettingSetInt(keyName, (int)settingData.option.smscList.smscData[i].valPeriod)) != MSG_SUCCESS)
 			break;
 
 		memset(keyName, 0x00, sizeof(keyName));
-		sprintf(keyName, "%s/%d", SMSC_NAME, i);
+		snprintf(keyName, sizeof(keyName), "%s/%d", SMSC_NAME, i);
 
 		if ((err = MsgSettingSetString(keyName, settingData.option.smscList.smscData[i].name)) != MSG_SUCCESS)
 			break;
 
 		memset(keyName, 0x00, sizeof(keyName));
-		sprintf(keyName, "%s/%d", SMSC_TON, i);
+		snprintf(keyName, sizeof(keyName), "%s/%d", SMSC_TON, i);
 
 		if ((err = MsgSettingSetInt(keyName, (int)settingData.option.smscList.smscData[i].smscAddr.ton)) != MSG_SUCCESS)
 			break;
 
 		memset(keyName, 0x00, sizeof(keyName));
-		sprintf(keyName, "%s/%d", SMSC_NPI, i);
+		snprintf(keyName, sizeof(keyName), "%s/%d", SMSC_NPI, i);
 
 		if ((err = MsgSettingSetInt(keyName, (int)settingData.option.smscList.smscData[i].smscAddr.npi)) != MSG_SUCCESS)
 			break;
 
 		memset(keyName, 0x00, sizeof(keyName));
-		sprintf(keyName, "%s/%d", SMSC_ADDRESS, i);
+		snprintf(keyName, sizeof(keyName), "%s/%d", SMSC_ADDRESS, i);
 
 		if ((err = MsgSettingSetString(keyName, settingData.option.smscList.smscData[i].smscAddr.address)) != MSG_SUCCESS)
 			break;
@@ -433,6 +475,9 @@ void	SmsPluginSatHandler::initSMSCList()
 void	SmsPluginSatHandler::initCBConfig()
 {
 	MSG_SETTING_S settingData;
+
+	msg_error_t err = MSG_SUCCESS;
+	MsgDbHandler *dbHandle = getDbHandle();
 
 	settingData.type = MSG_CBMSG_OPT;
 
@@ -451,48 +496,15 @@ void	SmsPluginSatHandler::initCBConfig()
 		return;
 	}
 
-	if (MsgSettingSetInt(CB_CHANNEL_COUNT, settingData.option.cbMsgOpt.channelData.channelCnt) != MSG_SUCCESS)
-	{
-		THROW(MsgException::SMS_PLG_ERROR, "Error to set config data [%s]", CB_CHANNEL_COUNT);
-		return;
-	}
-
-	char keyName[128];
-	msg_error_t err = MSG_SUCCESS;
-
-	for (int i = 0; i < settingData.option.cbMsgOpt.channelData.channelCnt; i++)
-	{
-		memset(keyName, 0x00, sizeof(keyName));
-		sprintf(keyName, "%s/%d", CB_CHANNEL_ACTIVATE, i);
-
-		if ((err = MsgSettingSetBool(keyName, settingData.option.cbMsgOpt.channelData.channelInfo[i].bActivate)) != MSG_SUCCESS)
-			break;
-
-		memset(keyName, 0x00, sizeof(keyName));
-		sprintf(keyName, "%s/%d", CB_CHANNEL_ID_FROM, i);
-
-		if ((err = MsgSettingSetInt(keyName, settingData.option.cbMsgOpt.channelData.channelInfo[i].from)) != MSG_SUCCESS)
-			break;
-
-		memset(keyName, 0x00, sizeof(keyName));
-		sprintf(keyName, "%s/%d", CB_CHANNEL_ID_TO, i);
-
-		if ((err = MsgSettingSetInt(keyName, settingData.option.cbMsgOpt.channelData.channelInfo[i].to)) != MSG_SUCCESS)
-			break;
-
-		memset(keyName, 0x00, sizeof(keyName));
-		sprintf(keyName, "%s/%d", CB_CHANNEL_NAME, i);
-
-		if ((err = MsgSettingSetString(keyName, settingData.option.cbMsgOpt.channelData.channelInfo[i].name)) != MSG_SUCCESS)
-			break;
-	}
+	err = MsgStoAddCBChannelInfo(dbHandle, &(settingData.option.cbMsgOpt.channelData), settingData.option.cbMsgOpt.simIndex);
+	MSG_DEBUG("MsgStoAddCBChannelInfo : err=[%d]", err);
 
 	if (err != MSG_SUCCESS)
 	{
-		THROW(MsgException::SMS_PLG_ERROR, "Error to set config data [%s]", keyName);
+		THROW(MsgException::SMS_PLG_ERROR, "Error to set config data");
 	}
 }
-
+#endif
 
 int SmsPluginSatHandler::handleSatTpdu(unsigned char *pTpdu, unsigned char TpduLen, int bIsPackingRequired)
 {
@@ -585,9 +597,10 @@ MSG_DEBUG("user data : [%s]", userData.data);
 }
 
 
-void SmsPluginSatHandler::sendResult(SMS_SAT_CMD_TYPE_T CmdType, int ResultType)
+void SmsPluginSatHandler::sendResult(struct tapi_handle *handle, SMS_SAT_CMD_TYPE_T CmdType, int ResultType)
 {
 	TelSatAppsRetInfo_t satRetInfo;
+	memset(&satRetInfo, 0, sizeof(TelSatAppsRetInfo_t));
 
 	satRetInfo.commandId = commandId;
 
@@ -609,7 +622,7 @@ void SmsPluginSatHandler::sendResult(SMS_SAT_CMD_TYPE_T CmdType, int ResultType)
 
 	int tapiRet = TAPI_API_SUCCESS;
 
-	tapiRet = tel_send_sat_app_exec_result(pTapiHandle, &satRetInfo);
+	tapiRet = tel_send_sat_app_exec_result(handle, &satRetInfo);
 
 	if (tapiRet == TAPI_API_SUCCESS)
 	{
@@ -620,9 +633,7 @@ void SmsPluginSatHandler::sendResult(SMS_SAT_CMD_TYPE_T CmdType, int ResultType)
 		MSG_DEBUG("TelTapiSatSendAppExecutionResult() FAIL [%d]", tapiRet);
 	}
 
-	bSendSms = false;
 	bInitSim = false;
 	bSMSPChanged = false;
 	bCBMIChanged = false;
 }
-

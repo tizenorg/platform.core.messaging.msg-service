@@ -1,31 +1,32 @@
 /*
- * msg-service
- *
- * Copyright (c) 2000 - 2014 Samsung Electronics Co., Ltd. All rights reserved
+ * Copyright (c) 2014 Samsung Electronics Co., Ltd. All rights reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
 */
 
 #include "MsgDebug.h"
 #include "MsgException.h"
 #include "MsgCppTypes.h"
 #include "MsgUtilFile.h"
+#include "MsgGconfWrapper.h"
+#include "MsgNotificationWrapper.h"
 #include "SmsPluginStorage.h"
 #include "SmsPluginTransport.h"
 #include "SmsPluginEventHandler.h"
 #include "SmsPluginWapPushHandler.h"
 #include "SmsPluginConcatHandler.h"
+#include "SmsPluginSimMsg.h"
+#include "SmsPluginDSHandler.h"
 
 /*==================================================================================================
                                      IMPLEMENTATION OF SmsPluginConcatHandler - Member Functions
@@ -75,7 +76,7 @@ bool SmsPluginConcatHandler::IsConcatMsg(SMS_USERDATA_S *pUserData)
 }
 
 
-void SmsPluginConcatHandler::handleConcatMsg(SMS_TPDU_S *pTpdu)
+void SmsPluginConcatHandler::handleConcatMsg(struct tapi_handle *handle, SMS_TPDU_S *pTpdu)
 {
 	MSG_BEGIN();
 
@@ -88,6 +89,8 @@ void SmsPluginConcatHandler::handleConcatMsg(SMS_TPDU_S *pTpdu)
 	}
 
 	SMS_CONCAT_MSG_S msg = {0};
+
+	msg.simIndex = SmsPluginDSHandler::instance()->getSimIndex(handle);
 
 	for (int i = 0; i < pTpdu->data.deliver.userData.headerCnt; i++) {
 		if (pTpdu->data.deliver.userData.header[i].udhType == SMS_UDH_CONCAT_8BIT) {
@@ -141,30 +144,80 @@ void SmsPluginConcatHandler::handleConcatMsg(SMS_TPDU_S *pTpdu)
 
 		int dataSize = 0;
 		char* pUserData = NULL;
+		bool simSlotSizeOver = false;
 		AutoPtr<char> dataBuf(&pUserData);
 
 		MSG_MESSAGE_INFO_S msgInfo = {0};
 
-		dataSize = makeConcatUserData(msg.msgRef, &pUserData);
+		msgInfo.addressList = NULL;
+		AutoPtr<MSG_ADDRESS_INFO_S> addressListBuf(&msgInfo.addressList);
+		msgInfo.sim_idx = msg.simIndex;
+
+		dataSize = makeConcatUserData(msg.msgRef, msg.simIndex, &pUserData);
 
 		if (dataSize > 0) {
 			if (SmsPluginWapPushHandler::instance()->IsWapPushMsg(&(pTpdu->data.deliver.userData)) == true) {
 				SmsPluginWapPushHandler::instance()->copyDeliverData(&(pTpdu->data.deliver));
-				SmsPluginWapPushHandler::instance()->handleWapPushMsg(pUserData, dataSize);
+				msgInfo.msgType.mainType = MSG_SMS_TYPE;
+				if (err == MSG_SUCCESS) {
+					SmsPluginWapPushHandler::instance()->handleWapPushMsg(pUserData, dataSize, msg.simIndex);
+				}
 			} else {
 				convertConcatToMsginfo(&(pTpdu->data.deliver), pUserData, dataSize, &msgInfo);
 
+				if (msgInfo.msgType.classType == MSG_CLASS_2) {
+					msgInfo.storageId = MSG_STORAGE_SIM;
+					SmsPluginSimMsg::instance()->setSmsTpduTotalSegCount(msg.totalSeg);
+				}
+
+				if (msgInfo.msgPort.valid == true) {
+					if ((msgInfo.msgPort.dstPort >= 0x23F4 && msgInfo.msgPort.dstPort <= 0x23F7) || /** Check unsupported message (Vcalendar WAP push) **/
+						(msgInfo.msgPort.dstPort == 0x1581)) { /** Check unsupported message (ringtone smart message) **/
+						memset(msgInfo.msgText, 0x00, sizeof(msgInfo.msgText));
+						snprintf(msgInfo.msgText, sizeof(msgInfo.msgText), "<<Content not supported>>");
+						msgInfo.dataSize = strlen(msgInfo.msgText);
+						msgInfo.msgPort.valid = false;
+					}
+				}
+
 				if (msgInfo.msgPort.valid == false) {
 					/** Add Concat Msg into DB */
-					err = SmsPluginStorage::instance()->addMessage(&msgInfo);
+
+					/* check Class2 Normal SMS is longer than SIM slot full size and send DeliveryReport SUCCESS because that Class2 msg cannot be saved on SIM
+					 * It MUST be done before calling addClass2Message(thread) beause 10+ page message body ipc file is deleted after SmsPluginTransport::instance()->msgInfoToSubmitData() */
+					if (msgInfo.msgType.subType == MSG_NORMAL_SMS && msgInfo.msgType.classType == MSG_CLASS_2 &&
+						(SmsPluginSimMsg::instance()->checkSimMsgFull(msg.simIndex, segCnt) == true)) {
+						char keyName[MAX_VCONFKEY_NAME_LEN];
+						memset(keyName, 0x00, sizeof(keyName));
+						sprintf(keyName, "%s/%d", SIM_TOTAL_COUNT, msg.simIndex);
+						int totalCnt = MsgSettingGetInt(keyName);
+
+						if (segCnt > totalCnt) {
+							//send DeliveryResport as MSG_SUCCESS and return when total sim storage cnt is less than segment cnt.
+							MSG_INFO("SIM slot total count [%d] is less than total sement count of Class2 message [%d], send delivery report as SUCCESS and save it only PHONE", totalCnt, segCnt);
+
+							SmsPluginTransport::instance()->sendDeliverReport(handle, MSG_SUCCESS);
+
+							MsgInsertTicker("Message is too large to store as a single message to SIM card.", SMS_MESSAGE_SIZE_OVER_SIM_SLOT_SIZE, false, 0);
+
+							simSlotSizeOver = true;
+						}
+					} else {
+						err = SmsPluginStorage::instance()->checkMessage(&msgInfo);
+					}
 				}
 
 				if (err == MSG_SUCCESS) {
-					/** Callback */
-					err = SmsPluginEventHandler::instance()->callbackMsgIncoming(&msgInfo);
+					if (simSlotSizeOver || (msgInfo.msgType.classType != MSG_CLASS_2)) {
+						if (simSlotSizeOver)
+							msgInfo.storageId = MSG_STORAGE_PHONE;
 
-					if (err != MSG_SUCCESS) {
-						MSG_DEBUG("callbackMsgIncoming() Error !! [%d]", err);
+						/** Callback */
+						err = SmsPluginEventHandler::instance()->callbackMsgIncoming(&msgInfo);
+
+						if (err != MSG_SUCCESS) {
+							MSG_DEBUG("callbackMsgIncoming() Error !! [%d]", err);
+						}
 					}
 				} else {
 					MSG_DEBUG("addMessage() Error !! [%d]", err);
@@ -172,11 +225,181 @@ void SmsPluginConcatHandler::handleConcatMsg(SMS_TPDU_S *pTpdu)
 			}
 		}
 
-		removeFromConcatList(msg.msgRef);
+		removeFromConcatList(msg.msgRef, msg.simIndex);
 	}
 
 	/** Send Deliver Report */
-	SmsPluginTransport::instance()->sendDeliverReport(err);
+	SmsPluginTransport::instance()->sendDeliverReport(handle, err);
+
+	MSG_END();
+}
+
+void SmsPluginConcatHandler::handleSimConcatMsg(struct tapi_handle *handle, SMS_TPDU_S *pTpdu, int msgId, int bRead, int *simIdList)
+{
+	MSG_BEGIN();
+
+	bool noneConcatTypeHeader = true;
+
+	if (pTpdu->tpduType == SMS_TPDU_DELIVER) {
+		SMS_CONCAT_MSG_S msg = {0};
+
+		msg.simIndex = SmsPluginDSHandler::instance()->getSimIndex(handle);
+
+		for (int i = 0; i < pTpdu->data.deliver.userData.headerCnt; i++) {
+			if (pTpdu->data.deliver.userData.header[i].udhType == SMS_UDH_CONCAT_8BIT) {
+				msg.msgRef = (unsigned short)pTpdu->data.deliver.userData.header[i].udh.concat8bit.msgRef;
+				msg.totalSeg = pTpdu->data.deliver.userData.header[i].udh.concat8bit.totalSeg;
+				msg.seqNum = pTpdu->data.deliver.userData.header[i].udh.concat8bit.seqNum;
+				msg.simId = msgId;
+				memcpy(&(msg.timeStamp.time.absolute), &(pTpdu->data.deliver.timeStamp.time.absolute), sizeof(SMS_TIME_ABS_S));
+				memcpy(&(msg.originAddress), &(pTpdu->data.deliver.originAddress), sizeof(SMS_ADDRESS_S));
+				memcpy(&(msg.dcs), &(pTpdu->data.deliver.dcs), sizeof(SMS_DCS_S));
+
+
+				/**  check noneConcatTypeHeader */
+				noneConcatTypeHeader = false;
+
+				break;
+			} else if (pTpdu->data.deliver.userData.header[i].udhType == SMS_UDH_CONCAT_16BIT) {
+				msg.msgRef = (unsigned short)pTpdu->data.deliver.userData.header[i].udh.concat16bit.msgRef;
+				msg.totalSeg = pTpdu->data.deliver.userData.header[i].udh.concat16bit.totalSeg;
+				msg.seqNum = pTpdu->data.deliver.userData.header[i].udh.concat16bit.seqNum;
+				msg.simId = msgId;
+				memcpy(&(msg.timeStamp.time.absolute), &(pTpdu->data.deliver.timeStamp.time.absolute), sizeof(SMS_TIME_ABS_S));
+				memcpy(&(msg.originAddress), &(pTpdu->data.deliver.originAddress), sizeof(SMS_ADDRESS_S));
+				memcpy(&(msg.dcs), &(pTpdu->data.deliver.dcs), sizeof(SMS_DCS_S));
+
+				/**  check noneConcatTypeHeader */
+				noneConcatTypeHeader = false;
+
+				break;
+			}
+		}
+
+		unsigned char segCnt = checkConcatMsg(&msg, &(pTpdu->data.deliver.userData));
+		MSG_DEBUG("segCnt [%d]", segCnt);
+		MSG_DEBUG("msg.totalSeg [%d]", msg.totalSeg);
+
+		if ((segCnt == msg.totalSeg) || noneConcatTypeHeader) {
+			MSG_DEBUG("RECEIVED LAST CONCAT : %d", segCnt);
+
+			int dataSize = 0;
+			char* pUserData = NULL;
+			AutoPtr<char> dataBuf(&pUserData);
+
+			MSG_MESSAGE_INFO_S msgInfo = {0};
+
+			msgInfo.addressList = NULL;
+			AutoPtr<MSG_ADDRESS_INFO_S> addressListBuf(&msgInfo.addressList);
+			msgInfo.sim_idx = msg.simIndex;
+
+			dataSize = makeConcatUserData(msg.msgRef, msg.simIndex, &pUserData);
+
+			if (dataSize > 0) {
+
+				convertConcatToMsginfo(&(pTpdu->data.deliver), pUserData, dataSize, &msgInfo);
+				// set Sim Message ID
+				msgInfo.msgId = msgId;
+
+				// set read status
+				msgInfo.bRead = bRead;
+				// set storage id
+				msgInfo.storageId = MSG_STORAGE_SIM;
+			}
+			for (int index = concatList.size(); index >= 0 ; index--) {
+				if (concatList[index].msgRef == msg.msgRef && concatList[index].simIndex == msg.simIndex) {
+					memcpy(simIdList, concatList[index].simIdList, sizeof(int) * MAX_SIM_SMS_NUM);
+					for (int i = 0; i < 255; ++i)
+					{
+						MSG_DEBUG("sim id [%d]", simIdList[i]);
+					}
+					break;
+				}
+			}
+			removeFromConcatList(msg.msgRef, msg.simIndex);
+			SmsPluginSimMsg::instance()->setSimMsgEvent(handle, &msgInfo, true); // Call Event Handler
+			return;
+		}
+		SmsPluginSimMsg::instance()->setSimMsgEvent(handle, NULL, false); // Call Event Handler
+	} else {
+		SMS_CONCAT_MSG_S msg = {0};
+
+		msg.simIndex = SmsPluginDSHandler::instance()->getSimIndex(handle);
+
+		for (int i = 0; i < pTpdu->data.submit.userData.headerCnt; i++) {
+			if (pTpdu->data.submit.userData.header[i].udhType == SMS_UDH_CONCAT_8BIT) {
+				msg.msgRef = (unsigned short)pTpdu->data.submit.userData.header[i].udh.concat8bit.msgRef;
+				msg.totalSeg = pTpdu->data.submit.userData.header[i].udh.concat8bit.totalSeg;
+				msg.seqNum = pTpdu->data.submit.userData.header[i].udh.concat8bit.seqNum;
+				msg.simId = msgId;
+				memcpy(&(msg.originAddress), &(pTpdu->data.submit.destAddress), sizeof(SMS_ADDRESS_S));
+				memcpy(&(msg.dcs), &(pTpdu->data.submit.dcs), sizeof(SMS_DCS_S));
+
+
+				/**  check noneConcatTypeHeader */
+				noneConcatTypeHeader = false;
+
+				break;
+			} else if (pTpdu->data.submit.userData.header[i].udhType == SMS_UDH_CONCAT_16BIT) {
+				msg.msgRef = (unsigned short)pTpdu->data.submit.userData.header[i].udh.concat16bit.msgRef;
+				msg.totalSeg = pTpdu->data.submit.userData.header[i].udh.concat16bit.totalSeg;
+				msg.seqNum = pTpdu->data.submit.userData.header[i].udh.concat16bit.seqNum;
+				msg.simId = msgId;
+				memcpy(&(msg.originAddress), &(pTpdu->data.submit.destAddress), sizeof(SMS_ADDRESS_S));
+				memcpy(&(msg.dcs), &(pTpdu->data.submit.dcs), sizeof(SMS_DCS_S));
+
+				/**  check noneConcatTypeHeader */
+				noneConcatTypeHeader = false;
+
+				break;
+			}
+		}
+
+		unsigned char segCnt = checkConcatMsg(&msg, &(pTpdu->data.submit.userData));
+
+		MSG_DEBUG("segCnt [%d]", segCnt);
+		MSG_DEBUG("msg.totalSeg [%d]", msg.totalSeg);
+
+		if ((segCnt == msg.totalSeg) || noneConcatTypeHeader) {
+			MSG_DEBUG("RECEIVED LAST CONCAT : %d", segCnt);
+
+			int dataSize = 0;
+			char* pUserData = NULL;
+			AutoPtr<char> dataBuf(&pUserData);
+
+			MSG_MESSAGE_INFO_S msgInfo = {0};
+
+			msgInfo.addressList = NULL;
+			AutoPtr<MSG_ADDRESS_INFO_S> addressListBuf(&msgInfo.addressList);
+			msgInfo.sim_idx = msg.simIndex;
+
+			dataSize = makeConcatUserData(msg.msgRef, msg.simIndex, &pUserData);
+
+			if (dataSize > 0) {
+				convertConcatToMsginfo(&(pTpdu->data.submit), pUserData, dataSize, &msgInfo);
+
+				// set Sim Message ID
+				msgInfo.msgId = msgId;
+				// set read status
+				msgInfo.bRead = bRead;
+
+				msgInfo.msgType.subType = MSG_CONCAT_SIM_SMS;
+
+				// set storage id
+				msgInfo.storageId = MSG_STORAGE_SIM;
+			}
+			for (int index = concatList.size(); index >= 0 ; index--) {
+				if (concatList[index].msgRef == msg.msgRef && concatList[index].simIndex == msg.simIndex) {
+					memcpy(simIdList, concatList[index].simIdList, sizeof(int) * MAX_SIM_SMS_NUM);
+					break;
+				}
+			}
+			SmsPluginSimMsg::instance()->setSimMsgEvent(handle, &msgInfo, true); // Call Event Handler
+			removeFromConcatList(msg.msgRef, msg.simIndex);
+			return;
+		}
+		SmsPluginSimMsg::instance()->setSimMsgEvent(handle, NULL, false); // Call Event Handler
+	}
 
 	MSG_END();
 }
@@ -273,7 +496,7 @@ void SmsPluginConcatHandler::handleConcatMsg(SMS_TPDU_S *pTpdu, msg_sim_id_t Sim
 			MSG_DEBUG("msgInfo.msgId : %d", msgInfo.msgId);
 			MSG_DEBUG("msgInfo.nAddressCnt : %d", msgInfo.nAddressCnt);
 			MSG_DEBUG("msgInfo.addressList[0].addressType : %d", msgInfo.addressList[0].addressType);
-			MSG_DEBUG("msgInfo.addressList[0].addressVal : %s", msgInfo.addressList[0].addressVal);
+			MSG_SEC_DEBUG("msgInfo.addressList[0].addressVal : %s", msgInfo.addressList[0].addressVal);
 			MSG_DEBUG("msgInfo.priority : %d", msgInfo.priority);
 			MSG_DEBUG("msgInfo.bProtected : %d", msgInfo.bProtected);
 			MSG_DEBUG("msgInfo.bRead : %d", msgInfo.bRead);
@@ -286,9 +509,9 @@ void SmsPluginConcatHandler::handleConcatMsg(SMS_TPDU_S *pTpdu, msg_sim_id_t Sim
 			MSG_DEBUG("msgInfo.dataSize : %d", msgInfo.dataSize);
 
 			if (msgInfo.bTextSms == true)
-				MSG_DEBUG("msgInfo.msgText : %s", msgInfo.msgText);
+				MSG_SEC_DEBUG("msgInfo.msgText : %s", msgInfo.msgText);
 			else
-				MSG_DEBUG("msgInfo.msgData : %s", msgInfo.msgData);
+				MSG_SEC_DEBUG("msgInfo.msgData : %s", msgInfo.msgData);
 
 			MSG_DEBUG("###############################################################");
 
@@ -361,7 +584,7 @@ void SmsPluginConcatHandler::handleBrokenMsg()
 			MSG_DEBUG("msgInfo.msgId : %d", msgInfo.msgId);
 			MSG_DEBUG("msgInfo.nAddressCnt : %d", msgInfo.nAddressCnt);
 			MSG_DEBUG("msgInfo.addressList[0].addressType : %d", msgInfo.addressList[0].addressType);
-			MSG_DEBUG("msgInfo.addressList[0].addressVal : %s", msgInfo.addressList[0].addressVal);
+			MSG_SEC_DEBUG("msgInfo.addressList[0].addressVal : %s", msgInfo.addressList[0].addressVal);
 			MSG_DEBUG("msgInfo.priority : %d", msgInfo.priority);
 			MSG_DEBUG("msgInfo.bProtected : %d", msgInfo.bProtected);
 			MSG_DEBUG("msgInfo.bRead : %d", msgInfo.bRead);
@@ -373,9 +596,9 @@ void SmsPluginConcatHandler::handleBrokenMsg()
 			MSG_DEBUG("msgInfo.displayTime : %s", ctime(&msgInfo.displayTime));
 			MSG_DEBUG("msgInfo.dataSize : %d", msgInfo.dataSize);
 			if (msgInfo.bTextSms == true)
-				MSG_DEBUG("msgInfo.msgText : %s", msgInfo.msgText);
+				MSG_SEC_DEBUG("msgInfo.msgText : %s", msgInfo.msgText);
 			else
-			MSG_DEBUG("msgInfo.msgData : %s", msgInfo.msgData);
+				MSG_SEC_DEBUG("msgInfo.msgData : %s", msgInfo.msgData);
 			MSG_DEBUG("###############################################################");
 
 			//add msgInfo to msg list
@@ -401,12 +624,11 @@ unsigned char SmsPluginConcatHandler::checkConcatMsg(SMS_CONCAT_MSG_S *pConcatMs
 	bool bFind = false;
 
 	for (unsigned int i = 0; i < concatList.size(); i++) {
-		if (concatList[i].msgRef == pConcatMsg->msgRef) {
+		if (concatList[i].msgRef == pConcatMsg->msgRef && concatList[i].simIndex == pConcatMsg->simIndex) {
 			if (concatList[i].data.count(pConcatMsg->seqNum) != 0) {
 				MSG_DEBUG("The Sequence Number already exists [%d]", pConcatMsg->seqNum);
 				return 0;
 			}
-
 			CONCAT_DATA_S concatData = {0};
 
 			memcpy(concatData.data, pUserData->data, pUserData->length);
@@ -414,13 +636,13 @@ unsigned char SmsPluginConcatHandler::checkConcatMsg(SMS_CONCAT_MSG_S *pConcatMs
 
 			pair<unsigned char, CONCAT_DATA_S> newData(pConcatMsg->seqNum, concatData);
 			concatList[i].data.insert(newData);
+			concatList[i].simIdList[concatList[i].segCnt] = pConcatMsg->simId + 1;
 
 			MSG_DEBUG("MSG DATA : %s", pUserData->data);
 			MSG_DEBUG("PAIR DATA [%d] : %s", newData.first, newData.second.data);
 
 			concatList[i].segCnt++;
 			concatList[i].totalSize += pUserData->length;
-
 			currSegCnt = concatList[i].segCnt;
 
 			bFind = true;
@@ -432,16 +654,20 @@ unsigned char SmsPluginConcatHandler::checkConcatMsg(SMS_CONCAT_MSG_S *pConcatMs
 	/** New Concat Msg */
 	if (bFind == false) {
 		SMS_CONCAT_INFO_S tmpInfo;
-
+		memset(tmpInfo.simIdList, 0x00, sizeof(int) * MAX_SIM_SMS_NUM);
 		tmpInfo.msgRef = pConcatMsg->msgRef;
 		tmpInfo.totalSeg = pConcatMsg->totalSeg;
 		tmpInfo.segCnt = 1;
+		tmpInfo.simIdList[0] = pConcatMsg->simId + 1;
+		tmpInfo.simIndex = pConcatMsg->simIndex;
+		tmpInfo.bRead = false;
 
 		memcpy(&(tmpInfo.timeStamp.time.absolute), &(pConcatMsg->timeStamp.time.absolute), sizeof(SMS_TIME_ABS_S));
 		memcpy(&(tmpInfo.originAddress), &(pConcatMsg->originAddress), sizeof(SMS_ADDRESS_S));
 		memcpy(&(tmpInfo.dcs), &(pConcatMsg->dcs), sizeof(SMS_DCS_S));
 
 		tmpInfo.totalSize = pUserData->length;
+		tmpInfo.display_time = time(NULL);
 
 		CONCAT_DATA_S concatData = {0};
 
@@ -463,14 +689,14 @@ unsigned char SmsPluginConcatHandler::checkConcatMsg(SMS_CONCAT_MSG_S *pConcatMs
 }
 
 
-int SmsPluginConcatHandler::makeConcatUserData(unsigned short MsgRef, char **ppTotalData)
+int SmsPluginConcatHandler::makeConcatUserData(unsigned short MsgRef, int simIndex, char **ppTotalData)
 {
 	concatDataMap::iterator it;
 
 	int totalSize = 0, offset = 0;
 
 	for (unsigned int i = 0; i < concatList.size(); i++) {
-		if (concatList[i].msgRef == MsgRef) {
+		if (concatList[i].msgRef == MsgRef && concatList[i].simIndex == simIndex) {
 			totalSize = concatList[i].totalSize;
 
 			if (totalSize <= 0) {
@@ -497,7 +723,7 @@ void SmsPluginConcatHandler::convertConcatToMsginfo(const SMS_DELIVER_S *pTpdu, 
 {
 	/** Convert Type  values */
 	pMsgInfo->msgType.mainType = MSG_SMS_TYPE;
-	pMsgInfo->msgType.subType = MSG_NORMAL_SMS;
+	pMsgInfo->msgType.subType = SmsPluginEventHandler::instance()->convertMsgSubType(pTpdu->pid);
 
 	/** set folder id */
 	pMsgInfo->folderId = MSG_INBOX_ID;
@@ -590,6 +816,9 @@ void SmsPluginConcatHandler::convertConcatToMsginfo(const SMS_DELIVER_S *pTpdu, 
 	pMsgInfo->displayTime = rawtime;
 
 	/** Convert Address values */
+	pMsgInfo->addressList = (MSG_ADDRESS_INFO_S *)new char[sizeof(MSG_ADDRESS_INFO_S)];
+	memset(pMsgInfo->addressList, 0x00, sizeof(MSG_ADDRESS_INFO_S));
+
 	pMsgInfo->nAddressCnt = 1;
 	pMsgInfo->addressList[0].addressType = MSG_ADDRESS_TYPE_PLMN;
 	strncpy(pMsgInfo->addressList[0].addressVal, pTpdu->originAddress.address, MAX_ADDRESS_VAL_LEN);
@@ -618,6 +847,7 @@ void SmsPluginConcatHandler::convertConcatToMsginfo(const SMS_DELIVER_S *pTpdu, 
 	memset(tmpBuf, 0x00, sizeof(tmpBuf));
 
 	/** Convert Data values */
+	MsgTextConvert *textCvt = MsgTextConvert::instance();
 	if (pTpdu->dcs.codingScheme == SMS_CHARSET_7BIT) {
 		MSG_LANG_INFO_S langInfo = {0,};
 
@@ -625,14 +855,14 @@ void SmsPluginConcatHandler::convertConcatToMsginfo(const SMS_DELIVER_S *pTpdu, 
 		langInfo.bLockingShift = false;
 
 		pMsgInfo->encodeType = MSG_ENCODE_GSM7BIT;
-		pMsgInfo->dataSize = textCvt.convertGSM7bitToUTF8((unsigned char*)tmpBuf, bufSize, (unsigned char*)pUserData, DataSize, &langInfo);
+		pMsgInfo->dataSize = textCvt->convertGSM7bitToUTF8((unsigned char*)tmpBuf, bufSize, (unsigned char*)pUserData, DataSize, &langInfo);
 	} else if (pTpdu->dcs.codingScheme == SMS_CHARSET_8BIT) {
 		pMsgInfo->encodeType = MSG_ENCODE_8BIT;
 		memcpy(tmpBuf, pUserData, DataSize);
 		pMsgInfo->dataSize = DataSize;
 	} else if (pTpdu->dcs.codingScheme == SMS_CHARSET_UCS2) {
 		pMsgInfo->encodeType = MSG_ENCODE_UCS2;
-		pMsgInfo->dataSize = textCvt.convertUCS2ToUTF8((unsigned char*)tmpBuf, bufSize, (unsigned char*)pUserData, DataSize);
+		pMsgInfo->dataSize = textCvt->convertUCS2ToUTF8((unsigned char*)tmpBuf, bufSize, (unsigned char*)pUserData, DataSize);
 	}
 
 	MSG_DEBUG("Data Size [%d]", pMsgInfo->dataSize);
@@ -659,7 +889,7 @@ printf("\n");
 		if (MsgCreateFileName(fileName) == false)
 			THROW(MsgException::FILE_ERROR, "########  MsgCreateFileName Fail !!! #######");
 
-		MSG_DEBUG("Save Message Data into file : size[%d] name[%s]\n", pMsgInfo->dataSize, fileName);
+		MSG_SEC_DEBUG("Save Message Data into file : size[%d] name[%s]\n", pMsgInfo->dataSize, fileName);
 		if (MsgWriteIpcFile(fileName, tmpBuf, pMsgInfo->dataSize) == false)
 			THROW(MsgException::FILE_ERROR, "########  MsgWriteIpcFile Fail !!! #######");
 
@@ -672,6 +902,123 @@ printf("\n");
 	}
 }
 
+
+void SmsPluginConcatHandler::convertConcatToMsginfo(const SMS_SUBMIT_S *pTpdu, const char *pUserData, int DataSize, MSG_MESSAGE_INFO_S *pMsgInfo)
+{
+	/** Convert Type  values */
+	pMsgInfo->msgType.mainType = MSG_SMS_TYPE;
+	pMsgInfo->msgType.subType = SmsPluginEventHandler::instance()->convertMsgSubType(pTpdu->pid);
+
+	/** set folder id */
+	pMsgInfo->folderId = MSG_INBOX_ID;
+
+	/** set storage id */
+	pMsgInfo->storageId = MSG_STORAGE_PHONE;
+
+	switch(pTpdu->dcs.msgClass)
+	{
+		case SMS_MSG_CLASS_0:
+			pMsgInfo->msgType.classType = MSG_CLASS_0;
+			break;
+		case SMS_MSG_CLASS_1:
+			pMsgInfo->msgType.classType = MSG_CLASS_1;
+			break;
+		case SMS_MSG_CLASS_2:
+			pMsgInfo->msgType.classType = MSG_CLASS_2;
+			break;
+		case SMS_MSG_CLASS_3:
+			pMsgInfo->msgType.classType = MSG_CLASS_3;
+			break;
+		default:
+			pMsgInfo->msgType.classType = MSG_CLASS_NONE;
+			break;
+	}
+
+	pMsgInfo->networkStatus = MSG_NETWORK_RECEIVED;
+	pMsgInfo->bRead = false;
+	pMsgInfo->bProtected = false;
+	pMsgInfo->priority = MSG_MESSAGE_PRIORITY_NORMAL;
+	pMsgInfo->direction = MSG_DIRECTION_TYPE_MT;
+
+
+	time_t rawtime = time(NULL);
+	pMsgInfo->displayTime = rawtime;
+
+	/** Convert Address values */
+	pMsgInfo->addressList = (MSG_ADDRESS_INFO_S *)new char[sizeof(MSG_ADDRESS_INFO_S)];
+	memset(pMsgInfo->addressList, 0x00, sizeof(MSG_ADDRESS_INFO_S));
+
+	pMsgInfo->nAddressCnt = 1;
+	pMsgInfo->addressList[0].addressType = MSG_ADDRESS_TYPE_PLMN;
+	strncpy(pMsgInfo->addressList[0].addressVal, pTpdu->destAddress.address, MAX_ADDRESS_VAL_LEN);
+
+	pMsgInfo->msgPort.valid = false;
+	pMsgInfo->msgPort.dstPort = 0;
+	pMsgInfo->msgPort.srcPort = 0;
+
+	for (int i = 0; i < pTpdu->userData.headerCnt; i++) {
+		/** Convert UDH values - Port Number */
+		if (pTpdu->userData.header[i].udhType == SMS_UDH_APP_PORT_8BIT) {
+			pMsgInfo->msgPort.valid = true;
+			pMsgInfo->msgPort.dstPort = pTpdu->userData.header[i].udh.appPort8bit.destPort;
+			pMsgInfo->msgPort.srcPort = pTpdu->userData.header[i].udh.appPort8bit.originPort;
+		} else if (pTpdu->userData.header[i].udhType == SMS_UDH_APP_PORT_16BIT) {
+			pMsgInfo->msgPort.valid = true;
+			pMsgInfo->msgPort.dstPort = pTpdu->userData.header[i].udh.appPort16bit.destPort;
+			pMsgInfo->msgPort.srcPort = pTpdu->userData.header[i].udh.appPort16bit.originPort;
+		}
+	}
+
+	//int bufSize = (MAX_MSG_DATA_LEN*MAX_SEGMENT_NUM) + 1;
+	int bufSize = (DataSize*4) + 1; // For UTF8
+
+	char tmpBuf[bufSize];
+	memset(tmpBuf, 0x00, sizeof(tmpBuf));
+
+	/** Convert Data values */
+	MsgTextConvert *textCvt = MsgTextConvert::instance();
+	if (pTpdu->dcs.codingScheme == SMS_CHARSET_7BIT) {
+		MSG_LANG_INFO_S langInfo = {0,};
+
+		langInfo.bSingleShift = false;
+		langInfo.bLockingShift = false;
+
+		pMsgInfo->encodeType = MSG_ENCODE_GSM7BIT;
+		pMsgInfo->dataSize = textCvt->convertGSM7bitToUTF8((unsigned char*)tmpBuf, bufSize, (unsigned char*)pUserData, DataSize, &langInfo);
+	} else if (pTpdu->dcs.codingScheme == SMS_CHARSET_8BIT) {
+		pMsgInfo->encodeType = MSG_ENCODE_8BIT;
+		memcpy(tmpBuf, pUserData, DataSize);
+		pMsgInfo->dataSize = DataSize;
+	} else if (pTpdu->dcs.codingScheme == SMS_CHARSET_UCS2) {
+		pMsgInfo->encodeType = MSG_ENCODE_UCS2;
+		pMsgInfo->dataSize = textCvt->convertUCS2ToUTF8((unsigned char*)tmpBuf, bufSize, (unsigned char*)pUserData, DataSize);
+	}
+
+	MSG_DEBUG("Data Size [%d]", pMsgInfo->dataSize);
+	MSG_DEBUG("Data [%s]", tmpBuf);
+
+	if (pMsgInfo->dataSize > MAX_MSG_TEXT_LEN) {
+		pMsgInfo->bTextSms = false;
+
+		/** Save Message Data into File */
+		char fileName[MSG_FILENAME_LEN_MAX+1];
+		memset(fileName, 0x00, sizeof(fileName));
+
+		if (MsgCreateFileName(fileName) == false)
+			THROW(MsgException::FILE_ERROR, "########  MsgCreateFileName Fail !!! #######");
+
+		MSG_SEC_DEBUG("Save Message Data into file : size[%d] name[%s]\n", pMsgInfo->dataSize, fileName);
+		if (MsgWriteIpcFile(fileName, tmpBuf, pMsgInfo->dataSize) == false)
+			THROW(MsgException::FILE_ERROR, "########  MsgWriteIpcFile Fail !!! #######");
+
+		strncpy(pMsgInfo->msgData, fileName, MAX_MSG_DATA_LEN);
+	} else {
+		pMsgInfo->bTextSms = true;
+
+		memset(pMsgInfo->msgText, 0x00, sizeof(pMsgInfo->msgText));
+		memcpy(pMsgInfo->msgText, tmpBuf, pMsgInfo->dataSize);
+	}
+}
 
 #ifdef CONCAT_SIM_MSG_OPERATION
 void SmsPluginConcatHandler::convertSimMsgToMsginfo(const SMS_CONCAT_MSG_S *pConcatMsg, const char *pUserData, int DataSize, MSG_MESSAGE_INFO_S *pMsgInfo)
@@ -837,15 +1184,15 @@ void SmsPluginConcatHandler::convertSimMsgToMsginfo(const SMS_CONCAT_MSG_S *pCon
 	memset(pMsgInfo->msgData, 0x00, sizeof(pMsgInfo->msgData));
 	strncpy(pMsgInfo->msgData, fileName, MAX_MSG_DATA_LEN);
 
-	MSG_DEBUG("Save Message Data into file : size[%d] name[%s]", pMsgInfo->dataSize, fileName);
+	MSG_SEC_DEBUG("Save Message Data into file : size[%d] name[%s]", pMsgInfo->dataSize, fileName);
 }
 #endif
 
 
-void SmsPluginConcatHandler::removeFromConcatList(unsigned short MsgRef)
+void SmsPluginConcatHandler::removeFromConcatList(unsigned short MsgRef, int simIndex)
 {
-	for (int index = concatList.size(); index >= 0 ; index--) {
-		if (concatList[index].msgRef == MsgRef) {
+	for (int index = concatList.size()-1; index >= 0 ; index--) {
+		if (concatList[index].msgRef == MsgRef && concatList[index].simIndex == simIndex) {
 			MSG_DEBUG("remove concatlist of the index [%d]", index);
 			concatList.erase(concatList.begin()+index);
 			break;

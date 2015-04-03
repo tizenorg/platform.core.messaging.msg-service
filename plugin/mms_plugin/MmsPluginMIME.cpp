@@ -1,143 +1,58 @@
 /*
- * msg-service
- *
- * Copyright (c) 2000 - 2014 Samsung Electronics Co., Ltd. All rights reserved
+ * Copyright (c) 2014 Samsung Electronics Co., Ltd. All rights reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
 */
 
 #include <string>
 #include <stdlib.h>
 #include "MmsPluginMIME.h"
 #include "MmsPluginDebug.h"
-#include "MmsPluginSmil.h"
 
-#ifndef	NULL
-#define	NULL	0
-#endif
+typedef enum _MimeAppType {
+	MIME_APPLICATION_NONE,
+
+	MIME_APPLICATION_CAMERA,
+	MIME_APPLICATION_VIDEORECORDER,
+
+	MIME_APPLICATION_IMAGEVIEWER,
+	MIME_APPLICATION_FLASHVIEWER,
+	MIME_APPLICATION_IMAGEEDITOR,
+	MIME_APPLICATION_THEMEVIEWER,
+
+	MIME_APPLICATION_SOUNDPLAYER,
+	MIME_APPLICATION_MEDIAPLAYER,
+	MIME_APPLICATION_VOICEMEMO,
+
+	MIME_APPLICATION_PICSELVIEWER,
+
+	MIME_APPLICATION_CONTACT,
+	MIME_APPLICATION_ORGANIZER,
+
+	MIME_APPLICATION_MAX
+} MimeAppType;
 
 
-/* Header field */
-static const char *szMsgField[MSG_FIELD_NUM] =
-{
-	"Return-Path",
-	"Message-ID",
-	"From" ,
-	"To" ,
-	"Cc" ,
-	"Subject",
-	"Date",
-	"Mime-Version",
-	"Content-Type",
-	"Content-Transfer-Encoding",
-	"Content-Disposition", //If start param is given in multipart/related, this field will be ignored
-	"Content-ID", //for start part of multipart/related body
-	"Content-Location",
-	"Content-Name",
-	"Content-Description",
-	"Content-Vendor",
-	"Rights-Issuer",
-	"Return-Receipt-To",			/* Delivery confirm */
-	"Disposition-Notification-To",	/* Read confirm */
-	"Content-Rep-Pos",
-	"Content-Rep-Size",
-	"Content-Rep-Index"
-};
-
-/*  MIME header field parameter */
-static const char *szMsgParam[MSG_PARAM_NUM] =
-{
-	"charset",
-	"name",
-	"filename",
-	"type",		//Only if content-type is multipart/related,
-	"start", 	//Only if content-type is multipart/related
-	"start-info", 	//Only if content-type is multipart/related
-	"boundary",
-	"report-type", // only used as parameter of Content-Type: multipart/report; report-type=delivery-status;
-#ifdef FEATURE_JAVA_MMS
-	"Application-ID",				//laconic_javaParamFix
-	"Reply-To-Application-ID",		//laconic_javaParamFix
-#endif
-};
-
-/* Content-Transfer-Encoding header value */
-static const char *szMsgEncoding[MSG_ENCODING_NUM] =
-{
-	"7bit",
-	"8bit",
-	"binary",
-	"base64",
-	"quoted-printable"
-};
-
-/* Content-Disposition header value */
-static const char *szMsgDisposition[MSG_DISPOSITION_NUM] =
-{
-	"form-data",
-	"attachment",
-	"inline"
-};
-
-static const char *szMsgAddrType[MSG_ADDR_TYPE_NUM] =
-{
-	"/TYPE=PLMN",
-	"",
-	"/TYPE=IPV4",
-	"/TYPE=IPV6",
-	""
-};
-
-/* character-set value */
-static const char *szMsgCharset [MSG_CHARSET_NUM] =
-{
-	"us-ascii",
-	"utf-16",
-	"usc-2",
-	"utf-8",
-	/* MIME character-set value */
-
-	"iso-2022-kr",
-	"ks_c_5601-1987",
-	"euc_kr",
-	"iso-2022-jp",
-	"iso-2022-jp-2",
-	"iso-8859-1",
-	"iso-8859-2",
-	"iso-8859-3",
-	"iso-8859-4",
-	"iso-8859-5",
-	"iso-8859-6",
-	"iso-8859-6-e",
-	"iso-8859-6-i",
-	"iso-8859-7",
-	"iso-8859-8",
-	"iso-8859-8-i",
-	"iso-8859-9",
-	"iso-8859-10",
-	"iso-8859-15",
-	"Shift_jis",
-	"euc-jp",
-	"gb2312",
-	"big5",
-	"win1251",
-	"window-1251",
-	"windows-1251",
-	"koi8-r",
-	"koi8-u"
-};
-
+typedef struct _MimeTable {
+	const char *szMIME;
+	const char *szExt;
+	bool bDownloadable;
+	MimeType mime;			/* index of mime type */
+	MimeType contentType;	/* representative mime type */
+	MimeAppType appType;
+	MimeMainType mainType;
+	int binary;
+} MimeTable;
 
 /**************************************************     MIME definition     ***************************************************/
 static const MimeTable mimeTable[] = {
@@ -219,8 +134,8 @@ static const MimeTable mimeTable[] = {
 	{"audio/amr-wb",										"amr",				true,		MIME_AUDIO_AMR_WB,								MIME_AUDIO_AMR_WB,						MIME_APPLICATION_VOICEMEMO,				MIME_MAINTYPE_AUDIO,			UNDEFINED_BINARY	},
 	{"audio/mmf",											"mmf",				true,		MIME_AUDIO_MMF,									MIME_AUDIO_MMF,							MIME_APPLICATION_MEDIAPLAYER,			MIME_MAINTYPE_AUDIO,			UNDEFINED_BINARY	},
 	{"audio/smaf",											"mmf",				true,		MIME_AUDIO_SMAF,								MIME_AUDIO_SMAF,						MIME_APPLICATION_MEDIAPLAYER,			MIME_MAINTYPE_AUDIO,			UNDEFINED_BINARY	},
-	{"audio/iMelody",										"imy",				true,		MIME_AUDIO_IMELODY,								MIME_AUDIO_IMELODY,						MIME_APPLICATION_MEDIAPLAYER,			MIME_MAINTYPE_AUDIO,			UNDEFINED_BINARY	},
-	{"audio/imelody",										"imy",				true,		MIME_AUDIO_IMELODY2,								MIME_AUDIO_IMELODY,						MIME_APPLICATION_MEDIAPLAYER,			MIME_MAINTYPE_AUDIO,			UNDEFINED_BINARY	},
+	{"audio/imelody",										"imy",				true,		MIME_AUDIO_IMELODY,								MIME_AUDIO_IMELODY,						MIME_APPLICATION_MEDIAPLAYER,			MIME_MAINTYPE_AUDIO,			UNDEFINED_BINARY	},
+	{"audio/iMelody",										"imy",				true,		MIME_AUDIO_IMELODY2,								MIME_AUDIO_IMELODY,						MIME_APPLICATION_MEDIAPLAYER,			MIME_MAINTYPE_AUDIO,			UNDEFINED_BINARY	},
 	{"audio/melody",										"imy",				true,		MIME_AUDIO_MELODY,								MIME_AUDIO_IMELODY,						MIME_APPLICATION_MEDIAPLAYER,			MIME_MAINTYPE_AUDIO,			UNDEFINED_BINARY	},
 	{"audio/mid",											"mid",				true,		MIME_AUDIO_MID,									MIME_AUDIO_MID,							MIME_APPLICATION_MEDIAPLAYER,			MIME_MAINTYPE_AUDIO,			UNDEFINED_BINARY	},
 	{"audio/midi",											"mid"/*,midi"*/,	true,		MIME_AUDIO_MIDI,								MIME_AUDIO_MID,							MIME_APPLICATION_MEDIAPLAYER,			MIME_MAINTYPE_AUDIO,			UNDEFINED_BINARY	},
@@ -295,14 +210,15 @@ static const MimeTable mimeTable[] = {
 	{"multipart/voice-message",							"",					false,		MIME_MULTIPART_VOICE_MESSAGE,					MIME_MULTIPART_VOICE_MESSAGE,			MIME_APPLICATION_NONE,					MIME_MAINTYPE_APPLICATION,	UNDEFINED_BINARY	},
 
 	//128
-	{"text/txt",											"txt",				false,		MIME_TEXT_TXT,									MIME_TEXT_TXT,							MIME_APPLICATION_PICSELVIEWER,			MIME_MAINTYPE_TEXT,			UNDEFINED_BINARY	},
+	{"text/txt",											"",				false,		MIME_TEXT_TXT,									MIME_TEXT_TXT,							MIME_APPLICATION_PICSELVIEWER,			MIME_MAINTYPE_TEXT,			UNDEFINED_BINARY	},
 	{"text/html",											"html"/*,htm"*/,	false,		MIME_TEXT_HTML,									MIME_TEXT_HTML,							MIME_APPLICATION_NONE,					MIME_MAINTYPE_TEXT,			0x02	},
 	{"text/plain",											"txt"/*,vbm,url"*/,				false,		MIME_TEXT_PLAIN,								MIME_TEXT_PLAIN,						MIME_APPLICATION_PICSELVIEWER,			MIME_MAINTYPE_TEXT,			0x03	},
 	{"text/css",											"",					false,		MIME_TEXT_CSS,									MIME_TEXT_CSS,							MIME_APPLICATION_NONE,					MIME_MAINTYPE_TEXT,			0x3d	},
 	{"text/xml",											"",					false,		MIME_TEXT_XML,									MIME_TEXT_XML,							MIME_APPLICATION_NONE,					MIME_MAINTYPE_TEXT,			0x28	},
 	{"text/iMelody",										"imy",				true,		MIME_TEXT_IMELODY,								MIME_TEXT_IMELODY,						MIME_APPLICATION_SOUNDPLAYER,			MIME_MAINTYPE_AUDIO,		UNDEFINED_BINARY	},
+	{"text/calendar",										"ics",				true, 	MIME_TEXT_CALENDAR,								MIME_TEXT_CALENDAR,						MIME_APPLICATION_NONE,					MIME_MAINTYPE_TEXT,		UNDEFINED_BINARY },
 
-	//134
+	//135
 	{"text/vnd.wap.wmlscript",								"",					false,		MIME_TEXT_VND_WAP_WMLSCRIPT,					MIME_TEXT_VND_WAP_WMLSCRIPT,			MIME_APPLICATION_NONE,					MIME_MAINTYPE_TEXT,			0x09	},
 	{"text/vnd.wap.wml",									"wml",				false,		MIME_TEXT_VND_WAP_WML,							MIME_TEXT_VND_WAP_WML,					MIME_APPLICATION_NONE,					MIME_MAINTYPE_TEXT,			0x08	},
 	{"text/vnd.wap.wta-event",								"",					false,		MIME_TEXT_VND_WAP_WTA_EVENT,					MIME_TEXT_VND_WAP_WTA_EVENT,			MIME_APPLICATION_NONE,					MIME_MAINTYPE_TEXT,			0x0a	},
@@ -313,30 +229,32 @@ static const MimeTable mimeTable[] = {
 	{"text/vnd.sun.j2me.app-descriptor",					"jad",				true,		MIME_TEXT_VND_SUN_J2ME_APP_DESCRIPTOR,			MIME_TEXT_VND_SUN_J2ME_APP_DESCRIPTOR,	MIME_APPLICATION_NONE,						MIME_MAINTYPE_ETC,			UNDEFINED_BINARY	},
 
 
-	//142
+	//143
 	{"text/x-hdml",										"",					false,		MIME_TEXT_X_HDML,								MIME_TEXT_X_HDML,						MIME_APPLICATION_NONE,					MIME_MAINTYPE_TEXT,			0x04	},
-	{"text/x-vCalendar",									"vcs",				true,		MIME_TEXT_X_VCALENDAR,							MIME_TEXT_X_VCALENDAR,					MIME_APPLICATION_NONE,					MIME_MAINTYPE_TEXT,			0x06	},
-	{"text/x-vCard",										"vcf",				true,		MIME_TEXT_X_VCARD,								MIME_TEXT_X_VCARD,						MIME_APPLICATION_NONE,					MIME_MAINTYPE_TEXT,			0x07	},
+	{"text/x-vCalendar",									"vcs",				true,		MIME_TEXT_X_VCALENDAR,							MIME_TEXT_X_VCALENDAR,					MIME_APPLICATION_NONE,					MIME_MAINTYPE_ETC,			0x06	},
+	{"text/x-vCard",										"vcf",				true,		MIME_TEXT_X_VCARD,								MIME_TEXT_X_VCARD,						MIME_APPLICATION_NONE,					MIME_MAINTYPE_ETC,			0x07	},
 	{"text/x-iMelody",										"imy",				true,		MIME_TEXT_X_IMELODY,							MIME_TEXT_X_IMELODY,					MIME_APPLICATION_MEDIAPLAYER,			MIME_MAINTYPE_AUDIO,		UNDEFINED_BINARY	},
 	{"text/x-imelody",										"imy",				true,		MIME_TEXT_X_IMELODY2,							MIME_TEXT_X_IMELODY,					MIME_APPLICATION_MEDIAPLAYER,			MIME_MAINTYPE_AUDIO,		UNDEFINED_BINARY	},
 	{"text/x-vnote",										"vnt",				true,		MIME_TEXT_X_VNOTE,								MIME_TEXT_X_VNOTE,						MIME_APPLICATION_NONE,					MIME_MAINTYPE_TEXT,			UNDEFINED_BINARY	},
+	{"text/x-vtodo",										"vts",				true,		MIME_TEXT_X_VTODO,								MIME_TEXT_X_VNOTE,						MIME_APPLICATION_NONE,					MIME_MAINTYPE_TEXT,			UNDEFINED_BINARY	},
 
-	//148
+	//150
 	{"video/mpeg4",										"mp4",				true,		MIME_VIDEO_MPEG4,								MIME_VIDEO_MP4,							MIME_APPLICATION_MEDIAPLAYER,			MIME_MAINTYPE_VIDEO,		UNDEFINED_BINARY	},
 	{"video/mp4",											"mp4",				true,		MIME_VIDEO_MP4,									MIME_VIDEO_MP4,							MIME_APPLICATION_MEDIAPLAYER,			MIME_MAINTYPE_VIDEO,		UNDEFINED_BINARY	},
-	{"video/h263",											"3gp"/*,3gpp,mp4"*/,true,		MIME_VIDEO_H263,								MIME_VIDEO_H263,						MIME_APPLICATION_MEDIAPLAYER,			MIME_MAINTYPE_VIDEO,		UNDEFINED_BINARY	},
+	{"video/h263",											""/*,3gpp,mp4"*/,true,		MIME_VIDEO_H263,								MIME_VIDEO_H263,						MIME_APPLICATION_MEDIAPLAYER,			MIME_MAINTYPE_VIDEO,		UNDEFINED_BINARY	},
 	{"video/3gpp",											"3gp"/*,3gpp"*/,	true,		MIME_VIDEO_3GPP,								MIME_VIDEO_3GPP,						MIME_APPLICATION_MEDIAPLAYER,			MIME_MAINTYPE_VIDEO,		UNDEFINED_BINARY	},
 	{"video/3gp",											"3gp"/*,3gpp"*/,	true,		MIME_VIDEO_3GP,									MIME_VIDEO_3GP,							MIME_APPLICATION_MEDIAPLAYER,			MIME_MAINTYPE_VIDEO,		UNDEFINED_BINARY	},
 	{"video/avi",											"avi",				false,		MIME_VIDEO_AVI,									MIME_VIDEO_AVI,							MIME_APPLICATION_MEDIAPLAYER,			MIME_MAINTYPE_VIDEO,		UNDEFINED_BINARY	},
 	{"video/sdp",											"sdp",				true,		MIME_VIDEO_SDP,									MIME_APPLICATION_SDP,							MIME_APPLICATION_MEDIAPLAYER,			MIME_MAINTYPE_VIDEO,		UNDEFINED_BINARY	},
 	{"video/mp4v-es",											"3gp",				true,		MIME_VIDEO_MP4_ES,									MIME_VIDEO_3GP,							MIME_APPLICATION_MEDIAPLAYER,			MIME_MAINTYPE_VIDEO,		UNDEFINED_BINARY	},
 	{"video/mpeg",											"3gp",				true,		MIME_VIDEO_MPEG,									MIME_VIDEO_3GP,							MIME_APPLICATION_MEDIAPLAYER,			MIME_MAINTYPE_VIDEO,		UNDEFINED_BINARY	},
+	{"video/quicktime",										"mov",				true,		MIME_VIDEO_MOV,									MIME_VIDEO_3GP,							MIME_APPLICATION_MEDIAPLAYER,			MIME_MAINTYPE_VIDEO,		UNDEFINED_BINARY	},
 
-	// 157
+	// 160
 	{"video/vnd.rn-realvideo",								"rm",				true,		MIME_VIDEO_VND_RN_REALVIDEO,					MIME_VIDEO_VND_RN_REALVIDEO,			MIME_APPLICATION_MEDIAPLAYER,			MIME_MAINTYPE_VIDEO,			UNDEFINED_BINARY	},
 	{"video/vnd.rn-realmedia",								"rm",				true,		MIME_VIDEO_VND_RN_REALMEDIA,					MIME_VIDEO_VND_RN_REALMEDIA,			MIME_APPLICATION_MEDIAPLAYER,			MIME_MAINTYPE_VIDEO,			UNDEFINED_BINARY	},
 
-	//159
+	//162
 	{"video/x-mp4",										"mp4",				true,		MIME_VIDEO_X_MP4,								MIME_VIDEO_MP4,							MIME_APPLICATION_MEDIAPLAYER,			MIME_MAINTYPE_VIDEO,			UNDEFINED_BINARY	},
 	{"video/x-pv-mp4",										"mp4",				true,		MIME_VIDEO_X_PV_MP4,							MIME_VIDEO_MP4,							MIME_APPLICATION_MEDIAPLAYER,			MIME_MAINTYPE_VIDEO,			UNDEFINED_BINARY	},
 	{"video/x-pn-realvideo",								"rv",				true,		MIME_VIDEO_X_PN_REALVIDEO,						MIME_VIDEO_VND_RN_REALVIDEO,			MIME_APPLICATION_MEDIAPLAYER,			MIME_MAINTYPE_VIDEO,			UNDEFINED_BINARY	},
@@ -354,83 +272,9 @@ static const int mimeTableIndex[] = {
 	105,		116,		119,
 	120,		120,		120,
 	121,		121,		121,
-	128,		134,		142,
-	148,		157,		159
+	128,		135,		143,
+	150,		160,		162
 };
-
-
-/*****************		Extension definition	  *****************/
-static const ExtTable extTable[] = {
-
-	{"txt",			MIME_TEXT_PLAIN},
-	{"html",			MIME_TEXT_HTML},
-	{"htm",			MIME_TEXT_HTML},
-	{"xhtml",			MIME_APPLICATION_XHTML_XML},
-	{"wml",			MIME_TEXT_VND_WAP_WML},
-	{"vcs",			MIME_TEXT_X_VCALENDAR},
-	{"vcf",			MIME_TEXT_X_VCARD},
-	{"vnt",			MIME_TEXT_X_VNOTE},
-	{"smil",			MIME_APPLICATION_SMIL},
-	{"eml",			MIME_MESSAGE_RFC822},
-	{"gif",			MIME_IMAGE_GIF},
-	{"jpeg",			MIME_IMAGE_JPEG},
-	{"jpg",			MIME_IMAGE_JPEG},
-	{"jpe",			MIME_IMAGE_JPEG},
-	{"jpz",			MIME_IMAGE_JPEG},
-	{"tiff",			MIME_IMAGE_TIFF},
-	{"tif",			MIME_IMAGE_TIFF},
-	{"png",			MIME_IMAGE_PNG},
-	{"pnz",			MIME_IMAGE_PNG},
-	{"wbmp",			MIME_IMAGE_VND_WAP_WBMP},
-	{"bmp",			MIME_IMAGE_BMP},
-	{"au",				MIME_AUDIO_BASIC},
-	{"snd",			MIME_AUDIO_BASIC},
-	{"mp3",			MIME_AUDIO_MP3},
-	{"aac",			MIME_AUDIO_AAC},
-	{"mp4",			MIME_AUDIO_MP4},
-	{"m4a",			MIME_AUDIO_M4A},
-	{"amr",			MIME_AUDIO_X_AMR},
-	{"mmf",			MIME_APPLICATION_VND_SMAF},
-	{"imy",			MIME_AUDIO_X_IMELODY},
-	{"mid",			MIME_AUDIO_MID},
-	{"midi",			MIME_AUDIO_MID},
-	{"spm",			MIME_AUDIO_SP_MIDI},
-	{"wav",			MIME_AUDIO_WAVE},
-	{"3gp",			MIME_AUDIO_3GPP},
-	{"3gpp",			MIME_VIDEO_3GPP},
-	{"rm",				MIME_VIDEO_VND_RN_REALVIDEO},
-	{"ra",				MIME_AUDIO_VND_RN_REALAUDIO},
-	{"ram",			MIME_AUDIO_VND_RN_REALAUDIO},
-	{"wma",			MIME_AUDIO_X_MS_WMA},
-	{"smp",			MIME_APPLICATION_STUDIOM},
-	{"avi",			MIME_VIDEO_AVI},
-	{"sdp",			MIME_APPLICATION_SDP},
-	{"vbm",			MIME_TEXT_PLAIN},
-	{"url",			MIME_TEXT_PLAIN},
-	{"jad",			MIME_TEXT_VND_SUN_J2ME_APP_DESCRIPTOR},
-	{"jar",			MIME_APPLICATION_VND_SUN_J2ME_JAVA_ARCHIVE},
-	{"dd",				MIME_APPLICATION_VND_OMA_DD_XML},
-	{"dm",				MIME_APPLICATION_VND_OMA_DRM_MESSAGE},
-	{"dcf",			MIME_APPLICATION_VND_OMA_DRM_CONTENT},
-	{"rv",				MIME_VIDEO_X_PN_REALVIDEO},
-	{"ro",				MIME_APPLICATION_VND_OMA_DRM_RIGHTS_XML},
-	{"thm",			MIME_APPLICATION_VND_SAMSUNG_THEME},
-	{"xls",			MIME_APPLICATION_X_EXCEL},
-	{"pdf",			MIME_APPLICATION_PDF},
-	{"ppt",			MIME_APPLICATION_X_POWERPOINT},
-	{"swf",			MIME_APPLICATION_X_FLASH},
-	{"svg",			MIME_IMAGE_SVG},
-	{"doc",			MIME_APPLICATION_MSWORD},
-	{"wmv",			MIME_VIDEO_X_MS_WMV},
-	{"asf",			MIME_VIDEO_X_MS_ASF},
-	{"3ga",			MIME_AUDIO_M4A},
-	{"xmf",			MIME_AUDIO_XMF},
-	{"mxmf",			MIME_AUDIO_MOBILE_XMF},
-	{"pvx",			MIME_VIDEO_X_PV_PVX},
-	{"oro",			MIME_APPLICATION_VND_OMA_DRM_RO_XML},
-	{"odf",			MIME_APPLICATION_VND_OMA_DRM_DCF}
-};
-
 
 static int mimeTableEnum[] =
 {
@@ -587,6 +431,7 @@ static int mimeTableEnum[] =
 	MIME_TEXT_CSS	,
 	MIME_TEXT_XML	,
 	MIME_TEXT_IMELODY	,
+	MIME_TEXT_CALENDAR,
 	MIME_TEXT_VND_WAP_WMLSCRIPT	,
 	MIME_TEXT_VND_WAP_WML	,
 	MIME_TEXT_VND_WAP_WTA_EVENT	,
@@ -601,7 +446,7 @@ static int mimeTableEnum[] =
 	MIME_TEXT_X_IMELODY	,
 	MIME_TEXT_X_IMELODY2 ,
 	MIME_TEXT_X_VNOTE ,
-
+	MIME_TEXT_X_VTODO,
 
 	MIME_VIDEO_MPEG4	,
 	MIME_VIDEO_MP4	,
@@ -612,6 +457,7 @@ static int mimeTableEnum[] =
 	MIME_VIDEO_SDP	,
 	MIME_VIDEO_MP4_ES,
 	MIME_VIDEO_MPEG	,
+	MIME_VIDEO_MOV	,
 	MIME_VIDEO_VND_RN_REALVIDEO	,
 	MIME_VIDEO_VND_RN_REALMEDIA	,
 	MIME_VIDEO_X_MP4	,
@@ -626,49 +472,14 @@ static int mimeTableEnum[] =
 };
 
 
-#define MIME_MAX_NUM	166
-#define EXT_MAX	67
+#define MIME_MAX_NUM	167
+#define EXT_MAX	68
 #define MIME_SUB_TYPE_VND	1
 #define MIME_SUB_TYPE_X		2
 
 int __MimeGetTableIndexInt(MimeType mime);
 int __MimeGetTableIndexString(const char *szMime);
 MimeMainType __MimeGetMainTypeName(const char *szType);
-
-
-/*
- * This function checks whether a mime is downloadable or not.
- *
- * @param	mime [in] Enumeration number for a MIME type.
- * @return	This function returns true if downloadable, or false.
- */
-bool MimeIsDownloadableInt(MimeType mime)
-{
-	int index;
-
-	index = __MimeGetTableIndexInt(mime);
-	if (index == MIME_UNKNOWN)
-		return false;
-
-	return mimeTable[index].bDownloadable;
-}
-
-/*
- * This function checks whether a mime is downloadable or not.
- *
- * @param	mime [in] MIME string.
- * @return	This function returns true if downloadable, or false.
- */
-bool MimeIsDownloadableString(const char *szMime)
-{
-	int index;
-
-	index = __MimeGetTableIndexString(szMime);
-	if (index == MIME_UNKNOWN)
-		return false;
-
-	return mimeTable[index].bDownloadable;
-}
 
 /*
  * This function checks main type of a MIME.
@@ -687,22 +498,6 @@ MimeMainType MimeGetMainTypeInt(MimeType mime)
 	return mimeTable[index].mainType;
 }
 
-/*
- * This function checks main type of a MIME.
- *
- * @param	mime [in] MIME string.
- * @return	This function returns main type of a MIME.
- */
-MimeMainType MimeGetMainTypeString(const char *szMime)
-{
-	int index;
-
-	index = __MimeGetTableIndexString(szMime);
-	if (index == MIME_UNKNOWN)
-		return MIME_MAINTYPE_ETC;
-
-	return mimeTable[index].mainType;
-}
 
 /*
  * This function returns a extension name for a specified MIME.
@@ -719,67 +514,6 @@ char *MimeGetExtFromMimeInt(MimeType mime)
 		return NULL;
 
 	return (char *)mimeTable[index].szExt;
-}
-
-/*
- * This function returns a extension name for a specified MIME.
- *
- * @param	mime [in] MIME string.
- * @return	This function returns Extension string.
- */
-char *MimeGetExtFromMimeString(const char *szMime)
-{
-	int index;
-
-	index = __MimeGetTableIndexString(szMime);
-	if (index == MIME_UNKNOWN)
-		return NULL;
-
-	return (char *)mimeTable[index].szExt;
-}
-
-
-/*
- * This function returns a MIME type for a specified Extension.
- *
- * @param	mime [in] Extension string.
- * @return	This function returns MIME string.
- */
-char *MimeGetMimeFromExtString(const char *szExt)
-{
-	int i;
-
-	for (i = 0; i < EXT_MAX; i++) {
-		if (!strcasecmp( extTable[i].szExt, szExt)) {
-			int index;
-
-			index = __MimeGetTableIndexInt(extTable[i].mimeType);
-			if (index == MIME_UNKNOWN)
-				return NULL;
-
-			return (char *)mimeTable[index].szMIME;
-		}
-	}
-
-	return NULL;
-}
-
-/*
- * This function returns a MIME type for a specified Extension.
- *
- * @param	mime [in] Extension string.
- * @return	This function returns MIME string.
- */
-MimeType MimeGetMimeFromExtInt(const char *szExt)
-{
-	int i;
-
-	for (i = 0; i < EXT_MAX; i++) {
-		if (!strcasecmp( extTable[i].szExt, szExt))
-			return extTable[i].mimeType;
-	}
-
-	return MIME_UNKNOWN;
 }
 
 /*
@@ -810,8 +544,6 @@ int __MimeGetTableIndexInt(MimeType mime)
 	return tableIndex;
 }
 
-
-#define MIME_MAX_LEN	43
 /*
  * This function returns index number in MIME definition table with MIME string.
  * Internal function.
@@ -849,7 +581,8 @@ int __MimeGetTableIndexString(const char *szMime)
 		free(szMIMEType);
 		return 0;
 	}
-	strcpy(szMIMEType, szMime);
+
+	strncpy(szMIMEType, szMime, strlen(szMime));
 	type = 0;
 	subtype = 0;
 
@@ -952,7 +685,7 @@ MimeMainType __MimeGetMainTypeName(const char *szType)
 }
 
 
-
+//For Decode
 // MimeString -> MimeInt
 MimeType MimeGetMimeIntFromMimeString(char *szMimeStr)
 {
@@ -992,22 +725,6 @@ MimeType MimeGetMimeIntFromBi(int binCode)
 	return MIME_UNKNOWN;
 }
 
-// BinaryCode -> MimeInt
-char *MimeGetMimeStringFromBi(int binCode)
-{
-	int index;
-
-	if (binCode < 0x00 || binCode > 0x4b)
-		return NULL;
-
-	for (index = 0; index < MIME_MAX_NUM; index++) {
-		if (binCode == mimeTable[index].binary)
-			return (char *)mimeTable[index].szMIME;
-	}
-
-	return NULL;
-}
-
 // Mimeint -> Binary Value
 int MimeGetBinaryValueFromMimeInt(MimeType mime)
 {
@@ -1020,309 +737,146 @@ int MimeGetBinaryValueFromMimeInt(MimeType mime)
 	return mimeTable[index].binary;
 }
 
-// MimeString -> Binary value
-int MimeGetBinaryValueFromMimeString(const char *szMime)
+typedef struct {
+	const char *szExt;
+	int mainType;
+	int enumMime;
+	const char *szContentType;
+} ExtTableItem;
+
+#define EXT_TABLE_SIZE (56)
+
+const ExtTableItem extTable[EXT_TABLE_SIZE] = {
+
+	//text
+	{"txt",   MIME_MAINTYPE_TEXT, MIME_TEXT_PLAIN, "text/plain"},
+	{"html",  MIME_MAINTYPE_TEXT, MIME_TEXT_HTML, "text/html"},
+	{"xhtml", MIME_MAINTYPE_TEXT, MIME_APPLICATION_XHTML_XML, "application/xhtml+xml"},
+	{"vcs",   MIME_MAINTYPE_TEXT, MIME_TEXT_X_VCALENDAR, "text/x-vCalendar"},
+	{"vcf",   MIME_MAINTYPE_TEXT, MIME_TEXT_X_VCARD, "text/x-vCard"},
+	{"vnt",   MIME_MAINTYPE_TEXT, MIME_TEXT_X_VNOTE, "text/x-vnote"},
+	{"vts",   MIME_MAINTYPE_TEXT, MIME_TEXT_X_VTODO, "text/x-vtodo"},
+	{"ics",   MIME_MAINTYPE_TEXT, MIME_TEXT_CALENDAR, "text/calendar"},
+
+	//image
+	{"gif",   MIME_MAINTYPE_IMAGE, MIME_IMAGE_GIF, "image/gif"},
+	//{"jpg",   MIME_MAINTYPE_IMAGE, MIME_IMAGE_JPG, "image/jpg"},
+	{"jpg",   MIME_MAINTYPE_IMAGE, MIME_IMAGE_JPEG, "image/jpeg"},
+	{"jpeg",  MIME_MAINTYPE_IMAGE, MIME_IMAGE_JPEG, "image/jpeg"},
+	{"tiff",  MIME_MAINTYPE_IMAGE, MIME_IMAGE_TIFF, "image/tiff"},
+	{"tif",   MIME_MAINTYPE_IMAGE, MIME_IMAGE_TIF, "image/tif"},
+	{"png",   MIME_MAINTYPE_IMAGE, MIME_IMAGE_PNG, "image/png"},
+	{"wbmp",  MIME_MAINTYPE_IMAGE, MIME_IMAGE_VND_WAP_WBMP, "image/vnd.wap.wbmp"},
+	{"bmp",   MIME_MAINTYPE_IMAGE, MIME_IMAGE_BMP, "image/bmp"},
+	{"svg",   MIME_MAINTYPE_IMAGE, MIME_IMAGE_SVG, "image/svg+xml"},
+
+	//audio
+	{"snd",   MIME_MAINTYPE_AUDIO, MIME_AUDIO_BASIC, "audio/basic"},
+	{"amr",   MIME_MAINTYPE_AUDIO, MIME_AUDIO_AMR, "audio/amr"},
+	{"m4a",   MIME_MAINTYPE_AUDIO, MIME_AUDIO_M4A, "audio/m4a"},
+	{"3gp",   MIME_MAINTYPE_AUDIO, MIME_AUDIO_3GPP, "audio/3gpp"},
+	{"3gpp",  MIME_MAINTYPE_AUDIO, MIME_AUDIO_3GPP, "audio/3gpp"},
+	{"mp3",   MIME_MAINTYPE_AUDIO, MIME_AUDIO_MPEG, "audio/mpeg"},
+	{"aac",   MIME_MAINTYPE_AUDIO, MIME_AUDIO_AAC, "audio/aac"},
+	{"imy",   MIME_MAINTYPE_AUDIO, MIME_AUDIO_IMELODY, "audio/imelody"},
+	{"mid",   MIME_MAINTYPE_AUDIO, MIME_AUDIO_MID, "audio/mid"},
+	{"mmf",   MIME_MAINTYPE_AUDIO, MIME_AUDIO_MMF, "audio/mmf"},
+	{"spm",   MIME_MAINTYPE_AUDIO, MIME_AUDIO_SP_MIDI, "audio/sp-midi"},
+	{"wav",   MIME_MAINTYPE_AUDIO, MIME_AUDIO_WAV, "audio/wav"},
+	{"mp4",   MIME_MAINTYPE_AUDIO, MIME_AUDIO_MP4, "audio/mp4"},
+	{"wma",   MIME_MAINTYPE_AUDIO, MIME_AUDIO_X_MS_WMA, "audio/x-ms-wma"},
+	{"rm",    MIME_MAINTYPE_AUDIO, MIME_AUDIO_VND_RN_REALAUDIO, "audio/vnd.rn-realaudio"},
+	{"ra",    MIME_MAINTYPE_AUDIO, MIME_AUDIO_VND_RN_REALAUDIO, "audio/vnd.rn-realaudio"},
+
+	//video
+	{"3gp",   MIME_MAINTYPE_VIDEO, MIME_VIDEO_3GPP, "video/3gpp"},
+	{"3gpp",  MIME_MAINTYPE_VIDEO, MIME_VIDEO_3GPP, "video/3gpp"},
+	{"mp4",   MIME_MAINTYPE_VIDEO, MIME_VIDEO_MP4, "video/mp4"},
+	{"rm",    MIME_MAINTYPE_VIDEO, MIME_VIDEO_VND_RN_REALVIDEO, "video/vnd.rn-realvideo"},
+	{"rv",    MIME_MAINTYPE_VIDEO, MIME_VIDEO_VND_RN_REALVIDEO, "video/vnd.rn-realvideo"},
+	{"avi",   MIME_MAINTYPE_VIDEO, MIME_VIDEO_AVI, "video/avi"},
+	{"asf",   MIME_MAINTYPE_VIDEO, MIME_VIDEO_X_MS_ASF, "video/x-ms-asf"},
+	{"mov",	MIME_MAINTYPE_VIDEO, MIME_VIDEO_MOV, "video/quicktime"},
+
+	//application
+	{"smil",  MIME_MAINTYPE_APPLICATION, MIME_APPLICATION_SMIL, "application/smil"},
+	{"rm",    MIME_MAINTYPE_APPLICATION, MIME_APPLICATION_VND_RN_REALMEDIA, "application/vnd.rn-realmedia"},
+	{"ram",   MIME_MAINTYPE_APPLICATION, MIME_APPLICATION_RAM, "application/ram"},
+	{"ppt",   MIME_MAINTYPE_APPLICATION, MIME_APPLICATION_VND_POWERPOINT, "application/vnd.ms-powerpoint"},
+	{"xls",   MIME_MAINTYPE_APPLICATION, MIME_APPLICATION_VND_EXCEL, "application/vnd.ms-excel"},
+	{"doc",   MIME_MAINTYPE_APPLICATION, MIME_APPLICATION_VND_MSWORD, "applcation/vnd.ms-word"},
+	{"pdf",   MIME_MAINTYPE_APPLICATION, MIME_APPLICATION_PDF, "application/pdf"},
+	{"swf",   MIME_MAINTYPE_APPLICATION, MIME_APPLICATION_X_FLASH, "application/x-shockwave-flash"},
+	{"dm",    MIME_MAINTYPE_APPLICATION, MIME_APPLICATION_VND_OMA_DRM_MESSAGE, "application/vnd.oma.drm.message"},
+	{"dcf",   MIME_MAINTYPE_APPLICATION, MIME_APPLICATION_VND_OMA_DRM_CONTENT, "application/vnd.oma.drm.content"},
+	{"dd",    MIME_MAINTYPE_APPLICATION, MIME_APPLICATION_VND_OMA_DD_XML, "application/vnd.oma.dd+xml"},
+	{"ro",    MIME_MAINTYPE_APPLICATION, MIME_APPLICATION_VND_OMA_DRM_RIGHTS_XML, "application/vnd.oma.drm.rights+xml"},
+	{"ro",    MIME_MAINTYPE_APPLICATION, MIME_APPLICATION_VND_OMA_DRM_RIGHTS_WBXML, "application/vnd.oma.drm.rights+wbxml"},
+	{"oro",   MIME_MAINTYPE_APPLICATION, MIME_APPLICATION_VND_OMA_DRM_RO_XML, "application/vnd.oma.drm.ro+xml"},
+	{"odf",   MIME_MAINTYPE_APPLICATION, MIME_APPLICATION_VND_OMA_DRM_DCF, "application/vnd.oma.drm.dcf"},
+
+};
+
+//GetMimeType from File Extension
+bool MmsGetMimeTypeFromExt(MimeMainType mainType, const char *pExt, MimeType *pMimeType, const char **ppszMimeType)
 {
-	int index;
+	const ExtTableItem *matchedItem = NULL;
 
-	index = __MimeGetTableIndexString(szMime);
-	if (index == MIME_UNKNOWN)
-		return UNDEFINED_BINARY;
+	if (pExt == NULL)
+		return false;
 
-	return mimeTable[index].binary;
-}
+	if (pMimeType == NULL && ppszMimeType == NULL)
+		return false;
 
+	int extTableMainSize = sizeof(extTable)/sizeof(ExtTableItem);
 
-/*
- * This function checks main type of a MIME.
- *
- * @param	mime [in] Enumeration number for a MIME type.
- * @return	This function returns application type of a MIME.
- */
-MimeAppType MimeGetAppTypeFromInt(MimeType mime)
-{
-	int index;
+	for (int i = 0; i < extTableMainSize; i++) {
 
-	index = __MimeGetTableIndexInt(mime);
-	if (index == MIME_UNKNOWN)
-		return MIME_APPLICATION_NONE;
+		if (strcasecmp(extTable[i].szExt, pExt) == 0) {
 
-	return mimeTable[index].appType;
-}
+			matchedItem = &extTable[i];
 
-/*
- * This function checks main type of a MIME.
- *
- * @param	mime [in] MIME string.
- * @return	This function returns application type of a MIME.
- */
-MimeAppType MimeGetAppTypeFromString(const char *szMime)
-{
-	int index;
-
-	index = __MimeGetTableIndexString(szMime);
-	if (index == MIME_UNKNOWN)
-		return MIME_APPLICATION_NONE;
-
-	return mimeTable[index].appType;
-}
-
-
-/*
- * This function returns a application type for a specified Extension.
- *
- * @param	mime [in] Extension string.
- * @return	This function returns application type.
- */
-MimeAppType MimeGetAppTypeFromExtString(const char *szExt)
-{
-	int i;
-
-	for (i = 0; i < EXT_MAX; i++) {
-		if (!strcasecmp( extTable[i].szExt, szExt)) {
-			int index;
-
-			index = __MimeGetTableIndexInt(extTable[i].mimeType);
-			if (index == MIME_UNKNOWN)
-				return MIME_APPLICATION_NONE;
-			return mimeTable[index].appType;
-		}
-	}
-
-	return MIME_APPLICATION_NONE;
-}
-
-/*
- * This function gets the representative mime type from MimeType
- *
- * @param	mime [in] Enumeration number for a MIME type.
- * @return	representative mime type Enumeration number
- */
-
-MimeType MimeGetContentTypeFromInt(MimeType mime)
-{
-	int index;
-
-	for (index = 0; index < MIME_MAX_NUM; index++) {
-		if (mime == mimeTable[index].mime)
-			return mimeTable[index].contentType;
-	}
-
-	return MIME_UNKNOWN;
-}
-
-/*
- * This function gets the representative mime type from mime string
- *
- * @param	szMime - string name of MimeType
- * @return	representative mime type Enumeration number
- */
-
-MimeType MimeGetContentTypeFromString(const char *szMime)
-{
-	int index;
-
-	for (index = 0; index < MIME_MAX_NUM; index++) {
-		if (!strcasecmp(szMime, mimeTable[index].szMIME))
-			return mimeTable[index].contentType;
-	}
-
-	return MIME_UNKNOWN;
-}
-
-/*
- * This function gets the index from mime string
- *
- * @param	szMime - string name of MimeType
- * @return	Enumeration number for a MIME type.
- */
-
-MimeType MimeGetMimeTypeFromString(const char *szMime)
-{
-	int index;
-
-	for (index = 0; index < MIME_MAX_NUM; index++) {
-		if (!strcasecmp(szMime, mimeTable[index].szMIME))
-			return mimeTable[index].mime;
-	}
-
-	return MIME_UNKNOWN;
-}
-
-
-int MsgGetCode(MsgHeaderField tableId, char *pStr)
-{
-	int cCode = 0;
-	int nNum = MSG_FIELD_UNKNOWN;
-	char **pTable = NULL;
-
-	switch (tableId) {
-	case MSG_FIELD:
-		nNum = MSG_FIELD_NUM;
-		pTable = (char **)szMsgField;
-		break;
-
-	case MSG_PARAM:
-		nNum = MSG_PARAM_NUM;
-		pTable = (char **)szMsgParam;
-		break;
-
-	case MSG_TYPE:
-		return MimeGetMimeIntFromMimeString(pStr);
-
-	case MSG_CHARSET:
-		nNum = MSG_CHARSET_NUM;
-		pTable = (char **)szMsgCharset;
-		break;
-
-	case MSG_ENCODING:
-		nNum = MSG_ENCODING_NUM;
-		pTable = (char **)szMsgEncoding;
-		break;
-
-	case MSG_DISPOSITION:
-		nNum = MSG_DISPOSITION_NUM;
-		pTable = (char **)szMsgDisposition;
-		break;
-
-	case MSG_ADDR_TYPE:
-		nNum = MSG_ADDR_TYPE_NUM;
-		pTable = (char **)szMsgAddrType;
-		break;
-
-	default:
-		break;
-	}
-
-	for (cCode = 0; cCode < nNum; cCode++) {
-		if (!strcasecmp(pStr, pTable[cCode])) {
-			return cCode;
-		}
-	}
-
-	return -1;
-}
-
-
-char *MsgGetString(MsgHeaderField tableId, int code)
-{
-	int nNum = MSG_FIELD_UNKNOWN;
-	char **pTable = NULL;
-
-	switch (tableId) {
-	case MSG_FIELD:
-		nNum = MSG_FIELD_NUM;
-		pTable = (char **)szMsgField;
-		break;
-
-	case MSG_PARAM:
-		nNum = MSG_PARAM_NUM;
-		pTable = (char **)szMsgParam;
-		break;
-
-	case MSG_TYPE:
-		if (code != MIME_UNKNOWN && code != -1)
-			return MimeGetMimeStringFromMimeInt(code);
-		else
-			return (char *)MSG_UNKNOWN_TYPE_STRING;
-
-	case MSG_CHARSET:
-		nNum = MSG_CHARSET_NUM;
-		pTable = (char **)szMsgCharset;
-		break;
-
-	case MSG_ENCODING:
-		nNum = MSG_ENCODING_NUM;
-		pTable = (char **)szMsgEncoding;
-		break;
-
-	case MSG_DISPOSITION:
-		nNum = MSG_DISPOSITION_NUM;
-		pTable = (char **)szMsgDisposition;
-		break;
-
-	case MSG_ADDR_TYPE:
-		nNum = MSG_ADDR_TYPE_NUM;
-		pTable = (char **)szMsgAddrType;
-		break;
-
-	default:
-		break;
-	}
-
-	if (code < 0 || code >= nNum || !pTable)
-		return (char *)MSG_UNKNOWN_TYPE_STRING;
-
-	return pTable[code];
-}
-
-char *_MsgSkipWS3(char *s)
-{
-	while (true) {
-		if ((*s == MSG_CH_CR) ||
-			(*s == MSG_CH_LF) ||
-			(*s == MSG_CH_SP) ||
-			(*s == MSG_CH_TAB))
-			++s;
-		else
-			return s;
-	}
-}
-
-
-int _MsgGetCode(MsgHeaderField tableId, char *pStr)
-{
-	int cCode = 0;
-	int nNum = MSG_FIELD_UNKNOWN;
-	char **pTable = NULL;
-
-	switch (tableId) {
-	case MSG_FIELD:
-		nNum = MSG_FIELD_NUM;
-		pTable = (char **)szMsgField;
-		break;
-
-	case MSG_PARAM:
-		nNum = MSG_PARAM_NUM;
-		pTable = (char **)szMsgParam;
-		break;
-
-	case MSG_TYPE:
-		return MimeGetMimeIntFromMimeString(pStr);
-
-	case MSG_CHARSET:
-		nNum = MSG_CHARSET_NUM;
-		pTable = (char **)szMsgCharset;
-		break;
-
-	case MSG_ENCODING:
-		nNum = MSG_ENCODING_NUM;
-		pTable = (char **)szMsgEncoding;
-		break;
-
-	case MSG_DISPOSITION:
-		nNum = MSG_DISPOSITION_NUM;
-		pTable = (char **)szMsgDisposition;
-		break;
-
-	case MSG_ADDR_TYPE:
-		nNum = MSG_ADDR_TYPE_NUM;
-		pTable = (char **)szMsgAddrType;
-		break;
-
-	default:
-		MSG_DEBUG("_MsgGetCode: Invalid tableId [%d] \n", tableId);
-		break;
-	}
-
-	for (cCode = 0; cCode < nNum; cCode++) {
-		if (pTable[cCode] != NULL) {
-			if (!strcasecmp( pStr, pTable[cCode])) {
-				return cCode;
+			if (mainType == extTable[i].mainType) {
+				break;
 			}
 		}
 	}
 
-	return INVALID_HOBJ;
+	if (matchedItem) {
+		MSG_DEBUG("Found ext = [%s], mainType = [%d], mimeType = [0x%04x], ContentType = [%s]"
+				, matchedItem->szExt
+				, matchedItem->mainType
+				, matchedItem->enumMime
+				, matchedItem->szContentType);
+
+		if (pMimeType)
+			*pMimeType = (MimeType)matchedItem->enumMime;
+
+		if (ppszMimeType)
+			*ppszMimeType = matchedItem->szContentType;
+
+		return true;
+	}
+
+	return false;
 }
 
+bool MmsGetMimeTypeFromFileName(MimeMainType mainType, const char *pFileName, MimeType *pMimeType, const char **ppszMimeType)
+{
+	const char *pExt = NULL;
+
+	if (pFileName == NULL)
+		return false;
+
+	if (pMimeType == NULL && ppszMimeType == NULL)
+		return false;
+
+	pExt = strrchr(pFileName, '.');
+
+	if (pExt == NULL || *(pExt + 1) == '\0')
+		return false;
+
+	pExt = pExt + 1;
+
+	return MmsGetMimeTypeFromExt(mainType, pExt, pMimeType, ppszMimeType);
+}

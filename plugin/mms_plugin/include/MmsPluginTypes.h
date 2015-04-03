@@ -1,20 +1,17 @@
 /*
- * msg-service
- *
- * Copyright (c) 2000 - 2014 Samsung Electronics Co., Ltd. All rights reserved
+ * Copyright (c) 2014 Samsung Electronics Co., Ltd. All rights reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
 */
 
 #ifndef MMS_PLUGIN_TYPES_H
@@ -28,17 +25,11 @@
 #define INOUT     /*! Pfrefix*/
 
 #define RETRY_MAX 1
-#define MAX_MMSC_URL_LEN	100
 #define HTTP_REQUEST_LEN   1024
-#define MAX_URL_LENGTH 1024
-#define MAX_IPV4_LENGTH 30
-
 
 typedef unsigned int MMS_NET_ERROR_T;
 typedef unsigned int MMS_PDU_TYPE_T;
 typedef unsigned char MMS_HTTP_CMD_TYPE_T;
-typedef unsigned int E_MMS_CONNECTION_MODE;
-typedef unsigned int E_MMS_NETWORK_ACCESS_POINT;
 
 enum _MMS_NET_ERROR_E {
 	eMMS_SUCCESS = 0,
@@ -116,6 +107,7 @@ typedef struct _mmsTranQEntity {
 	int msgId;
 	unsigned int sessionId;
 	char transactionId[MMS_TR_ID_LEN + 1];
+	unsigned int simId;
 
 	MMS_PDU_TYPE_T eMmsPduType;
 	MMS_HTTP_CMD_TYPE_T eHttpCmdType;
@@ -128,38 +120,6 @@ typedef struct _mmsTranQEntity {
 	int getDataLen;
 	char *pGetData;
 } mmsTranQEntity;
-
-typedef struct  _MMSC_CONFIG_DATA_S {
-	char mmscUrl[MAX_URL_LENGTH + 1];			/** if break, change it to NETPM_HOME_URL_LEN_MAX   */
-	char httpProxyIpAddr[MAX_IPV4_LENGTH + 1];	/**   HTTP Proxy's URL or IP address */
-
-	unsigned int proxyPortNo;	/** MMS HTTP proxy Port number  */
-	E_MMS_CONNECTION_MODE connectionMode;	/**   Values must be from ENUM list -\ref E_MMS_CONNECTION_MODE  */
-	E_MMS_NETWORK_ACCESS_POINT networkAccessPoint;	/**   Values must be from \ref E_MMS_NETWORK_ACCESS_POINT  */
-	unsigned int bAutoRetrieveFlag;	/**  Value's shall be true or false */
-	unsigned int profileId;			/** Profile is for CM Conn open*/
-} MMSC_CONFIG_DATA_S;
-
-typedef struct _MMS_PLUGIN_HTTP_DATA_S {
-	int profileId;
-	int profileCount;
-	int currentProfileId;
-	int sessionId;
-	int transactionId;
-	void *session;
-	void *sessionHeader;
-	MMSC_CONFIG_DATA_S mmscConfig;
-} MMS_PLUGIN_HTTP_DATA_S;
-
-typedef struct _MMS_PLUGIN_HTTP_CONTEXT_S {
-	char *recv_header_buf ;
-	int header_bufsize;
-	unsigned char *final_content_buf; // Final Concatenated Buffer
-	unsigned long ulContentLength;  // Content Leght Value received in HTTP OK Header
-	unsigned long bufOffset; /** < Incremented once received Content_receiving or Content_received Event */
-} MMS_PLUGIN_HTTP_CONTEXT_S;
-
-
 
 #endif //MMS_PLUGIN_TYPES_H
 

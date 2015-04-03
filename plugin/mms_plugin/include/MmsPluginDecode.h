@@ -1,20 +1,17 @@
 /*
- * msg-service
- *
- * Copyright (c) 2000 - 2014 Samsung Electronics Co., Ltd. All rights reserved
+ * Copyright (c) 2014 Samsung Electronics Co., Ltd. All rights reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
 */
 
 #ifndef MMS_PLUGIN_DECODE_H
@@ -36,11 +33,6 @@ typedef enum {
 } MsgPresentationFactor;
 
 typedef struct {
-	char *pData;
-	UINT32 length;
-} EncodedPData;
-
-typedef struct {
 	MsgPresentationFactor factor;
 	MsgMultipart *pPrevPart;
 	MsgMultipart *pCurPresentation;
@@ -53,10 +45,6 @@ struct _MsgHeaderAddress {
 
 // for Decoding & Encoding
 typedef struct {
-	bool bActive;
-	char *pszOwner;
-	int msgID;		// if noti.ind, msgID is -1.
-
 	MmsMsgType type;
 	char szTrID[MMS_TR_ID_LEN+1];
 	UINT8 version;
@@ -91,9 +79,7 @@ typedef struct {
 	char szMsgID[MMS_MSG_ID_LEN + 1];
 	UINT32 msgSize;
 
-#ifdef __SUPPORT_DRM__
 	MsgDrmType drmType;
-#endif
 
 	// dependent to Client implementation
 	MsgType msgType;
@@ -116,19 +102,22 @@ char *MsgChangeHexString(char *pOrg);
 char *MsgResolveContentURI(char *szSrc);
 char *MsgRemoveQuoteFromFilename(char *pSrc);
 bool MsgIsMultipart(int type);
-bool MmsAddrUtilCompareAddr(char *pszAddr1, char *pszAddr2);
-bool MmsDataUpdateLastStatus(MmsMsg *pMsg);
 bool MmsAddrUtilRemovePlmnString(char *pszAddr);
-bool MsgGetTypeByFileName(int *type, char *szFileName);
+bool MmsAddrUtilCheckEmailAddress(char *pszAddr);
 bool MsgGetFileNameWithoutExtension(char *szOutputName, char *szName);
-int MmsGetMediaPartCount(msg_message_id_t msgId);
+bool MsgGetFileName(char *szFilePath, char *szFileName, int size);
 bool MmsGetMediaPartHeader(int index, MsgType *pHeader);
-bool MmsGetMsgAttrib(MmsMsgID msgID, MmsAttrib *pAttrib);
 
-#ifdef __SUPPORT_DRM__
-bool MsgCopyDrmInfo(MsgType *pPartType);
-bool MmsDrm2ConvertMsgBody(char *szOriginFilePath);
-bool MmsDrm2ReadMsgConvertedBody(MSG_MESSAGE_INFO_S *pMsg, bool bSavePartsAsTempFiles, bool bRetrieved, char *retrievedPath);
-#endif
+class MmsPluginDecoder {
+public:
+	static MmsPluginDecoder *instance();
 
+	void decodeMmsPdu(MmsMsg *pMmsMsg, msg_message_id_t msgID, const char *pduFilePath);
+private:
+	static MmsPluginDecoder *pInstance;
+
+	MmsPluginDecoder();
+	~MmsPluginDecoder();
+
+};
 #endif //MMS_PLUGIN_DECODE_H

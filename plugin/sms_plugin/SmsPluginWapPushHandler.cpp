@@ -1,20 +1,17 @@
 /*
- * msg-service
- *
- * Copyright (c) 2000 - 2014 Samsung Electronics Co., Ltd. All rights reserved
+ * Copyright (c) 2014 Samsung Electronics Co., Ltd. All rights reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
 */
 
 #include "MsgDebug.h"
@@ -27,9 +24,11 @@
 #include "SmsPluginEventHandler.h"
 #include "SmsPluginWapPushHandler.h"
 
-
+#include <glib.h>
+#include <gio/gio.h>
+#if MSG_DRM_SUPPORT
 #include <drm_client.h>
-#include <dbus/dbus-glib.h>
+#endif
 
 static unsigned short wapPushPortList [] = {0x0b84, 0x0b85, 0x23F0, 0x23F1, 0x23F2, 0x23F3, 0xC34F};
 
@@ -616,7 +615,21 @@ const SMS_WSP_HEADER_PARAMETER_S wspHeaderApplId[] =
 	{ (char*)"x-wap-application:syncml.dm", 0x07 },
 	{ (char*)"x-wap-application:drm.ua", 0x08 },
 	{ (char*)"x-wap-application:emn.ua", 0x09 },
+	{ (char*)"x-oma-application:ulp.ua ", 0x10 },
+	{ (char*)"x-oma-docomo:open.ctl", 0x9055 },
 	{ (char*)"x-oma-docomo:xmd.mail.ua", 0x905C },
+	{ (char*)"x-oma-docomo:xmd.storage.ua", 0x905F },
+	{ (char*)"x-oma-docomo:xmd.lcsapp.ua", 0x9060 },
+	{ (char*)"x-oma-docomo:xmd.info.ua", 0x9061 },
+	{ (char*)"x-oma-docomo:xmd.agent.ua", 0x9062 },
+	{ (char*)"x-oma-docomo:xmd.sab.ua", 0x9063 },
+	{ (char*)"x-oma-docomo:xmd.am.ua", 0x9064 },
+	{ (char*)"x-oma-docomo:xmd.emdm.ua", 0x906B },
+	{ (char*)"x-oma-docomo:xmd.lac.ua", 0x906C },
+	{ (char*)"x-oma-docomo:xmd.osv.ua", 0x906D },
+	{ (char*)"x-oma-docomo:xmd.dcs.ua", 0x906E },
+	{ (char*)"x-oma-docomo:xmd.wipe.ua", 0x906F },
+	{ (char*)"x-oma-docomo:xmd.vdapp.ua ", 0x9070 },
 };
 
 
@@ -795,7 +808,7 @@ void SmsPluginWapPushHandler::copyDeliverData(SMS_DELIVER_S *pDeliver)
 
 	strncpy(tmpAddress.address, pDeliver->originAddress.address, MAX_ADDRESS_LEN);
 
-	MSG_DEBUG("Address [%s]", tmpAddress.address);
+	MSG_SEC_DEBUG("Address [%s]", tmpAddress.address);
 
 	tmpTimeStamp.format = pDeliver->timeStamp.format;
 
@@ -811,7 +824,7 @@ void SmsPluginWapPushHandler::copyDeliverData(SMS_DELIVER_S *pDeliver)
 }
 
 
-void SmsPluginWapPushHandler::handleWapPushMsg(const char *pUserData, int DataSize)
+void SmsPluginWapPushHandler::handleWapPushMsg(const char *pUserData, int DataSize, int simIndex)
 {
 	MSG_BEGIN();
 
@@ -926,7 +939,7 @@ void SmsPluginWapPushHandler::handleWapPushMsg(const char *pUserData, int DataSi
 		return;
 	}
 
-	handleWapPushCallback((char *)pPushHeader, (char *)pPushBody, (int)pushBodyLen, (char *)pWspHeader, (int)wspHeaderLen, (char *)pWspBody, (int)wspBodyLen);
+	handleWapPushCallback((char *)pPushHeader, (char *)pPushBody, (int)pushBodyLen, (char *)pWspHeader, (int)wspHeaderLen, (char *)pWspBody, (int)wspBodyLen, simIndex);
 
 	MSG_END();
 }
@@ -1083,8 +1096,12 @@ static void launchProcessByAppcode(int appcode)
 {
 	MSG_BEGIN();
 	GError *error = NULL;
-	DBusGConnection *connection = NULL;
-	DBusGProxy *dbus_proxy;
+	GDBusConnection *connection_agent = NULL;
+	GDBusProxy *dbus_proxy_agent = NULL;
+	GDBusConnection *connection_service = NULL;
+	GDBusProxy *dbus_proxy_service = NULL;
+	GVariant *result_agent = NULL;
+	GVariant *result_service = NULL;
 
 	switch(appcode){
 		case SMS_WAP_APPLICATION_SYNCML_DM_BOOTSTRAP:
@@ -1095,47 +1112,125 @@ static void launchProcessByAppcode(int appcode)
 		case SMS_WAP_APPLICATION_PUSH_BROWSER_BOOKMARKS:
 		case SMS_WAP_APPLICATION_SYNCML_DM_NOTIFICATION:
 			{
-				connection = dbus_g_bus_get(DBUS_BUS_SYSTEM, &error);
-				if (error != NULL) {
+				connection_agent = g_bus_get_sync(G_BUS_TYPE_SYSTEM, NULL, &error);
+				if (error) {
 					MSG_DEBUG("Connecting to system bus failed: %s\n", error->message);
-					g_error_free(error);
-					MSG_END();
+					goto _DBUS_ERROR;
 				}
-				dbus_proxy = dbus_g_proxy_new_for_name(connection, "com.samsung.omadmagent",
-								       "/com/samsung/omadmagent", "com.samsung.omadmagent");
-				MSG_DEBUG("dbus_proxy %x", dbus_proxy);
-				dbus_g_proxy_call(dbus_proxy, "Hello_Agent", &error, G_TYPE_INVALID, G_TYPE_INVALID);
-				g_object_unref(dbus_proxy);
-				dbus_g_connection_unref(connection);
+
+				dbus_proxy_agent = g_dbus_proxy_new_sync(connection_agent, G_DBUS_PROXY_FLAGS_NONE,
+											NULL, "org.tizen.omadmagent", "/org/tizen/omadmagent",
+											"org.tizen.omadmagent", NULL, &error);
+				if (error) {
+					MSG_DEBUG("Connecting to agent proxy failed: %s\n", error->message);
+					goto _DBUS_ERROR;
+				}
+
+				result_agent = g_dbus_proxy_call_sync(dbus_proxy_agent, "Hello_Agent", NULL, G_DBUS_CALL_FLAGS_NONE, -1, NULL, &error);
+				if (error) {
+					MSG_DEBUG("invoking agent proxy call failed: %s\n", error->message);
+					goto _DBUS_ERROR;
+				}
+
+				connection_service = g_bus_get_sync(G_BUS_TYPE_SYSTEM, NULL, &error);
+				if (error) {
+					MSG_DEBUG("Connecting to system bus failed: %s\n", error->message);
+					goto _DBUS_ERROR;
+				}
+
+				dbus_proxy_service =g_dbus_proxy_new_sync(connection_service, G_DBUS_PROXY_FLAGS_NONE, NULL,
+											"org.tizen.omadmservice", "/org/tizen/omadmservice",
+											"org.tizen.omadmservice", NULL, &error);
+				if (error) {
+					MSG_DEBUG("Connecting to service proxy failed: %s\n", error->message);
+					goto _DBUS_ERROR;
+				}
+
+				result_service = g_dbus_proxy_call_sync(dbus_proxy_service, "wakeup", NULL, G_DBUS_CALL_FLAGS_NONE, -1, NULL, &error);
+				if (error) {
+					MSG_DEBUG("invoking service proxy call failed: %s\n", error->message);
+					goto _DBUS_ERROR;
+				}
+
+				Mutex mx;
+				CndVar cv;
+				mx.lock();
+				cv.timedwait(mx.pMutex(), 2);
+				mx.unlock();
+
 				MSG_END();
 			}
 			break;
 		case SMS_WAP_APPLICATION_SYNCML_DS_NOTIFICATION:
 		case SMS_WAP_APPLICATION_SYNCML_DS_NOTIFICATION_WBXML:
 			{
-				connection = dbus_g_bus_get(DBUS_BUS_SYSTEM, &error);
-				if (error != NULL) {
+				connection_agent = g_bus_get_sync(G_BUS_TYPE_SYSTEM, NULL, &error);
+				if (error) {
 					MSG_DEBUG("Connecting to system bus failed: %s\n", error->message);
-					g_error_free(error);
-					MSG_END();
+					goto _DBUS_ERROR;
 				}
-				dbus_proxy = dbus_g_proxy_new_for_name(connection, "com.samsung.omadsagent",
-										 "/com/samsung/omadsagent", "com.samsung.omadsagent");
-				MSG_DEBUG("dbus_proxy %x", dbus_proxy);
-				dbus_g_proxy_call(dbus_proxy, "Hello_Agent", &error, G_TYPE_INVALID, G_TYPE_INVALID);
-				g_object_unref(dbus_proxy);
-				dbus_g_connection_unref(connection);
-				MSG_END();
+
+				dbus_proxy_agent = g_dbus_proxy_new_sync(connection_agent, G_DBUS_PROXY_FLAGS_NONE, NULL,
+											"org.tizen.omadsagent", "/org/tizen/omadsagent",
+											"org.tizen.omadsagent", NULL, &error);
+				if (error) {
+					MSG_DEBUG("Connecting to agent proxy failed: %s\n", error->message);
+					goto _DBUS_ERROR;
+				}
+
+				result_agent = g_dbus_proxy_call_sync(dbus_proxy_agent, "Hello_Agent", NULL,
+										G_DBUS_CALL_FLAGS_NONE, -1, NULL, &error);
+				if (error) {
+					MSG_DEBUG("invoking service error: %s\n", error->message);
+					goto _DBUS_ERROR;
+				}
 			}
 			break;
 		default:
 			break;
 	}
+
+_DBUS_ERROR:
+	if (error) {
+		g_error_free(error);
+		error = NULL;
+	}
+
+	if (connection_agent) {
+		g_object_unref(connection_agent);
+		connection_agent = NULL;
+	}
+
+	if (dbus_proxy_agent) {
+		g_object_unref(dbus_proxy_agent);
+		dbus_proxy_agent = NULL;
+	}
+
+	if (result_agent) {
+		g_object_unref(result_service);
+		result_service = NULL;
+	}
+
+	if (connection_service) {
+		g_object_unref(connection_service);
+		connection_service = NULL;
+	}
+
+	if (dbus_proxy_service) {
+		g_object_unref(dbus_proxy_service);
+		dbus_proxy_service = NULL;
+	}
+
+	if (result_service) {
+		g_object_unref(result_service);
+		result_service = NULL;
+	}
+
 	MSG_END();
 }
 
 
-void SmsPluginWapPushHandler::handleWapPushCallback(char* pPushHeader, char* pPushBody, int PushBodyLen, char* pWspHeader, int WspHeaderLen, char* pWspBody, int WspBodyLen)
+void SmsPluginWapPushHandler::handleWapPushCallback(char* pPushHeader, char* pPushBody, int PushBodyLen, char* pWspHeader, int WspHeaderLen, char* pWspBody, int WspBodyLen, int simIndex)
 {
 	MSG_BEGIN();
 
@@ -1150,9 +1245,9 @@ void SmsPluginWapPushHandler::handleWapPushCallback(char* pPushHeader, char* pPu
 	char content_type[MAX_WAPPUSH_CONTENT_TYPE_LEN] = {0,};
 	SmsPluginStorage *storageHandler = SmsPluginStorage::instance();
 
-	err = storageHandler->getRegisteredPushEvent(pPushHeader, &pushEvt_cnt, app_id, content_type);
+	err = storageHandler->getRegisteredPushEvent(pPushHeader, &pushEvt_cnt, app_id, sizeof(app_id), content_type, sizeof(content_type));
 	MSG_DEBUG("pushEvt_cnt: %d", pushEvt_cnt);
-	if(err != MSG_SUCCESS) {
+	if (err != MSG_SUCCESS) {
 		MSG_DEBUG("Fail to get registered push event");
 		return;
 	}
@@ -1171,83 +1266,90 @@ void SmsPluginWapPushHandler::handleWapPushCallback(char* pPushHeader, char* pPu
 			return;
 		}
 
+#ifdef FEATURE_MMS_DISABLE
+		if (appcode == SMS_WAP_APPLICATION_MMS_UA){
+			MSG_DEBUG("Drop MMS Notification for DOCOMO");
+			return;
+		}
+
+#endif
 		launchProcessByAppcode(appcode);
 
 		switch (appcode) {
 		case SMS_WAP_APPLICATION_MMS_UA:
 			MSG_DEBUG("Received MMS Notification");
-			handleMMSNotification(pPushBody, PushBodyLen);
+			handleMMSNotification(pPushBody, PushBodyLen, simIndex);
 			break;
 
 		case SMS_WAP_APPLICATION_PUSH_SI:
 			MSG_DEBUG("Received WAP Push (Service Indication Textual form)");
-			handleSIMessage(pPushBody, PushBodyLen, true);
+			handleSIMessage(pPushBody, PushBodyLen, true, simIndex);
 			break;
 
 		case SMS_WAP_APPLICATION_PUSH_SIC:
 			MSG_DEBUG("Received WAP Push (Service Indication Tokenised form)");
-			handleSIMessage(pPushBody, PushBodyLen, false);
+			handleSIMessage(pPushBody, PushBodyLen, false, simIndex);
 			break;
 
 		case SMS_WAP_APPLICATION_PUSH_SL:
 			MSG_DEBUG("Received WAP Push (Service Loading Textual form)");
-			handleSLMessage(pPushBody, PushBodyLen, true);
+			handleSLMessage(pPushBody, PushBodyLen, true, simIndex);
 			break;
 
 		case SMS_WAP_APPLICATION_PUSH_SLC:
 			MSG_DEBUG("Received WAP Push (Service Loading Tokenised form)");
-			handleSLMessage(pPushBody, PushBodyLen, false);
+			handleSLMessage(pPushBody, PushBodyLen, false, simIndex);
 			break;
 
 		case SMS_WAP_APPLICATION_PUSH_CO:
 			MSG_DEBUG("Received WAP Push (Cache Operation Textual form)");
-			handleCOMessage(pPushBody, PushBodyLen, true);
+			handleCOMessage(pPushBody, PushBodyLen, true, simIndex);
 			break;
 
 		case SMS_WAP_APPLICATION_PUSH_COC:
 			MSG_DEBUG("Received WAP Push (Cache Operation Tokenised form)");
-			handleCOMessage(pPushBody, PushBodyLen, false);
+			handleCOMessage(pPushBody, PushBodyLen, false, simIndex);
 			break;
 
 		case SMS_WAP_APPLICATION_SYNCML_DM_BOOTSTRAP:
 			MSG_DEBUG("Received DM BOOTSTRAP");
-			SmsPluginEventHandler::instance()->handleSyncMLMsgIncoming(DM_WBXML, pPushBody, PushBodyLen, pWspHeader, WspHeaderLen);
+			SmsPluginEventHandler::instance()->handleSyncMLMsgIncoming(DM_WBXML, pPushBody, PushBodyLen, pWspHeader, WspHeaderLen, simIndex);
 			break;
 
 		case SMS_WAP_APPLICATION_SYNCML_DM_BOOTSTRAP_XML:
 			MSG_DEBUG("Received DM BOOTSTRAP");
-			SmsPluginEventHandler::instance()->handleSyncMLMsgIncoming(DM_XML, pPushBody, PushBodyLen, pWspHeader, WspHeaderLen);
+			SmsPluginEventHandler::instance()->handleSyncMLMsgIncoming(DM_XML, pPushBody, PushBodyLen, pWspHeader, WspHeaderLen, simIndex);
 			break;
 
 		case SMS_WAP_APPLICATION_PUSH_PROVISIONING_XML:
 			MSG_DEBUG("Received Provisioning");
-			SmsPluginEventHandler::instance()->handleSyncMLMsgIncoming(CP_XML, pPushBody, PushBodyLen, pWspHeader, WspHeaderLen);
+			SmsPluginEventHandler::instance()->handleSyncMLMsgIncoming(CP_XML, pPushBody, PushBodyLen, pWspHeader, WspHeaderLen, simIndex);
 			break;
 
 		case SMS_WAP_APPLICATION_PUSH_PROVISIONING_WBXML:
 			MSG_DEBUG("Received Provisioning");
-			SmsPluginEventHandler::instance()->handleSyncMLMsgIncoming(CP_WBXML, pPushBody, PushBodyLen, pWspHeader, WspHeaderLen);
+			SmsPluginEventHandler::instance()->handleSyncMLMsgIncoming(CP_WBXML, pPushBody, PushBodyLen, pWspHeader, WspHeaderLen, simIndex);
 			break;
 
 		case SMS_WAP_APPLICATION_PUSH_BROWSER_SETTINGS:
 		case SMS_WAP_APPLICATION_PUSH_BROWSER_BOOKMARKS:
 			MSG_DEBUG("Received Provisioning");
-			SmsPluginEventHandler::instance()->handleSyncMLMsgIncoming(OTHERS, pPushBody, PushBodyLen, pWspHeader, WspHeaderLen);
+			SmsPluginEventHandler::instance()->handleSyncMLMsgIncoming(OTHERS, pPushBody, PushBodyLen, pWspHeader, WspHeaderLen, simIndex);
 			break;
 
 		case SMS_WAP_APPLICATION_SYNCML_DM_NOTIFICATION:
 			MSG_DEBUG("Received DM Notification");
-			SmsPluginEventHandler::instance()->handleSyncMLMsgIncoming(DM_NOTIFICATION, pPushBody, PushBodyLen, pWspHeader, WspHeaderLen);
+			SmsPluginEventHandler::instance()->handleSyncMLMsgIncoming(DM_NOTIFICATION, pPushBody, PushBodyLen, pWspHeader, WspHeaderLen, simIndex);
 			break;
 
 		case SMS_WAP_APPLICATION_SYNCML_DS_NOTIFICATION:
 			MSG_DEBUG("Received DS Notification");
-			SmsPluginEventHandler::instance()->handleSyncMLMsgIncoming(DS_NOTIFICATION, pPushBody, PushBodyLen, pWspHeader, WspHeaderLen);
+			SmsPluginEventHandler::instance()->handleSyncMLMsgIncoming(DS_NOTIFICATION, pPushBody, PushBodyLen, pWspHeader, WspHeaderLen, simIndex);
 			break;
 
 		case SMS_WAP_APPLICATION_SYNCML_DS_NOTIFICATION_WBXML:
 			MSG_DEBUG("Received DS Notification");
-			SmsPluginEventHandler::instance()->handleSyncMLMsgIncoming(DS_WBXML, pPushBody, PushBodyLen, pWspHeader, WspHeaderLen);
+			SmsPluginEventHandler::instance()->handleSyncMLMsgIncoming(DS_WBXML, pPushBody, PushBodyLen, pWspHeader, WspHeaderLen, simIndex);
 			break;
 
 		case SMS_WAP_APPLICATION_DRM_UA_RIGHTS_XML:
@@ -1266,14 +1368,14 @@ void SmsPluginWapPushHandler::handleWapPushCallback(char* pPushHeader, char* pPu
 			MSG_DEBUG("Received DRM V2");
 			// TODO: DRM V2
 			break;
-#if 0
+
 		case SMS_WAP_APPLICATION_PUSH_EMAIL:
 		case SMS_WAP_APPLICATION_PUSH_EMAIL_XML:
 		case SMS_WAP_APPLICATION_PUSH_EMAIL_WBXML:
 			MSG_DEBUG("Received Email");
 			// TODO: Email
 			break;
-#endif
+
 
 		case SMS_WAP_APPLICATION_PUSH_IMPS_CIR:
 			MSG_DEBUG("Received IMPS CIR");
@@ -1302,7 +1404,7 @@ void SmsPluginWapPushHandler::handleWapPushCallback(char* pPushHeader, char* pPu
 }
 #endif
 
-void SmsPluginWapPushHandler::handleMMSNotification(const char *pPushBody, int PushBodyLen)
+void SmsPluginWapPushHandler::handleMMSNotification(const char *pPushBody, int PushBodyLen, int simIndex)
 {
 	MSG_BEGIN();
 
@@ -1320,13 +1422,18 @@ void SmsPluginWapPushHandler::handleMMSNotification(const char *pPushBody, int P
 	MSG_MESSAGE_INFO_S msgInfo;
 	memset(&msgInfo, 0x00, sizeof(MSG_MESSAGE_INFO_S));
 
+	msgInfo.addressList = NULL;
+	AutoPtr<MSG_ADDRESS_INFO_S> addressListBuf(&msgInfo.addressList);
+
 	createMsgInfo(&msgInfo);
 
 	/** Convert Type values */
 	msgInfo.msgType.mainType = MSG_MMS_TYPE;
 	msgInfo.msgType.subType = MSG_NOTIFICATIONIND_MMS;
+	msgInfo.msgType.classType = MSG_CLASS_NONE;
 	msgInfo.storageId = MSG_STORAGE_PHONE;
 	msgInfo.dataSize = PushBodyLen;
+	msgInfo.sim_idx = simIndex;
 
 	if (msgInfo.dataSize > MAX_MSG_TEXT_LEN) {
 		msgInfo.bTextSms = false;
@@ -1352,7 +1459,7 @@ void SmsPluginWapPushHandler::handleMMSNotification(const char *pPushBody, int P
 	msg_error_t err = MSG_SUCCESS;
 
 	/** Add MMS Noti Msg into DB */
-	err = SmsPluginStorage::instance()->addMessage(&msgInfo);
+	err = SmsPluginStorage::instance()->checkMessage(&msgInfo);
 
 	if (err == MSG_SUCCESS) {
 		/**  Callback */
@@ -1362,13 +1469,13 @@ void SmsPluginWapPushHandler::handleMMSNotification(const char *pPushBody, int P
 			MSG_DEBUG("callbackMsgIncoming() Error !! [%d]", err);
 		}
 	} else {
-		MSG_DEBUG("addMessage() Error !! [%d]", err);
+		MSG_DEBUG("checkMessage() Error !! [%d]", err);
 	}
 
 	MSG_END();
 }
 
-void SmsPluginWapPushHandler::handleSIMessage(char* pPushBody, int PushBodyLen, bool isText)
+void SmsPluginWapPushHandler::handleSIMessage(char* pPushBody, int PushBodyLen, bool isText, int simIndex)
 {
 	MSG_BEGIN();
 
@@ -1404,7 +1511,7 @@ void SmsPluginWapPushHandler::handleSIMessage(char* pPushBody, int PushBodyLen, 
 
 	while (indNode != NULL) {
 		if (!xmlStrcmp(indNode->name, (const xmlChar*) "indication")) {
-			MSG_DEBUG("indNode->name = %s\n", indNode->name);
+			MSG_SEC_DEBUG("indNode->name = %s\n", indNode->name);
 			break;
 		}
 
@@ -1433,7 +1540,7 @@ void SmsPluginWapPushHandler::handleSIMessage(char* pPushBody, int PushBodyLen, 
 	}
 
 	if (tmpXmlChar != NULL)
- 		strncpy(pushMsg.href, (char*)tmpXmlChar, MAX_WAPPUSH_HREF_LEN-1);
+		strncpy(pushMsg.href, (char*)tmpXmlChar, MAX_WAPPUSH_HREF_LEN-1);
 
 	tmpXmlChar = xmlGetProp(indNode, (xmlChar*)SMS_PUSH_XML_SI_ID_TAG);
 
@@ -1484,6 +1591,10 @@ void SmsPluginWapPushHandler::handleSIMessage(char* pPushBody, int PushBodyLen, 
 
 	/**  Pack Message Info Structure */
 	MSG_MESSAGE_INFO_S msgInfo;
+	memset(&msgInfo, 0, sizeof(MSG_MESSAGE_INFO_S));
+
+	msgInfo.addressList = NULL;
+	AutoPtr<MSG_ADDRESS_INFO_S> addressListBuf(&msgInfo.addressList);
 
 	createMsgInfo(&msgInfo);
 
@@ -1494,6 +1605,8 @@ void SmsPluginWapPushHandler::handleSIMessage(char* pPushBody, int PushBodyLen, 
 	msgInfo.msgType.subType = MSG_WAP_SI_SMS;
 
 	msgInfo.dataSize = sizeof(pushMsg);
+	msgInfo.sim_idx = simIndex;
+	getDisplayName(msgInfo.msgType.subType, msgInfo.addressList[0].addressVal);
 
 	xmlFree(xmlDoc);
 	xmlFree(tmpXmlChar);
@@ -1501,7 +1614,7 @@ void SmsPluginWapPushHandler::handleSIMessage(char* pPushBody, int PushBodyLen, 
 	msg_error_t err = MSG_SUCCESS;
 
 	/** Add WAP Push Msg into DB */
-	err = SmsPluginStorage::instance()->addMessage(&msgInfo);
+	err = SmsPluginStorage::instance()->checkMessage(&msgInfo);
 
 	if (err == MSG_SUCCESS) {
 		/** Callback */
@@ -1511,7 +1624,7 @@ void SmsPluginWapPushHandler::handleSIMessage(char* pPushBody, int PushBodyLen, 
 			MSG_DEBUG("callbackMsgIncoming() Error !! [%d]", err);
 		}
 	} else {
-		MSG_DEBUG("addMessage() Error !! [%d]", err);
+		MSG_DEBUG("checkMessage() Error !! [%d]", err);
 	}
 
 	MSG_END();
@@ -1520,7 +1633,7 @@ void SmsPluginWapPushHandler::handleSIMessage(char* pPushBody, int PushBodyLen, 
 }
 
 
-void SmsPluginWapPushHandler::handleSLMessage(char* pPushBody, int PushBodyLen, bool isText)
+void SmsPluginWapPushHandler::handleSLMessage(char* pPushBody, int PushBodyLen, bool isText, int simIndex)
 {
 	MSG_BEGIN();
 
@@ -1553,14 +1666,14 @@ void SmsPluginWapPushHandler::handleSLMessage(char* pPushBody, int PushBodyLen, 
 		xmlFreeDoc(xmlDoc);
 		return;
 	} else {
-		MSG_DEBUG("Not an empty Document and topNode->name = %s \n",topNode->name );
+		MSG_SEC_DEBUG("Not an empty Document and topNode->name = %s \n",topNode->name );
 	}
 
 	indNode = topNode;
 
 	while (indNode != NULL) {
 		if (!xmlStrcmp(indNode->name, (const xmlChar*) "sl")) {
-			MSG_DEBUG("indNode->name = %s\n",indNode->name);
+			MSG_SEC_DEBUG("indNode->name = %s\n",indNode->name);
 			break;
 		}
 
@@ -1595,7 +1708,7 @@ void SmsPluginWapPushHandler::handleSLMessage(char* pPushBody, int PushBodyLen, 
 	MSG_DEBUG("pushMsg.received : [%d]", pushMsg.received);
 	MSG_DEBUG("pushMsg.created : [%d]", pushMsg.created);
 	MSG_DEBUG("pushMsg.expires : [%d]", pushMsg.expires);
-	MSG_DEBUG("pushMsg.id : [%s]", pushMsg.id);
+	MSG_SEC_DEBUG("pushMsg.id : [%s]", pushMsg.id);
 	MSG_DEBUG("pushMsg.href : [%s]", pushMsg.href);
 	MSG_DEBUG("pushMsg.contents : [%s]", pushMsg.contents);
 
@@ -1611,6 +1724,10 @@ void SmsPluginWapPushHandler::handleSLMessage(char* pPushBody, int PushBodyLen, 
 
 	/** Pack Message Info Structure */
 	MSG_MESSAGE_INFO_S msgInfo;
+	memset(&msgInfo, 0, sizeof(MSG_MESSAGE_INFO_S));
+
+	msgInfo.addressList = NULL;
+	AutoPtr<MSG_ADDRESS_INFO_S> addressListBuf(&msgInfo.addressList);
 
 	createMsgInfo(&msgInfo);
 
@@ -1624,14 +1741,23 @@ void SmsPluginWapPushHandler::handleSLMessage(char* pPushBody, int PushBodyLen, 
 	strncpy(msgInfo.msgText, pushMsg.href, MAX_MSG_TEXT_LEN);
 
 	msgInfo.dataSize = sizeof(pushMsg);
+	msgInfo.sim_idx = simIndex;
+	getDisplayName(msgInfo.msgType.subType, msgInfo.addressList[0].addressVal);
 
 	MSG_DEBUG("dataSize : %d", msgInfo.dataSize);
 
-	/** Callback to MSG FW */
-	err = SmsPluginEventHandler::instance()->callbackMsgIncoming(&msgInfo);
+	/** Add WAP Push Msg into DB */
+	err = SmsPluginStorage::instance()->checkMessage(&msgInfo);
 
-	if (err != MSG_SUCCESS)
-		MSG_DEBUG("callbackMsgIncoming is failed, err=[%d]", err);
+	if (err == MSG_SUCCESS) {
+		/** Callback to MSG FW */
+		err = SmsPluginEventHandler::instance()->callbackMsgIncoming(&msgInfo);
+
+		if (err != MSG_SUCCESS)
+			MSG_DEBUG("callbackMsgIncoming is failed, err=[%d]", err);
+	} else {
+		MSG_DEBUG("checkMessage() Error !! [%d]", err);
+	}
 
 	xmlFree(xmlDoc);
 	xmlFree(tmpXmlChar);
@@ -1641,7 +1767,7 @@ void SmsPluginWapPushHandler::handleSLMessage(char* pPushBody, int PushBodyLen, 
 	return;
 }
 
-void SmsPluginWapPushHandler::handleCOMessage(char* pPushBody, int PushBodyLen, bool isText)
+void SmsPluginWapPushHandler::handleCOMessage(char* pPushBody, int PushBodyLen, bool isText, int simIndex)
 {
 	MSG_PUSH_CACHEOP_S cacheOp;
 
@@ -1679,7 +1805,7 @@ void SmsPluginWapPushHandler::handleCOMessage(char* pPushBody, int PushBodyLen, 
 
 		xmlChar* tmpUrl = NULL;
 		if (!xmlStrcmp(indNode->name, (const xmlChar*) SMS_PUSH_XML_INVAL_OBJ)) {
-			MSG_DEBUG("indNode->name = %s\n", indNode->name);
+			MSG_SEC_DEBUG("indNode->name = %s\n", indNode->name);
 
 			tmpUrl = xmlGetProp(indNode, (xmlChar*) SMS_PUSH_XML_CO_URI);
 
@@ -1691,7 +1817,7 @@ void SmsPluginWapPushHandler::handleCOMessage(char* pPushBody, int PushBodyLen, 
 				MSG_DEBUG("NO href value from the xmlDoc\n");
 			}
 		} else if (!xmlStrcmp(indNode->name, (const xmlChar*) SMS_PUSH_XML_INVAL_SVC)) {
-			MSG_DEBUG("indNode->name = %s\n",indNode->name);
+			MSG_SEC_DEBUG("indNode->name = %s\n",indNode->name);
 			tmpUrl = xmlGetProp(indNode, (xmlChar*)SMS_PUSH_XML_CO_URI);
 
 			if (tmpUrl != NULL) {
@@ -1724,6 +1850,10 @@ void SmsPluginWapPushHandler::handleCOMessage(char* pPushBody, int PushBodyLen, 
 
 	/**  Pack Message Info Structure */
 	MSG_MESSAGE_INFO_S msgInfo;
+	memset(&msgInfo, 0, sizeof(MSG_MESSAGE_INFO_S));
+
+	msgInfo.addressList = NULL;
+	AutoPtr<MSG_ADDRESS_INFO_S> addressListBuf(&msgInfo.addressList);
 
 	createMsgInfo(&msgInfo);
 
@@ -1734,11 +1864,12 @@ void SmsPluginWapPushHandler::handleCOMessage(char* pPushBody, int PushBodyLen, 
 	msgInfo.msgType.subType = MSG_WAP_CO_SMS;
 
 	msgInfo.dataSize = sizeof(cacheOp);
+	msgInfo.sim_idx = simIndex;
 
 	msg_error_t err = MSG_SUCCESS;
 
 	/** Add WAP Push Msg into DB */
-	err = SmsPluginStorage::instance()->addMessage(&msgInfo);
+	err = SmsPluginStorage::instance()->checkMessage(&msgInfo);
 
 	if (err == MSG_SUCCESS) {
 		/** Callback */
@@ -1748,7 +1879,7 @@ void SmsPluginWapPushHandler::handleCOMessage(char* pPushBody, int PushBodyLen, 
 			MSG_DEBUG("callbackMsgIncoming() Error !! [%d]", err);
 		}
 	} else {
-		MSG_DEBUG("addMessage() Error !! [%d]", err);
+		MSG_DEBUG("checkMessage() Error !! [%d]", err);
 	}
 
 	xmlFree(xmlDoc);
@@ -1759,6 +1890,7 @@ void SmsPluginWapPushHandler::handleCOMessage(char* pPushBody, int PushBodyLen, 
 
 void SmsPluginWapPushHandler::handleDrmVer1(char* pPushBody, int PushBodyLen)
 {
+#if MSG_DRM_SUPPORT
 	int drmRt = DRM_RETURN_SUCCESS;
 	char* cid = NULL;
 	AutoPtr<char> buf(&cid);
@@ -1784,7 +1916,7 @@ void SmsPluginWapPushHandler::handleDrmVer1(char* pPushBody, int PushBodyLen)
 	} else {
 		MSG_DEBUG("Fail to regist DRM to drm-service.");
 	}
-
+#endif
 	return;
 }
 
@@ -1802,7 +1934,6 @@ void SmsPluginWapPushHandler::createMsgInfo(MSG_MESSAGE_INFO_S* pMsgInfo)
 	pMsgInfo->bProtected = false;
 	pMsgInfo->priority = MSG_MESSAGE_PRIORITY_NORMAL;
 	pMsgInfo->direction = MSG_DIRECTION_TYPE_MT;
-
 
 	time_t rawtime = time(NULL);
 
@@ -1864,13 +1995,16 @@ void SmsPluginWapPushHandler::createMsgInfo(MSG_MESSAGE_INFO_S* pMsgInfo)
 
 	/**  Convert Address values */
 	pMsgInfo->nAddressCnt = 1;
+
+	pMsgInfo->addressList = (MSG_ADDRESS_INFO_S *)new char[sizeof(MSG_ADDRESS_INFO_S)];
+	memset(pMsgInfo->addressList, 0x00, sizeof(MSG_ADDRESS_INFO_S));
+
 	pMsgInfo->addressList[0].addressType = MSG_ADDRESS_TYPE_PLMN;
 	strncpy(pMsgInfo->addressList[0].addressVal, tmpAddress.address, MAX_ADDRESS_VAL_LEN);
 
 	pMsgInfo->msgPort.valid = false;
 	pMsgInfo->msgPort.dstPort = 0;
 	pMsgInfo->msgPort.srcPort = 0;
-
 }
 
 void SmsPluginWapPushHandler::getXmlDoc(const char* pPushBody, const int PushBodyLen, xmlDocPtr *pXmlDoc, const bool isText)
@@ -1882,7 +2016,7 @@ void SmsPluginWapPushHandler::getXmlDoc(const char* pPushBody, const int PushBod
 
 
 	if (isText) {
-		*pXmlDoc = xmlParseMemory(pPushBody, strlen(pPushBody));
+		*pXmlDoc = xmlParseMemory(pPushBody, AcStrlen(pPushBody));
 	} else {
 		WB_UTINY*	xmldata = NULL;
 		WBXMLConvWBXML2XML *conv = NULL;
@@ -1903,7 +2037,7 @@ void SmsPluginWapPushHandler::getXmlDoc(const char* pPushBody, const int PushBod
 
 		MSG_DEBUG("xmldata : \n%s\n", xmldata);
 
-		*pXmlDoc = xmlParseMemory((char*)xmldata, strlen((char*)xmldata));
+		*pXmlDoc = xmlParseMemory((char*)xmldata, AcStrlen((char*)xmldata));
 	}
 
 }
@@ -1919,7 +2053,7 @@ unsigned long SmsPluginWapPushHandler::convertXmlCharToSec(char* pDate)
 	memset(&timeStruct, 0x00, sizeof(struct tm));
 
 	/** check pDate */
-	if (strlen(pDate)<20)
+	if (AcStrlen(pDate)<20)
 		return 0;
 
 	MSG_DEBUG("pDate [%s]", pDate);
@@ -1987,27 +2121,27 @@ msg_push_action_t SmsPluginWapPushHandler::convertSIActionStrToEnum(char* pActio
 	}
 
 	/** compare  with signal-none. */
-	comp = strcmp( "signal-none", pAction );
+	comp = g_strcmp0( "signal-none", pAction );
 	if (comp == 0)
 		return MSG_PUSH_SI_ACTION_SIGNAL_NONE;
 
 	/** compare  with signal-low. */
-	comp = strcmp( "signal-low", pAction );
+	comp = g_strcmp0( "signal-low", pAction );
 	if (comp == 0)
 		return MSG_PUSH_SI_ACTION_SIGNAL_LOW;
 
 	/**  compare  with signal-medium. */
-	comp = strcmp( "signal-medium", pAction );
+	comp = g_strcmp0( "signal-medium", pAction );
 	if (comp == 0)
 		return MSG_PUSH_SI_ACTION_SIGNAL_MEDIUM;
 
 	/**  compare  with signal-high. */
-	comp = strcmp( "signal-high", pAction );
+	comp = g_strcmp0( "signal-high", pAction );
 	if (comp == 0)
 		return MSG_PUSH_SI_ACTION_SIGNAL_HIGH;
 
 	/**  compare  with delete. */
-	comp = strcmp( "delete", pAction );
+	comp = g_strcmp0( "delete", pAction );
 	if (comp == 0)
 		return MSG_PUSH_SI_ACTION_DELETE;
 
@@ -2026,17 +2160,17 @@ msg_push_action_t SmsPluginWapPushHandler::convertSLActionStrToEnum(char* pActio
 	}
 
 	/**  compare pSrcStr with execute-low. */
-	comp = strcmp( "execute-low", pAction );
+	comp = g_strcmp0( "execute-low", pAction );
 	if (comp == 0)
 		return MSG_PUSH_SL_ACTION_EXECUTE_LOW;
 
 	/**  compare pSrcStr with execute-high. */
-	comp = strcmp( "execute-high", pAction );
+	comp = g_strcmp0( "execute-high", pAction );
 	if (comp == 0)
 		return MSG_PUSH_SL_ACTION_EXECUTE_HIGH;
 
 	/** compare pSrcStr with cache. */
-	comp = strcmp( "cache", pAction );
+	comp = g_strcmp0( "cache", pAction );
 	if (comp == 0)
 		return MSG_PUSH_SL_ACTION_CACHE;
 
@@ -2151,13 +2285,17 @@ void SmsPluginWapPushHandler::wspDecodeHeader( unsigned char* sEncodedHeader, un
 	/* Is it reacehd end of header? */
 	while (iEncodedHeader < encodedHeaderLen) {
 		/* Get memory for single header */
-		temper = new char[ WSP_STANDARD_STR_LEN_MAX * 5 ];
 		if (temper == NULL) {
-			MSG_DEBUG("temper Memory allocation is failed.\n" );
-			return;
-		}
+			temper = new char[ WSP_STANDARD_STR_LEN_MAX * 5 ];
 
-		memset(temper, 0x00, (WSP_STANDARD_STR_LEN_MAX * 5));
+			if (temper == NULL) {
+				MSG_DEBUG("temper Memory allocation is failed.\n" );
+				return;
+			}
+			memset(temper, 0x00, (WSP_STANDARD_STR_LEN_MAX * 5));
+		} else {
+			memset(temper, 0x00, (WSP_STANDARD_STR_LEN_MAX * 5));
+		}
 
 		/* this section presents header code page shifting procedure
 		   This part can be implemented by future request.
@@ -2356,6 +2494,7 @@ void SmsPluginWapPushHandler::wspDecodeHeader( unsigned char* sEncodedHeader, un
 								unsigned long  i = 0;
 								/* encoded content type length body */
 								unsigned long  tempLen;
+								MSG_DEBUG("fieldValueLen: %d", fieldValueLen);
 
 								/* Like HTTP result state 304, it's for processing without Content type. This part doesn't defined. */
 								if (0 == fieldValueLen) {
@@ -2368,8 +2507,8 @@ void SmsPluginWapPushHandler::wspDecodeHeader( unsigned char* sEncodedHeader, un
 									MSG_DEBUG("WspLDecodeHeader:For mmO2 problem\r\n" );
 								}
 
-								if ((fieldValue[0] < 0x20 ) || (fieldValue[0] > 0x80 )) {
-									if (fieldValue[0] > 0x80) {
+								if ((fieldValue[0] < 0x20 ) || (fieldValue[0] >= 0x80 )) {
+									if (fieldValue[0] >= 0x80) {
 										tempLen = 1;
 									} else if (fieldValueLen == 2 && fieldValue[0] == 0x03 && fieldValue[1] == 0x0A) { /** 06 05 02 03 0A AF 89 */
 										fieldValue[3] = fieldValue[2];
@@ -2403,7 +2542,7 @@ void SmsPluginWapPushHandler::wspDecodeHeader( unsigned char* sEncodedHeader, un
 									} else {
 										contentsTypeCode = wspHeaderDecodeInteger(fieldValue);
 
-										while ((wspUnregisterContentsType[i].contentsTypeCode != contentsTypeCode) && (i < wspUnregisteredContentsTypeCount)) i++;
+										while ((i < wspUnregisteredContentsTypeCount) && (wspUnregisterContentsType[i].contentsTypeCode != contentsTypeCode)) i++;
 
 										/** If there is a Content-Type assigned, */
 										if (i < wspUnregisteredContentsTypeCount)
@@ -2514,10 +2653,10 @@ void SmsPluginWapPushHandler::wspDecodeHeader( unsigned char* sEncodedHeader, un
 								int count = sizeof(wspHeaderApplId)/sizeof(SMS_WSP_HEADER_PARAMETER_S);
 								for(int i = 0; i < count ; ++i)
 								{
-									if((unsigned int)integerValue == wspHeaderApplId[i].parameterCode)
+									if ((unsigned int)integerValue == wspHeaderApplId[i].parameterCode)
 									{
 										snprintf((char*)temp, 64, "%s", wspHeaderApplId[i].parameterToken);
-										strncat((char*)temper, (char*)temp, (WSP_STANDARD_STR_LEN_MAX * 5)-strlen(temper)-1);
+										strncat((char*)temper, (char*)temp, (WSP_STANDARD_STR_LEN_MAX * 5)-AcStrlen(temper)-1);
 										break;
 									}
 								}
@@ -2526,7 +2665,7 @@ void SmsPluginWapPushHandler::wspDecodeHeader( unsigned char* sEncodedHeader, un
 						/* Accept-Application */
 						case 0x32 :
 							if (0x80 == fieldValue[0]) {
-								strncat( (char*)temper, "*", (WSP_STANDARD_STR_LEN_MAX * 5)-strlen(temper)-1 );
+								strncat( (char*)temper, "*", (WSP_STANDARD_STR_LEN_MAX * 5)-AcStrlen(temper)-1 );
 							} else {
 
 								unsigned char temp[16];
@@ -2536,7 +2675,7 @@ void SmsPluginWapPushHandler::wspDecodeHeader( unsigned char* sEncodedHeader, un
                                 else
 								*/
 								sprintf( (char*)temp, "%u", (unsigned int)wspHeaderDecodeIntegerByLength( fieldValue, fieldValueLen ));
-								strncat( (char*)temper, (char*)temp, (WSP_STANDARD_STR_LEN_MAX * 5)-strlen(temper)-1);
+								strncat( (char*)temper, (char*)temp, (WSP_STANDARD_STR_LEN_MAX * 5)-AcStrlen(temper)-1);
 							}
 							break;
 
@@ -2558,21 +2697,21 @@ void SmsPluginWapPushHandler::wspDecodeHeader( unsigned char* sEncodedHeader, un
 								char* decodedString = NULL;
 								AutoPtr<char> decodedStringbuf(&decodedString);
 								wspHeaderDecodeDateValue( fieldValueLen, fieldValue, &decodedString);
-								strncat( (char*)temper, (char*)decodedString, (WSP_STANDARD_STR_LEN_MAX * 5)-strlen(temper)-1 );
+								strncat( (char*)temper, (char*)decodedString, (WSP_STANDARD_STR_LEN_MAX * 5)-AcStrlen(temper)-1 );
 							}
 							break;
 
 						/* connection */
 						case 0x09 :
 							if (fieldValue[0] == 0x80 )
-								strncat( (char*)temper, "Close", (WSP_STANDARD_STR_LEN_MAX * 5)-strlen(temper)-1 );
+								strncat( (char*)temper, "Close", (WSP_STANDARD_STR_LEN_MAX * 5)-AcStrlen(temper)-1 );
 							break;
 						/* accept-ranges */
 						case 0x04 :
 							if (fieldValue[0] == 0x80 )
-								strncat( (char*)temper, "None", (WSP_STANDARD_STR_LEN_MAX * 5)-strlen(temper)-1 );
+								strncat( (char*)temper, "None", (WSP_STANDARD_STR_LEN_MAX * 5)-AcStrlen(temper)-1 );
 							if (fieldValue[0] == 0x81 )
-								strncat( (char*)temper, "Bytes", (WSP_STANDARD_STR_LEN_MAX * 5)-strlen(temper)-1 );
+								strncat( (char*)temper, "Bytes", (WSP_STANDARD_STR_LEN_MAX * 5)-AcStrlen(temper)-1 );
 							break;
 						/* content-md5 */
 						case 0x0f :
@@ -2631,7 +2770,7 @@ void SmsPluginWapPushHandler::wspDecodeHeader( unsigned char* sEncodedHeader, un
 								iField = AcStrlen( (char*)authScheme ) + 1;
 								strncpy( (char*)realmValue, (char*)(fieldValue + iField ), WSP_STANDARD_STR_LEN_MAX-1);
 								iField = iField + AcStrlen( (char*)realmValue ) + 1;
-								sprintf( (char*)addedString, "%s %s", authScheme, realmValue );
+								snprintf( (char*)addedString, sizeof(addedString), "%s %s", authScheme, realmValue );
 								wspHeaderCopyDecodedString( addedString, &currentLength, &temper );
 
 								if (iField < fieldValueLen) {
@@ -2768,14 +2907,14 @@ void SmsPluginWapPushHandler::wspDecodeHeader( unsigned char* sEncodedHeader, un
 						/* warning */
 						case 0x2c :
 							{
-
 								unsigned char temp[WSP_STANDARD_STR_LEN_MAX];
 
 								if (fieldValue[0] < 0x20 )
 									iField = fieldValue[0];
 								else
 									iField = 1;
-								sprintf( (char*)temp, "%u", (unsigned int)wspHeaderDecodeIntegerByLength( fieldValue, iField ));
+
+								snprintf( (char*)temp, sizeof(temp), "%u", (unsigned int)wspHeaderDecodeIntegerByLength( fieldValue, iField ));
 								strncat( (char*)temper, (char*)temp, (WSP_STANDARD_STR_LEN_MAX * 5)-AcStrlen((char*)temper)-1 );
 								if (iField < fieldValueLen) {
 									unsigned char agent[WSP_STANDARD_STR_LEN_MAX];
@@ -2783,8 +2922,7 @@ void SmsPluginWapPushHandler::wspDecodeHeader( unsigned char* sEncodedHeader, un
 									strncpy( (char*)agent, (char*)(fieldValue + iField ),WSP_STANDARD_STR_LEN_MAX-1);
 									iField = iField + AcStrlen((char*)agent ) + 1;
 									strncpy((char*)text, (char*)(fieldValue + iField ),WSP_STANDARD_STR_LEN_MAX-1);
-
-									sprintf( (char*)temp, " %s %s", agent, text );
+									snprintf( (char*)temp, sizeof(temp), " %s %s", agent, text );
 									wspHeaderCopyDecodedString( temp, &currentLength, &temper );
 								}
 							}
@@ -2818,7 +2956,7 @@ void SmsPluginWapPushHandler::wspDecodeHeader( unsigned char* sEncodedHeader, un
 							{
 								unsigned char temp[WSP_STANDARD_STR_LEN_MAX];
 
-								sprintf( (char*)temp, "%lX", wspHeaderDecodeInteger(fieldValue ));
+								snprintf( (char*)temp, sizeof(temp), "%lX", wspHeaderDecodeInteger(fieldValue ));
 								temp[2] = temp[1];
 								temp[1] = (unsigned char)0x30;
 								temp[3] = '\0';
@@ -3196,24 +3334,24 @@ void SmsPluginWapPushHandler::wspHeaderDecodeDateValue( unsigned long length, un
 	{
 			/* UNIX asciitime function */
 		case UNIX_DATE_TYPE :
-			sprintf( (char*)decodedString, "%s %s %-2u %u:%u:%u %u GMT", wspWeek[pTMData->tm_wday], wspMonth[pTMData->tm_mon],
+			snprintf( (char*)decodedString, sizeof(decodedString), "%s %s %-2u %u:%u:%u %u GMT", wspWeek[pTMData->tm_wday], wspMonth[pTMData->tm_mon],
 					   pTMData->tm_mday, pTMData->tm_hour, pTMData->tm_min, pTMData->tm_sec, pTMData->tm_year + 1900 );
 			break;
 		case RFC1123_DATE_TYPE :
-			sprintf( (char*)decodedString, "%s, %u %s %u %u:%u:%u GMT", wspWeek[pTMData->tm_wday], pTMData->tm_mday,
+			snprintf( (char*)decodedString, sizeof(decodedString), "%s, %u %s %u %u:%u:%u GMT", wspWeek[pTMData->tm_wday], pTMData->tm_mday,
 					   wspMonth[pTMData->tm_mon], pTMData->tm_year + 1900, pTMData->tm_hour, pTMData->tm_min, pTMData->tm_sec );
 			break;
 		case RFC850_DATE_TYPE :
 			/* Have some Y2K Problems */
 			/* In RFC 850, date is represented like 11-May-99. So Y2K problem always can be occured. So remainer (year divided by 100) is used.			*/
-			sprintf( (char*)decodedString, "%s, %2u-%s-%2u %u:%u:%u GMT", wspWeekDay[pTMData->tm_wday], pTMData->tm_mday,
+			snprintf( (char*)decodedString, sizeof(decodedString), "%s, %2u-%s-%2u %u:%u:%u GMT", wspWeekDay[pTMData->tm_wday], pTMData->tm_mday,
 					   wspMonth[pTMData->tm_mon], pTMData->tm_year % CENTURY, pTMData->tm_hour, pTMData->tm_min, pTMData->tm_sec );
 
 			break;
 	}
 #endif
 	/**UNIX_DATE_TYPE : */
-	sprintf( (char*)*pDecodedString, "%s %s %-2u %u:%u:%u %u GMT", wspWeek[pTMData->tm_wday], wspMonth[pTMData->tm_mon],
+	snprintf( (char*)*pDecodedString, (sizeof(char)*WSP_STANDARD_STR_LEN_MAX), "%s %s %-2u %u:%u:%u %u GMT", wspWeek[pTMData->tm_wday], wspMonth[pTMData->tm_mon],
 											pTMData->tm_mday, pTMData->tm_hour, pTMData->tm_min, pTMData->tm_sec, pTMData->tm_year + 1900 );
 
 	return;
@@ -3251,6 +3389,7 @@ void SmsPluginWapPushHandler::wspHeaderDecodeAuth(unsigned long fieldValueLen, u
 	unsigned char  userId[WSP_STANDARD_STR_LEN_MAX];
 	unsigned char  passWd[WSP_STANDARD_STR_LEN_MAX];
 	unsigned long iField = 0;
+	char authStr[256];
 
 	*pDecodedString = new char[WSP_STANDARD_STR_LEN_MAX * 2];
 
@@ -3261,11 +3400,15 @@ void SmsPluginWapPushHandler::wspHeaderDecodeAuth(unsigned long fieldValueLen, u
 
 	/* skip 'basic' code */
 	iField++;
-	sscanf((char*)(fieldValue + iField), "%s", userId );
+	memset(authStr, 0x00, sizeof(authStr));
+	snprintf(authStr, sizeof(authStr), "%%%ds", sizeof(userId));
+	sscanf((char*)(fieldValue + iField), authStr, userId );
 	iField = iField + AcStrlen( (char*)userId ) + 1;
-	sscanf( (char*)(fieldValue + iField), "%s", passWd );
+	memset(authStr, 0x00, sizeof(authStr));
+	snprintf(authStr, sizeof(authStr), "%%%ds", sizeof(passWd));
+	sscanf( (char*)(fieldValue + iField), authStr, passWd );
 	iField = iField + AcStrlen( (char*)userId ) + 1;
-	sprintf( (char*)*pDecodedString, "basic %s/%s", userId, passWd );
+	snprintf( (char*)*pDecodedString, (sizeof(char)*WSP_STANDARD_STR_LEN_MAX*2), "basic %s/%s", userId, passWd );
 
 	return;
 }
@@ -3275,6 +3418,7 @@ void SmsPluginWapPushHandler::wspHeaderDecodeChallenge(unsigned long fieldValueL
 {
 	unsigned char userId[WSP_STANDARD_STR_LEN_MAX];
 	unsigned long iField = 0;
+	char authStr[256];
 
 	*pDecodedString = new char[WSP_STANDARD_STR_LEN_MAX];
 
@@ -3285,10 +3429,12 @@ void SmsPluginWapPushHandler::wspHeaderDecodeChallenge(unsigned long fieldValueL
 
 	/* skip 'basic' code */
 	iField++;
-	sscanf( (char*)(fieldValue + iField), "%s", userId );
+	memset(authStr, 0x00, sizeof(authStr));
+	snprintf(authStr, sizeof(authStr), "%%%ds", sizeof(userId));
+	sscanf( (char*)(fieldValue + iField), authStr, userId );
 	iField = iField + AcStrlen( (char*)userId ) + 1;
 
-	sprintf( (char*)*pDecodedString, "basic realm=\"%s\"", userId );
+	snprintf( (char*)*pDecodedString, (sizeof(char)*WSP_STANDARD_STR_LEN_MAX), "basic realm=\"%s\"", userId );
 
 	return;
 }
@@ -3340,14 +3486,14 @@ void SmsPluginWapPushHandler::wspHeaderDecodeCacheControl(unsigned char* fieldVa
 			case 0x03 :
 				/* min-fresh */
 			case 0x04 :
-				sprintf( (char*)paramString, "%u", (unsigned int)wspHeaderDecodeInteger( fieldValue + 1));
+				snprintf( (char*)paramString, sizeof(paramString), "%u", (unsigned int)wspHeaderDecodeInteger( fieldValue + 1));
 				break;
 
 			default :
 				break;
 
 		}
-		sprintf((char*)*pCacheString, "%s=%s", (char*)wspCacheControl[cacheCode], (char*)paramString );
+		snprintf((char*)*pCacheString, (sizeof(char)*WSP_STANDARD_STR_LEN_MAX), "%s=%s", (char*)wspCacheControl[cacheCode], (char*)paramString );
 	} else {
 		/* cache extentions */
 		/* In case of come directive of doesn't specified string style */
@@ -3362,7 +3508,7 @@ void SmsPluginWapPushHandler::wspHeaderDecodeCacheControl(unsigned char* fieldVa
 			if (fieldValue[stringLen+ 1] > 0x7f) {
 				int untyped = (int)wspHeaderDecodeIntegerByLength( fieldValue + stringLen + 1, fieldValueLen - (stringLen + 1 ));
 
-				sprintf( szString, "%d", untyped );
+				snprintf( szString, sizeof(szString), "%d", untyped );
 				strncat( (char*)*pCacheString, (char*)"=", WSP_STANDARD_STR_LEN_MAX-AcStrlen((char*)*pCacheString)-1 );
 				strncat( (char*)*pCacheString, (char*)szString, WSP_STANDARD_STR_LEN_MAX-AcStrlen((char*)*pCacheString)-1 );
 			} else {
@@ -3374,5 +3520,12 @@ void SmsPluginWapPushHandler::wspHeaderDecodeCacheControl(unsigned char* fieldVa
 		}
 	}
 
+	return;
+}
+
+void SmsPluginWapPushHandler::getDisplayName(MSG_SUB_TYPE_T subType,char* displayName)
+{
+	if(subType == MSG_WAP_SL_SMS || subType == MSG_WAP_SI_SMS)
+		snprintf(displayName, MAX_ADDRESS_VAL_LEN + 1, "Push message");
 	return;
 }

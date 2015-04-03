@@ -1,20 +1,17 @@
 /*
- * msg-service
- *
- * Copyright (c) 2000 - 2014 Samsung Electronics Co., Ltd. All rights reserved
+ * Copyright (c) 2014 Samsung Electronics Co., Ltd. All rights reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
 */
 
 #include "VTypes.h"
@@ -838,9 +835,13 @@ vmsg_decode( char *pMsgRaw )
 
 	SysRequireEx(pMsgRaw != NULL, NULL);
 	len = strlen(pMsgRaw);
+	VDATA_TRACE("length of pCardRaw = %d", len);
+
 	len = _VUnfoldingNoSpec(pMsgRaw, VMESSAGE);
 	pMsgRawTmp = pMsgRaw;
 	len = _VManySpace2Space( pMsgRaw );
+
+	VDATA_TRACE("ret value of _VManySpace2Space = %d", len);
 
 	if(!__VIsVmsgFile(pMsgRaw, CHECK_START)) {
 		VFREE(pMsgRawTmp);
@@ -1103,6 +1104,7 @@ vmsg_decode( char *pMsgRaw )
 CATCH :
 	VFREE(pTemp);
 CATCH1 :
+	VFREE(szMsgBegin);
 	VFREE(pMsgRawTmp);
 	__VMsgFreeVTreeMemory(pVMsg);
 	VDATA_TRACE_END
@@ -1214,7 +1216,6 @@ vmsg_encode( VTree *pVMsgRaw )
 					VDATA_TRACE("pTemp : %s", encoded);
 					VFREE( pTemp );
 					VFREE( encoded );
-					VFREE(pVMsgRes);
 					break;
 				}
 				else
@@ -1414,8 +1415,8 @@ __VMsgTypeEncode( VObject *pTypeObj, char *pType )
 			char	buf[1000];
 			strncpy( buf, pTypeObj->pszValue[i], 999 );
 			_VEscape( buf );
-			strcat( pEncode, ";" );
-			strcat( pEncode, buf );
+			g_strlcat( pEncode, ";" , len+20);
+			g_strlcat( pEncode, buf , len+20);
 		}
 	}
 
@@ -1550,10 +1551,10 @@ __VMsgParamEncode(VObject* pTypeObj, int* pEnc)
 		}
 
 		/** appending paramter name. */
-		strcat( szParam, ";" );
+		g_strlcat( szParam, ";" , len);
 		if(pTemp->parameter != VMSG_PARAM_TYPE) {
-			strcat( szParam, pszMsgParamList[pTemp->parameter] );
-			strcat( szParam, "=" );
+			g_strlcat( szParam, pszMsgParamList[pTemp->parameter], len);
+			g_strlcat( szParam, "=", len);
 		}
 
 		/** Set Parameter Value name. */
@@ -1597,8 +1598,8 @@ __VMsgParamEncode(VObject* pTypeObj, int* pEnc)
 						return NULL;
 					}
 
-					strcat( szParam, pList[i].szName );
-					strcat( szParam, "; " );
+					g_strlcat( szParam, pList[i].szName, len);
+					g_strlcat( szParam, "; ", len);
 				}
 
 				sNum <<= 1;

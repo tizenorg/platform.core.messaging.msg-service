@@ -1,5 +1,5 @@
 prefix=/usr
-libdir=@LIB_INSTALL_DIR@
+libdir=${prefix}/lib
 includedir=${prefix}/include
 
 Name: MESSAGE-FRAMEWORK

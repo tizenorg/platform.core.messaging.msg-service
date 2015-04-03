@@ -1,23 +1,21 @@
 /*
- * msg-service
- *
- * Copyright (c) 2000 - 2014 Samsung Electronics Co., Ltd. All rights reserved
+ * Copyright (c) 2014 Samsung Electronics Co., Ltd. All rights reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
 */
 
 #include <errno.h>
+#include <privacy_checker_client.h>
 #include <MsgException.h>
 #include "MsgHandle.h"
 #include "MsgDebug.h"
@@ -63,6 +61,9 @@ int msg_setting_get_int_value(msg_struct_s *msg_struct, int field, int *value)
 		break;
 	case MSG_STRUCT_SETTING_MSGSIZE_OPT :
 		*value = msg_get_msgsize_opt_int(msg_struct->data, field);
+		break;
+	case MSG_STRUCT_SETTING_VOICE_MSG_OPT :
+		*value = msg_get_voice_msg_opt_int(msg_struct->data, field);
 		break;
 	default :
 		err = MSG_ERR_INVALID_PARAMETER;
@@ -195,6 +196,9 @@ int msg_setting_set_int_value(msg_struct_s *msg_struct, int field, int value)
 	case MSG_STRUCT_SETTING_MSGSIZE_OPT :
 		err = msg_set_msgsize_opt_int(msg_struct->data, field, value);
 		break;
+	case MSG_STRUCT_SETTING_VOICE_MSG_OPT :
+		err = msg_set_voice_msg_opt_int(msg_struct->data, field, value);
+		break;
 	default :
 		err = MSG_ERR_INVALID_PARAMETER;
 		break;
@@ -263,12 +267,21 @@ int msg_setting_set_bool_value(msg_struct_s *msg_struct, int field, bool value)
 
 EXPORT_API int msg_get_smsc_opt(msg_handle_t handle, msg_struct_t msg_struct)
 {
+	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_FEATURE);
 
 	msg_error_t err =  MSG_SUCCESS;
 
+	//Privilege check
+	int ret = PRIV_MGR_ERROR_SUCCESS;
+	ret = privacy_checker_check_by_privilege(MSG_SERVICE_READ_PRIV_NAME);
+	if(ret != PRIV_MGR_ERROR_SUCCESS)
+	{
+		return MSG_ERR_PERMISSION_DENIED;
+	}
+
 	if (handle == NULL)
 	{
-		return -EINVAL;
+		return MSG_ERR_INVALID_PARAMETER;
 	}
 
 	MsgHandle* pHandle = (MsgHandle*)handle;
@@ -288,12 +301,21 @@ EXPORT_API int msg_get_smsc_opt(msg_handle_t handle, msg_struct_t msg_struct)
 
 EXPORT_API int msg_set_smsc_opt(msg_handle_t handle, msg_struct_t msg_struct)
 {
+	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_FEATURE);
 
 	msg_error_t err =  MSG_SUCCESS;
 
+	//Privilege check
+	int ret = PRIV_MGR_ERROR_SUCCESS;
+	ret = privacy_checker_check_by_privilege(MSG_SERVICE_WRITE_PRIV_NAME);
+	if(ret != PRIV_MGR_ERROR_SUCCESS)
+	{
+		return MSG_ERR_PERMISSION_DENIED;
+	}
+
 	if (handle == NULL || msg_struct == NULL)
 	{
-		return -EINVAL;
+		return MSG_ERR_INVALID_PARAMETER;
 	}
 
 	MsgHandle* pHandle = (MsgHandle*)handle;
@@ -346,6 +368,9 @@ int msg_get_smsc_opt_int(void *smsc_opt, int field)
 	case MSG_SMSC_SELECTED_ID_INT :
 		ret = smsc_opt_data->selected;
 		break;
+	case MSG_SMSC_LIST_SIM_INDEX_INT :
+		ret = smsc_opt_data->simIndex;
+		break;
 	default :
 		return MSG_ERR_INVALID_PARAMETER;
 	}
@@ -366,6 +391,12 @@ int msg_set_smsc_opt_int(void *smsc_opt, int field, int value)
 	{
 	case MSG_SMSC_SELECTED_ID_INT :
 		smsc_opt_data->selected = value;
+		break;
+	case MSG_SMSC_LIST_INDEX_INT :
+		smsc_opt_data->index = value;
+		break;
+	case MSG_SMSC_LIST_SIM_INDEX_INT :
+		smsc_opt_data->simIndex = value;
 		break;
 	default :
 		ret = MSG_ERR_INVALID_PARAMETER;
@@ -489,12 +520,21 @@ int msg_set_smsc_info_str(void *smsc_info, int field, char *val, int size)
 
 EXPORT_API int msg_get_cb_opt(msg_handle_t handle, msg_struct_t msg_struct)
 {
+	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_FEATURE);
 
 	msg_error_t err =  MSG_SUCCESS;
 
+	//Privilege check
+	int ret = PRIV_MGR_ERROR_SUCCESS;
+	ret = privacy_checker_check_by_privilege(MSG_SERVICE_READ_PRIV_NAME);
+	if(ret != PRIV_MGR_ERROR_SUCCESS)
+	{
+		return MSG_ERR_PERMISSION_DENIED;
+	}
+
 	if (handle == NULL)
 	{
-		return -EINVAL;
+		return MSG_ERR_INVALID_PARAMETER;
 	}
 
 	MsgHandle* pHandle = (MsgHandle*)handle;
@@ -514,12 +554,21 @@ EXPORT_API int msg_get_cb_opt(msg_handle_t handle, msg_struct_t msg_struct)
 
 EXPORT_API int msg_set_cb_opt(msg_handle_t handle, msg_struct_t msg_struct)
 {
+	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_FEATURE);
 
 	msg_error_t err =  MSG_SUCCESS;
 
+	//Privilege check
+	int ret = PRIV_MGR_ERROR_SUCCESS;
+	ret = privacy_checker_check_by_privilege(MSG_SERVICE_WRITE_PRIV_NAME);
+	if(ret != PRIV_MGR_ERROR_SUCCESS)
+	{
+		return MSG_ERR_PERMISSION_DENIED;
+	}
+
 	if (handle == NULL || msg_struct == NULL)
 	{
-		return -EINVAL;
+		return MSG_ERR_INVALID_PARAMETER;
 	}
 
 	MsgHandle* pHandle = (MsgHandle*)handle;
@@ -551,6 +600,9 @@ int msg_get_cb_option_int(void *cb_opt, int field)
 	case MSG_CB_MAX_SIM_COUNT_INT :
 		ret = cb_opt_data->maxSimCnt;
 		break;
+	case MSG_CB_SIM_INDEX_INT :
+		ret = cb_opt_data->simIndex;
+		break;
 	default :
 		ret = MSG_ERR_INVALID_PARAMETER;
 		break;
@@ -572,6 +624,9 @@ int msg_set_cb_option_int(void *cb_opt, int field, int value)
 	{
 	case MSG_CB_MAX_SIM_COUNT_INT :
 		cb_opt_data->maxSimCnt = value;
+		break;
+	case MSG_CB_SIM_INDEX_INT :
+		cb_opt_data->simIndex = value;
 		break;
 	default :
 		ret = MSG_ERR_INVALID_PARAMETER;
@@ -844,12 +899,21 @@ int msg_set_cb_channel_info_str(void *cb_ch_info, int field, char *val, int size
 
 EXPORT_API int msg_get_sms_send_opt(msg_handle_t handle, msg_struct_t msg_struct)
 {
+	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_FEATURE);
 
 	msg_error_t err =  MSG_SUCCESS;
 
+	//Privilege check
+	int ret = PRIV_MGR_ERROR_SUCCESS;
+	ret = privacy_checker_check_by_privilege(MSG_SERVICE_READ_PRIV_NAME);
+	if(ret != PRIV_MGR_ERROR_SUCCESS)
+	{
+		return MSG_ERR_PERMISSION_DENIED;
+	}
+
 	if (handle == NULL)
 	{
-		return -EINVAL;
+		return MSG_ERR_INVALID_PARAMETER;
 	}
 
 	MsgHandle* pHandle = (MsgHandle*)handle;
@@ -869,12 +933,21 @@ EXPORT_API int msg_get_sms_send_opt(msg_handle_t handle, msg_struct_t msg_struct
 
 EXPORT_API int msg_set_sms_send_opt(msg_handle_t handle, msg_struct_t msg_struct)
 {
+	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_FEATURE);
 
 	msg_error_t err =  MSG_SUCCESS;
 
+	//Privilege check
+	int ret = PRIV_MGR_ERROR_SUCCESS;
+	ret = privacy_checker_check_by_privilege(MSG_SERVICE_WRITE_PRIV_NAME);
+	if(ret != PRIV_MGR_ERROR_SUCCESS)
+	{
+		return MSG_ERR_PERMISSION_DENIED;
+	}
+
 	if (handle == NULL || msg_struct == NULL)
 	{
-		return -EINVAL;
+		return MSG_ERR_INVALID_PARAMETER;
 	}
 
 	MsgHandle* pHandle = (MsgHandle*)handle;
@@ -998,12 +1071,21 @@ int msg_set_sms_send_opt_bool(void *sms_send_opt, int field, bool value)
 
 EXPORT_API int msg_get_mms_send_opt(msg_handle_t handle, msg_struct_t msg_struct)
 {
+	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_MMS_FEATURE);
 
 	msg_error_t err =  MSG_SUCCESS;
 
+	//Privilege check
+	int ret = PRIV_MGR_ERROR_SUCCESS;
+	ret = privacy_checker_check_by_privilege(MSG_SERVICE_READ_PRIV_NAME);
+	if(ret != PRIV_MGR_ERROR_SUCCESS)
+	{
+		return MSG_ERR_PERMISSION_DENIED;
+	}
+
 	if (handle == NULL)
 	{
-		return -EINVAL;
+		return MSG_ERR_INVALID_PARAMETER;
 	}
 
 	MsgHandle* pHandle = (MsgHandle*)handle;
@@ -1023,12 +1105,21 @@ EXPORT_API int msg_get_mms_send_opt(msg_handle_t handle, msg_struct_t msg_struct
 
 EXPORT_API int msg_set_mms_send_opt(msg_handle_t handle, msg_struct_t msg_struct)
 {
+	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_MMS_FEATURE);
 
 	msg_error_t err =  MSG_SUCCESS;
 
+	//Privilege check
+	int ret = PRIV_MGR_ERROR_SUCCESS;
+	ret = privacy_checker_check_by_privilege(MSG_SERVICE_WRITE_PRIV_NAME);
+	if(ret != PRIV_MGR_ERROR_SUCCESS)
+	{
+		return MSG_ERR_PERMISSION_DENIED;
+	}
+
 	if (handle == NULL || msg_struct == NULL)
 	{
-		return -EINVAL;
+		return MSG_ERR_INVALID_PARAMETER;
 	}
 
 	MsgHandle* pHandle = (MsgHandle*)handle;
@@ -1213,12 +1304,21 @@ int msg_set_mms_send_opt_bool(void *mms_send_opt, int field, bool value)
 
 EXPORT_API int msg_get_mms_recv_opt(msg_handle_t handle, msg_struct_t msg_struct)
 {
+	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_MMS_FEATURE);
 
 	msg_error_t err =  MSG_SUCCESS;
 
+	//Privilege check
+	int ret = PRIV_MGR_ERROR_SUCCESS;
+	ret = privacy_checker_check_by_privilege(MSG_SERVICE_READ_PRIV_NAME);
+	if(ret != PRIV_MGR_ERROR_SUCCESS)
+	{
+		return MSG_ERR_PERMISSION_DENIED;
+	}
+
 	if (handle == NULL)
 	{
-		return -EINVAL;
+		return MSG_ERR_INVALID_PARAMETER;
 	}
 
 	MsgHandle* pHandle = (MsgHandle*)handle;
@@ -1238,12 +1338,21 @@ EXPORT_API int msg_get_mms_recv_opt(msg_handle_t handle, msg_struct_t msg_struct
 
 EXPORT_API int msg_set_mms_recv_opt(msg_handle_t handle, msg_struct_t msg_struct)
 {
+	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_MMS_FEATURE);
 
 	msg_error_t err =  MSG_SUCCESS;
 
+	//Privilege check
+	int ret = PRIV_MGR_ERROR_SUCCESS;
+	ret = privacy_checker_check_by_privilege(MSG_SERVICE_WRITE_PRIV_NAME);
+	if(ret != PRIV_MGR_ERROR_SUCCESS)
+	{
+		return MSG_ERR_PERMISSION_DENIED;
+	}
+
 	if (handle == NULL || msg_struct == NULL)
 	{
-		return -EINVAL;
+		return MSG_ERR_INVALID_PARAMETER;
 	}
 
 	MsgHandle* pHandle = (MsgHandle*)handle;
@@ -1373,11 +1482,20 @@ int msg_set_mms_recv_opt_bool(void *mms_recv_opt, int field, bool value)
 
 EXPORT_API int msg_get_push_msg_opt(msg_handle_t handle, msg_struct_t msg_struct)
 {
+	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_FEATURE);
 	msg_error_t err =  MSG_SUCCESS;
+
+	//Privilege check
+	int ret = PRIV_MGR_ERROR_SUCCESS;
+	ret = privacy_checker_check_by_privilege(MSG_SERVICE_READ_PRIV_NAME);
+	if(ret != PRIV_MGR_ERROR_SUCCESS)
+	{
+		return MSG_ERR_PERMISSION_DENIED;
+	}
 
 	if (handle == NULL)
 	{
-		return -EINVAL;
+		return MSG_ERR_INVALID_PARAMETER;
 	}
 
 	MsgHandle* pHandle = (MsgHandle*)handle;
@@ -1397,11 +1515,20 @@ EXPORT_API int msg_get_push_msg_opt(msg_handle_t handle, msg_struct_t msg_struct
 
 EXPORT_API int msg_set_push_msg_opt(msg_handle_t handle, msg_struct_t msg_struct)
 {
+	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_FEATURE);
 	msg_error_t err =  MSG_SUCCESS;
+
+	//Privilege check
+	int ret = PRIV_MGR_ERROR_SUCCESS;
+	ret = privacy_checker_check_by_privilege(MSG_SERVICE_WRITE_PRIV_NAME);
+	if(ret != PRIV_MGR_ERROR_SUCCESS)
+	{
+		return MSG_ERR_PERMISSION_DENIED;
+	}
 
 	if (handle == NULL || msg_struct == NULL)
 	{
-		return -EINVAL;
+		return MSG_ERR_INVALID_PARAMETER;
 	}
 
 	MsgHandle* pHandle = (MsgHandle*)handle;
@@ -1507,11 +1634,20 @@ int msg_set_push_msg_opt_bool(void *push_msg_opt, int field, bool value)
 
 EXPORT_API int msg_get_voice_msg_opt(msg_handle_t handle, msg_struct_t msg_struct)
 {
+	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_FEATURE);
 	msg_error_t err =  MSG_SUCCESS;
+
+	//Privilege check
+	int ret = PRIV_MGR_ERROR_SUCCESS;
+	ret = privacy_checker_check_by_privilege(MSG_SERVICE_READ_PRIV_NAME);
+	if(ret != PRIV_MGR_ERROR_SUCCESS)
+	{
+		return MSG_ERR_PERMISSION_DENIED;
+	}
 
 	if (handle == NULL)
 	{
-		return -EINVAL;
+		return MSG_ERR_INVALID_PARAMETER;
 	}
 
 	MsgHandle* pHandle = (MsgHandle*)handle;
@@ -1531,11 +1667,20 @@ EXPORT_API int msg_get_voice_msg_opt(msg_handle_t handle, msg_struct_t msg_struc
 
 EXPORT_API int msg_set_voice_msg_opt(msg_handle_t handle, msg_struct_t msg_struct)
 {
+	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_FEATURE);
 	msg_error_t err =  MSG_SUCCESS;
+
+	//Privilege check
+	int ret = PRIV_MGR_ERROR_SUCCESS;
+	ret = privacy_checker_check_by_privilege(MSG_SERVICE_WRITE_PRIV_NAME);
+	if(ret != PRIV_MGR_ERROR_SUCCESS)
+	{
+		return MSG_ERR_PERMISSION_DENIED;
+	}
 
 	if (handle == NULL || msg_struct == NULL)
 	{
-		return -EINVAL;
+		return MSG_ERR_INVALID_PARAMETER;
 	}
 
 	MsgHandle* pHandle = (MsgHandle*)handle;
@@ -1553,6 +1698,52 @@ EXPORT_API int msg_set_voice_msg_opt(msg_handle_t handle, msg_struct_t msg_struc
 	return err;
 }
 
+int msg_get_voice_msg_opt_int(void *voice_msg_opt, int field)
+{
+	if (!voice_msg_opt)
+		return MSG_ERR_NULL_POINTER;
+
+	int ret = MSG_ERR_INVALID_PARAMETER;
+
+	MSG_VOICEMAIL_OPT_S *voice_opt = (MSG_VOICEMAIL_OPT_S *)voice_msg_opt;
+
+	switch (field)
+	{
+	case MSG_VOICEMSG_SIM_INDEX_INT :
+		ret = voice_opt->simIndex;
+		break;
+	case MSG_VOICEMSG_VOICE_COUNT_INT :
+		ret = voice_opt->voiceCnt;
+		break;
+	default :
+		break;
+	}
+
+	return ret;
+}
+
+int msg_set_voice_msg_opt_int(void *voice_msg_opt, int field, int value)
+{
+	if (!voice_msg_opt)
+		return MSG_ERR_NULL_POINTER;
+
+	int ret = MSG_SUCCESS;
+
+	MSG_VOICEMAIL_OPT_S *voice_opt = (MSG_VOICEMAIL_OPT_S *)voice_msg_opt;
+
+	switch (field)
+	{
+	case MSG_VOICEMSG_SIM_INDEX_INT :
+		voice_opt->simIndex = value;
+		break;
+	default :
+		ret = MSG_ERR_INVALID_PARAMETER;
+		break;
+	}
+
+	return ret;
+}
+
 char *msg_get_voice_msg_opt_str(void *voice_msg_opt, int field)
 {
 	if (!voice_msg_opt)
@@ -1566,6 +1757,9 @@ char *msg_get_voice_msg_opt_str(void *voice_msg_opt, int field)
 	{
 	case MSG_VOICEMSG_ADDRESS_STR :
 		ret_str = voice_opt->mailNumber;
+		break;
+	case MSG_VOICEMSG_ALPHA_ID_STR :
+		ret_str = voice_opt->alpahId;
 		break;
 	default :
 		break;
@@ -1599,11 +1793,20 @@ int msg_set_voice_msg_opt_str(void *voice_msg_opt, int field, char *val, int siz
 
 EXPORT_API int msg_get_general_opt(msg_handle_t handle, msg_struct_t msg_struct)
 {
+	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_FEATURE);
 	msg_error_t err =  MSG_SUCCESS;
+
+	//Privilege check
+	int ret = PRIV_MGR_ERROR_SUCCESS;
+	ret = privacy_checker_check_by_privilege(MSG_SERVICE_READ_PRIV_NAME);
+	if(ret != PRIV_MGR_ERROR_SUCCESS)
+	{
+		return MSG_ERR_PERMISSION_DENIED;
+	}
 
 	if (handle == NULL)
 	{
-		return -EINVAL;
+		return MSG_ERR_INVALID_PARAMETER;
 	}
 
 	MsgHandle* pHandle = (MsgHandle*)handle;
@@ -1623,11 +1826,20 @@ EXPORT_API int msg_get_general_opt(msg_handle_t handle, msg_struct_t msg_struct)
 
 EXPORT_API int msg_set_general_opt(msg_handle_t handle, msg_struct_t msg_struct)
 {
+	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_FEATURE);
 	msg_error_t err =  MSG_SUCCESS;
+
+	//Privilege check
+	int ret = PRIV_MGR_ERROR_SUCCESS;
+	ret = privacy_checker_check_by_privilege(MSG_SERVICE_WRITE_PRIV_NAME);
+	if(ret != PRIV_MGR_ERROR_SUCCESS)
+	{
+		return MSG_ERR_PERMISSION_DENIED;
+	}
 
 	if (handle == NULL || msg_struct == NULL)
 	{
-		return -EINVAL;
+		return MSG_ERR_INVALID_PARAMETER;
 	}
 
 	MsgHandle* pHandle = (MsgHandle*)handle;
@@ -1659,6 +1871,15 @@ int msg_get_general_opt_int(void *general_opt, int field)
 	case MSG_GENERAL_ALERT_TONE_INT :
 		ret = opt->alertTone;
 		break;
+	case MSG_GENERAL_SMS_LIMIT_CNT_INT :
+		ret = opt->smsLimitCnt;
+		break;
+	case MSG_GENERAL_MMS_LIMIT_CNT_INT :
+		ret = opt->mmsLimitCnt;
+		break;
+	case MSG_GENERAL_RINGTONE_TYPE_INT :
+		ret = opt->ringtoneType;
+		break;
 	default :
 		break;
 	}
@@ -1679,6 +1900,15 @@ int msg_set_general_opt_int(void *general_opt, int field, int value)
 	{
 	case MSG_GENERAL_ALERT_TONE_INT :
 		opt->alertTone = value;
+		break;
+	case MSG_GENERAL_SMS_LIMIT_CNT_INT :
+		opt->smsLimitCnt = value;
+		break;
+	case MSG_GENERAL_MMS_LIMIT_CNT_INT :
+		opt->mmsLimitCnt = value;
+		break;
+	case MSG_GENERAL_RINGTONE_TYPE_INT :
+		opt->ringtoneType = value;
 		break;
 	default :
 		ret = MSG_ERR_INVALID_PARAMETER;
@@ -1705,6 +1935,18 @@ bool msg_get_general_opt_bool(void *general_opt, int field)
 	case MSG_GENERAL_AUTO_ERASE_BOOL :
 		ret = opt->bAutoErase;
 		break;
+	case MSG_GENERAL_BLOCK_UNKNOWN_NUMBER_BOOL :
+		ret = opt->bBlockUnknownMsg;
+		break;
+	case MSG_GENERAL_MSG_NOTIFICATION_BOOL :
+		ret = opt->bNotification;
+		break;
+	case MSG_GENERAL_MSG_VIBRATION_BOOL :
+		ret = opt->bVibration;
+		break;
+	case MSG_GENERAL_MSG_PREVIEW_BOOL :
+		ret = opt->bPreview;
+		break;
 	default :
 		break;
 	}
@@ -1729,6 +1971,18 @@ int msg_set_general_opt_bool(void *general_opt, int field, bool value)
 	case MSG_GENERAL_AUTO_ERASE_BOOL :
 		opt->bAutoErase = value;
 		break;
+	case MSG_GENERAL_BLOCK_UNKNOWN_NUMBER_BOOL :
+		opt->bBlockUnknownMsg = value;
+		break;
+	case MSG_GENERAL_MSG_NOTIFICATION_BOOL :
+		opt->bNotification = value;
+		break;
+	case MSG_GENERAL_MSG_VIBRATION_BOOL :
+		opt->bVibration = value;
+		break;
+	case MSG_GENERAL_MSG_PREVIEW_BOOL :
+		opt->bPreview = value;
+		break;
 	default :
 		ret = MSG_ERR_INVALID_PARAMETER;
 		break;
@@ -1737,13 +1991,67 @@ int msg_set_general_opt_bool(void *general_opt, int field, bool value)
 	return ret;
 }
 
+char *msg_get_general_opt_str(void *general_opt, int field)
+{
+	if (!general_opt)
+		return NULL;
+
+	char *ret_str = NULL;
+
+	MSG_GENERAL_OPT_S *opt = (MSG_GENERAL_OPT_S *)general_opt;
+
+	switch (field)
+	{
+	case MSG_GENERAL_RINGTONE_PATH_STR :
+		ret_str = opt->ringtonePath;
+		break;
+	default :
+		break;
+	}
+
+	return ret_str;
+}
+
+int msg_set_general_opt_str(void *general_opt, int field, char *val, int size)
+{
+	if (!general_opt)
+		return MSG_ERR_NULL_POINTER;
+
+	int ret = MSG_SUCCESS;
+
+	MSG_GENERAL_OPT_S *opt = (MSG_GENERAL_OPT_S *)general_opt;
+
+	switch (field)
+	{
+	case MSG_GENERAL_RINGTONE_PATH_STR :
+		bzero(opt->ringtonePath, sizeof(opt->ringtonePath));
+		snprintf(opt->ringtonePath, sizeof(opt->ringtonePath), "%s", val);
+		break;
+	default :
+		ret = MSG_ERR_INVALID_PARAMETER;
+		break;
+	}
+
+	return ret;
+}
+
+
 EXPORT_API int msg_get_msgsize_opt(msg_handle_t handle, msg_struct_t msg_struct)
 {
+	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_FEATURE);
 	msg_error_t err =  MSG_SUCCESS;
+
+	//Privilege check
+	int ret = PRIV_MGR_ERROR_SUCCESS;
+	ret = privacy_checker_check_by_privilege(MSG_SERVICE_READ_PRIV_NAME);
+	if(ret != PRIV_MGR_ERROR_SUCCESS)
+	{
+		return MSG_ERR_PERMISSION_DENIED;
+	}
 
 	if (handle == NULL)
 	{
-		return -EINVAL;
+		return MSG_ERR_INVALID_PARAMETER;
 	}
 
 	MsgHandle* pHandle = (MsgHandle*)handle;
@@ -1763,11 +2071,20 @@ EXPORT_API int msg_get_msgsize_opt(msg_handle_t handle, msg_struct_t msg_struct)
 
 EXPORT_API int msg_set_msgsize_opt(msg_handle_t handle, msg_struct_t msg_struct)
 {
+	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_FEATURE);
 	msg_error_t err =  MSG_SUCCESS;
+
+	//Privilege check
+	int ret = PRIV_MGR_ERROR_SUCCESS;
+	ret = privacy_checker_check_by_privilege(MSG_SERVICE_WRITE_PRIV_NAME);
+	if(ret != PRIV_MGR_ERROR_SUCCESS)
+	{
+		return MSG_ERR_PERMISSION_DENIED;
+	}
 
 	if (handle == NULL || msg_struct == NULL)
 	{
-		return -EINVAL;
+		return MSG_ERR_INVALID_PARAMETER;
 	}
 
 	MsgHandle* pHandle = (MsgHandle*)handle;

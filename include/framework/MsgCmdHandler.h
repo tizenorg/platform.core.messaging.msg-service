@@ -1,20 +1,17 @@
 /*
- * msg-service
- *
- * Copyright (c) 2000 - 2014 Samsung Electronics Co., Ltd. All rights reserved
+ * Copyright (c) 2014 Samsung Electronics Co., Ltd. All rights reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
 */
 
 #ifndef MSG_CMD_HANDLER_H
@@ -85,6 +82,7 @@ int MsgRegIncomingLBSMsgCallbackHandler(const MSG_CMD_S *pCmd, char **ppEvent);
 int MsgRegSyncMLMsgOperationCallbackHandler(const MSG_CMD_S *pCmd, char **ppEvent);
 int MsgRegStorageChangeCallbackHandler(const MSG_CMD_S *pCmd, char **ppEvent);
 int MsgStorageChangeHandler(const MSG_CMD_S *pCmd, char **ppEvent);
+int MsgRegIncomingReportMsgCallbackHandler(const MSG_CMD_S *pCmd, char **ppEvent);
 
 int MsgSentStatusHandler(const MSG_CMD_S *pCmd, char **ppEvent);
 int MsgIncomingMsgHandler(const MSG_CMD_S *pCmd, char **ppEvent);
@@ -107,7 +105,13 @@ int MsgAddPushEventHandler(const MSG_CMD_S *pCmd, char **ppEvent);
 int MsgDeletePushEventHandler(const MSG_CMD_S *pCmd, char **ppEvent);
 int MsgUpdatePushEventHandler(const MSG_CMD_S *pCmd, char **ppEvent);
 
-int MsgContactSyncEventHandler(const MSG_CMD_S *pCmd, char **ppEvent);
-
-
+int MsgAddSimMessageHandler(const MSG_CMD_S *pCmd, char **ppEvent);
+int MsgResendMessageHandler(const MSG_CMD_S *pCmd, char **ppEvent);
+int MsgUpdateIMSIHandler(const MSG_CMD_S *pCmd, char **ppEvent);
+#ifdef MSG_PENDING_PUSH_MESSAGE
+int MsgSendPendingPushMsgHandler(const MSG_CMD_S *pCmd, char **ppEvent);
+#endif
+#ifdef FEATURE_SMS_CDMA
+int MsgCheckUniquenessHandler(const MSG_CMD_S *pCmd, char **ppEvent);
+#endif
 #endif // MSG_CMD_HANDLER_H

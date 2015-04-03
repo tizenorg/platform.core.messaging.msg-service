@@ -1,9 +1,0 @@
-
-[Unit]
-Description=Start the msg-server dlog
-
-[Service]
-ExecStart=/usr/bin/dlogutil -v threadtime -f /var/log/msgfw/msgfw.log -r 1000 -n 10 MSG_SERVICE
-
-[Install]
-WantedBy=tizen-middleware.target

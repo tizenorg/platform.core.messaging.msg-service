@@ -1,20 +1,17 @@
 /*
- * msg-service
- *
- * Copyright (c) 2000 - 2014 Samsung Electronics Co., Ltd. All rights reserved
+ * Copyright (c) 2014 Samsung Electronics Co., Ltd. All rights reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
 */
 
 #include <queue>
@@ -34,48 +31,14 @@ using namespace std;
 /*==================================================================================================
                                      VARIABLES
 ==================================================================================================*/
-extern MsgDbHandler dbHandle;
 
 
 /*==================================================================================================
                                      FUNCTION IMPLEMENTATION
 ==================================================================================================*/
-msg_error_t MsgInitSimMessage(MSG_SIM_STATUS_T SimStatus)
-{
-	MSG_DEBUG("Start SIM Message Initialization");
-
-	msg_error_t err = MSG_SUCCESS;
-
-	// Set SIM count of vconf to 0
-	if (MsgSettingSetInt(SIM_USED_COUNT, 0) != MSG_SUCCESS) {
-		MSG_DEBUG("Error to set config data [%s]", SIM_USED_COUNT);
-	}
-
-	if (MsgSettingSetInt(SIM_TOTAL_COUNT, 0) != MSG_SUCCESS) {
-		MSG_DEBUG("Error to set config data [%s]", SIM_TOTAL_COUNT);
-	}
-
-	if (SimStatus != MSG_SIM_STATUS_NOT_FOUND) {
-		MSG_MAIN_TYPE_T mainType = MSG_SMS_TYPE;
-		MsgPlugin* plg = MsgPluginManager::instance()->getPlugin(mainType);
-
-		if (plg == NULL) {
-			MSG_DEBUG("No plugin for %d type", mainType);
-			return MSG_ERR_INVALID_PLUGIN_HANDLE;
-		}
-
-		// Check SIM Status
-		MSG_DEBUG(" ** SIM is available - status : [%d] ** ", SimStatus);
-
-		err = plg->initSimMessage();
-	}
-
-	return err;
-}
-
-
 msg_error_t MsgStoClearSimMessageInDB()
 {
+	MsgDbHandler *dbHandle = getDbHandle();
 	msg_error_t err = MSG_SUCCESS;
 
 	char sqlQuery[MAX_QUERY_LEN+1];
@@ -90,33 +53,32 @@ msg_error_t MsgStoClearSimMessageInDB()
 
 	int rowCnt = 0;
 
-	err = dbHandle.getTable(sqlQuery, &rowCnt);
+	err = dbHandle->getTable(sqlQuery, &rowCnt);
 
 	if (err != MSG_SUCCESS && err != MSG_ERR_DB_NORECORD) {
-		MSG_DEBUG("sql query is %s.", sqlQuery);
-
-		dbHandle.freeTable();
+		MSG_DEBUG("Fail to getTable().");
+		dbHandle->freeTable();
 		return err;
 	}
 
 	if (rowCnt <= 0) {
-		dbHandle.freeTable();
+		dbHandle->freeTable();
 		return MSG_SUCCESS;
 	}
 
 	for (int i = 1; i <= rowCnt; i++)
 	{
-		MSG_DEBUG("thread ID : %d", dbHandle.getColumnToInt(i));
-		threadList.push((msg_thread_id_t)dbHandle.getColumnToInt(i));
+		MSG_DEBUG("thread ID : %d", dbHandle->getColumnToInt(i));
+		threadList.push((msg_thread_id_t)dbHandle->getColumnToInt(i));
 	}
 
-	dbHandle.freeTable();
+	dbHandle->freeTable();
 
 	const char* tableList[] = {MSGFW_SMS_SENDOPT_TABLE_NAME, MSGFW_SIM_MSG_TABLE_NAME, MSGFW_MESSAGE_TABLE_NAME};
 
 	int listCnt = sizeof(tableList)/sizeof(char*);
 
-	dbHandle.beginTrans();
+	dbHandle->beginTrans();
 
 	for (int i = 0; i < listCnt; i++)
 	{
@@ -127,32 +89,32 @@ msg_error_t MsgStoClearSimMessageInDB()
 				tableList[i], MSGFW_MESSAGE_TABLE_NAME, MSG_STORAGE_SIM);
 
 		// Delete SIM Message in tables
-		if (dbHandle.execQuery(sqlQuery) != MSG_SUCCESS) {
-			dbHandle.endTrans(false);
+		if (dbHandle->execQuery(sqlQuery) != MSG_SUCCESS) {
+			dbHandle->endTrans(false);
 			return MSG_ERR_DB_EXEC;
 		}
 	}
 
 	// Clear Conversation table
-	if (MsgStoClearConversationTable(&dbHandle) != MSG_SUCCESS) {
-		dbHandle.endTrans(false);
+	if (MsgStoClearConversationTable(dbHandle) != MSG_SUCCESS) {
+		dbHandle->endTrans(false);
 		return MSG_ERR_DB_EXEC;
 	}
 
 	// Update Address
 	while (!threadList.empty())
 	{
-		err = MsgStoUpdateConversation(&dbHandle, threadList.front());
+		err = MsgStoUpdateConversation(dbHandle, threadList.front());
 
 		threadList.pop();
 
 		if (err != MSG_SUCCESS) {
-			dbHandle.endTrans(false);
+			dbHandle->endTrans(false);
 			return err;
 		}
 	}
 
-	dbHandle.endTrans(true);
+	dbHandle->endTrans(true);
 
 	return MSG_SUCCESS;
 }

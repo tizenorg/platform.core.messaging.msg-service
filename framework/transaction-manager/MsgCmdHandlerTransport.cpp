@@ -1,20 +1,17 @@
 /*
- * msg-service
- *
- * Copyright (c) 2000 - 2014 Samsung Electronics Co., Ltd. All rights reserved
+ * Copyright (c) 2014 Samsung Electronics Co., Ltd. All rights reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
 */
 
 #include <time.h>
@@ -32,10 +29,11 @@
 #include "MsgStorageHandler.h"
 #include "MsgTransManager.h"
 #include "MsgPluginManager.h"
-#include "MsgCmdHandler.h"
 #include "MsgUtilStorage.h"
+#include "MsgAlarm.h"
+#include "MsgCmdHandler.h"
+#include "MsgDevicedWrapper.h"
 
-#include <alarm.h>
 
 /*==================================================================================================
                                      FUNCTION IMPLEMENTATION
@@ -50,11 +48,16 @@ int MsgSubmitReqHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 	MSG_REQUEST_INFO_S reqInfo = {0,};
 	MSG_PROXY_INFO_S proxyInfo = {0,};
 
+	reqInfo.msgInfo.addressList = NULL;
+	AutoPtr<MSG_ADDRESS_INFO_S> addressListBuf(&reqInfo.msgInfo.addressList);
+
 	// Get Message Request
-	memcpy(&reqInfo, (void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN), sizeof(MSG_REQUEST_INFO_S));
+	memcpy(&reqInfo.reqId, (void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN), sizeof(msg_request_id_t));
 
 	// Storing Request ID, Proxy Info for Sent Status CNF
-	memcpy(&proxyInfo, (void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN+sizeof(MSG_REQUEST_INFO_S)), sizeof(MSG_PROXY_INFO_S));
+	memcpy(&proxyInfo, (void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN+sizeof(msg_request_id_t)), sizeof(MSG_PROXY_INFO_S));
+
+	MsgDecodeMsgInfo((char *)(pCmd->cmdData+sizeof(msg_request_id_t)+sizeof(MSG_PROXY_INFO_S)), &reqInfo.msgInfo, &reqInfo.sendOptInfo);
 
 	if (reqInfo.msgInfo.msgId > 0)
 		bNewMsg = false;
@@ -93,7 +96,7 @@ int MsgSubmitReqHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 		pFileName = strstr(reqInfo.msgInfo.msgData, "MSG_");
 		strncpy(trId.pduFileName, pFileName, MAX_COMMON_INFO_SIZE);
 
-		MSG_DEBUG("java MMS msg trId:%s filepath:%s ",trId.id, reqInfo.msgInfo.msgData);
+		MSG_SEC_DEBUG("java MMS msg trId:%s filepath:%s ",trId.id, reqInfo.msgInfo.msgData);
 
 		MsgTransactionManager* tm = MsgTransactionManager::instance();
 		tm->setJavaMMSList(&trId);
@@ -103,7 +106,7 @@ int MsgSubmitReqHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 	eventSize = MsgMakeEvent(&reqId, sizeof(reqId), MSG_EVENT_SUBMIT_REQ, err, (void**)ppEvent);
 
 	/* reject_msg_support */
-	if(((reqInfo.msgInfo.msgType.subType == MSG_NOTIFYRESPIND_MMS) &&
+	if (((reqInfo.msgInfo.msgType.subType == MSG_NOTIFYRESPIND_MMS) &&
 		 (reqInfo.msgInfo.msgType.mainType == MSG_MMS_TYPE)))
 		err = MsgStoDeleteMessage(reqInfo.msgInfo.msgId, true);
 
@@ -122,10 +125,17 @@ int MsgSubmitReqHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 		} else {
 			MsgTransactionManager::instance()->broadcastStorageChangeCB(MSG_SUCCESS, MSG_STORAGE_CHANGE_UPDATE, &msgIdList);
 		}
-	} else if (err == MSG_ERR_SECURITY_ERROR) { // Case of MDM enabled, it returns MSG_ERR_SECURITY_ERROR.
-		MsgTransactionManager::instance()->broadcastStorageChangeCB(MSG_SUCCESS, MSG_STORAGE_CHANGE_UPDATE, &msgIdList);
 	} else {
 		MSG_DEBUG("No need to broadcast storage change CB");
+	}
+
+	memset(&msgIdList, 0x00, sizeof(msg_id_list_s));
+
+	MsgStoAutoDeleteConversation(reqInfo.msgInfo.threadId, &msgIdList);
+	if (msgIdList.msgIdList)
+	{
+		MsgTransactionManager::instance()->broadcastStorageChangeCB(err, MSG_STORAGE_CHANGE_DELETE, &msgIdList);
+		delete [] (char*)msgIdList.msgIdList;
 	}
 
 	return eventSize;
@@ -163,7 +173,7 @@ int MsgCancelReqHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 int MsgRegSentStatusCallbackHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 {
 	// input check
-	if( !pCmd || !ppEvent)
+	if (!pCmd || !ppEvent)
 		THROW(MsgException::INVALID_PARAM, "pCmd or ppEvent is null");
 
 	// Get Message Request
@@ -183,7 +193,7 @@ int MsgRegSentStatusCallbackHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 int MsgRegIncomingMsgCallbackHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 {
 	// input check
-	if( !pCmd || !ppEvent)
+	if (!pCmd || !ppEvent)
 		THROW(MsgException::INVALID_PARAM, "pCmd or ppEvent is null");
 
 	// Get Message Request
@@ -203,7 +213,7 @@ int MsgRegIncomingMsgCallbackHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 int MsgRegIncomingMMSConfMsgCallbackHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 {
 	// input check
-	if( !pCmd || !ppEvent)
+	if (!pCmd || !ppEvent)
 		THROW(MsgException::INVALID_PARAM, "pCmd or ppEvent is null");
 
 	// Get Message Request
@@ -222,7 +232,7 @@ int MsgRegIncomingMMSConfMsgCallbackHandler(const MSG_CMD_S *pCmd, char **ppEven
 int MsgRegIncomingPushMsgCallbackHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 {
 	// input check
-	if( !pCmd || !ppEvent)
+	if (!pCmd || !ppEvent)
 		THROW(MsgException::INVALID_PARAM, "pCmd or ppEvent is null");
 
 	// Get Message Request
@@ -231,6 +241,8 @@ int MsgRegIncomingPushMsgCallbackHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 
 	// storing dst fd in list
 	MsgTransactionManager::instance()->setPushMsgCB(pCmdData);
+	//MsgTransactionManager::instance()->sendPendigPushMsg(pCmdData);
+
 
 	// Make Event Data
 	int eventSize = MsgMakeEvent(NULL, 0, MSG_EVENT_REG_INCOMING_PUSH_MSG_CB, MSG_SUCCESS, (void**)ppEvent);
@@ -238,15 +250,17 @@ int MsgRegIncomingPushMsgCallbackHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 	return eventSize;
 }
 
+
+
 int MsgRegIncomingCBMsgCallbackHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 {
 	// input check
-	if( !pCmd || !ppEvent)
+	if (!pCmd || !ppEvent)
 		THROW(MsgException::INVALID_PARAM, "pCmd or ppEvent is null");
 
 	// Get Message Request
 	MSG_CMD_REG_INCOMING_CB_MSG_CB_S *pCmdData = (MSG_CMD_REG_INCOMING_CB_MSG_CB_S*) pCmd->cmdData;
-	MSG_DEBUG("Registering incoming Push Msg CB for fd:%d mType:%d", pCmdData->listenerFd, pCmdData->msgType);
+	MSG_DEBUG("Registering incoming CB Msg CB for fd:%d mType:%d: bSave: %d", pCmdData->listenerFd, pCmdData->msgType, pCmdData->bsave);
 
 	// storing dst fd in list
 	MsgTransactionManager::instance()->setCBMsgCB(pCmdData);
@@ -261,7 +275,7 @@ int MsgRegIncomingCBMsgCallbackHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 int MsgRegIncomingSyncMLMsgCallbackHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 {
 	// input check
-	if( !pCmd || !ppEvent)
+	if (!pCmd || !ppEvent)
 		THROW(MsgException::INVALID_PARAM, "pCmd or ppEvent is null");
 
 	// Get Message Request
@@ -281,7 +295,7 @@ int MsgRegIncomingSyncMLMsgCallbackHandler(const MSG_CMD_S *pCmd, char **ppEvent
 int MsgRegIncomingLBSMsgCallbackHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 {
 	// input check
-	if( !pCmd || !ppEvent)
+	if (!pCmd || !ppEvent)
 		THROW(MsgException::INVALID_PARAM, "pCmd or ppEvent is null");
 
 	// Get Message Request
@@ -301,7 +315,7 @@ int MsgRegIncomingLBSMsgCallbackHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 int MsgRegSyncMLMsgOperationCallbackHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 {
 	// input check
-	if( !pCmd || !ppEvent)
+	if (!pCmd || !ppEvent)
 		THROW(MsgException::INVALID_PARAM, "pCmd or ppEvent is null");
 
 	// Get Message Request
@@ -321,7 +335,7 @@ int MsgRegSyncMLMsgOperationCallbackHandler(const MSG_CMD_S *pCmd, char **ppEven
 int MsgRegStorageChangeCallbackHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 {
 	// input check
-	if( !pCmd || !ppEvent)
+	if (!pCmd || !ppEvent)
 		THROW(MsgException::INVALID_PARAM, "pCmd or ppEvent is null");
 
 	// Get Message Request
@@ -333,6 +347,26 @@ int MsgRegStorageChangeCallbackHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 
 	// Make Event Data
 	int eventSize = MsgMakeEvent(NULL, 0, MSG_EVENT_REG_STORAGE_CHANGE_CB, MsgException::SUCCESS, (void**)ppEvent);
+
+	return eventSize;
+}
+
+
+int MsgRegIncomingReportMsgCallbackHandler(const MSG_CMD_S *pCmd, char **ppEvent)
+{
+	// input check
+	if (!pCmd || !ppEvent)
+		THROW(MsgException::INVALID_PARAM, "pCmd or ppEvent is null");
+
+	// Get Message Request
+	int listenerFd = *((int*) pCmd->cmdData);
+	MSG_DEBUG("Registering report msg incoming CB for %d", listenerFd);
+
+	// storing dst fd in list
+	MsgTransactionManager::instance()->setReportMsgCB(listenerFd);
+
+	// Make Event Data
+	int eventSize = MsgMakeEvent(NULL, 0, MSG_EVENT_REG_REPORT_MSG_INCOMING_CB, MsgException::SUCCESS, (void**)ppEvent);
 
 	return eventSize;
 }
@@ -352,9 +386,8 @@ int MsgSentStatusHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 	// storing dst fd in list
 	MSG_PROXY_INFO_S* prxInfo = MsgTransactionManager::instance()->getProxyInfo(pStatus->reqId);
 
-	// when no sent status cb is found (in case of mobile tracker)
-	if (!prxInfo)
-	{
+	// when no sent status cb is found
+	if (!prxInfo) {
 		return MsgMakeEvent(NULL, 0, MSG_EVENT_PLG_SENT_STATUS_CNF, MSG_SUCCESS, (void**)ppEvent);
 	}
 
@@ -369,11 +402,7 @@ int MsgSentStatusHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 		return MsgMakeEvent(NULL, 0, MSG_EVENT_PLG_SENT_STATUS_CNF, MSG_SUCCESS, (void**)ppEvent);
 	}
 
-#if defined(__x86_64__) || defined(__aarch64__)
-	uint64_t ret[3] = {0}; //3// reqid, status, object
-#else
 	unsigned int ret[3] = {0}; //3// reqid, status, object
-#endif
 
 	ret[0] = pStatus->reqId;
 	ret[1] = pStatus->status;
@@ -398,6 +427,7 @@ int MsgIncomingMsgHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 	msg_error_t err = MSG_SUCCESS;
 	int eventSize = 0;
 	bool sendNoti = true;
+	bool isClass2msg = false;
 
 	// input check
 	if (!pCmd || !ppEvent)
@@ -407,32 +437,74 @@ int MsgIncomingMsgHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 	MSG_MESSAGE_INFO_S msgInfo;
 	memset(&msgInfo, 0x00, sizeof(MSG_MESSAGE_INFO_S));
 
-	memcpy(&msgInfo, (void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN), sizeof(MSG_MESSAGE_INFO_S));
+	msgInfo.addressList = NULL;
+	AutoPtr<MSG_ADDRESS_INFO_S> addressListBuf(&msgInfo.addressList);
+
+	MsgDecodeMsgInfo((char *)pCmd->cmdData, &msgInfo);
+
+	// broadcast to listener threads, here
+	msg_id_list_s msgIdList;
+	msg_message_id_t msgIds[2];
+	msg_message_id_t class2msgId = 0;
+	memset(&msgIdList, 0x00, sizeof(msg_id_list_s));
+
+#ifdef MSG_NOTI_INTEGRATION
+	if (msgInfo.msgType.classType == MSG_CLASS_2) {
+		class2msgId = msgInfo.msgId;
+		isClass2msg = true;
+	}
+#endif
 
 	// normal process
 	err = MsgHandleIncomingMsg(&msgInfo, &sendNoti);
 
-	// broadcast to listener threads, here
-	msg_id_list_s msgIdList;
-	msg_message_id_t msgIds[1];
-	memset(&msgIdList, 0x00, sizeof(msg_id_list_s));
-
-	msgIdList.nCount = 1;
-	msgIds[0] = msgInfo.msgId;
-	msgIdList.msgIdList = msgIds;
+	if (isClass2msg == true) {
+		msgIdList.nCount = 2;
+		msgIds[0] = class2msgId;
+		msgIds[1] = msgInfo.msgId;
+		msgIdList.msgIdList = msgIds;
+		isClass2msg = false;
+	} else {
+		msgIdList.nCount = 1;
+		msgIds[0] = msgInfo.msgId;
+		msgIdList.msgIdList = msgIds;
+	}
 
 	if (sendNoti == true) {
 		MsgTransactionManager::instance()->broadcastIncomingMsgCB(err, &msgInfo);
-		MsgTransactionManager::instance()->broadcastStorageChangeCB(err, MSG_STORAGE_CHANGE_INSERT, &msgIdList);
-	} else if(msgInfo.msgPort.valid)
-	{
+		if (msgInfo.msgType.subType > MSG_TYPE0_SMS && msgInfo.msgType.subType < MSG_WAP_SI_SMS) { // if it is replacement message.
+			MsgTransactionManager::instance()->broadcastStorageChangeCB(err, MSG_STORAGE_CHANGE_UPDATE, &msgIdList);
+		} else {
+			MsgTransactionManager::instance()->broadcastStorageChangeCB(err, MSG_STORAGE_CHANGE_INSERT, &msgIdList);
+		}
+	} else if (msgInfo.msgPort.valid || (msgInfo.msgType.subType >= MSG_MWI_VOICE_SMS && msgInfo.msgType.subType <= MSG_MWI_OTHER_SMS)) {
 		MsgTransactionManager::instance()->broadcastIncomingMsgCB(err, &msgInfo);
-	}
-	else if (msgInfo.folderId == MSG_SPAMBOX_ID) {
+	} else if (msgInfo.folderId == MSG_SPAMBOX_ID) {
 		MsgTransactionManager::instance()->broadcastStorageChangeCB(err, MSG_STORAGE_CHANGE_INSERT, &msgIdList);
+	} else if (msgInfo.msgType.subType == MSG_STATUS_REPORT_SMS || msgInfo.msgType.subType == MSG_DELIVERYIND_MMS) {
+		MsgTransactionManager::instance()->broadcastReportMsgCB(err, MSG_REPORT_TYPE_DELIVERY, &msgInfo);
+	} else if (msgInfo.msgType.subType == MSG_READORGIND_MMS) {
+		MsgTransactionManager::instance()->broadcastReportMsgCB(err, MSG_REPORT_TYPE_READ, &msgInfo);
 	}
 
+	memset(&msgIdList, 0x00, sizeof(msg_id_list_s));
+	MsgStoAutoDeleteConversation(msgInfo.threadId, &msgIdList);
+	if (msgIdList.msgIdList)
+	{
+		MsgTransactionManager::instance()->broadcastStorageChangeCB(err, MSG_STORAGE_CHANGE_DELETE, &msgIdList);
+		delete [] (char*)msgIdList.msgIdList;
+	}
+
+#ifdef FEATURE_SMS_CDMA
+	eventSize = MsgMakeEvent(&msgInfo.msgId, sizeof(msg_message_id_t), MSG_EVENT_PLG_INCOMING_MSG_IND, err, (void**)ppEvent);
+#else
 	eventSize = MsgMakeEvent(NULL, 0, MSG_EVENT_PLG_INCOMING_MSG_IND, err, (void**)ppEvent);
+#endif
+
+	if (msgInfo.bTextSms == false) {
+		MsgDeleteFile(msgInfo.msgData); //ipc
+		memset(msgInfo.msgData, 0x00, sizeof(msgInfo.msgData));
+	}
 
 	MSG_END();
 
@@ -445,11 +517,16 @@ int MsgIncomingMMSConfMsgHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 	msg_error_t err = MSG_SUCCESS;
 	int eventsize = 0;
 
-	MSG_MESSAGE_INFO_S msgInfo = {0};
+	MSG_MESSAGE_INFO_S msgInfo;
 	msg_request_id_t reqID;
 
-	memcpy(&msgInfo, (void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN), sizeof(MSG_MESSAGE_INFO_S));
-	memcpy(&reqID, (void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN+sizeof(MSG_MESSAGE_INFO_S)), sizeof(msg_request_id_t));
+	memset(&msgInfo, 0x00, sizeof(MSG_MESSAGE_INFO_S));
+
+	msgInfo.addressList = NULL;
+	AutoPtr<MSG_ADDRESS_INFO_S> addressListBuf(&msgInfo.addressList);
+
+	memcpy(&reqID, (void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN), sizeof(msg_request_id_t));
+	MsgDecodeMsgInfo((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN+sizeof(msg_request_id_t), &msgInfo);
 
 	MSG_DEBUG(" pMsg = %s, pReqId = %d ", msgInfo.msgData, reqID);
 	MSG_DEBUG(" msgtype subtype is [%d]", msgInfo.msgType.subType);
@@ -463,22 +540,43 @@ int MsgIncomingMMSConfMsgHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 	msgIds[0] = msgInfo.msgId;
 	msgIdList.msgIdList = msgIds;
 
-	//err = MsgStoGetAddrInfo(msgInfo.msgId, &(msgInfo.addressList[0]));
-	err = MsgStoGetOrgAddressList(&msgInfo);
+	MSG_ADDRESS_INFO_S *tmpAddr = (MSG_ADDRESS_INFO_S *)new char[sizeof(MSG_ADDRESS_INFO_S)];
+	memset(tmpAddr, 0x00, sizeof(MSG_ADDRESS_INFO_S));
 
+	err = MsgStoGetAddrInfo(msgInfo.msgId, tmpAddr);
 	if (err == MSG_SUCCESS) {
-		MSG_DEBUG("MsgStoGetOrgAddressList() success.");
-//		msgInfo.nAddressCnt = 1;
+		MSG_DEBUG("MmsStoGetAddrInfo() success.");
+		msgInfo.nAddressCnt = 1;
 	} else {
-		MSG_DEBUG("MsgStoGetOrgAddressList() fail.");
+		msgInfo.nAddressCnt = 0;
+		MSG_DEBUG("MmsStoGetAddrInfo() fail.");
 	}
 
-	if(msgInfo.msgType.subType == MSG_RETRIEVE_AUTOCONF_MMS || msgInfo.msgType.subType == MSG_RETRIEVE_MANUALCONF_MMS) {
+	if (msgInfo.msgType.subType == MSG_RETRIEVE_AUTOCONF_MMS || msgInfo.msgType.subType == MSG_RETRIEVE_MANUALCONF_MMS) {
+
+		/* PLM P141008-05143 : Notification.Ind address is 1, but MMS retreived Conf address is correct.
+		So adding code for comparing exist address and new address and replace with new address(MMSconf) address */
+		if (msgInfo.nAddressCnt == 1 && msgInfo.networkStatus == MSG_NETWORK_RETRIEVE_SUCCESS && (g_strcmp0(tmpAddr->addressVal, msgInfo.addressList[0].addressVal) != 0)) {
+			MSG_WARN("Address of NotiInd and MMSConf are different!!, Replace [NotiInd : %s] from [MMSConf : %s]", tmpAddr->addressVal, msgInfo.addressList[0].addressVal);
+			memset(tmpAddr->addressVal, 0x00, MAX_ADDRESS_VAL_LEN);
+			strncpy(tmpAddr->addressVal, msgInfo.addressList[0].addressVal, MAX_ADDRESS_VAL_LEN);
+		}
+
+		if (msgInfo.addressList) {
+			delete[] msgInfo.addressList;
+			msgInfo.addressList = NULL;
+		}
+
+		msgInfo.addressList = tmpAddr;
+
+		MSG_SUB_TYPE_T recv_sub_type = msgInfo.msgType.subType; // Check retrieve mode to determine broadcast type
 
 		err = MsgHandleMmsConfIncomingMsg(&msgInfo, reqID);
 
-		if(err != MSG_SUCCESS)
-			return err;
+		if (err != MSG_SUCCESS) {
+			MSG_DEBUG("MsgHandleMmsConfIncomingMsg failed.");
+			return MsgMakeEvent(NULL, 0, MSG_EVENT_PLG_INCOMING_MMS_CONF, err, (void**)ppEvent);
+		}
 
 		MMS_RECV_DATA_S* pMmsRecvData = (MMS_RECV_DATA_S*)msgInfo.msgData;
 
@@ -490,19 +588,30 @@ int MsgIncomingMMSConfMsgHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 			memset(msgInfo.msgData, 0x00, sizeof(MMS_RECV_DATA_S));
 		}
 
-		eventsize = MsgMakeEvent(&msgInfo, sizeof(MSG_MESSAGE_INFO_S), MSG_EVENT_PLG_INCOMING_MMS_CONF, msgInfo.networkStatus, (void**)ppEvent);
-
 		// broadcast to listener threads, here
 		MsgTransactionManager::instance()->broadcastMMSConfCB(msgInfo.networkStatus, &msgInfo, pMmsRecvData);
-		MsgTransactionManager::instance()->broadcastStorageChangeCB(MSG_SUCCESS, MSG_STORAGE_CHANGE_UPDATE, &msgIdList);
+
+		// determine broadcast type with retrieve mode
+		if (recv_sub_type == MSG_RETRIEVE_AUTOCONF_MMS)
+			MsgTransactionManager::instance()->broadcastStorageChangeCB(MSG_SUCCESS, MSG_STORAGE_CHANGE_INSERT, &msgIdList);
+		else
+			MsgTransactionManager::instance()->broadcastStorageChangeCB(MSG_SUCCESS, MSG_STORAGE_CHANGE_UPDATE, &msgIdList);
+
+		// make return event
+		eventsize = MsgMakeEvent(NULL, 0, MSG_EVENT_PLG_INCOMING_MMS_CONF, MSG_SUCCESS, (void**)ppEvent);
+
 	} else if (msgInfo.msgType.subType == MSG_SENDREQ_MMS || msgInfo.msgType.subType == MSG_SENDCONF_MMS) {
+		if (msgInfo.addressList) {
+			delete[] msgInfo.addressList;
+			msgInfo.addressList = NULL;
+		}
+
+		msgInfo.addressList = tmpAddr;
+
 		MSG_PROXY_INFO_S* prxInfo = MsgTransactionManager::instance()->getProxyInfo(reqID);
 
-		// when no sent status cb is found (in case of mobile tracker)
-		if (!prxInfo) {
-			MSG_DEBUG("prxInfo is NULL");
-			eventsize = MsgMakeEvent(NULL, 0, MSG_EVENT_PLG_SENT_STATUS_CNF, MSG_SUCCESS, (void**)ppEvent);
-		} else {
+		// when no sent status cb is found
+		if (prxInfo) {
 			// No need to update javaMMS sent messages
 			javamms_list& listenerList = MsgTransactionManager::instance()->getJavaMMSList();
 			javamms_list::iterator it = listenerList.begin();
@@ -512,7 +621,7 @@ int MsgIncomingMMSConfMsgHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 			if (msgInfo.networkStatus == MSG_NETWORK_SEND_FAIL && msgInfo.msgType.subType == MSG_SENDREQ_MMS) {
 				for ( ; it != listenerList.end() ; it++) {
 					if (strstr(it->pduFileName, "JAVA")) {
-						MSG_DEBUG("JAVA MMS fileName:%s", it->pduFileName);
+						MSG_SEC_DEBUG("JAVA MMS fileName:%s", it->pduFileName);
 						MsgDeleteFile(it->pduFileName);		// ipc
 						listenerList.erase(it);
 						goto __BYPASS_UPDATE;
@@ -523,62 +632,78 @@ int MsgIncomingMMSConfMsgHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 				MMS_RECV_DATA_S* pMmsRecvData = (MMS_RECV_DATA_S*)msgInfo.msgData;
 
 				for ( ; it != listenerList.end() ; it++) {
-					if(!strcmp(it->id, pMmsRecvData->szTrID)) {
-						MSG_DEBUG("find sent JAVA MMS message trId:%s from listener list trId:%s",pMmsRecvData->szTrID, it->id);
+					if (!strcmp(it->id, pMmsRecvData->szTrID)) {
+						MSG_SEC_DEBUG("find sent JAVA MMS message trId:%s from listener list trId:%s",pMmsRecvData->szTrID, it->id);
 						MsgDeleteFile(it->pduFileName); // ipc
 						listenerList.erase(it);
 						goto __BYPASS_UPDATE;
 					}
 				}
 			}
+		} else {
+			MSG_DEBUG("prxInfo is NULL");
 		}
 
 		err = MsgHandleMmsConfIncomingMsg(&msgInfo, reqID);
 
-		if(err != MSG_SUCCESS)
-			return err;
+		if (err != MSG_SUCCESS) {
+			return MsgMakeEvent(NULL, 0, MSG_EVENT_PLG_INCOMING_MMS_CONF, err, (void**)ppEvent);
+		}
 
 __BYPASS_UPDATE:
 		if (msgInfo.networkStatus == MSG_NETWORK_SEND_FAIL) {
 			MSG_DEBUG("message-dialog: send fail");
-			MsgInsertTicker("Sending multimedia message failed.", SENDING_MULTIMEDIA_MESSAGE_FAILED);
+			MsgInsertTicker("Sending multimedia message failed.", SENDING_MULTIMEDIA_MESSAGE_FAILED, true, msgInfo.msgId);
+//			MsgSoundPlayer::instance()->MsgSoundPlayStart(NULL, MSG_NORMAL_SOUND_PLAY);
 		} else {
 			MSG_DEBUG("message-dialog: send success");
-			MsgInsertTicker("Multimedia message sent.", MULTIMEDIA_MESSAGE_SENT);
 
-			MSG_DEBUG("Enter MsgAddPhoneLog() : msgInfo.addressList[0].addressVal [%s]", msgInfo.addressList[0].addressVal);
+			bool bTTS = false;
+
+			if (MsgSettingGetBool(VCONFKEY_SETAPPL_ACCESSIBILITY_TTS, &bTTS) != MSG_SUCCESS) {
+				MSG_DEBUG("MsgSettingGetBool is failed.");
+			}
+
+			if (bTTS) {
+				MsgInsertTicker("Multimedia message sent.", MULTIMEDIA_MESSAGE_SENT, false, 0);
+			}
+
+#ifndef MSG_CONTACTS_SERVICE_NOT_SUPPORTED
+			MSG_SEC_DEBUG("Enter MsgAddPhoneLog() : msgInfo.addressList[0].addressVal [%s]", msgInfo.addressList[0].addressVal);
 			MsgAddPhoneLog(&msgInfo);
+#endif //MSG_CONTACTS_SERVICE_NOT_SUPPORTED
 		}
 
 		if (prxInfo) {
 			if (prxInfo->handleAddr == 0) {
 				// just making data which will be passed to plugin. it indicates "handling evt success"
 				MsgTransactionManager::instance()->delProxyInfo(reqID);
+			} else {
 
-				return MsgMakeEvent(NULL, 0, MSG_EVENT_PLG_SENT_STATUS_CNF, MSG_SUCCESS, (void**)ppEvent);
+				unsigned int ret[3] = {0}; //3// reqid, status, object
+
+				ret[0] = reqID;
+				ret[1] = msgInfo.networkStatus;
+				ret[2] = prxInfo->handleAddr;
+
+				// Make Event Data for APP
+				eventsize = MsgMakeEvent(ret, sizeof(ret), MSG_EVENT_PLG_SENT_STATUS_CNF, MSG_SUCCESS, (void**)ppEvent);
+
+				// Send to listener thread, here
+				MsgTransactionManager::instance()->write(prxInfo->listenerFd, *ppEvent, eventsize);
+
+				MsgTransactionManager::instance()->delProxyInfo(reqID);
 			}
-
-#if defined(__x86_64__) || defined(__aarch64__)
-			uint64_t ret[3] = {0}; //3// reqid, status, object
-#else
-			unsigned int ret[3] = {0}; //3// reqid, status, object
-#endif
-
-			ret[0] = reqID;
-			ret[1] = msgInfo.networkStatus;
-			ret[2] = prxInfo->handleAddr;
-
-			// Make Event Data for APP
-			eventsize = MsgMakeEvent(ret, sizeof(ret), MSG_EVENT_PLG_SENT_STATUS_CNF, MSG_SUCCESS, (void**)ppEvent);
-
-			// Send to listener thread, here
-			MsgTransactionManager::instance()->write(prxInfo->listenerFd, *ppEvent, eventsize);
-
-			MsgTransactionManager::instance()->delProxyInfo(reqID);
 		}
 
-		msgInfo.bTextSms = true;
+		eventsize = MsgMakeEvent(NULL, 0, MSG_EVENT_PLG_INCOMING_MMS_CONF, MSG_SUCCESS, (void**)ppEvent);
 		MsgTransactionManager::instance()->broadcastStorageChangeCB(MSG_SUCCESS, MSG_STORAGE_CHANGE_UPDATE, &msgIdList);
+	} else {
+		//To avoid prevent memory leak.. this case will not occur. eventsize will be return as 0.
+		if (tmpAddr) {
+			delete[] tmpAddr;
+			tmpAddr = NULL;
+		}
 	}
 
 	MSG_END();
@@ -630,21 +755,33 @@ int MsgIncomingCBMsgHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 
 	memcpy(&cbMsg, (void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN), sizeof(MSG_CB_MSG_S));
 
+	MSG_MESSAGE_INFO_S msgInfo;
+	memset(&msgInfo, 0x00, sizeof(MSG_MESSAGE_INFO_S));
+
+	msgInfo.addressList = NULL;
+	AutoPtr<MSG_ADDRESS_INFO_S> addressListBuf(&msgInfo.addressList);
+
+	MsgDecodeMsgInfo((char *)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN+sizeof(MSG_CB_MSG_S), &msgInfo);
+
+	MSG_DEBUG("CB MSG ADDRESS COUNT=%d", msgInfo.nAddressCnt);
+
+	if (MsgStoAddCBMsg(&msgInfo) != MSG_SUCCESS) {
+		MSG_DEBUG("MsgStoAddCBMsg is fail");
+	}
+
+	MsgInsertNotification(&msgInfo);
+	MsgChangePmState();
+
 	msg_id_list_s msgIdList;
 	msg_message_id_t msgIds[1];
 	memset(&msgIdList, 0x00, sizeof(msg_id_list_s));
 
+	msgIdList.nCount = 1;
+	msgIds[0] = (msg_message_id_t)msgInfo.msgId;
+	msgIdList.msgIdList = msgIds;
+	MsgTransactionManager::instance()->broadcastStorageChangeCB(err, MSG_STORAGE_CHANGE_INSERT, &msgIdList);
 	MsgTransactionManager::instance()->broadcastCBMsgCB(err, &cbMsg);
 
-	bool bSave = false;
-	MsgSettingGetBool(CB_SAVE, &bSave);
-
-	if(bSave && cbMsg.type!= MSG_ETWS_SMS) {
-		msgIdList.nCount = 1;
-		msgIds[0] = (msg_message_id_t)cbMsg.messageId;
-		msgIdList.msgIdList = msgIds;
-		MsgTransactionManager::instance()->broadcastStorageChangeCB(err, MSG_STORAGE_CHANGE_INSERT, &msgIdList);
-	}
 	eventSize = MsgMakeEvent(NULL, 0, MSG_EVENT_PLG_INCOMING_CB_MSG_IND, err, (void**)ppEvent);
 
 	MSG_END();
@@ -762,6 +899,13 @@ int MsgStorageChangeHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 
 	MSG_DEBUG("storageChangeType : [%d], msg Id : [%d]", storageChangeType, msgInfo.msgId);
 
+	if (msgInfo.msgType.mainType == MSG_TYPE_SMS) {
+		if (storageChangeType == MSG_STORAGE_CHANGE_UPDATE)
+			MsgStoUpdateMessage(&msgInfo, NULL);
+		else if (storageChangeType == MSG_STORAGE_CHANGE_DELETE)
+			MsgStoDeleteMessage(msgInfo.msgId, true);
+	}
+
 	// broadcast to listener threads, here
 	msg_id_list_s msgIdList;
 	msg_message_id_t msgIds[1];
@@ -778,3 +922,118 @@ int MsgStorageChangeHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 
 	return eventSize;
 }
+
+int MsgResendMessageHandler(const MSG_CMD_S *pCmd, char **ppEvent)
+{
+	msg_error_t err = MSG_SUCCESS;
+	int eventSize = 0;
+
+
+	// Get the msgIdList of sending failed message.
+	int *failed_msg_list = NULL;
+	int count = 0;
+	AutoPtr<int> failed_list(&failed_msg_list);
+
+
+	err = MsgStoGetFailedMessage(&failed_msg_list, &count);
+	if (err != MSG_SUCCESS) {
+		MSG_DEBUG("MsgStoGetFailedMessage() Error!! [%d]", err);
+	}
+
+	for(int i=0; i < count ; ++i)
+	{
+		MSG_REQUEST_INFO_S reqInfo = {0};
+		reqInfo.msgInfo.addressList = NULL;
+		AutoPtr<MSG_ADDRESS_INFO_S> addressListBuf(&reqInfo.msgInfo.addressList);
+		reqInfo.msgInfo.msgId = failed_msg_list[i];
+		err = MsgStoGetMessage(reqInfo.msgInfo.msgId, &(reqInfo.msgInfo), &(reqInfo.sendOptInfo));
+
+		if (err != MSG_SUCCESS) {
+			MSG_DEBUG("MsgStoGetMessage() Error!! [%d]", err);
+		}
+
+		reqInfo.msgInfo.networkStatus = MSG_NETWORK_SENDING;
+
+		msg_id_list_s msgIdList;
+		msg_message_id_t msgIds[1];
+		memset(&msgIdList, 0x00, sizeof(msg_id_list_s));
+
+		msgIdList.nCount = 1;
+		msgIds[0] = reqInfo.msgInfo.msgId;
+		msgIdList.msgIdList = msgIds;
+
+		err = MsgSubmitReq(&reqInfo, false);
+
+		if (err == MSG_SUCCESS) {
+			MsgTransactionManager::instance()->broadcastStorageChangeCB(MSG_SUCCESS, MSG_STORAGE_CHANGE_UPDATE, &msgIdList);
+			if (err == MSG_SUCCESS)
+				MSG_DEBUG("MsgSubmitReq() Success");
+			else
+				MSG_DEBUG("MsgSubmitReq() Fail, [%d]", err);
+		} else {
+			MSG_DEBUG("MsgSubmitReq() Fail, [%d]", err);
+		}
+	}
+
+	eventSize = MsgMakeEvent(NULL, 0, MSG_EVENT_PLG_RESEND_MESSAGE, err, (void**)ppEvent);
+
+	MSG_END();
+	return eventSize;
+}
+
+#ifdef MSG_PENDING_PUSH_MESSAGE
+int MsgSendPendingPushMsgHandler(const MSG_CMD_S *pCmd, char **ppEvent)
+{
+	MSG_BEGIN();
+
+	int eventSize = 0;
+
+	// input check
+	if (!pCmd || !ppEvent)
+		THROW(MsgException::INVALID_PARAM, "pCmd or ppEvent is null");
+
+	MsgTransactionManager::instance()->sendPendingPushMsg();
+
+	// Make Event Data
+	eventSize = MsgMakeEvent(NULL, 0, MSG_EVENT_SEND_PENDING_PUSH_MESSAGE, MSG_SUCCESS, (void**)ppEvent);
+
+	MSG_END();
+	return eventSize;
+}
+#endif
+
+#ifdef FEATURE_SMS_CDMA
+int MsgCheckUniquenessHandler(const MSG_CMD_S *pCmd, char **ppEvent)
+{
+	MSG_BEGIN();
+
+	msg_error_t err = MSG_SUCCESS;
+	int eventSize = 0;
+
+	// input check
+	if (!pCmd || !ppEvent)
+		THROW(MsgException::INVALID_PARAM, "pCmd or ppEvent is null");
+
+	// Get Incoming Message
+	bool bInsert;
+	memcpy(&bInsert, (void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN), sizeof(bool));
+
+	msg_message_id_t msgId;
+	memcpy(&msgId, (void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN+sizeof(bool)), sizeof(msg_message_id_t));
+
+	MSG_UNIQUE_INDEX_S p_msg;
+	memcpy(&p_msg, (void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN+sizeof(bool)+sizeof(msg_message_id_t)), sizeof(MSG_UNIQUE_INDEX_S));
+
+	MSG_DEBUG("Decoded Teleservice Msg Id = [%d]", p_msg.tele_msgId);
+	MSG_DEBUG("Decoded Address = [%s]", p_msg.address);
+	MSG_DEBUG("Decoded Sub Address = [%s]", p_msg.sub_address);
+
+	err = MsgCheckUniqueness(bInsert, msgId, &p_msg);
+
+	eventSize = MsgMakeEvent(NULL, 0, MSG_EVENT_PLG_CHECK_UNIQUENESS, err, (void**)ppEvent);
+
+	MSG_END();
+
+	return eventSize;
+}
+#endif

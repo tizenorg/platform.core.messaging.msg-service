@@ -1,20 +1,17 @@
 /*
- * msg-service
- *
- * Copyright (c) 2000 - 2014 Samsung Electronics Co., Ltd. All rights reserved
+ * Copyright (c) 2014 Samsung Electronics Co., Ltd. All rights reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
 */
 
 #ifndef MSG_CMD_TYPES_H
@@ -173,12 +170,20 @@ enum _MSG_CMD_TYPE_E
 	MSG_CMD_UPDATE_PUSH_EVENT,
 	MSG_CMD_DELETE_MESSAGE_BY_LIST,
 	MSG_CMD_SET_FILTER_ACTIVATION,
-	MSG_CMD_CONTACT_SYNC,
+	MSG_CMD_ADD_SIM_MSG,
 
+// 85
+	MSG_CMD_PLG_RESEND_MESSAGE,
+	MSG_CMD_SEND_PENDING_PUSH_MESSAGE,
+	MSG_CMD_REG_REPORT_MSG_INCOMING_CB,
+	MSG_CMD_UPDATE_IMSI,
+
+#ifdef FEATURE_SMS_CDMA
+	MSG_CMD_PLG_CHECK_UNIQUENESS,
+#endif
 // end of MSG_CMD; new CMD should be defined before MSG_CMD_NUM
 	MSG_CMD_NUM
 };
-
 
 enum _MSG_EVENT_TYPE_E
 {
@@ -290,11 +295,23 @@ enum _MSG_EVENT_TYPE_E
 	MSG_EVENT_UPDATE_PUSH_EVENT,
 	MSG_EVENT_DELETE_MESSAGE_BY_LIST,
 	MSG_EVENT_SET_FILTER_ACTIVATION,
-	MSG_EVNET_CONTACT_SYNC,
+	MSG_EVENT_ADD_SIM_MSG,
+
+// 85
+	MSG_EVENT_PLG_RESEND_MESSAGE,
+	MSG_EVENT_SEND_PENDING_PUSH_MESSAGE,
+	MSG_EVENT_REG_REPORT_MSG_INCOMING_CB,
+	MSG_EVENT_PLG_REPORT_MSG_INCOMING_IND,
+
+#ifdef FEATURE_SMS_CDMA
+	MSG_EVENT_PLG_CHECK_UNIQUENESS,
+#endif
+	MSG_EVENT_UPDATE_IMSI,
 
 // end of MSG_EVENT; new EVENT should be defined before MSG_EVENT_NUM
 	MSG_EVENT_NUM
 };
+
 
 #endif // MSG_CMD_TYPES_H
 

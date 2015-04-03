@@ -1,20 +1,17 @@
 /*
- * msg-service
- *
- * Copyright (c) 2000 - 2014 Samsung Electronics Co., Ltd. All rights reserved
+ * Copyright (c) 2014 Samsung Electronics Co., Ltd. All rights reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
 */
 
 #include "MsgDebug.h"
@@ -33,13 +30,19 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <errno.h>
+
+#if MSG_DRM_SUPPORT
+
 #include <drm_client_types.h>
 #include <drm_client.h>
+
+#endif //MSG_DRM_SUPPORT
 
 #define MSG_MAX_DRM_FILE_PATH MSG_FILEPATH_LEN_MAX
 
 bool MsgDrmRegisterFile(MSG_DRM_OPENMODE eMode, char *pBuffer, int nSize)
 {
+#if MSG_DRM_SUPPORT
 	if (eMode == MSG_MODE_STREAM) {
 		MSG_DEBUG("Fail(eMode == MSG_MODE_STREAM)");
 		return false;
@@ -64,15 +67,19 @@ bool MsgDrmRegisterFile(MSG_DRM_OPENMODE eMode, char *pBuffer, int nSize)
 
 	eDRMResult = drm_process_request(request_type, pBuffer, NULL);
 	if (DRM_RETURN_SUCCESS != eDRMResult) {
-		MSG_DEBUG("drm_process_request is failed : %d", eDRMResult);
+		MSG_DEBUG("drm_process_request is failed : 0x%x", eDRMResult);
 		return false;
 	}
 	MSG_END();
 	return true;
+#else
+	return false;
+#endif
 }
 
 bool MsgDrmUnregisterFile(char *szFilename)
 {
+#if MSG_DRM_SUPPORT
 	if (szFilename == NULL) {
 		MSG_DEBUG("[Error] szFilename is NULL");
 		return false;
@@ -89,10 +96,14 @@ bool MsgDrmUnregisterFile(char *szFilename)
 	}
 
 	return true;
+#else
+	return false;
+#endif
 }
 
 bool MsgDrmIsDrmFile(const char *szFilePath)
 {
+#if MSG_DRM_SUPPORT
 	drm_bool_type_e isDrm;
 	int eDRMResult = drm_is_drm_file(szFilePath, &isDrm);
 
@@ -102,16 +113,144 @@ bool MsgDrmIsDrmFile(const char *szFilePath)
 	}
 
 	return true;
+#else
+	return false;
+#endif
 }
 
 /*Added to convert the .dm files in to .dcf files since our platform supports only .dcf :: Start*/
 bool MsgDrmConvertDmtoDcfType(char *inputFile, char *outputFile)
 {
+#if MSG_DRM_SUPPORT
+	if ((NULL == inputFile) || (NULL == outputFile)) {
+		MSG_DEBUG("Invalid Input parameters");
+		return false;
+	}
+
+	if (strstr(inputFile, ".dm")) {
+		MSG_SEC_DEBUG("Current File extension is .dm %s", inputFile);
+		int ret;
+
+		FILE *fp = MsgOpenFile(inputFile, "rb");//Check fp
+
+		if (fp == NULL) {
+			MSG_DEBUG("[File Open Fail(Errno=%d)][ErrStr=%s]", errno, strerror(errno));
+			strncpy(outputFile, inputFile, MSG_MAX_DRM_FILE_PATH);
+			return false;
+		}
+
+		if (MsgFseek(fp, 0L, SEEK_END) < 0) {
+			MsgCloseFile(fp);
+			MSG_DEBUG("MsgFseek() returns negative value!!!");
+			return false;
+		}
+		long retVal = MsgFtell(fp);
+
+		if (retVal < 0) {
+			MsgCloseFile(fp);
+			MSG_DEBUG("ftell() returns negative value: [%ld]!!!", retVal);
+			strncpy(outputFile, inputFile, MSG_MAX_DRM_FILE_PATH);
+			return false;
+		}
+
+		unsigned long bufLen = retVal;
+		MSG_DEBUG("fopen buffer len = %d", bufLen);
+		if (MsgFseek(fp, 0, SEEK_SET) < 0) {
+			MsgCloseFile(fp);
+			MSG_DEBUG("MsgFseek() returns negative value!!!");
+			return false;
+		}
+
+		unsigned char *buffer = (unsigned char*)malloc(bufLen);
+		int readed_size = 0;
+		int pathLen = strlen(inputFile);
+
+		if (buffer == NULL) {
+			MsgCloseFile(fp);
+			MSG_DEBUG("malloc is failed ");
+			strncpy(outputFile, inputFile, MSG_MAX_DRM_FILE_PATH);
+			return false;
+		}
+
+		strncpy(outputFile, inputFile, pathLen - 2);
+		strncat(outputFile, "dcf", 3);
+
+		readed_size = MsgReadFile(buffer, 1, bufLen, fp);//Check for error
+		MSG_DEBUG("fread read size = %d", readed_size);
+		if (readed_size == 0) {
+			MsgCloseFile(fp);
+			free(buffer);
+			MSG_DEBUG("MsgReadFile returns 0");
+			return false;
+		}
+
+		DRM_TRUSTED_CONVERT_HANDLE hConvert = NULL;
+		drm_trusted_opn_conv_info_s trusted_open_conv_input;
+		bzero(&trusted_open_conv_input, sizeof(drm_trusted_opn_conv_info_s));
+
+		strncpy(trusted_open_conv_input.filePath, outputFile, DRM_TRUSTED_MAX_FILEPATH_LEN-1);
+		trusted_open_conv_input.install_RO = DRM_TRUSTED_TRUE;
+
+		ret = drm_trusted_open_convert(&trusted_open_conv_input, &hConvert);
+		if (ret != DRM_RETURN_SUCCESS) {
+			free(buffer);
+			MsgCloseFile(fp);
+			MSG_DEBUG("drm_trusted_open_convert() return = failed (0x%x)", ret);
+			remove(outputFile);
+			strncpy(outputFile, inputFile, MSG_MAX_DRM_FILE_PATH);
+			return false;
+		}
+
+		drm_trusted_write_conv_info_s trusted_write_conv_input;
+		drm_trusted_write_conv_resp_s trusted_write_conv_output;
+
+		bzero(&trusted_write_conv_input, sizeof(drm_trusted_write_conv_info_s));
+		bzero(&trusted_write_conv_output, sizeof(drm_trusted_write_conv_resp_s));
+
+		trusted_write_conv_input.data = buffer;
+		trusted_write_conv_input.data_len = bufLen;
+
+		/*We can call drm_trusted_write_convert in loop if file size is large*/
+		ret = drm_trusted_write_convert(&trusted_write_conv_input, &trusted_write_conv_output, hConvert);
+		if (ret != DRM_RETURN_SUCCESS) {
+			free(buffer);
+			MsgCloseFile(fp);
+			MSG_DEBUG("drm_trusted_write_convert() return = failed (0x%x)", ret);
+			remove(outputFile);
+			strncpy(outputFile, inputFile, MSG_MAX_DRM_FILE_PATH);
+			return false;
+		}
+
+		ret = drm_trusted_close_convert(&hConvert);
+		if (ret != DRM_RETURN_SUCCESS) {
+			free(buffer);
+			MsgCloseFile(fp);
+			MSG_DEBUG("drm_trusted_close_convert() return = failed (0x%x)", ret);
+			remove(outputFile);
+			strncpy(outputFile, inputFile, MSG_MAX_DRM_FILE_PATH);
+			return false;
+		}
+
+		MsgCloseFile(fp);
+		free(buffer);
+	} else {
+		MSG_DEBUG("Current File extension is not .dm");
+
+		MSG_DEBUG("inputFile = (%s)", inputFile);
+		strncpy(outputFile, inputFile, MSG_MAX_DRM_FILE_PATH);
+
+		return false;
+	}
+
 	return true;
+#else
+	return true;
+#endif
 }
 
 bool MsgDrmGetDrmType(const char *szFileName, MSG_DRM_TYPE *eDRMType)
 {
+#if MSG_DRM_SUPPORT
 	if (szFileName == NULL || eDRMType == NULL) {
 		MSG_DEBUG("Param is NULL");
 		return false;
@@ -155,10 +294,14 @@ bool MsgDrmGetDrmType(const char *szFileName, MSG_DRM_TYPE *eDRMType)
 	}
 
 	return true;
+#else
+	return false;
+#endif
 }
 
 bool MsgDrmGetMimeTypeEx(const char *szFileName, char *szMimeType, int nMimeTypeLen)
 {
+#if MSG_DRM_SUPPORT
 	if (!szFileName || !szMimeType || !nMimeTypeLen) {
 		MSG_DEBUG("param is NULL");
 		return false;
@@ -181,10 +324,14 @@ bool MsgDrmGetMimeTypeEx(const char *szFileName, char *szMimeType, int nMimeType
 	}
 
 	return true;
+#else
+	return false;
+#endif
 }
 
 bool MsgDrmGetContentID(const char *szFileName, char *szContentID, int nContentIDLen)
 {
+#if MSG_DRM_SUPPORT
 	if (!szFileName || !szContentID || !nContentIDLen) {
 		MSG_DEBUG("param is NULL");
 		return false;
@@ -192,14 +339,14 @@ bool MsgDrmGetContentID(const char *szFileName, char *szContentID, int nContentI
 
 	char strTemp[MSG_MAX_DRM_FILE_PATH + 1] = {0,};
 
-	strncpy(strTemp, szFileName, MSG_MAX_DRM_FILE_PATH);
+	strncpy(strTemp, szFileName, sizeof(strTemp)-1);
 
 	drm_content_info_s  content_info;
 	memset(&content_info, 0x00, sizeof(drm_content_info_s));
 
 	int result = drm_get_content_info(strTemp, &content_info);
 	if (DRM_RETURN_SUCCESS == result) {
-		MSG_DEBUG("contentID = %s", content_info.content_id);
+		MSG_SEC_DEBUG("contentID = %s", content_info.content_id);
         snprintf(szContentID, nContentIDLen, "%s", content_info.content_id);
 	} else {
 		MSG_DEBUG("drm_get_content_info is failed %d", result);
@@ -207,5 +354,39 @@ bool MsgDrmGetContentID(const char *szFileName, char *szContentID, int nContentI
 	}
 
 	return true;
+#else
+	return false;
+#endif
 }
 
+bool MsgDrmCheckRingtone(const char *ringtonePath)
+{
+#if MSG_DRM_SUPPORT
+	bool ret = false;
+
+	if (ringtonePath) {
+		drm_bool_type_e allowed = DRM_UNKNOWN;
+		drm_action_allowed_data_s data;
+		memset(&data, 0x00, sizeof(drm_action_allowed_data_s));
+		strncpy(data.file_path, ringtonePath, strlen(ringtonePath));
+		data.data = (int)DRM_SETAS_RINGTONE;
+
+		int res = drm_is_action_allowed(DRM_HAS_VALID_SETAS_STATUS, &data, &allowed);
+
+		if (res == DRM_RETURN_SUCCESS) {
+			if (allowed == DRM_TRUE) {
+				MSG_DEBUG("allowed [DRM_TRUE]");
+				ret = true;
+			}
+		} else {
+			MSG_DEBUG("fail to drm_is_action_allowed [0x%x]", res);
+		}
+	} else {
+		MSG_DEBUG("ringtonePath is NULL.");
+	}
+
+	return ret;
+#else
+	return false;
+#endif
+}

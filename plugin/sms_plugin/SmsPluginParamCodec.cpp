@@ -1,20 +1,17 @@
 /*
- * msg-service
- *
- * Copyright (c) 2000 - 2014 Samsung Electronics Co., Ltd. All rights reserved
+ * Copyright (c) 2014 Samsung Electronics Co., Ltd. All rights reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
 */
 
 #include <stdio.h>
@@ -264,7 +261,7 @@ int SmsPluginParamCodec::encodeSMSC(const SMS_ADDRESS_S *pAddress, unsigned char
 int SmsPluginParamCodec::decodeAddress(const unsigned char *pTpdu, SMS_ADDRESS_S *pAddress)
 {
 	int offset = 0, addrLen = 0, bcdLen = 0;
-	MsgTextConvert textCvt;
+	MsgTextConvert *textCvt = MsgTextConvert::instance();
 	memset(pAddress->address, 0x00, sizeof(pAddress->address));
 
 	addrLen = (int)pTpdu[offset++];
@@ -287,22 +284,23 @@ MSG_DEBUG("npi [%d]", pAddress->npi);
 		char* tmpAddress = new char[MAX_ADDRESS_LEN];
 		int tmplength = 0;
 
-		tmplength = SmsPluginUDCodec::unpack7bitChar(&(pTpdu[offset]), bcdLen, 0, tmpAddress);
+		tmplength = SmsPluginUDCodec::unpack7bitChar(&(pTpdu[offset]), (addrLen*4 )/7, 0, tmpAddress);
 
 		MSG_LANG_INFO_S langInfo = {0,};
 
 		langInfo.bSingleShift = false;
 		langInfo.bLockingShift = false;
 
-		textCvt.convertGSM7bitToUTF8((unsigned char*)pAddress->address, MAX_ADDRESS_LEN, (unsigned char*)tmpAddress, tmplength, &langInfo);
+		textCvt->convertGSM7bitToUTF8((unsigned char*)pAddress->address, MAX_ADDRESS_LEN, (unsigned char*)tmpAddress, tmplength, &langInfo);
 
 		if (tmpAddress)
 			delete[] tmpAddress;
 	}
 	else if (pAddress->ton == SMS_TON_INTERNATIONAL)
 	{
-		(pAddress->address)[0] = '+';
 		convertBcdToDigit(&(pTpdu[offset]), bcdLen, &((pAddress->address)[1]));
+		if (pAddress->address[1] != '\0')
+			pAddress->address[0] = '+';
 	}
 	else
 	{
@@ -418,7 +416,7 @@ int SmsPluginParamCodec::decodeDCS(const unsigned char *pTpdu, SMS_DCS_S *pDCS)
 		pDCS->msgClass = SMS_MSG_CLASS_NONE;
 
 		pDCS->bMWI = true;
-		pDCS->bIndActive = (((dcs & 0x08) >> 3) == 1)? false:true;
+		pDCS->bIndActive = (((dcs & 0x08) >> 3) == 1)? true:false;
 		pDCS->indType = (SMS_INDICATOR_TYPE_T)(dcs & 0x03);
 	}
 	else
@@ -530,3 +528,25 @@ int SmsPluginParamCodec::convertBcdToDigit(const unsigned char *pBcd, int BcdLen
 	return offset;
 }
 
+bool SmsPluginParamCodec::checkCphsVmiMsg(const unsigned char *pTpdu, int *setType, int *indType)
+{
+	bool ret = false;
+
+	int offset = 0;
+	int addrLen = 0;
+
+	addrLen = (int)pTpdu[offset++];
+
+	if (addrLen == 0x04 && pTpdu[offset++] == 0xD0) {
+		if (pTpdu[offset] == 0x11 || pTpdu[offset] == 0x10) {
+			MSG_DEBUG("####### VMI msg ######");
+			*setType = (int)(pTpdu[offset] & 0x01); // 0 : clear, 1 : set
+
+			*indType = (int)(pTpdu[offset+1] & 0x01); // 0 : indicator 1, 1 : indicator 2
+
+			ret = true;
+		}
+	}
+
+	return ret;
+}

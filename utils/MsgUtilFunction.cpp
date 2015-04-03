@@ -1,28 +1,56 @@
 /*
- * msg-service
- *
- * Copyright (c) 2000 - 2014 Samsung Electronics Co., Ltd. All rights reserved
+ * Copyright (c) 2014 Samsung Electronics Co., Ltd. All rights reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
 */
 
 #include "MsgDebug.h"
+#include "MsgContact.h"
 #include "MsgUtilFunction.h"
+
+#include <system_info.h>
+
+bool b_feature_check_flag = false;
+bool b_feature_telephony = false;
+bool b_feature_telephony_mms = false;
 
  /*==================================================================================================
                                      FUNCTION IMPLEMENTATION
 ==================================================================================================*/
+
+bool MsgCheckFeatureSupport(const char *feature_name)
+{
+	bool result = false;
+
+	if (b_feature_check_flag == false) {
+		system_info_get_platform_bool(MSG_TELEPHONY_FEATURE, &b_feature_telephony);
+		system_info_get_platform_bool(MSG_TELEPHONY_MMS_FEATURE, &b_feature_telephony_mms);
+		MSG_INFO("[%s] feature is [%d]", MSG_TELEPHONY_FEATURE, b_feature_telephony);
+		MSG_INFO("[%s] feature is [%d]", MSG_TELEPHONY_MMS_FEATURE, b_feature_telephony_mms);
+
+		b_feature_check_flag = true;
+	}
+
+	if (!g_strcmp0(feature_name, MSG_TELEPHONY_FEATURE)) {
+		result = b_feature_telephony;
+	} else if (!g_strcmp0(feature_name, MSG_TELEPHONY_MMS_FEATURE)) {
+		result = b_feature_telephony_mms;
+	} else {
+		result = false;
+	}
+
+	return result;
+}
 
 // Encoders
 int MsgEncodeCountInfo(MSG_COUNT_INFO_S *pCountInfo, char **ppDest)
@@ -97,11 +125,11 @@ int MsgEncodeMsgId(msg_message_id_t *pMsgId, char **ppDest)
 }
 
 
-int MsgEncodeMsgInfo(MSG_MESSAGE_INFO_S *pMsgInfo, char **ppDest)
+int MsgEncodeMsgInfo(const MSG_MESSAGE_INFO_S *pMsgInfo, char **ppDest)
 {
 	int dataSize = 0;
 
-	dataSize = sizeof(MSG_MESSAGE_INFO_S);
+	dataSize = sizeof(MSG_MESSAGE_INFO_S) + (sizeof(MSG_ADDRESS_INFO_S)*pMsgInfo->nAddressCnt);
 
 	*ppDest = (char*)new char[dataSize];
 
@@ -111,6 +139,11 @@ int MsgEncodeMsgInfo(MSG_MESSAGE_INFO_S *pMsgInfo, char **ppDest)
 
 	p = (void*)((char*)p + sizeof(MSG_MESSAGE_INFO_S));
 
+	for (int i=0; i < pMsgInfo->nAddressCnt; i++) {
+		memcpy(p, &(pMsgInfo->addressList[i]), sizeof(MSG_ADDRESS_INFO_S));
+		p = (void*)((char*)p + sizeof(MSG_ADDRESS_INFO_S));
+	}
+
 	return dataSize;
 }
 
@@ -119,7 +152,7 @@ int MsgEncodeMsgInfo(MSG_MESSAGE_INFO_S *pMsgInfo, MSG_SENDINGOPT_INFO_S* pSendO
 {
 	int dataSize = 0;
 
-	dataSize = (sizeof(MSG_MESSAGE_INFO_S) + sizeof(MSG_SENDINGOPT_INFO_S));
+	dataSize = (sizeof(MSG_MESSAGE_INFO_S) + sizeof(MSG_SENDINGOPT_INFO_S) + (sizeof(MSG_ADDRESS_INFO_S)*pMsgInfo->nAddressCnt));
 
 	*ppDest = (char*)new char[dataSize];
 
@@ -131,8 +164,16 @@ int MsgEncodeMsgInfo(MSG_MESSAGE_INFO_S *pMsgInfo, MSG_SENDINGOPT_INFO_S* pSendO
 
 	memcpy(p, pSendOptInfo, sizeof(MSG_SENDINGOPT_INFO_S));
 
+	p = (void*)((char*)p + sizeof(MSG_SENDINGOPT_INFO_S));
+
+	for (int i=0; i < pMsgInfo->nAddressCnt; i++) {
+		memcpy(p, &(pMsgInfo->addressList[i]), sizeof(MSG_ADDRESS_INFO_S));
+		p = (void*)((char*)p + sizeof(MSG_ADDRESS_INFO_S));
+	}
+
 	return dataSize;
 }
+
 
 int MsgEncodeFolderList(msg_struct_list_s *pFolderList, char **ppDest)
 {
@@ -159,6 +200,7 @@ int MsgEncodeFolderList(msg_struct_list_s *pFolderList, char **ppDest)
 
 	return dataSize;
 }
+
 
 int MsgEncodeFilterList(msg_struct_list_s *pFilterList, char **ppDest)
 {
@@ -360,6 +402,35 @@ int MsgEncodeStorageChangeData(const msg_storage_change_type_t storageChangeType
 }
 
 
+int MsgEncodeReportMsgData(const msg_report_type_t msgReportType, const MSG_MESSAGE_INFO_S *pMsgInfo, char **ppDest)
+{
+	int dataSize = 0;
+	int addr_len = 0;
+
+	addr_len = strlen(pMsgInfo->addressList->addressVal);
+
+	dataSize = sizeof(msg_report_type_t) + sizeof(msg_message_id_t) + sizeof(int) + addr_len;
+
+	*ppDest = (char*)new char[dataSize];
+
+	void* p = (void*)*ppDest;
+
+	memcpy(p, &msgReportType, sizeof(msg_report_type_t));
+	p = (void*)((char*)p + sizeof(msg_report_type_t));
+
+	memcpy(p, &(pMsgInfo->msgId), sizeof(msg_message_id_t));
+	p = (void*)((char*)p + sizeof(msg_message_id_t));
+
+	memcpy(p, &addr_len, sizeof(int));
+	p = (void*)((char*)p + sizeof(int));
+
+	memcpy(p, &(pMsgInfo->addressList->addressVal), addr_len);
+	p = (void*)((char*)p + addr_len);
+
+	return dataSize;
+}
+
+
 int MsgEncodeReportStatus(MSG_REPORT_STATUS_INFO_S* pReportStatus, int count, char **ppDest)
 {
 	int dataSize = 0;
@@ -372,7 +443,7 @@ int MsgEncodeReportStatus(MSG_REPORT_STATUS_INFO_S* pReportStatus, int count, ch
 
 	memcpy(p, &count, sizeof(int));
 
-	p = (void*)(p + sizeof(int));
+	p = (void*)((int)p + sizeof(int));
 
 	memcpy(p, pReportStatus, sizeof(MSG_REPORT_STATUS_INFO_S)*count);
 
@@ -434,6 +505,23 @@ void MsgDecodeMemSize(char *pSrc, unsigned int *memsize)
 }
 
 
+void MsgDecodeMsgInfo(char *pSrc, MSG_MESSAGE_INFO_S *pMsgInfo)
+{
+	memcpy(pMsgInfo, pSrc, sizeof(MSG_MESSAGE_INFO_S));
+
+	pSrc = pSrc + sizeof(MSG_MESSAGE_INFO_S);
+
+	pMsgInfo->addressList = NULL;
+
+	pMsgInfo->addressList = (MSG_ADDRESS_INFO_S *)new char[sizeof(MSG_ADDRESS_INFO_S) * pMsgInfo->nAddressCnt];
+	memset(pMsgInfo->addressList, 0x00, sizeof(MSG_ADDRESS_INFO_S) * pMsgInfo->nAddressCnt);
+
+	for (int i=0; i<pMsgInfo->nAddressCnt; i++) {
+		memcpy(&(pMsgInfo->addressList[i]), pSrc + (sizeof(MSG_ADDRESS_INFO_S)*i), sizeof(MSG_ADDRESS_INFO_S));
+	}
+}
+
+
 void MsgDecodeMsgInfo(char *pSrc, MSG_MESSAGE_INFO_S *pMsgInfo, MSG_SENDINGOPT_INFO_S* pSendOptInfo)
 {
 	memcpy(pMsgInfo, pSrc, sizeof(MSG_MESSAGE_INFO_S));
@@ -441,7 +529,22 @@ void MsgDecodeMsgInfo(char *pSrc, MSG_MESSAGE_INFO_S *pMsgInfo, MSG_SENDINGOPT_I
 	pSrc = pSrc + sizeof(MSG_MESSAGE_INFO_S);
 
 	memcpy(pSendOptInfo, pSrc, sizeof(MSG_SENDINGOPT_INFO_S));
+
+	pSrc = pSrc + sizeof(MSG_SENDINGOPT_INFO_S);
+
+
+	if(pMsgInfo->nAddressCnt > 0) {
+		pMsgInfo->addressList = NULL;
+
+		pMsgInfo->addressList = (MSG_ADDRESS_INFO_S *)new char[sizeof(MSG_ADDRESS_INFO_S) * pMsgInfo->nAddressCnt];
+		memset(pMsgInfo->addressList, 0x00, sizeof(MSG_ADDRESS_INFO_S) * pMsgInfo->nAddressCnt);
+
+		for (int i=0; i<pMsgInfo->nAddressCnt; i++) {
+			memcpy(&(pMsgInfo->addressList[i]), pSrc + (sizeof(MSG_ADDRESS_INFO_S)*i), sizeof(MSG_ADDRESS_INFO_S));
+		}
+	}
 }
+
 
 void MsgDecodeRecipientList(char *pSrc, MSG_RECIPIENTS_LIST_S *pRecipientList)
 {
@@ -474,17 +577,16 @@ void MsgDecodeFolderList(char *pSrc, msg_struct_list_s *pFolderList)
 	if( count > 0 )
 	{
 		pFolderList->nCount = count;
-		pFolderList->msg_struct_info = (msg_struct_t *)new char[sizeof(MSG_FOLDER_INFO_S *)*count];
+		pFolderList->msg_struct_info = (msg_struct_t *)calloc(count, sizeof(msg_struct_t));
 
 		msg_struct_s *pInfoTmp = NULL;
 
 		for (int i = 0; i < count; i++)
 		{
-
-			pFolderList->msg_struct_info[i] = (msg_struct_t )new char[sizeof(msg_struct_s)];
+			pFolderList->msg_struct_info[i] = (msg_struct_t )new msg_struct_s;
 			pInfoTmp = (msg_struct_s *)pFolderList->msg_struct_info[i];
 			pInfoTmp->type = MSG_STRUCT_FOLDER_INFO;
-			pInfoTmp->data = new char[sizeof(MSG_FOLDER_INFO_S)];
+			pInfoTmp->data = new MSG_FOLDER_INFO_S;
 			memcpy(pInfoTmp->data, pSrc, sizeof(MSG_FOLDER_INFO_S));
 			pSrc = pSrc + sizeof(MSG_FOLDER_INFO_S);
 		}
@@ -496,6 +598,7 @@ void MsgDecodeFolderList(char *pSrc, msg_struct_list_s *pFolderList)
 	}
 }
 
+
 void MsgDecodeFilterList(char *pSrc, msg_struct_list_s *pFilterList)
 {
 	int count = 0;
@@ -506,16 +609,16 @@ void MsgDecodeFilterList(char *pSrc, msg_struct_list_s *pFilterList)
 	if( count > 0 )
 	{
 		pFilterList->nCount = count;
-		pFilterList->msg_struct_info = (msg_struct_t *)new char[sizeof(MSG_FILTER_S *)*count];
+		pFilterList->msg_struct_info = (msg_struct_t *)calloc(count, sizeof(MSG_FILTER_S *));
 
 		msg_struct_s *pStructTmp = NULL;
 
 		for (int i = 0; i < count; i++)
 		{
-			pFilterList->msg_struct_info[i] = (msg_struct_t )new char[sizeof(msg_struct_s)];
+			pFilterList->msg_struct_info[i] = (msg_struct_t )new msg_struct_s;
 			pStructTmp = (msg_struct_s *)pFilterList->msg_struct_info[i];
 			pStructTmp->type = MSG_STRUCT_FILTER;
-			pStructTmp->data = new char[sizeof(MSG_FILTER_S)];
+			pStructTmp->data = new MSG_FILTER_S;
 			memcpy(pStructTmp->data, pSrc, sizeof(MSG_FILTER_S));
 			pSrc = pSrc + sizeof(MSG_FILTER_S);
 		}
@@ -539,6 +642,7 @@ void MsgDecodeMsgType(char *pSrc, MSG_MESSAGE_TYPE_S* pMsgType)
 {
 	memcpy(pMsgType, pSrc, sizeof(MSG_MESSAGE_TYPE_S));
 }
+
 
 void	MsgDecodeContactCount(char *pSrc,  MSG_THREAD_COUNT_INFO_S *pMsgThreadCountList)
 {
@@ -621,6 +725,11 @@ void MsgDecodeThreadInfo(char *pSrc, MSG_THREAD_VIEW_S *pThreadInfo)
 int MsgMakeEvent(const void *pData, int DataSize, MSG_EVENT_TYPE_T MsgEvent, msg_error_t MsgError, void **ppEvent)
 {
 	MSG_EVENT_S* pMsgEvent = NULL;
+
+	if (*ppEvent) {
+		MSG_DEBUG("*ppEvent is not NULL.");
+		delete [] (char *)*ppEvent;
+	}
 
 	*ppEvent = (MSG_EVENT_S*)new char[sizeof(MSG_EVENT_S) + DataSize];
 
@@ -705,4 +814,264 @@ int msg_verify_email(const char *raw)
 	}
 
 	return MSG_SUCCESS;
+}
+
+
+char* msg_clean_country_code(char *src)
+{
+	int ret = 1;
+
+	switch (src[ret++]-'0')
+	{
+		case 1:
+		case 7:
+			break;
+		case 2:
+			switch (src[ret++]-'0')
+			{
+				case 0:
+				case 7:
+					break;
+				case 1:
+				case 2:
+				case 3:
+				case 4:
+				case 5:
+				case 6:
+				case 8:
+				case 9:
+					ret += 1;
+					break;
+				default:
+					MSG_DEBUG("The parameter(src:%s) has invalid character set", src);
+					break;
+			}
+			break;
+		case 3:
+			switch (src[ret++]-'0')
+			{
+				case 0:
+				case 1:
+				case 2:
+				case 3:
+				case 4:
+				case 6:
+				case 9:
+					break;
+				case 5:
+				case 7:
+				case 8:
+					ret += 1;
+					break;
+				default:
+					MSG_DEBUG("The parameter(src:%s) has invalid character set", src);
+					break;
+			}
+			break;
+		case 4:
+			switch (src[ret++]-'0')
+			{
+				case 0:
+				case 1:
+				case 3:
+				case 4:
+				case 5:
+				case 6:
+				case 7:
+				case 8:
+				case 9:
+					break;
+				case 2:
+					ret += 1;
+					break;
+				default:
+					MSG_DEBUG("The parameter(src:%s) has invalid character set", src);
+					break;
+			}
+			break;
+		case 5:
+			switch (src[ret++]-'0')
+			{
+				case 1:
+				case 2:
+				case 3:
+				case 4:
+				case 5:
+				case 6:
+				case 7:
+				case 8:
+					break;
+				case 0:
+				case 9:
+					ret += 1;
+					break;
+				default:
+					MSG_DEBUG("The parameter(src:%s) has invalid character set", src);
+					break;
+			}
+			break;
+		case 6:
+			switch (src[ret++]-'0')
+			{
+				case 0:
+				case 1:
+				case 2:
+				case 3:
+				case 4:
+				case 5:
+				case 6:
+					break;
+				case 7:
+				case 8:
+				case 9:
+					ret += 1;
+					break;
+				default:
+					MSG_DEBUG("The parameter(src:%s) has invalid character set", src);
+					break;
+			}
+			break;
+		case 8:
+			switch (src[ret++]-'0')
+			{
+				case 1:
+				case 2:
+				case 4:
+				case 6:
+					break;
+				case 0:
+				case 3:
+				case 5:
+				case 7:
+				case 8:
+				case 9:
+					ret += 1;
+					break;
+				default:
+					MSG_DEBUG("The parameter(src:%s) has invalid character set", src);
+					break;
+			}
+			break;
+		case 9:
+			switch (src[ret++]-'0')
+			{
+				case 0:
+				case 1:
+				case 2:
+				case 3:
+				case 4:
+				case 5:
+				case 8:
+					break;
+				case 6:
+				case 7:
+				case 9:
+					ret += 1;
+					break;
+				default:
+					MSG_DEBUG("The parameter(src:%s) has invalid character set", src);
+					break;
+			}
+			break;
+		case 0:
+		default:
+			MSG_DEBUG("The parameter(src:%s) has invalid character set", src);
+			return src;
+	}
+
+	return &src[ret];
+}
+
+
+char* msg_normalize_number(char *src)
+{
+	char *normalized_number;
+
+	if ('+' == src[0])
+		normalized_number = msg_clean_country_code(src);
+	else if ('0' == src[0])
+		normalized_number = src+1;
+	else
+		normalized_number = src;
+
+	MSG_DEBUG("src = %s, normalized = %s", src, normalized_number);
+
+	return normalized_number;
+}
+
+
+msg_error_t MsgMakeSortRule(const MSG_SORT_RULE_S *pSortRule, char *pSqlSort)
+{
+	char sql[128];
+	char order[6];
+
+	memset(sql, 0x00, sizeof(sql));
+	memset(order, 0x00, sizeof(order));
+
+	if (pSortRule->bAscending == true)
+		strncpy(order, "ASC", 5);
+	else
+		strncpy(order, "DESC", 5);
+
+	//contacts-service is not used for gear
+#ifndef MSG_CONTACTS_SERVICE_NOT_SUPPORTED
+	int nameOrder = MsgGetContactNameOrder();
+#else
+	int nameOrder = 0;
+#endif // MSG_CONTACTS_SERVICE_NOT_SUPPORTED
+
+	switch (pSortRule->sortType)
+	{
+		case MSG_SORT_BY_DISPLAY_FROM :
+			if (nameOrder == 0)
+				snprintf(sql, sizeof(sql), "ORDER BY B.FIRST_NAME %s, B.LAST_NAME %s, B.ADDRESS_VAL, A.DISPLAY_TIME DESC;", order, order);
+			else
+				snprintf(sql, sizeof(sql), "ORDER BY B.LAST_NAME %s, B.FIRST_NAME %s, B.ADDRESS_VAL, A.DISPLAY_TIME DESC;", order, order);
+			break;
+		case MSG_SORT_BY_DISPLAY_TO :
+			if (nameOrder == 0)
+				snprintf(sql, sizeof(sql), "ORDER BY B.FIRST_NAME %s, B.LAST_NAME %s, B.ADDRESS_VAL, A.DISPLAY_TIME DESC;", order, order);
+			else
+				snprintf(sql, sizeof(sql), "ORDER BY B.LAST_NAME %s, B.FIRST_NAME %s, B.ADDRESS_VAL, A.DISPLAY_TIME DESC;", order, order);
+			break;
+		case MSG_SORT_BY_DISPLAY_TIME :
+			snprintf(sql, sizeof(sql), "ORDER BY DISPLAY_TIME %s;", order);
+			break;
+		case MSG_SORT_BY_MSG_TYPE :
+			snprintf(sql, sizeof(sql), "ORDER BY MAIN_TYPE %s, DISPLAY_TIME DESC;", order);
+			break;
+		case MSG_SORT_BY_READ_STATUS :
+			snprintf(sql, sizeof(sql), "ORDER BY READ_STATUS %s, DISPLAY_TIME DESC;", order);
+			break;
+		case MSG_SORT_BY_STORAGE_TYPE :
+			snprintf(sql, sizeof(sql), "ORDER BY A.STORAGE_ID %s, A.DISPLAY_TIME DESC;", order);
+			break;
+		case MSG_SORT_BY_THREAD_NAME :
+			if (nameOrder == 0)
+				snprintf(sql, sizeof(sql), "ORDER BY FIRST_NAME %s, LAST_NAME %s;", order, order);
+			else
+				snprintf(sql, sizeof(sql), "ORDER BY LAST_NAME %s, FIRST_NAME %s;", order, order);
+			break;
+		case MSG_SORT_BY_THREAD_DATE :
+			snprintf(sql, sizeof(sql), "ORDER BY MSG_TIME %s;", order);
+			break;
+		case MSG_SORT_BY_THREAD_COUNT :
+			snprintf(sql, sizeof(sql), "ORDER BY UNREAD_CNT %s;", order);
+			break;
+		default :
+			snprintf(sql, sizeof(sql), "ORDER BY A.DISPLAY_TIME %s;", order);
+			break;
+	}
+
+	memcpy(pSqlSort, sql, strlen(sql));
+
+	return MSG_SUCCESS;
+}
+bool msg_is_valid_email(char *pAddress)
+{
+	if (!pAddress || pAddress[0] == 0)
+		return false;
+	if (!strchr (pAddress, MSG_UTIL_CH_EMAIL_AT))
+		return false;
+	return true;
 }

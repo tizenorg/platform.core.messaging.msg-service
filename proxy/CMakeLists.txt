@@ -26,13 +26,12 @@ SET(TRANS-PROXY-SRCS
 INCLUDE_DIRECTORIES(
     ${CMAKE_SOURCE_DIR}/include/mapi
 	${CMAKE_SOURCE_DIR}/include/common
-	${CMAKE_SOURCE_DIR}/include/framework
 	${CMAKE_SOURCE_DIR}/include/utils
 	${CMAKE_SOURCE_DIR}/include/proxy
 )
 
 INCLUDE(FindPkgConfig)
-pkg_check_modules(trans_proxy_pkgs REQUIRED glib-2.0 dlog vconf security-server)
+pkg_check_modules(trans_proxy_pkgs REQUIRED glib-2.0 dlog vconf security-server db-util)
 
 FOREACH(flag ${trans_proxy_pkgs_CFLAGS})
 	SET(EXTRA_CFLAGS "${EXTRA_CFLAGS} ${flag}")
@@ -45,7 +44,7 @@ ADD_DEFINITIONS("-DPREFIX=\"${CMAKE_INSTALL_PREFIX}\"")
 SET(CMAKE_EXE_LINKER_FLAGS "-Wl,--as-needed")
 
 ADD_LIBRARY(${TRANS-PROXY-LIB} SHARED ${TRANS-PROXY-SRCS})
-TARGET_LINK_LIBRARIES(${TRANS-PROXY-LIB} ${trans_proxy_pkgs_LDFLAGS} ${UTILS-LIB} ${FW-HANDLER-LIB})
+TARGET_LINK_LIBRARIES(${TRANS-PROXY-LIB} ${trans_proxy_pkgs_LDFLAGS} ${UTILS-LIB})
 
-INSTALL(TARGETS ${TRANS-PROXY-LIB} DESTINATION ${LIB_INSTALL_DIR} COMPONENT RuntimeLibraries)
+INSTALL(TARGETS ${TRANS-PROXY-LIB} DESTINATION lib COMPONENT RuntimeLibraries)
 

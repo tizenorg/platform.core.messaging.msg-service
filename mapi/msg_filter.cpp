@@ -1,27 +1,26 @@
 /*
- * msg-service
- *
- * Copyright (c) 2000 - 2014 Samsung Electronics Co., Ltd. All rights reserved
+ * Copyright (c) 2014 Samsung Electronics Co., Ltd. All rights reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
 */
 
 #include <errno.h>
+#include <privacy_checker_client.h>
 
 #include "MsgException.h"
 #include "MsgDebug.h"
 #include "MsgHandle.h"
+#include "msg_private.h"
 #include "msg.h"
 
 /*==================================================================================================
@@ -29,19 +28,28 @@
 ==================================================================================================*/
 EXPORT_API int msg_add_filter(msg_handle_t handle, const msg_struct_t msg_struct_handle)
 {
+	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_FEATURE);
 	msg_error_t err =  MSG_SUCCESS;
+
+	//Privilege check
+	int ret = PRIV_MGR_ERROR_SUCCESS;
+	ret = privacy_checker_check_by_privilege(MSG_SERVICE_WRITE_PRIV_NAME);
+	if(ret != PRIV_MGR_ERROR_SUCCESS)
+	{
+		return MSG_ERR_PERMISSION_DENIED;
+	}
 
 	// TODO : check NULL in msg_struct_handle
 	msg_struct_s *msg_struct = (msg_struct_s *) msg_struct_handle;
 
 	if (handle == NULL || msg_struct == NULL)
 	{
-		return -EINVAL;
+		return MSG_ERR_INVALID_PARAMETER;
 	}
 
 	if(msg_struct->type != MSG_STRUCT_FILTER)
 	{
-		return -EINVAL;
+		return MSG_ERR_INVALID_PARAMETER;
 	}
 
 	MsgHandle* pHandle = (MsgHandle*)handle;
@@ -62,20 +70,29 @@ EXPORT_API int msg_add_filter(msg_handle_t handle, const msg_struct_t msg_struct
 
 EXPORT_API int msg_update_filter(msg_handle_t handle, const msg_struct_t msg_struct_handle)
 {
+	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_FEATURE);
 	msg_error_t err =  MSG_SUCCESS;
+
+	//Privilege check
+	int ret = PRIV_MGR_ERROR_SUCCESS;
+	ret = privacy_checker_check_by_privilege(MSG_SERVICE_WRITE_PRIV_NAME);
+	if(ret != PRIV_MGR_ERROR_SUCCESS)
+	{
+		return MSG_ERR_PERMISSION_DENIED;
+	}
 
 	// TODO : check NULL in msg_struct_handle
 	msg_struct_s *msg_struct = (msg_struct_s *) msg_struct_handle;
 
 	if (handle == NULL || msg_struct == NULL)
 	{
-		return -EINVAL;
+		return MSG_ERR_INVALID_PARAMETER;
 	}
 
 
 	if(msg_struct->type != MSG_STRUCT_FILTER)
 	{
-		return -EINVAL;
+		return MSG_ERR_INVALID_PARAMETER;
 	}
 
 	MsgHandle* pHandle = (MsgHandle*)handle;
@@ -96,11 +113,20 @@ EXPORT_API int msg_update_filter(msg_handle_t handle, const msg_struct_t msg_str
 
 EXPORT_API int msg_delete_filter(msg_handle_t handle, msg_filter_id_t filter_id)
 {
+	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_FEATURE);
 	msg_error_t err =  MSG_SUCCESS;
+
+	//Privilege check
+	int ret = PRIV_MGR_ERROR_SUCCESS;
+	ret = privacy_checker_check_by_privilege(MSG_SERVICE_WRITE_PRIV_NAME);
+	if(ret != PRIV_MGR_ERROR_SUCCESS)
+	{
+		return MSG_ERR_PERMISSION_DENIED;
+	}
 
 	if (handle == NULL)
 	{
-		return -EINVAL;
+		return MSG_ERR_INVALID_PARAMETER;
 	}
 
 	MsgHandle* pHandle = (MsgHandle*)handle;
@@ -121,11 +147,20 @@ EXPORT_API int msg_delete_filter(msg_handle_t handle, msg_filter_id_t filter_id)
 
 EXPORT_API int msg_get_filter_list(msg_handle_t handle, msg_struct_list_s *filter_list)
 {
+	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_FEATURE);
 	msg_error_t err =  MSG_SUCCESS;
+
+	//Privilege check
+	int ret = PRIV_MGR_ERROR_SUCCESS;
+	ret = privacy_checker_check_by_privilege(MSG_SERVICE_READ_PRIV_NAME);
+	if(ret != PRIV_MGR_ERROR_SUCCESS)
+	{
+		return MSG_ERR_PERMISSION_DENIED;
+	}
 
 	if (handle == NULL || filter_list == NULL)
 	{
-		return -EINVAL;
+		return MSG_ERR_INVALID_PARAMETER;
 	}
 
 	MsgHandle* pHandle = (MsgHandle*)handle;
@@ -146,11 +181,20 @@ EXPORT_API int msg_get_filter_list(msg_handle_t handle, msg_struct_list_s *filte
 
 EXPORT_API int msg_set_filter_operation(msg_handle_t handle, bool set_flag)
 {
+	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_FEATURE);
 	msg_error_t err =  MSG_SUCCESS;
+
+	//Privilege check
+	int ret = PRIV_MGR_ERROR_SUCCESS;
+	ret = privacy_checker_check_by_privilege(MSG_SERVICE_WRITE_PRIV_NAME);
+	if(ret != PRIV_MGR_ERROR_SUCCESS)
+	{
+		return MSG_ERR_PERMISSION_DENIED;
+	}
 
 	if (handle == NULL)
 	{
-		return -EINVAL;
+		return MSG_ERR_INVALID_PARAMETER;
 	}
 
 	MsgHandle* pHandle = (MsgHandle*)handle;
@@ -171,11 +215,20 @@ EXPORT_API int msg_set_filter_operation(msg_handle_t handle, bool set_flag)
 
 EXPORT_API int msg_get_filter_operation(msg_handle_t handle, bool *set_flag)
 {
+	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_FEATURE);
 	msg_error_t err =  MSG_SUCCESS;
+
+	//Privilege check
+	int ret = PRIV_MGR_ERROR_SUCCESS;
+	ret = privacy_checker_check_by_privilege(MSG_SERVICE_READ_PRIV_NAME);
+	if(ret != PRIV_MGR_ERROR_SUCCESS)
+	{
+		return MSG_ERR_PERMISSION_DENIED;
+	}
 
 	if (handle == NULL)
 	{
-		return -EINVAL;
+		return MSG_ERR_INVALID_PARAMETER;
 	}
 
 	MsgHandle* pHandle = (MsgHandle*)handle;
@@ -196,11 +249,20 @@ EXPORT_API int msg_get_filter_operation(msg_handle_t handle, bool *set_flag)
 
 EXPORT_API int msg_set_filter_active(msg_handle_t handle, msg_filter_id_t filter_id, bool active)
 {
+	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_FEATURE);
 	msg_error_t err =  MSG_SUCCESS;
+
+	//Privilege check
+	int ret = PRIV_MGR_ERROR_SUCCESS;
+	ret = privacy_checker_check_by_privilege(MSG_SERVICE_WRITE_PRIV_NAME);
+	if(ret != PRIV_MGR_ERROR_SUCCESS)
+	{
+		return MSG_ERR_PERMISSION_DENIED;
+	}
 
 	if (handle == NULL)
 	{
-		return -EINVAL;
+		return MSG_ERR_INVALID_PARAMETER;
 	}
 
 	MsgHandle* pHandle = (MsgHandle*)handle;

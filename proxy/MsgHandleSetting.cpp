@@ -1,20 +1,17 @@
 /*
- * msg-service
- *
- * Copyright (c) 2000 - 2014 Samsung Electronics Co., Ltd. All rights reserved
+ * Copyright (c) 2014 Samsung Electronics Co., Ltd. All rights reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
 */
 
 #include "MsgDebug.h"
@@ -45,7 +42,7 @@ msg_error_t MsgHandle::getSMSCOption(msg_struct_t msg_struct)
 	MSG_NULL_CHECK(smsc_opt->data);
 
 	// Allocate Memory to Command Data
-	int cmdSize = sizeof(MSG_CMD_S) + sizeof(MSG_OPTION_TYPE_T);
+	int cmdSize = sizeof(MSG_CMD_S) + sizeof(MSG_OPTION_TYPE_T) + sizeof(msg_sim_slot_id_t);
 
 	char cmdBuf[cmdSize];
 	bzero(cmdBuf, cmdSize);
@@ -62,6 +59,12 @@ msg_error_t MsgHandle::getSMSCOption(msg_struct_t msg_struct)
 
 	// Copy Command Data
 	memcpy((void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN), &opt_type, sizeof(MSG_OPTION_TYPE_T));
+
+	msg_sim_slot_id_t simIndex = ((MSG_SMSC_LIST_HIDDEN_S *)smsc_opt->data)->simIndex;
+	if (simIndex <= 0) {
+		THROW(MsgException::INVALID_PARAM, "Invalid SIM Index");
+	}
+	memcpy((void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN+sizeof(MSG_OPTION_TYPE_T)), &simIndex, sizeof(msg_sim_slot_id_t));
 
 	// Send Command to Messaging FW
 	char* pEventData = NULL;
@@ -88,6 +91,8 @@ msg_error_t MsgHandle::getSMSCOption(msg_struct_t msg_struct)
 
 		pTmp->selected = smsc_list_tmp.selected;
 		pTmp->smsc_list->nCount = smsc_list_tmp.totalCnt;
+		pTmp->index = smsc_list_tmp.selected;
+		pTmp->simIndex = smsc_list_tmp.simIndex;
 
 		msg_struct_s *pStructTmp = NULL;
 
@@ -123,6 +128,15 @@ msg_error_t MsgHandle::setSMSCOption(msg_struct_t msg_struct)
 
 	smsc_list_tmp.totalCnt = pTmpList->smsc_list->nCount;
 	smsc_list_tmp.selected = pTmpList->selected;
+	smsc_list_tmp.index = pTmpList->index;
+	smsc_list_tmp.simIndex = pTmpList->simIndex;
+
+	if (smsc_list_tmp.totalCnt > SMSC_LIST_MAX) {
+		MSG_ERR("SMSC count is invaild value[Max:%d, Input:%d]", SMSC_LIST_MAX, smsc_list_tmp.totalCnt);
+		return MSG_ERR_INVALID_PARAMETER;
+	}
+
+	MSG_DEBUG("SMSC totalcnt:%d selected:%d, index:%d ", smsc_list_tmp.totalCnt, smsc_list_tmp.selected, smsc_list_tmp.index);
 
 	msg_struct_s *pStructTmp = NULL;
 
@@ -170,7 +184,7 @@ msg_error_t MsgHandle::getCBOption(msg_struct_t msg_struct)
 	MSG_NULL_CHECK(cb_opt->data);
 
 	// Allocate Memory to Command Data
-	int cmdSize = sizeof(MSG_CMD_S) + sizeof(MSG_OPTION_TYPE_T);
+	int cmdSize = sizeof(MSG_CMD_S) + sizeof(MSG_OPTION_TYPE_T) + sizeof(msg_sim_slot_id_t);
 
 	char cmdBuf[cmdSize];
 	bzero(cmdBuf, cmdSize);
@@ -187,6 +201,9 @@ msg_error_t MsgHandle::getCBOption(msg_struct_t msg_struct)
 
 	// Copy Command Data
 	memcpy((void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN), &opt_type, sizeof(MSG_OPTION_TYPE_T));
+
+	msg_sim_slot_id_t simIndex = ((MSG_CBMSG_OPT_HIDDEN_S*)cb_opt->data)->simIndex;
+	memcpy((void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN+sizeof(MSG_OPTION_TYPE_T)), &simIndex, sizeof(msg_sim_slot_id_t));
 
 	// Send Command to Messaging FW
 	char* pEventData = NULL;
@@ -210,6 +227,7 @@ msg_error_t MsgHandle::getCBOption(msg_struct_t msg_struct)
 		MSG_CBMSG_OPT_HIDDEN_S *pTmp = (MSG_CBMSG_OPT_HIDDEN_S *)cb_opt->data;
 		pTmp->bReceive = cb_opt_tmp.bReceive;
 		pTmp->maxSimCnt = cb_opt_tmp.maxSimCnt;
+		pTmp->simIndex = cb_opt_tmp.simIndex;
 
 		for (i = 0; i < CB_LANG_TYPE_MAX; i++)
 			pTmp->bLanguage[i] = cb_opt_tmp.bLanguage[i];
@@ -255,6 +273,7 @@ msg_error_t MsgHandle::setCBOption(msg_struct_t msg_struct)
 
 	cb_opt_tmp.bReceive = cb_msg_opt->bReceive;
 	cb_opt_tmp.maxSimCnt = cb_msg_opt->maxSimCnt;
+	cb_opt_tmp.simIndex = cb_msg_opt->simIndex;
 	for (int i = 0; i < CB_LANG_TYPE_MAX; i++)
 		cb_opt_tmp.bLanguage[i] = cb_msg_opt->bLanguage[i];
 
@@ -668,7 +687,7 @@ msg_error_t MsgHandle::getVoiceMsgOpt(msg_struct_t msg_struct)
 	MSG_NULL_CHECK(voice_opt->data);
 
 	// Allocate Memory to Command Data
-	int cmdSize = sizeof(MSG_CMD_S) + sizeof(MSG_OPTION_TYPE_T);
+	int cmdSize = sizeof(MSG_CMD_S) + sizeof(MSG_OPTION_TYPE_T) + sizeof(msg_sim_slot_id_t);
 
 	char cmdBuf[cmdSize];
 	bzero(cmdBuf, cmdSize);
@@ -685,6 +704,12 @@ msg_error_t MsgHandle::getVoiceMsgOpt(msg_struct_t msg_struct)
 
 	// Copy Command Data
 	memcpy((void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN), &opt_type, sizeof(MSG_OPTION_TYPE_T));
+
+	msg_sim_slot_id_t simIndex = ((MSG_VOICEMAIL_OPT_S *)voice_opt->data)->simIndex;
+	if (simIndex <= 0) {
+		THROW(MsgException::INVALID_PARAM, "Invalid SIM Index : [index=%d]", simIndex);
+	}
+	memcpy((void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN+sizeof(MSG_OPTION_TYPE_T)), &simIndex, sizeof(msg_sim_slot_id_t));
 
 	// Send Command to Messaging FW
 	char* pEventData = NULL;

@@ -1,20 +1,17 @@
 /*
- * msg-service
- *
- * Copyright (c) 2000 - 2014 Samsung Electronics Co., Ltd. All rights reserved
+ * Copyright (c) 2014 Samsung Electronics Co., Ltd. All rights reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
 */
 
 #include <stdio.h>
@@ -22,9 +19,11 @@
 #include <unistd.h>
 #include <string.h>
 #include <stdlib.h>
-#include <sys/stat.h>
+#include <map>
+#include <sys/mman.h>
+#include <fcntl.h>
 #include <errno.h>
-#include <sys/wait.h>
+#include <pthread.h>
 
 #include "MsgDebug.h"
 #include "MsgSqliteWrapper.h"
@@ -34,15 +33,13 @@ extern "C"
 	#include <db-util.h>
 }
 
-#define MSGFW_DB_INIT_SCRIPT	tzplatform_mkpath(TZ_SYS_SHARE,"msg-service/msg_service-init-DB.sh")
+Mutex MsgDbHandler::mx;
 
 /*==================================================================================================
                                      VARIABLES
 ==================================================================================================*/
-__thread sqlite3 *handle = NULL;
-__thread sqlite3_stmt *stmt = NULL;
-//__thread char **result = NULL;
-
+//__thread sqlite3 *handle = NULL;
+//__thread sqlite3_stmt *stmt = NULL;
 
 /*==================================================================================================
                                      IMPLEMENTATION OF MsgDbHandler - Member Functions
@@ -50,53 +47,41 @@ __thread sqlite3_stmt *stmt = NULL;
 MsgDbHandler::MsgDbHandler()
 {
 	result = NULL;
+	handle = NULL;
+	stmt   = NULL;
+	mmapMx = NULL;
+	shm_fd = -1;
 }
 
 
 MsgDbHandler::~MsgDbHandler()
 {
-	if(result != NULL)
-		freeTable();
+	freeTable();
+	finalizeQuery();
+	if (disconnect() != MSG_SUCCESS)
+		MSG_DEBUG("DB disconnect is failed.");
 }
 
 msg_error_t MsgDbHandler::connect()
 {
 	int ret = 0;
-	struct stat sts;
 
-	if (handle == NULL)
-	{
+	if (handle == NULL) {
 		char strDBName[64];
 
 		memset(strDBName, 0x00, sizeof(strDBName));
-		if (strlen(MSGFW_DB_NAME) >= 64){
-			MSG_DEBUG("DB path is too long");
-			return MSG_ERR_DB_CONNECT;
-		}
 		snprintf(strDBName, 64, "%s", MSGFW_DB_NAME);
-
-		/* Check if the DB exists; if not, create it and initialize it */
-		ret = stat(MSGFW_DB_NAME, &sts);
-		if (ret == -1 && errno == ENOENT){
-			const char *argv_script[] = {"/bin/sh", MSGFW_DB_INIT_SCRIPT, NULL };
-			ret = XSystem(argv_script);
-		}
 
 		ret = db_util_open(strDBName, &handle, DB_UTIL_REGISTER_HOOK_METHOD);
 
-		if (ret == SQLITE_OK)
-		{
+		if (ret == SQLITE_OK) {
 			MSG_DEBUG("DB Connect Success : [%p]", handle);
 			return MSG_SUCCESS;
-		}
-		else
-		{
+		} else {
 			MSG_DEBUG("DB Connect Fail [%d]", ret);
 			return MSG_ERR_DB_CONNECT;
 		}
-	}
-	else
-	{
+	} else {
 		MSG_DEBUG("DB Connect exist : [%p]", handle);
 	}
 
@@ -108,18 +93,14 @@ msg_error_t MsgDbHandler::disconnect()
 {
 	int ret = 0;
 
-	if (handle != NULL)
-	{
+	if (handle != NULL) {
 		ret = db_util_close(handle);
 
-		if (ret == SQLITE_OK)
-		{
+		if (ret == SQLITE_OK) {
 			handle = NULL;
 			MSG_DEBUG("DB Disconnect Success");
 			return MSG_SUCCESS;
-		}
-		else
-		{
+		} else {
 			MSG_DEBUG("DB Disconnect Fail [%d]", ret);
 			return MSG_ERR_DB_DISCONNECT;
 		}
@@ -138,8 +119,7 @@ bool MsgDbHandler::checkTableExist(const char *pTableName)
 	memset(strQuery, 0x00, sizeof(strQuery));
 	snprintf(strQuery, sizeof(strQuery), "select count(name) from sqlite_master where name='%s'", pTableName);
 
-	if (getTable(strQuery, &nRowCnt) != MSG_SUCCESS)
-	{
+	if (getTable(strQuery, &nRowCnt) != MSG_SUCCESS) {
 		freeTable();
 		return false;
 	}
@@ -158,26 +138,28 @@ bool MsgDbHandler::checkTableExist(const char *pTableName)
 
 msg_error_t MsgDbHandler::execQuery(const char *pQuery)
 {
-	int ret = 0;
+//	int ret = 0;
 
-    	if (!pQuery)
+	if (!pQuery)
 		return MSG_ERR_INVALID_PARAMETER;
+
+	MutexLocker lock(mx);
 
 	if(connect() != MSG_SUCCESS)
 		return MSG_ERR_DB_DISCONNECT;
 
-	ret = sqlite3_exec(handle, pQuery, 0, 0, NULL);
-
-	if (ret == SQLITE_OK)
-	{
-		MSG_DEBUG("Execute Query Success");
-		return MSG_SUCCESS;
-	}
-	else
-	{
-		MSG_DEBUG("Execute Query Fail [%d]", ret);
+	if (prepareQuery(pQuery) != MSG_SUCCESS) {
+		MSG_DEBUG("Fail to prepareQuery.");
 		return MSG_ERR_DB_EXEC;
 	}
+
+	if (stepQuery() == MSG_ERR_DB_STEP) {
+		MSG_DEBUG("Fail to stepQuery.");
+		finalizeQuery();
+		return MSG_ERR_DB_EXEC;
+	}
+
+	finalizeQuery();
 
 	return MSG_SUCCESS;
 }
@@ -193,21 +175,21 @@ msg_error_t MsgDbHandler::getTable(const char *pQuery, int *pRowCnt)
 		return MSG_ERR_DB_DISCONNECT;
 
 	freeTable();
+	MSG_DEBUG("[%s]", pQuery);
 	ret = sqlite3_get_table(handle, pQuery, &result, pRowCnt, 0, NULL);
 
-	if (ret == SQLITE_OK)
-	{
-		if (*pRowCnt == 0)    // when the no record return 'MSG_ERR_DB_NORECORD'
-		{
+	if (ret == SQLITE_OK) {
+		if (*pRowCnt == 0) {// when the no record return 'MSG_ERR_DB_NORECORD'
 			MSG_DEBUG("No Query Result");
 			return MSG_ERR_DB_NORECORD;
 		}
 
 		MSG_DEBUG("Get Table Success");
 		return MSG_SUCCESS;
-	}
-	else
-	{
+	} else if (ret == SQLITE_BUSY) {
+		MSG_DEBUG("The database file is locked [%d]", ret);
+		return MSG_ERR_DB_BUSY;
+	} else {
 		MSG_DEBUG("Get Table Fail [%d]", ret);
 		return MSG_ERR_DB_GETTABLE;
 	}
@@ -218,8 +200,7 @@ msg_error_t MsgDbHandler::getTable(const char *pQuery, int *pRowCnt)
 
 void MsgDbHandler::freeTable()
 {
-	if (result)
-	{
+	if (result) {
 		sqlite3_free_table(result);
 		result = NULL;
 	}
@@ -232,6 +213,16 @@ msg_error_t MsgDbHandler::bindText(const char *pBindStr, int index)
 
 	if (pBindStr != NULL)
 		ret = sqlite3_bind_text(stmt, index, pBindStr, (strlen(pBindStr) + sizeof(unsigned char)), SQLITE_STATIC);
+
+	return ret;
+}
+
+
+msg_error_t MsgDbHandler::bindInt(const int pBindint, int index)
+{
+	int ret = 0;
+
+	ret = sqlite3_bind_int(stmt, index, pBindint);
 
 	return ret;
 }
@@ -256,15 +247,12 @@ msg_error_t MsgDbHandler::prepareQuery(const char *pQuery)
 	if(connect() != MSG_SUCCESS)
 		return MSG_ERR_DB_DISCONNECT;
 
-
-	if ((ret = sqlite3_prepare_v2(handle, pQuery, strlen(pQuery), &stmt, NULL)) == SQLITE_OK)
-	{
+	if ((ret = sqlite3_prepare_v2(handle, pQuery, strlen(pQuery), &stmt, NULL)) == SQLITE_OK) {
 		MSG_DEBUG("Prepare Query Success");
 		return MSG_SUCCESS;
-	}
-	else
-	{
-		MSG_DEBUG("Prepare Query Fail [%d]", ret);
+	} else {
+		MSG_ERR("Prepare Query Fail [%d]", ret);
+		finalizeQuery();
 		return MSG_ERR_DB_PREPARE;
 	}
 
@@ -278,23 +266,26 @@ msg_error_t MsgDbHandler::stepQuery()
 
 	ret = sqlite3_step(stmt);
 
-	if (ret == SQLITE_ROW)
-	{
+	if (ret == SQLITE_ROW) {
 		MSG_DEBUG("MsgStepQuery() SQLITE_ROW");
 		return MSG_ERR_DB_ROW;
-	}
-	else if (ret == SQLITE_DONE)
-	{
+	} else if (ret == SQLITE_DONE) {
 		MSG_DEBUG("MsgStepQuery() SQLITE_DONE");
 		return MSG_ERR_DB_DONE;
-	}
-	else
-	{
-		MSG_DEBUG("MsgStepQuery() Fail [%d]", ret);
+	} else {
+		MSG_ERR("MsgStepQuery() Fail [%d]", ret);
+		finalizeQuery();
 		return MSG_ERR_DB_STEP;
 	}
 
 	return MSG_SUCCESS;
+}
+
+
+void MsgDbHandler::resetQuery()
+{
+	if (stmt)
+		sqlite3_reset(stmt);
 }
 
 
@@ -323,6 +314,69 @@ const void* MsgDbHandler::columnBlob(int ColumnIndex)
 	return sqlite3_column_blob(stmt, ColumnIndex);
 }
 
+void MsgDbHandler::getMmapMutex(const char *shm_file_name)
+{
+	MSG_BEGIN();
+
+	if(!shm_file_name) {
+		MSG_FATAL ("NULL INPUT_PARAM");
+		return;
+	}
+
+	MSG_DEBUG("** mapping begin **");
+
+	 /*  open shm_file_name at first. Otherwise, the num of files in /proc/pid/fd will be increasing  */
+	shm_fd = shm_open(shm_file_name, O_RDWR, 0);
+	if (shm_fd == -1) {
+		MSG_FATAL("shm_open error [%d]", errno);
+		return;
+	}
+
+	pthread_mutex_t *tmp = (pthread_mutex_t *)mmap(NULL, sizeof(pthread_mutex_t), PROT_READ|PROT_WRITE, MAP_SHARED, shm_fd, 0);
+	if (tmp == MAP_FAILED) {
+		MSG_FATAL("mmap error [%d]", errno);
+		return;
+	}
+	mmapMx = tmp;
+}
+
+void MsgDbHandler::shm_mutex_timedlock (int sec)
+{
+	MSG_BEGIN();
+	if (!mmapMx) {
+		MSG_DEBUG("mmapMx not initd");
+		return;
+	}
+
+	struct timespec abs_time;
+	clock_gettime(CLOCK_REALTIME, &abs_time);
+	abs_time.tv_sec += sec;
+
+	int err = pthread_mutex_timedlock(mmapMx, &abs_time);
+
+	if (err == EOWNERDEAD) {
+		err = pthread_mutex_consistent(mmapMx);
+		MSG_DEBUG("Previous owner is dead with lock. Fix mutex");
+	}
+	else if (err != 0) {
+		MSG_FATAL("pthread_mutex_timedlock error [%d]", errno);
+		return;
+	}
+
+	MSG_END();
+}
+
+void MsgDbHandler::shm_mutex_unlock()
+{
+	MSG_BEGIN();
+	if(!mmapMx) {
+		MSG_DEBUG("mmapMx not initd");
+		return;
+	}
+
+	pthread_mutex_unlock(mmapMx);
+	MSG_END();
+}
 
 msg_error_t MsgDbHandler::beginTrans()
 {
@@ -331,16 +385,17 @@ msg_error_t MsgDbHandler::beginTrans()
 	if(connect() != MSG_SUCCESS)
 		return MSG_ERR_DB_DISCONNECT;
 
+	if (!mmapMx) {
+		getMmapMutex(SHM_FILE_FOR_DB_LOCK);
+	}
+	shm_mutex_timedlock(2);
 
-	ret = sqlite3_exec(handle, "BEGIN deferred;", 0, 0, NULL);
+	ret = sqlite3_exec(handle, "BEGIN DEFERRED TRANSACTION;", 0, 0, NULL);
 
-	if (ret == SQLITE_OK)
-	{
+	if (ret == SQLITE_OK) {
 		MSG_DEBUG("Begin Transaction Success");
 		return MSG_SUCCESS;
-	}
-	else
-	{
+	} else {
 		MSG_DEBUG("Begin Transaction Fail [%d]", ret);
 		return MSG_ERR_DB_EXEC;
 	}
@@ -357,24 +412,20 @@ msg_error_t MsgDbHandler::endTrans(bool Success)
 		return MSG_ERR_DB_DISCONNECT;
 
 
-	if (Success == true)
-	{
-		ret = sqlite3_exec(handle, "END;", 0, 0, NULL);
-	}
-	else
-	{
-		ret = sqlite3_exec(handle, "rollback", 0, 0, NULL);
-		ret = sqlite3_exec(handle, "END;", 0, 0, NULL);
+	if (Success) {
+		ret = sqlite3_exec(handle, "COMMIT TRANSACTION;", 0, 0, NULL);
+	} else {
+		ret = sqlite3_exec(handle, "ROLLBACK TRANSACTION;", 0, 0, NULL);
 	}
 
-	if (ret == SQLITE_OK)
-	{
+	shm_mutex_unlock();
+
+	if (ret == SQLITE_OK) {
 		MSG_DEBUG("End Transaction Success");
 		return MSG_SUCCESS;
-	}
-	else
-	{
+	} else {
 		MSG_DEBUG("End Transaction Fail [%d]", ret);
+		if (Success) endTrans(false);
 		return MSG_ERR_DB_EXEC;
 	}
 
@@ -388,8 +439,7 @@ int MsgDbHandler::getColumnToInt(int RowIndex)
 
 	int nTemp = 0;
 
-	if (pTemp == NULL)
-	{
+	if (pTemp == NULL) {
 		MSG_DEBUG("NULL");
 		return nTemp;
 	}
@@ -404,8 +454,7 @@ char MsgDbHandler::getColumnToChar(int RowIndex)
 {
 	char* pTemp = result[RowIndex];
 
-	if (pTemp == NULL)
-	{
+	if (pTemp == NULL) {
 		MSG_DEBUG("NULL");
 		return '\0';
 	}
@@ -414,12 +463,24 @@ char MsgDbHandler::getColumnToChar(int RowIndex)
 }
 
 
+char *MsgDbHandler::getColumnToString(int RowIndex)
+{
+	char* pTemp = result[RowIndex];
+
+	if (pTemp == NULL) {
+		MSG_DEBUG("NULL");
+		return NULL;
+	}
+
+	return pTemp;
+}
+
+
 void MsgDbHandler::getColumnToString(int RowIndex, int Length, char *pString)
 {
 	char* pTemp = result[RowIndex];
 
-	if (pTemp == NULL)
-	{
+	if (pTemp == NULL) {
 		MSG_DEBUG("NULL");
 		return;
 	}
@@ -436,24 +497,21 @@ msg_error_t MsgDbHandler::getRowId(const char *pTableName, unsigned int *pRowId)
 	if (pTableName == NULL || pRowId == NULL)
 		return MSG_ERR_INVALID_PARAMETER;
 
-	MSG_DEBUG("Table Name [%s]", pTableName);
+	MSG_SEC_DEBUG("Table Name [%s]", pTableName);
 
 	memset(strQuery, 0x00, sizeof(strQuery));
 	snprintf(strQuery, sizeof(strQuery), "select max(rowid) from %s", pTableName);
 
 	ret = getTable(strQuery, &nRowCnt);
 
-	if (ret == SQLITE_OK)
-	{
+	if (ret == SQLITE_OK) {
 		nRowId = getColumnToInt(1);
 
 		if ((nRowCnt <= 1) && (nRowId == 0))
 			*pRowId = 1;
 		else
 			*pRowId = nRowId + 1;
-	}
-	else
-	{
+	} else {
 		MSG_DEBUG("MsgGetRowId failed");
 		*pRowId = 0;
 		freeTable();
@@ -468,9 +526,6 @@ msg_error_t MsgDbHandler::getRowId(const char *pTableName, unsigned int *pRowId)
 }
 
 
-/*==================================================================================================
-                                     FUNCTION IMPLEMENTATION
-==================================================================================================*/
 void MsgReleaseMemoryDB()
 {
 	int freeSize = 0;
@@ -514,35 +569,42 @@ msg_error_t MsgConvertStrWithEscape(const char *input, char **output)
 	return MSG_SUCCESS;
 }
 
-int XSystem(const char *argv[])
+typedef std::map<pthread_t, MsgDbHandler*> dbMap_t;
+dbMap_t gDbHandles;
+pthread_mutex_t mu = PTHREAD_MUTEX_INITIALIZER;
+
+MsgDbHandler *getDbHandle()
 {
-	int status = 0;
-	pid_t pid;
-	pid = fork();
-	switch (pid) {
-	case -1:
-		perror("fork failed");
-		return -1;
-	case 0:
-		/* child */
-		execvp(argv[0], (char *const *)argv);
-		_exit(-1);
-	default:
-		/* parent */
-		break;
+	pthread_t self = pthread_self();
+	MsgDbHandler *tmp = NULL;
+
+	pthread_mutex_lock(&mu);
+	dbMap_t::iterator it = gDbHandles.find(self);
+	if (it == gDbHandles.end()) {
+		MSG_DEBUG("New DB handle added.");
+		tmp = new MsgDbHandler();
+		gDbHandles.insert ( std::pair<pthread_t,MsgDbHandler*>(self,tmp));
+
+	} else {
+		tmp = it->second;
 	}
-	if (waitpid(pid, &status, 0) == -1) {
-		perror("waitpid failed");
-		return -1;
-	}
-	if (WIFSIGNALED(status)) {
-		perror("signal");
-		return -1;
-	}
-	if (!WIFEXITED(status)) {
-		/* shouldn't happen */
-		perror("should not happen");
-		return -1;
-	}
-	return WEXITSTATUS(status);
+	pthread_mutex_unlock(&mu);
+
+	return tmp;
 }
+
+void removeDbHandle()
+{
+	pthread_t self = pthread_self();
+	MsgDbHandler *tmp = NULL;
+
+	pthread_mutex_lock(&mu);
+	dbMap_t::iterator it = gDbHandles.find(self);
+	if (it != gDbHandles.end()) {
+		tmp = it->second;
+		delete tmp;
+		gDbHandles.erase (it);
+	}
+	pthread_mutex_unlock(&mu);
+}
+

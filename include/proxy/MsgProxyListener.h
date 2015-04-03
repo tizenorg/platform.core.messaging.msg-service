@@ -1,20 +1,17 @@
 /*
- * msg-service
- *
- * Copyright (c) 2000 - 2014 Samsung Electronics Co., Ltd. All rights reserved
+ * Copyright (c) 2014 Samsung Electronics Co., Ltd. All rights reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
 */
 
 #ifndef __MSG_PROXY_LISTENER_H__
@@ -29,7 +26,7 @@
 #include "MsgMutex.h"
 #include "MsgHandle.h"
 
-#include <map>
+#include <set>
 #include <list>
 #include <glib.h>
 
@@ -105,6 +102,14 @@ typedef struct
 } MSG_STORAGE_CHANGE_CB_ITEM_S;
 
 
+typedef struct
+{
+	MsgHandle* hAddr;
+	msg_report_msg_incoming_cb pfReportMsgIncomingCB;
+	void* userParam;
+} MSG_REPORT_INCOMING_CB_ITEM_S;
+
+
 typedef std::list<MSG_SENT_STATUS_CB_ITEM_S> MsgSentStatusCBList;
 typedef std::list<MSG_INCOMING_CB_ITEM_S> MsgNewMessageCBList;
 typedef std::list<MSG_MMS_CONF_INCOMING_CB_ITEM_S> MsgNewMMSConfMessageCBList;
@@ -114,7 +119,8 @@ typedef std::list<MSG_SYNCML_INCOMING_CB_ITEM_S> MsgNewSyncMLMessageCBList;
 typedef std::list<MSG_LBS_INCOMING_CB_ITEM_S> MsgNewLBSMessageCBList;
 typedef std::list<MSG_SYNCML_OPERATION_CB_ITEM_S> MsgOperationSyncMLMessageCBList;
 typedef std::list<MSG_STORAGE_CHANGE_CB_ITEM_S> MsgStorageChangeCBList;
-
+typedef std::list<MSG_REPORT_INCOMING_CB_ITEM_S> MsgReportMessageCBList;
+typedef std::set<MsgHandle*> handle_set;
 
 /*==================================================================================================
                                      CLASS DEFINITIONS
@@ -124,7 +130,7 @@ class MsgProxyListener
 public:
 	static MsgProxyListener* instance();
 
-	void start();
+	void start(MsgHandle* pMsgHandle);
 	void stop();
 
 	bool regSentStatusEventCB(MsgHandle* pMsgHandle, msg_sent_status_cb pfSentStatus, void *pUserParam);
@@ -136,6 +142,7 @@ public:
 	bool regLBSMessageIncomingEventCB(MsgHandle* pMsgHandle, msg_lbs_msg_incoming_cb pfNewLBSMsgIncoming, void *pUserParam);
 	bool regSyncMLMessageOperationEventCB(MsgHandle* pMsgHandle, msg_syncml_msg_operation_cb pfSyncMLMessageOperation, void *pUserParam);
 	bool regStorageChangeEventCB(MsgHandle* pMsgHandle, msg_storage_change_cb pfStorageChangeOperation, void *pUserParam);
+	bool regReportMsgIncomingCB(MsgHandle* pMsgHandle, msg_report_msg_incoming_cb pfReportMessage, void *pUserParam);
 
 	void clearListOfClosedHandle(MsgHandle* pMsgHandle);
 
@@ -143,6 +150,7 @@ public:
 
 	int getRemoteFd();
 	int readFromSocket(char** buf, unsigned int* len);
+	void resetProxyListener();
 #ifdef CHECK_SENT_STATUS_CALLBACK
 	int getSentStatusCbCnt();
 #endif
@@ -154,6 +162,8 @@ private:
 	static MsgProxyListener* pInstance;
 
 	unsigned int running;
+
+	handle_set	openHandleSet;
 
 	MsgIpcClientSocket cliSock;
 
@@ -169,6 +179,7 @@ private:
 	MsgNewLBSMessageCBList newLBSMessageCBList;
 	MsgOperationSyncMLMessageCBList operationSyncMLMessageCBList;
 	MsgStorageChangeCBList storageChangeCBList;
+	MsgReportMessageCBList reportMessageCBList;
 
 	GIOChannel *channel;
 	guint eventSourceId;

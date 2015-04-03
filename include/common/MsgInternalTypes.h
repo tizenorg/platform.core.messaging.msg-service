@@ -1,20 +1,17 @@
 /*
- * msg-service
- *
- * Copyright (c) 2000 - 2014 Samsung Electronics Co., Ltd. All rights reserved
+ * Copyright (c) 2014 Samsung Electronics Co., Ltd. All rights reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
 */
 
 #ifndef MSG_INTERNAL_TYPES_H
@@ -30,38 +27,54 @@
                                          INCLUDE FILES
 ==================================================================================================*/
 #include "MsgMmsTypes.h"
-#include <inttypes.h>
-#include <tzplatform_config.h>
+
 
 /*==================================================================================================
                                     DEFINES
 ==================================================================================================*/
-#define MSG_DATA_ROOT_PATH		tzplatform_mkpath(TZ_USER_DATA,"msg-service")
-#define MSG_DATA_PATH			tzplatform_mkpath3(TZ_USER_DATA,"msg-service","msgdata")
-#define MSG_SMIL_FILE_PATH		tzplatform_mkpath3(TZ_USER_DATA,"msg-service","smildata")
-#define MSG_IPC_DATA_PATH		tzplatform_mkpath3(TZ_USER_DATA,"msg-service","ipcdata")
-#define MSG_THUMBNAIL_PATH		tzplatform_mkpath4(TZ_USER_DATA,"msg-service","ipcdata","thumbnails")
+#define MSG_DATA_ROOT_PATH		"/opt/usr/data/msg-service/"
+#define MSG_DATA_PATH				MSG_DATA_ROOT_PATH"msgdata/"
+#define MSG_SMIL_FILE_PATH		MSG_DATA_ROOT_PATH"smildata/"
+#define MSG_IPC_DATA_PATH			MSG_DATA_ROOT_PATH"ipcdata/"
+#define MSG_THUMBNAIL_PATH		MSG_DATA_PATH"thumbnails/"
+
+
 // temporary
-#define TPDU_LOG_FILE 			tzplatform_mkpath3(TZ_USER_DATA,"msg-service","tpduLog.txt")
 #define MSG_NATIONAL_SIM	"memory/private/msg-service/national_sim"
 #define MSG_SIM_MSISDN	"memory/private/msg-service/msisdn"
+#define MSG_SIM_ICCID	"memory/private/msg-service/iccid"
+#define MSG_FMM_SIM_CHANGE_NUM	"db/SyncML/oma-dm-service/fmmSimChangeNum"
+
 #define MAX_FULL_PATH_SIZE		320	// max length for internal file path
-#define MAX_PRECONFIG_NUM		8
 #define MAX_THREAD_ADDR_LEN	40
 #define MAX_THREAD_NAME_LEN	195
 #define MAX_THREAD_DATA_LEN	128
 #define MAX_CB_MSG_TEXT_LEN	4200	// 1page max char(93)*max page(15)*max bytes of UTF8 1 char(3)
 #define MAX_CB_MSG_LANGUAGE_TYPE_LEN	3
 #define MAX_ETWS_WARNING_SECURITY_INFO_LEN	50
+#define MAX_ME_IMEI_LEN		20
+#define MAX_SIM_MSISDN_LEN	26
+#define MAX_COMMON_INFO_SIZE	20
+#define MAX_VCONFKEY_NAME_LEN	128
+#define MAX_SIM_IMSI_LEN 		16
+#define MAX_TAPI_SIM_API_TIMEOUT 70
 
-#define SMS_MINIMUM_SPACE	(3 * 1024)
-#define MMS_MINIMUM_SPACE	(600 * 1024)
+#define SMS_MINIMUM_SPACE	(1 * 1024 * 1024)
+#define MMS_MINIMUM_SPACE	(1 * 1024 * 1024)
 
 /*vconf keys*/
-#define MSG_SIM_IMSI			"memory/private/msg-service/sim_imsi"
-#define MSG_SIM_CHANGED	"memory/private/msg-service/sim_changed"
-
 #define DEFAULT_SETTING_PATH				"db/private/msg-service"
+#define DEFAULT_MSG_MEMORY_PATH				"memory/private/msg-service"
+
+#ifdef FEATURE_SMS_CDMA
+#define MSG_SIM_IMSI			DEFAULT_MSG_MEMORY_PATH"/sim_imsi"
+#endif
+#define MSG_SIM_SUBS_ID			DEFAULT_MSG_MEMORY_PATH"/sim_subs_id"
+#define MSG_SIM_CHANGED		DEFAULT_MSG_MEMORY_PATH"/sim_changed"
+
+#define MSG_SIM_SERVICE_TABLE		DEFAULT_MSG_MEMORY_PATH"/sim_st"
+#define MSG_SIM_MO_CONTROL		DEFAULT_MSG_MEMORY_PATH"/sim_mo_ctrl"
+#define MSG_NETWORK_SIM		DEFAULT_MSG_MEMORY_PATH"/default_network_sim"
 
 #define DEFAULT_GENERAL_OPT_PATH		DEFAULT_SETTING_PATH"/general"
 #define DEFAULT_SMS_SEND_OPT_PATH	DEFAULT_SETTING_PATH"/sms_send"
@@ -76,10 +89,22 @@
 #define DEFAULT_SIM_COUNT_PATH			DEFAULT_SETTING_PATH"/sim_count"
 
 #define MSG_KEEP_COPY				DEFAULT_GENERAL_OPT_PATH"/keep_copy"
-#define MSG_ALERT_TONE				VCONFKEY_SETAPPL_NOTI_MSG_ALERT_REP_TYPE_INT
+#define MSG_ALERT_REP_TYPE			DEFAULT_GENERAL_OPT_PATH"/alert_rep_type"
 #define MSG_AUTO_ERASE				DEFAULT_GENERAL_OPT_PATH"/auto_erase"
 #define MSG_BLOCK_MESSAGE		DEFAULT_GENERAL_OPT_PATH"/block_msg"
 #define CONTACT_SYNC_TIME		DEFAULT_GENERAL_OPT_PATH"/contact_sync_time"
+#define MSG_SEARCH_TAGS			DEFAULT_GENERAL_OPT_PATH"/search_tags"
+
+#define MSG_BLOCK_UNKNOWN_MSG		DEFAULT_GENERAL_OPT_PATH"/block_unknown_msg"
+#define MSG_SMS_LIMIT				DEFAULT_GENERAL_OPT_PATH"/sms_limit"
+#define MSG_MMS_LIMIT				DEFAULT_GENERAL_OPT_PATH"/mms_limit"
+#define MSG_SETTING_NOTIFICATION	DEFAULT_GENERAL_OPT_PATH"/notification"
+#define MSG_SETTING_VIBRATION		DEFAULT_GENERAL_OPT_PATH"/vibration"
+#define MSG_SETTING_PREVIEW			DEFAULT_GENERAL_OPT_PATH"/preview"
+#define MSG_SETTING_RINGTONE_PATH			DEFAULT_GENERAL_OPT_PATH"/ringtone_path"
+#define MSG_SETTING_RINGTONE_TYPE			DEFAULT_GENERAL_OPT_PATH"/ringtone_type"
+#define MSG_MMS_UA_PROFILE				DEFAULT_GENERAL_OPT_PATH"/ua_profile"
+#define MSG_MMS_UA_AGENT				DEFAULT_GENERAL_OPT_PATH"/ua_agent"
 
 #define SMS_SEND_DCS							DEFAULT_SMS_SEND_OPT_PATH"/dcs"
 #define SMS_SEND_NETWORK_MODE	VCONFKEY_MESSAGE_NETWORK_MODE
@@ -142,7 +167,6 @@
 #define CB_RECEIVE						DEFAULT_CB_MSG_OPT_PATH"/receive"
 #define CB_SAVE						DEFAULT_CB_MSG_OPT_PATH"/save"
 #define CB_MAX_SIM_COUNT			DEFAULT_CB_MSG_OPT_PATH"/max_sim_count"
-#define CB_CHANNEL_COUNT			DEFAULT_CB_MSG_OPT_PATH"/channel_count"
 #define CB_CHANNEL_ACTIVATE		DEFAULT_CB_MSG_OPT_PATH"/channel_activate"
 #define CB_CHANNEL_ID_FROM		DEFAULT_CB_MSG_OPT_PATH"/channel_id_from"
 #define CB_CHANNEL_ID_TO		DEFAULT_CB_MSG_OPT_PATH"/channel_id_to"
@@ -151,12 +175,23 @@
 
 #define VOICEMAIL_NUMBER				DEFAULT_VOICE_MAIL_OPT_PATH"/voice_mail_number"
 #define VOICEMAIL_COUNT				DEFAULT_VOICE_MAIL_OPT_PATH"/voice_mail_count"
+#define VOICEMAIL_ALPHA_ID				DEFAULT_VOICE_MAIL_OPT_PATH"/voice_mail_alphaid"
+#define VOICEMAIL_DEFAULT_NUMBER	""
+#define VOICEMAIL_DEFAULT_ALPHA_ID	""
 
 #define MSGSIZE_OPTION					DEFAULT_MSGSIZE_OPT_PATH"/msg_size"
 
 #define SIM_USED_COUNT					DEFAULT_SIM_COUNT_PATH"/used_cnt"
 #define SIM_TOTAL_COUNT				DEFAULT_SIM_COUNT_PATH"/total_cnt"
+#ifdef FEATURE_SMS_CDMA
+#define MSG_MESSAGE_ID_COUNTER			DEFAULT_GENERAL_OPT_PATH"/msg_id_counter"
+#endif
 
+#define MSG_DEFAULT_APP_ID			"org.tizen.message"
+#define MSG_QUICKPANEL_APP_ID		"org.tizen.quickpanel"
+
+#define MSG_TELEPHONY_FEATURE       "http://tizen.org/feature/network.telephony"
+#define MSG_TELEPHONY_MMS_FEATURE   "http://tizen.org/feature/network.telephony.mms"
 
 /*==================================================================================================
                                          TYPES
@@ -176,6 +211,15 @@ typedef unsigned char MSG_MAIN_TYPE_T;
  *	The values for this type SHOULD be in _MSG_SUB_TYPE_E.
  */
 typedef unsigned char MSG_SUB_TYPE_T;
+
+
+/**
+ *	@brief	Represents a message tag type. \n
+ *	Each main type of a message can be divided into some tag types. \n
+ *	For instance of SMS, the message sub type can be one of the Priority, Finance, and so on. \n
+ *	The values for this type SHOULD be in _MSG_SUB_TYPE_E.
+ */
+typedef unsigned int MSG_TAG_TYPE_T;
 
 
 /**
@@ -218,7 +262,8 @@ typedef struct
 	MSG_MESSAGE_TYPE_S		msgType;										/**< Indicates the message type such as SMS and MMS */
 	msg_storage_id_t		storageId;										/**< Indicates where the message is saved. */
 	int						nAddressCnt;									/**< Indicates the count of addresses. */
-	MSG_ADDRESS_INFO_S		addressList[MAX_TO_ADDRESS_CNT];				/**< Indicates the address information list. */
+//	MSG_ADDRESS_INFO_S		addressList[MAX_TO_ADDRESS_CNT];				/**< Indicates the address information list. */
+	MSG_ADDRESS_INFO_S		*addressList;				/**< Indicates the address information list. */
 	char					replyAddress[MAX_PHONE_NUMBER_LEN+1];			/**< Indicates the reply address. */
 	char					subject[MAX_SUBJECT_LEN+1];						/**< Indicates the message subject. */
 	time_t					displayTime;									/**< Indicates the display time related to the specific operation. */
@@ -236,7 +281,9 @@ typedef struct
 	char					msgText[MAX_MSG_TEXT_LEN+1];
 	char					thumbPath[MSG_FILEPATH_LEN_MAX+1];
 	bool					bStore;											/**< Indicates whether the message is stored or not if it is MWI message. */
+	int						sim_idx;
 } MSG_MESSAGE_INFO_S;
+
 
 typedef struct
 {
@@ -248,6 +295,7 @@ typedef struct
 	MSG_CLASS_TYPE_T		classType;								/**< Message class type. See enum _MSG_CLASS_TYPE_E */
 	msg_storage_id_t		storageId;								/**< Indicates where the message is saved. see enum _MSG_FOLDER_TYPE_E*/
 	msg_struct_list_s 		*addr_list;
+	GList			*addressList;
 	char					replyAddress[MAX_PHONE_NUMBER_LEN+1];	/**< Indicates the reply address. */
 	char					subject[MAX_SUBJECT_LEN+1];				/**< Indicates the message subject. */
 	time_t					displayTime;							/**< Indicates the display time related to the specific operation. */
@@ -267,7 +315,9 @@ typedef struct
 	void					*pData;									/**< Indicates the message payload information as a body. default character encoding is UTF-8*/
 	void					*pMmsData;								/**< Indicates the message payload information as a body. default character encoding is UTF-8*/
 	size_t					mmsDataSize;
+	int						simIndex;
 } MSG_MESSAGE_HIDDEN_S;
+
 
 /**
  *	@brief	Represents message information for thread view.
@@ -284,7 +334,11 @@ typedef struct
 	int						unreadCnt;														/**< Indicates the unread messages from the Peer. */
 	int						smsCnt;															/**< Indicates the SMS messages from the Peer. */
 	int						mmsCnt;															/**< Indicates the MMS messages from the Peer. */
-	bool					bProtected;														/**< Indicates whether the thread includes protected messages.  */
+	bool						bProtected;														/**< Indicates whether the thread includes protected messages.  */
+	bool						bDraft;
+	bool						bSendFailed;
+	bool						bSending;
+	int							simIndex;
 } MSG_THREAD_VIEW_S;
 
 
@@ -314,8 +368,24 @@ typedef struct
 	char									subject[MAX_SUBJECT_LEN+1];							/**< Indicates the message subject. */
 	size_t								textSize;								/**< Indicates the data size. The unit is byte. */
 	char									*pText;									/**< Indicates the message payload information as a body. default character encoding is UTF-8*/
+	int tcs_bc_level;
+	char									firstMediaPath[MSG_FILEPATH_LEN_MAX+1]; // First Media Path in mms;
+	msg_list_handle_t multipart_list;
+	int								simIndex;
 } MSG_CONVERSATION_VIEW_S;
 
+typedef struct
+{
+	MimeType	type;	/**< Indicates the multipart mime type. see enum MimeType */
+	char		szContentType[MSG_MSG_ID_LEN + 1];		/**< Indicates the content type */
+	char		szFileName[MSG_FILENAME_LEN_MAX + 1];		/**< Indicates the file name */
+	char		szFilePath[MSG_FILEPATH_LEN_MAX + 1];		/**< Indicates the file path */
+	char		szContentID[MSG_MSG_ID_LEN + 1];		/**< Indicates the content id */
+	char		szContentLocation[MSG_MSG_ID_LEN + 1];	/**< Indicates the content Location */
+
+	int 		tcs_bc_level;	/** detect malware type **/
+	char		szThumbFilePath[MSG_FILEPATH_LEN_MAX + 1];	/**< Indicates the thumbnail file path */
+} MSG_MMS_MULTIPART_S;
 
 /**
  *	@brief	Represents sim message informatioin list.
@@ -349,14 +419,10 @@ typedef struct
 typedef struct
 {
 	int						listenerFd;		/**< Rx fd for status cnf */
-#if defined(__x86_64__) || defined(__aarch64__)
-	uint64_t				handleAddr;		/**< Handle address for status cnf */
-#else
 	unsigned int			handleAddr;		/**< Handle address for status cnf */
-#endif
 	msg_message_id_t		sentMsgId;		/**< The ID of a sent message for updating message status */
-
 } MSG_PROXY_INFO_S;
+
 
 /**
  *	@brief	Aux data structure for MSG_CMD_REG_INCOMING_MSG_CB. \n
@@ -474,6 +540,24 @@ typedef struct
 	unsigned char			language_type[MAX_CB_MSG_LANGUAGE_TYPE_LEN];
 } MSG_CB_MSG_S;
 
+#ifdef FEATURE_SMS_CDMA
+typedef struct _MSG_UNIQUE_INDEX_S
+{
+	unsigned short		tele_msgId;
+	char					address[MAX_ADDRESS_VAL_LEN+1];
+	char					sub_address[MAX_ADDRESS_VAL_LEN+1];
+	char					time_stamp[MAX_COMMON_INFO_SIZE+1];
+	int						telesvc_id;
+} MSG_UNIQUE_INDEX_S;
+
+typedef struct
+{
+	time_t					receivedTime;
+	unsigned short			serialNum;
+	unsigned short			messageId;	// Message Identifier
+} MSG_CB_DUPLICATE_S;
+#endif
+
 
 /*==================================================================================================
                                          ENUMS
@@ -544,7 +628,17 @@ enum _MSG_SUB_TYPE_E
 	MSG_SENDREQ_JAVA_MMS,  			/**< MMS Send Request message for JAVA MMS */
 
 	MSG_ETWS_SMS,
+	MSG_MWI_VOICE2_SMS,			/**< MWI Message Voice for line 2(CPHS)*/
+
+	MSG_CMAS_PRESIDENTIAL,		/**< CMAS CLASS */
+	MSG_CMAS_EXTREME,
+	MSG_CMAS_SEVERE,
+	MSG_CMAS_AMBER,
+	MSG_CMAS_TEST,
+	MSG_CMAS_EXERCISE,
+	MSG_CMAS_OPERATOR_DEFINED,
 };
+
 
 /**
  *	@brief	Represents the values of a message transaction type. \n
@@ -568,6 +662,10 @@ enum _MSG_MMS_ITEM_TYPE_E
 	MSG_MMS_ITEM_TYPE_VIDEO,		/**< Indicates the video media */
 	MSG_MMS_ITEM_TYPE_ATTACH,		/**< Indicates the attach file */
 	MSG_MMS_ITEM_TYPE_PAGE,	/**< Indicates the page count */
+	MSG_MMS_ITEM_TYPE_MALWARE,		/**< Indicates the tcs bc level*/
+	MSG_MMS_ITEM_TYPE_1ST_MEDIA,	/**< Indicates the 1st media path*/
 };
+
+
 #endif
 

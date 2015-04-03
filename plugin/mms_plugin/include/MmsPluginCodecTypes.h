@@ -1,20 +1,17 @@
 /*
- * msg-service
- *
- * Copyright (c) 2000 - 2014 Samsung Electronics Co., Ltd. All rights reserved
+ * Copyright (c) 2014 Samsung Electronics Co., Ltd. All rights reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
 */
 
 #ifndef MMS_PLUGIN_CODEC_TYPE_H
@@ -78,10 +75,8 @@ typedef unsigned char			UCHAR;
 typedef unsigned short			MCHAR;
 typedef unsigned short			USHORT;
 
-typedef struct _MsgAddress		MsgAddress;
-typedef struct _MsgBody			MsgBody;
+typedef struct _MsgBody		MsgBody;
 typedef struct _MsgMultipart	MsgMultipart;
-typedef struct _MsgMessage		MsgMessage;
 
 typedef enum {
 	MMS_CODE_BCC,
@@ -305,44 +300,6 @@ typedef enum {
 } MmsReplyChargeType;
 
 typedef enum {
-	MMS_STATUS_ERROR = -1,	// error return in Get method
-	MMS_STATUS_INITIAL = 0,
-	MMS_STATUS_REQUESTING = 1,
-	MMS_STATUS_SUCCESS = 2,
-	MMS_STATUS_FAIL = 3,
-	MMS_STATUS_NUM = 4,
-} MmsDataStatus;
-
-typedef enum {
-	MMS_EDIT_STYLE_THIS_PAGE = 0,
-	MMS_EDIT_STYLE_ALL_PAGE,
-} MmsEditStyleMode;
-
-typedef enum {
-	MMS_SPECIAL_MSG_TYPE_NONE = 0,
-	MMS_SPECIAL_MSG_TYPE_SYSTEM_TEMPLATE,	// system template .
-	MMS_SPECIAL_MSG_TYPE_VOICE_MESSAGE,		//voice message service
-
-	MMS_SPECIAL_MSG_TYPE_VDF_POSTCARD,		//postcard service, or Generic Postcard Service
-	MMS_SPECIAL_MSG_TYPE_POSTCARD_EXT1,	//Stickers Service
-	MMS_SPECIAL_MSG_TYPE_POSTCARD_EXT2,	//Photo 10x15
-	MMS_SPECIAL_MSG_TYPE_POSTCARD_EXT3,	//8 Photos
-	MMS_SPECIAL_MSG_TYPE_POSTCARD_EXT4,	// 4 Photos
-} MmsSpecialMsgType;
-
-typedef enum {
-	MMS_MM_CLASS_TEXT,
-	MMS_MM_CLASS_IMAGE_BASIC,
-	MMS_MM_CLASS_IMAGE_RICH,
-	MMS_MM_CLASS_VIDEO_BASIC,
-	MMS_MM_CLASS_VIDEO_RICH,
-	MMS_MM_CLASS_MEGAPIXEL,
-	MMS_MM_CLASS_CONTENT_BASIC,
-	MMS_MM_CLASS_CONTENT_RICH,
-	MMS_MM_CLASS_OTHER
-} MmsUiMmClass;
-
-typedef enum {
 	MMS_MSGCLASS_ERROR = -1,	// error return in Get method
 	MMS_MSGCLASS_PERSONAL = 0,	// default
 	MMS_MSGCLASS_ADVERTISEMENT = 1,
@@ -392,7 +349,6 @@ typedef struct _MMS_ATTRIB_S {
 	MmsPriority priority;
 
 	MmsReplyCharge replyCharge;
-	bool bChargingMsgReplied;
 
 	bool bHideAddress;
 	bool bAskDeliveryReport;
@@ -400,31 +356,18 @@ typedef struct _MMS_ATTRIB_S {
 	MmsRecvReadReportType readReportAllowedType;
 
 	bool bAskReadReply;
-	bool bRead;
+	bool bRead;//FIXME : remove this value
 
 	MmsRecvReadReportSendStatus readReportSendStatus;
 
 	bool bReadReportSent;
 
 	bool bLeaveCopy;
-	bool bUseExpiryCustomTime;		// for expiry custom time
-	bool bUseDeliveryCustomTime;	// for expiry custom time
-	MmsEditStyleMode editStyleMode;			//editStyle on All Page
-
-	MmsSpecialMsgType specialMsgType;			// instead of bPostcard
-
-#ifdef __SUPPORT_DRM__
-	MsgDrmType drmType;
-	int roWaitingTimerMax;		// DRM RO WAITING
-	char *pszDrmData;			// DRM Data to draw mailbox icon
-#endif
 
 	int msgSize;
 	MmsMsgClass msgClass;
 	MmsTimeStruct expiryTime;
-	MmsTimeStruct expiryCustomTime;
 	MmsTimeStruct deliveryTime;
-	MmsTimeStruct deliveryCustomTime;
 
 	//for ReadMsg, When Sending notifyResp.ind
 	msg_delivery_report_status_t msgStatus;
@@ -435,7 +378,7 @@ typedef struct _MMS_ATTRIB_S {
 	char szRetrieveText[MMS_LOCALE_RESP_TEXT_LEN + 1];
 
 	MmsMsgMultiStatus *pMultiStatus;
-	bool bRetrieveNow;
+
 } MmsAttrib;
 
 typedef struct _MsgContentParam {
@@ -457,7 +400,6 @@ typedef struct _MsgContentParam {
 	MsgParamReportType reportType; //only used as parameter of Content-Type: multipart/report; report-type=delivery-status;
 } MsgContentParam;
 
-#ifdef __SUPPORT_DRM__
 typedef struct _MsgDRMInfo {
 	MsgDrmType drmType;
 	MimeType contentType;
@@ -473,7 +415,6 @@ typedef struct _MsgDRMInfo {
 	bool bNoRingTone;
 	bool bNoScreen;
 } MsgDRMInfo;
-#endif
 
 typedef struct _MsgType {
 	int offset;
@@ -481,48 +422,17 @@ typedef struct _MsgType {
 	int contentSize;
 	int section;
 	int type;
-#ifdef __SUPPORT_DRM__
+
 	MsgDRMInfo drmInfo;
-#endif
+
 	int encoding;
 	int disposition;
 	char szContentID[MSG_MSG_ID_LEN + 1];
 	char szContentLocation[MSG_MSG_ID_LEN + 1];
 	char szOrgFilePath[MSG_FILEPATH_LEN_MAX];
 
-	char szContentRepPos[30];
-	char szContentRepSize[30];
-	char szContentRepIndex[8];
-#ifdef __SUPPORT_DRM__
-	int nDrmConvertedStatus;
-#endif
-
 	MsgContentParam param;
 } MsgType;
-
-struct _MsgAddress {
-	int type;					//MSG_ADDR_TYPE_PHONE/EMAIL/IPV4/IPV6
-	int recipientType;			// TO, CC, BCC
-	char szName[MSG_LOCALE_NAME_LEN + 1];
-	char szAddr[MSG_ADDR_LEN + 1];
-	MsgAddress *pNext;
-	bool bDoNotShow;				// temporary clip
-
-	// sorting
-	ULONG uLastRecentTime;		// last recent time save item
-	ULONG uMostUseCount;			// most use count item.
-	int index;					// index sorting..
-};
-
-typedef struct _MsgHeader {
-	MsgAddress *pFrom;
-	MsgAddress *pTo;
-	MsgAddress *pCC;
-	char szReturnPath[MSG_ADDR_LEN + 1];
-	char szDate[MSG_DATE_LEN];
-	char szSubject[MSG_LOCALE_SUBJ_LEN + 1];
-	char szMsgID[MSG_MSG_ID_LEN + 1];
-} MsgHeader;
 
 struct _MsgBody {
 	int offset;
@@ -533,9 +443,7 @@ struct _MsgBody {
 
 	union {
 		char *pText;
-		void *pBinary;
 		MsgMultipart *pMultipart;
-		MsgMessage *pMessage;
 	} body;
 };
 
@@ -543,12 +451,6 @@ struct _MsgMultipart {
 	MsgType type;
 	MsgBody *pBody;
 	MsgMultipart *pNext;
-};
-
-struct _MsgMessage {
-	MsgHeader header;
-	MsgType type;
-	MsgBody *pBody;
 };
 
 typedef struct _MMS_MESSAGE_S {

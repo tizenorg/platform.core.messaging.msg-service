@@ -1,20 +1,17 @@
 /*
- * msg-service
- *
- * Copyright (c) 2000 - 2014 Samsung Electronics Co., Ltd. All rights reserved
+ * Copyright (c) 2014 Samsung Electronics Co., Ltd. All rights reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
 */
 
 #include <stdio.h>
@@ -119,7 +116,7 @@ int SmsPluginTpduCodec::encodeSubmit(const SMS_SUBMIT_S *pSubmit, char *pTpdu)
 	pTpdu[offset] = 0x01;
 
 	//TP-RD
-	if(pSubmit->bRejectDup == false)
+	if(pSubmit->bRejectDup == true)
 		pTpdu[offset] |= 0x04;
 
 	//TP-VPF
@@ -197,6 +194,15 @@ int SmsPluginTpduCodec::encodeSubmit(const SMS_SUBMIT_S *pSubmit, char *pTpdu)
 MSG_DEBUG("encodeSize : %d", encodeSize);
 
 	offset += encodeSize;
+
+#if 0
+	printf("\n\n[encodeSubmit] pTpdu data.\n");
+	for (int i = 0; i < offset; i++)
+	{
+		printf(" [%02x]", pTpdu[i]);
+	}
+	printf("\n\n");
+#endif
 
 	return offset;
 }
@@ -279,8 +285,10 @@ int SmsPluginTpduCodec::encodeDeliverReport(const SMS_DELIVER_REPORT_S *pDeliver
 	offset++;
 
 	// TP-FCS
-	if (pDeliverRep->reportType == SMS_REPORT_NEGATIVE)
+	if (pDeliverRep->reportType == SMS_REPORT_NEGATIVE) {
 		pTpdu[offset++] = pDeliverRep->failCause;
+		MSG_DEBUG("Delivery report : fail cause = [%02x]", pDeliverRep->failCause);
+	}
 
 	// TP-PI
 	pTpdu[offset++] = pDeliverRep->paramInd;
@@ -471,7 +479,7 @@ int SmsPluginTpduCodec::decodeSubmit(const unsigned char *pTpdu, int TpduLen, SM
 
 int SmsPluginTpduCodec::decodeDeliver(const unsigned char *pTpdu, int TpduLen, SMS_DELIVER_S *pDeliver)
 {
-	int offset = 0, udLen = 0;
+	int offset = 0, udLen = 0, tmpOffset = 0;
 
 
 	char tpduTmp[(TpduLen*2)+1];
@@ -480,7 +488,7 @@ int SmsPluginTpduCodec::decodeDeliver(const unsigned char *pTpdu, int TpduLen, S
 		snprintf(tpduTmp+(i*2), sizeof(tpduTmp)-(i*2), "%02X", pTpdu[i]);
 	}
 	MSG_DEBUG("Deliver TPDU.");
-	MSG_DEBUG("[%s]", tpduTmp);
+	MSG_INFO("[%s]", tpduTmp);
 
 
 	// TP-MMS
@@ -509,6 +517,8 @@ int SmsPluginTpduCodec::decodeDeliver(const unsigned char *pTpdu, int TpduLen, S
 
 	offset++;
 
+	tmpOffset = offset;
+#if 1
 	// TP-OA
 	offset += SmsPluginParamCodec::decodeAddress(&pTpdu[offset], &(pDeliver->originAddress));
 
@@ -517,6 +527,65 @@ int SmsPluginTpduCodec::decodeDeliver(const unsigned char *pTpdu, int TpduLen, S
 
 	// TP-DCS
 	offset += SmsPluginParamCodec::decodeDCS(&pTpdu[offset], &(pDeliver->dcs));
+
+	// Support KSC5601 :: Coding group bits == 0x84
+	if (pTpdu[offset-1] == 0x84) {
+		pDeliver->dcs.codingScheme = SMS_CHARSET_EUCKR;
+	}
+
+#else
+	//For alphanumeric address test
+
+	offset += SmsPluginParamCodec::decodeAddress(&pTpdu[offset], &(pDeliver->originAddress));
+
+	char* address = new char[15];
+	address[0] = 0x04;
+	address[1] = 0xd0;
+	address[2] = 0x11;
+	address[3] = 0x00;
+	address[4] = 0x20;
+	address[5] = 0xF2;
+	address[6] = 0x01;
+	address[7] = 0x01;
+	address[8] = 0x11;
+	address[9] = 0x61;
+	address[10] = 0x40;
+	address[11] = 0x82;
+	address[12] = 0x2b;
+	address[13] = 0x01;
+	address[14] = 0x20;
+
+	SmsPluginParamCodec::decodeAddress((unsigned char*)address, &(pDeliver->originAddress));
+
+	pDeliver->pid = 0x20;
+	offset++;
+	offset += SmsPluginParamCodec::decodeDCS((unsigned char*)address, &(pDeliver->dcs));
+	// end test
+#endif
+
+	if (pDeliver->pid == 0x20 && pDeliver->originAddress.ton == SMS_TON_ALPHANUMERIC) {
+		int setType = -1;
+		int indType = -1;
+
+		bool bVmi = SmsPluginParamCodec::checkCphsVmiMsg(&pTpdu[tmpOffset], &setType, &indType);
+
+		MSG_DEBUG("bVmi = [%d], setType=[%d], indType=[%d]", bVmi, setType, indType);
+
+		if (bVmi) {
+			pDeliver->dcs.bMWI = true;
+
+			if (setType == 0) {
+				pDeliver->dcs.bIndActive = false;
+			} else {
+				pDeliver->dcs.bIndActive = true;
+			}
+
+			if (indType == 0)
+				pDeliver->dcs.indType = SMS_VOICE_INDICATOR;
+			else if (indType == 1)
+				pDeliver->dcs.indType = SMS_VOICE2_INDICATOR;
+		}
+	}
 
 	// TP-SCTS
 	offset += SmsPluginParamCodec::decodeTime(&pTpdu[offset], &(pDeliver->timeStamp));

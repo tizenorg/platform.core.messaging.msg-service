@@ -1,20 +1,17 @@
 /*
- * msg-service
- *
- * Copyright (c) 2000 - 2014 Samsung Electronics Co., Ltd. All rights reserved
+ * Copyright (c) 2014 Samsung Electronics Co., Ltd. All rights reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
 */
 
 #include <ctype.h>
@@ -23,6 +20,9 @@
 #include "MmsPluginMIME.h"
 #include "MmsPluginUtil.h"
 #include "MmsPluginTextConvert.h"
+
+#include <string>
+using namespace std;
 
 #define	MMS_MAX_FIELD_VALUE_COUNT	74
 #define	MMS_MAX_FIELD_TYPE_COUNT	21
@@ -158,35 +158,6 @@ const MmsField gMmsField[MMS_MAX_FIELD_TYPE_COUNT][MMS_MAX_FIELD_VALUE_COUNT] =
 		{"Error-transient-message-not-found", 0x42},
 		{"Error-transient-network-problem", 0x43},
 
-		{"Error-transient-failure", 0x44}, //reserved for future
-		{"Error-transient-failure", 0x45},
-		{"Error-transient-failure", 0x46},
-		{"Error-transient-failure", 0x47},
-		{"Error-transient-failure", 0x48},
-		{"Error-transient-failure", 0x49},
-		{"Error-transient-failure", 0x4A},
-		{"Error-transient-failure", 0x4B},
-		{"Error-transient-failure", 0x4C},
-		{"Error-transient-failure", 0x4D},
-		{"Error-transient-failure", 0x4E},
-		{"Error-transient-failure", 0x4F},
-		{"Error-transient-failure", 0x50},
-		{"Error-transient-failure", 0x51},
-		{"Error-transient-failure", 0x52},
-		{"Error-transient-failure", 0x53},
-		{"Error-transient-failure", 0x54},
-		{"Error-transient-failure", 0x55},
-		{"Error-transient-failure", 0x56},
-		{"Error-transient-failure", 0x57},
-		{"Error-transient-failure", 0x58},
-		{"Error-transient-failure", 0x59},
-		{"Error-transient-failure", 0x5A},
-		{"Error-transient-failure", 0x5B},
-		{"Error-transient-failure", 0x5C},
-		{"Error-transient-failure", 0x5D},
-		{"Error-transient-failure", 0x5E},
-		{"Error-transient-failure", 0x5F},
-
 		{"Error-permanent-failure", 0x60},
 		{"Error-permanent-service-denied", 0x61},
 		{"Error-permanent-message-format-corrupt", 0x62},
@@ -197,31 +168,6 @@ const MmsField gMmsField[MMS_MAX_FIELD_TYPE_COUNT][MMS_MAX_FIELD_VALUE_COUNT] =
 		{"Error-permanent-reply-charging-request-not-accepted", 0x67},
 		{"Error-permanent-reply-charging-forwarding-denied", 0x68},
 		{"Error-permanent-reply-charging-not-supported", 0x69},
-
-		{"Error-permanent-failure", 0x6A}, //reserved for future
-		{"Error-permanent-failure", 0x6B},
-		{"Error-permanent-failure", 0x6C},
-		{"Error-permanent-failure", 0x6D},
-		{"Error-permanent-failure", 0x6E},
-		{"Error-permanent-failure", 0x6F},
-		{"Error-permanent-failure", 0x70},
-		{"Error-permanent-failure", 0x71},
-		{"Error-permanent-failure", 0x72},
-		{"Error-permanent-failure", 0x73},
-		{"Error-permanent-failure", 0x74},
-		{"Error-permanent-failure", 0x75},
-		{"Error-permanent-failure", 0x76},
-		{"Error-permanent-failure", 0x77},
-		{"Error-permanent-failure", 0x78},
-		{"Error-permanent-failure", 0x79},
-		{"Error-permanent-failure", 0x7A},
-		{"Error-permanent-failure", 0x7B},
-		{"Error-permanent-failure", 0x7C},
-		{"Error-permanent-failure", 0x7D},
-		{"Error-permanent-failure", 0x7E},
-		{"Error-permanent-failure", 0x7F}
-
-
 	},
 
 	/* MmsCodeRetrieveStatus */
@@ -231,70 +177,10 @@ const MmsField gMmsField[MMS_MAX_FIELD_TYPE_COUNT][MMS_MAX_FIELD_VALUE_COUNT] =
 		{"Error-transient-message-not-found", 0x41},
 		{"Error-transient-network-problem", 0x42},
 
-		{"Error-transient-failure", 0x43}, //reserved for future
-		{"Error-transient-failure", 0x44},
-		{"Error-transient-failure", 0x45},
-		{"Error-transient-failure", 0x46},
-		{"Error-transient-failure", 0x47},
-		{"Error-transient-failure", 0x48},
-		{"Error-transient-failure", 0x49},
-		{"Error-transient-failure", 0x4A},
-		{"Error-transient-failure", 0x4B},
-		{"Error-transient-failure", 0x4C},
-		{"Error-transient-failure", 0x4D},
-		{"Error-transient-failure", 0x4E},
-		{"Error-transient-failure", 0x4F},
-		{"Error-transient-failure", 0x50},
-		{"Error-transient-failure", 0x51},
-		{"Error-transient-failure", 0x52},
-		{"Error-transient-failure", 0x53},
-		{"Error-transient-failure", 0x54},
-		{"Error-transient-failure", 0x55},
-		{"Error-transient-failure", 0x56},
-		{"Error-transient-failure", 0x57},
-		{"Error-transient-failure", 0x58},
-		{"Error-transient-failure", 0x59},
-		{"Error-transient-failure", 0x5A},
-		{"Error-transient-failure", 0x5B},
-		{"Error-transient-failure", 0x5C},
-		{"Error-transient-failure", 0x5D},
-		{"Error-transient-failure", 0x5E},
-		{"Error-transient-failure", 0x5F},
-
 		{"Error-permanent-failure", 0x60},
 		{"Error-permanent-service-denied", 0x61},
 		{"Error-permanent-message-not-found", 0x62},
 		{"Error-permanent-content-unsupported", 0x63},
-
-		{"Error-permanent-failure", 0x64}, //reserved for future
-		{"Error-permanent-failure", 0x65},
-		{"Error-permanent-failure", 0x66},
-		{"Error-permanent-failure", 0x67},
-		{"Error-permanent-failure", 0x68},
-		{"Error-permanent-failure", 0x69},
-		{"Error-permanent-failure", 0x6A},
-		{"Error-permanent-failure", 0x6B},
-		{"Error-permanent-failure", 0x6C},
-		{"Error-permanent-failure", 0x6D},
-		{"Error-permanent-failure", 0x6E},
-		{"Error-permanent-failure", 0x6F},
-		{"Error-permanent-failure", 0x70},
-		{"Error-permanent-failure", 0x71},
-		{"Error-permanent-failure", 0x72},
-		{"Error-permanent-failure", 0x73},
-		{"Error-permanent-failure", 0x74},
-		{"Error-permanent-failure", 0x75},
-		{"Error-permanent-failure", 0x76},
-		{"Error-permanent-failure", 0x77},
-		{"Error-permanent-failure", 0x78},
-		{"Error-permanent-failure", 0x79},
-		{"Error-permanent-failure", 0x7A},
-		{"Error-permanent-failure", 0x7B},
-		{"Error-permanent-failure", 0x7C},
-		{"Error-permanent-failure", 0x7D},
-		{"Error-permanent-failure", 0x7E},
-		{"Error-permanent-failure", 0x7F}
-
 	},
 
 	/* MmsCodeReadReply */
@@ -344,39 +230,31 @@ const MmsField gMmsField[MMS_MAX_FIELD_TYPE_COUNT][MMS_MAX_FIELD_VALUE_COUNT] =
 
 	/* MmsCodeCharSet */
 	{
-		{"us-ascii", 0x03},
+		{"US-ASCII", 0x03},
 		{"UTF-16", 0x03F7},
-		{"ISO-10646-UCS-2", 0x03E8},
+		{"CSUNICODE", 0x03E8},
 		{"UTF-8", 0x6A},
-
 		{"ISO-2022-KR", 0x25},
 		{"KS_C_5601-1987", 0x24},
 		{"EUC-KR", 0x26},
 		{"ISO-2022-JP", 0x27},
 		{"ISO-2022-JP-2", 0x28},
-
 		{"ISO_8859-1", 0x04},
 		{"ISO_8859-2", 0x05},
 		{"ISO-8859-3", 0x06},
 		{"ISO-8859-4", 0x07},
 		{"ISO-8859-5", 0x08},
 		{"ISO-8859-6", 0x09},
-		{"ISO-8859-6-E", 0x51},
-		{"ISO-8859-6-I", 0x52},
 		{"ISO-8859-7", 0x0a},
 		{"ISO-8859-8", 0x0b},
-		{"ISO-8859-8-I", 0x85},
 		{"ISO-8859-9", 0x0c},
 		{"ISO-8859-10", 0x0d},
 		{"ISO-8859-15", 0x6F},
-
-		{"Shift_JIS", 0x11},
+		{"SHIFT_JIS", 0x11},
 		{"EUC-JP", 0x13},
 		{"GB2312", 0x07E9},
 		{"BIG5", 0x0d},
-		{"WIN1251", 0xFF},
-		{"WINDOW-1251", 0xFF},
-		{"WINDOWS-1251", 0xFF},
+		{"WINDOWS-1251", 0x08CB},
 		{"KOI8-R", 0x0824},
 		{"KOI8-U", 0x0828},
 	},
@@ -390,100 +268,10 @@ const MmsField gMmsField[MMS_MAX_FIELD_TYPE_COUNT][MMS_MAX_FIELD_VALUE_COUNT] =
 	},
 
 
-	/* MSG Specific (MsgMIMEExtern.h) -----------------------*/
-
-	/* Content-Type (http://www.wapforum.org/wina/wsp-content-type.htm) */
-	/* this group(Content-Type) will be replaced by utyMime */
+//	OMNA WSP Content Type Numbers
+//	http://technical.openmobilealliance.org/tech/omna/omna-wsp-content-type.aspx
 	{
-		// {"Text/txt", 0x01},
-		{"Text/html", 0x02},
-		{"Text/plain", 0x03},
-		{"Text/vnd.wap.wml", 0x08},
-		{"Text/x-vCalendar", 0x06},
-		{"Text/x-vCard", 0x07},
-
-		{"Application/vnd.wap.multipart.*", 0x22},
-		{"Application/vnd.wap.multipart.mixed", 0x23},
-		{"Application/vnd.wap.multipart.related", 0x33},
-		{"Application/vnd.wap.multipart.alternative", 0x26},
-
-		{"application/vnd.oma.drm.message", 0x48},			// 10
-		{"application/vnd.oma.drm.content", 0x49},
-		{"application/vnd.oma.drm.rights+xml", 0x4A},
-		{"application/vnd.oma.drm.rights+wbxml", 0x4B},
-
-		{"application/smil", 0xFFFF},
-		{"Multipart/mixed", 0x0c},
-		{"Multipart/related", 0x0B},
-		{"Multipart/alternative", 0x0F},
-
-		{"multipart/report", 0xffff},
-		{"Message/rfc822", 0xffff},
-
-	//   T E X T
-		{"Image/gif", 0x1D},			// 20
-		{"Image/jpeg", 0x1E},
-		{"Image/jpg", 0xFFFF},
-		{"image/tiff", 0x1f},
-		{"Image/png", 0x20},
-
-
-		{"Image/vnd.wap.wbmp", 0x21},
-
-		{"Image/wbmp", 0xFFFF},
-		{"Image/pjpeg", 0xFFFF},
-
-		{"Image/bmp", 0xFFFF},
-
-	// A U D I O
-		{"Audio/basic", 0xFFFF},
-		{"Audio/mpeg", 0xFFFF},			// 30
-		{"Audio/x-mpeg", 0xFFFF},
-		{"Audio/mp3", 0xFFFF},
-		{"audio/x-mp3", 0xFFFF},
-		{"audio/mpeg3", 0xFFFF},
-		{"audio/x-mpeg3", 0xFFFF},
-		{"audio/mpg", 0xFFFF},
-		{"audio/x-mpg", 0xFFFF},
-		{"audio/x-mpegaudio", 0xFFFF},
-		{"Audio/aac", 0xFFFF},			// 39
-		{"Audio/g72", 0xFFFF},
-		{"Audio/amr", 0xFFFF},
-		{"audio/x-amr", 0xFFFF},
-		{"audio/x-mmf", 0xFFFF},
-		{"application/vnd.smaf",  0xffff},
-		{"application/x-smaf", 0xFFFF},
-		{"audio/mmf", 0xFFFF},
-
-		{"text/x-iMelody", 0xffff},
-		{"audio/x-iMelody", 0xffff},
-		{"audio/iMelody", 0xffff},		// 49
-		{"audio/mid",0xffff},
-		{"audio/midi", 0xffff},
-		{"audio/x-midi", 0xffff},
-		{"audio/sp-midi", 0xffff},
-		{"audio/wave", 0xffff},
-		{"audio/3gpp", 0xffff},
-		{"audio/vnd.rn-realaudio", 0xffff},
-		{"audio/x-pn-realaudio", 0xffff},
-		{"audio/mp4",  0xffff},
-
-	// V I D E O
-		{"video/mpeg4", 0xFFFF},
-		{"video/mp4", 0xffff},
-		{"video/x-mp4", 0xFFFF},
-		{"video/x-vp-mp4", 0xffff},
-		{"Video/h263", 0xFFFF},
-
-		{"video/3gpp", 0xffff},
-		{"video/3gp", 0xffff},
-		{"Video/avi", 0xFFFF},
-
-		{"video/sdp", 0xffff},			// 70
-		{"application/vnd.rn-realmedia", 0xffff},
-		{"video/vnd.rn-realvideo", 0xffff},
-
-		{"application/octet-stream", 0xFFFF }
+	//NOT USED THIS TABLE
 	},
 
 	/* MmsCodeMsgDisposition : Wsp Header (By Wsp 8.4.2.53) */
@@ -576,25 +364,18 @@ UINT16 MmsGetBinaryValue(MmsCode i, int j)
 	return gMmsField[i][j].binary;
 }
 
-// getting mime type (int) by binary type
 int MmsGetBinaryType(MmsCode i, UINT16 value)
 {
-	MSG_BEGIN();
-
-	if (i == MmsCodeContentType) {
-		//apply UtyMime
-		return MimeGetMimeIntFromBi(value);
-	}
 
 	for (int j = 0; j < MMS_MAX_FIELD_VALUE_COUNT; j++) {
 		if (gMmsField[i][j].binary == value) {
+			MSG_DEBUG("code [%d], value [0x%02x], ret type [%d]", i, value, j);
 			return j;
 		}
 	}
 
-	MSG_END();
-
-	return MIME_UNKNOWN;
+	MSG_DEBUG("code [%d], value [0x%02x], ret type [Unknown]", i, value);
+	return -1;
 }
 
 int MmsGetTextType(MmsCode i, char *pValue)
@@ -887,245 +668,257 @@ bool MsgEncode2Base64(void *pSrc, unsigned long srcLen, unsigned long *len, unsi
 	return true;
 }
 
-
-char *MsgDecodeText(char *pOri)
+int extract_encoded_word_param(char *encoded_word, char **charset,  char **encoding, char **encoded_text, unsigned int *encoded_word_size)
 {
-	MSG_BEGIN();
+	char *start_ptr = NULL;
+	char *end_ptr = NULL;
+	char *q1_ptr = NULL;
+	char *q2_ptr = NULL;
 
-	int size = 0;
-	int cnt = 0;
-	char *pSrc = NULL;
-	char *pTemp = NULL;
-	char *pRe = NULL;
-	char *pStrEnd = NULL;
-	char *pDecStart = NULL;
-	char *pDecEnd = NULL;
-	char *pDecQ = NULL;
-	char *pDecQ2 = NULL;
-	bool bEncoding = false;
-	int	nCharset = MSG_CHARSET_UTF8;
-	int	nTemp = 0;
-	char *pReturnStr = NULL;
+	char *char_set = NULL;
+	char *l_encoded_text = NULL;
 
-	char szTempBuf[MSG_LOCAL_TEMP_BUF_SIZE] = {0};
+	char l_encoding[2] = {0,};
 
-	// copy original string
-	if (strlen(pOri) >= MSG_LOCAL_TEMP_BUF_SIZE) {
-		pSrc = MsgStrCopy( pOri );
-	} else {
-		memset(szTempBuf, 0, MSG_LOCAL_TEMP_BUF_SIZE);
-		strcpy(szTempBuf, pOri);
+	if (encoded_word == NULL)
+		goto __CATCH;
 
-		pSrc = szTempBuf;
-	}
-
-	// it can be one or more encoding methods in a line
-	while (1) {
-		cnt++;
-
-		bEncoding = false;
-
-		/*
-		  (ex) "=?euc-kr?B?Y2NqMjEyMw==?="
-
-		  pDecStart: charset			(=?euc-kr?B?Y2NqMjEyMw==?=)
-		  pDecQ	: Encoding type		(B?Y2NqMjEyMw==?=)
-		  pDecQ2	: Encoded text		(Y2NqMjEyMw==?=)
-		  pDecEnd	: Encoded of text	(?=)
-		 */
-		if (pSrc == NULL)
-			goto __CATCH;
-
-		if (((pDecStart = strstr(pSrc, MSG_STR_DEC_START)) != NULL) 	//"=?"
-		     && ((pDecQ = strchr(pDecStart + 2, MSG_CH_QUESTION)) != NULL)	// '?'
-		     && ((pDecQ2 = strchr(pDecQ + 1, MSG_CH_QUESTION))!= NULL)		// '?'
-		     && ((pDecEnd = strstr(pDecQ2 + 1, MSG_STR_DEC_END))!= NULL)) {	//"=?"
-			bEncoding = true;
-
-			/* fixme: charset problem
-			 * pDecStart ~ pDecQ : charSet & MSG_CHARSET_USC2 ~ MSG_CHARSET_UTF8 & LATIN
-			 */
-
-			*pDecQ = '\0';
-			nCharset = _MsgGetCode(MSG_CHARSET, pDecStart + 2);
-			if(nCharset < 0)
-				goto __CATCH;
-			*pDecQ = MSG_CH_QUESTION;
-		}
-
-		// End of encoding
-		if (!bEncoding)
-			goto __RETURN;
-
-		// find end of string
-		pStrEnd = pSrc + strlen(pSrc);
-
-		// Decoding
-		if ((*(pDecQ2 - 1) == MSG_CH_BASE64_UPPER) ||
-			(*(pDecQ2 - 1) == MSG_CH_BASE64_LOWER) ||
-			(*(pDecQ + 1) == MSG_CH_BASE64_UPPER) ||
-			(*(pDecQ + 1) == MSG_CH_BASE64_LOWER)) {
-			pTemp = (char *)MsgDecodeBase64((UCHAR *)(pDecQ2 + 1), (ULONG)(pDecEnd - pDecQ2 - 1), (ULONG *)&size);
-
-			if (pTemp != NULL) {
-				pTemp[size] = MSG_CH_NULL;
-
-				if(pRe) {
-					free(pRe);
-					pRe = NULL;
-				}
-
-				pRe = (char *)malloc((pDecStart-pSrc) + size + (pStrEnd - (pDecEnd + 2)) + 1);
-				if (pRe == NULL) {
-					MSG_DEBUG("_MsgDecodeText: pRemalloc fail \n");
-					free(pTemp);
-					pTemp = NULL;
-
-					goto __RETURN;
-				}
-
-				memcpy(pRe, pSrc, pDecStart - pSrc);
-				memcpy(&pRe[pDecStart-pSrc], pTemp, size);
-				memcpy(&pRe[(pDecStart - pSrc) + size], pDecEnd + 2, pStrEnd - (pDecEnd + 2));
-				pRe[(pDecStart - pSrc) + size + (pStrEnd - (pDecEnd + 2))] = MSG_CH_NULL;
-
-				free(pTemp);
-				pTemp = NULL;
-
-				if (pSrc != NULL && pSrc != szTempBuf) {
-					free(pSrc);
-					pSrc = NULL;
-				}
-			}
-		} else if ((*(pDecQ2-1) == MSG_CH_QPRINT_UPPER) ||
-				(*(pDecQ2-1) == MSG_CH_QPRINT_LOWER) ||
-				(*(pDecQ+1) == MSG_CH_QPRINT_UPPER) ||
-				(*(pDecQ+1) == MSG_CH_QPRINT_LOWER)) {
-
-			pTemp = (char *)MsgDecodeQuotePrintable((UCHAR *)( pDecQ2 + 1 ), (ULONG)(pDecEnd - pDecQ2 - 1), (ULONG *)&size);
-
-			if (pTemp != NULL) {
-				int i;
-				pTemp[size] = MSG_CH_NULL;
-
-				for (i = 0; i < size; i++) {
-					if (pTemp[i] == MSG_CH_UNDERLINE) {
-						pTemp[i] = MSG_CH_SP;	                      // change '_' to ' '
-					}
-				}
-
-				if(pRe) {
-					free(pRe);
-					pRe = NULL;
-				}
-
-				pRe = (char *)malloc((pDecStart - pSrc) + size + (pStrEnd - (pDecEnd + 2)) + 1);
-				if (pRe == NULL) {
-					MSG_DEBUG("_MsgDecodeText: pRemalloc fail \n");
-					free(pTemp);
-					pTemp = NULL;
-
-					goto __RETURN;
-				}
-
-				memcpy(pRe, pSrc, pDecStart - pSrc);
-				memcpy(&pRe[pDecStart - pSrc], pTemp, size);
-				memcpy(&pRe[(pDecStart - pSrc) + size], pDecEnd + 2, pStrEnd - (pDecEnd + 2));
-				pRe[(pDecStart - pSrc) + size + (pStrEnd - (pDecEnd + 2))] = MSG_CH_NULL;
-
-				if (pTemp) {
-					free(pTemp);
-					pTemp = NULL;
-				}
-
-				if (pSrc != NULL && pSrc != szTempBuf) {
-					free(pSrc);
-					pSrc = NULL;
-				}
-			}
-		} else {
-			goto __RETURN;
-		}
-	}
-
-
-
-__RETURN:
-
-	pTemp = strdup(pSrc);
-	nTemp = strlen(pSrc);
-
-	{//temp brace;
-		const char *pToCharSet = "UTF-8";
-
-		UINT16 charset_code =  MmsGetBinaryValue(MmsCodeCharSet, nCharset);
-
-		const char *pFromCharSet = MmsPluginTextConvertGetCharSet(charset_code);
-
-		if (pFromCharSet != NULL && strcmp(pFromCharSet, pToCharSet) != 0) {//Not UTF-8
-			char *pDest = NULL;
-			int destLen = 0;
-
-			if (MmsPluginTextConvert(pToCharSet, pFromCharSet, pTemp, nTemp, &pDest, &destLen) == false) {
-				MSG_DEBUG("MmsPluginTextConvert Fail");
-			}
-
-			if (pDest) {
-				free(pTemp);
-				pTemp = strdup(pDest);
-				nTemp = destLen;
-				free(pDest);
-			}
-		}
-
-	}
-
-	pReturnStr = (char *)malloc(nTemp + 1);
-
-	if (pReturnStr == NULL) {
+	if ( 6 > strlen(encoded_word)) {
 		goto __CATCH;
 	}
 
-	memset(pReturnStr, 0, nTemp + 1);
+	start_ptr = encoded_word;
 
-	if (pTemp) {
-		memcpy(pReturnStr, pTemp, nTemp);
-		free(pTemp);
-		pTemp = NULL;
+	if ( (encoded_word[0] == '=' && encoded_word[1] == '?') //"=?"
+			 && ((q1_ptr = strchr(start_ptr + 2, MSG_CH_QUESTION)) != NULL)	// '?'
+			 && ((q2_ptr = strchr(q1_ptr + 1, MSG_CH_QUESTION))!= NULL)		// '?'
+			 && ((end_ptr = strstr(q2_ptr + 1, MSG_STR_DEC_END))!= NULL)) //"?="
+	{
+
+		//extract character set
+		if ( q1_ptr - (start_ptr + 2) > 0 ) {
+
+			char_set = (char*)calloc(1, q1_ptr - (start_ptr + 2) + 1);
+
+			strncpy(char_set, (char*)((start_ptr + 2)), q1_ptr - (start_ptr + 2));
+
+			MSG_DEBUG("character set [%s][%d]", char_set, strlen(char_set));
+
+
+		} else {
+			MSG_DEBUG("character set is NULL");
+			goto __CATCH;
+		}
+
+		//extract encode type
+		if ((*(q2_ptr - 1) == MSG_CH_BASE64_UPPER) || (*(q2_ptr - 1) == MSG_CH_BASE64_LOWER)
+				|| (*(q1_ptr + 1) == MSG_CH_BASE64_UPPER) || (*(q1_ptr + 1) == MSG_CH_BASE64_LOWER))
+		{
+			l_encoding[0] = MSG_CH_BASE64_UPPER;
+		} else if ((*(q2_ptr-1) == MSG_CH_QPRINT_UPPER) || (*(q2_ptr-1) == MSG_CH_QPRINT_LOWER)
+				|| (*(q1_ptr+1) == MSG_CH_QPRINT_UPPER) || (*(q1_ptr+1) == MSG_CH_QPRINT_LOWER))
+		{
+			//QPRINT
+			l_encoding[0] = MSG_CH_QPRINT_UPPER;
+
+		} else {
+			MSG_DEBUG("unknown encoding");
+			goto __CATCH;
+		}
+
+		//extract encoded text
+		if (end_ptr - q2_ptr > 1) {
+			l_encoded_text = (char*)calloc(1, end_ptr - q2_ptr);
+
+			strncpy(l_encoded_text, (char*)(q2_ptr + 1), end_ptr - q2_ptr -1);
+
+			MSG_DEBUG("encoded text [%s][%d]", l_encoded_text, strlen(l_encoded_text));
+		} else {
+			MSG_DEBUG("encoded text is NULL");
+			goto __CATCH;
+		}
+
+		*charset = char_set;
+		*encoding = g_strdup(l_encoding);
+		*encoded_text = l_encoded_text;
+		*encoded_word_size = end_ptr - start_ptr + 2;
+
+	} else {
+		MSG_DEBUG("It is not encoded word type");
+		return -1;
 	}
 
-	if(pRe) {
-		free(pRe);
-		pRe = NULL;
-	}
-
-	if (pSrc != NULL && pSrc != szTempBuf) {
-		free(pSrc);
-		pSrc = NULL;
-	}
-
-	return pReturnStr;
+	return 0;
 
 __CATCH:
-
-	if(pRe) {
-		free(pRe);
-		pRe = NULL;
-	}
-
-	if (pSrc != NULL && pSrc != szTempBuf) {
-		free(pSrc);
-		pSrc = NULL;
-	}
-
-	if (pTemp) {
-		free(pTemp);
-		pTemp = NULL;
-	}
-
-	return NULL;
+	MSG_FREE(char_set);
+	MSG_FREE(l_encoded_text);
+	return -1;
 }
 
+char *MsgDecodeText(const char *pOri)
+{
+	MSG_BEGIN();
+
+	char *pSrc = NULL;
+
+	char *encoded_word_start_ptr = NULL;
+	char *normal_word_start_ptr = NULL;
+
+	char *charset = NULL;
+	char *encoding = NULL;
+	char *encoded_text = NULL;
+	char *decoded_text = NULL;
+
+	char *return_string= NULL;
+	string result_string;
+
+	bool b_encoded_word = false;
+
+	unsigned int encoded_word_size = 0;
+	unsigned int total_len = 0;
+	unsigned int decoded_len = 0;
+
+	// copy original string
+	if (pOri == NULL || strlen(pOri) <= 0) {
+		MSG_DEBUG("Invalid parameter : [%s]", pOri);
+		return NULL;
+	}
+
+	pSrc = g_strdup(pOri);
+	total_len = strlen(pOri);
+
+	MSG_DEBUG("input text : [%s][%d]", pSrc, total_len);
+
+	normal_word_start_ptr = pSrc;
+
+	while (normal_word_start_ptr < pSrc + total_len) {
+
+		encoded_word_start_ptr = strstr(normal_word_start_ptr, MSG_STR_DEC_START);
+
+		b_encoded_word = false;
+
+		//Find encoded word
+		while (b_encoded_word == false && encoded_word_start_ptr != NULL ) {
+
+			if (extract_encoded_word_param(encoded_word_start_ptr, &charset, &encoding, &encoded_text, &encoded_word_size) == 0) {
+
+				if (charset && encoding && encoded_text && encoded_word_size > 0) {
+					b_encoded_word = true;
+					MSG_DEBUG("charset [%s], encoding [%s], encoded_text [%s], encoded_word_size [%d]", charset, encoding, encoded_text, encoded_word_size);
+					break;
+				}
+
+				MSG_FREE(charset);
+				MSG_FREE(encoding);
+				MSG_FREE(encoded_text);
+				encoded_word_size = 0;
+			}
+
+			encoded_word_start_ptr = strstr(encoded_word_start_ptr+1, MSG_STR_DEC_START); //find next encoded_start_ptr
+
+		} // end of while
+
+		if (b_encoded_word) {
+
+			//copy normal text
+			if (encoded_word_start_ptr - normal_word_start_ptr > 0) {
+				result_string.append(normal_word_start_ptr, encoded_word_start_ptr - normal_word_start_ptr);
+				MSG_DEBUG("copy normal text : [%s]", result_string.c_str());
+			}
+
+			if (strcasecmp(encoding, "B") == 0) {
+
+				MSG_DEBUG("Base64 encoded text [%s][%d]", encoded_text, strlen(encoded_text));
+
+				decoded_text = (char *)MsgDecodeBase64((unsigned char *)encoded_text, strlen(encoded_text), (ULONG *)&decoded_len);
+
+				if (decoded_text && decoded_len > 0) {
+
+					char *result_text = NULL;
+					int result_text_len = 0;
+
+					MSG_DEBUG("Base64 decoded text [%s][%d], outlen [%d]", decoded_text, strlen(decoded_text), decoded_len);
+
+					if (MmsPluginTextConvert("UTF-8", charset, decoded_text, decoded_len, &result_text, &result_text_len) == false) {
+						MSG_DEBUG("MmsPluginTextConvert Fail");
+					}
+
+					if(result_text) {
+						MSG_DEBUG("Text convert result [%s][%d]", result_text, strlen(result_text));
+
+						result_string.append(result_text, result_text_len);
+
+						MSG_FREE(result_text);
+					}
+
+				} else {
+					MSG_DEBUG("Fail base64 decode");
+				}
+
+				MSG_FREE(decoded_text);
+
+			} else if (strcasecmp(encoding, "Q") == 0) {
+
+				char *result_text = NULL;
+				int result_text_len = 0;
+
+				MSG_DEBUG("Qprint encoded text [%s][%d]", encoded_text, strlen(encoded_text));
+
+				decoded_text = (char *)MsgDecodeQuotePrintable((unsigned char *)encoded_text, strlen(encoded_text), (ULONG *)&decoded_len);
+
+				if (decoded_text && decoded_len > 0) {
+
+					MSG_DEBUG("Qprint decoded text [%s][%d], outlen [%d]", decoded_text, strlen(decoded_text), decoded_len);
+
+					if (MmsPluginTextConvert("UTF-8", charset, decoded_text, decoded_len, &result_text, &result_text_len) == false) {
+						MSG_DEBUG("MmsPluginTextConvert Fail");
+					}
+
+					if(result_text) {
+						MSG_DEBUG("Text convert result [%s][%d]", result_text, strlen(result_text));
+
+						result_string.append(result_text, result_text_len);
+
+						MSG_FREE(result_text);
+					}
+
+				} else {
+					MSG_DEBUG("Fail Qprint decode");
+				}
+
+				MSG_FREE(decoded_text);
+			}
+
+			normal_word_start_ptr = encoded_word_start_ptr+encoded_word_size; //next
+
+			MSG_FREE(charset);
+			MSG_FREE(encoding);
+			MSG_FREE(encoded_text);
+			encoded_word_size = 0;
+
+		} else {
+			//copy remain normal text
+
+			MSG_DEBUG("last text : [%s]", normal_word_start_ptr);
+
+			result_string.append(normal_word_start_ptr);
+
+			break;
+		}
+
+	} //end of while
+
+	if (result_string.length() > 0) {
+		return_string = g_strdup(result_string.c_str());
+		MSG_DEBUG("return string: [%s]", return_string);
+	}
+
+	MSG_FREE(pSrc);
+
+	MSG_END();
+	return return_string;
+}
 
 static char gszDebugStringBuf[50];
 
@@ -1363,6 +1156,8 @@ const char *MmsDebugGetMimeType(MimeType mimeType)
 		return "MIME_TEXT_XML";
 	case MIME_TEXT_IMELODY:
 		return "MIME_TEXT_IMELODY";
+	case MIME_TEXT_CALENDAR:
+		return "MIME_TEXT_CALENDAR";
 	case MIME_TEXT_VND_WAP_WMLSCRIPT:
 		return "MIME_TEXT_VND_WAP_WMLSCRIPT";
 	case MIME_TEXT_VND_WAP_WML:
@@ -1387,6 +1182,9 @@ const char *MmsDebugGetMimeType(MimeType mimeType)
 		return "MIME_TEXT_X_VCARD";
 	case MIME_TEXT_X_IMELODY:
 		return "MIME_TEXT_X_IMELODY";
+	case MIME_TEXT_X_VTODO:
+		return "MIME_TEXT_X_VTODO";
+
 
 	case MIME_VIDEO_MPEG4:
 		return "MIME_VIDEO_MPEG4";
@@ -1402,6 +1200,10 @@ const char *MmsDebugGetMimeType(MimeType mimeType)
 		return "MIME_VIDEO_AVI";
 	case MIME_VIDEO_SDP:
 		return "MIME_VIDEO_SDP";
+	case MIME_VIDEO_MP4_ES:
+		return "MIME_VIDEO_MP4_ES";
+	case MIME_VIDEO_MPEG:
+		return "MIME_VIDEO_MPEG";
 	case MIME_VIDEO_VND_RN_REALVIDEO:
 		return "MIME_VIDEO_VND_RN_REALVIDEO";
 	case MIME_VIDEO_X_MP4:
@@ -1460,6 +1262,8 @@ const char *MmsDebugGetMmsReadStatus(msg_read_report_status_t readStatus)
 		return "MMS_IS_READ";
 	case MSG_READ_REPORT_IS_DELETED:
 		return "MMS_IS_DELETED";
+	default:
+		break;
 	}
 
 	return MmsDebugPrintUnknownValue(readStatus);
@@ -1659,7 +1463,7 @@ const char *MmsDebugGetDataType(MmsDataType dataType)
 
 bool MmsInitMsgType(MsgType *pMsgType)
 {
-	MSG_DEBUG("MmsInitMsgType");
+	MSG_DEBUG("ptr : [%p]", pMsgType);
 	pMsgType->offset = 0;
 	pMsgType->size = 0;
 	pMsgType->contentSize = 0;
@@ -1672,21 +1476,15 @@ bool MmsInitMsgType(MsgType *pMsgType)
 	pMsgType->szContentID[0] = '\0';
 	pMsgType->szContentLocation[0] = '\0';
 
-	pMsgType->szContentRepPos[0] = '\0';
-	pMsgType->szContentRepSize[0] = '\0';
-	pMsgType->szContentRepIndex[0] = '\0';
-
 	MmsInitMsgContentParam(&pMsgType->param);
-#ifdef __SUPPORT_DRM__
 	MmsInitMsgDRMInfo(&pMsgType->drmInfo);
-#endif
 
 	return true;
 }
 
 bool MmsInitMsgBody(MsgBody *pMsgBody)
 {
-	MSG_DEBUG("MmsInitMsgBody");
+	MSG_DEBUG("ptr : [%p]", pMsgBody);
 	pMsgBody->offset = 0;
 	pMsgBody->size = 0;
 	pMsgBody->body.pText = NULL;
@@ -1701,7 +1499,7 @@ bool MmsInitMsgBody(MsgBody *pMsgBody)
 
 bool MmsInitMsgContentParam(MsgContentParam *pMsgContentParam)
 {
-	MSG_DEBUG("MmsInitMsgContentParam");
+	MSG_DEBUG("ptr : [%p]", pMsgContentParam);
 	pMsgContentParam->charset = MSG_CHARSET_UNKNOWN;
 	pMsgContentParam->type = MIME_UNKNOWN;
 	pMsgContentParam->szBoundary[0] = '\0';
@@ -1733,12 +1531,13 @@ bool MmsInitMsgAttrib(MmsAttrib *pAttrib)
 
 	pAttrib->bHideAddress = false;
 	pAttrib->date = 0;
-	pAttrib->bUseDeliveryCustomTime = false;
+
 	pAttrib->deliveryTime.type = MMS_TIMETYPE_RELATIVE;
 	pAttrib->deliveryTime.time = 0;
-	pAttrib->bUseExpiryCustomTime = false;
+
 	pAttrib->expiryTime.type = MMS_TIMETYPE_RELATIVE;
 	pAttrib->expiryTime.time = 0;
+
 	memset(&pAttrib->expiryTime, 0, sizeof(MmsTimeStruct));
 	pAttrib->msgClass = MMS_MSGCLASS_PERSONAL;
 	pAttrib->msgStatus = MSG_DELIVERY_REPORT_NONE;
@@ -1748,13 +1547,6 @@ bool MmsInitMsgAttrib(MmsAttrib *pAttrib)
 	pAttrib->contentType = MIME_UNKNOWN;
 	pAttrib->msgSize = 0;
 	pAttrib->bLeaveCopy = true;
-
-	pAttrib->specialMsgType = MMS_SPECIAL_MSG_TYPE_NONE;
-#ifdef __SUPPORT_DRM__
-	pAttrib->drmType = MSG_DRM_TYPE_NONE;
-	pAttrib->roWaitingTimerMax = 0;
-	pAttrib->pszDrmData = NULL;
-#endif
 	pAttrib->version = MMS_VERSION;
 
 	memset(pAttrib->szFrom, 0, MSG_LOCALE_ADDR_LEN + 10);
@@ -1775,9 +1567,10 @@ bool MmsInitMsgAttrib(MmsAttrib *pAttrib)
 	return true;
 }
 
-#ifdef __SUPPORT_DRM__
+
 bool MmsInitMsgDRMInfo(MsgDRMInfo *pMsgDrmInfo)
 {
+	MSG_DEBUG("ptr : [%p]", pMsgDrmInfo);
 	pMsgDrmInfo->contentType = MIME_UNKNOWN;
 	pMsgDrmInfo->drmType = MSG_DRM_TYPE_NONE;
 
@@ -1839,7 +1632,6 @@ void MmsReleaseMsgDRMInfo(MsgDRMInfo *pDrmInfo)
 	pDrmInfo->drmType = MSG_DRM_TYPE_NONE;
 }
 
-#endif
 
 bool MmsReleaseMmsAttrib(MmsAttrib *pAttrib)
 {
@@ -1920,15 +1712,14 @@ bool MmsReleaseMsgBody(MsgBody *pBody, int type)
 				pMulti = pMulti->pNext;
 
 				if (pCurrPart) {
-#ifdef __SUPPORT_DRM__
 					MmsReleaseMsgDRMInfo(&pCurrPart->type.drmInfo);
-#endif
 
 					if (pCurrPart->pBody) {
-						if (pCurrPart->pBody->body.pBinary) {
-							free(pCurrPart->pBody->body.pBinary);
-							pCurrPart->pBody->body.pBinary = NULL;
+						if (pCurrPart->pBody->body.pText) {
+							free(pCurrPart->pBody->body.pText);
+							pCurrPart->pBody->body.pText = NULL;
 						}
+
 						free(pCurrPart->pBody);
 						pCurrPart->pBody = NULL;
 					}
@@ -1955,9 +1746,9 @@ bool MmsReleaseMsgBody(MsgBody *pBody, int type)
 
 	default:
 		/* Any single part */
-		if (pBody->body.pBinary) {
-			free(pBody->body.pBinary);
-			pBody->body.pBinary = NULL;
+		if (pBody->body.pText) {
+			free(pBody->body.pText);
+			pBody->body.pText = NULL;
 		}
 
 		break;
@@ -1974,4 +1765,144 @@ void MmsReleaseMmsMsg(MmsMsg *pMmsMsg)
 		MmsReleaseMmsAttrib(&pMmsMsg->mmsAttrib);
 		bzero(pMmsMsg, sizeof(MmsMsg));
 	}
+}
+
+bool MmsPrintMulitpart(MsgMultipart *pMultipart, int index)
+{
+	MSG_DEBUG("------------------------------");
+	MSG_INFO("[%dth] multipart info", index);
+	MSG_INFO("header size [%d], body size [%d]", pMultipart->type.size, pMultipart->type.contentSize);
+	MSG_SEC_INFO("content type [%s]", MmsDebugGetMimeType((MimeType)pMultipart->type.type));
+	MSG_SEC_INFO("content ID [%s]", pMultipart->type.szContentID);
+	MSG_SEC_INFO("content location [%s]", pMultipart->type.szContentLocation);
+	MSG_SEC_INFO("parameter Name [%s]", pMultipart->type.param.szName);
+	MSG_SEC_INFO("parameter Filename[%s]", pMultipart->type.param.szFileName);
+
+	if (pMultipart->type.type == MIME_TEXT_PLAIN) {
+		MSG_SEC_INFO("text info : charset [%d], name [%s]", pMultipart->type.param.charset, pMultipart->type.param.szName);
+	}
+
+	if (pMultipart->type.drmInfo.drmType != MSG_DRM_TYPE_NONE) {
+		MSG_INFO("drm info");
+		MSG_INFO("drm type [%d] (0: NONE 1: Fowward Lock, 2:Combined Delivery, 3: Separated Delivery)", pMultipart->type.drmInfo.drmType);
+		MSG_SEC_INFO("drm content type [%s]", MmsDebugGetMimeType((MimeType)pMultipart->type.drmInfo.contentType));
+		MSG_SEC_INFO("drm content URI [%s]", pMultipart->type.drmInfo.szContentURI);
+		MSG_INFO("drm2FullPath [%s]", pMultipart->type.drmInfo.szDrm2FullPath);
+	}
+
+	MSG_DEBUG("------------------------------");
+	return true;
+}
+
+bool MmsIsTextType(int type)
+{
+	if (type == MIME_TEXT_PLAIN
+		|| type == MIME_TEXT_HTML
+		|| type == MIME_TEXT_VND_WAP_WML
+		|| type == MIME_TEXT_X_VNOTE
+		|| type == MIME_APPLICATION_SMIL
+		|| type == MIME_TEXT_X_IMELODY)
+	{
+		return true;
+	} else {
+		return false;
+	}
+}
+
+bool MmsIsMultipart(int type)
+{
+	if (type == MIME_MULTIPART_RELATED
+		|| type == MIME_APPLICATION_VND_WAP_MULTIPART_MIXED
+		|| type == MIME_APPLICATION_VND_WAP_MULTIPART_RELATED
+		|| type == MIME_APPLICATION_VND_WAP_MULTIPART_ASTERIC
+		|| type == MIME_MULTIPART_MIXED
+		|| type == MIME_MULTIPART_REPORT) {
+		return true;
+	} else {
+		return false;
+	}
+}
+
+bool MmsIsVitemContent(int type, char *pszName)
+{
+	switch (type) {
+	case MIME_TEXT_X_VCARD:
+	case MIME_TEXT_X_VCALENDAR:
+	case MIME_TEXT_X_VNOTE:	// vnt
+	case MIME_TEXT_X_VTODO:
+	case MIME_TEXT_PLAIN:	// vbm - It SHOULD be distinguished from a normal text file.
+	{
+		char *pszExt = NULL;
+
+		if (!pszName)
+			break;
+
+		// search file extension.
+		if ((pszExt = strrchr(pszName, '.')) == NULL)
+			break;
+
+		if (!strcasecmp(pszExt, ".vbm")) {
+			return true;
+		}
+
+		if (!strcasecmp(pszExt, ".vcs")) {
+			return true;
+		}
+
+		if (!strcasecmp(pszExt, ".vcf")) {
+			return true;
+		}
+
+		if (!strcasecmp(pszExt, ".vnt")) {
+			return true;
+		}
+
+		if (!strcasecmp(pszExt, ".vts")) {
+			return true;
+		}
+
+		break;
+	}
+	default:
+		break;
+	}
+
+	MSG_DEBUG("MmsIsVitemContent false.");
+	return false;
+}
+
+MsgMultipart *MmsAllocMultipart(void)
+{
+	MsgMultipart *pMultipart = NULL;
+
+	pMultipart = (MsgMultipart *)malloc(sizeof(MsgMultipart));
+
+	if (pMultipart == NULL)
+		goto __CATCH;
+
+	pMultipart->pBody = (MsgBody *)malloc(sizeof(MsgBody));
+
+	if (pMultipart->pBody == NULL)
+		goto __CATCH;
+
+	MmsInitMsgType(&pMultipart->type);
+	MmsInitMsgBody(pMultipart->pBody);
+
+	pMultipart->pNext = NULL;
+
+	return pMultipart;
+
+__CATCH:
+
+	if (pMultipart) {
+		if (pMultipart->pBody) {
+			free(pMultipart->pBody);
+			pMultipart->pBody = NULL;
+		}
+
+		free(pMultipart);
+		pMultipart = NULL;
+	}
+
+	return NULL;
 }

@@ -1,26 +1,25 @@
 /*
- * msg-service
- *
- * Copyright (c) 2000 - 2014 Samsung Electronics Co., Ltd. All rights reserved
+ * Copyright (c) 2014 Samsung Electronics Co., Ltd. All rights reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
 */
 
 #include <stdio.h>
 #include "MsgException.h"
 #include "MsgGconfWrapper.h"
 #include "MsgUtilFile.h"
+#include "MsgMmsMessage.h"
+#include "MsgSerialize.h"
 #include "MmsPluginDebug.h"
 #include "MmsPluginTypes.h"
 #include "MmsPluginMain.h"
@@ -79,7 +78,7 @@ msg_error_t MmsInitialize()
 	MSG_BEGIN();
 
 	// remove temp files
-	MsgMmsInitDir();
+	//MsgMmsInitDir();
 
 	MSG_END();
 
@@ -117,6 +116,10 @@ msg_error_t MmsSubmitRequest(MSG_REQUEST_INFO_S *pReqInfo)
 		MmsPluginTransport::instance()->submitRequest(pReqInfo);
 	} catch (MsgException& e) {
 		MSG_FATAL("%s", e.what());
+
+		if (e.errorCode() == MsgException::REQ_EXIST_ERROR)
+			return MSG_SUCCESS;
+
 		return MSG_ERR_PLUGIN_TRANSPORT;
 	} catch (exception& e) {
 		MSG_FATAL("%s", e.what());
@@ -143,7 +146,7 @@ msg_error_t MmsAddMessage(MSG_MESSAGE_INFO_S *pMsgInfo, MSG_SENDINGOPT_INFO_S *p
 		return MSG_ERR_PLUGIN_TRANSPORT;
 	}
 
-	//MSG_END();
+	MSG_END();
 
 	return MSG_SUCCESS;
 }
@@ -178,14 +181,14 @@ msg_error_t MmsUpdateMessage(MSG_MESSAGE_INFO_S *pMsgInfo, MSG_SENDINGOPT_INFO_S
 	msg_error_t err = MSG_SUCCESS;
 
 	try {
-		if (pMsgInfo->networkStatus == MSG_NETWORK_NOT_SEND || pMsgInfo->networkStatus == MSG_NETWORK_SENDING) {
+		if (pMsgInfo->networkStatus == MSG_NETWORK_NOT_SEND || pMsgInfo->networkStatus == MSG_NETWORK_SENDING) { //draft update
 			err = MmsPluginStorage::instance()->updateMessage(pMsgInfo, pSendOptInfo, pFileData);
 		} else {
 			//[Update Message ID & File path only in case of retrieve. Else update Message ID]
-			if (pMsgInfo->msgType.subType == MSG_RETRIEVE_AUTOCONF_MMS || pMsgInfo->msgType.subType == MSG_RETRIEVE_MANUALCONF_MMS) {
+			if (pMsgInfo->msgType.subType == MSG_RETRIEVE_AUTOCONF_MMS || pMsgInfo->msgType.subType == MSG_RETRIEVE_MANUALCONF_MMS) { //retrieve conf
 				err = MmsPluginStorage::instance()->updateConfMessage(pMsgInfo);
 			} else {
-				err = MmsPluginStorage::instance()->updateMsgServerID(pMsgInfo, pSendOptInfo);
+				err = MmsPluginStorage::instance()->updateMsgServerID(pMsgInfo, pSendOptInfo); //update send conf
 			}
 		}
 	} catch (MsgException& e) {
@@ -202,14 +205,14 @@ msg_error_t MmsUpdateMessage(MSG_MESSAGE_INFO_S *pMsgInfo, MSG_SENDINGOPT_INFO_S
 }
 
 
-msg_error_t MmsGetMmsMessage(MSG_MESSAGE_INFO_S *pMsg, MSG_SENDINGOPT_INFO_S *pSendOptInfo, MMS_MESSAGE_DATA_S *pMmsMsg, char **pDestMsg)
+msg_error_t MmsGetMmsMessage(MSG_MESSAGE_INFO_S *pMsg, MSG_SENDINGOPT_INFO_S *pSendOptInfo, char **pDestMsg)
 {
 	MSG_BEGIN();
 
 	msg_error_t	err = MSG_SUCCESS;
 
 	try {
-		err = MmsPluginStorage::instance()->plgGetMmsMessage(pMsg, pSendOptInfo, pDestMsg);
+		err = MmsPluginStorage::instance()->getMessage(pMsg, pSendOptInfo, pDestMsg);
 	} catch (MsgException& e) {
 		MSG_FATAL("%s", e.what());
 		return MSG_ERR_PLUGIN_STORAGE;
@@ -282,7 +285,7 @@ msg_error_t MmsComposeReadReport(MSG_MESSAGE_INFO_S *pMsgInfo)
 	return MSG_SUCCESS;
 }
 
-
+//FIXME::It used for kies but not now
 msg_error_t MmsRestoreMsg(MSG_MESSAGE_INFO_S *pMsgInfo, char *pRcvBody, int rcvdBodyLen, char *filePath)
 {
 	MSG_BEGIN();
@@ -306,7 +309,7 @@ msg_error_t MmsRestoreMsg(MSG_MESSAGE_INFO_S *pMsgInfo, char *pRcvBody, int rcvd
 		MSG_DEBUG(":::%d :%s ",rcvdBodyLen, pRcvBody);
 
 		if (filePath) {
-			snprintf(filePath, MAX_FULL_PATH_SIZE, "%s/BODY_%lu.DATA", MSG_DATA_PATH, random() % 1000000000 + 1);
+			snprintf(filePath, MAX_FULL_PATH_SIZE, "%sBODY_%lu.DATA", MSG_DATA_PATH, random() % 1000000000 + 1);
 		} else {
 			return MSG_ERR_NULL_POINTER;
 		}

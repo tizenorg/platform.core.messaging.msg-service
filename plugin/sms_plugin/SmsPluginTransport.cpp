@@ -1,20 +1,17 @@
 /*
- * msg-service
- *
- * Copyright (c) 2000 - 2014 Samsung Electronics Co., Ltd. All rights reserved
+ * Copyright (c) 2014 Samsung Electronics Co., Ltd. All rights reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
 */
 
 #include <errno.h>
@@ -26,12 +23,16 @@
 #include "MsgGconfWrapper.h"
 #include "MsgUtilFile.h"
 #include "MsgNotificationWrapper.h"
+#include "MsgUtilStorage.h"
+
 #include "SmsPluginParamCodec.h"
 #include "SmsPluginTpduCodec.h"
 #include "SmsPluginEventHandler.h"
 #include "SmsPluginStorage.h"
 #include "SmsPluginCallback.h"
 #include "SmsPluginTransport.h"
+#include "SmsPluginDSHandler.h"
+#include "SmsPluginSetting.h"
 
 extern "C"
 {
@@ -39,7 +40,7 @@ extern "C"
 }
 
 
-extern struct tapi_handle *pTapiHandle;
+extern bool isMemAvailable;
 
 /*==================================================================================================
                                      IMPLEMENTATION OF SmsPluginTransport - Member Functions
@@ -52,6 +53,7 @@ SmsPluginTransport::SmsPluginTransport()
 	msgRef 		= 0x00;
 	msgRef8bit 	= 0x00;
 	msgRef16bit	= 0x0000;
+	memset(&curMoCtrlData, 0x00, sizeof(curMoCtrlData));
 }
 
 
@@ -78,47 +80,54 @@ void SmsPluginTransport::submitRequest(SMS_REQUEST_INFO_S *pReqInfo)
 
 	tpdu.tpduType = SMS_TPDU_SUBMIT;
 
-	// Set SMS Send Options - Setting
-	setSmsSendOptions(&(tpdu.data.submit));
+	// Get SMS Send Options - Setting
+	getSmsSendOption(pReqInfo->msgInfo.sim_idx, &(tpdu.data.submit));
 
 	// Set SMS Send Options - Each Message
-	if (pReqInfo->sendOptInfo.bSetting == true)
-	{
-		tpdu.data.submit.bStatusReport = pReqInfo->sendOptInfo.bDeliverReq;
-		tpdu.data.submit.bReplyPath = pReqInfo->sendOptInfo.option.smsSendOptInfo.bReplyPath;
-	}
+	setSmsSendOption(pReqInfo, &tpdu);
 
-	// Set Coding Scheme for apps that use port number
-	if (pReqInfo->msgInfo.msgPort.valid == true)
-	{
-		tpdu.data.submit.dcs.codingScheme = (SMS_CODING_SCHEME_T)pReqInfo->msgInfo.encodeType;
+	// Set coding scheme
+	setSmsDcsOption(pReqInfo, &tpdu);
 
-		MSG_DEBUG("DCS is changed by application : [%d]", tpdu.data.submit.dcs.codingScheme);
-	}
-
-#ifdef MSG_SMS_REPORT
-	// Update Msg Ref into Report Table
-	if (tpdu.data.submit.bStatusReport == true)
-	{
-		MSG_DEBUG("Update Msg Ref [%d] in Report Table", tpdu.data.submit.msgRef);
-
-		SmsPluginStorage::instance()->updateMsgRef(pReqInfo->msgInfo.msgId, tpdu.data.submit.msgRef);
-	}
-#endif
+	// Set SMS report request
+	setSmsReportOption(pReqInfo, &tpdu);
 
 	// Set SMSC Options
-	SMS_ADDRESS_S smsc;
-	setSmscOptions(&smsc);
-	int i = 0;
-	int j = 0;
+	SMS_ADDRESS_S smsc = {0,};
+	setSmscOptions(pReqInfo->msgInfo.sim_idx, &smsc);
+
+	// Get TAPI handle
+	struct tapi_handle *handle = SmsPluginDSHandler::instance()->getTelHandle(pReqInfo->msgInfo.sim_idx);
+
+	// Get address informations.
+	MsgDbHandler *dbHandle = getDbHandle();
+	//contacts-service is not used for gear
+#ifndef MSG_CONTACTS_SERVICE_NOT_SUPPORTED
+	MsgStoGetAddressByMsgId(dbHandle, pReqInfo->msgInfo.msgId, 0, &pReqInfo->msgInfo.nAddressCnt, &pReqInfo->msgInfo.addressList);
+#else
+	//contactNameOrder is never used
+	MsgStoGetAddressByMsgId(dbHandle, pReqInfo->msgInfo.msgId, &pReqInfo->msgInfo.nAddressCnt, &pReqInfo->msgInfo.addressList);
+#endif //MSG_CONTACTS_SERVICE_NOT_SUPPORTED
 
 	MSG_DEBUG("pReqInfo->msgInfo.nAddressCnt [%d]", pReqInfo->msgInfo.nAddressCnt);
 
-	for (i = 0; i < pReqInfo->msgInfo.nAddressCnt; i++)
+	// Get MSISDN
+	char *msisdn = NULL;
+	char keyName[MAX_VCONFKEY_NAME_LEN];
+	memset(keyName, 0x00, sizeof(keyName));
+	snprintf(keyName, sizeof(keyName), "%s/%d", MSG_SIM_MSISDN, pReqInfo->msgInfo.sim_idx);
+	msisdn = MsgSettingGetString(keyName);
+
+	for (int i = 0; i < pReqInfo->msgInfo.nAddressCnt; i++)
 	{
 		// Make SMS_SUBMIT_DATA_S from MSG_REQUEST_INFO_S
 		SMS_SUBMIT_DATA_S submitData = {{0},};
 		msgInfoToSubmitData(&(pReqInfo->msgInfo), &submitData, &(tpdu.data.submit.dcs.codingScheme), i);
+
+		// Insert message reference into db
+		if (tpdu.data.submit.bStatusReport == true) {
+			SmsPluginStorage::instance()->insertMsgRef(&(pReqInfo->msgInfo), tpdu.data.submit.msgRef, i);
+		}
 
 		// Encode SMSC Address
 		unsigned char smscAddr[MAX_SMSC_LEN];
@@ -128,12 +137,12 @@ void SmsPluginTransport::submitRequest(SMS_REQUEST_INFO_S *pReqInfo)
 
 		if (smscLen <= 0) {
 			MSG_DEBUG("smscLen <= 0");
-			return;
+			goto _RETURN_FUNC;
 		}
 
 		char smscAddrTmp[(smscLen*2)+1];
 		memset(smscAddrTmp, 0x00, sizeof(smscAddrTmp));
-		for (j = 0; j < smscLen; j++) {
+		for (int j = 0; j < smscLen; j++) {
 			snprintf(smscAddrTmp+(j*2), sizeof(smscAddrTmp)-(j*2), "%02X", smscAddr[j]);
 		}
 		MSG_DEBUG("pSCAInfo [%s]", smscAddrTmp);
@@ -151,13 +160,17 @@ void SmsPluginTransport::submitRequest(SMS_REQUEST_INFO_S *pReqInfo)
 			memcpy(tpdu.data.submit.destAddress.address, submitData.destAddress.address, addLen);
 			tpdu.data.submit.destAddress.address[addLen] = '\0';
 		} else {
-			memcpy(tpdu.data.submit.destAddress.address, submitData.destAddress.address, MAX_ADDRESS_LEN);
+			if (submitData.destAddress.address[0] == '+')
+				memcpy(tpdu.data.submit.destAddress.address, submitData.destAddress.address, MAX_ADDRESS_LEN);
+			else
+				memcpy(tpdu.data.submit.destAddress.address, submitData.destAddress.address, MAX_ADDRESS_LEN-1);
+
 			tpdu.data.submit.destAddress.address[MAX_ADDRESS_LEN] = '\0';
 		}
 
 MSG_DEBUG("ton [%d]", tpdu.data.submit.destAddress.ton);
 MSG_DEBUG("npi [%d]", tpdu.data.submit.destAddress.npi);
-MSG_DEBUG("address [%s]", tpdu.data.submit.destAddress.address);
+MSG_SEC_DEBUG("address [%s]", tpdu.data.submit.destAddress.address);
 
 		bool bStatusReport = false;
 
@@ -179,89 +192,144 @@ MSG_DEBUG("address [%s]", tpdu.data.submit.destAddress.address);
 			memset(&(tpdu.data.submit.userData), 0x00, sizeof(SMS_USERDATA_S));
 			memcpy(&(tpdu.data.submit.userData), &(submitData.userData[segCnt]), sizeof(SMS_USERDATA_S));
 
-			// Encode SMS-SUBMIT TPDU
-			memset(buf, 0x00, sizeof(buf));
+			SMS_NETWORK_STATUS_T retStatus = SMS_NETWORK_SENDING;
 
-			bufLen = SmsPluginTpduCodec::encodeTpdu(&tpdu, buf);
+			bool bMoreMsg = false;
 
-			// Make Telephony Structure
-			TelSmsDatapackageInfo_t pkgInfo;
-
-			// Set TPDU data
-			memset((void*)pkgInfo.szData, 0x00, sizeof(pkgInfo.szData));
-			memcpy((void*)pkgInfo.szData, buf, bufLen);
-
-			pkgInfo.szData[bufLen] = 0;
-			pkgInfo.MsgLength = bufLen;
-
-			// Set SMSC data
-			memset(pkgInfo.Sca, 0x00, sizeof(pkgInfo.Sca));
-			memcpy((void*)pkgInfo.Sca, smscAddr, smscLen);
-			pkgInfo.Sca[smscLen] = '\0';
+			int retMoCtrlStatus = TAPI_SAT_CALL_CTRL_R_ALLOWED_NO_MOD;
+			bool bRetryByMoCtrl = false;
+			bool bSatMoCtrl = false;
 
 
-			char pkgInfoTmp[(pkgInfo.MsgLength*2)+1];
-			memset(pkgInfoTmp, 0x00, sizeof(pkgInfoTmp));
-			for (j = 0; j < pkgInfo.MsgLength; j++) {
-				snprintf(pkgInfoTmp+(j*2), sizeof(pkgInfoTmp)-(j*2), "%02X", pkgInfo.szData[j]);
-			}
-			MSG_DEBUG("Submit Request TPDU.");
-			MSG_DEBUG("[%s]", pkgInfoTmp);
-
-			SMS_SENT_INFO_S sentInfo;
-			memset(&sentInfo, 0x00, sizeof(SMS_SENT_INFO_S));
-
-			bool bMoreMsg = FALSE;
-
-			memcpy(&(sentInfo.reqInfo), pReqInfo, sizeof(SMS_REQUEST_INFO_S));
-
-			if ((segCnt+1) == submitData.segCount && (i+1)==pReqInfo->msgInfo.nAddressCnt)
+			for (int cnt = 0; cnt < MAX_SMS_SEND_RETRY; ++cnt)
 			{
-				sentInfo.bLast = true;
+				// Encode SMS-SUBMIT TPDU
+				memset(buf, 0x00, sizeof(buf));
+
+				if (cnt > 0)
+					tpdu.data.submit.bRejectDup = true;
+
+				bufLen = SmsPluginTpduCodec::encodeTpdu(&tpdu, buf);
+
+				// Make Telephony Structure
+				TelSmsDatapackageInfo_t pkgInfo;
+
+				// Set TPDU data
+				memset((void*)pkgInfo.szData, 0x00, sizeof(pkgInfo.szData));
+				memcpy((void*)pkgInfo.szData, buf, bufLen);
+
+				pkgInfo.szData[bufLen] = 0;
+				pkgInfo.MsgLength = bufLen;
+				pkgInfo.format = TAPI_NETTEXT_NETTYPE_3GPP;
+
+				// Set SMSC data
+				memset(pkgInfo.Sca, 0x00, sizeof(pkgInfo.Sca));
+				memcpy((void*)pkgInfo.Sca, smscAddr, smscLen);
+				pkgInfo.Sca[smscLen] = '\0';
+
+
+				char pkgInfoTmp[(pkgInfo.MsgLength*2)+1];
+				memset(pkgInfoTmp, 0x00, sizeof(pkgInfoTmp));
+				for (int j = 0; j < pkgInfo.MsgLength; j++) {
+					snprintf(pkgInfoTmp+(j*2), sizeof(pkgInfoTmp)-(j*2), "%02X", pkgInfo.szData[j]);
+				}
+				MSG_INFO("Submit Request TPDU. try cnt : %d", cnt+1);
+				MSG_INFO("[%s]", pkgInfoTmp);
+
+				SMS_SENT_INFO_S sentInfo;
+				memset(&sentInfo, 0x00, sizeof(SMS_SENT_INFO_S));
 
 				bMoreMsg = FALSE;
+
+				memcpy(&(sentInfo.reqInfo), pReqInfo, sizeof(SMS_REQUEST_INFO_S));
+
+				if ((segCnt+1) == submitData.segCount && (i+1)==pReqInfo->msgInfo.nAddressCnt)
+				{
+					sentInfo.bLast = true;
+					bMoreMsg = FALSE;
+				}
+				else
+				{
+					sentInfo.bLast = false;
+					bMoreMsg = TRUE;
+				}
+
+				SmsPluginEventHandler::instance()->SetSentInfo(&sentInfo);
+
+				curStatus = SMS_NETWORK_SENDING;
+
+				// Send SMS
+				int tapiRet = TAPI_API_SUCCESS;
+
+				tapiRet = tel_send_sms(handle, &pkgInfo, bMoreMsg, TapiEventSentStatus, (void *)&curMoCtrlData);
+
+				if (tapiRet == TAPI_API_SUCCESS)
+				{
+					MSG_DEBUG("########  tel_send_sms Success !!! return : [%d] #######", tapiRet);
+
+					memset(keyName, 0x00, sizeof(keyName));
+					snprintf(keyName, sizeof(keyName), "%s/%d", MSG_SIM_MO_CONTROL, pReqInfo->msgInfo.sim_idx);
+					if (MsgSettingGetBool(keyName, &bSatMoCtrl) != MSG_SUCCESS)
+						MSG_DEBUG("MsgSettingGetBool [%s] failed", keyName);
+
+					if (bSatMoCtrl) {
+						// Get SAT MO SM control
+						retMoCtrlStatus = getMoCtrlStatus();
+						MSG_DEBUG("retMoCtrlStatus  = [%d]", retMoCtrlStatus);
+
+						if (retMoCtrlStatus == TAPI_SAT_CALL_CTRL_R_ALLOWED_WITH_MOD) {
+
+							if (bRetryByMoCtrl == false) {
+								bRetryByMoCtrl = true;
+
+								// Modify Address with control data
+								memset(smsc.address, 0x00, sizeof(smsc.address));
+								memcpy(smsc.address, curMoCtrlData.rpDestAddr.string, sizeof(smsc.address)-1);
+
+								memset(smscAddr, 0x00, sizeof(smscAddr));
+								smscLen = SmsPluginParamCodec::encodeSMSC(&smsc, smscAddr);
+
+								MSG_SEC_DEBUG("SMSC address=[%s], Encoded length=[%d]", smsc.address, smscLen);
+
+								if (curMoCtrlData.tpDestAddr.stringLen < MAX_ADDRESS_LEN) {
+									memcpy(tpdu.data.submit.destAddress.address, curMoCtrlData.tpDestAddr.string, curMoCtrlData.tpDestAddr.stringLen);
+									tpdu.data.submit.destAddress.address[curMoCtrlData.tpDestAddr.stringLen] = '\0';
+								} else {
+									memcpy(tpdu.data.submit.destAddress.address, submitData.destAddress.address, MAX_ADDRESS_LEN);
+									tpdu.data.submit.destAddress.address[MAX_ADDRESS_LEN] = '\0';
+								}
+							} else {
+								curMoCtrlData.moSmsCtrlResult = TAPI_SAT_CALL_CTRL_R_NOT_ALLOWED;
+							}
+						}
+					}
+				}
+				else
+				{
+					SmsPluginEventHandler::instance()->handleSentStatus(MSG_NETWORK_SEND_FAIL);
+
+					if (msisdn) {
+						free(msisdn);
+						msisdn = NULL;
+					}
+					THROW(MsgException::SMS_PLG_ERROR, "########  tel_send_sms Fail !!! return : [%d] #######", tapiRet);
+				}
+
+				// Tizen Validation System
+				MSG_SMS_VLD_INFO("%d, SMS Send Start, %s->%s, %s",  pReqInfo->msgInfo.msgId, \
+																			(msisdn == NULL)?"ME":msisdn, \
+																			pReqInfo->msgInfo.addressList[0].addressVal, \
+																			(tapiRet == TAPI_API_SUCCESS)?"Success":"Fail");
+
+				MSG_SMS_VLD_TXT("%d, [%s]", pReqInfo->msgInfo.msgId, pReqInfo->msgInfo.msgText);
+
+				retStatus = getNetStatus();
+
+				if (retStatus != SMS_NETWORK_SEND_FAIL_TEMPORARY && retStatus != SMS_NETWORK_SEND_FAIL_BY_MO_CONTROL_WITH_MOD)
+					break;
 			}
-			else
-			{
-				sentInfo.bLast = false;
 
-				bMoreMsg = TRUE;
-			}
-
-			SmsPluginEventHandler::instance()->SetSentInfo(&sentInfo);
-
-			curStatus = MSG_NETWORK_SENDING;
-
-			// Send SMS
-			int tapiRet = TAPI_API_SUCCESS;
-
-			tapiRet = tel_send_sms(pTapiHandle, &pkgInfo, bMoreMsg, TapiEventSentStatus, NULL);
-
-			if (tapiRet == TAPI_API_SUCCESS)
-			{
-				MSG_DEBUG("########  tel_send_sms Success !!! return : [%d] #######", tapiRet);
-			}
-			else
-			{
-				SmsPluginEventHandler::instance()->handleSentStatus(MSG_NETWORK_SEND_FAIL);
-
-				THROW(MsgException::SMS_PLG_ERROR, "########  tel_send_sms Fail !!! return : [%d] #######", tapiRet);
-			}
-
-			// Tizen Validation System
-			char *msisdn = NULL;
-			msisdn = MsgSettingGetString(MSG_SIM_MSISDN);
-
-			MSG_SMS_VLD_INFO("%d, SMS Send Start, %s->%s, %s",  pReqInfo->msgInfo.msgId, \
-																		(msisdn == NULL)?"ME":msisdn, \
-																		pReqInfo->msgInfo.addressList[0].addressVal, \
-																		(tapiRet == TAPI_API_SUCCESS)?"Success":"Fail");
-
-			MSG_SMS_VLD_TXT("%d, [%s]", pReqInfo->msgInfo.msgId, pReqInfo->msgInfo.msgText);
-
-			msg_network_status_t retStatus = getNetStatus();
-
-	#ifdef MSG_SMS_REPORT
+#ifdef MSG_SMS_REPORT
 			if (err == MSG_SUCCESS && tmpInfo.msgInfo.msgPort.valid == false)
 			{
 				if(pReqInfo->sendOptInfo.bDeliverReq == true)
@@ -272,40 +340,62 @@ MSG_DEBUG("address [%s]", tpdu.data.submit.destAddress.address);
 					MsgStoAddDeliveryReportStatus( tmpInfo.msgInfo.msgId, (unsigned char)tmpInfo.msgInfo.referenceId);
 				}
 			}
-	#endif
+#endif
 
 			MSG_SMS_VLD_INFO("%d, SMS Send End, %s->%s, %s",  pReqInfo->msgInfo.msgId, \
 																	(msisdn == NULL)?"ME":msisdn, \
 																	pReqInfo->msgInfo.addressList[0].addressVal, \
-																	(retStatus == MSG_NETWORK_SEND_SUCCESS)?"Success":"Fail");
+																	(retStatus == SMS_NETWORK_SEND_SUCCESS)?"Success":"Fail");
 
-
-			if (retStatus == MSG_NETWORK_SEND_SUCCESS)
+			if (retStatus == SMS_NETWORK_SEND_SUCCESS)
 			{
-				if (bMoreMsg == false) {
-					MsgInsertTicker("SMS is sent", SMS_MESSAGE_SENT);
+				bool bTTS = false;
+
+				if (MsgSettingGetBool(VCONFKEY_SETAPPL_ACCESSIBILITY_TTS, &bTTS) != MSG_SUCCESS) {
+					MSG_DEBUG("MsgSettingGetBool is failed.");
 				}
-				MSG_DEBUG("########  Msg Sent was Successful !!! return : [%d] #######", retStatus);
+
+				if (bTTS) {
+					if (bMoreMsg == false) {
+						MsgInsertTicker("SMS is sent", SMS_MESSAGE_SENT, false, 0);
+					}
+					MSG_DEBUG("########  Msg Sent was Successful !!! #######");
+				}
 			}
 			else
 			{
-				//MsgInsertTicker("Sending SMS is failed", NULL);
-				MsgInsertTicker("Sending SMS is failed", SMS_MESSAGE_SENDING_FAIL);
+				if (retStatus == SMS_NETWORK_SEND_FAIL_TIMEOUT || retStatus == SMS_NETWORK_SEND_FAIL_TEMPORARY || retStatus == SMS_NETWORK_SEND_FAIL_BY_MO_CONTROL_WITH_MOD)
+					SmsPluginEventHandler::instance()->handleSentStatus(MSG_NETWORK_SEND_FAIL);
 
-				SmsPluginEventHandler::instance()->handleSentStatus(MSG_NETWORK_SEND_FAIL);
+				if (retStatus == SMS_NETWORK_SEND_FAIL_FDN_RESTRICED) {
+					MsgInsertTicker("Unable to send the message while Fixed dialling mode is enabled", SMS_FDN_RESTRICTED, true, 0);
+				} else {
+					MsgInsertTicker("Sending SMS is failed", SMS_MESSAGE_SENDING_FAIL, true, pReqInfo->msgInfo.msgId);
+				}
 
+				if (msisdn) {
+					free(msisdn);
+					msisdn = NULL;
+				}
 				THROW(MsgException::SMS_PLG_ERROR, "########  Msg Sent was Failed !!! return : [%d] #######", retStatus);
 			}
 
 			if (tpdu.data.submit.userData.headerCnt > 0) tpdu.data.submit.userData.headerCnt--;
+
 		}
 	}
 
+_RETURN_FUNC :
+	if (msisdn) {
+		free(msisdn);
+		msisdn = NULL;
+	}
 	MSG_END();
+	return;
 }
 
 
-void SmsPluginTransport::sendDeliverReport(msg_error_t err)
+void SmsPluginTransport::sendDeliverReport(struct tapi_handle *handle, msg_error_t err)
 {
 	MSG_BEGIN();
 
@@ -317,29 +407,37 @@ void SmsPluginTransport::sendDeliverReport(msg_error_t err)
 
 	int tapiRet = TAPI_API_SUCCESS;
 
+	int simIndex = SmsPluginDSHandler::instance()->getSimIndex(handle);
+
 	if (err == MSG_SUCCESS)
 	{
 		tpdu.data.deliverRep.reportType = SMS_REPORT_POSITIVE;
 		response = TAPI_NETTEXT_SENDSMS_SUCCESS;
 
-		tapiRet = tel_set_sms_memory_status(pTapiHandle, TAPI_NETTEXT_PDA_MEMORY_STATUS_AVAILABLE, TapiEventMemoryStatus, NULL);
+		if(isMemAvailable == false)
+		{
+			tapiRet = tel_set_sms_memory_status(handle, TAPI_NETTEXT_PDA_MEMORY_STATUS_AVAILABLE, TapiEventMemoryStatus, NULL);
 
-		if (tapiRet == TAPI_API_SUCCESS)
-		{
-			MSG_DEBUG("########  tel_set_sms_memory_status() Success !!! #######");
-		}
-		else
-		{
-			MSG_DEBUG("########  tel_set_sms_memory_status() Failed !!! return : [%d] #######", tapiRet);
+			if (tapiRet == TAPI_API_SUCCESS)
+			{
+				MSG_DEBUG("########  tel_set_sms_memory_status() Success !!! #######");
+			}
+			else
+			{
+				MSG_DEBUG("########  tel_set_sms_memory_status() Failed !!! return : [%d] #######", tapiRet);
+			}
 		}
 	}
 	else if (err == MSG_ERR_SIM_STORAGE_FULL)
 	{
 		tpdu.data.deliverRep.reportType = SMS_REPORT_NEGATIVE;
-		tpdu.data.deliverRep.failCause = SMS_FC_MSG_CAPA_EXCEEDED;
-		response = TAPI_NETTEXT_SIM_FULL;
+		tpdu.data.deliverRep.failCause = SMS_FC_SIM_STORAGE_FULL;
 
-		tapiRet = tel_set_sms_memory_status(pTapiHandle, TAPI_NETTEXT_PDA_MEMORY_STATUS_FULL, TapiEventMemoryStatus, NULL);
+		response = TAPI_NETTEXT_SIM_FULL;
+		MsgInsertTicker("Sim memory full. Delete some items", SMS_MESSAGE_SIM_MESSAGE_FULL, true, 0);
+
+#if 0
+		tapiRet = tel_set_sms_memory_status(handle, TAPI_NETTEXT_PDA_MEMORY_STATUS_FULL, TapiEventMemoryStatus, NULL);
 
 		if (tapiRet == TAPI_API_SUCCESS)
 		{
@@ -349,14 +447,15 @@ void SmsPluginTransport::sendDeliverReport(msg_error_t err)
 		{
 			MSG_DEBUG("########  tel_set_sms_memory_status() Failed !!! return : [%d] #######", tapiRet);
 		}
+#endif
 	}
 	else if (err == MSG_ERR_MESSAGE_COUNT_FULL)
 	{
 		tpdu.data.deliverRep.reportType = SMS_REPORT_NEGATIVE;
 		tpdu.data.deliverRep.failCause = SMS_FC_MSG_CAPA_EXCEEDED;
 		response = TAPI_NETTEXT_ME_FULL;
-
-		tapiRet = tel_set_sms_memory_status(pTapiHandle, TAPI_NETTEXT_PDA_MEMORY_STATUS_FULL, TapiEventMemoryStatus, NULL);
+		MsgInsertTicker("Not enough memory. Delete some items.", SMS_MESSAGE_MEMORY_FULL, true, 0);
+		tapiRet = tel_set_sms_memory_status(handle, TAPI_NETTEXT_PDA_MEMORY_STATUS_FULL, TapiEventMemoryStatus, NULL);
 
 		if (tapiRet == TAPI_API_SUCCESS)
 		{
@@ -410,12 +509,13 @@ void SmsPluginTransport::sendDeliverReport(msg_error_t err)
 
 	pkgInfo.szData[bufLen] = 0;
 	pkgInfo.MsgLength = bufLen;
+	pkgInfo.format = TAPI_NETTEXT_NETTYPE_3GPP;
 
 	// Set SMSC Address
 	SMS_ADDRESS_S smsc;
 
 	// Set SMSC Options
-	setSmscOptions(&smsc);
+	setSmscOptions(simIndex, &smsc);
 
 	// Encode SMSC Address
 	unsigned char smscAddr[MAX_SMSC_LEN];
@@ -431,7 +531,7 @@ void SmsPluginTransport::sendDeliverReport(msg_error_t err)
 	pkgInfo.Sca[smscLen] = '\0';
 
 	// Send Deliver Report
-	tapiRet = tel_send_sms_deliver_report(pTapiHandle, &pkgInfo, response, TapiEventDeliveryReportCNF, NULL);
+	tapiRet = tel_send_sms_deliver_report(handle, &pkgInfo, response, TapiEventDeliveryReportCNF, NULL);
 
 	if (tapiRet == TAPI_API_SUCCESS)
 	{
@@ -445,7 +545,7 @@ void SmsPluginTransport::sendDeliverReport(msg_error_t err)
 	MSG_END();
 }
 
-void SmsPluginTransport::sendClass0DeliverReport(msg_error_t err)
+void SmsPluginTransport::sendClass0DeliverReport(struct tapi_handle *handle, msg_error_t err)
 {
 	MSG_BEGIN();
 
@@ -457,12 +557,14 @@ void SmsPluginTransport::sendClass0DeliverReport(msg_error_t err)
 
 	int tapiRet = TAPI_API_SUCCESS;
 
+	int simIndex = SmsPluginDSHandler::instance()->getSimIndex(handle);
+
 	if (err == MSG_SUCCESS)
 	{
 		tpdu.data.deliverRep.reportType = SMS_REPORT_POSITIVE;
 		response = TAPI_NETTEXT_SENDSMS_SUCCESS;
 
-		tapiRet = tel_set_sms_memory_status(pTapiHandle, TAPI_NETTEXT_PDA_MEMORY_STATUS_AVAILABLE, TapiEventMemoryStatus, NULL);
+		tapiRet = tel_set_sms_memory_status(handle, TAPI_NETTEXT_PDA_MEMORY_STATUS_AVAILABLE, TapiEventMemoryStatus, NULL);
 
 		if (tapiRet == TAPI_API_SUCCESS)
 		{
@@ -478,7 +580,7 @@ void SmsPluginTransport::sendClass0DeliverReport(msg_error_t err)
 		tpdu.data.deliverRep.reportType = SMS_REPORT_POSITIVE;
 		response = TAPI_NETTEXT_SENDSMS_SUCCESS;
 
-		tapiRet = tel_set_sms_memory_status(pTapiHandle, TAPI_NETTEXT_PDA_MEMORY_STATUS_FULL, TapiEventMemoryStatus, NULL);
+		tapiRet = tel_set_sms_memory_status(handle, TAPI_NETTEXT_PDA_MEMORY_STATUS_FULL, TapiEventMemoryStatus, NULL);
 
 		if (tapiRet == TAPI_API_SUCCESS)
 		{
@@ -494,7 +596,7 @@ void SmsPluginTransport::sendClass0DeliverReport(msg_error_t err)
 		tpdu.data.deliverRep.reportType = SMS_REPORT_POSITIVE;
 		response = TAPI_NETTEXT_SENDSMS_SUCCESS;
 
-		tapiRet = tel_set_sms_memory_status(pTapiHandle, TAPI_NETTEXT_PDA_MEMORY_STATUS_FULL, TapiEventMemoryStatus, NULL);
+		tapiRet = tel_set_sms_memory_status(handle, TAPI_NETTEXT_PDA_MEMORY_STATUS_FULL, TapiEventMemoryStatus, NULL);
 
 		if (tapiRet == TAPI_API_SUCCESS)
 		{
@@ -537,12 +639,13 @@ void SmsPluginTransport::sendClass0DeliverReport(msg_error_t err)
 
 	pkgInfo.szData[bufLen] = 0;
 	pkgInfo.MsgLength = bufLen;
+	pkgInfo.format = TAPI_NETTEXT_NETTYPE_3GPP;
 
 	// Set SMSC Address
 	SMS_ADDRESS_S smsc;
 
 	// Set SMSC Options
-	setSmscOptions(&smsc);
+	setSmscOptions(simIndex, &smsc);
 
 	// Encode SMSC Address
 	unsigned char smscAddr[MAX_SMSC_LEN];
@@ -558,7 +661,7 @@ void SmsPluginTransport::sendClass0DeliverReport(msg_error_t err)
 	pkgInfo.Sca[smscLen] = '\0';
 
 	// Send Deliver Report
-	tapiRet = tel_send_sms_deliver_report(pTapiHandle, &pkgInfo, response, TapiEventDeliveryReportCNF, NULL);
+	tapiRet = tel_send_sms_deliver_report(handle, &pkgInfo, response, TapiEventDeliveryReportCNF, NULL);
 
 	if (tapiRet == TAPI_API_SUCCESS)
 	{
@@ -573,8 +676,7 @@ void SmsPluginTransport::sendClass0DeliverReport(msg_error_t err)
 }
 
 
-
-void SmsPluginTransport::setSmsSendOptions(SMS_SUBMIT_S *pSubmit)
+void SmsPluginTransport::getSmsSendOption(int simIndex, SMS_SUBMIT_S *pSubmit)
 {
 	// Set SMS Send Options
 	pSubmit->bRejectDup = false;
@@ -593,78 +695,115 @@ void SmsPluginTransport::setSmsSendOptions(SMS_SUBMIT_S *pSubmit)
 
 	MSG_DEBUG("DCS : %d", pSubmit->dcs.codingScheme);
 
-	int selectIdx = MsgSettingGetInt(SMSC_SELECTED);
+	MSG_SMSC_LIST_S smscList = {0,};
+	SmsPluginSetting::instance()->getSmscListInfo(simIndex, &smscList);
 
-	char keyName[128];
+	int selectIdx = smscList.selected;
+	int valPeriod = 0;
 
-	memset(keyName, 0x00, sizeof(keyName));
-	sprintf(keyName, "%s/%d", SMSC_PID, selectIdx);
-	MSG_SMS_PID_T pid = (MSG_SMS_PID_T)MsgSettingGetInt(keyName);
+	if (selectIdx < SMSC_LIST_MAX) {
+		MSG_SMS_PID_T pid = smscList.smscData[selectIdx].pid;
+		pSubmit->pid = convertPid(pid);
 
-	pSubmit->pid = convertPid(pid);
+		valPeriod = smscList.smscData[selectIdx].valPeriod;
+	} else {
+		MSG_WARN("Invalid case");
+		pSubmit->pid = SMS_PID_NORMAL;
+		valPeriod = 255;
+	}
+
 	MSG_DEBUG("PID : %d", pSubmit->pid);
 
-	memset(keyName, 0x00, sizeof(keyName));
-	sprintf(keyName, "%s/%d", SMSC_VAL_PERIOD, selectIdx);
-	int valPeriod = MsgSettingGetInt(keyName);
+	pSubmit->vpf = SMS_VPF_NOT_PRESENT; // default value
 
 	MSG_DEBUG("valPeriod : %d", valPeriod);
+	MSG_DEBUG("vpf : %d", pSubmit->vpf);
+}
 
-	if (valPeriod == 0)
-	{
-		pSubmit->vpf = SMS_VPF_NOT_PRESENT;
+
+void SmsPluginTransport::setSmsSendOption(SMS_REQUEST_INFO_S *pReqInfo, SMS_TPDU_S* pSmsTpdu)
+{
+	if (!pReqInfo || !pSmsTpdu) {
+		MSG_DEBUG("Input param is NULL");
+		return;
 	}
-	else
+
+	if (pReqInfo->sendOptInfo.bSetting == true)
 	{
-		pSubmit->vpf = SMS_VPF_RELATIVE;
-		pSubmit->validityPeriod.format = SMS_TIME_RELATIVE;
-		pSubmit->validityPeriod.time.relative.time = valPeriod;
+		pSmsTpdu->data.submit.bStatusReport = pReqInfo->sendOptInfo.bDeliverReq;
+		pSmsTpdu->data.submit.bReplyPath = pReqInfo->sendOptInfo.option.smsSendOptInfo.bReplyPath;
 	}
 }
 
 
-void SmsPluginTransport::setSmscOptions(SMS_ADDRESS_S *pSmsc)
+void SmsPluginTransport::setSmsDcsOption(SMS_REQUEST_INFO_S *pReqInfo, SMS_TPDU_S* pSmsTpdu)
+{
+	if (!pReqInfo || !pSmsTpdu) {
+		MSG_DEBUG("Input param is NULL");
+		return;
+	}
+
+	if (pReqInfo->msgInfo.msgPort.valid == true) {
+		// Set Coding Scheme for apps that use port number
+		pSmsTpdu->data.submit.dcs.codingScheme = (SMS_CODING_SCHEME_T)pReqInfo->msgInfo.encodeType;
+		MSG_DEBUG("DCS is changed by application : [%d]", pSmsTpdu->data.submit.dcs.codingScheme);
+	} else {
+		// Change coding scheme if it is set coding scheme by apps
+		if (pSmsTpdu->data.submit.dcs.codingScheme == SMS_CHARSET_7BIT && pReqInfo->msgInfo.encodeType != MSG_ENCODE_GSM7BIT) {
+			pSmsTpdu->data.submit.dcs.codingScheme = (SMS_CODING_SCHEME_T)pReqInfo->msgInfo.encodeType;
+			MSG_DEBUG("DCS is changed by application : [%d]", pSmsTpdu->data.submit.dcs.codingScheme);
+		}
+	}
+}
+
+
+void SmsPluginTransport::setSmsReportOption(SMS_REQUEST_INFO_S *pReqInfo, SMS_TPDU_S* pSmsTpdu)
+{
+	if (!pReqInfo || !pSmsTpdu) {
+		MSG_DEBUG("Input param is NULL");
+		return;
+	}
+
+#ifdef MSG_SMS_REPORT
+	// Update Msg Ref into Report Table
+	if (pSmsTpdu->data.submit.bStatusReport == true)
+	{
+		MSG_DEBUG("Update Msg Ref [%d] in Report Table", pSmsTpdu->data.submit.msgRef);
+
+		SmsPluginStorage::instance()->updateMsgRef(pReqInfo->msgInfo.msgId, pSmsTpdu->data.submit.msgRef);
+	}
+#endif
+
+	// Set Message Reference
+	if (pSmsTpdu->data.submit.bStatusReport == true) {
+		pSmsTpdu->data.submit.msgRef = (pReqInfo->msgInfo.msgId % 256);
+	}
+}
+
+
+void SmsPluginTransport::setSmscOptions(int simIndex, SMS_ADDRESS_S *pSmsc)
 {
 	// Set SMSC Options
-	int selectIdx = MsgSettingGetInt(SMSC_SELECTED);
+	MSG_SMSC_LIST_S smscList = {0,};
+	SmsPluginSetting::instance()->getSmscListInfo(simIndex, &smscList);
 
-	char keyName[128];
+	int selectIdx = smscList.selected;
 
-	memset(keyName, 0x00, sizeof(keyName));
-	sprintf(keyName, "%s/%d", SMSC_ADDRESS, selectIdx);
+	if (selectIdx < SMSC_LIST_MAX) {
+		if (smscList.smscData[selectIdx].smscAddr.address[0] != '\0') {
+			memset(pSmsc->address, 0x00, sizeof(pSmsc->address));
+			strncpy(pSmsc->address, smscList.smscData[selectIdx].smscAddr.address, MAX_ADDRESS_LEN);
 
-	char* tmpValue = NULL;
+			MSG_SEC_DEBUG("address : %s", pSmsc->address);
+		} else {
+			memset(pSmsc->address, 0x00, MAX_ADDRESS_LEN);
+		}
 
-	tmpValue = MsgSettingGetString(keyName);
+		pSmsc->ton = (SMS_TON_T)smscList.smscData[selectIdx].smscAddr.ton;
+		MSG_DEBUG("ton : %d", pSmsc->ton);
 
-	if (tmpValue != NULL)
-	{
-		memset(pSmsc->address, 0x00, sizeof(pSmsc->address));
-		strncpy(pSmsc->address, tmpValue, MAX_ADDRESS_LEN);
-
-		MSG_DEBUG("address : %s", pSmsc->address);
-	}
-	else
-	{
-		strncpy(pSmsc->address, "+8210911111", MAX_ADDRESS_LEN);
-	}
-
-	memset(keyName, 0x00, sizeof(keyName));
-	sprintf(keyName, "%s/%d", SMSC_TON, selectIdx);
-	pSmsc->ton = (SMS_TON_T)MsgSettingGetInt(keyName);
-
-	MSG_DEBUG("ton : %d", pSmsc->ton);
-
-	memset(keyName, 0x00, sizeof(keyName));
-	sprintf(keyName, "%s/%d", SMSC_NPI, selectIdx);
-	pSmsc->npi = (SMS_NPI_T)MsgSettingGetInt(keyName);
-
-	MSG_DEBUG("npi : %d", pSmsc->npi);
-
-	if (tmpValue != NULL)
-	{
-		free(tmpValue);
-		tmpValue = NULL;
+		pSmsc->npi = (SMS_NPI_T)smscList.smscData[selectIdx].smscAddr.npi;
+		MSG_DEBUG("npi : %d", pSmsc->npi);
 	}
 }
 
@@ -680,12 +819,14 @@ void SmsPluginTransport::msgInfoToSubmitData(const MSG_MESSAGE_INFO_S *pMsgInfo,
 
 	MSG_DEBUG("ton [%d]", pData->destAddress.ton);
 	MSG_DEBUG("npi [%d]", pData->destAddress.npi);
-	MSG_DEBUG("address [%s]", pData->destAddress.address);
+	MSG_SEC_DEBUG("address [%s]", pData->destAddress.address);
 
 	int decodeLen = 0, bufSize = (MAX_GSM_7BIT_DATA_LEN*MAX_SEGMENT_NUM) + 1; 	// SMS_CHARSET_7BIT
 
 	unsigned char decodeData[bufSize];
 	memset(decodeData, 0x00, sizeof(decodeData));
+
+	MsgTextConvert *textCvt = MsgTextConvert::instance();
 
 	msg_encode_type_t encodeType = MSG_ENCODE_GSM7BIT;
 
@@ -698,7 +839,7 @@ void SmsPluginTransport::msgInfoToSubmitData(const MSG_MESSAGE_INFO_S *pMsgInfo,
 	{
 		if (*pCharType == SMS_CHARSET_7BIT)
 		{
-			decodeLen = textCvt.convertUTF8ToGSM7bit(decodeData, bufSize, (unsigned char*)pMsgInfo->msgText, (int)pMsgInfo->dataSize, &langId, &bAbnormal);
+			decodeLen = textCvt->convertUTF8ToGSM7bit(decodeData, bufSize, (unsigned char*)pMsgInfo->msgText, (int)pMsgInfo->dataSize, &langId, &bAbnormal);
 		}
 		else if (*pCharType == SMS_CHARSET_8BIT)
 		{
@@ -707,11 +848,11 @@ void SmsPluginTransport::msgInfoToSubmitData(const MSG_MESSAGE_INFO_S *pMsgInfo,
 		}
 		else if (*pCharType == SMS_CHARSET_UCS2)
 		{
-			decodeLen = textCvt.convertUTF8ToUCS2(decodeData, bufSize, (unsigned char*)pMsgInfo->msgText, (int)pMsgInfo->dataSize);
+			decodeLen = textCvt->convertUTF8ToUCS2(decodeData, bufSize, (unsigned char*)pMsgInfo->msgText, (int)pMsgInfo->dataSize);
 		}
 		else if (*pCharType == SMS_CHARSET_AUTO)
 		{
-			decodeLen = textCvt.convertUTF8ToAuto(decodeData, bufSize, (unsigned char*)pMsgInfo->msgText, (int)pMsgInfo->dataSize, &encodeType);
+			decodeLen = textCvt->convertUTF8ToAuto(decodeData, bufSize, (unsigned char*)pMsgInfo->msgText, (int)pMsgInfo->dataSize, &langId, &encodeType);
 			*pCharType = encodeType;
 		}
 	}
@@ -730,7 +871,7 @@ void SmsPluginTransport::msgInfoToSubmitData(const MSG_MESSAGE_INFO_S *pMsgInfo,
 
 		if (*pCharType == SMS_CHARSET_7BIT)
 		{
-			decodeLen = textCvt.convertUTF8ToGSM7bit(decodeData, bufSize, (unsigned char*)pFileData, fileSize, &langId, &bAbnormal);
+			decodeLen = textCvt->convertUTF8ToGSM7bit(decodeData, bufSize, (unsigned char*)pFileData, fileSize, &langId, &bAbnormal);
 		}
 		else if (*pCharType == SMS_CHARSET_8BIT)
 		{
@@ -739,11 +880,11 @@ void SmsPluginTransport::msgInfoToSubmitData(const MSG_MESSAGE_INFO_S *pMsgInfo,
 		}
 		else if (*pCharType == SMS_CHARSET_UCS2)
 		{
-			decodeLen = textCvt.convertUTF8ToUCS2(decodeData, bufSize, (unsigned char*)pFileData, fileSize);
+			decodeLen = textCvt->convertUTF8ToUCS2(decodeData, bufSize, (unsigned char*)pFileData, fileSize);
 		}
 		else if (*pCharType == SMS_CHARSET_AUTO)
 		{
-			decodeLen = textCvt.convertUTF8ToAuto(decodeData, bufSize, (unsigned char*)pFileData, fileSize, &encodeType);
+			decodeLen = textCvt->convertUTF8ToAuto(decodeData, bufSize, (unsigned char*)pFileData, fileSize, &langId, &encodeType);
 			*pCharType = encodeType;
 		}
 
@@ -755,7 +896,7 @@ void SmsPluginTransport::msgInfoToSubmitData(const MSG_MESSAGE_INFO_S *pMsgInfo,
 MSG_DEBUG("decode length : [%d]", decodeLen);
 MSG_DEBUG("character type : [%d]", *pCharType);
 MSG_DEBUG("Language Identifier : [%d]", langId);
-MSG_DEBUG("reply address : [%s]", pMsgInfo->replyAddress);
+MSG_SEC_DEBUG("reply address : [%s]", pMsgInfo->replyAddress);
 
 	int addrLen = 0;
 
@@ -938,22 +1079,22 @@ void SmsPluginTransport::setConcatHeader(SMS_UDH_S *pSrcHeader, SMS_UDH_S *pDstH
 }
 
 
-void SmsPluginTransport::setNetStatus(msg_network_status_t netStatus)
+void SmsPluginTransport::setNetStatus(SMS_NETWORK_STATUS_T sentStatus)
 {
 	mx.lock();
-	curStatus = netStatus;
+	curStatus = sentStatus;
 	cv.signal();
 	mx.unlock();
 }
 
 
-msg_network_status_t SmsPluginTransport::getNetStatus()
+SMS_NETWORK_STATUS_T SmsPluginTransport::getNetStatus()
 {
 	mx.lock();
 
 	int ret = 0;
 
-	if (curStatus == MSG_NETWORK_SENDING)
+	if (curStatus == SMS_NETWORK_SENDING)
 		ret = cv.timedwait(mx.pMutex(), 125);
 
 	mx.unlock();
@@ -961,10 +1102,45 @@ msg_network_status_t SmsPluginTransport::getNetStatus()
 	if (ret == ETIMEDOUT)
 	{
 		MSG_DEBUG("WARNING: SENT STATUS TIME-OUT");
-		curStatus = MSG_NETWORK_SEND_TIMEOUT;
+		curStatus = SMS_NETWORK_SEND_FAIL_TIMEOUT;
 	}
 
 	return curStatus;
+}
+
+
+void SmsPluginTransport::setMoCtrlStatus(TelSatMoSmCtrlIndData_t *moCtrlData)
+{
+	mx.lock();
+
+	if (moCtrlData) {
+		memset(&curMoCtrlData, 0x00, sizeof(TelSatMoSmCtrlIndData_t));
+		memcpy(&curMoCtrlData, moCtrlData, sizeof(TelSatMoSmCtrlIndData_t));
+		MSG_DEBUG("MO Control Data is set by Tapi Event Noti");
+	}
+
+	cv.signal();
+	mx.unlock();
+}
+
+
+int SmsPluginTransport::getMoCtrlStatus()
+{
+	mx.lock();
+
+	int ret = 0;
+
+	ret = cv.timedwait(mx.pMutex(), 10);
+
+	mx.unlock();
+
+	if (ret == ETIMEDOUT)
+	{
+		MSG_DEBUG("WARNING: SENT STATUS TIME-OUT");
+		return -1;
+	}
+
+	return (curMoCtrlData.moSmsCtrlResult);
 }
 
 

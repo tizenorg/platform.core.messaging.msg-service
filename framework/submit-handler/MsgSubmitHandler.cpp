@@ -1,20 +1,17 @@
 /*
- * msg-service
- *
- * Copyright (c) 2000 - 2014 Samsung Electronics Co., Ltd. All rights reserved
+ * Copyright (c) 2014 Samsung Electronics Co., Ltd. All rights reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
 */
 
 #include <stdio.h>
@@ -30,7 +27,6 @@
 #include "MsgSubmitHandler.h"
 
 
-extern MsgDbHandler dbHandle;
 
 /*==================================================================================================
                                      FUNCTION IMPLEMENTATION
@@ -38,7 +34,6 @@ extern MsgDbHandler dbHandle;
 msg_error_t MsgSubmitReq(MSG_REQUEST_INFO_S *pReqInfo, bool bScheduled)
 {
 	msg_error_t err = MSG_SUCCESS;
-
 	static int reqId = 1;
 
 	pReqInfo->reqId = reqId;
@@ -46,11 +41,12 @@ msg_error_t MsgSubmitReq(MSG_REQUEST_INFO_S *pReqInfo, bool bScheduled)
 
 	MSG_DEBUG("==== Msg ID = [%d] ====", pReqInfo->msgInfo.msgId);
 	MSG_DEBUG("==== Folder ID = [%d] ====", pReqInfo->msgInfo.folderId);
-	MSG_DEBUG("==== Main Type = [%d] ====", pReqInfo->msgInfo.msgType.mainType);
-	MSG_DEBUG("==== Sub Type = [%d] ====", pReqInfo->msgInfo.msgType.subType);
+	MSG_INFO("==== Main Type = [%d] ====", pReqInfo->msgInfo.msgType.mainType);
+	MSG_INFO("==== Sub Type = [%d] ====", pReqInfo->msgInfo.msgType.subType);
 	MSG_DEBUG("==== Class Type = [%d] ====", pReqInfo->msgInfo.msgType.classType);
 	MSG_DEBUG("==== Message Data = [%s] ====", pReqInfo->msgInfo.msgData);
-	MSG_DEBUG("==== Message Text = [%s] ====", pReqInfo->msgInfo.msgText);
+	MSG_SEC_DEBUG("==== Message Text = [%s] ====", pReqInfo->msgInfo.msgText);
+	MSG_INFO("==== SIM Index = [%d] ====", pReqInfo->msgInfo.sim_idx);
 
 	MSG_DEBUG("==== bSetting = [%d] ====", pReqInfo->sendOptInfo.bSetting);
 
@@ -85,10 +81,8 @@ msg_error_t MsgSubmitReqSMS(MSG_REQUEST_INFO_S *pReqInfo)
 	MSG_MAIN_TYPE_T mainType = pReqInfo->msgInfo.msgType.mainType;
 	MsgPlugin* plg = MsgPluginManager::instance()->getPlugin(mainType);
 
-	if (plg == NULL) {
-		MSG_DEBUG("No Plugin for %d type", mainType);
-		return MSG_ERR_UNKNOWN;
-	}
+	if (plg == NULL)
+		THROW(MsgException::PLUGIN_ERROR, "No plugin for %d type", mainType);
 
 	// If MSG ID > 0 -> MSG in DRAFT
 	// Move Folder to OUTBOX
@@ -104,19 +98,36 @@ msg_error_t MsgSubmitReqSMS(MSG_REQUEST_INFO_S *pReqInfo)
 	return err;
 }
 
-
 msg_error_t MsgSubmitReqMMS(MSG_REQUEST_INFO_S *pReqInfo)
 {
 	msg_error_t err = MSG_SUCCESS;
-
+	MsgDbHandler *dbHandle = getDbHandle();
 	MSG_RECIPIENTS_LIST_S pRecipientList;
+
+	MsgPlugin *sms_plg = MsgPluginManager::instance()->getPlugin(MSG_SMS_TYPE);
+
+	if (sms_plg == NULL){
+		THROW(MsgException::PLUGIN_ERROR, "No plugin for %d type", MSG_SMS_TYPE);
+	}
+
+	int defaultNetworkSimId = 0;
+
+	err = sms_plg->getDefaultNetworkSimId(&defaultNetworkSimId);
+	if (err != MSG_SUCCESS) {
+		MSG_ERR("getDefaultNetworkSimId is failed=[%d]", err);
+		return err;
+	} else if (pReqInfo->msgInfo.sim_idx != defaultNetworkSimId) {
+		MSG_ERR("It is not default network SIM ID, request SIM=[%d], activated SIM=[%d]", pReqInfo->msgInfo.sim_idx, defaultNetworkSimId);
+		return MSG_ERR_INVALID_PARAMETER;
+
+	}
 
 	MSG_MAIN_TYPE_T msgMainType = pReqInfo->msgInfo.msgType.mainType;
 	MsgPlugin *plg = MsgPluginManager::instance()->getPlugin(msgMainType);
 
 	if(!plg)
 	{
-		MsgStoUpdateNetworkStatus(&dbHandle, &(pReqInfo->msgInfo), MSG_NETWORK_SEND_FAIL);
+		MsgStoUpdateNetworkStatus(dbHandle, &(pReqInfo->msgInfo), MSG_NETWORK_SEND_FAIL);
 		MSG_DEBUG("No Plugin for %d type", msgMainType);
 
 		return MSG_ERR_INVALID_PLUGIN_HANDLE;
@@ -134,9 +145,9 @@ msg_error_t MsgSubmitReqMMS(MSG_REQUEST_INFO_S *pReqInfo)
 		// copy whole of MMS PDU filepath to msgData
 		strncpy(fileName, pReqInfo->msgInfo.msgData, MAX_COMMON_INFO_SIZE);
 		memset(pReqInfo->msgInfo.msgData, 0x00, MAX_MSG_DATA_LEN+1);
-		snprintf(pReqInfo->msgInfo.msgData, MAX_MSG_DATA_LEN+1, "%s/%s", MSG_IPC_DATA_PATH, fileName);
+		snprintf(pReqInfo->msgInfo.msgData, MAX_MSG_DATA_LEN+1, "%s%s", MSG_IPC_DATA_PATH, fileName);
 
-		MSG_DEBUG("JAVA MMS PDU filepath:%s", pReqInfo->msgInfo.msgData);
+		MSG_SEC_DEBUG("JAVA MMS PDU filepath:%s", pReqInfo->msgInfo.msgData);
 
 		// submit request
 		err = plg->submitReq(pReqInfo);
@@ -144,72 +155,59 @@ msg_error_t MsgSubmitReqMMS(MSG_REQUEST_INFO_S *pReqInfo)
 		if(err != MSG_SUCCESS)
 		{
 			MSG_DEBUG("Update Network Status : [%d]", err);
-			MsgStoUpdateNetworkStatus(&dbHandle, &(pReqInfo->msgInfo),MSG_NETWORK_SEND_FAIL);
+			MsgStoUpdateNetworkStatus(dbHandle, &(pReqInfo->msgInfo),MSG_NETWORK_SEND_FAIL);
 		}
 
 		return err;
 	}
 	else if((pReqInfo->msgInfo.msgType.subType == MSG_SENDREQ_MMS) || (pReqInfo->msgInfo.msgType.subType == MSG_FORWARD_MMS))
 	{
-		// update address list in the ase of existing message
-		if(pReqInfo->msgInfo.msgId > 0)
-		{
-			err = MsgStoGetOrgAddressList(&(pReqInfo->msgInfo));
-
-			if(err != MSG_SUCCESS)
-				MSG_DEBUG("[WARNING]MsgStoGetOrgAddressList returned not a MSG_SUCCESS");
-		}
-
 		if(pReqInfo->msgInfo.msgId > 0 && (pReqInfo->msgInfo.folderId == MSG_DRAFT_ID || pReqInfo->msgInfo.folderId == MSG_OUTBOX_ID)) {
-			MSG_ADDRESS_INFO_S addrInfo = {0,};
-			int addrIdx = 0;
-
-			err = MsgStoGetAddrInfo(pReqInfo->msgInfo.msgId, &addrInfo);
-
-			if (err == MSG_SUCCESS) {
-				for (int i = 0; i < pReqInfo->msgInfo.nAddressCnt; i++) {
-					//if (pReqInfo->msgInfo.addressList[i].threadId == addrInfo.threadId) {
-					if (!strcmp(pReqInfo->msgInfo.addressList[i].addressVal, addrInfo.addressVal)) {
-						addrIdx = i;
-						MSG_DEBUG("addrIdx = %d, address = [%s]", addrIdx, pReqInfo->msgInfo.addressList[i].addressVal);
-						break;
-					}
-				}
-			} else {
-				MSG_DEBUG("[Error]MsgStoGetAddrInfo is failed");
-			}
-
+			MSG_DEBUG("Not New Message.");
 			pReqInfo->msgInfo.folderId = MSG_OUTBOX_ID;
 			err = MsgStoUpdateMessage(&(pReqInfo->msgInfo), &(pReqInfo->sendOptInfo));
-
-			MsgStoUpdateNetworkStatus(&dbHandle, &(pReqInfo->msgInfo), pReqInfo->msgInfo.networkStatus);
 		} else {
-			//new message case
-			MSG_DEBUG("New Message");
+			MSG_DEBUG("New Message.");
+			pReqInfo->msgInfo.msgId = 0;
 			pReqInfo->msgInfo.folderId = MSG_OUTBOX_ID;
 			err = MsgStoAddMessage(&(pReqInfo->msgInfo), &(pReqInfo->sendOptInfo));
-			//pReqInfo->msgInfo.msgId = 0;
 		}
 	}
 	else if(pReqInfo->msgInfo.msgType.subType == MSG_READREPLY_MMS)
 	{
+		msg_read_report_status_t readStatus;
+
 		err = MsgStoCheckReadReportStatus(pReqInfo->msgInfo.msgId);
-		if(err != MSG_SUCCESS)
+		if(err != MSG_SUCCESS) {
+
+			MSG_INFO("msg id [%d], read report could NOT send [%d]", pReqInfo->msgInfo.msgId, err);
 			return err;
+		}
+
+		memcpy(&readStatus, pReqInfo->msgInfo.msgData, sizeof(msg_read_report_status_t));
+		if (readStatus == MSG_READ_REPORT_REJECT_BY_USER) {
+
+			MSG_INFO("msg id [%d], read report reject by user", pReqInfo->msgInfo.msgId);
+
+			err = MsgStoSetReadReportSendStatus(pReqInfo->msgInfo.msgId, MMS_RECEIVE_READ_REPORT_NO_SENT);
+
+			return err;
+		}
 
 		err = MsgStoGetRecipientList(pReqInfo->msgInfo.msgId, &pRecipientList);
 		if(err != MSG_SUCCESS)
 			return MSG_ERR_PLUGIN_STORAGE;
 
 		pReqInfo->msgInfo.nAddressCnt = pRecipientList.recipientCnt;
+		pReqInfo->msgInfo.addressList = pRecipientList.recipientAddr;
 
-		for(int i = 0; i < pRecipientList.recipientCnt; i++)
-		{
-			pReqInfo->msgInfo.addressList[i].addressType = pRecipientList.recipientAddr[i].addressType;
-			pReqInfo->msgInfo.addressList[i].recipientType = MSG_RECIPIENTS_TYPE_TO;
-			pReqInfo->msgInfo.addressList[i].contactId = pRecipientList.recipientAddr[i].contactId;
-			strncpy(pReqInfo->msgInfo.addressList[i].addressVal, pRecipientList.recipientAddr[i].addressVal, MAX_ADDRESS_VAL_LEN);
-		}
+//			for(int i = 0; i < pRecipientList.recipientCnt; i++)
+//			{
+//				pReqInfo->msgInfo.addressList[i].addressType = pRecipientList.recipientAddr[i].addressType;
+//				pReqInfo->msgInfo.addressList[i].recipientType = MSG_RECIPIENTS_TYPE_TO;
+//				pReqInfo->msgInfo.addressList[i].contactId = pRecipientList.recipientAddr[i].contactId;
+//				strncpy(pReqInfo->msgInfo.addressList[i].addressVal, pRecipientList.recipientAddr[i].addressVal, MAX_ADDRESS_VAL_LEN);
+//			}
 
 		char subject[MAX_SUBJECT_LEN+1];
 
@@ -223,7 +221,7 @@ msg_error_t MsgSubmitReqMMS(MSG_REQUEST_INFO_S *pReqInfo)
 	}
 	else if(pReqInfo->msgInfo.msgType.subType == MSG_RETRIEVE_MMS)
 	{
-		MsgStoUpdateNetworkStatus(&dbHandle, &(pReqInfo->msgInfo), pReqInfo->msgInfo.networkStatus);
+		MsgStoUpdateNetworkStatus(dbHandle, &(pReqInfo->msgInfo), pReqInfo->msgInfo.networkStatus);
 	}
 
 	/* reject_msg_support */
@@ -240,7 +238,7 @@ msg_error_t MsgSubmitReqMMS(MSG_REQUEST_INFO_S *pReqInfo)
 		case MSG_FORWARD_MMS:
 			MsgDeleteFile(pReqInfo->msgInfo.msgData);
 			memset(pReqInfo->msgInfo.msgData, 0x00, MAX_MSG_DATA_LEN+1);
-			snprintf(pReqInfo->msgInfo.msgData, MAX_MSG_DATA_LEN+1, "%s/%d.mms", MSG_DATA_PATH, pReqInfo->msgInfo.msgId);
+			snprintf(pReqInfo->msgInfo.msgData, MAX_MSG_DATA_LEN+1, "%s%d.mms", MSG_DATA_PATH, pReqInfo->msgInfo.msgId);
 			break;
 
 		case MSG_READREPLY_MMS:
@@ -259,12 +257,15 @@ msg_error_t MsgSubmitReqMMS(MSG_REQUEST_INFO_S *pReqInfo)
 	/* reject_msg_support */
 
 	// Check SIM is present or not
-	MSG_SIM_STATUS_T simStatus = (MSG_SIM_STATUS_T)MsgSettingGetInt(MSG_SIM_CHANGED);
+	char keyName[MAX_VCONFKEY_NAME_LEN];
+	memset(keyName, 0x00, sizeof(keyName));
+	snprintf(keyName, sizeof(keyName), "%s/%d", MSG_SIM_CHANGED, pReqInfo->msgInfo.sim_idx);
+	MSG_SIM_STATUS_T simStatus = (MSG_SIM_STATUS_T)MsgSettingGetInt(keyName);
 
 	if(simStatus == MSG_SIM_STATUS_NOT_FOUND)
 	{
 		MSG_DEBUG("SIM is not present...");
-		MsgStoUpdateNetworkStatus(&dbHandle, &(pReqInfo->msgInfo), MSG_NETWORK_SEND_FAIL);
+		MsgStoUpdateNetworkStatus(dbHandle, &(pReqInfo->msgInfo), MSG_NETWORK_SEND_FAIL);
 
 		return MSG_ERR_NO_SIM;
 	}
@@ -278,15 +279,14 @@ msg_error_t MsgSubmitReqMMS(MSG_REQUEST_INFO_S *pReqInfo)
 	if (err != MSG_SUCCESS)
 	{
 		if(pReqInfo->msgInfo.msgType.subType == MSG_RETRIEVE_MMS )
-			MsgStoUpdateNetworkStatus(&dbHandle, &(pReqInfo->msgInfo), MSG_NETWORK_RETRIEVE_FAIL);
+			MsgStoUpdateNetworkStatus(dbHandle, &(pReqInfo->msgInfo), MSG_NETWORK_RETRIEVE_FAIL);
 		else
-			MsgStoUpdateNetworkStatus(&dbHandle, &(pReqInfo->msgInfo), MSG_NETWORK_SEND_FAIL);
+			MsgStoUpdateNetworkStatus(dbHandle, &(pReqInfo->msgInfo), MSG_NETWORK_SEND_FAIL);
 	}
 
 
 	return err;
 }
-
 
 msg_error_t MsgCancelReq(msg_request_id_t reqId)
 {

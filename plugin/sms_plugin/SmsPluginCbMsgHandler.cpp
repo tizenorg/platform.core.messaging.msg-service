@@ -1,20 +1,17 @@
 /*
- * msg-service
- *
- * Copyright (c) 2000 - 2014 Samsung Electronics Co., Ltd. All rights reserved
+ * Copyright (c) 2014 Samsung Electronics Co., Ltd. All rights reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
 */
 
 #include <time.h>
@@ -24,11 +21,12 @@
 #include "MsgException.h"
 #include "MsgGconfWrapper.h"
 #include "MsgUtilFile.h"
+#include "MsgUtilStorage.h"
 #include "SmsPluginUDCodec.h"
 #include "SmsPluginStorage.h"
 #include "SmsPluginEventHandler.h"
 #include "SmsPluginCbMsgHandler.h"
-
+#include "SmsPluginDSHandler.h"
 
 /*==================================================================================================
                                      IMPLEMENTATION OF SmsPluginCbMsgHandler - Member Functions
@@ -57,12 +55,33 @@ SmsPluginCbMsgHandler* SmsPluginCbMsgHandler::instance()
 }
 
 
-void SmsPluginCbMsgHandler::handleCbMsg(TelSmsCbMsg_t *pCbMsg)
+void SmsPluginCbMsgHandler::handleCbMsg(TapiHandle *handle, TelSmsCbMsg_t *pCbMsg)
 {
 	MSG_BEGIN();
 
-	SMS_CB_NETWORK_TYPE_T type = pCbMsg->CbMsgType;
+#if 0
+	char temp[1000]= {0x01, 0xa4, 0x1f, 0x51, 0x10, 0x11, 0x02, 0xea, 0x30, 0x30, 0xa8, 0x30, 0xea, 0x30, 0xa2, 0x30, 0xe1, 0x30, 0xfc, 0x30, 0xeb, 0x91, 0x4d, 0x4f, 0xe1, 0x30, 0xc6, 0x30, 0xb9, 0x30, 0xc8, 0x00, 0x0d, 0x00, 0x0a, 0x30, 0x53, 0x30, 0x8c, 0x30, 0x6f, 0x8a, 0x66, 0x9a, 0x13, 0x75, 0x28, 0x30, 0x6e, 0x30, 0xe1, 0x30, 0xc3, 0x30, 0xbb, 0x30, 0xfc, 0x30, 0xb8, 0x30, 0x67, 0x30, 0x59, 0x30, 0x02, 0x00, 0x0d, 0x00, 0x0a, 0xff, 0x08, 0x00, 0x32, 0x00, 0x30, 0x00, 0x31, 0x00, 0x33, 0x00, 0x2f, 0x00, 0x31, 0x00, 0x31, 0x00, 0x2f, 0x00, 0x32, 0x52, 0xea, 0x30, 0x00, 0x37, 0x00, 0x20, 0x00, 0x31, 0x00, 0x35, 0x00, 0x3a, 0x00, 0x34, 0x00, 0x34, 0xff, 0x09, 0x00, 0x0d, 0x00, 0x0a, 0xff, 0x08, 0x30, 0xa8, 0x30, 0xea, 0x30, 0xa2, 0x5e, 0x02, 0xff, 0x09, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x22};
+	TelSmsEtwsMsg_t *pCbMsg = (TelSmsEtwsMsg_t *)calloc(1, sizeof(TelSmsEtwsMsg_t));
+	pCbMsg->Length = 173;
+	pCbMsg->EtwsMsgType = (TelSmsEtwsMsgType_t)2;
+	memcpy(pCbMsg->szMsgData, temp, pCbMsg->Length);
 
+	SMS_CB_NETWORK_TYPE_T type = pCbMsg->EtwsMsgType;
+	SMS_CBMSG_PAGE_S CbMsgPage = {0};
+
+	switch (type)
+	{
+		case SMS_CB_NETWORK_TYPE_2G_GSM :
+			Decode2gCbMsg((TelSmsCbMsg_t *)pCbMsg, &CbMsgPage);
+		break;
+
+		case SMS_CB_NETWORK_TYPE_3G_UMTS :
+			Decode3gCbMsg((TelSmsCbMsg_t *)pCbMsg, &CbMsgPage);
+		break;
+
+	}
+#else
+	SMS_CB_NETWORK_TYPE_T type = pCbMsg->CbMsgType;
 	SMS_CBMSG_PAGE_S CbMsgPage = {0};
 
 	switch (type)
@@ -74,12 +93,15 @@ void SmsPluginCbMsgHandler::handleCbMsg(TelSmsCbMsg_t *pCbMsg)
 		case SMS_CB_NETWORK_TYPE_3G_UMTS :
 			Decode3gCbMsg(pCbMsg, &CbMsgPage);
 		break;
-	}
 
+	}
+#endif
 	// Check CB Msg Options
 	bool bJavaMsg = false;
 
-	if (!checkCbOpt(CbMsgPage, &bJavaMsg))
+	int simIndex = SmsPluginDSHandler::instance()->getSimIndex(handle);
+
+	if (!checkCbOpt(CbMsgPage, &bJavaMsg, simIndex))
 	{
 		MSG_DEBUG("The CB Msg is not supported by option.");
 		return;
@@ -91,6 +113,7 @@ void SmsPluginCbMsgHandler::handleCbMsg(TelSmsCbMsg_t *pCbMsg)
 		CbMsgPage.cbMsgType = SMS_CBMSG_TYPE_JAVACBS;
 	}
 
+
 	// Check CB Pages
 	unsigned char pageCnt = checkCbPage(CbMsgPage);
 
@@ -98,19 +121,25 @@ void SmsPluginCbMsgHandler::handleCbMsg(TelSmsCbMsg_t *pCbMsg)
 	{
 		MSG_DEBUG("RECEIVED LAST MSG : %d", pageCnt);
 
-		SMS_CBMSG_S cbMsg = {};
-		MSG_MESSAGE_INFO_S msgInfo = {};
+		SMS_CBMSG_S cbMsg = {0,};
+		MSG_MESSAGE_INFO_S msgInfo;
+
+		/** initialize msgInfo */
+		memset(&msgInfo, 0x00, sizeof(MSG_MESSAGE_INFO_S));
+
+		msgInfo.addressList = NULL;
+		AutoPtr<MSG_ADDRESS_INFO_S> addressListBuf(&msgInfo.addressList);
 
 		// Make CB Msg Structure
 		MakeCbMsg(CbMsgPage, &cbMsg);
 
 		// Convert to MSG_MESSAGE_INFO_S
-		convertCbMsgToMsginfo(&cbMsg, &msgInfo);
+		convertCbMsgToMsginfo(&cbMsg, &msgInfo, simIndex);
 
 		// Add CB Msg into DB
 		msg_error_t err = MSG_SUCCESS;
 
-		err = SmsPluginStorage::instance()->addMessage(&msgInfo);
+		err = SmsPluginStorage::instance()->checkMessage(&msgInfo);
 
 		if (err == MSG_SUCCESS)
 		{
@@ -126,7 +155,7 @@ void SmsPluginCbMsgHandler::handleCbMsg(TelSmsCbMsg_t *pCbMsg)
 			cbOutMsg.cbTextLen= convertTextToUtf8((unsigned char*)cbOutMsg.cbText, sizeof(cbOutMsg.cbText), &cbMsg);
 			memset(cbOutMsg.language_type, 0x00, sizeof(cbOutMsg.language_type));
 			memcpy(cbOutMsg.language_type, CbMsgPage.pageHeader.dcs.iso639Lang, 3);
-			err = SmsPluginEventHandler::instance()->callbackCBMsgIncoming(&cbOutMsg);
+			err = SmsPluginEventHandler::instance()->callbackCBMsgIncoming(&cbOutMsg, &msgInfo);
 			if (err != MSG_SUCCESS)
 			{
 				MSG_DEBUG("callbackMsgIncoming() Error !! [%d]", err);
@@ -134,32 +163,44 @@ void SmsPluginCbMsgHandler::handleCbMsg(TelSmsCbMsg_t *pCbMsg)
 		}
 		else
 		{
-			MSG_DEBUG("addMessage() Error !! [%d]", err);
+			MSG_DEBUG("checkMessage() Error !! [%d]", err);
 		}
 
+#if 0
+		// insert message-id to internal CB message table
+		SmsPluginStorage *storageHandler = SmsPluginStorage::instance();
+		err = storageHandler->insertReceivedCBMessage(CbMsgPage);
+		if (err != MSG_SUCCESS)
+		{
+			MSG_DEBUG("insertReceivedCBMessage() Error !! [%d]", err);
+		}
+#endif
 		// Remove From List
 		removeFromPageList(CbMsgPage);
+
+
 	}
 	MSG_END();
 }
 
 
-void SmsPluginCbMsgHandler::handleEtwsMsg(TelSmsEtwsMsg_t *pEtwsMsg)
+void SmsPluginCbMsgHandler::handleEtwsMsg(TapiHandle *handle, TelSmsEtwsMsg_t *pEtwsMsg)
 {
 	MSG_BEGIN();
 	msg_error_t err = MSG_SUCCESS;
-	SMS_ETWS_NETWORK_TYPE_T type = pEtwsMsg->EtwsMsgType;
+	TelSmsEtwsMsgType_t type = pEtwsMsg->EtwsMsgType;
 	//MSG_MESSAGE_INFO_S msgInfo = {};
 	SMS_ETWS_PRIMARY_S		etwsPn = {0, };
 	MSG_CB_MSG_S			cbOutMsg = {0, };
 
 	if(type != TAPI_NETTEXT_ETWS_PRIMARY)
 	{
-		MSG_DEBUG("The Etws Msg is not supported");
+		MSG_DEBUG("The Etws secondary Message");
+		handleCbMsg(handle, (TelSmsCbMsg_t *)pEtwsMsg);
 		return;
 	}
 	DecodeEtwsMsg(pEtwsMsg, &etwsPn);
-	//convertEtwsMsgToMsginfo(CbMsgPage, &msgInfo);
+	//convertEtwsMsgToMsginfo(CbMsgPage, &msgInfo, simIndex);
 
 	cbOutMsg.type = MSG_ETWS_SMS;
 	cbOutMsg.receivedTime = etwsPn.recvTime;
@@ -168,7 +209,7 @@ void SmsPluginCbMsgHandler::handleEtwsMsg(TelSmsEtwsMsg_t *pEtwsMsg)
 	cbOutMsg.etwsWarningType = etwsPn.warningType;
 	memcpy (cbOutMsg.etwsWarningSecurityInfo, etwsPn.warningSecurityInfo, sizeof(cbOutMsg.etwsWarningSecurityInfo));
 
-	err = SmsPluginEventHandler::instance()->callbackCBMsgIncoming(&cbOutMsg);
+	err = SmsPluginEventHandler::instance()->callbackCBMsgIncoming(&cbOutMsg, NULL);
 	if (err != MSG_SUCCESS)
 	{
 		MSG_DEBUG("callbackMsgIncoming() Error !! [%d]", err);
@@ -180,14 +221,21 @@ void SmsPluginCbMsgHandler::handleEtwsMsg(TelSmsEtwsMsg_t *pEtwsMsg)
 
 void SmsPluginCbMsgHandler::Decode2gCbMsg(TelSmsCbMsg_t *pCbMsg, SMS_CBMSG_PAGE_S *pCbPage)
 {
-	if (pCbMsg->Length > MAX_CBMSG_PAGE_SIZE)
-		THROW(MsgException::SMS_PLG_ERROR, "CB Msg Size is over MAX [%d]", pCbMsg->Length);
-
 	unsigned char cbData[pCbMsg->Length+1];
 
 	memset(cbData, 0x00, sizeof(cbData));
 	memcpy(cbData, pCbMsg->szMsgData, pCbMsg->Length);
 	cbData[pCbMsg->Length] = '\0';
+
+	// print cb data
+	MSG_INFO("Received CB length:%d", pCbMsg->Length);
+	char cbDataTmp[(pCbMsg->Length*2)+1];
+	memset(cbDataTmp, 0x00, sizeof(cbDataTmp));
+
+	for (int i = 0; i < pCbMsg->Length; i++) {
+		snprintf(cbDataTmp+(i*2), sizeof(cbDataTmp)-(i*2), "%02X", cbData[i]);
+	}
+	MSG_INFO("[%s]", cbDataTmp);
 
 	pCbPage->cbMsgType = SMS_CBMSG_TYPE_CBS;
 
@@ -199,14 +247,14 @@ void SmsPluginCbMsgHandler::Decode2gCbMsg(TelSmsCbMsg_t *pCbMsg, SMS_CBMSG_PAGE_
 
 	pCbPage->pageHeader.serialNum.updateNum = cbData[1] & 0x0F;
 
-MSG_DEBUG("geoScope : [%d], msgCode : [%d], updateNum : [%d]", pCbPage->pageHeader.serialNum.geoScope, pCbPage->pageHeader.serialNum.msgCode, pCbPage->pageHeader.serialNum.updateNum);
+	MSG_DEBUG("geoScope : [%d], msgCode : [%d], updateNum : [%d]", pCbPage->pageHeader.serialNum.geoScope, pCbPage->pageHeader.serialNum.msgCode, pCbPage->pageHeader.serialNum.updateNum);
 
 	pCbPage->pageHeader.msgId = (cbData[2] << 8) | cbData[3];
 
-MSG_DEBUG("MSG ID : [%d]", pCbPage->pageHeader.msgId);
+	MSG_DEBUG("MSG ID : [%d]", pCbPage->pageHeader.msgId);
 
 	// DCS
-	decodeCbMsgDCS(cbData[4], (unsigned char*)cbData[6], &(pCbPage->pageHeader.dcs));
+	decodeCbMsgDCS(cbData[4], (unsigned char*)cbData + 6, &(pCbPage->pageHeader.dcs));
 
 	// Page Parameter
 	pCbPage->pageHeader.totalPages = cbData[5] & 0x0F;
@@ -215,18 +263,20 @@ MSG_DEBUG("MSG ID : [%d]", pCbPage->pageHeader.msgId);
 	if (pCbPage->pageHeader.totalPages > MAX_CBMSG_PAGE_NUM)
 		THROW(MsgException::SMS_PLG_ERROR, "CB Page Count is over MAX[%d]", pCbPage->pageHeader.totalPages);
 
-MSG_DEBUG("Total Page : [%d], Page : [%d]", pCbPage->pageHeader.totalPages, pCbPage->pageHeader.page);
+	MSG_DEBUG("Total Page : [%d], Page : [%d]", pCbPage->pageHeader.totalPages, pCbPage->pageHeader.page);
 
 	// Convert Language Type
 	convertLangType(pCbPage->pageHeader.dcs.langType, &(pCbPage->pageHeader.langType));
 
-MSG_DEBUG("In Language Type : [%d], Out Language Type : [%d]", pCbPage->pageHeader.dcs.langType, pCbPage->pageHeader.langType);
-MSG_DEBUG("iso639Lang : [%s]", pCbPage->pageHeader.dcs.iso639Lang);
+	MSG_DEBUG("In Language Type : [%d], Out Language Type : [%d]", pCbPage->pageHeader.dcs.langType, pCbPage->pageHeader.langType);
+	MSG_DEBUG("iso639Lang : [%s]", pCbPage->pageHeader.dcs.iso639Lang);
 	// Get Receive Time
 	pCbPage->pageHeader.recvTime = getRecvTime();
 
 	// Decode CB Data
 	int dataLen = pCbMsg->Length - 6;
+
+	MSG_DEBUG("codingScheme:[%d]", pCbPage->pageHeader.dcs.codingScheme);
 
 	switch (pCbPage->pageHeader.dcs.codingScheme)
 	{
@@ -243,7 +293,10 @@ MSG_DEBUG("iso639Lang : [%s]", pCbPage->pageHeader.dcs.iso639Lang);
 			if(pCbPage->pageHeader.dcs.iso639Lang[0])
 			{
 				unpackLen = unpackLen - 3;
-				memcpy(pCbPage->pageData, &pageData[3], unpackLen);
+				if (unpackLen > 0)
+					memcpy(pCbPage->pageData, &pageData[3], unpackLen);
+				else
+					unpackLen = 0;
 			} else {
 				memcpy(pCbPage->pageData, &pageData, unpackLen);
 			}
@@ -258,7 +311,7 @@ MSG_DEBUG("iso639Lang : [%s]", pCbPage->pageHeader.dcs.iso639Lang);
 		case SMS_CHARSET_8BIT :
 		case SMS_CHARSET_UCS2 :
 		{
-			MSG_DEBUG("UCS2");
+			MSG_DEBUG("UCS2 or 8BIT");
 
 			if(pCbPage->pageHeader.dcs.iso639Lang[0])
 			{
@@ -272,7 +325,7 @@ MSG_DEBUG("iso639Lang : [%s]", pCbPage->pageHeader.dcs.iso639Lang);
 		break;
 	}
 
-MSG_DEBUG("Page Length : [%d], Page Data : [%s]", pCbPage->pageLength, pCbPage->pageData);
+	MSG_DEBUG("Page Length : [%d], Page Data : [%s]", pCbPage->pageLength, pCbPage->pageData);
 }
 
 
@@ -289,6 +342,16 @@ void SmsPluginCbMsgHandler::DecodeEtwsMsg(TelSmsEtwsMsg_t *pEtwsMsg, SMS_ETWS_PR
 	memset(EtwsData, 0x00, sizeof(EtwsData));
 	memcpy(EtwsData, pEtwsMsg->szMsgData, pEtwsMsg->Length);
 	EtwsData[pEtwsMsg->Length] = '\0';
+
+	// print received msg data
+	MSG_INFO("Received Etws length:%d", pEtwsMsg->Length);
+	char EtwsDataTmp[(pEtwsMsg->Length*2)+1];
+	memset(EtwsDataTmp, 0x00, sizeof(EtwsDataTmp));
+
+	for (int i = 0; i < pEtwsMsg->Length; i++) {
+		snprintf(EtwsDataTmp+(i*2), sizeof(EtwsDataTmp)-(i*2), "%02X", EtwsData[i]);
+	}
+	MSG_INFO("[%s]", EtwsDataTmp);
 
 	// received time
 	pEtwsPn->recvTime = getRecvTime();
@@ -319,20 +382,27 @@ void SmsPluginCbMsgHandler::DecodeEtwsMsg(TelSmsEtwsMsg_t *pEtwsMsg, SMS_ETWS_PR
 
 void SmsPluginCbMsgHandler::Decode3gCbMsg(TelSmsCbMsg_t *pCbMsg, SMS_CBMSG_PAGE_S *pCbPage)
 {
-	if (pCbMsg->Length > (MAX_CBMSG_PAGE_SIZE*MAX_CBMSG_PAGE_NUM))
-		THROW(MsgException::SMS_PLG_ERROR, "CB Msg Size is over MAX [%d]", pCbMsg->Length);
-
-	char cbData[(MAX_CBMSG_PAGE_SIZE*MAX_CBMSG_PAGE_NUM)+1];
+	unsigned char cbData[(MAX_CBMSG_PAGE_SIZE*MAX_CBMSG_PAGE_NUM)+1];
 
 	memset(cbData, 0x00, sizeof(cbData));
-	memcpy(cbData, pCbMsg->szMsgData, sizeof(pCbMsg->szMsgData));
+	memcpy(cbData, pCbMsg->szMsgData, pCbMsg->Length);
 	cbData[pCbMsg->Length] = '\0';
+
+	// print cb data
+	MSG_INFO("Received CB length:%d", pCbMsg->Length);
+	char cbDataTmp[(pCbMsg->Length*2)+1];
+	memset(cbDataTmp, 0x00, sizeof(cbDataTmp));
+
+	for (int i = 0; i < pCbMsg->Length; i++) {
+		snprintf(cbDataTmp+(i*2), sizeof(cbDataTmp)-(i*2), "%02X", cbData[i]);
+	}
+	MSG_INFO("[%s]", cbDataTmp);
 
 	pCbPage->cbMsgType = (SMS_CBMSG_TYPE_T)cbData[0];
 
 	pCbPage->pageHeader.msgId = (cbData[1] << 8) | cbData[2];
 
-MSG_DEBUG("MSG ID : [%d]", pCbPage->pageHeader.msgId);
+	MSG_DEBUG("MSG ID : [%d]", pCbPage->pageHeader.msgId);
 
 	// Serial Number
 	pCbPage->pageHeader.serialNum.geoScope = (cbData[3] & 0xC0) >> 6;
@@ -342,53 +412,96 @@ MSG_DEBUG("MSG ID : [%d]", pCbPage->pageHeader.msgId);
 
 	pCbPage->pageHeader.serialNum.updateNum = cbData[4] & 0x0F;
 
-MSG_DEBUG("geoScope : [%d], msgCode : [%d], updateNum : [%d]", pCbPage->pageHeader.serialNum.geoScope, pCbPage->pageHeader.serialNum.msgCode, pCbPage->pageHeader.serialNum.updateNum);
+	MSG_DEBUG("geoScope : [%d], msgCode : [%d], updateNum : [%d]", pCbPage->pageHeader.serialNum.geoScope, pCbPage->pageHeader.serialNum.msgCode, pCbPage->pageHeader.serialNum.updateNum);
 
 	// DCS
-	decodeCbMsgDCS(cbData[5], (unsigned char*)cbData[6], &(pCbPage->pageHeader.dcs));
+	decodeCbMsgDCS(cbData[5], (unsigned char*)cbData + 6, &(pCbPage->pageHeader.dcs));
 
 	// Convert Language Type
 	convertLangType(pCbPage->pageHeader.dcs.langType, &(pCbPage->pageHeader.langType));
 
-MSG_DEBUG("In Language Type : [%d], Out Language Type : [%d]", pCbPage->pageHeader.dcs.langType, pCbPage->pageHeader.langType);
+	MSG_DEBUG("In Language Type : [%d], Out Language Type : [%d]", pCbPage->pageHeader.dcs.langType, pCbPage->pageHeader.langType);
 
 	// Get Receive Time
 	pCbPage->pageHeader.recvTime = getRecvTime();
+	pCbPage->pageHeader.totalPages = cbData[6];
 
-#if 0
 	// Decode CB Data
-	int dataLen = pCbMsg->Length - 6;
+	int dataLen = 0;
+	int offset = 0;
 
 	switch (pCbPage->pageHeader.dcs.codingScheme)
 	{
 		case SMS_CHARSET_7BIT :
 		{
-			dataLen = (dataLen*8) / 7;
+			for(int i = 0; i < pCbPage->pageHeader.totalPages; ++i)
+			{
+				char cbMessage[MAX_CBMSG_PAGE_SIZE]= {0,};
+				dataLen = cbData[7+(i+1)*82 + i];
+				memcpy(cbMessage, &cbData[7+(i*82)+ i], dataLen);
 
-			if (pCbPage->pageLength > MAX_CBMSG_PAGE_SIZE)
-				THROW(MsgException::SMS_PLG_ERROR, "CB Msg Size is over MAX [%d]", pCbPage->pageLength);
+				dataLen = (dataLen*8) / 7;
 
-			SmsPluginUDCodec udCodec;
-			int unpackLen = udCodec.unpack7bitChar(&cbData[6], dataLen, 0, pCbPage->pageData);
-			pCbPage->pageData[unpackLen] = '\0';
+				if (dataLen > MAX_CBMSG_PAGE_SIZE)
+					THROW(MsgException::SMS_PLG_ERROR, "CB Msg Size is over MAX [%d]", dataLen);
 
-			pCbPage->pageLength = unpackLen;
+				SmsPluginUDCodec udCodec;
+				int unpackLen = udCodec.unpack7bitChar((const unsigned char *)cbMessage, dataLen, 0, pCbPage->pageData + offset);
+				offset += unpackLen;
+			}
+			pCbPage->pageLength = offset;
 		}
 		break;
 
 		case SMS_CHARSET_8BIT :
 		case SMS_CHARSET_UCS2 :
 		{
-			pCbPage->pageLength = dataLen;
+#if 0
+			char cbMessage[MAX_CBMSG_PAGE_SIZE]= {0,};
 
-			memcpy(pCbPage->pageData, &cbData[6], pCbPage->pageLength);
-			pCbPage->pageData[pCbPage->pageLength] = '\0';
+			for(int i = 0; i < pCbPage->pageHeader.totalPages; ++i)
+			{
+				dataLen = cbData[7+(i+1)*82 + i];
+				memcpy(cbMessage + offset, &cbData[7+(i*82)+ i], dataLen);
+				offset += dataLen;
+			}
+			dataLen = offset;
+
+			if(pCbPage->pageHeader.dcs.iso639Lang[0])
+			{
+				int tmpDataLen = (dataLen > 2)?(dataLen - 2):0;
+				memcpy(pCbPage->pageData, cbMessage + 2, tmpDataLen);
+				pCbPage->pageLength = tmpDataLen;
+			} else {
+				memcpy(pCbPage->pageData, cbMessage, dataLen);
+				pCbPage->pageLength = dataLen;
+			}
+#else
+			char cbMessage[MAX_CBMSG_PAGE_SIZE]= {0,};
+
+			for(int i = 0; i < pCbPage->pageHeader.totalPages; ++i)
+			{
+				if(pCbPage->pageHeader.dcs.iso639Lang[0])
+				{
+					dataLen = cbData[7+(i+1)*82 + i] - 2;
+					memcpy(cbMessage + offset, &cbData[7+(i*82)+ i + 2], dataLen);
+					offset += dataLen;
+				} else {
+					dataLen = cbData[7+(i+1)*82 + i];
+					memcpy(cbMessage + offset, &cbData[7+(i*82)+ i], dataLen);
+					offset += dataLen;
+				}
+			}
+			dataLen = offset;
+			memcpy(pCbPage->pageData, cbMessage, dataLen);
+			pCbPage->pageLength = dataLen;
+#endif
 		}
 		break;
 	}
+	pCbPage->pageHeader.totalPages = 1;
 
-MSG_DEBUG("Page Length : [%d], Page Data : [%s]", pCbPage->pageLength, pCbPage->pageData);
-#endif
+	MSG_DEBUG("Page Length : [%d], Page Data : [%s]", pCbPage->pageLength, pCbPage->pageData);
 }
 
 unsigned short SmsPluginCbMsgHandler::encodeCbSerialNum ( SMS_CBMSG_SERIAL_NUM_S snFields )
@@ -401,10 +514,64 @@ unsigned short SmsPluginCbMsgHandler::encodeCbSerialNum ( SMS_CBMSG_SERIAL_NUM_S
 	return serialNum;
 }
 
-bool SmsPluginCbMsgHandler::checkCbOpt(SMS_CBMSG_PAGE_S CbPage, bool *pJavaMsg)
+int SmsPluginCbMsgHandler::CMAS_class(unsigned short message_id)
+{
+	int ret = 0;
+
+	switch (message_id)
+	{
+		case 4370 :
+		case 4383 :
+			ret = MSG_CMAS_PRESIDENTIAL;
+			break;
+		case 4371 :
+		case 4372 :
+		case 4384 :
+		case 4385 :
+			ret = MSG_CMAS_EXTREME;
+			break;
+		case 4373 :
+		case 4374 :
+		case 4375 :
+		case 4376 :
+		case 4377 :
+		case 4378 :
+		case 4386 :
+		case 4387 :
+		case 4388 :
+		case 4389 :
+		case 4390 :
+		case 4391 :
+			ret = MSG_CMAS_SEVERE;
+			break;
+		case 4379 :
+		case 4392 :
+			ret = MSG_CMAS_AMBER;
+			break;
+		case 4380 :
+		case 4381 :
+		case 4393 :
+		case 4394 :
+			ret = MSG_CMAS_TEST;
+			break;
+		case 4382 :
+		case 4395 :
+			ret = MSG_CMAS_OPERATOR_DEFINED;
+			break;
+		default :
+			break;
+	}
+
+	return ret;
+}
+
+bool SmsPluginCbMsgHandler::checkCbOpt(SMS_CBMSG_PAGE_S CbPage, bool *pJavaMsg, msg_sim_slot_id_t simIndex)
 {
 	bool bReceive = false;
-	MsgSettingGetBool(CB_RECEIVE, &bReceive);
+	char keyName[MAX_VCONFKEY_NAME_LEN];
+	memset(keyName, 0x00, sizeof(keyName));
+	snprintf(keyName, sizeof(keyName), "%s/%d", CB_RECEIVE, simIndex);
+	MsgSettingGetBool(keyName, &bReceive);
 
 	// Receive CB Msg = FALSE
 	if (!bReceive)
@@ -413,11 +580,11 @@ bool SmsPluginCbMsgHandler::checkCbOpt(SMS_CBMSG_PAGE_S CbPage, bool *pJavaMsg)
 		return false;
 	}
 
-	char keyName[128];
-
+#if 0
+	char keyname[128];
 	// check Language
 	memset(keyName, 0x00, sizeof(keyName));
-	sprintf(keyName, "%s/%d", CB_LANGUAGE, MSG_CBLANG_TYPE_ALL);
+	snprintf(keyName, sizeof(keyname), "%s/%d", CB_LANGUAGE, MSG_CBLANG_TYPE_ALL);
 
 	bool bAllLang = false;
 	MsgSettingGetBool(keyName, &bAllLang);
@@ -427,7 +594,7 @@ bool SmsPluginCbMsgHandler::checkCbOpt(SMS_CBMSG_PAGE_S CbPage, bool *pJavaMsg)
 		MSG_DEBUG("ALL LANGUAGE = FALSE");
 
 		memset(keyName, 0x00, sizeof(keyName));
-		sprintf(keyName, "%s/%d", CB_LANGUAGE, CbPage.pageHeader.langType);
+		snprintf(keyName, sizeof(keyname), "%s/%d", CB_LANGUAGE, CbPage.pageHeader.langType);
 
 		bool bLang = false;
 
@@ -439,28 +606,23 @@ bool SmsPluginCbMsgHandler::checkCbOpt(SMS_CBMSG_PAGE_S CbPage, bool *pJavaMsg)
 			return false;
 		}
 	}
-
-	int MsgIdCnt = MsgSettingGetInt(CB_CHANNEL_COUNT);
+#endif
 
 	bool bActivate = false;
 	int MsgId_from = 0, MsgId_to = 0;
+	MSG_CB_CHANNEL_S cbChannelInfo = {0,};
+	msg_error_t err = MSG_SUCCESS;
+	MsgDbHandler *dbHandle = getDbHandle();
 
-	for (int i = 0; i < MsgIdCnt; i++)
+	err = MsgStoGetCBChannelInfo(dbHandle, &cbChannelInfo, simIndex);
+	if (err != MSG_SUCCESS)
+		MSG_ERR("Error value of MsgStoGetCBChannelInfo [%d]", err);
+
+	for (int i = 0; i < cbChannelInfo.channelCnt; i++)
 	{
-		memset(keyName, 0x00, sizeof(keyName));
-		sprintf(keyName, "%s/%d", CB_CHANNEL_ACTIVATE, i);
-
-		MsgSettingGetBool(keyName, &bActivate);
-
-		memset(keyName, 0x00, sizeof(keyName));
-		sprintf(keyName, "%s/%d", CB_CHANNEL_ID_FROM, i);
-
-		MsgId_from = MsgSettingGetInt(keyName);
-
-		memset(keyName, 0x00, sizeof(keyName));
-		sprintf(keyName, "%s/%d", CB_CHANNEL_ID_TO, i);
-
-		MsgId_to = MsgSettingGetInt(keyName);
+		bActivate = cbChannelInfo.channelInfo[i].bActivate;
+		MsgId_from = cbChannelInfo.channelInfo[i].from;
+		MsgId_to = cbChannelInfo.channelInfo[i].to;
 
 		if (bActivate == true && CbPage.pageHeader.msgId >= MsgId_from && CbPage.pageHeader.msgId <= MsgId_to)
 		{
@@ -472,14 +634,26 @@ bool SmsPluginCbMsgHandler::checkCbOpt(SMS_CBMSG_PAGE_S CbPage, bool *pJavaMsg)
 	return false;
 }
 
-
 unsigned char SmsPluginCbMsgHandler::checkCbPage(SMS_CBMSG_PAGE_S CbPage)
 {
 	unsigned char currPageCnt = 0;
 
 	bool bFind = false;
 
-	if (CbPage.pageHeader.totalPages > 1)
+#if 0
+	msg_error_t err = MSG_SUCCESS;
+
+	SmsPluginStorage *storageHandler = SmsPluginStorage::instance();
+	err = storageHandler->isReceivedCBMessage(CbPage);
+	// check existing message with cb internal table;
+	if(err != MSG_ERR_DB_NORECORD)
+	{
+		MSG_DEBUG("already received message: [%d]", CbPage.pageHeader.msgId);
+		return 0;
+	}
+#endif
+
+	if (CbPage.pageHeader.totalPages > 0)
 	{
 		for (unsigned int i = 0; i < pageList.size(); i++)
 		{
@@ -503,11 +677,11 @@ unsigned char SmsPluginCbMsgHandler::checkCbPage(SMS_CBMSG_PAGE_S CbPage)
 							return 0;
 						}
 
-						pair<unsigned char, string> newData(CbPage.pageHeader.page, CbPage.pageData);
+						pair<unsigned char, SMS_CBMSG_PAGE_S> newData(CbPage.pageHeader.page, CbPage);
 						pageList[i].data.insert(newData);
 
 						MSG_DEBUG("PAGE DATA : %s", CbPage.pageData);
-						MSG_DEBUG("PAIR DATA [%d] : %s", newData.first, newData.second.c_str());
+						MSG_DEBUG("PAIR DATA [%d] : %s", newData.first, newData.second.pageData);
 
 						pageList[i].pageCnt++;
 						pageList[i].totalSize += CbPage.pageLength;
@@ -529,7 +703,7 @@ unsigned char SmsPluginCbMsgHandler::checkCbPage(SMS_CBMSG_PAGE_S CbPage)
 
 	if (bFind == false || CbPage.pageHeader.totalPages == 1)
 	{
-		addToPageLiat(CbPage);
+		addToPageList(CbPage);
 		return 1;
 	}
 
@@ -546,7 +720,7 @@ void SmsPluginCbMsgHandler::MakeCbMsg(SMS_CBMSG_PAGE_S CbPage, SMS_CBMSG_S *pCbM
 	pCbMsg->recvTime = CbPage.pageHeader.recvTime;
 
 	cbPageMap::iterator it;
-	string tmpStr ("");
+	int offset = 0;
 
 	for (unsigned int i = 0; i < pageList.size(); i++)
 	{
@@ -556,24 +730,29 @@ void SmsPluginCbMsgHandler::MakeCbMsg(SMS_CBMSG_PAGE_S CbPage, SMS_CBMSG_S *pCbM
 
 			if (pageList[i].msgId == CbPage.pageHeader.msgId)
 			{
+
 				for (it = pageList[i].data.begin(); it != pageList[i].data.end(); it++)
 				{
-					tmpStr += it->second;
+					memcpy(pCbMsg->msgData + offset, it->second.pageData, it->second.pageLength);
+					pCbMsg->msgLength += it->second.pageLength;
+					offset = pCbMsg->msgLength;
 				}
 			}
 		}
 	}
 
+#if 0
 	pCbMsg->msgLength = tmpStr.size();
 
 	memcpy(pCbMsg->msgData, tmpStr.c_str(), tmpStr.size());
 	pCbMsg->msgData[tmpStr.size()] = '\0';
 
 	MSG_DEBUG("SIZE : [%d] TOTAL MSG : %s", tmpStr.size(), tmpStr.c_str());
+#endif
 }
 
 
-void SmsPluginCbMsgHandler::convertCbMsgToMsginfo(SMS_CBMSG_S *pCbMsg, MSG_MESSAGE_INFO_S *pMsgInfo)
+void SmsPluginCbMsgHandler::convertCbMsgToMsginfo(SMS_CBMSG_S *pCbMsg, MSG_MESSAGE_INFO_S *pMsgInfo, msg_sim_slot_id_t simIndex)
 {
 	pMsgInfo->msgId = (msg_message_id_t)pCbMsg->msgId;
 
@@ -582,10 +761,17 @@ void SmsPluginCbMsgHandler::convertCbMsgToMsginfo(SMS_CBMSG_S *pCbMsg, MSG_MESSA
 	// Convert Type values
 	pMsgInfo->msgType.mainType = MSG_SMS_TYPE;
 
-	if (pCbMsg->cbMsgType == SMS_CBMSG_TYPE_CBS)
-		pMsgInfo->msgType.subType = MSG_CB_SMS;
-	else if (pCbMsg->cbMsgType == SMS_CBMSG_TYPE_JAVACBS)
+	if (pCbMsg->cbMsgType == SMS_CBMSG_TYPE_CBS) {
+		int cmas_class = CMAS_class(pCbMsg->msgId);
+
+		if (cmas_class == 0)
+			pMsgInfo->msgType.subType = MSG_CB_SMS;
+		else
+			pMsgInfo->msgType.subType = (MSG_SUB_TYPE_T)cmas_class;
+	}
+	else if (pCbMsg->cbMsgType == SMS_CBMSG_TYPE_JAVACBS) {
 		pMsgInfo->msgType.subType = MSG_JAVACB_SMS;
+	}
 
 	switch(pCbMsg->classType)
 	{
@@ -616,11 +802,17 @@ void SmsPluginCbMsgHandler::convertCbMsgToMsginfo(SMS_CBMSG_S *pCbMsg, MSG_MESSA
 	// Temporary
 	pMsgInfo->nAddressCnt = 1;
 
+	pMsgInfo->addressList =  (MSG_ADDRESS_INFO_S *)new char[sizeof(MSG_ADDRESS_INFO_S)];
+	memset(pMsgInfo->addressList, 0x00, sizeof(MSG_ADDRESS_INFO_S));
+
 	pMsgInfo->addressList[0].addressType = MSG_ADDRESS_TYPE_UNKNOWN;
 	pMsgInfo->addressList[0].recipientType = MSG_RECIPIENTS_TYPE_UNKNOWN;
+	pMsgInfo->sim_idx = simIndex;
 
-	getDisplayName(pCbMsg->msgId, pMsgInfo->addressList[0].addressVal);
-	MSG_DEBUG("%s", pMsgInfo->addressList[0].addressVal);
+	//	TODO :: MSG ID should be used to get CB message type
+	getDisplayName(pCbMsg->msgId, pMsgInfo->addressList[0].addressVal, simIndex);
+	MSG_SEC_DEBUG("%s", pMsgInfo->addressList[0].addressVal);
+
 
 	pMsgInfo->msgPort.valid = false;
 	pMsgInfo->msgPort.dstPort = 0;
@@ -633,6 +825,18 @@ void SmsPluginCbMsgHandler::convertCbMsgToMsginfo(SMS_CBMSG_S *pCbMsg, MSG_MESSA
 
 	char tmpBuf[bufSize];
 	memset(tmpBuf, 0x00, sizeof(tmpBuf));
+
+	while (pCbMsg->msgLength > 0) {
+		if (pCbMsg->msgData[pCbMsg->msgLength-1] == ' ' ||
+				pCbMsg->msgData[pCbMsg->msgLength-1] == '\r' ||
+				pCbMsg->msgData[pCbMsg->msgLength-1] == '\n') {
+			pCbMsg->msgLength--;
+		}
+		else {
+			break;
+		}
+	}
+	pCbMsg->msgData[pCbMsg->msgLength] = '\0';
 
 	MSG_DEBUG("LENGTH %d CB MSG %s", pCbMsg->msgLength, pCbMsg->msgData);
 
@@ -650,7 +854,7 @@ void SmsPluginCbMsgHandler::convertCbMsgToMsginfo(SMS_CBMSG_S *pCbMsg, MSG_MESSA
 		if (MsgCreateFileName(fileName) == false)
 			THROW(MsgException::FILE_ERROR, "MsgCreateFileName error");
 
-		MSG_DEBUG("Save Message Data into file : size[%d] name[%s]\n", pMsgInfo->dataSize, fileName);
+		MSG_SEC_DEBUG("Save Message Data into file : size[%d] name[%s]\n", pMsgInfo->dataSize, fileName);
 		if (MsgWriteIpcFile(fileName, tmpBuf, pMsgInfo->dataSize) == false)
 			THROW(MsgException::FILE_ERROR, "MsgWriteIpcFile error");
 
@@ -662,11 +866,13 @@ void SmsPluginCbMsgHandler::convertCbMsgToMsginfo(SMS_CBMSG_S *pCbMsg, MSG_MESSA
 
 		memset(pMsgInfo->msgText, 0x00, sizeof(pMsgInfo->msgText));
 		memcpy(pMsgInfo->msgText, tmpBuf, pMsgInfo->dataSize);
+		pMsgInfo->dataSize = strlen(pMsgInfo->msgText);
+		MSG_SEC_DEBUG("CB MSG %s", pMsgInfo->msgText);
 	}
 }
 
 
-void SmsPluginCbMsgHandler::convertEtwsMsgToMsginfo(SMS_CBMSG_PAGE_S EtwsMsg, MSG_MESSAGE_INFO_S *pMsgInfo)
+void SmsPluginCbMsgHandler::convertEtwsMsgToMsginfo(SMS_CBMSG_PAGE_S EtwsMsg, MSG_MESSAGE_INFO_S *pMsgInfo, msg_sim_slot_id_t simIndex)
 {
 	pMsgInfo->msgId = (msg_message_id_t)EtwsMsg.pageHeader.msgId;
 
@@ -691,8 +897,8 @@ void SmsPluginCbMsgHandler::convertEtwsMsgToMsginfo(SMS_CBMSG_PAGE_S EtwsMsg, MS
 	pMsgInfo->addressList[0].addressType = MSG_ADDRESS_TYPE_UNKNOWN;
 	pMsgInfo->addressList[0].recipientType = MSG_RECIPIENTS_TYPE_UNKNOWN;
 
-	getDisplayName(EtwsMsg.pageHeader.msgId, pMsgInfo->addressList[0].addressVal);
-	MSG_DEBUG("%s", pMsgInfo->addressList[0].addressVal);
+	getDisplayName(EtwsMsg.pageHeader.msgId, pMsgInfo->addressList[0].addressVal, simIndex);
+	MSG_SEC_DEBUG("%s", pMsgInfo->addressList[0].addressVal);
 
 	pMsgInfo->msgPort.valid = false;
 	pMsgInfo->msgPort.dstPort = 0;
@@ -712,6 +918,8 @@ int SmsPluginCbMsgHandler::convertTextToUtf8 (unsigned char* outBuf, int outBufS
 	int	convertedTextSize = 0;
 	MSG_LANG_INFO_S langInfo = {0,};
 
+	MsgTextConvert *textCvt = MsgTextConvert::instance();
+
 	if (!outBuf || !pCbMsg)
 	{
 		MSG_DEBUG ("invalid param.\n");
@@ -724,14 +932,14 @@ int SmsPluginCbMsgHandler::convertTextToUtf8 (unsigned char* outBuf, int outBufS
 
 	// Convert Data values
 	if (pCbMsg->codingScheme == SMS_CHARSET_7BIT)
-		convertedTextSize = textCvt.convertGSM7bitToUTF8(outBuf, outBufSize, (unsigned char*)pCbMsg->msgData, pCbMsg->msgLength, &langInfo);
+		convertedTextSize = textCvt->convertGSM7bitToUTF8(outBuf, outBufSize, (unsigned char*)pCbMsg->msgData, pCbMsg->msgLength, &langInfo);
 	else if (pCbMsg->codingScheme == SMS_CHARSET_UCS2)
-		convertedTextSize = textCvt.convertUCS2ToUTF8(outBuf, outBufSize, (unsigned char*)pCbMsg->msgData, pCbMsg->msgLength);
+		convertedTextSize = textCvt->convertUCS2ToUTF8(outBuf, outBufSize, (unsigned char*)pCbMsg->msgData, pCbMsg->msgLength);
 
 	return convertedTextSize;
 }
 
-void SmsPluginCbMsgHandler::addToPageLiat(SMS_CBMSG_PAGE_S CbPage)
+void SmsPluginCbMsgHandler::addToPageList(SMS_CBMSG_PAGE_S CbPage)
 {
 	CB_PAGE_INFO_S tmpInfo;
 
@@ -744,11 +952,11 @@ void SmsPluginCbMsgHandler::addToPageLiat(SMS_CBMSG_PAGE_S CbPage)
 	tmpInfo.pageCnt = 1;
 	tmpInfo.totalSize = CbPage.pageLength;
 
-	pair<unsigned char, string> newData(CbPage.pageHeader.page, CbPage.pageData);
+	pair<unsigned char, SMS_CBMSG_PAGE_S> newData(CbPage.pageHeader.page, CbPage);
 	tmpInfo.data.insert(newData);
 
 	MSG_DEBUG("MSG DATA : %s", CbPage.pageData);
-	MSG_DEBUG("PAIR DATA [%d] : %s", newData.first, newData.second.c_str());
+	MSG_DEBUG("PAIR DATA [%d] : %s", newData.first, newData.second.pageData);
 
 	pageList.push_back(tmpInfo);
 }
@@ -805,13 +1013,13 @@ void SmsPluginCbMsgHandler::decodeCbMsgDCS(unsigned char dcsData, const unsigned
 				pDcs->codingGroup = SMS_CBMSG_CODGRP_GENERAL_DCS;
 				pDcs->codingScheme = (dcsData & 0x01) ? SMS_CHARSET_UCS2 : SMS_CHARSET_7BIT;
 				pDcs->langType = SMS_CBMSG_LANG_ISO639;
-
-				if (pMsgData != NULL)
+				MSG_DEBUG("codingScheme: [%d]", pDcs->codingScheme);
+				if (pMsgData[0] && pMsgData[1])
 				{
 					pDcs->iso639Lang[0] = pMsgData[0] & 0x7F;
-					pDcs->iso639Lang[1] = (pMsgData[0] & 0x80) >> 7;
-					pDcs->iso639Lang[1] |= (pMsgData[1] & 0x3F) << 1;
-					pDcs->iso639Lang[2]  = 0x13; /* CR char in GSM 7-bit Alphabet */
+					pDcs->iso639Lang[1] = (pMsgData[0] & 0X80) >> 7;
+					pDcs->iso639Lang[1] |= (pMsgData[1] & 0X3F) << 1;
+					pDcs->iso639Lang[2] = 0x13;  /* CR */
 				}
 				else
 				{
@@ -836,28 +1044,48 @@ void SmsPluginCbMsgHandler::decodeCbMsgDCS(unsigned char dcsData, const unsigned
 			if (dcsData & 0x10)
 				pDcs->classType = (SMS_MSG_CLASS_T)(dcsData & 0x03);
 
-			pDcs->codingScheme = (SMS_CODING_SCHEME_T)(dcsData & 0x0C);
+			unsigned char tmpScheme = (dcsData & 0x0C) >> 2;
+
+			switch (tmpScheme) {
+				case 0x00:
+					pDcs->codingScheme = SMS_CHARSET_7BIT;
+					break;
+				case 0x01:
+					pDcs->codingScheme = SMS_CHARSET_8BIT;
+					break;
+				case 0x02:
+					pDcs->codingScheme = SMS_CHARSET_UCS2;
+					break;
+				default:
+					MSG_DEBUG("tmpScheme: [%d]", tmpScheme);
+					break;
+			}
 		}
 		break;
 
 		case 0x09 :
 		{
 			pDcs->bUDH = true;
+			pDcs->classType = (MSG_CLASS_TYPE_T)(dcsData & 0x03);
+			pDcs->codingScheme = (SMS_CODING_SCHEME_T)((dcsData & 0x0C) >> 2);
 		}
 		break;
 
-		case 0x14 :
+		case 0x0E :
 		{
 			pDcs->codingGroup = SMS_CBMSG_CODGRP_WAP;
 		}
 		break;
 
-		case 0x15 :
+		case 0x0F :
 		{
 			pDcs->codingGroup = SMS_CBMSG_CODGRP_CLASS_CODING;
-			pDcs->codingScheme = (dcsData & 0x04) ? SMS_CHARSET_UCS2 : SMS_CHARSET_7BIT;
+			pDcs->codingScheme = (dcsData & 0x04) ? SMS_CHARSET_8BIT : SMS_CHARSET_7BIT;
 			pDcs->classType = (MSG_CLASS_TYPE_T)(dcsData & 0x03);
 		}
+		break;
+		default:
+			MSG_DEBUG("codingGrp: [0x%x]", codingGrp);
 		break;
 	}
 }
@@ -920,45 +1148,38 @@ unsigned long SmsPluginCbMsgHandler::getRecvTime()
 }
 
 
-void SmsPluginCbMsgHandler::getDisplayName(unsigned short	MsgId, char *pDisplayName)
+void SmsPluginCbMsgHandler::getDisplayName(unsigned short	MsgId, char *pDisplayName, msg_sim_slot_id_t simIndex)
 {
-	int MsgIdCnt = MsgSettingGetInt(CB_CHANNEL_COUNT);
+	MSG_CB_CHANNEL_S cbChannelInfo = {0,};
+	msg_error_t err = MSG_SUCCESS;
+	MsgDbHandler *dbHandle = getDbHandle();
 
-	char from[128];
-	char to[128];
+	err = MsgStoGetCBChannelInfo(dbHandle, &cbChannelInfo, simIndex);
+	MSG_DEBUG("MsgStoGetCBChannelInfo [err = %d]", err);
 
-	for (int i = 0; i < MsgIdCnt; i++)
+	for (int i = 0; i < cbChannelInfo.channelCnt; i++)
 	{
-		memset(from, 0x00, sizeof(from));
-		sprintf(from, "%s/%d", CB_CHANNEL_ID_FROM, i);
-
-		memset(to, 0x00, sizeof(to));
-		sprintf(to, "%s/%d", CB_CHANNEL_ID_TO, i);
-
-		if (MsgId >= MsgSettingGetInt(from) && MsgId <= MsgSettingGetInt(to))
+		if (MsgId >= cbChannelInfo.channelInfo[i].from && MsgId <= cbChannelInfo.channelInfo[i].to)
 		{
 			MSG_DEBUG("FIND MSG ID = [%d]", MsgId);
 #if 0
-			memset(keyName, 0x00, sizeof(keyName));
-			sprintf(keyName, "%s/%d", CB_CHANNEL_NAME, i);
-
+			char strTmp[CB_CHANNEL_NAME_MAX + 1];
 			memset(strTmp, 0x00, sizeof(strTmp));
 
-			channelName = MsgSettingGetString(keyName);
-
-			strncpy(strTmp, channelName, CB_CHANNEL_NAME_MAX);
-
-			if (channelName) {
-				free(channelName);
-				channelName = NULL;
-			}
+			strncpy(strTmp, cbChannelInfo.channelInfo[i].name, CB_CHANNEL_NAME_MAX);
 
 			if (strlen(strTmp) > 0)
-				sprintf(pDisplayName, "[%s]", strTmp);
+				snprintf(pDisplayName, sizeof(strTmp), "[%s]", strTmp);
 			else
-				sprintf(pDisplayName, "[%d]", MsgId);
+				snprintf(pDisplayName, sizeof(unsigned short), "[%d]", MsgId);
 #else
-			sprintf(pDisplayName, "[%d]", MsgId);
+
+#ifdef MSG_NOTI_INTEGRATION
+			snprintf(pDisplayName, MAX_ADDRESS_VAL_LEN + 1, "CB message");
+#else
+			snprintf(pDisplayName, MAX_ADDRESS_VAL_LEN + 1, "[%d]", MsgId);
+#endif
+
 #endif
 
 			return;

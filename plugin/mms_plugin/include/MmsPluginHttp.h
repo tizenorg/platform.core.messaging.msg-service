@@ -1,20 +1,17 @@
 /*
- * msg-service
- *
- * Copyright (c) 2000 - 2014 Samsung Electronics Co., Ltd. All rights reserved
+ * Copyright (c) 2014 Samsung Electronics Co., Ltd. All rights reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
 */
 
 #ifndef MMS_PLUGIN_HTTP_H
@@ -30,13 +27,11 @@
 #define MSG_MMS_HH_LANGUAGE         "zh-cn, en"
 #define MSG_MMS_HH_ENCODING         "deflate,gzip"
 
-#define MSG_MMS_HH_USER_AGENT		"Mozilla/5.0 (Linux; U; Tizen 1.0; en-us) AppleWebKit/534.46 (KHTML, like Gecko) Mobile Tizen Browser/1.0"
-#define MSG_MMS_WAP_PROFILE         ""
+#define MSG_MMS_HH_USER_AGENT		"Mozilla/5.0 (Linux; Tizen 2.3) AppleWebKit/537.3 (KHTML, like Gecko) Version/2.2 Mobile Safari/537.3"
 
 typedef unsigned int MMS_HTTP_HEADER_FIELD_T;
 
-
-enum _MMS_HTTP_HEADER_FIELD_E {
+typedef enum _MMS_HTTP_HEADER_FIELD_E {
 	MMS_HH_CONTENT_TYPE,
 	MMS_HH_HOST,
 	MMS_HH_ACCEPT,
@@ -44,8 +39,11 @@ enum _MMS_HTTP_HEADER_FIELD_E {
 	MMS_HH_ACCEPT_LANGUAGE,
 	MMS_HH_ACCEPT_ENCODING,
 	MMS_HH_USER_AGENT,
-	MMS_HH_WAP_PROFILE
-};
+	MMS_HH_UA_PROFILE,
+#if defined(FEATURE_SMS_CDMA)
+	MMS_HH_MDN
+#endif
+} MMS_HTTP_HEADER_FIELD_E;
 
 typedef enum _MMS_HTTP_TRANSACTION_TYPE_E {
 	MMS_HTTP_TRANSACTION_TYPE_UNKNOWN = 0,
@@ -58,6 +56,7 @@ typedef enum _MMS_HTTP_ERROR_E {
 	MMS_HTTP_ERROR_ABORT,
 	MMS_HTTP_ERROR_TRANSACTION_TYPE,
 	MMS_HTTP_ERROR_TRANSACTION,
+	MMS_HTTP_ERROR_SESSION,
 } MMS_HTTP_ERROR_E;
 
 typedef struct _http_session_info_s {

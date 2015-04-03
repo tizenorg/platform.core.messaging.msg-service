@@ -1,20 +1,17 @@
 /*
- * msg-service
- *
- * Copyright (c) 2000 - 2014 Samsung Electronics Co., Ltd. All rights reserved
+ * Copyright (c) 2014 Samsung Electronics Co., Ltd. All rights reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
 */
 
 #ifndef SMS_PLUGIN_CONCAT_HANDLER_H
@@ -57,6 +54,8 @@ typedef struct _SMS_CONCAT_MSG_S
 	SMS_ADDRESS_S	originAddress;
 	SMS_DCS_S		dcs;
 	bool				bRead;
+	int				simId;
+	int 			simIndex;
 } SMS_CONCAT_MSG_S;
 
 typedef struct _SMS_CONCAT_INFO_S
@@ -72,6 +71,9 @@ typedef struct _SMS_CONCAT_INFO_S
 
 	unsigned int		totalSize;
 	concatDataMap	data;
+	int	simIdList[MAX_SIM_SMS_NUM];
+	unsigned int	display_time;
+	int				simIndex;
 } SMS_CONCAT_INFO_S;
 
 typedef struct _SMS_SIM_ID_S
@@ -90,7 +92,8 @@ public:
 	static SmsPluginConcatHandler* instance();
 
 	bool IsConcatMsg(SMS_USERDATA_S *pUserData);
-	void handleConcatMsg(SMS_TPDU_S *pTpdu);
+	void handleConcatMsg(struct tapi_handle *handle, SMS_TPDU_S *pTpdu);
+	void handleSimConcatMsg(struct tapi_handle *handle, SMS_TPDU_S *pTpdu, int msgId, int bRead, int *simIdList);
 //	void handleConcatMsg(SMS_TPDU_S *pTpdu, msg_sim_id_t SimMsgId, bool bRead);
 
 //	void handleBrokenMsg();
@@ -102,12 +105,13 @@ private:
 	static SmsPluginConcatHandler* pInstance;
 
 	unsigned char checkConcatMsg(SMS_CONCAT_MSG_S *pConcatMsg, SMS_USERDATA_S *pUserData);
-	int makeConcatUserData(unsigned short MsgRef, char **ppTotalData);
+	int makeConcatUserData(unsigned short MsgRef, int simIndex, char **ppTotalData);
 
 	void convertConcatToMsginfo(const SMS_DELIVER_S *pTpdu, const char *pUserData, int DataSize, MSG_MESSAGE_INFO_S *pMsgInfo);
+	void convertConcatToMsginfo(const SMS_SUBMIT_S *pTpdu, const char *pUserData, int DataSize, MSG_MESSAGE_INFO_S *pMsgInfo);
 //	void convertSimMsgToMsginfo(const SMS_CONCAT_MSG_S *pConcatMsg, const char *pUserData, int DataSize, MSG_MESSAGE_INFO_S *pMsgInfo);
 
-	void removeFromConcatList(unsigned short MsgRef);
+	void removeFromConcatList(unsigned short MsgRef, int simIndex);
 
 //	void addToSimIdList(unsigned short MsgRef, msg_sim_id_t SimMsgId);
 //	void removeFromSimIdList(unsigned short MsgRef);
@@ -115,7 +119,6 @@ private:
 	vector<SMS_CONCAT_INFO_S> concatList;
 //	vector<SMS_SIM_ID_S> simIdList;
 
-	MsgTextConvert textCvt;
 };
 
 #endif //SMS_PLUGIN_CONCAT_HANDLER_H

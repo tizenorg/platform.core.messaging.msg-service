@@ -1,20 +1,17 @@
 /*
- * msg-service
- *
- * Copyright (c) 2000 - 2014 Samsung Electronics Co., Ltd. All rights reserved
+ * Copyright (c) 2014 Samsung Electronics Co., Ltd. All rights reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
 */
 
 #ifndef MSG_SETTING_TYPES_H
@@ -37,6 +34,7 @@
                                          INCLUDE FILES
 ==================================================================================================*/
 #include "MsgTypes.h"
+#include "MsgStorageTypes.h"
 
 /**
  *	@ingroup		MESSAGING_FRAMEWORK
@@ -182,9 +180,16 @@ typedef unsigned char MSG_CB_LANGUAGE_TYPE_T;
 
 /**
  *	@brief	Represents the SIM status from telephony. \n
- *	The values for this type SHOULD be in \ref _MSG_SIM_STATUS_E.
+ *	The values for this type SHOULD be in _MSG_SIM_STATUS_E.
  */
 typedef unsigned char MSG_SIM_STATUS_T;
+
+
+/**
+ *	@brief	Represents the ringtone type of message. \n
+ *	The values for this type SHOULD be in _MSG_RINGTONE_TYPE_E.
+ */
+typedef int MSG_RINGTONE_TYPE_T;
 
 
 /*==================================================================================================
@@ -213,24 +218,31 @@ typedef struct
 	MSG_SMSC_ADDRESS_S		smscAddr;					/**< SMSC address structure */
 } MSG_SMSC_DATA_S;
 
-/**
- *	@brief	Represents an SMSC list.
- */
-typedef struct
-{
-	int						selected;							/**< Selected SMSC index */
-	int						totalCnt;							/**< The count of total SMSC addresses */
-	MSG_SMSC_DATA_S			smscData[SMSC_LIST_MAX];			/**< SMSC data information list*/
-}MSG_SMSC_LIST_S;
 
 /**
  *	@brief	Represents an SMSC list.
  */
 typedef struct
 {
+	int						index;						/**< SMSC index for Updating information */
+	int						selected;					/**< Selected SMSC index */
+	int						totalCnt;							/**< The count of total SMSC addresses */
+	MSG_SMSC_DATA_S			smscData[SMSC_LIST_MAX];		/**< SMSC data information list*/
+	msg_sim_slot_id_t 		simIndex;
+}MSG_SMSC_LIST_S;
+
+
+/**
+ *	@brief	Represents an SMSC list.
+ */
+typedef struct
+{
+	int						index;					/**< SMSC index for Updating information */
 	int						selected;				/**< Selected SMSC index */
-	msg_struct_list_s		*smsc_list;				/**< SMSC data information list*/
+	msg_struct_list_s		*smsc_list;			/**< SMSC data information list*/
+	msg_sim_slot_id_t 		simIndex;
 }MSG_SMSC_LIST_HIDDEN_S;
+
 
 /**
  *	@brief	Represents the information of a cell broadcasting channel.
@@ -240,6 +252,8 @@ typedef struct
 	bool			bActivate;							/**< Indicates whether the CB channel is activate or passive. */
 	unsigned int 	from;								/**< Indicates the start ID of a CB channel range. */
 	unsigned int 	to;									/**< Indicates the end ID of a CB channel range. */
+	unsigned short ctg;								/**< Indicates the category of a CB. (for 3gpp2)*/
+	unsigned short lang;								/**< Indicates the language of a CB. (for 3gpp2)*/
 	char			name[CB_CHANNEL_NAME_MAX+1];		/**< Indicates the name of a CB channel. */
 } MSG_CB_CHANNEL_INFO_S;
 
@@ -253,14 +267,24 @@ typedef struct
 	MSG_CB_CHANNEL_INFO_S	channelInfo[CB_CHANNEL_MAX];	/**< The structure of CB channel information */
 } MSG_CB_CHANNEL_S;
 
+
 /**
  *	@brief	Represents an general option.
  */
 typedef struct
 {
-	bool							bKeepCopy;			/**< Indicates whether the SMS message copy is kept or not. */
-	MSG_ALERT_TONE_T			alertTone;			/**< Indicates the period of playing alert tone. */
-	bool							bAutoErase;			/**< Indicates whether the auto-erase option is enabled or not. */
+	bool					bKeepCopy;			/**< Indicates whether the SMS message copy is kept or not. */
+	MSG_ALERT_TONE_T		alertTone;			/**< Indicates the period of playing alert tone. */
+	bool					bAutoErase;			/**< Indicates whether the auto-erase option is enabled or not. */
+	bool					bBlockUnknownMsg;		/**< Indicates whether unknown sender message is blocked or not. */
+	int						smsLimitCnt;		/**< Indicates the count limitation of sms messages in one conversation */
+	int						mmsLimitCnt;		/**< Indicates the count limitation of sms messages in one conversation */
+	bool 					bNotification;		/**< Indicates whether notification for incoming message is shown or not. */
+	bool					bVibration;		/**< Indicates whether vibration for incoming message is run or not. */
+	bool					bPreview;			/**< Indicates whether preview for incoming message is shown or not. */
+	char 					ringtonePath[MSG_FILEPATH_LEN_MAX+1];		/**< Indicates the message ringtone path */
+	int 					ringtoneType;		/**< Indicates the message ringtone type. */
+	int						searchTags;			/**< Indicates the tags to be enabled for search ex) MSG_MESSAGE_TAG_PRIMARY | MSG_MESSAGE_TAG_PROMOTION.  See enum _MSG_TAG_TYPE_E  */
 }MSG_GENERAL_OPT_S;
 
 
@@ -359,6 +383,7 @@ typedef struct
 	int					maxSimCnt;		/**< Indicates the number of channels which can be stored in SIM. */
 	MSG_CB_CHANNEL_S	channelData;		/**< Indicates the cell broadcasting channel information. */
 	bool				bLanguage[CB_LANG_TYPE_MAX];		/**< Indicates whether the language name of a cell broadcasting message is set or not. */
+	msg_sim_slot_id_t					simIndex;
 } MSG_CBMSG_OPT_S;
 
 typedef struct
@@ -367,7 +392,9 @@ typedef struct
 	int					maxSimCnt;		/**< Indicates the number of channels which can be stored in SIM. */
 	msg_struct_list_s	*channelData;		/**< Indicates the cell broadcasting channel information. */
 	bool					bLanguage[CB_LANG_TYPE_MAX];		/**< Indicates whether the language name of a cell broadcasting message is set or not. */
+	msg_sim_slot_id_t					simIndex;
 } MSG_CBMSG_OPT_HIDDEN_S;
+
 
 /**
  *	@brief	Represents a voice mail number option.
@@ -375,6 +402,9 @@ typedef struct
 typedef struct
 {
 	char mailNumber[MAX_PHONE_NUMBER_LEN+1];
+	char alpahId[MAX_SIM_XDN_ALPHA_ID_LEN+1];
+	msg_sim_slot_id_t					simIndex;
+	int voiceCnt;
 } MSG_VOICEMAIL_OPT_S;
 
 

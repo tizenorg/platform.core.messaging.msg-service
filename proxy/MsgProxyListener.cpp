@@ -1,20 +1,17 @@
 /*
- * msg-service
- *
- * Copyright (c) 2000 - 2014 Samsung Electronics Co., Ltd. All rights reserved
+ * Copyright (c) 2014 Samsung Electronics Co., Ltd. All rights reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
 */
 
 #include <errno.h>
@@ -22,18 +19,41 @@
 #include "MsgDebug.h"
 #include "MsgCppTypes.h"
 #include "MsgException.h"
+#include "MsgUtilFunction.h"
 #include "MsgUtilFile.h"
 #include "MsgProxyListener.h"
 #include "MsgGconfWrapper.h"
 
+void MsgServerRestartCb(keynode_t *key, void* data)
+{
+	bool bReady = false;
+	MSG_DEBUG("Message Service Running State Changed");
+	// server is currently booting and service is not available until the end of booting
+	MsgSettingGetBool(VCONFKEY_MSG_SERVER_READY, &bReady);
+	MSG_INFO("Message Service Running State Changed bReady:(%d)", bReady);
+
+	//bReady false indicates that server has restarted. Hence the proxylistener needs to be reset
+	if (bReady == false) {
+		MSG_DEBUG("Message Service Is Restarted. Resetting ProxyListener");
+		MsgProxyListener::instance()->resetProxyListener();
+	}
+}
 
 gboolean readSocket(GIOChannel *source, GIOCondition condition, gpointer data)
 {
 	MSG_BEGIN();
+#if 0
+	if ((G_IO_ERR & condition) || (G_IO_HUP & condition) || (G_IO_NVAL & condition))
+	{
+		MSG_DEBUG("IO condition Error!!! [%d]", condition);
 
+		MsgProxyListener::instance()->stop();
+		return FALSE;
+	}
+#endif
 	if (G_IO_ERR & condition)
 	{
-		MSG_DEBUG("IO Error!!! [%d]", condition);
+		MSG_ERR("IO Error!!! [%d]", condition);
 
 		MsgProxyListener::instance()->stop();
 		return FALSE;
@@ -41,7 +61,7 @@ gboolean readSocket(GIOChannel *source, GIOCondition condition, gpointer data)
 
 	if (G_IO_HUP & condition)
 	{
-		MSG_DEBUG("socket fd Error!!! [%d]", condition);
+		MSG_ERR("socket fd Error!!! [%d]", condition);
 
 		MsgProxyListener::instance()->stop();
 		return FALSE;
@@ -49,13 +69,14 @@ gboolean readSocket(GIOChannel *source, GIOCondition condition, gpointer data)
 
 	if (G_IO_NVAL & condition)
 	{
-		MSG_DEBUG("Invaild socket Error!!! [%d]", condition);
+		MSG_ERR("Invaild socket Error!!! [%d]", condition);
 
 		MsgProxyListener::instance()->stop();
 		return FALSE;
 	}
 
 	char* buf = NULL;
+	AutoPtr<char> eventBuf(&buf);
 	unsigned int len;
 
 	int n = MsgProxyListener::instance()->readFromSocket(&buf, &len);
@@ -67,24 +88,13 @@ gboolean readSocket(GIOChannel *source, GIOCondition condition, gpointer data)
 	}
 	else if (n == 0)
 	{
-		MSG_DEBUG("Server closed connection");
+		MSG_WARN("Server closed connection");
 		MsgProxyListener::instance()->stop();
-		if (buf)
-		{
-			delete [] buf;
-			buf = NULL;
-		}
 		return FALSE;
 	}
 	else // dataSize < 0
 	{
 		MSG_DEBUG("Data is not for Listener");
-	}
-
-	if (buf)
-	{
-		delete [] buf;
-		buf = NULL;
 	}
 
 	MSG_END();
@@ -106,6 +116,8 @@ MsgProxyListener::MsgProxyListener() : running(0)
 	newMMSConfMessageCBList.clear();
 	newSyncMLMessageCBList.clear();
 	newLBSMessageCBList.clear();
+	openHandleSet.clear();
+	MsgSettingRegVconfCBCommon(VCONFKEY_MSG_SERVER_READY, MsgServerRestartCb);
 }
 
 
@@ -116,6 +128,8 @@ MsgProxyListener::~MsgProxyListener()
 	newMMSConfMessageCBList.clear();
 	newSyncMLMessageCBList.clear();
 	newLBSMessageCBList.clear();
+	openHandleSet.clear();
+	MsgSettingRemoveVconfCBCommon(VCONFKEY_MSG_SERVER_READY, MsgServerRestartCb);
 }
 
 
@@ -124,21 +138,25 @@ MsgProxyListener* MsgProxyListener::instance()
 	static Mutex mm;
 	MutexLocker lock(mm);
 
-	if (!pInstance)
+	if (!pInstance) {
 		pInstance = new MsgProxyListener();
+	}
 
 	return pInstance;
 }
 
 
-void MsgProxyListener::start()
+void MsgProxyListener::start(MsgHandle* pMsgHandle)
 {
+	MutexLocker lock(mx);
+
+	handle_set::iterator it = openHandleSet.find(pMsgHandle);
+	if (it == openHandleSet.end())
+		openHandleSet.insert(pMsgHandle);
 	if (running == 0)
 	{
-		mx.lock();
 		cliSock.connect(MSG_SOCKET_PATH);
 		cv.signal(); // wake up the waiting thread
-		mx.unlock();
 
 		int fd = cliSock.fd();
 
@@ -192,12 +210,8 @@ bool MsgProxyListener::regSentStatusEventCB(MsgHandle* pMsgHandle, msg_sent_stat
 
 	for (; it != sentStatusCBList.end(); it++)
 	{
-		if (it->hAddr == pMsgHandle && it->pfSentStatusCB == pfSentStatus)
-		{
+		if (it->hAddr == pMsgHandle && it->pfSentStatusCB == pfSentStatus) {
 			MSG_DEBUG("msg_sent_status_cb() callback : [%p] is already registered!!!", pfSentStatus);
-
-			it->userParam = pUserParam;
-
 			return false;
 		}
 	}
@@ -218,12 +232,8 @@ bool MsgProxyListener::regMessageIncomingEventCB(MsgHandle* pMsgHandle, msg_sms_
 
 	for (; it != newMessageCBList.end(); it++)
 	{
-		if (it->port == port && it->pfIncomingCB == pfNewMessage)
-		{
+		if (it->hAddr == pMsgHandle && it->port == port && it->pfIncomingCB == pfNewMessage) {
 			MSG_DEBUG("msg_sms_incoming_cb() callback : Port Number [%d] is already registered!!!", port);
-
-			it->userParam = pUserParam;
-
 			return false;
 		}
 	}
@@ -244,21 +254,13 @@ bool MsgProxyListener::regMMSConfMessageIncomingEventCB(MsgHandle* pMsgHandle, m
 
 	for (; it != newMMSConfMessageCBList.end(); it++)
 	{
-		if (it->pfMMSConfIncomingCB == pfNewMMSConfMessage)
-		{
+		if (it->hAddr == pMsgHandle && it->pfMMSConfIncomingCB == pfNewMMSConfMessage) {
 
-			if(pAppId == NULL)
-			{
+			if(pAppId == NULL) {
 				MSG_DEBUG("msg_mms_conf_msg_incoming_cb() callback is already registered!!!");
-
 				return false;
-			}
-			else if(!strncmp(it->appId, pAppId, MAX_MMS_JAVA_APPID_LEN))
-			{
+			} else if(!strncmp(it->appId, pAppId, MAX_MMS_JAVA_APPID_LEN)) {
 				MSG_DEBUG("msg_mms_conf_msg_incoming_cb() callback : AppId [%s] is already registered!!!", pAppId);
-
-				it->userParam = pUserParam;
-
 				return false;
 			}
 		}
@@ -283,21 +285,13 @@ bool MsgProxyListener::regPushMessageIncomingEventCB(MsgHandle* pMsgHandle, msg_
 
 	for (; it != newPushMessageCBList.end(); it++)
 	{
-		if (it->pfPushIncomingCB == pfNewPushMessage)
-		{
+		if (it->hAddr == pMsgHandle && it->pfPushIncomingCB == pfNewPushMessage) {
 
-			if(pAppId == NULL)
-			{
+			if(pAppId == NULL) {
 				MSG_DEBUG("msg_push_msg_incoming_cb() callback is already registered!!!");
-
 				return false;
-			}
-			else if(!strncmp(it->appId, pAppId, MAX_WAPPUSH_ID_LEN))
-			{
+			} else if(!strncmp(it->appId, pAppId, MAX_WAPPUSH_ID_LEN)) {
 				MSG_DEBUG("msg_push_msg_incoming_cb() callback : AppId [%s] is already registered!!!", pAppId);
-
-				it->userParam = pUserParam;
-
 				return false;
 			}
 		}
@@ -321,13 +315,10 @@ bool MsgProxyListener::regCBMessageIncomingEventCB(MsgHandle* pMsgHandle, msg_cb
 
 	for (; it != newCBMessageCBList.end(); it++)
 	{
-		if (it->pfCBIncomingCB == pfNewCBMessage)
-		{
+		if (it->hAddr == pMsgHandle && it->pfCBIncomingCB == pfNewCBMessage) {
 			MSG_DEBUG("msg_CB_incoming_cb() callback : [%p] is already registered!!!", pfNewCBMessage);
-
-			it->bsave = bSave;
-			it->userParam = pUserParam;
-
+			 it->bsave = bSave;
+			 it->userParam = pUserParam;
 			return false;
 		}
 	}
@@ -339,6 +330,30 @@ bool MsgProxyListener::regCBMessageIncomingEventCB(MsgHandle* pMsgHandle, msg_cb
 	return true;
 }
 
+
+bool MsgProxyListener::regReportMsgIncomingCB(MsgHandle* pMsgHandle, msg_report_msg_incoming_cb pfReportMessage, void *pUserParam)
+{
+	MutexLocker lock(mx);
+
+	std::list<MSG_REPORT_INCOMING_CB_ITEM_S>::iterator it = reportMessageCBList.begin();
+
+	for (; it != reportMessageCBList.end(); it++)
+	{
+		if (it->hAddr == pMsgHandle && it->pfReportMsgIncomingCB == pfReportMessage) {
+			MSG_DEBUG("msg_report_msg_incoming_cb() callback : [%p] is already registered!!!", pfReportMessage);
+			 it->userParam = pUserParam;
+			return false;
+		}
+	}
+
+	MSG_REPORT_INCOMING_CB_ITEM_S incomingCB = {pMsgHandle, pfReportMessage, pUserParam};
+
+	reportMessageCBList.push_back(incomingCB);
+
+	return true;
+}
+
+
 bool MsgProxyListener::regSyncMLMessageIncomingEventCB(MsgHandle* pMsgHandle, msg_syncml_msg_incoming_cb pfNewSyncMLMessage, void *pUserParam)
 {
 	MutexLocker lock(mx);
@@ -347,12 +362,8 @@ bool MsgProxyListener::regSyncMLMessageIncomingEventCB(MsgHandle* pMsgHandle, ms
 
 	for (; it != newSyncMLMessageCBList.end(); it++)
 	{
-		if (it->pfSyncMLIncomingCB == pfNewSyncMLMessage)
-		{
+		if (it->hAddr == pMsgHandle && it->pfSyncMLIncomingCB == pfNewSyncMLMessage) {
 			MSG_DEBUG("msg_syncml_msg_incoming_cb() callback : [%p] is already registered!!!", pfNewSyncMLMessage);
-
-			it->userParam = pUserParam;
-
 			return false;
 		}
 	}
@@ -373,12 +384,8 @@ bool MsgProxyListener::regLBSMessageIncomingEventCB(MsgHandle* pMsgHandle, msg_l
 
 	for (; it != newLBSMessageCBList.end(); it++)
 	{
-		if (it->pfLBSMsgIncoming == pfNewLBSMsgIncoming)
-		{
+		if (it->hAddr == pMsgHandle && it->pfLBSMsgIncoming == pfNewLBSMsgIncoming) {
 			MSG_DEBUG("msg_lbs_msg_incoming_cb() callback : [%p] is already registered!!!", pfNewLBSMsgIncoming);
-
-			it->userParam = pUserParam;
-
 			return false;
 		}
 	}
@@ -399,12 +406,8 @@ bool MsgProxyListener::regSyncMLMessageOperationEventCB(MsgHandle* pMsgHandle, m
 
 	for (; it != operationSyncMLMessageCBList.end(); it++)
 	{
-		if (it->pfSyncMLOperationCB == pfSyncMLMessageOperation)
-		{
+		if (it->hAddr == pMsgHandle && it->pfSyncMLOperationCB == pfSyncMLMessageOperation) {
 			MSG_DEBUG("msg_syncml_msg_incoming_cb() callback : [%p] is already registered!!!", pfSyncMLMessageOperation);
-
-			it->userParam = pUserParam;
-
 			return false;
 		}
 	}
@@ -425,12 +428,8 @@ bool MsgProxyListener::regStorageChangeEventCB(MsgHandle* pMsgHandle, msg_storag
 
 	for (; it != storageChangeCBList.end(); it++)
 	{
-		if (it->pfStorageChangeCB == pfStorageChangeOperation)
-		{
+		if (it->hAddr == pMsgHandle && it->pfStorageChangeCB == pfStorageChangeOperation) {
 			MSG_DEBUG("msg_storage_change_cb() callback : [%p] is already registered!!!", pfStorageChangeOperation);
-
-			it->userParam = pUserParam;
-
 			return false;
 		}
 	}
@@ -447,138 +446,157 @@ void MsgProxyListener::clearListOfClosedHandle(MsgHandle* pMsgHandle)
 {
 	MSG_BEGIN();
 
+	MutexLocker lock(mx);
+
 	// sent status CB list
 	std::list<MSG_SENT_STATUS_CB_ITEM_S>::iterator it = sentStatusCBList.begin();
 
-	for (; it != sentStatusCBList.end(); it++)
+	for (; it != sentStatusCBList.end(); )
 	{
 		if (it->hAddr == pMsgHandle)
 		{
-			sentStatusCBList.erase(it);
-			it = sentStatusCBList.begin();
+			sentStatusCBList.erase(it++);
 
 			//Stop client Listener
 			stop();
 		}
+		else
+			++it;
 	}
 
 	// new message CB list
 	std::list<MSG_INCOMING_CB_ITEM_S>::iterator it2 = newMessageCBList.begin();
 
-	for (; it2 != newMessageCBList.end(); it2++)
+	for (; it2 != newMessageCBList.end(); )
 	{
 		if (it2->hAddr == pMsgHandle)
 		{
-			newMessageCBList.erase(it2);
-			it2 = newMessageCBList.begin();
+			newMessageCBList.erase(it2++);
 
 			//Stop client Listener
 			stop();
 		}
+		else
+			++it2;
 	}
 
 	// MMS conf Message CB list
 	std::list<MSG_MMS_CONF_INCOMING_CB_ITEM_S>::iterator it3 = newMMSConfMessageCBList.begin();
 
-	for (; it3 != newMMSConfMessageCBList.end(); it3++)
+	for (; it3 != newMMSConfMessageCBList.end(); )
 	{
 		if (it3->hAddr == pMsgHandle)
 		{
-			newMMSConfMessageCBList.erase(it3);
-			it3 = newMMSConfMessageCBList.begin();
+			newMMSConfMessageCBList.erase(it3++);
 
 			//Stop client Listener
 			stop();
 		}
+		else
+			++it3;
 	}
 
 	// SyncML Message CB list
 	std::list<MSG_SYNCML_INCOMING_CB_ITEM_S>::iterator it4 = newSyncMLMessageCBList.begin();
 
-	for (; it4 != newSyncMLMessageCBList.end(); it4++)
+	for (; it4 != newSyncMLMessageCBList.end(); )
 	{
 		if (it4->hAddr == pMsgHandle)
 		{
-			newSyncMLMessageCBList.erase(it4);
-			it4 = newSyncMLMessageCBList.begin();
+			newSyncMLMessageCBList.erase(it4++);
 
 			//Stop client Listener
 			stop();
 		}
+		else
+			++it4;
 	}
 
 	// LBS Message CB list
 	std::list<MSG_LBS_INCOMING_CB_ITEM_S>::iterator it5 = newLBSMessageCBList.begin();
 
-	for (; it5 != newLBSMessageCBList.end(); it5++)
+	for (; it5 != newLBSMessageCBList.end(); )
 	{
 		if (it5->hAddr == pMsgHandle)
 		{
-			newLBSMessageCBList.erase(it5);
-			it5 = newLBSMessageCBList.begin();
+			newLBSMessageCBList.erase(it5++);
 
 			//Stop client Listener
 			stop();
 		}
+		else
+			++it5;
 	}
 
 	// Push Message CB list
 	std::list<MSG_PUSH_INCOMING_CB_ITEM_S>::iterator it6 = newPushMessageCBList.begin();
 
-	for (; it6 != newPushMessageCBList.end(); it6++)
+	for (; it6 != newPushMessageCBList.end(); )
 	{
 		if (it6->hAddr == pMsgHandle)
 		{
-			newPushMessageCBList.erase(it6);
-			it6 = newPushMessageCBList.begin();
+			newPushMessageCBList.erase(it6++);
 
 			//Stop client Listener
 			stop();
 		}
+		else
+			++it6;
 
 	}
 
 	// CB Message CB list
 	std::list<MSG_CB_INCOMING_CB_ITEM_S>::iterator it7 = newCBMessageCBList.begin();
 
-	bool bSave = false;
-	for (; it7 != newCBMessageCBList.end(); it7++)
+	for (; it7 != newCBMessageCBList.end(); )
 	{
 
 		if (it7->hAddr == pMsgHandle)
 		{
 
-			newCBMessageCBList.erase(it7);
-			it7 = newCBMessageCBList.begin();
+			newCBMessageCBList.erase(it7++);
 
 			//Stop client Listener
 			stop();
 		}
 		else
 		{
-			if(it7->bsave == true)
-				bSave = true;
+			++it7;
 		}
 	}
-
-	if(!bSave)
-		if(MsgSettingSetBool(CB_SAVE, bSave) != MSG_SUCCESS)
-			MSG_DEBUG("MsgSettingSetBool FAIL: CB_SAVE");
 
 	// Storage change Message CB list
 	std::list<MSG_STORAGE_CHANGE_CB_ITEM_S>::iterator it8 = storageChangeCBList.begin();
 
-	for (; it8 != storageChangeCBList.end(); it8++)
+	for (; it8 != storageChangeCBList.end(); )
 	{
 		if (it8->hAddr == pMsgHandle)
 		{
-			storageChangeCBList.erase(it8);
-			it8 = storageChangeCBList.begin();
+			storageChangeCBList.erase(it8++);
 
 			//Stop client Listener
 			stop();
 		}
+		else
+			++it8;
 	}
+
+
+	// Report message incoming CB list
+	std::list<MSG_REPORT_INCOMING_CB_ITEM_S>::iterator it9 = reportMessageCBList.begin();
+	for (; it9 != reportMessageCBList.end(); )
+	{
+		if (it9->hAddr == pMsgHandle)
+		{
+			reportMessageCBList.erase(it9++);
+
+			//Stop client Listener
+			stop();
+		}
+		else
+			++it9;
+	}
+
 
 	MSG_END();
 }
@@ -621,8 +639,15 @@ void MsgProxyListener::handleEvent(const MSG_EVENT_S* pMsgEvent)
 	}
 	else if ( pMsgEvent->eventType == MSG_EVENT_PLG_INCOMING_MSG_IND )
 	{
-		MSG_MESSAGE_INFO_S *pMsgInfo = (MSG_MESSAGE_INFO_S *)pMsgEvent->data;
-		int portKey = (pMsgInfo->msgPort.valid)? pMsgInfo->msgPort.dstPort: 0;
+		MSG_MESSAGE_INFO_S msgInfo;
+		memset(&msgInfo, 0x00, sizeof(MSG_MESSAGE_INFO_S));
+
+		msgInfo.addressList = NULL;
+		AutoPtr<MSG_ADDRESS_INFO_S> addressListBuf(&msgInfo.addressList);
+
+		MsgDecodeMsgInfo((char *)pMsgEvent->data, &msgInfo);
+
+		int portKey = (msgInfo.msgPort.valid)? msgInfo.msgPort.dstPort: 0;
 
 		mx.lock();
 
@@ -645,7 +670,6 @@ void MsgProxyListener::handleEvent(const MSG_EVENT_S* pMsgEvent)
 		{
 			MsgHandle* pHandle = it->hAddr;
 
-			MSG_MESSAGE_INFO_S *pMsgInfo = (MSG_MESSAGE_INFO_S *)pMsgEvent->data;
 			MSG_MESSAGE_HIDDEN_S msgHidden = {0,};
 
 			msgHidden.pData = NULL;
@@ -655,12 +679,12 @@ void MsgProxyListener::handleEvent(const MSG_EVENT_S* pMsgEvent)
 			msg_struct_list_s *addr_list = (msg_struct_list_s *)new msg_struct_list_s;
 
 			addr_list->nCount = 0;
-			addr_list->msg_struct_info = (msg_struct_t *)new char[sizeof(MSG_ADDRESS_INFO_S *)*MAX_TO_ADDRESS_CNT];
+			addr_list->msg_struct_info = (msg_struct_t *)calloc(MAX_TO_ADDRESS_CNT, sizeof(MSG_ADDRESS_INFO_S *));
 
 			msg_struct_s *pTmp = NULL;
 
 			for (int i = 0; i < MAX_TO_ADDRESS_CNT; i++) {
-				addr_list->msg_struct_info[i] = (msg_struct_t)new char[sizeof(msg_struct_s)];
+				addr_list->msg_struct_info[i] = (msg_struct_t)new msg_struct_s;
 				pTmp = (msg_struct_s *)addr_list->msg_struct_info[i];
 				pTmp->type = MSG_STRUCT_ADDRESS_INFO;
 				pTmp->data = new MSG_ADDRESS_INFO_S;
@@ -671,7 +695,12 @@ void MsgProxyListener::handleEvent(const MSG_EVENT_S* pMsgEvent)
 
 			msgHidden.addr_list = addr_list;
 
-			pHandle->convertMsgStruct(pMsgInfo, &msgHidden);
+			try {
+				pHandle->convertMsgStruct(&msgInfo, &msgHidden);
+			}
+			catch (MsgException& e) {
+				MSG_FATAL("%s", e.what());
+			}
 
 			msg_struct_s msg = {0,};
 			msg.type = MSG_STRUCT_MESSAGE_INFO;
@@ -698,7 +727,7 @@ void MsgProxyListener::handleEvent(const MSG_EVENT_S* pMsgEvent)
 					msgHidden.addr_list->msg_struct_info[i] = NULL;
 				}
 
-				delete [] msgHidden.addr_list->msg_struct_info;
+				g_free(msgHidden.addr_list->msg_struct_info);
 
 				delete msgHidden.addr_list;
 				msgHidden.addr_list = NULL;
@@ -709,8 +738,16 @@ void MsgProxyListener::handleEvent(const MSG_EVENT_S* pMsgEvent)
 	}
 	else if ( pMsgEvent->eventType == MSG_EVENT_PLG_INCOMING_MMS_CONF )
 	{
-		MSG_MESSAGE_INFO_S *pMsgInfo = (MSG_MESSAGE_INFO_S *)pMsgEvent->data;
-	 	MMS_RECV_DATA_S* pMmsRecvData = ( MMS_RECV_DATA_S*)pMsgInfo->msgData;
+		MSG_MESSAGE_INFO_S msgInfo;
+		memset(&msgInfo, 0x00, sizeof(MSG_MESSAGE_INFO_S));
+
+		msgInfo.addressList = NULL;
+		AutoPtr<MSG_ADDRESS_INFO_S> addressListBuf(&msgInfo.addressList);
+
+		MsgDecodeMsgInfo((char *)pMsgEvent->data, &msgInfo);
+
+
+	 	MMS_RECV_DATA_S* pMmsRecvData = ( MMS_RECV_DATA_S*)msgInfo.msgData;
 
 		char* appIdKey = (pMmsRecvData->msgAppId.valid)? pMmsRecvData->msgAppId.appId: NULL;
 
@@ -741,8 +778,8 @@ void MsgProxyListener::handleEvent(const MSG_EVENT_S* pMsgEvent)
 
 		strncpy(tempFileName, pMmsRecvData->retrievedFilePath, MSG_FILENAME_LEN_MAX);
 
-		memset(pMsgInfo->msgData, 0, MAX_MSG_DATA_LEN+1);
-		memcpy(pMsgInfo->msgData, tempFileName + strlen(MSG_DATA_PATH), MAX_MSG_DATA_LEN);
+		memset(msgInfo.msgData, 0, MAX_MSG_DATA_LEN+1);
+		memcpy(msgInfo.msgData, tempFileName + strlen(MSG_DATA_PATH), MAX_MSG_DATA_LEN);
 
 		it = matchList.begin();
 
@@ -750,7 +787,6 @@ void MsgProxyListener::handleEvent(const MSG_EVENT_S* pMsgEvent)
 		{
 			MsgHandle* pHandle = it->hAddr;
 
-			MSG_MESSAGE_INFO_S *pMsgInfo = (MSG_MESSAGE_INFO_S *)pMsgEvent->data;
 			MSG_MESSAGE_HIDDEN_S msgHidden = {0,};
 
 			msgHidden.pData = NULL;
@@ -760,12 +796,12 @@ void MsgProxyListener::handleEvent(const MSG_EVENT_S* pMsgEvent)
 			msg_struct_list_s *addr_list = (msg_struct_list_s *)new msg_struct_list_s;
 
 			addr_list->nCount = 0;
-			addr_list->msg_struct_info = (msg_struct_t *)new char[sizeof(MSG_ADDRESS_INFO_S *)*MAX_TO_ADDRESS_CNT];
+			addr_list->msg_struct_info = (msg_struct_t *)calloc(MAX_TO_ADDRESS_CNT, sizeof(MSG_ADDRESS_INFO_S *));
 
 			msg_struct_s *pTmp = NULL;
 
 			for (int i = 0; i < MAX_TO_ADDRESS_CNT; i++) {
-				addr_list->msg_struct_info[i] = (msg_struct_t)new char[sizeof(msg_struct_s)];
+				addr_list->msg_struct_info[i] = (msg_struct_t)new msg_struct_s;
 				pTmp = (msg_struct_s *)addr_list->msg_struct_info[i];
 				pTmp->type = MSG_STRUCT_ADDRESS_INFO;
 				pTmp->data = new MSG_ADDRESS_INFO_S;
@@ -776,7 +812,12 @@ void MsgProxyListener::handleEvent(const MSG_EVENT_S* pMsgEvent)
 
 			msgHidden.addr_list = addr_list;
 
-			pHandle->convertMsgStruct(pMsgInfo, &msgHidden);
+			try {
+				pHandle->convertMsgStruct(&msgInfo, &msgHidden);
+			}
+			catch (MsgException& e) {
+				MSG_FATAL("%s", e.what());
+			}
 
 			msg_struct_s msg = {0,};
 			msg.type = MSG_STRUCT_MESSAGE_INFO;
@@ -802,7 +843,7 @@ void MsgProxyListener::handleEvent(const MSG_EVENT_S* pMsgEvent)
 					msgHidden.addr_list->msg_struct_info[i] = NULL;
 				}
 
-				delete [] msgHidden.addr_list->msg_struct_info;
+				g_free(msgHidden.addr_list->msg_struct_info);
 
 				delete msgHidden.addr_list;
 				msgHidden.addr_list = NULL;
@@ -813,7 +854,7 @@ void MsgProxyListener::handleEvent(const MSG_EVENT_S* pMsgEvent)
 			if(appIdKey)
 			{
 				MSG_DEBUG("delete received JAVA MMS message:%s from native storage",tempFileName);
-				pHandle->deleteMessage(pMsgInfo->msgId);
+				pHandle->deleteMessage(msgInfo.msgId);
 			}
 		}
 	}
@@ -835,7 +876,7 @@ void MsgProxyListener::handleEvent(const MSG_EVENT_S* pMsgEvent)
 
 			void* param = it->userParam;
 
-			pfunc((msg_handle_t)pHandle, pSyncMLData->syncmlType, pSyncMLData->pushBody, pSyncMLData->pushBodyLen, pSyncMLData->wspHeader, pSyncMLData->wspHeaderLen, param);
+			pfunc((msg_handle_t)pHandle, pSyncMLData->syncmlType, pSyncMLData->pushBody, pSyncMLData->pushBodyLen, pSyncMLData->wspHeader, pSyncMLData->wspHeaderLen, pSyncMLData->simIndex, param);
 		}
 
 		mx.unlock();
@@ -966,7 +1007,42 @@ void MsgProxyListener::handleEvent(const MSG_EVENT_S* pMsgEvent)
 
 			void* param = it->userParam;
 
-			pfunc((msg_handle_t)pHandle, pPushData->pushHeader, pPushData->pushBody, pPushData->pushBodyLen, param);
+			if(!strncmp(it->appId, pPushData->pushAppId, MAX_WAPPUSH_ID_LEN))
+				pfunc((msg_handle_t)pHandle, pPushData->pushHeader, pPushData->pushBody, pPushData->pushBodyLen, param);
+		}
+
+		mx.unlock();
+	}
+
+	else if (pMsgEvent->eventType == MSG_EVENT_PLG_REPORT_MSG_INCOMING_IND)
+	{
+		msg_report_type_t reportType;
+		msg_message_id_t msgId;
+		int addr_len;
+		char *addr_val;
+
+		// Decode event data
+		memcpy(&reportType, (void*)((char*)pMsgEvent+sizeof(MSG_EVENT_TYPE_T)+sizeof(msg_error_t)), sizeof(msg_report_type_t));
+		memcpy(&msgId, (void*)((char*)pMsgEvent+sizeof(MSG_EVENT_TYPE_T)+sizeof(msg_error_t)+sizeof(msg_report_type_t)), sizeof(msg_message_id_t));
+		memcpy(&addr_len, (void*)((char*)pMsgEvent+sizeof(MSG_EVENT_TYPE_T)+sizeof(msg_error_t)+sizeof(msg_report_type_t)+sizeof(msg_message_id_t)), sizeof(int));
+		addr_val = (char*)((char*)pMsgEvent+sizeof(MSG_EVENT_TYPE_T)+sizeof(msg_error_t)+sizeof(msg_report_type_t)+sizeof(msg_message_id_t)+sizeof(int));
+		addr_val[addr_len] = '\0';
+
+		MSG_SEC_DEBUG("reportType [%d], msgId [%d], Address Length [%d], Address Value [%s]", reportType, msgId, addr_len, addr_val);
+
+		mx.lock();
+
+		MsgReportMessageCBList::iterator it = reportMessageCBList.begin();
+
+		for( ; it != reportMessageCBList.end() ; it++)
+		{
+			MsgHandle* pHandle = it->hAddr;
+
+			msg_report_msg_incoming_cb pfunc = it->pfReportMsgIncomingCB;
+
+			void* param = it->userParam;
+
+			pfunc((msg_handle_t)pHandle, reportType, msgId, addr_len, addr_val, param);
 		}
 
 		mx.unlock();
@@ -978,9 +1054,34 @@ void MsgProxyListener::handleEvent(const MSG_EVENT_S* pMsgEvent)
 
 int  MsgProxyListener::getRemoteFd()
 {
-	int tmpFd = cliSock.getRemoteFd();
+	MSG_BEGIN();
+	//MutexLocker lock(mx);
+
+	int tmpFd = -1;
+	int ret = mx.timedlock();
+
+	if (ret != 0) {
+		MSG_DEBUG("mx.timedlock fail [%d]", ret);
+		return tmpFd;
+	}
+
+	tmpFd = cliSock.getRemoteFd();
 
 	MSG_DEBUG("listener fd [%d]", tmpFd);
+
+	if( tmpFd == -1 ) {
+		ret = cv.timedwait(mx.pMutex(),1);
+	}
+
+	if (ret == ETIMEDOUT) {
+		MSG_DEBUG("get listener fd TIME-OUT");
+		return tmpFd;
+	}
+
+	tmpFd = cliSock.getRemoteFd();
+	mx.unlock();
+
+	MSG_END();
 
 	return tmpFd;
 }
@@ -989,6 +1090,19 @@ int  MsgProxyListener::getRemoteFd()
 int MsgProxyListener::readFromSocket(char** buf, unsigned int* len)
 {
 	return cliSock.read(buf, len);
+}
+
+void MsgProxyListener::resetProxyListener()
+{
+	MSG_BEGIN();
+	MutexLocker lock(mx);
+	handle_set::iterator it = openHandleSet.begin();
+	for (; it != openHandleSet.end(); it++) {
+		MsgHandle *handle = (MsgHandle *)*it;
+		clearListOfClosedHandle(handle);
+	}
+	openHandleSet.clear();
+	MSG_END();
 }
 
 #ifdef CHECK_SENT_STATUS_CALLBACK

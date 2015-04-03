@@ -1,26 +1,20 @@
 /*
- * msg-service
- *
- * Copyright (c) 2000 - 2014 Samsung Electronics Co., Ltd. All rights reserved
+ * Copyright (c) 2014 Samsung Electronics Co., Ltd. All rights reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
 */
 
 #include <stdlib.h>
-#include <errno.h>
-#include <sys/stat.h>
-#include <fcntl.h>
 
 #include "MsgDebug.h"
 #include "MsgUtilFile.h"
@@ -31,14 +25,38 @@
 #include "MsgStorageHandler.h"
 #include "MsgPluginManager.h"
 #include "MsgTransManager.h"
-#include "MsgContact.h"
 #include "MsgCmdHandler.h"
-
-#define DB_MSG_SERVICE_GROUPE	6011
+#include "MsgNotificationWrapper.h"
+#include "MsgMutex.h"
+#include <glib.h>
 
 /*==================================================================================================
                                      FUNCTION IMPLEMENTATION
 ==================================================================================================*/
+
+Mutex mx;
+int g_job_cnt = 0;
+
+static gboolean  __refresh_noti(void *data)
+{
+	mx.lock();
+
+	g_job_cnt--;
+
+	if (g_job_cnt <= 0) {
+		MSG_DEBUG("## Refresh notification ##");
+		if (MsgRefreshNotification(MSG_NOTI_TYPE_NORMAL, false, false) != MSG_SUCCESS) {
+			MSG_DEBUG("MsgRefreshNoti is failed");
+		}
+		g_job_cnt = 0;
+	}
+
+	mx.unlock();
+
+	return FALSE;
+
+}
+
 int MsgAddMessageHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 {
 	msg_error_t err = MSG_SUCCESS;
@@ -48,27 +66,43 @@ int MsgAddMessageHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 
 	int dataSize = 0, eventSize = 0;
 
-	// Get Message Info
-	MSG_MESSAGE_INFO_S* pMsgInfo = (MSG_MESSAGE_INFO_S*)pCmd->cmdData;
+	MSG_MESSAGE_INFO_S msgInfo;
+	MSG_SENDINGOPT_INFO_S sendOptInfo;
+	memset(&msgInfo, 0x00, sizeof(MSG_MESSAGE_INFO_S));
+	memset(&sendOptInfo, 0x00, sizeof(MSG_SENDINGOPT_INFO_S));
 
-	// Get Sending Option
-	MSG_SENDINGOPT_INFO_S* pSendOptInfo = (MSG_SENDINGOPT_INFO_S*)(pCmd->cmdData + sizeof(MSG_MESSAGE_INFO_S));
+	msgInfo.addressList = NULL;
+	AutoPtr<MSG_ADDRESS_INFO_S> addressListBuf(&msgInfo.addressList);
 
-	// Add Message
-	err = MsgStoAddMessage(pMsgInfo, pSendOptInfo);
+	MsgDecodeMsgInfo((char *)pCmd->cmdData, &msgInfo, &sendOptInfo);
 
-	if (err == MSG_SUCCESS) {
+	if(msgInfo.threadId) // threadId is not 0 : message restore from S-Cloud
+	{
+		err = MsgStoRestoreMessage(&msgInfo, &sendOptInfo);
+
+		if (err == MSG_SUCCESS) {
+				MSG_DEBUG("Command Handle Success : MsgStoRestoreMessage()");
+
+				// Encoding Message ID
+				dataSize = MsgEncodeMsgId(&(msgInfo.msgId), &encodedData);
+		} else {
+			MSG_DEBUG("Command Handle Fail : MsgStoRestoreMessage()");
+		}
+	}
+	else
+	{
+		// Add Message
+		msgInfo.msgId = 0;
+		err = MsgStoAddMessage(&msgInfo, &sendOptInfo);
+
+		if (err == MSG_SUCCESS) {
 			MSG_DEBUG("Command Handle Success : MsgStoAddMessage()");
-
 			// Encoding Message ID
-			dataSize = MsgEncodeMsgId(&(pMsgInfo->msgId), &encodedData);
+			dataSize = MsgEncodeMsgId(&(msgInfo.msgId), &encodedData);
 		} else {
 			MSG_DEBUG("Command Handle Fail : MsgStoAddMessage()");
 		}
-
-	// Delete Temp File for Message Data
-	if (pMsgInfo->bTextSms == false)
-		MsgDeleteFile(pMsgInfo->msgData); //ipc
+	}
 
 	//storage change CB
 	msg_id_list_s msgIdList;
@@ -76,10 +110,22 @@ int MsgAddMessageHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 	memset(&msgIdList, 0x00, sizeof(msg_id_list_s));
 
 	msgIdList.nCount = 1;
-	msgIds[0] = pMsgInfo->msgId;
+	msgIds[0] = msgInfo.msgId;
 	msgIdList.msgIdList = msgIds;
 
 	MsgTransactionManager::instance()->broadcastStorageChangeCB(MSG_SUCCESS, MSG_STORAGE_CHANGE_INSERT, &msgIdList);
+
+	// Update unread message status
+	if (msgInfo.folderId == MSG_INBOX_ID && msgInfo.bRead == false) {
+		mx.lock();
+		g_job_cnt++;
+		g_timeout_add(300, __refresh_noti, NULL);
+		mx.unlock();
+	}
+
+	// Delete Temp File for Message Data
+	if (msgInfo.bTextSms == false)
+		MsgDeleteFile(msgInfo.msgData); //ipc
 
 	// Make Event Data
 	eventSize = MsgMakeEvent(encodedData, dataSize, MSG_EVENT_ADD_MSG, err, (void**)ppEvent);
@@ -92,22 +138,34 @@ int MsgAddSyncMLMessageHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 {
 	msg_error_t err = MSG_SUCCESS;
 
-	int eventSize = 0;
+	char* encodedData = NULL;
+	AutoPtr<char> buf(&encodedData);
+
+	int dataSize = 0, eventSize = 0;
 
 	int extId = 0, pinCode = 0;
 
-	MSG_MESSAGE_INFO_S msgInfo = {};
+	MSG_MESSAGE_INFO_S msgInfo;
+	memset(&msgInfo, 0x00, sizeof(MSG_MESSAGE_INFO_S));
+
+	msgInfo.addressList = NULL;
+	AutoPtr<MSG_ADDRESS_INFO_S> addressListBuf(&msgInfo.addressList);
 
 	memcpy(&extId, (void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN), sizeof(int));
 	memcpy(&pinCode, (void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN+sizeof(int)), sizeof(int));
-	memcpy(&msgInfo, (void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN+sizeof(int)+sizeof(int)), sizeof(MSG_MESSAGE_INFO_S));
 
+	MsgDecodeMsgInfo((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN+sizeof(int)+sizeof(int), &msgInfo);
+
+	msgInfo.msgId = 0;
 	// Add Message
 	err = MsgStoAddSyncMLMessage(&msgInfo, extId, pinCode);
 
 	if (err == MSG_SUCCESS)
 	{
 		MSG_DEBUG("Command Handle Success : MsgStoAddSyncMLMessage()");
+
+		// Encoding Message ID
+		dataSize = MsgEncodeMsgId(&(msgInfo.msgId), &encodedData);
 
 		// broadcast to listener threads, here
 		MsgTransactionManager::instance()->broadcastIncomingMsgCB(err, &msgInfo);
@@ -128,7 +186,7 @@ int MsgAddSyncMLMessageHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 	}
 
 	// Make Event Data
-	eventSize = MsgMakeEvent(NULL, 0, MSG_EVENT_ADD_SYNCML_MSG, err, (void**)ppEvent);
+	eventSize = MsgMakeEvent(encodedData, dataSize, MSG_EVENT_ADD_SYNCML_MSG, err, (void**)ppEvent);
 
 	return eventSize;
 }
@@ -140,14 +198,18 @@ int MsgUpdateMessageHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 
 	int eventSize = 0;
 
-	// Get Message Info
-	MSG_MESSAGE_INFO_S* pMsgInfo = (MSG_MESSAGE_INFO_S*)pCmd->cmdData;
+	MSG_MESSAGE_INFO_S msgInfo;
+	MSG_SENDINGOPT_INFO_S sendOptInfo;
+	memset(&msgInfo, 0x00, sizeof(MSG_MESSAGE_INFO_S));
+	memset(&sendOptInfo, 0x00, sizeof(MSG_SENDINGOPT_INFO_S));
 
-	// Get Sending Option
-	MSG_SENDINGOPT_INFO_S* pSendOptInfo = (MSG_SENDINGOPT_INFO_S*)(pCmd->cmdData + sizeof(MSG_MESSAGE_INFO_S));
+	msgInfo.addressList = NULL;
+	AutoPtr<MSG_ADDRESS_INFO_S> addressListBuf(&msgInfo.addressList);
+
+	MsgDecodeMsgInfo((char *)pCmd->cmdData, &msgInfo, &sendOptInfo);
 
 	// Update Message
-	err = MsgStoUpdateMessage(pMsgInfo, pSendOptInfo);
+	err = MsgStoUpdateMessage(&msgInfo, &sendOptInfo);
 
 	if (err == MSG_SUCCESS)
 		MSG_DEBUG("Command Handle Success : MsgStoUpdateMessage()");
@@ -155,8 +217,8 @@ int MsgUpdateMessageHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 		MSG_DEBUG("Command Handle Fail : MsgStoUpdateMessage()");
 
 	// Delete Temp File for Message Data
-	if (pMsgInfo->bTextSms == false)
-		MsgDeleteFile(pMsgInfo->msgData); //ipc
+	if (msgInfo.bTextSms == false)
+		MsgDeleteFile(msgInfo.msgData); //ipc
 
 	//storage change CB
 	msg_id_list_s msgIdList;
@@ -164,7 +226,7 @@ int MsgUpdateMessageHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 	memset(&msgIdList, 0x00, sizeof(msg_id_list_s));
 
 	msgIdList.nCount = 1;
-	msgIds[0] = pMsgInfo->msgId;
+	msgIds[0] = msgInfo.msgId;
 	msgIdList.msgIdList = msgIds;
 
 	MsgTransactionManager::instance()->broadcastStorageChangeCB(err, MSG_STORAGE_CHANGE_UPDATE, &msgIdList);
@@ -191,6 +253,8 @@ int MsgUpdateReadStatusHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 	// Update Read Status
 	err = MsgStoUpdateReadStatus(msgId, readStatus);
 
+	MSG_DEBUG("message id = [%d], readStatus = [%d]", msgId, readStatus);
+
 	if (err == MSG_SUCCESS)
 	{
 		MSG_DEBUG("Command Handle Success : MsgStoUpdateReadStatus()");
@@ -199,6 +263,17 @@ int MsgUpdateReadStatusHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 	{
 		MSG_DEBUG("Command Handle Fail : MsgStoUpdateReadStatus()");
 	}
+
+	//storage change CB
+	msg_id_list_s msgIdList;
+	msg_message_id_t msgIds[1];
+	memset(&msgIdList, 0x00, sizeof(msg_id_list_s));
+
+	msgIdList.nCount = 1;
+	msgIds[0] = msgId;
+	msgIdList.msgIdList = msgIds;
+
+	MsgTransactionManager::instance()->broadcastStorageChangeCB(MSG_SUCCESS, MSG_STORAGE_CHANGE_UPDATE, &msgIdList);
 
 	// Make Event Data
 	eventSize = MsgMakeEvent(NULL, 0, MSG_EVENT_UPDATE_READ, err, (void**)ppEvent);
@@ -224,12 +299,47 @@ int MsgUpdateThreadReadStatusHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 
 	if (unReadCnt > 0) {
 
-		err = MsgStoUpdateThreadReadStatus(threadId);
+		msg_id_list_s msgIdList;
+		memset(&msgIdList, 0x00, sizeof(msg_id_list_s));
 
-		if (err == MSG_SUCCESS)
+		err = MsgStoUpdateThreadReadStatus(threadId, &msgIdList);
+
+		if (err == MSG_SUCCESS) {
 			MSG_DEBUG("Command Handle Success : MsgStoUpdateThreadReadStatus()");
-		else
+			MsgTransactionManager::instance()->broadcastStorageChangeCB(MSG_SUCCESS, MSG_STORAGE_CHANGE_UPDATE, &msgIdList);
+		} else {
 			MSG_DEBUG("Command Handle Fail : MsgStoUpdateThreadReadStatus()");
+		}
+
+		if(msgIdList.msgIdList != NULL)
+			delete [] (char*)msgIdList.msgIdList;
+	}
+
+	// delete report notification
+	if (err == MSG_SUCCESS) {
+		MsgDbHandler *dbHandle = getDbHandle();
+		char tempAddr[MAX_ADDRESS_VAL_LEN+1];
+		char sqlQuery[MAX_QUERY_LEN+1];
+
+		memset(tempAddr, 0x00, sizeof(tempAddr));
+		memset(sqlQuery, 0x00, sizeof(sqlQuery));
+		snprintf(sqlQuery, sizeof(sqlQuery), "SELECT B.ADDRESS_VAL FROM %s A, %s B WHERE A.CONV_ID = B.CONV_ID AND A.CONV_ID = %d;"
+				, MSGFW_MESSAGE_TABLE_NAME, MSGFW_ADDRESS_TABLE_NAME, threadId);
+
+		err = dbHandle->prepareQuery(sqlQuery);
+
+		if (err == MSG_SUCCESS) {
+			err = dbHandle->stepQuery();
+
+			if (err == MSG_ERR_DB_ROW) {
+				snprintf(tempAddr, sizeof(tempAddr), "%s", dbHandle->columnText(0));
+				MSG_SEC_DEBUG("Updated address = %s", tempAddr);
+				MsgDeleteReportNotification(tempAddr);
+				err = MSG_SUCCESS;
+			}
+		}
+
+		dbHandle->finalizeQuery();
 	}
 
 	// Make Event Data
@@ -263,6 +373,17 @@ int MsgUpdateProtectedStatusHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 	{
 		MSG_DEBUG("Command Handle Fail : MsgStoUpdateProtectedStatus()");
 	}
+
+	//storage change CB
+	msg_id_list_s msgIdList;
+	msg_message_id_t msgIds[1];
+	memset(&msgIdList, 0x00, sizeof(msg_id_list_s));
+
+	msgIdList.nCount = 1;
+	msgIds[0] = msgId;
+	msgIdList.msgIdList = msgIds;
+
+	MsgTransactionManager::instance()->broadcastStorageChangeCB(MSG_SUCCESS, MSG_STORAGE_CHANGE_UPDATE, &msgIdList);
 
 	// Make Event Data
 	eventSize = MsgMakeEvent(NULL, 0, MSG_EVENT_UPDATE_PROTECTED, err, (void**)ppEvent);
@@ -548,6 +669,9 @@ int MsgGetMessageHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 	memset(&msgInfo, 0x00, sizeof(MSG_MESSAGE_INFO_S));
 	memset(&sendOptInfo, 0x00, sizeof(MSG_SENDINGOPT_INFO_S));
 
+	msgInfo.addressList = NULL;
+	AutoPtr<MSG_ADDRESS_INFO_S> addressListBuf(&msgInfo.addressList);
+
 	err = MsgStoGetMessage(*msgId, &msgInfo, &sendOptInfo);
 
 	if (err == MSG_SUCCESS)
@@ -573,8 +697,6 @@ int MsgGetMessageHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 
 int MsgGetFolderViewListHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 {
-	msg_error_t err = MSG_SUCCESS;
-
 	// Get Folder ID
 	msg_folder_id_t folderId;
 	MSG_SORT_RULE_S sortRule;
@@ -587,10 +709,11 @@ int MsgGetFolderViewListHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 
 	int dataSize = 0, eventSize = 0;
 
+#if 0
 	// Get Message Common Info
 	msg_struct_list_s folderViewList;
 
-	err = MsgStoGetFolderViewList(folderId, &sortRule, &folderViewList);
+//	err = MsgStoGetFolderViewList(folderId, &sortRule, &folderViewList);
 
 	if (err == MSG_SUCCESS)
 	{
@@ -601,10 +724,14 @@ int MsgGetFolderViewListHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 
 		MSG_DEBUG("dataSize [%d]", dataSize);
 
-		if (folderViewList.msg_struct_info != NULL)
-		{
-			delete [] folderViewList.msg_struct_info;
-			folderViewList.msg_struct_info = NULL;
+		if (folderViewList.msg_struct_info) {
+			msg_struct_s *msg_struct;
+			for (int i = 0; i < folderViewList.nCount; i++) {
+				msg_struct = (msg_struct_s *)folderViewList.msg_struct_info[i];
+				delete (MSG_MESSAGE_HIDDEN_S *)msg_struct->data;
+				delete msg_struct;
+			}
+			g_free(folderViewList.msg_struct_info);
 		}
 	}
 	else
@@ -612,7 +739,7 @@ int MsgGetFolderViewListHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 		MSG_DEBUG("Command Handle Fail : MsgStoGetFolderViewList()");
 		return err;
 	}
-
+#endif
 	// Make Event Data
 	eventSize = MsgMakeEvent(encodedData, dataSize, MSG_EVENT_GET_FOLDERVIEWLIST, MSG_SUCCESS, (void**)ppEvent);
 
@@ -725,7 +852,15 @@ int MsgGetFolderListHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 		// Encoding Folder List Data
 		dataSize = MsgEncodeFolderList(&folderList, &encodedData);
 
-		delete [] folderList.msg_struct_info;
+		if (folderList.msg_struct_info) {
+			msg_struct_s *msg_struct;
+			for (int i = 0; i < folderList.nCount; i++) {
+				msg_struct = (msg_struct_s *)folderList.msg_struct_info[i];
+				delete (MSG_FOLDER_INFO_S *)msg_struct->data;
+				delete msg_struct;
+			}
+			g_free(folderList.msg_struct_info);
+		}
 	}
 	else
 	{
@@ -797,6 +932,7 @@ int MsgGetMsgTypeHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 
 int MsgGetThreadViewListHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 {
+
 	msg_error_t err = MSG_SUCCESS;
 
 	MSG_SORT_RULE_S sortRule = {0};
@@ -807,11 +943,11 @@ int MsgGetThreadViewListHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 	AutoPtr<char> buf(&encodedData);
 
 	int dataSize = 0, eventSize = 0;
-
+#if 0
 	// Get Thread View List
 	msg_struct_list_s msgThreadViewList;
 
-	err = MsgStoGetThreadViewList(&sortRule, &msgThreadViewList);
+	//err = MsgStoGetThreadViewList(&sortRule, &msgThreadViewList);
 
 	if (err == MSG_SUCCESS)
 	{
@@ -822,10 +958,14 @@ int MsgGetThreadViewListHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 
 		MSG_DEBUG("dataSize [%d]", dataSize);
 
-		if (msgThreadViewList.msg_struct_info != NULL)
-		{
-			delete [] msgThreadViewList.msg_struct_info;
-			msgThreadViewList.msg_struct_info = NULL;
+		if (msgThreadViewList.msg_struct_info) {
+			msg_struct_s *msg_struct;
+			for (int i = 0; i < folderList.nCount; i++) {
+				msg_struct = (msg_struct_s *)msgThreadViewList.msg_struct_info[i];
+				delete (MSG_THREAD_VIEW_S *)msg_struct->data;
+				delete msg_struct;
+			}
+			g_free(msgThreadViewList.msg_struct_info);
 		}
 	}
 	else
@@ -833,7 +973,7 @@ int MsgGetThreadViewListHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 		MSG_DEBUG("Command Handle Fail : MsgStoGetThreadViewList()");
 		return err;
 	}
-
+#endif
 	// Make Event Data
 	eventSize = MsgMakeEvent(encodedData, dataSize, MSG_EVENT_GET_THREADVIEWLIST, err, (void**)ppEvent);
 
@@ -853,10 +993,10 @@ int MsgGetConversationViewListHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 	AutoPtr<char> buf(&encodedData);
 
 	int dataSize = 0, eventSize = 0;
-
+#if 0
 	msg_struct_list_s convViewList;
 
-	err = MsgStoGetConversationViewList(threadId, &convViewList);
+	//err = MsgStoGetConversationViewList(threadId, &convViewList);
 
 	if (err == MSG_SUCCESS)
 	{
@@ -867,17 +1007,21 @@ int MsgGetConversationViewListHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 
 		MSG_DEBUG("dataSize [%d]", dataSize);
 
-		if (convViewList.msg_struct_info != NULL)
-		{
-			delete [] convViewList.msg_struct_info;
-			convViewList.msg_struct_info = NULL;
+		if (convViewList.msg_struct_info) {
+			msg_struct_s *msg_struct;
+			for (int i = 0; i < convViewList.nCount; i++) {
+				msg_struct = (msg_struct_s *)convViewList.msg_struct_info[i];
+				delete (MSG_CONVERSATION_VIEW_S *)msg_struct->data;
+				delete msg_struct;
+			}
+			g_free(convViewList.msg_struct_info);
 		}
 	}
 	else
 	{
 		MSG_DEBUG("Command Handle Fail : MsgStoGetConversationViewList()");
 	}
-
+#endif
 	// Make Event Data
 	eventSize = MsgMakeEvent(encodedData, dataSize, MSG_EVENT_GET_CONVERSATIONVIEWLIST, err, (void**)ppEvent);
 
@@ -985,8 +1129,10 @@ int MsgGetQuickPanelDataHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 
 	// Get Message
 	MSG_MESSAGE_INFO_S msgInfo;
-
 	memset(&msgInfo, 0x00, sizeof(MSG_MESSAGE_INFO_S));
+
+	msgInfo.addressList = NULL;
+	AutoPtr<MSG_ADDRESS_INFO_S> addressListBuf(&msgInfo.addressList);
 
 	err = MsgStoGetQuickPanelData(*type, &msgInfo);
 
@@ -1033,8 +1179,6 @@ int MsgResetDatabaseHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 int MsgGetMemSizeHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 {
 	msg_error_t err = MSG_SUCCESS;
-	struct stat sts;
-	int ret,fd;
 
 	char* encodedData = NULL;
 	AutoPtr<char> buf(&encodedData);
@@ -1043,19 +1187,6 @@ int MsgGetMemSizeHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 
 	// Get Memory size
 	unsigned int memsize = 0;
-
-	ret = stat(MSG_DATA_ROOT_PATH, &sts);
-	if (ret == -1 && errno == ENOENT){
-		mkdir(MSG_DATA_ROOT_PATH, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
-		fd = creat(MSG_DATA_ROOT_PATH, 0755);
-		if (0 <= fd){
-			ret = fchown(fd, -1, DB_MSG_SERVICE_GROUPE);
-			if (-1 == ret){
-				MSG_DEBUG("Failed to fchown on %s",MSG_DATA_ROOT_PATH);
-			}
-			close(fd);
-		}
-	}
 
 	memsize = MsgDu(MSG_DATA_ROOT_PATH);
 
@@ -1099,15 +1230,30 @@ int MsgRestoreMessageHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 	msg_error_t err = MSG_SUCCESS;
 
 	int eventSize = 0;
+	msg_id_list_s *msgIdList = NULL;
 	char path[MSG_FILEPATH_LEN_MAX+1] = {0,};
 	memcpy(&path, (void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN), sizeof(path));
 	MSG_DEBUG("path = %s", path);
-	// Reset DB
-	err = MsgStoRestoreMessage(path);
 
-	if (err == MSG_SUCCESS)
+	// Reset DB
+	err = MsgStoRestoreMessage(path, &msgIdList);
+
+	if (err == MSG_SUCCESS) {
 		MSG_DEBUG("Command Handle Success : MsgStoRestoreMessage()");
-	else
+
+		if (msgIdList) {
+			MsgTransactionManager::instance()->broadcastStorageChangeCB(MSG_SUCCESS, MSG_STORAGE_CHANGE_INSERT, msgIdList);
+
+			if (msgIdList->msgIdList)
+				free(msgIdList->msgIdList);
+
+			free(msgIdList);
+			msgIdList = NULL;
+		} else {
+			MSG_DEBUG("Not Exist msg id list to restore");
+		}
+
+	} else
 		MSG_DEBUG("Command Handle Fail : MsgStoRestoreMessage()");
 
 	// Make Event Data
@@ -1123,6 +1269,7 @@ int MsgGetReportStatusHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 
 	// Get Message ID
 	msg_message_id_t* msgId = (msg_message_id_t*)pCmd->cmdData;
+	MSG_MESSAGE_TYPE_S msgType = {0,};
 
 	char* encodedData = NULL;
 	AutoPtr<char> buf(&encodedData);
@@ -1132,7 +1279,17 @@ int MsgGetReportStatusHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 	MSG_REPORT_STATUS_INFO_S *reportStatus = NULL;
 	int report_count = 0;
 
-	err = MsgStoGetReportStatus(*msgId, &report_count, &reportStatus);
+	if (MsgStoGetMsgType(*msgId, &msgType) != MSG_SUCCESS)
+		MSG_DEBUG("MsgStoGetMsgType is failed");
+
+	if (msgType.mainType == MSG_SMS_TYPE) {
+		err = MsgStoGetSmsReportStatus(*msgId, &report_count, &reportStatus);
+	} else if (msgType.mainType == MSG_MMS_TYPE) {
+		err = MsgStoGetMmsReportStatus(*msgId, &report_count, &reportStatus);
+	} else {
+		MSG_DEBUG("Message Type is unknown!");
+		err = MSG_ERR_INVALID_MSG_TYPE;
+	}
 
 	if (err == MSG_SUCCESS)
 	{
@@ -1160,10 +1317,16 @@ int MsgGetThreadIdByAddressHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 	MSG_MESSAGE_INFO_S msgInfo;
 	memset(&msgInfo, 0x00, sizeof(MSG_MESSAGE_INFO_S));
 
+	msgInfo.addressList = NULL;
+	AutoPtr<MSG_ADDRESS_INFO_S> addressListBuf(&msgInfo.addressList);
+
 	int *addrCnt = (int *)pCmd->cmdData;
 	MSG_DEBUG("*addrCnt [%d]", *addrCnt);
 
 	msgInfo.nAddressCnt = *addrCnt;
+
+	msgInfo.addressList = (MSG_ADDRESS_INFO_S *)new char[sizeof(MSG_ADDRESS_INFO_S) * msgInfo.nAddressCnt];
+
 	for(int i=0; i<msgInfo.nAddressCnt; i++)
 		memcpy(&msgInfo.addressList[i], (MSG_ADDRESS_INFO_S *)(pCmd->cmdData+sizeof(int)+(sizeof(MSG_ADDRESS_INFO_S)*i)), sizeof(MSG_ADDRESS_INFO_S));
 
@@ -1435,7 +1598,7 @@ int MsgAddPushEventHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 	if (err == MSG_SUCCESS) {
 		MSG_DEBUG("Command Handle Success : MsgStoAddPushEvent()");
 	} else {
-		MSG_DEBUG("Command Handle Fail : MsgStoAddMessage()");
+		MSG_DEBUG("Command Handle Fail : MsgStoAddPushEvent()");
 	}
 
 	// Make Event Data
@@ -1494,18 +1657,105 @@ int MsgUpdatePushEventHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 	return eventSize;
 }
 
+int MsgAddSimMessageHandler(const MSG_CMD_S *pCmd, char **ppEvent)
+{
+	msg_error_t err = MSG_SUCCESS;
 
-int MsgContactSyncEventHandler(const MSG_CMD_S *pCmd, char **ppEvent)
+	int eventSize = 0;
+
+	MSG_MESSAGE_INFO_S msgInfo;
+	MSG_SENDINGOPT_INFO_S sendOptInfo;
+	memset(&msgInfo, 0x00, sizeof(MSG_MESSAGE_INFO_S));
+	memset(&sendOptInfo, 0x00, sizeof(MSG_SENDINGOPT_INFO_S));
+
+	msgInfo.addressList = NULL;
+	AutoPtr<MSG_ADDRESS_INFO_S> addressListBuf(&msgInfo.addressList);
+
+	MsgDecodeMsgInfo((char *)pCmd->cmdData, &msgInfo);
+
+	int *simIdList = NULL;
+	int listSize = 0;
+	char *offset = NULL;
+	offset = ((char *)pCmd->cmdData) + sizeof(MSG_MESSAGE_INFO_S) + (sizeof(MSG_ADDRESS_INFO_S) * msgInfo.nAddressCnt);
+
+	listSize = *(int*)offset;
+	offset += sizeof(int);
+	MSG_DEBUG("listSize [%d]", listSize);
+
+	simIdList = (int *)offset;
+
+	MSG_DEBUG("simIdList[0] [%d]", simIdList[0]);
+
+	// Add Message
+#if 0 // Not to broadcast callback here.
+	bool isReplaceMsg = false;
+
+	if (msgInfo.msgId <= 0)
+		msgInfo.msgId = 0;
+	else
+		isReplaceMsg = true;
+#else
+	if (msgInfo.msgId <= 0)
+		msgInfo.msgId = 0;
+#endif
+
+	msg_message_id_t msg_id = MsgStoAddSimMessage(&msgInfo, simIdList, listSize);
+
+	if (msg_id > 0) {
+		MSG_DEBUG("Command Handle Success : MsgStoAddSimMessage()");
+
+#if 0 // Not to broadcast callback here.
+		//storage change CB
+		msg_id_list_s msgIdList;
+		msg_message_id_t msgIds[1];
+		memset(&msgIdList, 0x00, sizeof(msg_id_list_s));
+
+		msgIdList.nCount = 1;
+		msgIds[0] = msgInfo.msgId;
+		msgIdList.msgIdList = msgIds;
+
+		if (isReplaceMsg)
+			MsgTransactionManager::instance()->broadcastStorageChangeCB(MSG_SUCCESS, MSG_STORAGE_CHANGE_UPDATE, &msgIdList);
+		else
+			MsgTransactionManager::instance()->broadcastStorageChangeCB(MSG_SUCCESS, MSG_STORAGE_CHANGE_INSERT, &msgIdList);
+#endif
+	} else {
+			MSG_DEBUG("Command Handle Fail : MsgStoAddSimMessage()");
+			err = MSG_ERR_INVALID_MESSAGE;
+	}
+
+	// Delete Temp File for Message Data
+	if (msgInfo.bTextSms == false)
+		MsgDeleteFile(msgInfo.msgData); //ipc
+
+	// Make Event Data
+	eventSize = MsgMakeEvent((const void *)&msg_id, sizeof(msg_message_id_t), MSG_EVENT_ADD_SIM_MSG, err, (void**)ppEvent);
+
+	return eventSize;
+}
+
+
+int MsgUpdateIMSIHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 {
 	msg_error_t err = MSG_SUCCESS;
 
 
 	int eventSize = 0;
 
-	MsgSyncContact();
+	int sim_idx = 0;
+	memcpy(&sim_idx, (void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN), sizeof(int));
+
+	// Add Message
+	err = MsgStoUpdateIMSI(sim_idx);
+
+	if (err == MSG_SUCCESS) {
+		MSG_DEBUG("Command Handle Success : MsgStoUpdatePushEvent()");
+	} else {
+		MSG_DEBUG("Command Handle Fail : MsgStoUpdatePushEvent()");
+	}
 
 	// Make Event Data
-	eventSize = MsgMakeEvent(NULL, 0, MSG_EVNET_CONTACT_SYNC, err, (void**)ppEvent);
+	eventSize = MsgMakeEvent(NULL, 0, MSG_EVENT_UPDATE_IMSI, err, (void**)ppEvent);
 
 	return eventSize;
 }

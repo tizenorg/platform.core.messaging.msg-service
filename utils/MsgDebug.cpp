@@ -1,20 +1,17 @@
 /*
- * msg-service
- *
- * Copyright (c) 2000 - 2014 Samsung Electronics Co., Ltd. All rights reserved
+ * Copyright (c) 2014 Samsung Electronics Co., Ltd. All rights reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
 */
 
 #include "MsgDebug.h"
@@ -185,7 +182,6 @@ const char * MsgDbgCmdStr(MSG_CMD_TYPE_T cmdType)
 // 65
 		case MSG_CMD_GET_GENERAL_MSG_OPT:
 			return "MSG_CMD_GET_GENERAL_MSG_OPT";
-
 		case MSG_CMD_GET_MSG_SIZE_OPT:
 			return "MSG_CMD_GET_MSG_SIZE_OPT";
 		case MSG_CMD_SET_SMSC_OPT:
@@ -227,7 +223,27 @@ const char * MsgDbgCmdStr(MSG_CMD_TYPE_T cmdType)
 			return "MSG_CMD_DELETE_PUSH_EVENT";
 		case MSG_CMD_UPDATE_PUSH_EVENT:
 			return "MSG_CMD_UPDATE_PUSH_EVENT";
-
+		case MSG_CMD_DELETE_MESSAGE_BY_LIST :
+			return "MSG_CMD_DELETE_MESSAGE_BY_LIST";
+		case MSG_CMD_SET_FILTER_ACTIVATION :
+			return "MSG_CMD_SET_FILTER_ACTIVATION";
+		case MSG_CMD_ADD_SIM_MSG :
+			return "MSG_CMD_ADD_SIM_MSG";
+//90
+		case MSG_CMD_PLG_RESEND_MESSAGE:
+			return "MSG_CMD_PLG_RESEND_MESSAGE";
+#ifdef MSG_PENDING_PUSH_MESSAGE
+		case MSG_CMD_SEND_PENDING_PUSH_MESSAGE:
+			return "MSG_CMD_SEND_PENDING_PUSH_MESSAGE";
+#endif
+		case MSG_CMD_REG_REPORT_MSG_INCOMING_CB:
+			return "MSG_CMD_REG_REPORT_MSG_INCOMING_CB";
+#ifdef FEATURE_SMS_CDMA
+		case MSG_CMD_PLG_CHECK_UNIQUENESS:
+			return "MSG_CMD_PLG_CHECK_UNIQUENESS";
+#endif
+		case MSG_CMD_UPDATE_IMSI:
+			return "MSG_CMD_UPDATE_IMSI";
 		default:
 			return "Unknown Command Type!!!";
 	}
@@ -391,12 +407,11 @@ const char * MsgDbgEvtStr(MSG_EVENT_TYPE_T evtType)
 // 65
 		case MSG_EVENT_GET_GENERAL_MSG_OPT:
 			return "MSG_EVENT_GET_GENERAL_MSG_OPT";
-
-// 65
 		case MSG_EVENT_GET_MSG_SIZE_OPT:
 			return "MSG_EVENT_GET_MSG_SIZE_OPT";
 		case MSG_EVENT_SET_SMSC_OPT:
 			return "MSG_EVENT_SET_SMSC_OPT";
+// 70
 		case MSG_EVENT_SET_CB_OPT:
 			return "MSG_EVENT_SET_CB_OPT";
 		case MSG_EVENT_SET_SMS_SEND_OPT:
@@ -405,16 +420,16 @@ const char * MsgDbgEvtStr(MSG_EVENT_TYPE_T evtType)
 			return "MSG_EVENT_SET_MMS_SEND_OPT";
 		case MSG_EVENT_SET_MMS_RECV_OPT:
 			return "MSG_EVENT_SET_MMS_RECV_OPT";
-
-// 70
 		case MSG_EVENT_SET_PUSH_MSG_OPT:
 			return "MSG_EVENT_SET_PUSH_MSG_OPT";
+// 75
 		case MSG_EVENT_SET_VOICE_MSG_OPT:
 			return "MSG_EVENT_SET_VOICE_MSG_OPT";
 		case MSG_EVENT_SET_GENERAL_MSG_OPT:
 			return "MSG_EVENT_SET_GENERAL_MSG_OPT";
 		case MSG_EVENT_SET_MSG_SIZE_OPT:
 			return "MSG_EVENT_SET_MSG_SIZE_OPT";
+//80
 		case MSG_EVENT_REG_INCOMING_PUSH_MSG_CB:
 			return "MSG_EVENT_REG_INCOMING_PUSH_MSG_CB";
 		case MSG_EVENT_PLG_INCOMING_PUSH_MSG_IND:
@@ -425,12 +440,35 @@ const char * MsgDbgEvtStr(MSG_EVENT_TYPE_T evtType)
 			return "MSG_EVENT_PLG_INCOMING_CB_MSG_IND";
 		case MSG_EVENT_ADD_PUSH_EVENT:
 			return "MSG_EVENT_ADD_PUSH_EVENT";
-
+//85
 		case MSG_EVENT_DELETE_PUSH_EVENT:
 			return "MSG_EVENT_DELETE_PUSH_EVENT";
 		case MSG_EVENT_UPDATE_PUSH_EVENT:
 			return "MSG_EVENT_UPDATE_PUSH_EVENT";
+		case MSG_EVENT_DELETE_MESSAGE_BY_LIST :
+			return "MSG_EVENT_DELETE_MESSAGE_BY_LIST";
+		case MSG_EVENT_SET_FILTER_ACTIVATION :
+			return "MSG_EVENT_SET_FILTER_ACTIVATION";
+		case MSG_EVENT_ADD_SIM_MSG :
+			return "MSG_EVENT_ADD_SIM_MSG";
 
+//90
+		case MSG_EVENT_PLG_RESEND_MESSAGE:
+			return "MSG_EVENT_PLG_RESEND_MESSAGE";
+#ifdef MSG_PENDING_PUSH_MESSAGE
+		case MSG_EVENT_SEND_PENDING_PUSH_MESSAGE:
+			return "MSG_EVENT_SEND_PENDING_PUSH_MESSAGE";
+#endif
+		case MSG_EVENT_REG_REPORT_MSG_INCOMING_CB:
+			return "MSG_EVENT_REG_REPORT_MSG_INCOMING_CB";
+		case MSG_EVENT_PLG_REPORT_MSG_INCOMING_IND:
+			return "MSG_EVENT_PLG_REPORT_MSG_INCOMING_IND";
+#ifdef FEATURE_SMS_CDMA
+		case MSG_EVENT_PLG_CHECK_UNIQUENESS:
+			return "MSG_EVENT_PLG_CHECK_UNIQUENESS";
+#endif
+		case MSG_EVENT_UPDATE_IMSI:
+			return "MSG_EVENT_UPDATE_IMSI";
 		default:
 			return "Unknown Event Type!!!";
 	}

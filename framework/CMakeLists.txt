@@ -16,18 +16,17 @@ SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_C_FLAGS} ${EXTRA_CFLAGS} -O0 -g -Wall")
 
 SET(PLUGIN-MANAGER-SRCS
 	${CMAKE_SOURCE_DIR}/framework/plugin-manager/MsgPluginManager.cpp
-	${CMAKE_SOURCE_DIR}/framework/plugin-manager/MsgPluginConfig.cpp
 )
 
 INCLUDE_DIRECTORIES(
-    ${CMAKE_SOURCE_DIR}/include/mapi
+	${CMAKE_SOURCE_DIR}/include/mapi
 	${CMAKE_SOURCE_DIR}/include/common
 	${CMAKE_SOURCE_DIR}/include/framework
 	${CMAKE_SOURCE_DIR}/include/utils
 )
 
 INCLUDE(FindPkgConfig)
-pkg_check_modules(plugin_manager_pkgs REQUIRED glib-2.0 dlog vconf libtzplatform-config)
+pkg_check_modules(plugin_manager_pkgs REQUIRED glib-2.0 dlog vconf)
 
 FOREACH(flag ${plugin_manager_pkgs_CFLAGS})
 	SET(EXTRA_CFLAGS "${EXTRA_CFLAGS} ${flag}")
@@ -42,7 +41,7 @@ SET(CMAKE_EXE_LINKER_FLAGS "-Wl,--as-needed")
 ADD_LIBRARY(${PLUGIN-MANAGER-LIB} SHARED ${PLUGIN-MANAGER-SRCS})
 TARGET_LINK_LIBRARIES(${PLUGIN-MANAGER-LIB} ${plugin_manager_pkgs_LDFLAGS} ${UTILS-LIB} dl)
 
-INSTALL(TARGETS ${PLUGIN-MANAGER-LIB} LIBRARY DESTINATION ${LIB_INSTALL_DIR})
+INSTALL(TARGETS ${PLUGIN-MANAGER-LIB} LIBRARY DESTINATION lib)
 
 ##########################################################
 # Define Messaging Framework Handler
@@ -62,15 +61,16 @@ SET(FW-HANDLER-SRCS
 )
 
 INCLUDE_DIRECTORIES(
-    ${CMAKE_SOURCE_DIR}/include/mapi
+	${CMAKE_SOURCE_DIR}/include/mapi
 	${CMAKE_SOURCE_DIR}/include/common
 	${CMAKE_SOURCE_DIR}/include/framework
 	${CMAKE_SOURCE_DIR}/include/utils
+	${CMAKE_SOURCE_DIR}/include/externals
 	${CMAKE_SOURCE_DIR}/vobject-engine/include	
 )
 
 INCLUDE(FindPkgConfig)
-pkg_check_modules(fw_handler_pkgs REQUIRED glib-2.0 dlog vconf capi-appfw-application)
+pkg_check_modules(fw_handler_pkgs REQUIRED glib-2.0 gio-2.0 dlog vconf capi-appfw-application)
 
 FOREACH(flag ${fw_handler_pkgs_CFLAGS})
 	SET(EXTRA_CFLAGS "${EXTRA_CFLAGS} ${flag} -std=c++0x")
@@ -83,9 +83,9 @@ ADD_DEFINITIONS("-DPREFIX=\"${CMAKE_INSTALL_PREFIX}\"")
 SET(CMAKE_EXE_LINKER_FLAGS "-Wl,--as-needed")
 
 ADD_LIBRARY(${FW-HANDLER-LIB} SHARED ${FW-HANDLER-SRCS})
-TARGET_LINK_LIBRARIES(${FW-HANDLER-LIB} ${fw_handler_pkgs_LDFLAGS} ${UTILS-LIB} ${PLUGIN-MANAGER-LIB})
+TARGET_LINK_LIBRARIES(${FW-HANDLER-LIB} ${fw_handler_pkgs_LDFLAGS} ${UTILS-LIB} ${EXTERNALS-LIB} ${PLUGIN-MANAGER-LIB})
 
-INSTALL(TARGETS ${FW-HANDLER-LIB} DESTINATION ${LIB_INSTALL_DIR} COMPONENT RuntimeLibraries)
+INSTALL(TARGETS ${FW-HANDLER-LIB} DESTINATION lib COMPONENT RuntimeLibraries)
 
 ##########################################################
 # Define Transaction Manager
@@ -100,9 +100,10 @@ SET(TRANS-MANAGER-SRCS
 )
 
 INCLUDE_DIRECTORIES(
-    ${CMAKE_SOURCE_DIR}/include/mapi
+	${CMAKE_SOURCE_DIR}/include/mapi
 	${CMAKE_SOURCE_DIR}/include/common
 	${CMAKE_SOURCE_DIR}/include/framework
+	${CMAKE_SOURCE_DIR}/include/externals
 	${CMAKE_SOURCE_DIR}/include/utils
 )
 
@@ -120,9 +121,9 @@ ADD_DEFINITIONS("-DPREFIX=\"${CMAKE_INSTALL_PREFIX}\"")
 SET(CMAKE_EXE_LINKER_FLAGS "-Wl,--as-needed")
 
 ADD_LIBRARY(${TRANS-MANAGER-LIB} SHARED ${TRANS-MANAGER-SRCS})
-TARGET_LINK_LIBRARIES(${TRANS-MANAGER-LIB} ${trans_manager_pkgs_LDFLAGS} ${UTILS-LIB} ${FW-HANDLER-LIB})
+TARGET_LINK_LIBRARIES(${TRANS-MANAGER-LIB} ${trans_manager_pkgs_LDFLAGS} ${UTILS-LIB} ${EXTERNALS-LIB} ${FW-HANDLER-LIB})
 
-INSTALL(TARGETS ${TRANS-MANAGER-LIB} DESTINATION ${LIB_INSTALL_DIR} COMPONENT RuntimeLibraries)
+INSTALL(TARGETS ${TRANS-MANAGER-LIB} DESTINATION lib COMPONENT RuntimeLibraries)
 
 ##########################################################
 # Define Execute File
@@ -133,27 +134,31 @@ SET(MAIN-SRCS
 )
 
 INCLUDE_DIRECTORIES(
-    ${CMAKE_SOURCE_DIR}/include/mapi
+	${CMAKE_SOURCE_DIR}/include/mapi
 	${CMAKE_SOURCE_DIR}/include/common
 	${CMAKE_SOURCE_DIR}/include/framework
+	${CMAKE_SOURCE_DIR}/include/externals
 	${CMAKE_SOURCE_DIR}/include/utils
 )
 
 INCLUDE(FindPkgConfig)
-pkg_check_modules(main_pkgs REQUIRED glib-2.0 dbus-glib-1 dlog vconf)
+pkg_check_modules(main_pkgs REQUIRED glib-2.0 dbus-glib-1 dlog vconf db-util)
 
 FOREACH(flag ${main_pkgs_CFLAGS})
 	SET(EXTRA_CFLAGS "${EXTRA_CFLAGS} ${flag}")
 ENDFOREACH(flag)
 
 SET(CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS} ${EXTRA_CFLAGS}")
+SET(server_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIE")
 
 ADD_DEFINITIONS("-DPREFIX=\"${CMAKE_INSTALL_PREFIX}\"")
 
-SET(CMAKE_EXE_LINKER_FLAGS "-Wl,--as-needed")
+SET(CMAKE_EXE_LINKER_FLAGS "-Wl,--as-needed -pie")
 
 ADD_EXECUTABLE(${PROJECT_NAME} ${MAIN-SRCS})
-TARGET_LINK_LIBRARIES(${PROJECT_NAME} ${main_pkgs_LDFLAGS} ${UTILS-LIB} ${PLUGIN-MANAGER-LIB} ${TRANS-MANAGER-LIB} ${FW-HANDLER-LIB})
+TARGET_LINK_LIBRARIES(${PROJECT_NAME} ${main_pkgs_LDFLAGS} ${UTILS-LIB} ${EXTERNALS-LIB} ${PLUGIN-MANAGER-LIB} ${TRANS-MANAGER-LIB} ${FW-HANDLER-LIB})
+
+SET_TARGET_PROPERTIES(${PROJECT_NAME} PROPERTIES COMPILE_FLAGS "${server_CXX_FLAGS}")
 
 INSTALL(TARGETS ${PROJECT_NAME} DESTINATION bin)
 

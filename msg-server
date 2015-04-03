@@ -1,7 +1,0 @@
-#!/bin/sh
-## A script for running msg-server in booting time.
-
-if [ ! -e /opt/etc/.hib_capturing ]; then
-/usr/bin/msg-server &
-fi
-

@@ -1,20 +1,17 @@
 /*
- * msg-service
- *
- * Copyright (c) 2000 - 2014 Samsung Electronics Co., Ltd. All rights reserved
+ * Copyright (c) 2014 Samsung Electronics Co., Ltd. All rights reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
 */
 
 #include "MsgDebug.h"
@@ -100,11 +97,30 @@ int MsgGetConfigHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 	int eventType = -1;
 
 	// Get Option Type
-	MSG_OPTION_TYPE_T* type = (MSG_OPTION_TYPE_T*)pCmd->cmdData;
+	MSG_OPTION_TYPE_T type = 0;
+	memcpy((void *)&type, (void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN), sizeof(MSG_OPTION_TYPE_T));
 
 	// Get Config Data
 	MSG_SETTING_S setting;
-	setting.type = *type;
+	setting.type = type;
+
+	msg_sim_slot_id_t simIndex = 0;
+	switch(setting.type) {
+	case MSG_CBMSG_OPT :
+		memcpy(&simIndex, (void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN+sizeof(MSG_OPTION_TYPE_T)), sizeof(msg_sim_slot_id_t));
+		setting.option.cbMsgOpt.simIndex = simIndex;
+		break;
+	case MSG_VOICEMAIL_OPT :
+		memcpy(&simIndex, (void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN+sizeof(MSG_OPTION_TYPE_T)), sizeof(msg_sim_slot_id_t));
+		setting.option.voiceMailOpt.simIndex = simIndex;
+		break;
+	case MSG_SMSC_LIST :
+		memcpy(&simIndex, (void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN+sizeof(MSG_OPTION_TYPE_T)), sizeof(msg_sim_slot_id_t));
+		setting.option.smscList.simIndex = simIndex;
+		break;
+	default :
+		break;
+	}
 
 	err = MsgGetConfigData(&setting);
 

@@ -1,20 +1,17 @@
 /*
- * msg-service
- *
- * Copyright (c) 2000 - 2014 Samsung Electronics Co., Ltd. All rights reserved
+ * Copyright (c) 2014 Samsung Electronics Co., Ltd. All rights reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
 */
 
 #ifndef MSG_TYPES_H
@@ -57,6 +54,17 @@
  *	@brief	Defines the enabled MMS version
  */
 #define	MMS_V1_2								// MMS Version : MMS_V1_0 / MMS_V1_1 / MMS_V1_2
+
+
+/**
+ * @brief Defines the notification method
+ */
+#define MSG_NOTI_INTEGRATION
+
+/**
+ * @brief Defines the enabled drm
+ */
+#define MSG_DRM_SUPPORT	(0)
 
 /**
  *	@brief	Defines message struct handle.
@@ -278,6 +286,7 @@ typedef struct
 	char                                            	pushBody[MAX_WAPPUSH_CONTENTS_LEN + 1];
 	int 								wspHeaderLen;
 	char 							wspHeader[MAX_WAPPUSH_CONTENTS_LEN + 1];
+	int 							simIndex;
 }MSG_SYNCML_MESSAGE_DATA_S;
 
 
@@ -320,6 +329,15 @@ typedef struct
 	char pkgName[MSG_FILEPATH_LEN_MAX + 1];
 	bool bLaunch;
 }MSG_PUSH_EVENT_INFO_S;
+
+
+typedef struct
+{
+	msg_message_id_t msg_id;
+	char mime_type[MAX_MIME_TYPE_LEN+1];
+	char media_item[MSG_FILEPATH_LEN_MAX+1];
+	char thumb_path[MSG_FILEPATH_LEN_MAX+1];
+} MSG_MEDIA_INFO_S;
 
 /**
  *	@}

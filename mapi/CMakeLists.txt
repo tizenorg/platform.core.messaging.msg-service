@@ -29,14 +29,13 @@ SET(MAPI-SRCS
 
 INCLUDE_DIRECTORIES(
 	${CMAKE_SOURCE_DIR}/include/common
-	${CMAKE_SOURCE_DIR}/include/framework
 	${CMAKE_SOURCE_DIR}/include/proxy
 	${CMAKE_SOURCE_DIR}/include/utils
 	${CMAKE_SOURCE_DIR}/include/mapi
 )
 
 INCLUDE(FindPkgConfig)
-pkg_check_modules(mapi_pkgs REQUIRED glib-2.0 dlog)
+pkg_check_modules(mapi_pkgs REQUIRED glib-2.0 dlog privacy-manager-client vconf)
 
 FOREACH(flag ${mapi_pkgs_CFLAGS})
 	SET(EXTRA_CFLAGS "${EXTRA_CFLAGS} ${flag}")
@@ -53,5 +52,5 @@ TARGET_LINK_LIBRARIES(${MAPI-LIB} ${mapi_pkgs_LDFLAGS} ${UTILS-LIB} ${TRANS-PROX
 SET_TARGET_PROPERTIES(${MAPI-LIB} PROPERTIES SOVERSION ${VERSION_MAJOR})
 SET_TARGET_PROPERTIES(${MAPI-LIB} PROPERTIES VERSION ${VERSION})
 
-INSTALL(TARGETS ${MAPI-LIB} DESTINATION ${LIB_INSTALL_DIR} COMPONENT RuntimeLibraries)
+INSTALL(TARGETS ${MAPI-LIB} DESTINATION lib COMPONENT RuntimeLibraries)
 

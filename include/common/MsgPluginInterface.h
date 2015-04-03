@@ -1,21 +1,19 @@
 /*
- * msg-service
- *
- * Copyright (c) 2000 - 2014 Samsung Electronics Co., Ltd. All rights reserved
+ * Copyright (c) 2014 Samsung Electronics Co., Ltd. All rights reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
 */
+
  /**
  *	@file 		MsgPluginInterface.h
  *	@brief 		Defines plug-ins API of messaging framework
@@ -526,7 +524,11 @@ typedef msg_error_t (*MsgPlgSaveSimMessage)(const MSG_MESSAGE_INFO_S *pMsgInfo, 
  *
  */
 /*================================================================================================*/
+#ifdef FEATURE_SMS_CDMA
 typedef msg_error_t (*MsgPlgDeleteSimMessage)(msg_sim_id_t SimMsgId);
+#else
+typedef msg_error_t (*MsgPlgDeleteSimMessage)(msg_sim_slot_id_t sim_idx, msg_sim_id_t SimMsgId);
+#endif
 
 
  /**
@@ -567,8 +569,11 @@ typedef msg_error_t (*MsgPlgDeleteSimMessage)(msg_sim_id_t SimMsgId);
  *
  */
 /*================================================================================================*/
+#ifdef FEATURE_SMS_CDMA
 typedef msg_error_t (*MsgPlgSetReadStatus)(msg_sim_id_t SimMsgId);
-
+#else
+typedef msg_error_t (*MsgPlgSetReadStatus)(msg_sim_slot_id_t sim_idx, msg_sim_id_t SimMsgId);
+#endif
 
  /**
 
@@ -608,8 +613,11 @@ typedef msg_error_t (*MsgPlgSetReadStatus)(msg_sim_id_t SimMsgId);
  *
  */
 /*================================================================================================*/
+#ifdef FEATURE_SMS_CDMA
 typedef msg_error_t (*MsgPlgSetMemoryStatus)(msg_error_t Error);
-
+#else
+typedef msg_error_t (*MsgPlgSetMemoryStatus)(msg_sim_slot_id_t sim_idx, msg_error_t Error);
+#endif
 
 // Setting API
  /**
@@ -893,7 +901,6 @@ typedef msg_error_t (*MsgPlgUpdateMessage)(MSG_MESSAGE_INFO_S *pMsgInfo, MSG_SEN
 *
 * \param output - pMsg is information of MMS message.
 * \param output - pSendOptInfo is information of sending options.
-* \param output - pMmsMsg is information of MMS messages detail data.
 * \param output - pDestMsg is file path of MMS message.
 *
 * \return Return Type (int(msg_error_t)) \n
@@ -911,7 +918,7 @@ typedef msg_error_t (*MsgPlgUpdateMessage)(MSG_MESSAGE_INFO_S *pMsgInfo, MSG_SEN
 *
 */
 /*================================================================================================*/
-typedef msg_error_t (*MsgPlgGetMmsMessage)(MSG_MESSAGE_INFO_S* pMsg,	MSG_SENDINGOPT_INFO_S* pSendOptInfo, MMS_MESSAGE_DATA_S* pMmsMsg, char** pDestMsg);
+typedef msg_error_t (*MsgPlgGetMmsMessage)(MSG_MESSAGE_INFO_S* pMsg,	MSG_SENDINGOPT_INFO_S* pSendOptInfo, char** pDestMsg);
 
 
 /**
@@ -1037,6 +1044,10 @@ typedef msg_error_t (*MsgPlgComposeReadReport)(MSG_MESSAGE_INFO_S *pMsgInfo);
 /*================================================================================================*/
 typedef msg_error_t (*MsgPlgRestoreMsg)(MSG_MESSAGE_INFO_S *pMsg, char* pRcvdBody, int rcvdBodyLen, char* filePath);
 
+typedef msg_error_t (*MsgPlgGetMeImei) (char *pImei);
+
+typedef msg_error_t (*MsgPlgGetDefaultNetworkSimId) (int *simId);
+
 
 // framework defined callbacks.
 typedef void (*MsgPlgOnSentStatus)(MSG_SENT_STATUS_S *pSentStatus);
@@ -1046,24 +1057,35 @@ typedef msg_error_t (*MsgPlgOnInitSimBySat)(void);
 typedef msg_error_t (*MsgPlgOnSyncMLMsgIncoming)(MSG_SYNCML_MESSAGE_DATA_S *pSyncMLData);
 typedef msg_error_t (*MsgPlgOnLBSMsgIncoming)(MSG_LBS_MESSAGE_DATA_S *pLBSData);
 typedef msg_error_t (*MsgPlgOnPushMsgIncoming)(MSG_PUSH_MESSAGE_DATA_S *pPushData);
-typedef msg_error_t (*MsgPlgOnCBMsgIncoming)(MSG_CB_MSG_S *pCbMsg);
+typedef msg_error_t (*MsgPlgOnCBMsgIncoming)(MSG_CB_MSG_S *pCbMsg, MSG_MESSAGE_INFO_S *pMsgInfo);
 typedef msg_error_t (*MsgPlgOnMmsConfIncoming)(MSG_MESSAGE_INFO_S *pMsgInfo, msg_request_id_t *pRequest);
-
+typedef msg_error_t (*MsgPlgOnSimMessageIncoming)(MSG_MESSAGE_INFO_S *pMsgInfo, int *simIdList, msg_message_id_t *retMsgId, int listSize);
+typedef msg_error_t (*MsgPlgOnResendMessage)(void);
+#ifdef FEATURE_SMS_CDMA
+typedef bool (*MsgPlgCheckUniqueness)(MSG_UNIQUE_INDEX_S *p_msg, msg_message_id_t msgId, bool ischecked);
+#endif
+typedef msg_error_t (*MsgPlgOnInitImsi)(int sim_idx);
 
 /*==================================================================================================
                                          STRUCTURES
 ==================================================================================================*/
 struct _MSG_PLUGIN_LISTENER_S
 {
-	MsgPlgOnSentStatus			pfSentStatusCb;			/** The function pointer of sent status callback. */
-	MsgPlgOnStorageChange		pfStorageChangeCb;		/** The function pointer of storage change callback. */
-	MsgPlgOnMsgIncoming			pfMsgIncomingCb;			/** The function pointer of receive message callback. */
-	MsgPlgOnInitSimBySat			pfInitSimBySatCb;			/** The function pointer of init SIM callback. */
+	MsgPlgOnSentStatus					pfSentStatusCb;					/** The function pointer of sent status callback. */
+	MsgPlgOnStorageChange			pfStorageChangeCb;			/** The function pointer of storage change callback. */
+	MsgPlgOnMsgIncoming				pfMsgIncomingCb;				/** The function pointer of receive message callback. */
+	MsgPlgOnInitSimBySat				pfInitSimBySatCb;				/** The function pointer of init SIM callback. */
 	MsgPlgOnSyncMLMsgIncoming	pfSyncMLMsgIncomingCb;	/** The function pointer of receive syncML message callback. */
-	MsgPlgOnLBSMsgIncoming		pfLBSMsgIncomingCb;		/** The function pointer of receive LBS message callback. */
+	MsgPlgOnLBSMsgIncoming			pfLBSMsgIncomingCb;			/** The function pointer of receive LBS message callback. */
 	MsgPlgOnPushMsgIncoming		pfPushMsgIncomingCb;		/** The function pointer of receive Push message callback. */
-	MsgPlgOnCBMsgIncoming		pfCBMsgIncomingCb;			/** The function pointer of receive cb message callback. */
-	MsgPlgOnMmsConfIncoming 	pfMmsConfIncomingCb;	/** The function pointer of receive MMS conf */
+	MsgPlgOnCBMsgIncoming			pfCBMsgIncomingCb;			/** The function pointer of receive cb message callback. */
+	MsgPlgOnMmsConfIncoming 		pfMmsConfIncomingCb;		/** The function pointer of receive MMS conf */
+	MsgPlgOnSimMessageIncoming	pfSimMsgIncomingCb;			/** The function pointer of sim message callback */
+	MsgPlgOnResendMessage		pfResendMessageCb;
+#ifdef FEATURE_SMS_CDMA
+	MsgPlgCheckUniqueness		pfCheckUniquenessCb;
+#endif
+	MsgPlgOnInitImsi			pfSimInitImsiCb;
 };
 
 
@@ -1072,15 +1094,11 @@ struct _MSG_PLUGIN_HANDLER_S
 	MsgPlgInitialize    				pfInitialize;               		/**< The function pointer of initialize. */
 	MsgPlgFinalize      				pfFinalize;                 		/**< The function pointer of finalize. */
 	MsgPlgRegisterListener 			pfRegisterListener;      		/**< The function pointer of register listener. */
-	MsgPlgCheckSimStatus			pfCheckSimStatus;           	/**< The function pointer of check SIM status. */
-	MsgPlgCheckDeviceStatus		pfCheckDeviceStatus;      	/**< The function pointer of check device status. */
 	MsgPlgSubmitRequest 			pfSubmitRequest;           	/**< The function pointer of submit request. */
-	MsgPlgInitSimMessage			pfInitSimMessage;			/**< The function pointer of initialize SIM msg. */
 	MsgPlgSaveSimMessage			pfSaveSimMessage;		/**< The function pointer of save SIM msg. */
 	MsgPlgDeleteSimMessage		pfDeleteSimMessage;		/**< The function pointer of delete SIM msg. */
 	MsgPlgSetReadStatus			pfSetReadStatus;			/**< The function pointer of set read status. */
 	MsgPlgSetMemoryStatus		pfSetMemoryStatus;		/**< The function pointer of set memory status. */
-	MsgPlgInitConfigData			pfInitConfigData;			/**< The function pointer of initialize of setting. */
 	MsgPlgSetConfigData			pfSetConfigData;			/**< The function pointer of save setting. */
 	MsgPlgGetConfigData			pfGetConfigData;			/**< The function pointer of get setting. */
 	MsgPlgRestoreMsg				pfRestoreMsg;
@@ -1090,6 +1108,7 @@ struct _MSG_PLUGIN_HANDLER_S
 	MsgPlgGetMmsMessage 			pfGetMmsMessage;
 	MsgPlgUpdateRejectStatus		pfUpdateRejectStatus;
 	MsgPlgComposeReadReport 		pfComposeReadReport;
+	MsgPlgGetDefaultNetworkSimId	pfGetDefaultNetworkSimId;
 };
 
 #ifdef __cplusplus

@@ -1,30 +1,28 @@
 /*
- * msg-service
- *
- * Copyright (c) 2000 - 2014 Samsung Electronics Co., Ltd. All rights reserved
+ * Copyright (c) 2014 Samsung Electronics Co., Ltd. All rights reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
 */
 
 #include <stdio.h>
 
-#include <pmapi.h>
-
 #include "MsgDebug.h"
 #include "MsgUtilStorage.h"
-#include "MsgNotificationWrapper.h"
 #include "MsgGconfWrapper.h"
+#include "MsgException.h"
+#ifdef MSG_PENDING_PUSH_MESSAGE
+#include "MsgIpcSocket.h"
+#endif
 
 #ifdef USE_GCONF
 
@@ -34,14 +32,13 @@ MSG_GOBJECT_CLIENT_S* pClient = NULL;
 
 #endif
 
-bool bAutoReject = false;
+#ifdef MSG_PENDING_PUSH_MESSAGE
+int bPushServiceReady = 0;
+#endif
+
+int autoReject = 0;
 bool bUnknownAutoReject = false;
 
-
-/*==================================================================================================
-                                     DEFINES
-==================================================================================================*/
-#define MSG_UNREAD_CNT		"db/badge/org.tizen.message"
 
 
 /*==================================================================================================
@@ -49,25 +46,44 @@ bool bUnknownAutoReject = false;
 ==================================================================================================*/
 static void MsgVconfCB(keynode_t *key, void* data)
 {
-	const char *keyStr = NULL;
+#if 0
+	char *keyStr = NULL;
 	keyStr = vconf_keynode_get_name(key);
 
 	if (!keyStr)
 		return;
 
-	if (!strcmp(keyStr, VCONFKEY_CISSAPPL_AUTO_REJECT_BOOL)) {
-		bAutoReject = vconf_keynode_get_bool(key);
-		MSG_DEBUG("[%s] key CB called. set to [%d].", VCONFKEY_CISSAPPL_AUTO_REJECT_BOOL, bAutoReject);
-	} else if (!strcmp(keyStr, VCONFKEY_CISSAPPL_AUTO_REJECT_UNKNOWN_BOOL)) {
+	if (!g_strcmp0(keyStr, VCONFKEY_CISSAPPL_AUTO_REJECT_INT)) {
+		autoReject = vconf_keynode_get_int(key);
+		MSG_DEBUG("[%s] key CB called. set to [%d].", VCONFKEY_CISSAPPL_AUTO_REJECT_INT, autoReject);
+	} else if (!g_strcmp0(keyStr, VCONFKEY_CISSAPPL_AUTO_REJECT_UNKNOWN_BOOL)) {
 		bUnknownAutoReject = vconf_keynode_get_bool(key);
 		MSG_DEBUG("[%s] key CB called. set to [%d].", VCONFKEY_CISSAPPL_AUTO_REJECT_UNKNOWN_BOOL, bUnknownAutoReject);
-	} else if (!strcmp(keyStr, VCONFKEY_CONTACTS_SVC_NAME_DISPLAY_ORDER)) {
-		int contactDisplayOrder = vconf_keynode_get_int(key);
-		MSG_DEBUG("[%s] key CB called. Apply [%d]", VCONFKEY_CONTACTS_SVC_NAME_DISPLAY_ORDER, contactDisplayOrder);
-		MsgStoRefreshConversationDisplayName();
-	} else {
+	}
+#ifdef MSG_PENDING_PUSH_MESSAGE
+	else if (!g_strcmp0(keyStr, VCONFKEY_USER_SERVICE_READY)){
+		bPushServiceReady = vconf_keynode_get_int(key);
+		MSG_DEBUG("[%s] key CB called. set to [%d].", VCONFKEY_USER_SERVICE_READY, bPushServiceReady);
+
+		if(bPushServiceReady)
+		{
+			try {
+				if (MsgSendPendingPushMsg() == MSG_SUCCESS) {
+					MSG_DEBUG("MsgSendPendingPushMsg success");
+				} else {
+					MSG_DEBUG("MsgSendPendingPushMsg fail");
+				}
+			} catch (MsgException& e) {
+				MSG_FATAL("%s", e.what());
+				MSG_DEBUG("MsgSendPendingPushMsg fail");
+			}
+		}
+	}
+#endif
+	else {
 		MSG_DEBUG("key did not match.");
 	}
+#endif
 }
 
 msg_error_t MsgSettingSetString(const char *pKey, const char *pSetValue)
@@ -189,23 +205,6 @@ int MsgSettingGetBool(const char *pKey, bool *pVal)
 	return retVal;
 }
 
-void MsgChangePmState()
-{
-	MSG_BEGIN();
-	int callStatus = 0;
-
-	callStatus = MsgSettingGetInt(VCONFKEY_CALL_STATE);
-	MSG_DEBUG("Call Status = %d", callStatus);
-
-	if (callStatus > VCONFKEY_CALL_OFF && callStatus < VCONFKEY_CALL_STATE_MAX) {
-		MSG_DEBUG("Call is activated. Do not turn on the lcd.");
-	} else {
-		MSG_DEBUG("Call is activated. Turn on the lcd.");
-		pm_change_state(LCD_NORMAL);
-	}
-
-	MSG_END();
-}
 
 msg_error_t MsgSettingHandleNewMsg(int SmsCnt, int MmsCnt)
 {
@@ -220,15 +219,23 @@ msg_error_t MsgSettingHandleNewMsg(int SmsCnt, int MmsCnt)
 		return MSG_ERR_SET_SETTING;
 	}
 
-	if (SmsCnt == 0 && MmsCnt == 0)
-	{
-		MSG_DEBUG("No New Message.");
-	}
-	else
-	{
-		MSG_DEBUG("New Message.");
-		MsgChangePmState();
-	}
+//	if (SmsCnt == 0 && MmsCnt == 0)
+//	{
+//		MSG_DEBUG("No New Message.");
+//	}
+//	else
+//	{
+//		MSG_DEBUG("New Message.");
+//
+//		bool bNotification = true;
+//
+//		if (MsgSettingGetBool(MSG_SETTING_NOTIFICATION, &bNotification) != MSG_SUCCESS) {
+//			MSG_DEBUG("MsgSettingGetBool is failed.");
+//		}
+//
+//		if (bNotification)
+//			MsgChangePmState();
+//	}
 
 	MSG_END();
 
@@ -244,19 +251,13 @@ msg_error_t MsgSettingSetIndicator(int SmsCnt, int MmsCnt)
 	if (MsgSettingSetInt(VCONFKEY_MESSAGE_RECV_MMS_STATE, MmsCnt) != 0)
 		return MSG_ERR_SET_SETTING;
 
-	int sumCnt = SmsCnt + MmsCnt;
-
-//	if (MsgSettingSetInt(MSG_UNREAD_CNT, sumCnt) != 0)
-	if (MsgInsertBadge(sumCnt) != MSG_SUCCESS)
-		return MSG_ERR_SET_SETTING;
-
 	return MSG_SUCCESS;
 }
 
 
-bool MsgSettingGetAutoReject()
+int MsgSettingGetAutoReject()
 {
-	return bAutoReject;
+	return autoReject;
 }
 
 bool MsgSettingGetUnknownAutoReject()
@@ -285,18 +286,71 @@ void MsgSettingRemoveVconfCBCommon(const char *pKey, _vconf_change_cb pCb)
 
 void MsgSettingRegVconfCB()
 {
+#if 0
 	// Set default values.
-	MsgSettingGetBool(VCONFKEY_CISSAPPL_AUTO_REJECT_BOOL, &bAutoReject);
+	autoReject = MsgSettingGetInt(VCONFKEY_CISSAPPL_AUTO_REJECT_INT);
 	MsgSettingGetBool(VCONFKEY_CISSAPPL_AUTO_REJECT_UNKNOWN_BOOL, &bUnknownAutoReject);
 
-	MsgSettingRegVconfCBCommon(VCONFKEY_CISSAPPL_AUTO_REJECT_BOOL, MsgVconfCB);
+	MsgSettingRegVconfCBCommon(VCONFKEY_CISSAPPL_AUTO_REJECT_INT, MsgVconfCB);
 	MsgSettingRegVconfCBCommon(VCONFKEY_CISSAPPL_AUTO_REJECT_UNKNOWN_BOOL, MsgVconfCB);
-	MsgSettingRegVconfCBCommon(VCONFKEY_CONTACTS_SVC_NAME_DISPLAY_ORDER, MsgVconfCB);
+
+#ifdef MSG_PENDING_PUSH_MESSAGE
+	MsgSettingRegVconfCBCommon(VCONFKEY_USER_SERVICE_READY, MsgVconfCB);
+#endif
+#endif
 }
 
 void MsgSettingRemoveVconfCB()
 {
-	MsgSettingRemoveVconfCBCommon(VCONFKEY_CISSAPPL_AUTO_REJECT_BOOL, MsgVconfCB);
+#if 0
+	MsgSettingRemoveVconfCBCommon(VCONFKEY_CISSAPPL_AUTO_REJECT_INT, MsgVconfCB);
 	MsgSettingRemoveVconfCBCommon(VCONFKEY_CISSAPPL_AUTO_REJECT_UNKNOWN_BOOL, MsgVconfCB);
-	MsgSettingRemoveVconfCBCommon(VCONFKEY_CONTACTS_SVC_NAME_DISPLAY_ORDER, MsgVconfCB);
+#endif
+}
+
+msg_error_t MsgSendPendingPushMsg(void)
+{
+	MSG_BEGIN();
+
+	// establish connection to msgfw daemon
+	MsgIpcClientSocket client;
+	client.connect(MSG_SOCKET_PATH);
+
+	// composing command
+	int cmdSize = sizeof(MSG_CMD_S); // cmd type, MSG_SYNCML_MESSAGE_DATA_S
+
+	MSG_DEBUG("cmdSize: %d", cmdSize);
+
+	char cmdBuf[cmdSize];
+	bzero(cmdBuf, cmdSize);
+	MSG_CMD_S* pCmd = (MSG_CMD_S*) cmdBuf;
+
+	// Set Command Parameters
+	pCmd->cmdType = MSG_CMD_SEND_PENDING_PUSH_MESSAGE;
+
+	memset(pCmd->cmdCookie, 0x00, MAX_COOKIE_LEN);
+
+	// Send Command to Messaging FW
+	client.write(cmdBuf, cmdSize);
+
+	// Receive result from Transaction Manager
+	char* retBuf = NULL;
+	AutoPtr<char> wrap(&retBuf);
+	unsigned int retSize;
+	client.read(&retBuf, &retSize);
+
+	// close connection to msgfw daemon
+	client.close();
+
+	// Decoding the result from FW and Returning it to plugin
+	// the result is used for making delivery report
+	MSG_EVENT_S* pEvent = (MSG_EVENT_S*)retBuf;
+
+	if (pEvent->eventType != MSG_EVENT_SEND_PENDING_PUSH_MESSAGE)
+		MSG_FATAL("Wrong result(evt type %d : %s) received", pEvent->eventType, MsgDbgEvtStr(pEvent->eventType));
+		//THROW(MsgException::INCOMING_MSG_ERROR, "Wrong result(evt type %d : %s) received", pEvent->eventType, MsgDbgEvtStr(pEvent->eventType));
+
+	MSG_END();
+
+	return (pEvent->result);
 }

@@ -1,20 +1,17 @@
 /*
- * msg-service
- *
- * Copyright (c) 2000 - 2014 Samsung Electronics Co., Ltd. All rights reserved
+ * Copyright (c) 2014 Samsung Electronics Co., Ltd. All rights reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
 */
 
 #ifndef MSG_HANDLE_H
@@ -61,6 +58,7 @@ class MsgHandle
 		msg_error_t regPushMessageCallback(msg_push_msg_incoming_cb onPushMsgIncoming, const char *pAppId, void *pUserParam);
 		msg_error_t regCBMessageCallback(msg_cb_incoming_cb onCBIncoming, bool bSave, void *pUserParam);
 		msg_error_t regSyncMLMessageOperationCallback(msg_syncml_msg_operation_cb onSyncMLMsgOperation, void *pUserParam);
+		msg_error_t regReportMessageCallback(msg_report_msg_incoming_cb onReportMsgCB, void *pUserParam);
 
 		msg_error_t operateSyncMLMessage(msg_message_id_t msgId);
 
@@ -69,6 +67,7 @@ class MsgHandle
 		msg_error_t addSyncMLMessage(const MSG_SYNCML_MESSAGE_S *pSyncMLMsg);
 		msg_error_t updateMessage(const MSG_MESSAGE_HIDDEN_S *pMsg, const MSG_SENDINGOPT_S *pSendOpt);
 		msg_error_t updateReadStatus(msg_message_id_t MsgId, bool bRead);
+		msg_error_t setConversationToRead(msg_thread_id_t ThreadId);
 		msg_error_t updateProtectedStatus(msg_message_id_t MsgId, bool bProtected);
 		msg_error_t deleteMessage(msg_message_id_t MsgId);
 		msg_error_t deleteAllMessagesInFolder(msg_folder_id_t FolderId, bool bOnlyDB);
@@ -114,7 +113,7 @@ class MsgHandle
 		msg_error_t getMmsSendOpt(msg_struct_t msg_struct);
 		msg_error_t setMmsSendOpt(msg_struct_t msg_struct);
 		msg_error_t getMmsRecvOpt(msg_struct_t msg_struct);
-		msg_error_t setMmsRecvOpt(msg_struct_t msg_struct);;
+		msg_error_t setMmsRecvOpt(msg_struct_t msg_struct);
 		msg_error_t getPushMsgOpt(msg_struct_t msg_struct);
 		msg_error_t setPushMsgOpt(msg_struct_t msg_struct);
 		msg_error_t getVoiceMsgOpt(msg_struct_t msg_struct);
@@ -130,13 +129,15 @@ class MsgHandle
 		msg_error_t getVobject(msg_message_id_t MsgId, void** encodedData);
 		// ETC
 		msg_error_t searchMessage(const char *pSearchString, msg_struct_list_s *pThreadViewList);
-		msg_error_t searchMessage(const MSG_SEARCH_CONDITION_S *pSearchCon, int offset, int limit, msg_struct_list_s *pMsgList);
+
 		msg_error_t getRejectMsgList(const char *pNumber, msg_struct_list_s *pRejectMsgList);
 		msg_error_t regStorageChangeCallback(msg_storage_change_cb onStorageChange, void *pUserParam);
 		msg_error_t getReportStatus(msg_message_id_t msg_id, msg_struct_list_s *report_list);
 		msg_error_t getThreadIdByAddress(msg_struct_list_s *pAddrList, msg_thread_id_t *pThreadId);
+		msg_error_t getThreadIdByAddress(msg_list_handle_t msg_address_list, msg_thread_id_t *pThreadId);
 		msg_error_t getThread(msg_thread_id_t threadId, MSG_THREAD_VIEW_S* pThreadInfo);
-		msg_error_t getMessageList(msg_folder_id_t folderId, msg_thread_id_t threadId, msg_message_type_t msgType, msg_storage_id_t storageId, msg_struct_list_s *pMsgList);
+		msg_error_t getMessageList(const MSG_LIST_CONDITION_S *pListCond, msg_struct_list_s *pMsgList);
+		msg_error_t getMediaList(const msg_thread_id_t thread_id, msg_list_handle_t *pMediaList);
 
 		// Push Event
 		msg_error_t addPushEvent(MSG_PUSH_EVENT_INFO_S *push_event);

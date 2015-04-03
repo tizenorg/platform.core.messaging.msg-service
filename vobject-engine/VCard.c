@@ -1,20 +1,17 @@
 /*
- * msg-service
- *
- * Copyright (c) 2000 - 2014 Samsung Electronics Co., Ltd. All rights reserved
+ * Copyright (c) 2014 Samsung Electronics Co., Ltd. All rights reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
 */
 
 #include "VTypes.h"
@@ -601,17 +598,15 @@ __VCardGetParamVal( char* pVCardRaw, int* pStatus, int* pDLen )
 			break;
 	}
 
-	pBuf = (char *)malloc(len);
-	if(len < 1 || (pBuf  == NULL)) {
-//		if (pBuf) {
-//			free(pBuf);
-//			pBuf = NULL;
-//		}
+	//if (len < 1)
+		//return NULL;
 
+	pBuf = (char *)malloc(len);
+	if(pBuf  == NULL)
 		return NULL;
-	}
+
 	memset(pBuf, 0x00, len);
-	memcpy( pBuf, pTemp, len-1 );
+	memcpy(pBuf, pTemp, len-1);
 	TRIM(pBuf);
 	VDATA_TRACE_END
 	return pBuf;
@@ -866,17 +861,20 @@ vcard_decode( char *pCardRaw )
 	int param_status = false;
 	int numberedParam = 0;
 	int enc = 0;
-	int start_status = 0;
+	//int start_status = 0;
 	char* temp = NULL;
 
 	bool vcard_ended = false;
 
 	SysRequireEx(pCardRaw != NULL, NULL);
 	len = strlen(pCardRaw);
+	VDATA_TRACE("length of pCardRaw = %d", len);
 
 	pCardRaw = _VUnfoldingNoSpecNew(pCardRaw);
 	pCardRawTmp = pCardRaw;
 	len = _VManySpace2Space( pCardRaw );
+
+	VDATA_TRACE("ret value of _VManySpace2Space = %d", len);
 
 	if(!__VIsVcardFile(pCardRaw, CHECK_START)) {
 		VFREE(pCardRawTmp);
@@ -904,12 +902,13 @@ vcard_decode( char *pCardRaw )
 				switch ( type )
 				{
 					case VCARD_TYPE_BEGIN:
-						if(start_status == 1) {
-							goto CATCH;
+						if (pVCard) {
+							free(pVCard);
+							pVCard = NULL;
 						}
 
 						if ( ( pVCard = ( VTree* )malloc( sizeof( VTree ) ) ) == NULL ) {
-							start_status = 1;
+							//start_status = 1;
 							goto CATCH;
 						}
 
@@ -1258,11 +1257,11 @@ __VCardTypeEncode( VObject *pTypeObj, char *pType )
 #ifdef VDATA_GROUPNAME_SUPPORTED
 	if ( pTypeObj->pszGroupName != NULL )
 	{
-		strcat( szTypeValue, pTypeObj->pszGroupName );
-		strcat( szTypeValue, "." );
+		g_strlcat( szTypeValue, pTypeObj->pszGroupName, total);
+		g_strlcat( szTypeValue, ".", total);
 	}
 #endif // VDATA_GROUPNAME_SUPPORTED
-	strcat( szTypeValue, pType );
+	g_strlcat( szTypeValue, pType, total);
 
 	pTemp = __VCardParamEncode( pTypeObj, &enc );
 	if ( pTemp != NULL )
@@ -1276,7 +1275,7 @@ __VCardTypeEncode( VObject *pTypeObj, char *pType )
 			VDATA_TRACE_END;
 			return NULL;
 		}
-		strcat( szTypeValue, pTemp );
+		g_strlcat( szTypeValue, pTemp, total);
 		VFREE( pTemp );
 		pTemp = NULL;
 	}
@@ -1314,7 +1313,7 @@ __VCardTypeEncode( VObject *pTypeObj, char *pType )
 			memset( pEncode, '\0', len+20 );
 
 			if(strcmp(pType, pszCardTypeList[19]) != 0)	{
-				strcat( pEncode, pTypeObj->pszValue[i] );
+				g_strlcat( pEncode, pTypeObj->pszValue[i], len+20);
 				_VEscape(pEncode);
 			}
 			else
@@ -1324,8 +1323,8 @@ __VCardTypeEncode( VObject *pTypeObj, char *pType )
 			char	buf[1000];
 			strncpy( buf, pTypeObj->pszValue[i], 999 );
 			_VEscape( buf );
-			strcat( pEncode, ";" );
-			strcat( pEncode, buf );
+			g_strlcat( pEncode, ";", len+20);
+			g_strlcat( pEncode, buf, len+20);
 		}
 	}
 
@@ -1456,8 +1455,8 @@ __VCardParamEncode(VObject* pTypeObj, int* pEnc)
 		/** appending paramter name. */
 		strcat( szParam, ";" );
 		if(pTemp->parameter != VCARD_PARAM_TYPE) {
-			strcat( szParam, pszCardParamList[pTemp->parameter] );
-			strcat( szParam, "=" );
+			g_strlcat( szParam, pszCardParamList[pTemp->parameter], len);
+			g_strlcat( szParam, "=", len);
 		}
 
 		/** Set Parameter Value name. */
@@ -1501,8 +1500,8 @@ __VCardParamEncode(VObject* pTypeObj, int* pEnc)
 						return NULL;
 					}
 
-					strcat( szParam, pList[i].szName );
-					strcat( szParam, "; " );
+					g_strlcat( szParam, pList[i].szName, len);
+					g_strlcat( szParam, "; ", len);
 				}
 
 				sNum <<= 1;

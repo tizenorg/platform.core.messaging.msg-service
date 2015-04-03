@@ -1,20 +1,17 @@
 /*
- * msg-service
- *
- * Copyright (c) 2000 - 2014 Samsung Electronics Co., Ltd. All rights reserved
+ * Copyright (c) 2014 Samsung Electronics Co., Ltd. All rights reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
 */
 
 #include <time.h>
@@ -23,11 +20,10 @@
 #include "MsgDebug.h"
 #include "MsgCppTypes.h"
 #include "MsgException.h"
+#include "MsgUtilFunction.h"
 #include "MsgProxyListener.h"
 #include "MsgHandle.h"
 
-
-#define MAX_ADDRESS_LEN 			21 // including '+'
 
 /*==================================================================================================
                                      IMPLEMENTATION OF MsgHandle - Transport Member Functions
@@ -47,15 +43,27 @@ msg_error_t MsgHandle::submitReq(MSG_REQUEST_S* pReq)
 	MSG_REQUEST_INFO_S reqInfo = {0};
 	char trId[MMS_TR_ID_LEN+1] = {0};
 
+	reqInfo.msgInfo.addressList = NULL;
+	AutoPtr<MSG_ADDRESS_INFO_S> addressListBuf(&reqInfo.msgInfo.addressList);
+
 	msg_struct_s *msg_s = (msg_struct_s *)pReq->msg;
 
 	MSG_MESSAGE_HIDDEN_S *reqmsg = (MSG_MESSAGE_HIDDEN_S*)msg_s->data;
 
+	if (reqmsg->simIndex <= 0) {
+		MSG_DEBUG("Wrong SIM Index [%d]", reqmsg->simIndex);
+		return MSG_ERR_INVALID_PARAMETER;
+	}
+
 	if (reqmsg->subType != MSG_SENDREQ_JAVA_MMS) {
 		// In case MMS read report, get address value later.
 		if(reqmsg->subType != MSG_READREPLY_MMS) {
-			if ((reqmsg->addr_list->nCount == 0) || (reqmsg->addr_list->nCount > MAX_TO_ADDRESS_CNT)) {
-				MSG_DEBUG("Recipient address count error [%d]", reqmsg->addr_list->nCount );
+			if (reqmsg->addr_list && (reqmsg->addr_list->nCount > 0) && (reqmsg->addr_list->nCount <= MAX_TO_ADDRESS_CNT)) {
+				MSG_DEBUG("Recipient address count [%d]", reqmsg->addr_list->nCount );
+			} else if (g_list_length(reqmsg->addressList) > 0) {
+				MSG_DEBUG("Recipient address count [%d]", g_list_length(reqmsg->addressList) );
+			} else {
+				MSG_DEBUG("Address count is invalid.");
 				return MSG_ERR_INVALID_MESSAGE;
 			}
 		}
@@ -70,7 +78,7 @@ msg_error_t MsgHandle::submitReq(MSG_REQUEST_S* pReq)
 		}
 
 		reqmsg->bRead = false;
-		reqmsg->bProtected = false;
+		//reqmsg->bProtected = false;
 		reqmsg->priority = MSG_MESSAGE_PRIORITY_NORMAL;
 		reqmsg->direction = MSG_DIRECTION_TYPE_MO;
 		reqmsg->storageId = MSG_STORAGE_PHONE;
@@ -86,22 +94,11 @@ msg_error_t MsgHandle::submitReq(MSG_REQUEST_S* pReq)
 		//in case of JAVA MMS msg, parse mms transaction id from pMmsData
 		reqmsg->networkStatus = MSG_NETWORK_SENDING;
 		strncpy(trId, (char*)reqmsg->pMmsData+3,MMS_TR_ID_LEN);
-		MSG_DEBUG("JavaMMS transaction Id:%s ",trId);
+		MSG_SEC_DEBUG("JavaMMS transaction Id:%s ",trId);
 	}
 
 	// Convert MSG_MESSAGE_S to MSG_MESSAGE_INFO_S
 	convertMsgStruct(reqmsg, &(reqInfo.msgInfo));
-
-	/* Check address validation */
-	if (reqInfo.msgInfo.msgType.mainType == MSG_SMS_TYPE) {
-		for(int i=0; i<reqmsg->addr_list->nCount; i++) {
-				if (reqInfo.msgInfo.addressList[i].addressVal[0] == '+' && strlen(reqInfo.msgInfo.addressList[i].addressVal)>MAX_ADDRESS_LEN) {
-					return MSG_ERR_INVALID_PARAMETER;
-				} else if (strlen(reqInfo.msgInfo.addressList[i].addressVal)>(MAX_ADDRESS_LEN-1)) {
-					return MSG_ERR_INVALID_PARAMETER;
-				}
-		}
-	}
 
 	MSG_MESSAGE_TYPE_S msgType = {0,};
 
@@ -109,7 +106,10 @@ msg_error_t MsgHandle::submitReq(MSG_REQUEST_S* pReq)
 	msgType.subType = reqmsg->subType;
 	msgType.classType = reqmsg->classType;
 
-	convertSendOptStruct((const MSG_SENDINGOPT_S *)pReq->sendOpt, &(reqInfo.sendOptInfo), msgType);
+	msg_struct_s *send_opt_s = (msg_struct_s *)pReq->sendOpt;
+	MSG_SENDINGOPT_S *send_opt = (MSG_SENDINGOPT_S *)send_opt_s->data;
+
+	convertSendOptStruct((const MSG_SENDINGOPT_S *)send_opt, &(reqInfo.sendOptInfo), msgType);
 
 	reqInfo.reqId = 0;
 
@@ -118,14 +118,14 @@ msg_error_t MsgHandle::submitReq(MSG_REQUEST_S* pReq)
 
 	chInfo.listenerFd = MsgProxyListener::instance()->getRemoteFd();
 
-#if defined(__x86_64__) || defined(__aarch64__)
-	chInfo.handleAddr = (uint64_t) this;
-#else
 	chInfo.handleAddr = (unsigned int) this;
-#endif
 
 	/* Allocate Memory to Command Data */
-	int cmdSize = sizeof(MSG_CMD_S) + sizeof(MSG_REQUEST_INFO_S) + sizeof(MSG_PROXY_INFO_S);
+	char* encodedData = NULL;
+	AutoPtr<char> buf(&encodedData);
+	int dataSize = MsgEncodeMsgInfo(&reqInfo.msgInfo, &reqInfo.sendOptInfo, &encodedData);
+
+	int cmdSize = sizeof(MSG_CMD_S) + sizeof(msg_request_id_t) + dataSize + sizeof(MSG_PROXY_INFO_S);
 
 	// In case of JAVA MMS msg, add trId
 	if (reqmsg->subType == MSG_SENDREQ_JAVA_MMS)
@@ -143,12 +143,13 @@ msg_error_t MsgHandle::submitReq(MSG_REQUEST_S* pReq)
 	memcpy(pCmd->cmdCookie, mCookie, MAX_COOKIE_LEN);
 
 	// Copy Command Data
-	memcpy((void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN), &reqInfo, sizeof(MSG_REQUEST_INFO_S));
-	memcpy((void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN+sizeof(MSG_REQUEST_INFO_S)), &chInfo, sizeof(MSG_PROXY_INFO_S));
+	memcpy((void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN), &reqInfo.reqId, sizeof(msg_request_id_t));
+	memcpy((void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN+sizeof(msg_request_id_t)), &chInfo, sizeof(MSG_PROXY_INFO_S));
+	memcpy((void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN+sizeof(msg_request_id_t)+sizeof(MSG_PROXY_INFO_S)), encodedData, dataSize);
 
 	// In case of JAVA MMS msg, add trId
 	if (reqmsg->subType == MSG_SENDREQ_JAVA_MMS)
-		memcpy((void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN+sizeof(MSG_REQUEST_INFO_S)+sizeof(MSG_PROXY_INFO_S)), &trId, sizeof(trId));
+		memcpy((void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN+sizeof(msg_request_id_t)+sizeof(MSG_PROXY_INFO_S)+dataSize), &trId, sizeof(trId));
 
 	// Send Command to Messaging FW
 	char* pEventData = NULL;
@@ -165,7 +166,7 @@ msg_error_t MsgHandle::submitReq(MSG_REQUEST_S* pReq)
 
 	if (pEvent->eventType != MSG_EVENT_SUBMIT_REQ)
 	{
-		THROW(MsgException::INVALID_RESULT, "Event Data Error");
+		THROW(MsgException::INVALID_RESULT, "Event Data Error:%d", pEvent->eventType);
 	}
 
 	MSG_END();
@@ -219,15 +220,15 @@ msg_error_t MsgHandle::regSentStatusCallback(msg_sent_status_cb onStatusChanged,
 
 	MsgProxyListener* eventListener = MsgProxyListener::instance();
 
-	eventListener->start();
+	eventListener->start(this);
 
-	int clientFd = eventListener->getRemoteFd(); // fd that is reserved to the "listener thread" by msgfw daemon
+	int remoteFd = eventListener->getRemoteFd(); // fd that is reserved to the "listener thread" by msgfw daemon
 
-	if (clientFd < 0)
-		return MSG_ERR_TRANSPORT_ERROR;
+	if(remoteFd == -1 )
+		return MSG_ERR_INVALID_MSGHANDLE;
 
-	if (eventListener->regSentStatusEventCB(this, onStatusChanged, pUserParam) == false) // callback was already registered, just return SUCCESS
-		return MSG_SUCCESS;
+	if (eventListener->regSentStatusEventCB(this, onStatusChanged, pUserParam) == false)
+		return MSG_ERR_INVALID_PARAMETER;
 
 	// Allocate Memory to Command Data
 	int cmdSize = sizeof(MSG_CMD_S) + sizeof(int); // cmd type, listenerFd
@@ -241,13 +242,11 @@ msg_error_t MsgHandle::regSentStatusCallback(msg_sent_status_cb onStatusChanged,
 	// Copy Cookie
 	memcpy(pCmd->cmdCookie, mCookie, MAX_COOKIE_LEN);
 
-	int listenerFd = clientFd;
+	MSG_DEBUG("remote fd %d", remoteFd);
 
-	MSG_DEBUG("remote fd %d", listenerFd);
+	memcpy((void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN), &remoteFd, sizeof(remoteFd));
 
-	memcpy((void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN), &listenerFd, sizeof(listenerFd));
-
-	MSG_DEBUG("reg status [%d : %s], %d", pCmd->cmdType, MsgDbgCmdStr(pCmd->cmdType), listenerFd);
+	MSG_DEBUG("reg status [%d : %s], %d", pCmd->cmdType, MsgDbgCmdStr(pCmd->cmdType), remoteFd);
 
 	// Send Command to Messaging FW
 	char* pEventData = NULL;
@@ -274,15 +273,15 @@ msg_error_t MsgHandle::regSmsMessageCallback(msg_sms_incoming_cb onMsgIncoming, 
 
 	MsgProxyListener* eventListener = MsgProxyListener::instance();
 
-	eventListener->start();
+	eventListener->start(this);
 
-	int clientFd = eventListener->getRemoteFd(); // fd that is reserved to the "listener thread" by msgfw daemon
+	int remoteFd = eventListener->getRemoteFd(); // fd that is reserved to the "listener thread" by msgfw daemon
 
-	if (clientFd < 0)
-		return MSG_ERR_TRANSPORT_ERROR;
+	if(remoteFd == -1 )
+		return MSG_ERR_INVALID_MSGHANDLE;
 
-	if (eventListener->regMessageIncomingEventCB(this, onMsgIncoming, port, pUserParam) == false) // callback was already registered, just return SUCCESS
-		return MSG_SUCCESS;
+	if (eventListener->regMessageIncomingEventCB(this, onMsgIncoming, port, pUserParam) == false)
+		return MSG_ERR_INVALID_PARAMETER;
 
 	// Allocate Memory to Command Data
 	int cmdSize = sizeof(MSG_CMD_S) + sizeof(MSG_CMD_REG_INCOMING_MSG_CB_S); //sizeof(int) + sizeof; // cmd type, listener fd
@@ -300,7 +299,7 @@ msg_error_t MsgHandle::regSmsMessageCallback(msg_sms_incoming_cb onMsgIncoming, 
 
 	MSG_CMD_REG_INCOMING_MSG_CB_S cmdParam = {0};
 
-	cmdParam.listenerFd = clientFd;
+	cmdParam.listenerFd = remoteFd;
 	cmdParam.msgType = MSG_SMS_TYPE;
 	cmdParam.port = port;
 
@@ -334,15 +333,15 @@ msg_error_t MsgHandle::regMmsConfMessageCallback(msg_mms_conf_msg_incoming_cb on
 
 	MsgProxyListener* eventListener = MsgProxyListener::instance();
 
-	eventListener->start();
+	eventListener->start(this);
 
-	int clientFd = eventListener->getRemoteFd(); // fd that is reserved to the "listener thread" by msgfw daemon
+	int remoteFd = eventListener->getRemoteFd(); // fd that is reserved to the "listener thread" by msgfw daemon
 
-	if (clientFd < 0)
-		return MSG_ERR_TRANSPORT_ERROR;
+	if(remoteFd == -1 )
+		return MSG_ERR_INVALID_MSGHANDLE;
 
-	if (eventListener->regMMSConfMessageIncomingEventCB(this, onMMSConfMsgIncoming, pAppId, pUserParam) == false) // callback was already registered, just return SUCCESS
-		return MSG_SUCCESS;
+	if (eventListener->regMMSConfMessageIncomingEventCB(this, onMMSConfMsgIncoming, pAppId, pUserParam) == false)
+		return MSG_ERR_INVALID_PARAMETER;
 
 	// Allocate Memory to Command Data
 	int cmdSize = sizeof(MSG_CMD_S) + sizeof(MSG_CMD_REG_INCOMING_MMS_CONF_MSG_CB_S);
@@ -360,7 +359,7 @@ msg_error_t MsgHandle::regMmsConfMessageCallback(msg_mms_conf_msg_incoming_cb on
 
 	MSG_CMD_REG_INCOMING_MMS_CONF_MSG_CB_S cmdParam = {0};
 
-	cmdParam.listenerFd = clientFd;
+	cmdParam.listenerFd = remoteFd;
 	cmdParam.msgType = MSG_MMS_TYPE;
 
 	if (pAppId)
@@ -396,15 +395,15 @@ msg_error_t MsgHandle::regSyncMLMessageCallback(msg_syncml_msg_incoming_cb onSyn
 
 	MsgProxyListener* eventListener = MsgProxyListener::instance();
 
-	eventListener->start();
+	eventListener->start(this);
 
-	int clientFd = eventListener->getRemoteFd(); // fd that is reserved to the "listener thread" by msgfw daemon
+	int remoteFd = eventListener->getRemoteFd(); // fd that is reserved to the "listener thread" by msgfw daemon
 
-	if (clientFd < 0)
-		return MSG_ERR_TRANSPORT_ERROR;
+	if(remoteFd == -1 )
+		return MSG_ERR_INVALID_MSGHANDLE;
 
-	if (eventListener->regSyncMLMessageIncomingEventCB(this, onSyncMLMsgIncoming, pUserParam) == false) // callback was already registered, just return SUCCESS
-		return MSG_SUCCESS;
+	if (eventListener->regSyncMLMessageIncomingEventCB(this, onSyncMLMsgIncoming, pUserParam) == false)
+		return MSG_ERR_INVALID_PARAMETER;
 
 	// Allocate Memory to Command Data
 	int cmdSize = sizeof(MSG_CMD_S) + sizeof(MSG_CMD_REG_INCOMING_SYNCML_MSG_CB_S); //sizeof(int) + sizeof; // cmd type, listener fd
@@ -422,7 +421,7 @@ msg_error_t MsgHandle::regSyncMLMessageCallback(msg_syncml_msg_incoming_cb onSyn
 
 	MSG_CMD_REG_INCOMING_SYNCML_MSG_CB_S cmdParam = {0};
 
-	cmdParam.listenerFd = clientFd;
+	cmdParam.listenerFd = remoteFd;
 	cmdParam.msgType = MSG_SMS_TYPE;
 
 	memcpy((void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN), &cmdParam, sizeof(cmdParam));
@@ -454,15 +453,15 @@ msg_error_t MsgHandle::regLBSMessageCallback(msg_lbs_msg_incoming_cb onLBSMsgInc
 
 	MsgProxyListener* eventListener = MsgProxyListener::instance();
 
-	eventListener->start();
+	eventListener->start(this);
 
-	int clientFd = eventListener->getRemoteFd(); // fd that is reserved to the "listener thread" by msgfw daemon
+	int remoteFd = eventListener->getRemoteFd(); // fd that is reserved to the "listener thread" by msgfw daemon
 
-	if (clientFd < 0)
-		return MSG_ERR_TRANSPORT_ERROR;
+	if(remoteFd == -1 )
+		return MSG_ERR_INVALID_MSGHANDLE;
 
-	if (eventListener->regLBSMessageIncomingEventCB(this, onLBSMsgIncoming, pUserParam) == false) // callback was already registered, just return SUCCESS
-		return MSG_SUCCESS;
+	if (eventListener->regLBSMessageIncomingEventCB(this, onLBSMsgIncoming, pUserParam) == false)
+		return MSG_ERR_INVALID_PARAMETER;
 
 	// Allocate Memory to Command Data
 	int cmdSize = sizeof(MSG_CMD_S) + sizeof(MSG_CMD_REG_INCOMING_LBS_MSG_CB_S); //sizeof(int) + sizeof; // cmd type, listener fd
@@ -478,7 +477,7 @@ msg_error_t MsgHandle::regLBSMessageCallback(msg_lbs_msg_incoming_cb onLBSMsgInc
 
 	MSG_CMD_REG_INCOMING_LBS_MSG_CB_S cmdParam = {0};
 
-	cmdParam.listenerFd = clientFd;
+	cmdParam.listenerFd = remoteFd;
 	cmdParam.msgType = MSG_SMS_TYPE;
 
 	memcpy((void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN), &cmdParam, sizeof(cmdParam));
@@ -511,15 +510,15 @@ msg_error_t MsgHandle::regSyncMLMessageOperationCallback(msg_syncml_msg_operatio
 
 	MsgProxyListener* eventListener = MsgProxyListener::instance();
 
-	eventListener->start();
+	eventListener->start(this);
 
-	int clientFd = eventListener->getRemoteFd(); // fd that is reserved to the "listener thread" by msgfw daemon
+	int remoteFd = eventListener->getRemoteFd(); // fd that is reserved to the "listener thread" by msgfw daemon
 
-	if (clientFd < 0)
-		return MSG_ERR_TRANSPORT_ERROR;
+	if(remoteFd == -1 )
+		return MSG_ERR_INVALID_MSGHANDLE;
 
-	if (eventListener->regSyncMLMessageOperationEventCB(this, onSyncMLMsgOperation, pUserParam) == false) // callback was already registered, just return SUCCESS
-		return MSG_SUCCESS;
+	if (eventListener->regSyncMLMessageOperationEventCB(this, onSyncMLMsgOperation, pUserParam) == false)
+		return MSG_ERR_INVALID_PARAMETER;
 
 	// Allocate Memory to Command Data
 	int cmdSize = sizeof(MSG_CMD_S) + sizeof(MSG_CMD_REG_SYNCML_MSG_OPERATION_CB_S); //sizeof(int) + sizeof; // cmd type, listener fd
@@ -537,7 +536,7 @@ msg_error_t MsgHandle::regSyncMLMessageOperationCallback(msg_syncml_msg_operatio
 
 	MSG_CMD_REG_SYNCML_MSG_OPERATION_CB_S cmdParam = {0};
 
-	cmdParam.listenerFd = clientFd;
+	cmdParam.listenerFd = remoteFd;
 	cmdParam.msgType = MSG_SMS_TYPE;
 
 	memcpy((void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN), &cmdParam, sizeof(cmdParam));
@@ -569,15 +568,15 @@ msg_error_t MsgHandle::regPushMessageCallback(msg_push_msg_incoming_cb onPushMsg
 
 	MsgProxyListener* eventListener = MsgProxyListener::instance();
 
-	eventListener->start();
+	eventListener->start(this);
 
-	int clientFd = eventListener->getRemoteFd(); // fd that is reserved to the "listener thread" by msgfw daemon
+	int remoteFd = eventListener->getRemoteFd(); // fd that is reserved to the "listener thread" by msgfw daemon
 
-	if (clientFd < 0)
-		return MSG_ERR_TRANSPORT_ERROR;
+	if(remoteFd == -1 )
+		return MSG_ERR_INVALID_MSGHANDLE;
 
-	if (eventListener->regPushMessageIncomingEventCB(this, onPushMsgIncoming, pAppId, pUserParam) == false) // callback was already registered, just return SUCCESS
-		return MSG_SUCCESS;
+	if (eventListener->regPushMessageIncomingEventCB(this, onPushMsgIncoming, pAppId, pUserParam) == false)
+		return MSG_ERR_INVALID_PARAMETER;
 
 	// Allocate Memory to Command Data
 	int cmdSize = sizeof(MSG_CMD_S) + sizeof(MSG_CMD_REG_INCOMING_PUSH_MSG_CB_S);
@@ -595,7 +594,7 @@ msg_error_t MsgHandle::regPushMessageCallback(msg_push_msg_incoming_cb onPushMsg
 
 	MSG_CMD_REG_INCOMING_PUSH_MSG_CB_S cmdParam = {0};
 
-	cmdParam.listenerFd = clientFd;
+	cmdParam.listenerFd = remoteFd;
 	cmdParam.msgType = MSG_SMS_TYPE;
 
 	if (pAppId)
@@ -630,14 +629,14 @@ msg_error_t MsgHandle::regCBMessageCallback(msg_cb_incoming_cb onCBIncoming, boo
 
 	MsgProxyListener* eventListener = MsgProxyListener::instance();
 
-	eventListener->start();
+	eventListener->start(this);
 
-	int clientFd = eventListener->getRemoteFd(); // fd that is reserved to the "listener thread" by msgfw daemon
+	int remoteFd = eventListener->getRemoteFd(); // fd that is reserved to the "listener thread" by msgfw daemon
 
-	if (clientFd < 0)
-		return MSG_ERR_TRANSPORT_ERROR;
+	if(remoteFd == -1 )
+		return MSG_ERR_INVALID_MSGHANDLE;
 
-	if (eventListener->regCBMessageIncomingEventCB(this, onCBIncoming, bSave, pUserParam) == false) // callback was already registered, just return SUCCESS
+	if (eventListener->regCBMessageIncomingEventCB(this, onCBIncoming, bSave, pUserParam) == false)
 		return MSG_SUCCESS;
 
 	// Allocate Memory to Command Data
@@ -656,13 +655,13 @@ msg_error_t MsgHandle::regCBMessageCallback(msg_cb_incoming_cb onCBIncoming, boo
 
 	MSG_CMD_REG_CB_INCOMING_MSG_CB_S cmdParam = {0};
 
-	cmdParam.listenerFd = clientFd; // fd that is reserved to the "listener thread" by msgfw daemon
+	cmdParam.listenerFd = remoteFd;
 	cmdParam.msgType = MSG_SMS_TYPE;
 	cmdParam.bsave = bSave;
 
 	memcpy((void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN), &cmdParam, sizeof(cmdParam));
 
-	MSG_DEBUG("reg new msg [%s], fd %d", MsgDbgCmdStr(pCmd->cmdType), cmdParam.listenerFd);
+	MSG_DEBUG("reg new msg [%s], fd: %d, bSave: %d", MsgDbgCmdStr(pCmd->cmdType), cmdParam.listenerFd, cmdParam.bsave);
 
 	// Send Command to Messaging FW
 	char* pEventData = NULL;
@@ -677,6 +676,59 @@ msg_error_t MsgHandle::regCBMessageCallback(msg_cb_incoming_cb onCBIncoming, boo
 	if (pEvent->eventType != MSG_EVENT_REG_INCOMING_CB_MSG_CB)
 	{
 		THROW(MsgException::INVALID_RESULT, "Event Data Error");
+	}
+
+	return pEvent->result;
+}
+
+
+msg_error_t MsgHandle::regReportMessageCallback(msg_report_msg_incoming_cb onReportMsgCB, void *pUserParam)
+{
+	if (!onReportMsgCB)
+		THROW(MsgException::INVALID_PARAM, "onReportMsgCB is null");
+
+	MsgProxyListener* eventListener = MsgProxyListener::instance();
+
+	eventListener->start(this);
+
+	int remoteFd = eventListener->getRemoteFd(); // fd that is reserved to the "listener thread" by msgfw daemon
+
+	if(remoteFd == -1 )
+		return MSG_ERR_INVALID_MSGHANDLE;
+
+	if (eventListener->regReportMsgIncomingCB(this, onReportMsgCB, pUserParam) == false)
+		return MSG_ERR_INVALID_PARAMETER;
+
+	// Allocate Memory to Command Data
+	int cmdSize = sizeof(MSG_CMD_S) + sizeof(int); // cmd type, listenerFd
+	char cmdBuf[cmdSize];
+	bzero(cmdBuf, cmdSize);
+	MSG_CMD_S* pCmd = (MSG_CMD_S*) cmdBuf;
+
+	// Set Command Parameters
+	pCmd->cmdType = MSG_CMD_REG_REPORT_MSG_INCOMING_CB;
+
+	// Copy Cookie
+	memcpy(pCmd->cmdCookie, mCookie, MAX_COOKIE_LEN);
+
+	MSG_DEBUG("remote fd %d", remoteFd);
+
+	memcpy((void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN), &remoteFd, sizeof(remoteFd));
+
+	MSG_DEBUG("reg status [%d : %s], %d", pCmd->cmdType, MsgDbgCmdStr(pCmd->cmdType), remoteFd);
+
+	// Send Command to Messaging FW
+	char* pEventData = NULL;
+	AutoPtr<char> eventBuf(&pEventData);
+
+	write((char*)pCmd, cmdSize, &pEventData);
+
+	// Get Return Data
+	MSG_EVENT_S* pEvent = (MSG_EVENT_S*)pEventData;
+
+	if (pEvent->eventType != MSG_EVENT_REG_REPORT_MSG_INCOMING_CB)
+	{
+		THROW(MsgException::INVALID_PARAM, "Event Data Error");
 	}
 
 	return pEvent->result;

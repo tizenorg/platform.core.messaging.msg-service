@@ -1,20 +1,17 @@
 /*
- * msg-service
- *
- * Copyright (c) 2000 - 2014 Samsung Electronics Co., Ltd. All rights reserved
+ * Copyright (c) 2014 Samsung Electronics Co., Ltd. All rights reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
 */
 
 #include "MsgMmsMessage.h"
@@ -25,7 +22,7 @@
 
 #define MSG_RETURN_VAL_IF_FAIL(Expr, Val)			 		\
 		if (!(Expr)) {										\
-			MSG_DEBUG("%s:[%s] Failed - %d\n", __FUNCTION__, __LINE__, Val); \
+			MSG_DEBUG("%s:[%d] Failed - %d\n", __FUNCTION__, __LINE__, Val); \
 			return Val;										\
 		};
 
@@ -106,7 +103,7 @@ MSG_SMIL_ERR_E _MsgMMSAddDefaultSMILRootLayout(MMS_MESSAGE_DATA_S *pMsgData)
 	pMsgData->rootlayout.height.value = MSG_SMIL_ROOT_LAYOUT_HEIGHT;
 	pMsgData->rootlayout.height.bUnitPercent = MSG_SMIL_ROOT_LAYOUT_IN_PERCENT;
 
-	pMsgData->rootlayout.bgColor = MmsSmilAtoIHexa((char *)&pContent[1]);
+	pMsgData->rootlayout.bgColor = MsgSmilAtoIHexa((char *)&pContent[1]);
 
 	MSG_END();
 	return MSG_SMIL_SUCCESS;
@@ -238,7 +235,7 @@ MSG_SMIL_ERR_E _MsgMMSAddDefaultFirstSMILRegion(MMS_MESSAGE_DATA_S *pMsgData, bo
 		pRegion->fit = MMSUI_IMAGE_REGION_FIT_MEET;
 	else
 		pRegion->fit = MMSUI_IMAGE_REGION_FIT_HIDDEN;
-	pRegion->bgColor = MmsSmilAtoIHexa((char *)&pContent[1]);
+	pRegion->bgColor = MsgSmilAtoIHexa((char *)&pContent[1]);
 
 	pRegion->nLeft.value = MSG_SMIL_FIRST_REG_LEFT;
 	pRegion->nLeft.bUnitPercent = true;
@@ -288,7 +285,7 @@ MSG_SMIL_ERR_E _MsgMMSAddDefaultSecondSMILRegion(MMS_MESSAGE_DATA_S *pMsgData, b
 		pRegion->fit = MMSUI_IMAGE_REGION_FIT_MEET;
 	else
 		pRegion->fit = MMSUI_IMAGE_REGION_FIT_HIDDEN;
-	pRegion->bgColor = MmsSmilAtoIHexa((char *)&pContent[1]);
+	pRegion->bgColor = MsgSmilAtoIHexa((char *)&pContent[1]);
 
 	pRegion->nLeft.value = MSG_SMIL_SECOND_REG_LEFT;
 	pRegion->nLeft.bUnitPercent = true;
@@ -338,7 +335,7 @@ MSG_SMIL_ERR_E _MsgMMSAddDefaultFullSMILRegion(MMS_MESSAGE_DATA_S *pMsgData)
 		pRegion->fit = MMSUI_IMAGE_REGION_FIT_MEET;
 	else
 		pRegion->fit = MMSUI_IMAGE_REGION_FIT_HIDDEN;
-	pRegion->bgColor = MmsSmilAtoIHexa((char *)&pContent[1]);
+	pRegion->bgColor = MsgSmilAtoIHexa((char *)&pContent[1]);
 
 	pRegion->nLeft.value = MSG_SMIL_FULL_REG_LEFT;
 	pRegion->nLeft.bUnitPercent = true;

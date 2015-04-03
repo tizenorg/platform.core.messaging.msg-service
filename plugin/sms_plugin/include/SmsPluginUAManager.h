@@ -1,20 +1,17 @@
 /*
- * msg-service
- *
- * Copyright (c) 2000 - 2014 Samsung Electronics Co., Ltd. All rights reserved
+ * Copyright (c) 2014 Samsung Electronics Co., Ltd. All rights reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
 */
 
 #ifndef SMS_PLUGIN_UA_MANAGER_H
@@ -45,6 +42,10 @@ public:
 private:
 	SmsPluginUAManager();
 	~SmsPluginUAManager();
+	void lock() 	{ mx.lock(); };
+	void unlock() 	{ mx.unlock(); };
+	void wait() 	{ cv.wait(mx.pMutex()); };
+	void signal() 	{ cv.signal(); };
 
 	virtual void run();
 
@@ -52,7 +53,7 @@ private:
 
 	bool bRunning;
 
-	MsgThdSafeQ <SMS_REQUEST_INFO_S> smsTranQ;
+	MsgSimpleQ <SMS_REQUEST_INFO_S> smsTranQ;
 
 	Mutex mx;
 	CndVar cv;

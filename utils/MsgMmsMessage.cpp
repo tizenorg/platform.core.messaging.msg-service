@@ -1,29 +1,31 @@
 /*
- * msg-service
- *
- * Copyright (c) 2000 - 2014 Samsung Electronics Co., Ltd. All rights reserved
+ * Copyright (c) 2014 Samsung Electronics Co., Ltd. All rights reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
 */
 
 #include <stdio.h>
 #include <string.h>
 #include <glib.h>
+#include <errno.h>
+#include <sys/stat.h>
 
 #include "MsgTypes.h"
 #include "MsgMmsTypes.h"
+#include "MsgUtilFile.h"
 #include "MsgMmsMessage.h"
+#include "MsgUtilFile.h"
+#include "MsgSmil.h"
 #include "MsgDebug.h"
 
 static void __release_glist_element(gpointer data, gpointer user_data);
@@ -393,7 +395,7 @@ bool _MsgMmsSetRootLayout(MMS_MESSAGE_DATA_S *pMsgData, MMS_SMIL_ROOTLAYOUT *pRo
 	return true;
 }
 
-char* _MsgMmsSerializeMessageData(const MMS_MESSAGE_DATA_S *pMsgData, size_t *pSize)
+char* _MsgMmsSerializeMessageData(const MMS_MESSAGE_DATA_S *pMsgData, unsigned int *pSize)
 {
 	MSG_BEGIN();
 
@@ -482,7 +484,7 @@ char* _MsgMmsSerializeMessageData(const MMS_MESSAGE_DATA_S *pMsgData, size_t *pS
 	memcpy(buf + offset , &filePathLen, sizeof(int));
 
 	// copy file path
-	MSG_DEBUG("[#%2d][%5d] smilFilePath = %s, len = %d",serial_index++, offset, pMsgData->szSmilFilePath, filePathLen);
+	MSG_SEC_DEBUG("[#%2d][%5d] smilFilePath = %s, len = %d",serial_index++, offset, pMsgData->szSmilFilePath, filePathLen);
 	offset += sizeof(int);
 
 	if (filePathLen > 0) {
@@ -509,6 +511,7 @@ char* _MsgMmsSerializeMessageData(const MMS_MESSAGE_DATA_S *pMsgData, size_t *pS
 					MMS_MEDIA_S *media = (MMS_MEDIA_S *)g_list_nth_data(page->medialist, i);
 					memcpy(buf + offset, media, sizeof(MMS_MEDIA_S));
 					offset += sizeof(MMS_MEDIA_S);
+					MSG_SEC_DEBUG("[#%2d][%5d][%d page][%d media] media type [%d],  drm type [%d], filepath [%s]", serial_index++, offset, pageIdx, i, media->mediatype, media->drmType, media->szFilePath);
 				}
 			}
 
@@ -550,6 +553,7 @@ char* _MsgMmsSerializeMessageData(const MMS_MESSAGE_DATA_S *pMsgData, size_t *pS
 			MMS_ATTACH_S *attach = (MMS_ATTACH_S *)g_list_nth_data(pMsgData->attachlist, i);
 			memcpy(buf + offset, attach, sizeof(MMS_ATTACH_S));
 			offset += sizeof(MMS_ATTACH_S);
+			MSG_SEC_DEBUG("[#%2d][%5d][%d attach] attach filepath = %s, drm type = [%d]", serial_index++, offset, i, attach->szFilePath, attach->drmType);
 		}
 	}
 
@@ -672,8 +676,16 @@ bool _MsgMmsDeserializeMessageData(MMS_MESSAGE_DATA_S *pMsgData, const char *pDa
 
 			offset += sizeof(MMS_MEDIA_S);
 
-			pPage->medialist = g_list_append(pPage->medialist, pMedia);
+			MSG_SEC_DEBUG("[#%2d][%5d][%d page][%d media] media type [%d], drm type [%d], filepath [%s], content type [%s]", serial_index++, offset, j, i, pMedia->mediatype, pMedia->drmType, pMedia->szFilePath, pMedia->szContentType);
+
+			if (strlen(pMedia->szFilePath) >0) {
+				pPage->medialist = g_list_append(pPage->medialist, pMedia);
+			} else {
+				free(pMedia);
+			}
 		}
+
+		pPage->mediaCnt = g_list_length(pPage->medialist);
 
 		memcpy(&pPage->nDur , pData + offset, sizeof(int));
 		offset += sizeof(int);
@@ -689,7 +701,16 @@ bool _MsgMmsDeserializeMessageData(MMS_MESSAGE_DATA_S *pMsgData, const char *pDa
 		offset += sizeof(int);
 
 		pMsgData->pagelist = g_list_append(pMsgData->pagelist, pPage);
+//		if (pPage->medialist) {
+//			pMsgData->pagelist = g_list_append(pMsgData->pagelist, pPage);
+//		} else {
+//			free(pPage);
+//			pPage = NULL;
+//		}
+
 	}
+
+	pMsgData->pageCnt = g_list_length(pMsgData->pagelist);
 
 	//Processing Region List
 	memcpy(&pMsgData->regionCnt, pData + offset, sizeof(int));
@@ -718,8 +739,16 @@ bool _MsgMmsDeserializeMessageData(MMS_MESSAGE_DATA_S *pMsgData, const char *pDa
 		memcpy(pAttach, pData + offset, sizeof(MMS_ATTACH_S));
 		offset += sizeof(MMS_ATTACH_S);
 
-		pMsgData->attachlist = g_list_append(pMsgData->attachlist, pAttach);
+		MSG_SEC_DEBUG("[#%2d][%5d][%d attach] drm type [%d],  attach filepath = [%s], content type = [%s]", serial_index++, offset, i, pAttach->drmType, pAttach->szFilePath, pAttach->szContentType);
+		if (strlen(pAttach->szFilePath) >0)
+			pMsgData->attachlist = g_list_append(pMsgData->attachlist, pAttach);
+		else {
+			free(pAttach);
+			pAttach = NULL;
+		}
 	}
+
+	pMsgData->attachCnt = g_list_length(pMsgData->attachlist);
 
 	//Processing Transition List
 	memcpy(&pMsgData->transitionCnt, pData + offset, sizeof(int));
@@ -775,3 +804,855 @@ bool _MsgMmsDeserializeMessageData(MMS_MESSAGE_DATA_S *pMsgData, const char *pDa
 	return true;
 }
 
+void _MsgMmsAttachPrint(MMS_ATTACH_S *attach)
+{
+	if (attach == NULL) {
+		MSG_DEBUG("Invalid Parameter");
+		return;
+	}
+
+	MSG_DEBUG("%-25s : %d", "Attach Mimetype", attach->mediatype);
+	MSG_SEC_DEBUG("%-25s : %s", "Attach content type", attach->szContentType);
+	MSG_SEC_DEBUG("%-25s : %s", "Attach filename", attach->szFileName);
+	MSG_SEC_DEBUG("%-25s : %s", "Attach filepath", attach->szFilePath);
+	MSG_DEBUG("%-25s : %d", "Attach filesize", attach->fileSize);
+	MSG_DEBUG("%-25s : %d", "Attach drm type", attach->drmType);
+	MSG_SEC_DEBUG("%-25s : %s", "Attach drm filepath", attach->szDrm2FullPath);
+}
+
+void _MsgMmsMediaPrint(MMS_MEDIA_S *media)
+{
+	if (media == NULL) {
+		MSG_DEBUG("Invalid Parameter");
+		return;
+	}
+
+	if (media->mediatype == MMS_SMIL_MEDIA_INVALID) {
+		MSG_DEBUG("%-25s : %s", "Media type","MMS_SMIL_MEDIA_INVALID");
+	} else if (media->mediatype == MMS_SMIL_MEDIA_IMG) {
+		MSG_DEBUG("%-25s : %s", "Media type","MMS_SMIL_MEDIA_IMG");
+	} else if (media->mediatype == MMS_SMIL_MEDIA_AUDIO) {
+		MSG_DEBUG("%-25s : %s", "Media type","MMS_SMIL_MEDIA_AUDIO");
+	} else if (media->mediatype == MMS_SMIL_MEDIA_VIDEO) {
+		MSG_DEBUG("%-25s : %s", "Media type","MMS_SMIL_MEDIA_VIDEO");
+	} else if (media->mediatype == MMS_SMIL_MEDIA_TEXT) {
+		MSG_DEBUG("%-25s : %s", "Media type","MMS_SMIL_MEDIA_TEXT");
+	} else if (media->mediatype == MMS_SMIL_MEDIA_ANIMATE) {
+		MSG_DEBUG("%-25s : %s", "Media type","MMS_SMIL_MEDIA_ANIMATE");
+	} else if (media->mediatype == MMS_SMIL_MEDIA_IMG_OR_VIDEO) {
+		MSG_DEBUG("%-25s : %s", "Media type","MMS_SMIL_MEDIA_REF");
+	} else {
+		MSG_DEBUG("%-25s : Unknown [%d]", "Media type", media->mediatype);
+	}
+
+	MSG_DEBUG("%-25s : %s", "Media src", media->szSrc);
+	MSG_SEC_DEBUG("%-25s : %s", "Media filename", media->szFileName);
+	MSG_SEC_DEBUG("%-25s : %s", "Media filepath", media->szFilePath);
+	MSG_SEC_DEBUG("%-25s : %s", "Media content type", media->szContentType);
+	MSG_SEC_DEBUG("%-25s : %s", "Media content id", media->szContentID);
+	MSG_SEC_DEBUG("%-25s : %s", "Media content location", media->szContentLocation);
+	MSG_SEC_DEBUG("%-25s : %s", "Media region id", media->regionId);
+	MSG_DEBUG("%-25s : %s", "Media alt", media->szAlt);
+	MSG_DEBUG("%-25s : %d", "Media drm type", media->drmType);
+	MSG_SEC_DEBUG("%-25s : %s", "Media drm filepath", media->szDrm2FullPath);
+}
+
+void _MsgMmsPagePrint(MMS_PAGE_S *page)
+{
+	if (page == NULL) {
+		MSG_DEBUG("Invalid Parameter");
+		return;
+	}
+
+	MSG_DEBUG("%-25s : %d", "Page duration", page->nDur);
+
+	if (page->medialist) {
+		int list_count = g_list_length(page->medialist);
+		MSG_DEBUG("Media Count is [%d]", list_count);
+		for (int i = 0; i < list_count; i++) {
+			MMS_MEDIA_S *media = (MMS_MEDIA_S *)g_list_nth_data(page->medialist, i);
+			if (media) {
+				MSG_DEBUG("[%d]th Media", i);
+				_MsgMmsMediaPrint(media);
+			} else {
+				MSG_DEBUG("Not Exist Media Data in [%d]th", i);
+			}
+
+		}
+	}
+}
+
+void _MsgMmsPrint(MMS_MESSAGE_DATA_S *pMsgData)
+{
+	if (pMsgData == NULL) {
+		MSG_DEBUG("Invalid Parameter");
+		return;
+	}
+
+	if (pMsgData->pagelist) {
+		int list_count = g_list_length(pMsgData->pagelist);
+		MSG_DEBUG("Page Count is [%d]", list_count);
+		for (int i = 0; i < list_count; i++) {
+			MMS_PAGE_S *page = (MMS_PAGE_S *)g_list_nth_data(pMsgData->pagelist, i);
+			if (page) {
+				MSG_DEBUG("[%d]th Page", i);
+				_MsgMmsPagePrint(page);
+			} else {
+				MSG_DEBUG("Not Exist Page Data in [%d]th", i);
+			}
+
+		}
+	}
+
+	if (pMsgData->attachlist) {
+		int list_count = g_list_length(pMsgData->attachlist);
+		MSG_DEBUG("Attach Count is [%d]", list_count);
+		for (int i = 0; i < list_count; i++) {
+			MMS_ATTACH_S *attach = (MMS_ATTACH_S *)g_list_nth_data(pMsgData->attachlist, i);
+			if (attach) {
+				MSG_DEBUG("[%d]th Attach", i);
+				_MsgMmsAttachPrint(attach);
+			} else {
+				MSG_DEBUG("Not Exist Attach Data in [%d]th", i);
+			}
+		}
+	}
+
+}
+
+MMS_ADDRESS_DATA_S *MsgMmsCreateAddress(int addressType, const char *addressVal)
+{
+	MMS_ADDRESS_DATA_S * pMmsAddressData = (MMS_ADDRESS_DATA_S * )calloc(1, sizeof(MMS_ADDRESS_DATA_S));
+	pMmsAddressData->address_type = addressType;
+	pMmsAddressData->address_val = strdup(addressVal);
+	return pMmsAddressData;
+}
+
+void MsgMmsReleaseAddress(MMS_ADDRESS_DATA_S **ppMmsAddressData)
+{
+	if (ppMmsAddressData && *ppMmsAddressData) {
+		MMS_ADDRESS_DATA_S *pMmsAddressData = *ppMmsAddressData;
+
+		if (pMmsAddressData->address_val) {
+			free(pMmsAddressData->address_val);
+			pMmsAddressData->address_val = NULL;
+		}
+
+		free(pMmsAddressData);
+		*ppMmsAddressData = NULL;
+	}
+}
+
+void MsgMmsInitMultipart(MMS_MULTIPART_DATA_S *pMmsMultipart)
+{
+	if (pMmsMultipart) {
+		pMmsMultipart->type = MIME_UNKNOWN;
+		pMmsMultipart->szContentType[0] = '\0';
+		pMmsMultipart->szFileName[0] = '\0';
+		pMmsMultipart->szContentID[0] = '\0';
+		pMmsMultipart->szContentLocation[0] = '\0';
+		pMmsMultipart->drmType = MSG_DRM_TYPE_NONE;
+		pMmsMultipart->szFilePath[0] = '\0';
+		pMmsMultipart->pMultipartData = NULL;
+		pMmsMultipart->nMultipartDataLen = 0;
+		pMmsMultipart->tcs_bc_level = -1;
+		pMmsMultipart->malware_allow = 0;
+		pMmsMultipart->szThumbFilePath[0] = '\0';
+	}
+}
+
+MMS_MULTIPART_DATA_S *MsgMmsCreateMultipart()
+{
+	MMS_MULTIPART_DATA_S *pMmsMultipart = (MMS_MULTIPART_DATA_S *)calloc(1, sizeof(MMS_MULTIPART_DATA_S));
+	if (pMmsMultipart) {
+		pMmsMultipart->type = MIME_UNKNOWN;
+		pMmsMultipart->szContentType[0] = '\0';
+		pMmsMultipart->szFileName[0] = '\0';
+		pMmsMultipart->szContentID[0] = '\0';
+		pMmsMultipart->szContentLocation[0] = '\0';
+		pMmsMultipart->drmType = MSG_DRM_TYPE_NONE;
+		pMmsMultipart->szFilePath[0] = '\0';
+		pMmsMultipart->pMultipartData = NULL;
+		pMmsMultipart->nMultipartDataLen = 0;
+		pMmsMultipart->tcs_bc_level = -1;
+		pMmsMultipart->malware_allow = 0;
+		pMmsMultipart->szThumbFilePath[0] = '\0';
+	}
+
+	return pMmsMultipart;
+}
+
+void MsgMmsReleaseMultipart(MMS_MULTIPART_DATA_S **ppMmsMultipart)
+{
+	if (ppMmsMultipart && *ppMmsMultipart) {
+		MMS_MULTIPART_DATA_S *pDelMmsMultipart = *ppMmsMultipart;
+
+		if (pDelMmsMultipart->pMultipartData != NULL) {
+			g_free(pDelMmsMultipart->pMultipartData);
+			pDelMmsMultipart->pMultipartData = NULL;
+		}
+		g_free(pDelMmsMultipart);
+		*ppMmsMultipart = NULL;
+	}
+}
+
+void MsgMmsInitHeader(MMS_HEADER_DATA_S *pMmsHeaderData)
+{
+	if (pMmsHeaderData) {
+		pMmsHeaderData->bcc = NULL;
+		pMmsHeaderData->cc = NULL;
+		pMmsHeaderData->contentLocation[0] = '\0';
+		pMmsHeaderData->szContentType[0] = '\0';
+		pMmsHeaderData->date = 0;
+		pMmsHeaderData->bDeliveryReport = false;
+		pMmsHeaderData->delivery.type = MMS_TIMETYPE_NONE;
+		pMmsHeaderData->delivery.time = 0;
+		pMmsHeaderData->expiry.type = MMS_TIMETYPE_NONE;
+		pMmsHeaderData->expiry.time = 0;
+		pMmsHeaderData->szFrom[0] = '\0';
+		pMmsHeaderData->messageClass = -1;
+		pMmsHeaderData->messageID[0]= '\0';
+		pMmsHeaderData->messageType = -1;
+		pMmsHeaderData->mmsVersion = -1;
+		pMmsHeaderData->messageSize = 0;
+		pMmsHeaderData->mmsPriority = -1;
+		pMmsHeaderData->bReadReport = 0;
+		pMmsHeaderData->bHideAddress = false;
+		pMmsHeaderData->mmsStatus = MSG_DELIVERY_REPORT_NONE;
+		pMmsHeaderData->szSubject[0] = '\0';
+		pMmsHeaderData->to = NULL;
+		pMmsHeaderData->trID[0] = '\0';
+		pMmsHeaderData->contentClass = -1;
+	}
+}
+
+MMS_HEADER_DATA_S *MsgMmsCreateHeader()
+{
+	 MMS_HEADER_DATA_S *pMmsHeaderData = (MMS_HEADER_DATA_S * )calloc(1, sizeof(MMS_HEADER_DATA_S));
+	 pMmsHeaderData->bcc = NULL;//	Bcc
+	 pMmsHeaderData->cc = NULL;//	Cc
+	 pMmsHeaderData->contentLocation[0] = '\0';
+	 pMmsHeaderData->szContentType[0] = '\0';
+	 pMmsHeaderData->date = 0;
+	 pMmsHeaderData->bDeliveryReport = false; //	X-Mms-Delivery-Report
+	 pMmsHeaderData->delivery.type = MMS_TIMETYPE_NONE;
+	 pMmsHeaderData->delivery.time = 0;
+	 pMmsHeaderData->expiry.type = MMS_TIMETYPE_NONE;
+	 pMmsHeaderData->expiry.time = 0;
+	 pMmsHeaderData->szFrom[0] = '\0';//	From
+	 pMmsHeaderData->messageClass = -1;//Personal | Advertisement | Informational | Auto
+	 pMmsHeaderData->messageID[0]= '\0';
+	 pMmsHeaderData->messageType = -1;//MmsMsgType : ex) sendreq
+	 pMmsHeaderData->mmsVersion = -1;//1.0 1.3
+	 pMmsHeaderData->messageSize = 0; //	X-Mms-Message-Size
+	 pMmsHeaderData->mmsPriority = -1;//_MSG_PRIORITY_TYPE_E : Low | Normal | High
+	 pMmsHeaderData->bReadReport = 0;//	X-Mms-Read-Report
+	 //	X-Mms-Report-Allowed
+	 //	X-Mms-Response-Status
+	 //	X-Mms-Response-Text
+	 pMmsHeaderData->bHideAddress = false;//	X-Mms-Sender-Visibility
+	 pMmsHeaderData->mmsStatus = MSG_DELIVERY_REPORT_NONE;//	X-Mms-Status
+	 pMmsHeaderData->szSubject[0] = '\0';//	Subject
+	 pMmsHeaderData->to = NULL;//	To
+	 pMmsHeaderData->trID[0] = '\0';
+	 //	X-Mms-Retrieve-Status
+	 //	X-Mms-Retrieve-Text
+	 //	X-Mms-Read-Status
+	 //	X-Mms-Reply-Charging
+	 //	X-Mms-Reply-Charging-Deadline
+	 //	X-Mms-Reply-Charging-ID
+	 //	X-Mms-Reply-Charging-Size
+	 //	X-Mms-Previously-Sent-By
+	 //	X-Mms-Previously-Sent-Date
+	 //	X-Mms-Store
+	 //	X-Mms-MM-State
+	 //	X-Mms-MM-Flags
+	 //	X-Mms-Store-Status
+	 //	X-Mms-Store-Status-Text
+	 //	X-Mms-Stored
+	 //	X-Mms-Attributes
+	 //	X-Mms-Totals
+	 //	X-Mms-Mbox-Totals
+	 //	X-Mms-Quotas
+	 //	X-Mms-Mbox-Quotas
+	 //	X-Mms-Message-Count
+	 //	Content
+	 //	X-Mms-Start
+	 //	Additional-headers
+	 //	X-Mms-Distribution-Indicator
+	 //	X-Mms-Element-Descriptor
+	 //	X-Mms-Limit
+	 //	X-Mms-Recommended-Retrieval-Mode
+	 //	X-Mms-Recommended-Retrieval-Mode-Text
+	 //	X-Mms-Status-Text
+	 //	X-Mms-Applic-ID
+	 //	X-Mms-Reply-Applic-ID
+	 //	X-Mms-Aux-Applic-Info
+	 pMmsHeaderData->contentClass = -1;//text | image-basic| image-rich | video-basic | video-rich | megapixel | content-basic | content-rich
+	 //	X-Mms-DRM-Content
+	 //	X-Mms-Adaptation-Allowed
+	 //	X-Mms-Replace-ID
+	 //	X-Mms-Cancel-ID
+	 //	X-Mms-Cancel-Status
+
+	return pMmsHeaderData;
+}
+
+void MsgMmsReleaseHeader(MMS_HEADER_DATA_S **ppMmHeadersData)
+{
+	if (ppMmHeadersData && *ppMmHeadersData) {
+		MMS_HEADER_DATA_S *pMmsHeaderData = *ppMmHeadersData;
+
+		free(pMmsHeaderData);
+
+		*ppMmHeadersData = NULL;
+	}
+}
+
+MMS_DATA_S *MsgMmsCreate()
+{
+	MMS_DATA_S * mms_data = (MMS_DATA_S * )calloc(1, sizeof(MMS_DATA_S));
+	return mms_data;
+}
+
+void MsgMmsRelease(MMS_DATA_S **ppMmsData)
+{
+	if (ppMmsData && *ppMmsData) {
+		MMS_DATA_S *pMmsData = *ppMmsData;
+
+		if (pMmsData->header)
+			MsgMmsReleaseHeader(&pMmsData->header);
+
+		if (pMmsData->smil)
+			MsgMmsReleaseMultipart(&pMmsData->smil);
+
+		MsgMmsReleaseMultipartList(&pMmsData->multipartlist);
+
+		free(pMmsData);
+
+		*ppMmsData = NULL;
+	}
+}
+
+static void __freeMultipartListItem(gpointer data)
+{
+	MMS_MULTIPART_DATA_S * pMultipart = (MMS_MULTIPART_DATA_S *)data;
+
+	if (pMultipart) {
+		MsgMmsReleaseMultipart(&pMultipart);
+	}
+}
+
+int MsgMmsReleaseMultipartList(MMSList **ppMultipartList)
+{
+	if (ppMultipartList && *ppMultipartList) {
+		g_list_free_full(*ppMultipartList, __freeMultipartListItem);
+		*ppMultipartList = NULL;
+	}
+
+	return 0;
+}
+
+static void __freeAddressListItem(gpointer data)
+{
+	MMS_ADDRESS_DATA_S * pAddressData = (MMS_ADDRESS_DATA_S *)data;
+
+	MsgMmsReleaseAddress(&pAddressData);
+
+}
+
+int MsgMmsReleaseAddressList(MMSList **ppAddressList)
+{
+	if (ppAddressList && *ppAddressList) {
+		g_list_free_full(*ppAddressList, __freeAddressListItem);
+		*ppAddressList = NULL;
+	}
+
+	return 0;
+}
+
+static void removeLessGreaterMark(const char *szSrcID, char *szDest, int destSize)
+{
+	char szBuf[MSG_MSG_ID_LEN + 1] = {0, };
+	int cLen = strlen(szSrcID);
+
+	if (cLen > 1 && szSrcID[0] == '<' && szSrcID[cLen - 1] == '>') {
+		strncpy(szBuf, &szSrcID[1], cLen - 2);
+		szBuf[cLen - 2] = '\0';
+	} else if (cLen > 1 && szSrcID[0] == '"' && szSrcID[cLen-1] == '"') {
+		strncpy(szBuf, &szSrcID[1], cLen - 2);
+		szBuf[cLen - 2] = '\0';
+	} else {
+		strncpy(szBuf, szSrcID, cLen);
+		szBuf[cLen] = '\0';
+	}
+
+	snprintf(szDest, destSize, "%s", szBuf);
+}
+
+static bool IsMatchedMedia(MMS_MEDIA_S *media, MMS_MULTIPART_DATA_S *pMultipart)
+{
+	if (strlen(pMultipart->szContentID) > 0) {
+
+		char szTempContentID[MSG_MSG_ID_LEN + 1] = {0,};
+		removeLessGreaterMark(pMultipart->szContentID, szTempContentID, sizeof(szTempContentID));
+
+		if (strcmp(media->szContentID, szTempContentID) == 0) {
+			return true;
+		}
+
+		if (strcmp(media->szContentLocation,  szTempContentID) == 0) {
+			return true;
+		}
+	}
+
+	if (strlen(pMultipart->szContentLocation) > 0) {
+		if (strcmp(media->szContentID,  pMultipart->szContentLocation) == 0) {
+			return true;
+		}
+
+		if (strcmp(media->szContentLocation,  pMultipart->szContentLocation) == 0) {
+			return true;
+		}
+	}
+
+	return false;
+}
+
+static bool MmsFindAndInsertPart(MMS_MESSAGE_DATA_S *pMsgData, MMS_MULTIPART_DATA_S *pMultipart)
+{
+	bool insert_media = false;
+
+	if (pMsgData->pagelist) {
+		for (int pageIdx = 0; pageIdx < pMsgData->pageCnt; pageIdx++) {
+
+			MMS_PAGE_S *page = (MMS_PAGE_S *)g_list_nth_data(pMsgData->pagelist, pageIdx);
+
+			if (page && page->medialist) {
+
+				for (int mediaIdx = 0; mediaIdx < page->mediaCnt; mediaIdx++) {
+
+					MMS_MEDIA_S *media = (MMS_MEDIA_S *)g_list_nth_data(page->medialist, mediaIdx);
+
+					if (media) { // add media
+						if (IsMatchedMedia(media, pMultipart) == true) { //matched media
+							insert_media = true;
+							media->drmType = pMultipart->drmType;
+							snprintf(media->szFilePath, sizeof(media->szFilePath), "%s", pMultipart->szFilePath);
+							snprintf(media->szFileName, sizeof(media->szFileName), "%s", pMultipart->szFileName);
+							snprintf(media->szContentID, sizeof(media->szContentID), "%s", pMultipart->szContentID);
+							snprintf(media->szContentLocation, sizeof(media->szContentLocation), "%s", pMultipart->szContentLocation);
+							snprintf(media->szContentType, sizeof(media->szContentType), "%s", pMultipart->szContentType);
+							MSG_SEC_DEBUG("InsertPart to pageIndx [%d] mediaIdx[%d] media[%p] : path = [%s], name = [%s], cid = [%s], cl = [%s], ct = [%s]"\
+									, pageIdx, mediaIdx, media, media->szFilePath, media->szFileName, media->szContentID, media->szContentLocation, media->szContentType);
+						}
+					}
+				} //end for media list
+			}
+		} //end for page list
+	}
+
+	return insert_media;
+}
+
+static bool MmsInsertPartToMmsData(MMS_MESSAGE_DATA_S *pMsgData, MMS_MULTIPART_DATA_S *pMultipart)
+{
+	MSG_BEGIN();
+
+	bool isInsert = false;
+
+	if (pMsgData == NULL || pMultipart == NULL) {
+		return false;
+	}
+
+	isInsert = MmsFindAndInsertPart(pMsgData, pMultipart);
+
+	if (isInsert == false) {
+		MMS_ATTACH_S *attachment = NULL;
+		attachment = (MMS_ATTACH_S *)calloc(sizeof(MMS_ATTACH_S), 1);
+		attachment->drmType = pMultipart->drmType;
+		attachment->mediatype = pMultipart->type;
+		snprintf(attachment->szContentType, sizeof(attachment->szContentType), "%s", pMultipart->szContentType);
+		snprintf(attachment->szFilePath, sizeof(attachment->szFilePath), "%s", pMultipart->szFilePath);
+		snprintf(attachment->szFileName, sizeof(attachment->szFileName), "%s", pMultipart->szFileName);
+		attachment->fileSize = MsgGetFileSize(attachment->szFilePath);
+		MSG_SEC_DEBUG("Insert Attach to attachment[%p] : path = [%s], name = [%s], ct = [%s], size = [%d]"\
+						, attachment, attachment->szFilePath, attachment->szFileName, attachment->szContentType, attachment->fileSize);
+
+		if (_MsgMmsAddAttachment(pMsgData, attachment) != MSG_SUCCESS) {
+			g_free(attachment);
+			return false;
+		}
+	}
+
+	MSG_END();
+	return true;
+}
+
+int MsgMmsConvertMmsDataToMmsMessageData(MMS_DATA_S *pSrc, MMS_MESSAGE_DATA_S *pDst)
+{
+	MSG_BEGIN();
+
+	bzero(pDst, sizeof(MMS_MESSAGE_DATA_S));
+
+	if (pSrc->smil) {
+		if (MsgAccessFile(pSrc->smil->szFilePath, F_OK)) {
+			gchar *contents = NULL;
+			gsize length = 0;
+
+			g_file_get_contents(pSrc->smil->szFilePath, &contents, &length, NULL);
+
+			if (contents) {
+				MsgSmilParseSmilDoc(pDst, contents);
+				g_free(contents);
+			}
+		} else {
+			if (pSrc->smil->pMultipartData) {
+				char *smil_data = (char *)calloc(1, sizeof(char)*(pSrc->smil->nMultipartDataLen + 1));
+				if (smil_data) {
+					memcpy(smil_data, pSrc->smil->pMultipartData, pSrc->smil->nMultipartDataLen);
+					MsgSmilParseSmilDoc(pDst, smil_data);
+					g_free(smil_data);
+				}
+			}
+		}
+	}
+
+	int len = g_list_length(pSrc->multipartlist);
+	for (int i = 0; i < len; i++) {
+		MMS_MULTIPART_DATA_S *multipart = (MMS_MULTIPART_DATA_S *)g_list_nth_data(pSrc->multipartlist, i);
+		if (multipart) {
+			MmsInsertPartToMmsData(pDst, multipart);
+		}
+	}
+
+	MSG_END();
+	return 0;
+}
+
+int MsgMmsConvertMmsMessageDataToMmsData(MMS_MESSAGE_DATA_S *pSrc, MMS_DATA_S *pDst)
+{
+	MSG_BEGIN();
+
+	char *pRawData = NULL;
+
+	pDst->backup_type = pSrc->backup_type;
+
+	int pageCnt = _MsgMmsGetPageCount(pSrc);
+	if (pSrc->smil.szFilePath[0] != '\0') {
+		MMS_MULTIPART_DATA_S *pMultipart = MsgMmsCreateMultipart();
+		memcpy(pMultipart, &pSrc->smil, sizeof(MMS_MULTIPART_DATA_S));
+		pDst->smil = pMultipart;
+	} else if (pageCnt > 0) {	// Multipart related
+		MsgSmilGenerateSmilDoc(pSrc, &pRawData);
+		if (pRawData) {
+			MMS_MULTIPART_DATA_S *pMultipart = MsgMmsCreateMultipart();
+
+			MSG_DEBUG("%s", pRawData);
+
+			pMultipart->pMultipartData = pRawData;
+			pMultipart->nMultipartDataLen = strlen(pRawData);
+			pMultipart->type = MIME_APPLICATION_SMIL;
+			snprintf(pMultipart->szContentType, sizeof(pMultipart->szContentType), "%s", "application/smil");
+			pDst->smil = pMultipart;
+
+		} else {
+			MSG_DEBUG("Fail to Generate SmilDoc");
+		}
+	}
+
+	for (int i = 0; i < pageCnt; ++i) {
+		MMS_PAGE_S *pPage = _MsgMmsGetPage(pSrc, i);
+		int mediaCnt = pPage->mediaCnt;
+		MSG_DEBUG("PAGE %d's media Cnt: %d", i+1, mediaCnt);
+
+		for (int j = 0; j < mediaCnt; ++j) {
+			MMS_MEDIA_S *pMedia = _MsgMmsGetMedia(pPage, j);
+			if (pMedia->szFilePath[0] != 0) {
+				MMS_MULTIPART_DATA_S *pMultipart = MsgMmsCreateMultipart();
+
+				snprintf(pMultipart->szContentID, sizeof(pMultipart->szContentID), "%s", pMedia->szContentID);
+				snprintf(pMultipart->szContentLocation, sizeof(pMultipart->szContentLocation), "%s", pMedia->szContentLocation);
+				snprintf(pMultipart->szFileName, sizeof(pMultipart->szFileName), "%s", pMedia->szFileName);
+				snprintf(pMultipart->szFilePath, sizeof(pMultipart->szFilePath), "%s", pMedia->szFilePath);
+				snprintf(pMultipart->szContentType, sizeof(pMultipart->szContentType), "%s", pMedia->szContentType);
+
+				pDst->multipartlist = g_list_append(pDst->multipartlist, pMultipart);
+			}
+		}
+	}
+
+	//Processing Attachment List
+	int attachCnt = _MsgMmsGetAttachCount(pSrc);
+
+	for (int i = 0; i < attachCnt; ++i) {
+		MMS_ATTACH_S *pMedia = _MsgMmsGetAttachment(pSrc, i);
+		if (pMedia->szFilePath[0] != 0) {
+			MMS_MULTIPART_DATA_S *pMultipart = MsgMmsCreateMultipart();
+
+			snprintf(pMultipart->szContentID, sizeof(pMultipart->szContentID), "%s", pMedia->szFileName);
+			snprintf(pMultipart->szContentLocation, sizeof(pMultipart->szContentLocation), "%s", pMedia->szFileName);
+			snprintf(pMultipart->szFileName, sizeof(pMultipart->szFileName), "%s", pMedia->szFileName);
+			snprintf(pMultipart->szFilePath, sizeof(pMultipart->szFilePath), "%s", pMedia->szFilePath);
+			snprintf(pMultipart->szContentType, sizeof(pMultipart->szContentType), "%s", pMedia->szContentType);
+
+			pDst->multipartlist = g_list_append(pDst->multipartlist, pMultipart);
+		}
+	}
+
+	MSG_END();
+
+	return 0;
+}
+
+int MsgMmsGetSmilMultipart(MMSList *pMultipartList, MMS_MULTIPART_DATA_S **smil_multipart)
+{
+	const char *smil_content_type = "application/smil";
+
+	int len = g_list_length(pMultipartList);
+
+	for (int i = 0; i < len; i++) {
+		MMS_MULTIPART_DATA_S *multipart = (MMS_MULTIPART_DATA_S *)g_list_nth_data(pMultipartList, i);
+
+		if (multipart) {
+
+			if (strcasecmp(multipart->szContentType, smil_content_type) == 0 ) {
+				*smil_multipart = multipart;
+				break;
+			}
+		}
+	}
+
+	return 0;
+}
+
+//get content from filepath and save to pMultipartData
+int MsgMmsSetMultipartData(MMS_MULTIPART_DATA_S *pMultipart)
+{
+	if (pMultipart->pMultipartData != NULL)
+		return 0;
+
+	if (g_file_get_contents(pMultipart->szFilePath, &pMultipart->pMultipartData, &pMultipart->nMultipartDataLen, NULL) == false)
+		return -1;
+
+	//Due to Get data for Backup message
+	//memset(pMultipart->szFilePath, 0x00, sizeof(pMultipart->szFilePath));
+	return 0;
+}
+
+int MsgMmsSetMultipartListData(MMS_DATA_S *pMmsData)
+{
+	MSG_BEGIN();
+
+	MMSList *multipart_list = pMmsData->multipartlist;
+
+	if (multipart_list) {
+
+		if (pMmsData->smil) {
+			MsgMmsSetMultipartData(pMmsData->smil);
+		}
+
+		for (int i = 0; i < (int)g_list_length(multipart_list); i++) {
+
+			MMS_MULTIPART_DATA_S *pMultipart = (MMS_MULTIPART_DATA_S *)g_list_nth_data(multipart_list, i);
+
+			if (pMultipart) {
+				MsgMmsSetMultipartData(pMultipart);//app file -> data
+			}
+		}
+	}
+
+	MSG_END();
+	return 0;
+}
+
+//pMultipartData set to file path
+int MsgMmsSetMultipartFilePath(const char *dirPath, MMS_MULTIPART_DATA_S *pMultipart)
+{
+	if (g_file_test(dirPath, G_FILE_TEST_IS_DIR) != true) {
+		MSG_SEC_DEBUG("g_file_test is false: [%s] is not dir or not exist", dirPath);
+		return -1;
+	}
+
+	memset(pMultipart->szFilePath, 0x00, sizeof(pMultipart->szFilePath));
+
+	snprintf(pMultipart->szFilePath, sizeof(pMultipart->szFilePath), "%s/%s", dirPath, pMultipart->szFileName);
+
+	if (!MsgCreateFile (pMultipart->szFilePath, pMultipart->pMultipartData, pMultipart->nMultipartDataLen)) {
+		MSG_SEC_DEBUG("Fail to set content to file [%s]", pMultipart->szFilePath);
+		return -1;
+	}
+
+	return 0;
+}
+
+int MsgMmsSetMultipartListFilePath(const char *dirPath, MMS_DATA_S *pMmsData)
+{
+	MSG_BEGIN();
+
+	char working_dir[MSG_FILENAME_LEN_MAX+1] = {0,};
+
+	snprintf(working_dir, sizeof(working_dir), "%s", dirPath);
+
+	if (mkdir(working_dir, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH) < 0) {
+		if (errno == EEXIST) {
+			MSG_SEC_DEBUG("exist dir : [%s]", working_dir);
+		} else {
+			MSG_SEC_DEBUG("Fail to Create Dir [%s]", working_dir);
+			return -1;
+		}
+	}
+
+	MMSList *multipart_list = pMmsData->multipartlist;
+
+	if (pMmsData->smil) {
+		snprintf(pMmsData->smil->szFileName, sizeof(pMmsData->smil->szFileName), "%s", "smil.smil");
+		MsgMmsSetMultipartFilePath(dirPath, pMmsData->smil);
+	}
+
+	if (multipart_list) {
+
+		for (int i = 0; i < (int)g_list_length(multipart_list); i++) {
+
+			MMS_MULTIPART_DATA_S *pMultipart = (MMS_MULTIPART_DATA_S *)g_list_nth_data(multipart_list, i);
+
+			if (pMultipart) {
+				MsgMmsSetMultipartFilePath(dirPath, pMultipart);//data -> svc file
+			}
+		}
+	}
+
+	MSG_END();
+	return 0;
+}
+
+int printMultipart(MMS_MULTIPART_DATA_S *multipart)
+{
+	if (multipart) {
+		MSG_DEBUG("multipart ptr [%p]", multipart);
+		MSG_DEBUG("type : %d", multipart->type);
+		MSG_DEBUG("type str : %s", multipart->szContentType);
+		MSG_DEBUG("cid : %s", multipart->szContentID);
+		MSG_DEBUG("cl : %s", multipart->szContentLocation);
+		MSG_DEBUG("name : %s", multipart->szFileName);
+		MSG_DEBUG("filepath : %s", multipart->szFilePath);
+		MSG_DEBUG("tcs_bc_level : %d", multipart->tcs_bc_level);
+		MSG_DEBUG("malware_allow : %d", multipart->malware_allow);
+		MSG_DEBUG("thumbfilepath : %s", multipart->szThumbFilePath);
+	}
+	return 0;
+}
+
+int printMultipartList(MMSList *pMultipartList)
+{
+	int len = g_list_length(pMultipartList);
+
+	for (int i = 0; i < len; i++) {
+		MMS_MULTIPART_DATA_S *multipart = (MMS_MULTIPART_DATA_S *)g_list_nth_data(pMultipartList, i);
+
+		if (multipart) {
+			MSG_DEBUG("[%d] multipart ptr [%p]", i,  multipart);
+			MSG_DEBUG("type : %d", multipart->type);
+			MSG_DEBUG("type str : %s", multipart->szContentType);
+			MSG_DEBUG("cid : %s", multipart->szContentID);
+			MSG_DEBUG("cl : %s", multipart->szContentLocation);
+			MSG_DEBUG("name : %s", multipart->szFileName);
+			MSG_DEBUG("filepath : %s", multipart->szFilePath);
+			MSG_DEBUG("tcs_bc_level : %d", multipart->tcs_bc_level);
+			MSG_DEBUG("malware_allow : %d", multipart->malware_allow);
+			MSG_DEBUG("thumbfilepath : %s", multipart->szThumbFilePath);
+		}
+	}
+
+	return 0;
+}
+
+void _MsgMmsMultipartPrint(MMS_MULTIPART_DATA_S *multipart)
+{
+	if (multipart == NULL) {
+		MSG_DEBUG("Invalid Parameter");
+		return;
+	}
+
+	MSG_DEBUG("%-25s : %d", "Multipart type", multipart->type);
+	MSG_SEC_DEBUG("%-25s : %s", "Multipart filename", multipart->szFileName);
+	MSG_SEC_DEBUG("%-25s : %s", "Multipart filepath", multipart->szFilePath);
+	MSG_SEC_DEBUG("%-25s : %s", "Multipart content type", multipart->szContentType);
+	MSG_SEC_DEBUG("%-25s : %s", "Multipart content id", multipart->szContentID);
+	MSG_SEC_DEBUG("%-25s : %s", "Multipart content location", multipart->szContentLocation);
+	MSG_DEBUG("%-25s : %d", "Multipart drm type", multipart->drmType);
+
+}
+
+bool  _MsgMmsRemoveEmptyMedia(MMS_PAGE_S *pPage)
+{
+	MMS_MEDIA_S *pMedia = NULL;
+
+	int mediaCnt  = g_list_length(pPage->medialist);
+
+	for (int i = 0; i < mediaCnt; i++) {
+
+		GList *nth = g_list_nth(pPage->medialist, i);
+
+		if (nth == NULL)
+			return false;
+
+		pMedia = (MMS_MEDIA_S *)nth->data;
+
+		if (pMedia == NULL)
+			continue;
+
+		if (strlen(pMedia->szFilePath) == 0) {
+			MSG_DEBUG("Found Empty Media [%d]", i);
+
+			g_free(pMedia);
+
+			nth->data = NULL;
+		}
+
+	}
+
+	pPage->medialist = g_list_remove_all(pPage->medialist, NULL);
+
+	pPage->mediaCnt = g_list_length(pPage->medialist);
+
+	return true;
+}
+
+//remove media object with no filepath
+bool _MsgMmsRemoveEmptyObject(MMS_MESSAGE_DATA_S *pMmsMsg)
+{
+	MMS_PAGE_S *pPage;
+
+	int pageCnt = g_list_length(pMmsMsg->pagelist);
+
+	for (int i = 0; i < pageCnt; i++) {
+
+		GList *nth = g_list_nth(pMmsMsg->pagelist, i);
+
+		if (nth == NULL)
+			return false;
+
+		pPage = (MMS_PAGE_S *)nth->data;
+
+		if (pPage == NULL)
+			continue;
+
+		_MsgMmsRemoveEmptyMedia(pPage);
+
+//		if (g_list_length(pPage->medialist) == 0) {
+//
+//			MSG_DEBUG("Found Empty Page [%d]", i);
+//
+//			g_free(pPage);
+//
+//			nth->data = NULL;
+//		}
+	}
+
+	pMmsMsg->pagelist = g_list_remove_all(pMmsMsg->pagelist, NULL);
+
+	pMmsMsg->pageCnt = g_list_length(pMmsMsg->pagelist);
+
+	return true;
+}

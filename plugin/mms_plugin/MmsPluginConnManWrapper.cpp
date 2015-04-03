@@ -1,42 +1,34 @@
 /*
- * msg-service
- *
- * Copyright (c) 2000 - 2014 Samsung Electronics Co., Ltd. All rights reserved
+ * Copyright (c) 2014 Samsung Electronics Co., Ltd. All rights reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
 */
 
 #include <errno.h>
+#include <glib.h>
 #include "MmsPluginConnManWrapper.h"
 #include "MmsPluginDebug.h"
 #include "MmsPluginHttp.h"
-#include <glib.h>
 #include "net_connection.h"
+#include "MmsPluginUtil.h"
 
 #define MMS_CONTEXT_INVOKE_WAIT_TIME	30
-#define MMS_CONNECTION_API_WAIT_TIME	50
-
-#define MMS_FREE(obj)\
-	if (obj){\
-		free(obj);\
-		obj = NULL;\
-	}
-
+#define MMS_CONNECTION_API_WAIT_TIME	420
 
 static Mutex g_mx;
 static CndVar g_cv;
-static connection_h connection = NULL;
+static connection_h g_connection = NULL;
+static connection_profile_h g_profile = NULL;
 
 void __connection_profile_print(connection_profile_h profile)
 {
@@ -64,147 +56,157 @@ void __connection_profile_print(connection_profile_h profile)
 
 	MSG_DEBUG("**************************************************************************************************");
 	ret = connection_profile_get_id(profile, &profile_id);
-	MSG_DEBUG("Profile Id = [%s]", profile_id);
+	MSG_DEBUG("return value of connection_profile_get_id [%d]", ret);
+	MSG_SEC_INFO("Profile Id = [%s]", profile_id);
 
 	ret = connection_profile_get_name(profile, &profile_name);
-	MSG_DEBUG("Profile Name = [%s]", profile_name);
+	MSG_SEC_INFO("Profile Name = [%s]", profile_name);
 
 	ret = connection_profile_get_type(profile, &profile_type);
 
 	if (profile_type == CONNECTION_PROFILE_TYPE_CELLULAR) {
-		MSG_DEBUG("Profile Type = [CELLULAR]");
+		MSG_SEC_INFO("Profile Type = [CELLULAR]");
 	} else if (profile_type == CONNECTION_PROFILE_TYPE_WIFI) {
-		MSG_DEBUG("Profile Type = [WIFI]");
+		MSG_SEC_INFO("Profile Type = [WIFI]");
 	} else if (profile_type == CONNECTION_PROFILE_TYPE_ETHERNET) {
-		MSG_DEBUG("Profile Type = [ETHERNET]");
+		MSG_SEC_INFO("Profile Type = [ETHERNET]");
 	} else if (profile_type == CONNECTION_PROFILE_TYPE_BT) {
-		MSG_DEBUG("Profile Type = [BT]");
+		MSG_SEC_INFO("Profile Type = [BT]");
 	} else {
-		MSG_DEBUG("Profile Type = Unknown [%d]", profile_type);
+		MSG_SEC_INFO("Profile Type = Unknown [%d]", profile_type);
 	}
 
 	ret = connection_profile_get_network_interface_name(profile, &interface_name);
-	MSG_DEBUG("Profile Interface Name = [%s]", interface_name);
+	MSG_SEC_INFO("Profile Interface Name = [%s]", interface_name);
 
 	ret = connection_profile_get_state(profile, &profile_state);
 	if (profile_state == CONNECTION_PROFILE_STATE_DISCONNECTED) {
-		MSG_DEBUG("Profile State = [DISCONNECTED]");
+		MSG_SEC_INFO("Profile State = [DISCONNECTED]");
 	} else if (profile_state == CONNECTION_PROFILE_STATE_ASSOCIATION) {
-		MSG_DEBUG("Profile State = [ASSOCIATION]");
+		MSG_SEC_INFO("Profile State = [ASSOCIATION]");
 	} else if (profile_state == CONNECTION_PROFILE_STATE_CONFIGURATION) {
-		MSG_DEBUG("Profile State = [CONFIGURATION]");
+		MSG_SEC_INFO("Profile State = [CONFIGURATION]");
 	} else if (profile_state == CONNECTION_PROFILE_STATE_CONNECTED) {
-		MSG_DEBUG("Profile State = [CONNECTED]");
+		MSG_SEC_INFO("Profile State = [CONNECTED]");
 	} else {
-		MSG_DEBUG("Profile State = Unknown [%d]", profile_state);
+		MSG_SEC_INFO("Profile State = Unknown [%d]", profile_state);
 	}
 
 	ret = connection_profile_get_ip_config_type(profile, CONNECTION_ADDRESS_FAMILY_IPV4, &ip_type);
-	MSG_DEBUG("Profile Ip Config Type = [%d]", ip_type);
+	MSG_SEC_INFO("Profile Ip Config Type = [%d]", ip_type);
 
 	ret = connection_profile_get_ip_address(profile, CONNECTION_ADDRESS_FAMILY_IPV4, &ip_address);
-	MSG_DEBUG("Profile Ip Address = [%s]", ip_address);
+	MSG_SEC_INFO("Profile Ip Address = [%s]", ip_address);
 
 	ret = connection_profile_get_subnet_mask(profile, CONNECTION_ADDRESS_FAMILY_IPV4, &subnet_mask);
-	MSG_DEBUG("Profile Subnet Mask = [%s]", subnet_mask);
+	MSG_SEC_INFO("Profile Subnet Mask = [%s]", subnet_mask);
 
 	ret = connection_profile_get_gateway_address(profile, CONNECTION_ADDRESS_FAMILY_IPV4, &gateway_address);
-	MSG_DEBUG("Profile Gateway Address = [%s]", gateway_address);
+	MSG_SEC_INFO("Profile Gateway Address = [%s]", gateway_address);
 
 	ret = connection_profile_get_dns_address(profile, 1, CONNECTION_ADDRESS_FAMILY_IPV4, &dns_address);
-	MSG_DEBUG("Profile Dns Address = [%s]", dns_address);
+	MSG_SEC_INFO("Profile Dns Address = [%s]", dns_address);
 
 	ret = connection_profile_get_proxy_type(profile, &proxy_type);
-	MSG_DEBUG("Profile Proxy Type = [%d]", proxy_type);
+	MSG_SEC_INFO("Profile Proxy Type = [%d]", proxy_type);
 
 	ret = connection_profile_get_proxy_address(profile, CONNECTION_ADDRESS_FAMILY_IPV4, &proxy_address);
-	MSG_DEBUG("Profile Proxy Address = [%s]", proxy_address);
+	MSG_SEC_INFO("Profile Proxy Address = [%s]", proxy_address);
 
 	ret = connection_profile_get_cellular_service_type(profile, &service_type);
 	if (service_type == CONNECTION_CELLULAR_SERVICE_TYPE_INTERNET) {
-		MSG_DEBUG("Profile Service Type = [INTERNET]");
+		MSG_SEC_INFO("Profile Service Type = [INTERNET]");
 	} else if (service_type == CONNECTION_CELLULAR_SERVICE_TYPE_MMS) {
-		MSG_DEBUG("Profile Service Type = [MMS]");
+		MSG_SEC_INFO("Profile Service Type = [MMS]");
 	} else if (service_type == CONNECTION_CELLULAR_SERVICE_TYPE_PREPAID_INTERNET) {
-		MSG_DEBUG("Profile Service Type = [PREPAID_INTERNET]");
+		MSG_SEC_INFO("Profile Service Type = [PREPAID_INTERNET]");
 	} else if (service_type == CONNECTION_CELLULAR_SERVICE_TYPE_PREPAID_MMS) {
-		MSG_DEBUG("Profile Service Type = [PREPAID_MMS]");
+		MSG_SEC_INFO("Profile Service Type = [PREPAID_MMS]");
 	} else if (service_type == CONNECTION_CELLULAR_SERVICE_TYPE_TETHERING) {
-		MSG_DEBUG("Profile Service Type = [TETHERING]");
+		MSG_SEC_INFO("Profile Service Type = [TETHERING]");
 	} else if (service_type == CONNECTION_CELLULAR_SERVICE_TYPE_APPLICATION) {
-		MSG_DEBUG("Profile Service Type = [APPLICATION]");
+		MSG_SEC_INFO("Profile Service Type = [APPLICATION]");
 	} else {
-		MSG_DEBUG("Profile Service Type = [Unknown][%d]", service_type);
+		MSG_SEC_INFO("Profile Service Type = [Unknown][%d]", service_type);
 	}
 
 	ret = connection_profile_get_cellular_apn(profile, &apn);
-	MSG_DEBUG("Profile Apn = [%s]", apn);
+	MSG_SEC_INFO("Profile Apn = [%s]", apn);
 
 	ret = connection_profile_get_cellular_auth_info(profile, &auth_type, &user_name, &password);
-	MSG_DEBUG("Profile Auth Type = [%d]", &auth_type);
-	MSG_DEBUG("Profile Auth Name = [%s]", &user_name);
-	MSG_DEBUG("Profile Auth Passward = [%s]", &password);
+	MSG_SEC_INFO("Profile Auth Type = [%d]", &auth_type);
+	MSG_SEC_INFO("Profile Auth Name = [%s]", &user_name);
+	MSG_SEC_INFO("Profile Auth Passward = [%s]", &password);
 
 	ret = connection_profile_get_cellular_home_url(profile, &home_url);
-	MSG_DEBUG("Profile Home Url = [%s]", home_url);
+	MSG_SEC_INFO("Profile Home Url = [%s]", home_url);
 
 	ret = connection_profile_is_cellular_roaming(profile, &is_roaming);
-	MSG_DEBUG("Profile Roaming = [%d]", is_roaming);
+	MSG_SEC_INFO("Profile Roaming = [%d]", is_roaming);
 	MSG_DEBUG("**************************************************************************************************");
 
-	MMS_FREE(profile_id);
-	MMS_FREE(profile_name);
-	MMS_FREE(interface_name);
-	MMS_FREE(ip_address);
-	MMS_FREE(subnet_mask);
-	MMS_FREE(gateway_address);
-	MMS_FREE(dns_address);
-	MMS_FREE(proxy_address);
-	MMS_FREE(apn);
-	MMS_FREE(user_name);
-	MMS_FREE(password);
-	MMS_FREE(home_url);
+	MSG_FREE(profile_id);
+	MSG_FREE(profile_name);
+	MSG_FREE(interface_name);
+	MSG_FREE(ip_address);
+	MSG_FREE(subnet_mask);
+	MSG_FREE(gateway_address);
+	MSG_FREE(dns_address);
+	MSG_FREE(proxy_address);
+	MSG_FREE(apn);
+	MSG_FREE(user_name);
+	MSG_FREE(password);
+	MSG_FREE(home_url);
 }
 
 static void __connection_type_changed_cb(connection_type_e type, void* user_data)
 {
-	MSG_DEBUG("Type changed callback, connection type : %d", type);
+	MSG_INFO("Type changed callback, connection type : %d", type);
 }
 
 static void __connection_ip_changed_cb(const char* ipv4_address, const char* ipv6_address, void* user_data)
 {
-	MSG_DEBUG("IP changed callback, IPv4 address : %s, IPv6 address : %s",
+	MSG_INFO("IP changed callback, IPv4 address : %s, IPv6 address : %s",
 			ipv4_address, (ipv6_address ? ipv6_address : "NULL"));
 }
 
 static void __connection_proxy_changed_cb(const char* ipv4_address, const char* ipv6_address, void* user_data)
 {
-	MSG_DEBUG("Proxy changed callback, IPv4 address : %s, IPv6 address : %s",
+	MSG_INFO("Proxy changed callback, IPv4 address : %s, IPv6 address : %s",
 			ipv4_address, (ipv6_address ? ipv6_address : "NULL"));
 }
 
 static void __connection_profile_opened_cb(connection_error_e result, void* user_data)
 {
 	if (result == CONNECTION_ERROR_NONE || result == CONNECTION_ERROR_ALREADY_EXISTS)
-		MSG_DEBUG("Connection open Succeeded [%d]", result);
+		MSG_INFO("Connection open Succeeded [%d]", result);
 	else
-		MSG_DEBUG("Connection open Failed, err : %d", result);
+		MSG_ERR("Connection open Failed, err : %d", result);
 
 	MmsPluginCmAgent *cmAgent = MmsPluginCmAgent::instance();
 
-	cmAgent->open_callback(result, user_data);
+	cmAgent->connection_profile_open_callback(result, user_data);
 }
 
 static void __connection_profile_closed_cb(connection_error_e result, void* user_data)
 {
 	if (result ==  CONNECTION_ERROR_NONE)
-		MSG_DEBUG("Connection close Succeeded");
+		MSG_INFO("Connection close Succeeded");
 	else
-		MSG_DEBUG("Connection close Failed, err : %d", result);
+		MSG_ERR("Connection close Failed, err : %d", result);
 
 	MmsPluginCmAgent *cmAgent = MmsPluginCmAgent::instance();
 
-	cmAgent->close_callback(result, user_data);
+	cmAgent->connection_profile_close_callback(result, user_data);
+}
+
+
+void __connection_profile_state_changed_cb(connection_profile_state_e state, void* user_data)
+{
+	MmsPluginCmAgent *cmAgent = MmsPluginCmAgent::instance();
+
+	cmAgent->connection_profile_state_changed_cb(state, user_data);
+
 }
 
 static gboolean __connection_create(void *pVoid)
@@ -214,20 +216,42 @@ static gboolean __connection_create(void *pVoid)
 	bool ret = false;
 	bool *ret_val = (bool *)pVoid;
 
-	if (connection) {
-		MSG_DEBUG("connection already exist");
+	if (g_connection) {
+		MSG_INFO("connection already exist");
 		ret = true;
 	} else {
-		int err = connection_create(&connection);
+		int err = connection_create(&g_connection);
 
 		if (CONNECTION_ERROR_NONE == err) {
-			connection_set_type_changed_cb(connection, __connection_type_changed_cb, NULL);
-			connection_set_ip_address_changed_cb(connection, __connection_ip_changed_cb, NULL);
-			connection_set_proxy_address_changed_cb(connection, __connection_proxy_changed_cb, NULL);
-			ret = true;
-			MSG_DEBUG("Client registration success [%p] ", connection);
+
+			connection_cellular_state_e cellular_state;
+			connection_type_e net_state;
+
+			err = connection_get_cellular_state(g_connection, &cellular_state);
+
+			err = connection_get_type(g_connection, &net_state);
+
+			if (cellular_state == CONNECTION_CELLULAR_STATE_AVAILABLE
+				|| cellular_state == CONNECTION_CELLULAR_STATE_CONNECTED) {
+
+				MSG_INFO("Client registration success [%p], cellular_state [%d], net_state [%d]", g_connection, cellular_state, net_state);
+
+				err = connection_set_type_changed_cb(g_connection, __connection_type_changed_cb, NULL);
+
+				err = connection_set_ip_address_changed_cb(g_connection, __connection_ip_changed_cb, NULL);
+
+				err = connection_set_proxy_address_changed_cb(g_connection, __connection_proxy_changed_cb, NULL);
+
+				ret = true;
+			} else {
+
+				MSG_INFO("Client registration Failed,  cellular state [%d], net_state [%d]", cellular_state, net_state);
+				connection_destroy(g_connection);
+				g_connection = NULL;
+			}
+
 		} else {
-			MSG_DEBUG("Client registration failed %d", err);
+			MSG_WARN("Client registration failed %d", err);
 		}
 	}
 
@@ -244,16 +268,17 @@ static gboolean __connection_destroy(void *pVoid)
 	MSG_BEGIN();
 
 	int rv;
-	int netOpenResult = NET_ERR_NONE;
 
-	if (connection != NULL) {
-		rv = connection_destroy(connection);
-		connection = NULL;
-		MSG_DEBUG("connection destory !!");
+	if (g_connection != NULL) {
+		rv = connection_destroy(g_connection);
+		g_connection = NULL;
+		MSG_INFO("connection destory !!");
 	} else {
-		MSG_DEBUG("Cannot connection destroy : Handle is NULL");
+		MSG_ERR("Cannot connection destroy : Handle is NULL");
 		rv = CONNECTION_ERROR_INVALID_OPERATION;
 	}
+
+	MSG_DEBUG("return value of connection destroy [%d]", rv);
 
 	MSG_END();
 	return FALSE;
@@ -263,29 +288,37 @@ static gboolean __connection_profile_open(void *pVoid)
 {
 	MSG_BEGIN();
 
-	int netOpenResult = NET_ERR_NONE;
+	int netOpenResult = MSG_CM_ERR_NONE;
 	int *ret_val = (int *)pVoid;
-
-	connection_profile_h profile;
 	int err;
 
-	err = connection_get_default_cellular_service_profile(connection, CONNECTION_CELLULAR_SERVICE_TYPE_MMS, &profile);
-
-	if (err != CONNECTION_ERROR_NONE) {
-		MSG_DEBUG("connection_get_default_cellular_service_profile Failed!! [%d]", err);
-		netOpenResult = NET_ERR_UNKNOWN;
-	} else {
-
-		if (connection_open_profile(connection, profile, __connection_profile_opened_cb, NULL) != CONNECTION_ERROR_NONE) {
-			MSG_DEBUG("Connection open Failed!!");
-			netOpenResult = NET_ERR_UNKNOWN;
-		}
+	if (g_profile) {
+		MSG_WARN("connection profile Already exist!!, It will destroy");
+		connection_profile_unset_state_changed_cb(g_profile);
+		connection_profile_destroy(g_profile);
+		g_profile = NULL;
 	}
 
-	connection_profile_destroy(profile);
+	err = connection_get_default_cellular_service_profile(g_connection, CONNECTION_CELLULAR_SERVICE_TYPE_MMS, &g_profile);
+
+	if (err != CONNECTION_ERROR_NONE) {
+		MSG_ERR("connection_get_default_cellular_service_profile Failed!! [%d]", err);
+		netOpenResult = MSG_CM_ERR_UNKNOWN;
+	} else {
+
+		err = connection_profile_set_state_changed_cb(g_profile, __connection_profile_state_changed_cb, g_profile);
+
+		if (connection_open_profile(g_connection, g_profile, __connection_profile_opened_cb, NULL) != CONNECTION_ERROR_NONE) {
+			MSG_ERR("Connection open Failed!!");
+			netOpenResult = MSG_CM_ERR_UNKNOWN;
+		}
+
+
+	}
 
 	if (ret_val) {
 		*ret_val = netOpenResult;
+		MSG_DEBUG("[%d]", netOpenResult);
 	}
 
 	MSG_END();
@@ -297,28 +330,21 @@ static gboolean __connection_profile_close(void *pVoid)
 {
 	MSG_BEGIN();
 
-	int netOpenResult = NET_ERR_NONE;
+	int netOpenResult = MSG_CM_ERR_NONE;
 
 	int *ret_val = (int *)pVoid;
 
-	connection_profile_h profile;
-	int err;
+	if (g_profile) {
+		connection_profile_unset_state_changed_cb(g_profile);
 
-	err = connection_get_default_cellular_service_profile(connection, CONNECTION_CELLULAR_SERVICE_TYPE_MMS, &profile);
-
-	if (err  != CONNECTION_ERROR_NONE) {
-		MSG_DEBUG("connection_get_default_cellular_service_profile Failed!! [%d]", err);
-		netOpenResult = NET_ERR_UNKNOWN;
-	} else {
-
-		if (connection_close_profile(connection, profile, __connection_profile_closed_cb, NULL) != CONNECTION_ERROR_NONE) {
-			MSG_DEBUG("Connection close Failed!!");
-			netOpenResult = NET_ERR_UNKNOWN;
+		if (connection_close_profile(g_connection, g_profile, __connection_profile_closed_cb, NULL) != CONNECTION_ERROR_NONE) {
+			MSG_ERR("Connection close Failed!!");
+			netOpenResult = MSG_CM_ERR_UNKNOWN;
 		}
 
+		connection_profile_destroy(g_profile);
+		g_profile = NULL;
 	}
-
-	connection_profile_destroy(profile);
 
 	if (ret_val) {
 		*ret_val = netOpenResult;
@@ -334,7 +360,7 @@ void context_invoke_end_cb(gpointer data)
 {
 	g_mx.lock();
 
-	MSG_DEBUG("@@ SIGNAL @@");
+	MSG_INFO("@@ SIGNAL @@");
 
 	g_cv.signal();
 
@@ -352,17 +378,18 @@ void context_invoke(GSourceFunc func, void *ret)
 
 	g_mx.lock();
 
-	g_main_context_invoke_full(NULL, G_PRIORITY_HIGH, func, ret,  context_invoke_end_cb);
+	g_main_context_invoke_full(NULL, G_PRIORITY_DEFAULT, func, ret,  context_invoke_end_cb);
 
-	MSG_DEBUG("@@ WAIT @@");
+	MSG_INFO("@@ WAIT @@");
 
 	time_ret = g_cv.timedwait(g_mx.pMutex(), MMS_CONTEXT_INVOKE_WAIT_TIME);
+
 	g_mx.unlock();
 
 	if (time_ret == ETIMEDOUT) {
-		MSG_DEBUG("@@ WAKE by timeout@@");
+		MSG_INFO("@@ WAKE by timeout@@");
 	} else {
-		MSG_DEBUG("@@ WAKE by signal@@");
+		MSG_INFO("@@ WAKE by signal@@");
 	}
 
 	MSG_END();
@@ -384,8 +411,6 @@ MmsPluginCmAgent::MmsPluginCmAgent()
 
 	isCmOpened = false;
 
-	isCmRegistered = false;
-
 	home_url = NULL;
 	interface_name = NULL;
 	proxy_address = NULL;
@@ -394,64 +419,69 @@ MmsPluginCmAgent::MmsPluginCmAgent()
 
 MmsPluginCmAgent::~MmsPluginCmAgent()
 {
-	MMS_FREE(home_url);
-	MMS_FREE(interface_name);
-	MMS_FREE(proxy_address);
+	MSG_FREE(home_url);
+	MSG_FREE(interface_name);
+	MSG_FREE(proxy_address);
 }
 
 bool MmsPluginCmAgent::open()
 {
 	MSG_BEGIN();
 
-	int netOpenResult = NET_ERR_NONE;
-
+	int netOpenResult = MSG_CM_ERR_NONE;
+	int bConnection = false;
+	int time_ret = 0;
 	lock();
 
-	if (isCmOpened == false) {
+	//create connection
+	context_invoke(__connection_create, &bConnection);
 
-		isCmRegistered = false;
-
-		context_invoke(__connection_create, &isCmRegistered);
-
-		if (isCmRegistered == true) {
-
-			MSG_DEBUG("net_open_connection for MMS");
-
-			context_invoke(__connection_profile_open, &netOpenResult);
-
-			if (netOpenResult == NET_ERR_NONE) {
-
-				MSG_DEBUG("## WAITING UNTIL Network Connection Open. ##");
-
-				int time_ret = 0;
-
-				time_ret = cv.timedwait(mx.pMutex(), MMS_CONNECTION_API_WAIT_TIME); // isCmOpened will changed by processCBdatas
-
-				MSG_DEBUG("## WAKE ##");
-
-				if (time_ret == ETIMEDOUT) {
-					MSG_DEBUG("Network Connection Open Time Out.");
-				}
-
-				if(!isCmOpened) {
-					MSG_DEBUG("Network Connection Open Failed");
-				}
-
-			} else { //error
-				MSG_FATAL("Error!! net_open_connection_with_profile() failed. [%d]", netOpenResult);
-			}
-
-			if (isCmOpened == false) {
-				context_invoke( __connection_destroy, NULL);
-			}
-
-		} else {
-			MSG_FATAL("## Failed network callback registration ##");
-		}
-	} else {
-		MSG_DEBUG("Network is already opened.");
+	if (bConnection == false || g_connection == NULL) {
+		MSG_ERR("Failed __connection_create");
+		goto __ERR_RETURN;
 	}
 
+	if (g_profile) {
+		MSG_WARN("connection profile already exist");
+		//TODO:: get data;
+		//goto __RETURN;
+	}
+
+	waitProfileOpen = true;
+
+	context_invoke(__connection_profile_open, &netOpenResult);
+
+	if (netOpenResult != MSG_CM_ERR_NONE) {
+		MSG_ERR("Failed __connection_profile_open. [%d]", netOpenResult);
+		goto __ERR_RETURN;
+	}
+
+	MSG_INFO("## WAITING UNTIL __connection_profile_state CONNECT. ##");
+
+//	cv.wait(mx.pMutex());
+//	MSG_INFO("## WAKE by SIGNAL ##");
+
+	time_ret = cv.timedwait(mx.pMutex(), MMS_CONNECTION_API_WAIT_TIME); // isCmOpened will changed by processCBdatas
+
+	if (time_ret == ETIMEDOUT) {
+		MSG_WARN("## WAKE by timeout ##");
+	} else {
+		MSG_INFO("## WAKE by SIGNAL ##");
+	}
+
+	if(isCmOpened == false) {
+		MSG_WARN("");
+		goto __ERR_RETURN;
+	}
+
+//__RETURN:
+	unlock();
+	MSG_END();
+	return isCmOpened;
+
+__ERR_RETURN:
+	context_invoke(__connection_profile_close, NULL);
+	context_invoke( __connection_destroy, NULL);
 	unlock();
 	MSG_END();
 	return isCmOpened;
@@ -464,102 +494,215 @@ void MmsPluginCmAgent::close()
 
 	lock();
 
-	if (isCmOpened) {
-		int netOpenResult = NET_ERR_NONE;
+	int netOpenResult = MSG_CM_ERR_NONE;
+	int time_ret = 0;
 
-		context_invoke(__connection_profile_close, &netOpenResult);
+	isCmOpened = false;
 
-		if (netOpenResult == NET_ERR_NONE) {
+	if (g_profile == NULL) {
+		MSG_INFO("connection profile is NULL");
+		goto __RETURN;
+	}
 
-			MSG_DEBUG("## WAITING UNTIL Network Connection Close. ##");
+	context_invoke(__connection_profile_close, &netOpenResult);
 
-			int time_ret = 0;
+	if (netOpenResult != MSG_CM_ERR_NONE) {
+		MSG_ERR("Failed __connection_profile_close. [%d]", netOpenResult);
+		goto __RETURN;
+	}
 
-			time_ret = cv.timedwait(mx.pMutex(), MMS_CONNECTION_API_WAIT_TIME);
+	MSG_INFO("## WAITING UNTIL connection_profile_close_callback ##");
 
-			MSG_DEBUG("## WAKE ##");
+	time_ret = cv.timedwait(mx.pMutex(), MMS_CONNECTION_API_WAIT_TIME);
 
-			if (time_ret == ETIMEDOUT) {
-				MSG_DEBUG("Network Connection Close Timed Out.");
-			}
-
-		} else {
-			MSG_DEBUG("Error!! net_close_connection() failed");
-		}
-
-		isCmOpened = false;
+	if (time_ret == ETIMEDOUT) {
+		MSG_WARN("## WAKE by timeout ##");
 	} else {
-		MSG_DEBUG ("Network Connection is not opened.");
+		MSG_INFO("## WAKE by SIGNAL ##");
 	}
 
-	if (isCmRegistered == true) {
+
+__RETURN:
+	if (g_connection)
 		context_invoke(__connection_destroy, NULL);
-		isCmRegistered = false;
-	}
+
+	g_profile = NULL;
+	g_connection = NULL;
+
+	MSG_FREE(this->home_url);
+	MSG_FREE(this->interface_name);
+	MSG_FREE(this->proxy_address);
 
 	unlock();
 
 	MSG_END();
 }
 
-void MmsPluginCmAgent::open_callback(connection_error_e result, void* user_data)
+//profile open callback
+void MmsPluginCmAgent::connection_profile_open_callback(connection_error_e result, void* user_data)
 {
 	lock();
 
-	connection_profile_h profile;
 	connection_cellular_state_e state;
-	int err;
+	connection_profile_h profile = NULL;
+	connection_profile_state_e  profile_state;
+	int err = CONNECTION_ERROR_NONE;
 
 	if (result == CONNECTION_ERROR_NONE || result == CONNECTION_ERROR_ALREADY_EXISTS) {
 
-		err = connection_get_cellular_state(connection, &state);
+		err = connection_get_cellular_state(g_connection, &state);
 
-		MSG_DEBUG("connection_get_cellular_state ret [%d], state [%d]", err, state);
+		MSG_INFO("connection_get_cellular_state ret [%d], state [%d]", err, state);
 
-		err = connection_get_default_cellular_service_profile(connection, CONNECTION_CELLULAR_SERVICE_TYPE_MMS, &profile);
-		if (err != CONNECTION_ERROR_NONE) {
-			MSG_DEBUG("connection_get_default_cellular_service_profile Failed!! [%d]", err);
+		err = connection_get_default_cellular_service_profile(g_connection, CONNECTION_CELLULAR_SERVICE_TYPE_MMS, &profile);
+		if (err != CONNECTION_ERROR_NONE || profile == NULL) {
+
+			MSG_ERR("Failed connection_get_default_cellular_service_profile. err [%d], profile [%p]", err, profile);
+			goto __SIGNAL_RETURN;
 		}
 
-		if (profile) {
-			isCmOpened = true;
+		err = connection_profile_get_state(profile, &profile_state);
 
-			MMS_FREE(this->home_url);
-			MMS_FREE(this->interface_name);
-			MMS_FREE(this->proxy_address);
+		MSG_DEBUG("profile state [%d]", profile_state);
 
-			err = connection_profile_get_cellular_home_url(profile, &this->home_url);
-			err = connection_profile_get_network_interface_name(profile, &this->interface_name);
-			err = connection_profile_get_proxy_address(profile, CONNECTION_ADDRESS_FAMILY_IPV4, &this->proxy_address);
+		if (profile_state == CONNECTION_PROFILE_STATE_CONNECTED && waitProfileOpen == true) {
 
 			__connection_profile_print(profile);
 
-			connection_profile_destroy(profile);
+			MSG_FREE(this->home_url);
+			MSG_FREE(this->interface_name);
+			MSG_FREE(this->proxy_address);
+
+			err = connection_profile_get_cellular_home_url(profile, &this->home_url);
+			if (err != CONNECTION_ERROR_NONE) {
+				MSG_ERR("Failed connection_profile_get_cellular_home_url");
+			}
+
+			err = connection_profile_get_network_interface_name(profile, &this->interface_name);
+			if (err != CONNECTION_ERROR_NONE) {
+				MSG_ERR("Failed connection_profile_get_cellular_home_url");
+			}
+
+			err = connection_profile_get_proxy_address(profile, CONNECTION_ADDRESS_FAMILY_IPV4, &this->proxy_address);
+			if (err != CONNECTION_ERROR_NONE) {
+				MSG_ERR("Failed connection_profile_get_cellular_home_url");
+			}
+
+			isCmOpened = true;
+
+			goto __SIGNAL_RETURN; //open success
+
+		} else {
+			goto __NO_SIGNAL_RETURN; //Just open success
 		}
 
 	} else {
-		MSG_DEBUG("connection open profile Failed!! [%d]", result);
+		MSG_ERR("connection open profile Failed!! [%d]", result);
+		isCmOpened = false;
+		goto __SIGNAL_RETURN;
+
 	}
 
-	MSG_DEBUG("## SIGNAL ##");
+__NO_SIGNAL_RETURN: //Just Open
+	if (profile)
+		connection_profile_destroy(profile);
+	unlock();
+	return;
+
+__SIGNAL_RETURN: //Error or Already connected
+	if (profile)
+		connection_profile_destroy(profile);
+
+	if (waitProfileOpen == true) {//open fail
+		waitProfileOpen = false;
+		MSG_INFO("## SIGNAL ##");
+		signal();
+	}
+	unlock();
+	return;
+}
+
+
+void MmsPluginCmAgent::connection_profile_close_callback(connection_error_e result, void* user_data)
+{
+	lock();
+	MSG_INFO("result [%d]", result);
+	MSG_INFO("## SIGNAL ##");
 	signal();
 
 	unlock();
 }
 
-void MmsPluginCmAgent::close_callback(connection_error_e result, void* user_data)
+void MmsPluginCmAgent::connection_profile_state_changed_cb(connection_profile_state_e state, void* user_data)
 {
+	MSG_BEGIN();
+
 	lock();
 
-	MMS_FREE(this->home_url);
-	MMS_FREE(this->interface_name);
-	MMS_FREE(this->proxy_address);
+	int err;
+	connection_profile_h profile = NULL;
 
-	isCmOpened = false;
-	MSG_DEBUG("## SIGNAL ##");
-	signal();
+	MSG_INFO("state [%d]", state);
 
+	if (state != CONNECTION_PROFILE_STATE_CONNECTED) {
+		isCmOpened = false;
+		goto __NO_SIGNAL_RETURN;
+	}
+
+	if (isCmOpened == true) {
+		MSG_INFO("already opened");
+		goto __SIGNAL_RETURN;
+	}
+
+	/* Should get profile to get latest profile info*/
+	err = connection_get_default_cellular_service_profile(g_connection, CONNECTION_CELLULAR_SERVICE_TYPE_MMS, &profile);
+	if (err != CONNECTION_ERROR_NONE || profile == NULL) {
+
+		MSG_ERR("Failed connection_get_default_cellular_service_profile. err [%d], profile [%p]", err, profile);
+		goto __SIGNAL_RETURN;
+	}
+
+	if (state == CONNECTION_PROFILE_STATE_CONNECTED ) {
+		__connection_profile_print(profile);
+
+		MSG_FREE(this->home_url);
+		MSG_FREE(this->interface_name);
+		MSG_FREE(this->proxy_address);
+
+		err = connection_profile_get_cellular_home_url(profile, &this->home_url);
+		if (err != CONNECTION_ERROR_NONE) {
+			MSG_ERR("Failed connection_profile_get_cellular_home_url");
+		}
+
+		err = connection_profile_get_network_interface_name(profile, &this->interface_name);
+		if (err != CONNECTION_ERROR_NONE) {
+			MSG_ERR("Failed connection_profile_get_cellular_home_url");
+		}
+
+		err = connection_profile_get_proxy_address(profile, CONNECTION_ADDRESS_FAMILY_IPV4, &this->proxy_address);
+		if (err != CONNECTION_ERROR_NONE) {
+			MSG_ERR("Failed connection_profile_get_cellular_home_url");
+		}
+
+		isCmOpened = true;
+		goto __SIGNAL_RETURN;
+	}
+
+__NO_SIGNAL_RETURN://Default
 	unlock();
+	return;
+
+__SIGNAL_RETURN: //Error or connected
+	if (profile)
+		connection_profile_destroy(profile);
+
+	if (waitProfileOpen == true) {
+		waitProfileOpen = false;
+		MSG_INFO("## SIGNAL ##");
+		signal();
+	}
+	unlock();
+	return;
 }
 
 bool MmsPluginCmAgent::getInterfaceName(const char **deviceName)

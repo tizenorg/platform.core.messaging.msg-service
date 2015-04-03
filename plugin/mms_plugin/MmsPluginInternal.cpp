@@ -1,20 +1,17 @@
 /*
- * msg-service
- *
- * Copyright (c) 2000 - 2014 Samsung Electronics Co., Ltd. All rights reserved
+ * Copyright (c) 2014 Samsung Electronics Co., Ltd. All rights reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
 */
 
 #include <stdlib.h>
@@ -27,12 +24,16 @@
 #include "MsgMmsMessage.h"
 #include "MsgGconfWrapper.h"
 #include "MsgStorageHandler.h"
+#include "MsgSerialize.h"
+#include "MsgSpamFilter.h"
 #include "MmsPluginDebug.h"
 #include "MmsPluginTypes.h"
 #include "MmsPluginCodec.h"
 #include "MmsPluginInternal.h"
 #include "MmsPluginStorage.h"
-#include "MmsPluginSmil.h"
+#include "MmsPluginAppBase.h"
+#include "MmsPluginMIME.h"
+
 /*==================================================================================================
                                      IMPLEMENTATION OF MmsPluginInternal - Member Functions
 ==================================================================================================*/
@@ -70,19 +71,19 @@ void MmsPluginInternal::processReceivedInd(MSG_MESSAGE_INFO_S *pMsgInfo, MSG_REQ
 		if(MsgCreateFileName(fileName) == false)
 			THROW(MsgException::FILE_ERROR, "MsgCreateFileName error");
 
-		MSG_DEBUG("File name = %s", fileName);
+		MSG_SEC_DEBUG("File name = %s", fileName);
 
 		if(MsgWriteIpcFile(fileName, pMsgInfo->msgText, pMsgInfo->dataSize) == false)
 			THROW(MsgException::FILE_ERROR, "MsgWriteIpcFile error");
 
-		snprintf(fullPath, MAX_FULL_PATH_SIZE+1, "%s/%s", MSG_IPC_DATA_PATH, fileName);
+		snprintf(fullPath, MAX_FULL_PATH_SIZE+1, "%s%s", MSG_IPC_DATA_PATH, fileName);
 
 		memset(pMsgInfo->msgData, 0x00, sizeof(pMsgInfo->msgData));
 		memcpy(pMsgInfo->msgData, fullPath, strlen(fullPath));
 		pMsgInfo->bTextSms = false;
 	}
 
-	MSG_DEBUG("MMS File Path = %s", pMsgInfo->msgData);
+	MSG_SEC_DEBUG("MMS File Path = %s", pMsgInfo->msgData);
 
 	MmsInitHeader();
 	MmsRegisterDecodeBuffer();
@@ -94,7 +95,9 @@ void MmsPluginInternal::processReceivedInd(MSG_MESSAGE_INFO_S *pMsgInfo, MSG_REQ
 		if (!MmsBinaryDecodeMsgHeader(pFile, pMsgInfo->dataSize))
 			MSG_DEBUG("Decoding Header Failed \r\n");
 
-		MsgDeleteFile(pMsgInfo->msgData + strlen(MSG_IPC_DATA_PATH));
+		MsgCloseFile(pFile);
+
+		remove(pMsgInfo->msgData);
 
 		switch (mmsHeader.type) {
 		case MMS_MSGTYPE_NOTIFICATION_IND:
@@ -119,8 +122,6 @@ void MmsPluginInternal::processReceivedInd(MSG_MESSAGE_INFO_S *pMsgInfo, MSG_REQ
 		default:
 			break;
 		}
-
-		MsgCloseFile(pFile);
 	}
 
 	MSG_END();
@@ -129,12 +130,12 @@ void MmsPluginInternal::processReceivedInd(MSG_MESSAGE_INFO_S *pMsgInfo, MSG_REQ
 bool MmsPluginInternal::processNotiInd(MSG_MESSAGE_INFO_S *pMsgInfo, MSG_REQUEST_INFO_S *pRequest)
 {
 	MSG_DEBUG("MmsProcessNotiInd");
-	msg_error_t	err = MSG_SUCCESS;
 
 	MSG_MMS_HOME_RETRIEVE_TYPE_T retrieveType;
 	bool bReportAllowed;
 
 	MmsAttrib attrib;
+	MsgDbHandler *dbHandle = getDbHandle();
 
 	MmsInitMsgAttrib(&attrib);
 
@@ -150,30 +151,127 @@ bool MmsPluginInternal::processNotiInd(MSG_MESSAGE_INFO_S *pMsgInfo, MSG_REQUEST
 
 	attrib.expiryTime = mmsHeader.expiryTime;
 
-	MmsPluginStorage *pStorage = MmsPluginStorage::instance();
-	err = pStorage->updateMmsAttrib(pMsgInfo->msgId, &attrib, pMsgInfo->msgType.subType);
-
 	if (mmsHeader.pFrom) {
 		MmsAddrUtilRemovePlmnString(mmsHeader.pFrom->szAddr);
 		// From
 		strncpy(pMsgInfo->addressList[0].addressVal, mmsHeader.pFrom->szAddr, MAX_ADDRESS_VAL_LEN);
+		if (MmsAddrUtilCheckEmailAddress(pMsgInfo->addressList[0].addressVal)) {
+			pMsgInfo->addressList[0].addressType = MSG_ADDRESS_TYPE_EMAIL;
+		}
+	}
+
+	MMS_DATA_S *mms_data = MsgMmsCreate();
+	{
+		mms_data->header = MsgMmsCreateHeader();
+
+		MMS_HEADER_DATA_S *pHeader = mms_data->header;
+
+		pHeader->messageType = mmsHeader.type;
+
+		snprintf(pHeader->trID, sizeof(pHeader->trID), "%s", mmsHeader.szTrID);
+
+		pHeader->mmsVersion = mmsHeader.version;
+
+		//From
+		if (mmsHeader.pFrom) {
+			MmsAddrUtilRemovePlmnString(mmsHeader.pFrom->szAddr);
+			snprintf(pHeader->szFrom, sizeof(pHeader->szFrom), "%s", mmsHeader.pFrom->szAddr);
+		}
+
+		//Subject
+		snprintf(pHeader->szSubject, sizeof(pHeader->szSubject), "%s", mmsHeader.szSubject);
+		//Delivery Report
+		pHeader->bDeliveryReport = mmsHeader.deliveryReport;
+		//Message Class
+		pHeader->messageClass = mmsHeader.msgClass;
+
+		//Priority
+		pHeader->mmsPriority = mmsHeader.priority;
+
+		//Message Size : pMmsMsg->mmsAttrib.msgSize = mmsHeader.msgSize;
+		//Expiry
+		pHeader->expiry.type = mmsHeader.expiryTime.type;
+		pHeader->expiry.time = mmsHeader.expiryTime.time;
+
+		time_t curTime = time(NULL);
+
+		if (pHeader->expiry.type == MMS_TIMETYPE_RELATIVE) {
+			pHeader->expiry.type = MMS_TIMETYPE_ABSOLUTE;
+			pHeader->expiry.time += curTime;
+		}
+
+		//Charge
+		//contentclass
+		//int contentClass;//text | image-basic| image-rich | video-basic | video-rich | megapixel | content-basic | content-rich
+		strncpy(pHeader->contentLocation, mmsHeader.szContentLocation, MMS_LOCATION_LEN);
+
+		pHeader->messageSize = mmsHeader.msgSize;
+
+		MSG_DEBUG("Message size = [%d]", pHeader->messageSize);
+
+		char *pSerializedMms = NULL;
+		int serializeDataSize = 0;
+
+		char pTempFileName[MSG_FILENAME_LEN_MAX+1] = {0};
+		char pTempFilePath[MSG_FILEPATH_LEN_MAX+1] = {0};
+
+		serializeDataSize = MsgSerializeMms(mms_data, &pSerializedMms);
+
+		if (pSerializedMms) {
+			if (MsgCreateFileName(pTempFileName) == true) {
+				pMsgInfo->bTextSms = false;
+
+				snprintf(pTempFilePath, sizeof(pTempFilePath), MSG_IPC_DATA_PATH"%s", pTempFileName);
+
+				MsgOpenCreateAndOverwriteFile(pTempFilePath, pSerializedMms, serializeDataSize);
+
+				//set file name
+				snprintf(pMsgInfo->msgData, sizeof(pMsgInfo->msgData), "%s", pTempFileName);
+			}
+
+			free(pSerializedMms);
+		}
+	}
+	MsgMmsRelease(&mms_data);
+
+	// Check contents-location is in noti.ind
+	if (mmsHeader.szContentLocation[0] == '\0') {
+		THROW(MsgException::INCOMING_MSG_ERROR, "######## Contents-location is empty in MMS-Noti-Ind  #######");
+		return false;
 	}
 
 	int roamState = 0;
+	char pPduFilePath[MAX_FULL_PATH_SIZE] = {0};
 
 	roamState = MsgSettingGetInt(VCONFKEY_TELEPHONY_SVC_ROAM);
 	MsgSettingGetBool(MMS_SEND_REPORT_ALLOWED, &bReportAllowed);
 
-	if (checkRejectNotiInd(roamState, bReportAllowed, pMsgInfo->msgData)) {
+	if (checkRejectNotiInd(roamState, bReportAllowed, pPduFilePath)) {
 		MSG_DEBUG("MMS Message Rejected......");
 
-		pMsgInfo->dataSize = strlen(pMsgInfo->msgData);
-		pMsgInfo->bTextSms = true;
+		pMsgInfo->dataSize = strlen(pPduFilePath);
 		memcpy(&pRequest->msgInfo, pMsgInfo, sizeof(MSG_MESSAGE_INFO_S));
-
+		snprintf(pRequest->msgInfo.msgData, sizeof(pRequest->msgInfo.msgData), "%s", pPduFilePath);
 		pRequest->msgInfo.msgType.subType = MSG_NOTIFYRESPIND_MMS;
 
 		return false;
+	}
+
+	if (MsgCheckFilter(dbHandle, pMsgInfo)){
+		encodeNotifyRespInd(mmsHeader.szTrID, MSG_DELIVERY_REPORT_DEFERRED, bReportAllowed, pPduFilePath);
+
+		pMsgInfo->dataSize = strlen(pPduFilePath);
+
+		pRequest->msgInfo.bTextSms = false;
+
+		memcpy(&pRequest->msgInfo, pMsgInfo, sizeof(MSG_MESSAGE_INFO_S));
+
+		snprintf(pRequest->msgInfo.msgData, sizeof(pRequest->msgInfo.msgData), "%s", pPduFilePath);
+		MSG_DEBUG("pRequest->msgInfo.msgData = %s", pRequest->msgInfo.msgData);
+		pRequest->msgInfo.msgType.subType = MSG_NOTIFYRESPIND_MMS;
+		pRequest->msgInfo.folderId = MSG_SPAMBOX_ID;
+
+		return true;
 	}
 
 	if (roamState == VCONFKEY_TELEPHONY_SVC_ROAM_OFF) {
@@ -186,13 +284,15 @@ bool MmsPluginInternal::processNotiInd(MSG_MESSAGE_INFO_S *pMsgInfo, MSG_REQUEST
 		if (retrieveType == MSG_ABROAD_RESTRICTED) {
 			MSG_DEBUG("MMS Receiving Setting Restricted was selected.");
 			// m-notify-resp-ind encoding process
-			memset(pMsgInfo->msgData, 0, MAX_MSG_DATA_LEN + 1);
+			encodeNotifyRespInd(mmsHeader.szTrID, MSG_DELIVERY_REPORT_DEFERRED, bReportAllowed, pPduFilePath);
 
-			encodeNotifyRespInd(mmsHeader.szTrID, MSG_DELIVERY_REPORT_DEFERRED, bReportAllowed, pMsgInfo->msgData);
+			pMsgInfo->dataSize = strlen(pPduFilePath);
 
-			pMsgInfo->dataSize = strlen(pMsgInfo->msgData);
-			pMsgInfo->bTextSms = true;
+			pRequest->msgInfo.bTextSms = false;
+
 			memcpy(&pRequest->msgInfo, pMsgInfo, sizeof(MSG_MESSAGE_INFO_S));
+
+			snprintf(pRequest->msgInfo.msgData, sizeof(pRequest->msgInfo.msgData), "%s", pPduFilePath);
 
 			pRequest->msgInfo.msgType.subType = MSG_NOTIFYRESPIND_MMS;
 
@@ -202,34 +302,57 @@ bool MmsPluginInternal::processNotiInd(MSG_MESSAGE_INFO_S *pMsgInfo, MSG_REQUEST
 
 	// should send http 'GET'
 	if (retrieveType == MSG_HOME_AUTO_DOWNLOAD || retrieveType == MSG_ABROAD_AUTO_DOWNLOAD) {
-		MSG_DEBUG("=========== START AUTO RETRIEVE MODE ============");
-		memset(pMsgInfo->msgData, 0, MAX_MSG_DATA_LEN + 1);
+		//Check if current request sim index is different from default network SIM
+		//Convert auto-retrieve to manual retrieve in case sim indexes are different
+		int default_sim = 0;
+		default_sim = MsgSettingGetInt(MSG_NETWORK_SIM);
 
-		memcpy(pMsgInfo->msgData, mmsHeader.szContentLocation, strlen(mmsHeader.szContentLocation)) ;
+		MSG_DEBUG("default_sim = %d, pMsgInfo->sim_idx = %d", default_sim, pMsgInfo->sim_idx);
 
-		pMsgInfo->dataSize = strlen(pMsgInfo->msgData);
+		if (default_sim == (int)pMsgInfo->sim_idx) {
+			MSG_DEBUG("=========== START AUTO RETRIEVE MODE ============");
 
-		pMsgInfo->bTextSms = true;
+			pMsgInfo->dataSize = strlen(mmsHeader.szContentLocation);
 
-		memcpy(&pRequest->msgInfo, pMsgInfo, sizeof(MSG_MESSAGE_INFO_S));
+			pRequest->msgInfo.bTextSms = true;
 
-		pRequest->msgInfo.msgType.subType = MSG_GET_MMS;
+			memcpy(&pRequest->msgInfo, pMsgInfo, sizeof(MSG_MESSAGE_INFO_S));
 
-		MSG_DEBUG("MSG SUBTYPE = %d msg data %s bTextsms %d", pRequest->msgInfo.msgType.subType, pRequest->msgInfo.msgData, pRequest->msgInfo.bTextSms);
+			snprintf(pRequest->msgInfo.msgData, sizeof(pRequest->msgInfo.msgData), "%s", mmsHeader.szContentLocation);
+
+			pRequest->msgInfo.msgType.subType = MSG_GET_MMS;
+
+			MSG_SEC_DEBUG("MSG SUBTYPE = %d msg data %s bTextsms %d", pRequest->msgInfo.msgType.subType, pRequest->msgInfo.msgData, pRequest->msgInfo.bTextSms);
+		} else {
+			encodeNotifyRespInd(mmsHeader.szTrID, MSG_DELIVERY_REPORT_DEFERRED, bReportAllowed, pPduFilePath);
+
+			pMsgInfo->dataSize = strlen(pPduFilePath);
+
+			pRequest->msgInfo.bTextSms = false;
+
+			memcpy(&pRequest->msgInfo, pMsgInfo, sizeof(MSG_MESSAGE_INFO_S));
+
+			snprintf(pRequest->msgInfo.msgData, sizeof(pRequest->msgInfo.msgData), "%s", pPduFilePath);
+			MSG_SEC_DEBUG("pRequest->msgInfo.msgData = %s", pRequest->msgInfo.msgData);
+			pRequest->msgInfo.msgType.subType = MSG_NOTIFYRESPIND_MMS;
+		}
 	} else {
-	// should send m-notify-resp-ind
+		// should send m-notify-resp-ind
 		MSG_DEBUG("=========== START MANUAL RETRIEVE MODE ===========");
 		// m-notify-resp-ind encoding process
-		memset(pMsgInfo->msgData, 0, MAX_MSG_DATA_LEN + 1);
 
 		if (retrieveType == MSG_HOME_MANUAL || retrieveType == MSG_ABROAD_MANUAL) {
-			encodeNotifyRespInd(mmsHeader.szTrID, MSG_DELIVERY_REPORT_DEFERRED, bReportAllowed, pMsgInfo->msgData);
+			encodeNotifyRespInd(mmsHeader.szTrID, MSG_DELIVERY_REPORT_DEFERRED, bReportAllowed, pPduFilePath);
 		}
 
-		pMsgInfo->dataSize = strlen(pMsgInfo->msgData);
-		pMsgInfo->bTextSms = true;
+		pMsgInfo->dataSize = strlen(pPduFilePath);
+
+		pRequest->msgInfo.bTextSms = false;
+
 		memcpy(&pRequest->msgInfo, pMsgInfo, sizeof(MSG_MESSAGE_INFO_S));
 
+		snprintf(pRequest->msgInfo.msgData, sizeof(pRequest->msgInfo.msgData), "%s", pPduFilePath);
+		MSG_DEBUG("pRequest->msgInfo.msgData = %s", pRequest->msgInfo.msgData);
 		pRequest->msgInfo.msgType.subType = MSG_NOTIFYRESPIND_MMS;
 	}
 
@@ -364,6 +487,11 @@ void MmsPluginInternal::processSendConf(MSG_MESSAGE_INFO_S *pMsgInfo, mmsTranQEn
 													, addressinfo.addressVal
 													, (pMsgInfo->networkStatus == MSG_NETWORK_SEND_SUCCESS)?"Success":"Fail");
 
+	if (msisdn) {
+		free(msisdn);
+		msisdn = NULL;
+	}
+
 	// set message-id from mmsc
 	strncpy(recvData.szMsgID, mmsHeader.szMsgID, MMS_MSG_ID_LEN);
 	strncpy(recvData.szTrID, mmsHeader.szTrID, MMS_TR_ID_LEN);
@@ -376,29 +504,19 @@ void MmsPluginInternal::processSendConf(MSG_MESSAGE_INFO_S *pMsgInfo, mmsTranQEn
 
 	pMsgInfo->displayTime = curTime;
 
-
-	MmsInitHeader();
-#if 0 // Not Need Release
 	MmsMsg *pMsg = NULL;
 	MmsPluginStorage::instance()->getMmsMessage(&pMsg);
-#ifdef __SUPPORT_DRM__
+	MmsInitHeader();
 	MmsReleaseMsgDRMInfo(&pMsg->msgType.drmInfo);
-#endif
 	MmsReleaseMsgBody(&pMsg->msgBody, pMsg->msgType.type);
-#endif
 
 	MSG_END();
 }
 
-
+#if 1
 void MmsPluginInternal::processRetrieveConf(MSG_MESSAGE_INFO_S *pMsgInfo, mmsTranQEntity *pRequest, char *pRetrievedFilePath)
 {
 	MSG_BEGIN();
-
-	int partCnt = 0;
-	int attachCount = 0;
-	MsgType partHeader;
-	bool bMultipartRelated = false;
 
 	msg_error_t err = MSG_SUCCESS;
 	MMS_RECV_DATA_S recvData = {{0}, };
@@ -452,12 +570,28 @@ void MmsPluginInternal::processRetrieveConf(MSG_MESSAGE_INFO_S *pMsgInfo, mmsTra
 														, (mmsHeader.pFrom)?mmsHeader.pFrom->szAddr:"YOU"
 														, (msisdn == NULL)?"ME":msisdn
 														, (pMsgInfo->networkStatus == MSG_NETWORK_RETRIEVE_SUCCESS)?"Success":"Fail");
+
+	/* PLM P141008-05143 :  Notification.Ind address is 1, but MMS retreived Conf address is correct.
+	 So adding correct address to addressList buf to compare address in DB while MsgStoUpdateMMSMessage */
+	if (mmsHeader.pFrom) {
+		pMsgInfo->nAddressCnt = 1;
+		strncpy(pMsgInfo->addressList[0].addressVal, mmsHeader.pFrom->szAddr, MAX_ADDRESS_VAL_LEN);
+	}
+
+	if (msisdn) {
+		free(msisdn);
+		msisdn = NULL;
+	}
+
 	pMsgInfo->dataSize = pRequest->getDataLen;
 
 	// set message-id & MMS TPDU file path
-	strcpy(recvData.szMsgID, mmsHeader.szMsgID);
+	snprintf(recvData.szMsgID, sizeof(recvData.szMsgID), "%s", mmsHeader.szMsgID);
+
 	if (pRetrievedFilePath)
-		strncpy(recvData.retrievedFilePath, pRetrievedFilePath, sizeof(recvData.retrievedFilePath));
+		strncpy(recvData.retrievedFilePath, pRetrievedFilePath, sizeof(recvData.retrievedFilePath)-1);
+
+	char *filename = NULL;
 
 #ifdef FEATURE_JAVA_MMS
 	if (mmsHeader.msgType.param.szApplicationID || mmsHeader.msgType.param.szReplyToApplicationID) {
@@ -469,21 +603,20 @@ void MmsPluginInternal::processRetrieveConf(MSG_MESSAGE_INFO_S *pMsgInfo, mmsTra
 
 		char fullPath[MAX_FULL_PATH_SIZE+1] = {0, };
 
-		char *filename = NULL;
-		filename = strrchr(pRetrievedFilePath, '/');
+		filename = MsgGetFileName(pRetrievedFilePath);
 
-		snprintf(fullPath, MAX_FULL_PATH_SIZE+1, "%s/%s", MSG_IPC_DATA_PATH, filename + 1);
+		snprintf(fullPath, MAX_FULL_PATH_SIZE+1, "%s%s", MSG_IPC_DATA_PATH, filename);
 
 		int ret  = rename(pRetrievedFilePath, fullPath);
 		if (ret != 0) {
 			MSG_DEBUG("File rename Error: %s", strerror(errno));
 		}
 
-		if (chmod(fullPath, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP) != 0) {
+		if (MsgChmod(fullPath, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP) == false) {
 			MSG_DEBUG("File Write Error: %s", strerror(errno));
 		}
 
-		if (chown(fullPath, 0, 6502 ) != 0) {
+		if (MsgChown(fullPath, 0, 6502 ) == false) {
 			MSG_DEBUG("File Write Error: %s", strerror(errno));
 		}
 	}
@@ -497,97 +630,170 @@ void MmsPluginInternal::processRetrieveConf(MSG_MESSAGE_INFO_S *pMsgInfo, mmsTra
 
 	MmsPluginStorage *pStorage = MmsPluginStorage::instance();
 
-	MMS_MESSAGE_DATA_S msgData;
-	memset(&msgData, 0, sizeof(MMS_MESSAGE_DATA_S));
-
-	// Conversation is supported only Multipart Related message, Presentation info should be provided
-	if (mmsHeader.msgType.type == MIME_MULTIPART_RELATED || mmsHeader.msgType.type == MIME_APPLICATION_VND_WAP_MULTIPART_RELATED) {
-		char *pSmilDoc = NULL;
-		MmsMsg *pMsg = NULL;
-		char szFileName[MSG_FILENAME_LEN_MAX] = {0, };
-
-		msgData.regionCnt = 0;
-		msgData.pageCnt = 0;
-		msgData.attachCnt = 0;
-		msgData.transitionCnt = 0;
-		msgData.metaCnt = 0;
-		memset(msgData.szSmilFilePath, 0, MSG_FILEPATH_LEN_MAX);
-
-		pSmilDoc = MmsSmilGetPresentationData(pMsgInfo->msgId);
-		MmsSmilParseSmilDoc(&msgData, pSmilDoc);
-		MmsRemovePims(&msgData);
-
-		MmsPluginStorage::instance()->getMmsMessage(&pMsg);
-		strcpy(szFileName, pMsg->szFileName);
-
-		err = pStorage->getMsgText(&msgData, pMsgInfo->msgText);
-		bMultipartRelated = true;
-	} else {
-		MSG_DEBUG("Multipart mixed message doesn't support mms conversation");
-	}
-
 	err = pStorage->updateMmsAttrib(pMsgInfo->msgId, &attrib, pMsgInfo->msgType.subType);
 
-	partCnt = MmsGetMediaPartCount(pMsgInfo->msgId);
-	MSG_DEBUG("MmsUiGetMediaAttachInfo: partCnt=%d\n", partCnt );
+	MSG_DEBUG("Error value of updateMmsAttrib [%d]", err);
 
-	if (partCnt < 0) {
-		MSG_DEBUG("MmsUiGetMediaAttachInfo: partCnt=%d\n", partCnt );
+	{//make MmsData & insert multipart
+	MmsMsg *pMmsMsg = NULL;
+	MmsPluginStorage::instance()->getMmsMessage(&pMmsMsg);
+
+	MMS_DATA_S *pMmsData = MsgMmsCreate();
+	pMmsData->header = MsgMmsCreateHeader();
+
+	MmsConvertMmsData(pMmsMsg, pMmsData);
+	//CID 41996 : MmsConvertMmsData always returns true
+	/*if (MmsConvertMmsData(pMmsMsg, pMmsData) != true) {
+		MSG_DEBUG("Fail to Compose MMS Message");
+		goto __CATCH;
+	}*/
+
+	bool bFiltered = checkFilterMmsBody(pMmsData);
+	if (bFiltered == true) {
+		pMsgInfo->folderId = MSG_SPAMBOX_ID;
+	}
+
+	MMS_MULTIPART_DATA_S *pSmilMultipart = pMmsData->smil;
+	if (pSmilMultipart) {
+		MmsPluginStorage::instance()->insertMultipart(pMsgInfo->msgId, pSmilMultipart);
+	}
+
+	MMSList *multipart_list = pMmsData->multipartlist;
+
+	for (int i = 0; i < (int)g_list_length(multipart_list); i++) {
+		MMS_MULTIPART_DATA_S *pMultipart = (MMS_MULTIPART_DATA_S *)g_list_nth_data(multipart_list, i);
+		MmsPluginStorage::instance()->insertMultipart(pMsgInfo->msgId, pMultipart);
+	}
+
+	{//make Preview info for APP
+		MmsPluginAppBase appBase(pMmsData);
+		appBase.makePreviewInfo(pMsgInfo->msgId, false, pRetrievedFilePath);
+		appBase.getFirstPageTextFilePath(pMsgInfo->msgText, sizeof(pMsgInfo->msgText));
+	}
+
+	MsgMmsRelease(&pMmsData);
+
+	if (MsgGetFileSize(pRetrievedFilePath, (int *)&pMsgInfo->dataSize) == false) {
+		MSG_SEC_DEBUG("Fail to get mms file size [%s]", pRetrievedFilePath);
+		goto __CATCH;
+	}
+	}//make MmsData & insert multipart
+
+__CATCH:
+	{
+		MmsMsg *pMsg = NULL;
+		pStorage->getMmsMessage(&pMsg);
+		MmsInitHeader();
+		MmsReleaseMsgDRMInfo(&pMsg->msgType.drmInfo);
+		MmsReleaseMsgBody(&pMsg->msgBody, pMsg->msgType.type);
+		g_free(filename); filename = NULL;
+	}
+	MSG_END();
+}
+#else //NEW process RetrieveConf
+void MmsPluginInternal::processRetrieveConf(MSG_MESSAGE_INFO_S *pMsgInfo, mmsTranQEntity *pRequest, char *pRetrievedFilePath)
+{
+	MSG_BEGIN();
+
+	msg_error_t err = MSG_SUCCESS;
+
+	pMsgInfo->msgId = pRequest->msgId;
+
+	pMsgInfo->msgType.mainType = MSG_MMS_TYPE;
+	if (pRequest->eMmsPduType == eMMS_RETRIEVE_AUTO_CONF)
+		pMsgInfo->msgType.subType = MSG_RETRIEVE_AUTOCONF_MMS;
+	else
+		pMsgInfo->msgType.subType = MSG_RETRIEVE_MANUALCONF_MMS;
+
+	strncpy(pMsgInfo->subject, mmsHeader.szSubject, MSG_LOCALE_SUBJ_LEN);
+	strncpy(pRequest->transactionId, mmsHeader.szTrID, MMS_TR_ID_LEN);
+
+	time_t curTime;
+	curTime = time(NULL);
+
+	pMsgInfo->displayTime = curTime;
+
+	if (mmsHeader.retrieveStatus == MMS_RETRSTATUS_OK) {
+		pMsgInfo->networkStatus = MSG_NETWORK_RETRIEVE_SUCCESS;
+		pMsgInfo->folderId = MSG_INBOX_ID;
 	} else {
-		for (int i = 0; i < partCnt; ++i) {
-			if (!MmsGetMediaPartHeader(i, &partHeader)) {
-				MSG_DEBUG("MmsUiGetMediaAttachInfo: MmsGetMediaPartHeader failed\n" );
-				break;
-			}
+		pMsgInfo->networkStatus = MSG_NETWORK_RETRIEVE_FAIL;
+		pMsgInfo->folderId = MSG_INBOX_ID;
+		// If failed MMS Retrieve, then saved as MMS Noti Ind Message.
+		// It will changed in MsgHandleMmsConfIncomingMsg
+		//pMsgInfo->msgType.subType = MSG_NOTIFICATIONIND_MMS;
+	}
 
-			if (partHeader.contentSize > 0) {
-				char szBuf[MSG_FILEPATH_LEN_MAX + 1];
+	char *msisdn = NULL;
+	msisdn = MsgSettingGetString(MSG_SIM_MSISDN);
 
-				strcpy((char *)szBuf, partHeader.param.szFileName);
-				sprintf(partHeader.param.szFileName, "%s/%s", MSG_DATA_PATH, szBuf);
-				if (!bMultipartRelated || MmsCheckAdditionalMedia(&msgData, &partHeader)) {
-					MMS_ATTACH_S *attachment = NULL;
-					int tempType;
+	if (mmsHeader.pFrom)
+		MmsAddrUtilRemovePlmnString(mmsHeader.pFrom->szAddr);
 
-					attachment = (MMS_ATTACH_S *)calloc(sizeof(MMS_ATTACH_S), 1);
+	MSG_MMS_VLD_INFO("%d, MMS Receive %s End %s->%s %s", pMsgInfo->msgId
+														, (pRequest->eMmsPduType == eMMS_RETRIEVE_AUTO_CONF)?"Auto":"Manual"
+														, (mmsHeader.pFrom)?mmsHeader.pFrom->szAddr:"YOU"
+														, (msisdn == NULL)?"ME":msisdn
+														, (pMsgInfo->networkStatus == MSG_NETWORK_RETRIEVE_SUCCESS)?"Success":"Fail");
 
-					MsgGetTypeByFileName(&tempType, partHeader.param.szFileName);
-					attachment->mediatype = (MimeType)tempType;
+	if (msisdn) {
+		free(msisdn);
+		msisdn = NULL;
+	}
 
-					strcpy(attachment->szFilePath, partHeader.param.szFileName);
+	pMsgInfo->dataSize = pRequest->getDataLen;
 
-					strncpy(attachment->szFileName, partHeader.param.szName, MSG_FILENAME_LEN_MAX - 1);
 
-					attachment->fileSize = partHeader.contentSize;
+	{
+		MmsMsg *pMmsMsg = NULL;
+		MmsPluginStorage::instance()->getMmsMessage(&pMmsMsg);
 
-					_MsgMmsAddAttachment(&msgData, attachment);
-					attachCount++;
+		MMS_DATA_S *pMmsData = MsgMmsCreate();
+		pMmsData->header = MsgMmsCreateHeader();
 
-				}
+		if (MmsConvertMmsData(pMmsMsg, pMmsData) != true) {
+			MSG_DEBUG("Fail to Compose MMS Message");
+			goto __CATCH;
+		}
 
-			}
+		char *pSerializedData = NULL;
+
+		MsgSerializeMms(pMmsData, &pSerializedData);
+
+		MsgMmsRelease(&pMmsData);
+
+
+		char fileName[MSG_FILENAME_LEN_MAX] = {0};
+		char fileFilePath[MSG_FILEPATH_LEN_MAX] = {0};
+
+		if (MsgCreateFileName(fileName) == false)
+			goto __CATCH;
+
+		snprintf(fileFilePath, sizeof(fileFilePath), "%s%s", MSG_DATA_PATH, fileName);
+
+		if (!MsgOpenCreateAndOverwriteFile(fileFilePath, (char *)pSerializedData, (int)strlen(pSerializedData))) {
+			goto __CATCH;
+		}
+
+		snprintf(pMsgInfo->msgData, sizeof(pMsgInfo->msgData), "%s", fileFilePath);
+
+		if (MsgGetFileSize(pRetrievedFilePath, (int *)&pMsgInfo->dataSize) == false) {
+			MSG_SEC_DEBUG("Fail to get mms file size [%s]", pRetrievedFilePath);
+			goto __CATCH;
 		}
 	}
 
-	MmsMakePreviewInfo(pMsgInfo->msgId, &msgData);
-	MSG_DEBUG("attachCount [%d]", attachCount);
-	err = pStorage->updateMmsAttachCount(pMsgInfo->msgId, attachCount);
-
-	if (bMultipartRelated) {
-		MsgMmsReleaseMmsLists(&msgData);
+__CATCH:
+	{
+		MmsMsg *pMsg = NULL;
+		MmsPluginStorage::instance()->getMmsMessage(&pMsg);
+		MmsInitHeader();
+		MmsReleaseMsgDRMInfo(&pMsg->msgType.drmInfo);
+		MmsReleaseMsgBody(&pMsg->msgBody, pMsg->msgType.type);
 	}
-
-	MmsMsg *pMsg = NULL;
-	pStorage->getMmsMessage(&pMsg);
-	MmsInitHeader();
-#ifdef __SUPPORT_DRM__
-	MmsReleaseMsgDRMInfo(&pMsg->msgType.drmInfo);
-#endif
-	MmsReleaseMsgBody(&pMsg->msgBody, pMsg->msgType.type);
-
 	MSG_END();
 }
-
+#endif
 void MmsPluginInternal::processForwardConf(MSG_MESSAGE_INFO_S *msgInfo, mmsTranQEntity *pRequest)
 {
 
@@ -611,7 +817,7 @@ bool MmsPluginInternal::encodeNotifyRespInd(char *szTrID, msg_delivery_report_st
 	if (MsgCreateFileName(pTempFileName) == false)
 		return false;
 
-	snprintf(pTempFilePath, MAX_FULL_PATH_SIZE, "%s/%s.noti.ind", MSG_DATA_PATH, pTempFileName);
+	snprintf(pTempFilePath, MAX_FULL_PATH_SIZE, "%s%s.noti.ind", MSG_DATA_PATH, pTempFileName);
 
 	pFile = MsgOpenMMSFile(pTempFilePath);
 
@@ -629,7 +835,8 @@ bool MmsPluginInternal::encodeNotifyRespInd(char *szTrID, msg_delivery_report_st
 	MsgCloseFile(pFile);
 
 	if (pSendFilePath) {
-		snprintf(pSendFilePath, MAX_MSG_DATA_LEN+1, "%s.mms", pTempFilePath);
+		//CID 41993: replaced size 'MAX_MSG_DATA_LEN+1' with MAX_FULL_PATH_SIZE
+		snprintf(pSendFilePath, MAX_FULL_PATH_SIZE, "%s.mms", pTempFilePath);
 	} else {
 		MSG_DEBUG("[ERROR] pSendFilePath is NULL");
 		return false;
@@ -656,7 +863,7 @@ bool MmsPluginInternal::encodeAckInd(char *szTrID, bool bReportAllowed, char *pS
 	if (MsgCreateFileName(pTempFileName) == false)
 		return false;
 
-	snprintf(pTempFilePath, MAX_FULL_PATH_SIZE, "%s/%s.ack.ind", MSG_DATA_PATH, pTempFileName);
+	snprintf(pTempFilePath, MAX_FULL_PATH_SIZE, "%s%s.ack.ind", MSG_DATA_PATH, pTempFileName);
 
 	pFile = MsgOpenMMSFile(pTempFilePath);
 	if (!pFile) {
@@ -730,10 +937,82 @@ bool MmsPluginInternal::checkRejectNotiInd(int roamState, bool bReportAllowed, c
 		}
 	}
 
+	//Duplicate MMS notification
+	int msgId = 0;
+
+	msgId = MmsPluginStorage::instance()->checkDuplicateNotification(mmsHeader.szTrID, mmsHeader.szContentLocation);
+
+	MSG_DEBUG("Msg Id = %d", msgId);
+	if (msgId > 0)
+		return true;
+
 	// Not Rejected
 	MSG_END();
 	return false;
 
+}
+
+
+bool MmsPluginInternal::checkFilterMmsBody(MMS_DATA_S *pMmsData)
+{
+	if (pMmsData == NULL)
+		return false;
+
+	bool bFiltered = false;
+	MMS_MESSAGE_DATA_S mmsMsg;
+	MMS_PAGE_S *pPage = NULL;
+	MMS_MEDIA_S *pMedia = NULL;
+	char filePath[MSG_FILEPATH_LEN_MAX + 1];
+	gchar *fileContent = NULL;
+	MsgDbHandler *dbHandle = getDbHandle();
+	MimeType mimeType = MIME_UNKNOWN;
+
+	memset(&mmsMsg, 0x00, sizeof(MMS_MESSAGE_DATA_S));
+	MsgMmsConvertMmsDataToMmsMessageData(pMmsData, &mmsMsg);
+
+	// Get the text data from the 1st slide.
+	if (mmsMsg.pageCnt <= 0) {
+		MSG_WARN("pageCnt : %d", mmsMsg.pageCnt);
+		MsgMmsReleaseMmsLists(&mmsMsg);
+		return false;
+	}
+
+	pPage = _MsgMmsGetPage(&mmsMsg, 0);
+
+	if (!pPage) {
+		MSG_WARN("page is NULL");
+		MsgMmsReleaseMmsLists(&mmsMsg);
+		return false;
+	}
+
+	for (int j = 0; j < pPage->mediaCnt; ++j) {
+		pMedia = _MsgMmsGetMedia(pPage, j);
+
+		if (pMedia && pMedia->mediatype == MMS_SMIL_MEDIA_TEXT) {
+
+			MmsGetMimeTypeFromFileName(MIME_MAINTYPE_UNKNOWN, pMedia->szFilePath, &mimeType, NULL);
+
+			if (mimeType == MIME_TEXT_X_VCALENDAR || mimeType == MIME_TEXT_X_VCARD || mimeType == MIME_TEXT_X_VTODO || mimeType == MIME_TEXT_X_VNOTE) {
+				MSG_DEBUG("Media Type is Text, but Vobject file [%s]", pMedia->szFilePath);
+			} else {
+				strncpy(filePath, pMedia->szFilePath, MSG_FILEPATH_LEN_MAX);
+
+				g_file_get_contents((const gchar *)filePath, &fileContent, NULL, NULL);
+
+				bFiltered = MsgCheckFilterByWord(dbHandle, (const char *)fileContent);
+
+				g_free(fileContent);
+				fileContent = NULL;
+
+				if (bFiltered == true)
+					break;
+			}
+		}
+	}
+
+	MsgMmsReleaseMmsLists(&mmsMsg);
+
+	return bFiltered;
 }
 
 bool MmsPluginInternal::getMmsReport(MmsReport mmsReport)

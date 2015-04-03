@@ -1,20 +1,17 @@
 /*
- * msg-service
- *
- * Copyright (c) 2000 - 2014 Samsung Electronics Co., Ltd. All rights reserved
+ * Copyright (c) 2014 Samsung Electronics Co., Ltd. All rights reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
 */
 
 #include <string.h>
@@ -23,9 +20,37 @@
 #include "MsgStorageTypes.h"
 #include "MsgInternalTypes.h"
 #include "MsgMmsMessage.h"
-
+#include "MsgSerialize.h"
 #include "msg.h"
 #include "msg_private.h"
+
+msg_struct_s *__msg_message_create_address_struct()
+{
+	msg_struct_s *msg_struct = new msg_struct_s;
+	bzero(msg_struct, sizeof(msg_struct_s));
+
+	msg_struct->type = MSG_STRUCT_ADDRESS_INFO;
+	msg_struct->data = new MSG_ADDRESS_INFO_S;
+	memset(msg_struct->data, 0x00, sizeof(MSG_ADDRESS_INFO_S));
+
+	return msg_struct;
+}
+
+void __msg_message_release_address_struct(gpointer data)
+{
+	if (data == NULL)
+		return;
+
+	msg_struct_s *addr_struct = (msg_struct_s *)data;
+	MSG_ADDRESS_INFO_S *addrInfo = (MSG_ADDRESS_INFO_S *)addr_struct->data;
+
+	delete (MSG_ADDRESS_INFO_S *)addrInfo;
+
+	addr_struct->data = NULL;
+
+	delete addr_struct;
+}
+
 
 void msg_message_create_struct(msg_struct_s *msg_struct)
 {
@@ -54,25 +79,27 @@ void msg_message_create_struct(msg_struct_s *msg_struct)
 	msg->pData = NULL;
 	msg->pMmsData = NULL;
 	msg->mmsDataSize = 0;
+	msg->simIndex = MSG_SIM_SLOT_ID_1;
+
 	/* Allocate memory for address list of message */
 	msg_struct_list_s *addr_list = (msg_struct_list_s *)new msg_struct_list_s;
 
 	addr_list->nCount = 0;
-	addr_list->msg_struct_info = (msg_struct_t *)new char[sizeof(MSG_ADDRESS_INFO_S *)*MAX_TO_ADDRESS_CNT];
+	addr_list->msg_struct_info = (msg_struct_t *)calloc(MAX_TO_ADDRESS_CNT, sizeof(MSG_ADDRESS_INFO_S *));
 
 	msg_struct_s *pTmp = NULL;
 
 	for (int i = 0; i < MAX_TO_ADDRESS_CNT; i++) {
-		addr_list->msg_struct_info[i] = (msg_struct_t)new char[sizeof(msg_struct_s)];
+		addr_list->msg_struct_info[i] = (msg_struct_t)new msg_struct_s;
 		pTmp = (msg_struct_s *)addr_list->msg_struct_info[i];
 		pTmp->type = MSG_STRUCT_ADDRESS_INFO;
 		pTmp->data = new MSG_ADDRESS_INFO_S;
 		memset(pTmp->data, 0x00, sizeof(MSG_ADDRESS_INFO_S));
-
-		addr_list->msg_struct_info[i] = (msg_struct_t)pTmp;
 	}
 
 	msg->addr_list = addr_list;
+
+	msg->addressList = NULL;
 
 	msg_struct->data = (int *)msg;
 }
@@ -93,7 +120,7 @@ int msg_message_release(msg_struct_s **msg_struct)
 	}
 
 	// Memory Free
-	if (msg->addr_list!= NULL)
+	if (msg->addr_list != NULL)
 	{
 		for(int i=0; i<MAX_TO_ADDRESS_CNT; i++) {
 			msg_struct_s * addrInfo = (msg_struct_s *)msg->addr_list->msg_struct_info[i];
@@ -103,10 +130,16 @@ int msg_message_release(msg_struct_s **msg_struct)
 			msg->addr_list->msg_struct_info[i] = NULL;
 		}
 
-		delete [] msg->addr_list->msg_struct_info;
+		g_free(msg->addr_list->msg_struct_info);
 
 		delete msg->addr_list;
 		msg->addr_list = NULL;
+	}
+
+	// Free GList *addressList
+	if (msg->addressList) {
+		g_list_free_full(msg->addressList, __msg_message_release_address_struct);
+		msg->addressList = NULL;
 	}
 
 	delete msg;
@@ -142,37 +175,67 @@ int msg_message_get_int_value(void *data, int field, int *value)
 	{
         if (msg_data->mainType == MSG_SMS_TYPE)
         {
-			if (msg_data->subType == MSG_CB_SMS)
-				*value = MSG_TYPE_SMS_CB;
-			else if (msg_data->subType == MSG_JAVACB_SMS)
-				*value = MSG_TYPE_SMS_JAVACB;
-			else if (msg_data->subType == MSG_WAP_SI_SMS || msg_data->subType == MSG_WAP_SL_SMS)
-				*value = MSG_TYPE_SMS_WAPPUSH;
-			else if (msg_data->subType == MSG_MWI_VOICE_SMS || msg_data->subType == MSG_MWI_FAX_SMS
-					|| msg_data->subType == MSG_MWI_EMAIL_SMS || msg_data->subType == MSG_MWI_OTHER_SMS)
-				*value = MSG_TYPE_SMS_MWI;
-			else if (msg_data->subType == MSG_SYNCML_CP)
-				*value = MSG_TYPE_SMS_SYNCML;
-			else if (msg_data->subType == MSG_REJECT_SMS)
-				*value = MSG_TYPE_SMS_REJECT;
-			else if (msg_data->subType == MSG_ETWS_SMS)
-				*value = MSG_TYPE_SMS_ETWS_PRIMARY;
-			else
-				*value = MSG_TYPE_SMS;
-        }
-        else if (msg_data->mainType == MSG_MMS_TYPE)
-        {
+			switch (msg_data->subType) {
+				case MSG_CB_SMS :
+					*value = MSG_TYPE_SMS_CB;
+					break;
+				case MSG_JAVACB_SMS :
+					*value = MSG_TYPE_SMS_JAVACB;
+					break;
+				case MSG_WAP_SI_SMS :
+				case MSG_WAP_SL_SMS :
+					*value = MSG_TYPE_SMS_WAPPUSH;
+					break;
+				case MSG_MWI_VOICE_SMS :
+				case MSG_MWI_FAX_SMS :
+				case MSG_MWI_EMAIL_SMS :
+				case MSG_MWI_OTHER_SMS :
+					*value = MSG_TYPE_SMS_MWI;
+					break;
+				case MSG_SYNCML_CP :
+					*value = MSG_TYPE_SMS_SYNCML;
+					break;
+				case MSG_REJECT_SMS :
+					*value = MSG_TYPE_SMS_REJECT;
+					break;
+				case MSG_ETWS_SMS :
+					*value = MSG_TYPE_SMS_ETWS_PRIMARY;
+					break;
+				case MSG_CMAS_PRESIDENTIAL :
+					*value = MSG_TYPE_SMS_CMAS_PRESIDENTIAL;
+					break;
+				case MSG_CMAS_EXTREME :
+					*value = MSG_TYPE_SMS_CMAS_EXTREME;
+					break;
+				case MSG_CMAS_SEVERE :
+					*value = MSG_TYPE_SMS_CMAS_SEVERE;
+					break;
+				case MSG_CMAS_AMBER :
+					*value = MSG_TYPE_SMS_CMAS_AMBER;
+					break;
+				case MSG_CMAS_TEST :
+					*value = MSG_TYPE_SMS_CMAS_TEST;
+					break;
+				case MSG_CMAS_OPERATOR_DEFINED :
+					*value = MSG_TYPE_SMS_CMAS_OPERATOR_DEFINED;
+					break;
+				default :
+					*value = MSG_TYPE_SMS;
+			}
+		}
+		else if (msg_data->mainType == MSG_MMS_TYPE)
+		{
 			if (msg_data->subType == MSG_NOTIFICATIONIND_MMS)
 				*value = MSG_TYPE_MMS_NOTI;
 			else if (msg_data->subType == MSG_SENDREQ_JAVA_MMS)
 				*value = MSG_TYPE_MMS_JAVA;
 			else
 				*value = MSG_TYPE_MMS;
-        }
-        else
-        	*value = MSG_TYPE_INVALID;
+		}
+		else
+			*value = MSG_TYPE_INVALID;
 
-    	break;
+		break;
 	}
 	case MSG_MESSAGE_CLASS_TYPE_INT :
 		*value = msg_data->classType;
@@ -207,6 +270,9 @@ int msg_message_get_int_value(void *data, int field, int *value)
 	case MSG_MESSAGE_DATA_SIZE_INT :
 		*value = msg_data->dataSize;
 		break;
+	case MSG_MESSAGE_SIM_INDEX_INT :
+		*value = msg_data->simIndex;
+		break;
 	default :
 		ret = MSG_ERR_INVALID_PARAMETER;
 		break;
@@ -237,6 +303,14 @@ int msg_message_get_bool_value(void *data, int field, bool *value)
 	case MSG_MESSAGE_PORT_VALID_BOOL :
 		*value = msg_data->bPortValid;
 		break;
+	case MSG_MESSAGE_REPLACE_BOOL :
+	{
+		if (msg_data->subType >= MSG_REPLACE_TYPE1_SMS && msg_data->subType <= MSG_REPLACE_TYPE7_SMS)
+			*value = true;
+		else
+			*value = false;
+		break;
+	}
 	default :
 		ret = MSG_ERR_INVALID_PARAMETER;
 		break;
@@ -316,6 +390,9 @@ int msg_message_get_list_hnd(void *data, int field, void **value)
 	switch (field) {
 	case MSG_MESSAGE_ADDR_LIST_STRUCT :
 		*value = (void *)msg_data->addr_list;
+		break;
+	case MSG_MESSAGE_ADDR_LIST_HND :
+		*value = (msg_list_handle_t)msg_data->addressList;
 		break;
 	default :
 		ret = MSG_ERR_INVALID_PARAMETER;
@@ -405,6 +482,9 @@ int msg_message_set_int_value(void *data, int field, int value)
 		break;
 	case MSG_MESSAGE_DATA_SIZE_INT :
 		msg_data->dataSize = value;
+		break;
+	case MSG_MESSAGE_SIM_INDEX_INT :
+		msg_data->simIndex = value;
 		break;
 	default :
 		ret = MSG_ERR_INVALID_PARAMETER;
@@ -519,6 +599,7 @@ void msg_message_copy_message(MSG_MESSAGE_HIDDEN_S *pSrc, MSG_MESSAGE_HIDDEN_S *
 	pDst->bPortValid = pSrc->bPortValid;
 	pDst->dataSize = pSrc->dataSize;
 	pDst->mmsDataSize = pSrc->mmsDataSize;
+	pDst->simIndex = pSrc->simIndex;
 	memcpy(pDst->subject, pSrc->subject, sizeof(pDst->subject));
 
 	if(pSrc->pMmsData && pSrc->mmsDataSize)
@@ -551,6 +632,22 @@ void msg_message_copy_message(MSG_MESSAGE_HIDDEN_S *pSrc, MSG_MESSAGE_HIDDEN_S *
 		memcpy(pDst->thumbPath, pSrc->thumbPath, sizeof(pDst->thumbPath));
 	}
 
+	for (unsigned int i=0; i < g_list_length(pSrc->addressList); i++) {
+		msg_struct_s *addr_struct = __msg_message_create_address_struct();
+		MSG_ADDRESS_INFO_S *addrInfo = (MSG_ADDRESS_INFO_S *)addr_struct->data;
+
+		msg_struct_s *addr_info = (msg_struct_s *)g_list_nth_data(pSrc->addressList,(guint)i);
+		MSG_ADDRESS_INFO_S *address = (MSG_ADDRESS_INFO_S *)addr_info->data;
+
+		addrInfo->addressType = address->addressType;
+		addrInfo->recipientType = address->recipientType;
+		addrInfo->contactId = address->contactId;
+		strncpy(addrInfo->addressVal, address->addressVal, MAX_ADDRESS_VAL_LEN);
+		strncpy(addrInfo->displayName, address->displayName, MAX_DISPLAY_NAME_LEN);
+		addrInfo->displayName[MAX_DISPLAY_NAME_LEN] = '\0';
+
+		pDst->addressList = g_list_append(pDst->addressList, addr_struct);
+	}
 }
 
 int msg_cb_message_get_int_value(void *data, int field, int *value)
@@ -568,12 +665,34 @@ int msg_cb_message_get_int_value(void *data, int field, int *value)
 	{
 		case MSG_CB_MSG_TYPE_INT :
 			{
-				if ( cb_msg->type == MSG_ETWS_SMS )
-					*value = MSG_TYPE_SMS_ETWS_PRIMARY;
-				else if ( cb_msg->type == MSG_CB_SMS )
-					*value = ((cb_msg->messageId & 0xFFF8) == 0x1100 ) ? MSG_TYPE_SMS_ETWS_SECONDARY : MSG_TYPE_SMS_CB;
-				else
-					ret = MSG_ERR_UNKNOWN;
+				switch (cb_msg->type) {
+					case MSG_ETWS_SMS :
+						*value = MSG_TYPE_SMS_ETWS_PRIMARY;
+						break;
+					case MSG_CB_SMS:
+						*value = ((cb_msg->messageId & 0xFFF8) == 0x1100 ) ? MSG_TYPE_SMS_ETWS_SECONDARY : MSG_TYPE_SMS_CB;
+						break;
+					case MSG_CMAS_PRESIDENTIAL :
+						*value = MSG_TYPE_SMS_CMAS_PRESIDENTIAL;
+						break;
+					case MSG_CMAS_EXTREME :
+						*value = MSG_TYPE_SMS_CMAS_EXTREME;
+						break;
+					case MSG_CMAS_SEVERE :
+						*value = MSG_TYPE_SMS_CMAS_SEVERE;
+						break;
+					case MSG_CMAS_AMBER :
+						*value = MSG_TYPE_SMS_CMAS_AMBER;
+						break;
+					case MSG_CMAS_TEST :
+						*value = MSG_TYPE_SMS_CMAS_TEST;
+						break;
+					case MSG_CMAS_OPERATOR_DEFINED :
+						*value = MSG_TYPE_SMS_CMAS_OPERATOR_DEFINED;
+						break;
+					default :
+						ret = MSG_ERR_UNKNOWN;
+				}
 			}
 			break;
 		case MSG_CB_MSG_RECV_TIME_INT :
@@ -649,6 +768,7 @@ int msg_cb_message_get_str_value(void *data, int field, char *value, int size)
 
 EXPORT_API int msg_get_mms_struct(msg_struct_t msg_struct_handle, msg_struct_t mms_struct_handle)
 {
+	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_MMS_FEATURE);
 	//TODO :: check message type is MMS
 	int ret = MSG_SUCCESS;
 	msg_struct_s *msg_struct = (msg_struct_s *)msg_struct_handle;
@@ -668,21 +788,28 @@ EXPORT_API int msg_get_mms_struct(msg_struct_t msg_struct_handle, msg_struct_t m
 
 	MSG_MESSAGE_HIDDEN_S *msg_data = (MSG_MESSAGE_HIDDEN_S *)msg_struct->data;
 
-	MMS_MESSAGE_DATA_S *tmp_mms_data  = (MMS_MESSAGE_DATA_S *)calloc(1, sizeof(MMS_MESSAGE_DATA_S));
+	if (msg_data->pMmsData == NULL) {
+		return MSG_ERR_INVALID_PARAMETER;
+	}
 
-	_MsgMmsDeserializeMessageData(tmp_mms_data, (char*)msg_data->pMmsData);
+	MMS_DATA_S *mms_data = NULL;
 
-	convert_from_mmsdata(tmp_mms_data, mms_struct);
+	MsgDeserializeMmsData((char*)msg_data->pMmsData, msg_data->mmsDataSize, &mms_data);
 
-	MsgMmsReleaseMmsLists(tmp_mms_data);
+	if (mms_data) {
+		convert_to_hidden_mmsdata(mms_data, mms_struct);
 
-	free(tmp_mms_data);
+		MsgMmsRelease(&mms_data);
+	} else {
+		return MSG_ERR_INVALID_PARAMETER;
+	}
 
 	return ret;
 }
 
 EXPORT_API int msg_set_mms_struct(msg_struct_t msg_struct_handle, msg_struct_t mms_struct_handle)
 {
+	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_MMS_FEATURE);
 	//TODO :: check message type is MMS
 	int ret = MSG_SUCCESS;
 	msg_struct_s *msg_struct = (msg_struct_s *)msg_struct_handle;
@@ -702,15 +829,89 @@ EXPORT_API int msg_set_mms_struct(msg_struct_t msg_struct_handle, msg_struct_t m
 
 	MSG_MESSAGE_HIDDEN_S *msg_data = (MSG_MESSAGE_HIDDEN_S *)msg_struct->data;
 
-	MMS_MESSAGE_DATA_S *tmp_mms_data = (MMS_MESSAGE_DATA_S *)calloc(1,sizeof(MMS_MESSAGE_DATA_S));
+	MMS_DATA_S *mms_data = MsgMmsCreate();
 
-	convert_to_mmsdata(mms_struct, tmp_mms_data);
+	convert_from_hidden_mmsdata(mms_struct, mms_data);
 
-	msg_data->pMmsData = _MsgMmsSerializeMessageData(tmp_mms_data, &(msg_data->mmsDataSize));
+	int mmsDataSize = MsgSerializeMms(mms_data, (char **)&msg_data->pMmsData);
 
-	MsgMmsReleaseMmsLists(tmp_mms_data);
+	if (mmsDataSize > 0)
+		msg_data->mmsDataSize = mmsDataSize;
 
-	free(tmp_mms_data);
+	//TODO:: set subtype
+
+	MsgMmsRelease(&mms_data);
+
+	return ret;
+}
+
+
+int msg_message_list_append(msg_struct_t msg_struct_handle, int field, msg_struct_t *item)
+{
+	msg_error_t err = MSG_SUCCESS;
+	msg_struct_s *msg_struct = (msg_struct_s *)msg_struct_handle;
+	MSG_MESSAGE_HIDDEN_S *msg_data = (MSG_MESSAGE_HIDDEN_S *)msg_struct->data;
+
+	msg_struct_s *msg_struct_item = NULL;
+	switch(field) {
+	case MSG_MESSAGE_ADDR_LIST_HND:
+	{
+		msg_struct_item = __msg_message_create_address_struct();
+		msg_data->addressList = g_list_append(msg_data->addressList, msg_struct_item);
+		*item = (msg_struct_t)msg_struct_item;
+	}
+	break;
+	default :
+		err = MSG_ERR_INVALID_PARAMETER;
+		break;
+	}
+
+	return err;
+}
+
+
+int msg_message_list_clear(msg_struct_t msg_struct_handle, int field)
+{
+	msg_error_t err = MSG_SUCCESS;
+	msg_struct_s *msg_struct = (msg_struct_s *)msg_struct_handle;
+	MSG_MESSAGE_HIDDEN_S *msg_data = (MSG_MESSAGE_HIDDEN_S *)msg_struct->data;
+
+	switch(field) {
+	case MSG_MESSAGE_ADDR_LIST_HND:
+	{
+		// Free GList *addressList
+		if (msg_data->addressList) {
+			g_list_free_full(msg_data->addressList, __msg_message_release_address_struct);
+			msg_data->addressList = NULL;
+		}
+	}
+	break;
+	default :
+		err = MSG_ERR_INVALID_PARAMETER;
+		break;
+	}
+
+	return err;
+}
+
+int msg_conversation_get_list_hnd(void *data, int field, void **value)
+{
+	if (!data)
+		return MSG_ERR_NULL_POINTER;
+
+	int ret = MSG_SUCCESS;
+
+	MSG_CONVERSATION_VIEW_S *msg_data = (MSG_CONVERSATION_VIEW_S *)data;
+
+	switch (field) {
+	case MSG_CONV_MSG_MULTIPART_HND :
+		*value = (void *)msg_data->multipart_list;
+		break;
+	default :
+		ret = MSG_ERR_INVALID_PARAMETER;
+		break;
+	}
+
 	return ret;
 }
 

@@ -1,45 +1,43 @@
 /*
- * msg-service
- *
- * Copyright (c) 2000 - 2014 Samsung Electronics Co., Ltd. All rights reserved
+ * Copyright (c) 2014 Samsung Electronics Co., Ltd. All rights reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
 */
 
 #ifndef MMS_PLUGIN_CONNMAN_H
 #define MMS_PLUGIN_CONNMAN_H
 
-#include <network-cm-intf.h>
-#include <network-pm-intf.h>
 #include "MsgMutex.h"
-#include <glib.h>
 #include "net_connection.h"
+
+typedef enum {
+	MSG_CM_ERR_NONE = 0,
+	MSG_CM_ERR_UNKNOWN,
+ } cm_error_e;
 
 class MmsPluginCmAgent
 {
 public:
 	static MmsPluginCmAgent *instance();
 
-	/* open and close are occasionally called when transaction begins and ends */
 	bool open();
 	void close();
 
 	bool getCmStatus() { return isCmOpened; }
 
-	void open_callback(connection_error_e result, void* user_data);
-	void close_callback(connection_error_e result, void* user_data);
-
+	void connection_profile_open_callback(connection_error_e result, void* user_data);
+	void connection_profile_close_callback(connection_error_e result, void* user_data);
+	void connection_profile_state_changed_cb(connection_profile_state_e state, void* user_data);
 	bool getInterfaceName(const char **deviceName);
 	bool getProxyAddr(const char **proxyAddr);
 	bool getHomeUrl(const char **homeURL);
@@ -52,12 +50,12 @@ private:
 	void lock() { mx.lock(); }
 	void unlock() { mx.unlock(); }
 	void signal() { cv.signal(); }
+
 	void setCmStatus() { isCmOpened = true; }
 	void resetCmStatus() { isCmOpened = false; }
 
-	bool isCmOpened;
-	bool isCmRegistered;
-
+	bool isCmOpened; //connection & profile connect
+	bool waitProfileOpen;
 	char *home_url;
 	char *interface_name;
 	char *proxy_address;

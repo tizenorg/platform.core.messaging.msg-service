@@ -14,13 +14,13 @@ SET(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS} ${EXTRA_CFLAGS} -O0 -g -Wall")
 SET(VOBJECT-SRCS
 		${CMAKE_SOURCE_DIR}/vobject-engine/VCard.c
 		${CMAKE_SOURCE_DIR}/vobject-engine/VCardCalUtil.c
-             ${CMAKE_SOURCE_DIR}/vobject-engine/VMessage.c
-	)
+		${CMAKE_SOURCE_DIR}/vobject-engine/VMessage.c
+)
 
 INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 INCLUDE(FindPkgConfig)
-pkg_check_modules(vobject_pkgs REQUIRED dlog)
+pkg_check_modules(vobject_pkgs REQUIRED dlog glib-2.0)
 
 SET(EXTRA_CFLAGS "")
 FOREACH(flag ${vobject_pkgs_CFLAGS})
@@ -37,4 +37,4 @@ SET(CMAKE_EXE_LINKER_FLAGS "-Wl,--as-needed")
 ADD_LIBRARY(${VOBJECT-LIB} SHARED ${VOBJECT-SRCS})
 TARGET_LINK_LIBRARIES(${VOBJECT-LIB} ${vobject_pkgs_LDFLAGS})
 
-INSTALL(TARGETS ${VOBJECT-LIB} DESTINATION ${LIB_INSTALL_DIR})
+INSTALL(TARGETS ${VOBJECT-LIB} DESTINATION lib)

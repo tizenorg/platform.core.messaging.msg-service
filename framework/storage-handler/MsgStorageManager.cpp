@@ -1,20 +1,17 @@
 /*
- * msg-service
- *
- * Copyright (c) 2000 - 2014 Samsung Electronics Co., Ltd. All rights reserved
+ * Copyright (c) 2014 Samsung Electronics Co., Ltd. All rights reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
 */
 
 #include <stdio.h>
@@ -22,6 +19,8 @@
 #include <string.h>
 #include <sys/stat.h>
 #include <errno.h>
+#include <sys/mman.h>
+#include <fcntl.h>
 
 #include <VMessage.h>
 #include <VCard.h>
@@ -36,11 +35,11 @@
 #include "MsgStorageHandler.h"
 
 
+#define MSG_DB_VERSION 1
+
 /*==================================================================================================
                                      VARIABLES
 ==================================================================================================*/
-MsgDbHandler dbHandle;
-
 
 /*==================================================================================================
                                      FUNCTION IMPLEMENTATION
@@ -53,7 +52,8 @@ msg_error_t MsgStoConnectDB()
 
 msg_error_t MsgStoDisconnectDB()
 {
-	if (dbHandle.disconnect() != MSG_SUCCESS) {
+	MsgDbHandler *dbHandle = getDbHandle();
+	if (dbHandle->disconnect() != MSG_SUCCESS) {
 		MSG_DEBUG("DB Disconnect Fail");
 		return MSG_ERR_DB_DISCONNECT;
 	}
@@ -64,48 +64,154 @@ msg_error_t MsgStoDisconnectDB()
 }
 
 
-msg_error_t MsgStoInitDB(bool bSimChanged)
+void MsgUpdateDBtoVer1()
+{
+	MsgDbHandler *dbHandle = getDbHandle();
+	msg_error_t err = MSG_SUCCESS;
+	char sqlQuery[MAX_QUERY_LEN+1];
+
+	if (!dbHandle->checkTableExist(MSGFW_MMS_MULTIPART_TABLE_NAME)) {
+		memset(sqlQuery, 0x00, sizeof(sqlQuery));
+		snprintf(sqlQuery, sizeof(sqlQuery),
+				"CREATE TABLE %s ( "
+				"_ID INTEGER PRIMARY KEY AUTOINCREMENT, "
+				"MSG_ID INTEGER NOT NULL , "
+				"SEQ INTEGER DEFAULT 0, "
+				"CONTENT_TYPE TEXT, "
+				"NAME TEXT, "
+				"CHARSET INTEGER, "
+				"CONTENT_ID TEXT, "
+				"CONTENT_LOCATION TEXT, "
+				"FILE_PATH TEXT, "
+				"TEXT TEXT, "
+				"TCS_LEVEL INTEGER DEFAULT -1, "
+				"MALWARE_ALLOW INTEGER DEFAULT 0, "
+				"THUMB_FILE_PATH TEXT, "
+				"FOREIGN KEY(MSG_ID) REFERENCES MSG_MESSAGE_TABLE(MSG_ID));",
+				MSGFW_MMS_MULTIPART_TABLE_NAME);
+
+		err = dbHandle->execQuery(sqlQuery);
+
+		if (err == MSG_SUCCESS)
+			MSG_SEC_DEBUG("SUCCESS : create %s.", MSGFW_MMS_MULTIPART_TABLE_NAME);
+		else
+			MSG_SEC_DEBUG("FAIL : create %s [%d].", MSGFW_MMS_MULTIPART_TABLE_NAME, err);
+	}
+}
+
+
+void MsgStoUpdateDBVersion()
+{
+	MsgDbHandler *dbHandle = getDbHandle();
+	char sqlQuery[MAX_QUERY_LEN+1];
+
+	snprintf(sqlQuery, sizeof(sqlQuery), "PRAGMA user_version=%d;", MSG_DB_VERSION);
+
+	if (dbHandle->prepareQuery(sqlQuery) != MSG_SUCCESS) {
+		MSG_DEBUG("Fail to prepareQuery.");
+		return;
+	}
+
+	if (dbHandle->stepQuery() == MSG_ERR_DB_STEP) {
+		MSG_DEBUG("Fail to stepQuery.");
+		dbHandle->finalizeQuery();
+		return;
+	}
+
+	dbHandle->finalizeQuery();
+}
+
+msg_error_t MsgStoDBVerCheck()
+{
+	MsgDbHandler *dbHandle = getDbHandle();
+	int dbVersion = 0;
+
+	char sqlQuery[MAX_QUERY_LEN+1];
+
+	snprintf(sqlQuery, sizeof(sqlQuery), "PRAGMA user_version;");
+
+	if (dbHandle->prepareQuery(sqlQuery) != MSG_SUCCESS) {
+		MSG_DEBUG("Fail to prepareQuery.");
+		return MSG_ERR_DB_EXEC;
+	}
+
+	if (dbHandle->stepQuery() == MSG_ERR_DB_STEP) {
+		MSG_DEBUG("Fail to stepQuery.");
+		dbHandle->finalizeQuery();
+		return MSG_ERR_DB_EXEC;
+	}
+
+	dbVersion = dbHandle->columnInt(0);
+
+	dbHandle->finalizeQuery();
+
+	MSG_DEBUG("dbVersion [%d]", dbVersion);
+
+	switch (dbVersion)
+	{
+	case 0 :
+		MsgUpdateDBtoVer1();
+		/* no break */
+	default :
+		MsgStoUpdateDBVersion();
+		/* no break */
+	}
+
+	return MSG_SUCCESS;
+}
+
+void MsgInitMmapMutex(const char *shm_file_name)
 {
 	MSG_BEGIN();
 
+	if(!shm_file_name) {
+		MSG_FATAL("EMAIL_ERROR_INVALID_PARAM");
+		return;
+	}
+
+	int fd = shm_open (shm_file_name, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP); /*  note: permission is not working */
+
+	if (fd < 0) {
+		MSG_FATAL("shm_open errno [%d]", errno);
+		return;
+	}
+
+	fchmod(fd, 0666);
+	MSG_DEBUG("** Create SHM FILE **");
+	if (ftruncate(fd, sizeof(pthread_mutex_t)) != 0) {
+		MSG_FATAL("ftruncate errno [%d]", errno);
+		return;
+	}
+
+	pthread_mutex_t *mx = (pthread_mutex_t *)mmap(NULL, sizeof(pthread_mutex_t), PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+	if (mx == MAP_FAILED) {
+		MSG_FATAL("mmap errno [%d]", errno);
+		return ;
+	}
+
+	// initialize the data on mmap
+	pthread_mutexattr_t mattr;
+	pthread_mutexattr_init(&mattr);
+	pthread_mutexattr_setpshared(&mattr, PTHREAD_PROCESS_SHARED);
+	pthread_mutexattr_setrobust(&mattr, PTHREAD_MUTEX_ROBUST_NP);
+	pthread_mutex_init(mx, &mattr);
+	pthread_mutexattr_destroy(&mattr);
+
+	close (fd);
+	MSG_END();
+}
+
+msg_error_t MsgStoInitDB(bool bSimChanged)
+{
+	MSG_BEGIN();
+//	MsgDbHandler *dbHandle = getDbHandle();
 	msg_error_t err = MSG_SUCCESS;
 
-#ifdef MSG_DB_CREATE
-	if (MsgCreateConversationTable() != MSG_SUCCESS)
-		return MSG_ERR_DB_STORAGE_INIT;
-	if (MsgCreateAddressTable() != MSG_SUCCESS)
-		return MSG_ERR_DB_STORAGE_INIT;
-	if (MsgCreateFolderTable() != MSG_SUCCESS)
-		return MSG_ERR_DB_STORAGE_INIT;
-	if (MsgCreateMsgTable() != MSG_SUCCESS)
-		return MSG_ERR_DB_STORAGE_INIT;
-	if (MsgCreateSimMessageTable() != MSG_SUCCESS)
-		return MSG_ERR_DB_STORAGE_INIT;
-	if (MsgCreateWAPMessageTable() != MSG_SUCCESS)
-		return MSG_ERR_DB_STORAGE_INIT;
-	if (MsgCreateCBMessageTable() != MSG_SUCCESS)
-		return MSG_ERR_DB_STORAGE_INIT;
-	if (MsgCreateSyncMLMessageTable() != MSG_SUCCESS)
-		return MSG_ERR_DB_STORAGE_INIT;
-	if (MsgCreateSmsSendOptTable() != MSG_SUCCESS)
-		return MSG_ERR_DB_STORAGE_INIT;
-	if (MsgCreateFilterTable() != MSG_SUCCESS)
-		return MSG_ERR_DB_STORAGE_INIT;
-	if (MsgCreateMmsTable() != MSG_SUCCESS)
-		return MSG_ERR_DB_STORAGE_INIT;
+	// Init mmap mutex for DB access
+	MsgInitMmapMutex(SHM_FILE_FOR_DB_LOCK);
 
-	// Add Default Folders
-	if (MsgAddDefaultFolders() != MSG_SUCCESS) {
-		MSG_DEBUG("Add Default Folders Fail");
-		return MSG_ERR_DB_STORAGE_INIT;
-	}
-
-	// Add Default Address
-	if (MsgAddDefaultAddress() != MSG_SUCCESS) {
-		MSG_DEBUG("Add Default Address Fail");
-		return MSG_ERR_DB_STORAGE_INIT;
-	}
-#endif
+	// Check DB version.
+	MsgStoDBVerCheck();
 
 	// Delete Msgs in Hidden Folder
 	MsgStoDeleteAllMessageInFolder(0, true, NULL);
@@ -113,395 +219,21 @@ msg_error_t MsgStoInitDB(bool bSimChanged)
 	// Reset network status
 	MsgStoResetNetworkStatus();
 
+#if 0
+	// Reset Cb Message
+	MsgStoResetCBMessage();
+#endif
+
 	//clear abnormal mms message
 	MsgStoCleanAbnormalMmsData();
 
 	// Clear all old Sim data
 	MsgStoClearSimMessageInDB();
 
-	int smsCnt = 0, mmsCnt = 0;
-
-	smsCnt = MsgStoGetUnreadCnt(&dbHandle, MSG_SMS_TYPE);
-	mmsCnt = MsgStoGetUnreadCnt(&dbHandle, MSG_MMS_TYPE);
-
-	// Set Indicator
-	MsgSettingSetIndicator(smsCnt, mmsCnt);
+	//update sim index to 0 for all messages
+	MsgStoUpdateIMSI(0);
 
 	MSG_END();
-
-	return err;
-}
-
-
-msg_error_t MsgCreateConversationTable()
-{
-	msg_error_t err = MSG_SUCCESS;
-
-	char sqlQuery[MAX_QUERY_LEN+1];
-
-	if (!dbHandle.checkTableExist(MSGFW_ADDRESS_TABLE_NAME)) {
-		memset(sqlQuery, 0x00, sizeof(sqlQuery));
-
-		snprintf(sqlQuery, sizeof(sqlQuery),
-				"CREATE TABLE %s ( \
-				CONV_ID INTEGER NOT NULL , \
-				UNREAD_CNT INTEGER DEFAULT 0 , \
-				SMS_CNT INTEGER DEFAULT 0 , \
-				MMS_CNT INTEGER DEFAULT 0 , \
-				MAIN_TYPE INTEGER NOT NULL , \
-				SUB_TYPE INTEGER NOT NULL , \
-				MSG_DIRECTION INTEGER NOT NULL , \
-				DISPLAY_TIME INTEGER , \
-				DISPLAY_NAME TEXT , \
-				MSG_TEXT TEXT );",
-				MSGFW_CONVERSATION_TABLE_NAME);
-
-		err = dbHandle.execQuery(sqlQuery);
-
-		if (err == MSG_SUCCESS)
-			MSG_DEBUG("SUCCESS : create %s.", MSGFW_CONVERSATION_TABLE_NAME);
-		else
-			MSG_DEBUG("FAIL : create %s [%d].", MSGFW_CONVERSATION_TABLE_NAME, err);
-	}
-
-	return err;
-}
-
-
-msg_error_t MsgCreateAddressTable()
-{
-	msg_error_t err = MSG_SUCCESS;
-
-	char sqlQuery[MAX_QUERY_LEN+1];
-
-	if (!dbHandle.checkTableExist(MSGFW_ADDRESS_TABLE_NAME)) {
-		memset(sqlQuery, 0x00, sizeof(sqlQuery));
-
-		snprintf(sqlQuery, sizeof(sqlQuery),
-				"CREATE TABLE %s ( \
-				ADDRESS_ID INTEGER PRIMARY KEY , \
-				CONV_ID INTEGER  NOT NULL , \
-				ADDRESS_TYPE INTEGER , \
-				RECIPIENT_TYPE INTEGER , \
-				ADDRESS_VAL TEXT , \
-				CONTACT_ID INTEGER , \
-				DISPLAY_NAME TEXT , \
-				FIRST_NAME TEXT , \
-				LAST_NAME TEXT , \
-				IMAGE_PATH TEXT , \
-				SYNC_TIME DATETIME , \
-				FOREIGN KEY(CONV_ID) REFERENCES %s (CONV_ID) );",
-				MSGFW_ADDRESS_TABLE_NAME, MSGFW_CONVERSATION_TABLE_NAME);
-
-		err = dbHandle.execQuery(sqlQuery);
-
-		if (err == MSG_SUCCESS)
-			MSG_DEBUG("SUCCESS : create %s.", MSGFW_ADDRESS_TABLE_NAME);
-		else
-			MSG_DEBUG("FAIL : create %s [%d].", MSGFW_ADDRESS_TABLE_NAME, err);
-	}
-
-	return err;
-}
-
-
-msg_error_t MsgCreateFolderTable()
-{
-	msg_error_t err = MSG_SUCCESS;
-
-	char sqlQuery[MAX_QUERY_LEN+1];
-
-	if (!dbHandle.checkTableExist(MSGFW_FOLDER_TABLE_NAME)) {
-		memset(sqlQuery, 0x00, sizeof(sqlQuery));
-
-		snprintf(sqlQuery, sizeof(sqlQuery),
-				"CREATE TABLE %s ( \
-				FOLDER_ID INTEGER PRIMARY KEY, \
-				FOLDER_NAME TEXT NOT NULL, \
-				FOLDER_TYPE INTEGER DEFAULT 0 );",
-				MSGFW_FOLDER_TABLE_NAME);
-
-		err = dbHandle.execQuery(sqlQuery);
-
-		if (err == MSG_SUCCESS)
-			MSG_DEBUG("SUCCESS : create %s.", MSGFW_FOLDER_TABLE_NAME);
-		else
-			MSG_DEBUG("FAIL : create %s [%d].", MSGFW_FOLDER_TABLE_NAME, err);
-	}
-
-	return err;
-}
-
-
-msg_error_t MsgCreateMsgTable()
-{
-	msg_error_t err = MSG_SUCCESS;
-
-	char sqlQuery[MAX_QUERY_LEN+1];
-
-	if (!dbHandle.checkTableExist(MSGFW_MESSAGE_TABLE_NAME)) {
-		memset(sqlQuery, 0x00, sizeof(sqlQuery));
-
-		snprintf(sqlQuery, sizeof(sqlQuery),
-				"CREATE TABLE %s ( \
-				MSG_ID INTEGER PRIMARY KEY , \
-				CONV_ID INTEGER NOT NULL , \
-				FOLDER_ID INTEGER NOT NULL , \
-				STORAGE_ID INTEGER NOT NULL , \
-				MAIN_TYPE INTEGER NOT NULL , \
-				SUB_TYPE INTEGER NOT NULL , \
-				DISPLAY_TIME DATETIME , \
-				DATA_SIZE INTEGER DEFAULT 0 , \
-				NETWORK_STATUS INTEGER DEFAULT 0 , \
-				READ_STATUS INTEGER DEFAULT 0 , \
-				PROTECTED INTEGER DEFAULT 0 , \
-				PRIORITY INTEGER DEFAULT 0 , \
-				MSG_DIRECTION INTEGER NOT NULL , \
-				SCHEDULED_TIME DATETIME , \
-				BACKUP INTEGER DEFAULT 0 , \
-				SUBJECT TEXT , \
-				MSG_DATA TEXT , \
-				THUMB_PATH TEXT , \
-				MSG_TEXT TEXT , \
-				ATTACHMENT_COUNT INTEGER DEFAULT 0 , \
-				FOREIGN KEY(CONV_ID) REFERENCES %s (CONV_ID) , \
-				FOREIGN KEY(FOLDER_ID) REFERENCES %s (FOLDER_ID) );",
-				MSGFW_MESSAGE_TABLE_NAME, MSGFW_CONVERSATION_TABLE_NAME, MSGFW_FOLDER_TABLE_NAME);
-
-		err = dbHandle.execQuery(sqlQuery);
-
-		if (err == MSG_SUCCESS)
-			MSG_DEBUG("SUCCESS : create %s.", MSGFW_MESSAGE_TABLE_NAME);
-		else
-			MSG_DEBUG("FAIL : create %s [%d].", MSGFW_MESSAGE_TABLE_NAME, err);
-	}
-
-	return err;
-}
-
-
-msg_error_t MsgCreateSimMessageTable()
-{
-	msg_error_t err = MSG_SUCCESS;
-
-	char sqlQuery[MAX_QUERY_LEN+1];
-
-	if (!dbHandle.checkTableExist(MSGFW_SIM_MSG_TABLE_NAME)) {
-		memset(sqlQuery, 0x00, sizeof(sqlQuery));
-
-		snprintf(sqlQuery, sizeof(sqlQuery),
-				"CREATE TABLE %s ( \
-				MSG_ID INTEGER , \
-				SIM_ID INTEGER NOT NULL , \
-				FOREIGN KEY(MSG_ID) REFERENCES %s (MSG_ID) );",
-				MSGFW_SIM_MSG_TABLE_NAME, MSGFW_MESSAGE_TABLE_NAME);
-
-		err = dbHandle.execQuery(sqlQuery);
-
-		if (err == MSG_SUCCESS)
-			MSG_DEBUG("SUCCESS : create %s.", MSGFW_SIM_MSG_TABLE_NAME);
-		else
-			MSG_DEBUG("FAIL : create %s [%d].", MSGFW_SIM_MSG_TABLE_NAME, err);
-	}
-
-	return err;
-}
-
-
-msg_error_t MsgCreateWAPMessageTable()
-{
-	msg_error_t err = MSG_SUCCESS;
-
-	char sqlQuery[MAX_QUERY_LEN+1];
-
-	if (!dbHandle.checkTableExist(MSGFW_PUSH_MSG_TABLE_NAME)) {
-		memset(sqlQuery, 0x00, sizeof(sqlQuery));
-
-		snprintf(sqlQuery, sizeof(sqlQuery),
-				"CREATE TABLE %s ( \
-				MSG_ID INTEGER , \
-				ACTION INTEGER , \
-				CREATED INTEGER , \
-				EXPIRES INTEGER , \
-				ID TEXT , \
-				HREF TEXT , \
-				CONTENT TEXT , \
-				FOREIGN KEY(MSG_ID) REFERENCES %s(MSG_ID) );",
-				MSGFW_PUSH_MSG_TABLE_NAME, MSGFW_MESSAGE_TABLE_NAME);
-
-		err = dbHandle.execQuery(sqlQuery);
-
-		if (err == MSG_SUCCESS)
-			MSG_DEBUG("SUCCESS : create %s.", MSGFW_PUSH_MSG_TABLE_NAME);
-		else
-			MSG_DEBUG("FAIL : create %s [%d].", MSGFW_PUSH_MSG_TABLE_NAME, err);
-	}
-
-	return err;
-}
-
-
-msg_error_t MsgCreateCBMessageTable()
-{
-	msg_error_t err = MSG_SUCCESS;
-
-	char sqlQuery[MAX_QUERY_LEN+1];
-
-	if (!dbHandle.checkTableExist(MSGFW_CB_MSG_TABLE_NAME)) {
-		memset(sqlQuery, 0x00, sizeof(sqlQuery));
-
-		snprintf(sqlQuery, sizeof(sqlQuery),
-				"CREATE TABLE %s ( \
-				MSG_ID INTEGER , \
-				CB_MSG_ID INTEGER NOT NULL , \
-				FOREIGN KEY(MSG_ID) REFERENCES %s (MSG_ID) );",
-				MSGFW_CB_MSG_TABLE_NAME, MSGFW_MESSAGE_TABLE_NAME);
-
-		err = dbHandle.execQuery(sqlQuery);
-
-		if (err == MSG_SUCCESS)
-			MSG_DEBUG("SUCCESS : create %s.", MSGFW_CB_MSG_TABLE_NAME);
-		else
-			MSG_DEBUG("FAIL : create %s [%d].", MSGFW_CB_MSG_TABLE_NAME, err);
-	}
-
-	return err;
-}
-
-
-msg_error_t MsgCreateSyncMLMessageTable()
-{
-	msg_error_t err = MSG_SUCCESS;
-
-	char sqlQuery[MAX_QUERY_LEN+1];
-
-	if (!dbHandle.checkTableExist(MSGFW_SYNCML_MSG_TABLE_NAME)) {
-		memset(sqlQuery, 0x00, sizeof(sqlQuery));
-
-		snprintf(sqlQuery, sizeof(sqlQuery),
-				"CREATE TABLE %s ( \
-				MSG_ID INTEGER , \
-				EXT_ID INTEGER NOT NULL , \
-				PINCODE INTEGER NOT NULL , \
-				FOREIGN KEY(MSG_ID) REFERENCES %s(MSG_ID) );",
-				MSGFW_SYNCML_MSG_TABLE_NAME, MSGFW_MESSAGE_TABLE_NAME);
-
-		err = dbHandle.execQuery(sqlQuery);
-
-		if (err == MSG_SUCCESS)
-			MSG_DEBUG("SUCCESS : create %s.", MSGFW_SYNCML_MSG_TABLE_NAME);
-		else
-			MSG_DEBUG("FAIL : create %s [%d].", MSGFW_SYNCML_MSG_TABLE_NAME, err);
-	}
-
-	return err;
-}
-
-msg_error_t MsgCreateSmsSendOptTable()
-{
-	msg_error_t err = MSG_SUCCESS;
-
-	char sqlQuery[MAX_QUERY_LEN+1];
-
-	if (!dbHandle.checkTableExist(MSGFW_SMS_SENDOPT_TABLE_NAME)) {
-		memset(sqlQuery, 0x00, sizeof(sqlQuery));
-
-		snprintf(sqlQuery, sizeof(sqlQuery),
-				"CREATE TABLE %s ( \
-				MSG_ID INTEGER , \
-				DELREP_REQ INTEGER NOT NULL , \
-				KEEP_COPY INTEGER NOT NULL , \
-				REPLY_PATH INTEGER NOT NULL , \
-				FOREIGN KEY(MSG_ID) REFERENCES %s (MSG_ID) );",
-				MSGFW_SMS_SENDOPT_TABLE_NAME, MSGFW_MESSAGE_TABLE_NAME);
-
-		err = dbHandle.execQuery(sqlQuery);
-
-		if (err == MSG_SUCCESS)
-				MSG_DEBUG("SUCCESS : create %s.", MSGFW_SMS_SENDOPT_TABLE_NAME);
-		else
-				MSG_DEBUG("FAIL : create %s [%d].", MSGFW_SMS_SENDOPT_TABLE_NAME, err);
-	}
-
-	return err;
-}
-
-
-msg_error_t MsgCreateFilterTable()
-{
-	msg_error_t err = MSG_SUCCESS;
-
-	char sqlQuery[MAX_QUERY_LEN+1];
-
-	if (!dbHandle.checkTableExist(MSGFW_FILTER_TABLE_NAME)) {
-		memset(sqlQuery, 0x00, sizeof(sqlQuery));
-
-		snprintf(sqlQuery, sizeof(sqlQuery),
-				"CREATE TABLE %s ( \
-				FILTER_ID INTEGER PRIMARY KEY , \
-				FILTER_TYPE INTEGER NOT NULL , \
-				FILTER_VALUE TEXT NOT NULL , \
-				FILTER_ACTIVE INTEGER DEFAULT 0);",
-				MSGFW_FILTER_TABLE_NAME);
-
-		err = dbHandle.execQuery(sqlQuery);
-
-		if (err == MSG_SUCCESS)
-				MSG_DEBUG("SUCCESS : create %s.", MSGFW_FILTER_TABLE_NAME);
-		else
-				MSG_DEBUG("FAIL : create %s [%d].", MSGFW_FILTER_TABLE_NAME, err);
-	}
-
-	return err;
-}
-
-
-msg_error_t MsgCreateMmsTable()
-{
-	msg_error_t err = MSG_SUCCESS;
-
-	char sqlQuery[MAX_QUERY_LEN+1];
-
-	if (!dbHandle.checkTableExist(MMS_PLUGIN_MESSAGE_TABLE_NAME)) {
-		memset(sqlQuery, 0x00, sizeof(sqlQuery));
-
-		snprintf(sqlQuery, sizeof(sqlQuery),
-				"CREATE TABLE %s ( \
-				MSG_ID INTEGER , \
-				TRANSACTION_ID TEXT , \
-				MESSAGE_ID TEXT , \
-				FWD_MESSAGE_ID TEXT , \
-				CONTENTS_LOCATION TEXT , \
-				FILE_PATH TEXT , \
-				VERSION INTEGER NOT NULL , \
-				DATA_TYPE INTEGER DEFAULT -1 , \
-				DATE DATETIME , \
-				HIDE_ADDRESS INTEGER DEFAULT 0 , \
-				ASK_DELIVERY_REPORT INTEGER DEFAULT 0 , \
-				REPORT_ALLOWED INTEGER DEFAULT 0 , \
-				READ_REPORT_ALLOWED_TYPE INTEGER DEFAULT 0 , \
-				ASK_READ_REPLY INTEGER DEFAULT 0 , \
-				READ INTEGER DEFAULT 0 , \
-				READ_REPORT_SEND_STATUS INTEGER DEFAULT 0 , \
-				READ_REPORT_SENT INTEGER DEFAULT 0 , \
-				PRIORITY INTEGER DEFAULT 0 , \
-				KEEP_COPY INTEGER DEFAULT 0 , \
-				MSG_SIZE INTEGER NOT NULL , \
-				MSG_CLASS INTEGER DEFAULT -1 , \
-				EXPIRY_TIME DATETIME , \
-				CUSTOM_DELIVERY_TIME INTEGER DEFAULT 0 , \
-				DELIVERY_TIME DATETIME , \
-				MSG_STATUS INTEGER DEFAULT -1 , \
-				FOREIGN KEY(MSG_ID) REFERENCES %s (MSG_ID) );",
-				MMS_PLUGIN_MESSAGE_TABLE_NAME, MSGFW_MESSAGE_TABLE_NAME);
-
-		err = dbHandle.execQuery(sqlQuery);
-
-		if (err == MSG_SUCCESS)
-			MSG_DEBUG("SUCCESS : create %s.", MMS_PLUGIN_MESSAGE_TABLE_NAME);
-		else
-			MSG_DEBUG("FAIL : create %s [%d].", MMS_PLUGIN_MESSAGE_TABLE_NAME, err);
-	}
 
 	return err;
 }
@@ -513,27 +245,27 @@ msg_error_t MsgAddDefaultFolders()
 	int nResult = 0;
 
 	char sqlQuery[MAX_QUERY_LEN+1];
-
+	MsgDbHandler *dbHandle = getDbHandle();
 	// INBOX
 	memset(sqlQuery, 0x00, sizeof(sqlQuery));
 	snprintf(sqlQuery, sizeof(sqlQuery), "SELECT COUNT(*) FROM %s WHERE FOLDER_ID = %d;",
 			MSGFW_FOLDER_TABLE_NAME, MSG_INBOX_ID);
 
-	if (dbHandle.getTable(sqlQuery, &nRowCnt) != MSG_SUCCESS) {
-		dbHandle.freeTable();
+	if (dbHandle->getTable(sqlQuery, &nRowCnt) != MSG_SUCCESS) {
+		dbHandle->freeTable();
 		return MSG_ERR_DB_GETTABLE;
 	}
 
-	nResult = dbHandle.getColumnToInt(1);
+	nResult = dbHandle->getColumnToInt(1);
 
-	dbHandle.freeTable();
+	dbHandle->freeTable();
 
 	if (nResult == 0) {
 		memset(sqlQuery, 0x00, sizeof(sqlQuery));
 		snprintf(sqlQuery, sizeof(sqlQuery), "INSERT INTO %s VALUES (%d, 'INBOX', %d);",
 				MSGFW_FOLDER_TABLE_NAME, MSG_INBOX_ID, MSG_FOLDER_TYPE_INBOX);
 
-		if (dbHandle.execQuery(sqlQuery) != MSG_SUCCESS)
+		if (dbHandle->execQuery(sqlQuery) != MSG_SUCCESS)
 			return MSG_ERR_DB_EXEC;
 	}
 
@@ -542,21 +274,21 @@ msg_error_t MsgAddDefaultFolders()
 	snprintf(sqlQuery, sizeof(sqlQuery), "SELECT COUNT(*) FROM %s WHERE FOLDER_ID = %d;",
 			MSGFW_FOLDER_TABLE_NAME, MSG_OUTBOX_ID);
 
-	if (dbHandle.getTable(sqlQuery, &nRowCnt) != MSG_SUCCESS) {
-		dbHandle.freeTable();
+	if (dbHandle->getTable(sqlQuery, &nRowCnt) != MSG_SUCCESS) {
+		dbHandle->freeTable();
 		return MSG_ERR_DB_GETTABLE;
 	}
 
-	nResult = dbHandle.getColumnToInt(1);
+	nResult = dbHandle->getColumnToInt(1);
 
-	dbHandle.freeTable();
+	dbHandle->freeTable();
 
 	if (nResult == 0) {
 		memset(sqlQuery, 0x00, sizeof(sqlQuery));
 		snprintf(sqlQuery, sizeof(sqlQuery), "INSERT INTO %s VALUES (%d, 'OUTBOX', %d);",
 				MSGFW_FOLDER_TABLE_NAME, MSG_OUTBOX_ID, MSG_FOLDER_TYPE_OUTBOX);
 
-		if (dbHandle.execQuery(sqlQuery) != MSG_SUCCESS)
+		if (dbHandle->execQuery(sqlQuery) != MSG_SUCCESS)
 			return MSG_ERR_DB_EXEC;
 	}
 
@@ -565,21 +297,21 @@ msg_error_t MsgAddDefaultFolders()
 	snprintf(sqlQuery, sizeof(sqlQuery), "SELECT COUNT(*) FROM %s WHERE FOLDER_ID = %d;",
 			MSGFW_FOLDER_TABLE_NAME, MSG_SENTBOX_ID);
 
-	if (dbHandle.getTable(sqlQuery, &nRowCnt) != MSG_SUCCESS) {
-		dbHandle.freeTable();
+	if (dbHandle->getTable(sqlQuery, &nRowCnt) != MSG_SUCCESS) {
+		dbHandle->freeTable();
 		return MSG_ERR_DB_GETTABLE;
 	}
 
-	nResult = dbHandle.getColumnToInt(1);
+	nResult = dbHandle->getColumnToInt(1);
 
-	dbHandle.freeTable();
+	dbHandle->freeTable();
 
 	if (nResult == 0) {
 		memset(sqlQuery, 0x00, sizeof(sqlQuery));
 		snprintf(sqlQuery, sizeof(sqlQuery), "INSERT INTO %s VALUES (%d, 'SENTBOX', %d);",
 				MSGFW_FOLDER_TABLE_NAME, MSG_SENTBOX_ID, MSG_FOLDER_TYPE_OUTBOX);
 
-		if (dbHandle.execQuery(sqlQuery) != MSG_SUCCESS)
+		if (dbHandle->execQuery(sqlQuery) != MSG_SUCCESS)
 			return MSG_ERR_DB_EXEC;
 	}
 
@@ -588,21 +320,21 @@ msg_error_t MsgAddDefaultFolders()
 	snprintf(sqlQuery, sizeof(sqlQuery), "SELECT COUNT(*) FROM %s WHERE FOLDER_ID = %d;",
 			MSGFW_FOLDER_TABLE_NAME, MSG_DRAFT_ID);
 
-	if (dbHandle.getTable(sqlQuery, &nRowCnt) != MSG_SUCCESS) {
-		dbHandle.freeTable();
+	if (dbHandle->getTable(sqlQuery, &nRowCnt) != MSG_SUCCESS) {
+		dbHandle->freeTable();
 		return MSG_ERR_DB_GETTABLE;
 	}
 
-	nResult = dbHandle.getColumnToInt(1);
+	nResult = dbHandle->getColumnToInt(1);
 
-	dbHandle.freeTable();
+	dbHandle->freeTable();
 
 	if (nResult == 0) {
 		memset(sqlQuery, 0x00, sizeof(sqlQuery));
 		snprintf(sqlQuery, sizeof(sqlQuery), "INSERT INTO %s VALUES (%d, 'DRAFT', %d);",
 				MSGFW_FOLDER_TABLE_NAME, MSG_DRAFT_ID, MSG_FOLDER_TYPE_DRAFT);
 
-		if (dbHandle.execQuery(sqlQuery) != MSG_SUCCESS)
+		if (dbHandle->execQuery(sqlQuery) != MSG_SUCCESS)
 			return MSG_ERR_DB_EXEC;
 	}
 
@@ -611,21 +343,21 @@ msg_error_t MsgAddDefaultFolders()
 	snprintf(sqlQuery, sizeof(sqlQuery), "SELECT COUNT(*) FROM %s WHERE FOLDER_ID = %d;",
 			MSGFW_FOLDER_TABLE_NAME, MSG_CBMSGBOX_ID);
 
-	if (dbHandle.getTable(sqlQuery, &nRowCnt) != MSG_SUCCESS) {
-		dbHandle.freeTable();
+	if (dbHandle->getTable(sqlQuery, &nRowCnt) != MSG_SUCCESS) {
+		dbHandle->freeTable();
 		return MSG_ERR_DB_GETTABLE;
 	}
 
-	nResult = dbHandle.getColumnToInt(1);
+	nResult = dbHandle->getColumnToInt(1);
 
-	dbHandle.freeTable();
+	dbHandle->freeTable();
 
 	if (nResult == 0) {
 		memset(sqlQuery, 0x00, sizeof(sqlQuery));
 		snprintf(sqlQuery, sizeof(sqlQuery), "INSERT INTO %s VALUES (%d, 'CBMSGBOX', %d);",
 				MSGFW_FOLDER_TABLE_NAME, MSG_CBMSGBOX_ID, MSG_FOLDER_TYPE_INBOX);
 
-		if (dbHandle.execQuery(sqlQuery) != MSG_SUCCESS)
+		if (dbHandle->execQuery(sqlQuery) != MSG_SUCCESS)
 			return MSG_ERR_DB_EXEC;
 	}
 
@@ -634,21 +366,21 @@ msg_error_t MsgAddDefaultFolders()
 	snprintf(sqlQuery, sizeof(sqlQuery), "SELECT COUNT(*) FROM %s WHERE FOLDER_ID = %d;",
 			MSGFW_FOLDER_TABLE_NAME, MSG_SPAMBOX_ID);
 
-	if (dbHandle.getTable(sqlQuery, &nRowCnt) != MSG_SUCCESS) {
-		dbHandle.freeTable();
+	if (dbHandle->getTable(sqlQuery, &nRowCnt) != MSG_SUCCESS) {
+		dbHandle->freeTable();
 		return MSG_ERR_DB_GETTABLE;
 	}
 
-	nResult = dbHandle.getColumnToInt(1);
+	nResult = dbHandle->getColumnToInt(1);
 
-	dbHandle.freeTable();
+	dbHandle->freeTable();
 
 	if (nResult == 0) {
 		memset(sqlQuery, 0x00, sizeof(sqlQuery));
 		snprintf(sqlQuery, sizeof(sqlQuery), "INSERT INTO %s VALUES (%d, 'SPAMBOX', %d);",
 				MSGFW_FOLDER_TABLE_NAME, MSG_SPAMBOX_ID, MSG_FOLDER_TYPE_SPAMBOX);
 
-		if (dbHandle.execQuery(sqlQuery) != MSG_SUCCESS)
+		if (dbHandle->execQuery(sqlQuery) != MSG_SUCCESS)
 			return MSG_ERR_DB_EXEC;
 	}
 
@@ -659,7 +391,7 @@ msg_error_t MsgAddDefaultFolders()
 msg_error_t MsgAddDefaultAddress()
 {
 	MSG_BEGIN();
-
+	MsgDbHandler *dbHandle = getDbHandle();
 	int nRowCnt = 0, nResult = 0;
 
 	char sqlQuery[MAX_QUERY_LEN+1];
@@ -668,23 +400,23 @@ msg_error_t MsgAddDefaultAddress()
 	snprintf(sqlQuery, sizeof(sqlQuery), "SELECT COUNT(*) FROM %s WHERE ADDRESS_ID = 0;",
 			MSGFW_ADDRESS_TABLE_NAME);
 
-	if (dbHandle.getTable(sqlQuery, &nRowCnt) != MSG_SUCCESS) {
-		dbHandle.freeTable();
+	if (dbHandle->getTable(sqlQuery, &nRowCnt) != MSG_SUCCESS) {
+		dbHandle->freeTable();
 		return MSG_ERR_DB_GETTABLE;
 	}
 
-	nResult = dbHandle.getColumnToInt(1);
+	nResult = dbHandle->getColumnToInt(1);
 
-	dbHandle.freeTable();
+	dbHandle->freeTable();
 
 	if (nResult == 0) {
 		memset(sqlQuery, 0x00, sizeof(sqlQuery));
-		snprintf(sqlQuery, sizeof(sqlQuery), "INSERT INTO %s VALUES (0, 0, 0, '', 0, '', '', '', '', 0, 0, 0, 0, 0, 0, 0, 0, '');",
+		snprintf(sqlQuery, sizeof(sqlQuery), "INSERT INTO %s VALUES (0, 0, 0, 0, '', 0, 0, '', '', '', '', '', '', 0);",
 				MSGFW_ADDRESS_TABLE_NAME);
 
 		MSG_DEBUG("%s", sqlQuery);
 
-		if (dbHandle.execQuery(sqlQuery) != MSG_SUCCESS)
+		if (dbHandle->execQuery(sqlQuery) != MSG_SUCCESS)
 			return MSG_ERR_DB_EXEC;
 	}
 
@@ -696,6 +428,7 @@ msg_error_t MsgAddDefaultAddress()
 
 msg_error_t MsgStoResetDatabase()
 {
+	MsgDbHandler *dbHandle = getDbHandle();
 	msg_error_t err = MSG_SUCCESS;
 
 	char sqlQuery[MAX_QUERY_LEN+1];
@@ -707,7 +440,7 @@ msg_error_t MsgStoResetDatabase()
 
 	int listCnt = sizeof(tableList)/sizeof(char*);
 
-	dbHandle.beginTrans();
+	dbHandle->beginTrans();
 
 	// Delete Database
 	for (int i = 0; i < listCnt; i++)
@@ -715,8 +448,8 @@ msg_error_t MsgStoResetDatabase()
 		memset(sqlQuery, 0x00, sizeof(sqlQuery));
 		snprintf(sqlQuery, sizeof(sqlQuery), "DELETE FROM %s;", tableList[i]);
 
-		if (dbHandle.execQuery(sqlQuery) != MSG_SUCCESS) {
-			dbHandle.endTrans(false);
+		if (dbHandle->execQuery(sqlQuery) != MSG_SUCCESS) {
+			dbHandle->endTrans(false);
 			return MSG_ERR_DB_EXEC;
 		}
 	}
@@ -726,34 +459,34 @@ msg_error_t MsgStoResetDatabase()
 	snprintf(sqlQuery, sizeof(sqlQuery), "DELETE FROM %s WHERE STORAGE_ID <> %d;",
 			MSGFW_MESSAGE_TABLE_NAME, MSG_STORAGE_SIM);
 
-	if (dbHandle.execQuery(sqlQuery) != MSG_SUCCESS) {
-		dbHandle.endTrans(false);
+	if (dbHandle->execQuery(sqlQuery) != MSG_SUCCESS) {
+		dbHandle->endTrans(false);
 		return MSG_ERR_DB_EXEC;
 	}
 
 	// Delete Conversation Table
-	err = MsgStoClearConversationTable(&dbHandle);
+	err = MsgStoClearConversationTable(dbHandle);
 
 	if (err != MSG_SUCCESS) {
-		dbHandle.endTrans(false);
+		dbHandle->endTrans(false);
 		return err;
 	}
 
 	// Add Default Folders
 	if (MsgAddDefaultFolders() != MSG_SUCCESS) {
 		MSG_DEBUG("Add Default Folders Fail");
-		dbHandle.endTrans(false);
+		dbHandle->endTrans(false);
 		return MSG_ERR_DB_STORAGE_INIT;
 	}
 
 	// Add Default Address
 	if (MsgAddDefaultAddress() != MSG_SUCCESS) {
 		MSG_DEBUG("Add Default Address Fail");
-		dbHandle.endTrans(false);
+		dbHandle->endTrans(false);
 		return MSG_ERR_DB_STORAGE_INIT;
 	}
 
-	dbHandle.endTrans(true);
+	dbHandle->endTrans(true);
 
 	// Delete MMS Files
 	MsgRmRf((char*)MSG_DATA_PATH);
@@ -777,6 +510,7 @@ msg_error_t MsgStoResetDatabase()
 
 msg_error_t MsgStoBackupMessage(msg_message_backup_type_t type, const char *filepath)
 {
+	MsgDbHandler *dbHandle = getDbHandle();
 	msg_error_t	err = MSG_SUCCESS;
 
 	char sqlQuery[MAX_QUERY_LEN+1];
@@ -789,12 +523,12 @@ msg_error_t MsgStoBackupMessage(msg_message_backup_type_t type, const char *file
 	memset(fileName, 0x00, sizeof(fileName));
 	strncpy(fileName, filepath, MSG_FILENAME_LEN_MAX);
 	if (remove(fileName) != 0) {
-		MSG_DEBUG("Fail to delete [%s].", fileName);
+		MSG_SEC_DEBUG("Fail to delete [%s].", fileName);
 	}
 
 	memset(sqlQuery, 0x00, sizeof(sqlQuery));
 
-	MSG_DEBUG("backup type = %d, path = %s", type, filepath);
+	MSG_SEC_DEBUG("backup type = %d, path = %s", type, filepath);
 
 	if (type == MSG_BACKUP_TYPE_SMS) {
 		snprintf(sqlQuery, sizeof(sqlQuery),
@@ -814,26 +548,35 @@ msg_error_t MsgStoBackupMessage(msg_message_backup_type_t type, const char *file
 
 	}
 
-	err = dbHandle.getTable(sqlQuery, &rowCnt);
+	err = dbHandle->getTable(sqlQuery, &rowCnt);
 
 	if (err != MSG_SUCCESS) {
-		dbHandle.freeTable();
+		dbHandle->freeTable();
 		return err;
 	}
 	MSG_DEBUG("backup number = %d", rowCnt);
 
 	for (int i = 0; i < rowCnt; i++) {
-		err = MsgStoGetMessage(dbHandle.getColumnToInt(++index), &msgInfo, NULL);
+		int msgid = dbHandle->getColumnToInt(++index);
+
+		msgInfo.addressList = NULL;
+		AutoPtr<MSG_ADDRESS_INFO_S> addressListBuf(&msgInfo.addressList);
+
+		err = MsgStoGetMessage(msgid, &msgInfo, NULL);
 		if(err != MSG_SUCCESS) {
-			dbHandle.freeTable();
+			dbHandle->freeTable();
 			return err;
 		}
 
-		encoded_data = MsgVMessageAddRecord(&dbHandle, &msgInfo);
+		encoded_data = MsgVMessageAddRecord(dbHandle, &msgInfo);
 
+		if (msgInfo.bTextSms == false)
+		{
+			MsgDeleteFile(msgInfo.msgData); //ipc
+		}
 		if (encoded_data != NULL) {
 			if (MsgAppendFile(fileName, encoded_data, strlen(encoded_data)) == false) {
-				dbHandle.freeTable();
+				dbHandle->freeTable();
 				free(encoded_data);
 				return MSG_ERR_STORAGE_ERROR;
 			}
@@ -844,7 +587,7 @@ msg_error_t MsgStoBackupMessage(msg_message_backup_type_t type, const char *file
 		memset(&msgInfo, 0, sizeof(MSG_MESSAGE_INFO_S));
 	}
 
-	dbHandle.freeTable();
+	dbHandle->freeTable();
 	MSG_END();
 	return MSG_SUCCESS;
 
@@ -852,48 +595,76 @@ msg_error_t MsgStoBackupMessage(msg_message_backup_type_t type, const char *file
 
 msg_error_t MsgStoUpdateMms(MSG_MESSAGE_INFO_S *pMsg)
 {
+	MsgDbHandler *dbHandle = getDbHandle();
+	msg_error_t err = MSG_SUCCESS;
 	char sqlQuery[MAX_QUERY_LEN+1];
+	unsigned int fileSize = 0;
+	char *pFileData = NULL;
 
 	if (pMsg->msgType.subType == MSG_SENDCONF_MMS) {
+
 		memset(sqlQuery, 0x00, sizeof(sqlQuery));
 
-		dbHandle.beginTrans();
+		dbHandle->beginTrans();
 		snprintf(sqlQuery, sizeof(sqlQuery), "UPDATE %s SET THUMB_PATH = ?, MSG_TEXT = ? WHERE MSG_ID = %d;",
 				MSGFW_MESSAGE_TABLE_NAME, pMsg->msgId);
 
-		if (dbHandle.prepareQuery(sqlQuery) != MSG_SUCCESS) {
-			dbHandle.endTrans(false);
+		if (dbHandle->prepareQuery(sqlQuery) != MSG_SUCCESS) {
+			dbHandle->endTrans(false);
 			return MSG_ERR_DB_EXEC;
 		}
 
+		dbHandle->bindText(pMsg->thumbPath, 1);
 
-		dbHandle.bindText(pMsg->thumbPath, 1);
-		dbHandle.bindText(pMsg->msgText, 2);
-		MSG_DEBUG("thumbPath = %s , msgText = %s" , pMsg->thumbPath, pMsg->msgText);
+		if (pMsg->msgText[0] != '\0' && g_file_get_contents(pMsg->msgText, &pFileData, &fileSize, NULL) == true) {
+			dbHandle->bindText(pFileData, 2);
+		}
+
+		MSG_SEC_DEBUG("thumbPath = %s , msgText = %s" , pMsg->thumbPath, pFileData);
+
 		MSG_DEBUG("%s", sqlQuery);
 
-		if (dbHandle.stepQuery() != MSG_ERR_DB_DONE) {
-			dbHandle.finalizeQuery();
-			dbHandle.endTrans(false);
+		if (dbHandle->stepQuery() != MSG_ERR_DB_DONE) {
+			dbHandle->finalizeQuery();
+			dbHandle->endTrans(false);
+			if (pFileData) {
+				free(pFileData);
+				pFileData = NULL;
+			}
+
 			return MSG_ERR_DB_EXEC;
 		}
 
-		dbHandle.finalizeQuery();
-		dbHandle.endTrans(true);
+		dbHandle->finalizeQuery();
+		dbHandle->endTrans(true);
+
+		if (pFileData) {
+			free(pFileData);
+			pFileData = NULL;
+		}
 	} else {
-		if (MsgStoUpdateMMSMessage(pMsg) != MSG_SUCCESS)
-			MSG_DEBUG("MsgStoUpdateMMSMessage is failed");
+
+		err = MsgStoUpdateMMSMessage(pMsg);
+		if (err != MSG_SUCCESS) {
+			MSG_DEBUG("MsgStoUpdateMMSMessage() error : %d", err);
+		}
+
 	}
-	return MSG_SUCCESS;
+
+	return err;
 }
 
-msg_error_t MsgStoRestoreMessage(const char *filepath)
+msg_error_t MsgStoRestoreMessage(const char *filepath, msg_id_list_s **result_id_list)
 {
 	msg_error_t err = MSG_SUCCESS;
 	MSG_MESSAGE_INFO_S msgInfo = {0,};
+	AutoPtr<MSG_ADDRESS_INFO_S> addressListBuf(&msgInfo.addressList);
 
 	VTree* vMsg = NULL;
 	VObject* pObject = NULL;
+
+	msg_id_list_s *msgIdList = NULL;
+	msgIdList = (msg_id_list_s *)calloc(1, sizeof(msg_id_list_s));
 
 	int dataSize = 0;
 
@@ -909,8 +680,14 @@ msg_error_t MsgStoRestoreMessage(const char *filepath)
 	memset(fileName, 0x00, sizeof(fileName));
 	strncpy(fileName, filepath, MSG_FILENAME_LEN_MAX);
 	pData = MsgOpenAndReadMmsFile(fileName, 0, -1, &dataSize);
-	if (pData == NULL)
+	if (pData == NULL) {
+		if (msgIdList) {
+			if (msgIdList->msgIdList)
+				free(msgIdList->msgIdList);
+			free(msgIdList);
+		}
 		return MSG_ERR_STORAGE_ERROR;
+	}
 
 	pCurrent = pData;
 
@@ -924,6 +701,10 @@ msg_error_t MsgStoRestoreMessage(const char *filepath)
 		MSG_DEBUG("Start Position2: %s", pCurrent);
 
 		vMsg = vmsg_decode(pCurrent);
+		if (vMsg == NULL) {
+			err = MSG_ERR_STORAGE_ERROR;
+			goto __RETURN;
+		}
 #endif
 
 		pObject = vMsg->pTop;
@@ -954,7 +735,8 @@ msg_error_t MsgStoRestoreMessage(const char *filepath)
 							msgInfo.msgType.subType = MSG_NOTIFICATIONIND_MMS;
 						} else {
 							vmsg_free_vtree_memory(vMsg);
-							return MSG_ERR_STORAGE_ERROR;
+							err = MSG_ERR_STORAGE_ERROR;
+							goto __RETURN;
 						}
 					}
 					break;
@@ -965,7 +747,13 @@ msg_error_t MsgStoRestoreMessage(const char *filepath)
 							msgInfo.folderId= MSG_INBOX_ID;
 							msgInfo.direction=MSG_DIRECTION_TYPE_MT;
 
-							msgInfo.networkStatus=MSG_NETWORK_RECEIVED;
+							if (msgInfo.msgType.subType == MSG_RETRIEVE_AUTOCONF_MMS)
+								msgInfo.networkStatus=MSG_NETWORK_RETRIEVE_SUCCESS;
+							else if (msgInfo.msgType.subType == MSG_SENDCONF_MMS)
+								msgInfo.networkStatus=MSG_NETWORK_SEND_SUCCESS;
+							else
+								msgInfo.networkStatus=MSG_NETWORK_RECEIVED;
+
 						} else if(!strncmp(pObject->pszValue[0], "OUTBOX", strlen("OUTBOX"))) {
 							msgInfo.folderId= MSG_OUTBOX_ID;
 							msgInfo.direction=MSG_DIRECTION_TYPE_MO;
@@ -983,7 +771,8 @@ msg_error_t MsgStoRestoreMessage(const char *filepath)
 							msgInfo.networkStatus=MSG_NETWORK_NOT_SEND;
 						} else {
 							vmsg_free_vtree_memory(vMsg);
-							return MSG_ERR_STORAGE_ERROR;
+							err = MSG_ERR_STORAGE_ERROR;
+							goto __RETURN;
 						}
 					}
 					break;
@@ -996,7 +785,8 @@ msg_error_t MsgStoRestoreMessage(const char *filepath)
 							msgInfo.bRead = false;
 						} else {
 							vmsg_free_vtree_memory(vMsg);
-							return MSG_ERR_STORAGE_ERROR;
+							err = MSG_ERR_STORAGE_ERROR;
+							goto __RETURN;
 						}
 					}
 					break;
@@ -1007,7 +797,8 @@ msg_error_t MsgStoRestoreMessage(const char *filepath)
 
 						if (!_convert_vdata_str_to_tm(pObject->pszValue[0], &displayTime)) {
 							vmsg_free_vtree_memory( vMsg );
-							return MSG_ERR_STORAGE_ERROR;
+							err = MSG_ERR_STORAGE_ERROR;
+							goto __RETURN;
 						}
 
 						msgInfo.displayTime = mktime(&displayTime);
@@ -1036,12 +827,14 @@ msg_error_t MsgStoRestoreMessage(const char *filepath)
 
 								if (MsgCreateFileName(fileName) == false) {
 									vmsg_free_vtree_memory(vMsg);
-									return MSG_ERR_STORAGE_ERROR;
+									err = MSG_ERR_STORAGE_ERROR;
+									goto __RETURN;
 								}
 
 								if (MsgWriteIpcFile(fileName, pObject->pszValue[0], pObject->numOfBiData) == false) {
 									vmsg_free_vtree_memory(vMsg);
-									return MSG_ERR_STORAGE_ERROR;
+									err = MSG_ERR_STORAGE_ERROR;
+									goto __RETURN;
 								}
 
 								strncpy(msgInfo.msgData, fileName, MAX_MSG_DATA_LEN);
@@ -1058,6 +851,7 @@ msg_error_t MsgStoRestoreMessage(const char *filepath)
 							}
 						} else {
 							msgInfo.bTextSms = true;
+#if 0
 							if(msgInfo.msgType.subType == MSG_NOTIFICATIONIND_MMS) {
 
 									msgInfo.bTextSms = true;
@@ -1095,7 +889,7 @@ msg_error_t MsgStoRestoreMessage(const char *filepath)
 									vmsg_free_vtree_memory(vMsg);
 									return MSG_ERR_STORAGE_ERROR;
 								}
-								MSG_DEBUG("fileName: %s, retrievedFilePath: %s (%d)", fileName, retrievedFilePath, strlen(retrievedFilePath));
+								MSG_SEC_DEBUG("fileName: %s, retrievedFilePath: %s (%d)", fileName, retrievedFilePath, strlen(retrievedFilePath));
 
 								if (MsgWriteIpcFile(fileName, retrievedFilePath, strlen(retrievedFilePath)+ 1) == false) {
 									vmsg_free_vtree_memory(vMsg);
@@ -1108,18 +902,57 @@ msg_error_t MsgStoRestoreMessage(const char *filepath)
 									return vmsg_free_vtree_memory(vMsg);
 ///////////////////////////
 							}
+#else
+
+							msgInfo.bTextSms = false;
+
+							char fileName[MAX_COMMON_INFO_SIZE+1];
+							memset(fileName, 0x00, sizeof(fileName));
+
+							if (MsgCreateFileName(fileName) == false) {
+								vmsg_free_vtree_memory(vMsg);
+								err = MSG_ERR_STORAGE_ERROR;
+								goto __RETURN;
+							}
+
+							if (MsgWriteIpcFile(fileName, pObject->pszValue[0], pObject->numOfBiData) == false) {
+								vmsg_free_vtree_memory(vMsg);
+								err = MSG_ERR_STORAGE_ERROR;
+								goto __RETURN;
+							}
+
+							//set serialized mms data ipcfilename
+							strncpy(msgInfo.msgData, fileName, MAX_MSG_DATA_LEN);
+#endif
 						}
 					}
 					break;
 
 					case VCARD_TYPE_TEL :
 					{
+						MSG_ADDRESS_INFO_S * addrInfo = NULL;
+
 						msgInfo.nAddressCnt++;
+
+						if (msgInfo.addressList == NULL) {
+							addrInfo = (MSG_ADDRESS_INFO_S *)calloc(1, sizeof(MSG_ADDRESS_INFO_S));
+						} else {
+							addrInfo = (MSG_ADDRESS_INFO_S *)realloc(msgInfo.addressList, msgInfo.nAddressCnt * sizeof(MSG_ADDRESS_INFO_S));
+						}
+
+						if (addrInfo == NULL) {
+							vmsg_free_vtree_memory(vMsg);
+							err = MSG_ERR_STORAGE_ERROR;
+							goto __RETURN;
+
+						}
+
+						msgInfo.addressList = addrInfo;
 
 						msgInfo.addressList[msgInfo.nAddressCnt-1].addressType = MSG_ADDRESS_TYPE_PLMN;
 						msgInfo.addressList[msgInfo.nAddressCnt-1].recipientType = MSG_RECIPIENTS_TYPE_TO;
-
 						strncpy(msgInfo.addressList[msgInfo.nAddressCnt-1].addressVal, pObject->pszValue[0], MAX_ADDRESS_VAL_LEN);
+
 					}
 					break;
 				}
@@ -1150,40 +983,78 @@ msg_error_t MsgStoRestoreMessage(const char *filepath)
 		if (msgInfo.msgType.mainType == MSG_MMS_TYPE)
 			MsgStoUpdateMms(&msgInfo);
 
+		if (msgIdList->nCount == 0) {
+			msgIdList->msgIdList = (msg_message_id_t*)calloc(1, sizeof(msg_message_id_t));
+		} else {
+			msg_message_id_t * msg_id_list;
+			msg_id_list = (msg_message_id_t*)realloc(msgIdList->msgIdList, sizeof(msg_message_id_t)*(msgIdList->nCount+1));
+
+			if (msg_id_list)
+				msgIdList->msgIdList = msg_id_list;
+			else {
+				MSG_DEBUG("realloc failed");
+				err = MSG_ERR_UNKNOWN;
+				goto __RETURN;
+			}
+		}
+
+		msgIdList->msgIdList[msgIdList->nCount] = msgInfo.msgId;
+		msgIdList->nCount++;
+
 		vmsg_free_vtree_memory(vMsg);
 
 		vMsg = NULL;
 		pCurrent = pTemp + strlen("END:VMSG");
+#ifndef MSG_FOR_DEBUG
+	}
+#endif
+	if (result_id_list)
+		*result_id_list = msgIdList;
+__RETURN:
+	if(pData)
+	{
+		free( pData );
+		pData = NULL;
+		pCurrent = NULL;
 	}
 
-	return MSG_SUCCESS;
+	return err;
 }
 
 msg_error_t MsgStoAddPushEvent(MSG_PUSH_EVENT_INFO_S* pPushEvent)
 {
-	msg_error_t err = MSG_SUCCESS;
+	MsgDbHandler *dbHandle = getDbHandle();
 	char sqlQuery[MAX_QUERY_LEN+1];
 	unsigned int rowId = 0;
 
 	memset(sqlQuery, 0x00, sizeof(sqlQuery));
 
 	// Check whether Same record exists or not.
+#if 0
 	snprintf(sqlQuery, sizeof(sqlQuery), "SELECT * FROM %s WHERE CONTENT_TYPE LIKE '%s' AND APP_ID LIKE '%s' AND (PKG_NAME LIKE '%s' OR SECURE = 1);",
 			MSGFW_PUSH_CONFIG_TABLE_NAME, pPushEvent->contentType, pPushEvent->appId, pPushEvent->pkgName);
+#else
+	snprintf(sqlQuery, sizeof(sqlQuery), "SELECT * FROM %s WHERE CONTENT_TYPE LIKE '%s' AND APP_ID LIKE '%s';",
+			MSGFW_PUSH_CONFIG_TABLE_NAME, pPushEvent->contentType, pPushEvent->appId);
+#endif
 
-	if (dbHandle.prepareQuery(sqlQuery) != MSG_SUCCESS) {
+	if (dbHandle->prepareQuery(sqlQuery) != MSG_SUCCESS) {
 		MSG_DEBUG("Query Failed [%s]", sqlQuery);
 		return MSG_ERR_DB_PREPARE;
 	}
 
-	if (dbHandle.stepQuery() == MSG_ERR_DB_ROW) {
-		dbHandle.finalizeQuery();
+	if (dbHandle->stepQuery() == MSG_ERR_DB_ROW) {
+		dbHandle->finalizeQuery();
 		return MSG_ERR_DB_ROW;
 	}
-	dbHandle.finalizeQuery();
+	dbHandle->finalizeQuery();
 
-	dbHandle.beginTrans();
-	err = dbHandle.getRowId(MSGFW_PUSH_CONFIG_TABLE_NAME, &rowId);
+	dbHandle->beginTrans();
+
+	if (dbHandle->getRowId(MSGFW_PUSH_CONFIG_TABLE_NAME, &rowId) != MSG_SUCCESS) {
+		MSG_DEBUG("getRowId is failed!!!");
+	}
+
 	memset(sqlQuery, 0x00, sizeof(sqlQuery));
 
 	snprintf(sqlQuery, sizeof(sqlQuery), "INSERT INTO %s VALUES (%d, ?, ?, ?, %d, 0, 0);",
@@ -1192,23 +1063,23 @@ msg_error_t MsgStoAddPushEvent(MSG_PUSH_EVENT_INFO_S* pPushEvent)
 
 	MSG_DEBUG("QUERY : %s", sqlQuery);
 
-	if (dbHandle.prepareQuery(sqlQuery) != MSG_SUCCESS) {
-		dbHandle.endTrans(false);
+	if (dbHandle->prepareQuery(sqlQuery) != MSG_SUCCESS) {
+		dbHandle->endTrans(false);
 		return MSG_ERR_DB_EXEC;
 	}
 
-	dbHandle.bindText(pPushEvent->contentType, 1);
-	dbHandle.bindText(pPushEvent->appId, 2);
-	dbHandle.bindText(pPushEvent->pkgName, 3);
+	dbHandle->bindText(pPushEvent->contentType, 1);
+	dbHandle->bindText(pPushEvent->appId, 2);
+	dbHandle->bindText(pPushEvent->pkgName, 3);
 
-	if (dbHandle.stepQuery() != MSG_ERR_DB_DONE) {
-		dbHandle.finalizeQuery();
-		dbHandle.endTrans(false);
+	if (dbHandle->stepQuery() != MSG_ERR_DB_DONE) {
+		dbHandle->finalizeQuery();
+		dbHandle->endTrans(false);
 		return MSG_ERR_DB_EXEC;
 	}
 
-	dbHandle.finalizeQuery();
-	dbHandle.endTrans(true);
+	dbHandle->finalizeQuery();
+	dbHandle->endTrans(true);
 
 	return MSG_SUCCESS;
 }
@@ -1216,45 +1087,47 @@ msg_error_t MsgStoAddPushEvent(MSG_PUSH_EVENT_INFO_S* pPushEvent)
 
 msg_error_t MsgStoDeletePushEvent(MSG_PUSH_EVENT_INFO_S* pPushEvent)
 {
+	MsgDbHandler *dbHandle = getDbHandle();
 	char sqlQuery[MAX_QUERY_LEN+1];
-	dbHandle.beginTrans();
+	dbHandle->beginTrans();
 	memset(sqlQuery, 0x00, sizeof(sqlQuery));
 	snprintf(sqlQuery, sizeof(sqlQuery), "DELETE FROM %s WHERE CONTENT_TYPE LIKE '%s' AND APP_ID LIKE '%s' AND PKG_NAME LIKE '%s';",
 			MSGFW_PUSH_CONFIG_TABLE_NAME, pPushEvent->contentType, pPushEvent->appId, pPushEvent->pkgName);
 
-	if (dbHandle.execQuery(sqlQuery) != MSG_SUCCESS) {
-		dbHandle.endTrans(false);
+	if (dbHandle->execQuery(sqlQuery) != MSG_SUCCESS) {
+		dbHandle->endTrans(false);
 		return MSG_ERR_DB_EXEC;
 	}
-	dbHandle.endTrans(true);
+	dbHandle->endTrans(true);
 	return MSG_SUCCESS;
 }
 
 msg_error_t MsgStoUpdatePushEvent(MSG_PUSH_EVENT_INFO_S* pSrc, MSG_PUSH_EVENT_INFO_S* pDst)
 {
+	MsgDbHandler *dbHandle = getDbHandle();
 	char sqlQuery[MAX_QUERY_LEN+1];
-	dbHandle.beginTrans();
+	dbHandle->beginTrans();
 	memset(sqlQuery, 0x00, sizeof(sqlQuery));
 	snprintf(sqlQuery, sizeof(sqlQuery), "UPDATE %s SET CONTENT_TYPE = ?, APP_ID = ?, PKG_NAME = ?, LAUNCH = %d WHERE CONTENT_TYPE LIKE '%s' AND APP_ID LIKE '%s' AND PKG_NAME LIKE '%s';",
 			MSGFW_PUSH_CONFIG_TABLE_NAME, pDst->bLaunch, pSrc->contentType, pSrc->appId, pSrc->pkgName);
 
-	if (dbHandle.prepareQuery(sqlQuery) != MSG_SUCCESS) {
-		dbHandle.endTrans(false);
+	if (dbHandle->prepareQuery(sqlQuery) != MSG_SUCCESS) {
+		dbHandle->endTrans(false);
 		return MSG_ERR_DB_EXEC;
 	}
 
-	dbHandle.bindText(pDst->contentType, 1);
-	dbHandle.bindText(pDst->appId, 2);
-	dbHandle.bindText(pDst->pkgName, 3);
+	dbHandle->bindText(pDst->contentType, 1);
+	dbHandle->bindText(pDst->appId, 2);
+	dbHandle->bindText(pDst->pkgName, 3);
 
-	if (dbHandle.stepQuery() != MSG_ERR_DB_DONE) {
-		dbHandle.finalizeQuery();
-		dbHandle.endTrans(false);
+	if (dbHandle->stepQuery() != MSG_ERR_DB_DONE) {
+		dbHandle->finalizeQuery();
+		dbHandle->endTrans(false);
 		return MSG_ERR_DB_EXEC;
 	}
 
-	dbHandle.finalizeQuery();
-	dbHandle.endTrans(true);
+	dbHandle->finalizeQuery();
+	dbHandle->endTrans(true);
 
 	return MSG_SUCCESS;
 }

@@ -1,20 +1,17 @@
 /*
- * msg-service
- *
- * Copyright (c) 2000 - 2014 Samsung Electronics Co., Ltd. All rights reserved
+ * Copyright (c) 2014 Samsung Electronics Co., Ltd. All rights reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
 */
 
 #include <stdio.h>
@@ -26,6 +23,8 @@
 #include <string.h>
 #include <dirent.h>
 #include <unistd.h>	//sync()
+#include <fcntl.h>
+#include <libgen.h>
 
 #include "MsgStorageTypes.h"
 #include "MsgDebug.h"
@@ -47,7 +46,7 @@ FILE *MsgOpenFile(const char *filepath, const char *opt)
 		return NULL;
 	}
 
-	MSG_DEBUG("[FILE] filepath : [%s], opt [%s]", filepath, opt);
+	MSG_SEC_DEBUG("[FILE] filepath : [%s], opt [%s]", filepath, opt);
 
 	FILE *pFile = NULL;
 
@@ -224,14 +223,19 @@ bool MsgCreateFileName(char *pFileName)
 
 bool MsgOpenAndReadFile(const char *pFileName, char **ppData, int *pDataSize)
 {
+	if (!pFileName || !ppData || !pDataSize) {
+		MSG_ERR("Invalid params!! pFileName=%x, ppData=%x, pDataSize=%x", pFileName, ppData, pDataSize);
+		return false;
+	}
+
 	MSG_DEBUG("MsgOpenAndReadFile");
 
 	FILE *pFile = NULL;
 
 	char fullPath[MAX_FULL_PATH_SIZE] = {0};
 
-	snprintf(fullPath, MAX_FULL_PATH_SIZE, "%s/%s", MSG_IPC_DATA_PATH, pFileName);
-	MSG_DEBUG("open file name: %s", fullPath);
+	snprintf(fullPath, MAX_FULL_PATH_SIZE, "%s%s", MSG_IPC_DATA_PATH, pFileName);
+	MSG_SEC_DEBUG("open file name: %s", fullPath);
 
 
 	pFile = MsgOpenFile(fullPath, "rb");
@@ -305,7 +309,7 @@ bool MsgWriteIpcFile(const char *pFileName, const char *pData, int DataSize)
 
 	char fullPath[MAX_FULL_PATH_SIZE] = {0};
 
-	snprintf(fullPath, MAX_FULL_PATH_SIZE, "%s/%s", MSG_IPC_DATA_PATH, pFileName);
+	snprintf(fullPath, MAX_FULL_PATH_SIZE, "%s%s", MSG_IPC_DATA_PATH, pFileName);
 
 	FILE *pFile = MsgOpenFile(fullPath, "wb+");
 
@@ -329,11 +333,11 @@ bool MsgWriteIpcFile(const char *pFileName, const char *pData, int DataSize)
 	MsgFflush(pFile);
 	MsgCloseFile(pFile);
 
-	if (chmod(fullPath, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP ) != 0) {
+	if (MsgChmod(fullPath, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP ) == false) {
 		MSG_DEBUG("File chmod Error: %s", strerror(errno));
 	}
 
-	if (chown(fullPath, 0, 6502 ) != 0) {
+	if (MsgChown(fullPath, 0, 6502 ) == false) {
 		MSG_DEBUG("File chown Error: %s", strerror(errno));
 	}
 
@@ -350,9 +354,9 @@ int MsgReadSmilFile(const char *pFileName, char **ppData)
 	int	nSize = 0;
 	char fullPath[MAX_FULL_PATH_SIZE] = {0};
 
-	snprintf(fullPath, MAX_FULL_PATH_SIZE, "%s/%s", MSG_SMIL_FILE_PATH, pFileName);
+	snprintf(fullPath, MAX_FULL_PATH_SIZE, "%s%s", MSG_SMIL_FILE_PATH, pFileName);
 
-	MSG_DEBUG("open file name: %s", fullPath);
+	MSG_SEC_DEBUG("open file name: %s", fullPath);
 
 	FILE *pFile = MsgOpenFile(fullPath, "rb");
 
@@ -376,6 +380,7 @@ int MsgReadSmilFile(const char *pFileName, char **ppData)
 	}
 
 	*ppData = new char[FileSize + 1];
+	memset(*ppData, 0x00, (FileSize+1));
 
 	if (MsgFseek(pFile, 0L, SEEK_SET) < 0) {
 		MsgCloseFile(pFile);
@@ -389,10 +394,9 @@ int MsgReadSmilFile(const char *pFileName, char **ppData)
 		return -1;
 	}
 
-	ppData[FileSize] = '\0';
+	//ppData[FileSize] = '\0';
 
 	nSize = FileSize;
-
 	MsgCloseFile(pFile);
 
 	return nSize;
@@ -408,9 +412,9 @@ bool MsgWriteSmilFile(const char *pFilePath,char *pData, int DataSize)
 
 	if (mkdir(MSG_SMIL_FILE_PATH, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH) < 0) {
 		if (errno == EEXIST) {
-			MSG_DEBUG("The %s already exists", MSG_SMIL_FILE_PATH);
+			MSG_SEC_DEBUG("The %s already exists", MSG_SMIL_FILE_PATH);
 		} else {
-			MSG_DEBUG("Error while mkdir %s", MSG_SMIL_FILE_PATH);
+			MSG_SEC_DEBUG("Error while mkdir %s", MSG_SMIL_FILE_PATH);
 		}
 	}
 
@@ -455,7 +459,7 @@ void MsgDeleteFile(const char *pFileName)
 	char fullPath[MAX_FULL_PATH_SIZE] = {0};
 
 	try {
-		snprintf(fullPath, MAX_FULL_PATH_SIZE, "%s/%s", MSG_IPC_DATA_PATH, pFileName);
+		snprintf(fullPath, MAX_FULL_PATH_SIZE, "%s%s", MSG_IPC_DATA_PATH, pFileName);
 
 		MSG_DEBUG("%s", fullPath);
 
@@ -478,7 +482,7 @@ void MsgDeleteSmilFile(const char *pFileName)
 	try {
 		char fullPath[MAX_FULL_PATH_SIZE] = {0};
 
-		snprintf(fullPath, MAX_FULL_PATH_SIZE, "%s/%s", MSG_SMIL_FILE_PATH, pFileName);
+		snprintf(fullPath, MAX_FULL_PATH_SIZE, "%s%s", MSG_SMIL_FILE_PATH, pFileName);
 
 		if (remove(fullPath) != 0)
 			MSG_FATAL("File Delete Error [%s]: %s", fullPath, strerror(errno));
@@ -622,7 +626,7 @@ bool MsgOpenCreateAndOverwriteFile(char *pFullPath, char *pBuff, int TotalLength
 	MsgFflush(pFile);
 	MsgCloseFile(pFile);
 
-	if (chmod(pFullPath, file_mode) < 0)
+	if (!MsgChmod(pFullPath, file_mode))
 		MSG_FATAL("File chmod Error: %s", strerror(errno));
 
 	return true;
@@ -657,11 +661,11 @@ char *MsgOpenAndReadMmsFile( const char *szFilePath, int offset, int size, int *
 	} else {
 		readSize = size;
 	}
-
-	if (readSize > FM_READ_WRITE_BUFFER_MAX) {
-		MSG_DEBUG("MsgOpenAndReadMmsFile: File size tried to read too big");
-		goto __CATCH;
-	}
+// restore Kies backup data size greater than FM_READ_WRITE_BUFFER_MAX
+//	if (readSize > FM_READ_WRITE_BUFFER_MAX) {
+//		MSG_DEBUG("MsgOpenAndReadMmsFile: File size tried to read too big");
+//		goto __CATCH;
+//	}
 
 	pData = (char *)malloc(readSize + 1);
 	if ( NULL == pData ) {
@@ -904,7 +908,7 @@ void MsgMmsInitDir()
 
 			if(strstr(d->d_name, ".dir") != NULL) {
 				char filePath[MSG_FILEPATH_LEN_MAX] = {0,};
-				snprintf(filePath, MSG_FILEPATH_LEN_MAX, "%s/%s", MSG_DATA_PATH, d->d_name);
+				snprintf(filePath, MSG_FILEPATH_LEN_MAX, "%s%s", MSG_DATA_PATH, d->d_name);
 
 				MsgRmRf(filePath);
 				rmdir(filePath);
@@ -924,7 +928,7 @@ bool MsgAccessFile(const char *filepath, int mode)
 		return false;
 	}
 
-	MSG_DEBUG("request access path = %s, mode = %d", filepath, mode);
+	MSG_SEC_DEBUG("request access path = %s, mode = %d", filepath, mode);
 
 	ret = access(filepath, mode);
 
@@ -935,4 +939,142 @@ bool MsgAccessFile(const char *filepath, int mode)
 	}
 
 	return true;
+}
+
+
+bool MsgChmod(const char *filepath, int mode)
+{
+	struct stat lstat_info;
+	struct stat fstat_info;
+	int fd;
+
+	if (lstat(filepath, &lstat_info) == -1) {
+		MSG_SEC_DEBUG("No such file as [%s].", filepath);
+		return false;
+	}
+
+	fd = open(filepath, O_RDONLY);
+
+	if (fd == -1) {
+		MSG_SEC_DEBUG("Fail to open [%s].", filepath);
+		return false;
+	}
+
+	if (fstat(fd, &fstat_info) == -1) {
+		MSG_SEC_DEBUG("Fail to fstat [%s].", filepath);
+		close(fd);
+		return false;
+	}
+
+	if (lstat_info.st_mode == fstat_info.st_mode &&
+			lstat_info.st_ino == fstat_info.st_ino  &&
+			lstat_info.st_dev == fstat_info.st_dev) {
+		if (fchmod(fd, mode) < 0) {
+			MSG_SEC_DEBUG("Fail to fchmod [%s].", filepath);
+			close(fd);
+			return false;
+		}
+	}
+
+	close(fd);
+	return true;
+}
+
+
+bool MsgChown(const char *filepath, int uid, int gid)
+{
+	struct stat lstat_info;
+	struct stat fstat_info;
+	int fd;
+
+	if (lstat(filepath, &lstat_info) == -1) {
+		MSG_SEC_DEBUG("No such file as [%s].", filepath);
+		return false;
+	}
+
+	fd = open(filepath, O_RDONLY);
+
+	if (fd == -1) {
+		MSG_SEC_DEBUG("Fail to open [%s].", filepath);
+		return false;
+	}
+
+	if (fstat(fd, &fstat_info) == -1) {
+		MSG_SEC_DEBUG("Fail to fstat [%s].", filepath);
+		close(fd);
+		return false;
+	}
+
+	if (lstat_info.st_mode == fstat_info.st_mode &&
+			lstat_info.st_ino == fstat_info.st_ino  &&
+			lstat_info.st_dev == fstat_info.st_dev) {
+		if (fchown(fd, uid, gid) < 0) {
+			MSG_SEC_DEBUG("Fail to fchown [%s].", filepath);
+			close(fd);
+			return false;
+		}
+	}
+
+	close(fd);
+	return true;
+}
+
+bool MsgCreateFile(const char *pFilePath,char *pData, int DataSize)
+{
+	if(!pFilePath) {
+		MSG_DEBUG("pFilePath is NULL");
+		return false;
+	}
+
+	FILE *pFile = MsgOpenFile(pFilePath, "wb+");
+
+	if (pFile == NULL) {
+		MSG_DEBUG("File Open Error: %s", strerror(errno));
+		return false;
+	}
+
+	if (MsgFseek(pFile, 0L, SEEK_SET) < 0) {
+		MsgCloseFile(pFile);
+		MSG_DEBUG("File Seek Error: %s", strerror(errno));
+		return false;
+	}
+
+	if (MsgWriteFile(pData, sizeof(char), DataSize, pFile) != (size_t)DataSize) {
+		MsgCloseFile(pFile);
+		MSG_DEBUG("File Write Error: %s", strerror(errno));
+		return false;
+	}
+
+	MsgFflush(pFile);
+	MsgFsync( pFile);
+	MsgCloseFile(pFile);
+
+	return true;
+}
+
+char *MsgGetDirName(char *file_path)
+{
+	char *tmp_path = NULL;
+	tmp_path = g_strdup(file_path);
+
+	char *ret_name = g_strdup(dirname(tmp_path));
+
+	g_free(tmp_path);
+	tmp_path = NULL;
+
+	return ret_name;
+}
+
+
+char *MsgGetFileName(char *file_path)
+{
+	char *tmp_path = NULL;
+	tmp_path = g_strdup(file_path);
+
+	char *ret_name = g_strdup(basename(tmp_path));
+
+	g_free(tmp_path);
+	tmp_path = NULL;
+
+	return ret_name;
 }
