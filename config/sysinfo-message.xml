@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<sys-info>
+	<default>
+		<key id="sms-support" string="true"/>
+		<key id="mms-support" string="true"/>
+		<key id="cbs-support" string="true"/>
+	</default>
+</sys-info>

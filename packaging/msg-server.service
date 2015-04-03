@@ -1,0 +1,16 @@
+[Unit]
+Description=Message server
+After=tizen-runtime.target contacts-service.service
+Requires=tizen-runtime.target contacts-service.service
+
+[Service]
+User=system
+Group=system
+SmackProcessLabel=msg-service
+Type=simple
+ExecStart=/usr/bin/msg-server
+Restart=always
+MemoryLimit=10M
+
+[Install]
+WantedBy=multi-user.target

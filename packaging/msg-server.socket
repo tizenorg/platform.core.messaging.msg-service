@@ -1,0 +1,10 @@
+[Socket]
+SocketUser=system
+SocketGroup=system
+ListenStream=/tmp/.msgfw_socket
+SmackLabelIPIn=msg-service
+SmackLabelIPOut=msg-service
+Service=msg-server.service
+	
+[Install]
+WantedBy=sockets.target 
