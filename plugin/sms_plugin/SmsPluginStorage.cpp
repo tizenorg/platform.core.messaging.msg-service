@@ -768,7 +768,7 @@ void* SmsPluginStorage::class2_thread(void *data)
 	}
 
 	MSG_END();
-	return (void *)err;
+	return NULL;
 }
 
 

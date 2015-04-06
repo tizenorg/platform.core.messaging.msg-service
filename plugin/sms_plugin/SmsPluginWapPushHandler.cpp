@@ -3401,11 +3401,11 @@ void SmsPluginWapPushHandler::wspHeaderDecodeAuth(unsigned long fieldValueLen, u
 	/* skip 'basic' code */
 	iField++;
 	memset(authStr, 0x00, sizeof(authStr));
-	snprintf(authStr, sizeof(authStr), "%%%ds", sizeof(userId));
+	snprintf(authStr, sizeof(authStr), "%%%lus", sizeof(userId));
 	sscanf((char*)(fieldValue + iField), authStr, userId );
 	iField = iField + AcStrlen( (char*)userId ) + 1;
 	memset(authStr, 0x00, sizeof(authStr));
-	snprintf(authStr, sizeof(authStr), "%%%ds", sizeof(passWd));
+	snprintf(authStr, sizeof(authStr), "%%%lus", sizeof(passWd));
 	sscanf( (char*)(fieldValue + iField), authStr, passWd );
 	iField = iField + AcStrlen( (char*)userId ) + 1;
 	snprintf( (char*)*pDecodedString, (sizeof(char)*WSP_STANDARD_STR_LEN_MAX*2), "basic %s/%s", userId, passWd );
@@ -3430,7 +3430,7 @@ void SmsPluginWapPushHandler::wspHeaderDecodeChallenge(unsigned long fieldValueL
 	/* skip 'basic' code */
 	iField++;
 	memset(authStr, 0x00, sizeof(authStr));
-	snprintf(authStr, sizeof(authStr), "%%%ds", sizeof(userId));
+	snprintf(authStr, sizeof(authStr), "%%%lus", sizeof(userId));
 	sscanf( (char*)(fieldValue + iField), authStr, userId );
 	iField = iField + AcStrlen( (char*)userId ) + 1;
 

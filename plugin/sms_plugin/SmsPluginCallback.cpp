@@ -1253,7 +1253,7 @@ void TapiEventNetworkStatusChange(TapiHandle *handle, const char *noti_id, void 
 
 	TelNetworkServiceType_t *type = (TelNetworkServiceType_t *)data;
 
-	MSG_INFO("network status type [%d], simIndex [%d]", *type, (int)user_data);
+	MSG_INFO("network status type [%d]", *type);
 
 	if (*type > TAPI_NETWORK_SERVICE_TYPE_SEARCH) {
 		SmsPluginEventHandler::instance()->handleResendMessage(); // Call Event Handler
@@ -1322,7 +1322,7 @@ void SmsPluginCallback::registerEvent()
 			MSG_DEBUG("tel_register_noti_event is failed : [%s]", TAPI_NOTI_SAT_MO_SM_CONTROL_RESULT);
 		if (tel_register_noti_event(pTapiHandle, TAPI_NOTI_SIM_STATUS, TapiEventSimStatusChange, NULL) != TAPI_API_SUCCESS)
 			MSG_DEBUG("tel_register_noti_event is failed : [%s]", TAPI_NOTI_SIM_STATUS);
-		if (tel_register_noti_event(pTapiHandle, TAPI_PROP_NETWORK_SERVICE_TYPE, TapiEventNetworkStatusChange, (void*)simIndex) != TAPI_API_SUCCESS)
+		if (tel_register_noti_event(pTapiHandle, TAPI_PROP_NETWORK_SERVICE_TYPE, TapiEventNetworkStatusChange, NULL) != TAPI_API_SUCCESS)
 			MSG_DEBUG("tel_register_noti_event is failed : [%s]", TAPI_PROP_NETWORK_SERVICE_TYPE);
 		if (tel_register_noti_event(pTapiHandle, TAPI_NOTI_SIM_REFRESHED, TapiEventSimRefreshed, NULL) != TAPI_API_SUCCESS)
 			MSG_DEBUG("tel_register_noti_event is failed : [%s]", TAPI_NOTI_SIM_REFRESHED);

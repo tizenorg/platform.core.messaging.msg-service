@@ -85,7 +85,7 @@ msg_error_t MsgStoUpdateMMSMessage(MSG_MESSAGE_INFO_S *pMsg)
 		if( pMsg->networkStatus == MSG_NETWORK_RETRIEVE_SUCCESS ) {
 			snprintf(sqlQuery, sizeof(sqlQuery),
 					"UPDATE %s SET MAIN_TYPE = %d, SUB_TYPE = %d, FOLDER_ID = %d, DISPLAY_TIME = %lu, SUBJECT = ?, NETWORK_STATUS = %d, MSG_TEXT = ?, THUMB_PATH = '%s', DATA_SIZE = %d WHERE MSG_ID = %d;",
-					MSGFW_MESSAGE_TABLE_NAME, pMsg->msgType.mainType, pMsg->msgType.subType, pMsg->folderId, pMsg->displayTime, pMsg->networkStatus, pMsg->thumbPath,  pMsg->dataSize, pMsg->msgId);
+					MSGFW_MESSAGE_TABLE_NAME, pMsg->msgType.mainType, pMsg->msgType.subType, pMsg->folderId, pMsg->displayTime, pMsg->networkStatus, pMsg->thumbPath,  pMsg->dataSize, (int)pMsg->msgId);
 
 			if (dbHandle->prepareQuery(sqlQuery) != MSG_SUCCESS) {
 				return MSG_ERR_DB_PREPARE;
@@ -93,7 +93,7 @@ msg_error_t MsgStoUpdateMMSMessage(MSG_MESSAGE_INFO_S *pMsg)
 
 			dbHandle->bindText(pMsg->subject, 1);
 
-			if (pMsg->msgText[0] != '\0' && g_file_get_contents(pMsg->msgText, &pFileData, &fileSize, NULL) == true) {
+			if (pMsg->msgText[0] != '\0' && g_file_get_contents((const gchar*)pMsg->msgText, (gchar**)&pFileData, (gsize*)&fileSize, NULL) == true) {
 				dbHandle->bindText(pFileData, 2);
 			} else {
 				dbHandle->bindText("", 2);
@@ -109,13 +109,13 @@ msg_error_t MsgStoUpdateMMSMessage(MSG_MESSAGE_INFO_S *pMsg)
 			}
 
 //			if (MsgOpenAndReadFile(pMsg->msgText, &pFileData, &fileSize) == false) {
-			if (g_file_get_contents(pMsg->msgText, &pFileData, &fileSize, NULL) == false) {
+			if (g_file_get_contents((gchar*)pMsg->msgText, (gchar**)&pFileData, (gsize*)&fileSize, NULL) == false) {
 				return MSG_ERR_STORAGE_ERROR;
 			}
 
 			dbHandle->bindText(pMsg->subject, 1);
 
-			if (pMsg->msgText[0] != '\0' && g_file_get_contents(pMsg->msgText, &pFileData, &fileSize, NULL) == true) {
+			if (pMsg->msgText[0] != '\0' && g_file_get_contents((gchar*)pMsg->msgText, (gchar**)&pFileData, (gsize*)&fileSize, NULL) == true) {
 				dbHandle->bindText(pFileData, 2);
 			} else {
 				dbHandle->bindText("", 2);
@@ -124,13 +124,13 @@ msg_error_t MsgStoUpdateMMSMessage(MSG_MESSAGE_INFO_S *pMsg)
 	} else if (pMsg->msgType.subType == MSG_SENDREQ_MMS || pMsg->msgType.subType == MSG_RETRIEVE_MMS) {
 		snprintf(sqlQuery, sizeof(sqlQuery),
 				"UPDATE %s SET MSG_TEXT = ?, THUMB_PATH = '%s', DATA_SIZE = %d WHERE MSG_ID = %d;",
-				MSGFW_MESSAGE_TABLE_NAME, pMsg->thumbPath, pMsg->dataSize, pMsg->msgId);
+				MSGFW_MESSAGE_TABLE_NAME, pMsg->thumbPath, pMsg->dataSize, (int)pMsg->msgId);
 
 		if (dbHandle->prepareQuery(sqlQuery) != MSG_SUCCESS) {
 			return MSG_ERR_DB_PREPARE;
 		}
 
-		if (pMsg->msgText[0] != '\0' && g_file_get_contents(pMsg->msgText, &pFileData, &fileSize, NULL) == true) {
+		if (pMsg->msgText[0] != '\0' && g_file_get_contents((gchar*)pMsg->msgText, (gchar**)&pFileData, (gsize*)&fileSize, NULL) == true) {
 			dbHandle->bindText(pFileData, 1);
 		} else {
 			dbHandle->bindText("", 1);

@@ -129,7 +129,7 @@ msg_error_t MsgStoAddMessage(MSG_MESSAGE_INFO_S *pMsg, MSG_SENDINGOPT_INFO_S *pS
 	snprintf(sqlQuery, sizeof(sqlQuery), "INSERT INTO %s VALUES (%d, %d, %d, %d, %d, %d, %u, %d, %d, %d, %d, %d, %d, %d, %d, ?, '', '', ?, 0, %d, '%s');",
 			MSGFW_MESSAGE_TABLE_NAME, rowId, convId, pMsg->folderId, pMsg->storageId, pMsg->msgType.mainType, pMsg->msgType.subType,
 			(unsigned int)pMsg->displayTime, pMsg->dataSize, pMsg->networkStatus, pMsg->bRead, pMsg->bProtected, pMsg->priority, pMsg->direction,
-			0, pMsg->bBackup, pMsg->sim_idx, imsi);
+			0, pMsg->bBackup, (int)pMsg->sim_idx, imsi);
 
 	MSG_DEBUG("QUERY : %s", sqlQuery);
 
@@ -412,7 +412,7 @@ msg_error_t MsgStoUpdateMessage(MSG_MESSAGE_INFO_S *pMsg, MSG_SENDINGOPT_INFO_S 
 			BACKUP = %d, SUBJECT = ?, MSG_TEXT = ? \
 			WHERE MSG_ID = %d;",
 			MSGFW_MESSAGE_TABLE_NAME, convId, pMsg->folderId, pMsg->storageId, pMsg->msgType.mainType, pMsg->msgType.subType, pMsg->displayTime, pMsg->dataSize,
-			pMsg->networkStatus, pMsg->bRead, pMsg->bProtected, pMsg->priority, pMsg->direction, pMsg->bBackup, pMsg->msgId);
+			pMsg->networkStatus, pMsg->bRead, pMsg->bProtected, pMsg->priority, pMsg->direction, pMsg->bBackup, (int)pMsg->msgId);
 
 	if (dbHandle->prepareQuery(sqlQuery) != MSG_SUCCESS) {
 		dbHandle->endTrans(false);
@@ -2832,7 +2832,7 @@ msg_error_t MsgStoRestoreMessage(MSG_MESSAGE_INFO_S *pMsg, MSG_SENDINGOPT_INFO_S
 			snprintf(sqlQuery, sizeof(sqlQuery), "INSERT INTO %s VALUES (%d, %d, %d, %d, %d, %d, %ld, %d, %d, %d, %d, %d, %d, 0, %d, ?, '', '', ?, 0, %d, '%s');",
 					MSGFW_MESSAGE_TABLE_NAME, rowId, pMsg->threadId, pMsg->folderId, pMsg->storageId, pMsg->msgType.mainType, pMsg->msgType.subType,
 					pMsg->displayTime, pMsg->dataSize, pMsg->networkStatus, pMsg->bRead, pMsg->bProtected, pMsg->priority, pMsg->direction,
-					pMsg->bBackup, pMsg->sim_idx, imsi);
+					pMsg->bBackup, (int)pMsg->sim_idx, imsi);
 
 
 			MSG_DEBUG("QUERY : %s", sqlQuery);
