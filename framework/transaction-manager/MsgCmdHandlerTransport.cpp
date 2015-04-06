@@ -394,19 +394,18 @@ int MsgSentStatusHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 	MSG_DEBUG("REQID %d, listenerFD %d, handleAddr %x, msgId %d", pStatus->reqId, prxInfo->listenerFd, prxInfo->handleAddr, prxInfo->sentMsgId);
 
 	// if APP send and quit(not exist at this time), don't send the data up.
-	if (prxInfo->handleAddr == 0)
-	{
-		// just making data which will be passed to plugin. it indicates "handling evt success"
-		MsgTransactionManager::instance()->delProxyInfo(pStatus->reqId);
-
-		return MsgMakeEvent(NULL, 0, MSG_EVENT_PLG_SENT_STATUS_CNF, MSG_SUCCESS, (void**)ppEvent);
-	}
+//	if (prxInfo->handleAddr == 0)
+//	{
+//		// just making data which will be passed to plugin. it indicates "handling evt success"
+//		MsgTransactionManager::instance()->delProxyInfo(pStatus->reqId);
+//
+//		return MsgMakeEvent(NULL, 0, MSG_EVENT_PLG_SENT_STATUS_CNF, MSG_SUCCESS, (void**)ppEvent);
+//	}
 
 	unsigned int ret[3] = {0}; //3// reqid, status, object
 
 	ret[0] = pStatus->reqId;
 	ret[1] = pStatus->status;
-	ret[2] = (unsigned int)prxInfo->handleAddr;
 
 	// Make Event Data for APP
 	int eventSize = MsgMakeEvent(ret, sizeof(ret), MSG_EVENT_PLG_SENT_STATUS_CNF, MSG_SUCCESS, (void**)ppEvent);
