@@ -14,7 +14,9 @@
  * limitations under the License.
 */
 
+#ifndef MSG_WEARABLE_PROFILE
 #include <app_control.h>
+#endif // MSG_WEARABLE_PROFILE
 
 #include "MsgDebug.h"
 #include "MsgUtilFile.h"
@@ -78,6 +80,7 @@ void MsgPlayTTSMode(MSG_SUB_TYPE_T msgSubType, msg_message_id_t msgId, bool isFa
 			}
 		}
 
+#ifndef MSG_WEARABLE_PROFILE
 		app_control_h svc_h;
 
 		int ret = APP_CONTROL_ERROR_NONE;
@@ -120,6 +123,7 @@ void MsgPlayTTSMode(MSG_SUB_TYPE_T msgSubType, msg_message_id_t msgId, bool isFa
 		}
 
 		app_control_destroy(svc_h);
+#endif // MSG_WEARABLE_PROFILE
 	}
 
 	MsgChangePmState();
@@ -131,7 +135,7 @@ void MsgPlayTTSMode(MSG_SUB_TYPE_T msgSubType, msg_message_id_t msgId, bool isFa
 void MsgLaunchClass0(msg_message_id_t msgId)
 {
 	MSG_BEGIN();
-
+#ifndef MSG_WEARABLE_PROFILE
 	app_control_h svc_h;
 
 	int ret = APP_CONTROL_ERROR_NONE;
@@ -176,7 +180,7 @@ void MsgLaunchClass0(msg_message_id_t msgId)
 	}
 
 	app_control_destroy(svc_h);
-
+#endif // MSG_WEARABLE_PROFILE
 	MSG_END();
 }
 
@@ -490,6 +494,7 @@ msg_error_t MsgHandleSMS(MSG_MESSAGE_INFO_S *pMsgInfo, bool *pSendNoti, bool *bO
 		MSG_DEBUG("Starting WAP Message Incoming.");
 
 		MSG_PUSH_SERVICE_TYPE_T serviceType = (MSG_PUSH_SERVICE_TYPE_T)MsgSettingGetInt(PUSH_SERVICE_TYPE);
+#ifndef MSG_WEARABLE_PROFILE
 		app_control_h svc_handle = NULL;
 
 		switch (pMsgInfo->msgType.subType) {
@@ -588,6 +593,7 @@ msg_error_t MsgHandleSMS(MSG_MESSAGE_INFO_S *pMsgInfo, bool *pSendNoti, bool *bO
 				*pSendNoti = false;
 				break;
 		}
+#endif // MSG_WEARABLE_PROFILE
 	} else if (pMsgInfo->msgType.subType == MSG_STATUS_REPORT_SMS) {
 		*pSendNoti = false;
 		*bOnlyNoti = true;

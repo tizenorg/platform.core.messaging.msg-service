@@ -34,8 +34,8 @@
 
 extern "C"
 {
-#include <app_control.h>
 #ifndef MSG_WEARABLE_PROFILE
+#include <app_control.h>
 #include <notification.h>
 #include <notification_internal.h>
 #include <feedback.h>
