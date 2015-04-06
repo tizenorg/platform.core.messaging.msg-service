@@ -3,6 +3,7 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 ##########################################################
 # Set Variables
 ##########################################################
+SET(LIBDIR ${LIB_INSTALL_DIR})
 SET(VOBJECT-LIB msg_vobject)
 SET(UTILS-LIB msg_utils)
 SET(EXTERNALS-LIB msg_externals)
@@ -62,7 +63,7 @@ INSTALL(FILES ${MAPI-HEADERS} DESTINATION include/msg-service)
 #INSTALL(FILES ${MMS-FILES} DESTINATION /opt/etc/msg-service)
 
 CONFIGURE_FILE(msg-service.pc.in msg-service.pc @ONLY)
-INSTALL(FILES ${CMAKE_BINARY_DIR}/msg-service.pc DESTINATION lib/pkgconfig)
+INSTALL(FILES ${CMAKE_BINARY_DIR}/msg-service.pc DESTINATION ${LIBDIR}/pkgconfig)
 
 # LICENSE file
 INSTALL(FILES ${CMAKE_SOURCE_DIR}/LICENSE.APLv2 DESTINATION /usr/share/license/msg-service)

@@ -112,6 +112,7 @@ Description: MMS plugin library
 
 %build
 cmake . -DCMAKE_INSTALL_PREFIX=%{_prefix} \
+        -DLIB_INSTALL_DIR=%{_libdir} \
 %ifarch i586
 -D_TIZEN_I586_ENABLED:BOOL=ON \
 %else
@@ -159,7 +160,7 @@ chown 200:200 %{_libdir}/systemd/system/msg-server.socket
 chmod 660 /opt/usr/dbspace/.msg_service.db
 chmod 660 /opt/usr/dbspace/.msg_service.db-journal
 
-if [ -f /usr/lib/rpm-plugins/msm.so ]
+if [ -f %{_libdir}/rpm-plugins/msm.so ]
 then
 	chsmack -a 'msg-service::db' /opt/usr/dbspace/.msg_service.db*
 fi
