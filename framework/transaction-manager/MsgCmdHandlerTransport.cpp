@@ -406,7 +406,7 @@ int MsgSentStatusHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 
 	ret[0] = pStatus->reqId;
 	ret[1] = pStatus->status;
-	ret[2] = prxInfo->handleAddr;
+	ret[2] = (unsigned int)prxInfo->handleAddr;
 
 	// Make Event Data for APP
 	int eventSize = MsgMakeEvent(ret, sizeof(ret), MSG_EVENT_PLG_SENT_STATUS_CNF, MSG_SUCCESS, (void**)ppEvent);
@@ -684,7 +684,7 @@ __BYPASS_UPDATE:
 
 				ret[0] = reqID;
 				ret[1] = msgInfo.networkStatus;
-				ret[2] = prxInfo->handleAddr;
+				ret[2] = (unsigned int)prxInfo->handleAddr;
 
 				// Make Event Data for APP
 				eventsize = MsgMakeEvent(ret, sizeof(ret), MSG_EVENT_PLG_SENT_STATUS_CNF, MSG_SUCCESS, (void**)ppEvent);

@@ -118,7 +118,7 @@ msg_error_t MsgHandle::submitReq(MSG_REQUEST_S* pReq)
 
 	chInfo.listenerFd = MsgProxyListener::instance()->getRemoteFd();
 
-	chInfo.handleAddr = (unsigned int) this;
+	chInfo.handleAddr = (void *)this;
 
 	/* Allocate Memory to Command Data */
 	char* encodedData = NULL;

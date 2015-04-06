@@ -210,7 +210,7 @@ bool MsgProxyListener::regSentStatusEventCB(MsgHandle* pMsgHandle, msg_sent_stat
 
 	for (; it != sentStatusCBList.end(); it++)
 	{
-		if (it->hAddr == pMsgHandle && it->pfSentStatusCB == pfSentStatus) {
+		if ((MsgHandle*)it->hAddr == pMsgHandle && it->pfSentStatusCB == pfSentStatus) {
 			MSG_DEBUG("msg_sent_status_cb() callback : [%p] is already registered!!!", pfSentStatus);
 			return false;
 		}
@@ -232,7 +232,7 @@ bool MsgProxyListener::regMessageIncomingEventCB(MsgHandle* pMsgHandle, msg_sms_
 
 	for (; it != newMessageCBList.end(); it++)
 	{
-		if (it->hAddr == pMsgHandle && it->port == port && it->pfIncomingCB == pfNewMessage) {
+		if ((MsgHandle*)it->hAddr == pMsgHandle && it->port == port && it->pfIncomingCB == pfNewMessage) {
 			MSG_DEBUG("msg_sms_incoming_cb() callback : Port Number [%d] is already registered!!!", port);
 			return false;
 		}
@@ -254,7 +254,7 @@ bool MsgProxyListener::regMMSConfMessageIncomingEventCB(MsgHandle* pMsgHandle, m
 
 	for (; it != newMMSConfMessageCBList.end(); it++)
 	{
-		if (it->hAddr == pMsgHandle && it->pfMMSConfIncomingCB == pfNewMMSConfMessage) {
+		if ((MsgHandle*)it->hAddr == pMsgHandle && it->pfMMSConfIncomingCB == pfNewMMSConfMessage) {
 
 			if(pAppId == NULL) {
 				MSG_DEBUG("msg_mms_conf_msg_incoming_cb() callback is already registered!!!");
@@ -285,7 +285,7 @@ bool MsgProxyListener::regPushMessageIncomingEventCB(MsgHandle* pMsgHandle, msg_
 
 	for (; it != newPushMessageCBList.end(); it++)
 	{
-		if (it->hAddr == pMsgHandle && it->pfPushIncomingCB == pfNewPushMessage) {
+		if ((MsgHandle*)it->hAddr == pMsgHandle && it->pfPushIncomingCB == pfNewPushMessage) {
 
 			if(pAppId == NULL) {
 				MSG_DEBUG("msg_push_msg_incoming_cb() callback is already registered!!!");
@@ -315,7 +315,7 @@ bool MsgProxyListener::regCBMessageIncomingEventCB(MsgHandle* pMsgHandle, msg_cb
 
 	for (; it != newCBMessageCBList.end(); it++)
 	{
-		if (it->hAddr == pMsgHandle && it->pfCBIncomingCB == pfNewCBMessage) {
+		if ((MsgHandle*)it->hAddr == pMsgHandle && it->pfCBIncomingCB == pfNewCBMessage) {
 			MSG_DEBUG("msg_CB_incoming_cb() callback : [%p] is already registered!!!", pfNewCBMessage);
 			 it->bsave = bSave;
 			 it->userParam = pUserParam;
@@ -339,7 +339,7 @@ bool MsgProxyListener::regReportMsgIncomingCB(MsgHandle* pMsgHandle, msg_report_
 
 	for (; it != reportMessageCBList.end(); it++)
 	{
-		if (it->hAddr == pMsgHandle && it->pfReportMsgIncomingCB == pfReportMessage) {
+		if ((MsgHandle*)it->hAddr == pMsgHandle && it->pfReportMsgIncomingCB == pfReportMessage) {
 			MSG_DEBUG("msg_report_msg_incoming_cb() callback : [%p] is already registered!!!", pfReportMessage);
 			 it->userParam = pUserParam;
 			return false;
@@ -362,7 +362,7 @@ bool MsgProxyListener::regSyncMLMessageIncomingEventCB(MsgHandle* pMsgHandle, ms
 
 	for (; it != newSyncMLMessageCBList.end(); it++)
 	{
-		if (it->hAddr == pMsgHandle && it->pfSyncMLIncomingCB == pfNewSyncMLMessage) {
+		if ((MsgHandle*)it->hAddr == pMsgHandle && it->pfSyncMLIncomingCB == pfNewSyncMLMessage) {
 			MSG_DEBUG("msg_syncml_msg_incoming_cb() callback : [%p] is already registered!!!", pfNewSyncMLMessage);
 			return false;
 		}
@@ -384,7 +384,7 @@ bool MsgProxyListener::regLBSMessageIncomingEventCB(MsgHandle* pMsgHandle, msg_l
 
 	for (; it != newLBSMessageCBList.end(); it++)
 	{
-		if (it->hAddr == pMsgHandle && it->pfLBSMsgIncoming == pfNewLBSMsgIncoming) {
+		if ((MsgHandle*)it->hAddr == pMsgHandle && it->pfLBSMsgIncoming == pfNewLBSMsgIncoming) {
 			MSG_DEBUG("msg_lbs_msg_incoming_cb() callback : [%p] is already registered!!!", pfNewLBSMsgIncoming);
 			return false;
 		}
@@ -406,7 +406,7 @@ bool MsgProxyListener::regSyncMLMessageOperationEventCB(MsgHandle* pMsgHandle, m
 
 	for (; it != operationSyncMLMessageCBList.end(); it++)
 	{
-		if (it->hAddr == pMsgHandle && it->pfSyncMLOperationCB == pfSyncMLMessageOperation) {
+		if ((MsgHandle*)it->hAddr == pMsgHandle && it->pfSyncMLOperationCB == pfSyncMLMessageOperation) {
 			MSG_DEBUG("msg_syncml_msg_incoming_cb() callback : [%p] is already registered!!!", pfSyncMLMessageOperation);
 			return false;
 		}
@@ -428,7 +428,7 @@ bool MsgProxyListener::regStorageChangeEventCB(MsgHandle* pMsgHandle, msg_storag
 
 	for (; it != storageChangeCBList.end(); it++)
 	{
-		if (it->hAddr == pMsgHandle && it->pfStorageChangeCB == pfStorageChangeOperation) {
+		if ((MsgHandle*)it->hAddr == pMsgHandle && it->pfStorageChangeCB == pfStorageChangeOperation) {
 			MSG_DEBUG("msg_storage_change_cb() callback : [%p] is already registered!!!", pfStorageChangeOperation);
 			return false;
 		}
@@ -453,7 +453,7 @@ void MsgProxyListener::clearListOfClosedHandle(MsgHandle* pMsgHandle)
 
 	for (; it != sentStatusCBList.end(); )
 	{
-		if (it->hAddr == pMsgHandle)
+		if ((MsgHandle*)it->hAddr == pMsgHandle)
 		{
 			sentStatusCBList.erase(it++);
 
@@ -626,7 +626,7 @@ void MsgProxyListener::handleEvent(const MSG_EVENT_S* pMsgEvent)
 
 		for( ; it != sentStatusCBList.end() ; it++)
 		{
-			MsgHandle* pHandle = it->hAddr;
+			MsgHandle* pHandle = (MsgHandle*)it->hAddr;
 
 			msg_sent_status_cb pfunc = it->pfSentStatusCB;
 
@@ -668,7 +668,7 @@ void MsgProxyListener::handleEvent(const MSG_EVENT_S* pMsgEvent)
 
 		for( ; it != matchList.end(); it++ )
 		{
-			MsgHandle* pHandle = it->hAddr;
+			MsgHandle* pHandle = (MsgHandle*)it->hAddr;
 
 			MSG_MESSAGE_HIDDEN_S msgHidden = {0,};
 
@@ -785,7 +785,7 @@ void MsgProxyListener::handleEvent(const MSG_EVENT_S* pMsgEvent)
 
 		for( ; it != matchList.end() ; it++)
 		{
-			MsgHandle* pHandle = it->hAddr;
+			MsgHandle* pHandle = (MsgHandle*)it->hAddr;
 
 			MSG_MESSAGE_HIDDEN_S msgHidden = {0,};
 
@@ -870,7 +870,7 @@ void MsgProxyListener::handleEvent(const MSG_EVENT_S* pMsgEvent)
 
 		for( ; it != newSyncMLMessageCBList.end() ; it++)
 		{
-			MsgHandle* pHandle = it->hAddr;
+			MsgHandle* pHandle = (MsgHandle*)it->hAddr;
 
 			msg_syncml_msg_incoming_cb pfunc = it->pfSyncMLIncomingCB;
 
@@ -891,7 +891,7 @@ void MsgProxyListener::handleEvent(const MSG_EVENT_S* pMsgEvent)
 
 		for( ; it != newLBSMessageCBList.end() ; it++)
 		{
-			MsgHandle* pHandle = it->hAddr;
+			MsgHandle* pHandle = (MsgHandle*)it->hAddr;
 
 			msg_lbs_msg_incoming_cb pfunc = it->pfLBSMsgIncoming;
 
@@ -919,7 +919,7 @@ void MsgProxyListener::handleEvent(const MSG_EVENT_S* pMsgEvent)
 
 		for( ; it != operationSyncMLMessageCBList.end() ; it++)
 		{
-			MsgHandle* pHandle = it->hAddr;
+			MsgHandle* pHandle = (MsgHandle*)it->hAddr;
 
 			msg_syncml_msg_operation_cb pfunc = it->pfSyncMLOperationCB;
 
@@ -953,7 +953,7 @@ void MsgProxyListener::handleEvent(const MSG_EVENT_S* pMsgEvent)
 
 		for( ; it != storageChangeCBList.end() ; it++)
 		{
-			MsgHandle* pHandle = it->hAddr;
+			MsgHandle* pHandle = (MsgHandle*)it->hAddr;
 
 			msg_storage_change_cb pfunc = it->pfStorageChangeCB;
 
@@ -975,7 +975,7 @@ void MsgProxyListener::handleEvent(const MSG_EVENT_S* pMsgEvent)
 
 		for( ; it != newCBMessageCBList.end() ; it++)
 		{
-			MsgHandle* pHandle = it->hAddr;
+			MsgHandle* pHandle = (MsgHandle*)it->hAddr;
 			msg_struct_s msg = {0,};
 
 			msg.type = MSG_STRUCT_CB_MSG;
@@ -1001,7 +1001,7 @@ void MsgProxyListener::handleEvent(const MSG_EVENT_S* pMsgEvent)
 
 		for( ; it != newPushMessageCBList.end() ; it++)
 		{
-			MsgHandle* pHandle = it->hAddr;
+			MsgHandle* pHandle = (MsgHandle*)it->hAddr;
 
 			msg_push_msg_incoming_cb pfunc = it->pfPushIncomingCB;
 
@@ -1036,7 +1036,7 @@ void MsgProxyListener::handleEvent(const MSG_EVENT_S* pMsgEvent)
 
 		for( ; it != reportMessageCBList.end() ; it++)
 		{
-			MsgHandle* pHandle = it->hAddr;
+			MsgHandle* pHandle = (MsgHandle*)it->hAddr;
 
 			msg_report_msg_incoming_cb pfunc = it->pfReportMsgIncomingCB;
 
