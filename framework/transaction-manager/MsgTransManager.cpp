@@ -20,8 +20,6 @@
 #include <sys/stat.h>
 #include <pthread.h>
 
-#include <security-server.h>
-
 #include "MsgDebug.h"
 #include "MsgMemory.h"
 #include "MsgException.h"
@@ -613,10 +611,52 @@ void MsgTransactionManager::cleanup(int fd)
 }
 
 
-#if 1
 bool MsgTransactionManager::checkPrivilege(int fd, MSG_CMD_TYPE_T CmdType)
 {
 	bool bAllowed = true;
+
+	int ret;
+	char *peer_client = NULL;
+	char *peer_user = NULL;
+	char *peer_session = NULL;
+	pid_t peer_pid;
+
+	if (p_cynara == NULL) {
+		if (this->initCynara() == false) {
+			MSG_ERR("Cynara initialize failed. It will try again when API is called.");
+			bAllowed = false;
+			goto _END_OF_FUNC;
+		}
+	}
+
+	ret = cynara_creds_socket_get_client(fd, client_method, &peer_client);
+	if (ret != CYNARA_API_SUCCESS) {
+		MSG_ERR("cynara_creds_socket_get_client() is failed [%d]", ret);
+		bAllowed = false;
+		goto _END_OF_FUNC;
+	}
+
+	ret = cynara_creds_socket_get_user(fd, user_method, &peer_user);
+	if (ret != CYNARA_API_SUCCESS) {
+		MSG_ERR("cynara_creds_socket_get_user() is failed [%d]", ret);
+		bAllowed = false;
+		goto _END_OF_FUNC;
+	}
+
+	ret =  cynara_creds_socket_get_pid(fd, &peer_pid);
+	if (ret != CYNARA_API_SUCCESS) {
+		MSG_ERR("cynara_creds_socket_get_pid() is failed [%d]", ret);
+		bAllowed = false;
+		goto _END_OF_FUNC;
+	}
+
+	peer_session = cynara_session_from_pid(peer_pid);
+	if (peer_session == NULL) {
+		MSG_ERR("cynara_session_from_pid() is failed");
+		bAllowed = false;
+		goto _END_OF_FUNC;
+	}
+
 	switch(CmdType)
 	{
 	case MSG_CMD_GET_MSG:
@@ -653,9 +693,10 @@ bool MsgTransactionManager::checkPrivilege(int fd, MSG_CMD_TYPE_T CmdType)
 	case MSG_CMD_GET_GENERAL_MSG_OPT:
 	case MSG_CMD_GET_MSG_SIZE_OPT:
 	{
-		int ret = security_server_check_privilege_by_sockfd(fd, "msg-service::read", "rw");
-		if (ret == SECURITY_SERVER_API_ERROR_ACCESS_DENIED) {
-			MSG_DEBUG("No msg-service::read rw rule.");
+		ret = cynara_check(p_cynara, peer_client, peer_session, peer_user,
+				"http://tizen.org/privilege/message.read");
+		if (ret != CYNARA_API_ACCESS_ALLOWED) {
+			MSG_INFO("privilege [read] not allowd : [%d]", ret);
 			bAllowed = false;
 		}
 	}
@@ -696,92 +737,24 @@ bool MsgTransactionManager::checkPrivilege(int fd, MSG_CMD_TYPE_T CmdType)
 	case MSG_CMD_SET_GENERAL_MSG_OPT:
 	case MSG_CMD_SET_MSG_SIZE_OPT:
 	{
-		int ret = security_server_check_privilege_by_sockfd(fd, "msg-service::write", "rw");
-		if (ret == SECURITY_SERVER_API_ERROR_ACCESS_DENIED) {
-			MSG_DEBUG("No msg-service::write rw rule.");
+		ret = cynara_check(p_cynara, peer_client, peer_session, peer_user,
+				"http://tizen.org/privilege/message.write");
+		if (ret != CYNARA_API_ACCESS_ALLOWED) {
+			MSG_INFO("privilege [write] not allowd : [%d]", ret);
 			bAllowed = false;
 		}
 	}
 	break;
 	}
 
+_END_OF_FUNC:
+	MSG_FREE(peer_client);
+	MSG_FREE(peer_user);
+	MSG_FREE(peer_session);
+
 	return bAllowed;
 }
-#else
-bool MsgTransactionManager::checkPrivilege(MSG_CMD_TYPE_T CmdType, const char *pCookie)
-{
-	if (CmdType >= MSG_CMD_PLG_SENT_STATUS_CNF && CmdType <= MSG_CMD_PLG_INIT_SIM_BY_SAT)
-	{
-		MSG_DEBUG("Request from Plug-in");
-		return true;
-	}
 
-	// Get Cookie from APP
-	if (pCookie == NULL)
-	{
-		MSG_DEBUG("Cookie is NULL");
-		return false;
-	}
-
-#ifdef MSG_FOR_DEBUG
-	for (int i = 0; i < MAX_COOKIE_LEN; i++)
-	{
-		MSG_DEBUG("cookie : [%02x]", pCookie[i]);
-	}
-#endif
-
-	// Check Cookie
-	size_t cookieSize;
-	gid_t gid;
-
-	cookieSize = security_server_get_cookie_size();
-
-	MSG_DEBUG("cookie size : [%d]", cookieSize);
-
-//	char cookie[MAX_COOKIE_LEN];
-
-	// Get GID
-	if (CmdType == MSG_CMD_REG_INCOMING_SYNCML_MSG_CB)
-	{
-		MSG_DEBUG("get GID for message_sync");
-		gid = security_server_get_gid("message_sync");
-	}
-	else if (CmdType == MSG_CMD_REG_INCOMING_LBS_MSG_CB)
-	{
-		MSG_DEBUG("get GID for message_lbs");
-		gid = security_server_get_gid("message_lbs");
-	}
-	else
-	{
-		MSG_DEBUG("get GID for message");
-		gid = security_server_get_gid("message");
-	}
-
-	MSG_DEBUG("gid [%d]", gid);
-
-	int retVal = 0;
-
-	retVal = security_server_check_privilege(pCookie, gid);
-
-	if (retVal < 0)
-	{
-		if (retVal == SECURITY_SERVER_API_ERROR_ACCESS_DENIED)
-		{
-			MSG_DEBUG("access denied !! [%d]", retVal);
-		}
-		else
-		{
-			MSG_DEBUG("fail to check privilege [%d]", retVal);
-		}
-
-		return false;
-	}
-
-	MSG_DEBUG("privilege check success !!");
-
-	return true;
-}
-#endif
 
 void MsgTransactionManager::setSentStatusCB(int listenerFd)
 {
@@ -1331,6 +1304,51 @@ void MsgTransactionManager::getTMStatus()
 	}
 	MSG_END();
 }
+
+bool MsgTransactionManager::initCynara()
+{
+	int ret;
+
+	ret = cynara_initialize(&p_cynara, NULL);
+
+	if (ret == CYNARA_API_SUCCESS) {
+		MSG_INFO("cynara_initialize() is successful");
+	} else {
+		MSG_INFO("cynara_initialize() is failed [%d]", ret);
+		return false;
+	}
+
+	ret = cynara_creds_get_default_client_method(&client_method);
+	if (ret != CYNARA_API_SUCCESS) {
+		MSG_ERR("cynara_creds_get_default_client_method() is failed [%d]", ret);
+		return false;
+	}
+
+	ret = cynara_creds_get_default_user_method(&user_method);
+	if (ret != CYNARA_API_SUCCESS) {
+		MSG_ERR("cynara_creds_get_default_user_method() is failed [%d]", ret);
+		return false;
+	}
+
+	return true;
+}
+
+
+void MsgTransactionManager::finishCynara()
+{
+	int ret;
+
+	ret = cynara_finish(p_cynara);
+
+	if (ret == CYNARA_API_SUCCESS) {
+		MSG_INFO("cynara_finish() is successful");
+	} else {
+		MSG_INFO("cynara_finish() is failed [%d]",ret);
+	}
+
+	p_cynara = NULL;
+}
+
 
 #ifdef MSG_PENDING_PUSH_MESSAGE
 void MsgTransactionManager::sendPendingPushMsg(void)

@@ -17,8 +17,6 @@
 #include <errno.h>
 #include <stdlib.h>
 
-#include <security-server.h>
-
 #include "MsgDebug.h"
 #include "MsgCppTypes.h"
 #include "MsgException.h"
@@ -47,9 +45,6 @@ MsgHandle::~MsgHandle()
 
 void MsgHandle::openHandle()
 {
-//	int ret = 0;
-//	size_t cookieSize;
-
 	bool bReady = false;
 
 	// server is currently booting and service is not available until the end of booting
@@ -61,22 +56,8 @@ void MsgHandle::openHandle()
 		MSG_INFO("Msg Server is ready !!!!!");
 	}
 
-	// Get Cookie Size
-//	cookieSize = security_server_get_cookie_size();
-
-//	MSG_DEBUG("cookie size : [%d]", cookieSize);
-
-	// Request Cookie
-//	ret = security_server_request_cookie(mCookie, cookieSize);
-
-//	if (ret < 0) {
-//		MSG_DEBUG("security_server_request_cookie() error!! [%d]", ret);
-//		return;
-//	}
-
 	// Open Socket IPC
 	connectSocket();
-//	getDbHandle(); /* register db handler */
 }
 
 

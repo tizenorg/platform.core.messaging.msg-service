@@ -31,7 +31,10 @@
 #include "MsgInternalTypes.h"
 #include "MsgTransportTypes.h"
 
-
+#include <cynara-client.h>
+#include <cynara-creds-socket.h>
+#include <cynara-session.h>
+#include <cynara-creds-commons.h>
 
 
 /*==================================================================================================
@@ -99,6 +102,9 @@ public:
 	void setTMStatus();
 	void getTMStatus();
 
+	bool initCynara();
+	void finishCynara();
+
 private:
 	MsgTransactionManager();
 	~MsgTransactionManager();
@@ -135,6 +141,10 @@ private:
 	Mutex mx;
 	CndVar cv;
 	MsgSimpleQ<MSG_CMD_S*> eventQueue;
+
+	cynara *p_cynara;
+	enum cynara_client_creds client_method;
+	enum cynara_user_creds user_method;
 };
 
 #endif //MSG_TRANSACTION_MANAGER_H

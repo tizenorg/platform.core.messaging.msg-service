@@ -180,6 +180,10 @@ void* StartMsgServer(void*)
 {
 	try
 	{
+		if (MsgTransactionManager::instance()->initCynara() == false) {
+			MSG_ERR("Cynara initialize failed. It will try again when API is called.");
+		}
+
 		MsgTransactionManager::instance()->run();
 	}
 	catch (MsgException& e)
@@ -249,6 +253,8 @@ int main(void)
 	{
 		MSG_DEBUG("Fail to start Messaging Framework!!!");
 	}
+
+	MsgTransactionManager::instance()->finishCynara();
 
 	// Remove vconf CB
 	MsgSettingRemoveVconfCB();

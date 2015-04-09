@@ -31,7 +31,7 @@ INCLUDE_DIRECTORIES(
 )
 
 INCLUDE(FindPkgConfig)
-pkg_check_modules(trans_proxy_pkgs REQUIRED glib-2.0 dlog vconf security-server db-util)
+pkg_check_modules(trans_proxy_pkgs REQUIRED glib-2.0 dlog vconf db-util)
 
 FOREACH(flag ${trans_proxy_pkgs_CFLAGS})
 	SET(EXTRA_CFLAGS "${EXTRA_CFLAGS} ${flag}")

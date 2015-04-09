@@ -108,7 +108,7 @@ INCLUDE_DIRECTORIES(
 )
 
 INCLUDE(FindPkgConfig)
-pkg_check_modules(trans_manager_pkgs REQUIRED glib-2.0 security-server dlog vconf)
+pkg_check_modules(trans_manager_pkgs REQUIRED glib-2.0 dlog vconf cynara-client cynara-creds-socket cynara-session cynara-creds-commons)
 
 FOREACH(flag ${trans_manager_pkgs_CFLAGS})
 	SET(EXTRA_CFLAGS "${EXTRA_CFLAGS} ${flag}")

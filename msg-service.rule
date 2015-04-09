@@ -22,7 +22,6 @@ msg-service data-provider-master::notification.client -w---- ------
 msg-service data-provider-master::badge rw---- ------
 msg-service data-provider-master::badge.client -w---- ------
 msg-service oma-dm-agent::vconf_external r----- ------
-msg-service secure-storage rw---- ------
 msg-service deviced::display rw---- ------
 msg-service net-config rw---- ------
 msg-service connman rw---- ------
@@ -31,9 +30,6 @@ msg-service connman::set rw---- ------
 msg-service connman::profile rw---- ------
 msg-service aul::launch --x--- ------
 msg-service alarm-server::alarm rw---- ------
-msg-service security-server::api-get-gid -w---- ------
-msg-service security-server::api-cookie-check -w---- ------
-msg-service security-server::api-privilege-by-pid -w---- ------
 msg-service device::app_logging -w---- ------
 msg-service device::sys_logging -w---- ------
 msg-service system::share -wx--- ------
