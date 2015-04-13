@@ -195,6 +195,8 @@ void* StartMsgServer(void*)
 		MSG_FATAL("%s", e.what());
 	}
 
+	MsgTransactionManager::instance()->finishCynara();
+
 	if (g_main_loop_is_running(mainloop))
 		g_main_loop_quit(mainloop);
 
@@ -253,8 +255,6 @@ int main(void)
 	{
 		MSG_DEBUG("Fail to start Messaging Framework!!!");
 	}
-
-	MsgTransactionManager::instance()->finishCynara();
 
 	// Remove vconf CB
 	MsgSettingRemoveVconfCB();
