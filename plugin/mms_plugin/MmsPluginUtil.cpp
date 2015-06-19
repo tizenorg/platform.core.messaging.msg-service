@@ -17,15 +17,52 @@
 #include <mm_file.h>
 #include <mm_util_jpeg.h>
 #include <mm_util_imgp.h>
-#include <media-thumbnail.h>
+#include <thumbnail_util.h>
+#include <image_util.h>
+
 #include <ctype.h>
 #include <errno.h>
 #include <sys/stat.h>
 #include "MsgUtilFile.h"
+#include "MsgMutex.h"
 #include "MmsPluginDebug.h"
 #include "MmsPluginUtil.h"
 #include <string>
+
 using namespace std;
+
+
+Mutex g_mx;
+CndVar g_cv;
+
+void thumbnail_completed_cb(thumbnail_util_error_e error, const char *request_id,
+									int thumb_width, int thumb_height,
+									unsigned char *thumb_data, int thumb_size, void *user_data)
+{
+	if (!user_data) {
+		MSG_DEBUG("dstPath is NULL");
+		return;
+	}
+
+	MSG_BEGIN();
+
+	g_mx.lock();
+	MSG_DEBUG("=================[RESULT]");
+	MSG_DEBUG("error_code [%d]", error);
+	MSG_DEBUG("request id [%s]", request_id);
+	MSG_DEBUG("width [%d], height [%d]", thumb_width, thumb_height);
+	MSG_DEBUG("raw_data [0x%x], size [%d]", *thumb_data, thumb_size);
+
+	int ret = 0;
+	ret = image_util_encode_jpeg(thumb_data, thumb_width, thumb_height, IMAGE_UTIL_COLORSPACE_BGRA8888, 90, (char *)user_data);;
+	if (ret != IMAGE_UTIL_ERROR_NONE)
+		MSG_DEBUG("image_util_encode_jpeg() is failed");
+
+	g_cv.signal();
+	g_mx.unlock();
+
+	MSG_END();
+}
 
 bool MmsMakeImageThumbnail(char *srcPath, char *dstPath)
 {
@@ -38,11 +75,38 @@ bool MmsMakeImageThumbnail(char *srcPath, char *dstPath)
 		MSG_DEBUG("not exist source file [%s]", srcPath);
 		return false;
 	}
-#ifndef MSG_CONTACTS_SERVICE_NOT_SUPPORTED
-	int err = -1;
-	err = thumbnail_request_save_to_file(srcPath, MEDIA_THUMB_LARGE, dstPath);
-	if (err < 0) {
-		MSG_DEBUG("Make thumbnail: failed, err = %d", err);
+
+	g_mx.lock();
+
+	int time_ret = 0;
+
+	int ret = THUMBNAIL_UTIL_ERROR_NONE;
+	char *req_id = NULL;
+	thumbnail_h thumb_h;
+	thumbnail_util_create(&thumb_h);
+//	thumbnail_util_set_size(thumb_h, 240, 240);
+	thumbnail_util_set_path(thumb_h, srcPath);
+	MSG_DEBUG("thumbnail_util_extract");
+
+	ret = thumbnail_util_extract(thumb_h, thumbnail_completed_cb, dstPath, &req_id);
+	thumbnail_util_destroy(thumb_h);
+	if (req_id) {
+		g_free(req_id);
+		req_id = NULL;
+	}
+
+	if (ret != THUMBNAIL_UTIL_ERROR_NONE) {
+		MSG_DEBUG("thumbnail_util_extract is failed");
+		g_mx.unlock();
+		return false;
+	}
+
+	time_ret = g_cv.timedwait(g_mx.pMutex(), 5);
+
+	g_mx.unlock();
+
+	if (time_ret == ETIMEDOUT) {
+		MSG_INFO("@@ WAKE by timeout@@");
 		return false;
 	}
 
@@ -52,7 +116,6 @@ bool MmsMakeImageThumbnail(char *srcPath, char *dstPath)
 	}
 
 	MSG_DEBUG("Make thumbnail: success [%s]", dstPath);
-#endif
 	return true;
 }
 
