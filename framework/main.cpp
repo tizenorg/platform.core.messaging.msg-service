@@ -38,7 +38,6 @@
 
 #include <errno.h>
 #include <glib.h>
-#include <dbus/dbus-glib.h>
 #include <sys/stat.h>
 #include <wait.h>
 
