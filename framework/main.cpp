@@ -238,8 +238,6 @@ int main(void)
 		return -1;
 	}
 
-	// Regist vconf CB.
-	MsgSettingRegVconfCB();
 
 	mainloop = g_main_loop_new(NULL, FALSE);
 
@@ -255,8 +253,6 @@ int main(void)
 		MSG_DEBUG("Fail to start Messaging Framework!!!");
 	}
 
-	// Remove vconf CB
-	MsgSettingRemoveVconfCB();
 	//contacts-service is not used for gear
 #ifndef MSG_CONTACTS_SERVICE_NOT_SUPPORTED
 	// Close Contact Sevice

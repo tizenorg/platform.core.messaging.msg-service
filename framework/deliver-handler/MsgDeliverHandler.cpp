@@ -42,7 +42,7 @@
 void MsgPlayTTSMode(MSG_SUB_TYPE_T msgSubType, msg_message_id_t msgId, bool isFavorites)
 {
 	MSG_BEGIN();
-
+#if 0
 	bool bNotification = true;
 
 	if (MsgSettingGetBool(MSG_SETTING_NOTIFICATION, &bNotification) != MSG_SUCCESS) {
@@ -127,7 +127,7 @@ void MsgPlayTTSMode(MSG_SUB_TYPE_T msgSubType, msg_message_id_t msgId, bool isFa
 	}
 
 	MsgChangePmState();
-
+#endif
 	MSG_END();
 }
 
@@ -215,6 +215,8 @@ msg_error_t MsgHandleMmsConfIncomingMsg(MSG_MESSAGE_INFO_S *pMsgInfo, msg_reques
 
 			// MMS Received Ind Process Func
 			MsgPlugin *plg = MsgPluginManager::instance()->getPlugin(pMsgInfo->msgType.mainType);
+			if (plg == NULL)
+				return MSG_ERR_NULL_POINTER;
 
 			//Contents of msg Data was removed and replaced to retrievedFilePath
 			// NOTICE:: now it was moved to handleEvent in MsgListnerThread
@@ -625,6 +627,9 @@ msg_error_t MsgHandleMMS(MSG_MESSAGE_INFO_S *pMsgInfo,  bool *pSendNoti)
 	// MMS Received Ind Process Func
 	MSG_MAIN_TYPE_T msgMainType = pMsgInfo->msgType.mainType;
 	MsgPlugin *plg = MsgPluginManager::instance()->getPlugin(msgMainType);
+
+	if (plg == NULL)
+		return MSG_ERR_NULL_POINTER;
 
 	// Read the default network SIM
 	MsgPlugin *sms_plg = MsgPluginManager::instance()->getPlugin(MSG_SMS_TYPE);

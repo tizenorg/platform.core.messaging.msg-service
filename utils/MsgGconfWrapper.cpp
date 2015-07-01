@@ -20,9 +20,6 @@
 #include "MsgUtilStorage.h"
 #include "MsgGconfWrapper.h"
 #include "MsgException.h"
-#ifdef MSG_PENDING_PUSH_MESSAGE
-#include "MsgIpcSocket.h"
-#endif
 
 #ifdef USE_GCONF
 
@@ -30,10 +27,6 @@
 
 MSG_GOBJECT_CLIENT_S* pClient = NULL;
 
-#endif
-
-#ifdef MSG_PENDING_PUSH_MESSAGE
-int bPushServiceReady = 0;
 #endif
 
 int autoReject = 0;
@@ -44,47 +37,6 @@ bool bUnknownAutoReject = false;
 /*==================================================================================================
                                      FUNCTION IMPLEMENTATION
 ==================================================================================================*/
-static void MsgVconfCB(keynode_t *key, void* data)
-{
-#if 0
-	char *keyStr = NULL;
-	keyStr = vconf_keynode_get_name(key);
-
-	if (!keyStr)
-		return;
-
-	if (!g_strcmp0(keyStr, VCONFKEY_CISSAPPL_AUTO_REJECT_INT)) {
-		autoReject = vconf_keynode_get_int(key);
-		MSG_DEBUG("[%s] key CB called. set to [%d].", VCONFKEY_CISSAPPL_AUTO_REJECT_INT, autoReject);
-	} else if (!g_strcmp0(keyStr, VCONFKEY_CISSAPPL_AUTO_REJECT_UNKNOWN_BOOL)) {
-		bUnknownAutoReject = vconf_keynode_get_bool(key);
-		MSG_DEBUG("[%s] key CB called. set to [%d].", VCONFKEY_CISSAPPL_AUTO_REJECT_UNKNOWN_BOOL, bUnknownAutoReject);
-	}
-#ifdef MSG_PENDING_PUSH_MESSAGE
-	else if (!g_strcmp0(keyStr, VCONFKEY_USER_SERVICE_READY)){
-		bPushServiceReady = vconf_keynode_get_int(key);
-		MSG_DEBUG("[%s] key CB called. set to [%d].", VCONFKEY_USER_SERVICE_READY, bPushServiceReady);
-
-		if(bPushServiceReady)
-		{
-			try {
-				if (MsgSendPendingPushMsg() == MSG_SUCCESS) {
-					MSG_DEBUG("MsgSendPendingPushMsg success");
-				} else {
-					MSG_DEBUG("MsgSendPendingPushMsg fail");
-				}
-			} catch (MsgException& e) {
-				MSG_FATAL("%s", e.what());
-				MSG_DEBUG("MsgSendPendingPushMsg fail");
-			}
-		}
-	}
-#endif
-	else {
-		MSG_DEBUG("key did not match.");
-	}
-#endif
-}
 
 msg_error_t MsgSettingSetString(const char *pKey, const char *pSetValue)
 {
@@ -281,76 +233,4 @@ void MsgSettingRemoveVconfCBCommon(const char *pKey, _vconf_change_cb pCb)
 	} else {
 		MSG_DEBUG("Success to remove vconf CB with [%s]", pKey);
 	}
-}
-
-
-void MsgSettingRegVconfCB()
-{
-#if 0
-	// Set default values.
-	autoReject = MsgSettingGetInt(VCONFKEY_CISSAPPL_AUTO_REJECT_INT);
-	MsgSettingGetBool(VCONFKEY_CISSAPPL_AUTO_REJECT_UNKNOWN_BOOL, &bUnknownAutoReject);
-
-	MsgSettingRegVconfCBCommon(VCONFKEY_CISSAPPL_AUTO_REJECT_INT, MsgVconfCB);
-	MsgSettingRegVconfCBCommon(VCONFKEY_CISSAPPL_AUTO_REJECT_UNKNOWN_BOOL, MsgVconfCB);
-
-#ifdef MSG_PENDING_PUSH_MESSAGE
-	MsgSettingRegVconfCBCommon(VCONFKEY_USER_SERVICE_READY, MsgVconfCB);
-#endif
-#endif
-}
-
-void MsgSettingRemoveVconfCB()
-{
-#if 0
-	MsgSettingRemoveVconfCBCommon(VCONFKEY_CISSAPPL_AUTO_REJECT_INT, MsgVconfCB);
-	MsgSettingRemoveVconfCBCommon(VCONFKEY_CISSAPPL_AUTO_REJECT_UNKNOWN_BOOL, MsgVconfCB);
-#endif
-}
-
-msg_error_t MsgSendPendingPushMsg(void)
-{
-	MSG_BEGIN();
-
-	// establish connection to msgfw daemon
-	MsgIpcClientSocket client;
-	client.connect(MSG_SOCKET_PATH);
-
-	// composing command
-	int cmdSize = sizeof(MSG_CMD_S); // cmd type, MSG_SYNCML_MESSAGE_DATA_S
-
-	MSG_DEBUG("cmdSize: %d", cmdSize);
-
-	char cmdBuf[cmdSize];
-	bzero(cmdBuf, cmdSize);
-	MSG_CMD_S* pCmd = (MSG_CMD_S*) cmdBuf;
-
-	// Set Command Parameters
-	pCmd->cmdType = MSG_CMD_SEND_PENDING_PUSH_MESSAGE;
-
-	memset(pCmd->cmdCookie, 0x00, MAX_COOKIE_LEN);
-
-	// Send Command to Messaging FW
-	client.write(cmdBuf, cmdSize);
-
-	// Receive result from Transaction Manager
-	char* retBuf = NULL;
-	AutoPtr<char> wrap(&retBuf);
-	unsigned int retSize;
-	client.read(&retBuf, &retSize);
-
-	// close connection to msgfw daemon
-	client.close();
-
-	// Decoding the result from FW and Returning it to plugin
-	// the result is used for making delivery report
-	MSG_EVENT_S* pEvent = (MSG_EVENT_S*)retBuf;
-
-	if (pEvent->eventType != MSG_EVENT_SEND_PENDING_PUSH_MESSAGE)
-		MSG_FATAL("Wrong result(evt type %d : %s) received", pEvent->eventType, MsgDbgEvtStr(pEvent->eventType));
-		//THROW(MsgException::INCOMING_MSG_ERROR, "Wrong result(evt type %d : %s) received", pEvent->eventType, MsgDbgEvtStr(pEvent->eventType));
-
-	MSG_END();
-
-	return (pEvent->result);
 }

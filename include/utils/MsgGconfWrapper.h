@@ -60,13 +60,7 @@ msg_error_t 	MsgSettingSetIndicator(int SmsCnt, int MmsCnt);
 int	MsgSettingGetAutoReject();
 bool	MsgSettingGetUnknownAutoReject();
 
-void	MsgSettingRegVconfCB();
-void	MsgSettingRemoveVconfCB();
-
 void MsgSettingRegVconfCBCommon(const char *pKey, _vconf_change_cb pCb);
 void MsgSettingRemoveVconfCBCommon(const char *pKey, _vconf_change_cb pCb);
 
-#ifdef MSG_PENDING_PUSH_MESSAGE
-msg_error_t MsgSendPendingPushMsg(void);
-#endif
 #endif // MSG_GCONF_WRAPPER_H

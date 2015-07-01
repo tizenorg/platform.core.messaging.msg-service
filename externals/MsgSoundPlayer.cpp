@@ -43,7 +43,7 @@
 ==================================================================================================*/
 #define MAX_SOUND_FILE_LEN 1024
 
-#define DEFAULT_ALERT_FILE		"/opt/usr/share/settings/Alerts/notification_sdk.wav"
+#define DEFAULT_ALERT_FILE		"/opt/usr/share/settings/Alerts/Whistle.ogg"
 
 #define HAPTIC_TEST_ITERATION 1
 #define MSG_VIBRATION_INTERVAL 3000
@@ -202,13 +202,7 @@ MsgSoundPlayer* MsgSoundPlayer::instance()
 
 void MsgSoundPlayer::MsgGetRingtonePath(char *userRingtonePath, char **msg_tone_file_path_p)
 {
-
 #ifndef MSG_WEARABLE_PROFILE
-	char *tmpFilePath = NULL;
-	*msg_tone_file_path_p = new char[MSG_FILEPATH_LEN_MAX+1];
-
-	char *msg_tone_file_path = *msg_tone_file_path_p;
-
 	MSG_RINGTONE_TYPE_T ringtoneType = (MSG_RINGTONE_TYPE_T)MsgSettingGetInt(MSG_SETTING_RINGTONE_TYPE);
 
 	MSG_DEBUG("Ringtone type = [%d]", ringtoneType);
@@ -218,7 +212,13 @@ void MsgSoundPlayer::MsgGetRingtonePath(char *userRingtonePath, char **msg_tone_
 		return;
 	}
 
-	if(userRingtonePath && userRingtonePath[0] != '\0') {
+	char *tmpFilePath = NULL;
+	*msg_tone_file_path_p = new char[MSG_FILEPATH_LEN_MAX+1];
+
+	char *msg_tone_file_path = *msg_tone_file_path_p;
+
+	bool bUserRingtone = userRingtonePath && userRingtonePath[0] != '\0';
+	if (bUserRingtone) {
 		tmpFilePath = userRingtonePath;
 	} else {
 		if (ringtoneType == MSG_RINGTONE_TYPE_DEFAULT) {
@@ -241,10 +241,10 @@ void MsgSoundPlayer::MsgGetRingtonePath(char *userRingtonePath, char **msg_tone_
 		}
 	} else {
 		MSG_DEBUG("Set ringtone to tmpFilePath.");
-		strncpy(msg_tone_file_path, tmpFilePath, MSG_FILEPATH_LEN_MAX);
+		snprintf(msg_tone_file_path, MSG_FILEPATH_LEN_MAX, "%s", tmpFilePath);
 	}
 
-	if (tmpFilePath && userRingtonePath[0] == '\0') {
+	if (tmpFilePath && !bUserRingtone) {
 		free(tmpFilePath);
 		tmpFilePath = NULL;
 	}
@@ -321,7 +321,7 @@ void MsgSoundPlayer::MsgGetPlayStatus(bool bVoiceMail, bool *bPlaySound, bool *b
 	MSG_SEC_DEBUG("Msg Setting : Noti Alert=[%d], With vibration=[%d]", bMsgSettingNoti, bMsgSettingVibration);
 
 	int callStatus = 0;
-	int alertOnCall = 0;
+//	int alertOnCall = 0;
 
 	callStatus = MsgSettingGetInt(VCONFKEY_CALL_STATE);
 	MSG_DEBUG("Call Status [%d]", callStatus);
@@ -331,7 +331,7 @@ void MsgSoundPlayer::MsgGetPlayStatus(bool bVoiceMail, bool *bPlaySound, bool *b
 		/* 1. On Call */
 
 		*bOnCall = true; // set call status;
-
+#if 0
 		alertOnCall = MsgSettingGetInt(VCONFKEY_CISSAPPL_ALERT_ON_CALL_INT);
 		MSG_DEBUG("Alert On Call [%d]", alertOnCall);
 
@@ -368,11 +368,11 @@ void MsgSoundPlayer::MsgGetPlayStatus(bool bVoiceMail, bool *bPlaySound, bool *b
 				}
 			}
 		}
+#endif
 	} else {
 		/* 2. Call is not active */
 
 		MSG_DEBUG("Call is not active.");
-		int voiceRecording = MsgSettingGetInt(VCONFKEY_VOICERECORDER_STATE);
 
 		if (bVoiceMail) {	/* 2-1. Voice message */
 			if (bMsgSettingNoti) {
@@ -391,22 +391,18 @@ void MsgSoundPlayer::MsgGetPlayStatus(bool bVoiceMail, bool *bPlaySound, bool *b
 			}
 		} else {	/* 2-1. Normal message */
 			if (bMsgSettingNoti) {
-				if (voiceRecording != VCONFKEY_VOICERECORDER_RECORDING) {
-					if (bSoundOn) {
-						MSG_DEBUG("Play sound.");
-						*bPlaySound = true;
-					} else {
-						MSG_DEBUG("It doesn't play vibration.");
-					}
-
-					if ((bSoundOn || bVibrationOn) && bMsgSettingVibration) {
-						MSG_DEBUG("Play vibration.");
-						*bPlayVibration = true;
-					} else {
-						MSG_DEBUG("It doesn't play vibration.");
-					}
+				if (bSoundOn) {
+					MSG_DEBUG("Play sound.");
+					*bPlaySound = true;
 				} else {
-					MSG_DEBUG("It doesn't play sound/vibration.");
+					MSG_DEBUG("It doesn't play vibration.");
+				}
+
+				if ((bSoundOn || bVibrationOn) && bMsgSettingVibration) {
+					MSG_DEBUG("Play vibration.");
+					*bPlayVibration = true;
+				} else {
+					MSG_DEBUG("It doesn't play vibration.");
 				}
 			} else {
 				MSG_DEBUG("It doesn't play sound/vibration.");

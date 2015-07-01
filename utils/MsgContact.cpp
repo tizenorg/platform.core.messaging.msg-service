@@ -220,21 +220,6 @@ void normalizeNumber(const char *orig, char* dest, unsigned int destSize)
 }
 
 
-//static void MsgContactSvcCallback(const char *view_uri, void *user_data)
-//{
-//	MSG_DEBUG("MsgContactSvcCallback is called.");
-//	if (!strcmp(CONTACT_CALLBACK_USER_DATA, (const char*)user_data)) {
-//		MSG_DEBUG("Contact Data is Changed!!!");
-//		MsgSyncContact();
-//	} else if (!strcmp(ADDRESSBOOK_CALLBACK_USER_DATA, (const char*)user_data)) {
-//		MSG_DEBUG("Address Book Data is Changed!!!");
-//		MsgSyncAddressbook();
-//	}
-//
-//	if (ContactDbHandle.disconnect() != MSG_SUCCESS)
-//		MSG_DEBUG("DB Disconnect Fail");
-//}
-
 #ifndef MSG_CONTACTS_SERVICE_NOT_SUPPORTED
 /*==================================================================================================
                                      FUNCTION IMPLEMENTATION
@@ -1409,6 +1394,7 @@ int MsgContactSVCEndTrans(bool bSuccess)
 
 bool checkBlockingMode(char *address, bool *pisFavorites)
 {
+#if 0
 	MsgZoneChange();
 
 	msg_error_t err = MSG_SUCCESS;
@@ -1556,6 +1542,12 @@ bool checkBlockingMode(char *address, bool *pisFavorites)
 	MsgZoneRevert();
 
 	return isblock;
+#else
+	if (pisFavorites != NULL)
+		*pisFavorites = false;
+
+	return false;
+#endif
 }
 #endif //MSG_CONTACTS_SERVICE_NOT_SUPPORTED
 

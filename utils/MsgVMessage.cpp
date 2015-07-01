@@ -235,7 +235,9 @@ if(strlen(pMsg->subject) > 0)
 					goto __CATCH_FAIL__;
 
 				msgText = (char *)calloc(1, fileSize);
-				memcpy(msgText, pFileData, fileSize);
+				if(pFileData && msgText)
+					memcpy(msgText, pFileData, fileSize);
+
 				pObject->numOfBiData = fileSize;
 				pObject->pszValue[0] = msgText;
 			}
@@ -255,8 +257,8 @@ if(strlen(pMsg->subject) > 0)
 		//Insert VBody for mms raw data;
 		char* pFileData = NULL;
 		MMS_DATA_S *pMmsData = NULL;
-		int		fileSize = 0;
-		char*	msgText = NULL;
+		int fileSize = 0;
+		char* msgText = NULL;
 #if 0
 		char		filePath[MSG_FILEPATH_LEN_MAX] = {0, };
 		if(pMsg->msgType.subType == MSG_NOTIFICATIONIND_MMS)
@@ -285,6 +287,8 @@ if(strlen(pMsg->subject) > 0)
 		} else {
 			fileSize = strlen(pMsg->msgData);
 			pFileData = (char *)calloc(1, fileSize+1);
+			if (!pFileData)
+				goto __CATCH_FAIL__;
 			snprintf(pFileData, fileSize, "%s", pMsg->msgData);
 		}
 
@@ -292,6 +296,7 @@ if(strlen(pMsg->subject) > 0)
 		if (pFileData) {
 			if (MsgDeserializeMmsData(pFileData, fileSize, &pMmsData) != 0) {
 				MSG_DEBUG("Fail to Deserialize Message Data");
+				MsgMmsRelease(&pMmsData);
 				goto __CATCH_FAIL__;
 			}
 
@@ -303,7 +308,10 @@ if(strlen(pMsg->subject) > 0)
 
 		int serializedDataSize = 0;
 
-		serializedDataSize = MsgSerializeMms(pMmsData, &pFileData);
+		if (pMmsData) {
+			MsgMmsSetMultipartListData(pMmsData);//app file -> data
+			serializedDataSize = MsgSerializeMms(pMmsData, &pFileData);
+		}
 
 		if (pFileData) {
 			fileSize = serializedDataSize;
@@ -314,9 +322,8 @@ if(strlen(pMsg->subject) > 0)
 #endif
 		MSG_DEBUG("FILE SIZE IS %d, %s", fileSize, pFileData);
 		msgText = (char *)calloc(1, fileSize);
-		if(pFileData)
+		if(pFileData && msgText)
 			memcpy(msgText, pFileData, fileSize);
-
 
 		pObject->numOfBiData = fileSize;
 		pObject->pszValue[0] = msgText;

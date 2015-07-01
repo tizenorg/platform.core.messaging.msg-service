@@ -227,24 +227,25 @@ msg_error_t MsgStoGetFilterList(msg_struct_list_s *pFilterList)
 
 	pFilterList->msg_struct_info = (msg_struct_t *)calloc(rowCnt, sizeof(MSG_FILTER_S *));
 
-	msg_struct_s* pTmp = NULL;
+	if (pFilterList->msg_struct_info != NULL) {
+		msg_struct_s* pTmp = NULL;
 
-	for (int i = 0; i < rowCnt; i++)
-	{
-		pFilterList->msg_struct_info[i] = (msg_struct_t)new msg_struct_s;
+		for (int i = 0; i < rowCnt; i++)
+		{
+			pFilterList->msg_struct_info[i] = (msg_struct_t)new msg_struct_s;
 
-		pTmp = (msg_struct_s *)pFilterList->msg_struct_info[i];
-		pTmp->type = MSG_STRUCT_FILTER;
-		pTmp->data = new MSG_FILTER_S;
-		MSG_FILTER_S *pFilter = (MSG_FILTER_S *)pTmp->data;
-		memset(pFilter, 0x00, sizeof(MSG_FILTER_S));
-		pFilter->filterId = dbHandle->getColumnToInt(index++);
-		pFilter->filterType = dbHandle->getColumnToInt(index++);
-		memset(pFilter->filterValue, 0x00, sizeof(pFilter->filterValue));
-		dbHandle->getColumnToString(index++, MAX_FILTER_VALUE_LEN, pFilter->filterValue);
-		pFilter->bActive = dbHandle->getColumnToInt(index++);
+			pTmp = (msg_struct_s *)pFilterList->msg_struct_info[i];
+			pTmp->type = MSG_STRUCT_FILTER;
+			pTmp->data = new MSG_FILTER_S;
+			MSG_FILTER_S *pFilter = (MSG_FILTER_S *)pTmp->data;
+			memset(pFilter, 0x00, sizeof(MSG_FILTER_S));
+			pFilter->filterId = dbHandle->getColumnToInt(index++);
+			pFilter->filterType = dbHandle->getColumnToInt(index++);
+			memset(pFilter->filterValue, 0x00, sizeof(pFilter->filterValue));
+			dbHandle->getColumnToString(index++, MAX_FILTER_VALUE_LEN, pFilter->filterValue);
+			pFilter->bActive = dbHandle->getColumnToInt(index++);
+		}
 	}
-
 
 	dbHandle->freeTable();
 

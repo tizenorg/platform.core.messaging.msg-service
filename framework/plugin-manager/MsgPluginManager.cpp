@@ -890,20 +890,15 @@ MsgPlugin::MsgPlugin(MSG_MAIN_TYPE_T mainType, const char *libPath): mSupportedM
 	mLibHandler = dlopen(libPath, RTLD_NOW);
 
 	if (!mLibHandler)
-		THROW(MsgException::PLUGIN_ERROR, "ERROR dlopen library : [%s] [%s]", libPath, dlerror());
-
-	// Clear Error
-	dlerror();
+		THROW(MsgException::PLUGIN_ERROR, "ERROR dlopen library : [%s]", libPath);
 
 	// assign the c function pointers
 	msg_error_t(*pFunc)(MSG_PLUGIN_HANDLER_S*) = NULL;
 
 	pFunc = (msg_error_t(*)(MSG_PLUGIN_HANDLER_S*))dlsym(mLibHandler, "MsgPlgCreateHandle");
 
-	char *error = dlerror();
-
-	if (error != NULL)
-		THROW(MsgException::PLUGIN_ERROR, "ERROR dlsym library : [%s]", dlerror());
+	if (!pFunc)
+		THROW(MsgException::PLUGIN_ERROR, "ERROR dlsym library");
 
 	if ((*pFunc)(&mPlgHandler) != MSG_SUCCESS)
 		THROW(MsgException::PLUGIN_ERROR, "ERROR to create plugin handle");
