@@ -31,10 +31,12 @@
 
 #ifndef MSG_WEARABLE_PROFILE
 
+#ifdef _USE_MM_FW_
 #include <mm_error.h>
 #include <mm_player.h>
 #include <mm_session_private.h>
 #include <mm_sound.h>
+#endif
 
 #include <feedback.h>
 
@@ -53,7 +55,9 @@
 /*==================================================================================================
                                      VARIABLES
 ==================================================================================================*/
+#ifdef _USE_MM_FW_
 MMHandleType hPlayerHandle = 0;
+#endif
 
 pthread_mutex_t muMmPlay = PTHREAD_MUTEX_INITIALIZER;
 
@@ -117,6 +121,7 @@ void MsgSensorCBStop()
 
 static int MsgSoundPlayCallback(int message, void *param, void *user_param)
 {
+#ifdef _USE_MM_FW_
 	switch (message)
 	{
 		case MM_MESSAGE_BEGIN_OF_STREAM:
@@ -138,7 +143,7 @@ static int MsgSoundPlayCallback(int message, void *param, void *user_param)
 			MSG_DEBUG("message [%d]", message);
 			break;
 	}
-
+#endif
 	return 1;
 }
 
@@ -152,7 +157,7 @@ MsgSoundPlayer* MsgSoundPlayer::pInstance = NULL;
 
 MsgSoundPlayer::MsgSoundPlayer()
 {
-
+#ifdef _USE_MM_FW_
 #ifndef MSG_WEARABLE_PROFILE
 	bPlaying = false;
 	bVibrating = false;
@@ -178,7 +183,7 @@ MsgSoundPlayer::MsgSoundPlayer()
 		MSG_DEBUG("Fail to MsgSensorConnect.");
 	}
 #endif // MSG_WEARABLE_PROFILE
-
+#endif
 }
 
 
@@ -255,7 +260,7 @@ void MsgSoundPlayer::MsgGetRingtonePath(char *userRingtonePath, char **msg_tone_
 bool MsgIsSoundPlayOnCall(void)
 {
 	bool bPlayOnCall = false;
-
+#ifdef _USE_MM_FW_
 #ifndef MSG_WEARABLE_PROFILE
 
 	int err = MM_ERROR_NONE;
@@ -277,7 +282,7 @@ bool MsgIsSoundPlayOnCall(void)
 	}
 
 #endif // MSG_WEARABLE_PROFILE
-
+#endif
 	return bPlayOnCall;
 }
 
@@ -418,7 +423,7 @@ void MsgSoundPlayer::MsgGetPlayStatus(bool bVoiceMail, bool *bPlaySound, bool *b
 void MsgSoundPlayer::MsgSoundPlayStart(const MSG_ADDRESS_INFO_S *pAddrInfo, MSG_SOUND_TYPE_T soundType)
 {
 	MSG_BEGIN();
-
+#ifdef _USE_MM_FW_
 #ifndef MSG_WEARABLE_PROFILE
 
 	MSG_DEBUG("soundType [%d]", soundType);
@@ -513,7 +518,7 @@ void MsgSoundPlayer::MsgSoundPlayStart(const MSG_ADDRESS_INFO_S *pAddrInfo, MSG_
 //	MsgSoundSetRepeatAlarm();
 
 #endif // MSG_WEARABLE_PROFILE
-
+#endif
 	MSG_END();
 }
 
@@ -521,7 +526,7 @@ void MsgSoundPlayer::MsgSoundPlayStart(const MSG_ADDRESS_INFO_S *pAddrInfo, MSG_
 void MsgSoundPlayer::MsgSoundPlayStop()
 {
 	MSG_BEGIN();
-
+#ifdef _USE_MM_FW_
 #ifndef MSG_WEARABLE_PROFILE
 
 	pthread_mutex_lock(&muMmPlay);
@@ -553,7 +558,7 @@ void MsgSoundPlayer::MsgSoundPlayStop()
 	pthread_mutex_unlock(&muMmPlay);
 
 #endif // MSG_WEARABLE_PROFILE
-
+#endif
 	MSG_END();
 }
 
@@ -561,7 +566,7 @@ void MsgSoundPlayer::MsgSoundPlayStop()
 void MsgSoundPlayer::MsgSoundPlayMelody(char *pMsgToneFilePath)
 {
 #ifndef MSG_WEARABLE_PROFILE
-
+#ifdef _USE_MM_FW_
 	int err = MM_ERROR_NONE;
 
 	if (!pMsgToneFilePath) {
@@ -630,6 +635,7 @@ void MsgSoundPlayer::MsgSoundPlayMelody(char *pMsgToneFilePath)
 	pthread_mutex_unlock(&muMmPlay);
 
 #endif // MSG_WEARABLE_PROFILE
+#endif
 }
 
 
@@ -689,7 +695,7 @@ void MsgSoundPlayer::MsgSoundPlayVibration(char *vibrationPath, bool isOnCall)
 void MsgSoundPlayer::MsgSoundPlayDtmf()
 {
 	MSG_BEGIN();
-
+#ifdef _USE_MM_FW_
 #ifndef MSG_WEARABLE_PROFILE
 
 	int ret = 0;
@@ -704,7 +710,7 @@ void MsgSoundPlayer::MsgSoundPlayDtmf()
 	}
 
 #endif // MSG_WEARABLE_PROFILE
-
+#endif
 	MSG_END();
 }
 
