@@ -156,7 +156,6 @@
 #define VOICE_NOTI_ID_2			DEFAULT_SETTING_PATH"/voice_noti_id2"
 #define CB_NOTI_PRIV_ID 		DEFAULT_SETTING_PATH"/cb_noti_priv_id"
 #define SIM_MSG_NOTI_PRIV_ID 	DEFAULT_SETTING_PATH"/sim_msg_noti_priv_id"
-#define EMERGENCY_MODE_NOTI_ID 	DEFAULT_SETTING_PATH"/emergency_noti_id"
 #define MSG_SENTFAIL_NOTI_ID 		DEFAULT_SETTING_PATH"/sentfail_noti_id"
 #define SIM_FULL_NOTI_PRIV_ID	DEFAULT_SETTING_PATH"/sim_full_noti_id"
 

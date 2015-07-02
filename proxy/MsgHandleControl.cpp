@@ -125,6 +125,7 @@ void MsgHandle::write(const char *pCmdData, int cmdSize, char **ppEvent)
 
 		if(!CheckEventData(tmpEvent)) {
 			delete [] tmpEvent;
+			tmpEvent = NULL;
 		} else {
 			*ppEvent = tmpEvent;
 			break;
@@ -137,9 +138,9 @@ void MsgHandle::read(char **ppEvent)
 {
 	unsigned int dataSize = 0;
 
-	dataSize = mClientSock.read(ppEvent, &dataSize);
+	int ret = mClientSock.read(ppEvent, &dataSize);
 
-	if (dataSize == 0) {
+	if (ret == CLOSE_CONNECTION_BY_SIGNAL) {
 		THROW(MsgException::IPC_ERROR, "Server closed connection");
 	}
 }
@@ -287,9 +288,10 @@ void MsgHandle::convertMsgStruct(const MSG_MESSAGE_HIDDEN_S *pSrc, MSG_MESSAGE_I
 
 			// change file extension in case of java MMS msg
 			if (pSrc->subType == MSG_SENDREQ_JAVA_MMS) {
-				char* pFileNameExt;
+				char* pFileNameExt = NULL;
 				pFileNameExt = strstr(fileName,"DATA");
-				strncpy(pFileNameExt,"JAVA", MSG_FILENAME_LEN_MAX);
+				if (pFileNameExt)
+					snprintf(pFileNameExt, strlen("JAVA")+1, "JAVA");
 			}
 
 			MSG_SEC_DEBUG("Save Message Data into file : size[%d] name[%s]", pSrc->mmsDataSize, fileName);
@@ -394,7 +396,7 @@ void MsgHandle::convertMsgStruct(const MSG_MESSAGE_INFO_S *pSrc, MSG_MESSAGE_HID
 		int fileSize = 0;
 
 		char* pFileData = NULL;
-		AutoPtr<char> buf(&pFileData);
+		unique_ptr<char*, void(*)(char**)> buf(&pFileData, unique_ptr_deleter);
 
 		pDest->dataSize = pSrc->dataSize;
 

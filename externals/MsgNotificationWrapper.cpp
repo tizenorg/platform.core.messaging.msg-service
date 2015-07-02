@@ -34,12 +34,14 @@
 
 extern "C"
 {
+#include <bundle_internal.h>
+#include <app_control_internal.h>
 #ifndef MSG_WEARABLE_PROFILE
-#include <app_control.h>
-#include <notification.h>
+#include <notification_list.h>
+#include <notification_text_domain.h>
 #include <notification_internal.h>
 #include <feedback.h>
-#include <badge.h>
+#include <badge_internal.h>
 #endif // MSG_WEARABLE_PROFILE
 }
 
@@ -337,6 +339,7 @@ msg_error_t MsgDeleteReportNotification(const char *addr)
 msg_error_t MsgAddReportNotification(msg_notification_type_t noti_type, MSG_MESSAGE_INFO_S *msg_info)
 {
 	msg_error_t msg_err = MSG_SUCCESS;
+
 #ifndef MSG_WEARABLE_PROFILE
 	notification_h noti_h = NULL;
 
@@ -375,10 +378,11 @@ msg_error_t MsgRefreshNotification(msg_notification_type_t noti_type, bool bFeed
 {
 
 	msg_error_t msg_err = MSG_SUCCESS;
+
 #ifndef MSG_WEARABLE_PROFILE
 	notification_h noti_h = NULL;
 	bool bNotification = true;
-	bool bReplyPopup = false;
+//	bool bReplyPopup = false;
 
 	MSG_NOTI_INFO_S noti_info;
 	memset(&noti_info, 0x00, sizeof(MSG_NOTI_INFO_S));
@@ -409,7 +413,7 @@ msg_error_t MsgRefreshNotification(msg_notification_type_t noti_type, bool bFeed
 
 	if (bNotification == false) {
 		MSG_DEBUG("Msg Alert notification is off.");
-		return msg_err;
+		goto __END_OF_REFRESH_NOTI;
 	}
 
 	createInfoData(&noti_info, bTicker);
@@ -424,6 +428,7 @@ msg_error_t MsgRefreshNotification(msg_notification_type_t noti_type, bool bFeed
 
 	setNotification(noti_h, &noti_info, bFeedback);
 
+#if 0
 	if (MsgSettingGetBool(VCONFKEY_MESSAGE_POPUP_DISPLAY_ENABLE , &bReplyPopup) != MSG_SUCCESS) {
 		MSG_DEBUG("MsgSettingGetBool is failed.");
 	}
@@ -432,6 +437,7 @@ msg_error_t MsgRefreshNotification(msg_notification_type_t noti_type, bool bFeed
 		MSG_DEBUG("Msg reply popup is on.");
 		sendMsgReplyPopup(&noti_info);
 	}
+#endif
 
 __END_OF_REFRESH_NOTI :
 	clearInfoData(noti_h, &noti_info);
@@ -443,6 +449,7 @@ __END_OF_REFRESH_NOTI :
 msg_error_t MsgAddNotification(msg_notification_type_t noti_type, MSG_MESSAGE_INFO_S *msg_info)
 {
 	msg_error_t msg_err = MSG_SUCCESS;
+
 #ifndef MSG_WEARABLE_PROFILE
 	notification_h noti_h = NULL;
 
@@ -550,7 +557,7 @@ bool isExistAddressInReportTable(const char *addr)
 
 	memset(sqlQuery, 0x00, sizeof(sqlQuery));
 	snprintf(sqlQuery, sizeof(sqlQuery), "SELECT * FROM %s WHERE ADDRESS_VAL LIKE '%%%%%s'", MSGFW_SMS_REPORT_TABLE_NAME, normalAddr);
-	if (dbHandle->getTable(sqlQuery, &rowCnt) == MSG_SUCCESS) {
+	if (dbHandle->getTable(sqlQuery, &rowCnt, NULL) == MSG_SUCCESS) {
 		dbHandle->freeTable();
 		return true;
 	}
@@ -559,7 +566,7 @@ bool isExistAddressInReportTable(const char *addr)
 
 	memset(sqlQuery, 0x00, sizeof(sqlQuery));
 	snprintf(sqlQuery, sizeof(sqlQuery), "SELECT * FROM %s WHERE ADDRESS_VAL LIKE '%%%%%s'", MSGFW_REPORT_TABLE_NAME, normalAddr);
-	if (dbHandle->getTable(sqlQuery, &rowCnt) == MSG_SUCCESS) {
+	if (dbHandle->getTable(sqlQuery, &rowCnt, NULL) == MSG_SUCCESS) {
 		dbHandle->freeTable();
 		return true;
 	}
@@ -573,6 +580,7 @@ bool isExistAddressInReportTable(const char *addr)
 void MsgInitReportNotiList()
 {
 	MSG_BEGIN();
+
 #ifndef MSG_WEARABLE_PROFILE
 	msg_report_notification_list = NULL;
 
@@ -647,9 +655,10 @@ msg_error_t MsgInitNoti()
 		MSG_DEBUG("Notification server is not available. Init is defered");
 #ifndef MSG_NOTI_INTEGRATION
 		MSG_NOTI_INFO_S *delNotiInfo = (MSG_NOTI_INFO_S *)calloc(1, sizeof(MSG_NOTI_INFO_S));
-		delNotiInfo->type = MSG_NOTI_TYPE_SIM;
-		delNotiInfo->sim_idx = -1;
-
+		if (delNotiInfo) {
+			delNotiInfo->type = MSG_NOTI_TYPE_SIM;
+			delNotiInfo->sim_idx = -1;
+		}
 		notification_add_deferred_task(MsgDeleteNotiCb, (void *)delNotiInfo);
 #endif
 		notification_add_deferred_task(MsgRefreshNotiCb, (void *)NULL);
@@ -667,8 +676,10 @@ msg_error_t MsgDeleteNoti(msg_notification_type_t noti_type, int simIndex)
 
 	MSG_NOTI_INFO_S *delNotiInfo = (MSG_NOTI_INFO_S *)calloc(1, sizeof(MSG_NOTI_INFO_S));
 
-	delNotiInfo->type = noti_type;
-	delNotiInfo->sim_idx = simIndex;
+	if (delNotiInfo) {
+		delNotiInfo->type = noti_type;
+		delNotiInfo->sim_idx = simIndex;
+	}
 
 	bNotiSvcReady = notification_is_service_ready();
 
@@ -758,7 +769,7 @@ msg_error_t MsgInsertBadge(unsigned int unreadMsgCnt)
 
 	if (!exist) {
 		/* create badge */
-		err = badge_new(MSG_DEFAULT_APP_ID);
+		err = badge_create(MSG_DEFAULT_APP_ID, "/usr/bin/msg-server");
 		if (err != BADGE_ERROR_NONE) {
 			MSG_DEBUG("Fail to badge_new : %d", err);
 			return MSG_ERR_UNKNOWN;
@@ -971,11 +982,12 @@ void createInfoData(MSG_NOTI_INFO_S *noti_info, bool bTicker)
 				addServiceExtraData(noti_info->svc_h, "msgId", noti_info->msg_id);
 				addServiceExtraData(noti_info->svc_h, "http://tizen.org/appcontrol/data/notification", "new_message");
 
+#if 0
 				bool bReplyPopup = false;
 				if (MsgSettingGetBool(VCONFKEY_MESSAGE_POPUP_DISPLAY_ENABLE , &bReplyPopup) != MSG_SUCCESS) {
 					MSG_DEBUG("MsgSettingGetBool is failed.");
 				}
-
+#endif
 				noti_info->applist = NOTIFICATION_DISPLAY_APP_ALL^NOTIFICATION_DISPLAY_APP_TICKER;
 			}
 			break;
@@ -1099,15 +1111,12 @@ void createInfoData(MSG_NOTI_INFO_S *noti_info, MSG_MESSAGE_INFO_S *msg_info)
 				if (dialNumber && strlen(dialNumber) > 0)
 					snprintf(noti_info->number, sizeof(noti_info->number), "%s", dialNumber);
 
-				setServiceAppId(noti_info->svc_h, "org.tizen.call");
-
-				addServiceExtraData(noti_info->svc_h, "launch-type", "MO");
-
-				addServiceExtraData(noti_info->svc_h, "number", "VOICEMAIL");
-
-				char slot_id[5] = {0,};
-				snprintf(slot_id, sizeof(slot_id), "%d", msg_info->sim_idx - 1);
-				addServiceExtraData(noti_info->svc_h, "slot_id", slot_id);
+				if (noti_info->svc_h) {
+					char telnum[256] = {0,};
+					app_control_set_operation(noti_info->svc_h, APP_CONTROL_OPERATION_CALL);
+					snprintf(telnum, sizeof(telnum), "tel:%s", noti_info->number);
+					app_control_set_uri(noti_info->svc_h, telnum);
+				}
 
 				MSG_FREE(voiceNumber);
 				MSG_FREE(voiceAlphaId);
@@ -1131,13 +1140,12 @@ void createInfoData(MSG_NOTI_INFO_S *noti_info, MSG_MESSAGE_INFO_S *msg_info)
 				snprintf(noti_info->text, sizeof(noti_info->text), "%s", msg_info->msgText);
 
 				if (noti_info->type == MSG_NOTI_TYPE_MWI) {
-					setServiceAppId(noti_info->svc_h, "org.tizen.call");
-					addServiceExtraData(noti_info->svc_h, "launch-type", "MO");
-					addServiceExtraData(noti_info->svc_h, "number", "VOICEMAIL");
-
-					char slot_id[5] = {0,};
-					snprintf(slot_id, sizeof(slot_id), "%d", msg_info->sim_idx - 1);
-					addServiceExtraData(noti_info->svc_h, "slot_id", slot_id);
+					if (noti_info->svc_h) {
+						char telnum[256] = {0,};
+						app_control_set_operation(noti_info->svc_h, APP_CONTROL_OPERATION_CALL);
+						snprintf(telnum, sizeof(telnum), "tel:%s", noti_info->number);
+						app_control_set_uri(noti_info->svc_h, telnum);
+					}
 
 				} else {
 					setServiceAppId(noti_info->svc_h, "org.tizen.msg-ui-class0");
@@ -1789,20 +1797,24 @@ msg_error_t MsgInsertInstantMessage(msg_notification_type_t noti_type)
 			break;
 	}
 
-	notification_set_display_applist(noti, NOTIFICATION_DISPLAY_APP_TICKER);
-	notification_post(noti);
+	if (notification_set_display_applist(noti, NOTIFICATION_DISPLAY_APP_TICKER) != NOTIFICATION_ERROR_NONE)
+		MSG_DEBUG("Fail to notification_set_display_applist");
+
+	if (notification_post(noti) != NOTIFICATION_ERROR_NONE)
+		MSG_DEBUG("Fail to notification_post");
 
 _END_OF_INSTANT_NOTI:
 
-	notification_delete(noti);
-
+	if (notification_delete(noti) != NOTIFICATION_ERROR_NONE)
+		MSG_DEBUG("Fail to notification_delete");
 	if (notiMsg) {
 		free(notiMsg);
 		notiMsg = NULL;
 	}
 
 	if (noti) {
-		notification_free(noti);
+		if (notification_free(noti) != NOTIFICATION_ERROR_NONE)
+			MSG_DEBUG("Fail to notification_free");
 		noti = NULL;
 	}
 
@@ -1867,7 +1879,7 @@ void setSoundAndVibration(notification_h noti_h, char *addressVal, bool bVoiceMa
 	}
 
 	char *msg_tone_file_path = NULL;
-	AutoPtr<char> buf(&msg_tone_file_path);
+	unique_ptr<char*, void(*)(char**)> buf(&msg_tone_file_path, unique_ptr_deleter);
 
 	MsgSoundPlayer::instance()->MsgGetRingtonePath(contactInfo.alerttonePath, &msg_tone_file_path);
 
@@ -1895,7 +1907,7 @@ void setSoundAndVibration(notification_h noti_h, char *addressVal, bool bVoiceMa
 					setNotiSound(noti_h, NOTIFICATION_SOUND_TYPE_DEFAULT, NULL);
 #ifndef MSG_CONTACTS_SERVICE_NOT_SUPPORTED
 			}
-#endif
+#endif // MSG_CONTACTS_SERVICE_NOT_SUPPORTED
 		} else {
 			setNotiSound(noti_h, NOTIFICATION_SOUND_TYPE_NONE, NULL);
 		}
@@ -2023,10 +2035,9 @@ msg_error_t getLatestMsgInfo(MSG_NOTI_INFO_S *noti_info, bool isForInstantMessag
 #endif
 				MSG_DEBUG("sqlQuery [%s]", sqlQuery);
 
-				int rowCnt = 0;
-				int index = 2;
+				int rowCnt = 0, index = 0;
 
-				msg_err = dbhandler->getTable(sqlQuery, &rowCnt);
+				msg_err = dbhandler->getTable(sqlQuery, &rowCnt, &index);
 				MSG_DEBUG("getTable() ret=[%d], rowCnt=[%d]", msg_err, rowCnt);
 
 				//contacts-service is not used for gear
@@ -2307,7 +2318,7 @@ msg_error_t getLatestMsgInfo(MSG_NOTI_INFO_S *noti_info, bool isForInstantMessag
 
 				dbhandler->finalizeQuery();
 
-				if (dbhandler->getTable(sqlQuery, &noti_info->count) != MSG_SUCCESS) {
+				if (dbhandler->getTable(sqlQuery, &noti_info->count, NULL) != MSG_SUCCESS) {
 					MSG_DEBUG("getTable is failed");
 					dbhandler->freeTable();
 					return MSG_ERR_DB_GETTABLE;

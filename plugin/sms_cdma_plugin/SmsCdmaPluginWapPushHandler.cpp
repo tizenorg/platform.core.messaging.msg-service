@@ -781,21 +781,21 @@ void SmsPluginWapPushHandler::handleWapPushMsg(const char *pUserData, int DataSi
 	unsigned long PDUTypeDataLen = DataSize;
 
 	char* pPushHeader = NULL;
-	AutoPtr<char> pushHeaderBuf(&pPushHeader);
+	unique_ptr<char*, void(*)(char**)> pushHeaderBuf(&pPushHeader, unique_ptr_deleter);
 	unsigned long pushHeaderLen = 0;
 
 	char* pPushBody = NULL;
-	AutoPtr<char> PushBodyBuf(&pPushBody);
+	unique_ptr<char*, void(*)(char**)> PushBodyBuf(&pPushBody, unique_ptr_deleter);
 	unsigned long pushBodyLen = 0;
 
 	unsigned long iPDU = 1;
 
 	char* pWspHeader = NULL;
-	AutoPtr<char> WspHeaderBuf(&pWspHeader);
+	unique_ptr<char*, void(*)(char**)> WspHeaderBuf(&pWspHeader, unique_ptr_deleter);
 	unsigned long	wspHeaderLen = 0;
 
 	char* pWspBody = NULL;
-	AutoPtr<char> WspBodyBuf(&pWspBody);
+	unique_ptr<char*, void(*)(char**)> WspBodyBuf(&pWspBody, unique_ptr_deleter);
 	unsigned long wspBodyLen = 0;
 
 	/** pass PDU type */
@@ -1361,7 +1361,7 @@ void SmsPluginWapPushHandler::handleMMSNotification(const char *pPushBody, int P
 	memset(&msgInfo, 0x00, sizeof(MSG_MESSAGE_INFO_S));
 
 	msgInfo.addressList = NULL;
-	AutoPtr<MSG_ADDRESS_INFO_S> addressListBuf(&msgInfo.addressList);
+	unique_ptr<MSG_ADDRESS_INFO_S*, void(*)(MSG_ADDRESS_INFO_S**)> addressListBuf(&msgInfo.addressList, unique_ptr_deleter);
 
 	createMsgInfo(&msgInfo);
 
@@ -1533,7 +1533,7 @@ void SmsPluginWapPushHandler::handleSIMessage(char* pPushBody, int PushBodyLen, 
 	memset(&msgInfo, 0, sizeof(MSG_MESSAGE_INFO_S));
 
 	msgInfo.addressList = NULL;
-	AutoPtr<MSG_ADDRESS_INFO_S> addressListBuf(&msgInfo.addressList);
+	unique_ptr<MSG_ADDRESS_INFO_S*, void(*)(MSG_ADDRESS_INFO_S**)> addressListBuf(&msgInfo.addressList, unique_ptr_deleter);
 
 	createMsgInfo(&msgInfo);
 
@@ -1664,7 +1664,7 @@ void SmsPluginWapPushHandler::handleSLMessage(char* pPushBody, int PushBodyLen, 
 	memset(&msgInfo, 0, sizeof(MSG_MESSAGE_INFO_S));
 
 	msgInfo.addressList = NULL;
-	AutoPtr<MSG_ADDRESS_INFO_S> addressListBuf(&msgInfo.addressList);
+	unique_ptr<MSG_ADDRESS_INFO_S*, void(*)(MSG_ADDRESS_INFO_S**)> addressListBuf(&msgInfo.addressList, unique_ptr_deleter);
 
 	createMsgInfo(&msgInfo);
 
@@ -1788,7 +1788,7 @@ void SmsPluginWapPushHandler::handleCOMessage(char* pPushBody, int PushBodyLen, 
 	memset(&msgInfo, 0, sizeof(MSG_MESSAGE_INFO_S));
 
 	msgInfo.addressList = NULL;
-	AutoPtr<MSG_ADDRESS_INFO_S> addressListBuf(&msgInfo.addressList);
+	unique_ptr<MSG_ADDRESS_INFO_S*, void(*)(MSG_ADDRESS_INFO_S**)> addressListBuf(&msgInfo.addressList, unique_ptr_deleter);
 
 	createMsgInfo(&msgInfo);
 
@@ -1827,7 +1827,7 @@ void SmsPluginWapPushHandler::handleDrmVer1(char* pPushBody, int PushBodyLen)
 #if MSG_DRM_SUPPORT
 	int drmRt = DRM_RETURN_SUCCESS;
 	char* cid = NULL;
-	AutoPtr<char> buf(&cid);
+	unique_ptr<char*, void(*)(char**)> buf(&cid, unique_ptr_deleter);
 
 	MSG_DEBUG("Received DRM RIGHTS OBJECT Type WAP Push Message.");
 	drm_request_type_e request_type = DRM_REQUEST_TYPE_REGISTER_LICENSE;
@@ -2150,12 +2150,12 @@ void SmsPluginWapPushHandler::wspDecodeHeader( unsigned char* sEncodedHeader, un
 	unsigned long currentLength;
 
 	char* encodedHeader = NULL;
-	AutoPtr<char> encodedHeaderbuf(&encodedHeader);
+	unique_ptr<char*, void(*)(char**)> encodedHeaderbuf(&encodedHeader, unique_ptr_deleter);
 
 	char* outTemper = NULL;
 
 	char* temper = NULL;
-	AutoPtr<char> temperbuf(&temper);
+	unique_ptr<char*, void(*)(char**)> temperbuf(&temper, unique_ptr_deleter);
 
 	unsigned char track;
 	unsigned long iEncodedHeader = 0;
@@ -2181,7 +2181,7 @@ void SmsPluginWapPushHandler::wspDecodeHeader( unsigned char* sEncodedHeader, un
 	for (loop = 0 ; loop<(int)encodedHeaderLen; loop++) {
 		char szTempBuf[5];
 		szTempBuf[0] = 0x00;
-		sprintf( szTempBuf, "%2X ", sEncodedHeader[loop] );
+		snprintf( szTempBuf, sizeof(szTempBuf), "%2X ", sEncodedHeader[loop] );
 
 		if (AcStrlen( szBuf ) + 7 < 64) {
 			strncat( szBuf, szTempBuf, sizeof(szBuf)-AcStrlen(szBuf)-1 );
@@ -2389,7 +2389,7 @@ void SmsPluginWapPushHandler::wspDecodeHeader( unsigned char* sEncodedHeader, un
 									/* If parameter exist */
 									if (iField < fieldValueLen) {
 										char* param = NULL;
-										AutoPtr<char> parambuf(&param);
+										unique_ptr<char*, void(*)(char**)> parambuf(&param, unique_ptr_deleter);
 										wspHeaderDecodeQValue( fieldValueLen - iField, fieldValue + iField, &param);
 										strncat( (char*)temper, (char*)param, (WSP_STANDARD_STR_LEN_MAX * 5)-AcStrlen((char*)temper)-1 );
 									}
@@ -2496,7 +2496,7 @@ void SmsPluginWapPushHandler::wspDecodeHeader( unsigned char* sEncodedHeader, un
 								/* If there is a parameter */
 								if (tempLen < fieldValueLen) {
 									char* param = NULL;
-									AutoPtr<char> parambuf(&param);
+									unique_ptr<char*, void(*)(char**)> parambuf(&param, unique_ptr_deleter);
 									wspHeaderDecodeParameter( fieldValue + tempLen, fieldValueLen - tempLen, &param);
 									if (param != NULL) {
 										strncat( (char*)temper, "; ", (WSP_STANDARD_STR_LEN_MAX * 5)-AcStrlen((char*)temper)-1);
@@ -2542,7 +2542,7 @@ void SmsPluginWapPushHandler::wspDecodeHeader( unsigned char* sEncodedHeader, un
 
 								if (tempLen < fieldValueLen) {
 									char* param = NULL;
-									AutoPtr<char> parambuf(&param);
+									unique_ptr<char*, void(*)(char**)> parambuf(&param, unique_ptr_deleter);
 									wspHeaderDecodeQValue(  fieldValueLen - tempLen, fieldValue + tempLen, &param );
 									strncat( (char*)temper, (char*)param, (WSP_STANDARD_STR_LEN_MAX * 5)-AcStrlen((char*)temper)-1 );
 								}
@@ -2568,7 +2568,7 @@ void SmsPluginWapPushHandler::wspDecodeHeader( unsigned char* sEncodedHeader, un
 									AcSprintf( (char*)temp, "%u", (unsigned int)fieldValue[1]);
 								else
 								*/
-								sprintf( (char*)temp, "%u", (unsigned int)wspHeaderDecodeIntegerByLength( fieldValue, fieldValueLen ));
+								snprintf( (char*)temp, sizeof(temp), "%u", (unsigned int)wspHeaderDecodeIntegerByLength( fieldValue, fieldValueLen ));
 								strncat( (char*)temper, (char*)temp, (WSP_STANDARD_STR_LEN_MAX * 5)-AcStrlen((char*)temper)-1 );
 							}
 							break;
@@ -2610,7 +2610,7 @@ void SmsPluginWapPushHandler::wspDecodeHeader( unsigned char* sEncodedHeader, un
 	                                AcSprintf( (char*)temp, "%u", (unsigned int)fieldValue[0]);
                                 else
 								*/
-								sprintf( (char*)temp, "%u", (unsigned int)wspHeaderDecodeIntegerByLength( fieldValue, fieldValueLen ));
+								snprintf( (char*)temp, sizeof(temp), "%u", (unsigned int)wspHeaderDecodeIntegerByLength( fieldValue, fieldValueLen ));
 								strncat( (char*)temper, (char*)temp, (WSP_STANDARD_STR_LEN_MAX * 5)-AcStrlen(temper)-1);
 							}
 							break;
@@ -2631,7 +2631,7 @@ void SmsPluginWapPushHandler::wspDecodeHeader( unsigned char* sEncodedHeader, un
 						case 0x12 :
 							{
 								char* decodedString = NULL;
-								AutoPtr<char> decodedStringbuf(&decodedString);
+								unique_ptr<char*, void(*)(char**)> decodedStringbuf(&decodedString, unique_ptr_deleter);
 								wspHeaderDecodeDateValue( fieldValueLen, fieldValue, &decodedString);
 								strncat( (char*)temper, (char*)decodedString, (WSP_STANDARD_STR_LEN_MAX * 5)-AcStrlen(temper)-1 );
 							}
@@ -2665,7 +2665,7 @@ void SmsPluginWapPushHandler::wspDecodeHeader( unsigned char* sEncodedHeader, un
 						case 0x21 :
 							if (fieldValue[0] == 0x80) {
 								char* addString = NULL;
-								AutoPtr<char> addStringbuf(&addString);
+								unique_ptr<char*, void(*)(char**)> addStringbuf(&addString, unique_ptr_deleter);
 								wspHeaderDecodeAuth(fieldValueLen, fieldValue, &addString );
 								strncat( (char*)temper, addString, (WSP_STANDARD_STR_LEN_MAX * 5)-AcStrlen((char*)temper)-1 );
 							} else {
@@ -2674,7 +2674,7 @@ void SmsPluginWapPushHandler::wspDecodeHeader( unsigned char* sEncodedHeader, un
 								strncat( (char*)temper, (char*)fieldValue, (WSP_STANDARD_STR_LEN_MAX * 5)-AcStrlen((char*)temper)-1 );
 								if (iField < fieldValueLen) {
 									char* param = NULL;
-									AutoPtr<char> parambuf(&param);
+									unique_ptr<char*, void(*)(char**)> parambuf(&param, unique_ptr_deleter);
 									wspHeaderDecodeParameter( fieldValue + 1, fieldValueLen - 1, &param );
 									if (param != NULL) {
 										strncat( (char*)temper, ", ", (WSP_STANDARD_STR_LEN_MAX * 5)-AcStrlen((char*)temper)-1 );
@@ -2694,7 +2694,7 @@ void SmsPluginWapPushHandler::wspDecodeHeader( unsigned char* sEncodedHeader, un
 								break;
 							if (fieldValue[0] == 0x80) {
 								char* addString = NULL;
-								AutoPtr<char> addStringbuf(&addString);
+								unique_ptr<char*, void(*)(char**)> addStringbuf(&addString, unique_ptr_deleter);
 								wspHeaderDecodeChallenge(fieldValueLen, fieldValue, &addString );
 								strncat( (char*)temper, addString, (WSP_STANDARD_STR_LEN_MAX * 5)-AcStrlen((char*)temper)-1 );
 							} else {
@@ -2711,7 +2711,7 @@ void SmsPluginWapPushHandler::wspDecodeHeader( unsigned char* sEncodedHeader, un
 
 								if (iField < fieldValueLen) {
 									char* param = NULL;
-									AutoPtr<char> parambuf(&param);
+									unique_ptr<char*, void(*)(char**)> parambuf(&param, unique_ptr_deleter);
 									wspHeaderDecodeParameter( fieldValue + iField, fieldValueLen - iField, &param );
 									if (param != NULL) {
 										strncat( (char*)temper, ", ", (WSP_STANDARD_STR_LEN_MAX * 5)-AcStrlen((char*)temper)-1 );
@@ -2737,7 +2737,7 @@ void SmsPluginWapPushHandler::wspDecodeHeader( unsigned char* sEncodedHeader, un
 								*/
 								last = first + contentsLength - 1;
 
-								sprintf( (char*)temp, "%u-%u/%u", (unsigned int)first, (unsigned int)last, (unsigned int)len );
+								snprintf( (char*)temp, sizeof(temp), "%u-%u/%u", (unsigned int)first, (unsigned int)last, (unsigned int)len );
 								strncat( (char*)temper, (char*)temp, (WSP_STANDARD_STR_LEN_MAX * 5)-AcStrlen((char*)temper)-1 );
 							}
 							break;
@@ -2746,7 +2746,7 @@ void SmsPluginWapPushHandler::wspDecodeHeader( unsigned char* sEncodedHeader, un
 						case 0x08 :
 							{
 								char* cacheString = NULL;
-								AutoPtr<char> cacheStringbuf(&cacheString);
+								unique_ptr<char*, void(*)(char**)> cacheStringbuf(&cacheString, unique_ptr_deleter);
 
 								wspHeaderDecodeCacheControl( fieldValue, fieldValueLen, &cacheString );
 								strncat( (char*)temper, (char*)cacheString, (WSP_STANDARD_STR_LEN_MAX * 5)-AcStrlen((char*)temper)-1 );
@@ -2760,7 +2760,7 @@ void SmsPluginWapPushHandler::wspDecodeHeader( unsigned char* sEncodedHeader, un
 							} else {
 								if (1 < fieldValueLen) {
 									char* param = NULL;
-									AutoPtr<char> parambuf(&param);
+									unique_ptr<char*, void(*)(char**)> parambuf(&param, unique_ptr_deleter);
 									wspHeaderDecodeParameter( fieldValue, fieldValueLen, &param );
 
 									if (param != NULL) {
@@ -2792,7 +2792,7 @@ void SmsPluginWapPushHandler::wspDecodeHeader( unsigned char* sEncodedHeader, un
 								first = wspRetriveUintvarDecode( fieldValue, &iField );
 								last = wspRetriveUintvarDecode( fieldValue, &iField );
 
-								sprintf( (char*)temp, "%u-%u", (unsigned int)first, (unsigned int)last );
+								snprintf( (char*)temp, sizeof(temp), "%u-%u", (unsigned int)first, (unsigned int)last );
 								strncat( (char*)temper, (char*)temp, (WSP_STANDARD_STR_LEN_MAX * 5)-AcStrlen((char*)temper)-1 );
 							}
 							if (fieldValue[0] == 0x81) {
@@ -2801,7 +2801,7 @@ void SmsPluginWapPushHandler::wspDecodeHeader( unsigned char* sEncodedHeader, un
 
 								suffix = wspRetriveUintvarDecode( fieldValue, &iField );
 
-								sprintf( (char*)temp, "-%u", (unsigned int)suffix );
+								snprintf( (char*)temp, sizeof(temp), "-%u", (unsigned int)suffix );
 
 							}
 							break;
@@ -2809,7 +2809,7 @@ void SmsPluginWapPushHandler::wspDecodeHeader( unsigned char* sEncodedHeader, un
 						case 0x25 :
 							if (fieldValue[0] == 0x80) {
 								char* temp = NULL;
-								AutoPtr<char> tempbuf(&temp);
+								unique_ptr<char*, void(*)(char**)> tempbuf(&temp, unique_ptr_deleter);
 
 								wspHeaderDecodeDateValue( fieldValueLen - 1, fieldValue + 1, &temp );
 								strncat( (char*)temper, (char*)temp, (WSP_STANDARD_STR_LEN_MAX * 5)-AcStrlen((char*)temper)-1 );
@@ -2818,7 +2818,7 @@ void SmsPluginWapPushHandler::wspDecodeHeader( unsigned char* sEncodedHeader, un
 							if (fieldValue[0] == 0x81) {
 								unsigned char temp[16];
 
-								sprintf( (char*)temp, "%u", (unsigned int)wspHeaderDecodeIntegerByLength( fieldValue,fieldValueLen ));
+								snprintf( (char*)temp, sizeof(temp), "%u", (unsigned int)wspHeaderDecodeIntegerByLength( fieldValue,fieldValueLen ));
 								strncat( (char*)temper, (char*)temp, (WSP_STANDARD_STR_LEN_MAX * 5)-AcStrlen((char*)temper)-1 );
 							}
 							break;
@@ -2873,7 +2873,7 @@ void SmsPluginWapPushHandler::wspDecodeHeader( unsigned char* sEncodedHeader, un
 
 							if (1 < fieldValueLen) {
 								char* param = NULL;
-								AutoPtr<char> parambuf(&param);
+								unique_ptr<char*, void(*)(char**)> parambuf(&param, unique_ptr_deleter);
 								wspHeaderDecodeParameter( fieldValue + 1, fieldValueLen - 1, &param );
 
 								if (param != NULL) {
@@ -2902,7 +2902,7 @@ void SmsPluginWapPushHandler::wspDecodeHeader( unsigned char* sEncodedHeader, un
 									if (fieldValueLen > ( AcStrlen( (char*)(fieldValue + 1)) + 1 )) {
 										/* copy warn-date */
 										char* decodedString = NULL;
-										AutoPtr<char> decodedStringbuf(&decodedString);
+										unique_ptr<char*, void(*)(char**)> decodedStringbuf(&decodedString, unique_ptr_deleter);
 										wspHeaderDecodeDateValue( fieldValueLen - ( AcStrlen( (char*)(fieldValue + 1)) + 2 ), fieldValue + AcStrlen( (char*)(fieldValue + 1)) + 1, &decodedString );
 										strncat( (char*)temp, (char*)decodedString, WSP_STANDARD_STR_LEN_MAX-AcStrlen((char*)temp)-1 );
 									}

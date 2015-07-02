@@ -64,8 +64,10 @@ void MmsPluginComposer::composeSendReq(MSG_MESSAGE_INFO_S *pMsgInfo, MSG_SENDING
 			pMmsData->header = MsgMmsCreateHeader();
 		}
 
-		composeSendReqHeader(pMsgInfo, pSendOptInfo, pMmsData);
-		//TODO:: apply MmsReplaceNonAsciiUtf8 to all multipart FileName;
+		if (pMmsData->header) {
+			composeSendReqHeader(pMsgInfo, pSendOptInfo, pMmsData);
+			//TODO:: apply MmsReplaceNonAsciiUtf8 to all multipart FileName;
+		}
 
 		int len = g_list_length(pMmsData->multipartlist);
 
@@ -132,7 +134,7 @@ bool composeSendReqHeader(MSG_MESSAGE_INFO_S *pMsgInfo, MSG_SENDINGOPT_INFO_S *p
 	MmsTimeStruct deliveryTime;
 	MmsMsgClass msgClass;
 
-	struct tm *timeInfo = NULL;
+	struct tm timeInfo;
 	time_t RawTime = 0;
 	time_t nTimeInSecs = 0;
 
@@ -180,8 +182,8 @@ bool composeSendReqHeader(MSG_MESSAGE_INFO_S *pMsgInfo, MSG_SENDINGOPT_INFO_S *p
 
 		//set Header
 		time(&RawTime);
-		timeInfo = localtime(&RawTime);
-		nTimeInSecs = mktime(timeInfo);
+		localtime_r(&RawTime, &timeInfo);
+		nTimeInSecs = mktime(&timeInfo);
 		pHeaderData->date = nTimeInSecs;
 
 		pHeaderData->bDeliveryReport = bAskDeliveryReport;

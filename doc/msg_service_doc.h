@@ -20,7 +20,6 @@
 
 
 /**
- * @internal
  * @ingroup CAPI_MESSAGING_FRAMEWORK
  * @defgroup MSG_SERVICE_FRAMEWORK msg-service
  * @brief The @ref MSG_SERVICE_FRAMEWORK API provides functions to create, set properties and send or receive a SMS/MMS message.

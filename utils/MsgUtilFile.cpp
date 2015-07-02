@@ -20,6 +20,7 @@
 #include <stdlib.h>
 #include <errno.h>
 #include <sys/stat.h>
+#include <sys/smack.h>
 #include <string.h>
 #include <dirent.h>
 #include <unistd.h>	//sync()
@@ -201,7 +202,7 @@ bool MsgCreateFileName(char *pFileName)
 
 	try {
 		if (clock_gettime(CLOCK_REALTIME, &ts) < 0) {
-			MSG_DEBUG("clock_gettime() error: %s", strerror(errno));
+			MSG_DEBUG("clock_gettime() error: %s", g_strerror(errno));
 			return false;
 		}
 
@@ -237,17 +238,16 @@ bool MsgOpenAndReadFile(const char *pFileName, char **ppData, int *pDataSize)
 	snprintf(fullPath, MAX_FULL_PATH_SIZE, "%s%s", MSG_IPC_DATA_PATH, pFileName);
 	MSG_SEC_DEBUG("open file name: %s", fullPath);
 
-
 	pFile = MsgOpenFile(fullPath, "rb");
 
 	if (pFile == NULL) {
-		MSG_DEBUG("File Open Error: %s", strerror(errno));
+		MSG_DEBUG("File Open Error: %s", g_strerror(errno));
 		return false;
 	}
 
 	if (MsgFseek(pFile, 0L, SEEK_END) < 0) {
 		MsgCloseFile(pFile);
-		MSG_DEBUG("File Read Error: %s", strerror(errno));
+		MSG_DEBUG("File Read Error: %s", g_strerror(errno));
 		return false;
 	}
 
@@ -265,13 +265,13 @@ bool MsgOpenAndReadFile(const char *pFileName, char **ppData, int *pDataSize)
 
 	if (MsgFseek(pFile, 0L, SEEK_SET) < 0) {
 		MsgCloseFile(pFile);
-		MSG_DEBUG("File seek Error: %s", strerror(errno));
+		MSG_DEBUG("File seek Error: %s", g_strerror(errno));
 		return false;
 	}
 
 	if (MsgReadFile(*ppData, sizeof(char), FileSize, pFile) != (size_t)FileSize) {
 		MsgCloseFile(pFile);
-		MSG_DEBUG("File Read Error: %s", strerror(errno));
+		MSG_DEBUG("File Read Error: %s", g_strerror(errno));
 		return false;
 	}
 
@@ -288,7 +288,7 @@ bool MsgReadFileForDecode(FILE *pFile, char *pBuf, int length, int *nSize)
 	MSG_BEGIN();
 
 	if (MsgFseek(pFile, 0L, SEEK_CUR) < 0) {
-		MSG_DEBUG("File Seek Error: %s", strerror(errno));
+		MSG_DEBUG("File Seek Error: %s", g_strerror(errno));
 		MsgCloseFile(pFile);
 		return false;
 	}
@@ -314,32 +314,24 @@ bool MsgWriteIpcFile(const char *pFileName, const char *pData, int DataSize)
 	FILE *pFile = MsgOpenFile(fullPath, "wb+");
 
 	if (pFile == NULL) {
-		MSG_DEBUG("File Open Error: %s", strerror(errno));
+		MSG_DEBUG("File Open Error: %s", g_strerror(errno));
 		return false;
 	}
 
 	if (MsgFseek(pFile, 0L, SEEK_SET) < 0) {
 		MsgCloseFile(pFile);
-		MSG_DEBUG("File Seek Error: %s", strerror(errno));
+		MSG_DEBUG("File Seek Error: %s", g_strerror(errno));
 		return false;
 	}
 
 	if (MsgWriteFile(pData, sizeof(char), DataSize, pFile) != (size_t)DataSize) {
 		MsgCloseFile(pFile);
-		MSG_DEBUG("File Write Error: %s", strerror(errno));
+		MSG_DEBUG("File Write Error: %s", g_strerror(errno));
 		return false;
 	}
 
 	MsgFflush(pFile);
 	MsgCloseFile(pFile);
-
-	if (MsgChmod(fullPath, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP ) == false) {
-		MSG_DEBUG("File chmod Error: %s", strerror(errno));
-	}
-
-	if (MsgChown(fullPath, 0, 6502 ) == false) {
-		MSG_DEBUG("File chown Error: %s", strerror(errno));
-	}
 
 	return true;
 }
@@ -361,13 +353,13 @@ int MsgReadSmilFile(const char *pFileName, char **ppData)
 	FILE *pFile = MsgOpenFile(fullPath, "rb");
 
 	if (pFile == NULL) {
-		MSG_DEBUG("File Open Error: %s", strerror(errno));
+		MSG_DEBUG("File Open Error: %s", g_strerror(errno));
 		return -1;
 	}
 
 	if (MsgFseek(pFile, 0L, SEEK_END) < 0) {
 		MsgCloseFile(pFile);
-		MSG_DEBUG("File Seek Error: %s", strerror(errno));
+		MSG_DEBUG("File Seek Error: %s", g_strerror(errno));
 		return -1;
 	}
 
@@ -384,13 +376,13 @@ int MsgReadSmilFile(const char *pFileName, char **ppData)
 
 	if (MsgFseek(pFile, 0L, SEEK_SET) < 0) {
 		MsgCloseFile(pFile);
-		MSG_DEBUG("File Sead Error: %s", strerror(errno));
+		MSG_DEBUG("File Sead Error: %s", g_strerror(errno));
 		return -1;
 	}
 
 	if (MsgReadFile(*ppData, sizeof(char), FileSize, pFile) != (size_t)FileSize) {
 		MsgCloseFile(pFile);
-		MSG_DEBUG("File Read Error: %s", strerror(errno));
+		MSG_DEBUG("File Read Error: %s", g_strerror(errno));
 		return -1;
 	}
 
@@ -410,6 +402,7 @@ bool MsgWriteSmilFile(const char *pFilePath,char *pData, int DataSize)
 		return false;
 	}
 
+#if 0
 	if (mkdir(MSG_SMIL_FILE_PATH, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH) < 0) {
 		if (errno == EEXIST) {
 			MSG_SEC_DEBUG("The %s already exists", MSG_SMIL_FILE_PATH);
@@ -417,23 +410,24 @@ bool MsgWriteSmilFile(const char *pFilePath,char *pData, int DataSize)
 			MSG_SEC_DEBUG("Error while mkdir %s", MSG_SMIL_FILE_PATH);
 		}
 	}
+#endif
 
 	FILE *pFile = MsgOpenFile(pFilePath, "wb+");
 
 	if (pFile == NULL) {
-		MSG_DEBUG("File Open Error: %s", strerror(errno));
+		MSG_DEBUG("File Open Error: %s", g_strerror(errno));
 		return false;
 	}
 
 	if (MsgFseek(pFile, 0L, SEEK_SET) < 0) {
 		MsgCloseFile(pFile);
-		MSG_DEBUG("File Seek Error: %s", strerror(errno));
+		MSG_DEBUG("File Seek Error: %s", g_strerror(errno));
 		return false;
 	}
 
 	if (MsgWriteFile(pData, sizeof(char), DataSize, pFile) != (size_t)DataSize) {
 		MsgCloseFile(pFile);
-		MSG_DEBUG("File Write Error: %s", strerror(errno));
+		MSG_DEBUG("File Write Error: %s", g_strerror(errno));
 		return false;
 	}
 
@@ -464,7 +458,7 @@ void MsgDeleteFile(const char *pFileName)
 		MSG_DEBUG("%s", fullPath);
 
 		if (remove(fullPath) != 0)
-			MSG_FATAL("File Delete Error [%s]: %s", fullPath, strerror(errno));
+			MSG_FATAL("File Delete Error [%s]: %s", fullPath, g_strerror(errno));
 	} catch (exception &e) {
 		MSG_FATAL ("%s", e.what());
 	}
@@ -485,7 +479,7 @@ void MsgDeleteSmilFile(const char *pFileName)
 		snprintf(fullPath, MAX_FULL_PATH_SIZE, "%s%s", MSG_SMIL_FILE_PATH, pFileName);
 
 		if (remove(fullPath) != 0)
-			MSG_FATAL("File Delete Error [%s]: %s", fullPath, strerror(errno));
+			MSG_FATAL("File Delete Error [%s]: %s", fullPath, g_strerror(errno));
 	} catch (exception &e) {
 		MSG_FATAL("%s", e.what());
 	}
@@ -504,13 +498,13 @@ bool MsgGetFileSize(const char *pFilePath, int *nSize)
 	pFile = MsgOpenFile(pFilePath, "rb");
 
 	if (!pFile) {
-		MSG_DEBUG("File Open error: %s", strerror(errno));
+		MSG_DEBUG("File Open error: %s", g_strerror(errno));
 		return false;
 	}
 
 	if (MsgFseek(pFile, 0L, SEEK_END) < 0) {
 		MsgCloseFile(pFile);
-		MSG_FATAL("File Read Error: %s", strerror(errno));
+		MSG_FATAL("File Read Error: %s", g_strerror(errno));
 		return false;
 	}
 
@@ -527,7 +521,7 @@ FILE *MsgOpenMMSFile(char *pFileName)
 	int len;
 
 	if (!pFileName) {
-		MSG_DEBUG("pFileName NULL: %s", strerror(errno));
+		MSG_DEBUG("pFileName NULL: %s", g_strerror(errno));
 		return NULL;
 	}
 
@@ -550,13 +544,13 @@ FILE *MsgOpenMMSFile(char *pFileName)
 	FILE *pFile = MsgOpenFile(fullPath, "wb+");
 
 	if (pFile == NULL) {
-		MSG_FATAL("File Open Error: %s", strerror(errno));
+		MSG_FATAL("File Open Error: %s", g_strerror(errno));
 		return NULL;
 	}
 
 	if (MsgFseek(pFile, 0L, SEEK_CUR) < 0) {
 		MsgCloseFile(pFile);
-		MSG_DEBUG("File Read Error: %s", strerror(errno));
+		MSG_DEBUG("File Read Error: %s", g_strerror(errno));
 		return NULL;
 	}
 
@@ -608,9 +602,6 @@ bool MsgWriteDataFromEncodeBuffer(FILE *pFile, char *pInBuffer, int *pPtr, int m
 bool MsgOpenCreateAndOverwriteFile(char *pFullPath, char *pBuff, int TotalLength)
 {
 	FILE *pFile = NULL ;
-	mode_t file_mode;
-
-	file_mode = (S_IRUSR | S_IWUSR);
 
 	if ((pFile = MsgOpenFile(pFullPath, "wb+")) == NULL) {
 		MSG_FATAL("MsgOpenFile errer");
@@ -625,9 +616,6 @@ bool MsgOpenCreateAndOverwriteFile(char *pFullPath, char *pBuff, int TotalLength
 	MsgFsync(pFile);	//file is written to device immediately, it prevents missing file data from unexpected power off
 	MsgFflush(pFile);
 	MsgCloseFile(pFile);
-
-	if (!MsgChmod(pFullPath, file_mode))
-		MSG_FATAL("File chmod Error: %s", strerror(errno));
 
 	return true;
 }
@@ -649,7 +637,7 @@ char *MsgOpenAndReadMmsFile( const char *szFilePath, int offset, int size, int *
 	pFile = MsgOpenFile( szFilePath, "rb" );
 
 	if (pFile == NULL) {
-		MSG_DEBUG("MsgOpenAndReadMmsFile: [ERROR] Can't open filepath", strerror(errno));
+		MSG_DEBUG("MsgOpenAndReadMmsFile: [ERROR] Can't open filepath", g_strerror(errno));
 		goto __CATCH;
 	}
 
@@ -669,13 +657,13 @@ char *MsgOpenAndReadMmsFile( const char *szFilePath, int offset, int size, int *
 
 	pData = (char *)malloc(readSize + 1);
 	if ( NULL == pData ) {
-		MSG_DEBUG( "MsgOpenAndReadMmsFile: [ERROR] pData MemAlloc Fail", strerror(errno) );
+		MSG_DEBUG( "MsgOpenAndReadMmsFile: [ERROR] pData MemAlloc Fail", g_strerror(errno) );
 		goto __CATCH;
 	}
 	memset( pData, 0, readSize + 1 );
 
 	if (MsgFseek( pFile, offset, SEEK_SET) < 0) {
-		MSG_DEBUG( "MsgOpenAndReadMmsFile: [ERROR] FmSeekFile failed", strerror(errno) );
+		MSG_DEBUG( "MsgOpenAndReadMmsFile: [ERROR] FmSeekFile failed", g_strerror(errno) );
 		goto __CATCH;
 	}
 
@@ -709,13 +697,14 @@ __CATCH:
 // it is equivalent to "rm -rf pDirPath"
 int MsgRmRf(char *pDirPath)
 {
-	struct dirent *d;
+	struct dirent *d = NULL;
+	struct dirent entry;
 	DIR *dir;
 
 	dir = opendir(pDirPath);
 
 	if (dir == NULL) {
-		MSG_FATAL("error opendir: %s", strerror(errno));
+		MSG_FATAL("error opendir: %s", g_strerror(errno));
 		return -1;
 	}
 
@@ -731,7 +720,7 @@ int MsgRmRf(char *pDirPath)
 
 	bzero(path, size);
 
-	while ((d = readdir(dir)) != NULL) {
+	for (readdir_r(dir, &entry, &d); d != NULL; readdir_r(dir, &entry, &d)) {
 		if (d->d_type == DT_DIR) {
 			snprintf(path, size, "%s/%s", pDirPath, d->d_name);
 
@@ -747,7 +736,7 @@ int MsgRmRf(char *pDirPath)
 
 				closedir(dir);
 
-				MSG_FATAL("error rmdir: %s", strerror(errno));
+				MSG_FATAL("error rmdir: %s", g_strerror(errno));
 
 				return -1;
 			}
@@ -764,11 +753,12 @@ int MsgRmRf(char *pDirPath)
 
 				closedir(dir);
 
-				MSG_FATAL("error remove: %s", strerror(errno));
+				MSG_FATAL("error remove: %s", g_strerror(errno));
 
 				return -1;
 			}
 		}
+		d = NULL;
 	}
 
 	closedir(dir);
@@ -785,7 +775,7 @@ int MsgGetFileSize(const char *pFileName)
 	struct stat file_stat;
 
 	if (lstat(pFileName, &file_stat)) {
-		MSG_FATAL("error lstat: %s", strerror(errno));
+		MSG_FATAL("error lstat: %s", g_strerror(errno));
 		return -1;
 	}
 
@@ -796,23 +786,29 @@ int MsgGetFileSize(const char *pFileName)
 // it is equivalent to "du dir_path"
 unsigned int MsgDu(const char *pDirPath)
 {
-	struct dirent *d;
+	struct dirent *d = NULL;
+	struct dirent entry;
 	DIR *dir;
 
 	dir = opendir(pDirPath);
 
 	if (dir == NULL) {
-		MSG_FATAL("error opendir: %s", strerror(errno));
+		MSG_FATAL("error opendir: %s", g_strerror(errno));
 		return -1;
 	}
 
 	int size = strlen(pDirPath) + 256;
 	char *path = (char*)malloc(size);
+	if (path == NULL) {
+		closedir(dir);
+		return -1;
+	}
+
 	bzero(path, size);
 
 	unsigned int totalFileSize = 0;
 
-	while ((d = readdir(dir)) != NULL) {
+	for (readdir_r(dir, &entry, &d); d != NULL; readdir_r(dir, &entry, &d)) {
 		if( d->d_type == DT_DIR) {
 			snprintf(path, size, "%s/%s", pDirPath, d->d_name);
 
@@ -842,6 +838,7 @@ unsigned int MsgDu(const char *pDirPath)
 
 			totalFileSize += fileSize;
 		}
+		d = NULL;
 	}
 
 	closedir(dir);
@@ -866,19 +863,19 @@ bool MsgAppendFile(const char *pFilePath, const char *pData, int DataSize)
 	FILE *pFile = MsgOpenFile(fullPath, "a+");
 
 	if (pFile == NULL) {
-		MSG_FATAL("File Open Error: %s", strerror(errno));
+		MSG_FATAL("File Open Error: %s", g_strerror(errno));
 		return false;
 	}
 
 	if (MsgFseek(pFile, 0L, SEEK_CUR) < 0) {
 		MsgCloseFile(pFile);
-		MSG_FATAL("File Sead Error: %s", strerror(errno));
+		MSG_FATAL("File Sead Error: %s", g_strerror(errno));
 		return false;
 	}
 
 	if (MsgWriteFile(pData, sizeof(char), DataSize, pFile) != (size_t)DataSize) {
 		MsgCloseFile(pFile);
-		MSG_FATAL("File Write Error: %s", strerror(errno));
+		MSG_FATAL("File Write Error: %s", g_strerror(errno));
 		return false;
 	}
 
@@ -891,17 +888,18 @@ bool MsgAppendFile(const char *pFilePath, const char *pData, int DataSize)
 void MsgMmsInitDir()
 {
 	struct dirent *d = NULL;
+	struct dirent entry;
 	DIR* dir = NULL;
 
 	dir = opendir(MSG_DATA_PATH);
 
 	if (dir == NULL) {
-		MSG_FATAL("error opendir: %s", strerror(errno));
+		MSG_FATAL("error opendir: %s", g_strerror(errno));
 		return;
 	}
 
 	// Remove temporal Mms folder (/opt/usr/data/msg-service/msgdata/*.dir)
-	while ((d = readdir(dir)) != NULL) {
+	for (readdir_r(dir, &entry, &d); d != NULL; readdir_r(dir, &entry, &d)) {
 		if (d->d_type == DT_DIR) {
 			if ((strcmp(".", d->d_name) == 0) || (strcmp("..", d->d_name) == 0))
 				continue;
@@ -914,6 +912,7 @@ void MsgMmsInitDir()
 				rmdir(filePath);
 			}
 		}
+		d = NULL;
 	}
 
 	closedir(dir);
@@ -944,6 +943,7 @@ bool MsgAccessFile(const char *filepath, int mode)
 
 bool MsgChmod(const char *filepath, int mode)
 {
+#if 0
 	struct stat lstat_info;
 	struct stat fstat_info;
 	int fd;
@@ -977,6 +977,7 @@ bool MsgChmod(const char *filepath, int mode)
 	}
 
 	close(fd);
+#endif
 	return true;
 }
 
@@ -988,19 +989,19 @@ bool MsgChown(const char *filepath, int uid, int gid)
 	int fd;
 
 	if (lstat(filepath, &lstat_info) == -1) {
-		MSG_SEC_DEBUG("No such file as [%s].", filepath);
+		MSG_SEC_INFO("No such file as [%s].", filepath);
 		return false;
 	}
 
 	fd = open(filepath, O_RDONLY);
 
 	if (fd == -1) {
-		MSG_SEC_DEBUG("Fail to open [%s].", filepath);
+		MSG_SEC_INFO("Fail to open [%s].", filepath);
 		return false;
 	}
 
 	if (fstat(fd, &fstat_info) == -1) {
-		MSG_SEC_DEBUG("Fail to fstat [%s].", filepath);
+		MSG_SEC_INFO("Fail to fstat [%s].", filepath);
 		close(fd);
 		return false;
 	}
@@ -1009,13 +1010,14 @@ bool MsgChown(const char *filepath, int uid, int gid)
 			lstat_info.st_ino == fstat_info.st_ino  &&
 			lstat_info.st_dev == fstat_info.st_dev) {
 		if (fchown(fd, uid, gid) < 0) {
-			MSG_SEC_DEBUG("Fail to fchown [%s].", filepath);
+			MSG_SEC_INFO("Fail to fchown [%s].", filepath);
 			close(fd);
 			return false;
 		}
 	}
 
 	close(fd);
+
 	return true;
 }
 
@@ -1029,19 +1031,19 @@ bool MsgCreateFile(const char *pFilePath,char *pData, int DataSize)
 	FILE *pFile = MsgOpenFile(pFilePath, "wb+");
 
 	if (pFile == NULL) {
-		MSG_DEBUG("File Open Error: %s", strerror(errno));
+		MSG_DEBUG("File Open Error: %s", g_strerror(errno));
 		return false;
 	}
 
 	if (MsgFseek(pFile, 0L, SEEK_SET) < 0) {
 		MsgCloseFile(pFile);
-		MSG_DEBUG("File Seek Error: %s", strerror(errno));
+		MSG_DEBUG("File Seek Error: %s", g_strerror(errno));
 		return false;
 	}
 
 	if (MsgWriteFile(pData, sizeof(char), DataSize, pFile) != (size_t)DataSize) {
 		MsgCloseFile(pFile);
-		MSG_DEBUG("File Write Error: %s", strerror(errno));
+		MSG_DEBUG("File Write Error: %s", g_strerror(errno));
 		return false;
 	}
 
@@ -1054,27 +1056,72 @@ bool MsgCreateFile(const char *pFilePath,char *pData, int DataSize)
 
 char *MsgGetDirName(char *file_path)
 {
-	char *tmp_path = NULL;
-	tmp_path = g_strdup(file_path);
-
-	char *ret_name = g_strdup(dirname(tmp_path));
-
-	g_free(tmp_path);
-	tmp_path = NULL;
-
-	return ret_name;
+	return g_path_get_dirname(file_path);
 }
 
 
 char *MsgGetFileName(char *file_path)
 {
-	char *tmp_path = NULL;
-	tmp_path = g_strdup(file_path);
+	return g_path_get_basename(file_path);
+}
 
-	char *ret_name = g_strdup(basename(tmp_path));
 
-	g_free(tmp_path);
-	tmp_path = NULL;
+int MsgCheckFilepathSmack(const char *app_smack_label, char *file_path)
+{
+	int err = MSG_SUCCESS;
 
-	return ret_name;
+	char *path_smack_label = NULL;
+	char *dir_smack_label = NULL;
+	char *dir_name = NULL;
+
+	struct stat st;
+	if (stat(file_path, &st) != 0) {
+		MSG_DEBUG("stat(%s, &st) != 0", file_path);
+		return MSG_ERR_PERMISSION_DENIED;
+	}
+	if (S_ISDIR(st.st_mode)) {
+		MSG_DEBUG("S_ISDIR(st.st_mode)");
+		return MSG_ERR_INVALID_PARAMETER;
+	}
+
+	dir_name = MsgGetDirName(file_path);
+	if (!dir_name || !g_strcmp0(dir_name, file_path)) {
+		MSG_DEBUG("!dir_name || !g_strcmp0(dir_name, %s)", file_path);
+		err = MSG_ERR_INVALID_PARAMETER;
+		goto __RETURN;
+	}
+
+	smack_getlabel(dir_name, &dir_smack_label, SMACK_LABEL_ACCESS);
+	if (dir_smack_label == NULL) {
+		MSG_DEBUG("smack_getlabel failed (dir_smack_label)");
+		err = MSG_ERR_PERMISSION_DENIED;
+		goto __RETURN;
+	}
+
+	if (smack_have_access(app_smack_label, dir_smack_label, "RX") < 1) {
+		MSG_DEBUG("smack_have_access failed (dir_smack_label)");
+		err = MSG_ERR_PERMISSION_DENIED;
+		goto __RETURN;
+	}
+
+	smack_getlabel(file_path, &path_smack_label, SMACK_LABEL_ACCESS);
+	if (path_smack_label == NULL) {
+		MSG_DEBUG("smack_getlabel failed (path_smack_label)");
+		err = MSG_ERR_PERMISSION_DENIED;
+		goto __RETURN;
+	}
+
+	if (smack_have_access(app_smack_label, path_smack_label, "R") < 1) {
+		MSG_DEBUG("smack_have_access failed (path_smack_label)");
+		err = MSG_ERR_PERMISSION_DENIED;
+		goto __RETURN;
+	}
+
+	MSG_DEBUG("smack_have_access pass successfully");
+
+__RETURN:
+	MSG_FREE(path_smack_label);
+	MSG_FREE(dir_smack_label);
+	MSG_FREE(dir_name);
+	return err;
 }

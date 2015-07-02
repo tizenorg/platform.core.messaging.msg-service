@@ -102,7 +102,6 @@ void* SmsPluginSetting::initSimInfo(void *data)
 		MSG_SEC_DEBUG("IMSI [%s]", imsi);
 	} else {
 		MSG_DEBUG("tel_get_sim_imsi() Error![%d]", tapiRet);
-		MsgSettingSetBool(MSG_NATIONAL_SIM, false);
 	}
 
 	MsgSettingSetString(MSG_SIM_IMSI, imsi);

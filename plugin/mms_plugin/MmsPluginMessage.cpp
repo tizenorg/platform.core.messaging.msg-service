@@ -137,7 +137,7 @@ char *MmsComposeAddress(const MSG_MESSAGE_INFO_S *pMsgInfo, int recipientType)
 	// Address String copy
 	for (int i = 0; i < nAddressCnt; ++i) {
 		if (pMsgInfo->addressList[i].recipientType == recipientType) {
-			if (strlen(szCompose) > 0)
+			if (szCompose && strlen(szCompose) > 0)
 				g_strlcat(szCompose, MSG_STR_ADDR_DELIMETER, addrLen + 1);
 
 			memset(pString, 0x00, (MSG_LOCALE_NAME_LEN + MSG_ADDR_LEN + 3) * sizeof(char));
@@ -220,7 +220,7 @@ MsgMultipart *MmsMakeMultipart(MimeType mimeType, char *szTitleName, char *szOrg
 	MsgMultipart *pMultipart = NULL;
 
 	if ((pMultipart = MmsAllocMultipart()) == NULL)
-		goto __CATCH;
+		return NULL;
 
 	pMultipart->type.type = mimeType;
 
@@ -255,17 +255,13 @@ MsgMultipart *MmsMakeMultipart(MimeType mimeType, char *szTitleName, char *szOrg
 		pMultipart->pBody->size = MsgGetFileSize(szOrgFilePath);
 	}
 	return pMultipart;
-
-__CATCH:
-
-	return NULL;
 }
 
 void MmsComposeNotiMessage(MmsMsg *pMmsMsg, msg_message_id_t msgID)
 {
 	MSG_BEGIN();
 
-	struct tm *timeInfo = NULL;
+	struct tm timeInfo;
 	time_t RawTime = 0;
 	time_t nTimeInSecs = 0;
 
@@ -279,12 +275,13 @@ void MmsComposeNotiMessage(MmsMsg *pMmsMsg, msg_message_id_t msgID)
 
 	// setting date
 	time(&RawTime);
-	timeInfo = localtime(&RawTime);
-	nTimeInSecs = mktime(timeInfo);
+	localtime_r(&RawTime, &timeInfo);
+	nTimeInSecs = mktime(&timeInfo);
+
 	pMmsMsg->mmsAttrib.date = nTimeInSecs;
 
-	pMmsMsg->mmsAttrib.bReportAllowed = mmsHeader.reportAllowed;
-	pMmsMsg->mmsAttrib.bAskDeliveryReport = mmsHeader.deliveryReport;
+	pMmsMsg->mmsAttrib.bReportAllowed = (mmsHeader.reportAllowed != MMS_REPORTALLOWED_YES);
+	pMmsMsg->mmsAttrib.bAskDeliveryReport = (mmsHeader.deliveryReport != MMS_REPORT_YES);
 
 	MSG_DEBUG("######## Version = %d ########", pMmsMsg->mmsAttrib.version);
 
@@ -320,7 +317,7 @@ void MmsComposeNotiMessage(MmsMsg *pMmsMsg, msg_message_id_t msgID)
 
 void MmsComposeReadReportMessage(MmsMsg *pMmsMsg, const MSG_MESSAGE_INFO_S *pMsgInfo, msg_message_id_t selectedMsgId)
 {
-	struct tm *timeInfo = NULL;
+	struct tm timeInfo;
 	time_t RawTime = 0;
 	time_t nTimeInSecs = 0;
 
@@ -340,8 +337,8 @@ void MmsComposeReadReportMessage(MmsMsg *pMmsMsg, const MSG_MESSAGE_INFO_S *pMsg
 
 	// setting date
 	time(&RawTime);
-	timeInfo = localtime(&RawTime);
-	nTimeInSecs = mktime(timeInfo);
+	localtime_r(&RawTime, &timeInfo);
+	nTimeInSecs = mktime(&timeInfo);
 	pMmsMsg->mmsAttrib.date = nTimeInSecs;
 
 	// setting szMsgId
@@ -354,7 +351,7 @@ void MmsComposeReadReportMessage(MmsMsg *pMmsMsg, const MSG_MESSAGE_INFO_S *pMsg
 	MmsSetMsgAddressList(&pMmsMsg->mmsAttrib, pMsgInfo);
 
 	if (pMmsMsg->mmsAttrib.szTo)
-		strncpy(pMmsMsg->mmsAttrib.szFrom, pMmsMsg->mmsAttrib.szTo, strlen(pMmsMsg->mmsAttrib.szTo));
+		snprintf(pMmsMsg->mmsAttrib.szFrom, sizeof(pMmsMsg->mmsAttrib.szFrom), "%s", pMmsMsg->mmsAttrib.szTo);
 }
 
 msg_error_t MmsMakeMultipartThumbnailInfo(MMS_MULTIPART_DATA_S *pMultipart, char *thumbnail_path)
@@ -555,22 +552,26 @@ bool MmsInsertPartToMmsData(MMS_MESSAGE_DATA_S *pMsgData, MMS_MULTIPART_DATA_S *
 	if (isInsert == false) {
 		MMS_ATTACH_S *attachment = NULL;
 		attachment = (MMS_ATTACH_S *)calloc(sizeof(MMS_ATTACH_S), 1);
-		attachment->drmType = pMultipart->drmType;
+		if (attachment) {
+			attachment->drmType = pMultipart->drmType;
 
-		if (strlen(pMultipart->szContentType) > 0) {
-			snprintf(attachment->szContentType, sizeof(attachment->szContentType), "%s", pMultipart->szContentType);
-			attachment->mediatype =  pMultipart->type;
-		}
+			if (strlen(pMultipart->szContentType) > 0) {
+				snprintf(attachment->szContentType, sizeof(attachment->szContentType), "%s", pMultipart->szContentType);
+				attachment->mediatype =  pMultipart->type;
+			}
 
-		snprintf(attachment->szFilePath, sizeof(attachment->szFilePath), "%s", pMultipart->szFilePath);
-		snprintf(attachment->szFileName, sizeof(attachment->szFileName), "%s", pMultipart->szFileName);
-		attachment->fileSize = MsgGetFileSize(attachment->szFilePath);
+			snprintf(attachment->szFilePath, sizeof(attachment->szFilePath), "%s", pMultipart->szFilePath);
+			snprintf(attachment->szFileName, sizeof(attachment->szFileName), "%s", pMultipart->szFileName);
+			attachment->fileSize = MsgGetFileSize(attachment->szFilePath);
 
-		MSG_SEC_DEBUG("Insert Attach to attachment[%p] : path = [%s], name = [%s], ct = [%s], size = [%d]"\
-						, attachment, attachment->szFilePath, attachment->szFileName, attachment->szContentType, attachment->fileSize);
+			MSG_SEC_DEBUG("Insert Attach to attachment[%p] : path = [%s], name = [%s], ct = [%s], size = [%d]"\
+							, attachment, attachment->szFilePath, attachment->szFileName, attachment->szContentType, attachment->fileSize);
 
-		if (_MsgMmsAddAttachment(pMsgData, attachment) != MSG_SUCCESS) {
-			g_free(attachment);
+			if (_MsgMmsAddAttachment(pMsgData, attachment) != MSG_SUCCESS) {
+				g_free(attachment);
+				return false;
+			}
+		} else {
 			return false;
 		}
 	}
@@ -611,45 +612,52 @@ bool MmsInsertMixedPartToMmsData(MMS_MESSAGE_DATA_S *pMsgData, MMS_MULTIPART_DAT
 	if (mediatype != MMS_SMIL_MEDIA_INVALID) {
 		MMS_PAGE_S *pPage = (MMS_PAGE_S *)calloc(1, sizeof(MMS_PAGE_S));
 		MMS_MEDIA_S *media = (MMS_MEDIA_S *)calloc(1, sizeof(MMS_MEDIA_S));
+		if (pPage && media) {
+			media->mediatype = mediatype;
+			media->drmType = pMultipart->drmType;
+			snprintf(media->szFilePath, sizeof(media->szFilePath), "%s", pMultipart->szFilePath);
+			snprintf(media->szFileName, sizeof(media->szFileName), "%s", pMultipart->szFileName);
+			snprintf(media->szContentID, sizeof(media->szContentID), "%s", pMultipart->szContentID);
+			snprintf(media->szContentLocation, sizeof(media->szContentLocation), "%s", pMultipart->szContentLocation);
+			snprintf(media->szContentType, sizeof(media->szContentType), "%s", pMultipart->szContentType);
 
-		media->mediatype = mediatype;
-		media->drmType = pMultipart->drmType;
-		snprintf(media->szFilePath, sizeof(media->szFilePath), "%s", pMultipart->szFilePath);
-		snprintf(media->szFileName, sizeof(media->szFileName), "%s", pMultipart->szFileName);
-		snprintf(media->szContentID, sizeof(media->szContentID), "%s", pMultipart->szContentID);
-		snprintf(media->szContentLocation, sizeof(media->szContentLocation), "%s", pMultipart->szContentLocation);
-		snprintf(media->szContentType, sizeof(media->szContentType), "%s", pMultipart->szContentType);
+			MSG_SEC_DEBUG("InsertPart to media[%p] type[%d] : path = [%s], name = [%s], cid = [%s], cl = [%s], ct = [%s]"\
+					, media, mediatype,  media->szFilePath, media->szFileName, media->szContentID, media->szContentLocation, media->szContentType);
 
-		MSG_SEC_DEBUG("InsertPart to media[%p] type[%d] : path = [%s], name = [%s], cid = [%s], cl = [%s], ct = [%s]"\
-				, media, mediatype,  media->szFilePath, media->szFileName, media->szContentID, media->szContentLocation, media->szContentType);
+			if (_MsgMmsAddMedia(pPage, media) != MSG_SUCCESS) {
+				g_free(pPage);
+				g_free(media);
+				return false;
+			}
 
-		if (_MsgMmsAddMedia(pPage, media) != MSG_SUCCESS) {
-			g_free(pPage);
-			g_free(media);
+			if (_MsgMmsAddPage(pMsgData, pPage) != MSG_SUCCESS) {
+				g_free(pPage);
+				g_free(media);
+				return false;
+			}
+		} else {
+			if (pPage) g_free(pPage);
+			if (media) g_free(media);
 			return false;
 		}
-
-		if (_MsgMmsAddPage(pMsgData, pPage) != MSG_SUCCESS) {
-			g_free(pPage);
-			g_free(media);
-			return false;
-		}
-
 	} else {
 		MMS_ATTACH_S *attachment = NULL;
 		attachment = (MMS_ATTACH_S *)calloc(sizeof(MMS_ATTACH_S), 1);
+		if (attachment) {
+			attachment->mediatype =  pMultipart->type;
+			attachment->drmType = pMultipart->drmType;
+			snprintf(attachment->szContentType, sizeof(attachment->szContentType), "%s", pMultipart->szContentType);
+			snprintf(attachment->szFilePath, sizeof(attachment->szFilePath), "%s", pMultipart->szFilePath);
+			snprintf(attachment->szFileName, sizeof(attachment->szFileName), "%s", pMultipart->szFileName);
+			attachment->fileSize = MsgGetFileSize(attachment->szFilePath);
+			MSG_SEC_DEBUG("Insert Attach to attachment[%p] : path = [%s], name = [%s], ct = [%s], size = [%d]"\
+							, attachment, attachment->szFilePath, attachment->szFileName, attachment->szContentType, attachment->fileSize);
 
-		attachment->mediatype =  pMultipart->type;
-		attachment->drmType = pMultipart->drmType;
-		snprintf(attachment->szContentType, sizeof(attachment->szContentType), "%s", pMultipart->szContentType);
-		snprintf(attachment->szFilePath, sizeof(attachment->szFilePath), "%s", pMultipart->szFilePath);
-		snprintf(attachment->szFileName, sizeof(attachment->szFileName), "%s", pMultipart->szFileName);
-		attachment->fileSize = MsgGetFileSize(attachment->szFilePath);
-		MSG_SEC_DEBUG("Insert Attach to attachment[%p] : path = [%s], name = [%s], ct = [%s], size = [%d]"\
-						, attachment, attachment->szFilePath, attachment->szFileName, attachment->szContentType, attachment->fileSize);
-
-		if (_MsgMmsAddAttachment(pMsgData, attachment) != MSG_SUCCESS) {
-			g_free(attachment);
+			if (_MsgMmsAddAttachment(pMsgData, attachment) != MSG_SUCCESS) {
+				g_free(attachment);
+				return false;
+			}
+		} else {
 			return false;
 		}
 	}
@@ -768,7 +776,7 @@ bool MmsConvertMsgData(MmsMsg *pMsg, MMS_MESSAGE_DATA_S *pMmsMsg)
 				snprintf(szBuf, sizeof(szBuf), "%s", partHeader.param.szFileName);
 				snprintf(partHeader.param.szFileName, sizeof(partHeader.param.szFileName), "%s%s", MSG_DATA_PATH, szBuf);
 
-				page =  (MMS_PAGE_S *)calloc(1, sizeof(MMS_PAGE_S));
+				page = (MMS_PAGE_S *)calloc(1, sizeof(MMS_PAGE_S));
 				if (page == NULL) {
 					MSG_FATAL("page allocation error");
 					goto FREE_CATCH;
@@ -902,19 +910,21 @@ int MmsUpdatePreviewData(MSG_MESSAGE_INFO_S *pMsgInfo)
 	MSG_BEGIN();
 
 	char szFullPath[MSG_FILEPATH_LEN_MAX] = {0, };
-	MmsMsg mmsMsg;
 
-	memset(&mmsMsg, 0, sizeof(MmsMsg));
+	MmsMsg *mmsMsg = NULL;
+	unique_ptr<MmsMsg*, void(*)(MmsMsg**)> buf(&mmsMsg, unique_ptr_deleter);
+	mmsMsg = (MmsMsg *)new char[sizeof(MmsMsg)];
+	memset(mmsMsg, 0x00, sizeof(MmsMsg));
 
 	MmsPluginStorage::instance()->getMmsRawFilePath(pMsgInfo->msgId, szFullPath, sizeof(szFullPath));
-	MmsPluginDecoder::instance()->decodeMmsPdu(&mmsMsg, pMsgInfo->msgId, szFullPath);
+	MmsPluginDecoder::instance()->decodeMmsPdu(mmsMsg, pMsgInfo->msgId, szFullPath);
 
 	{//make Preview info for APP
-		MmsPluginAppBase appBase(&mmsMsg);
+		MmsPluginAppBase appBase(mmsMsg);
 		appBase.makePreviewInfo(pMsgInfo->msgId, true, szFullPath);
 		appBase.getFirstPageTextFilePath(pMsgInfo->msgText, sizeof(pMsgInfo->msgText));
 	}
-	MmsReleaseMmsMsg(&mmsMsg);
+	MmsReleaseMmsMsg(mmsMsg);
 	MSG_END();
 	return 0;
 }
@@ -959,15 +969,16 @@ bool MmsConvertMmsData(MmsMsg *pMmsMsg, MMS_DATA_S *pMmsData)
 	if (pMmsMsg->mmsAttrib.contentType == MIME_MULTIPART_RELATED || pMmsMsg->mmsAttrib.contentType == MIME_APPLICATION_VND_WAP_MULTIPART_RELATED) {
 
 		MMS_MULTIPART_DATA_S *pMultipart = MsgMmsCreateMultipart();
+		if (pMultipart) {
+			pMultipart->type = MIME_APPLICATION_SMIL;
+			snprintf(pMultipart->szContentType, sizeof(pMultipart->szContentType), "%s", "application/smil");
+			snprintf(pMultipart->szContentID, sizeof(pMultipart->szContentID), "%s", pMmsMsg->msgBody.presentationType.szContentID);
+			snprintf(pMultipart->szContentLocation, sizeof(pMultipart->szContentLocation), "%s", pMmsMsg->msgBody.presentationType.szContentLocation);
+			snprintf(pMultipart->szFileName, sizeof(pMultipart->szFileName), "%s", pMmsMsg->msgBody.presentationType.param.szName);
+			snprintf(pMultipart->szFilePath, sizeof(pMultipart->szFilePath), MSG_DATA_PATH"%s", pMmsMsg->msgBody.presentationType.param.szFileName);
 
-		pMultipart->type = MIME_APPLICATION_SMIL;
-		snprintf(pMultipart->szContentType, sizeof(pMultipart->szContentType), "%s", "application/smil");
-		snprintf(pMultipart->szContentID, sizeof(pMultipart->szContentID), "%s", pMmsMsg->msgBody.presentationType.szContentID);
-		snprintf(pMultipart->szContentLocation, sizeof(pMultipart->szContentLocation), "%s", pMmsMsg->msgBody.presentationType.szContentLocation);
-		snprintf(pMultipart->szFileName, sizeof(pMultipart->szFileName), "%s", pMmsMsg->msgBody.presentationType.param.szName);
-		snprintf(pMultipart->szFilePath, sizeof(pMultipart->szFilePath), MSG_DATA_PATH"%s", pMmsMsg->msgBody.presentationType.param.szFileName);
-
-		pMmsData->smil = pMultipart;
+			pMmsData->smil = pMultipart;
+		}
 	}
 
 	int partCnt = pMmsMsg->nPartCount;
@@ -980,20 +991,22 @@ bool MmsConvertMmsData(MmsMsg *pMmsMsg, MMS_DATA_S *pMmsData)
 
 			MMS_MULTIPART_DATA_S *pMultipart = MsgMmsCreateMultipart();
 
-			pMultipart->type = (MimeType)multipart->type.type;
+			if (pMultipart) {
+				pMultipart->type = (MimeType)multipart->type.type;
 
-			snprintf(pMultipart->szContentType, sizeof(pMultipart->szContentType), "%s",MimeGetMimeStringFromMimeInt(multipart->type.type));
-			snprintf(pMultipart->szContentID, sizeof(pMultipart->szContentID), "%s", multipart->type.szContentID);
-			snprintf(pMultipart->szContentLocation, sizeof(pMultipart->szContentLocation), "%s", multipart->type.szContentLocation);
-			snprintf(pMultipart->szFileName, sizeof(pMultipart->szFileName), "%s", multipart->type.param.szName);
-			snprintf(pMultipart->szFilePath, sizeof(pMultipart->szFilePath), "%s", multipart->pBody->szOrgFilePath);
+				snprintf(pMultipart->szContentType, sizeof(pMultipart->szContentType), "%s",MimeGetMimeStringFromMimeInt(multipart->type.type));
+				snprintf(pMultipart->szContentID, sizeof(pMultipart->szContentID), "%s", multipart->type.szContentID);
+				snprintf(pMultipart->szContentLocation, sizeof(pMultipart->szContentLocation), "%s", multipart->type.szContentLocation);
+				snprintf(pMultipart->szFileName, sizeof(pMultipart->szFileName), "%s", multipart->type.param.szName);
+				snprintf(pMultipart->szFilePath, sizeof(pMultipart->szFilePath), "%s", multipart->pBody->szOrgFilePath);
 
 #ifdef __SUPPORT_DRM__
-			if (multipart->type.drmInfo.drmType != MSG_DRM_TYPE_NONE) {
-				pMultipart->drmType = multipart->type.drmInfo.drmType;
-			}
+				if (multipart->type.drmInfo.drmType != MSG_DRM_TYPE_NONE) {
+					pMultipart->drmType = multipart->type.drmInfo.drmType;
+				}
 #endif
-			pMmsData->multipartlist = g_list_append(pMmsData->multipartlist, pMultipart);
+				pMmsData->multipartlist = g_list_append(pMmsData->multipartlist, pMultipart);
+			}
 		}
 	}
 
@@ -1114,8 +1127,8 @@ bool MmsConvertMmsMsg(MmsMsg *pMmsMsg, MMS_DATA_S *pMmsData)
 char *MmsConvertAddressToOldStyle(MMSList *pAddressList)
 {
 	MSG_BEGIN();
-	int	addrLen = 0;
-	int	nAddressCnt = 0;
+	int addrLen = 0;
+	int nAddressCnt = 0;
 	char pString[MSG_LOCALE_NAME_LEN + MSG_ADDR_LEN + 3] = {0, };
 	char *szCompose = NULL;
 
@@ -1141,26 +1154,26 @@ char *MmsConvertAddressToOldStyle(MMSList *pAddressList)
 
 	szCompose = (char *)calloc(addrLen + 1, 1);
 
-	// Address String copy
-	for (int i = 0; i < nAddressCnt; ++i) {
+	if (szCompose) {
+		// Address String copy
+		for (int i = 0; i < nAddressCnt; ++i) {
+			MMS_ADDRESS_DATA_S * pAddressData = (MMS_ADDRESS_DATA_S *)g_list_nth_data(pAddressList, i);
 
-		MMS_ADDRESS_DATA_S * pAddressData = (MMS_ADDRESS_DATA_S *)g_list_nth_data(pAddressList, i);
+			if (pAddressData) {
+				if (strlen(szCompose) > 0)
+					g_strlcat(szCompose, MSG_STR_ADDR_DELIMETER, addrLen + 1 - strlen(szCompose));
 
-		if (pAddressData) {
-			if (strlen(szCompose) > 0)
-				strcat(szCompose, MSG_STR_ADDR_DELIMETER);
+				memset(pString, 0x00, (MSG_LOCALE_NAME_LEN + MSG_ADDR_LEN + 3) * sizeof(char));
+				if (pAddressData->address_type == MSG_ADDRESS_TYPE_PLMN) {
+					snprintf(pString, MSG_LOCALE_NAME_LEN + MSG_ADDR_LEN + 3, "%s%s", pAddressData->address_val, "/TYPE=PLMN");
+					MSG_DEBUG("%s", pString);
+				} else {
+					snprintf(pString, MSG_LOCALE_NAME_LEN + MSG_ADDR_LEN + 3, "%s", pAddressData->address_val);
+				}
 
-			memset(pString, 0x00, (MSG_LOCALE_NAME_LEN + MSG_ADDR_LEN + 3) * sizeof(char));
-			if (pAddressData->address_type == MSG_ADDRESS_TYPE_PLMN) {
-				snprintf(pString, MSG_LOCALE_NAME_LEN + MSG_ADDR_LEN + 3, "%s%s", pAddressData->address_val, "/TYPE=PLMN");
-				MSG_DEBUG("%s", pString);
-			} else {
-				snprintf(pString, MSG_LOCALE_NAME_LEN + MSG_ADDR_LEN + 3, "%s", pAddressData->address_val);
+				g_strlcat(szCompose, pString, addrLen + 1 - strlen(szCompose));
 			}
-
-			strcat(szCompose, pString);
 		}
-
 	}
 
 	MSG_END();

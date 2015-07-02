@@ -226,9 +226,9 @@ if(strlen(pMsg->subject) > 0)
 			if (pMsg->bTextSms == false)
 			{
 				char* pFileData = NULL;
-				AutoPtr<char> buf(&pFileData);
+				unique_ptr<char*, void(*)(char**)> buf(&pFileData, unique_ptr_deleter);
 
-				int		fileSize = 0;
+				int	 fileSize = 0;
 				char*	msgText = NULL;
 
 				if (MsgOpenAndReadFile(pMsg->msgData, &pFileData, &fileSize) == false)
@@ -256,6 +256,7 @@ if(strlen(pMsg->subject) > 0)
 	{
 		//Insert VBody for mms raw data;
 		char* pFileData = NULL;
+		unique_ptr<char*, void(*)(char**)> buf(&pFileData, unique_ptr_deleter);
 		MMS_DATA_S *pMmsData = NULL;
 		int fileSize = 0;
 		char* msgText = NULL;
@@ -303,8 +304,6 @@ if(strlen(pMsg->subject) > 0)
 			free(pFileData);
 			pFileData = NULL;
 		}
-
-		MsgMmsSetMultipartListData(pMmsData);//app file -> data
 
 		int serializedDataSize = 0;
 
@@ -574,7 +573,7 @@ if(strlen(pMsg->subject) > 0)
 			if (pMsg->bTextSms == false)
 			{
 				char* pFileData = NULL;
-				AutoPtr<char> buf(&pFileData);
+				unique_ptr<char*, void(*)(char**)> buf(&pFileData, unique_ptr_deleter);
 
 				int		fileSize = 0;
 				char*	msgText = NULL;
@@ -583,7 +582,9 @@ if(strlen(pMsg->subject) > 0)
 					goto __CATCH_FAIL__;
 
 				msgText = (char *)calloc(1, fileSize);
-				memcpy(msgText, pFileData, fileSize);
+				if (pFileData && msgText)
+					memcpy(msgText, pFileData, fileSize);
+
 				pObject->numOfBiData = fileSize;
 				pObject->pszValue[0] = msgText;
 			}
@@ -621,8 +622,9 @@ if(strlen(pMsg->subject) > 0)
 		}
 		MSG_DEBUG("FILE SIZE IS %d", fileSize);
 		msgText = (char *)calloc(1, fileSize);
-		if(pFileData)
+		if(pFileData && msgText)
 			memcpy(msgText, pFileData, fileSize);
+
 		pObject->numOfBiData = fileSize;
 		pObject->pszValue[0] = msgText;
 		pObject->valueCount = 1;

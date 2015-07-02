@@ -326,14 +326,6 @@ msg_error_t MsgSetGeneralOpt(const MSG_SETTING_S *pSetting)
 		}
 	}
 
-	iValue = MsgSettingGetInt(MSG_SEARCH_TAGS);
-	if (iValue != (int)generalOpt.searchTags) {
-		if (MsgSettingSetInt(MSG_SEARCH_TAGS, (int)generalOpt.searchTags) != MSG_SUCCESS) {
-			MSG_DEBUG("Error to set config data [%s]", MSG_SEARCH_TAGS);
-			return MSG_ERR_SET_SETTING;
-		}
-	}
-
 	return MSG_SUCCESS;
 }
 
@@ -985,9 +977,6 @@ void MsgGetGeneralOpt(MSG_SETTING_S *pSetting)
 	}
 
 	pSetting->option.generalOpt.alertTone = (MSG_ALERT_TONE_T)MsgSettingGetInt(MSG_ALERT_REP_TYPE);
-
-	pSetting->option.generalOpt.searchTags = MsgSettingGetInt(MSG_SEARCH_TAGS);
-
 }
 
 
@@ -1038,7 +1027,7 @@ void MsgGetMMSSendOpt(MSG_SETTING_S *pSetting)
 	MsgSettingGetBool(MMS_SEND_READ_REPLY, &pSetting->option.mmsSendOpt.bReadReply);
 
 #ifdef	__NOT_USED_BY_DESIGN_CHANGE__
-	MsgSettingGetBool(MSG_KEEP_COPY, &pSetting->option.mmsSendOpt.bKeepCopy);
+	MsgSettingGetBool(MMS_SEND_KEEP_COPY, &pSetting->option.mmsSendOpt.bKeepCopy);
 #endif	/* __NOT_USED_BY_DESIGN_CHANGE__ */
 
 	MsgSettingGetBool(MMS_SEND_BODY_REPLYING, &pSetting->option.mmsSendOpt.bBodyReplying);

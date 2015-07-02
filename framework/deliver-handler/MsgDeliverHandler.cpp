@@ -277,6 +277,9 @@ msg_error_t MsgHandleMmsConfIncomingMsg(MSG_MESSAGE_INFO_S *pMsgInfo, msg_reques
 	else if (pMsgInfo->msgType.subType == MSG_SENDREQ_MMS || pMsgInfo->msgType.subType == MSG_SENDCONF_MMS)
 	{
 		MsgPlugin *plg = MsgPluginManager::instance()->getPlugin(pMsgInfo->msgType.mainType);
+		if (plg == NULL)
+			return MSG_ERR_NULL_POINTER;
+
 		// change subType for storage update
 		pMsgInfo->msgType.subType = MSG_SENDCONF_MMS;
 
@@ -323,8 +326,8 @@ msg_error_t MsgHandleIncomingMsg(MSG_MESSAGE_INFO_S *pMsgInfo, bool *pSendNoti)
 		err = MsgHandleSMS(pMsgInfo, pSendNoti, &bOnlyNoti);
 
 		if (err == MSG_SUCCESS && ((*pSendNoti)||bOnlyNoti)) {
-			bool isFavorites = false;
 #ifndef MSG_CONTACTS_SERVICE_NOT_SUPPORTED
+			bool isFavorites = false;
 			if (!checkBlockingMode(pMsgInfo->addressList[0].addressVal, &isFavorites)) {
 				MsgPlayTTSMode(pMsgInfo->msgType.subType, pMsgInfo->msgId, isFavorites);
 			}
@@ -495,8 +498,8 @@ msg_error_t MsgHandleSMS(MSG_MESSAGE_INFO_S *pMsgInfo, bool *pSendNoti, bool *bO
 	} else if ((pMsgInfo->msgType.subType >= MSG_WAP_SI_SMS) && (pMsgInfo->msgType.subType <= MSG_WAP_CO_SMS)) {
 		MSG_DEBUG("Starting WAP Message Incoming.");
 
-		MSG_PUSH_SERVICE_TYPE_T serviceType = (MSG_PUSH_SERVICE_TYPE_T)MsgSettingGetInt(PUSH_SERVICE_TYPE);
 #ifndef MSG_WEARABLE_PROFILE
+		MSG_PUSH_SERVICE_TYPE_T serviceType = (MSG_PUSH_SERVICE_TYPE_T)MsgSettingGetInt(PUSH_SERVICE_TYPE);
 		app_control_h svc_handle = NULL;
 
 		switch (pMsgInfo->msgType.subType) {

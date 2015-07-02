@@ -38,11 +38,8 @@ SmsPluginStorage* SmsPluginStorage::pInstance = NULL;
 
 SmsPluginStorage::SmsPluginStorage()
 {
-/*** No need to connect DB anymore.
-	if (dbHandle->connect() != MSG_SUCCESS) {
-		MSG_DEBUG("DB Connect Fail");
-	}
-***/
+	memset(&msgInfo, 0x00, sizeof(msgInfo));
+	memset(&addrInfo, 0x00, sizeof(addrInfo));
 }
 
 
@@ -130,7 +127,7 @@ msg_error_t SmsPluginStorage::updateMsgDeliverStatus(MSG_MESSAGE_INFO_S *pMsgInf
 	snprintf(sqlQuery, sizeof(sqlQuery), "SELECT * FROM %s WHERE MSG_ID = %d AND MSG_REF > 0;",
 			MSGFW_SMS_REPORT_TABLE_NAME, msgId);
 
-	if (dbHandle->getTable(sqlQuery, &rowCnt) != MSG_SUCCESS) {
+	if (dbHandle->getTable(sqlQuery, &rowCnt, NULL) != MSG_SUCCESS) {
 		dbHandle->freeTable();
 		return MSG_ERR_DB_GETTABLE;
 	}
@@ -768,7 +765,7 @@ void* SmsPluginStorage::class2_thread(void *data)
 	}
 
 	MSG_END();
-	return NULL;
+	return (void *)err;
 }
 
 
@@ -940,7 +937,7 @@ msg_error_t SmsPluginStorage::isReceivedCBMessage(SMS_CBMSG_PAGE_S CbPage)
 			MSGFW_RECEIVED_CB_MSG_TABLE_NAME, CbPage.pageHeader.serialNum.geoScope,
 			CbPage.pageHeader.serialNum.msgCode,CbPage.pageHeader.msgId, CbPage.pageHeader.serialNum.updateNum);
 
-	err = dbHandle->getTable(sqlQuery, &rowCnt);
+	err = dbHandle->getTable(sqlQuery, &rowCnt, NULL);
 	MSG_DEBUG("rowCnt: %d", rowCnt);
 
 	dbHandle->freeTable();
@@ -982,7 +979,7 @@ msg_error_t SmsPluginStorage::getRegisteredPushEvent(char* pPushHeader, int *cou
 {
 	msg_error_t err = MSG_SUCCESS;
 
-	int rowCnt = 0, index = 3;
+	int rowCnt = 0, index = 0;
 
 	MsgDbHandler *dbHandle = getDbHandle();
 
@@ -992,7 +989,7 @@ msg_error_t SmsPluginStorage::getRegisteredPushEvent(char* pPushHeader, int *cou
 
 	snprintf(sqlQuery, sizeof(sqlQuery), "SELECT CONTENT_TYPE, APP_ID, APPCODE FROM %s", MSGFW_PUSH_CONFIG_TABLE_NAME);
 
-	err = dbHandle->getTable(sqlQuery, &rowCnt);
+	err = dbHandle->getTable(sqlQuery, &rowCnt, &index);
 	MSG_DEBUG("rowCnt: %d", rowCnt);
 
 	if (err == MSG_ERR_DB_NORECORD) {

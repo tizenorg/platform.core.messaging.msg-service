@@ -32,18 +32,18 @@
 ==================================================================================================*/
 EXPORT_API int msg_submit_req(msg_handle_t handle, msg_struct_t req)
 {
-	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_FEATURE);
-	msg_error_t err =  MSG_SUCCESS;
+	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_SMS_FEATURE);
+	msg_error_t err = MSG_SUCCESS;
 
 	//Privilege check
 	int ret = PRIV_MGR_ERROR_SUCCESS;
 	ret = privacy_checker_check_by_privilege(MSG_SERVICE_WRITE_PRIV_NAME);
-	if(ret != PRIV_MGR_ERROR_SUCCESS)
+	if (ret != PRIV_MGR_ERROR_SUCCESS)
 	{
 		return MSG_ERR_PERMISSION_DENIED;
 	}
 
-	if (handle == NULL ||req == NULL)
+	if (handle == NULL || req == NULL)
 	{
 		return MSG_ERR_INVALID_PARAMETER;
 	}
@@ -51,6 +51,7 @@ EXPORT_API int msg_submit_req(msg_handle_t handle, msg_struct_t req)
 	MsgHandle* pHandle = (MsgHandle*)handle;
 
 	msg_struct_s *pStruct = (msg_struct_s *)req;
+	MSG_TYPE_CHECK(pStruct->type, MSG_STRUCT_REQUEST_INFO);
 
 	try
 	{
@@ -68,13 +69,13 @@ EXPORT_API int msg_submit_req(msg_handle_t handle, msg_struct_t req)
 
 EXPORT_API int msg_reg_sent_status_callback(msg_handle_t handle, msg_sent_status_cb cb, void *user_param)
 {
-	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_FEATURE);
-	msg_error_t err =  MSG_SUCCESS;
+	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_SMS_FEATURE);
+	msg_error_t err = MSG_SUCCESS;
 
 	//Privilege check
 	int ret = PRIV_MGR_ERROR_SUCCESS;
 	ret = privacy_checker_check_by_privilege(MSG_SERVICE_READ_PRIV_NAME);
-	if(ret != PRIV_MGR_ERROR_SUCCESS)
+	if (ret != PRIV_MGR_ERROR_SUCCESS)
 	{
 		return MSG_ERR_PERMISSION_DENIED;
 	}
@@ -105,13 +106,13 @@ EXPORT_API int msg_reg_sent_status_callback(msg_handle_t handle, msg_sent_status
 
 EXPORT_API int msg_reg_sms_message_callback(msg_handle_t handle, msg_sms_incoming_cb cb, unsigned short port, void *user_param)
 {
-	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_FEATURE);
-	msg_error_t err =  MSG_SUCCESS;
+	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_SMS_FEATURE);
+	msg_error_t err = MSG_SUCCESS;
 
 	//Privilege check
 	int ret = PRIV_MGR_ERROR_SUCCESS;
 	ret = privacy_checker_check_by_privilege(MSG_SERVICE_READ_PRIV_NAME);
-	if(ret != PRIV_MGR_ERROR_SUCCESS)
+	if (ret != PRIV_MGR_ERROR_SUCCESS)
 	{
 		return MSG_ERR_PERMISSION_DENIED;
 	}
@@ -143,12 +144,12 @@ EXPORT_API int msg_reg_sms_message_callback(msg_handle_t handle, msg_sms_incomin
 EXPORT_API int msg_reg_mms_conf_message_callback(msg_handle_t handle, msg_mms_conf_msg_incoming_cb cb, const char *app_id, void *user_param)
 {
 	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_MMS_FEATURE);
-	msg_error_t err =  MSG_SUCCESS;
+	msg_error_t err = MSG_SUCCESS;
 
 	//Privilege check
 	int ret = PRIV_MGR_ERROR_SUCCESS;
 	ret = privacy_checker_check_by_privilege(MSG_SERVICE_READ_PRIV_NAME);
-	if(ret != PRIV_MGR_ERROR_SUCCESS)
+	if (ret != PRIV_MGR_ERROR_SUCCESS)
 	{
 		return MSG_ERR_PERMISSION_DENIED;
 	}
@@ -184,13 +185,13 @@ EXPORT_API int msg_reg_mms_conf_message_callback(msg_handle_t handle, msg_mms_co
 
 EXPORT_API int msg_reg_syncml_message_callback(msg_handle_t handle,  msg_syncml_msg_incoming_cb cb, void *user_param)
 {
-	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_FEATURE);
-	msg_error_t err =  MSG_SUCCESS;
+	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_SMS_FEATURE);
+	msg_error_t err = MSG_SUCCESS;
 
 	//Privilege check
 	int ret = PRIV_MGR_ERROR_SUCCESS;
 	ret = privacy_checker_check_by_privilege(MSG_SERVICE_READ_PRIV_NAME);
-	if(ret != PRIV_MGR_ERROR_SUCCESS)
+	if (ret != PRIV_MGR_ERROR_SUCCESS)
 	{
 		return MSG_ERR_PERMISSION_DENIED;
 	}
@@ -221,13 +222,13 @@ EXPORT_API int msg_reg_syncml_message_callback(msg_handle_t handle,  msg_syncml_
 
 EXPORT_API int msg_reg_lbs_message_callback(msg_handle_t handle, msg_lbs_msg_incoming_cb cb, void *user_param)
 {
-	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_FEATURE);
-	msg_error_t err =  MSG_SUCCESS;
+	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_SMS_FEATURE);
+	msg_error_t err = MSG_SUCCESS;
 
 	//Privilege check
 	int ret = PRIV_MGR_ERROR_SUCCESS;
 	ret = privacy_checker_check_by_privilege(MSG_SERVICE_READ_PRIV_NAME);
-	if(ret != PRIV_MGR_ERROR_SUCCESS)
+	if (ret != PRIV_MGR_ERROR_SUCCESS)
 	{
 		return MSG_ERR_PERMISSION_DENIED;
 	}
@@ -258,13 +259,13 @@ EXPORT_API int msg_reg_lbs_message_callback(msg_handle_t handle, msg_lbs_msg_inc
 
 EXPORT_API int msg_reg_syncml_message_operation_callback(msg_handle_t handle,  msg_syncml_msg_operation_cb cb, void *user_param)
 {
-	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_FEATURE);
-	msg_error_t err =  MSG_SUCCESS;
+	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_SMS_FEATURE);
+	msg_error_t err = MSG_SUCCESS;
 
 	//Privilege check
 	int ret = PRIV_MGR_ERROR_SUCCESS;
 	ret = privacy_checker_check_by_privilege(MSG_SERVICE_READ_PRIV_NAME);
-	if(ret != PRIV_MGR_ERROR_SUCCESS)
+	if (ret != PRIV_MGR_ERROR_SUCCESS)
 	{
 		return MSG_ERR_PERMISSION_DENIED;
 	}
@@ -295,13 +296,13 @@ EXPORT_API int msg_reg_syncml_message_operation_callback(msg_handle_t handle,  m
 
 EXPORT_API int msg_reg_push_message_callback(msg_handle_t handle,  msg_push_msg_incoming_cb cb, const char *app_id, void *user_param)
 {
-	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_FEATURE);
-	msg_error_t err =  MSG_SUCCESS;
+	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_SMS_FEATURE);
+	msg_error_t err = MSG_SUCCESS;
 
 	//Privilege check
 	int ret = PRIV_MGR_ERROR_SUCCESS;
 	ret = privacy_checker_check_by_privilege(MSG_SERVICE_READ_PRIV_NAME);
-	if(ret != PRIV_MGR_ERROR_SUCCESS)
+	if (ret != PRIV_MGR_ERROR_SUCCESS)
 	{
 		return MSG_ERR_PERMISSION_DENIED;
 	}
@@ -336,13 +337,13 @@ EXPORT_API int msg_reg_push_message_callback(msg_handle_t handle,  msg_push_msg_
 
 EXPORT_API int msg_reg_cb_message_callback(msg_handle_t handle, msg_cb_incoming_cb  cb, bool bsave, void *user_param)
 {
-	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_FEATURE);
-	msg_error_t err =  MSG_SUCCESS;
+	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_SMS_FEATURE);
+	msg_error_t err = MSG_SUCCESS;
 
 	//Privilege check
 	int ret = PRIV_MGR_ERROR_SUCCESS;
 	ret = privacy_checker_check_by_privilege(MSG_SERVICE_READ_PRIV_NAME);
-	if(ret != PRIV_MGR_ERROR_SUCCESS)
+	if (ret != PRIV_MGR_ERROR_SUCCESS)
 	{
 		return MSG_ERR_PERMISSION_DENIED;
 	}
@@ -373,13 +374,13 @@ EXPORT_API int msg_reg_cb_message_callback(msg_handle_t handle, msg_cb_incoming_
 
 EXPORT_API int msg_reg_report_message_callback(msg_handle_t handle, msg_report_msg_incoming_cb cb, void *user_param)
 {
-	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_FEATURE);
-	msg_error_t err =  MSG_SUCCESS;
+	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_SMS_FEATURE);
+	msg_error_t err = MSG_SUCCESS;
 
 	//Privilege check
 	int ret = PRIV_MGR_ERROR_SUCCESS;
 	ret = privacy_checker_check_by_privilege(MSG_SERVICE_READ_PRIV_NAME);
-	if(ret != PRIV_MGR_ERROR_SUCCESS)
+	if (ret != PRIV_MGR_ERROR_SUCCESS)
 	{
 		return MSG_ERR_PERMISSION_DENIED;
 	}
@@ -408,15 +409,15 @@ EXPORT_API int msg_reg_report_message_callback(msg_handle_t handle, msg_report_m
 }
 
 
-EXPORT_API int msg_syncml_message_operation(msg_handle_t handle,  msg_message_id_t msgId)
+EXPORT_API int msg_syncml_message_operation(msg_handle_t handle, msg_message_id_t msgId)
 {
-	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_FEATURE);
-	msg_error_t err =  MSG_SUCCESS;
+	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_SMS_FEATURE);
+	msg_error_t err = MSG_SUCCESS;
 
 	//Privilege check
 	int ret = PRIV_MGR_ERROR_SUCCESS;
 	ret = privacy_checker_check_by_privilege(MSG_SERVICE_READ_PRIV_NAME);
-	if(ret != PRIV_MGR_ERROR_SUCCESS)
+	if (ret != PRIV_MGR_ERROR_SUCCESS)
 	{
 		return MSG_ERR_PERMISSION_DENIED;
 	}
@@ -518,12 +519,17 @@ static int msg_send_single_sms(const char *phone_num, const char *sms_text, msg_
 
 	addr_list.nCount = 1;
 	addr_list.msg_struct_info = (msg_struct_t *)calloc(1, sizeof(msg_struct_t));
-	addr_list.msg_struct_info[0] = (msg_struct_t)new msg_struct_s;
-
-	msg_struct_s *pTmp;
-	pTmp = (msg_struct_s *)addr_list.msg_struct_info[0];
-	pTmp->type = MSG_STRUCT_ADDRESS_INFO;
-	pTmp->data = &address;
+	if (addr_list.msg_struct_info) {
+		addr_list.msg_struct_info[0] = (msg_struct_t)new msg_struct_s;
+		msg_struct_s *pTmp;
+		pTmp = (msg_struct_s *)addr_list.msg_struct_info[0];
+		pTmp->type = MSG_STRUCT_ADDRESS_INFO;
+		pTmp->data = &address;
+	} else {
+		MSG_ERR("Memory error");
+		msg_close_msg_handle(&msgHandle);
+		return MSG_ERR_MEMORY_ERROR;
+	}
 
 	msg_info.addr_list = (msg_struct_list_s *)&addr_list;
 
@@ -585,11 +591,11 @@ static int msg_send_single_sms(const char *phone_num, const char *sms_text, msg_
 
 EXPORT_API int msg_sms_send(const char *phone_num_list, const char *sms_text, msg_simple_sent_status_cb cb, void *user_param)
 {
-	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_FEATURE);
+	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_SMS_FEATURE);
 	//Privilege check
 	int ret = PRIV_MGR_ERROR_SUCCESS;
 	ret = privacy_checker_check_by_privilege(MSG_SERVICE_WRITE_PRIV_NAME);
-	if(ret != PRIV_MGR_ERROR_SUCCESS)
+	if (ret != PRIV_MGR_ERROR_SUCCESS)
 	{
 		return MSG_ERR_PERMISSION_DENIED;
 	}
@@ -602,13 +608,14 @@ EXPORT_API int msg_sms_send(const char *phone_num_list, const char *sms_text, ms
 
 	char trimmed_num[strlen(phone_num_list)+1];
 	bzero(trimmed_num, strlen(phone_num_list)+1);
+	char *temp = NULL;
 
 	msg_error_t retVal = msg_verify_number(phone_num_list, trimmed_num);
 
 	if ( retVal != MSG_SUCCESS )
 		return retVal;
 
-	for( char* cur_num = strtok(trimmed_num,", "); cur_num ; cur_num = strtok(NULL,", "))
+	for( char* cur_num = strtok_r(trimmed_num,", ", &temp); cur_num ; cur_num = strtok_r(NULL,", ", &temp))
 	{
 		if (strlen(cur_num) > MAX_PHONE_NUMBER_LEN)
 		{
@@ -630,28 +637,32 @@ EXPORT_API int msg_sms_send(const char *phone_num_list, const char *sms_text, ms
 
 EXPORT_API int msg_sms_send_message(msg_handle_t handle, msg_struct_t req)
 {
-	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_FEATURE);
-	msg_error_t err =  MSG_SUCCESS;
+	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_SMS_FEATURE);
+	msg_error_t err = MSG_SUCCESS;
 
 	//Privilege check
 	int ret = PRIV_MGR_ERROR_SUCCESS;
 	ret = privacy_checker_check_by_privilege(MSG_SERVICE_WRITE_PRIV_NAME);
-	if(ret != PRIV_MGR_ERROR_SUCCESS)
+	if (ret != PRIV_MGR_ERROR_SUCCESS)
 	{
 		return MSG_ERR_PERMISSION_DENIED;
 	}
 
-	if (handle == NULL || !req) {
+	if (handle == NULL || req == NULL)
+	{
 		MSG_FATAL("handle or req is NULL");
-		return MSG_ERR_NULL_POINTER;
+		return MSG_ERR_INVALID_PARAMETER;
 	}
 
 	msg_struct_s *req_s = (msg_struct_s *)req;
+	MSG_TYPE_CHECK(req_s->type, MSG_STRUCT_REQUEST_INFO);
+
 	MSG_REQUEST_S *pReq = (MSG_REQUEST_S *)req_s->data;
 
 	pReq->reqId = 1;
 
 	msg_struct_s *msg_s = (msg_struct_s *)pReq->msg;
+	MSG_TYPE_CHECK(msg_s->type, MSG_STRUCT_MESSAGE_INFO);
 
 	MSG_MESSAGE_HIDDEN_S *reqmsg = (MSG_MESSAGE_HIDDEN_S*)msg_s->data;
 
@@ -661,13 +672,13 @@ EXPORT_API int msg_sms_send_message(msg_handle_t handle, msg_struct_t req)
 	}
 
 	if (reqmsg->mainType != MSG_SMS_TYPE) {
-		MSG_DEBUG("mainType is not SMS [%d]", reqmsg->mainType);
-		reqmsg->mainType = MSG_SMS_TYPE;
+		MSG_FATAL("mainType is not SMS [%d]", reqmsg->mainType);
+		return MSG_ERR_INVALID_PARAMETER;
 	}
 
 	if (reqmsg->subType > MSG_CONCAT_SIM_SMS) {
-		MSG_DEBUG("subType is not SMS [%d]", reqmsg->subType);
-		reqmsg->subType = MSG_NORMAL_SMS;
+		MSG_FATAL("subType is not SMS [%d]", reqmsg->subType);
+		return MSG_ERR_INVALID_PARAMETER;
 	}
 
 	reqmsg->folderId = MSG_OUTBOX_ID; // outbox fixed
@@ -689,28 +700,31 @@ EXPORT_API int msg_sms_send_message(msg_handle_t handle, msg_struct_t req)
 EXPORT_API int msg_mms_send_message(msg_handle_t handle, msg_struct_t req)
 {
 	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_MMS_FEATURE);
-	msg_error_t err =  MSG_SUCCESS;
+	msg_error_t err = MSG_SUCCESS;
 
 	//Privilege check
 	int ret = PRIV_MGR_ERROR_SUCCESS;
 	ret = privacy_checker_check_by_privilege(MSG_SERVICE_WRITE_PRIV_NAME);
-	if(ret != PRIV_MGR_ERROR_SUCCESS)
+	if (ret != PRIV_MGR_ERROR_SUCCESS)
 	{
 		return MSG_ERR_PERMISSION_DENIED;
 	}
 
-	if (handle == NULL || !req)
+	if (handle == NULL || req == NULL)
 	{
 		MSG_FATAL("handle or req is NULL");
 		return MSG_ERR_INVALID_PARAMETER;
 	}
 
 	msg_struct_s *req_s = (msg_struct_s *)req;
+	MSG_TYPE_CHECK(req_s->type, MSG_STRUCT_REQUEST_INFO);
+
 	MSG_REQUEST_S *pReq = (MSG_REQUEST_S *)req_s->data;
 
 	pReq->reqId = 1;
 
 	msg_struct_s *msg_s = (msg_struct_s *)pReq->msg;
+	MSG_TYPE_CHECK(msg_s->type, MSG_STRUCT_MESSAGE_INFO);
 
 	MSG_MESSAGE_HIDDEN_S *reqmsg = (MSG_MESSAGE_HIDDEN_S*)msg_s->data;
 
@@ -744,7 +758,7 @@ EXPORT_API int msg_mms_send_read_report(msg_handle_t handle, msg_message_id_t ms
 	//Privilege check
 	int ret = PRIV_MGR_ERROR_SUCCESS;
 	ret = privacy_checker_check_by_privilege(MSG_SERVICE_WRITE_PRIV_NAME);
-	if(ret != PRIV_MGR_ERROR_SUCCESS)
+	if (ret != PRIV_MGR_ERROR_SUCCESS)
 	{
 		return MSG_ERR_PERMISSION_DENIED;
 	}
@@ -754,7 +768,15 @@ EXPORT_API int msg_mms_send_read_report(msg_handle_t handle, msg_message_id_t ms
 		return MSG_ERR_INVALID_PARAMETER;
 	}
 
+	if (mms_read_status < MSG_READ_REPORT_NONE || mms_read_status > MSG_READ_REPORT_REJECT_BY_USER)
+	{
+		MSG_FATAL("unsupported read report status [%d]", mms_read_status);
+		return MSG_ERR_INVALID_PARAMETER;
+	}
+
 	msg_struct_t req_t = msg_create_struct(MSG_STRUCT_REQUEST_INFO);
+	if (req_t == NULL)
+		return MSG_ERR_NOT_SUPPORTED;
 
 	msg_struct_s *req_s = (msg_struct_s *)req_t;
 	MSG_REQUEST_S *req = (MSG_REQUEST_S *)req_s->data;
@@ -803,28 +825,30 @@ EXPORT_API int msg_mms_send_read_report(msg_handle_t handle, msg_message_id_t ms
 EXPORT_API int msg_mms_forward_message(msg_handle_t handle, msg_struct_t req)
 {
 	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_MMS_FEATURE);
-	msg_error_t err =  MSG_SUCCESS;
+	msg_error_t err = MSG_SUCCESS;
 
 	//Privilege check
 	int ret = PRIV_MGR_ERROR_SUCCESS;
 	ret = privacy_checker_check_by_privilege(MSG_SERVICE_WRITE_PRIV_NAME);
-	if(ret != PRIV_MGR_ERROR_SUCCESS)
+	if (ret != PRIV_MGR_ERROR_SUCCESS)
 	{
 		return MSG_ERR_PERMISSION_DENIED;
 	}
 
-	if (handle == NULL || !req )
+	if (handle == NULL || req == NULL )
 	{
 		MSG_FATAL("handle or req is NULL");
 		return MSG_ERR_INVALID_PARAMETER;
 	}
 
 	msg_struct_s *req_s = (msg_struct_s *)req;
-	MSG_REQUEST_S *pReq = (MSG_REQUEST_S *)req_s->data;
+	MSG_TYPE_CHECK(req_s->type, MSG_STRUCT_REQUEST_INFO);
 
+	MSG_REQUEST_S *pReq = (MSG_REQUEST_S *)req_s->data;
 	pReq->reqId = 1;
 
 	msg_struct_s *msg_s = (msg_struct_s *)pReq->msg;
+	MSG_TYPE_CHECK(msg_s->type, MSG_STRUCT_MESSAGE_INFO);
 
 	MSG_MESSAGE_HIDDEN_S *reqmsg = (MSG_MESSAGE_HIDDEN_S*)msg_s->data;
 
@@ -852,21 +876,25 @@ EXPORT_API int msg_mms_retrieve_message(msg_handle_t handle, msg_struct_t req)
 	//Privilege check
 	int ret = PRIV_MGR_ERROR_SUCCESS;
 	ret = privacy_checker_check_by_privilege(MSG_SERVICE_WRITE_PRIV_NAME);
-	if(ret != PRIV_MGR_ERROR_SUCCESS)
+	if (ret != PRIV_MGR_ERROR_SUCCESS)
 	{
 		return MSG_ERR_PERMISSION_DENIED;
 	}
 
-	if ( handle == NULL|| !req)
+	if (handle == NULL || req == NULL)
 	{
 		MSG_FATAL("handle or req is NULL");
 		return MSG_ERR_INVALID_PARAMETER;
 	}
 
 	msg_struct_s *req_s = (msg_struct_s *)req;
+	MSG_TYPE_CHECK(req_s->type, MSG_STRUCT_REQUEST_INFO);
+
 	MSG_REQUEST_S *pReq = (MSG_REQUEST_S *)req_s->data;
 
 	msg_struct_s *msg_s = (msg_struct_s *)pReq->msg;
+	MSG_TYPE_CHECK(msg_s->type, MSG_STRUCT_MESSAGE_INFO);
+
 	MSG_MESSAGE_HIDDEN_S *reqmsg = (MSG_MESSAGE_HIDDEN_S*)msg_s->data;
 
 	reqmsg->mainType = MSG_MMS_TYPE;
@@ -894,21 +922,25 @@ EXPORT_API int msg_mms_reject_message(msg_handle_t handle, msg_struct_t req)
 	//Privilege check
 	int ret = PRIV_MGR_ERROR_SUCCESS;
 	ret = privacy_checker_check_by_privilege(MSG_SERVICE_WRITE_PRIV_NAME);
-	if(ret != PRIV_MGR_ERROR_SUCCESS)
+	if (ret != PRIV_MGR_ERROR_SUCCESS)
 	{
 		return MSG_ERR_PERMISSION_DENIED;
 	}
 
-	if (handle == NULL || !req )
+	if (handle == NULL || req == NULL)
 	{
 		MSG_FATAL("handle or req is NULL");
 		return MSG_ERR_INVALID_PARAMETER;
 	}
 
 	msg_struct_s *req_s = (msg_struct_s *)req;
+	MSG_TYPE_CHECK(req_s->type, MSG_STRUCT_REQUEST_INFO);
+
 	MSG_REQUEST_S *pReq = (MSG_REQUEST_S *)req_s->data;
 
 	msg_struct_s *msg_s = (msg_struct_s *)pReq->msg;
+	MSG_TYPE_CHECK(msg_s->type, MSG_STRUCT_MESSAGE_INFO);
+
 	MSG_MESSAGE_HIDDEN_S *reqmsg = (MSG_MESSAGE_HIDDEN_S*)msg_s->data;
 
 	reqmsg->mainType = MSG_MMS_TYPE;
@@ -928,26 +960,33 @@ EXPORT_API int msg_mms_reject_message(msg_handle_t handle, msg_struct_t req)
 /* reject_msg_support */
 
 
-int msg_request_get_int(void *request_info, int field)
+int msg_request_get_int(void *request_info, int field, int *value)
 {
-	int result = -1;
+	if (!request_info)
+		return MSG_ERR_NULL_POINTER;
+
+	int ret = MSG_SUCCESS;
+
 	MSG_REQUEST_S *pRequest = (MSG_REQUEST_S *)request_info;
+
 	switch(field)
 	{
 	case MSG_REQUEST_REQUESTID_INT:
-		result = pRequest->reqId;
+		*value = pRequest->reqId;
 		break;
 
 	default:
+		ret = MSG_ERR_INVALID_PARAMETER;
 		break;
 	}
-	return result;
+
+	return ret;
 }
 
 
 int msg_request_get_struct_handle(msg_struct_s *msg_struct, int field, void **value)
 {
-	msg_error_t err =  MSG_SUCCESS;
+	msg_error_t err = MSG_SUCCESS;
 
 	if(!msg_struct || !value)
 		return MSG_ERR_NULL_POINTER;
@@ -971,7 +1010,7 @@ int msg_request_get_struct_handle(msg_struct_s *msg_struct, int field, void **va
 
 int msg_request_set_int(void *request_info, int field, int value)
 {
-	msg_error_t err =  MSG_SUCCESS;
+	msg_error_t err = MSG_SUCCESS;
 	if(!request_info)
 		return MSG_ERR_NULL_POINTER;
 
@@ -983,7 +1022,7 @@ int msg_request_set_int(void *request_info, int field, int value)
 		break;
 	default:
 		err = MSG_ERR_UNKNOWN;
-	break;
+		break;
 	}
 
 	return err;
@@ -991,7 +1030,7 @@ int msg_request_set_int(void *request_info, int field, int value)
 
 int msg_request_set_struct_handle(msg_struct_s *msg_struct, int field, msg_struct_s *value)
 {
-	msg_error_t err =  MSG_SUCCESS;
+	msg_error_t err = MSG_SUCCESS;
 	if(!msg_struct || !value)
 		return MSG_ERR_NULL_POINTER;
 
@@ -1040,20 +1079,25 @@ int msg_request_set_struct_handle(msg_struct_s *msg_struct, int field, msg_struc
 }
 
 
-int msg_sent_status_get_int(MSG_SENT_STATUS_S *sent_status_info, int field)
+int msg_sent_status_get_int(MSG_SENT_STATUS_S *sent_status_info, int field, int *value)
 {
-	int result = -1;
+	if (!sent_status_info)
+		return MSG_ERR_NULL_POINTER;
+
+	int ret = MSG_SUCCESS;
 
 	switch(field)
 	{
 	case MSG_SENT_STATUS_REQUESTID_INT:
-		result = sent_status_info->reqId;
+		*value = sent_status_info->reqId;
 		break;
 	case MSG_SENT_STATUS_NETWORK_STATUS_INT:
-		result = sent_status_info->status;
+		*value = sent_status_info->status;
 		break;
 	default:
+		ret = MSG_ERR_INVALID_PARAMETER;
 		break;
 	}
-	return result;
+
+	return ret;
 }

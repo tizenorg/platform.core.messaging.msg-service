@@ -21,6 +21,7 @@
                                          INCLUDE FILES
 ==================================================================================================*/
 #include "MsgTypes.h"
+#include "MsgInternalTypes.h"
 #include "MsgMmsTypes.h"
 
 msg_error_t _MsgMmsAddPage(MMS_MESSAGE_DATA_S *pMsgData, MMS_PAGE_S *pPage);
@@ -90,5 +91,7 @@ int printMultipartList(MMSList *pMultipartList);//for debug
 void _MsgMmsMultipartPrint(MMS_MULTIPART_DATA_S *multipart);
 
 bool  _MsgMmsRemoveEmptyObject(MMS_MESSAGE_DATA_S *pMmsMsg);
+
+int MsgMmsCheckFilepathSmack(int fd, const char *ipc_filename);
 
 #endif // MSG_MMS_MESSAGE_H

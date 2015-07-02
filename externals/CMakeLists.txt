@@ -8,7 +8,7 @@ IF("${CMAKE_BUILD_TYPE}" STREQUAL "")
 ENDIF("${CMAKE_BUILD_TYPE}" STREQUAL "")
 MESSAGE("Build type: ${CMAKE_BUILD_TYPE}")
 
-SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_C_FLAGS} ${EXTRA_CFLAGS} -O0 -g -Wall")
+SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS} ${EXTRA_CFLAGS} -O2 -g -Wall")
 
 ##########################################################
 # Define Framework Utils
@@ -18,7 +18,7 @@ SET(EXTERNALS-SRCS
 	${CMAKE_SOURCE_DIR}/externals/MsgSoundPlayer.cpp
 	${CMAKE_SOURCE_DIR}/externals/MsgNotificationWrapper.cpp
 	${CMAKE_SOURCE_DIR}/externals/MsgSpamFilter.cpp
-#	${CMAKE_SOURCE_DIR}/externals/MsgLbs.cpp
+	${CMAKE_SOURCE_DIR}/externals/MsgLbs.cpp
 	${CMAKE_SOURCE_DIR}/externals/MsgSensorWrapper.cpp
 	${CMAKE_SOURCE_DIR}/externals/MsgAlarm.cpp
 	${CMAKE_SOURCE_DIR}/externals/MsgDevicedWrapper.cpp
@@ -43,7 +43,7 @@ ADD_DEFINITIONS("-DFEATURE_JAVA_MMS")
 IF(_TIZEN_I586_ENABLED)
 ADD_DEFINITIONS("-DTIZEN_I586_ENABLED")
 ENDIF(_TIZEN_I586_ENABLED)
-SET(CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS} ${EXTRA_CFLAGS}")
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${EXTRA_CFLAGS}")
 
 SET(CMAKE_EXE_LINKER_FLAGS "-Wl,--as-needed")
 

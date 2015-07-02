@@ -41,7 +41,6 @@ int MsgMoveMessageToStorageHandler(const MSG_CMD_S *pCmd, char **ppEvent);
 int MsgCountMessageHandler(const MSG_CMD_S *pCmd, char **ppEvent);
 int MsgCountMsgByTypeHandler(const MSG_CMD_S *pCmd, char **ppEvent);
 int MsgGetMessageHandler(const MSG_CMD_S *pCmd, char **ppEvent);
-int MsgGetFolderViewListHandler(const MSG_CMD_S *pCmd, char **ppEvent);
 
 int MsgAddFolderHandler(const MSG_CMD_S *pCmd, char **ppEvent);
 int MsgUpdateFolderHandler(const MSG_CMD_S *pCmd, char **ppEvent);
@@ -49,10 +48,8 @@ int MsgDeleteFolderHandler(const MSG_CMD_S *pCmd, char **ppEvent);
 int MsgGetFolderListHandler(const MSG_CMD_S *pCmd, char **ppEvent);
 
 int MsgInitSimBySatHandler(const MSG_CMD_S *pCmd, char **ppEvent);
-int MsgGetMsgTypeHandler(const MSG_CMD_S *pCmd, char **ppEvent);
 
 int MsgGetThreadViewListHandler(const MSG_CMD_S *pCmd, char **ppEvent);
-int MsgGetConversationViewListHandler(const MSG_CMD_S *pCmd, char **ppEvent);
 int MsgDeleteThreadMessageListHandler(const MSG_CMD_S *pCmd, char **ppEvent);
 
 int MsgCountMsgByContactHandler(const MSG_CMD_S *pCmd, char **ppEvent);
@@ -70,7 +67,6 @@ int MsgSetConfigHandler(const MSG_CMD_S *pCmd, char **ppEvent);
 int MsgGetConfigHandler(const MSG_CMD_S *pCmd, char **ppEvent);
 
 int MsgSubmitReqHandler(const MSG_CMD_S *pCmd, char **ppEvent);
-int MsgCancelReqHandler(const MSG_CMD_S *pCmd, char **ppEvent);
 
 int MsgRegSentStatusCallbackHandler(const MSG_CMD_S *pCmd, char **ppEvent);
 int MsgRegIncomingMsgCallbackHandler(const MSG_CMD_S *pCmd, char **ppEvent);
@@ -108,9 +104,6 @@ int MsgUpdatePushEventHandler(const MSG_CMD_S *pCmd, char **ppEvent);
 int MsgAddSimMessageHandler(const MSG_CMD_S *pCmd, char **ppEvent);
 int MsgResendMessageHandler(const MSG_CMD_S *pCmd, char **ppEvent);
 int MsgUpdateIMSIHandler(const MSG_CMD_S *pCmd, char **ppEvent);
-#ifdef MSG_PENDING_PUSH_MESSAGE
-int MsgSendPendingPushMsgHandler(const MSG_CMD_S *pCmd, char **ppEvent);
-#endif
 #ifdef FEATURE_SMS_CDMA
 int MsgCheckUniquenessHandler(const MSG_CMD_S *pCmd, char **ppEvent);
 #endif

@@ -85,7 +85,7 @@ msg_error_t MsgStoUpdateMMSMessage(MSG_MESSAGE_INFO_S *pMsg)
 		if( pMsg->networkStatus == MSG_NETWORK_RETRIEVE_SUCCESS ) {
 			snprintf(sqlQuery, sizeof(sqlQuery),
 					"UPDATE %s SET MAIN_TYPE = %d, SUB_TYPE = %d, FOLDER_ID = %d, DISPLAY_TIME = %lu, SUBJECT = ?, NETWORK_STATUS = %d, MSG_TEXT = ?, THUMB_PATH = '%s', DATA_SIZE = %d WHERE MSG_ID = %d;",
-					MSGFW_MESSAGE_TABLE_NAME, pMsg->msgType.mainType, pMsg->msgType.subType, pMsg->folderId, pMsg->displayTime, pMsg->networkStatus, pMsg->thumbPath,  pMsg->dataSize, (int)pMsg->msgId);
+					MSGFW_MESSAGE_TABLE_NAME, pMsg->msgType.mainType, pMsg->msgType.subType, pMsg->folderId, pMsg->displayTime, pMsg->networkStatus, pMsg->thumbPath,  pMsg->dataSize, pMsg->msgId);
 
 			if (dbHandle->prepareQuery(sqlQuery) != MSG_SUCCESS) {
 				return MSG_ERR_DB_PREPARE;
@@ -93,7 +93,7 @@ msg_error_t MsgStoUpdateMMSMessage(MSG_MESSAGE_INFO_S *pMsg)
 
 			dbHandle->bindText(pMsg->subject, 1);
 
-			if (pMsg->msgText[0] != '\0' && g_file_get_contents((const gchar*)pMsg->msgText, (gchar**)&pFileData, (gsize*)&fileSize, NULL) == true) {
+			if (pMsg->msgText[0] != '\0' && g_file_get_contents(pMsg->msgText, &pFileData, &fileSize, NULL) == true) {
 				dbHandle->bindText(pFileData, 2);
 			} else {
 				dbHandle->bindText("", 2);
@@ -109,13 +109,13 @@ msg_error_t MsgStoUpdateMMSMessage(MSG_MESSAGE_INFO_S *pMsg)
 			}
 
 //			if (MsgOpenAndReadFile(pMsg->msgText, &pFileData, &fileSize) == false) {
-			if (g_file_get_contents((gchar*)pMsg->msgText, (gchar**)&pFileData, (gsize*)&fileSize, NULL) == false) {
+			if (g_file_get_contents(pMsg->msgText, &pFileData, &fileSize, NULL) == false) {
 				return MSG_ERR_STORAGE_ERROR;
 			}
 
 			dbHandle->bindText(pMsg->subject, 1);
 
-			if (pMsg->msgText[0] != '\0' && g_file_get_contents((gchar*)pMsg->msgText, (gchar**)&pFileData, (gsize*)&fileSize, NULL) == true) {
+			if (pMsg->msgText[0] != '\0' && g_file_get_contents(pMsg->msgText, &pFileData, &fileSize, NULL) == true) {
 				dbHandle->bindText(pFileData, 2);
 			} else {
 				dbHandle->bindText("", 2);
@@ -124,13 +124,13 @@ msg_error_t MsgStoUpdateMMSMessage(MSG_MESSAGE_INFO_S *pMsg)
 	} else if (pMsg->msgType.subType == MSG_SENDREQ_MMS || pMsg->msgType.subType == MSG_RETRIEVE_MMS) {
 		snprintf(sqlQuery, sizeof(sqlQuery),
 				"UPDATE %s SET MSG_TEXT = ?, THUMB_PATH = '%s', DATA_SIZE = %d WHERE MSG_ID = %d;",
-				MSGFW_MESSAGE_TABLE_NAME, pMsg->thumbPath, pMsg->dataSize, (int)pMsg->msgId);
+				MSGFW_MESSAGE_TABLE_NAME, pMsg->thumbPath, pMsg->dataSize, pMsg->msgId);
 
 		if (dbHandle->prepareQuery(sqlQuery) != MSG_SUCCESS) {
 			return MSG_ERR_DB_PREPARE;
 		}
 
-		if (pMsg->msgText[0] != '\0' && g_file_get_contents((gchar*)pMsg->msgText, (gchar**)&pFileData, (gsize*)&fileSize, NULL) == true) {
+		if (pMsg->msgText[0] != '\0' && g_file_get_contents(pMsg->msgText, &pFileData, &fileSize, NULL) == true) {
 			dbHandle->bindText(pFileData, 1);
 		} else {
 			dbHandle->bindText("", 1);
@@ -292,19 +292,19 @@ msg_error_t MsgStoUpdateMMSMessage(MSG_MESSAGE_INFO_S *pMsg)
 	}
 
 	msg_thread_id_t convId = 0;
-	int row = 0;
+	int rowCnt = 0;
 
 	// Get SUB_TYPE, STORAGE_ID
 	memset(sqlQuery, 0x00, sizeof(sqlQuery));
 	snprintf(sqlQuery, sizeof(sqlQuery), "SELECT CONV_ID FROM %s WHERE MSG_ID = %d;",
 			MSGFW_MESSAGE_TABLE_NAME, pMsg->msgId);
 
-	if (dbHandle->getTable(sqlQuery, &row) != MSG_SUCCESS) {
+	if (dbHandle->getTable(sqlQuery, &rowCnt, NULL) != MSG_SUCCESS) {
 		dbHandle->freeTable();
 		return MSG_ERR_DB_PREPARE;
 	}
 
-	if (row > 0) {
+	if (rowCnt > 0) {
 		convId = dbHandle->getColumnToInt(1);
 
 		MSG_DEBUG("Conversation id:[%d]", convId);
@@ -394,8 +394,7 @@ msg_error_t MsgStoGetOrgAddressList(MSG_MESSAGE_INFO_S *pMsg)
 	MsgDbHandler *dbHandle = getDbHandle();
 	msg_error_t err = MSG_SUCCESS;
 	char sqlQuery[MAX_QUERY_LEN+1];
-	int rowCnt = 0;
-	int index = 3;
+	int rowCnt = 0, index = 0;
 
 	memset(sqlQuery, 0x00, sizeof(sqlQuery));
 	snprintf(sqlQuery, sizeof(sqlQuery), "SELECT "
@@ -407,7 +406,7 @@ msg_error_t MsgStoGetOrgAddressList(MSG_MESSAGE_INFO_S *pMsg)
 			"AND B.MSG_ID = %d;",
 			MSGFW_ADDRESS_TABLE_NAME, MSGFW_MESSAGE_TABLE_NAME, pMsg->msgId);
 
-	err = dbHandle->getTable(sqlQuery, &rowCnt);
+	err = dbHandle->getTable(sqlQuery, &rowCnt, &index);
 
 	if (err != MSG_SUCCESS && err != MSG_ERR_DB_NORECORD) {
 		dbHandle->freeTable();
@@ -461,7 +460,7 @@ msg_error_t MsgStoGetRecipientList(msg_message_id_t msgId, MSG_RECIPIENTS_LIST_S
 		return MSG_ERR_NULL_POINTER;
 	}
 	MsgDbHandler *dbHandle = getDbHandle();
-	int rowCnt = 0, index = 3;
+	int rowCnt = 0, index = 0;
 	char sqlQuery[MAX_QUERY_LEN+1];
 
 	memset(sqlQuery, 0x00, sizeof(sqlQuery));
@@ -475,7 +474,7 @@ msg_error_t MsgStoGetRecipientList(msg_message_id_t msgId, MSG_RECIPIENTS_LIST_S
 			MSGFW_MESSAGE_TABLE_NAME, MSGFW_ADDRESS_TABLE_NAME,
 			msgId);
 
-	if (dbHandle->getTable(sqlQuery, &rowCnt) != MSG_SUCCESS) {
+	if (dbHandle->getTable(sqlQuery, &rowCnt, &index) != MSG_SUCCESS) {
 		dbHandle->freeTable();
 		return MSG_ERR_DB_GETTABLE;
 	}

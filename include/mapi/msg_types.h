@@ -28,7 +28,6 @@
 #endif
 
 /**
- * @internal
  * @addtogroup MSG_SERVICE_FRAMEWORK
  * @{
  */
@@ -492,7 +491,6 @@ enum _MSG_STRUCT_E {
 	MSG_STRUCT_THREAD_LIST_INDEX = 0x3400,                  /**< Indicates the MSG_STRUCT_THREAD_LIST_INDEX */
 	MSG_STRUCT_SORT_RULE = 0x3500,                          /**< Indicates the MSG_STRUCT_SORT_RULE */
 	MSG_STRUCT_FOLDER_INFO = 0x3600,                        /**< Indicates the MSG_STRUCT_FOLDER_INFO */
-	MSG_STRUCT_SEARCH_CONDITION = 0x3700,                   /**< Indicates the MSG_STRUCT_SEARCH_CONDITION */
 	MSG_STRUCT_REPORT_STATUS_INFO = 0x3800,                 /**< Indicates the MSG_STRUCT_REPORT_STATUS_INFO */
 	MSG_STRUCT_MSG_LIST_CONDITION = 0x3900,                 /**< Indicates the MSG_LIST_CONDITION  */
 
@@ -535,7 +533,6 @@ enum _MSG_MESSAGE_INFO_E_ {
 	MSG_MESSAGE_DEST_PORT_INT,                          /**< Indicates the recipient port number, not greater than 16 bit */
 	MSG_MESSAGE_SRC_PORT_INT,                           /**< Indicates the sender port number, not greater than 16 bit */
 	MSG_MESSAGE_ATTACH_COUNT_INT,                       /**< Indicates the count of attached files in MMS. */
-	MSG_MESSAGE_THUMBNAIL_PATH_STR,                     /**< Indicates the thumbnail path of message. */
 	MSG_MESSAGE_DATA_SIZE_INT,                          /**< Indicates the data size. The unit is byte. */
 	MSG_MESSAGE_SMS_DATA_STR,                           /**< Indicates the message payload information as a body. default character encoding is UTF-8*/
 	MSG_MESSAGE_MMS_TEXT_STR,                           /**< Indicates the text part of MMS message payload. default character encoding is UTF-8  */
@@ -684,7 +681,7 @@ enum _MSG_STRUCT_SMS_SEND_OPT_E {
  *          This enum is used as member of #msg_struct_t for MSG_STRUCT_SETTING_MMS_SEND_OPT.
  */
 enum _MSG_STRUCT_MMS_SEND_OPT_E {
-	MSG_MMS_SENDOPT_CLASS_TYPE_INT = MSG_STRUCT_SETTING_MMS_SEND_OPT+1,  /**< Indicates the class type of message.  See enum _MSG_MMS_MSG_CLASS_TYPE_E */
+	MSG_MMS_SENDOPT_CLASS_TYPE_INT = MSG_STRUCT_SETTING_MMS_SEND_OPT+1,  /**< Indicates the class type of message. See enum _MSG_MMS_MSG_CLASS_TYPE_E */
 	MSG_MMS_SENDOPT_PRIORITY_TYPE_INT,                                   /**< Indicates the priority of the message. See enum _MSG_PRIORITY_TYPE_E */
 	MSG_MMS_SENDOPT_EXPIRY_TIME_INT,                                     /**< Indicates the time when the message is to be removed from the MMSC. See enum _MSG_MMS_EXPIRY_TIME_E */
 	MSG_MMS_SENDOPT_DELIVERY_TIME_INT,                                   /**< Indicates the message transmission time which is set in the MMSC. See enum _MSG_MMS_DELIVERY_TIME_E */
@@ -728,7 +725,7 @@ enum _MSG_STRUCT_GENERAL_OPT_E {
 	MSG_GENERAL_MSG_NOTIFICATION_BOOL,                              /**< Indicates whether notification for incoming message is shown or not. */
 	MSG_GENERAL_MSG_VIBRATION_BOOL,                                 /**< Indicates whether vibration for incoming message is run or not. */
 	MSG_GENERAL_MSG_PREVIEW_BOOL,                                   /**< Indicates whether preview for incoming message is shown or not. */
-	MSG_GENERAL_RINGTONE_TYPE_INT,                                  /**< Indicates the message ringtone type. */
+	MSG_GENERAL_RINGTONE_TYPE_INT,                                  /**< Indicates the message ringtone type. See enum _MSG_RINGTONE_TYPE_E */
 	MSG_GENERAL_RINGTONE_PATH_STR                                   /**< Indicates the message ringtone path */
 };
 
@@ -1017,18 +1014,6 @@ enum MSG_FOLDER_INFO_E {
 	MSG_FOLDER_INFO_ID_INT = MSG_STRUCT_FOLDER_INFO+1,  /**< Indicates the unique folder ID. */
 	MSG_FOLDER_INFO_NAME_STR,                           /**< Indicates the name of the folder. */
 	MSG_FOLDER_INFO_TYPE_INT,                           /**< Indicates the folder type. */
-};
-
-/**
- *  @brief  Enumeration for the values of conditions for searching message. \n
- *          This enum is used as member of #msg_struct_t for MSG_STRUCT_SEARCH_CONDITION.
- */
-enum MSG_SEARCH_CONDITION_E {
-	MSG_SEARCH_CONDITION_FOLDERID_INT = MSG_STRUCT_SEARCH_CONDITION+1,  /**< The folder ID for searching messages. See enum _MSG_FOLDER_ID_E */
-	MSG_SEARCH_CONDITION_MSGTYPE_INT,                                   /**< The message type for searching messages. See enum _MSG_MESSAGE_TYPE_E */
-	MSG_SEARCH_CONDITION_ADDRESS_VALUE_STR,                             /**< The address value for searching messages. */
-	MSG_SEARCH_CONDITION_SEARCH_VALUE_STR,                              /**< The string to search */
-	MSG_SEARCH_CONDITION_RESERVED_INT,                                  /**< The search condition reserved*/
 };
 
 /**

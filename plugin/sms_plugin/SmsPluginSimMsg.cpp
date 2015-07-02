@@ -49,6 +49,9 @@ SmsPluginSimMsg::SmsPluginSimMsg()
 	bTapiResult = false;
 	memset(&simMsgDataInfo, 0x00, sizeof(simMsgDataInfo));
 	memset(simIdList, 0, sizeof(int) * MAX_SIM_SMS_NUM);
+	memset(&simMsgCnt, 0x00, sizeof(simMsgCnt));
+	memset(&simMsgInfo, 0x00, sizeof(simMsgInfo));
+	memset(&simAddrInfo, 0x00, sizeof(simAddrInfo));
 }
 
 
@@ -297,7 +300,7 @@ msg_error_t SmsPluginSimMsg::saveSimMessage(const MSG_MESSAGE_INFO_S *pMsgInfo, 
 
 				char keyName[MAX_VCONFKEY_NAME_LEN];
 				memset(keyName, 0x00, sizeof(keyName));
-				sprintf(keyName, "%s/%d", SIM_USED_COUNT, pMsgInfo->sim_idx);
+				snprintf(keyName, sizeof(keyName), "%s/%d", SIM_USED_COUNT, pMsgInfo->sim_idx);
 				usedCnt = MsgSettingGetInt(keyName);
 
 				usedCnt++;
@@ -442,26 +445,27 @@ msg_error_t SmsPluginSimMsg::saveClass2Message(const MSG_MESSAGE_INFO_S *pMsgInf
 		simSmsData.MsgStatus = TAPI_NETTEXT_STATUS_UNREAD;
 
 		MSG_MESSAGE_INFO_S *tmpSimMsgInfo = (MSG_MESSAGE_INFO_S *)calloc(1, sizeof(MSG_MESSAGE_INFO_S));
-		memcpy(tmpSimMsgInfo, pMsgInfo, sizeof(MSG_MESSAGE_INFO_S));
+		if (tmpSimMsgInfo) {
+			memcpy(tmpSimMsgInfo, pMsgInfo, sizeof(MSG_MESSAGE_INFO_S));
 
-		tmpSimMsgInfo->msgId = replaceMsgId;
+			tmpSimMsgInfo->msgId = replaceMsgId;
 
-		tmpSimMsgInfo->addressList = NULL;
-		tmpSimMsgInfo->addressList = (MSG_ADDRESS_INFO_S *)new char[sizeof(MSG_ADDRESS_INFO_S)];
-		memcpy(&tmpSimMsgInfo->addressList[0], &pMsgInfo->addressList[0], sizeof(MSG_ADDRESS_INFO_S));
+			tmpSimMsgInfo->addressList = NULL;
+			tmpSimMsgInfo->addressList = (MSG_ADDRESS_INFO_S *)new char[sizeof(MSG_ADDRESS_INFO_S)];
+			memcpy(&tmpSimMsgInfo->addressList[0], &pMsgInfo->addressList[0], sizeof(MSG_ADDRESS_INFO_S));
 
-		tapiRet = tel_write_sms_in_sim(handle, &simSmsData, TapiEventSaveClass2Msg, tmpSimMsgInfo);
+			tapiRet = tel_write_sms_in_sim(handle, &simSmsData, TapiEventSaveClass2Msg, tmpSimMsgInfo);
 
-		if (tapiRet == TAPI_API_SUCCESS) {
-			MSG_DEBUG("########  tel_write_sms_in_sim Success !!!, segNum = [%d] #######", segCnt);
-		} else {
-		 	MSG_DEBUG("########  tel_write_sms_in_sim Fail !!! return : [%d] #######", tapiRet);
+			if (tapiRet == TAPI_API_SUCCESS) {
+				MSG_DEBUG("########  tel_write_sms_in_sim Success !!!, segNum = [%d] #######", segCnt);
+			} else {
+			 	MSG_DEBUG("########  tel_write_sms_in_sim Fail !!! return : [%d] #######", tapiRet);
 
-			SmsPluginTransport::instance()->sendDeliverReport(handle, MSG_ERR_STORAGE_ERROR);
+				SmsPluginTransport::instance()->sendDeliverReport(handle, MSG_ERR_STORAGE_ERROR);
 
-			return MSG_ERR_PLUGIN_STORAGE;
+				return MSG_ERR_PLUGIN_STORAGE;
+			}
 		}
-
 		msg_sim_id_t retSimId;
 		if (!getSimEvent(&retSimId))
 			return MSG_ERR_PLUGIN_STORAGE;
@@ -499,10 +503,10 @@ void SmsPluginSimMsg::deleteSimMessage(msg_sim_slot_id_t sim_idx, msg_sim_id_t S
 		MSG_DEBUG("########  Deleting Msg was Successful !!! SIM ID : [%d] #######", SimId);
 		char keyName[MAX_VCONFKEY_NAME_LEN];
 		memset(keyName, 0x00, sizeof(keyName));
-		sprintf(keyName, "%s/%d", SIM_USED_COUNT, sim_idx);
+		snprintf(keyName, sizeof(keyName), "%s/%d", SIM_USED_COUNT, sim_idx);
 		usedCnt = MsgSettingGetInt(keyName);
 		memset(keyName, 0x00, sizeof(keyName));
-		sprintf(keyName, "%s/%d", SIM_TOTAL_COUNT, sim_idx);
+		snprintf(keyName, sizeof(keyName), "%s/%d", SIM_TOTAL_COUNT, sim_idx);
 		totalCnt = MsgSettingGetInt(keyName);
 
 		if (usedCnt == totalCnt)
@@ -522,7 +526,7 @@ void SmsPluginSimMsg::deleteSimMessage(msg_sim_slot_id_t sim_idx, msg_sim_id_t S
 		usedCnt--;
 
 		memset(keyName, 0x00, sizeof(keyName));
-		sprintf(keyName, "%s/%d", SIM_USED_COUNT, sim_idx);
+		snprintf(keyName, sizeof(keyName), "%s/%d", SIM_USED_COUNT, sim_idx);
 
 		if (MsgSettingSetInt(keyName, usedCnt) != MSG_SUCCESS)
 		{
@@ -542,10 +546,10 @@ bool SmsPluginSimMsg::checkSimMsgFull(msg_sim_slot_id_t sim_idx, unsigned int Se
 
 	char keyName[MAX_VCONFKEY_NAME_LEN];
 	memset(keyName, 0x00, sizeof(keyName));
-	sprintf(keyName, "%s/%d", SIM_USED_COUNT, sim_idx);
+	snprintf(keyName, sizeof(keyName), "%s/%d", SIM_USED_COUNT, sim_idx);
 	usedCnt = MsgSettingGetInt(keyName);
 	memset(keyName, 0x00, sizeof(keyName));
-	sprintf(keyName, "%s/%d", SIM_TOTAL_COUNT, sim_idx);
+	snprintf(keyName, sizeof(keyName), "%s/%d", SIM_TOTAL_COUNT, sim_idx);
 	totalCnt = MsgSettingGetInt(keyName);
 
 	MSG_DEBUG("Segment Count [%d]", SegCnt);
@@ -908,7 +912,8 @@ void SmsPluginSimMsg::setSaveClass2MsgEvent(struct tapi_handle *handle, int simI
 
 		if (isNewSimMsg == true) {
 			char keyName[MAX_VCONFKEY_NAME_LEN];
-			sprintf(keyName, "%s/%d", SIM_USED_COUNT, pMsgInfo->sim_idx);
+			memset(keyName, 0x00, sizeof(keyName));
+			snprintf(keyName, sizeof(keyName), "%s/%d", SIM_USED_COUNT, pMsgInfo->sim_idx);
 			usedCnt = MsgSettingGetInt(keyName);
 			usedCnt++;
 

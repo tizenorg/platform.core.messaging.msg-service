@@ -20,6 +20,7 @@
 #include "MsgUtilFunction.h"
 #include "MsgCppTypes.h"
 
+using namespace std;
 
 /*==================================================================================================
                                      FUNCTION IMPLEMENTATION
@@ -27,6 +28,11 @@
 int MsgSetConfigHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 {
 	msg_error_t err = MSG_SUCCESS;
+
+	if (!pCmd || !ppEvent) {
+		MSG_DEBUG("pCmd or ppEvent is null");
+		return 0;
+	}
 
 	int eventSize = 0;
 	int eventType = -1;
@@ -89,8 +95,13 @@ int MsgGetConfigHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 {
 	msg_error_t err = MSG_SUCCESS;
 
+	if (!pCmd || !ppEvent) {
+		MSG_DEBUG("pCmd or ppEvent is null");
+		return 0;
+	}
+
 	char* encodedData = NULL;
-	AutoPtr<char> buf(&encodedData);
+	unique_ptr<char*, void(*)(char**)> buf(&encodedData, unique_ptr_deleter);
 
 	int dataSize = 0;
 	int eventSize = 0;

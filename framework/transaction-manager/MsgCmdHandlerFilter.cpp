@@ -29,6 +29,11 @@ int MsgAddFilterHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 {
 	msg_error_t err = MSG_SUCCESS;
 
+	if (!pCmd || !ppEvent) {
+		MSG_DEBUG("pCmd or ppEvent is null");
+		return 0;
+	}
+
 	int eventSize = 0;
 
 	// Get Filter Structure
@@ -57,6 +62,11 @@ int MsgUpdateFilterHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 {
 	msg_error_t err = MSG_SUCCESS;
 
+	if (!pCmd || !ppEvent) {
+		MSG_DEBUG("pCmd or ppEvent is null");
+		return 0;
+	}
+
 	int eventSize = 0;
 
 	// Get Filter Structure
@@ -84,6 +94,11 @@ int MsgUpdateFilterHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 int MsgDeleteFilterHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 {
 	msg_error_t err = MSG_SUCCESS;
+
+	if (!pCmd || !ppEvent) {
+		MSG_DEBUG("pCmd or ppEvent is null");
+		return 0;
+	}
 
 	int eventSize = 0;
 
@@ -114,6 +129,11 @@ int MsgDeleteFilterHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 int MsgSetFilterActivationHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 {
 	msg_error_t err = MSG_SUCCESS;
+
+	if (!pCmd || !ppEvent) {
+		MSG_DEBUG("pCmd or ppEvent is null");
+		return 0;
+	}
 
 	int eventSize = 0;
 
@@ -149,8 +169,13 @@ int MsgGetFilterListHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 {
 	msg_error_t err = MSG_SUCCESS;
 
+	if (!pCmd || !ppEvent) {
+		MSG_DEBUG("pCmd or ppEvent is null");
+		return 0;
+	}
+
 	char* encodedData = NULL;
-	AutoPtr<char> buf(&encodedData);
+	unique_ptr<char*, void(*)(char**)> buf(&encodedData, unique_ptr_deleter);
 
 	int dataSize = 0, eventSize = 0;
 
@@ -192,6 +217,11 @@ int MsgSetFilterOperationHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 {
 	msg_error_t err = MSG_SUCCESS;
 
+	if (!pCmd || !ppEvent) {
+		MSG_DEBUG("pCmd or ppEvent is null");
+		return 0;
+	}
+
 	int eventSize = 0;
 
 	// Get Filter Flag
@@ -222,8 +252,13 @@ int MsgGetFilterOperationHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 {
 	msg_error_t err = MSG_SUCCESS;
 
+	if (!pCmd || !ppEvent) {
+		MSG_DEBUG("pCmd or ppEvent is null");
+		return 0;
+	}
+
 	char* encodedData = NULL;
-	AutoPtr<char> buf(&encodedData);
+	unique_ptr<char*, void(*)(char**)> buf(&encodedData, unique_ptr_deleter);
 
 	int dataSize = 0, eventSize = 0;
 

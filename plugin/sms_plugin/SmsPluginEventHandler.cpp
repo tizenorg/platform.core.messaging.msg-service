@@ -14,9 +14,9 @@
  * limitations under the License.
 */
 
-#include<time.h>
-#include<stdio.h>
-#include<stdlib.h>
+#include <time.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include <errno.h>
 
 #include "MsgDebug.h"
@@ -45,6 +45,7 @@ SmsPluginEventHandler::SmsPluginEventHandler()
 {
 	/**  Initialize global parameters */
 	memset(&listener, 0x00, sizeof(MSG_PLUGIN_LISTENER_S));
+	memset(&sentInfo, 0x00, sizeof(SMS_SENT_INFO_S));
 
 	pSimCnt = NULL;
 	devStatus = false;
@@ -132,7 +133,7 @@ void SmsPluginEventHandler::handleMsgIncoming(struct tapi_handle *handle, SMS_TP
 	memset(&msgInfo, 0x00, sizeof(MSG_MESSAGE_INFO_S));
 
 	msgInfo.addressList = NULL;
-	AutoPtr<MSG_ADDRESS_INFO_S> addressListBuf(&msgInfo.addressList);
+	unique_ptr<MSG_ADDRESS_INFO_S*, void(*)(MSG_ADDRESS_INFO_S**)> addressListBuf(&msgInfo.addressList, unique_ptr_deleter);
 
 
 	if (pTpdu->tpduType == SMS_TPDU_DELIVER) {
@@ -251,7 +252,7 @@ void SmsPluginEventHandler::handleMsgIncoming(struct tapi_handle *handle, SMS_TP
 	MSG_DEBUG("msgInfo.msgType.mainType : %d", msgInfo.msgType.mainType);
 	MSG_DEBUG("msgInfo.msgType.subType : %d", msgInfo.msgType.subType);
 	MSG_DEBUG("msgInfo.msgType.classType : %d", msgInfo.msgType.classType);
-	MSG_DEBUG("msgInfo.displayTime : %s", ctime(&msgInfo.displayTime));
+	MSG_DEBUG("msgInfo.displayTime : %d", msgInfo.displayTime);
 	MSG_DEBUG("msgInfo.msgPort.valid : %d", msgInfo.msgPort.valid);
 	MSG_DEBUG("msgInfo.encodeType : %d", msgInfo.encodeType);
 	MSG_DEBUG("msgInfo.dataSize : %d", msgInfo.dataSize);
@@ -512,15 +513,15 @@ void SmsPluginEventHandler::convertSubmitTpduToMsginfo(const SMS_SUBMIT_S *pTpdu
 
 	/** What kind of time has to be saved?? (temporary store time) */
 
-	time_t curTime;
-	localtime(&curTime);
-
-	msgInfo->displayTime = curTime;
+//CID 315780 (#1 of 1): Other violation (DC.SECURE_CODING_CRITICAL)
+//dont_call: Calling localtime(time_t const *) is a DC.SECURE_CODING_CRITICAL defect.
+//	time_t curTime;
+//	localtime(&curTime);
 
 	/** Convert Address values */
 	msgInfo->nAddressCnt = 1;
 
-	msgInfo->addressList =  (MSG_ADDRESS_INFO_S *)new char[sizeof(MSG_ADDRESS_INFO_S)];
+	msgInfo->addressList = (MSG_ADDRESS_INFO_S *)new char[sizeof(MSG_ADDRESS_INFO_S)];
 	memset(msgInfo->addressList, 0x00, sizeof(MSG_ADDRESS_INFO_S));
 
 	msgInfo->addressList[addressListCnt].addressType = MSG_ADDRESS_TYPE_PLMN;
@@ -528,7 +529,7 @@ void SmsPluginEventHandler::convertSubmitTpduToMsginfo(const SMS_SUBMIT_S *pTpdu
 
 	/**exception operation for none userdata */
 	if (pTpdu->userData.length == 0) {
-		sprintf(msgInfo->msgText, "[Broken Message]");
+		snprintf(msgInfo->msgText, sizeof(msgInfo->msgText), "[Broken Message]");
 		msgInfo->dataSize = strlen(msgInfo->msgText);
 		return;
 	}
@@ -575,7 +576,7 @@ void SmsPluginEventHandler::convertDeliverTpduToMsginfo(const SMS_DELIVER_S *pTp
 			MSG_DEBUG("timezone : %d", pTpdu->timeStamp.time.absolute.timeZone);
 
 			char displayTime[32];
-			struct tm * timeTM;
+			struct tm timeTM;
 
 			struct tm timeinfo;
 			memset(&timeinfo, 0x00, sizeof(tm));
@@ -601,16 +602,16 @@ void SmsPluginEventHandler::convertDeliverTpduToMsginfo(const SMS_DELIVER_S *pTp
 
 			rawtime -= (pTpdu->timeStamp.time.absolute.timeZone * (3600/4));
 
-			timeTM = localtime(&rawtime);
+			localtime_r(&rawtime, &timeTM);
 			memset(displayTime, 0x00, sizeof(displayTime));
-			strftime(displayTime, 32, "%Y-%02m-%02d %T %z", timeTM);
+			strftime(displayTime, 32, "%Y-%02m-%02d %T %z", &timeTM);
 			MSG_DEBUG("displayTime [%s]", displayTime);
 
 			rawtime -= timezone;
 
-			timeTM = localtime(&rawtime);
+			localtime_r(&rawtime, &timeTM);
 			memset(displayTime, 0x00, sizeof(displayTime));
-			strftime(displayTime, 32, "%Y-%02m-%02d %T %z", timeTM);
+			strftime(displayTime, 32, "%Y-%02m-%02d %T %z", &timeTM);
 			MSG_DEBUG("displayTime [%s]", displayTime);
 		}
 	}
@@ -748,7 +749,7 @@ void SmsPluginEventHandler::convertDeliverTpduToMsginfo(const SMS_DELIVER_S *pTp
 
 		return;
 	} else if (pTpdu->userData.length > MAX_MSG_TEXT_LEN) {
-		sprintf(msgInfo->msgText, "[Broken Message]");
+		snprintf(msgInfo->msgText, sizeof(msgInfo->msgText), "[Broken Message]");
 		msgInfo->dataSize = strlen(msgInfo->msgData);
 		return;
 	}

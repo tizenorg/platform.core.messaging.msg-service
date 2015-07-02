@@ -33,6 +33,7 @@
 #include "MsgAlarm.h"
 #include "MsgCmdHandler.h"
 #include "MsgDevicedWrapper.h"
+#include "MsgMmsMessage.h"
 
 
 /*==================================================================================================
@@ -43,13 +44,18 @@ int MsgSubmitReqHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 	msg_error_t err = MSG_SUCCESS;
 	bool bNewMsg = true;
 
+	if (!pCmd || !ppEvent) {
+		MSG_DEBUG("pCmd or ppEvent is null");
+		return 0;
+	}
+
 	int eventSize = 0;
 
 	MSG_REQUEST_INFO_S reqInfo = {0,};
 	MSG_PROXY_INFO_S proxyInfo = {0,};
 
 	reqInfo.msgInfo.addressList = NULL;
-	AutoPtr<MSG_ADDRESS_INFO_S> addressListBuf(&reqInfo.msgInfo.addressList);
+	unique_ptr<MSG_ADDRESS_INFO_S*, void(*)(MSG_ADDRESS_INFO_S**)> addressListBuf(&reqInfo.msgInfo.addressList, unique_ptr_deleter);
 
 	// Get Message Request
 	memcpy(&reqInfo.reqId, (void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN), sizeof(msg_request_id_t));
@@ -58,6 +64,19 @@ int MsgSubmitReqHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 	memcpy(&proxyInfo, (void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN+sizeof(msg_request_id_t)), sizeof(MSG_PROXY_INFO_S));
 
 	MsgDecodeMsgInfo((char *)(pCmd->cmdData+sizeof(msg_request_id_t)+sizeof(MSG_PROXY_INFO_S)), &reqInfo.msgInfo, &reqInfo.sendOptInfo);
+
+
+	if (reqInfo.msgInfo.msgType.mainType == MSG_MMS_TYPE
+			&& reqInfo.msgInfo.msgType.subType == MSG_SENDREQ_MMS) {
+		int fd = 0;
+		memcpy(&fd, pCmd->cmdCookie, sizeof(int));
+		if (reqInfo.msgInfo.bTextSms == false) {
+			err = MsgMmsCheckFilepathSmack(fd, reqInfo.msgInfo.msgData);
+			if (err != MSG_SUCCESS) {
+				return MsgMakeEvent(NULL, 0, MSG_EVENT_SUBMIT_REQ, err, (void**)ppEvent);
+			}
+		}
+	}
 
 	if (reqInfo.msgInfo.msgId > 0)
 		bNewMsg = false;
@@ -142,42 +161,17 @@ int MsgSubmitReqHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 }
 
 
-int MsgCancelReqHandler(const MSG_CMD_S *pCmd, char **ppEvent)
-{
-	msg_error_t err = MSG_SUCCESS;
-
-	int eventSize = 0;
-
-	// Get Request ID
-	msg_request_id_t* reqId = (msg_request_id_t*)pCmd->cmdData;
-
-	// Cancel Request
-	err = MsgCancelReq(*reqId);
-
-	if (err == MSG_SUCCESS)
-	{
-		MSG_DEBUG("Command Handle Success : MsgSubCancelReq()");
-	}
-	else
-	{
-		MSG_DEBUG("Command Handle Fail : MsgSubCancelReq()");
-	}
-
-	// Make Event Data
-	eventSize = MsgMakeEvent(NULL, 0, MSG_EVENT_CANCEL_REQ, err, (void**)ppEvent);
-
-	return eventSize;
-}
-
-
 int MsgRegSentStatusCallbackHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 {
 	// input check
-	if (!pCmd || !ppEvent)
-		THROW(MsgException::INVALID_PARAM, "pCmd or ppEvent is null");
+	if (!pCmd || !ppEvent) {
+		MSG_DEBUG("pCmd or ppEvent is null");
+		return 0;
+	}
 
 	// Get Message Request
-	int listenerFd = *((int*) pCmd->cmdData);
+	int listenerFd = 0;
+	memcpy(&listenerFd, pCmd->cmdData, sizeof(int));
 	MSG_DEBUG("Registering sent status CB for %d", listenerFd);
 
 	// storing dst fd in list
@@ -193,8 +187,10 @@ int MsgRegSentStatusCallbackHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 int MsgRegIncomingMsgCallbackHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 {
 	// input check
-	if (!pCmd || !ppEvent)
-		THROW(MsgException::INVALID_PARAM, "pCmd or ppEvent is null");
+	if (!pCmd || !ppEvent) {
+		MSG_DEBUG("pCmd or ppEvent is null");
+		return 0;
+	}
 
 	// Get Message Request
 	MSG_CMD_REG_INCOMING_MSG_CB_S *pCmdData = (MSG_CMD_REG_INCOMING_MSG_CB_S*) pCmd->cmdData;
@@ -213,8 +209,10 @@ int MsgRegIncomingMsgCallbackHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 int MsgRegIncomingMMSConfMsgCallbackHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 {
 	// input check
-	if (!pCmd || !ppEvent)
-		THROW(MsgException::INVALID_PARAM, "pCmd or ppEvent is null");
+	if (!pCmd || !ppEvent) {
+		MSG_DEBUG("pCmd or ppEvent is null");
+		return 0;
+	}
 
 	// Get Message Request
 	MSG_CMD_REG_INCOMING_MMS_CONF_MSG_CB_S *pCmdData = (MSG_CMD_REG_INCOMING_MMS_CONF_MSG_CB_S*) pCmd->cmdData;
@@ -232,8 +230,10 @@ int MsgRegIncomingMMSConfMsgCallbackHandler(const MSG_CMD_S *pCmd, char **ppEven
 int MsgRegIncomingPushMsgCallbackHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 {
 	// input check
-	if (!pCmd || !ppEvent)
-		THROW(MsgException::INVALID_PARAM, "pCmd or ppEvent is null");
+	if (!pCmd || !ppEvent) {
+		MSG_DEBUG("pCmd or ppEvent is null");
+		return 0;
+	}
 
 	// Get Message Request
 	MSG_CMD_REG_INCOMING_PUSH_MSG_CB_S *pCmdData = (MSG_CMD_REG_INCOMING_PUSH_MSG_CB_S*) pCmd->cmdData;
@@ -255,8 +255,10 @@ int MsgRegIncomingPushMsgCallbackHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 int MsgRegIncomingCBMsgCallbackHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 {
 	// input check
-	if (!pCmd || !ppEvent)
-		THROW(MsgException::INVALID_PARAM, "pCmd or ppEvent is null");
+	if (!pCmd || !ppEvent) {
+		MSG_DEBUG("pCmd or ppEvent is null");
+		return 0;
+	}
 
 	// Get Message Request
 	MSG_CMD_REG_INCOMING_CB_MSG_CB_S *pCmdData = (MSG_CMD_REG_INCOMING_CB_MSG_CB_S*) pCmd->cmdData;
@@ -275,8 +277,10 @@ int MsgRegIncomingCBMsgCallbackHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 int MsgRegIncomingSyncMLMsgCallbackHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 {
 	// input check
-	if (!pCmd || !ppEvent)
-		THROW(MsgException::INVALID_PARAM, "pCmd or ppEvent is null");
+	if (!pCmd || !ppEvent) {
+		MSG_DEBUG("pCmd or ppEvent is null");
+		return 0;
+	}
 
 	// Get Message Request
 	MSG_CMD_REG_INCOMING_SYNCML_MSG_CB_S *pCmdData = (MSG_CMD_REG_INCOMING_SYNCML_MSG_CB_S*) pCmd->cmdData;
@@ -295,8 +299,10 @@ int MsgRegIncomingSyncMLMsgCallbackHandler(const MSG_CMD_S *pCmd, char **ppEvent
 int MsgRegIncomingLBSMsgCallbackHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 {
 	// input check
-	if (!pCmd || !ppEvent)
-		THROW(MsgException::INVALID_PARAM, "pCmd or ppEvent is null");
+	if (!pCmd || !ppEvent) {
+		MSG_DEBUG("pCmd or ppEvent is null");
+		return 0;
+	}
 
 	// Get Message Request
 	MSG_CMD_REG_INCOMING_LBS_MSG_CB_S *pCmdData = (MSG_CMD_REG_INCOMING_LBS_MSG_CB_S*) pCmd->cmdData;
@@ -315,8 +321,10 @@ int MsgRegIncomingLBSMsgCallbackHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 int MsgRegSyncMLMsgOperationCallbackHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 {
 	// input check
-	if (!pCmd || !ppEvent)
-		THROW(MsgException::INVALID_PARAM, "pCmd or ppEvent is null");
+	if (!pCmd || !ppEvent) {
+		MSG_DEBUG("pCmd or ppEvent is null");
+		return 0;
+	}
 
 	// Get Message Request
 	MSG_CMD_REG_SYNCML_MSG_OPERATION_CB_S *pCmdData = (MSG_CMD_REG_SYNCML_MSG_OPERATION_CB_S*) pCmd->cmdData;
@@ -335,11 +343,14 @@ int MsgRegSyncMLMsgOperationCallbackHandler(const MSG_CMD_S *pCmd, char **ppEven
 int MsgRegStorageChangeCallbackHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 {
 	// input check
-	if (!pCmd || !ppEvent)
-		THROW(MsgException::INVALID_PARAM, "pCmd or ppEvent is null");
+	if (!pCmd || !ppEvent) {
+		MSG_DEBUG("pCmd or ppEvent is null");
+		return 0;
+	}
 
 	// Get Message Request
-	int listenerFd = *((int*) pCmd->cmdData);
+	int listenerFd = 0;
+	memcpy(&listenerFd, pCmd->cmdData, sizeof(int));
 	MSG_DEBUG("Registering storage change CB for %d", listenerFd);
 
 	// storing dst fd in list
@@ -355,11 +366,14 @@ int MsgRegStorageChangeCallbackHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 int MsgRegIncomingReportMsgCallbackHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 {
 	// input check
-	if (!pCmd || !ppEvent)
-		THROW(MsgException::INVALID_PARAM, "pCmd or ppEvent is null");
+	if (!pCmd || !ppEvent) {
+		MSG_DEBUG("pCmd or ppEvent is null");
+		return 0;
+	}
 
 	// Get Message Request
-	int listenerFd = *((int*) pCmd->cmdData);
+	int listenerFd = 0;
+	memcpy(&listenerFd, pCmd->cmdData, sizeof(int));
 	MSG_DEBUG("Registering report msg incoming CB for %d", listenerFd);
 
 	// storing dst fd in list
@@ -375,8 +389,10 @@ int MsgRegIncomingReportMsgCallbackHandler(const MSG_CMD_S *pCmd, char **ppEvent
 int MsgSentStatusHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 {
 	// input check
-	if (!pCmd || !ppEvent)
-		THROW(MsgException::INVALID_PARAM, "pCmd or ppEvent is null");
+	if (!pCmd || !ppEvent) {
+		MSG_DEBUG("pCmd or ppEvent is null");
+		return 0;
+	}
 
 	// Get Message Request
 	MSG_SENT_STATUS_S* pStatus = (MSG_SENT_STATUS_S*) pCmd->cmdData;
@@ -391,21 +407,22 @@ int MsgSentStatusHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 		return MsgMakeEvent(NULL, 0, MSG_EVENT_PLG_SENT_STATUS_CNF, MSG_SUCCESS, (void**)ppEvent);
 	}
 
-//	MSG_DEBUG("REQID %d, listenerFD %d, handleAddr %x, msgId %d", pStatus->reqId, prxInfo->listenerFd, prxInfo->handleAddr, prxInfo->sentMsgId);
+	MSG_DEBUG("REQID %d, listenerFD %d, handleAddr %x, msgId %d", pStatus->reqId, prxInfo->listenerFd, prxInfo->handleAddr, prxInfo->sentMsgId);
 
 	// if APP send and quit(not exist at this time), don't send the data up.
-//	if (prxInfo->handleAddr == 0)
-//	{
-//		// just making data which will be passed to plugin. it indicates "handling evt success"
-//		MsgTransactionManager::instance()->delProxyInfo(pStatus->reqId);
-//
-//		return MsgMakeEvent(NULL, 0, MSG_EVENT_PLG_SENT_STATUS_CNF, MSG_SUCCESS, (void**)ppEvent);
-//	}
+	if (prxInfo->handleAddr == 0)
+	{
+		// just making data which will be passed to plugin. it indicates "handling evt success"
+		MsgTransactionManager::instance()->delProxyInfo(pStatus->reqId);
+
+		return MsgMakeEvent(NULL, 0, MSG_EVENT_PLG_SENT_STATUS_CNF, MSG_SUCCESS, (void**)ppEvent);
+	}
 
 	unsigned int ret[3] = {0}; //3// reqid, status, object
 
 	ret[0] = pStatus->reqId;
 	ret[1] = pStatus->status;
+	ret[2] = prxInfo->handleAddr;
 
 	// Make Event Data for APP
 	int eventSize = MsgMakeEvent(ret, sizeof(ret), MSG_EVENT_PLG_SENT_STATUS_CNF, MSG_SUCCESS, (void**)ppEvent);
@@ -429,15 +446,17 @@ int MsgIncomingMsgHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 	bool isClass2msg = false;
 
 	// input check
-	if (!pCmd || !ppEvent)
-		THROW(MsgException::INVALID_PARAM, "pCmd or ppEvent is null");
+	if (!pCmd || !ppEvent) {
+		MSG_DEBUG("pCmd or ppEvent is null");
+		return 0;
+	}
 
 	// Get Incoming Message
 	MSG_MESSAGE_INFO_S msgInfo;
 	memset(&msgInfo, 0x00, sizeof(MSG_MESSAGE_INFO_S));
 
 	msgInfo.addressList = NULL;
-	AutoPtr<MSG_ADDRESS_INFO_S> addressListBuf(&msgInfo.addressList);
+	unique_ptr<MSG_ADDRESS_INFO_S*, void(*)(MSG_ADDRESS_INFO_S**)> addressListBuf(&msgInfo.addressList, unique_ptr_deleter);
 
 	MsgDecodeMsgInfo((char *)pCmd->cmdData, &msgInfo);
 
@@ -513,6 +532,12 @@ int MsgIncomingMsgHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 int MsgIncomingMMSConfMsgHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 {
 	MSG_BEGIN();
+
+	if (!pCmd || !ppEvent) {
+		MSG_DEBUG("pCmd or ppEvent is null");
+		return 0;
+	}
+
 	msg_error_t err = MSG_SUCCESS;
 	int eventsize = 0;
 
@@ -522,7 +547,7 @@ int MsgIncomingMMSConfMsgHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 	memset(&msgInfo, 0x00, sizeof(MSG_MESSAGE_INFO_S));
 
 	msgInfo.addressList = NULL;
-	AutoPtr<MSG_ADDRESS_INFO_S> addressListBuf(&msgInfo.addressList);
+	unique_ptr<MSG_ADDRESS_INFO_S*, void(*)(MSG_ADDRESS_INFO_S**)> addressListBuf(&msgInfo.addressList, unique_ptr_deleter);
 
 	memcpy(&reqID, (void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN), sizeof(msg_request_id_t));
 	MsgDecodeMsgInfo((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN+sizeof(msg_request_id_t), &msgInfo);
@@ -674,15 +699,16 @@ __BYPASS_UPDATE:
 		}
 
 		if (prxInfo) {
-//			if (prxInfo->handleAddr == 0) {
-//				// just making data which will be passed to plugin. it indicates "handling evt success"
-//				MsgTransactionManager::instance()->delProxyInfo(reqID);
-//			} else {
+			if (prxInfo->handleAddr == 0) {
+				// just making data which will be passed to plugin. it indicates "handling evt success"
+				MsgTransactionManager::instance()->delProxyInfo(reqID);
+			} else {
 
 				unsigned int ret[3] = {0}; //3// reqid, status, object
 
 				ret[0] = reqID;
 				ret[1] = msgInfo.networkStatus;
+				ret[2] = prxInfo->handleAddr;
 
 				// Make Event Data for APP
 				eventsize = MsgMakeEvent(ret, sizeof(ret), MSG_EVENT_PLG_SENT_STATUS_CNF, MSG_SUCCESS, (void**)ppEvent);
@@ -691,7 +717,7 @@ __BYPASS_UPDATE:
 				MsgTransactionManager::instance()->write(prxInfo->listenerFd, *ppEvent, eventsize);
 
 				MsgTransactionManager::instance()->delProxyInfo(reqID);
-//			}
+			}
 		}
 
 		eventsize = MsgMakeEvent(NULL, 0, MSG_EVENT_PLG_INCOMING_MMS_CONF, MSG_SUCCESS, (void**)ppEvent);
@@ -715,8 +741,10 @@ int MsgIncomingPushMsgHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 	int eventSize = 0;
 
 	// input check
-	if (!pCmd || !ppEvent)
-		THROW(MsgException::INVALID_PARAM, "pCmd or ppEvent is null");
+	if (!pCmd || !ppEvent) {
+		MSG_DEBUG("pCmd or ppEvent is null");
+		return 0;
+	}
 
 	MSG_PUSH_MESSAGE_DATA_S pushData;
 	memset(&pushData, 0x00, sizeof(MSG_PUSH_MESSAGE_DATA_S));
@@ -744,8 +772,10 @@ int MsgIncomingCBMsgHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 	int eventSize = 0;
 
 	// input check
-	if (!pCmd || !ppEvent)
-		THROW(MsgException::INVALID_PARAM, "pCmd or ppEvent is null");
+	if (!pCmd || !ppEvent) {
+		MSG_DEBUG("pCmd or ppEvent is null");
+		return 0;
+	}
 
 	// Get Incoming Message
 	MSG_CB_MSG_S cbMsg;
@@ -757,7 +787,7 @@ int MsgIncomingCBMsgHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 	memset(&msgInfo, 0x00, sizeof(MSG_MESSAGE_INFO_S));
 
 	msgInfo.addressList = NULL;
-	AutoPtr<MSG_ADDRESS_INFO_S> addressListBuf(&msgInfo.addressList);
+	unique_ptr<MSG_ADDRESS_INFO_S*, void(*)(MSG_ADDRESS_INFO_S**)> addressListBuf(&msgInfo.addressList, unique_ptr_deleter);
 
 	MsgDecodeMsgInfo((char *)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN+sizeof(MSG_CB_MSG_S), &msgInfo);
 
@@ -778,7 +808,7 @@ int MsgIncomingCBMsgHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 	msgIds[0] = (msg_message_id_t)msgInfo.msgId;
 	msgIdList.msgIdList = msgIds;
 	MsgTransactionManager::instance()->broadcastStorageChangeCB(err, MSG_STORAGE_CHANGE_INSERT, &msgIdList);
-	MsgTransactionManager::instance()->broadcastCBMsgCB(err, &cbMsg);
+	MsgTransactionManager::instance()->broadcastCBMsgCB(err, &cbMsg, msgInfo.msgId);
 
 	eventSize = MsgMakeEvent(NULL, 0, MSG_EVENT_PLG_INCOMING_CB_MSG_IND, err, (void**)ppEvent);
 
@@ -790,8 +820,10 @@ int MsgIncomingCBMsgHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 int MsgIncomingSyncMLMsgHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 {
 	// input check
-	if (!pCmd || !ppEvent)
-		THROW(MsgException::INVALID_PARAM, "pCmd or ppEvent is null");
+	if (!pCmd || !ppEvent) {
+		MSG_DEBUG("pCmd or ppEvent is null");
+		return 0;
+	}
 
 	MSG_SYNCML_MESSAGE_DATA_S syncMLData;
 	memset(&syncMLData, 0x00, sizeof(MSG_SYNCML_MESSAGE_DATA_S));
@@ -816,8 +848,10 @@ int MsgIncomingLBSMsgHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 	int eventSize = 0;
 
 	// input check
-	if (!pCmd || !ppEvent)
-		THROW(MsgException::INVALID_PARAM, "pCmd or ppEvent is null");
+	if (!pCmd || !ppEvent) {
+		MSG_DEBUG("pCmd or ppEvent is null");
+		return 0;
+	}
 
 	MSG_LBS_MESSAGE_DATA_S lbsData;
 	memset(&lbsData, 0x00, sizeof(MSG_LBS_MESSAGE_DATA_S));
@@ -840,7 +874,7 @@ int MsgSyncMLMsgOperationHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 	msg_error_t err = MSG_SUCCESS;
 
 	char* encodedData = NULL;
-	AutoPtr<char> buf(&encodedData);
+	unique_ptr<char*, void(*)(char**)> buf(&encodedData, unique_ptr_deleter);
 
 	int eventSize = 0;
 
@@ -848,8 +882,10 @@ int MsgSyncMLMsgOperationHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 	int extId = 0;
 
 	// input check
-	if (!pCmd || !ppEvent)
-		THROW(MsgException::INVALID_PARAM, "pCmd or ppEvent is null");
+	if (!pCmd || !ppEvent) {
+		MSG_DEBUG("pCmd or ppEvent is null");
+		return 0;
+	}
 
 	// Get Data
 	memcpy(&msgId, (void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN), sizeof(msg_message_id_t));
@@ -879,8 +915,10 @@ int MsgSyncMLMsgOperationHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 int MsgStorageChangeHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 {
 	// input check
-	if (!pCmd || !ppEvent)
-		THROW(MsgException::INVALID_PARAM, "pCmd or ppEvent is null");
+	if (!pCmd || !ppEvent) {
+		MSG_DEBUG("pCmd or ppEvent is null");
+		return 0;
+	}
 
 	msg_storage_change_type_t storageChangeType;
 
@@ -891,7 +929,7 @@ int MsgStorageChangeHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 	memcpy(&storageChangeType, (void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN+sizeof(MSG_MESSAGE_INFO_S)), sizeof(msg_storage_change_type_t));
 
 	char* encodedData = NULL;
-	AutoPtr<char> buf(&encodedData);
+	unique_ptr<char*, void(*)(char**)> buf(&encodedData, unique_ptr_deleter);
 
 	int eventSize = 0;
 
@@ -926,11 +964,15 @@ int MsgResendMessageHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 	msg_error_t err = MSG_SUCCESS;
 	int eventSize = 0;
 
+	if (!pCmd || !ppEvent) {
+		MSG_DEBUG("pCmd or ppEvent is null");
+		return 0;
+	}
 
 	// Get the msgIdList of sending failed message.
 	int *failed_msg_list = NULL;
 	int count = 0;
-	AutoPtr<int> failed_list(&failed_msg_list);
+	unique_ptr<int*, void(*)(int**)> failed_list(&failed_msg_list, unique_ptr_deleter);
 
 
 	err = MsgStoGetFailedMessage(&failed_msg_list, &count);
@@ -942,7 +984,7 @@ int MsgResendMessageHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 	{
 		MSG_REQUEST_INFO_S reqInfo = {0};
 		reqInfo.msgInfo.addressList = NULL;
-		AutoPtr<MSG_ADDRESS_INFO_S> addressListBuf(&reqInfo.msgInfo.addressList);
+		unique_ptr<MSG_ADDRESS_INFO_S*, void(*)(MSG_ADDRESS_INFO_S**)> addressListBuf(&reqInfo.msgInfo.addressList, unique_ptr_deleter);
 		reqInfo.msgInfo.msgId = failed_msg_list[i];
 		err = MsgStoGetMessage(reqInfo.msgInfo.msgId, &(reqInfo.msgInfo), &(reqInfo.sendOptInfo));
 
@@ -979,27 +1021,6 @@ int MsgResendMessageHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 	return eventSize;
 }
 
-#ifdef MSG_PENDING_PUSH_MESSAGE
-int MsgSendPendingPushMsgHandler(const MSG_CMD_S *pCmd, char **ppEvent)
-{
-	MSG_BEGIN();
-
-	int eventSize = 0;
-
-	// input check
-	if (!pCmd || !ppEvent)
-		THROW(MsgException::INVALID_PARAM, "pCmd or ppEvent is null");
-
-	MsgTransactionManager::instance()->sendPendingPushMsg();
-
-	// Make Event Data
-	eventSize = MsgMakeEvent(NULL, 0, MSG_EVENT_SEND_PENDING_PUSH_MESSAGE, MSG_SUCCESS, (void**)ppEvent);
-
-	MSG_END();
-	return eventSize;
-}
-#endif
-
 #ifdef FEATURE_SMS_CDMA
 int MsgCheckUniquenessHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 {
@@ -1009,8 +1030,10 @@ int MsgCheckUniquenessHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 	int eventSize = 0;
 
 	// input check
-	if (!pCmd || !ppEvent)
-		THROW(MsgException::INVALID_PARAM, "pCmd or ppEvent is null");
+	if (!pCmd || !ppEvent) {
+		MSG_DEBUG("pCmd or ppEvent is null");
+		return 0;
+	}
 
 	// Get Incoming Message
 	bool bInsert;

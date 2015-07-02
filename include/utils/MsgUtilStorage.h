@@ -46,7 +46,7 @@ msg_error_t MsgStoAddAddress(MsgDbHandler *pDbHandle, const MSG_MESSAGE_INFO_S *
 msg_error_t MsgStoGetAddressByMsgId(MsgDbHandler *pDbHandle, msg_message_id_t msgId, int contactNameOrder, int *nAddressCnt, MSG_ADDRESS_INFO_S **pAddress);
 msg_error_t MsgStoGetAddressByMsgId(MsgDbHandler *pDbHandle, msg_message_id_t msgId, int contactNameOrder, msg_struct_list_s *pAddress);
 msg_error_t MsgStoGetAddressByConvId(MsgDbHandler *pDbHandle, msg_thread_id_t convId, int contactNameOrder, msg_struct_list_s *pAddrlist);
-#else
+#else // MSG_CONTACTS_SERVICE_NOT_SUPPORTED
 //contactNameOrder is never used
 msg_error_t MsgStoGetAddressByMsgId(MsgDbHandler *pDbHandle, msg_message_id_t msgId, int *nAddressCnt, MSG_ADDRESS_INFO_S **pAddress);
 msg_error_t MsgStoGetAddressByMsgId(MsgDbHandler *pDbHandle, msg_message_id_t msgId, msg_struct_list_s *pAddress);
@@ -74,17 +74,12 @@ bool MsgExistConversation(MsgDbHandler *pDbHandle, msg_thread_id_t convId);
 bool MsgExistMessage(MsgDbHandler *pDbHandle, MSG_MESSAGE_INFO_S *pMsg);
 
 int MsgStoGetUnreadCnt(MsgDbHandler *pDbHandle, MSG_MAIN_TYPE_T MsgType);
-msg_error_t MsgStoAddContactInfo(MsgDbHandler *pDbHandle, MSG_CONTACT_INFO_S *pContactInfo, const char *pNumber);
-msg_error_t MsgStoClearContactInfoByAddrbookIdList(MsgDbHandler *pDbHandle, int* addrbookList, int addrbookCnt);
-msg_error_t MsgStoClearContactInfo(MsgDbHandler *pDbHandle, int ContactId);
-msg_error_t MsgStoResetContactInfo(MsgDbHandler *pDbHandle, int contactId);
 msg_error_t MsgStoGetMmsRawFilePath(MsgDbHandler *pDbHandle, msg_message_id_t msgId, char *pFilePath);
 bool MsgStoCheckReadReportRequested(MsgDbHandler *pDbHandle, msg_message_id_t MsgId);
 bool MsgStoCheckReadReportIsSent(MsgDbHandler *pDbHandle, msg_message_id_t MsgId);
 msg_error_t MsgStoUpdateNetworkStatus(MsgDbHandler *pDbHandle, MSG_MESSAGE_INFO_S *pMsgInfo, msg_network_status_t status);
 
 // Lists
-msg_error_t MsgStoGetFolderViewList(msg_folder_id_t FolderId, const MSG_SORT_RULE_S *pSortRule, msg_struct_list_s *pMsgFolderViewList);
 msg_error_t MsgStoGetThreadViewList(const MSG_SORT_RULE_S *pSortRule, msg_struct_list_s *pThreadViewList);
 msg_error_t MsgStoGetConversationViewItem(msg_message_id_t msgId, MSG_CONVERSATION_VIEW_S *pConv);
 msg_error_t MsgStoGetConversationViewList(msg_thread_id_t ThreadId, msg_struct_list_s *pConvViewList);

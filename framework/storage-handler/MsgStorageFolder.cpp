@@ -113,8 +113,8 @@ msg_error_t MsgStoGetFolderList(msg_struct_list_s *pFolderList)
 		return MSG_ERR_NULL_POINTER;
 	}
 	MsgDbHandler *dbHandle = getDbHandle();
-	int rowCnt = 0;
-	int index = 3;
+
+	int rowCnt = 0, index = 0;
 
 	char sqlQuery[MAX_QUERY_LEN+1];
 
@@ -122,7 +122,7 @@ msg_error_t MsgStoGetFolderList(msg_struct_list_s *pFolderList)
 	snprintf(sqlQuery, sizeof(sqlQuery), "SELECT FOLDER_ID, FOLDER_TYPE, FOLDER_NAME FROM %s;",
 			MSGFW_FOLDER_TABLE_NAME);
 
-	if (dbHandle->getTable(sqlQuery, &rowCnt) != MSG_SUCCESS) {
+	if (dbHandle->getTable(sqlQuery, &rowCnt, &index) != MSG_SUCCESS) {
 		dbHandle->freeTable();
 		return MSG_ERR_DB_GETTABLE;
 	}

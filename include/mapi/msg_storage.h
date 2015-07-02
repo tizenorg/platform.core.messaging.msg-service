@@ -30,12 +30,10 @@ extern "C"
 
 
 /**
- * @internal
  * @ingroup MSG_SERVICE_FRAMEWORK
  * @defgroup MSG_SERVICE_FRAMEWORK_STORAGE_MODULE Storage API
  * @brief The Storage API provides functions to get message information with multiple types.
  *
- * @internal
  * @addtogroup MSG_SERVICE_FRAMEWORK_STORAGE_MODULE
  * @{
  *
@@ -51,6 +49,7 @@ extern "C"
  * @section MSG_SERVICE_FRAMEWORK_STORAGE_MODULE_FEATURE Related Features
  * This API is related with the following features:\n
  *  - http://tizen.org/feature/network.telephony\n
+ *  - http://tizen.org/feature/network.telephony.sms\n
  *
  * It is recommended to design feature related codes in your application for reliability.\n
  *

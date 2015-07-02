@@ -325,7 +325,7 @@ __VCardGetTypeName(char* pVCardRaw, int* pStatus, int* pDLen)
 		else if ( c == VTYPE_TOKEN_DOT ) {
 #ifdef VDATA_GROUPNAME_SUPPORTED
 			name[index] = '\0';
-			szGroupName = ( char* ) malloc ( index+1 );
+			szGroupName = ( char* ) calloc(1,  index+1 );
 			if(szGroupName != NULL){
 				strncpy( szGroupName, name, index );
 				gszGroupName = szGroupName;
@@ -601,7 +601,7 @@ __VCardGetParamVal( char* pVCardRaw, int* pStatus, int* pDLen )
 	//if (len < 1)
 		//return NULL;
 
-	pBuf = (char *)malloc(len);
+	pBuf = (char *)calloc(1, len);
 	if(pBuf  == NULL)
 		return NULL;
 
@@ -650,7 +650,7 @@ __VCardGetTypeVal( char* pVCardRaw, int* pStatus, int* pDLen, int enc, VObject* 
 		/** This case means that there are more type's value. */
 		if ( c == VTYPE_TOKEN_SEMICOLON && bEscape == false ) {
 
-			if((pBuf = (char *)malloc(len)) == NULL) return NULL;
+			if((pBuf = (char *)calloc(1, len)) == NULL) return NULL;
 
 			memset(pBuf, 0x00, len);
 			memcpy(pBuf,pTemp,len-1);
@@ -665,7 +665,7 @@ __VCardGetTypeVal( char* pVCardRaw, int* pStatus, int* pDLen, int enc, VObject* 
 
 				bufferCount = (len * 6 / 8) + 2;
 
-				if((pTmpBuf = (char *)malloc(bufferCount)) == NULL) {
+				if((pTmpBuf = (char *)calloc(1, bufferCount)) == NULL) {
 					VFREE(pBuf);
 					return NULL;
 				}
@@ -727,7 +727,7 @@ __VCardGetTypeVal( char* pVCardRaw, int* pStatus, int* pDLen, int enc, VObject* 
 			else if(__VCardGetTypeName(pVCardRaw, &Status, &Len) != UNKNOWN_NAME)
 			{
                 		--len;
-				if((pBuf = (char *)malloc(len)) == NULL) return NULL;
+				if((pBuf = (char *)calloc(1, len)) == NULL) return NULL;
 
 				memset(pBuf, 0x00, len);
 				memcpy(pBuf,pTemp,len-1);
@@ -748,7 +748,7 @@ __VCardGetTypeVal( char* pVCardRaw, int* pStatus, int* pDLen, int enc, VObject* 
 
 					bufferCount = (len * 6 / 8) + 5;
 
-					if((pTmpBuf = (char *)malloc(bufferCount)) == NULL) {
+					if((pTmpBuf = (char *)calloc(1, bufferCount)) == NULL) {
 						VFREE(pBuf);
 						return NULL;
 					}
@@ -871,6 +871,9 @@ vcard_decode( char *pCardRaw )
 	VDATA_TRACE("length of pCardRaw = %d", len);
 
 	pCardRaw = _VUnfoldingNoSpecNew(pCardRaw);
+	if (pCardRaw == NULL) {
+		return NULL;
+	}
 	pCardRawTmp = pCardRaw;
 	len = _VManySpace2Space( pCardRaw );
 
@@ -907,7 +910,7 @@ vcard_decode( char *pCardRaw )
 							pVCard = NULL;
 						}
 
-						if ( ( pVCard = ( VTree* )malloc( sizeof( VTree ) ) ) == NULL ) {
+						if ( ( pVCard = ( VTree* )calloc(1,  sizeof( VTree ) ) ) == NULL ) {
 							//start_status = 1;
 							goto CATCH;
 						}
@@ -948,7 +951,7 @@ vcard_decode( char *pCardRaw )
 							break;
 						}
 
-						if ( ( pTemp = ( VObject* )malloc( sizeof( VObject ) ) ) == NULL ) {
+						if ( ( pTemp = ( VObject* )calloc(1,  sizeof( VObject ) ) ) == NULL ) {
 							goto CATCH;
 						}
 
@@ -985,7 +988,7 @@ vcard_decode( char *pCardRaw )
 
 				if ( param_status != true ) {
 
-					if ( ( pTmpParam = ( VParam* )malloc( sizeof( VParam ) ) ) == NULL )
+					if ( ( pTmpParam = ( VParam* )calloc(1,  sizeof( VParam ) ) ) == NULL )
 							goto CATCH;
 
 					param_status = true;
@@ -995,7 +998,7 @@ vcard_decode( char *pCardRaw )
 				}
 				else
 				{
-					if ( ( pTmpParam->pNext = ( VParam* )malloc( sizeof( VParam ) ) ) == NULL )
+					if ( ( pTmpParam->pNext = ( VParam* )calloc(1,  sizeof( VParam ) ) ) == NULL )
 							goto CATCH;
 
 					pTmpParam = pTmpParam->pNext;
@@ -1130,16 +1133,16 @@ vcard_encode( VTree *pVCardRaw )
 			return NULL;
 		}
 	}
-
-	if ( ( pVCardRes = ( char * )malloc( sizeof( char ) * ( total += 14 + 14 ) ) ) == NULL )
+	total += sizeof(char) * (14 + 14);
+	if ( ( pVCardRes = ( char * )calloc(1,  total ) ) == NULL )
 	{
-		VDATA_TRACE(  "vcard_encode:malloc failed\n" );
+		VDATA_TRACE(  "vcard_encode:calloc failed\n" );
 		VDATA_TRACE_END
 		return NULL;
 	}
 
 	memcpy( pVCardRes, "BEGIN:VCARD\r\n", 14 );
-	strcat( pVCardRes, "VERSION:2.1\r\n" );
+	g_strlcat( pVCardRes, "VERSION:2.1\r\n", total - strlen(pVCardRes));
 
 	pTmpObj = pVCardRaw->pTop;
 
@@ -1151,8 +1154,8 @@ vcard_encode( VTree *pVCardRaw )
 		if ( ( pTemp = __VCardTypeEncode( pTmpObj, pszCardTypeList[pTmpObj->property] ) ) != NULL )
 		{
 			len = strlen( pTemp );
-
-			if ( ( pVCardRes = ( char* )realloc( pVCardRes, ( total += len+10 ) ) ) == NULL )
+			total += len + sizeof(char) * 10;
+			if ( ( pVCardRes = ( char* )realloc( pVCardRes, total ) ) == NULL )
 			{
 				VDATA_TRACE(  "vcard_encode():realloc failed\n");
 				VFREE( pTemp );
@@ -1162,7 +1165,7 @@ vcard_encode( VTree *pVCardRaw )
 			}
 
 			if( strncmp(pTemp,"VERSION", strlen("VERSION")) != 0)
-				strncat(pVCardRes, pTemp, strlen(pTemp));
+				g_strlcat(pVCardRes, pTemp, total - strlen(pVCardRes));
 
 			VDATA_TRACE("pTemp : %s", pTemp);
 
@@ -1176,14 +1179,15 @@ vcard_encode( VTree *pVCardRaw )
 			break;
 	}
 
-	if ( ( pVCardRes = ( char * )realloc( pVCardRes, ( total += 12 ) ) ) == NULL )
+	total += sizeof(char) * 12;
+	if ( ( pVCardRes = ( char * )realloc( pVCardRes, total ) ) == NULL )
 	{
 		VDATA_TRACE(  "vcard_encode:realloc failed\n");
 		VDATA_TRACE_END
 		return NULL;
 	}
-	strcat( pVCardRes, "END:VCARD\r\n" );
-    	VDATA_TRACE_END
+	g_strlcat( pVCardRes, "END:VCARD\r\n", total - strlen(pVCardRes));
+	VDATA_TRACE_END
 	return pVCardRes;
 }
 
@@ -1247,9 +1251,9 @@ __VCardTypeEncode( VObject *pTypeObj, char *pType )
 		len += strlen( pTypeObj->pszGroupName ) + 1;
 	}
 #endif // VDATA_GROUPNAME_SUPPORTED
-	if ( ( szTypeValue = ( char * )malloc( total += ( len+1 ) ) ) == NULL )
+	if ( ( szTypeValue = ( char * )calloc(1,  total += ( len+1 ) ) ) == NULL )
 	{
-		VDATA_TRACE(  "__VCardTypeEncode():malloc failed\n");
+		VDATA_TRACE(  "__VCardTypeEncode():calloc failed\n");
 		VDATA_TRACE_END
 		return NULL;
 	}
@@ -1257,11 +1261,11 @@ __VCardTypeEncode( VObject *pTypeObj, char *pType )
 #ifdef VDATA_GROUPNAME_SUPPORTED
 	if ( pTypeObj->pszGroupName != NULL )
 	{
-		g_strlcat( szTypeValue, pTypeObj->pszGroupName, total);
-		g_strlcat( szTypeValue, ".", total);
+		g_strlcat( szTypeValue, pTypeObj->pszGroupName, total - strlen(szTypeValue));
+		g_strlcat( szTypeValue, ".", total - strlen(szTypeValue));
 	}
 #endif // VDATA_GROUPNAME_SUPPORTED
-	g_strlcat( szTypeValue, pType, total);
+	g_strlcat( szTypeValue, pType, total - strlen(szTypeValue));
 
 	pTemp = __VCardParamEncode( pTypeObj, &enc );
 	if ( pTemp != NULL )
@@ -1275,7 +1279,7 @@ __VCardTypeEncode( VObject *pTypeObj, char *pType )
 			VDATA_TRACE_END;
 			return NULL;
 		}
-		g_strlcat( szTypeValue, pTemp, total);
+		g_strlcat( szTypeValue, pTemp, total - strlen(szTypeValue));
 		VFREE( pTemp );
 		pTemp = NULL;
 	}
@@ -1286,7 +1290,7 @@ __VCardTypeEncode( VObject *pTypeObj, char *pType )
 		return NULL;
 	}
 
-	strcat( szTypeValue, ":" );
+	g_strlcat( szTypeValue, ":", total - strlen(szTypeValue));
 
 	len = 0;
 
@@ -1304,7 +1308,7 @@ __VCardTypeEncode( VObject *pTypeObj, char *pType )
 	for ( i = 0; i < pTypeObj->valueCount; i++ ) {
 
 		if ( i == 0 ) {
-			if ( ( pEncode = ( char * )malloc( len+20 ) ) == NULL ) {
+			if ( ( pEncode = ( char * )calloc(1,  len+20 ) ) == NULL ) {
 				VFREE(szTypeValue);
 				VDATA_TRACE_END
 				return NULL;
@@ -1313,7 +1317,7 @@ __VCardTypeEncode( VObject *pTypeObj, char *pType )
 			memset( pEncode, '\0', len+20 );
 
 			if(strcmp(pType, pszCardTypeList[19]) != 0)	{
-				g_strlcat( pEncode, pTypeObj->pszValue[i], len+20);
+				g_strlcat( pEncode, pTypeObj->pszValue[i], len+20 - strlen(pEncode));
 				_VEscape(pEncode);
 			}
 			else
@@ -1323,14 +1327,14 @@ __VCardTypeEncode( VObject *pTypeObj, char *pType )
 			char	buf[1000];
 			strncpy( buf, pTypeObj->pszValue[i], 999 );
 			_VEscape( buf );
-			g_strlcat( pEncode, ";", len+20);
-			g_strlcat( pEncode, buf, len+20);
+			g_strlcat( pEncode, ";", len+20 - strlen(pEncode));
+			g_strlcat( pEncode, buf, len+20 - strlen(pEncode));
 		}
 	}
 
 	if(strcmp(pType, pszCardTypeList[19]) != 0)	{
 		if (pEncode) {
-			strcat( pEncode, "\0\0" );
+			g_strlcat( pEncode, "\0\0", len+20 - strlen(pEncode) );
 			len = strlen( pEncode );
 		}
 	}
@@ -1339,7 +1343,7 @@ __VCardTypeEncode( VObject *pTypeObj, char *pType )
 	}
 
 	if ( enc & pEncList[2].flag ) {
-		if((pRes = (char *)malloc(len * 6 + 10)) == NULL) {
+		if((pRes = (char *)calloc(1, len * 6 + 10)) == NULL) {
 			VFREE(pEncode);
 			VFREE(szTypeValue);
 			VDATA_TRACE_END
@@ -1350,7 +1354,7 @@ __VCardTypeEncode( VObject *pTypeObj, char *pType )
 		VFREE(pEncode);
 			}
 	else if(enc & pEncList[1].flag ) {
-		if((pRes = (char *)malloc((len * 8 / 6) + 4)) == NULL){
+		if((pRes = (char *)calloc(1, (len * 8 / 6) + 4)) == NULL){
 			VFREE(pEncode);
 			VFREE(szTypeValue);
 			VDATA_TRACE_END
@@ -1362,7 +1366,7 @@ __VCardTypeEncode( VObject *pTypeObj, char *pType )
 		VFREE(pEncode);
 			}
 	else {
-		if((pRes = (char *)malloc(len+30)) == NULL) {
+		if((pRes = (char *)calloc(1, len+30)) == NULL) {
 			VFREE(pEncode);
 			VFREE(szTypeValue);
 			VDATA_TRACE_END
@@ -1383,7 +1387,7 @@ __VCardTypeEncode( VObject *pTypeObj, char *pType )
 		VDATA_TRACE_END
 		return NULL;
 	}
-	strncat( pRes, "\r\n", strlen(pRes) + 2);
+	g_strlcat( pRes, "\r\n", 2);
 
 	len = strlen( pRes );
 
@@ -1394,7 +1398,7 @@ __VCardTypeEncode( VObject *pTypeObj, char *pType )
 		return NULL;
 	}
 
-	strncat(szTypeValue, pRes, total - 1);
+	g_strlcat(szTypeValue, pRes, total - strlen(szTypeValue));
 
 	if(strcmp(pType, pszCardTypeList[19]) != 0) {
 		_VRLSpace( szTypeValue );
@@ -1430,7 +1434,7 @@ __VCardParamEncode(VObject* pTypeObj, int* pEnc)
 
 	/** Momory Allocation for parameter string. */
 	if(pTemp != NULL) {
-		if ((szParam = (char*)malloc(len+=2)) == NULL)
+		if ((szParam = (char*)calloc(1, len+=2)) == NULL)
 		{
 			VDATA_TRACE_END
 			return NULL;
@@ -1453,10 +1457,10 @@ __VCardParamEncode(VObject* pTypeObj, int* pEnc)
 		}
 
 		/** appending paramter name. */
-		strcat( szParam, ";" );
+		g_strlcat( szParam, ";", len - strlen(szParam) );
 		if(pTemp->parameter != VCARD_PARAM_TYPE) {
-			g_strlcat( szParam, pszCardParamList[pTemp->parameter], len);
-			g_strlcat( szParam, "=", len);
+			g_strlcat( szParam, pszCardParamList[pTemp->parameter], len - strlen(szParam));
+			g_strlcat( szParam, "=", len - strlen(szParam));
 		}
 
 		/** Set Parameter Value name. */
@@ -1485,7 +1489,7 @@ __VCardParamEncode(VObject* pTypeObj, int* pEnc)
 					VDATA_TRACE_END
 					return NULL;
 				}
-				strcat( szParam, "NONE" );
+				g_strlcat( szParam, "NONE", 5 - strlen(szParam) );
 		}
 
 		/** exchage parameter value's to string.*/
@@ -1500,8 +1504,8 @@ __VCardParamEncode(VObject* pTypeObj, int* pEnc)
 						return NULL;
 					}
 
-					g_strlcat( szParam, pList[i].szName, len);
-					g_strlcat( szParam, "; ", len);
+					g_strlcat( szParam, pList[i].szName, len - strlen(szParam));
+					g_strlcat( szParam, "; ", len - strlen(szParam));
 				}
 
 				sNum <<= 1;

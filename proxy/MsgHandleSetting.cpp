@@ -21,15 +21,12 @@
 #include "MsgHandle.h"
 
 
-#define MSG_TYPE_CHECK(a, b) \
-		({\
-			if(a != b) return MSG_ERR_INVALID_PARAMETER; \
-		})\
-
 #define MSG_NULL_CHECK(a) \
-		({\
-			if(a == NULL) return MSG_ERR_NULL_POINTER; \
-		})\
+	do { \
+		if(a == NULL) { \
+			return MSG_ERR_NULL_POINTER; \
+		} \
+	} while(0)
 
 /*==================================================================================================
                                      IMPLEMENTATION OF MsgHandle - Setting Member Functions
@@ -68,7 +65,7 @@ msg_error_t MsgHandle::getSMSCOption(msg_struct_t msg_struct)
 
 	// Send Command to Messaging FW
 	char* pEventData = NULL;
-	AutoPtr<char> eventBuf(&pEventData);
+	unique_ptr<char*, void(*)(char**)> eventBuf(&pEventData, unique_ptr_deleter);
 
 	write((char*)pCmd, cmdSize, &pEventData);
 
@@ -162,7 +159,7 @@ msg_error_t MsgHandle::setSMSCOption(msg_struct_t msg_struct)
 
 	// Send Command to Messaging FW
 	char* pEventData = NULL;
-	AutoPtr<char> eventBuf(&pEventData);
+	unique_ptr<char*, void(*)(char**)> eventBuf(&pEventData, unique_ptr_deleter);
 
 	write((char*)pCmd, cmdSize, &pEventData);
 
@@ -207,7 +204,7 @@ msg_error_t MsgHandle::getCBOption(msg_struct_t msg_struct)
 
 	// Send Command to Messaging FW
 	char* pEventData = NULL;
-	AutoPtr<char> eventBuf(&pEventData);
+	unique_ptr<char*, void(*)(char**)> eventBuf(&pEventData, unique_ptr_deleter);
 
 	write((char*)pCmd, cmdSize, &pEventData);
 
@@ -297,7 +294,7 @@ msg_error_t MsgHandle::setCBOption(msg_struct_t msg_struct)
 
 	// Send Command to Messaging FW
 	char* pEventData = NULL;
-	AutoPtr<char> eventBuf(&pEventData);
+	unique_ptr<char*, void(*)(char**)> eventBuf(&pEventData, unique_ptr_deleter);
 
 	write((char*)pCmd, cmdSize, &pEventData);
 
@@ -339,7 +336,7 @@ msg_error_t MsgHandle::getSmsSendOpt(msg_struct_t msg_struct)
 
 	// Send Command to Messaging FW
 	char* pEventData = NULL;
-	AutoPtr<char> eventBuf(&pEventData);
+	unique_ptr<char*, void(*)(char**)> eventBuf(&pEventData, unique_ptr_deleter);
 
 	write((char*)pCmd, cmdSize, &pEventData);
 
@@ -389,7 +386,7 @@ msg_error_t MsgHandle::setSmsSendOpt(msg_struct_t msg_struct)
 
 	// Send Command to Messaging FW
 	char* pEventData = NULL;
-	AutoPtr<char> eventBuf(&pEventData);
+	unique_ptr<char*, void(*)(char**)> eventBuf(&pEventData, unique_ptr_deleter);
 
 	write((char*)pCmd, cmdSize, &pEventData);
 
@@ -431,7 +428,7 @@ msg_error_t MsgHandle::getMmsSendOpt(msg_struct_t msg_struct)
 
 	// Send Command to Messaging FW
 	char* pEventData = NULL;
-	AutoPtr<char> eventBuf(&pEventData);
+	unique_ptr<char*, void(*)(char**)> eventBuf(&pEventData, unique_ptr_deleter);
 
 	write((char*)pCmd, cmdSize, &pEventData);
 
@@ -481,7 +478,7 @@ msg_error_t MsgHandle::setMmsSendOpt(msg_struct_t msg_struct)
 
 	// Send Command to Messaging FW
 	char* pEventData = NULL;
-	AutoPtr<char> eventBuf(&pEventData);
+	unique_ptr<char*, void(*)(char**)> eventBuf(&pEventData, unique_ptr_deleter);
 
 	write((char*)pCmd, cmdSize, &pEventData);
 
@@ -523,7 +520,7 @@ msg_error_t MsgHandle::getMmsRecvOpt(msg_struct_t msg_struct)
 
 	// Send Command to Messaging FW
 	char* pEventData = NULL;
-	AutoPtr<char> eventBuf(&pEventData);
+	unique_ptr<char*, void(*)(char**)> eventBuf(&pEventData, unique_ptr_deleter);
 
 	write((char*)pCmd, cmdSize, &pEventData);
 
@@ -573,7 +570,7 @@ msg_error_t MsgHandle::setMmsRecvOpt(msg_struct_t msg_struct)
 
 	// Send Command to Messaging FW
 	char* pEventData = NULL;
-	AutoPtr<char> eventBuf(&pEventData);
+	unique_ptr<char*, void(*)(char**)> eventBuf(&pEventData, unique_ptr_deleter);
 
 	write((char*)pCmd, cmdSize, &pEventData);
 
@@ -615,7 +612,7 @@ msg_error_t MsgHandle::getPushMsgOpt(msg_struct_t msg_struct)
 
 	// Send Command to Messaging FW
 	char* pEventData = NULL;
-	AutoPtr<char> eventBuf(&pEventData);
+	unique_ptr<char*, void(*)(char**)> eventBuf(&pEventData, unique_ptr_deleter);
 
 	write((char*)pCmd, cmdSize, &pEventData);
 
@@ -665,7 +662,7 @@ msg_error_t MsgHandle::setPushMsgOpt(msg_struct_t msg_struct)
 
 	// Send Command to Messaging FW
 	char* pEventData = NULL;
-	AutoPtr<char> eventBuf(&pEventData);
+	unique_ptr<char*, void(*)(char**)> eventBuf(&pEventData, unique_ptr_deleter);
 
 	write((char*)pCmd, cmdSize, &pEventData);
 
@@ -713,7 +710,7 @@ msg_error_t MsgHandle::getVoiceMsgOpt(msg_struct_t msg_struct)
 
 	// Send Command to Messaging FW
 	char* pEventData = NULL;
-	AutoPtr<char> eventBuf(&pEventData);
+	unique_ptr<char*, void(*)(char**)> eventBuf(&pEventData, unique_ptr_deleter);
 
 	write((char*)pCmd, cmdSize, &pEventData);
 
@@ -763,7 +760,7 @@ msg_error_t MsgHandle::setVoiceMsgOpt(msg_struct_t msg_struct)
 
 	// Send Command to Messaging FW
 	char* pEventData = NULL;
-	AutoPtr<char> eventBuf(&pEventData);
+	unique_ptr<char*, void(*)(char**)> eventBuf(&pEventData, unique_ptr_deleter);
 
 	write((char*)pCmd, cmdSize, &pEventData);
 
@@ -805,7 +802,7 @@ msg_error_t MsgHandle::getGeneralOpt(msg_struct_t msg_struct)
 
 	// Send Command to Messaging FW
 	char* pEventData = NULL;
-	AutoPtr<char> eventBuf(&pEventData);
+	unique_ptr<char*, void(*)(char**)> eventBuf(&pEventData, unique_ptr_deleter);
 
 	write((char*)pCmd, cmdSize, &pEventData);
 
@@ -855,7 +852,7 @@ msg_error_t MsgHandle::setGeneralOpt(msg_struct_t msg_struct)
 
 	// Send Command to Messaging FW
 	char* pEventData = NULL;
-	AutoPtr<char> eventBuf(&pEventData);
+	unique_ptr<char*, void(*)(char**)> eventBuf(&pEventData, unique_ptr_deleter);
 
 	write((char*)pCmd, cmdSize, &pEventData);
 
@@ -897,7 +894,7 @@ msg_error_t MsgHandle::getMsgSizeOpt(msg_struct_t msg_struct)
 
 	// Send Command to Messaging FW
 	char* pEventData = NULL;
-	AutoPtr<char> eventBuf(&pEventData);
+	unique_ptr<char*, void(*)(char**)> eventBuf(&pEventData, unique_ptr_deleter);
 
 	write((char*)pCmd, cmdSize, &pEventData);
 
@@ -947,7 +944,7 @@ msg_error_t MsgHandle::setMsgSizeOpt(msg_struct_t msg_struct)
 
 	// Send Command to Messaging FW
 	char* pEventData = NULL;
-	AutoPtr<char> eventBuf(&pEventData);
+	unique_ptr<char*, void(*)(char**)> eventBuf(&pEventData, unique_ptr_deleter);
 
 	write((char*)pCmd, cmdSize, &pEventData);
 

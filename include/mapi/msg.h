@@ -48,12 +48,10 @@ extern "C"
 ==================================================================================================*/
 
 /**
- * @internal
  * @ingroup MSG_SERVICE_FRAMEWORK
  * @defgroup MSG_SERVICE_FRAMEWORK_CONTROL_MODULE Control API
  * @brief The Control API provides functions to manage message handle and set or get each structure.
  *
- * @internal
  * @addtogroup MSG_SERVICE_FRAMEWORK_CONTROL_MODULE
  * @{
  *
@@ -69,6 +67,7 @@ extern "C"
  * @section MSG_SERVICE_FRAMEWORK_CONTROL_MODULE_FEATURE Related Features
  * This API is related with the following features:\n
  *  - http://tizen.org/feature/network.telephony\n
+ *  - http://tizen.org/feature/network.telephony.sms\n
  *
  * It is recommended to design feature related codes in your application for reliability.\n
  *
@@ -152,6 +151,7 @@ int msg_close_msg_handle(msg_handle_t *handle);
  *
  * @retval #msg_struct_t Successfully created structure pointer
  * @retval NULL          Invalid parameter
+ * @retval MSG_ERR_NOT_SUPPORTED       Not supported
  *
  */
 
@@ -528,6 +528,7 @@ int msg_list_add_item(msg_struct_t msg_struct_handle, int field, msg_struct_t *i
  *
  * @retval #msg_struct_t Successfully done
  * @retval NULL          Input parameter (list_handle) is not valid
+ * @retval MSG_ERR_NOT_SUPPORTED       Not supported
  *
  */
 
@@ -573,6 +574,27 @@ int msg_list_length(msg_list_handle_t list_handle);
  */
 
 int msg_list_clear(msg_struct_t msg_struct_handle, int field);
+
+
+/**
+ * @brief Releases entire data of a list handle and the list.
+ *
+ * @since_tizen 2.3.1
+ *
+ * @remarks #msg_list_handle_t MUST be valid, otherwise the function will fail.
+ *
+ * @param[in] list_handle A pointer of message structure type
+ *
+ * @return  @c 0 on success,
+ *        otherwise a negative error value
+ *
+ * @retval MSG_SUCCESS               Successfully done
+ * @retval MSG_ERR_NULL_POINTER      Input parameter is NULL
+ * @retval MSG_ERR_NOT_SUPPORTED     Not supported
+ *
+ */
+
+int msg_list_free(msg_list_handle_t list_handle);
 
 
 /**

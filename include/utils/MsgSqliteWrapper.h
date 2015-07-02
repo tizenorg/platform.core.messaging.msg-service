@@ -93,7 +93,7 @@ public:
 
 	bool checkTableExist(const char *pTableName);
 	msg_error_t execQuery(const char *pQuery);
-	msg_error_t getTable(const char *pQuery, int *pRowCnt);
+	msg_error_t getTable(const char *pQuery, int *pRowCnt, int *pColumnCnt);
 	void freeTable();
 	msg_error_t bindText(const char *pBindStr, int index);
 	msg_error_t bindInt(const int pBindint, int index);

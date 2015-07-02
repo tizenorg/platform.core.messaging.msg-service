@@ -18,8 +18,9 @@
 
 #include "MsgDebug.h"
 #include "MsgTextConvert.h"
+#include "MsgCppTypes.h"
 
-
+using namespace std;
 /*==================================================================================================
                                      IMPLEMENTATION OF MsgConvertText - Member Functions
 ==================================================================================================*/
@@ -436,7 +437,7 @@ int MsgTextConvert::convertUTF8ToGSM7bit(OUT unsigned char *pDestText, IN int ma
 	int gsm7bitLength = 0;
 	int ucs2Length = 0;
 
-	if (srcTextLen <= 0) {
+	if (srcTextLen <= 0 && pSrcText) {
 		utf8Length = strlen((char*)pSrcText);
 		srcTextLen = utf8Length;
 	} else {
@@ -444,7 +445,10 @@ int MsgTextConvert::convertUTF8ToGSM7bit(OUT unsigned char *pDestText, IN int ma
 	}
 
 	int maxUCS2Length = utf8Length;		// max # of UCS2 chars, NOT bytes. when all utf8 chars are only one byte, UCS2Length is maxUCS2 Length. otherwise (ex: 2 bytes of UTF8 is one char) UCS2Length must be  less than utf8Length
-	WCHAR pUCS2Text[maxUCS2Length];
+
+	WCHAR *pUCS2Text = NULL;
+	unique_ptr<WCHAR*, void(*)(WCHAR**)> buf(&pUCS2Text, unique_ptr_deleter);
+	pUCS2Text = (WCHAR *)new char[maxUCS2Length * sizeof(WCHAR)];
 	memset(pUCS2Text, 0x00, maxUCS2Length * sizeof(WCHAR));
 
 	MSG_DEBUG("srcTextLen = %d", srcTextLen);

@@ -866,7 +866,8 @@ bool MsgSmilAddRegion(HMsgSmil hSmilDoc, MMS_SMIL_REGION *pstSmilRegion)
 				// Note: nRootWidth should be in terms of value(pixel) not unitpercent(%)
 				// Validation should be done before this.
 				if (pstSmilRegion->width.value >= 0 &&
-					pstSmilRegion->width.value <= nRootWidth) {
+					pstSmilRegion->width.value <= nRootWidth &&
+					nRootWidth != 0) {
 					int iWidth = (pstSmilRegion->width.value * 100) / nRootWidth;
 
 					snprintf(szBuf, MSG_STDSTR_SHORT, "%d%%", iWidth);
@@ -885,7 +886,8 @@ bool MsgSmilAddRegion(HMsgSmil hSmilDoc, MMS_SMIL_REGION *pstSmilRegion)
 				// Note: nRootHeight should be in terms of value(pixel) not unitpercent(%)
 				// Validation should be done before this.
 				if (pstSmilRegion->height.value >= 0 &&
-					pstSmilRegion->height.value <= nRootHeight) {
+					pstSmilRegion->height.value <= nRootHeight &&
+					nRootHeight != 0) {
 					int iHeight = (pstSmilRegion->height.value * 100) / nRootHeight;
 
 					snprintf(szBuf, MSG_STDSTR_SHORT, "%d%%", iHeight);
@@ -905,7 +907,7 @@ bool MsgSmilAddRegion(HMsgSmil hSmilDoc, MMS_SMIL_REGION *pstSmilRegion)
 			} else {
 				// Note: nRootWidth should be in terms of value(pixel) not unitpercent(%)
 				// Validation should be done before this.
-				if (pstSmilRegion->nLeft.value >= 0) {
+				if (pstSmilRegion->nLeft.value >= 0 && nRootWidth != 0) {
 					int iLeft = (pstSmilRegion->nLeft.value * 100) / nRootWidth;
 
 					snprintf(szBuf, MSG_STDSTR_SHORT, "%d%%", iLeft);
@@ -915,7 +917,8 @@ bool MsgSmilAddRegion(HMsgSmil hSmilDoc, MMS_SMIL_REGION *pstSmilRegion)
 			}
 
 			if (true == pstSmilRegion->nTop.bUnitPercent) {
-				if (pstSmilRegion->nTop.value > 0) {
+				if (pstSmilRegion->nTop.value > 0 &&
+						nRootHeight != 0) {
 					snprintf(szBuf, MSG_STDSTR_SHORT, "%d%%", pstSmilRegion->nTop.value);
 					xmlSetProp(pstRegion, (const xmlChar *)"top", (const xmlChar *)szBuf);
 					MSG_DEBUG("[Set Attribute] : Top : [%s]", szBuf);
@@ -923,7 +926,7 @@ bool MsgSmilAddRegion(HMsgSmil hSmilDoc, MMS_SMIL_REGION *pstSmilRegion)
 			} else {
 				// Note: nRootHeight should be in terms of value(pixel) not unitpercent(%)
 				// Validation should be done before this.
-				if (pstSmilRegion->nTop.value >= 0) {
+				if (pstSmilRegion->nTop.value >= 0 && nRootHeight != 0) {
 					int iTop = (pstSmilRegion->nTop.value * 100) / nRootHeight;
 
 					snprintf(szBuf, MSG_STDSTR_SHORT, "%d%%", iTop);

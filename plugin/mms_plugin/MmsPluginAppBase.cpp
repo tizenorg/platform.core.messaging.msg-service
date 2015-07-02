@@ -26,7 +26,10 @@
 
 msg_error_t MmsMakePreviewInfo(int msgId, MMS_MESSAGE_DATA_S *pMmsMsg, bool allow_malware, const char *raw_filepath);
 
-MmsPluginAppBase::MmsPluginAppBase(){}
+MmsPluginAppBase::MmsPluginAppBase()
+{
+	memset(&mmsMsgData, 0x00, sizeof(mmsMsgData));
+}
 
 MmsPluginAppBase::MmsPluginAppBase(MMS_DATA_S *pMmsData)
 {
@@ -80,7 +83,7 @@ void MmsPluginAppBase::getFirstPageTextFilePath(char *textBuf, int textBufSize)
 
 				pMedia = _MsgMmsGetMedia(pPage, j);
 
-				if (pMedia->mediatype == MMS_SMIL_MEDIA_TEXT) {
+				if (pMedia && pMedia->mediatype == MMS_SMIL_MEDIA_TEXT) {
 
 					MimeType mimeType = MIME_UNKNOWN;
 

@@ -73,6 +73,7 @@ SmsPluginSetting::SmsPluginSetting()
 	bTapiResult = false;
 	paramCnt = 0;
 	selectedParam = 0;
+	selectedSimIndex = 0;
 
 	for (int i = 0; i < MAX_TELEPHONY_HANDLE_CNT; i++)
 		bMbdnEnable[i] = false;
@@ -142,8 +143,6 @@ void SmsPluginSetting::updateSimStatus(struct tapi_handle *handle)
 	tapiRet = tel_get_sim_imsi(handle, &imsiInfo);
 	if (tapiRet != TAPI_API_SUCCESS) {
 		MSG_DEBUG("tel_get_sim_imsi() Error![%d]", tapiRet);
-		snprintf(keyName, sizeof(keyName), "%s/%d", MSG_NATIONAL_SIM, simIndex);
-		MsgSettingSetBool(keyName, false);
 	}
 
 	/* Save Subcriber ID */
@@ -154,7 +153,8 @@ void SmsPluginSetting::updateSimStatus(struct tapi_handle *handle)
 		MSG_DEBUG("getSubscriberId() is failed");
 	} else {
 		snprintf(keyName, sizeof(keyName), "%s/%d", MSG_SIM_SUBS_ID, simIndex);
-		MsgSettingSetString(keyName, subscriberId);
+		if (MsgSettingSetString(keyName, subscriberId) != MSG_SUCCESS)
+			MSG_DEBUG("Fail MsgSettingSetString");
 	}
 
 	g_free(subscriberId); subscriberId = NULL;
@@ -886,7 +886,7 @@ bool SmsPluginSetting::setCbConfig(const MSG_CBMSG_OPT_S *pCbOpt)
 			err = MsgStoAddCBChannelInfo(dbHandle, const_cast<MSG_CB_CHANNEL_S*>(&pCbOpt->channelData),i);
 			if (err != MSG_SUCCESS) {
 				MSG_DEBUG("MsgStoAddCBChannelInfo is failed [%d]", err);
-				return MSG_ERR_SET_SETTING;
+				return false;
 			}
 		}
 
@@ -1728,7 +1728,7 @@ void SmsPluginSetting::deliverVoiceMsgNoti(int simIndex, int mwiCnt)
 	MSG_MESSAGE_INFO_S msgInfo = {0,};
 
 	msgInfo.addressList = NULL;
-	AutoPtr<MSG_ADDRESS_INFO_S> addressListBuf(&msgInfo.addressList);
+	unique_ptr<MSG_ADDRESS_INFO_S*, void(*)(MSG_ADDRESS_INFO_S**)> addressListBuf(&msgInfo.addressList, unique_ptr_deleter);
 
 	msgInfo.addressList = (MSG_ADDRESS_INFO_S *)new char[sizeof(MSG_ADDRESS_INFO_S)];
 	memset(msgInfo.addressList, 0x00, sizeof(MSG_ADDRESS_INFO_S));

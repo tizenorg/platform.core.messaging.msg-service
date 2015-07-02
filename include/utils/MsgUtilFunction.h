@@ -20,7 +20,7 @@
 #define	MSG_UTIL_CH_EMAIL_AT    '@'
 
 /*==================================================================================================
-                                         INCLUDE FILES
+                                   INCLUDE FILES
 ==================================================================================================*/
 #include "MsgStorageTypes.h"
 #include "MsgSettingTypes.h"
@@ -29,7 +29,18 @@
 #include "MsgCmdTypes.h"
 
 /*==================================================================================================
-					FUNCTION PROTOTYPES
+                                      DEFINES
+==================================================================================================*/
+
+#define MSG_TYPE_CHECK(a, b) \
+	do {\
+		if(a != (b & 0xff00)) {\
+			return MSG_ERR_INVALID_PARAMETER; \
+		} \
+	}while(0)
+
+/*==================================================================================================
+					               FUNCTION PROTOTYPES
 ==================================================================================================*/
 
 bool MsgCheckFeatureSupport(const char *feature_name);
@@ -56,8 +67,6 @@ int MsgEncodeSetting(MSG_SETTING_S *pSetting, char **ppDest);
 int MsgEncodeFilterList(msg_struct_list_s *pFilterList, char **ppDest);
 
 int MsgEncodeFilterFlag(bool *pSetFlag, char **ppDest);
-
-int MsgEncodeMsgType(MSG_MESSAGE_TYPE_S *pMsgType, char **ppDest);
 
 int MsgEncodeThreadViewList(msg_struct_list_s *pThreadViewList, char **ppDest);
 

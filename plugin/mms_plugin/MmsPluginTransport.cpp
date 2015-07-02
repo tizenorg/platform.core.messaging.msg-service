@@ -80,7 +80,8 @@ void MmsPluginTransport::submitRequest(const MSG_REQUEST_INFO_S *pReqInfo)
 		reqItem.eHttpCmdType = eHTTP_CMD_GET_TRANSACTION;
 		reqItem.getDataLen = pReqInfo->msgInfo.dataSize;
 		reqItem.pGetData = (char *)malloc(reqItem.getDataLen);
-		memcpy(reqItem.pGetData, pReqInfo->msgInfo.msgData, reqItem.getDataLen);
+		if (reqItem.pGetData)
+			memcpy(reqItem.pGetData, pReqInfo->msgInfo.msgData, reqItem.getDataLen);
 		MSG_MMS_VLD_INFO("%d, MMS Receive Auto Start %s->%s, Success", pReqInfo->msgInfo.msgId, pReqInfo->msgInfo.addressList[0].addressVal, (msisdn == NULL)?"ME":msisdn);
 		break;
 
@@ -104,7 +105,8 @@ void MmsPluginTransport::submitRequest(const MSG_REQUEST_INFO_S *pReqInfo)
 		reqItem.eHttpCmdType = eHTTP_CMD_GET_TRANSACTION;
 		reqItem.getDataLen = pReqInfo->msgInfo.dataSize;
 		reqItem.pGetData = (char *)malloc(reqItem.getDataLen);
-		memcpy(reqItem.pGetData, pReqInfo->msgInfo.msgData, reqItem.getDataLen);
+		if (reqItem.pGetData)
+			memcpy(reqItem.pGetData, pReqInfo->msgInfo.msgData, reqItem.getDataLen);
 		MSG_MMS_VLD_INFO("%d, MMS Receive Manual Start %s->%s, Success", pReqInfo->msgInfo.msgId, pReqInfo->msgInfo.addressList[0].addressVal, (msisdn == NULL)?"ME":msisdn);
 		break;
 

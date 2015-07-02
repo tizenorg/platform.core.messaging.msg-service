@@ -80,14 +80,14 @@ private:
 	unsigned short encodeCbSerialNum ( SMS_CBMSG_SERIAL_NUM_S snFields );
 	int CMAS_class(unsigned short message_id);
 
-	bool checkCbOpt(SMS_CBMSG_PAGE_S CbPage, bool *pJavaMsg, msg_sim_slot_id_t simIndex);
-	unsigned char checkCbPage(SMS_CBMSG_PAGE_S CbPage);
-	void MakeCbMsg(SMS_CBMSG_PAGE_S CbPage, SMS_CBMSG_S *pCbMsg);
+	bool checkCbOpt(SMS_CBMSG_PAGE_S *CbPage, bool *pJavaMsg, msg_sim_slot_id_t simIndex);
+	unsigned char checkCbPage(SMS_CBMSG_PAGE_S *CbPage);
+	void MakeCbMsg(SMS_CBMSG_PAGE_S *CbPage, SMS_CBMSG_S *pCbMsg);
 	void convertCbMsgToMsginfo(SMS_CBMSG_S *pCbMsg, MSG_MESSAGE_INFO_S *pMsgInfo, msg_sim_slot_id_t simIndex);
-	void convertEtwsMsgToMsginfo(SMS_CBMSG_PAGE_S EtwsMsg, MSG_MESSAGE_INFO_S *pMsgInfo, msg_sim_slot_id_t simIndex);
+	void convertEtwsMsgToMsginfo(SMS_CBMSG_PAGE_S *EtwsMsg, MSG_MESSAGE_INFO_S *pMsgInfo, msg_sim_slot_id_t simIndex);
 	int convertTextToUtf8 (unsigned char* outBuf, int outBufSize, SMS_CBMSG_S* pCbMsg);
-	void addToPageList(SMS_CBMSG_PAGE_S CbPage);
-	void removeFromPageList(SMS_CBMSG_PAGE_S CbPage);
+	void addToPageList(SMS_CBMSG_PAGE_S *CbPage);
+	void removeFromPageList(SMS_CBMSG_PAGE_S *CbPage);
 
 	void decodeCbMsgDCS(unsigned char dcsData, const unsigned char *pMsgData, SMS_CBMSG_DCS_S* pDcs);
 	void convertLangType(SMS_CBMSG_LANG_TYPE_T InType , MSG_CB_LANGUAGE_TYPE_T *pOutType);

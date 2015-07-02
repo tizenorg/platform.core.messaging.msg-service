@@ -104,13 +104,13 @@ int SmsPluginTpduCodec::encodeSubmit(const SMS_SUBMIT_S *pSubmit, char *pTpdu)
 	int offset = 0, length = 0, encodeSize = 0;
 
 	char* address = NULL;
-	AutoPtr<char> addressBuf(&address);
+	unique_ptr<char*, void(*)(char**)> addressBuf(&address, unique_ptr_deleter);
 
 	char* dcs = NULL;
-	AutoPtr<char> dcsBuf(&dcs);
+	unique_ptr<char*, void(*)(char**)> dcsBuf(&dcs, unique_ptr_deleter);
 
 	char* vpTime = NULL;
-	AutoPtr<char> vpBuf(&vpTime);
+	unique_ptr<char*, void(*)(char**)> vpBuf(&vpTime, unique_ptr_deleter);
 
 	//TP-MTI
 	pTpdu[offset] = 0x01;
@@ -213,13 +213,13 @@ int SmsPluginTpduCodec::encodeDeliver(const SMS_DELIVER_S *pDeliver, char *pTpdu
 	int offset = 0, length = 0, encodeSize = 0;
 
 	char* address = NULL;
-	AutoPtr<char> addressBuf(&address);
+	unique_ptr<char*, void(*)(char**)> addressBuf(&address, unique_ptr_deleter);
 
 	char* dcs = NULL;
-	AutoPtr<char> dcsBuf(&dcs);
+	unique_ptr<char*, void(*)(char**)> dcsBuf(&dcs, unique_ptr_deleter);
 
 	char* scts = NULL;
-	AutoPtr<char> timeBuf(&scts);
+	unique_ptr<char*, void(*)(char**)> timeBuf(&scts, unique_ptr_deleter);
 
 	// TP-MTI : 00
 	pTpdu[offset] = 0x00;
@@ -303,7 +303,7 @@ int SmsPluginTpduCodec::encodeDeliverReport(const SMS_DELIVER_REPORT_S *pDeliver
 		int length = 0;
 
 		char* dcs = NULL;
-		AutoPtr<char> dcsBuf(&dcs);
+		unique_ptr<char*, void(*)(char**)> dcsBuf(&dcs, unique_ptr_deleter);
 
 		length = SmsPluginParamCodec::encodeDCS(&pDeliverRep->dcs, &dcs);
 		memcpy(&(pTpdu[offset]), dcs, length);
@@ -334,13 +334,13 @@ int SmsPluginTpduCodec::encodeStatusReport(const SMS_STATUS_REPORT_S *pStatusRep
 	int offset = 0, length = 0;
 
 	char* address = NULL;
-	AutoPtr<char> addressBuf(&address);
+	unique_ptr<char*, void(*)(char**)> addressBuf(&address, unique_ptr_deleter);
 
 	char* scts = NULL;
-	AutoPtr<char> sctsBuf(&scts);
+	unique_ptr<char*, void(*)(char**)> sctsBuf(&scts, unique_ptr_deleter);
 
 	char* dt = NULL;
-	AutoPtr<char> dtBuf(&dt);
+	unique_ptr<char*, void(*)(char**)> dtBuf(&dt, unique_ptr_deleter);
 
 	// TP-MTI : 10
 	pTpdu[offset] = 0x02;
@@ -393,7 +393,7 @@ int SmsPluginTpduCodec::encodeStatusReport(const SMS_STATUS_REPORT_S *pStatusRep
 		int length = 0;
 
 		char* dcs = NULL;
-		AutoPtr<char> dcsBuf(&dcs);
+		unique_ptr<char*, void(*)(char**)> dcsBuf(&dcs, unique_ptr_deleter);
 
 		length = SmsPluginParamCodec::encodeDCS(&pStatusRep->dcs, &dcs);
 		memcpy(&(pTpdu[offset]), dcs, length);
@@ -612,13 +612,13 @@ int SmsPluginTpduCodec::decodeStatusReport(const unsigned char *pTpdu, int TpduL
 	int offset = 0, udLen = 0;
 
 	char* address = NULL;
-	AutoPtr<char> addressBuf(&address);
+	unique_ptr<char*, void(*)(char**)> addressBuf(&address, unique_ptr_deleter);
 
 	char* scts = NULL;
-	AutoPtr<char> sctsBuf(&scts);
+	unique_ptr<char*, void(*)(char**)> sctsBuf(&scts, unique_ptr_deleter);
 
 	char* dt = NULL;
-	AutoPtr<char> dtBuf(&dt);
+	unique_ptr<char*, void(*)(char**)> dtBuf(&dt, unique_ptr_deleter);
 
 	// TP-MMS
 	if (pTpdu[offset] & 0x04)

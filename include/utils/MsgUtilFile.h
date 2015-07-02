@@ -60,6 +60,6 @@ bool MsgChown(const char *filepath, int uid, int gid);
 bool MsgCreateFile(const char *pFilePath,char *pData, int DataSize);
 char *MsgGetDirName(char *file_path);
 char *MsgGetFileName(char *file_path);
-
+int MsgCheckFilepathSmack(const char *app_smack_label, char *file_path);
 #endif // MSG_UTIL_FILE_H
 

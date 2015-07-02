@@ -101,7 +101,7 @@ bool MsgCheckFilter(MsgDbHandler *pDbHandle, MSG_MESSAGE_INFO_S *pMsgInfo)
 			MSGFW_FILTER_TABLE_NAME, MSG_FILTER_BY_ADDRESS_INCLUDE, pMsgInfo->addressList[0].addressVal,
 			MSGFW_FILTER_TABLE_NAME, MSG_FILTER_BY_ADDRESS_END, pMsgInfo->addressList[0].addressVal);
 
-	err = pDbHandle->getTable(sqlQuery, &rowCnt);
+	err = pDbHandle->getTable(sqlQuery, &rowCnt, NULL);
 
 	if (rowCnt > 0) {
 		MSG_SEC_DEBUG("Msg is Filtered by Address : [%s]", pMsgInfo->addressList[0].addressVal);
@@ -124,7 +124,7 @@ bool MsgCheckFilter(MsgDbHandler *pDbHandle, MSG_MESSAGE_INFO_S *pMsgInfo)
 
 	rowCnt = 0;
 
-	err = pDbHandle->getTable(sqlQuery, &rowCnt);
+	err = pDbHandle->getTable(sqlQuery, &rowCnt, NULL);
 
 	if (err != MSG_SUCCESS) {
 		MSG_DEBUG("Fail to getTable().");
@@ -135,7 +135,7 @@ bool MsgCheckFilter(MsgDbHandler *pDbHandle, MSG_MESSAGE_INFO_S *pMsgInfo)
 	char filterValue[MAX_FILTER_VALUE_LEN+1];
 
 	char* pData = NULL;
-	AutoPtr<char> buf(&pData);
+	unique_ptr<char*, void(*)(char**)> buf(&pData, unique_ptr_deleter);
 
 	int fileSize = 0;
 	bool bFiltered = false;
@@ -281,7 +281,7 @@ bool MsgCheckFilterByWord(MsgDbHandler *pDbHandle, const char *pMsgText)
 	snprintf(sqlQuery, sizeof(sqlQuery), "SELECT FILTER_VALUE FROM %s WHERE FILTER_TYPE = %d;",
 			MSGFW_FILTER_TABLE_NAME, MSG_FILTER_BY_WORD);
 
-	err = pDbHandle->getTable(sqlQuery, &rowCnt);
+	err = pDbHandle->getTable(sqlQuery, &rowCnt, NULL);
 
 	if (err != MSG_SUCCESS) {
 		MSG_DEBUG("Fail to getTable().");

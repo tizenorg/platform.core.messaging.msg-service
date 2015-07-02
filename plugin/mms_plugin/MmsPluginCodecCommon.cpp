@@ -700,11 +700,13 @@ int extract_encoded_word_param(char *encoded_word, char **charset,  char **encod
 
 			char_set = (char*)calloc(1, q1_ptr - (start_ptr + 2) + 1);
 
-			strncpy(char_set, (char*)((start_ptr + 2)), q1_ptr - (start_ptr + 2));
-
-			MSG_DEBUG("character set [%s][%d]", char_set, strlen(char_set));
-
-
+			if (char_set) {
+				strncpy(char_set, (char*)((start_ptr + 2)), q1_ptr - (start_ptr + 2));
+				MSG_DEBUG("character set [%s][%d]", char_set, strlen(char_set));
+			} else {
+				MSG_DEBUG("fail to calloc");
+				goto __CATCH;
+			}
 		} else {
 			MSG_DEBUG("character set is NULL");
 			goto __CATCH;
@@ -729,7 +731,8 @@ int extract_encoded_word_param(char *encoded_word, char **charset,  char **encod
 		//extract encoded text
 		if (end_ptr - q2_ptr > 1) {
 			l_encoded_text = (char*)calloc(1, end_ptr - q2_ptr);
-
+			if (l_encoded_text == NULL)
+				goto __CATCH;
 			strncpy(l_encoded_text, (char*)(q2_ptr + 1), end_ptr - q2_ptr -1);
 
 			MSG_DEBUG("encoded text [%s][%d]", l_encoded_text, strlen(l_encoded_text));
@@ -1492,7 +1495,7 @@ bool MmsInitMsgBody(MsgBody *pMsgBody)
 	MmsInitMsgType(&pMsgBody->presentationType);
 	pMsgBody->pPresentationBody = NULL;
 
-	memset(pMsgBody->szOrgFilePath, 0, MSG_FILEPATH_LEN_MAX);
+	memset(pMsgBody->szOrgFilePath, 0, MSG_FILEPATH_LEN_MAX + 1);
 
 	return true;
 }

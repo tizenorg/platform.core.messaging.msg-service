@@ -506,7 +506,7 @@ void SmsPluginEventHandler::handleMsgIncoming(sms_trans_p2p_msg_s *p_p2p_msg)
 	memset(&msgInfo, 0x00, sizeof(MSG_MESSAGE_INFO_S));
 
 	msgInfo.addressList = NULL;
-	AutoPtr<MSG_ADDRESS_INFO_S> addressListBuf(&msgInfo.addressList);
+	unique_ptr<MSG_ADDRESS_INFO_S*, void(*)(MSG_ADDRESS_INFO_S**)> addressListBuf(&msgInfo.addressList, unique_ptr_deleter);
 
 	/** convert to msgInfo */
 	convertTpduToMsginfo(p_p2p_msg, &msgInfo);
@@ -688,7 +688,7 @@ void SmsPluginEventHandler::handleCbMsgIncoming(sms_trans_broadcast_msg_s *p_cb_
 	memset(&msgInfo, 0x00, sizeof(MSG_MESSAGE_INFO_S));
 
 	msgInfo.addressList = NULL;
-	AutoPtr<MSG_ADDRESS_INFO_S> addressListBuf(&msgInfo.addressList);
+	unique_ptr<MSG_ADDRESS_INFO_S*, void(*)(MSG_ADDRESS_INFO_S**)> addressListBuf(&msgInfo.addressList, unique_ptr_deleter);
 
 	/** convert to msgInfo */
 	convertTpduToMsginfo(p_cb_msg, &msgInfo);
@@ -852,13 +852,13 @@ void SmsPluginEventHandler::handleWapMsgIncoming(sms_trans_p2p_msg_s *p_p2p_msg)
 		int dataSize = 0;
 		char* pUserData = NULL;
 		char* pTmpUserData = NULL;
-		AutoPtr<char> dataBuf(&pUserData);
-		AutoPtr<char> dataBuf1(&pTmpUserData);
+		unique_ptr<char*, void(*)(char**)> dataBuf(&pUserData, unique_ptr_deleter);
+		unique_ptr<char*, void(*)(char**)> dataBuf1(&pTmpUserData, unique_ptr_deleter);
 
 		MSG_MESSAGE_INFO_S msgInfo = {0,};
 
 		msgInfo.addressList = NULL;
-		AutoPtr<MSG_ADDRESS_INFO_S> addressListBuf(&msgInfo.addressList);
+		unique_ptr<MSG_ADDRESS_INFO_S*, void(*)(MSG_ADDRESS_INFO_S**)> addressListBuf(&msgInfo.addressList, unique_ptr_deleter);
 
 		dataSize = MakeWapUserData(msg.msgId, &pUserData);
 
@@ -1092,7 +1092,8 @@ int SmsPluginEventHandler::MakeWapUserData(unsigned short msgId, char **ppTotalD
 
 			MSG_DEBUG("totalSize [%d]", totalSize);
 
-			*ppTotalData = new char[totalSize];
+			if (*ppTotalData == NULL)
+				*ppTotalData = new char[totalSize];
 
 			for (it = wapList[i].data.begin(); it != wapList[i].data.end(); it++) {
 				memcpy(*ppTotalData+offset, it->second.data, it->second.length);

@@ -82,7 +82,7 @@ msg_error_t MsgSubmitReqSMS(MSG_REQUEST_INFO_S *pReqInfo)
 	MsgPlugin* plg = MsgPluginManager::instance()->getPlugin(mainType);
 
 	if (plg == NULL)
-		THROW(MsgException::PLUGIN_ERROR, "No plugin for %d type", mainType);
+		return MSG_ERR_NULL_POINTER;
 
 	// If MSG ID > 0 -> MSG in DRAFT
 	// Move Folder to OUTBOX
@@ -91,6 +91,8 @@ msg_error_t MsgSubmitReqSMS(MSG_REQUEST_INFO_S *pReqInfo)
 
 	if (pReqInfo->msgInfo.msgId > 0 && (pReqInfo->msgInfo.folderId == MSG_DRAFT_ID || pReqInfo->msgInfo.folderId == MSG_OUTBOX_ID))
 		err = MsgStoUpdateMessage(&(pReqInfo->msgInfo), &(pReqInfo->sendOptInfo));
+		if (err != MSG_SUCCESS)
+			return err;
 	}
 
 	err = plg->submitReq(pReqInfo);
@@ -107,7 +109,7 @@ msg_error_t MsgSubmitReqMMS(MSG_REQUEST_INFO_S *pReqInfo)
 	MsgPlugin *sms_plg = MsgPluginManager::instance()->getPlugin(MSG_SMS_TYPE);
 
 	if (sms_plg == NULL){
-		THROW(MsgException::PLUGIN_ERROR, "No plugin for %d type", MSG_SMS_TYPE);
+		return MSG_ERR_NULL_POINTER;
 	}
 
 	int defaultNetworkSimId = 0;
@@ -316,18 +318,25 @@ msg_error_t MsgUpdateSentMsg(msg_message_id_t MsgId, msg_network_status_t Status
 			ret = MsgSettingGetBool(MSG_KEEP_COPY, &bKeepCopy);
 		}
 	}
-#endif
 
 	// Move Msg to SENTBOX
 	if (Status == MSG_NETWORK_SEND_SUCCESS)
 	{
-		MSG_DEBUG(" In Status == MSG_NETWORK_SEND_SUCCESS and  bKeepCopy is [%d]", bKeepCopy);
+		MSG_DEBUG("In Status == MSG_NETWORK_SEND_SUCCESS and  bKeepCopy is [%d]", bKeepCopy);
 		if (bKeepCopy == true)
 			err = MsgStoMoveMessageToFolder(MsgId, MSG_SENTBOX_ID);
 		else
 			err = MsgStoDeleteMessage(MsgId, false);
 	}
-
+#else
+	// Move Msg to SENTBOX
+	if (Status == MSG_NETWORK_SEND_SUCCESS)
+	{
+		MSG_DEBUG("In Status == MSG_NETWORK_SEND_SUCCESS and  bKeepCopy is [%d]", bKeepCopy);
+		if (bKeepCopy == true)
+			err = MsgStoMoveMessageToFolder(MsgId, MSG_SENTBOX_ID);
+	}
+#endif
 	return err;
 }
 

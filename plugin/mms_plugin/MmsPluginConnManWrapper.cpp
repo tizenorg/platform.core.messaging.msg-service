@@ -410,6 +410,7 @@ MmsPluginCmAgent::MmsPluginCmAgent()
 	MSG_BEGIN();
 
 	isCmOpened = false;
+	waitProfileOpen = false;
 
 	home_url = NULL;
 	interface_name = NULL;

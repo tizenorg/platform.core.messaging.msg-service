@@ -145,12 +145,12 @@ void SmsPluginConcatHandler::handleConcatMsg(struct tapi_handle *handle, SMS_TPD
 		int dataSize = 0;
 		char* pUserData = NULL;
 		bool simSlotSizeOver = false;
-		AutoPtr<char> dataBuf(&pUserData);
+		unique_ptr<char*, void(*)(char**)> dataBuf(&pUserData, unique_ptr_deleter);
 
 		MSG_MESSAGE_INFO_S msgInfo = {0};
 
 		msgInfo.addressList = NULL;
-		AutoPtr<MSG_ADDRESS_INFO_S> addressListBuf(&msgInfo.addressList);
+		unique_ptr<MSG_ADDRESS_INFO_S*, void(*)(MSG_ADDRESS_INFO_S**)> addressListBuf(&msgInfo.addressList, unique_ptr_deleter);
 		msgInfo.sim_idx = msg.simIndex;
 
 		dataSize = makeConcatUserData(msg.msgRef, msg.simIndex, &pUserData);
@@ -189,7 +189,7 @@ void SmsPluginConcatHandler::handleConcatMsg(struct tapi_handle *handle, SMS_TPD
 						(SmsPluginSimMsg::instance()->checkSimMsgFull(msg.simIndex, segCnt) == true)) {
 						char keyName[MAX_VCONFKEY_NAME_LEN];
 						memset(keyName, 0x00, sizeof(keyName));
-						sprintf(keyName, "%s/%d", SIM_TOTAL_COUNT, msg.simIndex);
+						snprintf(keyName, sizeof(keyName), "%s/%d", SIM_TOTAL_COUNT, msg.simIndex);
 						int totalCnt = MsgSettingGetInt(keyName);
 
 						if (segCnt > totalCnt) {
@@ -285,12 +285,12 @@ void SmsPluginConcatHandler::handleSimConcatMsg(struct tapi_handle *handle, SMS_
 
 			int dataSize = 0;
 			char* pUserData = NULL;
-			AutoPtr<char> dataBuf(&pUserData);
+			unique_ptr<char*, void(*)(char**)> dataBuf(&pUserData, unique_ptr_deleter);
 
 			MSG_MESSAGE_INFO_S msgInfo = {0};
 
 			msgInfo.addressList = NULL;
-			AutoPtr<MSG_ADDRESS_INFO_S> addressListBuf(&msgInfo.addressList);
+			unique_ptr<MSG_ADDRESS_INFO_S*, void(*)(MSG_ADDRESS_INFO_S**)> addressListBuf(&msgInfo.addressList, unique_ptr_deleter);
 			msgInfo.sim_idx = msg.simIndex;
 
 			dataSize = makeConcatUserData(msg.msgRef, msg.simIndex, &pUserData);
@@ -365,12 +365,12 @@ void SmsPluginConcatHandler::handleSimConcatMsg(struct tapi_handle *handle, SMS_
 
 			int dataSize = 0;
 			char* pUserData = NULL;
-			AutoPtr<char> dataBuf(&pUserData);
+			unique_ptr<char*, void(*)(char**)> dataBuf(&pUserData, unique_ptr_deleter);
 
 			MSG_MESSAGE_INFO_S msgInfo = {0};
 
 			msgInfo.addressList = NULL;
-			AutoPtr<MSG_ADDRESS_INFO_S> addressListBuf(&msgInfo.addressList);
+			unique_ptr<MSG_ADDRESS_INFO_S*, void(*)(MSG_ADDRESS_INFO_S**)> addressListBuf(&msgInfo.addressList, unique_ptr_deleter);
 			msgInfo.sim_idx = msg.simIndex;
 
 			dataSize = makeConcatUserData(msg.msgRef, msg.simIndex, &pUserData);
@@ -472,7 +472,7 @@ void SmsPluginConcatHandler::handleConcatMsg(SMS_TPDU_S *pTpdu, msg_sim_id_t Sim
 
 		int dataSize = 0;
 		char* pUserData = NULL;
-		AutoPtr<char> dataBuf(&pUserData);
+		unique_ptr<char*, void(*)(char**)> dataBuf(&pUserData, unique_ptr_deleter);
 
 		MSG_MESSAGE_INFO_S msgInfo = {0};
 
@@ -551,7 +551,7 @@ void SmsPluginConcatHandler::handleBrokenMsg()
 	{
 		int index = 0, dataSize = 0;
 		char* pUserData = NULL;
-		AutoPtr<char> dataBuf(&pUserData);
+		unique_ptr<char*, void(*)(char**)> dataBuf(&pUserData, unique_ptr_deleter);
 
 		MSG_MESSAGE_INFO_S msgInfo = {0};
 
@@ -706,7 +706,8 @@ int SmsPluginConcatHandler::makeConcatUserData(unsigned short MsgRef, int simInd
 
 			MSG_DEBUG("totalSize [%d]", totalSize);
 
-			*ppTotalData = new char[totalSize];
+			if (*ppTotalData == NULL)
+				*ppTotalData = new char[totalSize];
 
 			for (it = concatList[i].data.begin(); it != concatList[i].data.end(); it++) {
 				memcpy(*ppTotalData+offset, it->second.data, it->second.length);

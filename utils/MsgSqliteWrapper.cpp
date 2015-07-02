@@ -119,7 +119,7 @@ bool MsgDbHandler::checkTableExist(const char *pTableName)
 	memset(strQuery, 0x00, sizeof(strQuery));
 	snprintf(strQuery, sizeof(strQuery), "select count(name) from sqlite_master where name='%s'", pTableName);
 
-	if (getTable(strQuery, &nRowCnt) != MSG_SUCCESS) {
+	if (getTable(strQuery, &nRowCnt, NULL) != MSG_SUCCESS) {
 		freeTable();
 		return false;
 	}
@@ -165,18 +165,20 @@ msg_error_t MsgDbHandler::execQuery(const char *pQuery)
 }
 
 
-msg_error_t MsgDbHandler::getTable(const char *pQuery, int *pRowCnt)
+msg_error_t MsgDbHandler::getTable(const char *pQuery, int *pRowCnt, int *pColumnCnt)
 {
 	int ret = 0;
 
 	*pRowCnt = 0;
+	if (pColumnCnt)
+		*pColumnCnt = 0;
 
 	if(connect() != MSG_SUCCESS)
 		return MSG_ERR_DB_DISCONNECT;
 
 	freeTable();
 	MSG_DEBUG("[%s]", pQuery);
-	ret = sqlite3_get_table(handle, pQuery, &result, pRowCnt, 0, NULL);
+	ret = sqlite3_get_table(handle, pQuery, &result, pRowCnt, pColumnCnt, NULL);
 
 	if (ret == SQLITE_OK) {
 		if (*pRowCnt == 0) {// when the no record return 'MSG_ERR_DB_NORECORD'
@@ -502,7 +504,7 @@ msg_error_t MsgDbHandler::getRowId(const char *pTableName, unsigned int *pRowId)
 	memset(strQuery, 0x00, sizeof(strQuery));
 	snprintf(strQuery, sizeof(strQuery), "select max(rowid) from %s", pTableName);
 
-	ret = getTable(strQuery, &nRowCnt);
+	ret = getTable(strQuery, &nRowCnt, NULL);
 
 	if (ret == SQLITE_OK) {
 		nRowId = getColumnToInt(1);

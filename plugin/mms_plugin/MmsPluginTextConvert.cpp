@@ -58,6 +58,11 @@ bool MmsPluginTextConvert(const char *pToCodeSet, const char *pFromCodeset, cons
 		if (((UINT8)pSrc[0] == 0xFF && (UINT8)pSrc[1] == 0xFE) || ((UINT8)pSrc[0] == 0xFE && (UINT8)pSrc[1] == 0xFF)) {
 
 			char *pTemp = (char *)calloc(1, srcLen + 1);
+			if (pTemp == NULL) {
+				MSG_DEBUG("fail to calloc");
+				goto __CATCH;
+			}
+
 			memcpy(pTemp, pSrc, srcLen);
 
 			for (int i = 0; i < srcLen - 1; i++) {
@@ -71,7 +76,8 @@ bool MmsPluginTextConvert(const char *pToCodeSet, const char *pFromCodeset, cons
 			if (MmsIsUtf8String((unsigned char *)pTemp+2, srcLen-2) == true) {
 				MSG_DEBUG("UTF-8 string");
 				pDest = (char *)calloc(1, srcLen - 2 + 1);
-				strncpy(pDest, pTemp + 2, srcLen - 2);
+				if (pDest)
+					strncpy(pDest, pTemp + 2, srcLen - 2);
 				bytes_written = srcLen - 2;
 
 				if (pTemp) {

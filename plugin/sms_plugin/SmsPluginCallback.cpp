@@ -465,7 +465,7 @@ void TapiEventGetSimMsg(TapiHandle *handle, int result, void *data, void *user_d
 	msgInfo.storageId = MSG_STORAGE_SIM;
 
 	msgInfo.addressList = NULL;
-	AutoPtr<MSG_ADDRESS_INFO_S> addressListBuf(&msgInfo.addressList);
+	unique_ptr<MSG_ADDRESS_INFO_S*, void(*)(MSG_ADDRESS_INFO_S**)> addressListBuf(&msgInfo.addressList, unique_ptr_deleter);
 
 	SmsPluginEventHandler::instance()->convertTpduToMsginfo(&tpdu, &msgInfo);
 
@@ -527,7 +527,7 @@ void TapiEventGetSimMsg(TapiHandle *handle, int result, void *data, void *user_d
 	MSG_DEBUG("msgInfo.msgType.mainType : %d", msgInfo.msgType.mainType);
 	MSG_DEBUG("msgInfo.msgType.subType : %d", msgInfo.msgType.subType);
 	MSG_DEBUG("msgInfo.msgType.classType : %d", msgInfo.msgType.classType);
-	MSG_DEBUG("msgInfo.displayTime : %s", ctime(&msgInfo.displayTime));
+	MSG_DEBUG("msgInfo.displayTime : %d", msgInfo.displayTime);
 	MSG_DEBUG("msgInfo.dataSize : %d", msgInfo.dataSize);
 	if (msgInfo.bTextSms == true)
 		MSG_SEC_DEBUG("msgInfo.msgText : %s", msgInfo.msgText);
@@ -885,7 +885,7 @@ void TapiEventGetCBConfig(TapiHandle *handle, int result, void *data, void *user
 
 	cbOpt.bReceive = (bool)pCBConfig->CBEnabled;
 
-	cbOpt.maxSimCnt = pCBConfig->MsgIdMaxCount;
+	cbOpt.maxSimCnt = TAPI_NETTEXT_SMS_CBMI_LIST_SIZE_MAX;
 
 	cbOpt.simIndex = simIndex;
 
@@ -1085,29 +1085,33 @@ void TapiEventGetSimServiceTable(TapiHandle *handle, int result, void *data, voi
 		} else {
 			err = MsgSettingSetBool(sstKey, false);
 		}
+		MSG_DEBUG("Setting result = [%d]", err);
 
 		if (svct->table.sst.service[TAPI_SIM_SST_MO_SMS_CTRL_BY_SIM] == 1){
 			err = MsgSettingSetBool(moCtrlKey, true);
 		} else {
 			err = MsgSettingSetBool(moCtrlKey, false);
 		}
+		MSG_DEBUG("Setting result = [%d]", err);
+
 	} else if (svct->sim_type == TAPI_SIM_CARD_TYPE_USIM) {
 		if (svct->table.sst.service[TAPI_SIM_UST_SMS] == 1) {
 			err = MsgSettingSetBool(sstKey, true);
 		} else {
 			err = MsgSettingSetBool(sstKey, false);
 		}
+		MSG_DEBUG("Setting result = [%d]", err);
 
 		if (svct->table.sst.service[TAPI_SIM_UST_MO_SMS_CTRL] == 1){
 			err = MsgSettingSetBool(moCtrlKey, true);
 		} else {
 			err = MsgSettingSetBool(moCtrlKey, false);
 		}
+		MSG_DEBUG("Setting result = [%d]", err);
+
 	} else {
 		MSG_DEBUG("Unknown SIM type value");
 	}
-
-	MSG_DEBUG("Setting result = [%d]", err);
 
 	SmsPluginSetting::instance()->setResultFromSim(bRet);
 }
@@ -1253,7 +1257,7 @@ void TapiEventNetworkStatusChange(TapiHandle *handle, const char *noti_id, void 
 
 	TelNetworkServiceType_t *type = (TelNetworkServiceType_t *)data;
 
-	MSG_INFO("network status type [%d]", *type);
+	MSG_INFO("network status type [%d], simIndex [%d]", *type, (int)user_data);
 
 	if (*type > TAPI_NETWORK_SERVICE_TYPE_SEARCH) {
 		SmsPluginEventHandler::instance()->handleResendMessage(); // Call Event Handler
@@ -1322,7 +1326,7 @@ void SmsPluginCallback::registerEvent()
 			MSG_DEBUG("tel_register_noti_event is failed : [%s]", TAPI_NOTI_SAT_MO_SM_CONTROL_RESULT);
 		if (tel_register_noti_event(pTapiHandle, TAPI_NOTI_SIM_STATUS, TapiEventSimStatusChange, NULL) != TAPI_API_SUCCESS)
 			MSG_DEBUG("tel_register_noti_event is failed : [%s]", TAPI_NOTI_SIM_STATUS);
-		if (tel_register_noti_event(pTapiHandle, TAPI_PROP_NETWORK_SERVICE_TYPE, TapiEventNetworkStatusChange, NULL) != TAPI_API_SUCCESS)
+		if (tel_register_noti_event(pTapiHandle, TAPI_PROP_NETWORK_SERVICE_TYPE, TapiEventNetworkStatusChange, (void*)simIndex) != TAPI_API_SUCCESS)
 			MSG_DEBUG("tel_register_noti_event is failed : [%s]", TAPI_PROP_NETWORK_SERVICE_TYPE);
 		if (tel_register_noti_event(pTapiHandle, TAPI_NOTI_SIM_REFRESHED, TapiEventSimRefreshed, NULL) != TAPI_API_SUCCESS)
 			MSG_DEBUG("tel_register_noti_event is failed : [%s]", TAPI_NOTI_SIM_REFRESHED);

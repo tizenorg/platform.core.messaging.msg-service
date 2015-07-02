@@ -21,9 +21,13 @@
                                          INCLUDE FILES
 ==================================================================================================*/
 #include <stdio.h>
-#include <vector>
+#include <memory>
 
-typedef std::vector<char> CharVector;
+template <typename T>
+void unique_ptr_deleter( T **ptr ) {
+	  if (ptr && *ptr )
+		  delete[] *ptr;
+}
 
 template <class T>
 

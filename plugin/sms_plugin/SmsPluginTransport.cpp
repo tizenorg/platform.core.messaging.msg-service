@@ -53,6 +53,7 @@ SmsPluginTransport::SmsPluginTransport()
 	msgRef 		= 0x00;
 	msgRef8bit 	= 0x00;
 	msgRef16bit	= 0x0000;
+	curStatus	= 0x00;
 	memset(&curMoCtrlData, 0x00, sizeof(curMoCtrlData));
 }
 
@@ -104,7 +105,7 @@ void SmsPluginTransport::submitRequest(SMS_REQUEST_INFO_S *pReqInfo)
 	//contacts-service is not used for gear
 #ifndef MSG_CONTACTS_SERVICE_NOT_SUPPORTED
 	MsgStoGetAddressByMsgId(dbHandle, pReqInfo->msgInfo.msgId, 0, &pReqInfo->msgInfo.nAddressCnt, &pReqInfo->msgInfo.addressList);
-#else
+#else // MSG_CONTACTS_SERVICE_NOT_SUPPORTED
 	//contactNameOrder is never used
 	MsgStoGetAddressByMsgId(dbHandle, pReqInfo->msgInfo.msgId, &pReqInfo->msgInfo.nAddressCnt, &pReqInfo->msgInfo.addressList);
 #endif //MSG_CONTACTS_SERVICE_NOT_SUPPORTED
@@ -861,7 +862,7 @@ void SmsPluginTransport::msgInfoToSubmitData(const MSG_MESSAGE_INFO_S *pMsgInfo,
 		int fileSize = 0;
 
 		char* pFileData = NULL;
-		AutoPtr<char> FileBuf(&pFileData);
+		unique_ptr<char*, void(*)(char**)> FileBuf(&pFileData, unique_ptr_deleter);
 
 		// Read Message Data from File
 		if (MsgOpenAndReadFile(pMsgInfo->msgData, &pFileData, &fileSize) == false)
@@ -901,7 +902,7 @@ MSG_SEC_DEBUG("reply address : [%s]", pMsgInfo->replyAddress);
 	int addrLen = 0;
 
 	char* encodedAddr = NULL;
-	AutoPtr<char> addressBuf(&encodedAddr);
+	unique_ptr<char*, void(*)(char**)> addressBuf(&encodedAddr, unique_ptr_deleter);
 
 	if (strlen(pMsgInfo->replyAddress) > 0)
 	{
@@ -921,6 +922,9 @@ MSG_SEC_DEBUG("reply address : [%s]", pMsgInfo->replyAddress);
 	int segSize = 0, index = 0;
 
 	segSize = getSegmentSize(*pCharType, decodeLen, pMsgInfo->msgPort.valid, langId, addrLen);
+
+	if (segSize == 0)
+		THROW(MsgException::SMS_PLG_ERROR, "DIVIDE_BY_ZERO : %d", segSize);
 
 	pData->segCount = ceil((double)decodeLen/(double)segSize);
 

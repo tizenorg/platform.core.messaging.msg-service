@@ -48,7 +48,6 @@ class MsgHandle
 
 		// Transport
 		msg_error_t submitReq(MSG_REQUEST_S* pReq);
-		msg_error_t cancelReq(msg_request_id_t reqId);
 
 		msg_error_t regSentStatusCallback(msg_sent_status_cb onStatusChanged,  void *pUserParam);
 		msg_error_t regSmsMessageCallback(msg_sms_incoming_cb onMsgIncoming, unsigned short port, void *pUserParam);
@@ -79,7 +78,6 @@ class MsgHandle
 		msg_error_t countMsgByContact(const MSG_THREAD_LIST_INDEX_INFO_S *pAddrInfo, MSG_THREAD_COUNT_INFO_S *pMsgThreadCountList);
 		msg_error_t getMessage(msg_message_id_t MsgId, MSG_MESSAGE_HIDDEN_S *pMsg, MSG_SENDINGOPT_S *pSendOpt);
 		msg_error_t getConversationViewItem(msg_message_id_t MsgId, MSG_CONVERSATION_VIEW_S *pConv);
-		msg_error_t getFolderViewList(msg_folder_id_t FolderId, const MSG_SORT_RULE_S *pSortRule, msg_struct_list_s *pMsgFolderViewList);
 		msg_error_t addFolder(const MSG_FOLDER_INFO_S *pFolderInfo);
 		msg_error_t updateFolder(const MSG_FOLDER_INFO_S *pFolderInfo);
 		msg_error_t deleteFolder(msg_folder_id_t FolderId);

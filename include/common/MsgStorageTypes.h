@@ -136,19 +136,6 @@ typedef struct
 
 
 /**
- *	@brief	Represents search condition values.
- */
-typedef struct
-{
-	msg_folder_id_t		folderId;
-	msg_message_type_t		msgType;
-	char						*pAddressVal;
-	char						*pSearchVal;
-	int						reserved;
-} MSG_SEARCH_CONDITION_S;
-
-
-/**
  *	@brief	Represents Message list condition values.
  */
 typedef struct

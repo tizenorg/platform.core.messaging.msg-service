@@ -40,10 +40,7 @@
 
 
 // temporary
-#define MSG_NATIONAL_SIM	"memory/private/msg-service/national_sim"
 #define MSG_SIM_MSISDN	"memory/private/msg-service/msisdn"
-#define MSG_SIM_ICCID	"memory/private/msg-service/iccid"
-#define MSG_FMM_SIM_CHANGE_NUM	"db/SyncML/oma-dm-service/fmmSimChangeNum"
 
 #define MAX_FULL_PATH_SIZE		320	// max length for internal file path
 #define MAX_THREAD_ADDR_LEN	40
@@ -89,11 +86,10 @@
 #define DEFAULT_SIM_COUNT_PATH			DEFAULT_SETTING_PATH"/sim_count"
 
 #define MSG_KEEP_COPY				DEFAULT_GENERAL_OPT_PATH"/keep_copy"
-#define MSG_ALERT_REP_TYPE			DEFAULT_GENERAL_OPT_PATH"/alert_rep_type"
+//#define MSG_ALERT_REP_TYPE			DEFAULT_GENERAL_OPT_PATH"/alert_rep_type"
+#define MSG_ALERT_REP_TYPE			"db/setting/sound/noti/msg_alert_rep_type"
 #define MSG_AUTO_ERASE				DEFAULT_GENERAL_OPT_PATH"/auto_erase"
 #define MSG_BLOCK_MESSAGE		DEFAULT_GENERAL_OPT_PATH"/block_msg"
-#define CONTACT_SYNC_TIME		DEFAULT_GENERAL_OPT_PATH"/contact_sync_time"
-#define MSG_SEARCH_TAGS			DEFAULT_GENERAL_OPT_PATH"/search_tags"
 
 #define MSG_BLOCK_UNKNOWN_MSG		DEFAULT_GENERAL_OPT_PATH"/block_unknown_msg"
 #define MSG_SMS_LIMIT				DEFAULT_GENERAL_OPT_PATH"/sms_limit"
@@ -104,7 +100,6 @@
 #define MSG_SETTING_RINGTONE_PATH			DEFAULT_GENERAL_OPT_PATH"/ringtone_path"
 #define MSG_SETTING_RINGTONE_TYPE			DEFAULT_GENERAL_OPT_PATH"/ringtone_type"
 #define MSG_MMS_UA_PROFILE				DEFAULT_GENERAL_OPT_PATH"/ua_profile"
-#define MSG_MMS_UA_AGENT				DEFAULT_GENERAL_OPT_PATH"/ua_agent"
 
 #define SMS_SEND_DCS							DEFAULT_SMS_SEND_OPT_PATH"/dcs"
 #define SMS_SEND_NETWORK_MODE	VCONFKEY_MESSAGE_NETWORK_MODE
@@ -189,9 +184,10 @@
 
 #define MSG_DEFAULT_APP_ID			"org.tizen.message"
 #define MSG_QUICKPANEL_APP_ID		"org.tizen.quickpanel"
+#define MSG_CALL_APP_ID				"org.tizen.call"
 
-#define MSG_TELEPHONY_FEATURE       "http://tizen.org/feature/network.telephony"
-#define MSG_TELEPHONY_MMS_FEATURE   "http://tizen.org/feature/network.telephony.mms"
+#define MSG_TELEPHONY_SMS_FEATURE	"http://tizen.org/feature/network.telephony.sms"
+#define MSG_TELEPHONY_MMS_FEATURE	"http://tizen.org/feature/network.telephony.mms"
 
 /*==================================================================================================
                                          TYPES
@@ -214,26 +210,10 @@ typedef unsigned char MSG_SUB_TYPE_T;
 
 
 /**
- *	@brief	Represents a message tag type. \n
- *	Each main type of a message can be divided into some tag types. \n
- *	For instance of SMS, the message sub type can be one of the Priority, Finance, and so on. \n
- *	The values for this type SHOULD be in _MSG_SUB_TYPE_E.
- */
-typedef unsigned int MSG_TAG_TYPE_T;
-
-
-/**
  *	@brief	Represents a message class. \n
  *	The values for this type SHOULD be in _MSG_CLASS_TYPE_E.
  */
 typedef unsigned char MSG_CLASS_TYPE_T;
-
-
-/**
- *	@brief	Represents a message class. \n
- *	The values for this type SHOULD be in _MSG_MMS_TRANSACTION_TYPE_E.
- */
-typedef unsigned char MSG_MMS_TRANSACTION_TYPE_T;
 
 
 /*==================================================================================================
@@ -387,16 +367,6 @@ typedef struct
 	char		szThumbFilePath[MSG_FILEPATH_LEN_MAX + 1];	/**< Indicates the thumbnail file path */
 } MSG_MMS_MULTIPART_S;
 
-/**
- *	@brief	Represents sim message informatioin list.
- */
-typedef struct
-{
-	int nIdxCnt;		/**< The count of sim index */
-	int nMsgCnt;		/**< The count of sim message */
-	MSG_MESSAGE_INFO_S		*simMsgInfo;		/**< The pointer to sim message informatioin */
-} MSG_SIM_MSG_INFO_LIST_S;
-
 
 /**
  *	@brief	Represents a request in the framework. \n
@@ -419,7 +389,7 @@ typedef struct
 typedef struct
 {
 	int						listenerFd;		/**< Rx fd for status cnf */
-	void*					handleAddr;		/**< Handle address for status cnf */
+	unsigned int			handleAddr;		/**< Handle address for status cnf */
 	msg_message_id_t		sentMsgId;		/**< The ID of a sent message for updating message status */
 } MSG_PROXY_INFO_S;
 
@@ -515,12 +485,6 @@ typedef struct
 } MSG_CMD_REG_INCOMING_CB_MSG_CB_S;
 
 
-typedef struct
-{
-	int						alarm_id;
-	MSG_REQUEST_INFO_S		reqInfo;
-}MSG_SCHEDULED_MSG_S;
-
 /**
  *	@brief	Represents a CB message in the framework.
  */
@@ -550,12 +514,6 @@ typedef struct _MSG_UNIQUE_INDEX_S
 	int						telesvc_id;
 } MSG_UNIQUE_INDEX_S;
 
-typedef struct
-{
-	time_t					receivedTime;
-	unsigned short			serialNum;
-	unsigned short			messageId;	// Message Identifier
-} MSG_CB_DUPLICATE_S;
 #endif
 
 
@@ -639,17 +597,6 @@ enum _MSG_SUB_TYPE_E
 	MSG_CMAS_OPERATOR_DEFINED,
 };
 
-
-/**
- *	@brief	Represents the values of a message transaction type. \n
- *	This enum is used as the value of MSG_MMS_TRANSACTION_TYPE_T.
- */
-enum _MSG_MMS_TRANSACTION_TYPE_E
-{
-	MSG_MMS_SEND_COMPLETE = 0,
-	MSG_MMS_RETRIEVE_COMPLETE,
-	MSG_MMS_UNKNOWN,
-};
 
 /**
  *	@brief	Represents the values of File Type of MMS. \n

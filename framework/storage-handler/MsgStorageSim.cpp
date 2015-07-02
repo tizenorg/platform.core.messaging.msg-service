@@ -53,7 +53,7 @@ msg_error_t MsgStoClearSimMessageInDB()
 
 	int rowCnt = 0;
 
-	err = dbHandle->getTable(sqlQuery, &rowCnt);
+	err = dbHandle->getTable(sqlQuery, &rowCnt, NULL);
 
 	if (err != MSG_SUCCESS && err != MSG_ERR_DB_NORECORD) {
 		MSG_DEBUG("Fail to getTable().");

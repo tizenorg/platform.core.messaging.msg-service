@@ -32,13 +32,13 @@ static int msg_get_msg_type(int mainType, int subType);
 ==================================================================================================*/
 EXPORT_API int msg_add_message(msg_handle_t handle, msg_struct_t opq_msg, const msg_struct_t send_opt)
 {
-	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_FEATURE);
-	msg_error_t err =  MSG_SUCCESS;
+	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_SMS_FEATURE);
+	msg_error_t err = MSG_SUCCESS;
 
 	//Privilege check
 	int ret = PRIV_MGR_ERROR_SUCCESS;
 	ret = privacy_checker_check_by_privilege(MSG_SERVICE_WRITE_PRIV_NAME);
-	if(ret != PRIV_MGR_ERROR_SUCCESS)
+	if (ret != PRIV_MGR_ERROR_SUCCESS)
 	{
 		return MSG_ERR_PERMISSION_DENIED;
 	}
@@ -51,7 +51,10 @@ EXPORT_API int msg_add_message(msg_handle_t handle, msg_struct_t opq_msg, const 
 	MsgHandle* pHandle = (MsgHandle*)handle;
 
 	msg_struct_s *pMsgStruct = (msg_struct_s *)opq_msg;
+	MSG_TYPE_CHECK(pMsgStruct->type, MSG_STRUCT_MESSAGE_INFO);
+
 	msg_struct_s *pStruct = (msg_struct_s *)send_opt;
+	MSG_TYPE_CHECK(pStruct->type, MSG_STRUCT_SENDOPT);
 
 	try
 	{
@@ -69,13 +72,13 @@ EXPORT_API int msg_add_message(msg_handle_t handle, msg_struct_t opq_msg, const 
 
 EXPORT_API int msg_add_syncml_message(msg_handle_t handle, const msg_struct_t syncml_msg)
 {
-	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_FEATURE);
-	msg_error_t err =  MSG_SUCCESS;
+	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_SMS_FEATURE);
+	msg_error_t err = MSG_SUCCESS;
 
 	//Privilege check
 	int ret = PRIV_MGR_ERROR_SUCCESS;
 	ret = privacy_checker_check_by_privilege(MSG_SERVICE_WRITE_PRIV_NAME);
-	if(ret != PRIV_MGR_ERROR_SUCCESS)
+	if (ret != PRIV_MGR_ERROR_SUCCESS)
 	{
 		return MSG_ERR_PERMISSION_DENIED;
 	}
@@ -87,6 +90,7 @@ EXPORT_API int msg_add_syncml_message(msg_handle_t handle, const msg_struct_t sy
 
 	MsgHandle* pHandle = (MsgHandle*)handle;
 	msg_struct_s *pStruct = (msg_struct_s *)syncml_msg;
+	MSG_TYPE_CHECK(pStruct->type, MSG_STRUCT_SYNCML_INFO);
 
 	try
 	{
@@ -104,13 +108,13 @@ EXPORT_API int msg_add_syncml_message(msg_handle_t handle, const msg_struct_t sy
 
 EXPORT_API int msg_update_message(msg_handle_t handle, const msg_struct_t opq_msg, const msg_struct_t send_opt)
 {
-	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_FEATURE);
-	msg_error_t err =  MSG_SUCCESS;
+	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_SMS_FEATURE);
+	msg_error_t err = MSG_SUCCESS;
 
 	//Privilege check
 	int ret = PRIV_MGR_ERROR_SUCCESS;
 	ret = privacy_checker_check_by_privilege(MSG_SERVICE_WRITE_PRIV_NAME);
-	if(ret != PRIV_MGR_ERROR_SUCCESS)
+	if (ret != PRIV_MGR_ERROR_SUCCESS)
 	{
 		return MSG_ERR_PERMISSION_DENIED;
 	}
@@ -121,14 +125,18 @@ EXPORT_API int msg_update_message(msg_handle_t handle, const msg_struct_t opq_ms
 	}
 
 	MsgHandle* pHandle = (MsgHandle*)handle;
+
 	msg_struct_s *pMsgStruct = (msg_struct_s *)opq_msg;
+	MSG_TYPE_CHECK(pMsgStruct->type, MSG_STRUCT_MESSAGE_INFO);
+
 	msg_struct_s* pStruct = (msg_struct_s *)send_opt;
+	MSG_TYPE_CHECK(pStruct->type, MSG_STRUCT_SENDOPT);
 
 	MSG_MESSAGE_HIDDEN_S *msg = (MSG_MESSAGE_HIDDEN_S *)pMsgStruct->data;
-
+	MSG_SENDINGOPT_S *sendingOpt = (MSG_SENDINGOPT_S *)pStruct->data;
 	try
 	{
-		err = pHandle->updateMessage(msg, (MSG_SENDINGOPT_S *)pStruct->data);
+		err = pHandle->updateMessage(msg, sendingOpt);
 	}
 	catch (MsgException& e)
 	{
@@ -142,13 +150,13 @@ EXPORT_API int msg_update_message(msg_handle_t handle, const msg_struct_t opq_ms
 
 EXPORT_API int msg_update_read_status(msg_handle_t handle, msg_message_id_t msg_id, bool read)
 {
-	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_FEATURE);
-	msg_error_t err =  MSG_SUCCESS;
+	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_SMS_FEATURE);
+	msg_error_t err = MSG_SUCCESS;
 
 	//Privilege check
 	int ret = PRIV_MGR_ERROR_SUCCESS;
 	ret = privacy_checker_check_by_privilege(MSG_SERVICE_WRITE_PRIV_NAME);
-	if(ret != PRIV_MGR_ERROR_SUCCESS)
+	if (ret != PRIV_MGR_ERROR_SUCCESS)
 	{
 		return MSG_ERR_PERMISSION_DENIED;
 	}
@@ -174,15 +182,15 @@ EXPORT_API int msg_update_read_status(msg_handle_t handle, msg_message_id_t msg_
 }
 
 
-EXPORT_API int msg_set_conversation_to_read(msg_handle_t handle,  msg_thread_id_t thread_id)
+EXPORT_API int msg_set_conversation_to_read(msg_handle_t handle, msg_thread_id_t thread_id)
 {
-	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_FEATURE);
-	msg_error_t err =  MSG_SUCCESS;
+	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_SMS_FEATURE);
+	msg_error_t err = MSG_SUCCESS;
 
 	//Privilege check
 	int ret = PRIV_MGR_ERROR_SUCCESS;
 	ret = privacy_checker_check_by_privilege(MSG_SERVICE_WRITE_PRIV_NAME);
-	if(ret != PRIV_MGR_ERROR_SUCCESS)
+	if (ret != PRIV_MGR_ERROR_SUCCESS)
 	{
 		return MSG_ERR_PERMISSION_DENIED;
 	}
@@ -210,13 +218,13 @@ EXPORT_API int msg_set_conversation_to_read(msg_handle_t handle,  msg_thread_id_
 
 EXPORT_API int msg_update_protected_status(msg_handle_t handle, msg_message_id_t msg_id, bool is_protected)
 {
-	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_FEATURE);
-	msg_error_t err =  MSG_SUCCESS;
+	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_SMS_FEATURE);
+	msg_error_t err = MSG_SUCCESS;
 
 	//Privilege check
 	int ret = PRIV_MGR_ERROR_SUCCESS;
 	ret = privacy_checker_check_by_privilege(MSG_SERVICE_WRITE_PRIV_NAME);
-	if(ret != PRIV_MGR_ERROR_SUCCESS)
+	if (ret != PRIV_MGR_ERROR_SUCCESS)
 	{
 		return MSG_ERR_PERMISSION_DENIED;
 	}
@@ -243,13 +251,13 @@ EXPORT_API int msg_update_protected_status(msg_handle_t handle, msg_message_id_t
 
 EXPORT_API int msg_delete_message(msg_handle_t handle, msg_message_id_t msg_id)
 {
-	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_FEATURE);
-	msg_error_t err =  MSG_SUCCESS;
+	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_SMS_FEATURE);
+	msg_error_t err = MSG_SUCCESS;
 
 	//Privilege check
 	int ret = PRIV_MGR_ERROR_SUCCESS;
 	ret = privacy_checker_check_by_privilege(MSG_SERVICE_WRITE_PRIV_NAME);
-	if(ret != PRIV_MGR_ERROR_SUCCESS)
+	if (ret != PRIV_MGR_ERROR_SUCCESS)
 	{
 		return MSG_ERR_PERMISSION_DENIED;
 	}
@@ -277,13 +285,13 @@ EXPORT_API int msg_delete_message(msg_handle_t handle, msg_message_id_t msg_id)
 
 EXPORT_API int msg_delete_all_msgs_in_folder(msg_handle_t handle, msg_folder_id_t folder_id, bool bOnlyDB)
 {
-	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_FEATURE);
-	msg_error_t err =  MSG_SUCCESS;
+	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_SMS_FEATURE);
+	msg_error_t err = MSG_SUCCESS;
 
 	//Privilege check
 	int ret = PRIV_MGR_ERROR_SUCCESS;
 	ret = privacy_checker_check_by_privilege(MSG_SERVICE_WRITE_PRIV_NAME);
-	if(ret != PRIV_MGR_ERROR_SUCCESS)
+	if (ret != PRIV_MGR_ERROR_SUCCESS)
 	{
 		return MSG_ERR_PERMISSION_DENIED;
 	}
@@ -311,18 +319,18 @@ EXPORT_API int msg_delete_all_msgs_in_folder(msg_handle_t handle, msg_folder_id_
 
 EXPORT_API int msg_delete_msgs_by_list(msg_handle_t handle, msg_id_list_s *msg_id_list)
 {
-	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_FEATURE);
-	msg_error_t err =  MSG_SUCCESS;
+	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_SMS_FEATURE);
+	msg_error_t err = MSG_SUCCESS;
 
 	//Privilege check
 	int ret = PRIV_MGR_ERROR_SUCCESS;
 	ret = privacy_checker_check_by_privilege(MSG_SERVICE_WRITE_PRIV_NAME);
-	if(ret != PRIV_MGR_ERROR_SUCCESS)
+	if (ret != PRIV_MGR_ERROR_SUCCESS)
 	{
 		return MSG_ERR_PERMISSION_DENIED;
 	}
 
-	if (handle == NULL)
+	if (handle == NULL || msg_id_list == NULL)
 	{
 		return MSG_ERR_INVALID_PARAMETER;
 	}
@@ -345,13 +353,13 @@ EXPORT_API int msg_delete_msgs_by_list(msg_handle_t handle, msg_id_list_s *msg_i
 
 EXPORT_API int msg_move_msg_to_folder(msg_handle_t handle, msg_message_id_t msg_id, msg_folder_id_t dest_folder_id)
 {
-	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_FEATURE);
-	msg_error_t err =  MSG_SUCCESS;
+	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_SMS_FEATURE);
+	msg_error_t err = MSG_SUCCESS;
 
 	//Privilege check
 	int ret = PRIV_MGR_ERROR_SUCCESS;
 	ret = privacy_checker_check_by_privilege(MSG_SERVICE_WRITE_PRIV_NAME);
-	if(ret != PRIV_MGR_ERROR_SUCCESS)
+	if (ret != PRIV_MGR_ERROR_SUCCESS)
 	{
 		return MSG_ERR_PERMISSION_DENIED;
 	}
@@ -379,13 +387,13 @@ EXPORT_API int msg_move_msg_to_folder(msg_handle_t handle, msg_message_id_t msg_
 
 EXPORT_API int msg_move_msg_to_storage(msg_handle_t handle, msg_message_id_t msg_id, msg_storage_id_t storage_id)
 {
-	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_FEATURE);
-	msg_error_t err =  MSG_SUCCESS;
+	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_SMS_FEATURE);
+	msg_error_t err = MSG_SUCCESS;
 
 	//Privilege check
 	int ret = PRIV_MGR_ERROR_SUCCESS;
 	ret = privacy_checker_check_by_privilege(MSG_SERVICE_WRITE_PRIV_NAME);
-	if(ret != PRIV_MGR_ERROR_SUCCESS)
+	if (ret != PRIV_MGR_ERROR_SUCCESS)
 	{
 		return MSG_ERR_PERMISSION_DENIED;
 	}
@@ -419,24 +427,26 @@ EXPORT_API int msg_move_msg_to_storage(msg_handle_t handle, msg_message_id_t msg
 
 EXPORT_API int msg_count_message(msg_handle_t handle, msg_folder_id_t folder_id, msg_struct_t count_info)
 {
-	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_FEATURE);
-	msg_error_t err =  MSG_SUCCESS;
+	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_SMS_FEATURE);
+	msg_error_t err = MSG_SUCCESS;
 
 	//Privilege check
 	int ret = PRIV_MGR_ERROR_SUCCESS;
 	ret = privacy_checker_check_by_privilege(MSG_SERVICE_READ_PRIV_NAME);
-	if(ret != PRIV_MGR_ERROR_SUCCESS)
+	if (ret != PRIV_MGR_ERROR_SUCCESS)
 	{
 		return MSG_ERR_PERMISSION_DENIED;
 	}
 
-	if (handle == NULL)
+	if (handle == NULL || count_info == NULL)
 	{
 		return MSG_ERR_INVALID_PARAMETER;
 	}
 
 	MsgHandle* pHandle = (MsgHandle*)handle;
 	msg_struct_s *pStruct = (msg_struct_s *)count_info;
+	MSG_TYPE_CHECK(pStruct->type, MSG_STRUCT_COUNT_INFO);
+
 	try
 	{
 		err = pHandle->countMessage(folder_id, (MSG_COUNT_INFO_S *)pStruct->data);
@@ -453,18 +463,18 @@ EXPORT_API int msg_count_message(msg_handle_t handle, msg_folder_id_t folder_id,
 
 EXPORT_API int msg_count_msg_by_type(msg_handle_t handle, msg_message_type_t msg_type, int *msg_count)
 {
-	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_FEATURE);
-	msg_error_t err =  MSG_SUCCESS;
+	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_SMS_FEATURE);
+	msg_error_t err = MSG_SUCCESS;
 
 	//Privilege check
 	int ret = PRIV_MGR_ERROR_SUCCESS;
 	ret = privacy_checker_check_by_privilege(MSG_SERVICE_READ_PRIV_NAME);
-	if(ret != PRIV_MGR_ERROR_SUCCESS)
+	if (ret != PRIV_MGR_ERROR_SUCCESS)
 	{
 		return MSG_ERR_PERMISSION_DENIED;
 	}
 
-	if (handle == NULL)
+	if (handle == NULL || msg_count == NULL)
 	{
 		return MSG_ERR_INVALID_PARAMETER;
 	}
@@ -488,6 +498,9 @@ EXPORT_API int msg_count_msg_by_type(msg_handle_t handle, msg_message_type_t msg
 		msgType.mainType = MSG_MMS_TYPE;
 		msgType.subType = MSG_SENDREQ_MMS;
 	}
+	else {
+		return MSG_ERR_INVALID_PARAMETER;
+	}
 
 	try
 	{
@@ -505,25 +518,29 @@ EXPORT_API int msg_count_msg_by_type(msg_handle_t handle, msg_message_type_t msg
 
 EXPORT_API int msg_count_msg_by_contact(msg_handle_t handle, const msg_struct_t addr_info, msg_struct_t msg_thread_count_list)
 {
-	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_FEATURE);
-	msg_error_t err =  MSG_SUCCESS;
+	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_SMS_FEATURE);
+	msg_error_t err = MSG_SUCCESS;
 
 	//Privilege check
 	int ret = PRIV_MGR_ERROR_SUCCESS;
 	ret = privacy_checker_check_by_privilege(MSG_SERVICE_READ_PRIV_NAME);
-	if(ret != PRIV_MGR_ERROR_SUCCESS)
+	if (ret != PRIV_MGR_ERROR_SUCCESS)
 	{
 		return MSG_ERR_PERMISSION_DENIED;
 	}
 
-	if (handle == NULL || addr_info == NULL)
+	if (handle == NULL || addr_info == NULL || msg_thread_count_list == NULL)
 	{
 		return MSG_ERR_INVALID_PARAMETER;
 	}
 
 	MsgHandle* pHandle = (MsgHandle*)handle;
+
 	msg_struct_s *pAddr = (msg_struct_s *)addr_info;
+	MSG_TYPE_CHECK(pAddr->type, MSG_STRUCT_THREAD_LIST_INDEX);
+
 	msg_struct_s *pCount = (msg_struct_s *)msg_thread_count_list;
+	MSG_TYPE_CHECK(pCount->type, MSG_STRUCT_THREAD_COUNT_INFO);
 
 	try
 	{
@@ -541,18 +558,18 @@ EXPORT_API int msg_count_msg_by_contact(msg_handle_t handle, const msg_struct_t 
 
 EXPORT_API int msg_get_message(msg_handle_t handle, msg_message_id_t msg_id, msg_struct_t opq_msg, msg_struct_t send_opt)
 {
-	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_FEATURE);
-	msg_error_t err =  MSG_SUCCESS;
+	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_SMS_FEATURE);
+	msg_error_t err = MSG_SUCCESS;
 
 	//Privilege check
 	int ret = PRIV_MGR_ERROR_SUCCESS;
 	ret = privacy_checker_check_by_privilege(MSG_SERVICE_READ_PRIV_NAME);
-	if(ret != PRIV_MGR_ERROR_SUCCESS)
+	if (ret != PRIV_MGR_ERROR_SUCCESS)
 	{
 		return MSG_ERR_PERMISSION_DENIED;
 	}
 
-	if (handle == NULL || !opq_msg)
+	if (handle == NULL || opq_msg == NULL || send_opt == NULL)
 	{
 		MSG_FATAL("handle or opq_msg is NULL");
 		return MSG_ERR_INVALID_PARAMETER;
@@ -561,7 +578,10 @@ EXPORT_API int msg_get_message(msg_handle_t handle, msg_message_id_t msg_id, msg
 	MsgHandle* pHandle = (MsgHandle*)handle;
 
 	msg_struct_s *pMsgStruct = (msg_struct_s *)opq_msg;
+	MSG_TYPE_CHECK(pMsgStruct->type, MSG_STRUCT_MESSAGE_INFO);
+
 	msg_struct_s *pStruct = (msg_struct_s *)send_opt;
+	MSG_TYPE_CHECK(pStruct->type, MSG_STRUCT_SENDOPT);
 
 	try
 	{
@@ -578,13 +598,13 @@ EXPORT_API int msg_get_message(msg_handle_t handle, msg_message_id_t msg_id, msg
 
 EXPORT_API int msg_get_vobject_data(msg_handle_t handle, msg_message_id_t msg_id, void** result_data)
 {
-	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_FEATURE);
-	msg_error_t err =  MSG_SUCCESS;
+	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_SMS_FEATURE);
+	msg_error_t err = MSG_SUCCESS;
 
 	//Privilege check
 	int ret = PRIV_MGR_ERROR_SUCCESS;
 	ret = privacy_checker_check_by_privilege(MSG_SERVICE_READ_PRIV_NAME);
-	if(ret != PRIV_MGR_ERROR_SUCCESS)
+	if (ret != PRIV_MGR_ERROR_SUCCESS)
 	{
 		return MSG_ERR_PERMISSION_DENIED;
 	}
@@ -612,18 +632,18 @@ EXPORT_API int msg_get_vobject_data(msg_handle_t handle, msg_message_id_t msg_id
 
 EXPORT_API int msg_get_conversation(msg_handle_t handle, msg_message_id_t msg_id, msg_struct_t conv)
 {
-	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_FEATURE);
-	msg_error_t err =  MSG_SUCCESS;
+	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_SMS_FEATURE);
+	msg_error_t err = MSG_SUCCESS;
 
 	//Privilege check
 	int ret = PRIV_MGR_ERROR_SUCCESS;
 	ret = privacy_checker_check_by_privilege(MSG_SERVICE_READ_PRIV_NAME);
-	if(ret != PRIV_MGR_ERROR_SUCCESS)
+	if (ret != PRIV_MGR_ERROR_SUCCESS)
 	{
 		return MSG_ERR_PERMISSION_DENIED;
 	}
 
-	if (handle == NULL || !conv)
+	if (handle == NULL || conv == NULL)
 	{
 		MSG_FATAL("handle or opq_msg is NULL");
 		return MSG_ERR_INVALID_PARAMETER;
@@ -632,6 +652,8 @@ EXPORT_API int msg_get_conversation(msg_handle_t handle, msg_message_id_t msg_id
 	MsgHandle* pHandle = (MsgHandle*)handle;
 
 	msg_struct_s *pMsgStruct = (msg_struct_s *)conv;
+	MSG_TYPE_CHECK(pMsgStruct->type, MSG_STRUCT_CONV_INFO);
+
 	try
 	{
 		err = pHandle->getConversationViewItem(msg_id, (MSG_CONVERSATION_VIEW_S *)pMsgStruct->data);
@@ -647,28 +669,30 @@ EXPORT_API int msg_get_conversation(msg_handle_t handle, msg_message_id_t msg_id
 
 EXPORT_API int msg_get_thread_view_list(msg_handle_t handle, const msg_struct_t sort_rule, msg_struct_list_s *msg_thread_view_list)
 {
-	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_FEATURE);
-	msg_error_t err =  MSG_SUCCESS;
+	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_SMS_FEATURE);
+	msg_error_t err = MSG_SUCCESS;
 
 	//Privilege check
 	int ret = PRIV_MGR_ERROR_SUCCESS;
 	ret = privacy_checker_check_by_privilege(MSG_SERVICE_READ_PRIV_NAME);
-	if(ret != PRIV_MGR_ERROR_SUCCESS)
+	if (ret != PRIV_MGR_ERROR_SUCCESS)
 	{
 		return MSG_ERR_PERMISSION_DENIED;
 	}
 
-	if (handle == NULL)
+	if (handle == NULL || msg_thread_view_list == NULL)
 	{
 		return MSG_ERR_INVALID_PARAMETER;
 	}
 
 	MsgHandle* pHandle = (MsgHandle*)handle;
 	msg_struct_s *pStruct =(msg_struct_s *)sort_rule;
-
+	if (pStruct) {
+		MSG_TYPE_CHECK(pStruct->type, MSG_STRUCT_SORT_RULE);
+	}
 	try
 	{
-		if (sort_rule == NULL)
+		if (pStruct == NULL)
 		{
 			MSG_SORT_RULE_S sortRule = {0};
 
@@ -694,18 +718,18 @@ EXPORT_API int msg_get_thread_view_list(msg_handle_t handle, const msg_struct_t 
 
 EXPORT_API int msg_get_conversation_view_list(msg_handle_t handle, msg_thread_id_t thread_id, msg_struct_list_s *msg_conv_view_list)
 {
-	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_FEATURE);
-	msg_error_t err =  MSG_SUCCESS;
+	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_SMS_FEATURE);
+	msg_error_t err = MSG_SUCCESS;
 
 	//Privilege check
 	int ret = PRIV_MGR_ERROR_SUCCESS;
 	ret = privacy_checker_check_by_privilege(MSG_SERVICE_READ_PRIV_NAME);
-	if(ret != PRIV_MGR_ERROR_SUCCESS)
+	if (ret != PRIV_MGR_ERROR_SUCCESS)
 	{
 		return MSG_ERR_PERMISSION_DENIED;
 	}
 
-	if (handle == NULL)
+	if (handle == NULL || msg_conv_view_list == NULL)
 	{
 		return MSG_ERR_INVALID_PARAMETER;
 	}
@@ -728,13 +752,13 @@ EXPORT_API int msg_get_conversation_view_list(msg_handle_t handle, msg_thread_id
 
 EXPORT_API int msg_delete_thread_message_list(msg_handle_t handle, msg_thread_id_t thread_id, bool include_protected_msg)
 {
-	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_FEATURE);
-	msg_error_t err =  MSG_SUCCESS;
+	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_SMS_FEATURE);
+	msg_error_t err = MSG_SUCCESS;
 
 	//Privilege check
 	int ret = PRIV_MGR_ERROR_SUCCESS;
 	ret = privacy_checker_check_by_privilege(MSG_SERVICE_WRITE_PRIV_NAME);
-	if(ret != PRIV_MGR_ERROR_SUCCESS)
+	if (ret != PRIV_MGR_ERROR_SUCCESS)
 	{
 		return MSG_ERR_PERMISSION_DENIED;
 	}
@@ -762,13 +786,13 @@ EXPORT_API int msg_delete_thread_message_list(msg_handle_t handle, msg_thread_id
 
 EXPORT_API int msg_add_folder(msg_handle_t handle, const msg_struct_t folder_info)
 {
-	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_FEATURE);
-	msg_error_t err =  MSG_SUCCESS;
+	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_SMS_FEATURE);
+	msg_error_t err = MSG_SUCCESS;
 
 	//Privilege check
 	int ret = PRIV_MGR_ERROR_SUCCESS;
 	ret = privacy_checker_check_by_privilege(MSG_SERVICE_WRITE_PRIV_NAME);
-	if(ret != PRIV_MGR_ERROR_SUCCESS)
+	if (ret != PRIV_MGR_ERROR_SUCCESS)
 	{
 		return MSG_ERR_PERMISSION_DENIED;
 	}
@@ -780,6 +804,7 @@ EXPORT_API int msg_add_folder(msg_handle_t handle, const msg_struct_t folder_inf
 
 	MsgHandle* pHandle = (MsgHandle*)handle;
 	msg_struct_s *pStruct = (msg_struct_s *)folder_info;
+	MSG_TYPE_CHECK(pStruct->type, MSG_STRUCT_FOLDER_INFO);
 
 	try
 	{
@@ -797,13 +822,13 @@ EXPORT_API int msg_add_folder(msg_handle_t handle, const msg_struct_t folder_inf
 
 EXPORT_API int msg_update_folder(msg_handle_t handle, const msg_struct_t folder_info)
 {
-	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_FEATURE);
-	msg_error_t err =  MSG_SUCCESS;
+	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_SMS_FEATURE);
+	msg_error_t err = MSG_SUCCESS;
 
 	//Privilege check
 	int ret = PRIV_MGR_ERROR_SUCCESS;
 	ret = privacy_checker_check_by_privilege(MSG_SERVICE_WRITE_PRIV_NAME);
-	if(ret != PRIV_MGR_ERROR_SUCCESS)
+	if (ret != PRIV_MGR_ERROR_SUCCESS)
 	{
 		return MSG_ERR_PERMISSION_DENIED;
 	}
@@ -815,6 +840,7 @@ EXPORT_API int msg_update_folder(msg_handle_t handle, const msg_struct_t folder_
 
 	MsgHandle* pHandle = (MsgHandle*)handle;
 	msg_struct_s *pStruct = (msg_struct_s *)folder_info;
+	MSG_TYPE_CHECK(pStruct->type, MSG_STRUCT_FOLDER_INFO);
 
 	try
 	{
@@ -832,13 +858,13 @@ EXPORT_API int msg_update_folder(msg_handle_t handle, const msg_struct_t folder_
 
 EXPORT_API int msg_delete_folder(msg_handle_t handle, msg_folder_id_t folder_id)
 {
-	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_FEATURE);
-	msg_error_t err =  MSG_SUCCESS;
+	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_SMS_FEATURE);
+	msg_error_t err = MSG_SUCCESS;
 
 	//Privilege check
 	int ret = PRIV_MGR_ERROR_SUCCESS;
 	ret = privacy_checker_check_by_privilege(MSG_SERVICE_WRITE_PRIV_NAME);
-	if(ret != PRIV_MGR_ERROR_SUCCESS)
+	if (ret != PRIV_MGR_ERROR_SUCCESS)
 	{
 		return MSG_ERR_PERMISSION_DENIED;
 	}
@@ -866,18 +892,18 @@ EXPORT_API int msg_delete_folder(msg_handle_t handle, msg_folder_id_t folder_id)
 
 EXPORT_API int msg_get_folder_list(msg_handle_t handle, msg_struct_list_s *folder_list)
 {
-	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_FEATURE);
-	msg_error_t err =  MSG_SUCCESS;
+	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_SMS_FEATURE);
+	msg_error_t err = MSG_SUCCESS;
 
 	//Privilege check
 	int ret = PRIV_MGR_ERROR_SUCCESS;
 	ret = privacy_checker_check_by_privilege(MSG_SERVICE_READ_PRIV_NAME);
-	if(ret != PRIV_MGR_ERROR_SUCCESS)
+	if (ret != PRIV_MGR_ERROR_SUCCESS)
 	{
 		return MSG_ERR_PERMISSION_DENIED;
 	}
 
-	if (handle == NULL)
+	if (handle == NULL || folder_list == NULL)
 	{
 		return MSG_ERR_INVALID_PARAMETER;
 	}
@@ -900,11 +926,11 @@ EXPORT_API int msg_get_folder_list(msg_handle_t handle, msg_struct_list_s *folde
 
 EXPORT_API int msg_generate_message(msg_handle_t handle, msg_message_type_t msg_type, msg_folder_id_t folder_id, unsigned int num_msg)
 {
-	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_FEATURE);
+	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_SMS_FEATURE);
 	//Privilege check
 	int ret = PRIV_MGR_ERROR_SUCCESS;
 	ret = privacy_checker_check_by_privilege(MSG_SERVICE_WRITE_PRIV_NAME);
-	if(ret != PRIV_MGR_ERROR_SUCCESS)
+	if (ret != PRIV_MGR_ERROR_SUCCESS)
 	{
 		return MSG_ERR_PERMISSION_DENIED;
 	}
@@ -912,6 +938,12 @@ EXPORT_API int msg_generate_message(msg_handle_t handle, msg_message_type_t msg_
 	if (handle == NULL)
 	{
 		MSG_DEBUG("Handle is NULL");
+		return MSG_ERR_INVALID_PARAMETER;
+	}
+
+	if (msg_type >= MSG_MESSAGE_TYPE_MAX)
+	{
+		MSG_DEBUG("msg_type is invalid [%d]", msg_type);
 		return MSG_ERR_INVALID_PARAMETER;
 	}
 
@@ -942,6 +974,9 @@ EXPORT_API int msg_generate_message(msg_handle_t handle, msg_message_type_t msg_
 	for (unsigned int i = 0; i < num_msg; i++)
 	{
 		msg_s = (msg_struct_s *)msg_create_struct(MSG_STRUCT_MESSAGE_INFO);
+		if (msg_s == NULL)
+			return MSG_ERR_NOT_SUPPORTED;
+
 		msgInfo = (MSG_MESSAGE_HIDDEN_S *)msg_s->data;
 
 		msgInfo->folderId = folder_id;
@@ -959,8 +994,8 @@ EXPORT_API int msg_generate_message(msg_handle_t handle, msg_message_type_t msg_
 			snprintf(strMsg, sizeof(strMsg), "test msg %d", i);
 			msgInfo->dataSize = strlen(strMsg);
 			msgInfo->pData = (void*)new char[msgInfo->dataSize+1];
-            memcpy((char *)msgInfo->pData, strMsg, msgInfo->dataSize);
-            ((char*) msgInfo->pData)[msgInfo->dataSize] = '\0';
+			memcpy((char *)msgInfo->pData, strMsg, msgInfo->dataSize);
+			((char*) msgInfo->pData)[msgInfo->dataSize] = '\0';
 		}
 
 		msgInfo->storageId = MSG_STORAGE_PHONE;
@@ -972,7 +1007,7 @@ EXPORT_API int msg_generate_message(msg_handle_t handle, msg_message_type_t msg_
 		addrInfo = (MSG_ADDRESS_INFO_S *)addr_s->data;
 
 		addrInfo->addressType = MSG_ADDRESS_TYPE_PLMN;
-		postfix = rand()%10000;
+		postfix = random()%10000;
 		snprintf(addrInfo->addressVal, MAX_ADDRESS_VAL_LEN+1, "%s%04d", prefix, postfix);
 
 		addrInfo->recipientType = MSG_RECIPIENTS_TYPE_TO;
@@ -995,6 +1030,11 @@ EXPORT_API int msg_generate_message(msg_handle_t handle, msg_message_type_t msg_
 
 			if(folder_id == MSG_INBOX_ID) msgInfo->networkStatus = MSG_NETWORK_RETRIEVE_SUCCESS;
 
+			msg_struct_t mms_data = msg_create_struct(MSG_STRUCT_MMS);
+
+			msg_set_mms_struct((msg_struct_t)msg_s, mms_data);
+
+			msg_release_struct(&mms_data);
 			//MMS_MESSAGE_DATA_S* mms_data;
 			//MMS_PAGE_S* page[2];
 			//MMS_MEDIA_S* media[5];
@@ -1043,9 +1083,6 @@ EXPORT_API int msg_generate_message(msg_handle_t handle, msg_message_type_t msg_
 			return MSG_ERR_STORAGE_ERROR;
 		}
 
-		if (msg_type == MSG_TYPE_MMS && msgInfo->pMmsData) //free pMmsData directly. It is added to enhance performance
-			delete [] static_cast<char*>(msgInfo->pMmsData);
-
 		msg_release_struct((msg_struct_t *)&msg_s);
 
 		if (err < 0)
@@ -1061,25 +1098,31 @@ EXPORT_API int msg_generate_message(msg_handle_t handle, msg_message_type_t msg_
 
 EXPORT_API int msg_get_quick_panel_data(msg_handle_t handle, msg_quickpanel_type_t type, msg_struct_t opq_msg)
 {
-	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_FEATURE);
-	msg_error_t err =  MSG_SUCCESS;
+	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_SMS_FEATURE);
+	msg_error_t err = MSG_SUCCESS;
 
 	//Privilege check
 	int ret = PRIV_MGR_ERROR_SUCCESS;
 	ret = privacy_checker_check_by_privilege(MSG_SERVICE_READ_PRIV_NAME);
-	if(ret != PRIV_MGR_ERROR_SUCCESS)
+	if (ret != PRIV_MGR_ERROR_SUCCESS)
 	{
 		return MSG_ERR_PERMISSION_DENIED;
 	}
 
-	if (handle == NULL || !opq_msg )
+	if (handle == NULL || opq_msg == NULL )
 	{
 		MSG_FATAL("handle or opq_msg is NULL");
 		return MSG_ERR_INVALID_PARAMETER;
 	}
 
+	if (type > MSG_QUICKPANEL_MMS_NOTI) {
+		MSG_FATAL("unsupported quickpanel type [%d]", type);
+		return MSG_ERR_INVALID_PARAMETER;
+	}
+
 	MsgHandle* pHandle = (MsgHandle*)handle;
 	msg_struct_s *pMsg = (msg_struct_s *)opq_msg;
+	MSG_TYPE_CHECK(pMsg->type, MSG_STRUCT_MESSAGE_INFO);
 
 	try
 	{
@@ -1097,13 +1140,13 @@ EXPORT_API int msg_get_quick_panel_data(msg_handle_t handle, msg_quickpanel_type
 
 EXPORT_API int msg_reset_database(msg_handle_t handle)
 {
-	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_FEATURE);
-	msg_error_t err =  MSG_SUCCESS;
+	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_SMS_FEATURE);
+	msg_error_t err = MSG_SUCCESS;
 
 	//Privilege check
 	int ret = PRIV_MGR_ERROR_SUCCESS;
 	ret = privacy_checker_check_by_privilege(MSG_SERVICE_WRITE_PRIV_NAME);
-	if(ret != PRIV_MGR_ERROR_SUCCESS)
+	if (ret != PRIV_MGR_ERROR_SUCCESS)
 	{
 		return MSG_ERR_PERMISSION_DENIED;
 	}
@@ -1131,18 +1174,18 @@ EXPORT_API int msg_reset_database(msg_handle_t handle)
 
 EXPORT_API int msg_get_mem_size(msg_handle_t handle, unsigned int* memsize)
 {
-	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_FEATURE);
-	msg_error_t err =  MSG_SUCCESS;
+	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_SMS_FEATURE);
+	msg_error_t err = MSG_SUCCESS;
 
 	//Privilege check
 	int ret = PRIV_MGR_ERROR_SUCCESS;
 	ret = privacy_checker_check_by_privilege(MSG_SERVICE_READ_PRIV_NAME);
-	if(ret != PRIV_MGR_ERROR_SUCCESS)
+	if (ret != PRIV_MGR_ERROR_SUCCESS)
 	{
 		return MSG_ERR_PERMISSION_DENIED;
 	}
 
-	if (handle == NULL)
+	if (handle == NULL || memsize == NULL)
 	{
 		return MSG_ERR_INVALID_PARAMETER;
 	}
@@ -1165,13 +1208,13 @@ EXPORT_API int msg_get_mem_size(msg_handle_t handle, unsigned int* memsize)
 
 EXPORT_API int msg_backup_message(msg_handle_t handle, msg_message_backup_type_t type, const char *backup_filepath)
 {
-	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_FEATURE);
-	msg_error_t err =  MSG_SUCCESS;
+	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_SMS_FEATURE);
+	msg_error_t err = MSG_SUCCESS;
 
 	//Privilege check
 	int ret = PRIV_MGR_ERROR_SUCCESS;
 	ret = privacy_checker_check_by_privilege(MSG_SERVICE_READ_PRIV_NAME);
-	if(ret != PRIV_MGR_ERROR_SUCCESS)
+	if (ret != PRIV_MGR_ERROR_SUCCESS)
 	{
 		return MSG_ERR_PERMISSION_DENIED;
 	}
@@ -1199,13 +1242,13 @@ EXPORT_API int msg_backup_message(msg_handle_t handle, msg_message_backup_type_t
 
 EXPORT_API int msg_restore_message(msg_handle_t handle, const char *backup_filepath)
 {
-	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_FEATURE);
-	msg_error_t err =  MSG_SUCCESS;
+	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_SMS_FEATURE);
+	msg_error_t err = MSG_SUCCESS;
 
 	//Privilege check
 	int ret = PRIV_MGR_ERROR_SUCCESS;
 	ret = privacy_checker_check_by_privilege(MSG_SERVICE_WRITE_PRIV_NAME);
-	if(ret != PRIV_MGR_ERROR_SUCCESS)
+	if (ret != PRIV_MGR_ERROR_SUCCESS)
 	{
 		return MSG_ERR_PERMISSION_DENIED;
 	}
@@ -1233,18 +1276,18 @@ EXPORT_API int msg_restore_message(msg_handle_t handle, const char *backup_filep
 
 EXPORT_API int msg_search_message_for_thread_view(msg_handle_t handle, const char *search_string, msg_struct_list_s *msg_thread_view_list)
 {
-	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_FEATURE);
-	msg_error_t err =  MSG_SUCCESS;
+	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_SMS_FEATURE);
+	msg_error_t err = MSG_SUCCESS;
 
 	//Privilege check
 	int ret = PRIV_MGR_ERROR_SUCCESS;
 	ret = privacy_checker_check_by_privilege(MSG_SERVICE_READ_PRIV_NAME);
-	if(ret != PRIV_MGR_ERROR_SUCCESS)
+	if (ret != PRIV_MGR_ERROR_SUCCESS)
 	{
 		return MSG_ERR_PERMISSION_DENIED;
 	}
 
-	if (handle == NULL || search_string == NULL)
+	if (handle == NULL || search_string == NULL || msg_thread_view_list == NULL)
 	{
 		return MSG_ERR_INVALID_PARAMETER;
 	}
@@ -1271,18 +1314,18 @@ EXPORT_API int msg_search_message_for_thread_view(msg_handle_t handle, const cha
 
 EXPORT_API int msg_get_reject_msg_list(msg_handle_t handle, const char *phone_num, msg_struct_list_s *msg_reject_msg_list)
 {
-	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_FEATURE);
-	msg_error_t err =  MSG_SUCCESS;
+	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_SMS_FEATURE);
+	msg_error_t err = MSG_SUCCESS;
 
 	//Privilege check
 	int ret = PRIV_MGR_ERROR_SUCCESS;
 	ret = privacy_checker_check_by_privilege(MSG_SERVICE_READ_PRIV_NAME);
-	if(ret != PRIV_MGR_ERROR_SUCCESS)
+	if (ret != PRIV_MGR_ERROR_SUCCESS)
 	{
 		return MSG_ERR_PERMISSION_DENIED;
 	}
 
-	if (handle == NULL)
+	if (handle == NULL || msg_reject_msg_list == NULL)
 	{
 		return MSG_ERR_INVALID_PARAMETER;
 	}
@@ -1305,13 +1348,13 @@ EXPORT_API int msg_get_reject_msg_list(msg_handle_t handle, const char *phone_nu
 
 EXPORT_API int msg_reg_storage_change_callback(msg_handle_t handle, msg_storage_change_cb cb, void *user_param)
 {
-	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_FEATURE);
-	msg_error_t err =  MSG_SUCCESS;
+	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_SMS_FEATURE);
+	msg_error_t err = MSG_SUCCESS;
 
 	//Privilege check
 	int ret = PRIV_MGR_ERROR_SUCCESS;
 	ret = privacy_checker_check_by_privilege(MSG_SERVICE_READ_PRIV_NAME);
-	if(ret != PRIV_MGR_ERROR_SUCCESS)
+	if (ret != PRIV_MGR_ERROR_SUCCESS)
 	{
 		return MSG_ERR_PERMISSION_DENIED;
 	}
@@ -1341,13 +1384,13 @@ EXPORT_API int msg_reg_storage_change_callback(msg_handle_t handle, msg_storage_
 
 EXPORT_API int msg_get_report_status(msg_handle_t handle, msg_message_id_t msg_id, msg_struct_list_s *report_list)
 {
-	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_FEATURE);
-	msg_error_t err =  MSG_SUCCESS;
+	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_SMS_FEATURE);
+	msg_error_t err = MSG_SUCCESS;
 
 	//Privilege check
 	int ret = PRIV_MGR_ERROR_SUCCESS;
 	ret = privacy_checker_check_by_privilege(MSG_SERVICE_READ_PRIV_NAME);
-	if(ret != PRIV_MGR_ERROR_SUCCESS)
+	if (ret != PRIV_MGR_ERROR_SUCCESS)
 	{
 		return MSG_ERR_PERMISSION_DENIED;
 	}
@@ -1374,18 +1417,18 @@ EXPORT_API int msg_get_report_status(msg_handle_t handle, msg_message_id_t msg_i
 
 EXPORT_API int msg_get_address_list(msg_handle_t handle, msg_thread_id_t thread_id, msg_struct_list_s *msg_address_list)
 {
-	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_FEATURE);
-	msg_error_t err =  MSG_SUCCESS;
+	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_SMS_FEATURE);
+	msg_error_t err = MSG_SUCCESS;
 
 	//Privilege check
 	int ret = PRIV_MGR_ERROR_SUCCESS;
 	ret = privacy_checker_check_by_privilege(MSG_SERVICE_READ_PRIV_NAME);
-	if(ret != PRIV_MGR_ERROR_SUCCESS)
+	if (ret != PRIV_MGR_ERROR_SUCCESS)
 	{
 		return MSG_ERR_PERMISSION_DENIED;
 	}
 
-	if (handle == NULL)
+	if (handle == NULL || msg_address_list == NULL)
 	{
 		return MSG_ERR_INVALID_PARAMETER;
 	}
@@ -1408,13 +1451,13 @@ EXPORT_API int msg_get_address_list(msg_handle_t handle, msg_thread_id_t thread_
 
 EXPORT_API int msg_get_thread_id_by_address(msg_handle_t handle, msg_struct_list_s *msg_address_list, msg_thread_id_t *thread_id)
 {
-	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_FEATURE);
-	msg_error_t err =  MSG_SUCCESS;
+	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_SMS_FEATURE);
+	msg_error_t err = MSG_SUCCESS;
 
 	//Privilege check
 	int ret = PRIV_MGR_ERROR_SUCCESS;
 	ret = privacy_checker_check_by_privilege(MSG_SERVICE_READ_PRIV_NAME);
-	if(ret != PRIV_MGR_ERROR_SUCCESS)
+	if (ret != PRIV_MGR_ERROR_SUCCESS)
 	{
 		return MSG_ERR_PERMISSION_DENIED;
 	}
@@ -1445,13 +1488,13 @@ EXPORT_API int msg_get_thread_id_by_address(msg_handle_t handle, msg_struct_list
 
 EXPORT_API int msg_get_thread_id_by_address2(msg_handle_t handle, msg_list_handle_t msg_address_list, msg_thread_id_t *thread_id)
 {
-	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_FEATURE);
-	msg_error_t err =  MSG_SUCCESS;
+	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_SMS_FEATURE);
+	msg_error_t err = MSG_SUCCESS;
 
 	//Privilege check
 	int ret = PRIV_MGR_ERROR_SUCCESS;
 	ret = privacy_checker_check_by_privilege(MSG_SERVICE_READ_PRIV_NAME);
-	if(ret != PRIV_MGR_ERROR_SUCCESS)
+	if (ret != PRIV_MGR_ERROR_SUCCESS)
 	{
 		return MSG_ERR_PERMISSION_DENIED;
 	}
@@ -1479,13 +1522,13 @@ EXPORT_API int msg_get_thread_id_by_address2(msg_handle_t handle, msg_list_handl
 
 EXPORT_API int msg_get_thread(msg_handle_t handle, msg_thread_id_t thread_id, msg_struct_t msg_thread)
 {
-	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_FEATURE);
-	msg_error_t err =  MSG_SUCCESS;
+	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_SMS_FEATURE);
+	msg_error_t err = MSG_SUCCESS;
 
 	//Privilege check
 	int ret = PRIV_MGR_ERROR_SUCCESS;
 	ret = privacy_checker_check_by_privilege(MSG_SERVICE_READ_PRIV_NAME);
-	if(ret != PRIV_MGR_ERROR_SUCCESS)
+	if (ret != PRIV_MGR_ERROR_SUCCESS)
 	{
 		return MSG_ERR_PERMISSION_DENIED;
 	}
@@ -1497,10 +1540,7 @@ EXPORT_API int msg_get_thread(msg_handle_t handle, msg_thread_id_t thread_id, ms
 
 	MsgHandle* pHandle = (MsgHandle*)handle;
 	msg_struct_s *msgThread = (msg_struct_s *)msg_thread;
-	if (msgThread->type != MSG_STRUCT_THREAD_INFO) {
-		MSG_FATAL("Invaild type. type [%d]", msgThread->type);
-		return MSG_ERR_INVALID_PARAMETER;
-	}
+	MSG_TYPE_CHECK(msgThread->type, MSG_STRUCT_THREAD_INFO);
 
 	MSG_THREAD_VIEW_S* pThreadInfo = (MSG_THREAD_VIEW_S *)msgThread->data;
 
@@ -1519,23 +1559,24 @@ EXPORT_API int msg_get_thread(msg_handle_t handle, msg_thread_id_t thread_id, ms
 
 EXPORT_API int msg_get_message_list2(msg_handle_t handle, const msg_struct_t msg_list_conditions, msg_struct_list_s *msg_list)
 {
-	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_FEATURE);
-	msg_error_t err =  MSG_SUCCESS;
+	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_SMS_FEATURE);
+	msg_error_t err = MSG_SUCCESS;
 
 	//Privilege check
 	int ret = PRIV_MGR_ERROR_SUCCESS;
 	ret = privacy_checker_check_by_privilege(MSG_SERVICE_READ_PRIV_NAME);
-	if(ret != PRIV_MGR_ERROR_SUCCESS)
+	if (ret != PRIV_MGR_ERROR_SUCCESS)
 	{
 		return MSG_ERR_PERMISSION_DENIED;
 	}
 
-	if (handle == NULL) {
+	if (handle == NULL || msg_list_conditions == NULL || msg_list == NULL) {
 		return MSG_ERR_INVALID_PARAMETER;
 	}
 
 	MsgHandle* pHandle = (MsgHandle*)handle;
 	msg_struct_s *pStruct = (msg_struct_s *)msg_list_conditions;
+	MSG_TYPE_CHECK(pStruct->type, MSG_STRUCT_MSG_LIST_CONDITION);
 
 	try
 	{
@@ -1553,17 +1594,17 @@ EXPORT_API int msg_get_message_list2(msg_handle_t handle, const msg_struct_t msg
 EXPORT_API int msg_get_media_list(msg_handle_t handle, msg_thread_id_t thread_id, msg_list_handle_t *msg_list)
 {
 	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_MMS_FEATURE);
-	msg_error_t err =  MSG_SUCCESS;
+	msg_error_t err = MSG_SUCCESS;
 
 	//Privilege check
 	int ret = PRIV_MGR_ERROR_SUCCESS;
 	ret = privacy_checker_check_by_privilege(MSG_SERVICE_READ_PRIV_NAME);
-	if(ret != PRIV_MGR_ERROR_SUCCESS)
+	if (ret != PRIV_MGR_ERROR_SUCCESS)
 	{
 		return MSG_ERR_PERMISSION_DENIED;
 	}
 
-	if (handle == NULL) {
+	if (handle == NULL || msg_list == NULL) {
 		return MSG_ERR_INVALID_PARAMETER;
 	}
 
@@ -1587,7 +1628,7 @@ static int msg_get_msg_type(int mainType, int subType)
 {
 	if (mainType == MSG_SMS_TYPE)
 	{
-    	switch (subType) {
+		switch (subType) {
 			case MSG_CB_SMS :
 				return MSG_TYPE_SMS_CB;
 			case MSG_JAVACB_SMS :
@@ -1620,7 +1661,7 @@ static int msg_get_msg_type(int mainType, int subType)
 				return MSG_TYPE_SMS_CMAS_OPERATOR_DEFINED;
 			default :
 				return MSG_TYPE_SMS;
-    	}
+		}
 	}
 	else if (mainType == MSG_MMS_TYPE)
 	{
@@ -1636,540 +1677,576 @@ static int msg_get_msg_type(int mainType, int subType)
 }
 
 
-int msg_syncml_info_get_int(void *syncml_info, int field)
+int msg_syncml_info_get_int(void *syncml_info, int field, int *value)
 {
-	int result = MSG_ERR_INVALID_PARAMETER;
+	if (!syncml_info)
+		return MSG_ERR_NULL_POINTER;
+
+	int ret = MSG_SUCCESS;
+
 	MSG_SYNCML_MESSAGE_S *pSync = (MSG_SYNCML_MESSAGE_S *)syncml_info;
+
 	switch(field)
 	{
 	case MSG_SYNCML_INFO_EXTID_INT:
-		result = pSync->extId;
+		*value = pSync->extId;
 		break;
 	case MSG_SYNCML_INFO_PINCODE_INT:
-		result = pSync->pinCode;
+		*value = pSync->pinCode;
 		break;
 	default:
-		result = MSG_ERR_INVALID_PARAMETER;
+		ret = MSG_ERR_INVALID_PARAMETER;
 		break;
 	}
-	return result;
+
+	return ret;
 }
 
-int msg_count_info_get_int(void *count_info, int field)
+int msg_count_info_get_int(void *count_info, int field, int *value)
 {
-	int result = MSG_ERR_INVALID_PARAMETER;
+	if (!count_info)
+		return MSG_ERR_NULL_POINTER;
+
+	int ret = MSG_SUCCESS;
+
 	MSG_COUNT_INFO_S *pCount = (MSG_COUNT_INFO_S *)count_info;
+
 	switch(field)
 	{
 	case MSG_COUNT_INFO_READ_INT:
-		result = pCount->nReadCnt;
+		*value = pCount->nReadCnt;
 		break;
 	case MSG_COUNT_INFO_UNREAD_INT:
-		result = pCount->nUnreadCnt;
+		*value = pCount->nUnreadCnt;
 		break;
 	case MSG_COUNT_INFO_SMS_INT:
-		result = pCount->nSms;
+		*value = pCount->nSms;
 		break;
 	case MSG_COUNT_INFO_MMS_INT:
-		result = pCount->nMms;
+		*value = pCount->nMms;
 		break;
 	default:
-		result = MSG_ERR_INVALID_PARAMETER;
+		ret = MSG_ERR_INVALID_PARAMETER;
 		break;
 	}
-	return result;
+
+	return ret;
 }
 
-int msg_thread_count_get_int(void *count_info, int field)
+int msg_thread_count_get_int(void *count_info, int field, int *value)
 {
-	int result = MSG_ERR_INVALID_PARAMETER;
+	if (!count_info)
+		return MSG_ERR_NULL_POINTER;
+
+	int ret = MSG_SUCCESS;
+
 	MSG_THREAD_COUNT_INFO_S *pCount = (MSG_THREAD_COUNT_INFO_S *)count_info;
+
 	switch(field)
 	{
 	case MSG_THREAD_COUNT_TOTAL_INT:
-		result = pCount->totalCount;
+		*value = pCount->totalCount;
 		break;
 	case MSG_THREAD_COUNT_UNREAD_INT:
-		result = pCount->unReadCount;
+		*value = pCount->unReadCount;
 		break;
 	case MSG_THREAD_COUNT_SMS_INT:
-		result = pCount->smsMsgCount;
+		*value = pCount->smsMsgCount;
 		break;
 	case MSG_THREAD_COUNT_MMS_INT:
-		result = pCount->mmsMsgCount;
+		*value = pCount->mmsMsgCount;
 		break;
 	default:
-		result = MSG_ERR_INVALID_PARAMETER;
+		ret = MSG_ERR_INVALID_PARAMETER;
 		break;
 	}
-	return result;
+
+	return ret;
 }
 
-int msg_thread_index_get_int(void *index_info, int field)
+int msg_thread_index_get_int(void *index_info, int field, int *value)
 {
-	int result = MSG_ERR_INVALID_PARAMETER;
+	if (!index_info)
+		return MSG_ERR_NULL_POINTER;
+
+	int ret = MSG_SUCCESS;
+
 	MSG_THREAD_LIST_INDEX_S *pIndex = (MSG_THREAD_LIST_INDEX_S *)index_info;
 	switch(field)
 	{
 	case MSG_THREAD_LIST_INDEX_CONTACTID_INT:
-		result = pIndex->contactId;
+		*value = pIndex->contactId;
 		break;
 	default:
-		result = MSG_ERR_INVALID_PARAMETER;
+		ret = MSG_ERR_INVALID_PARAMETER;
 		break;
 	}
-	return result;
+
+	return ret;
 }
 
-int msg_sortrule_get_int(void *sort_info, int field)
+int msg_sortrule_get_int(void *sort_info, int field, int *value)
 {
-	int result = MSG_ERR_INVALID_PARAMETER;
+	if (!sort_info)
+		return MSG_ERR_NULL_POINTER;
+
+	int ret = MSG_SUCCESS;
+
 	MSG_SORT_RULE_S *pSort = (MSG_SORT_RULE_S *)sort_info;
+
 	switch(field)
 	{
 	case MSG_SORT_RULE_SORT_TYPE_INT:
-		result = pSort->sortType;
+		*value = pSort->sortType;
 		break;
 	default:
-		result = MSG_ERR_INVALID_PARAMETER;
+		ret = MSG_ERR_INVALID_PARAMETER;
 		break;
 	}
-	return result;
+
+	return ret;
 }
 
-int msg_folder_info_get_int(void *folder_info, int field)
+int msg_folder_info_get_int(void *folder_info, int field, int *value)
 {
-	int result = MSG_ERR_INVALID_PARAMETER;
+	if (!folder_info)
+		return MSG_ERR_NULL_POINTER;
+
+	int ret = MSG_SUCCESS;
+
 	MSG_FOLDER_INFO_S *pFolder = (MSG_FOLDER_INFO_S *)folder_info;
+
 	switch(field)
 	{
 	case MSG_FOLDER_INFO_ID_INT:
-		result = pFolder->folderId;
+		*value = pFolder->folderId;
 		break;
 	case MSG_FOLDER_INFO_TYPE_INT:
-		result = pFolder->folderType;
+		*value = pFolder->folderType;
 		break;
 	default:
-		result = MSG_ERR_INVALID_PARAMETER;
+		ret = MSG_ERR_INVALID_PARAMETER;
 		break;
 	}
-	return result;
+
+	return ret;
 }
 
-int msg_thread_info_get_int(void *data, int field)
+int msg_thread_info_get_int(void *data, int field, int *value)
 {
-	int result = MSG_ERR_INVALID_PARAMETER;
+	if (!data)
+		return MSG_ERR_NULL_POINTER;
+
+	int ret = MSG_SUCCESS;
+
 	MSG_THREAD_VIEW_S *pThread = (MSG_THREAD_VIEW_S *)data;
 
 	switch(field)
 	{
 	case MSG_THREAD_ID_INT :
-		result = pThread->threadId;
+		*value = pThread->threadId;
 		break;
 	case MSG_THREAD_MSG_TYPE_INT :
-		result = msg_get_msg_type(pThread->mainType, pThread->subType);
+		*value = msg_get_msg_type(pThread->mainType, pThread->subType);
 		break;
 	case MSG_THREAD_MSG_TIME_INT :
-		result = pThread->threadTime;
+		*value = pThread->threadTime;
 		break;
 	case MSG_THREAD_DIRECTION_INT :
-		result = pThread->direction;
+		*value = pThread->direction;
 		break;
 	case MSG_THREAD_UNREAD_COUNT_INT :
-		result = pThread->unreadCnt;
+		*value = pThread->unreadCnt;
 		break;
 	case MSG_THREAD_SMS_COUNT_INT :
-		result = pThread->smsCnt;
+		*value = pThread->smsCnt;
 		break;
 	case MSG_THREAD_MMS_COUNT_INT :
-		result = pThread->mmsCnt;
+		*value = pThread->mmsCnt;
 		break;
 	default:
-		result = MSG_ERR_INVALID_PARAMETER;
+		ret = MSG_ERR_INVALID_PARAMETER;
 		break;
 	}
-	return result;
+
+	return ret;
 }
 
 
-int msg_conv_info_get_int(void *data, int field)
+int msg_conv_info_get_int(void *data, int field, int *value)
 {
-	int result = MSG_ERR_INVALID_PARAMETER;
+	if (!data)
+		return MSG_ERR_NULL_POINTER;
+
+	int ret = MSG_SUCCESS;
+
 	MSG_CONVERSATION_VIEW_S *pConv = (MSG_CONVERSATION_VIEW_S *)data;
 
 	switch(field)
 	{
 	case MSG_CONV_MSG_ID_INT :
-		result = pConv->msgId;
+		*value = pConv->msgId;
 		break;
 	case MSG_CONV_MSG_THREAD_ID_INT :
-		result = pConv->threadId;
+		*value = pConv->threadId;
 		break;
 	case MSG_CONV_MSG_FOLDER_ID_INT :
-		result = pConv->folderId;
+		*value = pConv->folderId;
 		break;
 	case MSG_CONV_MSG_TYPE_INT :
-		result = msg_get_msg_type(pConv->mainType, pConv->subType);
+		*value = msg_get_msg_type(pConv->mainType, pConv->subType);
 		break;
 	case MSG_CONV_MSG_STORAGE_ID_INT :
-		result = pConv->storageId;
+		*value = pConv->storageId;
 		break;
 	case MSG_CONV_MSG_DISPLAY_TIME_INT :
-		result = pConv->displayTime;
+		*value = pConv->displayTime;
 		break;
 	case MSG_CONV_MSG_SCHEDULED_TIME_INT :
-		result = pConv->scheduledTime;
+		*value = pConv->scheduledTime;
 		break;
 	case MSG_CONV_MSG_NETWORK_STATUS_INT :
-		result = pConv->networkStatus;
+		*value = pConv->networkStatus;
 		break;
 	case MSG_CONV_MSG_DIRECTION_INT :
-		result = pConv->direction;
+		*value = pConv->direction;
 		break;
 	case MSG_CONV_MSG_ATTACH_COUNT_INT :
-		result = pConv->attachCount;
+		*value = pConv->attachCount;
 		break;
 	case MSG_CONV_MSG_TEXT_SIZE_INT :
-		result = pConv->textSize;
+		*value = pConv->textSize;
 		break;
 	case MSG_CONV_MSG_PAGE_COUNT_INT :
-		result = pConv->pageCount;
+		*value = pConv->pageCount;
 		break;
 	case MSG_CONV_MSG_TCS_BC_LEVEL_INT :
-		result = pConv->tcs_bc_level;
+		*value = pConv->tcs_bc_level;
 		break;
 	case MSG_CONV_MSG_SIM_INDEX_INT :
-		result = pConv->simIndex;
+		*value = pConv->simIndex;
 		break;
 	default:
-		result = MSG_ERR_INVALID_PARAMETER;
+		ret = MSG_ERR_INVALID_PARAMETER;
 		break;
 	}
-	return result;
+
+	return ret;
 }
 
 
-int msg_search_condition_get_int(void *condition_info, int field)
+int msg_list_condition_get_int(void *condition_info, int field, int *value)
 {
-	int result = MSG_ERR_INVALID_PARAMETER;
-	MSG_SEARCH_CONDITION_S *pCond = (MSG_SEARCH_CONDITION_S *)condition_info;
-	switch(field)
-	{
-	case MSG_SEARCH_CONDITION_FOLDERID_INT:
-		result = pCond->folderId;
-		break;
-	case MSG_SEARCH_CONDITION_MSGTYPE_INT:
-		result = pCond->msgType;
-		break;
-	case MSG_SEARCH_CONDITION_RESERVED_INT:
-		result = pCond->reserved;
-		break;
-	default:
-		result = MSG_ERR_INVALID_PARAMETER;
-		break;
-	}
-	return result;
-}
+	if (!condition_info)
+		return MSG_ERR_NULL_POINTER;
 
+	int ret = MSG_SUCCESS;
 
-int msg_list_condition_get_int(void *condition_info, int field)
-{
-	int result = MSG_ERR_INVALID_PARAMETER;
 	MSG_LIST_CONDITION_S *pCond = (MSG_LIST_CONDITION_S *)condition_info;
+
 	switch(field)
 	{
 	case MSG_LIST_CONDITION_FOLDER_ID_INT:
-		result = pCond->folderId;
+		*value = pCond->folderId;
 		break;
 	case MSG_LIST_CONDITION_THREAD_ID_INT:
-			result = pCond->threadId;
-			break;
+		*value = pCond->threadId;
+		break;
 	case MSG_LIST_CONDITION_STORAGE_ID_INT:
-			result = pCond->storageId;
-			break;
+		*value = pCond->storageId;
+		break;
 	case MSG_LIST_CONDITION_MSGTYPE_INT:
-		result = pCond->msgType;
+		*value = pCond->msgType;
 		break;
 	case MSG_LIST_CONDITION_FROM_TIME_INT:
-		result = pCond->fromTime;
+		*value = pCond->fromTime;
 		break;
 	case MSG_LIST_CONDITION_TO_TIME_INT:
-		result = pCond->toTime;
+		*value = pCond->toTime;
 		break;
 	case MSG_LIST_CONDITION_OFFSET_INT:
-		result = pCond->offset;
+		*value = pCond->offset;
 		break;
 	case MSG_LIST_CONDITION_LIMIT_INT:
-		result = pCond->limit;
+		*value = pCond->limit;
 		break;
 	case MSG_LIST_CONDITION_SIM_INDEX_INT:
-		result = pCond->simIndex;
+		*value = pCond->simIndex;
 		break;
 	default:
-		result = MSG_ERR_INVALID_PARAMETER;
+		ret = MSG_ERR_INVALID_PARAMETER;
 		break;
 	}
-	return result;
+
+	return ret;
 }
 
 
-int msg_report_status_get_int(void *report_info, int field)
+int msg_report_status_get_int(void *report_info, int field, int *value)
 {
-	int result = MSG_ERR_INVALID_PARAMETER;
+	if (!report_info)
+		return MSG_ERR_NULL_POINTER;
+
+	int ret = MSG_SUCCESS;
+
 	MSG_REPORT_STATUS_INFO_S *pReport = (MSG_REPORT_STATUS_INFO_S *)report_info;
 	switch(field)
 	{
 	case MSG_REPORT_TYPE_INT:
-		result = pReport->type;
+		*value = pReport->type;
 		break;
 	case MSG_REPORT_STATUS_INT:
-		result = pReport->status;
+		*value = pReport->status;
 		break;
 	case MSG_REPORT_TIME_INT:
-		result = pReport->statusTime;
+		*value = pReport->statusTime;
 		break;
 
 	default:
-		result = MSG_ERR_INVALID_PARAMETER;
+		ret = MSG_ERR_INVALID_PARAMETER;
 		break;
 	}
-	return result;
+
+	return ret;
 }
 
-char* msg_report_status_get_str(void *report_info, int field)
+int msg_report_status_get_str(void *report_info, int field, char *value, int size)
 {
-	char *result = NULL;
 	MSG_REPORT_STATUS_INFO_S *pReport = (MSG_REPORT_STATUS_INFO_S *)report_info;
 	switch(field)
 	{
-
 	case MSG_REPORT_ADDRESS_STR:
-		result = pReport->addressVal;
+		strncpy(value, pReport->addressVal, size);
 		break;
-
 	default:
-		break;
+		return MSG_ERR_INVALID_PARAMETER;
 	}
-	return result;
+	return MSG_SUCCESS;
 }
 
-char* msg_folder_info_get_str(void *folder_info, int field)
+int msg_folder_info_get_str(void *folder_info, int field, char *value, int size)
 {
-	char *result = NULL;
 	MSG_FOLDER_INFO_S *pFolder = (MSG_FOLDER_INFO_S *)folder_info;
 	switch(field)
 	{
 	case MSG_FOLDER_INFO_NAME_STR:
-		result = pFolder->folderName;
+		strncpy(value, pFolder->folderName, size);
 		break;
 	default:
-		result = NULL;
-		break;
+		return MSG_ERR_INVALID_PARAMETER;
 	}
-	return result;
+	return MSG_SUCCESS;
 }
 
-char *msg_thread_info_get_str(void *data, int field)
+int msg_thread_info_get_str(void *data, int field, char *value, int size)
 {
-	char *ret_str = NULL;
 	MSG_THREAD_VIEW_S *pThread = (MSG_THREAD_VIEW_S *)data;
 
 	switch(field)
 	{
 	case MSG_THREAD_NAME_STR :
-		ret_str = pThread->threadName;
+		strncpy(value, pThread->threadName, size);
 		break;
 	case MSG_THREAD_MSG_DATA_STR :
-		ret_str = pThread->threadData;
+		strncpy(value, pThread->threadData, size);
 		break;
 	default:
-		break;
+		return MSG_ERR_INVALID_PARAMETER;
 	}
 
-	return ret_str;
+	return MSG_SUCCESS;
 }
 
 
-char *msg_conv_info_get_str(void *data, int field)
+int msg_conv_info_get_str(void *data, int field, char *value, int size)
 {
-	char *ret_str = NULL;
 	MSG_CONVERSATION_VIEW_S *pConv = (MSG_CONVERSATION_VIEW_S *)data;
 
 	switch(field)
 	{
 	case MSG_CONV_MSG_SUBJECT_STR :
-		ret_str = pConv->subject;
+		strncpy(value, pConv->subject, size);
 		break;
 	case MSG_CONV_MSG_ATTACH_NAME_STR :
-		ret_str = pConv->attachFileName;
+		strncpy(value, pConv->attachFileName, size);
 		break;
 	case MSG_CONV_MSG_AUDIO_NAME_STR :
-		ret_str = pConv->audioFileName;
+		strncpy(value, pConv->audioFileName, size);
 		break;
 	case MSG_CONV_MSG_IMAGE_THUMB_PATH_STR :
-		ret_str = pConv->imageThumbPath;
+		strncpy(value, pConv->imageThumbPath, size);
 		break;
 	case MSG_CONV_MSG_VIDEO_THUMB_PATH_STR :
-		ret_str = pConv->videoThumbPath;
+		strncpy(value, pConv->videoThumbPath, size);
 		break;
 	case MSG_CONV_MSG_TEXT_STR :
-		ret_str = pConv->pText;
+		if (pConv->pText)
+			strncpy(value, pConv->pText, size);
 		break;
 	case MSG_CONV_MSG_1ST_MEDIA_PATH_STR :
-		ret_str = pConv->firstMediaPath;
+		strncpy(value, pConv->firstMediaPath, size);
 		break;
 	default:
-		break;
+		return MSG_ERR_INVALID_PARAMETER;
 	}
 
-	return ret_str;
+	return MSG_SUCCESS;
 }
 
 
-char* msg_search_condition_get_str(void *condition_info, int field, int size)
+int msg_list_condition_get_str(void *condition_info, int field, char *value, int size)
 {
-	char *result = NULL;
-	MSG_SEARCH_CONDITION_S *search_cond = (MSG_SEARCH_CONDITION_S *)condition_info;
-	switch(field)
-	{
-	case MSG_SEARCH_CONDITION_ADDRESS_VALUE_STR:
-		result = search_cond->pAddressVal;
-		break;
-	case MSG_SEARCH_CONDITION_SEARCH_VALUE_STR:
-		result = search_cond->pSearchVal;
-		break;
-	default:
-		result = NULL;
-		break;
-	}
-	return result;
-}
-
-
-char* msg_list_condition_get_str(void *condition_info, int field, int size)
-{
-	char *result = NULL;
 	MSG_LIST_CONDITION_S *cond = (MSG_LIST_CONDITION_S *)condition_info;
 	switch(field)
 	{
 	case MSG_LIST_CONDITION_ADDRESS_VALUE_STR:
-		result = cond->pAddressVal;
+		if (cond->pAddressVal)
+			strncpy(value, cond->pAddressVal, size);
 		break;
 	case MSG_LIST_CONDITION_TEXT_VALUE_STR:
-		result = cond->pTextVal;
+		if (cond->pTextVal)
+			strncpy(value, cond->pTextVal, size);
 		break;
 	default:
-		result = NULL;
-		break;
+		return MSG_ERR_INVALID_PARAMETER;
 	}
-	return result;
+
+	return MSG_SUCCESS;
 }
 
 
-bool msg_sendopt_get_bool(void *send_opt, int field)
+int msg_sendopt_get_bool(void *send_opt, int field, bool *value)
 {
-	bool result = false;
+	if (!send_opt)
+		return MSG_ERR_NULL_POINTER;
+
+	int ret = MSG_SUCCESS;
+
 	MSG_SENDINGOPT_S *sendopt = (MSG_SENDINGOPT_S *)send_opt;
 	switch(field)
 	{
 	case MSG_SEND_OPT_SETTING_BOOL:
-		result = sendopt->bSetting;
+		*value = sendopt->bSetting;
 		break;
 	case MSG_SEND_OPT_KEEPCOPY_BOOL:
-		result = sendopt->bKeepCopy;
+		*value = sendopt->bKeepCopy;
 		break;
 	case MSG_SEND_OPT_DELIVER_REQ_BOOL:
-		result = sendopt->bDeliverReq;
+		*value = sendopt->bDeliverReq;
 		break;
 	default:
+		ret = MSG_ERR_INVALID_PARAMETER;
 		break;
 	}
-	return result;
+	return ret;
 }
 
-bool msg_sortrule_get_bool(void *sort_rule, int field)
+int msg_sortrule_get_bool(void *sort_rule, int field, bool *value)
 {
-	bool result = false;
+	if (!sort_rule)
+		return MSG_ERR_NULL_POINTER;
+
+	int ret = MSG_SUCCESS;
+
 	MSG_SORT_RULE_S *pSort = (MSG_SORT_RULE_S *)sort_rule;
 	switch(field)
 	{
 	case MSG_SORT_RULE_ACSCEND_BOOL:
-		result = pSort->bAscending;
+		*value = pSort->bAscending;
 		break;
 	default:
+		ret = MSG_ERR_INVALID_PARAMETER;
 		break;
 	}
-	return result;
+	return ret;
 }
 
-bool msg_conv_get_bool(void *data, int field)
+int msg_conv_get_bool(void *data, int field, bool *value)
 {
-	bool result = false;
+	if (!data)
+		return MSG_ERR_NULL_POINTER;
+
+	int ret = MSG_SUCCESS;
+
 	MSG_CONVERSATION_VIEW_S *pConv = (MSG_CONVERSATION_VIEW_S *)data;
+
 	switch(field)
 	{
 	case MSG_CONV_MSG_READ_BOOL:
-		result = pConv->bRead;
+		*value = pConv->bRead;
 		break;
 	case MSG_CONV_MSG_PROTECTED_BOOL:
-		result = pConv->bProtected;
+		*value = pConv->bProtected;
 		break;
 	default:
+		ret = MSG_ERR_INVALID_PARAMETER;
 		break;
 	}
-	return result;
+	return ret;
 }
 
-bool msg_thread_info_get_bool(void *data, int field)
+int msg_thread_info_get_bool(void *data, int field, bool *value)
 {
-	bool result = false;
+	if (!data)
+		return MSG_ERR_NULL_POINTER;
+
+	int ret = MSG_SUCCESS;
+
 	MSG_THREAD_VIEW_S *pthreadInfo = (MSG_THREAD_VIEW_S *)data;
+
 	switch(field)
 	{
 	case MSG_THREAD_PROTECTED_BOOL:
-		result = pthreadInfo->bProtected;
+		*value = pthreadInfo->bProtected;
 		break;
 	case MSG_THREAD_DRAFT_BOOL :
-		result = pthreadInfo->bDraft;
+		*value = pthreadInfo->bDraft;
 		break;
 	case MSG_THREAD_SEND_FAILED_BOOL :
-		result = pthreadInfo->bSendFailed;
+		*value = pthreadInfo->bSendFailed;
 		break;
 	case MSG_THREAD_SENDING_BOOL :
-		result = pthreadInfo->bSending;
+		*value = pthreadInfo->bSending;
 		break;
 	default:
+		ret = MSG_ERR_INVALID_PARAMETER;
 		break;
 	}
-	return result;
+	return ret;
 }
 
 
-bool msg_list_condition_get_bool(void *data, int field)
+int msg_list_condition_get_bool(void *data, int field, bool *value)
 {
-	bool result = false;
+	if (!data)
+		return MSG_ERR_NULL_POINTER;
+
+	int ret = MSG_SUCCESS;
+
 	MSG_LIST_CONDITION_S *pCond = (MSG_LIST_CONDITION_S *)data;
+
 	switch(field)
 	{
 	case MSG_LIST_CONDITION_PROTECTED_BOOL:
-		result = pCond->bProtected;
+		*value = pCond->bProtected;
 		break;
 	case MSG_LIST_CONDITION_SCHEDULED_BOOL :
-		result = pCond->bScheduled;
+		*value = pCond->bScheduled;
 		break;
 	case MSG_LIST_CONDITION_AND_OPERATER_BOOL :
-		result = pCond->bAnd;
+		*value = pCond->bAnd;
 		break;
 	default:
+		ret = MSG_ERR_INVALID_PARAMETER;
 		break;
 	}
-	return result;
+	return ret;
 }
 
 
 int msg_sendopt_get_struct_handle(msg_struct_s *msg_struct, int field, void **value)
 {
-	msg_error_t err =  MSG_SUCCESS;
+	msg_error_t err = MSG_SUCCESS;
 	if(!msg_struct || !value)
 		return MSG_ERR_NULL_POINTER;
 
@@ -2192,12 +2269,13 @@ int msg_sendopt_get_struct_handle(msg_struct_s *msg_struct, int field, void **va
 
 int msg_syncml_get_struct_handle(msg_struct_s *msg_struct, int field, void **value)
 {
-	msg_error_t err =  MSG_SUCCESS;
+	msg_error_t err = MSG_SUCCESS;
 
 	if(!msg_struct || !value)
 		return MSG_ERR_NULL_POINTER;
 
 	MSG_SYNCML_MESSAGE_S *pSync = (MSG_SYNCML_MESSAGE_S *)msg_struct->data;
+
 	switch(field)
 	{
 	case MSG_SYNCML_INFO_MESSAGE_HND:
@@ -2206,19 +2284,19 @@ int msg_syncml_get_struct_handle(msg_struct_s *msg_struct, int field, void **val
 	default:
 		err = MSG_ERR_UNKNOWN;
 		break;
-
 	}
 	return err;
 }
 
 int msg_thread_index_get_struct_handle(msg_struct_s *msg_struct, int field, void **value)
 {
-	msg_error_t err =  MSG_SUCCESS;
+	msg_error_t err = MSG_SUCCESS;
 
 	if(!msg_struct || !value)
 		return MSG_ERR_NULL_POINTER;
 
 	MSG_THREAD_LIST_INDEX_INFO_S *pIndex = (MSG_THREAD_LIST_INDEX_INFO_S *)msg_struct->data;
+
 	switch(field)
 	{
 	case MSG_THREAD_LIST_INDEX_ADDR_INFO_HND:
@@ -2235,12 +2313,13 @@ int msg_thread_index_get_struct_handle(msg_struct_s *msg_struct, int field, void
 
 int msg_list_condition_get_struct_handle(msg_struct_s *msg_struct, int field, void **value)
 {
-	msg_error_t err =  MSG_SUCCESS;
+	msg_error_t err = MSG_SUCCESS;
 
 	if(!msg_struct || !value)
 		return MSG_ERR_NULL_POINTER;
 
 	MSG_LIST_CONDITION_S *pCond = (MSG_LIST_CONDITION_S *)msg_struct->data;
+
 	switch(field)
 	{
 	case MSG_LIST_CONDITION_SORT_RULE_HND:
@@ -2255,296 +2334,298 @@ int msg_list_condition_get_struct_handle(msg_struct_s *msg_struct, int field, vo
 }
 
 
-int msg_address_info_get_int(void *addr_info, int field)
+int msg_address_info_get_int(void *addr_info, int field, int *value)
 {
-	int result = MSG_ERR_INVALID_PARAMETER;
+	if (!addr_info)
+		return MSG_ERR_NULL_POINTER;
+
+	int ret = MSG_SUCCESS;
+
 	MSG_ADDRESS_INFO_S *pAddr = (MSG_ADDRESS_INFO_S *)addr_info;
+
 	switch(field)
 	{
 	case MSG_ADDRESS_INFO_ADDRESS_TYPE_INT:
-		result = pAddr->addressType;
+		*value = pAddr->addressType;
 		break;
 	case MSG_ADDRESS_INFO_RECIPIENT_TYPE_INT:
-		result = pAddr->recipientType;
+		*value = pAddr->recipientType;
 		break;
 	case MSG_ADDRESS_INFO_CONTACT_ID_INT:
-		result = pAddr->contactId;
+		*value = pAddr->contactId;
 		break;
 	default:
+		ret = MSG_ERR_INVALID_PARAMETER;
 		break;
 	}
-	return result;
+
+	return ret;
 }
-int msg_mms_sendopt_get_int(void *opt_info, int field)
+
+int msg_mms_sendopt_get_int(void *opt_info, int field, int *value)
 {
-	int result = MSG_ERR_INVALID_PARAMETER;
+	if (!opt_info)
+		return MSG_ERR_NULL_POINTER;
+
+	int ret = MSG_SUCCESS;
+
 	MMS_SENDINGOPT_S *pOpt = (MMS_SENDINGOPT_S *)opt_info;
+
 	switch(field)
 	{
 	case MSG_MMS_SENDOPTION_EXPIRY_TIME_INT:
-		result = pOpt->expiryTime;
+		*value = pOpt->expiryTime;
 		break;
 	case MSG_MMS_SENDOPTION_DELIVERY_TIME_INT:
-		result = pOpt->deliveryTime;
+		*value = pOpt->deliveryTime;
 		break;
 	case MSG_MMS_SENDOPTION_PRIORITY_INT:
-		result = pOpt->priority;
+		*value = pOpt->priority;
 		break;
 	default:
+		ret = MSG_ERR_INVALID_PARAMETER;
 		break;
 	}
-	return result;
+	return ret;
 }
 
-int msg_reject_message_get_int(void *msg_info, int field)
+int msg_reject_message_get_int(void *msg_info, int field, int *value)
 {
-	int result = MSG_ERR_INVALID_PARAMETER;
+	if (!msg_info)
+		return MSG_ERR_NULL_POINTER;
+
+	int ret = MSG_SUCCESS;
+
 	MSG_REJECT_MSG_INFO_S *pMsg = (MSG_REJECT_MSG_INFO_S *)msg_info;
+
 	switch(field)
 	{
 	case MSG_REJECT_MESSAGE_MSGID_INT:
-		result = pMsg->msgId;
+		*value = pMsg->msgId;
 		break;
 	case MSG_REJECT_MESSAGE_DISPLAY_TIME_INT:
-		result = pMsg->displayTime;
+		*value = pMsg->displayTime;
 		break;
 	default:
+		ret = MSG_ERR_INVALID_PARAMETER;
 		break;
 	}
-	return result;
+	return ret;
 }
 
-char* msg_address_info_get_str(void *addr_info, int field, int size)
+int msg_address_info_get_str(void *addr_info, int field, char *value, int size)
 {
-	char *result = NULL;
 	MSG_ADDRESS_INFO_S *pAddr = (MSG_ADDRESS_INFO_S *)addr_info;
 	switch(field)
 	{
 	case MSG_ADDRESS_INFO_ADDRESS_VALUE_STR:
-		result = pAddr->addressVal;
+		strncpy(value, pAddr->addressVal, size);
 		break;
 	case MSG_ADDRESS_INFO_DISPLAYNAME_STR:
-		result = pAddr->displayName;
+		strncpy(value, pAddr->displayName, size);
 		break;
 
 	default:
-		result = NULL;
-		break;
+		return MSG_ERR_INVALID_PARAMETER;
 	}
-	return result;
+
+	return MSG_SUCCESS;
 }
 
-char* msg_reject_message_get_str(void *msg_info, int field, int size)
+int msg_reject_message_get_str(void *msg_info, int field, char *value, int size)
 {
-	char *result = NULL;
 	MSG_REJECT_MSG_INFO_S *pMsg = (MSG_REJECT_MSG_INFO_S *)msg_info;
 	switch(field)
 	{
 	case MSG_REJECT_MESSAGE_MSGTEXT_STR:
-		result = pMsg->msgText;
+		strncpy(value, pMsg->msgText, size);
 		break;
 	default:
-		result = NULL;
-		break;
+		return MSG_ERR_INVALID_PARAMETER;
 	}
-	return result;
+
+	return MSG_SUCCESS;
 }
 
-bool msg_mms_sendopt_get_bool(void *opt_info, int field)
+int msg_mms_sendopt_get_bool(void *opt_info, int field, bool *value)
 {
-	bool result = false;
+	if (!opt_info)
+		return MSG_ERR_NULL_POINTER;
+
+	int ret = MSG_SUCCESS;
+
 	MMS_SENDINGOPT_S *pOpt = (MMS_SENDINGOPT_S *)opt_info;
+
 	switch(field)
 	{
 	case MSG_MMS_SENDOPTION_READ_REQUEST_BOOL:
-		result = pOpt->bReadReq;
+		*value = pOpt->bReadReq;
 		break;
 	case MSG_MMS_SENDOPTION_DELIVERY_CUSTOMTIME_BOOL:
-		result = pOpt->bUseDeliveryCustomTime;
+		*value = pOpt->bUseDeliveryCustomTime;
 		break;
 	default:
+		ret = MSG_ERR_INVALID_PARAMETER;
 		break;
 	}
-	return result;
+	return ret;
 }
 
-bool msg_sms_sendopt_get_bool(void *opt_info, int field)
+int msg_sms_sendopt_get_bool(void *opt_info, int field, bool *value)
 {
-	bool result = false;
+	if (!opt_info)
+		return MSG_ERR_NULL_POINTER;
+
+	int ret = MSG_SUCCESS;
+
 	SMS_SENDINGOPT_S *pOpt = (SMS_SENDINGOPT_S *)opt_info;
 	switch(field)
 	{
 	case MSG_SMS_SENDOPT_REPLYPATH_BOOL:
-		result = pOpt->bReplyPath;
+		*value = pOpt->bReplyPath;
 		break;
 	default:
+		ret = MSG_ERR_INVALID_PARAMETER;
 		break;
 	}
-	return result;
+	return ret;
 }
 
 int msg_syncml_info_set_int(void *syncml_info, int field, int value)
 {
 
-	msg_error_t err =  MSG_SUCCESS;
+	msg_error_t err = MSG_SUCCESS;
 	if(!syncml_info)
 		return MSG_ERR_NULL_POINTER;
 
-    MSG_SYNCML_MESSAGE_S *pSync = (MSG_SYNCML_MESSAGE_S *)syncml_info;
-    switch(field)
-    {
-    case MSG_SYNCML_INFO_EXTID_INT:
+	MSG_SYNCML_MESSAGE_S *pSync = (MSG_SYNCML_MESSAGE_S *)syncml_info;
+	switch(field)
+	{
+	case MSG_SYNCML_INFO_EXTID_INT:
 		pSync->extId = value;
 		break;
-    case MSG_SYNCML_INFO_PINCODE_INT:
+	case MSG_SYNCML_INFO_PINCODE_INT:
 		pSync->pinCode = value;
 		break;
-    default:
+	default:
 		err = MSG_ERR_UNKNOWN;
 		break;
-    }
+	}
 
 	return err;
 }
 
 int msg_count_info_set_int(void *count_info, int field, int value)
 {
-	msg_error_t err =  MSG_SUCCESS;
+	msg_error_t err = MSG_SUCCESS;
 	if(!count_info)
 		return MSG_ERR_NULL_POINTER;
 
-    MSG_COUNT_INFO_S *pCount = (MSG_COUNT_INFO_S *)count_info;
+	MSG_COUNT_INFO_S *pCount = (MSG_COUNT_INFO_S *)count_info;
 
-    switch(field)
-    {
-    case MSG_COUNT_INFO_READ_INT:
+	switch(field)
+	{
+	case MSG_COUNT_INFO_READ_INT:
 		pCount->nReadCnt = value;
 		break;
-    case MSG_COUNT_INFO_UNREAD_INT:
+	case MSG_COUNT_INFO_UNREAD_INT:
 		pCount->nUnreadCnt = value;
 		break;
-    case MSG_COUNT_INFO_SMS_INT:
+	case MSG_COUNT_INFO_SMS_INT:
 		pCount->nSms = value;
 		break;
-    case MSG_COUNT_INFO_MMS_INT:
+	case MSG_COUNT_INFO_MMS_INT:
 		pCount->nMms = value;
 		break;
-    default:
+	default:
 		err = MSG_ERR_UNKNOWN;
 		break;
-    }
+	}
 	return err;
 }
 
 int msg_thread_count_set_int(void *count_info, int field, int value)
 {
-	msg_error_t err =  MSG_SUCCESS;
+	msg_error_t err = MSG_SUCCESS;
 	if(!count_info)
 		return MSG_ERR_NULL_POINTER;
 
-    MSG_THREAD_COUNT_INFO_S *pCount = (MSG_THREAD_COUNT_INFO_S *)count_info;
-    switch(field)
-    {
-    case MSG_THREAD_COUNT_TOTAL_INT:
+	MSG_THREAD_COUNT_INFO_S *pCount = (MSG_THREAD_COUNT_INFO_S *)count_info;
+	switch(field)
+	{
+	case MSG_THREAD_COUNT_TOTAL_INT:
 		pCount->totalCount = value;
 		break;
-    case MSG_THREAD_COUNT_UNREAD_INT:
+	case MSG_THREAD_COUNT_UNREAD_INT:
 		pCount->unReadCount = value;
 		break;
-    case MSG_THREAD_COUNT_SMS_INT:
+	case MSG_THREAD_COUNT_SMS_INT:
 		pCount->smsMsgCount = value;
 		break;
-    case MSG_THREAD_COUNT_MMS_INT:
+	case MSG_THREAD_COUNT_MMS_INT:
 		pCount->mmsMsgCount = value;
 		break;
-    default:
+	default:
 		err = MSG_ERR_UNKNOWN;
 		break;
-    }
+	}
 	return err;
 }
 
 int msg_thread_index_set_int(void *index_info, int field, int value)
 {
-	msg_error_t err =  MSG_SUCCESS;
+	msg_error_t err = MSG_SUCCESS;
 	if(!index_info)
 		return MSG_ERR_NULL_POINTER;
 
-    MSG_THREAD_LIST_INDEX_S *pIndex = (MSG_THREAD_LIST_INDEX_S *)index_info;
-    switch(field)
-    {
-    case MSG_THREAD_LIST_INDEX_CONTACTID_INT:
+	MSG_THREAD_LIST_INDEX_S *pIndex = (MSG_THREAD_LIST_INDEX_S *)index_info;
+	switch(field)
+	{
+	case MSG_THREAD_LIST_INDEX_CONTACTID_INT:
 		pIndex->contactId = value;
 		break;
-    default:
+	default:
 		err = MSG_ERR_UNKNOWN;
 		break;
-    }
+	}
 
 	return err;
 }
 
 int msg_sortrule_set_int(void *sort_info, int field, int value)
 {
-	msg_error_t err =  MSG_SUCCESS;
+	msg_error_t err = MSG_SUCCESS;
 
 	if(!sort_info)
 		return MSG_ERR_NULL_POINTER;
 
-    MSG_SORT_RULE_S *pSort = (MSG_SORT_RULE_S *)sort_info;
-    switch(field)
-    {
-    case MSG_SORT_RULE_SORT_TYPE_INT:
+	MSG_SORT_RULE_S *pSort = (MSG_SORT_RULE_S *)sort_info;
+	switch(field)
+	{
+	case MSG_SORT_RULE_SORT_TYPE_INT:
 		pSort->sortType = value;
 		break;
-    default:
+	default:
 		err = MSG_ERR_UNKNOWN;
 		break;
-    }
+	}
 	return err;
 }
 
 int msg_folder_info_set_int(void *folder_info, int field, int value)
 {
-	msg_error_t err =  MSG_SUCCESS;
+	msg_error_t err = MSG_SUCCESS;
 	if(!folder_info)
 		return MSG_ERR_NULL_POINTER;
 
-    MSG_FOLDER_INFO_S *pFolder = (MSG_FOLDER_INFO_S *)folder_info;
-    switch(field)
-    {
-    case MSG_FOLDER_INFO_ID_INT:
-		pFolder->folderId = value;
-		break;
-    case MSG_FOLDER_INFO_TYPE_INT:
-		pFolder->folderType = value;
-		break;
-    default:
-		err = MSG_ERR_UNKNOWN;
-		break;
-    }
-
-	return err;
-}
-
-
-int msg_search_condition_set_int(void *condition_info, int field, int value)
-{
-	msg_error_t err =  MSG_SUCCESS;
-	if(!condition_info)
-		return MSG_ERR_NULL_POINTER;
-
-	MSG_SEARCH_CONDITION_S *pCond = (MSG_SEARCH_CONDITION_S *)condition_info;
+	MSG_FOLDER_INFO_S *pFolder = (MSG_FOLDER_INFO_S *)folder_info;
 	switch(field)
 	{
-	case MSG_SEARCH_CONDITION_FOLDERID_INT:
-		pCond->folderId = value;
+	case MSG_FOLDER_INFO_ID_INT:
+		pFolder->folderId = value;
 		break;
-	case MSG_SEARCH_CONDITION_MSGTYPE_INT:
-		pCond->msgType = value;
-		break;
-	case MSG_SEARCH_CONDITION_RESERVED_INT:
-		pCond->reserved = value;
+	case MSG_FOLDER_INFO_TYPE_INT:
+		pFolder->folderType = value;
 		break;
 	default:
 		err = MSG_ERR_UNKNOWN;
@@ -2557,7 +2638,7 @@ int msg_search_condition_set_int(void *condition_info, int field, int value)
 
 int msg_list_condition_set_int(void *condition_info, int field, int value)
 {
-	msg_error_t err =  MSG_SUCCESS;
+	msg_error_t err = MSG_SUCCESS;
 	if(!condition_info)
 		return MSG_ERR_NULL_POINTER;
 
@@ -2602,69 +2683,21 @@ int msg_list_condition_set_int(void *condition_info, int field, int value)
 
 int msg_report_status_set_int(void *report_info, int field, int value)
 {
-	msg_error_t err =  MSG_SUCCESS;
+	msg_error_t err = MSG_SUCCESS;
 	if(!report_info)
 	return MSG_ERR_NULL_POINTER;
 
 	MSG_REPORT_STATUS_INFO_S *pReport = (MSG_REPORT_STATUS_INFO_S *)report_info;
 	switch(field)
 	{
-		case MSG_REPORT_TYPE_INT:
-			pReport->type = value;
+	case MSG_REPORT_TYPE_INT:
+		pReport->type = value;
 		break;
-		case MSG_REPORT_STATUS_INT:
-			pReport->status = value;
+	case MSG_REPORT_STATUS_INT:
+		pReport->status = value;
 		break;
-		case MSG_REPORT_TIME_INT:
-			pReport->statusTime = value;
-		break;
-
-		default:
-		err = MSG_ERR_UNKNOWN;
-		break;
-	}
-
-	return err;
-}
-
-int msg_folder_info_set_str(void *folder_info, int field, char *value, int size)
-{
-	msg_error_t err =  MSG_SUCCESS;
-	if(!folder_info || !value)
-		return MSG_ERR_NULL_POINTER;
-    MSG_FOLDER_INFO_S *pFolder = (MSG_FOLDER_INFO_S *)folder_info;
-    int _len = 0;
-    (size > MAX_FOLDER_NAME_SIZE)? _len = MAX_FOLDER_NAME_SIZE : _len = size;
-    switch(field)
-    {
-    case MSG_FOLDER_INFO_NAME_STR:
-		strncpy(pFolder->folderName, value, _len);
-		break;
-    default:
-		err = MSG_ERR_UNKNOWN;
-		break;
-    }
-
-	return err;
-}
-
-int msg_search_condition_set_str(void *condition_info, int field, char *value, int size)
-{
-	msg_error_t err =  MSG_SUCCESS;
-	if(!condition_info || !value)
-		return MSG_ERR_NULL_POINTER;
-
-	MSG_SEARCH_CONDITION_S *search_cond = (MSG_SEARCH_CONDITION_S *)condition_info;
-
-	switch(field)
-	{
-	case MSG_SEARCH_CONDITION_ADDRESS_VALUE_STR:
-		if(size)
-			search_cond->pAddressVal = value;
-		break;
-	case MSG_SEARCH_CONDITION_SEARCH_VALUE_STR:
-		if(size)
-			search_cond->pSearchVal = value;
+	case MSG_REPORT_TIME_INT:
+		pReport->statusTime = value;
 		break;
 	default:
 		err = MSG_ERR_UNKNOWN;
@@ -2673,10 +2706,31 @@ int msg_search_condition_set_str(void *condition_info, int field, char *value, i
 	return err;
 }
 
+int msg_folder_info_set_str(void *folder_info, int field, char *value, int size)
+{
+	msg_error_t err = MSG_SUCCESS;
+	if(!folder_info || !value)
+		return MSG_ERR_NULL_POINTER;
+	MSG_FOLDER_INFO_S *pFolder = (MSG_FOLDER_INFO_S *)folder_info;
+	int _len = 0;
+	(size > MAX_FOLDER_NAME_SIZE)? _len = MAX_FOLDER_NAME_SIZE : _len = size;
+	switch(field)
+	{
+	case MSG_FOLDER_INFO_NAME_STR:
+		strncpy(pFolder->folderName, value, _len);
+		break;
+	default:
+		err = MSG_ERR_UNKNOWN;
+		break;
+	}
+
+	return err;
+}
+
 
 int msg_list_condition_set_str(void *condition_info, int field, char *value, int size)
 {
-	msg_error_t err =  MSG_SUCCESS;
+	msg_error_t err = MSG_SUCCESS;
 	if(!condition_info || !value)
 		return MSG_ERR_NULL_POINTER;
 
@@ -2702,32 +2756,32 @@ int msg_list_condition_set_str(void *condition_info, int field, char *value, int
 
 int msg_sendopt_set_bool(void *send_opt, int field, bool value)
 {
-	msg_error_t err =  MSG_SUCCESS;
+	msg_error_t err = MSG_SUCCESS;
 	if(!send_opt)
 		return MSG_ERR_NULL_POINTER;
 
-    MSG_SENDINGOPT_S *sendopt = (MSG_SENDINGOPT_S *)send_opt;
-    switch(field)
-    {
-    case MSG_SEND_OPT_SETTING_BOOL:
+	MSG_SENDINGOPT_S *sendopt = (MSG_SENDINGOPT_S *)send_opt;
+	switch(field)
+	{
+	case MSG_SEND_OPT_SETTING_BOOL:
 		sendopt->bSetting = value;
 		break;
-    case MSG_SEND_OPT_KEEPCOPY_BOOL:
+	case MSG_SEND_OPT_KEEPCOPY_BOOL:
 		sendopt->bKeepCopy = value;
 		break;
-    case MSG_SEND_OPT_DELIVER_REQ_BOOL:
+	case MSG_SEND_OPT_DELIVER_REQ_BOOL:
 		sendopt->bDeliverReq = value;
 		break;
-    default:
+	default:
 		err = MSG_ERR_UNKNOWN;
 		break;
-    }
+	}
 	return err;
 }
 
 int msg_sortrule_set_bool(void *sort_rule, int field, bool value)
 {
-	msg_error_t err =  MSG_SUCCESS;
+	msg_error_t err = MSG_SUCCESS;
 	if(!sort_rule)
 		return MSG_ERR_NULL_POINTER;
 
@@ -2747,7 +2801,7 @@ int msg_sortrule_set_bool(void *sort_rule, int field, bool value)
 
 int msg_list_condition_set_bool(void *data, int field, bool value)
 {
-	msg_error_t err =  MSG_SUCCESS;
+	msg_error_t err = MSG_SUCCESS;
 	if(!data)
 		return MSG_ERR_NULL_POINTER;
 
@@ -2773,7 +2827,7 @@ int msg_list_condition_set_bool(void *data, int field, bool value)
 
 int msg_sendopt_set_struct_handle(msg_struct_s *msg_struct, int field, msg_struct_s *value)
 {
-	msg_error_t err =  MSG_SUCCESS;
+	msg_error_t err = MSG_SUCCESS;
 	if(!msg_struct || !value)
 		return MSG_ERR_NULL_POINTER;
 
@@ -2799,7 +2853,7 @@ int msg_sendopt_set_struct_handle(msg_struct_s *msg_struct, int field, msg_struc
 
 int msg_syncml_set_struct_handle(msg_struct_s *msg_struct, int field, msg_struct_s *value)
 {
-	msg_error_t err =  MSG_SUCCESS;
+	msg_error_t err = MSG_SUCCESS;
 
 	if(!msg_struct || !value)
 		return MSG_ERR_NULL_POINTER;
@@ -2820,14 +2874,13 @@ int msg_syncml_set_struct_handle(msg_struct_s *msg_struct, int field, msg_struct
 	default:
 		err = MSG_ERR_UNKNOWN;
 		break;
-
 	}
 	return err;
 }
 
 int msg_thread_index_set_struct_handle(msg_struct_s *msg_struct, int field, msg_struct_s *value)
 {
-	msg_error_t err =  MSG_SUCCESS;
+	msg_error_t err = MSG_SUCCESS;
 
 	if(!msg_struct || !value)
 		return MSG_ERR_NULL_POINTER;
@@ -2844,7 +2897,6 @@ int msg_thread_index_set_struct_handle(msg_struct_s *msg_struct, int field, msg_
 	default:
 		err = MSG_ERR_UNKNOWN;
 		break;
-
 	}
 	return err;
 }
@@ -2852,7 +2904,7 @@ int msg_thread_index_set_struct_handle(msg_struct_s *msg_struct, int field, msg_
 
 int msg_list_condition_set_struct_handle(msg_struct_s *msg_struct, int field, msg_struct_s *value)
 {
-	msg_error_t err =  MSG_SUCCESS;
+	msg_error_t err = MSG_SUCCESS;
 
 	if(!msg_struct || !value)
 		return MSG_ERR_NULL_POINTER;
@@ -2869,7 +2921,6 @@ int msg_list_condition_set_struct_handle(msg_struct_s *msg_struct, int field, ms
 	default:
 		err = MSG_ERR_UNKNOWN;
 		break;
-
 	}
 	return err;
 }
@@ -2877,7 +2928,7 @@ int msg_list_condition_set_struct_handle(msg_struct_s *msg_struct, int field, ms
 
 int msg_address_info_set_int(void *addrinfo, int field, int value)
 {
-	msg_error_t err =  MSG_SUCCESS;
+	msg_error_t err = MSG_SUCCESS;
 	if(!addrinfo)
 		return MSG_ERR_NULL_POINTER;
 
@@ -2895,7 +2946,7 @@ int msg_address_info_set_int(void *addrinfo, int field, int value)
 		break;
 	default:
 		err = MSG_ERR_UNKNOWN;
-	break;
+		break;
 	}
 
 	return err;
@@ -2904,7 +2955,7 @@ int msg_address_info_set_int(void *addrinfo, int field, int value)
 
 int msg_mms_sendopt_set_int(void *opt_info, int field, int value)
 {
-	msg_error_t err =  MSG_SUCCESS;
+	msg_error_t err = MSG_SUCCESS;
 	if(!opt_info)
 		return MSG_ERR_NULL_POINTER;
 
@@ -2922,7 +2973,7 @@ int msg_mms_sendopt_set_int(void *opt_info, int field, int value)
 		break;
 	default:
 		err = MSG_ERR_UNKNOWN;
-	break;
+		break;
 	}
 
 	return err;
@@ -2930,7 +2981,7 @@ int msg_mms_sendopt_set_int(void *opt_info, int field, int value)
 
 int msg_reject_message_set_int(void *msg_info, int field, int value)
 {
-	msg_error_t err =  MSG_SUCCESS;
+	msg_error_t err = MSG_SUCCESS;
 	if(!msg_info)
 		return MSG_ERR_NULL_POINTER;
 
@@ -2945,7 +2996,7 @@ int msg_reject_message_set_int(void *msg_info, int field, int value)
 		break;
 	default:
 		err = MSG_ERR_UNKNOWN;
-	break;
+		break;
 	}
 
 	return err;
@@ -2953,126 +3004,129 @@ int msg_reject_message_set_int(void *msg_info, int field, int value)
 
 int msg_address_info_set_str(void *addr_info, int field, char *value, int size)
 {
-	msg_error_t err =  MSG_SUCCESS;
+	msg_error_t err = MSG_SUCCESS;
 	if(!addr_info || !value)
 		return MSG_ERR_NULL_POINTER;
-    MSG_ADDRESS_INFO_S *pAddr = (MSG_ADDRESS_INFO_S *)addr_info;
-    int _len = 0;
 
-    switch(field)
-    {
-    case MSG_ADDRESS_INFO_ADDRESS_VALUE_STR:
-        (size > MAX_ADDRESS_VAL_LEN)? _len = MAX_ADDRESS_VAL_LEN : _len = size;
-        memset(pAddr->addressVal, 0x00, sizeof(pAddr->addressVal));
+	MSG_ADDRESS_INFO_S *pAddr = (MSG_ADDRESS_INFO_S *)addr_info;
+	int _len = 0;
+
+	switch(field)
+	{
+	case MSG_ADDRESS_INFO_ADDRESS_VALUE_STR:
+		(size > MAX_ADDRESS_VAL_LEN)? _len = MAX_ADDRESS_VAL_LEN : _len = size;
+		memset(pAddr->addressVal, 0x00, sizeof(pAddr->addressVal));
 		strncpy(pAddr->addressVal, value, _len);
 		break;
-    case MSG_ADDRESS_INFO_DISPLAYNAME_STR:
-        (size > MAX_DISPLAY_NAME_LEN)? _len = MAX_DISPLAY_NAME_LEN : _len = size;
-        memset(pAddr->displayName, 0x00, sizeof(pAddr->displayName));
+	case MSG_ADDRESS_INFO_DISPLAYNAME_STR:
+		(size > MAX_DISPLAY_NAME_LEN)? _len = MAX_DISPLAY_NAME_LEN : _len = size;
+		memset(pAddr->displayName, 0x00, sizeof(pAddr->displayName));
 		strncpy(pAddr->displayName, value, _len);
 		break;
-    default:
+	default:
 		err = MSG_ERR_UNKNOWN;
 		break;
-    }
+	}
 
 	return err;
 }
 
 int msg_media_info_set_str(void *media_info, int field, char *value, int size)
 {
-	msg_error_t err =  MSG_SUCCESS;
+	msg_error_t err = MSG_SUCCESS;
 	if(!media_info || !value)
 		return MSG_ERR_NULL_POINTER;
-	MSG_MEDIA_INFO_S *pAddr = (MSG_MEDIA_INFO_S *)media_info;
-    int _len = 0;
 
-    switch(field)
-    {
-    case MSG_MEDIA_ITEM_STR:
-        (size > MSG_FILEPATH_LEN_MAX)? _len = MSG_FILEPATH_LEN_MAX : _len = size;
-        memset(pAddr->media_item, 0x00, sizeof(pAddr->media_item));
+	MSG_MEDIA_INFO_S *pAddr = (MSG_MEDIA_INFO_S *)media_info;
+	int _len = 0;
+
+	switch(field)
+	{
+	case MSG_MEDIA_ITEM_STR:
+		(size > MSG_FILEPATH_LEN_MAX)? _len = MSG_FILEPATH_LEN_MAX : _len = size;
+		memset(pAddr->media_item, 0x00, sizeof(pAddr->media_item));
 		strncpy(pAddr->media_item, value, _len);
 		break;
-    default:
+	default:
 		err = MSG_ERR_UNKNOWN;
 		break;
-    }
+	}
 
 	return err;
 }
 
 int msg_reject_message_set_str(void *msg_info, int field, char *value, int size)
 {
-	msg_error_t err =  MSG_SUCCESS;
+	msg_error_t err = MSG_SUCCESS;
 	if(!msg_info || !value)
 		return MSG_ERR_NULL_POINTER;
-    MSG_REJECT_MSG_INFO_S *pMsg = (MSG_REJECT_MSG_INFO_S *)msg_info;
-    int _len = 0;
-    (size > MAX_MSG_TEXT_LEN)? _len = MAX_MSG_TEXT_LEN : _len = size;
-    switch(field)
-    {
-    case MSG_REJECT_MESSAGE_MSGTEXT_STR:
+
+	MSG_REJECT_MSG_INFO_S *pMsg = (MSG_REJECT_MSG_INFO_S *)msg_info;
+	int _len = 0;
+	(size > MAX_MSG_TEXT_LEN)? _len = MAX_MSG_TEXT_LEN : _len = size;
+	switch(field)
+	{
+	case MSG_REJECT_MESSAGE_MSGTEXT_STR:
 		strncpy(pMsg->msgText, value, _len);
 		break;
-    default:
+	default:
 		err = MSG_ERR_UNKNOWN;
 		break;
-    }
+	}
 
 	return err;
 }
 
 int msg_mms_sendopt_set_bool(void *option, int field, bool value)
 {
-	msg_error_t err =  MSG_SUCCESS;
+	msg_error_t err = MSG_SUCCESS;
 	if(!option)
 		return MSG_ERR_NULL_POINTER;
 
-    MMS_SENDINGOPT_S *pOpt = (MMS_SENDINGOPT_S *)option;
-    switch(field)
-    {
-    case MSG_MMS_SENDOPTION_READ_REQUEST_BOOL:
+	MMS_SENDINGOPT_S *pOpt = (MMS_SENDINGOPT_S *)option;
+	switch(field)
+	{
+	case MSG_MMS_SENDOPTION_READ_REQUEST_BOOL:
 		pOpt->bReadReq = value;
 		break;
-    case MSG_MMS_SENDOPTION_DELIVERY_CUSTOMTIME_BOOL:
+	case MSG_MMS_SENDOPTION_DELIVERY_CUSTOMTIME_BOOL:
 		pOpt->bUseDeliveryCustomTime = value;
 		break;
-    default:
+	default:
 		err = MSG_ERR_UNKNOWN;
 		break;
-    }
+	}
 	return err;
 }
 
 int msg_sms_sendopt_set_bool(void *option, int field, bool value)
 {
-	msg_error_t err =  MSG_SUCCESS;
+	msg_error_t err = MSG_SUCCESS;
 	if(!option)
 		return MSG_ERR_NULL_POINTER;
 
-    SMS_SENDINGOPT_S *pOpt = (SMS_SENDINGOPT_S *)option;
-    switch(field)
-    {
-    case MSG_SMS_SENDOPT_REPLYPATH_BOOL:
+	SMS_SENDINGOPT_S *pOpt = (SMS_SENDINGOPT_S *)option;
+	switch(field)
+	{
+	case MSG_SMS_SENDOPT_REPLYPATH_BOOL:
 		pOpt->bReplyPath = value;
 		break;
-    default:
-    	err = MSG_ERR_UNKNOWN;
+	default:
+		err = MSG_ERR_UNKNOWN;
 		break;
-    }
+	}
 	return err;
 }
 
 EXPORT_API int msg_add_push_event(msg_handle_t handle, const msg_struct_t push_event)
 {
-	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_FEATURE);
-	msg_error_t err =  MSG_SUCCESS;
+	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_SMS_FEATURE);
+	msg_error_t err = MSG_SUCCESS;
 
 	//Privilege check
 	int ret = PRIV_MGR_ERROR_SUCCESS;
 	ret = privacy_checker_check_by_privilege(MSG_SERVICE_WRITE_PRIV_NAME);
-	if(ret != PRIV_MGR_ERROR_SUCCESS)
+	if (ret != PRIV_MGR_ERROR_SUCCESS)
 	{
 		return MSG_ERR_PERMISSION_DENIED;
 	}
@@ -3085,6 +3139,7 @@ EXPORT_API int msg_add_push_event(msg_handle_t handle, const msg_struct_t push_e
 	MsgHandle* pHandle = (MsgHandle*)handle;
 
 	msg_struct_s *pPush = (msg_struct_s *)push_event;
+	MSG_TYPE_CHECK(pPush->type, MSG_STRUCT_PUSH_CONFIG_INFO);
 
 	try
 	{
@@ -3101,13 +3156,13 @@ EXPORT_API int msg_add_push_event(msg_handle_t handle, const msg_struct_t push_e
 
 EXPORT_API int msg_delete_push_event(msg_handle_t handle, const msg_struct_t push_event)
 {
-	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_FEATURE);
-	msg_error_t err =  MSG_SUCCESS;
+	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_SMS_FEATURE);
+	msg_error_t err = MSG_SUCCESS;
 
 	//Privilege check
 	int ret = PRIV_MGR_ERROR_SUCCESS;
 	ret = privacy_checker_check_by_privilege(MSG_SERVICE_WRITE_PRIV_NAME);
-	if(ret != PRIV_MGR_ERROR_SUCCESS)
+	if (ret != PRIV_MGR_ERROR_SUCCESS)
 	{
 		return MSG_ERR_PERMISSION_DENIED;
 	}
@@ -3120,6 +3175,7 @@ EXPORT_API int msg_delete_push_event(msg_handle_t handle, const msg_struct_t pus
 	MsgHandle* pHandle = (MsgHandle*)handle;
 
 	msg_struct_s *pPush = (msg_struct_s *)push_event;
+	MSG_TYPE_CHECK(pPush->type, MSG_STRUCT_PUSH_CONFIG_INFO);
 
 	try
 	{
@@ -3136,13 +3192,13 @@ EXPORT_API int msg_delete_push_event(msg_handle_t handle, const msg_struct_t pus
 
 EXPORT_API int msg_update_push_event(msg_handle_t handle, const msg_struct_t src_event, const msg_struct_t dst_event)
 {
-	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_FEATURE);
-	msg_error_t err =  MSG_SUCCESS;
+	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_SMS_FEATURE);
+	msg_error_t err = MSG_SUCCESS;
 
 	//Privilege check
 	int ret = PRIV_MGR_ERROR_SUCCESS;
 	ret = privacy_checker_check_by_privilege(MSG_SERVICE_WRITE_PRIV_NAME);
-	if(ret != PRIV_MGR_ERROR_SUCCESS)
+	if (ret != PRIV_MGR_ERROR_SUCCESS)
 	{
 		return MSG_ERR_PERMISSION_DENIED;
 	}
@@ -3155,7 +3211,10 @@ EXPORT_API int msg_update_push_event(msg_handle_t handle, const msg_struct_t src
 	MsgHandle* pHandle = (MsgHandle*)handle;
 
 	msg_struct_s *pSrc = (msg_struct_s *)src_event;
+	MSG_TYPE_CHECK(pSrc->type, MSG_STRUCT_PUSH_CONFIG_INFO);
+
 	msg_struct_s *pDst = (msg_struct_s *)dst_event;
+	MSG_TYPE_CHECK(pDst->type, MSG_STRUCT_PUSH_CONFIG_INFO);
 
 	try
 	{
@@ -3170,114 +3229,119 @@ EXPORT_API int msg_update_push_event(msg_handle_t handle, const msg_struct_t src
 	return err;
 }
 
-char* msg_push_config_get_str(void *event_info, int field, int size)
+int msg_push_config_get_str(void *event_info, int field, char *value, int size)
 {
-	char *result = NULL;
 	MSG_PUSH_EVENT_INFO_S *pEvent = (MSG_PUSH_EVENT_INFO_S *)event_info;
 	switch(field)
 	{
-    case MSG_PUSH_CONFIG_CONTENT_TYPE_STR:
-		result = pEvent->contentType;
+	case MSG_PUSH_CONFIG_CONTENT_TYPE_STR:
+		strncpy(value, pEvent->contentType, size);
 		break;
-    case MSG_PUSH_CONFIG_APPLICATON_ID_STR:
-		result = pEvent->appId;
+	case MSG_PUSH_CONFIG_APPLICATON_ID_STR:
+		strncpy(value, pEvent->appId, size);
 		break;
-    case MSG_PUSH_CONFIG_PACKAGE_NAME_STR:
-		result = pEvent->pkgName;
+	case MSG_PUSH_CONFIG_PACKAGE_NAME_STR:
+		strncpy(value, pEvent->pkgName, size);
 		break;
 
 	default:
-		result = NULL;
-		break;
+		return MSG_ERR_INVALID_PARAMETER;
 	}
-	return result;
+
+	return MSG_SUCCESS;
 }
 
-bool msg_push_config_get_bool(void *event_info, int field)
+int msg_push_config_get_bool(void *event_info, int field, bool *value)
 {
-	bool result = false;
+	if (!event_info)
+		return MSG_ERR_NULL_POINTER;
+
+	int ret = MSG_SUCCESS;
+
 	MSG_PUSH_EVENT_INFO_S *pEvent = (MSG_PUSH_EVENT_INFO_S *)event_info;
+
 	switch(field)
 	{
-    case MSG_PUSH_CONFIG_LAUNCH_BOOL:
-    	result = pEvent->bLaunch;
+	case MSG_PUSH_CONFIG_LAUNCH_BOOL:
+		*value = pEvent->bLaunch;
 		break;
 	default:
+		ret = MSG_ERR_INVALID_PARAMETER;
 		break;
 	}
-	return result;
+	return ret;
 }
 
 int msg_push_config_set_str(void *event_info, int field, char *value, int size)
 {
-	msg_error_t err =  MSG_SUCCESS;
+	msg_error_t err = MSG_SUCCESS;
 	if(!event_info || !value)
 		return MSG_ERR_NULL_POINTER;
-    MSG_PUSH_EVENT_INFO_S *pEvent = (MSG_PUSH_EVENT_INFO_S *)event_info;
-    int _len = 0;
 
-    switch(field)
-    {
-    case MSG_PUSH_CONFIG_CONTENT_TYPE_STR:
-        (size > MAX_WAPPUSH_CONTENT_TYPE_LEN)? _len = MAX_WAPPUSH_CONTENT_TYPE_LEN : _len = size;
+	MSG_PUSH_EVENT_INFO_S *pEvent = (MSG_PUSH_EVENT_INFO_S *)event_info;
+	int _len = 0;
+
+	switch(field)
+	{
+	case MSG_PUSH_CONFIG_CONTENT_TYPE_STR:
+		(size > MAX_WAPPUSH_CONTENT_TYPE_LEN)? _len = MAX_WAPPUSH_CONTENT_TYPE_LEN : _len = size;
 		strncpy(pEvent->contentType, value, _len);
 		break;
-    case MSG_PUSH_CONFIG_APPLICATON_ID_STR:
-        (size > MAX_WAPPUSH_ID_LEN)? _len = MAX_WAPPUSH_ID_LEN : _len = size;
+	case MSG_PUSH_CONFIG_APPLICATON_ID_STR:
+		(size > MAX_WAPPUSH_ID_LEN)? _len = MAX_WAPPUSH_ID_LEN : _len = size;
 		strncpy(pEvent->appId, value, _len);
 		break;
-    case MSG_PUSH_CONFIG_PACKAGE_NAME_STR:
-        (size > MSG_FILEPATH_LEN_MAX)? _len = MSG_FILEPATH_LEN_MAX : _len = size;
+	case MSG_PUSH_CONFIG_PACKAGE_NAME_STR:
+		(size > MSG_FILEPATH_LEN_MAX)? _len = MSG_FILEPATH_LEN_MAX : _len = size;
 		strncpy(pEvent->pkgName, value, _len);
 		break;
-    default:
-    	err = MSG_ERR_UNKNOWN;
+	default:
+		err = MSG_ERR_UNKNOWN;
 		break;
-    }
+	}
 
 	return err;
 }
 
 int msg_push_config_set_bool(void *event, int field, bool value)
 {
-	msg_error_t err =  MSG_SUCCESS;
+	msg_error_t err = MSG_SUCCESS;
 	if(!event)
 		return MSG_ERR_NULL_POINTER;
 
 	MSG_PUSH_EVENT_INFO_S *pEvent = (MSG_PUSH_EVENT_INFO_S *)event;
-    switch(field)
-    {
-    case MSG_PUSH_CONFIG_LAUNCH_BOOL:
-    	pEvent->bLaunch = value;
+	switch(field)
+	{
+	case MSG_PUSH_CONFIG_LAUNCH_BOOL:
+		pEvent->bLaunch = value;
 		break;
-    default:
-    	err = MSG_ERR_UNKNOWN;
+	default:
+		err = MSG_ERR_UNKNOWN;
 		break;
-    }
+	}
 	return err;
 }
 
-char* msg_media_item_get_str(void *data, int field, int size)
+int msg_media_item_get_str(void *data, int field, char *value, int size)
 {
-	char *result = NULL;
 	MSG_MEDIA_INFO_S *pMedia = (MSG_MEDIA_INFO_S *)data;
 
 	switch(field)
 	{
 	case MSG_MEDIA_ITEM_STR:
-		result = pMedia->media_item;
+		strncpy(value, pMedia->media_item, size);
 		break;
 	case MSG_MEDIA_MIME_TYPE_STR:
-		result = pMedia->mime_type;
+		strncpy(value, pMedia->mime_type, size);
 		break;
 	case MSG_MEDIA_THUMB_PATH_STR:
-		result = pMedia->thumb_path;
+		strncpy(value, pMedia->thumb_path, size);
 		break;
 	default:
-		result = NULL;
-		break;
+		return MSG_ERR_INVALID_PARAMETER;
 	}
-	return result;
+
+	return MSG_SUCCESS;
 }
 
 int msg_media_item_get_int(void *data, int field, int *value)
@@ -3290,12 +3354,12 @@ int msg_media_item_get_int(void *data, int field, int *value)
 	MSG_MEDIA_INFO_S *pMedia = (MSG_MEDIA_INFO_S *)data;
 
 	switch (field) {
-		case MSG_MEDIA_MESSAGE_ID_INT:
-			*value = pMedia->msg_id;
-			break;
-		default :
-			ret = MSG_ERR_INVALID_PARAMETER;
-			break;
+	case MSG_MEDIA_MESSAGE_ID_INT:
+		*value = pMedia->msg_id;
+		break;
+	default :
+		ret = MSG_ERR_INVALID_PARAMETER;
+		break;
 	}
 
 	return ret;

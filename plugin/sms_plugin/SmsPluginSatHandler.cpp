@@ -550,7 +550,7 @@ int SmsPluginSatHandler::handleSatTpdu(unsigned char *pTpdu, unsigned char TpduL
 		dcs.codingScheme = SMS_CHARSET_7BIT;
 
 		char* pDcs = NULL;
-		AutoPtr<char> dcsBuf(&pDcs);
+		unique_ptr<char*, void(*)(char**)> dcsBuf(&pDcs, unique_ptr_deleter);
 
 		SmsPluginParamCodec::encodeDCS(&dcs, &pDcs);
 

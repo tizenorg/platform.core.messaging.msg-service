@@ -113,11 +113,10 @@ void MsgSensorCBStop()
 //	return FALSE;
 //}
 
+#ifndef MSG_WEARABLE_PROFILE
 
 static int MsgSoundPlayCallback(int message, void *param, void *user_param)
 {
-
-#ifndef MSG_WEARABLE_PROFILE
 	switch (message)
 	{
 		case MM_MESSAGE_BEGIN_OF_STREAM:
@@ -140,10 +139,10 @@ static int MsgSoundPlayCallback(int message, void *param, void *user_param)
 			break;
 	}
 
-#endif // MSG_WEARABLE_PROFILE
-
 	return 1;
 }
+
+#endif // MSG_WEARABLE_PROFILE
 
 /*==================================================================================================
                                      IMPLEMENTATION OF MsgSoundPlayer - Member Functions
@@ -449,7 +448,7 @@ void MsgSoundPlayer::MsgSoundPlayStart(const MSG_ADDRESS_INFO_S *pAddrInfo, MSG_
 #endif //MSG_CONTACTS_SERVICE_NOT_SUPPORTED
 	/* get ringtone file path */
 	char *msg_tone_file_path = NULL;
-	AutoPtr<char> buf(&msg_tone_file_path);
+	unique_ptr<char*, void(*)(char**)> buf(&msg_tone_file_path, unique_ptr_deleter);
 
 	if (soundType == MSG_SOUND_PLAY_EMERGENCY) {
 		msg_tone_file_path = new char[MAX_SOUND_FILE_LEN+1];

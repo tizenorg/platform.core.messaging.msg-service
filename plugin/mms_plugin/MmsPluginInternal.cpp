@@ -18,6 +18,7 @@
 #include <errno.h>
 #include <sys/stat.h>
 
+#include "MsgCppTypes.h"
 #include "MsgUtilFile.h"
 #include "MsgException.h"
 #include "MsgSettingTypes.h"
@@ -26,6 +27,7 @@
 #include "MsgStorageHandler.h"
 #include "MsgSerialize.h"
 #include "MsgSpamFilter.h"
+
 #include "MmsPluginDebug.h"
 #include "MmsPluginTypes.h"
 #include "MmsPluginCodec.h"
@@ -97,7 +99,8 @@ void MmsPluginInternal::processReceivedInd(MSG_MESSAGE_INFO_S *pMsgInfo, MSG_REQ
 
 		MsgCloseFile(pFile);
 
-		remove(pMsgInfo->msgData);
+		if (remove(pMsgInfo->msgData) != 0)
+			MSG_DEBUG("Fail remove");
 
 		switch (mmsHeader.type) {
 		case MMS_MSGTYPE_NOTIFICATION_IND:
@@ -161,8 +164,14 @@ bool MmsPluginInternal::processNotiInd(MSG_MESSAGE_INFO_S *pMsgInfo, MSG_REQUEST
 	}
 
 	MMS_DATA_S *mms_data = MsgMmsCreate();
+	if (mms_data == NULL) return false;
 	{
 		mms_data->header = MsgMmsCreateHeader();
+
+		if (mms_data->header == NULL) {
+			MsgMmsRelease(&mms_data);
+			return false;
+		}
 
 		MMS_HEADER_DATA_S *pHeader = mms_data->header;
 
@@ -181,7 +190,7 @@ bool MmsPluginInternal::processNotiInd(MSG_MESSAGE_INFO_S *pMsgInfo, MSG_REQUEST
 		//Subject
 		snprintf(pHeader->szSubject, sizeof(pHeader->szSubject), "%s", mmsHeader.szSubject);
 		//Delivery Report
-		pHeader->bDeliveryReport = mmsHeader.deliveryReport;
+		pHeader->bDeliveryReport = (mmsHeader.deliveryReport != MMS_REPORT_YES);
 		//Message Class
 		pHeader->messageClass = mmsHeader.msgClass;
 
@@ -607,17 +616,11 @@ void MmsPluginInternal::processRetrieveConf(MSG_MESSAGE_INFO_S *pMsgInfo, mmsTra
 
 		snprintf(fullPath, MAX_FULL_PATH_SIZE+1, "%s%s", MSG_IPC_DATA_PATH, filename);
 
-		int ret  = rename(pRetrievedFilePath, fullPath);
-		if (ret != 0) {
-			MSG_DEBUG("File rename Error: %s", strerror(errno));
-		}
-
-		if (MsgChmod(fullPath, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP) == false) {
-			MSG_DEBUG("File Write Error: %s", strerror(errno));
-		}
-
-		if (MsgChown(fullPath, 0, 6502 ) == false) {
-			MSG_DEBUG("File Write Error: %s", strerror(errno));
+		if (pRetrievedFilePath) {
+			int ret  = rename(pRetrievedFilePath, fullPath);
+			if (ret != 0) {
+				MSG_DEBUG("File rename Error: %s", g_strerror(errno));
+			}
 		}
 	}
 #endif
@@ -639,6 +642,11 @@ void MmsPluginInternal::processRetrieveConf(MSG_MESSAGE_INFO_S *pMsgInfo, mmsTra
 	MmsPluginStorage::instance()->getMmsMessage(&pMmsMsg);
 
 	MMS_DATA_S *pMmsData = MsgMmsCreate();
+	if (pMmsData == NULL) {
+		MSG_SEC_DEBUG("Fail to create mms");
+		goto __CATCH;
+	}
+
 	pMmsData->header = MsgMmsCreateHeader();
 
 	MmsConvertMmsData(pMmsMsg, pMmsData);
@@ -666,9 +674,11 @@ void MmsPluginInternal::processRetrieveConf(MSG_MESSAGE_INFO_S *pMsgInfo, mmsTra
 	}
 
 	{//make Preview info for APP
-		MmsPluginAppBase appBase(pMmsData);
-		appBase.makePreviewInfo(pMsgInfo->msgId, false, pRetrievedFilePath);
-		appBase.getFirstPageTextFilePath(pMsgInfo->msgText, sizeof(pMsgInfo->msgText));
+		MmsPluginAppBase *appBase;
+		appBase = new MmsPluginAppBase(pMmsData);
+		appBase->makePreviewInfo(pMsgInfo->msgId, false, pRetrievedFilePath);
+		appBase->getFirstPageTextFilePath(pMsgInfo->msgText, sizeof(pMsgInfo->msgText));
+		delete appBase;
 	}
 
 	MsgMmsRelease(&pMmsData);
@@ -959,7 +969,6 @@ bool MmsPluginInternal::checkFilterMmsBody(MMS_DATA_S *pMmsData)
 		return false;
 
 	bool bFiltered = false;
-	MMS_MESSAGE_DATA_S mmsMsg;
 	MMS_PAGE_S *pPage = NULL;
 	MMS_MEDIA_S *pMedia = NULL;
 	char filePath[MSG_FILEPATH_LEN_MAX + 1];
@@ -967,21 +976,25 @@ bool MmsPluginInternal::checkFilterMmsBody(MMS_DATA_S *pMmsData)
 	MsgDbHandler *dbHandle = getDbHandle();
 	MimeType mimeType = MIME_UNKNOWN;
 
-	memset(&mmsMsg, 0x00, sizeof(MMS_MESSAGE_DATA_S));
-	MsgMmsConvertMmsDataToMmsMessageData(pMmsData, &mmsMsg);
+	MMS_MESSAGE_DATA_S *mmsMsg = NULL;
+	unique_ptr<MMS_MESSAGE_DATA_S*, void(*)(MMS_MESSAGE_DATA_S**)> buf(&mmsMsg, unique_ptr_deleter);
+	mmsMsg = (MMS_MESSAGE_DATA_S *)new char[sizeof(MMS_MESSAGE_DATA_S)];
+	memset(mmsMsg, 0x00, sizeof(MMS_MESSAGE_DATA_S));
+
+	MsgMmsConvertMmsDataToMmsMessageData(pMmsData, mmsMsg);
 
 	// Get the text data from the 1st slide.
-	if (mmsMsg.pageCnt <= 0) {
-		MSG_WARN("pageCnt : %d", mmsMsg.pageCnt);
-		MsgMmsReleaseMmsLists(&mmsMsg);
+	if (mmsMsg->pageCnt <= 0) {
+		MSG_WARN("pageCnt : %d", mmsMsg->pageCnt);
+		MsgMmsReleaseMmsLists(mmsMsg);
 		return false;
 	}
 
-	pPage = _MsgMmsGetPage(&mmsMsg, 0);
+	pPage = _MsgMmsGetPage(mmsMsg, 0);
 
 	if (!pPage) {
 		MSG_WARN("page is NULL");
-		MsgMmsReleaseMmsLists(&mmsMsg);
+		MsgMmsReleaseMmsLists(mmsMsg);
 		return false;
 	}
 
@@ -1010,7 +1023,7 @@ bool MmsPluginInternal::checkFilterMmsBody(MMS_DATA_S *pMmsData)
 		}
 	}
 
-	MsgMmsReleaseMmsLists(&mmsMsg);
+	MsgMmsReleaseMmsLists(mmsMsg);
 
 	return bFiltered;
 }

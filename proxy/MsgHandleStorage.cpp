@@ -32,7 +32,7 @@ int MsgHandle::addMessage(MSG_MESSAGE_HIDDEN_S *pMsg, const MSG_SENDINGOPT_S *pS
 	MSG_SENDINGOPT_INFO_S sendOptInfo = {0,};
 
 	msgInfo.addressList = NULL;
-	AutoPtr<MSG_ADDRESS_INFO_S> addressListBuf(&msgInfo.addressList);
+	unique_ptr<MSG_ADDRESS_INFO_S*, void(*)(MSG_ADDRESS_INFO_S**)> addressListBuf(&msgInfo.addressList, unique_ptr_deleter);
 
 	// Covert MSG_MESSAGE_S to MSG_MESSAGE_INFO_S
 	convertMsgStruct(pMsg, &msgInfo);
@@ -48,7 +48,7 @@ int MsgHandle::addMessage(MSG_MESSAGE_HIDDEN_S *pMsg, const MSG_SENDINGOPT_S *pS
 
 	// Allocate Memory to Command Data
 	char* encodedData = NULL;
-	AutoPtr<char> buf(&encodedData);
+	unique_ptr<char*, void(*)(char**)> buf(&encodedData, unique_ptr_deleter);
 	int dataSize = MsgEncodeMsgInfo(&msgInfo, &sendOptInfo, &encodedData);
 
 	int cmdSize = sizeof(MSG_CMD_S) + dataSize;
@@ -68,7 +68,7 @@ int MsgHandle::addMessage(MSG_MESSAGE_HIDDEN_S *pMsg, const MSG_SENDINGOPT_S *pS
 
 	// Send Command to Messaging FW
 	char* pEventData = NULL;
-	AutoPtr<char> eventBuf(&pEventData);
+	unique_ptr<char*, void(*)(char**)> eventBuf(&pEventData, unique_ptr_deleter);
 
 	write((char*)pCmd, cmdSize, &pEventData);
 
@@ -101,7 +101,7 @@ msg_error_t MsgHandle::addSyncMLMessage(const MSG_SYNCML_MESSAGE_S *pSyncMLMsg)
 	memset(&msgInfo, 0x00, sizeof(MSG_MESSAGE_INFO_S));
 
 	msgInfo.addressList = NULL;
-	AutoPtr<MSG_ADDRESS_INFO_S> addressListBuf(&msgInfo.addressList);
+	unique_ptr<MSG_ADDRESS_INFO_S*, void(*)(MSG_ADDRESS_INFO_S**)> addressListBuf(&msgInfo.addressList, unique_ptr_deleter);
 
 	// Covert MSG_MESSAGE_S to MSG_MESSAGE_INFO_S
 	msg_struct_s *msg = (msg_struct_s *)pSyncMLMsg->msg;
@@ -109,7 +109,7 @@ msg_error_t MsgHandle::addSyncMLMessage(const MSG_SYNCML_MESSAGE_S *pSyncMLMsg)
 
 	// Allocate Memory to Command Data
 	char* encodedData = NULL;
-	AutoPtr<char> buf(&encodedData);
+	unique_ptr<char*, void(*)(char**)> buf(&encodedData, unique_ptr_deleter);
 	int dataSize = MsgEncodeMsgInfo(&msgInfo, &encodedData);
 
 	int cmdSize = sizeof(MSG_CMD_S) + sizeof(int) + sizeof(int) + dataSize;
@@ -131,7 +131,7 @@ msg_error_t MsgHandle::addSyncMLMessage(const MSG_SYNCML_MESSAGE_S *pSyncMLMsg)
 
 	// Send Command to Messaging FW
 	char* pEventData = NULL;
-	AutoPtr<char> eventBuf(&pEventData);
+	unique_ptr<char*, void(*)(char**)> eventBuf(&pEventData, unique_ptr_deleter);
 
 
 	write((char*)pCmd, cmdSize, &pEventData);
@@ -164,7 +164,7 @@ msg_error_t MsgHandle::updateMessage(const MSG_MESSAGE_HIDDEN_S *pMsg, const MSG
 	MSG_SENDINGOPT_INFO_S sendOptInfo = {0, };
 
 	msgInfo.addressList = NULL;
-	AutoPtr<MSG_ADDRESS_INFO_S> addressListBuf(&msgInfo.addressList);
+	unique_ptr<MSG_ADDRESS_INFO_S*, void(*)(MSG_ADDRESS_INFO_S**)> addressListBuf(&msgInfo.addressList, unique_ptr_deleter);
 
 	// Covert MSG_MESSAGE_S to MSG_MESSAGE_INFO_S
 	convertMsgStruct(pMsg, &msgInfo);
@@ -181,7 +181,7 @@ msg_error_t MsgHandle::updateMessage(const MSG_MESSAGE_HIDDEN_S *pMsg, const MSG
 
 	// Allocate Memory to Command Data
 	char* encodedData = NULL;
-	AutoPtr<char> buf(&encodedData);
+	unique_ptr<char*, void(*)(char**)> buf(&encodedData, unique_ptr_deleter);
 	int dataSize = MsgEncodeMsgInfo(&msgInfo, &sendOptInfo, &encodedData);
 
 	int cmdSize = sizeof(MSG_CMD_S) + dataSize;
@@ -201,7 +201,7 @@ msg_error_t MsgHandle::updateMessage(const MSG_MESSAGE_HIDDEN_S *pMsg, const MSG
 
 	// Send Command to Messaging FW
 	char* pEventData = NULL;
-	AutoPtr<char> eventBuf(&pEventData);
+	unique_ptr<char*, void(*)(char**)> eventBuf(&pEventData, unique_ptr_deleter);
 
 	write((char*)pCmd, cmdSize, &pEventData);
 
@@ -241,7 +241,7 @@ msg_error_t MsgHandle::updateReadStatus(msg_message_id_t MsgId, bool bRead)
 
 	// Send Command to Messaging FW
 	char* pEventData = NULL;
-	AutoPtr<char> eventBuf(&pEventData);
+	unique_ptr<char*, void(*)(char**)> eventBuf(&pEventData, unique_ptr_deleter);
 
 	write((char*)pCmd, cmdSize, &pEventData);
 
@@ -280,7 +280,7 @@ msg_error_t MsgHandle::setConversationToRead(msg_thread_id_t ThreadId)
 
 	// Send Command to Messaging FW
 	char* pEventData = NULL;
-	AutoPtr<char> eventBuf(&pEventData);
+	unique_ptr<char*, void(*)(char**)> eventBuf(&pEventData, unique_ptr_deleter);
 
 	write((char*)pCmd, cmdSize, &pEventData);
 
@@ -320,7 +320,7 @@ msg_error_t MsgHandle::updateProtectedStatus(msg_message_id_t MsgId, bool bProte
 
 	// Send Command to Messaging FW
 	char* pEventData = NULL;
-	AutoPtr<char> eventBuf(&pEventData);
+	unique_ptr<char*, void(*)(char**)> eventBuf(&pEventData, unique_ptr_deleter);
 
 	write((char*)pCmd, cmdSize, &pEventData);
 
@@ -359,7 +359,7 @@ msg_error_t MsgHandle::deleteMessage(msg_message_id_t MsgId)
 
 	// Send Command to Messaging FW
 	char* pEventData = NULL;
-	AutoPtr<char> eventBuf(&pEventData);
+	unique_ptr<char*, void(*)(char**)> eventBuf(&pEventData, unique_ptr_deleter);
 
 	write((char*)pCmd, cmdSize, &pEventData);
 
@@ -399,7 +399,7 @@ msg_error_t MsgHandle::deleteAllMessagesInFolder(msg_folder_id_t FolderId, bool 
 
 	// Send Command to Messaging FW
 	char* pEventData = NULL;
-	AutoPtr<char> eventBuf(&pEventData);
+	unique_ptr<char*, void(*)(char**)> eventBuf(&pEventData, unique_ptr_deleter);
 
 	write((char*)pCmd, cmdSize, &pEventData);
 
@@ -441,7 +441,7 @@ msg_error_t MsgHandle::deleteMessagesByList(msg_id_list_s *pMsgIdList)
 
 	// Send Command to Messaging FW
 	char* pEventData = NULL;
-	AutoPtr<char> eventBuf(&pEventData);
+	unique_ptr<char*, void(*)(char**)> eventBuf(&pEventData, unique_ptr_deleter);
 
 	write((char*)pCmd, cmdSize, &pEventData);
 
@@ -480,7 +480,7 @@ msg_error_t MsgHandle::moveMessageToFolder(msg_message_id_t MsgId, msg_folder_id
 
 	// Send Command to Messaging FW
 	char* pEventData = NULL;
-	AutoPtr<char> eventBuf(&pEventData);
+	unique_ptr<char*, void(*)(char**)> eventBuf(&pEventData, unique_ptr_deleter);
 
 	write((char*)pCmd, cmdSize, &pEventData);
 
@@ -520,7 +520,7 @@ msg_error_t MsgHandle::moveMessageToStorage(msg_message_id_t MsgId, msg_storage_
 
 	// Send Command to Messaging FW
 	char* pEventData = NULL;
-	AutoPtr<char> eventBuf(&pEventData);
+	unique_ptr<char*, void(*)(char**)> eventBuf(&pEventData, unique_ptr_deleter);
 
 	write((char*)pCmd, cmdSize, &pEventData);
 
@@ -559,7 +559,7 @@ msg_error_t MsgHandle::countMessage(msg_folder_id_t FolderId, MSG_COUNT_INFO_S *
 
 	// Send Command to Messaging FW
 	char* pEventData = NULL;
-	AutoPtr<char> eventBuf(&pEventData);
+	unique_ptr<char*, void(*)(char**)> eventBuf(&pEventData, unique_ptr_deleter);
 
 	write((char*)pCmd, cmdSize, &pEventData);
 
@@ -604,7 +604,7 @@ msg_error_t MsgHandle::countMsgByType(const MSG_MESSAGE_TYPE_S *pMsgType, int *p
 
 	// Send Command to Messaging FW
 	char* pEventData = NULL;
-	AutoPtr<char> eventBuf(&pEventData);
+	unique_ptr<char*, void(*)(char**)> eventBuf(&pEventData, unique_ptr_deleter);
 
 	write((char*)pCmd, cmdSize, &pEventData);
 
@@ -651,7 +651,7 @@ msg_error_t MsgHandle::countMsgByContact(const MSG_THREAD_LIST_INDEX_INFO_S *pAd
 	memcpy((void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN + sizeof(msg_contact_id_t)), pAddr->data, sizeof(MSG_ADDRESS_INFO_S));
 	// Send Command to Messaging FW
 	char* pEventData = NULL;
-	AutoPtr<char> eventBuf(&pEventData);
+	unique_ptr<char*, void(*)(char**)> eventBuf(&pEventData, unique_ptr_deleter);
 
 	write((char*)pCmd, cmdSize, &pEventData);
 
@@ -696,7 +696,7 @@ msg_error_t MsgHandle::getMessage(msg_message_id_t MsgId, MSG_MESSAGE_HIDDEN_S *
 
 	// Send Command to Messaging FW
 	char* pEventData = NULL;
-	AutoPtr<char> eventBuf(&pEventData);
+	unique_ptr<char*, void(*)(char**)> eventBuf(&pEventData, unique_ptr_deleter);
 
 
 	write((char*)pCmd, cmdSize, &pEventData);
@@ -719,7 +719,7 @@ msg_error_t MsgHandle::getMessage(msg_message_id_t MsgId, MSG_MESSAGE_HIDDEN_S *
 	MSG_SENDINGOPT_INFO_S sendOptInfo;
 
 	msgInfo.addressList = NULL;
-	AutoPtr<MSG_ADDRESS_INFO_S> addressListBuf(&msgInfo.addressList);
+	unique_ptr<MSG_ADDRESS_INFO_S*, void(*)(MSG_ADDRESS_INFO_S**)> addressListBuf(&msgInfo.addressList, unique_ptr_deleter);
 
 	MsgDecodeMsgInfo(pEvent->data, &msgInfo, &sendOptInfo);
 
@@ -747,32 +747,6 @@ msg_error_t MsgHandle::getMessage(msg_message_id_t MsgId, MSG_MESSAGE_HIDDEN_S *
 }
 
 
-msg_error_t MsgHandle::getFolderViewList(msg_folder_id_t FolderId, const MSG_SORT_RULE_S *pSortRule, msg_struct_list_s *pMsgFolderViewList)
-{
-	msg_error_t err = MSG_SUCCESS;
-
-//	err = MsgStoConnectDB();
-//
-//	if (err != MSG_SUCCESS)
-//	{
-//		MSG_DEBUG("MsgStoConnectDB() Error!!");
-//		return err;
-//	}
-
-	err = MsgStoGetFolderViewList(FolderId, (MSG_SORT_RULE_S *)pSortRule, pMsgFolderViewList);
-
-	if (err != MSG_SUCCESS)
-	{
-		MSG_DEBUG("MsgStoGetFolderViewList() Error!!");
-		return err;
-	}
-
-//	MsgStoDisconnectDB();
-
-	return err;
-}
-
-
 msg_error_t MsgHandle::addFolder(const MSG_FOLDER_INFO_S *pFolderInfo)
 {
 	// Allocate Memory to Command Data
@@ -793,7 +767,7 @@ msg_error_t MsgHandle::addFolder(const MSG_FOLDER_INFO_S *pFolderInfo)
 
 	// Send Command to Messaging FW
 	char* pEventData = NULL;
-	AutoPtr<char> eventBuf(&pEventData);
+	unique_ptr<char*, void(*)(char**)> eventBuf(&pEventData, unique_ptr_deleter);
 
 	write((char*)pCmd, cmdSize, &pEventData);
 
@@ -832,7 +806,7 @@ msg_error_t MsgHandle::updateFolder(const MSG_FOLDER_INFO_S *pFolderInfo)
 
 	// Send Command to Messaging FW
 	char* pEventData = NULL;
-	AutoPtr<char> eventBuf(&pEventData);
+	unique_ptr<char*, void(*)(char**)> eventBuf(&pEventData, unique_ptr_deleter);
 
 	write((char*)pCmd, cmdSize, &pEventData);
 
@@ -871,7 +845,7 @@ msg_error_t MsgHandle::deleteFolder(msg_folder_id_t FolderId)
 
 	// Send Command to Messaging FW
 	char* pEventData = NULL;
-	AutoPtr<char> eventBuf(&pEventData);
+	unique_ptr<char*, void(*)(char**)> eventBuf(&pEventData, unique_ptr_deleter);
 
 	write((char*)pCmd, cmdSize, &pEventData);
 
@@ -907,7 +881,7 @@ msg_error_t MsgHandle::getFolderList(msg_struct_list_s *pFolderList)
 
 	// Send Command to Messaging FW
 	char* pEventData = NULL;
-	AutoPtr<char> eventBuf(&pEventData);
+	unique_ptr<char*, void(*)(char**)> eventBuf(&pEventData, unique_ptr_deleter);
 
 	write((char*)pCmd, cmdSize, &pEventData);
 
@@ -934,7 +908,7 @@ msg_error_t MsgHandle::getFolderList(msg_struct_list_s *pFolderList)
 
 msg_error_t MsgHandle::getThreadViewList(const MSG_SORT_RULE_S *pSortRule, msg_struct_list_s *pThreadViewList)
 {
-	msg_error_t err =  MSG_SUCCESS;
+	msg_error_t err = MSG_SUCCESS;
 
 //	err = MsgStoConnectDB();
 //
@@ -970,7 +944,7 @@ msg_error_t MsgHandle::getThreadViewList(const MSG_SORT_RULE_S *pSortRule, msg_s
 
 	// Send Command to Messaging FW
 	char* pEventData = NULL;
-	AutoPtr<char> eventBuf(&pEventData);
+	unique_ptr<char*, void(*)(char**)> eventBuf(&pEventData, unique_ptr_deleter);
 
 	write((char*)pCmd, cmdSize, &pEventData);
 
@@ -999,7 +973,7 @@ msg_error_t MsgHandle::getConversationViewItem(msg_message_id_t MsgId, MSG_CONVE
 {
 	MSG_BEGIN();
 
-	msg_error_t err =  MSG_SUCCESS;
+	msg_error_t err = MSG_SUCCESS;
 
 //	MsgStoConnectDB();
 	err = MsgStoGetConversationViewItem(MsgId, pConv);
@@ -1012,7 +986,7 @@ msg_error_t MsgHandle::getConversationViewList(msg_thread_id_t ThreadId, msg_str
 {
 	MSG_BEGIN();
 
-	msg_error_t err =  MSG_SUCCESS;
+	msg_error_t err = MSG_SUCCESS;
 
 //	MsgStoConnectDB();
 	err = MsgStoGetConversationViewList(ThreadId, pConvViewList);
@@ -1048,7 +1022,7 @@ msg_error_t MsgHandle::deleteThreadMessageList(msg_thread_id_t ThreadId, bool in
 
 	// Send Command to Messaging FW
 	char* pEventData = NULL;
-	AutoPtr<char> eventBuf(&pEventData);
+	unique_ptr<char*, void(*)(char**)> eventBuf(&pEventData, unique_ptr_deleter);
 
 	write((char*)pCmd, cmdSize, &pEventData);
 
@@ -1090,7 +1064,7 @@ msg_error_t MsgHandle::getQuickPanelData(msg_quickpanel_type_t Type, MSG_MESSAGE
 
 	// Send Command to Messaging FW
 	char* pEventData = NULL;
-	AutoPtr<char> eventBuf(&pEventData);
+	unique_ptr<char*, void(*)(char**)> eventBuf(&pEventData, unique_ptr_deleter);
 
 	write((char*)pCmd, cmdSize, &pEventData);
 
@@ -1114,7 +1088,7 @@ msg_error_t MsgHandle::getQuickPanelData(msg_quickpanel_type_t Type, MSG_MESSAGE
 	memset(&msgInfo, 0x00, sizeof(MSG_MESSAGE_INFO_S));
 
 	msgInfo.addressList = NULL;
-	AutoPtr<MSG_ADDRESS_INFO_S> addressListBuf(&msgInfo.addressList);
+	unique_ptr<MSG_ADDRESS_INFO_S*, void(*)(MSG_ADDRESS_INFO_S**)> addressListBuf(&msgInfo.addressList, unique_ptr_deleter);
 
 	MsgDecodeMsgInfo((char *)pEvent->data, &msgInfo);
 
@@ -1149,7 +1123,7 @@ msg_error_t MsgHandle::resetDatabase()
 
 	// Send Command to Messaging FW
 	char* pEventData = NULL;
-	AutoPtr<char> eventBuf(&pEventData);
+	unique_ptr<char*, void(*)(char**)> eventBuf(&pEventData, unique_ptr_deleter);
 
 	write((char*)pCmd, cmdSize, &pEventData);
 
@@ -1185,7 +1159,7 @@ msg_error_t MsgHandle::getMemSize(unsigned int* memsize)
 
 	// Send Command to Messaging FW
 	char* pEventData = NULL;
-	AutoPtr<char> eventBuf(&pEventData);
+	unique_ptr<char*, void(*)(char**)> eventBuf(&pEventData, unique_ptr_deleter);
 
 	write((char*)pCmd, cmdSize, &pEventData);
 
@@ -1217,6 +1191,7 @@ msg_error_t MsgHandle::backupMessage(msg_message_backup_type_t type, const char 
 	//Create an empty file for writing.
 	//If a file with the same name already exists its content is erased
 	//and the file is treated as a new empty file.
+
 	FILE *pFile = MsgOpenFile(backup_filepath, "w");
 	if (pFile == NULL) {
 		MSG_DEBUG("File Open error");
@@ -1244,7 +1219,7 @@ msg_error_t MsgHandle::backupMessage(msg_message_backup_type_t type, const char 
 
 	// Send Command to Messaging FW
 	char* pEventData = NULL;
-	AutoPtr<char> eventBuf(&pEventData);
+	unique_ptr<char*, void(*)(char**)> eventBuf(&pEventData, unique_ptr_deleter);
 
 	write((char*)pCmd, cmdSize, &pEventData);
 
@@ -1259,10 +1234,7 @@ msg_error_t MsgHandle::backupMessage(msg_message_backup_type_t type, const char 
 		THROW(MsgException::INVALID_RESULT, "Event Data Error");
 	}
 
-	if (pEvent->result != MSG_SUCCESS)
-		return pEvent->result;
-
-	return MSG_SUCCESS;
+	return pEvent->result;
 }
 
 msg_error_t MsgHandle::restoreMessage(const char *backup_filepath)
@@ -1294,7 +1266,7 @@ msg_error_t MsgHandle::restoreMessage(const char *backup_filepath)
 
 	// Send Command to Messaging FW
 	char* pEventData = NULL;
-	AutoPtr<char> eventBuf(&pEventData);
+	unique_ptr<char*, void(*)(char**)> eventBuf(&pEventData, unique_ptr_deleter);
 
 	write((char*)pCmd, cmdSize, &pEventData);
 
@@ -1309,16 +1281,13 @@ msg_error_t MsgHandle::restoreMessage(const char *backup_filepath)
 		THROW(MsgException::INVALID_RESULT, "Event Data Error");
 	}
 
-	if (pEvent->result != MSG_SUCCESS)
-		return pEvent->result;
-
-	return MSG_SUCCESS;
+	return pEvent->result;
 }
 
 
 msg_error_t MsgHandle::searchMessage(const char *pSearchString, msg_struct_list_s *pThreadViewList)
 {
-	msg_error_t err =  MSG_SUCCESS;
+	msg_error_t err = MSG_SUCCESS;
 
 //	err = MsgStoConnectDB();
 //
@@ -1344,7 +1313,7 @@ msg_error_t MsgHandle::searchMessage(const char *pSearchString, msg_struct_list_
 
 msg_error_t MsgHandle::getRejectMsgList(const char *pNumber, msg_struct_list_s *pRejectMsgList)
 {
-	msg_error_t err =  MSG_SUCCESS;
+	msg_error_t err = MSG_SUCCESS;
 
 //	err = MsgStoConnectDB();
 //
@@ -1405,7 +1374,7 @@ msg_error_t MsgHandle::regStorageChangeCallback(msg_storage_change_cb onStorageC
 
 	// Send Command to Messaging FW
 	char* pEventData = NULL;
-	AutoPtr<char> eventBuf(&pEventData);
+	unique_ptr<char*, void(*)(char**)> eventBuf(&pEventData, unique_ptr_deleter);
 
 	write((char*)pCmd, cmdSize, &pEventData);
 
@@ -1446,7 +1415,7 @@ msg_error_t MsgHandle::getReportStatus(msg_message_id_t msg_id, msg_struct_list_
 
 	// Send Command to Messaging FW
 	char* pEventData = NULL;
-	AutoPtr<char> eventBuf(&pEventData);
+	unique_ptr<char*, void(*)(char**)> eventBuf(&pEventData, unique_ptr_deleter);
 
 	write((char*)pCmd, cmdSize, &pEventData);
 
@@ -1473,7 +1442,7 @@ msg_error_t MsgHandle::getReportStatus(msg_message_id_t msg_id, msg_struct_list_
 
 msg_error_t MsgHandle::getAddressList(const msg_thread_id_t threadId, msg_struct_list_s *pAddrList)
 {
-	msg_error_t err =  MSG_SUCCESS;
+	msg_error_t err = MSG_SUCCESS;
 
 //	err = MsgStoConnectDB();
 //
@@ -1521,7 +1490,7 @@ msg_error_t MsgHandle::getThreadIdByAddress(msg_struct_list_s *pAddrList, msg_th
 
 	// Send Command to Messaging FW
 	char* pEventData = NULL;
-	AutoPtr<char> eventBuf(&pEventData);
+	unique_ptr<char*, void(*)(char**)> eventBuf(&pEventData, unique_ptr_deleter);
 
 	write((char*)pCmd, cmdSize, &pEventData);
 
@@ -1572,7 +1541,7 @@ msg_error_t MsgHandle::getThreadIdByAddress(msg_list_handle_t msg_address_list, 
 
 	// Send Command to Messaging FW
 	char* pEventData = NULL;
-	AutoPtr<char> eventBuf(&pEventData);
+	unique_ptr<char*, void(*)(char**)> eventBuf(&pEventData, unique_ptr_deleter);
 
 	write((char*)pCmd, cmdSize, &pEventData);
 
@@ -1617,7 +1586,7 @@ msg_error_t MsgHandle::getThread(msg_thread_id_t threadId, MSG_THREAD_VIEW_S* pT
 
 	// Send Command to Messaging FW
 	char* pEventData = NULL;
-	AutoPtr<char> eventBuf(&pEventData);
+	unique_ptr<char*, void(*)(char**)> eventBuf(&pEventData, unique_ptr_deleter);
 
 	write((char*)pCmd, cmdSize, &pEventData);
 
@@ -1641,7 +1610,7 @@ msg_error_t MsgHandle::getThread(msg_thread_id_t threadId, MSG_THREAD_VIEW_S* pT
 
 msg_error_t MsgHandle::getMessageList(const MSG_LIST_CONDITION_S *pListCond, msg_struct_list_s *pMsgList)
 {
-	msg_error_t err =  MSG_SUCCESS;
+	msg_error_t err = MSG_SUCCESS;
 
 //	err = MsgStoConnectDB();
 //
@@ -1665,7 +1634,7 @@ msg_error_t MsgHandle::getMessageList(const MSG_LIST_CONDITION_S *pListCond, msg
 
 msg_error_t MsgHandle::getMediaList(const msg_thread_id_t thread_id, msg_list_handle_t *pMediaList)
 {
-	msg_error_t err =  MSG_SUCCESS;
+	msg_error_t err = MSG_SUCCESS;
 
 	err = MsgStoGetMediaList(thread_id, pMediaList);
 
@@ -1698,7 +1667,7 @@ int MsgHandle::addPushEvent(MSG_PUSH_EVENT_INFO_S *pPushEvent)
 
 	// Send Command to Messaging FW
 	char* pEventData = NULL;
-	AutoPtr<char> eventBuf(&pEventData);
+	unique_ptr<char*, void(*)(char**)> eventBuf(&pEventData, unique_ptr_deleter);
 
 	write((char*)pCmd, cmdSize, &pEventData);
 
@@ -1737,7 +1706,7 @@ int MsgHandle::deletePushEvent(MSG_PUSH_EVENT_INFO_S *pPushEvent)
 
 	// Send Command to Messaging FW
 	char* pEventData = NULL;
-	AutoPtr<char> eventBuf(&pEventData);
+	unique_ptr<char*, void(*)(char**)> eventBuf(&pEventData, unique_ptr_deleter);
 
 	write((char*)pCmd, cmdSize, &pEventData);
 
@@ -1776,7 +1745,7 @@ int MsgHandle::updatePushEvent(MSG_PUSH_EVENT_INFO_S *pSrc, MSG_PUSH_EVENT_INFO_
 
 	// Send Command to Messaging FW
 	char* pEventData = NULL;
-	AutoPtr<char> eventBuf(&pEventData);
+	unique_ptr<char*, void(*)(char**)> eventBuf(&pEventData, unique_ptr_deleter);
 
 	write((char*)pCmd, cmdSize, &pEventData);
 
@@ -1814,7 +1783,7 @@ msg_error_t MsgHandle::getVobject(msg_message_id_t MsgId, void** encodedData)
 
 	// Send Command to Messaging FW
 	char* pEventData = NULL;
-	AutoPtr<char> eventBuf(&pEventData);
+	unique_ptr<char*, void(*)(char**)> eventBuf(&pEventData, unique_ptr_deleter);
 
 
 	write((char*)pCmd, cmdSize, &pEventData);
@@ -1838,7 +1807,7 @@ msg_error_t MsgHandle::getVobject(msg_message_id_t MsgId, void** encodedData)
 	MSG_SENDINGOPT_INFO_S sendOptInfo = {0,};
 
 	msgInfo.addressList = NULL;
-	AutoPtr<MSG_ADDRESS_INFO_S> addressListBuf(&msgInfo.addressList);
+	unique_ptr<MSG_ADDRESS_INFO_S*, void(*)(MSG_ADDRESS_INFO_S**)> addressListBuf(&msgInfo.addressList, unique_ptr_deleter);
 
 	MsgDecodeMsgInfo(pEvent->data, &msgInfo, &sendOptInfo);
 

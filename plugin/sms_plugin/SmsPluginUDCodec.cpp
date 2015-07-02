@@ -19,6 +19,7 @@
 #include "SmsPluginParamCodec.h"
 #include "SmsPluginUDCodec.h"
 
+using namespace std;
 
 /*==================================================================================================
                                      IMPLEMENTATION OF SmsPluginUDCodec - Member Functions
@@ -519,7 +520,7 @@ int SmsPluginUDCodec::encodeHeader(const SMS_UDH_S header, char *pEncodeHeader)
 	int offset = 0, addrLen = 0;
 
 	char* encodedAddr = NULL;
-	AutoPtr<char> addressBuf(&encodedAddr);
+	unique_ptr<char*, void(*)(char**)> addressBuf(&encodedAddr, unique_ptr_deleter);
 
 	switch (header.udhType)
 	{

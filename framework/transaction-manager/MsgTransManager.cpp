@@ -20,6 +20,9 @@
 #include <sys/stat.h>
 #include <pthread.h>
 
+#include <bundle_internal.h>
+#include <eventsystem.h>
+
 #include "MsgDebug.h"
 #include "MsgMemory.h"
 #include "MsgException.h"
@@ -37,7 +40,20 @@
 #include "MsgTransManager.h"
 
 #define MSG_CHECK_PRIVILEGE
+#define MSG_EVENT_MSG_ID_LEN	(32)
 
+void MsgMakeErrorEvent(MSG_CMD_TYPE_T cmdType, msg_error_t errType, int *pEventSize, char **ppEvent)
+{
+	if (*ppEvent) delete [] *ppEvent;
+
+	*pEventSize = sizeof(MSG_EVENT_S);
+	*ppEvent = new char[sizeof(MSG_EVENT_S)];
+
+	MSG_EVENT_S* pMsgEvent = (MSG_EVENT_S*)*ppEvent;
+
+	pMsgEvent->eventType = cmdType;
+	pMsgEvent->result = errType;
+}
 
 /*==================================================================================================
                                      IMPLEMENTATION OF MsgTransactionManager - Member Functions
@@ -49,9 +65,6 @@ MsgIpcServerSocket MsgTransactionManager::servSock;
 MsgTransactionManager::MsgTransactionManager() : running(false), mx(), cv(), eventQueue()
 {
 	sentMsgMap.clear();
-#ifdef MSG_PENDING_PUSH_MESSAGE
-	pushMsgList.clear();
-#endif
 	statusCBFdMap.clear();
 	newMsgCBList.clear();
 	newMMSConfMsgCBList.clear();
@@ -75,7 +88,6 @@ MsgTransactionManager::MsgTransactionManager() : running(false), mx(), cv(), eve
 	handlerMap[MSG_CMD_MOVE_MSGTOSTORAGE]	= &MsgMoveMessageToStorageHandler;
 	handlerMap[MSG_CMD_COUNT_MSG] 			= &MsgCountMessageHandler;
 	handlerMap[MSG_CMD_GET_MSG]			 	= &MsgGetMessageHandler;
-	handlerMap[MSG_CMD_GET_FOLDERVIEWLIST] 	= &MsgGetFolderViewListHandler;
 
 	handlerMap[MSG_CMD_ADD_FOLDER] 			= &MsgAddFolderHandler;
 	handlerMap[MSG_CMD_UPDATE_FOLDER]		= &MsgUpdateFolderHandler;
@@ -90,10 +102,7 @@ MsgTransactionManager::MsgTransactionManager() : running(false), mx(), cv(), eve
 	handlerMap[MSG_CMD_GET_FILTER_OPERATION] 	= &MsgGetFilterOperationHandler;
 	handlerMap[MSG_CMD_SET_FILTER_ACTIVATION] = &MsgSetFilterActivationHandler;
 
-	handlerMap[MSG_CMD_GET_MSG_TYPE]			= &MsgGetMsgTypeHandler;
-
 	handlerMap[MSG_CMD_SUBMIT_REQ]			= &MsgSubmitReqHandler;
-	handlerMap[MSG_CMD_CANCEL_REQ]			= &MsgCancelReqHandler;
 
 	handlerMap[MSG_CMD_REG_SENT_STATUS_CB]	= &MsgRegSentStatusCallbackHandler;
 	handlerMap[MSG_CMD_REG_STORAGE_CHANGE_CB] = &MsgRegStorageChangeCallbackHandler;
@@ -118,7 +127,6 @@ MsgTransactionManager::MsgTransactionManager() : running(false), mx(), cv(), eve
 	handlerMap[MSG_CMD_PLG_INIT_SIM_BY_SAT]	= &MsgInitSimBySatHandler;
 
 	handlerMap[MSG_CMD_GET_THREADVIEWLIST] 	= &MsgGetThreadViewListHandler;
-	handlerMap[MSG_CMD_GET_CONVERSATIONVIEWLIST] 	= &MsgGetConversationViewListHandler;
 	handlerMap[MSG_CMD_DELETE_THREADMESSAGELIST] 	= &MsgDeleteThreadMessageListHandler;
 
 	handlerMap[MSG_CMD_GET_CONTACT_COUNT]	= &MsgCountMsgByContactHandler;
@@ -163,9 +171,6 @@ MsgTransactionManager::MsgTransactionManager() : running(false), mx(), cv(), eve
 	handlerMap[MSG_CMD_DELETE_MESSAGE_BY_LIST] = &MsgDeleteMessageByListHandler;
 	handlerMap[MSG_CMD_ADD_SIM_MSG] = &MsgAddSimMessageHandler;
 	handlerMap[MSG_CMD_PLG_RESEND_MESSAGE] = &MsgResendMessageHandler;
-#ifdef MSG_PENDING_PUSH_MESSAGE
-	handlerMap[MSG_CMD_SEND_PENDING_PUSH_MESSAGE] = &MsgSendPendingPushMsgHandler;
-#endif
 #ifdef FEATURE_SMS_CDMA
 	handlerMap[MSG_CMD_PLG_CHECK_UNIQUENESS] = &MsgCheckUniquenessHandler;
 #endif
@@ -225,7 +230,7 @@ void MsgTransactionManager::run()
 //		setTMStatus();
 
 		if(select(nfds, &readfds, NULL, NULL, NULL) == -1) {
-			THROW(MsgException::SELECT_ERROR, "select error : %s", strerror(errno));
+			THROW(MsgException::SELECT_ERROR, "select error : %s", g_strerror(errno));
 		}
 
 		try
@@ -310,9 +315,10 @@ void MsgTransactionManager::workerEventQueue()
 	MSG_CMD_S* pCmd = NULL;
 	int (*pfHandler)(const MSG_CMD_S*, char**) = NULL;
 	char* pEventData = NULL;
-	AutoPtr<char> eventBuf(&pEventData);
+	unique_ptr<char*, void(*)(char**)> eventBuf(&pEventData, unique_ptr_deleter);
 
 	int fd = -1;
+	int eventSize = 0;
 
 	while (1) {
 		mx.lock();
@@ -337,17 +343,15 @@ void MsgTransactionManager::workerEventQueue()
 		pfHandler = handlerMap[pCmd->cmdType];
 		if (!pfHandler) {
 			MSG_FATAL("No handler for %d", pCmd->cmdType);
-			g_free (pCmd); pCmd = NULL;
-			continue;
-		}
+			MsgMakeErrorEvent(pCmd->cmdType, MSG_ERR_INVALID_PARAMETER, &eventSize, &pEventData);
+		} else {
+			// run handler function
+			eventSize = pfHandler(pCmd, &pEventData);
 
-		// run handler function
-		int eventSize = pfHandler(pCmd, &pEventData);
-
-		if (eventSize == 0 || pEventData == NULL) {
-			MSG_FATAL("event size[%d] = 0 or event data = NULL", eventSize);
-			g_free (pCmd); pCmd = NULL;
-			continue;
+			if (eventSize == 0 || pEventData == NULL) {
+				MSG_FATAL("event size[%d] = 0 or event data = NULL", eventSize);
+				MsgMakeErrorEvent(pCmd->cmdType, MSG_ERR_INVALID_PARAMETER, &eventSize, &pEventData);
+			}
 		}
 
 		MSG_DEBUG("Replying to fd [%d], size [%d]", fd, eventSize);
@@ -363,8 +367,8 @@ void MsgTransactionManager::handleRequest(int fd)
 	MSG_DEBUG("Event from fd %d", fd);
 
 	char* buf = NULL;
-	AutoPtr<char> wrap(&buf);
-	int len;
+	unique_ptr<char*, void(*)(char**)> wrap(&buf, unique_ptr_deleter);
+	int len = 0;
 	int ret = servSock.read(fd, &buf, &len);
 
 	if( ret == CLOSE_CONNECTION_BY_SIGNAL || ret == CLOSE_CONNECTION_BY_USER || ret < 0)
@@ -378,7 +382,7 @@ void MsgTransactionManager::handleRequest(int fd)
 		THROW(MsgException::INVALID_RESULT, "read buffer size <= 0");
 
 	char* pEventData = NULL;
-	AutoPtr<char> eventBuf(&pEventData);
+	unique_ptr<char*, void(*)(char**)> eventBuf(&pEventData, unique_ptr_deleter);
 
 	int eventSize = 0;
 
@@ -394,14 +398,7 @@ void MsgTransactionManager::handleRequest(int fd)
 	if (checkPrivilege(fd, pCmd->cmdType) == false) {
 		MSG_DEBUG("No Privilege rule. Not allowed.");
 #ifdef MSG_CHECK_PRIVILEGE
-		eventSize = sizeof(MSG_EVENT_S);
-
-		pEventData = new char[eventSize];
-
-		MSG_EVENT_S* pMsgEvent = (MSG_EVENT_S*)pEventData;
-
-		pMsgEvent->eventType = pCmd->cmdType;
-		pMsgEvent->result = MSG_ERR_PERMISSION_DENIED;
+		MsgMakeErrorEvent(pCmd->cmdType, MSG_ERR_PERMISSION_DENIED, &eventSize, &pEventData);
 
 		MSG_DEBUG("Replying to fd [%d], size [%d]", fd, eventSize);
 		servSock.write(fd, pEventData, eventSize);
@@ -425,25 +422,32 @@ void MsgTransactionManager::handleRequest(int fd)
 	case MSG_CMD_PLG_INCOMING_CB_IND: {
 
 		MSG_CMD_S* pCmdDup = (MSG_CMD_S*) calloc (1, len); /* pCmdDup should be freed afterward */
-		memcpy (pCmdDup, pCmd, len);
-		memcpy (pCmdDup->cmdCookie, &fd, sizeof(int)); /* Now, cmdCookie keeps fd for return */
+		if (pCmdDup != NULL) {
+			memcpy (pCmdDup, pCmd, len);
+			memcpy (pCmdDup->cmdCookie, &fd, sizeof(int)); /* Now, cmdCookie keeps fd for return */
 
-		mx.lock(); /* aquire lock before adding cmd */
-		eventQueue.push_back(pCmdDup);
-		cv.signal(); /* wake up worker */
-		mx.unlock();
+			mx.lock(); /* aquire lock before adding cmd */
+			eventQueue.push_back(pCmdDup);
+			cv.signal(); /* wake up worker */
+			mx.unlock();
+		}
 		break;
 	}
 	default:
 		pfHandler = handlerMap[pCmd->cmdType];
-		if (!pfHandler)
-			THROW(MsgException::INVALID_PARAM, "No handler for %d", pCmd->cmdType);
+		if (!pfHandler) {
+			MSG_FATAL("No handler for %d", pCmd->cmdType);
+			MsgMakeErrorEvent(pCmd->cmdType, MSG_ERR_INVALID_PARAMETER, &eventSize, &pEventData);
+		} else {
+			// run handler function
+			memcpy (pCmd->cmdCookie, &fd, sizeof(int)); /* Now, cmdCookie keeps fd for return */
+			eventSize = pfHandler(pCmd, &pEventData);
 
-		// run handler function
-		eventSize = pfHandler(pCmd, &pEventData);
-
-		if (eventSize == 0 || pEventData == NULL)
-			THROW(MsgException::INVALID_RESULT, "event size = 0 or event data = NULL");
+			if (eventSize == 0 || pEventData == NULL) {
+				MSG_FATAL("event size[%d] = 0 or event data = NULL", eventSize);
+				MsgMakeErrorEvent(pCmd->cmdType, MSG_ERR_INVALID_PARAMETER, &eventSize, &pEventData);
+			}
+		}
 
 		MSG_DEBUG("Replying to fd [%d], size [%d]", fd, eventSize);
 
@@ -994,23 +998,23 @@ void MsgTransactionManager::broadcastIncomingMsgCB(const msg_error_t err, const 
 			int fileSize = 0;
 
 			char* pFileData = NULL;
-			AutoPtr<char> buf(&pFileData);
+			unique_ptr<char*, void(*)(char**)> buf(&pFileData, unique_ptr_deleter);
 
-//			if (MsgOpenAndReadFile(msgInfo->msgData, &pFileData, &fileSize) == true)
-//				MsgLbsSms(pFileData, fileSize);
-//			else
+			if (MsgOpenAndReadFile(msgInfo->msgData, &pFileData, &fileSize) == true)
+				MsgLbsSms(pFileData, fileSize);
+			else
 				MSG_DEBUG("MsgOpenAndReadFile failed.");
 		} else {
-//			MsgLbsSms(msgInfo->msgText, (int)msgInfo->dataSize);
+			MsgLbsSms(msgInfo->msgText, (int)msgInfo->dataSize);
 		}
 		return;
 	}
 
 	char* pEventData = NULL;
-	AutoPtr<char> eventBuf(&pEventData);
+	unique_ptr<char*, void(*)(char**)> eventBuf(&pEventData, unique_ptr_deleter);
 
 	char* encodedData = NULL;
-	AutoPtr<char> buf(&encodedData);
+	unique_ptr<char*, void(*)(char**)> buf(&encodedData, unique_ptr_deleter);
 	int dataSize = MsgEncodeMsgInfo(msgInfo, &encodedData);
 
 	int eventSize = MsgMakeEvent(encodedData, dataSize, MSG_EVENT_PLG_INCOMING_MSG_IND, err, (void**)(&pEventData));
@@ -1032,6 +1036,22 @@ void MsgTransactionManager::broadcastIncomingMsgCB(const msg_error_t err, const 
 		}
 	}
 
+	/* Send system event */
+	bundle *b = NULL;
+	b = bundle_create();
+	if (b) {
+		if (msgInfo->msgType.subType >= MSG_WAP_SI_SMS && msgInfo->msgType.subType <= MSG_WAP_CO_SMS) {
+			bundle_add(b, EVT_KEY_MSG_TYPE, EVT_VAL_PUSH);
+		} else {
+			bundle_add(b, EVT_KEY_MSG_TYPE, EVT_VAL_SMS);
+		}
+		char msgId[MSG_EVENT_MSG_ID_LEN] = {0,};
+		snprintf(msgId, sizeof(msgId), "%u", msgInfo->msgId);
+		bundle_add(b, EVT_KEY_MSG_ID, msgId);
+		eventsystem_send_system_event(SYS_EVENT_INCOMMING_MSG, b);
+		bundle_free(b);
+	}
+
 	MSG_END();
 }
 
@@ -1041,10 +1061,10 @@ void MsgTransactionManager::broadcastMMSConfCB(const msg_error_t err, const MSG_
 	MSG_BEGIN();
 
 	char* pEventData = NULL;
-	AutoPtr<char> eventBuf(&pEventData);
+	unique_ptr<char*, void(*)(char**)> eventBuf(&pEventData, unique_ptr_deleter);
 
 	char* encodedData = NULL;
-	AutoPtr<char> buf(&encodedData);
+	unique_ptr<char*, void(*)(char**)> buf(&encodedData, unique_ptr_deleter);
 	int dataSize = MsgEncodeMsgInfo(msgInfo, &encodedData);
 
 	int eventSize = MsgMakeEvent(encodedData, dataSize, MSG_EVENT_PLG_INCOMING_MMS_CONF, err, (void**)(&pEventData));
@@ -1082,19 +1102,7 @@ void MsgTransactionManager::broadcastPushMsgCB(const msg_error_t err, const MSG_
 	MSG_BEGIN();
 
 	char* pEventData = NULL;
-	AutoPtr<char> eventBuf(&pEventData);
-#ifndef MSG_CONTACTS_SERVICE_NOT_SUPPORTED
-#ifdef MSG_PENDING_PUSH_MESSAGE
-	int bReady = MsgSettingGetInt(VCONFKEY_USER_SERVICE_READY);
-	if(!bReady)
-	{
-		MSG_PUSH_MESSAGE_DATA_S push_msg;
-		memcpy(&push_msg, pushData, sizeof(MSG_PUSH_MESSAGE_DATA_S));
-		pushMsgList.push_back(push_msg);
-		return;
-	}
-#endif
-#endif
+	unique_ptr<char*, void(*)(char**)> eventBuf(&pEventData, unique_ptr_deleter);
 
 	int eventSize = MsgMakeEvent(pushData, sizeof(MSG_PUSH_MESSAGE_DATA_S), MSG_EVENT_PLG_INCOMING_PUSH_MSG_IND, err, (void**)(&pEventData));
 
@@ -1113,12 +1121,12 @@ void MsgTransactionManager::broadcastPushMsgCB(const msg_error_t err, const MSG_
 	MSG_END();
 }
 
-void MsgTransactionManager::broadcastCBMsgCB(const msg_error_t err, const MSG_CB_MSG_S *cbMsg)
+void MsgTransactionManager::broadcastCBMsgCB(const msg_error_t err, const MSG_CB_MSG_S *cbMsg, msg_message_id_t cbMsgId)
 {
 	MSG_BEGIN();
 
 	char* pEventData = NULL;
-	AutoPtr<char> eventBuf(&pEventData);
+	unique_ptr<char*, void(*)(char**)> eventBuf(&pEventData, unique_ptr_deleter);
 
 	int eventSize = MsgMakeEvent(cbMsg, sizeof(MSG_CB_MSG_S), MSG_EVENT_PLG_INCOMING_CB_MSG_IND, err, (void**)(&pEventData));
 
@@ -1130,6 +1138,18 @@ void MsgTransactionManager::broadcastCBMsgCB(const msg_error_t err, const MSG_CB
 		write(it->listenerFd, pEventData, eventSize);
 	}
 
+	/* Send system event */
+	bundle *b = NULL;
+	b = bundle_create();
+	if (b) {
+		bundle_add(b, EVT_KEY_MSG_TYPE, EVT_VAL_CB);
+		char msgId[MSG_EVENT_MSG_ID_LEN] = {0,};
+		snprintf(msgId, sizeof(msgId), "%u", cbMsgId);
+		bundle_add(b, EVT_KEY_MSG_ID, msgId);
+		eventsystem_send_system_event(SYS_EVENT_INCOMMING_MSG, b);
+		bundle_free(b);
+	}
+
 	MSG_END();
 }
 
@@ -1138,7 +1158,7 @@ void MsgTransactionManager::broadcastSyncMLMsgCB(const msg_error_t err, const MS
 	MSG_BEGIN();
 
 	char* pEventData = NULL;
-	AutoPtr<char> eventBuf(&pEventData);
+	unique_ptr<char*, void(*)(char**)> eventBuf(&pEventData, unique_ptr_deleter);
 
 	int eventSize = MsgMakeEvent(syncMLData, sizeof(MSG_SYNCML_MESSAGE_DATA_S), MSG_EVENT_PLG_INCOMING_SYNCML_MSG_IND, err, (void**)(&pEventData));
 
@@ -1160,7 +1180,7 @@ void MsgTransactionManager::broadcastLBSMsgCB(const msg_error_t err, const MSG_L
 
 #if 0
 	char* pEventData = NULL;
-	AutoPtr<char> eventBuf(&pEventData);
+	unique_ptr<char*, void(*)(char**)> eventBuf(&pEventData, unique_ptr_deleter);
 
 	int eventSize = MsgMakeEvent(lbsData, sizeof(MSG_LBS_MESSAGE_DATA_S), MSG_EVENT_PLG_INCOMING_LBS_MSG_IND, err, (void**)(&pEventData));
 
@@ -1172,7 +1192,7 @@ void MsgTransactionManager::broadcastLBSMsgCB(const msg_error_t err, const MSG_L
 		write(it->listenerFd, pEventData, eventSize);
 	}
 #else
-//	MsgLbsWapPush(lbsData->pushHeader, lbsData->pushBody, lbsData->pushBodyLen);
+	MsgLbsWapPush(lbsData->pushHeader, lbsData->pushBody, lbsData->pushBodyLen);
 #endif
 	MSG_END();
 }
@@ -1183,10 +1203,10 @@ void MsgTransactionManager::broadcastSyncMLMsgOperationCB(const msg_error_t err,
 	MSG_BEGIN();
 
 	char* pEventData = NULL;
-	AutoPtr<char> eventBuf(&pEventData);
+	unique_ptr<char*, void(*)(char**)> eventBuf(&pEventData, unique_ptr_deleter);
 
 	char* encodedData = NULL;
-	AutoPtr<char> buf(&encodedData);
+	unique_ptr<char*, void(*)(char**)> buf(&encodedData, unique_ptr_deleter);
 
 	// Encoding Storage Change Data
 	int dataSize = MsgEncodeSyncMLOperationData(msgId, extId, &encodedData);
@@ -1219,10 +1239,10 @@ void MsgTransactionManager::broadcastStorageChangeCB(const msg_error_t err, cons
 	int dataSize = 0;
 
 	char* pEventData = NULL;
-	AutoPtr<char> eventBuf(&pEventData);
+	unique_ptr<char*, void(*)(char**)> eventBuf(&pEventData, unique_ptr_deleter);
 
 	char* encodedData = NULL;
-	AutoPtr<char> buf(&encodedData);
+	unique_ptr<char*, void(*)(char**)> buf(&encodedData, unique_ptr_deleter);
 
 	// Encoding Storage Change Data
 	dataSize = MsgEncodeStorageChangeData(storageChangeType, pMsgIdList, &encodedData);
@@ -1255,10 +1275,10 @@ void MsgTransactionManager::broadcastReportMsgCB(const msg_error_t err, const ms
 	int dataSize = 0;
 
 	char* pEventData = NULL;
-	AutoPtr<char> eventBuf(&pEventData);
+	unique_ptr<char*, void(*)(char**)> eventBuf(&pEventData, unique_ptr_deleter);
 
 	char* encodedData = NULL;
-	AutoPtr<char> buf(&encodedData);
+	unique_ptr<char*, void(*)(char**)> buf(&encodedData, unique_ptr_deleter);
 
 	// Encoding Storage Change Data
 	dataSize = MsgEncodeReportMsgData(reportMsgType, pMsgInfo, &encodedData);
@@ -1348,24 +1368,3 @@ void MsgTransactionManager::finishCynara()
 
 	p_cynara = NULL;
 }
-
-
-#ifdef MSG_PENDING_PUSH_MESSAGE
-void MsgTransactionManager::sendPendingPushMsg(void)
-{
-
-	pushpending_list::iterator pushmsg_it = pushMsgList.begin();
-	while(pushmsg_it != pushMsgList.end())
-	{
-		MSG_PUSH_MESSAGE_DATA_S msg;
-		memset(&msg, 0x00, sizeof(MSG_PUSH_MESSAGE_DATA_S));
-		memcpy(msg.pushAppId, pushmsg_it->pushAppId, sizeof(msg.pushAppId));
-		memcpy(msg.pushBody, pushmsg_it->pushBody, sizeof(msg.pushBody));
-		memcpy(msg.pushContentType, pushmsg_it->pushContentType, sizeof(msg.pushContentType));
-		memcpy(msg.pushHeader, pushmsg_it->pushHeader, sizeof(msg.pushHeader));
-		msg.pushBodyLen = pushmsg_it->pushBodyLen;
-		MsgTransactionManager::instance()->broadcastPushMsgCB(MSG_SUCCESS, (const MSG_PUSH_MESSAGE_DATA_S *)&msg);
-		pushmsg_it = pushMsgList.erase(pushmsg_it);
-	}
-}
-#endif

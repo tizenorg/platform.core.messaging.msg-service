@@ -34,7 +34,6 @@
 #include "MsgUtilFile.h"
 #include "MsgUtilStorage.h"
 #include "MsgNotificationWrapper.h"
-#include "MsgZoneManager.h"
 
 #include <errno.h>
 #include <glib.h>
@@ -47,98 +46,16 @@ static GMainLoop* mainloop = NULL;
                                      FUNCTION IMPLEMENTATION
 ==================================================================================================*/
 
-msg_error_t InitMmsDir()
-{
-	if (mkdir(MSG_DATA_ROOT_PATH, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH) < 0)
-	{
-		if (errno == EEXIST)
-		{
-			MSG_DEBUG("The %s already exists", MSG_DATA_ROOT_PATH);
-		}
-		else
-		{
-			MSG_DEBUG("Error while mkdir %s", MSG_DATA_ROOT_PATH);
-			return MSG_ERR_DB_MAKE_DIR;
-		}
-	}
-
-	if (mkdir(MSG_SMIL_FILE_PATH, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH) < 0)
-	{
-		if (errno == EEXIST)
-		{
-			MSG_SEC_DEBUG("The %s already exists", MSG_SMIL_FILE_PATH);
-		}
-		else
-		{
-			MSG_SEC_DEBUG("Error while mkdir %s", MSG_SMIL_FILE_PATH);
-			return MSG_ERR_DB_MAKE_DIR;
-		}
-	}
-
-	if (mkdir(MSG_DATA_PATH, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH) < 0)
-	{
-		if (errno == EEXIST)
-		{
-			MSG_DEBUG("The %s already exists", MSG_DATA_PATH);
-		}
-		else
-		{
-			MSG_DEBUG("Error while mkdir %s", MSG_DATA_PATH);
-			return MSG_ERR_DB_MAKE_DIR;
-		}
-	}
-
-	if (mkdir(MSG_THUMBNAIL_PATH, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH) < 0) {
-		if (errno == EEXIST) {
-			MSG_DEBUG("The %s already exists.", MSG_THUMBNAIL_PATH);
-		} else {
-			MSG_DEBUG(" Error while mkdir %s", MSG_THUMBNAIL_PATH);
-			return MSG_ERR_DB_MAKE_DIR;
-		}
-	}
-
-	if (mkdir(MSG_IPC_DATA_PATH, S_IRWXU ) < 0)
-	{
-		if (errno == EEXIST)
-		{
-			MSG_DEBUG("The %s already exists", MSG_IPC_DATA_PATH);
-			// if IPC data path is already exist, clear all files in folder.
-			MsgRmRf((char *)MSG_IPC_DATA_PATH);
-		}
-		else
-		{
-			MSG_DEBUG("Error while mkdir %s", MSG_IPC_DATA_PATH);
-			return MSG_ERR_DB_MAKE_DIR;
-		}
-	}
-
-	if (MsgChmod( MSG_IPC_DATA_PATH, S_IRWXU | S_IRWXG) == 0) { //public shared file: pass data by file
-		MSG_DEBUG("Fail to chmod [%s].", MSG_IPC_DATA_PATH);
-	}
-	if (MsgChown(MSG_DATA_ROOT_PATH, 200, 5000) == 0) {
-		MSG_DEBUG("Fail to chown [%s].", MSG_DATA_ROOT_PATH);
-	}
-	if (MsgChown(MSG_DATA_PATH, 200, 5000) == 0) {
-		MSG_DEBUG("Fail to chown [%s].", MSG_DATA_PATH);
-	}
-	if (MsgChown(MSG_SMIL_FILE_PATH, 200, 5000) == 0) {
-		MSG_DEBUG("Fail to chown [%s].", MSG_SMIL_FILE_PATH);
-	}
-	if (MsgChown(MSG_IPC_DATA_PATH, 200, 5000) == 0) {
-		MSG_DEBUG("Fail to chown [%s].", MSG_IPC_DATA_PATH);
-	}
-	if (MsgChown(MSG_THUMBNAIL_PATH, 200, 5000) == 0) {
-		MSG_DEBUG("Fail to chown [%s].", MSG_THUMBNAIL_PATH);
-	}
-
-	return MSG_SUCCESS;
-}
-
 
 void* InitMsgServer(void*)
 {
 	msg_error_t err = MSG_SUCCESS;
 	MSG_DEBUG("Start InitMsgServer.");
+
+#ifndef MSG_CONTACTS_SERVICE_NOT_SUPPORTED
+	// Init contact digit number
+	MsgInitContactSvc();
+#endif // MSG_CONTACTS_SERVICE_NOT_SUPPORTED
 
 	//CID 356902: Moving try block up to include MsgStoInitDB which also throws MsgException
 	try
@@ -220,12 +137,6 @@ int main(void)
 	if(MsgSettingSetBool(VCONFKEY_MSG_SERVER_READY, false) != MSG_SUCCESS)
 		MSG_DEBUG("MsgSettingSetBool FAIL: VCONFKEY_MSG_SERVER_READY");
 
-	// Connect to DB
-	//	MsgStoConnectDB();
-
-	// Clean up mms dir
-	InitMmsDir();
-
 	// init server
 	InitMsgServer(NULL);
 
@@ -234,7 +145,7 @@ int main(void)
 	// start transaction manager
 	if (pthread_create(&startThreadId, NULL, StartMsgServer, NULL) != 0)
 	{
-		MSG_DEBUG("StartMsgServer not invoked: %s", strerror(errno));
+		MSG_DEBUG("StartMsgServer not invoked: %s", g_strerror(errno));
 		return -1;
 	}
 

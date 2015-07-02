@@ -21,7 +21,6 @@
 #include "MsgUtilFile.h"
 #include "MsgGconfWrapper.h"
 #include "MsgContact.h"
-#include "MsgZoneManager.h"
 
 extern "C"
 {
@@ -36,11 +35,6 @@ extern "C"
 __thread bool isContactSvcConnected = false;
 
 MsgDbHandler ContactDbHandle;
-
-MsgContactChangeCB cbFunction = NULL;
-
-#define CONTACT_CALLBACK_USER_DATA				"contact"
-#define ADDRESSBOOK_CALLBACK_USER_DATA	"addressbook"
 
 // phonenumber minimum match digit.
 #define PHONENUMBER_MIN_MATCH_DIGIT VCONFKEY_CONTACTS_SVC_PHONENUMBER_MIN_MATCH_DIGIT
@@ -249,8 +243,6 @@ msg_error_t MsgOpenContactSvc()
 
 msg_error_t MsgCloseContactSvc()
 {
-	MsgZoneChange();
-
 	int errCode = CONTACTS_ERROR_NONE;
 
 	if (isContactSvcConnected) {
@@ -261,76 +253,22 @@ msg_error_t MsgCloseContactSvc()
 			isContactSvcConnected = false;
 		} else {
 			MSG_DEBUG("Disconnect to Contact Service Fail [%d]", errCode);
-			MsgZoneRevert();
 			return MSG_ERR_DB_DISCONNECT;
 		}
 	}
-
-	MsgZoneRevert();
 
 	return MSG_SUCCESS;
 }
 
 
-msg_error_t MsgInitContactSvc(MsgContactChangeCB cb)
+msg_error_t MsgInitContactSvc()
 {
-	MsgZoneChange();
-
-//	msg_error_t err = MSG_SUCCESS;
-//	unsigned int retryCnt = 10;
-
-	if (cb != NULL)
-		cbFunction = cb;
-
 	phonenumberMinMatchDigit = MsgSettingGetInt(PHONENUMBER_MIN_MATCH_DIGIT);
 	MSG_DEBUG("phonenumberMinMatchDigit [%d]", phonenumberMinMatchDigit);
 
 	if (phonenumberMinMatchDigit < 1) {
 		phonenumberMinMatchDigit = DEFAULT_MIN_MATCH_DIGIT;
 	}
-
-#if 0
-	do {
-		if ((err = MsgOpenContactSvc()) != MSG_SUCCESS) {
-			retryCnt--;
-			MSG_DEBUG("MsgOpenContactSvc fail. Retry count left [%d]", retryCnt);
-			usleep(100 * 1000);
-		}
-	} while (err != MSG_SUCCESS && retryCnt > 0);
-
-	if (!isContactSvcConnected) {
-		MSG_DEBUG("Contact Service Not Opened.");
-		MsgZoneRevert();
-		return MSG_ERR_UNKNOWN;
-	}
-
-	// Sync contact first.
-	MsgSyncAddressbook();
-//	MsgSyncContact();
-
-	int errCode = CONTACTS_ERROR_NONE;
-
-	// Register callback function
-	errCode = contacts_db_add_changed_cb(_contacts_contact._uri, MsgContactSvcCallback, (void *)CONTACT_CALLBACK_USER_DATA);
-
-	if (errCode == CONTACTS_ERROR_NONE)
-		MSG_DEBUG("Register Contact Service Callback [_contacts_contact]");
-	else
-		MSG_DEBUG("Fail to Register Contact Service Callback [_contacts_contact] [%d]", errCode);
-
-	// Register callback function
-	errCode = contacts_db_add_changed_cb(_contacts_address_book._uri, MsgContactSvcCallback, (void *)ADDRESSBOOK_CALLBACK_USER_DATA);
-
-	if (errCode == CONTACTS_ERROR_NONE)
-		MSG_DEBUG("Register Contact Service Callback [_contacts_address_book]");
-	else
-		MSG_DEBUG("Fail to Register Contact Service Callback [_contacts_address_book] [%d]", errCode);
-
-	if (ContactDbHandle.disconnect() != MSG_SUCCESS)
-			MSG_DEBUG("DB Disconnect Fail");
-#endif
-
-	MsgZoneRevert();
 
 	return MSG_SUCCESS;
 }
@@ -340,19 +278,15 @@ msg_error_t MsgGetContactInfo(const MSG_ADDRESS_INFO_S *pAddrInfo, MSG_CONTACT_I
 {
 	MSG_BEGIN();
 
-	MsgZoneChange();
-
 	msg_error_t err = MSG_SUCCESS;
 
 	if ((err = MsgOpenContactSvc()) != MSG_SUCCESS) {
 		MSG_DEBUG("MsgOpenContactSvc fail.");
-		MsgZoneRevert();
 		return err;
 	}
 
 	if (!isContactSvcConnected) {
 		MSG_DEBUG("Contact Service Not Opened.");
-		MsgZoneRevert();
 		return MSG_ERR_UNKNOWN;
 	}
 
@@ -362,7 +296,6 @@ msg_error_t MsgGetContactInfo(const MSG_ADDRESS_INFO_S *pAddrInfo, MSG_CONTACT_I
 
 	if (pAddrInfo->addressType == MSG_ADDRESS_TYPE_PLMN && strlen(pAddrInfo->addressVal) > (MAX_PHONE_NUMBER_LEN+1)) {
 		MSG_SEC_DEBUG("Phone Number is too long [%s]", pAddrInfo->addressVal);
-		MsgZoneRevert();
 		return MSG_ERR_UNKNOWN;
 	}
 
@@ -387,7 +320,6 @@ msg_error_t MsgGetContactInfo(const MSG_ADDRESS_INFO_S *pAddrInfo, MSG_CONTACT_I
 
 	} else {
 		MSG_DEBUG("Invalid pAddrInfo->addressType.");
-		MsgZoneRevert();
 		return MSG_ERR_UNKNOWN;
 	}
 
@@ -398,7 +330,6 @@ msg_error_t MsgGetContactInfo(const MSG_ADDRESS_INFO_S *pAddrInfo, MSG_CONTACT_I
 		contacts_query_destroy(query);
 		contacts_filter_destroy(filter);
 		contacts_list_destroy(contacts, true);
-		MsgZoneRevert();
 		return MSG_ERR_UNKNOWN;
 	}
 
@@ -409,7 +340,6 @@ msg_error_t MsgGetContactInfo(const MSG_ADDRESS_INFO_S *pAddrInfo, MSG_CONTACT_I
 		contacts_query_destroy(query);
 		contacts_filter_destroy(filter);
 		contacts_list_destroy(contacts, true);
-		MsgZoneRevert();
 		return MSG_SUCCESS;
 	}
 
@@ -425,7 +355,6 @@ msg_error_t MsgGetContactInfo(const MSG_ADDRESS_INFO_S *pAddrInfo, MSG_CONTACT_I
 		if (ret != CONTACTS_ERROR_NONE) {
 			MSG_DEBUG("contacts_list_get_current_record_p() Error [%d]", ret);
 			contacts_list_destroy(contacts, true);
-			MsgZoneRevert();
 			return MSG_ERR_UNKNOWN;
 		}
 
@@ -433,7 +362,6 @@ msg_error_t MsgGetContactInfo(const MSG_ADDRESS_INFO_S *pAddrInfo, MSG_CONTACT_I
 		if (ret != CONTACTS_ERROR_NONE) {
 			MSG_DEBUG("contacts_record_get_int() Error [%d]", ret);
 			contacts_list_destroy(contacts, true);
-			MsgZoneRevert();
 			return MSG_ERR_UNKNOWN;
 		}
 
@@ -441,7 +369,6 @@ msg_error_t MsgGetContactInfo(const MSG_ADDRESS_INFO_S *pAddrInfo, MSG_CONTACT_I
 		if (ret != CONTACTS_ERROR_NONE) {
 			MSG_DEBUG("contacts_db_get_record() Error [%d]", ret);
 			contacts_list_destroy(contacts, true);
-			MsgZoneRevert();
 			return MSG_ERR_UNKNOWN;
 		}
 	} else if (pAddrInfo->addressType == MSG_ADDRESS_TYPE_EMAIL) {
@@ -451,7 +378,6 @@ msg_error_t MsgGetContactInfo(const MSG_ADDRESS_INFO_S *pAddrInfo, MSG_CONTACT_I
 		if (ret != CONTACTS_ERROR_NONE) {
 			MSG_DEBUG("contacts_list_get_current_record_p() Error [%d]", ret);
 			contacts_list_destroy(contacts, true);
-			MsgZoneRevert();
 			return MSG_ERR_UNKNOWN;
 		}
 
@@ -459,7 +385,6 @@ msg_error_t MsgGetContactInfo(const MSG_ADDRESS_INFO_S *pAddrInfo, MSG_CONTACT_I
 		if (ret != CONTACTS_ERROR_NONE) {
 			MSG_DEBUG("contacts_record_get_int() Error [%d]", ret);
 			contacts_list_destroy(contacts, true);
-			MsgZoneRevert();
 			return MSG_ERR_UNKNOWN;
 		}
 
@@ -467,79 +392,16 @@ msg_error_t MsgGetContactInfo(const MSG_ADDRESS_INFO_S *pAddrInfo, MSG_CONTACT_I
 		if (ret != CONTACTS_ERROR_NONE) {
 			MSG_DEBUG("contacts_db_get_record() Error [%d]", ret);
 			contacts_list_destroy(contacts, true);
-			MsgZoneRevert();
 			return MSG_ERR_UNKNOWN;
 		}
 	}
 
 	contacts_list_destroy(contacts, true);
 
-#if 0
-	// Name Info
-	contacts_record_h name = NULL;
-
-	ret = contacts_record_get_child_record_at_p(contact, _contacts_contact.name, 0, &name);
-	if (ret != CONTACTS_ERROR_NONE) {
-		MSG_DEBUG("contacts_record_get_child_record_at_p() Error [%d]", ret);
-	} else {
-		char* strName = NULL;
-		ret = contacts_record_get_str_p(name, _contacts_name.first, &strName);
-		if (ret != CONTACTS_ERROR_NONE) {
-			MSG_DEBUG("contacts_record_get_str_p() Error [%d]", ret);
-		} else {
-			if (strName != NULL) {
-				MSG_DEBUG("strName [%s]", strName);
-				strncpy(pContactInfo->firstName, strName, MAX_DISPLAY_NAME_LEN);
-			}
-		}
-
-		ret = contacts_record_get_str_p(name, _contacts_name.last, &strName);
-		if (ret != CONTACTS_ERROR_NONE) {
-			MSG_DEBUG("contacts_record_get_str_p() Error [%d]", ret);
-		} else {
-			if (strName != NULL) {
-				MSG_DEBUG("strName [%s]", strName);
-				strncpy(pContactInfo->lastName, strName, MAX_DISPLAY_NAME_LEN);
-			}
-		}
-
-		ret = contacts_record_get_str_p(name, _contacts_name.addition, &strName);
-		if (ret != CONTACTS_ERROR_NONE) {
-			MSG_DEBUG("contacts_record_get_str_p() Error [%d]", ret);
-		} else {
-			if (strName != NULL) {
-				MSG_DEBUG("strName [%s]", strName);
-				strncpy(pContactInfo->middleName, strName, MAX_DISPLAY_NAME_LEN);
-			}
-		}
-
-		ret = contacts_record_get_str_p(name, _contacts_name.prefix, &strName);
-		if (ret != CONTACTS_ERROR_NONE) {
-			MSG_DEBUG("contacts_record_get_str_p() Error [%d]", ret);
-		} else {
-			if (strName != NULL) {
-				MSG_DEBUG("strName [%s]", strName);
-				strncpy(pContactInfo->prefix, strName, MAX_DISPLAY_NAME_LEN);
-			}
-		}
-
-		ret = contacts_record_get_str_p(name, _contacts_name.suffix, &strName);
-		if (ret != CONTACTS_ERROR_NONE) {
-			MSG_DEBUG("contacts_record_get_str_p() Error [%d]", ret);
-		} else {
-			if (strName != NULL) {
-				MSG_DEBUG("strName [%s]", strName);
-				strncpy(pContactInfo->suffix, strName, MAX_DISPLAY_NAME_LEN);
-			}
-		}
-	}
-#endif
-
 	ret = contacts_record_get_int(contact, _contacts_contact.id, (int*)&pContactInfo->contactId);
 	if (ret != CONTACTS_ERROR_NONE) {
 		MSG_DEBUG("contacts_db_get_record() Error [%d]", ret);
 		contacts_record_destroy(contact, true);
-		MsgZoneRevert();
 		return MSG_ERR_UNKNOWN;
 	}
 
@@ -549,7 +411,6 @@ msg_error_t MsgGetContactInfo(const MSG_ADDRESS_INFO_S *pAddrInfo, MSG_CONTACT_I
 	if (ret != CONTACTS_ERROR_NONE) {
 		MSG_DEBUG("contacts_db_get_record() Error [%d]", ret);
 		contacts_record_destroy(contact, true);
-		MsgZoneRevert();
 		return MSG_ERR_UNKNOWN;
 	}
 
@@ -639,8 +500,6 @@ msg_error_t MsgGetContactInfo(const MSG_ADDRESS_INFO_S *pAddrInfo, MSG_CONTACT_I
 
 	MSG_END();
 
-	MsgZoneRevert();
-
 	return MSG_SUCCESS;
 }
 
@@ -649,33 +508,27 @@ msg_error_t MsgGetContactSearchList(const char *pSearchVal, MSG_ADDRESS_INFO_S *
 {
 	MSG_BEGIN();
 
-	MsgZoneChange();
-
 	msg_error_t err = MSG_SUCCESS;
 
 	*count = 0;
 
 	if (pSearchVal == NULL) {
 		MSG_DEBUG("pSearchVal is NULL.");
-		MsgZoneRevert();
 		return MSG_ERR_NULL_POINTER;
 	}
 
 	if (pAddrInfo == NULL) {
 		MSG_DEBUG("pAddrInfo is NULL.");
-		MsgZoneRevert();
 		return MSG_ERR_NULL_POINTER;
 	}
 
 	if ((err = MsgOpenContactSvc()) != MSG_SUCCESS) {
 		MSG_DEBUG("MsgOpenContactSvc fail.");
-		MsgZoneRevert();
 		return err;
 	}
 
 	if (!isContactSvcConnected) {
 		MSG_DEBUG("Contact Service Not Opened.");
-		MsgZoneRevert();
 		return MSG_ERR_UNKNOWN;
 	}
 
@@ -699,7 +552,6 @@ msg_error_t MsgGetContactSearchList(const char *pSearchVal, MSG_ADDRESS_INFO_S *
 		contacts_query_destroy(query);
 		contacts_filter_destroy(filter);
 		contacts_list_destroy(personNumbers, true);
-		MsgZoneRevert();
 		return MSG_ERR_UNKNOWN;
 	}
 
@@ -710,7 +562,6 @@ msg_error_t MsgGetContactSearchList(const char *pSearchVal, MSG_ADDRESS_INFO_S *
 		contacts_query_destroy(query);
 		contacts_filter_destroy(filter);
 		contacts_list_destroy(personNumbers, true);
-		MsgZoneRevert();
 		return MSG_SUCCESS;
 	}
 
@@ -743,414 +594,13 @@ msg_error_t MsgGetContactSearchList(const char *pSearchVal, MSG_ADDRESS_INFO_S *
 
 	MSG_END();
 
-	MsgZoneRevert();
-
 	return MSG_SUCCESS;
 }
 
 
-void MsgSyncAddressbook()
-{
-	MsgZoneChange();
-
-	int ret = -1;
-	int changed_count = 0;
-
-	contacts_list_h addrbookListHnd = NULL;
-
-	ret = contacts_db_get_all_records(_contacts_address_book._uri, 0, 0, &addrbookListHnd);
-	if (ret != CONTACTS_ERROR_NONE) {
-		MSG_DEBUG("contacts_db_get_all_records() Error [%d]", ret);
-		contacts_list_destroy(addrbookListHnd, true);
-		MsgZoneRevert();
-		return;
-	}
-
-	ret = contacts_list_get_count(addrbookListHnd, &changed_count);
-
-	if (ret != CONTACTS_ERROR_NONE) {
-		MSG_DEBUG("contacts_list_get_count() Error [%d]", ret);
-		contacts_list_destroy(addrbookListHnd, true);
-		MsgZoneRevert();
-		return;
-	}
-
-	if (changed_count>0) {
-		int addrbookList[changed_count];
-
-		for (int i = 0; i < changed_count; i++) {
-			contacts_record_h addrbook = NULL;
-			int addrbookId = 0;
-
-			ret = contacts_list_get_current_record_p(addrbookListHnd, &addrbook);
-			if (ret != CONTACTS_ERROR_NONE) {
-				MSG_DEBUG("contacts_list_get_current_record_p() Error [%d]", ret);
-				contacts_list_destroy(addrbookListHnd, true);
-				MsgZoneRevert();
-				return;
-			}
-
-			ret = contacts_record_get_int(addrbook, _contacts_address_book.id, &addrbookId);
-			if (ret != CONTACTS_ERROR_NONE) {
-				MSG_DEBUG("contacts_record_get_int() Error [%d]", ret);
-				contacts_list_destroy(addrbookListHnd, true);
-				MsgZoneRevert();
-				return;
-			}
-
-			addrbookList[i] = addrbookId;
-
-			ret = contacts_list_next(addrbookListHnd);
-			if (ret != CONTACTS_ERROR_NONE) {
-				MSG_DEBUG("contacts_list_next() Error [%d]", ret);
-			}
-
-		}
-
-		MsgStoClearContactInfoByAddrbookIdList(&ContactDbHandle, addrbookList, (int)changed_count);
-	}
-
-	contacts_list_destroy(addrbookListHnd, true);
-
-	MsgZoneRevert();
-}
-
-
-void MsgSyncContact()
-{
-	MsgZoneChange();
-
-	int ret = -1;
-	int changed_count = 0;
-	int lastSyncTime = 0;
-	int finalSyncTime = 0;
-
-	/* get contact sync time */
-	lastSyncTime = MsgSettingGetInt(CONTACT_SYNC_TIME);
-
-	if (lastSyncTime < 0) {
-		MSG_DEBUG("Fail to get CONTACT_SYNC_TIME.");
-		lastSyncTime = 0;
-	}
-
-	contacts_list_h contactsList = NULL;
-
-	ret = contacts_db_get_changes_by_version(_contacts_contact_updated_info._uri, -1, lastSyncTime, &contactsList, &finalSyncTime);
-
-	if (ret != CONTACTS_ERROR_NONE) {
-		MSG_DEBUG("contacts_db_get_changes_by_version() Error [%d]", ret);
-		contacts_list_destroy(contactsList, true);
-		MsgZoneRevert();
-		return;
-	}
-
-	ret = contacts_list_get_count(contactsList, &changed_count);
-
-	if (ret != CONTACTS_ERROR_NONE) {
-		MSG_DEBUG("contacts_list_get_count() Error [%d]", ret);
-		contacts_list_destroy(contactsList, true);
-		MsgZoneRevert();
-		return;
-	}
-
-	for (int i = 0; i < changed_count; i++)
-	{
-		int index_num = 0;
-		int type = 0;
-		contacts_record_h event = NULL;
-
-		ret = contacts_list_get_current_record_p(contactsList, &event);
-		if (ret != CONTACTS_ERROR_NONE) {
-			MSG_DEBUG("contacts_list_get_current_record_p() Error [%d]", ret);
-			contacts_list_destroy(contactsList, true);
-			MsgZoneRevert();
-			return;
-		}
-
-		ret = contacts_record_get_int(event, _contacts_contact_updated_info.contact_id, &index_num);
-		if (ret != CONTACTS_ERROR_NONE) {
-			MSG_DEBUG("contacts_record_get_int() Error [%d]", ret);
-			contacts_list_destroy(contactsList, true);
-			MsgZoneRevert();
-			return;
-		}
-
-		MSG_DEBUG("index (%d)", index_num);
-
-		ret = contacts_record_get_int(event, _contacts_contact_updated_info.type, &type);
-		if (ret != CONTACTS_ERROR_NONE) {
-			MSG_DEBUG("contacts_record_get_int() Error [%d]", ret);
-			contacts_list_destroy(contactsList, true);
-			MsgZoneRevert();
-			return;
-		}
-
-		MSG_DEBUG("type [%d]", type);
-
-		if (type != CONTACTS_CHANGE_INSERTED) {
-			MsgDeleteContact(index_num);
-		}
-
-		if (type != CONTACTS_CHANGE_DELETED) {
-			MsgUpdateContact(index_num, type);
-		}
-
-		ret = contacts_list_next(contactsList);
-		if (ret != CONTACTS_ERROR_NONE) {
-			MSG_DEBUG("contacts_list_next() Error [%d]", ret);
-		}
-	}
-
-	if(MsgSettingSetInt(CONTACT_SYNC_TIME, finalSyncTime) != MSG_SUCCESS)
-		MSG_DEBUG("MsgSettingSetInt fail : CONTACT_SYNC_TIME");
-	MSG_DEBUG("lastSyncTime : %d", finalSyncTime);
-
-	contacts_list_destroy(contactsList, true);
-
-	if(changed_count > 0) {
-		if(cbFunction) cbFunction();
-	}
-
-	MsgZoneRevert();
-}
-
-
-bool MsgInsertContact(MSG_CONTACT_INFO_S *pContactInfo, const char *pNumber)
-{
-	MsgZoneChange();
-
-	if (!pNumber || strlen(pNumber) <= 0)
-		MsgZoneRevert();
-		return false;
-
-	if (MsgStoAddContactInfo(&ContactDbHandle, pContactInfo, pNumber) != MSG_SUCCESS) {
-		MSG_DEBUG("Fail to add contact info.");
-		MsgZoneRevert();
-		return false;
-	}
-
-	MsgZoneRevert();
-
-	return true;
-}
-
-
-bool MsgUpdateContact(int index, int type)
-{
-	MsgZoneChange();
-
-	int ret = CONTACTS_ERROR_NONE;
-
-	contacts_record_h contact = NULL;
-
-	ret = contacts_db_get_record(_contacts_contact._uri, index, &contact);
-	if (ret != CONTACTS_ERROR_NONE) {
-		MSG_DEBUG("contacts_db_get_record() Error [%d]", ret);
-		contacts_record_destroy(contact, true);
-		MsgZoneRevert();
-		return false;
-	}
-
-#if 0
-	MSG_CONTACT_INFO_S contactInfo;
-	memset(&contactInfo, 0x00, sizeof(MSG_CONTACT_INFO_S));
-
-	ret = contacts_record_get_int(contact, _contacts_contact.id, (int*)&contactInfo.contactId);
-	if (ret != CONTACTS_ERROR_NONE) {
-		MSG_DEBUG("contacts_db_get_record() Error [%d]", ret);
-		contacts_record_destroy(contact, true);
-		MsgZoneRevert();
-		return false;
-	}
-
-	MSG_DEBUG("Contact ID [%d]", contactInfo.contactId);
-
-	ret = contacts_record_get_int(contact, _contacts_contact.address_book_id, (int*)&contactInfo.addrbookId);
-	if (ret != CONTACTS_ERROR_NONE) {
-		MSG_DEBUG("contacts_db_get_record() Error [%d]", ret);
-	}
-
-	MSG_DEBUG("Addressbook ID [%d]", contactInfo.addrbookId);
-
-	char* strImagePath = NULL;
-	ret = contacts_record_get_str_p(contact, _contacts_contact.image_thumbnail_path, &strImagePath);
-	if (ret != CONTACTS_ERROR_NONE) {
-		MSG_DEBUG("contacts_record_get_str_p() Error [%d]", ret);
-	}
-
-	if (strImagePath != NULL)
-		strncpy(contactInfo.imagePath , strImagePath, MAX_IMAGE_PATH_LEN);
-
-	MSG_DEBUG("Image Path [%s]", contactInfo.imagePath);
-
-	// Name Info
-	contacts_record_h name = NULL;
-
-	ret = contacts_record_get_child_record_at_p(contact, _contacts_contact.name, 0, &name);
-	if (ret != CONTACTS_ERROR_NONE) {
-		MSG_DEBUG("contacts_record_get_child_record_at_p() Error [%d]", ret);
-	} else {
-		char* strName = NULL;
-		ret = contacts_record_get_str_p(name, _contacts_name.first, &strName);
-		if (ret != CONTACTS_ERROR_NONE) {
-			MSG_DEBUG("contacts_record_get_str_p() Error [%d]", ret);
-		} else {
-			if (strName != NULL) {
-				MSG_DEBUG("strName [%s]", strName);
-				strncpy(contactInfo.firstName, strName, MAX_DISPLAY_NAME_LEN);
-			}
-		}
-
-		ret = contacts_record_get_str_p(name, _contacts_name.last, &strName);
-		if (ret != CONTACTS_ERROR_NONE) {
-			MSG_DEBUG("contacts_record_get_str_p() Error [%d]", ret);
-		} else {
-			if (strName != NULL) {
-				MSG_DEBUG("strName [%s]", strName);
-				strncpy(contactInfo.lastName, strName, MAX_DISPLAY_NAME_LEN);
-			}
-		}
-
-		ret = contacts_record_get_str_p(name, _contacts_name.addition, &strName);
-		if (ret != CONTACTS_ERROR_NONE) {
-			MSG_DEBUG("contacts_record_get_str_p() Error [%d]", ret);
-		} else {
-			if (strName != NULL) {
-				MSG_DEBUG("strName [%s]", strName);
-				strncpy(contactInfo.middleName, strName, MAX_DISPLAY_NAME_LEN);
-			}
-		}
-
-		ret = contacts_record_get_str_p(name, _contacts_name.prefix, &strName);
-		if (ret != CONTACTS_ERROR_NONE) {
-			MSG_DEBUG("contacts_record_get_str_p() Error [%d]", ret);
-		} else {
-			if (strName != NULL) {
-				MSG_DEBUG("strName [%s]", strName);
-				strncpy(contactInfo.prefix, strName, MAX_DISPLAY_NAME_LEN);
-			}
-		}
-
-		ret = contacts_record_get_str_p(name, _contacts_name.suffix, &strName);
-		if (ret != CONTACTS_ERROR_NONE) {
-			MSG_DEBUG("contacts_record_get_str_p() Error [%d]", ret);
-		} else {
-			if (strName != NULL) {
-				MSG_DEBUG("strName [%s]", strName);
-				strncpy(contactInfo.suffix, strName, MAX_DISPLAY_NAME_LEN);
-			}
-		}
-
-		MSG_SEC_DEBUG("First Name : [%s], Last Name : [%s]", contactInfo.firstName, contactInfo.lastName);
-	}
-
-	MsgStoClearContactInfo(&ContactDbHandle, index);
-#endif
-
-	int count = 0;
-	ret = contacts_record_get_child_record_count(contact, _contacts_contact.number, &count);
-	if (ret != CONTACTS_ERROR_NONE) {
-		MSG_DEBUG("contacts_record_get_child_record_count() Error [%d]", ret);
-		contacts_record_destroy(contact, true);
-		MsgZoneRevert();
-		return false;
-	}
-
-	if (count > 0) {
-		for (int i=0; i < count; i++) {
-			MSG_DEBUG("Add Contact Data");
-
-			contacts_record_h number = NULL;
-
-			ret = contacts_record_get_child_record_at_p(contact, _contacts_contact.number, i, &number);
-			if (ret != CONTACTS_ERROR_NONE) {
-				MSG_DEBUG("contacts_record_get_child_record_at_p() Error [%d]", ret);
-				contacts_record_destroy(contact, true);
-				MsgZoneRevert();
-				return false;
-			}
-
-			char* strNumber = NULL;
-			ret = contacts_record_get_str_p(number, _contacts_number.number, &strNumber);
-			if (ret != CONTACTS_ERROR_NONE) {
-				MSG_DEBUG("contacts_record_get_str_p() Error [%d]", ret);
-				contacts_record_destroy(contact, true);
-				MsgZoneRevert();
-				return false;
-			}
-
-			if (strNumber != NULL) {
-				MSG_DEBUG("Number [%s]", strNumber);
-				int strNumberLen = strlen(strNumber);
-				char normalizeNum[strNumberLen+1];
-				memset(normalizeNum, 0x00, sizeof(normalizeNum));
-				if (strNumberLen > 0) {
-					normalizeNumber(strNumber, normalizeNum, strNumberLen);
-					MSG_DEBUG("normalizeNum [%s]", normalizeNum);
-				}
-
-				MSG_CONTACT_INFO_S contactInfo;
-				memset(&contactInfo, 0x00, sizeof(MSG_CONTACT_INFO_S));
-
-				MSG_ADDRESS_INFO_S addrInfo;
-				memset(&addrInfo, 0x00, sizeof(MSG_ADDRESS_INFO_S));
-				strncpy(addrInfo.addressVal, normalizeNum, MAX_ADDRESS_VAL_LEN);
-
-				if(MsgGetContactInfo(&addrInfo, &contactInfo) == MSG_SUCCESS) {
-					if (MsgInsertContact(&contactInfo, normalizeNum)) {
-						MsgStoSetConversationDisplayName(&ContactDbHandle, (int)contactInfo.contactId);
-					} else {
-						MSG_DEBUG("MsgInsertContact fail.");
-					}
-				}
-			}
-		}
-	} else {// No phone number in contact
-		contacts_record_destroy(contact, true);
-		MsgZoneRevert();
-		return true;
-	}
-
-//	MsgStoSetConversationDisplayName(&ContactDbHandle, index);
-
-	contacts_record_destroy(contact, true);
-
-	MsgZoneRevert();
-
-	return true;
-}
-
-
-bool MsgDeleteContact(int index)
-{
-//	if (MsgStoClearContactInfo(&ContactDbHandle, index) != MSG_SUCCESS)
-	if (MsgStoResetContactInfo(&ContactDbHandle, index) != MSG_SUCCESS)
-		return false;
-
-	return true;
-}
-
 int MsgGetContactNameOrder()
 {
-	MsgZoneChange();
-
-//	int ret = CONTACTS_ERROR_NONE;
 	contacts_name_display_order_e order = CONTACTS_NAME_DISPLAY_ORDER_FIRSTLAST;
-
-//	if (MsgOpenContactSvc() != MSG_SUCCESS) {
-//		MSG_DEBUG("MsgOpenContactSvc fail.");
-//	}
-//
-//	if (!isContactSvcConnected) {
-//		MSG_DEBUG("Contact Service Not Opened.");
-//	} else {
-//		ret = contacts_setting_get_name_display_order(&order);
-//		if (ret != CONTACTS_ERROR_NONE) {
-//			MSG_DEBUG("contacts_setting_get_name_display_order() Error [%d]", ret);
-//		}
-//	}
-
-	MsgZoneRevert();
 
 	return (int)order;
 }
@@ -1225,25 +675,20 @@ msg_error_t MsgGetContactStyleDisplayName(const char *first, const char *last, c
 
 void MsgAddPhoneLog(const MSG_MESSAGE_INFO_S *pMsgInfo)
 {
-	MsgZoneChange();
-
 	msg_error_t err = MSG_SUCCESS;
 
 	if ((err = MsgOpenContactSvc()) != MSG_SUCCESS) {
 		MSG_DEBUG("MsgOpenContactSvc fail.");
-		MsgZoneRevert();
 		return;
 	}
 
 	if (!isContactSvcConnected) {
 		MSG_DEBUG("Contact Service Not Opened.");
-		MsgZoneRevert();
 		return;
 	}
 
 	if (pMsgInfo->nAddressCnt < 1) {
 		MSG_DEBUG("address count is [%d]", pMsgInfo->nAddressCnt);
-		MsgZoneRevert();
 		return;
 	}
 
@@ -1304,20 +749,15 @@ void MsgAddPhoneLog(const MSG_MESSAGE_INFO_S *pMsgInfo)
 
 		contacts_record_destroy(plog, true);
 	}
-
-	MsgZoneRevert();
 }
 
 
 void MsgDeletePhoneLog(msg_message_id_t msgId)
 {
-	MsgZoneChange();
-
 	msg_error_t err = MSG_SUCCESS;
 
 	if ((err = MsgOpenContactSvc()) != MSG_SUCCESS) {
 		MSG_DEBUG("MsgOpenContactSvc fail.");
-		MsgZoneRevert();
 		return;
 	}
 
@@ -1325,7 +765,6 @@ void MsgDeletePhoneLog(msg_message_id_t msgId)
 
 	if (!isContactSvcConnected) {
 		MSG_DEBUG("Contact Service Not Opened.");
-		MsgZoneRevert();
 		return;
 	}
 
@@ -1374,29 +813,12 @@ void MsgDeletePhoneLog(msg_message_id_t msgId)
 	contacts_filter_destroy(filter);
 	contacts_list_destroy(plogs, true);
 
-	MsgZoneRevert();
-}
-
-
-int MsgContactSVCBeginTrans()
-{
-	//return contacts_svc_begin_trans();
-	return 0;
-}
-
-
-int MsgContactSVCEndTrans(bool bSuccess)
-{
-	//return contacts_svc_end_trans(bSuccess);
-	return 0;
 }
 
 
 bool checkBlockingMode(char *address, bool *pisFavorites)
 {
 #if 0
-	MsgZoneChange();
-
 	msg_error_t err = MSG_SUCCESS;
 
 	if (pisFavorites != NULL) *pisFavorites = false;
@@ -1418,13 +840,11 @@ bool checkBlockingMode(char *address, bool *pisFavorites)
 
 	if ((err = MsgOpenContactSvc()) != MSG_SUCCESS) {
 		MSG_DEBUG("MsgOpenContactSvc fail.");
-		MsgZoneRevert();
 		return isblock;
 	}
 
 	if (!isContactSvcConnected) {
 		MSG_DEBUG("Contact Service Not Opened.");
-		MsgZoneRevert();
 		return isblock;
 	}
 
@@ -1432,7 +852,6 @@ bool checkBlockingMode(char *address, bool *pisFavorites)
 
 	if (strlen(address) > (MAX_PHONE_NUMBER_LEN+1)) {
 		MSG_SEC_DEBUG("Phone Number is too long [%s]", address);
-		MsgZoneRevert();
 		return isblock;
 	}
 
@@ -1458,7 +877,6 @@ bool checkBlockingMode(char *address, bool *pisFavorites)
 	if (ret != CONTACTS_ERROR_NONE) {
 		MSG_DEBUG("contacts_db_get_records_with_query() Error [%d]", ret);
 		contacts_list_destroy(personList, true);
-		MsgZoneRevert();
 		return isblock;
 	}
 
@@ -1467,7 +885,6 @@ bool checkBlockingMode(char *address, bool *pisFavorites)
 	if (count == 0 || ret != CONTACTS_ERROR_NONE) {
 		MSG_DEBUG("No Serach Data from Contact Service.");
 		contacts_list_destroy(personList, true);
-		MsgZoneRevert();
 		return isblock;
 	} else if (ret == CONTACTS_ERROR_NONE && count > 0
 			&& blockModeType == 1) { // For All contacts allow in blocking mode.
@@ -1480,7 +897,6 @@ bool checkBlockingMode(char *address, bool *pisFavorites)
 	if (ret != CONTACTS_ERROR_NONE) {
 		MSG_DEBUG("contacts_list_get_current_record_p() Error [%d]", ret);
 		contacts_list_destroy(personList, true);
-		MsgZoneRevert();
 		return isblock;
 	}
 
@@ -1488,7 +904,6 @@ bool checkBlockingMode(char *address, bool *pisFavorites)
 	if (ret != CONTACTS_ERROR_NONE) {
 		MSG_DEBUG("contacts_record_get_int() Error [%d]", ret);
 		contacts_list_destroy(personList, true);
-		MsgZoneRevert();
 		return isblock;
 	}
 
@@ -1498,7 +913,6 @@ bool checkBlockingMode(char *address, bool *pisFavorites)
 	if (ret != CONTACTS_ERROR_NONE) {
 		MSG_DEBUG("contacts_record_get_int() Error [%d]", ret);
 		contacts_list_destroy(personList, true);
-		MsgZoneRevert();
 		return isblock;
 	}
 
@@ -1514,7 +928,8 @@ bool checkBlockingMode(char *address, bool *pisFavorites)
 	case 3: // For Custom allow in blocking mode.
 	{
 		char *allowList = MsgSettingGetString(VCONFKEY_SETAPPL_BLOCKINGMODE_ALLOWED_CONTACT_LIST);
-		char *personIdStr = strtok (allowList," ,");
+		char *temp = NULL;
+		char *personIdStr = strtok_r (allowList," ,", &temp);
 		while (personIdStr != NULL)
 		{
 			MSG_DEBUG("personIdStr [%s]", personIdStr);
@@ -1523,7 +938,7 @@ bool checkBlockingMode(char *address, bool *pisFavorites)
 				isblock = false;
 				break;
 			}
-			personIdStr = strtok (NULL, " ,");
+			personIdStr = strtok_r (NULL, " ,", &temp);
 		}
 
 		if (allowList) {
@@ -1538,8 +953,6 @@ bool checkBlockingMode(char *address, bool *pisFavorites)
 	}
 
 	if (pisFavorites != NULL) *pisFavorites = isFavorites;
-
-	MsgZoneRevert();
 
 	return isblock;
 #else

@@ -429,7 +429,7 @@ typedef struct _MsgType {
 	int disposition;
 	char szContentID[MSG_MSG_ID_LEN + 1];
 	char szContentLocation[MSG_MSG_ID_LEN + 1];
-	char szOrgFilePath[MSG_FILEPATH_LEN_MAX];
+	char szOrgFilePath[MSG_FILEPATH_LEN_MAX + 1];
 
 	MsgContentParam param;
 } MsgType;
@@ -437,7 +437,7 @@ typedef struct _MsgType {
 struct _MsgBody {
 	int offset;
 	int size;
-	char szOrgFilePath[MSG_FILEPATH_LEN_MAX];
+	char szOrgFilePath[MSG_FILEPATH_LEN_MAX + 1];
 	MsgType presentationType;
 	MsgBody *pPresentationBody;
 

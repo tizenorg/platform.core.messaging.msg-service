@@ -24,7 +24,6 @@
 #include "MsgInternalTypes.h"
 
 
-typedef void (*MsgContactChangeCB)();
 
 //contacts-service is not used for gear
 #ifndef MSG_CONTACTS_SERVICE_NOT_SUPPORTED
@@ -34,26 +33,16 @@ typedef void (*MsgContactChangeCB)();
 msg_error_t MsgOpenContactSvc();
 msg_error_t MsgCloseContactSvc();
 
-msg_error_t MsgInitContactSvc(MsgContactChangeCB cb);
+msg_error_t MsgInitContactSvc();
 
 msg_error_t MsgGetContactInfo(const MSG_ADDRESS_INFO_S *pAddrInfo, MSG_CONTACT_INFO_S *pContactInfo);
 msg_error_t MsgGetContactSearchList(const char *pSearchVal, MSG_ADDRESS_INFO_S **pAddrInfo, int *count);
-
-void MsgSyncAddressbook();
-void MsgSyncContact();
-
-bool MsgInsertContact(MSG_CONTACT_INFO_S *pContactInfo, const char *pNumber);
-bool MsgUpdateContact(int index, int type);
-bool MsgDeleteContact(int index);
 
 int MsgGetContactNameOrder();
 msg_error_t MsgGetContactStyleDisplayName(const char *first, const char *last, const char *middle, const char *prefix, const char *suffix, int contactNameOrder, char *displayName, unsigned int size);
 
 void MsgAddPhoneLog(const MSG_MESSAGE_INFO_S *pMsgInfo);
 void MsgDeletePhoneLog(msg_message_id_t msgId);
-
-int MsgContactSVCBeginTrans();
-int MsgContactSVCEndTrans(bool bSuccess);
 
 bool checkBlockingMode(char *address, bool *pisFavorites);
 #endif //MSG_CONTACTS_SERVICE_NOT_SUPPORTED

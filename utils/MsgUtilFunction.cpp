@@ -21,7 +21,7 @@
 #include <system_info.h>
 
 bool b_feature_check_flag = false;
-bool b_feature_telephony = false;
+bool b_feature_telephony_sms = false;
 bool b_feature_telephony_mms = false;
 
  /*==================================================================================================
@@ -33,16 +33,19 @@ bool MsgCheckFeatureSupport(const char *feature_name)
 	bool result = false;
 
 	if (b_feature_check_flag == false) {
-		system_info_get_platform_bool(MSG_TELEPHONY_FEATURE, &b_feature_telephony);
-		system_info_get_platform_bool(MSG_TELEPHONY_MMS_FEATURE, &b_feature_telephony_mms);
-		MSG_INFO("[%s] feature is [%d]", MSG_TELEPHONY_FEATURE, b_feature_telephony);
+		if (system_info_get_platform_bool(MSG_TELEPHONY_SMS_FEATURE, &b_feature_telephony_sms) != SYSTEM_INFO_ERROR_NONE)
+			MSG_INFO("fail to system_info_get_platform_bool [%s]", MSG_TELEPHONY_SMS_FEATURE);
+		if (system_info_get_platform_bool(MSG_TELEPHONY_MMS_FEATURE, &b_feature_telephony_mms) != SYSTEM_INFO_ERROR_NONE)
+			MSG_INFO("fail to system_info_get_platform_bool [%s]", MSG_TELEPHONY_MMS_FEATURE);
+
+		MSG_INFO("[%s] feature is [%d]", MSG_TELEPHONY_SMS_FEATURE, b_feature_telephony_sms);
 		MSG_INFO("[%s] feature is [%d]", MSG_TELEPHONY_MMS_FEATURE, b_feature_telephony_mms);
 
 		b_feature_check_flag = true;
 	}
 
-	if (!g_strcmp0(feature_name, MSG_TELEPHONY_FEATURE)) {
-		result = b_feature_telephony;
+	if (!g_strcmp0(feature_name, MSG_TELEPHONY_SMS_FEATURE)) {
+		result = b_feature_telephony_sms;
 	} else if (!g_strcmp0(feature_name, MSG_TELEPHONY_MMS_FEATURE)) {
 		result = b_feature_telephony_mms;
 	} else {
@@ -240,22 +243,6 @@ int MsgEncodeFilterFlag(bool *pSetFlag, char **ppDest)
 	void* p = (void*)*ppDest;
 
 	memcpy(p, pSetFlag, dataSize);
-
-	return dataSize;
-}
-
-
-int MsgEncodeMsgType(MSG_MESSAGE_TYPE_S *pMsgType, char **ppDest)
-{
-	int dataSize = 0;
-
-	dataSize = (sizeof(MSG_MESSAGE_TYPE_S));
-
-	*ppDest = (char*)new char[dataSize];
-
-	void* p = (void*)*ppDest;
-
-	memcpy(p, pMsgType, dataSize);
 
 	return dataSize;
 }
@@ -578,7 +565,11 @@ void MsgDecodeFolderList(char *pSrc, msg_struct_list_s *pFolderList)
 	{
 		pFolderList->nCount = count;
 		pFolderList->msg_struct_info = (msg_struct_t *)calloc(count, sizeof(msg_struct_t));
-
+		if (pFolderList->msg_struct_info == NULL)
+		{
+			pFolderList->nCount = 0;
+			return;
+		}
 		msg_struct_s *pInfoTmp = NULL;
 
 		for (int i = 0; i < count; i++)
@@ -610,6 +601,11 @@ void MsgDecodeFilterList(char *pSrc, msg_struct_list_s *pFilterList)
 	{
 		pFilterList->nCount = count;
 		pFilterList->msg_struct_info = (msg_struct_t *)calloc(count, sizeof(MSG_FILTER_S *));
+
+		if (pFilterList->msg_struct_info == NULL) {
+			pFilterList->nCount = 0;
+			return;
+		}
 
 		msg_struct_s *pStructTmp = NULL;
 
@@ -1016,7 +1012,7 @@ msg_error_t MsgMakeSortRule(const MSG_SORT_RULE_S *pSortRule, char *pSqlSort)
 	//contacts-service is not used for gear
 #ifndef MSG_CONTACTS_SERVICE_NOT_SUPPORTED
 	int nameOrder = MsgGetContactNameOrder();
-#else
+#else // MSG_CONTACTS_SERVICE_NOT_SUPPORTED
 	int nameOrder = 0;
 #endif // MSG_CONTACTS_SERVICE_NOT_SUPPORTED
 

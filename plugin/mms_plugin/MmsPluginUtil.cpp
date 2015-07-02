@@ -31,7 +31,6 @@
 
 using namespace std;
 
-
 Mutex g_mx;
 CndVar g_cv;
 
@@ -218,7 +217,7 @@ FILE *MmsFileOpen(char *pFileName)
 	mode_t file_mode = (S_IRUSR | S_IWUSR);
 
 	if (!pFileName) {
-		MSG_DEBUG("pFileName NULL: %s", strerror(errno));
+		MSG_DEBUG("pFileName NULL: %s", g_strerror(errno));
 		return NULL;
 	}
 
@@ -227,19 +226,19 @@ FILE *MmsFileOpen(char *pFileName)
 	FILE *pFile = MsgOpenFile(pFileName, "wb+");
 
 	if (pFile == NULL) {
-		MSG_FATAL("File Open Error: %s", strerror(errno));
+		MSG_FATAL("File Open Error: %s", g_strerror(errno));
 		return NULL;
 	}
 
 	if (MsgFseek(pFile, 0L, SEEK_CUR) < 0) {
 		MsgCloseFile(pFile);
-		MSG_DEBUG("File Read Error: %s", strerror(errno));
+		MSG_DEBUG("File Read Error: %s", g_strerror(errno));
 		return NULL;
 	}
 
 	if (fchmod(fileno(pFile), file_mode) < 0) {
 		MsgCloseFile(pFile);
-		MSG_DEBUG("File chmod Error: %s", strerror(errno));
+		MSG_DEBUG("File chmod Error: %s", g_strerror(errno));
 		return NULL;
 	}
 

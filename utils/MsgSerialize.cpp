@@ -20,6 +20,8 @@
 #include "MsgDebug.h"
 #include "MsgMmsMessage.h"
 
+
+#ifdef MSG_MMS_USE_JSON_DATA
 #include <glib.h>
 #include <glib-object.h>
 #include <json-glib/json-glib.h>
@@ -347,19 +349,20 @@ int MsgParseMultipartListData(msg_json_parser_object *parse_obj, MMS_DATA_S *pMs
 
 	while(msg_json_parser_get_next_child(parse_obj, &child, index_child))
 	{
-		if (child.value != NULL && child.type) {
+		if (child.value != NULL && child.type != MSG_JSON_PARSER_NULL) {
 
 			MSG_PRINT_PARSER_OBJECT(index_child, child);
 
 			MMS_MULTIPART_DATA_S *pMultipart= MsgMmsCreateMultipart();
 
-			if (MsgParseMultipartData(&child, pMultipart) == 0) {
-				pMsgData->multipartlist = g_list_append(pMsgData->multipartlist, pMultipart);
-			} else {
-				free(pMultipart);
-				pMultipart = NULL;
+			if (pMultipart) {
+				if (MsgParseMultipartData(&child, pMultipart) == 0) {
+					pMsgData->multipartlist = g_list_append(pMsgData->multipartlist, pMultipart);
+				} else {
+					free(pMultipart);
+					pMultipart = NULL;
+				}
 			}
-
 		} else {
 			MSG_DEBUG("Get child : idx  = %d, key = %s, type = %d, value = %p", index_child, child.key, child.type, child.value);
 		}
@@ -395,20 +398,23 @@ int MsgParseMmsData(msg_json_parser_object *parse_obj, MMS_DATA_S *pMsgData)
 				MsgParseMultipartListData(&child, pMsgData);
 				break;
 			case MMS_HEADER:
-				pMsgData->header = MsgMmsCreateHeader();
-				MsgParseHeader(&child, pMsgData->header);
+				if (pMsgData->header == NULL) {
+					pMsgData->header = MsgMmsCreateHeader();
+				}
+				if (pMsgData->header)
+					MsgParseHeader(&child, pMsgData->header);
 				break;
 			case MMS_SMIL_MULTIPART:
 			{
 				MMS_MULTIPART_DATA_S *pMultipart = MsgMmsCreateMultipart();
-
-				if (MsgParseMultipartData(&child, pMultipart) == 0) {
-					pMsgData->smil = pMultipart;
-				} else {
-					free(pMultipart);
-					pMultipart = NULL;
+				if (pMultipart) {
+					if (MsgParseMultipartData(&child, pMultipart) == 0) {
+						pMsgData->smil = pMultipart;
+					} else {
+						free(pMultipart);
+						pMultipart = NULL;
+					}
 				}
-
 				break;
 			}
 			case MMS_BACKUP_TYPE:
@@ -548,6 +554,7 @@ int MsgDeserializeMmsJsonData(char* value, int value_len, MMS_DATA_S **ppMmsData
 
 	return ret;
 }
+#endif
 
 
 int MsgSerializeMms(const MMS_DATA_S *pMsgData, char **pValue)
@@ -629,6 +636,8 @@ int MsgSerializeMms(const MMS_DATA_S *pMsgData, char **pValue)
 	MSG_DEBUG("Serialize bufsize = %d", bufsize);
 
 	buf = (char *)calloc(1, bufsize);
+	if (buf == NULL)
+		return -1;
 
 	int serial_index = 0;
 	int offset = 0;
@@ -774,6 +783,9 @@ int MsgDeserializeMmsData(char* value, int value_len, MMS_DATA_S **ppMmsData)
 
 	pMmsData = MsgMmsCreate();
 	*ppMmsData = pMmsData;
+	if (pMmsData == NULL)
+		return -1;
+
 
 	// 1. Backup type
 	memcpy(&(pMmsData->backup_type), value, sizeof(int));
@@ -786,6 +798,9 @@ int MsgDeserializeMmsData(char* value, int value_len, MMS_DATA_S **ppMmsData)
 
 	if (isExistHeader) {
 		pMmsData->header = (MMS_HEADER_DATA_S *)calloc(1, sizeof(MMS_HEADER_DATA_S));
+		if (pMmsData->header == NULL)
+			return -1;
+
 		memcpy(pMmsData->header, value + offset, sizeof(MMS_HEADER_DATA_S));
 		offset += sizeof(MMS_HEADER_DATA_S);
 
@@ -796,6 +811,8 @@ int MsgDeserializeMmsData(char* value, int value_len, MMS_DATA_S **ppMmsData)
 
 		for (i = 0; i < addr_cnt; i++) {
 			MMS_ADDRESS_DATA_S* to_addr = (MMS_ADDRESS_DATA_S*)calloc(1, sizeof(MMS_ADDRESS_DATA_S));
+			if (to_addr == NULL)
+				return -1;
 
 			memcpy(&(to_addr->address_type), value + offset, sizeof(int));
 			MSG_DEBUG("[#%2d][%5d] address type = %d", deserial_index++, offset, to_addr->address_type);
@@ -815,6 +832,8 @@ int MsgDeserializeMmsData(char* value, int value_len, MMS_DATA_S **ppMmsData)
 
 		for (i = 0; i < addr_cnt; i++) {
 			MMS_ADDRESS_DATA_S* cc_addr = (MMS_ADDRESS_DATA_S*)calloc(1, sizeof(MMS_ADDRESS_DATA_S));
+			if (cc_addr == NULL)
+				return -1;
 
 			memcpy(&(cc_addr->address_type), value + offset, sizeof(int));
 			MSG_DEBUG("[#%2d][%5d] address type = %d", deserial_index++, offset, cc_addr->address_type);
@@ -834,6 +853,8 @@ int MsgDeserializeMmsData(char* value, int value_len, MMS_DATA_S **ppMmsData)
 
 		for (i = 0; i < addr_cnt; i++) {
 			MMS_ADDRESS_DATA_S* bcc_addr = (MMS_ADDRESS_DATA_S*)calloc(1, sizeof(MMS_ADDRESS_DATA_S));
+			if (bcc_addr == NULL)
+				return -1;
 
 			memcpy(&(bcc_addr->address_type), value + offset, sizeof(int));
 			MSG_DEBUG("[#%2d][%5d] address type = %d", deserial_index++, offset, bcc_addr->address_type);
@@ -853,6 +874,9 @@ int MsgDeserializeMmsData(char* value, int value_len, MMS_DATA_S **ppMmsData)
 
 	if (isExistSmil) {
 		pMmsData->smil = (MMS_MULTIPART_DATA_S *)calloc(1, sizeof(MMS_MULTIPART_DATA_S));
+		if (pMmsData->smil == NULL)
+			return -1;
+
 		memcpy(pMmsData->smil, value + offset, sizeof(MMS_MULTIPART_DATA_S));
 		offset += sizeof(MMS_MULTIPART_DATA_S);
 
@@ -861,6 +885,9 @@ int MsgDeserializeMmsData(char* value, int value_len, MMS_DATA_S **ppMmsData)
 
 		if (pMmsData->smil->nMultipartDataLen > 0) {
 			pMmsData->smil->pMultipartData = (char *)calloc(1, sizeof(char)*pMmsData->smil->nMultipartDataLen);
+			if (pMmsData->smil->pMultipartData == NULL)
+				return -1;
+
 			memcpy(pMmsData->smil->pMultipartData, value + offset, sizeof(char)*pMmsData->smil->nMultipartDataLen);
 			MSG_DEBUG("[#%2d][%5d] smil data ptr = %p", deserial_index++, offset, pMmsData->smil->pMultipartData);
 			offset += sizeof(char)*pMmsData->smil->nMultipartDataLen;
@@ -883,6 +910,9 @@ int MsgDeserializeMmsData(char* value, int value_len, MMS_DATA_S **ppMmsData)
 
 		for (i = 0; i < multipart_cnt; i++) {
 			MMS_MULTIPART_DATA_S *multipart_data = (MMS_MULTIPART_DATA_S *)calloc(1, sizeof(MMS_MULTIPART_DATA_S));
+			if (multipart_data == NULL)
+				return -1;
+
 			memcpy(multipart_data, value + offset, sizeof(MMS_MULTIPART_DATA_S));
 			offset += sizeof(MMS_MULTIPART_DATA_S);
 
@@ -890,13 +920,17 @@ int MsgDeserializeMmsData(char* value, int value_len, MMS_DATA_S **ppMmsData)
 
 			if (multipart_data->nMultipartDataLen > 0) {
 				multipart_data->pMultipartData = (char *)calloc(1, sizeof(char)*multipart_data->nMultipartDataLen);
+				if (multipart_data->pMultipartData == NULL) {
+					free(multipart_data);
+					return -1;
+				}
+
 				memcpy(multipart_data->pMultipartData, value + offset, sizeof(char)*multipart_data->nMultipartDataLen);
 				MSG_DEBUG("[#%2d][%5d] multipart_data ptr = %p", deserial_index++, offset, multipart_data->pMultipartData);
 				offset += sizeof(char)*multipart_data->nMultipartDataLen;
 			} else {
 				multipart_data->pMultipartData = NULL;
 			}
-
 			pMmsData->multipartlist = g_list_append(pMmsData->multipartlist, (void *)multipart_data);
 		}
 	}

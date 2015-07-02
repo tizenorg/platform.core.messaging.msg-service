@@ -33,37 +33,37 @@ int msg_setting_get_int_value(msg_struct_s *msg_struct, int field, int *value)
 
 	switch (msg_struct->type) {
 	case MSG_STRUCT_SETTING_SMSC_OPT :
-		*value = msg_get_smsc_opt_int(msg_struct->data, field);
+		err = msg_get_smsc_opt_int(msg_struct->data, field, value);
 		break;
 	case MSG_STRUCT_SETTING_SMSC_INFO :
-		*value = msg_get_smsc_info_int(msg_struct->data, field);
+		err = msg_get_smsc_info_int(msg_struct->data, field, value);
 		break;
 	case MSG_STRUCT_SETTING_CB_OPT :
-		*value = msg_get_cb_option_int(msg_struct->data, field);
+		err = msg_get_cb_option_int(msg_struct->data, field, value);
 		break;
 	case MSG_STRUCT_SETTING_CB_CHANNEL_INFO :
-		*value = msg_get_cb_channel_info_int(msg_struct->data, field);
+		err = msg_get_cb_channel_info_int(msg_struct->data, field, value);
 		break;
 	case MSG_STRUCT_SETTING_SMS_SEND_OPT :
-		*value = msg_get_sms_send_opt_int(msg_struct->data, field);
+		err = msg_get_sms_send_opt_int(msg_struct->data, field, value);
 		break;
 	case MSG_STRUCT_SETTING_MMS_SEND_OPT :
-		*value = msg_get_mms_send_opt_int(msg_struct->data, field);
+		err = msg_get_mms_send_opt_int(msg_struct->data, field, value);
 		break;
 	case MSG_STRUCT_SETTING_MMS_RECV_OPT :
-		*value = msg_get_mms_recv_opt_int(msg_struct->data, field);
+		err = msg_get_mms_recv_opt_int(msg_struct->data, field, value);
 		break;
 	case MSG_STRUCT_SETTING_PUSH_MSG_OPT :
-		*value = msg_get_push_msg_opt_int(msg_struct->data, field);
+		err = msg_get_push_msg_opt_int(msg_struct->data, field, value);
 		break;
 	case MSG_STRUCT_SETTING_GENERAL_OPT :
-		*value = msg_get_general_opt_int(msg_struct->data, field);
+		err = msg_get_general_opt_int(msg_struct->data, field, value);
 		break;
 	case MSG_STRUCT_SETTING_MSGSIZE_OPT :
-		*value = msg_get_msgsize_opt_int(msg_struct->data, field);
+		err = msg_get_msgsize_opt_int(msg_struct->data, field, value);
 		break;
 	case MSG_STRUCT_SETTING_VOICE_MSG_OPT :
-		*value = msg_get_voice_msg_opt_int(msg_struct->data, field);
+		err = msg_get_voice_msg_opt_int(msg_struct->data, field, value);
 		break;
 	default :
 		err = MSG_ERR_INVALID_PARAMETER;
@@ -76,30 +76,20 @@ int msg_setting_get_int_value(msg_struct_s *msg_struct, int field, int *value)
 int msg_setting_get_str_value(msg_struct_s *msg_struct, int field, char *src, int size)
 {
 	int err = MSG_SUCCESS;
-	char *ret_str = NULL;
 
 	switch (msg_struct->type)
 	{
 	case MSG_STRUCT_SETTING_SMSC_INFO :
-		ret_str = msg_get_smsc_info_str(msg_struct->data, field);
-		if (ret_str == NULL)
-			err = MSG_ERR_UNKNOWN;
-		else
-			strncpy(src, ret_str, size);
+		err = msg_get_smsc_info_str(msg_struct->data, field, src, size);
 		break;
 	case MSG_STRUCT_SETTING_CB_CHANNEL_INFO :
-		ret_str = msg_get_cb_channel_info_str(msg_struct->data, field);
-		if (ret_str == NULL)
-			err = MSG_ERR_UNKNOWN;
-		else
-			strncpy(src, ret_str, size);
+		err = msg_get_cb_channel_info_str(msg_struct->data, field, src, size);
 		break;
 	case MSG_STRUCT_SETTING_VOICE_MSG_OPT :
-		ret_str = msg_get_voice_msg_opt_str(msg_struct->data, field);
-		if (ret_str == NULL)
-			err = MSG_ERR_UNKNOWN;
-		else
-			strncpy(src, ret_str, size);
+		err = msg_get_voice_msg_opt_str(msg_struct->data, field, src, size);
+		break;
+	case MSG_STRUCT_SETTING_GENERAL_OPT :
+		err = msg_get_general_opt_str(msg_struct->data, field, src, size);
 		break;
 	default :
 		err = MSG_ERR_INVALID_PARAMETER;
@@ -115,25 +105,25 @@ int msg_setting_get_bool_value(msg_struct_s *msg_struct, int field, bool *value)
 
 	switch (msg_struct->type) {
 	case MSG_STRUCT_SETTING_CB_OPT :
-		*value = msg_get_cb_option_bool(msg_struct->data, field);
+		err = msg_get_cb_option_bool(msg_struct->data, field, value);
 		break;
 	case MSG_STRUCT_SETTING_CB_CHANNEL_INFO :
-		*value = msg_get_cb_channel_info_bool(msg_struct->data, field);
+		err = msg_get_cb_channel_info_bool(msg_struct->data, field, value);
 		break;
 	case MSG_STRUCT_SETTING_SMS_SEND_OPT :
-		*value = msg_get_sms_send_opt_bool(msg_struct->data, field);
+		err = msg_get_sms_send_opt_bool(msg_struct->data, field, value);
 		break;
 	case MSG_STRUCT_SETTING_MMS_SEND_OPT :
-		*value = msg_get_mms_send_opt_bool(msg_struct->data, field);
+		err = msg_get_mms_send_opt_bool(msg_struct->data, field, value);
 		break;
 	case MSG_STRUCT_SETTING_MMS_RECV_OPT :
-		*value = msg_get_mms_recv_opt_bool(msg_struct->data, field);
+		err = msg_get_mms_recv_opt_bool(msg_struct->data, field, value);
 		break;
 	case MSG_STRUCT_SETTING_PUSH_MSG_OPT :
-		*value = msg_get_push_msg_opt_bool(msg_struct->data, field);
+		err = msg_get_push_msg_opt_bool(msg_struct->data, field, value);
 		break;
 	case MSG_STRUCT_SETTING_GENERAL_OPT :
-		*value = msg_get_general_opt_bool(msg_struct->data, field);
+		err = msg_get_general_opt_bool(msg_struct->data, field, value);
 		break;
 	default :
 		err = MSG_ERR_INVALID_PARAMETER;
@@ -155,6 +145,7 @@ int msg_setting_get_list_handle(msg_struct_s *msg_struct, int field, void **valu
 		err = msg_get_cb_option_list(msg_struct->data, field, value);
 		break;
 	default :
+		err = MSG_ERR_INVALID_PARAMETER;
 		break;
 	}
 
@@ -222,6 +213,9 @@ int msg_setting_set_str_value(msg_struct_s *msg_struct, int field, char *value, 
 	case MSG_STRUCT_SETTING_VOICE_MSG_OPT :
 		err = msg_set_voice_msg_opt_str(msg_struct->data, field, value, size);
 		break;
+	case MSG_STRUCT_SETTING_GENERAL_OPT :
+		err = msg_set_general_opt_str(msg_struct->data, field, value, size);
+		break;
 	default :
 		err = MSG_ERR_INVALID_PARAMETER;
 		break;
@@ -267,19 +261,19 @@ int msg_setting_set_bool_value(msg_struct_s *msg_struct, int field, bool value)
 
 EXPORT_API int msg_get_smsc_opt(msg_handle_t handle, msg_struct_t msg_struct)
 {
-	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_FEATURE);
+	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_SMS_FEATURE);
 
-	msg_error_t err =  MSG_SUCCESS;
+	msg_error_t err = MSG_SUCCESS;
 
 	//Privilege check
 	int ret = PRIV_MGR_ERROR_SUCCESS;
 	ret = privacy_checker_check_by_privilege(MSG_SERVICE_READ_PRIV_NAME);
-	if(ret != PRIV_MGR_ERROR_SUCCESS)
+	if (ret != PRIV_MGR_ERROR_SUCCESS)
 	{
 		return MSG_ERR_PERMISSION_DENIED;
 	}
 
-	if (handle == NULL)
+	if (handle == NULL || msg_struct == NULL)
 	{
 		return MSG_ERR_INVALID_PARAMETER;
 	}
@@ -301,14 +295,14 @@ EXPORT_API int msg_get_smsc_opt(msg_handle_t handle, msg_struct_t msg_struct)
 
 EXPORT_API int msg_set_smsc_opt(msg_handle_t handle, msg_struct_t msg_struct)
 {
-	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_FEATURE);
+	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_SMS_FEATURE);
 
-	msg_error_t err =  MSG_SUCCESS;
+	msg_error_t err = MSG_SUCCESS;
 
 	//Privilege check
 	int ret = PRIV_MGR_ERROR_SUCCESS;
 	ret = privacy_checker_check_by_privilege(MSG_SERVICE_WRITE_PRIV_NAME);
-	if(ret != PRIV_MGR_ERROR_SUCCESS)
+	if (ret != PRIV_MGR_ERROR_SUCCESS)
 	{
 		return MSG_ERR_PERMISSION_DENIED;
 	}
@@ -348,13 +342,14 @@ int msg_get_smsc_opt_list(void *smsc_opt, int field, void **value)
 		*value = (void *)smsc_opt_data->smsc_list;
 		break;
 	default :
+		ret = MSG_ERR_INVALID_PARAMETER;
 		break;
 	}
 
 	return ret;
 }
 
-int msg_get_smsc_opt_int(void *smsc_opt, int field)
+int msg_get_smsc_opt_int(void *smsc_opt, int field, int *value)
 {
 	if (!smsc_opt)
 		return MSG_ERR_NULL_POINTER;
@@ -366,13 +361,14 @@ int msg_get_smsc_opt_int(void *smsc_opt, int field)
 	switch (field)
 	{
 	case MSG_SMSC_SELECTED_ID_INT :
-		ret = smsc_opt_data->selected;
+		*value = smsc_opt_data->selected;
 		break;
 	case MSG_SMSC_LIST_SIM_INDEX_INT :
-		ret = smsc_opt_data->simIndex;
+		*value  = smsc_opt_data->simIndex;
 		break;
 	default :
-		return MSG_ERR_INVALID_PARAMETER;
+		ret = MSG_ERR_INVALID_PARAMETER;
+		break;
 	}
 
 	return ret;
@@ -406,7 +402,7 @@ int msg_set_smsc_opt_int(void *smsc_opt, int field, int value)
 	return ret;
 }
 
-int msg_get_smsc_info_int(void *smsc_info, int field)
+int msg_get_smsc_info_int(void *smsc_info, int field, int *value)
 {
 	if (!smsc_info)
 		return MSG_ERR_NULL_POINTER;
@@ -418,19 +414,20 @@ int msg_get_smsc_info_int(void *smsc_info, int field)
 	switch (field)
 	{
 	case MSG_SMSC_ADDR_TON_INT :
-		ret = smsc_data->smscAddr.ton;
+		*value = smsc_data->smscAddr.ton;
 		break;
 	case MSG_SMSC_ADDR_NPI_INT :
-		ret = smsc_data->smscAddr.npi;
+		*value = smsc_data->smscAddr.npi;
 		break;
 	case MSG_SMSC_PID_INT :
-		ret = smsc_data->pid;
+		*value = smsc_data->pid;
 		break;
 	case MSG_SMSC_VAL_PERIOD_INT :
-		ret = smsc_data->valPeriod;
+		*value = smsc_data->valPeriod;
 		break;
 	default :
-		return MSG_ERR_INVALID_PARAMETER;
+		ret = MSG_ERR_INVALID_PARAMETER;
+		break;
 	}
 
 	return ret;
@@ -467,28 +464,26 @@ int msg_set_smsc_info_int(void *smsc_info, int field, int value)
 	return err;
 }
 
-char *msg_get_smsc_info_str(void *smsc_info, int field)
+int msg_get_smsc_info_str(void *smsc_info, int field, char *value, int size)
 {
 	if (!smsc_info)
-		return NULL;
-
-	char *ret_str = NULL;
+		return MSG_ERR_NULL_POINTER;
 
 	MSG_SMSC_DATA_S *smsc_data = (MSG_SMSC_DATA_S *)smsc_info;
 
 	switch (field)
 	{
 	case MSG_SMSC_ADDR_STR :
-		ret_str = smsc_data->smscAddr.address;
+		strncpy(value, smsc_data->smscAddr.address, size);
 		break;
 	case MSG_SMSC_NAME_STR :
-		ret_str = smsc_data->name;
+		strncpy(value, smsc_data->name, size);
 		break;
 	default :
-		return NULL;
+		return MSG_ERR_INVALID_PARAMETER;
 	}
 
-	return ret_str;
+	return MSG_SUCCESS;
 }
 
 int msg_set_smsc_info_str(void *smsc_info, int field, char *val, int size)
@@ -520,19 +515,19 @@ int msg_set_smsc_info_str(void *smsc_info, int field, char *val, int size)
 
 EXPORT_API int msg_get_cb_opt(msg_handle_t handle, msg_struct_t msg_struct)
 {
-	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_FEATURE);
+	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_SMS_FEATURE);
 
-	msg_error_t err =  MSG_SUCCESS;
+	msg_error_t err = MSG_SUCCESS;
 
 	//Privilege check
 	int ret = PRIV_MGR_ERROR_SUCCESS;
 	ret = privacy_checker_check_by_privilege(MSG_SERVICE_READ_PRIV_NAME);
-	if(ret != PRIV_MGR_ERROR_SUCCESS)
+	if (ret != PRIV_MGR_ERROR_SUCCESS)
 	{
 		return MSG_ERR_PERMISSION_DENIED;
 	}
 
-	if (handle == NULL)
+	if (handle == NULL || msg_struct == NULL)
 	{
 		return MSG_ERR_INVALID_PARAMETER;
 	}
@@ -554,14 +549,14 @@ EXPORT_API int msg_get_cb_opt(msg_handle_t handle, msg_struct_t msg_struct)
 
 EXPORT_API int msg_set_cb_opt(msg_handle_t handle, msg_struct_t msg_struct)
 {
-	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_FEATURE);
+	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_SMS_FEATURE);
 
-	msg_error_t err =  MSG_SUCCESS;
+	msg_error_t err = MSG_SUCCESS;
 
 	//Privilege check
 	int ret = PRIV_MGR_ERROR_SUCCESS;
 	ret = privacy_checker_check_by_privilege(MSG_SERVICE_WRITE_PRIV_NAME);
-	if(ret != PRIV_MGR_ERROR_SUCCESS)
+	if (ret != PRIV_MGR_ERROR_SUCCESS)
 	{
 		return MSG_ERR_PERMISSION_DENIED;
 	}
@@ -586,7 +581,7 @@ EXPORT_API int msg_set_cb_opt(msg_handle_t handle, msg_struct_t msg_struct)
 	return err;
 }
 
-int msg_get_cb_option_int(void *cb_opt, int field)
+int msg_get_cb_option_int(void *cb_opt, int field, int *value)
 {
 	if (!cb_opt)
 		return MSG_ERR_NULL_POINTER;
@@ -598,10 +593,10 @@ int msg_get_cb_option_int(void *cb_opt, int field)
 	switch (field)
 	{
 	case MSG_CB_MAX_SIM_COUNT_INT :
-		ret = cb_opt_data->maxSimCnt;
+		*value = cb_opt_data->maxSimCnt;
 		break;
 	case MSG_CB_SIM_INDEX_INT :
-		ret = cb_opt_data->simIndex;
+		*value = cb_opt_data->simIndex;
 		break;
 	default :
 		ret = MSG_ERR_INVALID_PARAMETER;
@@ -637,51 +632,52 @@ int msg_set_cb_option_int(void *cb_opt, int field, int value)
 }
 
 
-bool msg_get_cb_option_bool(void *cb_opt, int field)
+int msg_get_cb_option_bool(void *cb_opt, int field, bool *value)
 {
 	if (!cb_opt)
-		return false;
+		return MSG_ERR_NULL_POINTER;
 
-	bool ret = false;
+	int ret = MSG_SUCCESS;
 
 	MSG_CBMSG_OPT_HIDDEN_S *cb_opt_data = (MSG_CBMSG_OPT_HIDDEN_S *)cb_opt;
 
 	switch (field)
 	{
 	case MSG_CB_RECEIVE_BOOL :
-		ret = cb_opt_data->bReceive;
+		*value = cb_opt_data->bReceive;
 		break;
 	case MSG_CB_LANGUAGE_TYPE_ALL_BOOL :
-		ret = cb_opt_data->bLanguage[MSG_CBLANG_TYPE_ALL];
+		*value = cb_opt_data->bLanguage[MSG_CBLANG_TYPE_ALL];
 		break;
 	case MSG_CB_LANGUAGE_TYPE_ENG_BOOL :
-		ret = cb_opt_data->bLanguage[MSG_CBLANG_TYPE_ENG];
+		*value = cb_opt_data->bLanguage[MSG_CBLANG_TYPE_ENG];
 		break;
 	case MSG_CB_LANGUAGE_TYPE_GER_BOOL :
-		ret = cb_opt_data->bLanguage[MSG_CBLANG_TYPE_GER];
+		*value = cb_opt_data->bLanguage[MSG_CBLANG_TYPE_GER];
 		break;
 	case MSG_CB_LANGUAGE_TYPE_FRE_BOOL :
-		ret = cb_opt_data->bLanguage[MSG_CBLANG_TYPE_FRE];
+		*value = cb_opt_data->bLanguage[MSG_CBLANG_TYPE_FRE];
 		break;
 	case MSG_CB_LANGUAGE_TYPE_ITA_BOOL :
-		ret = cb_opt_data->bLanguage[MSG_CBLANG_TYPE_ITA];
+		*value = cb_opt_data->bLanguage[MSG_CBLANG_TYPE_ITA];
 		break;
 	case MSG_CB_LANGUAGE_TYPE_NED_BOOL :
-		ret = cb_opt_data->bLanguage[MSG_CBLANG_TYPE_NED];
+		*value = cb_opt_data->bLanguage[MSG_CBLANG_TYPE_NED];
 		break;
 	case MSG_CB_LANGUAGE_TYPE_SPA_BOOL :
-		ret = cb_opt_data->bLanguage[MSG_CBLANG_TYPE_SPA];
+		*value = cb_opt_data->bLanguage[MSG_CBLANG_TYPE_SPA];
 		break;
 	case MSG_CB_LANGUAGE_TYPE_POR_BOOL :
-		ret = cb_opt_data->bLanguage[MSG_CBLANG_TYPE_POR];
+		*value = cb_opt_data->bLanguage[MSG_CBLANG_TYPE_POR];
 		break;
 	case MSG_CB_LANGUAGE_TYPE_SWE_BOOL :
-		ret = cb_opt_data->bLanguage[MSG_CBLANG_TYPE_SWE];
+		*value = cb_opt_data->bLanguage[MSG_CBLANG_TYPE_SWE];
 		break;
 	case MSG_CB_LANGUAGE_TYPE_TUR_BOOL :
-		ret = cb_opt_data->bLanguage[MSG_CBLANG_TYPE_TUR];
+		*value = cb_opt_data->bLanguage[MSG_CBLANG_TYPE_TUR];
 		break;
 	default :
+		ret = MSG_ERR_INVALID_PARAMETER;
 		break;
 	}
 
@@ -755,30 +751,32 @@ int msg_get_cb_option_list(void *cb_opt, int field, void **value)
 		*value = (void *)cb_opt_data->channelData;
 		break;
 	default :
+		ret = MSG_ERR_INVALID_PARAMETER;
 		break;
 	}
 
 	return ret;
 }
 
-int msg_get_cb_channel_info_int(void *cb_ch_info, int field)
+int msg_get_cb_channel_info_int(void *cb_ch_info, int field, int *value)
 {
 	if (!cb_ch_info)
 		return MSG_ERR_NULL_POINTER;
 
-	int ret = MSG_ERR_INVALID_PARAMETER;
+	int ret = MSG_SUCCESS;
 
 	MSG_CB_CHANNEL_INFO_S *cb_ch_data = (MSG_CB_CHANNEL_INFO_S *)cb_ch_info;
 
 	switch (field)
 	{
 	case MSG_CB_CHANNEL_ID_FROM_INT :
-		ret = cb_ch_data->from;
+		*value = cb_ch_data->from;
 		break;
 	case MSG_CB_CHANNEL_ID_TO_INT :
-		ret = cb_ch_data->to;
+		*value = cb_ch_data->to;
 		break;
 	default :
+		ret = MSG_ERR_INVALID_PARAMETER;
 		break;
 	}
 
@@ -810,21 +808,22 @@ int msg_set_cb_channel_info_int(void *cb_ch_info, int field, int value)
 	return ret;
 }
 
-bool msg_get_cb_channel_info_bool(void *cb_ch_info, int field)
+int msg_get_cb_channel_info_bool(void *cb_ch_info, int field, bool *value)
 {
 	if (!cb_ch_info)
-		return false;
+		return MSG_ERR_NULL_POINTER;
 
-	bool ret = false;
+	int ret = MSG_SUCCESS;
 
 	MSG_CB_CHANNEL_INFO_S *cb_ch_data = (MSG_CB_CHANNEL_INFO_S *)cb_ch_info;
 
 	switch (field)
 	{
 	case MSG_CB_CHANNEL_ACTIVATE_BOOL :
-		ret = cb_ch_data->bActivate;
+		*value = cb_ch_data->bActivate;
 		break;
 	default :
+		ret = MSG_ERR_INVALID_PARAMETER;
 		break;
 	}
 
@@ -853,25 +852,23 @@ int msg_set_cb_channel_info_bool(void *cb_ch_info, int field, bool value)
 	return ret;
 }
 
-char *msg_get_cb_channel_info_str(void *cb_ch_info, int field)
+int msg_get_cb_channel_info_str(void *cb_ch_info, int field, char *value, int size)
 {
 	if (!cb_ch_info)
-		return NULL;
-
-	char *ret_str = NULL;
+		return MSG_ERR_NULL_POINTER;
 
 	MSG_CB_CHANNEL_INFO_S *cb_ch_data = (MSG_CB_CHANNEL_INFO_S *)cb_ch_info;
 
 	switch (field)
 	{
 	case MSG_CB_CHANNEL_NAME_STR :
-		ret_str = cb_ch_data->name;
+		strncpy(value, cb_ch_data->name, size);
 		break;
 	default :
-		break;
+		return MSG_ERR_INVALID_PARAMETER;
 	}
 
-	return ret_str;
+	return MSG_SUCCESS;
 }
 
 int msg_set_cb_channel_info_str(void *cb_ch_info, int field, char *val, int size)
@@ -899,19 +896,19 @@ int msg_set_cb_channel_info_str(void *cb_ch_info, int field, char *val, int size
 
 EXPORT_API int msg_get_sms_send_opt(msg_handle_t handle, msg_struct_t msg_struct)
 {
-	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_FEATURE);
+	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_SMS_FEATURE);
 
-	msg_error_t err =  MSG_SUCCESS;
+	msg_error_t err = MSG_SUCCESS;
 
 	//Privilege check
 	int ret = PRIV_MGR_ERROR_SUCCESS;
 	ret = privacy_checker_check_by_privilege(MSG_SERVICE_READ_PRIV_NAME);
-	if(ret != PRIV_MGR_ERROR_SUCCESS)
+	if (ret != PRIV_MGR_ERROR_SUCCESS)
 	{
 		return MSG_ERR_PERMISSION_DENIED;
 	}
 
-	if (handle == NULL)
+	if (handle == NULL || msg_struct == NULL)
 	{
 		return MSG_ERR_INVALID_PARAMETER;
 	}
@@ -933,14 +930,14 @@ EXPORT_API int msg_get_sms_send_opt(msg_handle_t handle, msg_struct_t msg_struct
 
 EXPORT_API int msg_set_sms_send_opt(msg_handle_t handle, msg_struct_t msg_struct)
 {
-	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_FEATURE);
+	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_SMS_FEATURE);
 
-	msg_error_t err =  MSG_SUCCESS;
+	msg_error_t err = MSG_SUCCESS;
 
 	//Privilege check
 	int ret = PRIV_MGR_ERROR_SUCCESS;
 	ret = privacy_checker_check_by_privilege(MSG_SERVICE_WRITE_PRIV_NAME);
-	if(ret != PRIV_MGR_ERROR_SUCCESS)
+	if (ret != PRIV_MGR_ERROR_SUCCESS)
 	{
 		return MSG_ERR_PERMISSION_DENIED;
 	}
@@ -965,27 +962,28 @@ EXPORT_API int msg_set_sms_send_opt(msg_handle_t handle, msg_struct_t msg_struct
 	return err;
 }
 
-int msg_get_sms_send_opt_int(void *sms_send_opt, int field)
+int msg_get_sms_send_opt_int(void *sms_send_opt, int field, int *value)
 {
 	if (!sms_send_opt)
 		return MSG_ERR_NULL_POINTER;
 
-	int ret = MSG_ERR_INVALID_PARAMETER;
+	int ret = MSG_SUCCESS;
 
 	MSG_SMS_SENDOPT_S *send_opt = (MSG_SMS_SENDOPT_S *)sms_send_opt;
 
 	switch (field)
 	{
 	case MSG_SMS_SENDOPT_ENCODE_TYPE_INT :
-		ret = send_opt->dcs;
+		*value = send_opt->dcs;
 		break;
 	case MSG_SMS_SENDOPT_NETWORK_MODE_INT :
-		ret = send_opt->netMode;
+		*value = send_opt->netMode;
 		break;
 	case MSG_SMS_SENDOPT_SAVE_STORAGE_INT :
-		ret = send_opt->saveStorage;
+		*value = send_opt->saveStorage;
 		break;
 	default :
+		ret = MSG_ERR_INVALID_PARAMETER;
 		break;
 	}
 
@@ -1020,24 +1018,25 @@ int msg_set_sms_send_opt_int(void *sms_send_opt, int field, int value)
 	return ret;
 }
 
-bool msg_get_sms_send_opt_bool(void *sms_send_opt, int field)
+int msg_get_sms_send_opt_bool(void *sms_send_opt, int field, bool *value)
 {
 	if (!sms_send_opt)
-		return false;
+		return MSG_ERR_NULL_POINTER;
 
-	bool ret = false;
+	int ret = MSG_SUCCESS;
 
 	MSG_SMS_SENDOPT_S *send_opt = (MSG_SMS_SENDOPT_S *)sms_send_opt;
 
 	switch (field)
 	{
 	case MSG_SMS_SENDOPT_REPLY_PATH_BOOL :
-		ret = send_opt->bReplyPath;
+		*value = send_opt->bReplyPath;
 		break;
 	case MSG_SMS_SENDOPT_DELIVERY_REPORT_BOOL :
-		ret = send_opt->bDeliveryReport;
+		*value = send_opt->bDeliveryReport;
 		break;
 	default :
+		ret = MSG_ERR_INVALID_PARAMETER;
 		break;
 	}
 
@@ -1073,17 +1072,17 @@ EXPORT_API int msg_get_mms_send_opt(msg_handle_t handle, msg_struct_t msg_struct
 {
 	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_MMS_FEATURE);
 
-	msg_error_t err =  MSG_SUCCESS;
+	msg_error_t err = MSG_SUCCESS;
 
 	//Privilege check
 	int ret = PRIV_MGR_ERROR_SUCCESS;
 	ret = privacy_checker_check_by_privilege(MSG_SERVICE_READ_PRIV_NAME);
-	if(ret != PRIV_MGR_ERROR_SUCCESS)
+	if (ret != PRIV_MGR_ERROR_SUCCESS)
 	{
 		return MSG_ERR_PERMISSION_DENIED;
 	}
 
-	if (handle == NULL)
+	if (handle == NULL || msg_struct == NULL)
 	{
 		return MSG_ERR_INVALID_PARAMETER;
 	}
@@ -1107,12 +1106,12 @@ EXPORT_API int msg_set_mms_send_opt(msg_handle_t handle, msg_struct_t msg_struct
 {
 	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_MMS_FEATURE);
 
-	msg_error_t err =  MSG_SUCCESS;
+	msg_error_t err = MSG_SUCCESS;
 
 	//Privilege check
 	int ret = PRIV_MGR_ERROR_SUCCESS;
 	ret = privacy_checker_check_by_privilege(MSG_SERVICE_WRITE_PRIV_NAME);
-	if(ret != PRIV_MGR_ERROR_SUCCESS)
+	if (ret != PRIV_MGR_ERROR_SUCCESS)
 	{
 		return MSG_ERR_PERMISSION_DENIED;
 	}
@@ -1138,45 +1137,46 @@ EXPORT_API int msg_set_mms_send_opt(msg_handle_t handle, msg_struct_t msg_struct
 }
 
 
-int msg_get_mms_send_opt_int(void *mms_send_opt, int field)
+int msg_get_mms_send_opt_int(void *mms_send_opt, int field, int *value)
 {
 	if (!mms_send_opt)
 		return MSG_ERR_NULL_POINTER;
 
-	int ret = MSG_ERR_INVALID_PARAMETER;
+	int ret = MSG_SUCCESS;
 
 	MSG_MMS_SENDOPT_S *send_opt = (MSG_MMS_SENDOPT_S *)mms_send_opt;
 
 	switch (field)
 	{
 	case MSG_MMS_SENDOPT_CLASS_TYPE_INT :
-		ret = send_opt->msgClass;
+		*value = send_opt->msgClass;
 		break;
 	case MSG_MMS_SENDOPT_PRIORITY_TYPE_INT :
-		ret = send_opt->priority;
+		*value = send_opt->priority;
 		break;
 	case MSG_MMS_SENDOPT_EXPIRY_TIME_INT :
-		ret = send_opt->expiryTime;
+		*value = send_opt->expiryTime;
 		break;
 	case MSG_MMS_SENDOPT_DELIVERY_TIME_INT :
-		ret = send_opt->deliveryTime;
+		*value = send_opt->deliveryTime;
 		break;
 	case MSG_MMS_SENDOPT_CUSTOM_DELIVERY_TIME_INT :
-		ret = send_opt->customDeliveryTime;
+		*value = send_opt->customDeliveryTime;
 		break;
 	case MSG_MMS_SENDOPT_REPLY_CHARGING_INT :
-		ret = send_opt->replyCharging;
+		*value = send_opt->replyCharging;
 		break;
 	case MSG_MMS_SENDOPT_REPLY_CHARGING_DEADLINE_INT :
-		ret = send_opt->replyChargingDeadline;
+		*value = send_opt->replyChargingDeadline;
 		break;
 	case MSG_MMS_SENDOPT_REPLY_CHARGING_SIZE_INT :
-		ret = send_opt->replyChargingSize;
+		*value = send_opt->replyChargingSize;
 		break;
 	case MSG_MMS_SENDOPT_CREATION_MODE_INT :
-		ret = send_opt->creationMode;
+		*value = send_opt->creationMode;
 		break;
 	default :
+		ret = MSG_ERR_INVALID_PARAMETER;
 		break;
 	}
 
@@ -1229,36 +1229,37 @@ int msg_set_mms_send_opt_int(void *mms_send_opt, int field, int value)
 	return ret;
 }
 
-bool msg_get_mms_send_opt_bool(void *mms_send_opt, int field)
+int msg_get_mms_send_opt_bool(void *mms_send_opt, int field, bool *value)
 {
 	if (!mms_send_opt)
-		return false;
+		return MSG_ERR_NULL_POINTER;
 
-	bool ret = false;
+	int ret = MSG_SUCCESS;
 
 	MSG_MMS_SENDOPT_S *send_opt = (MSG_MMS_SENDOPT_S *)mms_send_opt;
 
 	switch (field)
 	{
 	case MSG_MMS_SENDOPT_SENDER_VISIBILITY_BOOL :
-		ret = send_opt->bSenderVisibility;
+		*value = send_opt->bSenderVisibility;
 		break;
 	case MSG_MMS_SENDOPT_DELIVERY_REPORT_BOOL :
-		ret = send_opt->bDeliveryReport;
+		*value = send_opt->bDeliveryReport;
 		break;
 	case MSG_MMS_SENDOPT_READ_REPLY_BOOL :
-		ret = send_opt->bReadReply;
+		*value = send_opt->bReadReply;
 		break;
 	case MSG_MMS_SENDOPT_KEEP_COPY_BOOL :
-		ret = send_opt->bKeepCopy;
+		*value = send_opt->bKeepCopy;
 		break;
 	case MSG_MMS_SENDOPT_BODY_REPLYING_BOOL :
-		ret = send_opt->bBodyReplying;
+		*value = send_opt->bBodyReplying;
 		break;
 	case MSG_MMS_SENDOPT_HIDE_RECIPIENTS_BOOL :
-		ret = send_opt->bHideRecipients;
+		*value = send_opt->bHideRecipients;
 		break;
 	default :
+		ret = MSG_ERR_INVALID_PARAMETER;
 		break;
 	}
 
@@ -1306,17 +1307,17 @@ EXPORT_API int msg_get_mms_recv_opt(msg_handle_t handle, msg_struct_t msg_struct
 {
 	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_MMS_FEATURE);
 
-	msg_error_t err =  MSG_SUCCESS;
+	msg_error_t err = MSG_SUCCESS;
 
 	//Privilege check
 	int ret = PRIV_MGR_ERROR_SUCCESS;
 	ret = privacy_checker_check_by_privilege(MSG_SERVICE_READ_PRIV_NAME);
-	if(ret != PRIV_MGR_ERROR_SUCCESS)
+	if (ret != PRIV_MGR_ERROR_SUCCESS)
 	{
 		return MSG_ERR_PERMISSION_DENIED;
 	}
 
-	if (handle == NULL)
+	if (handle == NULL || msg_struct == NULL)
 	{
 		return MSG_ERR_INVALID_PARAMETER;
 	}
@@ -1340,12 +1341,12 @@ EXPORT_API int msg_set_mms_recv_opt(msg_handle_t handle, msg_struct_t msg_struct
 {
 	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_MMS_FEATURE);
 
-	msg_error_t err =  MSG_SUCCESS;
+	msg_error_t err = MSG_SUCCESS;
 
 	//Privilege check
 	int ret = PRIV_MGR_ERROR_SUCCESS;
 	ret = privacy_checker_check_by_privilege(MSG_SERVICE_WRITE_PRIV_NAME);
-	if(ret != PRIV_MGR_ERROR_SUCCESS)
+	if (ret != PRIV_MGR_ERROR_SUCCESS)
 	{
 		return MSG_ERR_PERMISSION_DENIED;
 	}
@@ -1370,24 +1371,25 @@ EXPORT_API int msg_set_mms_recv_opt(msg_handle_t handle, msg_struct_t msg_struct
 	return err;
 }
 
-int msg_get_mms_recv_opt_int(void *mms_recv_opt, int field)
+int msg_get_mms_recv_opt_int(void *mms_recv_opt, int field, int *value)
 {
 	if (!mms_recv_opt)
 		return MSG_ERR_NULL_POINTER;
 
-	int ret = MSG_ERR_INVALID_PARAMETER;
+	int ret = MSG_SUCCESS;
 
 	MSG_MMS_RECVOPT_S *recv_opt = (MSG_MMS_RECVOPT_S *)mms_recv_opt;
 
 	switch (field)
 	{
 	case MSG_MMS_RECVOPT_HOME_RETRIEVE_TYPE_INT :
-		ret = recv_opt->homeNetwork;
+		*value = recv_opt->homeNetwork;
 		break;
 	case MSG_MMS_RECVOPT_ABROAD_RETRIEVE_TYPE_INT :
-		ret = recv_opt->abroadNetwok;
+		*value = recv_opt->abroadNetwok;
 		break;
 	default :
+		ret = MSG_ERR_INVALID_PARAMETER;
 		break;
 	}
 
@@ -1419,30 +1421,31 @@ int msg_set_mms_recv_opt_int(void *mms_recv_opt, int field, int value)
 	return ret;
 }
 
-bool msg_get_mms_recv_opt_bool(void *mms_recv_opt, int field)
+int msg_get_mms_recv_opt_bool(void *mms_recv_opt, int field, bool *value)
 {
 	if (!mms_recv_opt)
-		return false;
+		return MSG_ERR_NULL_POINTER;
 
-	bool ret = false;
+	int ret = MSG_SUCCESS;
 
 	MSG_MMS_RECVOPT_S *recv_opt = (MSG_MMS_RECVOPT_S *)mms_recv_opt;
 
 	switch (field)
 	{
 	case MSG_MMS_RECVOPT_READ_REPORT_BOOL :
-		ret = recv_opt->readReceipt;
+		*value = recv_opt->readReceipt;
 		break;
 	case MSG_MMS_RECVOPT_DELIVERY_REPORT_BOOL :
-		ret = recv_opt->bDeliveryReceipt;
+		*value = recv_opt->bDeliveryReceipt;
 		break;
 	case MSG_MMS_RECVOPT_REJECT_UNKNOWN_BOOL :
-		ret = recv_opt->bRejectUnknown;
+		*value = recv_opt->bRejectUnknown;
 		break;
 	case MSG_MMS_RECVOPT_REJECT_ADVERTISEMENT_BOOL :
-		ret = recv_opt->bRejectAdvertisement;
+		*value = recv_opt->bRejectAdvertisement;
 		break;
 	default :
+		ret = MSG_ERR_INVALID_PARAMETER;
 		break;
 	}
 
@@ -1482,18 +1485,18 @@ int msg_set_mms_recv_opt_bool(void *mms_recv_opt, int field, bool value)
 
 EXPORT_API int msg_get_push_msg_opt(msg_handle_t handle, msg_struct_t msg_struct)
 {
-	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_FEATURE);
-	msg_error_t err =  MSG_SUCCESS;
+	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_SMS_FEATURE);
+	msg_error_t err = MSG_SUCCESS;
 
 	//Privilege check
 	int ret = PRIV_MGR_ERROR_SUCCESS;
 	ret = privacy_checker_check_by_privilege(MSG_SERVICE_READ_PRIV_NAME);
-	if(ret != PRIV_MGR_ERROR_SUCCESS)
+	if (ret != PRIV_MGR_ERROR_SUCCESS)
 	{
 		return MSG_ERR_PERMISSION_DENIED;
 	}
 
-	if (handle == NULL)
+	if (handle == NULL || msg_struct == NULL)
 	{
 		return MSG_ERR_INVALID_PARAMETER;
 	}
@@ -1515,13 +1518,13 @@ EXPORT_API int msg_get_push_msg_opt(msg_handle_t handle, msg_struct_t msg_struct
 
 EXPORT_API int msg_set_push_msg_opt(msg_handle_t handle, msg_struct_t msg_struct)
 {
-	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_FEATURE);
-	msg_error_t err =  MSG_SUCCESS;
+	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_SMS_FEATURE);
+	msg_error_t err = MSG_SUCCESS;
 
 	//Privilege check
 	int ret = PRIV_MGR_ERROR_SUCCESS;
 	ret = privacy_checker_check_by_privilege(MSG_SERVICE_WRITE_PRIV_NAME);
-	if(ret != PRIV_MGR_ERROR_SUCCESS)
+	if (ret != PRIV_MGR_ERROR_SUCCESS)
 	{
 		return MSG_ERR_PERMISSION_DENIED;
 	}
@@ -1546,21 +1549,22 @@ EXPORT_API int msg_set_push_msg_opt(msg_handle_t handle, msg_struct_t msg_struct
 	return err;
 }
 
-int msg_get_push_msg_opt_int(void *push_msg_opt, int field)
+int msg_get_push_msg_opt_int(void *push_msg_opt, int field, int *value)
 {
 	if (!push_msg_opt)
 		return MSG_ERR_NULL_POINTER;
 
-	int ret = MSG_ERR_INVALID_PARAMETER;
+	int ret = MSG_SUCCESS;
 
 	MSG_PUSHMSG_OPT_S *push_opt = (MSG_PUSHMSG_OPT_S *)push_msg_opt;
 
 	switch (field)
 	{
 	case MSG_PUSHMSG_SERVICE_TYPE_INT :
-		ret = push_opt->serviceType;
+		*value = push_opt->serviceType;
 		break;
 	default :
+		ret = MSG_ERR_INVALID_PARAMETER;
 		break;
 	}
 
@@ -1589,21 +1593,22 @@ int msg_set_push_msg_opt_int(void *push_msg_opt, int field, int value)
 	return ret;
 }
 
-bool msg_get_push_msg_opt_bool(void *push_msg_opt, int field)
+int msg_get_push_msg_opt_bool(void *push_msg_opt, int field, bool *value)
 {
 	if (!push_msg_opt)
-		return false;
+		return MSG_ERR_NULL_POINTER;
 
-	bool ret = false;
+	int ret = MSG_SUCCESS;
 
 	MSG_PUSHMSG_OPT_S *push_opt = (MSG_PUSHMSG_OPT_S *)push_msg_opt;
 
 	switch (field)
 	{
 	case MSG_PUSHMSG_RECEIVE_BOOL :
-		ret = push_opt->bReceive;
+		*value = push_opt->bReceive;
 		break;
 	default :
+		ret = MSG_ERR_INVALID_PARAMETER;
 		break;
 	}
 
@@ -1634,18 +1639,18 @@ int msg_set_push_msg_opt_bool(void *push_msg_opt, int field, bool value)
 
 EXPORT_API int msg_get_voice_msg_opt(msg_handle_t handle, msg_struct_t msg_struct)
 {
-	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_FEATURE);
-	msg_error_t err =  MSG_SUCCESS;
+	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_SMS_FEATURE);
+	msg_error_t err = MSG_SUCCESS;
 
 	//Privilege check
 	int ret = PRIV_MGR_ERROR_SUCCESS;
 	ret = privacy_checker_check_by_privilege(MSG_SERVICE_READ_PRIV_NAME);
-	if(ret != PRIV_MGR_ERROR_SUCCESS)
+	if (ret != PRIV_MGR_ERROR_SUCCESS)
 	{
 		return MSG_ERR_PERMISSION_DENIED;
 	}
 
-	if (handle == NULL)
+	if (handle == NULL || msg_struct == NULL)
 	{
 		return MSG_ERR_INVALID_PARAMETER;
 	}
@@ -1667,13 +1672,13 @@ EXPORT_API int msg_get_voice_msg_opt(msg_handle_t handle, msg_struct_t msg_struc
 
 EXPORT_API int msg_set_voice_msg_opt(msg_handle_t handle, msg_struct_t msg_struct)
 {
-	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_FEATURE);
-	msg_error_t err =  MSG_SUCCESS;
+	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_SMS_FEATURE);
+	msg_error_t err = MSG_SUCCESS;
 
 	//Privilege check
 	int ret = PRIV_MGR_ERROR_SUCCESS;
 	ret = privacy_checker_check_by_privilege(MSG_SERVICE_WRITE_PRIV_NAME);
-	if(ret != PRIV_MGR_ERROR_SUCCESS)
+	if (ret != PRIV_MGR_ERROR_SUCCESS)
 	{
 		return MSG_ERR_PERMISSION_DENIED;
 	}
@@ -1698,24 +1703,25 @@ EXPORT_API int msg_set_voice_msg_opt(msg_handle_t handle, msg_struct_t msg_struc
 	return err;
 }
 
-int msg_get_voice_msg_opt_int(void *voice_msg_opt, int field)
+int msg_get_voice_msg_opt_int(void *voice_msg_opt, int field, int *value)
 {
 	if (!voice_msg_opt)
 		return MSG_ERR_NULL_POINTER;
 
-	int ret = MSG_ERR_INVALID_PARAMETER;
+	int ret = MSG_SUCCESS;
 
 	MSG_VOICEMAIL_OPT_S *voice_opt = (MSG_VOICEMAIL_OPT_S *)voice_msg_opt;
 
 	switch (field)
 	{
 	case MSG_VOICEMSG_SIM_INDEX_INT :
-		ret = voice_opt->simIndex;
+		*value = voice_opt->simIndex;
 		break;
 	case MSG_VOICEMSG_VOICE_COUNT_INT :
-		ret = voice_opt->voiceCnt;
+		*value = voice_opt->voiceCnt;
 		break;
 	default :
+		ret = MSG_ERR_INVALID_PARAMETER;
 		break;
 	}
 
@@ -1744,28 +1750,26 @@ int msg_set_voice_msg_opt_int(void *voice_msg_opt, int field, int value)
 	return ret;
 }
 
-char *msg_get_voice_msg_opt_str(void *voice_msg_opt, int field)
+int msg_get_voice_msg_opt_str(void *voice_msg_opt, int field, char *value, int size)
 {
 	if (!voice_msg_opt)
-		return NULL;
-
-	char *ret_str = NULL;
+		return MSG_ERR_NULL_POINTER;
 
 	MSG_VOICEMAIL_OPT_S *voice_opt = (MSG_VOICEMAIL_OPT_S *)voice_msg_opt;
 
 	switch (field)
 	{
 	case MSG_VOICEMSG_ADDRESS_STR :
-		ret_str = voice_opt->mailNumber;
+		strncpy(value, voice_opt->mailNumber, size);
 		break;
 	case MSG_VOICEMSG_ALPHA_ID_STR :
-		ret_str = voice_opt->alpahId;
+		strncpy(value, voice_opt->alpahId, size);
 		break;
 	default :
-		break;
+		return MSG_ERR_INVALID_PARAMETER;
 	}
 
-	return ret_str;
+	return MSG_SUCCESS;
 }
 
 int msg_set_voice_msg_opt_str(void *voice_msg_opt, int field, char *val, int size)
@@ -1793,18 +1797,18 @@ int msg_set_voice_msg_opt_str(void *voice_msg_opt, int field, char *val, int siz
 
 EXPORT_API int msg_get_general_opt(msg_handle_t handle, msg_struct_t msg_struct)
 {
-	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_FEATURE);
-	msg_error_t err =  MSG_SUCCESS;
+	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_SMS_FEATURE);
+	msg_error_t err = MSG_SUCCESS;
 
 	//Privilege check
 	int ret = PRIV_MGR_ERROR_SUCCESS;
 	ret = privacy_checker_check_by_privilege(MSG_SERVICE_READ_PRIV_NAME);
-	if(ret != PRIV_MGR_ERROR_SUCCESS)
+	if (ret != PRIV_MGR_ERROR_SUCCESS)
 	{
 		return MSG_ERR_PERMISSION_DENIED;
 	}
 
-	if (handle == NULL)
+	if (handle == NULL || msg_struct == NULL)
 	{
 		return MSG_ERR_INVALID_PARAMETER;
 	}
@@ -1826,13 +1830,13 @@ EXPORT_API int msg_get_general_opt(msg_handle_t handle, msg_struct_t msg_struct)
 
 EXPORT_API int msg_set_general_opt(msg_handle_t handle, msg_struct_t msg_struct)
 {
-	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_FEATURE);
-	msg_error_t err =  MSG_SUCCESS;
+	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_SMS_FEATURE);
+	msg_error_t err = MSG_SUCCESS;
 
 	//Privilege check
 	int ret = PRIV_MGR_ERROR_SUCCESS;
 	ret = privacy_checker_check_by_privilege(MSG_SERVICE_WRITE_PRIV_NAME);
-	if(ret != PRIV_MGR_ERROR_SUCCESS)
+	if (ret != PRIV_MGR_ERROR_SUCCESS)
 	{
 		return MSG_ERR_PERMISSION_DENIED;
 	}
@@ -1857,30 +1861,31 @@ EXPORT_API int msg_set_general_opt(msg_handle_t handle, msg_struct_t msg_struct)
 	return err;
 }
 
-int msg_get_general_opt_int(void *general_opt, int field)
+int msg_get_general_opt_int(void *general_opt, int field, int *value)
 {
 	if (!general_opt)
 		return MSG_ERR_NULL_POINTER;
 
-	int ret = MSG_ERR_INVALID_PARAMETER;
+	int ret = MSG_SUCCESS;
 
 	MSG_GENERAL_OPT_S *opt = (MSG_GENERAL_OPT_S *)general_opt;
 
 	switch (field)
 	{
 	case MSG_GENERAL_ALERT_TONE_INT :
-		ret = opt->alertTone;
+		*value = opt->alertTone;
 		break;
 	case MSG_GENERAL_SMS_LIMIT_CNT_INT :
-		ret = opt->smsLimitCnt;
+		*value = opt->smsLimitCnt;
 		break;
 	case MSG_GENERAL_MMS_LIMIT_CNT_INT :
-		ret = opt->mmsLimitCnt;
+		*value = opt->mmsLimitCnt;
 		break;
 	case MSG_GENERAL_RINGTONE_TYPE_INT :
-		ret = opt->ringtoneType;
+		*value = opt->ringtoneType;
 		break;
 	default :
+		ret = MSG_ERR_INVALID_PARAMETER;
 		break;
 	}
 
@@ -1918,36 +1923,37 @@ int msg_set_general_opt_int(void *general_opt, int field, int value)
 	return ret;
 }
 
-bool msg_get_general_opt_bool(void *general_opt, int field)
+int msg_get_general_opt_bool(void *general_opt, int field, bool *value)
 {
 	if (!general_opt)
-		return false;
+		return MSG_ERR_NULL_POINTER;
 
-	int ret = false;
+	int ret = MSG_SUCCESS;
 
 	MSG_GENERAL_OPT_S *opt = (MSG_GENERAL_OPT_S *)general_opt;
 
 	switch (field)
 	{
 	case MSG_GENERAL_KEEP_COPY_BOOL :
-		ret = opt->bKeepCopy;
+		*value = opt->bKeepCopy;
 		break;
 	case MSG_GENERAL_AUTO_ERASE_BOOL :
-		ret = opt->bAutoErase;
+		*value = opt->bAutoErase;
 		break;
 	case MSG_GENERAL_BLOCK_UNKNOWN_NUMBER_BOOL :
-		ret = opt->bBlockUnknownMsg;
+		*value = opt->bBlockUnknownMsg;
 		break;
 	case MSG_GENERAL_MSG_NOTIFICATION_BOOL :
-		ret = opt->bNotification;
+		*value = opt->bNotification;
 		break;
 	case MSG_GENERAL_MSG_VIBRATION_BOOL :
-		ret = opt->bVibration;
+		*value = opt->bVibration;
 		break;
 	case MSG_GENERAL_MSG_PREVIEW_BOOL :
-		ret = opt->bPreview;
+		*value = opt->bPreview;
 		break;
 	default :
+		ret = MSG_ERR_INVALID_PARAMETER;
 		break;
 	}
 
@@ -1991,25 +1997,23 @@ int msg_set_general_opt_bool(void *general_opt, int field, bool value)
 	return ret;
 }
 
-char *msg_get_general_opt_str(void *general_opt, int field)
+int msg_get_general_opt_str(void *general_opt, int field, char *value, int size)
 {
 	if (!general_opt)
-		return NULL;
-
-	char *ret_str = NULL;
+		return MSG_ERR_NULL_POINTER;
 
 	MSG_GENERAL_OPT_S *opt = (MSG_GENERAL_OPT_S *)general_opt;
 
 	switch (field)
 	{
 	case MSG_GENERAL_RINGTONE_PATH_STR :
-		ret_str = opt->ringtonePath;
+		strncpy(value, opt->ringtonePath, size);
 		break;
 	default :
-		break;
+		return MSG_ERR_INVALID_PARAMETER;
 	}
 
-	return ret_str;
+	return MSG_SUCCESS;
 }
 
 int msg_set_general_opt_str(void *general_opt, int field, char *val, int size)
@@ -2038,18 +2042,18 @@ int msg_set_general_opt_str(void *general_opt, int field, char *val, int size)
 
 EXPORT_API int msg_get_msgsize_opt(msg_handle_t handle, msg_struct_t msg_struct)
 {
-	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_FEATURE);
-	msg_error_t err =  MSG_SUCCESS;
+	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_MMS_FEATURE);
+	msg_error_t err = MSG_SUCCESS;
 
 	//Privilege check
 	int ret = PRIV_MGR_ERROR_SUCCESS;
 	ret = privacy_checker_check_by_privilege(MSG_SERVICE_READ_PRIV_NAME);
-	if(ret != PRIV_MGR_ERROR_SUCCESS)
+	if (ret != PRIV_MGR_ERROR_SUCCESS)
 	{
 		return MSG_ERR_PERMISSION_DENIED;
 	}
 
-	if (handle == NULL)
+	if (handle == NULL || msg_struct == NULL)
 	{
 		return MSG_ERR_INVALID_PARAMETER;
 	}
@@ -2071,13 +2075,13 @@ EXPORT_API int msg_get_msgsize_opt(msg_handle_t handle, msg_struct_t msg_struct)
 
 EXPORT_API int msg_set_msgsize_opt(msg_handle_t handle, msg_struct_t msg_struct)
 {
-	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_FEATURE);
-	msg_error_t err =  MSG_SUCCESS;
+	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_MMS_FEATURE);
+	msg_error_t err = MSG_SUCCESS;
 
 	//Privilege check
 	int ret = PRIV_MGR_ERROR_SUCCESS;
 	ret = privacy_checker_check_by_privilege(MSG_SERVICE_WRITE_PRIV_NAME);
-	if(ret != PRIV_MGR_ERROR_SUCCESS)
+	if (ret != PRIV_MGR_ERROR_SUCCESS)
 	{
 		return MSG_ERR_PERMISSION_DENIED;
 	}
@@ -2102,21 +2106,22 @@ EXPORT_API int msg_set_msgsize_opt(msg_handle_t handle, msg_struct_t msg_struct)
 	return err;
 }
 
-int msg_get_msgsize_opt_int(void *size_opt, int field)
+int msg_get_msgsize_opt_int(void *size_opt, int field, int *value)
 {
 	if (!size_opt)
 		return MSG_ERR_NULL_POINTER;
 
-	int ret = MSG_ERR_INVALID_PARAMETER;
+	int ret = MSG_SUCCESS;
 
 	MSG_MSGSIZE_OPT_S *msg_opt = (MSG_MSGSIZE_OPT_S *)size_opt;
 
 	switch (field)
 	{
 	case MSG_MESSAGE_SIZE_INT :
-		ret = msg_opt->nMsgSize;
+		*value = msg_opt->nMsgSize;
 		break;
 	default :
+		ret = MSG_ERR_INVALID_PARAMETER;
 		break;
 	}
 

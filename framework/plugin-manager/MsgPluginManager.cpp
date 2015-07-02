@@ -73,7 +73,7 @@ void MsgSentStatusListener(MSG_SENT_STATUS_S *pSentStatus)
 	MSG_DEBUG("Waiting result for SENT STATUS");
 
 	char *temp = NULL;
-	AutoPtr<char> wrap(&temp);
+	unique_ptr<char*, void(*)(char**)> wrap(&temp, unique_ptr_deleter);
 	unsigned int len;
 	client.read(&temp, &len);
 
@@ -125,7 +125,7 @@ void MsgStorageChangeListener(msg_storage_change_type_t storageChangeType, MSG_M
 	MSG_DEBUG("Waiting result for STORAGE CHANGE");
 
 	char *temp = NULL;
-	AutoPtr<char> wrap(&temp);
+	unique_ptr<char*, void(*)(char**)> wrap(&temp, unique_ptr_deleter);
 	unsigned int len;
 	client.read(&temp, &len);
 
@@ -162,7 +162,7 @@ msg_error_t MsgIncomingMessageListener(MSG_MESSAGE_INFO_S *pMsg)
 
 	// Allocate Memory to Command Data
 	char* encodedData = NULL;
-	AutoPtr<char> buf(&encodedData);
+	unique_ptr<char*, void(*)(char**)> buf(&encodedData, unique_ptr_deleter);
 	int dataSize = MsgEncodeMsgInfo(pMsg, &encodedData);
 
 	// composing command
@@ -186,7 +186,7 @@ msg_error_t MsgIncomingMessageListener(MSG_MESSAGE_INFO_S *pMsg)
 	client.write(cmdBuf, cmdSize);
 
 	char* retBuf = NULL;
-	AutoPtr<char> wrap(&retBuf);
+	unique_ptr<char*, void(*)(char**)> wrap(&retBuf, unique_ptr_deleter);
 	unsigned int retSize;
 
 	client.read(&retBuf, &retSize);
@@ -249,7 +249,7 @@ msg_error_t MsgIncomingSyncMLMessageListener(MSG_SYNCML_MESSAGE_DATA_S *pSyncMLD
 
 	// Receive result from Transaction Manager
 	char* retBuf = NULL;
-	AutoPtr<char> wrap(&retBuf);
+	unique_ptr<char*, void(*)(char**)> wrap(&retBuf, unique_ptr_deleter);
 	unsigned int retSize;
 	client.read(&retBuf, &retSize);
 
@@ -306,7 +306,7 @@ msg_error_t MsgIncomingPushMessageListener(MSG_PUSH_MESSAGE_DATA_S *pPushData)
 
 	// Receive result from Transaction Manager
 	char* retBuf = NULL;
-	AutoPtr<char> wrap(&retBuf);
+	unique_ptr<char*, void(*)(char**)> wrap(&retBuf, unique_ptr_deleter);
 	unsigned int retSize;
 	client.read(&retBuf, &retSize);
 
@@ -354,7 +354,7 @@ msg_error_t MsgIncomingCBMessageListener(MSG_CB_MSG_S *pCbMsg, MSG_MESSAGE_INFO_
 
 	// Allocate Memory to Command Data
 	char* encodedData = NULL;
-	AutoPtr<char> buf(&encodedData);
+	unique_ptr<char*, void(*)(char**)> buf(&encodedData, unique_ptr_deleter);
 	int dataSize = MsgEncodeMsgInfo(pMsgInfo, &encodedData);
 
 	// composing command
@@ -384,7 +384,7 @@ msg_error_t MsgIncomingCBMessageListener(MSG_CB_MSG_S *pCbMsg, MSG_MESSAGE_INFO_
 	client.write(cmdBuf, cmdSize);
 
 	char* retBuf = NULL;
-	AutoPtr<char> wrap(&retBuf);
+	unique_ptr<char*, void(*)(char**)> wrap(&retBuf, unique_ptr_deleter);
 	unsigned int retSize;
 
 	client.read(&retBuf, &retSize);
@@ -443,7 +443,7 @@ msg_error_t MsgIncomingLBSMessageListener(MSG_LBS_MESSAGE_DATA_S *pLBSData)
 
 	// Receive result from Transaction Manager
 	char* retBuf = NULL;
-	AutoPtr<char> wrap(&retBuf);
+	unique_ptr<char*, void(*)(char**)> wrap(&retBuf, unique_ptr_deleter);
 	unsigned int retSize;
 	client.read(&retBuf, &retSize);
 
@@ -496,7 +496,7 @@ msg_error_t MsgInitSimBySatListener()
 
 	// Receive result from Transaction Manager
 	char* retBuf = NULL;
-	AutoPtr<char> wrap(&retBuf);
+	unique_ptr<char*, void(*)(char**)> wrap(&retBuf, unique_ptr_deleter);
 	unsigned int retSize;
 	client.read(&retBuf, &retSize);
 
@@ -535,7 +535,7 @@ msg_error_t MsgMmsConfIncomingListener(MSG_MESSAGE_INFO_S *pMsg, msg_request_id_
 
 	// Allocate Memory to Command Data
 	char* encodedData = NULL;
-	AutoPtr<char> buf(&encodedData);
+	unique_ptr<char*, void(*)(char**)> buf(&encodedData, unique_ptr_deleter);
 	int dataSize = MsgEncodeMsgInfo(pMsg, &encodedData);
 
 	// composing command
@@ -561,7 +561,7 @@ msg_error_t MsgMmsConfIncomingListener(MSG_MESSAGE_INFO_S *pMsg, msg_request_id_
 
 	// Receive result from Transaction Manager
 	char *retBuf = NULL;
-	AutoPtr<char> wrap(&retBuf);
+	unique_ptr<char*, void(*)(char**)> wrap(&retBuf, unique_ptr_deleter);
 	unsigned int retSize = 0;
 	client.read(&retBuf, &retSize);
 
@@ -607,11 +607,11 @@ msg_error_t MsgSimMessageListener(MSG_MESSAGE_INFO_S *pMsg, int *simIdList, msg_
 
 	// Allocate Memory to Command Data
 	char* encodedData = NULL;
-	AutoPtr<char> buf(&encodedData);
+	unique_ptr<char*, void(*)(char**)> buf(&encodedData, unique_ptr_deleter);
 	int dataSize = MsgEncodeMsgInfo(pMsg, &encodedData);
 
 	char* encodedData2 = NULL;
-	AutoPtr<char> buf2(&encodedData2);
+	unique_ptr<char*, void(*)(char**)> buf2(&encodedData2, unique_ptr_deleter);
 	encodedData2 = (char*)new char[dataSize + sizeof(int) + (sizeof(int)*size) + 1];
 
 	char *offset = NULL;
@@ -649,7 +649,7 @@ msg_error_t MsgSimMessageListener(MSG_MESSAGE_INFO_S *pMsg, int *simIdList, msg_
 	client.write(cmdBuf, cmdSize);
 
 	char* retBuf = NULL;
-	AutoPtr<char> wrap(&retBuf);
+	unique_ptr<char*, void(*)(char**)> wrap(&retBuf, unique_ptr_deleter);
 	unsigned int retSize;
 
 	client.read(&retBuf, &retSize);
@@ -706,7 +706,7 @@ msg_error_t MsgResendMessageListener(void)
 
 	// Receive result from Transaction Manager
 	char* retBuf = NULL;
-	AutoPtr<char> wrap(&retBuf);
+	unique_ptr<char*, void(*)(char**)> wrap(&retBuf, unique_ptr_deleter);
 	unsigned int retSize;
 	client.read(&retBuf, &retSize);
 
@@ -752,7 +752,7 @@ bool MsgCheckUniquenessListener(MSG_UNIQUE_INDEX_S *p_msg, msg_message_id_t msgI
 
 	// Allocate Memory to Command Data
 	char* encodedData = NULL;
-	AutoPtr<char> buf(&encodedData);
+	unique_ptr<char*, void(*)(char**)> buf(&encodedData, unique_ptr_deleter);
 
 	int dataSize = sizeof(bool) + sizeof(msg_message_id_t) + sizeof(MSG_UNIQUE_INDEX_S);
 
@@ -794,7 +794,7 @@ bool MsgCheckUniquenessListener(MSG_UNIQUE_INDEX_S *p_msg, msg_message_id_t msgI
 	client.write(cmdBuf, cmdSize);
 
 	char* retBuf = NULL;
-	AutoPtr<char> wrap(&retBuf);
+	unique_ptr<char*, void(*)(char**)> wrap(&retBuf, unique_ptr_deleter);
 	unsigned int retSize;
 
 	client.read(&retBuf, &retSize);
@@ -854,7 +854,7 @@ msg_error_t MsgSimImsiListener(int sim_idx)
 
 	// Receive result from Transaction Manager
 	char* retBuf = NULL;
-	AutoPtr<char> wrap(&retBuf);
+	unique_ptr<char*, void(*)(char**)> wrap(&retBuf, unique_ptr_deleter);
 	unsigned int retSize;
 	client.read(&retBuf, &retSize);
 

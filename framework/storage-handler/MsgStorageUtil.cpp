@@ -113,7 +113,7 @@ bool MsgStoCheckSyncMLMsgInThread(msg_thread_id_t threadId)
 	snprintf(sqlQuery, sizeof(sqlQuery), "SELECT MSG_ID FROM %s WHERE SUB_TYPE = %d AND CONV_ID = %d;",
 			MSGFW_MESSAGE_TABLE_NAME, MSG_SYNCML_CP, threadId);
 
-	if (dbHandle->getTable(sqlQuery, &rowCnt) != MSG_SUCCESS) {
+	if (dbHandle->getTable(sqlQuery, &rowCnt, NULL) != MSG_SUCCESS) {
 		MSG_DEBUG("getTable is failed!!!");
 	}
 
@@ -184,7 +184,7 @@ msg_error_t MsgStoCleanAbnormalMmsData()
 {
 	MSG_BEGIN();
 
-	int rowCnt = 0, index = 2; // numbers of index
+	int rowCnt = 0, index = 0; // numbers of index
 	MsgDbHandler *dbHandle = getDbHandle();
 	msg_message_id_t msgId;
 
@@ -196,7 +196,7 @@ msg_error_t MsgStoCleanAbnormalMmsData()
 	snprintf(sqlQuery, sizeof(sqlQuery), "SELECT A.MSG_ID, A.FILE_PATH FROM %s A, %s B WHERE A.MSG_ID = B.MSG_ID AND (B.SUB_TYPE = %d OR B.SUB_TYPE = %d OR B.SUB_TYPE = %d);",
 			MMS_PLUGIN_MESSAGE_TABLE_NAME, MSGFW_MESSAGE_TABLE_NAME, MSG_SENDCONF_MMS, MSG_RETRIEVE_AUTOCONF_MMS, MSG_RETRIEVE_MANUALCONF_MMS);
 
-	msg_error_t  err = dbHandle->getTable(sqlQuery, &rowCnt);
+	msg_error_t  err = dbHandle->getTable(sqlQuery, &rowCnt, &index);
 
 	if (err == MSG_ERR_DB_NORECORD) {
 		dbHandle->freeTable();
@@ -280,8 +280,7 @@ msg_error_t MsgStoAutoDeleteConversation(msg_thread_id_t threadId, msg_id_list_s
 
 		char sqlQuery[MAX_QUERY_LEN+1];
 
-		int rowCnt = 0;
-		unsigned int index = 1;
+		int rowCnt = 0, index = 0;
 
 		//memset(msgIdList, 0x00, sizeof(msg_id_list_s));
 
@@ -386,7 +385,7 @@ msg_error_t MsgStoAutoDeleteConversation(msg_thread_id_t threadId, msg_id_list_s
 				threadId, MSG_ALLBOX_ID, MSG_CBMSGBOX_ID, MSG_STORAGE_PHONE,
 				MSG_MMS_TYPE, MSG_DELIVERYIND_MMS, MSG_READRECIND_MMS, MSG_READORGIND_MMS, ((currentMmsCnt-limitMmsCnt)>0)?(currentMmsCnt-limitMmsCnt):0);
 #endif
-		err = dbHandle->getTable(sqlQuery, &rowCnt);
+		err = dbHandle->getTable(sqlQuery, &rowCnt, &index);
 
 		if (err != MSG_SUCCESS && err != MSG_ERR_DB_NORECORD) {
 			MSG_DEBUG("Fail to getTable().");
@@ -473,7 +472,7 @@ msg_error_t MsgStoAddWAPMsg(MSG_MESSAGE_INFO_S *pMsgInfo)
 	int fileSize = 0;
 
 	char* pFileData = NULL;
-	AutoPtr<char> buf(&pFileData);
+	unique_ptr<char*, void(*)(char**)> buf(&pFileData, unique_ptr_deleter);
 
 	if (MsgOpenAndReadFile(pMsgInfo->msgData, &pFileData, &fileSize) == false)
 		return MSG_ERR_STORAGE_ERROR;
@@ -597,7 +596,7 @@ msg_error_t MsgStoAddCOWAPMsg(MSG_MESSAGE_INFO_S *pMsgInfo)
 	int fileSize = 0;
 
 	char* pFileData = NULL;
-	AutoPtr<char> buf(&pFileData);
+	unique_ptr<char*, void(*)(char**)> buf(&pFileData, unique_ptr_deleter);
 
 	if (MsgOpenAndReadFile(pMsgInfo->msgData, &pFileData, &fileSize) == false)
 		return MSG_ERR_STORAGE_ERROR;
@@ -622,7 +621,7 @@ msg_error_t MsgStoAddCOWAPMsg(MSG_MESSAGE_INFO_S *pMsgInfo)
 
 		if ((dbHandle->stepQuery() == MSG_ERR_DB_ROW) && err == MSG_SUCCESS) {
 
-			msgid = dbHandle->getColumnToInt(1);
+			msgid = dbHandle->columnInt(0);
 
 			memset(sqlQuery, 0x00, sizeof(sqlQuery));
 			snprintf(sqlQuery, sizeof(sqlQuery), "DELETE FROM %s WHERE MSG_ID= %d;", MSGFW_PUSH_MSG_TABLE_NAME, msgid);
@@ -680,7 +679,7 @@ msg_error_t MsgStoAddCOWAPMsg(MSG_MESSAGE_INFO_S *pMsgInfo)
 
 		if ((dbHandle->stepQuery() == MSG_ERR_DB_ROW) && err == MSG_SUCCESS) {
 
-			msgid = dbHandle->getColumnToInt(1);
+			msgid = dbHandle->columnInt(0);
 
 			memset(sqlQuery, 0x00, sizeof(sqlQuery));
 			snprintf(sqlQuery, sizeof(sqlQuery), "DELETE FROM %s WHERE MSG_ID='%d'", MSGFW_PUSH_MSG_TABLE_NAME, msgid);
@@ -813,7 +812,7 @@ msg_error_t MsgStoCheckPushMsgValidation(MSG_PUSH_MESSAGE_S *pPushMsg, bool *pbP
 				MSGFW_PUSH_MSG_TABLE_NAME, pPushMsg->id);
 	}
 
-	err = dbHandle->getTable(sqlQuery, &rowCnt);
+	err = dbHandle->getTable(sqlQuery, &rowCnt, NULL);
 
 	if (rowCnt < 1) {
 		dbHandle->freeTable();
@@ -838,14 +837,14 @@ msg_error_t MsgStoUpdateAllAddress()
 {
 	msg_error_t err = MSG_SUCCESS;
 	MsgDbHandler *dbHandle = getDbHandle();
-	int rowCnt = 0, index = 1;
+	int rowCnt = 0, index = 0;
 	char sqlQuery[MAX_QUERY_LEN+1];
 
 	memset(sqlQuery, 0x00, sizeof(sqlQuery));
 
 	snprintf(sqlQuery, sizeof(sqlQuery), "SELECT ADDRESS_ID FROM %s", MSGFW_ADDRESS_TABLE_NAME);
 
-	err = dbHandle->getTable(sqlQuery, &rowCnt);
+	err = dbHandle->getTable(sqlQuery, &rowCnt, &index);
 
 	if (err == MSG_ERR_DB_NORECORD) {
 		dbHandle->freeTable();

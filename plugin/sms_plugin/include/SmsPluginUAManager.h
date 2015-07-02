@@ -51,8 +51,6 @@ private:
 
 	static SmsPluginUAManager* pInstance;
 
-	bool bRunning;
-
 	MsgSimpleQ <SMS_REQUEST_INFO_S> smsTranQ;
 
 	Mutex mx;

@@ -284,7 +284,6 @@ typedef struct
 	bool					bPreview;			/**< Indicates whether preview for incoming message is shown or not. */
 	char 					ringtonePath[MSG_FILEPATH_LEN_MAX+1];		/**< Indicates the message ringtone path */
 	int 					ringtoneType;		/**< Indicates the message ringtone type. */
-	int						searchTags;			/**< Indicates the tags to be enabled for search ex) MSG_MESSAGE_TAG_PRIMARY | MSG_MESSAGE_TAG_PROMOTION.  See enum _MSG_TAG_TYPE_E  */
 }MSG_GENERAL_OPT_S;
 
 

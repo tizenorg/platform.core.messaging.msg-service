@@ -196,7 +196,7 @@ msg_error_t MsgStoGetFilterList(msg_struct_list_s *pFilterList)
 		return MSG_ERR_NULL_POINTER;
 	}
 	MsgDbHandler *dbHandle = getDbHandle();
-	int rowCnt = 0, index = 4;
+	int rowCnt = 0, index = 0;
 
 	char sqlQuery[MAX_QUERY_LEN+1];
 
@@ -207,7 +207,7 @@ msg_error_t MsgStoGetFilterList(msg_struct_list_s *pFilterList)
 
 	msg_error_t err = MSG_SUCCESS;
 
-	err = dbHandle->getTable(sqlQuery, &rowCnt);
+	err = dbHandle->getTable(sqlQuery, &rowCnt, &index);
 
 	if (err == MSG_ERR_DB_NORECORD) {
 		pFilterList->nCount = 0;

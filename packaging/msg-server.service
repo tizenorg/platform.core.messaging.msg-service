@@ -1,7 +1,6 @@
 [Unit]
 Description=Message server
-After=tizen-runtime.target contacts-service.service
-Requires=tizen-runtime.target contacts-service.service
+After=contacts-service.service
 
 [Service]
 User=system

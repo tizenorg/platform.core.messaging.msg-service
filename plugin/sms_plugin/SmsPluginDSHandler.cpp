@@ -26,10 +26,8 @@ extern "C"
 	#include <TelNetwork.h>
 	#include <ITapiNetwork.h>
 	#include <ITapiSim.h>
-#if 0
 	#include <telephony_common.h>
 	#include <telephony_sim.h>
-#endif
 }
 
 /*==================================================================================================
@@ -40,6 +38,8 @@ SmsPluginDSHandler* SmsPluginDSHandler::pInstance = NULL;
 
 SmsPluginDSHandler::SmsPluginDSHandler()
 {
+	cp_list = NULL;
+	memset(&handle_list, 0x00, sizeof(handle_list));
 }
 
 
@@ -130,7 +130,7 @@ int SmsPluginDSHandler::getSimIndex(struct tapi_handle *handle)
 
 void SmsPluginDSHandler::getDefaultNetworkSimId(int *simId)
 {
-	TelNetworkDefaultDataSubs_t defaultSimId;
+	TelNetworkDefaultDataSubs_t defaultSimId = TAPI_NETWORK_DEFAULT_DATA_SUBS_UNKNOWN;
 
 	int tapi_ret = TAPI_API_SUCCESS;
 
@@ -182,7 +182,6 @@ int SmsPluginDSHandler::getActiveSimCount()
 
 int SmsPluginDSHandler::getSubscriberId(unsigned int simIndex, char **subscriber_id)
 {
-#if 0
 	if (simIndex <= 0 || simIndex > (unsigned int)handle_list.count) {
 		MSG_DEBUG("Invalid SIM index");
 		return MSG_ERR_INVALID_PARAMETER;
@@ -209,6 +208,5 @@ int SmsPluginDSHandler::getSubscriberId(unsigned int simIndex, char **subscriber
 		MSG_DEBUG("Deinitialize failed!!!");
 	}
 
-#endif
     return MSG_SUCCESS;
 }

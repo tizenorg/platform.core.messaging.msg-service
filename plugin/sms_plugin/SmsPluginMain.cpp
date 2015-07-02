@@ -219,7 +219,7 @@ msg_error_t SmsPlgSubmitRequest(MSG_REQUEST_INFO_S *pReqInfo)
 
 	// Check SIM is present or not
 	char keyName[MAX_VCONFKEY_NAME_LEN] = {0,};
-	sprintf(keyName, "%s/%d", MSG_SIM_CHANGED, pReqInfo->msgInfo.sim_idx);
+	snprintf(keyName, sizeof(keyName), "%s/%d", MSG_SIM_CHANGED, pReqInfo->msgInfo.sim_idx);
 	MSG_SIM_STATUS_T simStatus = (MSG_SIM_STATUS_T)MsgSettingGetInt(keyName);
 
 	if (simStatus == MSG_SIM_STATUS_NOT_FOUND)
@@ -292,7 +292,7 @@ msg_error_t SmsPlgDeleteSimMessage(msg_sim_slot_id_t sim_idx, msg_sim_id_t SimMs
 {
 	// Check SIM is present or not
 	char keyName[MAX_VCONFKEY_NAME_LEN]={0,};
-	sprintf(keyName, "%s/%d", MSG_SIM_CHANGED, sim_idx);
+	snprintf(keyName, sizeof(keyName), "%s/%d", MSG_SIM_CHANGED, sim_idx);
 	MSG_SIM_STATUS_T simStatus = (MSG_SIM_STATUS_T)MsgSettingGetInt(keyName);
 
 	if (simStatus == MSG_SIM_STATUS_NOT_FOUND) {
@@ -323,7 +323,7 @@ msg_error_t SmsPlgSetReadStatus(msg_sim_slot_id_t sim_idx, msg_sim_id_t SimMsgId
 {
 	// Check SIM is present or not
 	char keyName[MAX_VCONFKEY_NAME_LEN]={0,};
-	sprintf(keyName, "%s/%d", MSG_SIM_CHANGED, sim_idx);
+	snprintf(keyName, sizeof(keyName), "%s/%d", MSG_SIM_CHANGED, sim_idx);
 	MSG_SIM_STATUS_T simStatus = (MSG_SIM_STATUS_T)MsgSettingGetInt(keyName);
 
 	if (simStatus == MSG_SIM_STATUS_NOT_FOUND) {

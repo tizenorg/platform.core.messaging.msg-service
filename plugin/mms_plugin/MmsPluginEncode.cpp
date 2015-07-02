@@ -19,7 +19,10 @@
 #include <stdio.h>
 #include <errno.h>
 #include <sys/stat.h>
+
+#include "MsgCppTypes.h"
 #include "MsgUtilFile.h"
+
 #include "MmsPluginDebug.h"
 #include "MmsPluginEncode.h"
 #include "MmsPluginCodecTypes.h"
@@ -27,6 +30,7 @@
 #include "MmsPluginMIME.h"
 #include "MmsPluginUtil.h"
 
+using namespace std;
 
 /**  Sending message related variables  ------------------------ */
 static	char gszMmsEncodeBuf[MSG_MMS_ENCODE_BUFFER_MAX] = {0, };
@@ -505,13 +509,17 @@ bool MmsEncodeReadReport10(FILE *pFile, MmsMsg *pMsg, msg_read_report_status_t m
 	char *pText = NULL;
 	MsgMultipart *pPart = NULL;
 	MsgType msgType;
-	MsgBody msgBody;
+
+	MsgBody *msgBody = NULL;
+	unique_ptr<MsgBody*, void(*)(MsgBody**)> buf(&msgBody, unique_ptr_deleter);
+	msgBody = (MsgBody *)new char[sizeof(MsgBody)];
+	memset(msgBody, 0x00, sizeof(MsgBody));
 
 	char *pszReportMsg = NULL;
-	int	maxLen = 0;
+	int maxLen = 0;
 
-	struct	tm	*dateTime = NULL;
-	time_t	RawTime = 0;
+	struct tm dateTime;
+	time_t RawTime = 0;
 
 	MmsRegisterEncodeBuffer(gszMmsEncodeBuf, MSG_MMS_ENCODE_BUFFER_MAX);
 
@@ -523,18 +531,17 @@ bool MmsEncodeReadReport10(FILE *pFile, MmsMsg *pMsg, msg_read_report_status_t m
 	}
 
 	memset(&msgType, 0, sizeof(MsgType));
-	memset(&msgBody, 0, sizeof(MsgBody));
 
-	pText = (char *)malloc(MSG_STDSTR_LONG);
+	pText = (char *)calloc(1, MSG_STDSTR_LONG);
 	if (pText == NULL) {
-		MSG_DEBUG("text body malloc fail");
+		MSG_DEBUG("text body calloc fail");
 		goto __CATCH;
 	}
 
 	memset(pText, 0, MSG_STDSTR_LONG);
 
 	time(&RawTime);
-	dateTime = localtime(&RawTime);
+	localtime_r(&RawTime, &dateTime);
 
 	// get report message
 	if (mmsReadStatus == MSG_READ_REPORT_IS_DELETED) {
@@ -550,7 +557,7 @@ bool MmsEncodeReadReport10(FILE *pFile, MmsMsg *pMsg, msg_read_report_status_t m
 		snprintf (pText, MSG_STDSTR_LONG, "%s", pszReportMsg);
 	} else {
 		snprintf(pText, MSG_STDSTR_LONG, "%s\r\n\r\n%.4d/%.2d/%.2d %.2d:%.2d\r\n",
-						pszReportMsg, dateTime->tm_year+1900, dateTime->tm_mon+1, dateTime->tm_mday, dateTime->tm_hour, dateTime->tm_min);
+						pszReportMsg, dateTime.tm_year+1900, dateTime.tm_mon+1, dateTime.tm_mday, dateTime.tm_hour, dateTime.tm_min);
 	}
 
 	// make header
@@ -577,9 +584,9 @@ bool MmsEncodeReadReport10(FILE *pFile, MmsMsg *pMsg, msg_read_report_status_t m
 	pPart->pBody->size = strlen(pText);
 	pPart->pBody->body.pText = pText;
 
-	msgBody.body.pMultipart = pPart;
+	msgBody->body.pMultipart = pPart;
 
-	if (__MmsBinaryEncodeMsgBody(pFile, &msgType, &msgBody, 1, false) == false) {
+	if (__MmsBinaryEncodeMsgBody(pFile, &msgType, msgBody, 1, false) == false) {
 		MSG_DEBUG("MmsBinaryEncodeMsgBody fail");
 		goto __CATCH;
 	}
@@ -997,7 +1004,7 @@ static bool __MmsBinaryEncodeReadReport10Hdr(FILE *pFile, MmsMsg *pMsg, msg_read
 	/* To = Encoded-string */
 	if (pMsg && (strchr(pMsg->mmsAttrib.szFrom, '/') == NULL)) {
 		length = strlen(pMsg->mmsAttrib.szFrom);
-		szTo = (char *)malloc(length + 11);
+		szTo = (char *)calloc(1, length + 11);
 		if (szTo == NULL) {
 			MSG_DEBUG("szTo alloc fail");
 			goto __CATCH;
@@ -1144,7 +1151,7 @@ static bool __MmsBinaryEncodeReadReport11Hdr(FILE *pFile, MmsMsg *pMsg, msg_read
 	if (strchr(pMsg->mmsAttrib.szFrom, '/') == NULL) {
 		int length = 0;
 		length = strlen(pMsg->mmsAttrib.szFrom);
-		szTo = (char *)malloc(length + 11);
+		szTo = (char *)calloc(1, length + 11);
 
 		if (szTo == NULL) {
 			MSG_DEBUG("szTo alloc fail");
@@ -1608,7 +1615,6 @@ static bool __MmsBinaryEncodeContentType(FILE *pFile, MsgType *pType, int typeLe
 			if (MsgEncode2Base64(pszName, strlen(pszName), &tmpLength, tmpFileName) == true) {
 				g_free(pszName);
 				pszName = g_strdup_printf("=?UTF-8?B?%s?=", tmpFileName);
-				length =  __MmsBinaryEncodeTextStringLen((UINT8*)pszName);
 				MSG_DEBUG("base64 encode filename=[%s]", pszName);
 			}
 		}
@@ -1823,7 +1829,7 @@ static bool __MmsBinaryEncodeMsgPart(FILE *pFile, int contentType, MsgType *pTyp
 
 		pFile2 = MsgOpenFile(pType->szOrgFilePath, "rb");
 		if (pFile != NULL) {
-			pData = (char *)malloc(pType->size);
+			pData = (char *)calloc(1, pType->size);
 			if (pData == NULL)
 				goto __CATCH;
 
@@ -2794,13 +2800,14 @@ static bool __MmsBinaryEncodeTrID(FILE *pFile, char *szTrID, int bufLen)
 	int	length	  = 0;
 	UINT8 fieldCode = 0xff;
 	char szBuff[MMS_TR_ID_LEN + 1] = {0, };
-	struct	tm	*dateTime = NULL;
-	time_t	RawTime = 0;
-	time_t	dateSec = 0;
+	struct tm dateTime;
+	time_t RawTime = 0;
+	time_t dateSec = 0;
 
 	time(&RawTime);
-	dateTime = localtime(&RawTime);
-	dateSec = mktime(dateTime);
+	localtime_r(&RawTime, &dateTime);
+
+	dateSec = mktime(&dateTime);
 
 	fieldCode = MmsGetBinaryValue(MmsCodeFieldCode, MMS_CODE_TRID) | 0x80;
 	if (fieldCode == 0xff) {
@@ -2929,18 +2936,18 @@ __CATCH:
 
 static bool __MmsBinaryEncodeDate(FILE *pFile, time_t inpDateSec)
 {
-	struct	tm	*dateTime = NULL;
-	time_t	dateSec = 0;
+	struct tm dateTime;
+	time_t dateSec = 0;
 
-	if(inpDateSec > 0)
+	if (inpDateSec > 0)
 		dateSec = inpDateSec;
 	else
 		dateSec = time(NULL);
 
-	dateTime = localtime(&dateSec);
+	localtime_r(&dateSec, &dateTime);
 
-	MSG_SEC_INFO("%d - %d - %d, %d : %d (SYSTEM)", dateTime->tm_year + 1900, dateTime->tm_mon + 1, dateTime->tm_mday
-		, dateTime->tm_hour, dateTime->tm_min);
+	MSG_SEC_INFO("%d - %d - %d, %d : %d (SYSTEM)", dateTime.tm_year + 1900, dateTime.tm_mon + 1, dateTime.tm_mday
+		, dateTime.tm_hour, dateTime.tm_min);
 
 	if (dateSec > 0) {
 		int	length	= 0;
@@ -3192,17 +3199,17 @@ static bool __EncodeMmsMessage(MmsMsg *pMmsMsg, const char *raw_filepath)
 	FILE *pFile = MsgOpenFile(raw_filepath, "wb+");
 
 	if (pFile == NULL) {
-		MSG_FATAL("File Open Error: %s", strerror(errno));
+		MSG_FATAL("File Open Error: %s", g_strerror(errno));
 		goto __CATCH;
 	}
 
 	if (MsgFseek(pFile, 0L, SEEK_CUR) < 0) {
-		MSG_DEBUG("File Fseek Error: %s", strerror(errno));
+		MSG_DEBUG("File Fseek Error: %s", g_strerror(errno));
 		goto __CATCH;
 	}
 
 	if (fchmod(fileno(pFile), file_mode) < 0) {
-		MSG_DEBUG("File chmod Error: %s", strerror(errno));
+		MSG_DEBUG("File chmod Error: %s", g_strerror(errno));
 		goto __CATCH;
 	}
 
@@ -3252,12 +3259,14 @@ void MmsPluginEncoder::encodeMmsPdu(MMS_DATA_S *pMmsData, msg_message_id_t msgID
 {
 	MmsMsg *pMmsMsg = (MmsMsg *)calloc(1, sizeof(MmsMsg));
 
-	if (MmsConvertMmsMsg(pMmsMsg, pMmsData) != true) {
-		MSG_DEBUG("Fail to Compose MMS Message");
-		goto __CATCH;
-	}
+	if (pMmsMsg) {
+		if (MmsConvertMmsMsg(pMmsMsg, pMmsData) != true) {
+			MSG_DEBUG("Fail to Compose MMS Message");
+			goto __CATCH;
+		}
 
-	encodeMmsPdu(pMmsMsg, msgID, pduFilePath);
+		encodeMmsPdu(pMmsMsg, msgID, pduFilePath);
+	}
 
 __CATCH:
 	MmsReleaseMmsMsg(pMmsMsg);

@@ -16,6 +16,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <sys/stat.h>
 
 #include <MsgHandle.h>
 #include <MsgException.h>
@@ -23,6 +24,7 @@
 #include "MsgMmsTypes.h"
 #include "MsgMmsMessage.h"
 #include "MsgDebug.h"
+#include "MsgUtilFile.h"
 
 #include "msg.h"
 #include "msg_private.h"
@@ -69,6 +71,7 @@ static void __msg_mms_release_attach(msg_struct_s *attach_struct);
 static void __msg_mms_release_transition(msg_struct_s *transition_struct);
 static void __msg_mms_release_meta(msg_struct_s *meta_struct);
 static void __msg_mms_release_multipart(msg_struct_s *multipart_struct);
+
 /*==================================================================================================
                                      FUNCTION IMPLEMENTATION
 ==================================================================================================*/
@@ -720,7 +723,7 @@ int msg_mms_get_str_value(msg_struct_s *msg_struct, int field, char *value, int 
 	break;
 
 	default :
-			err = MSG_ERR_INVALID_PARAMETER;
+		err = MSG_ERR_INVALID_PARAMETER;
 		break;
 	}
 	return err;
@@ -1053,9 +1056,9 @@ int msg_mms_set_str_value(msg_struct_s *msg_struct, int field, char *value, int 
 		else if (field == MSG_MMS_MEDIA_DRM_FULLPATH_STR)
 			strncpy(mms_media_data->szDrm2FullPath, value, MSG_FILEPATH_LEN_MAX);
 		else if (field == MSG_MMS_MEDIA_CONTENT_LOCATION_STR)
-			strncpy(mms_media_data->szContentLocation, value, MSG_FILEPATH_LEN_MAX);
+			strncpy(mms_media_data->szContentLocation, value, MSG_MSG_ID_LEN);
 		else if (field == MSG_MMS_MEDIA_CONTENT_TYPE_STR)
-			strncpy(mms_media_data->szContentType, value, MSG_FILEPATH_LEN_MAX);
+			strncpy(mms_media_data->szContentType, value, MSG_MSG_ID_LEN);
 		else
 			err = MSG_ERR_INVALID_PARAMETER;
 	}
@@ -1090,7 +1093,7 @@ int msg_mms_set_str_value(msg_struct_s *msg_struct, int field, char *value, int 
 		} else if (field == MSG_MMS_ATTACH_DRM_FULLPATH_STR) {
 			strncpy(mms_attach_data->szDrm2FullPath, value, MSG_FILEPATH_LEN_MAX);
 		} else if (field == MSG_MMS_ATTACH_CONTENT_TYPE_STR) {
-			strncpy(mms_attach_data->szContentType, value, MSG_FILEPATH_LEN_MAX);
+			strncpy(mms_attach_data->szContentType, value, MSG_MSG_ID_LEN);
 		} else {
 			err = MSG_ERR_INVALID_PARAMETER;
 		}
@@ -1183,9 +1186,10 @@ int msg_mms_set_str_value(msg_struct_s *msg_struct, int field, char *value, int 
 	break;
 
 	default :
-			err = MSG_ERR_INVALID_PARAMETER;
+		err = MSG_ERR_INVALID_PARAMETER;
 		break;
 	}
+
 	return err;
 }
 
@@ -1255,44 +1259,6 @@ int msg_mms_set_struct_handle(msg_struct_s *msg_struct, int field, msg_struct_s 
 			memcpy(mms_media_data->pText->data, value->data, sizeof(MmsSmilText));
 		else if (field == MSG_MMS_MEDIA_SMIL_AVI_HND)
 			memcpy(mms_media_data->pAVI->data, value->data, sizeof(MmsSmilAVI));
-		else
-			err = MSG_ERR_INVALID_PARAMETER;
-	}
-	break;
-	default :
-		err = MSG_ERR_INVALID_PARAMETER;
-		break;
-	}
-	return err;
-}
-
-int msg_mms_set_list_handle(msg_struct_s *msg_struct, int field, msg_list_handle_t value)
-{
-	msg_error_t err = MSG_SUCCESS;
-
-	switch(msg_struct->type) {
-	case MSG_STRUCT_MMS:
-	{
-		MMS_DATA_HIDDEN_S *mms_data = (MMS_DATA_HIDDEN_S *)msg_struct->data;
-		if (field == MSG_MMS_PAGE_LIST_HND)
-			mms_data->pagelist = (GList *)value;
-		else if (field == MSG_MMS_REGION_LIST_HND)
-			mms_data->regionlist = (GList *)value;
-		else if (field == MSG_MMS_ATTACH_LIST_HND)
-			mms_data->attachlist = (GList *)value;
-		else if (field == MSG_MMS_TRANSITION_LIST_HND)
-			mms_data->transitionlist = (GList *)value;
-		else if (field == MSG_MMS_META_LIST_HND)
-			mms_data->metalist = (GList *)value;
-		else
-			err = MSG_ERR_INVALID_PARAMETER;
-	}
-	break;
-	case MSG_STRUCT_MMS_PAGE:
-	{
-		MMS_PAGE_S *mms_page_data = (MMS_PAGE_S *)msg_struct->data;
-		if (field == MSG_MMS_PAGE_MEDIA_LIST_HND)
-			mms_page_data->medialist = (GList *)value;
 		else
 			err = MSG_ERR_INVALID_PARAMETER;
 	}
@@ -1423,156 +1389,6 @@ void convert_from_media_data(const MMS_MEDIA_S *pSrc, msg_struct_s *pDest)
 	}
 }
 
-void convert_to_mmsdata(const msg_struct_s *pSrc, MMS_MESSAGE_DATA_S *pDest)
-{
-	int i, j;
-	MMS_DATA_HIDDEN_S *pSrcMms = (MMS_DATA_HIDDEN_S *)pSrc->data;
-
-	pDest->pageCnt = g_list_length(pSrcMms->pagelist);
-
-	for (i = 0; i < pDest->pageCnt; i++) {
-		MMS_PAGE_S *page = (MMS_PAGE_S *)calloc(1, sizeof(MMS_PAGE_S));
-		MMS_PAGE_S *src_page = (MMS_PAGE_S *)get_msg_struct_data((msg_struct_s *)g_list_nth_data(pSrcMms->pagelist, i));
-		page->mediaCnt = g_list_length(src_page->medialist);
-
-		for (j = 0; j < page->mediaCnt; j++)
-		{
-			MMS_MEDIA_S *dst_media = (MMS_MEDIA_S *)calloc(1, sizeof(MMS_MEDIA_S));
-			msg_struct_s *src_media_s = (msg_struct_s *)g_list_nth_data(src_page->medialist, j);
-
-			convert_to_media_data(src_media_s, dst_media);
-
-			page->medialist = g_list_append(page->medialist, dst_media);
-		}
-
-		page->nDur = src_page->nDur;
-		page->nBegin = src_page->nBegin;
-		page->nEnd = src_page->nEnd;
-		page->nMin = src_page->nMin;
-		page->nMax = src_page->nMax;
-		page->nRepeat = src_page->nRepeat;
-
-		pDest->pagelist = g_list_append(pDest->pagelist, page);
-	}
-
-	pDest->regionCnt = g_list_length(pSrcMms->regionlist);
-
-	for (i = 0; i < pDest->regionCnt; i++) {
-		MMS_SMIL_REGION *region = (MMS_SMIL_REGION *)calloc(1, sizeof(MMS_SMIL_REGION));
-		MMS_SMIL_REGION *src_region = (MMS_SMIL_REGION *)get_msg_struct_data((msg_struct_s *)g_list_nth_data(pSrcMms->regionlist, i));
-		memcpy(region, src_region, sizeof(MMS_SMIL_REGION));
-		pDest->regionlist = g_list_append(pDest->regionlist, region);
-	}
-
-	pDest->attachCnt = g_list_length(pSrcMms->attachlist);
-
-	for (i = 0; i < pDest->attachCnt; i++) {
-		MMS_ATTACH_S *attach = (MMS_ATTACH_S *)calloc(1, sizeof(MMS_ATTACH_S));
-		MMS_ATTACH_S *src_attach = (MMS_ATTACH_S *)get_msg_struct_data((msg_struct_s *)g_list_nth_data(pSrcMms->attachlist, i));
-		memcpy(attach, src_attach, sizeof(MMS_ATTACH_S));
-		pDest->attachlist = g_list_append(pDest->attachlist, attach);
-	}
-
-	pDest->transitionCnt = g_list_length(pSrcMms->transitionlist);
-
-	for (i = 0; i < pDest->transitionCnt; i++) {
-		MMS_SMIL_TRANSITION *transition = (MMS_SMIL_TRANSITION *)calloc(1, sizeof(MMS_SMIL_TRANSITION));
-		MMS_SMIL_TRANSITION *src_transition = (MMS_SMIL_TRANSITION *)get_msg_struct_data((msg_struct_s *)g_list_nth_data(pSrcMms->transitionlist, i));
-		memcpy(transition, src_transition, sizeof(MMS_SMIL_TRANSITION));
-		pDest->transitionlist = g_list_append(pDest->transitionlist, transition);
-	}
-
-	pDest->metaCnt = g_list_length(pSrcMms->metalist);
-
-	for (i = 0; i < pDest->metaCnt; i++) {
-		MMS_SMIL_META *meta = (MMS_SMIL_META *)calloc(1, sizeof(MMS_SMIL_META));
-		MMS_SMIL_META *src_meta = (MMS_SMIL_META *)get_msg_struct_data((msg_struct_s *)g_list_nth_data(pSrcMms->metalist, i));
-		memcpy(meta, src_meta, sizeof(MMS_SMIL_META));
-		pDest->metalist = g_list_append(pDest->metalist, meta);
-	}
-
-	memcpy(&pDest->rootlayout, &pSrcMms->rootlayout, sizeof(MMS_SMIL_ROOTLAYOUT));
-
-	memcpy(&pDest->msgAppId, &pSrcMms->msgAppId, sizeof(MMS_APPID_INFO_S));
-	memcpy(&pDest->header, &pSrcMms->header, sizeof(MMS_HEADER_DATA_S));
-	memcpy(&pDest->smil, &pSrcMms->smil, sizeof(MMS_MULTIPART_DATA_S));
-}
-
-void convert_from_mmsdata(const MMS_MESSAGE_DATA_S *pSrc, msg_struct_s *pDest)
-{
-	int i, j;
-	MMS_DATA_HIDDEN_S *pDestMms = (MMS_DATA_HIDDEN_S *)pDest->data;
-
-	for (i = 0; i < pSrc->pageCnt; i++) {
-		msg_struct_s *page_struct = msg_mms_create_struct(MSG_STRUCT_MMS_PAGE);
-		MMS_PAGE_S *page = (MMS_PAGE_S *)page_struct->data;
-
-		MMS_PAGE_S *src_page = (MMS_PAGE_S *)g_list_nth_data(pSrc->pagelist, i);
-		page->mediaCnt = g_list_length(src_page->medialist);
-
-		for (j = 0; j < page->mediaCnt; j++)
-		{
-			msg_struct_s *dst_media_s = msg_mms_create_struct(MSG_STRUCT_MMS_MEDIA);
-
-			MMS_MEDIA_S *src_media = (MMS_MEDIA_S *)g_list_nth_data(src_page->medialist, j);
-
-			convert_from_media_data(src_media, dst_media_s);
-
-			page->medialist = g_list_append(page->medialist, dst_media_s);
-		}
-
-		page->nDur = src_page->nDur;
-		page->nBegin = src_page->nBegin;
-		page->nEnd = src_page->nEnd;
-		page->nMin = src_page->nMin;
-		page->nMax = src_page->nMax;
-		page->nRepeat = src_page->nRepeat;
-
-		pDestMms->pagelist = g_list_append(pDestMms->pagelist, page_struct);
-	}
-
-	for (i = 0; i < pSrc->regionCnt; i++) {
-		msg_struct_s *region_struct = msg_mms_create_struct(MSG_STRUCT_MMS_REGION);
-		MMS_SMIL_REGION *region = (MMS_SMIL_REGION *)region_struct->data;
-		MMS_SMIL_REGION *src_region = (MMS_SMIL_REGION *)g_list_nth_data(pSrc->regionlist, i);
-		memcpy(region, src_region, sizeof(MMS_SMIL_REGION));
-		pDestMms->regionlist = g_list_append(pDestMms->regionlist, region_struct);
-	}
-
-	for (i = 0; i < pSrc->attachCnt; i++) {
-		msg_struct_s *attach_struct = msg_mms_create_struct(MSG_STRUCT_MMS_ATTACH);
-		MMS_ATTACH_S *attach = (MMS_ATTACH_S *)attach_struct->data;
-		MMS_ATTACH_S *src_attach = (MMS_ATTACH_S *)g_list_nth_data(pSrc->attachlist, i);
-		memcpy(attach, src_attach, sizeof(MMS_ATTACH_S));
-		pDestMms->attachlist = g_list_append(pDestMms->attachlist, attach_struct);
-	}
-
-	for (i = 0; i < pSrc->transitionCnt; i++) {
-		msg_struct_s *transition_struct = msg_mms_create_struct(MSG_STRUCT_MMS_TRANSITION);
-		MMS_SMIL_TRANSITION *transition = (MMS_SMIL_TRANSITION *)transition_struct->data;
-		MMS_SMIL_TRANSITION *src_transition = (MMS_SMIL_TRANSITION *)g_list_nth_data(pSrc->transitionlist, i);
-		memcpy(transition, src_transition, sizeof(MMS_SMIL_TRANSITION));
-		pDestMms->transitionlist = g_list_append(pDestMms->transitionlist, transition_struct);
-	}
-
-	for (i = 0; i < pSrc->metaCnt; i++) {
-		msg_struct_s *meta_struct = msg_mms_create_struct(MSG_STRUCT_MMS_META);
-		MMS_SMIL_META *meta = (MMS_SMIL_META *)meta_struct->data;
-		MMS_SMIL_META *src_meta = (MMS_SMIL_META *)g_list_nth_data(pSrc->metalist, i);
-
-		memcpy(meta, src_meta, sizeof(MMS_SMIL_META));
-		pDestMms->metalist = g_list_append(pDestMms->metalist, meta_struct);
-	}
-
-	memcpy(&pDestMms->rootlayout, &pSrc->rootlayout, sizeof(MMS_SMIL_ROOTLAYOUT));
-
-	memcpy(&pDestMms->msgAppId, &pSrc->msgAppId, sizeof(MMS_APPID_INFO_S));
-
-	memcpy(&pDestMms->header, &pSrc->header, sizeof(MMS_HEADER_DATA_S));
-	memcpy(&pDestMms->smil, &pSrc->smil, sizeof(MMS_MULTIPART_DATA_S));
-
-}
-
 void convert_to_mmsdata2(MMS_DATA_HIDDEN_S *pSrcMms, MMS_MESSAGE_DATA_S *pDest)
 {
 	int i, j;
@@ -1583,26 +1399,30 @@ void convert_to_mmsdata2(MMS_DATA_HIDDEN_S *pSrcMms, MMS_MESSAGE_DATA_S *pDest)
 	for (i = 0; i < pDest->pageCnt; i++) {
 		MMS_PAGE_S *page = (MMS_PAGE_S *)calloc(1, sizeof(MMS_PAGE_S));
 		MMS_PAGE_S *src_page = (MMS_PAGE_S *)get_msg_struct_data((msg_struct_s *)g_list_nth_data(pSrcMms->pagelist, i));
-		page->mediaCnt = g_list_length(src_page->medialist);
+		if (page) {
+			page->mediaCnt = g_list_length(src_page->medialist);
 
-		for (j = 0; j < page->mediaCnt; j++)
-		{
-			MMS_MEDIA_S *dst_media = (MMS_MEDIA_S *)calloc(1, sizeof(MMS_MEDIA_S));
-			msg_struct_s *src_media_s = (msg_struct_s *)g_list_nth_data(src_page->medialist, j);
+			for (j = 0; j < page->mediaCnt; j++)
+			{
+				MMS_MEDIA_S *dst_media = (MMS_MEDIA_S *)calloc(1, sizeof(MMS_MEDIA_S));
+				msg_struct_s *src_media_s = (msg_struct_s *)g_list_nth_data(src_page->medialist, j);
 
-			convert_to_media_data(src_media_s, dst_media);
+				if (dst_media) {
+					convert_to_media_data(src_media_s, dst_media);
 
-			page->medialist = g_list_append(page->medialist, dst_media);
+					page->medialist = g_list_append(page->medialist, dst_media);
+				}
+			}
+
+			page->nDur = src_page->nDur;
+			page->nBegin = src_page->nBegin;
+			page->nEnd = src_page->nEnd;
+			page->nMin = src_page->nMin;
+			page->nMax = src_page->nMax;
+			page->nRepeat = src_page->nRepeat;
+
+			pDest->pagelist = g_list_append(pDest->pagelist, page);
 		}
-
-		page->nDur = src_page->nDur;
-		page->nBegin = src_page->nBegin;
-		page->nEnd = src_page->nEnd;
-		page->nMin = src_page->nMin;
-		page->nMax = src_page->nMax;
-		page->nRepeat = src_page->nRepeat;
-
-		pDest->pagelist = g_list_append(pDest->pagelist, page);
 	}
 
 	pDest->regionCnt = g_list_length(pSrcMms->regionlist);
@@ -1610,8 +1430,10 @@ void convert_to_mmsdata2(MMS_DATA_HIDDEN_S *pSrcMms, MMS_MESSAGE_DATA_S *pDest)
 	for (i = 0; i < pDest->regionCnt; i++) {
 		MMS_SMIL_REGION *region = (MMS_SMIL_REGION *)calloc(1, sizeof(MMS_SMIL_REGION));
 		MMS_SMIL_REGION *src_region = (MMS_SMIL_REGION *)get_msg_struct_data((msg_struct_s *)g_list_nth_data(pSrcMms->regionlist, i));
-		memcpy(region, src_region, sizeof(MMS_SMIL_REGION));
-		pDest->regionlist = g_list_append(pDest->regionlist, region);
+		if (region) {
+			memcpy(region, src_region, sizeof(MMS_SMIL_REGION));
+			pDest->regionlist = g_list_append(pDest->regionlist, region);
+		}
 	}
 
 	pDest->attachCnt = g_list_length(pSrcMms->attachlist);
@@ -1619,8 +1441,10 @@ void convert_to_mmsdata2(MMS_DATA_HIDDEN_S *pSrcMms, MMS_MESSAGE_DATA_S *pDest)
 	for (i = 0; i < pDest->attachCnt; i++) {
 		MMS_ATTACH_S *attach = (MMS_ATTACH_S *)calloc(1, sizeof(MMS_ATTACH_S));
 		MMS_ATTACH_S *src_attach = (MMS_ATTACH_S *)get_msg_struct_data((msg_struct_s *)g_list_nth_data(pSrcMms->attachlist, i));
-		memcpy(attach, src_attach, sizeof(MMS_ATTACH_S));
-		pDest->attachlist = g_list_append(pDest->attachlist, attach);
+		if (attach) {
+			memcpy(attach, src_attach, sizeof(MMS_ATTACH_S));
+			pDest->attachlist = g_list_append(pDest->attachlist, attach);
+		}
 	}
 
 	pDest->transitionCnt = g_list_length(pSrcMms->transitionlist);
@@ -1628,8 +1452,10 @@ void convert_to_mmsdata2(MMS_DATA_HIDDEN_S *pSrcMms, MMS_MESSAGE_DATA_S *pDest)
 	for (i = 0; i < pDest->transitionCnt; i++) {
 		MMS_SMIL_TRANSITION *transition = (MMS_SMIL_TRANSITION *)calloc(1, sizeof(MMS_SMIL_TRANSITION));
 		MMS_SMIL_TRANSITION *src_transition = (MMS_SMIL_TRANSITION *)get_msg_struct_data((msg_struct_s *)g_list_nth_data(pSrcMms->transitionlist, i));
-		memcpy(transition, src_transition, sizeof(MMS_SMIL_TRANSITION));
-		pDest->transitionlist = g_list_append(pDest->transitionlist, transition);
+		if (transition) {
+			memcpy(transition, src_transition, sizeof(MMS_SMIL_TRANSITION));
+			pDest->transitionlist = g_list_append(pDest->transitionlist, transition);
+		}
 	}
 
 	pDest->metaCnt = g_list_length(pSrcMms->metalist);
@@ -1637,8 +1463,10 @@ void convert_to_mmsdata2(MMS_DATA_HIDDEN_S *pSrcMms, MMS_MESSAGE_DATA_S *pDest)
 	for (i = 0; i < pDest->metaCnt; i++) {
 		MMS_SMIL_META *meta = (MMS_SMIL_META *)calloc(1, sizeof(MMS_SMIL_META));
 		MMS_SMIL_META *src_meta = (MMS_SMIL_META *)get_msg_struct_data((msg_struct_s *)g_list_nth_data(pSrcMms->metalist, i));
-		memcpy(meta, src_meta, sizeof(MMS_SMIL_META));
-		pDest->metalist = g_list_append(pDest->metalist, meta);
+		if (meta) {
+			memcpy(meta, src_meta, sizeof(MMS_SMIL_META));
+			pDest->metalist = g_list_append(pDest->metalist, meta);
+		}
 	}
 
 	memcpy(&pDest->rootlayout, &pSrcMms->rootlayout, sizeof(MMS_SMIL_ROOTLAYOUT));
@@ -1771,15 +1599,15 @@ int msg_multipart_get_int_value(void *data, int field, int *value)
 	MMS_MULTIPART_DATA_S *msg_data = (MMS_MULTIPART_DATA_S *)data;
 
 	switch (field) {
-		case MSG_MMS_MULTIPART_TCS_LEVEL_INT:
-			*value = msg_data->tcs_bc_level;
-			break;
-		case MSG_MMS_MULTIPART_MALWARE_ALLOW_INT:
-			*value = msg_data->malware_allow;
-			break;
-		default :
-			ret = MSG_ERR_INVALID_PARAMETER;
-			break;
+	case MSG_MMS_MULTIPART_TCS_LEVEL_INT:
+		*value = msg_data->tcs_bc_level;
+		break;
+	case MSG_MMS_MULTIPART_MALWARE_ALLOW_INT:
+		*value = msg_data->malware_allow;
+		break;
+	default :
+		ret = MSG_ERR_INVALID_PARAMETER;
+		break;
 	}
 
 	return ret;
@@ -1806,6 +1634,7 @@ int msg_multipart_set_str_value(void *data, int field, char *value, int size)
 		strncpy(msg_data->szFilePath, value, MSG_FILEPATH_LEN_MAX);
 		break;
 	case MSG_MMS_MULTIPART_THUMBNAIL_FILEPATH_STR:
+		strncpy(msg_data->szThumbFilePath, value, MSG_FILEPATH_LEN_MAX);
 		break;
 	case MSG_MMS_MULTIPART_CONTENT_ID_STR:
 		strncpy(msg_data->szContentID, value, MSG_MSG_ID_LEN);
@@ -1824,13 +1653,16 @@ void convert_to_hidden_mmsdata(MMS_DATA_S *pSrc, msg_struct_s *pDest)
 {
 	MMS_DATA_HIDDEN_S *pDestMms = (MMS_DATA_HIDDEN_S *)pDest->data;
 
-	MMS_MESSAGE_DATA_S MmsMessageData = {0};
+	MMS_MESSAGE_DATA_S *MmsMessageData = NULL;
+	unique_ptr<MMS_MESSAGE_DATA_S*, void(*)(MMS_MESSAGE_DATA_S**)> buf(&MmsMessageData, unique_ptr_deleter);
+	MmsMessageData = (MMS_MESSAGE_DATA_S *)new char[sizeof(MMS_MESSAGE_DATA_S)];
+	memset(MmsMessageData, 0x00, sizeof(MMS_MESSAGE_DATA_S));
 
-	MsgMmsConvertMmsDataToMmsMessageData(pSrc, &MmsMessageData);
+	MsgMmsConvertMmsDataToMmsMessageData(pSrc, MmsMessageData);
 
-	convert_from_mmsdata2(&MmsMessageData, pDestMms);
+	convert_from_mmsdata2(MmsMessageData, pDestMms);
 
-	MsgMmsReleaseMmsLists(&MmsMessageData);
+	MsgMmsReleaseMmsLists(MmsMessageData);
 
 	if (pSrc->header) {
 		memcpy(&pDestMms->header, pSrc->header, sizeof(MMS_HEADER_DATA_S));
@@ -1870,13 +1702,16 @@ void convert_from_hidden_mmsdata(msg_struct_s *pSrc, MMS_DATA_S *pDest)
 
 	MMS_DATA_HIDDEN_S *pSrcMms = (MMS_DATA_HIDDEN_S *)pSrc->data;
 
-	MMS_MESSAGE_DATA_S MmsMessageData = {0};
+	MMS_MESSAGE_DATA_S *MmsMessageData = NULL;
+	unique_ptr<MMS_MESSAGE_DATA_S*, void(*)(MMS_MESSAGE_DATA_S**)> buf(&MmsMessageData, unique_ptr_deleter);
+	MmsMessageData = (MMS_MESSAGE_DATA_S *)new char[sizeof(MMS_MESSAGE_DATA_S)];
+	memset(MmsMessageData, 0x00, sizeof(MMS_MESSAGE_DATA_S));
 
-	convert_to_mmsdata2(pSrcMms, &MmsMessageData);
+	convert_to_mmsdata2(pSrcMms, MmsMessageData);
 
-	MsgMmsConvertMmsMessageDataToMmsData(&MmsMessageData, pDest);
+	MsgMmsConvertMmsMessageDataToMmsData(MmsMessageData, pDest);
 
-	MsgMmsReleaseMmsLists(&MmsMessageData);
+	MsgMmsReleaseMmsLists(MmsMessageData);
 }
 
 void __msg_mms_data_struct_init(MMS_DATA_HIDDEN_S *pMmsDataHidden)

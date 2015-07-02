@@ -18,6 +18,7 @@
 #include <sys/stat.h>
 #include <errno.h>
 
+#include "MsgCppTypes.h"
 #include "MsgException.h"
 #include "MsgUtilFile.h"
 #include "MsgMmsMessage.h"
@@ -442,7 +443,7 @@ msg_error_t MmsPluginStorage::getMmsMessageId(msg_message_id_t selectedMsgId, Mm
 	snprintf(sqlQuery, sizeof(sqlQuery), "SELECT MESSAGE_ID FROM %s WHERE MSG_ID = %d;",
 			MMS_PLUGIN_MESSAGE_TABLE_NAME, selectedMsgId);
 
-	err = dbHandle->getTable(sqlQuery, &rowCnt);
+	err = dbHandle->getTable(sqlQuery, &rowCnt, NULL);
 
 	if (err != MSG_SUCCESS && err != MSG_ERR_DB_NORECORD) {
 		dbHandle->freeTable();
@@ -467,9 +468,9 @@ msg_error_t MmsPluginStorage::getMmsMessageId(msg_message_id_t selectedMsgId, Mm
 int MmsPluginStorage::getMmsVersion(msg_message_id_t selectedMsgId)
 {
 	msg_error_t err = MSG_SUCCESS;
-	int rowCnt = 0;
 
-	int	version = 0;
+	int rowCnt = 0;
+	int version = 0;
 
 	MsgDbHandler *dbHandle = getDbHandle();
 
@@ -480,7 +481,7 @@ int MmsPluginStorage::getMmsVersion(msg_message_id_t selectedMsgId)
 	snprintf(sqlQuery, sizeof(sqlQuery), "SELECT VERSION FROM %s WHERE MSG_ID = %d;",
 			MMS_PLUGIN_MESSAGE_TABLE_NAME, selectedMsgId);
 
-	err = dbHandle->getTable(sqlQuery, &rowCnt);
+	err = dbHandle->getTable(sqlQuery, &rowCnt, NULL);
 
 	if (err != MSG_SUCCESS && err != MSG_ERR_DB_NORECORD) {
 		dbHandle->freeTable();
@@ -653,7 +654,7 @@ msg_error_t MmsPluginStorage::getMsgText(MMS_MESSAGE_DATA_S *pMmsMsg, char *pMsg
 
 				pMedia = _MsgMmsGetMedia(pPage, j);
 
-				if (pMedia->mediatype == MMS_SMIL_MEDIA_TEXT) {
+				if (pMedia && pMedia->mediatype == MMS_SMIL_MEDIA_TEXT) {
 
 					MimeType mimeType = MIME_UNKNOWN;
 					MmsGetMimeTypeFromFileName(MIME_MAINTYPE_UNKNOWN, pMedia->szFilePath, &mimeType, NULL);
@@ -1012,8 +1013,7 @@ msg_error_t MmsPluginStorage::getMultipartList(msg_message_id_t msgId, MMSList *
 	MsgDbHandler *dbHandle = getDbHandle();
 
 	char sqlQuery[MAX_QUERY_LEN + 1];
-	int rowCnt;
-	int index = 8;
+	int rowCnt = 0, index = 0;
 
 	memset(sqlQuery, 0x00, sizeof(sqlQuery));
 	snprintf(sqlQuery, sizeof(sqlQuery),
@@ -1021,7 +1021,7 @@ msg_error_t MmsPluginStorage::getMultipartList(msg_message_id_t msgId, MMSList *
 			"FROM %s WHERE MSG_ID=%d;",
 			MSGFW_MMS_MULTIPART_TABLE_NAME, msgId);
 
-	msg_error_t err = dbHandle->getTable(sqlQuery, &rowCnt);
+	msg_error_t err = dbHandle->getTable(sqlQuery, &rowCnt, &index);
 
 	if (err == MSG_SUCCESS) {
 
@@ -1314,9 +1314,11 @@ msg_error_t MmsPluginStorage::addMessage(MSG_MESSAGE_INFO_S *pMsgInfo, MSG_SENDI
 		}
 
 		{//make Preview info for APP
-			MmsPluginAppBase appBase(pMmsData);
-			appBase.makePreviewInfo(pMsgInfo->msgId, true, raw_filepath);
-			appBase.getFirstPageTextFilePath(pMsgInfo->msgText, sizeof(pMsgInfo->msgText));
+			MmsPluginAppBase *appBase;
+			appBase = new MmsPluginAppBase(pMmsData);
+			appBase->makePreviewInfo(pMsgInfo->msgId, true, raw_filepath);
+			appBase->getFirstPageTextFilePath(pMsgInfo->msgText, sizeof(pMsgInfo->msgText));
+			delete appBase;
 		}
 
 	} else if (pMsgInfo->msgType.subType == MSG_NOTIFICATIONIND_MMS) {
@@ -1426,9 +1428,11 @@ msg_error_t MmsPluginStorage::updateMessage(MSG_MESSAGE_INFO_S *pMsgInfo, MSG_SE
 		}
 
 		{//make Preview info for APP
-			MmsPluginAppBase appBase(pMmsData);
-			appBase.makePreviewInfo(pMsgInfo->msgId, true, raw_filepath);
-			appBase.getFirstPageTextFilePath(pMsgInfo->msgText, sizeof(pMsgInfo->msgText));
+			MmsPluginAppBase *appBase;
+			appBase = new MmsPluginAppBase(pMmsData);
+			appBase->makePreviewInfo(pMsgInfo->msgId, true, raw_filepath);
+			appBase->getFirstPageTextFilePath(pMsgInfo->msgText, sizeof(pMsgInfo->msgText));
+			delete appBase;
 		}
 	}
 
@@ -1538,16 +1542,21 @@ msg_error_t MmsPluginStorage::updateMessage(MSG_MESSAGE_INFO_S *pMsgInfo)
 
 	//update preview
 	char szFullPath[MSG_FILEPATH_LEN_MAX] = {0, };
-	MmsMsg mmsMsg;
-	memset(&mmsMsg, 0, sizeof(MmsMsg));
+	MmsMsg *mmsMsg = NULL;
+	unique_ptr<MmsMsg*, void(*)(MmsMsg**)> buf(&mmsMsg, unique_ptr_deleter);
+	mmsMsg = (MmsMsg *)new char[sizeof(MmsMsg)];
+	memset(mmsMsg, 0x00, sizeof(MmsMsg));
+
 	MmsPluginStorage::instance()->getMmsRawFilePath(pMsgInfo->msgId, szFullPath, sizeof(szFullPath));
-	MmsPluginDecoder::instance()->decodeMmsPdu(&mmsMsg, pMsgInfo->msgId, szFullPath);
+	MmsPluginDecoder::instance()->decodeMmsPdu(mmsMsg, pMsgInfo->msgId, szFullPath);
 	{//make Preview info for APP
-		MmsPluginAppBase appBase(&mmsMsg);
-		appBase.makePreviewInfo(pMsgInfo->msgId, true, szFullPath);
-		appBase.getFirstPageTextFilePath(pMsgInfo->msgText, sizeof(pMsgInfo->msgText));
+		MmsPluginAppBase *appBase;
+		appBase = new MmsPluginAppBase(mmsMsg);
+		appBase->makePreviewInfo(pMsgInfo->msgId, true, szFullPath);
+		appBase->getFirstPageTextFilePath(pMsgInfo->msgText, sizeof(pMsgInfo->msgText));
+		delete appBase;
 	}
-	MmsReleaseMmsMsg(&mmsMsg);
+	MmsReleaseMmsMsg(mmsMsg);
 
 	MSG_END();
 	return 0;
@@ -1581,7 +1590,7 @@ int MmsPluginStorage::checkDuplicateNotification(char* pszTrID, char* pszContent
 
 	MSG_DEBUG("sqlQuery [%s]", sqlQuery);
 
-	err = dbHandle->getTable(sqlQuery, &rowCnt);
+	err = dbHandle->getTable(sqlQuery, &rowCnt, NULL);
 
 	if (err != MSG_SUCCESS && err != MSG_ERR_DB_NORECORD) {
 		dbHandle->freeTable();

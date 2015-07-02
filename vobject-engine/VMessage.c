@@ -552,7 +552,7 @@ __VMsgGetParamVal( char* pVMsgRaw, int* pStatus, int* pDLen )
 			break;
 	}
 
-	if(len < 1 || (pBuf = (char *)malloc(len)) == NULL)
+	if(len < 1 || (pBuf = (char *)calloc(1, len)) == NULL)
 		return NULL;
 	memset(pBuf, 0x00, len);
 	memcpy( pBuf, pTemp, len-1 );
@@ -600,7 +600,7 @@ __VMsgGetTypeVal( char* pVMsgRaw, int* pStatus, int* pDLen, int enc, VObject* pT
 		/** This case means that there are more type's value. */
 		if ( c == VTYPE_TOKEN_SEMICOLON && bEscape == false )
 		{
-			if((pBuf = (char *)malloc(len)) == NULL)
+			if((pBuf = (char *)calloc(1, len)) == NULL)
 				return NULL;
 
 			memset(pBuf, 0x00, len);
@@ -617,7 +617,7 @@ __VMsgGetTypeVal( char* pVMsgRaw, int* pStatus, int* pDLen, int enc, VObject* pT
 
 				bufferCount = (len * 6 / 8) + 2;
 
-				if((pTmpBuf = (char *)malloc(bufferCount)) == NULL)
+				if((pTmpBuf = (char *)calloc(1, bufferCount)) == NULL)
 				{
 					VFREE(pBuf);
 					return NULL;
@@ -684,7 +684,7 @@ __VMsgGetTypeVal( char* pVMsgRaw, int* pStatus, int* pDLen, int enc, VObject* pT
 			}
 			else if(__VMsgGetTypeName(pVMsgRaw, &Status, &Len) != UNKNOWN_NAME)
 			{
-				if((pBuf = (char *)malloc(len)) == NULL)
+				if((pBuf = (char *)calloc(1, len)) == NULL)
 					return NULL;
 
 				memset(pBuf, 0x00, len);
@@ -708,7 +708,7 @@ __VMsgGetTypeVal( char* pVMsgRaw, int* pStatus, int* pDLen, int enc, VObject* pT
 
 					bufferCount = (len * 6 / 8) + 5;
 
-					if((pTmpBuf = (char *)malloc(bufferCount)) == NULL)
+					if((pTmpBuf = (char *)calloc(1, bufferCount)) == NULL)
 					{
 						VFREE(pBuf);
 						return NULL;
@@ -902,7 +902,7 @@ vmsg_decode( char *pMsgRaw )
 
 							if(!strncmp(szMsgBegin, "VMSG", strlen("VMSG")))
 							{
-								if ( ( pVMsg = ( VTree* )malloc( sizeof( VTree ) ) ) == NULL )
+								if ( ( pVMsg = ( VTree* )calloc( 1, sizeof( VTree ) ) ) == NULL )
 								{
 									start_status = 1;
 									goto CATCH;
@@ -918,7 +918,7 @@ vmsg_decode( char *pMsgRaw )
 
 							else if(!strncmp(szMsgBegin, "VBODY", strlen("VBODY")))
 							{
-								if ( ( pVBody = ( VTree* )malloc( sizeof( VTree ) ) ) == NULL )
+								if ( ( pVBody = ( VTree* )calloc( 1, sizeof( VTree ) ) ) == NULL )
 								{
 									start_status = 1;
 									goto CATCH;
@@ -965,7 +965,7 @@ vmsg_decode( char *pMsgRaw )
 							break;
 						}
 
-						if ( ( pTemp = ( VObject* )malloc( sizeof( VObject ) ) ) == NULL )
+						if ( ( pTemp = ( VObject* )calloc( 1, sizeof( VObject ) ) ) == NULL )
 						{
 							goto CATCH;
 						}
@@ -998,7 +998,7 @@ vmsg_decode( char *pMsgRaw )
 
 				if ( param_status != true ) {
 
-					if ( ( pTmpParam = ( VParam* )malloc( sizeof( VParam ) ) ) == NULL )
+					if ( ( pTmpParam = ( VParam* )calloc( 1, sizeof( VParam ) ) ) == NULL )
 							goto CATCH;
 
 					param_status = true;
@@ -1008,7 +1008,7 @@ vmsg_decode( char *pMsgRaw )
 				}
 				else
 				{
-					if ( ( pTmpParam->pNext = ( VParam* )malloc( sizeof( VParam ) ) ) == NULL )
+					if ( ( pTmpParam->pNext = ( VParam* )calloc( 1, sizeof( VParam ) ) ) == NULL )
 							goto CATCH;
 
 					pTmpParam = pTmpParam->pNext;
@@ -1153,9 +1153,9 @@ vmsg_encode( VTree *pVMsgRaw )
 					pVMsgRes = NULL;
 				}
 
-				if ( ( pVMsgRes = ( char * )malloc( sizeof( char ) * ( total += 13 ) ) ) == NULL )
+				if ( ( pVMsgRes = ( char * )calloc( 1, sizeof( char ) * ( total += 13 ) ) ) == NULL )
 				{
-					VDATA_TRACE(  "vmsg_encode:malloc failed\n" );
+					VDATA_TRACE(  "vmsg_encode:calloc failed\n" );
 					VDATA_TRACE_END
 					return NULL;
 				}
@@ -1172,7 +1172,7 @@ vmsg_encode( VTree *pVMsgRaw )
 				}
 
 				pVMsgRes = pTmpVMsgRes;
-				strncat( pVMsgRes, "BEGIN:VBODY\r\n", 13);
+				g_strlcat( pVMsgRes, "BEGIN:VBODY\r\n", 13);
 				break;
 
 			case VCARD:
@@ -1212,7 +1212,7 @@ vmsg_encode( VTree *pVMsgRaw )
 					}
 
 					pVMsgRes = pTmpVMsgRes;
-					strncat(pVMsgRes, encoded, len+10);
+					g_strlcat(pVMsgRes, encoded, len+10);
 					VDATA_TRACE("pTemp : %s", encoded);
 					VFREE( pTemp );
 					VFREE( encoded );
@@ -1231,7 +1231,7 @@ vmsg_encode( VTree *pVMsgRaw )
 						return NULL;
 					}
 					pVMsgRes = pTmpVMsgRes;
-					strncat(pVMsgRes, pTemp, len+10);
+					g_strlcat(pVMsgRes, pTemp, len+10);
 					VDATA_TRACE("pTemp : %s", pTemp);
 					VFREE( pTemp );
 
@@ -1256,7 +1256,7 @@ vmsg_encode( VTree *pVMsgRaw )
 				}
 
 				pVMsgRes = pTmpVMsgRes;
-				strncat( pVMsgRes, "END:VBODY\r\n", 12);
+				g_strlcat( pVMsgRes, "END:VBODY\r\n", 12);
 				break;
 
 			case VCARD:
@@ -1283,7 +1283,7 @@ vmsg_encode( VTree *pVMsgRaw )
 	}
 
 	pVMsgRes = pTmpVMsgRes;
-	strncat( pVMsgRes, "END:VMSG\r\n", 11);
+	g_strlcat( pVMsgRes, "END:VMSG\r\n", 11);
 	VDATA_TRACE_END
 	return pVMsgRes;
 }
@@ -1342,14 +1342,14 @@ __VMsgTypeEncode( VObject *pTypeObj, char *pType )
 	len = strlen( pType );
 	biLen = pTypeObj->numOfBiData;
 
-	if ( ( szTypeValue = ( char * )malloc( total += ( len+1 ) ) ) == NULL )
+	if ( ( szTypeValue = ( char * )calloc( 1, total += ( len+1 ) ) ) == NULL )
 	{
-		VDATA_TRACE(  "__VMsgTypeEncode():malloc failed\n");
+		VDATA_TRACE(  "__VMsgTypeEncode():calloc failed\n");
 		VDATA_TRACE_END
 		return NULL;
 	}
 	memset( szTypeValue, '\0', ( len+1 ) );
-	strncat( szTypeValue, pType, len+1);
+	g_strlcat( szTypeValue, pType, len+1);
 
 	pTemp = __VMsgParamEncode( pTypeObj, &enc );
 	if ( pTemp != NULL )
@@ -1363,7 +1363,7 @@ __VMsgTypeEncode( VObject *pTypeObj, char *pType )
 			VDATA_TRACE_END;
 			return NULL;
 		}
-		strncat( szTypeValue, pTemp, len);
+		g_strlcat( szTypeValue, pTemp, len);
 		VFREE( pTemp );
 		pTemp = NULL;
 	}
@@ -1374,7 +1374,7 @@ __VMsgTypeEncode( VObject *pTypeObj, char *pType )
 		return NULL;
 	}
 
-	strncat( szTypeValue, ":", 2 );
+	g_strlcat( szTypeValue, ":", 2 );
 
 	len = 0;
 
@@ -1393,7 +1393,7 @@ __VMsgTypeEncode( VObject *pTypeObj, char *pType )
 
 		if ( i == 0 )
 		{
-			if ( ( pEncode = ( char * )malloc( len+20 ) ) == NULL )
+			if ( ( pEncode = ( char * )calloc( 1, len+20 ) ) == NULL )
 			{
 				VFREE(szTypeValue);
 				VDATA_TRACE_END
@@ -1404,7 +1404,7 @@ __VMsgTypeEncode( VObject *pTypeObj, char *pType )
 
 			if(strcmp(pType, pszMsgTypeList[6]) != 0)
 			{
-				strncat( pEncode, pTypeObj->pszValue[i], 20 );
+				g_strlcat( pEncode, pTypeObj->pszValue[i], 20 );
 				_VEscape(pEncode);
 			}
 			else
@@ -1422,7 +1422,7 @@ __VMsgTypeEncode( VObject *pTypeObj, char *pType )
 
 	if(strcmp(pType, pszMsgTypeList[6]) != 0)	{
 		if (pEncode) {
-			strcat( pEncode, "\0\0" );
+			g_strlcat( pEncode, "\0\0", 2);
 			len = strlen( pEncode );
 		}
 	}
@@ -1431,7 +1431,7 @@ __VMsgTypeEncode( VObject *pTypeObj, char *pType )
 	}
 
 	if ( enc & pMsgEncList[2].flag ) {
-		if((pRes = (char *)malloc(len * 6 + 10)) == NULL) {
+		if((pRes = (char *)calloc(1, len * 6 + 10)) == NULL) {
 			VFREE(pEncode);
 			VFREE(szTypeValue);
 			VDATA_TRACE_END
@@ -1443,7 +1443,7 @@ __VMsgTypeEncode( VObject *pTypeObj, char *pType )
 			}
 	else if(enc & pMsgEncList[1].flag )
 	{
-		if((pRes = (char *)malloc((len * 8 / 6) + 48)) == NULL)
+		if((pRes = (char *)calloc(1, (len * 8 / 6) + 48)) == NULL)
 		{
 			VFREE(pEncode);
 			VFREE(szTypeValue);
@@ -1458,7 +1458,7 @@ __VMsgTypeEncode( VObject *pTypeObj, char *pType )
 	}
 	else
 	{
-		if((pRes = (char *)malloc(len+30)) == NULL)
+		if((pRes = (char *)calloc(1, len+30)) == NULL)
 		{
 			VFREE(pEncode);
 			VFREE(szTypeValue);
@@ -1480,7 +1480,7 @@ __VMsgTypeEncode( VObject *pTypeObj, char *pType )
 		VDATA_TRACE_END
 		return NULL;
 	}
-	strncat( pRes, "\r\n", strlen(pRes) + 2);
+	g_strlcat( pRes, "\r\n", strlen(pRes) + 2);
 
 	len = strlen( pRes );
 
@@ -1491,7 +1491,7 @@ __VMsgTypeEncode( VObject *pTypeObj, char *pType )
 		return NULL;
 	}
 
-	strncat(szTypeValue, pRes, total - 1);
+	g_strlcat(szTypeValue, pRes, total - 1);
 
 	if(strcmp(pType, pszMsgTypeList[6]) != 0) {
 		_VRLSpace( szTypeValue );
@@ -1528,7 +1528,7 @@ __VMsgParamEncode(VObject* pTypeObj, int* pEnc)
 
 	/** Momory Allocation for parameter string. */
 	if(pTemp != NULL) {
-		if ((szParam = (char*)malloc(len+=2)) == NULL)
+		if ((szParam = (char*)calloc(1, len+=2)) == NULL)
 		{
 			VDATA_TRACE_END
 			return NULL;
@@ -1583,7 +1583,7 @@ __VMsgParamEncode(VObject* pTypeObj, int* pEnc)
 					VDATA_TRACE_END
 					return NULL;
 				}
-				strcat( szParam, "NONE" );
+				g_strlcat( szParam, "NONE", strlen("NONE"));
 		}
 
 		/** exchage parameter value's to string.*/

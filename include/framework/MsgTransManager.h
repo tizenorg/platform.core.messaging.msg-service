@@ -42,9 +42,6 @@
 ==================================================================================================*/
 typedef std::map<MSG_CMD_TYPE_T, int (*)(const MSG_CMD_S*, char**)> handler_map;
 typedef std::map<int, MSG_PROXY_INFO_S> sentmsg_map;
-#ifdef MSG_PENDING_PUSH_MESSAGE
-typedef std::list<MSG_PUSH_MESSAGE_DATA_S> pushpending_list;
-#endif
 typedef std::map<int, bool> fd_map;
 typedef std::list<MSG_CMD_REG_INCOMING_MSG_CB_S> newmsg_list;
 typedef std::list<MSG_CMD_REG_INCOMING_MMS_CONF_MSG_CB_S>	mmsconf_list;
@@ -84,16 +81,13 @@ public:
 	void setSyncMLMsgOperationCB(MSG_CMD_REG_SYNCML_MSG_OPERATION_CB_S *pCbinfo);
 	void setStorageChangeCB(int listenerFd);
 	void setReportMsgCB(int listenerFd);
-#ifdef MSG_PENDING_PUSH_MESSAGE
-	void sendPendingPushMsg(void);
-#endif
 
 	javamms_list& getJavaMMSList();
 
 	void broadcastIncomingMsgCB(const msg_error_t err, const MSG_MESSAGE_INFO_S *msgInfo);
 	void broadcastMMSConfCB(const msg_error_t err, const MSG_MESSAGE_INFO_S *msgInfo, const MMS_RECV_DATA_S *mmsRecvData);
 	void broadcastPushMsgCB(const msg_error_t err, const MSG_PUSH_MESSAGE_DATA_S *pushData);
-	void broadcastCBMsgCB(const msg_error_t err, const MSG_CB_MSG_S *cbMsg);
+	void broadcastCBMsgCB(const msg_error_t err, const MSG_CB_MSG_S *cbMsg, msg_message_id_t cbMsgId);
 	void broadcastSyncMLMsgCB(const msg_error_t err, const MSG_SYNCML_MESSAGE_DATA_S *syncMLData);
 	void broadcastLBSMsgCB(const msg_error_t err, const MSG_LBS_MESSAGE_DATA_S *lbsData);
 	void broadcastSyncMLMsgOperationCB(const msg_error_t err, const int msgId, const int extId);
@@ -120,9 +114,6 @@ private:
 	bool running;
 
 	handler_map handlerMap;
-#ifdef MSG_PENDING_PUSH_MESSAGE
-	pushpending_list pushMsgList;
-#endif
 	sentmsg_map sentMsgMap; 		// req_id, listener_fd, msghandle_addr
 	fd_map statusCBFdMap; 		// src_fd, true if registered
 

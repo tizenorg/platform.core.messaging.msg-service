@@ -47,7 +47,6 @@ public:
 	msg_error_t saveSimMessage(const MSG_MESSAGE_INFO_S *pMsgInfo, SMS_SIM_ID_LIST_S *pSimIdList);
 	msg_error_t saveClass2Message(const MSG_MESSAGE_INFO_S *pMsgInfo);
 	void deleteSimMessage(msg_sim_slot_id_t sim_idx, msg_sim_id_t SimMsgId);
-	void getSimMessageList(MSG_SIM_MSG_INFO_LIST_S **ppSimMsgList);
 	void setReadStatus(msg_sim_slot_id_t sim_idx, msg_sim_id_t SimMsgId);
 	bool checkSimMsgFull(msg_sim_slot_id_t sim_idx, unsigned int SegCnt);
 

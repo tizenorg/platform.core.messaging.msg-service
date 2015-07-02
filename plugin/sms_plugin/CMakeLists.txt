@@ -8,7 +8,7 @@ IF("${CMAKE_BUILD_TYPE}" STREQUAL "")
 ENDIF("${CMAKE_BUILD_TYPE}" STREQUAL "")
 MESSAGE("Build type: ${CMAKE_BUILD_TYPE}")
 
-SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_C_FLAGS} ${EXTRA_CFLAGS} -O0 -g -Wall")
+SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS} ${EXTRA_CFLAGS} -O2 -g -Wall")
 
 ##########################################################
 # Define SMS Plugin
@@ -42,8 +42,7 @@ INCLUDE_DIRECTORIES(
 )
 
 INCLUDE(FindPkgConfig)
-pkg_check_modules(sms_plugin_pkgs REQUIRED glib-2.0 tapi libxml-2.0 libwbxml2 dlog vconf gio-2.0 db-util)
-#capi-telephony
+pkg_check_modules(sms_plugin_pkgs REQUIRED glib-2.0 tapi libxml-2.0 libwbxml2 dlog vconf gio-2.0 db-util capi-telephony)
 
 FOREACH(flag ${sms_plugin_pkgs_CFLAGS})
 	SET(EXTRA_CFLAGS "${EXTRA_CFLAGS} ${flag}")

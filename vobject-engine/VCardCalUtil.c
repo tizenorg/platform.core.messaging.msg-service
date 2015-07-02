@@ -178,25 +178,26 @@ _VUnescape( char *in )
 int
 _VEscape( char *in )
 {
-    int			i;
-    int			index;
-	int			len;
+	int i;
+	int index;
+	int len;
 	char *buf = NULL;
-	char		c;
+	char c;
 
-    len = strlen(in);
+	len = strlen(in);
 	buf = (char*) calloc(1, len*2+1);
-
-    for ( i = 0, index = 0; i < len; i++ ){
-		c = in[i];
-		if ( c == ';' )	{
-			buf[index++] = '\\';
+	if (buf) {
+		for ( i = 0, index = 0; i < len; i++ ){
+			c = in[i];
+			if ( c == ';' )	{
+				buf[index++] = '\\';
+			}
+			buf[index++] = c;
 		}
-		buf[index++] = c;
-	}
 
-	strncpy( in, buf, len*2+1 );
-	free(buf);
+		strncpy( in, buf, len*2+1 );
+		free(buf);
+	}
 
     return(0);
 }
@@ -404,8 +405,8 @@ _VB64Encode( char *Dest, char *Src, int len )
 	int		index;
 	int		res = 0;
 	int		base1 = 0, base2 = 0;
-	char	Enbuffer[4];
-	char	Debuffer[3];
+	char	Enbuffer[4] = {0,};
+	char	Debuffer[3] = {0,};
 	int		length = 0;
 
 	for ( i = 0; i < 4; i++ )
@@ -668,7 +669,7 @@ _VUnfoldingNoSpecNew(char *string)
 
 	len = strlen( string );
 
-	if( !(newString = (char*) malloc(len+1) )) {
+	if( !(newString = (char*) calloc(1, len+1) )) {
 		return NULL;
 	}
 

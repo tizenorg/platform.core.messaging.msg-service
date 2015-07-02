@@ -288,7 +288,8 @@ MMS_NET_ERROR_T MmsPluginUaManager::submitHandler(mmsTranQEntity *qEntity)
 
 		http_url = (char *)calloc(1, qEntity->getDataLen + 1);
 
-		memcpy(http_url, qEntity->pGetData, qEntity->getDataLen);
+		if (http_url)
+			memcpy(http_url, qEntity->pGetData, qEntity->getDataLen);
 
 		request_info.url = http_url;
 

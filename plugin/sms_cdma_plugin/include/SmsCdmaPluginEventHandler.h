@@ -125,7 +125,6 @@ private:
 	int MakeWapUserData(unsigned short msgId, char **ppTotalData);
 
 	bool checkCbOpt(sms_trans_svc_ctg_t svc_ctg);
-	std::list<MSG_CB_DUPLICATE_S> duplicateCb;
 
 };
 

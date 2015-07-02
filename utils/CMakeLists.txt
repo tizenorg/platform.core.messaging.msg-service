@@ -8,7 +8,7 @@ IF("${CMAKE_BUILD_TYPE}" STREQUAL "")
 ENDIF("${CMAKE_BUILD_TYPE}" STREQUAL "")
 MESSAGE("Build type: ${CMAKE_BUILD_TYPE}")
 
-SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_C_FLAGS} ${EXTRA_CFLAGS} -O0 -g -Wall")
+SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS} ${EXTRA_CFLAGS} -O2 -g -Wall")
 
 ##########################################################
 # Define Framework Utils
@@ -32,7 +32,6 @@ SET(UTILS-SRCS
 	${CMAKE_SOURCE_DIR}/utils/MsgJsonParser.cpp
 	${CMAKE_SOURCE_DIR}/utils/MsgSerialize.cpp
 	${CMAKE_SOURCE_DIR}/utils/MsgSmil.cpp
-	${CMAKE_SOURCE_DIR}/utils/MsgZoneManager.cpp
 )
 
 INCLUDE_DIRECTORIES(
@@ -46,10 +45,6 @@ INCLUDE_DIRECTORIES(
 INCLUDE(FindPkgConfig)
 
 SET(PKG_MODULES glib-2.0 vconf db-util contacts-service2 dlog libxml-2.0 storage json-glib-1.0 capi-system-info)
-IF(_FEATURE_CONTAINER_ENABLE)
-ADD_DEFINITIONS("-DFEATURE_CONTAINER_ENABLE")
-SET(PKG_MODULES ${PKG_MODULES} vasum)
-ENDIF(_FEATURE_CONTAINER_ENABLE)
 pkg_check_modules(utils_pkgs REQUIRED ${PKG_MODULES})
 
 FOREACH(flag ${utils_pkgs_CFLAGS})
@@ -59,7 +54,7 @@ ENDFOREACH(flag)
 ADD_DEFINITIONS("-DPREFIX=\"${CMAKE_INSTALL_PREFIX}\"")
 ADD_DEFINITIONS("-DFEATURE_JAVA_MMS")
 
-SET(CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS} ${EXTRA_CFLAGS}")
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${EXTRA_CFLAGS}")
 
 SET(CMAKE_EXE_LINKER_FLAGS "-Wl,--as-needed")
 

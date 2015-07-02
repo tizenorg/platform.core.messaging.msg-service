@@ -61,7 +61,7 @@ void SmsPluginUAManager::run()
 		unlock();
 
 		request.msgInfo.addressList = NULL;
-		AutoPtr<MSG_ADDRESS_INFO_S> addressListBuf(&request.msgInfo.addressList);
+		unique_ptr<MSG_ADDRESS_INFO_S*, void(*)(MSG_ADDRESS_INFO_S**)> addressListBuf(&request.msgInfo.addressList, unique_ptr_deleter);
 
 		try
 		{

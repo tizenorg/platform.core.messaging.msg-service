@@ -76,8 +76,8 @@ gboolean readSocket(GIOChannel *source, GIOCondition condition, gpointer data)
 	}
 
 	char* buf = NULL;
-	AutoPtr<char> eventBuf(&buf);
-	unsigned int len;
+	unique_ptr<char*, void(*)(char**)> eventBuf(&buf, unique_ptr_deleter);
+	unsigned int len = 0;
 
 	int n = MsgProxyListener::instance()->readFromSocket(&buf, &len);
 
@@ -118,6 +118,9 @@ MsgProxyListener::MsgProxyListener() : running(0)
 	newLBSMessageCBList.clear();
 	openHandleSet.clear();
 	MsgSettingRegVconfCBCommon(VCONFKEY_MSG_SERVER_READY, MsgServerRestartCb);
+
+	channel = NULL;
+	eventSourceId = 0;
 }
 
 
@@ -185,8 +188,6 @@ void MsgProxyListener::stop()
 	}
 	else if (running == 1)
 	{
-		MutexLocker lock(mx);
-
 		running--;
 
 		g_io_channel_unref(channel); // decrements ref_count = 1
@@ -643,7 +644,7 @@ void MsgProxyListener::handleEvent(const MSG_EVENT_S* pMsgEvent)
 		memset(&msgInfo, 0x00, sizeof(MSG_MESSAGE_INFO_S));
 
 		msgInfo.addressList = NULL;
-		AutoPtr<MSG_ADDRESS_INFO_S> addressListBuf(&msgInfo.addressList);
+		unique_ptr<MSG_ADDRESS_INFO_S*, void(*)(MSG_ADDRESS_INFO_S**)> addressListBuf(&msgInfo.addressList, unique_ptr_deleter);
 
 		MsgDecodeMsgInfo((char *)pMsgEvent->data, &msgInfo);
 
@@ -680,6 +681,8 @@ void MsgProxyListener::handleEvent(const MSG_EVENT_S* pMsgEvent)
 
 			addr_list->nCount = 0;
 			addr_list->msg_struct_info = (msg_struct_t *)calloc(MAX_TO_ADDRESS_CNT, sizeof(MSG_ADDRESS_INFO_S *));
+			if (addr_list->msg_struct_info == NULL)
+				continue;
 
 			msg_struct_s *pTmp = NULL;
 
@@ -742,7 +745,7 @@ void MsgProxyListener::handleEvent(const MSG_EVENT_S* pMsgEvent)
 		memset(&msgInfo, 0x00, sizeof(MSG_MESSAGE_INFO_S));
 
 		msgInfo.addressList = NULL;
-		AutoPtr<MSG_ADDRESS_INFO_S> addressListBuf(&msgInfo.addressList);
+		unique_ptr<MSG_ADDRESS_INFO_S*, void(*)(MSG_ADDRESS_INFO_S**)> addressListBuf(&msgInfo.addressList, unique_ptr_deleter);
 
 		MsgDecodeMsgInfo((char *)pMsgEvent->data, &msgInfo);
 
@@ -797,6 +800,8 @@ void MsgProxyListener::handleEvent(const MSG_EVENT_S* pMsgEvent)
 
 			addr_list->nCount = 0;
 			addr_list->msg_struct_info = (msg_struct_t *)calloc(MAX_TO_ADDRESS_CNT, sizeof(MSG_ADDRESS_INFO_S *));
+			if (addr_list->msg_struct_info == NULL)
+				continue;
 
 			msg_struct_s *pTmp = NULL;
 
@@ -833,7 +838,7 @@ void MsgProxyListener::handleEvent(const MSG_EVENT_S* pMsgEvent)
 				delete [] (char*)msgHidden.pMmsData;
 
 			// address Memory Free
-			if (msgHidden.addr_list!= NULL)
+			if (msgHidden.addr_list != NULL)
 			{
 				for(int i=0; i<MAX_TO_ADDRESS_CNT; i++) {
 					msg_struct_s * addrInfo = (msg_struct_s *)msgHidden.addr_list->msg_struct_info[i];
@@ -1075,6 +1080,7 @@ int  MsgProxyListener::getRemoteFd()
 
 	if (ret == ETIMEDOUT) {
 		MSG_DEBUG("get listener fd TIME-OUT");
+		mx.unlock();
 		return tmpFd;
 	}
 

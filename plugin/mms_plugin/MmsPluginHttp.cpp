@@ -255,6 +255,7 @@ static bool __httpGetHeaderField(MMS_HTTP_HEADER_FIELD_T httpHeaderItem, char *s
 
 		case MMS_HH_USER_AGENT:
 			{
+#if 0
 				char szUserAgent[1024 + 1];
 				char *uagent = NULL;
 
@@ -274,6 +275,9 @@ static bool __httpGetHeaderField(MMS_HTTP_HEADER_FIELD_T httpHeaderItem, char *s
 					free(uagent);
 					uagent = NULL;
 				}
+#else
+				snprintf((char *)szHeaderBuffer, 1024, "%s", MSG_MMS_HH_USER_AGENT);
+#endif
 				result = true;
 			}
 			break;
@@ -726,7 +730,7 @@ MMS_HTTP_ERROR_E MmsPluginHttpAgent::httpRequest(http_request_info_s &request_in
 		fclose(respfile);
 		respfile = NULL;
 
-		if (g_file_get_contents(conf_filename, &request_info.response_data, (gsize*)&request_info.response_data_len, NULL) == false) {
+		if (g_file_get_contents(conf_filename, &request_info.response_data, &request_info.response_data_len, NULL) == false) {
 			MSG_WARN("Fail to g_file_get_contents");
 		}
 	}

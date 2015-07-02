@@ -44,7 +44,7 @@ msg_error_t MsgHandle::addFilter(const MSG_FILTER_S *pFilter)
 
 	// Send Command to Messaging FW
 	char* pEventData = NULL;
-	AutoPtr<char> eventBuf(&pEventData);
+	unique_ptr<char*, void(*)(char**)> eventBuf(&pEventData, unique_ptr_deleter);
 
 	write((char*)pCmd, cmdSize, &pEventData);
 
@@ -80,7 +80,7 @@ msg_error_t MsgHandle::updateFilter(const MSG_FILTER_S *pFilter)
 
 	// Send Command to Messaging FW
 	char* pEventData = NULL;
-	AutoPtr<char> eventBuf(&pEventData);
+	unique_ptr<char*, void(*)(char**)> eventBuf(&pEventData, unique_ptr_deleter);
 
 	write((char*)pCmd, cmdSize, &pEventData);
 
@@ -116,7 +116,7 @@ msg_error_t MsgHandle::deleteFilter(msg_filter_id_t FilterId)
 
 	// Send Command to Messaging FW
 	char* pEventData = NULL;
-	AutoPtr<char> eventBuf(&pEventData);
+	unique_ptr<char*, void(*)(char**)> eventBuf(&pEventData, unique_ptr_deleter);
 
 	write((char*)pCmd, cmdSize, &pEventData);
 
@@ -149,7 +149,7 @@ msg_error_t MsgHandle::getFilterList(msg_struct_list_s *pFilterList)
 
 	// Send Command to Messaging FW
 	char* pEventData = NULL;
-	AutoPtr<char> eventBuf(&pEventData);
+	unique_ptr<char*, void(*)(char**)> eventBuf(&pEventData, unique_ptr_deleter);
 
 	write((char*)pCmd, cmdSize, &pEventData);
 
@@ -192,7 +192,7 @@ msg_error_t MsgHandle::setFilterOperation(bool bSetFlag)
 
 	// Send Command to Messaging FW
 	char* pEventData = NULL;
-	AutoPtr<char> eventBuf(&pEventData);
+	unique_ptr<char*, void(*)(char**)> eventBuf(&pEventData, unique_ptr_deleter);
 
 	write((char*)pCmd, cmdSize, &pEventData);
 
@@ -229,7 +229,7 @@ msg_error_t MsgHandle::getFilterOperation(bool *pSetFlag)
 
 	// Send Command to Messaging FW
 	char* pEventData = NULL;
-	AutoPtr<char> eventBuf(&pEventData);
+	unique_ptr<char*, void(*)(char**)> eventBuf(&pEventData, unique_ptr_deleter);
 
 	write((char*)pCmd, cmdSize, &pEventData);
 
@@ -274,7 +274,7 @@ msg_error_t MsgHandle::setFilterActivation(msg_filter_id_t filter_id, bool activ
 
 	// Send Command to Messaging FW
 	char* pEventData = NULL;
-	AutoPtr<char> eventBuf(&pEventData);
+	unique_ptr<char*, void(*)(char**)> eventBuf(&pEventData, unique_ptr_deleter);
 
 	write((char*)pCmd, cmdSize, &pEventData);
 

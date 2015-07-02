@@ -101,7 +101,7 @@ void SmsPluginCbMsgHandler::handleCbMsg(TapiHandle *handle, TelSmsCbMsg_t *pCbMs
 
 	int simIndex = SmsPluginDSHandler::instance()->getSimIndex(handle);
 
-	if (!checkCbOpt(CbMsgPage, &bJavaMsg, simIndex))
+	if (!checkCbOpt(&CbMsgPage, &bJavaMsg, simIndex))
 	{
 		MSG_DEBUG("The CB Msg is not supported by option.");
 		return;
@@ -115,26 +115,30 @@ void SmsPluginCbMsgHandler::handleCbMsg(TapiHandle *handle, TelSmsCbMsg_t *pCbMs
 
 
 	// Check CB Pages
-	unsigned char pageCnt = checkCbPage(CbMsgPage);
+	unsigned char pageCnt = checkCbPage(&CbMsgPage);
 
 	if (pageCnt == CbMsgPage.pageHeader.totalPages)
 	{
 		MSG_DEBUG("RECEIVED LAST MSG : %d", pageCnt);
 
-		SMS_CBMSG_S cbMsg = {0,};
+		SMS_CBMSG_S *cbMsg = NULL;
+		unique_ptr<SMS_CBMSG_S*, void(*)(SMS_CBMSG_S**)> buf(&cbMsg, unique_ptr_deleter);
+		cbMsg = (SMS_CBMSG_S *)new char[sizeof(SMS_CBMSG_S)];
+		memset(cbMsg, 0x00, sizeof(SMS_CBMSG_S));
+
 		MSG_MESSAGE_INFO_S msgInfo;
 
 		/** initialize msgInfo */
 		memset(&msgInfo, 0x00, sizeof(MSG_MESSAGE_INFO_S));
 
 		msgInfo.addressList = NULL;
-		AutoPtr<MSG_ADDRESS_INFO_S> addressListBuf(&msgInfo.addressList);
+		unique_ptr<MSG_ADDRESS_INFO_S*, void(*)(MSG_ADDRESS_INFO_S**)> addressListBuf(&msgInfo.addressList, unique_ptr_deleter);
 
 		// Make CB Msg Structure
-		MakeCbMsg(CbMsgPage, &cbMsg);
+		MakeCbMsg(&CbMsgPage, cbMsg);
 
 		// Convert to MSG_MESSAGE_INFO_S
-		convertCbMsgToMsginfo(&cbMsg, &msgInfo, simIndex);
+		convertCbMsgToMsginfo(cbMsg, &msgInfo, simIndex);
 
 		// Add CB Msg into DB
 		msg_error_t err = MSG_SUCCESS;
@@ -146,13 +150,13 @@ void SmsPluginCbMsgHandler::handleCbMsg(TapiHandle *handle, TelSmsCbMsg_t *pCbMs
 			MSG_CB_MSG_S cbOutMsg = {0, };
 
 			cbOutMsg.type = MSG_CB_SMS;
-			cbOutMsg.receivedTime = cbMsg.recvTime;
+			cbOutMsg.receivedTime = cbMsg->recvTime;
 			cbOutMsg.serialNum = encodeCbSerialNum (CbMsgPage.pageHeader.serialNum);
-			cbOutMsg.messageId = cbMsg.msgId;
+			cbOutMsg.messageId = cbMsg->msgId;
 			cbOutMsg.dcs = CbMsgPage.pageHeader.dcs.rawData;
 			memset (cbOutMsg.cbText, 0x00, sizeof(cbOutMsg.cbText));
 
-			cbOutMsg.cbTextLen= convertTextToUtf8((unsigned char*)cbOutMsg.cbText, sizeof(cbOutMsg.cbText), &cbMsg);
+			cbOutMsg.cbTextLen= convertTextToUtf8((unsigned char*)cbOutMsg.cbText, sizeof(cbOutMsg.cbText), cbMsg);
 			memset(cbOutMsg.language_type, 0x00, sizeof(cbOutMsg.language_type));
 			memcpy(cbOutMsg.language_type, CbMsgPage.pageHeader.dcs.iso639Lang, 3);
 			err = SmsPluginEventHandler::instance()->callbackCBMsgIncoming(&cbOutMsg, &msgInfo);
@@ -176,9 +180,7 @@ void SmsPluginCbMsgHandler::handleCbMsg(TapiHandle *handle, TelSmsCbMsg_t *pCbMs
 		}
 #endif
 		// Remove From List
-		removeFromPageList(CbMsgPage);
-
-
+		removeFromPageList(&CbMsgPage);
 	}
 	MSG_END();
 }
@@ -200,7 +202,7 @@ void SmsPluginCbMsgHandler::handleEtwsMsg(TapiHandle *handle, TelSmsEtwsMsg_t *p
 		return;
 	}
 	DecodeEtwsMsg(pEtwsMsg, &etwsPn);
-	//convertEtwsMsgToMsginfo(CbMsgPage, &msgInfo, simIndex);
+	//convertEtwsMsgToMsginfo(&CbMsgPage, &msgInfo, simIndex);
 
 	cbOutMsg.type = MSG_ETWS_SMS;
 	cbOutMsg.receivedTime = etwsPn.recvTime;
@@ -565,7 +567,7 @@ int SmsPluginCbMsgHandler::CMAS_class(unsigned short message_id)
 	return ret;
 }
 
-bool SmsPluginCbMsgHandler::checkCbOpt(SMS_CBMSG_PAGE_S CbPage, bool *pJavaMsg, msg_sim_slot_id_t simIndex)
+bool SmsPluginCbMsgHandler::checkCbOpt(SMS_CBMSG_PAGE_S *CbPage, bool *pJavaMsg, msg_sim_slot_id_t simIndex)
 {
 	bool bReceive = false;
 	char keyName[MAX_VCONFKEY_NAME_LEN];
@@ -624,9 +626,9 @@ bool SmsPluginCbMsgHandler::checkCbOpt(SMS_CBMSG_PAGE_S CbPage, bool *pJavaMsg, 
 		MsgId_from = cbChannelInfo.channelInfo[i].from;
 		MsgId_to = cbChannelInfo.channelInfo[i].to;
 
-		if (bActivate == true && CbPage.pageHeader.msgId >= MsgId_from && CbPage.pageHeader.msgId <= MsgId_to)
+		if (bActivate == true && CbPage->pageHeader.msgId >= MsgId_from && CbPage->pageHeader.msgId <= MsgId_to)
 		{
-			MSG_DEBUG("FIND CHANNEL = [%d]", CbPage.pageHeader.msgId);
+			MSG_DEBUG("FIND CHANNEL = [%d]", CbPage->pageHeader.msgId);
 			return true;
 		}
 	}
@@ -634,7 +636,7 @@ bool SmsPluginCbMsgHandler::checkCbOpt(SMS_CBMSG_PAGE_S CbPage, bool *pJavaMsg, 
 	return false;
 }
 
-unsigned char SmsPluginCbMsgHandler::checkCbPage(SMS_CBMSG_PAGE_S CbPage)
+unsigned char SmsPluginCbMsgHandler::checkCbPage(SMS_CBMSG_PAGE_S *CbPage)
 {
 	unsigned char currPageCnt = 0;
 
@@ -653,17 +655,17 @@ unsigned char SmsPluginCbMsgHandler::checkCbPage(SMS_CBMSG_PAGE_S CbPage)
 	}
 #endif
 
-	if (CbPage.pageHeader.totalPages > 0)
+	if (CbPage->pageHeader.totalPages > 0)
 	{
 		for (unsigned int i = 0; i < pageList.size(); i++)
 		{
-			if (pageList[i].geoScope == CbPage.pageHeader.serialNum.geoScope && pageList[i].msgCode == CbPage.pageHeader.serialNum.msgCode)
+			if (pageList[i].geoScope == CbPage->pageHeader.serialNum.geoScope && pageList[i].msgCode == CbPage->pageHeader.serialNum.msgCode)
 			{
 				MSG_DEBUG("geoScope [%d], msgCode [%d]", pageList[i].geoScope, pageList[i].msgCode);
 
-				if (pageList[i].msgId == CbPage.pageHeader.msgId)
+				if (pageList[i].msgId == CbPage->pageHeader.msgId)
 				{
-					int updateNum = CbPage.pageHeader.serialNum.updateNum - pageList[i].updateNum;
+					int updateNum = CbPage->pageHeader.serialNum.updateNum - pageList[i].updateNum;
 
 					if (updateNum > 0) // New Message Content
 					{
@@ -671,20 +673,20 @@ unsigned char SmsPluginCbMsgHandler::checkCbPage(SMS_CBMSG_PAGE_S CbPage)
 					}
 					else if (updateNum == 0) // Same Message Content
 					{
-						if (pageList[i].data.count(CbPage.pageHeader.page) != 0)
+						if (pageList[i].data.count(CbPage->pageHeader.page) != 0)
 						{
-							MSG_DEBUG("The Page Number already exists [%d]", CbPage.pageHeader.page);
+							MSG_DEBUG("The Page Number already exists [%d]", CbPage->pageHeader.page);
 							return 0;
 						}
 
-						pair<unsigned char, SMS_CBMSG_PAGE_S> newData(CbPage.pageHeader.page, CbPage);
+						pair<unsigned char, SMS_CBMSG_PAGE_S> newData(CbPage->pageHeader.page, *CbPage);
 						pageList[i].data.insert(newData);
 
-						MSG_DEBUG("PAGE DATA : %s", CbPage.pageData);
+						MSG_DEBUG("PAGE DATA : %s", CbPage->pageData);
 						MSG_DEBUG("PAIR DATA [%d] : %s", newData.first, newData.second.pageData);
 
 						pageList[i].pageCnt++;
-						pageList[i].totalSize += CbPage.pageLength;
+						pageList[i].totalSize += CbPage->pageLength;
 
 						currPageCnt = pageList[i].pageCnt;
 
@@ -701,7 +703,7 @@ unsigned char SmsPluginCbMsgHandler::checkCbPage(SMS_CBMSG_PAGE_S CbPage)
 		}
 	}
 
-	if (bFind == false || CbPage.pageHeader.totalPages == 1)
+	if (bFind == false || CbPage->pageHeader.totalPages == 1)
 	{
 		addToPageList(CbPage);
 		return 1;
@@ -711,24 +713,24 @@ unsigned char SmsPluginCbMsgHandler::checkCbPage(SMS_CBMSG_PAGE_S CbPage)
 }
 
 
-void SmsPluginCbMsgHandler::MakeCbMsg(SMS_CBMSG_PAGE_S CbPage, SMS_CBMSG_S *pCbMsg)
+void SmsPluginCbMsgHandler::MakeCbMsg(SMS_CBMSG_PAGE_S *CbPage, SMS_CBMSG_S *pCbMsg)
 {
-	pCbMsg->cbMsgType = CbPage.cbMsgType;
-	pCbMsg->msgId = CbPage.pageHeader.msgId;
-	pCbMsg->classType = CbPage.pageHeader.dcs.classType;
-	pCbMsg->codingScheme = CbPage.pageHeader.dcs.codingScheme;
-	pCbMsg->recvTime = CbPage.pageHeader.recvTime;
+	pCbMsg->cbMsgType = CbPage->cbMsgType;
+	pCbMsg->msgId = CbPage->pageHeader.msgId;
+	pCbMsg->classType = CbPage->pageHeader.dcs.classType;
+	pCbMsg->codingScheme = CbPage->pageHeader.dcs.codingScheme;
+	pCbMsg->recvTime = CbPage->pageHeader.recvTime;
 
 	cbPageMap::iterator it;
 	int offset = 0;
 
 	for (unsigned int i = 0; i < pageList.size(); i++)
 	{
-		if (pageList[i].geoScope == CbPage.pageHeader.serialNum.geoScope && pageList[i].msgCode == CbPage.pageHeader.serialNum.msgCode)
+		if (pageList[i].geoScope == CbPage->pageHeader.serialNum.geoScope && pageList[i].msgCode == CbPage->pageHeader.serialNum.msgCode)
 		{
 			MSG_DEBUG("geoScope [%d], msgCode [%d]", pageList[i].geoScope, pageList[i].msgCode);
 
-			if (pageList[i].msgId == CbPage.pageHeader.msgId)
+			if (pageList[i].msgId == CbPage->pageHeader.msgId)
 			{
 
 				for (it = pageList[i].data.begin(); it != pageList[i].data.end(); it++)
@@ -819,7 +821,7 @@ void SmsPluginCbMsgHandler::convertCbMsgToMsginfo(SMS_CBMSG_S *pCbMsg, MSG_MESSA
 	pMsgInfo->msgPort.srcPort = 0;
 
 	pMsgInfo->displayTime = pCbMsg->recvTime;
-	MSG_DEBUG("recvTime is %s", ctime(&pMsgInfo->displayTime));
+	MSG_DEBUG("recvTime is %d", pMsgInfo->displayTime);
 
 	int bufSize = pCbMsg->msgLength*2;
 
@@ -872,16 +874,16 @@ void SmsPluginCbMsgHandler::convertCbMsgToMsginfo(SMS_CBMSG_S *pCbMsg, MSG_MESSA
 }
 
 
-void SmsPluginCbMsgHandler::convertEtwsMsgToMsginfo(SMS_CBMSG_PAGE_S EtwsMsg, MSG_MESSAGE_INFO_S *pMsgInfo, msg_sim_slot_id_t simIndex)
+void SmsPluginCbMsgHandler::convertEtwsMsgToMsginfo(SMS_CBMSG_PAGE_S *EtwsMsg, MSG_MESSAGE_INFO_S *pMsgInfo, msg_sim_slot_id_t simIndex)
 {
-	pMsgInfo->msgId = (msg_message_id_t)EtwsMsg.pageHeader.msgId;
+	pMsgInfo->msgId = (msg_message_id_t)EtwsMsg->pageHeader.msgId;
 
 	pMsgInfo->folderId = MSG_CBMSGBOX_ID;
 
 	// Convert Type values
 	pMsgInfo->msgType.mainType = MSG_SMS_TYPE;
 
-	if (EtwsMsg.cbMsgType == SMS_CBMSG_TYPE_ETWS)
+	if (EtwsMsg->cbMsgType == SMS_CBMSG_TYPE_ETWS)
 		pMsgInfo->msgType.subType = MSG_ETWS_SMS;
 
 	pMsgInfo->storageId = MSG_STORAGE_PHONE;
@@ -897,20 +899,20 @@ void SmsPluginCbMsgHandler::convertEtwsMsgToMsginfo(SMS_CBMSG_PAGE_S EtwsMsg, MS
 	pMsgInfo->addressList[0].addressType = MSG_ADDRESS_TYPE_UNKNOWN;
 	pMsgInfo->addressList[0].recipientType = MSG_RECIPIENTS_TYPE_UNKNOWN;
 
-	getDisplayName(EtwsMsg.pageHeader.msgId, pMsgInfo->addressList[0].addressVal, simIndex);
+	getDisplayName(EtwsMsg->pageHeader.msgId, pMsgInfo->addressList[0].addressVal, simIndex);
 	MSG_SEC_DEBUG("%s", pMsgInfo->addressList[0].addressVal);
 
 	pMsgInfo->msgPort.valid = false;
 	pMsgInfo->msgPort.dstPort = 0;
 	pMsgInfo->msgPort.srcPort = 0;
 
-	pMsgInfo->displayTime = EtwsMsg.pageHeader.recvTime;
-	MSG_DEBUG("recvTime is %s", ctime(&pMsgInfo->displayTime));
-	MSG_DEBUG("LENGTH %d", EtwsMsg.pageLength);
+	pMsgInfo->displayTime = EtwsMsg->pageHeader.recvTime;
+	MSG_DEBUG("recvTime is %d", pMsgInfo->displayTime);
+	MSG_DEBUG("LENGTH %d", EtwsMsg->pageLength);
 	pMsgInfo->bTextSms = true;
-	pMsgInfo->dataSize = EtwsMsg.pageLength;
+	pMsgInfo->dataSize = EtwsMsg->pageLength;
 	memset(pMsgInfo->msgData, 0x00, sizeof(pMsgInfo->msgData));
-	memcpy(pMsgInfo->msgData, EtwsMsg.pageData, pMsgInfo->dataSize);
+	memcpy(pMsgInfo->msgData, EtwsMsg->pageData, pMsgInfo->dataSize);
 }
 
 int SmsPluginCbMsgHandler::convertTextToUtf8 (unsigned char* outBuf, int outBufSize, SMS_CBMSG_S* pCbMsg)
@@ -939,40 +941,40 @@ int SmsPluginCbMsgHandler::convertTextToUtf8 (unsigned char* outBuf, int outBufS
 	return convertedTextSize;
 }
 
-void SmsPluginCbMsgHandler::addToPageList(SMS_CBMSG_PAGE_S CbPage)
+void SmsPluginCbMsgHandler::addToPageList(SMS_CBMSG_PAGE_S *CbPage)
 {
 	CB_PAGE_INFO_S tmpInfo;
 
-	tmpInfo.geoScope = CbPage.pageHeader.serialNum.geoScope;
-	tmpInfo.msgCode = CbPage.pageHeader.serialNum.msgCode;
-	tmpInfo.updateNum = CbPage.pageHeader.serialNum.updateNum;
-	tmpInfo.msgId = CbPage.pageHeader.msgId;
-	tmpInfo.totalPages = CbPage.pageHeader.totalPages;
+	tmpInfo.geoScope = CbPage->pageHeader.serialNum.geoScope;
+	tmpInfo.msgCode = CbPage->pageHeader.serialNum.msgCode;
+	tmpInfo.updateNum = CbPage->pageHeader.serialNum.updateNum;
+	tmpInfo.msgId = CbPage->pageHeader.msgId;
+	tmpInfo.totalPages = CbPage->pageHeader.totalPages;
 
 	tmpInfo.pageCnt = 1;
-	tmpInfo.totalSize = CbPage.pageLength;
+	tmpInfo.totalSize = CbPage->pageLength;
 
-	pair<unsigned char, SMS_CBMSG_PAGE_S> newData(CbPage.pageHeader.page, CbPage);
+	pair<unsigned char, SMS_CBMSG_PAGE_S> newData(CbPage->pageHeader.page, *CbPage);
 	tmpInfo.data.insert(newData);
 
-	MSG_DEBUG("MSG DATA : %s", CbPage.pageData);
+	MSG_DEBUG("MSG DATA : %s", CbPage->pageData);
 	MSG_DEBUG("PAIR DATA [%d] : %s", newData.first, newData.second.pageData);
 
 	pageList.push_back(tmpInfo);
 }
 
 
-void SmsPluginCbMsgHandler::removeFromPageList(SMS_CBMSG_PAGE_S CbPage)
+void SmsPluginCbMsgHandler::removeFromPageList(SMS_CBMSG_PAGE_S *CbPage)
 {
 	unsigned int index;
 
 	for (index = 0; index < pageList.size(); index++)
 	{
-		if (pageList[index].geoScope == CbPage.pageHeader.serialNum.geoScope && pageList[index].msgCode == CbPage.pageHeader.serialNum.msgCode)
+		if (pageList[index].geoScope == CbPage->pageHeader.serialNum.geoScope && pageList[index].msgCode == CbPage->pageHeader.serialNum.msgCode)
 		{
 			MSG_DEBUG("geoScope [%d], msgCode [%d]", pageList[index].geoScope, pageList[index].msgCode);
 
-			if (pageList[index].msgId == CbPage.pageHeader.msgId) break;
+			if (pageList[index].msgId == CbPage->pageHeader.msgId) break;
 		}
 	}
 
@@ -1186,6 +1188,6 @@ void SmsPluginCbMsgHandler::getDisplayName(unsigned short	MsgId, char *pDisplayN
 		}
 	}
 
-	sprintf(pDisplayName, "[%d]", MsgId);
+	snprintf(pDisplayName, MAX_ADDRESS_VAL_LEN + 1, "[%d]", MsgId);
 }
 

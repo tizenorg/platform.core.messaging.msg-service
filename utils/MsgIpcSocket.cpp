@@ -19,17 +19,15 @@
 #include <sys/ioctl.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <sys/smack.h>
 
 #include <errno.h>
 #include <unistd.h>
 #include <errno.h>
-
+#include <glib.h>
 
 #include "MsgDebug.h"
 #include "MsgException.h"
 #include "MsgIpcSocket.h"
-#include "MsgZoneManager.h"
 
 /*==================================================================================================
                                      IMPLEMENTATION OF MsgIpcClientSocket - Member Functions
@@ -51,7 +49,7 @@ msg_error_t MsgIpcClientSocket::connect(const char* path)
 	sockfd = socket(AF_UNIX, SOCK_STREAM, 0);
 
 	if (sockfd < 0) {
-		THROW(MsgException::IPC_ERROR,"socket not opened %s",strerror(errno));
+		THROW(MsgException::IPC_ERROR,"socket not opened %s",g_strerror(errno));
 	}
 
 	struct sockaddr_un serverSA = {0, };
@@ -64,9 +62,9 @@ msg_error_t MsgIpcClientSocket::connect(const char* path)
 
 	if (::connect(sockfd, (struct sockaddr *)&serverSA, len) == CUSTOM_SOCKET_ERROR) {
 		if(errno == EACCES)
-			THROW(MsgException::SECURITY_ERROR,"cannot connect server %s", strerror(errno));
+			THROW(MsgException::SECURITY_ERROR,"cannot connect server %s", g_strerror(errno));
 		else
-			THROW(MsgException::IPC_ERROR,"cannot connect server %s", strerror(errno));
+			THROW(MsgException::IPC_ERROR,"cannot connect server %s", g_strerror(errno));
 	}
 
 	/* add fd for select() */
@@ -78,13 +76,13 @@ msg_error_t MsgIpcClientSocket::connect(const char* path)
 
 	/* read remote fd for reg func */
 	char *rfd = NULL;
-	AutoPtr<char> wrap(&rfd);
+	unique_ptr<char*, void(*)(char**)> wrap(&rfd, unique_ptr_deleter);
 	unsigned int rlen;
 
 	read(&rfd, &rlen);
 
 	if (rfd == NULL) {
-		THROW(MsgException::IPC_ERROR,"rfd is NULL %s", strerror(errno));
+		THROW(MsgException::IPC_ERROR,"rfd is NULL %s", g_strerror(errno));
 	}
 
 	memcpy(&remotefd, rfd, sizeof(rlen));
@@ -135,7 +133,7 @@ int MsgIpcClientSocket::writen (const char *buf, unsigned int len)
 	while (nleft > 0) {
 		nwrite = ::write(sockfd, (const void*) buf, nleft);
 		if (nwrite < 0) {
-			MSG_FATAL("writen: sockfd [%d] error [%s]",  sockfd, strerror(errno));
+			MSG_FATAL("writen: sockfd [%d] error [%s]",  sockfd, g_strerror(errno));
 			return nwrite;
 		} else if (nwrite == 0) {
 			break;
@@ -185,7 +183,7 @@ int MsgIpcClientSocket::readn( char *buf, unsigned int len )
 	while (nleft > 0) {
 		nread = ::read(sockfd, (void*) buf, nleft);
 		if (nread < 0) {
-			MSG_FATAL("WARNING read value %d: %s", nread, strerror(errno));
+			MSG_FATAL("WARNING read value %d: %s", nread, g_strerror(errno));
 			return nread;
 		} else if( nread == 0 ) {
 			break;
@@ -245,12 +243,18 @@ int MsgIpcClientSocket::read(char** buf, unsigned int* len)
 		return CUSTOM_SOCKET_ERROR;
 	}
 
+	*len = 0;
+	char clen[sizeof(int)] = {0};
+
 	/* read the data size first */
-	int n = readn((char*) len, sizeof(int));
+	int n = readn(clen, sizeof(int));
+	memcpy(len, clen, sizeof(int));
+
 	if (n == CLOSE_CONNECTION_BY_SIGNAL) { /* if msgfw gets down, it signals to all IPC clients */
 		MSG_FATAL("sockfd [%d] CLOSE_CONNECTION_BY_SIGNAL", sockfd);
 		return n;
-	} else if (n != sizeof(int)) {
+	}
+	else if (n != sizeof(int)) {
 		MSG_FATAL("WARNING: read header_size[%d] not matched [%d]", n, sizeof(int));
 		return CUSTOM_SOCKET_ERROR;
 	}
@@ -310,7 +314,7 @@ msg_error_t MsgIpcServerSocket::open(const char* path)
 	sockfd = socket(AF_UNIX, SOCK_STREAM, 0);
 
 	if (sockfd == CUSTOM_SOCKET_ERROR) {
-		MSG_FATAL("socket failed: %s", strerror(errno));
+		MSG_FATAL("socket failed: %s", g_strerror(errno));
 		return MSG_ERR_UNKNOWN;
 	}
 
@@ -327,7 +331,7 @@ msg_error_t MsgIpcServerSocket::open(const char* path)
 	int len = strlen(local.sun_path) + sizeof(local.sun_family);
 
 	if (bind(sockfd, (struct sockaddr *)&local, len) == CUSTOM_SOCKET_ERROR) {
-		MSG_FATAL("bind: %s", strerror(errno));
+		MSG_FATAL("bind: %s", g_strerror(errno));
 		return MSG_ERR_UNKNOWN;
 	}
 
@@ -345,22 +349,11 @@ msg_error_t MsgIpcServerSocket::open(const char* path)
 	mode_t sock_mode = (S_IRWXU | S_IRWXG | S_IRWXO); /* has 777 permission */
 
 	if (chmod(path, sock_mode) == CUSTOM_SOCKET_ERROR) {
-		MSG_FATAL("chmod: %s", strerror(errno));
+		MSG_FATAL("chmod: %s", g_strerror(errno));
 		return MSG_ERR_UNKNOWN;
 	}
-#if 0
-	if (smack_setlabel(path, "*", SMACK_LABEL_IPIN) != 0) {
-		MSG_FATAL("smack_setlabel error");
-		return MSG_ERR_UNKNOWN;
-	}
-
-	if (smack_setlabel(path, "@", SMACK_LABEL_IPOUT) != 0) {
-		MSG_FATAL("smack_setlabel error");
-		return MSG_ERR_UNKNOWN;
-	}
-#endif
 	if (listen(sockfd, CUSTOM_SOCKET_BACKLOG) == CUSTOM_SOCKET_ERROR) {
-		MSG_FATAL("listen: %s", strerror(errno));
+		MSG_FATAL("listen: %s", g_strerror(errno));
 		return MSG_ERR_UNKNOWN;
 	}
 
@@ -385,12 +378,8 @@ msg_error_t MsgIpcServerSocket::accept()
 	int t = sizeof(remote);
 	int fd = ::accept(sockfd, (struct sockaddr *)&remote, (socklen_t*) &t);
 	if (fd < 0) {
-		MSG_FATAL("accept: %s", strerror(errno));
+		MSG_FATAL("accept: %s", g_strerror(errno));
 		return MSG_ERR_UNKNOWN;
-	}
-
-	if(!MsgZoneIsAllowed(fd)) {
-		return MSG_ERR_NOT_ALLOWED_ZONE;
 	}
 
 	addfd(fd);
@@ -443,7 +432,7 @@ int MsgIpcServerSocket::readn( int fd, char *buf, unsigned int len )
 	while (nleft > 0) {
 		nread = ::read(fd, (void*)buf, nleft);
 		if (nread < 0) {
-			MSG_FATAL("read: %s", strerror(errno));
+			MSG_FATAL("read: %s", g_strerror(errno));
 			return nread;
 		}
 		else if (nread == 0)
@@ -467,8 +456,12 @@ int MsgIpcServerSocket::read(int fd, char** buf, int* len )
 		return CUSTOM_SOCKET_ERROR;
 	}
 
+	*len = 0;
+	char clen[sizeof(int)] = {0};
+
 	/* read the data size first */
-	int n = readn(fd, (char*) len, sizeof(int));
+	int n = readn(fd, clen, sizeof(int));
+	memcpy(len, clen, sizeof(int));
 
 	if (n == CLOSE_CONNECTION_BY_SIGNAL) {
 		MSG_FATAL("fd %d CLOSE_CONNECTION_BY_SIGNAL", fd);
@@ -481,6 +474,7 @@ int MsgIpcServerSocket::read(int fd, char** buf, int* len )
 	}
 
 	MSG_DEBUG("MsgLen %d", *len);
+
 	if (*len == CLOSE_CONNECTION_BY_USER)
 		return *len;
 
@@ -513,7 +507,7 @@ int MsgIpcServerSocket::writen(int fd, const char *buf, unsigned int len)
 		nwrite = ::send(fd, (const void*) buf, nleft, MSG_NOSIGNAL|MSG_DONTWAIT);
 
 		if (nwrite < 0) {
-			MSG_FATAL("write: %s", strerror(errno));
+			MSG_FATAL("write: %s", g_strerror(errno));
 			return nwrite;
 		} else if (nwrite == 0) { /* Nothing is send. */
 			break;

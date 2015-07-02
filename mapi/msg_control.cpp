@@ -29,11 +29,11 @@
 ==================================================================================================*/
 EXPORT_API int msg_open_msg_handle(msg_handle_t *handle)
 {
-	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_FEATURE);
+	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_SMS_FEATURE);
 	//Privilege check
 	int ret = PRIV_MGR_ERROR_SUCCESS;
 	ret = privacy_checker_check_by_privilege(MSG_SERVICE_READ_PRIV_NAME);
-	if(ret != PRIV_MGR_ERROR_SUCCESS)
+	if (ret != PRIV_MGR_ERROR_SUCCESS)
 	{
 		return MSG_ERR_PERMISSION_DENIED;
 	}
@@ -78,11 +78,11 @@ EXPORT_API int msg_open_msg_handle(msg_handle_t *handle)
 
 EXPORT_API int msg_close_msg_handle(msg_handle_t *handle)
 {
-	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_FEATURE);
+	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_SMS_FEATURE);
 	//Privilege check
 	int ret = PRIV_MGR_ERROR_SUCCESS;
 	ret = privacy_checker_check_by_privilege(MSG_SERVICE_READ_PRIV_NAME);
-	if(ret != PRIV_MGR_ERROR_SUCCESS)
+	if (ret != PRIV_MGR_ERROR_SUCCESS)
 	{
 		return MSG_ERR_PERMISSION_DENIED;
 	}

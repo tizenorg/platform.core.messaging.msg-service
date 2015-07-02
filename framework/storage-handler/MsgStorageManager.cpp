@@ -34,7 +34,6 @@
 #include "MsgPluginManager.h"
 #include "MsgStorageHandler.h"
 
-
 #define MSG_DB_VERSION 1
 
 /*==================================================================================================
@@ -198,6 +197,12 @@ void MsgInitMmapMutex(const char *shm_file_name)
 	pthread_mutexattr_destroy(&mattr);
 
 	close (fd);
+
+	if (munmap((void *)mx, sizeof(pthread_mutex_t)) != 0) {
+		MSG_FATAL("munmap() failed! (errno: %d)", errno);
+		return;
+	}
+
 	MSG_END();
 }
 
@@ -251,7 +256,7 @@ msg_error_t MsgAddDefaultFolders()
 	snprintf(sqlQuery, sizeof(sqlQuery), "SELECT COUNT(*) FROM %s WHERE FOLDER_ID = %d;",
 			MSGFW_FOLDER_TABLE_NAME, MSG_INBOX_ID);
 
-	if (dbHandle->getTable(sqlQuery, &nRowCnt) != MSG_SUCCESS) {
+	if (dbHandle->getTable(sqlQuery, &nRowCnt, NULL) != MSG_SUCCESS) {
 		dbHandle->freeTable();
 		return MSG_ERR_DB_GETTABLE;
 	}
@@ -274,7 +279,7 @@ msg_error_t MsgAddDefaultFolders()
 	snprintf(sqlQuery, sizeof(sqlQuery), "SELECT COUNT(*) FROM %s WHERE FOLDER_ID = %d;",
 			MSGFW_FOLDER_TABLE_NAME, MSG_OUTBOX_ID);
 
-	if (dbHandle->getTable(sqlQuery, &nRowCnt) != MSG_SUCCESS) {
+	if (dbHandle->getTable(sqlQuery, &nRowCnt, NULL) != MSG_SUCCESS) {
 		dbHandle->freeTable();
 		return MSG_ERR_DB_GETTABLE;
 	}
@@ -297,7 +302,7 @@ msg_error_t MsgAddDefaultFolders()
 	snprintf(sqlQuery, sizeof(sqlQuery), "SELECT COUNT(*) FROM %s WHERE FOLDER_ID = %d;",
 			MSGFW_FOLDER_TABLE_NAME, MSG_SENTBOX_ID);
 
-	if (dbHandle->getTable(sqlQuery, &nRowCnt) != MSG_SUCCESS) {
+	if (dbHandle->getTable(sqlQuery, &nRowCnt, NULL) != MSG_SUCCESS) {
 		dbHandle->freeTable();
 		return MSG_ERR_DB_GETTABLE;
 	}
@@ -320,7 +325,7 @@ msg_error_t MsgAddDefaultFolders()
 	snprintf(sqlQuery, sizeof(sqlQuery), "SELECT COUNT(*) FROM %s WHERE FOLDER_ID = %d;",
 			MSGFW_FOLDER_TABLE_NAME, MSG_DRAFT_ID);
 
-	if (dbHandle->getTable(sqlQuery, &nRowCnt) != MSG_SUCCESS) {
+	if (dbHandle->getTable(sqlQuery, &nRowCnt, NULL) != MSG_SUCCESS) {
 		dbHandle->freeTable();
 		return MSG_ERR_DB_GETTABLE;
 	}
@@ -343,7 +348,7 @@ msg_error_t MsgAddDefaultFolders()
 	snprintf(sqlQuery, sizeof(sqlQuery), "SELECT COUNT(*) FROM %s WHERE FOLDER_ID = %d;",
 			MSGFW_FOLDER_TABLE_NAME, MSG_CBMSGBOX_ID);
 
-	if (dbHandle->getTable(sqlQuery, &nRowCnt) != MSG_SUCCESS) {
+	if (dbHandle->getTable(sqlQuery, &nRowCnt, NULL) != MSG_SUCCESS) {
 		dbHandle->freeTable();
 		return MSG_ERR_DB_GETTABLE;
 	}
@@ -366,7 +371,7 @@ msg_error_t MsgAddDefaultFolders()
 	snprintf(sqlQuery, sizeof(sqlQuery), "SELECT COUNT(*) FROM %s WHERE FOLDER_ID = %d;",
 			MSGFW_FOLDER_TABLE_NAME, MSG_SPAMBOX_ID);
 
-	if (dbHandle->getTable(sqlQuery, &nRowCnt) != MSG_SUCCESS) {
+	if (dbHandle->getTable(sqlQuery, &nRowCnt, NULL) != MSG_SUCCESS) {
 		dbHandle->freeTable();
 		return MSG_ERR_DB_GETTABLE;
 	}
@@ -400,7 +405,7 @@ msg_error_t MsgAddDefaultAddress()
 	snprintf(sqlQuery, sizeof(sqlQuery), "SELECT COUNT(*) FROM %s WHERE ADDRESS_ID = 0;",
 			MSGFW_ADDRESS_TABLE_NAME);
 
-	if (dbHandle->getTable(sqlQuery, &nRowCnt) != MSG_SUCCESS) {
+	if (dbHandle->getTable(sqlQuery, &nRowCnt, NULL) != MSG_SUCCESS) {
 		dbHandle->freeTable();
 		return MSG_ERR_DB_GETTABLE;
 	}
@@ -515,9 +520,8 @@ msg_error_t MsgStoBackupMessage(msg_message_backup_type_t type, const char *file
 
 	char sqlQuery[MAX_QUERY_LEN+1];
 	int rowCnt = 0;
-	int index = 0;
-	MSG_MESSAGE_INFO_S	 msgInfo = {0, };
-	char*			encoded_data = NULL;
+	MSG_MESSAGE_INFO_S msgInfo = {0, };
+	char* encoded_data = NULL;
 
 	char fileName[MSG_FILENAME_LEN_MAX+1];
 	memset(fileName, 0x00, sizeof(fileName));
@@ -548,23 +552,27 @@ msg_error_t MsgStoBackupMessage(msg_message_backup_type_t type, const char *file
 
 	}
 
-	err = dbHandle->getTable(sqlQuery, &rowCnt);
+	err = dbHandle->getTable(sqlQuery, &rowCnt, NULL);
 
 	if (err != MSG_SUCCESS) {
 		dbHandle->freeTable();
 		return err;
 	}
+
 	MSG_DEBUG("backup number = %d", rowCnt);
 
+	int msg_id[rowCnt];
 	for (int i = 0; i < rowCnt; i++) {
-		int msgid = dbHandle->getColumnToInt(++index);
+		msg_id[i] = dbHandle->getColumnToInt(i+1);
+	}
+	dbHandle->freeTable();
 
+	for (int i = 0; i < rowCnt; i++) {
 		msgInfo.addressList = NULL;
-		AutoPtr<MSG_ADDRESS_INFO_S> addressListBuf(&msgInfo.addressList);
+		unique_ptr<MSG_ADDRESS_INFO_S*, void(*)(MSG_ADDRESS_INFO_S**)> addressListBuf(&msgInfo.addressList, unique_ptr_deleter);
 
-		err = MsgStoGetMessage(msgid, &msgInfo, NULL);
+		err = MsgStoGetMessage(msg_id[i], &msgInfo, NULL);
 		if(err != MSG_SUCCESS) {
-			dbHandle->freeTable();
 			return err;
 		}
 
@@ -576,18 +584,21 @@ msg_error_t MsgStoBackupMessage(msg_message_backup_type_t type, const char *file
 		}
 		if (encoded_data != NULL) {
 			if (MsgAppendFile(fileName, encoded_data, strlen(encoded_data)) == false) {
-				dbHandle->freeTable();
 				free(encoded_data);
 				return MSG_ERR_STORAGE_ERROR;
 			}
 
 			free(encoded_data);
+
+			if (chmod(fileName, 0666) == -1) {
+				MSG_FATAL("chmod: %s", g_strerror(errno));
+				return MSG_ERR_UNKNOWN;
+			}
 		}
 
 		memset(&msgInfo, 0, sizeof(MSG_MESSAGE_INFO_S));
 	}
 
-	dbHandle->freeTable();
 	MSG_END();
 	return MSG_SUCCESS;
 
@@ -616,7 +627,7 @@ msg_error_t MsgStoUpdateMms(MSG_MESSAGE_INFO_S *pMsg)
 
 		dbHandle->bindText(pMsg->thumbPath, 1);
 
-		if (pMsg->msgText[0] != '\0' && g_file_get_contents((gchar*)pMsg->msgText, (gchar**)&pFileData, (gsize*)&fileSize, NULL) == true) {
+		if (pMsg->msgText[0] != '\0' && g_file_get_contents(pMsg->msgText, &pFileData, &fileSize, NULL) == true) {
 			dbHandle->bindText(pFileData, 2);
 		}
 
@@ -656,9 +667,14 @@ msg_error_t MsgStoUpdateMms(MSG_MESSAGE_INFO_S *pMsg)
 
 msg_error_t MsgStoRestoreMessage(const char *filepath, msg_id_list_s **result_id_list)
 {
+	if (result_id_list == NULL) {
+		MSG_DEBUG("result_id_list is NULL");
+		return MSG_ERR_NULL_POINTER;
+	}
+
 	msg_error_t err = MSG_SUCCESS;
 	MSG_MESSAGE_INFO_S msgInfo = {0,};
-	AutoPtr<MSG_ADDRESS_INFO_S> addressListBuf(&msgInfo.addressList);
+	unique_ptr<MSG_ADDRESS_INFO_S*, void(*)(MSG_ADDRESS_INFO_S**)> addressListBuf(&msgInfo.addressList, unique_ptr_deleter);
 
 	VTree* vMsg = NULL;
 	VObject* pObject = NULL;
@@ -672,6 +688,8 @@ msg_error_t MsgStoRestoreMessage(const char *filepath, msg_id_list_s **result_id
 	char *pData = NULL;
 	char *pCurrent = NULL;
 	char *pTemp = NULL;
+
+	*result_id_list = NULL;
 
 #ifdef MSG_FOR_DEBUG
 	char sample[10000] = "BEGIN:VMSG\r\nX-MESSAGE-TYPE:SMS\r\nX-IRMC-BOX:INBOX\r\nX-SS-DT:20100709T155811Z\r\nBEGIN:VBODY\r\nX-BODY-SUBJECT:hekseh\r\nX-BODY-CONTENTS;ENCODING=BASE64:aGVsbG93b3JsZA==\r\nEND:VBODY\r\nBEGIN:VCARD\r\nVERSION:2.1\r\nTEL:01736510664\r\nEND:VCARD\r\nEND:VMSG\r\n";
@@ -873,12 +891,20 @@ msg_error_t MsgStoRestoreMessage(const char *filepath, msg_id_list_s **result_id
 								strncat(msgInfo.msgData, fileName, MAX_MSG_DATA_LEN-strlen(msgInfo.msgData));
 								msgInfo.dataSize = strlen(fileName);
 								MsgPlugin* plg = MsgPluginManager::instance()->getPlugin(msgInfo.msgType.mainType);
+								if (plg == NULL) {
+									vmsg_free_vtree_memory(vMsg);
+									return MSG_ERR_NULL_POINTER;
+								}
 								err =  plg->restoreMsg(&msgInfo, pObject->pszValue[0], pObject->numOfBiData, NULL);
 
 							} else {
 //////////////// From here was avaliable
 								char	retrievedFilePath[MAX_FULL_PATH_SIZE] = {0,};
 								MsgPlugin* plg = MsgPluginManager::instance()->getPlugin(msgInfo.msgType.mainType);
+								if (plg == NULL) {
+									vmsg_free_vtree_memory(vMsg);
+									return MSG_ERR_NULL_POINTER;
+								}
 								err =  plg->restoreMsg(&msgInfo, pObject->pszValue[0], pObject->numOfBiData, retrievedFilePath);
 								msgInfo.bTextSms = false;
 
@@ -1008,14 +1034,21 @@ msg_error_t MsgStoRestoreMessage(const char *filepath, msg_id_list_s **result_id
 #ifndef MSG_FOR_DEBUG
 	}
 #endif
-	if (result_id_list)
-		*result_id_list = msgIdList;
+	*result_id_list = msgIdList;
+
 __RETURN:
 	if(pData)
 	{
 		free( pData );
 		pData = NULL;
 		pCurrent = NULL;
+	}
+
+	if (*result_id_list == NULL && msgIdList) {
+		if (msgIdList->msgIdList) {
+			free(msgIdList->msgIdList);
+		}
+		free(msgIdList);
 	}
 
 	return err;

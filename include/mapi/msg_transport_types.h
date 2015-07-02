@@ -25,7 +25,6 @@
 #include "msg_storage_types.h"
 
 /**
- * @internal
  * @addtogroup MSG_SERVICE_FRAMEWORK_TRANSPORT_MODULE
  * @{
  */

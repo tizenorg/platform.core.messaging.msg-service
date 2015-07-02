@@ -29,12 +29,10 @@ extern "C"
 #endif
 
 /**
- * @internal
  * @ingroup MSG_SERVICE_FRAMEWORK
  * @defgroup MSG_SERVICE_FRAMEWORK_TRANSPORT_MODULE Transport API
  * @brief The Transport API provides functions to send SMS/MMS and register incoming/sending/syncML/report callback.
  *
- * @internal
  * @addtogroup MSG_SERVICE_FRAMEWORK_TRANSPORT_MODULE
  * @{
  *
@@ -55,6 +53,7 @@ extern "C"
  * @section MSG_SERVICE_FRAMEWORK_TRANSPORT_MODULE_FEATURE Related Features
  * This API is related with the following features:\n
  *  - http://tizen.org/feature/network.telephony\n
+ *  - http://tizen.org/feature/network.telephony.sms\n
  *  - http://tizen.org/feature/network.telephony.mms\n
  *
  * It is recommended to design feature related codes in your application for reliability.\n
@@ -373,7 +372,7 @@ int msg_reg_report_message_callback(msg_handle_t handle, msg_report_msg_incoming
  * @retval MSG_ERR_NOT_SUPPORTED     Not supported
  */
 
-int msg_syncml_message_operation(msg_handle_t handle,  msg_message_id_t msgId);
+int msg_syncml_message_operation(msg_handle_t handle, msg_message_id_t msgId);
 
 
 /**
@@ -395,6 +394,7 @@ int msg_syncml_message_operation(msg_handle_t handle,  msg_message_id_t msgId);
  *
  * @retval MSG_SUCCESS               Success in operation
  * @retval MSG_ERR_INVALID_PARAMETER Input parameter is invalid
+ * @retval MSG_ERR_MEMORY_ERROR      Memory error
  * @retval MSG_ERR_PERMISSION_DENIED The application does not have the privilege to call this method
  * @retval MSG_ERR_NOT_SUPPORTED     Not supported
  *

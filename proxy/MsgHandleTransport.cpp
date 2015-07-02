@@ -44,7 +44,7 @@ msg_error_t MsgHandle::submitReq(MSG_REQUEST_S* pReq)
 	char trId[MMS_TR_ID_LEN+1] = {0};
 
 	reqInfo.msgInfo.addressList = NULL;
-	AutoPtr<MSG_ADDRESS_INFO_S> addressListBuf(&reqInfo.msgInfo.addressList);
+	unique_ptr<MSG_ADDRESS_INFO_S*, void(*)(MSG_ADDRESS_INFO_S**)> addressListBuf(&reqInfo.msgInfo.addressList, unique_ptr_deleter);
 
 	msg_struct_s *msg_s = (msg_struct_s *)pReq->msg;
 
@@ -86,7 +86,7 @@ msg_error_t MsgHandle::submitReq(MSG_REQUEST_S* pReq)
 		time_t curTime = time(NULL);
 
 		if (curTime < 0)
-			THROW(MsgException::INVALID_RESULT, "time error : %s", strerror(errno));
+			THROW(MsgException::INVALID_RESULT, "time error : %s", g_strerror(errno));
 
 		reqmsg->displayTime = curTime;
 		/* End : Setting default values for submit request */
@@ -118,9 +118,11 @@ msg_error_t MsgHandle::submitReq(MSG_REQUEST_S* pReq)
 
 	chInfo.listenerFd = MsgProxyListener::instance()->getRemoteFd();
 
+	chInfo.handleAddr = (unsigned int) this;
+
 	/* Allocate Memory to Command Data */
 	char* encodedData = NULL;
-	AutoPtr<char> buf(&encodedData);
+	unique_ptr<char*, void(*)(char**)> buf(&encodedData, unique_ptr_deleter);
 	int dataSize = MsgEncodeMsgInfo(&reqInfo.msgInfo, &reqInfo.sendOptInfo, &encodedData);
 
 	int cmdSize = sizeof(MSG_CMD_S) + sizeof(msg_request_id_t) + dataSize + sizeof(MSG_PROXY_INFO_S);
@@ -151,7 +153,7 @@ msg_error_t MsgHandle::submitReq(MSG_REQUEST_S* pReq)
 
 	// Send Command to Messaging FW
 	char* pEventData = NULL;
-	AutoPtr<char> eventBuf(&pEventData);
+	unique_ptr<char*, void(*)(char**)> eventBuf(&pEventData, unique_ptr_deleter);
 
 	write((char*)pCmd, cmdSize, &pEventData);
 
@@ -168,44 +170,6 @@ msg_error_t MsgHandle::submitReq(MSG_REQUEST_S* pReq)
 	}
 
 	MSG_END();
-
-	return pEvent->result;
-}
-
-
-msg_error_t MsgHandle::cancelReq(msg_request_id_t reqId)
-{
-	// Allocate Memory to Command Data
-	int cmdSize = sizeof(MSG_CMD_S) + sizeof(msg_request_id_t);
-
-	char cmdBuf[cmdSize];
-	bzero(cmdBuf, cmdSize);
-
-	MSG_CMD_S* pCmd = (MSG_CMD_S*) cmdBuf;
-
-	// Set Command Parameters
-	pCmd->cmdType = MSG_CMD_CANCEL_REQ;
-
-	// Copy Cookie
-	memcpy(pCmd->cmdCookie, mCookie, MAX_COOKIE_LEN);
-
-	// Copy Command Data
-	memcpy((void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN), &reqId, sizeof(msg_request_id_t));
-
-	// Send Command to Messaging FW
-	char* pEventData = NULL;
-	AutoPtr<char> eventBuf(&pEventData);
-
-
-	write((char*)pCmd, cmdSize, &pEventData);
-
-	// Get Return Data
-	MSG_EVENT_S* pEvent = (MSG_EVENT_S*)pEventData;
-
-	if (pEvent->eventType != MSG_EVENT_CANCEL_REQ)
-	{
-		THROW(MsgException::INVALID_RESULT, "Event Data Error");
-	}
 
 	return pEvent->result;
 }
@@ -248,7 +212,7 @@ msg_error_t MsgHandle::regSentStatusCallback(msg_sent_status_cb onStatusChanged,
 
 	// Send Command to Messaging FW
 	char* pEventData = NULL;
-	AutoPtr<char> eventBuf(&pEventData);
+	unique_ptr<char*, void(*)(char**)> eventBuf(&pEventData, unique_ptr_deleter);
 
 	write((char*)pCmd, cmdSize, &pEventData);
 
@@ -307,7 +271,7 @@ msg_error_t MsgHandle::regSmsMessageCallback(msg_sms_incoming_cb onMsgIncoming, 
 
 	// Send Command to Messaging FW
 	char* pEventData = NULL;
-	AutoPtr<char> eventBuf(&pEventData);
+	unique_ptr<char*, void(*)(char**)> eventBuf(&pEventData, unique_ptr_deleter);
 
 
 	write((char*)pCmd, cmdSize, &pEventData);
@@ -369,7 +333,7 @@ msg_error_t MsgHandle::regMmsConfMessageCallback(msg_mms_conf_msg_incoming_cb on
 
 	// Send Command to Messaging FW
 	char* pEventData = NULL;
-	AutoPtr<char> eventBuf(&pEventData);
+	unique_ptr<char*, void(*)(char**)> eventBuf(&pEventData, unique_ptr_deleter);
 
 
 	write((char*)pCmd, cmdSize, &pEventData);
@@ -428,7 +392,7 @@ msg_error_t MsgHandle::regSyncMLMessageCallback(msg_syncml_msg_incoming_cb onSyn
 
 	// Send Command to Messaging FW
 	char* pEventData = NULL;
-	AutoPtr<char> eventBuf(&pEventData);
+	unique_ptr<char*, void(*)(char**)> eventBuf(&pEventData, unique_ptr_deleter);
 
 	write((char*)pCmd, cmdSize, &pEventData);
 
@@ -484,7 +448,7 @@ msg_error_t MsgHandle::regLBSMessageCallback(msg_lbs_msg_incoming_cb onLBSMsgInc
 
 	// Send Command to Messaging FW
 	char* pEventData = NULL;
-	AutoPtr<char> eventBuf(&pEventData);
+	unique_ptr<char*, void(*)(char**)> eventBuf(&pEventData, unique_ptr_deleter);
 
 
 	write((char*)pCmd, cmdSize, &pEventData);
@@ -543,7 +507,7 @@ msg_error_t MsgHandle::regSyncMLMessageOperationCallback(msg_syncml_msg_operatio
 
 	// Send Command to Messaging FW
 	char* pEventData = NULL;
-	AutoPtr<char> eventBuf(&pEventData);
+	unique_ptr<char*, void(*)(char**)> eventBuf(&pEventData, unique_ptr_deleter);
 
 
 	write((char*)pCmd, cmdSize, &pEventData);
@@ -604,7 +568,7 @@ msg_error_t MsgHandle::regPushMessageCallback(msg_push_msg_incoming_cb onPushMsg
 
 	// Send Command to Messaging FW
 	char* pEventData = NULL;
-	AutoPtr<char> eventBuf(&pEventData);
+	unique_ptr<char*, void(*)(char**)> eventBuf(&pEventData, unique_ptr_deleter);
 
 
 	write((char*)pCmd, cmdSize, &pEventData);
@@ -663,7 +627,7 @@ msg_error_t MsgHandle::regCBMessageCallback(msg_cb_incoming_cb onCBIncoming, boo
 
 	// Send Command to Messaging FW
 	char* pEventData = NULL;
-	AutoPtr<char> eventBuf(&pEventData);
+	unique_ptr<char*, void(*)(char**)> eventBuf(&pEventData, unique_ptr_deleter);
 
 
 	write((char*)pCmd, cmdSize, &pEventData);
@@ -717,7 +681,7 @@ msg_error_t MsgHandle::regReportMessageCallback(msg_report_msg_incoming_cb onRep
 
 	// Send Command to Messaging FW
 	char* pEventData = NULL;
-	AutoPtr<char> eventBuf(&pEventData);
+	unique_ptr<char*, void(*)(char**)> eventBuf(&pEventData, unique_ptr_deleter);
 
 	write((char*)pCmd, cmdSize, &pEventData);
 
@@ -756,7 +720,7 @@ msg_error_t MsgHandle::operateSyncMLMessage(msg_message_id_t msgId)
 
 	// Send Command to Messaging FW
 	char* pEventData = NULL;
-	AutoPtr<char> eventBuf(&pEventData);
+	unique_ptr<char*, void(*)(char**)> eventBuf(&pEventData, unique_ptr_deleter);
 
 
 	write((char*)pCmd, cmdSize, &pEventData);
@@ -771,4 +735,3 @@ msg_error_t MsgHandle::operateSyncMLMessage(msg_message_id_t msgId)
 
 	return pEvent->result;
 }
-

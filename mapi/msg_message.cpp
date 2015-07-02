@@ -85,16 +85,19 @@ void msg_message_create_struct(msg_struct_s *msg_struct)
 	msg_struct_list_s *addr_list = (msg_struct_list_s *)new msg_struct_list_s;
 
 	addr_list->nCount = 0;
-	addr_list->msg_struct_info = (msg_struct_t *)calloc(MAX_TO_ADDRESS_CNT, sizeof(MSG_ADDRESS_INFO_S *));
+	addr_list->msg_struct_info = (msg_struct_t *)calloc(MAX_TO_ADDRESS_CNT, sizeof(msg_struct_s *));
 
-	msg_struct_s *pTmp = NULL;
+	if (addr_list->msg_struct_info != NULL) {
+		msg_struct_s *pTmp = NULL;
 
-	for (int i = 0; i < MAX_TO_ADDRESS_CNT; i++) {
-		addr_list->msg_struct_info[i] = (msg_struct_t)new msg_struct_s;
-		pTmp = (msg_struct_s *)addr_list->msg_struct_info[i];
-		pTmp->type = MSG_STRUCT_ADDRESS_INFO;
-		pTmp->data = new MSG_ADDRESS_INFO_S;
-		memset(pTmp->data, 0x00, sizeof(MSG_ADDRESS_INFO_S));
+		for (int i = 0; i < MAX_TO_ADDRESS_CNT; i++) {
+			addr_list->msg_struct_info[i] = (msg_struct_t)new msg_struct_s;
+			pTmp = (msg_struct_s *)addr_list->msg_struct_info[i];
+			memset(pTmp, 0x00, sizeof(msg_struct_s));
+			pTmp->type = MSG_STRUCT_ADDRESS_INFO;
+			pTmp->data = new MSG_ADDRESS_INFO_S;
+			memset(pTmp->data, 0x00, sizeof(MSG_ADDRESS_INFO_S));
+		}
 	}
 
 	msg->addr_list = addr_list;
@@ -221,6 +224,7 @@ int msg_message_get_int_value(void *data, int field, int *value)
 					break;
 				default :
 					*value = MSG_TYPE_SMS;
+					break;
 			}
 		}
 		else if (msg_data->mainType == MSG_MMS_TYPE)
@@ -334,9 +338,6 @@ int msg_message_get_str_value(void *data, int field, char *value, int size)
 		break;
 	case MSG_MESSAGE_SUBJECT_STR :
 		strncpy(value, msg_data->subject, size);
-		break;
-	case MSG_MESSAGE_THUMBNAIL_PATH_STR :
-		strncpy(value, msg_data->thumbPath, size);
 		break;
 	case MSG_MESSAGE_SMS_DATA_STR :
 	case MSG_MESSAGE_MMS_TEXT_STR :
@@ -539,9 +540,6 @@ int msg_message_set_str_value(void *data, int field, char *value, int size)
 		break;
 	case MSG_MESSAGE_SUBJECT_STR :
 		snprintf(msg_data->subject, sizeof(msg_data->subject), "%s",value);
-		break;
-	case MSG_MESSAGE_THUMBNAIL_PATH_STR :
-		snprintf(msg_data->thumbPath, sizeof(msg_data->thumbPath), "%s",value);
 		break;
 	case MSG_MESSAGE_SMS_DATA_STR :
 	{
@@ -771,18 +769,18 @@ EXPORT_API int msg_get_mms_struct(msg_struct_t msg_struct_handle, msg_struct_t m
 	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_MMS_FEATURE);
 	//TODO :: check message type is MMS
 	int ret = MSG_SUCCESS;
+
+	if (msg_struct_handle == NULL || mms_struct_handle == NULL) {
+		return MSG_ERR_INVALID_PARAMETER;
+	}
+
 	msg_struct_s *msg_struct = (msg_struct_s *)msg_struct_handle;
 	msg_struct_s *mms_struct = (msg_struct_s *)mms_struct_handle;
 
-	if (msg_struct == NULL || mms_struct == NULL) {
-		return MSG_ERR_INVALID_PARAMETER;
-	}
+	MSG_TYPE_CHECK(msg_struct->type, MSG_STRUCT_MESSAGE_INFO);
+	MSG_TYPE_CHECK(mms_struct->type, MSG_STRUCT_MMS);
 
 	if (msg_struct->data == NULL || mms_struct->data == NULL) {
-		return MSG_ERR_INVALID_PARAMETER;
-	}
-
-	if (msg_struct->type != MSG_STRUCT_MESSAGE_INFO || mms_struct->type != MSG_STRUCT_MMS) {
 		return MSG_ERR_INVALID_PARAMETER;
 	}
 
@@ -812,24 +810,26 @@ EXPORT_API int msg_set_mms_struct(msg_struct_t msg_struct_handle, msg_struct_t m
 	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_MMS_FEATURE);
 	//TODO :: check message type is MMS
 	int ret = MSG_SUCCESS;
+
+	if (msg_struct_handle == NULL || mms_struct_handle == NULL) {
+		return MSG_ERR_INVALID_PARAMETER;
+	}
+
 	msg_struct_s *msg_struct = (msg_struct_s *)msg_struct_handle;
 	msg_struct_s *mms_struct = (msg_struct_s *)mms_struct_handle;
 
-	if (msg_struct == NULL || mms_struct == NULL) {
-		return MSG_ERR_INVALID_PARAMETER;
-	}
+	MSG_TYPE_CHECK(msg_struct->type, MSG_STRUCT_MESSAGE_INFO);
+	MSG_TYPE_CHECK(mms_struct->type, MSG_STRUCT_MMS);
 
 	if (msg_struct->data == NULL || mms_struct->data == NULL) {
-		return MSG_ERR_INVALID_PARAMETER;
-	}
-
-	if (msg_struct->type != MSG_STRUCT_MESSAGE_INFO || mms_struct->type != MSG_STRUCT_MMS) {
 		return MSG_ERR_INVALID_PARAMETER;
 	}
 
 	MSG_MESSAGE_HIDDEN_S *msg_data = (MSG_MESSAGE_HIDDEN_S *)msg_struct->data;
 
 	MMS_DATA_S *mms_data = MsgMmsCreate();
+	if (mms_data == NULL)
+		return MSG_ERR_MEMORY_ERROR;
 
 	convert_from_hidden_mmsdata(mms_struct, mms_data);
 
