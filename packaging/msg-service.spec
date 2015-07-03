@@ -221,7 +221,6 @@ fi
 %{_libdir}/systemd/system/sockets.target.wants/msg-server.socket
 %{_libdir}/systemd/system/msg-server.socket
 /usr/share/license/msg-service/LICENSE.APLv2
-/etc/smack/accesses.d/msg-service.rule
 /etc/config/*
 
 %files -n sms-plugin

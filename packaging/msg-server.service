@@ -5,7 +5,6 @@ After=contacts-service.service
 [Service]
 User=system
 Group=system
-SmackProcessLabel=msg-service
 Type=simple
 ExecStart=/usr/bin/msg-server
 Restart=always

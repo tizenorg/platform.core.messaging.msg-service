@@ -77,7 +77,6 @@ INSTALL(FILES ${CMAKE_BINARY_DIR}/msg-service.pc DESTINATION ${LIBDIR}/pkgconfig
 
 # LICENSE file
 INSTALL(FILES ${CMAKE_SOURCE_DIR}/LICENSE.APLv2 DESTINATION /usr/share/license/msg-service)
-INSTALL(FILES ${CMAKE_SOURCE_DIR}/msg-service.rule DESTINATION /etc/smack/accesses.d/)
 
 #Install sysinfo file to provide which features are supported.
 IF(_FEATURE_SMS_CDMA)
