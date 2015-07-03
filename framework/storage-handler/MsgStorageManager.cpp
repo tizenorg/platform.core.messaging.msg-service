@@ -627,7 +627,7 @@ msg_error_t MsgStoUpdateMms(MSG_MESSAGE_INFO_S *pMsg)
 
 		dbHandle->bindText(pMsg->thumbPath, 1);
 
-		if (pMsg->msgText[0] != '\0' && g_file_get_contents(pMsg->msgText, &pFileData, &fileSize, NULL) == true) {
+		if (pMsg->msgText[0] != '\0' && g_file_get_contents((gchar*)pMsg->msgText, (gchar**)&pFileData, (gsize*)&fileSize, NULL) == true) {
 			dbHandle->bindText(pFileData, 2);
 		}
 

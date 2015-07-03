@@ -389,7 +389,7 @@ typedef struct
 typedef struct
 {
 	int						listenerFd;		/**< Rx fd for status cnf */
-	unsigned int			handleAddr;		/**< Handle address for status cnf */
+	unsigned long			handleAddr;		/**< Handle address for status cnf */
 	msg_message_id_t		sentMsgId;		/**< The ID of a sent message for updating message status */
 } MSG_PROXY_INFO_S;
 

@@ -93,7 +93,7 @@ msg_error_t MsgStoUpdateMMSMessage(MSG_MESSAGE_INFO_S *pMsg)
 
 			dbHandle->bindText(pMsg->subject, 1);
 
-			if (pMsg->msgText[0] != '\0' && g_file_get_contents(pMsg->msgText, &pFileData, &fileSize, NULL) == true) {
+			if (pMsg->msgText[0] != '\0' && g_file_get_contents((gchar*)pMsg->msgText, (gchar**)&pFileData, (gsize*)&fileSize, NULL) == true) {
 				dbHandle->bindText(pFileData, 2);
 			} else {
 				dbHandle->bindText("", 2);
@@ -109,13 +109,13 @@ msg_error_t MsgStoUpdateMMSMessage(MSG_MESSAGE_INFO_S *pMsg)
 			}
 
 //			if (MsgOpenAndReadFile(pMsg->msgText, &pFileData, &fileSize) == false) {
-			if (g_file_get_contents(pMsg->msgText, &pFileData, &fileSize, NULL) == false) {
+			if (g_file_get_contents((gchar*)pMsg->msgText, (gchar**)&pFileData, (gsize*)&fileSize, NULL) == false) {
 				return MSG_ERR_STORAGE_ERROR;
 			}
 
 			dbHandle->bindText(pMsg->subject, 1);
 
-			if (pMsg->msgText[0] != '\0' && g_file_get_contents(pMsg->msgText, &pFileData, &fileSize, NULL) == true) {
+			if (pMsg->msgText[0] != '\0' && g_file_get_contents((gchar*)pMsg->msgText, (gchar**)&pFileData, (gsize*)&fileSize, NULL) == true) {
 				dbHandle->bindText(pFileData, 2);
 			} else {
 				dbHandle->bindText("", 2);
@@ -130,7 +130,7 @@ msg_error_t MsgStoUpdateMMSMessage(MSG_MESSAGE_INFO_S *pMsg)
 			return MSG_ERR_DB_PREPARE;
 		}
 
-		if (pMsg->msgText[0] != '\0' && g_file_get_contents(pMsg->msgText, &pFileData, &fileSize, NULL) == true) {
+		if (pMsg->msgText[0] != '\0' && g_file_get_contents((gchar*)pMsg->msgText, (gchar**)&pFileData, (gsize*)&fileSize, NULL) == true) {
 			dbHandle->bindText(pFileData, 1);
 		} else {
 			dbHandle->bindText("", 1);

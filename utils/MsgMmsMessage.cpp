@@ -1330,7 +1330,7 @@ int MsgMmsConvertMmsDataToMmsMessageData(MMS_DATA_S *pSrc, MMS_MESSAGE_DATA_S *p
 			gchar *contents = NULL;
 			gsize length = 0;
 
-			g_file_get_contents(pSrc->smil->szFilePath, &contents, &length, NULL);
+			g_file_get_contents((gchar*)pSrc->smil->szFilePath, (gchar**)&contents, (gsize*)&length, NULL);
 
 			if (contents) {
 				MsgSmilParseSmilDoc(pDst, contents);
@@ -1466,7 +1466,7 @@ int MsgMmsSetMultipartData(MMS_MULTIPART_DATA_S *pMultipart)
 	if (pMultipart->pMultipartData != NULL)
 		return 0;
 
-	if (g_file_get_contents(pMultipart->szFilePath, &pMultipart->pMultipartData, &pMultipart->nMultipartDataLen, NULL) == false)
+	if (g_file_get_contents((gchar*)pMultipart->szFilePath, (gchar**)&pMultipart->pMultipartData, (gsize*)&pMultipart->nMultipartDataLen, NULL) == false)
 		return -1;
 
 	//Due to Get data for Backup message
@@ -1710,7 +1710,7 @@ int MsgMmsCheckFilepathSmack(int fd, const char* ipc_filename)
 	gsize serialized_len = 0;
 	MSG_DEBUG("ipc_path [%s]", ipc_filepath);
 
-	if (!g_file_get_contents(ipc_filepath, &serialized_data, &serialized_len, NULL)) {
+	if (!g_file_get_contents((gchar*)ipc_filepath, (gchar**)&serialized_data, (gsize*)&serialized_len, NULL)) {
 		return MSG_ERR_PERMISSION_DENIED;
 	}
 

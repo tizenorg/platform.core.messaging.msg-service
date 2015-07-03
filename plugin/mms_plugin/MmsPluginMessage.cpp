@@ -1085,7 +1085,7 @@ bool MmsConvertMmsMsg(MmsMsg *pMmsMsg, MMS_DATA_S *pMmsData)
 				gsize length = 0;
 
 				if (MsgAccessFile(smil_multipart->szFilePath, F_OK)) {
-					g_file_get_contents(smil_multipart->szFilePath, &contents, &length, NULL);
+					g_file_get_contents((gchar*)smil_multipart->szFilePath, (gchar**)&contents, (gsize*)&length, NULL);
 
 					MmsInsertPresentation(pMmsMsg, MIME_APPLICATION_SMIL, NULL, contents, length);
 

@@ -1010,7 +1010,7 @@ bool MmsPluginInternal::checkFilterMmsBody(MMS_DATA_S *pMmsData)
 			} else {
 				strncpy(filePath, pMedia->szFilePath, MSG_FILEPATH_LEN_MAX);
 
-				g_file_get_contents((const gchar *)filePath, &fileContent, NULL, NULL);
+				g_file_get_contents((const gchar*)filePath, (gchar**)&fileContent, NULL, NULL);
 
 				bFiltered = MsgCheckFilterByWord(dbHandle, (const char *)fileContent);
 

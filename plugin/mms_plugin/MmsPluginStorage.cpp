@@ -209,7 +209,7 @@ msg_error_t MmsPluginStorage::updateConfMessage(MSG_MESSAGE_INFO_S *pMsgInfo)
 	MMS_DATA_S *pMmsData = NULL;
 
 	//pMsgInfo->msgData is Filepath of json
-	g_file_get_contents(pMsgInfo->msgData, &pSerializedMms, &pSerializedMmsSize, NULL);
+	g_file_get_contents((gchar*)pMsgInfo->msgData, (gchar**)&pSerializedMms, (gsize*)&pSerializedMmsSize, NULL);
 
 	if (MsgDeserializeMmsData(pSerializedMms, strlen(pSerializedMms), &pMmsData) != 0) {
 		MSG_DEBUG("Fail to Deserialize Message Data");
@@ -1206,7 +1206,7 @@ msg_error_t MmsPluginStorage::getMmsData(msg_message_id_t msgId, MMS_DATA_S *pMm
 					gchar *contents = NULL;
 					gsize length = 0;
 
-					g_file_get_contents (smil_multipart->szFilePath, &contents, &length, NULL);
+					g_file_get_contents ((gchar*)smil_multipart->szFilePath, (gchar**)&contents, (gsize*)&length, NULL);
 
 					smil_multipart->pMultipartData = contents;
 					smil_multipart->nMultipartDataLen = length;

@@ -418,10 +418,10 @@ int MsgSentStatusHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 		return MsgMakeEvent(NULL, 0, MSG_EVENT_PLG_SENT_STATUS_CNF, MSG_SUCCESS, (void**)ppEvent);
 	}
 
-	unsigned int ret[3] = {0}; //3// reqid, status, object
+	unsigned long ret[3] = {0}; //3// reqid, status, object
 
-	ret[0] = pStatus->reqId;
-	ret[1] = pStatus->status;
+	ret[0] = (unsigned long)pStatus->reqId;
+	ret[1] = (unsigned long)pStatus->status;
 	ret[2] = prxInfo->handleAddr;
 
 	// Make Event Data for APP
@@ -704,10 +704,10 @@ __BYPASS_UPDATE:
 				MsgTransactionManager::instance()->delProxyInfo(reqID);
 			} else {
 
-				unsigned int ret[3] = {0}; //3// reqid, status, object
+				unsigned long ret[3] = {0}; //3// reqid, status, object
 
-				ret[0] = reqID;
-				ret[1] = msgInfo.networkStatus;
+				ret[0] = (unsigned long)reqID;
+				ret[1] = (unsigned long)msgInfo.networkStatus;
 				ret[2] = prxInfo->handleAddr;
 
 				// Make Event Data for APP

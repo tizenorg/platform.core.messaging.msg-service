@@ -151,7 +151,7 @@ msg_error_t MsgStoAddMessage(MSG_MESSAGE_INFO_S *pMsg, MSG_SENDINGOPT_INFO_S *pS
 			memset(fn,0x00,MSG_FILEPATH_LEN_MAX);
 			snprintf(fn, MSG_FILEPATH_LEN_MAX, "%s%s", MSG_IPC_DATA_PATH, pMsg->msgData);
 
-			if (g_file_get_contents(fn, &contents, NULL, NULL)) {
+			if (g_file_get_contents((gchar*)fn, (gchar**)&contents, NULL, NULL)) {
 				MSG_DEBUG("g_file_get_contents() Success!!");
 				dbHandle->bindText(contents, 2);
 			} else {
@@ -279,7 +279,7 @@ msg_error_t MsgStoAddMessage(MSG_MESSAGE_INFO_S *pMsg, MSG_SENDINGOPT_INFO_S *pS
 			}
 
 //			if (pMsg->msgText[0] != '\0') {
-//				g_file_get_contents(pMsg->msgText, &pFileData, (gsize *)&fileSize, NULL);
+//				g_file_get_contents((gchar*)pMsg->msgText, (gchar**)&pFileData, (gsize*)&fileSize, NULL);
 //				MSG_DEBUG("file size [%d]", fileSize);
 //			}
 

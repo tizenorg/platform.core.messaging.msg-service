@@ -730,7 +730,7 @@ MMS_HTTP_ERROR_E MmsPluginHttpAgent::httpRequest(http_request_info_s &request_in
 		fclose(respfile);
 		respfile = NULL;
 
-		if (g_file_get_contents(conf_filename, &request_info.response_data, &request_info.response_data_len, NULL) == false) {
+		if (g_file_get_contents((gchar*)conf_filename, (gchar**)&request_info.response_data, (gsize*)&request_info.response_data_len, NULL) == false) {
 			MSG_WARN("Fail to g_file_get_contents");
 		}
 	}
