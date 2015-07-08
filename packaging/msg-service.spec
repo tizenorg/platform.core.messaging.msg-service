@@ -1,6 +1,6 @@
 Name:           msg-service
 Version:        1.0.2
-Release:        1
+Release:        2
 License:        Apache-2.0
 Summary:        Messaging Framework Library
 Group:          System/Libraries
@@ -170,15 +170,6 @@ chown 200:5000 /opt/usr/data/msg-service/msgdata
 chown 200:5000 /opt/usr/data/msg-service/smildata
 chown 200:5000 /opt/usr/data/msg-service/ipcdata
 chown 200:5000 /opt/usr/data/msg-service/msgdata/thumbnails
-
-if [ -f %{_libdir}/rpm-plugins/msm.so ]
-then
-	chsmack -a 'msg-service::db' /opt/usr/dbspace/.msg_service.db*
-	chsmack -a 'msg-service' /opt/usr/data/msg-service/msgdata
-	chsmack -a 'msg-service' /opt/usr/data/msg-service/smildata
-	chsmack -a 'msg-service' /opt/usr/data/msg-service/ipcdata
-	chsmack -a 'msg-service' /opt/usr/data/msg-service/msgdata/thumbnails
-fi
 
 %post -n sms-plugin -p /sbin/ldconfig
 %post -n mms-plugin -p /sbin/ldconfig
