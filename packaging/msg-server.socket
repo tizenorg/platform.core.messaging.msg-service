@@ -1,6 +1,4 @@
 [Socket]
-SocketUser=system
-SocketGroup=system
 ListenStream=/tmp/.msgfw_socket
 Service=msg-server.service
 

@@ -5,8 +5,8 @@ License:        Apache-2.0
 Summary:        Messaging Framework Library
 Group:          System/Libraries
 Source0:        %{name}-%{version}.tar.gz
-Source1:        msg-server.service
-Source2:        msg-server.socket
+Source1:	msg-server.service
+Source2:	msg-server.socket
 
 %if "%{?tizen_profile_name}" == "tv"
 ExcludeArch: %{arm} %ix86 x86_64
@@ -135,13 +135,13 @@ mkdir -p %{buildroot}/etc/config
 
 %make_install
 
-mkdir -p %{buildroot}%{_libdir}/systemd/system/multi-user.target.wants
-install -m 0644 %SOURCE1 %{buildroot}%{_libdir}/systemd/system/msg-server.service
-ln -s ../msg-server.service %{buildroot}%{_libdir}/systemd/system/multi-user.target.wants/msg-server.service
+mkdir -p %{buildroot}%{_unitdir}/multi-user.target.wants
+install -m 0644 %SOURCE1 %{buildroot}%{_unitdir}/msg-server.service
+%install_service multi-user.target.wants msg-server.service
 
-mkdir -p %{buildroot}%{_libdir}/systemd/system/sockets.target.wants
-install -m 0644 %SOURCE2 %{buildroot}%{_libdir}/systemd/system/msg-server.socket
-ln -s ../msg-server.socket %{buildroot}%{_libdir}/systemd/system/sockets.target.wants/msg-server.socket
+mkdir -p %{buildroot}%{_unitdir}/sockets.target.wants
+install -m 0644 %SOURCE2 %{buildroot}%{_unitdir}/msg-server.socket
+%install_service sockets.target.wants msg-server.socket
 
 mkdir -p %{buildroot}/opt/usr/dbspace
 sqlite3 %{buildroot}/opt/usr/dbspace/.msg_service.db "PRAGMA journal_mode = PERSIST;"
@@ -152,9 +152,8 @@ rm %{buildroot}/usr/share/msg-service/msg-service-db.sql
 %post tools
 /sbin/ldconfig
 
-chown 200:5000 /opt/usr/dbspace/.msg_service.db
-chown 200:5000 /opt/usr/dbspace/.msg_service.db-journal
-chown 200:200 %{_libdir}/systemd/system/msg-server.socket
+chown :5000 /opt/usr/dbspace/.msg_service.db
+chown :5000 /opt/usr/dbspace/.msg_service.db-journal
 
 chmod 660 /opt/usr/dbspace/.msg_service.db
 chmod 660 /opt/usr/dbspace/.msg_service.db-journal
@@ -165,11 +164,11 @@ mkdir -p -m 775 /opt/usr/data/msg-service/smildata
 mkdir -p -m 775 /opt/usr/data/msg-service/ipcdata
 mkdir -p -m 775 /opt/usr/data/msg-service/msgdata/thumbnails
 
-chown 200:5000 /opt/usr/data/msg-service
-chown 200:5000 /opt/usr/data/msg-service/msgdata
-chown 200:5000 /opt/usr/data/msg-service/smildata
-chown 200:5000 /opt/usr/data/msg-service/ipcdata
-chown 200:5000 /opt/usr/data/msg-service/msgdata/thumbnails
+chown :5000 /opt/usr/data/msg-service
+chown :5000 /opt/usr/data/msg-service/msgdata
+chown :5000 /opt/usr/data/msg-service/smildata
+chown :5000 /opt/usr/data/msg-service/ipcdata
+chown :5000 /opt/usr/data/msg-service/msgdata/thumbnails
 
 %post -n sms-plugin -p /sbin/ldconfig
 %post -n mms-plugin -p /sbin/ldconfig
@@ -185,7 +184,6 @@ chown 200:5000 /opt/usr/data/msg-service/msgdata/thumbnails
 
 %files
 %manifest msg-service.manifest
-%defattr(-,system,system,-)
 %{_libdir}/libmsg_plugin_manager.so
 %{_libdir}/libmsg_mapi.so.*
 %{_libdir}/libmsg_framework_handler.so
@@ -197,32 +195,28 @@ chown 200:5000 /opt/usr/data/msg-service/msgdata/thumbnails
 /usr/share/license/msg-service/LICENSE.APLv2
 
 %files devel
-%defattr(-,system,system,-)
 %{_libdir}/libmsg_mapi.so
 %{_libdir}/pkgconfig/msg-service.pc
 %{_includedir}/msg-service/*
 
 %files tools
 %manifest msg-service-tools.manifest
-%defattr(-,system,system,-)
 %caps(cap_chown,cap_dac_override,cap_lease=eip) %{_bindir}/msg-server
 %config(noreplace) /opt/usr/dbspace/.msg_service.db*
-%{_libdir}/systemd/system/msg-server.service
-%{_libdir}/systemd/system/multi-user.target.wants/msg-server.service
-%{_libdir}/systemd/system/sockets.target.wants/msg-server.socket
-%{_libdir}/systemd/system/msg-server.socket
+%{_unitdir}/msg-server.service
+%{_unitdir}/multi-user.target.wants/msg-server.service
+%{_unitdir}/msg-server.socket
+%{_unitdir}/sockets.target.wants/msg-server.socket
 /usr/share/license/msg-service/LICENSE.APLv2
 /etc/config/*
 
 %files -n sms-plugin
 %manifest sms-plugin.manifest
-%defattr(-,system,system,-)
 %{_libdir}/libmsg_sms_plugin.so
 /usr/share/license/msg-service/LICENSE.APLv2
 
 %files -n mms-plugin
 %manifest mms-plugin.manifest
-%defattr(-,system,system,-)
 %{_libdir}/libmsg_mms_plugin.so
 /usr/share/license/msg-service/LICENSE.APLv2
 

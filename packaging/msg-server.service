@@ -3,8 +3,6 @@ Description=Message server
 After=contacts-service.service
 
 [Service]
-User=system
-Group=system
 Type=simple
 ExecStart=/usr/bin/msg-server
 Restart=always
