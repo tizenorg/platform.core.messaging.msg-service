@@ -44,7 +44,7 @@ INCLUDE_DIRECTORIES(
 
 INCLUDE(FindPkgConfig)
 
-SET(PKG_MODULES glib-2.0 vconf db-util contacts-service2 dlog libxml-2.0 storage json-glib-1.0 capi-system-info)
+SET(PKG_MODULES glib-2.0 vconf db-util contacts-service2 dlog libxml-2.0 storage json-glib-1.0 capi-system-info libsmack)
 pkg_check_modules(utils_pkgs REQUIRED ${PKG_MODULES})
 
 FOREACH(flag ${utils_pkgs_CFLAGS})

@@ -59,6 +59,7 @@ BuildRequires: pkgconfig(sensor)
 BuildRequires: pkgconfig(storage)
 BuildRequires: pkgconfig(tapi)
 BuildRequires: pkgconfig(vconf)
+BuildRequires: pkgconfig(libsmack)
 
 %description
 Description: Messaging Framework Library
