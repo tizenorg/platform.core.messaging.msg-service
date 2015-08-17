@@ -144,20 +144,20 @@ mkdir -p %{buildroot}%{_unitdir}/sockets.target.wants
 install -m 0644 %SOURCE2 %{buildroot}%{_unitdir}/msg-server.socket
 %install_service sockets.target.wants msg-server.socket
 
-mkdir -p %{buildroot}/opt/usr/dbspace
-sqlite3 %{buildroot}/opt/usr/dbspace/.msg_service.db "PRAGMA journal_mode = PERSIST;"
-sqlite3 %{buildroot}/opt/usr/dbspace/.msg_service.db < %{buildroot}/usr/share/msg-service/msg-service-db.sql
+mkdir -p %{buildroot}/usr/dbspace
+sqlite3 %{buildroot}/usr/dbspace/.msg_service.db "PRAGMA journal_mode = PERSIST;"
+sqlite3 %{buildroot}/usr/dbspace/.msg_service.db < %{buildroot}/usr/share/msg-service/msg-service-db.sql
 
 rm %{buildroot}/usr/share/msg-service/msg-service-db.sql
 
 %post tools
 /sbin/ldconfig
 
-chown :5000 /opt/usr/dbspace/.msg_service.db
-chown :5000 /opt/usr/dbspace/.msg_service.db-journal
+chown :5000 /usr/dbspace/.msg_service.db
+chown :5000 /usr/dbspace/.msg_service.db-journal
 
-chmod 660 /opt/usr/dbspace/.msg_service.db
-chmod 660 /opt/usr/dbspace/.msg_service.db-journal
+chmod 660 /usr/dbspace/.msg_service.db
+chmod 660 /usr/dbspace/.msg_service.db-journal
 
 mkdir -p -m 775 /opt/usr/data/msg-service
 mkdir -p -m 775 /opt/usr/data/msg-service/msgdata
@@ -203,7 +203,7 @@ chown :5000 /opt/usr/data/msg-service/msgdata/thumbnails
 %files tools
 %manifest msg-service-tools.manifest
 %caps(cap_chown,cap_dac_override,cap_lease=eip) %{_bindir}/msg-server
-%config(noreplace) /opt/usr/dbspace/.msg_service.db*
+%config(noreplace) /usr/dbspace/.msg_service.db*
 %{_unitdir}/msg-server.service
 %{_unitdir}/multi-user.target.wants/msg-server.service
 %{_unitdir}/msg-server.socket
