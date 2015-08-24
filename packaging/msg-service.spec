@@ -153,9 +153,6 @@ rm %{buildroot}/usr/share/msg-service/msg-service-db.sql
 %post tools
 /sbin/ldconfig
 
-chown :5000 /usr/dbspace/.msg_service.db
-chown :5000 /usr/dbspace/.msg_service.db-journal
-
 chmod 660 /usr/dbspace/.msg_service.db
 chmod 660 /usr/dbspace/.msg_service.db-journal
 
@@ -164,12 +161,6 @@ mkdir -p -m 775 /opt/usr/data/msg-service/msgdata
 mkdir -p -m 775 /opt/usr/data/msg-service/smildata
 mkdir -p -m 775 /opt/usr/data/msg-service/ipcdata
 mkdir -p -m 775 /opt/usr/data/msg-service/msgdata/thumbnails
-
-chown :5000 /opt/usr/data/msg-service
-chown :5000 /opt/usr/data/msg-service/msgdata
-chown :5000 /opt/usr/data/msg-service/smildata
-chown :5000 /opt/usr/data/msg-service/ipcdata
-chown :5000 /opt/usr/data/msg-service/msgdata/thumbnails
 
 %post -n sms-plugin -p /sbin/ldconfig
 %post -n mms-plugin -p /sbin/ldconfig
