@@ -39,6 +39,7 @@
 #endif
 
 #include <feedback.h>
+#include <feedback-ids-mobile.h>
 
 /*==================================================================================================
                                     DEFINES
@@ -674,7 +675,7 @@ void MsgSoundPlayer::MsgSoundPlayVibration(char *vibrationPath, bool isOnCall)
 	else
 	{
 		if (isOnCall)
-			ret = feedback_play_type(FEEDBACK_TYPE_VIBRATION, FEEDBACK_PATTERN_MESSAGE_ON_CALL);
+			ret = feedback_play_type(FEEDBACK_TYPE_VIBRATION, (feedback_pattern_e)FEEDBACK_PATTERN_MOBILE_MESSAGE_ON_CALL);
 		else
 		{
 			ret = feedback_set_resource_path(FEEDBACK_TYPE_VIBRATION, FEEDBACK_PATTERN_MESSAGE, NULL);
