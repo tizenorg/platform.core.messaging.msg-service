@@ -126,7 +126,6 @@ void setNotiTime(notification_h noti_h, time_t time);
 void setNotiImage(notification_h noti_h, notification_image_type_e type, const char *image_path);
 void setNotiSound(notification_h noti_h, notification_sound_type_e type, const char *path);
 void setNotiVibration(notification_h noti_h, notification_vibration_type_e type, const char *path);
-void setFlashNoti(void);
 
 
 // Alarm
@@ -1948,8 +1947,6 @@ void setNotification(notification_h noti_h, MSG_NOTI_INFO_S *noti_info, bool bFe
 	setIcon(noti_h, noti_info);
 
 	if (bFeedback) {
-		setFlashNoti();
-
 		if (noti_info->type == MSG_NOTI_TYPE_VOICE_1 || noti_info->type == MSG_NOTI_TYPE_VOICE_2)
 			setSoundAndVibration(noti_h, noti_info->number, true);
 		else
@@ -2554,33 +2551,6 @@ msg_error_t getLatestMsgInfo(MSG_NOTI_INFO_S *noti_info, bool isForInstantMessag
 	MSG_END();
 
 	return MSG_SUCCESS;
-}
-
-
-void setFlashNoti(void)
-{
-	MSG_BEGIN();
-
-	int ret = 0;
-
-	if (!bFeedbackInit) {
-		int ret = feedback_initialize();
-
-		if (ret != FEEDBACK_ERROR_NONE) {
-			MSG_DEBUG("Fail to feedback_initialize : [%d]", ret);
-			bFeedbackInit = false;
-			return;
-		} else {
-			MSG_DEBUG("Success to feedback_initialize.");
-			bFeedbackInit = true;
-		}
-	}
-
-	ret = feedback_play_type(FEEDBACK_TYPE_LED, FEEDBACK_PATTERN_MESSAGE);
-	if (ret != FEEDBACK_ERROR_NONE)
-		MSG_DEBUG("Fail to feedback_play_type");
-
-	MSG_END();
 }
 
 
