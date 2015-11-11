@@ -717,7 +717,17 @@ void MsgAddPhoneLog(const MSG_MESSAGE_INFO_S *pMsgInfo)
 				strncpy(strText, pMsgInfo->subject, 100);
 				MSG_SEC_DEBUG("subject : %s", strText);
 			} else {
-				strncpy(strText, pMsgInfo->msgText, 100);
+				char *pFileData = NULL;
+				gsize fileSize = 0;
+
+				if (pMsgInfo->msgText[0] != '\0' && g_file_get_contents(pMsgInfo->msgText, &pFileData, &fileSize, NULL) == true) {
+					if (pFileData)
+						strncpy(strText, pFileData, 100);
+				}
+
+				if (pFileData)
+					g_free(pFileData);
+
 				MSG_SEC_DEBUG("msgText : %s", strText);
 			}
 		}

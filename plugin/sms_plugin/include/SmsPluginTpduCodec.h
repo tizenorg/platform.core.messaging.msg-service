@@ -47,5 +47,5 @@ private:
 	static int decodeStatusReport(const unsigned char *pTpdu, int TpduLen, SMS_STATUS_REPORT_S *pStatusRep);
 };
 
-#endif //SMS_PLUGIN_TPDU_CODEC_H
+#endif /* SMS_PLUGIN_TPDU_CODEC_H */
 

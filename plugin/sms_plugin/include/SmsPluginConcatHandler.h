@@ -92,8 +92,8 @@ public:
 	static SmsPluginConcatHandler* instance();
 
 	bool IsConcatMsg(SMS_USERDATA_S *pUserData);
-	void handleConcatMsg(struct tapi_handle *handle, SMS_TPDU_S *pTpdu);
-	void handleSimConcatMsg(struct tapi_handle *handle, SMS_TPDU_S *pTpdu, int msgId, int bRead, int *simIdList);
+	void handleConcatMsg(TapiHandle *handle, SMS_TPDU_S *pTpdu);
+	void handleSimConcatMsg(TapiHandle *handle, SMS_TPDU_S *pTpdu, int msgId, int bRead, int *simIdList);
 //	void handleConcatMsg(SMS_TPDU_S *pTpdu, msg_sim_id_t SimMsgId, bool bRead);
 
 //	void handleBrokenMsg();
@@ -105,13 +105,13 @@ private:
 	static SmsPluginConcatHandler* pInstance;
 
 	unsigned char checkConcatMsg(SMS_CONCAT_MSG_S *pConcatMsg, SMS_USERDATA_S *pUserData);
-	int makeConcatUserData(unsigned short MsgRef, int simIndex, char **ppTotalData);
+	int makeConcatUserData(unsigned short MsgRef, int simIndex, char **ppTotalData, char *originAddress);
 
 	void convertConcatToMsginfo(const SMS_DELIVER_S *pTpdu, const char *pUserData, int DataSize, MSG_MESSAGE_INFO_S *pMsgInfo);
 	void convertConcatToMsginfo(const SMS_SUBMIT_S *pTpdu, const char *pUserData, int DataSize, MSG_MESSAGE_INFO_S *pMsgInfo);
 //	void convertSimMsgToMsginfo(const SMS_CONCAT_MSG_S *pConcatMsg, const char *pUserData, int DataSize, MSG_MESSAGE_INFO_S *pMsgInfo);
 
-	void removeFromConcatList(unsigned short MsgRef, int simIndex);
+	void removeFromConcatList(unsigned short MsgRef, int simIndex, char *originAddress);
 
 //	void addToSimIdList(unsigned short MsgRef, msg_sim_id_t SimMsgId);
 //	void removeFromSimIdList(unsigned short MsgRef);
@@ -121,4 +121,4 @@ private:
 
 };
 
-#endif //SMS_PLUGIN_CONCAT_HANDLER_H
+#endif /* SMS_PLUGIN_CONCAT_HANDLER_H */

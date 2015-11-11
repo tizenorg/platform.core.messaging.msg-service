@@ -408,56 +408,50 @@ MSG_SMIL_ERR_E  _MsgMMSValidateSMILPage(MMS_MESSAGE_DATA_S *pMsgData, bool bRegA
 			MSG_RETURN_VAL_IF_FAIL((strlen(pMedia->szFilePath) > 0), MSG_SMIL_ERR_INVALID_PAGE_INFO);
 
 			switch (pMedia->mediatype) {
-			case MMS_SMIL_MEDIA_IMG:
-				{
-					if ((bImgExists == true) || (bVidExists == true) ||
-						(bImgOrVidExists== true)) {
-						eRet = MSG_SMIL_ERR_SIMILAR_MEDIA_EXISTS;
-					} else
-						bImgExists = true;
-				}
+			case MMS_SMIL_MEDIA_IMG: {
+				if ((bImgExists == true) || (bVidExists == true) ||
+					(bImgOrVidExists== true)) {
+					eRet = MSG_SMIL_ERR_SIMILAR_MEDIA_EXISTS;
+				} else
+					bImgExists = true;
 				break;
-			case MMS_SMIL_MEDIA_AUDIO:
-				{
-					if ((bAudExists == true) || (bVidExists == true) ||
-						(bImgOrVidExists== true)) {
-						eRet = MSG_SMIL_ERR_SIMILAR_MEDIA_EXISTS;
-					} else
-						bAudExists = true;
-				}
+			}
+			case MMS_SMIL_MEDIA_AUDIO: {
+				if ((bAudExists == true) || (bVidExists == true) ||
+					(bImgOrVidExists== true)) {
+					eRet = MSG_SMIL_ERR_SIMILAR_MEDIA_EXISTS;
+				} else
+					bAudExists = true;
 				break;
-			case MMS_SMIL_MEDIA_VIDEO:
-				{
-					if ((bImgExists == true) || (bVidExists == true) ||
-						(bImgOrVidExists== true)) {
-						eRet = MSG_SMIL_ERR_SIMILAR_MEDIA_EXISTS;
-					} else
-						bVidExists = true;
-				}
+			}
+			case MMS_SMIL_MEDIA_VIDEO: {
+				if ((bImgExists == true) || (bVidExists == true) ||
+					(bImgOrVidExists== true)) {
+					eRet = MSG_SMIL_ERR_SIMILAR_MEDIA_EXISTS;
+				} else
+					bVidExists = true;
 				break;
-			case MMS_SMIL_MEDIA_TEXT:
-				{
-					if (bTxtExists == true) {
-						eRet = MSG_SMIL_ERR_SIMILAR_MEDIA_EXISTS;
-					} else
-						bTxtExists = true;
-				}
+			}
+			case MMS_SMIL_MEDIA_TEXT: {
+				if (bTxtExists == true) {
+					eRet = MSG_SMIL_ERR_SIMILAR_MEDIA_EXISTS;
+				} else
+					bTxtExists = true;
 				break;
-			case MMS_SMIL_MEDIA_IMG_OR_VIDEO:
-				{
-					if ((bImgExists == true) || (bVidExists == true) ||
-						(bImgOrVidExists== true)) {
-						eRet = MSG_SMIL_ERR_SIMILAR_MEDIA_EXISTS;
-					} else
-						bImgOrVidExists = true;
-				}
+			}
+			case MMS_SMIL_MEDIA_IMG_OR_VIDEO: {
+				if ((bImgExists == true) || (bVidExists == true) ||
+					(bImgOrVidExists== true)) {
+					eRet = MSG_SMIL_ERR_SIMILAR_MEDIA_EXISTS;
+				} else
+					bImgOrVidExists = true;
 				break;
-			default:
-				{
-					MSG_DEBUG("_MsgMMSValidateSMILRegion: Invalid Media Information\n");
-					return eRet;
-				}
+			}
+			default: {
+				MSG_DEBUG("_MsgMMSValidateSMILRegion: Invalid Media Information\n");
+				return eRet;
 				break;
+			}
 			}
 
 			if (eRet == MSG_SMIL_ERR_SIMILAR_MEDIA_EXISTS) {
@@ -489,4 +483,3 @@ MSG_SMIL_ERR_E  _MsgMMSValidateSMILPage(MMS_MESSAGE_DATA_S *pMsgData, bool bRegA
 
 	return eRet;
 }
-

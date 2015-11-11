@@ -19,8 +19,7 @@
 
 #include "MmsPluginTypes.h"
 
-class MmsPluginTransport
-{
+class MmsPluginTransport {
 	public:
 		static MmsPluginTransport *instance();
 
@@ -34,4 +33,4 @@ class MmsPluginTransport
 		static MmsPluginTransport *pInstance;
 };
 
-#endif //MMS_PLUGIN_TRANSPORT_H
+#endif /* MMS_PLUGIN_TRANSPORT_H */

@@ -31,30 +31,23 @@ EXPORT_API int msg_add_filter(msg_handle_t handle, const msg_struct_t msg_struct
 	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_SMS_FEATURE);
 	msg_error_t err = MSG_SUCCESS;
 
-	//Privilege check
+	/* Privilege check */
 	int ret = PRIV_MGR_ERROR_SUCCESS;
 	ret = privacy_checker_check_by_privilege(MSG_SERVICE_WRITE_PRIV_NAME);
 	if (ret != PRIV_MGR_ERROR_SUCCESS)
-	{
 		return MSG_ERR_PERMISSION_DENIED;
-	}
 
 	if (handle == NULL || msg_struct_handle == NULL)
-	{
 		return MSG_ERR_INVALID_PARAMETER;
-	}
 
 	msg_struct_s *msg_struct = (msg_struct_s *) msg_struct_handle;
 	MSG_TYPE_CHECK(msg_struct->type, MSG_STRUCT_FILTER);
 
 	MsgHandle* pHandle = (MsgHandle*)handle;
 
-	try
-	{
+	try {
 		err = pHandle->addFilter((const MSG_FILTER_S *)msg_struct->data);
-	}
-	catch (MsgException& e)
-	{
+	} catch (MsgException& e) {
 		MSG_FATAL("%s", e.what());
 		return MSG_ERR_FILTER_ERROR;
 	}
@@ -68,30 +61,23 @@ EXPORT_API int msg_update_filter(msg_handle_t handle, const msg_struct_t msg_str
 	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_SMS_FEATURE);
 	msg_error_t err = MSG_SUCCESS;
 
-	//Privilege check
+	/* Privilege check */
 	int ret = PRIV_MGR_ERROR_SUCCESS;
 	ret = privacy_checker_check_by_privilege(MSG_SERVICE_WRITE_PRIV_NAME);
 	if (ret != PRIV_MGR_ERROR_SUCCESS)
-	{
 		return MSG_ERR_PERMISSION_DENIED;
-	}
 
 	if (handle == NULL || msg_struct_handle == NULL)
-	{
 		return MSG_ERR_INVALID_PARAMETER;
-	}
 
 	msg_struct_s *msg_struct = (msg_struct_s *) msg_struct_handle;
 	MSG_TYPE_CHECK(msg_struct->type, MSG_STRUCT_FILTER);
 
 	MsgHandle* pHandle = (MsgHandle*)handle;
 
-	try
-	{
+	try {
 		err = pHandle->updateFilter((const MSG_FILTER_S *)msg_struct->data);
-	}
-	catch (MsgException& e)
-	{
+	} catch (MsgException& e) {
 		MSG_FATAL("%s", e.what());
 		return MSG_ERR_FILTER_ERROR;
 	}
@@ -105,27 +91,20 @@ EXPORT_API int msg_delete_filter(msg_handle_t handle, msg_filter_id_t filter_id)
 	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_SMS_FEATURE);
 	msg_error_t err = MSG_SUCCESS;
 
-	//Privilege check
+	/* Privilege check */
 	int ret = PRIV_MGR_ERROR_SUCCESS;
 	ret = privacy_checker_check_by_privilege(MSG_SERVICE_WRITE_PRIV_NAME);
 	if (ret != PRIV_MGR_ERROR_SUCCESS)
-	{
 		return MSG_ERR_PERMISSION_DENIED;
-	}
 
 	if (handle == NULL)
-	{
 		return MSG_ERR_INVALID_PARAMETER;
-	}
 
 	MsgHandle* pHandle = (MsgHandle*)handle;
 
-	try
-	{
+	try {
 		err = pHandle->deleteFilter(filter_id);
-	}
-	catch (MsgException& e)
-	{
+	} catch (MsgException& e) {
 		MSG_FATAL("%s", e.what());
 		return MSG_ERR_FILTER_ERROR;
 	}
@@ -139,27 +118,20 @@ EXPORT_API int msg_get_filter_list(msg_handle_t handle, msg_struct_list_s *filte
 	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_SMS_FEATURE);
 	msg_error_t err = MSG_SUCCESS;
 
-	//Privilege check
+	/* Privilege check */
 	int ret = PRIV_MGR_ERROR_SUCCESS;
 	ret = privacy_checker_check_by_privilege(MSG_SERVICE_READ_PRIV_NAME);
 	if (ret != PRIV_MGR_ERROR_SUCCESS)
-	{
 		return MSG_ERR_PERMISSION_DENIED;
-	}
 
 	if (handle == NULL || filter_list == NULL)
-	{
 		return MSG_ERR_INVALID_PARAMETER;
-	}
 
 	MsgHandle* pHandle = (MsgHandle*)handle;
 
-	try
-	{
+	try {
 		err = pHandle->getFilterList(filter_list);
-	}
-	catch (MsgException& e)
-	{
+	} catch (MsgException& e) {
 		MSG_FATAL("%s", e.what());
 		return MSG_ERR_FILTER_ERROR;
 	}
@@ -173,27 +145,20 @@ EXPORT_API int msg_set_filter_operation(msg_handle_t handle, bool set_flag)
 	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_SMS_FEATURE);
 	msg_error_t err = MSG_SUCCESS;
 
-	//Privilege check
+	/* Privilege check */
 	int ret = PRIV_MGR_ERROR_SUCCESS;
 	ret = privacy_checker_check_by_privilege(MSG_SERVICE_WRITE_PRIV_NAME);
 	if (ret != PRIV_MGR_ERROR_SUCCESS)
-	{
 		return MSG_ERR_PERMISSION_DENIED;
-	}
 
 	if (handle == NULL)
-	{
 		return MSG_ERR_INVALID_PARAMETER;
-	}
 
 	MsgHandle* pHandle = (MsgHandle*)handle;
 
-	try
-	{
+	try {
 		err = pHandle->setFilterOperation(set_flag);
-	}
-	catch (MsgException& e)
-	{
+	} catch (MsgException& e) {
 		MSG_FATAL("%s", e.what());
 		return MSG_ERR_FILTER_ERROR;
 	}
@@ -207,27 +172,20 @@ EXPORT_API int msg_get_filter_operation(msg_handle_t handle, bool *set_flag)
 	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_SMS_FEATURE);
 	msg_error_t err = MSG_SUCCESS;
 
-	//Privilege check
+	/* Privilege check */
 	int ret = PRIV_MGR_ERROR_SUCCESS;
 	ret = privacy_checker_check_by_privilege(MSG_SERVICE_READ_PRIV_NAME);
 	if (ret != PRIV_MGR_ERROR_SUCCESS)
-	{
 		return MSG_ERR_PERMISSION_DENIED;
-	}
 
 	if (handle == NULL || set_flag == NULL)
-	{
 		return MSG_ERR_INVALID_PARAMETER;
-	}
 
 	MsgHandle* pHandle = (MsgHandle*)handle;
 
-	try
-	{
+	try {
 		err = pHandle->getFilterOperation(set_flag);
-	}
-	catch (MsgException& e)
-	{
+	} catch (MsgException& e) {
 		MSG_FATAL("%s", e.what());
 		return MSG_ERR_FILTER_ERROR;
 	}
@@ -241,27 +199,20 @@ EXPORT_API int msg_set_filter_active(msg_handle_t handle, msg_filter_id_t filter
 	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_SMS_FEATURE);
 	msg_error_t err = MSG_SUCCESS;
 
-	//Privilege check
+	/* Privilege check */
 	int ret = PRIV_MGR_ERROR_SUCCESS;
 	ret = privacy_checker_check_by_privilege(MSG_SERVICE_WRITE_PRIV_NAME);
 	if (ret != PRIV_MGR_ERROR_SUCCESS)
-	{
 		return MSG_ERR_PERMISSION_DENIED;
-	}
 
 	if (handle == NULL)
-	{
 		return MSG_ERR_INVALID_PARAMETER;
-	}
 
 	MsgHandle* pHandle = (MsgHandle*)handle;
 
-	try
-	{
+	try {
 		err = pHandle->setFilterActivation(filter_id, active);
-	}
-	catch (MsgException& e)
-	{
+	} catch (MsgException& e) {
 		MSG_FATAL("%s", e.what());
 		return MSG_ERR_FILTER_ERROR;
 	}
@@ -279,8 +230,7 @@ int msg_get_filter_info_bool(void *filter, int field, bool *value)
 
 	MSG_FILTER_S *filter_data = (MSG_FILTER_S *)filter;
 
-	switch (field)
-	{
+	switch (field) {
 	case MSG_FILTER_ACTIVE_BOOL :
 		*value = filter_data->bActive;
 		break;
@@ -302,8 +252,7 @@ int msg_get_filter_info_int(void *filter, int field, int *value)
 
 	MSG_FILTER_S *filter_data = (MSG_FILTER_S *)filter;
 
-	switch (field)
-	{
+	switch (field) {
 	case MSG_FILTER_ID_INT :
 		*value = filter_data->filterId;
 		break;
@@ -326,8 +275,7 @@ int msg_get_filter_info_str(void *filter, int field, char *value, int size)
 
 	MSG_FILTER_S *filter_data = (MSG_FILTER_S *)filter;
 
-	switch (field)
-	{
+	switch (field) {
 	case MSG_FILTER_VALUE_STR :
 		strncpy(value, filter_data->filterValue, size);
 		break;
@@ -346,8 +294,7 @@ int msg_set_filter_info_bool(void *filter, int field, bool value)
 	msg_error_t err = MSG_SUCCESS;
 	MSG_FILTER_S *filter_data = (MSG_FILTER_S *)filter;
 
-	switch (field)
-	{
+	switch (field) {
 	case MSG_FILTER_ACTIVE_BOOL :
 		filter_data->bActive = value;
 		break;
@@ -366,8 +313,7 @@ int msg_set_filter_info_int(void *filter, int field, int value)
 	msg_error_t err = MSG_SUCCESS;
 	MSG_FILTER_S *filter_data = (MSG_FILTER_S *)filter;
 
-	switch (field)
-	{
+	switch (field) {
 	case MSG_FILTER_ID_INT :
 		filter_data->filterId = value;
 		break;
@@ -389,8 +335,7 @@ int msg_set_filter_info_str(void *filter, int field, char *value, int size)
 	msg_error_t err = MSG_SUCCESS;
 	MSG_FILTER_S *filter_data = (MSG_FILTER_S *)filter;
 
-	switch (field)
-	{
+	switch (field) {
 	case MSG_FILTER_VALUE_STR :
 	{
 		int len = (size > MAX_FILTER_VALUE_LEN)?MAX_FILTER_VALUE_LEN:size;

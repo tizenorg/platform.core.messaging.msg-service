@@ -134,9 +134,9 @@
 /**
  * @brief	Definition for maximum file path length
  */
-#define	MSG_FILEPATH_LEN_MAX 1024
+#define MSG_FILEPATH_LEN_MAX 1024
 
-// setting
+/* setting */
 /**
  * @brief	Definition for maximum SMSC name length
  */
@@ -170,12 +170,12 @@
 /**
  * @brief	Definition for maximum file name length
  */
-#define	MSG_FILENAME_LEN_MAX 1024
+#define MSG_FILENAME_LEN_MAX 1024
 
 /**
  * @brief	Definition for maximum message id length
  */
-#define	MSG_MSG_ID_LEN 1024
+#define MSG_MSG_ID_LEN 1024
 
 /**
  * @brief	Definition for maximum in transition id length
@@ -190,7 +190,7 @@
 /**
  * @brief	Definition for maximum region id length
  */
-#define	MAX_SMIL_REGION_ID 151
+#define MAX_SMIL_REGION_ID 151
 
 /**
  * @brief	Definition for maximum transition id length
@@ -215,39 +215,39 @@
 /**
  * @brief	Definition for maximum fit size
  */
-#define	MAX_SMIL_FIT_SIZE 31
+#define MAX_SMIL_FIT_SIZE 31
 
 /**
  * @brief	Definition for maximum pages in a MMS
  */
-#define	MMS_PAGE_MAX 20
+#define MMS_PAGE_MAX 20
 
 /**
  * @brief	Definition for maximum media in a MMS
  */
-#define	MMS_MEDIA_MAX 60
+#define MMS_MEDIA_MAX 60
 
 /**
  * @brief	Definition for maximum alternate text length
  */
-#define	MAX_SMIL_ALT_LEN 255
+#define MAX_SMIL_ALT_LEN 255
 
 
-//font size
+/*font size */
 /**
  * @brief	Definition for small font size
  */
-#define	MMS_SMIL_FONT_SIZE_SMALL 24
+#define MMS_SMIL_FONT_SIZE_SMALL 24
 
 /**
  * @brief	Definition for normal font size
  */
-#define	MMS_SMIL_FONT_SIZE_NORMAL 30
+#define MMS_SMIL_FONT_SIZE_NORMAL 30
 
 /**
  * @brief	Definition for large font size
  */
-#define	MMS_SMIL_FONT_SIZE_LARGE 36
+#define MMS_SMIL_FONT_SIZE_LARGE 36
 
 /**
  * @brief	Definition for maximum length of java app ID
@@ -433,7 +433,7 @@ typedef unsigned int msg_message_backup_type_t;
  */
 typedef unsigned int msg_thread_id_t;
 
-// filter
+/* filter */
 /**
  * @brief  The filter ID.
  */
@@ -837,7 +837,7 @@ enum MSG_MMS_PAGE_INFO_E {
  *  @brief  Enumeration for the values of MMS media informations. \n
  *          This enum is used as member of #msg_struct_t for MSG_STRUCT_MMS_MEDIA.
  */
-enum MSG_MMS_MEDIA_INFO {
+enum MSG_MMS_MEDIA_INFO_E {
 	MSG_MMS_MEDIA_TYPE_INT = MSG_STRUCT_MMS_MEDIA+1,  /**< Indicates the SMIL media type. See enum MmsSmilMediaType */
 	MSG_MMS_MEDIA_SRC_STR,                            /**< Indicates the media source name */
 	MSG_MMS_MEDIA_FILENAME_STR,                       /**< Indicates the file name */
@@ -1142,8 +1142,7 @@ enum MSG_CB_MSG_E {
  *  @brief  Enumeration for the values of a message class type. \n
  *	        This enum is used as the value of MSG_CLASS_TYPE_T.
  */
-enum _MSG_CLASS_TYPE_E
-{
+enum _MSG_CLASS_TYPE_E {
 	MSG_CLASS_0 = 0,		/**< Immediately presented on the recipient device display */
 	MSG_CLASS_1,			/**< Stored in the mobile equipment or SIM (depending on memory availability) */
 	MSG_CLASS_2,			/**< Stored in SIM */
@@ -1156,8 +1155,7 @@ enum _MSG_CLASS_TYPE_E
  *          More members maybe added if needed. \n
  *	        This enum is used as the value of msg_message_type_t.
  */
-enum _MSG_MESSAGE_TYPE_E
-{
+enum _MSG_MESSAGE_TYPE_E {
  	MSG_TYPE_INVALID = 0,               /** < Invalid Type Message */
 
  	MSG_TYPE_SMS,                       /** < Normal SMS Message */
@@ -1180,6 +1178,7 @@ enum _MSG_MESSAGE_TYPE_E
 	MSG_TYPE_SMS_CMAS_SEVERE,           /** < CB - CMAS Severe Alerts */
 	MSG_TYPE_SMS_CMAS_AMBER,            /** < CB - CMAS AMBER Alerts (Child Abduction Emergency) */
 	MSG_TYPE_SMS_CMAS_TEST,             /** < CB - CMAS Test */
+	MSG_TYPE_SMS_CMAS_EXERCISE,         /** < CB - CMAS Exercise */
 	MSG_TYPE_SMS_CMAS_OPERATOR_DEFINED, /** < CB - CMAS Operator defined */
 	MSG_MESSAGE_TYPE_MAX,               /** < Placeholder for max value of this enum */
 };
@@ -1188,8 +1187,7 @@ enum _MSG_MESSAGE_TYPE_E
  *  @brief  Enumeration for the backup type of Message. More members maybe added if needed \n
  *	        This enum is used as the value of msg_message_backup_type_t.
  */
-enum _MSG_MESSAGE_BACKUP_TYPE_E
-{
+enum _MSG_MESSAGE_BACKUP_TYPE_E {
 	MSG_BACKUP_TYPE_ALL = 0,		/**< Backup all*/
 	MSG_BACKUP_TYPE_SMS,			/**< Backup SMS*/
 	MSG_BACKUP_TYPE_MMS,			/**< Backup MMS*/
@@ -1200,8 +1198,7 @@ enum _MSG_MESSAGE_BACKUP_TYPE_E
  *	        Success code is zero, but all error codes SHOULD be negative and smaller than MSG_SUCCESS. \n
  *	        This enum is used as the value of msg_error_t.
  */
-enum _MSG_ERROR_E
-{
+enum _MSG_ERROR_E {
 	MSG_SUCCESS = 0,                        /**< Successful */
 
 	MSG_ERR_NULL_MSGHANDLE = -1,            /**< Message handle is NULL */
@@ -1295,8 +1292,7 @@ enum _MSG_ERROR_E
  *  @brief  Enumeration for the values of a message priority. \n
  *	        This enum is used as the value of msg_priority_type_t.
  */
-enum _MSG_PRIORITY_TYPE_E
-{
+enum _MSG_PRIORITY_TYPE_E {
 	MSG_MESSAGE_PRIORITY_LOW,		/**< Low priority */
 	MSG_MESSAGE_PRIORITY_NORMAL,	/**< Normal priority */
 	MSG_MESSAGE_PRIORITY_HIGH,		/**< High priority */
@@ -1307,8 +1303,7 @@ enum _MSG_PRIORITY_TYPE_E
  *  @brief  Enumeration for the values of a network status. \n
  *	        This enum is used as the value of msg_network_status_t.
  */
-enum _MSG_NETWORK_STATUS_E
-{
+enum _MSG_NETWORK_STATUS_E {
 	MSG_NETWORK_NOT_SEND = 0,                            /**< Message is not sending */
 	MSG_NETWORK_SENDING,                                 /**< Sending message */
 	MSG_NETWORK_SEND_SUCCESS,                            /**< Message is sent successfully */
@@ -1320,20 +1315,20 @@ enum _MSG_NETWORK_STATUS_E
 	MSG_NETWORK_RETRIEVING,                              /**< Retrieving message */
 	MSG_NETWORK_RETRIEVE_SUCCESS,                        /**< Message is retrieved successfully */
 	MSG_NETWORK_RETRIEVE_FAIL,                           /**< Failed to retrieve */
-	MSG_NETWORK_SEND_TIMEOUT,                            /**< Send timed-out*/ // WILL BE REMOVED
-	MSG_NETWORK_SEND_FAIL_MANDATORY_INFO_MISSING,        /**< Send failed due to mandatory info missing*/ // WILL BE REMOVED
-	MSG_NETWORK_SEND_FAIL_TEMPORARY,                     /**<Send failed temporarily*/ // WILL BE REMOVED
-	MSG_NETWORK_SEND_FAIL_BY_MO_CONTROL_WITH_MOD,        /**< Send failed by MO control- ALLOWED WITH MOD*/ // WILL BE REMOVED
-	MSG_NETWORK_SEND_FAIL_BY_MO_CONTROL_NOT_ALLOWED,     /**< Send failed by MO control*/ // WILL BE REMOVED
+	MSG_NETWORK_SEND_TIMEOUT,                            /**< Send timed-out*/ /* WILL BE REMOVED */
+	MSG_NETWORK_SEND_FAIL_MANDATORY_INFO_MISSING,        /**< Send failed due to mandatory info missing*/ /* WILL BE REMOVED */
+	MSG_NETWORK_SEND_FAIL_TEMPORARY,                     /**<Send failed temporarily*/ /* WILL BE REMOVED */
+	MSG_NETWORK_SEND_FAIL_BY_MO_CONTROL_WITH_MOD,        /**< Send failed by MO control- ALLOWED WITH MOD*/ /* WILL BE REMOVED */
+	MSG_NETWORK_SEND_FAIL_BY_MO_CONTROL_NOT_ALLOWED,     /**< Send failed by MO control*/ /* WILL BE REMOVED */
 	MSG_NETWORK_DELIVER_PENDING,                         /**< Delivery pending*/
 	MSG_NETWORK_DELIVER_EXPIRED,                         /**< Delivery expired*/
 	MSG_NETWORK_SEND_PENDING,                            /**< Send is pending*/
 #ifdef FEATURE_SMS_CDMA
-	MSG_NETWORK_SEND_FAIL_UNKNOWN_SUBSCRIBER,	           /**< Unknown subscriber(destination) */
+	MSG_NETWORK_SEND_FAIL_UNKNOWN_SUBSCRIBER,            /**< Unknown subscriber(destination) */
 	MSG_NETWORK_SEND_FAIL_MS_DISABLED,                   /**< Mobile station originated SMS disabled */
 	MSG_NETWORK_SEND_FAIL_NETWORK_NOT_READY,             /**< Network not ready */
-	MSG_NETWORK_RETRIEVE_PENDING,                        /**< Retrieve is pending*/
 #endif
+	MSG_NETWORK_RETRIEVE_PENDING,                        /**< Retrieve is pending */
 };
 
 
@@ -1341,8 +1336,7 @@ enum _MSG_NETWORK_STATUS_E
  *  @brief  Enumeration for the values of an address type. \n
  *	        This enum is used as the value of msg_address_type_t.
 */
-enum _MSG_ADDRESS_TYPE_E
-{
+enum _MSG_ADDRESS_TYPE_E {
 	MSG_ADDRESS_TYPE_UNKNOWN = 0,	/**< The address type is unknown. */
 	MSG_ADDRESS_TYPE_PLMN,			/**< The address type is for a phone number like +1012345678. */
 	MSG_ADDRESS_TYPE_EMAIL,			/**< The address type is for an email address like abc@example.email. */
@@ -1353,8 +1347,7 @@ enum _MSG_ADDRESS_TYPE_E
  *  @brief  Enumeration for the values of a recipient type. \n
  *	        This enum is used as the value of msg_recipient_type_t.
 */
-enum _MSG_RECIPIENT_TYPE_E
-{
+enum _MSG_RECIPIENT_TYPE_E {
 	MSG_RECIPIENTS_TYPE_UNKNOWN = 0,    /**< The recipient type is unknown. */
 	MSG_RECIPIENTS_TYPE_TO,             /**< The recipient type is for "To". */
 	MSG_RECIPIENTS_TYPE_CC,             /**< The recipient type is for "Cc". */
@@ -1366,8 +1359,7 @@ enum _MSG_RECIPIENT_TYPE_E
  *  @brief  Enumeration for the values of a direction type. \n
  *	        This enum is used as the value of msg_direction_type_t.
  */
-enum _MSG_DIRECTION_TYPE_E
-{
+enum _MSG_DIRECTION_TYPE_E {
 	MSG_DIRECTION_TYPE_MO = 0,		/**< The direction type is for mobile originated */
 	MSG_DIRECTION_TYPE_MT,			/**< The direction type is for mobile terminated */
 };
@@ -1377,8 +1369,7 @@ enum _MSG_DIRECTION_TYPE_E
  *  @brief  Enumeration for the values of a string encoding type. \n
  *	        This enum is used as the value of msg_encode_type_t.
  */
-enum _MSG_ENCODE_TYPE_E
-{
+enum _MSG_ENCODE_TYPE_E {
 	MSG_ENCODE_GSM7BIT = 0,      /**< The string encoding type is GSM7BIT */
 	MSG_ENCODE_8BIT,             /**< The string encoding type is 8 BIT */
 	MSG_ENCODE_UCS2,             /**< The string encoding type is UCS2 */
@@ -1397,16 +1388,15 @@ enum _MSG_ENCODE_TYPE_E
  *  @brief  Enumeration for the action type of Push Message. \n
  *	        This enum is used as the value of msg_push_action_t.
  */
-enum _MSG_PUSH_ACTION_E
-{
-	// SI Action
+enum _MSG_PUSH_ACTION_E {
+	/* SI Action */
 	MSG_PUSH_SI_ACTION_SIGNAL_NONE = 0x00,		/**<  No signal for push message action */
 	MSG_PUSH_SI_ACTION_SIGNAL_LOW,				/**< Low signal for push message action */
 	MSG_PUSH_SI_ACTION_SIGNAL_MEDIUM,			/**< Medium signal for push message action */
 	MSG_PUSH_SI_ACTION_SIGNAL_HIGH,				/**< High signal for push message action */
 	MSG_PUSH_SI_ACTION_DELETE,					/**< Delete push message */
 
-	// SL Action
+	/* SL Action */
 	MSG_PUSH_SL_ACTION_EXECUTE_LOW,				/**< Action: execute-low*/
 	MSG_PUSH_SL_ACTION_EXECUTE_HIGH,			/**< Action: execute-high*/
 	MSG_PUSH_SL_ACTION_CACHE,					/**< Action: cache*/
@@ -1417,8 +1407,7 @@ enum _MSG_PUSH_ACTION_E
  *  @brief  Enumeration for the type of SyncML Message. \n
  *	        This enum is used as the value of msg_syncml_message_type_t.
  */
- enum _MSG_SYNCML_MESSAGE_TYPE_E
- {
+ enum _MSG_SYNCML_MESSAGE_TYPE_E {
  	DM_WBXML,					/** < DM WBXML SyncML Message */
 	DM_XML,						/** < DM XML SyncML Message */
 	DM_NOTIFICATION,			/** < DM Notification SyncML Message */
@@ -1437,8 +1426,7 @@ enum _MSG_PUSH_ACTION_E
  *  @brief  Enumeration for the values of a Delivery Report Status. \n
  *	        This enum is used as the value of msg_delivery_report_status_t.
 */
- enum _MSG_DELIVERY_REPORT_STATUS_E
- {
+ enum _MSG_DELIVERY_REPORT_STATUS_E  {
 	 MSG_DELIVERY_REPORT_NONE				=	-1,	/**< Indicates the status unavailable */
 	 MSG_DELIVERY_REPORT_EXPIRED 			=	0, 	/**< Indicates the expired status of message */
 	 MSG_DELIVERY_REPORT_SUCCESS			=	1,	/**< Indicates the success status of message */
@@ -1456,8 +1444,7 @@ enum _MSG_PUSH_ACTION_E
  *  @brief  Enumeration for the values of a Read Report Status. \n
  *	        This enum is used as the value of msg_read_report_status_t.
 */
-enum _MSG_READ_REPORT_STATUS_E
- {
+enum _MSG_READ_REPORT_STATUS_E  {
 	 MSG_READ_REPORT_NONE			= 	-1,	  /**< Indicates the status unavailable */
 	 MSG_READ_REPORT_IS_READ	 	= 	0,	  /**< Indicates the message is read */
 	 MSG_READ_REPORT_IS_DELETED  	= 	1,	  /**< Indicates the message is deleted */
@@ -1468,20 +1455,18 @@ enum _MSG_READ_REPORT_STATUS_E
  *  @brief  Enumeration for the values of a Report Type. \n
  *	        This enum is used as the value of msg_read_report_status_t.
 */
-enum _MSG_REPORT_TYPE_E
- {
+enum _MSG_REPORT_TYPE_E  {
 	 MSG_REPORT_TYPE_DELIVERY	= 	0,      /**< Indicates the type is delivery report*/
-	 MSG_REPORT_TYPE_READ	= 	1,          /**< Indicates the type is read report*/
+	 MSG_REPORT_TYPE_READ		= 	1,          /**< Indicates the type is read report*/
 	 MSG_REPORT_TYPE_READ_REPORT_SENT = 2,  /**< Indicates the type is read report sent*/
  };
 
-// filter
+/* filter */
 /**
  *  @brief  Enumeration for the values of a filter type. \n
  *	        This enum is used as the value of msg_filter_type_t.
  */
-enum _MSG_FILTER_TYPE_E
-{
+enum _MSG_FILTER_TYPE_E {
 	MSG_FILTER_BY_WORD = 0,             /**< Filtered by sub string in the text */
 	MSG_FILTER_BY_ADDRESS_SAME,         /**< Filtered by address exactly same as */
 	MSG_FILTER_BY_ADDRESS_START,        /**< Filtered by address start with */
@@ -1490,17 +1475,16 @@ enum _MSG_FILTER_TYPE_E
 };
 
 
-// mms
+/* mms */
 
 /**
  *  @brief  Enumeration for the values of a MIME type.
  */
-typedef enum	_MimeType
-{
-	// 0
+typedef enum	_MimeType {
+	/* 0 */
 	MIME_ASTERISK                                       = 0x0000, /**< Indicates the valid default MIME type  */
 
-	// 1
+	/* 1 */
 	MIME_APPLICATION_XML                                = 0x1000, /**< Indicates the application XML type */
 	MIME_APPLICATION_WML_XML                            = 0x1001, /**< Indicates the application WML XML type  */
 	MIME_APPLICATION_XHTML_XML                          = 0x1002, /**< Indicates the application XHTML XML type  */
@@ -1517,7 +1501,7 @@ typedef enum	_MimeType
 	MIME_APPLICATION_RAM                                = 0x100d, /**< Indicates the application RAM type */
 	MIME_APPLICATION_ASTERIC                            = 0x100e, /**< Indicates the application as main type and generic sub type */
 
-	// 16
+	/* 16 */
 	MIME_APPLICATION_VND_WAP_XHTMLXML                   = 0x1100, /**< Indicates the application wap xhtml xml type */
 	MIME_APPLICATION_VND_WAP_WMLC                       = 0x1101, /**< Indicates the application wap wmlc type */
 	MIME_APPLICATION_VND_WAP_WMLSCRIPTC                 = 0x1102, /**< Indicates the application wap wmlscrpitc type */
@@ -1552,7 +1536,7 @@ typedef enum	_MimeType
 	MIME_APPLICATION_VND_POWERPOINT                     = 0x111f, /**< Indicates the application Power point type */
 	MIME_APPLICATION_VND_MSWORD                         = 0x1120, /**< Indicates the application MS Word type */
 
-	// 49
+	/* 49 */
 	MIME_APPLICATION_X_HDMLC                            = 0x1200, /**< Indicates the application x hdmlc type */
 	MIME_APPLICATION_X_X968_USERCERT                    = 0x1201, /**< Indicates the application x x968 user certified type */
 	MIME_APPLICATION_X_WWW_FORM_URLENCODED              = 0x1202, /**< Indicates the application x www form url encoded type */
@@ -1561,7 +1545,7 @@ typedef enum	_MimeType
 	MIME_APPLICATION_X_EXCEL                            = 0x1205, /**< Indicates the application x excel type */
 	MIME_APPLICATION_X_POWERPOINT                       = 0x1206, /**< Indicates the application x power point type */
 
-	// 56
+	/* 56 */
 	MIME_AUDIO_BASIC                                    = 0x2000, /**< Indicates the audio basic type  */
 	MIME_AUDIO_MPEG                                     = 0x2001, /**< Indicates the audio mpeg type  */
 	MIME_AUDIO_MP3                                      = 0x2002, /**< Indicates the audio mp3 type  */
@@ -1591,11 +1575,12 @@ typedef enum	_MimeType
 	MIME_AUDIO_XMF                                      = 0x201a, /**< Indicates the audio xmf type  */
 	MIME_AUDIO_IMY                                      = 0x201b, /**< Indicates the audio imy type  */
 	MIME_AUDIO_MOBILE_XMF                               = 0x201c, /**< Indicates the audio mobile xmf type  */
+	MIME_AUDIO_OGG                               		= 0x201d, /**< Indicates the audio mobile xmf type  */
 
-	//85
+	/* 86 */
 	MIME_AUDIO_VND_RN_REALAUDIO                         = 0x2100, /**< Indicates the audio rn real audio type  */
 
-	// 86
+	/* 87 */
 	MIME_AUDIO_X_MPEG                                   = 0x2200, /**< Indicates the audio x mpeg type  */
 	MIME_AUDIO_X_MP3                                    = 0x2201, /**< Indicates the audio x mp3 type  */
 	MIME_AUDIO_X_MPEG3                                  = 0x2202, /**< Indicates the audio x mpeg3 type  */
@@ -1616,7 +1601,7 @@ typedef enum	_MimeType
 	MIME_AUDIO_X_MS_ASF                                 = 0x2211, /**< Indicates the audio ms asf  type  */
 	MIME_AUDIO_X_XMF                                    = 0x2212, /**< Indicates the audio x xmf  type  */
 
-	// 105
+	/* 106 */
 	MIME_IMAGE_GIF                                      = 0x3000, /**< Indicates the image gif type  */
 	MIME_IMAGE_JPEG                                     = 0x3001, /**< Indicates the image jpeg type  */
 	MIME_IMAGE_JPG                                      = 0x3002, /**< Indicates the image jpg type  */
@@ -1629,18 +1614,18 @@ typedef enum	_MimeType
 	MIME_IMAGE_SVG                                      = 0x3009, /**< Indicates the image svg type  */
 	MIME_IMAGE_SVG1                                     = 0x300a, /**< Indicates the image svg1 type  */
 
-	// 116
+	/* 117 */
 	MIME_IMAGE_VND_WAP_WBMP                             = 0x3100, /**< Indicates the image vnd wap wbmp type  */
 	MIME_IMAGE_VND_TMO_GIF                              = 0x3101, /**< Indicates the image vnd tmo gif type  */
 	MIME_IMAGE_VND_TMO_JPG                              = 0x3102, /**< Indicates the image vnd tmo jpg type  */
 
-	// 119
+	/* 120 */
 	MIME_IMAGE_X_BMP                                    = 0x3200, /**< Indicates the image x bmp type  */
 
-	// 120
+	/* 121 */
 	MIME_MESSAGE_RFC822                                 = 0x4000, /**< Indicates the message rfc822 type  */
 
-	// 121
+	/* 122 */
 	MIME_MULTIPART_MIXED                                = 0x5000, /**< Indicates the multipart mixed type  */
 	MIME_MULTIPART_RELATED                              = 0x5001, /**< Indicates the multipart related type  */
 	MIME_MULTIPART_ALTERNATIVE                          = 0x5002, /**< Indicates the multipart alternative type  */
@@ -1649,7 +1634,7 @@ typedef enum	_MimeType
 	MIME_MULTIPART_REPORT                               = 0x5005, /**< Indicates the multipart report type  */
 	MIME_MULTIPART_VOICE_MESSAGE                        = 0x5006, /**< Indicates the multipart voice message type  */
 
-	// 128
+	/* 129 */
 	MIME_TEXT_TXT                                       = 0x6000, /**< Indicates the text txt type  */
 	MIME_TEXT_HTML                                      = 0x6001, /**< Indicates the text html type  */
 	MIME_TEXT_PLAIN                                     = 0x6002, /**< Indicates the text plain type  */
@@ -1658,7 +1643,7 @@ typedef enum	_MimeType
 	MIME_TEXT_IMELODY                                   = 0x6005, /**< Indicates the text imelody type  */
 	MIME_TEXT_CALENDAR                                  = 0x6006, /**< Indicates the text calendar type */
 
-	// 134
+	/* 135 */
 	MIME_TEXT_VND_WAP_WMLSCRIPT                         = 0x6100, /**< Indicates the text wap wmlscript  type  */
 	MIME_TEXT_VND_WAP_WML                               = 0x6101, /**< Indicates the text wap wml  type  */
 	MIME_TEXT_VND_WAP_WTA_EVENT                         = 0x6102, /**< Indicates the text wap wta event  type  */
@@ -1668,7 +1653,7 @@ typedef enum	_MimeType
 	MIME_TEXT_VND_WAP_CO                                = 0x6106, /**< Indicates the text wap co  type  */
 	MIME_TEXT_VND_SUN_J2ME_APP_DESCRIPTOR               = 0x6107, /**< Indicates the text sun j2me type  */
 
-	// 142
+	/* 143 */
 	MIME_TEXT_X_HDML                                    = 0x6200, /**< Indicates the x html  type  */
 	MIME_TEXT_X_VCALENDAR                               = 0x6201, /**< Indicates the x calendar  type  */
 	MIME_TEXT_X_VCARD                                   = 0x6202, /**< Indicates the x vcard  type  */
@@ -1677,7 +1662,7 @@ typedef enum	_MimeType
 	MIME_TEXT_X_VNOTE                                   = 0x6205, /**< Indicates the x vnote  type  */
 	MIME_TEXT_X_VTODO                                   = 0x6206, /**< Indicates the x todo  type  */
 
-	// 149
+	/* 150 */
 	MIME_VIDEO_MPEG4                                    = 0x7000, /**< Indicates the mpeg4  type  */
 	MIME_VIDEO_MP4                                      = 0x7001, /**< Indicates the mp4  type  */
 	MIME_VIDEO_H263                                     = 0x7002, /**< Indicates the h263  type  */
@@ -1689,11 +1674,11 @@ typedef enum	_MimeType
 	MIME_VIDEO_MPEG                                     = 0x7008, /**< Indicates the mpeg  type  */
 	MIME_VIDEO_MOV                                      = 0x7009, /**< Indicates the mov  type  */
 
-	// 158
+	/* 159 */
 	MIME_VIDEO_VND_RN_REALVIDEO                         = 0x7100, /**< Indicates the pn real video type  */
 	MIME_VIDEO_VND_RN_REALMEDIA                         = 0x7101, /**< Indicates the pn multi rate real media type  */
 
-	// 160
+	/* 161 */
 	MIME_VIDEO_X_MP4                                    = 0x7200, /**< Indicates the video x mp4 type  */
 	MIME_VIDEO_X_PV_MP4                                 = 0x7201, /**< Indicates the video x pv mp4 type  */
 	MIME_VIDEO_X_PN_REALVIDEO                           = 0x7202, /**< Indicates the x pn real video type  */
@@ -1710,20 +1695,18 @@ typedef enum	_MimeType
 /**
  *  @brief  Enumeration for the values of a DRM type.
  */
-typedef enum
-{
+typedef enum {
 	MSG_DRM_TYPE_NONE	= 0, /**< Indicates the DRM type none */
 	MSG_DRM_TYPE_FL		= 1, /**< Indicates the forward lock */		/* 2004-07-09: forwardLock type */
 	MSG_DRM_TYPE_CD		= 2, /**< Indicates the combined delivery */	/* 2004-07-09: combined delivery type */
 	MSG_DRM_TYPE_SD		= 3, /**< Indicates the separate delivery */	/* 2004-07-09: seperate delivery type */
-	MSG_DRM_TYPE_SSD	= 4	 /**< Indicates the special separate delivery */	// 2005-02-28: add Special Sperate Delivery
+	MSG_DRM_TYPE_SSD		= 4	 /**< Indicates the special separate delivery */	/* 2005-02-28: add Special Sperate Delivery */
 }MsgDrmType;
 
 /**
  *  @brief  Enumeration for the values of a SMIL region type.
  */
-typedef enum _REGION_FIT_TYPE_T
-{
+typedef enum _REGION_FIT_TYPE_T {
 	MMSUI_IMAGE_REGION_FIT_HIDDEN,	 /**< Indicates the hidden fit type */
 	MMSUI_IMAGE_REGION_FIT_MEET,	 /**< Indicates the meet fit type */
 }REGION_FIT_TYPE_T;
@@ -1732,8 +1715,7 @@ typedef enum _REGION_FIT_TYPE_T
 /**
  *  @brief  Enumeration for the values of a SMIL media type.
  */
-typedef enum
-{
+typedef enum {
 	MMS_SMIL_MEDIA_INVALID = 0,       /**< Indicates the invalid media type */
 	MMS_SMIL_MEDIA_IMG,               /**< Indicates the image media */
 	MMS_SMIL_MEDIA_AUDIO,             /**< Indicates the audio media */
@@ -1747,8 +1729,7 @@ typedef enum
 /**
  *  @brief  Enumeration for the values of a SMIL transition type.
  */
-typedef enum
-{
+typedef enum {
 	MMS_SMIL_TRANS_NONE = 0,         /**< Indicates the transition type none */			/* default */
 	MMS_SMIL_TRANS_SLIDEWIPE = 1,    /**< Indicates the slide wipe transition */
 	MMS_SMIL_TRANS_BARWIPE = 2,      /**< Indicates the bar wipe transition */
@@ -1766,8 +1747,7 @@ typedef enum
 /**
  *  @brief  Enumeration for the values of a SMIL transition sub type.
  */
-typedef enum
-{
+typedef enum {
 	MMS_SMIL_TRANS_SUB_NONE = 0,          /**< Indicates the transition sub type none */
 	MMS_SMIL_TRANS_SUB_FROM_LEFT = 1,     /**< Indicates the from left transition */	/* slideWipe's default */
 	MMS_SMIL_TRANS_SUB_FROM_TOP = 2,      /**< Indicates the from top transition */
@@ -1782,8 +1762,7 @@ typedef enum
 /**
  *  @brief  Enumeration for the values of a text font type.
  */
-typedef enum
-{
+typedef enum {
 	MMS_SMIL_FONT_TYPE_NONE = 0,     /**< Indicates the font type none */
 	MMS_SMIL_FONT_TYPE_NORMAL = 1,   /**< Indicates the font type normal */
 	MMS_SMIL_FONT_TYPE_ITALIC = 2,   /**< Indicates the font type italic */
@@ -1794,17 +1773,16 @@ typedef enum
 /**
  *  @brief  Enumeration for the values of a MMS text direction.
  */
-typedef enum	_MmsTextDir{
+typedef enum	_MmsTextDir {
 	MMS_TEXT_DIRECTION_INVALID = -1, /**< Indicates the invalid direction */
 	MMS_TEXT_DIRECTION_RIGHT = 0,    /**< Indicates the right direction */
-	MMS_TEXT_DIRECTION_DOWN,         /**< Indicates the down direction */		// supported to GC
+	MMS_TEXT_DIRECTION_DOWN,         /**< Indicates the down direction */		/* supported to GC */
 } MmsTextDirection;
 
 /**
  *  @brief  Enumeration for the values of MMS Read Report Sent Status.
  */
-typedef enum
-{
+typedef enum {
 	MMS_RECEIVE_READ_REPORT_NO_SEND,    /**< Not sent yet */
 	MMS_RECEIVE_READ_REPORT_MUST_SEND,  /**< Not sent yet, but will be sent */
 	MMS_RECEIVE_READ_REPORT_SENT,       /**< Sent */
@@ -1812,14 +1790,13 @@ typedef enum
 } MmsRecvReadReportSendStatus ;
 
 
-// setting
+/* setting */
 
 /**
  *  @brief  Enumeration for the values of an option type. \n
  *	        This enum is used as the value of MSG_OPTION_TYPE_T.
  */
-enum _MSG_OPTION_TYPE_E
-{
+enum _MSG_OPTION_TYPE_E {
 	MSG_GENERAL_OPT,            /**< General option */
 	MSG_SMS_SENDOPT,            /**< SMS send option */
 	MSG_SMSC_LIST,              /**< SMSC list option */
@@ -1839,8 +1816,7 @@ enum _MSG_OPTION_TYPE_E
  *  @brief  Enumeration for the values of an SMS network mode. \n
  *	        This enum is used as the value of MSG_SMS_NETWORK_MODE_T.
  */
-enum _MSG_SMS_NETWORK_MODE_E
-{
+enum _MSG_SMS_NETWORK_MODE_E {
 	MSG_SMS_NETWORK_PS_ONLY = 0x01,     /**< Packet switched */
 	MSG_SMS_NETWORK_CS_ONLY = 0x02,     /**< Circuit switched */
 	MSG_SMS_NETWORK_PS_FIRST = 0x03,    /**< Packet switching preferred */
@@ -1851,8 +1827,7 @@ enum _MSG_SMS_NETWORK_MODE_E
  *  @brief  Enumeration for the value of period of playing alert tone. \n
  *	        The values for this type SHOULD be in MSG_ALERT_TONE_T.
  */
-enum _MSG_ALERT_TONE_E
-{
+enum _MSG_ALERT_TONE_E {
 	MSG_ALERT_TONE_ONCE,        /**< Play alert tone once*/
 	MSG_ALERT_TONE_2MINS,       /**< Repeat alarm in 2 mins*/
 	MSG_ALERT_TONE_5MINS,       /**< Repeat alarm in 5 mins*/
@@ -1864,8 +1839,7 @@ enum _MSG_ALERT_TONE_E
  *  @brief  Enumeration for the value of a default storage to save SMS. \n
  *	        The values for this type SHOULD be in MSG_SMS_SAVE_STORAGE_T.
  */
-enum _MSG_SMS_SAVE_STORAGE_E
-{
+enum _MSG_SMS_SAVE_STORAGE_E {
 	MSG_SMS_SAVE_STORAGE_SIM,           /**< Save SMS to SIM*/
 	MSG_SMS_SAVE_STORAGE_PHONE,         /**< Save SMS to phone*/
 };
@@ -1875,8 +1849,7 @@ enum _MSG_SMS_SAVE_STORAGE_E
  *  @brief  Enumeration for the values of the type of number for SMS center address. \n
  *	        This enum is used as the value of MSG_SMS_TON_T.
  */
-enum _MSG_SMS_TON_E
-{
+enum _MSG_SMS_TON_E {
 	MSG_TON_UNKNOWN = 0,            /**< Unknown */
 	MSG_TON_INTERNATIONAL,          /**< International */
 	MSG_TON_NATIONAL,               /**< National */
@@ -1892,8 +1865,7 @@ enum _MSG_SMS_TON_E
  *  @brief  Enumeration for the values of the numbering plan ID for SMS center address. \n
  *	        This enum is used as the value of MSG_SMS_NPI_T.
  */
-enum _MSG_SMS_NPI_E
-{
+enum _MSG_SMS_NPI_E {
 	MSG_NPI_UNKNOWN = 0,                        /**< Unknown */
 	MSG_NPI_ISDN = 1,                           /**< ISDN */
 	MSG_NPI_DATA = 3,                           /**< Data */
@@ -1910,8 +1882,7 @@ enum _MSG_SMS_NPI_E
  *  @brief  Enumeration for the values of the protocol ID for SMS center address. \n
  *	        This enum is used as the value of MSG_SMS_PID_T.
  */
-enum  _MSG_SMS_PID_E
-{
+enum  _MSG_SMS_PID_E {
 	MSG_PID_NONE,       /**< None */
 	MSG_PID_TEXT,       /**< Text */
 	MSG_PID_VOICE,      /**< Voice */
@@ -1933,8 +1904,7 @@ enum  _MSG_SMS_PID_E
  *	197 to 255 : (TP-VP - 192) x 1 week
  *
  */
-enum  _MSG_VAL_PERIOD_E
-{
+enum  _MSG_VAL_PERIOD_E {
 	MSG_VAL_ZERO = 0,               /**< Validity period is zero */
 	MSG_VAL_1DAY = 167,             /**< Validity period is 1 day */
 	MSG_VAL_2DAYS = 168,            /**< Validity period is 2 days */
@@ -1953,8 +1923,7 @@ enum  _MSG_VAL_PERIOD_E
  *  @brief  Enumeration for the values of the MMS expiry time. \n
  *	        This enum is used as the value of MSG_MMS_EXPIRY_TIME_T.
  */
-enum  _MSG_MMS_EXPIRY_TIME_E
-{
+enum  _MSG_MMS_EXPIRY_TIME_E {
 	MSG_EXPIRY_TIME_MAXIMUM = 0,            /**< Expiry time is zero */
 	MSG_EXPIRY_TIME_1DAY = 86400,           /**< Expiry time is 1 day */
 	MSG_EXPIRY_TIME_2DAYS = 2*86400,        /**< Expiry time is 2 days */
@@ -1967,8 +1936,7 @@ enum  _MSG_MMS_EXPIRY_TIME_E
  *  @brief  Enumeration for the values of the MMS delivery time. \n
  *	        This enum is used as the value of MSG_MMS_DELIVERY_TIME_T.
  */
-enum  _MSG_MMS_DELIVERY_TIME_E
-{
+enum  _MSG_MMS_DELIVERY_TIME_E {
 	MSG_DELIVERY_TIME_IMMEDIATLY = 0,           /**< Immediate MMS delivery */
 	MSG_DELIVERY_TIME_1HOUR = 3600,             /**< MMS delivery in 1 hour */
 	MSG_DELIVERY_TIME_1DAY = 86400,             /**< MMS delivery in 1 day */
@@ -1981,8 +1949,7 @@ enum  _MSG_MMS_DELIVERY_TIME_E
  *  @brief  Enumeration for the values of the MMS class type. \n
  *	        This enum is used as the value of MSG_MMS_MSG_CLASS_TYPE_T.
  */
-enum _MSG_MMS_MSG_CLASS_TYPE_E
-{
+enum _MSG_MMS_MSG_CLASS_TYPE_E {
 	MSG_CLASS_PERSONAL,             /**<Personal message class*/
 	MSG_CLASS_ADVERTISEMENT,        /**<Advertisement message class*/
 	MSG_CLASS_INFORMATIONAL,        /**<Informational message class */
@@ -1995,8 +1962,7 @@ enum _MSG_MMS_MSG_CLASS_TYPE_E
  *  @brief  Enumeration for the values of the MMS reply charging type. \n
  *	        This enum is used as the value of MSG_MMS_REPLY_CHARGING_TYPE_T.
  */
-enum _MSG_MMS_REPLY_CHARGING_TYPE_E
-{
+enum _MSG_MMS_REPLY_CHARGING_TYPE_E {
 	MSG_REPLY_CHARGING_NONE,                    /**<Reply-Charging none */
 	MSG_REPLY_CHARGING_REQUESTED,               /**<Reply-Charging requested */
 	MSG_REPLY_CHARGING_REQUESTED_TEXT_ONLY,     /**<Reply-Charging requested text-only */
@@ -2010,8 +1976,7 @@ enum _MSG_MMS_REPLY_CHARGING_TYPE_E
  *  @brief  Enumeration for the values of the MMS creation mode. \n
  *	        This enum is used as the value of MSG_MMS_CREATION_MODE_T.
  */
-enum _MSG_MMS_CREATION_MODE_E
-{
+enum _MSG_MMS_CREATION_MODE_E {
 	MSG_CREATION_MODE_RESTRICTED,           /**< MMS created in restricted mode */
 	MSG_CREATION_MODE_WARNING,              /**< MMS created in warning mode */
 	MSG_CREATION_MODE_FREE                  /**< MMS created in free mode */
@@ -2022,8 +1987,7 @@ enum _MSG_MMS_CREATION_MODE_E
  *  @brief  Enumeration for the values of the retrieve type for MMS home network. \n
  *	        This enum is used as the value of MSG_MMS_HOME_RETRIEVE_TYPE_T.
  */
-enum _MSG_MMS_HOME_RETRIEVE_TYPE_E
-{
+enum _MSG_MMS_HOME_RETRIEVE_TYPE_E {
 	MSG_HOME_AUTO_DOWNLOAD,             /**< Home auto download */
 	MSG_HOME_MANUAL,                    /**< Home manual */
 	MSG_HOME_RESTRICTED,                /**< Home restricted */
@@ -2036,8 +2000,7 @@ enum _MSG_MMS_HOME_RETRIEVE_TYPE_E
  *  @brief  Enumeration for the values of the retrieve type for MMS abroad network. \n
  *	        This enum is used as the value of MSG_MMS_ABROAD_RETRIEVE_TYPE_T.
  */
-enum _MSG_MMS_ABROAD_RETRIEVE_TYPE_E
-{
+enum _MSG_MMS_ABROAD_RETRIEVE_TYPE_E {
 	MSG_ABROAD_AUTO_DOWNLOAD,   /**< Abroad auto download */
 	MSG_ABROAD_MANUAL,          /**< Abroad manual */
 	MSG_ABROAD_RESTRICTED,      /**< Abroad restricted */
@@ -2050,8 +2013,7 @@ enum _MSG_MMS_ABROAD_RETRIEVE_TYPE_E
  *  @brief  Enumeration for the values of the frequency of sending MMS read report. \n
  *	        This enum is used as the value of MSG_MMS_SEND_READ_REPORT_T.
  */
-enum _MSG_MMS_SEND_READ_REPORT_E
-{
+enum _MSG_MMS_SEND_READ_REPORT_E {
 	MSG_SEND_READ_REPORT_ALWAYS,    /**< Read report always */
 	MSG_SEND_READ_REPORT_NEVER,     /**< Read report never */
 	MSG_SEND_READ_REPORT_REQUEST,   /**< Read report request */
@@ -2063,8 +2025,7 @@ enum _MSG_MMS_SEND_READ_REPORT_E
  *  @brief  Enumeration for the values of the service type for a push message. \n
  *	        This enum is used as the value of MSG_PUSH_SERVICE_TYPE_T.
  */
-enum _MSG_PUSH_SERVICE_TYPE_E
-{
+enum _MSG_PUSH_SERVICE_TYPE_E {
 	MSG_PUSH_SERVICE_ALWAYS,    /**< Push message service always */
 	MSG_PUSH_SERVICE_PROMPT,    /**< Push message service prompt */
 	MSG_PUSH_SERVICE_NEVER,     /**< Push message service never */
@@ -2075,8 +2036,7 @@ enum _MSG_PUSH_SERVICE_TYPE_E
  *  @brief  Enumeration for the values of the language type for a cell broadcasting message. \n
  *	        This enum is used as the value of MSG_CB_LANGUAGE_TYPE_T.
  */
-enum _MSG_CB_LANGUAGE_TYPE_E
-{
+enum _MSG_CB_LANGUAGE_TYPE_E {
 	MSG_CBLANG_TYPE_ALL,            /**< CB check all */
 	MSG_CBLANG_TYPE_ENG,            /**< CB message English  */
 	MSG_CBLANG_TYPE_GER,            /**< CB message Germany */
@@ -2094,8 +2054,7 @@ enum _MSG_CB_LANGUAGE_TYPE_E
  *  @brief  Enumeration for the values of SIM status. \n
  *	        This enum is used as the value of MSG_SIM_STATUS_T.
  */
-enum _MSG_SIM_STATUS_E
-{
+enum _MSG_SIM_STATUS_E {
 	MSG_SIM_STATUS_NORMAL = 0,          /**< SIM normal */
 	MSG_SIM_STATUS_CHANGED,             /**< SIM changed */
 	MSG_SIM_STATUS_NOT_FOUND,           /**< SIM not found */
@@ -2105,8 +2064,7 @@ enum _MSG_SIM_STATUS_E
  *  @brief  Enumeration for the values of a message ringtone type. \n
  *	        This enum is used as the value of MSG_RINGTONE_TYPE_T.
  */
-enum _MSG_RINGTONE_TYPE_E
-{
+enum _MSG_RINGTONE_TYPE_E {
 	MSG_RINGTONE_TYPE_DEFAULT = 0,  /**< Default ringtone type */
 	MSG_RINGTONE_TYPE_USER,         /**< User defined ringtone type */
 	MSG_RINGTONE_TYPE_SILENT        /**< Silent type */
@@ -2116,8 +2074,7 @@ enum _MSG_RINGTONE_TYPE_E
  *  @brief  Enumeration for the values of a SIM index(SIM slot number). \n
  *	        This enum is used as the value of msg_sim_slot_id_t.
  */
-enum _MSG_SIM_SLOT_ID_E
-{
+enum _MSG_SIM_SLOT_ID_E {
 	MSG_SIM_SLOT_ID_1 = 1,  /**SIM Slot #1 */
 	MSG_SIM_SLOT_ID_2,      /**SIM Slot #2 */
 };

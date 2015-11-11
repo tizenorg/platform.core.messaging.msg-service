@@ -1051,7 +1051,7 @@ typedef msg_error_t (*MsgPlgGetDefaultNetworkSimId) (int *simId);
 
 // framework defined callbacks.
 typedef void (*MsgPlgOnSentStatus)(MSG_SENT_STATUS_S *pSentStatus);
-typedef void (*MsgPlgOnStorageChange)(msg_storage_change_type_t storageChangeType, MSG_MESSAGE_INFO_S *pMsgInfo);
+typedef void (*MsgPlgOnStorageChange)(msg_storage_change_type_t storageChangeType, msg_id_list_s *pMsgIdList);
 typedef msg_error_t (*MsgPlgOnMsgIncoming)(MSG_MESSAGE_INFO_S *pMsgInfo);
 typedef msg_error_t (*MsgPlgOnInitSimBySat)(void);
 typedef msg_error_t (*MsgPlgOnSyncMLMsgIncoming)(MSG_SYNCML_MESSAGE_DATA_S *pSyncMLData);

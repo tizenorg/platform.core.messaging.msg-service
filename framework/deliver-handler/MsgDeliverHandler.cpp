@@ -199,7 +199,7 @@ msg_error_t MsgHandleMmsConfIncomingMsg(MSG_MESSAGE_INFO_S *pMsgInfo, msg_reques
 		MSG_SUB_TYPE_T subType = pMsgInfo->msgType.subType;
 
 		/* If Retrieve Failed, Msg SubType is remained as Notification Ind */
-		if (pMsgInfo->networkStatus == MSG_NETWORK_RETRIEVE_FAIL) {
+		if (pMsgInfo->networkStatus == MSG_NETWORK_RETRIEVE_FAIL || pMsgInfo->networkStatus == MSG_NETWORK_RETRIEVE_PENDING) {
 			pMsgInfo->folderId = MSG_INBOX_ID;
 			pMsgInfo->msgType.subType = MSG_NOTIFICATIONIND_MMS;
 		}
@@ -244,11 +244,11 @@ msg_error_t MsgHandleMmsConfIncomingMsg(MSG_MESSAGE_INFO_S *pMsgInfo, msg_reques
 
 			if (readStatus == true) {
 				MsgStoSetReadStatus(dbHandle, pMsgInfo->msgId, false);
-				MsgRefreshNotification(MSG_NOTI_TYPE_NORMAL, false, false);
+				MsgRefreshNotification(MSG_NOTI_TYPE_NORMAL, false, MSG_ACTIVE_NOTI_TYPE_NONE);
 			}
 		}
 
-		if (subType == MSG_RETRIEVE_AUTOCONF_MMS) {
+		if (subType == MSG_RETRIEVE_AUTOCONF_MMS && pMsgInfo->networkStatus == MSG_NETWORK_RETRIEVE_SUCCESS) {
 #ifndef MSG_CONTACTS_SERVICE_NOT_SUPPORTED
 			bool isFavorites = false;
 			if (!checkBlockingMode(pMsgInfo->addressList[0].addressVal, &isFavorites)) {
@@ -266,8 +266,10 @@ msg_error_t MsgHandleMmsConfIncomingMsg(MSG_MESSAGE_INFO_S *pMsgInfo, msg_reques
 		}  else if (subType == MSG_RETRIEVE_MANUALCONF_MMS) {
 			if (pMsgInfo->networkStatus == MSG_NETWORK_RETRIEVE_SUCCESS) {
 				MSG_DEBUG("Manual success");
+#if 0 //disable as per UX request to not show success notification : 2015.9.18
 				if (pMsgInfo->folderId == MSG_INBOX_ID)
 					MsgInsertTicker("Message Retrieved", MESSAGE_RETRIEVED, true, 0);
+#endif
 			} else if (pMsgInfo->networkStatus == MSG_NETWORK_RETRIEVE_FAIL) {
 				MSG_DEBUG("Manual failed");
 				MsgInsertTicker("Retrieving message failed", RETRIEVING_MESSAGE_FAILED, true, pMsgInfo->msgId);
@@ -280,8 +282,10 @@ msg_error_t MsgHandleMmsConfIncomingMsg(MSG_MESSAGE_INFO_S *pMsgInfo, msg_reques
 		if (plg == NULL)
 			return MSG_ERR_NULL_POINTER;
 
-		// change subType for storage update
-		pMsgInfo->msgType.subType = MSG_SENDCONF_MMS;
+		if (pMsgInfo->networkStatus == MSG_NETWORK_SEND_PENDING)
+			pMsgInfo->msgType.subType = MSG_SENDREQ_MMS;
+		else
+			pMsgInfo->msgType.subType = MSG_SENDCONF_MMS; // change subType for storage update
 
 		err = MsgStoUpdateMMSMessage(pMsgInfo);
 		if (err == MSG_SUCCESS)
@@ -430,13 +434,13 @@ msg_error_t MsgHandleSMS(MSG_MESSAGE_INFO_S *pMsgInfo, bool *pSendNoti, bool *bO
 		char keyName[MAX_VCONFKEY_NAME_LEN];
 		memset(keyName, 0x00, sizeof(keyName));
 		snprintf(keyName, sizeof(keyName), "%s/%d", VOICEMAIL_NUMBER, pMsgInfo->sim_idx);
-		char *number = MsgSettingGetString(keyName);
-		int addrSize = strlen(pMsgInfo->addressList[0].addressVal);
-		char newPhoneNum[addrSize+1];
-		memset(newPhoneNum, 0x00, sizeof(newPhoneNum));
-		MsgConvertNumber(pMsgInfo->addressList[0].addressVal, newPhoneNum, addrSize);
+		char *voiceNumber = MsgSettingGetString(keyName);
 
-		if (g_str_has_suffix(number, newPhoneNum)) {
+		if (voiceNumber) {
+			MSG_SEC_DEBUG("Voice Mail Number [%s]", voiceNumber);
+
+			memset(pMsgInfo->addressList[0].addressVal, 0x00, sizeof(pMsgInfo->addressList[0].addressVal));
+			snprintf(pMsgInfo->addressList[0].addressVal, sizeof(pMsgInfo->addressList[0].addressVal), "%s", voiceNumber);
 			memset(keyName, 0x00, sizeof(keyName));
 			snprintf(keyName, sizeof(keyName), "%s/%d", VOICEMAIL_ALPHA_ID, pMsgInfo->sim_idx);
 			char *alphaId = MsgSettingGetString(keyName);
@@ -446,12 +450,9 @@ msg_error_t MsgHandleSMS(MSG_MESSAGE_INFO_S *pMsgInfo, bool *pSendNoti, bool *bO
 				g_free(alphaId);
 				alphaId = NULL;
 			}
-		}
 
-		if(number)
-		{
-			g_free(number);
-			number = NULL;
+			free(voiceNumber);
+			voiceNumber = NULL;
 		}
 
 		memset(keyName, 0x00, sizeof(keyName));
@@ -494,6 +495,8 @@ msg_error_t MsgHandleSMS(MSG_MESSAGE_INFO_S *pMsgInfo, bool *pSendNoti, bool *bO
 #endif //MSG_CONTACTS_SERVICE_NOT_SUPPORTED
 			*pSendNoti = false;
 			*bOnlyNoti = false;
+
+			MsgInsertOnlyActiveNotification(MSG_NOTI_TYPE_CLASS0, pMsgInfo);
 		}
 	} else if ((pMsgInfo->msgType.subType >= MSG_WAP_SI_SMS) && (pMsgInfo->msgType.subType <= MSG_WAP_CO_SMS)) {
 		MSG_DEBUG("Starting WAP Message Incoming.");
@@ -596,6 +599,7 @@ msg_error_t MsgHandleSMS(MSG_MESSAGE_INFO_S *pMsgInfo, bool *pSendNoti, bool *bO
 				break;
 			case MSG_WAP_CO_SMS:
 				*pSendNoti = false;
+				MsgInsertOnlyActiveNotification(MSG_NOTI_TYPE_NORMAL, pMsgInfo);
 				break;
 		}
 #endif // MSG_WEARABLE_PROFILE
@@ -670,6 +674,7 @@ msg_error_t MsgHandleMMS(MSG_MESSAGE_INFO_S *pMsgInfo,  bool *pSendNoti)
 
 	// Add into DB
 	if ((pMsgInfo->msgType.subType == MSG_NOTIFICATIONIND_MMS) && bReject == false) {
+		/* It should send noti response even if MMS is blocked by sender address. */
 		//bFiltered = MsgCheckFilter(dbHandle, pMsgInfo);
 		if (pMsgInfo->folderId == MSG_SPAMBOX_ID) {
 			bFiltered = true;
@@ -692,6 +697,7 @@ msg_error_t MsgHandleMMS(MSG_MESSAGE_INFO_S *pMsgInfo,  bool *pSendNoti)
 			if (filterFlag == true && request.msgInfo.msgType.subType == MSG_GET_MMS) {
 				 /* Not to show MMS notification msg until it retrieves. */
 				pMsgInfo->folderId = MSG_IOSBOX_ID;
+				*pSendNoti = false;
 			}
 		}
 
@@ -740,7 +746,7 @@ msg_error_t MsgHandleMMS(MSG_MESSAGE_INFO_S *pMsgInfo,  bool *pSendNoti)
 		if (defaultNetworkSimId == pMsgInfo->sim_idx) {
 			request.msgInfo.msgId = pMsgInfo->msgId;
 
-			MSG_DEBUG("-=====================[[[ %s ]]]] =========================", request.msgInfo.msgData);
+			MSG_SEC_DEBUG("-=====================[[[ %s ]]]] =========================", request.msgInfo.msgData);
 			err = plg->submitReq(&request);
 
 			if (err == MSG_SUCCESS) {

@@ -25,13 +25,12 @@
 #include "MsgStorageTypes.h"
 #include "MsgSmil.h"
 #include "MsgSerialize.h"
+#include "MsgUtilMime.h"
 
 #include "MmsPluginDebug.h"
 #include "MmsPluginStorage.h"
 #include "MmsPluginMessage.h"
 #include "MmsPluginDrm.h"
-#include "MmsPluginMIME.h"
-#include "MmsPluginTcs.h"
 #include "MmsPluginUtil.h"
 #include "MmsPluginComposer.h"
 #include "MmsPluginAppBase.h"
@@ -116,7 +115,7 @@ msg_error_t MmsPluginStorage::addMmsMsgToDB(MmsMsg *pMmsMsg, const char *raw_fil
 
 	char sqlQuery[MAX_QUERY_LEN + 1];
 
-	// Add Message
+	/* Add Message */
 	memset(sqlQuery, 0x00, sizeof(sqlQuery));
 	snprintf(sqlQuery, sizeof(sqlQuery), "INSERT INTO %s VALUES (%d, '%s', '%s', '%s', '%s', '%s', %d, %d, %ld, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d);",
 			MMS_PLUGIN_MESSAGE_TABLE_NAME, pMmsMsg->msgID, pMmsMsg->szTrID, pMmsMsg->szMsgID, pMmsMsg->szForwardMsgID, pMmsMsg->szContentLocation,
@@ -124,7 +123,7 @@ msg_error_t MmsPluginStorage::addMmsMsgToDB(MmsMsg *pMmsMsg, const char *raw_fil
 			pMmsMsg->mmsAttrib.bAskDeliveryReport, pMmsMsg->mmsAttrib.bReportAllowed, pMmsMsg->mmsAttrib.readReportAllowedType,
 			pMmsMsg->mmsAttrib.bAskReadReply, pMmsMsg->mmsAttrib.bRead, pMmsMsg->mmsAttrib.readReportSendStatus, pMmsMsg->mmsAttrib.bReadReportSent,
 			pMmsMsg->mmsAttrib.priority, pMmsMsg->mmsAttrib.bLeaveCopy, pMmsMsg->mmsAttrib.msgSize, pMmsMsg->mmsAttrib.msgClass,
-			pMmsMsg->mmsAttrib.expiryTime.time,	0/*pMmsMsg->mmsAttrib.bUseDeliveryCustomTime*/, pMmsMsg->mmsAttrib.deliveryTime.time, pMmsMsg->mmsAttrib.msgStatus);
+			pMmsMsg->mmsAttrib.expiryTime.time,	0 /*pMmsMsg->mmsAttrib.bUseDeliveryCustomTime*/, pMmsMsg->mmsAttrib.deliveryTime.time, pMmsMsg->mmsAttrib.msgStatus);
 
 	MSG_DEBUG("\n!!!!!!!!! QUERY : %s\n", sqlQuery);
 
@@ -136,7 +135,7 @@ msg_error_t MmsPluginStorage::addMmsMsgToDB(MmsMsg *pMmsMsg, const char *raw_fil
 	return MSG_SUCCESS;
 }
 
-#if 1 //old
+#if 1 /* old */
 msg_error_t MmsPluginStorage::updateConfMessage(MSG_MESSAGE_INFO_S *pMsgInfo)
 {
 	MSG_BEGIN();
@@ -147,13 +146,13 @@ msg_error_t MmsPluginStorage::updateConfMessage(MSG_MESSAGE_INFO_S *pMsgInfo)
 
 	MMS_RECV_DATA_S *pMmsRecvData = (MMS_RECV_DATA_S *)pMsgInfo->msgData;
 
-	MSG_DEBUG("###### pMsgInfo->msgData = %s #######", pMmsRecvData->retrievedFilePath);
+	MSG_SEC_DEBUG("###### pMsgInfo->msgData = %s #######", pMmsRecvData->retrievedFilePath);
 
 	memset(sqlQuery, 0x00, sizeof(sqlQuery));
 	snprintf(sqlQuery, sizeof(sqlQuery), "UPDATE %s SET MESSAGE_ID = '%s', FILE_PATH = '%s' WHERE MSG_ID = %d;",
 			MMS_PLUGIN_MESSAGE_TABLE_NAME, pMmsRecvData->szMsgID, pMmsRecvData->retrievedFilePath, pMsgInfo->msgId);
 
-	MSG_DEBUG("SQLQuery = %s", sqlQuery);
+	MSG_SEC_DEBUG("SQLQuery = %s", sqlQuery);
 
 	if (dbHandle->execQuery(sqlQuery) != MSG_SUCCESS)
 		return MSG_ERR_DB_EXEC;
@@ -163,7 +162,7 @@ msg_error_t MmsPluginStorage::updateConfMessage(MSG_MESSAGE_INFO_S *pMsgInfo)
 	return MSG_SUCCESS;
 }
 
-#else //new
+#else /* new */
 
 msg_error_t MmsPluginStorage::updateRetriveConf(msg_message_id_t msgId, MMS_DATA_S *pMmsData)
 {
@@ -208,7 +207,7 @@ msg_error_t MmsPluginStorage::updateConfMessage(MSG_MESSAGE_INFO_S *pMsgInfo)
 	char working_dir[MSG_FILENAME_LEN_MAX+1] = {0,};
 	MMS_DATA_S *pMmsData = NULL;
 
-	//pMsgInfo->msgData is Filepath of json
+	/* pMsgInfo->msgData is Filepath of json */
 	g_file_get_contents((gchar*)pMsgInfo->msgData, (gchar**)&pSerializedMms, (gsize*)&pSerializedMmsSize, NULL);
 
 	if (MsgDeserializeMmsData(pSerializedMms, strlen(pSerializedMms), &pMmsData) != 0) {
@@ -220,9 +219,9 @@ msg_error_t MmsPluginStorage::updateConfMessage(MSG_MESSAGE_INFO_S *pMsgInfo)
 
 	snprintf(working_dir, sizeof(working_dir), MSG_DATA_PATH"%d.mms.dir", pMsgInfo->msgId);
 
-	MsgMmsSetMultipartListData(pMmsData);//app file -> data
+	MsgMmsSetMultipartListData(pMmsData); /* app file -> data */
 
-	MsgMmsSetMultipartListFilePath(working_dir, pMmsData);//data -> svc file
+	MsgMmsSetMultipartListFilePath(working_dir, pMmsData); /* data -> svc file */
 
 	MMS_MULTIPART_DATA_S *pSmilMultipart = pMmsData->smil;
 	if (pSmilMultipart) {
@@ -236,7 +235,7 @@ msg_error_t MmsPluginStorage::updateConfMessage(MSG_MESSAGE_INFO_S *pMsgInfo)
 		MmsPluginStorage::instance()->insertMultipart(pMsgInfo->msgId, pMultipart);
 	}
 
-	{//make Preview info for APP
+	{ /* make Preview info for APP */
 		MmsPluginAppBase appBase(pMmsData);
 		appBase.makePreviewInfo(pMsgInfo->msgId, true, NULL);
 		appBase.getFirstPageTextFilePath(pMsgInfo->msgText, sizeof(pMsgInfo->msgText));
@@ -281,8 +280,6 @@ msg_error_t MmsPluginStorage::updateMsgServerID(MSG_MESSAGE_INFO_S *pMsgInfo, MS
 		}
 	}
 
-	//dbHandle->finalizeQuery();
-
 	MSG_END();
 
 	return MSG_SUCCESS;
@@ -295,7 +292,7 @@ msg_error_t MmsPluginStorage::insertDeliveryReport(msg_message_id_t msgId, char 
 	char sqlQuery[MAX_QUERY_LEN + 1];
 	memset(sqlQuery, 0x00, sizeof(sqlQuery));
 
-	//( MSG_ID INTEGER , ADDRESS_VAL TEXT , STATUS_TYPE INTEGER , STATUS INTEGER DEFAULT 0 , TIME DATETIME);
+	/* ( MSG_ID INTEGER , ADDRESS_VAL TEXT , STATUS_TYPE INTEGER , STATUS INTEGER DEFAULT 0 , TIME DATETIME); */
 	snprintf(sqlQuery, sizeof(sqlQuery), "INSERT INTO %s "
 			"(MSG_ID, ADDRESS_VAL, STATUS_TYPE, STATUS, TIME) "
 			"VALUES (%d, '%s', %d, %d, %d);",
@@ -316,7 +313,7 @@ msg_error_t MmsPluginStorage::insertReadReport(msg_message_id_t msgId, char *add
 	char sqlQuery[MAX_QUERY_LEN + 1];
 	memset(sqlQuery, 0x00, sizeof(sqlQuery));
 
-	//( MSG_ID INTEGER , ADDRESS_VAL TEXT , STATUS_TYPE INTEGER , STATUS INTEGER DEFAULT 0 , TIME DATETIME);
+	/* ( MSG_ID INTEGER , ADDRESS_VAL TEXT , STATUS_TYPE INTEGER , STATUS INTEGER DEFAULT 0 , TIME DATETIME); */
 	snprintf(sqlQuery, sizeof(sqlQuery), "INSERT INTO %s "
 			"(MSG_ID, ADDRESS_VAL, STATUS_TYPE, STATUS, TIME) "
 			"VALUES (%d, '%s', %d, %d, %d);",
@@ -415,7 +412,7 @@ void MmsPluginStorage::getMmsFromDB(msg_message_id_t msgId, MmsMsg *pMmsMsg)
 		pMmsMsg->mmsAttrib.msgSize = dbHandle->columnInt(i++);
 		pMmsMsg->mmsAttrib.msgClass = (MmsMsgClass)dbHandle->columnInt(i++);
 		pMmsMsg->mmsAttrib.expiryTime.time = dbHandle->columnInt(i++);
-		i++;//CUSTOM_DELIVERY_TIME
+		i++; /* CUSTOM_DELIVERY_TIME */
 		pMmsMsg->mmsAttrib.deliveryTime.time = dbHandle->columnInt(i++);
 		pMmsMsg->mmsAttrib.msgStatus = (msg_delivery_report_status_t)dbHandle->columnInt(i++);
 		snprintf(pMmsMsg->szMsgID, sizeof(pMmsMsg->szMsgID), "%s", dbHandle->columnText(i++));
@@ -540,7 +537,7 @@ msg_error_t MmsPluginStorage::getAddressInfo(msg_message_id_t msgId, MSG_ADDRESS
 
 	char sqlQuery[MAX_QUERY_LEN+1];
 
-	// Add Address
+	/* Add Address */
 	memset(sqlQuery, 0x00, sizeof(sqlQuery));
 
 	snprintf(sqlQuery, sizeof(sqlQuery), "SELECT "
@@ -644,7 +641,7 @@ msg_error_t MmsPluginStorage::getMsgText(MMS_MESSAGE_DATA_S *pMmsMsg, char *pMsg
 	if (pMmsMsg == NULL)
 		return MSG_ERR_NULL_POINTER;
 
-	// Get the text data from the 1st slide.
+	/* Get the text data from the 1st slide. */
 	if (pMmsMsg->pageCnt > 0) {
 		pPage = _MsgMmsGetPage(pMmsMsg, 0);
 
@@ -657,7 +654,7 @@ msg_error_t MmsPluginStorage::getMsgText(MMS_MESSAGE_DATA_S *pMmsMsg, char *pMsg
 				if (pMedia && pMedia->mediatype == MMS_SMIL_MEDIA_TEXT) {
 
 					MimeType mimeType = MIME_UNKNOWN;
-					MmsGetMimeTypeFromFileName(MIME_MAINTYPE_UNKNOWN, pMedia->szFilePath, &mimeType, NULL);
+					MsgGetMimeTypeFromFileName(MIME_MAINTYPE_UNKNOWN, pMedia->szFilePath, &mimeType, NULL);
 
 					if (mimeType == MIME_TEXT_X_VCALENDAR || mimeType == MIME_TEXT_X_VCARD || mimeType == MIME_TEXT_X_VTODO || mimeType == MIME_TEXT_X_VNOTE) {
 						MSG_DEBUG("Media Type is Text, but Vobject file [%s]", pMedia->szFilePath);
@@ -687,7 +684,7 @@ msg_error_t MmsPluginStorage::insertPreviewInfo(int msgId, int type, const char 
 			"VALUES (%d, %d, \"%s\", %d);",
 			MSGFW_MMS_PREVIEW_TABLE_NAME, msgId, type, value, count);
 
-	MSG_DEBUG("QUERY : [%s]", sqlQuery);
+	MSG_SEC_DEBUG("QUERY : [%s]", sqlQuery);
 
 	if (dbHandle->execQuery(sqlQuery) != MSG_SUCCESS)
 		return MSG_ERR_DB_EXEC;
@@ -702,7 +699,7 @@ msg_error_t MmsPluginStorage::removePreviewInfo(int msgId)
 	char sqlQuery[MAX_QUERY_LEN + 1];
 	char filePath[MSG_FILEPATH_LEN_MAX + 1] = {0,};
 
-	// remove thumbnail file
+	/* remove thumbnail file */
 	memset(sqlQuery, 0x00, sizeof(sqlQuery));
 	snprintf(sqlQuery, sizeof(sqlQuery),
 			"SELECT VALUE FROM %s "
@@ -726,7 +723,7 @@ msg_error_t MmsPluginStorage::removePreviewInfo(int msgId)
 	dbHandle->finalizeQuery();
 
 	memset(sqlQuery, 0x00, sizeof(sqlQuery));
-	//(MSG_ID INTEGER, TYPE INTEGER, INFO TEXT)
+	/* (MSG_ID INTEGER, TYPE INTEGER, INFO TEXT) */
 	snprintf(sqlQuery, sizeof(sqlQuery),
 			"DELETE FROM %s WHERE MSG_ID= %d;",
 			MSGFW_MMS_PREVIEW_TABLE_NAME, msgId);
@@ -747,7 +744,7 @@ msg_error_t MmsPluginStorage::deleteMmsMessage(int msgId)
 	char filePath[MSG_FILEPATH_LEN_MAX + 1] = {0,};
 	char dirPath[MSG_FILEPATH_LEN_MAX + 1]= {0,};
 
-	//remove DB Preview
+	/* remove DB Preview */
 	removePreviewInfo(msgId);
 
 	deleteMultipartList(msgId);
@@ -765,16 +762,16 @@ msg_error_t MmsPluginStorage::deleteMmsMessage(int msgId)
 
 		snprintf(dirPath, MSG_FILEPATH_LEN_MAX, "%s.dir", filePath);
 
-		//delete pdu file
+		/* delete pdu file */
 		if (remove(filePath) == -1)
 			MSG_SEC_DEBUG("Fail to delete file [%s]", filePath);
 		else
 			MSG_SEC_DEBUG("Success to delete file [%s]", filePath);
 
-		//delete multipart files
+		/* delete multipart files */
 		MsgRmRf(dirPath);
 
-		//delete multipart dir
+		/* delete multipart dir */
 		rmdir(dirPath);
 
 	} else {
@@ -786,7 +783,7 @@ msg_error_t MmsPluginStorage::deleteMmsMessage(int msgId)
 	dbHandle->finalizeQuery();
 
 
-	// Delete Data from MMS table
+	/* Delete Data from MMS table */
 	memset(sqlQuery, 0x00, sizeof(sqlQuery));
 	snprintf(sqlQuery, sizeof(sqlQuery), "DELETE FROM %s WHERE MSG_ID = %d;",
 			MMS_PLUGIN_MESSAGE_TABLE_NAME, msgId);
@@ -795,7 +792,7 @@ msg_error_t MmsPluginStorage::deleteMmsMessage(int msgId)
 		return MSG_ERR_DB_EXEC;
 	}
 
-	// Delete Data from MMS STATUS table
+	/* Delete Data from MMS STATUS table */
 	memset(sqlQuery, 0x00, sizeof(sqlQuery));
 	snprintf(sqlQuery, sizeof(sqlQuery), "DELETE FROM %s WHERE MSG_ID = %d;",
 			MSGFW_REPORT_TABLE_NAME, msgId);
@@ -822,14 +819,14 @@ msg_error_t MmsPluginStorage::insertMultipart(msg_message_id_t msgId, MMS_MULTIP
 	}
 
 #if 0
-	//( MSG_ID INTEGER NOT NULL , SEQ INTEGER DEFAULT 0, CONTENT_TYPE TEXT, 	NAME TEXT, CHARSET INTEGER,	CONTENT_ID TEXT, CONTENT_LOCATION TEXT,	FILE_PATH TEXT, TEXT TEXT,);
-	if (pMultipart->type == MIME_APPLICATION_SMIL) {//Smil
+	/* ( MSG_ID INTEGER NOT NULL , SEQ INTEGER DEFAULT 0, CONTENT_TYPE TEXT, 	NAME TEXT, CHARSET INTEGER,	CONTENT_ID TEXT, CONTENT_LOCATION TEXT,	FILE_PATH TEXT, TEXT TEXT,); */
+	if (pMultipart->type == MIME_APPLICATION_SMIL) { /* Smil */
 		snprintf(sqlQuery, sizeof(sqlQuery), "INSERT INTO %s "
 				"(MSG_ID, SEQ, CONTENT_TYPE, NAME, CONTENT_ID, CONTENT_LOCATION, TEXT) "
 				"VALUES (%d, -1, '%s', '%s', '%s', '%s' , '%s');",
 				MSGFW_MMS_MULTIPART_TABLE_NAME, msgId, pMultipart->szContentType, pMultipart->szFileName, pMultipart->szContentID, pMultipart->szContentLocation, (char *)pMultipart->data);
 
-	} else if (MmsIsText(pMultipart->type)) {//Text
+	} else if (MmsIsText(pMultipart->type)) { /* Text */
 		snprintf(sqlQuery, sizeof(sqlQuery), "INSERT INTO %s "
 				"(MSG_ID, CONTENT_TYPE, NAME, CHARSET, CONTENT_ID, CONTENT_LOCATION, TEXT) "
 				"VALUES (%d, '%s', '%s', %d, '%s', '%s' ,'%s');",
@@ -842,27 +839,31 @@ msg_error_t MmsPluginStorage::insertMultipart(msg_message_id_t msgId, MMS_MULTIP
 	}
 #else
 
-	if (pMultipart->type == MIME_APPLICATION_SMIL) {//Smil
+	if (pMultipart->type == MIME_APPLICATION_SMIL) { /* Smil */
 		snprintf(sqlQuery, sizeof(sqlQuery), "INSERT INTO %s "
 						"(MSG_ID, SEQ, CONTENT_TYPE, NAME, CONTENT_ID, CONTENT_LOCATION, FILE_PATH) "
 						"VALUES (%d, -1, \"%s\", \"%s\", \"%s\", \"%s\", \"%s\");",
 						MSGFW_MMS_MULTIPART_TABLE_NAME, msgId, pMultipart->szContentType, pMultipart->szFileName, pMultipart->szContentID, pMultipart->szContentLocation, (char *)pMultipart->szFilePath);
 
+		MSG_SEC_DEBUG("QUERY : [%s]", sqlQuery);
+
+		if (dbHandle->execQuery(sqlQuery) != MSG_SUCCESS)
+			return MSG_ERR_DB_EXEC;
 	} else {
 		const char *pszMimeType = NULL;
 
 		if (strlen(pMultipart->szContentType) == 0) {
-			MmsGetMimeTypeFromFileName(MIME_MAINTYPE_UNKNOWN, pMultipart->szFilePath, &pMultipart->type, &pszMimeType);
+			MsgGetMimeTypeFromFileName(MIME_MAINTYPE_UNKNOWN, pMultipart->szFilePath, &pMultipart->type, &pszMimeType);
 			snprintf(pMultipart->szContentType, sizeof(pMultipart->szContentType), "%s", pszMimeType);
 			MSG_DEBUG("pMultipart->szContentType = %s", pMultipart->szContentType);
 		}
 
 		/* make tcs_bc_level & malware_allow value */
 		pMultipart->tcs_bc_level = -1;
-		//CID 41991: pMultipart->szFilePath is an array, hence checking for null is not required
+		/* CID 41991: pMultipart->szFilePath is an array, hence checking for null is not required */
 		if (strlen(pMultipart->szFilePath) > 0 && MsgAccessFile(pMultipart->szFilePath, F_OK) == true) {
 			int bc_level = -1;
-			int tcs_ret = 0; // MmsPluginTcsScanFile(pMultipart->szFilePath, &bc_level);
+			int tcs_ret = 0; // MsgTcsScanFile(pMultipart->szFilePath, &bc_level);
 			if (tcs_ret == 0) {
 				if (bc_level > -1) {
 					MSG_DEBUG("This content is malware, level = %d", bc_level);
@@ -874,7 +875,7 @@ msg_error_t MmsPluginStorage::insertMultipart(msg_message_id_t msgId, MMS_MULTIP
 
 		if (pMultipart->tcs_bc_level < 0 || pMultipart->malware_allow) {
 
-			if (g_str_has_prefix(pMultipart->szContentType, "video")) {
+			if (g_str_has_prefix(pMultipart->szContentType, "video") || g_str_has_prefix(pMultipart->szContentType, "image")) {
 				char thumbPath[MSG_FILEPATH_LEN_MAX+1] = {0, };
 
 				if (MmsMakeMultipartThumbnailInfo(pMultipart, thumbPath) == MSG_SUCCESS)
@@ -882,16 +883,52 @@ msg_error_t MmsPluginStorage::insertMultipart(msg_message_id_t msgId, MMS_MULTIP
 			}
 		}
 
-		snprintf(sqlQuery, sizeof(sqlQuery), "INSERT INTO %s "
+		if (!g_strcmp0(pMultipart->szContentType, "text/plain")) {
+			gchar *contents = NULL;
+			gsize length = 0;
+
+			if (MsgAccessFile(pMultipart->szFilePath, F_OK))
+				g_file_get_contents((gchar*)pMultipart->szFilePath, (gchar**)&contents, (gsize*)&length, NULL);
+
+			if (contents) {
+				snprintf(sqlQuery, sizeof(sqlQuery), "INSERT INTO %s "
+							"(MSG_ID, CONTENT_TYPE, NAME, CONTENT_ID, CONTENT_LOCATION, FILE_PATH, TCS_LEVEL, MALWARE_ALLOW, TEXT) "
+							"VALUES (%d, \"%s\", \"%s\", \"%s\", \"%s\", \"%s\", '%d', '%d', ?);",
+							MSGFW_MMS_MULTIPART_TABLE_NAME, msgId, pMultipart->szContentType, pMultipart->szFileName, pMultipart->szContentID, pMultipart->szContentLocation, pMultipart->szFilePath, pMultipart->tcs_bc_level, pMultipart->malware_allow);
+
+				MSG_SEC_DEBUG("QUERY : [%s]", sqlQuery);
+
+				if (dbHandle->prepareQuery(sqlQuery) != MSG_SUCCESS) {
+					g_free(contents);
+					return MSG_ERR_DB_EXEC;
+				}
+
+				dbHandle->bindText(contents, 1);
+
+				if (dbHandle->stepQuery() != MSG_ERR_DB_DONE) {
+					dbHandle->finalizeQuery();
+					g_free(contents);
+					return MSG_ERR_DB_EXEC;
+				}
+
+				dbHandle->finalizeQuery();
+				g_free(contents);
+			} else {
+				MSG_ERR("file contents is null!");
+			}
+		} else {
+			snprintf(sqlQuery, sizeof(sqlQuery), "INSERT INTO %s "
 						"(MSG_ID, CONTENT_TYPE, NAME, CONTENT_ID, CONTENT_LOCATION, FILE_PATH, TCS_LEVEL, MALWARE_ALLOW, THUMB_FILE_PATH) "
 						"VALUES (%d, \"%s\", \"%s\", \"%s\", \"%s\" ,\"%s\", '%d', '%d', \"%s\");",
-						MSGFW_MMS_MULTIPART_TABLE_NAME, msgId, pMultipart->szContentType, pMultipart->szFileName, pMultipart->szContentID, pMultipart->szContentLocation, (char *)pMultipart->szFilePath, pMultipart->tcs_bc_level, pMultipart->malware_allow, (char *)pMultipart->szThumbFilePath);
+						MSGFW_MMS_MULTIPART_TABLE_NAME, msgId, pMultipart->szContentType, pMultipart->szFileName, pMultipart->szContentID, pMultipart->szContentLocation, pMultipart->szFilePath, pMultipart->tcs_bc_level, pMultipart->malware_allow, pMultipart->szThumbFilePath);
+
+			MSG_SEC_DEBUG("QUERY : [%s]", sqlQuery);
+
+			if (dbHandle->execQuery(sqlQuery) != MSG_SUCCESS)
+				return MSG_ERR_DB_EXEC;
+		}
 	}
 #endif
-	MSG_DEBUG("QUERY : [%s]", sqlQuery);
-
-	if (dbHandle->execQuery(sqlQuery) != MSG_SUCCESS)
-		return MSG_ERR_DB_EXEC;
 
 	MSG_END();
 	return MSG_SUCCESS;
@@ -917,7 +954,7 @@ msg_error_t MmsPluginStorage::updateMultipart(msg_message_id_t msgId, int allow_
 
 		if (pMultipart->tcs_bc_level >= 0 || pMultipart->malware_allow) {
 
-			if (!strcasecmp(pMultipart->szContentType, "video")) {
+			if (!strcasecmp(pMultipart->szContentType, "video") || !strcasecmp(pMultipart->szContentType, "image")) {
 				char thumbPath[MSG_FILEPATH_LEN_MAX+1] = {0, };
 
 				if (MmsMakeMultipartThumbnailInfo(pMultipart, thumbPath) == MSG_SUCCESS)
@@ -946,8 +983,8 @@ msg_error_t MmsPluginStorage::deleteMultipartList(int msgId)
 	MsgDbHandler *dbHandle = getDbHandle();
 
 	char sqlQuery[MAX_QUERY_LEN + 1];
-	//char filePath[MSG_FILEPATH_LEN_MAX + 1] = {0,};
-	const char * filePath = NULL;
+/*	char filePath[MSG_FILEPATH_LEN_MAX + 1] = {0,}; */
+	const char *filePath = NULL;
 	memset(sqlQuery, 0x00, sizeof(sqlQuery));
 	snprintf(sqlQuery, sizeof(sqlQuery), "SELECT FILE_PATH FROM %s WHERE MSG_ID = %d;",
 			MSGFW_MMS_MULTIPART_TABLE_NAME, msgId);
@@ -994,7 +1031,7 @@ msg_error_t MmsPluginStorage::deleteMultipartList(int msgId)
 
 	dbHandle->finalizeQuery();
 
-	// Delete Data from Multipart table
+	/* Delete Data from Multipart table */
 	memset(sqlQuery, 0x00, sizeof(sqlQuery));
 	snprintf(sqlQuery, sizeof(sqlQuery), "DELETE FROM %s WHERE MSG_ID = %d;",
 			MSGFW_MMS_MULTIPART_TABLE_NAME, msgId);
@@ -1085,17 +1122,17 @@ msg_error_t MmsPluginStorage::addMmsData(msg_message_id_t msgId, const char *raw
 			, MMS_PLUGIN_MESSAGE_TABLE_NAME
 			, msgId, pHeader->trID, pHeader->messageID, "", pHeader->contentLocation
 			, raw_filepath, pHeader->mmsVersion, MMS_DATATYPE_NONE, pHeader->date, pHeader->bHideAddress
-			, pHeader->bDeliveryReport, 0 /*pMmsMsg->mmsAttrib.bReportAllowed*/, 0/*pMmsMsg->mmsAttrib.readReportAllowedType*/
-			, pHeader->bReadReport, 0 /*pMmsMsg->mmsAttrib.bRead*/, 0/*pMmsMsg->mmsAttrib.readReportSendStatus*/, 0 /*pMmsMsg->mmsAttrib.bReadReportSent*/
-			, pHeader->mmsPriority, true/*pMmsMsg->mmsAttrib.bLeaveCopy*/,pHeader->messageSize, pHeader->messageClass
+			, pHeader->bDeliveryReport, 0 /*pMmsMsg->mmsAttrib.bReportAllowed*/, 0 /*pMmsMsg->mmsAttrib.readReportAllowedType*/
+			, pHeader->bReadReport, 0 /*pMmsMsg->mmsAttrib.bRead*/, 0 /*pMmsMsg->mmsAttrib.readReportSendStatus*/, 0 /*pMmsMsg->mmsAttrib.bReadReportSent*/
+			, pHeader->mmsPriority, true /*pMmsMsg->mmsAttrib.bLeaveCopy*/,pHeader->messageSize, pHeader->messageClass
 			, pHeader->expiry.time, 0, pHeader->delivery.time, pHeader->mmsStatus);
 
 	msg_error_t db_err = dbHandle->execQuery(sqlQuery);
 	if (db_err != MSG_SUCCESS) {
-		MSG_ERR("execute query fail [%s], err = [%d]", sqlQuery, db_err);
+		MSG_SEC_ERR("execute query fail [%s], err = [%d]", sqlQuery, db_err);
 		return MSG_ERR_DB_EXEC;
 	} else {
-		MSG_DEBUG("execute query success [%s]", sqlQuery);
+		MSG_SEC_DEBUG("execute query success [%s]", sqlQuery);
 	}
 
 	MMS_MULTIPART_DATA_S *smil = pMmsData->smil;
@@ -1153,34 +1190,33 @@ msg_error_t MmsPluginStorage::getMmsData(msg_message_id_t msgId, MMS_DATA_S *pMm
 
 	if (db_err != MSG_SUCCESS) {
 		MSG_ERR("prepare query fail [%s], err = [%d]", sqlQuery, db_err);
-		//dbHandle->finalizeQuery();
 		return MSG_ERR_PLUGIN_STORAGE;
 	}
 
 	if (dbHandle->stepQuery() == MSG_ERR_DB_ROW) {
 		int i = 0;
 		pHeader->mmsVersion = dbHandle->columnInt(i++);
-		i++;//pMmsMsg->mmsAttrib.dataType = (MmsDataType)dbHandle->columnInt(i++);
+		i++; /* pMmsMsg->mmsAttrib.dataType = (MmsDataType)dbHandle->columnInt(i++); */
 		pHeader->date = dbHandle->columnInt(i++);
 		pHeader->bHideAddress = dbHandle->columnInt(i++);
 		pHeader->bDeliveryReport = dbHandle->columnInt(i++);
-		i++;//pMmsMsg->mmsAttrib.bReportAllowed = dbHandle->columnInt(i++);
-		i++;//pMmsMsg->mmsAttrib.readReportAllowedType = (MmsRecvReadReportType)dbHandle->columnInt(i++);
+		i++; /* pMmsMsg->mmsAttrib.bReportAllowed = dbHandle->columnInt(i++); */
+		i++; /* pMmsMsg->mmsAttrib.readReportAllowedType = (MmsRecvReadReportType)dbHandle->columnInt(i++); */
 		pHeader->bReadReport = dbHandle->columnInt(i++);
-		i++;//pMmsMsg->mmsAttrib.bRead = dbHandle->columnInt(i++);
-		i++;//pMmsMsg->mmsAttrib.readReportSendStatus = (MmsRecvReadReportSendStatus)dbHandle->columnInt(i++);
-		i++;//pMmsMsg->mmsAttrib.bReadReportSent = dbHandle->columnInt(i++);
+		i++; /* pMmsMsg->mmsAttrib.bRead = dbHandle->columnInt(i++); */
+		i++; /* pMmsMsg->mmsAttrib.readReportSendStatus = (MmsRecvReadReportSendStatus)dbHandle->columnInt(i++); */
+		i++; /* pMmsMsg->mmsAttrib.bReadReportSent = dbHandle->columnInt(i++); */
 		pHeader->mmsPriority = (MmsPriority)dbHandle->columnInt(i++);
 		pHeader->messageSize = dbHandle->columnInt(i++);
 		pHeader->messageClass = (MmsMsgClass)dbHandle->columnInt(i++);
 		pHeader->expiry.time = dbHandle->columnInt(i++);
-		i++;//CUSTOM_DELIVERY_TIME
+		i++; /* CUSTOM_DELIVERY_TIME */
 		pHeader->delivery.time = dbHandle->columnInt(i++);
-		i++;//pMmsMsg->mmsAttrib.msgStatus = (msg_delivery_report_status_t)dbHandle->columnInt(i++);
+		i++; /* pMmsMsg->mmsAttrib.msgStatus = (msg_delivery_report_status_t)dbHandle->columnInt(i++); */
 		snprintf(pHeader->messageID, sizeof(pHeader->messageID), "%s", dbHandle->columnText(i++));
 		snprintf(pHeader->trID, sizeof(pHeader->trID), "%s", dbHandle->columnText(i++));
 		snprintf(pHeader->contentLocation, sizeof(pHeader->contentLocation), "%s", dbHandle->columnText(i++));
-		i++;//snprintf(pMmsMsg->szFileName, sizeof(pMmsMsg->szFileName), "%s", dbHandle->columnText(i++));
+		i++; /* snprintf(pMmsMsg->szFileName, sizeof(pMmsMsg->szFileName), "%s", dbHandle->columnText(i++)); */
 	}
 
 	dbHandle->finalizeQuery();
@@ -1206,7 +1242,7 @@ msg_error_t MmsPluginStorage::getMmsData(msg_message_id_t msgId, MMS_DATA_S *pMm
 					gchar *contents = NULL;
 					gsize length = 0;
 
-					g_file_get_contents ((gchar*)smil_multipart->szFilePath, (gchar**)&contents, (gsize*)&length, NULL);
+					g_file_get_contents((gchar*)smil_multipart->szFilePath, (gchar**)&contents, (gsize*)&length, NULL);
 
 					smil_multipart->pMultipartData = contents;
 					smil_multipart->nMultipartDataLen = length;
@@ -1232,7 +1268,7 @@ msg_error_t MmsPluginStorage::getMmsData(msg_message_id_t msgId, MMS_DATA_S *pMm
 }
 
 msg_error_t MmsPluginStorage::addMessage(MSG_MESSAGE_INFO_S *pMsgInfo, MSG_SENDINGOPT_INFO_S *pSendOptInfo, char *pSerializedMms)
-{//send request or notification ind
+{ /* send request or notification ind */
 	MSG_BEGIN();
 
 	msg_error_t	err = MSG_SUCCESS;
@@ -1248,33 +1284,33 @@ msg_error_t MmsPluginStorage::addMessage(MSG_MESSAGE_INFO_S *pMsgInfo, MSG_SENDI
 		char raw_filepath[MSG_FILENAME_LEN_MAX+1] = {0,};
 		char working_dir[MSG_FILENAME_LEN_MAX+1] = {0,};
 
-		//compose
+		/* compose */
 		MmsPluginComposer::instance()->composeSendReq(pMsgInfo, pSendOptInfo, pMmsData);
 
-		//encode
+		/* encode */
 		snprintf(working_dir, sizeof(working_dir), MSG_DATA_PATH"%d.mms.dir", pMsgInfo->msgId);
 
-		MsgMmsSetMultipartListData(pMmsData);//app file -> data
+		MsgMmsSetMultipartListData(pMmsData); /* app file -> data */
 
-		MsgMmsSetMultipartListFilePath(working_dir, pMmsData);//data -> svc file
+		MsgMmsSetMultipartListFilePath(working_dir, pMmsData); /* data -> svc file */
 
 		snprintf(raw_filepath, sizeof(raw_filepath), "%s%d.mms", MSG_DATA_PATH, pMsgInfo->msgId);
 
 		MmsPluginEncoder::instance()->encodeMmsPdu(pMmsData, pMsgInfo->msgId, raw_filepath);
 
-		//add to db
+		/* add to db */
 		if (addMmsData(pMsgInfo->msgId, raw_filepath, pMmsData) != MSG_SUCCESS) {
 			MSG_DEBUG("Fail to add db message");
 			goto __CATCH;
 		}
 
-		//set
+		/* set */
 		if (MsgGetFileSize(raw_filepath, (int *)&pMsgInfo->dataSize) == false) {
 			MSG_SEC_DEBUG("Fail to get mms file size [%s]", raw_filepath);
 			goto __CATCH;
 		}
 
-		{//make Preview info for APP
+		{ /* make Preview info for APP */
 			MmsPluginAppBase appBase(pMmsData);
 			appBase.makePreviewInfo(pMsgInfo->msgId, true, raw_filepath);
 			appBase.getFirstPageTextFilePath(pMsgInfo->msgText, sizeof(pMsgInfo->msgText));
@@ -1287,33 +1323,33 @@ msg_error_t MmsPluginStorage::addMessage(MSG_MESSAGE_INFO_S *pMsgInfo, MSG_SENDI
 		char raw_filepath[MSG_FILENAME_LEN_MAX+1] = {0,};
 		char working_dir[MSG_FILENAME_LEN_MAX+1] = {0,};
 
-		//compose
+		/* compose */
 		MmsPluginComposer::instance()->composeRetrieveConf(pMsgInfo, pSendOptInfo, pMmsData);
 
-		//encode
+		/* encode */
 		snprintf(working_dir, sizeof(working_dir), MSG_DATA_PATH"%d.mms.dir", pMsgInfo->msgId);
 
-		MsgMmsSetMultipartListData(pMmsData);//app file -> data
+		MsgMmsSetMultipartListData(pMmsData); /* app file -> data */
 
-		MsgMmsSetMultipartListFilePath(working_dir, pMmsData);//data -> svc file
+		MsgMmsSetMultipartListFilePath(working_dir, pMmsData); /* data -> svc file */
 
 		snprintf(raw_filepath, sizeof(raw_filepath), "%s%d.mms", MSG_DATA_PATH, pMsgInfo->msgId);
 
 		MmsPluginEncoder::instance()->encodeMmsPdu(pMmsData, pMsgInfo->msgId, raw_filepath);
 
-		//add to db
+		/* add to db */
 		if (addMmsData(pMsgInfo->msgId, raw_filepath, pMmsData) != MSG_SUCCESS) {
 			MSG_DEBUG("Fail to add db message");
 			goto __CATCH;
 		}
 
-		//set
+		/* set */
 		if (MsgGetFileSize(raw_filepath, (int *)&pMsgInfo->dataSize) == false) {
 			MSG_SEC_DEBUG("Fail to get mms file size [%s]", raw_filepath);
 			goto __CATCH;
 		}
 
-		{//make Preview info for APP
+		{ /* make Preview info for APP */
 			MmsPluginAppBase *appBase;
 			appBase = new MmsPluginAppBase(pMmsData);
 			appBase->makePreviewInfo(pMsgInfo->msgId, true, raw_filepath);
@@ -1359,7 +1395,8 @@ msg_error_t MmsPluginStorage::updateMessage(MSG_MESSAGE_INFO_S *pMsgInfo, MSG_SE
 
 	MMS_DATA_S *pMmsData = NULL;
 
-	if (MsgDeserializeMmsData(pSerializedMms, strlen(pSerializedMms), &pMmsData) != 0) {
+	/* CID 12917: strlen will give exception in case of NULL, hence the check of pSerializedMms */
+	if (pSerializedMms == NULL || MsgDeserializeMmsData(pSerializedMms, strlen(pSerializedMms), &pMmsData) != 0) {
 		MSG_DEBUG("Fail to Deserialize Message Data");
 		goto __CATCH;
 	}
@@ -1370,15 +1407,15 @@ msg_error_t MmsPluginStorage::updateMessage(MSG_MESSAGE_INFO_S *pMsgInfo, MSG_SE
 		char raw_filepath[MSG_FILENAME_LEN_MAX+1] = {0,};
 		char working_dir[MSG_FILENAME_LEN_MAX+1] = {0,};
 
-		//compose
+		/* compose */
 		MmsPluginComposer::instance()->composeSendReq(pMsgInfo, pSendOptInfo, pMmsData);
 
-		//encode
+		/* encode */
 		snprintf(raw_filepath, sizeof(raw_filepath), "%s%d.mms", MSG_DATA_PATH, pMsgInfo->msgId);
 
 		MmsPluginEncoder::instance()->encodeMmsPdu(pMmsData, pMsgInfo->msgId, raw_filepath);
 
-		//add to db
+		/* add to db */
 		memset(sqlQuery, 0x00, sizeof(sqlQuery));
 		snprintf(sqlQuery, sizeof(sqlQuery), "UPDATE %s SET ASK_DELIVERY_REPORT = %d, KEEP_COPY = %d, ASK_READ_REPLY = %d, EXPIRY_TIME = %d, CUSTOM_DELIVERY_TIME = %d, DELIVERY_TIME= %d, PRIORITY = %d \
 				WHERE MSG_ID = %d;", MMS_PLUGIN_MESSAGE_TABLE_NAME, pSendOptInfo->bDeliverReq, pSendOptInfo->bKeepCopy, pSendOptInfo->option.mmsSendOptInfo.bReadReq,
@@ -1386,20 +1423,20 @@ msg_error_t MmsPluginStorage::updateMessage(MSG_MESSAGE_INFO_S *pMsgInfo, MSG_SE
 				pSendOptInfo->option.mmsSendOptInfo.priority, pMsgInfo->msgId);
 
 		if (dbHandle->execQuery(sqlQuery) != MSG_SUCCESS) {
-			//CID 41997: Releasing pMmsDta in case of failure
+			/* CID 41997: Releasing pMmsDta in case of failure */
 			MsgMmsRelease(&pMmsData);
 			return MSG_ERR_DB_EXEC;
 		}
 
 		snprintf(working_dir, sizeof(working_dir), MSG_DATA_PATH"%d.mms.dir", pMsgInfo->msgId);
 
-		MsgMmsSetMultipartListData(pMmsData);//app file -> data
+		MsgMmsSetMultipartListData(pMmsData); /* app file -> data */
 
-		MmsPluginStorage::instance()->deleteMultipartList(pMsgInfo->msgId); //remove exist multipart
+		MmsPluginStorage::instance()->deleteMultipartList(pMsgInfo->msgId); /* remove exist multipart */
 
-		MsgMmsSetMultipartListFilePath(working_dir, pMmsData);//data -> svc file
+		MsgMmsSetMultipartListFilePath(working_dir, pMmsData); /* data -> svc file */
 
-		{//add multipart list
+		{ /* add multipart list */
 			if (pMmsData->smil) {
 				pMmsData->smil->type = MIME_APPLICATION_SMIL;
 				insertMultipart(pMsgInfo->msgId, pMmsData->smil);
@@ -1419,15 +1456,15 @@ msg_error_t MmsPluginStorage::updateMessage(MSG_MESSAGE_INFO_S *pMsgInfo, MSG_SE
 			}
 		}
 
-		//set
+		/* set */
 		if (MsgGetFileSize(raw_filepath, (int *)&pMsgInfo->dataSize) == false) {
 			MSG_SEC_DEBUG("Fail to get mms file size [%s]", raw_filepath);
-			//CID 41997: Releasing pMmsDta in case of failure
+			/* CID 41997: Releasing pMmsDta in case of failure */
 			MsgMmsRelease(&pMmsData);
 			goto __CATCH;
 		}
 
-		{//make Preview info for APP
+		{ /* make Preview info for APP */
 			MmsPluginAppBase *appBase;
 			appBase = new MmsPluginAppBase(pMmsData);
 			appBase->makePreviewInfo(pMsgInfo->msgId, true, raw_filepath);
@@ -1471,29 +1508,29 @@ msg_error_t MmsPluginStorage::getMessage(MSG_MESSAGE_INFO_S *pMsg, MSG_SENDINGOP
 	pMmsData->header = pHeader;
 
 	switch(pMsg->msgType.subType) {
-		case MSG_SENDREQ_MMS:
-			pHeader->messageType = MMS_MSGTYPE_SEND_REQ;
-			break;
-		case MSG_SENDCONF_MMS:
-			pHeader->messageType = MMS_MSGTYPE_SEND_CONF;
-			break;
-		case MSG_RETRIEVE_MMS:
-			pHeader->messageType = MMS_MSGTYPE_RETRIEVE_CONF;
-			break;
-		case MSG_RETRIEVE_AUTOCONF_MMS:
-			pHeader->messageType = MMS_MSGTYPE_RETRIEVE_CONF;
-			break;
-		case MSG_RETRIEVE_MANUALCONF_MMS:
-			pHeader->messageType = MMS_MSGTYPE_RETRIEVE_CONF;
-			break;
-		case MSG_NOTIFICATIONIND_MMS:
-			pHeader->messageType = MMS_MSGTYPE_NOTIFICATION_IND;
-			break;
-		default:
-			break;
+	case MSG_SENDREQ_MMS:
+		pHeader->messageType = MMS_MSGTYPE_SEND_REQ;
+		break;
+	case MSG_SENDCONF_MMS:
+		pHeader->messageType = MMS_MSGTYPE_SEND_CONF;
+		break;
+	case MSG_RETRIEVE_MMS:
+		pHeader->messageType = MMS_MSGTYPE_RETRIEVE_CONF;
+		break;
+	case MSG_RETRIEVE_AUTOCONF_MMS:
+		pHeader->messageType = MMS_MSGTYPE_RETRIEVE_CONF;
+		break;
+	case MSG_RETRIEVE_MANUALCONF_MMS:
+		pHeader->messageType = MMS_MSGTYPE_RETRIEVE_CONF;
+		break;
+	case MSG_NOTIFICATIONIND_MMS:
+		pHeader->messageType = MMS_MSGTYPE_NOTIFICATION_IND;
+		break;
+	default:
+		break;
 	}
 
-	err = getMmsData(pMsg->msgId, pMmsData); // get MmsData Info from DB
+	err = getMmsData(pMsg->msgId, pMmsData); /* get MmsData Info from DB */
 
 	if (err == MSG_SUCCESS) {
 
@@ -1507,7 +1544,7 @@ msg_error_t MmsPluginStorage::getMessage(MSG_MESSAGE_INFO_S *pMsg, MSG_SENDINGOP
 			pSendOptInfo->option.mmsSendOptInfo.deliveryTime.time = pHeader->delivery.time;
 		}
 
-		//MsgMmsSetMultipartListData(pMmsData);
+		/* MsgMmsSetMultipartListData(pMmsData); */
 		int mmsDataSize = MsgSerializeMms(pMmsData, pSerializedMms);
 		if (mmsDataSize > 0) {
 			pMsg->dataSize = mmsDataSize;
@@ -1519,7 +1556,7 @@ msg_error_t MmsPluginStorage::getMessage(MSG_MESSAGE_INFO_S *pMsg, MSG_SENDINGOP
 		MSG_ERR("getMmsData fail, err = [%d]",  err);
 	}
 
-	//Release pMmsData
+	/* Release pMmsData */
 	MsgMmsRelease(&pMmsData);
 	MSG_END();
 
@@ -1530,7 +1567,7 @@ msg_error_t MmsPluginStorage::updateMessage(MSG_MESSAGE_INFO_S *pMsgInfo)
 {
 	MSG_BEGIN();
 
-	//update multipart list
+	/* update multipart list */
 	MMSList *multipart_list = NULL;
 	if (MmsPluginStorage::instance()->getMultipartList(pMsgInfo->msgId, &multipart_list) != MSG_SUCCESS)
 		return -1;
@@ -1540,7 +1577,7 @@ msg_error_t MmsPluginStorage::updateMessage(MSG_MESSAGE_INFO_S *pMsgInfo)
 		MmsPluginStorage::instance()->updateMultipart(pMsgInfo->msgId, true, pMultipart);
 	}
 
-	//update preview
+	/* update preview */
 	char szFullPath[MSG_FILEPATH_LEN_MAX] = {0, };
 	MmsMsg *mmsMsg = NULL;
 	unique_ptr<MmsMsg*, void(*)(MmsMsg**)> buf(&mmsMsg, unique_ptr_deleter);
@@ -1549,7 +1586,7 @@ msg_error_t MmsPluginStorage::updateMessage(MSG_MESSAGE_INFO_S *pMsgInfo)
 
 	MmsPluginStorage::instance()->getMmsRawFilePath(pMsgInfo->msgId, szFullPath, sizeof(szFullPath));
 	MmsPluginDecoder::instance()->decodeMmsPdu(mmsMsg, pMsgInfo->msgId, szFullPath);
-	{//make Preview info for APP
+	{ /* make Preview info for APP */
 		MmsPluginAppBase *appBase;
 		appBase = new MmsPluginAppBase(mmsMsg);
 		appBase->makePreviewInfo(pMsgInfo->msgId, true, szFullPath);
@@ -1569,10 +1606,10 @@ int MmsPluginStorage::checkDuplicateNotification(char* pszTrID, char* pszContent
 	if (!pszTrID || strlen(pszTrID) == 0)
 		return 0;
 
-	if(!pszContentLocation || strlen(pszContentLocation) == 0)
+	if (!pszContentLocation || strlen(pszContentLocation) == 0)
 		return 0;
 
-	MSG_DEBUG("Trans Id = %s, Content Loc = %s", pszTrID, pszContentLocation);
+	MSG_SEC_DEBUG("Trans Id = %s, Content Loc = %s", pszTrID, pszContentLocation);
 
 	int msgId = 0;
 	msg_error_t err = MSG_SUCCESS;
@@ -1588,7 +1625,7 @@ int MmsPluginStorage::checkDuplicateNotification(char* pszTrID, char* pszContent
 			WHERE TRANSACTION_ID LIKE '%s' AND CONTENTS_LOCATION LIKE '%s'",
 			MMS_PLUGIN_MESSAGE_TABLE_NAME, pszTrID, pszContentLocation);
 
-	MSG_DEBUG("sqlQuery [%s]", sqlQuery);
+	MSG_SEC_DEBUG("sqlQuery [%s]", sqlQuery);
 
 	err = dbHandle->getTable(sqlQuery, &rowCnt, NULL);
 

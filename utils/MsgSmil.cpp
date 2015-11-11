@@ -21,6 +21,7 @@
 #include "MsgMmsMessage.h"
 #include "MsgInternalTypes.h"
 #include "MsgSmil.h"
+#include "MsgUtilFunction.h"
 #include "MsgDebug.h"
 
 #define INVALID_HOBJ	-1
@@ -957,7 +958,7 @@ bool MsgSmilAddRegion(HMsgSmil hSmilDoc, MMS_SMIL_REGION *pstSmilRegion)
 	}
 }
 
-bool MsgSmilAddMedia( HMsgSmil hSmilDoc, int nPageNo, int nMediaIdx, MMS_MEDIA_S *pstSmilMedia, char *pszContentID)
+bool MsgSmilAddMedia(HMsgSmil hSmilDoc, int nPageNo, int nMediaIdx, MMS_MEDIA_S *pstSmilMedia, char *pszContentID)
 {
 	int nSmilDocNo = hSmilDoc;
 
@@ -1000,7 +1001,20 @@ bool MsgSmilAddMedia( HMsgSmil hSmilDoc, int nPageNo, int nMediaIdx, MMS_MEDIA_S
 		else
 			snprintf(pszContentID, MSG_MSG_ID_LEN+1, "%lu_%lu", (unsigned long)nPageNo, (unsigned long)nMediaIdx);
 
-		snprintf(pstSmilMedia->szContentLocation, sizeof(pstSmilMedia->szContentLocation), "%s", pstSmilMedia->szFileName);
+		/* remove space character in content location */
+		msg_replace_space_char(pstSmilMedia->szFileName);
+
+		memset(pstSmilMedia->szContentLocation, 0, sizeof(pstSmilMedia->szContentLocation));
+		gchar *tmpContentLoc = msg_replace_non_ascii_char(pstSmilMedia->szFileName, '_');
+		if (tmpContentLoc) {
+			MSG_SEC_DEBUG("tmpContentLoc = [%s]", tmpContentLoc);
+			snprintf(pstSmilMedia->szContentLocation, sizeof(pstSmilMedia->szContentLocation), "%s", tmpContentLoc);
+			g_free(tmpContentLoc);
+			tmpContentLoc = NULL;
+		} else {
+			MSG_WARN("tmpContentLoc is NULL.");
+			snprintf(pstSmilMedia->szContentLocation, sizeof(pstSmilMedia->szContentLocation), "%s", pstSmilMedia->szFileName);
+		}
 
 		/* Create <media> node and insert set attribute */
 		switch (pstSmilMedia->mediatype) {
@@ -1093,7 +1107,7 @@ xmlNode *MsgSmilCreateTextNode(MMS_MEDIA_S *pstSmilMedia, char *pszContentID)
 
 			if (NULL == pstParam) {
 				MSG_DEBUG("Cannot create <param> node");
-				return false;
+				return NULL;
 			}
 
 			xmlSetProp(pstParam, (const xmlChar *)"name", (const xmlChar *)"foreground-color");
@@ -1109,7 +1123,7 @@ xmlNode *MsgSmilCreateTextNode(MMS_MEDIA_S *pstSmilMedia, char *pszContentID)
 
 			if (NULL == pstParam) {
 				MSG_DEBUG("Cannot create <param> node");
-				return false;
+				return NULL;
 			}
 
 			xmlSetProp(pstParam, (const xmlChar *)"name", (const xmlChar *)"background-color");
@@ -1124,7 +1138,7 @@ xmlNode *MsgSmilCreateTextNode(MMS_MEDIA_S *pstSmilMedia, char *pszContentID)
 			pstParam = xmlNewNode(NULL, (xmlChar *)"param");
 			if (NULL == pstParam) {
 				MSG_DEBUG(" __MmsCreateTextNode: cannot create <param> node");
-				return false;
+				return NULL;
 			}
 
 			if (pstSmilMedia->sMedia.sText.nSize  <= MMS_SMIL_FONT_SIZE_SMALL) {
@@ -1147,7 +1161,7 @@ xmlNode *MsgSmilCreateTextNode(MMS_MEDIA_S *pstSmilMedia, char *pszContentID)
 			pstParam = xmlNewNode(NULL, (xmlChar *)"param");
 			if (NULL == pstParam) {
 				MSG_DEBUG(" __MmsCreateTextNode: cannot create <param> node");
-				return false;
+				return NULL;
 			}
 
 			snprintf(szSizeBuf, sizeof(szSizeBuf), "%s", "bold");
@@ -1164,7 +1178,7 @@ xmlNode *MsgSmilCreateTextNode(MMS_MEDIA_S *pstSmilMedia, char *pszContentID)
 			pstParam = xmlNewNode(NULL, (xmlChar *)"param");
 			if (NULL == pstParam) {
 				MSG_DEBUG(" __MmsCreateTextNode: cannot create <param> node");
-				return false;
+				return NULL;
 			}
 
 			snprintf(szSizeBuf, sizeof(szSizeBuf), "%s", "italic");
@@ -1181,7 +1195,7 @@ xmlNode *MsgSmilCreateTextNode(MMS_MEDIA_S *pstSmilMedia, char *pszContentID)
 			pstParam = xmlNewNode(NULL, (xmlChar *)"param");
 			if (NULL == pstParam) {
 				MSG_DEBUG(" __MmsCreateTextNode: cannot create <param> node");
-				return false;
+				return NULL;
 			}
 
 			snprintf(szSizeBuf, sizeof(szSizeBuf), "%s", "underline");
@@ -1240,7 +1254,7 @@ xmlNode *MsgSmilCreateMMNode(MMS_MEDIA_S *pstSmilMedia, char *pszContentID)
 #endif
 		if (strlen(pstSmilMedia->szContentLocation) > 0) {
 			MsgSmilSetAttribute(pstMedia, (char *)"src", pstSmilMedia->szContentLocation); //using content Location in Smil
-			MSG_DEBUG("[Set Attribute] src : [%s]", pstSmilMedia->szContentLocation);
+			MSG_SEC_DEBUG("[Set Attribute] src : [%s]", pstSmilMedia->szContentLocation);
 		}
 
 		if (pstSmilMedia->sMedia.sAVI.nBegin > 0) {

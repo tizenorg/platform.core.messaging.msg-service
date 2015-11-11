@@ -109,5 +109,5 @@ private:
 	static SmsPluginCallback* pInstance;
 };
 
-#endif //SMS_PLUGIN_CALLBACK_H
+#endif /* SMS_PLUGIN_CALLBACK_H */
 

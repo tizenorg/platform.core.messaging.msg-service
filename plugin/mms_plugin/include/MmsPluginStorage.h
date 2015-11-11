@@ -20,37 +20,36 @@
 #include "MsgSqliteWrapper.h"
 #include "MmsPluginCodecTypes.h"
 
-class MmsPluginStorage
-{
+class MmsPluginStorage {
 public:
 	static MmsPluginStorage *instance();
 
 	MmsPluginStorage();
 	~MmsPluginStorage();
 
-	//MMS message operation
+	/* MMS message operation */
 	msg_error_t addMessage(MSG_MESSAGE_INFO_S *pMsgInfo, MSG_SENDINGOPT_INFO_S *pSendOptInfo, char *pSerializedMms);
 	msg_error_t getMessage(MSG_MESSAGE_INFO_S *pMsg, MSG_SENDINGOPT_INFO_S *pSendOptInfo, char **pSerializedMms);
 	msg_error_t updateMessage(MSG_MESSAGE_INFO_S *pMsgInfo, MSG_SENDINGOPT_INFO_S *pSendOptInfo, char *pSerializedMms);
-	msg_error_t updateMessage(MSG_MESSAGE_INFO_S *pMsgInfo);//malware allowed
+	msg_error_t updateMessage(MSG_MESSAGE_INFO_S *pMsgInfo); /* malware allowed */
 
 	msg_error_t deleteMmsMessage(int msgId);
 
-	//MMS message preview info
+	/* MMS message preview info */
 	msg_error_t insertPreviewInfo(int msgId, int type, const char *value, int count = 0);
 	msg_error_t removePreviewInfo(int msgId);
 
-	//MMS message multipart list
+	/* MMS message multipart list */
 	msg_error_t insertMultipart(msg_message_id_t msgId, MMS_MULTIPART_DATA_S *pMultipart);
 	msg_error_t updateMultipart(msg_message_id_t msgId, int allow_malware, MMS_MULTIPART_DATA_S *pMultipart);
 	msg_error_t getMultipartList(msg_message_id_t msgId, MMSList **multipart_list);
 	msg_error_t deleteMultipartList(int msgId);
 
-	//MMS message report
+	/* MMS message report */
 	msg_error_t insertDeliveryReport(msg_message_id_t msgId, char *address, MmsMsgMultiStatus *pStatus);
 	msg_error_t insertReadReport(msg_message_id_t msgId, char *address, MmsMsgMultiStatus *pStatus);
 
-	//etc
+	/* etc */
 	void getMmsMessage(MmsMsg **pMmsMsg);
 	msg_error_t getMmsMessageId(msg_message_id_t selectedMsgId, MmsMsg *pMmsMsg);
 	void composeReadReport(MSG_MESSAGE_INFO_S *pMsgInfo);
@@ -87,5 +86,5 @@ private:
 	MmsMsg mmsMsg;
 };
 
-#endif //MMS_PLUGIN_STORAGE_H
+#endif /* MMS_PLUGIN_STORAGE_H */
 

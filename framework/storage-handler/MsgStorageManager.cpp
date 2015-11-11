@@ -576,7 +576,7 @@ msg_error_t MsgStoBackupMessage(msg_message_backup_type_t type, const char *file
 			return err;
 		}
 
-		encoded_data = MsgVMessageAddRecord(dbHandle, &msgInfo);
+		encoded_data = MsgVMessageEncode(&msgInfo);
 
 		if (msgInfo.bTextSms == false)
 		{
@@ -668,7 +668,7 @@ msg_error_t MsgStoUpdateMms(MSG_MESSAGE_INFO_S *pMsg)
 msg_error_t MsgStoRestoreMessage(const char *filepath, msg_id_list_s **result_id_list)
 {
 	if (result_id_list == NULL) {
-		MSG_DEBUG("result_id_list is NULL");
+		MSG_ERR("result_id_list is NULL");
 		return MSG_ERR_NULL_POINTER;
 	}
 
@@ -678,6 +678,7 @@ msg_error_t MsgStoRestoreMessage(const char *filepath, msg_id_list_s **result_id
 
 	VTree* vMsg = NULL;
 	VObject* pObject = NULL;
+	bool isMMS = false;
 
 	msg_id_list_s *msgIdList = NULL;
 	msgIdList = (msg_id_list_s *)calloc(1, sizeof(msg_id_list_s));
@@ -711,6 +712,7 @@ msg_error_t MsgStoRestoreMessage(const char *filepath, msg_id_list_s **result_id
 
 	while ((pTemp = strstr(pCurrent, "END:VMSG")) != NULL)
 	{
+		isMMS = false;
 		MSG_DEBUG("Start Position: %s", pCurrent);
 
 		while (*pCurrent == '\r' || *pCurrent == '\n')
@@ -718,18 +720,32 @@ msg_error_t MsgStoRestoreMessage(const char *filepath, msg_id_list_s **result_id
 
 		MSG_DEBUG("Start Position2: %s", pCurrent);
 
-		vMsg = vmsg_decode(pCurrent);
-		if (vMsg == NULL) {
+		//decodes if it is sms
+		err = MsgVMessageDecodeSMS(pCurrent, &msgInfo);
+
+		//decode if it is mms
+		if (err == MSG_ERR_INVALID_MESSAGE) {
+			MSG_DEBUG("Vmsg is not an SMS, decoding for MMS...");
+			vMsg = vmsg_decode(pCurrent);
+			isMMS = true;
+		} else if (err != MSG_SUCCESS) {
+			MSG_ERR("Vmsg is an SMS, but format not supported.");
+			goto __RETURN;
+		}
+
+		if (vMsg == NULL && isMMS) {
+			MSG_ERR("Vmsg is an MMS, but format not supported.");
 			err = MSG_ERR_STORAGE_ERROR;
 			goto __RETURN;
 		}
 #endif
 
-		pObject = vMsg->pTop;
+		if (isMMS) {
+			pObject = vMsg->pTop;
+			memset(&msgInfo, 0x00, sizeof(MSG_MESSAGE_INFO_S));
+		}
 
-		memset(&msgInfo, 0x00, sizeof(MSG_MESSAGE_INFO_S));
-
-		while (1)
+		while (1 && isMMS)
 		{
 			while (1)
 			{
@@ -739,10 +755,7 @@ msg_error_t MsgStoRestoreMessage(const char *filepath, msg_id_list_s **result_id
 				{
 					case VMSG_TYPE_MSGTYPE :
 					{
-						if (!strncmp(pObject->pszValue[0], "SMS", strlen("SMS"))) {
-							msgInfo.msgType.mainType = MSG_SMS_TYPE;
-							msgInfo.msgType.subType = MSG_NORMAL_SMS;
-						} else if (!strncmp(pObject->pszValue[0], "MMS RETRIEVED", strlen("MMS RETRIEVED"))) {
+						if (!strncmp(pObject->pszValue[0], "MMS RETRIEVED", strlen("MMS RETRIEVED"))) {
 							msgInfo.msgType.mainType = MSG_MMS_TYPE;
 							msgInfo.msgType.subType = MSG_RETRIEVE_AUTOCONF_MMS;
 						} else if (!strncmp(pObject->pszValue[0], "MMS SEND", strlen("MMS SEND"))) {
@@ -811,7 +824,7 @@ msg_error_t MsgStoRestoreMessage(const char *filepath, msg_id_list_s **result_id
 
 					case VMSG_TYPE_DATE :
 					{
-						struct tm	displayTime;
+						struct tm displayTime;
 
 						if (!_convert_vdata_str_to_tm(pObject->pszValue[0], &displayTime)) {
 							vmsg_free_vtree_memory( vMsg );
@@ -837,37 +850,7 @@ msg_error_t MsgStoRestoreMessage(const char *filepath, msg_id_list_s **result_id
 
 					case VMSG_TYPE_BODY :
 					{
-						if (msgInfo.msgType.mainType == MSG_SMS_TYPE) {
-							if (pObject->numOfBiData > MAX_MSG_DATA_LEN) {
-								msgInfo.bTextSms = false;
-								char fileName[MAX_COMMON_INFO_SIZE + 1];
-								memset(fileName, 0x00, sizeof(fileName));
-
-								if (MsgCreateFileName(fileName) == false) {
-									vmsg_free_vtree_memory(vMsg);
-									err = MSG_ERR_STORAGE_ERROR;
-									goto __RETURN;
-								}
-
-								if (MsgWriteIpcFile(fileName, pObject->pszValue[0], pObject->numOfBiData) == false) {
-									vmsg_free_vtree_memory(vMsg);
-									err = MSG_ERR_STORAGE_ERROR;
-									goto __RETURN;
-								}
-
-								strncpy(msgInfo.msgData, fileName, MAX_MSG_DATA_LEN);
-								msgInfo.dataSize = pObject->numOfBiData;
-							} else {
-								msgInfo.bTextSms = true;
-
-								if(pObject->numOfBiData > 0) {
-									memset(msgInfo.msgText, 0x00, sizeof(msgInfo.msgText));
-									memcpy(msgInfo.msgText, pObject->pszValue[0], pObject->numOfBiData);
-
-									msgInfo.dataSize = pObject->numOfBiData;
-								}
-							}
-						} else {
+						if (msgInfo.msgType.mainType == MSG_MMS_TYPE) {
 							msgInfo.bTextSms = true;
 #if 0
 							if(msgInfo.msgType.subType == MSG_NOTIFICATIONIND_MMS) {

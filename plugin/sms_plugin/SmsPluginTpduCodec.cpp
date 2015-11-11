@@ -48,22 +48,21 @@ int SmsPluginTpduCodec::encodeTpdu(const SMS_TPDU_S *pSmsTpdu, char *pTpdu)
 {
 	int tpduLen = 0;
 
-	switch (pSmsTpdu->tpduType)
-	{
-		case SMS_TPDU_SUBMIT:
-			tpduLen = encodeSubmit(&(pSmsTpdu->data.submit), pTpdu);
+	switch (pSmsTpdu->tpduType) {
+	case SMS_TPDU_SUBMIT:
+		tpduLen = encodeSubmit(&(pSmsTpdu->data.submit), pTpdu);
 		break;
 
-		case SMS_TPDU_DELIVER:
-			tpduLen = encodeDeliver(&(pSmsTpdu->data.deliver), pTpdu);
+	case SMS_TPDU_DELIVER:
+		tpduLen = encodeDeliver(&(pSmsTpdu->data.deliver), pTpdu);
 		break;
 
-		case SMS_TPDU_DELIVER_REP:
-			tpduLen = encodeDeliverReport(&(pSmsTpdu->data.deliverRep), pTpdu);
+	case SMS_TPDU_DELIVER_REP:
+		tpduLen = encodeDeliverReport(&(pSmsTpdu->data.deliverRep), pTpdu);
 		break;
 
-		case SMS_TPDU_STATUS_REP:
-			tpduLen = encodeStatusReport(&(pSmsTpdu->data.statusRep), pTpdu);
+	case SMS_TPDU_STATUS_REP:
+		tpduLen = encodeStatusReport(&(pSmsTpdu->data.statusRep), pTpdu);
 		break;
 	}
 
@@ -77,21 +76,20 @@ int SmsPluginTpduCodec::decodeTpdu(const unsigned char *pTpdu, int TpduLen, SMS_
 
 	char mti = pTpdu[0] & 0x03;
 
-	switch (mti)
-	{
-		case 0x00:
-			pSmsTpdu->tpduType = SMS_TPDU_DELIVER;
-			decodeLen = decodeDeliver(pTpdu, TpduLen, &(pSmsTpdu->data.deliver));
+	switch (mti) {
+	case 0x00:
+		pSmsTpdu->tpduType = SMS_TPDU_DELIVER;
+		decodeLen = decodeDeliver(pTpdu, TpduLen, &(pSmsTpdu->data.deliver));
 		break;
 
-		case 0x01:
-			pSmsTpdu->tpduType = SMS_TPDU_SUBMIT;
-			decodeLen = decodeSubmit(pTpdu, TpduLen, &(pSmsTpdu->data.submit));
+	case 0x01:
+		pSmsTpdu->tpduType = SMS_TPDU_SUBMIT;
+		decodeLen = decodeSubmit(pTpdu, TpduLen, &(pSmsTpdu->data.submit));
 		break;
 
-		case 0x02:
-			pSmsTpdu->tpduType = SMS_TPDU_STATUS_REP;
-			decodeLen = decodeStatusReport(pTpdu, TpduLen, &(pSmsTpdu->data.statusRep));
+	case 0x02:
+		pSmsTpdu->tpduType = SMS_TPDU_STATUS_REP;
+		decodeLen = decodeStatusReport(pTpdu, TpduLen, &(pSmsTpdu->data.statusRep));
 		break;
 	}
 
@@ -112,78 +110,75 @@ int SmsPluginTpduCodec::encodeSubmit(const SMS_SUBMIT_S *pSubmit, char *pTpdu)
 	char* vpTime = NULL;
 	unique_ptr<char*, void(*)(char**)> vpBuf(&vpTime, unique_ptr_deleter);
 
-	//TP-MTI
+	/* TP-MTI */
 	pTpdu[offset] = 0x01;
 
-	//TP-RD
-	if(pSubmit->bRejectDup == true)
+	/* TP-RD */
+	if (pSubmit->bRejectDup == true)
 		pTpdu[offset] |= 0x04;
 
-	//TP-VPF
-	switch (pSubmit->vpf)
-	{
-		case SMS_VPF_NOT_PRESENT:
-			break;
-		case SMS_VPF_ENHANCED:
-			pTpdu[offset] |= 0x08;
-			break;
-		case SMS_VPF_RELATIVE:
-			pTpdu[offset] |= 0x10;
-			break;
-		case SMS_VPF_ABSOLUTE:
-			pTpdu[offset] |= 0x18;
-			break;
-		default:
-			break;
+	/* TP-VPF */
+	switch (pSubmit->vpf) {
+	case SMS_VPF_NOT_PRESENT:
+		break;
+	case SMS_VPF_ENHANCED:
+		pTpdu[offset] |= 0x08;
+		break;
+	case SMS_VPF_RELATIVE:
+		pTpdu[offset] |= 0x10;
+		break;
+	case SMS_VPF_ABSOLUTE:
+		pTpdu[offset] |= 0x18;
+		break;
+	default:
+		break;
 	}
 
-	//TP-SRR
+	/* TP-SRR */
 	if (pSubmit->bStatusReport == true)
 		pTpdu[offset] |= 0x20;
 
 	MSG_DEBUG("TP-SRR pSubmit->bStatusReport : %d.", pSubmit->bStatusReport);
 
-	//TP-UDHI
+	/* TP-UDHI */
 	if (pSubmit->bHeaderInd == true)
 		pTpdu[offset] |= 0x40;
 
-	//TP-RP
+	/* TP-RP */
 	if (pSubmit->bReplyPath == true)
 		pTpdu[offset] |= 0x80;
 
 	offset++;
 
-	//TP-MR
+	/* TP-MR */
 	pTpdu[offset++] = pSubmit->msgRef;
 
 	MSG_DEBUG("TP-MR pSubmit->msgRef : %d.", pSubmit->msgRef);
 
-	//TP-DA
+	/* TP-DA */
 	length = SmsPluginParamCodec::encodeAddress(&pSubmit->destAddress, &address);
 	memcpy(&(pTpdu[offset]), address, length);
 	offset += length;
 
 	MSG_DEBUG("TP-DA length : %d.", length);
 
-	//TP-PID
+	/* TP-PID */
 	pTpdu[offset++] = pSubmit->pid;
 
 	MSG_DEBUG("TP-PID pSubmit->pid : %d.", pSubmit->pid);
 
-	//TP-DCS
+	/* TP-DCS */
 	length = SmsPluginParamCodec::encodeDCS(&pSubmit->dcs, &dcs);
 	memcpy(&(pTpdu[offset]), dcs, length);
 	offset += length;
 
 	MSG_DEBUG("TP-DCS length : %d.", length);
 
-	//TP-VP
-	if (pSubmit->vpf != SMS_VPF_NOT_PRESENT)
-	{
+	/* TP-VP */
+	if (pSubmit->vpf != SMS_VPF_NOT_PRESENT) {
 		length = SmsPluginParamCodec::encodeTime(&pSubmit->validityPeriod, &vpTime);
 
-		if (length > 0)
-		{
+		if (length > 0) {
 			memcpy(&(pTpdu[offset]), vpTime, length);
 			offset += length;
 		}
@@ -191,7 +186,7 @@ int SmsPluginTpduCodec::encodeSubmit(const SMS_SUBMIT_S *pSubmit, char *pTpdu)
 
 	encodeSize = SmsPluginUDCodec::encodeUserData(&(pSubmit->userData), pSubmit->dcs.codingScheme, &(pTpdu[offset]));
 
-MSG_DEBUG("encodeSize : %d", encodeSize);
+	MSG_DEBUG("encodeSize : %d", encodeSize);
 
 	offset += encodeSize;
 
@@ -221,46 +216,46 @@ int SmsPluginTpduCodec::encodeDeliver(const SMS_DELIVER_S *pDeliver, char *pTpdu
 	char* scts = NULL;
 	unique_ptr<char*, void(*)(char**)> timeBuf(&scts, unique_ptr_deleter);
 
-	// TP-MTI : 00
+	/* TP-MTI : 00 */
 	pTpdu[offset] = 0x00;
 
-	// TP-MMS
+	/* TP-MMS */
 	if (pDeliver->bMoreMsg == false)
 		pTpdu[offset] |= 0x04;
 
-	// TP-SRI
+	/* TP-SRI */
 	if (pDeliver->bStatusReport == true)
 		pTpdu[offset] |= 0x20;
 
-	// TP-UDHI
+	/* TP-UDHI */
 	if (pDeliver->bHeaderInd == true)
 		pTpdu[offset] |= 0x40;
 
-	// TP-RP
+	/* TP-RP */
 	if (pDeliver->bReplyPath == true)
 		pTpdu[offset] |= 0x80;
 
 	offset++;
 
-	// TP-OA
+	/* TP-OA */
 	length = SmsPluginParamCodec::encodeAddress(&pDeliver->originAddress, &address);
 	memcpy(&(pTpdu[offset]), address, length);
 	offset += length;
 
-	// TP-PID
+	/* TP-PID */
 	pTpdu[offset++] = pDeliver->pid;
 
-	// TP-DCS
+	/* TP-DCS */
 	length = SmsPluginParamCodec::encodeDCS(&pDeliver->dcs, &dcs);
 	memcpy(&(pTpdu[offset]), dcs, length);
 	offset += length;
 
-	// TP-SCTS
+	/* TP-SCTS */
 	length = SmsPluginParamCodec::encodeTime(&pDeliver->timeStamp, &scts);
 	memcpy(&(pTpdu[offset]), scts, length);
 	offset += length;
 
-	// TP-UDL & TP-UD
+	/* TP-UDL & TP-UD */
 	encodeSize = SmsPluginUDCodec::encodeUserData(&(pDeliver->userData), pDeliver->dcs.codingScheme, &(pTpdu[offset]));
 
 	MSG_DEBUG("encodeSize : %d", encodeSize);
@@ -275,31 +270,30 @@ int SmsPluginTpduCodec::encodeDeliverReport(const SMS_DELIVER_REPORT_S *pDeliver
 {
 	int offset = 0;
 
-	// TP-MTI : 00
+	/* TP-MTI : 00 */
 	pTpdu[offset] = 0x00;
 
-	// TP-UDHI
+	/* TP-UDHI */
 	if (pDeliverRep->bHeaderInd == true)
 		pTpdu[offset] |= 0x40;
 
 	offset++;
 
-	// TP-FCS
+	/* TP-FCS */
 	if (pDeliverRep->reportType == SMS_REPORT_NEGATIVE) {
 		pTpdu[offset++] = pDeliverRep->failCause;
 		MSG_DEBUG("Delivery report : fail cause = [%02x]", pDeliverRep->failCause);
 	}
 
-	// TP-PI
+	/* TP-PI */
 	pTpdu[offset++] = pDeliverRep->paramInd;
 
-	// TP-PID
+	/* TP-PID */
 	if (pDeliverRep->paramInd & 0x01)
 		pTpdu[offset++] = pDeliverRep->pid;
 
-	// TP-DCS
-	if (pDeliverRep->paramInd & 0x02)
-	{
+	/* TP-DCS */
+	if (pDeliverRep->paramInd & 0x02) {
 		int length = 0;
 
 		char* dcs = NULL;
@@ -311,9 +305,8 @@ int SmsPluginTpduCodec::encodeDeliverReport(const SMS_DELIVER_REPORT_S *pDeliver
 		offset += length;
 	}
 
-	// TP-UDL & TP-UD
-	if (pDeliverRep->paramInd & 0x04)
-	{
+	/* TP-UDL & TP-UD */
+	if (pDeliverRep->paramInd & 0x04) {
 		int encodeSize = 0;
 
 		encodeSize = SmsPluginUDCodec::encodeUserData(&(pDeliverRep->userData), pDeliverRep->dcs.codingScheme, &(pTpdu[offset]));
@@ -342,54 +335,53 @@ int SmsPluginTpduCodec::encodeStatusReport(const SMS_STATUS_REPORT_S *pStatusRep
 	char* dt = NULL;
 	unique_ptr<char*, void(*)(char**)> dtBuf(&dt, unique_ptr_deleter);
 
-	// TP-MTI : 10
+	/* TP-MTI : 10 */
 	pTpdu[offset] = 0x02;
 
-	// TP-MMS
+	/* TP-MMS */
 	if (pStatusRep->bMoreMsg == true)
 		pTpdu[offset] |= 0x04;
 
-	// TP-SRQ
+	/* TP-SRQ */
 	if (pStatusRep->bStatusReport == true)
 		pTpdu[offset] |= 0x20;
 
-	// TP-UDHI
+	/* TP-UDHI */
 	if (pStatusRep->bHeaderInd == true)
 		pTpdu[offset] |= 0x40;
 
 	offset++;
 
-	// TP-MR
+	/* TP-MR */
 	pTpdu[offset++] = pStatusRep->msgRef;
 
-	// TP-RA
+	/* TP-RA */
 	length = SmsPluginParamCodec::encodeAddress(&pStatusRep->recipAddress, &address);
 	memcpy(&(pTpdu[offset]), address, length);
 	offset += length;
 
-	// TP-SCTS
+	/* TP-SCTS */
 	length = SmsPluginParamCodec::encodeTime(&pStatusRep->timeStamp, &scts);
 	memcpy(&(pTpdu[offset]), scts, length);
 	offset += length;
 
-	// TP-DT
+	/* TP-DT */
 	length = SmsPluginParamCodec::encodeTime(&pStatusRep->dischargeTime, &dt);
 	memcpy(&(pTpdu[offset]), dt, length);
 	offset += length;
 
-	// TP-Status
+	/* TP-Status */
 	pTpdu[offset++] = pStatusRep->status;
 
-	// TP-PI
+	/* TP-PI */
 	pTpdu[offset++] = pStatusRep->paramInd;
 
-	// TP-PID
+	/* TP-PID */
 	if (pStatusRep->paramInd & 0x01)
 		pTpdu[offset++] = pStatusRep->pid;
 
-	// TP-DCS
-	if (pStatusRep->paramInd & 0x02)
-	{
+	/* TP-DCS */
+	if (pStatusRep->paramInd & 0x02) {
 		int length = 0;
 
 		char* dcs = NULL;
@@ -401,9 +393,8 @@ int SmsPluginTpduCodec::encodeStatusReport(const SMS_STATUS_REPORT_S *pStatusRep
 		offset += length;
 	}
 
-	// TP-UDL & TP-UD
-	if (pStatusRep->paramInd & 0x04)
-	{
+	/* TP-UDL & TP-UD */
+	if (pStatusRep->paramInd & 0x04) {
 		int encodeSize = 0;
 
 		encodeSize = SmsPluginUDCodec::encodeUserData(&(pStatusRep->userData), pStatusRep->dcs.codingScheme, &(pTpdu[offset]));
@@ -423,28 +414,36 @@ int SmsPluginTpduCodec::decodeSubmit(const unsigned char *pTpdu, int TpduLen, SM
 {
 	int offset = 0, udLen = 0;
 
-	// TP-RD
+	char tpduTmp[(TpduLen*2)+1];
+	memset(tpduTmp, 0x00, sizeof(tpduTmp));
+	for (int i = 0; i < TpduLen; i++) {
+		snprintf(tpduTmp+(i*2), sizeof(tpduTmp)-(i*2), "%02X", pTpdu[i]);
+	}
+	MSG_DEBUG("Sumbit TPDU.");
+	MSG_INFO("[%s]", tpduTmp);
+
+	/* TP-RD */
 	if (pTpdu[offset] & 0x04)
 		pSubmit->bRejectDup = false;
 	else
 		pSubmit->bRejectDup = true;
 
-	// TP-VPF
+	/* TP-VPF */
 	pSubmit->vpf = (SMS_VPF_T)(pTpdu[offset] & 0x18);
 
-	// TP-SRR
+	/* TP-SRR */
 	if (pTpdu[offset] & 0x20)
 		pSubmit->bStatusReport = true;
 	else
 		pSubmit->bStatusReport = false;
 
-	// TP-UDHI
+	/* TP-UDHI */
 	if (pTpdu[offset] & 0x40)
 		pSubmit->bHeaderInd = true;
 	else
 		pSubmit->bHeaderInd = false;
 
-	// TP-RP
+	/* TP-RP */
 	if (pTpdu[offset] & 0x80)
 		pSubmit->bReplyPath = true;
 	else
@@ -452,25 +451,24 @@ int SmsPluginTpduCodec::decodeSubmit(const unsigned char *pTpdu, int TpduLen, SM
 
 	offset++;
 
-	// TP-MR
+	/* TP-MR */
 	pSubmit->msgRef = pTpdu[offset++];
 
-	// TP-DA
+	/* TP-DA */
 	offset += SmsPluginParamCodec::decodeAddress(pTpdu+offset, &(pSubmit->destAddress));
 
-	// TP-PID
+	/* TP-PID */
 	pSubmit->pid = pTpdu[offset++];
 
-	// TP-DCS
+	/* TP-DCS */
 	offset += SmsPluginParamCodec::decodeDCS(pTpdu+offset, &(pSubmit->dcs));
 
-	// TP-VP
-	if (pSubmit->vpf != SMS_VPF_NOT_PRESENT)
-	{
-		// Decode VP
+	/* TP-VP */
+	if (pSubmit->vpf != SMS_VPF_NOT_PRESENT) {
+		/* Decode VP */
 	}
 
-	// TP-UDL & TP-UD
+	/* TP-UDL & TP-UD */
 	udLen = SmsPluginUDCodec::decodeUserData(pTpdu+offset, TpduLen, pSubmit->bHeaderInd, pSubmit->dcs.codingScheme, &(pSubmit->userData));
 
 	return udLen;
@@ -491,25 +489,25 @@ int SmsPluginTpduCodec::decodeDeliver(const unsigned char *pTpdu, int TpduLen, S
 	MSG_INFO("[%s]", tpduTmp);
 
 
-	// TP-MMS
+	/* TP-MMS */
 	if (pTpdu[offset] & 0x04)
 		pDeliver->bMoreMsg = false;
 	else
 		pDeliver->bMoreMsg = true;
 
-	// TP-SRI
+	/* TP-SRI */
 	if (pTpdu[offset] & 0x20)
 		pDeliver->bStatusReport = true;
 	else
 		pDeliver->bStatusReport = false;
 
-	// TP-UDHI
+	/* TP-UDHI */
 	if (pTpdu[offset] & 0x40)
 		pDeliver->bHeaderInd = true;
 	else
 		pDeliver->bHeaderInd = false;
 
-	// TP-RP
+	/* TP-RP */
 	if (pTpdu[offset] & 0x80)
 		pDeliver->bReplyPath = true;
 	else
@@ -519,16 +517,16 @@ int SmsPluginTpduCodec::decodeDeliver(const unsigned char *pTpdu, int TpduLen, S
 
 	tmpOffset = offset;
 #if 1
-	// TP-OA
+	/* TP-OA */
 	offset += SmsPluginParamCodec::decodeAddress(&pTpdu[offset], &(pDeliver->originAddress));
 
-	// TP-PID
+	/* TP-PID */
 	pDeliver->pid = pTpdu[offset++];
 
-	// TP-DCS
+	/* TP-DCS */
 	offset += SmsPluginParamCodec::decodeDCS(&pTpdu[offset], &(pDeliver->dcs));
 
-	// Support KSC5601 :: Coding group bits == 0x84
+	/* Support KSC5601 :: Coding group bits == 0x84 */
 	if (pTpdu[offset-1] == 0x84) {
 		pDeliver->dcs.codingScheme = SMS_CHARSET_EUCKR;
 	}
@@ -587,10 +585,10 @@ int SmsPluginTpduCodec::decodeDeliver(const unsigned char *pTpdu, int TpduLen, S
 		}
 	}
 
-	// TP-SCTS
+	/* TP-SCTS */
 	offset += SmsPluginParamCodec::decodeTime(&pTpdu[offset], &(pDeliver->timeStamp));
 
-	// TP-UD
+	/* TP-UD */
 	udLen = SmsPluginUDCodec::decodeUserData(&pTpdu[offset], TpduLen, pDeliver->bHeaderInd, pDeliver->dcs.codingScheme, &(pDeliver->userData), &(pDeliver->udData));
 
 	return udLen;
@@ -620,19 +618,19 @@ int SmsPluginTpduCodec::decodeStatusReport(const unsigned char *pTpdu, int TpduL
 	char* dt = NULL;
 	unique_ptr<char*, void(*)(char**)> dtBuf(&dt, unique_ptr_deleter);
 
-	// TP-MMS
+	/* TP-MMS */
 	if (pTpdu[offset] & 0x04)
 		pStatusRep->bMoreMsg = false;
 	else
 		pStatusRep->bMoreMsg = true;
 
-	// TP-SRQ
+	/* TP-SRQ */
 	if (pTpdu[offset] & 0x20)
 		pStatusRep->bStatusReport = true;
 	else
 		pStatusRep->bStatusReport = false;
 
-	// TP-UDHI
+	/* TP-UDHI */
 	if (pTpdu[offset] & 0x40)
 		pStatusRep->bHeaderInd = true;
 	else
@@ -640,29 +638,28 @@ int SmsPluginTpduCodec::decodeStatusReport(const unsigned char *pTpdu, int TpduL
 
 	offset++;
 
-	// TP-MR
+	/* TP-MR */
 	pStatusRep->msgRef = pTpdu[offset++];
 
-	// TP-RA
+	/* TP-RA */
 	offset += SmsPluginParamCodec::decodeAddress(&pTpdu[offset], &(pStatusRep->recipAddress));
 
-	// TP-SCTS
-	// Decode timestamp
+	/* TP-SCTS */
+	/* Decode timestamp */
 	offset += SmsPluginParamCodec::decodeTime(&pTpdu[offset], &(pStatusRep->timeStamp));
 
-	// TP-DT
-	// Decode timestamp
+	/* TP-DT */
+	/* Decode timestamp */
 	offset += SmsPluginParamCodec::decodeTime(&pTpdu[offset], &(pStatusRep->dischargeTime));
 
-	// TP-Status
+	/* TP-Status */
 	pStatusRep->status = pTpdu[offset++];
 
-	// TP-PI
+	/* TP-PI */
 	pStatusRep->paramInd = pTpdu[offset++];
 
-	// No Parameters
-	if (pStatusRep->paramInd == 0)
-	{
+	/* No Parameters */
+	if (pStatusRep->paramInd == 0) {
 		pStatusRep->pid = SMS_PID_NORMAL;
 
 		pStatusRep->dcs.bCompressed = false;
@@ -679,23 +676,18 @@ int SmsPluginTpduCodec::decodeStatusReport(const unsigned char *pTpdu, int TpduL
 		memset(pStatusRep->userData.data, 0x00, MAX_USER_DATA_LEN+1);
 	}
 
-	// TP-PID
+	/* TP-PID */
 	if (pStatusRep->paramInd & 0x01)
 		pStatusRep->pid = pTpdu[offset++];
 
-	// TP-DCS
+	/* TP-DCS */
 	if (pStatusRep->paramInd & 0x02)
-	{
 		offset += SmsPluginParamCodec::decodeDCS(&pTpdu[offset], &(pStatusRep->dcs));
-	}
 
-	// TP-UDL & TP-UD
+	/* TP-UDL & TP-UD */
 	if (pStatusRep->paramInd & 0x04)
-	{
-		// Decode User Data
+		/* Decode User Data */
 		udLen = SmsPluginUDCodec::decodeUserData(&pTpdu[offset], TpduLen, pStatusRep->bHeaderInd, pStatusRep->dcs.codingScheme, &(pStatusRep->userData));
-	}
 
 	return udLen;
 }
-

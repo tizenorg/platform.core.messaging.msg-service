@@ -57,9 +57,9 @@ bool MsgCheckFilter(MsgDbHandler *pDbHandle, MSG_MESSAGE_INFO_S *pMsgInfo)
 
 	msg_error_t err = MSG_SUCCESS;
 
-	// =======================================================================
-	// Check Unknown Sender
-	// =======================================================================
+	/*========================================================================
+	   Check Unknown Sender
+	========================================================================*/
 	bool bBlockUnknown = false;
 
 	if (MsgSettingGetBool(MSG_BLOCK_UNKNOWN_MSG, &bBlockUnknown) == MSG_SUCCESS) {
@@ -69,9 +69,9 @@ bool MsgCheckFilter(MsgDbHandler *pDbHandle, MSG_MESSAGE_INFO_S *pMsgInfo)
 		}
 	}
 
-	// =======================================================================
-	// Check Filter Operation
-	// =======================================================================
+	/*========================================================================
+	   Check Filter Operation
+	========================================================================*/
 	bool filterFlag = false;
 
 	MsgGetFilterOperation(&filterFlag);
@@ -81,9 +81,9 @@ bool MsgCheckFilter(MsgDbHandler *pDbHandle, MSG_MESSAGE_INFO_S *pMsgInfo)
 		return false;
 	}
 
-	// =======================================================================
-	// Check Filter by Address
-	// =======================================================================
+	/*========================================================================
+	   Check Filter by Address
+	========================================================================*/
 	int rowCnt = 0;
 
 	MSG_SEC_DEBUG("pMsg->addressList[0].addressVal [%s]", pMsgInfo->addressList[0].addressVal);
@@ -113,10 +113,10 @@ bool MsgCheckFilter(MsgDbHandler *pDbHandle, MSG_MESSAGE_INFO_S *pMsgInfo)
 		pDbHandle->freeTable();
 	}
 
-	// =======================================================================
-	// Check Filter by Subject
-	// =======================================================================
-	// Get Filter List
+	/*========================================================================
+	   Check Filter by Subject
+	========================================================================*/
+	/* Get Filter List */
 	memset(sqlQuery, 0x00, sizeof(sqlQuery));
 
 	snprintf(sqlQuery, sizeof(sqlQuery), "SELECT FILTER_VALUE FROM %s WHERE FILTER_TYPE = %d;",
@@ -140,8 +140,7 @@ bool MsgCheckFilter(MsgDbHandler *pDbHandle, MSG_MESSAGE_INFO_S *pMsgInfo)
 	int fileSize = 0;
 	bool bFiltered = false;
 
-	for (int i = 1; i <= rowCnt; i++)
-	{
+	for (int i = 1; i <= rowCnt; i++) {
 		memset(filterValue, 0x00, sizeof(filterValue));
 
 		pDbHandle->getColumnToString(i, MAX_FILTER_VALUE_LEN, filterValue);
@@ -176,7 +175,7 @@ bool MsgCheckFilter(MsgDbHandler *pDbHandle, MSG_MESSAGE_INFO_S *pMsgInfo)
 					pData[strlen(pMsgInfo->msgText)] = '\0';
 				}
 			}
-		} else if(pMsgInfo->msgType.mainType == MSG_MMS_TYPE) {
+		} else if (pMsgInfo->msgType.mainType == MSG_MMS_TYPE) {
 			if (strlen(pMsgInfo->subject) > 0) {
 				if (pData) {
 					delete[] pData;
@@ -190,7 +189,7 @@ bool MsgCheckFilter(MsgDbHandler *pDbHandle, MSG_MESSAGE_INFO_S *pMsgInfo)
 			}
 		}
 
-		// NULL value check
+		/* NULL value check */
 		if (pData == NULL) {
 			MSG_DEBUG("pData is NULL");
 
@@ -205,7 +204,7 @@ bool MsgCheckFilter(MsgDbHandler *pDbHandle, MSG_MESSAGE_INFO_S *pMsgInfo)
 			MSG_CONTACT_INFO_S contactInfo;
 			memset(&contactInfo, 0x00, sizeof(MSG_CONTACT_INFO_S));
 
-			// Get Contact Info
+			/* Get Contact Info */
 			if (MsgGetContactInfo(&(pMsgInfo->addressList[0]), &contactInfo) == MSG_SUCCESS) {
 				if (contactInfo.contactId > 0) {
 					MSG_SEC_DEBUG("Msg is Filtered by Subject [%s] Data [%s], but address is in contact. Skip.", filterValue, pData);
@@ -254,9 +253,9 @@ bool MsgCheckFilterByWord(MsgDbHandler *pDbHandle, const char *pMsgText)
 
 	msg_error_t err = MSG_SUCCESS;
 
-	// =======================================================================
-	// Check Filter Operation
-	// =======================================================================
+	/*========================================================================
+	   Check Filter Operation
+	========================================================================*/
 	bool filterFlag = false;
 
 	MsgGetFilterOperation(&filterFlag);
@@ -272,10 +271,10 @@ bool MsgCheckFilterByWord(MsgDbHandler *pDbHandle, const char *pMsgText)
 	memset(sqlQuery, 0x00, sizeof(sqlQuery));
 
 
-	// =======================================================================
-	// Check Filter by Word
-	// =======================================================================
-	// Get Filter List
+	/*========================================================================
+	   Check Filter by Word
+	========================================================================*/
+	/* Get Filter List */
 	memset(sqlQuery, 0x00, sizeof(sqlQuery));
 
 	snprintf(sqlQuery, sizeof(sqlQuery), "SELECT FILTER_VALUE FROM %s WHERE FILTER_TYPE = %d;",
@@ -292,15 +291,15 @@ bool MsgCheckFilterByWord(MsgDbHandler *pDbHandle, const char *pMsgText)
 	char filterValue[MAX_FILTER_VALUE_LEN+1];
 	bool bFiltered = false;
 
-	for (int i = 1; i <= rowCnt; i++)
-	{
+	for (int i = 1; i <= rowCnt; i++) {
 		memset(filterValue, 0x00, sizeof(filterValue));
 
 		pDbHandle->getColumnToString(i, MAX_FILTER_VALUE_LEN, filterValue);
 
 		MSG_DEBUG("filterValue [%s]", filterValue);
 
-		if (strlen(filterValue) <= 0) continue;
+		if (strlen(filterValue) <= 0)
+			continue;
 
 		if (strcasestr(pMsgText, filterValue) != NULL) {
 			MSG_DEBUG("Msg is Filtered by Word [%s] ", filterValue);

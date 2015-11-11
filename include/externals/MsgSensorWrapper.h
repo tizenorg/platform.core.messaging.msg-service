@@ -34,4 +34,4 @@ msg_error_t MsgSensorConnect();
 void MsgSensorDisconnect();
 msg_error_t MsgRegSensorCB(msg_sensor_cb cb);
 
-#endif // MSG_SENSOR_H
+#endif /* MSG_SENSOR_H */

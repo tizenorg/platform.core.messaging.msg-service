@@ -72,5 +72,4 @@ private:
 	std::list<PUSH_APPLICATION_INFO_S> pushAppInfoList;
 };
 
-#endif //SMS_CDMA_PLUGIN_STORAGE_H
-
+#endif /* SMS_CDMA_PLUGIN_STORAGE_H */

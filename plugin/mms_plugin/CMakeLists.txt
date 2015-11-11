@@ -22,14 +22,12 @@ SET(MMS-PLUGIN-SRCS
 	MmsPluginEventHandler.cpp
 	MmsPluginStorage.cpp
 	MmsPluginMessage.cpp
-	MmsPluginMIME.cpp
 	MmsPluginConnManWrapper.cpp
 	MmsPluginUserAgent.cpp
 	MmsPluginHttp.cpp
 	MmsPluginInternal.cpp
 	MmsPluginDrm.cpp
 	MmsPluginUtil.cpp
-#	MmsPluginTcs.cpp
 	MmsPluginComposer.cpp
 	MmsPluginAppBase.cpp
 )
@@ -44,7 +42,7 @@ INCLUDE_DIRECTORIES(
 )
 
 INCLUDE(FindPkgConfig)
-pkg_check_modules(mms_plugin_pkgs REQUIRED glib-2.0 libcurl mm-fileinfo mmutil-imgp mmutil-jpeg vconf dlog capi-media-thumbnail-util capi-media-image-util capi-network-connection db-util)
+pkg_check_modules(mms_plugin_pkgs REQUIRED glib-2.0 libcurl vconf dlog capi-network-connection capi-telephony)
 
 FOREACH(flag ${mms_plugin_pkgs_CFLAGS})
 	SET(EXTRA_CFLAGS "${EXTRA_CFLAGS} ${flag}")

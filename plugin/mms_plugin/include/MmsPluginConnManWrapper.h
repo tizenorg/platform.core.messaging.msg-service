@@ -25,8 +25,7 @@ typedef enum {
 	MSG_CM_ERR_UNKNOWN,
  } cm_error_e;
 
-class MmsPluginCmAgent
-{
+class MmsPluginCmAgent {
 public:
 	static MmsPluginCmAgent *instance();
 
@@ -41,6 +40,8 @@ public:
 	bool getInterfaceName(const char **deviceName);
 	bool getProxyAddr(const char **proxyAddr);
 	bool getHomeUrl(const char **homeURL);
+	bool getDnsAddrList(const char **dnsAddrList);
+
 private:
 	MmsPluginCmAgent();
 	~MmsPluginCmAgent();
@@ -54,14 +55,15 @@ private:
 	void setCmStatus() { isCmOpened = true; }
 	void resetCmStatus() { isCmOpened = false; }
 
-	bool isCmOpened; //connection & profile connect
+	bool isCmOpened; /* connection & profile connect */
 	bool waitProfileOpen;
 	char *home_url;
 	char *interface_name;
 	char *proxy_address;
+	char *dns_address_list;
 	Mutex mx;
 	CndVar cv;
 
 };
 
-#endif //MMS_PLUGIN_CONNMAN_H
+#endif /* MMS_PLUGIN_CONNMAN_H */

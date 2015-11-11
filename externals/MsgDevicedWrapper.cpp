@@ -15,8 +15,10 @@
 */
 
 
-#include <dd-display.h>
+#include <device/power.h>
+#include <device/display.h>
 
+#include "MsgCallStatusManager.h"
 #include "MsgDebug.h"
 #include "MsgMutex.h"
 #include "MsgGconfWrapper.h"
@@ -34,9 +36,9 @@ void MsgDisplayLock()
 	mx.lock();
 
 	if (g_lock_cnt <= 0) {
-		ret = display_lock_state(LCD_OFF, STAY_CUR_STATE, 0);
+		ret = device_power_request_lock(POWER_LOCK_CPU, 0);
 		if (ret < 0) {
-			MSG_DEBUG("display_lock_state() is failed [%d]", ret);
+			MSG_DEBUG("device_power_request_lock() is failed [%d]", ret);
 		}
 	}
 
@@ -63,9 +65,9 @@ void MsgDisplayUnlock()
 	MSG_DEBUG("Display lock count = [%d]", g_lock_cnt);
 
 	if (g_lock_cnt <= 0) {
-		ret = display_unlock_state(LCD_OFF, PM_RESET_TIMER);
+		ret = device_power_release_lock(POWER_LOCK_CPU);
 		if (ret < 0) {
-			MSG_DEBUG("display_lock_state() is failed [%d]", ret);
+			MSG_DEBUG("device_power_release_lock() is failed [%d]", ret);
 		}
 	}
 
@@ -80,14 +82,14 @@ void MsgChangePmState()
 	MSG_BEGIN();
 	int callStatus = 0;
 
-	callStatus = MsgSettingGetInt(VCONFKEY_CALL_STATE);
+	callStatus = MsgGetCallStatus();
 	MSG_DEBUG("Call Status = %d", callStatus);
 
-	if (callStatus > VCONFKEY_CALL_OFF && callStatus < VCONFKEY_CALL_STATE_MAX) {
+	if (callStatus > 0 && callStatus < 3) {
 		MSG_DEBUG("Call is activated. Do not turn on the lcd.");
 	} else {
 		MSG_DEBUG("Call is not activated. Turn on the lcd.");
-		display_change_state(LCD_NORMAL);
+		device_display_change_state(DISPLAY_STATE_NORMAL);
 	}
 
 	MSG_END();

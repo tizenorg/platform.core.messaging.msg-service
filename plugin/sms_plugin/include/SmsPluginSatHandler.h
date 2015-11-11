@@ -37,10 +37,10 @@ class SmsPluginSatHandler
 public:
 	static SmsPluginSatHandler* instance();
 
-	void refreshSms(struct tapi_handle *handle, void *pData);
-	void sendSms(struct tapi_handle *handle, void *pData);
-	void ctrlSms(struct tapi_handle *handle, void *pData);
-	void ctrlSms(struct tapi_handle *handle, SMS_NETWORK_STATUS_T netStatus);
+	void refreshSms(TapiHandle *handle, void *pData);
+	void sendSms(TapiHandle *handle, void *pData);
+	void ctrlSms(TapiHandle *handle, void *pData);
+	void ctrlSms(TapiHandle *handle, SMS_NETWORK_STATUS_T netStatus);
 
 	void finishSimMsgInit(msg_error_t Err);
 
@@ -55,7 +55,7 @@ private:
 
 	int handleSatTpdu(unsigned char *pTpdu, unsigned char TpduLen, int bIsPackingRequired);
 
-	void sendResult(struct tapi_handle *handle, SMS_SAT_CMD_TYPE_T CmdType, int ResultType);
+	void sendResult(TapiHandle *handle, SMS_SAT_CMD_TYPE_T CmdType, int ResultType);
 
 	static SmsPluginSatHandler* pInstance;
 
@@ -69,5 +69,5 @@ private:
 	CndVar cv;
 };
 
-#endif //SMS_PLUGIN_SAT_HANDLER_H
+#endif /* SMS_PLUGIN_SAT_HANDLER_H */
 

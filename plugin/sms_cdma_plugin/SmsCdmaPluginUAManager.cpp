@@ -48,8 +48,7 @@ SmsPluginUAManager* SmsPluginUAManager::instance()
 
 void SmsPluginUAManager::run()
 {
-	while (1)
-	{
+	while (1) {
 		lock();
 		while (smsTranQ.empty()) {
 			wait();
@@ -61,21 +60,16 @@ void SmsPluginUAManager::run()
 		request.msgInfo.addressList = NULL;
 		unique_ptr<MSG_ADDRESS_INFO_S*, void(*)(MSG_ADDRESS_INFO_S**)> addressListBuf(&request.msgInfo.addressList, unique_ptr_deleter);
 
-		try
-		{
+		try {
 			SmsPluginTransport::instance()->submitRequest(&request);
-		}
-		catch (MsgException& e)
-		{
+		} catch (MsgException& e) {
 			MSG_FATAL("%s", e.what());
 
 			lock();
 			smsTranQ.pop_front();
 			unlock();
 			continue;
-		}
-		catch (exception& e)
-		{
+		} catch (exception& e) {
 			MSG_FATAL("%s", e.what());
 			lock();
 			smsTranQ.pop_front();
@@ -101,4 +95,3 @@ void SmsPluginUAManager::addReqEntity(sms_request_info_s *request)
 	cv.signal();
 	unlock();
 }
-

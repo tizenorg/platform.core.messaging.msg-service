@@ -26,6 +26,7 @@
 #include "MsgUtilFile.h"
 #include "MsgMmsMessage.h"
 #include "MsgUtilFile.h"
+#include "MsgUtilFunction.h"
 #include "MsgSmil.h"
 #include "MsgDebug.h"
 #include "MsgSerialize.h"
@@ -1226,7 +1227,15 @@ static bool IsMatchedMedia(MMS_MEDIA_S *media, MMS_MULTIPART_DATA_S *pMultipart)
 		removeLessGreaterMark(pMultipart->szContentID, szTempContentID, sizeof(szTempContentID));
 
 		if (strcmp(media->szContentID, szTempContentID) == 0) {
-			return true;
+			if (strlen(media->szContentLocation) > 0 && strlen(pMultipart->szContentLocation) > 0) {
+				if (strcmp(media->szContentLocation,  pMultipart->szContentLocation) == 0) {
+					return true;
+				} else {
+					/* go through */
+				}
+			} else {
+				return true;
+			}
 		}
 
 		if (strcmp(media->szContentLocation,  szTempContentID) == 0) {
@@ -1512,6 +1521,9 @@ int MsgMmsSetMultipartFilePath(const char *dirPath, MMS_MULTIPART_DATA_S *pMulti
 
 	snprintf(pMultipart->szFilePath, sizeof(pMultipart->szFilePath), "%s/%s", dirPath, pMultipart->szFileName);
 
+	/* remove space character of original file name */
+	msg_replace_space_char(pMultipart->szFilePath);
+
 	if (!MsgCreateFile (pMultipart->szFilePath, pMultipart->pMultipartData, pMultipart->nMultipartDataLen)) {
 		MSG_SEC_DEBUG("Fail to set content to file [%s]", pMultipart->szFilePath);
 		return -1;
@@ -1701,16 +1713,17 @@ int MsgMmsCheckFilepathSmack(int fd, const char* ipc_filename)
 		return MSG_ERR_PERMISSION_DENIED;
 	}
 
-	MSG_DEBUG("app_smack_label [%s]", app_smack_label);
+	MSG_SEC_DEBUG("app_smack_label [%s]", app_smack_label);
 
 	char ipc_filepath[MSG_FILEPATH_LEN_MAX+1] = {0,};
 	snprintf(ipc_filepath, MSG_FILEPATH_LEN_MAX, "%s%s", MSG_IPC_DATA_PATH, ipc_filename);
 
 	gchar *serialized_data = NULL;
 	gsize serialized_len = 0;
-	MSG_DEBUG("ipc_path [%s]", ipc_filepath);
+	MSG_SEC_DEBUG("ipc_path [%s]", ipc_filepath);
 
 	if (!g_file_get_contents((gchar*)ipc_filepath, (gchar**)&serialized_data, (gsize*)&serialized_len, NULL)) {
+		MSG_FREE(app_smack_label);
 		return MSG_ERR_PERMISSION_DENIED;
 	}
 
@@ -1729,6 +1742,9 @@ int MsgMmsCheckFilepathSmack(int fd, const char* ipc_filename)
 						break;
 				}
 			}
+		}
+		if (err == MSG_SUCCESS && mms_data->smil) {
+			err = MsgCheckFilepathSmack(app_smack_label, mms_data->smil->szFilePath);
 		}
 		MsgMmsRelease(&mms_data);
 	} else {

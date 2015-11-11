@@ -26,6 +26,8 @@
 /*==================================================================================================
 					FUNCTION PROTOTYPES
 ==================================================================================================*/
+//File Util
+bool MakeThumbnail(char *srcPath, char *dstPath);
 /**  file operation wrapper - for avoding runtime error */
 FILE* MsgOpenFile(const char* filepath, const char* opt);
 void MsgCloseFile(FILE* pFile);
@@ -61,5 +63,8 @@ bool MsgCreateFile(const char *pFilePath,char *pData, int DataSize);
 char *MsgGetDirName(char *file_path);
 char *MsgGetFileName(char *file_path);
 int MsgCheckFilepathSmack(const char *app_smack_label, char *file_path);
+
+bool MsgScanFile(char *filePath);
+void MsgGetMimeType(char *filePath, char *mimeType, int size);
 #endif // MSG_UTIL_FILE_H
 

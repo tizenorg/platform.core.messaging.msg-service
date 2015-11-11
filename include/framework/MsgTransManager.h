@@ -93,8 +93,6 @@ public:
 	void broadcastSyncMLMsgOperationCB(const msg_error_t err, const int msgId, const int extId);
 	void broadcastStorageChangeCB(const msg_error_t err, const msg_storage_change_type_t storageChangeType, const msg_id_list_s *pMsgIdList);
 	void broadcastReportMsgCB(const msg_error_t err, const msg_report_type_t reportMsgType, const MSG_MESSAGE_INFO_S *pMsgInfo);
-	void setTMStatus();
-	void getTMStatus();
 
 	bool initCynara();
 	void finishCynara();
@@ -129,7 +127,8 @@ private:
 	fd_map storageChangeFdMap; 	// src_fd, true if registered
 	fd_map reportMsgCBFdMap; 	// src_fd, true if registered
 
-	Mutex mx;
+	Mutex mx; /* mutex for shared resources like callback listeners */
+	Mutex mxQ; /* mutex for event queue */
 	CndVar cv;
 	MsgSimpleQ<MSG_CMD_S*> eventQueue;
 

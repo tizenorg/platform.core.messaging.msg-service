@@ -22,4 +22,4 @@
 #include "MmsPluginEncode.h"
 #include "MmsPluginDecode.h"
 
-#endif //MMS_PLUGIN_CODEC_H
+#endif /* MMS_PLUGIN_CODEC_H */

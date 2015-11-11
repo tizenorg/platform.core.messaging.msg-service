@@ -19,7 +19,7 @@
 
 #include "MmsPluginTypes.h"
 
-//Set Data for Message App
+/* Set Data for Message App */
 class MmsPluginAppBase {
 public:
 	MmsPluginAppBase();
@@ -36,4 +36,4 @@ public:
 private:
 	MMS_MESSAGE_DATA_S mmsMsgData;
 };
-#endif //MMS_PLUGIN_APPBASE_H
+#endif /* MMS_PLUGIN_APPBASE_H */

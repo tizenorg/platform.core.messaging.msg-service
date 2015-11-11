@@ -136,7 +136,22 @@ char* msg_clean_country_code(char *src);
 
 char* msg_normalize_number(char *src);
 
+char *getTranslateText(const char *pkg_name, const char *locale_dir, const char *text);
+
 msg_error_t MsgMakeSortRule(const MSG_SORT_RULE_S *pSortRule, char *pSqlSort);
 
 bool msg_is_valid_email(char *pAddress);
+
+msg_error_t msg_write_text_to_msg_info(MSG_MESSAGE_INFO_S *pMsgInfo, char *text);
+
+void msg_replace_available_file_name(char *fileName);
+
+void msg_replace_space_char(char *pszText);
+
+gchar * msg_replace_non_ascii_char(const gchar *pszText, gunichar replacementChar);
+
+/* Dbus function */
+void MsgDbusInit();
+void MsgDbusDeinit();
+
 #endif // MSG_UTIL_FUNCTION_H

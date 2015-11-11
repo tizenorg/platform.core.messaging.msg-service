@@ -81,8 +81,12 @@ msg_error_t MsgSubmitReqSMS(MSG_REQUEST_INFO_S *pReqInfo)
 	MSG_MAIN_TYPE_T mainType = pReqInfo->msgInfo.msgType.mainType;
 	MsgPlugin* plg = MsgPluginManager::instance()->getPlugin(mainType);
 
-	if (plg == NULL)
-		return MSG_ERR_NULL_POINTER;
+	if (plg == NULL) {
+		MsgDbHandler *dbHandle = getDbHandle();
+		MsgStoUpdateNetworkStatus(dbHandle, &(pReqInfo->msgInfo), MSG_NETWORK_SEND_FAIL);
+		MSG_ERR("No plugin for %d type", mainType);
+		return MSG_ERR_INVALID_PLUGIN_HANDLE;
+	}
 
 	// If MSG ID > 0 -> MSG in DRAFT
 	// Move Folder to OUTBOX
@@ -108,8 +112,11 @@ msg_error_t MsgSubmitReqMMS(MSG_REQUEST_INFO_S *pReqInfo)
 
 	MsgPlugin *sms_plg = MsgPluginManager::instance()->getPlugin(MSG_SMS_TYPE);
 
-	if (sms_plg == NULL){
-		return MSG_ERR_NULL_POINTER;
+	if (sms_plg == NULL) {
+		MsgDbHandler *dbHandle = getDbHandle();
+		MsgStoUpdateNetworkStatus(dbHandle, &(pReqInfo->msgInfo), MSG_NETWORK_SEND_FAIL);
+		MSG_ERR("No plugin for %d type", MSG_SMS_TYPE);
+		return MSG_ERR_INVALID_PLUGIN_HANDLE;
 	}
 
 	int defaultNetworkSimId = 0;
@@ -142,12 +149,12 @@ msg_error_t MsgSubmitReqMMS(MSG_REQUEST_INFO_S *pReqInfo)
 
 	if(pReqInfo->msgInfo.msgType.subType == MSG_SENDREQ_JAVA_MMS)
 	{
-		char fileName[MAX_COMMON_INFO_SIZE+1] = {0};
+		char fileName[MSG_FILENAME_LEN_MAX+1] = {0};
 
 		// copy whole of MMS PDU filepath to msgData
-		strncpy(fileName, pReqInfo->msgInfo.msgData, MAX_COMMON_INFO_SIZE);
-		memset(pReqInfo->msgInfo.msgData, 0x00, MAX_MSG_DATA_LEN+1);
-		snprintf(pReqInfo->msgInfo.msgData, MAX_MSG_DATA_LEN+1, "%s%s", MSG_IPC_DATA_PATH, fileName);
+		strncpy(fileName, pReqInfo->msgInfo.msgData, MSG_FILENAME_LEN_MAX);
+		memset(pReqInfo->msgInfo.msgData, 0x00, sizeof(pReqInfo->msgInfo.msgData));
+		snprintf(pReqInfo->msgInfo.msgData, sizeof(pReqInfo->msgInfo.msgData), "%s%s", MSG_IPC_DATA_PATH, fileName);
 
 		MSG_SEC_DEBUG("JAVA MMS PDU filepath:%s", pReqInfo->msgInfo.msgData);
 
@@ -164,6 +171,8 @@ msg_error_t MsgSubmitReqMMS(MSG_REQUEST_INFO_S *pReqInfo)
 	}
 	else if((pReqInfo->msgInfo.msgType.subType == MSG_SENDREQ_MMS) || (pReqInfo->msgInfo.msgType.subType == MSG_FORWARD_MMS))
 	{
+		MSG_SEC_DEBUG("msgdata file path = [%s]", pReqInfo->msgInfo.msgData);
+
 		if(pReqInfo->msgInfo.msgId > 0 && (pReqInfo->msgInfo.folderId == MSG_DRAFT_ID || pReqInfo->msgInfo.folderId == MSG_OUTBOX_ID)) {
 			MSG_DEBUG("Not New Message.");
 			pReqInfo->msgInfo.folderId = MSG_OUTBOX_ID;

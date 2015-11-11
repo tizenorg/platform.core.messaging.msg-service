@@ -30,43 +30,36 @@
 EXPORT_API int msg_open_msg_handle(msg_handle_t *handle)
 {
 	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_SMS_FEATURE);
-	//Privilege check
+	/* Privilege check */
 	int ret = PRIV_MGR_ERROR_SUCCESS;
 	ret = privacy_checker_check_by_privilege(MSG_SERVICE_READ_PRIV_NAME);
 	if (ret != PRIV_MGR_ERROR_SUCCESS)
-	{
 		return MSG_ERR_PERMISSION_DENIED;
-	}
 
-	if (handle == NULL)
-	{
-		MSG_FATAL("Input Paramter is NULL");
+	if (handle == NULL) {
+		MSG_FATAL("Input Parameter is NULL");
 		return MSG_ERR_INVALID_PARAMETER;
 	}
+	/* Create MsgHandle */
 	MsgHandle* pHandle = new MsgHandle();
 
-	// Create MsgHandle
+	if (pHandle == NULL)
+		return MSG_ERR_MEMORY_ERROR;
 	*handle = (msg_handle_t)pHandle;
 
-	if (*handle == NULL)
-		return MSG_ERR_INVALID_PARAMETER;
-
-	try
-	{
-		// Connect to Socket
+	try {
+		/* Connect to Socket */
 		pHandle->openHandle();
-	}
-	catch (MsgException& e)
-	{
+	} catch (MsgException& e) {
 		MSG_FATAL("%s", e.what());
 
-		// Destroy MsgHandle
-		delete (MsgHandle*)(*handle);
-		(*handle) = NULL;
+		/* Destroy MsgHandle */
+		delete pHandle;
+		*handle = NULL;
 
 		if (e.errorCode() == MsgException::SERVER_READY_ERROR)
 			return MSG_ERR_SERVER_NOT_READY;
-		else if(e.errorCode() == MsgException::SECURITY_ERROR)
+		else if (e.errorCode() == MsgException::SECURITY_ERROR)
 			return MSG_ERR_PERMISSION_DENIED;
 		else
 			return MSG_ERR_COMMUNICATION_ERROR;
@@ -79,36 +72,30 @@ EXPORT_API int msg_open_msg_handle(msg_handle_t *handle)
 EXPORT_API int msg_close_msg_handle(msg_handle_t *handle)
 {
 	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_SMS_FEATURE);
-	//Privilege check
+	/* Privilege check */
 	int ret = PRIV_MGR_ERROR_SUCCESS;
 	ret = privacy_checker_check_by_privilege(MSG_SERVICE_READ_PRIV_NAME);
 	if (ret != PRIV_MGR_ERROR_SUCCESS)
-	{
 		return MSG_ERR_PERMISSION_DENIED;
-	}
 
-	if (handle == NULL || *handle == NULL)
-	{
-		MSG_FATAL("Input Paramter is NULL");
+	if (handle == NULL || *handle == NULL) {
+		MSG_FATAL("Input Parameter is NULL");
 		return MSG_ERR_INVALID_PARAMETER;
 	}
 
 	MsgHandle* pHandle = (MsgHandle*)(*handle);
 
-	try
-	{
-		// Disconnect to Socket
+	try {
+		/* Disconnect from Socket */
 		pHandle->closeHandle(pHandle);
-	}
-	catch (MsgException& e)
-	{
+	} catch (MsgException& e) {
 		MSG_FATAL("%s", e.what());
 		return MSG_ERR_COMMUNICATION_ERROR;
 	}
 
-	// Destroy MsgHandle
-	delete (MsgHandle*)(*handle);
-	(*handle) = NULL;
+	/* Destroy MsgHandle */
+	delete pHandle;
+	*handle = NULL;
 
 	return MSG_SUCCESS;
 }

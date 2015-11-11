@@ -98,6 +98,12 @@
 		SECURE_SLOGI("* Info * " fmt"\n", ##__VA_ARGS__);\
 	} while (0)
 
+#define MSG_SEC_ERR(fmt, ...)\
+	do\
+	{\
+		SECURE_LOG(LOG_ERROR, LOG_TAG, "* Error *" fmt "\n", ##__VA_ARGS__);\
+	} while (0)
+
 /*valid data log macros*/
 #define MSG_SMS_VLD_INFO(fmt, ...)\
 	do\

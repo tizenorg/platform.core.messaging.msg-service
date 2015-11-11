@@ -71,6 +71,7 @@ public:
 	msg_error_t getRegisteredPushEvent(char* pPushHeader, int *count, char *app_id, int app_id_len, char *content_type, int content_type_len);
 	msg_error_t getnthPushEvent(int index, int *appcode);
 	msg_error_t releasePushEvent();
+	msg_error_t updateSmsMessage(MSG_MESSAGE_INFO_S *pMsgInfo);
 private:
 	SmsPluginStorage();
 	~SmsPluginStorage();
@@ -87,5 +88,5 @@ private:
 //	unsigned char tmpMsgRef;
 };
 
-#endif //SMS_PLUGIN_STORAGE_H
+#endif /* SMS_PLUGIN_STORAGE_H */
 

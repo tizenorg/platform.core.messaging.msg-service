@@ -32,8 +32,7 @@
 #include "SmsPluginDSHandler.h"
 #include <gio/gio.h>
 
-extern "C"
-{
+extern "C" {
 	#include <tapi_common.h>
 	#include <TelSms.h>
 	#include <TapiUtility.h>
@@ -65,13 +64,10 @@ void MsgResourceMonitorDeinit(void);
 
 msg_error_t MsgPlgCreateHandle(MSG_PLUGIN_HANDLER_S *pPluginHandle)
 {
-	if (pPluginHandle == NULL)
-	{
+	if (pPluginHandle == NULL) {
 		MSG_DEBUG("SMS plugin: create handler error ");
 		return MSG_ERR_NULL_POINTER;
-	}
-	else
-	{
+	} else {
 		pPluginHandle->pfInitialize = SmsPlgInitialize;
 		pPluginHandle->pfFinalize = SmsPlgFinalize;
 		pPluginHandle->pfRegisterListener = SmsPlgRegisterListener;
@@ -95,8 +91,7 @@ msg_error_t MsgPlgCreateHandle(MSG_PLUGIN_HANDLER_S *pPluginHandle)
 
 msg_error_t MsgPlgDestroyHandle(MSG_PLUGIN_HANDLER_S *pPluginHandle)
 {
-	if (pPluginHandle != NULL)
-	{
+	if (pPluginHandle != NULL) {
 		free(pPluginHandle);
 		pPluginHandle = NULL;
 	}
@@ -146,14 +141,13 @@ msg_error_t SmsPlgInitialize()
 
 	SmsPluginCallback::instance()->registerEvent();
 
-	for(int i=1; i <= simCnt; ++i)
-	{
-		struct tapi_handle *handle;
+	for (int i = 1; i <= simCnt; ++i) {
+		TapiHandle *handle;
 		handle = SmsPluginDSHandler::instance()->getTelHandle(i);
 		SmsPluginSetting::instance()->setSimChangeStatus(handle, true);
 	}
 
-	// set resource monitor
+	/* set resource monitor */
 	MsgResourceMonitorInit();
 
 	MSG_END();
@@ -194,7 +188,7 @@ msg_error_t SmsPlgSubmitRequest(MSG_REQUEST_INFO_S *pReqInfo)
 {
 	msg_error_t err = MSG_SUCCESS;
 
-	// Add Submit SMS into DB
+	/* Add Submit SMS into DB */
 	if (pReqInfo->msgInfo.msgId == 0) {
 		if (pReqInfo->msgInfo.msgPort.valid == false) {
 			err = SmsPluginStorage::instance()->checkMessage(&(pReqInfo->msgInfo));
@@ -217,16 +211,15 @@ msg_error_t SmsPlgSubmitRequest(MSG_REQUEST_INFO_S *pReqInfo)
 		}
 	}
 
-	// Check SIM is present or not
+	/* Check SIM is present or not */
 	char keyName[MAX_VCONFKEY_NAME_LEN] = {0,};
 	snprintf(keyName, sizeof(keyName), "%s/%d", MSG_SIM_CHANGED, pReqInfo->msgInfo.sim_idx);
 	MSG_SIM_STATUS_T simStatus = (MSG_SIM_STATUS_T)MsgSettingGetInt(keyName);
 
-	if (simStatus == MSG_SIM_STATUS_NOT_FOUND)
-	{
+	if (simStatus == MSG_SIM_STATUS_NOT_FOUND) {
 		MSG_DEBUG("SIM is not present..");
 
-		// Update Msg Status
+		/* Update Msg Status */
 		if (pReqInfo->msgInfo.msgPort.valid == false)
 			SmsPluginStorage::instance()->updateSentMsg(&(pReqInfo->msgInfo), MSG_NETWORK_SEND_FAIL);
 
@@ -256,7 +249,7 @@ msg_error_t SmsPlgSubmitRequest(MSG_REQUEST_INFO_S *pReqInfo)
 
 msg_error_t SmsPlgSaveSimMessage(const MSG_MESSAGE_INFO_S *pMsgInfo, SMS_SIM_ID_LIST_S *pSimIdList)
 {
-	// Check SIM is present or not
+	/*  Check SIM is present or not */
 	char keyName[MAX_VCONFKEY_NAME_LEN];
 	memset(keyName, 0x00, sizeof(keyName));
 	snprintf(keyName, sizeof(keyName), "%s/%d", MSG_SIM_CHANGED, pMsgInfo->sim_idx);
@@ -269,17 +262,12 @@ msg_error_t SmsPlgSaveSimMessage(const MSG_MESSAGE_INFO_S *pMsgInfo, SMS_SIM_ID_
 
 	msg_error_t err = MSG_SUCCESS;
 
-	try
-	{
+	try {
 		err = SmsPluginSimMsg::instance()->saveSimMessage(pMsgInfo, pSimIdList);
-	}
-	catch (MsgException& e)
-	{
+	} catch (MsgException& e) {
 		MSG_FATAL("%s", e.what());
 		return MSG_ERR_PLUGIN_STORAGE;
-	}
-	catch (exception& e)
-	{
+	} catch (exception& e) {
 		MSG_FATAL("%s", e.what());
 		return MSG_ERR_PLUGIN_STORAGE;
 	}
@@ -290,7 +278,7 @@ msg_error_t SmsPlgSaveSimMessage(const MSG_MESSAGE_INFO_S *pMsgInfo, SMS_SIM_ID_
 
 msg_error_t SmsPlgDeleteSimMessage(msg_sim_slot_id_t sim_idx, msg_sim_id_t SimMsgId)
 {
-	// Check SIM is present or not
+	/* Check SIM is present or not */
 	char keyName[MAX_VCONFKEY_NAME_LEN]={0,};
 	snprintf(keyName, sizeof(keyName), "%s/%d", MSG_SIM_CHANGED, sim_idx);
 	MSG_SIM_STATUS_T simStatus = (MSG_SIM_STATUS_T)MsgSettingGetInt(keyName);
@@ -300,17 +288,12 @@ msg_error_t SmsPlgDeleteSimMessage(msg_sim_slot_id_t sim_idx, msg_sim_id_t SimMs
 		return MSG_ERR_NO_SIM;
 	}
 
-	try
-	{
+	try {
 		SmsPluginSimMsg::instance()->deleteSimMessage(sim_idx, SimMsgId);
-	}
-	catch (MsgException& e)
-	{
+	} catch (MsgException& e) {
 		MSG_FATAL("%s", e.what());
 		return MSG_ERR_PLUGIN_STORAGE;
-	}
-	catch (exception& e)
-	{
+	} catch (exception& e) {
 		MSG_FATAL("%s", e.what());
 		return MSG_ERR_PLUGIN_STORAGE;
 	}
@@ -321,7 +304,7 @@ msg_error_t SmsPlgDeleteSimMessage(msg_sim_slot_id_t sim_idx, msg_sim_id_t SimMs
 
 msg_error_t SmsPlgSetReadStatus(msg_sim_slot_id_t sim_idx, msg_sim_id_t SimMsgId)
 {
-	// Check SIM is present or not
+	/* Check SIM is present or not */
 	char keyName[MAX_VCONFKEY_NAME_LEN]={0,};
 	snprintf(keyName, sizeof(keyName), "%s/%d", MSG_SIM_CHANGED, sim_idx);
 	MSG_SIM_STATUS_T simStatus = (MSG_SIM_STATUS_T)MsgSettingGetInt(keyName);
@@ -331,17 +314,12 @@ msg_error_t SmsPlgSetReadStatus(msg_sim_slot_id_t sim_idx, msg_sim_id_t SimMsgId
 		return MSG_ERR_NO_SIM;
 	}
 
-	try
-	{
+	try {
 		SmsPluginSimMsg::instance()->setReadStatus(sim_idx, SimMsgId);
-	}
-	catch (MsgException& e)
-	{
+	} catch (MsgException& e) {
 		MSG_FATAL("%s", e.what());
 		return MSG_ERR_PLUGIN_STORAGE;
-	}
-	catch (exception& e)
-	{
+	} catch (exception& e) {
 		MSG_FATAL("%s", e.what());
 		return MSG_ERR_PLUGIN_STORAGE;
 	}
@@ -352,7 +330,7 @@ msg_error_t SmsPlgSetReadStatus(msg_sim_slot_id_t sim_idx, msg_sim_id_t SimMsgId
 
 msg_error_t SmsPlgSetMemoryStatus(msg_sim_slot_id_t simIndex, msg_error_t Error)
 {
-	// Check SIM is present or not
+	/* Check SIM is present or not */
 	char keyName[MAX_VCONFKEY_NAME_LEN];
 
 	memset(keyName, 0x00, sizeof(keyName));
@@ -368,24 +346,18 @@ msg_error_t SmsPlgSetMemoryStatus(msg_sim_slot_id_t simIndex, msg_error_t Error)
 	int status = TAPI_NETTEXT_PDA_MEMORY_STATUS_AVAILABLE;
 
 	if (Error == MSG_ERR_SIM_STORAGE_FULL || Error == MSG_ERR_MESSAGE_COUNT_FULL)
-	{
 		status = TAPI_NETTEXT_PDA_MEMORY_STATUS_FULL;
-	}
 
 	MSG_DEBUG("Set Status : [%d]", status);
 
-	struct tapi_handle *handle = SmsPluginDSHandler::instance()->getTelHandle(simIndex);
+	TapiHandle *handle = SmsPluginDSHandler::instance()->getTelHandle(simIndex);
 
 	tapiRet = tel_set_sms_memory_status(handle, status, TapiEventMemoryStatus, NULL);
 
 	if (tapiRet == TAPI_API_SUCCESS)
-	{
 		MSG_DEBUG("########  tel_set_sms_memory_status() Success !!! #######");
-	}
 	else
-	{
 		MSG_DEBUG("########  tel_set_sms_memory_status() Success !!! return : [%d] #######", tapiRet);
-	}
 
 	return MSG_SUCCESS;
 }
@@ -393,17 +365,20 @@ msg_error_t SmsPlgSetMemoryStatus(msg_sim_slot_id_t simIndex, msg_error_t Error)
 
 msg_error_t SmsPlgSetConfigData(const MSG_SETTING_S *pSetting)
 {
-	try
-	{
-		SmsPluginSetting::instance()->setConfigData(pSetting);
+	/* Check SIM is present or not */
+	MSG_SIM_STATUS_T simStatus = (MSG_SIM_STATUS_T)MsgSettingGetInt(MSG_SIM_CHANGED);
+
+	if (simStatus == MSG_SIM_STATUS_NOT_FOUND) {
+		MSG_DEBUG("SIM is not present..");
+		return MSG_ERR_NO_SIM;
 	}
-	catch (MsgException& e)
-	{
+
+	try {
+		SmsPluginSetting::instance()->setConfigData(pSetting);
+	} catch (MsgException& e) {
 		MSG_FATAL("%s", e.what());
 		return MSG_ERR_PLUGIN_SETTING;
-	}
-	catch (exception& e)
-	{
+	} catch (exception& e) {
 		MSG_FATAL("%s", e.what());
 		return MSG_ERR_PLUGIN_SETTING;
 	}
@@ -414,17 +389,20 @@ msg_error_t SmsPlgSetConfigData(const MSG_SETTING_S *pSetting)
 
 msg_error_t SmsPlgGetConfigData(MSG_SETTING_S *pSetting)
 {
-	try
-	{
-		SmsPluginSetting::instance()->getConfigData(pSetting);
+	/* Check SIM is present or not */
+	MSG_SIM_STATUS_T simStatus = (MSG_SIM_STATUS_T)MsgSettingGetInt(MSG_SIM_CHANGED);
+
+	if (simStatus == MSG_SIM_STATUS_NOT_FOUND) {
+		MSG_DEBUG("SIM is not present..");
+		return MSG_ERR_NO_SIM;
 	}
-	catch (MsgException& e)
-	{
+
+	try {
+		SmsPluginSetting::instance()->getConfigData(pSetting);
+	} catch (MsgException& e) {
 		MSG_FATAL("%s", e.what());
 		return MSG_ERR_PLUGIN_SETTING;
-	}
-	catch (exception& e)
-	{
+	} catch (exception& e) {
 		MSG_FATAL("%s", e.what());
 		return MSG_ERR_PLUGIN_SETTING;
 	}
@@ -437,19 +415,14 @@ msg_error_t SmsPlgAddMessage(MSG_MESSAGE_INFO_S *pMsgInfo,  MSG_SENDINGOPT_INFO_
 {
 
 	int *simIdList = (int*)pFileData;
-	try
-	{
+	try {
 		SmsPluginStorage::instance()->addSmsSendOption(pMsgInfo, pSendOptInfo);
 		if (simIdList)
 			SmsPluginStorage::instance()->addSimMessage(pMsgInfo, simIdList);
-	}
-	catch (MsgException& e)
-	{
+	} catch (MsgException& e) {
 		MSG_FATAL("%s", e.what());
 		return MSG_ERR_PLUGIN_SETTING;
-	}
-	catch (exception& e)
-	{
+	} catch (exception& e) {
 		MSG_FATAL("%s", e.what());
 		return MSG_ERR_PLUGIN_SETTING;
 	}
@@ -461,17 +434,12 @@ msg_error_t SmsPlgAddMessage(MSG_MESSAGE_INFO_S *pMsgInfo,  MSG_SENDINGOPT_INFO_
 msg_error_t SmsPlgGetDefaultNetworkSimId(int *simId)
 {
 
-	try
-	{
+	try {
 		SmsPluginDSHandler::instance()->getDefaultNetworkSimId(simId);
-	}
-	catch (MsgException& e)
-	{
+	} catch (MsgException& e) {
 		MSG_FATAL("%s", e.what());
 		return MSG_ERR_PLUGIN_SETTING;
-	}
-	catch (exception& e)
-	{
+	} catch (exception& e) {
 		MSG_FATAL("%s", e.what());
 		return MSG_ERR_PLUGIN_SETTING;
 	}
@@ -490,7 +458,7 @@ static void on_change_received(GDBusConnection *connection, const gchar *sender_
 		gint memStatus;
 		g_variant_get(parameters, "(i)", &memStatus);
 		MSG_DEBUG("memStatus = [%d]", memStatus);
-		if(memStatus == 0) {
+		if (memStatus == 0) {
 			int sim_count = SmsPluginDSHandler::instance()->getTelHandleCount();
 
 			for (int i = 0; i < sim_count; i++) {
@@ -502,7 +470,7 @@ static void on_change_received(GDBusConnection *connection, const gchar *sender_
 
 void MsgResourceMonitorInit(void)
 {
-    MSG_BEGIN();
+	MSG_BEGIN();
 
 	GError *error = NULL;
 

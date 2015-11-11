@@ -159,7 +159,7 @@ msg_error_t SmsPluginStorage::updateMsgDeliverStatus(MSG_MESSAGE_INFO_S *pMsgInf
 			MSG_DEBUG("Query Failed : [%s]", sqlQuery);
 			return MSG_ERR_DB_EXEC;
 		}
-	} else if(pMsgInfo->networkStatus == MSG_NETWORK_DELIVER_EXPIRED) {
+	} else if (pMsgInfo->networkStatus == MSG_NETWORK_DELIVER_EXPIRED) {
 		memset(sqlQuery, 0x00, sizeof(sqlQuery));
 		snprintf(sqlQuery, sizeof(sqlQuery), "UPDATE %s SET MSG_REF = -1, STATUS = %d, TIME = %d WHERE MSG_ID = %d and ADDRESS_VAL = '%s';",
 				MSGFW_SMS_REPORT_TABLE_NAME, 0, (int)pMsgInfo->displayTime, msgId, normalNum);
@@ -169,7 +169,7 @@ msg_error_t SmsPluginStorage::updateMsgDeliverStatus(MSG_MESSAGE_INFO_S *pMsgInf
 			MSG_DEBUG("Query Failed : [%s]", sqlQuery);
 			return MSG_ERR_DB_EXEC;
 		}
-	} else if(pMsgInfo->networkStatus == MSG_NETWORK_DELIVER_PENDING) {
+	} else if (pMsgInfo->networkStatus == MSG_NETWORK_DELIVER_PENDING) {
 		memset(sqlQuery, 0x00, sizeof(sqlQuery));
 		snprintf(sqlQuery, sizeof(sqlQuery), "UPDATE %s SET MSG_REF = -1, STATUS = %d, TIME = %d WHERE MSG_ID = %d and ADDRESS_VAL = '%s';",
 				MSGFW_SMS_REPORT_TABLE_NAME, 3, (int)pMsgInfo->displayTime, msgId, normalNum);
@@ -179,7 +179,7 @@ msg_error_t SmsPluginStorage::updateMsgDeliverStatus(MSG_MESSAGE_INFO_S *pMsgInf
 			MSG_DEBUG("Query Failed : [%s]", sqlQuery);
 			return MSG_ERR_DB_EXEC;
 		}
-	} else if(pMsgInfo->networkStatus == MSG_NETWORK_DELIVER_FAIL) {
+	} else if (pMsgInfo->networkStatus == MSG_NETWORK_DELIVER_FAIL) {
 		memset(sqlQuery, 0x00, sizeof(sqlQuery));
 		snprintf(sqlQuery, sizeof(sqlQuery), "UPDATE %s SET MSG_REF = -1, STATUS = %d, TIME = %d WHERE MSG_ID = %d and ADDRESS_VAL = '%s';",
 				MSGFW_SMS_REPORT_TABLE_NAME, 8, (int)pMsgInfo->displayTime, msgId, normalNum);
@@ -332,63 +332,10 @@ msg_error_t SmsPluginStorage::addSimMessage(MSG_MESSAGE_INFO_S *pSimMsgInfo, int
 
 	char sqlQuery[MAX_QUERY_LEN+1];
 
-//	dbHandle->beginTrans();
-
-# if 0
-	msg_message_id_t msgId = 0;
-	msg_thread_id_t convId = 0;
-
-	err = MsgStoAddAddress(dbHandle, pSimMsgInfo, &convId);
-
-	if (err != MSG_SUCCESS) {
-		dbHandle->endTrans(false);
-		return err;
-	}
-
-	pSimMsgInfo->threadId = convId;
-
-	err = dbHandle->getRowId(MSGFW_MESSAGE_TABLE_NAME, &msgId);
-
-	if (err != MSG_SUCCESS) {
-		dbHandle->endTrans(false);
-		return err;
-	}
-
-	//simId = pSimMsgInfo->msgId;
-	pSimMsgInfo->msgId = msgId;
-
-	/**  Add Message */
-	memset(sqlQuery, 0x00, sizeof(sqlQuery));
-
-	snprintf(sqlQuery, sizeof(sqlQuery), "INSERT INTO %s VALUES (%d, %d, %d, %d, %d, %d, %ld, %d, %d, %d, %d, %d, %d, %ld, %d, ?, '', '', ?, 0, 0, 0);",
-			MSGFW_MESSAGE_TABLE_NAME, msgId, convId, pSimMsgInfo->folderId, pSimMsgInfo->storageId,
-			pSimMsgInfo->msgType.mainType, pSimMsgInfo->msgType.subType, pSimMsgInfo->displayTime, pSimMsgInfo->dataSize,
-			pSimMsgInfo->networkStatus, pSimMsgInfo->bRead, pSimMsgInfo->bProtected, pSimMsgInfo->priority,
-			pSimMsgInfo->direction, 0, pSimMsgInfo->bBackup);
-
-	MSG_DEBUG("QUERY : %s", sqlQuery);
-
-	if (dbHandle->prepareQuery(sqlQuery) != MSG_SUCCESS) {
-		dbHandle->endTrans(false);
-		return MSG_ERR_DB_PREPARE;
-	}
-
-	dbHandle->bindText(pSimMsgInfo->subject, 1);
-
-	dbHandle->bindText(pSimMsgInfo->msgText, 2);
-
-	if (dbHandle->stepQuery() != MSG_ERR_DB_DONE) {
-		dbHandle->endTrans(false);
-		return MSG_ERR_DB_STEP;
-	}
-
-	dbHandle->finalizeQuery();
-#endif
-	if(simIdList) {
+	if (simIdList) {
 		MSG_DEBUG("simIdList exist.");
-		for(int i=0; i < MAX_SIM_SMS_NUM; ++i)
-		{
-			if(simIdList[i]) {
+		for (int i = 0; i < MAX_SIM_SMS_NUM; ++i) {
+			if (simIdList[i]) {
 				simId = simIdList[i] - 1;
 				memset(sqlQuery, 0x00, sizeof(sqlQuery));
 				snprintf(sqlQuery, sizeof(sqlQuery), "INSERT INTO %s VALUES (%d, %d);",
@@ -397,15 +344,13 @@ msg_error_t SmsPluginStorage::addSimMessage(MSG_MESSAGE_INFO_S *pSimMsgInfo, int
 				MSG_DEBUG("QUERY : %s", sqlQuery);
 
 				if (dbHandle->execQuery(sqlQuery) != MSG_SUCCESS) {
-//					dbHandle->endTrans(false);
 					return MSG_ERR_DB_EXEC;
 				}
-			} else
+			} else {
 				break;
+			}
 		}
 	}
-
-//	dbHandle->endTrans(true);
 
 	return err;
 
@@ -474,7 +419,7 @@ msg_error_t SmsPluginStorage::checkMessage(MSG_MESSAGE_INFO_S *pMsgInfo)
 			pMsgInfo->folderId = 0;
 			err = MSG_SUCCESS;
 		}
-		else if(pMsgInfo->msgType.classType == MSG_CLASS_2 &&
+		else if (pMsgInfo->msgType.classType == MSG_CLASS_2 &&
 				(pMsgInfo->msgType.subType == MSG_NORMAL_SMS || pMsgInfo->msgType.subType == MSG_REJECT_SMS)) {
 			err = addClass2Message(pMsgInfo);
 		}
@@ -708,7 +653,7 @@ msg_error_t SmsPluginStorage::deleteSmsMessage(msg_message_id_t msgId)
 		}
 	}
 
-	MsgRefreshAllNotification(true, false, false);
+	MsgRefreshAllNotification(true, false, MSG_ACTIVE_NOTI_TYPE_NONE);
 
 	return MSG_SUCCESS;
 }
@@ -719,6 +664,19 @@ msg_error_t SmsPluginStorage::addClass2Message(MSG_MESSAGE_INFO_S *pMsgInfo)
 	MSG_BEGIN();
 
 	msg_error_t err = MSG_SUCCESS;
+	bool bSimSst = true;
+
+	char keyName[MAX_VCONFKEY_NAME_LEN];
+	memset(keyName, 0x00, sizeof(keyName));
+	snprintf(keyName, sizeof(keyName), "%s/%d", MSG_SIM_SERVICE_TABLE, pMsgInfo->sim_idx);
+
+	if (MsgSettingGetBool(keyName, &bSimSst) != MSG_SUCCESS) {
+		MSG_ERR("MsgSettingGetBool [%s] failed", keyName);
+	}
+
+	if (bSimSst == false) {
+		return MSG_ERR_SIM_STORAGE_FULL;
+	}
 	pthread_t thd;
 	memset(&msgInfo, 0, sizeof(MSG_MESSAGE_INFO_S));
 	memset(&addrInfo, 0, sizeof(MSG_ADDRESS_INFO_S));
@@ -726,12 +684,9 @@ msg_error_t SmsPluginStorage::addClass2Message(MSG_MESSAGE_INFO_S *pMsgInfo)
 	memcpy(&addrInfo, pMsgInfo->addressList, sizeof(MSG_ADDRESS_INFO_S));
 	msgInfo.addressList = &addrInfo;
 
-	if(pthread_create(&thd, NULL, &class2_thread, (void *)&msgInfo) < 0)
-	{
+	if (pthread_create(&thd, NULL, &class2_thread, (void *)&msgInfo) < 0)
 		MSG_DEBUG("pthread_create() error");
 
-	}
-	//pthread_join(thd, (void **)&err);
 	pthread_detach(thd);
 
 #if 0
@@ -761,7 +716,7 @@ void* SmsPluginStorage::class2_thread(void *data)
 	if (err == MSG_SUCCESS) {
 		MSG_DEBUG("Success to saveClass2Message.");
 	} else {
-		MSG_DEBUG("Fail to saveClass2Message : [%d]", err);
+		MSG_ERR("Fail to saveClass2Message : [%d]", err);
 	}
 
 	MSG_END();
@@ -852,28 +807,29 @@ msg_error_t SmsPluginStorage::addSmsSendOption(MSG_MESSAGE_INFO_S *pMsg, MSG_SEN
 		MsgSettingGetBool(SMS_SEND_DELIVERY_REPORT, &pSendOptInfo->bDeliverReq);
 		MsgSettingGetBool(SMS_SEND_REPLY_PATH, &pSendOptInfo->option.smsSendOptInfo.bReplyPath);
 
-//		if (pSendOptInfo->bDeliverReq || pSendOptInfo->option.smsSendOptInfo.bReplyPath) {
-//			pSendOptInfo->bSetting = true;
-			MsgSettingGetBool(MSG_KEEP_COPY, &pSendOptInfo->bKeepCopy);
-//		}
+		MsgSettingGetBool(MSG_KEEP_COPY, &pSendOptInfo->bKeepCopy);
 	}
 
-//	if (pSendOptInfo->bSetting == true) {
-		MsgDbHandler *dbHandle = getDbHandle();
+	MsgDbHandler *dbHandle = getDbHandle();
 
-		char sqlQuery[MAX_QUERY_LEN+1];
+	char sqlQuery[MAX_QUERY_LEN+1];
 
-		memset(sqlQuery, 0x00, sizeof(sqlQuery));
-		snprintf(sqlQuery, sizeof(sqlQuery), "INSERT INTO %s VALUES (%d, %d, %d, %d, %d);",
-				MSGFW_SMS_SENDOPT_TABLE_NAME, pMsg->msgId, pSendOptInfo->bDeliverReq,
-				pSendOptInfo->bKeepCopy, pSendOptInfo->option.smsSendOptInfo.bReplyPath, pMsg->encodeType);
+	dbHandle->beginTrans();
 
-		MSG_DEBUG("Query = [%s]", sqlQuery);
+	memset(sqlQuery, 0x00, sizeof(sqlQuery));
+	snprintf(sqlQuery, sizeof(sqlQuery), "INSERT INTO %s VALUES (%d, %d, %d, %d, %d);",
+			MSGFW_SMS_SENDOPT_TABLE_NAME, pMsg->msgId, pSendOptInfo->bDeliverReq,
+			pSendOptInfo->bKeepCopy, pSendOptInfo->option.smsSendOptInfo.bReplyPath, pMsg->encodeType);
 
-		if (dbHandle->execQuery(sqlQuery) != MSG_SUCCESS) {
-			err = MSG_ERR_DB_EXEC;
-		}
-//	}
+	MSG_DEBUG("Query = [%s]", sqlQuery);
+
+	if (dbHandle->execQuery(sqlQuery) != MSG_SUCCESS) {
+		MSG_ERR("execQuery() is failed");
+		dbHandle->endTrans(false);
+		return MSG_ERR_DB_EXEC;
+	}
+
+	dbHandle->endTrans(true);
 
 	MSG_END();
 
@@ -992,13 +948,13 @@ msg_error_t SmsPluginStorage::getRegisteredPushEvent(char* pPushHeader, int *cou
 	err = dbHandle->getTable(sqlQuery, &rowCnt, &index);
 	MSG_DEBUG("rowCnt: %d", rowCnt);
 
-	if (err == MSG_ERR_DB_NORECORD) {
+	if (err != MSG_SUCCESS) {
 		dbHandle->freeTable();
-		return MSG_SUCCESS;
-	}
-	else if ( err != MSG_SUCCESS) {
-		dbHandle->freeTable();
-		return err;
+
+		if (err == MSG_ERR_DB_NORECORD)
+			return MSG_SUCCESS;
+		else
+			return err;
 	}
 
 	char contentType[MAX_WAPPUSH_CONTENT_TYPE_LEN + 1] = {0,};
@@ -1019,12 +975,12 @@ msg_error_t SmsPluginStorage::getRegisteredPushEvent(char* pPushHeader, int *cou
 
 		//MSG_DEBUG("content_type: %s, app_id: %s", content_type, app_id);
 		_content_type = strcasestr(pPushHeader, contentType);
-		if(_content_type) {
+		if (_content_type) {
 			_app_id = strcasestr(pPushHeader, appId);
-			if(appcode)
+			if (appcode)
 				default_appcode = appcode;
 
-			if(_app_id) {
+			if (_app_id) {
 				PUSH_APPLICATION_INFO_S pInfo = {0, };
 				pInfo.appcode = appcode;
 				MSG_SEC_DEBUG("appcode: %d, app_id: %s", pInfo.appcode, appId);
@@ -1037,9 +993,8 @@ msg_error_t SmsPluginStorage::getRegisteredPushEvent(char* pPushHeader, int *cou
 		}
 	}
 
-	if(!found && default_appcode != SMS_WAP_APPLICATION_LBS)
-	{
-		// perform default action.
+	if (!found && default_appcode != SMS_WAP_APPLICATION_LBS) {
+		/* perform default action. */
 		PUSH_APPLICATION_INFO_S pInfo = {0, };
 		pInfo.appcode = default_appcode;
 		memset(appId, 0, MAX_WAPPUSH_ID_LEN + 1);
@@ -1057,14 +1012,13 @@ msg_error_t SmsPluginStorage::getRegisteredPushEvent(char* pPushHeader, int *cou
 msg_error_t SmsPluginStorage::getnthPushEvent(int index, int *appcode)
 {
 	msg_error_t err = MSG_SUCCESS;
-	if((unsigned int)index > pushAppInfoList.size() - 1)
+	if ((unsigned int)index > pushAppInfoList.size() - 1)
 		return MSG_ERR_INVALID_PARAMETER;
 
 	std::list<PUSH_APPLICATION_INFO_S>::iterator it = pushAppInfoList.begin();
 	int count = 0;
-	for (; it != pushAppInfoList.end(); it++)
-	{
-		if(index == count){
+	for (; it != pushAppInfoList.end(); it++) {
+		if (index == count){
 			*appcode = it->appcode;
 			break;
 		}
@@ -1084,4 +1038,71 @@ msg_error_t SmsPluginStorage::releasePushEvent()
 		it = pushAppInfoList.erase(it);
 
 	return err;
+}
+
+
+msg_error_t SmsPluginStorage::updateSmsMessage(MSG_MESSAGE_INFO_S *pMsgInfo)
+{
+	MSG_BEGIN();
+	MsgDbHandler *dbHandle = getDbHandle();
+	char sqlQuery[MAX_QUERY_LEN+1] = {0,};
+	msg_thread_id_t convId = 0;
+
+	dbHandle->beginTrans();
+
+	if (pMsgInfo->nAddressCnt > 0) {
+		pMsgInfo->threadId = 0;
+		msg_error_t err = MsgStoAddAddress(dbHandle, pMsgInfo, &convId);
+
+		if (err != MSG_SUCCESS) {
+			dbHandle->endTrans(false);
+			return err;
+		}
+	}
+
+	int fileSize = 0;
+
+	char *pFileData = NULL;
+	unique_ptr<char*, void(*)(char**)> buf(&pFileData, unique_ptr_deleter);
+
+	/* Get File Data */
+	if (pMsgInfo->bTextSms == false) {
+		if (MsgOpenAndReadFile(pMsgInfo->msgData, &pFileData, &fileSize) == false) {
+			dbHandle->endTrans(false);
+			return MSG_ERR_STORAGE_ERROR;
+		}
+	}
+
+	snprintf(sqlQuery, sizeof(sqlQuery), "UPDATE %s SET CONV_ID = %d, FOLDER_ID = %d, STORAGE_ID = %d, MAIN_TYPE = %d, SUB_TYPE = %d, \
+			DISPLAY_TIME = %lu, DATA_SIZE = %d, NETWORK_STATUS = %d, READ_STATUS = %d, PROTECTED = %d, PRIORITY = %d, MSG_DIRECTION = %d, \
+			BACKUP = %d, SUBJECT = ?, MSG_TEXT = ?, SIM_INDEX = %d \
+			WHERE MSG_ID = %d;",
+			MSGFW_MESSAGE_TABLE_NAME, convId, pMsgInfo->folderId, pMsgInfo->storageId, pMsgInfo->msgType.mainType, pMsgInfo->msgType.subType, pMsgInfo->displayTime, pMsgInfo->dataSize,
+			pMsgInfo->networkStatus, pMsgInfo->bRead, pMsgInfo->bProtected, pMsgInfo->priority, pMsgInfo->direction, pMsgInfo->bBackup, pMsgInfo->sim_idx, pMsgInfo->msgId);
+
+	if (dbHandle->prepareQuery(sqlQuery) != MSG_SUCCESS) {
+		dbHandle->endTrans(false);
+		return MSG_ERR_DB_EXEC;
+	}
+
+	dbHandle->bindText(pMsgInfo->subject, 1);
+
+	if (pMsgInfo->bTextSms == false)
+		dbHandle->bindText(pFileData, 2);
+	else
+		dbHandle->bindText(pMsgInfo->msgText, 2);
+
+	MSG_DEBUG("%s", sqlQuery);
+
+	if (dbHandle->stepQuery() != MSG_ERR_DB_DONE) {
+		dbHandle->finalizeQuery();
+		dbHandle->endTrans(false);
+		return MSG_ERR_DB_EXEC;
+	}
+
+	dbHandle->finalizeQuery();
+	dbHandle->endTrans(true);
+
+	MSG_END();
+	return MSG_SUCCESS;
 }

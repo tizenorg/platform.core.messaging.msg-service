@@ -5,8 +5,8 @@ License:        Apache-2.0
 Summary:        Messaging Framework Library
 Group:          System/Libraries
 Source0:        %{name}-%{version}.tar.gz
-Source1:	msg-server.service
-Source2:	msg-server.socket
+Source1:        msg-server.service
+Source2:        msg-server.socket
 
 %if "%{?tizen_profile_name}" == "tv"
 ExcludeArch: %{arm} %ix86 x86_64
@@ -23,43 +23,46 @@ BuildRequires: pkgconfig(aul)
 BuildRequires: pkgconfig(badge)
 BuildRequires: pkgconfig(bundle)
 BuildRequires: pkgconfig(capi-appfw-application)
+BuildRequires: pkgconfig(capi-content-media-content)
+BuildRequires: pkgconfig(capi-media-image-util)
+BuildRequires: pkgconfig(capi-media-metadata-extractor)
+BuildRequires: pkgconfig(capi-media-thumbnail-util)
 BuildRequires: pkgconfig(capi-network-connection)
+BuildRequires: pkgconfig(capi-system-device)
 BuildRequires: pkgconfig(capi-system-info)
+BuildRequires: pkgconfig(capi-system-system-settings)
 BuildRequires: pkgconfig(capi-telephony)
 BuildRequires: pkgconfig(contacts-service2)
 BuildRequires: pkgconfig(cynara-client)
 BuildRequires: pkgconfig(cynara-creds-commons)
 BuildRequires: pkgconfig(cynara-creds-socket)
 BuildRequires: pkgconfig(cynara-session)
-BuildRequires: pkgconfig(db-util)
 BuildRequires: pkgconfig(deviced)
 BuildRequires: pkgconfig(dlog)
 BuildRequires: pkgconfig(eventsystem)
 BuildRequires: pkgconfig(feedback)
 BuildRequires: pkgconfig(gio-2.0)
 BuildRequires: pkgconfig(gobject-2.0)
+BuildRequires: pkgconfig(icu-uc)
 BuildRequires: pkgconfig(iniparser)
 BuildRequires: pkgconfig(json-glib-1.0)
 BuildRequires: pkgconfig(lbs-dbus)
 BuildRequires: pkgconfig(libcurl)
-BuildRequires: pkgconfig(libsystemd-daemon)
+BuildRequires: pkgconfig(libresourced)
 BuildRequires: pkgconfig(libxml-2.0)
 BuildRequires: pkgconfig(libwbxml2)
-BuildRequires: pkgconfig(capi-media-thumbnail-util)
-BuildRequires: pkgconfig(capi-media-image-util)
+BuildRequires: pkgconfig(motion)
 BuildRequires: pkgconfig(mm-fileinfo)
 BuildRequires: pkgconfig(mm-player)
 BuildRequires: pkgconfig(mm-session)
 BuildRequires: pkgconfig(mm-sound)
-BuildRequires: pkgconfig(mmutil-imgp)
-BuildRequires: pkgconfig(mmutil-jpeg)
 BuildRequires: pkgconfig(notification)
 BuildRequires: pkgconfig(privacy-manager-client)
-BuildRequires: pkgconfig(sensor)
+BuildRequires: pkgconfig(security-server)
+BuildRequires: pkgconfig(sqlite3)
 BuildRequires: pkgconfig(storage)
 BuildRequires: pkgconfig(tapi)
 BuildRequires: pkgconfig(vconf)
-BuildRequires: pkgconfig(libsmack)
 
 %description
 Description: Messaging Framework Library

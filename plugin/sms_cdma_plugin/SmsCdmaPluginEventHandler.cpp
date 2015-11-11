@@ -41,7 +41,7 @@ SmsPluginEventHandler* SmsPluginEventHandler::pInstance = NULL;
 
 SmsPluginEventHandler::SmsPluginEventHandler()
 {
-	/**  Initialize global parameters */
+	/*  Initialize global parameters */
 	memset(&listener, 0x00, sizeof(MSG_PLUGIN_LISTENER_S));
 	memset(&sentInfo, 0x00, sizeof(sms_sent_info_s));
 	devStatus = false;
@@ -62,6 +62,7 @@ SmsPluginEventHandler* SmsPluginEventHandler::instance()
 	return pInstance;
 }
 
+
 void SmsPluginEventHandler::registerListener(MSG_PLUGIN_LISTENER_S *pListener)
 {
 	listener = *pListener;
@@ -72,7 +73,7 @@ void SmsPluginEventHandler::convertTpduToMsginfo(sms_trans_p2p_msg_s *p_p2p_msg,
 {
 	MSG_BEGIN();
 
-	// Address
+	/* Address */
 	if (p_p2p_msg->telesvc_msg.data.deliver.callback_number.szData[0] != '\0')
 		p_msg_info->nAddressCnt = 2;
 	else
@@ -82,14 +83,14 @@ void SmsPluginEventHandler::convertTpduToMsginfo(sms_trans_p2p_msg_s *p_p2p_msg,
 
 	if (p_msg_info->addressList) {
 		switch (p_msg_info->nAddressCnt) {
-			case 2 :
-				memset(p_msg_info->addressList[1].addressVal, 0x00, MAX_ADDRESS_VAL_LEN+1);
-			case 1 :
-				memset(p_msg_info->addressList[0].addressVal, 0x00, MAX_ADDRESS_VAL_LEN+1);
-				break;
-			default :
-				MSG_ERR("Invalid case");
-				memset(p_msg_info->addressList[0].addressVal, 0x00, MAX_ADDRESS_VAL_LEN+1);
+		case 2:
+			memset(p_msg_info->addressList[1].addressVal, 0x00, MAX_ADDRESS_VAL_LEN+1);
+		case 1:
+			memset(p_msg_info->addressList[0].addressVal, 0x00, MAX_ADDRESS_VAL_LEN+1);
+			break;
+		default:
+			MSG_ERR("Invalid case");
+			memset(p_msg_info->addressList[0].addressVal, 0x00, MAX_ADDRESS_VAL_LEN+1);
 		}
 	}
 
@@ -100,24 +101,23 @@ void SmsPluginEventHandler::convertTpduToMsginfo(sms_trans_p2p_msg_s *p_p2p_msg,
 	}
 
 
-	// Teleservice message
-	switch(p_p2p_msg->telesvc_msg.type)
-	{
-		case SMS_TYPE_DELIVER :
-			p_msg_info->msgType.subType = MSG_NORMAL_SMS;
-			p_msg_info->folderId = MSG_INBOX_ID;
+	/* Teleservice message */
+	switch (p_p2p_msg->telesvc_msg.type) {
+	case SMS_TYPE_DELIVER:
+	p_msg_info->msgType.subType = MSG_NORMAL_SMS;
+	p_msg_info->folderId = MSG_INBOX_ID;
 
-			convertDeliverMsgToMsgInfo(&(p_p2p_msg->telesvc_msg.data.deliver), p_msg_info);
-			break;
-		case SMS_TYPE_DELIVERY_ACK :
-			convertAckMsgToMsgInfo(&(p_p2p_msg->telesvc_msg.data.delivery_ack), p_msg_info);
-			break;
-		case SMS_TYPE_SUBMIT_REPORT :
-			convertReportMsgToMsgInfo(&(p_p2p_msg->telesvc_msg.data.report), p_msg_info);
-			break;
-		default :
-			MSG_DEBUG("No matching type = [%d]", p_p2p_msg->telesvc_msg.type);
-			break;
+	convertDeliverMsgToMsgInfo(&(p_p2p_msg->telesvc_msg.data.deliver), p_msg_info);
+	break;
+	case SMS_TYPE_DELIVERY_ACK:
+		convertAckMsgToMsgInfo(&(p_p2p_msg->telesvc_msg.data.delivery_ack), p_msg_info);
+		break;
+	case SMS_TYPE_SUBMIT_REPORT:
+		convertReportMsgToMsgInfo(&(p_p2p_msg->telesvc_msg.data.report), p_msg_info);
+		break;
+	default:
+		MSG_DEBUG("No matching type = [%d]", p_p2p_msg->telesvc_msg.type);
+		break;
 	}
 
 	MSG_END();
@@ -128,7 +128,7 @@ void SmsPluginEventHandler::convertTpduToMsginfo(sms_trans_broadcast_msg_s *p_cb
 {
 	MSG_BEGIN();
 
-	// Address
+	/* Address */
 	p_msg_info->nAddressCnt = 0;
 	p_msg_info->addressList = (MSG_ADDRESS_INFO_S *)new char[sizeof(MSG_ADDRESS_INFO_S)];
 
@@ -136,8 +136,8 @@ void SmsPluginEventHandler::convertTpduToMsginfo(sms_trans_broadcast_msg_s *p_cb
 		memset(p_msg_info->addressList[0].addressVal, 0x00, MAX_ADDRESS_VAL_LEN+1);
 	}
 
-	// Bearer Data
-	if(p_cb_msg->telesvc_msg.type == SMS_TYPE_DELIVER) {
+	/* Bearer Data */
+	if (p_cb_msg->telesvc_msg.type == SMS_TYPE_DELIVER) {
 		p_msg_info->msgType.subType = MSG_CB_SMS;
 		p_msg_info->folderId = MSG_CBMSGBOX_ID;
 
@@ -145,8 +145,7 @@ void SmsPluginEventHandler::convertTpduToMsginfo(sms_trans_broadcast_msg_s *p_cb
 			convertCMASMsgToMsgInfo(&(p_cb_msg->telesvc_msg.data.deliver), p_msg_info);
 		else
 			convertDeliverMsgToMsgInfo(&(p_cb_msg->telesvc_msg.data.deliver), p_msg_info);
-	}
-	else {
+	} else {
 		MSG_DEBUG("No matching type = [%d]", p_cb_msg->telesvc_msg.type);
 	}
 
@@ -186,7 +185,8 @@ void SmsPluginEventHandler::convertCMASMsgToMsgInfo(sms_telesvc_deliver_s *p_del
 	p_msg_info->direction = MSG_DIRECTION_TYPE_MT;
 	p_msg_info->bTextSms = true;
 
-	if (p_deliver->callback_number.szData[0] != '\0') {			// If callback number is in received pdu, replace the address value.
+	if (p_deliver->callback_number.szData[0] != '\0') {
+		/* If callback number is in received pdu, replace the address value. */
 		memset(p_msg_info->addressList[0].addressVal, 0x00, MAX_ADDRESS_VAL_LEN+1);
 		p_msg_info->nAddressCnt = 1;
 		p_msg_info->addressList[0].addressType = MSG_ADDRESS_TYPE_UNKNOWN;
@@ -197,7 +197,7 @@ void SmsPluginEventHandler::convertCMASMsgToMsgInfo(sms_telesvc_deliver_s *p_del
 	time_t rawtime = 0;
 	p_msg_info->storageId = MSG_STORAGE_PHONE;
 
-#if 0 // Save Timestamp of message center.
+#if 0 /* Save Timestamp of message center. */
 		char displayTime[32];
 		struct tm * timeTM;
 
@@ -270,28 +270,24 @@ void SmsPluginEventHandler::convertCMASMsgToMsgInfo(sms_telesvc_deliver_s *p_del
 		p_msg_info->dataSize = strlen(p_msg_info->msgData);
 		return;
 	} else {
-		if(p_msg_info->encodeType == MSG_ENCODE_UCS2) {
+		if (p_msg_info->encodeType == MSG_ENCODE_UCS2) {
 			MSG_DEBUG("Encode Type = UCS2");
 			MsgTextConvert *textCvt = MsgTextConvert::instance();
 			p_msg_info->dataSize = textCvt->convertUCS2ToUTF8((unsigned char*)&p_msg_info->msgText, MAX_MSG_TEXT_LEN, (unsigned char*)&p_deliver->cmas_data.alert_text, p_deliver->cmas_data.data_len);
-		}
-		else if(p_msg_info->encodeType == MSG_ENCODE_EUCKR) {
+		} else if (p_msg_info->encodeType == MSG_ENCODE_EUCKR) {
 			MSG_DEBUG("Encode Type = EUCKR");
 			MsgTextConvert *textCvt = MsgTextConvert::instance();
 			p_msg_info->dataSize = textCvt->convertEUCKRToUTF8((unsigned char*)&p_msg_info->msgText, MAX_MSG_TEXT_LEN, (unsigned char*)&p_deliver->cmas_data.alert_text, p_deliver->cmas_data.data_len);
-		}
-		else if(p_msg_info->encodeType == MSG_ENCODE_SHIFT_JIS) {
+		} else if (p_msg_info->encodeType == MSG_ENCODE_SHIFT_JIS) {
 			MSG_DEBUG("Encode Type = Shift-JIS");
 			MsgTextConvert *textCvt = MsgTextConvert::instance();
 			p_msg_info->dataSize = textCvt->convertSHIFTJISToUTF8((unsigned char*)&p_msg_info->msgText, MAX_MSG_TEXT_LEN, (unsigned char*)&p_deliver->cmas_data.alert_text, p_deliver->cmas_data.data_len);
-		}
-		else if(p_msg_info->encodeType == MSG_ENCODE_GSM7BIT) {
+		} else if (p_msg_info->encodeType == MSG_ENCODE_GSM7BIT) {
 			MSG_DEBUG("Encode Type = GSM7BIT");
 			MSG_LANG_INFO_S langinfo = {0,};
 			MsgTextConvert *textCvt = MsgTextConvert::instance();
 			p_msg_info->dataSize = textCvt->convertGSM7bitToUTF8((unsigned char*)&p_msg_info->msgText, MAX_MSG_TEXT_LEN, (unsigned char*)&p_deliver->cmas_data.alert_text, p_deliver->cmas_data.data_len, &langinfo);
-		}
-		else {
+		} else {
 			snprintf(p_msg_info->msgText, sizeof(p_msg_info->msgText), "%s", p_deliver->cmas_data.alert_text);
 			p_msg_info->dataSize = p_deliver->cmas_data.data_len;
 		}
@@ -306,10 +302,10 @@ void SmsPluginEventHandler::convertDeliverMsgToMsgInfo(sms_telesvc_deliver_s *p_
 	MSG_BEGIN();
 
 	p_msg_info->msgType.mainType = MSG_SMS_TYPE;
-//	p_msg_info->msgType.subType = MSG_NORMAL_SMS;
-
-//	p_msg_info->folderId = MSG_INBOX_ID;
-
+	/*
+	p_msg_info->msgType.subType = MSG_NORMAL_SMS;
+	p_msg_info->folderId = MSG_INBOX_ID;
+	*/
 	p_msg_info->msgType.classType = MSG_CLASS_NONE;
 	p_msg_info->networkStatus = MSG_NETWORK_RECEIVED;
 	p_msg_info->bRead = false;
@@ -317,7 +313,8 @@ void SmsPluginEventHandler::convertDeliverMsgToMsgInfo(sms_telesvc_deliver_s *p_
 	p_msg_info->direction = MSG_DIRECTION_TYPE_MT;
 	p_msg_info->bTextSms = true;
 
-	if (p_deliver->callback_number.szData[0] != '\0') {			// If callback number is in received pdu, replace the address value.
+	if (p_deliver->callback_number.szData[0] != '\0') {
+		/* If callback number is in received pdu, replace the address value. */
 		memset(p_msg_info->addressList[1].addressVal, 0x00, MAX_ADDRESS_VAL_LEN+1);
 		p_msg_info->addressList[1].addressType = MSG_ADDRESS_TYPE_UNKNOWN;
 		memcpy(p_msg_info->addressList[1].addressVal, p_deliver->callback_number.szData, MAX_ADDRESS_VAL_LEN);
@@ -327,7 +324,7 @@ void SmsPluginEventHandler::convertDeliverMsgToMsgInfo(sms_telesvc_deliver_s *p_
 	time_t rawtime = 0;
 	p_msg_info->storageId = MSG_STORAGE_PHONE;
 
-#if 0 // Save Timestamp of message center.
+#if 0 /* Save Timestamp of message center. */
 		char displayTime[32];
 		struct tm * timeTM;
 
@@ -400,28 +397,24 @@ void SmsPluginEventHandler::convertDeliverMsgToMsgInfo(sms_telesvc_deliver_s *p_
 		p_msg_info->dataSize = strlen(p_msg_info->msgData);
 		return;
 	} else {
-		if(p_msg_info->encodeType == MSG_ENCODE_UCS2) {
+		if (p_msg_info->encodeType == MSG_ENCODE_UCS2) {
 			MSG_DEBUG("Encode Type = UCS2");
 			MsgTextConvert *textCvt = MsgTextConvert::instance();
 			p_msg_info->dataSize = textCvt->convertUCS2ToUTF8((unsigned char*)&p_msg_info->msgText, MAX_MSG_TEXT_LEN, (unsigned char*)&p_deliver->user_data.user_data, p_deliver->user_data.data_len);
-		}
-		else if(p_msg_info->encodeType == MSG_ENCODE_EUCKR) {
+		} else if (p_msg_info->encodeType == MSG_ENCODE_EUCKR) {
 			MSG_DEBUG("Encode Type = EUCKR");
 			MsgTextConvert *textCvt = MsgTextConvert::instance();
 			p_msg_info->dataSize = textCvt->convertEUCKRToUTF8((unsigned char*)&p_msg_info->msgText, MAX_MSG_TEXT_LEN, (unsigned char*)&p_deliver->user_data.user_data, p_deliver->user_data.data_len);
-		}
-		else if(p_msg_info->encodeType == MSG_ENCODE_SHIFT_JIS) {
+		} else if (p_msg_info->encodeType == MSG_ENCODE_SHIFT_JIS) {
 			MSG_DEBUG("Encode Type = Shift-JIS");
 			MsgTextConvert *textCvt = MsgTextConvert::instance();
 			p_msg_info->dataSize = textCvt->convertSHIFTJISToUTF8((unsigned char*)&p_msg_info->msgText, MAX_MSG_TEXT_LEN, (unsigned char*)&p_deliver->user_data.user_data, p_deliver->user_data.data_len);
-		}
-		else if(p_msg_info->encodeType == MSG_ENCODE_GSM7BIT) {
+		} else if (p_msg_info->encodeType == MSG_ENCODE_GSM7BIT) {
 			MSG_DEBUG("Encode Type = GSM7BIT");
 			MSG_LANG_INFO_S langinfo = {0,};
 			MsgTextConvert *textCvt = MsgTextConvert::instance();
 			p_msg_info->dataSize = textCvt->convertGSM7bitToUTF8((unsigned char*)&p_msg_info->msgText, MAX_MSG_TEXT_LEN, (unsigned char*)&p_deliver->user_data.user_data, p_deliver->user_data.data_len, &langinfo);
-		}
-		else {
+		} else {
 			snprintf(p_msg_info->msgText, sizeof(p_msg_info->msgText), "%s", p_deliver->user_data.user_data);
 			p_msg_info->dataSize = p_deliver->user_data.data_len;
 		}
@@ -459,7 +452,7 @@ void SmsPluginEventHandler::handleSentStatus(msg_network_status_t NetStatus)
 	MSG_DEBUG("NetStatus[%d]", NetStatus);
 
 	if (sentInfo.bLast == true || NetStatus != MSG_NETWORK_SEND_SUCCESS) {
-		/** Update Msg Status */
+		/* Update Msg Status */
 		if (sentInfo.reqInfo.msgInfo.msgPort.valid == false) {
 
 			sentInfo.reqInfo.msgInfo.networkStatus = NetStatus;
@@ -477,12 +470,12 @@ void SmsPluginEventHandler::handleSentStatus(msg_network_status_t NetStatus)
 
 		MSG_DEBUG("sentInfo.reqInfo.sendOptInfo.bSetting [%d]", sentInfo.reqInfo.sendOptInfo.bSetting);
 		MSG_DEBUG("sentInfo.reqInfo.sendOptInfo.bKeepCopy [%d]", sentInfo.reqInfo.sendOptInfo.bKeepCopy);
-		/** Check sending options */
+		/* Check sending options */
 		if (sentInfo.reqInfo.sendOptInfo.bSetting && !sentInfo.reqInfo.sendOptInfo.bKeepCopy && NetStatus == MSG_NETWORK_SEND_SUCCESS) {
 			callbackStorageChange(MSG_STORAGE_CHANGE_DELETE, &(sentInfo.reqInfo.msgInfo));
 		}
 
-		/** Callback to MSG FW */
+		/* Callback to MSG FW */
 		MSG_SENT_STATUS_S msgStatus;
 
 		msgStatus.reqId = sentInfo.reqInfo.reqId;
@@ -499,16 +492,16 @@ void SmsPluginEventHandler::handleSentStatus(msg_network_status_t NetStatus)
 void SmsPluginEventHandler::handleMsgIncoming(sms_trans_p2p_msg_s *p_p2p_msg)
 {
 
-	/** Make MSG_MESSAGE_INFO_S */
+	/* Make MSG_MESSAGE_INFO_S */
 	MSG_MESSAGE_INFO_S msgInfo;
 
-	/** initialize msgInfo */
+	/* initialize msgInfo */
 	memset(&msgInfo, 0x00, sizeof(MSG_MESSAGE_INFO_S));
 
 	msgInfo.addressList = NULL;
 	unique_ptr<MSG_ADDRESS_INFO_S*, void(*)(MSG_ADDRESS_INFO_S**)> addressListBuf(&msgInfo.addressList, unique_ptr_deleter);
 
-	/** convert to msgInfo */
+	/* convert to msgInfo */
 	convertTpduToMsginfo(p_p2p_msg, &msgInfo);
 
 	if (p_p2p_msg->telesvc_id == SMS_TRANS_TELESVC_RESERVED) {
@@ -517,7 +510,7 @@ void SmsPluginEventHandler::handleMsgIncoming(sms_trans_p2p_msg_s *p_p2p_msg)
 		return;
 	}
 
-	/** Check for Voice Mail Notification */
+	/* Check for Voice Mail Notification */
 	if (p_p2p_msg->telesvc_id == SMS_TRANS_TELESVC_VMN_95) {
 		if (p_p2p_msg->telesvc_msg.data.deliver.enhanced_vmn.fax_included)
 			msgInfo.msgType.subType = MSG_MWI_FAX_SMS;
@@ -529,7 +522,7 @@ void SmsPluginEventHandler::handleMsgIncoming(sms_trans_p2p_msg_s *p_p2p_msg)
 
 		int voice_cnt = MsgSettingGetInt(VOICEMAIL_COUNT);
 
-		// repeated msg check for voicemail
+		/* repeated msg check for voicemail */
 		if (voice_cnt == p_p2p_msg->telesvc_msg.data.deliver.num_msg) {
 			SmsPluginTransport::instance()->sendDeliverReport(MSG_SUCCESS, p_p2p_msg);
 			return;
@@ -541,9 +534,8 @@ void SmsPluginEventHandler::handleMsgIncoming(sms_trans_p2p_msg_s *p_p2p_msg)
 
 		snprintf(msgInfo.msgText, sizeof(msgInfo.msgText), "%d", p_p2p_msg->telesvc_msg.data.deliver.num_msg);
 		msgInfo.dataSize = strlen(msgInfo.msgText);
-	}
-	/** Check for EMS(Unsupported) */
-	else if (p_p2p_msg->telesvc_id == SMS_TRANS_TELESVC_WEMT) {
+	} else if (p_p2p_msg->telesvc_id == SMS_TRANS_TELESVC_WEMT) {
+		/* Check for EMS(Unsupported) */
 		char *msg_text = getTranslateText(MSG_APP_PACKAGE_NAME, MSG_APP_LOCALEDIR, "IDS_MSGF_POP_ERROR_UNSUPPORTED_MSG");
 		memset(msgInfo.msgText, 0x00, sizeof(msgInfo.msgText));
 		snprintf(msgInfo.msgText, sizeof(msgInfo.msgText), "%s", msg_text);
@@ -555,7 +547,7 @@ void SmsPluginEventHandler::handleMsgIncoming(sms_trans_p2p_msg_s *p_p2p_msg)
 		}
 	}
 
-	/** Print MSG_MESSAGE_INFO_S */
+	/* Print MSG_MESSAGE_INFO_S */
 	MSG_DEBUG("############# Convert  tpdu values to Message Info values ####################");
 	MSG_DEBUG("msgInfo.nAddressCnt : %d", msgInfo.nAddressCnt);
 	MSG_DEBUG("msgInfo.addressList[0].addressType : %d", msgInfo.addressList[0].addressType);
@@ -589,19 +581,21 @@ void SmsPluginEventHandler::handleMsgIncoming(sms_trans_p2p_msg_s *p_p2p_msg)
 	memset(&unq_ind, 0x00, sizeof(MSG_UNIQUE_INDEX_S));
 
 	if (msgInfo.msgType.subType == MSG_STATUS_REPORT_SMS) {
-//		/** Status Report Message */
-//		err = SmsPluginStorage::instance()->updateMsgDeliverStatus(&msgInfo, pTpdu->data.statusRep.msgRef);
-//
-//		if (err == MSG_SUCCESS)
-//			err = listener.pfMsgIncomingCb(&msgInfo);
-//		else
-//			MSG_DEBUG("updateMsgDeliverStatus is failed [%d]", err);
-//
-//		/** Handling of Fail Case ?? */
-//		SmsPluginTransport::instance()->sendDeliverReport(MSG_SUCCESS);
-	} else { /** SMS Deliver */
+		/* Status Report Message */
+		/*
+		err = SmsPluginStorage::instance()->updateMsgDeliverStatus(&msgInfo, pTpdu->data.statusRep.msgRef);
 
-		/** Add message to DB */
+		if (err == MSG_SUCCESS)
+			err = listener.pfMsgIncomingCb(&msgInfo);
+		else
+			MSG_DEBUG("updateMsgDeliverStatus is failed [%d]", err);
+		*/
+
+		/* Handling of Fail Case ?? */
+		/* SmsPluginTransport::instance()->sendDeliverReport(MSG_SUCCESS); */
+	} else { /* SMS Deliver */
+
+		/* Add message to DB */
 		if (msgInfo.msgPort.valid == false) {
 			if (p_p2p_msg->telesvc_id != SMS_TRANS_TELESVC_VMN_95) {
 				memcpy(unq_ind.address, p_p2p_msg->address.szData, sizeof(p_p2p_msg->address.szData));
@@ -618,13 +612,12 @@ void SmsPluginEventHandler::handleMsgIncoming(sms_trans_p2p_msg_s *p_p2p_msg)
 
 		if (isUnique) {
 			err = SmsPluginStorage::instance()->checkMessage(&msgInfo);
-		}
-		else {
+		} else {
 			SmsPluginTransport::instance()->sendDeliverReport(MSG_SUCCESS, p_p2p_msg);
 			return;
 		}
 
-		/** Callback to MSG FW */
+		/* Callback to MSG FW */
 		if (err == MSG_SUCCESS) {
 			MSG_DEBUG("callback to msg fw");
 			err = listener.pfMsgIncomingCb(&msgInfo);
@@ -639,14 +632,14 @@ void SmsPluginEventHandler::handleMsgIncoming(sms_trans_p2p_msg_s *p_p2p_msg)
 		if (err == MSG_SUCCESS && p_p2p_msg->telesvc_id != SMS_TRANS_TELESVC_VMN_95)
 			listener.pfCheckUniquenessCb(&unq_ind, msgInfo.msgId, true);
 
-		/** Send Deliver Report */
+		/* Send Deliver Report */
 		if (p_p2p_msg->telesvc_id == SMS_TRANS_TELESVC_WEMT) {
 			SmsPluginTransport::instance()->sendDeliverReport(MSG_ERR_INVALID_MSG_TYPE, p_p2p_msg);
 		} else {
 			SmsPluginTransport::instance()->sendDeliverReport(err, p_p2p_msg);
 		}
 
-		// Tizen Validation System
+		/* Tizen Validation System */
 		char *msisdn = NULL;
 		char keyName[MAX_VCONFKEY_NAME_LEN];
 		int simIndex = 1;
@@ -681,20 +674,20 @@ void SmsPluginEventHandler::handleCbMsgIncoming(sms_trans_broadcast_msg_s *p_cb_
 		return;
 	}
 
-	/** Make MSG_MESSAGE_INFO_S */
+	/* Make MSG_MESSAGE_INFO_S */
 	MSG_MESSAGE_INFO_S msgInfo;
 
-	/** initialize msgInfo */
+	/* initialize msgInfo */
 	memset(&msgInfo, 0x00, sizeof(MSG_MESSAGE_INFO_S));
 
 	msgInfo.addressList = NULL;
 	unique_ptr<MSG_ADDRESS_INFO_S*, void(*)(MSG_ADDRESS_INFO_S**)> addressListBuf(&msgInfo.addressList, unique_ptr_deleter);
 
-	/** convert to msgInfo */
+	/* convert to msgInfo */
 	convertTpduToMsginfo(p_cb_msg, &msgInfo);
 	msgInfo.msgId = p_cb_msg->telesvc_msg.data.deliver.msg_id.msg_id;
 
-	/** Print MSG_MESSAGE_INFO_S */
+	/* Print MSG_MESSAGE_INFO_S */
 	MSG_DEBUG("############# Convert  tpdu values to Message Info values ####################");
 	MSG_DEBUG("msgInfo.priority : %d", msgInfo.priority);
 	MSG_DEBUG("msgInfo.bProtected : %d", msgInfo.bProtected);
@@ -721,18 +714,17 @@ void SmsPluginEventHandler::handleCbMsgIncoming(sms_trans_broadcast_msg_s *p_cb_
 
 	msg_error_t err = MSG_SUCCESS;
 
-	/** Add message to DB */
+	/* Add message to DB */
 	if (msgInfo.msgPort.valid == false) {
 		err = SmsPluginStorage::instance()->checkMessage(&msgInfo);
 	}
 
-	if (!checkCbOpt(p_cb_msg->svc_ctg))
-	{
+	if (!checkCbOpt(p_cb_msg->svc_ctg)) {
 		MSG_DEBUG("The CB Msg is not supported by option.");
 		return;
 	}
 
-	/** Callback to MSG FW */
+	/* Callback to MSG FW */
 	if (err == MSG_SUCCESS) {
 
 #if 1
@@ -740,49 +732,46 @@ void SmsPluginEventHandler::handleCbMsgIncoming(sms_trans_broadcast_msg_s *p_cb_
 		bool is_duplicate = false;
 
 		switch (p_cb_msg->svc_ctg) {
-			case SMS_TRANS_SVC_CTG_CMAS_PRESIDENTIAL :
-				msgInfo.msgType.subType = MSG_CMAS_PRESIDENTIAL;
-				break;
-			case SMS_TRANS_SVC_CTG_CMAS_EXTREME :
-				msgInfo.msgType.subType = MSG_CMAS_EXTREME;
-				break;
-			case SMS_TRANS_SVC_CTG_CMAS_SEVERE :
-				msgInfo.msgType.subType = MSG_CMAS_SEVERE;
-				break;
-			case SMS_TRANS_SVC_CTG_CMAS_AMBER :
-				msgInfo.msgType.subType = MSG_CMAS_AMBER;
-				break;
-			case SMS_TRANS_SVC_CTG_CMAS_TEST :
-				msgInfo.msgType.subType = MSG_CMAS_TEST;
-				break;
-			default :
-				msgInfo.msgType.subType = MSG_CB_SMS;
-				break;
+		case SMS_TRANS_SVC_CTG_CMAS_PRESIDENTIAL :
+			msgInfo.msgType.subType = MSG_CMAS_PRESIDENTIAL;
+			break;
+		case SMS_TRANS_SVC_CTG_CMAS_EXTREME :
+			msgInfo.msgType.subType = MSG_CMAS_EXTREME;
+			break;
+		case SMS_TRANS_SVC_CTG_CMAS_SEVERE :
+			msgInfo.msgType.subType = MSG_CMAS_SEVERE;
+			break;
+		case SMS_TRANS_SVC_CTG_CMAS_AMBER :
+			msgInfo.msgType.subType = MSG_CMAS_AMBER;
+			break;
+		case SMS_TRANS_SVC_CTG_CMAS_TEST :
+			msgInfo.msgType.subType = MSG_CMAS_TEST;
+			break;
+		default :
+			msgInfo.msgType.subType = MSG_CB_SMS;
+			break;
 		}
 
 		cbOutMsg.type = msgInfo.msgType.subType;
 		cbOutMsg.receivedTime = msgInfo.displayTime;
-		cbOutMsg.serialNum = 0;//encodeCbSerialNum (CbMsgPage.pageHeader.serialNum);
+		/* encodeCbSerialNum (CbMsgPage.pageHeader.serialNum); */
+		cbOutMsg.serialNum = 0;
 		cbOutMsg.messageId = msgInfo.msgId;
-//		cbOutMsg.dcs = CbMsgPage.pageHeader.dcs.rawData;
+		/* cbOutMsg.dcs = CbMsgPage.pageHeader.dcs.rawData; */
 		memset (cbOutMsg.cbText, 0x00, sizeof(cbOutMsg.cbText));
 
 		cbOutMsg.cbTextLen= msgInfo.dataSize;
 		memset(cbOutMsg.language_type, 0x00, sizeof(cbOutMsg.language_type));
-//		memcpy(cbOutMsg.language_type, CbMsgPage.pageHeader.dcs.iso639Lang, 3);
+		/* memcpy(cbOutMsg.language_type, CbMsgPage.pageHeader.dcs.iso639Lang, 3); */
 
-		if (!is_duplicate)
-		{
+		if (!is_duplicate) {
 			MSG_DEBUG("callback to msg fw");
 			err = listener.pfCBMsgIncomingCb(&cbOutMsg, &msgInfo);
 
-			if (err != MSG_SUCCESS)
-			{
+			if (err != MSG_SUCCESS) {
 				MSG_WARN("callbackMsgIncoming() Error !! [%d]", err);
 			}
-		}
-		else
-		{
+		} else {
 			MSG_WARN("duplicate cb serialNum[%d] messageId[%d]", cbOutMsg.serialNum, cbOutMsg.messageId);
 		}
 
@@ -791,10 +780,10 @@ void SmsPluginEventHandler::handleCbMsgIncoming(sms_trans_broadcast_msg_s *p_cb_
 #endif
 	}
 
-	/** Send Deliver Report */
-//	SmsPluginTransport::instance()->sendDeliverReport(err, p_cb_msg);
+	/* Send Deliver Report */
+	/* SmsPluginTransport::instance()->sendDeliverReport(err, p_cb_msg); */
 
-	// Tizen Validation System
+	/* Tizen Validation System */
 	char *msisdn = NULL;
 	char keyName[MAX_VCONFKEY_NAME_LEN];
 	int simIndex = 1;
@@ -879,8 +868,7 @@ void SmsPluginEventHandler::handleWapMsgIncoming(sms_trans_p2p_msg_s *p_p2p_msg)
 			((pTmpUserData[6] << 8 | pTmpUserData[7]) == 0x0b84)) {
 			dataSize -= 8;
 			memcpy(pUserData, &pTmpUserData[8], dataSize);
-		}
-		else {
+		} else {
 			dataSize -= 4;
 			memcpy(pUserData, &pTmpUserData[4], dataSize);
 		}
@@ -895,13 +883,12 @@ void SmsPluginEventHandler::handleWapMsgIncoming(sms_trans_p2p_msg_s *p_p2p_msg)
 				msgInfo.msgType.mainType = MSG_SMS_TYPE;
 				SmsPluginWapPushHandler::instance()->copyDeliverData(&(p_p2p_msg->address));
 				SmsPluginWapPushHandler::instance()->handleWapPushMsg(pUserData, dataSize);
-			}
-			else {
+			} else {
 				MSG_DEBUG("not supported wap push port [%x]", dstPort);
 			}
 		}
 
-		// remove from waplist
+		/* remove from waplist */
 		for (int index = wapList.size()-1; index >= 0 ; index--) {
 			if (wapList[index].msgId == msg.msgId) {
 				MSG_DEBUG("remove waplist of the index [%d]", index);
@@ -911,7 +898,7 @@ void SmsPluginEventHandler::handleWapMsgIncoming(sms_trans_p2p_msg_s *p_p2p_msg)
 		}
 	}
 
-	/** Send Deliver Report */
+	/* Send Deliver Report */
 	SmsPluginTransport::instance()->sendDeliverReport(MSG_SUCCESS, p_p2p_msg);
 
 	MSG_END();
@@ -930,7 +917,7 @@ msg_error_t SmsPluginEventHandler::callbackMsgIncoming(MSG_MESSAGE_INFO_S *pMsgI
 
 	msg_error_t err = MSG_SUCCESS;
 
-	/** Callback to MSG FW */
+	/* Callback to MSG FW */
 	err = listener.pfMsgIncomingCb(pMsgInfo);
 
 	MSG_END();
@@ -941,7 +928,7 @@ msg_error_t SmsPluginEventHandler::callbackMsgIncoming(MSG_MESSAGE_INFO_S *pMsgI
 
 msg_error_t SmsPluginEventHandler::callbackStorageChange(msg_storage_change_type_t storageChangeType, MSG_MESSAGE_INFO_S *pMsgInfo)
 {
-	/** Callback to MSG FW */
+	/* Callback to MSG FW */
 	listener.pfStorageChangeCb(storageChangeType, pMsgInfo);
 
 	return MSG_SUCCESS;
@@ -974,37 +961,42 @@ bool SmsPluginEventHandler::getDeviceStatus()
 	return devStatus;
 }
 
+
 void SmsPluginEventHandler::setNeedInitConfig(bool bNeeded)
 {
 	bNeedInitConfig = bNeeded;
 }
+
 
 bool SmsPluginEventHandler::getNeedInitConfig()
 {
 	return bNeedInitConfig;
 }
 
+
 msg_encode_type_t SmsPluginEventHandler::getEncodeType(sms_encoding_type_t encode_type)
 {
-	switch(encode_type) {
-		case SMS_ENCODE_IA5 :
-		case SMS_ENCODE_GSM7BIT :
-			return MSG_ENCODE_GSM7BIT;
-		case SMS_ENCODE_KOREAN :
-		case SMS_ENCODE_EUCKR :
-			return MSG_ENCODE_EUCKR;
-		case SMS_ENCODE_7BIT_ASCII :
-		case SMS_ENCODE_LATIN_HEBREW :
-		case SMS_ENCODE_LATIN :
-		case SMS_ENCODE_OCTET :
-			return MSG_ENCODE_8BIT;
-		case SMS_ENCODE_SHIFT_JIS :
-			return MSG_ENCODE_SHIFT_JIS;
-//		case SMS_ENCODE_EPM :
-//		case SMS_ENCODE_UNICODE :
-//		case SMS_ENCODE_GSMDCS :
-		default :
-			return MSG_ENCODE_UCS2;
+	switch (encode_type) {
+	case SMS_ENCODE_GSM7BIT:
+		return MSG_ENCODE_GSM7BIT;
+	case SMS_ENCODE_KOREAN:
+	case SMS_ENCODE_EUCKR:
+		return MSG_ENCODE_EUCKR;
+	case SMS_ENCODE_IA5:
+	case SMS_ENCODE_7BIT_ASCII:
+	case SMS_ENCODE_LATIN_HEBREW:
+	case SMS_ENCODE_LATIN:
+	case SMS_ENCODE_OCTET:
+		return MSG_ENCODE_8BIT;
+	case SMS_ENCODE_SHIFT_JIS:
+		return MSG_ENCODE_SHIFT_JIS;
+	/*
+	case SMS_ENCODE_EPM :
+	case SMS_ENCODE_UNICODE :
+	case SMS_ENCODE_GSMDCS :
+	*/
+	default:
+		return MSG_ENCODE_UCS2;
 	}
 
 	return MSG_ENCODE_UCS2;
@@ -1045,7 +1037,7 @@ unsigned short SmsPluginEventHandler::checkWapMsg(sms_wap_msg_s *pMsg, sms_teles
 		}
 	}
 
-	/** New Wap Push Msg */
+	/* New Wap Push Msg */
 	if (bFind == false) {
 		sms_wap_info_s tmpInfo;
 		tmpInfo.msgId = pMsg->msgId;
@@ -1113,7 +1105,7 @@ void SmsPluginEventHandler::handleSyncMLMsgIncoming(msg_syncml_message_type_t ms
 
 	memset(&syncMLData, 0x00, sizeof(MSG_SYNCML_MESSAGE_DATA_S));
 
-	/** set syncML data */
+	/* set syncML data */
 	syncMLData.syncmlType = msgType;
 
 	syncMLData.pushBodyLen = PushBodyLen;
@@ -1122,7 +1114,7 @@ void SmsPluginEventHandler::handleSyncMLMsgIncoming(msg_syncml_message_type_t ms
 	syncMLData.wspHeaderLen= WspHeaderLen;
 	memcpy(syncMLData.wspHeader, pWspHeader, WspHeaderLen);
 
-	/** Callback to MSG FW */
+	/* Callback to MSG FW */
 	listener.pfSyncMLMsgIncomingCb(&syncMLData);
 }
 
@@ -1133,13 +1125,13 @@ void SmsPluginEventHandler::handleLBSMsgIncoming(char* pPushHeader, char* pPushB
 
 	memset(&lBSData, 0x00, sizeof(MSG_LBS_MESSAGE_DATA_S));
 
-	/** set LBA data */
+	/* set LBA data */
 	memcpy(lBSData.pushHeader, pPushHeader, strlen(pPushHeader));
 
 	lBSData.pushBodyLen = pushBodyLen;
 	memcpy(lBSData.pushBody, pPushBody, pushBodyLen);
 
-	/** Callback to MSG FW */
+	/* Callback to MSG FW */
 	listener.pfLBSMsgIncomingCb(&lBSData);
 }
 
@@ -1150,7 +1142,7 @@ void SmsPluginEventHandler::handlePushMsgIncoming(char* pPushHeader, char* pPush
 
 	memset(&pushData, 0x00, sizeof(MSG_PUSH_MESSAGE_DATA_S));
 
-	/** set PUSH data */
+	/* set PUSH data */
 	memcpy(pushData.pushHeader, pPushHeader, strlen(pPushHeader));
 
 	pushData.pushBodyLen = pushBodyLen;
@@ -1159,7 +1151,7 @@ void SmsPluginEventHandler::handlePushMsgIncoming(char* pPushHeader, char* pPush
 	memcpy(pushData.pushAppId, application_id, MAX_WAPPUSH_ID_LEN);
 	memcpy(pushData.pushContentType, content_type, MAX_WAPPUSH_CONTENT_TYPE_LEN);
 
-	/** Callback to MSG FW */
+	/* Callback to MSG FW */
 	listener.pfPushMsgIncomingCb(&pushData);
 }
 
@@ -1167,11 +1159,15 @@ void SmsPluginEventHandler::handlePushMsgIncoming(char* pPushHeader, char* pPush
 bool SmsPluginEventHandler::checkCbOpt(sms_trans_svc_ctg_t svc_ctg)
 {
 	bool bReceive = false;
-	MsgSettingGetBool(CB_RECEIVE, &bReceive);
+	char keyName[MAX_VCONFKEY_NAME_LEN] = {0, };
+	int sim_idx = 1;
 
-	// Receive CB Msg = FALSE
-	if (!bReceive)
-	{
+	memset(keyName, 0x00, sizeof(keyName));
+	snprintf(keyName, sizeof(keyName), "%s/%d", CB_RECEIVE, sim_idx);
+	MsgSettingGetBool(keyName, &bReceive);
+
+	/* Receive CB Msg = FALSE */
+	if (!bReceive) {
 		MSG_DEBUG("RECEIVE CB = FALSE");
 		return false;
 	}
@@ -1189,13 +1185,11 @@ bool SmsPluginEventHandler::checkCbOpt(sms_trans_svc_ctg_t svc_ctg)
 			return false;
 		}
 
-		for (int i = 0; i < cbChannelInfo.channelCnt; i++)
-		{
+		for (int i = 0; i < cbChannelInfo.channelCnt; i++) {
 			bActivate = cbChannelInfo.channelInfo[i].bActivate;
 			Category = cbChannelInfo.channelInfo[i].ctg;
 
-			if (bActivate == true && svc_ctg == Category)
-			{
+			if (bActivate == true && svc_ctg == Category) {
 				MSG_DEBUG("FIND CHANNEL = [%d]", svc_ctg);
 				return true;
 			}

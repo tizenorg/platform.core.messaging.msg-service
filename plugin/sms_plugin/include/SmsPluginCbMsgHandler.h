@@ -98,5 +98,5 @@ private:
 
 };
 
-#endif //SMS_PLUGIN_CBMSG_HANDLER_H
+#endif /* SMS_PLUGIN_CBMSG_HANDLER_H */
 

@@ -24,7 +24,6 @@
 #include "MsgDrmWrapper.h"
 #include "MmsPluginDrm.h"
 #include "MmsPluginCodec.h"
-#include "MmsPluginMIME.h"
 #include "MmsPluginDebug.h"
 
 bool MmsPluginDrmGetInfo(const char *szFilePath, MsgType *pMsgType)

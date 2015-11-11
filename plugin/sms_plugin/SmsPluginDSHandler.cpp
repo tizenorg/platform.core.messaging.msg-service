@@ -20,8 +20,7 @@
 #include "SmsPluginDSHandler.h"
 #include "MsgGconfWrapper.h"
 
-extern "C"
-{
+extern "C" {
 	#include <tapi_common.h>
 	#include <TelNetwork.h>
 	#include <ITapiNetwork.h>
@@ -66,8 +65,7 @@ int SmsPluginDSHandler::initTelHandle()
 		goto FINISH;
 	}
 
-	while(cp_list[cnt] && cnt < MAX_TELEPHONY_HANDLE_CNT)
-	{
+	while (cp_list[cnt] && cnt < MAX_TELEPHONY_HANDLE_CNT) {
 		MSG_SEC_INFO("cp_list[%d]:[%s]", cnt, cp_list[cnt]);
 		handle_list.handle[cnt]= tel_init(cp_list[cnt]);
 		cnt++;
@@ -84,8 +82,7 @@ void SmsPluginDSHandler::deinitTelHandle()
 {
 	int ret = 0;
 
-	for (int i = 0; i < handle_list.count; i++)
-	{
+	for (int i = 0; i < handle_list.count; i++) {
 		ret = tel_deinit(handle_list.handle[i]);
 		MSG_DEBUG("tel_deinit ret=[%d]", ret);
 		handle_list.handle[i] = NULL;
@@ -97,11 +94,11 @@ void SmsPluginDSHandler::deinitTelHandle()
 	return;
 }
 
-struct tapi_handle *SmsPluginDSHandler::getTelHandle(int sim_idx)
+TapiHandle *SmsPluginDSHandler::getTelHandle(int sim_idx)
 {
-	if (sim_idx > 0 && sim_idx < MAX_TELEPHONY_HANDLE_CNT)
+	if (sim_idx > 0 && sim_idx < MAX_TELEPHONY_HANDLE_CNT) {
 		return handle_list.handle[sim_idx-1];
-	else {
+	} else {
 		int SIM_Status = 0;
 		SIM_Status = MsgSettingGetInt(VCONFKEY_TELEPHONY_SIM_SLOT);
 		if (SIM_Status == 1) {
@@ -117,11 +114,10 @@ struct tapi_handle *SmsPluginDSHandler::getTelHandle(int sim_idx)
 	return handle_list.handle[handle_list.count - 1];
 }
 
-int SmsPluginDSHandler::getSimIndex(struct tapi_handle *handle)
+int SmsPluginDSHandler::getSimIndex(TapiHandle *handle)
 {
-	for(int index=0; index < handle_list.count; ++index)
-	{
-		if(handle_list.handle[index] == handle)
+	for (int index = 0; index < handle_list.count; ++index) {
+		if (handle_list.handle[index] == handle)
 			return index+1;
 	}
 	return 0;

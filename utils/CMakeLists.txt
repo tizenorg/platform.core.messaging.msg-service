@@ -15,6 +15,7 @@ SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS} ${EXTRA_CFLAGS} -O2 -g -Wall")
 ##########################################################
 
 SET(UTILS-SRCS
+	${CMAKE_SOURCE_DIR}/utils/MsgCallStatusManager.cpp
 	${CMAKE_SOURCE_DIR}/utils/MsgDebug.cpp
 	${CMAKE_SOURCE_DIR}/utils/MsgException.cpp
 	${CMAKE_SOURCE_DIR}/utils/MsgUtilFunction.cpp
@@ -32,6 +33,7 @@ SET(UTILS-SRCS
 	${CMAKE_SOURCE_DIR}/utils/MsgJsonParser.cpp
 	${CMAKE_SOURCE_DIR}/utils/MsgSerialize.cpp
 	${CMAKE_SOURCE_DIR}/utils/MsgSmil.cpp
+	${CMAKE_SOURCE_DIR}/utils/MsgUtilMime.cpp
 )
 
 INCLUDE_DIRECTORIES(
@@ -44,7 +46,7 @@ INCLUDE_DIRECTORIES(
 
 INCLUDE(FindPkgConfig)
 
-SET(PKG_MODULES glib-2.0 vconf db-util contacts-service2 dlog libxml-2.0 storage json-glib-1.0 capi-system-info libsmack)
+SET(PKG_MODULES glib-2.0 vconf contacts-service2 dlog libxml-2.0 storage json-glib-1.0 capi-system-info capi-media-thumbnail-util capi-media-image-util capi-content-media-content aul sqlite3 capi-media-metadata-extractor icu-uc)
 pkg_check_modules(utils_pkgs REQUIRED ${PKG_MODULES})
 
 FOREACH(flag ${utils_pkgs_CFLAGS})

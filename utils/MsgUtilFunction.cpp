@@ -14,17 +14,34 @@
  * limitations under the License.
 */
 
+#include <gio/gio.h>
+
 #include "MsgDebug.h"
 #include "MsgContact.h"
+#include "MsgUtilFile.h"
 #include "MsgUtilFunction.h"
 
 #include <system_info.h>
+#include <libintl.h>
+#include <locale.h>
+#include <vconf.h>
+#include <ctype.h>
 
-bool b_feature_check_flag = false;
-bool b_feature_telephony_sms = false;
-bool b_feature_telephony_mms = false;
 
- /*==================================================================================================
+enum _FEATURE_INDEX_E {
+	FEATURE_INDEX_SMS = 0,
+	FEATURE_INDEX_MMS = 1,
+};
+
+static bool b_feature_cache_flag = false;
+static bool b_feature_support[] = {
+		[FEATURE_INDEX_SMS] = false,
+		[FEATURE_INDEX_MMS] = false,
+};
+
+int _dbus_owner_id = 0;
+
+/*==================================================================================================
                                      FUNCTION IMPLEMENTATION
 ==================================================================================================*/
 
@@ -32,24 +49,23 @@ bool MsgCheckFeatureSupport(const char *feature_name)
 {
 	bool result = false;
 
-	if (b_feature_check_flag == false) {
-		if (system_info_get_platform_bool(MSG_TELEPHONY_SMS_FEATURE, &b_feature_telephony_sms) != SYSTEM_INFO_ERROR_NONE)
-			MSG_INFO("fail to system_info_get_platform_bool [%s]", MSG_TELEPHONY_SMS_FEATURE);
-		if (system_info_get_platform_bool(MSG_TELEPHONY_MMS_FEATURE, &b_feature_telephony_mms) != SYSTEM_INFO_ERROR_NONE)
-			MSG_INFO("fail to system_info_get_platform_bool [%s]", MSG_TELEPHONY_MMS_FEATURE);
+	if (b_feature_cache_flag == false) {
+		if (system_info_get_platform_bool(MSG_TELEPHONY_SMS_FEATURE, &b_feature_support[FEATURE_INDEX_SMS]) != SYSTEM_INFO_ERROR_NONE)
+			MSG_WARN("fail to system_info_get_platform_bool [%s]", MSG_TELEPHONY_SMS_FEATURE);
 
-		MSG_INFO("[%s] feature is [%d]", MSG_TELEPHONY_SMS_FEATURE, b_feature_telephony_sms);
-		MSG_INFO("[%s] feature is [%d]", MSG_TELEPHONY_MMS_FEATURE, b_feature_telephony_mms);
+		if (system_info_get_platform_bool(MSG_TELEPHONY_MMS_FEATURE, &b_feature_support[FEATURE_INDEX_MMS]) != SYSTEM_INFO_ERROR_NONE)
+			MSG_WARN("fail to system_info_get_platform_bool [%s]", MSG_TELEPHONY_MMS_FEATURE);
 
-		b_feature_check_flag = true;
+		MSG_INFO("[%s] feature is [%d]", MSG_TELEPHONY_SMS_FEATURE, b_feature_support[FEATURE_INDEX_SMS]);
+		MSG_INFO("[%s] feature is [%d]", MSG_TELEPHONY_MMS_FEATURE, b_feature_support[FEATURE_INDEX_MMS]);
+
+		b_feature_cache_flag = true;
 	}
 
 	if (!g_strcmp0(feature_name, MSG_TELEPHONY_SMS_FEATURE)) {
-		result = b_feature_telephony_sms;
+		result = b_feature_support[FEATURE_INDEX_SMS];
 	} else if (!g_strcmp0(feature_name, MSG_TELEPHONY_MMS_FEATURE)) {
-		result = b_feature_telephony_mms;
-	} else {
-		result = false;
+		result = b_feature_support[FEATURE_INDEX_MMS];
 	}
 
 	return result;
@@ -1009,12 +1025,7 @@ msg_error_t MsgMakeSortRule(const MSG_SORT_RULE_S *pSortRule, char *pSqlSort)
 	else
 		strncpy(order, "DESC", 5);
 
-	//contacts-service is not used for gear
-#ifndef MSG_CONTACTS_SERVICE_NOT_SUPPORTED
 	int nameOrder = MsgGetContactNameOrder();
-#else // MSG_CONTACTS_SERVICE_NOT_SUPPORTED
-	int nameOrder = 0;
-#endif // MSG_CONTACTS_SERVICE_NOT_SUPPORTED
 
 	switch (pSortRule->sortType)
 	{
@@ -1070,4 +1081,129 @@ bool msg_is_valid_email(char *pAddress)
 	if (!strchr (pAddress, MSG_UTIL_CH_EMAIL_AT))
 		return false;
 	return true;
+}
+
+msg_error_t msg_write_text_to_msg_info(MSG_MESSAGE_INFO_S *pMsgInfo, char *text)
+{
+	if (pMsgInfo->dataSize > MAX_MSG_TEXT_LEN) {
+		pMsgInfo->bTextSms = false;
+
+		// Save Message Data into File
+		char fileName[MSG_FILENAME_LEN_MAX+1];
+		memset(fileName, 0x00, sizeof(fileName));
+
+		if(MsgCreateFileName(fileName) == false) {
+			MSG_DEBUG("MsgCreateFileName error");
+			return MSG_ERR_STORAGE_ERROR;
+		}
+
+		MSG_SEC_DEBUG("Save text into file : size[%d] name[%s]", pMsgInfo->dataSize, fileName);
+
+		if (MsgWriteIpcFile(fileName, text, pMsgInfo->dataSize) == false) {
+			MSG_DEBUG("MsgWriteIpcFile error");
+			return MSG_ERR_STORAGE_ERROR;
+		}
+
+		memset(pMsgInfo->msgData, 0x00, sizeof(pMsgInfo->msgData));
+		strncpy(pMsgInfo->msgData, fileName, MAX_MSG_DATA_LEN);
+	} else {
+		pMsgInfo->bTextSms = true;
+
+		memset(pMsgInfo->msgText, 0x00, sizeof(pMsgInfo->msgText));
+		memcpy(pMsgInfo->msgText, text, pMsgInfo->dataSize);
+	}
+
+	return MSG_SUCCESS;
+}
+
+/* change illegal filename character to '_' */
+void msg_replace_available_file_name(char *fileName)
+{
+	int idx = 0;
+	int len = 0;
+	bool is_converted = false;
+
+	if (fileName) {
+		len = strlen(fileName);
+
+		while (fileName[idx] != 0) {
+			if (idx >= len) {
+				MSG_WARN("idx : %d, len : %d", idx, len);
+				break;
+			}
+
+			if (fileName[idx] == '\\' || fileName[idx] == '/' || fileName[idx] == '?' || fileName[idx] == '%' || fileName[idx] == '*' ||
+				fileName[idx] == ':' || fileName[idx] == '|' || fileName[idx] == '"' || fileName[idx] == '<' || fileName[idx] == '>') {
+				fileName[idx++] = '_';
+				is_converted = true;
+			} else {
+				idx++;
+			}
+		}
+	}
+
+	if (is_converted)
+		MSG_SEC_DEBUG("converted filename : [%s]", fileName);
+}
+
+/* change character ' ' to '_' */
+void msg_replace_space_char(char *pszText)
+{
+	if (!pszText) {
+		MSG_ERR("pszText is NULL");
+		return;
+	}
+
+	char *spaceCharPtr = strchr(pszText, ' ');
+
+	while (spaceCharPtr) {
+		*spaceCharPtr = '_';
+		spaceCharPtr = strchr(pszText, ' ');
+	}
+}
+
+/* change non-ascii character to underscore */
+gchar * msg_replace_non_ascii_char(const gchar *pszText, gunichar replacementChar)
+{
+	if (!pszText) {
+		MSG_ERR(" msg_replace_non_ascii_char error : pszText is NULL");
+		return NULL;
+	}
+	gchar *res;
+	gsize result_len = 0;
+	const gchar *p;
+	result_len = g_utf8_strlen (pszText, -1) + 1; //+1 for malloc of non-terminating chracter
+	res = (gchar *)g_malloc (result_len * sizeof (gchar));
+	int i = 0;
+	for (p = pszText, i = 0; *p != '\0'; p = g_utf8_next_char (p), i++) {
+		res[i] = isascii(g_utf8_get_char (p)) ? *p : replacementChar;
+	}
+	res[i] = '\0';
+	return res;
+}
+
+void MsgDbusInit()
+{
+	MSG_DEBUG();
+
+	_dbus_owner_id = g_bus_own_name(G_BUS_TYPE_SYSTEM,
+									"msg-service.dbus.service",
+									G_BUS_NAME_OWNER_FLAGS_NONE,
+									NULL, NULL, NULL,
+									NULL, NULL);
+
+	if (_dbus_owner_id == 0) {
+		MSG_ERR("g_bus_own_name() error");
+	}
+
+	MSG_DEBUG("owner_id = [%d]", _dbus_owner_id);
+}
+
+void MsgDbusDeinit()
+{
+	MSG_DEBUG();
+	if (_dbus_owner_id)
+		g_bus_unown_name(_dbus_owner_id);
+
+	_dbus_owner_id = 0;
 }

@@ -35,4 +35,4 @@ msg_error_t MsgGetFilterOperation(bool *pSetFlag);
 bool MsgCheckFilter(MsgDbHandler *pDbHandle, MSG_MESSAGE_INFO_S *pMsgInfo);
 bool MsgCheckFilterByWord(MsgDbHandler *pDbHandle, const char *pMsgText);
 
-#endif // MSG_SPAM_FILTER_H
+#endif /* MSG_SPAM_FILTER_H */

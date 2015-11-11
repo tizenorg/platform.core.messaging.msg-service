@@ -81,6 +81,8 @@
 #define DEFAULT_MMS_STYLE_OPT_PATH	DEFAULT_SETTING_PATH"/mms_style"
 #define DEFAULT_PUSH_MSG_OPT_PATH	DEFAULT_SETTING_PATH"/push_msg"
 #define DEFAULT_CB_MSG_OPT_PATH		DEFAULT_SETTING_PATH"/cb_msg"
+#define DEFAULT_CB_CMAS_MSG_OPT_PATH	DEFAULT_CB_MSG_OPT_PATH"/cmas_init"
+
 #define DEFAULT_VOICE_MAIL_OPT_PATH	DEFAULT_SETTING_PATH"/voice_mail"
 #define DEFAULT_MSGSIZE_OPT_PATH		DEFAULT_SETTING_PATH"/size_opt"
 #define DEFAULT_SIM_COUNT_PATH			DEFAULT_SETTING_PATH"/sim_count"
@@ -171,7 +173,7 @@
 #define VOICEMAIL_NUMBER				DEFAULT_VOICE_MAIL_OPT_PATH"/voice_mail_number"
 #define VOICEMAIL_COUNT				DEFAULT_VOICE_MAIL_OPT_PATH"/voice_mail_count"
 #define VOICEMAIL_ALPHA_ID				DEFAULT_VOICE_MAIL_OPT_PATH"/voice_mail_alphaid"
-#define VOICEMAIL_DEFAULT_NUMBER	""
+#define VOICEMAIL_DEFAULT_NUMBER		DEFAULT_VOICE_MAIL_OPT_PATH"/voice_mail_default_number"
 #define VOICEMAIL_DEFAULT_ALPHA_ID	""
 
 #define MSGSIZE_OPTION					DEFAULT_MSGSIZE_OPT_PATH"/msg_size"
@@ -181,10 +183,13 @@
 #ifdef FEATURE_SMS_CDMA
 #define MSG_MESSAGE_ID_COUNTER			DEFAULT_GENERAL_OPT_PATH"/msg_id_counter"
 #endif
+#define MSG_MESSAGE_DURING_CALL			DEFAULT_GENERAL_OPT_PATH"/during_call"
 
 #define MSG_DEFAULT_APP_ID			"org.tizen.message"
 #define MSG_QUICKPANEL_APP_ID		"org.tizen.quickpanel"
-#define MSG_CALL_APP_ID				"org.tizen.call"
+#define MSG_INDICATOR_APP_ID		"org.tizen.indicator"
+#define MSG_CALL_APP_ID				"org.tizen.call-ui"
+#define MSG_TEL_URI_VOICEMAIL		"tel:VOICEMAIL"
 
 #define MSG_TELEPHONY_SMS_FEATURE	"http://tizen.org/feature/network.telephony.sms"
 #define MSG_TELEPHONY_MMS_FEATURE	"http://tizen.org/feature/network.telephony.mms"
@@ -262,6 +267,7 @@ typedef struct
 	char					thumbPath[MSG_FILEPATH_LEN_MAX+1];
 	bool					bStore;											/**< Indicates whether the message is stored or not if it is MWI message. */
 	int						sim_idx;
+	char					msgURL[MMS_LOCATION_LEN + 1];
 } MSG_MESSAGE_INFO_S;
 
 
@@ -318,7 +324,6 @@ typedef struct
 	bool						bDraft;
 	bool						bSendFailed;
 	bool						bSending;
-	int							simIndex;
 } MSG_THREAD_VIEW_S;
 
 
@@ -514,6 +519,12 @@ typedef struct _MSG_UNIQUE_INDEX_S
 	int						telesvc_id;
 } MSG_UNIQUE_INDEX_S;
 
+typedef struct
+{
+	time_t					receivedTime;
+	unsigned short			serialNum;
+	unsigned short			messageId;	// Message Identifier
+} MSG_CB_DUPLICATE_S;
 #endif
 
 
@@ -608,7 +619,7 @@ enum _MSG_MMS_ITEM_TYPE_E
 	MSG_MMS_ITEM_TYPE_AUDIO,		/**< Indicates the audio media */
 	MSG_MMS_ITEM_TYPE_VIDEO,		/**< Indicates the video media */
 	MSG_MMS_ITEM_TYPE_ATTACH,		/**< Indicates the attach file */
-	MSG_MMS_ITEM_TYPE_PAGE,	/**< Indicates the page count */
+	MSG_MMS_ITEM_TYPE_PAGE,		/**< Indicates the page count */
 	MSG_MMS_ITEM_TYPE_MALWARE,		/**< Indicates the tcs bc level*/
 	MSG_MMS_ITEM_TYPE_1ST_MEDIA,	/**< Indicates the 1st media path*/
 };

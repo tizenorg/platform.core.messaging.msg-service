@@ -76,5 +76,4 @@ private:
 	static SmsPluginCallback* pInstance;
 };
 
-#endif //SMS_CDMA_PLUGIN_CALLBACK_H
-
+#endif /* SMS_CDMA_PLUGIN_CALLBACK_H */

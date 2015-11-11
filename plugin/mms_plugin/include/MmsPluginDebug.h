@@ -25,4 +25,4 @@
 #define MMS_DEBUG_STR_FILE_NOT_EXIST "File not exist"
 
 
-#endif //MMS_PLUGIN_DEBUG_H
+#endif /* MMS_PLUGIN_DEBUG_H */

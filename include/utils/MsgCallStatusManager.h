@@ -14,48 +14,28 @@
  * limitations under the License.
 */
 
-#ifndef SMS_PLUGIN_UA_MANAGER_H
-#define SMS_PLUGIN_UA_MANAGER_H
-
-
-/*==================================================================================================
-                                         INCLUDE FILES
-==================================================================================================*/
-#include "MsgMutex.h"
-#include "MsgQueue.h"
-#include "MsgThread.h"
-#include "SmsPluginTypes.h"
-
+#ifndef MSG_CALL_STATUS_MANAGER_H
+#define MSG_CALL_STATUS_MANAGER_H
 
 /*==================================================================================================
-                                     CLASS DEFINITIONS
+                                    INCLUDE FILES
 ==================================================================================================*/
-class SmsPluginUAManager : public MsgThread
-{
-public:
-	static SmsPluginUAManager* instance();
+#include <gio/gio.h>
 
-	//virtual void start();
+/*==================================================================================================
+                                    DEFINES
+==================================================================================================*/
+#define CALL_MGR_BUS_NAME "org.tizen.callmgr"
+#define CALL_MGR_PATH_NAME "/org/tizen/callmgr"
+#define CALL_MGR_INTERFACE_NAME "org.tizen.callmgr"
+#define CALL_MGR_MEMBER_NAME "CallStatus"
 
-	void addReqEntity(SMS_REQUEST_INFO_S *request);
+/*==================================================================================================
+                                     FUNCTION PROTOTYPES
+==================================================================================================*/
+void MsgInitCallStatusManager();
+void MsgDeInitCallStatusManager();
+int MsgGetCallStatus();
 
-private:
-	SmsPluginUAManager();
-	~SmsPluginUAManager();
-	void lock() 	{ mx.lock(); };
-	void unlock() 	{ mx.unlock(); };
-	void wait() 	{ cv.wait(mx.pMutex()); };
-	void signal() 	{ cv.signal(); };
-
-	virtual void run();
-
-	static SmsPluginUAManager* pInstance;
-
-	MsgSimpleQ <SMS_REQUEST_INFO_S> smsTranQ;
-
-	Mutex mx;
-	CndVar cv;
-};
-
-#endif /* SMS_PLUGIN_UA_MANAGER_H */
+#endif // MSG_CALL_STATUS_MANAGER_H
 

@@ -98,8 +98,8 @@ msg_error_t MsgIpcClientSocket::connect(const char* path)
 msg_error_t MsgIpcClientSocket::close()
 {
 	if (sockfd < 0) {
-		MSG_FATAL("Client socket is not opened (check if you call close twice by accident) [%d]", sockfd);
-		return MSG_ERR_UNKNOWN;
+		MSG_DEBUG("Client socket is not opened or already closed");
+		return MSG_SUCCESS;
 	}
 
 	/* it means that client is going to close the connection.*/
@@ -110,6 +110,7 @@ msg_error_t MsgIpcClientSocket::close()
 	bzero(cmdbuf, len);
 	memcpy(cmdbuf, &cmd, len);
 
+	MSG_DEBUG("client socket [%d] will be closed", sockfd);
 	::close(sockfd);
 	sockfd = CUSTOM_SOCKET_ERROR;
 
@@ -178,10 +179,12 @@ int MsgIpcClientSocket::readn( char *buf, unsigned int len )
 {
 	unsigned int nleft;
 	int nread;
+	char t_buf[len];
 
 	nleft = len;
 	while (nleft > 0) {
-		nread = ::read(sockfd, (void*) buf, nleft);
+		memset(t_buf, 0x00, len);
+		nread = ::read(sockfd, t_buf, nleft);
 		if (nread < 0) {
 			MSG_FATAL("WARNING read value %d: %s", nread, g_strerror(errno));
 			return nread;
@@ -190,6 +193,7 @@ int MsgIpcClientSocket::readn( char *buf, unsigned int len )
 		}
 
 		nleft -= nread;
+		memcpy(buf, t_buf, nread);
 		buf += nread;
 	}
 

@@ -62,5 +62,4 @@ msg_error_t SmsPlgAddMessage(MSG_MESSAGE_INFO_S *pMsgInfo,  MSG_SENDINGOPT_INFO_
 }
 #endif
 
-#endif //SMS_CDMA_PLUGIN_MAIN_H
-
+#endif /* SMS_CDMA_PLUGIN_MAIN_H */

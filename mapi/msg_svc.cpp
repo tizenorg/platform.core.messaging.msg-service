@@ -44,8 +44,7 @@ EXPORT_API msg_struct_t msg_create_struct(int field)
 	msg_struct->type = field;
 	msg_struct->data = NULL;
 
-	switch(field)
-	{
+	switch (field) {
 	case MSG_STRUCT_MESSAGE_INFO :
 		msg_message_create_struct(msg_struct);
 		break;
@@ -167,7 +166,7 @@ EXPORT_API msg_struct_t msg_create_struct(int field)
 		memset(msg_struct->data, 0x00, sizeof(MSG_SMSC_LIST_HIDDEN_S));
 
 		MSG_SMSC_LIST_HIDDEN_S *pTmp = (MSG_SMSC_LIST_HIDDEN_S *)msg_struct->data;
-		pTmp->simIndex = MSG_SIM_SLOT_ID_1; // default sim index
+		pTmp->simIndex = MSG_SIM_SLOT_ID_1; /* default sim index */
 
 		msg_struct_list_s *smsc_list = (msg_struct_list_s *)new msg_struct_list_s;
 		memset(smsc_list, 0x00, sizeof(msg_struct_list_s));
@@ -201,7 +200,7 @@ EXPORT_API msg_struct_t msg_create_struct(int field)
 		memset(msg_struct->data, 0x00, sizeof(MSG_CBMSG_OPT_HIDDEN_S));
 
 		MSG_CBMSG_OPT_HIDDEN_S *pTmp = (MSG_CBMSG_OPT_HIDDEN_S *)msg_struct->data;
-		pTmp->simIndex = MSG_SIM_SLOT_ID_1; // default sim index
+		pTmp->simIndex = MSG_SIM_SLOT_ID_1; /* default sim index */
 
 		pTmp->channelData = (msg_struct_list_s *)new msg_struct_list_s;
 		memset(pTmp->channelData, 0x00, sizeof(msg_struct_list_s));
@@ -257,7 +256,7 @@ EXPORT_API msg_struct_t msg_create_struct(int field)
 		msg_struct->data = new MSG_VOICEMAIL_OPT_S;
 		memset(msg_struct->data, 0x00, sizeof(MSG_VOICEMAIL_OPT_S));
 		MSG_VOICEMAIL_OPT_S *pTmp = (MSG_VOICEMAIL_OPT_S *)msg_struct->data;
-		pTmp->simIndex = MSG_SIM_SLOT_ID_1; // default sim index
+		pTmp->simIndex = MSG_SIM_SLOT_ID_1; /* default sim index */
 		break;
 	}
 	case MSG_STRUCT_SETTING_GENERAL_OPT :
@@ -354,8 +353,7 @@ static int _release_msg_struct(msg_struct_t *msg_struct_handle)
 
 	msg_struct_s *msg_struct = (msg_struct_s *)*msg_struct_handle;
 
-	switch(msg_struct->type)
-	{
+	switch (msg_struct->type) {
 	case MSG_STRUCT_MESSAGE_INFO :
 	{
 		msg_message_release(&msg_struct);
@@ -751,9 +749,6 @@ EXPORT_API int msg_release_struct(msg_struct_t *msg_struct_handle)
 
 	int ret = _release_msg_struct(msg_struct_handle);
 
-	// Release Memory
-	MsgReleaseMemory();
-
 	return ret;
 }
 
@@ -771,22 +766,19 @@ EXPORT_API int msg_release_list_struct(msg_struct_list_s *msg_struct_list)
 		return MSG_ERR_NULL_POINTER;
 	}
 
-	if(msg_struct_list->nCount > 0) {
+	if (msg_struct_list->nCount > 0) {
 		int listCnt = msg_struct_list->nCount;
 
-		for(int i = 0; i < listCnt; i++) {
+		for (int i = 0; i < listCnt; i++) {
 			_release_msg_struct(&(msg_struct_list->msg_struct_info[i]));
 		}
 	}
 
-	//free peer info list
+	/* free peer info list */
 	g_free(msg_struct_list->msg_struct_info);
 	msg_struct_list->msg_struct_info = NULL;
 
 	msg_struct_list->nCount = 0;
-
-	// Release Memory
-	MsgReleaseMemory();
 
 	return err;
 }
@@ -799,14 +791,13 @@ EXPORT_API int msg_get_int_value(msg_struct_t msg_struct_handle, int field, int 
 	if (msg_struct_handle == NULL || value == NULL)
 		return MSG_ERR_NULL_POINTER;
 
-	msg_struct_s *msg_struct = (msg_struct_s *) msg_struct_handle;
+	msg_struct_s *msg_struct = (msg_struct_s *)msg_struct_handle;
 	MSG_TYPE_CHECK(msg_struct->type, field);
 
 	if (msg_struct->data == NULL)
 		return MSG_ERR_NULL_POINTER;
 
-	switch (msg_struct->type)
-	{
+	switch (msg_struct->type) {
 	case MSG_STRUCT_MESSAGE_INFO :
 		err = msg_message_get_int_value(msg_struct->data, field, value);
 		break;
@@ -908,13 +899,12 @@ EXPORT_API int msg_get_str_value(msg_struct_t msg_struct_handle, int field, char
 	if (size < 0)
 		return MSG_ERR_INVALID_PARAMETER;
 
-	msg_struct_s *msg_struct = (msg_struct_s *) msg_struct_handle;
+	msg_struct_s *msg_struct = (msg_struct_s *)msg_struct_handle;
 
 	if (msg_struct->data == NULL)
 		return MSG_ERR_NULL_POINTER;
 
-	switch (msg_struct->type)
-	{
+	switch (msg_struct->type) {
 	case MSG_STRUCT_MESSAGE_INFO :
 		err = msg_message_get_str_value(msg_struct->data, field, value, size);
 		break;
@@ -987,13 +977,12 @@ EXPORT_API int msg_get_bool_value(msg_struct_t msg_struct_handle, int field, boo
 	if (msg_struct_handle == NULL || value == NULL)
 		return MSG_ERR_NULL_POINTER;
 
-	msg_struct_s *msg_struct = (msg_struct_s *) msg_struct_handle;
+	msg_struct_s *msg_struct = (msg_struct_s *)msg_struct_handle;
 
 	if (msg_struct->data == NULL)
 		return MSG_ERR_NULL_POINTER;
 
-	switch (msg_struct->type)
-	{
+	switch (msg_struct->type) {
 	case MSG_STRUCT_FILTER :
 		err = msg_get_filter_info_bool(msg_struct->data, field, value);
 		break;
@@ -1060,13 +1049,12 @@ EXPORT_API int msg_get_struct_handle(msg_struct_t msg_struct_handle, int field, 
 	if (msg_struct_handle == NULL || value == NULL)
 		return MSG_ERR_NULL_POINTER;
 
-	msg_struct_s *msg_struct = (msg_struct_s *) msg_struct_handle;
+	msg_struct_s *msg_struct = (msg_struct_s *)msg_struct_handle;
 
 	if (msg_struct->data == NULL)
 		return MSG_ERR_NULL_POINTER;
 
-	switch (msg_struct->type)
-	{
+	switch (msg_struct->type) {
 	case MSG_STRUCT_MESSAGE_INFO :
 		err = msg_message_get_struct_hnd(msg_struct->data, field, (void **)value);
 		break;
@@ -1104,13 +1092,12 @@ EXPORT_API int msg_get_list_handle(msg_struct_t msg_struct_handle, int field, vo
 	if (msg_struct_handle == NULL || value == NULL)
 		return MSG_ERR_NULL_POINTER;
 
-	msg_struct_s *msg_struct = (msg_struct_s *) msg_struct_handle;
+	msg_struct_s *msg_struct = (msg_struct_s *)msg_struct_handle;
 
 	if (msg_struct->data == NULL)
 		return MSG_ERR_NULL_POINTER;
 
-	switch (msg_struct->type)
-	{
+	switch (msg_struct->type) {
 	case MSG_STRUCT_MESSAGE_INFO :
 		err = msg_message_get_list_hnd(msg_struct->data, field, value);
 		break;
@@ -1141,13 +1128,12 @@ EXPORT_API int msg_set_int_value(msg_struct_t msg_struct_handle, int field, int 
 	if (msg_struct_handle == NULL)
 		return MSG_ERR_NULL_POINTER;
 
-	msg_struct_s *msg_struct = (msg_struct_s *) msg_struct_handle;
+	msg_struct_s *msg_struct = (msg_struct_s *)msg_struct_handle;
 
 	if (msg_struct->data == NULL)
 		return MSG_ERR_NULL_POINTER;
 
-	switch (msg_struct->type)
-	{
+	switch (msg_struct->type) {
 	case MSG_STRUCT_MESSAGE_INFO :
 		err = msg_message_set_int_value(msg_struct->data, field, value);
 		break;
@@ -1233,13 +1219,12 @@ EXPORT_API int msg_set_str_value(msg_struct_t msg_struct_handle, int field, char
 	if (size < 0)
 		return MSG_ERR_INVALID_PARAMETER;
 
-	msg_struct_s *msg_struct = (msg_struct_s *) msg_struct_handle;
+	msg_struct_s *msg_struct = (msg_struct_s *)msg_struct_handle;
 
 	if (msg_struct->data == NULL)
 		return MSG_ERR_NULL_POINTER;
 
-	switch (msg_struct->type)
-	{
+	switch (msg_struct->type) {
 	case MSG_STRUCT_MESSAGE_INFO :
 		err = msg_message_set_str_value(msg_struct->data, field, value, size);
 		break;
@@ -1298,13 +1283,12 @@ EXPORT_API int msg_set_bool_value(msg_struct_t msg_struct_handle, int field, boo
 	if (msg_struct_handle == NULL)
 		return MSG_ERR_NULL_POINTER;
 
-	msg_struct_s *msg_struct = (msg_struct_s *) msg_struct_handle;
+	msg_struct_s *msg_struct = (msg_struct_s *)msg_struct_handle;
 
 	if (msg_struct->data == NULL)
 		return MSG_ERR_NULL_POINTER;
 
-	switch (msg_struct->type)
-	{
+	switch (msg_struct->type) {
 	case MSG_STRUCT_FILTER :
 		err = msg_set_filter_info_bool(msg_struct->data, field, value);
 		break;
@@ -1365,13 +1349,12 @@ EXPORT_API int msg_set_struct_handle(msg_struct_t msg_struct_handle, int field, 
 	if (msg_struct_handle == NULL || value == NULL)
 		return MSG_ERR_NULL_POINTER;
 
-	msg_struct_s *msg_struct = (msg_struct_s *) msg_struct_handle;
+	msg_struct_s *msg_struct = (msg_struct_s *)msg_struct_handle;
 
 	if (msg_struct->data == NULL)
 		return MSG_ERR_NULL_POINTER;
 
-	switch (msg_struct->type)
-	{
+	switch (msg_struct->type) {
 	case MSG_STRUCT_MESSAGE_INFO :
 		err = msg_message_set_struct_hnd(msg_struct->data, field, (void *)value);
 		break;
@@ -1409,12 +1392,12 @@ EXPORT_API int msg_set_list_handle(msg_struct_t msg_struct_handle, int field, vo
 	if (msg_struct_handle == NULL || value == NULL)
 		return MSG_ERR_NULL_POINTER;
 
-	msg_struct_s *msg_struct = (msg_struct_s *) msg_struct_handle;
+	msg_struct_s *msg_struct = (msg_struct_s *)msg_struct_handle;
 
 	if (msg_struct->data == NULL)
 		return MSG_ERR_NULL_POINTER;
 
-#if 0 // No operations
+#if 0 /* No operations */
 	switch (msg_struct->type)
 	{
 	default :
@@ -1429,14 +1412,13 @@ EXPORT_API int msg_set_list_handle(msg_struct_t msg_struct_handle, int field, vo
 EXPORT_API int msg_list_add_item(msg_struct_t msg_struct_handle, int field, msg_struct_t *item)
 {
 	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_SMS_FEATURE);
-	if (msg_struct_handle == NULL || item == NULL) {
+	if (msg_struct_handle == NULL || item == NULL)
 		return MSG_ERR_NULL_POINTER;
-	}
 
 	msg_error_t err = MSG_SUCCESS;
 	msg_struct_s *msg_struct = (msg_struct_s *)msg_struct_handle;
 
-	switch(msg_struct->type) {
+	switch (msg_struct->type) {
 	case MSG_STRUCT_MESSAGE_INFO:
 	{
 		err = msg_message_list_append(msg_struct_handle, field, item);
@@ -1459,11 +1441,10 @@ EXPORT_API int msg_list_add_item(msg_struct_t msg_struct_handle, int field, msg_
 EXPORT_API msg_struct_t msg_list_nth_data(msg_list_handle_t list_handle, int index)
 {
 	CHECK_MSG_SUPPORTED_RETURN_NULL(MSG_TELEPHONY_SMS_FEATURE);
-	if (list_handle == NULL) {
+	if (list_handle == NULL)
 		return NULL;
-	}
 
-	return (msg_struct_t)g_list_nth_data((GList *)list_handle,(guint)index);
+	return (msg_struct_t)g_list_nth_data((GList *)list_handle, (guint)index);
 }
 
 EXPORT_API int msg_list_length(msg_list_handle_t list_handle)
@@ -1479,25 +1460,18 @@ EXPORT_API int msg_list_length(msg_list_handle_t list_handle)
 EXPORT_API int msg_list_clear(msg_struct_t msg_struct_handle, int field)
 {
 	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_SMS_FEATURE);
-	if (msg_struct_handle == NULL) {
+	if (msg_struct_handle == NULL)
 		return MSG_ERR_NULL_POINTER;
-	}
 
 	msg_error_t err = MSG_SUCCESS;
 	msg_struct_s *msg_struct = (msg_struct_s *)msg_struct_handle;
 
-	switch(msg_struct->type) {
+	switch (msg_struct->type) {
 	case MSG_STRUCT_MESSAGE_INFO:
 	{
 		err = msg_message_list_clear(msg_struct_handle, field);
 	}
 	break;
-//	case MSG_STRUCT_MMS:
-//	case MSG_STRUCT_MMS_PAGE:
-//	{
-//		err = msg_mms_list_append(msg_struct_handle, field, item);
-//	}
-//	break;
 	default :
 		err = MSG_ERR_INVALID_PARAMETER;
 		break;
@@ -1509,9 +1483,8 @@ EXPORT_API int msg_list_clear(msg_struct_t msg_struct_handle, int field)
 EXPORT_API int msg_list_free(msg_list_handle_t list_handle)
 {
 	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_SMS_FEATURE);
-	if (list_handle == NULL) {
+	if (list_handle == NULL)
 		return MSG_ERR_NULL_POINTER;
-	}
 
 	g_list_free_full((GList *)list_handle, __msg_release_list_item);
 	list_handle = NULL;
@@ -1525,9 +1498,9 @@ EXPORT_API int msg_util_calculate_text_length(const char* msg_text, msg_encode_t
 	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_SMS_FEATURE);
 	msg_error_t err = MSG_SUCCESS;
 
-	if (msg_text == NULL || text_size == NULL || segment_size == NULL || msg_encode_type_in == NULL) {
+	if (msg_text == NULL || text_size == NULL || segment_size == NULL || msg_encode_type_in == NULL)
 		return MSG_ERR_INVALID_PARAMETER;
-	}
+
 #ifdef FEATURE_SMS_CDMA
 	if (msg_encode_type_to > MSG_ENCODE_ASCII7BIT) {
 #else
@@ -1558,8 +1531,7 @@ EXPORT_API int msg_util_calculate_text_length(const char* msg_text, msg_encode_t
 	*text_size = 0;
 	*segment_size = 0;
 
-	switch (msg_encode_type_to)
-	{
+	switch (msg_encode_type_to) {
 	case MSG_ENCODE_GSM7BIT :
 		decodeLen = textCvt->convertUTF8ToGSM7bit(decodeData, bufSize, (const unsigned char*)msg_text, textSize, &langId, &bAbnormal);
 		break;
@@ -1567,19 +1539,13 @@ EXPORT_API int msg_util_calculate_text_length(const char* msg_text, msg_encode_t
 		decodeLen = textCvt->convertUTF8ToUCS2(decodeData, bufSize, (const unsigned char*)msg_text, textSize);
 		break;
 	case MSG_ENCODE_AUTO :
-#ifndef FEATURE_SMS_CDMA
-		decodeLen = textCvt->convertUTF8ToAuto(decodeData, bufSize, (const unsigned char*)msg_text, textSize, &langId, &encodeType);
-#else
 		decodeLen = textCvt->convertUTF8ToAuto(decodeData, bufSize, (const unsigned char*)msg_text, textSize, &encodeType);
-#endif
 		break;
 	default :
-		err = MSG_ERR_INVALID_PARAMETER;
-		return err;
-		break;
+		return MSG_ERR_INVALID_PARAMETER;
 	}
 
-	// calculate segment size.
+	/* calculate segment size. */
 	int headerLen = 0;
 	int concat = 5;
 	int lang = 3;
@@ -1600,8 +1566,9 @@ EXPORT_API int msg_util_calculate_text_length(const char* msg_text, msg_encode_t
 			headerLen = 1;
 			segSize = ((140 - (headerLen + concat + headerSize)) * 8)/7;
 		}
-		else
+		else {
 			segSize = ((140 - headerLen - headerSize) * 8) / 7;
+		}
 
 		if (bAbnormal)
 			*msg_encode_type_in = MSG_ENCODE_GSM7BIT_ABNORMAL;
@@ -1611,15 +1578,25 @@ EXPORT_API int msg_util_calculate_text_length(const char* msg_text, msg_encode_t
 	} else if (msg_encode_type_to == MSG_ENCODE_UCS2 || encodeType == MSG_ENCODE_UCS2) {
 		MSG_DEBUG("MSG_ENCODE_UCS2");
 
-//		if (((decodeLen+headerSize)/140) > 1)
-//			segSize = 140 - (headerLen + concat + headerSize);
 		if (decodeLen > 140) {
 			headerLen = 1;
 			segSize = 140 - (headerLen + concat);
-		} else
+		} else {
 			segSize = 140;
+		}
 
 		*msg_encode_type_in = MSG_ENCODE_UCS2;
+#ifdef FEATURE_SMS_CDMA
+	} else if (encodeType == MSG_ENCODE_ASCII7BIT) {
+		MSG_DEBUG("MSG_ENCODE_ASCII7BIT");
+
+		if(decodeLen > 160)
+			segSize = ((140*8) - ((headerLen + concat)*8)) / 7;
+		else
+			segSize = 160;
+
+		*msg_encode_type_in = MSG_ENCODE_GSM7BIT;
+#endif
 
 	} else {
 		MSG_DEBUG("Unsupported encode type.");

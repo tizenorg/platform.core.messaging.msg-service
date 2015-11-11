@@ -18,11 +18,10 @@
 #include "MmsPluginDebug.h"
 #include "MmsPluginStorage.h"
 #include "MmsPluginMessage.h"
-#include "MmsPluginMIME.h"
 #include "MmsPluginAppBase.h"
 #include "MmsPluginUtil.h"
-#include "MmsPluginTcs.h"
 #include "MsgUtilFile.h"
+#include "MsgUtilMime.h"
 
 msg_error_t MmsMakePreviewInfo(int msgId, MMS_MESSAGE_DATA_S *pMmsMsg, bool allow_malware, const char *raw_filepath);
 
@@ -72,7 +71,7 @@ void MmsPluginAppBase::getFirstPageTextFilePath(char *textBuf, int textBufSize)
 	if (pMmsMsgData == NULL)
 		return;
 
-	// Get the text data from the 1st slide.
+	/* Get the text data from the 1st slide. */
 	if (pMmsMsgData->pageCnt > 0) {
 
 		pPage = _MsgMmsGetPage(pMmsMsgData, 0);
@@ -87,16 +86,32 @@ void MmsPluginAppBase::getFirstPageTextFilePath(char *textBuf, int textBufSize)
 
 					MimeType mimeType = MIME_UNKNOWN;
 
-					MmsGetMimeTypeFromFileName(MIME_MAINTYPE_UNKNOWN, pMedia->szFilePath, &mimeType, NULL);
+					MsgGetMimeTypeFromFileName(MIME_MAINTYPE_UNKNOWN, pMedia->szFilePath, &mimeType, NULL);
 
 					if (mimeType == MIME_TEXT_X_VCALENDAR || mimeType == MIME_TEXT_X_VCARD || mimeType == MIME_TEXT_X_VTODO || mimeType == MIME_TEXT_X_VNOTE) {
-						MSG_DEBUG("Media Type is Text, but Vobject file [%s]", pMedia->szFilePath);
+						MSG_SEC_DEBUG("Media Type is Text, but Vobject file [%s]", pMedia->szFilePath);
 					} else {
-						MSG_DEBUG("Text path : [%s]", pMedia->szFilePath);
-						snprintf(textBuf, textBufSize, "%s", pMedia->szFilePath);//Set Text Filepath of First Pages
+						MSG_SEC_DEBUG("Text path : [%s]", pMedia->szFilePath);
+						snprintf(textBuf, textBufSize, "%s", pMedia->szFilePath); /* Set Text Filepath of First Pages */
 					}
 					break;
 				}
+			}
+		}
+	} else {
+		/* (P151014-01246)
+		 * Set filepath of the first text/plain attachment to display preview text on notification */
+		if (pMmsMsgData->attachlist) {
+			GList *l = pMmsMsgData->attachlist;
+			while (l) {
+				MMS_ATTACH_S *attach = (MMS_ATTACH_S *)l->data;
+				if (g_strcmp0(attach->szContentType, "text/plain") == 0) {
+					MSG_SEC_DEBUG("The first text filepath for multipart: (%s)", attach->szFilePath);
+					snprintf(textBuf, textBufSize, "%s", attach->szFilePath);
+					break;
+				}
+
+				l = g_list_next(l);
 			}
 		}
 	}
@@ -105,7 +120,7 @@ void MmsPluginAppBase::getFirstPageTextFilePath(char *textBuf, int textBufSize)
 }
 
 
-//FIXME::need to move AppBase
+/* FIXME::need to move AppBase */
 msg_error_t MmsMakePreviewInfo(int msgId, MMS_MESSAGE_DATA_S *pMmsMsg, bool allow_malware, const char *raw_filepath)
 {
 	MMS_PAGE_S *pPage = NULL;
@@ -118,9 +133,9 @@ msg_error_t MmsMakePreviewInfo(int msgId, MMS_MESSAGE_DATA_S *pMmsMsg, bool allo
 	if (pMmsMsg == NULL)
 		return MSG_ERR_NULL_POINTER;
 
-	MmsPluginStorage::instance()->removePreviewInfo(msgId); //remove exist previnfo
+	MmsPluginStorage::instance()->removePreviewInfo(msgId); /* remove exist previnfo */
 
-	//scan malware in raw file
+	/* scan malware in raw file */
 	if (raw_filepath && strlen(raw_filepath) > 0 && MsgAccessFile(raw_filepath, F_OK) == true) {
 		int tcs_ret = 0; // MmsPluginTcsScanFile(raw_filepath, &bc_level);
 		if (tcs_ret == 0) {
@@ -131,17 +146,17 @@ msg_error_t MmsMakePreviewInfo(int msgId, MMS_MESSAGE_DATA_S *pMmsMsg, bool allo
 		}
 	}
 
-	//check ref type and increase attach count
+	/* check ref type and increase attach count */
 	if (pMmsMsg->pageCnt > 0) {
 		for (int i = 0; i < pMmsMsg->pageCnt; i++) {
 			pPage = _MsgMmsGetPage(pMmsMsg, i);
 			if (pPage) {
 				for (int j = 0; j < pPage->mediaCnt; j++) {
 					pMedia = _MsgMmsGetMedia(pPage, j);
-					if (pMedia) { //IF Vobject type add to Attach in Preview data
+					if (pMedia) { /* IF Vobject type add to Attach in Preview data */
 
 						MimeType mimeType = MIME_UNKNOWN;
-						MmsGetMimeTypeFromFileName(MIME_MAINTYPE_UNKNOWN, pMedia->szFilePath, &mimeType, NULL);
+						MsgGetMimeTypeFromFileName(MIME_MAINTYPE_UNKNOWN, pMedia->szFilePath, &mimeType, NULL);
 						if (mimeType == MIME_TEXT_X_VCALENDAR || mimeType == MIME_TEXT_X_VCARD) {
 
 							MSG_DEBUG("Unsupported File [%s] It will be add to attach list", pMedia->szFilePath);
@@ -184,7 +199,7 @@ msg_error_t MmsMakePreviewInfo(int msgId, MMS_MESSAGE_DATA_S *pMmsMsg, bool allo
 					}
 				} else {
 
-					if (j == 0) { //First Page, First Media
+					if (j == 0) { /* First Page, First Media */
 						MmsPluginStorage::instance()->insertPreviewInfo(msgId, MSG_MMS_ITEM_TYPE_1ST_MEDIA, pMedia->szFilePath);
 					}
 
@@ -196,7 +211,7 @@ msg_error_t MmsMakePreviewInfo(int msgId, MMS_MESSAGE_DATA_S *pMmsMsg, bool allo
 						memset(szFileName, 0x00, MSG_FILENAME_LEN_MAX+1);
 						memset(thumbPath, 0x00, MSG_FILEPATH_LEN_MAX);
 
-						MSG_DEBUG("drm type = %d, %s", pMedia->drmType, pMedia->szFilePath);
+						MSG_SEC_DEBUG("drm type = %d, %s", pMedia->drmType, pMedia->szFilePath);
 
 						if (pMedia->drmType == MSG_DRM_TYPE_NONE) {
 
@@ -208,7 +223,7 @@ msg_error_t MmsMakePreviewInfo(int msgId, MMS_MESSAGE_DATA_S *pMmsMsg, bool allo
 								snprintf(thumbPath, MSG_FILEPATH_LEN_MAX, "%s%s.jpg", MSG_THUMBNAIL_PATH, szFileName);
 							}
 
-							if (MmsMakeImageThumbnail(pMedia->szFilePath, thumbPath) == true) {
+							if (MakeThumbnail(pMedia->szFilePath, thumbPath) == true) {
 								if (pMedia->mediatype == MMS_SMIL_MEDIA_IMG) {
 									MmsPluginStorage::instance()->insertPreviewInfo(msgId, MSG_MMS_ITEM_TYPE_IMG, thumbPath);
 								} else {
@@ -223,7 +238,7 @@ msg_error_t MmsMakePreviewInfo(int msgId, MMS_MESSAGE_DATA_S *pMmsMsg, bool allo
 					}
 				}
 			}
-		} // end for
+		} /* end for */
 	} else {
 		MSG_DEBUG("There is no page");
 	}
@@ -234,7 +249,7 @@ msg_error_t MmsMakePreviewInfo(int msgId, MMS_MESSAGE_DATA_S *pMmsMsg, bool allo
 		MMS_ATTACH_S *pAttach = _MsgMmsGetAttachment(pMmsMsg, 0);
 
 		MmsPluginStorage::instance()->insertPreviewInfo(msgId, MSG_MMS_ITEM_TYPE_ATTACH, pAttach->szFileName, attachCnt);
-		MmsPluginStorage::instance()->updateMmsAttachCount(msgId, attachCnt); // for Get Message
+		MmsPluginStorage::instance()->updateMmsAttachCount(msgId, attachCnt); /* for Get Message */
 
 		if (attachment_name == NULL) {
 			attachment_name = pAttach->szFileName;

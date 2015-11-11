@@ -47,7 +47,9 @@ void MsgHandle::openHandle()
 {
 	bool bReady = false;
 
-	// server is currently booting and service is not available until the end of booting
+	MsgProxyListener::instance()->insertOpenHandleSet(this);
+
+	/* server is currently booting and service is not available until the end of booting */
 	MsgSettingGetBool(VCONFKEY_MSG_SERVER_READY, &bReady);
 
 	if (bReady == false) {
@@ -56,7 +58,7 @@ void MsgHandle::openHandle()
 		MSG_INFO("Msg Server is ready !!!!!");
 	}
 
-	// Open Socket IPC
+	/* Open Socket IPC */
 	connectSocket();
 }
 
@@ -65,19 +67,19 @@ void MsgHandle::closeHandle(MsgHandle* pHandle)
 {
 	MSG_BEGIN();
 
-	//Remove CB List of closing Handle
+	/* Remove CB List of closing Handle */
 	MsgProxyListener* eventListener = MsgProxyListener::instance();
 
 	eventListener->clearListOfClosedHandle(pHandle);
-	//eventListener->stop();
+	/* eventListener->stop(); */
 
-	// Close Socket IPC
+	/* Close Socket IPC */
 	disconnectSocket();
 
 #ifndef MSG_CONTACTS_SERVICE_NOT_SUPPORTED
-	// Close Contact Service
+	/* Close Contact Service */
 	if (MsgCloseContactSvc() != MSG_SUCCESS) {
-		MSG_DEBUG("Fail to close contact service.");
+		MSG_WARN("Fail to close contact service.");
 	}
 #endif // MSG_CONTACTS_SERVICE_NOT_SUPPORTED
 	removeDbHandle(); /* unregister db handler */
@@ -106,24 +108,24 @@ void MsgHandle::write(const char *pCmdData, int cmdSize, char **ppEvent)
 
 	int ret = 0;
 
-	// Send Command to MSG FW
+	/* Send Command to MSG FW */
+	MutexLocker lock(mx);
 	ret = mClientSock.write(pCmdData, cmdSize);
 	if (ret < 0)
 		THROW(MsgException::IPC_ERROR, "IPC write error");
 
 	char *tmpEvent = NULL;
 
-	while(1)
-	{
-		// Receive Result from MSG FW
+	while (1) {
+		/* Receive Result from MSG FW */
 		read(&tmpEvent);
 
-		if(tmpEvent == NULL) {
+		if (tmpEvent == NULL) {
 			MSG_DEBUG("Event Data is NULL!!");
 			break;
 		}
 
-		if(!CheckEventData(tmpEvent)) {
+		if (!CheckEventData(tmpEvent)) {
 			delete [] tmpEvent;
 			tmpEvent = NULL;
 		} else {
@@ -215,7 +217,7 @@ void MsgHandle::convertMsgStruct(const MSG_MESSAGE_HIDDEN_S *pSrc, MSG_MESSAGE_I
 	pDest->priority = pSrc->priority;
 	pDest->direction = pSrc->direction;
 
-	// Set Port Info.
+	/* Set Port Info. */
 	pDest->msgPort.valid = pSrc->bPortValid;
 
 	if (pDest->msgPort.valid == true) {
@@ -224,8 +226,9 @@ void MsgHandle::convertMsgStruct(const MSG_MESSAGE_HIDDEN_S *pSrc, MSG_MESSAGE_I
 	}
 
 	MSG_DEBUG("nSize = %d",  pSrc->dataSize);
+	MSG_DEBUG("mainType = %d",  pSrc->mainType);
 
-	if (pSrc->mainType == MSG_SMS_TYPE){
+	if (pSrc->mainType == MSG_SMS_TYPE) {
 		if (pSrc->pData != NULL) {
 			pDest->bTextSms = true;
 			pDest->dataSize = pSrc->dataSize;
@@ -233,11 +236,11 @@ void MsgHandle::convertMsgStruct(const MSG_MESSAGE_HIDDEN_S *pSrc, MSG_MESSAGE_I
 			memset(pDest->msgText, 0x00, sizeof(pDest->msgText));
 
 			if (pSrc->dataSize > MAX_MSG_TEXT_LEN) {
-				// Save Message Data into File
+				/* Save Message Data into File */
 				char fileName[MSG_FILENAME_LEN_MAX+1];
 				memset(fileName, 0x00, sizeof(fileName));
 
-				if(MsgCreateFileName(fileName) == false)
+				if (MsgCreateFileName(fileName) == false)
 					THROW(MsgException::FILE_ERROR, "MsgCreateFileName error");
 
 				MSG_SEC_DEBUG("Save pSrc->pData into file : size[%d] name[%s]", pDest->dataSize, fileName);
@@ -270,7 +273,7 @@ void MsgHandle::convertMsgStruct(const MSG_MESSAGE_HIDDEN_S *pSrc, MSG_MESSAGE_I
 		pDest->bTextSms = false;
 		pDest->dataSize = pSrc->dataSize;
 
-		if(pSrc->subType == MSG_READREPLY_MMS) {
+		if (pSrc->subType == MSG_READREPLY_MMS) {
 			memset(pDest->msgData, 0x00, sizeof(pDest->msgData));
 
 			if (pSrc->mmsDataSize < MAX_MSG_DATA_LEN)
@@ -279,14 +282,14 @@ void MsgHandle::convertMsgStruct(const MSG_MESSAGE_HIDDEN_S *pSrc, MSG_MESSAGE_I
 				memcpy(pDest->msgData, pSrc->pMmsData, MAX_MSG_DATA_LEN);
 
 		} else {
-			// Save Message Data into File
+			/* Save Message Data into File */
 			char fileName[MSG_FILENAME_LEN_MAX+1];
 			memset(fileName, 0x00, sizeof(fileName));
 
-			if(MsgCreateFileName(fileName) == false)
+			if (MsgCreateFileName(fileName) == false)
 				THROW(MsgException::FILE_ERROR, "MsgCreateFileName error");
 
-			// change file extension in case of java MMS msg
+			/* change file extension in case of java MMS msg */
 			if (pSrc->subType == MSG_SENDREQ_JAVA_MMS) {
 				char* pFileNameExt = NULL;
 				pFileNameExt = strstr(fileName,"DATA");
@@ -341,7 +344,7 @@ void MsgHandle::convertMsgStruct(const MSG_MESSAGE_INFO_S *pSrc, MSG_MESSAGE_HID
 	pDest->direction = pSrc->direction;
 	pDest->simIndex = pSrc->sim_idx;
 
-	// Set Port Info.
+	/* Set Port Info. */
 	pDest->bPortValid = pSrc->msgPort.valid;
 
 	if (pDest->bPortValid == true) {
@@ -349,7 +352,7 @@ void MsgHandle::convertMsgStruct(const MSG_MESSAGE_INFO_S *pSrc, MSG_MESSAGE_HID
 		pDest->srcPort = pSrc->msgPort.srcPort;
 	}
 
-	if(pSrc->thumbPath[0] != '\0')
+	if (pSrc->thumbPath[0] != '\0')
 		strncpy(pDest->thumbPath, pSrc->thumbPath, MSG_FILEPATH_LEN_MAX);
 
 	int maxCnt = (pSrc->nAddressCnt > 10)? MAX_TO_ADDRESS_CNT: pSrc->nAddressCnt;
@@ -400,7 +403,7 @@ void MsgHandle::convertMsgStruct(const MSG_MESSAGE_INFO_S *pSrc, MSG_MESSAGE_HID
 
 		pDest->dataSize = pSrc->dataSize;
 
-		// Get Message Data from File
+		/* Get Message Data from File */
 		if (MsgOpenAndReadFile(pSrc->msgData, &pFileData, &fileSize) == false)
 			THROW(MsgException::FILE_ERROR, "MsgOpenAndReadFile error");
 
@@ -478,21 +481,17 @@ void MsgHandle::convertSendOptStruct(const MSG_SENDINGOPT_S* pSrc, MSG_SENDINGOP
 
 	if (msgType.mainType == MSG_SMS_TYPE) {
 		msg_struct_s *pStruct = (msg_struct_s *)pSrc->smsSendOpt;
-		if(pStruct)
-		{
+		if (pStruct) {
 			SMS_SENDINGOPT_S *pSms = (SMS_SENDINGOPT_S *)pStruct->data;
-			if(pSms)
-			{
+			if (pSms) {
 				pDest->option.smsSendOptInfo.bReplyPath = pSms->bReplyPath;
 			}
 		}
 	} else if (msgType.mainType == MSG_MMS_TYPE) {
 		msg_struct_s *pStruct = (msg_struct_s *)pSrc->mmsSendOpt;
-		if(pStruct)
-		{
+		if (pStruct) {
 			MMS_SENDINGOPT_S *pMms = (MMS_SENDINGOPT_S *)pStruct->data;
-			if(pMms)
-			{
+			if (pMms) {
 				pDest->option.mmsSendOptInfo.priority = pMms->priority;
 				pDest->option.mmsSendOptInfo.bReadReq = pMms->bReadReq;
 
@@ -559,38 +558,37 @@ int MsgHandle::getSettingCmdSize(MSG_OPTION_TYPE_T optionType)
 {
 	int cmdSize = sizeof(MSG_CMD_S) + sizeof(MSG_OPTION_TYPE_T);
 
-	switch (optionType)
-	{
-		case MSG_GENERAL_OPT :
-			cmdSize += sizeof(MSG_GENERAL_OPT_S);
-		break;
-		case MSG_SMS_SENDOPT :
-			cmdSize += sizeof(MSG_SMS_SENDOPT_S);
-		break;
-		case MSG_SMSC_LIST :
-			cmdSize += sizeof(MSG_SMSC_LIST_S);
-		break;
-		case MSG_MMS_SENDOPT :
-			cmdSize += sizeof(MSG_MMS_SENDOPT_S);
-		break;
-		case MSG_MMS_RECVOPT :
-			cmdSize += sizeof(MSG_MMS_RECVOPT_S);
-		break;
-		case MSG_MMS_STYLEOPT :
-			cmdSize += sizeof(MSG_MMS_STYLEOPT_S);
-		break;
-		case MSG_PUSHMSG_OPT :
-			cmdSize += sizeof(MSG_PUSHMSG_OPT_S);
-		break;
-		case MSG_CBMSG_OPT :
-			cmdSize += sizeof(MSG_CBMSG_OPT_S);
-		break;
-		case MSG_VOICEMAIL_OPT :
-			cmdSize += sizeof(MSG_VOICEMAIL_OPT_S);
-		break;
-		case MSG_MSGSIZE_OPT :
-			cmdSize += sizeof(MSG_MSGSIZE_OPT_S);
-		break;
+	switch (optionType) {
+	case MSG_GENERAL_OPT:
+		cmdSize += sizeof(MSG_GENERAL_OPT_S);
+	break;
+	case MSG_SMS_SENDOPT:
+		cmdSize += sizeof(MSG_SMS_SENDOPT_S);
+	break;
+	case MSG_SMSC_LIST:
+		cmdSize += sizeof(MSG_SMSC_LIST_S);
+	break;
+	case MSG_MMS_SENDOPT:
+		cmdSize += sizeof(MSG_MMS_SENDOPT_S);
+	break;
+	case MSG_MMS_RECVOPT:
+		cmdSize += sizeof(MSG_MMS_RECVOPT_S);
+	break;
+	case MSG_MMS_STYLEOPT:
+		cmdSize += sizeof(MSG_MMS_STYLEOPT_S);
+	break;
+	case MSG_PUSHMSG_OPT:
+		cmdSize += sizeof(MSG_PUSHMSG_OPT_S);
+	break;
+	case MSG_CBMSG_OPT:
+		cmdSize += sizeof(MSG_CBMSG_OPT_S);
+	break;
+	case MSG_VOICEMAIL_OPT:
+		cmdSize += sizeof(MSG_VOICEMAIL_OPT_S);
+	break;
+	case MSG_MSGSIZE_OPT:
+		cmdSize += sizeof(MSG_MSGSIZE_OPT_S);
+	break;
 	}
 
 	return cmdSize;
@@ -601,17 +599,16 @@ bool MsgHandle::CheckEventData(char *pEventData)
 {
 	MSG_EVENT_S* pEvent = (MSG_EVENT_S*)pEventData;
 
-	switch (pEvent->eventType)
-	{
-	case MSG_EVENT_PLG_SENT_STATUS_CNF :
-	case MSG_EVENT_PLG_INCOMING_MSG_IND :
-	case MSG_EVENT_PLG_INCOMING_MMS_CONF :
-	case MSG_EVENT_PLG_INCOMING_SYNCML_MSG_IND :
-	case MSG_EVENT_PLG_INCOMING_LBS_MSG_IND :
-	case MSG_EVENT_PLG_STORAGE_CHANGE_IND :
-	case MSG_EVENT_PLG_INCOMING_CB_MSG_IND :
-	case MSG_EVENT_PLG_INCOMING_PUSH_MSG_IND :
-	case MSG_EVENT_PLG_REPORT_MSG_INCOMING_IND :
+	switch (pEvent->eventType) {
+	case MSG_EVENT_PLG_SENT_STATUS_CNF:
+	case MSG_EVENT_PLG_INCOMING_MSG_IND:
+	case MSG_EVENT_PLG_INCOMING_MMS_CONF:
+	case MSG_EVENT_PLG_INCOMING_SYNCML_MSG_IND:
+	case MSG_EVENT_PLG_INCOMING_LBS_MSG_IND:
+	case MSG_EVENT_PLG_STORAGE_CHANGE_IND:
+	case MSG_EVENT_PLG_INCOMING_CB_MSG_IND:
+	case MSG_EVENT_PLG_INCOMING_PUSH_MSG_IND:
+	case MSG_EVENT_PLG_REPORT_MSG_INCOMING_IND:
 		return false;
 		break;
 	default :

@@ -17,7 +17,7 @@
 #include <ctype.h>
 #include "MmsPluginDebug.h"
 #include "MmsPluginCodecCommon.h"
-#include "MmsPluginMIME.h"
+#include "MsgUtilMime.h"
 #include "MmsPluginUtil.h"
 #include "MmsPluginTextConvert.h"
 
@@ -33,13 +33,12 @@ typedef struct {
 } MmsField;
 
 /* Reference : MMS-209-Encapsulation & WAP-203-WSP-20000504.pdf Table 39 */
-const MmsField gMmsField[MMS_MAX_FIELD_TYPE_COUNT][MMS_MAX_FIELD_VALUE_COUNT] =
-{
+const MmsField gMmsField[MMS_MAX_FIELD_TYPE_COUNT][MMS_MAX_FIELD_VALUE_COUNT] = {
 	/* MMS Specific (MsgMmsMsg.h / MsgMmsUA.h) -----------------------*/
 
 	/* MmsCodeFieldCode */
 	{
-		{"Bcc", 0x01},								//0
+		{"Bcc", 0x01},								/* 0 */
 		{"Cc", 0x02},
 		{"X-Mms-Content-Location", 0x03},
 		{"Content-Type", 0x04},
@@ -49,7 +48,7 @@ const MmsField gMmsField[MMS_MAX_FIELD_TYPE_COUNT][MMS_MAX_FIELD_VALUE_COUNT] =
 		{"X-Mms-Expiry", 0x08},
 		{"From", 0x09},
 		{"X-Mms-Message-Class", 0x0A},
-		{"Message-ID", 0x0B},						// 10
+		{"Message-ID", 0x0B},						/* 10 */
 		{"X-Mms-Message-Type", 0x0C},
 		{"X-Mms-MMS-Version", 0x0D},
 		{"X-Mms-Message-Size", 0x0E},
@@ -59,7 +58,7 @@ const MmsField gMmsField[MMS_MAX_FIELD_TYPE_COUNT][MMS_MAX_FIELD_VALUE_COUNT] =
 		{"X-Mms-Response-Status", 0x12},
 		{"X-Mms-Retrieve-Status", 0x19},			/* Add by MMSENC v1.1 */
 		{"X-Mms-Response-Text", 0x13},
-		{"X-Mms-Retrieve-Text", 0x1A},				// 20	/* Add by MMSENC v1.1 */
+		{"X-Mms-Retrieve-Text", 0x1A},				/* 20 */ /* Add by MMSENC v1.1 */
 		{"X-Mms-Sender-Visibility", 0x14},
 		{"X-Mms-Status", 0x15},
 		{"Subject", 0x16},
@@ -69,7 +68,7 @@ const MmsField gMmsField[MMS_MAX_FIELD_TYPE_COUNT][MMS_MAX_FIELD_VALUE_COUNT] =
 		/* Add by MMSENC v1.1 */
 		{"X-Mms-Read-Status", 0x1B},
 		{"X-Mms-Reply-Charging", 0x1C},
-		{"X-Mms-Reply-Charging-Deadline", 0x1D},	// 30
+		{"X-Mms-Reply-Charging-Deadline", 0x1D},	/* 30 */
 		{"X-Mms-Reply-Charging-ID", 0x1E},
 		{"X-Mms-Reply-Charging-Size", 0x1F},
 		{"X-Mms-Previously-Sent-By", 0x20},
@@ -78,14 +77,14 @@ const MmsField gMmsField[MMS_MAX_FIELD_TYPE_COUNT][MMS_MAX_FIELD_VALUE_COUNT] =
 
 	/* MmsCodeParameterCode ( By WSP Table 38. Wellknown parameter Assignments ) */
 	{
-		{"Charset", 0x01},		// v1.1 base
-		{"Name", 0x05},			// v1.1 base. 0x17 at v1.4
-		{"FileName", 0x06},		// v1.1 base. ox18 at v1.4
-		{"Type", 0x09},			// v1.2 base
-		{"Start", 0x0A},		// v1.2 base. 0x19 at v1.4
-		{"Start-Info", 0x0B},	// v1.2 base. 0x1A at v1.4
-		{"boundary", 0xFF},		//laconic_javaParamFix
-		{"report-type", 0xFF},        // only used as parameter of Content-Type: multipart/report; report-type=delivery-status;
+		{"Charset", 0x01},		/* v1.1 base */
+		{"Name", 0x05},			/* v1.1 base. 0x17 at v1.4 */
+		{"FileName", 0x06},		/* v1.1 base. ox18 at v1.4 */
+		{"Type", 0x09},			/* v1.2 base */
+		{"Start", 0x0A},		/* v1.2 base. 0x19 at v1.4 */
+		{"Start-Info", 0x0B},	/* v1.2 base. 0x1A at v1.4 */
+		{"boundary", 0xFF},		/* laconic_javaParamFix */
+		{"report-type", 0xFF},        /* only used as parameter of Content-Type: multipart/report; report-type=delivery-status; */
 #ifdef FEATURE_JAVA_MMS
 		{"Application-ID", 0xFF},
 		{"Reply-To-Application-ID", 0xFF},
@@ -94,11 +93,11 @@ const MmsField gMmsField[MMS_MAX_FIELD_TYPE_COUNT][MMS_MAX_FIELD_VALUE_COUNT] =
 
 	/* MmsCodeMsgBodyHeaderCode ( By WSP Table 39. Header Field Name Assignments ) */
 	{
-		{"Content-Transfer-Encoding", 0xFFFF},	// only text encoding, no binary number
-		{"Content-Disposition", 0x2E},			// v1.1 base. 0x45 at v1.4
-		{"Content-ID", 0x40},					// v1.3 base
-		{"Content-Location", 0x0E},				// v1.3 base
-		{"X-Oma-Drm-Separate-Delivery", 0xFF },	// DRM RO WAITING
+		{"Content-Transfer-Encoding", 0xFFFF},	/* only text encoding, no binary number */
+		{"Content-Disposition", 0x2E},			/* v1.1 base. 0x45 at v1.4 */
+		{"Content-ID", 0x40},					/* v1.3 base */
+		{"Content-Location", 0x0E},				/* v1.3 base */
+		{"X-Oma-Drm-Separate-Delivery", 0xFF },	/* DRM RO WAITING */
 	},
 
 	/* MmsCodeMsgType */
@@ -268,10 +267,10 @@ const MmsField gMmsField[MMS_MAX_FIELD_TYPE_COUNT][MMS_MAX_FIELD_VALUE_COUNT] =
 	},
 
 
-//	OMNA WSP Content Type Numbers
-//	http://technical.openmobilealliance.org/tech/omna/omna-wsp-content-type.aspx
+/* OMNA WSP Content Type Numbers */
+/* http://technical.openmobilealliance.org/tech/omna/omna-wsp-content-type.aspx */
 	{
-	//NOT USED THIS TABLE
+	/* NOT USED THIS TABLE */
 	},
 
 	/* MmsCodeMsgDisposition : Wsp Header (By Wsp 8.4.2.53) */
@@ -294,7 +293,7 @@ const MmsField gMmsField[MMS_MAX_FIELD_TYPE_COUNT][MMS_MAX_FIELD_VALUE_COUNT] =
 const char *MmsGetTextValue(MmsCode i, int j)
 {
 	if (i == MmsCodeContentType) {
-		//apply UtyMime
+		/* apply UtyMime */
 		return MimeGetMimeStringFromMimeInt(j);
 	}
 
@@ -357,16 +356,14 @@ const char *MmsGetTextValuebyField(int field, int value)
 
 UINT16 MmsGetBinaryValue(MmsCode i, int j)
 {
-	if (i == MmsCodeContentType) {
+	if (i == MmsCodeContentType)
 		return MimeGetBinaryValueFromMimeInt((MimeType)j);
-	}
 
 	return gMmsField[i][j].binary;
 }
 
 int MmsGetBinaryType(MmsCode i, UINT16 value)
 {
-
 	for (int j = 0; j < MMS_MAX_FIELD_VALUE_COUNT; j++) {
 		if (gMmsField[i][j].binary == value) {
 			MSG_DEBUG("code [%d], value [0x%02x], ret type [%d]", i, value, j);
@@ -490,28 +487,28 @@ void *MsgDecodeBase64(unsigned char *pSrc, unsigned long srcLen, unsigned long *
 			}
 			continue;
 		} else
-			continue;					// Actually, never get here
+			continue;					/* Actually, never get here */
 
 		/* Pad 4*6bit character into 3*8bit character */
 
 		switch (e++) {
 		case 0:
-			*d = c << 2;			// byte 1: high 6 bits
+			*d = c << 2;			/* byte 1: high 6 bits */
 			break;
 
 		case 1:
-			*d++ |= c >> 4;			// byte 1: low 2 bits
-			*d = c << 4;			// byte 2: high 4 bits
+			*d++ |= c >> 4;			/* byte 1: low 2 bits */
+			*d = c << 4;			/* byte 2: high 4 bits */
 			break;
 
 		case 2:
-			*d++ |= c >> 2;			// byte 2: low 4 bits
-			*d = c << 6;			// byte 3: high 2 bits
+			*d++ |= c >> 2;			/* byte 2: low 4 bits */
+			*d = c << 6;			/* byte 3: high 2 bits */
 			break;
 
 		case 3:
-			*d++ |= c;				// byte 3: low 6 bits
-			e = 0;					// Calculate next unit.
+			*d++ |= c;				/* byte 3: low 6 bits */
+			e = 0;					/* Calculate next unit. */
 			break;
 
 		default:
@@ -520,7 +517,7 @@ void *MsgDecodeBase64(unsigned char *pSrc, unsigned long srcLen, unsigned long *
 		}
 	}
 
-	*len = d - (char *)ret;			// Calculate the size of decoded string.
+	*len = d - (char *)ret;			/* Calculate the size of decoded string. */
 
 	return ret;
 }
@@ -649,10 +646,10 @@ bool MsgEncode2Base64(void *pSrc, unsigned long srcLen, unsigned long *len, unsi
 
 	/* Convert 3*8bit into 4*6bit */
 	for (i = 0; srcLen > 0; s += 3) {
-		*d++ = v[s[0] >> 2];															// byte 1: high 6 bits of character-1
-		*d++ = v[((s[0] << 4) + (--srcLen ? (s[1] >> 4) : 0)) & 0x3f];					// byte 2: low 2 bits of character-1 and high 4 bits of character-2
-		*d++ = srcLen ? v[((s[1] << 2) + (--srcLen ? (s[2] >> 6) : 0)) & 0x3f] : '=';	// byte 3: low 4 bits of charcter-2 and high 2 bits of character-3
-		*d++ = srcLen ? v[s[2] & 0x3f] : '=';											// byte 4: low 6 bits of character-3
+		*d++ = v[s[0] >> 2];															/* byte 1: high 6 bits of character-1 */
+		*d++ = v[((s[0] << 4) + (--srcLen ? (s[1] >> 4) : 0)) & 0x3f];					/* byte 2: low 2 bits of character-1 and high 4 bits of character-2 */
+		*d++ = srcLen ? v[((s[1] << 2) + (--srcLen ? (s[2] >> 6) : 0)) & 0x3f] : '=';	/* byte 3: low 4 bits of charcter-2 and high 2 bits of character-3 */
+		*d++ = srcLen ? v[s[2] & 0x3f] : '=';											/* byte 4: low 6 bits of character-3 */
 
 		if (srcLen)
 			srcLen--;
@@ -689,13 +686,13 @@ int extract_encoded_word_param(char *encoded_word, char **charset,  char **encod
 
 	start_ptr = encoded_word;
 
-	if ( (encoded_word[0] == '=' && encoded_word[1] == '?') //"=?"
-			 && ((q1_ptr = strchr(start_ptr + 2, MSG_CH_QUESTION)) != NULL)	// '?'
-			 && ((q2_ptr = strchr(q1_ptr + 1, MSG_CH_QUESTION))!= NULL)		// '?'
-			 && ((end_ptr = strstr(q2_ptr + 1, MSG_STR_DEC_END))!= NULL)) //"?="
+	if ( (encoded_word[0] == '=' && encoded_word[1] == '?') /* "=?" */
+			 && ((q1_ptr = strchr(start_ptr + 2, MSG_CH_QUESTION)) != NULL)	/* '?' */
+			 && ((q2_ptr = strchr(q1_ptr + 1, MSG_CH_QUESTION))!= NULL)		/* '?' */
+			 && ((end_ptr = strstr(q2_ptr + 1, MSG_STR_DEC_END))!= NULL)) /* "?=" */
 	{
 
-		//extract character set
+		/* extract character set */
 		if ( q1_ptr - (start_ptr + 2) > 0 ) {
 
 			char_set = (char*)calloc(1, q1_ptr - (start_ptr + 2) + 1);
@@ -712,7 +709,7 @@ int extract_encoded_word_param(char *encoded_word, char **charset,  char **encod
 			goto __CATCH;
 		}
 
-		//extract encode type
+		/* extract encode type */
 		if ((*(q2_ptr - 1) == MSG_CH_BASE64_UPPER) || (*(q2_ptr - 1) == MSG_CH_BASE64_LOWER)
 				|| (*(q1_ptr + 1) == MSG_CH_BASE64_UPPER) || (*(q1_ptr + 1) == MSG_CH_BASE64_LOWER))
 		{
@@ -720,7 +717,7 @@ int extract_encoded_word_param(char *encoded_word, char **charset,  char **encod
 		} else if ((*(q2_ptr-1) == MSG_CH_QPRINT_UPPER) || (*(q2_ptr-1) == MSG_CH_QPRINT_LOWER)
 				|| (*(q1_ptr+1) == MSG_CH_QPRINT_UPPER) || (*(q1_ptr+1) == MSG_CH_QPRINT_LOWER))
 		{
-			//QPRINT
+			/* QPRINT */
 			l_encoding[0] = MSG_CH_QPRINT_UPPER;
 
 		} else {
@@ -728,7 +725,7 @@ int extract_encoded_word_param(char *encoded_word, char **charset,  char **encod
 			goto __CATCH;
 		}
 
-		//extract encoded text
+		/* extract encoded text */
 		if (end_ptr - q2_ptr > 1) {
 			l_encoded_text = (char*)calloc(1, end_ptr - q2_ptr);
 			if (l_encoded_text == NULL)
@@ -782,7 +779,7 @@ char *MsgDecodeText(const char *pOri)
 	unsigned int total_len = 0;
 	unsigned int decoded_len = 0;
 
-	// copy original string
+	/* copy original string */
 	if (pOri == NULL || strlen(pOri) <= 0) {
 		MSG_DEBUG("Invalid parameter : [%s]", pOri);
 		return NULL;
@@ -801,7 +798,7 @@ char *MsgDecodeText(const char *pOri)
 
 		b_encoded_word = false;
 
-		//Find encoded word
+		/* Find encoded word */
 		while (b_encoded_word == false && encoded_word_start_ptr != NULL ) {
 
 			if (extract_encoded_word_param(encoded_word_start_ptr, &charset, &encoding, &encoded_text, &encoded_word_size) == 0) {
@@ -818,13 +815,13 @@ char *MsgDecodeText(const char *pOri)
 				encoded_word_size = 0;
 			}
 
-			encoded_word_start_ptr = strstr(encoded_word_start_ptr+1, MSG_STR_DEC_START); //find next encoded_start_ptr
+			encoded_word_start_ptr = strstr(encoded_word_start_ptr+1, MSG_STR_DEC_START); /* find next encoded_start_ptr */
 
-		} // end of while
+		} /* end of while */
 
 		if (b_encoded_word) {
 
-			//copy normal text
+			/* copy normal text */
 			if (encoded_word_start_ptr - normal_word_start_ptr > 0) {
 				result_string.append(normal_word_start_ptr, encoded_word_start_ptr - normal_word_start_ptr);
 				MSG_DEBUG("copy normal text : [%s]", result_string.c_str());
@@ -847,7 +844,7 @@ char *MsgDecodeText(const char *pOri)
 						MSG_DEBUG("MmsPluginTextConvert Fail");
 					}
 
-					if(result_text) {
+					if (result_text) {
 						MSG_DEBUG("Text convert result [%s][%d]", result_text, strlen(result_text));
 
 						result_string.append(result_text, result_text_len);
@@ -878,7 +875,7 @@ char *MsgDecodeText(const char *pOri)
 						MSG_DEBUG("MmsPluginTextConvert Fail");
 					}
 
-					if(result_text) {
+					if (result_text) {
 						MSG_DEBUG("Text convert result [%s][%d]", result_text, strlen(result_text));
 
 						result_string.append(result_text, result_text_len);
@@ -893,7 +890,7 @@ char *MsgDecodeText(const char *pOri)
 				MSG_FREE(decoded_text);
 			}
 
-			normal_word_start_ptr = encoded_word_start_ptr+encoded_word_size; //next
+			normal_word_start_ptr = encoded_word_start_ptr+encoded_word_size; /* next */
 
 			MSG_FREE(charset);
 			MSG_FREE(encoding);
@@ -901,7 +898,7 @@ char *MsgDecodeText(const char *pOri)
 			encoded_word_size = 0;
 
 		} else {
-			//copy remain normal text
+			/* copy remain normal text */
 
 			MSG_DEBUG("last text : [%s]", normal_word_start_ptr);
 
@@ -910,7 +907,7 @@ char *MsgDecodeText(const char *pOri)
 			break;
 		}
 
-	} //end of while
+	} /* end of while */
 
 	if (result_string.length() > 0) {
 		return_string = g_strdup(result_string.c_str());
@@ -1102,6 +1099,10 @@ const char *MmsDebugGetMimeType(MimeType mimeType)
 		return "MIME_AUDIO_X_PN_MULTIRATE_REALAUDIO_LIVE";
 	case MIME_AUDIO_X_WAV:
 		return "MIME_AUDIO_X_WAV";
+	case MIME_AUDIO_MOBILE_XMF:
+		return "MIME_AUDIO_MOBILE_XMF";
+	case MIME_AUDIO_OGG:
+		return "MIME_AUDIO_OGG";
 
 	case MIME_IMAGE_GIF:
 		return "MIME_IMAGE_GIF";
@@ -1478,6 +1479,7 @@ bool MmsInitMsgType(MsgType *pMsgType)
 	pMsgType->szOrgFilePath[0] = '\0';
 	pMsgType->szContentID[0] = '\0';
 	pMsgType->szContentLocation[0] = '\0';
+	pMsgType->szLocation[0] = '\0';
 
 	MmsInitMsgContentParam(&pMsgType->param);
 	MmsInitMsgDRMInfo(&pMsgType->drmInfo);
@@ -1511,7 +1513,7 @@ bool MmsInitMsgContentParam(MsgContentParam *pMsgContentParam)
 	pMsgContentParam->szStart[0] = '\0';
 	pMsgContentParam->szStartInfo[0] = '\0';
 	pMsgContentParam->pPresentation = NULL;
-	pMsgContentParam->reportType = MSG_PARAM_REPORT_TYPE_UNKNOWN; // only used as parameter of Content-Type: multipart/report; report-type
+	pMsgContentParam->reportType = MSG_PARAM_REPORT_TYPE_UNKNOWN; /* only used as parameter of Content-Type: multipart/report; report-type */
 #ifdef FEATURE_JAVA_MMS
 	pMsgContentParam->szApplicationID = NULL;
 	pMsgContentParam->szReplyToApplicationID = NULL;
@@ -1660,7 +1662,7 @@ bool MmsReleaseMmsAttrib(MmsAttrib *pAttrib)
 		pAttrib->szBcc = NULL;
 	}
 
-	//check if pMultiStatus should be freed or not, because pMultiStatus is not allocated
+	/* check if pMultiStatus should be freed or not, because pMultiStatus is not allocated */
 	if (pAttrib->pMultiStatus) {
 		MmsMsgMultiStatus *pMultiStatus = pAttrib->pMultiStatus;
 		MmsMsgMultiStatus *pCurStatus = NULL;
@@ -1677,7 +1679,6 @@ bool MmsReleaseMmsAttrib(MmsAttrib *pAttrib)
 
 		pAttrib->pMultiStatus = NULL;
 	}
-
 
 	MSG_END();
 
@@ -1704,49 +1705,47 @@ bool MmsReleaseMsgBody(MsgBody *pBody, int type)
 	case MIME_MULTIPART_MIXED:
 	case MIME_MULTIPART_RELATED:
 	case MIME_MULTIPART_ALTERNATIVE:
-	case MIME_APPLICATION_VND_WAP_MULTIPART_ALTERNATIVE:
-		{
-			MsgMultipart *pMulti = pBody->body.pMultipart;
-			MsgMultipart *pCurrPart = NULL;
-			MsgBody *pPresentation = pBody->pPresentationBody;
-			while (pMulti != NULL) {
-				pCurrPart = pMulti;
+	case MIME_APPLICATION_VND_WAP_MULTIPART_ALTERNATIVE: {
+		MsgMultipart *pMulti = pBody->body.pMultipart;
+		MsgMultipart *pCurrPart = NULL;
+		MsgBody *pPresentation = pBody->pPresentationBody;
+		while (pMulti != NULL) {
+			pCurrPart = pMulti;
 
-				pMulti = pMulti->pNext;
+			pMulti = pMulti->pNext;
 
-				if (pCurrPart) {
-					MmsReleaseMsgDRMInfo(&pCurrPart->type.drmInfo);
+			if (pCurrPart) {
+				MmsReleaseMsgDRMInfo(&pCurrPart->type.drmInfo);
 
-					if (pCurrPart->pBody) {
-						if (pCurrPart->pBody->body.pText) {
-							free(pCurrPart->pBody->body.pText);
-							pCurrPart->pBody->body.pText = NULL;
-						}
-
-						free(pCurrPart->pBody);
-						pCurrPart->pBody = NULL;
+				if (pCurrPart->pBody) {
+					if (pCurrPart->pBody->body.pText) {
+						free(pCurrPart->pBody->body.pText);
+						pCurrPart->pBody->body.pText = NULL;
 					}
-					free(pCurrPart);
-					pCurrPart = NULL;
+
+					free(pCurrPart->pBody);
+					pCurrPart->pBody = NULL;
 				}
+				free(pCurrPart);
+				pCurrPart = NULL;
 			}
-
-			pBody->body.pMultipart = NULL;
-
-			if (pPresentation) {
-				if (pPresentation->body.pText) {
-					free(pPresentation->body.pText);
-					pPresentation->body.pText = NULL;
-				}
-				free(pPresentation);
-				pBody->pPresentationBody = NULL;
-			}
-
-			MmsInitMsgType(&pBody->presentationType);
-
-			break;
 		}
 
+		pBody->body.pMultipart = NULL;
+
+		if (pPresentation) {
+			if (pPresentation->body.pText) {
+				free(pPresentation->body.pText);
+				pPresentation->body.pText = NULL;
+			}
+			free(pPresentation);
+			pBody->pPresentationBody = NULL;
+		}
+
+		MmsInitMsgType(&pBody->presentationType);
+
+		break;
+	}
 	default:
 		/* Any single part */
 		if (pBody->body.pText) {
@@ -1831,16 +1830,16 @@ bool MmsIsVitemContent(int type, char *pszName)
 	switch (type) {
 	case MIME_TEXT_X_VCARD:
 	case MIME_TEXT_X_VCALENDAR:
-	case MIME_TEXT_X_VNOTE:	// vnt
+	case MIME_TEXT_X_VNOTE:	/* vnt */
 	case MIME_TEXT_X_VTODO:
-	case MIME_TEXT_PLAIN:	// vbm - It SHOULD be distinguished from a normal text file.
+	case MIME_TEXT_PLAIN:	/* vbm - It SHOULD be distinguished from a normal text file. */
 	{
 		char *pszExt = NULL;
 
 		if (!pszName)
 			break;
 
-		// search file extension.
+		/* search file extension. */
 		if ((pszExt = strrchr(pszName, '.')) == NULL)
 			break;
 

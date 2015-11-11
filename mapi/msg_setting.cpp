@@ -77,8 +77,7 @@ int msg_setting_get_str_value(msg_struct_s *msg_struct, int field, char *src, in
 {
 	int err = MSG_SUCCESS;
 
-	switch (msg_struct->type)
-	{
+	switch (msg_struct->type) {
 	case MSG_STRUCT_SETTING_SMSC_INFO :
 		err = msg_get_smsc_info_str(msg_struct->data, field, src, size);
 		break;
@@ -202,8 +201,7 @@ int msg_setting_set_str_value(msg_struct_s *msg_struct, int field, char *value, 
 {
 	int err = MSG_SUCCESS;
 
-	switch (msg_struct->type)
-	{
+	switch (msg_struct->type) {
 	case MSG_STRUCT_SETTING_SMSC_INFO :
 		err = msg_set_smsc_info_str(msg_struct->data, field, value, size);
 		break;
@@ -265,27 +263,20 @@ EXPORT_API int msg_get_smsc_opt(msg_handle_t handle, msg_struct_t msg_struct)
 
 	msg_error_t err = MSG_SUCCESS;
 
-	//Privilege check
+	/* Privilege check */
 	int ret = PRIV_MGR_ERROR_SUCCESS;
 	ret = privacy_checker_check_by_privilege(MSG_SERVICE_READ_PRIV_NAME);
 	if (ret != PRIV_MGR_ERROR_SUCCESS)
-	{
 		return MSG_ERR_PERMISSION_DENIED;
-	}
 
 	if (handle == NULL || msg_struct == NULL)
-	{
 		return MSG_ERR_INVALID_PARAMETER;
-	}
 
 	MsgHandle* pHandle = (MsgHandle*)handle;
 
-	try
-	{
+	try {
 		err = pHandle->getSMSCOption(msg_struct);
-	}
-	catch (MsgException& e)
-	{
+	} catch (MsgException& e) {
 		MSG_FATAL("%s", e.what());
 		return MSG_ERR_SET_READ_ERROR;
 	}
@@ -299,27 +290,20 @@ EXPORT_API int msg_set_smsc_opt(msg_handle_t handle, msg_struct_t msg_struct)
 
 	msg_error_t err = MSG_SUCCESS;
 
-	//Privilege check
+	/* Privilege check */
 	int ret = PRIV_MGR_ERROR_SUCCESS;
 	ret = privacy_checker_check_by_privilege(MSG_SERVICE_WRITE_PRIV_NAME);
 	if (ret != PRIV_MGR_ERROR_SUCCESS)
-	{
 		return MSG_ERR_PERMISSION_DENIED;
-	}
 
 	if (handle == NULL || msg_struct == NULL)
-	{
 		return MSG_ERR_INVALID_PARAMETER;
-	}
 
 	MsgHandle* pHandle = (MsgHandle*)handle;
 
-	try
-	{
+	try {
 		err = pHandle->setSMSCOption(msg_struct);
-	}
-	catch (MsgException& e)
-	{
+	} catch (MsgException& e) {
 		MSG_FATAL("%s", e.what());
 		return MSG_ERR_SET_READ_ERROR;
 	}
@@ -336,8 +320,7 @@ int msg_get_smsc_opt_list(void *smsc_opt, int field, void **value)
 
 	int ret = MSG_SUCCESS;
 
-	switch (field)
-	{
+	switch (field) {
 	case MSG_SMSC_LIST_STRUCT :
 		*value = (void *)smsc_opt_data->smsc_list;
 		break;
@@ -358,8 +341,7 @@ int msg_get_smsc_opt_int(void *smsc_opt, int field, int *value)
 
 	MSG_SMSC_LIST_HIDDEN_S *smsc_opt_data = (MSG_SMSC_LIST_HIDDEN_S *)smsc_opt;
 
-	switch (field)
-	{
+	switch (field) {
 	case MSG_SMSC_SELECTED_ID_INT :
 		*value = smsc_opt_data->selected;
 		break;
@@ -383,8 +365,7 @@ int msg_set_smsc_opt_int(void *smsc_opt, int field, int value)
 
 	MSG_SMSC_LIST_HIDDEN_S *smsc_opt_data = (MSG_SMSC_LIST_HIDDEN_S *)smsc_opt;
 
-	switch (field)
-	{
+	switch (field) {
 	case MSG_SMSC_SELECTED_ID_INT :
 		smsc_opt_data->selected = value;
 		break;
@@ -411,8 +392,7 @@ int msg_get_smsc_info_int(void *smsc_info, int field, int *value)
 
 	MSG_SMSC_DATA_S *smsc_data = (MSG_SMSC_DATA_S *)smsc_info;
 
-	switch (field)
-	{
+	switch (field) {
 	case MSG_SMSC_ADDR_TON_INT :
 		*value = smsc_data->smscAddr.ton;
 		break;
@@ -442,8 +422,7 @@ int msg_set_smsc_info_int(void *smsc_info, int field, int value)
 
 	MSG_SMSC_DATA_S *smsc_data = (MSG_SMSC_DATA_S *)smsc_info;
 
-	switch (field)
-	{
+	switch (field) {
 	case MSG_SMSC_ADDR_TON_INT :
 		smsc_data->smscAddr.ton = value;
 		break;
@@ -471,8 +450,7 @@ int msg_get_smsc_info_str(void *smsc_info, int field, char *value, int size)
 
 	MSG_SMSC_DATA_S *smsc_data = (MSG_SMSC_DATA_S *)smsc_info;
 
-	switch (field)
-	{
+	switch (field) {
 	case MSG_SMSC_ADDR_STR :
 		strncpy(value, smsc_data->smscAddr.address, size);
 		break;
@@ -495,8 +473,7 @@ int msg_set_smsc_info_str(void *smsc_info, int field, char *val, int size)
 
 	MSG_SMSC_DATA_S *smsc_data = (MSG_SMSC_DATA_S *)smsc_info;
 
-	switch (field)
-	{
+	switch (field) {
 	case MSG_SMSC_ADDR_STR :
 		bzero(smsc_data->smscAddr.address, sizeof(smsc_data->smscAddr.address));
 		snprintf(smsc_data->smscAddr.address, sizeof(smsc_data->smscAddr.address), "%s", val);
@@ -519,27 +496,20 @@ EXPORT_API int msg_get_cb_opt(msg_handle_t handle, msg_struct_t msg_struct)
 
 	msg_error_t err = MSG_SUCCESS;
 
-	//Privilege check
+	/* Privilege check */
 	int ret = PRIV_MGR_ERROR_SUCCESS;
 	ret = privacy_checker_check_by_privilege(MSG_SERVICE_READ_PRIV_NAME);
 	if (ret != PRIV_MGR_ERROR_SUCCESS)
-	{
 		return MSG_ERR_PERMISSION_DENIED;
-	}
 
 	if (handle == NULL || msg_struct == NULL)
-	{
 		return MSG_ERR_INVALID_PARAMETER;
-	}
 
 	MsgHandle* pHandle = (MsgHandle*)handle;
 
-	try
-	{
+	try {
 		err = pHandle->getCBOption(msg_struct);
-	}
-	catch (MsgException& e)
-	{
+	} catch (MsgException& e) {
 		MSG_FATAL("%s", e.what());
 		return MSG_ERR_SET_READ_ERROR;
 	}
@@ -553,27 +523,20 @@ EXPORT_API int msg_set_cb_opt(msg_handle_t handle, msg_struct_t msg_struct)
 
 	msg_error_t err = MSG_SUCCESS;
 
-	//Privilege check
+	/* Privilege check */
 	int ret = PRIV_MGR_ERROR_SUCCESS;
 	ret = privacy_checker_check_by_privilege(MSG_SERVICE_WRITE_PRIV_NAME);
 	if (ret != PRIV_MGR_ERROR_SUCCESS)
-	{
 		return MSG_ERR_PERMISSION_DENIED;
-	}
 
 	if (handle == NULL || msg_struct == NULL)
-	{
 		return MSG_ERR_INVALID_PARAMETER;
-	}
 
 	MsgHandle* pHandle = (MsgHandle*)handle;
 
-	try
-	{
+	try {
 		err = pHandle->setCBOption(msg_struct);
-	}
-	catch (MsgException& e)
-	{
+	} catch (MsgException& e) {
 		MSG_FATAL("%s", e.what());
 		return MSG_ERR_SET_READ_ERROR;
 	}
@@ -590,8 +553,7 @@ int msg_get_cb_option_int(void *cb_opt, int field, int *value)
 
 	MSG_CBMSG_OPT_HIDDEN_S *cb_opt_data = (MSG_CBMSG_OPT_HIDDEN_S *)cb_opt;
 
-	switch (field)
-	{
+	switch (field) {
 	case MSG_CB_MAX_SIM_COUNT_INT :
 		*value = cb_opt_data->maxSimCnt;
 		break;
@@ -615,8 +577,7 @@ int msg_set_cb_option_int(void *cb_opt, int field, int value)
 
 	MSG_CBMSG_OPT_HIDDEN_S *cb_opt_data = (MSG_CBMSG_OPT_HIDDEN_S *)cb_opt;
 
-	switch (field)
-	{
+	switch (field) {
 	case MSG_CB_MAX_SIM_COUNT_INT :
 		cb_opt_data->maxSimCnt = value;
 		break;
@@ -641,8 +602,7 @@ int msg_get_cb_option_bool(void *cb_opt, int field, bool *value)
 
 	MSG_CBMSG_OPT_HIDDEN_S *cb_opt_data = (MSG_CBMSG_OPT_HIDDEN_S *)cb_opt;
 
-	switch (field)
-	{
+	switch (field) {
 	case MSG_CB_RECEIVE_BOOL :
 		*value = cb_opt_data->bReceive;
 		break;
@@ -693,8 +653,7 @@ int msg_set_cb_option_bool(void *cb_opt, int field, bool value)
 
 	MSG_CBMSG_OPT_HIDDEN_S *cb_opt_data = (MSG_CBMSG_OPT_HIDDEN_S *)cb_opt;
 
-	switch (field)
-	{
+	switch (field) {
 	case MSG_CB_RECEIVE_BOOL :
 		cb_opt_data->bReceive = value;
 		break;
@@ -745,8 +704,7 @@ int msg_get_cb_option_list(void *cb_opt, int field, void **value)
 
 	int ret = MSG_SUCCESS;
 
-	switch (field)
-	{
+	switch (field) {
 	case MSG_CB_CHANNEL_LIST_STRUCT :
 		*value = (void *)cb_opt_data->channelData;
 		break;
@@ -767,8 +725,7 @@ int msg_get_cb_channel_info_int(void *cb_ch_info, int field, int *value)
 
 	MSG_CB_CHANNEL_INFO_S *cb_ch_data = (MSG_CB_CHANNEL_INFO_S *)cb_ch_info;
 
-	switch (field)
-	{
+	switch (field) {
 	case MSG_CB_CHANNEL_ID_FROM_INT :
 		*value = cb_ch_data->from;
 		break;
@@ -792,8 +749,7 @@ int msg_set_cb_channel_info_int(void *cb_ch_info, int field, int value)
 
 	MSG_CB_CHANNEL_INFO_S *cb_ch_data = (MSG_CB_CHANNEL_INFO_S *)cb_ch_info;
 
-	switch (field)
-	{
+	switch (field) {
 	case MSG_CB_CHANNEL_ID_FROM_INT :
 		cb_ch_data->from = value;
 		break;
@@ -817,8 +773,7 @@ int msg_get_cb_channel_info_bool(void *cb_ch_info, int field, bool *value)
 
 	MSG_CB_CHANNEL_INFO_S *cb_ch_data = (MSG_CB_CHANNEL_INFO_S *)cb_ch_info;
 
-	switch (field)
-	{
+	switch (field) {
 	case MSG_CB_CHANNEL_ACTIVATE_BOOL :
 		*value = cb_ch_data->bActivate;
 		break;
@@ -839,8 +794,7 @@ int msg_set_cb_channel_info_bool(void *cb_ch_info, int field, bool value)
 
 	MSG_CB_CHANNEL_INFO_S *cb_ch_data = (MSG_CB_CHANNEL_INFO_S *)cb_ch_info;
 
-	switch (field)
-	{
+	switch (field) {
 	case MSG_CB_CHANNEL_ACTIVATE_BOOL :
 		cb_ch_data->bActivate = value;
 		break;
@@ -859,8 +813,7 @@ int msg_get_cb_channel_info_str(void *cb_ch_info, int field, char *value, int si
 
 	MSG_CB_CHANNEL_INFO_S *cb_ch_data = (MSG_CB_CHANNEL_INFO_S *)cb_ch_info;
 
-	switch (field)
-	{
+	switch (field) {
 	case MSG_CB_CHANNEL_NAME_STR :
 		strncpy(value, cb_ch_data->name, size);
 		break;
@@ -880,8 +833,7 @@ int msg_set_cb_channel_info_str(void *cb_ch_info, int field, char *val, int size
 
 	MSG_CB_CHANNEL_INFO_S *cb_ch_data = (MSG_CB_CHANNEL_INFO_S *)cb_ch_info;
 
-	switch (field)
-	{
+	switch (field) {
 	case MSG_CB_CHANNEL_NAME_STR :
 		bzero(cb_ch_data->name, sizeof(cb_ch_data->name));
 		snprintf(cb_ch_data->name, sizeof(cb_ch_data->name), "%s", val);
@@ -900,27 +852,20 @@ EXPORT_API int msg_get_sms_send_opt(msg_handle_t handle, msg_struct_t msg_struct
 
 	msg_error_t err = MSG_SUCCESS;
 
-	//Privilege check
+	/* Privilege check */
 	int ret = PRIV_MGR_ERROR_SUCCESS;
 	ret = privacy_checker_check_by_privilege(MSG_SERVICE_READ_PRIV_NAME);
 	if (ret != PRIV_MGR_ERROR_SUCCESS)
-	{
 		return MSG_ERR_PERMISSION_DENIED;
-	}
 
 	if (handle == NULL || msg_struct == NULL)
-	{
 		return MSG_ERR_INVALID_PARAMETER;
-	}
 
 	MsgHandle* pHandle = (MsgHandle*)handle;
 
-	try
-	{
+	try {
 		err = pHandle->getSmsSendOpt(msg_struct);
-	}
-	catch (MsgException& e)
-	{
+	} catch (MsgException& e) {
 		MSG_FATAL("%s", e.what());
 		return MSG_ERR_SET_READ_ERROR;
 	}
@@ -934,27 +879,20 @@ EXPORT_API int msg_set_sms_send_opt(msg_handle_t handle, msg_struct_t msg_struct
 
 	msg_error_t err = MSG_SUCCESS;
 
-	//Privilege check
+	/* Privilege check */
 	int ret = PRIV_MGR_ERROR_SUCCESS;
 	ret = privacy_checker_check_by_privilege(MSG_SERVICE_WRITE_PRIV_NAME);
 	if (ret != PRIV_MGR_ERROR_SUCCESS)
-	{
 		return MSG_ERR_PERMISSION_DENIED;
-	}
 
 	if (handle == NULL || msg_struct == NULL)
-	{
 		return MSG_ERR_INVALID_PARAMETER;
-	}
 
 	MsgHandle* pHandle = (MsgHandle*)handle;
 
-	try
-	{
+	try {
 		err = pHandle->setSmsSendOpt(msg_struct);
-	}
-	catch (MsgException& e)
-	{
+	} catch (MsgException& e) {
 		MSG_FATAL("%s", e.what());
 		return MSG_ERR_SET_READ_ERROR;
 	}
@@ -971,8 +909,7 @@ int msg_get_sms_send_opt_int(void *sms_send_opt, int field, int *value)
 
 	MSG_SMS_SENDOPT_S *send_opt = (MSG_SMS_SENDOPT_S *)sms_send_opt;
 
-	switch (field)
-	{
+	switch (field) {
 	case MSG_SMS_SENDOPT_ENCODE_TYPE_INT :
 		*value = send_opt->dcs;
 		break;
@@ -999,8 +936,7 @@ int msg_set_sms_send_opt_int(void *sms_send_opt, int field, int value)
 
 	MSG_SMS_SENDOPT_S *send_opt = (MSG_SMS_SENDOPT_S *)sms_send_opt;
 
-	switch (field)
-	{
+	switch (field) {
 	case MSG_SMS_SENDOPT_ENCODE_TYPE_INT :
 		send_opt->dcs = value;
 		break;
@@ -1027,8 +963,7 @@ int msg_get_sms_send_opt_bool(void *sms_send_opt, int field, bool *value)
 
 	MSG_SMS_SENDOPT_S *send_opt = (MSG_SMS_SENDOPT_S *)sms_send_opt;
 
-	switch (field)
-	{
+	switch (field) {
 	case MSG_SMS_SENDOPT_REPLY_PATH_BOOL :
 		*value = send_opt->bReplyPath;
 		break;
@@ -1052,8 +987,7 @@ int msg_set_sms_send_opt_bool(void *sms_send_opt, int field, bool value)
 
 	MSG_SMS_SENDOPT_S *send_opt = (MSG_SMS_SENDOPT_S *)sms_send_opt;
 
-	switch (field)
-	{
+	switch (field) {
 	case MSG_SMS_SENDOPT_REPLY_PATH_BOOL :
 		send_opt->bReplyPath = value;
 		break;
@@ -1074,27 +1008,20 @@ EXPORT_API int msg_get_mms_send_opt(msg_handle_t handle, msg_struct_t msg_struct
 
 	msg_error_t err = MSG_SUCCESS;
 
-	//Privilege check
+	/*Privilege check */
 	int ret = PRIV_MGR_ERROR_SUCCESS;
 	ret = privacy_checker_check_by_privilege(MSG_SERVICE_READ_PRIV_NAME);
 	if (ret != PRIV_MGR_ERROR_SUCCESS)
-	{
 		return MSG_ERR_PERMISSION_DENIED;
-	}
 
 	if (handle == NULL || msg_struct == NULL)
-	{
 		return MSG_ERR_INVALID_PARAMETER;
-	}
 
 	MsgHandle* pHandle = (MsgHandle*)handle;
 
-	try
-	{
+	try {
 		err = pHandle->getMmsSendOpt(msg_struct);
-	}
-	catch (MsgException& e)
-	{
+	} catch (MsgException& e) {
 		MSG_FATAL("%s", e.what());
 		return MSG_ERR_SET_READ_ERROR;
 	}
@@ -1108,27 +1035,20 @@ EXPORT_API int msg_set_mms_send_opt(msg_handle_t handle, msg_struct_t msg_struct
 
 	msg_error_t err = MSG_SUCCESS;
 
-	//Privilege check
+	/* Privilege check */
 	int ret = PRIV_MGR_ERROR_SUCCESS;
 	ret = privacy_checker_check_by_privilege(MSG_SERVICE_WRITE_PRIV_NAME);
 	if (ret != PRIV_MGR_ERROR_SUCCESS)
-	{
 		return MSG_ERR_PERMISSION_DENIED;
-	}
 
 	if (handle == NULL || msg_struct == NULL)
-	{
 		return MSG_ERR_INVALID_PARAMETER;
-	}
 
 	MsgHandle* pHandle = (MsgHandle*)handle;
 
-	try
-	{
+	try {
 		err = pHandle->setMmsSendOpt(msg_struct);
-	}
-	catch (MsgException& e)
-	{
+	} catch (MsgException& e) {
 		MSG_FATAL("%s", e.what());
 		return MSG_ERR_SET_READ_ERROR;
 	}
@@ -1146,8 +1066,7 @@ int msg_get_mms_send_opt_int(void *mms_send_opt, int field, int *value)
 
 	MSG_MMS_SENDOPT_S *send_opt = (MSG_MMS_SENDOPT_S *)mms_send_opt;
 
-	switch (field)
-	{
+	switch (field) {
 	case MSG_MMS_SENDOPT_CLASS_TYPE_INT :
 		*value = send_opt->msgClass;
 		break;
@@ -1192,8 +1111,7 @@ int msg_set_mms_send_opt_int(void *mms_send_opt, int field, int value)
 
 	MSG_MMS_SENDOPT_S *send_opt = (MSG_MMS_SENDOPT_S *)mms_send_opt;
 
-	switch (field)
-	{
+	switch (field) {
 	case MSG_MMS_SENDOPT_CLASS_TYPE_INT :
 		send_opt->msgClass = value;
 		break;
@@ -1238,8 +1156,7 @@ int msg_get_mms_send_opt_bool(void *mms_send_opt, int field, bool *value)
 
 	MSG_MMS_SENDOPT_S *send_opt = (MSG_MMS_SENDOPT_S *)mms_send_opt;
 
-	switch (field)
-	{
+	switch (field) {
 	case MSG_MMS_SENDOPT_SENDER_VISIBILITY_BOOL :
 		*value = send_opt->bSenderVisibility;
 		break;
@@ -1275,8 +1192,7 @@ int msg_set_mms_send_opt_bool(void *mms_send_opt, int field, bool value)
 
 	MSG_MMS_SENDOPT_S *send_opt = (MSG_MMS_SENDOPT_S *)mms_send_opt;
 
-	switch (field)
-	{
+	switch (field) {
 	case MSG_MMS_SENDOPT_SENDER_VISIBILITY_BOOL :
 		send_opt->bSenderVisibility = value;
 		break;
@@ -1309,27 +1225,20 @@ EXPORT_API int msg_get_mms_recv_opt(msg_handle_t handle, msg_struct_t msg_struct
 
 	msg_error_t err = MSG_SUCCESS;
 
-	//Privilege check
+	/* Privilege check */
 	int ret = PRIV_MGR_ERROR_SUCCESS;
 	ret = privacy_checker_check_by_privilege(MSG_SERVICE_READ_PRIV_NAME);
 	if (ret != PRIV_MGR_ERROR_SUCCESS)
-	{
 		return MSG_ERR_PERMISSION_DENIED;
-	}
 
 	if (handle == NULL || msg_struct == NULL)
-	{
 		return MSG_ERR_INVALID_PARAMETER;
-	}
 
 	MsgHandle* pHandle = (MsgHandle*)handle;
 
-	try
-	{
+	try {
 		err = pHandle->getMmsRecvOpt(msg_struct);
-	}
-	catch (MsgException& e)
-	{
+	} catch (MsgException& e) {
 		MSG_FATAL("%s", e.what());
 		return MSG_ERR_SET_READ_ERROR;
 	}
@@ -1343,27 +1252,20 @@ EXPORT_API int msg_set_mms_recv_opt(msg_handle_t handle, msg_struct_t msg_struct
 
 	msg_error_t err = MSG_SUCCESS;
 
-	//Privilege check
+	/* Privilege check */
 	int ret = PRIV_MGR_ERROR_SUCCESS;
 	ret = privacy_checker_check_by_privilege(MSG_SERVICE_WRITE_PRIV_NAME);
 	if (ret != PRIV_MGR_ERROR_SUCCESS)
-	{
 		return MSG_ERR_PERMISSION_DENIED;
-	}
 
 	if (handle == NULL || msg_struct == NULL)
-	{
 		return MSG_ERR_INVALID_PARAMETER;
-	}
 
 	MsgHandle* pHandle = (MsgHandle*)handle;
 
-	try
-	{
+	try {
 		err = pHandle->setMmsRecvOpt(msg_struct);
-	}
-	catch (MsgException& e)
-	{
+	} catch (MsgException& e) {
 		MSG_FATAL("%s", e.what());
 		return MSG_ERR_SET_READ_ERROR;
 	}
@@ -1380,8 +1282,7 @@ int msg_get_mms_recv_opt_int(void *mms_recv_opt, int field, int *value)
 
 	MSG_MMS_RECVOPT_S *recv_opt = (MSG_MMS_RECVOPT_S *)mms_recv_opt;
 
-	switch (field)
-	{
+	switch (field) {
 	case MSG_MMS_RECVOPT_HOME_RETRIEVE_TYPE_INT :
 		*value = recv_opt->homeNetwork;
 		break;
@@ -1405,8 +1306,7 @@ int msg_set_mms_recv_opt_int(void *mms_recv_opt, int field, int value)
 
 	MSG_MMS_RECVOPT_S *recv_opt = (MSG_MMS_RECVOPT_S *)mms_recv_opt;
 
-	switch (field)
-	{
+	switch (field) {
 	case MSG_MMS_RECVOPT_HOME_RETRIEVE_TYPE_INT :
 		recv_opt->homeNetwork = value;
 		break;
@@ -1430,8 +1330,7 @@ int msg_get_mms_recv_opt_bool(void *mms_recv_opt, int field, bool *value)
 
 	MSG_MMS_RECVOPT_S *recv_opt = (MSG_MMS_RECVOPT_S *)mms_recv_opt;
 
-	switch (field)
-	{
+	switch (field) {
 	case MSG_MMS_RECVOPT_READ_REPORT_BOOL :
 		*value = recv_opt->readReceipt;
 		break;
@@ -1461,8 +1360,7 @@ int msg_set_mms_recv_opt_bool(void *mms_recv_opt, int field, bool value)
 
 	MSG_MMS_RECVOPT_S *recv_opt = (MSG_MMS_RECVOPT_S *)mms_recv_opt;
 
-	switch (field)
-	{
+	switch (field) {
 	case MSG_MMS_RECVOPT_READ_REPORT_BOOL :
 		recv_opt->readReceipt = value;
 		break;
@@ -1488,27 +1386,20 @@ EXPORT_API int msg_get_push_msg_opt(msg_handle_t handle, msg_struct_t msg_struct
 	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_SMS_FEATURE);
 	msg_error_t err = MSG_SUCCESS;
 
-	//Privilege check
+	/* Privilege check */
 	int ret = PRIV_MGR_ERROR_SUCCESS;
 	ret = privacy_checker_check_by_privilege(MSG_SERVICE_READ_PRIV_NAME);
 	if (ret != PRIV_MGR_ERROR_SUCCESS)
-	{
 		return MSG_ERR_PERMISSION_DENIED;
-	}
 
 	if (handle == NULL || msg_struct == NULL)
-	{
 		return MSG_ERR_INVALID_PARAMETER;
-	}
 
 	MsgHandle* pHandle = (MsgHandle*)handle;
 
-	try
-	{
+	try {
 		err = pHandle->getPushMsgOpt(msg_struct);
-	}
-	catch (MsgException& e)
-	{
+	} catch (MsgException& e) {
 		MSG_FATAL("%s", e.what());
 		return MSG_ERR_SET_READ_ERROR;
 	}
@@ -1521,27 +1412,20 @@ EXPORT_API int msg_set_push_msg_opt(msg_handle_t handle, msg_struct_t msg_struct
 	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_SMS_FEATURE);
 	msg_error_t err = MSG_SUCCESS;
 
-	//Privilege check
+	/* Privilege check */
 	int ret = PRIV_MGR_ERROR_SUCCESS;
 	ret = privacy_checker_check_by_privilege(MSG_SERVICE_WRITE_PRIV_NAME);
 	if (ret != PRIV_MGR_ERROR_SUCCESS)
-	{
 		return MSG_ERR_PERMISSION_DENIED;
-	}
 
 	if (handle == NULL || msg_struct == NULL)
-	{
 		return MSG_ERR_INVALID_PARAMETER;
-	}
 
 	MsgHandle* pHandle = (MsgHandle*)handle;
 
-	try
-	{
+	try {
 		err = pHandle->setPushMsgOpt(msg_struct);
-	}
-	catch (MsgException& e)
-	{
+	} catch (MsgException& e) {
 		MSG_FATAL("%s", e.what());
 		return MSG_ERR_SET_READ_ERROR;
 	}
@@ -1558,8 +1442,7 @@ int msg_get_push_msg_opt_int(void *push_msg_opt, int field, int *value)
 
 	MSG_PUSHMSG_OPT_S *push_opt = (MSG_PUSHMSG_OPT_S *)push_msg_opt;
 
-	switch (field)
-	{
+	switch (field) {
 	case MSG_PUSHMSG_SERVICE_TYPE_INT :
 		*value = push_opt->serviceType;
 		break;
@@ -1580,8 +1463,7 @@ int msg_set_push_msg_opt_int(void *push_msg_opt, int field, int value)
 
 	MSG_PUSHMSG_OPT_S *push_opt = (MSG_PUSHMSG_OPT_S *)push_msg_opt;
 
-	switch (field)
-	{
+	switch (field) {
 	case MSG_PUSHMSG_SERVICE_TYPE_INT :
 		push_opt->serviceType = value;
 		break;
@@ -1602,8 +1484,7 @@ int msg_get_push_msg_opt_bool(void *push_msg_opt, int field, bool *value)
 
 	MSG_PUSHMSG_OPT_S *push_opt = (MSG_PUSHMSG_OPT_S *)push_msg_opt;
 
-	switch (field)
-	{
+	switch (field) {
 	case MSG_PUSHMSG_RECEIVE_BOOL :
 		*value = push_opt->bReceive;
 		break;
@@ -1624,8 +1505,7 @@ int msg_set_push_msg_opt_bool(void *push_msg_opt, int field, bool value)
 
 	MSG_PUSHMSG_OPT_S *push_opt = (MSG_PUSHMSG_OPT_S *)push_msg_opt;
 
-	switch (field)
-	{
+	switch (field) {
 	case MSG_PUSHMSG_RECEIVE_BOOL :
 		push_opt->bReceive = value;
 		break;
@@ -1642,27 +1522,20 @@ EXPORT_API int msg_get_voice_msg_opt(msg_handle_t handle, msg_struct_t msg_struc
 	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_SMS_FEATURE);
 	msg_error_t err = MSG_SUCCESS;
 
-	//Privilege check
+	/* Privilege check */
 	int ret = PRIV_MGR_ERROR_SUCCESS;
 	ret = privacy_checker_check_by_privilege(MSG_SERVICE_READ_PRIV_NAME);
 	if (ret != PRIV_MGR_ERROR_SUCCESS)
-	{
 		return MSG_ERR_PERMISSION_DENIED;
-	}
 
 	if (handle == NULL || msg_struct == NULL)
-	{
 		return MSG_ERR_INVALID_PARAMETER;
-	}
 
 	MsgHandle* pHandle = (MsgHandle*)handle;
 
-	try
-	{
+	try {
 		err = pHandle->getVoiceMsgOpt(msg_struct);
-	}
-	catch (MsgException& e)
-	{
+	} catch (MsgException& e) {
 		MSG_FATAL("%s", e.what());
 		return MSG_ERR_SET_READ_ERROR;
 	}
@@ -1675,27 +1548,20 @@ EXPORT_API int msg_set_voice_msg_opt(msg_handle_t handle, msg_struct_t msg_struc
 	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_SMS_FEATURE);
 	msg_error_t err = MSG_SUCCESS;
 
-	//Privilege check
+	/* Privilege check */
 	int ret = PRIV_MGR_ERROR_SUCCESS;
 	ret = privacy_checker_check_by_privilege(MSG_SERVICE_WRITE_PRIV_NAME);
 	if (ret != PRIV_MGR_ERROR_SUCCESS)
-	{
 		return MSG_ERR_PERMISSION_DENIED;
-	}
 
 	if (handle == NULL || msg_struct == NULL)
-	{
 		return MSG_ERR_INVALID_PARAMETER;
-	}
 
 	MsgHandle* pHandle = (MsgHandle*)handle;
 
-	try
-	{
+	try {
 		err = pHandle->setVoiceMsgOpt(msg_struct);
-	}
-	catch (MsgException& e)
-	{
+	} catch (MsgException& e) {
 		MSG_FATAL("%s", e.what());
 		return MSG_ERR_SET_READ_ERROR;
 	}
@@ -1712,8 +1578,7 @@ int msg_get_voice_msg_opt_int(void *voice_msg_opt, int field, int *value)
 
 	MSG_VOICEMAIL_OPT_S *voice_opt = (MSG_VOICEMAIL_OPT_S *)voice_msg_opt;
 
-	switch (field)
-	{
+	switch (field) {
 	case MSG_VOICEMSG_SIM_INDEX_INT :
 		*value = voice_opt->simIndex;
 		break;
@@ -1737,8 +1602,7 @@ int msg_set_voice_msg_opt_int(void *voice_msg_opt, int field, int value)
 
 	MSG_VOICEMAIL_OPT_S *voice_opt = (MSG_VOICEMAIL_OPT_S *)voice_msg_opt;
 
-	switch (field)
-	{
+	switch (field) {
 	case MSG_VOICEMSG_SIM_INDEX_INT :
 		voice_opt->simIndex = value;
 		break;
@@ -1757,8 +1621,7 @@ int msg_get_voice_msg_opt_str(void *voice_msg_opt, int field, char *value, int s
 
 	MSG_VOICEMAIL_OPT_S *voice_opt = (MSG_VOICEMAIL_OPT_S *)voice_msg_opt;
 
-	switch (field)
-	{
+	switch (field) {
 	case MSG_VOICEMSG_ADDRESS_STR :
 		strncpy(value, voice_opt->mailNumber, size);
 		break;
@@ -1781,8 +1644,7 @@ int msg_set_voice_msg_opt_str(void *voice_msg_opt, int field, char *val, int siz
 
 	MSG_VOICEMAIL_OPT_S *voice_opt = (MSG_VOICEMAIL_OPT_S *)voice_msg_opt;
 
-	switch (field)
-	{
+	switch (field) {
 	case MSG_VOICEMSG_ADDRESS_STR :
 		bzero(voice_opt->mailNumber, sizeof(voice_opt->mailNumber));
 		snprintf(voice_opt->mailNumber, sizeof(voice_opt->mailNumber), "%s", val);
@@ -1800,27 +1662,20 @@ EXPORT_API int msg_get_general_opt(msg_handle_t handle, msg_struct_t msg_struct)
 	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_SMS_FEATURE);
 	msg_error_t err = MSG_SUCCESS;
 
-	//Privilege check
+	/* Privilege check */
 	int ret = PRIV_MGR_ERROR_SUCCESS;
 	ret = privacy_checker_check_by_privilege(MSG_SERVICE_READ_PRIV_NAME);
 	if (ret != PRIV_MGR_ERROR_SUCCESS)
-	{
 		return MSG_ERR_PERMISSION_DENIED;
-	}
 
 	if (handle == NULL || msg_struct == NULL)
-	{
 		return MSG_ERR_INVALID_PARAMETER;
-	}
 
 	MsgHandle* pHandle = (MsgHandle*)handle;
 
-	try
-	{
+	try {
 		err = pHandle->getGeneralOpt(msg_struct);
-	}
-	catch (MsgException& e)
-	{
+	} catch (MsgException& e) {
 		MSG_FATAL("%s", e.what());
 		return MSG_ERR_SET_READ_ERROR;
 	}
@@ -1833,27 +1688,20 @@ EXPORT_API int msg_set_general_opt(msg_handle_t handle, msg_struct_t msg_struct)
 	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_SMS_FEATURE);
 	msg_error_t err = MSG_SUCCESS;
 
-	//Privilege check
+	/* Privilege check */
 	int ret = PRIV_MGR_ERROR_SUCCESS;
 	ret = privacy_checker_check_by_privilege(MSG_SERVICE_WRITE_PRIV_NAME);
 	if (ret != PRIV_MGR_ERROR_SUCCESS)
-	{
 		return MSG_ERR_PERMISSION_DENIED;
-	}
 
 	if (handle == NULL || msg_struct == NULL)
-	{
 		return MSG_ERR_INVALID_PARAMETER;
-	}
 
 	MsgHandle* pHandle = (MsgHandle*)handle;
 
-	try
-	{
+	try {
 		err = pHandle->setGeneralOpt(msg_struct);
-	}
-	catch (MsgException& e)
-	{
+	} catch (MsgException& e) {
 		MSG_FATAL("%s", e.what());
 		return MSG_ERR_SET_READ_ERROR;
 	}
@@ -1870,8 +1718,7 @@ int msg_get_general_opt_int(void *general_opt, int field, int *value)
 
 	MSG_GENERAL_OPT_S *opt = (MSG_GENERAL_OPT_S *)general_opt;
 
-	switch (field)
-	{
+	switch (field) {
 	case MSG_GENERAL_ALERT_TONE_INT :
 		*value = opt->alertTone;
 		break;
@@ -1901,8 +1748,7 @@ int msg_set_general_opt_int(void *general_opt, int field, int value)
 
 	MSG_GENERAL_OPT_S *opt = (MSG_GENERAL_OPT_S *)general_opt;
 
-	switch (field)
-	{
+	switch (field) {
 	case MSG_GENERAL_ALERT_TONE_INT :
 		opt->alertTone = value;
 		break;
@@ -1932,8 +1778,7 @@ int msg_get_general_opt_bool(void *general_opt, int field, bool *value)
 
 	MSG_GENERAL_OPT_S *opt = (MSG_GENERAL_OPT_S *)general_opt;
 
-	switch (field)
-	{
+	switch (field) {
 	case MSG_GENERAL_KEEP_COPY_BOOL :
 		*value = opt->bKeepCopy;
 		break;
@@ -1969,8 +1814,7 @@ int msg_set_general_opt_bool(void *general_opt, int field, bool value)
 
 	MSG_GENERAL_OPT_S *opt = (MSG_GENERAL_OPT_S *)general_opt;
 
-	switch (field)
-	{
+	switch (field) {
 	case MSG_GENERAL_KEEP_COPY_BOOL :
 		opt->bKeepCopy = value;
 		break;
@@ -2004,8 +1848,7 @@ int msg_get_general_opt_str(void *general_opt, int field, char *value, int size)
 
 	MSG_GENERAL_OPT_S *opt = (MSG_GENERAL_OPT_S *)general_opt;
 
-	switch (field)
-	{
+	switch (field) {
 	case MSG_GENERAL_RINGTONE_PATH_STR :
 		strncpy(value, opt->ringtonePath, size);
 		break;
@@ -2025,8 +1868,7 @@ int msg_set_general_opt_str(void *general_opt, int field, char *val, int size)
 
 	MSG_GENERAL_OPT_S *opt = (MSG_GENERAL_OPT_S *)general_opt;
 
-	switch (field)
-	{
+	switch (field) {
 	case MSG_GENERAL_RINGTONE_PATH_STR :
 		bzero(opt->ringtonePath, sizeof(opt->ringtonePath));
 		snprintf(opt->ringtonePath, sizeof(opt->ringtonePath), "%s", val);
@@ -2045,27 +1887,20 @@ EXPORT_API int msg_get_msgsize_opt(msg_handle_t handle, msg_struct_t msg_struct)
 	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_MMS_FEATURE);
 	msg_error_t err = MSG_SUCCESS;
 
-	//Privilege check
+	/* Privilege check */
 	int ret = PRIV_MGR_ERROR_SUCCESS;
 	ret = privacy_checker_check_by_privilege(MSG_SERVICE_READ_PRIV_NAME);
 	if (ret != PRIV_MGR_ERROR_SUCCESS)
-	{
 		return MSG_ERR_PERMISSION_DENIED;
-	}
 
 	if (handle == NULL || msg_struct == NULL)
-	{
 		return MSG_ERR_INVALID_PARAMETER;
-	}
 
 	MsgHandle* pHandle = (MsgHandle*)handle;
 
-	try
-	{
+	try {
 		err = pHandle->getMsgSizeOpt(msg_struct);
-	}
-	catch (MsgException& e)
-	{
+	} catch (MsgException& e) {
 		MSG_FATAL("%s", e.what());
 		return MSG_ERR_SET_READ_ERROR;
 	}
@@ -2078,27 +1913,20 @@ EXPORT_API int msg_set_msgsize_opt(msg_handle_t handle, msg_struct_t msg_struct)
 	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_MMS_FEATURE);
 	msg_error_t err = MSG_SUCCESS;
 
-	//Privilege check
+	/* Privilege check */
 	int ret = PRIV_MGR_ERROR_SUCCESS;
 	ret = privacy_checker_check_by_privilege(MSG_SERVICE_WRITE_PRIV_NAME);
 	if (ret != PRIV_MGR_ERROR_SUCCESS)
-	{
 		return MSG_ERR_PERMISSION_DENIED;
-	}
 
 	if (handle == NULL || msg_struct == NULL)
-	{
 		return MSG_ERR_INVALID_PARAMETER;
-	}
 
 	MsgHandle* pHandle = (MsgHandle*)handle;
 
-	try
-	{
+	try {
 		err = pHandle->setMsgSizeOpt(msg_struct);
-	}
-	catch (MsgException& e)
-	{
+	} catch (MsgException& e) {
 		MSG_FATAL("%s", e.what());
 		return MSG_ERR_SET_READ_ERROR;
 	}
@@ -2115,8 +1943,7 @@ int msg_get_msgsize_opt_int(void *size_opt, int field, int *value)
 
 	MSG_MSGSIZE_OPT_S *msg_opt = (MSG_MSGSIZE_OPT_S *)size_opt;
 
-	switch (field)
-	{
+	switch (field) {
 	case MSG_MESSAGE_SIZE_INT :
 		*value = msg_opt->nMsgSize;
 		break;
@@ -2137,8 +1964,7 @@ int msg_set_msgsize_opt_int(void *size_opt, int field, int value)
 
 	MSG_MSGSIZE_OPT_S *msg_opt = (MSG_MSGSIZE_OPT_S *)size_opt;
 
-	switch (field)
-	{
+	switch (field) {
 	case MSG_MESSAGE_SIZE_INT :
 		msg_opt->nMsgSize = value;
 		break;

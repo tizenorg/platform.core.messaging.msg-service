@@ -31,8 +31,7 @@
 #include "SmsPluginSatHandler.h"
 #include "SmsPluginDSHandler.h"
 
-extern "C"
-{
+extern "C" {
 	#include <tapi_common.h>
 	#include <TelSms.h>
 	#include <TapiUtility.h>
@@ -71,7 +70,7 @@ SmsPluginSatHandler* SmsPluginSatHandler::instance()
 }
 
 
-void SmsPluginSatHandler::refreshSms(struct tapi_handle *handle, void *pData)
+void SmsPluginSatHandler::refreshSms(TapiHandle *handle, void *pData)
 {
 	/*
 	TelSatRefreshInd_t* pRefreshData = (TelSatRefreshInd_t*)pData;
@@ -138,7 +137,7 @@ void SmsPluginSatHandler::refreshSms(struct tapi_handle *handle, void *pData)
 }
 
 
-void SmsPluginSatHandler::sendSms(struct tapi_handle *handle, void *pData)
+void SmsPluginSatHandler::sendSms(TapiHandle *handle, void *pData)
 {
 	TelSatSendSmsIndSmsData_t* pSmsData = (TelSatSendSmsIndSmsData_t*)pData;
 
@@ -146,15 +145,15 @@ void SmsPluginSatHandler::sendSms(struct tapi_handle *handle, void *pData)
 
 	MSG_DEBUG("commandId [%d]", commandId);
 
-	// The TPDU Maximum Length at SAT side is 175
-	// This is because Sat can send 160 bytes unpacked and header
+	/* The TPDU Maximum Length at SAT side is 175
+	   This is because Sat can send 160 bytes unpacked and header */
 	unsigned char tpdu[MAX_SAT_TPDU_LEN+1];
 	int tpduLen = 0;
 
 	memset(tpdu, 0x00, sizeof(tpdu));
 	memcpy(tpdu, pSmsData->smsTpdu.data, pSmsData->smsTpdu.dataLen);
 
-	// Modify Parameters, Pack User Data
+	/* Modify Parameters, Pack User Data */
 	tpduLen = handleSatTpdu(tpdu, pSmsData->smsTpdu.dataLen, pSmsData->bIsPackingRequired);
 
 	if (tpduLen <= 0) {
@@ -170,10 +169,10 @@ void SmsPluginSatHandler::sendSms(struct tapi_handle *handle, void *pData)
 		return;
 	}
 
-	// Make Telephony Structure
+	/* Make Telephony Structure */
 	TelSmsDatapackageInfo_t pkgInfo;
 
-	// Set TPDU data
+	/* Set TPDU data */
 	memset((void*)pkgInfo.szData, 0x00, sizeof(pkgInfo.szData));
 	memcpy((void*)pkgInfo.szData, tpdu, tpduLen);
 
@@ -181,21 +180,18 @@ void SmsPluginSatHandler::sendSms(struct tapi_handle *handle, void *pData)
 	pkgInfo.MsgLength = tpduLen;
 	pkgInfo.format = TAPI_NETTEXT_NETTYPE_3GPP;
 
-	// Set SMSC Address
+	/* Set SMSC Address */
 	SMS_ADDRESS_S smsc = {0,};
 	int simIndex = SmsPluginDSHandler::instance()->getSimIndex(handle);
 
-	if (pSmsData->address.diallingNumberLen > 0)
-	{
+	if (pSmsData->address.diallingNumberLen > 0) {
 		smsc.ton = pSmsData->address.ton;
 		smsc.npi = pSmsData->address.npi;
 		snprintf(smsc.address, sizeof(smsc.address), "%s", pSmsData->address.diallingNumber);
 
 		MSG_SEC_DEBUG("SCA TON[%d], NPI[%d], LEN[%d], ADDR[%s]", smsc.ton, smsc.npi, strlen(smsc.address), smsc.address);
-	}
-	else
-	{
-		// Set SMSC Options
+	} else {
+		/* Set SMSC Options */
 		SmsPluginTransport::instance()->setSmscOptions(simIndex, &smsc);
 	}
 
@@ -205,32 +201,30 @@ void SmsPluginSatHandler::sendSms(struct tapi_handle *handle, void *pData)
 	memset(smscAddr, 0x00, sizeof(smscAddr));
 	smscLen = SmsPluginParamCodec::encodeSMSC(&smsc, smscAddr);
 
-	if (smscLen <= 0) return;
+	if (smscLen <= 0)
+		return;
 
-	// Set SMSC Address
+	/* Set SMSC Address */
 	memset(pkgInfo.Sca, 0x00, sizeof(pkgInfo.Sca));
 	memcpy((void*)pkgInfo.Sca, smscAddr, smscLen);
 	pkgInfo.Sca[smscLen] = '\0';
 
 	int tapiRet = TAPI_API_SUCCESS;
 
-	// Send SMS
+	/* Send SMS */
 	tapiRet = tel_send_sms(handle, &pkgInfo, 0, TapiEventSatSmsSentStatus, NULL);
 
-	if (tapiRet == TAPI_API_SUCCESS)
-	{
+	if (tapiRet == TAPI_API_SUCCESS) {
 		MSG_DEBUG("########  TelTapiSmsSend Success !!! return : %d #######", tapiRet);
 
-	}
-	else
-	{
+	} else {
 		MSG_DEBUG("########  TelTapiSmsSend Fail !!! return : %d #######", tapiRet);
 		sendResult(handle, SMS_SAT_CMD_SEND_SMS, TAPI_SAT_R_BEYOND_ME_CAPABILITIES);
 	}
 }
 
 
-void SmsPluginSatHandler::ctrlSms(struct tapi_handle *handle, void *pData)
+void SmsPluginSatHandler::ctrlSms(TapiHandle *handle, void *pData)
 {
 	if (!pData) {
 		MSG_DEBUG("pData is NULL");
@@ -254,33 +248,24 @@ void SmsPluginSatHandler::ctrlSms(struct tapi_handle *handle, void *pData)
 	return;
 
 #if 0
-	if (bSendSms == true) // Send SMS By SAT
-	{
-		if (pCtrlData->moSmsCtrlResult == TAPI_SAT_CALL_CTRL_R_NOT_ALLOWED)
-		{
+	if (bSendSms == true) { /* Send SMS By SAT */
+		if (pCtrlData->moSmsCtrlResult == TAPI_SAT_CALL_CTRL_R_NOT_ALLOWED) {
 			MSG_DEBUG("SIM does not allow to send SMS");
 
 			sendResult(SMS_SAT_CMD_SEND_SMS, TAPI_SAT_R_INTRCTN_WITH_CC_OR_SMS_CTRL_PRMNT_PRBLM);
-		}
-		else if (pCtrlData->moSmsCtrlResult == TAPI_SAT_CALL_CTRL_R_ALLOWED_WITH_MOD)
-		{
+		} else if (pCtrlData->moSmsCtrlResult == TAPI_SAT_CALL_CTRL_R_ALLOWED_WITH_MOD) {
 			MSG_DEBUG("SIM allows to send SMS with modification");
 
 			sendResult(SMS_SAT_CMD_SEND_SMS, TAPI_SAT_R_SUCCESS);
 		}
-	}
-	else // Send SMS By APP
-	{
+	} else { /* Send SMS By APP */
 		msg_network_status_t netStatus = MSG_NETWORK_NOT_SEND;
 
-		if (pCtrlData->moSmsCtrlResult == TAPI_SAT_CALL_CTRL_R_NOT_ALLOWED)
-		{
+		if (pCtrlData->moSmsCtrlResult == TAPI_SAT_CALL_CTRL_R_NOT_ALLOWED) {
 			MSG_DEBUG("SIM does not allow to send SMS");
 
 			netStatus = MSG_NETWORK_SEND_FAIL;
-		}
-		else if (pCtrlData->moSmsCtrlResult == TAPI_SAT_CALL_CTRL_R_ALLOWED_WITH_MOD)
-		{
+		} else if (pCtrlData->moSmsCtrlResult == TAPI_SAT_CALL_CTRL_R_ALLOWED_WITH_MOD) {
 			MSG_DEBUG("SIM allows to send SMS with modification");
 
 			netStatus = MSG_NETWORK_SEND_SUCCESS;
@@ -293,7 +278,7 @@ void SmsPluginSatHandler::ctrlSms(struct tapi_handle *handle, void *pData)
 }
 
 
-void SmsPluginSatHandler::ctrlSms(struct tapi_handle *handle, SMS_NETWORK_STATUS_T smsStatus)
+void SmsPluginSatHandler::ctrlSms(TapiHandle *handle, SMS_NETWORK_STATUS_T smsStatus)
 {
 	MSG_DEBUG("SMS network status = [%d]", smsStatus);
 
@@ -513,11 +498,11 @@ int SmsPluginSatHandler::handleSatTpdu(unsigned char *pTpdu, unsigned char TpduL
 
 	int pos = 0;
 
-	// TP-MTI, TP-RD, TP-VPF,  TP-RP, TP-UDHI, TP-SRR
-	// TP-VPF
+	/* TP-MTI, TP-RD, TP-VPF,  TP-RP, TP-UDHI, TP-SRR */
+	/* TP-VPF */
 	SMS_VPF_T vpf = (SMS_VPF_T)(pTpdu[pos++] & 0x18) >> 3;
 
-	// TP-MR
+	/* TP-MR */
 	unsigned char tmpRef = pTpdu[pos];
 
 	MSG_DEBUG("current Msg Ref : %d", tmpRef);
@@ -531,22 +516,21 @@ int SmsPluginSatHandler::handleSatTpdu(unsigned char *pTpdu, unsigned char TpduL
 //	pTpdu[pos++] = SmsPluginTransport::instance()->getMsgRef();
 
 
-	// TP-DA
+	/* TP-DA */
 	SMS_ADDRESS_S destAddr = {0};
 	int addrLen = SmsPluginParamCodec::decodeAddress(&pTpdu[pos], &destAddr);
 
 	pos += addrLen;
 
-	// TP-PID
+	/* TP-PID */
 	pos++;
 
-	// TP-DCS
+	/* TP-DCS */
 	SMS_DCS_S dcs = {0};
 
 	int dcsLen = SmsPluginParamCodec::decodeDCS(&pTpdu[pos], &dcs);
 
-	if (bIsPackingRequired == true)
-	{
+	if (bIsPackingRequired == true) {
 		dcs.codingScheme = SMS_CHARSET_7BIT;
 
 		char* pDcs = NULL;
@@ -559,22 +543,17 @@ int SmsPluginSatHandler::handleSatTpdu(unsigned char *pTpdu, unsigned char TpduL
 
 	pos++;
 
-	// TP-VP
+	/* TP-VP */
 	if (vpf == SMS_VPF_RELATIVE)
-	{
 		pos += MAX_REL_TIME_PARAM_LEN;
-	}
 	else if (vpf == SMS_VPF_ABSOLUTE)
-	{
 		pos += MAX_ABS_TIME_PARAM_LEN;
-	}
 
-	// TP-UDL
+	/* TP-UDL */
 	int udl = pTpdu[pos];
 	int retLen = 0;
 
-	if (bIsPackingRequired == true)
-	{
+	if (bIsPackingRequired == true) {
 		SMS_USERDATA_S userData = {0};
 
 		userData.headerCnt = 0;
@@ -582,14 +561,28 @@ int SmsPluginSatHandler::handleSatTpdu(unsigned char *pTpdu, unsigned char TpduL
 		memcpy(userData.data, &pTpdu[pos+1], udl);
 		userData.data[udl] = '\0';
 
-MSG_DEBUG("user data : [%s]", userData.data);
+		MSG_DEBUG("user data : [%s]", userData.data);
 
-		int encodeSize = SmsPluginUDCodec::encodeUserData(&userData, dcs.codingScheme, (char*)&pTpdu[pos]);
+		// check for user data whether it is 7-bit packed or not.
+		bool is7bitPacked = false;
+		int bitValue = 0;
+		for (int i = 0; i < userData.length; i++) {
+			bitValue = userData.data[i] & ( 1 << 7);
+			if (bitValue != 0) {
+				is7bitPacked = true;
+				MSG_DEBUG("user data is already 7-bit packed !!");
+				break;
+			}
+		}
 
-		retLen = pos + encodeSize;
-	}
-	else
-	{
+		if (!is7bitPacked) {
+			MSG_DEBUG("packing 8-bit user data to 7-bit charset !!");
+			int encodeSize = SmsPluginUDCodec::encodeUserData(&userData, dcs.codingScheme, (char*)&pTpdu[pos]);
+			retLen = pos + encodeSize;
+		} else {
+			retLen = TpduLen;
+		}
+	} else {
 		retLen = TpduLen;
 	}
 
@@ -597,24 +590,21 @@ MSG_DEBUG("user data : [%s]", userData.data);
 }
 
 
-void SmsPluginSatHandler::sendResult(struct tapi_handle *handle, SMS_SAT_CMD_TYPE_T CmdType, int ResultType)
+void SmsPluginSatHandler::sendResult(TapiHandle *handle, SMS_SAT_CMD_TYPE_T CmdType, int ResultType)
 {
 	TelSatAppsRetInfo_t satRetInfo;
 	memset(&satRetInfo, 0, sizeof(TelSatAppsRetInfo_t));
 
 	satRetInfo.commandId = commandId;
 
-	MSG_DEBUG("satRetInfo.commandId [%d]", satRetInfo.commandId);
+	MSG_INFO("satRetInfo.commandId [%d]", satRetInfo.commandId);
 
-	if (CmdType == SMS_SAT_CMD_REFRESH)
-	{
+	if (CmdType == SMS_SAT_CMD_REFRESH) {
 		satRetInfo.commandType = TAPI_SAT_CMD_TYPE_REFRESH;
 
 		satRetInfo.appsRet.refresh.appType = TAPI_SAT_REFRESH_MSG;
 		satRetInfo.appsRet.refresh.resp = (TelSatResultType_t)ResultType;
-	}
-	else if (CmdType == SMS_SAT_CMD_SEND_SMS)
-	{
+	} else if (CmdType == SMS_SAT_CMD_SEND_SMS) {
 		satRetInfo.commandType = TAPI_SAT_CMD_TYPE_SEND_SMS;
 
 		satRetInfo.appsRet.sendSms.resp = (TelSatResultType_t)ResultType;
@@ -625,13 +615,9 @@ void SmsPluginSatHandler::sendResult(struct tapi_handle *handle, SMS_SAT_CMD_TYP
 	tapiRet = tel_send_sat_app_exec_result(handle, &satRetInfo);
 
 	if (tapiRet == TAPI_API_SUCCESS)
-	{
 		MSG_DEBUG("TelTapiSatSendAppExecutionResult() SUCCESS");
-	}
 	else
-	{
-		MSG_DEBUG("TelTapiSatSendAppExecutionResult() FAIL [%d]", tapiRet);
-	}
+		MSG_ERR("TelTapiSatSendAppExecutionResult() FAIL [%d]", tapiRet);
 
 	bInitSim = false;
 	bSMSPChanged = false;

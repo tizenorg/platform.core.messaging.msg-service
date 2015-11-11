@@ -51,6 +51,7 @@ int MsgInitSimBySatHandler(const MSG_CMD_S *pCmd, char **ppEvent);
 
 int MsgGetThreadViewListHandler(const MSG_CMD_S *pCmd, char **ppEvent);
 int MsgDeleteThreadMessageListHandler(const MSG_CMD_S *pCmd, char **ppEvent);
+int MsgSetTempAddressTableHandler(const MSG_CMD_S *pCmd, char **ppEvent);
 
 int MsgCountMsgByContactHandler(const MSG_CMD_S *pCmd, char **ppEvent);
 int MsgGetQuickPanelDataHandler(const MSG_CMD_S *pCmd, char **ppEvent);

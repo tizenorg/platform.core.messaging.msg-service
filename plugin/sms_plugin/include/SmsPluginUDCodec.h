@@ -53,5 +53,5 @@ private:
 	static int decodeHeader(const unsigned char *pTpdu, SMS_UDH_S *pHeader);
 };
 
-#endif
+#endif /* SMS_PLUGIN_UDCODEC_H */
 

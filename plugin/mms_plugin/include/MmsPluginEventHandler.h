@@ -19,9 +19,9 @@
 
 #include "MsgPluginInterface.h"
 #include "MmsPluginTypes.h"
+#include <tapi_common.h>
 
-class MmsPluginEventHandler
-{
+class MmsPluginEventHandler {
 public:
 	static MmsPluginEventHandler *instance();
 
@@ -32,10 +32,13 @@ public:
 private:
 	MmsPluginEventHandler();
 	virtual ~MmsPluginEventHandler();
+	int initTelHandle();
+	void deinitTelHandle();
+	TapiHandle *getTelHandle(int sim_idx);
 
 	static MmsPluginEventHandler *pInstance;
 
 	MSG_PLUGIN_LISTENER_S listener;
 };
 
-#endif //MMS_PLUGIN_EVENT_HANDLER_H
+#endif /* MMS_PLUGIN_EVENT_HANDLER_H */

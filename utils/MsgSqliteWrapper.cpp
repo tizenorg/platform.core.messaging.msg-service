@@ -24,16 +24,14 @@
 #include <fcntl.h>
 #include <errno.h>
 #include <pthread.h>
+#include <sqlite3.h>
 
 #include "MsgDebug.h"
 #include "MsgSqliteWrapper.h"
 
-extern "C"
-{
-	#include <db-util.h>
-}
-
-Mutex MsgDbHandler::mx;
+int __msg_db_util_open(const char *pszFilePath, sqlite3 **ppDB, int flags, const char *zVfs);
+int __msg_db_util_close(sqlite3 *pDB);
+void __clear_db_handle(sqlite3 *pDB);
 
 /*==================================================================================================
                                      VARIABLES
@@ -51,6 +49,7 @@ MsgDbHandler::MsgDbHandler()
 	stmt   = NULL;
 	mmapMx = NULL;
 	shm_fd = -1;
+	in_trans = false;
 }
 
 
@@ -72,7 +71,36 @@ msg_error_t MsgDbHandler::connect()
 		memset(strDBName, 0x00, sizeof(strDBName));
 		snprintf(strDBName, 64, "%s", MSGFW_DB_NAME);
 
-		ret = db_util_open(strDBName, &handle, DB_UTIL_REGISTER_HOOK_METHOD);
+		ret = __msg_db_util_open(strDBName, &handle, SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, NULL);
+
+		if (ret == SQLITE_OK) {
+			MSG_DEBUG("DB Connect Success : [%p]", handle);
+			return MSG_SUCCESS;
+		} else {
+			MSG_DEBUG("DB Connect Fail [%d]", ret);
+			return MSG_ERR_DB_CONNECT;
+		}
+	} else {
+		MSG_DEBUG("DB Connect exist : [%p]", handle);
+	}
+
+	return MSG_SUCCESS;
+}
+
+/* Use only in app side */
+msg_error_t MsgDbHandler::connectReadOnly()
+{
+
+	int ret = 0;
+
+	if (handle == NULL) {
+		char strDBName[64];
+
+		memset(strDBName, 0x00, sizeof(strDBName));
+		snprintf(strDBName, 64, "%s", MSGFW_DB_NAME);
+
+		MSG_DEBUG("db_util_open_with_options SQLITE_OPEN_READONLY");
+		ret = __msg_db_util_open(strDBName, &handle, SQLITE_OPEN_READONLY, NULL);
 
 		if (ret == SQLITE_OK) {
 			MSG_DEBUG("DB Connect Success : [%p]", handle);
@@ -94,7 +122,7 @@ msg_error_t MsgDbHandler::disconnect()
 	int ret = 0;
 
 	if (handle != NULL) {
-		ret = db_util_close(handle);
+		ret = __msg_db_util_close(handle);
 
 		if (ret == SQLITE_OK) {
 			handle = NULL;
@@ -138,12 +166,8 @@ bool MsgDbHandler::checkTableExist(const char *pTableName)
 
 msg_error_t MsgDbHandler::execQuery(const char *pQuery)
 {
-//	int ret = 0;
-
 	if (!pQuery)
 		return MSG_ERR_INVALID_PARAMETER;
-
-	MutexLocker lock(mx);
 
 	if(connect() != MSG_SUCCESS)
 		return MSG_ERR_DB_DISCONNECT;
@@ -249,8 +273,15 @@ msg_error_t MsgDbHandler::prepareQuery(const char *pQuery)
 	if(connect() != MSG_SUCCESS)
 		return MSG_ERR_DB_DISCONNECT;
 
-	if ((ret = sqlite3_prepare_v2(handle, pQuery, strlen(pQuery), &stmt, NULL)) == SQLITE_OK) {
-		MSG_DEBUG("Prepare Query Success");
+	ret = sqlite3_prepare_v2(handle, pQuery, strlen(pQuery), &stmt, NULL);
+
+	if (ret == SQLITE_BUSY) {
+		__clear_db_handle(handle);
+		ret = sqlite3_prepare_v2(handle, pQuery, strlen(pQuery), &stmt, NULL);
+	}
+
+	if (ret == SQLITE_OK) {
+		MSG_DEBUG("Prepare Query Success [%p]", stmt);
 		return MSG_SUCCESS;
 	} else {
 		MSG_ERR("Prepare Query Fail [%d]", ret);
@@ -266,6 +297,7 @@ msg_error_t MsgDbHandler::stepQuery()
 {
 	int ret = 0;
 
+	MSG_DEBUG("stepQuery for [%p]", stmt);
 	ret = sqlite3_step(stmt);
 
 	if (ret == SQLITE_ROW) {
@@ -286,16 +318,27 @@ msg_error_t MsgDbHandler::stepQuery()
 
 void MsgDbHandler::resetQuery()
 {
-	if (stmt)
+	if (stmt) {
+		sqlite3_clear_bindings(stmt);
 		sqlite3_reset(stmt);
+	}
 }
 
 
 void MsgDbHandler::finalizeQuery()
 {
-	if(stmt != NULL)
-		sqlite3_finalize(stmt);
+	if(stmt != NULL) {
+		resetQuery();
+		int ret = sqlite3_finalize(stmt);
+		MSG_DEBUG("sqlite3_finalize = [%d]", ret);
+
+		__clear_db_handle(handle);
+	}
+
 	stmt = NULL;
+
+	if (in_trans == false)
+		disconnect();
 }
 
 
@@ -387,15 +430,17 @@ msg_error_t MsgDbHandler::beginTrans()
 	if(connect() != MSG_SUCCESS)
 		return MSG_ERR_DB_DISCONNECT;
 
+#if 0
 	if (!mmapMx) {
 		getMmapMutex(SHM_FILE_FOR_DB_LOCK);
 	}
 	shm_mutex_timedlock(2);
-
-	ret = sqlite3_exec(handle, "BEGIN DEFERRED TRANSACTION;", 0, 0, NULL);
+#endif
+	ret = sqlite3_exec(handle, "BEGIN IMMEDIATE TRANSACTION;", 0, 0, NULL);
 
 	if (ret == SQLITE_OK) {
 		MSG_DEBUG("Begin Transaction Success");
+		in_trans = true;
 		return MSG_SUCCESS;
 	} else {
 		MSG_DEBUG("Begin Transaction Fail [%d]", ret);
@@ -419,11 +464,13 @@ msg_error_t MsgDbHandler::endTrans(bool Success)
 	} else {
 		ret = sqlite3_exec(handle, "ROLLBACK TRANSACTION;", 0, 0, NULL);
 	}
-
+#if 0
 	shm_mutex_unlock();
-
+#endif
 	if (ret == SQLITE_OK) {
 		MSG_DEBUG("End Transaction Success");
+		in_trans = false;
+		disconnect();
 		return MSG_SUCCESS;
 	} else {
 		MSG_DEBUG("End Transaction Fail [%d]", ret);
@@ -442,7 +489,6 @@ int MsgDbHandler::getColumnToInt(int RowIndex)
 	int nTemp = 0;
 
 	if (pTemp == NULL) {
-		MSG_DEBUG("NULL");
 		return nTemp;
 	}
 
@@ -457,7 +503,6 @@ char MsgDbHandler::getColumnToChar(int RowIndex)
 	char* pTemp = result[RowIndex];
 
 	if (pTemp == NULL) {
-		MSG_DEBUG("NULL");
 		return '\0';
 	}
 
@@ -470,7 +515,6 @@ char *MsgDbHandler::getColumnToString(int RowIndex)
 	char* pTemp = result[RowIndex];
 
 	if (pTemp == NULL) {
-		MSG_DEBUG("NULL");
 		return NULL;
 	}
 
@@ -483,7 +527,6 @@ void MsgDbHandler::getColumnToString(int RowIndex, int Length, char *pString)
 	char* pTemp = result[RowIndex];
 
 	if (pTemp == NULL) {
-		MSG_DEBUG("NULL");
 		return;
 	}
 
@@ -573,24 +616,23 @@ msg_error_t MsgConvertStrWithEscape(const char *input, char **output)
 
 typedef std::map<pthread_t, MsgDbHandler*> dbMap_t;
 dbMap_t gDbHandles;
-pthread_mutex_t mu = PTHREAD_MUTEX_INITIALIZER;
+Mutex mu;
 
 MsgDbHandler *getDbHandle()
 {
 	pthread_t self = pthread_self();
 	MsgDbHandler *tmp = NULL;
 
-	pthread_mutex_lock(&mu);
 	dbMap_t::iterator it = gDbHandles.find(self);
 	if (it == gDbHandles.end()) {
 		MSG_DEBUG("New DB handle added.");
+		MutexLocker locker(mu);
 		tmp = new MsgDbHandler();
 		gDbHandles.insert ( std::pair<pthread_t,MsgDbHandler*>(self,tmp));
 
 	} else {
 		tmp = it->second;
 	}
-	pthread_mutex_unlock(&mu);
 
 	return tmp;
 }
@@ -600,13 +642,101 @@ void removeDbHandle()
 	pthread_t self = pthread_self();
 	MsgDbHandler *tmp = NULL;
 
-	pthread_mutex_lock(&mu);
 	dbMap_t::iterator it = gDbHandles.find(self);
 	if (it != gDbHandles.end()) {
+		MutexLocker locker(mu);
 		tmp = it->second;
 		delete tmp;
 		gDbHandles.erase (it);
 	}
-	pthread_mutex_unlock(&mu);
 }
 
+
+static int __msg_db_util_busyhandler(void *pData, int count)
+{
+	if(20 - count > 0) {
+		struct timespec time = {0,};
+		time.tv_sec = 0;
+		time.tv_nsec = (count + 1) * 50 * 1000 * 1000;
+
+		MSG_DEBUG("Busy Handler Called! : PID(%d) / CNT(%d)\n", getpid(), count+1);
+		nanosleep(&time, NULL);
+		return 1;
+	} else {
+		MSG_WARN("Busy Handler will be returned SQLITE_BUSY error : PID(%d) \n", getpid());
+		return 0;
+	}
+}
+
+int __msg_db_util_open(const char *pszFilePath, sqlite3 **ppDB, int flags, const char *zVfs)
+{
+	if((pszFilePath == NULL) || (ppDB == NULL)) {
+		MSG_WARN("sqlite3 handle null error");
+		return SQLITE_ERROR;
+	}
+
+	if((geteuid() != 0) && (access(pszFilePath, R_OK))) {
+		if(errno == EACCES) {
+			MSG_ERR("file access permission error");
+			return SQLITE_PERM;
+		}
+	}
+
+	/* Open DB */
+	int rc = sqlite3_open_v2(pszFilePath, ppDB, flags, zVfs);
+	if (SQLITE_OK != rc) {
+		MSG_ERR("sqlite3_open_v2 error(%d)",rc);
+		return rc;
+	}
+
+	rc = sqlite3_busy_handler(*ppDB, __msg_db_util_busyhandler, NULL);
+	if (SQLITE_OK != rc) {
+		MSG_WARN("Fail to register busy handler\n");
+		sqlite3_close(*ppDB);
+	}
+
+	return rc;
+}
+
+
+int __msg_db_util_close(sqlite3 *pDB)
+{
+	if (pDB == NULL) {
+		MSG_WARN("sqlite3 handle null error");
+		return SQLITE_ERROR;
+	}
+
+	/* Close DB */
+	int rc = sqlite3_close(pDB);
+	MSG_INFO("sqlite3_close error [%d]", rc);
+
+	if (rc == SQLITE_BUSY) {
+		__clear_db_handle(pDB);
+		rc = sqlite3_close(pDB);
+	}
+
+	if (SQLITE_OK != rc) {
+		MSG_ERR("sqlite3_close error [%d]", rc);
+		return rc;
+	}
+
+	return 0;
+}
+
+
+void __clear_db_handle(sqlite3 *pDB)
+{
+	if (pDB == NULL) {
+		MSG_WARN("sqlite3 handle null error");
+		return;
+	}
+
+	int rc = 0;
+
+	sqlite3_stmt *pStmt;
+	while ((pStmt = sqlite3_next_stmt(pDB, NULL)) != NULL) {
+		MSG_INFO("sqlite3_next_stmt [%s]", sqlite3_sql(pStmt));
+		rc = sqlite3_finalize(pStmt);
+		MSG_INFO("sqlite3_finalize [%d]", rc);
+	}
+}

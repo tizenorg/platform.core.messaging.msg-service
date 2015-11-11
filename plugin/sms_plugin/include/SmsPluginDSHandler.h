@@ -33,10 +33,10 @@ public:
 	static SmsPluginDSHandler* instance();
 	int initTelHandle();
 	void deinitTelHandle();
-	struct tapi_handle *getTelHandle(int sim_idx);
+	TapiHandle *getTelHandle(int sim_idx);
 	int getTelHandleCount();
 	int getActiveSimCount();
-	int getSimIndex(struct tapi_handle *handle);
+	int getSimIndex(TapiHandle *handle);
 	void getDefaultNetworkSimId(int *simId);
 
 	int getSubscriberId(unsigned int simIndex, char **subscriber_id);
@@ -49,5 +49,5 @@ private:
 	SMS_TELEPHONY_HANDLE_LIST_S handle_list;
 };
 
-#endif //SMS_PLUGIN_DS_HANDLER_H
+#endif /* SMS_PLUGIN_DS_HANDLER_H */
 

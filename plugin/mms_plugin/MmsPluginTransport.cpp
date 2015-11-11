@@ -57,8 +57,11 @@ void MmsPluginTransport::submitRequest(const MSG_REQUEST_INFO_S *pReqInfo)
 	reqItem.reqID = pReqInfo->reqId;
 	reqItem.simId = pReqInfo->msgInfo.sim_idx;
 
-	char *msisdn = NULL;
-	msisdn = MsgSettingGetString(MSG_SIM_MSISDN);
+	char keyName[MAX_VCONFKEY_NAME_LEN];
+	memset(keyName, 0x00, sizeof(keyName));
+
+	snprintf(keyName, sizeof(keyName), "%s/%d", MSG_SIM_MSISDN, pReqInfo->msgInfo.sim_idx);
+	char *msisdn = MsgSettingGetString(keyName);
 
 	MSG_DEBUG("pReqInfo->msgInfo.msgType.subType [%d]", pReqInfo->msgInfo.msgType.subType);
 
@@ -82,16 +85,18 @@ void MmsPluginTransport::submitRequest(const MSG_REQUEST_INFO_S *pReqInfo)
 		reqItem.pGetData = (char *)malloc(reqItem.getDataLen);
 		if (reqItem.pGetData)
 			memcpy(reqItem.pGetData, pReqInfo->msgInfo.msgData, reqItem.getDataLen);
+		memcpy(reqItem.url, pReqInfo->msgInfo.msgURL, MMS_LOCATION_LEN);
 		MSG_MMS_VLD_INFO("%d, MMS Receive Auto Start %s->%s, Success", pReqInfo->msgInfo.msgId, pReqInfo->msgInfo.addressList[0].addressVal, (msisdn == NULL)?"ME":msisdn);
 		break;
 
-	case MSG_NOTIFYRESPIND_MMS: //reject
+	case MSG_NOTIFYRESPIND_MMS: /* reject */
 	{
 		MSG_DEBUG("######### MANUAL RETRIEVE : SEND NOTIFY RESPONSE IND");
 		reqItem.msgId = pReqInfo->msgInfo.msgId;
 		reqItem.eMmsPduType = eMMS_NOTIFYRESP_IND;
 		reqItem.eHttpCmdType = eHTTP_CMD_POST_TRANSACTION;
 		reqItem.pPostData = MsgOpenAndReadMmsFile(pReqInfo->msgInfo.msgData, 0, -1, &reqItem.postDataLen);
+		memcpy(reqItem.url, pReqInfo->msgInfo.msgURL, MMS_LOCATION_LEN);
 		int ret = remove(pReqInfo->msgInfo.msgData);
 		if (ret != 0) {
 			MSG_DEBUG("remove fail\n");
@@ -107,31 +112,30 @@ void MmsPluginTransport::submitRequest(const MSG_REQUEST_INFO_S *pReqInfo)
 		reqItem.pGetData = (char *)malloc(reqItem.getDataLen);
 		if (reqItem.pGetData)
 			memcpy(reqItem.pGetData, pReqInfo->msgInfo.msgData, reqItem.getDataLen);
+		memcpy(reqItem.url, pReqInfo->msgInfo.msgData, MMS_LOCATION_LEN);
 		MSG_MMS_VLD_INFO("%d, MMS Receive Manual Start %s->%s, Success", pReqInfo->msgInfo.msgId, pReqInfo->msgInfo.addressList[0].addressVal, (msisdn == NULL)?"ME":msisdn);
 		break;
 
-	case MSG_READREPLY_MMS:
-	{
+	case MSG_READREPLY_MMS: {
 		MSG_DEBUG("######### SEND READ REPORT : POST TRANSACTION");
 		reqItem.msgId = pReqInfo->msgInfo.msgId;
 		reqItem.eMmsPduType = eMMS_READREPORT_REQ;
 		reqItem.eHttpCmdType = eHTTP_CMD_POST_TRANSACTION;
 		reqItem.pPostData = MsgOpenAndReadMmsFile(pReqInfo->msgInfo.msgData, 0, -1, &reqItem.postDataLen);
-		// remove x-Read-Rec.ind file
+		/* remove x-Read-Rec.ind file */
 		int ret = remove(pReqInfo->msgInfo.msgData);
 		if (ret != 0) {
 			MSG_DEBUG("remove fail\n");
 		}
 		break;
 	}
-	case MSG_READRECIND_MMS:
-	{
+	case MSG_READRECIND_MMS: {
 		MSG_DEBUG("######### SEND READREC IND : POST TRANSACTION");
 		reqItem.msgId = pReqInfo->msgInfo.msgId;
 		reqItem.eMmsPduType = eMMS_READREC_IND;
 		reqItem.eHttpCmdType = eHTTP_CMD_POST_TRANSACTION;
 		reqItem.pPostData = MsgOpenAndReadMmsFile(pReqInfo->msgInfo.msgData, 0, -1, &reqItem.postDataLen);
-		// remove x-Read-Rec.ind file
+		/* remove x-Read-Rec.ind file */
 		int ret = remove(pReqInfo->msgInfo.msgData);
 		if (ret != 0) {
 			MSG_DEBUG("remove fail\n");

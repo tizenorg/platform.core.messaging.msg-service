@@ -20,8 +20,7 @@
 #include "MmsPluginTypes.h"
 #include "MmsPluginCodecTypes.h"
 
-class MmsPluginInternal
-{
+class MmsPluginInternal {
 	public:
 		static MmsPluginInternal *instance();
 
@@ -48,4 +47,4 @@ class MmsPluginInternal
 		const char *getMmsReadStatus(msg_read_report_status_t readStatus);
 };
 
-#endif //MMS_PLUGIN_INTERNAL_H
+#endif /* MMS_PLUGIN_INTERNAL_H */

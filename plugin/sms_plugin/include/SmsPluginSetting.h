@@ -24,11 +24,17 @@
 #include "MsgMutex.h"
 #include "MsgSettingTypes.h"
 #include <list>
+#include <map>
 
 extern "C"
 {
 	#include <tapi_common.h>
 }
+
+typedef map <int, MSG_SMSC_LIST_S> smscListMap;
+typedef map <int, SMS_SIM_MAILBOX_LIST_S> smsSimMailboxListMap;
+typedef map <int, SMS_SIM_MWI_INFO_S> simMwiInfoMap;
+typedef map <int, MSG_CBMSG_OPT_S>	cbOptMap;
 
 /*==================================================================================================
                                      CLASS DEFINITIONS
@@ -43,27 +49,27 @@ public:
 	void getMeImei(char *pImei);
 
 	void setParamCntEvent(int ParamCnt);
-	void setParamEvent(struct tapi_handle *handle, const MSG_SMSC_DATA_S *pSmscData, int RecordIdx, bool bSuccess);
-	void setCbConfigEvent(struct tapi_handle *handle, const MSG_CBMSG_OPT_S *pCbOpt, bool bSuccess);
-	void setMailboxInfoEvent(struct tapi_handle *handle, SMS_SIM_MAILBOX_LIST_S *pVoiceOpt, bool bSuccess, bool bMbdn);
+	void setParamEvent(TapiHandle *handle, const MSG_SMSC_DATA_S *pSmscData, int RecordIdx, bool bSuccess);
+	void setCbConfigEvent(TapiHandle *handle, const MSG_CBMSG_OPT_S *pCbOpt, bool bSuccess);
+	void setMailboxInfoEvent(TapiHandle *handle, SMS_SIM_MAILBOX_LIST_S *pVoiceOpt, bool bSuccess, bool bMbdn);
 	void setMwiInfo(int simIndex, MSG_SUB_TYPE_T type, int count);
-	void setMwiInfoEvent(struct tapi_handle *handle, SMS_SIM_MWI_INFO_S *pMwiInfo, bool bSuccess);
+	void setMwiInfoEvent(TapiHandle *handle, SMS_SIM_MWI_INFO_S *pMwiInfo, bool bSuccess);
 	void setResultFromSim(bool bResult);
 	void setResultImei(bool bResult, char *pImei);
 
 	void setSmscInfo(const MSG_SMSC_LIST_S *pSmscList);
 
-	void setSimChangeStatus(struct tapi_handle *handle, bool bInitializing);
+	void setSimChangeStatus(TapiHandle *handle, bool bInitializing);
 	void getSmscListInfo(int simIndex, MSG_SMSC_LIST_S *pSmscList);
-	void SimRefreshCb(struct tapi_handle *handle);
+	void SimRefreshCb(TapiHandle *handle);
 
 private:
 	SmsPluginSetting();
 	~SmsPluginSetting();
 
-	void updateSimStatus(struct tapi_handle *handle);
+	void updateSimStatus(TapiHandle *handle);
 
-	void initConfigData(struct tapi_handle *handle);
+	void initConfigData(TapiHandle *handle);
 	static void* init_config_data(void *data);
 	static void* initSimInfo(void *data);
 	void* processInitSimInfo(void *data);
@@ -76,22 +82,22 @@ private:
 	void setParamList(const MSG_SMSC_LIST_S *pSMSCList);
 	void getParamList(MSG_SMSC_LIST_S *pSMSCList);
 
-	int getParamCount(struct tapi_handle *handle);
-	bool getParam(struct tapi_handle *handle, int Index, MSG_SMSC_DATA_S *pSmscData);
+	int getParamCount(TapiHandle *handle);
+	bool getParam(TapiHandle *handle, int Index, MSG_SMSC_DATA_S *pSmscData);
 
 	bool setCbConfig(const MSG_CBMSG_OPT_S *pCbOpt);
 	bool getCbConfig(MSG_CBMSG_OPT_S *pCbOpt);
 
 	void setVoiceMailInfo(const MSG_VOICEMAIL_OPT_S *pVoiceOpt);
-	bool getVoiceMailInfo(struct tapi_handle *handle);
+	bool getVoiceMailInfo(TapiHandle *handle);
 
-	bool getMwiInfo(struct tapi_handle *handle);
-	bool getMsisdnInfo(struct tapi_handle *handle);
-	bool getSimServiceTable(struct tapi_handle *handle);
+	bool getMwiInfo(TapiHandle *handle);
+	bool getMsisdnInfo(TapiHandle *handle);
+	bool getSimServiceTable(TapiHandle *handle);
 	bool getResultImei(char *pImei);
 
 	int getParamCntEvent();
-	bool getParamEvent(struct tapi_handle *handle, MSG_SMSC_DATA_S *pSmscData);
+	bool getParamEvent(TapiHandle *handle, MSG_SMSC_DATA_S *pSmscData);
 	bool getCbConfigEvent(MSG_CBMSG_OPT_S *pCbOpt);
 
 	bool getMailboxInfoEvent();
@@ -105,12 +111,12 @@ private:
 	std::list<TapiHandle *> tel_handle_list;
 
 	/* Setting values for keeping in setting instance */
-	MSG_SMSC_LIST_S		smscList[MAX_TELEPHONY_HANDLE_CNT+1];
-	MSG_SIM_STATUS_T 	simStatus[MAX_TELEPHONY_HANDLE_CNT+1];
-	MSG_SMSC_DATA_S		smscData[MAX_TELEPHONY_HANDLE_CNT+1];
-	SMS_SIM_MAILBOX_LIST_S	simMailboxList[MAX_TELEPHONY_HANDLE_CNT+1];
-	SMS_SIM_MWI_INFO_S	simMwiInfo[MAX_TELEPHONY_HANDLE_CNT+1];
-	MSG_CBMSG_OPT_S	cbOpt[MAX_TELEPHONY_HANDLE_CNT+1];
+	smscListMap 			smscList;
+	MSG_SIM_STATUS_T 		simStatus[MAX_TELEPHONY_HANDLE_CNT+1];
+	MSG_SMSC_DATA_S			smscData[MAX_TELEPHONY_HANDLE_CNT+1];
+	smsSimMailboxListMap	simMailboxList;
+	simMwiInfoMap			simMwiInfo;
+	cbOptMap				cbOpt;
 
 	/* Local values for getting from SIM(TAPI) */
 	bool	bTapiResult;
@@ -125,5 +131,5 @@ private:
 	CndVar cv;
 };
 
-#endif //SMS_PLUGIN_SETTING_H
+#endif /* SMS_PLUGIN_SETTING_H */
 

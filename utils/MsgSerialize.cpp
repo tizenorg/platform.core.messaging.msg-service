@@ -720,7 +720,7 @@ int MsgSerializeMms(const MMS_DATA_S *pMsgData, char **pValue)
 
 		if (pMsgData->smil->pMultipartData) {
 			memcpy(buf + offset, pMsgData->smil->pMultipartData, sizeof(char)*pMsgData->smil->nMultipartDataLen);
-			MSG_DEBUG("[#%2d][%5d] smil data = %s", serial_index++, offset, pMsgData->smil->pMultipartData);
+			MSG_SEC_DEBUG("[#%2d][%5d] smil data = %s", serial_index++, offset, pMsgData->smil->pMultipartData);
 			offset += sizeof(char)*pMsgData->smil->nMultipartDataLen;
 		}
 	}
@@ -741,7 +741,7 @@ int MsgSerializeMms(const MMS_DATA_S *pMsgData, char **pValue)
 				memcpy(buf + offset, multipart_data, sizeof(MMS_MULTIPART_DATA_S));
 				offset += sizeof(MMS_MULTIPART_DATA_S);
 
-				MSG_DEBUG("Multipart file path = [%s]", multipart_data->szFilePath);
+				MSG_SEC_DEBUG("Multipart file path = [%s]", multipart_data->szFilePath);
 
 				if (multipart_data->pMultipartData) {
 					memcpy(buf + offset, multipart_data->pMultipartData, sizeof(char)*multipart_data->nMultipartDataLen);
@@ -880,7 +880,7 @@ int MsgDeserializeMmsData(char* value, int value_len, MMS_DATA_S **ppMmsData)
 		memcpy(pMmsData->smil, value + offset, sizeof(MMS_MULTIPART_DATA_S));
 		offset += sizeof(MMS_MULTIPART_DATA_S);
 
-		MSG_DEBUG("SMIL file path = [%s]", pMmsData->smil->szFilePath);
+		MSG_SEC_DEBUG("SMIL file path = [%s]", pMmsData->smil->szFilePath);
 		MSG_DEBUG("SMIL nMultipartDataLen = [%d]", pMmsData->smil->nMultipartDataLen);
 
 		if (pMmsData->smil->nMultipartDataLen > 0) {
@@ -916,7 +916,7 @@ int MsgDeserializeMmsData(char* value, int value_len, MMS_DATA_S **ppMmsData)
 			memcpy(multipart_data, value + offset, sizeof(MMS_MULTIPART_DATA_S));
 			offset += sizeof(MMS_MULTIPART_DATA_S);
 
-			MSG_DEBUG("Multipart file path = [%s]", multipart_data->szFilePath);
+			MSG_SEC_DEBUG("Multipart file path = [%s]", multipart_data->szFilePath);
 
 			if (multipart_data->nMultipartDataLen > 0) {
 				multipart_data->pMultipartData = (char *)calloc(1, sizeof(char)*multipart_data->nMultipartDataLen);

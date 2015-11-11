@@ -37,7 +37,7 @@ public:
 
 	void registerListener(MSG_PLUGIN_LISTENER_S *pListener);
 	void handleSentStatus(msg_network_status_t NetStatus);
-	void handleMsgIncoming(struct tapi_handle *handle, SMS_TPDU_S *pTpdu);
+	void handleMsgIncoming(TapiHandle *handle, SMS_TPDU_S *pTpdu);
 	void handleSyncMLMsgIncoming(msg_syncml_message_type_t msgType, char* pPushBody, int PushBodyLen, char* pWspHeader, int WspHeaderLen, int simIndex);
 	void handleLBSMsgIncoming(char* pPushHeader, char* pPushBody, int pushBodyLen);
 	void handlePushMsgIncoming(char* pPushHeader, char* pPushBody, int pushBodyLen, char *app_id, char *content_type);
@@ -53,10 +53,11 @@ public:
 
 	void SetSentInfo(SMS_SENT_INFO_S *pSentInfo);
 
-	void setDeviceStatus(struct tapi_handle *handle);
-	bool getDeviceStatus(struct tapi_handle *handle);
+	void setDeviceStatus(TapiHandle *handle);
+	bool getDeviceStatus(TapiHandle *handle);
 
-	void convertTpduToMsginfo(SMS_TPDU_S *pTpdu, MSG_MESSAGE_INFO_S *msgInfo); // temp
+	/* temp */
+	void convertTpduToMsginfo(SMS_TPDU_S *pTpdu, MSG_MESSAGE_INFO_S *msgInfo);
 
 	MSG_SUB_TYPE_T convertMsgSubType(SMS_PID_T pid);
 
@@ -80,8 +81,8 @@ private:
 
 	Mutex mx;
 	CndVar cv;
-	struct tapi_handle *devHandle;
+	TapiHandle *devHandle;
 };
 
-#endif //SMS_PLUGIN_EVENT_HANDLER_H
+#endif /* SMS_PLUGIN_EVENT_HANDLER_H */
 

@@ -21,4 +21,4 @@ const char *MmsPluginTextConvertGetCharSet(int MIBEnum);
 
 bool MmsPluginTextConvert(const char *pToCodeSet, const char *pFromCodeSet, const char *pSrc, int srcLen, char **ppDest, int *pDestLen);
 
-#endif //MMS_PLUGIN_TEXT_CONVERT_H
+#endif /* MMS_PLUGIN_TEXT_CONVERT_H */

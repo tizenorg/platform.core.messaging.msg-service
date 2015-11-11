@@ -21,87 +21,80 @@
 #ifndef SMS_CDMA_PLUGIN_TYPES_H
 #define SMS_CDMA_PLUGIN_TYPES_H
 
-#define SMS_MAX_MESSAGE_ID			65536
-#define SMS_SEQ_NUM_MAX				64
-#define SMS_MAX_USER_DATA_LEN		160
-#define SMS_MAX_SUBMIT_MESSAGE_ID	256
+#define MAX_SMS_SEND_RETRY	4
+#define SMS_MAX_MESSAGE_ID 65536
+#define SMS_SEQ_NUM_MAX 64
+#define SMS_MAX_USER_DATA_LEN 160
+#define SMS_MAX_SUBMIT_MESSAGE_ID 256
 
-#define SMS_TRANS_ADDRESS_MAX_LEN	256
+#define SMS_TRANS_ADDRESS_MAX_LEN 256
 
-#define SMS_MAX_NUMBER_OF_ACK		8
+#define SMS_MAX_NUMBER_OF_ACK 8
 
-#define SMS_PUSH_XML_HREF_TAG		"href"
-#define SMS_PUSH_XML_SI_ID_TAG		"si-id"
-#define SMS_PUSH_XML_CREATED_TAG	"created"
-#define SMS_PUSH_XML_EXPIRES_TAG	"si-expires"
-#define SMS_PUSH_XML_ACTION_TAG		"action"
+#define SMS_PUSH_XML_HREF_TAG "href"
+#define SMS_PUSH_XML_SI_ID_TAG "si-id"
+#define SMS_PUSH_XML_CREATED_TAG "created"
+#define SMS_PUSH_XML_EXPIRES_TAG "si-expires"
+#define SMS_PUSH_XML_ACTION_TAG "action"
 
-#define SMS_PUSH_XML_INVAL_OBJ		"invalidate-object"
-#define SMS_PUSH_XML_INVAL_SVC		"invalidate-service"
-#define SMS_PUSH_XML_CO_URI			"uri"
+#define SMS_PUSH_XML_INVAL_OBJ "invalidate-object"
+#define SMS_PUSH_XML_INVAL_SVC "invalidate-service"
+#define SMS_PUSH_XML_CO_URI "uri"
 
 
 typedef unsigned char sms_wap_app_code_t;	/* _sms_wap_app_code_e */
 
-typedef struct _SMS_WSP_CONTENTS_TYPE_S
-{
+typedef struct _SMS_WSP_CONTENTS_TYPE_S {
 	char*         contentsTypeName;
 	unsigned char contentsTypeCode;
 } SMS_WSP_CONTENTS_TYPE_S;
 
 
-typedef struct _SMS_WSP_CHARSET_S
-{
+typedef struct _SMS_WSP_CHARSET_S {
 	char*  charsetName;
 	unsigned short charsetCode;
 } SMS_WSP_CHARSET_S;
 
 
-typedef struct _SMS_WAP_UNREGISTER_CONTENTS_TYPE_S
-{
+typedef struct _SMS_WAP_UNREGISTER_CONTENTS_TYPE_S {
 	char*         contentsTypeName;
 	unsigned short contentsTypeCode;
 } SMS_WAP_UNREGISTER_CONTENTS_TYPE_S;
 
 
-typedef struct _SMS_WSP_LANGUAGE_S
-{
+typedef struct _SMS_WSP_LANGUAGE_S {
 	char*         languageName;
 	unsigned char languageCode;
 } SMS_WSP_LANGUAGE_S;
 
 
-typedef struct _SMS_WSP_HEADER_PARAMETER_S
-{
+typedef struct _SMS_WSP_HEADER_PARAMETER_S {
 	char*         parameterToken;
 	unsigned int parameterCode;
 } SMS_WSP_HEADER_PARAMETER_S;
 
 
-typedef struct _SMS_WSP_METHOD_TYPE_S
-{
+typedef struct _SMS_WSP_METHOD_TYPE_S {
 	char*         methodName;
 	unsigned char methodCode;
 } SMS_WSP_METHOD_TYPE_S;
 
 
-typedef struct _SMS_WSP_SECURITY_TYPE_S
-{
+typedef struct _SMS_WSP_SECURITY_TYPE_S {
 	char*         SecurityTypeName;
 	unsigned char SecurityTypeCode;
 }SMS_WSP_SECURITY_TYPE_S;
 
-typedef struct
-{
-	msg_request_id_t			reqId;		/**< Indicates the request ID, which is unique. When applications submit a request to the framework, this value will be set by the framework. */
-	MSG_MESSAGE_INFO_S			msgInfo;	/**< Indicates the message structure to be sent by applications. */
+
+typedef struct {
+	msg_request_id_t			reqId;		/* < Indicates the request ID, which is unique. When applications submit a request to the framework, this value will be set by the framework. */
+	MSG_MESSAGE_INFO_S			msgInfo;	/* < Indicates the message structure to be sent by applications. */
 	MSG_SENDINGOPT_INFO_S		sendOptInfo;
 } sms_request_info_s;
 
 
-typedef struct _sms_sent_info_s
-{
-	sms_request_info_s		reqInfo;		/**< Indicates the corresponding request structure. */
+typedef struct _sms_sent_info_s {
+	sms_request_info_s		reqInfo;		/* < Indicates the corresponding request structure. */
 	bool						bLast;
 } sms_sent_info_s;
 
@@ -122,8 +115,8 @@ enum _sms_network_status_e {
 	SMS_NETWORK_SEND_FAIL_NETWORK_NOT_READY,
 };
 
-enum _sms_wap_app_code_e
-{
+
+enum _sms_wap_app_code_e {
 	SMS_WAP_APPLICATION_DEFAULT = 0x00,
 
 	SMS_WAP_APPLICATION_PUSH_SI,
@@ -205,23 +198,21 @@ typedef unsigned char		sms_number_type_t;			/* _sms_number_type_e */
 typedef unsigned char		sms_number_plan_t;			/* _sms_number_plan_e */
 
 
-typedef enum _sms_message_type_e
-{
-	SMS_TYPE_RESERVED 		= 0x00,		// reserved
-	SMS_TYPE_DELIVER,					// mobile-terminated only
-	SMS_TYPE_SUBMIT,					// mobile-originated only
-	SMS_TYPE_CANCEL,					// mobile-originated only
-	SMS_TYPE_DELIVERY_ACK,				// mobile-terminated only
-	SMS_TYPE_USER_ACK,					// either direction
-	SMS_TYPE_READ_ACK,					// either direction
-	SMS_TYPE_DELIVER_REPORT,			// mobile-originated only
-	SMS_TYPE_SUBMIT_REPORT	= 0x08,		// mobile-terminated only
+typedef enum _sms_message_type_e {
+	SMS_TYPE_RESERVED 		= 0x00,		/* reserved */
+	SMS_TYPE_DELIVER,					/* mobile-terminated only */
+	SMS_TYPE_SUBMIT,					/* mobile-originated only */
+	SMS_TYPE_CANCEL,					/* mobile-originated only */
+	SMS_TYPE_DELIVERY_ACK,				/* mobile-terminated only*/
+	SMS_TYPE_USER_ACK,					/* either direction */
+	SMS_TYPE_READ_ACK,					/* either direction */
+	SMS_TYPE_DELIVER_REPORT,			/* mobile-originated only */
+	SMS_TYPE_SUBMIT_REPORT	= 0x08,		/* mobile-terminated only */
 	SMS_TYPE_MAX_VALUE
 }sms_message_type_t;
 
 
-typedef enum _sms_alert_option_e
-{
+typedef enum _sms_alert_option_e {
 	SMS_ALERT_NO_ALERT				= 0,
 	SMS_ALERT_DEFAULT_ALERT,
 	SMS_ALERT_VIBRATE_ONCE,
@@ -250,8 +241,7 @@ typedef enum _sms_language_type_e {
 }sms_language_type_t;
 
 
-typedef enum _sms_priority_indicator_e
-{
+typedef enum _sms_priority_indicator_e {
 	SMS_PRIORITY_NORMAL				= 0x00,
 	SMS_PRIORITY_INTERACTIVE,
 	SMS_PRIORITY_URGENT,
@@ -259,8 +249,7 @@ typedef enum _sms_priority_indicator_e
 }sms_priority_indicator_t;
 
 
-typedef enum _sms_privacy_indicator_e
-{
+typedef enum _sms_privacy_indicator_e {
 	SMS_PRIVACY_NOT_RESTRICTED		= 0x00,
 	SMS_PRIVACY_RESTRICTED,
 	SMS_PRIVACY_CONFIDENTIAL,
@@ -268,8 +257,7 @@ typedef enum _sms_privacy_indicator_e
 }sms_privacy_indicator_t;
 
 
-typedef enum _sms_alert_priority_e
-{
+typedef enum _sms_alert_priority_e {
 	SMS_ALERT_MOBILE_DEFAULT		= 0x00,
 	SMS_ALERT_LOW_PRIORITY,
 	SMS_ALERT_MEDIUM_PRIORITY,
@@ -277,8 +265,7 @@ typedef enum _sms_alert_priority_e
 }sms_alert_priority_t;
 
 
-typedef enum _sms_display_mode_e
-{
+typedef enum _sms_display_mode_e {
 	SMS_DISPLAY_IMMEDIATE			= 0x00,
 	SMS_DISPLAY_DEFAULT_SETTING,
 	SMS_DISPLAY_USER_INVOKE,
@@ -286,8 +273,7 @@ typedef enum _sms_display_mode_e
 }sms_display_mode_t;
 
 
-typedef enum _sms_encoding_type_e
-{
+typedef enum _sms_encoding_type_e {
 	SMS_ENCODE_OCTET	= 0x0,
 	SMS_ENCODE_EPM	= 0x1,	/*IS-91 Extended Protocol Message*/
 	SMS_ENCODE_7BIT_ASCII	= 0x2,
@@ -304,8 +290,7 @@ typedef enum _sms_encoding_type_e
 }sms_encoding_type_t;
 
 
-typedef enum _sms_relative_time_e
-{
+typedef enum _sms_relative_time_e {
 	SMS_REL_TIME_5_MINS			= 0,
 	SMS_REL_TIME_12_HOURS		= 143,
 	SMS_REL_TIME_1_DAY			= 167,
@@ -320,8 +305,7 @@ typedef enum _sms_relative_time_e
 }sms_relative_time_t;
 
 
-typedef enum _sms_status_code_e
-{
+typedef enum _sms_status_code_e {
 	/* ERROR_CLASS = '00' (no error) */
 	SMS_STATUS_ACCEPTED				= 0x00,
 	SMS_STATUS_DEPOSITED			= 0x01,
@@ -407,8 +391,7 @@ typedef enum _sms_cmae_alert_handle_e {
 }sms_cmae_alert_handle_t;
 
 
-enum _sms_bearer_sub_param_e
-{
+enum _sms_bearer_sub_param_e {
 	SMS_BEARER_MESSAGE_IDENTIFIER				= 0x00,
 	SMS_BEARER_USER_DATA						= 0x01,
 	SMS_BEARER_USER_RESPONSE_CODE				= 0x02,
@@ -437,8 +420,7 @@ enum _sms_bearer_sub_param_e
 };
 
 
-enum _sms_svc_ctg_result_e
-{
+enum _sms_svc_ctg_result_e {
 	SMS_SVC_RESULT_SUCCESS					= 0x00,
 	SMS_SVC_RESULT_MEMORY_LIMIT_EXCEEDED,
 	SMS_SVC_RESULT_LIMIT_EXCEEDED,
@@ -450,6 +432,7 @@ enum _sms_svc_ctg_result_e
 	SMS_SVC_RESULT_INSPECIFIED_PROGRAMMING_FAILURE,
 	SMS_SVC_RESULT_RESERVED
 };
+
 
 enum _SMS_TIME_FORMAT_E {
 	SMS_TIME_EMPTY = 0,
@@ -504,15 +487,13 @@ enum _sms_tp_failure_cause_e {
 };
 
 
-typedef struct _sms_trans_msg_id_s
-{
+typedef struct _sms_trans_msg_id_s {
 	unsigned short 		msg_id;
 	bool				header_ind;
 }sms_trans_msg_id_s;
 
 
-typedef struct _sms_telesvc_addr_s
-{
+typedef struct _sms_telesvc_addr_s {
 	sms_digit_mode_t	digit_mode;
 	sms_number_type_t	number_type;
 	sms_number_plan_t	number_plan;
@@ -521,8 +502,7 @@ typedef struct _sms_telesvc_addr_s
 }sms_telesvc_addr_s;
 
 
-typedef struct _sms_reply_option_s
-{
+typedef struct _sms_reply_option_s {
 	bool	user_ack_req;
 	bool	deliver_ack_req;
 	bool	read_ack_req;
@@ -530,24 +510,21 @@ typedef struct _sms_reply_option_s
 }sms_reply_option_s;
 
 
-typedef struct _sms_time_relative_s
-{
+typedef struct _sms_time_relative_s {
 	sms_relative_time_t		rel_time;
 }sms_time_rel_s;
 
-typedef struct _sms_time_stamp_s
-{
-	unsigned char		year;		// range 00-99 (96~99 : 19xx, 00~95 : 20xx)
-	unsigned char		month;		// range 1-12
+typedef struct _sms_time_stamp_s {
+	unsigned char		year;		/* range 00-99 (96~99 : 19xx, 00~95 : 20xx) */
+	unsigned char		month;		/* range 1-12 */
 	unsigned char		day;
-	unsigned char		hours;		// range 0-23
-	unsigned char		minutes;	// range 0-59
-	unsigned char		seconds;	// range 0-59
+	unsigned char		hours;		/* range 0-23 */
+	unsigned char		minutes;	/* range 0-59 */
+	unsigned char		seconds;	/* range 0-59 */
 }sms_time_abs_s;
 
 
-typedef struct _sms_val_period_s
-{
+typedef struct _sms_val_period_s {
 	unsigned char 		format;
 	union {
 		sms_time_rel_s	rel_time;
@@ -556,16 +533,14 @@ typedef struct _sms_val_period_s
 }sms_val_period_s;
 
 
-typedef struct _sms_encoding_specific_s
-{
+typedef struct _sms_encoding_specific_s {
 	sms_encoding_type_t		encode_type;
 	unsigned int			data_len;
 	char 					user_data[SMS_MAX_USER_DATA_LEN +1];
 }sms_encoding_specific_s;
 
 
-typedef struct _sms_ctg_specific_s
-{
+typedef struct _sms_ctg_specific_s {
 	unsigned char		operation_code;
 	unsigned short		category;
 	sms_language_type_t	language;
@@ -576,16 +551,14 @@ typedef struct _sms_ctg_specific_s
 }sms_ctg_specific_s;
 
 
-typedef struct _sms_svc_ctg_program_data_s
-{
+typedef struct _sms_svc_ctg_program_data_s {
 	sms_encoding_type_t		encode_type;
 	unsigned int			num_data;
 	sms_ctg_specific_s		*specific_data;
 }sms_svc_ctg_program_data_s;
 
 
-typedef struct _sms_telesvc_userdata_s
-{
+typedef struct _sms_telesvc_userdata_s {
 	sms_encoding_type_t		encode_type;
 	unsigned char			msg_type;
 	unsigned int			data_len;
@@ -593,8 +566,7 @@ typedef struct _sms_telesvc_userdata_s
 }sms_telesvc_userdata_s;
 
 
-typedef struct _sms_telesvc_cmasdata_s
-{
+typedef struct _sms_telesvc_cmasdata_s {
 	unsigned int				data_len;
 	sms_encoding_type_t		encode_type;
 	unsigned char				alert_text[SMS_MAX_USER_DATA_LEN +1];
@@ -611,8 +583,7 @@ typedef struct _sms_telesvc_cmasdata_s
 }sms_telesvc_cmasdata_s;
 
 
-typedef struct _sms_enhanced_vmn_s
-{
+typedef struct _sms_enhanced_vmn_s {
 	sms_priority_indicator_t		priority;
 	bool							password_req;
 	bool							setup_req;
@@ -643,8 +614,7 @@ typedef struct _sms_enhanced_vmn_s
 }sms_enhanced_vmn_s;
 
 
-typedef struct _sms_enhanced_vmn_ack_s
-{
+typedef struct _sms_enhanced_vmn_ack_s {
 	unsigned short				vm_mailbox_id;
 	unsigned char					vm_num_unheard_msg;
 	unsigned char					num_delete_ack;
@@ -655,8 +625,7 @@ typedef struct _sms_enhanced_vmn_ack_s
 }sms_enhanced_vmn_ack_s;
 
 
-typedef struct _sms_telesvc_deliver_s
-{
+typedef struct _sms_telesvc_deliver_s {
 	sms_trans_msg_id_s			msg_id;
 	sms_telesvc_userdata_s		user_data;
 	sms_telesvc_cmasdata_s		cmas_data;
@@ -673,14 +642,13 @@ typedef struct _sms_telesvc_deliver_s
 	sms_display_mode_t			display_mode;
 	sms_encoding_specific_s		multi_encode_data;
 	unsigned short				deposit_id;
-	//sms_svc_ctg_program_data_s	svc_ctg;
+	/* sms_svc_ctg_program_data_s	svc_ctg; */
 	sms_enhanced_vmn_s			enhanced_vmn;
 	sms_enhanced_vmn_ack_s		enhanced_vmn_ack;
 }sms_telesvc_deliver_s;
 
 
-typedef struct _sms_telesvc_submit_s
-{
+typedef struct _sms_telesvc_submit_s {
 	sms_trans_msg_id_s			msg_id;
 	sms_telesvc_userdata_s		user_data;
 	sms_val_period_s			val_period;
@@ -693,18 +661,16 @@ typedef struct _sms_telesvc_submit_s
 	sms_telesvc_addr_s			callback_number;
 	sms_encoding_specific_s		multi_encode_data;
 	unsigned char				deposit_id;
-	//sms_svc_ctg_program_data_s	svc_ctg;
+	/* sms_svc_ctg_program_data_s	svc_ctg; */
 }sms_telesvc_submit_s;
 
 
-typedef struct _sms_telesvc_cancel_s
-{
+typedef struct _sms_telesvc_cancel_s {
 	sms_trans_msg_id_s		msg_id;
 }sms_telesvc_cancel_s;
 
 
-typedef struct _sms_telesvc_user_ack_s
-{
+typedef struct _sms_telesvc_user_ack_s {
 	sms_trans_msg_id_s			msg_id;
 	sms_telesvc_userdata_s		user_data;
 	unsigned char				resp_code;
@@ -714,8 +680,7 @@ typedef struct _sms_telesvc_user_ack_s
 }sms_telesvc_user_ack_s;
 
 
-typedef struct _sms_telesvc_deliver_ack_s
-{
+typedef struct _sms_telesvc_deliver_ack_s {
 	sms_trans_msg_id_s			msg_id;
 	sms_telesvc_userdata_s		user_data;
 	sms_time_abs_s				time_stamp;
@@ -724,8 +689,7 @@ typedef struct _sms_telesvc_deliver_ack_s
 }sms_telesvc_deliver_ack_s;
 
 
-typedef struct _sms_telesvc_read_ack_s
-{
+typedef struct _sms_telesvc_read_ack_s {
 	sms_trans_msg_id_s			msg_id;
 	sms_telesvc_userdata_s		user_data;
 	sms_time_abs_s				time_stamp;
@@ -733,8 +697,7 @@ typedef struct _sms_telesvc_read_ack_s
 	unsigned char				deposit_id;
 }sms_telesvc_read_ack_s;
 
-typedef struct _sms_telesvc_deliver_report_s
-{
+typedef struct _sms_telesvc_deliver_report_s {
 	sms_trans_msg_id_s		msg_id;
 	unsigned char			tp_fail_cause;
 	sms_telesvc_userdata_s	user_data;
@@ -743,8 +706,7 @@ typedef struct _sms_telesvc_deliver_report_s
 }sms_telesvc_report_s;
 
 
-typedef struct _sms_telesvc_msg_s
-{
+typedef struct _sms_telesvc_msg_s {
 	sms_message_type_t		type;
 
 	union {
@@ -773,8 +735,7 @@ typedef unsigned short 		sms_trans_svc_ctg_t;			/* _sms_trans_svc_ctg_e */
 typedef unsigned char		sms_trans_reply_seq_t;
 
 
-typedef enum _sms_trans_msg_type_e
-{
+typedef enum _sms_trans_msg_type_e {
 	SMS_TRANS_P2P_MSG			= 0x00,
 	SMS_TRANS_BROADCAST_MSG		= 0x01,
 	SMS_TRANS_ACK_MSG			= 0x02,
@@ -782,8 +743,7 @@ typedef enum _sms_trans_msg_type_e
 }sms_trans_msg_type_t;
 
 
-enum _sms_trans_param_id_e
-{
+enum _sms_trans_param_id_e {
 	SMS_TRANS_PARAM_TELESVC_IDENTIFIER		= 0x00,
 	SMS_TRANS_PARAM_SERVICE_CATEGORY		= 0x01,
 	SMS_TRANS_PARAM_ORG_ADDRESS				= 0x02,
@@ -797,8 +757,7 @@ enum _sms_trans_param_id_e
 };
 
 
-enum _sms_trans_telesvc_id_e
-{
+enum _sms_trans_telesvc_id_e {
 	SMS_TRANS_TELESVC_CMT_91		= 0x1000,	/* IS-91 Extended Protocol Enhanced Services */
 	SMS_TRANS_TELESVC_CPT_95		= 0x1001,	/* Wireless Paging Teleservice */
 	SMS_TRANS_TELESVC_CMT_95		= 0x1002,	/* Wireless Messaging Teleservice */
@@ -811,8 +770,7 @@ enum _sms_trans_telesvc_id_e
 };
 
 
-enum _sms_trans_svc_ctg_e
-{
+enum _sms_trans_svc_ctg_e {
 	SMS_TRANS_SVC_CTG_UNKNOWN				= 0x0000,
 	SMS_TRANS_SVC_CTG_EMERGENCY				= 0x0001,
 	SMS_TRANS_SVC_CTG_ADMINISTRATIVE		= 0x0002,
@@ -848,7 +806,7 @@ enum _sms_trans_svc_ctg_e
 	SMS_TRANS_SVC_CTG_CATPT					= 0x0020,
 	SMS_TRANS_SVC_CTG_KDDI_CORP_MIN1		= 0x0021,
 	SMS_TRANS_SVC_CTG_KDDI_CORP_MAX1		= 0x003f,
-	SMS_TRANS_SVC_CTG_CMAS_PRESIDENTIAL	= 0x1000,
+	SMS_TRANS_SVC_CTG_CMAS_PRESIDENTIAL		= 0x1000,
 	SMS_TRANS_SVC_CTG_CMAS_EXTREME			= 0x1001,
 	SMS_TRANS_SVC_CTG_CMAS_SEVERE			= 0x1002,
 	SMS_TRANS_SVC_CTG_CMAS_AMBER			= 0x1003,
@@ -862,24 +820,21 @@ enum _sms_trans_svc_ctg_e
 };
 
 
-typedef enum _sms_trans_err_class_e
-{
+typedef enum _sms_trans_err_class_e {
 	SMS_TRANS_ERR_CLASS_NONE				= 0x00,
 	SMS_TRANS_ERR_CLASS_TEMPORARY			= 0x02,
 	SMS_TRANS_ERR_CLASS_PERMANENT			= 0x03
 }sms_trans_err_class_t;
 
 
-typedef enum _sms_trans_cause_code_e
-{
-	SMS_CAUSE_CODE_INVAILD_TELESERVICE_ID	= 0x04,
-	SMS_CAUSE_CODE_SERVICE_TERMINATION_DENIED		= 0x62,
+typedef enum _sms_trans_cause_code_e {
+	SMS_CAUSE_CODE_INVAILD_TELESERVICE_ID		= 0x04,
+	SMS_CAUSE_CODE_SERVICE_TERMINATION_DENIED	= 0x62,
 	SMS_TODO_FILL_THIS_ENUMS
 }sms_trans_cause_code_t;
 
 
-typedef enum _sms_trans_sub_addr_type_e
-{
+typedef enum _sms_trans_sub_addr_type_e {
 	SMS_TRANS_SUB_ADDR_NSAP					= 0x00,
 	SMS_TRANS_SUB_ADDR_USER					= 0x01,
 	SMS_TRANS_SUB_ADDR_RESERVED
@@ -887,8 +842,7 @@ typedef enum _sms_trans_sub_addr_type_e
 
 
 
-enum _sms_trans_dnet_addr_type_e
-{
+enum _sms_trans_dnet_addr_type_e {
 	SMS_TRANS_DNET_UNKNOWN					= 0x00,
 	SMS_TRANS_DNET_INTERNET_PROTOCOL		= 0x01,
 	SMS_TRANS_DNET_INTERNET_MAIL_ADDR		= 0x02,
@@ -898,20 +852,20 @@ enum _sms_trans_dnet_addr_type_e
 
 enum _sms_digit_mode_e {
 	SMS_DIGIT_4BIT_DTMF	= 0,
-	SMS_DIGIT_8BIT	= 1
+	SMS_DIGIT_8BIT		= 1
 };
 
 
 enum _sms_number_mode_e {
 	SMS_NUMBER_MODE_NONE_DATANETWORK	= 0,
-	SMS_NUMBER_MODE_DATANETWORK	= 1,	/*using data network address format*/
+	SMS_NUMBER_MODE_DATANETWORK			= 1,	/*using data network address format*/
 };
 
 
 enum _sms_dnet_number_type_e {
-	SMS_ADDRESS_TYPE_UNKNOWN	= 0x00,
+	SMS_ADDRESS_TYPE_UNKNOWN			= 0x00,
 	SMS_ADDRESS_TYPE_INTERNET_PROTOCOL	= 0x01,
-	SMS_ADDRESS_TYPE_EMAIL_ADDRESS	= 0x02,
+	SMS_ADDRESS_TYPE_EMAIL_ADDRESS		= 0x02,
 };
 
 
@@ -933,17 +887,16 @@ enum _sms_number_type_e {
 
 
 enum _sms_number_plan_e {
-	SMS_NPI_UNKNOWN	= 0,
-	SMS_NPI_ISDN	= 1,
-	SMS_NPI_DATA	= 3,
-	SMS_NPI_TELEX	= 4,
-	SMS_NPI_PRIVATE	= 9,
+	SMS_NPI_UNKNOWN		= 0,
+	SMS_NPI_ISDN		= 1,
+	SMS_NPI_DATA		= 3,
+	SMS_NPI_TELEX		= 4,
+	SMS_NPI_PRIVATE		= 9,
 	SMS_NPI_RESERVED	= 15,
 };
 
 
-typedef struct _sms_trans_addr_s
-{
+typedef struct _sms_trans_addr_s {
 	sms_digit_mode_t	digit_mode;
 	sms_number_mode_t	number_mode;
 	sms_number_type_t	number_type;
@@ -953,8 +906,7 @@ typedef struct _sms_trans_addr_s
 }sms_trans_addr_s;
 
 
-typedef struct _sms_trans_sub_addr_s
-{
+typedef struct _sms_trans_sub_addr_s {
 	sms_trans_sub_addr_type_t	type;
 	bool						odd;
 	unsigned int				addr_len;
@@ -962,16 +914,14 @@ typedef struct _sms_trans_sub_addr_s
 }sms_trans_sub_addr_s;
 
 
-typedef struct _sms_trans_cause_code_s
-{
+typedef struct _sms_trans_cause_code_s {
 	sms_trans_reply_seq_t			reply_seq;
 	sms_trans_err_class_t			error_class;
 	sms_trans_cause_code_t			cause_code;
 }sms_trans_cause_code_s;
 
 
-typedef struct _sms_trans_p2p_msg_s
-{
+typedef struct _sms_trans_p2p_msg_s {
 	sms_trans_telesvc_id_t			telesvc_id;
 	sms_trans_svc_ctg_t				svc_ctg;
 	sms_trans_addr_s				address;
@@ -981,23 +931,20 @@ typedef struct _sms_trans_p2p_msg_s
 }sms_trans_p2p_msg_s;
 
 
-typedef struct _sms_trans_broadcast_msg_s
-{
+typedef struct _sms_trans_broadcast_msg_s {
 	sms_trans_svc_ctg_t				svc_ctg;
 	sms_telesvc_msg_s				telesvc_msg;
 }sms_trans_broadcast_msg_s;
 
 
-typedef struct _sms_trans_ack_msg_s
-{
+typedef struct _sms_trans_ack_msg_s {
 	sms_trans_addr_s				address;
 	sms_trans_sub_addr_s			sub_address;
 	sms_trans_cause_code_s			cause_code;
 }sms_trans_ack_msg_s;
 
 
-typedef struct _sms_trans_msg_s
-{
+typedef struct _sms_trans_msg_s {
 	sms_trans_msg_type_t		type;
 	union {
 		sms_trans_p2p_msg_s			p2p_msg;
@@ -1007,5 +954,4 @@ typedef struct _sms_trans_msg_s
 }sms_trans_msg_s;
 
 
-#endif //SMS_CDMA_PLUGIN_TYPES_H
-
+#endif /* SMS_CDMA_PLUGIN_TYPES_H */

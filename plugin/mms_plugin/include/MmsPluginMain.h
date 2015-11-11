@@ -54,5 +54,5 @@ msg_error_t MmsDeleteMessage(msg_message_id_t msgId);
 }
 #endif
 
-#endif //MMS_PLUGIN_MAIN_H
+#endif /* MMS_PLUGIN_MAIN_H */
 

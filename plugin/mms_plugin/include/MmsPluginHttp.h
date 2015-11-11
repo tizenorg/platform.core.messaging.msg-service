@@ -23,7 +23,7 @@
 
 #define MSG_MMS_HH_CONTENT_TYPE     "application/vnd.wap.mms-message"
 #define MSG_MMS_HH_ACCEPT           "application/vnd.wap.mms-message, */*"
-#define MSG_MMS_HH_CHARSET          "utf-8"
+#define MSG_MMS_HH_CHARSET          "utf-8, us-ascii"
 #define MSG_MMS_HH_LANGUAGE         "zh-cn, en"
 #define MSG_MMS_HH_ENCODING         "deflate,gzip"
 
@@ -63,6 +63,7 @@ typedef struct _http_session_info_s {
 	MMS_HTTP_TRANSACTION_TYPE_E transaction_type;
 	const char *url;
 	const char *proxy;
+	const char *dns_list;
 	const char *interface;
 	const char *post_data;
 	unsigned int post_data_len;
@@ -70,8 +71,7 @@ typedef struct _http_session_info_s {
 	unsigned int response_data_len;
 } http_request_info_s;
 
-class MmsPluginHttpAgent
-{
+class MmsPluginHttpAgent {
 	public:
 		static MmsPluginHttpAgent *instance();
 
@@ -113,4 +113,4 @@ class MmsPluginHttpAgent
 		Mutex mx;
 };
 
-#endif //MMS_PLUGIN_HTTP_H
+#endif /* MMS_PLUGIN_HTTP_H */

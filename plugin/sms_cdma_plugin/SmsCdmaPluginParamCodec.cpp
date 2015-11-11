@@ -39,6 +39,7 @@ SmsPluginParamCodec::~SmsPluginParamCodec()
 
 }
 
+
 SmsPluginParamCodec* SmsPluginParamCodec::instance()
 {
 	if (!pInstance)
@@ -80,6 +81,7 @@ int SmsPluginParamCodec::convertDigitToBcd(char *pDigit, int DigitLen, unsigned 
 	return offset;
 }
 
+
 int SmsPluginParamCodec::convertBcdToDigit(const unsigned char *pBcd, int BcdLen, char *pDigit)
 {
 	int offset = 0;
@@ -118,6 +120,7 @@ int SmsPluginParamCodec::convertBcdToDigit(const unsigned char *pBcd, int BcdLen
 
 	return offset;
 }
+
 
 int SmsPluginParamCodec::convertDigitToDTMF(const char *pDigit, int DigitLen, int startBit, unsigned char *pDtmf)
 {
@@ -171,6 +174,7 @@ int SmsPluginParamCodec::convertDigitToDTMF(const char *pDigit, int DigitLen, in
 	return offset;
 }
 
+
 int SmsPluginParamCodec::convertDTMFToDigit(const unsigned char *pDtmf, int DtmfLen, int startBit, char *pDigit)
 {
 	int shift = startBit;
@@ -220,6 +224,7 @@ int SmsPluginParamCodec::convertDTMFToDigit(const unsigned char *pDtmf, int Dtmf
 	return offset;
 }
 
+
 bool SmsPluginParamCodec::isDtmfNumber(const char *pDigit, int DigitLen)
 {
 	bool isDtmf = true;
@@ -235,6 +240,3 @@ bool SmsPluginParamCodec::isDtmfNumber(const char *pDigit, int DigitLen)
 
 	return isDtmf;
 }
-
-
-

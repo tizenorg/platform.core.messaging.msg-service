@@ -142,7 +142,7 @@ INCLUDE_DIRECTORIES(
 )
 
 INCLUDE(FindPkgConfig)
-pkg_check_modules(main_pkgs REQUIRED glib-2.0 dlog vconf db-util)
+pkg_check_modules(main_pkgs REQUIRED glib-2.0 dlog vconf)
 
 FOREACH(flag ${main_pkgs_CFLAGS})
 	SET(EXTRA_CFLAGS "${EXTRA_CFLAGS} ${flag}")

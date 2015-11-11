@@ -80,12 +80,19 @@ msg_error_t MsgStoUpdateMMSMessage(MSG_MESSAGE_INFO_S *pMsg)
 	char sqlQuery[MAX_QUERY_LEN+1];
 
 	memset(sqlQuery, 0x00, sizeof(sqlQuery));
+	MSG_INFO("[%d] [%d]", pMsg->msgType.subType, pMsg->networkStatus);
 
 	if(pMsg->msgType.subType == MSG_RETRIEVE_AUTOCONF_MMS || pMsg->msgType.subType == MSG_RETRIEVE_MANUALCONF_MMS) {
 		if( pMsg->networkStatus == MSG_NETWORK_RETRIEVE_SUCCESS ) {
-			snprintf(sqlQuery, sizeof(sqlQuery),
-					"UPDATE %s SET MAIN_TYPE = %d, SUB_TYPE = %d, FOLDER_ID = %d, DISPLAY_TIME = %lu, SUBJECT = ?, NETWORK_STATUS = %d, MSG_TEXT = ?, THUMB_PATH = '%s', DATA_SIZE = %d WHERE MSG_ID = %d;",
-					MSGFW_MESSAGE_TABLE_NAME, pMsg->msgType.mainType, pMsg->msgType.subType, pMsg->folderId, pMsg->displayTime, pMsg->networkStatus, pMsg->thumbPath,  pMsg->dataSize, pMsg->msgId);
+			if (pMsg->displayTime > 0) {
+				snprintf(sqlQuery, sizeof(sqlQuery),
+						"UPDATE %s SET MAIN_TYPE = %d, SUB_TYPE = %d, FOLDER_ID = %d, DISPLAY_TIME = %lu, SUBJECT = ?, NETWORK_STATUS = %d, MSG_TEXT = ?, THUMB_PATH = '%s', DATA_SIZE = %d WHERE MSG_ID = %d;",
+						MSGFW_MESSAGE_TABLE_NAME, pMsg->msgType.mainType, pMsg->msgType.subType, pMsg->folderId, pMsg->displayTime, pMsg->networkStatus, pMsg->thumbPath,  pMsg->dataSize, pMsg->msgId);
+			} else {
+				snprintf(sqlQuery, sizeof(sqlQuery),
+						"UPDATE %s SET MAIN_TYPE = %d, SUB_TYPE = %d, FOLDER_ID = %d, SUBJECT = ?, NETWORK_STATUS = %d, MSG_TEXT = ?, THUMB_PATH = '%s', DATA_SIZE = %d WHERE MSG_ID = %d;",
+						MSGFW_MESSAGE_TABLE_NAME, pMsg->msgType.mainType, pMsg->msgType.subType, pMsg->folderId, pMsg->networkStatus, pMsg->thumbPath,  pMsg->dataSize, pMsg->msgId);
+			}
 
 			if (dbHandle->prepareQuery(sqlQuery) != MSG_SUCCESS) {
 				return MSG_ERR_DB_PREPARE;

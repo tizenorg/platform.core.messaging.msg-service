@@ -84,11 +84,13 @@ void MsgSentStatusListener(MSG_SENT_STATUS_S *pSentStatus)
 }
 
 
-void MsgStorageChangeListener(msg_storage_change_type_t storageChangeType, MSG_MESSAGE_INFO_S *pMsgInfo)
+void MsgStorageChangeListener(msg_storage_change_type_t storageChangeType, msg_id_list_s *pMsgIdList)
 {
 	MSG_BEGIN();
 
-	MSG_DEBUG("StorageChangeType : [%d], msg ID : [%d]", storageChangeType, pMsgInfo->msgId);
+	for (int i = 0; i < pMsgIdList->nCount; i++) {
+		MSG_DEBUG("StorageChangeType : [%d], msg ID : [%d]", storageChangeType, pMsgIdList->msgIdList[i]);
+	}
 
 	// establish connection to msgfw daemon
 	MsgIpcClientSocket client;
@@ -103,7 +105,7 @@ void MsgStorageChangeListener(msg_storage_change_type_t storageChangeType, MSG_M
 	}
 
 	// composing command
-	int cmdSize = sizeof(MSG_CMD_S) + sizeof(MSG_MESSAGE_INFO_S) + sizeof(msg_storage_change_type_t);
+	int cmdSize = sizeof(MSG_CMD_S) + sizeof(int) + sizeof(msg_message_id_t) * pMsgIdList->nCount + sizeof(msg_storage_change_type_t);
 
 	char cmdBuf[cmdSize];
 	bzero(cmdBuf, cmdSize);
@@ -115,8 +117,9 @@ void MsgStorageChangeListener(msg_storage_change_type_t storageChangeType, MSG_M
 
 	memset(pCmd->cmdCookie, 0x00, MAX_COOKIE_LEN);
 
-	memcpy((void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN), pMsgInfo, sizeof(MSG_MESSAGE_INFO_S));
-	memcpy((void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN+sizeof(MSG_MESSAGE_INFO_S)), &storageChangeType, sizeof(msg_storage_change_type_t));
+	memcpy((void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN), &pMsgIdList->nCount, sizeof(int));
+	memcpy((void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN+sizeof(int)), (void*)pMsgIdList->msgIdList, sizeof(msg_message_id_t)*pMsgIdList->nCount);
+	memcpy((void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN+sizeof(int)+(sizeof(msg_message_id_t)*pMsgIdList->nCount)), &storageChangeType, sizeof(msg_storage_change_type_t));
 
 	// Send Command to Transaction Manager
 	client.write(cmdBuf, cmdSize);
@@ -1150,11 +1153,11 @@ MsgPluginManager::MsgPluginManager()
 void MsgPluginManager::initialize()
 {
 	int plg_len = sizeof(__msg_plg_items)/sizeof(MSG_PLG_TABLE_T);
-	for (int i=0; i < plg_len; i++) {
+	for (int i = 0; i < plg_len; i++) {
 		MsgPlugin* pDupPlgCheck = checkPlugin(__msg_plg_items[i].type);
 
 		if (pDupPlgCheck) {
-			MSG_DEBUG("Plugin for type %d is duplicated", __msg_plg_items[i].type);
+			MSG_INFO("Plugin for type %d is duplicated", __msg_plg_items[i].type);
 			continue;
 		}
 

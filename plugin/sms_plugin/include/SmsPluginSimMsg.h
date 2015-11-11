@@ -100,5 +100,5 @@ private:
 	CndVar cv;
 };
 
-#endif //SMS_PLUGIN_SIMMSG_H
+#endif /* SMS_PLUGIN_SIMMSG_H */
 

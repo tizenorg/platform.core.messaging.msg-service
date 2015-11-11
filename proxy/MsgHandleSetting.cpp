@@ -23,7 +23,7 @@
 
 #define MSG_NULL_CHECK(a) \
 	do { \
-		if(a == NULL) { \
+		if (a == NULL) { \
 			return MSG_ERR_NULL_POINTER; \
 		} \
 	} while(0)
@@ -38,23 +38,23 @@ msg_error_t MsgHandle::getSMSCOption(msg_struct_t msg_struct)
 	MSG_TYPE_CHECK(smsc_opt->type, MSG_STRUCT_SETTING_SMSC_OPT);
 	MSG_NULL_CHECK(smsc_opt->data);
 
-	// Allocate Memory to Command Data
+	/* Allocate Memory to Command Data */
 	int cmdSize = sizeof(MSG_CMD_S) + sizeof(MSG_OPTION_TYPE_T) + sizeof(msg_sim_slot_id_t);
 
 	char cmdBuf[cmdSize];
 	bzero(cmdBuf, cmdSize);
 	MSG_CMD_S* pCmd = (MSG_CMD_S*)cmdBuf;
 
-	// Set Command Parameters
+	/* Set Command Parameters */
 	pCmd->cmdType = MSG_CMD_GET_SMSC_OPT;
 
-	// Set option type
+	/* Set option type */
 	MSG_OPTION_TYPE_T opt_type = MSG_SMSC_LIST;
 
-	// Copy Cookie
+	/* Copy Cookie */
 	memcpy(pCmd->cmdCookie, mCookie, MAX_COOKIE_LEN);
 
-	// Copy Command Data
+	/* Copy Command Data */
 	memcpy((void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN), &opt_type, sizeof(MSG_OPTION_TYPE_T));
 
 	msg_sim_slot_id_t simIndex = ((MSG_SMSC_LIST_HIDDEN_S *)smsc_opt->data)->simIndex;
@@ -63,17 +63,16 @@ msg_error_t MsgHandle::getSMSCOption(msg_struct_t msg_struct)
 	}
 	memcpy((void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN+sizeof(MSG_OPTION_TYPE_T)), &simIndex, sizeof(msg_sim_slot_id_t));
 
-	// Send Command to Messaging FW
+	/* Send Command to Messaging FW */
 	char* pEventData = NULL;
 	unique_ptr<char*, void(*)(char**)> eventBuf(&pEventData, unique_ptr_deleter);
 
 	write((char*)pCmd, cmdSize, &pEventData);
 
-	// Get Return Data
+	/* Get Return Data */
 	MSG_EVENT_S* pEvent = (MSG_EVENT_S*)pEventData;
 
-	if (pEvent->eventType != MSG_EVENT_GET_SMSC_OPT)
-	{
+	if (pEvent->eventType != MSG_EVENT_GET_SMSC_OPT) {
 		THROW(MsgException::INVALID_RESULT, "Event Data Error");
 	}
 
@@ -103,13 +102,14 @@ msg_error_t MsgHandle::getSMSCOption(msg_struct_t msg_struct)
 	return pEvent->result;
 }
 
+
 msg_error_t MsgHandle::setSMSCOption(msg_struct_t msg_struct)
 {
 	msg_struct_s *smsc_opt = (msg_struct_s *)msg_struct;
 	MSG_TYPE_CHECK(smsc_opt->type, MSG_STRUCT_SETTING_SMSC_OPT);
 	MSG_NULL_CHECK(smsc_opt->data);
 
-	// Allocate Memory to Command Data
+	/* Allocate Memory to Command Data */
 	MSG_OPTION_TYPE_T optionType = MSG_SMSC_LIST;
 	int cmdSize = getSettingCmdSize(optionType);
 
@@ -143,36 +143,36 @@ msg_error_t MsgHandle::setSMSCOption(msg_struct_t msg_struct)
 		memcpy(&(smsc_list_tmp.smscData[i]), pStructTmp->data, sizeof(MSG_SMSC_DATA_S));
 	}
 
-	// Set Command Parameters
+	/* Set Command Parameters */
 	pCmd->cmdType = MSG_CMD_SET_SMSC_OPT;
 
-    // Copy Cookie
-    memcpy(pCmd->cmdCookie, mCookie, MAX_COOKIE_LEN);
+	/* Copy Cookie */
+	memcpy(pCmd->cmdCookie, mCookie, MAX_COOKIE_LEN);
 
 	MSG_SETTING_S pSetting = {0,};
 
 	pSetting.type = optionType;
 	memcpy(&(pSetting.option.smscList), &smsc_list_tmp, sizeof(MSG_SMSC_LIST_S));
 
-    // Copy Command Data
-    memcpy(pCmd->cmdData, &pSetting, cmdSize-sizeof(MSG_CMD_S));
+	/* Copy Command Data */
+	memcpy(pCmd->cmdData, &pSetting, cmdSize-sizeof(MSG_CMD_S));
 
-	// Send Command to Messaging FW
+	/* Send Command to Messaging FW */
 	char* pEventData = NULL;
 	unique_ptr<char*, void(*)(char**)> eventBuf(&pEventData, unique_ptr_deleter);
 
 	write((char*)pCmd, cmdSize, &pEventData);
 
-	// Get Return Data
+	/* Get Return Data */
 	MSG_EVENT_S* pEvent = (MSG_EVENT_S*)pEventData;
 
-	if (pEvent->eventType != MSG_EVENT_SET_SMSC_OPT)
-	{
+	if (pEvent->eventType != MSG_EVENT_SET_SMSC_OPT) {
 		THROW(MsgException::INVALID_RESULT, "Event Data Error");
 	}
 
 	return pEvent->result;
 }
+
 
 msg_error_t MsgHandle::getCBOption(msg_struct_t msg_struct)
 {
@@ -180,39 +180,38 @@ msg_error_t MsgHandle::getCBOption(msg_struct_t msg_struct)
 	MSG_TYPE_CHECK(cb_opt->type, MSG_STRUCT_SETTING_CB_OPT);
 	MSG_NULL_CHECK(cb_opt->data);
 
-	// Allocate Memory to Command Data
+	/* Allocate Memory to Command Data */
 	int cmdSize = sizeof(MSG_CMD_S) + sizeof(MSG_OPTION_TYPE_T) + sizeof(msg_sim_slot_id_t);
 
 	char cmdBuf[cmdSize];
 	bzero(cmdBuf, cmdSize);
 	MSG_CMD_S* pCmd = (MSG_CMD_S*)cmdBuf;
 
-	// Set Command Parameters
+	/* Set Command Parameters */
 	pCmd->cmdType = MSG_CMD_GET_CB_OPT;
 
-	// Set option type
+	/* Set option type */
 	MSG_OPTION_TYPE_T opt_type = MSG_CBMSG_OPT;
 
-	// Copy Cookie
+	/* Copy Cookie */
 	memcpy(pCmd->cmdCookie, mCookie, MAX_COOKIE_LEN);
 
-	// Copy Command Data
+	/* Copy Command Data */
 	memcpy((void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN), &opt_type, sizeof(MSG_OPTION_TYPE_T));
 
 	msg_sim_slot_id_t simIndex = ((MSG_CBMSG_OPT_HIDDEN_S*)cb_opt->data)->simIndex;
 	memcpy((void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN+sizeof(MSG_OPTION_TYPE_T)), &simIndex, sizeof(msg_sim_slot_id_t));
 
-	// Send Command to Messaging FW
+	/* Send Command to Messaging FW */
 	char* pEventData = NULL;
 	unique_ptr<char*, void(*)(char**)> eventBuf(&pEventData, unique_ptr_deleter);
 
 	write((char*)pCmd, cmdSize, &pEventData);
 
-	// Get Return Data
+	/* Get Return Data */
 	MSG_EVENT_S* pEvent = (MSG_EVENT_S*)pEventData;
 
-	if (pEvent->eventType != MSG_EVENT_GET_CB_OPT)
-	{
+	if (pEvent->eventType != MSG_EVENT_GET_CB_OPT) {
 		THROW(MsgException::INVALID_RESULT, "Event Data Error");
 	}
 
@@ -243,13 +242,14 @@ msg_error_t MsgHandle::getCBOption(msg_struct_t msg_struct)
 	return pEvent->result;
 }
 
+
 msg_error_t MsgHandle::setCBOption(msg_struct_t msg_struct)
 {
 	msg_struct_s *cb_opt = (msg_struct_s *)msg_struct;
 	MSG_TYPE_CHECK(cb_opt->type, MSG_STRUCT_SETTING_CB_OPT);
 	MSG_NULL_CHECK(cb_opt->data);
 
-	// Allocate Memory to Command Data
+	/* Allocate Memory to Command Data */
 	MSG_OPTION_TYPE_T optionType = MSG_CBMSG_OPT;
 	int cmdSize = getSettingCmdSize(optionType);
 
@@ -258,13 +258,13 @@ msg_error_t MsgHandle::setCBOption(msg_struct_t msg_struct)
 	MSG_CMD_S* pCmd = (MSG_CMD_S*)cmdBuf;
 	int i = 0;
 
-	// Set Command Parameters
+	/* Set Command Parameters */
 	pCmd->cmdType = MSG_CMD_SET_CB_OPT;
 
-	// Copy Cookie
+	/* Copy Cookie */
 	memcpy(pCmd->cmdCookie, mCookie, MAX_COOKIE_LEN);
 
-	// Copy Command Data
+	/* Copy Command Data */
 	MSG_CBMSG_OPT_S cb_opt_tmp = {0,};
 	MSG_CBMSG_OPT_HIDDEN_S *cb_msg_opt = (MSG_CBMSG_OPT_HIDDEN_S *)cb_opt->data;
 
@@ -289,25 +289,25 @@ msg_error_t MsgHandle::setCBOption(msg_struct_t msg_struct)
 
 	memcpy(&(pSetting.option.cbMsgOpt), &cb_opt_tmp, sizeof(MSG_CBMSG_OPT_S));
 
-    // Copy Command Data
-    memcpy(pCmd->cmdData, &pSetting, cmdSize-sizeof(MSG_CMD_S));
+	/* Copy Command Data */
+	memcpy(pCmd->cmdData, &pSetting, cmdSize-sizeof(MSG_CMD_S));
 
-	// Send Command to Messaging FW
+	/* Send Command to Messaging FW */
 	char* pEventData = NULL;
 	unique_ptr<char*, void(*)(char**)> eventBuf(&pEventData, unique_ptr_deleter);
 
 	write((char*)pCmd, cmdSize, &pEventData);
 
-	// Get Return Data
+	/* Get Return Data */
 	MSG_EVENT_S* pEvent = (MSG_EVENT_S*)pEventData;
 
-	if (pEvent->eventType != MSG_EVENT_SET_CB_OPT)
-	{
+	if (pEvent->eventType != MSG_EVENT_SET_CB_OPT) {
 		THROW(MsgException::INVALID_RESULT, "Event Data Error");
 	}
 
 	return pEvent->result;
 }
+
 
 msg_error_t MsgHandle::getSmsSendOpt(msg_struct_t msg_struct)
 {
@@ -315,36 +315,35 @@ msg_error_t MsgHandle::getSmsSendOpt(msg_struct_t msg_struct)
 	MSG_TYPE_CHECK(sms_send_opt->type, MSG_STRUCT_SETTING_SMS_SEND_OPT);
 	MSG_NULL_CHECK(sms_send_opt->data);
 
-	// Allocate Memory to Command Data
+	/* Allocate Memory to Command Data */
 	int cmdSize = sizeof(MSG_CMD_S) + sizeof(MSG_OPTION_TYPE_T);
 
 	char cmdBuf[cmdSize];
 	bzero(cmdBuf, cmdSize);
 	MSG_CMD_S* pCmd = (MSG_CMD_S*)cmdBuf;
 
-	// Set Command Parameters
+	/* Set Command Parameters */
 	pCmd->cmdType = MSG_CMD_GET_SMS_SEND_OPT;
 
-	// Set option type
+	/* Set option type */
 	MSG_OPTION_TYPE_T opt_type = MSG_SMS_SENDOPT;
 
-	// Copy Cookie
+	/* Copy Cookie */
 	memcpy(pCmd->cmdCookie, mCookie, MAX_COOKIE_LEN);
 
-	// Copy Command Data
+	/* Copy Command Data */
 	memcpy((void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN), &opt_type, sizeof(MSG_OPTION_TYPE_T));
 
-	// Send Command to Messaging FW
+	/* Send Command to Messaging FW */
 	char* pEventData = NULL;
 	unique_ptr<char*, void(*)(char**)> eventBuf(&pEventData, unique_ptr_deleter);
 
 	write((char*)pCmd, cmdSize, &pEventData);
 
-	// Get Return Data
+	/* Get Return Data */
 	MSG_EVENT_S* pEvent = (MSG_EVENT_S*)pEventData;
 
-	if (pEvent->eventType != MSG_EVENT_GET_SMS_SEND_OPT)
-	{
+	if (pEvent->eventType != MSG_EVENT_GET_SMS_SEND_OPT) {
 		THROW(MsgException::INVALID_RESULT, "Event Data Error");
 	}
 
@@ -355,13 +354,14 @@ msg_error_t MsgHandle::getSmsSendOpt(msg_struct_t msg_struct)
 	return pEvent->result;
 }
 
+
 msg_error_t MsgHandle::setSmsSendOpt(msg_struct_t msg_struct)
 {
 	msg_struct_s *sms_send_opt = (msg_struct_s *)msg_struct;
 	MSG_TYPE_CHECK(sms_send_opt->type, MSG_STRUCT_SETTING_SMS_SEND_OPT);
 	MSG_NULL_CHECK(sms_send_opt->data);
 
-	// Allocate Memory to Command Data
+	/* Allocate Memory to Command Data */
 	MSG_OPTION_TYPE_T optionType = MSG_SMS_SENDOPT;
 	int cmdSize = getSettingCmdSize(optionType);
 
@@ -369,37 +369,37 @@ msg_error_t MsgHandle::setSmsSendOpt(msg_struct_t msg_struct)
 	bzero(cmdBuf, cmdSize);
 	MSG_CMD_S* pCmd = (MSG_CMD_S*)cmdBuf;
 
-	// Set Command Parameters
+	/* Set Command Parameters */
 	pCmd->cmdType = MSG_CMD_SET_SMS_SEND_OPT;
 
-	// Copy Cookie
+	/* Copy Cookie */
 	memcpy(pCmd->cmdCookie, mCookie, MAX_COOKIE_LEN);
 
-	// Copy Command Data
+	/* Copy Command Data */
 	MSG_SETTING_S pSetting = {0,};
 	pSetting.type = optionType;
 
 	memcpy(&(pSetting.option.smsSendOpt), sms_send_opt->data, sizeof(MSG_SMS_SENDOPT_S));
 
-    // Copy Command Data
-    memcpy(pCmd->cmdData, &pSetting, cmdSize-sizeof(MSG_CMD_S));
+	/*py Command Data */
+	memcpy(pCmd->cmdData, &pSetting, cmdSize-sizeof(MSG_CMD_S));
 
-	// Send Command to Messaging FW
+	/* Send Command to Messaging FW */
 	char* pEventData = NULL;
 	unique_ptr<char*, void(*)(char**)> eventBuf(&pEventData, unique_ptr_deleter);
 
 	write((char*)pCmd, cmdSize, &pEventData);
 
-	// Get Return Data
+	/* Get Return Data */
 	MSG_EVENT_S* pEvent = (MSG_EVENT_S*)pEventData;
 
-	if (pEvent->eventType != MSG_EVENT_SET_SMS_SEND_OPT)
-	{
+	if (pEvent->eventType != MSG_EVENT_SET_SMS_SEND_OPT) {
 		THROW(MsgException::INVALID_RESULT, "Event Data Error");
 	}
 
 	return pEvent->result;
 }
+
 
 msg_error_t MsgHandle::getMmsSendOpt(msg_struct_t msg_struct)
 {
@@ -407,36 +407,35 @@ msg_error_t MsgHandle::getMmsSendOpt(msg_struct_t msg_struct)
 	MSG_TYPE_CHECK(mms_send_opt->type, MSG_STRUCT_SETTING_MMS_SEND_OPT);
 	MSG_NULL_CHECK(mms_send_opt->data);
 
-	// Allocate Memory to Command Data
+	/* Allocate Memory to Command Data */
 	int cmdSize = sizeof(MSG_CMD_S) + sizeof(MSG_OPTION_TYPE_T);
 
 	char cmdBuf[cmdSize];
 	bzero(cmdBuf, cmdSize);
 	MSG_CMD_S* pCmd = (MSG_CMD_S*)cmdBuf;
 
-	// Set Command Parameters
+	/* Set Command Parameters */
 	pCmd->cmdType = MSG_CMD_GET_MMS_SEND_OPT;
 
-	// Set option type
+	/* Set option type */
 	MSG_OPTION_TYPE_T opt_type = MSG_MMS_SENDOPT;
 
-	// Copy Cookie
+	/* Copy Cookie*/
 	memcpy(pCmd->cmdCookie, mCookie, MAX_COOKIE_LEN);
 
-	// Copy Command Data
+	/* Copy Command Data */
 	memcpy((void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN), &opt_type, sizeof(MSG_OPTION_TYPE_T));
 
-	// Send Command to Messaging FW
+	/* Send Command to Messaging FW */
 	char* pEventData = NULL;
 	unique_ptr<char*, void(*)(char**)> eventBuf(&pEventData, unique_ptr_deleter);
 
 	write((char*)pCmd, cmdSize, &pEventData);
 
-	// Get Return Data
+	/* Get Return Data */
 	MSG_EVENT_S* pEvent = (MSG_EVENT_S*)pEventData;
 
-	if (pEvent->eventType != MSG_EVENT_GET_MMS_SEND_OPT)
-	{
+	if (pEvent->eventType != MSG_EVENT_GET_MMS_SEND_OPT) {
 		THROW(MsgException::INVALID_RESULT, "Event Data Error");
 	}
 
@@ -447,13 +446,14 @@ msg_error_t MsgHandle::getMmsSendOpt(msg_struct_t msg_struct)
 	return pEvent->result;
 }
 
+
 msg_error_t MsgHandle::setMmsSendOpt(msg_struct_t msg_struct)
 {
 	msg_struct_s *mms_send_opt = (msg_struct_s *)msg_struct;
 	MSG_TYPE_CHECK(mms_send_opt->type, MSG_STRUCT_SETTING_MMS_SEND_OPT);
 	MSG_NULL_CHECK(mms_send_opt->data);
 
-	// Allocate Memory to Command Data
+	/* Allocate Memory to Command Data */
 	MSG_OPTION_TYPE_T optionType = MSG_MMS_SENDOPT;
 	int cmdSize = getSettingCmdSize(optionType);
 
@@ -461,37 +461,37 @@ msg_error_t MsgHandle::setMmsSendOpt(msg_struct_t msg_struct)
 	bzero(cmdBuf, cmdSize);
 	MSG_CMD_S* pCmd = (MSG_CMD_S*)cmdBuf;
 
-	// Set Command Parameters
+	/* Set Command Parameters */
 	pCmd->cmdType = MSG_CMD_SET_MMS_SEND_OPT;
 
-	// Copy Cookie
+	/* Copy Cookie */
 	memcpy(pCmd->cmdCookie, mCookie, MAX_COOKIE_LEN);
 
-	// Copy Command Data
+	/* Copy Command Data */
 	MSG_SETTING_S pSetting = {0,};
 	pSetting.type = optionType;
 
 	memcpy(&(pSetting.option.mmsSendOpt), mms_send_opt->data, sizeof(MSG_MMS_SENDOPT_S));
 
-    // Copy Command Data
-    memcpy(pCmd->cmdData, &pSetting, cmdSize-sizeof(MSG_CMD_S));
+	/* Copy Command Data */
+	memcpy(pCmd->cmdData, &pSetting, cmdSize-sizeof(MSG_CMD_S));
 
-	// Send Command to Messaging FW
+	/* Send Command to Messaging FW */
 	char* pEventData = NULL;
 	unique_ptr<char*, void(*)(char**)> eventBuf(&pEventData, unique_ptr_deleter);
 
 	write((char*)pCmd, cmdSize, &pEventData);
 
-	// Get Return Data
+	/* Get Return Data */
 	MSG_EVENT_S* pEvent = (MSG_EVENT_S*)pEventData;
 
-	if (pEvent->eventType != MSG_EVENT_SET_MMS_SEND_OPT)
-	{
+	if (pEvent->eventType != MSG_EVENT_SET_MMS_SEND_OPT) {
 		THROW(MsgException::INVALID_RESULT, "Event Data Error");
 	}
 
 	return pEvent->result;
 }
+
 
 msg_error_t MsgHandle::getMmsRecvOpt(msg_struct_t msg_struct)
 {
@@ -499,36 +499,35 @@ msg_error_t MsgHandle::getMmsRecvOpt(msg_struct_t msg_struct)
 	MSG_TYPE_CHECK(mms_recv_opt->type, MSG_STRUCT_SETTING_MMS_RECV_OPT);
 	MSG_NULL_CHECK(mms_recv_opt->data);
 
-	// Allocate Memory to Command Data
+	/* Allocate Memory to Command Data */
 	int cmdSize = sizeof(MSG_CMD_S) + sizeof(MSG_OPTION_TYPE_T);
 
 	char cmdBuf[cmdSize];
 	bzero(cmdBuf, cmdSize);
 	MSG_CMD_S* pCmd = (MSG_CMD_S*)cmdBuf;
 
-	// Set Command Parameters
+	/* Set Command Parameters */
 	pCmd->cmdType = MSG_CMD_GET_MMS_RECV_OPT;
 
-	// Set option type
+	/* Set option type */
 	MSG_OPTION_TYPE_T opt_type = MSG_MMS_RECVOPT;
 
-	// Copy Cookie
+	/* Copy Cookie */
 	memcpy(pCmd->cmdCookie, mCookie, MAX_COOKIE_LEN);
 
-	// Copy Command Data
+	/* Copy Command Data */
 	memcpy((void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN), &opt_type, sizeof(MSG_OPTION_TYPE_T));
 
-	// Send Command to Messaging FW
+	/* Send Command to Messaging FW */
 	char* pEventData = NULL;
 	unique_ptr<char*, void(*)(char**)> eventBuf(&pEventData, unique_ptr_deleter);
 
 	write((char*)pCmd, cmdSize, &pEventData);
 
-	// Get Return Data
+	/* Get Return Data */
 	MSG_EVENT_S* pEvent = (MSG_EVENT_S*)pEventData;
 
-	if (pEvent->eventType != MSG_EVENT_GET_MMS_RECV_OPT)
-	{
+	if (pEvent->eventType != MSG_EVENT_GET_MMS_RECV_OPT) {
 		THROW(MsgException::INVALID_RESULT, "Event Data Error");
 	}
 
@@ -539,13 +538,14 @@ msg_error_t MsgHandle::getMmsRecvOpt(msg_struct_t msg_struct)
 	return pEvent->result;
 }
 
+
 msg_error_t MsgHandle::setMmsRecvOpt(msg_struct_t msg_struct)
 {
 	msg_struct_s *mms_recv_opt = (msg_struct_s *)msg_struct;
 	MSG_TYPE_CHECK(mms_recv_opt->type, MSG_STRUCT_SETTING_MMS_RECV_OPT);
 	MSG_NULL_CHECK(mms_recv_opt->data);
 
-	// Allocate Memory to Command Data
+	/* Allocate Memory to Command Data */
 	MSG_OPTION_TYPE_T optionType = MSG_MMS_RECVOPT;
 	int cmdSize = getSettingCmdSize(optionType);
 
@@ -553,37 +553,37 @@ msg_error_t MsgHandle::setMmsRecvOpt(msg_struct_t msg_struct)
 	bzero(cmdBuf, cmdSize);
 	MSG_CMD_S* pCmd = (MSG_CMD_S*)cmdBuf;
 
-	// Set Command Parameters
+	/* Set Command Parameters */
 	pCmd->cmdType = MSG_CMD_SET_MMS_RECV_OPT;
 
-	// Copy Cookie
+	/* Copy Cookie */
 	memcpy(pCmd->cmdCookie, mCookie, MAX_COOKIE_LEN);
 
-	// Copy Command Data
+	/* Copy Command Data */
 	MSG_SETTING_S pSetting = {0,};
 	pSetting.type = optionType;
 
 	memcpy(&(pSetting.option.mmsRecvOpt), mms_recv_opt->data, sizeof(MSG_MMS_RECVOPT_S));
 
-    // Copy Command Data
-    memcpy(pCmd->cmdData, &pSetting, cmdSize-sizeof(MSG_CMD_S));
+	/* Copy Command Data */
+	memcpy(pCmd->cmdData, &pSetting, cmdSize-sizeof(MSG_CMD_S));
 
-	// Send Command to Messaging FW
+	/* Send Command to Messaging FW */
 	char* pEventData = NULL;
 	unique_ptr<char*, void(*)(char**)> eventBuf(&pEventData, unique_ptr_deleter);
 
 	write((char*)pCmd, cmdSize, &pEventData);
 
-	// Get Return Data
+	/* Get Return Data */
 	MSG_EVENT_S* pEvent = (MSG_EVENT_S*)pEventData;
 
-	if (pEvent->eventType != MSG_EVENT_SET_MMS_RECV_OPT)
-	{
+	if (pEvent->eventType != MSG_EVENT_SET_MMS_RECV_OPT) {
 		THROW(MsgException::INVALID_RESULT, "Event Data Error");
 	}
 
 	return pEvent->result;
 }
+
 
 msg_error_t MsgHandle::getPushMsgOpt(msg_struct_t msg_struct)
 {
@@ -591,36 +591,35 @@ msg_error_t MsgHandle::getPushMsgOpt(msg_struct_t msg_struct)
 	MSG_TYPE_CHECK(push_opt->type, MSG_STRUCT_SETTING_PUSH_MSG_OPT);
 	MSG_NULL_CHECK(push_opt->data);
 
-	// Allocate Memory to Command Data
+	/* Allocate Memory to Command Data */
 	int cmdSize = sizeof(MSG_CMD_S) + sizeof(MSG_OPTION_TYPE_T);
 
 	char cmdBuf[cmdSize];
 	bzero(cmdBuf, cmdSize);
 	MSG_CMD_S* pCmd = (MSG_CMD_S*)cmdBuf;
 
-	// Set Command Parameters
+	/* Set Command Parameters */
 	pCmd->cmdType = MSG_CMD_GET_PUSH_MSG_OPT;
 
-	// Set option type
+	/* Set option type */
 	MSG_OPTION_TYPE_T opt_type = MSG_PUSHMSG_OPT;
 
-	// Copy Cookie
+	/* Copy Cookie */
 	memcpy(pCmd->cmdCookie, mCookie, MAX_COOKIE_LEN);
 
-	// Copy Command Data
+	/* Copy Command Data */
 	memcpy((void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN), &opt_type, sizeof(MSG_OPTION_TYPE_T));
 
-	// Send Command to Messaging FW
+	/* Send Command to Messaging FW */
 	char* pEventData = NULL;
 	unique_ptr<char*, void(*)(char**)> eventBuf(&pEventData, unique_ptr_deleter);
 
 	write((char*)pCmd, cmdSize, &pEventData);
 
-	// Get Return Data
+	/* Get Return Data */
 	MSG_EVENT_S* pEvent = (MSG_EVENT_S*)pEventData;
 
-	if (pEvent->eventType != MSG_EVENT_GET_PUSH_MSG_OPT)
-	{
+	if (pEvent->eventType != MSG_EVENT_GET_PUSH_MSG_OPT) {
 		THROW(MsgException::INVALID_RESULT, "Event Data Error");
 	}
 
@@ -631,13 +630,14 @@ msg_error_t MsgHandle::getPushMsgOpt(msg_struct_t msg_struct)
 	return pEvent->result;
 }
 
+
 msg_error_t MsgHandle::setPushMsgOpt(msg_struct_t msg_struct)
 {
 	msg_struct_s *push_opt = (msg_struct_s *)msg_struct;
 	MSG_TYPE_CHECK(push_opt->type, MSG_STRUCT_SETTING_PUSH_MSG_OPT);
 	MSG_NULL_CHECK(push_opt->data);
 
-	// Allocate Memory to Command Data
+	/* Allocate Memory to Command Data */
 	MSG_OPTION_TYPE_T optionType = MSG_PUSHMSG_OPT;
 	int cmdSize = getSettingCmdSize(optionType);
 
@@ -645,37 +645,37 @@ msg_error_t MsgHandle::setPushMsgOpt(msg_struct_t msg_struct)
 	bzero(cmdBuf, cmdSize);
 	MSG_CMD_S* pCmd = (MSG_CMD_S*)cmdBuf;
 
-	// Set Command Parameters
+	/* Set Command Parameters */
 	pCmd->cmdType = MSG_CMD_SET_PUSH_MSG_OPT;
 
-	// Copy Cookie
+	/* Copy Cookie */
 	memcpy(pCmd->cmdCookie, mCookie, MAX_COOKIE_LEN);
 
-	// Copy Command Data
+	/* Copy Command Data */
 	MSG_SETTING_S pSetting = {0,};
 	pSetting.type = optionType;
 
 	memcpy(&(pSetting.option.pushMsgOpt), push_opt->data, sizeof(MSG_PUSHMSG_OPT_S));
 
-    // Copy Command Data
-    memcpy(pCmd->cmdData, &pSetting, cmdSize-sizeof(MSG_CMD_S));
+	/* Copy Command Data */
+	memcpy(pCmd->cmdData, &pSetting, cmdSize-sizeof(MSG_CMD_S));
 
-	// Send Command to Messaging FW
+	/* Send Command to Messaging FW */
 	char* pEventData = NULL;
 	unique_ptr<char*, void(*)(char**)> eventBuf(&pEventData, unique_ptr_deleter);
 
 	write((char*)pCmd, cmdSize, &pEventData);
 
-	// Get Return Data
+	/* Get Return Data */
 	MSG_EVENT_S* pEvent = (MSG_EVENT_S*)pEventData;
 
-	if (pEvent->eventType != MSG_EVENT_SET_PUSH_MSG_OPT)
-	{
+	if (pEvent->eventType != MSG_EVENT_SET_PUSH_MSG_OPT) {
 		THROW(MsgException::INVALID_RESULT, "Event Data Error");
 	}
 
 	return pEvent->result;
 }
+
 
 msg_error_t MsgHandle::getVoiceMsgOpt(msg_struct_t msg_struct)
 {
@@ -683,23 +683,23 @@ msg_error_t MsgHandle::getVoiceMsgOpt(msg_struct_t msg_struct)
 	MSG_TYPE_CHECK(voice_opt->type, MSG_STRUCT_SETTING_VOICE_MSG_OPT);
 	MSG_NULL_CHECK(voice_opt->data);
 
-	// Allocate Memory to Command Data
+	/* Allocate Memory to Command Data */
 	int cmdSize = sizeof(MSG_CMD_S) + sizeof(MSG_OPTION_TYPE_T) + sizeof(msg_sim_slot_id_t);
 
 	char cmdBuf[cmdSize];
 	bzero(cmdBuf, cmdSize);
 	MSG_CMD_S* pCmd = (MSG_CMD_S*)cmdBuf;
 
-	// Set Command Parameters
+	/* Set Command Parameters */
 	pCmd->cmdType = MSG_CMD_GET_VOICE_MSG_OPT;
 
-	// Set option type
+	/* Set option type */
 	MSG_OPTION_TYPE_T opt_type = MSG_VOICEMAIL_OPT;
 
-	// Copy Cookie
+	/* Copy Cookie */
 	memcpy(pCmd->cmdCookie, mCookie, MAX_COOKIE_LEN);
 
-	// Copy Command Data
+	/* Copy Command Data */
 	memcpy((void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN), &opt_type, sizeof(MSG_OPTION_TYPE_T));
 
 	msg_sim_slot_id_t simIndex = ((MSG_VOICEMAIL_OPT_S *)voice_opt->data)->simIndex;
@@ -708,17 +708,16 @@ msg_error_t MsgHandle::getVoiceMsgOpt(msg_struct_t msg_struct)
 	}
 	memcpy((void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN+sizeof(MSG_OPTION_TYPE_T)), &simIndex, sizeof(msg_sim_slot_id_t));
 
-	// Send Command to Messaging FW
+	/* Send Command to Messaging FW */
 	char* pEventData = NULL;
 	unique_ptr<char*, void(*)(char**)> eventBuf(&pEventData, unique_ptr_deleter);
 
 	write((char*)pCmd, cmdSize, &pEventData);
 
-	// Get Return Data
+	/* Get Return Data */
 	MSG_EVENT_S* pEvent = (MSG_EVENT_S*)pEventData;
 
-	if (pEvent->eventType != MSG_EVENT_GET_VOICE_MSG_OPT)
-	{
+	if (pEvent->eventType != MSG_EVENT_GET_VOICE_MSG_OPT) {
 		THROW(MsgException::INVALID_RESULT, "Event Data Error");
 	}
 
@@ -729,13 +728,14 @@ msg_error_t MsgHandle::getVoiceMsgOpt(msg_struct_t msg_struct)
 	return pEvent->result;
 }
 
+
 msg_error_t MsgHandle::setVoiceMsgOpt(msg_struct_t msg_struct)
 {
 	msg_struct_s *voice_opt = (msg_struct_s *)msg_struct;
 	MSG_TYPE_CHECK(voice_opt->type, MSG_STRUCT_SETTING_VOICE_MSG_OPT);
 	MSG_NULL_CHECK(voice_opt->data);
 
-	// Allocate Memory to Command Data
+	/* Allocate Memory to Command Data */
 	MSG_OPTION_TYPE_T optionType = MSG_VOICEMAIL_OPT;
 	int cmdSize = getSettingCmdSize(optionType);
 
@@ -743,37 +743,37 @@ msg_error_t MsgHandle::setVoiceMsgOpt(msg_struct_t msg_struct)
 	bzero(cmdBuf, cmdSize);
 	MSG_CMD_S* pCmd = (MSG_CMD_S*)cmdBuf;
 
-	// Set Command Parameters
+	/* Set Command Parameters */
 	pCmd->cmdType = MSG_CMD_SET_VOICE_MSG_OPT;
 
-	// Copy Cookie
+	/* Copy Cookie */
 	memcpy(pCmd->cmdCookie, mCookie, MAX_COOKIE_LEN);
 
-	// Copy Command Data
+	/* Copy Command Data */
 	MSG_SETTING_S pSetting = {0,};
 	pSetting.type = optionType;
 
 	memcpy(&(pSetting.option.voiceMailOpt), voice_opt->data, sizeof(MSG_VOICEMAIL_OPT_S));
 
-    // Copy Command Data
-    memcpy(pCmd->cmdData, &pSetting, cmdSize-sizeof(MSG_CMD_S));
+	/* Copy Command Data */
+	memcpy(pCmd->cmdData, &pSetting, cmdSize-sizeof(MSG_CMD_S));
 
-	// Send Command to Messaging FW
+	/* Send Command to Messaging FW */
 	char* pEventData = NULL;
 	unique_ptr<char*, void(*)(char**)> eventBuf(&pEventData, unique_ptr_deleter);
 
 	write((char*)pCmd, cmdSize, &pEventData);
 
-	// Get Return Data
+	/* Get Return Data */
 	MSG_EVENT_S* pEvent = (MSG_EVENT_S*)pEventData;
 
-	if (pEvent->eventType != MSG_EVENT_SET_VOICE_MSG_OPT)
-	{
+	if (pEvent->eventType != MSG_EVENT_SET_VOICE_MSG_OPT) {
 		THROW(MsgException::INVALID_RESULT, "Event Data Error");
 	}
 
 	return pEvent->result;
 }
+
 
 msg_error_t MsgHandle::getGeneralOpt(msg_struct_t msg_struct)
 {
@@ -781,36 +781,35 @@ msg_error_t MsgHandle::getGeneralOpt(msg_struct_t msg_struct)
 	MSG_TYPE_CHECK(general_opt->type, MSG_STRUCT_SETTING_GENERAL_OPT);
 	MSG_NULL_CHECK(general_opt->data);
 
-	// Allocate Memory to Command Data
+	/* Allocate Memory to Command Data */
 	int cmdSize = sizeof(MSG_CMD_S) + sizeof(MSG_OPTION_TYPE_T);
 
 	char cmdBuf[cmdSize];
 	bzero(cmdBuf, cmdSize);
 	MSG_CMD_S* pCmd = (MSG_CMD_S*)cmdBuf;
 
-	// Set Command Parameters
+	/* Set Command Parameters */
 	pCmd->cmdType = MSG_CMD_GET_GENERAL_MSG_OPT;
 
-	// Set option type
+	/* Set option type */
 	MSG_OPTION_TYPE_T opt_type = MSG_GENERAL_OPT;
 
-	// Copy Cookie
+	/* Copy Cookie */
 	memcpy(pCmd->cmdCookie, mCookie, MAX_COOKIE_LEN);
 
-	// Copy Command Data
+	/* Copy Command Data */
 	memcpy((void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN), &opt_type, sizeof(MSG_OPTION_TYPE_T));
 
-	// Send Command to Messaging FW
+	/* Send Command to Messaging FW */
 	char* pEventData = NULL;
 	unique_ptr<char*, void(*)(char**)> eventBuf(&pEventData, unique_ptr_deleter);
 
 	write((char*)pCmd, cmdSize, &pEventData);
 
-	// Get Return Data
+	/* Get Return Data */
 	MSG_EVENT_S* pEvent = (MSG_EVENT_S*)pEventData;
 
-	if (pEvent->eventType != MSG_EVENT_GET_GENERAL_MSG_OPT)
-	{
+	if (pEvent->eventType != MSG_EVENT_GET_GENERAL_MSG_OPT) {
 		THROW(MsgException::INVALID_RESULT, "Event Data Error");
 	}
 
@@ -821,13 +820,14 @@ msg_error_t MsgHandle::getGeneralOpt(msg_struct_t msg_struct)
 	return pEvent->result;
 }
 
+
 msg_error_t MsgHandle::setGeneralOpt(msg_struct_t msg_struct)
 {
 	msg_struct_s *general_opt = (msg_struct_s *)msg_struct;
 	MSG_TYPE_CHECK(general_opt->type, MSG_STRUCT_SETTING_GENERAL_OPT);
 	MSG_NULL_CHECK(general_opt->data);
 
-	// Allocate Memory to Command Data
+	/* Allocate Memory to Command Data */
 	MSG_OPTION_TYPE_T optionType = MSG_GENERAL_OPT;
 	int cmdSize = getSettingCmdSize(optionType);
 
@@ -835,37 +835,37 @@ msg_error_t MsgHandle::setGeneralOpt(msg_struct_t msg_struct)
 	bzero(cmdBuf, cmdSize);
 	MSG_CMD_S* pCmd = (MSG_CMD_S*)cmdBuf;
 
-	// Set Command Parameters
+	/* Set Command Parameters */
 	pCmd->cmdType = MSG_CMD_SET_GENERAL_MSG_OPT;
 
-	// Copy Cookie
+	/* Copy Cookie */
 	memcpy(pCmd->cmdCookie, mCookie, MAX_COOKIE_LEN);
 
-	// Copy Command Data
+	/* Copy Command Data */
 	MSG_SETTING_S pSetting = {0,};
 	pSetting.type = optionType;
 
 	memcpy(&(pSetting.option.generalOpt), general_opt->data, sizeof(MSG_GENERAL_OPT_S));
 
-    // Copy Command Data
-    memcpy(pCmd->cmdData, &pSetting, cmdSize-sizeof(MSG_CMD_S));
+	/* Copy Command Data */
+	memcpy(pCmd->cmdData, &pSetting, cmdSize-sizeof(MSG_CMD_S));
 
-	// Send Command to Messaging FW
+	/* Send Command to Messaging FW */
 	char* pEventData = NULL;
 	unique_ptr<char*, void(*)(char**)> eventBuf(&pEventData, unique_ptr_deleter);
 
 	write((char*)pCmd, cmdSize, &pEventData);
 
-	// Get Return Data
+	/* Get Return Data */
 	MSG_EVENT_S* pEvent = (MSG_EVENT_S*)pEventData;
 
-	if (pEvent->eventType != MSG_EVENT_SET_GENERAL_MSG_OPT)
-	{
+	if (pEvent->eventType != MSG_EVENT_SET_GENERAL_MSG_OPT) {
 		THROW(MsgException::INVALID_RESULT, "Event Data Error");
 	}
 
 	return pEvent->result;
 }
+
 
 msg_error_t MsgHandle::getMsgSizeOpt(msg_struct_t msg_struct)
 {
@@ -873,36 +873,35 @@ msg_error_t MsgHandle::getMsgSizeOpt(msg_struct_t msg_struct)
 	MSG_TYPE_CHECK(msg_size_opt->type, MSG_STRUCT_SETTING_MSGSIZE_OPT);
 	MSG_NULL_CHECK(msg_size_opt->data);
 
-	// Allocate Memory to Command Data
+	/* Allocate Memory to Command Data */
 	int cmdSize = sizeof(MSG_CMD_S) + sizeof(MSG_OPTION_TYPE_T);
 
 	char cmdBuf[cmdSize];
 	bzero(cmdBuf, cmdSize);
 	MSG_CMD_S* pCmd = (MSG_CMD_S*)cmdBuf;
 
-	// Set Command Parameters
+	/* Set Command Parameters */
 	pCmd->cmdType = MSG_CMD_GET_MSG_SIZE_OPT;
 
-	// Set option type
+	/* Set option type */
 	MSG_OPTION_TYPE_T opt_type = MSG_MSGSIZE_OPT;
 
-	// Copy Cookie
+	/* Copy Cookie */
 	memcpy(pCmd->cmdCookie, mCookie, MAX_COOKIE_LEN);
 
-	// Copy Command Data
+	/* Copy Command Data */
 	memcpy((void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN), &opt_type, sizeof(MSG_OPTION_TYPE_T));
 
-	// Send Command to Messaging FW
+	/* Send Command to Messaging FW */
 	char* pEventData = NULL;
 	unique_ptr<char*, void(*)(char**)> eventBuf(&pEventData, unique_ptr_deleter);
 
 	write((char*)pCmd, cmdSize, &pEventData);
 
-	// Get Return Data
+	/* Get Return Data */
 	MSG_EVENT_S* pEvent = (MSG_EVENT_S*)pEventData;
 
-	if (pEvent->eventType != MSG_EVENT_GET_MSG_SIZE_OPT)
-	{
+	if (pEvent->eventType != MSG_EVENT_GET_MSG_SIZE_OPT) {
 		THROW(MsgException::INVALID_RESULT, "Event Data Error");
 	}
 
@@ -913,13 +912,14 @@ msg_error_t MsgHandle::getMsgSizeOpt(msg_struct_t msg_struct)
 	return pEvent->result;
 }
 
+
 msg_error_t MsgHandle::setMsgSizeOpt(msg_struct_t msg_struct)
 {
 	msg_struct_s *msg_size_opt = (msg_struct_s *)msg_struct;
 	MSG_TYPE_CHECK(msg_size_opt->type, MSG_STRUCT_SETTING_MSGSIZE_OPT);
 	MSG_NULL_CHECK(msg_size_opt->data);
 
-	// Allocate Memory to Command Data
+	/* Allocate Memory to Command Data */
 	MSG_OPTION_TYPE_T optionType = MSG_MSGSIZE_OPT;
 	int cmdSize = getSettingCmdSize(optionType);
 
@@ -927,32 +927,31 @@ msg_error_t MsgHandle::setMsgSizeOpt(msg_struct_t msg_struct)
 	bzero(cmdBuf, cmdSize);
 	MSG_CMD_S* pCmd = (MSG_CMD_S*)cmdBuf;
 
-	// Set Command Parameters
+	/* Set Command Parameters */
 	pCmd->cmdType = MSG_CMD_SET_MSG_SIZE_OPT;
 
-	// Copy Cookie
+	/* Copy Cookie */
 	memcpy(pCmd->cmdCookie, mCookie, MAX_COOKIE_LEN);
 
-	// Copy Command Data
+	/* Copy Command Data */
 	MSG_SETTING_S pSetting = {0,};
 	pSetting.type = optionType;
 
 	memcpy(&(pSetting.option.msgSizeOpt), msg_size_opt->data, sizeof(MSG_MSGSIZE_OPT_S));
 
-    // Copy Command Data
-    memcpy(pCmd->cmdData, &pSetting, cmdSize-sizeof(MSG_CMD_S));
+	/* Copy Command Data */
+	memcpy(pCmd->cmdData, &pSetting, cmdSize-sizeof(MSG_CMD_S));
 
-	// Send Command to Messaging FW
+	/* Send Command to Messaging FW */
 	char* pEventData = NULL;
 	unique_ptr<char*, void(*)(char**)> eventBuf(&pEventData, unique_ptr_deleter);
 
 	write((char*)pCmd, cmdSize, &pEventData);
 
-	// Get Return Data
+	/* Get Return Data */
 	MSG_EVENT_S* pEvent = (MSG_EVENT_S*)pEventData;
 
-	if (pEvent->eventType != MSG_EVENT_SET_MSG_SIZE_OPT)
-	{
+	if (pEvent->eventType != MSG_EVENT_SET_MSG_SIZE_OPT) {
 		THROW(MsgException::INVALID_RESULT, "Event Data Error");
 	}
 

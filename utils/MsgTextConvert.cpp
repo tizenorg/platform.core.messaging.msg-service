@@ -521,60 +521,6 @@ int MsgTextConvert::convertUTF8ToUCS2(OUT unsigned char *pDestText, IN int maxLe
 	return ucs2Length;
 }
 
-#ifndef FEATURE_SMS_CDMA
-int MsgTextConvert::convertUTF8ToAuto(OUT unsigned char *pDestText, IN int maxLength,  IN const unsigned char *pSrcText, IN int srcTextLen, OUT MSG_LANGUAGE_ID_T *pLangId, OUT msg_encode_type_t *pCharType)
-{
-	int utf8Length = 0;
-	int gsm7bitLength = 0;
-	int ucs2Length = 0;
-
-	bool bUnknown = false;
-
-	utf8Length = srcTextLen;
-
-	int maxUCS2Length = utf8Length;		// max # of UCS2 chars, NOT bytes. when all utf8 chars are only one byte, UCS2Length is maxUCS2 Length. otherwise (ex: 2 bytes of UTF8 is one char) UCS2Length must be  less than utf8Length
-	WCHAR pUCS2Text[maxUCS2Length];
-	memset(pUCS2Text, 0x00, maxUCS2Length * sizeof(WCHAR));
-
-	MSG_DEBUG("srcTextLen = %d", srcTextLen);
-	MSG_DEBUG("temp buffer size = %d", maxUCS2Length * sizeof(WCHAR));
-	MSG_DEBUG("max dest Length = %d", maxLength);
-
-	ucs2Length = convertUTF8ToUCS2((unsigned char*)pUCS2Text, maxUCS2Length * sizeof(WCHAR), pSrcText, srcTextLen);
-
-	if(ucs2Length < 0) {
-		*pCharType = MSG_ENCODE_8BIT;
-
-		if (srcTextLen <= maxLength) {
-			memcpy(pDestText, pSrcText, srcTextLen);
-			return srcTextLen;
-		} else {
-			memcpy(pDestText, pSrcText, maxLength);
-			return maxLength;
-		}
-	} else {
-		gsm7bitLength = convertUCS2ToGSM7bit(pDestText, maxLength, (unsigned char*)pUCS2Text, ucs2Length, pLangId, &bUnknown);
-
-		if (bUnknown == true) {
-			*pCharType = MSG_ENCODE_UCS2;
-
-			if (ucs2Length > 0) {
-				if(ucs2Length <= maxLength) {
-					memcpy(pDestText, pUCS2Text, ucs2Length);
-					return ucs2Length;
-				} else {
-					memcpy(pDestText, pUCS2Text, maxLength);
-					return maxLength;
-				}
-			}
-		} else {
-			*pCharType = MSG_ENCODE_GSM7BIT;
-		}
-
-		return gsm7bitLength;
-	}
-}
-#else
 
 int MsgTextConvert::convertUTF8ToAuto(OUT unsigned char *pDestText, IN int maxLength,  IN const unsigned char *pSrcText, IN int srcTextLen, OUT msg_encode_type_t *pCharType)
 {
@@ -607,7 +553,11 @@ int MsgTextConvert::convertUTF8ToAuto(OUT unsigned char *pDestText, IN int maxLe
 			return maxLength;
 		}
 	} else {
+#ifndef FEATURE_SMS_CDMA
+		gsm7bitLength = convertUCS2ToGSM7bitAuto(pDestText, maxLength, (unsigned char*)pUCS2Text, ucs2Length, &bUnknown);
+#else
 		gsm7bitLength = convertUCS2ToASCII(pDestText, maxLength, (unsigned char*)pUCS2Text, ucs2Length, &bUnknown);
+#endif
 
 		if (bUnknown == true) {
 			*pCharType = MSG_ENCODE_UCS2;
@@ -622,13 +572,17 @@ int MsgTextConvert::convertUTF8ToAuto(OUT unsigned char *pDestText, IN int maxLe
 				}
 			}
 		} else {
+#ifndef FEATURE_SMS_CDMA
+			*pCharType = MSG_ENCODE_GSM7BIT;
+#else
 			*pCharType = MSG_ENCODE_ASCII7BIT;
+#endif
 		}
 
 		return gsm7bitLength;
 	}
 }
-#endif
+
 
 /**
 return:
@@ -983,7 +937,72 @@ int MsgTextConvert::convertUCS2ToGSM7bit(OUT unsigned char *pDestText, IN int ma
 	return outTextLen;
 }
 
+#ifndef FEATURE_SMS_CDMA
+int MsgTextConvert::convertUCS2ToGSM7bitAuto(OUT unsigned char *pDestText, IN int maxLength, IN const unsigned char *pSrcText, IN int srcTextLen, OUT bool *pUnknown)
+{
+	// for UNICODE
+	int outTextLen = 0;
+	unsigned char lowerByte, upperByte;
 
+	if (srcTextLen == 0 || pSrcText == NULL || pDestText ==  NULL || maxLength == 0) {
+		MSG_DEBUG("UCS2 to GSM7bit Failed as text length is 0\n");
+		return -1;
+	}
+
+	std::map<unsigned short, unsigned char>::iterator itChar;
+	std::map<unsigned short, unsigned char>::iterator itExt;
+
+	unsigned short inText;
+
+	for (int index = 0; index < srcTextLen; index++)
+	{
+		upperByte = pSrcText[index++];
+		lowerByte = pSrcText[index];
+
+		inText = (upperByte << 8) & 0xFF00;
+		inText = inText | lowerByte;
+
+		// Check Default Char
+		itChar = ucs2toGSM7DefList.find(inText);
+
+		if (itChar != ucs2toGSM7DefList.end()) {
+			pDestText[outTextLen++] = (unsigned char)itChar->second;
+		} else {
+			itExt = ucs2toGSM7ExtList.find(inText);
+
+			if (itExt != ucs2toGSM7ExtList.end()) {
+				// prevent buffer overflow
+				if (maxLength <= outTextLen + 1) {
+					MSG_DEBUG("Buffer Full.");
+					break;
+				}
+
+				pDestText[outTextLen++] = 0x1B;
+				pDestText[outTextLen++] = (unsigned char)itExt->second;
+			} else {
+				MSG_DEBUG("Abnormal character is included. inText : [%04x]", inText);
+				*pUnknown = true;
+				return 0;
+			}
+		}
+
+		// prevent buffer overflow
+		if (maxLength <= outTextLen) {
+			MSG_DEBUG("Buffer full\n");
+			break;
+		}
+	}
+
+#ifdef CONVERT_DUMP
+	MSG_DEBUG("\n########## Dump UCS2 -> GSM7bit\n");
+	convertDumpTextToHex((unsigned char*)pSrcText, srcTextLen);
+	convertDumpTextToHex((unsigned char*)pDestText, outTextLen);
+#endif
+
+	return outTextLen;
+}
+
+#else
 int MsgTextConvert::convertUCS2ToASCII(OUT unsigned char *pDestText, IN int maxLength, IN const unsigned char *pSrcText, IN int srcTextLen, OUT bool *pUnknown)
 {
 	// for UNICODE
@@ -1033,7 +1052,7 @@ int MsgTextConvert::convertUCS2ToASCII(OUT unsigned char *pDestText, IN int maxL
 
 	return outTextLen;
 }
-
+#endif
 
 /**
  args :

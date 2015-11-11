@@ -26,10 +26,10 @@ typedef int MmsMsgID;
 
 typedef enum {
 	MSG_PRESENTATION_NONE = -1,
-	MSG_PRESENTATION_FIRSTPART,		//Content-type == type parameter
-	MSG_PRESENTATION_TYPE_BASE,		//Content-type == type parameter
-	MSG_PRESENTATION_LOCATION,		//Content-Location == start parameter
-	MSG_PRESENTATION_ID,			//Content-ID == start parameter
+	MSG_PRESENTATION_FIRSTPART,		/* Content-type == type parameter */
+	MSG_PRESENTATION_TYPE_BASE,		/* Content-type == type parameter */
+	MSG_PRESENTATION_LOCATION,		/* Content-Location == start parameter */
+	MSG_PRESENTATION_ID,			/* Content-ID == start parameter */
 } MsgPresentationFactor;
 
 typedef struct {
@@ -43,14 +43,14 @@ struct _MsgHeaderAddress {
 	MsgHeaderAddress *pNext;
 };
 
-// for Decoding & Encoding
+/* for Decoding & Encoding */
 typedef struct {
 	MmsMsgType type;
 	char szTrID[MMS_TR_ID_LEN+1];
 	UINT8 version;
 	UINT32 date;
 
-	MsgHeaderAddress *pFrom;		//"/TYPE=PLMN", /"TYPE=IPv4", "/TYPE=IPv6"
+	MsgHeaderAddress *pFrom;		/* "/TYPE=PLMN", /"TYPE=IPv4", "/TYPE=IPv6" */
 	MsgHeaderAddress *pTo;
 	MsgHeaderAddress *pCc;
 	MsgHeaderAddress *pBcc;
@@ -75,13 +75,13 @@ typedef struct {
 
 	MmsReplyCharge replyCharge;
 
-	// only used at Decoding module
+	/* only used at Decoding module */
 	char szMsgID[MMS_MSG_ID_LEN + 1];
 	UINT32 msgSize;
 
 	MsgDrmType drmType;
 
-	// dependent to Client implementation
+	/* dependent to Client implementation */
 	MsgType msgType;
 	MsgBody msgBody;
 } MmsHeader;
@@ -120,4 +120,4 @@ private:
 	~MmsPluginDecoder();
 
 };
-#endif //MMS_PLUGIN_DECODE_H
+#endif /* MMS_PLUGIN_DECODE_H */

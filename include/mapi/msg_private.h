@@ -38,9 +38,9 @@
 #define CHECK_MSG_SUPPORTED(feature_name) \
 	do { \
 		bool bSupported = false; \
-		bSupported = MsgCheckFeatureSupport(feature_name); \
+		bSupported = MsgCheckFeatureSupport((feature_name)); \
 		if (bSupported == false) {\
-			MSG_ERR("Feature [%s] not supported", feature_name);\
+			MSG_ERR("Feature [%s] not supported", (feature_name));\
 			return MSG_ERR_NOT_SUPPORTED; \
 		} \
 	} while(0)
@@ -48,9 +48,9 @@
 #define CHECK_MSG_SUPPORTED_RETURN_NULL(feature_name) \
 	do { \
 		bool bSupported = false; \
-		bSupported = MsgCheckFeatureSupport(feature_name); \
+		bSupported = MsgCheckFeatureSupport((feature_name)); \
 		if (bSupported == false) {\
-			MSG_ERR("Feature [%s] not supported", feature_name);\
+			MSG_ERR("Feature [%s] not supported", (feature_name));\
 			return NULL; \
 		} \
 	} while(0)
@@ -59,7 +59,7 @@
 									 FUNCTION PROTOTYPES
 ==================================================================================================*/
 
-// message
+/* message */
 void msg_message_create_struct(msg_struct_s *msg_struct);
 int msg_message_release(msg_struct_s **msg_struct);
 
@@ -84,8 +84,7 @@ int msg_message_list_clear(msg_struct_t msg_struct_handle, int field);
 
 
 
-
-// filter
+/* filter */
 int msg_get_filter_info_bool(void *filter, int field, bool *value);
 int msg_get_filter_info_int(void *filter, int field, int *value);
 int msg_get_filter_info_str(void *filter, int field, char *value, int size);
@@ -94,7 +93,7 @@ int msg_set_filter_info_int(void *filter, int field, int value);
 int msg_set_filter_info_str(void *filter, int field, char *value, int size);
 
 
-// mms
+/* mms */
 msg_struct_s *msg_mms_create_struct(int field);
 void *msg_mms_create_struct_data(int field);
 int msg_mms_release_struct(msg_struct_s **msg_struct_data);
@@ -114,7 +113,9 @@ int msg_mms_list_append(msg_struct_t msg_struct_handle, int field, msg_struct_t 
 
 void convert_to_hidden_mmsdata(MMS_DATA_S *pSrc, msg_struct_s *pDest);
 void convert_from_hidden_mmsdata(msg_struct_s *pSrc, MMS_DATA_S *pDest);
-// setting
+
+
+/* setting */
 int msg_setting_get_int_value(msg_struct_s *msg_struct, int field, int *value);
 int msg_setting_get_str_value(msg_struct_s *msg_struct, int field, char *src, int size);
 int msg_setting_get_bool_value(msg_struct_s *msg_struct, int field, bool *value);

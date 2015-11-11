@@ -49,6 +49,7 @@ int MsgSubmitReqHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 		return 0;
 	}
 
+	int ret[3];
 	int eventSize = 0;
 
 	MSG_REQUEST_INFO_S reqInfo = {0,};
@@ -121,8 +122,12 @@ int MsgSubmitReqHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 		tm->setJavaMMSList(&trId);
 	}
 
+		ret[0] = reqId;
+		ret[1] = reqInfo.msgInfo.msgId;
+		ret[2] = reqInfo.msgInfo.threadId;
+
 	// Make Event Data
-	eventSize = MsgMakeEvent(&reqId, sizeof(reqId), MSG_EVENT_SUBMIT_REQ, err, (void**)ppEvent);
+	eventSize = MsgMakeEvent(ret, sizeof(ret), MSG_EVENT_SUBMIT_REQ, err, (void**)ppEvent);
 
 	/* reject_msg_support */
 	if (((reqInfo.msgInfo.msgType.subType == MSG_NOTIFYRESPIND_MMS) &&
@@ -171,7 +176,7 @@ int MsgRegSentStatusCallbackHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 
 	// Get Message Request
 	int listenerFd = 0;
-	memcpy(&listenerFd, pCmd->cmdData, sizeof(int));
+	memcpy(&listenerFd, (void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN), sizeof(int));
 	MSG_DEBUG("Registering sent status CB for %d", listenerFd);
 
 	// storing dst fd in list
@@ -350,7 +355,7 @@ int MsgRegStorageChangeCallbackHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 
 	// Get Message Request
 	int listenerFd = 0;
-	memcpy(&listenerFd, pCmd->cmdData, sizeof(int));
+	memcpy(&listenerFd, (void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN), sizeof(int));
 	MSG_DEBUG("Registering storage change CB for %d", listenerFd);
 
 	// storing dst fd in list
@@ -373,7 +378,7 @@ int MsgRegIncomingReportMsgCallbackHandler(const MSG_CMD_S *pCmd, char **ppEvent
 
 	// Get Message Request
 	int listenerFd = 0;
-	memcpy(&listenerFd, pCmd->cmdData, sizeof(int));
+	memcpy(&listenerFd, (void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN), sizeof(int));
 	MSG_DEBUG("Registering report msg incoming CB for %d", listenerFd);
 
 	// storing dst fd in list
@@ -578,10 +583,12 @@ int MsgIncomingMMSConfMsgHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 
 	if (msgInfo.msgType.subType == MSG_RETRIEVE_AUTOCONF_MMS || msgInfo.msgType.subType == MSG_RETRIEVE_MANUALCONF_MMS) {
 
-		/* PLM P141008-05143 : Notification.Ind address is 1, but MMS retreived Conf address is correct.
-		So adding code for comparing exist address and new address and replace with new address(MMSconf) address */
-		if (msgInfo.nAddressCnt == 1 && msgInfo.networkStatus == MSG_NETWORK_RETRIEVE_SUCCESS && (g_strcmp0(tmpAddr->addressVal, msgInfo.addressList[0].addressVal) != 0)) {
-			MSG_WARN("Address of NotiInd and MMSConf are different!!, Replace [NotiInd : %s] from [MMSConf : %s]", tmpAddr->addressVal, msgInfo.addressList[0].addressVal);
+		/* PLM P141008-05143 & P150710-01521 : Notification.Ind address and MMS retreived Conf address are different.
+		    Replace Notification.Ind address with MMS retreived Conf address if and only if MMS retreived Conf address is a valid address not junk*/
+		if (msgInfo.nAddressCnt == 1 && msgInfo.networkStatus == MSG_NETWORK_RETRIEVE_SUCCESS && MsgIsNumber(msgInfo.addressList[0].addressVal)
+			&& strlen(msgInfo.addressList[0].addressVal) >= (unsigned int)MsgContactGetMinMatchDigit() && msgInfo.addressList[0].addressType != MSG_ADDRESS_TYPE_EMAIL
+			&& (g_strcmp0(tmpAddr->addressVal, msgInfo.addressList[0].addressVal) != 0)) {
+			MSG_WARN("Address of NotiInd and MMSConf are different!!, Replace [NotiInd address: %s] from [MMSConf address: %s]", tmpAddr->addressVal, msgInfo.addressList[0].addressVal);
 			memset(tmpAddr->addressVal, 0x00, MAX_ADDRESS_VAL_LEN);
 			strncpy(tmpAddr->addressVal, msgInfo.addressList[0].addressVal, MAX_ADDRESS_VAL_LEN);
 		}
@@ -682,6 +689,7 @@ __BYPASS_UPDATE:
 		} else {
 			MSG_DEBUG("message-dialog: send success");
 
+#if 0 // disabled as per UX request to not show success notification : 2015. 09. 18
 			bool bTTS = false;
 
 			if (MsgSettingGetBool(VCONFKEY_SETAPPL_ACCESSIBILITY_TTS, &bTTS) != MSG_SUCCESS) {
@@ -692,6 +700,7 @@ __BYPASS_UPDATE:
 				MsgInsertTicker("Multimedia message sent.", MULTIMEDIA_MESSAGE_SENT, false, 0);
 			}
 
+#endif
 #ifndef MSG_CONTACTS_SERVICE_NOT_SUPPORTED
 			MSG_SEC_DEBUG("Enter MsgAddPhoneLog() : msgInfo.addressList[0].addressVal [%s]", msgInfo.addressList[0].addressVal);
 			MsgAddPhoneLog(&msgInfo);
@@ -797,8 +806,19 @@ int MsgIncomingCBMsgHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 		MSG_DEBUG("MsgStoAddCBMsg is fail");
 	}
 
-	MsgInsertNotification(&msgInfo);
-	MsgChangePmState();
+	if (msgInfo.msgType.classType == MSG_CLASS_0) {
+		MsgLaunchClass0(msgInfo.msgId);
+		bool isFavorites = false;
+		if (!checkBlockingMode(msgInfo.addressList[0].addressVal, &isFavorites)) {
+			MsgPlayTTSMode(msgInfo.msgType.subType, msgInfo.msgId, isFavorites);
+			MsgSoundPlayer::instance()->MsgSoundPlayStart(&(msgInfo.addressList[0]), MSG_SOUND_PLAY_USER);
+		}
+	} else {
+		MsgInsertNotification(&msgInfo);
+	}
+
+	if (MsgCheckNotificationSettingEnable())
+		MsgChangePmState();
 
 	msg_id_list_s msgIdList;
 	msg_message_id_t msgIds[1];
@@ -920,38 +940,35 @@ int MsgStorageChangeHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 		return 0;
 	}
 
+	msg_id_list_s msgIdList;
+	memset(&msgIdList, 0x00, sizeof(msg_id_list_s));
 	msg_storage_change_type_t storageChangeType;
 
-	MSG_MESSAGE_INFO_S msgInfo;
-	memset(&msgInfo, 0x00, sizeof(MSG_MESSAGE_INFO_S));
+	memcpy(&msgIdList.nCount, (void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN), sizeof(int));
 
-	memcpy(&msgInfo, (void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN), sizeof(MSG_MESSAGE_INFO_S));
-	memcpy(&storageChangeType, (void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN+sizeof(MSG_MESSAGE_INFO_S)), sizeof(msg_storage_change_type_t));
+	msgIdList.msgIdList = new msg_message_id_t[msgIdList.nCount];
+	for (int i = 0; i < msgIdList.nCount; i++) {
+		memcpy(&msgIdList.msgIdList[i], (void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN+sizeof(int)+i*sizeof(msg_message_id_t)), sizeof(msg_message_id_t));
+	}
+
+	memcpy(&storageChangeType, (void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN+sizeof(int)+(sizeof(msg_message_id_t)*msgIdList.nCount)), sizeof(msg_storage_change_type_t));
 
 	char* encodedData = NULL;
 	unique_ptr<char*, void(*)(char**)> buf(&encodedData, unique_ptr_deleter);
 
 	int eventSize = 0;
 
-	MSG_DEBUG("storageChangeType : [%d], msg Id : [%d]", storageChangeType, msgInfo.msgId);
-
-	if (msgInfo.msgType.mainType == MSG_TYPE_SMS) {
-		if (storageChangeType == MSG_STORAGE_CHANGE_UPDATE)
-			MsgStoUpdateMessage(&msgInfo, NULL);
-		else if (storageChangeType == MSG_STORAGE_CHANGE_DELETE)
-			MsgStoDeleteMessage(msgInfo.msgId, true);
+	MSG_DEBUG("msgIdList.nCount [%d]", msgIdList.nCount);
+	for (int i = 0; i < msgIdList.nCount; i++) {
+		MSG_DEBUG("storageChangeType : [%d], msg Id : [%d]", storageChangeType, msgIdList.msgIdList[i]);
 	}
 
 	// broadcast to listener threads, here
-	msg_id_list_s msgIdList;
-	msg_message_id_t msgIds[1];
-	memset(&msgIdList, 0x00, sizeof(msg_id_list_s));
-
-	msgIdList.nCount = 1;
-	msgIds[0] = msgInfo.msgId;
-	msgIdList.msgIdList = msgIds;
-
 	MsgTransactionManager::instance()->broadcastStorageChangeCB(MSG_SUCCESS, storageChangeType, &msgIdList);
+
+	if (msgIdList.msgIdList) {
+		delete [] msgIdList.msgIdList;
+	}
 
 	// Make Event Data to Client
 	eventSize = MsgMakeEvent(NULL, 0, MSG_EVENT_PLG_STORAGE_CHANGE_IND, MSG_SUCCESS, (void**)ppEvent);
@@ -992,7 +1009,19 @@ int MsgResendMessageHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 			MSG_DEBUG("MsgStoGetMessage() Error!! [%d]", err);
 		}
 
-		reqInfo.msgInfo.networkStatus = MSG_NETWORK_SENDING;
+		if (reqInfo.msgInfo.msgType.subType ==  MSG_GET_MMS || \
+				reqInfo.msgInfo.msgType.subType  == MSG_NOTIFICATIONIND_MMS || \
+				reqInfo.msgInfo.msgType.subType  == MSG_RETRIEVE_MMS)
+		{
+			MSG_WARN("retrieve pending id[%d]", reqInfo.msgInfo.msgId);
+			/* For retrieving failed msg (MMS)*/
+			reqInfo.msgInfo.msgType.subType = MSG_RETRIEVE_MMS;
+			reqInfo.msgInfo.folderId = MSG_OUTBOX_ID; // outbox fixed
+			reqInfo.msgInfo.networkStatus = MSG_NETWORK_RETRIEVING;
+		} else {
+			/* For sending failed msg */
+			reqInfo.msgInfo.networkStatus = MSG_NETWORK_SENDING;
+		}
 
 		msg_id_list_s msgIdList;
 		msg_message_id_t msgIds[1];

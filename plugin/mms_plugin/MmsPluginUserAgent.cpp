@@ -124,7 +124,7 @@ void PRINT_QUEUE_ENTITY(mmsTranQEntity *entity)
 	MSG_DEBUG("Entity: eMmsPduType: %d", entity->eMmsPduType);
 	MSG_DEBUG("Entity: eHttpCmdType: %d", entity->eHttpCmdType);
 	MSG_DEBUG("Entity: GetLen: %d", entity->getDataLen);
-	MSG_DEBUG("Entity: GetData: (%s)", entity->pGetData);
+	MSG_SEC_DEBUG("Entity: GetData: (%s)", entity->pGetData);
 	MSG_DEBUG("Entity: postLen: %d", entity->postDataLen);
 	MSG_DEBUG("Entity: pPostData: (%s)", entity->pPostData);
 }
@@ -227,7 +227,7 @@ MmsPluginUaManager *MmsPluginUaManager::instance()
 
 void MmsPluginUaManager::start()
 {
-//	bool bStart = true;
+/*	bool bStart = true; */
 
 	MutexLocker lock(mx);
 
@@ -247,6 +247,7 @@ MMS_NET_ERROR_T MmsPluginUaManager::submitHandler(mmsTranQEntity *qEntity)
 	char *http_url = NULL;
 	const char *home_url = NULL;
 	const char *proxy_addr = NULL;
+	const char *dns_list = NULL;
 	const char *interfaceName = NULL;
 	bool cm_ret;
 
@@ -267,6 +268,10 @@ MMS_NET_ERROR_T MmsPluginUaManager::submitHandler(mmsTranQEntity *qEntity)
 	if (cm_ret == false)
 		return eMMS_EXCEPTIONAL_ERROR;
 
+	cm_ret = MmsPluginCmAgent::instance()->getDnsAddrList(&dns_list);
+	if (cm_ret == false)
+		return eMMS_EXCEPTIONAL_ERROR;
+
 	memset(&request_info, 0x00, sizeof(request_info));
 
 	if (qEntity->eHttpCmdType == eHTTP_CMD_POST_TRANSACTION) {
@@ -276,6 +281,8 @@ MMS_NET_ERROR_T MmsPluginUaManager::submitHandler(mmsTranQEntity *qEntity)
 		request_info.url = home_url;
 
 		request_info.proxy = proxy_addr;
+
+		request_info.dns_list = dns_list;
 
 		request_info.interface = interfaceName;
 
@@ -294,6 +301,8 @@ MMS_NET_ERROR_T MmsPluginUaManager::submitHandler(mmsTranQEntity *qEntity)
 		request_info.url = http_url;
 
 		request_info.proxy = proxy_addr;
+
+		request_info.dns_list = dns_list;
 
 		request_info.interface = interfaceName;
 	}
@@ -314,8 +323,14 @@ MMS_NET_ERROR_T MmsPluginUaManager::submitHandler(mmsTranQEntity *qEntity)
 		qEntity->getDataLen = request_info.response_data_len;
 		ret = eMMS_SUCCESS;
 	} else {
-		MSG_DEBUG("Unexpected Error http_ret = [%d]", http_ret);
-		ret = eMMS_HTTP_ERROR_NETWORK;
+		bool cm_status = MmsPluginCmAgent::instance()->getCmStatus();
+		if (cm_status == false) {
+			MSG_INFO("PDP disconnected while MMS transaction in progress. cm status [%d]", cm_status);
+			ret = eMMS_CM_DISCONNECTED;
+		} else {
+			MSG_DEBUG("Unexpected Error http_ret = [%d]", http_ret);
+			ret = eMMS_HTTP_ERROR_NETWORK;
+		}
 	}
 
 	if (http_url)
@@ -343,16 +358,15 @@ void MmsPluginUaManager::run()
 		}
 		unlock();
 
-		// Request CM Open
+		/* Request CM Open */
 		if (!(cmAgent->open())) {
 			MSG_FATAL("Cm Open Failed");
-			// delete all request from reqQEntities
+			/* delete all request from reqQEntities */
 			lock();
 			int qSize = mmsTranQ.size();
 			unlock();
 			if (qSize > 0) {
-				MSG_DEBUG("CLEANUP");
-				MSG_DEBUG("clear mmsTranQ");
+				MSG_DEBUG("remove an entity from mmsTranQ");
 
 				mmsTranQEntity reqEntity;
 				memset(&reqEntity, 0, sizeof(mmsTranQEntity));
@@ -360,7 +374,7 @@ void MmsPluginUaManager::run()
 				lock();
 				mmsTranQ.front(&reqEntity);
 				unlock();
-				// notify send fail to APP
+				/* notify send fail to APP */
 				MmsPluginEventHandler::instance()->handleMmsError(&reqEntity);
 
 				if (reqEntity.pGetData) {
@@ -376,13 +390,11 @@ void MmsPluginUaManager::run()
 				}
 				lock();
 				mmsTranQ.remove(reqEntity, compare_func_for_removal);
-				//mmsTranQ.pop_front();
+/*				mmsTranQ.pop_front(); */
 				unlock();
 			}
-			lock();
-			running = false;
-			unlock();
-			break;
+
+			continue;
 		}
 
 		bool transaction = true;
@@ -407,20 +419,22 @@ void MmsPluginUaManager::run()
 
 			PRINT_QUEUE_ENTITY(&reqEntity);
 
-			// MMS Transaction
+			/* MMS Transaction */
 			MSG_DEBUG("\n\n ===================  MMS Transaction Start ========================");
 
 			do {
 
-				if (submitHandler(&reqEntity) != eMMS_SUCCESS) {
+				MMS_NET_ERROR_T mms_net_status = submitHandler(&reqEntity);
+				reqEntity.eMmsTransactionStatus = mms_net_status;
+				if (mms_net_status != eMMS_SUCCESS) {
 					MSG_DEBUG("Transaction Error: submit failed");
 
 					MmsPluginEventHandler::instance()->handleMmsError(&reqEntity);
 					lock();
 					mmsTranQ.remove(reqEntity, compare_func_for_removal);
-					//mmsTranQ.pop_front();
+/*					mmsTranQ.pop_front(); */
 					unlock();
-					//try to next mmsTranQ
+					/* try to next mmsTranQ */
 					break;
 				}
 
@@ -435,19 +449,19 @@ void MmsPluginUaManager::run()
 					reqEntity.isCompleted = true;
 					lock();
 					mmsTranQ.remove(reqEntity, compare_func_for_removal);
-					//mmsTranQ.pop_front();
+/*					mmsTranQ.pop_front(); */
 					unlock();
 					MSG_DEBUG("Transaction Completed");
 					break;
 				} else {
-					// change MmsPduType from XXX.req to XXX.conf for waiting
+					/* change MmsPduType from XXX.req to XXX.conf for waiting */
 					MSG_DEBUG("Update Pdutype");
 					updatePduType(&reqEntity);
 					MSG_DEBUG("Waiting Conf");
 				}
 				lock();
 				mmsTranQ.remove(reqEntity, compare_func_for_removal);
-				//mmsTranQ.pop_front();
+/*				mmsTranQ.pop_front(); */
 				unlock();
 				//////// Waiting Conf //////////////////////
 				MMS_NET_ERROR_T networkErr;
@@ -456,7 +470,7 @@ void MmsPluginUaManager::run()
 					bool bReportAllowed;
 					char retrievedFilePath[MAX_FULL_PATH_SIZE+1] = {0,};
 
-					// process Http data
+					/* process Http data */
 					try {
 						if (processReceivedData(reqEntity.msgId, reqEntity.pGetData, reqEntity.getDataLen, retrievedFilePath) == false)	{
 							MmsPluginEventHandler::instance()->handleMmsError(&reqEntity);
@@ -498,21 +512,21 @@ void MmsPluginUaManager::run()
 					MSG_DEBUG("conf received successfully -2");
 					MSG_DEBUG("reqEntity.eMmsPduType [%d]", reqEntity.eMmsPduType);
 
-					// send NotifyResponseInd
+					/* send NotifyResponseInd */
 					if (reqEntity.eMmsPduType == eMMS_RETRIEVE_AUTO_CONF) {
 						char filepath[MAX_FULL_PATH_SIZE] = {0};
-						// change MmsPduType for ind or ack
-						// make the PDU and then attach to reqEntity also.
+						/* change MmsPduType for ind or ack */
+						/* make the PDU and then attach to reqEntity also. */
 						updatePduType(&reqEntity);
 
 						MSG_DEBUG("#### eMmsPduType:%d ####", reqEntity.eMmsPduType);
 
-						//update http command type & encode m-notify-response-ind
+						/* update http command type & encode m-notify-response-ind */
 						reqEntity.eHttpCmdType = eHTTP_CMD_POST_TRANSACTION;
 
 						try {
 							MmsPluginInternal::instance()->encodeNotifyRespInd(reqEntity.transactionId, MMS_MSGSTATUS_RETRIEVED, bReportAllowed, filepath);
-							//m-notification-resp-ind encoding	if err is not MSG_SUCCESS then should set x-mms-status to deferred
+							/* m-notification-resp-ind encoding	if err is not MSG_SUCCESS then should set x-mms-status to deferred */
 							if (MsgGetFileSize(filepath, &reqEntity.postDataLen) == false) {
 								MSG_DEBUG("MsgGetFileSize: failed");
 								break;
@@ -539,19 +553,17 @@ void MmsPluginUaManager::run()
 						}
 
 						MSG_DEBUG("Submit Ind");
-					}
-					else if (reqEntity.eMmsPduType == eMMS_RETRIEVE_MANUAL_CONF)
-					{
-						/* saved msg trId should be checked  */
-						// Send Acknowledge Ind
+					} else if (reqEntity.eMmsPduType == eMMS_RETRIEVE_MANUAL_CONF) {
+						/* saved msg trId should be checked
+						 * Send Acknowledge Ind */
 						char filepath[MAX_FULL_PATH_SIZE] = {0};
-						// change MmsPduType for ind or ack
-						// make the PDU and then attach to reqEntity also.
+						/* change MmsPduType for ind or ack
+						 * make the PDU and then attach to reqEntity also. */
 						updatePduType(&reqEntity);
 
 						MSG_DEBUG("#### eMmsPduType:%d ####", reqEntity.eMmsPduType);
 
-						//update http command type & encode m-notify-response-ind
+						/* update http command type & encode m-notify-response-ind */
 						reqEntity.eHttpCmdType = eHTTP_CMD_POST_TRANSACTION;
 
 						try {
@@ -577,7 +589,7 @@ void MmsPluginUaManager::run()
 						lock();
 						mmsTranQ.push_front(reqEntity);
 						unlock();
-						remove(filepath); // not ipc
+						remove(filepath); /* not ipc */
 
 						MSG_DEBUG("Submit Ack");
 					} else {
@@ -606,7 +618,7 @@ void MmsPluginUaManager::run()
 
 		}
 
-		// Request CM Close
+		/* Request CM Close */
 		cmAgent->close();
 
 	}
@@ -642,12 +654,11 @@ bool MmsPluginUaManager::processReceivedData(int msgId, char *pRcvdBody, int rcv
 {
 	MSG_BEGIN();
 
-	//CID 317909 : replacing MSG_FILENAME_LEN_MAX with MAX_FULL_PATH_SIZE as the latter is max length for internal file path
-	//				and size of retrievedFilePath in calling function is same i.e. MAX_FULL_PATH_SIZE+1
-	//CID 358483 : Making fileName smaller causes buffer overflow in MsgCreateFileName function.
-	//			So We will keep it 1024 as before but only copy 320 out of it which is the size of retrievedFilePath buffer.
+	/* CID 317909 : replacing MSG_FILENAME_LEN_MAX with MAX_FULL_PATH_SIZE as the latter is max length for internal file path
+	 * and size of retrievedFilePath in calling function is same i.e. MAX_FULL_PATH_SIZE+1
+	 * CID 358483 : Making fileName smaller causes buffer overflow in MsgCreateFileName function.
+	 * So We will keep it 1024 as before but only copy 320 out of it which is the size of retrievedFilePath buffer. */
 	char fileName[MSG_FILENAME_LEN_MAX] = {0};
-	//char fileName[MAX_FULL_PATH_SIZE] = {0};
 
 	MSG_DEBUG(":::%d :%s ", rcvdBodyLen, pRcvdBody);
 
@@ -657,19 +668,19 @@ bool MmsPluginUaManager::processReceivedData(int msgId, char *pRcvdBody, int rcv
 	if (MsgCreateFileName(fileName) == false)
 		return false;
 
-	//CID 317909 : replacing MSG_FILENAME_LEN_MAX with MAX_FULL_PATH_SIZE as the latter is max length for internal file path
-	//				and size of retrievedFilePath in calling function is same i.e. MAX_FULL_PATH_SIZE+1
-	//snprintf(retrievedFilePath, MSG_FILEPATH_LEN_MAX, "%s%s", MSG_DATA_PATH, fileName);
+	/* CID 317909 : replacing MSG_FILENAME_LEN_MAX with MAX_FULL_PATH_SIZE as the latter is max length for internal file path
+	 * and size of retrievedFilePath in calling function is same i.e. MAX_FULL_PATH_SIZE+1
+	 * snprintf(retrievedFilePath, MSG_FILEPATH_LEN_MAX, "%s%s", MSG_DATA_PATH, fileName); */
 	snprintf(retrievedFilePath, MAX_FULL_PATH_SIZE, "%s%s", MSG_DATA_PATH, fileName);
 
-	MSG_INFO("retrievedFilePaths [%s]", retrievedFilePath);
+	MSG_SEC_INFO("retrievedFilePaths [%s]", retrievedFilePath);
 
-	// create temp file
+	/* create temp file */
 	if (!MsgOpenCreateAndOverwriteFile(retrievedFilePath, (char *)pRcvdBody, rcvdBodyLen)) {
 		MSG_ERR( "_MmsUaInitMsgDecoder: creating temporary file failed(msgID=%d)\n", msgId);
 		return false;
 	}
-#if 1 //
+#if 1
 	MmsMsg *pMsg;
 
 	MmsPluginStorage::instance()->getMmsMessage(&pMsg);
@@ -677,7 +688,7 @@ bool MmsPluginUaManager::processReceivedData(int msgId, char *pRcvdBody, int rcv
 	memset(pMsg, 0, sizeof(MmsMsg));
 
 	MmsPluginDecoder::instance()->decodeMmsPdu(pMsg, msgId, retrievedFilePath);
-#else //
+#else
 	if (MmsReadMsgBody(msgId, true, true, retrievedFilePath) == false) {
 		MSG_INFO("The MMS Message might include drm contents!!!");
 

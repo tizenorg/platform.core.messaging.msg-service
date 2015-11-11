@@ -16,15 +16,27 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <ITapiCall.h>
+#include <ITapiNetwork.h>
+#include <tapi_common.h>
 
 #include "MmsPluginTypes.h"
 #include "MmsPluginDebug.h"
 #include "MmsPluginEventHandler.h"
 #include "MmsPluginInternal.h"
+#include "MsgGconfWrapper.h"
 
 /*==================================================================================================
                                      IMPLEMENTATION OF MmsPluginEventHandler - Member Functions
 ==================================================================================================*/
+
+typedef struct {
+	int count;
+	TapiHandle *handle[MAX_TELEPHONY_HANDLE_CNT]; /* max is 3 */
+} SMS_TELEPHONY_HANDLE_LIST_S;
+
+SMS_TELEPHONY_HANDLE_LIST_S handle_list;
+
 MmsPluginEventHandler *MmsPluginEventHandler::pInstance = NULL;
 
 
@@ -54,25 +66,84 @@ void MmsPluginEventHandler::registerListener(MSG_PLUGIN_LISTENER_S *pListener)
 	listener = *pListener;
 }
 
+int MmsPluginEventHandler::initTelHandle()
+{
+	int cnt = 0;
+	memset(&handle_list, 0x00, sizeof(handle_list));
+
+	char **cp_list = NULL;
+	cp_list = tel_get_cp_name_list();
+
+	if (!cp_list) {
+		MSG_FATAL("tel_get_cp_name_list returns null");
+		goto FINISH;
+	}
+
+	while (cp_list[cnt] && cnt < MAX_TELEPHONY_HANDLE_CNT) {
+		MSG_SEC_INFO("cp_list[%d]:[%s]", cnt, cp_list[cnt]);
+		handle_list.handle[cnt]= tel_init(cp_list[cnt]);
+		cnt++;
+	}
+
+	g_strfreev(cp_list);
+	cp_list = NULL;
+
+FINISH:
+	handle_list.count = cnt;
+	return cnt;
+}
+
+void MmsPluginEventHandler::deinitTelHandle()
+{
+	int ret = 0;
+
+	for (int i = 0; i < handle_list.count; i++) {
+		ret = tel_deinit(handle_list.handle[i]);
+		MSG_DEBUG("tel_deinit ret=[%d]", ret);
+		handle_list.handle[i] = NULL;
+	}
+
+	handle_list.count = 0;
+	return;
+}
+
+TapiHandle *MmsPluginEventHandler::getTelHandle(int sim_idx)
+{
+	if (sim_idx > 0 && sim_idx < MAX_TELEPHONY_HANDLE_CNT) {
+		return handle_list.handle[sim_idx-1];
+	} else {
+		int SIM_Status = 0;
+		SIM_Status = MsgSettingGetInt(VCONFKEY_TELEPHONY_SIM_SLOT);
+		if (SIM_Status == 1) {
+			return handle_list.handle[0];
+		}
+
+		SIM_Status = MsgSettingGetInt(VCONFKEY_TELEPHONY_SIM_SLOT2);
+		if (SIM_Status == 1) {
+			return handle_list.handle[1];
+		}
+	}
+
+	return handle_list.handle[handle_list.count - 1];
+}
 
 void MmsPluginEventHandler::handleMmsReceivedData(mmsTranQEntity *pRequest, char *pRetrievedFilePath)
 {
 	MSG_MESSAGE_INFO_S msgInfo = {0,};
 
 	switch (pRequest->eMmsPduType) {
-	// received data is send-conf
+	/* received data is send-conf */
 	case eMMS_SEND_CONF:
 		MmsPluginInternal::instance()->processSendConf(&msgInfo, pRequest);
 
-		// callback to MSG FW
+		/* callback to MSG FW */
 		listener.pfMmsConfIncomingCb(&msgInfo, &pRequest->reqID);
 
-		//MsgDeleteFile(pRetrievedFilePath + strlen(MSG_DATA_PATH)); // not ipc
 		if (remove(pRetrievedFilePath) != 0)
 			MSG_DEBUG("remove fail");
 		break;
 
-	// received data is retrieve-conf
+	/* received data is retrieve-conf */
 	case eMMS_RETRIEVE_AUTO_CONF:
 	case eMMS_RETRIEVE_MANUAL_CONF:
 		MSG_ADDRESS_INFO_S addrInfo;
@@ -81,7 +152,7 @@ void MmsPluginEventHandler::handleMmsReceivedData(mmsTranQEntity *pRequest, char
 
 		MmsPluginInternal::instance()->processRetrieveConf(&msgInfo, pRequest, pRetrievedFilePath);
 
-		// callback to MSG FW
+		/* callback to MSG FW */
 		listener.pfMmsConfIncomingCb(&msgInfo, &pRequest->reqID);
 		break;
 
@@ -114,12 +185,13 @@ void MmsPluginEventHandler::handleMmsError(mmsTranQEntity *pRequest)
 	curTime = time(NULL);
 
 	msgInfo.displayTime = curTime;
+	msgInfo.sim_idx = pRequest->simId;
 
 	switch (pRequest->eMmsPduType) {
 	case eMMS_SEND_REQ:
 	case eMMS_SEND_CONF:
 		msgInfo.msgId = pRequest->msgId;
-		//Set only changed members
+		/* Set only changed members */
 		msgInfo.msgType.mainType = MSG_MMS_TYPE;
 
 		if (pRequest->eMmsPduType == eMMS_SEND_REQ)
@@ -131,40 +203,69 @@ void MmsPluginEventHandler::handleMmsError(mmsTranQEntity *pRequest)
 
 		msgInfo.folderId = MSG_OUTBOX_ID;
 
-		listener.pfMmsConfIncomingCb(&msgInfo, &pRequest->reqID);
 		break;
 
 	case eMMS_RETRIEVE_AUTO:
 	case eMMS_RETRIEVE_AUTO_CONF:
 		msgInfo.msgId = pRequest->msgId;
-		//Set only changed members
+		/* Set only changed members */
 		msgInfo.msgType.mainType = MSG_MMS_TYPE;
 		msgInfo.msgType.subType = MSG_RETRIEVE_AUTOCONF_MMS;
 
 		msgInfo.networkStatus = MSG_NETWORK_RETRIEVE_FAIL;
 		msgInfo.folderId = MSG_INBOX_ID;
 
-		err = listener.pfMmsConfIncomingCb(&msgInfo, &pRequest->reqID);
-
 		break;
 
 	case eMMS_RETRIEVE_MANUAL:
 	case eMMS_RETRIEVE_MANUAL_CONF:
 		msgInfo.msgId = pRequest->msgId;
-		//Set only changed members
+		/* Set only changed members */
 		msgInfo.msgType.mainType = MSG_MMS_TYPE;
 		msgInfo.msgType.subType = MSG_RETRIEVE_MANUALCONF_MMS;
 
 		msgInfo.networkStatus = MSG_NETWORK_RETRIEVE_FAIL;
 		msgInfo.folderId = MSG_INBOX_ID;
 
-		err = listener.pfMmsConfIncomingCb(&msgInfo, &pRequest->reqID);
-
 		break;
 
 	default:
-		break;
+		MSG_WARN("No matching MMS pdu type [%d]", pRequest->eMmsPduType);
+		return;
 	}
+
+	int dnet_state = 0;
+	if (msgInfo.sim_idx == 1)
+		dnet_state = MsgSettingGetInt(VCONFKEY_DNET_STATE);
+	else if (msgInfo.sim_idx == 2)
+		dnet_state = MsgSettingGetInt(VCONFKEY_DNET_STATE2);
+
+	int net_cell_type = 0;
+
+	initTelHandle();
+
+	TapiHandle *handle = getTelHandle(msgInfo.sim_idx);
+	tel_get_property_int(handle, TAPI_PROP_NETWORK_SERVICE_TYPE, &net_cell_type);
+
+	deinitTelHandle();
+
+	bool data_enable = FALSE;
+	int call_status = MsgSettingGetInt(MSG_MESSAGE_DURING_CALL);
+
+	MsgSettingGetBool(VCONFKEY_3G_ENABLE, &data_enable);
+
+	MSG_INFO("Call[%d], Data[%d], SubType[%d]", call_status, data_enable, msgInfo.msgType.subType);
+	MSG_INFO("sim_idx[%d], dnet_state[%d], net_cell_type[%d]", msgInfo.sim_idx, dnet_state, net_cell_type);
+
+	if (pRequest->eMmsTransactionStatus == eMMS_CM_DISCONNECTED || ((call_status || net_cell_type <= TAPI_NETWORK_SERVICE_TYPE_SEARCH || dnet_state <= VCONFKEY_DNET_OFF) && data_enable)) {
+		MSG_INFO("MMS network status goes to pending for subtype [%d]", msgInfo.msgType.subType);
+		if (msgInfo.msgType.subType == MSG_RETRIEVE_AUTOCONF_MMS || msgInfo.msgType.subType == MSG_RETRIEVE_MANUALCONF_MMS)
+			msgInfo.networkStatus = MSG_NETWORK_RETRIEVE_PENDING;
+		else if (msgInfo.msgType.subType == MSG_SENDREQ_MMS)
+			msgInfo.networkStatus = MSG_NETWORK_SEND_PENDING;
+	}
+
+	err = listener.pfMmsConfIncomingCb(&msgInfo, &pRequest->reqID);
 
 	MSG_DEBUG("Error value of MsgMmsConfIncomingListner [%d]", err);
 

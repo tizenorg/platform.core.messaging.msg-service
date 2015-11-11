@@ -29,9 +29,8 @@
 #include "msg.h"
 #include "msg_private.h"
 
-//Internel Struct
-typedef struct
-{
+/* Internel Struct */
+typedef struct {
 	GList			*pagelist;
 	GList			*regionlist;
 	GList 			*attachlist;
@@ -41,11 +40,10 @@ typedef struct
 	MMS_APPID_INFO_S 	msgAppId;
 	MMS_HEADER_DATA_S header;
 	MMS_MULTIPART_DATA_S smil;
-	GList *multipartlist;//MMS_MULTIPART_DATA_S
+	GList *multipartlist; /* MMS_MULTIPART_DATA_S */
 } MMS_DATA_HIDDEN_S;
 
-typedef struct
-{
+typedef struct {
 	MmsSmilMediaType	mediatype; /**< Indicates the SMIL media type. see enum MmsSmilMediaType */
 
 	char			szSrc[MSG_FILEPATH_LEN_MAX + 1];/**< Indicates the media source name */
@@ -120,8 +118,7 @@ void *msg_mms_create_struct_data(int field)
 {
 	void *data = NULL;
 
-	switch(field)
-	{
+	switch (field) {
 	case MSG_STRUCT_MMS:
 		data = (void *)new MMS_DATA_HIDDEN_S;
 		bzero(data, sizeof(MMS_DATA_HIDDEN_S));
@@ -179,20 +176,31 @@ void *msg_mms_create_struct_data(int field)
 void msg_mms_list_item_free_func(gpointer data)
 {
 	msg_struct_s *msg_struct = (msg_struct_s *)data;
-	if (msg_struct->type == MSG_STRUCT_MMS_MEDIA)  {
+
+	switch (msg_struct->type) {
+	case MSG_STRUCT_MMS_MEDIA :
 		__msg_mms_release_media(msg_struct);
-	} else if (msg_struct->type == MSG_STRUCT_MMS_PAGE) {
+		break;
+	case MSG_STRUCT_MMS_PAGE :
 		__msg_mms_release_page(msg_struct);
-	} else if (msg_struct->type == MSG_STRUCT_MMS_ATTACH) {
+		break;
+	case MSG_STRUCT_MMS_ATTACH :
 		__msg_mms_release_attach(msg_struct);
-	} else if (msg_struct->type == MSG_STRUCT_MMS_REGION) {
+		break;
+	case MSG_STRUCT_MMS_REGION :
 		__msg_mms_release_region(msg_struct);
-	} else if (msg_struct->type == MSG_STRUCT_MMS_TRANSITION) {
+		break;
+	case MSG_STRUCT_MMS_TRANSITION :
 		__msg_mms_release_transition(msg_struct);
-	} else if (msg_struct->type == MSG_STRUCT_MMS_META) {
+		break;
+	case MSG_STRUCT_MMS_META :
 		__msg_mms_release_meta(msg_struct);
-	} else if (msg_struct->type == MSG_STRUCT_MULTIPART_INFO) {
+		break;
+	case MSG_STRUCT_MULTIPART_INFO :
 		__msg_mms_release_multipart(msg_struct);
+		break;
+	default :
+		break;
 	}
 }
 
@@ -358,8 +366,7 @@ int msg_mms_release_struct(msg_struct_s **msg_struct_data)
 	msg_struct_s *msg_struct = (msg_struct_s *)*msg_struct_data;
 	int type = msg_struct->type;
 
-	switch(type)
-	{
+	switch (type) {
 	case MSG_STRUCT_MMS:
 		__msg_mms_release_mms(*msg_struct_data);
 		*msg_struct_data = NULL;
@@ -423,7 +430,7 @@ int msg_mms_get_int_value(msg_struct_s *msg_struct, int field, int *value)
 {
 	msg_error_t err = MSG_SUCCESS;
 
-	switch(msg_struct->type) {
+	switch (msg_struct->type) {
 	case MSG_STRUCT_MMS:
 	{
 		MMS_DATA_HIDDEN_S *mms_data = (MMS_DATA_HIDDEN_S *)msg_struct->data;
@@ -581,7 +588,7 @@ int msg_mms_get_int_value(msg_struct_s *msg_struct, int field, int *value)
 	break;
 	case MSG_STRUCT_MULTIPART_INFO:
 		err = msg_multipart_get_int_value(msg_struct->data, field, value);
-	break;
+		break;
 
 	default :
 		err = MSG_ERR_INVALID_PARAMETER;
@@ -594,11 +601,11 @@ int msg_mms_get_str_value(msg_struct_s *msg_struct, int field, char *value, int 
 {
 	msg_error_t err = MSG_SUCCESS;
 
-	switch(msg_struct->type) {
+	switch (msg_struct->type) {
 	case MSG_STRUCT_MMS:
 	{
 		MMS_DATA_HIDDEN_S *mms_data = (MMS_DATA_HIDDEN_S *)msg_struct->data;
-		if (field == MSG_MMS_HEADER_CONTENT_LOCATION_STR) {// mms header
+		if (field == MSG_MMS_HEADER_CONTENT_LOCATION_STR) { /* mms header */
 			strncpy(value, mms_data->header.contentLocation, size);
 		} else if (field == MSG_MMS_HEADER_CONTENT_TYPE_STR) {
 			strncpy(value, mms_data->header.szContentType, size);
@@ -609,7 +616,7 @@ int msg_mms_get_str_value(msg_struct_s *msg_struct, int field, char *value, int 
 		} else if (field == MSG_MMS_HEADER_TR_ID_STR) {
 			strncpy(value, mms_data->header.trID, size);
 
-		} else if (field == MSG_MMS_SMIL_MULTIPART_CONTENT_TYPE_STR) { // smil
+		} else if (field == MSG_MMS_SMIL_MULTIPART_CONTENT_TYPE_STR) { /* smil */
 			strncpy(value, mms_data->smil.szContentType, size);
 		} else if (field == MSG_MMS_SMIL_MULTIPART_NAME_STR) {
 			strncpy(value, mms_data->smil.szFileName, size);
@@ -733,7 +740,7 @@ int msg_mms_get_bool_value(msg_struct_s *msg_struct, int field, bool *value)
 {
 	msg_error_t err = MSG_SUCCESS;
 
-	switch(msg_struct->type) {
+	switch (msg_struct->type) {
 	case MSG_STRUCT_MMS:
 	{
 		MMS_DATA_HIDDEN_S *mms_data = (MMS_DATA_HIDDEN_S *)msg_struct->data;
@@ -790,7 +797,7 @@ int msg_mms_get_struct_handle(msg_struct_s *msg_struct, int field, msg_struct_s 
 {
 	msg_error_t err = MSG_SUCCESS;
 
-	switch(msg_struct->type) {
+	switch (msg_struct->type) {
 	case MSG_STRUCT_MMS_MEDIA:
 	{
 		MMS_MEDIA_HIDDEN_S *mms_media_data = (MMS_MEDIA_HIDDEN_S *)msg_struct->data;
@@ -813,7 +820,7 @@ int msg_mms_get_list_handle(msg_struct_s *msg_struct, int field, msg_list_handle
 {
 	msg_error_t err = MSG_SUCCESS;
 
-	switch(msg_struct->type) {
+	switch (msg_struct->type) {
 	case MSG_STRUCT_MMS:
 	{
 		MMS_DATA_HIDDEN_S *mms_data = (MMS_DATA_HIDDEN_S *)msg_struct->data;
@@ -853,7 +860,7 @@ int msg_mms_set_int_value(msg_struct_s *msg_struct, int field, int value)
 {
 	msg_error_t err = MSG_SUCCESS;
 
-	switch(msg_struct->type) {
+	switch (msg_struct->type) {
 	case MSG_STRUCT_MMS:
 	{
 		MMS_DATA_HIDDEN_S *mms_data = (MMS_DATA_HIDDEN_S *)msg_struct->data;
@@ -1022,7 +1029,7 @@ int msg_mms_set_str_value(msg_struct_s *msg_struct, int field, char *value, int 
 {
 	msg_error_t err = MSG_SUCCESS;
 
-	switch(msg_struct->type) {
+	switch (msg_struct->type) {
 	case MSG_STRUCT_MMS_MEDIA:
 	{
 		MMS_MEDIA_HIDDEN_S *mms_media_data = (MMS_MEDIA_HIDDEN_S *)msg_struct->data;
@@ -1155,7 +1162,7 @@ int msg_mms_set_str_value(msg_struct_s *msg_struct, int field, char *value, int 
 	case MSG_STRUCT_MMS:
 	{
 		MMS_DATA_HIDDEN_S *mms_data = (MMS_DATA_HIDDEN_S *)msg_struct->data;
-		if (field == MSG_MMS_HEADER_CONTENT_LOCATION_STR) {// mms header
+		if (field == MSG_MMS_HEADER_CONTENT_LOCATION_STR) { /* mms header */
 			strncpy(mms_data->header.contentLocation, value, sizeof(mms_data->header.contentLocation) - 1 );
 		} else if (field == MSG_MMS_HEADER_CONTENT_TYPE_STR) {
 			strncpy(mms_data->header.szContentType, value, sizeof(mms_data->header.szContentType) - 1 );
@@ -1166,7 +1173,7 @@ int msg_mms_set_str_value(msg_struct_s *msg_struct, int field, char *value, int 
 		} else if (field == MSG_MMS_HEADER_TR_ID_STR) {
 			strncpy(mms_data->header.trID, value, sizeof(mms_data->header.trID) - 1 );
 
-		} else if (field == MSG_MMS_SMIL_MULTIPART_CONTENT_TYPE_STR) { // smil
+		} else if (field == MSG_MMS_SMIL_MULTIPART_CONTENT_TYPE_STR) { /* smil */
 			strncpy(mms_data->smil.szContentType, value, sizeof(mms_data->smil.szContentType) - 1 );
 		} else if (field == MSG_MMS_SMIL_MULTIPART_NAME_STR) {
 			strncpy(mms_data->smil.szFileName, value, sizeof(mms_data->smil.szFileName) - 1 );
@@ -1197,7 +1204,7 @@ int msg_mms_set_bool_value(msg_struct_s *msg_struct, int field, bool value)
 {
 	msg_error_t err = MSG_SUCCESS;
 
-	switch(msg_struct->type) {
+	switch (msg_struct->type) {
 	case MSG_STRUCT_MMS:
 	{
 		MMS_DATA_HIDDEN_S *mms_data = (MMS_DATA_HIDDEN_S *)msg_struct->data;
@@ -1250,7 +1257,7 @@ int msg_mms_set_struct_handle(msg_struct_s *msg_struct, int field, msg_struct_s 
 {
 	msg_error_t err = MSG_SUCCESS;
 
-	switch(msg_struct->type) {
+	switch (msg_struct->type) {
 	case MSG_STRUCT_MMS_MEDIA:
 	{
 		MMS_MEDIA_HIDDEN_S *mms_media_data = (MMS_MEDIA_HIDDEN_S *)msg_struct->data;
@@ -1276,7 +1283,7 @@ int msg_mms_list_append(msg_struct_t msg_struct_handle, int field, msg_struct_t 
 	msg_struct_s *msg_struct = (msg_struct_s *)msg_struct_handle;
 
 	msg_struct_s *msg_struct_item = NULL;
-	switch(msg_struct->type) {
+	switch (msg_struct->type) {
 	case MSG_STRUCT_MMS:
 	{
 
@@ -1392,7 +1399,6 @@ void convert_from_media_data(const MMS_MEDIA_S *pSrc, msg_struct_s *pDest)
 void convert_to_mmsdata2(MMS_DATA_HIDDEN_S *pSrcMms, MMS_MESSAGE_DATA_S *pDest)
 {
 	int i, j;
-	//MMS_DATA_HIDDEN_S *pSrcMms = (MMS_DATA_HIDDEN_S *)pSrc->data;
 
 	pDest->pageCnt = g_list_length(pSrcMms->pagelist);
 
@@ -1479,7 +1485,6 @@ void convert_to_mmsdata2(MMS_DATA_HIDDEN_S *pSrcMms, MMS_MESSAGE_DATA_S *pDest)
 void convert_from_mmsdata2(const MMS_MESSAGE_DATA_S *pSrc, MMS_DATA_HIDDEN_S *pDestMms)
 {
 	int i, j;
-	//MMS_DATA_HIDDEN_S *pDestMms = (MMS_DATA_HIDDEN_S *)pDest->data;
 
 	for (i = 0; i < pSrc->pageCnt; i++) {
 		msg_struct_s *page_struct = msg_mms_create_struct(MSG_STRUCT_MMS_PAGE);
@@ -1622,7 +1627,7 @@ int msg_multipart_set_str_value(void *data, int field, char *value, int size)
 
 	MMS_MULTIPART_DATA_S *msg_data = (MMS_MULTIPART_DATA_S *)data;
 
-	//CID 41980: Reducing the size argument to strncpy calls to accomodate string termination '\0' in case source string is larger than size
+	/* CID 41980: Reducing the size argument to strncpy calls to accomodate string termination '\0' in case source string is larger than size */
 	switch (field) {
 	case MSG_MMS_MULTIPART_CONTENT_TYPE_STR:
 		strncpy(msg_data->szContentType, value, MSG_MSG_ID_LEN);

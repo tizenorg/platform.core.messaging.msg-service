@@ -19,14 +19,10 @@
 
 #include <stdio.h>
 
-//File Util
-bool MmsMakeImageThumbnail(char *srcPath, char *dstPath);
-
-bool MmsMakeVideoThumbnail(char *srcPath, char *dstPath);
-
+/* File Util */
 FILE *MmsFileOpen(char *pFileName);
 
-//Text Util
+/* Text Util */
 bool MmsIsAsciiString(const char *szSrc);
 
 bool MmsIsUtf8String(const unsigned char *szSrc, int nChar);
@@ -39,4 +35,4 @@ bool MmsReplaceSpaceChar(char *pszText);
 
 char *MmsReplaceNonAsciiUtf8(const char *szSrc, char replaceChar);
 
-#endif //MMS_PLUGIN_UTIL_H
+#endif /* MMS_PLUGIN_UTIL_H */

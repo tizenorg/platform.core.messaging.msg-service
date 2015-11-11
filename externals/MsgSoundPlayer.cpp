@@ -16,6 +16,7 @@
 
 #include <wait.h>
 
+#include "MsgCallStatusManager.h"
 #include "MsgDebug.h"
 #include "MsgCppTypes.h"
 #include "MsgGconfWrapper.h"
@@ -39,6 +40,7 @@
 #endif
 
 #include <feedback.h>
+#include <feedback-internal.h>
 #include <feedback-ids-mobile.h>
 
 /*==================================================================================================
@@ -62,7 +64,7 @@ MMHandleType hPlayerHandle = 0;
 
 pthread_mutex_t muMmPlay = PTHREAD_MUTEX_INITIALIZER;
 
-#endif // MSG_WEARABLE_PROFILE
+#endif /* MSG_WEARABLE_PROFILE */
 
 /*==================================================================================================
                                      IMPLEMENTATION OF Functions
@@ -75,7 +77,7 @@ void MsgSoundRepeatAlarmCB(int alarmId)
 
 	MsgSoundPlayer::instance()->MsgSoundInitRepeatAlarm();
 
-#endif // MSG_WEARABLE_PROFILE
+#endif /* MSG_WEARABLE_PROFILE */
 
 	MSG_END();
 	return;
@@ -93,62 +95,60 @@ void MsgSensorCBStop()
 #else
 	MsgDeleteNotification(MSG_NOTI_TYPE_ALL, -1);
 
-	MsgRefreshNotification(MSG_NOTI_TYPE_ALL, false, false);
+	MsgRefreshNotification(MSG_NOTI_TYPE_ALL, false, MSG_ACTIVE_NOTI_TYPE_NONE);
 
 #ifndef MSG_NOTI_INTEGRATION
-	MsgRefreshNotification(MSG_NOTI_TYPE_SIM, false, false);
+	MsgRefreshNotification(MSG_NOTI_TYPE_SIM, false, MSG_ACTIVE_NOTI_TYPE_NONE);
 #endif
 
 #endif
 
-#endif // MSG_WEARABLE_PROFILE
+#endif /* MSG_WEARABLE_PROFILE */
 
 	MSG_END();
 }
 
+/*
+static gboolean MsgSoundMelodyTimeout(gpointer data)
+{
+	MSG_BEGIN();
 
-//static gboolean MsgSoundMelodyTimeout(gpointer data)
-//{
-//	MSG_BEGIN();
-//
-//	MsgSoundPlayer::instance()->MsgSoundPlayStop();
-//
-//	MSG_END();
-//
-//	return FALSE;
-//}
+	MsgSoundPlayer::instance()->MsgSoundPlayStop();
 
-#ifndef MSG_WEARABLE_PROFILE
+	MSG_END();
+
+	return FALSE;
+}
+*/
 
 static int MsgSoundPlayCallback(int message, void *param, void *user_param)
 {
 #ifdef _USE_MM_FW_
-	switch (message)
-	{
-		case MM_MESSAGE_BEGIN_OF_STREAM:
-			MSG_DEBUG("Play is started.");
-			break;
-		case MM_MESSAGE_END_OF_STREAM:
-		case MM_MESSAGE_STATE_INTERRUPTED:
-			MSG_DEBUG("EOS or Interrupted.");
-			MsgSoundPlayer::instance()->MsgSoundPlayStop();
-			break;
-		case MM_MESSAGE_FILE_NOT_SUPPORTED:
-		case MM_MESSAGE_FILE_NOT_FOUND:
-		case MM_MESSAGE_DRM_NOT_AUTHORIZED:
-		case MM_MESSAGE_ERROR:
-			MSG_DEBUG("message [%d] & play with default", message);
-			MsgSoundPlayer::instance()->MsgSoundPlayStart(NULL, MSG_SOUND_PLAY_DEFAULT);
-			break;
-		default:
-			MSG_DEBUG("message [%d]", message);
-			break;
+#ifndef MSG_WEARABLE_PROFILE
+	switch (message) {
+	case MM_MESSAGE_BEGIN_OF_STREAM:
+		MSG_DEBUG("Play is started.");
+		break;
+	case MM_MESSAGE_END_OF_STREAM:
+	case MM_MESSAGE_STATE_INTERRUPTED:
+		MSG_DEBUG("EOS or Interrupted.");
+		MsgSoundPlayer::instance()->MsgSoundPlayStop();
+		break;
+	case MM_MESSAGE_FILE_NOT_SUPPORTED:
+	case MM_MESSAGE_FILE_NOT_FOUND:
+	case MM_MESSAGE_DRM_NOT_AUTHORIZED:
+	case MM_MESSAGE_ERROR:
+		MSG_DEBUG("message [%d] & play with default", message);
+		MsgSoundPlayer::instance()->MsgSoundPlayStart(NULL, MSG_SOUND_PLAY_DEFAULT);
+		break;
+	default:
+		MSG_DEBUG("message [%d]", message);
+		break;
 	}
+#endif /* MSG_WEARABLE_PROFILE */
 #endif
 	return 1;
 }
-
-#endif // MSG_WEARABLE_PROFILE
 
 /*==================================================================================================
                                      IMPLEMENTATION OF MsgSoundPlayer - Member Functions
@@ -183,7 +183,7 @@ MsgSoundPlayer::MsgSoundPlayer()
 	} else {
 		MSG_DEBUG("Fail to MsgSensorConnect.");
 	}
-#endif // MSG_WEARABLE_PROFILE
+#endif /* MSG_WEARABLE_PROFILE */
 #endif
 }
 
@@ -235,8 +235,8 @@ void MsgSoundPlayer::MsgGetRingtonePath(char *userRingtonePath, char **msg_tone_
 
 	memset(msg_tone_file_path, 0x00, sizeof(char)*(MSG_FILEPATH_LEN_MAX+1));
 
-	if ((tmpFilePath == NULL || MsgGetFileSize(tmpFilePath) < 1) || // wrong ringtone file path
-			(MsgDrmIsDrmFile(tmpFilePath) && !MsgDrmCheckRingtone(tmpFilePath))) { // check DRM
+	if ((tmpFilePath == NULL || MsgGetFileSize(tmpFilePath) < 1) || /* wrong ringtone file path */
+			(MsgDrmIsDrmFile(tmpFilePath) && !MsgDrmCheckRingtone(tmpFilePath))) { /* check DRM */
 		if (tmpFilePath && (strcmp(tmpFilePath, "silent") == 0)) {
 			MSG_DEBUG("Set ringtone to NONE(Silent)");
 			msg_tone_file_path = NULL;
@@ -253,7 +253,7 @@ void MsgSoundPlayer::MsgGetRingtonePath(char *userRingtonePath, char **msg_tone_
 		free(tmpFilePath);
 		tmpFilePath = NULL;
 	}
-#endif // MSG_WEARABLE_PROFILE
+#endif /* MSG_WEARABLE_PROFILE */
 
 }
 
@@ -282,11 +282,50 @@ bool MsgIsSoundPlayOnCall(void)
 		MSG_DEBUG("mm_sound_get_active_device() err=[%d]", err);
 	}
 
-#endif // MSG_WEARABLE_PROFILE
+#endif /* MSG_WEARABLE_PROFILE */
 #endif
 	return bPlayOnCall;
 }
 
+#ifndef MSG_WEARABLE_PROFILE
+void MsgSoundPlayer::MsgGetPlayStatus(bool bOnCall, bool bSound, bool bVibration, bool bMsgSound, bool bMsgVibration, bool *bPlaySound, bool *bPlayVibration)
+{
+	MSG_BEGIN();
+
+	/* samsung basic concept : feedback should follow profile setting.
+	 * And if notification setting exist in msg app, then apply it prior to profile when profile either sound or vibration.
+	 * But, Play sound when profile is vibration during call, if device does not support haptic */
+	if (bSound || bVibration) {
+		bool bHantic_device = false;
+#ifdef FEATURE_HAPTIC_ENABLE
+		bHantic_device = true;
+#endif
+		if (bHantic_device || (bOnCall == false)) {
+			if (bSound) {
+				if (bMsgSound) {
+					MSG_DEBUG("Play sound.");
+					*bPlaySound = true;
+				}
+
+				if (bMsgVibration) {
+					MSG_DEBUG("Play vibration.");
+					*bPlayVibration = true;
+				}
+			} else {
+				if (bMsgVibration) {
+					MSG_DEBUG("Play vibration.");
+					*bPlayVibration = true;
+				}
+			}
+		} else { /* during call */
+			if (bMsgSound || bMsgVibration) {
+				MSG_DEBUG("Play sound.");
+				*bPlaySound = true;
+			}
+		}
+	}
+}
+#endif /* MSG_WEARABLE_PROFILE */
 
 void MsgSoundPlayer::MsgGetPlayStatus(bool bVoiceMail, bool *bPlaySound, bool *bPlayVibration, bool *bOnCall)
 {
@@ -304,38 +343,44 @@ void MsgSoundPlayer::MsgGetPlayStatus(bool bVoiceMail, bool *bPlaySound, bool *b
 	*bOnCall = false;
 
 	/* Global setting */
-	bool bSoundOn = false; // sound setting on notification panel
-	bool bVibrationOn = false; // vibration setting on notification panel
-
-	/* Alert setting */
-#if 0	//not used value
-	bool bNotiVibrationOn = false; // alert vibration
-	MsgSettingGetBool(VCONFKEY_SETAPPL_VIBRATE_WHEN_NOTIFICATION_BOOL, &bNotiVibrationOn);
-#endif
-
-	bool bMsgSettingNoti = true; // Alert for message notification
-	bool bMsgSettingVibration = false; // vibration for message notification
+	bool bSoundOn = false; /* sound setting on notification panel */
+	bool bVibrationOn = false; /* vibration setting on notification panel */
 
 	MsgSettingGetBool(VCONFKEY_SETAPPL_SOUND_STATUS_BOOL, &bSoundOn);
 	MsgSettingGetBool(VCONFKEY_SETAPPL_VIBRATION_STATUS_BOOL, &bVibrationOn);
 
+	/* Alert setting */
+#if 0	/* not used value */
+	bool bNotiVibrationOn = false; /* alert vibration */
+	MsgSettingGetBool(VCONFKEY_SETAPPL_VIBRATE_WHEN_NOTIFICATION_BOOL, &bNotiVibrationOn);
+#endif
+
+	bool bMsgSettingNoti = true; /* Alert for message notification */
+	bool bMsgSettingVibration = false; /* vibration for message notification */
+
+	MSG_RINGTONE_TYPE_T ringtoneType = MSG_RINGTONE_TYPE_DEFAULT; //sound type for message notification
+	bool bMsgSettingSound = true;
+
 	MsgSettingGetBool(MSG_SETTING_VIBRATION, &bMsgSettingVibration);
 	MsgSettingGetBool(MSG_SETTING_NOTIFICATION, &bMsgSettingNoti);
+	ringtoneType = (MSG_RINGTONE_TYPE_T)MsgSettingGetInt(MSG_SETTING_RINGTONE_TYPE);
+	if (ringtoneType == MSG_RINGTONE_TYPE_SILENT)
+		bMsgSettingSound = false;
 
-	MSG_SEC_DEBUG("Sound status : Sound mode=[%d], Manner mode=[%d]", bSoundOn, bVibrationOn);
-	MSG_SEC_DEBUG("Msg Setting : Noti Alert=[%d], With vibration=[%d]", bMsgSettingNoti, bMsgSettingVibration);
+	MSG_SEC_DEBUG("Sound status : Sound mode[%d], Manner mode[%d]", bSoundOn, bVibrationOn);
+	MSG_SEC_DEBUG("Msg Setting : Noti Alert[%d], vibration[%d], sound[%d], ringtoneType[%d]", bMsgSettingNoti, bMsgSettingVibration, bMsgSettingSound, ringtoneType);
 
 	int callStatus = 0;
-//	int alertOnCall = 0;
+/*	int alertOnCall = 0; */
 
-	callStatus = MsgSettingGetInt(VCONFKEY_CALL_STATE);
+	callStatus = MsgGetCallStatus();
 	MSG_DEBUG("Call Status [%d]", callStatus);
 
 	/* Check call status */
-	if (callStatus > VCONFKEY_CALL_OFF && callStatus < VCONFKEY_CALL_STATE_MAX) {
+	if (callStatus > 0 && callStatus < 3) {
 		/* 1. On Call */
 
-		*bOnCall = true; // set call status;
+		*bOnCall = true; /* set call status; */
 #if 0
 		alertOnCall = MsgSettingGetInt(VCONFKEY_CISSAPPL_ALERT_ON_CALL_INT);
 		MSG_DEBUG("Alert On Call [%d]", alertOnCall);
@@ -343,7 +388,7 @@ void MsgSoundPlayer::MsgGetPlayStatus(bool bVoiceMail, bool *bPlaySound, bool *b
 		if (alertOnCall == 0) {
 			MSG_DEBUG("Call is active & Alert on Call - Off");
 		} else if (alertOnCall == 1) {
-			/* set default value to true, while on Call  alert sound to be played  and vibration to be off. */
+			/* set default value to true, while on Call alert sound to be played and vibration to be off. */
 			bool bPlayOnCall = true;
 
 			if (!bSoundOn) {
@@ -378,36 +423,21 @@ void MsgSoundPlayer::MsgGetPlayStatus(bool bVoiceMail, bool *bPlaySound, bool *b
 		/* 2. Call is not active */
 
 		MSG_DEBUG("Call is not active.");
+		int voiceRecording = MsgSettingGetInt(VCONFKEY_RECORDER_STATE);
 
 		if (bVoiceMail) {	/* 2-1. Voice message */
 			if (bMsgSettingNoti) {
-				if (bSoundOn || bVibrationOn) {
-					MSG_DEBUG("Play vibration - voice message.");
-					*bPlayVibration = true;
-				} else {
-					MSG_DEBUG("It doesn't play vibration - voice message.");
-				}
-
-				MSG_DEBUG("Play sound - voice message.");
-				*bPlaySound = true;
+				MsgGetPlayStatus(false, bSoundOn, bVibrationOn, bMsgSettingSound, bMsgSettingVibration, bPlaySound, bPlayVibration);
 
 			} else {
 				MSG_DEBUG("It doesn't play sound/vibration - voice message.");
 			}
 		} else {	/* 2-1. Normal message */
 			if (bMsgSettingNoti) {
-				if (bSoundOn) {
-					MSG_DEBUG("Play sound.");
-					*bPlaySound = true;
+				if (voiceRecording != VCONFKEY_RECORDER_STATE_RECORDING) {
+					MsgGetPlayStatus(false, bSoundOn, bVibrationOn, bMsgSettingSound, bMsgSettingVibration, bPlaySound, bPlayVibration);
 				} else {
-					MSG_DEBUG("It doesn't play vibration.");
-				}
-
-				if ((bSoundOn || bVibrationOn) && bMsgSettingVibration) {
-					MSG_DEBUG("Play vibration.");
-					*bPlayVibration = true;
-				} else {
-					MSG_DEBUG("It doesn't play vibration.");
+					MSG_DEBUG("It doesn't play sound/vibration.");
 				}
 			} else {
 				MSG_DEBUG("It doesn't play sound/vibration.");
@@ -415,7 +445,7 @@ void MsgSoundPlayer::MsgGetPlayStatus(bool bVoiceMail, bool *bPlaySound, bool *b
 		}
 	}
 
-#endif // MSG_WEARABLE_PROFILE
+#endif /* MSG_WEARABLE_PROFILE */
 
 	MSG_END();
 }
@@ -430,7 +460,7 @@ void MsgSoundPlayer::MsgSoundPlayStart(const MSG_ADDRESS_INFO_S *pAddrInfo, MSG_
 	MSG_DEBUG("soundType [%d]", soundType);
 
 	/* check camera state */
-	int cameraState = 0;	// camera recording state
+	int cameraState = 0;	/* camera recording state */
 	cameraState = MsgSettingGetInt(VCONFKEY_CAMERA_STATE);
 	MSG_SEC_DEBUG("Camera state [%d]", cameraState);
 
@@ -439,19 +469,19 @@ void MsgSoundPlayer::MsgSoundPlayStart(const MSG_ADDRESS_INFO_S *pAddrInfo, MSG_
 		return;
 	}
 
-	//contacts-service is not used for gear
+/* contacts-service is not used for gear */
 #ifndef MSG_CONTACTS_SERVICE_NOT_SUPPORTED
 	/* get contact information */
 	MSG_CONTACT_INFO_S contactInfo;
 	memset(&contactInfo, 0x00, sizeof(MSG_CONTACT_INFO_S));
 
-	if(pAddrInfo) {
-		// Get Contact Info
+	if (pAddrInfo) {
+		/* Get Contact Info */
 		if (MsgGetContactInfo(pAddrInfo, &contactInfo) != MSG_SUCCESS) {
 			MSG_DEBUG("MsgGetContactInfo() fail.");
 		}
 	}
-#endif //MSG_CONTACTS_SERVICE_NOT_SUPPORTED
+#endif /* MSG_CONTACTS_SERVICE_NOT_SUPPORTED */
 	/* get ringtone file path */
 	char *msg_tone_file_path = NULL;
 	unique_ptr<char*, void(*)(char**)> buf(&msg_tone_file_path, unique_ptr_deleter);
@@ -464,12 +494,12 @@ void MsgSoundPlayer::MsgSoundPlayStart(const MSG_ADDRESS_INFO_S *pAddrInfo, MSG_
 		memset(msg_tone_file_path, 0x00, sizeof(char)*(MAX_SOUND_FILE_LEN+1));
 		strncpy(msg_tone_file_path, DEFAULT_ALERT_FILE, MAX_SOUND_FILE_LEN);
 	}
-	//contacts-service is not used for gear
+/* contacts-service is not used for gear */
 #ifndef MSG_CONTACTS_SERVICE_NOT_SUPPORTED
 	else {
 		MsgGetRingtonePath(contactInfo.alerttonePath, &msg_tone_file_path);
 	}
-#endif //MSG_CONTACTS_SERVICE_NOT_SUPPORTED
+#endif /* MSG_CONTACTS_SERVICE_NOT_SUPPORTED */
 	MSG_SEC_DEBUG("soundType [%d], Sound File [%s]", soundType, msg_tone_file_path);
 
 	/* get sound play status */
@@ -480,7 +510,7 @@ void MsgSoundPlayer::MsgSoundPlayStart(const MSG_ADDRESS_INFO_S *pAddrInfo, MSG_
 
 	MsgGetPlayStatus(bVoiceMsg, &bPlaySound, &bPlayVibration, &bOnCall);
 
-	MSG_SEC_DEBUG("sound=[%d], vibration=[%d], voice_msg?[%d], on_call?[%d]", \
+	MSG_SEC_DEBUG("sound=[%d], vibration=[%d], voice_msg?[%d], on_call?[%d]",
 			bPlaySound, bPlayVibration, bVoiceMsg, bOnCall);
 
 	/* play sound */
@@ -508,17 +538,18 @@ void MsgSoundPlayer::MsgSoundPlayStart(const MSG_ADDRESS_INFO_S *pAddrInfo, MSG_
 			MSG_DEBUG("MM Session Finish Success : %d", err);
 	}
 
-	//contacts-service is not used for gear
+/* contacts-service is not used for gear */
 #ifndef MSG_CONTACTS_SERVICE_NOT_SUPPORTED
 	/* play vibration */
 	if (bPlayVibration) {
 		MsgSoundPlayVibration(contactInfo.vibrationPath, bOnCall);
 	}
-#endif //MSG_CONTACTS_SERVICE_NOT_SUPPORTED
-	// For repeatition.
-//	MsgSoundSetRepeatAlarm();
+#endif /* MSG_CONTACTS_SERVICE_NOT_SUPPORTED */
 
-#endif // MSG_WEARABLE_PROFILE
+	/* For repeatition. */
+/*	MsgSoundSetRepeatAlarm(); */
+
+#endif /* MSG_WEARABLE_PROFILE */
 #endif
 	MSG_END();
 }
@@ -537,10 +568,8 @@ void MsgSoundPlayer::MsgSoundPlayStop()
 		/* Stop playing media contents */
 		int err = mm_player_stop(hPlayerHandle);
 
-		if (err != MM_ERROR_NONE) {
+		if (err != MM_ERROR_NONE)
 			MSG_DEBUG("stopping the player handle failed");
-		}
-
 	}
 
 	if (hPlayerHandle != 0) {
@@ -558,7 +587,7 @@ void MsgSoundPlayer::MsgSoundPlayStop()
 
 	pthread_mutex_unlock(&muMmPlay);
 
-#endif // MSG_WEARABLE_PROFILE
+#endif /* MSG_WEARABLE_PROFILE */
 #endif
 	MSG_END();
 }
@@ -603,9 +632,8 @@ void MsgSoundPlayer::MsgSoundPlayMelody(char *pMsgToneFilePath)
 				"sound_priority", 2,
 				NULL);
 
-		if (err != MM_ERROR_NONE) {
+		if (err != MM_ERROR_NONE)
 			MSG_DEBUG("error setting the profile attr [%d]", err);
-		}
 
 		err = mm_player_realize(hPlayerHandle);
 
@@ -617,7 +645,7 @@ void MsgSoundPlayer::MsgSoundPlayMelody(char *pMsgToneFilePath)
 				return;
 			}
 		}
-	} while(err != MM_ERROR_NONE);
+	} while (err != MM_ERROR_NONE);
 
 
 	pthread_mutex_lock(&muMmPlay);
@@ -628,14 +656,16 @@ void MsgSoundPlayer::MsgSoundPlayMelody(char *pMsgToneFilePath)
 	 	MSG_DEBUG("mm_player_start, FAIL [%x]", err);
 	} else {
 		/* Add Timer to stop playing after 5 sec. */
-//		int g_contact_timer = -1;
-//		g_contact_timer = g_timeout_add(MSG_SOUND_TIMEOUT, (GSourceFunc)MsgSoundMelodyTimeout, NULL);
+		/*
+		int g_contact_timer = -1;
+		g_contact_timer = g_timeout_add(MSG_SOUND_TIMEOUT, (GSourceFunc)MsgSoundMelodyTimeout, NULL);
+		*/
 
 		bPlaying = true;
 	}
 	pthread_mutex_unlock(&muMmPlay);
 
-#endif // MSG_WEARABLE_PROFILE
+#endif /* MSG_WEARABLE_PROFILE */
 #endif
 }
 
@@ -661,8 +691,7 @@ void MsgSoundPlayer::MsgSoundPlayVibration(char *vibrationPath, bool isOnCall)
 		}
 	}
 
-	if(vibrationPath && strlen(vibrationPath))
-	{
+	if (vibrationPath && strlen(vibrationPath)) {
 		MSG_DEBUG("vibrationPath: [%s]", vibrationPath);
 		ret = feedback_set_resource_path(FEEDBACK_TYPE_VIBRATION, FEEDBACK_PATTERN_MESSAGE, vibrationPath);
 		if (ret != FEEDBACK_ERROR_NONE)
@@ -671,13 +700,10 @@ void MsgSoundPlayer::MsgSoundPlayVibration(char *vibrationPath, bool isOnCall)
 
 		if (ret != FEEDBACK_ERROR_NONE)
 			MSG_DEBUG("Fail to feedback_play_type");
-	}
-	else
-	{
-		if (isOnCall)
+	} else {
+		if (isOnCall) {
 			ret = feedback_play_type(FEEDBACK_TYPE_VIBRATION, (feedback_pattern_e)FEEDBACK_PATTERN_MOBILE_MESSAGE_ON_CALL);
-		else
-		{
+		} else {
 			ret = feedback_set_resource_path(FEEDBACK_TYPE_VIBRATION, FEEDBACK_PATTERN_MESSAGE, NULL);
 			if (ret != FEEDBACK_ERROR_NONE)
 				MSG_DEBUG("Fail to feedback_set_resource_path");
@@ -688,7 +714,7 @@ void MsgSoundPlayer::MsgSoundPlayVibration(char *vibrationPath, bool isOnCall)
 			MSG_DEBUG("Fail to feedback_play_type");
 	}
 
-#endif // MSG_WEARABLE_PROFILE
+#endif /* MSG_WEARABLE_PROFILE */
 
 	MSG_END();
 }
@@ -704,13 +730,13 @@ void MsgSoundPlayer::MsgSoundPlayDtmf()
 
 	ret = mm_sound_play_tone(MM_SOUND_TONE_PROP_BEEP2, VOLUME_TYPE_SYSTEM, 1.0, 300, &hToneHandle);
 
-	if(ret < 0) {
+	if (ret < 0) {
 		MSG_DEBUG("play tone failed.");
 	} else {
 		MSG_DEBUG("play tone success.");
 	}
 
-#endif // MSG_WEARABLE_PROFILE
+#endif /* MSG_WEARABLE_PROFILE */
 #endif
 	MSG_END();
 }
@@ -725,26 +751,25 @@ void MsgSoundPlayer::MsgSoundSetRepeatAlarm()
 
 	nRepeatValue = MsgSettingGetInt(MSG_ALERT_REP_TYPE);
 
-	switch (nRepeatValue)
-	{
-		case MSG_ALERT_TONE_ONCE:
-			nRepeatTime = 0;
+	switch (nRepeatValue) {
+	case MSG_ALERT_TONE_ONCE:
+		nRepeatTime = 0;
 		break;
 
-		case MSG_ALERT_TONE_2MINS:
-			nRepeatTime = 2;
+	case MSG_ALERT_TONE_2MINS:
+		nRepeatTime = 2;
 		break;
 
-		case MSG_ALERT_TONE_5MINS:
-			nRepeatTime = 5;
+	case MSG_ALERT_TONE_5MINS:
+		nRepeatTime = 5;
 		break;
 
-		case MSG_ALERT_TONE_10MINS:
-			nRepeatTime = 10;
+	case MSG_ALERT_TONE_10MINS:
+		nRepeatTime = 10;
 		break;
 
-		default:
-			MSG_DEBUG("Invalid Repetition time");
+	default:
+		MSG_DEBUG("Invalid Repetition time");
 		break;
 	}
 
@@ -752,15 +777,15 @@ void MsgSoundPlayer::MsgSoundSetRepeatAlarm()
 
 	if (nRepeatTime > 0) {
 		if (g_alarmId > 0) {
-			if (MsgAlarmRemove(g_alarmId) != MSG_SUCCESS) {
+			if (MsgAlarmRemove(g_alarmId) != MSG_SUCCESS)
 				MSG_FATAL("MsgAlarmRemove fail.");
-			}
+
 			g_alarmId = 0;
 		}
 		MsgSoundCreateRepeatAlarm(nRepeatTime);
 	}
 
-#endif // MSG_WEARABLE_PROFILE
+#endif /* MSG_WEARABLE_PROFILE */
 }
 
 
@@ -790,7 +815,7 @@ void MsgSoundPlayer::MsgSoundCreateRepeatAlarm(int RepeatTime)
 
 	MSG_END();
 
-#endif // MSG_WEARABLE_PROFILE
+#endif /* MSG_WEARABLE_PROFILE */
 }
 
 
@@ -800,15 +825,15 @@ int MsgSoundPlayer::MsgSoundGetUnreadMsgCnt()
 
 #ifndef MSG_WEARABLE_PROFILE
 
-	// Get SMS Count
+	/* Get SMS Count */
 	unreadCnt = MsgSettingGetInt(VCONFKEY_MESSAGE_RECV_SMS_STATE);
 
-	// Get MMS Count
+	/* Get MMS Count */
 	unreadCnt += MsgSettingGetInt(VCONFKEY_MESSAGE_RECV_MMS_STATE);
 
 	MSG_DEBUG("unread count : [%d]", unreadCnt);
 
-#endif // MSG_WEARABLE_PROFILE
+#endif /* MSG_WEARABLE_PROFILE */
 
 	return unreadCnt;
 }
@@ -831,26 +856,25 @@ void MsgSoundPlayer::MsgSoundInitRepeatAlarm()
 
 	nRepeatValue = MsgSettingGetInt(MSG_ALERT_REP_TYPE);
 
-	switch (nRepeatValue)
-	{
-		case MSG_ALERT_TONE_ONCE:
-			nRepeatTime = 0;
+	switch (nRepeatValue) {
+	case MSG_ALERT_TONE_ONCE:
+		nRepeatTime = 0;
 		break;
 
-		case MSG_ALERT_TONE_2MINS:
-			nRepeatTime = 2;
+	case MSG_ALERT_TONE_2MINS:
+		nRepeatTime = 2;
 		break;
 
-		case MSG_ALERT_TONE_5MINS:
-			nRepeatTime = 5;
+	case MSG_ALERT_TONE_5MINS:
+		nRepeatTime = 5;
 		break;
 
-		case MSG_ALERT_TONE_10MINS:
-			nRepeatTime = 10;
+	case MSG_ALERT_TONE_10MINS:
+		nRepeatTime = 10;
 		break;
 
-		default:
-			MSG_DEBUG("Invalid Repetition time");
+	default:
+		MSG_DEBUG("Invalid Repetition time");
 		break;
 	}
 
@@ -859,7 +883,7 @@ void MsgSoundPlayer::MsgSoundInitRepeatAlarm()
 	if (nRepeatTime > 0)
 		MsgSoundPlayStart(NULL, MSG_SOUND_PLAY_USER);
 
-#endif // MSG_WEARABLE_PROFILE
+#endif /* MSG_WEARABLE_PROFILE */
 
 	MSG_END();
 }

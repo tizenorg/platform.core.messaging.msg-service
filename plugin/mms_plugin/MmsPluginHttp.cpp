@@ -34,15 +34,10 @@ static void __httpGetHost(char *szUrl, char *szHost, int nBufferLen);
 /*==================================================================================================
                                      FUNCTION IMPLEMENTATION
 ==================================================================================================*/
-//static int __http_progress_cb(void *clientp, double dltotal, double dlnow, double ultotal, double ulnow)
-//{
-//	MSG_INFO("download(%.0f/%.0f) : upload(%.0f/%.0f)", dlnow, dltotal, ulnow, ultotal);
-//	return 0;
-//}
 
 static int __http_debug_cb (CURL *input_curl, curl_infotype input_info_type, char *input_data , size_t input_size, void *input_void)
 {
-	MSG_INFO("curl_infotype [%d] : %s", input_info_type, input_data);
+	MSG_SEC_INFO("curl_infotype [%d] : %s", input_info_type, input_data);
 	return 0;
 }
 
@@ -68,15 +63,15 @@ static void __http_print_profile(CURL *curl)
 
 	MSG_DEBUG("**************************************************************************************************");
 
-	//time
+	/* time */
 	curl_easy_getinfo(curl, CURLINFO_TOTAL_TIME, &total_time);
 	MSG_SEC_INFO("profile http Time: total %.3f seconds", total_time);
 
-	//url
+	/* url */
 	curl_easy_getinfo(curl, CURLINFO_EFFECTIVE_URL, &url);
 	MSG_SEC_INFO("profile http Url: %s", url);
 
-	//size
+	/* size */
 	curl_easy_getinfo(curl, CURLINFO_SIZE_UPLOAD, &size_up);
 	MSG_SEC_INFO("profile http Size: upload %.3f bytes", size_up);
 
@@ -89,14 +84,14 @@ static void __http_print_profile(CURL *curl)
 	curl_easy_getinfo(curl, CURLINFO_REQUEST_SIZE, &size);
 	MSG_SEC_INFO("profile http Size: request %ld bytes", size);
 
-	//speed
+	/* speed */
 	curl_easy_getinfo(curl, CURLINFO_SPEED_UPLOAD, &speed_upload);
 	MSG_SEC_INFO("profile http Speed: upload %.3f bytes/sec", speed_upload);
 
 	curl_easy_getinfo(curl, CURLINFO_SPEED_DOWNLOAD, &speed_download);
 	MSG_SEC_INFO("profile http Speed: download %.3f bytes/sec", speed_download);
 
-	//content
+	/* content */
 	curl_easy_getinfo(curl, CURLINFO_CONTENT_TYPE, &content_type);
 	MSG_SEC_INFO("profile http Content: type %s", content_type);
 
@@ -106,7 +101,7 @@ static void __http_print_profile(CURL *curl)
 	curl_easy_getinfo(curl, CURLINFO_CONTENT_LENGTH_UPLOAD, &content_length);
 	MSG_SEC_INFO("profile http Content: length upload %.3f", content_length);
 
-	//ip & port
+	/* ip & port */
 	curl_easy_getinfo(curl, CURLINFO_PRIMARY_IP, &ip);
 	MSG_SEC_INFO("profile http primary: ip %s", ip);
 
@@ -205,7 +200,7 @@ static void __httpAllocHeaderInfo(curl_slist **responseHeaders, char *szUrl, int
 	nResult = __httpGetHeaderField(MMS_HH_UA_PROFILE, szBuffer);
 	if (nResult) {
 		snprintf(pcheader, HTTP_REQUEST_LEN, "X-wap-profile: %s", szBuffer);
-		MSG_INFO("%s", pcheader);
+		MSG_SEC_INFO("%s", pcheader);
 		*responseHeaders = curl_slist_append(*responseHeaders, pcheader);
 	}
 
@@ -214,10 +209,10 @@ static void __httpAllocHeaderInfo(curl_slist **responseHeaders, char *szUrl, int
 	memset(pcheader, 0, HTTP_REQUEST_LEN);
 	nResult = __httpGetHeaderField(MMS_HH_MDN, szBuffer);
 
-	// TODO : if it needs to check http header mdn value, add code to below.
+	/* TODO : if it needs to check http header mdn value, add code to below. */
 #endif
 
-	if (ulContentLen > 0)//if post transaction then Disable 'Expect: 100-contine' option
+	if (ulContentLen > 0) /* if post transaction then Disable 'Expect: 100-contine' option */
 		*responseHeaders = curl_slist_append(*responseHeaders, "Expect:");
 }
 
@@ -240,7 +235,11 @@ static bool __httpGetHeaderField(MMS_HTTP_HEADER_FIELD_T httpHeaderItem, char *s
 
 		case MMS_HH_ACCEPT_CHARSET:
 			snprintf((char *)szHeaderBuffer, 1024, "%s", MSG_MMS_HH_CHARSET);
+#if defined(FEATURE_SMS_CDMA)
+			result = false;
+#else
 			result = true;
+#endif
 			break;
 
 		case MMS_HH_ACCEPT_LANGUAGE:
@@ -253,8 +252,7 @@ static bool __httpGetHeaderField(MMS_HTTP_HEADER_FIELD_T httpHeaderItem, char *s
 			result = true;
 			break;
 
-		case MMS_HH_USER_AGENT:
-			{
+		case MMS_HH_USER_AGENT: {
 #if 0
 				char szUserAgent[1024 + 1];
 				char *uagent = NULL;
@@ -282,8 +280,7 @@ static bool __httpGetHeaderField(MMS_HTTP_HEADER_FIELD_T httpHeaderItem, char *s
 			}
 			break;
 
-		case MMS_HH_UA_PROFILE:
-			{
+		case MMS_HH_UA_PROFILE: {
 				char *szUAProfile = MsgSettingGetString(MSG_MMS_UA_PROFILE);
 
 				snprintf((char *)szHeaderBuffer, 1024, "%s", szUAProfile);
@@ -296,22 +293,22 @@ static bool __httpGetHeaderField(MMS_HTTP_HEADER_FIELD_T httpHeaderItem, char *s
 			break;
 
 #if defined(FEATURE_SMS_CDMA)
-		case MMS_HH_MDN:
-//			{
-//				char *mdn = MsgSettingGetString(MSG_SIM_MSISDN);
-//
-//				if (mdn != NULL && strlen(mdn) > 0) {
-//					result = true;
-//					snprintf((char *)szHeaderBuffer, 1024, "%s", mdn);
-//				} else {
-//					result = false;
-//				}
-//				if (mdn) {
-//					free(mdn);
-//					mdn = NULL;
-//				}
-//			}
+		case MMS_HH_MDN: {
+/*
+			char *mdn = MsgSettingGetString(MSG_SIM_MSISDN);
+			if (mdn != NULL && strlen(mdn) > 0) {
+				result = true;
+				snprintf((char *)szHeaderBuffer, 1024, "%s", mdn);
+			} else {
+				result = false;
+			}
+			if (mdn) {
+				free(mdn);
+				mdn = NULL;
+			}
 			break;
+*/
+		}
 #endif
 		default:
 			MSG_WARN("invalid param [%d]", httpHeaderItem);
@@ -335,34 +332,34 @@ static void __httpGetHost(char *szUrl, char *szHost, int nBufferLen)
 	char *startPtr = szUrl;
 	char *movePtr = NULL;
 
-	MSG_DEBUG("startPtr(%s)", startPtr);
+	MSG_SEC_DEBUG("startPtr(%s)", startPtr);
 
 	if (strncasecmp(startPtr, prefixString, prefixLength) == 0) {
-		MSG_DEBUG("(%s) exist", prefixString);
+		MSG_SEC_DEBUG("(%s) exist", prefixString);
 		startPtr += prefixLength;
 		movePtr = startPtr;
 		movePtr = strpbrk(movePtr, delim);
-		MSG_DEBUG("strpbrk --> movePtr(%s)", movePtr);
+		MSG_SEC_DEBUG("strpbrk --> movePtr(%s)", movePtr);
 		if (movePtr == NULL) {
 			strncpy(szHost, startPtr, nBufferLen);
-			MSG_DEBUG("szHost(%s)", szHost);
+			MSG_SEC_DEBUG("szHost(%s)", szHost);
 		} else {
 			int nCopyLen = movePtr - startPtr;
 			strncpy(szHost, startPtr, nCopyLen);
-			MSG_DEBUG("szHost(%s)", szHost);
+			MSG_SEC_DEBUG("szHost(%s)", szHost);
 		}
 	} else {
-		MSG_DEBUG("(%s) not exist", prefixString);
+		MSG_SEC_DEBUG("(%s) not exist", prefixString);
 		movePtr = startPtr;
 		movePtr = strpbrk(movePtr, delim);
-		MSG_DEBUG("strpbrk --> movePtr(%s)", movePtr);
+		MSG_SEC_DEBUG("strpbrk --> movePtr(%s)", movePtr);
 		if (movePtr == NULL) {
 			strncpy(szHost, startPtr, nBufferLen);
-			MSG_DEBUG("szHost(%s)", szHost);
+			MSG_SEC_DEBUG("szHost(%s)", szHost);
 		} else {
 			int nCopyLen = movePtr - startPtr;
 			strncpy(szHost, startPtr, nCopyLen);
-			MSG_DEBUG("szHost(%s)", szHost);
+			MSG_SEC_DEBUG("szHost(%s)", szHost);
 		}
 	}
 }
@@ -394,54 +391,35 @@ static int __http_multi_perform(void *session)
 	MSG_INFO("curl_multi_perform first end : rcm = %d, still_running = %d", rcm, still_running);
 
 	do {
+		int retval;
 		struct timeval timeout;
-		int rc; /* select() return code */
 
-		fd_set fdread;
-		fd_set fdwrite;
-		fd_set fdexcep;
-		int maxfd = -1;
+		int max_fd = -1;
+		fd_set fd_r;
+		fd_set fd_w;
+		fd_set fd_excp;
 
-//		long curl_timeo = -1;
+		FD_ZERO(&fd_r);
+		FD_ZERO(&fd_w);
+		FD_ZERO(&fd_excp);
 
-		FD_ZERO(&fdread);
-		FD_ZERO(&fdwrite);
-		FD_ZERO(&fdexcep);
-
-		/* set a suitable timeout to play around with */
 		timeout.tv_sec = 120;
 		timeout.tv_usec = 0;
 
-//		curl_multi_timeout(multi_handle, &curl_timeo);
-//		if(curl_timeo >= 0) {
-//			MSG_DEBUG("curl_timeo = %ld", curl_timeo);
-//			timeout.tv_sec = curl_timeo / 1000;
-//			if(timeout.tv_sec > 1)
-//				timeout.tv_sec = 1;
-//			else
-//				timeout.tv_usec = (curl_timeo % 1000) * 1000;
-//		}
+		curl_multi_fdset(multi_handle, &fd_r, &fd_w, &fd_excp, &max_fd);
 
-		curl_multi_fdset(multi_handle, &fdread, &fdwrite, &fdexcep, &maxfd);
+		retval = select(max_fd+1, &fd_r, &fd_w, &fd_excp, &timeout);
 
-		/* In a real-world program you OF COURSE check the return code of the
-		function calls.  On success, the value of maxfd is guaranteed to be
-		greater or equal than -1.  We call select(maxfd + 1, ...), specially in
-		case of (maxfd == -1), we call select(0, ...), which is basically equal
-		to sleep. */
-
-		rc = select(maxfd+1, &fdread, &fdwrite, &fdexcep, &timeout);
-
-		if (rc == -1){/* select error */
+		if (retval == -1){ /* select error */
 			MSG_ERR("select error");
 			ret = -1;
 			break;
-		} else if (rc == 0){	/* timeout */
+		} else if (retval == 0){	/* timeout */
 			MSG_ERR("time out");
 			ret = -1;
 			break;
-		} else {/* action */
-			MSG_DEBUG("rc = %d", rc);
+		} else { /* action */
+			MSG_DEBUG("retval = %d", retval);
 			rcm = curl_multi_perform(multi_handle, &still_running);
 		}
 
@@ -453,7 +431,7 @@ static int __http_multi_perform(void *session)
 
 		MSG_INFO("curl_multi_perform end : rcm = %d, still_running = %d, cm_open = %d", rcm, still_running, connection_open_flag);
 
-	} while(still_running && (connection_open_flag == true));
+	} while (still_running && (connection_open_flag == true));
 
 	while ((msg = curl_multi_info_read(multi_handle, &msgs_left))) {
 		if (msg->msg == CURLMSG_DONE) {
@@ -583,7 +561,7 @@ MMS_HTTP_ERROR_E MmsPluginHttpAgent::setSession(http_request_info_s &request_inf
 	int content_len = 0;
 	char *url = NULL;
 
-	// Verify request info
+	/* Verify request info */
 	if (request_info.transaction_type != MMS_HTTP_TRANSACTION_TYPE_GET
 			&& request_info.transaction_type != MMS_HTTP_TRANSACTION_TYPE_POST)
 	{
@@ -607,14 +585,14 @@ MMS_HTTP_ERROR_E MmsPluginHttpAgent::setSession(http_request_info_s &request_inf
 		goto __CATCH;
 	}
 
-	//Set type
+	/* Set type */
 	this->transaction_type = request_info.transaction_type;
 	MSG_DEBUG("set transaction type [%d]", this->transaction_type);
 
-	//Set http Headers
+	/* Set http Headers */
 	if (this->transaction_type == MMS_HTTP_TRANSACTION_TYPE_POST) {
 		content_len = request_info.post_data_len;
-	} else { //MMS_HTTP_TRANSACTION_TYPE_GET
+	} else { /* MMS_HTTP_TRANSACTION_TYPE_GET */
 		content_len = 0;
 	}
 
@@ -636,7 +614,7 @@ MMS_HTTP_ERROR_E MmsPluginHttpAgent::setSession(http_request_info_s &request_inf
 	}
 
 
-	//Set curl option
+	/* Set curl option */
 	session_option = curl_easy_init();
 	if (session_option == NULL) {
 		MSG_ERR("curl_easy_init() failed");
@@ -651,7 +629,6 @@ MMS_HTTP_ERROR_E MmsPluginHttpAgent::setSession(http_request_info_s &request_inf
 	curl_easy_setopt(session_option, CURLOPT_HTTPHEADER, session_header);
 	curl_easy_setopt(session_option, CURLOPT_DEBUGFUNCTION , __http_debug_cb);
 	curl_easy_setopt(session_option, CURLOPT_INTERFACE, request_info.interface);
-	//curl_easy_setopt(httpConfigData.session, CURLOPT_PROGRESSFUNCTION, __http_progress_cb); //for debug
 
 	if (respfile) {
 		curl_easy_setopt(session_option, CURLOPT_WRITEFUNCTION, __http_write_response_cb);
@@ -662,14 +639,14 @@ MMS_HTTP_ERROR_E MmsPluginHttpAgent::setSession(http_request_info_s &request_inf
 		curl_easy_setopt(session_option, CURLOPT_POST, true);
 	 	curl_easy_setopt(session_option, CURLOPT_POSTFIELDS, request_info.post_data);
 		curl_easy_setopt(session_option, CURLOPT_POSTFIELDSIZE, request_info.post_data_len);
-	//	curl_easy_setopt(session_option, CURLOPT_TCP_NODELAY, 1);
+/*		curl_easy_setopt(session_option, CURLOPT_TCP_NODELAY, 1); */
 	}
 
 	MSG_END();
 	return http_error;
 
 __CATCH:
-	//CID 338211: freeing url (with check) in case of error
+	/* CID 338211: freeing url (with check) in case of error */
 	if (url) {
 		free(url);
 		url = NULL;
@@ -709,14 +686,14 @@ MMS_HTTP_ERROR_E MmsPluginHttpAgent::httpRequest(http_request_info_s &request_in
 
 	respfile = fopen(conf_filename, "wb");
 
-	//set session
+	/* set session */
 	http_error = this->setSession(request_info);
 	if (http_error != MMS_HTTP_ERROR_NONE) {
 		MSG_ERR("Fail to setSession");
 		goto __CATCH;
 	}
 
-	//transaction
+	/* transaction */
 	http_error = this->startTransaction();
 
 	if (http_error != MMS_HTTP_ERROR_NONE) {
@@ -724,7 +701,7 @@ MMS_HTTP_ERROR_E MmsPluginHttpAgent::httpRequest(http_request_info_s &request_in
 		goto __CATCH;
 	}
 
-	//close conf file & load response data
+	/* close conf file & load response data */
 	if (respfile) {
 
 		fclose(respfile);

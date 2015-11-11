@@ -52,22 +52,19 @@ int SmsPluginParamCodec::encodeAddress(const SMS_ADDRESS_S *pAddress, char **ppP
 
 	*ppParam = new char[MAX_ADD_PARAM_LEN];
 
-	// Set Address Length
-	if (temp[0] == '+')
-	{
+	/* Set Address Length */
+	if (temp[0] == '+') {
 		(*ppParam)[offset++] = strlen(temp) - 1;
 		temp++;
 
 		ton = SMS_TON_INTERNATIONAL;
-	}
-	else
-	{
+	} else {
 		(*ppParam)[offset++] = strlen(temp);
 
 		ton = pAddress->ton;
 	}
 
-	// Set TON, NPI
+	/* Set TON, NPI */
 	(*ppParam)[offset++] = 0x80 + (ton << 4) + pAddress->npi;
 
 	MSG_DEBUG("Address length is %d.", (*ppParam)[0]);
@@ -86,8 +83,7 @@ int SmsPluginParamCodec::encodeTime(const SMS_TIMESTAMP_S *pTimeStamp, char **pp
 {
 	int offset = 0;
 
-	if(pTimeStamp->format == SMS_TIME_ABSOLUTE)
-	{
+	if (pTimeStamp->format == SMS_TIME_ABSOLUTE) {
 		int timeZone = pTimeStamp->time.absolute.timeZone;
 		*ppParam = new char[MAX_ABS_TIME_PARAM_LEN];
 
@@ -98,8 +94,7 @@ int SmsPluginParamCodec::encodeTime(const SMS_TIMESTAMP_S *pTimeStamp, char **pp
 		(*ppParam)[offset++] = ((pTimeStamp->time.absolute.minute % 10) << 4) + (pTimeStamp->time.absolute.minute / 10);
 		(*ppParam)[offset++] = ((pTimeStamp->time.absolute.second % 10) << 4) + (pTimeStamp->time.absolute.second / 10);
 
-		if(timeZone < 0)
-		{
+		if (timeZone < 0) {
 			timeZone *= -1;
 			(*ppParam)[offset] = 0x08;
 		}
@@ -107,9 +102,7 @@ int SmsPluginParamCodec::encodeTime(const SMS_TIMESTAMP_S *pTimeStamp, char **pp
 
 
 		return offset;
-	}
-	else if(pTimeStamp->format == SMS_TIME_RELATIVE)
-	{
+	} else if (pTimeStamp->format == SMS_TIME_RELATIVE) {
 		*ppParam = new char[MAX_REL_TIME_PARAM_LEN+1];
 
 		memcpy(*ppParam, &(pTimeStamp->time.relative.time), MAX_REL_TIME_PARAM_LEN);
@@ -127,60 +120,54 @@ int SmsPluginParamCodec::encodeDCS(const SMS_DCS_S *pDCS, char **ppParam)
 
 	**ppParam = 0x00;
 
-	switch (pDCS->codingGroup)
+	switch (pDCS->codingGroup) {
+	case SMS_GROUP_GENERAL:
 	{
-		case SMS_GROUP_GENERAL:
-		{
-			if (pDCS->msgClass != SMS_MSG_CLASS_NONE)
-			{
-				**ppParam = 0x10 + pDCS->msgClass;
-			}
+		if (pDCS->msgClass != SMS_MSG_CLASS_NONE)
+			**ppParam = 0x10 + pDCS->msgClass;
 
-			if (pDCS->bCompressed)
-			{
-				**ppParam |= 0x20;
-			}
-		}
+		if (pDCS->bCompressed)
+			**ppParam |= 0x20;
+	}
 		break;
 
-		case SMS_GROUP_CODING_CLASS:
-		{
-			**ppParam = 0xF0 + pDCS->msgClass;
-		}
+	case SMS_GROUP_CODING_CLASS:
+	{
+		**ppParam = 0xF0 + pDCS->msgClass;
+	}
 		break;
 
-		case SMS_GROUP_DELETION:
-			//not supported
+	case SMS_GROUP_DELETION:
+		/* not supported */
 		break;
 
-		case SMS_GROUP_DISCARD:
-			//not supported
+	case SMS_GROUP_DISCARD:
+		/* not supported */
 		break;
 
-		case SMS_GROUP_STORE:
-			//not supported
+	case SMS_GROUP_STORE:
+		/* not supported */
 		break;
 
-		default:
-			return 0;
+	default:
+		return 0;
 	}
 
-	switch (pDCS->codingScheme)
-	{
-		case SMS_CHARSET_7BIT:
+	switch (pDCS->codingScheme) {
+	case SMS_CHARSET_7BIT:
 
 		break;
 
-		case SMS_CHARSET_8BIT:
-			**ppParam |= 0x04;
+	case SMS_CHARSET_8BIT:
+		**ppParam |= 0x04;
 		break;
 
-		case SMS_CHARSET_UCS2:
-			**ppParam |= 0x08;
+	case SMS_CHARSET_UCS2:
+		**ppParam |= 0x08;
 		break;
 
-		default:
-			return 0;
+	default:
+		return 0;
 	}
 
 	return 1;
@@ -192,18 +179,14 @@ int SmsPluginParamCodec::encodeSMSC(const char *pAddress, unsigned char *pEncode
 	char newAddr[MAX_SMSC_LEN+1];
 	memset(newAddr, 0x00, sizeof(newAddr));
 
-//MSG_DEBUG("SMSC [%s]", pAddress);
-
+/*	MSG_DEBUG("SMSC [%s]", pAddress);
+*/
 	if (pAddress[0] == '+')
-	{
 		strncpy(newAddr, pAddress+1, MAX_SMSC_LEN);
-	}
 	else
-	{
 		strncpy(newAddr, pAddress, MAX_SMSC_LEN);
-	}
 
-	// Set Address
+	/* Set Address */
 	int encodeLen = convertDigitToBcd(newAddr, strlen(newAddr), pEncodeAddr);
 
 	pEncodeAddr[encodeLen] = '\0';
@@ -231,22 +214,21 @@ int SmsPluginParamCodec::encodeSMSC(const SMS_ADDRESS_S *pAddress, unsigned char
 	else
 		dataSize = 2 + (addrLen/2) + 1;
 
-	if (dataSize > MAX_SMSC_LEN)
-	{
+	if (dataSize > MAX_SMSC_LEN) {
 		MSG_DEBUG("addrLen is too long [%d]", addrLen);
 		MSG_DEBUG("dataSize is too long [%d]", dataSize);
 
 		return 0;
 	}
 
-	// Set Address Length
-	// Check IPC 4.0 -> addrLen/2
+	/* Set Address Length
+	   Check IPC 4.0 -> addrLen/2 */
 	pSMSC[0] = addrLen;
 
-	// Set TON, NPI
+	/* Set TON, NPI */
 	pSMSC[1] = 0x80 + (pAddress->ton << 4) + pAddress->npi;
 
-	// Set Address
+	/* Set Address */
 	convertDigitToBcd(newAddr, addrLen, &(pSMSC[2]));
 
 	pSMSC[dataSize] = '\0';
@@ -274,11 +256,10 @@ int SmsPluginParamCodec::decodeAddress(const unsigned char *pTpdu, SMS_ADDRESS_S
 	pAddress->ton = (pTpdu[offset] & 0x70) >> 4;
 	pAddress->npi = pTpdu[offset++] & 0x0F;
 
-MSG_DEBUG("ton [%d]", pAddress->ton);
-MSG_DEBUG("npi [%d]", pAddress->npi);
+	MSG_DEBUG("ton [%d]", pAddress->ton);
+	MSG_DEBUG("npi [%d]", pAddress->npi);
 
-	if (pAddress->ton == SMS_TON_ALPHANUMERIC)
-	{
+	if (pAddress->ton == SMS_TON_ALPHANUMERIC) {
 		MSG_DEBUG("Alphanumeric address");
 
 		char* tmpAddress = new char[MAX_ADDRESS_LEN];
@@ -295,22 +276,18 @@ MSG_DEBUG("npi [%d]", pAddress->npi);
 
 		if (tmpAddress)
 			delete[] tmpAddress;
-	}
-	else if (pAddress->ton == SMS_TON_INTERNATIONAL)
-	{
+	} else if (pAddress->ton == SMS_TON_INTERNATIONAL) {
 		convertBcdToDigit(&(pTpdu[offset]), bcdLen, &((pAddress->address)[1]));
 		if (pAddress->address[1] != '\0')
 			pAddress->address[0] = '+';
-	}
-	else
-	{
+	} else {
 		convertBcdToDigit(&(pTpdu[offset]), bcdLen, &((pAddress->address)[0]));
 	}
 
 	offset += 	bcdLen;
 
-//MSG_DEBUG("address [%s]", pAddress->address);
-
+/*	MSG_DEBUG("address [%s]", pAddress->address);
+*/
 	return offset;
 }
 
@@ -319,7 +296,7 @@ int SmsPluginParamCodec::decodeTime(const unsigned char *pTpdu, SMS_TIMESTAMP_S 
 {
 	int offset = 0;
 
-	// decode in ABSOLUTE time type.
+	/* decode in ABSOLUTE time type. */
 	pTimeStamp->format = SMS_TIME_ABSOLUTE;
 
 	pTimeStamp->time.absolute.year = (pTpdu[offset] & 0x0F)*10 + ((pTpdu[offset] & 0xF0) >> 4);
@@ -360,8 +337,7 @@ int SmsPluginParamCodec::decodeDCS(const unsigned char *pTpdu, SMS_DCS_S *pDCS)
 	pDCS->bIndActive = false;
 	pDCS->indType = SMS_OTHER_INDICATOR;
 
-	if (((dcs & 0xC0) >> 6) == 0)
-	{
+	if (((dcs & 0xC0) >> 6) == 0) {
 		pDCS->codingGroup = SMS_GROUP_GENERAL;
 		pDCS->bCompressed = (dcs & 0x20) >> 5;
 		pDCS->codingScheme = (dcs & 0x0C) >> 2;
@@ -370,25 +346,19 @@ int SmsPluginParamCodec::decodeDCS(const unsigned char *pTpdu, SMS_DCS_S *pDCS)
 			pDCS->msgClass = SMS_MSG_CLASS_NONE;
 		else
 			pDCS->msgClass = dcs & 0x03;
-	}
-	else if (((dcs & 0xF0) >> 4) == 0x0F)
-	{
+	} else if (((dcs & 0xF0) >> 4) == 0x0F) {
 		pDCS->codingGroup = SMS_GROUP_CODING_CLASS;
 		pDCS->bCompressed = false;
 		pDCS->codingScheme = (dcs & 0x0C) >> 2;
 
 		pDCS->msgClass = dcs & 0x03;
-	}
-	else if (((dcs & 0xC0) >> 6) == 1)
-	{
+	} else if (((dcs & 0xC0) >> 6) == 1) {
 		pDCS->codingGroup = SMS_GROUP_DELETION;
 		pDCS->bCompressed = false;
 		pDCS->msgClass = SMS_MSG_CLASS_NONE;
 
-		// TODO: finish here. ??
-	}
-	else if (((dcs & 0xF0) >> 4) == 0x0C)
-	{
+		/* TODO: finish here. ?? */
+	} else if (((dcs & 0xF0) >> 4) == 0x0C) {
 		pDCS->codingGroup = SMS_GROUP_DISCARD;
 		pDCS->bCompressed = false;
 		pDCS->msgClass = SMS_MSG_CLASS_NONE;
@@ -396,9 +366,7 @@ int SmsPluginParamCodec::decodeDCS(const unsigned char *pTpdu, SMS_DCS_S *pDCS)
 		pDCS->bMWI = true;
 		pDCS->bIndActive = (((dcs & 0x08) >> 3) == 1)? true:false;
 		pDCS->indType = (SMS_INDICATOR_TYPE_T)(dcs & 0x03);
-	}
-	else if (((dcs & 0xF0) >> 4) == 0x0D)
-	{
+	} else if (((dcs & 0xF0) >> 4) == 0x0D) {
 		pDCS->codingGroup = SMS_GROUP_STORE;
 		pDCS->codingScheme = SMS_CHARSET_7BIT;
 		pDCS->bCompressed = false;
@@ -407,9 +375,7 @@ int SmsPluginParamCodec::decodeDCS(const unsigned char *pTpdu, SMS_DCS_S *pDCS)
 		pDCS->bMWI = true;
 		pDCS->bIndActive = (((dcs & 0x08) >> 3) == 1)? true:false;
 		pDCS->indType = (SMS_INDICATOR_TYPE_T)(dcs & 0x03);
-	}
-	else if (((dcs & 0xF0) >> 4) == 0x0E)
-	{
+	} else if (((dcs & 0xF0) >> 4) == 0x0E) {
 		pDCS->codingGroup = SMS_GROUP_STORE;
 		pDCS->codingScheme = SMS_CHARSET_UCS2;
 		pDCS->bCompressed = false;
@@ -418,9 +384,7 @@ int SmsPluginParamCodec::decodeDCS(const unsigned char *pTpdu, SMS_DCS_S *pDCS)
 		pDCS->bMWI = true;
 		pDCS->bIndActive = (((dcs & 0x08) >> 3) == 1)? true:false;
 		pDCS->indType = (SMS_INDICATOR_TYPE_T)(dcs & 0x03);
-	}
-	else
-	{
+	} else {
 		pDCS->codingGroup = SMS_GROUP_UNKNOWN;
 
 		pDCS->bCompressed = (dcs & 0x20) >> 5;
@@ -438,13 +402,10 @@ void SmsPluginParamCodec::decodeSMSC(unsigned char* pAddress, int AddrLen, MSG_S
 	if (pAddress == NULL || AddrLen == 0)
 		return;
 
-	if (ton == SMS_TON_INTERNATIONAL)
-	{
+	if (ton == SMS_TON_INTERNATIONAL) {
 		pDecodeAddr[0] = '+';
 		convertBcdToDigit(pAddress, AddrLen, &(pDecodeAddr[1]));
-	}
-	else
-	{
+	} else {
 		convertBcdToDigit(pAddress, AddrLen, pDecodeAddr);
 	}
 }
@@ -458,11 +419,10 @@ int SmsPluginParamCodec::convertDigitToBcd(char *pDigit, int DigitLen, unsigned 
 	int offset = 0;
 	unsigned char temp;
 
-//MSG_DEBUG("DigitLen [%d]", DigitLen);
-//MSG_DEBUG("pDigit [%s]", pDigit);
+/*	MSG_DEBUG("DigitLen [%d]", DigitLen);
+	MSG_DEBUG("pDigit [%s]", pDigit); */
 
-	for (int i = 0; i < DigitLen; i++)
-	{
+	for (int i = 0; i < DigitLen; i++) {
 		if (pDigit[i] == '*')
 			temp = 0x0A;
 		else if (pDigit[i] == '#')
@@ -479,9 +439,7 @@ int SmsPluginParamCodec::convertDigitToBcd(char *pDigit, int DigitLen, unsigned 
 	}
 
 	if ((DigitLen%2) == 1)
-	{
 		pBcd[offset++] |= 0xF0;
-	}
 
 	return offset;
 }
@@ -492,8 +450,7 @@ int SmsPluginParamCodec::convertBcdToDigit(const unsigned char *pBcd, int BcdLen
 	int offset = 0;
 	unsigned char temp;
 
-	for (int i = 0; i < BcdLen; i++)
-	{
+	for (int i = 0; i < BcdLen; i++) {
 		temp = pBcd[i] & 0x0F;
 
 		if (temp == 0x0A)
@@ -507,8 +464,7 @@ int SmsPluginParamCodec::convertBcdToDigit(const unsigned char *pBcd, int BcdLen
 
 		temp = (pBcd[i] & 0xF0) >> 4;
 
-		if (temp == 0x0F)
-		{
+		if (temp == 0x0F) {
 			pDigit[offset] = '\0';
 			return offset;
 		}
@@ -540,13 +496,76 @@ bool SmsPluginParamCodec::checkCphsVmiMsg(const unsigned char *pTpdu, int *setTy
 	if (addrLen == 0x04 && pTpdu[offset++] == 0xD0) {
 		if (pTpdu[offset] == 0x11 || pTpdu[offset] == 0x10) {
 			MSG_DEBUG("####### VMI msg ######");
-			*setType = (int)(pTpdu[offset] & 0x01); // 0 : clear, 1 : set
+			*setType = (int)(pTpdu[offset] & 0x01); /* 0 : clear, 1 : set */
 
-			*indType = (int)(pTpdu[offset+1] & 0x01); // 0 : indicator 1, 1 : indicator 2
+			*indType = (int)(pTpdu[offset+1] & 0x01); /* 0 : indicator 1, 1 : indicator 2 */
 
 			ret = true;
 		}
 	}
 
 	return ret;
+}
+
+time_t SmsPluginParamCodec::convertTime(const SMS_TIMESTAMP_S *time_stamp)
+{
+	time_t rawtime;
+
+	if (time_stamp->format == SMS_TIME_ABSOLUTE) {
+		MSG_DEBUG("year : %d", time_stamp->time.absolute.year);
+		MSG_DEBUG("month : %d", time_stamp->time.absolute.month);
+		MSG_DEBUG("day : %d", time_stamp->time.absolute.day);
+		MSG_DEBUG("hour : %d", time_stamp->time.absolute.hour);
+		MSG_DEBUG("minute : %d", time_stamp->time.absolute.minute);
+		MSG_DEBUG("second : %d", time_stamp->time.absolute.second);
+		MSG_DEBUG("timezone : %d", time_stamp->time.absolute.timeZone);
+
+		char displayTime[32];
+		struct tm * timeTM;
+
+		struct tm timeinfo;
+		memset(&timeinfo, 0x00, sizeof(tm));
+
+		timeinfo.tm_year = (time_stamp->time.absolute.year + 100);
+		timeinfo.tm_mon = (time_stamp->time.absolute.month - 1);
+		timeinfo.tm_mday = time_stamp->time.absolute.day;
+		timeinfo.tm_hour = time_stamp->time.absolute.hour;
+		timeinfo.tm_min = time_stamp->time.absolute.minute;
+		timeinfo.tm_sec = time_stamp->time.absolute.second;
+		timeinfo.tm_isdst = 0;
+
+		rawtime = mktime(&timeinfo);
+
+		MSG_DEBUG("tzname[0] [%s]", tzname[0]);
+		MSG_DEBUG("tzname[1] [%s]", tzname[1]);
+		MSG_DEBUG("timezone [%d]", timezone);
+		MSG_DEBUG("daylight [%d]", daylight);
+
+		memset(displayTime, 0x00, sizeof(displayTime));
+		strftime(displayTime, 32, "%Y-%02m-%02d %T %z", &timeinfo);
+		MSG_DEBUG("displayTime [%s]", displayTime);
+
+		rawtime -= (time_stamp->time.absolute.timeZone * (3600/4));
+
+		timeTM = localtime(&rawtime);
+		memset(displayTime, 0x00, sizeof(displayTime));
+		strftime(displayTime, 32, "%Y-%02m-%02d %T %z", timeTM);
+		MSG_DEBUG("displayTime [%s]", displayTime);
+
+/* timezone value is tiemzone + daylight. So should not add daylight */
+#ifdef __MSG_DAYLIGHT_APPLIED__
+		rawtime -= (timezone - daylight*3600);
+#else
+		rawtime -= timezone;
+#endif
+
+		timeTM = localtime(&rawtime);
+		memset(displayTime, 0x00, sizeof(displayTime));
+		strftime(displayTime, 32, "%Y-%02m-%02d %T %z", timeTM);
+		MSG_DEBUG("displayTime [%s]", displayTime);
+	} else {
+		rawtime = time(NULL);
+	}
+
+	return rawtime;
 }

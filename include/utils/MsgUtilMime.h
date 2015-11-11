@@ -14,10 +14,10 @@
  * limitations under the License.
 */
 
-#ifndef MMS_PLUGIN_MIME_H
-#define MMS_PLUGIN_MIME_H
+#ifndef MSG_UTIL_MIME_H
+#define MSG_UTIL_MIME_H
 
-#include "MmsPluginTypes.h"
+#include "msg_types.h"
 
 #define UNDEFINED_BINARY	0xFF
 
@@ -46,8 +46,10 @@ MimeType MimeGetMimeIntFromMimeString(char *szMimeStr);
 
 char *MimeGetMimeStringFromMimeInt(int mimeType);
 
-bool MmsGetMimeTypeFromExt(MimeMainType mainType, const char *pExt, MimeType *pMimeType, const char **ppszMimeType);
+bool MsgGetMimeTypeFromExt(MimeMainType mainType, const char *pExt, MimeType *pMimeType, const char **ppszMimeType);
 
-bool MmsGetMimeTypeFromFileName(MimeMainType mainType, const char *pFileName, MimeType *pMimeType, const char **ppszMimeType);
+bool MsgGetMimeTypeFromFileName(MimeMainType mainType, const char *pFileName, MimeType *pMimeType, const char **ppszMimeType);
 
-#endif // MMS_PLUGIN_MIME_H
+bool MsgGetMainTypeFromMetaData(const char *pFileName, MimeMainType *mainType);
+
+#endif /* MSG_UTIL_MIME_H */

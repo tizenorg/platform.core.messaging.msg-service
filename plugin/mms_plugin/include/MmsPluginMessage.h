@@ -24,21 +24,21 @@
 void MmsComposeNotiMessage(MmsMsg *pMmsMsg, msg_message_id_t msgID);
 
 void MmsComposeReadReportMessage(MmsMsg *pMmsMsg, const MSG_MESSAGE_INFO_S *pMsgInfo, msg_message_id_t selectedMsgId);
+/*
+int MmsUpdatePreviewData(MSG_MESSAGE_INFO_S *pMsgInfo);
 
-//int MmsUpdatePreviewData(MSG_MESSAGE_INFO_S *pMsgInfo);
-//
-//int MmsUpdateMultipartList(MSG_MESSAGE_INFO_S *pMsgInfo);
+int MmsUpdateMultipartList(MSG_MESSAGE_INFO_S *pMsgInfo);
 
-//void MmsPrintFileInfoForVLD(MMS_MESSAGE_DATA_S *pMmsMsg);
-//
-//bool MmsChangeFileNameToAscii(MMS_MESSAGE_DATA_S *pMsgData);
+void MmsPrintFileInfoForVLD(MMS_MESSAGE_DATA_S *pMmsMsg);
 
+bool MmsChangeFileNameToAscii(MMS_MESSAGE_DATA_S *pMsgData);
+*/
 bool MmsConvertMsgData(MmsMsg *pMsg, MMS_MESSAGE_DATA_S *pMmsMsg);
 
-bool MmsConvertMmsData(MmsMsg *pMsg, MMS_DATA_S *pMmsData);//temp func for supporting new mmsdata
+bool MmsConvertMmsData(MmsMsg *pMsg, MMS_DATA_S *pMmsData); /* temp func for supporting new mmsdata */
 
 bool MmsConvertMmsMsg(MmsMsg *pMmsMsg, MMS_DATA_S *pMsgData);
 
 msg_error_t MmsMakeMultipartThumbnailInfo(MMS_MULTIPART_DATA_S *pMultipart, char *thumbnail_path);
 
-#endif //MMS_PLUGIN_MESSAGE_H
+#endif /* MMS_PLUGIN_MESSAGE_H */

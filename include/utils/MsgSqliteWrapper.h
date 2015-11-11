@@ -21,8 +21,8 @@
                                     INCLUDE FILES
 ==================================================================================================*/
 #include "MsgTypes.h"
-#include <db-util.h>
 #include "MsgMutex.h"
+#include <sqlite3.h>
 
 /*==================================================================================================
                                     DEFINES
@@ -89,6 +89,7 @@ public:
 	~MsgDbHandler();
 
 	msg_error_t connect();
+	msg_error_t connectReadOnly();
 	msg_error_t disconnect();
 
 	bool checkTableExist(const char *pTableName);
@@ -122,7 +123,7 @@ private:
 	sqlite3_stmt *stmt;
 	pthread_mutex_t *mmapMx;
 	int shm_fd;
-	static Mutex mx;
+	bool in_trans;
 };
 
 

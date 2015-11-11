@@ -50,7 +50,7 @@ class SmsPluginWapPushHandler
 public:
 	static SmsPluginWapPushHandler* instance();
 
-	//void registerPushCallback();
+	/* void registerPushCallback(); */
 	bool IsWapPushMsg(unsigned short dstport);
 
 	void copyDeliverData(sms_trans_addr_s *pAddr);
@@ -94,8 +94,7 @@ private:
 
 
 	sms_trans_addr_s	tmpAddress;
-//	SMS_TIMESTAMP_S	tmpTimeStamp;
+	/* SMS_TIMESTAMP_S	tmpTimeStamp; */
 };
 
-#endif //SmsPluginWapPushHandler
-
+#endif /* SmsPluginWapPushHandler */

@@ -20,7 +20,7 @@
 #include "MmsPluginTypes.h"
 #include "MmsPluginCodec.h"
 
-//make MMS_DATA_S for DB & Encoding
+/* make MMS_DATA_S for DB & Encoding */
 class MmsPluginComposer {
 public:
 	static MmsPluginComposer *instance();
@@ -43,4 +43,4 @@ private:
 	~MmsPluginComposer();
 
 };
-#endif //MMS_PLUGIN_COMPOSER_H
+#endif /* MMS_PLUGIN_COMPOSER_H */

@@ -37,23 +37,20 @@ using namespace std;
 /*==================================================================================================
                                      VARIABLES AND DEFINES
 ==================================================================================================*/
-struct wap_data_s
-{
+struct wap_data_s {
 	int	length;
 	char data[SMS_MAX_USER_DATA_LEN+1];
 };
 
 typedef map<unsigned char, wap_data_s> wapDataMap;
 
-typedef struct _sms_wap_msg_s
-{
+typedef struct _sms_wap_msg_s {
 	unsigned short	msgId;
 	unsigned char		totalSeg;
 	unsigned char		segNum;
 } sms_wap_msg_s;
 
-typedef struct _sms_wap_info_s
-{
+typedef struct _sms_wap_info_s {
 	unsigned short	msgId;
 	unsigned char		totalSeg;
 	unsigned char		segNum;
@@ -61,7 +58,6 @@ typedef struct _sms_wap_info_s
 	unsigned int		totalSize;
 	wapDataMap			data;
 } sms_wap_info_s;
-
 
 
 /*==================================================================================================
@@ -128,5 +124,4 @@ private:
 
 };
 
-#endif //SMS_CDMA_PLUGIN_EVENT_HANDLER_H
-
+#endif /* SMS_CDMA_PLUGIN_EVENT_HANDLER_H */

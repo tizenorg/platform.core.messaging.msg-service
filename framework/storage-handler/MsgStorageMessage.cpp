@@ -28,13 +28,11 @@
 #include "MsgUtilFile.h"
 #include "MsgMutex.h"
 #include "MsgUtilStorage.h"
-#include "MsgSoundPlayer.h"
 #include "MsgGconfWrapper.h"
 #include "MsgSqliteWrapper.h"
 #include "MsgPluginManager.h"
 #include "MsgStorageHandler.h"
 #include "MsgNotificationWrapper.h"
-#include "MsgMmsMessage.h"
 #include "MsgDevicedWrapper.h"
 
 using namespace std;
@@ -60,7 +58,7 @@ static gboolean resetNotification(void *pVoid)
 {
 	MSG_BEGIN();
 
-	MsgRefreshAllNotification(true, false, false);
+	MsgRefreshAllNotification(true, false, MSG_ACTIVE_NOTI_TYPE_NONE);
 
 	MSG_END();
 
@@ -111,10 +109,19 @@ msg_error_t MsgStoAddMessage(MSG_MESSAGE_INFO_S *pMsg, MSG_SENDINGOPT_INFO_S *pS
 	}
 
 	int fileSize = 0;
-	gchar *contents = NULL;
 
 	char *pFileData = NULL;
 	unique_ptr<char*, void(*)(char**)> buf(&pFileData, unique_ptr_deleter);
+
+	// Get File Data
+	if (pMsg->bTextSms == false) {
+		if (MsgOpenAndReadFile(pMsg->msgData, &pFileData, &fileSize) == false) {
+			dbHandle->endTrans(false);
+			return MSG_ERR_STORAGE_ERROR;
+		}
+
+		MSG_DEBUG("file size [%d]", fileSize);
+	}
 
 	char keyName[MAX_VCONFKEY_NAME_LEN];
 	memset(keyName, 0x00, sizeof(keyName));
@@ -145,43 +152,19 @@ msg_error_t MsgStoAddMessage(MSG_MESSAGE_INFO_S *pMsg, MSG_SENDINGOPT_INFO_S *pS
 	if (pMsg->msgType.subType == MSG_NOTIFICATIONIND_MMS) {
 		dbHandle->bindText("", 2);
 	} else {
-		if (pMsg->bTextSms == false) {
-			//CID 47860: pMsg->msgData is an array, hence null check is not required
-			char fn[MSG_FILEPATH_LEN_MAX];
-			memset(fn,0x00,MSG_FILEPATH_LEN_MAX);
-			snprintf(fn, MSG_FILEPATH_LEN_MAX, "%s%s", MSG_IPC_DATA_PATH, pMsg->msgData);
-
-			if (g_file_get_contents((gchar*)fn, (gchar**)&contents, NULL, NULL)) {
-				MSG_DEBUG("g_file_get_contents() Success!!");
-				dbHandle->bindText(contents, 2);
-			} else {
-				MSG_DEBUG("g_file_get_contents() Failed!!");
-				dbHandle->bindText("", 2);
-			}
-
-		} else
+		if (pMsg->bTextSms == false)
+			dbHandle->bindText(pFileData, 2);
+		else
 			dbHandle->bindText(pMsg->msgText, 2);
 	}
 
 	if (dbHandle->stepQuery() != MSG_ERR_DB_DONE) {
 		dbHandle->finalizeQuery();
 		dbHandle->endTrans(false);
-		//free contents
-		if (contents) {
-			g_free(contents);
-			contents = NULL;
-		}
-
 		return MSG_ERR_DB_EXEC;
 	}
 
 	dbHandle->finalizeQuery();
-
-	//free contents
-	if (contents) {
-		g_free(contents);
-		contents = NULL;
-	}
 
 	if (pMsg->msgType.subType != MSG_SENDREQ_MMS) {
 		err = MsgStoUpdateConversation(dbHandle, convId);
@@ -262,14 +245,12 @@ msg_error_t MsgStoAddMessage(MSG_MESSAGE_INFO_S *pMsg, MSG_SENDINGOPT_INFO_S *pS
 				return MSG_ERR_NULL_POINTER;
 			}
 
-			if (pMmsSerializedData == NULL) {
-				if (MsgOpenAndReadFile(pMsg->msgData, &pMmsSerializedData, &fileSize) == false) {
-					dbHandle->endTrans(false);
-					return MSG_ERR_STORAGE_ERROR;
-				}
-
-				MSG_DEBUG("file size [%d]", fileSize);
+			if (MsgOpenAndReadFile(pMsg->msgData, &pMmsSerializedData, &fileSize) == false) {
+				dbHandle->endTrans(false);
+				return MSG_ERR_STORAGE_ERROR;
 			}
+
+			MSG_DEBUG("file size [%d]", fileSize);
 
 			err = plg->addMessage(pMsg, pSendOptInfo, pMmsSerializedData);
 
@@ -527,60 +508,62 @@ msg_error_t MsgStoUpdateReadStatus(msg_message_id_t msgId, bool bRead)
 		return MSG_ERR_STORAGE_ERROR;
 	}
 
-	MsgRefreshAllNotification(true, false, false);
+	MsgRefreshAllNotification(true, false, MSG_ACTIVE_NOTI_TYPE_NONE);
 
-	// Get STORAGE_ID
-	memset(sqlQuery, 0x00, sizeof(sqlQuery));
-	snprintf(sqlQuery, sizeof(sqlQuery), "SELECT STORAGE_ID FROM %s WHERE MSG_ID = %d;",
-			MSGFW_MESSAGE_TABLE_NAME, msgId);
-
-	if (dbHandle->prepareQuery(sqlQuery) != MSG_SUCCESS)
-		return MSG_ERR_DB_PREPARE;
-
-	if (dbHandle->stepQuery() == MSG_ERR_DB_ROW) {
-		storageId = dbHandle->columnInt(0);
-	} else {
-		dbHandle->finalizeQuery();
-		return MSG_ERR_DB_STEP;
-	}
-
-	dbHandle->finalizeQuery();
-
-	MSG_DEBUG("StorageId:[%d]", storageId);
-
+	if (bRead == true) {
 #ifndef FEATURE_SMS_CDMA
-	// Update Read Status for SIM Msg
-	if (storageId == MSG_STORAGE_SIM) {
-		MsgPlugin *plg = MsgPluginManager::instance()->getPlugin(MSG_SMS_TYPE);
-
-		if (plg == NULL) {
-			MSG_DEBUG("SMS Plug-in is NULL");
-			return MSG_ERR_NULL_POINTER;
-		}
-
-		// Get SIM Msg ID
+		// Get STORAGE_ID
 		memset(sqlQuery, 0x00, sizeof(sqlQuery));
-		snprintf(sqlQuery, sizeof(sqlQuery), "SELECT SIM_SLOT_ID, SIM_ID FROM %s WHERE MSG_ID = %d;",
-				MSGFW_SIM_MSG_TABLE_NAME, msgId);
+		snprintf(sqlQuery, sizeof(sqlQuery), "SELECT STORAGE_ID FROM %s WHERE MSG_ID = %d;",
+				MSGFW_MESSAGE_TABLE_NAME, msgId);
 
 		if (dbHandle->prepareQuery(sqlQuery) != MSG_SUCCESS)
 			return MSG_ERR_DB_PREPARE;
 
-		msg_sim_id_t simId;
-		msg_sim_slot_id_t sim_idx;
-
-		while (dbHandle->stepQuery() == MSG_ERR_DB_ROW) {
-			sim_idx = dbHandle->columnInt(0);
-			simId = dbHandle->columnInt(1);
-
-			if (plg->setReadStatus(sim_idx, simId) != MSG_SUCCESS) {
-				MSG_DEBUG("Fail to Set Read Status for SIM SMS");
-				continue;
-			}
+		if (dbHandle->stepQuery() == MSG_ERR_DB_ROW) {
+			storageId = dbHandle->columnInt(0);
+		} else {
+			dbHandle->finalizeQuery();
+			return MSG_ERR_DB_STEP;
 		}
 		dbHandle->finalizeQuery();
-	}
+
+		MSG_DEBUG("StorageId:[%d]", storageId);
+
+		// Update Read Status for SIM Msg
+		if (storageId == MSG_STORAGE_SIM) {
+			MsgPlugin *plg = MsgPluginManager::instance()->getPlugin(MSG_SMS_TYPE);
+
+			if (plg == NULL) {
+				MSG_DEBUG("SMS Plug-in is NULL");
+				return MSG_ERR_NULL_POINTER;
+			}
+
+			// Get SIM Msg ID
+			memset(sqlQuery, 0x00, sizeof(sqlQuery));
+			snprintf(sqlQuery, sizeof(sqlQuery), "SELECT SIM_SLOT_ID, SIM_ID FROM %s WHERE MSG_ID = %d;",
+					MSGFW_SIM_MSG_TABLE_NAME, msgId);
+
+			if (dbHandle->prepareQuery(sqlQuery) != MSG_SUCCESS)
+				return MSG_ERR_DB_PREPARE;
+
+			msg_sim_id_t simId;
+			msg_sim_slot_id_t sim_idx;
+
+			while (dbHandle->stepQuery() == MSG_ERR_DB_ROW) {
+				sim_idx = dbHandle->columnInt(0);
+				simId = dbHandle->columnInt(1);
+
+				if (plg->setReadStatus(sim_idx, simId) != MSG_SUCCESS) {
+					MSG_DEBUG("Fail to Set Read Status for SIM SMS");
+					continue;
+				}
+			}
+			dbHandle->finalizeQuery();
+		}
 #endif
+	}
+
 	return MSG_SUCCESS;
 }
 
@@ -1024,17 +1007,13 @@ msg_error_t MsgStoDeleteMessage(msg_message_id_t msgId, bool bCheckIndication)
 		if (MsgStoCheckMsgCntFull(dbHandle, &msgType, folderId) == MSG_SUCCESS) {
 			MSG_DEBUG("Set Memory Status");
 
-#ifndef FEATURE_SMS_CDMA
 			plg->setMemoryStatus(simIndex, MSG_SUCCESS);
-#else
-			plg->setMemoryStatus(MSG_SUCCESS);
-#endif
 		}
 	}
 
 	if (bCheckIndication == true) {
 		MSG_DEBUG("bCheckIndication is true.");
-		MsgRefreshAllNotification(true, false, false);
+		MsgRefreshAllNotification(true, false, MSG_ACTIVE_NOTI_TYPE_NONE);
 	}
 
 	return MSG_SUCCESS;
@@ -1341,7 +1320,7 @@ msg_error_t MsgStoDeleteAllMessageInFolder(msg_folder_id_t folderId, bool bOnlyD
 //				err = MSG_ERR_UNKNOWN;
 //			}
 
-			MsgRefreshAllNotification(true, false, false);
+			MsgRefreshAllNotification(true, false, MSG_ACTIVE_NOTI_TYPE_NONE);
 		}
 	}
 /*** **/
@@ -1524,8 +1503,8 @@ msg_error_t MsgStoDeleteMessageByList(msg_id_list_s *pMsgIdList)
 	for (int i = 0; i < listCnt; i++) {
 		if ( !i ) {
 
-			char filePath[MSG_FILEPATH_LEN_MAX];
-			char dirPath[MSG_FILEPATH_LEN_MAX];
+			char filePath[MSG_FILEPATH_LEN_MAX] = {0,};
+			char dirPath[MSG_FILEPATH_LEN_MAX] = {0,};
 
 			rowCnt = 0;
 
@@ -1722,7 +1701,8 @@ msg_error_t MsgStoMoveMessageToFolder(msg_message_id_t msgId, msg_folder_id_t de
 	err = MsgStoUpdateConversation(dbHandle, convId);
 
 	/* update notification */
-	MsgRefreshAllNotification(true, false, false);
+	if (destFolderId != MSG_SPAMBOX_ID)
+		MsgRefreshAllNotification(true, false, MSG_ACTIVE_NOTI_TYPE_NONE);
 
 	return err;
 }
@@ -1796,6 +1776,7 @@ msg_error_t MsgStoMoveMessageToStorage(msg_message_id_t msgId, msg_storage_id_t 
 
 	default: //Moving message to memory (when destination storage id is MSG_STORAGE_PHONE)
 		{
+#ifndef FEATURE_SMS_CDMA
 			bool bSimMsg = false;
 			int rowCnt = 0;
 
@@ -1818,7 +1799,6 @@ msg_error_t MsgStoMoveMessageToStorage(msg_message_id_t msgId, msg_storage_id_t 
 
 			dbHandle->freeTable();
 
-#ifndef FEATURE_SMS_CDMA
 			if (bSimMsg == true) {
 				msg_sim_id_t simMsgId;
 				msg_sim_slot_id_t sim_idx;
@@ -2185,8 +2165,9 @@ msg_error_t MsgStoGetFailedMessage(int **failed_msg_list, int *count)
 
 	memset(sqlQuery, 0x00, sizeof(sqlQuery));
 
-	snprintf(sqlQuery, sizeof(sqlQuery), "SELECT MSG_ID FROM %s WHERE NETWORK_STATUS = %d AND FOLDER_ID = %d;",
-				MSGFW_MESSAGE_TABLE_NAME, MSG_NETWORK_SEND_PENDING, MSG_OUTBOX_ID);
+	/* Folder ID == 2 : sending failed message, Folder ID == 1 : retrieve failed message */
+	snprintf(sqlQuery, sizeof(sqlQuery), "SELECT MSG_ID FROM %s WHERE (NETWORK_STATUS = %d OR NETWORK_STATUS == %d) AND (FOLDER_ID = %d OR FOLDER_ID = %d);",
+				MSGFW_MESSAGE_TABLE_NAME, MSG_NETWORK_SEND_PENDING, MSG_NETWORK_RETRIEVE_PENDING, MSG_OUTBOX_ID, MSG_INBOX_ID);
 	err = dbHandle->getTable(sqlQuery, &rowCnt, &index);
 
 	if(err == MSG_ERR_DB_NORECORD){
@@ -2257,7 +2238,8 @@ msg_error_t MsgStoAddSyncMLMessage(MSG_MESSAGE_INFO_S *pMsgInfo, int extId, int 
 	pMsgInfo->msgId = (msg_message_id_t)rowId;
 
 	MsgInsertNotification(pMsgInfo);
-	MsgChangePmState();
+	if (MsgCheckNotificationSettingEnable())
+		MsgChangePmState();
 
 	MSG_END();
 
@@ -2377,14 +2359,27 @@ msg_error_t MsgStoDeleteThreadMessageList(msg_thread_id_t threadId, bool bInclud
 	err = dbHandle->getTable(sqlQuery, &rowCnt, &index);
 
 	if (err != MSG_SUCCESS && err != MSG_ERR_DB_NORECORD) {
-		MSG_DEBUG("Fail to getTable().");
+		MSG_ERR("Fail to getTable().");
 		dbHandle->freeTable();
 		return err;
 	}
 
 	if (rowCnt <= 0) {
-//		dbHandle->freeTable();
-		err = MSG_SUCCESS;
+		dbHandle->freeTable();
+
+		err = MsgStoClearConversationTable(dbHandle);
+		if (err != MSG_SUCCESS) {
+			MSG_ERR("Fail to MsgStoClearConversationTable().");
+			return err;
+		}
+
+		err = MsgStoUpdateConversation(dbHandle, threadId);
+		if (err != MSG_SUCCESS) {
+			MSG_ERR("Fail to MsgStoUpdateConversation().");
+			return err;
+		}
+
+		return MSG_SUCCESS;
 	}
 
 	pMsgIdList->nCount = rowCnt;
@@ -2400,8 +2395,78 @@ msg_error_t MsgStoDeleteThreadMessageList(msg_thread_id_t threadId, bool bInclud
 	/*** **/
 
 	err = MsgStoDeleteMessageByList(pMsgIdList);
+	if (err != MSG_SUCCESS) {
+		MSG_ERR("Fail to MsgStoDeleteMessageByList().");
+		return err;
+	}
 
 	return err;
+}
+
+
+msg_error_t MsgStoSetTempAddressTable(const char *pSearchVal, int *count)
+{
+	MSG_ADDRESS_INFO_S *pAddrInfo = NULL;
+	unique_ptr<MSG_ADDRESS_INFO_S*, void(*)(MSG_ADDRESS_INFO_S**)> buf(&pAddrInfo, unique_ptr_deleter);
+	*count = 0;
+
+	// get contact search list
+	if (MsgGetContactSearchList(pSearchVal, &pAddrInfo, count) != MSG_SUCCESS) {
+		MSG_DEBUG("MsgGetContactSearchList fail.");
+		*count = 0;
+		return MSG_SUCCESS;
+	}
+
+	if (*count == 0) {
+		return MSG_SUCCESS;
+	}
+	MsgDbHandler *dbHandle = getDbHandle();
+	char sqlQuery[MAX_QUERY_LEN+1];
+
+	dbHandle->beginTrans();
+	// reset address temp table
+	memset(sqlQuery, 0x00, sizeof(sqlQuery));
+	snprintf(sqlQuery, sizeof(sqlQuery), "DELETE FROM %s;", MSGFW_ADDRESS_TEMP_TABLE_NAME);
+	MSG_DEBUG("[%s]", sqlQuery);
+
+	if (dbHandle->prepareQuery(sqlQuery) != MSG_SUCCESS)
+		return MSG_ERR_DB_EXEC;
+
+	if (dbHandle->stepQuery() != MSG_ERR_DB_DONE) {
+		dbHandle->finalizeQuery();
+		dbHandle->endTrans(false);
+		return MSG_ERR_DB_EXEC;
+	}
+
+	dbHandle->finalizeQuery();
+
+	memset(sqlQuery, 0x00, sizeof(sqlQuery));
+	snprintf(sqlQuery, sizeof(sqlQuery), "INSERT INTO %s VALUES (?);", MSGFW_ADDRESS_TEMP_TABLE_NAME);
+	if (dbHandle->prepareQuery(sqlQuery) != MSG_SUCCESS) {
+		dbHandle->endTrans(false);
+		return MSG_ERR_DB_PREPARE;
+	}
+
+	char newPhoneNum[MAX_ADDRESS_VAL_LEN+1];
+	char tmpNum[MAX_ADDRESS_VAL_LEN+1];
+	for (int i = 0; i < *count; i++) {
+		memset(newPhoneNum, 0x00, sizeof(newPhoneNum));
+		memset(tmpNum, 0x00, sizeof(tmpNum));
+		MsgConvertNumber(pAddrInfo[i].addressVal, tmpNum, sizeof(tmpNum));
+		snprintf(newPhoneNum, sizeof(newPhoneNum), "%%%%%s", tmpNum);
+		dbHandle->resetQuery();
+		dbHandle->bindText(newPhoneNum, 1);
+		if (dbHandle->stepQuery() != MSG_ERR_DB_DONE) {
+			dbHandle->finalizeQuery();
+			dbHandle->endTrans(false);
+			return MSG_ERR_DB_EXEC;
+		}
+	}
+
+	dbHandle->finalizeQuery();
+	dbHandle->endTrans(true);
+
+	return MSG_SUCCESS;
 }
 
 
@@ -2679,14 +2744,12 @@ msg_error_t MsgStoGetThreadInfo(msg_thread_id_t threadId, MSG_THREAD_VIEW_S *pTh
 			"(SELECT COUNT(*) FROM %s B WHERE B.CONV_ID = A.CONV_ID AND B.PROTECTED = 1) AS PROTECTED, "
 			"(SELECT COUNT(*) FROM %s B WHERE B.CONV_ID = A.CONV_ID AND B.FOLDER_ID = %d) AS DRAFT, "
 			"(SELECT COUNT(*) FROM %s B WHERE B.CONV_ID = A.CONV_ID AND B.NETWORK_STATUS = %d) AS FAILED, "
-			"(SELECT COUNT(*) FROM %s B WHERE B.CONV_ID = A.CONV_ID AND B.NETWORK_STATUS = %d) AS SENDING, "
-			"(SELECT SIM_INDEX FROM %s B WHERE B.CONV_ID = A.CONV_ID) "
+			"(SELECT COUNT(*) FROM %s B WHERE B.CONV_ID = A.CONV_ID AND B.NETWORK_STATUS = %d) AS SENDING "
 			"FROM %s A WHERE A.CONV_ID = %d AND A.SMS_CNT + A.MMS_CNT > 0;",
 			MSGFW_MESSAGE_TABLE_NAME,
 			MSGFW_MESSAGE_TABLE_NAME, MSG_DRAFT_ID,
 			MSGFW_MESSAGE_TABLE_NAME, MSG_NETWORK_SEND_FAIL,
 			MSGFW_MESSAGE_TABLE_NAME, MSG_NETWORK_SENDING,
-			MSGFW_MESSAGE_TABLE_NAME,
 			MSGFW_CONVERSATION_TABLE_NAME, threadId);
 
 	msg_error_t err = dbHandle->getTable(sqlQuery, &rowCnt, &index);
@@ -2738,8 +2801,6 @@ msg_error_t MsgStoGetThreadInfo(msg_thread_id_t threadId, MSG_THREAD_VIEW_S *pTh
 		int sendingCnt = dbHandle->getColumnToInt(index++);
 		if (sendingCnt > 0)
 			pThreadInfo->bSending = true;
-
-		pThreadInfo->simIndex = dbHandle->getColumnToInt(index++);
 	}
 
 	dbHandle->freeTable();
@@ -2758,12 +2819,10 @@ msg_error_t MsgStoRestoreMessage(MSG_MESSAGE_INFO_S *pMsg, MSG_SENDINGOPT_INFO_S
 	msg_error_t err = MSG_SUCCESS;
 	char sqlQuery[MAX_QUERY_LEN+1];
 
-	if(MsgExistConversation(dbHandle, pMsg->threadId))
-	{
+	if(MsgExistConversation(dbHandle, pMsg->threadId)) {
 		// add message to address table  which having same thread_id and datetime;
-		for (int i=0; i<pMsg->nAddressCnt; i++) {
-			if(MsgExistAddress(dbHandle, pMsg, pMsg->threadId, i) == false)
-			{
+		for (int i = 0; i < pMsg->nAddressCnt; i++) {
+			if(MsgExistAddress(dbHandle, pMsg, pMsg->threadId, i) == false) {
 				unsigned int addrId;
 				MSG_CONTACT_INFO_S contactInfo;
 				memset(&contactInfo, 0x00, sizeof(MSG_CONTACT_INFO_S));
@@ -2808,11 +2867,10 @@ msg_error_t MsgStoRestoreMessage(MSG_MESSAGE_INFO_S *pMsg, MSG_SENDINGOPT_INFO_S
 		}
 
 
-		if(!MsgExistMessage(dbHandle, pMsg))
-		{
+		if(!MsgExistMessage(dbHandle, pMsg)) {
 			unsigned int rowId = 0;
 
-			if(pMsg->threadId > 0 && pMsg->folderId == MSG_DRAFT_ID) {
+			if (pMsg->threadId > 0 && pMsg->folderId == MSG_DRAFT_ID) {
 				memset(sqlQuery, 0x00, sizeof(sqlQuery));
 
 				snprintf(sqlQuery, sizeof(sqlQuery),
@@ -3081,7 +3139,7 @@ msg_error_t MsgStoUpdateIMSI(int sim_idx)
 
 		char *imsi = MsgSettingGetString(keyName);
 
-		MSG_DEBUG("imsi value exist -> %s", imsi);
+		MSG_SEC_DEBUG("imsi value exist -> %s", imsi);
 
 		memset(sqlQuery, 0x00, sizeof(sqlQuery));
 

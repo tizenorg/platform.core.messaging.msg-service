@@ -114,7 +114,7 @@ enum {
 	MSG_FIELD_MIME_VERSION,
 	MSG_FIELD_CONTENT_TYPE,
 	MSG_FIELD_CONTENT_TRANSFER_ENCODING,
-	MSG_FIELD_CONTENT_DISPOSITION, //If start param is given in multipart/related, this field will be ignored
+	MSG_FIELD_CONTENT_DISPOSITION, /* If start param is given in multipart/related, this field will be ignored */
 	MSG_FIELD_CONTENT_ID,
 	MSG_FIELD_CONTENT_LOCATION,
 	MSG_FIELD_CONTENT_NAME,
@@ -140,11 +140,11 @@ enum {
 	MSG_PARAM_CHARSET,
 	MSG_PARAM_NAME,
 	MSG_PARAM_FILENAME,
-	MSG_PARAM_TYPE,			// only used as parameter of Content-Type: multipart/related
-	MSG_PARAM_START,		// Only if content-type is multipart/related
-	MSG_PARAM_START_INFO,	// Only if content-type is multipart/related
+	MSG_PARAM_TYPE,			/* only used as parameter of Content-Type: multipart/related */
+	MSG_PARAM_START,		/* Only if content-type is multipart/related */
+	MSG_PARAM_START_INFO,	/* Only if content-type is multipart/related */
 	MSG_PARAM_BOUNDARY,
-	MSG_PARAM_REPORT_TYPE,  // only used as parameter of Content-Type: multipart/report; report-type=delivery-status;
+	MSG_PARAM_REPORT_TYPE,  /* only used as parameter of Content-Type: multipart/report; report-type=delivery-status; */
 #ifdef FEATURE_JAVA_MMS
 	MSG_PARAM_APPLICATION_ID,
 	MSG_PARAM_REPLY_TO_APPLICATION_ID,
@@ -194,4 +194,4 @@ bool MmsIsVitemContent(int type, char *pszName);
 
 MsgMultipart *MmsAllocMultipart(void);
 bool MmsPrintMulitpart(MsgMultipart *pMultipart, int index);
-#endif //MMS_PLUGIN_CODEC_COMMON_H
+#endif /* MMS_PLUGIN_CODEC_COMMON_H */

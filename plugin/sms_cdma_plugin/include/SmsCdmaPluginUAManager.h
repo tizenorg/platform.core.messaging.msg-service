@@ -35,7 +35,7 @@ class SmsPluginUAManager : public MsgThread
 public:
 	static SmsPluginUAManager* instance();
 
-	//virtual void start();
+	/* virtual void start(); */
 
 	void addReqEntity(sms_request_info_s *request);
 
@@ -59,5 +59,4 @@ private:
 	CndVar cv;
 };
 
-#endif //SMS_CDMA_PLUGIN_UA_MANAGER_H
-
+#endif /* SMS_CDMA_PLUGIN_UA_MANAGER_H */

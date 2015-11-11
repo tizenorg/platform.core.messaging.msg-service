@@ -79,13 +79,12 @@ void SmsPluginCallback::registerEvent()
 		MSG_DEBUG("tel_register_noti_event is failed : [%s]", TAPI_NOTI_SIM_REFRESHED);
 
 	MsgSettingRegVconfCBCommon(VCONFKEY_DNET_STATE, _dnet_state_changed_cb);
-//	MsgSettingRegVconfCBCommon(VCONFKEY_TELEPHONY_MDN, _TapiMdnChangedCb);
+	/* MsgSettingRegVconfCBCommon(VCONFKEY_TELEPHONY_MDN, _TapiMdnChangedCb); */
 }
 
 
 void SmsPluginCallback::deRegisterEvent()
 {
-
 
 }
 
@@ -94,18 +93,15 @@ void TapiEventDeviceReady(TapiHandle *handle, const char *noti_id, void *data, v
 {
 	MSG_DEBUG("TapiEventDeviceReady is called. : noti_id = [%d]", noti_id);
 
-	try
-	{
-		// Call Event Handler
+	try {
+		/* Call Event Handler */
 		SmsPluginEventHandler::instance()->setDeviceStatus();
 
 		if (SmsPluginEventHandler::instance()->getNeedInitConfig() == true) {
 			SmsPluginEventHandler::instance()->setNeedInitConfig(false);
 			SmsPluginSetting::instance()->SimRefreshCb();
 		}
-	}
-	catch (MsgException& e)
-	{
+	} catch (MsgException& e) {
 		MSG_FATAL("%s", e.what());
 		return;
 	}
@@ -142,7 +138,8 @@ void TapiEventMsgIncoming(TapiHandle *handle, const char *noti_id, void *data, v
 	sms_trans_msg_s	sms_trans_msg;
 	memset(&sms_trans_msg, 0x00, sizeof(sms_trans_msg_s));
 
-	if (pDataPackage->format == (TelSmsNetType_t)0x03) {				// voice mail notification
+	if (pDataPackage->format == (TelSmsNetType_t)0x03) {
+		/* voice mail notification */
 		sms_trans_msg.data.p2p_msg.telesvc_msg.type = SMS_TYPE_DELIVER;
 		sms_trans_msg.data.p2p_msg.telesvc_id = SMS_TRANS_TELESVC_VMN_95;
 
@@ -164,21 +161,20 @@ void TapiEventMsgIncoming(TapiHandle *handle, const char *noti_id, void *data, v
 	} else {
 		bool bInvalid = SmsPluginMsgCodec::checkInvalidPDU(pDataPackage->szData, pDataPackage->MsgLength);
 		if (bInvalid == true) {
-			// Decode Incoming Message
+			/* Decode Incoming Message */
 			SmsPluginMsgCodec::decodeMsg(pDataPackage->szData, pDataPackage->MsgLength, &sms_trans_msg);
 
 			if (sms_trans_msg.data.cb_msg.telesvc_msg.data.deliver.cmas_data.is_wrong_recode_type) {
 				MSG_WARN("Invalid CMAS Record Type");
 				return;
 			}
-		}
-		else {
+		} else {
 			MSG_WARN("Invalid PDU");
 			return;
 		}
 	}
 
-	/// Print tpdu
+	/* Print tpdu */
 	if (sms_trans_msg.type == SMS_TRANS_P2P_MSG) {
 		MSG_DEBUG("############# SMS_TRANS_P2P_MSG Incoming decoded tpdu values ####################");
 		MSG_DEBUG("------------------------------ transport layer data -----------------------------");
@@ -217,8 +213,7 @@ void TapiEventMsgIncoming(TapiHandle *handle, const char *noti_id, void *data, v
 		MSG_DEBUG("deliver_msg->callback_number.number_type= [%d]", deliver_msg->callback_number.number_type);
 		MSG_DEBUG("deliver_msg->callback_number.szData= [%s]", deliver_msg->callback_number.szData);
 		MSG_DEBUG("#####################################################");
-	}
-	else if (sms_trans_msg.type == SMS_TRANS_BROADCAST_MSG) {
+	} else if (sms_trans_msg.type == SMS_TRANS_BROADCAST_MSG) {
 		MSG_DEBUG("############# SMS_TRANS_BROADCAST_MSG Incoming decoded tpdu values ####################");
 		MSG_DEBUG("------------------------------ transport layer data -----------------------------");
 		MSG_DEBUG("sms_trans_msg.data.cb_msg.svc_ctg = [%d]", sms_trans_msg.data.cb_msg.svc_ctg);
@@ -253,27 +248,26 @@ void TapiEventMsgIncoming(TapiHandle *handle, const char *noti_id, void *data, v
 		MSG_DEBUG("deliver_msg->callback_number.szData= [%s]", deliver_msg->callback_number.szData);
 		MSG_DEBUG("#####################################################");
 	} else if (sms_trans_msg.type == SMS_TRANS_ACK_MSG) {
-		// DLOG
+		/* DLOG */
 		MSG_DEBUG("#####################################################");
 	}
 
-	try
-	{
+	try {
 		if (sms_trans_msg.type == SMS_TRANS_P2P_MSG) {
 			if (sms_trans_msg.data.p2p_msg.telesvc_id == SMS_TRANS_TELESVC_WAP) {
 				SmsPluginEventHandler::instance()->handleWapMsgIncoming(&(sms_trans_msg.data.p2p_msg));
-			}
-			else {
-				SmsPluginEventHandler::instance()->handleMsgIncoming(&(sms_trans_msg.data.p2p_msg)); // Call Event Handler
+			} else {
+				/* Call Event Handler */
+				SmsPluginEventHandler::instance()->handleMsgIncoming(&(sms_trans_msg.data.p2p_msg));
 			}
 		} else if (sms_trans_msg.type == SMS_TRANS_BROADCAST_MSG) {
-			SmsPluginEventHandler::instance()->handleCbMsgIncoming(&(sms_trans_msg.data.cb_msg)); // Call Event Handler
+			/* Call Event Handler */
+			SmsPluginEventHandler::instance()->handleCbMsgIncoming(&(sms_trans_msg.data.cb_msg));
 		} else if (sms_trans_msg.type == SMS_TRANS_ACK_MSG) {
-			//SmsPluginEventHandler::instance()->handleAckMsgIncoming(&(sms_trans_msg.data.ack_msg)); // Call Event Handler
+			/* Call Event Handler */
+			/* SmsPluginEventHandler::instance()->handleAckMsgIncoming(&(sms_trans_msg.data.ack_msg)); */
 		}
-	}
-	catch (MsgException& e)
-	{
+	} catch (MsgException& e) {
 		MSG_FATAL("%s", e.what());
 		return;
 	}
@@ -293,9 +287,9 @@ void TapiEventNetworkStatusChange(TapiHandle *handle, const char *noti_id, void 
 
 	MSG_DEBUG("network status type [%d]", *type);
 
-	if(*type > TAPI_NETWORK_SERVICE_TYPE_SEARCH)
-	{
-		SmsPluginEventHandler::instance()->handleResendMessage(); // Call Event Handler
+	if (*type > TAPI_NETWORK_SERVICE_TYPE_SEARCH) {
+		/* Call Event Handler */
+		SmsPluginEventHandler::instance()->handleResendMessage();
 	}
 }
 
@@ -311,8 +305,7 @@ void TapiEventSimRefreshed(TapiHandle *handle, const char *noti_id, void *data, 
 void TapiEventMemoryStatus(TapiHandle *handle, int result, void *data, void *user_data)
 {
 	MSG_DEBUG("Tapi result is [%d]", result);
-	if(result == TAPI_API_SUCCESS)
-	{
+	if (result == TAPI_API_SUCCESS) {
 		isMemAvailable = true;
 	}
 }
@@ -326,42 +319,41 @@ void TapiEventSentStatus(TapiHandle *handle, int result, void *data, void *user_
 
 	/* Convert TAPI status -> SMS network status */
 	switch ((TelSmsResponse_t)result) {
-		case TAPI_NETTEXT_SENDSMS_SUCCESS :
-			sentStatus = SMS_NETWORK_SEND_SUCCESS;
-			break;
-		case TAPI_NETTEXT_INVALID_MANDATORY_INFO :
-			sentStatus = SMS_NETWORK_SEND_FAIL_MANDATORY_INFO_MISSING;
-			break;
-		case TAPI_NETTEXT_DESTINAITION_OUTOFSERVICE :
-		case TAPI_NETTEXT_TEMPORARY_FAILURE :
-		case TAPI_NETTEXT_CONGESTION :
-		case TAPI_NETTEXT_RESOURCES_UNAVAILABLE :
-		case TAPI_NETTEXT_MESSAGE_NOT_COMPAT_PROTOCOL :
-			sentStatus = SMS_NETWORK_SEND_FAIL_TEMPORARY;
-			break;
-		case TAPI_NETTEXT_DEST_ADDRESS_FDN_RESTRICTED :
-		case TAPI_NETTEXT_SCADDRESS_FDN_RESTRICTED :
-			sentStatus = SMS_NETWORK_SEND_FAIL_FDN_RESTRICED;
-			break;
-		default :
-			sentStatus = SMS_NETWORK_SEND_FAIL;
-			break;
+	case TAPI_NETTEXT_SENDSMS_SUCCESS:
+		sentStatus = SMS_NETWORK_SEND_SUCCESS;
+		break;
+	case TAPI_NETTEXT_INVALID_MANDATORY_INFO:
+		sentStatus = SMS_NETWORK_SEND_FAIL_MANDATORY_INFO_MISSING;
+		break;
+	case TAPI_NETTEXT_DESTINAITION_OUTOFSERVICE:
+	case TAPI_NETTEXT_TEMPORARY_FAILURE:
+	case TAPI_NETTEXT_CONGESTION:
+	case TAPI_NETTEXT_RESOURCES_UNAVAILABLE:
+	case TAPI_NETTEXT_MESSAGE_NOT_COMPAT_PROTOCOL:
+		sentStatus = SMS_NETWORK_SEND_FAIL_TEMPORARY;
+		break;
+	case TAPI_NETTEXT_DEST_ADDRESS_FDN_RESTRICTED:
+	case TAPI_NETTEXT_SCADDRESS_FDN_RESTRICTED:
+		sentStatus = SMS_NETWORK_SEND_FAIL_FDN_RESTRICED;
+		break;
+	default:
+		sentStatus = SMS_NETWORK_SEND_FAIL;
+		break;
 	}
 
 	MSG_DEBUG("SMS Network Status = [%d]", sentStatus);
 
-	if(sentStatus == SMS_NETWORK_SEND_FAIL_TEMPORARY ||
-			sentStatus == SMS_NETWORK_SEND_FAIL_BY_MO_CONTROL_WITH_MOD ||
+	if (sentStatus == SMS_NETWORK_SEND_FAIL_TEMPORARY ||
+			sentStatus == SMS_NETWORK_SEND_FAIL_MANDATORY_INFO_MISSING ||
 			sentStatus == SMS_NETWORK_SEND_FAIL_FDN_RESTRICED) {
 		SmsPluginTransport::instance()->setNetStatus(sentStatus);
 		return;
 	}
 
-	if(sentStatus == SMS_NETWORK_SEND_FAIL)
-	{
+	if (sentStatus == SMS_NETWORK_SEND_FAIL) {
 		int svc_type;
 		tel_get_property_int(handle, TAPI_PROP_NETWORK_SERVICE_TYPE, &svc_type);
-		if(svc_type < TAPI_NETWORK_SERVICE_TYPE_2G){
+		if (svc_type < TAPI_NETWORK_SERVICE_TYPE_2G){
 			sentStatus = SMS_NETWORK_SEND_PENDING;
 		}
 	}
@@ -385,14 +377,11 @@ void TapiEventSentStatus(TapiHandle *handle, int result, void *data, void *user_
 		netStatus = MSG_NETWORK_SEND_FAIL;
 	}
 
-	try
-	{
+	try {
 		SmsPluginEventHandler::instance()->handleSentStatus(netStatus);
 
 		SmsPluginTransport::instance()->setNetStatus(sentStatus);
-	}
-	catch (MsgException& e)
-	{
+	} catch (MsgException& e) {
 		MSG_FATAL("%s", e.what());
 		return;
 	}
@@ -412,8 +401,7 @@ void TapiEventSetConfigData(TapiHandle *handle, int result, void *data, void *us
 {
 	MSG_DEBUG("TapiEventSetConfigData is called.");
 
-	if (data == NULL)
-	{
+	if (data == NULL) {
 		MSG_DEBUG("Error. data is NULL.");
 		return;
 	}
@@ -422,30 +410,24 @@ void TapiEventSetConfigData(TapiHandle *handle, int result, void *data, void *us
 
 	MSG_DEBUG("responseType : [%d]", *responseType);
 
-	switch (*responseType)
-	{
-		case TAPI_NETTEXT_SETPREFERREDBEARER_RSP :
-			MSG_DEBUG("TAPI_NETTEXT_SETPREFERREDBEARER_RSP is called");
+	switch (*responseType) {
+	case TAPI_NETTEXT_SETPREFERREDBEARER_RSP:
+		MSG_DEBUG("TAPI_NETTEXT_SETPREFERREDBEARER_RSP is called");
 		break;
-
-		case TAPI_NETTEXT_SETPARAMETERS_RSP :
-			MSG_DEBUG("TAPI_NETTEXT_SETPARAMETERS_RSP is called");
+	case TAPI_NETTEXT_SETPARAMETERS_RSP:
+		MSG_DEBUG("TAPI_NETTEXT_SETPARAMETERS_RSP is called");
 		break;
-
-		case TAPI_NETTEXT_CBSETCONFIG_RSP :
-			MSG_DEBUG("TAPI_NETTEXT_CBSETCONFIG_RSP is called");
+	case TAPI_NETTEXT_CBSETCONFIG_RSP:
+		MSG_DEBUG("TAPI_NETTEXT_CBSETCONFIG_RSP is called");
 		break;
-
-		case TAPI_NETTEXT_SETMEMORYSTATUS_RSP :
-			MSG_DEBUG("TAPI_NETTEXT_SETMEMORYSTATUS_RSP is called");
+	case TAPI_NETTEXT_SETMEMORYSTATUS_RSP:
+		MSG_DEBUG("TAPI_NETTEXT_SETMEMORYSTATUS_RSP is called");
 		break;
-
-		case TAPI_NETTEXT_SETMESSAGESTATUS_RSP :
-			MSG_DEBUG("TAPI_NETTEXT_SETMESSAGESTATUS_RSP is called");
+	case TAPI_NETTEXT_SETMESSAGESTATUS_RSP:
+		MSG_DEBUG("TAPI_NETTEXT_SETMESSAGESTATUS_RSP is called");
 		break;
-
-		default :
-			MSG_DEBUG("Unknown Response is called [%d]", *responseType);
+	default:
+		MSG_DEBUG("Unknown Response is called [%d]", *responseType);
 		break;
 	}
 
@@ -466,8 +448,7 @@ void TapiEventGetCBConfig(TapiHandle *handle, int result, void *data, void *user
 
 	MSG_CBMSG_OPT_S cbOpt = {0};
 
-	if (result != TAPI_API_SUCCESS || data == NULL)
-	{
+	if (result != TAPI_API_SUCCESS || data == NULL) {
 		MSG_DEBUG("Error. data is NULL.");
 
 		SmsPluginSetting::instance()->setCbConfigEvent(NULL, false);
@@ -479,23 +460,21 @@ void TapiEventGetCBConfig(TapiHandle *handle, int result, void *data, void *user
 
 	cbOpt.bReceive = (bool)pCBConfig->CBEnabled;
 
-//	cbOpt.maxSimCnt = pCBConfig->MsgIdMaxCount;
+	/* cbOpt.maxSimCnt = pCBConfig->MsgIdMaxCount; */
+	/* MSG_DEBUG("Receive [%d], Max SIM Count [%d]", cbOpt.bReceive, cbOpt.maxSimCnt); */
 
-//	MSG_DEBUG("Receive [%d], Max SIM Count [%d]", cbOpt.bReceive, cbOpt.maxSimCnt);
 	MSG_DEBUG("Receive [%d]", cbOpt.bReceive);
 
 	cbOpt.channelData.channelCnt = pCBConfig->MsgIdRangeCount;
 
-	if (cbOpt.channelData.channelCnt > CB_CHANNEL_MAX)
-	{
+	if (cbOpt.channelData.channelCnt > CB_CHANNEL_MAX) {
 		MSG_DEBUG("Channel Count [%d] from TAPI is over MAX", cbOpt.channelData.channelCnt);
 		cbOpt.channelData.channelCnt = CB_CHANNEL_MAX;
 	}
 
 	MSG_DEBUG("Channel Count [%d]", cbOpt.channelData.channelCnt);
 
-	for (int i = 0; i < cbOpt.channelData.channelCnt; i++)
-	{
+	for (int i = 0; i < cbOpt.channelData.channelCnt; i++) {
 		cbOpt.channelData.channelInfo[i].bActivate = pCBConfig->MsgIDs[i].Net3gpp2.Selected;
 		cbOpt.channelData.channelInfo[i].ctg = pCBConfig->MsgIDs[i].Net3gpp2.CBCategory;
 		cbOpt.channelData.channelInfo[i].lang = pCBConfig->MsgIDs[i].Net3gpp2.CBLanguage;
@@ -506,6 +485,7 @@ void TapiEventGetCBConfig(TapiHandle *handle, int result, void *data, void *user
 
 	SmsPluginSetting::instance()->setCbConfigEvent(&cbOpt, true);
 }
+
 
 void TapiEventGetMsisdnInfo(TapiHandle *handle, int result, void *data, void *user_data)
 {
@@ -542,14 +522,17 @@ void TapiEventGetMsisdnInfo(TapiHandle *handle, int result, void *data, void *us
 	SmsPluginSetting::instance()->setResultFromSim(bRet);
 }
 
+
 void _dnet_state_changed_cb(keynode_t *key, void* data)
 {
 	int dnet_state = MsgSettingGetInt(VCONFKEY_DNET_STATE);
 
 	if (dnet_state > VCONFKEY_DNET_OFF) {
-		SmsPluginEventHandler::instance()->handleResendMessage(); // Call Event Handler
+		/* Call Event Handler */
+		SmsPluginEventHandler::instance()->handleResendMessage();
 	}
 }
+
 
 void _TapiMdnChangedCb(keynode_t *key, void *data)
 {
@@ -562,11 +545,13 @@ void _TapiMdnChangedCb(keynode_t *key, void *data)
 		MSG_INFO("bNeedToUpdateVoicemail:%d, mdn:[%s]", bNeedToUpdateVoicemail, mdn);
 
 		if (bNeedToUpdateVoicemail) {
-			if (MsgSettingSetString(VOICEMAIL_NUMBER, mdn) != MSG_SUCCESS)
-				MSG_DEBUG("MsgSettingSetInt is failed!!");
+			char keyName[MAX_VCONFKEY_NAME_LEN];
+			int sim_idx = 1;
 
-			if (MsgSettingSetString(VOICEMAIL_DEFAULT_NUMBER, mdn) != MSG_SUCCESS)
-				MSG_DEBUG("Error to set config data [%s]", VOICEMAIL_DEFAULT_NUMBER);
+			memset(keyName, 0x00, sizeof(keyName));
+			snprintf(keyName, sizeof(keyName), "%s/%d", VOICEMAIL_NUMBER, sim_idx);
+			if (MsgSettingSetString(keyName, mdn) != MSG_SUCCESS)
+				MSG_DEBUG("Error to set config data [%s]", keyName);
 		}
 
 		free(mdn);

@@ -89,5 +89,4 @@ private:
 	CndVar cv;
 };
 
-#endif //SMS_CDMA_PLUGIN_SETTING_H
-
+#endif /* SMS_CDMA_PLUGIN_SETTING_H */

@@ -55,7 +55,7 @@ SmsPluginSetting* SmsPluginSetting::pInstance = NULL;
 
 SmsPluginSetting::SmsPluginSetting()
 {
-	// Initialize member variables
+	/* Initialize member variables */
 	memset(&cbOpt, 0x00, sizeof(MSG_CBMSG_OPT_S));
 	memset(&meImei, 0x00, sizeof(meImei));
 
@@ -86,11 +86,11 @@ void* SmsPluginSetting::initSimInfo(void *data)
 
 	int tapiRet = TAPI_API_SUCCESS;
 
-	// Get IMSI
+	/* Get IMSI */
 	char imsi[17];
 	memset(imsi, 0x00, sizeof(imsi));
 
-	// Get IMSI
+	/* Get IMSI */
 	TelSimImsiInfo_t imsiInfo;
 	memset(&imsiInfo, 0x00, sizeof(TelSimImsiInfo_t));
 
@@ -111,6 +111,7 @@ void* SmsPluginSetting::initSimInfo(void *data)
 	MSG_END();
 	return NULL;
 }
+
 
 void SmsPluginSetting::updateSimStatus()
 {
@@ -145,7 +146,7 @@ void SmsPluginSetting::updateSimStatus()
 		}
 	}
 
-	// init config data.
+	/* init config data. */
 	initConfigData();
 
 	MSG_END();
@@ -160,7 +161,7 @@ void SmsPluginSetting::setSimChangeStatus()
 
 	pthread_t thd;
 
-	if(pthread_create(&thd, NULL, &initSimInfo, NULL) < 0) {
+	if (pthread_create(&thd, NULL, &initSimInfo, NULL) < 0) {
 		MSG_DEBUG("pthread_create() error");
 	}
 
@@ -170,19 +171,19 @@ void SmsPluginSetting::setSimChangeStatus()
 }
 
 
-
 void SmsPluginSetting::initConfigData()
 {
 	MSG_BEGIN();
 
 	msg_error_t	err = MSG_SUCCESS;
+	char keyName[MAX_VCONFKEY_NAME_LEN];
+	int sim_idx = 1;
 
-#if 1
 	/*==================== CB configuration ====================*/
-//	if (simStatus != MSG_SIM_STATUS_NOT_FOUND)
-//	{
-//		MSG_DEBUG("simStatus == [%d]", simStatus);
-
+	/*
+	if (simStatus != MSG_SIM_STATUS_NOT_FOUND) {
+		MSG_DEBUG("simStatus == [%d]", simStatus);
+	*/
 		MSG_CBMSG_OPT_S cbMsgOpt = {0,};
 
 		if (getCbConfig(&cbMsgOpt) == true) {
@@ -199,22 +200,6 @@ void SmsPluginSetting::initConfigData()
 			}
 		} else {
 			MSG_DEBUG("########  getCbConfig Fail !!! #######");
-#endif
-
-#if 0
-			// CSC doesn't support CB Info any longer
-			if (MsgCscGetCBInfo(&cbMsgOpt) == true) {
-				err = addCbOpt(&cbMsgOpt);
-
-				if (err == MSG_SUCCESS) {
-					MSG_DEBUG("########  Add CB Option From CSC Success !!! #######");
-				} else {
-					MSG_DEBUG("########  Add CB Option from CSC Fail !!! return : %d #######", err);
-				}
-			} else {
-				MSG_DEBUG("########  MsgCscGetCBInfo Fail !!! #######");
-			}
-#endif
 		}
 
 		/*==================== MSISDN update ====================*/
@@ -223,37 +208,21 @@ void SmsPluginSetting::initConfigData()
 		} else {
 			MSG_DEBUG("########  getMsisdnInfo Fail !!! #######");
 		}
-#if 1
+
 		/*==================== Default Voice mail Setting ====================*/
-		char *num = MsgSettingGetString(VOICEMAIL_DEFAULT_NUMBER);
+		MSG_DEBUG("Voicemail Default Number is NULL");
+		memset(keyName, 0x00, sizeof(keyName));
+		snprintf(keyName, sizeof(keyName), "%s/%d", VOICEMAIL_NUMBER, sim_idx);
+		if (MsgSettingSetString(keyName, VOICEMAIL_DEFAULT_NUMBER) != MSG_SUCCESS)
+			MSG_DEBUG("Error to set config data [%s]", keyName);
 
-		if (num) {
-			MSG_DEBUG("Voicemail Default Number [%s]", num);
-			if (MsgSettingSetString(VOICEMAIL_NUMBER, num) != MSG_SUCCESS)
-				MSG_DEBUG("MsgSettingSetInt is failed!!");
-			free(num);
-			num = NULL;
-		}
-		else {
-			MSG_DEBUG("Voicemail Default Number is NULL");
-			if (MsgSettingSetString(VOICEMAIL_NUMBER, "") != MSG_SUCCESS)
-				MSG_DEBUG("MsgSettingSetInt is failed!!");
-		}
+		memset(keyName, 0x00, sizeof(keyName));
+		snprintf(keyName, sizeof(keyName), "%s/%d", VOICEMAIL_NUMBER, sim_idx);
 
-		char *voiceNumber = MsgSettingGetString(VOICEMAIL_NUMBER);
-
-		if (!voiceNumber || (voiceNumber && voiceNumber[0] == '\0')) {
-			MSG_DEBUG("Voice Number is Empty");
-		}
-
-		if (voiceNumber) {
-			free(voiceNumber);
-			voiceNumber = NULL;
-		}
-
-		if (MsgSettingSetString(VOICEMAIL_ALPHA_ID, VOICEMAIL_DEFAULT_ALPHA_ID) != MSG_SUCCESS)
-			MSG_DEBUG("MsgSettingSetString is failed!!");
-#endif
+		memset(keyName, 0x00, sizeof(keyName));
+		snprintf(keyName, sizeof(keyName), "%s/%d", VOICEMAIL_ALPHA_ID, sim_idx);
+		if (MsgSettingSetString(keyName, VOICEMAIL_DEFAULT_ALPHA_ID) != MSG_SUCCESS)
+			MSG_DEBUG("Error to set config data [%s]", keyName);
 
 	MSG_END();
 }
@@ -263,7 +232,7 @@ void SmsPluginSetting::SimRefreshCb()
 {
 	pthread_t thd;
 
-	if(pthread_create(&thd, NULL, &init_config_data, NULL) < 0) {
+	if (pthread_create(&thd, NULL, &init_config_data, NULL) < 0) {
 		MSG_DEBUG("pthread_create() error");
 	}
 
@@ -283,26 +252,25 @@ void SmsPluginSetting::setConfigData(const MSG_SETTING_S *pSetting)
 {
 	MSG_DEBUG("Setting Type : [%d]", pSetting->type);
 
-	switch (pSetting->type)
-	{
+	switch (pSetting->type) {
 #if 0
-		case MSG_SMS_SENDOPT :
-			setNetworkMode(&pSetting->option.smsSendOpt);
-			break;
-		case MSG_SMSC_LIST :
-			setParamList(&pSetting->option.smscList);
-			break;
+	case MSG_SMS_SENDOPT :
+		setNetworkMode(&pSetting->option.smsSendOpt);
+		break;
+	case MSG_SMSC_LIST :
+		setParamList(&pSetting->option.smscList);
+		break;
 #endif
-		case MSG_VOICEMAIL_OPT:
-			setVoiceMailInfo(&pSetting->option.voiceMailOpt);
-			break;
+	case MSG_VOICEMAIL_OPT:
+		setVoiceMailInfo(&pSetting->option.voiceMailOpt);
+		break;
 
-		case MSG_CBMSG_OPT :
-			setCbConfig(&pSetting->option.cbMsgOpt);
-			break;
-		default :
-			THROW(MsgException::SMS_PLG_ERROR, "The Setting type is not supported. [%d]", pSetting->type);
-			break;
+	case MSG_CBMSG_OPT :
+		setCbConfig(&pSetting->option.cbMsgOpt);
+		break;
+	default :
+		THROW(MsgException::SMS_PLG_ERROR, "The Setting type is not supported. [%d]", pSetting->type);
+		break;
 	}
 }
 
@@ -311,20 +279,19 @@ void SmsPluginSetting::getConfigData(MSG_SETTING_S *pSetting)
 {
 	MSG_DEBUG("Setting Type : [%d]", pSetting->type);
 
-	switch (pSetting->type)
-	{
+	switch (pSetting->type) {
 #if 0
-		case MSG_SMSC_LIST :
-			getParamList(&pSetting->option.smscList);
-		break;
+	case MSG_SMSC_LIST :
+		getParamList(&pSetting->option.smscList);
+	break;
 #endif
-		case MSG_CBMSG_OPT :
-			getCbConfig(&pSetting->option.cbMsgOpt);
-		break;
+	case MSG_CBMSG_OPT :
+		getCbConfig(&pSetting->option.cbMsgOpt);
+	break;
 
-		default :
-			THROW(MsgException::SMS_PLG_ERROR, "The Setting type is not supported. [%d]", pSetting->type);
-		break;
+	default :
+		THROW(MsgException::SMS_PLG_ERROR, "The Setting type is not supported. [%d]", pSetting->type);
+	break;
 	}
 }
 
@@ -333,17 +300,16 @@ msg_error_t SmsPluginSetting::addCbOpt(MSG_CBMSG_OPT_S *pCbOpt)
 {
 	msg_error_t err = MSG_SUCCESS;
 
-//	MSG_DEBUG("Receive [%d], Max SIM Count [%d]", pCbOpt->bReceive, pCbOpt->maxSimCnt);
+	/* MSG_DEBUG("Receive [%d], Max SIM Count [%d]", pCbOpt->bReceive, pCbOpt->maxSimCnt); */
 
 	MSG_DEBUG("Receive [%d], Channel Count [%d]", pCbOpt->bReceive, pCbOpt->channelData.channelCnt);
 
-	for (int i = 0; i < pCbOpt->channelData.channelCnt; i++)
-	{
+	for (int i = 0; i < pCbOpt->channelData.channelCnt; i++) {
 		MSG_DEBUG("Channel Category [%d], Channel Language [%d]", pCbOpt->channelData.channelInfo[i].ctg, pCbOpt->channelData.channelInfo[i].lang);
 	}
 
 #if 0
-	// Set Setting Data into Vconf
+	/* Set Setting Data into Vconf */
 	if (MsgSettingSetBool(CB_RECEIVE, pCbOpt->bReceive) != MSG_SUCCESS) {
 		MSG_DEBUG("Error to set config data [%s]", CB_RECEIVE);
 		return MSG_ERR_SET_SETTING;
@@ -379,7 +345,7 @@ void SmsPluginSetting::getCbOpt(MSG_SETTING_S *pSetting)
 
 	MsgSettingGetBool(CB_RECEIVE, &pSetting->option.cbMsgOpt.bReceive);
 
-//	pSetting->option.cbMsgOpt.maxSimCnt = MsgSettingGetInt(CB_MAX_SIM_COUNT);
+	/* pSetting->option.cbMsgOpt.maxSimCnt = MsgSettingGetInt(CB_MAX_SIM_COUNT); */
 
 	err = MsgStoGetCBChannelInfo(&dbHandle, &pSetting->option.cbMsgOpt.channelData);
 	MSG_DEBUG("MsgStoAddCBChannelInfo : err=[%d]", err);
@@ -394,8 +360,8 @@ void SmsPluginSetting::getCbOpt(MSG_SETTING_S *pSetting)
 		MsgSettingGetBool(keyName, &pSetting->option.cbMsgOpt.bLanguage[i]);
 	}
 #endif
-
 }
+
 
 void SmsPluginSetting::setVoiceMailInfo(const MSG_VOICEMAIL_OPT_S *pVoiceOpt)
 {
@@ -403,6 +369,7 @@ void SmsPluginSetting::setVoiceMailInfo(const MSG_VOICEMAIL_OPT_S *pVoiceOpt)
 
 	return;
 }
+
 
 bool SmsPluginSetting::setCbConfig(const MSG_CBMSG_OPT_S *pCbOpt)
 {
@@ -413,7 +380,7 @@ bool SmsPluginSetting::setCbConfig(const MSG_CBMSG_OPT_S *pCbOpt)
 
 	cbConfig.CBEnabled = (int)pCbOpt->bReceive;
 	cbConfig.Net3gppType = TAPI_NETTEXT_NETTYPE_3GPP2;
-//	cbConfig.MsgIdMaxCount = pCbOpt->maxSimCnt;
+	/* cbConfig.MsgIdMaxCount = pCbOpt->maxSimCnt; */
 	cbConfig.MsgIdRangeCount = pCbOpt->channelData.channelCnt;
 
 	for (int i = 0; i < cbConfig.MsgIdRangeCount; i++) {
@@ -602,23 +569,23 @@ void SmsPluginSetting::setMwiInfo(MSG_SUB_TYPE_T type, int count)
 
 	if (MsgSettingSetInt(VOICEMAIL_COUNT, count) != MSG_SUCCESS)
 		MSG_DEBUG("MsgSettingSetInt is failed!!");
+	/*
+	if (count == 0) {
+		MsgStoClearUniquenessTable();
+	}
 
-//	if (count == 0) {
-//		MsgStoClearUniquenessTable();
-//	}
+	if (count <= 0) {
+		if (type == MSG_MWI_VOICE_SMS)
+			MsgCleanAndResetNotification(MSG_NOTI_TYPE_VOICE_1);
+		else if (type == MSG_MWI_VOICE2_SMS)
+			MsgCleanAndResetNotification(MSG_NOTI_TYPE_VOICE_2);
+	}
 
-//	if(count <= 0) {
-//		if (type == MSG_MWI_VOICE_SMS)
-//			MsgCleanAndResetNotification(MSG_NOTI_TYPE_VOICE_1);
-//		else if (type == MSG_MWI_VOICE2_SMS)
-//			MsgCleanAndResetNotification(MSG_NOTI_TYPE_VOICE_2);
-//	}
-
-//	if (bMbdnEnable == false) {
-//		MSG_DEBUG("MBDN service is disable.");
-//		return;
-//	}
-
+	if (bMbdnEnable == false) {
+		MSG_DEBUG("MBDN service is disable.");
+		return;
+	}
+	*/
 	return;
 }
 

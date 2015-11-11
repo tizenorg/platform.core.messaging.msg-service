@@ -20,6 +20,23 @@
 #include <stdio.h>
 #include "MsgDebug.h"
 
+typedef enum {
+        MSG_JSON_GEN_ARRAY,
+        MSG_JSON_GEN_OBJECT
+} msg_json_gen_type;
+
+typedef struct msg_json_gen_object_t {
+	msg_json_gen_type type;
+	void *value;
+} msg_json_gen_object;
+
+msg_json_gen_object* msg_json_gen_new_obj(msg_json_gen_type type);
+void msg_json_gen_free_obj(msg_json_gen_object *obj);
+void msg_json_gen_set_child(msg_json_gen_object *parent, const char *key, msg_json_gen_object *child);
+void msg_json_gen_set_value(msg_json_gen_object *parent, const char *key, long long int value);
+void msg_json_gen_set_value(msg_json_gen_object *parent, const char *key, const char *value);
+char* msg_json_gen_make_json_msg(msg_json_gen_object *root_obj, unsigned long *len);
+
 #define MSG_JSON_OBJ_SET_STR(json_obj, key, val)\
 	if(json_obj && key && val){\
 		json_object_set_string_member(json_obj, key, val);\
@@ -112,11 +129,13 @@ typedef struct msg_json_parser_object_t {
                                         MSG_JSON_PARSER_STRING,
                                         MSG_JSON_PARSER_ARRAY,
                                         MSG_JSON_PARSER_OBJECT */
-        double number_value; /** Value of the node. VALID
+        double float_value; /** Value of the node. VALID
+                                        only if type is
+                                        MSG_JSON_PARSER_REAL */
+        long long int number_value; /** Value of the node. VALID
                                         only if type is
                                         MSG_JSON_PARSER_UINT,
                                         MSG_JSON_PARSER_INT,
-                                        MSG_JSON_PARSER_REAL,
                                         MSG_JSON_PARSER_BOOLEAN */
 } msg_json_parser_object;
 
@@ -127,6 +146,6 @@ int msg_json_parser_object_get_value(msg_json_parser_object *json_obj);
 int msg_json_parser_get_next_child(const msg_json_parser_object *parent, msg_json_parser_object *child, int index);
 void msg_json_parser_parse_buffer(msg_json_parser_handle handle, const char* value, int value_len, msg_json_parser_object *json_obj);
 int msg_json_parser_get_child_by_name(const msg_json_parser_object *parent, msg_json_parser_object *child, const char *name);
+int msg_json_parser_get_child_count(msg_json_parser_object *object);
 
 #endif /*__MSG_JSON_PARSER_H__*/
-

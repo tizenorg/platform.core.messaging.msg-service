@@ -415,6 +415,7 @@ MmsPluginCmAgent::MmsPluginCmAgent()
 	home_url = NULL;
 	interface_name = NULL;
 	proxy_address = NULL;
+	dns_address_list = NULL;
 	MSG_END();
 }
 
@@ -423,6 +424,7 @@ MmsPluginCmAgent::~MmsPluginCmAgent()
 	MSG_FREE(home_url);
 	MSG_FREE(interface_name);
 	MSG_FREE(proxy_address);
+	MSG_FREE(dns_address_list);
 }
 
 bool MmsPluginCmAgent::open()
@@ -434,7 +436,7 @@ bool MmsPluginCmAgent::open()
 	int time_ret = 0;
 	lock();
 
-	//create connection
+	/* create connection */
 	context_invoke(__connection_create, &bConnection);
 
 	if (bConnection == false || g_connection == NULL) {
@@ -444,8 +446,8 @@ bool MmsPluginCmAgent::open()
 
 	if (g_profile) {
 		MSG_WARN("connection profile already exist");
-		//TODO:: get data;
-		//goto __RETURN;
+		/* TODO:: get data; */
+		/* goto __RETURN; */
 	}
 
 	waitProfileOpen = true;
@@ -459,10 +461,7 @@ bool MmsPluginCmAgent::open()
 
 	MSG_INFO("## WAITING UNTIL __connection_profile_state CONNECT. ##");
 
-//	cv.wait(mx.pMutex());
-//	MSG_INFO("## WAKE by SIGNAL ##");
-
-	time_ret = cv.timedwait(mx.pMutex(), MMS_CONNECTION_API_WAIT_TIME); // isCmOpened will changed by processCBdatas
+	time_ret = cv.timedwait(mx.pMutex(), MMS_CONNECTION_API_WAIT_TIME); /* isCmOpened will changed by processCBdatas */
 
 	if (time_ret == ETIMEDOUT) {
 		MSG_WARN("## WAKE by timeout ##");
@@ -470,12 +469,12 @@ bool MmsPluginCmAgent::open()
 		MSG_INFO("## WAKE by SIGNAL ##");
 	}
 
-	if(isCmOpened == false) {
+	if (isCmOpened == false) {
 		MSG_WARN("");
 		goto __ERR_RETURN;
 	}
 
-//__RETURN:
+/* __RETURN: */
 	unlock();
 	MSG_END();
 	return isCmOpened;
@@ -533,13 +532,14 @@ __RETURN:
 	MSG_FREE(this->home_url);
 	MSG_FREE(this->interface_name);
 	MSG_FREE(this->proxy_address);
+	MSG_FREE(this->dns_address_list);
 
 	unlock();
 
 	MSG_END();
 }
 
-//profile open callback
+/* profile open callback */
 void MmsPluginCmAgent::connection_profile_open_callback(connection_error_e result, void* user_data)
 {
 	lock();
@@ -573,6 +573,7 @@ void MmsPluginCmAgent::connection_profile_open_callback(connection_error_e resul
 			MSG_FREE(this->home_url);
 			MSG_FREE(this->interface_name);
 			MSG_FREE(this->proxy_address);
+			MSG_FREE(this->dns_address_list);
 
 			err = connection_profile_get_cellular_home_url(profile, &this->home_url);
 			if (err != CONNECTION_ERROR_NONE) {
@@ -591,10 +592,10 @@ void MmsPluginCmAgent::connection_profile_open_callback(connection_error_e resul
 
 			isCmOpened = true;
 
-			goto __SIGNAL_RETURN; //open success
+			goto __SIGNAL_RETURN; /* open success */
 
 		} else {
-			goto __NO_SIGNAL_RETURN; //Just open success
+			goto __NO_SIGNAL_RETURN; /* Just open success */
 		}
 
 	} else {
@@ -604,17 +605,17 @@ void MmsPluginCmAgent::connection_profile_open_callback(connection_error_e resul
 
 	}
 
-__NO_SIGNAL_RETURN: //Just Open
+__NO_SIGNAL_RETURN: /* Just Open */
 	if (profile)
 		connection_profile_destroy(profile);
 	unlock();
 	return;
 
-__SIGNAL_RETURN: //Error or Already connected
+__SIGNAL_RETURN: /* Error or Already connected */
 	if (profile)
 		connection_profile_destroy(profile);
 
-	if (waitProfileOpen == true) {//open fail
+	if (waitProfileOpen == true) { /* open fail */
 		waitProfileOpen = false;
 		MSG_INFO("## SIGNAL ##");
 		signal();
@@ -669,6 +670,7 @@ void MmsPluginCmAgent::connection_profile_state_changed_cb(connection_profile_st
 		MSG_FREE(this->home_url);
 		MSG_FREE(this->interface_name);
 		MSG_FREE(this->proxy_address);
+		MSG_FREE(this->dns_address_list);
 
 		err = connection_profile_get_cellular_home_url(profile, &this->home_url);
 		if (err != CONNECTION_ERROR_NONE) {
@@ -693,7 +695,7 @@ __NO_SIGNAL_RETURN://Default
 	unlock();
 	return;
 
-__SIGNAL_RETURN: //Error or connected
+__SIGNAL_RETURN: /* Error or connected */
 	if (profile)
 		connection_profile_destroy(profile);
 
@@ -742,6 +744,20 @@ bool MmsPluginCmAgent::getProxyAddr(const char **proxyAddr)
 		return false;
 
 	*proxyAddr = proxy_address;
+
+	return true;
+}
+
+
+bool MmsPluginCmAgent::getDnsAddrList(const char **dnsAddrList)
+{
+	if (!isCmOpened)
+		return false;
+
+	if (dnsAddrList == NULL)
+		return false;
+
+	*dnsAddrList = dns_address_list;
 
 	return true;
 }

@@ -45,7 +45,7 @@ static gboolean  __refresh_noti(void *data)
 
 	if (g_job_cnt <= 0) {
 		MSG_DEBUG("## Refresh notification ##");
-		if (MsgRefreshNotification(MSG_NOTI_TYPE_NORMAL, false, false) != MSG_SUCCESS) {
+		if (MsgRefreshNotification(MSG_NOTI_TYPE_NORMAL, false, MSG_ACTIVE_NOTI_TYPE_NONE) != MSG_SUCCESS) {
 			MSG_DEBUG("MsgRefreshNoti is failed");
 		}
 		g_job_cnt = 0;
@@ -81,21 +81,18 @@ int MsgAddMessageHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 
 	MsgDecodeMsgInfo((char *)pCmd->cmdData, &msgInfo, &sendOptInfo);
 
-	if(msgInfo.threadId) // threadId is not 0 : message restore from S-Cloud
-	{
+	if (msgInfo.bBackup) {
 		err = MsgStoRestoreMessage(&msgInfo, &sendOptInfo);
 
 		if (err == MSG_SUCCESS) {
-				MSG_DEBUG("Command Handle Success : MsgStoRestoreMessage()");
+			MSG_DEBUG("Command Handle Success : MsgStoRestoreMessage()");
 
-				// Encoding Message ID
-				dataSize = MsgEncodeMsgId(&(msgInfo.msgId), &encodedData);
+			// Encoding Message ID
+			dataSize = MsgEncodeMsgId(&(msgInfo.msgId), &encodedData);
 		} else {
 			MSG_DEBUG("Command Handle Fail : MsgStoRestoreMessage()");
 		}
-	}
-	else
-	{
+	} else {
 		// Add Message
 		msgInfo.msgId = 0;
 		err = MsgStoAddMessage(&msgInfo, &sendOptInfo);
@@ -524,7 +521,7 @@ int MsgDeleteMessageByListHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 	msg_id_list_s msgIdList;
 	memset(&msgIdList, 0x00, sizeof(msg_id_list_s));
 
-	memcpy(&msgIdList.nCount, pCmd->cmdData, sizeof(int));
+	memcpy(&msgIdList.nCount, (void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN), sizeof(int));
 
 	MSG_DEBUG("msgIdList.nCount [%d]", msgIdList.nCount);
 
@@ -533,8 +530,8 @@ int MsgDeleteMessageByListHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 
 	msgIdList.msgIdList = msgIds;
 
-	for (int i=0; i<msgIdList.nCount; i++) {
-		msgIds[i] = *(msg_message_id_t *)(((char*)pCmd->cmdData) + (sizeof(int)*(i+1)));
+	for (int i = 0; i < msgIdList.nCount; i++) {
+		memcpy(&msgIds[i], (void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN+sizeof(int)+sizeof(msg_message_id_t)*i), sizeof(msg_message_id_t));
 	}
 
 	// Delete Message
@@ -894,8 +891,10 @@ int MsgGetFolderListHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 			msg_struct_s *msg_struct;
 			for (int i = 0; i < folderList.nCount; i++) {
 				msg_struct = (msg_struct_s *)folderList.msg_struct_info[i];
-				delete (MSG_FOLDER_INFO_S *)msg_struct->data;
-				delete msg_struct;
+				if (msg_struct) {
+					delete (MSG_FOLDER_INFO_S *)msg_struct->data;
+					delete msg_struct;
+				}
 			}
 			g_free(folderList.msg_struct_info);
 		}
@@ -969,8 +968,10 @@ int MsgGetThreadViewListHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 			msg_struct_s *msg_struct;
 			for (int i = 0; i < folderList.nCount; i++) {
 				msg_struct = (msg_struct_s *)msgThreadViewList.msg_struct_info[i];
-				delete (MSG_THREAD_VIEW_S *)msg_struct->data;
-				delete msg_struct;
+				if (msg_struct) {
+					delete (MSG_THREAD_VIEW_S *)msg_struct->data;
+					delete msg_struct;
+				}
 			}
 			g_free(msgThreadViewList.msg_struct_info);
 		}
@@ -1022,18 +1023,54 @@ int MsgDeleteThreadMessageListHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 		}
 
 		MsgTransactionManager::instance()->broadcastStorageChangeCB(MSG_SUCCESS, MSG_STORAGE_CHANGE_DELETE, &msgIdList);
-		if(msgIdList.msgIdList != NULL)
-			delete [] (char*)msgIdList.msgIdList;
-	}
-	else
-	{
+	} else {
 		MSG_DEBUG("Command Handle Fail : MsgStoDeleteThreadMessageList()");
-		if(msgIdList.msgIdList != NULL)
-			delete [] (char*)msgIdList.msgIdList;
+	}
+
+	if(msgIdList.msgIdList != NULL) {
+		delete [] (char*)msgIdList.msgIdList;
 	}
 
 	// Make Event Data
 	eventSize = MsgMakeEvent(NULL, 0, MSG_EVENT_DELETE_THREADMESSAGELIST, err, (void**)ppEvent);
+
+	return eventSize;
+}
+
+
+int MsgSetTempAddressTableHandler(const MSG_CMD_S *pCmd, char **ppEvent)
+{
+	msg_error_t err = MSG_SUCCESS;
+
+	if (!pCmd || !ppEvent) {
+		MSG_DEBUG("pCmd or ppEvent is null");
+		return 0;
+	}
+
+	int search_len = 0;
+	memcpy(&search_len, (void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN), sizeof(int));
+
+	char search_val[search_len + 1] = {0,};
+	memcpy(&search_val, (void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN+sizeof(int)), sizeof(char)*search_len);
+
+	int eventSize = 0;
+	int count = 0;
+
+	err = MsgStoSetTempAddressTable(search_val, &count);
+
+	if (err == MSG_SUCCESS) {
+		MSG_DEBUG("Command Handle Success : MsgStoSetTmpAddressTable()");
+	}
+	else
+	{
+		MSG_DEBUG("Command Handle Fail : MsgStoSetTmpAddressTable()");
+		count = 0;
+	}
+
+	// Make Event Data
+	eventSize = MsgMakeEvent(&count, sizeof(int), MSG_EVENT_SET_TEMP_ADDRESS_TABLE, err, (void**)ppEvent);
+
+	MSG_END();
 
 	return eventSize;
 }
@@ -1199,7 +1236,7 @@ int MsgBackupMessageHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 	memcpy(&type, (void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN), sizeof(msg_message_backup_type_t));
 	memcpy(&path, (void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN+sizeof(msg_message_backup_type_t)), sizeof(path));
 
-	MSG_DEBUG("type = %d, path = %s", type, path);
+	char fullPath[MSG_FILEPATH_LEN_MAX+1] = {0,};
 
 	err = MsgStoBackupMessage(type, path);
 	if (err == MSG_SUCCESS)
@@ -1662,11 +1699,13 @@ int MsgUpdatePushEventHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 	int eventSize = 0;
 
 	// Get Message Info
-	MSG_PUSH_EVENT_INFO_S* pSrc = (MSG_PUSH_EVENT_INFO_S*)pCmd->cmdData;
-	MSG_PUSH_EVENT_INFO_S* pDst = (MSG_PUSH_EVENT_INFO_S*)(pCmd->cmdData + sizeof(MSG_PUSH_EVENT_INFO_S));
+	MSG_PUSH_EVENT_INFO_S pSrc;
+	MSG_PUSH_EVENT_INFO_S pDst;
+	memcpy(&pSrc, (void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN), sizeof(MSG_PUSH_EVENT_INFO_S));
+	memcpy(&pDst, (void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN+sizeof(MSG_PUSH_EVENT_INFO_S)), sizeof(MSG_PUSH_EVENT_INFO_S));
 
 	// Add Message
-	err = MsgStoUpdatePushEvent(pSrc, pDst);
+	err = MsgStoUpdatePushEvent(&pSrc, &pDst);
 
 	if (err == MSG_SUCCESS) {
 		MSG_DEBUG("Command Handle Success : MsgStoUpdatePushEvent()");
@@ -1781,9 +1820,9 @@ int MsgUpdateIMSIHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 	err = MsgStoUpdateIMSI(sim_idx);
 
 	if (err == MSG_SUCCESS) {
-		MSG_DEBUG("Command Handle Success : MsgStoUpdatePushEvent()");
+		MSG_DEBUG("Command Handle Success : MsgStoUpdateIMSI()");
 	} else {
-		MSG_DEBUG("Command Handle Fail : MsgStoUpdatePushEvent()");
+		MSG_DEBUG("Command Handle Fail : MsgStoUpdateIMSI()");
 	}
 
 	// Make Event Data

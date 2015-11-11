@@ -14,203 +14,17 @@
  * limitations under the License.
 */
 
-#include <mm_file.h>
-#include <mm_util_jpeg.h>
-#include <mm_util_imgp.h>
-#include <thumbnail_util.h>
-#include <image_util.h>
-
 #include <ctype.h>
 #include <errno.h>
 #include <sys/stat.h>
+#include <glib.h>
 #include "MsgUtilFile.h"
-#include "MsgMutex.h"
 #include "MmsPluginDebug.h"
 #include "MmsPluginUtil.h"
 #include <string>
 
 using namespace std;
 
-Mutex g_mx;
-CndVar g_cv;
-
-void thumbnail_completed_cb(thumbnail_util_error_e error, const char *request_id,
-									int thumb_width, int thumb_height,
-									unsigned char *thumb_data, int thumb_size, void *user_data)
-{
-	if (!user_data) {
-		MSG_DEBUG("dstPath is NULL");
-		return;
-	}
-
-	MSG_BEGIN();
-
-	g_mx.lock();
-	MSG_DEBUG("=================[RESULT]");
-	MSG_DEBUG("error_code [%d]", error);
-	MSG_DEBUG("request id [%s]", request_id);
-	MSG_DEBUG("width [%d], height [%d]", thumb_width, thumb_height);
-	MSG_DEBUG("raw_data [0x%x], size [%d]", *thumb_data, thumb_size);
-
-	int ret = 0;
-	ret = image_util_encode_jpeg(thumb_data, thumb_width, thumb_height, IMAGE_UTIL_COLORSPACE_BGRA8888, 90, (char *)user_data);;
-	if (ret != IMAGE_UTIL_ERROR_NONE)
-		MSG_DEBUG("image_util_encode_jpeg() is failed");
-
-	g_cv.signal();
-	g_mx.unlock();
-
-	MSG_END();
-}
-
-bool MmsMakeImageThumbnail(char *srcPath, char *dstPath)
-{
-	if (srcPath == NULL || dstPath == NULL) {
-		MSG_DEBUG(MMS_DEBUG_STR_INVALID_PARAM" src = %p, dst = %p", srcPath, dstPath);
-		return false;
-	}
-
-	if (MsgAccessFile(srcPath, R_OK) == false) {
-		MSG_DEBUG("not exist source file [%s]", srcPath);
-		return false;
-	}
-
-	g_mx.lock();
-
-	int time_ret = 0;
-
-	int ret = THUMBNAIL_UTIL_ERROR_NONE;
-	char *req_id = NULL;
-	thumbnail_h thumb_h;
-	thumbnail_util_create(&thumb_h);
-//	thumbnail_util_set_size(thumb_h, 240, 240);
-	thumbnail_util_set_path(thumb_h, srcPath);
-	MSG_DEBUG("thumbnail_util_extract");
-
-	ret = thumbnail_util_extract(thumb_h, thumbnail_completed_cb, dstPath, &req_id);
-	thumbnail_util_destroy(thumb_h);
-	if (req_id) {
-		g_free(req_id);
-		req_id = NULL;
-	}
-
-	if (ret != THUMBNAIL_UTIL_ERROR_NONE) {
-		MSG_DEBUG("thumbnail_util_extract is failed");
-		g_mx.unlock();
-		return false;
-	}
-
-	time_ret = g_cv.timedwait(g_mx.pMutex(), 5);
-
-	g_mx.unlock();
-
-	if (time_ret == ETIMEDOUT) {
-		MSG_INFO("@@ WAKE by timeout@@");
-		return false;
-	}
-
-	if (MsgAccessFile(dstPath, F_OK) == false) {
-		MSG_DEBUG("not exist result file [%s]", dstPath);
-		return false;
-	}
-
-	MSG_DEBUG("Make thumbnail: success [%s]", dstPath);
-	return true;
-}
-
-bool MmsMakeVideoThumbnail(char *srcPath, char *dstPath)
-{
-	MMHandleType content_attrs = (MMHandleType)NULL;
-	char *err_attr_name = NULL;
-	int fileRet = 0;
-	int trackCount = 0;
-
-	if (srcPath == NULL || dstPath == NULL) {
-		MSG_DEBUG(MMS_DEBUG_STR_INVALID_PARAM" src = %p, dst = %p", srcPath, dstPath);
-		return false;
-	}
-
-	if (MsgAccessFile(srcPath, R_OK) == false) {
-		MSG_DEBUG("not exist source file [%s]", srcPath);
-		return false;
-	}
-
-	fileRet = mm_file_create_content_attrs(&content_attrs, srcPath);
-	if (fileRet != 0) {
-		mm_file_destroy_content_attrs(content_attrs);
-		MSG_DEBUG("mm_file_create_content_attrs fail [%d]", fileRet);
-		return false;
-	}
-
-	fileRet = mm_file_get_attrs(content_attrs, &err_attr_name, MM_FILE_CONTENT_VIDEO_TRACK_COUNT, &trackCount, NULL);
-	if (fileRet != 0) {
-		MSG_SEC_DEBUG("mm_file_get_attrs fails [%s]", err_attr_name);
-
-		if (err_attr_name) {
-			free(err_attr_name);
-			err_attr_name = NULL;
-		}
-
-		mm_file_destroy_content_attrs(content_attrs);
-
-		return false;
-	}
-
-	MSG_DEBUG("video track num: %d", trackCount);
-
-	if (trackCount <= 0) {
-		mm_file_destroy_content_attrs(content_attrs);
-		return false;
-	}
-
-
-	int thumbnailWidth = 0;
-	int thumbnailHeight = 0;
-	int thumbnailSize = 0;
-	void *thumbnail = NULL;
-
-	fileRet = mm_file_get_attrs(content_attrs, &err_attr_name, MM_FILE_CONTENT_VIDEO_WIDTH, &thumbnailWidth,
-																MM_FILE_CONTENT_VIDEO_HEIGHT, &thumbnailHeight,
-																MM_FILE_CONTENT_VIDEO_THUMBNAIL, &thumbnail, &thumbnailSize,
-																NULL);
-
-	if (fileRet != 0) {
-		MSG_SEC_DEBUG("mm_file_get_attrs fails [%s]", err_attr_name);
-		if (err_attr_name) {
-			free(err_attr_name);
-			err_attr_name = NULL;
-		}
-
-		mm_file_destroy_content_attrs(content_attrs);
-		return false;
-	}
-
-	MSG_DEBUG("video width: %d", thumbnailWidth);
-	MSG_DEBUG("video height: %d", thumbnailHeight);
-	MSG_DEBUG("video thumbnail: %p", thumbnail);
-
-	if (thumbnail == NULL) {
-		mm_file_destroy_content_attrs(content_attrs);
-		return false;
-	}
-
-	fileRet = mm_util_jpeg_encode_to_file (dstPath, thumbnail, thumbnailWidth, thumbnailHeight, MM_UTIL_JPEG_FMT_RGB888, 70);
-	if (fileRet != 0) {
-		MSG_DEBUG("mm_util_jpeg_encode_to_file fails [%d]", fileRet);
-		mm_file_destroy_content_attrs(content_attrs);
-		return false;
-	}
-
-	if (MsgAccessFile(dstPath, F_OK) == false) {
-		MSG_DEBUG("not exist result file [%s]", dstPath);
-		mm_file_destroy_content_attrs(content_attrs);
-		return false;
-	}
-
-	MSG_DEBUG("Make thumbnail: success [%s]", dstPath);
-	mm_file_destroy_content_attrs(content_attrs);
-	return true;
-}
 
 FILE *MmsFileOpen(char *pFileName)
 {
@@ -326,7 +140,7 @@ bool MmsRemoveMarkup(const char *src, char *dst, int dstsize)
 	return true;
 }
 
-//change character ' ' to '_'
+/* change character ' ' to '_' */
 bool MmsReplaceSpaceChar(char *pszText)
 {
 	if (!pszText) {
@@ -365,16 +179,16 @@ char *MmsReplaceNonAsciiUtf8(const char *szSrc, char replaceChar)
 
 	ptr = (const unsigned char*)szSrc;
 
-	while(offset < srcLen && *(ptr) != '\0') {
+	while (offset < srcLen && *(ptr) != '\0') {
 
 		b1 = *(ptr);
 
-		if ((b1 & 0x80) == 0) { //1byte : 0xxx xxxx
+		if ((b1 & 0x80) == 0) { /* 1byte : 0xxx xxxx */
 			offset += 1;
 			ptr += 1;
 
 			str += b1;
-		} else  if ((b1 & 0xE0) == 0xC0) { //2byte : 110x xxxx
+		} else if ((b1 & 0xE0) == 0xC0) { /* 2byte : 110x xxxx */
 			offset += 2;
 
 			if (offset > srcLen)
@@ -382,14 +196,14 @@ char *MmsReplaceNonAsciiUtf8(const char *szSrc, char replaceChar)
 
 			b2 = *(ptr + 1);
 
-			if (b2 >= 0x80) { //10xx xxxx
+			if (b2 >= 0x80) { /* 10xx xxxx */
 				ptr += 2;
 				str += replaceChar;
 			} else {
 				return NULL;
 			}
 
-		} else  if ((b1 & 0xF0) == 0xE0) { //3byte : 1110 xxxx
+		} else if ((b1 & 0xF0) == 0xE0) { /* 3byte : 1110 xxxx */
 
 			offset += 3;
 
@@ -399,14 +213,14 @@ char *MmsReplaceNonAsciiUtf8(const char *szSrc, char replaceChar)
 			b2 = *(ptr + 1);
 			b3 = *(ptr + 2);
 
-			if (b2 >= 0x80 && b3 >= 0x80) { //10xx xxxx
+			if (b2 >= 0x80 && b3 >= 0x80) { /* 10xx xxxx */
 				ptr += 3;
 				str += replaceChar;
 			} else {
 				return NULL;
 			}
 
-		} else  if ((b1 & 0xF8) == 0xF0) { //4byte : 1111 xxxx
+		} else if ((b1 & 0xF8) == 0xF0) { /* 4byte : 1111 xxxx */
 
 			offset += 4;
 
@@ -417,7 +231,7 @@ char *MmsReplaceNonAsciiUtf8(const char *szSrc, char replaceChar)
 			b3 = *(ptr + 2);
 			b4 = *(ptr + 3);
 
-			if (b2 >= 0x80 && b3 >= 0x80 && b4 >= 0x80) { //10xx xxxx
+			if (b2 >= 0x80 && b3 >= 0x80 && b4 >= 0x80) { /* 10xx xxxx */
 				ptr += 4;
 				str += replaceChar;
 
@@ -458,14 +272,14 @@ bool MmsIsUtf8String(const unsigned char *szSrc, int nChar)
 
 	ptr = (const unsigned char*)szSrc;
 
-	while(offset < srcLen && *(ptr) != '\0') {
+	while (offset < srcLen && *(ptr) != '\0') {
 
 		b1 = *(ptr);
 
-		if ((b1 & 0x80) == 0) { //1byte : 0xxx xxxx
+		if ((b1 & 0x80) == 0) { /* 1byte : 0xxx xxxx */
 			offset += 1;
 			ptr += 1;
-		} else  if ((b1 & 0xE0) == 0xC0) { //2byte : 110x xxxx
+		} else if ((b1 & 0xE0) == 0xC0) { /* 2byte : 110x xxxx */
 			offset += 2;
 
 			if (offset > srcLen)
@@ -473,13 +287,13 @@ bool MmsIsUtf8String(const unsigned char *szSrc, int nChar)
 
 			b2 = *(ptr + 1);
 
-			if (b2 >= 0x80) { //10xx xxxx
+			if (b2 >= 0x80) { /* 10xx xxxx */
 				ptr += 2;
 			} else {
 				return false;
 			}
 
-		} else  if ((b1 & 0xF0) == 0xE0) { //3byte : 1110 xxxx
+		} else if ((b1 & 0xF0) == 0xE0) { /* 3byte : 1110 xxxx */
 
 			offset += 3;
 
@@ -489,13 +303,13 @@ bool MmsIsUtf8String(const unsigned char *szSrc, int nChar)
 			b2 = *(ptr + 1);
 			b3 = *(ptr + 2);
 
-			if (b2 >= 0x80 && b3 >= 0x80) { //10xx xxxx
+			if (b2 >= 0x80 && b3 >= 0x80) { /* 10xx xxxx */
 				ptr += 3;
 			} else {
 				return false;
 			}
 
-		} else  if ((b1 & 0xF8) == 0xF0) { //4byte : 1111 xxxx
+		} else if ((b1 & 0xF8) == 0xF0) { /* 4byte : 1111 xxxx */
 
 			offset += 4;
 
@@ -506,7 +320,7 @@ bool MmsIsUtf8String(const unsigned char *szSrc, int nChar)
 			b3 = *(ptr + 2);
 			b4 = *(ptr + 3);
 
-			if (b2 >= 0x80 && b3 >= 0x80 && b4 >= 0x80) { //10xx xxxx
+			if (b2 >= 0x80 && b3 >= 0x80 && b4 >= 0x80) { /* 10xx xxxx */
 				ptr += 4;
 			} else {
 				return false;
@@ -514,7 +328,7 @@ bool MmsIsUtf8String(const unsigned char *szSrc, int nChar)
 		} else {
 			return false;
 		}
-	}//while
+	} /* while */
 
 	return true;
 }

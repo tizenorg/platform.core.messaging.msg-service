@@ -166,8 +166,7 @@ msg_error_t MsgStoResetCBMessage()
 
 	memset(sqlQuery, 0x00, sizeof(sqlQuery));
 
-	snprintf(sqlQuery, sizeof(sqlQuery), "DELETE FROM %s",
-			MSGFW_RECEIVED_CB_MSG_TABLE_NAME);
+	snprintf(sqlQuery, sizeof(sqlQuery), "DELETE FROM %s;", MSGFW_RECEIVED_CB_MSG_TABLE_NAME);
 
 	if (dbHandle->execQuery(sqlQuery) != MSG_SUCCESS) {
 		MSG_DEBUG("Delete Received CB Msg Fail!!");

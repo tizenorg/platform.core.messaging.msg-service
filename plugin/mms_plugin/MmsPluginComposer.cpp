@@ -30,10 +30,9 @@
 #include "MmsPluginTypes.h"
 #include "MmsPluginDebug.h"
 #include "MmsPluginMessage.h"
-#include "MmsPluginMIME.h"
+#include "MsgUtilMime.h"
 #include "MmsPluginStorage.h"
 #include "MmsPluginUtil.h"
-#include "MmsPluginTcs.h"
 #include "MsgSmil.h"
 
 
@@ -60,13 +59,13 @@ void MmsPluginComposer::composeSendReq(MSG_MESSAGE_INFO_S *pMsgInfo, MSG_SENDING
 
 	if (pMsgInfo->msgType.subType == MSG_SENDREQ_MMS) {
 
-		if (pMmsData->header == NULL) {//send req from user
+		if (pMmsData->header == NULL) { /* send req from user */
 			pMmsData->header = MsgMmsCreateHeader();
 		}
 
 		if (pMmsData->header) {
 			composeSendReqHeader(pMsgInfo, pSendOptInfo, pMmsData);
-			//TODO:: apply MmsReplaceNonAsciiUtf8 to all multipart FileName;
+			/* TODO:: apply MmsReplaceNonAsciiUtf8 to all multipart FileName; */
 		}
 
 		int len = g_list_length(pMmsData->multipartlist);
@@ -77,12 +76,17 @@ void MmsPluginComposer::composeSendReq(MSG_MESSAGE_INFO_S *pMsgInfo, MSG_SENDING
 
 			if (multipart) {
 				if (multipart->type == MIME_UNKNOWN && strlen(multipart->szContentType) == 0) {
+					MimeMainType mainType;
+
+					if (!MsgGetMainTypeFromMetaData(multipart->szFilePath, &mainType))
+						mainType = MIME_MAINTYPE_UNKNOWN;
+
 					const char *content_type = NULL;
-					MmsGetMimeTypeFromFileName(MIME_MAINTYPE_UNKNOWN, multipart->szFileName, &multipart->type, &content_type);
+					MsgGetMimeTypeFromFileName(mainType, multipart->szFileName, &multipart->type, &content_type);
 					snprintf(multipart->szContentType, sizeof(multipart->szContentType), "%s", content_type);
 				}
 			}
-		} //end for
+		} /* end for */
 	}
 }
 
@@ -96,7 +100,7 @@ MMSList *getAddressList(const MSG_MESSAGE_INFO_S *pMsgInfo, int recipientType)
 
 	nAddressCnt = pMsgInfo->nAddressCnt;
 
-	// Calculate allocated buffer size
+	/* Calculate allocated buffer size */
 	for (int i = 0; i < nAddressCnt; ++i) {
 
 		MSG_SEC_DEBUG("recipientType: %d, address value: %s", pMsgInfo->addressList[i].recipientType, pMsgInfo->addressList[i].addressVal);
@@ -112,7 +116,7 @@ MMSList *getAddressList(const MSG_MESSAGE_INFO_S *pMsgInfo, int recipientType)
 			} else if (pMsgInfo->addressList[i].addressType == MSG_ADDRESS_TYPE_EMAIL) {
 				pAddressData = MsgMmsCreateAddress(MSG_ADDRESS_TYPE_EMAIL, pMsgInfo->addressList[i].addressVal);
 			} else
-				; // Need to consider IPV4, IPV6, and Alias formatted address
+				; /* Need to consider IPV4, IPV6, and Alias formatted address */
 
 			if (pAddressData)
 				addressList = g_list_append(addressList, pAddressData);
@@ -180,7 +184,7 @@ bool composeSendReqHeader(MSG_MESSAGE_INFO_S *pMsgInfo, MSG_SENDINGOPT_INFO_S *p
 
 		msgClass = (MmsMsgClass)MsgSettingGetInt(MMS_SEND_MSG_CLASS);
 
-		//set Header
+		/* set Header */
 		time(&RawTime);
 		localtime_r(&RawTime, &timeInfo);
 		nTimeInSecs = mktime(&timeInfo);
@@ -214,12 +218,10 @@ bool composeSendReqHeader(MSG_MESSAGE_INFO_S *pMsgInfo, MSG_SENDINGOPT_INFO_S *p
 
 	snprintf(pHeaderData->szSubject, sizeof(pHeaderData->szSubject), "%s", pMsgInfo->subject);
 
-	//setting adddress
+	/* setting adddress */
 	pHeaderData->to = getAddressList(pMsgInfo, MSG_RECIPIENTS_TYPE_TO);
 	pHeaderData->cc = getAddressList(pMsgInfo, MSG_RECIPIENTS_TYPE_CC);
 	pHeaderData->bcc = getAddressList(pMsgInfo, MSG_RECIPIENTS_TYPE_BCC);
-
-	//snprintf(pHeaderData->szFrom, sizeof(pHeaderData->szFrom), "%s", pMmsMsg->mmsAttrib.szFrom);
 
 	return true;
 }

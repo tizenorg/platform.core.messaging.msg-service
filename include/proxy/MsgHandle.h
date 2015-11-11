@@ -31,6 +31,7 @@
 #include "MsgCmdTypes.h"
 #include "MsgInternalTypes.h"
 #include "MsgIpcSocket.h"
+#include "MsgMutex.h"
 
 /*==================================================================================================
                                      CLASS DEFINITIONS
@@ -42,11 +43,11 @@ class MsgHandle
 		MsgHandle();
 		virtual ~MsgHandle();
 
-		// Control
+		/* Control */
 		void openHandle();
 		void closeHandle(MsgHandle* pHandle);
 
-		// Transport
+		/* Transport */
 		msg_error_t submitReq(MSG_REQUEST_S* pReq);
 
 		msg_error_t regSentStatusCallback(msg_sent_status_cb onStatusChanged,  void *pUserParam);
@@ -61,7 +62,7 @@ class MsgHandle
 
 		msg_error_t operateSyncMLMessage(msg_message_id_t msgId);
 
-		// Storage
+		/* Storage */
 		int addMessage(MSG_MESSAGE_HIDDEN_S *pMsg, const MSG_SENDINGOPT_S *pSendOpt);
 		msg_error_t addSyncMLMessage(const MSG_SYNCML_MESSAGE_S *pSyncMLMsg);
 		msg_error_t updateMessage(const MSG_MESSAGE_HIDDEN_S *pMsg, const MSG_SENDINGOPT_S *pSendOpt);
@@ -92,7 +93,7 @@ class MsgHandle
 
 		msg_error_t getAddressList(const msg_thread_id_t threadId, msg_struct_list_s *pAddrList);
 
-		// Filter
+		/* Filter */
 		msg_error_t addFilter(const MSG_FILTER_S *pFilter);
 		msg_error_t updateFilter(const MSG_FILTER_S *pFilter);
 		msg_error_t deleteFilter(msg_filter_id_t FilterId);
@@ -101,7 +102,7 @@ class MsgHandle
 		msg_error_t getFilterOperation(bool *pSetFlag);
 		msg_error_t setFilterActivation(msg_filter_id_t filter_id, bool active);
 
-		//setting
+		/*setting */
 		msg_error_t getSMSCOption(msg_struct_t msg_struct);
 		msg_error_t setSMSCOption(msg_struct_t msg_struct);
 		msg_error_t getCBOption(msg_struct_t msg_struct);
@@ -121,11 +122,11 @@ class MsgHandle
 		msg_error_t getMsgSizeOpt(msg_struct_t msg_struct);
 		msg_error_t setMsgSizeOpt(msg_struct_t msg_struct);
 
-		//Backup & Restore
+		/*Backup & Restore */
 		msg_error_t backupMessage(msg_message_backup_type_t type, const char *backup_filepath);
 		msg_error_t restoreMessage(const char *backup_filepath);
 		msg_error_t getVobject(msg_message_id_t MsgId, void** encodedData);
-		// ETC
+		/* ETC */
 		msg_error_t searchMessage(const char *pSearchString, msg_struct_list_s *pThreadViewList);
 
 		msg_error_t getRejectMsgList(const char *pNumber, msg_struct_list_s *pRejectMsgList);
@@ -137,7 +138,7 @@ class MsgHandle
 		msg_error_t getMessageList(const MSG_LIST_CONDITION_S *pListCond, msg_struct_list_s *pMsgList);
 		msg_error_t getMediaList(const msg_thread_id_t thread_id, msg_list_handle_t *pMediaList);
 
-		// Push Event
+		/* Push Event */
 		msg_error_t addPushEvent(MSG_PUSH_EVENT_INFO_S *push_event);
 		msg_error_t deletePushEvent(MSG_PUSH_EVENT_INFO_S *push_event);
 		msg_error_t updatePushEvent(MSG_PUSH_EVENT_INFO_S *pSrc, MSG_PUSH_EVENT_INFO_S *pDst);
@@ -145,9 +146,10 @@ class MsgHandle
 		void convertMsgStruct(const MSG_MESSAGE_INFO_S *pSource, MSG_MESSAGE_HIDDEN_S *pDest);
 		void convertSendOptStruct(const MSG_SENDINGOPT_INFO_S* pSrc, MSG_SENDINGOPT_S* pDest, MSG_MESSAGE_TYPE_S msgType);
 
-	private:
 		void connectSocket();
-		void	disconnectSocket();
+		void disconnectSocket();
+
+	private:
 		void write(const char *pCmd, int CmdSize, char **ppEvent);
 		void read(char **ppEvent);
 		void generateConnectionId(char *ConnectionId);
@@ -162,7 +164,8 @@ class MsgHandle
 		char mCookie[MAX_COOKIE_LEN];
 
 		MsgIpcClientSocket mClientSock;
+		Mutex mx;
 };
 
-#endif // MSG_HANDLE_H
+#endif /* MSG_HANDLE_H */
 

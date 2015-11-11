@@ -16,7 +16,7 @@
 
 #include <glib.h>
 #include "MmsPluginDebug.h"
-#include "MmsPluginMIME.h"
+#include "MsgUtilMime.h"
 #include "MmsPluginCodec.h"
 #include "MmsPluginTextConvert.h"
 #include "MmsPluginUtil.h"
@@ -51,7 +51,7 @@ bool MmsPluginTextConvert(const char *pToCodeSet, const char *pFromCodeset, cons
 		goto __CATCH;
 	}
 
-	if (strcasecmp("utf-16", pFromCodeset) == 0) {//check utf-8 str though utf-16
+	if (strcasecmp("utf-16", pFromCodeset) == 0) { /* check utf-8 str though utf-16 */
 
 		MSG_DEBUG("Codeset [%s] check utf-8 type", pFromCodeset);
 

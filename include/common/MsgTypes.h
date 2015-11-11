@@ -66,6 +66,8 @@
  */
 #define MSG_DRM_SUPPORT	(0)
 
+#define MAX_TELEPHONY_HANDLE_CNT	(3)
+
 /**
  *	@brief	Defines message struct handle.
  */

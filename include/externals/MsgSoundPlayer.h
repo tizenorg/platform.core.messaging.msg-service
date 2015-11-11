@@ -37,8 +37,7 @@ enum _MSG_SOUND_TYPE_E
 /*==================================================================================================
                                 CLASS DEFINITIONS
 ==================================================================================================*/
-class MsgSoundPlayer
-{
+class MsgSoundPlayer {
 public:
 	static MsgSoundPlayer* instance();
 
@@ -61,6 +60,7 @@ private:
 	void MsgSoundSetRepeatAlarm();
 	void MsgSoundCreateRepeatAlarm(int RepeatTime);
 	int MsgSoundGetUnreadMsgCnt();
+	void MsgGetPlayStatus(bool bOnCall, bool bSound, bool bVibration, bool bMsgSound, bool bMsgVibration, bool *bPlaySound, bool *bPlayVibration);
 
 	static MsgSoundPlayer* pInstance;
 
@@ -73,5 +73,5 @@ private:
 	char *defaultRingtonePath;
 };
 
-#endif // MSG_SOUND_PLAYER_H
+#endif /* MSG_SOUND_PLAYER_H */
 

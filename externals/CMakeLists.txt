@@ -32,7 +32,7 @@ INCLUDE_DIRECTORIES(
 )
 
 INCLUDE(FindPkgConfig)
-pkg_check_modules(externals_pkgs REQUIRED glib-2.0 deviced mm-session alarm-service notification badge iniparser capi-appfw-application lbs-dbus mm-fileinfo mm-player mm-sound sensor feedback db-util)
+pkg_check_modules(externals_pkgs REQUIRED glib-2.0 mm-session alarm-service notification badge iniparser capi-appfw-application lbs-dbus mm-fileinfo mm-player mm-sound feedback capi-system-device motion)
 
 FOREACH(flag ${externals_pkgs_CFLAGS})
 	SET(EXTRA_CFLAGS "${EXTRA_CFLAGS} ${flag}")

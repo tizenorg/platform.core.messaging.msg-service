@@ -84,4 +84,4 @@ private:
 	static sms_message_type_t findMsgType(const unsigned char *p_pkg_str, int pkg_len);
 };
 
-#endif //SMS_CDMA_PLUGIN_CODEC_H
+#endif /* SMS_CDMA_PLUGIN_CODEC_H */

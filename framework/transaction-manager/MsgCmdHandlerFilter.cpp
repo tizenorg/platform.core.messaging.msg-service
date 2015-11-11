@@ -195,8 +195,10 @@ int MsgGetFilterListHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 			msg_struct_s *msg_struct;
 			for (int i = 0; i < filterList.nCount; i++) {
 				msg_struct = (msg_struct_s *)filterList.msg_struct_info[i];
-				delete (MSG_FILTER_S *)msg_struct->data;
-				delete msg_struct;
+				if (msg_struct) {
+					delete (MSG_FILTER_S *)msg_struct->data;
+					delete msg_struct;
+				}
 			}
 			g_free(filterList.msg_struct_info);
 		}

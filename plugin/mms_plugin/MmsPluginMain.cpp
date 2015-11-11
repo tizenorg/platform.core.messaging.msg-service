@@ -77,8 +77,8 @@ msg_error_t MmsInitialize()
 {
 	MSG_BEGIN();
 
-	// remove temp files
-	//MsgMmsInitDir();
+	/* remove temp files */
+/*	MsgMmsInitDir(); */
 
 	MSG_END();
 
@@ -181,14 +181,14 @@ msg_error_t MmsUpdateMessage(MSG_MESSAGE_INFO_S *pMsgInfo, MSG_SENDINGOPT_INFO_S
 	msg_error_t err = MSG_SUCCESS;
 
 	try {
-		if (pMsgInfo->networkStatus == MSG_NETWORK_NOT_SEND || pMsgInfo->networkStatus == MSG_NETWORK_SENDING) { //draft update
+		if (pMsgInfo->networkStatus == MSG_NETWORK_NOT_SEND || pMsgInfo->networkStatus == MSG_NETWORK_SENDING) { /* draft update */
 			err = MmsPluginStorage::instance()->updateMessage(pMsgInfo, pSendOptInfo, pFileData);
 		} else {
-			//[Update Message ID & File path only in case of retrieve. Else update Message ID]
-			if (pMsgInfo->msgType.subType == MSG_RETRIEVE_AUTOCONF_MMS || pMsgInfo->msgType.subType == MSG_RETRIEVE_MANUALCONF_MMS) { //retrieve conf
+			/* [Update Message ID & File path only in case of retrieve. Else update Message ID] */
+			if (pMsgInfo->msgType.subType == MSG_RETRIEVE_AUTOCONF_MMS || pMsgInfo->msgType.subType == MSG_RETRIEVE_MANUALCONF_MMS) { /* retrieve conf */
 				err = MmsPluginStorage::instance()->updateConfMessage(pMsgInfo);
 			} else {
-				err = MmsPluginStorage::instance()->updateMsgServerID(pMsgInfo, pSendOptInfo); //update send conf
+				err = MmsPluginStorage::instance()->updateMsgServerID(pMsgInfo, pSendOptInfo); /* update send conf */
 			}
 		}
 	} catch (MsgException& e) {
@@ -285,7 +285,7 @@ msg_error_t MmsComposeReadReport(MSG_MESSAGE_INFO_S *pMsgInfo)
 	return MSG_SUCCESS;
 }
 
-//FIXME::It used for kies but not now
+/* FIXME::It used for kies but not now */
 msg_error_t MmsRestoreMsg(MSG_MESSAGE_INFO_S *pMsgInfo, char *pRcvBody, int rcvdBodyLen, char *filePath)
 {
 	MSG_BEGIN();
@@ -299,7 +299,7 @@ msg_error_t MmsRestoreMsg(MSG_MESSAGE_INFO_S *pMsgInfo, char *pRcvBody, int rcvd
 		if ((pFile = MsgOpenFile(pMsgInfo->msgData, "rb+")) == NULL) {
 			MSG_DEBUG("File Open Error: %s", pMsgInfo->msgData);
 		} else {
-			//Decode Header
+			/* Decode Header */
 			if (!MmsBinaryDecodeMsgHeader(pFile, rcvdBodyLen))
 				MSG_DEBUG("Decoding Header Failed \r\n");
 
@@ -314,7 +314,7 @@ msg_error_t MmsRestoreMsg(MSG_MESSAGE_INFO_S *pMsgInfo, char *pRcvBody, int rcvd
 			return MSG_ERR_NULL_POINTER;
 		}
 
-		// create temp file
+		/* create temp file */
 		if (!MsgOpenCreateAndOverwriteFile(filePath, (char*)pRcvBody,rcvdBodyLen))
 			return MSG_ERR_PLUGIN_STORAGE;
 	}

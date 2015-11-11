@@ -27,6 +27,10 @@
 #include <fcntl.h>
 #include <libgen.h>
 
+#include <media_content.h>
+#include <thumbnail_util.h>
+#include <image_util.h>
+
 #include "MsgStorageTypes.h"
 #include "MsgDebug.h"
 #include "MsgException.h"
@@ -34,11 +38,100 @@
 #include "MsgMmsTypes.h"
 #include "MsgInternalTypes.h"
 #include "MsgDrmWrapper.h"
+#include "MsgMutex.h"
 
+extern "C" {
+	#include <aul.h>
+}
+
+Mutex g_mx;
+CndVar g_cv;
+
+void thumbnail_completed_cb(thumbnail_util_error_e error, const char *request_id,
+									int thumb_width, int thumb_height,
+									unsigned char *thumb_data, int thumb_size, void *user_data)
+{
+	if (!user_data) {
+		MSG_WARN("dstPath is NULL");
+		return;
+	}
+
+	MSG_BEGIN();
+
+	g_mx.lock();
+	MSG_DEBUG("=================[RESULT]");
+	MSG_DEBUG("error_code [%d]", error);
+	MSG_DEBUG("request id [%s]", request_id);
+	MSG_DEBUG("width [%d], height [%d]", thumb_width, thumb_height);
+	MSG_DEBUG("raw_data [0x%x], size [%d]", *thumb_data, thumb_size);
+
+	int ret = 0;
+	ret = image_util_encode_jpeg(thumb_data, thumb_width, thumb_height, IMAGE_UTIL_COLORSPACE_BGRA8888, 100, (char *)user_data);
+	if (ret != IMAGE_UTIL_ERROR_NONE)
+		MSG_WARN("image_util_encode_jpeg() is failed");
+
+	g_cv.signal();
+	g_mx.unlock();
+
+	MSG_END();
+}
 
 /*==================================================================================================
                                      FUNCTION IMPLEMENTATION
 ==================================================================================================*/
+bool MakeThumbnail(char *srcPath, char *dstPath)
+{
+	if (srcPath == NULL || dstPath == NULL) {
+		MSG_SEC_DEBUG("Invalid Param src = %p, dst = %p", srcPath, dstPath);
+		return false;
+	}
+
+	if (MsgAccessFile(srcPath, R_OK) == false) {
+		MSG_SEC_DEBUG("not exist source file [%s]", srcPath);
+		return false;
+	}
+
+	g_mx.lock();
+
+	int time_ret = 0;
+
+	int ret = THUMBNAIL_UTIL_ERROR_NONE;
+	char *req_id = NULL;
+	thumbnail_h thumb_h;
+	thumbnail_util_create(&thumb_h);
+	thumbnail_util_set_path(thumb_h, srcPath);
+
+	ret = thumbnail_util_extract(thumb_h, thumbnail_completed_cb, dstPath, &req_id);
+	thumbnail_util_destroy(thumb_h);
+	if (req_id) {
+		g_free(req_id);
+		req_id = NULL;
+	}
+
+	if (ret != THUMBNAIL_UTIL_ERROR_NONE) {
+		MSG_ERR("thumbnail_util_extract is failed");
+		g_mx.unlock();
+		return false;
+	}
+
+	time_ret = g_cv.timedwait(g_mx.pMutex(), 5);
+
+	g_mx.unlock();
+
+	if (time_ret == ETIMEDOUT) {
+		MSG_ERR("@@ WAKE by timeout@@");
+		return false;
+	}
+
+	if (MsgAccessFile(dstPath, F_OK) == false) {
+		MSG_SEC_DEBUG("not exist result file [%s]", dstPath);
+		return false;
+	}
+
+	MSG_SEC_DEBUG("Make thumbnail: success [%s]", dstPath);
+	return true;
+}
+
 // File operation wrappers
 FILE *MsgOpenFile(const char *filepath, const char *opt)
 {
@@ -455,10 +548,10 @@ void MsgDeleteFile(const char *pFileName)
 	try {
 		snprintf(fullPath, MAX_FULL_PATH_SIZE, "%s%s", MSG_IPC_DATA_PATH, pFileName);
 
-		MSG_DEBUG("%s", fullPath);
+		MSG_SEC_DEBUG("%s", fullPath);
 
 		if (remove(fullPath) != 0)
-			MSG_FATAL("File Delete Error [%s]: %s", fullPath, g_strerror(errno));
+			MSG_SEC_ERR("File Delete Error [%s]: %s", fullPath, g_strerror(errno));
 	} catch (exception &e) {
 		MSG_FATAL ("%s", e.what());
 	}
@@ -479,7 +572,7 @@ void MsgDeleteSmilFile(const char *pFileName)
 		snprintf(fullPath, MAX_FULL_PATH_SIZE, "%s%s", MSG_SMIL_FILE_PATH, pFileName);
 
 		if (remove(fullPath) != 0)
-			MSG_FATAL("File Delete Error [%s]: %s", fullPath, g_strerror(errno));
+			MSG_SEC_ERR("File Delete Error [%s]: %s", fullPath, g_strerror(errno));
 	} catch (exception &e) {
 		MSG_FATAL("%s", e.what());
 	}
@@ -535,7 +628,7 @@ FILE *MsgOpenMMSFile(char *pFileName)
 		}
 	}
 
-	MSG_DEBUG("pFileName = %s", pFileName);
+	MSG_SEC_DEBUG("pFileName = %s", pFileName);
 
 	char fullPath[MAX_FULL_PATH_SIZE+1] = {0};
 
@@ -544,13 +637,13 @@ FILE *MsgOpenMMSFile(char *pFileName)
 	FILE *pFile = MsgOpenFile(fullPath, "wb+");
 
 	if (pFile == NULL) {
-		MSG_FATAL("File Open Error: %s", g_strerror(errno));
+		MSG_ERR("File Open Error: %s", g_strerror(errno));
 		return NULL;
 	}
 
 	if (MsgFseek(pFile, 0L, SEEK_CUR) < 0) {
 		MsgCloseFile(pFile);
-		MSG_DEBUG("File Read Error: %s", g_strerror(errno));
+		MSG_ERR("File Read Error: %s", g_strerror(errno));
 		return NULL;
 	}
 
@@ -628,7 +721,7 @@ char *MsgOpenAndReadMmsFile( const char *szFilePath, int offset, int size, int *
 	int	readSize = 0;
 
 	if (szFilePath == NULL) {
-		MSG_DEBUG("MsgOpenAndReadMmsFile: [ERROR] szFilePath id NULL");
+		MSG_ERR("szFilePath id NULL");
 		goto __CATCH;
 	}
 
@@ -637,11 +730,11 @@ char *MsgOpenAndReadMmsFile( const char *szFilePath, int offset, int size, int *
 	pFile = MsgOpenFile( szFilePath, "rb" );
 
 	if (pFile == NULL) {
-		MSG_DEBUG("MsgOpenAndReadMmsFile: [ERROR] Can't open filepath", g_strerror(errno));
+		MSG_ERR("Can't open file: %s", g_strerror(errno));
 		goto __CATCH;
 	}
 
-	if( size == -1 ) {
+	if (size == -1) {
 		if (MsgGetFileSize(szFilePath, & readSize) == false) {
 			MSG_DEBUG("MsgGetFileSize: failed");
 			goto __CATCH;
@@ -655,15 +748,14 @@ char *MsgOpenAndReadMmsFile( const char *szFilePath, int offset, int size, int *
 //		goto __CATCH;
 //	}
 
-	pData = (char *)malloc(readSize + 1);
+	pData = (char *)calloc(1, readSize + 1);
 	if ( NULL == pData ) {
-		MSG_DEBUG( "MsgOpenAndReadMmsFile: [ERROR] pData MemAlloc Fail", g_strerror(errno) );
+		MSG_ERR("pData MemAlloc Fail : %s", g_strerror(errno) );
 		goto __CATCH;
 	}
-	memset( pData, 0, readSize + 1 );
 
 	if (MsgFseek( pFile, offset, SEEK_SET) < 0) {
-		MSG_DEBUG( "MsgOpenAndReadMmsFile: [ERROR] FmSeekFile failed", g_strerror(errno) );
+		MSG_ERR("FmSeekFile failed : %s", g_strerror(errno) );
 		goto __CATCH;
 	}
 
@@ -1031,19 +1123,19 @@ bool MsgCreateFile(const char *pFilePath,char *pData, int DataSize)
 	FILE *pFile = MsgOpenFile(pFilePath, "wb+");
 
 	if (pFile == NULL) {
-		MSG_DEBUG("File Open Error: %s", g_strerror(errno));
+		MSG_ERR("File Open Error: %s", g_strerror(errno));
 		return false;
 	}
 
 	if (MsgFseek(pFile, 0L, SEEK_SET) < 0) {
 		MsgCloseFile(pFile);
-		MSG_DEBUG("File Seek Error: %s", g_strerror(errno));
+		MSG_ERR("File Seek Error: %s", g_strerror(errno));
 		return false;
 	}
 
 	if (MsgWriteFile(pData, sizeof(char), DataSize, pFile) != (size_t)DataSize) {
 		MsgCloseFile(pFile);
-		MSG_DEBUG("File Write Error: %s", g_strerror(errno));
+		MSG_ERR("File Write Error: %s", g_strerror(errno));
 		return false;
 	}
 
@@ -1074,45 +1166,49 @@ int MsgCheckFilepathSmack(const char *app_smack_label, char *file_path)
 	char *dir_smack_label = NULL;
 	char *dir_name = NULL;
 
+	if (!file_path || file_path[0] == '\0') {
+		return MSG_SUCCESS;
+	}
+
 	struct stat st;
 	if (stat(file_path, &st) != 0) {
-		MSG_DEBUG("stat(%s, &st) != 0", file_path);
+		MSG_SEC_ERR("stat(%s, &st) != 0", file_path);
 		return MSG_ERR_PERMISSION_DENIED;
 	}
 	if (S_ISDIR(st.st_mode)) {
-		MSG_DEBUG("S_ISDIR(st.st_mode)");
+		MSG_ERR("S_ISDIR(st.st_mode)");
 		return MSG_ERR_INVALID_PARAMETER;
 	}
 
 	dir_name = MsgGetDirName(file_path);
 	if (!dir_name || !g_strcmp0(dir_name, file_path)) {
-		MSG_DEBUG("!dir_name || !g_strcmp0(dir_name, %s)", file_path);
+		MSG_SEC_ERR("!dir_name || !g_strcmp0(dir_name, %s)", file_path);
 		err = MSG_ERR_INVALID_PARAMETER;
 		goto __RETURN;
 	}
 
 	smack_getlabel(dir_name, &dir_smack_label, SMACK_LABEL_ACCESS);
 	if (dir_smack_label == NULL) {
-		MSG_DEBUG("smack_getlabel failed (dir_smack_label)");
+		MSG_ERR("smack_getlabel failed (dir_smack_label)");
 		err = MSG_ERR_PERMISSION_DENIED;
 		goto __RETURN;
 	}
 
 	if (smack_have_access(app_smack_label, dir_smack_label, "RX") < 1) {
-		MSG_DEBUG("smack_have_access failed (dir_smack_label)");
+		MSG_ERR("smack_have_access failed (dir_smack_label)");
 		err = MSG_ERR_PERMISSION_DENIED;
 		goto __RETURN;
 	}
 
 	smack_getlabel(file_path, &path_smack_label, SMACK_LABEL_ACCESS);
 	if (path_smack_label == NULL) {
-		MSG_DEBUG("smack_getlabel failed (path_smack_label)");
+		MSG_ERR("smack_getlabel failed (path_smack_label)");
 		err = MSG_ERR_PERMISSION_DENIED;
 		goto __RETURN;
 	}
 
 	if (smack_have_access(app_smack_label, path_smack_label, "R") < 1) {
-		MSG_DEBUG("smack_have_access failed (path_smack_label)");
+		MSG_ERR("smack_have_access failed (path_smack_label)");
 		err = MSG_ERR_PERMISSION_DENIED;
 		goto __RETURN;
 	}
@@ -1124,4 +1220,41 @@ __RETURN:
 	MSG_FREE(dir_smack_label);
 	MSG_FREE(dir_name);
 	return err;
+}
+
+
+bool MsgScanFile(char *filePath)
+{
+	if (filePath == NULL) {
+		MSG_DEBUG("Invalid Parameter src = %p", filePath);
+		return false;
+	}
+
+	msg_error_t ret = media_content_connect();
+
+	if (ret == MEDIA_CONTENT_ERROR_NONE) {
+		if (media_content_scan_file(filePath) != MEDIA_CONTENT_ERROR_NONE) {
+			MSG_ERR("media_content_scan_file() is failed , %d", ret);
+			media_content_disconnect();
+			return false;
+		}
+
+		ret = media_content_disconnect();
+
+		if (ret != MEDIA_CONTENT_ERROR_NONE) {
+			MSG_ERR("media_content_disconnect is failed , %d", ret);
+			return false;
+		}
+	} else {
+		MSG_ERR("media_content_connect is failed , %d", ret);
+		return false;
+	}
+
+	return true;
+}
+
+
+void MsgGetMimeType(char *filePath, char *mimeType, int size)
+{
+	aul_get_mime_from_file(filePath, mimeType, size);
 }

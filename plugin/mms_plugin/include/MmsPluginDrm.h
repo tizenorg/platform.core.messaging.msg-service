@@ -21,4 +21,4 @@
 
 bool MmsPluginDrmGetInfo(const char *szFilePath, MsgType *pMsgType);
 
-#endif //MMS_PLUGIN_DRM_H
+#endif /* MMS_PLUGIN_DRM_H */

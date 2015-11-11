@@ -38,12 +38,14 @@
 #define	MSG_MMS_DECODE_BUFFER_MAX	(2 * 1024)
 #define	MSB								0x80
 #define	QUOTE							0x7F
-#define	MARK							0x22	// "
+#define	MARK							0x22	/* " */
 #define	LENGTH_QUOTE					0x1F
 #define	MSG_STDSTR_LONG				0xFF
 #define	INVALID_VALUE					-1
 
 #define	MMS_CONTENT_ID_LEN				100
+#define	MMS_LOCATION_URL_LEN			1024
+
 #define	MSG_DATE_LEN						50
 #define	MSG_SUBJ_LEN						40
 #define	MSG_LOCALE_SUBJ_LEN				(3 * MSG_SUBJ_LEN)
@@ -125,16 +127,16 @@ enum {
 	MMS_BODYHDR_DISPOSITION,
 	MMS_BODYHDR_CONTENTID,
 	MMS_BODYHDR_CONTENTLOCATION,
-	MMS_BODYHDR_X_OMA_DRM_SEPARATE_DELIVERY,	// DRM RO WAITING
+	MMS_BODYHDR_X_OMA_DRM_SEPARATE_DELIVERY,	/* DRM RO WAITING */
 };
 
 typedef enum {
-	//code
+	/* code */
 	MmsCodeFieldCode,
 	MmsCodeParameterCode,
 	MmsCodeMsgBodyHeaderCode,
 
-	//Data
+	/* Data */
 	MmsCodeMsgType,
 	MmsCodeDeliveryReport,
 	MmsCodeTimeType,
@@ -168,12 +170,12 @@ typedef enum {
 	MMS_DATATYPE_RETRIEVING = 7,
 	MMS_DATATYPE_UNRETV = 8,
 	MMS_DATATYPE_TEMPLATE = 9,
-	MMS_DATATYPE_DRM_RO_WAITING = 10	// DRM RO WAITING
+	MMS_DATATYPE_DRM_RO_WAITING = 10	/* DRM RO WAITING */
 } MmsDataType;
 
 typedef enum {
-	MMS_MSGTYPE_ERROR = -1,	// error return in Get method
-	MMS_MSGTYPE_SEND_REQ = 0,	// default
+	MMS_MSGTYPE_ERROR = -1,	/* error return in Get method */
+	MMS_MSGTYPE_SEND_REQ = 0,	/* default */
 	MMS_MSGTYPE_SEND_CONF = 1,
 	MMS_MSGTYPE_NOTIFICATION_IND = 2,
 	MMS_MSGTYPE_NOTIFYRESP_IND = 3,
@@ -184,31 +186,31 @@ typedef enum {
 	MMS_MSGTYPE_READORG_IND = 8,
 	MMS_MSGTYPE_FORWARD_REQ = 9,
 	MMS_MSGTYPE_FORWARD_CONF = 10,
-	MMS_MSGTYPE_READ_REPLY = 11,	// for internal use
+	MMS_MSGTYPE_READ_REPLY = 11,	/* for internal use */
 	MMS_MSGTYPE_MAX
 } MmsMsgType;
 
 typedef enum {
-	MMS_PRIORITY_ERROR = -1,			// error return in Get method
-	MMS_PRIORITY_LOW = 0,			// default
+	MMS_PRIORITY_ERROR = -1,			/* error return in Get method */
+	MMS_PRIORITY_LOW = 0,			/* default */
 	MMS_PRIORITY_NORMAL = 1,
 	MMS_PRIORITY_HIGH = 2
 } MmsPriority;
 
 typedef enum {
-	MMS_SENDER_VISIBLE_ERROR = -1,	// error return in Get method
+	MMS_SENDER_VISIBLE_ERROR = -1,	/* error return in Get method */
 	MMS_SENDER_SHOW = 0,
 	MMS_SENDER_HIDE = 1
 } MmsSenderVisible;
 
 typedef enum {
-	MMS_REPORT_ERROR = -1,	// error return in Get method
+	MMS_REPORT_ERROR = -1,	/* error return in Get method */
 	MMS_REPORT_YES = 0,
 	MMS_REPORT_NO = 1
 } MmsReport;
 
 typedef enum {
-	MMS_REPORTALLOWED_ERROR = -1,	// error return in Get method
+	MMS_REPORTALLOWED_ERROR = -1,	/* error return in Get method */
 	MMS_REPORTALLOWED_YES = 0,
 	MMS_REPORTALLOWED_NO = 1
 } MmsReportAllowed;
@@ -220,22 +222,22 @@ typedef enum {
 } MmsRecvReadReportType ;
 
 typedef enum {
-	MMS_MSGSTATUS_NONE = -1,	// backward compatibility
-	MMS_MSGSTATUS_ERROR = -1,	// error return in Get method
-	MMS_MSGSTATUS_EXPIRED = 0,	// This value SHOULD not be used in the M-NotifyResp.ind PDU.
+	MMS_MSGSTATUS_NONE = -1,	/* backward compatibility */
+	MMS_MSGSTATUS_ERROR = -1,	/* error return in Get method */
+	MMS_MSGSTATUS_EXPIRED = 0,	/* This value SHOULD not be used in the M-NotifyResp.ind PDU. */
 	MMS_MSGSTATUS_RETRIEVED = 1,
 	MMS_MSGSTATUS_REJECTED = 2,
 	MMS_MSGSTATUS_DEFERRED = 3,
-	MMS_MSGSTATUS_UNRECOGNISED = 4,	// This value SHALL not be used in the M-Delivery.ind PDU.
+	MMS_MSGSTATUS_UNRECOGNISED = 4,	/* This value SHALL not be used in the M-Delivery.ind PDU. */
 	MMS_MSGSTATUS_INDETERMINATE = 5,
 	MMS_MSGSTATUS_FORWARDED = 6,
 	MMS_MSGSTATUS_UNREACHABLE = 7
 } MmsMsgStatus;
 
 typedef enum {
-	MMS_READSTATUS_NONE = -1,			// no touch status
+	MMS_READSTATUS_NONE = -1,			/* no touch status */
 	MMS_IS_READ = 0,
-	MMS_IS_DELETED = 1	// Deleted without being read
+	MMS_IS_DELETED = 1	/* Deleted without being read */
 } MmsReadStatus;
 
 typedef enum {
@@ -251,8 +253,8 @@ typedef enum {
 
 /* Response status */
 typedef enum {
-	MMS_RESPSTATUS_ERROR = -1,	// error return in Get method
-	MMS_RESPSTATUS_OK = 0,	// default value
+	MMS_RESPSTATUS_ERROR = -1,	/* error return in Get method */
+	MMS_RESPSTATUS_OK = 0,	/* default value */
 	MMS_RESPSTAUTS_ERROR_UNSPECIFIED = 1,
 	MMS_RESPSTAUTS_ERROR_SERVICEDENIED = 2,
 	MMS_RESPSTAUTS_ERROR_MESSAGEFORMATCORRUPT = 3,
@@ -280,7 +282,7 @@ typedef enum {
 } MmsResponseStatus;
 
 typedef enum {
-	MMS_RETRSTATUS_ERROR = -1,	// error return in Get method
+	MMS_RETRSTATUS_ERROR = -1,	/* error return in Get method */
 	MMS_RETRSTATUS_OK = 0,
 	MMS_RETRSTATUS_TRANSIENT_FAILURE = 1,
 	MMS_RETRSTATUS_TRANSIENT_MESSAGE_NOT_FOUND = 2,
@@ -292,7 +294,7 @@ typedef enum {
 } MmsRetrieveStatus;
 
 typedef enum {
-	MMS_REPLY_NONE = -1,	// error return in Get method
+	MMS_REPLY_NONE = -1,	/* error return in Get method */
 	MMS_REPLY_REQUESTED = 0,
 	MMS_REPLY_REQUESTED_TEXT_ONLY = 1,
 	MMS_REPLY_ACCEPTED = 2,
@@ -300,8 +302,8 @@ typedef enum {
 } MmsReplyChargeType;
 
 typedef enum {
-	MMS_MSGCLASS_ERROR = -1,	// error return in Get method
-	MMS_MSGCLASS_PERSONAL = 0,	// default
+	MMS_MSGCLASS_ERROR = -1,	/* error return in Get method */
+	MMS_MSGCLASS_PERSONAL = 0,	/* default */
 	MMS_MSGCLASS_ADVERTISEMENT = 1,
 	MMS_MSGCLASS_INFORMATIONAL = 2,
 	MMS_MSGCLASS_AUTO = 3
@@ -340,7 +342,7 @@ typedef struct _MMS_ATTRIB_S {
 	UINT32 date;
 	UINT8 version;
 
-	char szFrom[MSG_LOCALE_ADDR_LEN + 11];		//"/TYPE=PLMN", /"TYPE=IPv4", "/TYPE=IPv6"
+	char szFrom[MSG_LOCALE_ADDR_LEN + 11];		/* "/TYPE=PLMN", /"TYPE=IPv4", "/TYPE=IPv6" */
 	char szSubject[MSG_LOCALE_SUBJ_LEN + 1];
 	char *szTo;
 	char *szCc;
@@ -356,7 +358,7 @@ typedef struct _MMS_ATTRIB_S {
 	MmsRecvReadReportType readReportAllowedType;
 
 	bool bAskReadReply;
-	bool bRead;//FIXME : remove this value
+	bool bRead; /* FIXME : remove this value */
 
 	MmsRecvReadReportSendStatus readReportSendStatus;
 
@@ -369,7 +371,7 @@ typedef struct _MMS_ATTRIB_S {
 	MmsTimeStruct expiryTime;
 	MmsTimeStruct deliveryTime;
 
-	//for ReadMsg, When Sending notifyResp.ind
+	/* for ReadMsg, When Sending notifyResp.ind */
 	msg_delivery_report_status_t msgStatus;
 
 	MmsResponseStatus responseStatus;
@@ -397,7 +399,7 @@ typedef struct _MsgContentParam {
 	char szStart[MSG_MSG_ID_LEN + 1];
 	char szStartInfo[MSG_MSG_ID_LEN + 1];
 
-	MsgParamReportType reportType; //only used as parameter of Content-Type: multipart/report; report-type=delivery-status;
+	MsgParamReportType reportType; /* only used as parameter of Content-Type: multipart/report; report-type=delivery-status; */
 } MsgContentParam;
 
 typedef struct _MsgDRMInfo {
@@ -409,7 +411,7 @@ typedef struct _MsgDRMInfo {
 	char *szContentVendor;
 	char *szRightIssuer;
 	char *szDrm2FullPath;
-	int roWaitingTimerMax;		// DRM RO WAITING
+	int roWaitingTimerMax;		/* DRM RO WAITING */
 	bool bFwdLock;
 	char *pszContentType;
 	bool bNoRingTone;
@@ -429,6 +431,7 @@ typedef struct _MsgType {
 	int disposition;
 	char szContentID[MSG_MSG_ID_LEN + 1];
 	char szContentLocation[MSG_MSG_ID_LEN + 1];
+	char szLocation[MSG_MSG_ID_LEN + 1];
 	char szOrgFilePath[MSG_FILEPATH_LEN_MAX + 1];
 
 	MsgContentParam param;
@@ -456,7 +459,7 @@ struct _MsgMultipart {
 typedef struct _MMS_MESSAGE_S {
 	MmsAttrib mmsAttrib;
 	msg_message_id_t msgID;
-	int mailbox;		// mailbox type,MMS_MAILBOX_XXX
+	int mailbox;		/* mailbox type,MMS_MAILBOX_XXX */
 	char szFileName[MSG_FILENAME_LEN_MAX];
 	char szTrID[MMS_TR_ID_LEN + 1];
 	char szMsgID[MMS_MSG_ID_LEN + 1];
@@ -467,4 +470,4 @@ typedef struct _MMS_MESSAGE_S {
 	MsgBody msgBody;
 } MmsMsg;
 
-#endif //MMS_PLUGIN_CODEC_TYPE_H
+#endif /* MMS_PLUGIN_CODEC_TYPE_H */

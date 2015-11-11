@@ -17,6 +17,7 @@
 /*==================================================================================================
                                          INCLUDE FILES
 ==================================================================================================*/
+#include "MsgCallStatusManager.h"
 #include "MsgDebug.h"
 #include "MsgException.h"
 #include "MsgContact.h"
@@ -56,6 +57,8 @@ void* InitMsgServer(void*)
 	// Init contact digit number
 	MsgInitContactSvc();
 #endif // MSG_CONTACTS_SERVICE_NOT_SUPPORTED
+
+	MsgInitCallStatusManager();
 
 	//CID 356902: Moving try block up to include MsgStoInitDB which also throws MsgException
 	try
@@ -172,6 +175,8 @@ int main(void)
 
 	// Disconnect to DB
 	MsgStoDisconnectDB();
+
+	MsgDeInitCallStatusManager();
 
 	return 0;
 }

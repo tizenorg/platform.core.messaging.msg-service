@@ -22,8 +22,7 @@
 #include "MsgQueue.h"
 #include "MmsPluginTypes.h"
 
-class MmsPluginUaManager: public MsgThread
-{
+class MmsPluginUaManager: public MsgThread {
 	public:
 		static MmsPluginUaManager *instance();
 		virtual void start();
@@ -50,10 +49,10 @@ class MmsPluginUaManager: public MsgThread
 		MMS_NET_ERROR_T submitHandler(mmsTranQEntity *qEntity);
 		MMS_NET_ERROR_T waitingConf(mmsTranQEntity *qEntity);
 
-		// condition values
-		bool running;		// flag for thread running
+		/* condition values */
+		bool running;		/* flag for thread running */
 
-		MsgSimpleQ<mmsTranQEntity> mmsTranQ; // transaction q for mms plugin
+		MsgSimpleQ<mmsTranQEntity> mmsTranQ; /* transaction q for mms plugin */
 };
 
-#endif //MMS_PLUGIN_USERAGENT_H
+#endif /* MMS_PLUGIN_USERAGENT_H */

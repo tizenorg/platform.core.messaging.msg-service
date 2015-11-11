@@ -30,38 +30,44 @@
 
 #define MSG_APP_LOCALEDIR			"/usr/apps/" MSG_DEFAULT_APP_ID "/res/locale"
 
-#define MSG_NOTIFICATION_ICON_DIR			MSG_QUICKPANEL_APP_ID "/shared/res/noti_icons/Message"
+#define MSG_NOTIFICATION_ICON_DIR			MSG_QUICKPANEL_APP_ID "/shared/res/noti_icons"
+#define MSG_STATUS_ICON_DIR			MSG_INDICATOR_APP_ID "/res/icons"
 
-// notification icon
-#define MSG_NORMAL_ICON_PATH	"/usr/apps/" MSG_NOTIFICATION_ICON_DIR "/noti_message.png"
-#define MSG_SIM_ICON_PATH	"/usr/apps/" MSG_NOTIFICATION_ICON_DIR "/noti_message_sim-card.png"
-#define MSG_VOICE_ICON_PATH		"/usr/apps/" MSG_NOTIFICATION_ICON_DIR "/noti_voice_mail.png"
-#define MSG_CB_ICON_PATH			"/usr/apps/" MSG_NOTIFICATION_ICON_DIR "/noti_message_cb-msg.png"
-#define MSG_READ_ICON_PATH		"/usr/apps/" MSG_NOTIFICATION_ICON_DIR "/noti_message_read_report.png"
-#define MSG_DELIVERY_ICON_PATH	"/usr/apps/" MSG_NOTIFICATION_ICON_DIR "/noti_message_delivery_report.png"
-#define MSG_REPLY_ICON_PATH			"/usr/apps/" MSG_NOTIFICATION_ICON_DIR "/noti_message_reply.png"
-#define MSG_SMS_SENDING_FAILED_ICON_PATH		"/usr/apps/" MSG_NOTIFICATION_ICON_DIR "/noti_message_failed.png"
-#define MSG_MMS_SENDING_FAILED_ICON_PATH		"/usr/apps/" MSG_NOTIFICATION_ICON_DIR "/noti_message_mms_failed.png"
-#define MSG_MMS_RETRIVE_FAILED_ICON_PATH		"/usr/apps/" MSG_NOTIFICATION_ICON_DIR "/noti_message_mms_problem.png"
+/* notification icon */
+#define MSG_NORMAL_ICON_PATH	"/usr/apps/" MSG_NOTIFICATION_ICON_DIR "/Message/noti_message.png"
+#define MSG_SIM_ICON_PATH	"/usr/apps/" MSG_NOTIFICATION_ICON_DIR "/Message/noti_message_sim-card.png"
+#define MSG_OTA_ICON_PATH	"/usr/apps/" MSG_NOTIFICATION_ICON_DIR "/Message/noti_message_OTA.png"
+#define MSG_VOICE_ICON_PATH		"/usr/apps/" MSG_NOTIFICATION_ICON_DIR "/Message/noti_voice_mail.png"
+#define MSG_CB_ICON_PATH			"/usr/apps/" MSG_NOTIFICATION_ICON_DIR "/Message/noti_message_cb-msg.png"
+#define MSG_READ_ICON_PATH		"/usr/apps/" MSG_NOTIFICATION_ICON_DIR "/Message/noti_message_read_report.png"
+#define MSG_DELIVERY_ICON_PATH	"/usr/apps/" MSG_NOTIFICATION_ICON_DIR "/Message/noti_message_delivery_report.png"
+#define MSG_REPLY_ICON_PATH			"/usr/apps/" MSG_NOTIFICATION_ICON_DIR "/Message/noti_message_reply.png"
+#define MSG_SMS_SENDING_FAILED_ICON_PATH		"/usr/apps/" MSG_NOTIFICATION_ICON_DIR "/Message/noti_message_failed.png"
+#define MSG_MMS_SENDING_FAILED_ICON_PATH		"/usr/apps/" MSG_NOTIFICATION_ICON_DIR "/Message/noti_message_mms_failed.png"
+#define MSG_MMS_RETRIVE_FAILED_ICON_PATH		"/usr/apps/" MSG_NOTIFICATION_ICON_DIR "/Message/noti_message_mms_problem.png"
 #define MSG_EMERGENCY_ICON_PATH		"/usr/apps/" MSG_DEFAULT_APP_ID "/res/icons/default/small/noti_emergency_mode.png"
+#define MSG_NO_CONTACT_PROFILE_ICON_PATH	"/usr/apps/" MSG_NOTIFICATION_ICON_DIR "/Contact/noti_contact_default.png"
+#define MSG_ACTIVE_PUSH_ICON_PATH		"reserved:push_message"
+#define MSG_MESSAGE_APP_SUB_ICON		"/usr/apps/" MSG_DEFAULT_APP_ID "/res/icons/default/small/org.tizen.message.png"
 
-// status bar icon
-#define MSG_NORMAL_STATUS_ICON				"/usr/apps/" MSG_DEFAULT_APP_ID "/res/icons/default/small/status_bar_message.png"
-#define MSG_FAILED_STATUS_ICON				"/usr/apps/" MSG_DEFAULT_APP_ID "/res/icons/default/small/status_bar_cancel_message.png"
-#define MSG_DELIVER_REPORT_STATUS_ICON	"/usr/apps/" MSG_DEFAULT_APP_ID "/res/icons/default/small/status_bar_delivery_report_message.png"
-#define MSG_READ_REPORT_STATUS_ICON		"/usr/apps/" MSG_DEFAULT_APP_ID "/res/icons/default/small/status_bar_read_report_message.png"
-#define MSG_VOICE_MSG_STATUS_ICON			"/usr/apps/" MSG_DEFAULT_APP_ID "/res/icons/default/small/status_bar_voicemail.png"
-#define MSG_SIM_FULL_STATUS_ICON		"/usr/apps/" MSG_DEFAULT_APP_ID "/res/icons/default/small/status_bar_sim_card_full.png"
+/* status bar icon */
+#define MSG_NORMAL_STATUS_ICON				"/usr/apps/" MSG_STATUS_ICON_DIR "/Notify/B03_notify_message.png"
+#define MSG_FAILED_STATUS_ICON				"/usr/apps/" MSG_STATUS_ICON_DIR "/Notify/B03_notify_message_failed.png"
+#define MSG_DELIVER_REPORT_STATUS_ICON	"/usr/apps/" MSG_STATUS_ICON_DIR "/Event/B03_event_delivery_report_message.png"
+#define MSG_READ_REPORT_STATUS_ICON		"/usr/apps/" MSG_STATUS_ICON_DIR "/Event/B03_event_read_report_message.png"
+#define MSG_VOICE_MSG_STATUS_ICON			"/usr/apps/" MSG_STATUS_ICON_DIR "/Event/B03_event_voicemail.png"
+#define MSG_SIM_FULL_STATUS_ICON		"/usr/apps/" MSG_STATUS_ICON_DIR "/SIM card full/B03_sim_card_full.png"
 
 #ifndef TIZEN_I586_ENABLED
-// system string
+/* system string */
 #define NEW_MESSAGE			"IDS_MSGF_POP_NEW_MESSAGE"
 #define NEW_MESSAGES			"IDS_MSGF_POP_NEW_MESSAGES"
 #define MSG_UNKNOWN_SENDER	"IDS_MSGF_BODY_UNKNOWN"
 #define MSG_NO_SUBJECT			"IDS_MSGF_BODY_NO_SUBJECT"
+#define MSG_SUBJECT_COLON 	"IDS_MSGF_OPT_SUBJECT_COLON"
 
 
-// message app string for ticker noti
+/* message app string for ticker noti */
 #define SENDING_MULTIMEDIA_MESSAGE_FAILED	"IDS_MSGF_POP_SENDING_MULTIMEDIA_MESSAGE_FAILED"
 #define MULTIMEDIA_MESSAGE_SENT					"IDS_MSGF_POP_MULTIMEDIA_MESSAGE_SENT"
 #define RETRIEVING_MESSAGE_FAILED					"IDS_MSGF_POP_RETRIEVING_MESSAGE_FAILED"
@@ -75,13 +81,12 @@
 #define SMS_SIM_CARD_FULL				"IDS_MSG_HEADER_SIM_CARD_FULL"
 #define SMS_MESSAGE_SIZE_OVER_SIM_SLOT_SIZE	"IDS_MSGF_BODY_MESSAGE_IS_TOO_LARGE_TO_STORE_AS_A_SINGLE_MESSAGE_TO_SIM_CARD"
 
-// message app string for quickpanel noti
+/* message app string for quickpanel noti */
 #define MSG_MESSAGE		"IDS_MSGF_BODY_MESSAGE"
 #define VOICE_MAIL					"IDS_MSGF_BODY_VOICEMAIL"
 #define NEW_VOICE_MAIL			"IDS_MSGF_BODY_NEW_VOICEMAIL"
-#define APP_NEW_MESSAGE "IDS_MSGF_POP_NEW_MESSAGE"
-#define APP_NEW_MESSAGES "IDS_MSGF_POP_NEW_MESSAGES"
 #define CB_MESSAGE "IDS_MSGF_BODY_CB_MESSAGES"
+#define CP_MESSAGE "IDS_MSGF_BODY_CP_MESSAGES"
 #define PUSH_MESSAGE "IDS_MSGF_BODY_PUSH_MESSAGES"
 #define DELIVERY_MESSAGE "IDS_MSGF_BODY_DELIVERY_REPORT"
 #define READ_REPORT_MESSAGE "IDS_MSGF_POP_READ_REPORT"
@@ -96,20 +101,23 @@
 #define VOICE_N_MESSAGE	"IDS_MSGF_BODY_PD_MESSAGES"
 #define SIM_CARD_MESSAGE		"IDS_MSGF_BODY_SIM_CARD_MESSAGES"
 #define READ_REPORT_READ		"IDS_COM_BODY_READ"
-#define READ_REPORT_DELETE	"IDS_COM_POP_DELETED"
+#define READ_REPORT_DELETE	"IDS_MSG_OPT_DELETE"
 #define FAILED_MSG_EXIST	"IDS_MSG_BODY_FAILED_MESSAGES_EXIST"
 #define ENABLE_EMERGENCY_MODE	"IDS_MSG_BODY_ENABLE_EMERGENCY_MODE_JPN_DCM"
 #define EMERGENCY_MODE_DESCRIPTION	"IDS_MSG_SBODY_TAP_HERE_TO_ENABLE_EMERGENCY_MODE_TO_SAVE_BATTERY_POWER_JPN_DCM"
-#define FAILED_TO_SEND_MESSAGE	"IDS_MSG_TPOP_FAILED_TO_SEND_MESSAGE_ABB"
+#define FAILED_TO_SEND_MESSAGE	"IDS_MSG_HEADER_FAILED_TO_SEND_MESSAGE_ABB"
+#define MESSAGE_SIZE_UNIT_KB	"IDS_MSGF_BODY_MSGSIZE_KB"
+#define MESSAGE_SIZE_STRING		"IDS_MSGF_BODY_MESSAGE_SIZE"
+#define MSG_SUBJECT_COLON 	"IDS_MSGF_OPT_SUBJECT_COLON"
 #else
-// system string
+/* system string */
 #define NEW_MESSAGE			"New message"
 #define NEW_MESSAGES			"New messages"
 #define MSG_UNKNOWN_SENDER	"New message from Unknown."
 #define MSG_NO_SUBJECT			"No subject"
 
 
-// message app string for ticker noti
+/* message app string for ticker noti */
 #define SENDING_MULTIMEDIA_MESSAGE_FAILED	"Sending multimedia message failed"
 #define MULTIMEDIA_MESSAGE_SENT					"Multimedia message sent."
 #define RETRIEVING_MESSAGE_FAILED					"Retrieving message failed"
@@ -121,15 +129,14 @@
 #define SMS_MESSAGE_MEMORY_FULL			"Not enough memory. Delete some items."
 #define SMS_FDN_RESTRICTED				"Unable to send the message while Fixed dialling mode is enabled."
 #define SMS_SIM_CARD_FULL				"SIM card full"
-#define SMS_MESSAGE_SIZE_OVER_SIM_SLOT_SIZE	"Message is too large to store as a single message to SIM card." //
+#define SMS_MESSAGE_SIZE_OVER_SIM_SLOT_SIZE	"Message is too large to store as a single message to SIM card."
 
-// message app string for quickpanel noti
+/* message app string for quickpanel noti */
 #define MSG_MESSAGE		"Message"
 #define VOICE_MAIL					"Voicemail"
 #define NEW_VOICE_MAIL			"New voicemail"
-#define APP_NEW_MESSAGE "New message"
-#define APP_NEW_MESSAGES "New messages"
 #define CB_MESSAGE "CB messages"
+#define CP_MESSAGE "CP messages"
 #define PUSH_MESSAGE "Push messages"
 #define DELIVERY_MESSAGE "Delivery report"
 #define READ_REPORT_MESSAGE "Read report"
@@ -148,7 +155,10 @@
 #define FAILED_MSG_EXIST	"Failed messages exist."
 #define ENABLE_EMERGENCY_MODE	"Enable Emergency mode"
 #define EMERGENCY_MODE_DESCRIPTION	"Tap here to enable Emergency mode to save battery power."
-#define FAILED_TO_SEND_MESSAGE	"Failed to send message." //
+#define FAILED_TO_SEND_MESSAGE	"Failed to send message."
+#define MESSAGE_SIZE_UNIT_KB	"KB"
+#define MESSAGE_SIZE_STRING		"Message Size"
+#define MSG_SUBJECT_COLON 	"Subject:"
 #endif
 
 #define NOTIFICATION_PRIV_ID 	DEFAULT_SETTING_PATH"/notification_priv_id"
@@ -161,18 +171,18 @@
 
 #define MSG_NOTI_TEXT_LEN	(512)
 #define MSG_NOTI_TEXT_LEN_S	(256)
+#define MSG_ACTIVE_NOTI_BUTTON_NUM 3
 
-enum _msg_notification_type_e
-{
+enum _msg_notification_type_e {
 	MSG_NOTI_TYPE_ALL = 0x00,
 
-	// Refresh single/multiple notification
+	/* Refresh single/multiple notification */
 	MSG_NOTI_TYPE_NORMAL,
 	MSG_NOTI_TYPE_CB,
 	MSG_NOTI_TYPE_SIM,
 	MSG_NOTI_TYPE_FAILED,
 
-	// Add only single notification
+	/* Add only single notification */
 	MSG_NOTI_TYPE_VOICE_1,
 	MSG_NOTI_TYPE_VOICE_2,
 	MSG_NOTI_TYPE_MWI,
@@ -184,13 +194,21 @@ enum _msg_notification_type_e
 	MSG_NOTI_TYPE_SIM_FULL,
 };
 
-typedef unsigned char msg_notification_type_t; //_msg_notification_type_e
+enum _msg_active_notification_type_e {
+	MSG_ACTIVE_NOTI_TYPE_NONE,
+	MSG_ACTIVE_NOTI_TYPE_ACTIVE,
+	MSG_ACTIVE_NOTI_TYPE_INSTANT,
+};
+
+typedef unsigned char msg_notification_type_t; /* _msg_notification_type_e */
+typedef unsigned char msg_active_notification_type_t; /* _msg_active_notification_type_e */
 
 msg_error_t MsgInsertNotification(MSG_MESSAGE_INFO_S *msg_info);
 
 msg_error_t MsgAddNotification(msg_notification_type_t noti_type, MSG_MESSAGE_INFO_S *msg_info);
-msg_error_t MsgRefreshNotification(msg_notification_type_t noti_type, bool bFeedback, bool bTicker);
+msg_error_t MsgRefreshNotification(msg_notification_type_t noti_type, bool bFeedback, msg_active_notification_type_t active_type);
 msg_error_t MsgAddReportNotification(msg_notification_type_t noti_type, MSG_MESSAGE_INFO_S *msg_info);
+msg_error_t MsgInsertOnlyActiveNotification(msg_notification_type_t noti_type, MSG_MESSAGE_INFO_S *pMsgInfo);
 msg_error_t MsgDeleteReportNotification(const char *addr);
 
 msg_error_t MsgInsertTicker(const char* pTickerMsg, const char* pLocaleTickerMsg, bool bPlayFeedback, int msgId);
@@ -199,9 +217,10 @@ msg_error_t MsgInitNoti();
 msg_error_t MsgInsertBadge(unsigned int unreadMsgCnt);
 msg_error_t MsgDeleteNoti(msg_notification_type_t noti_type, int simIndex);
 
-void MsgRefreshAllNotification(bool bWithSimNoti, bool bFeedback, bool bTickerNoti);
+void MsgRefreshAllNotification(bool bWithSimNoti, bool bFeedback, msg_active_notification_type_t active_type);
 void MsgDeleteNotification(msg_notification_type_t noti_type, int simIndex);
 void MsgInitReportNotiList();
+bool MsgCheckNotificationSettingEnable(void);
 
 char *getTranslateText(const char *pkg_name, const char *locale_dir, const char *text);
 

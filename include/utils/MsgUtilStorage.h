@@ -83,11 +83,11 @@ msg_error_t MsgStoUpdateNetworkStatus(MsgDbHandler *pDbHandle, MSG_MESSAGE_INFO_
 msg_error_t MsgStoGetThreadViewList(const MSG_SORT_RULE_S *pSortRule, msg_struct_list_s *pThreadViewList);
 msg_error_t MsgStoGetConversationViewItem(msg_message_id_t msgId, MSG_CONVERSATION_VIEW_S *pConv);
 msg_error_t MsgStoGetConversationViewList(msg_thread_id_t ThreadId, msg_struct_list_s *pConvViewList);
-msg_error_t MsgStoSearchMessage(const char *pSearchString, msg_struct_list_s *pThreadViewList);
+msg_error_t MsgStoSearchMessage(const char *pSearchString, msg_struct_list_s *pThreadViewList, int contactCount);
 
 msg_error_t MsgStoGetRejectMsgList(const char *pNumber, msg_struct_list_s *pRejectMsgList);
 msg_error_t MsgStoGetAddressList(const msg_thread_id_t threadId, msg_struct_list_s *pAddrList);
-msg_error_t MsgStoGetMessageList(const MSG_LIST_CONDITION_S *pListCond, msg_struct_list_s *pMsgList);
+msg_error_t MsgStoGetMessageList(const MSG_LIST_CONDITION_S *pListCond, msg_struct_list_s *pMsgList, int contactCount);
 msg_error_t MsgStoGetMediaList(const msg_thread_id_t threadId, msg_list_handle_t *pMediaList);
 
 #ifdef FEATURE_SMS_CDMA

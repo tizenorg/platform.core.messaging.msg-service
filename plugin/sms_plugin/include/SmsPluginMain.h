@@ -46,10 +46,6 @@ msg_error_t SmsPlgSaveSimMessage(const MSG_MESSAGE_INFO_S *pMsgInfo, SMS_SIM_ID_
 
 msg_error_t SmsPlgDeleteSimMessage(msg_sim_slot_id_t sim_idx, msg_sim_id_t SimMsgId);
 
-msg_error_t SmsPlgGetSimMessage(msg_sim_id_t SimMsgId);
-
-msg_error_t SmsPlgGetSimMessageCount();
-
 msg_error_t SmsPlgSetReadStatus(msg_sim_slot_id_t sim_idx, msg_sim_id_t SimMsgId);
 
 msg_error_t SmsPlgSetMemoryStatus(msg_sim_slot_id_t simIndex, msg_error_t Error);
@@ -66,5 +62,5 @@ msg_error_t SmsPlgGetDefaultNetworkSimId(int *simId);
 }
 #endif
 
-#endif //SMS_PLUGIN_MAIN_H
+#endif /* SMS_PLUGIN_MAIN_H */
 

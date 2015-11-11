@@ -47,4 +47,4 @@ private:
 	~MmsPluginEncoder();
 
 };
-#endif //MMS_PLUGIN_ENCODE_H
+#endif /* MMS_PLUGIN_ENCODE_H */

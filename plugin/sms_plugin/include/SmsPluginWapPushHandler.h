@@ -50,12 +50,11 @@ class SmsPluginWapPushHandler
 public:
 	static SmsPluginWapPushHandler* instance();
 
-	//void registerPushCallback();
 	bool IsWapPushMsg(SMS_USERDATA_S *pUserData);
 
 	void copyDeliverData(SMS_DELIVER_S *pDeliver);
-	void handleWapPushMsg(const char *pUserData, int DataSize, int simIndex);
-	void handleWapPushCallback(char* pPushHeader, char* pPushBody, int PushBodyLen, char* pWspHeader, int WspHeaderLen, char* pWspBody, int WspBodyLen, int simIndex);
+	void handleWapPushMsg(const char *pUserData, int DataSize, int simIndex, time_t sent_time);
+	void handleWapPushCallback(char* pPushHeader, char* pPushBody, int PushBodyLen, char* pWspHeader, int WspHeaderLen, char* pWspBody, int WspBodyLen, int simIndex, time_t sent_time);
 
 private:
 	SmsPluginWapPushHandler();
@@ -64,8 +63,9 @@ private:
 	static SmsPluginWapPushHandler* pInstance;
 
 	SMS_WAP_APP_CODE_T getAppCode(const char *pPushHeader);
+	bool IsWapPushMsgInWhiteList(int appCode);
 
-	void handleMMSNotification(const char *pPushBody, int PushBodyLen, int simIndex);
+	void handleMMSNotification(const char *pPushBody, int PushBodyLen, int simIndex, time_t sent_time);
 	void handleSIMessage(char* pPushBody, int PushBodyLen, bool isText, int simIndex);
 	void handleSLMessage(char* pPushBody, int PushBodyLen, bool isText, int simIndex);
 	void handleCOMessage(char* pPushBody, int PushBodyLen, bool isText, int simIndex);
@@ -98,5 +98,5 @@ private:
 	SMS_TIMESTAMP_S	tmpTimeStamp;
 };
 
-#endif //SmsPluginWapPushHandler
+#endif /* SmsPluginWapPushHandler */
 

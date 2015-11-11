@@ -34,77 +34,85 @@
 /*==================================================================================================
                                          VARIABLES
 ==================================================================================================*/
-typedef struct
-{
+typedef struct {
 	MsgHandle* hAddr;
+	int fd;
 	msg_sent_status_cb pfSentStatusCB;
 	void* userParam;
 } MSG_SENT_STATUS_CB_ITEM_S;
 
-typedef struct
-{
+
+typedef struct {
 	MsgHandle* hAddr;
+	int fd;
 	msg_sms_incoming_cb pfIncomingCB;
 	int port;
 	void* userParam;
 } MSG_INCOMING_CB_ITEM_S;
 
-typedef struct
-{
+
+typedef struct {
 	MsgHandle* hAddr;
+	int fd;
 	msg_mms_conf_msg_incoming_cb pfMMSConfIncomingCB;
 	char appId[MAX_MMS_JAVA_APPID_LEN+1];
 	void* userParam;
 } MSG_MMS_CONF_INCOMING_CB_ITEM_S;
 
-typedef struct
-{
+
+typedef struct {
 	MsgHandle* hAddr;
+	int fd;
 	msg_push_msg_incoming_cb pfPushIncomingCB;
 	char appId[MAX_WAPPUSH_ID_LEN+1];
 	void* userParam;
 } MSG_PUSH_INCOMING_CB_ITEM_S;
 
-typedef struct
-{
+
+typedef struct {
 	MsgHandle* hAddr;
+	int fd;
 	msg_cb_incoming_cb pfCBIncomingCB;
 	bool bsave;
 	void* userParam;
 } MSG_CB_INCOMING_CB_ITEM_S;
 
-typedef struct
-{
+
+typedef struct {
 	MsgHandle* hAddr;
+	int fd;
 	msg_syncml_msg_incoming_cb pfSyncMLIncomingCB;
 	void* userParam;
 } MSG_SYNCML_INCOMING_CB_ITEM_S;
 
-typedef struct
-{
+
+typedef struct {
 	MsgHandle* hAddr;
+	int fd;
 	msg_lbs_msg_incoming_cb pfLBSMsgIncoming;
 	void* userParam;
 } MSG_LBS_INCOMING_CB_ITEM_S;
 
-typedef struct
-{
+
+typedef struct {
 	MsgHandle* hAddr;
+	int fd;
 	msg_syncml_msg_operation_cb pfSyncMLOperationCB;
 	void* userParam;
 } MSG_SYNCML_OPERATION_CB_ITEM_S;
 
-typedef struct
-{
+
+typedef struct {
 	MsgHandle* hAddr;
+	int fd;
 	msg_storage_change_cb pfStorageChangeCB;
 	void* userParam;
 } MSG_STORAGE_CHANGE_CB_ITEM_S;
 
 
-typedef struct
-{
+typedef struct {
 	MsgHandle* hAddr;
+	int fd;
 	msg_report_msg_incoming_cb pfReportMsgIncomingCB;
 	void* userParam;
 } MSG_REPORT_INCOMING_CB_ITEM_S;
@@ -133,24 +141,29 @@ public:
 	void start(MsgHandle* pMsgHandle);
 	void stop();
 
-	bool regSentStatusEventCB(MsgHandle* pMsgHandle, msg_sent_status_cb pfSentStatus, void *pUserParam);
-	bool regMessageIncomingEventCB(MsgHandle* pMsgHandle, msg_sms_incoming_cb pfNewMessage, int port, void *pUserParam);
-	bool regMMSConfMessageIncomingEventCB(MsgHandle* pMsgHandle, msg_mms_conf_msg_incoming_cb pfNewMMSConfMessage, const char *pAppId, void *pUserParam);
-	bool regPushMessageIncomingEventCB(MsgHandle* pMsgHandle, msg_push_msg_incoming_cb pfNewPushMessage, const char *pAppId, void *pUserParam);
-	bool regCBMessageIncomingEventCB(MsgHandle* pMsgHandle, msg_cb_incoming_cb pfNewCBMessage, bool bSave, void *pUserParam);
-	bool regSyncMLMessageIncomingEventCB(MsgHandle* pMsgHandle, msg_syncml_msg_incoming_cb pfNewSyncMLMessage, void *pUserParam);
-	bool regLBSMessageIncomingEventCB(MsgHandle* pMsgHandle, msg_lbs_msg_incoming_cb pfNewLBSMsgIncoming, void *pUserParam);
-	bool regSyncMLMessageOperationEventCB(MsgHandle* pMsgHandle, msg_syncml_msg_operation_cb pfSyncMLMessageOperation, void *pUserParam);
-	bool regStorageChangeEventCB(MsgHandle* pMsgHandle, msg_storage_change_cb pfStorageChangeOperation, void *pUserParam);
-	bool regReportMsgIncomingCB(MsgHandle* pMsgHandle, msg_report_msg_incoming_cb pfReportMessage, void *pUserParam);
+	bool regSentStatusEventCB(MsgHandle* pMsgHandle, int fd, msg_sent_status_cb pfSentStatus, void *pUserParam);
+	bool regMessageIncomingEventCB(MsgHandle* pMsgHandle, int fd, msg_sms_incoming_cb pfNewMessage, int port, void *pUserParam);
+	bool regMMSConfMessageIncomingEventCB(MsgHandle* pMsgHandle, int fd, msg_mms_conf_msg_incoming_cb pfNewMMSConfMessage, const char *pAppId, void *pUserParam);
+	bool regPushMessageIncomingEventCB(MsgHandle* pMsgHandle, int fd, msg_push_msg_incoming_cb pfNewPushMessage, const char *pAppId, void *pUserParam);
+	bool regCBMessageIncomingEventCB(MsgHandle* pMsgHandle, int fd, msg_cb_incoming_cb pfNewCBMessage, bool bSave, void *pUserParam);
+	bool regSyncMLMessageIncomingEventCB(MsgHandle* pMsgHandle, int fd, msg_syncml_msg_incoming_cb pfNewSyncMLMessage, void *pUserParam);
+	bool regLBSMessageIncomingEventCB(MsgHandle* pMsgHandle, int fd, msg_lbs_msg_incoming_cb pfNewLBSMsgIncoming, void *pUserParam);
+	bool regSyncMLMessageOperationEventCB(MsgHandle* pMsgHandle, int fd, msg_syncml_msg_operation_cb pfSyncMLMessageOperation, void *pUserParam);
+	bool regStorageChangeEventCB(MsgHandle* pMsgHandle, int fd, msg_storage_change_cb pfStorageChangeOperation, void *pUserParam);
+	bool regReportMsgIncomingCB(MsgHandle* pMsgHandle, int fd, msg_report_msg_incoming_cb pfReportMessage, void *pUserParam);
 
 	void clearListOfClosedHandle(MsgHandle* pMsgHandle);
+	void refreshListOfOpenedHandle(MsgHandle* pMsgHandle);
 
 	void handleEvent(const MSG_EVENT_S* ptr);
 
 	int getRemoteFd();
 	int readFromSocket(char** buf, unsigned int* len);
 	void resetProxyListener();
+	void refreshProxyListener();
+	void clearProxyCBLists();
+	void insertOpenHandleSet(MsgHandle* pMsgHandle);
+	void clearOpenHandleSet();
 #ifdef CHECK_SENT_STATUS_CALLBACK
 	int getSentStatusCbCnt();
 #endif
@@ -185,5 +198,5 @@ private:
 	guint eventSourceId;
 };
 
-#endif // __MSG_PROXY_LISTENER_H__
+#endif /* __MSG_PROXY_LISTENER_H__ */
 

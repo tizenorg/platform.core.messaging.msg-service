@@ -788,7 +788,9 @@ msg_error_t MsgSetCBMsgOpt(const MSG_SETTING_S *pSetting, bool bSetSim)
 	msg_error_t err = MSG_SUCCESS;
 
 	MSG_CBMSG_OPT_S cbOpt;
+#ifndef FEATURE_SMS_CDMA
 	int iValue = 0;
+#endif
 	bool bValue = false;
 	char keyName[MAX_VCONFKEY_NAME_LEN];
 	msg_sim_slot_id_t simIndex;
@@ -847,12 +849,8 @@ msg_error_t MsgSetCBMsgOpt(const MSG_SETTING_S *pSetting, bool bSetSim)
 #endif
 
 	MsgDbHandler *dbHandle = getDbHandle();
-
-#ifdef FEATURE_SMS_CDMA
-	err = MsgStoAddCBChannelInfo(dbHandle, &cbOpt.channelData);
-#else
 	err = MsgStoAddCBChannelInfo(dbHandle, &cbOpt.channelData, simIndex);
-#endif
+
 	MSG_DEBUG("MsgStoAddCBChannelInfo : err=[%d]", err);
 
 #ifndef FEATURE_SMS_CDMA
@@ -908,9 +906,16 @@ msg_error_t MsgSetVoiceMailOpt(const MSG_SETTING_S *pSetting, bool bSetSim)
 		}
 
 		if (err != MSG_SUCCESS) {
+			MSG_INFO("MsgSetConfigInSim is error, do not set voicemail");
 			goto _END_OF_SET_VOICE_OPT;
 		}
 
+		err = MsgSettingSetString(keyName, voiceMailOpt.mailNumber);
+		if (err != MSG_SUCCESS)
+			MSG_ERR("Error to set config data [%s]", keyName);
+
+		memset(keyName, 0x00, sizeof(keyName));
+		snprintf(keyName, sizeof(keyName), "%s/%d", VOICEMAIL_DEFAULT_NUMBER, simIndex);
 		err = MsgSettingSetString(keyName, voiceMailOpt.mailNumber);
 		if (err != MSG_SUCCESS)
 			MSG_ERR("Error to set config data [%s]", keyName);
@@ -1138,11 +1143,8 @@ void MsgGetCBMsgOpt(MSG_SETTING_S *pSetting)
 	pSetting->option.cbMsgOpt.maxSimCnt = MsgSettingGetInt(keyName);
 #endif
 
-#ifdef FEATURE_SMS_CDMA
-	err = MsgStoGetCBChannelInfo(dbHandle, &pSetting->option.cbMsgOpt.channelData);
-#else
 	err = MsgStoGetCBChannelInfo(dbHandle, &pSetting->option.cbMsgOpt.channelData, simIndex);
-#endif
+
 	if (err != MSG_SUCCESS)
 		MSG_ERR("MsgStoGetCBChannelInfo : err=[%d]", err);
 

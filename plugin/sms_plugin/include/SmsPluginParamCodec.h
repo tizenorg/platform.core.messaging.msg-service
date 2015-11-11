@@ -46,9 +46,11 @@ public:
 
 	static bool checkCphsVmiMsg(const unsigned char *pTpdu, int *setType, int *indType);
 
+	static time_t convertTime(const SMS_TIMESTAMP_S *time_stamp);
+
 private:
 	static int convertDigitToBcd(char *pDigit, int DigitLen, unsigned char *pBcd);
 	static int convertBcdToDigit(const unsigned char *pBcd, int BcdLen, char *pDigit);
 };
 
-#endif //SMS_PLUGIN_PARAMCODEC_H
+#endif /* SMS_PLUGIN_PARAMCODEC_H */

@@ -33,6 +33,7 @@
 #include "SmsPluginConcatHandler.h"
 #include "SmsPluginEventHandler.h"
 #include "SmsPluginDSHandler.h"
+#include "SmsPluginParamCodec.h"
 
 
 /*==================================================================================================
@@ -88,15 +89,17 @@ void SmsPluginEventHandler::handleSentStatus(msg_network_status_t NetStatus)
 			sentInfo.reqInfo.msgInfo.networkStatus = NetStatus;
 
 			if (NetStatus == MSG_NETWORK_SEND_SUCCESS) {
-				//contacts-service is not used for gear
+				/* contacts-service is not used for gear */
 #ifndef MSG_CONTACTS_SERVICE_NOT_SUPPORTED
 				MSG_DEBUG("Add phone log");
 				MsgAddPhoneLog(&(sentInfo.reqInfo.msgInfo));
 #endif //MSG_CONTACTS_SERVICE_NOT_SUPPORTED
-				sentInfo.reqInfo.msgInfo.folderId = MSG_SENTBOX_ID; // It should be set after adding phone log.
+				sentInfo.reqInfo.msgInfo.folderId = MSG_SENTBOX_ID; /* It should be set after adding phone log. */
 			} else {
 				sentInfo.reqInfo.msgInfo.bRead = false;
 			}
+
+			SmsPluginStorage::instance()->updateSmsMessage(&(sentInfo.reqInfo.msgInfo));
 
 			callbackStorageChange(MSG_STORAGE_CHANGE_UPDATE, &(sentInfo.reqInfo.msgInfo));
 		}
@@ -105,7 +108,7 @@ void SmsPluginEventHandler::handleSentStatus(msg_network_status_t NetStatus)
 		MSG_DEBUG("sentInfo.reqInfo.sendOptInfo.bKeepCopy [%d]", sentInfo.reqInfo.sendOptInfo.bKeepCopy);
 		/** Check sending options */
 		if (sentInfo.reqInfo.sendOptInfo.bSetting && !sentInfo.reqInfo.sendOptInfo.bKeepCopy && NetStatus == MSG_NETWORK_SEND_SUCCESS) {
-//			SmsPluginStorage::instance()->deleteSmsMessage(sentInfo.reqInfo.msgInfo.msgId);
+			SmsPluginStorage::instance()->deleteSmsMessage(sentInfo.reqInfo.msgInfo.msgId);
 			callbackStorageChange(MSG_STORAGE_CHANGE_DELETE, &(sentInfo.reqInfo.msgInfo));
 		}
 
@@ -123,11 +126,12 @@ void SmsPluginEventHandler::handleSentStatus(msg_network_status_t NetStatus)
 }
 
 
-void SmsPluginEventHandler::handleMsgIncoming(struct tapi_handle *handle, SMS_TPDU_S *pTpdu)
+void SmsPluginEventHandler::handleMsgIncoming(TapiHandle *handle, SMS_TPDU_S *pTpdu)
 {
 
 	/** Make MSG_MESSAGE_INFO_S */
 	MSG_MESSAGE_INFO_S msgInfo;
+	MSG_MESSAGE_INFO_S stored_msgInfo;
 
 	/** initialize msgInfo */
 	memset(&msgInfo, 0x00, sizeof(MSG_MESSAGE_INFO_S));
@@ -148,7 +152,7 @@ void SmsPluginEventHandler::handleMsgIncoming(struct tapi_handle *handle, SMS_TP
 	bUdhMwiMethod = false;
 	udhMwiCnt = 0;
 
-	if(pTpdu->data.deliver.dcs.msgClass == SMS_MSG_CLASS_2)
+	if (pTpdu->data.deliver.dcs.msgClass == SMS_MSG_CLASS_2)
 		msgInfo.storageId = MSG_STORAGE_UNKNOWN;
 	else
 		msgInfo.storageId = MSG_STORAGE_PHONE;
@@ -168,17 +172,20 @@ void SmsPluginEventHandler::handleMsgIncoming(struct tapi_handle *handle, SMS_TP
 		}
 	}
 
+	bool bStoreVoiceMsg = false;
+
 	if (bUdhMwiMethod == false) {
 		/** check MWI and set info to SIM for DCS & Address method */
 		if (pTpdu->tpduType == SMS_TPDU_DELIVER && pTpdu->data.deliver.dcs.bMWI == true) {
+			int MwiCnt = 0;
 			MSG_DEBUG("MWI message - DCS method");
 
 			if (pTpdu->data.deliver.dcs.bIndActive == false) {
 				SmsPluginSetting::instance()->setMwiInfo(msgInfo.sim_idx, msgInfo.msgType.subType, 0);
-				SmsPluginTransport::instance()->sendDeliverReport(handle, MSG_SUCCESS);
-				return;
+				MwiCnt = 0;
 			} else {
 				SmsPluginSetting::instance()->setMwiInfo(msgInfo.sim_idx, msgInfo.msgType.subType, 1);
+				MwiCnt = 1;
 
 				/* For address method */
 				if (pTpdu->data.deliver.pid == 0x20 && pTpdu->data.deliver.originAddress.ton == SMS_TON_ALPHANUMERIC) {
@@ -209,23 +216,35 @@ void SmsPluginEventHandler::handleMsgIncoming(struct tapi_handle *handle, SMS_TP
 						free(voiceAlphaId);
 						voiceAlphaId = NULL;
 					}
-
-					memset(msgInfo.msgText, 0x00, sizeof(msgInfo.msgText));
-					snprintf(msgInfo.msgText, sizeof(msgInfo.msgText), "New voice message");
-
 				}
 			}
 
+			if (pTpdu->data.deliver.dcs.codingGroup == SMS_GROUP_STORE) {
+				bStoreVoiceMsg = true;
+				memset(&stored_msgInfo, 0x00, sizeof(MSG_MESSAGE_INFO_S));
+				memcpy(&stored_msgInfo, &msgInfo, sizeof(MSG_MESSAGE_INFO_S));
+				stored_msgInfo.msgType.subType = MSG_NORMAL_SMS;
+			}
+
+			memset(msgInfo.msgText, 0x00, sizeof(msgInfo.msgText));
+			switch (msgInfo.msgType.subType) {
+			case MSG_MWI_VOICE_SMS :
+				snprintf(msgInfo.msgText, sizeof(msgInfo.msgText), "%d", MwiCnt);
+				break;
+			case MSG_MWI_FAX_SMS :
+				snprintf(msgInfo.msgText, sizeof(msgInfo.msgText), "%d new fax message", MwiCnt);
+				break;
+			case MSG_MWI_EMAIL_SMS :
+				snprintf(msgInfo.msgText, sizeof(msgInfo.msgText), "%d new email message", MwiCnt);
+				break;
+			default :
+				snprintf(msgInfo.msgText, sizeof(msgInfo.msgText), "%d new special message", MwiCnt);
+				break;
+			}
+			msgInfo.dataSize = strlen(msgInfo.msgText);
+
 			if (pTpdu->data.deliver.dcs.codingGroup == SMS_GROUP_DISCARD)
 				msgInfo.bStore = false;
-		}
-	} else {
-		MSG_DEBUG("MWI message - UDH method");
-		if (udhMwiCnt <= 0) {
-			MSG_DEBUG("MWI count is 0");
-			SmsPluginSetting::instance()->setMwiInfo(msgInfo.sim_idx, msgInfo.msgType.subType, 0);
-			SmsPluginTransport::instance()->sendDeliverReport(handle, MSG_SUCCESS);
-			return;
 		}
 	}
 
@@ -309,6 +328,9 @@ void SmsPluginEventHandler::handleMsgIncoming(struct tapi_handle *handle, SMS_TP
 			if (err == MSG_SUCCESS) {
 				MSG_DEBUG("callback to msg fw");
 				err = listener.pfMsgIncomingCb(&msgInfo);
+				if (bStoreVoiceMsg) {
+					err = listener.pfMsgIncomingCb(&stored_msgInfo);
+				}
 			} else {
 				if (msgInfo.msgType.classType == MSG_CLASS_0) {
 					MSG_DEBUG("callback for class0 message to msg fw");
@@ -324,7 +346,7 @@ void SmsPluginEventHandler::handleMsgIncoming(struct tapi_handle *handle, SMS_TP
 				SmsPluginTransport::instance()->sendDeliverReport(handle, err);
 		}
 
-		// Tizen Validation System
+		/* Tizen Validation System */
 		char *msisdn = NULL;
 		char keyName[MAX_VCONFKEY_NAME_LEN];
 		memset(keyName, 0x00, sizeof(keyName));
@@ -371,7 +393,7 @@ void SmsPluginEventHandler::handleResendMessage(void)
 }
 
 
-void SmsPluginEventHandler::handleSyncMLMsgIncoming(msg_syncml_message_type_t msgType, char* pPushBody, int PushBodyLen, char* pWspHeader, int WspHeaderLen,int simIndex)
+void SmsPluginEventHandler::handleSyncMLMsgIncoming(msg_syncml_message_type_t msgType, char* pPushBody, int PushBodyLen, char* pWspHeader, int WspHeaderLen, int simIndex)
 {
 	MSG_SYNCML_MESSAGE_DATA_S syncMLData;
 
@@ -447,8 +469,16 @@ msg_error_t SmsPluginEventHandler::callbackInitSimBySat()
 
 msg_error_t SmsPluginEventHandler::callbackStorageChange(msg_storage_change_type_t storageChangeType, MSG_MESSAGE_INFO_S *pMsgInfo)
 {
-	/** Callback to MSG FW */
-	listener.pfStorageChangeCb(storageChangeType, pMsgInfo);
+	msg_id_list_s msgIdList;
+	msg_message_id_t msgIds[1];
+	memset(&msgIdList, 0x00, sizeof(msg_id_list_s));
+
+	msgIdList.nCount = 1;
+	msgIds[0] = pMsgInfo->msgId;
+	msgIdList.msgIdList = msgIds;
+
+	/* Callback to MSG FW */
+	listener.pfStorageChangeCb(storageChangeType, &msgIdList);
 
 	return MSG_SUCCESS;
 }
@@ -457,17 +487,16 @@ msg_error_t SmsPluginEventHandler::callbackStorageChange(msg_storage_change_type
 void SmsPluginEventHandler::convertTpduToMsginfo(SMS_TPDU_S *pTpdu, MSG_MESSAGE_INFO_S *msgInfo)
 {
 
-	switch(pTpdu->tpduType)
-	{
-		case SMS_TPDU_SUBMIT :
-			convertSubmitTpduToMsginfo(&pTpdu->data.submit, msgInfo);
-			break;
-		case SMS_TPDU_DELIVER :
-			convertDeliverTpduToMsginfo(&pTpdu->data.deliver, msgInfo);
-			break;
-		case SMS_TPDU_STATUS_REP :
-			convertStatusRepTpduToMsginfo(&pTpdu->data.statusRep, msgInfo);
-			break;
+	switch (pTpdu->tpduType) {
+	case SMS_TPDU_SUBMIT :
+		convertSubmitTpduToMsginfo(&pTpdu->data.submit, msgInfo);
+		break;
+	case SMS_TPDU_DELIVER :
+		convertDeliverTpduToMsginfo(&pTpdu->data.deliver, msgInfo);
+		break;
+	case SMS_TPDU_STATUS_REP :
+		convertStatusRepTpduToMsginfo(&pTpdu->data.statusRep, msgInfo);
+		break;
 	}
 }
 
@@ -483,23 +512,22 @@ void SmsPluginEventHandler::convertSubmitTpduToMsginfo(const SMS_SUBMIT_S *pTpdu
 	/** set folder id (temporary) */
 	msgInfo->folderId = MSG_SENTBOX_ID;
 
-	switch(pTpdu->dcs.msgClass)
-	{
-		case SMS_MSG_CLASS_0:
-			msgInfo->msgType.classType = MSG_CLASS_0;
-			break;
-		case SMS_MSG_CLASS_1:
-			msgInfo->msgType.classType = MSG_CLASS_1;
-			break;
-		case SMS_MSG_CLASS_2:
-			msgInfo->msgType.classType = MSG_CLASS_2;
-			break;
-		case SMS_MSG_CLASS_3:
-			msgInfo->msgType.classType = MSG_CLASS_3;
-			break;
-		default:
-			msgInfo->msgType.classType = MSG_CLASS_NONE;
-			break;
+	switch (pTpdu->dcs.msgClass) {
+	case SMS_MSG_CLASS_0:
+		msgInfo->msgType.classType = MSG_CLASS_0;
+		break;
+	case SMS_MSG_CLASS_1:
+		msgInfo->msgType.classType = MSG_CLASS_1;
+		break;
+	case SMS_MSG_CLASS_2:
+		msgInfo->msgType.classType = MSG_CLASS_2;
+		break;
+	case SMS_MSG_CLASS_3:
+		msgInfo->msgType.classType = MSG_CLASS_3;
+		break;
+	default:
+		msgInfo->msgType.classType = MSG_CLASS_NONE;
+		break;
 	}
 
 	msgInfo->networkStatus = MSG_NETWORK_SEND_SUCCESS;
@@ -517,6 +545,7 @@ void SmsPluginEventHandler::convertSubmitTpduToMsginfo(const SMS_SUBMIT_S *pTpdu
 //dont_call: Calling localtime(time_t const *) is a DC.SECURE_CODING_CRITICAL defect.
 //	time_t curTime;
 //	localtime(&curTime);
+	msgInfo->displayTime = time(NULL);
 
 	/** Convert Address values */
 	msgInfo->nAddressCnt = 1;
@@ -561,8 +590,7 @@ void SmsPluginEventHandler::convertDeliverTpduToMsginfo(const SMS_DELIVER_S *pTp
 	msgInfo->folderId = MSG_INBOX_ID;
 
 	time_t rawtime = 0;
-	if(msgInfo->storageId == MSG_STORAGE_SIM)
-	{
+	if (msgInfo->storageId == MSG_STORAGE_SIM) {
 	/*** Comment below lines to save local UTC time..... (it could be used later.)
 	***/
 		if (pTpdu->timeStamp.format == SMS_TIME_ABSOLUTE) {
@@ -620,24 +648,23 @@ void SmsPluginEventHandler::convertDeliverTpduToMsginfo(const SMS_DELIVER_S *pTp
 
 	msgInfo->displayTime = rawtime;
 
-	switch(pTpdu->dcs.msgClass)
-	{
-		case SMS_MSG_CLASS_0:
-			msgInfo->msgType.classType = MSG_CLASS_0;
-			break;
-		case SMS_MSG_CLASS_1:
-			msgInfo->msgType.classType = MSG_CLASS_1;
-			break;
-		case SMS_MSG_CLASS_2:
-			msgInfo->msgType.classType = MSG_CLASS_2;
-			msgInfo->storageId = MSG_STORAGE_SIM;
-			break;
-		case SMS_MSG_CLASS_3:
-			msgInfo->msgType.classType = MSG_CLASS_3;
-			break;
-		default:
-			msgInfo->msgType.classType = MSG_CLASS_NONE;
-			break;
+	switch (pTpdu->dcs.msgClass) {
+	case SMS_MSG_CLASS_0:
+		msgInfo->msgType.classType = MSG_CLASS_0;
+		break;
+	case SMS_MSG_CLASS_1:
+		msgInfo->msgType.classType = MSG_CLASS_1;
+		break;
+	case SMS_MSG_CLASS_2:
+		msgInfo->msgType.classType = MSG_CLASS_2;
+		msgInfo->storageId = MSG_STORAGE_SIM;
+		break;
+	case SMS_MSG_CLASS_3:
+		msgInfo->msgType.classType = MSG_CLASS_3;
+		break;
+	default:
+		msgInfo->msgType.classType = MSG_CLASS_NONE;
+		break;
 	}
 
 	if (pTpdu->dcs.bMWI) {
@@ -695,6 +722,12 @@ void SmsPluginEventHandler::convertDeliverTpduToMsginfo(const SMS_DELIVER_S *pTp
 				msgInfo->bStore = false;
 
 			udhMwiCnt = pTpdu->userData.header[i].udh.specialInd.waitMsgNum;
+
+			if (udhMwiCnt < 0) {
+				MSG_DEBUG("Message waiting number is smaller than 0. It will be treated as 0. [%d]", udhMwiCnt);
+				udhMwiCnt = 0;
+			}
+
 			MSG_DEBUG("Message waiting number : [%d]", udhMwiCnt);
 
 			SmsPluginSetting::instance()->setMwiInfo(msgInfo->sim_idx, msgInfo->msgType.subType, udhMwiCnt);
@@ -720,8 +753,17 @@ void SmsPluginEventHandler::convertDeliverTpduToMsginfo(const SMS_DELIVER_S *pTp
 		} else if (pTpdu->userData.header[i].udhType == SMS_UDH_ALTERNATE_REPLY_ADDRESS) {
 			strncpy(msgInfo->addressList[0].addressVal, pTpdu->userData.header[i].udh.alternateAddress.address, MAX_ADDRESS_VAL_LEN);
 		} else if (pTpdu->userData.header[i].udhType >= SMS_UDH_EMS_FIRST && pTpdu->userData.header[i].udhType <= SMS_UDH_EMS_LAST) {
+			/* TODO: Raw text should be changed to string design id. Currently there's no design id in message-app-lite */
+/*			char *msg_text = getTranslateText(MSG_APP_PACKAGE_NAME, MSG_APP_LOCALEDIR, "IDS_MSGF_POP_ERROR_UNSUPPORTED_MSG");
+			snprintf(msgInfo->msgText, sizeof(msgInfo->msgText), "%s", msg_text);
+*/
 			snprintf(msgInfo->msgText, sizeof(msgInfo->msgText), "Unsupported Message");
 			msgInfo->dataSize = strlen(msgInfo->msgText);
+/*			if (msg_text) {
+				free(msg_text);
+				msg_text = NULL;
+			}
+*/
 			return;
 		}
 	}
@@ -731,20 +773,19 @@ void SmsPluginEventHandler::convertDeliverTpduToMsginfo(const SMS_DELIVER_S *pTp
 		memset(msgInfo->msgText, 0x00, sizeof(msgInfo->msgText));
 		msgInfo->dataSize = 0;
 
-		switch(pTpdu->dcs.codingScheme)
-		{
-			case SMS_CHARSET_7BIT:
-				msgInfo->encodeType = MSG_ENCODE_GSM7BIT;
-				break;
-			case SMS_CHARSET_8BIT:
-				msgInfo->encodeType = MSG_ENCODE_8BIT;
-				break;
-			case SMS_CHARSET_UCS2:
-				msgInfo->encodeType = MSG_ENCODE_UCS2;
-				break;
-			default:
-				msgInfo->encodeType = MSG_ENCODE_8BIT;
-				break;
+		switch (pTpdu->dcs.codingScheme) {
+		case SMS_CHARSET_7BIT:
+			msgInfo->encodeType = MSG_ENCODE_GSM7BIT;
+			break;
+		case SMS_CHARSET_8BIT:
+			msgInfo->encodeType = MSG_ENCODE_8BIT;
+			break;
+		case SMS_CHARSET_UCS2:
+			msgInfo->encodeType = MSG_ENCODE_UCS2;
+			break;
+		default:
+			msgInfo->encodeType = MSG_ENCODE_8BIT;
+			break;
 		}
 
 		return;
@@ -805,43 +846,34 @@ void SmsPluginEventHandler::convertStatusRepTpduToMsginfo(const SMS_STATUS_REPOR
 		msgInfo->storageId = MSG_STORAGE_PHONE;
 	}
 
-	switch(pTpdu->dcs.msgClass)
-	{
-		case SMS_MSG_CLASS_0:
-			msgInfo->msgType.classType = MSG_CLASS_0;
-			break;
-		case SMS_MSG_CLASS_1:
-			msgInfo->msgType.classType = MSG_CLASS_1;
-			break;
-		case SMS_MSG_CLASS_2:
-			msgInfo->msgType.classType = MSG_CLASS_2;
-			break;
-		case SMS_MSG_CLASS_3:
-			msgInfo->msgType.classType = MSG_CLASS_3;
-			break;
-		default:
-			msgInfo->msgType.classType = MSG_CLASS_NONE;
-			break;
+	switch (pTpdu->dcs.msgClass) {
+	case SMS_MSG_CLASS_0:
+		msgInfo->msgType.classType = MSG_CLASS_0;
+		break;
+	case SMS_MSG_CLASS_1:
+		msgInfo->msgType.classType = MSG_CLASS_1;
+		break;
+	case SMS_MSG_CLASS_2:
+		msgInfo->msgType.classType = MSG_CLASS_2;
+		break;
+	case SMS_MSG_CLASS_3:
+		msgInfo->msgType.classType = MSG_CLASS_3;
+		break;
+	default:
+		msgInfo->msgType.classType = MSG_CLASS_NONE;
+		break;
 	}
 
 	MSG_DEBUG("delivery status : [%d]", pTpdu->status);
 
 	if (pTpdu->status == SMS_STATUS_RECEIVE_SUCCESS)
-	{
 		msgInfo->networkStatus = MSG_NETWORK_DELIVER_SUCCESS;
-	}
-	else if(pTpdu->status == SMS_STATUS_TRY_REQUEST_PENDING)
-	{
+	else if (pTpdu->status == SMS_STATUS_TRY_REQUEST_PENDING)
 		msgInfo->networkStatus = MSG_NETWORK_DELIVER_PENDING;
-	}
-	else if(pTpdu->status == SMS_STATUS_PERM_MSG_VAL_PERIOD_EXPIRED)
-	{
+	else if (pTpdu->status == SMS_STATUS_PERM_MSG_VAL_PERIOD_EXPIRED)
 		msgInfo->networkStatus = MSG_NETWORK_DELIVER_EXPIRED;
-	}
 	else
-	{
 		msgInfo->networkStatus = MSG_NETWORK_DELIVER_FAIL;
-	}
 
 	msgInfo->bRead = false;
 	msgInfo->bProtected = false;
@@ -851,63 +883,7 @@ void SmsPluginEventHandler::convertStatusRepTpduToMsginfo(const SMS_STATUS_REPOR
 
 	memset(msgInfo->subject, 0x00, MAX_SUBJECT_LEN+1);
 
-	time_t rawtime = time(NULL);
-
-/*** Comment below lines to save local UTC time..... (it could be used later.)
-
-	if (pTpdu->timeStamp.format == SMS_TIME_ABSOLUTE) {
-
-		MSG_DEBUG("year : %d", pTpdu->timeStamp.time.absolute.year);
-		MSG_DEBUG("month : %d", pTpdu->timeStamp.time.absolute.month);
-		MSG_DEBUG("day : %d", pTpdu->timeStamp.time.absolute.day);
-		MSG_DEBUG("hour : %d", pTpdu->timeStamp.time.absolute.hour);
-		MSG_DEBUG("minute : %d", pTpdu->timeStamp.time.absolute.minute);
-		MSG_DEBUG("second : %d", pTpdu->timeStamp.time.absolute.second);
-		MSG_DEBUG("timezone : %d", pTpdu->timeStamp.time.absolute.timeZone);
-
-		char displayTime[32];
-		struct tm * timeTM;
-
-		struct tm timeinfo;
-		memset(&timeinfo, 0x00, sizeof(tm));
-
-		timeinfo.tm_year = (pTpdu->timeStamp.time.absolute.year + 100);
-		timeinfo.tm_mon = (pTpdu->timeStamp.time.absolute.month - 1);
-		timeinfo.tm_mday = pTpdu->timeStamp.time.absolute.day;
-		timeinfo.tm_hour = pTpdu->timeStamp.time.absolute.hour;
-		timeinfo.tm_min = pTpdu->timeStamp.time.absolute.minute;
-		timeinfo.tm_sec = pTpdu->timeStamp.time.absolute.second;
-		timeinfo.tm_isdst = 0;
-
-		rawtime = mktime(&timeinfo);
-
-		MSG_DEBUG("tzname[0] [%s]", tzname[0]);
-		MSG_DEBUG("tzname[1] [%s]", tzname[1]);
-		MSG_DEBUG("timezone [%d]", timezone);
-		MSG_DEBUG("daylight [%d]", daylight);
-
-		memset(displayTime, 0x00, sizeof(displayTime));
-		strftime(displayTime, 32, "%Y-%02m-%02d %T %z", &timeinfo);
-		MSG_DEBUG("displayTime [%s]", displayTime);
-
-		rawtime -= (pTpdu->timeStamp.time.absolute.timeZone * (3600/4));
-
-		timeTM = localtime(&rawtime);
-		memset(displayTime, 0x00, sizeof(displayTime));
-		strftime(displayTime, 32, "%Y-%02m-%02d %T %z", timeTM);
-		MSG_DEBUG("displayTime [%s]", displayTime);
-
-		rawtime -= timezone;
-
-		timeTM = localtime(&rawtime);
-		memset(displayTime, 0x00, sizeof(displayTime));
-		strftime(displayTime, 32, "%Y-%02m-%02d %T %z", timeTM);
-		MSG_DEBUG("displayTime [%s]", displayTime);
-	}
-
-***/
-
-	msgInfo->displayTime = rawtime;
+	msgInfo->displayTime = time(NULL);
 
 	/** Convert Address values */
 	msgInfo->nAddressCnt = 1;
@@ -939,14 +915,29 @@ void SmsPluginEventHandler::convertStatusRepTpduToMsginfo(const SMS_STATUS_REPOR
 	msgInfo->dataSize = 0;
 
 	if (pTpdu->status <= SMS_STATUS_SMSC_SPECIFIC_LAST) {
-		strncpy(msgInfo->msgText, "IDS_MSGF_BODY_MESSAGE_DELIVERED", MAX_MSG_TEXT_LEN);
+		char *msg_text = getTranslateText(MSG_APP_PACKAGE_NAME, MSG_APP_LOCALEDIR, "IDS_MSGF_BODY_MESSAGE_DELIVERED");
+		snprintf(msgInfo->msgText, sizeof(msgInfo->msgText), "%s", msg_text);
 		msgInfo->dataSize = strlen(msgInfo->msgText);
+		if (msg_text) {
+			free(msg_text);
+			msg_text = NULL;
+		}
 	} else if (pTpdu->status == SMS_STATUS_TEMP_SERVICE_REJECTED) {
-		strncpy(msgInfo->msgText, "IDS_MSGF_BODY_MMSDELIVERYMSGREJECTED", MAX_MSG_TEXT_LEN);
+		char *msg_text = getTranslateText(MSG_APP_PACKAGE_NAME, MSG_APP_LOCALEDIR, "IDS_MSGF_BODY_MMSDELIVERYMSGREJECTED");
+		snprintf(msgInfo->msgText, sizeof(msgInfo->msgText), "%s", msg_text);
 		msgInfo->dataSize = strlen(msgInfo->msgText);
+		if (msg_text) {
+			free(msg_text);
+			msg_text = NULL;
+		}
 	} else if (pTpdu->status == SMS_STATUS_PERM_MSG_VAL_PERIOD_EXPIRED) {
-		strncpy(msgInfo->msgText, "IDS_MSGF_BODY_MESSAGE_HAS_EXPIRED", MAX_MSG_TEXT_LEN);
+		char *msg_text = getTranslateText(MSG_APP_PACKAGE_NAME, MSG_APP_LOCALEDIR, "IDS_MSGF_BODY_MESSAGE_HAS_EXPIRED");
+		snprintf(msgInfo->msgText, sizeof(msgInfo->msgText), "%s", msg_text);
 		msgInfo->dataSize = strlen(msgInfo->msgText);
+		if (msg_text) {
+			free(msg_text);
+			msg_text = NULL;
+		}
 	} else {
 		strncpy(msgInfo->msgText, "Message delivery failed.", MAX_MSG_TEXT_LEN);
 		msgInfo->dataSize = strlen(msgInfo->msgText);
@@ -956,28 +947,27 @@ void SmsPluginEventHandler::convertStatusRepTpduToMsginfo(const SMS_STATUS_REPOR
 
 MSG_SUB_TYPE_T SmsPluginEventHandler::convertMsgSubType(SMS_PID_T pid)
 {
-	switch (pid)
-	{
-		case SMS_PID_TYPE0 :
-			return MSG_TYPE0_SMS;
-		case SMS_PID_REPLACE_TYPE1 :
-			return MSG_REPLACE_TYPE1_SMS;
-		case SMS_PID_REPLACE_TYPE2 :
-			return MSG_REPLACE_TYPE2_SMS;
-		case SMS_PID_REPLACE_TYPE3 :
-			return MSG_REPLACE_TYPE3_SMS;
-		case SMS_PID_REPLACE_TYPE4 :
-			return MSG_REPLACE_TYPE4_SMS;
-		case SMS_PID_REPLACE_TYPE5 :
-			return MSG_REPLACE_TYPE5_SMS;
-		case SMS_PID_REPLACE_TYPE6 :
-			return MSG_REPLACE_TYPE6_SMS;
-		case SMS_PID_REPLACE_TYPE7 :
-			return MSG_REPLACE_TYPE7_SMS;
-		case SMS_PID_RETURN_CALL :
-			return MSG_MWI_OTHER_SMS;
-		default :
-			return MSG_NORMAL_SMS;
+	switch (pid) {
+	case SMS_PID_TYPE0 :
+		return MSG_TYPE0_SMS;
+	case SMS_PID_REPLACE_TYPE1 :
+		return MSG_REPLACE_TYPE1_SMS;
+	case SMS_PID_REPLACE_TYPE2 :
+		return MSG_REPLACE_TYPE2_SMS;
+	case SMS_PID_REPLACE_TYPE3 :
+		return MSG_REPLACE_TYPE3_SMS;
+	case SMS_PID_REPLACE_TYPE4 :
+		return MSG_REPLACE_TYPE4_SMS;
+	case SMS_PID_REPLACE_TYPE5 :
+		return MSG_REPLACE_TYPE5_SMS;
+	case SMS_PID_REPLACE_TYPE6 :
+		return MSG_REPLACE_TYPE6_SMS;
+	case SMS_PID_REPLACE_TYPE7 :
+		return MSG_REPLACE_TYPE7_SMS;
+	case SMS_PID_RETURN_CALL :
+		return MSG_MWI_OTHER_SMS;
+	default :
+		return MSG_NORMAL_SMS;
 	}
 
 }
@@ -993,7 +983,7 @@ void SmsPluginEventHandler::SetSentInfo(SMS_SENT_INFO_S *pSentInfo)
 }
 
 
-void SmsPluginEventHandler::setDeviceStatus(struct tapi_handle *handle)
+void SmsPluginEventHandler::setDeviceStatus(TapiHandle *handle)
 {
 	if (handle == devHandle) {
 		mx.lock();
@@ -1004,7 +994,7 @@ void SmsPluginEventHandler::setDeviceStatus(struct tapi_handle *handle)
 }
 
 
-bool SmsPluginEventHandler::getDeviceStatus(struct tapi_handle *handle)
+bool SmsPluginEventHandler::getDeviceStatus(TapiHandle *handle)
 {
 	int ret = 0;
 

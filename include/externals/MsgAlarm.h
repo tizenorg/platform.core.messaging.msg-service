@@ -32,4 +32,4 @@ typedef void (*msg_alarm_cb)(int alarmId);
 msg_error_t MsgAlarmRegistration(struct tm *timeInfo, msg_alarm_cb userCB, int *alarmId);
 msg_error_t MsgAlarmRemove(int alarmId);
 
-#endif // MSG_ALARM_H
+#endif /* MSG_ALARM_H */

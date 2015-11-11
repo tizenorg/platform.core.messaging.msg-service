@@ -70,7 +70,8 @@ msg_error_t MsgAlarmInit()
 	}
 
 	retval = alarmmgr_set_cb(MsgAlarmCB, NULL);
-	if (retval != ALARMMGR_RESULT_SUCCESS) MSG_DEBUG("alarmmgr_set_cb() [%d]", retval);
+	if (retval != ALARMMGR_RESULT_SUCCESS)
+		MSG_DEBUG("alarmmgr_set_cb() [%d]", retval);
 
 	alarmInit = true;
 
@@ -100,9 +101,9 @@ msg_error_t MsgAlarmRegistration(struct tm *timeInfo, msg_alarm_cb userCB, int *
 	}
 
 	*alarmId = 0;
-	alarm_info_t* alarm_info = NULL;
-	alarm_id_t	alarm_id = -1;
-	alarm_date_t	target_time;
+	alarm_info_t *alarm_info = NULL;
+	alarm_id_t alarm_id = -1;
+	alarm_date_t target_time;
 
 	int retval = ALARMMGR_RESULT_SUCCESS;
 
@@ -124,16 +125,23 @@ msg_error_t MsgAlarmRegistration(struct tm *timeInfo, msg_alarm_cb userCB, int *
 			target_time.hour, target_time.min, target_time.sec);
 
 	retval = alarmmgr_set_time(alarm_info, target_time);
-	if (retval != ALARMMGR_RESULT_SUCCESS) MSG_DEBUG("alarmmgr_set_time ret[%d]", retval);
+	if (retval != ALARMMGR_RESULT_SUCCESS)
+		MSG_DEBUG("alarmmgr_set_time ret[%d]", retval);
+
 	retval = alarmmgr_set_repeat_mode(alarm_info, ALARM_REPEAT_MODE_ONCE, 0);
-	if (retval != ALARMMGR_RESULT_SUCCESS) MSG_DEBUG("alarmmgr_set_repeat_mode ret[%d]", retval);
+	if (retval != ALARMMGR_RESULT_SUCCESS)
+		MSG_DEBUG("alarmmgr_set_repeat_mode ret[%d]", retval);
+
 	retval = alarmmgr_set_type(alarm_info, ALARM_TYPE_DEFAULT);
-	if (retval != ALARMMGR_RESULT_SUCCESS) MSG_DEBUG("alarmmgr_set_type ret[%d]", retval);
+	if (retval != ALARMMGR_RESULT_SUCCESS)
+		MSG_DEBUG("alarmmgr_set_type ret[%d]", retval);
+
 	retval = alarmmgr_add_alarm_with_localtime(alarm_info, NULL, &alarm_id);
 	MSG_DEBUG("alarmmgr_add_alarm_with_localtime ret[%d], alarm_id[%d]", retval, alarm_id);
 
 	retval = alarmmgr_free_alarm(alarm_info);
-	if (retval != ALARMMGR_RESULT_SUCCESS) MSG_DEBUG("alarmmgr_free_alarm ret[%d]", retval);
+	if (retval != ALARMMGR_RESULT_SUCCESS)
+		MSG_DEBUG("alarmmgr_free_alarm ret[%d]", retval);
 
 	*alarmId = (int)alarm_id;
 

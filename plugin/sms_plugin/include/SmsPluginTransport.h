@@ -84,5 +84,5 @@ private:
 	CndVar cv;
 };
 
-#endif //SMS_PLUGIN_TRANSPORT_H
+#endif /* SMS_PLUGIN_TRANSPORT_H */
 
