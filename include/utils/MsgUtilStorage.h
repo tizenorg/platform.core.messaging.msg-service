@@ -60,6 +60,8 @@ msg_error_t MsgStoSetConversationDisplayName(MsgDbHandler *pDbHandle, int contac
 msg_error_t MsgStoSetConversationDisplayName(MsgDbHandler *pDbHandle, msg_thread_id_t convId);
 msg_error_t MsgStoClearConversationTable(MsgDbHandler *pDbHandle);
 
+msg_thread_id_t MsgGetThreadId(MsgDbHandler *pDbHandle, msg_message_id_t msgId);
+
 #ifdef FEATURE_SMS_CDMA
 msg_error_t MsgStoAddCBChannelInfo(MsgDbHandler *pDbHandle, MSG_CB_CHANNEL_S *pCBChannel);
 msg_error_t MsgStoGetCBChannelInfo(MsgDbHandler *pDbHandle, MSG_CB_CHANNEL_S *pCBChannel);

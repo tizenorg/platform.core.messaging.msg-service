@@ -28,6 +28,7 @@
 #include "MsgSerialize.h"
 #include "MsgSpamFilter.h"
 #include "MsgUtilMime.h"
+#include "MsgUtilFunction.h"
 
 #include "MmsPluginDebug.h"
 #include "MmsPluginTypes.h"
@@ -584,22 +585,111 @@ void MmsPluginInternal::processRetrieveConf(MSG_MESSAGE_INFO_S *pMsgInfo, mmsTra
 
 	snprintf(keyName, sizeof(keyName), "%s/%d", MSG_SIM_MSISDN, pMsgInfo->sim_idx);
 	char *msisdn = MsgSettingGetString(keyName);
+	char *normal_msisdn = NULL;
+	if (msisdn)
+		normal_msisdn = msg_normalize_number(msisdn);
 
-	if (mmsHeader.pFrom)
+	/* get setting value of group message */
+	bool is_group_on = false;
+
+	if (is_group_on) {
+		int addr_cnt = 0;
+		MsgHeaderAddress *iter = NULL;
+
+		iter = mmsHeader.pFrom;
+		while (iter) {
+			addr_cnt++;
+			iter = iter->pNext;
+		}
+
+		iter = mmsHeader.pTo;
+		while (iter) {
+			if (normal_msisdn == NULL || !g_str_has_suffix(iter->szAddr, normal_msisdn))
+				addr_cnt++;
+			iter = iter->pNext;
+		}
+
+		iter = mmsHeader.pCc;
+		while (iter) {
+			if (normal_msisdn == NULL || !g_str_has_suffix(iter->szAddr, normal_msisdn))
+				addr_cnt++;
+			iter = iter->pNext;
+		}
+
+		MSG_ADDRESS_INFO_S *tmp_addr_info = (MSG_ADDRESS_INFO_S *)new char[sizeof(MSG_ADDRESS_INFO_S)*addr_cnt];
+		memset(tmp_addr_info, 0x00, sizeof(MSG_ADDRESS_INFO_S)*addr_cnt);
+		if (mmsHeader.pFrom == NULL) {
+			strncpy(tmp_addr_info[0].addressVal, pMsgInfo->addressList[0].addressVal, MAX_ADDRESS_VAL_LEN);
+		}
+
+		pMsgInfo->nAddressCnt = addr_cnt;
+		pMsgInfo->addressList = tmp_addr_info;
+	} else {
+		pMsgInfo->addressList = (MSG_ADDRESS_INFO_S *)new char[sizeof(MSG_ADDRESS_INFO_S)];
+		memset(pMsgInfo->addressList, 0x00, sizeof(MSG_ADDRESS_INFO_S));
+		pMsgInfo->nAddressCnt = 1;
+	}
+
+	if (mmsHeader.pFrom) {
+		MSG_DEBUG("FROM : [%s]", mmsHeader.pFrom->szAddr);
 		MmsAddrUtilRemovePlmnString(mmsHeader.pFrom->szAddr);
+		/* From */
+		strncpy(pMsgInfo->addressList[0].addressVal, mmsHeader.pFrom->szAddr, MAX_ADDRESS_VAL_LEN);
+		if (MmsAddrUtilCheckEmailAddress(pMsgInfo->addressList[0].addressVal)) {
+			pMsgInfo->addressList[0].addressType = MSG_ADDRESS_TYPE_EMAIL;
+		}
+	}
+
+	if (is_group_on) {
+		int addr_idx = 0;
+		if (mmsHeader.pTo) {
+			MsgHeaderAddress *iter = mmsHeader.pTo;
+			while (iter) {
+				addr_idx++;
+				MSG_DEBUG("TO : [%s]", mmsHeader.pTo->szAddr);
+				MmsAddrUtilRemovePlmnString(iter->szAddr);
+				/* To */
+				if (normal_msisdn == NULL || !g_str_has_suffix(iter->szAddr, normal_msisdn)) {
+					strncpy(pMsgInfo->addressList[addr_idx].addressVal, iter->szAddr, MAX_ADDRESS_VAL_LEN);
+					pMsgInfo->addressList[addr_idx].recipientType = MSG_RECIPIENTS_TYPE_TO;
+					if (MmsAddrUtilCheckEmailAddress(pMsgInfo->addressList[addr_idx].addressVal)) {
+						pMsgInfo->addressList[addr_idx].addressType = MSG_ADDRESS_TYPE_EMAIL;
+					}
+				} else {
+					addr_idx--;
+				}
+
+				iter = iter->pNext;
+			}
+		}
+
+		if (mmsHeader.pCc) {
+			MsgHeaderAddress *iter = mmsHeader.pCc;
+			while (iter) {
+				addr_idx++;
+				MSG_DEBUG("CC : [%s]", mmsHeader.pCc->szAddr);
+				MmsAddrUtilRemovePlmnString(iter->szAddr);
+				/* Cc */
+				if (normal_msisdn == NULL || !g_str_has_suffix(iter->szAddr, normal_msisdn)) {
+					strncpy(pMsgInfo->addressList[addr_idx].addressVal, iter->szAddr, MAX_ADDRESS_VAL_LEN);
+					pMsgInfo->addressList[addr_idx].recipientType = MSG_RECIPIENTS_TYPE_CC;
+					if (MmsAddrUtilCheckEmailAddress(pMsgInfo->addressList[addr_idx].addressVal)) {
+						pMsgInfo->addressList[addr_idx].addressType = MSG_ADDRESS_TYPE_EMAIL;
+					}
+				} else {
+					addr_idx--;
+				}
+
+				iter = iter->pNext;
+			}
+		}
+	}
 
 	MSG_SEC_DEBUG("%d, MMS Receive %s End %s->%s %s", pMsgInfo->msgId
 														, (pRequest->eMmsPduType == eMMS_RETRIEVE_AUTO_CONF)?"Auto":"Manual"
 														, (mmsHeader.pFrom)?mmsHeader.pFrom->szAddr:"YOU"
 														, (msisdn == NULL)?"ME":msisdn
 														, (pMsgInfo->networkStatus == MSG_NETWORK_RETRIEVE_SUCCESS)?"Success":"Fail");
-
-	/* PLM P141008-05143 :  Notification.Ind address is 1, but MMS retreived Conf address is correct.
-	 So adding correct address to addressList buf to compare address in DB while MsgStoUpdateMMSMessage */
-	if (mmsHeader.pFrom) {
-		pMsgInfo->nAddressCnt = 1;
-		strncpy(pMsgInfo->addressList[0].addressVal, mmsHeader.pFrom->szAddr, MAX_ADDRESS_VAL_LEN);
-	}
 
 	if (msisdn) {
 		free(msisdn);

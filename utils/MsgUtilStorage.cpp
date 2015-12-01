@@ -379,7 +379,7 @@ msg_error_t MsgStoAddAddress(MsgDbHandler *pDbHandle, const MSG_MESSAGE_INFO_S *
 
 		*pConvId = 0;
 
-		if(pMsg->threadId)
+		if (pMsg->threadId)
 			*pConvId = pMsg->threadId;
 
 		/* conversation insert */
@@ -862,6 +862,27 @@ msg_error_t MsgStoClearConversationTable(MsgDbHandler *pDbHandle)
 	return err;
 }
 
+
+msg_thread_id_t MsgGetThreadId(MsgDbHandler *pDbHandle, msg_message_id_t msgId)
+{
+	msg_thread_id_t conv_id = 0;
+
+	char sqlQuery[MAX_QUERY_LEN+1];
+	memset(sqlQuery, 0x00, sizeof(sqlQuery));
+	snprintf(sqlQuery, sizeof(sqlQuery), "SELECT CONV_ID FROM %s WHERE MSG_ID = %d;",
+			MSGFW_MESSAGE_TABLE_NAME, msgId);
+
+	if (pDbHandle->prepareQuery(sqlQuery) != MSG_SUCCESS)
+		return 0;
+
+	if (pDbHandle->stepQuery() == MSG_ERR_DB_ROW) {
+		conv_id = pDbHandle->columnInt(0);
+	}
+
+	pDbHandle->finalizeQuery();
+
+	return conv_id;
+}
 
 /* Change the function name to conversation related. */
 bool MsgExistAddress(MsgDbHandler *pDbHandle, const MSG_MESSAGE_INFO_S *pMsg, msg_thread_id_t *pConvId)
@@ -1414,10 +1435,13 @@ void MsgStoUpdateAddress(MsgDbHandler *pDbHandle, const MSG_MESSAGE_INFO_S *pMsg
 				memset(sqlQuery, 0x00, sizeof(sqlQuery));
 				snprintf(sqlQuery, sizeof(sqlQuery),
 						"UPDATE %s SET "
-						"ADDRESS_VAL = '%s' "
+						"ADDRESS_VAL = '%s', "
+						"ADDRESS_TYPE = %d, "
+						"RECIPIENT_TYPE = %d "
 						"WHERE CONV_ID = %d "
 						"AND ADDRESS_VAL LIKE '%%%%%s';",
-						MSGFW_ADDRESS_TABLE_NAME, pMsg->addressList[i].addressVal, convId, newPhoneNum);
+						MSGFW_ADDRESS_TABLE_NAME, pMsg->addressList[i].addressVal,
+						pMsg->addressList[i].addressType, pMsg->addressList[i].recipientType, convId, newPhoneNum);
 
 				err = pDbHandle->execQuery(sqlQuery);
 				if (err != MSG_SUCCESS) MSG_DEBUG("Fail to execQuery(). [%s]", sqlQuery);

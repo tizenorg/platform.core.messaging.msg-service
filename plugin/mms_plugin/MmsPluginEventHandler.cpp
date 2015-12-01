@@ -130,6 +130,7 @@ TapiHandle *MmsPluginEventHandler::getTelHandle(int sim_idx)
 void MmsPluginEventHandler::handleMmsReceivedData(mmsTranQEntity *pRequest, char *pRetrievedFilePath)
 {
 	MSG_MESSAGE_INFO_S msgInfo = {0,};
+	msgInfo.sim_idx = pRequest->simId;
 
 	switch (pRequest->eMmsPduType) {
 	/* received data is send-conf */
@@ -146,14 +147,13 @@ void MmsPluginEventHandler::handleMmsReceivedData(mmsTranQEntity *pRequest, char
 	/* received data is retrieve-conf */
 	case eMMS_RETRIEVE_AUTO_CONF:
 	case eMMS_RETRIEVE_MANUAL_CONF:
-		MSG_ADDRESS_INFO_S addrInfo;
-		memset(&addrInfo, 0x00, sizeof(MSG_ADDRESS_INFO_S));
-		msgInfo.addressList = &addrInfo;
-
 		MmsPluginInternal::instance()->processRetrieveConf(&msgInfo, pRequest, pRetrievedFilePath);
 
 		/* callback to MSG FW */
 		listener.pfMmsConfIncomingCb(&msgInfo, &pRequest->reqID);
+
+		if (msgInfo.addressList)
+			delete [] msgInfo.addressList;
 		break;
 
 	case eMMS_FORWARD_CONF:

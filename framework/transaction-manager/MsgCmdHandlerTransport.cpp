@@ -560,7 +560,7 @@ int MsgIncomingMMSConfMsgHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 	MSG_DEBUG(" pMsg = %s, pReqId = %d ", msgInfo.msgData, reqID);
 	MSG_DEBUG(" msgtype subtype is [%d]", msgInfo.msgType.subType);
 
-	// For Storage change callback
+	/* For Storage change callback */
 	msg_id_list_s msgIdList;
 	msg_message_id_t msgIds[1];
 	memset(&msgIdList, 0x00, sizeof(msg_id_list_s));
@@ -569,38 +569,33 @@ int MsgIncomingMMSConfMsgHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 	msgIds[0] = msgInfo.msgId;
 	msgIdList.msgIdList = msgIds;
 
-	MSG_ADDRESS_INFO_S *tmpAddr = (MSG_ADDRESS_INFO_S *)new char[sizeof(MSG_ADDRESS_INFO_S)];
-	memset(tmpAddr, 0x00, sizeof(MSG_ADDRESS_INFO_S));
-
-	err = MsgStoGetAddrInfo(msgInfo.msgId, tmpAddr);
-	if (err == MSG_SUCCESS) {
-		MSG_DEBUG("MmsStoGetAddrInfo() success.");
-		msgInfo.nAddressCnt = 1;
-	} else {
-		msgInfo.nAddressCnt = 0;
-		MSG_DEBUG("MmsStoGetAddrInfo() fail.");
+	MsgDbHandler *dbHandle = getDbHandle();
+	int tmpAddrCnt = 0;
+	MSG_ADDRESS_INFO_S *tmpAddr = NULL;
+	int order = MsgGetContactNameOrder();
+	err = MsgStoGetAddressByMsgId(dbHandle, msgInfo.msgId, order, &tmpAddrCnt, &tmpAddr);
+	if (err != MSG_SUCCESS) {
+		MSG_DEBUG("MsgStoGetAddressByMsgId() fail.");
 	}
 
 	if (msgInfo.msgType.subType == MSG_RETRIEVE_AUTOCONF_MMS || msgInfo.msgType.subType == MSG_RETRIEVE_MANUALCONF_MMS) {
+		if (msgInfo.networkStatus != MSG_NETWORK_RETRIEVE_SUCCESS) {
+			if (msgInfo.addressList) {
+				delete[] msgInfo.addressList;
+				msgInfo.addressList = NULL;
+			}
 
-		/* PLM P141008-05143 & P150710-01521 : Notification.Ind address and MMS retreived Conf address are different.
-		    Replace Notification.Ind address with MMS retreived Conf address if and only if MMS retreived Conf address is a valid address not junk*/
-		if (msgInfo.nAddressCnt == 1 && msgInfo.networkStatus == MSG_NETWORK_RETRIEVE_SUCCESS && MsgIsNumber(msgInfo.addressList[0].addressVal)
-			&& strlen(msgInfo.addressList[0].addressVal) >= (unsigned int)MsgContactGetMinMatchDigit() && msgInfo.addressList[0].addressType != MSG_ADDRESS_TYPE_EMAIL
-			&& (g_strcmp0(tmpAddr->addressVal, msgInfo.addressList[0].addressVal) != 0)) {
-			MSG_WARN("Address of NotiInd and MMSConf are different!!, Replace [NotiInd address: %s] from [MMSConf address: %s]", tmpAddr->addressVal, msgInfo.addressList[0].addressVal);
-			memset(tmpAddr->addressVal, 0x00, MAX_ADDRESS_VAL_LEN);
-			strncpy(tmpAddr->addressVal, msgInfo.addressList[0].addressVal, MAX_ADDRESS_VAL_LEN);
+			msgInfo.addressList = tmpAddr;
+			msgInfo.nAddressCnt = tmpAddrCnt;
+		} else {
+			if (tmpAddr) {
+				delete [] tmpAddr;
+				tmpAddr = NULL;
+			}
 		}
 
-		if (msgInfo.addressList) {
-			delete[] msgInfo.addressList;
-			msgInfo.addressList = NULL;
-		}
-
-		msgInfo.addressList = tmpAddr;
-
-		MSG_SUB_TYPE_T recv_sub_type = msgInfo.msgType.subType; // Check retrieve mode to determine broadcast type
+		msg_thread_id_t prev_conv_id = MsgGetThreadId(dbHandle, msgInfo.msgId);
+		MSG_SUB_TYPE_T recv_sub_type = msgInfo.msgType.subType; /* Check retrieve mode to determine broadcast type */
 
 		err = MsgHandleMmsConfIncomingMsg(&msgInfo, reqID);
 
@@ -619,14 +614,21 @@ int MsgIncomingMMSConfMsgHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 			memset(msgInfo.msgData, 0x00, sizeof(MMS_RECV_DATA_S));
 		}
 
-		// broadcast to listener threads, here
+		/* broadcast to listener threads, here */
 		MsgTransactionManager::instance()->broadcastMMSConfCB(msgInfo.networkStatus, &msgInfo, pMmsRecvData);
 
-		// determine broadcast type with retrieve mode
-		if (recv_sub_type == MSG_RETRIEVE_AUTOCONF_MMS)
+		/* determine broadcast type with retrieve mode */
+		if (recv_sub_type == MSG_RETRIEVE_AUTOCONF_MMS) {
 			MsgTransactionManager::instance()->broadcastStorageChangeCB(MSG_SUCCESS, MSG_STORAGE_CHANGE_INSERT, &msgIdList);
-		else
-			MsgTransactionManager::instance()->broadcastStorageChangeCB(MSG_SUCCESS, MSG_STORAGE_CHANGE_UPDATE, &msgIdList);
+		} else {
+			if (prev_conv_id == msgInfo.threadId
+				|| msgInfo.networkStatus == MSG_NETWORK_RETRIEVE_FAIL || msgInfo.networkStatus == MSG_NETWORK_RETRIEVE_PENDING) {
+				MsgTransactionManager::instance()->broadcastStorageChangeCB(MSG_SUCCESS, MSG_STORAGE_CHANGE_UPDATE, &msgIdList);
+			} else {
+				MsgTransactionManager::instance()->broadcastStorageChangeCB(MSG_SUCCESS, MSG_STORAGE_CHANGE_DELETE, &msgIdList);
+				MsgTransactionManager::instance()->broadcastStorageChangeCB(MSG_SUCCESS, MSG_STORAGE_CHANGE_INSERT, &msgIdList);
+			}
+		}
 
 		// make return event
 		eventsize = MsgMakeEvent(NULL, 0, MSG_EVENT_PLG_INCOMING_MMS_CONF, MSG_SUCCESS, (void**)ppEvent);
@@ -638,6 +640,7 @@ int MsgIncomingMMSConfMsgHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 		}
 
 		msgInfo.addressList = tmpAddr;
+		msgInfo.nAddressCnt = tmpAddrCnt;
 
 		MSG_PROXY_INFO_S* prxInfo = MsgTransactionManager::instance()->getProxyInfo(reqID);
 

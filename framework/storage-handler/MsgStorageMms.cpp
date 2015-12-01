@@ -178,143 +178,166 @@ msg_error_t MsgStoUpdateMMSMessage(MSG_MESSAGE_INFO_S *pMsg)
 	 * So adding code for comparing exist address and new address and replace with new address(MMSconf) address */
 
 	if(pMsg->msgType.subType == MSG_RETRIEVE_AUTOCONF_MMS || pMsg->msgType.subType == MSG_RETRIEVE_MANUALCONF_MMS) {
-		if (pMsg->nAddressCnt == 1 && pMsg->addressList) {
-			char tmpAddressVal[MAX_ADDRESS_VAL_LEN+1] = {0,};
-			msg_address_type_t tmpAddressType;
-			msg_recipient_type_t tmpRecipientType;
-			int tmpConvId;
+		if (pMsg->addressList) {
+			if (pMsg->nAddressCnt == 1) {
+				char tmpAddressVal[MAX_ADDRESS_VAL_LEN+1] = {0,};
+				msg_address_type_t tmpAddressType;
+				msg_recipient_type_t tmpRecipientType;
+				int tmpConvId;
 
-			//compare stored address and currnt address
-			memset(sqlQuery, 0x00, sizeof(sqlQuery));
+				/* compare stored address and currnt address */
+				memset(sqlQuery, 0x00, sizeof(sqlQuery));
 
-			snprintf(sqlQuery, sizeof(sqlQuery), "SELECT "
-					"A.CONV_ID, "
-					"A.ADDRESS_TYPE, "
-					"A.RECIPIENT_TYPE, "
-					"A.ADDRESS_VAL "
-					"FROM %s A, %s B "
-					"WHERE A.CONV_ID = B.CONV_ID "
-					"AND B.MSG_ID = %d;",
-					MSGFW_ADDRESS_TABLE_NAME, MSGFW_MESSAGE_TABLE_NAME,
-					pMsg->msgId);
+				snprintf(sqlQuery, sizeof(sqlQuery), "SELECT "
+						"A.CONV_ID, "
+						"A.ADDRESS_TYPE, "
+						"A.RECIPIENT_TYPE, "
+						"A.ADDRESS_VAL "
+						"FROM %s A, %s B "
+						"WHERE A.CONV_ID = B.CONV_ID "
+						"AND B.MSG_ID = %d;",
+						MSGFW_ADDRESS_TABLE_NAME, MSGFW_MESSAGE_TABLE_NAME,
+						pMsg->msgId);
 
-			MSG_DEBUG("[%s]", sqlQuery);
+				MSG_DEBUG("[%s]", sqlQuery);
 
-			if (dbHandle->prepareQuery(sqlQuery) != MSG_SUCCESS) {
-				return MSG_ERR_DB_PREPARE;
-			}
+				if (dbHandle->prepareQuery(sqlQuery) != MSG_SUCCESS) {
+					return MSG_ERR_DB_PREPARE;
+				}
 
-			err = dbHandle->stepQuery();
+				err = dbHandle->stepQuery();
 
-			if (err == MSG_ERR_DB_ROW) {
-				tmpConvId = dbHandle->columnInt(0);
-				tmpAddressType = dbHandle->columnInt(1);
-				tmpRecipientType = dbHandle->columnInt(2);
-				strncpy(tmpAddressVal, (char*)dbHandle->columnText(3), MAX_ADDRESS_VAL_LEN);
+				if (err == MSG_ERR_DB_ROW) {
+					tmpConvId = dbHandle->columnInt(0);
+					tmpAddressType = dbHandle->columnInt(1);
+					tmpRecipientType = dbHandle->columnInt(2);
+					strncpy(tmpAddressVal, (char*)dbHandle->columnText(3), MAX_ADDRESS_VAL_LEN);
 
-				dbHandle->finalizeQuery();
+					dbHandle->finalizeQuery();
 
-				//compare stored addressList and current addressList
-				if (tmpAddressType != pMsg->addressList->addressType ||
-					tmpRecipientType != pMsg->addressList->recipientType ||
-					(strncmp(tmpAddressVal, pMsg->addressList->addressVal, MAX_ADDRESS_VAL_LEN) != 0)) {
+					/* compare stored addressList and current addressList */
+					if (tmpAddressType != pMsg->addressList->addressType ||
+						tmpRecipientType != pMsg->addressList->recipientType ||
+						(strncmp(tmpAddressVal, pMsg->addressList->addressVal, MAX_ADDRESS_VAL_LEN) != 0)) {
 
-					MSG_WARN("AddressList of NotiInd and MMSConf are different!!, Replace AddressList to MMSConf data");
-					MSG_WARN("AddType [NotiInd : %d], [MMSConf : %d]", tmpAddressType, pMsg->addressList->addressType);
-					MSG_WARN("RcptType [NotiInd : %d], [MMSConf : %d]", tmpRecipientType, pMsg->addressList->recipientType);
-					MSG_SEC_INFO("AddressVal [NotiInd : %s], [MMSConf : %s]", tmpAddressVal, pMsg->addressList->addressVal);
+						MSG_WARN("AddressList of NotiInd and MMSConf are different!!, Replace AddressList to MMSConf data");
+						MSG_WARN("AddType [NotiInd : %d], [MMSConf : %d]", tmpAddressType, pMsg->addressList->addressType);
+						MSG_WARN("RcptType [NotiInd : %d], [MMSConf : %d]", tmpRecipientType, pMsg->addressList->recipientType);
+						MSG_SEC_INFO("AddressVal [NotiInd : %s], [MMSConf : %s]", tmpAddressVal, pMsg->addressList->addressVal);
 
-					// If MMSConf AddressList is already exist, Replace exist ConvId with matching msgId
-					memset(sqlQuery, 0x00, sizeof(sqlQuery));
+						/* If MMSConf AddressList is already exist, Replace exist ConvId with matching msgId */
+						memset(sqlQuery, 0x00, sizeof(sqlQuery));
 
-					snprintf(sqlQuery, sizeof(sqlQuery),
-						"SELECT CONV_ID FROM %s WHERE ADDRESS_VAL = '%s'",
-						MSGFW_ADDRESS_TABLE_NAME, pMsg->addressList->addressVal);
+						snprintf(sqlQuery, sizeof(sqlQuery),
+							"SELECT CONV_ID FROM %s WHERE ADDRESS_VAL = '%s'",
+							MSGFW_ADDRESS_TABLE_NAME, pMsg->addressList->addressVal);
 
-					MSG_DEBUG("[%s]", sqlQuery);
+						MSG_DEBUG("[%s]", sqlQuery);
 
-					if (dbHandle->prepareQuery(sqlQuery) != MSG_SUCCESS) {
-						return MSG_ERR_DB_PREPARE;
+						if (dbHandle->prepareQuery(sqlQuery) != MSG_SUCCESS) {
+							return MSG_ERR_DB_PREPARE;
+						}
+
+						err = dbHandle->stepQuery();
+
+						if (err == MSG_ERR_DB_ROW) {
+							tmpConvId = dbHandle->columnInt(0);
+
+							dbHandle->finalizeQuery();
+
+							memset(sqlQuery, 0x00, sizeof(sqlQuery));
+
+							snprintf(sqlQuery, sizeof(sqlQuery),
+								"UPDATE %s SET CONV_ID = %d WHERE MSG_ID = %d;",
+								MSGFW_MESSAGE_TABLE_NAME, tmpConvId, pMsg->msgId);
+
+							MSG_DEBUG("[%s]", sqlQuery);
+
+							if (dbHandle->prepareQuery(sqlQuery) != MSG_SUCCESS) {
+								return MSG_ERR_DB_PREPARE;
+							}
+
+							err = dbHandle->stepQuery();
+
+							if (err != MSG_ERR_DB_DONE) {
+								dbHandle->finalizeQuery();
+								MSG_ERR("Replacing CONV_ID with exist one. Fail.");
+								return MSG_ERR_DB_STEP;
+							}
+
+							dbHandle->finalizeQuery();
+						} else {
+							dbHandle->finalizeQuery();
+
+							memset(sqlQuery, 0x00, sizeof(sqlQuery));
+
+							snprintf(sqlQuery, sizeof(sqlQuery),
+								"UPDATE %s SET ADDRESS_TYPE = %d, RECIPIENT_TYPE = %d, ADDRESS_VAL = '%s' WHERE CONV_ID = %d;",
+								MSGFW_ADDRESS_TABLE_NAME, pMsg->addressList->addressType, pMsg->addressList->recipientType, pMsg->addressList->addressVal, tmpConvId);
+
+							MSG_DEBUG("[%s]", sqlQuery);
+
+							if (dbHandle->prepareQuery(sqlQuery) != MSG_SUCCESS) {
+								return MSG_ERR_DB_PREPARE;
+							}
+
+							err = dbHandle->stepQuery();
+
+							if (err != MSG_ERR_DB_DONE) {
+								dbHandle->finalizeQuery();
+								MSG_ERR("Replacing Address with MMSConf Address. Fail.");
+								return MSG_ERR_DB_STEP;
+							}
+
+							dbHandle->finalizeQuery();
+						}
+					}
+				} else {
+					dbHandle->finalizeQuery();
+					return MSG_ERR_DB_STEP;
+				}
+			} else if (pMsg->nAddressCnt > 1) {
+				msg_thread_id_t conv_id = 0;
+				msg_thread_id_t prev_conv_id = MsgGetThreadId(dbHandle, pMsg->msgId);
+
+				err = MsgStoAddAddress(dbHandle, pMsg, &conv_id);
+				if (err != MSG_SUCCESS) {
+					MSG_ERR("MsgStoAddAddress is failed");
+					return err;
+				}
+				pMsg->threadId = conv_id;
+
+				memset(sqlQuery, 0x00, sizeof(sqlQuery));
+				snprintf(sqlQuery, sizeof(sqlQuery),
+					"UPDATE %s SET CONV_ID = %d WHERE MSG_ID = %d;",
+					MSGFW_MESSAGE_TABLE_NAME, conv_id, pMsg->msgId);
+
+				err = dbHandle->execQuery(sqlQuery);
+				if (err != MSG_SUCCESS) {
+					MSG_ERR("execQuery is failed");
+					return err;
+				}
+
+				MSG_DEBUG("prev_conv_id[%d] conv_id[%d]", prev_conv_id, conv_id);
+				if (prev_conv_id != 0 && prev_conv_id != conv_id) {
+					if (MsgStoUpdateConversation(dbHandle, prev_conv_id) != MSG_SUCCESS) {
+						MSG_DEBUG("MsgStoUpdateConversation() Error");
+						return MSG_ERR_STORAGE_ERROR;
 					}
 
-					err = dbHandle->stepQuery();
-
-					if (err == MSG_ERR_DB_ROW) {
-						tmpConvId = dbHandle->columnInt(0);
-
-						dbHandle->finalizeQuery();
-
-						memset(sqlQuery, 0x00, sizeof(sqlQuery));
-
-						snprintf(sqlQuery, sizeof(sqlQuery),
-							"UPDATE %s SET CONV_ID = %d WHERE MSG_ID = %d;",
-							MSGFW_MESSAGE_TABLE_NAME, tmpConvId, pMsg->msgId);
-
-						MSG_DEBUG("[%s]", sqlQuery);
-
-						if (dbHandle->prepareQuery(sqlQuery) != MSG_SUCCESS) {
-							return MSG_ERR_DB_PREPARE;
-						}
-
-						err = dbHandle->stepQuery();
-
-						if (err != MSG_ERR_DB_DONE) {
-							dbHandle->finalizeQuery();
-							MSG_ERR("Replacing CONV_ID with exist one. Fail.");
-							return MSG_ERR_DB_STEP;
-						}
-
-						dbHandle->finalizeQuery();
-					} else {
-						dbHandle->finalizeQuery();
-
-						memset(sqlQuery, 0x00, sizeof(sqlQuery));
-
-						snprintf(sqlQuery, sizeof(sqlQuery),
-							"UPDATE %s SET ADDRESS_TYPE = %d, RECIPIENT_TYPE = %d, ADDRESS_VAL = '%s' WHERE CONV_ID = %d;",
-							MSGFW_ADDRESS_TABLE_NAME, pMsg->addressList->addressType, pMsg->addressList->recipientType, pMsg->addressList->addressVal, tmpConvId);
-
-						MSG_DEBUG("[%s]", sqlQuery);
-
-						if (dbHandle->prepareQuery(sqlQuery) != MSG_SUCCESS) {
-							return MSG_ERR_DB_PREPARE;
-						}
-
-						err = dbHandle->stepQuery();
-
-						if (err != MSG_ERR_DB_DONE) {
-							dbHandle->finalizeQuery();
-							MSG_ERR("Replacing Address with MMSConf Address. Fail.");
-							return MSG_ERR_DB_STEP;
-						}
-
-						dbHandle->finalizeQuery();
+					if (MsgStoClearConversationTable(dbHandle) != MSG_SUCCESS) {
+						MSG_DEBUG("MsgStoClearConversationTable() Error");
 					}
 				}
-			} else {
-				dbHandle->finalizeQuery();
-				return MSG_ERR_DB_STEP;
 			}
 		}
 	}
 
-	msg_thread_id_t convId = 0;
-	int rowCnt = 0;
+	msg_thread_id_t convId = MsgGetThreadId(dbHandle, pMsg->msgId);
 
-	// Get SUB_TYPE, STORAGE_ID
-	memset(sqlQuery, 0x00, sizeof(sqlQuery));
-	snprintf(sqlQuery, sizeof(sqlQuery), "SELECT CONV_ID FROM %s WHERE MSG_ID = %d;",
-			MSGFW_MESSAGE_TABLE_NAME, pMsg->msgId);
+	MSG_DEBUG("Conversation id:[%d]", convId);
 
-	if (dbHandle->getTable(sqlQuery, &rowCnt, NULL) != MSG_SUCCESS) {
-		dbHandle->freeTable();
-		return MSG_ERR_DB_PREPARE;
-	}
-
-	if (rowCnt > 0) {
-		convId = dbHandle->getColumnToInt(1);
-
-		MSG_DEBUG("Conversation id:[%d]", convId);
+	if (convId > 0) {
 
 		if (MsgStoUpdateConversation(dbHandle, convId) != MSG_SUCCESS) {
 			MSG_DEBUG("MsgStoUpdateConversation() Error");
@@ -326,13 +349,9 @@ msg_error_t MsgStoUpdateMMSMessage(MSG_MESSAGE_INFO_S *pMsg)
 		if (MsgStoClearConversationTable(dbHandle) != MSG_SUCCESS) {
 			MSG_DEBUG("MsgStoClearConversationTable() Error");
 		}
-
 	} else {
-		dbHandle->freeTable();
 		return MSG_ERR_DB_STEP;
 	}
-
-	dbHandle->freeTable();
 
 	MSG_END();
 

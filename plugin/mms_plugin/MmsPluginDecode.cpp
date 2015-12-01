@@ -6157,6 +6157,8 @@ void MmsPluginDecoder::decodeMmsPdu(MmsMsg *pMsg, msg_message_id_t msgID, const 
 		pMsg->mmsAttrib.bAskReadReply = true;
 	}
 
+	/* TODO : fill pMsg->mmsAttrib.szCc and pMsg->mmsAttrib.szTo field */
+
 	snprintf(pMsg->mmsAttrib.szSubject, sizeof(pMsg->mmsAttrib.szSubject), "%s", mmsHeader.szSubject);
 
 	snprintf(pMsg->szTrID, sizeof(pMsg->szTrID), "%s", mmsHeader.szTrID);
