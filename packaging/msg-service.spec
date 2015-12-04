@@ -8,7 +8,7 @@ Source0:        %{name}-%{version}.tar.gz
 Source1:        msg-server.service
 Source2:        msg-server.socket
 
-%if "%{?tizen_profile_name}" == "tv"
+%if "%{?profile}" == "tv"
 ExcludeArch: %{arm} %ix86 x86_64
 %endif
 
