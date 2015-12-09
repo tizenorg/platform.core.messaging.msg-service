@@ -35,12 +35,12 @@ char Base64Table[65] = {													'A',
 };
 
 /* Function Declaration */
-int		__VFindBase64( char );
-int		__VBase64Check( char * );
-int		__VRepChar2Space( char *, char );
-char	__VHexaDecoder( char * );
-void	__VHexaEncoder( char * );
-int		__VIsPrintable( char );
+int		__VFindBase64(char);
+int		__VBase64Check(char *);
+int		__VRepChar2Space(char *, char);
+char	__VHexaDecoder(char *);
+void	__VHexaEncoder(char *);
+int		__VIsPrintable(char);
 
 
 /**
@@ -52,16 +52,12 @@ int		__VIsPrintable( char );
  * @return     0                 'in' is not a space.
  */
 int
-_VIsSpace( char in )
+_VIsSpace(char in)
 {
-    if ( ( in == TAB ) || ( in == WSP ) )
-	{
+    if ((in == TAB) || (in == WSP))
 		return 1;
-    }
 	else
-	{
 		return 0;
-    }
 }
 
 
@@ -72,31 +68,26 @@ _VIsSpace( char in )
  * @return     0                  if success.
  */
 int
-_VRLSpace( char *in )
+_VRLSpace(char *in)
 {
-    int			i, j;
+    int	i, j;
     short int	done;
 
     i = 0;
     done = 0;
 
-    while ( !done && in[i] )
-	{
-		if ( _VIsSpace( in[i] ) )
-		{
+    while (!done && in[i]) {
+		if (_VIsSpace(in[i]))
 			i++;
-		}
 		else
-		{
 			done = 1;
-		}
     }
 
     j = 0;
-    while ( in[i] )
-	{
+    while (in[i]) {
 		in[j++] = in[i++];
     }
+
 
     in[j] = '\0';
 
@@ -111,7 +102,7 @@ _VRLSpace( char *in )
  * @return     0                  if success.
  */
 int
-_VRTSpace( char *in )
+_VRTSpace(char *in)
 {
     int			i;
     short int	done;
@@ -119,16 +110,11 @@ _VRTSpace( char *in )
     i = strlen(in) - 1;
     done = 0;
 
-    while ( !done && !( i < 0 ) )
-	{
-		if ( _VIsSpace( in[i] ) )
-		{
+    while (!done && !(i < 0)) {
+		if (_VIsSpace(in[i]))
 			in[i--] = '\0';
-		}
 		else
-		{
 			done = 1;
-		}
     }
 
     return(0);
@@ -142,31 +128,29 @@ _VRTSpace( char *in )
  * @return     0                  if success.
  */
 int
-_VUnescape( char *in )
+_VUnescape(char *in)
 {
-    int			i;
-    int			index;
+	int			i;
+	int			index;
 	int			len;
 	char c1;
 	char c2;
 
-    len = strlen(in);
+	len = strlen(in);
 
-    for ( i = 0, index = 0; i < len; i++ )
-	{
+	for (i = 0, index = 0; i < len; i++) {
 		c1 = in[i];
 
-		if ( c1 == '\\' )
-		{
+		if (c1 == '\\') {
 			c2 = in[i+1];
-			if ( c2 == ';' ) continue;
+			if (c2 == ';') continue;
 		}
 		in[index++] = c1;
 	}
 
 	in[index] = '\0';
 
-    return(0);
+	return(0);
 }
 
 /*
@@ -176,7 +160,7 @@ _VUnescape( char *in )
  * @return     0                  if success.
  */
 int
-_VEscape( char *in )
+_VEscape(char *in)
 {
 	int i;
 	int index;
@@ -187,15 +171,15 @@ _VEscape( char *in )
 	len = strlen(in);
 	buf = (char*) calloc(1, len*2+1);
 	if (buf) {
-		for ( i = 0, index = 0; i < len; i++ ){
+		for (i = 0, index = 0; i < len; i++) {
 			c = in[i];
-			if ( c == ';' )	{
+			if (c == ';')	{
 				buf[index++] = '\\';
 			}
 			buf[index++] = c;
 		}
 
-		strncpy( in, buf, len*2+1 );
+		strncpy(in, buf, len*2+1);
 		free(buf);
 	}
 
@@ -211,25 +195,20 @@ _VEscape( char *in )
  * @return     int                length of converted string.
  */
 int
-_VManySpace2Space( char *in )
+_VManySpace2Space(char *in)
 {
     int		i, j;
     int		spaced = 0;
 
     j = 0;
-    for ( i = 0; in[i]; i++ )
-	{
-		if ( _VIsSpace( in[i] ) )
-		{
-			if ( !spaced )
-			{
+    for (i = 0; in[i]; i++) {
+		if (_VIsSpace(in[i])) {
+			if (!spaced) {
 				in[j] = WSP;
 				spaced = 1;
 				j++;
 			}
-		}
-		else
-		{
+		} else {
 			spaced = 0;
 			in[j] = in[i];
 			j++;
@@ -250,13 +229,12 @@ _VManySpace2Space( char *in )
  * @return     int               The base64 table location of input character
  */
 int
-__VFindBase64( char in )
+__VFindBase64(char in)
 {
     int		i;
 
-    for ( i = 0; i < 65; i++ )
-	{
-		if ( Base64Table[i] == in )
+    for (i = 0; i < 65; i++) {
+		if (Base64Table[i] == in)
 			return i;
     }
     return -1;
@@ -271,20 +249,16 @@ __VFindBase64( char in )
  * @return     int              the total length of input except non-base64
  */
 int
-__VBase64Check( char *in )
+__VBase64Check(char *in)
 {
 	int		i = 0, j = 0;
 	int		base;
 
-	while ( in[i] )
-	{
-		base = __VFindBase64( in[i] );
-		if ( base < 0 )
-		{
+	while (in[i]) {
+		base = __VFindBase64(in[i]);
+		if (base < 0) {
 			i++;
-		}
-		else
-		{
+		} else {
 			in[j] = in[i];
 			j++; i++;
 		}
@@ -303,7 +277,7 @@ __VBase64Check( char *in )
  * @return     int                The total length decoded value
  */
 int
-_VB64Decode( char *Dest, char *Src )
+_VB64Decode(char *Dest, char *Src)
 {
 	char*		Encoded = Src;
 	int			i, j = 0;
@@ -314,30 +288,27 @@ _VB64Decode( char *Dest, char *Src )
 	int			index = 0;
 	int			len;
 
-	len = __VBase64Check( Src );
+	len = __VBase64Check(Src);
 
 	VDATA_TRACE("total length of Src except non-base64 value = %d", len);
 
-	while ( *Encoded )
-	{
-		for ( i = 0; i < 3; i++ )
+	while (*Encoded) {
+		for (i = 0; i < 3; i++)
 			Debuffer[i] = 0x00;
 
-		for ( i = 0; i < 4; i++, Encoded++, j++ )
-		{
-			if(*Encoded == 0x00) break;
-			if((res = __VFindBase64(*Encoded)) < 0)	continue;
+		for (i = 0; i < 4; i++, Encoded++, j++) {
+			if (*Encoded == 0x00) break;
+			if ((res = __VFindBase64(*Encoded)) < 0)	continue;
 
-			Base = ( char )res;
+			Base = (char)res;
 			DecodeTemp = 0x00;
 
-			if(Base == 64)	{
+			if (Base == 64) {
 				Encoded++;
 				break;
 			}
 
-			switch ( i )
-			{
+			switch (i) {
 			case 0:
 				DecodeTemp = Base << 2;
 				Debuffer[0] |= DecodeTemp;
@@ -361,10 +332,8 @@ _VB64Decode( char *Dest, char *Src )
 			}
 		}
 
-		if ( Base == 64 )
-		{
-			switch ( i )
-			{
+		if (Base == 64) {
+			switch (i) {
 			case 0: break;
 			case 1:
 			case 2:
@@ -376,9 +345,7 @@ _VB64Decode( char *Dest, char *Src )
 				Dest[index++] = Debuffer[1];
 				break;
 			}
-		}
-		else
-		{
+		} else {
 			Dest[index++] = Debuffer[0];
 			Dest[index++] = Debuffer[1];
 			Dest[index++] = Debuffer[2];
@@ -397,7 +364,7 @@ _VB64Decode( char *Dest, char *Src )
  * @return     0
  */
 int
-_VB64Encode( char *Dest, char *Src, int len )
+_VB64Encode(char *Dest, char *Src, int len)
 {
 	char*	Encoded = Dest;
 	char*	Decoded = Src;
@@ -409,15 +376,13 @@ _VB64Encode( char *Dest, char *Src, int len )
 	char	Debuffer[3] = {0,};
 	int		length = 0;
 
-	for ( i = 0; i < 4; i++ )
+	for (i = 0; i < 4; i++)
 		Enbuffer[i] = 0x00;
 
-	for ( i = 0; i < len; i++ )
-	{
+	for (i = 0; i < len; i++) {
 		res = i%3;
 
-		switch ( res )
-		{
+		switch (res) {
 		case 0:
 			Debuffer[0] = *Decoded;
 			break;
@@ -426,17 +391,17 @@ _VB64Encode( char *Dest, char *Src, int len )
 			break;
 		case 2:
 			Debuffer[2] = *Decoded;
-			index = ( int )( ( Debuffer[0] & 0xFC ) >> 2 );
+			index = (int)((Debuffer[0] & 0xFC) >> 2);
 			Enbuffer[0] = Base64Table[index];
-			base1 = ( int )( ( Debuffer[0] & 0x03 ) << 4 );
-			base2 = ( int )( ( Debuffer[1] & 0xF0 ) >> 4 );
-			index = ( int )( base1 | base2 );
+			base1 = (int)((Debuffer[0] & 0x03) << 4);
+			base2 = (int)((Debuffer[1] & 0xF0) >> 4);
+			index = (int)(base1 | base2);
 			Enbuffer[1] = Base64Table[index];
-			base1 = ( int )( ( Debuffer[1] & 0x0F ) << 2 );
-			base2 = ( int )( ( Debuffer[2] & 0xC0 ) >> 6 );
-			index = ( int )( base1 | base2 );
+			base1 = (int)((Debuffer[1] & 0x0F) << 2);
+			base2 = (int)((Debuffer[2] & 0xC0) >> 6);
+			index = (int)(base1 | base2);
 			Enbuffer[2] = Base64Table[index];
-			index = ( int )( Debuffer[2] & 0x3F );
+			index = (int)(Debuffer[2] & 0x3F);
 			Enbuffer[3] = Base64Table[index];
 
 			Encoded[length++] = Enbuffer[0];
@@ -444,7 +409,7 @@ _VB64Encode( char *Dest, char *Src, int len )
 			Encoded[length++] = Enbuffer[2];
 			Encoded[length++] = Enbuffer[3];
 
-			for ( j = 0; j < 3; j++ )
+			for (j = 0; j < 3; j++)
 				Debuffer[j] = 0x00;
 
 			break;
@@ -455,16 +420,15 @@ _VB64Encode( char *Dest, char *Src, int len )
 
 	res = i % 3;
 
-	switch ( res )
-	{
+	switch (res) {
 	case 0:
 		break;
 	case 1:
-		index = ( int )( ( Debuffer[0] & 0xFC ) >> 2 );
+		index = (int)((Debuffer[0] & 0xFC) >> 2);
 		Enbuffer[0] = Base64Table[index];
-		base1 = ( int )( ( Debuffer[0] & 0x03 ) << 4 );
-		base2 = ( int )( ( Debuffer[1] & 0xF0 ) >> 4 );
-		index = ( int )( base1 | base2 );
+		base1 = (int)((Debuffer[0] & 0x03) << 4);
+		base2 = (int)((Debuffer[1] & 0xF0) >> 4);
+		index = (int)(base1 | base2);
 		Enbuffer[1] = Base64Table[index];
 		Enbuffer[2] = Base64Table[64];
 		Enbuffer[3] = Base64Table[64];
@@ -476,15 +440,15 @@ _VB64Encode( char *Dest, char *Src, int len )
 
 		break;
 	case 2:
-		index = ( int )( ( Debuffer[0] & 0xFC ) >> 2 );
+		index = (int)((Debuffer[0] & 0xFC) >> 2);
 		Enbuffer[0] = Base64Table[index];
-		base1 = ( int )( ( Debuffer[0] & 0x03 ) << 4 );
-		base2 = ( int )( ( Debuffer[1] & 0xF0 ) >> 4 );
-		index = ( int )( base1 | base2 );
+		base1 = (int)((Debuffer[0] & 0x03) << 4);
+		base2 = (int)((Debuffer[1] & 0xF0) >> 4);
+		index = (int)(base1 | base2);
 		Enbuffer[1] = Base64Table[index];
-		base1 = ( int )( ( Debuffer[1] & 0x0F ) << 2 );
-		base2 = ( int )( ( Debuffer[2] & 0xC0 ) >> 6 );
-		index = ( int )( base1 | base2 );
+		base1 = (int)((Debuffer[1] & 0x0F) << 2);
+		base2 = (int)((Debuffer[2] & 0xC0) >> 6);
+		index = (int)(base1 | base2);
 		Enbuffer[2] = Base64Table[index];
 		Enbuffer[3] = Base64Table[64];
 
@@ -504,13 +468,12 @@ _VB64Encode( char *Dest, char *Src, int len )
 
 
 int
-__VRepChar2Space( char *vRaw, char replaced )
+__VRepChar2Space(char *vRaw, char replaced)
 {
 	int length = 0;
 
-	while ( *vRaw )
-	{
-		if ( *vRaw == replaced )
+	while (*vRaw) {
+		if (*vRaw == replaced)
 			*vRaw = WSP;
 
 		vRaw++;
@@ -528,22 +491,19 @@ __VRepChar2Space( char *vRaw, char replaced )
  * @return     int                Total length of unfolded output
  */
 int
-_VUnfolding( char *string )
+_VUnfolding(char *string)
 {
 	unsigned int i, j;
 	unsigned int len;
 
-	len = strlen( string );
+	len = strlen(string);
 
-	for ( i = 0, j = 0; i < len; i++, j++ )
-	{
+	for (i = 0, j = 0; i < len; i++, j++) {
 		string[j] = string[i];
 
-		// 12.03.2004 Process garbage character at the end of vcard/vcal
-		if ( _VIsSpace( string[i] ) &&  ( i < len-5 ) )
-		{
-			if ( string[i-1] == LF || string[i-1] == CR )
-			{
+		/* 12.03.2004 Process garbage character at the end of vcard/vcal */
+		if (_VIsSpace(string[i]) &&  (i < len-5)) {
+			if (string[i-1] == LF || string[i-1] == CR) {
 				if (j < 2)
 					j = 0;
 				else
@@ -551,8 +511,8 @@ _VUnfolding( char *string )
 
 				string[i-1] = 0;
 			}
-			if ( string[i-2] == LF || string[i-2] == CR )
-			{
+
+			if (string[i-2] == LF || string[i-2] == CR) {
 				if (j < 1)
 					j = 0;
 				else
@@ -570,21 +530,17 @@ _VUnfolding( char *string )
 
 
 int
-__VIsNewType( char *pCardRaw )
+__VIsNewType(char *pCardRaw)
 {
-	int count=0, i = 0, low=0, high=0, diff=0;
-	char strTypeName[50]={0};
+	int count = 0, i = 0, low = 0, high = 0, diff = 0;
+	char strTypeName[50] = {0};
 
-	while(1)
-	{
-		if(*pCardRaw == CR || *pCardRaw == LF)
+	while (1) {
+		if (*pCardRaw == CR || *pCardRaw == LF)
 			pCardRaw++;
-		else
-		{
-			if(*pCardRaw == ';' || *pCardRaw == ':' || count >= 50)
-			{
+		else {
+			if (*pCardRaw == ';' || *pCardRaw == ':' || count >= 50)
 				break;
-			}
 			else
 				strTypeName[count++] = *pCardRaw++;
 		}
@@ -592,71 +548,65 @@ __VIsNewType( char *pCardRaw )
 	}
 
 
-    for ( low = 0, high = VCARD_TYPE_NUM - 1; high >= low; diff < 0 ? ( low = i+1 ) : ( high = i-1 ) )
-	{
-		i = ( low + high ) / 2;
-		diff = strcmp( pszCardTypeList[i], strTypeName );
-		if ( diff == 0 )  	/* success: found it */
+    for (low = 0, high = VCARD_TYPE_NUM - 1; high >= low; diff < 0 ? (low = i+1) : (high = i-1)) {
+		i = (low + high) / 2;
+		diff = strcmp(pszCardTypeList[i], strTypeName);
+		if (diff == 0)  	/* success: found it */
 			return true;
     }
 
 
 
     return false;
-	//res = __VCardGetName( strTypeName, (char**)pszCardTypeList, VCARD_TYPE_NUM );
+	//res = __VCardGetName(strTypeName, (char**)pszCardTypeList, VCARD_TYPE_NUM);
 }
 
 
 int
-__VIsNewTypeforOrg( char *pCardRaw, int vType )
+__VIsNewTypeforOrg(char *pCardRaw, int vType)
 {
-	int count=0, i = 0, low=0, high=0, diff=0,vTypeNum;
-	char strTypeName[50]={0};
+	int count = 0, i = 0, low = 0, high = 0, diff = 0, vTypeNum;
+	char strTypeName[50] = {0};
 	extern char* pszCardTypeList[];
 	extern char* pszMsgTypeList[];
 
-	while(1)
-	{
-		if(*pCardRaw == CR || *pCardRaw == LF)
+	while (1) {
+		if (*pCardRaw == CR || *pCardRaw == LF)
 			pCardRaw++;
-		else
-		{
-			if(*pCardRaw == ';' || *pCardRaw == ':' || count >= 50)
-			{
+		else {
+			if (*pCardRaw == ';' || *pCardRaw == ':' || count >= 50)
 				break;
-			}
 			else
 				strTypeName[count++] = *pCardRaw++;
 		}
 	}
 
-	if(vType == VCARD)
+	if (vType == VCARD)
 		vTypeNum = VCARD_TYPE_NUM;
-	else if(vType == VMESSAGE)
+	else if (vType == VMESSAGE)
 		vTypeNum = VMSG_TYPE_NUM;
 	else
 		 return false;
 
-	for ( low = 0, high = vTypeNum - 1; high >= low; diff < 0 ? ( low = i+1 ) : ( high = i-1 ) )
-	{
-		i = ( low + high ) / 2;
+	for (low = 0, high = vTypeNum - 1; high >= low; diff < 0 ? (low = i+1) : (high = i-1)) {
+		i = (low + high) / 2;
 
-		if(vType == VCARD)
-			diff = strcmp( pszCardTypeList[i], strTypeName );
-		else if(vType == VMESSAGE)
-			diff = strcmp( pszMsgTypeList[i], strTypeName );
+		if (vType == VCARD)
+			diff = strcmp(pszCardTypeList[i], strTypeName);
+		else if (vType == VMESSAGE)
+			diff = strcmp(pszMsgTypeList[i], strTypeName);
 
-		if ( diff == 0 )  	/* success: found it */
+		if (diff == 0)  	/* success: found it */
 			return true;
-		else if( !strncmp( strTypeName, "X-", 2 ))
+		else if (!strncmp(strTypeName, "X-", 2))
 			return true;
 	}
 
-	//if(count <= 50) return TRUE;
+	/* if (count <= 50) return TRUE; */
 
     return false;
 
-	//res = __VCardGetName( strTypeName, (char**)pszCardTypeList, VCARD_TYPE_NUM );
+	/* res = __VCardGetName(strTypeName, (char**)pszCardTypeList, VCARD_TYPE_NUM); */
 }
 
 char*
@@ -667,51 +617,46 @@ _VUnfoldingNoSpecNew(char *string)
 
 	char* newString;
 
-	len = strlen( string );
+	len = strlen(string);
 
-	if( !(newString = (char*) calloc(1, len+1) )) {
+	if (!(newString = (char*) calloc(1, len+1))) {
 		return NULL;
 	}
 
 
-	for ( i = 0, j = 0; i < len; i++, j++ ) {
+	for (i = 0, j = 0; i < len; i++, j++) {
 
 		newString[j] = string[i];
 
-		if( i < len-5 ) {
+		if (i < len-5) {
 
-			if ( string[i] == '=' ) {
+			if (string[i] == '=') {
 
-				if(string[i+1] == CR && string[i+2] == LF) {
+				if (string[i+1] == CR && string[i+2] == LF) {
 
-					if(__VIsNewType(string) == false){
+					if (__VIsNewType(string) == false) {
 						j -= 2;
-					i += 2;
+						i += 2;
+					}
+				} else if (string[i+1] == CR || string[i+1] == LF) {
+					if (__VIsNewType(string) == false) {
+						j -= 1;
+						i += 1;
+					}
 				}
-				}
-				else if(string[i+1] == CR || string[i+1] == LF) {
-					if(__VIsNewType(string) == false){
-					j -= 1;
-					i += 1;
-				}
-			}
-			}
-			else if(string[i] == ' ') {
+			} else if (string[i] == ' ') {
 
-				if(string[i-2] == CR && string[i-1] == LF) {
-					if(__VIsNewType(string) == false)
-					j -= 3;
+				if (string[i-2] == CR && string[i-1] == LF) {
+					if (__VIsNewType(string) == false)
+						j -= 3;
 					else
 						j -= 1;
-				}
-				else if(string[i-1] == CR || string[i-1] == LF)	{
+				} else if (string[i-1] == CR || string[i-1] == LF) {
 					j -= 2;
 				}
-			}
+			} else if ((string[i] == CR || string[i] == LF) && __VIsNewType(string) == false) {
 
-			else if((string[i] == CR || string[i] == LF) && __VIsNewType(string) == false) {
-
-				if(string[i+1] == LF) {
+				if (string[i+1] == LF) {
 					j -= 1;
 					i += 1;
 				}
@@ -731,32 +676,26 @@ _VUnfoldingNoSpecNew(char *string)
  * @return     int                Total length of unfolded output
  */
 int
-_VUnfoldingNoSpec( char *string, int vType )
+_VUnfoldingNoSpec(char *string, int vType)
 {
 	unsigned int i, j;
 	unsigned int len;
 
-	len = strlen( string );
+	len = strlen(string);
 
-	for ( i = 0, j = 0; i < len; i++, j++ )
-	{
+	for (i = 0, j = 0; i < len; i++, j++) {
 		string[j] = string[i];
 
-		if ( ( i < len-5 ) )
-		{
-			if ( string[i] == '=' )
-			{
-				if(string[i+1] == CR && string[i+2] == LF && string[i+3] =='=' )
-				{
+		if ((i < len-5)) {
+			if (string[i] == '=') {
+				if (string[i+1] == CR && string[i+2] == LF && string[i+3] == '=') {
 					string[i] = 0;
 					string[i+1] = 0;
 					string[i+2] = 0;
 					if (j > 0)
 						 j -= 1;
 					i += 2;
-				}
-				else if(string[i+1] == CR && string[i+2] == LF &&  __VIsNewTypeforOrg(&string[i+3], vType) == false)
-				{
+				} else if (string[i+1] == CR && string[i+2] == LF &&  __VIsNewTypeforOrg(&string[i+3], vType) == false) {
 					string[i] = 0;
 					string[i+1] = 0;
 					string[i+2] = 0;
@@ -764,12 +703,8 @@ _VUnfoldingNoSpec( char *string, int vType )
 						j -= 1;
 					i += 2;
 				}
-			}
-			else if(string[i] ==WSP
-				||string[i]==TAB)
-			{
-				if(string[i-2] == CR && string[i-1] == LF)
-				{
+			} else if (string[i] == WSP || string[i] == TAB) {
+				if (string[i-2] == CR && string[i-1] == LF) {
 					string[i] = 0;
 					string[i-1] = 0;
 					string[i-2] = 0;
@@ -777,13 +712,11 @@ _VUnfoldingNoSpec( char *string, int vType )
 						j -= 3;
 					else
 						j = 0;
-				}
-				else if(string[i-1] == CR || string[i-1] == LF)
-				{
+				} else if (string[i-1] == CR || string[i-1] == LF) {
 					string[i] = 0;
 					string[i-1] = 0;
 
-					if (j >=2)
+					if (j >= 2)
 						j -= 2;
 					else
 						j = 0;
@@ -805,14 +738,12 @@ _VUnfoldingNoSpec( char *string, int vType )
  * @param      Dest               The destination buffer of folded result
  */
 void
-_VFolding( char *result, char *contentline )
+_VFolding(char *result, char *contentline)
 {
 	int		i = 0;
 
-	while ( *contentline )
-	{
-		if ( i == 75 )
-		{
+	while (*contentline) {
+		if (i == 75) {
 			i = 0;
 			*result++ = '\r';
 			*result++ = '\n';
@@ -834,16 +765,14 @@ _VFolding( char *result, char *contentline )
  * @param      Dest               The destination buffer of folded result
  */
 void
-_VFoldingQP( char *result, char *contentline )
+_VFoldingQP(char *result, char *contentline)
 {
 	int		i = 0;
 
-	while ( *contentline )
-	{
-		if ( i == 74 )
-		{
+	while (*contentline) {
+		if (i == 74) {
 			i = 0;
-			*result++= '=';
+			*result++ = '=';
 			*result++ = '\r';
 			*result++ = '\n';
 		}
@@ -863,14 +792,12 @@ _VFoldingQP( char *result, char *contentline )
  * @param      Dest               The destination buffer of folded result
  */
 void
-_VFoldingNoSpace( char *result, char *contentline )
+_VFoldingNoSpace(char *result, char *contentline)
 {
 	int		i = 0;
 
-	while ( *contentline )
-	{
-		if ( i == 75 )
-		{
+	while (*contentline) {
+		if (i == 75) {
 			i = 0;
 			*result++ = '\r';
 			*result++ = '\n';
@@ -891,41 +818,31 @@ _VFoldingNoSpace( char *result, char *contentline )
  * @return     int                The total length decoded value
  */
 int
-_VQPDecode( char *src )
+_VQPDecode(char *src)
 {
 	int		i = 0, j = 0;
 	char	qp[2];
 	char	decodedNum;
 
-	while ( src[i] )
-	{
-		if ( src[i] == '=' )
-		{
-			if ( !( _VIsSpace( src[i + 1] ) || ( src[i + 1] == '\r' ) || ( src[i+1] == '\n' ) ) )
-			{
-				if ( src[i + 1] == '0' && ( src[i + 2] == 'D' || src[i +2] == 'd' ) && src[i + 3] == '='
-					&& src[i + 4] == '0' && ( src[i + 5] == 'A' || src[i + 5] == 'a' ) )
-				{
+	while (src[i]) {
+		if (src[i] == '=') {
+			if (!(_VIsSpace(src[i + 1]) || (src[i + 1] == '\r') || (src[i+1] == '\n'))) {
+				if (src[i + 1] == '0' && (src[i + 2] == 'D' || src[i +2] == 'd') && src[i + 3] == '='
+					&& src[i + 4] == '0' && (src[i + 5] == 'A' || src[i + 5] == 'a')) {
 					src[j] = '\n';
 					j++;
 					i += 6;
-				}
-				else
-				{
+				} else {
 					qp[0] = src[i + 1];
 					qp[1] = src[i + 2];
-					decodedNum = __VHexaDecoder( qp );
+					decodedNum = __VHexaDecoder(qp);
 					src[j] = decodedNum;
 					i += 3; j++;
 				}
-			}
-			else
-			{
+			} else {
 				i += 3;
 			}
-		}
-		else
-		{
+		} else {
 			src[j] = src[i];
 			i++; j++;
 		}
@@ -933,7 +850,7 @@ _VQPDecode( char *src )
 
 	src[j] = '\0';
 
-	j =	_VManySpace2Space( src );
+	j =	_VManySpace2Space(src);
 
 	return j;
 }
@@ -948,48 +865,36 @@ _VQPDecode( char *src )
  * @return     int                The total length decoded value
  */
 int
-_VQPEncode( char *dest, char *src )
+_VQPEncode(char *dest, char *src)
 {
 	int		i = 0, j = 0, k = 0;
 	char	encoded[2] = {0x0f, 0x0f};
 
-	while ( src[i] /*&& ( src[i] > 0 )*/ )
-	{
-		if ( k == 73 && _VIsSpace( src[i] ) )
-		{
-			if( src[i] == WSP )
-			{
+	while (src[i] /*&& (src[i] > 0)*/) {
+		if (k == 73 && _VIsSpace(src[i])) {
+			if (src[i] == WSP) {
 				dest[j++] = '='; dest[j++] = '2'; dest[j++] = '0';
 				k += 3;
-			}
-			else if ( src[i] == TAB )
-			{
+			} else if (src[i] == TAB) {
 				dest[j++] = '='; dest[j++] = '0'; dest[j++] = '9';
 				k += 3;
 			}
-		}
-	/*	else if ( k == 76 )
-		{
+		/*} else if (k == 76) {
 			dest[j++] = '='; dest[j++] = WSP;
 			k = 0;
-		} */
-		else if ( !__VIsPrintable( src[i] ) )
-		{
+			*/
+		} else if (!__VIsPrintable(src[i])) {
 			dest[j++] = '=';
 			encoded[0] &= (src[i] >> 4);
 			encoded[1] &= (src[i]);
-			__VHexaEncoder( encoded );
+			__VHexaEncoder(encoded);
 			dest[j++] = encoded[0]; encoded[0] = 0x0f;
 			dest[j++] = encoded[1]; encoded[1] = 0x0f;
 			k += 3;
-		}
-		else if ( src[i] == '\r' || src[i] == '\n' )
-		{
+		} else if (src[i] == '\r' || src[i] == '\n') {
 			dest[j++] = '='; dest[j++] = '0'; dest[j++] = 'D'; k += 3;
 			dest[j++] = '='; dest[j++] = '0'; dest[j++] = 'A'; k += 3;
-		}
-		else
-		{
+		} else {
 			dest[j++] = src[i]; k++;
 		}
 		i++;
@@ -1008,12 +913,12 @@ _VQPEncode( char *dest, char *src )
  * @return     true/false            if input is printable :true else : false
  */
 int
-__VIsPrintable( char in )
+__VIsPrintable(char in)
 {
-	if ( in >= 33 && in <= 60 ) return true;
-	else if ( in >= 62 && in <= 126 ) return true;
-	else if ( in == WSP || in == TAB ) return true;
-	else if ( in == '\r' || in == '\n' ) return true;
+	if (in >= 33 && in <= 60) return true;
+	else if (in >= 62 && in <= 126) return true;
+	else if (in == WSP || in == TAB) return true;
+	else if (in == '\r' || in == '\n') return true;
 	else return false;
 }
 
@@ -1026,16 +931,14 @@ __VIsPrintable( char in )
  * @return     char             Character representation of input hexadecimal value
  */
 char
-__VHexaDecoder( char *qp )
+__VHexaDecoder(char *qp)
 {
 	int		i;
 	char	decoded[2] = {0x00, 0x00};
 	char	res;
 
-	for ( i = 0; i < 2; i++ )
-	{
-		switch ( qp[i] )
-		{
+	for (i = 0; i < 2; i++) {
+		switch (qp[i]) {
 		case '0':
 			decoded[i] = 0x00;
 			break;
@@ -1093,7 +996,7 @@ __VHexaDecoder( char *qp )
 		}
 	}
 
-	res = ( char )( ( decoded[0] << 4 ) + decoded[1] );
+	res = (char)((decoded[0] << 4) + decoded[1]);
 
 	return res;
 }
@@ -1106,14 +1009,12 @@ __VHexaDecoder( char *qp )
  * @return     qp               Character representation of input hexadecimal value
  */
 void
-__VHexaEncoder( char *qp )
+__VHexaEncoder(char *qp)
 {
 	int		i;
 
-	for ( i = 0; i < 2; i++ )
-	{
-		switch ( qp[i] )
-		{
+	for (i = 0; i < 2; i++) {
+		switch (qp[i]) {
 		case 0:
 			qp[i] = '0';
 			break;
@@ -1178,14 +1079,10 @@ __VHexaEncoder( char *qp )
 int
 _VIsCrLf(char in)
 {
-	if ( ( in == CR ) || ( in == LF ) )
-	{
+	if ((in == CR) || (in == LF))
 		return 1;
-	}
 	else
-	{
 		return 0;
-	}
 }
 
 /*
@@ -1201,18 +1098,12 @@ _VManyCRLF2CRLF(char *pIn)
 	bool	bCrLf = false, bFirstCrLf = true;
 
 	j = 0;
-	for ( i = 0; pIn[i]; i++ )
-	{
-		if ( _VIsCrLf( pIn[i] ) && _VIsCrLf( pIn[i+1] ))
-		{
-			if( bFirstCrLf && !bCrLf)
-			{
+	for (i = 0; pIn[i]; i++) {
+		if (_VIsCrLf(pIn[i]) && _VIsCrLf(pIn[i+1])) {
+			if (bFirstCrLf && !bCrLf) {
 				bCrLf = 1;
-			}
-			else if( !bFirstCrLf )
-			{
-				if ( !bCrLf )
-				{
+			} else if (!bFirstCrLf) {
+				if (!bCrLf) {
 					pIn[j] = CR;
 					pIn[++j] = LF;
 					bCrLf = true;
@@ -1220,9 +1111,7 @@ _VManyCRLF2CRLF(char *pIn)
 				}
 			}
 			i++;
-		}
-		else
-		{
+		} else {
 			bCrLf = false;
 			bFirstCrLf = false;
 			pIn[j] = pIn[i];
