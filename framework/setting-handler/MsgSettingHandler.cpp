@@ -42,8 +42,7 @@ msg_error_t MsgSetConfigData(const MSG_SETTING_S *pSetting)
 #ifdef USE_GCONF
 	err = MsgGconfGetClient();
 
-	if (err != MSG_SUCCESS)
-	{
+	if (err != MSG_SUCCESS) {
 		MSG_DEBUG("Get GConf Client Error");
 		return MSG_ERR_NULL_POINTER;
 	}
@@ -51,8 +50,7 @@ msg_error_t MsgSetConfigData(const MSG_SETTING_S *pSetting)
 
 	MSG_DEBUG("Setting Type : %d", pSetting->type);
 
-	switch (pSetting->type)
-	{
+	switch (pSetting->type) {
 		case MSG_GENERAL_OPT :
 			err = MsgSetGeneralOpt(pSetting);
 			break;
@@ -61,7 +59,7 @@ msg_error_t MsgSetConfigData(const MSG_SETTING_S *pSetting)
 			break;
 #ifndef FEATURE_SMS_CDMA
 		case MSG_SMSC_LIST :
-			// Check SIM is present or not
+			/* Check SIM is present or not */
 			snprintf(keyName, sizeof(keyName), "%s/%d", MSG_SIM_CHANGED, pSetting->option.smscList.simIndex);
 			simStatus = (MSG_SIM_STATUS_T)MsgSettingGetInt(keyName);
 
@@ -86,7 +84,7 @@ msg_error_t MsgSetConfigData(const MSG_SETTING_S *pSetting)
 			break;
 		case MSG_CBMSG_OPT :
 			if (pSetting->option.cbMsgOpt.simIndex != 0) {
-				// Check SIM is present or not
+				/* Check SIM is present or not */
 				snprintf(keyName, sizeof(keyName), "%s/%d", MSG_SIM_CHANGED, pSetting->option.cbMsgOpt.simIndex);
 				simStatus = (MSG_SIM_STATUS_T)MsgSettingGetInt(keyName);
 
@@ -98,7 +96,7 @@ msg_error_t MsgSetConfigData(const MSG_SETTING_S *pSetting)
 			err = MsgSetCBMsgOpt(pSetting, true);
 			break;
 		case MSG_VOICEMAIL_OPT :
-			// Check SIM is present or not
+			/* Check SIM is present or not */
 			snprintf(keyName, sizeof(keyName), "%s/%d", MSG_SIM_CHANGED, pSetting->option.voiceMailOpt.simIndex);
 			simStatus = (MSG_SIM_STATUS_T)MsgSettingGetInt(keyName);
 
@@ -128,26 +126,23 @@ msg_error_t MsgGetConfigData(MSG_SETTING_S *pSetting)
 #ifdef USE_GCONF
 	msg_error_t err = MsgGconfGetClient();
 
-	if (err != MSG_SUCCESS)
-	{
+	if (err != MSG_SUCCESS) {
 		MSG_DEBUG("Get GConf Client Error");
 		return MSG_ERR_NULL_POINTER;
 	}
 #endif
-	char keyName[MAX_VCONFKEY_NAME_LEN] = {0,};
+	char keyName[MAX_VCONFKEY_NAME_LEN] = {0, };
 	MSG_SIM_STATUS_T simStatus = MSG_SIM_STATUS_NOT_FOUND;
 
-	switch (pSetting->type)
-	{
-		case MSG_GENERAL_OPT :
+	switch (pSetting->type) {
+		case MSG_GENERAL_OPT:
 			MsgGetGeneralOpt(pSetting);
 			break;
-		case MSG_SMS_SENDOPT :
+		case MSG_SMS_SENDOPT:
 			MsgGetSMSSendOpt(pSetting);
 			break;
-		case MSG_SMSC_LIST :
-		{
-			// Check SIM is present or not
+		case MSG_SMSC_LIST: {
+			/* Check SIM is present or not */
 			snprintf(keyName, sizeof(keyName), "%s/%d", MSG_SIM_CHANGED, pSetting->option.smscList.simIndex);
 			simStatus = (MSG_SIM_STATUS_T)MsgSettingGetInt(keyName);
 
@@ -158,21 +153,20 @@ msg_error_t MsgGetConfigData(MSG_SETTING_S *pSetting)
 			MsgGetSMSCList(pSetting);
 		}
 		break;
-		case MSG_MMS_SENDOPT :
+		case MSG_MMS_SENDOPT:
 			MsgGetMMSSendOpt(pSetting);
 			break;
-		case MSG_MMS_RECVOPT :
+		case MSG_MMS_RECVOPT:
 			MsgGetMMSRecvOpt(pSetting);
 			break;
-		case MSG_MMS_STYLEOPT :
+		case MSG_MMS_STYLEOPT:
 			MsgGetMMSStyleOpt(pSetting);
 			break;
-		case MSG_PUSHMSG_OPT :
+		case MSG_PUSHMSG_OPT:
 			MsgGetPushMsgOpt(pSetting);
 			break;
-		case MSG_CBMSG_OPT :
-		{
-			// Check SIM is present or not
+		case MSG_CBMSG_OPT: {
+			/* Check SIM is present or not */
 			snprintf(keyName, sizeof(keyName), "%s/%d", MSG_SIM_CHANGED, pSetting->option.cbMsgOpt.simIndex);
 			simStatus = (MSG_SIM_STATUS_T)MsgSettingGetInt(keyName);
 
@@ -183,8 +177,8 @@ msg_error_t MsgGetConfigData(MSG_SETTING_S *pSetting)
 			MsgGetCBMsgOpt(pSetting);
 		}
 		break;
-		case MSG_VOICEMAIL_OPT :
-			// Check SIM is present or not
+		case MSG_VOICEMAIL_OPT:
+			/* Check SIM is present or not */
 			if (pSetting->option.voiceMailOpt.simIndex == 0) {
 				MSG_DEBUG("Invalid SIM Index [%d]", pSetting->option.voiceMailOpt.simIndex);
 				return MSG_ERR_INVALID_PARAMETER;
@@ -199,7 +193,7 @@ msg_error_t MsgGetConfigData(MSG_SETTING_S *pSetting)
 			}
 			MsgGetVoiceMailOpt(pSetting);
 			break;
-		case MSG_MSGSIZE_OPT :
+		case MSG_MSGSIZE_OPT:
 			MsgGetMsgSizeOpt(pSetting);
 			break;
 
@@ -389,10 +383,10 @@ msg_error_t MsgSetSMSCList(const MSG_SETTING_S *pSetting, bool bSetSim)
 	int addrLen = 0;
 	int index = 0;
 
-	MSG_SMSC_LIST_S smscList = {0,};
+	MSG_SMSC_LIST_S smscList = {0, };
 	memcpy(&smscList, &(pSetting->option.smscList), sizeof(MSG_SMSC_LIST_S));
 
-//	int sel_id = smscList.selected;
+	/* int sel_id = smscList.selected; */
 
 	index = smscList.index;
 
@@ -406,10 +400,10 @@ msg_error_t MsgSetSMSCList(const MSG_SETTING_S *pSetting, bool bSetSim)
 	else
 		addrLen = strlen(pSetting->option.smscList.smscData[index].smscAddr.address);
 
-	if(addrLen > SMSC_ADDR_MAX) {
+	if (addrLen > SMSC_ADDR_MAX) {
 		MSG_DEBUG("SMSC address is too long [%d]", strlen(pSetting->option.smscList.smscData[index].smscAddr.address));
 		return MSG_ERR_SET_SIM_SET;
-	} else if(addrLen < 2) {
+	} else if (addrLen < 2) {
 		MSG_DEBUG("SMSC address is too short [%d]", addrLen);
 		return MSG_ERR_SET_SIM_SET;
 	}
@@ -504,8 +498,7 @@ msg_error_t MsgSetMMSSendOpt(const MSG_SETTING_S *pSetting)
 		}
 	}
 #ifdef	__NOT_USED_BY_DESIGN_CHANGE__
-	if (MsgSettingSetBool(MMS_SEND_KEEP_COPY, sendOpt.bKeepCopy) != MSG_SUCCESS)
-	{
+	if (MsgSettingSetBool(MMS_SEND_KEEP_COPY, sendOpt.bKeepCopy) != MSG_SUCCESS) {
 		MSG_DEBUG("Error to set config data [%s]", MMS_SEND_KEEP_COPY);
 		return MSG_ERR_SET_SETTING;
 	}
@@ -521,8 +514,7 @@ msg_error_t MsgSetMMSSendOpt(const MSG_SETTING_S *pSetting)
 
 	MsgSettingGetBool(MMS_SEND_HIDE_RECIPIENTS, &bValue);
 	if (bValue != sendOpt.bHideRecipients) {
-		if (MsgSettingSetBool(MMS_SEND_HIDE_RECIPIENTS, sendOpt.bHideRecipients) != MSG_SUCCESS)
-		{
+		if (MsgSettingSetBool(MMS_SEND_HIDE_RECIPIENTS, sendOpt.bHideRecipients) != MSG_SUCCESS) {
 			MSG_DEBUG("Error to set config data [%s]", MMS_SEND_HIDE_RECIPIENTS);
 			return MSG_ERR_SET_SETTING;
 		}
@@ -801,7 +793,7 @@ msg_error_t MsgSetCBMsgOpt(const MSG_SETTING_S *pSetting, bool bSetSim)
 
 	MSG_DEBUG("SIM Index = [%d]", simIndex);
 
-	if (bSetSim == true) {//if (bSetSim == true && simIndex != 0) {
+	if (bSetSim == true) { /* if (bSetSim == true && simIndex != 0) { */
 #ifndef FEATURE_SMS_CDMA
 		if (simIndex != 0) {
 			memset(keyName, 0x00, sizeof(keyName));
@@ -809,7 +801,7 @@ msg_error_t MsgSetCBMsgOpt(const MSG_SETTING_S *pSetting, bool bSetSim)
 			cbOpt.maxSimCnt = MsgSettingGetInt(keyName);
 
 			if (cbOpt.channelData.channelCnt > cbOpt.maxSimCnt) {
-				MSG_DEBUG("Channel Count [%d] is over Max SIM Count [%d]", cbOpt.channelData.channelCnt,cbOpt.maxSimCnt);
+				MSG_DEBUG("Channel Count [%d] is over Max SIM Count [%d]", cbOpt.channelData.channelCnt, cbOpt.maxSimCnt);
 				return MSG_ERR_SET_SIM_SET;
 			}
 		}
@@ -854,15 +846,12 @@ msg_error_t MsgSetCBMsgOpt(const MSG_SETTING_S *pSetting, bool bSetSim)
 	MSG_DEBUG("MsgStoAddCBChannelInfo : err=[%d]", err);
 
 #ifndef FEATURE_SMS_CDMA
-	if (bSetSim == true)
-	{
-		for (int i = MSG_CBLANG_TYPE_ALL; i < MSG_CBLANG_TYPE_MAX; i++)
-		{
+	if (bSetSim == true) {
+		for (int i = MSG_CBLANG_TYPE_ALL; i < MSG_CBLANG_TYPE_MAX; i++) {
 			memset(keyName, 0x00, sizeof(keyName));
 			snprintf(keyName, DEF_BUF_LEN, "%s/%d", CB_LANGUAGE, i);
 
-			if (MsgSettingSetBool(keyName, cbOpt.bLanguage[i]) != MSG_SUCCESS)
-			{
+			if (MsgSettingSetBool(keyName, cbOpt.bLanguage[i]) != MSG_SUCCESS) {
 				MSG_DEBUG("Error to set config data [%s]", keyName);
 				return MSG_ERR_SET_SETTING;
 			}
@@ -1149,8 +1138,7 @@ void MsgGetCBMsgOpt(MSG_SETTING_S *pSetting)
 		MSG_ERR("MsgStoGetCBChannelInfo : err=[%d]", err);
 
 #ifndef FEATURE_SMS_CDMA
-	for (int i = MSG_CBLANG_TYPE_ALL; i < MSG_CBLANG_TYPE_MAX; i++)
-	{
+	for (int i = MSG_CBLANG_TYPE_ALL; i < MSG_CBLANG_TYPE_MAX; i++) {
 		memset(keyName, 0x00, sizeof(keyName));
 		snprintf(keyName, DEF_BUF_LEN, "%s/%d", CB_LANGUAGE, i);
 
@@ -1211,14 +1199,13 @@ msg_error_t MsgSetConfigInSim(const MSG_SETTING_S *pSetting)
 
 	MsgPlugin* plg = MsgPluginManager::instance()->getPlugin(MSG_SMS_TYPE);
 
-	// Get Setting Data from SIM
+	/* Get Setting Data from SIM */
 	if (plg != NULL)
 		err = plg->setConfigData(pSetting);
 	else
 		err = MSG_ERR_NULL_POINTER;
 
-	if (err != MSG_SUCCESS)
-	{
+	if (err != MSG_SUCCESS) {
 		MSG_DEBUG("Error. Error code is %d.", err);
 		return err;
 	}
@@ -1233,14 +1220,13 @@ msg_error_t MsgGetConfigInSim(MSG_SETTING_S *pSetting)
 
 	MsgPlugin* plg = MsgPluginManager::instance()->getPlugin(MSG_SMS_TYPE);
 
-	// Get Setting Data from SIM
+	/* Get Setting Data from SIM */
 	if (plg != NULL)
 		err = plg->getConfigData(pSetting);
 	else
 		err = MSG_ERR_NULL_POINTER;
 
-	if (err != MSG_SUCCESS)
-	{
+	if (err != MSG_SUCCESS) {
 		MSG_DEBUG("Error. Error code is %d.", err);
 		return err;
 	}

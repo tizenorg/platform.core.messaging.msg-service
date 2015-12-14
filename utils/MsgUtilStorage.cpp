@@ -29,8 +29,6 @@
 #include "MsgUtilFunction.h"
 #include "MsgUtilStorage.h"
 
-//#include <sys/stat.h>
-//#include <sys/vfs.h>
 #include <storage.h>
 
 static int msgCntLimit[MSG_COUNT_LIMIT_MAILBOX_TYPE_MAX][MSG_COUNT_LIMIT_MSG_TYPE_MAX] = {{10, 10, 0, 10, 10}, {5, 10, 0, 0, 0}, {10, 10, 0, 0, 0}, {10, 10, 0, 0, 0}, {0, 0, 10, 0, 0}};
@@ -60,7 +58,7 @@ unsigned int MsgStoAddMessageTable(MsgDbHandler *pDbHandle, const MSG_MESSAGE_IN
 	char* pFileData = NULL;
 	unique_ptr<char*, void(*)(char**)> buf(&pFileData, unique_ptr_deleter);
 
-	// Get File Data
+	/* Get File Data */
 	if (pMsgInfo->bTextSms == false) {
 		if (MsgOpenAndReadFile(pMsgInfo->msgData, &pFileData, &fileSize) == false)
 			return 0;
@@ -74,7 +72,7 @@ unsigned int MsgStoAddMessageTable(MsgDbHandler *pDbHandle, const MSG_MESSAGE_IN
 
 	char *imsi = MsgSettingGetString(keyName);
 
-	// Add Message
+	/* Add Message */
 	char sqlQuery[MAX_QUERY_LEN+1];
 
 	memset(sqlQuery, 0x00, sizeof(sqlQuery));
@@ -100,7 +98,6 @@ unsigned int MsgStoAddMessageTable(MsgDbHandler *pDbHandle, const MSG_MESSAGE_IN
 			pDbHandle->bindText(pFileData, 2);
 		else
 			pDbHandle->bindText(pMsgInfo->msgText, 2);
-
 	}
 
 	if (pDbHandle->stepQuery() != MSG_ERR_DB_DONE) {
@@ -125,7 +122,7 @@ msg_error_t MsgStoSetReadStatus(MsgDbHandler *pDbHandle, msg_message_id_t msgId,
 	if (pDbHandle->execQuery(sqlQuery) != MSG_SUCCESS)
 		return MSG_ERR_DB_EXEC;
 
-	// Get MAIN_TYPE, SUB_TYPE, STORAGE_ID
+	/* Get MAIN_TYPE, SUB_TYPE, STORAGE_ID */
 	memset(sqlQuery, 0x00, sizeof(sqlQuery));
 	snprintf(sqlQuery, sizeof(sqlQuery), "SELECT A.MAIN_TYPE, A.SUB_TYPE, B.CONV_ID \
 			FROM %s A, %s B WHERE A.MSG_ID = %d AND A.CONV_ID = B.CONV_ID;",
@@ -204,7 +201,7 @@ msg_error_t MsgStoCheckMsgCntFull(MsgDbHandler *pDbHandle, const MSG_MESSAGE_TYP
 
 		if (freeSpace < SMS_MINIMUM_SPACE && pMsgType->mainType == MSG_SMS_TYPE)
 			err = MSG_ERR_MESSAGE_COUNT_FULL;
-		else if(freeSpace < MMS_MINIMUM_SPACE && pMsgType->mainType == MSG_MMS_TYPE)
+		else if (freeSpace < MMS_MINIMUM_SPACE && pMsgType->mainType == MSG_MMS_TYPE)
 			err = MSG_ERR_MESSAGE_COUNT_FULL;
 	}
 
@@ -226,21 +223,21 @@ msg_error_t MsgStoCountMsgByLimitCategory(MsgDbHandler *pDbHandle, const MSG_MES
 	char sqlQuery[MAX_QUERY_LEN+1];
 	memset(sqlQuery, 0x00, sizeof(sqlQuery));
 
-	if ((pMsgType->mainType == MSG_SMS_TYPE) && (pMsgType->subType == MSG_WAP_SI_SMS ||pMsgType->subType == MSG_WAP_SL_SMS)) { // PUSH
+	if ((pMsgType->mainType == MSG_SMS_TYPE) && (pMsgType->subType == MSG_WAP_SI_SMS ||pMsgType->subType == MSG_WAP_SL_SMS)) { /* PUSH */
 		snprintf(sqlQuery, sizeof(sqlQuery), "SELECT COUNT(MSG_ID) FROM %s WHERE MAIN_TYPE = %d AND SUB_TYPE IN (%d, %d) AND FOLDER_ID = %d;",
 				MSGFW_MESSAGE_TABLE_NAME, pMsgType->mainType, MSG_WAP_SI_SMS, MSG_WAP_SL_SMS, MSG_INBOX_ID);
-	} else if ((pMsgType->mainType == MSG_SMS_TYPE) && (pMsgType->subType == MSG_CB_SMS)) { // CB
+	} else if ((pMsgType->mainType == MSG_SMS_TYPE) && (pMsgType->subType == MSG_CB_SMS)) { /* CB */
 		snprintf(sqlQuery, sizeof(sqlQuery), "SELECT COUNT(MSG_ID) FROM %s WHERE MAIN_TYPE = %d AND SUB_TYPE IN (%d) AND FOLDER_ID = %d;",
 				MSGFW_MESSAGE_TABLE_NAME, pMsgType->mainType, MSG_CB_SMS, MSG_CBMSGBOX_ID);
-	} else if ((pMsgType->mainType == MSG_SMS_TYPE) && (pMsgType->subType == MSG_SYNCML_CP)) { // Provision
+	} else if ((pMsgType->mainType == MSG_SMS_TYPE) && (pMsgType->subType == MSG_SYNCML_CP)) { /* Provision */
 		snprintf(sqlQuery, sizeof(sqlQuery), "SELECT COUNT(MSG_ID) FROM %s WHERE MAIN_TYPE = %d AND SUB_TYPE IN (%d) AND FOLDER_ID = %d;",
 				MSGFW_MESSAGE_TABLE_NAME, pMsgType->mainType, MSG_SYNCML_CP, MSG_INBOX_ID);
-	} else if ((pMsgType->mainType == MSG_SMS_TYPE)) { // SMS
+	} else if ((pMsgType->mainType == MSG_SMS_TYPE)) { /* SMS */
 		snprintf(sqlQuery, sizeof(sqlQuery), "SELECT COUNT(MSG_ID) FROM %s WHERE MAIN_TYPE = %d AND SUB_TYPE NOT IN (%d, %d, %d, %d) AND FOLDER_ID = %d;",
-				MSGFW_MESSAGE_TABLE_NAME, pMsgType->mainType, MSG_WAP_SI_SMS, MSG_WAP_SL_SMS, MSG_CB_SMS, MSG_SYNCML_CP, MSG_INBOX_ID); // etc SMS
+				MSGFW_MESSAGE_TABLE_NAME, pMsgType->mainType, MSG_WAP_SI_SMS, MSG_WAP_SL_SMS, MSG_CB_SMS, MSG_SYNCML_CP, MSG_INBOX_ID); /* etc SMS */
 	} else if ((pMsgType->mainType == MSG_MMS_TYPE) &&
 			(pMsgType->subType == MSG_SENDREQ_MMS || pMsgType->subType == MSG_SENDCONF_MMS || pMsgType->subType == MSG_RETRIEVE_AUTOCONF_MMS ||
-					pMsgType->subType == MSG_RETRIEVE_MANUALCONF_MMS || pMsgType->subType == MSG_NOTIFICATIONIND_MMS)) { // MMS
+					pMsgType->subType == MSG_RETRIEVE_MANUALCONF_MMS || pMsgType->subType == MSG_NOTIFICATIONIND_MMS)) { /* MMS */
 		snprintf(sqlQuery, sizeof(sqlQuery), "SELECT COUNT(MSG_ID) FROM %s WHERE MAIN_TYPE = %d AND SUB_TYPE IN (%d, %d, %d, %d, %d) AND FOLDER_ID = %d;",
 				MSGFW_MESSAGE_TABLE_NAME, pMsgType->mainType, MSG_SENDREQ_MMS, MSG_SENDCONF_MMS, MSG_RETRIEVE_AUTOCONF_MMS, MSG_RETRIEVE_MANUALCONF_MMS, MSG_NOTIFICATIONIND_MMS, folderId);
 	} else {
@@ -266,10 +263,9 @@ msg_error_t MsgStoCountMsgByLimitCategory(MsgDbHandler *pDbHandle, const MSG_MES
 int MsgStoCheckMsgCntLimit(const MSG_MESSAGE_TYPE_S* pMsgType, msg_folder_id_t folderId)
 {
 	int msgboxType = -1;
-	int msgType= -1;
+	int msgType = -1;
 
-	switch (folderId)
-	{
+	switch (folderId) {
 		case MSG_INBOX_ID :
 			msgboxType = MSG_COUNT_LIMIT_INBOX_TYPE;
 		break;
@@ -295,8 +291,7 @@ int MsgStoCheckMsgCntLimit(const MSG_MESSAGE_TYPE_S* pMsgType, msg_folder_id_t f
 		return -1;
 	}
 
-	switch (pMsgType->subType)
-	{
+	switch (pMsgType->subType) {
 		case MSG_NORMAL_SMS:
 		case MSG_REPLACE_TYPE1_SMS:
 		case MSG_REPLACE_TYPE2_SMS:
@@ -371,12 +366,11 @@ msg_error_t MsgStoAddAddress(MsgDbHandler *pDbHandle, const MSG_MESSAGE_INFO_S *
 
 	char sqlQuery[MAX_QUERY_LEN+1];
 
-	// Check if new address or not
+	/* Check if new address or not */
 	if (MsgExistAddress(pDbHandle, pMsg, pConvId) == true) {
 		MSG_DEBUG("The address already exists. Conversation ID : [%d]", *pConvId);
 		MsgStoUpdateAddress(pDbHandle, pMsg, *pConvId);
 	} else {
-
 		*pConvId = 0;
 
 		if (pMsg->threadId)
@@ -390,16 +384,17 @@ msg_error_t MsgStoAddAddress(MsgDbHandler *pDbHandle, const MSG_MESSAGE_INFO_S *
 		}
 
 		/* insert address in loop */
-		for (int i=0; i<pMsg->nAddressCnt; i++) {
-
+		for (int i = 0; i < pMsg->nAddressCnt; i++) {
 			unsigned int addrId;
 			MSG_CONTACT_INFO_S contactInfo;
 			memset(&contactInfo, 0x00, sizeof(MSG_CONTACT_INFO_S));
 
-			// Get Contact Info
-//			if (MsgGetContactInfo(&(pMsg->addressList[i]), &contactInfo) != MSG_SUCCESS) {
-//				MSG_DEBUG("MsgGetContactInfo() fail.");
-//			}
+			/* Get Contact Info */
+#if 0
+			if (MsgGetContactInfo(&(pMsg->addressList[i]), &contactInfo) != MSG_SUCCESS) {
+				MSG_DEBUG("MsgGetContactInfo() fail.");
+			}
+#endif
 
 			err = pDbHandle->getRowId(MSGFW_ADDRESS_TABLE_NAME, &addrId);
 			if (err != MSG_SUCCESS) {
@@ -407,7 +402,7 @@ msg_error_t MsgStoAddAddress(MsgDbHandler *pDbHandle, const MSG_MESSAGE_INFO_S *
 				return err;
 			}
 
-			// Add Address
+			/* Add Address */
 			memset(sqlQuery, 0x00, sizeof(sqlQuery));
 			snprintf(sqlQuery, sizeof(sqlQuery), "INSERT INTO %s VALUES (%d, %d, %d, %d, '%s', %d, %d, ?, ?, ?, ?, ?, '%s', 0);",
 						MSGFW_ADDRESS_TABLE_NAME, addrId, *pConvId, pMsg->addressList[i].addressType, pMsg->addressList[i].recipientType, pMsg->addressList[i].addressVal,
@@ -433,7 +428,7 @@ msg_error_t MsgStoAddAddress(MsgDbHandler *pDbHandle, const MSG_MESSAGE_INFO_S *
 		}
 	}
 
-	// set conversation display name by conv id
+	/* set conversation display name by conv id */
 	MsgStoSetConversationDisplayName(pDbHandle, *pConvId);
 
 	return err;
@@ -600,7 +595,7 @@ msg_error_t MsgStoGetAddressByConvId(MsgDbHandler *pDbHandle, msg_thread_id_t co
 		memset(pTmp->data, 0x00, sizeof(MSG_ADDRESS_INFO_S));
 	}
 
-//	rowCnt = (rowCnt > 10)? MAX_TO_ADDRESS_CNT: rowCnt;
+/*	rowCnt = (rowCnt > 10)? MAX_TO_ADDRESS_CNT: rowCnt; */
 
 	for (int i = 0; i < rowCnt; i++) {
 		pTmp = (msg_struct_s *)pAddrlist->msg_struct_info[i];
@@ -611,7 +606,6 @@ msg_error_t MsgStoGetAddressByConvId(MsgDbHandler *pDbHandle, msg_thread_id_t co
 		pDbHandle->getColumnToString(index++, MAX_ADDRESS_VAL_LEN, pAddr->addressVal);
 
 		strncpy(pAddr->displayName, pAddr->addressVal, MAX_DISPLAY_NAME_LEN);
-
 	}
 	pDbHandle->freeTable();
 
@@ -688,9 +682,9 @@ msg_error_t MsgStoUpdateConversation(MsgDbHandler *pDbHandle, msg_thread_id_t co
 		int msg_direction = pDbHandle->columnInt(2);
 		time_t disp_time = (time_t)pDbHandle->columnInt(3);
 		int subject_length = pDbHandle->columnInt(4);
-		char subject[MAX_SUBJECT_LEN+1] = {0,};
+		char subject[MAX_SUBJECT_LEN+1] = {0, };
 		snprintf(subject, sizeof(subject), "%s", pDbHandle->columnText(5));
-		char msg_text[MAX_MSG_TEXT_LEN+1] = {0,};
+		char msg_text[MAX_MSG_TEXT_LEN+1] = {0, };
 		snprintf(msg_text, sizeof(msg_text), "%s", pDbHandle->columnText(6));
 
 		pDbHandle->finalizeQuery();
@@ -809,7 +803,7 @@ msg_error_t MsgStoUpdateConversation(MsgDbHandler *pDbHandle, msg_thread_id_t co
 		}
 
 		pDbHandle->bindText(subject, 1);
-		pDbHandle->bindText(msg_text,2);
+		pDbHandle->bindText(msg_text, 2);
 
 		if (pDbHandle->stepQuery() != MSG_ERR_DB_DONE) {
 			MSG_DEBUG("stepQuery() Failed");
@@ -919,7 +913,6 @@ bool MsgExistAddress(MsgDbHandler *pDbHandle, const MSG_MESSAGE_INFO_S *pMsg, ms
 			snprintf(sqlQuery+tmpSize, MAX_QUERY_LEN-tmpSize, " OR ");
 
 		} else {
-
 			tmpSize = strlen(sqlQuery);
 			snprintf(sqlQuery+tmpSize, MAX_QUERY_LEN-tmpSize,
 					"ADDRESS_VAL LIKE '%s' ",
@@ -929,7 +922,6 @@ bool MsgExistAddress(MsgDbHandler *pDbHandle, const MSG_MESSAGE_INFO_S *pMsg, ms
 
 			tmpSize = strlen(sqlQuery);
 			snprintf(sqlQuery+tmpSize, MAX_QUERY_LEN-tmpSize, " OR ");
-
 		}
 	}
 
@@ -1124,7 +1116,7 @@ msg_error_t MsgStoAddConversation(MsgDbHandler *pDbHandle, msg_thread_id_t *pCon
 			return MSG_ERR_DB_EXEC;
 		}
 	}
-	// Add Conversation
+	/* Add Conversation */
 	memset(sqlQuery, 0x00, sizeof(sqlQuery));
 	snprintf(sqlQuery, sizeof(sqlQuery), "INSERT INTO %s VALUES (%d, 0, 0, 0, 0, 0, 0, 0, '', '');",
 			MSGFW_CONVERSATION_TABLE_NAME, *pConvId);
@@ -1159,24 +1151,22 @@ msg_error_t MsgStoSetConversationDisplayName(MsgDbHandler *pDbHandle, int contac
 		return err;
 	}
 
-	//contacts-service is not used for gear
+	/*contacts-service is not used for gear */
 #ifndef MSG_CONTACTS_SERVICE_NOT_SUPPORTED
 	int order = MsgGetContactNameOrder();
-#else // MSG_CONTACTS_SERVICE_NOT_SUPPORTED
+#else /* MSG_CONTACTS_SERVICE_NOT_SUPPORTED */
 	int order = 0;
-#endif // MSG_CONTACTS_SERVICE_NOT_SUPPORTED
+#endif /* MSG_CONTACTS_SERVICE_NOT_SUPPORTED */
 	msg_struct_s *pAddrInfo = NULL;
 	MSG_ADDRESS_INFO_S *address = NULL;
 
-	for (int i = 1; i <= rowCnt; i++)
-	{
+	for (int i = 1; i <= rowCnt; i++) {
 		memset(displayName, 0x00, sizeof(displayName));
 		MsgDbHandler tmpDbHandle;
-		msg_struct_list_s addressList = {0,};
+		msg_struct_list_s addressList = {0, };
 		MsgStoGetAddressByConvId(&tmpDbHandle, (msg_thread_id_t)pDbHandle->getColumnToInt(i), order, &addressList);
 
-		for (int j = 0; j < addressList.nCount; j++)
-		{
+		for (int j = 0; j < addressList.nCount; j++) {
 			if (j >0)
 				strncat(displayName, ", ", MAX_DISPLAY_NAME_LEN-strlen(displayName));
 
@@ -1210,7 +1200,7 @@ msg_error_t MsgStoSetConversationDisplayName(MsgDbHandler *pDbHandle, int contac
 
 		pDbHandle->finalizeQuery();
 
-		// free address list
+		/* free address list */
 		for (int j = 0; j < addressList.nCount; j++) {
 			msg_struct_s *pStruct = (msg_struct_s *)addressList.msg_struct_info[j];
 			delete (MSG_ADDRESS_INFO_S *)pStruct->data;
@@ -1235,14 +1225,14 @@ msg_error_t MsgStoSetConversationDisplayName(MsgDbHandler *pDbHandle, msg_thread
 	char displayName[MAX_DISPLAY_NAME_LEN+1];
 	char sqlQuery[MAX_QUERY_LEN+1];
 
-	msg_struct_list_s addressList = {0,};
+	msg_struct_list_s addressList = {0, };
 
-	//contacts-service is not used for gear
+	/* contacts-service is not used for gear */
 #ifndef MSG_CONTACTS_SERVICE_NOT_SUPPORTED
 	int order = MsgGetContactNameOrder();
-#else // MSG_CONTACTS_SERVICE_NOT_SUPPORTED
+#else /* MSG_CONTACTS_SERVICE_NOT_SUPPORTED */
 	int order = 0;
-#endif // MSG_CONTACTS_SERVICE_NOT_SUPPORTED
+#endif /* MSG_CONTACTS_SERVICE_NOT_SUPPORTED */
 
 	msg_struct_s *pAddrInfo = NULL;
 	MSG_ADDRESS_INFO_S *address = NULL;
@@ -1251,8 +1241,7 @@ msg_error_t MsgStoSetConversationDisplayName(MsgDbHandler *pDbHandle, msg_thread
 
 	MsgStoGetAddressByConvId(pDbHandle, convId, order, &addressList);
 
-	for (int j = 0; j < addressList.nCount; j++)
-	{
+	for (int j = 0; j < addressList.nCount; j++) {
 		if (j >0)
 			strncat(displayName, ", ", MAX_DISPLAY_NAME_LEN-strlen(displayName));
 
@@ -1334,8 +1323,7 @@ bool MsgExistConversation(MsgDbHandler *pDbHandle, msg_thread_id_t convId)
 	if (err == MSG_ERR_DB_NORECORD) {
 		pDbHandle->freeTable();
 		return false;
-	}
-	else if ( err != MSG_SUCCESS) {
+	} else if (err != MSG_SUCCESS) {
 		pDbHandle->freeTable();
 		return false;
 	}
@@ -1361,7 +1349,7 @@ bool MsgExistMessage(MsgDbHandler *pDbHandle, MSG_MESSAGE_INFO_S *pMsg)
 	err = pDbHandle->getTable(sqlQuery, &rowCnt, NULL);
 
 
-	if ( err != MSG_SUCCESS) {
+	if (err != MSG_SUCCESS) {
 		pDbHandle->freeTable();
 		return false;
 	}
@@ -1396,7 +1384,6 @@ bool MsgExistAddress(MsgDbHandler *pDbHandle, MSG_MESSAGE_INFO_S *pMsg,  msg_thr
 				"SELECT ADDRESS_ID FROM %s WHERE ADDRESS_VAL LIKE '%%%%%s' AND CONV_ID= %d;",
 				MSGFW_ADDRESS_TABLE_NAME, newPhoneNum, convId);
 	} else {
-
 		snprintf(sqlQuery, sizeof(sqlQuery),
 				"SELECT ADDRESS_ID FROM %s WHERE ADDRESS_VAL = '%s' AND CONV_ID= %d;",
 				MSGFW_ADDRESS_TABLE_NAME, pMsg->addressList[index].addressVal, convId);
@@ -1408,7 +1395,7 @@ bool MsgExistAddress(MsgDbHandler *pDbHandle, MSG_MESSAGE_INFO_S *pMsg,  msg_thr
 		pDbHandle->freeTable();
 		return false;
 	}
-	else if ( err != MSG_SUCCESS) {
+	else if (err != MSG_SUCCESS) {
 		pDbHandle->freeTable();
 		return false;
 	}
@@ -1458,7 +1445,7 @@ msg_error_t MsgStoAddCBChannelInfo(MsgDbHandler *pDbHandle, MSG_CB_CHANNEL_S *pC
 #ifndef FEATURE_SMS_CDMA
 	MSG_BEGIN();
 
-	char sqlQuery[MAX_QUERY_LEN] = {0,};
+	char sqlQuery[MAX_QUERY_LEN] = {0, };
 
 	pDbHandle->beginTrans();
 
@@ -1503,7 +1490,7 @@ msg_error_t MsgStoAddCBChannelInfo(MsgDbHandler *pDbHandle, MSG_CB_CHANNEL_S *pC
 #else /* TODO: Add multisim for CDMA */
 	MSG_BEGIN();
 
-	char sqlQuery[MAX_QUERY_LEN] = {0,};
+	char sqlQuery[MAX_QUERY_LEN] = {0, };
 
 	pDbHandle->beginTrans();
 
@@ -1543,7 +1530,7 @@ msg_error_t MsgStoGetCBChannelInfo(MsgDbHandler *pDbHandle, MSG_CB_CHANNEL_S *pC
 
 	int rowCnt = 0, index = 0;
 
-	char sqlQuery[MAX_QUERY_LEN] = {0,};
+	char sqlQuery[MAX_QUERY_LEN] = {0, };
 
 	memset(sqlQuery, 0x00, sizeof(sqlQuery));
 	snprintf(sqlQuery, sizeof(sqlQuery), "SELECT CHANNEL_ACTIVATION, CHANNEL_FROM, CHANNEL_TO, CHANNEL_NAME FROM %s WHERE SIM_INDEX = %d;", MSGFW_CB_CHANNEL_INFO_TABLE_NAME, simIndex);
@@ -1583,7 +1570,7 @@ msg_error_t MsgStoGetCBChannelInfo(MsgDbHandler *pDbHandle, MSG_CB_CHANNEL_S *pC
 
 	int rowCnt = 0, index = 0;
 
-	char sqlQuery[MAX_QUERY_LEN] = {0,};
+	char sqlQuery[MAX_QUERY_LEN] = {0, };
 
 	memset(sqlQuery, 0x00, sizeof(sqlQuery));
 	snprintf(sqlQuery, sizeof(sqlQuery), "SELECT CHANNEL_ACTIVATION, CHANNEL_CATEGORY, CHANNEL_LANGUAGE, CHANNEL_NAME FROM %s;", MSGFW_CDMA_CB_CHANNEL_INFO_TABLE_NAME);
@@ -1734,9 +1721,9 @@ msg_error_t MsgStoGetConversationPreview(MsgDbHandler *pDbHandle, MSG_CONVERSATI
 	if (pConv == NULL)
 		return MSG_ERR_NULL_POINTER;
 
-	pConv->tcs_bc_level = -1; //init
+	pConv->tcs_bc_level = -1; /* init */
 
-	//(MSG_ID INTEGER, TYPE INTEGER, VALUE TEXT, COUNT INTEGER)
+	/*(MSG_ID INTEGER, TYPE INTEGER, VALUE TEXT, COUNT INTEGER) */
 	snprintf(sqlQuery, sizeof(sqlQuery),
 			"SELECT TYPE, VALUE, COUNT "
 			"FROM %s WHERE MSG_ID=%d;",
@@ -1796,7 +1783,6 @@ msg_error_t MsgStoGetConversationMultipart(MsgDbHandler *pDbHandle, MSG_CONVERSA
 	if (err == MSG_SUCCESS) {
 		GList *multipart_list = NULL;
 		for (int i = 0; i < rowCnt; i++) {
-
 			msg_struct_s *multipart_struct_s = new msg_struct_s;
 			multipart_struct_s->type = MSG_STRUCT_MULTIPART_INFO;
 			multipart_struct_s->data = new MMS_MULTIPART_DATA_S;
@@ -1837,7 +1823,7 @@ msg_error_t MsgStoGetConversationViewItem(msg_message_id_t msgId, MSG_CONVERSATI
 	snprintf(sqlQuery, sizeof(sqlQuery), "SELECT MSG_ID, CONV_ID, FOLDER_ID, STORAGE_ID, MAIN_TYPE, SUB_TYPE, \
 			DISPLAY_TIME, DATA_SIZE, NETWORK_STATUS, READ_STATUS, PROTECTED, \
 			MSG_DIRECTION, SCHEDULED_TIME, SUBJECT, MSG_TEXT, ATTACHMENT_COUNT, SIM_INDEX\
-			FROM %s WHERE MSG_ID=%d;",
+			FROM %s WHERE MSG_ID = %d;",
 			MSGFW_MESSAGE_TABLE_NAME, msgId);
 
 	msg_error_t err = dbHandle->getTable(sqlQuery, &rowCnt, &index);
@@ -1871,8 +1857,8 @@ msg_error_t MsgStoGetConversationViewItem(msg_message_id_t msgId, MSG_CONVERSATI
 	dbHandle->getColumnToString(index++, MAX_SUBJECT_LEN, pConv->subject);
 	char *tmpText = g_strdup(dbHandle->getColumnToString(index++));
 
-	//It does Not need to Get attach count in MSG_MESSAGE_TABLE. see MsgStoGetConversationPreview
-	//pConv->attachCount = dbHandle->getColumnToInt(index++);
+	/*It does Not need to Get attach count in MSG_MESSAGE_TABLE. see MsgStoGetConversationPreview */
+	/*pConv->attachCount = dbHandle->getColumnToInt(index++); */
 	index++;
 	pConv->simIndex = dbHandle->getColumnToInt(index++);
 
@@ -1991,13 +1977,13 @@ msg_error_t MsgStoGetConversationViewList(msg_thread_id_t threadId, msg_struct_l
 		pTmp->bRead = dbHandle->getColumnToInt(index++);
 		pTmp->bProtected = dbHandle->getColumnToInt(index++);
 		pTmp->direction = dbHandle->getColumnToInt(index++);
-		index++; // This field is reserved.
+		index++; /* This field is reserved. */
 
 		dbHandle->getColumnToString(index++, MAX_SUBJECT_LEN, pTmp->subject);
 		tmpText[i] = g_strdup(dbHandle->getColumnToString(index++));
 
-		//It does Not need to Get attach count in MSG_MESSAGE_TABLE. see MsgStoGetConversationPreview
-		//pTmp->attachCount = dbHandle->getColumnToInt(index++);
+		/*It does Not need to Get attach count in MSG_MESSAGE_TABLE. see MsgStoGetConversationPreview */
+		/*pTmp->attachCount = dbHandle->getColumnToInt(index++); */
 		index++;
 		pTmp->simIndex = dbHandle->getColumnToInt(index++);
 	}
@@ -2051,7 +2037,7 @@ msg_error_t MsgStoSearchMessage(const char *pSearchString, msg_struct_list_s *pT
 	dbHandle->connectReadOnly();
 	char *escapeAddressStr = NULL;
 
-	// Clear Out Parameter
+	/* Clear Out Parameter */
 	pThreadViewList->nCount = 0;
 	pThreadViewList->msg_struct_info = NULL;
 
@@ -2062,7 +2048,7 @@ msg_error_t MsgStoSearchMessage(const char *pSearchString, msg_struct_list_s *pT
 
 	char sqlQuery[MAX_QUERY_LEN+1];
 
-	// Search - Address, Name
+	/* Search - Address, Name */
 	memset(sqlQuery, 0x00, MAX_QUERY_LEN+1);
 	snprintf(sqlQuery, MAX_QUERY_LEN, "SELECT A.CONV_ID, A.UNREAD_CNT, A.SMS_CNT, A.MMS_CNT, A.DISPLAY_NAME, "
 			"A.MAIN_TYPE, A.SUB_TYPE, A.MSG_DIRECTION, A.DISPLAY_TIME, A.MSG_TEXT, "
@@ -2104,9 +2090,9 @@ msg_error_t MsgStoSearchMessage(const char *pSearchString, msg_struct_list_s *pT
 	MsgConvertStrWithEscape(pSearchString, &escapeAddressStr);
 	MSG_DEBUG("escapeAddressStr [%s]", escapeAddressStr);
 	dbHandle->bindText(escapeAddressStr, 1);
-	//dbHandle->bindText(escapeAddressStr, 2);
-	//dbHandle->bindText(escapeAddressStr, 3);
-	//dbHandle->bindText(escapeAddressStr, 4);
+	/*dbHandle->bindText(escapeAddressStr, 2); */
+	/*dbHandle->bindText(escapeAddressStr, 3); */
+	/*dbHandle->bindText(escapeAddressStr, 4); */
 
 	while (dbHandle->stepQuery() == MSG_ERR_DB_ROW) {
 		memset(&threadView, 0x00, sizeof(threadView));
@@ -2152,7 +2138,6 @@ msg_error_t MsgStoSearchMessage(const char *pSearchString, msg_struct_list_s *pT
 			IdList.insert(threadView.threadId);
 			searchList.push(threadView);
 		}
-
 	}
 
 	dbHandle->finalizeQuery();
@@ -2163,7 +2148,7 @@ msg_error_t MsgStoSearchMessage(const char *pSearchString, msg_struct_list_s *pT
 	}
 
 
-	// Add data to Out Parameter
+	/* Add data to Out Parameter */
 	pThreadViewList->nCount = searchList.size();
 	pThreadViewList->msg_struct_info = (msg_struct_t *)calloc(searchList.size(), sizeof(msg_struct_t));
 	if (pThreadViewList->msg_struct_info == NULL)
@@ -2200,7 +2185,7 @@ msg_error_t MsgStoGetRejectMsgList(const char *pNumber, msg_struct_list_s *pReje
 	MsgDbHandler *dbHandle = getDbHandle();
 	dbHandle->connectReadOnly();
 
-	// Clear Out Parameter
+	/* Clear Out Parameter */
 	pRejectMsgList->nCount = 0;
 	pRejectMsgList->msg_struct_info = NULL;
 
@@ -2208,7 +2193,7 @@ msg_error_t MsgStoGetRejectMsgList(const char *pNumber, msg_struct_list_s *pReje
 
 	char sqlQuery[MAX_QUERY_LEN+1];
 
-	// Search Reject Msg
+	/* Search Reject Msg */
 	memset(sqlQuery, 0x00, sizeof(sqlQuery));
 
 	if (pNumber != NULL) {
@@ -2295,12 +2280,12 @@ msg_error_t MsgStoGetAddressList(const msg_thread_id_t threadId, msg_struct_list
 
 	msg_error_t err = MSG_SUCCESS;
 
-	//contacts-service is not used for gear
+	/* contacts-service is not used for gear */
 #ifndef MSG_CONTACTS_SERVICE_NOT_SUPPORTED
 	int order = MsgGetContactNameOrder();
-#else // MSG_CONTACTS_SERVICE_NOT_SUPPORTED
+#else /* MSG_CONTACTS_SERVICE_NOT_SUPPORTED */
 	int order = 0;
-#endif // MSG_CONTACTS_SERVICE_NOT_SUPPORTED
+#endif /* MSG_CONTACTS_SERVICE_NOT_SUPPORTED */
 
 
 	err = MsgStoGetAddressByConvId(dbHandle, threadId, order, pAddrList);
@@ -2314,7 +2299,7 @@ msg_error_t MsgStoGetMessageList(const MSG_LIST_CONDITION_S *pListCond, msg_stru
 	MsgDbHandler *dbHandle = getDbHandle();
 	dbHandle->connectReadOnly();
 
-	// Clear Out Parameter
+	/* Clear Out Parameter */
 	pMsgList->nCount = 0;
 	pMsgList->msg_struct_info = NULL;
 
@@ -2367,8 +2352,8 @@ msg_error_t MsgStoGetMessageList(const MSG_LIST_CONDITION_S *pListCond, msg_stru
 
 	if (pListCond->pTextVal != NULL && multipartCnt > 0) {
 		memset(sqlQuerySubset, 0x00, sizeof(sqlQuerySubset));
-		snprintf(sqlQuerySubset, sizeof(sqlQuerySubset),	"FROM %s C, %s B, %s A WHERE A.CONV_ID > 0 AND A.CONV_ID = B.CONV_ID AND "
-			,MSGFW_MMS_MULTIPART_TABLE_NAME, MSGFW_ADDRESS_TABLE_NAME, MSGFW_MESSAGE_TABLE_NAME);
+		snprintf(sqlQuerySubset, sizeof(sqlQuerySubset), "FROM %s C, %s B, %s A WHERE A.CONV_ID > 0 AND A.CONV_ID = B.CONV_ID AND ",
+			MSGFW_MMS_MULTIPART_TABLE_NAME, MSGFW_ADDRESS_TABLE_NAME, MSGFW_MESSAGE_TABLE_NAME);
 	}
 	else {
 		memset(sqlQuerySubset, 0x00, sizeof(sqlQuerySubset));
@@ -2378,7 +2363,7 @@ msg_error_t MsgStoGetMessageList(const MSG_LIST_CONDITION_S *pListCond, msg_stru
 
 	strncat(sqlQuery, sqlQuerySubset, MAX_QUERY_LEN-strlen(sqlQuery));
 
-	//// folder
+	/* folder */
 	memset(sqlQuerySubset, 0x00, sizeof(sqlQuerySubset));
 
 	if (pListCond->folderId == MSG_ALLBOX_ID)
@@ -2391,7 +2376,7 @@ msg_error_t MsgStoGetMessageList(const MSG_LIST_CONDITION_S *pListCond, msg_stru
 	strncat(sqlQuery, sqlQuerySubset, MAX_QUERY_LEN-strlen(sqlQuery));
 
 
-	//// thread
+	/* thread */
 	if (pListCond->threadId > 0) {
 		memset(sqlQuerySubset, 0x00, sizeof(sqlQuerySubset));
 		snprintf(sqlQuerySubset, sizeof(sqlQuerySubset), "AND A.CONV_ID = %d ", pListCond->threadId);
@@ -2399,7 +2384,7 @@ msg_error_t MsgStoGetMessageList(const MSG_LIST_CONDITION_S *pListCond, msg_stru
 	}
 
 
-	//// msg type
+	/* msg type */
 	memset(sqlQuerySubset, 0x00, sizeof(sqlQuerySubset));
 
 	switch (pListCond->msgType) {
@@ -2433,7 +2418,7 @@ msg_error_t MsgStoGetMessageList(const MSG_LIST_CONDITION_S *pListCond, msg_stru
 	strncat(sqlQuery, sqlQuerySubset, MAX_QUERY_LEN-strlen(sqlQuery));
 
 
-	//// storage
+	/* storage */
 	if (pListCond->storageId > MSG_STORAGE_UNKNOWN) {
 		memset(sqlQuerySubset, 0x00, sizeof(sqlQuerySubset));
 		snprintf(sqlQuerySubset, sizeof(sqlQuerySubset), "AND A.STORAGE_ID = %d ", pListCond->storageId);
@@ -2441,7 +2426,7 @@ msg_error_t MsgStoGetMessageList(const MSG_LIST_CONDITION_S *pListCond, msg_stru
 	}
 
 
-	//// protected
+	/* protected */
 	if (pListCond->bProtected) {
 		memset(sqlQuerySubset, 0x00, sizeof(sqlQuerySubset));
 		snprintf(sqlQuerySubset, sizeof(sqlQuerySubset), "AND A.PROTECTED = %d ", pListCond->bProtected);
@@ -2449,7 +2434,7 @@ msg_error_t MsgStoGetMessageList(const MSG_LIST_CONDITION_S *pListCond, msg_stru
 	}
 
 
-	//// scheduled
+	/* scheduled */
 	if (pListCond->bScheduled) {
 		memset(sqlQuerySubset, 0x00, sizeof(sqlQuerySubset));
 		snprintf(sqlQuerySubset, sizeof(sqlQuerySubset), "AND A.SCHEDULED_TIME > 0 ");
@@ -2457,7 +2442,7 @@ msg_error_t MsgStoGetMessageList(const MSG_LIST_CONDITION_S *pListCond, msg_stru
 	}
 
 
-	//// sim index
+	/* sim index */
 	if (pListCond->simIndex > 0) {
 		memset(sqlQuerySubset, 0x00, sizeof(sqlQuerySubset));
 		snprintf(sqlQuerySubset, sizeof(sqlQuerySubset), "AND A.SIM_INDEX = %d ", pListCond->simIndex);
@@ -2465,7 +2450,7 @@ msg_error_t MsgStoGetMessageList(const MSG_LIST_CONDITION_S *pListCond, msg_stru
 	}
 
 
-	//// time range
+	/* time range */
 	if (pListCond->fromTime > 0) {
 		memset(sqlQuerySubset, 0x00, sizeof(sqlQuerySubset));
 		snprintf(sqlQuerySubset, sizeof(sqlQuerySubset), "AND A.DISPLAY_TIME >= %u ", (unsigned int)pListCond->fromTime);
@@ -2479,9 +2464,8 @@ msg_error_t MsgStoGetMessageList(const MSG_LIST_CONDITION_S *pListCond, msg_stru
 	}
 
 	if (pListCond->pAddressVal == NULL) {
-		/// Text
+		/* Text */
 		if (pListCond->pTextVal != NULL) {
-
 			memset(sqlQuerySubset, 0x00, sizeof(sqlQuerySubset));
 			if (multipartCnt > 0) {
 				snprintf(sqlQuerySubset, sizeof(sqlQuerySubset),
@@ -2494,12 +2478,10 @@ msg_error_t MsgStoGetMessageList(const MSG_LIST_CONDITION_S *pListCond, msg_stru
 						MSGFW_DB_ESCAPE_CHAR, MSGFW_DB_ESCAPE_CHAR);
 			}
 			strncat(sqlQuery, sqlQuerySubset, MAX_QUERY_LEN-strlen(sqlQuery));
-
 		}
 	} else {
-		/// Text
+		/* Text */
 		if (pListCond->pTextVal != NULL) {
-
 			memset(sqlQuerySubset, 0x00, sizeof(sqlQuerySubset));
 			if (multipartCnt > 0) {
 				snprintf(sqlQuerySubset, sizeof(sqlQuerySubset),
@@ -2521,7 +2503,7 @@ msg_error_t MsgStoGetMessageList(const MSG_LIST_CONDITION_S *pListCond, msg_stru
 			}
 			strncat(sqlQuery, sqlQuerySubset, MAX_QUERY_LEN-strlen(sqlQuery));
 
-			// Address
+			/* Address */
 			memset(sqlQuerySubset, 0x00, sizeof(sqlQuerySubset));
 			snprintf(sqlQuerySubset, sizeof(sqlQuerySubset),
 					"(B.ADDRESS_VAL LIKE ? ESCAPE '%c' ", MSGFW_DB_ESCAPE_CHAR);
@@ -2539,7 +2521,7 @@ msg_error_t MsgStoGetMessageList(const MSG_LIST_CONDITION_S *pListCond, msg_stru
 			snprintf(sqlQuerySubset, sizeof(sqlQuerySubset), ")) ");
 			strncat(sqlQuery, sqlQuerySubset, MAX_QUERY_LEN-strlen(sqlQuery));
 		} else {
-			// Address
+			/* Address */
 			memset(sqlQuerySubset, 0x00, sizeof(sqlQuerySubset));
 			snprintf(sqlQuerySubset, sizeof(sqlQuerySubset),
 					"AND (B.ADDRESS_VAL LIKE ? ESCAPE '%c' ", MSGFW_DB_ESCAPE_CHAR);
@@ -2562,30 +2544,29 @@ msg_error_t MsgStoGetMessageList(const MSG_LIST_CONDITION_S *pListCond, msg_stru
 	msg_struct_s *pSortRule = (msg_struct_s *)pListCond->sortRule;
 
 	if (pSortRule->type != MSG_STRUCT_SORT_RULE) {
-		/// Order
+		/* Order */
 		memset(sqlQuerySubset, 0x00, sizeof(sqlQuerySubset));
 		snprintf(sqlQuerySubset, sizeof(sqlQuerySubset), "ORDER BY A.DISPLAY_TIME ");
 
 		strncat(sqlQuery, sqlQuerySubset, MAX_QUERY_LEN-strlen(sqlQuery));
 
-		/// Sorting type
+		/* Sorting type */
 		memset(sqlQuerySubset, 0x00, sizeof(sqlQuerySubset));
 		snprintf(sqlQuerySubset, sizeof(sqlQuerySubset), "DESC ");
 
 		strncat(sqlQuery, sqlQuerySubset, MAX_QUERY_LEN-strlen(sqlQuery));
 	} else {
 		MSG_SORT_RULE_S *pTmp = (MSG_SORT_RULE_S *)pSortRule->data;
-		/// order // TODO: have to finish this
+		/* order : TODO: have to finish this */
 		memset(sqlQuerySubset, 0x00, sizeof(sqlQuerySubset));
-		switch (pTmp->sortType)
-		{
-		case MSG_SORT_BY_MSG_TYPE :
+		switch (pTmp->sortType) {
+		case MSG_SORT_BY_MSG_TYPE:
 			snprintf(sqlQuerySubset, sizeof(sqlQuerySubset), "ORDER BY A.MAIN_TYPE ");
 			break;
-		case MSG_SORT_BY_READ_STATUS :
+		case MSG_SORT_BY_READ_STATUS:
 			snprintf(sqlQuerySubset, sizeof(sqlQuerySubset), "ORDER BY A.READ_STATUS ");
 			break;
-		case MSG_SORT_BY_STORAGE_TYPE :
+		case MSG_SORT_BY_STORAGE_TYPE:
 			snprintf(sqlQuerySubset, sizeof(sqlQuerySubset), "ORDER BY A.STORAGE_ID ");
 			break;
 		default:
@@ -2594,7 +2575,7 @@ msg_error_t MsgStoGetMessageList(const MSG_LIST_CONDITION_S *pListCond, msg_stru
 		}
 		strncat(sqlQuery, sqlQuerySubset, MAX_QUERY_LEN-strlen(sqlQuery));
 
-		// Sorting type
+		/* Sorting type */
 		memset(sqlQuerySubset, 0x00, sizeof(sqlQuerySubset));
 		if (pTmp->bAscending)
 			snprintf(sqlQuerySubset, sizeof(sqlQuerySubset), "ASC ");
@@ -2604,7 +2585,7 @@ msg_error_t MsgStoGetMessageList(const MSG_LIST_CONDITION_S *pListCond, msg_stru
 		strncat(sqlQuery, sqlQuerySubset, MAX_QUERY_LEN-strlen(sqlQuery));
 	}
 
-	// offset & limit
+	/* offset & limit */
 	memset(sqlQuerySubset, 0x00, sizeof(sqlQuerySubset));
 	if (pListCond->offset >= 0 && pListCond->limit > 0)
 		snprintf(sqlQuerySubset, sizeof(sqlQuerySubset), "LIMIT %d OFFSET %d;", pListCond->limit, pListCond->offset);
@@ -2614,7 +2595,7 @@ msg_error_t MsgStoGetMessageList(const MSG_LIST_CONDITION_S *pListCond, msg_stru
 	strncat(sqlQuery, sqlQuerySubset, MAX_QUERY_LEN-strlen(sqlQuery));
 
 
-	//////// 'til here sqlQuery is complete.
+	/* 'til here sqlQuery is complete. */
 
 	queue<MSG_MESSAGE_HIDDEN_S*> searchList;
 
@@ -2629,24 +2610,21 @@ msg_error_t MsgStoGetMessageList(const MSG_LIST_CONDITION_S *pListCond, msg_stru
 	char *escapeAddressStr = NULL;
 
 	if (pListCond->pAddressVal == NULL) {
-		/// Text
+		/* Text */
 		if (pListCond->pTextVal != NULL) {
-
 			MsgConvertStrWithEscape(pListCond->pTextVal, &escapeTextStr);
 			MSG_DEBUG("escapeTextStr [%s]", escapeTextStr);
 			dbHandle->bindText(escapeTextStr, 1);
 			dbHandle->bindText(escapeTextStr, 2);
 			if (multipartCnt > 0) dbHandle->bindText(escapeTextStr, 3);
-
 		}
 	} else {
-		/// Text
+		/* Text */
 		if (pListCond->pTextVal != NULL) {
-
 			MsgConvertStrWithEscape(pListCond->pTextVal, &escapeTextStr);
 			MSG_DEBUG("escapeTestStr [%s]", escapeTextStr);
 
-			// Address
+			/* Address */
 			MsgConvertStrWithEscape(pListCond->pAddressVal, &escapeAddressStr);
 			MSG_DEBUG("escapeAddressStr [%s]", escapeAddressStr);
 
@@ -2660,7 +2638,7 @@ msg_error_t MsgStoGetMessageList(const MSG_LIST_CONDITION_S *pListCond, msg_stru
 			}
 
 		} else {
-			// Address
+			/* Address */
 			MsgConvertStrWithEscape(pListCond->pAddressVal, &escapeAddressStr);
 			MSG_DEBUG("escapeAddressStr [%s]", escapeAddressStr);
 			dbHandle->bindText(escapeAddressStr, 1);
@@ -2669,10 +2647,9 @@ msg_error_t MsgStoGetMessageList(const MSG_LIST_CONDITION_S *pListCond, msg_stru
 
 
 	MSG_MESSAGE_HIDDEN_S *pTmp = NULL;
-	int lastMsgId = 0;  // for comparing same msg id.
+	int lastMsgId = 0;  /* for comparing same msg id. */
 
 	while (dbHandle->stepQuery() == MSG_ERR_DB_ROW) {
-
 		index = 0;
 
 		int msgid = dbHandle->columnInt(index++);
@@ -2685,8 +2662,7 @@ msg_error_t MsgStoGetMessageList(const MSG_LIST_CONDITION_S *pListCond, msg_stru
 
 			pTmp = new MSG_MESSAGE_HIDDEN_S;
 
-			if(pTmp)
-			{
+			if(pTmp) {
 				memset(pTmp, 0x00, sizeof(MSG_MESSAGE_HIDDEN_S));
 
 				pTmp->pData = NULL;
@@ -2708,7 +2684,7 @@ msg_error_t MsgStoGetMessageList(const MSG_LIST_CONDITION_S *pListCond, msg_stru
 				pTmp->bBackup = dbHandle->columnInt(index++);
 				pTmp->priority = dbHandle->columnInt(index++);
 				pTmp->direction = dbHandle->columnInt(index++);
-				index++; // This field is reserved.
+				index++; /* This field is reserved. */
 
 				strncpy(pTmp->subject, (char *)dbHandle->columnText(index++), MAX_SUBJECT_LEN);
 
@@ -2756,7 +2732,7 @@ msg_error_t MsgStoGetMessageList(const MSG_LIST_CONDITION_S *pListCond, msg_stru
 
 			strncpy(pAddr->displayName, pAddr->addressVal, MAX_DISPLAY_NAME_LEN);
 
-			// For GList *addressList
+			/* For GList *addressList */
 			msg_struct_s *addr_info_s = new msg_struct_s;
 			memset(addr_info_s, 0x00, sizeof(msg_struct_s));
 			addr_info_s->type = MSG_STRUCT_ADDRESS_INFO;
@@ -2773,7 +2749,6 @@ msg_error_t MsgStoGetMessageList(const MSG_LIST_CONDITION_S *pListCond, msg_stru
 			pTmp->addressList = g_list_append(pTmp->addressList, addr_info_s);
 
 			if (pTmp->addr_list->nCount >= MAX_TO_ADDRESS_CNT) {
-
 				delete pAddr;
 
 			} else {
@@ -2796,7 +2771,6 @@ msg_error_t MsgStoGetMessageList(const MSG_LIST_CONDITION_S *pListCond, msg_stru
 
 	int offset = 0;
 	while (!searchList.empty()) {
-
 		msg_struct_s *msg = new msg_struct_s;
 
 		pMsgList->msg_struct_info[offset++] = (msg_struct_t)msg;
@@ -2914,7 +2888,7 @@ msg_error_t MsgStoClearUniquenessTable()
 
 	MsgDbHandler *dbHandle = getDbHandle();
 
-	char sqlQuery[MAX_QUERY_LEN+1] = {0,};
+	char sqlQuery[MAX_QUERY_LEN+1] = {0, };
 	snprintf(sqlQuery, sizeof(sqlQuery), "DELETE FROM %s WHERE MSG_ID = 0", MSGFW_UNIQUENESS_INFO_TABLE_NAME);
 
 	err = dbHandle->execQuery(sqlQuery);

@@ -26,7 +26,7 @@ extern "C"
 {
 #ifndef MSG_CONTACTS_SERVICE_NOT_SUPPORTED
 	#include <contacts.h>
-#endif //MSG_CONTACTS_SERVICE_NOT_SUPPORTED
+#endif /* MSG_CONTACTS_SERVICE_NOT_SUPPORTED */
 }
 
 /*==================================================================================================
@@ -36,7 +36,7 @@ __thread bool isContactSvcConnected = false;
 
 MsgDbHandler ContactDbHandle;
 
-// phonenumber minimum match digit.
+/* phonenumber minimum match digit. */
 #define PHONENUMBER_MIN_MATCH_DIGIT VCONFKEY_CONTACTS_SVC_PHONENUMBER_MIN_MATCH_DIGIT
 #define DEFAULT_MIN_MATCH_DIGIT 8
 
@@ -48,14 +48,12 @@ static int phonenumberMinMatchDigit = -1;
 int countryCodeLength(const char *src)
 {
 	int ret = 0;
-	switch (src[ret++]-'0')
-	{
+	switch (src[ret++]-'0') {
 	case 1:
 	case 7:
 		break;
 	case 2:
-		switch (src[ret++]-'0')
-		{
+		switch (src[ret++]-'0') {
 		case 0:
 		case 7:
 			break;
@@ -74,8 +72,7 @@ int countryCodeLength(const char *src)
 		}
 		break;
 	case 3:
-		switch (src[ret++]-'0')
-		{
+		switch (src[ret++]-'0') {
 		case 0:
 		case 1:
 		case 2:
@@ -94,8 +91,7 @@ int countryCodeLength(const char *src)
 		}
 		break;
 	case 4:
-		switch (src[ret++]-'0')
-		{
+		switch (src[ret++]-'0') {
 		case 0:
 		case 1:
 		case 3:
@@ -114,8 +110,7 @@ int countryCodeLength(const char *src)
 		}
 		break;
 	case 5:
-		switch (src[ret++]-'0')
-		{
+		switch (src[ret++]-'0') {
 		case 1:
 		case 2:
 		case 3:
@@ -134,8 +129,7 @@ int countryCodeLength(const char *src)
 		}
 		break;
 	case 6:
-		switch (src[ret++]-'0')
-		{
+		switch (src[ret++]-'0') {
 		case 0:
 		case 1:
 		case 2:
@@ -154,8 +148,7 @@ int countryCodeLength(const char *src)
 		}
 		break;
 	case 8:
-		switch (src[ret++]-'0')
-		{
+		switch (src[ret++]-'0') {
 		case 1:
 		case 2:
 		case 4:
@@ -174,8 +167,7 @@ int countryCodeLength(const char *src)
 		}
 		break;
 	case 9:
-		switch (src[ret++]-'0')
-		{
+		switch (src[ret++]-'0') {
 		case 0:
 		case 1:
 		case 2:
@@ -206,7 +198,7 @@ int countryCodeLength(const char *src)
 void normalizeNumber(const char *orig, char* dest, unsigned int destSize)
 {
 	unsigned int pos = 0;
-	for (unsigned int i=0; (orig[i] && i<destSize); i++) {
+	for (unsigned int i = 0; (orig[i] && i < destSize); i++) {
 		if (isdigit(orig[i]) || (orig[i] == '+')) {
 			dest[pos++] = orig[i];
 		}
@@ -822,7 +814,6 @@ void MsgDeletePhoneLog(msg_message_id_t msgId)
 	contacts_query_destroy(query);
 	contacts_filter_destroy(filter);
 	contacts_list_destroy(plogs, true);
-
 }
 
 
@@ -897,7 +888,7 @@ bool checkBlockingMode(char *address, bool *pisFavorites)
 		contacts_list_destroy(personList, true);
 		return isblock;
 	} else if (ret == CONTACTS_ERROR_NONE && count > 0
-			&& blockModeType == 1) { // For All contacts allow in blocking mode.
+			&& blockModeType == 1) { /* For All contacts allow in blocking mode. */
 		isblock = false;
 	}
 
@@ -928,27 +919,23 @@ bool checkBlockingMode(char *address, bool *pisFavorites)
 
 	contacts_list_destroy(personList, true);
 
-	switch (blockModeType)
-	{
-	case 2: // For Favorites allow in blocking mode.
-	{
+	switch (blockModeType) {
+	case 2: { /* For Favorites allow in blocking mode. */
 		if (isFavorites) isblock = false;
 		break;
 	}
-	case 3: // For Custom allow in blocking mode.
-	{
+	case 3: { /* For Custom allow in blocking mode. */
 		char *allowList = MsgSettingGetString(VCONFKEY_SETAPPL_BLOCKINGMODE_ALLOWED_CONTACT_LIST);
 		char *temp = NULL;
-		char *personIdStr = strtok_r (allowList," ,", &temp);
-		while (personIdStr != NULL)
-		{
+		char *personIdStr = strtok_r(allowList, " ,", &temp);
+		while (personIdStr != NULL) {
 			MSG_DEBUG("personIdStr [%s]", personIdStr);
 			if (personId == atoi(personIdStr)) {
 				MSG_DEBUG("In allow list.");
 				isblock = false;
 				break;
 			}
-			personIdStr = strtok_r (NULL, " ,", &temp);
+			personIdStr = strtok_r(NULL, " ,", &temp);
 		}
 
 		if (allowList) {
@@ -958,7 +945,7 @@ bool checkBlockingMode(char *address, bool *pisFavorites)
 
 		break;
 	}
-	default: // Wrong blocking mode type.
+	default: /* Wrong blocking mode type. */
 		break;
 	}
 
@@ -972,7 +959,7 @@ bool checkBlockingMode(char *address, bool *pisFavorites)
 	return false;
 #endif
 }
-#endif //MSG_CONTACTS_SERVICE_NOT_SUPPORTED
+#endif /* MSG_CONTACTS_SERVICE_NOT_SUPPORTED */
 
 int MsgContactGetMinMatchDigit()
 {
@@ -1007,12 +994,11 @@ bool MsgIsNumber(const char* pSrc)
 {
 	int len = strlen(pSrc);
 
-	for(int i = 0; i < len; ++i){
-
-		if(i == 0 && pSrc[i] == '+')
+	for (int i = 0; i < len; ++i) {
+		if (i == 0 && pSrc[i] == '+')
 			continue;
 
-		if(pSrc[i] < '0' || pSrc[i] >'9'){
+		if (pSrc[i] < '0' || pSrc[i] > '9') {
 			return false;
 		}
 	}

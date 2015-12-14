@@ -43,7 +43,7 @@
 			MSG_ERR("Feature [%s] not supported", (feature_name));\
 			return MSG_ERR_NOT_SUPPORTED; \
 		} \
-	} while(0)
+	} while (0)
 
 #define CHECK_MSG_SUPPORTED_RETURN_NULL(feature_name) \
 	do { \
@@ -53,7 +53,7 @@
 			MSG_ERR("Feature [%s] not supported", (feature_name));\
 			return NULL; \
 		} \
-	} while(0)
+	} while (0)
 
 /*==================================================================================================
 									 FUNCTION PROTOTYPES

@@ -37,39 +37,34 @@ void MsgSentStatusListener(MSG_SENT_STATUS_S *pSentStatus)
 
 	MSG_DEBUG("SENT STATUS %d, %d", pSentStatus->reqId, pSentStatus->status);
 
-	// establish connection to msgfw daemon
+	/* establish connection to msgfw daemon */
 	MsgIpcClientSocket client;
-	try
-	{
+	try {
 		client.connect(MSG_SOCKET_PATH);
-	}
-	catch (MsgException& e)
-	{
+	} catch (MsgException& e) {
 		MSG_FATAL("%s", e.what());
 		return;
 	}
 
-
-
-	// composing command
-	int cmdSize = sizeof(MSG_CMD_S) + sizeof(MSG_SENT_STATUS_S); // cmd type, MSG_SENT_STATUS
+	/* composing command */
+	int cmdSize = sizeof(MSG_CMD_S) + sizeof(MSG_SENT_STATUS_S); /* cmd type, MSG_SENT_STATUS */
 
 	char cmdBuf[cmdSize];
 	bzero(cmdBuf, cmdSize);
 
 	MSG_CMD_S* pCmd = (MSG_CMD_S*) cmdBuf;
 
-	// Set Command Parameters
+	/* Set Command Parameters */
 	pCmd->cmdType = MSG_CMD_PLG_SENT_STATUS_CNF;
 
 	memset(pCmd->cmdCookie, 0x00, MAX_COOKIE_LEN);
 
 	memcpy((void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN), pSentStatus, sizeof(MSG_SENT_STATUS_S));
 
-	// Send Command to Transaction Manager
+	/* Send Command to Transaction Manager */
 	client.write(cmdBuf, cmdSize);
 
-	// Receive result from Transaction Manager
+	/* Receive result from Transaction Manager */
 	MSG_DEBUG("Waiting result for SENT STATUS");
 
 	char *temp = NULL;
@@ -77,7 +72,7 @@ void MsgSentStatusListener(MSG_SENT_STATUS_S *pSentStatus)
 	unsigned int len;
 	client.read(&temp, &len);
 
-	// close connection to msgfw daemon
+	/* close connection to msgfw daemon */
 	client.close();
 
 	MSG_END();
@@ -92,19 +87,16 @@ void MsgStorageChangeListener(msg_storage_change_type_t storageChangeType, msg_i
 		MSG_DEBUG("StorageChangeType : [%d], msg ID : [%d]", storageChangeType, pMsgIdList->msgIdList[i]);
 	}
 
-	// establish connection to msgfw daemon
+	/* establish connection to msgfw daemon */
 	MsgIpcClientSocket client;
-	try
-	{
-	client.connect(MSG_SOCKET_PATH);
-	}
-	catch (MsgException& e)
-	{
+	try {
+		client.connect(MSG_SOCKET_PATH);
+	} catch (MsgException& e) {
 		MSG_FATAL("%s", e.what());
 		return;
 	}
 
-	// composing command
+	/* composing command */
 	int cmdSize = sizeof(MSG_CMD_S) + sizeof(int) + sizeof(msg_message_id_t) * pMsgIdList->nCount + sizeof(msg_storage_change_type_t);
 
 	char cmdBuf[cmdSize];
@@ -112,7 +104,7 @@ void MsgStorageChangeListener(msg_storage_change_type_t storageChangeType, msg_i
 
 	MSG_CMD_S* pCmd = (MSG_CMD_S*)cmdBuf;
 
-	// Set Command Parameters
+	/* Set Command Parameters */
 	pCmd->cmdType = MSG_CMD_PLG_STORAGE_CHANGE_IND;
 
 	memset(pCmd->cmdCookie, 0x00, MAX_COOKIE_LEN);
@@ -121,10 +113,10 @@ void MsgStorageChangeListener(msg_storage_change_type_t storageChangeType, msg_i
 	memcpy((void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN+sizeof(int)), (void*)pMsgIdList->msgIdList, sizeof(msg_message_id_t)*pMsgIdList->nCount);
 	memcpy((void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN+sizeof(int)+(sizeof(msg_message_id_t)*pMsgIdList->nCount)), &storageChangeType, sizeof(msg_storage_change_type_t));
 
-	// Send Command to Transaction Manager
+	/* Send Command to Transaction Manager */
 	client.write(cmdBuf, cmdSize);
 
-	// Receive result from Transaction Manager
+	/* Receive result from Transaction Manager */
 	MSG_DEBUG("Waiting result for STORAGE CHANGE");
 
 	char *temp = NULL;
@@ -132,7 +124,7 @@ void MsgStorageChangeListener(msg_storage_change_type_t storageChangeType, msg_i
 	unsigned int len;
 	client.read(&temp, &len);
 
-	// close connection to msgfw daemon
+	/* close connection to msgfw daemon */
 	client.close();
 
 	MSG_END();
@@ -143,33 +135,28 @@ msg_error_t MsgIncomingMessageListener(MSG_MESSAGE_INFO_S *pMsg)
 {
 	MSG_BEGIN();
 
-	// establish connection to msgfw daemon
+	/* establish connection to msgfw daemon */
 	MsgIpcClientSocket client;
-	try
-	{
+	try {
 		client.connect(MSG_SOCKET_PATH);
-	}
-	catch (MsgException& e)
-	{
+	} catch (MsgException& e) {
 		MSG_FATAL("%s", e.what());
 		return MSG_ERR_UNKNOWN;
 	}
 
-	// Check Invalid Message Structure
-	if (pMsg == NULL)
-	{
+	/* Check Invalid Message Structure */
+	if (pMsg == NULL) {
 		MSG_DEBUG("pMsg is NULL !!");
-
 		return MSG_ERR_NULL_MESSAGE;
 	}
 
-	// Allocate Memory to Command Data
+	/* Allocate Memory to Command Data */
 	char* encodedData = NULL;
 	unique_ptr<char*, void(*)(char**)> buf(&encodedData, unique_ptr_deleter);
 	int dataSize = MsgEncodeMsgInfo(pMsg, &encodedData);
 
-	// composing command
-	int cmdSize = sizeof(MSG_CMD_S) + dataSize; // cmd type, MSG_MESSAGE_INFO_S
+	/* composing command */
+	int cmdSize = sizeof(MSG_CMD_S) + dataSize; /* cmd type, MSG_MESSAGE_INFO_S */
 
 	MSG_DEBUG("cmdSize: %d", cmdSize);
 
@@ -178,14 +165,14 @@ msg_error_t MsgIncomingMessageListener(MSG_MESSAGE_INFO_S *pMsg)
 
 	MSG_CMD_S* pCmd = (MSG_CMD_S*) cmdBuf;
 
-	// Set Command Parameters
+	/* Set Command Parameters */
 	pCmd->cmdType = MSG_CMD_PLG_INCOMING_MSG_IND;
 
 	memset(pCmd->cmdCookie, 0x00, MAX_COOKIE_LEN);
 
 	memcpy((void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN), encodedData, dataSize);
 
-	// Send Command to Messaging FW
+	/* Send Command to Messaging FW */
 	client.write(cmdBuf, cmdSize);
 
 	char* retBuf = NULL;
@@ -194,16 +181,16 @@ msg_error_t MsgIncomingMessageListener(MSG_MESSAGE_INFO_S *pMsg)
 
 	client.read(&retBuf, &retSize);
 
-	// close connection to msgfw daemon
+	/* close connection to msgfw daemon */
 	client.close();
 
-	// Decoding the result from FW and Returning it to plugin
-	// the result is used for making delivery report
+	/* Decoding the result from FW and Returning it to plugin */
+	/* the result is used for making delivery report */
 	MSG_EVENT_S* pEvent = (MSG_EVENT_S*)retBuf;
 
 	if (pEvent->eventType != MSG_EVENT_PLG_INCOMING_MSG_IND)
 		MSG_FATAL("Wrong result(evt type %d : %s) received", pEvent->eventType, MsgDbgEvtStr(pEvent->eventType));
-		//THROW(MsgException::INCOMING_MSG_ERROR, "Wrong result(evt type %d : %s) received", pEvent->eventType, MsgDbgEvtStr(pEvent->eventType));
+		/* THROW(MsgException::INCOMING_MSG_ERROR, "Wrong result(evt type %d : %s) received", pEvent->eventType, MsgDbgEvtStr(pEvent->eventType)); */
 
 #ifdef FEATURE_SMS_CDMA
 	memcpy(&(pMsg->msgId), pEvent->data, sizeof(msg_message_id_t));
@@ -219,20 +206,17 @@ msg_error_t MsgIncomingSyncMLMessageListener(MSG_SYNCML_MESSAGE_DATA_S *pSyncMLD
 {
 	MSG_BEGIN();
 
-	// establish connection to msgfw daemon
+	/* establish connection to msgfw daemon */
 	MsgIpcClientSocket client;
-	try
-	{
+	try {
 		client.connect(MSG_SOCKET_PATH);
-	}
-	catch (MsgException& e)
-	{
+	} catch (MsgException& e) {
 		MSG_FATAL("%s", e.what());
 		return MSG_ERR_UNKNOWN;
 	}
 
-	// composing command
-	int cmdSize = sizeof(MSG_CMD_S) + sizeof(MSG_SYNCML_MESSAGE_DATA_S); // cmd type, MSG_SYNCML_MESSAGE_DATA_S
+	/* composing command */
+	int cmdSize = sizeof(MSG_CMD_S) + sizeof(MSG_SYNCML_MESSAGE_DATA_S); /* cmd type, MSG_SYNCML_MESSAGE_DATA_S */
 
 	MSG_DEBUG("cmdSize: %d", cmdSize);
 
@@ -240,32 +224,32 @@ msg_error_t MsgIncomingSyncMLMessageListener(MSG_SYNCML_MESSAGE_DATA_S *pSyncMLD
 	bzero(cmdBuf, cmdSize);
 	MSG_CMD_S* pCmd = (MSG_CMD_S*) cmdBuf;
 
-	// Set Command Parameters
+	/* Set Command Parameters */
 	pCmd->cmdType = MSG_CMD_PLG_INCOMING_SYNCML_IND;
 
 	memset(pCmd->cmdCookie, 0x00, MAX_COOKIE_LEN);
 
 	memcpy((void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN), pSyncMLData, sizeof(MSG_SYNCML_MESSAGE_DATA_S));
 
-	// Send Command to Messaging FW
+	/* Send Command to Messaging FW */
 	client.write(cmdBuf, cmdSize);
 
-	// Receive result from Transaction Manager
+	/* Receive result from Transaction Manager */
 	char* retBuf = NULL;
 	unique_ptr<char*, void(*)(char**)> wrap(&retBuf, unique_ptr_deleter);
 	unsigned int retSize;
 	client.read(&retBuf, &retSize);
 
-	// close connection to msgfw daemon
+	/* close connection to msgfw daemon */
 	client.close();
 
-	// Decoding the result from FW and Returning it to plugin
-	// the result is used for making delivery report
+	/* Decoding the result from FW and Returning it to plugin */
+	/* the result is used for making delivery report */
 	MSG_EVENT_S* pEvent = (MSG_EVENT_S*)retBuf;
 
 	if (pEvent->eventType != MSG_EVENT_PLG_INCOMING_SYNCML_MSG_IND)
 		MSG_FATAL("Wrong result(evt type %d : %s) received", pEvent->eventType, MsgDbgEvtStr(pEvent->eventType));
-		//THROW(MsgException::INCOMING_MSG_ERROR, "Wrong result(evt type %d : %s) received", pEvent->eventType, MsgDbgEvtStr(pEvent->eventType));
+		/*THROW(MsgException::INCOMING_MSG_ERROR, "Wrong result(evt type %d : %s) received", pEvent->eventType, MsgDbgEvtStr(pEvent->eventType)); */
 
 	MSG_END();
 
@@ -276,20 +260,17 @@ msg_error_t MsgIncomingPushMessageListener(MSG_PUSH_MESSAGE_DATA_S *pPushData)
 {
 	MSG_BEGIN();
 
-	// establish connection to msgfw daemon
+	/* establish connection to msgfw daemon */
 	MsgIpcClientSocket client;
-	try
-	{
+	try {
 		client.connect(MSG_SOCKET_PATH);
-	}
-	catch (MsgException& e)
-	{
+	} catch (MsgException& e) {
 		MSG_FATAL("%s", e.what());
 		return MSG_ERR_UNKNOWN;
 	}
 
-	// composing command
-	int cmdSize = sizeof(MSG_CMD_S) + sizeof(MSG_PUSH_MESSAGE_DATA_S); // cmd type, MSG_SYNCML_MESSAGE_DATA_S
+	/* composing command */
+	int cmdSize = sizeof(MSG_CMD_S) + sizeof(MSG_PUSH_MESSAGE_DATA_S); /* cmd type, MSG_SYNCML_MESSAGE_DATA_S */
 
 	MSG_DEBUG("cmdSize: %d", cmdSize);
 
@@ -297,32 +278,32 @@ msg_error_t MsgIncomingPushMessageListener(MSG_PUSH_MESSAGE_DATA_S *pPushData)
 	bzero(cmdBuf, cmdSize);
 	MSG_CMD_S* pCmd = (MSG_CMD_S*) cmdBuf;
 
-	// Set Command Parameters
+	/* Set Command Parameters */
 	pCmd->cmdType = MSG_CMD_PLG_INCOMING_PUSH_IND;
 
 	memset(pCmd->cmdCookie, 0x00, MAX_COOKIE_LEN);
 
 	memcpy((void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN), pPushData, sizeof(MSG_PUSH_MESSAGE_DATA_S));
 
-	// Send Command to Messaging FW
+	/* Send Command to Messaging FW */
 	client.write(cmdBuf, cmdSize);
 
-	// Receive result from Transaction Manager
+	/* Receive result from Transaction Manager */
 	char* retBuf = NULL;
 	unique_ptr<char*, void(*)(char**)> wrap(&retBuf, unique_ptr_deleter);
 	unsigned int retSize;
 	client.read(&retBuf, &retSize);
 
-	// close connection to msgfw daemon
+	/* close connection to msgfw daemon */
 	client.close();
 
-	// Decoding the result from FW and Returning it to plugin
-	// the result is used for making delivery report
+	/* Decoding the result from FW and Returning it to plugin */
+	/* the result is used for making delivery report */
 	MSG_EVENT_S* pEvent = (MSG_EVENT_S*)retBuf;
 
 	if (pEvent->eventType != MSG_EVENT_PLG_INCOMING_PUSH_MSG_IND)
 		MSG_FATAL("Wrong result(evt type %d : %s) received", pEvent->eventType, MsgDbgEvtStr(pEvent->eventType));
-		//THROW(MsgException::INCOMING_MSG_ERROR, "Wrong result(evt type %d : %s) received", pEvent->eventType, MsgDbgEvtStr(pEvent->eventType));
+		/*THROW(MsgException::INCOMING_MSG_ERROR, "Wrong result(evt type %d : %s) received", pEvent->eventType, MsgDbgEvtStr(pEvent->eventType)); */
 
 	MSG_END();
 
@@ -334,37 +315,34 @@ msg_error_t MsgIncomingCBMessageListener(MSG_CB_MSG_S *pCbMsg, MSG_MESSAGE_INFO_
 {
 	MSG_BEGIN();
 
-	// establish connection to msgfw daemon
+	/* establish connection to msgfw daemon */
 	MsgIpcClientSocket client;
-	try
-	{
+	try {
 		client.connect(MSG_SOCKET_PATH);
-	}
-	catch (MsgException& e)
-	{
+	} catch (MsgException& e) {
 		MSG_FATAL("%s", e.what());
 		return MSG_ERR_UNKNOWN;
 	}
 
-	// Check Invalid Message Structure
-	if (pCbMsg == NULL)
-	{
+	/* Check Invalid Message Structure */
+	if (pCbMsg == NULL) {
 		MSG_DEBUG("pMsg is NULL !!");
 
 		return MSG_ERR_NULL_MESSAGE;
 	}
+
 	int cmdSize = 0;
 
-	// Allocate Memory to Command Data
+	/* Allocate Memory to Command Data */
 	char* encodedData = NULL;
 	unique_ptr<char*, void(*)(char**)> buf(&encodedData, unique_ptr_deleter);
 	int dataSize = MsgEncodeMsgInfo(pMsgInfo, &encodedData);
 
-	// composing command
+	/* composing command */
 	if(pCbMsg->type == MSG_ETWS_SMS)
-		cmdSize = sizeof(MSG_CMD_S) + sizeof(MSG_CB_MSG_S); // cmd type, MSG_CB_MSG_S
+		cmdSize = sizeof(MSG_CMD_S) + sizeof(MSG_CB_MSG_S); /* cmd type, MSG_CB_MSG_S */
 	else
-		cmdSize = sizeof(MSG_CMD_S) + sizeof(MSG_CB_MSG_S) + dataSize; // cmd type, MSG_CB_MSG_S
+		cmdSize = sizeof(MSG_CMD_S) + sizeof(MSG_CB_MSG_S) + dataSize; /* cmd type, MSG_CB_MSG_S */
 
 	MSG_DEBUG("cmdSize: %d", cmdSize);
 
@@ -373,7 +351,7 @@ msg_error_t MsgIncomingCBMessageListener(MSG_CB_MSG_S *pCbMsg, MSG_MESSAGE_INFO_
 
 	MSG_CMD_S* pCmd = (MSG_CMD_S*) cmdBuf;
 
-	// Set Command Parameters
+	/* Set Command Parameters */
 	pCmd->cmdType = MSG_CMD_PLG_INCOMING_CB_IND;
 
 	memset(pCmd->cmdCookie, 0x00, MAX_COOKIE_LEN);
@@ -383,7 +361,7 @@ msg_error_t MsgIncomingCBMessageListener(MSG_CB_MSG_S *pCbMsg, MSG_MESSAGE_INFO_
 	if(pCbMsg->type != MSG_ETWS_SMS)
 		memcpy((void*)((char*)pCmd + sizeof(MSG_CMD_TYPE_T)+ MAX_COOKIE_LEN + sizeof(MSG_CB_MSG_S)), encodedData, dataSize);
 
-	// Send Command to Messaging FW
+	/* Send Command to Messaging FW */
 	client.write(cmdBuf, cmdSize);
 
 	char* retBuf = NULL;
@@ -392,16 +370,16 @@ msg_error_t MsgIncomingCBMessageListener(MSG_CB_MSG_S *pCbMsg, MSG_MESSAGE_INFO_
 
 	client.read(&retBuf, &retSize);
 
-	// close connection to msgfw daemon
+	/* close connection to msgfw daemon */
 	client.close();
 
-	// Decoding the result from FW and Returning it to plugin
-	// the result is used for making delivery report
+	/* Decoding the result from FW and Returning it to plugin */
+	/* the result is used for making delivery report */
 	MSG_EVENT_S* pEvent = (MSG_EVENT_S*)retBuf;
 
 	if (pEvent->eventType != MSG_EVENT_PLG_INCOMING_CB_MSG_IND)
 		MSG_FATAL("Wrong result(evt type %d : %s) received", pEvent->eventType, MsgDbgEvtStr(pEvent->eventType));
-		//THROW(MsgException::INCOMING_MSG_ERROR, "Wrong result(evt type %d : %s) received", pEvent->eventType, MsgDbgEvtStr(pEvent->eventType));
+		/*THROW(MsgException::INCOMING_MSG_ERROR, "Wrong result(evt type %d : %s) received", pEvent->eventType, MsgDbgEvtStr(pEvent->eventType)); */
 
 	MSG_END();
 
@@ -413,20 +391,17 @@ msg_error_t MsgIncomingLBSMessageListener(MSG_LBS_MESSAGE_DATA_S *pLBSData)
 {
 	MSG_BEGIN();
 
-	// establish connection to msgfw daemon
+	/* establish connection to msgfw daemon */
 	MsgIpcClientSocket client;
-	try
-	{
+	try {
 		client.connect(MSG_SOCKET_PATH);
-	}
-	catch (MsgException& e)
-	{
+	} catch (MsgException& e) {
 		MSG_FATAL("%s", e.what());
 		return MSG_ERR_UNKNOWN;
 	}
 
-	// composing command
-	int cmdSize = sizeof(MSG_CMD_S) + sizeof(MSG_LBS_MESSAGE_DATA_S); // cmd type, MSG_LBS_MESSAGE_DATA_S
+	/* composing command */
+	int cmdSize = sizeof(MSG_CMD_S) + sizeof(MSG_LBS_MESSAGE_DATA_S); /* cmd type, MSG_LBS_MESSAGE_DATA_S */
 
 	MSG_DEBUG("cmdSize: %d", cmdSize);
 
@@ -434,32 +409,32 @@ msg_error_t MsgIncomingLBSMessageListener(MSG_LBS_MESSAGE_DATA_S *pLBSData)
 	bzero(cmdBuf, cmdSize);
 	MSG_CMD_S* pCmd = (MSG_CMD_S*) cmdBuf;
 
-	// Set Command Parameters
+	/* Set Command Parameters */
 	pCmd->cmdType = MSG_CMD_PLG_INCOMING_LBS_IND;
 
 	memset(pCmd->cmdCookie, 0x00, MAX_COOKIE_LEN);
 
 	memcpy((void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN), pLBSData, sizeof(MSG_LBS_MESSAGE_DATA_S));
 
-	// Send Command to Messaging FW
+	/* Send Command to Messaging FW */
 	client.write(cmdBuf, cmdSize);
 
-	// Receive result from Transaction Manager
+	/* Receive result from Transaction Manager */
 	char* retBuf = NULL;
 	unique_ptr<char*, void(*)(char**)> wrap(&retBuf, unique_ptr_deleter);
 	unsigned int retSize;
 	client.read(&retBuf, &retSize);
 
-	// close connection to msgfw daemon
+	/* close connection to msgfw daemon */
 	client.close();
 
-	// Decoding the result from FW and Returning it to plugin
-	// the result is used for making delivery report
+	/* Decoding the result from FW and Returning it to plugin */
+	/* the result is used for making delivery report */
 	MSG_EVENT_S* pEvent = (MSG_EVENT_S*)retBuf;
 
 	if (pEvent->eventType != MSG_EVENT_PLG_INCOMING_LBS_MSG_IND)
 		MSG_FATAL("Wrong result(evt type %d : %s) received", pEvent->eventType, MsgDbgEvtStr(pEvent->eventType));
-		//THROW(MsgException::INCOMING_MSG_ERROR, "Wrong result(evt type %d : %s) received", pEvent->eventType, MsgDbgEvtStr(pEvent->eventType));
+		/*THROW(MsgException::INCOMING_MSG_ERROR, "Wrong result(evt type %d : %s) received", pEvent->eventType, MsgDbgEvtStr(pEvent->eventType)); */
 
 	MSG_END();
 
@@ -471,19 +446,16 @@ msg_error_t MsgInitSimBySatListener()
 {
 	MSG_BEGIN();
 
-	// establish connection to msgfw daemon
+	/* establish connection to msgfw daemon */
 	MsgIpcClientSocket client;
-	try
-	{
+	try {
 		client.connect(MSG_SOCKET_PATH);
-	}
-	catch (MsgException& e)
-	{
+	} catch (MsgException& e) {
 		MSG_FATAL("%s", e.what());
 		return MSG_ERR_UNKNOWN;
 	}
 
-	// composing command
+	/* composing command */
 	int cmdSize = sizeof(MSG_CMD_S);
 
 	char cmdBuf[cmdSize];
@@ -491,27 +463,27 @@ msg_error_t MsgInitSimBySatListener()
 
 	MSG_CMD_S* pCmd = (MSG_CMD_S*)cmdBuf;
 
-	// Set Command Parameters
+	/* Set Command Parameters */
 	pCmd->cmdType = MSG_CMD_PLG_INIT_SIM_BY_SAT;
 
-	// Send Command to Transaction Manager
+	/* Send Command to Transaction Manager */
 	client.write(cmdBuf, cmdSize);
 
-	// Receive result from Transaction Manager
+	/* Receive result from Transaction Manager */
 	char* retBuf = NULL;
 	unique_ptr<char*, void(*)(char**)> wrap(&retBuf, unique_ptr_deleter);
 	unsigned int retSize;
 	client.read(&retBuf, &retSize);
 
-	// close connection to msgfw daemon
+	/* close connection to msgfw daemon */
 	client.close();
 
-	// Decoding the result from FW and Returning it to plugin
+	/* Decoding the result from FW and Returning it to plugin */
 	MSG_EVENT_S* pEvent = (MSG_EVENT_S*)retBuf;
 
 	if (pEvent->eventType != MSG_EVENT_PLG_INIT_SIM_BY_SAT)
 		MSG_FATAL("Wrong result(evt type %d : %s) received", pEvent->eventType, MsgDbgEvtStr(pEvent->eventType));
-		//THROW(MsgException::INVALID_RESULT, "Wrong result(evt type %d : %s) received", pEvent->eventType, MsgDbgEvtStr(pEvent->eventType));
+		/*THROW(MsgException::INVALID_RESULT, "Wrong result(evt type %d : %s) received", pEvent->eventType, MsgDbgEvtStr(pEvent->eventType)); */
 
 	MSG_END();
 
@@ -524,25 +496,22 @@ msg_error_t MsgMmsConfIncomingListener(MSG_MESSAGE_INFO_S *pMsg, msg_request_id_
 	MSG_BEGIN();
 	MSG_SEC_DEBUG("pMsg = %s, pReqId = %d ", pMsg->msgData, *pReqId);
 
-	// establish connection to msgfw daemon
+	/* establish connection to msgfw daemon */
 	MsgIpcClientSocket client;
-	try
-	{
+	try {
 		client.connect(MSG_SOCKET_PATH);
-	}
-	catch (MsgException& e)
-	{
+	} catch (MsgException& e) {
 		MSG_FATAL("%s", e.what());
 		return MSG_ERR_UNKNOWN;
 	}
 
-	// Allocate Memory to Command Data
+	/* Allocate Memory to Command Data */
 	char* encodedData = NULL;
 	unique_ptr<char*, void(*)(char**)> buf(&encodedData, unique_ptr_deleter);
 	int dataSize = MsgEncodeMsgInfo(pMsg, &encodedData);
 
-	// composing command
-	int cmdSize = sizeof(MSG_CMD_S) + sizeof(msg_request_id_t) + dataSize; // cmd type, MSG_MESSAGE_INFO_S, msg_request_id_t
+	/* composing command */
+	int cmdSize = sizeof(MSG_CMD_S) + sizeof(msg_request_id_t) + dataSize; /* cmd type, MSG_MESSAGE_INFO_S, msg_request_id_t */
 	MSG_DEBUG("cmdSize : %d", cmdSize);
 
 	char cmdBuf[cmdSize];
@@ -550,33 +519,33 @@ msg_error_t MsgMmsConfIncomingListener(MSG_MESSAGE_INFO_S *pMsg, msg_request_id_
 
 	MSG_CMD_S *pCmd = (MSG_CMD_S *)cmdBuf;
 
-	// Set Command Parameters
-	pCmd->cmdType = MSG_CMD_PLG_INCOMING_MMS_CONF; // cmd type
+	/* Set Command Parameters */
+	pCmd->cmdType = MSG_CMD_PLG_INCOMING_MMS_CONF; /* cmd type */
 
-	memset(pCmd->cmdCookie, 0x00, MAX_COOKIE_LEN); // cmd cookie
+	memset(pCmd->cmdCookie, 0x00, MAX_COOKIE_LEN); /* cmd cookie */
 
-	// cmd data
+	/* cmd data */
 	memcpy((void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN), pReqId, sizeof(msg_request_id_t));
 	memcpy((void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN + sizeof(msg_request_id_t)), encodedData, dataSize);
 
-	// Send Command to Messaging FW
+	/* Send Command to Messaging FW */
 	client.write(cmdBuf, cmdSize);
 
-	// Receive result from Transaction Manager
+	/* Receive result from Transaction Manager */
 	char *retBuf = NULL;
 	unique_ptr<char*, void(*)(char**)> wrap(&retBuf, unique_ptr_deleter);
 	unsigned int retSize = 0;
 	client.read(&retBuf, &retSize);
 
-	// close connection to msgfw daemon
+	/* close connection to msgfw daemon */
 	client.close();
 
-	// Decoding the result from FW and Returning it to plugin
+	/* Decoding the result from FW and Returning it to plugin */
 	MSG_EVENT_S *pEvent = (MSG_EVENT_S *)retBuf;
 
 	if(pEvent->eventType != MSG_EVENT_PLG_INCOMING_MMS_CONF)
 		MSG_FATAL("Wrong result(evt type %d : %s) received", pEvent->eventType, MsgDbgEvtStr(pEvent->eventType));
-		//THROW(MsgException::INCOMING_MSG_ERROR, "Wrong result(evt type %d : %s) received", pEvent->eventType, MsgDbgEvtStr(pEvent->eventType));
+		/*THROW(MsgException::INCOMING_MSG_ERROR, "Wrong result(evt type %d : %s) received", pEvent->eventType, MsgDbgEvtStr(pEvent->eventType)); */
 
 	MSG_END();
 
@@ -588,27 +557,22 @@ msg_error_t MsgSimMessageListener(MSG_MESSAGE_INFO_S *pMsg, int *simIdList, msg_
 {
 	MSG_BEGIN();
 
-	// establish connection to msgfw daemon
+	/* establish connection to msgfw daemon */
 	MsgIpcClientSocket client;
-	try
-	{
+	try {
 		client.connect(MSG_SOCKET_PATH);
-	}
-	catch (MsgException& e)
-	{
+	} catch (MsgException& e) {
 		MSG_FATAL("%s", e.what());
 		return MSG_ERR_UNKNOWN;
 	}
 
-	// Check Invalid Message Structure
-	if (pMsg == NULL)
-	{
+	/* Check Invalid Message Structure */
+	if (pMsg == NULL) {
 		MSG_DEBUG("pMsg is NULL !!");
-
 		return MSG_ERR_NULL_MESSAGE;
 	}
 
-	// Allocate Memory to Command Data
+	/* Allocate Memory to Command Data */
 	char* encodedData = NULL;
 	unique_ptr<char*, void(*)(char**)> buf(&encodedData, unique_ptr_deleter);
 	int dataSize = MsgEncodeMsgInfo(pMsg, &encodedData);
@@ -631,8 +595,8 @@ msg_error_t MsgSimMessageListener(MSG_MESSAGE_INFO_S *pMsg, int *simIdList, msg_
 
 	dataSize += ((sizeof(int)*size) + 1);
 
-	// composing command
-	int cmdSize = sizeof(MSG_CMD_S) + dataSize; // cmd type, MSG_MESSAGE_INFO_S
+	/* composing command */
+	int cmdSize = sizeof(MSG_CMD_S) + dataSize; /* cmd type, MSG_MESSAGE_INFO_S */
 
 	MSG_DEBUG("cmdSize: %d", cmdSize);
 
@@ -641,14 +605,14 @@ msg_error_t MsgSimMessageListener(MSG_MESSAGE_INFO_S *pMsg, int *simIdList, msg_
 
 	MSG_CMD_S* pCmd = (MSG_CMD_S*) cmdBuf;
 
-	// Set Command Parameters
+	/* Set Command Parameters */
 	pCmd->cmdType = MSG_CMD_ADD_SIM_MSG;
 
 	memset(pCmd->cmdCookie, 0x00, MAX_COOKIE_LEN);
 
 	memcpy((void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN), encodedData2, dataSize);
 
-	// Send Command to Messaging FW
+	/* Send Command to Messaging FW */
 	client.write(cmdBuf, cmdSize);
 
 	char* retBuf = NULL;
@@ -657,18 +621,18 @@ msg_error_t MsgSimMessageListener(MSG_MESSAGE_INFO_S *pMsg, int *simIdList, msg_
 
 	client.read(&retBuf, &retSize);
 
-	// close connection to msgfw daemon
+	/* close connection to msgfw daemon */
 	client.close();
 
-	// Decoding the result from FW and Returning it to plugin
-	// the result is used for making delivery report
+	/* Decoding the result from FW and Returning it to plugin */
+	/* the result is used for making delivery report */
 	MSG_EVENT_S* pEvent = (MSG_EVENT_S*)retBuf;
 
 	if (pEvent->eventType != MSG_EVENT_ADD_SIM_MSG)
 		MSG_FATAL("Wrong result(evt type %d : %s) received", pEvent->eventType, MsgDbgEvtStr(pEvent->eventType));
-		//THROW(MsgException::INCOMING_MSG_ERROR, "Wrong result(evt type %d : %s) received", pEvent->eventType, MsgDbgEvtStr(pEvent->eventType));
+		/*THROW(MsgException::INCOMING_MSG_ERROR, "Wrong result(evt type %d : %s) received", pEvent->eventType, MsgDbgEvtStr(pEvent->eventType)); */
 
-	//CID 48645: pEvent->data is an array hence null check is not required on it.
+	/*CID 48645: pEvent->data is an array hence null check is not required on it. */
 	if (retMsgId) {
 		memcpy(retMsgId, pEvent->data, sizeof(msg_message_id_t));
 		MSG_DEBUG("Saved SIM message ID = [%d]", *retMsgId);
@@ -681,19 +645,16 @@ msg_error_t MsgSimMessageListener(MSG_MESSAGE_INFO_S *pMsg, int *simIdList, msg_
 
 msg_error_t MsgResendMessageListener(void)
 {
-	// establish connection to msgfw daemon
+	/* establish connection to msgfw daemon */
 	MsgIpcClientSocket client;
-	try
-	{
+	try {
 		client.connect(MSG_SOCKET_PATH);
-	}
-	catch (MsgException& e)
-	{
+	} catch (MsgException& e) {
 		MSG_FATAL("%s", e.what());
 		return MSG_ERR_UNKNOWN;
 	}
 
-	// composing command
+	/* composing command */
 	int cmdSize = sizeof(MSG_CMD_S);
 
 	char cmdBuf[cmdSize];
@@ -701,27 +662,27 @@ msg_error_t MsgResendMessageListener(void)
 
 	MSG_CMD_S* pCmd = (MSG_CMD_S*)cmdBuf;
 
-	// Set Command Parameters
+	/* Set Command Parameters */
 	pCmd->cmdType = MSG_CMD_PLG_RESEND_MESSAGE;
 
-	// Send Command to Transaction Manager
+	/* Send Command to Transaction Manager */
 	client.write(cmdBuf, cmdSize);
 
-	// Receive result from Transaction Manager
+	/* Receive result from Transaction Manager */
 	char* retBuf = NULL;
 	unique_ptr<char*, void(*)(char**)> wrap(&retBuf, unique_ptr_deleter);
 	unsigned int retSize;
 	client.read(&retBuf, &retSize);
 
-	// close connection to msgfw daemon
+	/* close connection to msgfw daemon */
 	client.close();
 
-	// Decoding the result from FW and Returning it to plugin
+	/* Decoding the result from FW and Returning it to plugin */
 	MSG_EVENT_S* pEvent = (MSG_EVENT_S*)retBuf;
 
 	if (pEvent->eventType != MSG_EVENT_PLG_RESEND_MESSAGE)
 		MSG_FATAL("Wrong result(evt type %d : %s) received", pEvent->eventType, MsgDbgEvtStr(pEvent->eventType));
-		//THROW(MsgException::INVALID_RESULT, "Wrong result(evt type %d : %s) received", pEvent->eventType, MsgDbgEvtStr(pEvent->eventType));
+		/*THROW(MsgException::INVALID_RESULT, "Wrong result(evt type %d : %s) received", pEvent->eventType, MsgDbgEvtStr(pEvent->eventType)); */
 
 	MSG_END();
 
@@ -733,27 +694,22 @@ bool MsgCheckUniquenessListener(MSG_UNIQUE_INDEX_S *p_msg, msg_message_id_t msgI
 {
 	MSG_BEGIN();
 
-	// establish connection to msgfw daemon
+	/* establish connection to msgfw daemon */
 	MsgIpcClientSocket client;
-	try
-	{
+	try {
 		client.connect(MSG_SOCKET_PATH);
-	}
-	catch (MsgException& e)
-	{
+	} catch (MsgException& e) {
 		MSG_FATAL("%s", e.what());
 		return MSG_ERR_UNKNOWN;
 	}
 
-	// Check Invalid Message Structure
-	if (p_msg == NULL)
-	{
+	/* Check Invalid Message Structure */
+	if (p_msg == NULL) {
 		MSG_DEBUG("p_msg is NULL !!");
-
 		return MSG_ERR_NULL_MESSAGE;
 	}
 
-	// Allocate Memory to Command Data
+	/* Allocate Memory to Command Data */
 	char* encodedData = NULL;
 	unique_ptr<char*, void(*)(char**)> buf(&encodedData, unique_ptr_deleter);
 
@@ -776,8 +732,8 @@ bool MsgCheckUniquenessListener(MSG_UNIQUE_INDEX_S *p_msg, msg_message_id_t msgI
 	memcpy(p, p_msg, sizeof(MSG_UNIQUE_INDEX_S));
 	p = (void*)((char*)p + sizeof(MSG_UNIQUE_INDEX_S));
 
-	// composing command
-	int cmdSize = sizeof(MSG_CMD_S) + dataSize; // cmd type, MSG_MESSAGE_INFO_S
+	/* composing command */
+	int cmdSize = sizeof(MSG_CMD_S) + dataSize; /* cmd type, MSG_MESSAGE_INFO_S */
 
 	MSG_DEBUG("cmdSize: %d", cmdSize);
 
@@ -786,14 +742,14 @@ bool MsgCheckUniquenessListener(MSG_UNIQUE_INDEX_S *p_msg, msg_message_id_t msgI
 
 	MSG_CMD_S* pCmd = (MSG_CMD_S*) cmdBuf;
 
-	// Set Command Parameters
+	/* Set Command Parameters */
 	pCmd->cmdType = MSG_CMD_PLG_CHECK_UNIQUENESS;
 
 	memset(pCmd->cmdCookie, 0x00, MAX_COOKIE_LEN);
 
 	memcpy((void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN), encodedData, dataSize);
 
-	// Send Command to Messaging FW
+	/* Send Command to Messaging FW */
 	client.write(cmdBuf, cmdSize);
 
 	char* retBuf = NULL;
@@ -802,16 +758,16 @@ bool MsgCheckUniquenessListener(MSG_UNIQUE_INDEX_S *p_msg, msg_message_id_t msgI
 
 	client.read(&retBuf, &retSize);
 
-	// close connection to msgfw daemon
+	/* close connection to msgfw daemon */
 	client.close();
 
-	// Decoding the result from FW and Returning it to plugin
-	// the result is used for making delivery report
+	/* Decoding the result from FW and Returning it to plugin */
+	/* the result is used for making delivery report */
 	MSG_EVENT_S* pEvent = (MSG_EVENT_S*)retBuf;
 
 	if (pEvent->eventType != MSG_EVENT_PLG_CHECK_UNIQUENESS)
 		MSG_FATAL("Wrong result(evt type %d : %s) received", pEvent->eventType, MsgDbgEvtStr(pEvent->eventType));
-		//THROW(MsgException::INCOMING_MSG_ERROR, "Wrong result(evt type %d : %s) received", pEvent->eventType, MsgDbgEvtStr(pEvent->eventType));
+		/*THROW(MsgException::INCOMING_MSG_ERROR, "Wrong result(evt type %d : %s) received", pEvent->eventType, MsgDbgEvtStr(pEvent->eventType)); */
 
 	MSG_END();
 
@@ -826,19 +782,16 @@ msg_error_t MsgSimImsiListener(int sim_idx)
 {
 	MSG_BEGIN();
 
-	// establish connection to msgfw daemon
+	/* establish connection to msgfw daemon */
 	MsgIpcClientSocket client;
-	try
-	{
+	try {
 		client.connect(MSG_SOCKET_PATH);
-	}
-	catch (MsgException& e)
-	{
+	} catch (MsgException& e) {
 		MSG_FATAL("%s", e.what());
 		return MSG_ERR_UNKNOWN;
 	}
 
-	// composing command
+	/* composing command */
 	int cmdSize = sizeof(MSG_CMD_S) + sizeof(int);
 
 	char cmdBuf[cmdSize];
@@ -846,30 +799,30 @@ msg_error_t MsgSimImsiListener(int sim_idx)
 
 	MSG_CMD_S* pCmd = (MSG_CMD_S*)cmdBuf;
 
-	// Set Command Parameters
+	/* Set Command Parameters */
 	pCmd->cmdType = MSG_CMD_UPDATE_IMSI;
 
 	memset(pCmd->cmdCookie, 0x00, MAX_COOKIE_LEN);
 	memcpy((void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN), (const void *)&sim_idx, sizeof(int));
 
-	// Send Command to Transaction Manager
+	/* Send Command to Transaction Manager */
 	client.write(cmdBuf, cmdSize);
 
-	// Receive result from Transaction Manager
+	/* Receive result from Transaction Manager */
 	char* retBuf = NULL;
 	unique_ptr<char*, void(*)(char**)> wrap(&retBuf, unique_ptr_deleter);
 	unsigned int retSize;
 	client.read(&retBuf, &retSize);
 
-	// close connection to msgfw daemon
+	/* close connection to msgfw daemon */
 	client.close();
 
-	// Decoding the result from FW and Returning it to plugin
+	/* Decoding the result from FW and Returning it to plugin */
 	MSG_EVENT_S* pEvent = (MSG_EVENT_S*)retBuf;
 
 	if (pEvent->eventType != MSG_EVENT_UPDATE_IMSI)
 		MSG_FATAL("Wrong result(evt type %d : %s) received", pEvent->eventType, MsgDbgEvtStr(pEvent->eventType));
-		//THROW(MsgException::INVALID_RESULT, "Wrong result(evt type %d : %s) received", pEvent->eventType, MsgDbgEvtStr(pEvent->eventType));
+		/*THROW(MsgException::INVALID_RESULT, "Wrong result(evt type %d : %s) received", pEvent->eventType, MsgDbgEvtStr(pEvent->eventType)); */
 
 	MSG_END();
 
@@ -895,7 +848,7 @@ MsgPlugin::MsgPlugin(MSG_MAIN_TYPE_T mainType, const char *libPath): mSupportedM
 	if (!mLibHandler)
 		THROW(MsgException::PLUGIN_ERROR, "ERROR dlopen library : [%s]", libPath);
 
-	// assign the c function pointers
+	/* assign the c function pointers */
 	msg_error_t(*pFunc)(MSG_PLUGIN_HANDLER_S*) = NULL;
 
 	pFunc = (msg_error_t(*)(MSG_PLUGIN_HANDLER_S*))dlsym(mLibHandler, "MsgPlgCreateHandle");
@@ -926,7 +879,7 @@ MsgPlugin::MsgPlugin(MSG_MAIN_TYPE_T mainType, const char *libPath): mSupportedM
 	if (registerListener(&fwListener) != MSG_SUCCESS)
 		THROW(MsgException::PLUGIN_ERROR, "ERROR to register listener");
 
-	// Initialize Plug-in
+	/* Initialize Plug-in */
 	if (initialize() != MSG_SUCCESS)
 		THROW(MsgException::PLUGIN_ERROR, "ERROR to initialize plugin");
 }
@@ -935,7 +888,7 @@ MsgPlugin::MsgPlugin(MSG_MAIN_TYPE_T mainType, const char *libPath): mSupportedM
 MsgPlugin::~MsgPlugin()
 {
 	this->finalize();
-	// close mLibHandler.
+	/* close mLibHandler. */
 	if (mLibHandler != NULL)
 		dlclose(mLibHandler);
 }
@@ -1115,7 +1068,7 @@ msg_error_t MsgPlugin::composeReadReport(MSG_MESSAGE_INFO_S *pMsgInfo)
 msg_error_t MsgPlugin::restoreMsg(MSG_MESSAGE_INFO_S *pMsgInfo, char* pRecvBody, int rcvdBodyLen, char* filePath)
 {
 	if (mPlgHandler.pfRestoreMsg != NULL)
-		return mPlgHandler.pfRestoreMsg(pMsgInfo,pRecvBody, rcvdBodyLen, filePath);
+		return mPlgHandler.pfRestoreMsg(pMsgInfo, pRecvBody, rcvdBodyLen, filePath);
 	else
 		return MSG_ERR_INVALID_PLUGIN_HANDLE;
 }
@@ -1146,7 +1099,6 @@ MsgPluginManager* MsgPluginManager::instance()
 
 MsgPluginManager::MsgPluginManager()
 {
-
 }
 
 
@@ -1163,19 +1115,15 @@ void MsgPluginManager::initialize()
 
 		MsgPlugin *newPlg = NULL;
 
-		try
-		{
+		try {
 			newPlg = new MsgPlugin(__msg_plg_items[i].type, __msg_plg_items[i].path);
-		}
-		catch (MsgException& e)
-		{
+		} catch (MsgException& e) {
 			MSG_FATAL("%s", e.what());
 			continue;
 		}
 
 		if (newPlg)
 			plgMap.insert(make_pair(__msg_plg_items[i].type, newPlg));
-
 	}
 }
 
@@ -1184,8 +1132,7 @@ void MsgPluginManager::finalize()
 {
 	MsgPluginMap::iterator it;
 
-	for (it = plgMap.begin(); it != plgMap.end(); it++)
-	{
+	for (it = plgMap.begin(); it != plgMap.end(); it++) {
 		MsgPlugin *temp = it->second;
 		delete temp;
 	}

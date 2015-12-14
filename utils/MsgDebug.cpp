@@ -23,9 +23,8 @@
 ==================================================================================================*/
 const char * MsgDbgCmdStr(MSG_CMD_TYPE_T cmdType)
 {
-	switch ( cmdType )
-	{
-// 0
+	switch ( cmdType ) {
+/* 0 */
 	case MSG_CMD_OPEN_HANDLE:
 		return "MSG_CMD_OPEN_HANDLE";
 	case MSG_CMD_CLOSE_HANDLE:
@@ -36,7 +35,7 @@ const char * MsgDbgCmdStr(MSG_CMD_TYPE_T cmdType)
 		return "MSG_CMD_ADD_MSG";
 	case MSG_CMD_ADD_SYNCML_MSG:
 		return "MSG_CMD_ADD_SYNCML_MSG";
-// 5
+/* 5 */
 	case MSG_CMD_UPDATE_MSG:
 		return "MSG_CMD_UPDATE_MSG";
 	case MSG_CMD_UPDATE_READ:
@@ -47,7 +46,7 @@ const char * MsgDbgCmdStr(MSG_CMD_TYPE_T cmdType)
 		return "MSG_CMD_DELETE_MSG";
 	case MSG_CMD_DELALL_MSGINFOLDER:
 		return "MSG_CMD_DELALL_MSGINFOLDER";
-// 10
+/* 10 */
 	case MSG_CMD_MOVE_MSGTOFOLDER:
 		return "MSG_CMD_MOVE_MSGTOFOLDER";
 	case MSG_CMD_MOVE_MSGTOSTORAGE:
@@ -58,7 +57,7 @@ const char * MsgDbgCmdStr(MSG_CMD_TYPE_T cmdType)
 		return "MSG_CMD_GET_MSG";
 	case MSG_CMD_ADD_FOLDER:
 		return "MSG_CMD_ADD_FOLDER";
-// 15
+/* 15 */
 	case MSG_CMD_UPDATE_FOLDER:
 		return "MSG_CMD_UPDATE_FOLDER";
 	case MSG_CMD_DELETE_FOLDER:
@@ -69,7 +68,7 @@ const char * MsgDbgCmdStr(MSG_CMD_TYPE_T cmdType)
 		return "MSG_CMD_ADD_FILTER";
 	case MSG_CMD_UPDATE_FILTER:
 		return "MSG_CMD_UPDATE_FILTER";
-// 20
+/* 20 */
 	case MSG_CMD_DELETE_FILTER:
 		return "MSG_CMD_DELETE_FILTER";
 	case MSG_CMD_GET_FILTERLIST:
@@ -80,7 +79,7 @@ const char * MsgDbgCmdStr(MSG_CMD_TYPE_T cmdType)
 		return "MSG_CMD_GET_FILTER_OPERATION";
 	case MSG_CMD_SUBMIT_REQ:
 		return "MSG_CMD_SUBMIT_REQ";
-// 25
+/* 25 */
 	case MSG_CMD_REG_SENT_STATUS_CB:
 		return "MSG_CMD_REG_SENT_STATUS_CB";
 	case MSG_CMD_REG_STORAGE_CHANGE_CB:
@@ -91,7 +90,7 @@ const char * MsgDbgCmdStr(MSG_CMD_TYPE_T cmdType)
 		return "MSG_CMD_REG_INCOMING_MMS_CONF_MSG_CB";
 	case MSG_CMD_REG_INCOMING_SYNCML_MSG_CB:
 		return "MSG_CMD_REG_INCOMING_SYNCML_MSG_CB";
-// 30
+/* 30 */
 	case MSG_CMD_REG_INCOMING_LBS_MSG_CB:
 		return "MSG_CMD_REG_INCOMING_LBS_MSG_CB";
 	case MSG_CMD_PLG_SENT_STATUS_CNF:
@@ -102,7 +101,7 @@ const char * MsgDbgCmdStr(MSG_CMD_TYPE_T cmdType)
 		return "MSG_CMD_PLG_INCOMING_MSG_IND";
 	case MSG_CMD_PLG_INCOMING_MMS_CONF:
 		return "MSG_CMD_PLG_INCOMING_MMS_CONF";
-// 35
+/* 35 */
 	case MSG_CMD_PLG_INCOMING_SYNCML_IND:
 		return "MSG_CMD_PLG_INCOMING_SYNCML_IND";
 	case MSG_CMD_PLG_INCOMING_LBS_IND:
@@ -113,7 +112,7 @@ const char * MsgDbgCmdStr(MSG_CMD_TYPE_T cmdType)
 		return "MSG_CMD_GET_THREADVIEWLIST";
 	case MSG_CMD_DELETE_THREADMESSAGELIST:
 		return "MSG_CMD_DELETE_THREADMESSAGELIST";
-// 40
+/* 40 */
 	case MSG_CMD_GET_CONTACT_COUNT:
 		return "MSG_CMD_GET_CONTACT_COUNT";
 	case MSG_CMD_GET_QUICKPANEL_DATA:
@@ -124,7 +123,7 @@ const char * MsgDbgCmdStr(MSG_CMD_TYPE_T cmdType)
 		return "MSG_CMD_RESET_DB";
 	case MSG_CMD_GET_MEMSIZE:
 		return "MSG_CMD_GET_MEMSIZE";
-// 45
+/* 45 */
 	case MSG_CMD_BACKUP_MESSAGE:
 		return "MSG_CMD_BACKUP_MESSAGE";
 	case MSG_CMD_RESTORE_MESSAGE:
@@ -135,7 +134,7 @@ const char * MsgDbgCmdStr(MSG_CMD_TYPE_T cmdType)
 		return "MSG_CMD_REG_SYNCML_MSG_OPERATION_CB";
 	case MSG_CMD_SYNCML_OPERATION:
 		return "MSG_CMD_SYNCML_OPERATION";
-// 50
+/* 50 */
 	case MSG_CMD_GET_REPORT_STATUS:
 		return "MSG_CMD_GET_REPORT_STATUS";
 	case MSG_CMD_GET_THREAD_ID_BY_ADDRESS:
@@ -146,7 +145,7 @@ const char * MsgDbgCmdStr(MSG_CMD_TYPE_T cmdType)
 		return "MSG_CMD_GET_SMSC_OPT";
 	case MSG_CMD_GET_CB_OPT:
 		return "MSG_CMD_GET_CB_OPT";
-// 55
+/* 55 */
 	case MSG_CMD_GET_SMS_SEND_OPT:
 		return "MSG_CMD_GET_SMS_SEND_OPT";
 	case MSG_CMD_GET_MMS_SEND_OPT:
@@ -157,7 +156,7 @@ const char * MsgDbgCmdStr(MSG_CMD_TYPE_T cmdType)
 		return "MSG_CMD_GET_PUSH_MSG_OPT";
 	case MSG_CMD_GET_VOICE_MSG_OPT:
 		return "MSG_CMD_GET_VOICE_MSG_OPT";
-// 60
+/* 60 */
 	case MSG_CMD_GET_GENERAL_MSG_OPT:
 		return "MSG_CMD_GET_GENERAL_MSG_OPT";
 	case MSG_CMD_GET_MSG_SIZE_OPT:
@@ -168,7 +167,7 @@ const char * MsgDbgCmdStr(MSG_CMD_TYPE_T cmdType)
 		return "MSG_CMD_SET_CB_OPT";
 	case MSG_CMD_SET_SMS_SEND_OPT:
 		return "MSG_CMD_SET_SMS_SEND_OPT";
-// 65
+/* 65 */
 	case MSG_CMD_SET_MMS_SEND_OPT:
 		return "MSG_CMD_SET_MMS_SEND_OPT";
 	case MSG_CMD_SET_MMS_RECV_OPT:
@@ -179,7 +178,7 @@ const char * MsgDbgCmdStr(MSG_CMD_TYPE_T cmdType)
 		return "MSG_CMD_SET_VOICE_MSG_OPT";
 	case MSG_CMD_SET_GENERAL_MSG_OPT:
 		return "MSG_CMD_SET_GENERAL_MSG_OPT";
-// 70
+/* 70 */
 	case MSG_CMD_SET_MSG_SIZE_OPT:
 		return "MSG_CMD_SET_MSG_SIZE_OPT";
 	case MSG_CMD_REG_INCOMING_PUSH_MSG_CB:
@@ -190,7 +189,7 @@ const char * MsgDbgCmdStr(MSG_CMD_TYPE_T cmdType)
 		return "MSG_CMD_REG_INCOMING_CB_MSG_CB";
 	case MSG_CMD_PLG_INCOMING_CB_IND:
 		return "MSG_CMD_PLG_INCOMING_CB_IND";
-// 75
+/* 75 */
 	case MSG_CMD_ADD_PUSH_EVENT:
 		return "MSG_CMD_ADD_PUSH_EVENT";
 	case MSG_CMD_DELETE_PUSH_EVENT:
@@ -201,7 +200,7 @@ const char * MsgDbgCmdStr(MSG_CMD_TYPE_T cmdType)
 		return "MSG_CMD_DELETE_MESSAGE_BY_LIST";
 	case MSG_CMD_SET_FILTER_ACTIVATION:
 		return "MSG_CMD_SET_FILTER_ACTIVATION";
-//80
+/* 80 */
 	case MSG_CMD_ADD_SIM_MSG:
 		return "MSG_CMD_ADD_SIM_MSG";
 	case MSG_CMD_PLG_RESEND_MESSAGE:
@@ -227,9 +226,8 @@ const char * MsgDbgCmdStr(MSG_CMD_TYPE_T cmdType)
 
 const char * MsgDbgEvtStr(MSG_EVENT_TYPE_T evtType)
 {
-	switch ( evtType )
-	{
-// 0
+	switch ( evtType ) {
+/* 0 */
 	case MSG_EVENT_OPEN_HANDLE:
 		return "MSG_EVENT_OPEN_HANDLE";
 	case MSG_EVENT_CLOSE_HANDLE:
@@ -240,7 +238,7 @@ const char * MsgDbgEvtStr(MSG_EVENT_TYPE_T evtType)
 		return "MSG_EVENT_ADD_MSG";
 	case MSG_EVENT_ADD_SYNCML_MSG:
 		return "MSG_EVENT_ADD_SYNCML_MSG";
-// 5
+/* 5 */
 	case MSG_EVENT_UPDATE_MSG:
 		return "MSG_EVENT_UPDATE_MSG";
 	case MSG_EVENT_UPDATE_READ:
@@ -251,7 +249,7 @@ const char * MsgDbgEvtStr(MSG_EVENT_TYPE_T evtType)
 		return "MSG_EVENT_DELETE_MSG";
 	case MSG_EVENT_DELALL_MSGINFOLDER:
 		return "MSG_EVENT_DELALL_MSGINFOLDER";
-// 10
+/* 10 */
 	case MSG_EVENT_MOVE_MSGTOFOLDER:
 		return "MSG_EVENT_MOVE_MSGTOFOLDER";
 	case MSG_EVENT_MOVE_MSGTOSTORAGE:
@@ -262,7 +260,7 @@ const char * MsgDbgEvtStr(MSG_EVENT_TYPE_T evtType)
 		return "MSG_EVENT_GET_MSG";
 	case MSG_EVENT_ADD_FOLDER:
 		return "MSG_EVENT_ADD_FOLDER";
-// 15
+/* 15 */
 	case MSG_EVENT_UPDATE_FOLDER:
 		return "MSG_EVENT_UPDATE_FOLDER";
 	case MSG_EVENT_DELETE_FOLDER:
@@ -273,7 +271,7 @@ const char * MsgDbgEvtStr(MSG_EVENT_TYPE_T evtType)
 		return "MSG_EVENT_ADD_FILTER";
 	case MSG_EVENT_UPDATE_FILTER:
 		return "MSG_EVENT_UPDATE_FILTER";
-//20
+/* 20 */
 	case MSG_EVENT_DELETE_FILTER:
 		return "MSG_EVENT_DELETE_FILTER";
 	case MSG_EVENT_GET_FILTERLIST:
@@ -284,7 +282,7 @@ const char * MsgDbgEvtStr(MSG_EVENT_TYPE_T evtType)
 		return "MSG_EVENT_GET_FILTER_OPERATION";
 	case MSG_EVENT_SUBMIT_REQ:
 		return "MSG_EVENT_SUBMIT_REQ";
-//25
+/* 25 */
 	case MSG_EVENT_REG_SENT_STATUS_CB:
 		return "MSG_EVENT_REG_SENT_STATUS_CB";
 	case MSG_EVENT_REG_STORAGE_CHANGE_CB:
@@ -295,7 +293,7 @@ const char * MsgDbgEvtStr(MSG_EVENT_TYPE_T evtType)
 		return "MSG_EVENT_REG_INCOMING_MMS_CONF_MSG_CB";
 	case MSG_EVENT_REG_INCOMING_SYNCML_MSG_CB:
 		return "MSG_EVENT_REG_INCOMING_SYNCML_MSG_CB";
-// 30
+/* 30 */
 	case MSG_EVENT_REG_INCOMING_LBS_MSG_CB:
 		return "MSG_EVENT_REG_INCOMING_LBS_MSG_CB";
 	case MSG_EVENT_PLG_SENT_STATUS_CNF:
@@ -306,7 +304,7 @@ const char * MsgDbgEvtStr(MSG_EVENT_TYPE_T evtType)
 		return "MSG_EVENT_PLG_INCOMING_MSG_IND";
 	case MSG_EVENT_PLG_INCOMING_MMS_CONF:
 		return "MSG_EVENT_PLG_INCOMING_MMS_CONF";
-// 35
+/* 35 */
 	case MSG_EVENT_PLG_INCOMING_SYNCML_MSG_IND:
 		return "MSG_EVENT_PLG_INCOMING_SYNCML_MSG_IND";
 	case MSG_EVENT_PLG_INCOMING_LBS_MSG_IND:
@@ -317,7 +315,7 @@ const char * MsgDbgEvtStr(MSG_EVENT_TYPE_T evtType)
 		return "MSG_EVENT_GET_THREADVIEWLIST";
 	case MSG_EVENT_DELETE_THREADMESSAGELIST:
 		return "MSG_EVENT_DELETE_THREADMESSAGELIST";
-// 40
+/* 40 */
 	case MSG_EVENT_GET_CONTACT_COUNT:
 		return "MSG_EVENT_GET_CONTACT_COUNT";
 	case MSG_EVENT_GET_QUICKPANEL_DATA:
@@ -328,7 +326,7 @@ const char * MsgDbgEvtStr(MSG_EVENT_TYPE_T evtType)
 		return "MSG_EVENT_RESET_DB";
 	case MSG_EVENT_GET_MEMSIZE:
 		return "MSG_EVENT_GET_MEMSIZE";
-// 45
+/* 45 */
 	case MSG_EVENT_BACKUP_MESSAGE:
 		return "MSG_EVENT_BACKUP_MESSAGE";
 	case MSG_EVENT_RESTORE_MESSAGE:
@@ -339,7 +337,7 @@ const char * MsgDbgEvtStr(MSG_EVENT_TYPE_T evtType)
 		return "MSG_EVENT_REG_SYNCML_MSG_OPERATION_CB";
 	case MSG_EVENT_SYNCML_OPERATION:
 		return "MSG_EVENT_SYNCML_OPERATION";
-// 50
+/* 50 */
 	case MSG_EVENT_GET_REPORT_STATUS:
 		return "MSG_EVENT_GET_REPORT_STATUS";
 	case MSG_EVENT_GET_THREAD_ID_BY_ADDRESS:
@@ -350,7 +348,7 @@ const char * MsgDbgEvtStr(MSG_EVENT_TYPE_T evtType)
 		return "MSG_EVENT_GET_SMSC_OPT";
 	case MSG_EVENT_GET_CB_OPT:
 		return "MSG_EVENT_GET_CB_OPT";
-// 55
+/* 55 */
 	case MSG_EVENT_GET_SMS_SEND_OPT:
 		return "MSG_EVENT_GET_SMS_SEND_OPT";
 	case MSG_EVENT_GET_MMS_SEND_OPT:
@@ -361,7 +359,7 @@ const char * MsgDbgEvtStr(MSG_EVENT_TYPE_T evtType)
 		return "MSG_EVENT_GET_PUSH_MSG_OPT";
 	case MSG_EVENT_GET_VOICE_MSG_OPT:
 		return "MSG_EVENT_GET_VOICE_MSG_OPT";
-// 60
+/* 60 */
 	case MSG_EVENT_GET_GENERAL_MSG_OPT:
 		return "MSG_EVENT_GET_GENERAL_MSG_OPT";
 	case MSG_EVENT_GET_MSG_SIZE_OPT:
@@ -372,7 +370,7 @@ const char * MsgDbgEvtStr(MSG_EVENT_TYPE_T evtType)
 		return "MSG_EVENT_SET_CB_OPT";
 	case MSG_EVENT_SET_SMS_SEND_OPT:
 		return "MSG_EVENT_SET_SMS_SEND_OPT";
-// 65
+/* 65 */
 	case MSG_EVENT_SET_MMS_SEND_OPT:
 		return "MSG_EVENT_SET_MMS_SEND_OPT";
 	case MSG_EVENT_SET_MMS_RECV_OPT:
@@ -383,7 +381,7 @@ const char * MsgDbgEvtStr(MSG_EVENT_TYPE_T evtType)
 		return "MSG_EVENT_SET_VOICE_MSG_OPT";
 	case MSG_EVENT_SET_GENERAL_MSG_OPT:
 		return "MSG_EVENT_SET_GENERAL_MSG_OPT";
-// 70
+/* 70 */
 	case MSG_EVENT_SET_MSG_SIZE_OPT:
 		return "MSG_EVENT_SET_MSG_SIZE_OPT";
 	case MSG_EVENT_REG_INCOMING_PUSH_MSG_CB:
@@ -394,7 +392,7 @@ const char * MsgDbgEvtStr(MSG_EVENT_TYPE_T evtType)
 		return "MSG_EVENT_REG_INCOMING_CB_MSG_CB";
 	case MSG_EVENT_PLG_INCOMING_CB_MSG_IND:
 		return "MSG_EVENT_PLG_INCOMING_CB_MSG_IND";
-// 75
+/* 75 */
 	case MSG_EVENT_ADD_PUSH_EVENT:
 		return "MSG_EVENT_ADD_PUSH_EVENT";
 	case MSG_EVENT_DELETE_PUSH_EVENT:
@@ -405,7 +403,7 @@ const char * MsgDbgEvtStr(MSG_EVENT_TYPE_T evtType)
 		return "MSG_EVENT_DELETE_MESSAGE_BY_LIST";
 	case MSG_EVENT_SET_FILTER_ACTIVATION:
 		return "MSG_EVENT_SET_FILTER_ACTIVATION";
-// 80
+/* 80 */
 	case MSG_EVENT_ADD_SIM_MSG:
 		return "MSG_EVENT_ADD_SIM_MSG";
 	case MSG_EVENT_PLG_RESEND_MESSAGE:

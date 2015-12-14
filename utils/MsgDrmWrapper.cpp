@@ -36,7 +36,7 @@
 #include <drm_client_types.h>
 #include <drm_client.h>
 
-#endif //MSG_DRM_SUPPORT
+#endif /* MSG_DRM_SUPPORT */
 
 #define MSG_MAX_DRM_FILE_PATH MSG_FILEPATH_LEN_MAX
 
@@ -89,7 +89,7 @@ bool MsgDrmUnregisterFile(char *szFilename)
 
 	drm_request_type_e request_type = DRM_REQUEST_TYPE_UNREGISTER_FILE;
 
-	int eDRMResult = drm_process_request(request_type, szFilename, NULL); // Unregister a DCF file
+	int eDRMResult = drm_process_request(request_type, szFilename, NULL); /* Unregister a DCF file */
 	if (DRM_RETURN_SUCCESS != eDRMResult) {
 		MSG_DEBUG("drm_process_request : %d", eDRMResult);
 		return false;
@@ -131,7 +131,7 @@ bool MsgDrmConvertDmtoDcfType(char *inputFile, char *outputFile)
 		MSG_SEC_DEBUG("Current File extension is .dm %s", inputFile);
 		int ret;
 
-		FILE *fp = MsgOpenFile(inputFile, "rb");//Check fp
+		FILE *fp = MsgOpenFile(inputFile, "rb");/* Check fp */
 
 		if (fp == NULL) {
 			MSG_DEBUG("[File Open Fail(Errno=%d)][ErrStr=%s]", errno, strerror(errno));
@@ -175,7 +175,7 @@ bool MsgDrmConvertDmtoDcfType(char *inputFile, char *outputFile)
 		strncpy(outputFile, inputFile, pathLen - 2);
 		strncat(outputFile, "dcf", 3);
 
-		readed_size = MsgReadFile(buffer, 1, bufLen, fp);//Check for error
+		readed_size = MsgReadFile(buffer, 1, bufLen, fp);/* Check for error */
 		MSG_DEBUG("fread read size = %d", readed_size);
 		if (readed_size == 0) {
 			MsgCloseFile(fp);
@@ -272,7 +272,7 @@ bool MsgDrmGetDrmType(const char *szFileName, MSG_DRM_TYPE *eDRMType)
 			return false;
 		}
 
-		// Convert DRM_METHOD into MSG_DRM_TYPE
+		/* Convert DRM_METHOD into MSG_DRM_TYPE */
 		switch (drmInfo.oma_info.method) {
 		case DRM_METHOD_TYPE_FORWARD_LOCK:
 			*eDRMType = MSG_DRM_FORWARD_LOCK;
@@ -307,13 +307,13 @@ bool MsgDrmGetMimeTypeEx(const char *szFileName, char *szMimeType, int nMimeType
 		return false;
 	}
 
-	char strTemp[MSG_MAX_DRM_FILE_PATH + 1] = {0,};
+	char strTemp[MSG_MAX_DRM_FILE_PATH + 1] = {0, };
 
 	strncpy(strTemp, szFileName, strlen(szFileName));
 
 	drm_content_info_s tdcfContentinfo;
 	memset(&tdcfContentinfo, 0x00, sizeof(drm_content_info_s));
-	int eDRMResult = drm_get_content_info(strTemp, &tdcfContentinfo); // Get attribute of DRM File
+	int eDRMResult = drm_get_content_info(strTemp, &tdcfContentinfo); /* Get attribute of DRM File */
 	if (DRM_RETURN_SUCCESS == eDRMResult) {
 		MSG_DEBUG("contentType = %s", tdcfContentinfo.mime_type);
 		snprintf(szMimeType, nMimeTypeLen, "%s", tdcfContentinfo.mime_type);
@@ -337,7 +337,7 @@ bool MsgDrmGetContentID(const char *szFileName, char *szContentID, int nContentI
 		return false;
 	}
 
-	char strTemp[MSG_MAX_DRM_FILE_PATH + 1] = {0,};
+	char strTemp[MSG_MAX_DRM_FILE_PATH + 1] = {0, };
 
 	strncpy(strTemp, szFileName, sizeof(strTemp)-1);
 

@@ -29,13 +29,11 @@ SmsPluginMsgCodec* SmsPluginMsgCodec::pInstance = NULL;
 
 SmsPluginMsgCodec::SmsPluginMsgCodec()
 {
-
 }
 
 
 SmsPluginMsgCodec::~SmsPluginMsgCodec()
 {
-
 }
 
 
@@ -252,7 +250,7 @@ int SmsPluginMsgCodec::encodeP2PMsg(const sms_trans_p2p_msg_s *p_msg, unsigned c
 		p_pkg_str[offset++] = SMS_TRANS_PARAM_SERVICE_CATEGORY;
 		p_pkg_str[offset++] = 0x02;
 		/* fixed */
-		_copy_short_to_char(&p_pkg_str[offset],&(p_msg->svc_ctg));
+		_copy_short_to_char(&p_pkg_str[offset], &(p_msg->svc_ctg));
 	}
 
 	/* 3. Address */
@@ -357,7 +355,7 @@ int SmsPluginMsgCodec::encodeCBMsg(const sms_trans_broadcast_msg_s *p_msg, unsig
 	/* 1. Service Category(Mandatory) */
 	p_pkg_str[offset++] = SMS_TRANS_PARAM_SERVICE_CATEGORY;
 	p_pkg_str[offset++] = 0x02;
-	_copy_short_to_char(&p_pkg_str[offset],&p_msg->svc_ctg);
+	_copy_short_to_char(&p_pkg_str[offset], &p_msg->svc_ctg);
 
 
 	/* 2. Bearer Data(Optional) */
@@ -467,7 +465,6 @@ int SmsPluginMsgCodec::encodeAckMsg(const sms_trans_ack_msg_s *p_msg, unsigned c
 	MSG_END();
 
 	return offset;
-
 }
 
 
@@ -589,7 +586,6 @@ int SmsPluginMsgCodec::encodeTelesvcDeliverReportMsg(const sms_telesvc_report_s 
 			offset--;
 
 		p_pkg_str[len_index] = offset - len_index - 1;
-
 	}
 
 	/* 4. Language Indicator (Optional) */
@@ -683,7 +679,6 @@ int SmsPluginMsgCodec::encodeTelesvcSubmitMsg(const sms_telesvc_submit_s *p_msg,
 			offset--;
 
 		p_pkg_str[len_index] = offset - len_index - 1;
-
 	}
 	/* Sprint and Verizon issue */
 	/* 3. Validity Period */
@@ -1160,7 +1155,7 @@ void SmsPluginMsgCodec::decodeP2PDeliverMsg(const unsigned char *p_pkg_str, int 
 			if (p_del->enhanced_vmn.an_digit_mode) {
 				p_del->enhanced_vmn.an_number_plan = (sms_number_plan_t)(tmp_str[tmp_off++] & 0x0f);
 				p_del->enhanced_vmn.an_num_field = tmp_str[tmp_off++];
-				for (int i=0; i<p_del->enhanced_vmn.an_num_field; i++) {
+				for (int i = 0; i < p_del->enhanced_vmn.an_num_field; i++) {
 					switch (tmp_str[tmp_off] & 0xf0) {
 					case 0x10:
 					case 0x20:
@@ -1201,7 +1196,7 @@ void SmsPluginMsgCodec::decodeP2PDeliverMsg(const unsigned char *p_pkg_str, int 
 			if (p_del->enhanced_vmn.cli_digit_mode) {
 				p_del->enhanced_vmn.cli_number_plan = (sms_number_plan_t)(tmp_str[tmp_off++] & 0x0f);
 				p_del->enhanced_vmn.cli_num_field = tmp_str[tmp_off++];
-				for (int i=0; i<p_del->enhanced_vmn.cli_num_field; i++) {
+				for (int i = 0; i < p_del->enhanced_vmn.cli_num_field; i++) {
 					switch (tmp_str[tmp_off] & 0xf0) {
 					case 0x10:
 					case 0x20:
@@ -1251,11 +1246,11 @@ void SmsPluginMsgCodec::decodeP2PDeliverMsg(const unsigned char *p_pkg_str, int 
 			p_del->enhanced_vmn_ack.num_delete_ack = tmp_str[offset] >> 5;
 			p_del->enhanced_vmn_ack.num_play_ack = (tmp_str[offset] & 0x1c) >> 2;
 			_shiftNBit_for_decode(tmp_str, tmp_len, 6);
-			for (int i=0; i<p_del->enhanced_vmn_ack.num_delete_ack; i++) {
+			for (int i = 0; i < p_del->enhanced_vmn_ack.num_delete_ack; i++) {
 				p_del->enhanced_vmn_ack.da_vm_msg_id[i] = tmp_str[offset] << 8 | tmp_str[offset+1];
 				offset += 2;
 			}
-			for (int i=0; i<p_del->enhanced_vmn_ack.num_play_ack; i++) {
+			for (int i = 0; i < p_del->enhanced_vmn_ack.num_play_ack; i++) {
 				p_del->enhanced_vmn_ack.pa_vm_msg_id[i] = tmp_str[offset] << 8 | tmp_str[offset+1];
 				offset += 2;
 			}
@@ -2052,8 +2047,6 @@ void SmsPluginMsgCodec::decodeCallBackNum(const unsigned char *p_pkg_str, int pk
 			_shiftNBit_for_decode(tmp_str, pkg_len, 4);
 		}
 	}
-
-
 }
 
 

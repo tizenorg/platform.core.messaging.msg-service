@@ -119,7 +119,6 @@ bool MmsRemoveMarkup(const char *src, char *dst, int dstsize)
 	srcptr = src;
 
 	while (*srcptr != '\0' && ((dstptr-dst) < dstsize)) {
-
 		if (*srcptr == '<') state = M_IN;
 		if (*srcptr == '>') state = M_OUT;
 
@@ -150,7 +149,6 @@ bool MmsReplaceSpaceChar(char *pszText)
 	char *spaceCharPtr = strchr(pszText, ' ');
 
 	while (spaceCharPtr) {
-
 		*spaceCharPtr = '_';
 
 		spaceCharPtr = strchr(pszText, ' ');
@@ -180,7 +178,6 @@ char *MmsReplaceNonAsciiUtf8(const char *szSrc, char replaceChar)
 	ptr = (const unsigned char*)szSrc;
 
 	while (offset < srcLen && *(ptr) != '\0') {
-
 		b1 = *(ptr);
 
 		if ((b1 & 0x80) == 0) { /* 1byte : 0xxx xxxx */
@@ -204,7 +201,6 @@ char *MmsReplaceNonAsciiUtf8(const char *szSrc, char replaceChar)
 			}
 
 		} else if ((b1 & 0xF0) == 0xE0) { /* 3byte : 1110 xxxx */
-
 			offset += 3;
 
 			if (offset > srcLen)
@@ -221,7 +217,6 @@ char *MmsReplaceNonAsciiUtf8(const char *szSrc, char replaceChar)
 			}
 
 		} else if ((b1 & 0xF8) == 0xF0) { /* 4byte : 1111 xxxx */
-
 			offset += 4;
 
 			if (offset > srcLen)
@@ -273,7 +268,6 @@ bool MmsIsUtf8String(const unsigned char *szSrc, int nChar)
 	ptr = (const unsigned char*)szSrc;
 
 	while (offset < srcLen && *(ptr) != '\0') {
-
 		b1 = *(ptr);
 
 		if ((b1 & 0x80) == 0) { /* 1byte : 0xxx xxxx */
@@ -294,7 +288,6 @@ bool MmsIsUtf8String(const unsigned char *szSrc, int nChar)
 			}
 
 		} else if ((b1 & 0xF0) == 0xE0) { /* 3byte : 1110 xxxx */
-
 			offset += 3;
 
 			if (offset > srcLen)
@@ -310,7 +303,6 @@ bool MmsIsUtf8String(const unsigned char *szSrc, int nChar)
 			}
 
 		} else if ((b1 & 0xF8) == 0xF0) { /* 4byte : 1111 xxxx */
-
 			offset += 4;
 
 			if (offset > srcLen)

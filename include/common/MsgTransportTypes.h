@@ -71,5 +71,5 @@ typedef struct
  *	@}
  */
 
-#endif // MSG_TRANSPORT_TYPES_H
+#endif /* MSG_TRANSPORT_TYPES_H */
 

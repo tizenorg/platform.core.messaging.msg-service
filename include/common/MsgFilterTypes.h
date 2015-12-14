@@ -63,5 +63,5 @@ typedef struct
  *	@}
  */
 
-#endif // MSG_FILTER_TYPES_H
+#endif /* MSG_FILTER_TYPES_H */
 

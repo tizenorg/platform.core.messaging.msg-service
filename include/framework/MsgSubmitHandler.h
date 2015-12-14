@@ -36,5 +36,5 @@ msg_error_t MsgUpdateSentMsg(msg_message_id_t MsgId, msg_network_status_t Status
 
 void MsgCopyReqInfo(MSG_REQUEST_INFO_S *pSrc, int addrIdx, MSG_REQUEST_INFO_S *pDest);
 
-#endif // MSG_SUBMIT_HANDLER_H
+#endif /* MSG_SUBMIT_HANDLER_H */
 

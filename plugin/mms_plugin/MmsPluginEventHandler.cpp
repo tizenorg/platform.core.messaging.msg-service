@@ -48,7 +48,6 @@ MmsPluginEventHandler::MmsPluginEventHandler()
 
 MmsPluginEventHandler::~MmsPluginEventHandler()
 {
-
 }
 
 
@@ -129,7 +128,7 @@ TapiHandle *MmsPluginEventHandler::getTelHandle(int sim_idx)
 
 void MmsPluginEventHandler::handleMmsReceivedData(mmsTranQEntity *pRequest, char *pRetrievedFilePath)
 {
-	MSG_MESSAGE_INFO_S msgInfo = {0,};
+	MSG_MESSAGE_INFO_S msgInfo = {0, };
 	msgInfo.sim_idx = pRequest->simId;
 
 	switch (pRequest->eMmsPduType) {

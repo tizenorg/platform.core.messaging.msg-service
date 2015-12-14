@@ -114,7 +114,7 @@ public:
 	void getColumnToString(int RowIndex, int Length, char *pString);
 	msg_error_t getRowId(const char *pTableName, unsigned int *pRowId);
 	void getMmapMutex(const char *shm_file_name);
-	void shm_mutex_timedlock (int sec);
+	void shm_mutex_timedlock(int sec);
 	void shm_mutex_unlock();
 
 private:
@@ -129,5 +129,5 @@ private:
 
 MsgDbHandler *getDbHandle();
 void removeDbHandle();
-#endif // MSG_SQLITE_WRAPPER_H
+#endif /* MSG_SQLITE_WRAPPER_H */
 

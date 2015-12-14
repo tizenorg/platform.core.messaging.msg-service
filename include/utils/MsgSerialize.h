@@ -25,5 +25,5 @@ int MsgDeserializeMmsJsonData(char* value, int value_len, MMS_DATA_S **ppMmsData
 int MsgSerializeMms(const MMS_DATA_S *pMsgData, char **pValue);
 int MsgDeserializeMmsData(char* value, int value_len, MMS_DATA_S **ppMmsData);
 
-#endif //MSG_MMS_SERIALIZE_H
+#endif /* MSG_MMS_SERIALIZE_H */
 

@@ -31,10 +31,10 @@ class MmsPluginUaManager: public MsgThread {
 		void getMmsPduData(mmsTranQEntity *qEntity);
 		bool processReceivedData(int msgId, char *pRcvdBody, int rcvdBodyLen, char *retrievedFilePath);
 
-		void lock(){ mx.lock(); }
-		void unlock(){ mx.unlock(); }
-		void wait(){ cv.wait(mx.pMutex()); }
-		void signal(){ cv.signal(); }
+		void lock() { mx.lock(); }
+		void unlock() { mx.unlock(); }
+		void wait() { cv.wait(mx.pMutex()); }
+		void signal() { cv.signal(); }
 
 	private:
 		MmsPluginUaManager();

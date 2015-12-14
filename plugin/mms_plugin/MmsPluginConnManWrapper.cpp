@@ -206,7 +206,6 @@ void __connection_profile_state_changed_cb(connection_profile_state_e state, voi
 	MmsPluginCmAgent *cmAgent = MmsPluginCmAgent::instance();
 
 	cmAgent->connection_profile_state_changed_cb(state, user_data);
-
 }
 
 static gboolean __connection_create(void *pVoid)
@@ -223,7 +222,6 @@ static gboolean __connection_create(void *pVoid)
 		int err = connection_create(&g_connection);
 
 		if (CONNECTION_ERROR_NONE == err) {
-
 			connection_cellular_state_e cellular_state;
 			connection_type_e net_state;
 
@@ -233,7 +231,6 @@ static gboolean __connection_create(void *pVoid)
 
 			if (cellular_state == CONNECTION_CELLULAR_STATE_AVAILABLE
 				|| cellular_state == CONNECTION_CELLULAR_STATE_CONNECTED) {
-
 				MSG_INFO("Client registration success [%p], cellular_state [%d], net_state [%d]", g_connection, cellular_state, net_state);
 
 				err = connection_set_type_changed_cb(g_connection, __connection_type_changed_cb, NULL);
@@ -244,12 +241,10 @@ static gboolean __connection_create(void *pVoid)
 
 				ret = true;
 			} else {
-
 				MSG_INFO("Client registration Failed,  cellular state [%d], net_state [%d]", cellular_state, net_state);
 				connection_destroy(g_connection);
 				g_connection = NULL;
 			}
-
 		} else {
 			MSG_WARN("Client registration failed %d", err);
 		}
@@ -305,15 +300,12 @@ static gboolean __connection_profile_open(void *pVoid)
 		MSG_ERR("connection_get_default_cellular_service_profile Failed!! [%d]", err);
 		netOpenResult = MSG_CM_ERR_UNKNOWN;
 	} else {
-
 		err = connection_profile_set_state_changed_cb(g_profile, __connection_profile_state_changed_cb, g_profile);
 
 		if (connection_open_profile(g_connection, g_profile, __connection_profile_opened_cb, NULL) != CONNECTION_ERROR_NONE) {
 			MSG_ERR("Connection open Failed!!");
 			netOpenResult = MSG_CM_ERR_UNKNOWN;
 		}
-
-
 	}
 
 	if (ret_val) {
@@ -481,7 +473,7 @@ bool MmsPluginCmAgent::open()
 
 __ERR_RETURN:
 	context_invoke(__connection_profile_close, NULL);
-	context_invoke( __connection_destroy, NULL);
+	context_invoke(__connection_destroy, NULL);
 	unlock();
 	MSG_END();
 	return isCmOpened;
@@ -550,14 +542,12 @@ void MmsPluginCmAgent::connection_profile_open_callback(connection_error_e resul
 	int err = CONNECTION_ERROR_NONE;
 
 	if (result == CONNECTION_ERROR_NONE || result == CONNECTION_ERROR_ALREADY_EXISTS) {
-
 		err = connection_get_cellular_state(g_connection, &state);
 
 		MSG_INFO("connection_get_cellular_state ret [%d], state [%d]", err, state);
 
 		err = connection_get_default_cellular_service_profile(g_connection, CONNECTION_CELLULAR_SERVICE_TYPE_MMS, &profile);
 		if (err != CONNECTION_ERROR_NONE || profile == NULL) {
-
 			MSG_ERR("Failed connection_get_default_cellular_service_profile. err [%d], profile [%p]", err, profile);
 			goto __SIGNAL_RETURN;
 		}
@@ -567,7 +557,6 @@ void MmsPluginCmAgent::connection_profile_open_callback(connection_error_e resul
 		MSG_DEBUG("profile state [%d]", profile_state);
 
 		if (profile_state == CONNECTION_PROFILE_STATE_CONNECTED && waitProfileOpen == true) {
-
 			__connection_profile_print(profile);
 
 			MSG_FREE(this->home_url);
@@ -597,12 +586,10 @@ void MmsPluginCmAgent::connection_profile_open_callback(connection_error_e resul
 		} else {
 			goto __NO_SIGNAL_RETURN; /* Just open success */
 		}
-
 	} else {
 		MSG_ERR("connection open profile Failed!! [%d]", result);
 		isCmOpened = false;
 		goto __SIGNAL_RETURN;
-
 	}
 
 __NO_SIGNAL_RETURN: /* Just Open */
@@ -659,12 +646,11 @@ void MmsPluginCmAgent::connection_profile_state_changed_cb(connection_profile_st
 	/* Should get profile to get latest profile info*/
 	err = connection_get_default_cellular_service_profile(g_connection, CONNECTION_CELLULAR_SERVICE_TYPE_MMS, &profile);
 	if (err != CONNECTION_ERROR_NONE || profile == NULL) {
-
 		MSG_ERR("Failed connection_get_default_cellular_service_profile. err [%d], profile [%p]", err, profile);
 		goto __SIGNAL_RETURN;
 	}
 
-	if (state == CONNECTION_PROFILE_STATE_CONNECTED ) {
+	if (state == CONNECTION_PROFILE_STATE_CONNECTED) {
 		__connection_profile_print(profile);
 
 		MSG_FREE(this->home_url);
@@ -691,7 +677,7 @@ void MmsPluginCmAgent::connection_profile_state_changed_cb(connection_profile_st
 		goto __SIGNAL_RETURN;
 	}
 
-__NO_SIGNAL_RETURN://Default
+__NO_SIGNAL_RETURN: /* Default */
 	unlock();
 	return;
 

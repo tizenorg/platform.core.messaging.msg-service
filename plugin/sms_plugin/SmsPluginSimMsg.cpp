@@ -57,8 +57,6 @@ SmsPluginSimMsg::SmsPluginSimMsg()
 
 SmsPluginSimMsg::~SmsPluginSimMsg()
 {
-
-
 }
 
 
@@ -75,7 +73,7 @@ void SmsPluginSimMsg::initSimMessage(TapiHandle *handle)
 {
 	MSG_BEGIN();
 
-	char keyName[MAX_VCONFKEY_NAME_LEN] = {0,};
+	char keyName[MAX_VCONFKEY_NAME_LEN] = {0, };
 	int sim_idx = SmsPluginDSHandler::instance()->getSimIndex(handle);
 
 	snprintf(keyName, sizeof(keyName), "%s/%d", SIM_USED_COUNT, sim_idx);
@@ -157,7 +155,7 @@ msg_error_t SmsPluginSimMsg::saveSimMessage(const MSG_MESSAGE_INFO_S *pMsgInfo, 
 	if (pMsgInfo->direction == MSG_DIRECTION_TYPE_MO) {
 		tpdu.tpduType = SMS_TPDU_SUBMIT;
 		tpdu.data.submit.dcs.msgClass = SMS_MSG_CLASS_NONE;
-		//SmsPluginTransport::instance()->setSmsSendOptions(&(tpdu.data.submit));
+		/*SmsPluginTransport::instance()->setSmsSendOptions(&(tpdu.data.submit));*/
 		tpdu.data.submit.vpf = SMS_VPF_NOT_PRESENT;
 		tpdu.data.submit.dcs.codingScheme = SMS_CHARSET_AUTO;
 	} else {
@@ -216,16 +214,15 @@ msg_error_t SmsPluginSimMsg::saveSimMessage(const MSG_MESSAGE_INFO_S *pMsgInfo, 
 		}
 
 		if (submitData.segCount > 1) {
-			if (pMsgInfo->direction == MSG_DIRECTION_TYPE_MO){ /* SUBMIT MSG */
+			if (pMsgInfo->direction == MSG_DIRECTION_TYPE_MO) { /* SUBMIT MSG */
 				tpdu.data.submit.bHeaderInd = true;
 			} else {
 				tpdu.data.deliver.bHeaderInd = true;
 			}
-
 		}
 
 		for (unsigned int segCnt = 0; segCnt < submitData.segCount; segCnt++) {
-			if (pMsgInfo->direction == MSG_DIRECTION_TYPE_MO){
+			if (pMsgInfo->direction == MSG_DIRECTION_TYPE_MO) {
 				memcpy(&(tpdu.data.submit.userData), &(submitData.userData[segCnt]), sizeof(SMS_USERDATA_S));
 			} else {
 				memcpy(&(tpdu.data.deliver.userData), &(submitData.userData[segCnt]), sizeof(SMS_USERDATA_S));
@@ -312,7 +309,6 @@ msg_error_t SmsPluginSimMsg::saveSimMessage(const MSG_MESSAGE_INFO_S *pMsgInfo, 
 
 msg_error_t SmsPluginSimMsg::saveClass2Message(const MSG_MESSAGE_INFO_S *pMsgInfo)
 {
-
 	msg_error_t err = MSG_SUCCESS;
 	bool bSimSst = true;
 	int tapiRet = TAPI_API_SUCCESS;
@@ -402,7 +398,7 @@ msg_error_t SmsPluginSimMsg::saveClass2Message(const MSG_MESSAGE_INFO_S *pMsgInf
 
 	for (unsigned int segCnt = 0; segCnt < submitData.segCount; segCnt++) {
 		/* Create TelSmsData_t data */
-		TelSmsData_t simSmsData = {0,};
+		TelSmsData_t simSmsData = {0, };
 
 		if (submitData.segCount == 1) {
 			memcpy(&simSmsData.SmsData.Sca, &simMsgDataInfo.sca, sizeof(simSmsData.SmsData.Sca));
@@ -613,7 +609,7 @@ void SmsPluginSimMsg::setSmsOptions(const MSG_MESSAGE_INFO_S* pMsgInfo, SMS_DELI
 	pDeliver->dcs.codingGroup = SMS_GROUP_GENERAL;
 
 	/* use encoding type of received message instead of message settings */
-	//pDeliver->dcs.codingScheme = (SMS_CODING_SCHEME_T)MsgSettingGetInt(SMS_SEND_DCS);
+	/*pDeliver->dcs.codingScheme = (SMS_CODING_SCHEME_T)MsgSettingGetInt(SMS_SEND_DCS);*/
 	pDeliver->dcs.codingScheme = pMsgInfo->encodeType;
 
 	MSG_DEBUG("DCS : %d", pDeliver->dcs.codingScheme);
@@ -632,30 +628,30 @@ void SmsPluginSimMsg::convertTimeStamp(const MSG_MESSAGE_INFO_S* pMsgInfo, SMS_D
 	pDeliver->timeStamp.format = SMS_TIME_ABSOLUTE;
 
 	/* encode absolute time */
-	struct tm timeinfo = {0,};
+	struct tm timeinfo = {0, };
 	tzset();
 	localtime_r(&pMsgInfo->displayTime, &timeinfo);
 
 	pDeliver->timeStamp.time.absolute.year = timeinfo.tm_year - 100;
-	MSG_DEBUG("pDeliver->timeStamp.time.absolute.year is %d",pDeliver->timeStamp.time.absolute.year);
+	MSG_DEBUG("pDeliver->timeStamp.time.absolute.year is %d", pDeliver->timeStamp.time.absolute.year);
 
 	pDeliver->timeStamp.time.absolute.month = timeinfo.tm_mon + 1;
-	MSG_DEBUG("pDeliver->timeStamp.time.absolute.month is %d",pDeliver->timeStamp.time.absolute.month);
+	MSG_DEBUG("pDeliver->timeStamp.time.absolute.month is %d", pDeliver->timeStamp.time.absolute.month);
 
 	pDeliver->timeStamp.time.absolute.day = timeinfo.tm_mday;
-	MSG_DEBUG("pDeliver->timeStamp.time.absolute.day is %d",pDeliver->timeStamp.time.absolute.day);
+	MSG_DEBUG("pDeliver->timeStamp.time.absolute.day is %d", pDeliver->timeStamp.time.absolute.day);
 
 	pDeliver->timeStamp.time.absolute.hour = timeinfo.tm_hour;
-	MSG_DEBUG("pDeliver->timeStamp.time.absolute.hour is %d",pDeliver->timeStamp.time.absolute.hour);
+	MSG_DEBUG("pDeliver->timeStamp.time.absolute.hour is %d", pDeliver->timeStamp.time.absolute.hour);
 
 	pDeliver->timeStamp.time.absolute.minute = timeinfo.tm_min;
-	MSG_DEBUG("pDeliver->timeStamp.time.absolute.minute is %d",pDeliver->timeStamp.time.absolute.minute);
+	MSG_DEBUG("pDeliver->timeStamp.time.absolute.minute is %d", pDeliver->timeStamp.time.absolute.minute);
 
 	pDeliver->timeStamp.time.absolute.second = timeinfo.tm_sec;
-	MSG_DEBUG("pDeliver->timeStamp.time.absolute.second is %d",pDeliver->timeStamp.time.absolute.second);
+	MSG_DEBUG("pDeliver->timeStamp.time.absolute.second is %d", pDeliver->timeStamp.time.absolute.second);
 
 	pDeliver->timeStamp.time.absolute.timeZone = 0;
-	MSG_DEBUG("pDeliver->timeStamp.time.absolute.timeZone is %d",pDeliver->timeStamp.time.absolute.timeZone);
+	MSG_DEBUG("pDeliver->timeStamp.time.absolute.timeZone is %d", pDeliver->timeStamp.time.absolute.timeZone);
 
 	MSG_END();
 }
@@ -668,7 +664,7 @@ void SmsPluginSimMsg::setSimMsgCntEvent(TapiHandle *handle, const MSG_SIM_COUNT_
 	MSG_INFO("Sim Message Count is %d.", pSimMsgCnt->usedCount);
 
 	int sim_idx = SmsPluginDSHandler::instance()->getSimIndex(handle);
-	char keyName[MAX_VCONFKEY_NAME_LEN]= {0,};
+	char keyName[MAX_VCONFKEY_NAME_LEN] = {0, };
 
 	for (int i = 0; i < pSimMsgCnt->usedCount; i++) {
 		MSG_DEBUG("Sim Message Index is %d.", pSimMsgCnt->indexList[i]);
@@ -726,7 +722,7 @@ void SmsPluginSimMsg::setSimMsgEvent(TapiHandle *handle, const MSG_MESSAGE_INFO_
 
 		memcpy(&simMsgInfo, pMsgInfo, sizeof(MSG_MESSAGE_INFO_S));
 		simMsgInfo.addressList = &simAddrInfo;
-		memcpy(&simAddrInfo,pMsgInfo->addressList, sizeof(MSG_ADDRESS_INFO_S));
+		memcpy(&simAddrInfo, pMsgInfo->addressList, sizeof(MSG_ADDRESS_INFO_S));
 	}
 
 	cv.signal();
@@ -811,7 +807,7 @@ void SmsPluginSimMsg::setSaveSimMsgEvent(TapiHandle *handle, int simId, int resu
 void SmsPluginSimMsg::setSaveClass2MsgEvent(TapiHandle *handle, int simId, int result, MSG_MESSAGE_INFO_S *pMsgInfo)
 {
 	msg_error_t err = MSG_SUCCESS;
-//	int sim_idx = SmsPluginDSHandler::instance()->getSimIndex(handle);
+	/*int sim_idx = SmsPluginDSHandler::instance()->getSimIndex(handle); */
 
 	if (result == TAPI_NETTEXT_SENDSMS_SUCCESS && simId >= 0 && pMsgInfo) {
 		bool isNewSimMsg = true;

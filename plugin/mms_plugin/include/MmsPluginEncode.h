@@ -45,6 +45,5 @@ private:
 
 	MmsPluginEncoder();
 	~MmsPluginEncoder();
-
 };
 #endif /* MMS_PLUGIN_ENCODE_H */

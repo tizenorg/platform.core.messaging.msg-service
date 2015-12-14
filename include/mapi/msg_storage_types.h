@@ -204,12 +204,12 @@ enum _MSG_COUNT_LIMIT_MSG_TYPE_E {
  *	        This enum is used with storage change callback functions.
  */
 enum _MSG_STORAGE_CHANGE_TYPE_E {
-	// msg data
+	/* msg data */
 	MSG_STORAGE_CHANGE_INSERT = 1,			/**< Indicates storage change by an INSERT operation*/
 	MSG_STORAGE_CHANGE_UPDATE,				/**< Indicates storage change by an UPDATE operation*/
 	MSG_STORAGE_CHANGE_DELETE,				/**< Indicates storage change by a DELETE operation*/
 
-	// thread data
+	/* thread data */
 	MSG_STORAGE_CHANGE_CONTACT,				/**< Indicates storage change by a CHANGE CONTACT operation*/
 };
 

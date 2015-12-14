@@ -34,8 +34,8 @@ bool MmsPluginDrmGetInfo(const char *szFilePath, MsgType *pMsgType)
 		return false;
 	}
 
-	char szMimeType[DRM_MAX_LEN_MIME + 1] = {0,};
-	char szContentID[DRM_MAX_LEN_CID + 1] = {0,};
+	char szMimeType[DRM_MAX_LEN_MIME + 1] = {0, };
+	char szContentID[DRM_MAX_LEN_CID + 1] = {0, };
 	MSG_DRM_TYPE drmType = MSG_DRM_NONE;
 	int ret = 0;
 

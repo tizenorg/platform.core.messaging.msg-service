@@ -38,7 +38,6 @@ SmsPluginUAManager::SmsPluginUAManager() : mx(), cv()
 
 SmsPluginUAManager::~SmsPluginUAManager()
 {
-
 }
 
 
@@ -91,7 +90,7 @@ void SmsPluginUAManager::run()
 
 void SmsPluginUAManager::addReqEntity(SMS_REQUEST_INFO_S *request)
 {
-	SMS_REQUEST_INFO_S reqTmp = {0,};
+	SMS_REQUEST_INFO_S reqTmp = {0, };
 
 	memcpy(&reqTmp, request, sizeof(SMS_REQUEST_INFO_S));
 

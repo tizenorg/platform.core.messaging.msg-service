@@ -90,7 +90,7 @@ msg_error_t MsgPlgCreateHandle(MSG_PLUGIN_HANDLER_S *pPluginHandle)
 		pPluginHandle->pfAddMessage = SmsPlgAddMessage;
 
 		MSG_DEBUG("SMS plugin: create handler OK");
-		MSG_DEBUG ("SMS plugin %p", pPluginHandle);
+		MSG_DEBUG("SMS plugin %p", pPluginHandle);
 	}
 
 	return MSG_SUCCESS;
@@ -189,7 +189,6 @@ msg_error_t SmsPlgSubmitRequest(MSG_REQUEST_INFO_S *pReqInfo)
 	/* Add Submit SMS into DB */
 	if (pReqInfo->msgInfo.msgId == 0) {
 		if (pReqInfo->msgInfo.msgPort.valid == false) {
-
 			err = SmsPluginStorage::instance()->checkMessage(&(pReqInfo->msgInfo));
 
 			if (err != MSG_SUCCESS) {
@@ -268,7 +267,6 @@ msg_error_t SmsPlgSetReadStatus(msg_sim_id_t SimMsgId)
 
 msg_error_t SmsPlgSetMemoryStatus(msg_error_t Error)
 {
-
 	int tapiRet = TAPI_API_SUCCESS;
 	int status = TAPI_NETTEXT_PDA_MEMORY_STATUS_AVAILABLE;
 

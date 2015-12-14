@@ -62,7 +62,6 @@ void MmsPluginAppBase::makePreviewInfo(msg_message_id_t  msgId, bool allow_malwa
 
 void MmsPluginAppBase::getFirstPageTextFilePath(char *textBuf, int textBufSize)
 {
-
 	MMS_PAGE_S *pPage = NULL;
 	MMS_MEDIA_S *pMedia = NULL;
 
@@ -73,17 +72,13 @@ void MmsPluginAppBase::getFirstPageTextFilePath(char *textBuf, int textBufSize)
 
 	/* Get the text data from the 1st slide. */
 	if (pMmsMsgData->pageCnt > 0) {
-
 		pPage = _MsgMmsGetPage(pMmsMsgData, 0);
 
 		if (pPage) {
-
 			for (int j = 0; j < pPage->mediaCnt; ++j) {
-
 				pMedia = _MsgMmsGetMedia(pPage, j);
 
 				if (pMedia && pMedia->mediatype == MMS_SMIL_MEDIA_TEXT) {
-
 					MimeType mimeType = MIME_UNKNOWN;
 
 					MsgGetMimeTypeFromFileName(MIME_MAINTYPE_UNKNOWN, pMedia->szFilePath, &mimeType, NULL);
@@ -99,8 +94,7 @@ void MmsPluginAppBase::getFirstPageTextFilePath(char *textBuf, int textBufSize)
 			}
 		}
 	} else {
-		/* (P151014-01246)
-		 * Set filepath of the first text/plain attachment to display preview text on notification */
+		/* Set filepath of the first text/plain attachment to display preview text on notification */
 		if (pMmsMsgData->attachlist) {
 			GList *l = pMmsMsgData->attachlist;
 			while (l) {
@@ -137,7 +131,7 @@ msg_error_t MmsMakePreviewInfo(int msgId, MMS_MESSAGE_DATA_S *pMmsMsg, bool allo
 
 	/* scan malware in raw file */
 	if (raw_filepath && strlen(raw_filepath) > 0 && MsgAccessFile(raw_filepath, F_OK) == true) {
-		int tcs_ret = 0; // MmsPluginTcsScanFile(raw_filepath, &bc_level);
+		int tcs_ret = 0; /* MmsPluginTcsScanFile(raw_filepath, &bc_level); */
 		if (tcs_ret == 0) {
 			if (bc_level > -1) {
 				MSG_DEBUG("malware exist, level = %d", bc_level);
@@ -154,11 +148,9 @@ msg_error_t MmsMakePreviewInfo(int msgId, MMS_MESSAGE_DATA_S *pMmsMsg, bool allo
 				for (int j = 0; j < pPage->mediaCnt; j++) {
 					pMedia = _MsgMmsGetMedia(pPage, j);
 					if (pMedia) { /* IF Vobject type add to Attach in Preview data */
-
 						MimeType mimeType = MIME_UNKNOWN;
 						MsgGetMimeTypeFromFileName(MIME_MAINTYPE_UNKNOWN, pMedia->szFilePath, &mimeType, NULL);
 						if (mimeType == MIME_TEXT_X_VCALENDAR || mimeType == MIME_TEXT_X_VCARD) {
-
 							MSG_DEBUG("Unsupported File [%s] It will be add to attach list", pMedia->szFilePath);
 
 							ref_attach_count++;
@@ -167,7 +159,6 @@ msg_error_t MmsMakePreviewInfo(int msgId, MMS_MESSAGE_DATA_S *pMmsMsg, bool allo
 								attachment_name = pMedia->szFileName;
 							}
 						}
-
 					}
 				}
 			}
@@ -176,14 +167,12 @@ msg_error_t MmsMakePreviewInfo(int msgId, MMS_MESSAGE_DATA_S *pMmsMsg, bool allo
 
 
 	if (pMmsMsg->pageCnt > 0) {
-
 		MmsPluginStorage::instance()->insertPreviewInfo(msgId, MSG_MMS_ITEM_TYPE_PAGE, (char *)"pagecount", pMmsMsg->pageCnt);
 
 		pPage = _MsgMmsGetPage(pMmsMsg, 0);
 
 		if (pPage) {
 			for (int j = 0; j < pPage->mediaCnt; j++) {
-
 				pMedia = _MsgMmsGetMedia(pPage, j);
 
 				if (pMedia == NULL) {
@@ -198,7 +187,6 @@ msg_error_t MmsMakePreviewInfo(int msgId, MMS_MESSAGE_DATA_S *pMmsMsg, bool allo
 						MmsPluginStorage::instance()->insertPreviewInfo(msgId, MSG_MMS_ITEM_TYPE_AUDIO, pMedia->szFileName);
 					}
 				} else {
-
 					if (j == 0) { /* First Page, First Media */
 						MmsPluginStorage::instance()->insertPreviewInfo(msgId, MSG_MMS_ITEM_TYPE_1ST_MEDIA, pMedia->szFilePath);
 					}
@@ -214,8 +202,7 @@ msg_error_t MmsMakePreviewInfo(int msgId, MMS_MESSAGE_DATA_S *pMmsMsg, bool allo
 						MSG_SEC_DEBUG("drm type = %d, %s", pMedia->drmType, pMedia->szFilePath);
 
 						if (pMedia->drmType == MSG_DRM_TYPE_NONE) {
-
-							snprintf(szFileName, MSG_FILENAME_LEN_MAX+1, "%d.mms",msgId);
+							snprintf(szFileName, MSG_FILENAME_LEN_MAX+1, "%d.mms", msgId);
 
 							if ((pszExt = strrchr(pMedia->szFilePath, '.')) != NULL && !strcasecmp(pszExt, ".png")) {
 								snprintf(thumbPath, MSG_FILEPATH_LEN_MAX, "%s%s.png", MSG_THUMBNAIL_PATH, szFileName);
@@ -245,7 +232,6 @@ msg_error_t MmsMakePreviewInfo(int msgId, MMS_MESSAGE_DATA_S *pMmsMsg, bool allo
 
 	int attachCnt = _MsgMmsGetAttachCount(pMmsMsg);
 	if (attachCnt > 0) {
-
 		MMS_ATTACH_S *pAttach = _MsgMmsGetAttachment(pMmsMsg, 0);
 
 		MmsPluginStorage::instance()->insertPreviewInfo(msgId, MSG_MMS_ITEM_TYPE_ATTACH, pAttach->szFileName, attachCnt);
@@ -254,13 +240,11 @@ msg_error_t MmsMakePreviewInfo(int msgId, MMS_MESSAGE_DATA_S *pMmsMsg, bool allo
 		if (attachment_name == NULL) {
 			attachment_name = pAttach->szFileName;
 		}
-
 	} else {
 		MSG_DEBUG("There is no attachment");
 	}
 
 	if (attachCnt + ref_attach_count > 0 && attachment_name) {
-
 		MmsPluginStorage::instance()->insertPreviewInfo(msgId, MSG_MMS_ITEM_TYPE_ATTACH, attachment_name, attachCnt + ref_attach_count);
 		MmsPluginStorage::instance()->updateMmsAttachCount(msgId, attachCnt + ref_attach_count);
 	}

@@ -38,7 +38,7 @@ msg_error_t MsgHandle::submitReq(MSG_REQUEST_S* pReq)
 
 #ifdef CHECK_SENT_STATUS_CALLBACK
 	if (MsgProxyListener::instance()->getSentStatusCbCnt() <= 0)
-		THROW(MsgException::SENT_STATUS_ERROR,"Register sent status callback");
+		THROW(MsgException::SENT_STATUS_ERROR, "Register sent status callback");
 #endif
 
 	MSG_REQUEST_INFO_S reqInfo = {0};
@@ -60,7 +60,7 @@ msg_error_t MsgHandle::submitReq(MSG_REQUEST_S* pReq)
 		/* In case MMS read report, get address value later. */
 		if (reqmsg->subType != MSG_READREPLY_MMS) {
 			if (reqmsg->addr_list && (reqmsg->addr_list->nCount > 0) && (reqmsg->addr_list->nCount <= MAX_TO_ADDRESS_CNT)) {
-				MSG_DEBUG("Recipient address count [%d]", reqmsg->addr_list->nCount );
+				MSG_DEBUG("Recipient address count [%d]", reqmsg->addr_list->nCount);
 			} else if (g_list_length(reqmsg->addressList) > 0) {
 				MSG_DEBUG("Recipient address count [%d]", g_list_length(reqmsg->addressList) );
 			} else {
@@ -96,14 +96,14 @@ msg_error_t MsgHandle::submitReq(MSG_REQUEST_S* pReq)
 	} else {
 		/* in case of JAVA MMS msg, parse mms transaction id from pMmsData */
 		reqmsg->networkStatus = MSG_NETWORK_SENDING;
-		strncpy(trId, (char*)reqmsg->pMmsData+3,MMS_TR_ID_LEN);
-		MSG_SEC_DEBUG("JavaMMS transaction Id:%s ",trId);
+		strncpy(trId, (char*)reqmsg->pMmsData+3, MMS_TR_ID_LEN);
+		MSG_SEC_DEBUG("JavaMMS transaction Id:%s", trId);
 	}
 
 	/* Convert MSG_MESSAGE_S to MSG_MESSAGE_INFO_S */
 	convertMsgStruct(reqmsg, &(reqInfo.msgInfo));
 
-	MSG_MESSAGE_TYPE_S msgType = {0,};
+	MSG_MESSAGE_TYPE_S msgType = {0, };
 
 	msgType.mainType = reqmsg->mainType;
 	msgType.subType = reqmsg->subType;
@@ -168,7 +168,7 @@ msg_error_t MsgHandle::submitReq(MSG_REQUEST_S* pReq)
 	/* Get Return Data */
 	MSG_EVENT_S* pEvent = (MSG_EVENT_S*) pEventData;
 
-	int ret[3] = {0,};
+	int ret[3] = {0, };
 
 	memcpy(&ret, (void*)pEvent->data, sizeof(ret));
 
@@ -355,7 +355,7 @@ msg_error_t MsgHandle::regMmsConfMessageCallback(msg_mms_conf_msg_incoming_cb on
 
 	memcpy((void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN), &cmdParam, sizeof(cmdParam));
 
-	MSG_DEBUG("reg new msg [%s], fd:%d, appId:%s", MsgDbgCmdStr(pCmd->cmdType), cmdParam.listenerFd,  (pAppId)? cmdParam.appId:"NULL" );
+	MSG_DEBUG("reg new msg [%s], fd:%d, appId:%s", MsgDbgCmdStr(pCmd->cmdType), cmdParam.listenerFd, (pAppId)? cmdParam.appId:"NULL");
 
 	/* Send Command to Messaging FW */
 	char* pEventData = NULL;
@@ -609,7 +609,7 @@ msg_error_t MsgHandle::regPushMessageCallback(msg_push_msg_incoming_cb onPushMsg
 
 	memcpy((void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN), &cmdParam, sizeof(cmdParam));
 
-	MSG_DEBUG("reg new msg [%s], fd:%d, appId:%s", MsgDbgCmdStr(pCmd->cmdType), cmdParam.listenerFd,  (pAppId)? cmdParam.appId:"NULL" );
+	MSG_DEBUG("reg new msg [%s], fd:%d, appId:%s", MsgDbgCmdStr(pCmd->cmdType), cmdParam.listenerFd, (pAppId)? cmdParam.appId:"NULL");
 
 	/* Send Command to Messaging FW */
 	char* pEventData = NULL;

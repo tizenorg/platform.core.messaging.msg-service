@@ -243,7 +243,7 @@ static const MimeTable mimeTable[] = {
 	/* 151 */
 	{"video/mpeg4",										"mp4",				true,		MIME_VIDEO_MPEG4,								MIME_VIDEO_MP4,							MIME_APPLICATION_MEDIAPLAYER,			MIME_MAINTYPE_VIDEO,		UNDEFINED_BINARY	},
 	{"video/mp4",											"mp4",				true,		MIME_VIDEO_MP4,									MIME_VIDEO_MP4,							MIME_APPLICATION_MEDIAPLAYER,			MIME_MAINTYPE_VIDEO,		UNDEFINED_BINARY	},
-	{"video/h263",											""/*,3gpp,mp4"*/,true,		MIME_VIDEO_H263,								MIME_VIDEO_H263,						MIME_APPLICATION_MEDIAPLAYER,			MIME_MAINTYPE_VIDEO,		UNDEFINED_BINARY	},
+	{"video/h263",											""/*,3gpp,mp4"*/,	true,		MIME_VIDEO_H263,								MIME_VIDEO_H263,						MIME_APPLICATION_MEDIAPLAYER,			MIME_MAINTYPE_VIDEO,		UNDEFINED_BINARY	},
 	{"video/3gpp",											"3gp"/*,3gpp"*/,	true,		MIME_VIDEO_3GPP,								MIME_VIDEO_3GPP,						MIME_APPLICATION_MEDIAPLAYER,			MIME_MAINTYPE_VIDEO,		UNDEFINED_BINARY	},
 	{"video/3gp",											"3gp"/*,3gpp"*/,	true,		MIME_VIDEO_3GP,									MIME_VIDEO_3GP,							MIME_APPLICATION_MEDIAPLAYER,			MIME_MAINTYPE_VIDEO,		UNDEFINED_BINARY	},
 	{"video/avi",											"avi",				false,		MIME_VIDEO_AVI,									MIME_VIDEO_AVI,							MIME_APPLICATION_MEDIAPLAYER,			MIME_MAINTYPE_VIDEO,		UNDEFINED_BINARY	},
@@ -264,7 +264,6 @@ static const MimeTable mimeTable[] = {
 	{"video/x-ms-wmv",										"wmv",				true,		MIME_VIDEO_X_MS_WMV,							MIME_VIDEO_X_MS_WMV,					MIME_APPLICATION_MEDIAPLAYER,			MIME_MAINTYPE_VIDEO,			UNDEFINED_BINARY	},
 	{"video/x-ms-asf",										"asf",				true,		MIME_VIDEO_X_MS_ASF,							MIME_VIDEO_X_MS_ASF,					MIME_APPLICATION_MEDIAPLAYER,			MIME_MAINTYPE_VIDEO,			UNDEFINED_BINARY	},
 	{"video/x-pv-pvx",										"pvx",				true,		MIME_VIDEO_X_PV_PVX,							MIME_VIDEO_X_PV_PVX,					MIME_APPLICATION_MEDIAPLAYER,			MIME_MAINTYPE_VIDEO,			UNDEFINED_BINARY	}
-
 };
 
 /**********		 MIME table information	    ***********/
@@ -538,7 +537,7 @@ int __MimeGetTableIndexInt(MimeType mime)
 	index = (mime & 0x003f);
 
 	/* If 'type' is zero, mimeTableIndex's array value have a minus value */
-	// If 'type' is zero, mime type is '*\/*'
+	/* If 'type' is zero, mime type is '\*\/\*' */
 	if (type == 0)
 		tableIndex = 0;
 	else
@@ -571,7 +570,7 @@ int __MimeGetTableIndexString(const char *szMime)
 		return MIME_UNKNOWN;
 	}
 
-	szMIMEType = (char * )malloc(strlen(szMime) + 1);
+	szMIMEType = (char *)malloc(strlen(szMime) + 1);
 
 	if (szMIMEType == NULL) {
 		MSG_DEBUG("szMime is NULL");
@@ -750,7 +749,6 @@ typedef struct {
 #define EXT_TABLE_SIZE (58)
 
 const ExtTableItem extTable[EXT_TABLE_SIZE] = {
-
 	/* text */
 	{"txt",   MIME_MAINTYPE_TEXT, MIME_TEXT_PLAIN, "text/plain"},
 	{"html",  MIME_MAINTYPE_TEXT, MIME_TEXT_HTML, "text/html"},
@@ -819,7 +817,6 @@ const ExtTableItem extTable[EXT_TABLE_SIZE] = {
 	{"ro",    MIME_MAINTYPE_APPLICATION, MIME_APPLICATION_VND_OMA_DRM_RIGHTS_WBXML, "application/vnd.oma.drm.rights+wbxml"},
 	{"oro",   MIME_MAINTYPE_APPLICATION, MIME_APPLICATION_VND_OMA_DRM_RO_XML, "application/vnd.oma.drm.ro+xml"},
 	{"odf",   MIME_MAINTYPE_APPLICATION, MIME_APPLICATION_VND_OMA_DRM_DCF, "application/vnd.oma.drm.dcf"},
-
 };
 
 /* GetMimeType from File Extension */
@@ -836,9 +833,7 @@ bool MsgGetMimeTypeFromExt(MimeMainType mainType, const char *pExt, MimeType *pM
 	int extTableMainSize = sizeof(extTable)/sizeof(ExtTableItem);
 
 	for (int i = 0; i < extTableMainSize; i++) {
-
 		if (strcasecmp(extTable[i].szExt, pExt) == 0) {
-
 			matchedItem = &extTable[i];
 
 			if (mainType == extTable[i].mainType) {

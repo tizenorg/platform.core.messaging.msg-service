@@ -38,35 +38,35 @@ void msg_json_gen_set_value(msg_json_gen_object *parent, const char *key, const 
 char* msg_json_gen_make_json_msg(msg_json_gen_object *root_obj, unsigned long *len);
 
 #define MSG_JSON_OBJ_SET_STR(json_obj, key, val)\
-	if(json_obj && key && val){\
+	if (json_obj && key && val) {\
 		json_object_set_string_member(json_obj, key, val);\
 	} else {\
 		MSG_DEBUG("Error : json_obj = %p, key = %s, val = %s", json_obj, key, val);\
 	}
 
 #define MSG_JSON_OBJ_SET_INT(json_obj, key, val)\
-	if(json_obj && key){\
+	if (json_obj && key) {\
 		json_object_set_int_member(json_obj, key, val);\
 	} else {\
 		MSG_DEBUG("Error : json_obj = %p, key = %s, val = %d", json_obj, key, val);\
 	}
 
 #define MSG_JSON_OBJ_SET_OBJ(json_obj, key, val)\
-	if(json_obj && key){\
+	if (json_obj && key) {\
 		json_object_set_object_member(json_obj, key, val);\
 	} else {\
 		MSG_DEBUG("Error : json_obj = %p, key = %s, val = %p", json_obj, key, val);\
 	}
 
 #define MSG_JSON_OBJ_SET_ARRAY(json_obj, key, json_array)\
-	if(json_obj && key && json_array){\
+	if (json_obj && key && json_array) {\
 		json_object_set_array_member(json_obj, key, json_array);\
 	} else {\
 		MSG_DEBUG("Error : json_obj = %p, key = %s, json_array = %p", json_obj, key, json_array);\
 	}
 
 #define MSG_JSON_ARRAY_ADD_OBJECT(json_array, json_obj)\
-	if(json_array && json_obj){\
+	if (json_array && json_obj) {\
 		json_array_add_object_element(json_array, json_obj);\
 	} else {\
 		MSG_DEBUG("Error : json_array = %p, json_obj = %p", json_array, json_obj);\

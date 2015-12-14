@@ -35,7 +35,7 @@ class SmsPluginUAManager : public MsgThread
 public:
 	static SmsPluginUAManager* instance();
 
-	//virtual void start();
+	/* virtual void start(); */
 
 	void addReqEntity(SMS_REQUEST_INFO_S *request);
 

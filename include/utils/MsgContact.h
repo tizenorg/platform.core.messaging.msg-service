@@ -23,9 +23,6 @@
 #include "MsgStorageTypes.h"
 #include "MsgInternalTypes.h"
 
-
-
-//contacts-service is not used for gear
 #ifndef MSG_CONTACTS_SERVICE_NOT_SUPPORTED
 /*==================================================================================================
                                      FUNCTION PROTOTYPES
@@ -45,10 +42,10 @@ void MsgAddPhoneLog(const MSG_MESSAGE_INFO_S *pMsgInfo);
 void MsgDeletePhoneLog(msg_message_id_t msgId);
 
 bool checkBlockingMode(char *address, bool *pisFavorites);
-#endif //MSG_CONTACTS_SERVICE_NOT_SUPPORTED
+#endif /* MSG_CONTACTS_SERVICE_NOT_SUPPORTED */
 
 int MsgContactGetMinMatchDigit();
 void MsgConvertNumber(const char* pSrcNum, char* pDestNum, int destSize);
 bool MsgIsNumber(const char* pSrc);
-#endif //MSG_CONTACT_H
+#endif /* MSG_CONTACT_H */
 

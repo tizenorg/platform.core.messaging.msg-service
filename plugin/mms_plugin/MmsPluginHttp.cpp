@@ -25,7 +25,7 @@
 #include "MmsPluginUtil.h"
 
 static void __http_print_profile(CURL *curl);
-static int __http_debug_cb (CURL *input_curl, curl_infotype input_info_type, char *input_data , size_t input_size, void *input_void);
+static int __http_debug_cb(CURL *input_curl, curl_infotype input_info_type, char *input_data, size_t input_size, void *input_void);
 
 static void __httpAllocHeaderInfo(curl_slist **responseHeaders, char *szUrl, int ulContentLen);
 static bool __httpGetHeaderField(MMS_HTTP_HEADER_FIELD_T httpHeaderItem, char *szHeaderBuffer);
@@ -35,7 +35,7 @@ static void __httpGetHost(char *szUrl, char *szHost, int nBufferLen);
                                      FUNCTION IMPLEMENTATION
 ==================================================================================================*/
 
-static int __http_debug_cb (CURL *input_curl, curl_infotype input_info_type, char *input_data , size_t input_size, void *input_void)
+static int __http_debug_cb(CURL *input_curl, curl_infotype input_info_type, char *input_data, size_t input_size, void *input_void)
 {
 	MSG_SEC_INFO("curl_infotype [%d] : %s", input_info_type, input_data);
 	return 0;
@@ -144,7 +144,7 @@ static void __httpAllocHeaderInfo(curl_slist **responseHeaders, char *szUrl, int
 	memset(pcheader, 0, HTTP_REQUEST_LEN);
 
 	__httpGetHost(szUrl, szBuffer, 1024);
-	if (strlen(szBuffer)){
+	if (strlen(szBuffer)) {
 		snprintf(pcheader, HTTP_REQUEST_LEN, "Host: %s", szBuffer);
 		MSG_INFO("%s", pcheader);
 		*responseHeaders = curl_slist_append(*responseHeaders, pcheader);
@@ -410,11 +410,11 @@ static int __http_multi_perform(void *session)
 
 		retval = select(max_fd+1, &fd_r, &fd_w, &fd_excp, &timeout);
 
-		if (retval == -1){ /* select error */
+		if (retval == -1) { /* select error */
 			MSG_ERR("select error");
 			ret = -1;
 			break;
-		} else if (retval == 0){	/* timeout */
+		} else if (retval == 0) {	/* timeout */
 			MSG_ERR("time out");
 			ret = -1;
 			break;
@@ -430,12 +430,10 @@ static int __http_multi_perform(void *session)
 		}
 
 		MSG_INFO("curl_multi_perform end : rcm = %d, still_running = %d, cm_open = %d", rcm, still_running, connection_open_flag);
-
 	} while (still_running && (connection_open_flag == true));
 
 	while ((msg = curl_multi_info_read(multi_handle, &msgs_left))) {
 		if (msg->msg == CURLMSG_DONE) {
-
 			if (msg->easy_handle == session) {
 				MSG_INFO("HTTP transfer completed with status %d", msg->data.result);
 				if (msg->data.result != 0) {
@@ -458,8 +456,7 @@ static int __http_multi_perform(void *session)
 MmsPluginHttpAgent *MmsPluginHttpAgent::pInstance = NULL;
 MmsPluginHttpAgent *MmsPluginHttpAgent::instance()
 {
-	if (!pInstance)
-	{
+	if (!pInstance) {
 		pInstance = new MmsPluginHttpAgent();
 	}
 
@@ -563,15 +560,13 @@ MMS_HTTP_ERROR_E MmsPluginHttpAgent::setSession(http_request_info_s &request_inf
 
 	/* Verify request info */
 	if (request_info.transaction_type != MMS_HTTP_TRANSACTION_TYPE_GET
-			&& request_info.transaction_type != MMS_HTTP_TRANSACTION_TYPE_POST)
-	{
+			&& request_info.transaction_type != MMS_HTTP_TRANSACTION_TYPE_POST) {
 		MSG_ERR("transaction_type of request_info is Invaild [%d]", request_info.transaction_type);
 		http_error = MMS_HTTP_ERROR_TRANSACTION_TYPE;
 		goto __CATCH;
 	}
 
 	if (request_info.transaction_type == MMS_HTTP_TRANSACTION_TYPE_POST) {
-
 		if (request_info.post_data == NULL || request_info.post_data_len == 0) {
 			MSG_ERR("post data info is Invaild");
 			http_error = MMS_HTTP_ERROR_SESSION;
@@ -703,7 +698,6 @@ MMS_HTTP_ERROR_E MmsPluginHttpAgent::httpRequest(http_request_info_s &request_in
 
 	/* close conf file & load response data */
 	if (respfile) {
-
 		fclose(respfile);
 		respfile = NULL;
 

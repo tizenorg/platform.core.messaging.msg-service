@@ -551,10 +551,10 @@ bool MmsEncodeReadReport10(FILE *pFile, MmsMsg *pMsg, msg_read_report_status_t m
 	}
 
 	/* make report body .. */
-	maxLen = strlen (pszReportMsg) +16 /* date string */ + 8 /* enter chars */ ;
+	maxLen = strlen(pszReportMsg) + 16 /* date string */ + 8 /* enter chars */ ;
 
 	if (maxLen > MSG_STDSTR_LONG) {
-		snprintf (pText, MSG_STDSTR_LONG, "%s", pszReportMsg);
+		snprintf(pText, MSG_STDSTR_LONG, "%s", pszReportMsg);
 	} else {
 		snprintf(pText, MSG_STDSTR_LONG, "%s\r\n\r\n%.4d/%.2d/%.2d %.2d:%.2d\r\n",
 						pszReportMsg, dateTime.tm_year+1900, dateTime.tm_mon+1, dateTime.tm_mday, dateTime.tm_hour, dateTime.tm_min);
@@ -728,8 +728,7 @@ static bool __MmsBinaryEncodeSendReqHdr(FILE *pFile, MmsMsg *pMsg)
 
 
 	/* To = Encoded-string-value */
-	if (__MmsBinaryEncodeAddress(pFile, MMS_CODE_TO, pMsg->mmsAttrib.szTo) == false)
-	{
+	if (__MmsBinaryEncodeAddress(pFile, MMS_CODE_TO, pMsg->mmsAttrib.szTo) == false) {
 		MSG_DEBUG("To __MmsBinaryEncodeAddress fail");
 		goto __CATCH;
 	}
@@ -875,7 +874,6 @@ static bool __MmsBinaryEncodeSendReqHdr(FILE *pFile, MmsMsg *pMsg)
 
 	if ((pMsg->mmsAttrib.replyCharge.chargeType == MMS_REPLY_REQUESTED) ||
 		(pMsg->mmsAttrib.replyCharge.chargeType == MMS_REPLY_REQUESTED_TEXT_ONLY)) {
-
 		/* reply charging */
 		fieldCode = MmsGetBinaryValue(MmsCodeFieldCode, MMS_CODE_REPLYCHARGING)|0x80;
 		fieldValue = MmsGetBinaryValue(MmsCodeReadReply, pMsg->mmsAttrib.replyCharge.chargeType)|0x80;
@@ -907,7 +905,7 @@ static bool __MmsBinaryEncodeSendReqHdr(FILE *pFile, MmsMsg *pMsg)
 
 			gpMmsEncodeBuf[gCurMmsEncodeBuffPos++] = MmsGetBinaryValue(MmsCodeFieldCode, MMS_CODE_REPLYCHARGINGSIZE) | 0x80;
 
-			if (__MmsBinaryEncodeInteger(pFile, pMsg->mmsAttrib.replyCharge.chargeSize, length) == false)	{
+			if (__MmsBinaryEncodeInteger(pFile, pMsg->mmsAttrib.replyCharge.chargeSize, length) == false) {
 				MSG_DEBUG("replyChargingSize MmsBinaryEncodeInteger error");
 				goto __CATCH;
 			}
@@ -1042,7 +1040,7 @@ static bool __MmsBinaryEncodeReadReport10Hdr(FILE *pFile, MmsMsg *pMsg, msg_read
 			snprintf(szSubject, MSG_LOCALE_SUBJ_LEN + 8, "%s", MMS_READ_REPORT_STRING_READ);
 
 		} else {
-			snprintf(szSubject, MSG_LOCALE_SUBJ_LEN + 8, "%s", MMS_READ_REPORT_STRING_DELETED );
+			snprintf(szSubject, MSG_LOCALE_SUBJ_LEN + 8, "%s", MMS_READ_REPORT_STRING_DELETED);
 		}
 	}
 
@@ -1159,7 +1157,7 @@ static bool __MmsBinaryEncodeReadReport11Hdr(FILE *pFile, MmsMsg *pMsg, msg_read
 			goto __CATCH;
 		}
 
-		snprintf(szTo, length + 11,"%s/TYPE=PLMN", pMsg->mmsAttrib.szFrom);
+		snprintf(szTo, length + 11, "%s/TYPE=PLMN", pMsg->mmsAttrib.szFrom);
 		MSG_DEBUG("To = %s", szTo);
 
 		if (__MmsBinaryEncodeAddress(pFile, MMS_CODE_TO, szTo) == false) {
@@ -1230,7 +1228,6 @@ static bool __MmsBinaryEncodeMsgBody(FILE *pFile, MsgType *pType, MsgBody *pBody
 	}
 
 	if (MmsIsMultipart(pType->type)) {
-
 		int	nEntries   = 0;
 		/* ---------------------------
 		 *       Multipart message
@@ -1365,7 +1362,7 @@ static int __MmsBinaryEncodeContentTypeLen(MsgType *pType)
 	contentType = pType->type;
 
 	fieldValue = MmsGetBinaryValue(MmsCodeContentType, contentType);
-	if (fieldValue == UNDEFINED_BINARY || fieldValue == 0x0049)	{
+	if (fieldValue == UNDEFINED_BINARY || fieldValue == 0x0049) {
 		/* Extension-media type */
 		szTextType = MmsGetTextValue(MmsCodeContentType, contentType);
 		if (szTextType != NULL) {
@@ -1406,7 +1403,7 @@ static int __MmsBinaryEncodeContentTypeLen(MsgType *pType)
 
 	if (pType->param.szName[0]) {
 		char* pszName = NULL;
-		if (MmsIsAsciiString (pType->param.szName)) {
+		if (MmsIsAsciiString(pType->param.szName)) {
 			MSG_DEBUG("Name is consisted of ascii char-set chars.");
 		} else {
 			isAscii = false;
@@ -1600,7 +1597,7 @@ static bool __MmsBinaryEncodeContentType(FILE *pFile, MsgType *pType, int typeLe
 	if (pType->param.szName[0]) {
 		MSG_SEC_DEBUG("Parameter Name : %s", pType->param.szName);
 		char *pszName = NULL;
-		if (MmsIsAsciiString (pType->param.szName)) {
+		if (MmsIsAsciiString(pType->param.szName)) {
 			MSG_DEBUG("Name is consisted of ascii char-set chars.");
 		} else {
 			isAscii = false;
@@ -1666,7 +1663,6 @@ static bool __MmsBinaryEncodeContentType(FILE *pFile, MsgType *pType, int typeLe
 			MSG_DEBUG(" szApplicationID MmsBinaryEncodeTextString fail");
 			goto __CATCH;
 		}
-
 	}
 
 	/* ReplyToApplicationID: Text-string */
@@ -1718,7 +1714,7 @@ static bool __MmsBinaryEncodeContentType(FILE *pFile, MsgType *pType, int typeLe
 	} else {
 		/* Any-charset */
 		if (MmsIsTextType(contentType)) {
-			if (!MmsIsVitemContent (contentType, pType->param.szName)) {
+			if (!MmsIsVitemContent(contentType, pType->param.szName)) {
 				gpMmsEncodeBuf[gCurMmsEncodeBuffPos++] = MmsGetBinaryValue(MmsCodeParameterCode, MSG_PARAM_CHARSET) | 0x80;
 				fieldValue = 0x0000;	/* laconic_warning, just to remove warning message */
 				gpMmsEncodeBuf[gCurMmsEncodeBuffPos++] = (UINT8)fieldValue | 0x80;
@@ -1916,7 +1912,7 @@ static bool __MmsBinaryEncodeMsgPart(FILE *pFile, int contentType, MsgType *pTyp
 			goto __CATCH;
 		}
 
-		if (__MmsBinaryEncodeContentHeader(pFile, (MimeType)contentType, pType, true) == false)	{
+		if (__MmsBinaryEncodeContentHeader(pFile, (MimeType)contentType, pType, true) == false) {
 			MSG_DEBUG("MmsBinaryEncodeContentHeader fail");
 			goto __CATCH;
 		}
@@ -2017,7 +2013,6 @@ static int __MmsBinaryEncodeContentHeaderLen(MimeType contentType, MsgType *pTyp
 	if (contentType != MIME_APPLICATION_VND_WAP_MULTIPART_RELATED &&
 		contentType != MIME_MULTIPART_RELATED &&
 		pType->disposition != INVALID_VALUE) {
-
 		/*
 		 * Content-disposition-value = Value-length Disposition *(Parameter)
 		 * Disposition = Form-data | Attachment | Inline | Token-text
@@ -2068,7 +2063,6 @@ static bool __MmsBinaryEncodeContentHeader(FILE *pFile, MimeType contentType, Ms
 
 	/* content-id ------------------------------------------------- */
 	if (pType->szContentID[0]) {
-
 		MSG_SEC_DEBUG("Content ID : %s", pType->szContentID);
 
 		if (bMultipart) { /* Binary Encoding */
@@ -2102,7 +2096,7 @@ static bool __MmsBinaryEncodeContentHeader(FILE *pFile, MimeType contentType, Ms
 	if (pType->szContentLocation[0]) {
 		MSG_SEC_DEBUG("Content Location : %s", pType->szContentLocation);
 
-		if (MmsIsAsciiString (pType->szContentLocation)) {
+		if (MmsIsAsciiString(pType->szContentLocation)) {
 			MSG_DEBUG("Name is consisted of ascii char-set chars.");
 		} else {
 			isAscii = false;
@@ -2157,7 +2151,6 @@ static bool __MmsBinaryEncodeContentHeader(FILE *pFile, MimeType contentType, Ms
 	if (contentType != MIME_APPLICATION_VND_WAP_MULTIPART_RELATED &&
 		contentType != MIME_MULTIPART_RELATED &&
 		pType->disposition != INVALID_VALUE) {
-
 		MSG_DEBUG("Content Disposition : %d", pType->disposition);
 		/*
 		 * Content-disposition-value = Value-length Disposition *(Parameter)
@@ -2168,7 +2161,6 @@ static bool __MmsBinaryEncodeContentHeader(FILE *pFile, MimeType contentType, Ms
 		 */
 
 		if (bMultipart) { /* Binary Encoding */
-
 			UINT8 fieldValue  = 0xff;
 			gpMmsEncodeBuf[gCurMmsEncodeBuffPos++] = MmsGetBinaryValue(MmsCodeMsgBodyHeaderCode, MMS_BODYHDR_DISPOSITION) | 0x80;
 
@@ -2252,7 +2244,7 @@ static bool __MmsBinaryEncodeContentBody(FILE *pFile, MsgBody *pBody)
 		}
 	} else if (pBody->body.pText && pBody->size) {
 		pBody->offset = __MmsGetEncodeOffset();
-		if (MsgWriteFile(pBody->body.pText, sizeof(char),(size_t)pBody->size, pFile) != (size_t)pBody->size) {
+		if (MsgWriteFile(pBody->body.pText, sizeof(char), (size_t)pBody->size, pFile) != (size_t)pBody->size) {
 			MSG_DEBUG("MsgWriteFile failed");
 			goto __CATCH;
 		}
@@ -2287,7 +2279,6 @@ static int __MmsBinaryEncodeIntegerLen(UINT32 integer)
 		/* short-integer */
 		return 1;
 	} else {
-
 		int	length = 0;
 		/*
 		 * Long-integer = Short-length Multi-octet-integer
@@ -2569,7 +2560,7 @@ static bool __MmsBinaryEncodeUintvar(FILE *pFile, UINT32 integer, int length)
 		i++;
 	}
 
-	for(i=0; i < length; i++)
+	for (i = 0; i < length; i++)
 		gpMmsEncodeBuf[gCurMmsEncodeBuffPos++] = szReverse[length - i - 1];
 
 	return true;
@@ -2700,7 +2691,7 @@ static int __MmsBinaryEncodeEncodedStringLen(UINT8 *source)
 	}
 
 	textLeng = __MmsBinaryEncodeTextStringLen((UINT8*)source);
-	if (textLeng == -1)	{
+	if (textLeng == -1) {
 		MSG_DEBUG(" textLeng MmsBinaryEncodeTextStringLen fail.");
 		goto __CATCH;
 	}
@@ -2755,8 +2746,7 @@ static bool __MmsBinaryEncodeEncodedString(FILE *pFile, UINT8 *source, int lengt
 		goto __CATCH;
 	}
 
-	if (length != (charLeng + textLeng + valLengthLen))
-	{
+	if (length != (charLeng + textLeng + valLengthLen)) {
 		MSG_DEBUG("invalid length");
 		goto __CATCH;
 	}
@@ -2910,7 +2900,7 @@ static bool __MmsBinaryEncodeMsgID(FILE *pFile, const char *szMsgID)
 	}
 
 	gpMmsEncodeBuf[gCurMmsEncodeBuffPos++] = fieldCode;
-	if (__MmsBinaryEncodeTextString(pFile, (UINT8*)szMsgID, length) == false)	{
+	if (__MmsBinaryEncodeTextString(pFile, (UINT8*)szMsgID, length) == false) {
 		MSG_DEBUG("MmsBinaryEncodeTextString fail");
 		goto __CATCH;
 	}
@@ -3096,7 +3086,6 @@ static bool __MmsBinaryEncodeAddress(FILE *pFile, MmsFieldCode addrType, char *s
 
 		pSingleAddr = strchr(szAddr, MSG_CH_SEMICOLON);
 		if (pSingleAddr) {
-
 			*pSingleAddr = MSG_CH_NULL;
 			if (__MmsBinaryEncodeOneAddress(pFile, addrType, szAddr) == false) {
 				MSG_DEBUG("__MmsBinaryEncodeAddress fail");
@@ -3162,7 +3151,6 @@ static bool __MmsBinaryEncodeTime(FILE *pFile, MmsFieldCode fieldCode, MmsTimeSt
 	}
 
 	if ((gMmsEncodeMaxLen - gCurMmsEncodeBuffPos) < (length + timeLen + 2)) {	/* + fieldCode + timeType */
-
 		if (MsgWriteDataFromEncodeBuffer(pFile,	gpMmsEncodeBuf,	&gCurMmsEncodeBuffPos,
 											gMmsEncodeMaxLen, &gMmsEncodeCurOffset) == false) {
 			MSG_DEBUG("MsgWriteDataFromEncodeBuffer fail");
@@ -3182,7 +3170,7 @@ static bool __MmsBinaryEncodeTime(FILE *pFile, MmsFieldCode fieldCode, MmsTimeSt
 	/* time type & value */
 	if (time.type == MMS_TIMETYPE_RELATIVE) {
 		gpMmsEncodeBuf[gCurMmsEncodeBuffPos++] = MmsGetBinaryValue(MmsCodeTimeType, MMS_TIMETYPE_RELATIVE) | 0x80;
-		if (__MmsBinaryEncodeInteger(pFile, time.time, timeLen) == false)	{
+		if (__MmsBinaryEncodeInteger(pFile, time.time, timeLen) == false) {
 			MSG_DEBUG("MmsBinaryEncodeLongInteger fail");
 			goto __CATCH;
 		}
@@ -3212,7 +3200,7 @@ char *_MsgSkipWS3(char *s)
 			return s;
 	}
 }
-//////////////////////////////////////////////////////////////////////////////
+
 static bool __EncodeMmsMessage(MmsMsg *pMmsMsg, const char *raw_filepath)
 {
 	bool encode_ret = false;
@@ -3240,8 +3228,7 @@ static bool __EncodeMmsMessage(MmsMsg *pMmsMsg, const char *raw_filepath)
 		goto __CATCH;
 	}
 
-	switch(pMmsMsg->mmsAttrib.msgType)
-	{
+	switch(pMmsMsg->mmsAttrib.msgType) {
 		case MMS_MSGTYPE_SEND_REQ:
 		case MMS_MSGTYPE_SEND_CONF:
 			encode_ret = MmsEncodeSendReq(pFile, pMmsMsg);
@@ -3279,8 +3266,8 @@ MmsPluginEncoder *MmsPluginEncoder::instance()
 	return MmsPluginEncoder::pInstance;
 }
 
-MmsPluginEncoder::MmsPluginEncoder(){}
-MmsPluginEncoder::~MmsPluginEncoder(){}
+MmsPluginEncoder::MmsPluginEncoder() {}
+MmsPluginEncoder::~MmsPluginEncoder() {}
 
 void MmsPluginEncoder::encodeMmsPdu(MMS_DATA_S *pMmsData, msg_message_id_t msgID, const char *pduFilePath)
 {
@@ -3298,7 +3285,6 @@ void MmsPluginEncoder::encodeMmsPdu(MMS_DATA_S *pMmsData, msg_message_id_t msgID
 __CATCH:
 	MmsReleaseMmsMsg(pMmsMsg);
 	MSG_FREE(pMmsMsg);
-
 }
 
 void MmsPluginEncoder::encodeMmsPdu(MmsMsg *pMmsMsg, msg_message_id_t msgID, const char *pduFilePath)

@@ -121,7 +121,6 @@ private:
 	int MakeWapUserData(unsigned short msgId, char **ppTotalData);
 
 	bool checkCbOpt(sms_trans_svc_ctg_t svc_ctg);
-
 };
 
 #endif /* SMS_CDMA_PLUGIN_EVENT_HANDLER_H */

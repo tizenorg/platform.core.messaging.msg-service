@@ -111,7 +111,6 @@ char *MmsComposeAddress(const MSG_MESSAGE_INFO_S *pMsgInfo, int recipientType)
 
 	/* Calculate allocated buffer size */
 	for (int i = 0; i < nAddressCnt; ++i) {
-
 		MSG_SEC_DEBUG("recipientType: %d, address value: %s", pMsgInfo->addressList[i].recipientType, pMsgInfo->addressList[i].addressVal);
 
 		if (pMsgInfo->addressList[i].recipientType == MSG_RECIPIENTS_TYPE_UNKNOWN)
@@ -248,7 +247,7 @@ MsgMultipart *MmsMakeMultipart(MimeType mimeType, char *szTitleName, char *szOrg
 		memset(pMultipart->type.szContentLocation, 0, MSG_MSG_ID_LEN + 1);
 
 		gchar *tmpContentLocation = msg_replace_non_ascii_char(szContentLocation, '_');
-		if (tmpContentLocation ) {
+		if (tmpContentLocation) {
 			MSG_SEC_DEBUG("tmpContentLocation = [%s]", tmpContentLocation);
 			snprintf(pMultipart->type.szContentLocation, MSG_MSG_ID_LEN + 1, "%s", tmpContentLocation);
 			g_free(tmpContentLocation);
@@ -257,7 +256,7 @@ MsgMultipart *MmsMakeMultipart(MimeType mimeType, char *szTitleName, char *szOrg
 	}
 
 	if (MmsIsTextType(mimeType) == true) {
-		if (!MmsIsVitemContent (mimeType, pMultipart->type.param.szName)) {
+		if (!MmsIsVitemContent(mimeType, pMultipart->type.param.szName)) {
 			pMultipart->type.param.charset = MSG_CHARSET_UTF8;
 		}
 		pMultipart->type.encoding = MSG_ENCODING_8BIT;
@@ -307,7 +306,7 @@ void MmsComposeNotiMessage(MmsMsg *pMmsMsg, msg_message_id_t msgID)
 	pMmsMsg->szForwardMsgID[0] = '\0';
 
 	if (mmsHeader.pFrom) {
-		MmsAddrUtilRemovePlmnString(mmsHeader.pFrom->szAddr );
+		MmsAddrUtilRemovePlmnString(mmsHeader.pFrom->szAddr);
 		strncpy(pMmsMsg->mmsAttrib.szFrom, mmsHeader.pFrom->szAddr, MSG_LOCALE_ADDR_LEN + 9);
 	}
 
@@ -440,14 +439,12 @@ void MmsPrintFileInfoForVLD(MMS_MESSAGE_DATA_S *pMmsMsg)
 
 	if (pMmsMsg->pageCnt > 0) {
 		for (int i = 0; i < pMmsMsg->pageCnt; i++) {
-
 			pPage = _MsgMmsGetPage(pMmsMsg, i);
 
 			if (pPage == NULL)
 				continue;
 
 			for (int j = 0; j < pPage->mediaCnt; j++) {
-
 				pMedia = _MsgMmsGetMedia(pPage, j);
 				if (pMedia == NULL)
 					continue;
@@ -469,8 +466,7 @@ void MmsPrintFileInfoForVLD(MMS_MESSAGE_DATA_S *pMmsMsg)
 bool IsMatchedMedia(MMS_MEDIA_S *media, MMS_MULTIPART_DATA_S *pMultipart)
 {
 	if (strlen(pMultipart->szContentID) > 0) {
-
-		char szTempContentID[MSG_MSG_ID_LEN + 1] = {0,};
+		char szTempContentID[MSG_MSG_ID_LEN + 1] = {0, };
 		MmsRemoveLessGreaterChar(pMultipart->szContentID, szTempContentID, sizeof(szTempContentID));
 
 		if (strcmp(media->szContentID,  szTempContentID) == 0) {
@@ -501,7 +497,6 @@ MsgMultipart *MmsGetNthMultipart(MmsMsg *pMsg, int index)
 	MsgMultipart *pPart = NULL;
 
 	if (MsgIsMultipart(pMsg->msgType.type) == true) {
-
 		pPart = pMsg->msgBody.body.pMultipart;
 
 		while (pPart && index--) {
@@ -527,13 +522,10 @@ bool MmsFindAndInsertPart(MMS_MESSAGE_DATA_S *pMsgData, MMS_MULTIPART_DATA_S *pM
 
 	if (pMsgData->pagelist) {
 		for (int pageIdx = 0; pageIdx < pMsgData->pageCnt; pageIdx++) {
-
 			MMS_PAGE_S *page = (MMS_PAGE_S *)g_list_nth_data(pMsgData->pagelist, pageIdx);
 
 			if (page && page->medialist) {
-
 				for (int mediaIdx = 0; mediaIdx < page->mediaCnt; mediaIdx++) {
-
 					MMS_MEDIA_S *media = (MMS_MEDIA_S *)g_list_nth_data(page->medialist, mediaIdx);
 
 					if (media) { /* add media */
@@ -746,7 +738,6 @@ bool MmsInsertPartFromMultipart(MmsMsg *pMsg, MMS_MULTIPART_DATA_S *pNewMultipar
 
 __CATCH:
 	return false;
-
 }
 
 bool MmsConvertMsgData(MmsMsg *pMsg, MMS_MESSAGE_DATA_S *pMmsMsg)
@@ -788,16 +779,15 @@ bool MmsConvertMsgData(MmsMsg *pMsg, MMS_MESSAGE_DATA_S *pMmsMsg)
 		int partCnt = pMsg->nPartCount;
 
 		if (partCnt <= 0) {
-			MSG_DEBUG("partCnt=%d\n", partCnt );
+			MSG_DEBUG("partCnt=%d\n", partCnt);
 		} else {
-
 			if (MmsGetMediaPartHeader(0, &partHeader) == false) {
-				MSG_DEBUG("Failed to get MediaPart MmsGetMediaPartHeader" );
+				MSG_DEBUG("Failed to get MediaPart MmsGetMediaPartHeader");
 				goto FREE_CATCH;
 			}
 
 			if (partHeader.contentSize > 0) {
-				char szBuf[MSG_FILEPATH_LEN_MAX + 1] = {0,};
+				char szBuf[MSG_FILEPATH_LEN_MAX + 1] = {0, };
 				MMS_PAGE_S *page = NULL;
 				MMS_MEDIA_S *media = NULL;
 
@@ -827,14 +817,11 @@ bool MmsConvertMsgData(MmsMsg *pMsg, MMS_MESSAGE_DATA_S *pMmsMsg)
 
 				_MsgMmsAddPage(pMmsMsg, page);
 			}
-
 		}
 	} else {
-
 		int partCnt = pMsg->nPartCount;
 
 		for (int i = 0; i < partCnt; ++i) {
-
 			MsgMultipart *multipart = MmsGetNthMultipart(pMsg, i);
 			MMS_MULTIPART_DATA_S pMultipart;
 
@@ -851,7 +838,7 @@ bool MmsConvertMsgData(MmsMsg *pMsg, MMS_MESSAGE_DATA_S *pMmsMsg)
 			snprintf(pMultipart.szContentLocation, sizeof(pMultipart.szContentLocation), "%s", multipart->type.szContentLocation);
 			snprintf(pMultipart.szFileName, sizeof(pMultipart.szFileName), "%s", multipart->type.param.szName);
 			snprintf(pMultipart.szFilePath, sizeof(pMultipart.szFilePath), "%s", multipart->pBody->szOrgFilePath);
-			snprintf(pMultipart.szContentType, sizeof(pMultipart.szContentType), "%s",MimeGetMimeStringFromMimeInt(multipart->type.type));
+			snprintf(pMultipart.szContentType, sizeof(pMultipart.szContentType), "%s", MimeGetMimeStringFromMimeInt(multipart->type.type));
 
 			if (multipart->type.drmInfo.drmType != MSG_DRM_TYPE_NONE) {
 				pMultipart.drmType = multipart->type.drmInfo.drmType;
@@ -913,7 +900,6 @@ void MmsPrintMmsMsg(const MmsMsg *pMmsMsg)
 	}
 
 	PRINT_KEY_VAL_STR("mms ver", pMmsMsg->mmsAttrib.version);
-
 }
 
 int MmsUpdateMultipartList(MSG_MESSAGE_INFO_S *pMsgInfo)
@@ -947,11 +933,11 @@ int MmsUpdatePreviewData(MSG_MESSAGE_INFO_S *pMsgInfo)
 	MmsPluginStorage::instance()->getMmsRawFilePath(pMsgInfo->msgId, szFullPath, sizeof(szFullPath));
 	MmsPluginDecoder::instance()->decodeMmsPdu(mmsMsg, pMsgInfo->msgId, szFullPath);
 
-	{ /* make Preview info for APP */
-		MmsPluginAppBase appBase(mmsMsg);
-		appBase.makePreviewInfo(pMsgInfo->msgId, true, szFullPath);
-		appBase.getFirstPageTextFilePath(pMsgInfo->msgText, sizeof(pMsgInfo->msgText));
-	}
+	/* make Preview info for APP */
+	MmsPluginAppBase appBase(mmsMsg);
+	appBase.makePreviewInfo(pMsgInfo->msgId, true, szFullPath);
+	appBase.getFirstPageTextFilePath(pMsgInfo->msgText, sizeof(pMsgInfo->msgText));
+
 	MmsReleaseMmsMsg(mmsMsg);
 	MSG_END();
 	return 0;
@@ -964,7 +950,6 @@ bool MmsConvertMmsData(MmsMsg *pMmsMsg, MMS_DATA_S *pMmsData)
 
 	MMS_HEADER_DATA_S *pHeaderData = pMmsData->header;
 	if (pHeaderData) {
-
 		snprintf(pHeaderData->messageID,  sizeof(pHeaderData->messageID), "%s", pMmsMsg->szMsgID);
 		snprintf(pHeaderData->trID,  sizeof(pHeaderData->trID), "%s", pMmsMsg->szTrID);
 		snprintf(pHeaderData->contentLocation,  sizeof(pHeaderData->contentLocation), "%s", pMmsMsg->szContentLocation);
@@ -995,7 +980,6 @@ bool MmsConvertMmsData(MmsMsg *pMmsMsg, MMS_DATA_S *pMmsData)
 	}
 
 	if (pMmsMsg->mmsAttrib.contentType == MIME_MULTIPART_RELATED || pMmsMsg->mmsAttrib.contentType == MIME_APPLICATION_VND_WAP_MULTIPART_RELATED) {
-
 		MMS_MULTIPART_DATA_S *pMultipart = MsgMmsCreateMultipart();
 		if (pMultipart) {
 			pMultipart->type = MIME_APPLICATION_SMIL;
@@ -1012,17 +996,15 @@ bool MmsConvertMmsData(MmsMsg *pMmsMsg, MMS_DATA_S *pMmsData)
 	int partCnt = pMmsMsg->nPartCount;
 
 	for (int i = 0; i < partCnt; ++i) {
-
 		MsgMultipart *multipart = MmsGetNthMultipart(pMmsMsg, i);
 
 		if (multipart) {
-
 			MMS_MULTIPART_DATA_S *pMultipart = MsgMmsCreateMultipart();
 
 			if (pMultipart) {
 				pMultipart->type = (MimeType)multipart->type.type;
 
-				snprintf(pMultipart->szContentType, sizeof(pMultipart->szContentType), "%s",MimeGetMimeStringFromMimeInt(multipart->type.type));
+				snprintf(pMultipart->szContentType, sizeof(pMultipart->szContentType), "%s", MimeGetMimeStringFromMimeInt(multipart->type.type));
 				snprintf(pMultipart->szContentID, sizeof(pMultipart->szContentID), "%s", multipart->type.szContentID);
 				snprintf(pMultipart->szContentLocation, sizeof(pMultipart->szContentLocation), "%s", multipart->type.szContentLocation);
 				snprintf(pMultipart->szFileName, sizeof(pMultipart->szFileName), "%s", multipart->type.param.szName);
@@ -1057,7 +1039,6 @@ bool MmsConvertMmsMsg(MmsMsg *pMmsMsg, MMS_DATA_S *pMmsData)
 	MMS_HEADER_DATA_S *pHeaderData = pMmsData->header;
 
 	if (pHeaderData) {
-
 		if (strlen(pHeaderData->contentLocation) > 0) {
 			snprintf(pMmsMsg->szContentLocation, sizeof(pMmsMsg->szContentLocation), "%s", pHeaderData->contentLocation);
 		}
@@ -1099,13 +1080,10 @@ bool MmsConvertMmsMsg(MmsMsg *pMmsMsg, MMS_DATA_S *pMmsData)
 	printMmsAttribute(&pMmsMsg->mmsAttrib);
 
 	if (pMmsData->multipartlist) {
-
 		if (pMmsData->smil) {
-
 			MMS_MULTIPART_DATA_S *smil_multipart = pMmsData->smil;
 
 			if (smil_multipart) {
-
 				pMmsMsg->mmsAttrib.contentType = MIME_APPLICATION_VND_WAP_MULTIPART_RELATED;
 				pMmsMsg->msgType.type = MIME_APPLICATION_VND_WAP_MULTIPART_RELATED;
 
@@ -1134,7 +1112,6 @@ bool MmsConvertMmsMsg(MmsMsg *pMmsMsg, MMS_DATA_S *pMmsData)
 		int len = g_list_length(pMmsData->multipartlist);
 
 		for (int i = 0; i < len; i++) {
-
 			MMS_MULTIPART_DATA_S *multipart = (MMS_MULTIPART_DATA_S *)g_list_nth_data(pMmsData->multipartlist, i);
 
 			if (multipart) {
@@ -1164,7 +1141,6 @@ char *MmsConvertAddressToOldStyle(MMSList *pAddressList)
 
 	/* Calculate allocated buffer size */
 	for (int i = 0; i < nAddressCnt; ++i) {
-
 		MMS_ADDRESS_DATA_S * pAddressData = (MMS_ADDRESS_DATA_S *)g_list_nth_data(pAddressList, i);
 		if (pAddressData) {
 			MSG_SEC_DEBUG("address type : %d, address value: %s", pAddressData->address_type, pAddressData->address_val);
@@ -1206,7 +1182,6 @@ char *MmsConvertAddressToOldStyle(MMSList *pAddressList)
 
 	MSG_END();
 	return szCompose;
-
 }
 
 MMSList * MmsConvertAddressToNewStyle(const char *szAddr)
@@ -1215,8 +1190,8 @@ MMSList * MmsConvertAddressToNewStyle(const char *szAddr)
 	MMS_ADDRESS_DATA_S *pAddressData = NULL;
 
 	char *pTempChar = NULL;
-	char *pStartPtr= NULL;
-	char *pEndPtr= NULL;
+	char *pStartPtr = NULL;
+	char *pEndPtr = NULL;
 
 	if (szAddr == NULL)
 		return NULL;
@@ -1226,10 +1201,9 @@ MMSList * MmsConvertAddressToNewStyle(const char *szAddr)
 	pStartPtr = pTempChar;
 
 	while (pStartPtr && pStartPtr[0]) {
-
 		int addLen = 0;
-		char tempAddress[512] = {0,};
-		char tempAddress2[512] = {0,};
+		char tempAddress[512] = {0, };
+		char tempAddress2[512] = {0, };
 
 		pEndPtr = strchr(pStartPtr, MSG_CH_SEMICOLON);
 
@@ -1327,7 +1301,6 @@ bool convertAttachToMultipart(MMS_ATTACH_S *pSrcMedia, MMS_MULTIPART_DATA_S *pDe
 		snprintf(pDestMultipart->szContentType, sizeof(pDestMultipart->szContentType), "%s", pSrcMedia->szContentType);
 		pDestMultipart->type = MimeGetMimeIntFromMimeString(pSrcMedia->szContentType);
 	} else {
-
 		MimeMainType mainType = MIME_MAINTYPE_UNKNOWN;
 		MimeType pMimeType = MIME_UNKNOWN;
 		const char *pszMimeType = NULL;
@@ -1423,7 +1396,6 @@ bool MmsChangeFileNameToAscii(MMS_MESSAGE_DATA_S *pMsgData)
 					}
 
 					while (g_list_find_custom(r_list, str2, __compare_str) != NULL) {
-
 						g_free(str2);
 
 						if (ext)
@@ -1476,7 +1448,6 @@ bool MmsChangeFileNameToAscii(MMS_MESSAGE_DATA_S *pMsgData)
 				}
 
 				while (g_list_find_custom(r_list, str2, __compare_str) != NULL) {
-
 					g_free(str2);
 
 					if (ext)
@@ -1494,7 +1465,6 @@ bool MmsChangeFileNameToAscii(MMS_MESSAGE_DATA_S *pMsgData)
 				g_free(str2);
 			}
 		}
-
 	} /* end for attach */
 
 	g_list_free(r_list);

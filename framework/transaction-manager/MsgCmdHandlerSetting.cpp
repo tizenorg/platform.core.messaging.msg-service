@@ -37,22 +37,19 @@ int MsgSetConfigHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 	int eventSize = 0;
 	int eventType = -1;
 
-	// Get Setting Structure
+	/* Get Setting Structure */
 	MSG_SETTING_S* pSetting = (MSG_SETTING_S*)pCmd->cmdData;
 
-	// Set Config Data
+	/* Set Config Data */
 	err = MsgSetConfigData(pSetting);
 
-	if (err == MSG_SUCCESS)
-	{
+	if (err == MSG_SUCCESS) {
 		MSG_DEBUG("Command Handle Success : MsgSetConfigData()");
-	}
-	else
-	{
+	} else {
 		MSG_DEBUG("Command Handle Fail : MsgSetConfigData()");
 	}
 
-	// Make Event Data
+	/* Make Event Data */
 	switch (pCmd->cmdType) {
 	case MSG_CMD_SET_SMSC_OPT :
 		eventType = MSG_EVENT_SET_SMSC_OPT;
@@ -107,11 +104,11 @@ int MsgGetConfigHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 	int eventSize = 0;
 	int eventType = -1;
 
-	// Get Option Type
+	/* Get Option Type */
 	MSG_OPTION_TYPE_T type = 0;
 	memcpy((void *)&type, (void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN), sizeof(MSG_OPTION_TYPE_T));
 
-	// Get Config Data
+	/* Get Config Data */
 	MSG_SETTING_S setting;
 	setting.type = type;
 
@@ -135,85 +132,82 @@ int MsgGetConfigHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 
 	err = MsgGetConfigData(&setting);
 
-	if (err == MSG_SUCCESS)
-	{
+	if (err == MSG_SUCCESS) {
 		MSG_DEBUG("Command Handle Success : MsgGetConfigData()");
 
-		// Encoding Config Data
-		switch (setting.type)
-			{
-				case MSG_GENERAL_OPT :
-					dataSize += sizeof(MSG_GENERAL_OPT_S);
-					break;
-				case MSG_SMS_SENDOPT :
-					dataSize += sizeof(MSG_SMS_SENDOPT_S);
-					break;
-				case MSG_SMSC_LIST :
-					dataSize += sizeof(MSG_SMSC_LIST_S);
-					break;
-				case MSG_MMS_SENDOPT :
-					dataSize += sizeof(MSG_MMS_SENDOPT_S);
-					break;
-				case MSG_MMS_RECVOPT :
-					dataSize += sizeof(MSG_MMS_RECVOPT_S);
-					break;
-				case MSG_MMS_STYLEOPT :
-					dataSize += sizeof(MSG_MMS_STYLEOPT_S);
-					break;
-				case MSG_PUSHMSG_OPT :
-					dataSize += sizeof(MSG_PUSHMSG_OPT_S);
-					break;
-				case MSG_CBMSG_OPT :
-					dataSize += sizeof(MSG_CBMSG_OPT_S);
-					break;
-				case MSG_VOICEMAIL_OPT :
-					dataSize += sizeof(MSG_VOICEMAIL_OPT_S);
-					break;
-				case MSG_MSGSIZE_OPT :
-					dataSize += sizeof(MSG_MSGSIZE_OPT_S);
-					break;
-				default:
-					break;
-			}
+		/* Encoding Config Data */
+		switch (setting.type) {
+		case MSG_GENERAL_OPT :
+			dataSize += sizeof(MSG_GENERAL_OPT_S);
+			break;
+		case MSG_SMS_SENDOPT :
+			dataSize += sizeof(MSG_SMS_SENDOPT_S);
+			break;
+		case MSG_SMSC_LIST :
+			dataSize += sizeof(MSG_SMSC_LIST_S);
+			break;
+		case MSG_MMS_SENDOPT :
+			dataSize += sizeof(MSG_MMS_SENDOPT_S);
+			break;
+		case MSG_MMS_RECVOPT :
+			dataSize += sizeof(MSG_MMS_RECVOPT_S);
+			break;
+		case MSG_MMS_STYLEOPT :
+			dataSize += sizeof(MSG_MMS_STYLEOPT_S);
+			break;
+		case MSG_PUSHMSG_OPT :
+			dataSize += sizeof(MSG_PUSHMSG_OPT_S);
+			break;
+		case MSG_CBMSG_OPT :
+			dataSize += sizeof(MSG_CBMSG_OPT_S);
+			break;
+		case MSG_VOICEMAIL_OPT :
+			dataSize += sizeof(MSG_VOICEMAIL_OPT_S);
+			break;
+		case MSG_MSGSIZE_OPT :
+			dataSize += sizeof(MSG_MSGSIZE_OPT_S);
+			break;
+		default:
+			break;
+		}
 
-			encodedData = (char*)new char[dataSize];
-			void* p = (void*)encodedData;
+		encodedData = (char*)new char[dataSize];
+		void* p = (void*)encodedData;
 
-			switch (setting.type)
-			{
-			case MSG_GENERAL_OPT :
-				memcpy(p, &(setting.option.generalOpt), dataSize);
-				break;
-			case MSG_SMS_SENDOPT :
-				memcpy(p, &(setting.option.smsSendOpt), dataSize);
-				break;
-			case MSG_SMSC_LIST :
-				memcpy(p, &(setting.option.smscList), dataSize);
-				break;
-			case MSG_MMS_SENDOPT :
-				memcpy(p, &(setting.option.mmsSendOpt), dataSize);
-				break;
-			case MSG_MMS_RECVOPT :
-				memcpy(p, &(setting.option.mmsRecvOpt), dataSize);
-				break;
-			case MSG_MMS_STYLEOPT :
-				memcpy(p, &(setting.option.mmsStyleOpt), dataSize);
-				break;
-			case MSG_PUSHMSG_OPT :
-				memcpy(p, &(setting.option.pushMsgOpt), dataSize);
-				break;
-			case MSG_CBMSG_OPT :
-				memcpy(p, &(setting.option.cbMsgOpt), dataSize);
-				break;
-			case MSG_VOICEMAIL_OPT :
-				memcpy(p, &(setting.option.voiceMailOpt), dataSize);
-				break;
-			case MSG_MSGSIZE_OPT :
-				memcpy(p, &(setting.option.msgSizeOpt), dataSize);
-				break;
-			default:
-				break;
-			}
+		switch (setting.type) {
+		case MSG_GENERAL_OPT :
+			memcpy(p, &(setting.option.generalOpt), dataSize);
+			break;
+		case MSG_SMS_SENDOPT :
+			memcpy(p, &(setting.option.smsSendOpt), dataSize);
+			break;
+		case MSG_SMSC_LIST :
+			memcpy(p, &(setting.option.smscList), dataSize);
+			break;
+		case MSG_MMS_SENDOPT :
+			memcpy(p, &(setting.option.mmsSendOpt), dataSize);
+			break;
+		case MSG_MMS_RECVOPT :
+			memcpy(p, &(setting.option.mmsRecvOpt), dataSize);
+			break;
+		case MSG_MMS_STYLEOPT :
+			memcpy(p, &(setting.option.mmsStyleOpt), dataSize);
+			break;
+		case MSG_PUSHMSG_OPT :
+			memcpy(p, &(setting.option.pushMsgOpt), dataSize);
+			break;
+		case MSG_CBMSG_OPT :
+			memcpy(p, &(setting.option.cbMsgOpt), dataSize);
+			break;
+		case MSG_VOICEMAIL_OPT :
+			memcpy(p, &(setting.option.voiceMailOpt), dataSize);
+			break;
+		case MSG_MSGSIZE_OPT :
+			memcpy(p, &(setting.option.msgSizeOpt), dataSize);
+			break;
+		default:
+			break;
+		}
 	} else {
 		MSG_DEBUG("Command Handle Fail : MsgGetConfigData()");
 	}
@@ -252,7 +246,7 @@ int MsgGetConfigHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 		break;
 	}
 
-	// Make Event Data
+	/* Make Event Data */
 	eventSize = MsgMakeEvent(encodedData, dataSize, eventType, err, (void**)ppEvent);
 
 	return eventSize;

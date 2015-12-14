@@ -147,7 +147,7 @@ msg_error_t MsgPlgDestroyHandle(MSG_PLUGIN_HANDLER_S *pPluginHandle);
 
 
 
-// Control API
+/* Control API */
  /**
 
  * \par Description:
@@ -353,7 +353,7 @@ typedef msg_error_t (*MsgPlgCheckSimStatus)(MSG_SIM_STATUS_T *pStatus);
 typedef msg_error_t (*MsgPlgCheckDeviceStatus)();
 
 
-// Transport API
+/* Transport API */
  /**
 
  * \par Description:
@@ -396,7 +396,7 @@ typedef msg_error_t (*MsgPlgCheckDeviceStatus)();
 typedef msg_error_t (*MsgPlgSubmitRequest)(MSG_REQUEST_INFO_S *pReqInfo);
 
 
-// Storage API
+/* Storage API */
  /**
 
  * \par Description:
@@ -441,7 +441,7 @@ typedef msg_error_t (*MsgPlgSubmitRequest)(MSG_REQUEST_INFO_S *pReqInfo);
 typedef msg_error_t (*MsgPlgInitSimMessage)();
 
 
-// Storage API
+/* Storage API */
  /**
 
  * \par Description:
@@ -619,7 +619,7 @@ typedef msg_error_t (*MsgPlgSetMemoryStatus)(msg_error_t Error);
 typedef msg_error_t (*MsgPlgSetMemoryStatus)(msg_sim_slot_id_t sim_idx, msg_error_t Error);
 #endif
 
-// Setting API
+/* Setting API */
  /**
 
  * \par Description:
@@ -662,7 +662,7 @@ typedef msg_error_t (*MsgPlgSetMemoryStatus)(msg_sim_slot_id_t sim_idx, msg_erro
 typedef msg_error_t (*MsgPlgInitConfigData)(MSG_SIM_STATUS_T SimStatus);
 
 
-// Setting API
+/* Setting API */
  /**
 
  * \par Description:
@@ -746,7 +746,7 @@ typedef msg_error_t (*MsgPlgSetConfigData)(const MSG_SETTING_S *pSetting);
 /*================================================================================================*/
 typedef msg_error_t (*MsgPlgGetConfigData)(MSG_SETTING_S *pSetting);
 
-// MMS API
+/* MMS API */
 /**
 
 * \par Description:
@@ -1049,7 +1049,7 @@ typedef msg_error_t (*MsgPlgGetMeImei) (char *pImei);
 typedef msg_error_t (*MsgPlgGetDefaultNetworkSimId) (int *simId);
 
 
-// framework defined callbacks.
+/* framework defined callbacks. */
 typedef void (*MsgPlgOnSentStatus)(MSG_SENT_STATUS_S *pSentStatus);
 typedef void (*MsgPlgOnStorageChange)(msg_storage_change_type_t storageChangeType, msg_id_list_s *pMsgIdList);
 typedef msg_error_t (*MsgPlgOnMsgIncoming)(MSG_MESSAGE_INFO_S *pMsgInfo);

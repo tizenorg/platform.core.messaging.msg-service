@@ -30,10 +30,10 @@
 #include <drm_client.h>
 #endif
 
-static unsigned short wapPushPortList [] = {0x0b84, 0x0b85, 0x23F0, 0x23F1, 0x23F2, 0x23F3, 0xC34F};
+static unsigned short wapPushPortList[] = {0x0b84, 0x0b85, 0x23F0, 0x23F1, 0x23F2, 0x23F3, 0xC34F};
 
 #if 0
-const SMS_PUSH_APP_INFO_S pushDefaultApplication [] =
+const SMS_PUSH_APP_INFO_S pushDefaultApplication[] =
 {
 	{(char*)"text/vnd.wap.si", (char*)"X-Wap-Application-Id: x-wap-application:wml.ua\r\n", SMS_WAP_APPLICATION_PUSH_SI},
 	{(char*)"application/vnd.wap.sic", (char*)"X-Wap-Application-Id: x-wap-application:wml.ua\r\n", SMS_WAP_APPLICATION_PUSH_SIC},
@@ -265,7 +265,7 @@ const SMS_WSP_CONTENTS_TYPE_S wspContentsType[] = {
 	{ (char*)"application/vnd.wap.multipart.byteranges", 0x25 },
 	{ (char*)"application/vnd.wap.multipart.alternative", 0x26 },
 	{ (char*)"application/xml", 0x27 },
-	{ (char*)"text/xml",0x28 },
+	{ (char*)"text/xml", 0x28 },
 	{ (char*)"application/vnd.wap.wbxml", 0x29 },
 	{ (char*)"application/x-x968-cross-cert", 0x2a },
 	{ (char*)"application/x-x968-ca-cert", 0x2b },
@@ -651,10 +651,10 @@ const SMS_WSP_METHOD_TYPE_S wspMethodType[] = {
 
 
 const SMS_WSP_SECURITY_TYPE_S wspSecurityType[] = {
-	{(char*)"NETWPIN",0x00},
-	{(char*)"USERPIN",0x01},
-	{(char*)"USERNETWPIN",0x02},
-	{(char*)"USERPINMAC",0x03}
+	{(char*)"NETWPIN", 0x00},
+	{(char*)"USERPIN", 0x01},
+	{(char*)"USERNETWPIN", 0x02},
+	{(char*)"USERPINMAC", 0x03}
 };
 
 
@@ -712,7 +712,6 @@ SmsPluginWapPushHandler::SmsPluginWapPushHandler()
 
 SmsPluginWapPushHandler::~SmsPluginWapPushHandler()
 {
-
 }
 
 
@@ -742,7 +741,6 @@ bool SmsPluginWapPushHandler::IsWapPushMsg(SMS_USERDATA_S *pUserData)
 		if (pUserData->header[i].udhType == SMS_UDH_APP_PORT_8BIT) {
 			/** Have to check something??? */
 		} else if (pUserData->header[i].udhType == SMS_UDH_APP_PORT_16BIT) {
-
 			for (int j = 0; j < PortCount; j++) {
 				if (pUserData->header[i].udh.appPort16bit.destPort == wapPushPortList[j]) {
 					MSG_DEBUG("Wap Push Msg : [%04x]", wapPushPortList[j]);
@@ -768,7 +766,6 @@ SMS_WAP_APP_CODE_T SmsPluginWapPushHandler::getAppCode(const char *pPushHeader)
 	MSG_DEBUG("Application Count [%d]", appCount);
 
 	for (int i = 0; i < appCount; i++) {
-
 		header = (unsigned char*)strcasestr(pPushHeader, pushDefaultApplication[i].pContentType);
 
 		if (header != NULL) {
@@ -860,7 +857,6 @@ void SmsPluginWapPushHandler::handleWapPushMsg(const char *pUserData, int DataSi
 	MSG_DEBUG("wspBodyLen [%d]", wspBodyLen);
 
 	if (wspHeaderLen > 0) {
-
 		pWspHeader = new char[wspHeaderLen];
 
 		if (pWspHeader == NULL) {
@@ -891,7 +887,6 @@ void SmsPluginWapPushHandler::handleWapPushMsg(const char *pUserData, int DataSi
 	wspBodyLen = PDUTypeDataLen - wspHeaderLen;
 
 	if (wspBodyLen > 0) {
-
 		pWspBody = new char[wspBodyLen];
 
 		if (pWspBody == NULL) {
@@ -1042,30 +1037,30 @@ void SmsPluginWapPushHandler::handleWapPushCallback(char* pPushHeader, char* pPu
 	case SMS_WAP_APPLICATION_DRM_V2_ROAP_TRIGGER_XML:
 	case SMS_WAP_APPLICATION_DRM_V2_ROAP_TRIGGER_WBXML:
 		MSG_DEBUG("Received DRM V2");
-		// TODO: DRM V2
+		/* TODO: DRM V2 */
 		break;
 
 	case SMS_WAP_APPLICATION_PUSH_EMAIL:
 	case SMS_WAP_APPLICATION_PUSH_EMAIL_XML:
 	case SMS_WAP_APPLICATION_PUSH_EMAIL_WBXML:
 		MSG_DEBUG("Received Email");
-		// TODO: Email
+		/* TODO: Email */
 		break;
 
 	case SMS_WAP_APPLICATION_PUSH_IMPS_CIR:
 		MSG_DEBUG("Received IMPS CIR");
-		// TODO: IMPS CIR
+		/* TODO: IMPS CIR */
 		break;
 
 	case SMS_WAP_APPLICATION_LBS :
 		MSG_DEBUG("Received LBS related message");
 		SmsPluginEventHandler::instance()->handleLBSMsgIncoming(pPushHeader, pPushBody, PushBodyLen);
-		// TODO: LBS
+		/* TODO: LBS */
 		break;
 
 	case SMS_WAP_APPLICATION_PUSH_SIA :
 		MSG_DEBUG("Received SIA");
-		// TODO: SIA
+		/* TODO: SIA */
 		break;
 
 	default:
@@ -1095,8 +1090,7 @@ static void launchProcessByAppcode(int appcode)
 	case SMS_WAP_APPLICATION_PUSH_PROVISIONING_WBXML:
 	case SMS_WAP_APPLICATION_PUSH_BROWSER_SETTINGS:
 	case SMS_WAP_APPLICATION_PUSH_BROWSER_BOOKMARKS:
-	case SMS_WAP_APPLICATION_SYNCML_DM_NOTIFICATION:
-		{
+	case SMS_WAP_APPLICATION_SYNCML_DM_NOTIFICATION: {
 			connection_agent = g_bus_get_sync(G_BUS_TYPE_SYSTEM, NULL, &error);
 			if (error) {
 				MSG_DEBUG("Connecting to system bus failed: %s\n", error->message);
@@ -1123,7 +1117,7 @@ static void launchProcessByAppcode(int appcode)
 				goto _DBUS_ERROR;
 			}
 
-			dbus_proxy_service =g_dbus_proxy_new_sync(connection_service, G_DBUS_PROXY_FLAGS_NONE, NULL,
+			dbus_proxy_service = g_dbus_proxy_new_sync(connection_service, G_DBUS_PROXY_FLAGS_NONE, NULL,
 										"org.tizen.omadmservice", "/org/tizen/omadmservice",
 										"org.tizen.omadmservice", NULL, &error);
 			if (error) {
@@ -1147,8 +1141,7 @@ static void launchProcessByAppcode(int appcode)
 		}
 		break;
 	case SMS_WAP_APPLICATION_SYNCML_DS_NOTIFICATION:
-	case SMS_WAP_APPLICATION_SYNCML_DS_NOTIFICATION_WBXML:
-		{
+	case SMS_WAP_APPLICATION_SYNCML_DS_NOTIFICATION_WBXML: {
 			connection_agent = g_bus_get_sync(G_BUS_TYPE_SYSTEM, NULL, &error);
 			if (error) {
 				MSG_DEBUG("Connecting to system bus failed: %s\n", error->message);
@@ -1226,8 +1219,8 @@ void SmsPluginWapPushHandler::handleWapPushCallback(char* pPushHeader, char* pPu
 
 	msg_error_t err = MSG_SUCCESS;
 	int pushEvt_cnt = 0;
-	char app_id[MAX_WAPPUSH_ID_LEN] = {0,};
-	char content_type[MAX_WAPPUSH_CONTENT_TYPE_LEN] = {0,};
+	char app_id[MAX_WAPPUSH_ID_LEN] = {0, };
+	char content_type[MAX_WAPPUSH_CONTENT_TYPE_LEN] = {0, };
 	SmsPluginStorage *storageHandler = SmsPluginStorage::instance();
 
 	err = storageHandler->getRegisteredPushEvent(pPushHeader, &pushEvt_cnt, app_id, sizeof(app_id), content_type, sizeof(content_type));
@@ -1679,14 +1672,14 @@ void SmsPluginWapPushHandler::handleSLMessage(char* pPushBody, int PushBodyLen, 
 		xmlFreeDoc(xmlDoc);
 		return;
 	} else {
-		MSG_SEC_DEBUG("Not an empty Document and topNode->name = %s \n",topNode->name);
+		MSG_SEC_DEBUG("Not an empty Document and topNode->name = %s \n", topNode->name);
 	}
 
 	indNode = topNode;
 
 	while (indNode != NULL) {
 		if (!xmlStrcmp(indNode->name, (const xmlChar*)"sl")) {
-			MSG_SEC_DEBUG("indNode->name = %s\n",indNode->name);
+			MSG_SEC_DEBUG("indNode->name = %s\n", indNode->name);
 			break;
 		}
 
@@ -1815,7 +1808,6 @@ void SmsPluginWapPushHandler::handleCOMessage(char* pPushBody, int PushBodyLen, 
 
 
 	while (indNode != NULL) {
-
 		xmlChar* tmpUrl = NULL;
 		if (!xmlStrcmp(indNode->name, (const xmlChar*)SMS_PUSH_XML_INVAL_OBJ)) {
 			MSG_SEC_DEBUG("indNode->name = %s\n", indNode->name);
@@ -1830,7 +1822,7 @@ void SmsPluginWapPushHandler::handleCOMessage(char* pPushBody, int PushBodyLen, 
 				MSG_DEBUG("NO href value from the xmlDoc\n");
 			}
 		} else if (!xmlStrcmp(indNode->name, (const xmlChar*)SMS_PUSH_XML_INVAL_SVC)) {
-			MSG_SEC_DEBUG("indNode->name = %s\n",indNode->name);
+			MSG_SEC_DEBUG("indNode->name = %s\n", indNode->name);
 			tmpUrl = xmlGetProp(indNode, (xmlChar*)SMS_PUSH_XML_CO_URI);
 
 			if (tmpUrl != NULL) {
@@ -2051,7 +2043,6 @@ void SmsPluginWapPushHandler::getXmlDoc(const char* pPushBody, const int PushBod
 
 		*pXmlDoc = xmlParseMemory((char*)xmldata, AcStrlen((char*)xmldata));
 	}
-
 }
 
 unsigned long SmsPluginWapPushHandler::convertXmlCharToSec(char* pDate)
@@ -2065,7 +2056,7 @@ unsigned long SmsPluginWapPushHandler::convertXmlCharToSec(char* pDate)
 	memset(&timeStruct, 0x00, sizeof(struct tm));
 
 	/** check pDate */
-	if (AcStrlen(pDate)<20)
+	if (AcStrlen(pDate) < 20)
 		return 0;
 
 	MSG_DEBUG("pDate [%s]", pDate);
@@ -2159,7 +2150,6 @@ msg_push_action_t SmsPluginWapPushHandler::convertSIActionStrToEnum(char* pActio
 
 	/**  signal-medium is default action value. */
 	return MSG_PUSH_SI_ACTION_SIGNAL_MEDIUM;
-
 }
 
 msg_push_action_t SmsPluginWapPushHandler::convertSLActionStrToEnum(char* pAction)
@@ -2188,7 +2178,6 @@ msg_push_action_t SmsPluginWapPushHandler::convertSLActionStrToEnum(char* pActio
 
 	/** default SL action value is execute-low. */
 	return MSG_PUSH_SL_ACTION_EXECUTE_LOW;
-
 }
 
 
@@ -2202,7 +2191,7 @@ unsigned long SmsPluginWapPushHandler::wspRetriveUintvarDecode(unsigned char* so
 
 	decodedValue = wspDecodeUintvar(i + 1, sourceData + *currentPointer);
 	*currentPointer = *currentPointer + i + 1;
-	MSG_DEBUG("wspRetriveUintvarDecode: decodedValue=%d .\n",decodedValue);
+	MSG_DEBUG("wspRetriveUintvarDecode: decodedValue=%d .\n", decodedValue);
 	return decodedValue;
 }
 
@@ -2256,7 +2245,7 @@ void SmsPluginWapPushHandler::wspDecodeHeader(unsigned char* sEncodedHeader, uns
 
 	szBuf[0] = 0x00;
 	MSG_DEBUG("wspDecodeHeader: RAW data \n");
-	for (loop = 0 ; loop<(int)encodedHeaderLen; loop++) {
+	for (loop = 0 ; loop < (int)encodedHeaderLen; loop++) {
 		char szTempBuf[5];
 		szTempBuf[0] = 0x00;
 		snprintf(szTempBuf, sizeof(szTempBuf), "%2X ", sEncodedHeader[loop]);
@@ -2272,7 +2261,7 @@ void SmsPluginWapPushHandler::wspDecodeHeader(unsigned char* sEncodedHeader, uns
 	}
 	strncat(szBuf, "\n", sizeof(szBuf)-AcStrlen(szBuf)-1);
 	MSG_DEBUG("[%s]", szBuf);
-	MSG_DEBUG("fContentType=%d  \n",fContentType);
+	MSG_DEBUG("fContentType=%d  \n", fContentType);
 	/* operation for content-type */
 	/* makes psuedo- content-type fieldcode */
 	/* content - type is processed with header. But it's come without field code. So existence of fContentType can decide adding content type header field code whether ContentType + general header is or not. */
@@ -2327,7 +2316,7 @@ void SmsPluginWapPushHandler::wspDecodeHeader(unsigned char* sEncodedHeader, uns
 			unsigned char* fieldName = (unsigned char*)gWapCodeBufferLeft;
 			unsigned char* fieldValue = (unsigned char*)gWapCodeBufferRight;
 
-			strncpy((char*)fieldName, (char*)(encodedHeader + iEncodedHeader),WSP_CODE_BUFFER_LEFT_LEN_MAX-1);
+			strncpy((char*)fieldName, (char*)(encodedHeader + iEncodedHeader), WSP_CODE_BUFFER_LEFT_LEN_MAX-1);
 			fieldName[WSP_CODE_BUFFER_LEFT_LEN_MAX-1] = '\0';
 			iEncodedHeader = iEncodedHeader + AcStrlen((char*)fieldName) + 1;
 			strncpy((char*)fieldValue, (char*)(encodedHeader + iEncodedHeader), WSP_CODE_BUFFER_RIGHT_LEN_MAX-1);
@@ -2343,9 +2332,7 @@ void SmsPluginWapPushHandler::wspDecodeHeader(unsigned char* sEncodedHeader, uns
 		} else if (track > 0x7f) {
 			/* In case of first byte is field code, else case is error. */
 
-			/*if ((track & 0x7f) <= wspHeaderFieldCount) */
-			{
-
+			/*if ((track & 0x7f) <= wspHeaderFieldCount) { */
 				unsigned long  fieldValueLen = encodedHeader[iEncodedHeader + 1];
 				unsigned char fieldValue[1275];
 				fieldCode = track & 0x7f;
@@ -2367,7 +2354,6 @@ void SmsPluginWapPushHandler::wspDecodeHeader(unsigned char* sEncodedHeader, uns
 				/* field value is string */
 				/* In this case, it just copy field value. */
 				if ((fieldValueLen > LENGTH_QUOTE) && (fieldValueLen < 0x80)) {
-
 					/* string field value should be NULL terminated */
 					strncat((char*)temper, (char*)(encodedHeader + iEncodedHeader + 1), (WSP_STANDARD_STR_LEN_MAX * 5)-AcStrlen((char*)temper)-1);
 					strncat((char*)temper, (char*)fieldValue, (WSP_STANDARD_STR_LEN_MAX * 5)-AcStrlen((char*)temper)-1);
@@ -2391,9 +2377,7 @@ void SmsPluginWapPushHandler::wspDecodeHeader(unsigned char* sEncodedHeader, uns
 				it's decoded by above value.
 				*/
 				if (fieldValueLen < 0x20) {
-
 					if (fieldValueLen  == LENGTH_QUOTE) {
-
 						/* field length is encoded in UINTVAR */
 						unsigned long  uintvarLen = 0;
 						fieldValueLen = wspRetriveUintvarDecode((unsigned char*) encodedHeader + iEncodedHeader + 2, &uintvarLen);
@@ -2401,7 +2385,6 @@ void SmsPluginWapPushHandler::wspDecodeHeader(unsigned char* sEncodedHeader, uns
 						iEncodedHeader = iEncodedHeader + fieldValueLen + uintvarLen + 2;
 
 					} else {
-
 						if (fieldValueLen == 1) {
 							/* field value is one byte integer over 0x80 */
 							/** make it two byte integer */
@@ -2440,251 +2423,240 @@ void SmsPluginWapPushHandler::wspDecodeHeader(unsigned char* sEncodedHeader, uns
 				switch (fieldCode) {
 					/* accept charset */
 					/* It's normal way of field process. */
-					case 0x01 :
-						{
-							unsigned long  i = 0;
-							unsigned long  code;
+					case 0x01: {
+						unsigned long  i = 0;
+						unsigned long  code;
 
-							/* Case of length of charset greater than 1 are two thigins.
-							1. code length of charset is greater than 1.
-							2. It include parameter.
-							3. Or both of two
-							*/
-							if (1 != fieldValueLen) {
-								code = wspHeaderDecodeInteger(fieldValue);
-								/* Calculate iField. */
-								if (fieldValue[0] < 0x80)
-									iField = fieldValue[0];
-								else
-									iField = 1;
+						/* Case of length of charset greater than 1 are two thigins.
+						1. code length of charset is greater than 1.
+						2. It include parameter.
+						3. Or both of two
+						*/
+						if (1 != fieldValueLen) {
+							code = wspHeaderDecodeInteger(fieldValue);
+							/* Calculate iField. */
+							if (fieldValue[0] < 0x80)
+								iField = fieldValue[0];
+							else
+								iField = 1;
 
-								while (wspCharset[i].charsetCode != code)
-									i++;
-								strncat((char*)temper, (char*)wspCharset[i].charsetName, (WSP_STANDARD_STR_LEN_MAX * 5)-AcStrlen((char*)temper)-1);
-								/* If parameter exist */
-								if (iField < fieldValueLen) {
-									char* param = NULL;
-									unique_ptr<char*, void(*)(char**)> parambuf(&param, unique_ptr_deleter);
-									wspHeaderDecodeQValue(fieldValueLen - iField, fieldValue + iField, &param);
-									strncat((char*)temper, (char*)param, (WSP_STANDARD_STR_LEN_MAX * 5)-AcStrlen((char*)temper)-1);
-								}
-							} else {
-								code = fieldValue[0] & 0x7f;
-
-								while ((wspCharset[i].charsetCode != code) && (wspCharset[i].charsetCode != 0xffff )) i++;
-								strncat((char*)temper, (char*)wspCharset[i].charsetName, (WSP_STANDARD_STR_LEN_MAX * 5)-AcStrlen((char*)temper)-1);
+							while (wspCharset[i].charsetCode != code)
+								i++;
+							strncat((char*)temper, (char*)wspCharset[i].charsetName, (WSP_STANDARD_STR_LEN_MAX * 5)-AcStrlen((char*)temper)-1);
+							/* If parameter exist */
+							if (iField < fieldValueLen) {
+								char* param = NULL;
+								unique_ptr<char*, void(*)(char**)> parambuf(&param, unique_ptr_deleter);
+								wspHeaderDecodeQValue(fieldValueLen - iField, fieldValue + iField, &param);
+								strncat((char*)temper, (char*)param, (WSP_STANDARD_STR_LEN_MAX * 5)-AcStrlen((char*)temper)-1);
 							}
+						} else {
+							code = fieldValue[0] & 0x7f;
 
+							while ((wspCharset[i].charsetCode != code) && (wspCharset[i].charsetCode != 0xffff )) i++;
+							strncat((char*)temper, (char*)wspCharset[i].charsetName, (WSP_STANDARD_STR_LEN_MAX * 5)-AcStrlen((char*)temper)-1);
 						}
-						break;
+					}
+					break;
 
 					/* type encoding */
 					/* Like below routine, Same decoding routine process together. */
 					/* Accept-encoding */
-					case 0x02 :
+					case 0x02:
 					/* content-encoding */
-					case 0x0b :
-						{
-							int integerValue;
+					case 0x0b: {
+						int integerValue;
 
-							integerValue = wspHeaderDecodeIntegerByLength(fieldValue, fieldValueLen);
-							if (integerValue > 2) {
-								MSG_DEBUG("WspLDecodeHeader: integerValue is over limit(2).\n");
-								break;
-							}
-							strncat((char*)temper, (char*)wspEncodeMethod[integerValue], (WSP_STANDARD_STR_LEN_MAX * 5)-AcStrlen((char*)temper)-1);
+						integerValue = wspHeaderDecodeIntegerByLength(fieldValue, fieldValueLen);
+						if (integerValue > 2) {
+							MSG_DEBUG("WspLDecodeHeader: integerValue is over limit(2).\n");
+							break;
 						}
-						break;
+						strncat((char*)temper, (char*)wspEncodeMethod[integerValue], (WSP_STANDARD_STR_LEN_MAX * 5)-AcStrlen((char*)temper)-1);
+					}
+					break;
 					/* contents type decoder */
 					/* accept */
-					case 0x00 :
+					case 0x00:
 					/* content-type */
-					case 0x11 :
-						{
-							unsigned long  contentsTypeCode;
-							unsigned long  i = 0;
-							/* encoded content type length body */
-							unsigned long  tempLen;
-							MSG_DEBUG("fieldValueLen: %d", fieldValueLen);
+					case 0x11: {
+						unsigned long  contentsTypeCode;
+						unsigned long  i = 0;
+						/* encoded content type length body */
+						unsigned long  tempLen;
+						MSG_DEBUG("fieldValueLen: %d", fieldValueLen);
 
-							/* Like HTTP result state 304, it's for processing without Content type. This part doesn't defined. */
-							if (0 == fieldValueLen) {
-								strncat((char*)temper, (char*)"None" , (WSP_STANDARD_STR_LEN_MAX * 5)-AcStrlen((char*)temper)-1);
-								break;
-							}
-							/* 01 AE --> 00 AE --> AE*/
-							if (fieldValueLen == 2  &&  fieldValue[0] == 0) {
-								memcpy(fieldValue, encodedHeader + iEncodedHeader -1, (size_t)fieldValueLen-1);
-								MSG_DEBUG("WspLDecodeHeader:For mmO2 problem\r\n");
-							}
-
-							if ((fieldValue[0] < 0x20) || (fieldValue[0] >= 0x80)) {
-								if (fieldValue[0] >= 0x80) {
-									tempLen = 1;
-								} else if (fieldValueLen == 2 && fieldValue[0] == 0x03 && fieldValue[1] == 0x0A) { /** 06 05 02 03 0A AF 89 */
-									fieldValue[3] = fieldValue[2];
-									fieldValue[2] = fieldValue[1];
-									fieldValue[1] = fieldValue[0];
-									fieldValue[0] = 0x02;
-									tempLen = 2;
-									fieldValueLen = 3;
-									MSG_DEBUG("WspLDecodeHeader:For CPE problem\r\n");
-								} else {
-									tempLen = fieldValue[0]; /** 06 06 03 02 03 16 AF 88 */
-								}
-
-								if (tempLen == 1) {
-
-									char* szExtendedContent;
-
-									contentsTypeCode = fieldValue[0] & 0x7f;
-									while ((wspContentsType[i].contentsTypeCode != contentsTypeCode) && (i < wspContentsTypeCount)) i++;
-
-									/* If specified content type doesn't exist */
-									if (i < wspContentsTypeCount)
-										strncat((char*)temper, (char*)wspContentsType[i].contentsTypeName, (WSP_STANDARD_STR_LEN_MAX * 5)-AcStrlen((char*)temper)-1);
-
-									szExtendedContent =  wspExtendedDecodeType((char)contentsTypeCode);
-
-									if (szExtendedContent != NULL) {
-										MSG_DEBUG("WspLDecodeHeader: Tele2 server problem \n ");
-										strncat((char*)temper, (char*)szExtendedContent, (WSP_STANDARD_STR_LEN_MAX * 5)-AcStrlen((char*)temper)-1);
-									}
-								} else {
-									contentsTypeCode = wspHeaderDecodeInteger(fieldValue);
-
-									while ((i < wspUnregisteredContentsTypeCount) && (wspUnregisterContentsType[i].contentsTypeCode != contentsTypeCode)) i++;
-
-									/** If there is a Content-Type assigned, */
-									if (i < wspUnregisteredContentsTypeCount)
-										strncat ((char*)temper, (char*)wspUnregisterContentsType[i].contentsTypeName, (WSP_STANDARD_STR_LEN_MAX * 5)-AcStrlen((char*)temper)-1);
-
-									tempLen +=1;
-								}
-							} else {
-								tempLen = AcStrlen((char*)fieldValue) + 1;
-
-								strncat ((char*)temper, (char*)fieldValue, (WSP_STANDARD_STR_LEN_MAX * 5)-AcStrlen((char*)temper)-1);
-								MSG_DEBUG("WspLDecodeHeader: Attention, Decoding Check of Content-Type\n ", tempLen);
-							}
-
-							/* If there is a parameter */
-							if (tempLen < fieldValueLen) {
-								char* param = NULL;
-								unique_ptr<char*, void(*)(char**)> parambuf(&param, unique_ptr_deleter);
-								wspHeaderDecodeParameter(fieldValue + tempLen, fieldValueLen - tempLen, &param);
-								if (param != NULL) {
-									strncat((char*)temper, "; ", (WSP_STANDARD_STR_LEN_MAX * 5)-AcStrlen((char*)temper)-1);
-									strncat((char*)temper, (char*)param, (WSP_STANDARD_STR_LEN_MAX * 5)-AcStrlen((char*)temper)-1);
-								}
-							}
+						/* Like HTTP result state 304, it's for processing without Content type. This part doesn't defined. */
+						if (0 == fieldValueLen) {
+							strncat((char*)temper, (char*)"None" , (WSP_STANDARD_STR_LEN_MAX * 5)-AcStrlen((char*)temper)-1);
+							break;
 						}
-						break;
+						/* 01 AE --> 00 AE --> AE*/
+						if (fieldValueLen == 2  &&  fieldValue[0] == 0) {
+							memcpy(fieldValue, encodedHeader + iEncodedHeader -1, (size_t)fieldValueLen-1);
+							MSG_DEBUG("WspLDecodeHeader:For mmO2 problem\r\n");
+						}
 
-					/* language */
-					/* content-language */
-					case 0x0c :
-					/* accept-language */
-					case 0x03 :
-						{
-							unsigned long i = 0;
-							unsigned long code;
-							unsigned long tempLen;
-							if ((fieldValue[0] < 0x20) || (fieldValue[0] > 0x80)) {
-								if (fieldValue[0] > 0x80)
-									tempLen = 1;
-								else
-									tempLen = fieldValue[0];
+						if ((fieldValue[0] < 0x20) || (fieldValue[0] >= 0x80)) {
+							if (fieldValue[0] >= 0x80) {
+								tempLen = 1;
+							} else if (fieldValueLen == 2 && fieldValue[0] == 0x03 && fieldValue[1] == 0x0A) { /** 06 05 02 03 0A AF 89 */
+								fieldValue[3] = fieldValue[2];
+								fieldValue[2] = fieldValue[1];
+								fieldValue[1] = fieldValue[0];
+								fieldValue[0] = 0x02;
+								tempLen = 2;
+								fieldValueLen = 3;
+								MSG_DEBUG("WspLDecodeHeader:For CPE problem\r\n");
 							} else {
-								tempLen = AcStrlen((char*)fieldValue) + 1;
+								tempLen = fieldValue[0]; /** 06 06 03 02 03 16 AF 88 */
 							}
 
 							if (tempLen == 1) {
+								char* szExtendedContent;
 
-								code = wspHeaderDecodeInteger(fieldValue);
-								while (wspLanguage[i].languageCode != code) {
-									i++;
-									if (i == wspLanguageCount)
-										break;
-								}
+								contentsTypeCode = fieldValue[0] & 0x7f;
+								while ((wspContentsType[i].contentsTypeCode != contentsTypeCode) && (i < wspContentsTypeCount)) i++;
 
-								if (i < wspLanguageCount) {
-									strncat((char*)temper, (char*)wspLanguage[i].languageName, (WSP_STANDARD_STR_LEN_MAX * 5)-AcStrlen((char*)temper)-1);
+								/* If specified content type doesn't exist */
+								if (i < wspContentsTypeCount)
+									strncat((char*)temper, (char*)wspContentsType[i].contentsTypeName, (WSP_STANDARD_STR_LEN_MAX * 5)-AcStrlen((char*)temper)-1);
+
+								szExtendedContent =  wspExtendedDecodeType((char)contentsTypeCode);
+
+								if (szExtendedContent != NULL) {
+									MSG_DEBUG("WspLDecodeHeader: Tele2 server problem \n ");
+									strncat((char*)temper, (char*)szExtendedContent, (WSP_STANDARD_STR_LEN_MAX * 5)-AcStrlen((char*)temper)-1);
 								}
 							} else {
-								strncat((char*)temper, (char*)fieldValue, (WSP_STANDARD_STR_LEN_MAX * 5)-AcStrlen((char*)temper)-1);
-							}
+								contentsTypeCode = wspHeaderDecodeInteger(fieldValue);
 
-							if (tempLen < fieldValueLen) {
-								char* param = NULL;
-								unique_ptr<char*, void(*)(char**)> parambuf(&param, unique_ptr_deleter);
-								wspHeaderDecodeQValue( fieldValueLen - tempLen, fieldValue + tempLen, &param);
+								while ((i < wspUnregisteredContentsTypeCount) && (wspUnregisterContentsType[i].contentsTypeCode != contentsTypeCode)) i++;
+
+								/** If there is a Content-Type assigned, */
+								if (i < wspUnregisteredContentsTypeCount)
+									strncat((char*)temper, (char*)wspUnregisterContentsType[i].contentsTypeName, (WSP_STANDARD_STR_LEN_MAX * 5)-AcStrlen((char*)temper)-1);
+
+								tempLen +=1;
+							}
+						} else {
+							tempLen = AcStrlen((char*)fieldValue) + 1;
+
+							strncat((char*)temper, (char*)fieldValue, (WSP_STANDARD_STR_LEN_MAX * 5)-AcStrlen((char*)temper)-1);
+							MSG_DEBUG("WspLDecodeHeader: Attention, Decoding Check of Content-Type\n ", tempLen);
+						}
+
+						/* If there is a parameter */
+						if (tempLen < fieldValueLen) {
+							char* param = NULL;
+							unique_ptr<char*, void(*)(char**)> parambuf(&param, unique_ptr_deleter);
+							wspHeaderDecodeParameter(fieldValue + tempLen, fieldValueLen - tempLen, &param);
+							if (param != NULL) {
+								strncat((char*)temper, "; ", (WSP_STANDARD_STR_LEN_MAX * 5)-AcStrlen((char*)temper)-1);
 								strncat((char*)temper, (char*)param, (WSP_STANDARD_STR_LEN_MAX * 5)-AcStrlen((char*)temper)-1);
 							}
 						}
-						break;
+					}
+					break;
+
+					/* language */
+					/* content-language */
+					case 0x0c:
+					/* accept-language */
+					case 0x03: {
+						unsigned long i = 0;
+						unsigned long code;
+						unsigned long tempLen;
+						if ((fieldValue[0] < 0x20) || (fieldValue[0] > 0x80)) {
+							if (fieldValue[0] > 0x80)
+								tempLen = 1;
+							else
+								tempLen = fieldValue[0];
+						} else {
+							tempLen = AcStrlen((char*)fieldValue) + 1;
+						}
+
+						if (tempLen == 1) {
+							code = wspHeaderDecodeInteger(fieldValue);
+							while (wspLanguage[i].languageCode != code) {
+								i++;
+								if (i == wspLanguageCount)
+									break;
+							}
+
+							if (i < wspLanguageCount) {
+								strncat((char*)temper, (char*)wspLanguage[i].languageName, (WSP_STANDARD_STR_LEN_MAX * 5)-AcStrlen((char*)temper)-1);
+							}
+						} else {
+							strncat((char*)temper, (char*)fieldValue, (WSP_STANDARD_STR_LEN_MAX * 5)-AcStrlen((char*)temper)-1);
+						}
+
+						if (tempLen < fieldValueLen) {
+							char* param = NULL;
+							unique_ptr<char*, void(*)(char**)> parambuf(&param, unique_ptr_deleter);
+							wspHeaderDecodeQValue(fieldValueLen - tempLen, fieldValue + tempLen, &param);
+							strncat((char*)temper, (char*)param, (WSP_STANDARD_STR_LEN_MAX * 5)-AcStrlen((char*)temper)-1);
+						}
+					}
+					break;
 
 					/* integer */
 					/* Max-forwards */
-					case 0x1e :
+					case 0x1e:
 					/* content-length */
-					case 0x0d :
+					case 0x0d:
 					/* age */
-					case 0x05 :
+					case 0x05:
 					/* Bearer-indication */
-					case 0x33 :
+					case 0x33:
 					/* Push-Flag */
-					case 0x34 :
-						{
-
-							unsigned char temp[16];
-							/*
-							if ((fieldValueLen == 2) && (fieldValue[0] > 0x7f))
-								AcSprintf((char*)temp, "%u", (unsigned int)fieldValue[1]);
-							else
-							*/
-							snprintf((char*)temp, sizeof(temp), "%u", (unsigned int)wspHeaderDecodeIntegerByLength(fieldValue, fieldValueLen));
-							strncat((char*)temper, (char*)temp, (WSP_STANDARD_STR_LEN_MAX * 5)-AcStrlen((char*)temper)-1);
-						}
-						break;
+					case 0x34: {
+						unsigned char temp[16];
+						/*
+						if ((fieldValueLen == 2) && (fieldValue[0] > 0x7f))
+							AcSprintf((char*)temp, "%u", (unsigned int)fieldValue[1]);
+						else
+						*/
+						snprintf((char*)temp, sizeof(temp), "%u", (unsigned int)wspHeaderDecodeIntegerByLength(fieldValue, fieldValueLen));
+						strncat((char*)temper, (char*)temp, (WSP_STANDARD_STR_LEN_MAX * 5)-AcStrlen((char*)temper)-1);
+					}
+					break;
 					/* X-Wap-Application-Id */
-					case 0x2f :
-						{
-							unsigned char temp[64];
-							int         integerValue;
+					case 0x2f: {
+						unsigned char temp[64];
+						int         integerValue;
 
-							if (track == 0xaf) { /* WAP short-integer-encoded */
-								if (fieldValueLen == 2 &&  fieldValue[0] == 0) {
-									memcpy(fieldValue, encodedHeader + iEncodedHeader -1, (size_t)fieldValueLen);
-								}
-								integerValue = wspHeaderDecodeIntegerByLength(fieldValue, fieldValueLen);
-							} else {
-								if (fieldValueLen == 2 &&  fieldValue[0] == 0) {
-									memcpy(fieldValue, encodedHeader + iEncodedHeader -1, (size_t)fieldValueLen-1);
-									MSG_DEBUG("WspLDecodeHeader:For mmO2 problem\r\n");
-									fieldValueLen = 1;
-								}
-								integerValue = wspHeaderDecodeIntegerByLength(fieldValue, fieldValueLen);
+						if (track == 0xaf) { /* WAP short-integer-encoded */
+							if (fieldValueLen == 2 &&  fieldValue[0] == 0) {
+								memcpy(fieldValue, encodedHeader + iEncodedHeader -1, (size_t)fieldValueLen);
 							}
+							integerValue = wspHeaderDecodeIntegerByLength(fieldValue, fieldValueLen);
+						} else {
+							if (fieldValueLen == 2 &&  fieldValue[0] == 0) {
+								memcpy(fieldValue, encodedHeader + iEncodedHeader -1, (size_t)fieldValueLen-1);
+								MSG_DEBUG("WspLDecodeHeader:For mmO2 problem\r\n");
+								fieldValueLen = 1;
+							}
+							integerValue = wspHeaderDecodeIntegerByLength(fieldValue, fieldValueLen);
+						}
 
-							MSG_DEBUG("integerValue = [%02x]", integerValue);
+						MSG_DEBUG("integerValue = [%02x]", integerValue);
 
-							int count = sizeof(wspHeaderApplId)/sizeof(SMS_WSP_HEADER_PARAMETER_S);
-							for (int i = 0; i < count ; ++i) {
-								if ((unsigned int)integerValue == wspHeaderApplId[i].parameterCode) {
-									snprintf((char*)temp, 64, "%s", wspHeaderApplId[i].parameterToken);
-									strncat((char*)temper, (char*)temp, (WSP_STANDARD_STR_LEN_MAX * 5)-AcStrlen(temper)-1);
-									break;
-								}
+						int count = sizeof(wspHeaderApplId)/sizeof(SMS_WSP_HEADER_PARAMETER_S);
+						for (int i = 0; i < count ; ++i) {
+							if ((unsigned int)integerValue == wspHeaderApplId[i].parameterCode) {
+								snprintf((char*)temp, 64, "%s", wspHeaderApplId[i].parameterToken);
+								strncat((char*)temper, (char*)temp, (WSP_STANDARD_STR_LEN_MAX * 5)-AcStrlen(temper)-1);
+								break;
 							}
 						}
-						break;
+					}
+					break;
 					/* Accept-Application */
-					case 0x32 :
+					case 0x32:
 						if (0x80 == fieldValue[0]) {
 							strncat((char*)temper, "*", (WSP_STANDARD_STR_LEN_MAX * 5)-AcStrlen(temper)-1);
 						} else {
-
 							unsigned char temp[16];
 							/*
 							if ((fieldValueLen == 2) && (fieldValue[0] == 1))
@@ -2699,51 +2671,49 @@ void SmsPluginWapPushHandler::wspDecodeHeader(unsigned char* sEncodedHeader, uns
 
 					/* date */
 					/* last-modified */
-					case 0x1d :
+					case 0x1d:
 					/* if-unmodified-since */
-					case 0x1b :
+					case 0x1b:
 					/* if-range */
-					case 0x1a :
+					case 0x1a:
 					/* if-modified-since */
-					case 0x17 :
+					case 0x17:
 					/* expires */
-					case 0x14 :
+					case 0x14:
 					/* date */
-					case 0x12 :
-						{
-							char* decodedString = NULL;
-							unique_ptr<char*, void(*)(char**)> decodedStringbuf(&decodedString, unique_ptr_deleter);
-							wspHeaderDecodeDateValue(fieldValueLen, fieldValue, &decodedString);
-							strncat((char*)temper, (char*)decodedString, (WSP_STANDARD_STR_LEN_MAX * 5)-AcStrlen(temper)-1);
-						}
-						break;
+					case 0x12: {
+						char* decodedString = NULL;
+						unique_ptr<char*, void(*)(char**)> decodedStringbuf(&decodedString, unique_ptr_deleter);
+						wspHeaderDecodeDateValue(fieldValueLen, fieldValue, &decodedString);
+						strncat((char*)temper, (char*)decodedString, (WSP_STANDARD_STR_LEN_MAX * 5)-AcStrlen(temper)-1);
+					}
+					break;
 
 					/* connection */
-					case 0x09 :
+					case 0x09:
 						if (fieldValue[0] == 0x80)
 							strncat((char*)temper, "Close", (WSP_STANDARD_STR_LEN_MAX * 5)-AcStrlen(temper)-1);
 						break;
 					/* accept-ranges */
-					case 0x04 :
+					case 0x04:
 						if (fieldValue[0] == 0x80)
 							strncat((char*)temper, "None", (WSP_STANDARD_STR_LEN_MAX * 5)-AcStrlen(temper)-1);
 						if (fieldValue[0] == 0x81)
 							strncat((char*)temper, "Bytes", (WSP_STANDARD_STR_LEN_MAX * 5)-AcStrlen(temper)-1);
 						break;
 					/* content-md5 */
-					case 0x0f :
-						{
-							unsigned char temp[1275];
-							memcpy(temp, fieldValue, (size_t)fieldValueLen);
-							temp[fieldValueLen] = 0;
-							wspHeaderCopyDecodedString(temp, &currentLength, &temper);
-						}
-						break;
+					case 0x0f: {
+						unsigned char temp[1275];
+						memcpy(temp, fieldValue, (size_t)fieldValueLen);
+						temp[fieldValueLen] = 0;
+						wspHeaderCopyDecodedString(temp, &currentLength, &temper);
+					}
+					break;
 					/* Credential */
 					/* authorization */
-					case 0x07 :
+					case 0x07:
 					/* proxy - authorization */
-					case 0x21 :
+					case 0x21:
 						if (fieldValue[0] == 0x80) {
 							char* addString = NULL;
 							unique_ptr<char*, void(*)(char**)> addStringbuf(&addString, unique_ptr_deleter);
@@ -2768,9 +2738,9 @@ void SmsPluginWapPushHandler::wspDecodeHeader(unsigned char* sEncodedHeader, uns
 
 					/* Challenge */
 					/* www - auth */
-					case 0x2d :
+					case 0x2d:
 					/* Proxy-authenticate */
-					case 0x20 :
+					case 0x20:
 						if (0 == fieldValueLen)
 							break;
 						if (fieldValue[0] == 0x80) {
@@ -2803,39 +2773,37 @@ void SmsPluginWapPushHandler::wspDecodeHeader(unsigned char* sEncodedHeader, uns
 						break;
 
 					/* content -range */
-					case 0x10 :
-						{
-							unsigned long  first, len, last;
+					case 0x10: {
+						unsigned long  first, len, last;
 
-							unsigned char  temp[16];
-							iField = 0;
+						unsigned char  temp[16];
+						iField = 0;
 
-							strncat((char*)temper," bytes ", (WSP_STANDARD_STR_LEN_MAX * 5)-AcStrlen((char*)temper)-1);
+						strncat((char*)temper, " bytes ", (WSP_STANDARD_STR_LEN_MAX * 5)-AcStrlen((char*)temper)-1);
 
-							first = wspRetriveUintvarDecode(fieldValue, &iField);
-							len = wspRetriveUintvarDecode(fieldValue, &iField);
-							/* Originally range of HTTP include entity length. But WSP omit it. Finally to calculate this, it should be get content length from export. If this field is included without content length, then it can get wrong result. This content length can be get by calculating PDU length.
-							*/
-							last = first + contentsLength - 1;
+						first = wspRetriveUintvarDecode(fieldValue, &iField);
+						len = wspRetriveUintvarDecode(fieldValue, &iField);
+						/* Originally range of HTTP include entity length. But WSP omit it. Finally to calculate this, it should be get content length from export. If this field is included without content length, then it can get wrong result. This content length can be get by calculating PDU length.
+						*/
+						last = first + contentsLength - 1;
 
-							snprintf((char*)temp, sizeof(temp), "%u-%u/%u", (unsigned int)first, (unsigned int)last, (unsigned int)len);
-							strncat((char*)temper, (char*)temp, (WSP_STANDARD_STR_LEN_MAX * 5)-AcStrlen((char*)temper)-1);
-						}
-						break;
+						snprintf((char*)temp, sizeof(temp), "%u-%u/%u", (unsigned int)first, (unsigned int)last, (unsigned int)len);
+						strncat((char*)temper, (char*)temp, (WSP_STANDARD_STR_LEN_MAX * 5)-AcStrlen((char*)temper)-1);
+					}
+					break;
 
 					/* cache-control */
-					case 0x08 :
-						{
-							char* cacheString = NULL;
-							unique_ptr<char*, void(*)(char**)> cacheStringbuf(&cacheString, unique_ptr_deleter);
+					case 0x08: {
+						char* cacheString = NULL;
+						unique_ptr<char*, void(*)(char**)> cacheStringbuf(&cacheString, unique_ptr_deleter);
 
-							wspHeaderDecodeCacheControl(fieldValue, fieldValueLen, &cacheString);
-							strncat((char*)temper, (char*)cacheString, (WSP_STANDARD_STR_LEN_MAX * 5)-AcStrlen((char*)temper)-1);
-						}
-						break;
+						wspHeaderDecodeCacheControl(fieldValue, fieldValueLen, &cacheString);
+						strncat((char*)temper, (char*)cacheString, (WSP_STANDARD_STR_LEN_MAX * 5)-AcStrlen((char*)temper)-1);
+					}
+					break;
 
 					/* pragma */
-					case 0x1f :
+					case 0x1f:
 						if (fieldValue[0] == 0x80) {
 							strncat((char*)temper, (char*)wspCacheControl[0], (WSP_STANDARD_STR_LEN_MAX * 5)-AcStrlen((char*)temper)-1);
 						} else {
@@ -2853,17 +2821,16 @@ void SmsPluginWapPushHandler::wspDecodeHeader(unsigned char* sEncodedHeader, uns
 
 						break;
 					/* public */
-					case 0x22 :
+					case 0x22:
 					/* allow */
-					case 0x06 :
-						{
-							unsigned long  i = 0;
-							while (wspHeaderDecodeIntegerByLength(fieldValue, fieldValueLen) != wspMethodType[i].methodCode) i++;
-							strncat((char*)temper, (char*)wspMethodType[i].methodName, (WSP_STANDARD_STR_LEN_MAX * 5)-AcStrlen((char*)temper)-1);
-						}
-						break;
+					case 0x06: {
+						unsigned long  i = 0;
+						while (wspHeaderDecodeIntegerByLength(fieldValue, fieldValueLen) != wspMethodType[i].methodCode) i++;
+						strncat((char*)temper, (char*)wspMethodType[i].methodName, (WSP_STANDARD_STR_LEN_MAX * 5)-AcStrlen((char*)temper)-1);
+					}
+					break;
 					/* range */
-					case 0x23 :
+					case 0x23:
 						strncat((char*)temper, "bytes=", (WSP_STANDARD_STR_LEN_MAX * 5)-AcStrlen((char*)temper)-1);
 						if (fieldValue[0] == 0x80) {
 							unsigned char temp[16];
@@ -2883,11 +2850,10 @@ void SmsPluginWapPushHandler::wspDecodeHeader(unsigned char* sEncodedHeader, uns
 							suffix = wspRetriveUintvarDecode(fieldValue, &iField);
 
 							snprintf((char*)temp, sizeof(temp), "-%u", (unsigned int)suffix);
-
 						}
 						break;
 					/* retry-after */
-					case 0x25 :
+					case 0x25:
 						if (fieldValue[0] == 0x80) {
 							char* temp = NULL;
 							unique_ptr<char*, void(*)(char**)> tempbuf(&temp, unique_ptr_deleter);
@@ -2899,53 +2865,51 @@ void SmsPluginWapPushHandler::wspDecodeHeader(unsigned char* sEncodedHeader, uns
 						if (fieldValue[0] == 0x81) {
 							unsigned char temp[16];
 
-							snprintf((char*)temp, 16, "%u", (unsigned int)wspHeaderDecodeIntegerByLength(fieldValue,fieldValueLen));
+							snprintf((char*)temp, 16, "%u", (unsigned int)wspHeaderDecodeIntegerByLength(fieldValue, fieldValueLen));
 							strncat((char*)temper, (char*)temp, (WSP_STANDARD_STR_LEN_MAX * 5)-AcStrlen((char*)temper)-1);
 						}
 						break;
 					/* transfer-encoding */
-					case 0x27 :
+					case 0x27:
 						/* No other cases allowed */
 						if (fieldValue[0] == 0x80)
 							strncat((char*)temper, "chunked", (WSP_STANDARD_STR_LEN_MAX * 5)-AcStrlen((char*)temper)-1);
 
 						break;
 					/* vary */
-					case 0x2a :
-						{
-							int integerValue = wspHeaderDecodeIntegerByLength(fieldValue,fieldValueLen);
-							if (integerValue > wspHeaderFieldCount) {
-								MSG_DEBUG("WspLDecodeHeader: integerValue is over limit(0x%x).\n",wspHeaderFieldCount);
-								break;
-							}
-							strncat((char*)temper, (char*)wspHeaderFieldName[integerValue], (WSP_STANDARD_STR_LEN_MAX * 5)-AcStrlen((char*)temper)-1);
+					case 0x2a: {
+						int integerValue = wspHeaderDecodeIntegerByLength(fieldValue, fieldValueLen);
+						if (integerValue > wspHeaderFieldCount) {
+							MSG_DEBUG("WspLDecodeHeader: integerValue is over limit(0x%x).\n", wspHeaderFieldCount);
+							break;
 						}
-						break;
+						strncat((char*)temper, (char*)wspHeaderFieldName[integerValue], (WSP_STANDARD_STR_LEN_MAX * 5)-AcStrlen((char*)temper)-1);
+					}
+					break;
 					/* warning */
-					case 0x2c :
-						{
-							unsigned char temp[WSP_STANDARD_STR_LEN_MAX];
+					case 0x2c: {
+						unsigned char temp[WSP_STANDARD_STR_LEN_MAX];
 
-							if (fieldValue[0] < 0x20)
-								iField = fieldValue[0];
-							else
-								iField = 1;
+						if (fieldValue[0] < 0x20)
+							iField = fieldValue[0];
+						else
+							iField = 1;
 
-							snprintf((char*)temp, sizeof(temp), "%u", (unsigned int)wspHeaderDecodeIntegerByLength(fieldValue, iField));
-							strncat((char*)temper, (char*)temp, (WSP_STANDARD_STR_LEN_MAX * 5)-AcStrlen((char*)temper)-1);
-							if (iField < fieldValueLen) {
-								unsigned char agent[WSP_STANDARD_STR_LEN_MAX];
-								unsigned char text[WSP_STANDARD_STR_LEN_MAX];
-								strncpy((char*)agent, (char*)(fieldValue + iField),WSP_STANDARD_STR_LEN_MAX-1);
-								iField = iField + AcStrlen((char*)agent) + 1;
-								strncpy((char*)text, (char*)(fieldValue + iField),WSP_STANDARD_STR_LEN_MAX-1);
-								snprintf((char*)temp, sizeof(temp), " %s %s", agent, text);
-								wspHeaderCopyDecodedString(temp, &currentLength, &temper);
-							}
+						snprintf((char*)temp, sizeof(temp), "%u", (unsigned int)wspHeaderDecodeIntegerByLength(fieldValue, iField));
+						strncat((char*)temper, (char*)temp, (WSP_STANDARD_STR_LEN_MAX * 5)-AcStrlen((char*)temper)-1);
+						if (iField < fieldValueLen) {
+							unsigned char agent[WSP_STANDARD_STR_LEN_MAX];
+							unsigned char text[WSP_STANDARD_STR_LEN_MAX];
+							strncpy((char*)agent, (char*)(fieldValue + iField), WSP_STANDARD_STR_LEN_MAX-1);
+							iField = iField + AcStrlen((char*)agent) + 1;
+							strncpy((char*)text, (char*)(fieldValue + iField), WSP_STANDARD_STR_LEN_MAX-1);
+							snprintf((char*)temp, sizeof(temp), " %s %s", agent, text);
+							wspHeaderCopyDecodedString(temp, &currentLength, &temper);
 						}
-						break;
+					}
+					break;
 					/* content-disposition */
-					case 0x2e :
+					case 0x2e:
 						if (fieldValue[0] == 0x80)
 							strncat((char*)temper, "form-data", (WSP_STANDARD_STR_LEN_MAX * 5)-AcStrlen((char*)temper)-1);
 
@@ -2964,39 +2928,37 @@ void SmsPluginWapPushHandler::wspDecodeHeader(unsigned char* sEncodedHeader, uns
 						}
 						break;
 					/* Profile-diff */
-					case 0x36 :
+					case 0x36:
 						temper[AcStrlen((char*)temper) + fieldValueLen] = '\0';
 						memcpy(temper, fieldValue, (size_t)fieldValueLen);
 						break;
 					/* Profile-Warning */
-					case 0x37 :
-						{
-							unsigned char temp[WSP_STANDARD_STR_LEN_MAX];
+					case 0x37: {
+						unsigned char temp[WSP_STANDARD_STR_LEN_MAX];
 
-							snprintf((char*)temp, sizeof(temp), "%lX", wspHeaderDecodeInteger(fieldValue));
-							temp[2] = temp[1];
-							temp[1] = (unsigned char)0x30;
-							temp[3] = '\0';
-							if (fieldValueLen > 1) {
-								/* copy warn-target - URI */
-								strncat((char*)temp, (char*)(fieldValue + 1), WSP_STANDARD_STR_LEN_MAX-AcStrlen((char*)temp)-1);
-								if (fieldValueLen > (AcStrlen((char*)(fieldValue + 1)) + 1)) {
-									/* copy warn-date */
-									char* decodedString = NULL;
-									unique_ptr<char*, void(*)(char**)> decodedStringbuf(&decodedString, unique_ptr_deleter);
-									wspHeaderDecodeDateValue(fieldValueLen - (AcStrlen((char*)(fieldValue + 1)) + 2), fieldValue + AcStrlen((char*)(fieldValue + 1)) + 1, &decodedString);
-									strncat((char*)temp, (char*)decodedString, WSP_STANDARD_STR_LEN_MAX-AcStrlen((char*)temp)-1);
-								}
+						snprintf((char*)temp, sizeof(temp), "%lX", wspHeaderDecodeInteger(fieldValue));
+						temp[2] = temp[1];
+						temp[1] = (unsigned char)0x30;
+						temp[3] = '\0';
+						if (fieldValueLen > 1) {
+							/* copy warn-target - URI */
+							strncat((char*)temp, (char*)(fieldValue + 1), WSP_STANDARD_STR_LEN_MAX-AcStrlen((char*)temp)-1);
+							if (fieldValueLen > (AcStrlen((char*)(fieldValue + 1)) + 1)) {
+								/* copy warn-date */
+								char* decodedString = NULL;
+								unique_ptr<char*, void(*)(char**)> decodedStringbuf(&decodedString, unique_ptr_deleter);
+								wspHeaderDecodeDateValue(fieldValueLen - (AcStrlen((char*)(fieldValue + 1)) + 2), fieldValue + AcStrlen((char*)(fieldValue + 1)) + 1, &decodedString);
+								strncat((char*)temp, (char*)decodedString, WSP_STANDARD_STR_LEN_MAX-AcStrlen((char*)temp)-1);
 							}
-							strncat((char*)temper, (char*)temp, (WSP_STANDARD_STR_LEN_MAX * 5)-AcStrlen((char*)temper)-1);
 						}
-						break;
+						strncat((char*)temper, (char*)temp, (WSP_STANDARD_STR_LEN_MAX * 5)-AcStrlen((char*)temper)-1);
+					}
+					break;
 
-					default :
+					default:
 						break;
 				}
-
-			}
+			/*}*/
 		}
 		/* It deosn't finished decoding yet. */
 		if ((iEncodedHeader < encodedHeaderLen) && (fieldCode != 0xff)) {
@@ -3016,7 +2978,6 @@ void SmsPluginWapPushHandler::wspDecodeHeader(unsigned char* sEncodedHeader, uns
 		/* add single header to total headers */
 		strncat((char*)outTemper, (char*)temper, (WSP_STANDARD_STR_LEN_MAX * 5)-AcStrlen((char*)outTemper)-1);
 		MSG_DEBUG("WspLDecodeHeader: Single Header : %s\r\n", temper);
-
 	}
 
 
@@ -3025,7 +2986,6 @@ void SmsPluginWapPushHandler::wspDecodeHeader(unsigned char* sEncodedHeader, uns
 	*pHeader = outTemper;
 
 	return;
-
 }
 
 
@@ -3044,11 +3004,11 @@ unsigned long SmsPluginWapPushHandler::wspHeaderDecodeInteger(unsigned char* dat
 	if (data[0] < 0x80) {
 		unsigned long IntLen = 0;
 
-		IntLen = (data[0]>0x04) ? 0x04:data[0];
+		IntLen = (data[0] > 0x04) ? 0x04:data[0];
 
 		MSG_DEBUG("WspLHeaderDecodeInteger: input %d , length %d\n", data[0], IntLen);
 
-		for (i=0; i<IntLen; i++)
+		for (i = 0; i < IntLen; i++)
 			returner.seg[IntLen-(i+1)] = data[i+1];
 
 		return returner.integer;
@@ -3162,17 +3122,17 @@ void SmsPluginWapPushHandler::wspHeaderDecodeParameter(unsigned char* data, unsi
 	}
 
 	switch (data[0] & 0x7f) {
-	case 0x00 :
-		wspHeaderDecodeQValue( length - 1, data + 1, &param);
+	case 0x00:
+		wspHeaderDecodeQValue(length - 1, data + 1, &param);
 		break;
-	case 0x01 :
+	case 0x01:
 		wspHeaderDecodeCharset(length - 1 , data + 1, &param);
 		break;
-	case 0x02 :
+	case 0x02:
 		wspHeaderDecodeVersion(length - 1, data + 1, &param);
 		break;
 		/* integer */
-	case 0x03 :
+	case 0x03:
 		/* param = (unsigned char *)malloc((size_t)WSP_STANDARD_STR_LEN_MAX); */
 		param = new char[WSP_STANDARD_STR_LEN_MAX];
 		if (param == NULL) {
@@ -3182,7 +3142,7 @@ void SmsPluginWapPushHandler::wspHeaderDecodeParameter(unsigned char* data, unsi
 			snprintf((char*)param, sizeof(char)*WSP_STANDARD_STR_LEN_MAX, "Type=%i", (int)wspHeaderDecodeInteger(data + 1));
 		}
 		break;
-	case 0x08 :
+	case 0x08:
 		param = new char[WSP_STANDARD_STR_LEN_MAX];
 
 		if (param == NULL) {
@@ -3192,7 +3152,7 @@ void SmsPluginWapPushHandler::wspHeaderDecodeParameter(unsigned char* data, unsi
 			snprintf((char*)param, sizeof(char)*WSP_STANDARD_STR_LEN_MAX, "Padding=%i", (int)wspHeaderDecodeInteger(data + 1));
 		}
 		break;
-	case 0x05 :
+	case 0x05:
 		param = new char[WSP_STANDARD_STR_LEN_MAX];
 
 		if (param == NULL) {
@@ -3204,7 +3164,7 @@ void SmsPluginWapPushHandler::wspHeaderDecodeParameter(unsigned char* data, unsi
 			param[5 + length - 1] = '\0';
 		}
 		break;
-	case 0x06 :
+	case 0x06:
 		param = new char[WSP_STANDARD_STR_LEN_MAX];
 
 		if (param == NULL) {
@@ -3216,12 +3176,12 @@ void SmsPluginWapPushHandler::wspHeaderDecodeParameter(unsigned char* data, unsi
 			param[9 + length - 1] = '\0';
 		}
 		break;
-	case 0x07 :
+	case 0x07:
 		param = NULL;
 		/* TBI */
 		break;
 		/*OMA Provisioning*/
-	case 0x11 :
+	case 0x11:
 		param = new char[WSP_STANDARD_STR_LEN_MAX];
 
 		if (param == NULL) {
@@ -3238,12 +3198,12 @@ void SmsPluginWapPushHandler::wspHeaderDecodeParameter(unsigned char* data, unsi
 
 			if (0x12 == (data[2] & 0x7f)) {
 				strncat((char*)param, "; MAC=", WSP_STANDARD_STR_LEN_MAX-AcStrlen((char*)param)-1);
-				memcpy(param+AcStrlen((char*)param),(char*)(data+3),(size_t)length-3);
+				memcpy(param+AcStrlen((char*)param), (char*)(data+3), (size_t)length-3);
 			}
 		}
 		break;
 
-	default :
+	default:
 		param = NULL;
 		break;
 	}
@@ -3255,7 +3215,6 @@ void SmsPluginWapPushHandler::wspHeaderDecodeParameter(unsigned char* data, unsi
 
 void SmsPluginWapPushHandler::wspHeaderDecodeCharset(unsigned long length, unsigned char* data, char**pDecodedString)
 {
-
 	char* param = NULL;
 
 	param = new char[WSP_STANDARD_STR_LEN_MAX];
@@ -3338,29 +3297,25 @@ void SmsPluginWapPushHandler::wspHeaderDecodeDateValue(unsigned long length, uns
 	(struct tm*)gmtime_r((const time_t*)&lTime, &pTMData);
 
 	/* check date value validity */
-	{
-		if ((pTMData.tm_wday > 6) || (pTMData.tm_mon > 11) || (pTMData.tm_mday >  31))
-		{
-			MSG_DEBUG("WspLHeaderDecodeDateValue: Date decode fail %d, %d, %d \n", pTMData.tm_wday, pTMData.tm_mon, pTMData.tm_mday);
-			strncpy((char*)*pDecodedString, "Decoding Failed", WSP_STANDARD_STR_LEN_MAX-1);
-			return;
-		}
+	if ((pTMData.tm_wday > 6) || (pTMData.tm_mon > 11) || (pTMData.tm_mday > 31)) {
+		MSG_DEBUG("WspLHeaderDecodeDateValue: Date decode fail %d, %d, %d \n", pTMData.tm_wday, pTMData.tm_mon, pTMData.tm_mday);
+		strncpy((char*)*pDecodedString, "Decoding Failed", WSP_STANDARD_STR_LEN_MAX-1);
+		return;
 	}
 
 #ifdef MSG_FW_FOR_DEBUG
 	/** Date type selection */
-	switch (wspMachineStatus.dateType)
-	{
+	switch (wspMachineStatus.dateType) {
 			/* UNIX asciitime function */
-		case UNIX_DATE_TYPE :
+		case UNIX_DATE_TYPE:
 			snprintf((char*)decodedString, sizeof(decodedString), "%s %s %-2u %u:%u:%u %u GMT", wspWeek[pTMData.tm_wday], wspMonth[pTMData.tm_mon],
 					   pTMData.tm_mday, pTMData.tm_hour, pTMData.tm_min, pTMData.tm_sec, pTMData.tm_year + 1900);
 			break;
-		case RFC1123_DATE_TYPE :
+		case RFC1123_DATE_TYPE:
 			snprintf((char*)decodedString, sizeof(decodedString), "%s, %u %s %u %u:%u:%u GMT", wspWeek[pTMData.tm_wday], pTMData.tm_mday,
 					   wspMonth[pTMData.tm_mon], pTMData.tm_year + 1900, pTMData.tm_hour, pTMData.tm_min, pTMData.tm_sec);
 			break;
-		case RFC850_DATE_TYPE :
+		case RFC850_DATE_TYPE:
 			/* Have some Y2K Problems */
 			/* In RFC 850, date is represented like 11-May-99. So Y2K problem always can be occured. So remainer (year divided by 100) is used.			*/
 			snprintf((char*)decodedString, sizeof(decodedString), "%s, %2u-%s-%2u %u:%u:%u GMT", wspWeekDay[pTMData.tm_wday], pTMData.tm_mday,
@@ -3374,7 +3329,6 @@ void SmsPluginWapPushHandler::wspHeaderDecodeDateValue(unsigned long length, uns
 											pTMData.tm_mday, pTMData.tm_hour, pTMData.tm_min, pTMData.tm_sec, pTMData.tm_year + 1900);
 
 	return;
-
 }
 
 void SmsPluginWapPushHandler::wspHeaderCopyDecodedString(unsigned char* szDecodedString, unsigned long* currentLen, char** pTemper)
@@ -3490,7 +3444,7 @@ void SmsPluginWapPushHandler::wspHeaderDecodeCacheControl(unsigned char* fieldVa
 		case 0x07 :
 			if (fieldValue[1] > 0x7f) {
 				/* well known field name */
-				strncpy((char*)paramString, (char*)wspHeaderFieldName[fieldValue[1] & 0x7f],WSP_STANDARD_STR_LEN_MAX-1);
+				strncpy((char*)paramString, (char*)wspHeaderFieldName[fieldValue[1] & 0x7f], WSP_STANDARD_STR_LEN_MAX-1);
 				paramString[WSP_STANDARD_STR_LEN_MAX-1] = '\0';
 			} else {
 				/* unknown field name */
@@ -3509,7 +3463,6 @@ void SmsPluginWapPushHandler::wspHeaderDecodeCacheControl(unsigned char* fieldVa
 
 		default :
 			break;
-
 		}
 		snprintf((char*)*pCacheString, (sizeof(char)*WSP_STANDARD_STR_LEN_MAX), "%s=%s", (char*)wspCacheControl[cacheCode], (char*)paramString);
 	} else {
@@ -3522,7 +3475,6 @@ void SmsPluginWapPushHandler::wspHeaderDecodeCacheControl(unsigned char* fieldVa
 		stringLen = AcStrlen((char*)*pCacheString);
 
 		if (stringLen + 1 < fieldValueLen) {
-
 			if (fieldValue[stringLen+ 1] > 0x7f) {
 				int untyped = (int)wspHeaderDecodeIntegerByLength(fieldValue + stringLen + 1, fieldValueLen - (stringLen + 1));
 
@@ -3541,7 +3493,7 @@ void SmsPluginWapPushHandler::wspHeaderDecodeCacheControl(unsigned char* fieldVa
 	return;
 }
 
-void SmsPluginWapPushHandler::getDisplayName(MSG_SUB_TYPE_T subType,char* displayName)
+void SmsPluginWapPushHandler::getDisplayName(MSG_SUB_TYPE_T subType, char* displayName)
 {
 	if (subType == MSG_WAP_SL_SMS || subType == MSG_WAP_SI_SMS)
 		snprintf(displayName, MAX_ADDRESS_VAL_LEN + 1, "Push message");

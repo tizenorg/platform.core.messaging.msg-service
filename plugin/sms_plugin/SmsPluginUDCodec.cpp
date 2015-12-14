@@ -26,13 +26,11 @@ using namespace std;
 ==================================================================================================*/
 SmsPluginUDCodec::SmsPluginUDCodec()
 {
-
 }
 
 
 SmsPluginUDCodec::~SmsPluginUDCodec()
 {
-
 }
 
 
@@ -617,8 +615,7 @@ int SmsPluginUDCodec::decodeHeader(const unsigned char *pTpdu, SMS_UDH_S *pHeade
 	pHeader->udhType = pTpdu[offset++];
 
 	switch (pHeader->udhType) {
-	case SMS_UDH_CONCAT_8BIT :
-	{
+	case SMS_UDH_CONCAT_8BIT: {
 		IEDL = pTpdu[offset++];
 
 		if (IEDL == 0)
@@ -634,8 +631,7 @@ int SmsPluginUDCodec::decodeHeader(const unsigned char *pTpdu, SMS_UDH_S *pHeade
 	}
 	break;
 
-	case SMS_UDH_CONCAT_16BIT :
-	{
+	case SMS_UDH_CONCAT_16BIT: {
 		IEDL = pTpdu[offset++];
 
 		if (IEDL == 0)
@@ -652,8 +648,7 @@ int SmsPluginUDCodec::decodeHeader(const unsigned char *pTpdu, SMS_UDH_S *pHeade
 	}
 	break;
 
-	case SMS_UDH_APP_PORT_8BIT :
-	{
+	case SMS_UDH_APP_PORT_8BIT: {
 		IEDL = pTpdu[offset++];
 
 		if (IEDL == 0)
@@ -667,8 +662,7 @@ int SmsPluginUDCodec::decodeHeader(const unsigned char *pTpdu, SMS_UDH_S *pHeade
 	}
 	break;
 
-	case SMS_UDH_APP_PORT_16BIT :
-	{
+	case SMS_UDH_APP_PORT_16BIT: {
 		IEDL = pTpdu[offset++];
 
 		if (IEDL == 0)
@@ -684,8 +678,7 @@ int SmsPluginUDCodec::decodeHeader(const unsigned char *pTpdu, SMS_UDH_S *pHeade
 	}
 	break;
 
-	case SMS_UDH_SPECIAL_SMS :
-	{
+	case SMS_UDH_SPECIAL_SMS: {
 		IEDL = pTpdu[offset++];
 
 		if (IEDL != 2)
@@ -699,8 +692,7 @@ int SmsPluginUDCodec::decodeHeader(const unsigned char *pTpdu, SMS_UDH_S *pHeade
 	}
 	break;
 
-	case SMS_UDH_ALTERNATE_REPLY_ADDRESS :
-	{
+	case SMS_UDH_ALTERNATE_REPLY_ADDRESS: {
 		IEDL = pTpdu[offset++];
 
 		if (IEDL == 0)
@@ -712,8 +704,7 @@ int SmsPluginUDCodec::decodeHeader(const unsigned char *pTpdu, SMS_UDH_S *pHeade
 	}
 	break;
 
-	case SMS_UDH_SINGLE_SHIFT :
-	{
+	case SMS_UDH_SINGLE_SHIFT: {
 		IEDL = pTpdu[offset++];
 
 		if (IEDL == 0)
@@ -725,8 +716,7 @@ int SmsPluginUDCodec::decodeHeader(const unsigned char *pTpdu, SMS_UDH_S *pHeade
 	}
 	break;
 
-	case SMS_UDH_LOCKING_SHIFT :
-	{
+	case SMS_UDH_LOCKING_SHIFT: {
 		IEDL = pTpdu[offset++];
 
 		if (IEDL == 0)
@@ -738,8 +728,7 @@ int SmsPluginUDCodec::decodeHeader(const unsigned char *pTpdu, SMS_UDH_S *pHeade
 	}
 	break;
 
-	default :
-	{
+	default: {
 		MSG_DEBUG("Not Supported Header Type [%02x]", pHeader->udhType);
 
 		IEDL = pTpdu[offset++];

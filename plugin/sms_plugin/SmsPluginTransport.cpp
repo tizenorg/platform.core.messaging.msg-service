@@ -60,7 +60,6 @@ SmsPluginTransport::SmsPluginTransport()
 
 SmsPluginTransport::~SmsPluginTransport()
 {
-
 }
 
 
@@ -77,7 +76,7 @@ void SmsPluginTransport::submitRequest(SMS_REQUEST_INFO_S *pReqInfo)
 {
 	MSG_BEGIN();
 
-	SMS_TPDU_S tpdu = {0,};
+	SMS_TPDU_S tpdu = {0, };
 
 	tpdu.tpduType = SMS_TPDU_SUBMIT;
 
@@ -94,7 +93,7 @@ void SmsPluginTransport::submitRequest(SMS_REQUEST_INFO_S *pReqInfo)
 	setSmsReportOption(pReqInfo, &tpdu);
 
 	/* Set SMSC Options */
-	SMS_ADDRESS_S smsc = {0,};
+	SMS_ADDRESS_S smsc = {0, };
 	setSmscOptions(pReqInfo->msgInfo.sim_idx, &smsc);
 
 	/* Get TAPI handle */
@@ -121,7 +120,7 @@ void SmsPluginTransport::submitRequest(SMS_REQUEST_INFO_S *pReqInfo)
 
 	for (int i = 0; i < pReqInfo->msgInfo.nAddressCnt; i++) {
 		/* Make SMS_SUBMIT_DATA_S from MSG_REQUEST_INFO_S */
-		SMS_SUBMIT_DATA_S submitData = {{0},};
+		SMS_SUBMIT_DATA_S submitData = {{0}, };
 		msgInfoToSubmitData(&(pReqInfo->msgInfo), &submitData, &(tpdu.data.submit.dcs.codingScheme), i);
 
 		/* Insert message reference into db */
@@ -240,7 +239,7 @@ void SmsPluginTransport::submitRequest(SMS_REQUEST_INFO_S *pReqInfo)
 
 				memcpy(&(sentInfo.reqInfo), pReqInfo, sizeof(SMS_REQUEST_INFO_S));
 
-				if ((segCnt + 1) == submitData.segCount && (i + 1)==pReqInfo->msgInfo.nAddressCnt) {
+				if ((segCnt + 1) == submitData.segCount && (i + 1) == pReqInfo->msgInfo.nAddressCnt) {
 					sentInfo.bLast = true;
 					bMoreMsg = FALSE;
 				} else {
@@ -253,7 +252,7 @@ void SmsPluginTransport::submitRequest(SMS_REQUEST_INFO_S *pReqInfo)
 				int svc_type;
 				tel_get_property_int(handle, TAPI_PROP_NETWORK_SERVICE_TYPE, &svc_type);
 
-				if (svc_type < TAPI_NETWORK_SERVICE_TYPE_2G){
+				if (svc_type < TAPI_NETWORK_SERVICE_TYPE_2G) {
 					MSG_DEBUG("Network service is not available : [%d]", svc_type);
 					SmsPluginEventHandler::instance()->handleSentStatus(MSG_NETWORK_SEND_PENDING);
 					MsgInsertTicker("Unable to send message. It will be sent when service available.", SMS_MESSAGE_SENDING_PENDING, false, 0);
@@ -281,7 +280,6 @@ void SmsPluginTransport::submitRequest(SMS_REQUEST_INFO_S *pReqInfo)
 						MSG_DEBUG("retMoCtrlStatus  = [%d]", retMoCtrlStatus);
 
 						if (retMoCtrlStatus == TAPI_SAT_CALL_CTRL_R_ALLOWED_WITH_MOD) {
-
 							if (bRetryByMoCtrl == false) {
 								bRetryByMoCtrl = true;
 
@@ -331,12 +329,12 @@ void SmsPluginTransport::submitRequest(SMS_REQUEST_INFO_S *pReqInfo)
 			}
 
 #ifdef MSG_SMS_REPORT
-			if (err == MSG_SUCCESS && tmpInfo.msgInfo.msgPort.valid == false) 	{
+			if (err == MSG_SUCCESS && tmpInfo.msgInfo.msgPort.valid == false) {
 				if (pReqInfo->sendOptInfo.bDeliverReq == true) {
 					MSG_DEBUG("Update Delivery Report Status : [%d] Msg ID : [%d]", err, tmpInfo.msgInfo.msgId);
 
 					/* Adding delivery report status info. */
-					MsgStoAddDeliveryReportStatus( tmpInfo.msgInfo.msgId, (unsigned char)tmpInfo.msgInfo.referenceId);
+					MsgStoAddDeliveryReportStatus(tmpInfo.msgInfo.msgId, (unsigned char)tmpInfo.msgInfo.referenceId);
 				}
 			}
 #endif
@@ -381,7 +379,6 @@ void SmsPluginTransport::submitRequest(SMS_REQUEST_INFO_S *pReqInfo)
 
 			if (tpdu.data.submit.userData.headerCnt > 0)
 				tpdu.data.submit.userData.headerCnt--;
-
 		}
 	}
 
@@ -431,12 +428,9 @@ void SmsPluginTransport::sendDeliverReport(TapiHandle *handle, msg_error_t err)
 #if 0
 		tapiRet = tel_set_sms_memory_status(handle, TAPI_NETTEXT_PDA_MEMORY_STATUS_FULL, TapiEventMemoryStatus, NULL);
 
-		if (tapiRet == TAPI_API_SUCCESS)
-		{
+		if (tapiRet == TAPI_API_SUCCESS) {
 			MSG_DEBUG("########  tel_set_sms_memory_status() Success !!! #######");
-		}
-		else
-		{
+		} else {
 			MSG_DEBUG("########  tel_set_sms_memory_status() Failed !!! return : [%d] #######", tapiRet);
 		}
 #endif
@@ -457,7 +451,6 @@ void SmsPluginTransport::sendDeliverReport(TapiHandle *handle, msg_error_t err)
 		/*response = TAPI_NETTEXT_PROTOCOL_ERROR;
 		 For gcf test [34.2.5.3 class2 message] */
 		response = TAPI_NETTEXT_SIM_FULL;
-
 	}
 
 	MSG_DEBUG("err : [%d], response : [%02x]", err, response);
@@ -573,7 +566,6 @@ void SmsPluginTransport::sendClass0DeliverReport(TapiHandle *handle, msg_error_t
 		/*response = TAPI_NETTEXT_PROTOCOL_ERROR;
 		 For gcf test [34.2.5.3 class2 message] */
 		response = TAPI_NETTEXT_SIM_FULL;
-
 	}
 
 	MSG_DEBUG("err : [%d], response : [%02x]", err, response);
@@ -650,7 +642,7 @@ void SmsPluginTransport::getSmsSendOption(int simIndex, SMS_SUBMIT_S *pSubmit)
 
 	MSG_DEBUG("DCS : %d", pSubmit->dcs.codingScheme);
 
-	MSG_SMSC_LIST_S smscList = {0,};
+	MSG_SMSC_LIST_S smscList = {0, };
 	SmsPluginSetting::instance()->getSmscListInfo(simIndex, &smscList);
 
 	int selectIdx = smscList.selected;
@@ -737,7 +729,7 @@ void SmsPluginTransport::setSmsReportOption(SMS_REQUEST_INFO_S *pReqInfo, SMS_TP
 void SmsPluginTransport::setSmscOptions(int simIndex, SMS_ADDRESS_S *pSmsc)
 {
 	/* Set SMSC Options */
-	MSG_SMSC_LIST_S smscList = {0,};
+	MSG_SMSC_LIST_S smscList = {0, };
 	SmsPluginSetting::instance()->getSmscListInfo(simIndex, &smscList);
 
 	int selectIdx = smscList.selected;
@@ -987,16 +979,14 @@ void SmsPluginTransport::setConcatHeader(SMS_UDH_S *pSrcHeader, SMS_UDH_S *pDstH
 	pDstHeader->udhType = pSrcHeader->udhType;
 
 	switch (pDstHeader->udhType) {
-	case SMS_UDH_CONCAT_8BIT :
-	{
+	case SMS_UDH_CONCAT_8BIT: {
 		pDstHeader->udh.concat8bit.msgRef = pSrcHeader->udh.concat8bit.msgRef;
 		pDstHeader->udh.concat8bit.totalSeg = pSrcHeader->udh.concat8bit.totalSeg;
 		pDstHeader->udh.concat8bit.seqNum = pSrcHeader->udh.concat8bit.seqNum;
 	}
 	break;
 
-	case SMS_UDH_CONCAT_16BIT :
-	{
+	case SMS_UDH_CONCAT_16BIT: {
 		pDstHeader->udh.concat16bit.msgRef = pSrcHeader->udh.concat16bit.msgRef;
 		pDstHeader->udh.concat16bit.totalSeg = pSrcHeader->udh.concat16bit.totalSeg;
 		pDstHeader->udh.concat16bit.seqNum = pSrcHeader->udh.concat16bit.seqNum;

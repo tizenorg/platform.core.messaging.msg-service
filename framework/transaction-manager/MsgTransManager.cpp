@@ -76,7 +76,7 @@ MsgTransactionManager::MsgTransactionManager() : running(false), mx(), mxQ(), cv
 
 	handlerMap.clear();
 
-//	Fill in mMsgHandlers, as given in the below.
+/*	Fill in mMsgHandlers, as given in the below. */
 	handlerMap[MSG_CMD_ADD_MSG]				= &MsgAddMessageHandler;
 	handlerMap[MSG_CMD_ADD_SYNCML_MSG]		= &MsgAddSyncMLMessageHandler;
 	handlerMap[MSG_CMD_UPDATE_MSG] 			= &MsgUpdateMessageHandler;
@@ -181,8 +181,7 @@ MsgTransactionManager::MsgTransactionManager() : running(false), mx(), mxQ(), cv
 
 MsgTransactionManager::~MsgTransactionManager()
 {
-//	pthread_cond_init(&retCV, NULL); // = PTHREAD_COND_INITIALIZER;
-
+/*	pthread_cond_init(&retCV, NULL); */ /* = PTHREAD_COND_INITIALIZER; */
 }
 
 
@@ -209,19 +208,18 @@ void MsgTransactionManager::run()
 
 	MSG_DEBUG("Start Transaction Manager");
 
-	// Set Msg FW Ready Flag
+	/* Set Msg FW Ready Flag */
 	if(MsgSettingSetBool(VCONFKEY_MSG_SERVER_READY, true) != MSG_SUCCESS)
 		MSG_DEBUG("MsgSettingSetBool FAIL : VCONFKEY_MSG_SERVER_READY");
 	MSG_INFO("### VCONFKEY_MSG_SERVER_READY ###");
 
      /* running worker for plg task */
 	pthread_t tv;
-	if (pthread_create (&tv, NULL, &worker_event_queue, NULL) != 0) {
+	if (pthread_create(&tv, NULL, &worker_event_queue, NULL) != 0) {
 		THROW(MsgException::SERVER_READY_ERROR, "cannot create thread [%d]", errno);
 	}
 
-	while(1)
-	{
+	while(1) {
 		readfds = servSock.fdSet();
 		nfds = servSock.maxFd();
 
@@ -231,25 +229,18 @@ void MsgTransactionManager::run()
 			THROW(MsgException::SELECT_ERROR, "select error : %s", g_strerror(errno));
 		}
 
-		try
-		{
-			for (int i=0 ; i < nfds; i++)
-			{
-				if (FD_ISSET(i, &readfds))
-				{
-					if (i == servSock.fd()) // if it is socket connection request
+		try {
+			for (int i=0 ; i < nfds; i++) {
+				if (FD_ISSET(i, &readfds)) {
+					if (i == servSock.fd()) /* if it is socket connection request */
 						servSock.accept();
 					else
 						handleRequest(i);
 				}
 			}
-		}
-		catch (MsgException& e)
-		{
+		} catch (MsgException& e) {
 			MSG_FATAL("%s", e.what());
-		}
-		catch (exception& e)
-		{
+		} catch (exception& e) {
 			MSG_FATAL("%s", e.what());
 		}
 	}
@@ -273,7 +264,7 @@ void MsgTransactionManager::insertSentMsg(int reqId, MSG_PROXY_INFO_S* pPrxInfo)
 
 	fd_map::iterator it = statusCBFdMap.find(pPrxInfo->listenerFd);
 
-	if (it == statusCBFdMap.end()) { // if the status CB is not registered
+	if (it == statusCBFdMap.end()) { /* if the status CB is not registered */
 		MSG_DEBUG("No sent_status registered for fd %d", pPrxInfo->listenerFd);
 	} else {
 		sentMsgMap.insert(make_pair(reqId, *pPrxInfo));
@@ -285,8 +276,7 @@ MSG_PROXY_INFO_S* MsgTransactionManager::getProxyInfo(int reqId)
 {
 	sentmsg_map::iterator it = sentMsgMap.find(reqId);
 
-	if (it == sentMsgMap.end())
-	{
+	if (it == sentMsgMap.end()) {
 		MSG_DEBUG("No sent status cb found");
 		return NULL;
 	}
@@ -301,8 +291,7 @@ void MsgTransactionManager::delProxyInfo(int reqId)
 
 	sentmsg_map::iterator it = sentMsgMap.find(reqId);
 
-	if (it == sentMsgMap.end())
-	{
+	if (it == sentMsgMap.end()) {
 		THROW(MsgException::SENT_STATUS_ERROR, "channel info does not exist");
 	}
 
@@ -321,7 +310,7 @@ void MsgTransactionManager::workerEventQueue()
 	while (1) {
 		mxQ.lock();
 		while (!eventQueue.front(&pCmd)) { /* if no item, wait */
-			MSG_DEBUG ("waiting for task");
+			MSG_DEBUG("waiting for task");
 			cv.wait(mxQ.pMutex());
 		}
 		eventQueue.pop_front();	/* pop it from queue*/
@@ -333,9 +322,9 @@ void MsgTransactionManager::workerEventQueue()
 		}
 
 		memcpy (&fd, pCmd->cmdCookie, sizeof(int));
-		if (fd < 0 ) {
+		if (fd < 0) {
 			MSG_FATAL("fd [%d] < 0", fd);
-			g_free (pCmd); pCmd = NULL;
+			g_free(pCmd); pCmd = NULL;
 			continue;
 		}
 		pfHandler = handlerMap[pCmd->cmdType];
@@ -343,7 +332,7 @@ void MsgTransactionManager::workerEventQueue()
 			MSG_FATAL("No handler for %d", pCmd->cmdType);
 			MsgMakeErrorEvent(pCmd->cmdType, MSG_ERR_INVALID_PARAMETER, &eventSize, &pEventData);
 		} else {
-			// run handler function
+			/* run handler function */
 			eventSize = pfHandler(pCmd, &pEventData);
 
 			if (eventSize == 0 || pEventData == NULL) {
@@ -354,8 +343,8 @@ void MsgTransactionManager::workerEventQueue()
 
 		MSG_DEBUG("Replying to fd [%d], size [%d]", fd, eventSize);
 		servSock.write(fd, pEventData, eventSize);
-		g_free (pCmd); pCmd = NULL;
-		g_free (pEventData); pEventData = NULL;
+		g_free(pCmd); pCmd = NULL;
+		g_free(pEventData); pEventData = NULL;
 	}
 }
 
@@ -370,8 +359,7 @@ void MsgTransactionManager::handleRequest(int fd)
 	int len = 0;
 	int ret = servSock.read(fd, &buf, &len);
 
-	if( ret == CLOSE_CONNECTION_BY_SIGNAL || ret == CLOSE_CONNECTION_BY_USER || ret < 0)
-	{
+	if (ret == CLOSE_CONNECTION_BY_SIGNAL || ret == CLOSE_CONNECTION_BY_USER || ret < 0) {
 		MSG_DEBUG("Read value [%d]", ret);
 		cleanup(fd);
 		return;
@@ -385,15 +373,15 @@ void MsgTransactionManager::handleRequest(int fd)
 
 	int eventSize = 0;
 
-	// decoding cmd from APP
+	/* decoding cmd from APP */
 	MSG_CMD_S* pCmd = (MSG_CMD_S*) buf;
 	MSG_DEBUG("Command Type [%d : %s]", pCmd->cmdType, MsgDbgCmdStr(pCmd->cmdType));
 
 	if (pCmd->cmdType > MSG_CMD_NUM)
 		THROW(MsgException::OUT_OF_RANGE, "request CMD is not defined");
 
-	// check privilege
-//	if (checkPrivilege(pCmd->cmdType, pCmd->cmdCookie) == false) {
+	/* check privilege */
+/*	if (checkPrivilege(pCmd->cmdType, pCmd->cmdCookie) == false) { */
 	if (checkPrivilege(fd, pCmd->cmdType) == false) {
 		MSG_DEBUG("No Privilege rule. Not allowed.");
 #ifdef MSG_CHECK_PRIVILEGE
@@ -406,7 +394,7 @@ void MsgTransactionManager::handleRequest(int fd)
 #endif
 	}
 
-	// determine the handler based on pCmd->cmdType
+	/* determine the handler based on pCmd->cmdType */
 	int (*pfHandler)(const MSG_CMD_S*, char**) = NULL;
 
 	switch (pCmd->cmdType) {
@@ -419,11 +407,10 @@ void MsgTransactionManager::handleRequest(int fd)
 	case MSG_CMD_PLG_INIT_SIM_BY_SAT:
 	case MSG_CMD_PLG_INCOMING_PUSH_IND:
 	case MSG_CMD_PLG_INCOMING_CB_IND: {
-
-		MSG_CMD_S* pCmdDup = (MSG_CMD_S*) calloc (1, len); /* pCmdDup should be freed afterward */
+		MSG_CMD_S* pCmdDup = (MSG_CMD_S*)calloc(1, len); /* pCmdDup should be freed afterward */
 		if (pCmdDup != NULL) {
-			memcpy (pCmdDup, pCmd, len);
-			memcpy (pCmdDup->cmdCookie, &fd, sizeof(int)); /* Now, cmdCookie keeps fd for return */
+			memcpy(pCmdDup, pCmd, len);
+			memcpy(pCmdDup->cmdCookie, &fd, sizeof(int)); /* Now, cmdCookie keeps fd for return */
 
 			mxQ.lock(); /* aquire lock before adding cmd */
 			eventQueue.push_back(pCmdDup);
@@ -438,7 +425,7 @@ void MsgTransactionManager::handleRequest(int fd)
 			MSG_FATAL("No handler for %d", pCmd->cmdType);
 			MsgMakeErrorEvent(pCmd->cmdType, MSG_ERR_INVALID_PARAMETER, &eventSize, &pEventData);
 		} else {
-			// run handler function
+			/* run handler function */
 			memcpy (pCmd->cmdCookie, &fd, sizeof(int)); /* Now, cmdCookie keeps fd for return */
 			eventSize = pfHandler(pCmd, &pEventData);
 
@@ -457,7 +444,7 @@ void MsgTransactionManager::handleRequest(int fd)
 }
 
 
-// terminating the socket connection between ipc server and ipc client
+/* terminating the socket connection between ipc server and ipc client */
 void MsgTransactionManager::cleanup(int fd)
 {
 	MSG_BEGIN();
@@ -468,148 +455,118 @@ void MsgTransactionManager::cleanup(int fd)
 
 	MSG_DEBUG("fd %d disonnected", fd);
 
-	// remove sent msg info for fd
+	/* remove sent msg info for fd */
 	sentmsg_map::iterator sentmsg_it = sentMsgMap.begin();
 
-	for (; sentmsg_it != sentMsgMap.end(); sentmsg_it++)
-	{
-		if (sentmsg_it->second.listenerFd == fd)
-		{
+	for (; sentmsg_it != sentMsgMap.end(); sentmsg_it++) {
+		if (sentmsg_it->second.listenerFd == fd) {
 			sentmsg_it->second.listenerFd = 0;
 			sentmsg_it->second.handleAddr = 0;
 		}
 	}
 
-	// remove sent status callback for fd
+	/* remove sent status callback for fd */
 	statusCBFdMap.erase(fd);
 
 	MSG_DEBUG("After erase fd [%d], statusCBFdMap has below.", fd);
 	fd_map::iterator it = statusCBFdMap.begin();
-	for (; it!=statusCBFdMap.end(); ++it)
+	for (; it != statusCBFdMap.end(); ++it)
 		MSG_DEBUG("[%d]", it->first);
 
-	// remove all newMsgCBs for fd
+	/* remove all newMsgCBs for fd */
 	newmsg_list::iterator newmsg_it = newMsgCBList.begin();
 
-	while (newmsg_it != newMsgCBList.end())
-	{
-		if (newmsg_it->listenerFd == fd)
-		{
+	while (newmsg_it != newMsgCBList.end()) {
+		if (newmsg_it->listenerFd == fd) {
 			newmsg_it = newMsgCBList.erase(newmsg_it);
-		}
-		else
-		{
+		} else {
 			++newmsg_it;
 		}
 	}
 
-	// remove all newMMSConfMsgCBs for fd
+	/* remove all newMMSConfMsgCBs for fd */
 	mmsconf_list::iterator mmsconf_it = newMMSConfMsgCBList.begin();
 
-	while (mmsconf_it != newMMSConfMsgCBList.end())
-	{
-		if (mmsconf_it->listenerFd == fd)
-		{
+	while (mmsconf_it != newMMSConfMsgCBList.end()) {
+		if (mmsconf_it->listenerFd == fd) {
 			mmsconf_it = newMMSConfMsgCBList.erase(mmsconf_it);
-		}
-		else
-		{
+		} else {
 			++mmsconf_it;
 		}
 	}
 
-	// remove all newSyncMLMsgCBs for fd
+	/* remove all newSyncMLMsgCBs for fd */
 	syncmlmsg_list::iterator syncmlmsg_it = newSyncMLMsgCBList.begin();
 
-	while (syncmlmsg_it != newSyncMLMsgCBList.end())
-	{
-		if (syncmlmsg_it->listenerFd == fd)
-		{
+	while (syncmlmsg_it != newSyncMLMsgCBList.end()) {
+		if (syncmlmsg_it->listenerFd == fd) {
 			syncmlmsg_it = newSyncMLMsgCBList.erase(syncmlmsg_it);
-		}
-		else
-		{
+		} else {
 			++syncmlmsg_it;
 		}
 	}
 
-	// remove all newLBSMsgCBs for fd
+	/* remove all newLBSMsgCBs for fd */
 	lbsmsg_list::iterator lbsmsg_it = newLBSMsgCBList.begin();
 
-	while (lbsmsg_it != newLBSMsgCBList.end())
-	{
-		if (lbsmsg_it->listenerFd == fd)
-		{
+	while (lbsmsg_it != newLBSMsgCBList.end()) {
+		if (lbsmsg_it->listenerFd == fd) {
 			lbsmsg_it = newLBSMsgCBList.erase(lbsmsg_it);
-		}
-		else
-		{
+		} else {
 			++lbsmsg_it;
 		}
 	}
 
-	// remove all newPushMsgCBs for fd
+	/* remove all newPushMsgCBs for fd */
 	pushmsg_list::iterator pushmsg_it = newPushMsgCBList.begin();
 
-	while (pushmsg_it != newPushMsgCBList.end())
-	{
-		if (pushmsg_it->listenerFd == fd)
-		{
+	while (pushmsg_it != newPushMsgCBList.end()) {
+		if (pushmsg_it->listenerFd == fd) {
 			pushmsg_it = newPushMsgCBList.erase(pushmsg_it);
-		}
-		else
-		{
+		} else {
 			++pushmsg_it;
 		}
 	}
 
-	// remove all newCBMsgCBs for fd
+	/* remove all newCBMsgCBs for fd */
 	cbmsg_list::iterator cbmsg_it = newCBMsgCBList.begin();
-	//bool bSave = false;
+	/*bool bSave = false; */
 
-	while (cbmsg_it != newCBMsgCBList.end())
-	{
-		if (cbmsg_it->listenerFd == fd)
-		{
+	while (cbmsg_it != newCBMsgCBList.end()) {
+		if (cbmsg_it->listenerFd == fd) {
 			cbmsg_it = newCBMsgCBList.erase(cbmsg_it);
-		}
-		else
-		{
-			//if (cbmsg_it->bsave == true)
-			//	bSave = true;
+		} else {
+			/*if (cbmsg_it->bsave == true) */
+			/*	bSave = true; */
 			++cbmsg_it;
 		}
 	}
 
-	// remove all operationSyncMLMsgCBs for fd
+	/* remove all operationSyncMLMsgCBs for fd */
 	syncmlop_list::iterator syncmlop_it = operationSyncMLMsgCBList.begin();
 
-	while (syncmlop_it != operationSyncMLMsgCBList.end())
-	{
-		if (syncmlop_it->listenerFd == fd)
-		{
+	while (syncmlop_it != operationSyncMLMsgCBList.end()) {
+		if (syncmlop_it->listenerFd == fd) {
 			syncmlop_it = operationSyncMLMsgCBList.erase(syncmlop_it);
-		}
-		else
-		{
+		} else {
 			++syncmlop_it;
 		}
 	}
 
-	// remove storage change callback for fd
+	/* remove storage change callback for fd */
 	storageChangeFdMap.erase(fd);
 
 	MSG_DEBUG("After erase fd [%d], storageChangeFdMap has below.", fd);
 	it = storageChangeFdMap.begin();
-	for (; it!=storageChangeFdMap.end(); ++it)
+	for (; it != storageChangeFdMap.end(); ++it)
 		MSG_DEBUG("[%d]", it->first);
 
-	// remove report msg incoming callback for fd
+	/* remove report msg incoming callback for fd */
 	reportMsgCBFdMap.erase(fd);
 
 	MSG_DEBUG("After erase fd [%d], reportMsgCBFdMap has below.", fd);
 	it = reportMsgCBFdMap.begin();
-	for (; it!=reportMsgCBFdMap.end(); ++it)
+	for (; it != reportMsgCBFdMap.end(); ++it)
 		MSG_DEBUG("[%d]", it->first);
 
 	MSG_END();
@@ -662,8 +619,7 @@ bool MsgTransactionManager::checkPrivilege(int fd, MSG_CMD_TYPE_T CmdType)
 		goto _END_OF_FUNC;
 	}
 
-	switch(CmdType)
-	{
+	switch(CmdType) {
 	case MSG_CMD_GET_MSG:
 	case MSG_CMD_COUNT_MSG:
 	case MSG_CMD_COUNT_BY_MSGTYPE:
@@ -696,8 +652,7 @@ bool MsgTransactionManager::checkPrivilege(int fd, MSG_CMD_TYPE_T CmdType)
 	case MSG_CMD_GET_PUSH_MSG_OPT:
 	case MSG_CMD_GET_VOICE_MSG_OPT:
 	case MSG_CMD_GET_GENERAL_MSG_OPT:
-	case MSG_CMD_GET_MSG_SIZE_OPT:
-	{
+	case MSG_CMD_GET_MSG_SIZE_OPT: {
 		ret = cynara_check(p_cynara, peer_client, peer_session, peer_user,
 				"http://tizen.org/privilege/message.read");
 		if (ret != CYNARA_API_ACCESS_ALLOWED) {
@@ -740,8 +695,7 @@ bool MsgTransactionManager::checkPrivilege(int fd, MSG_CMD_TYPE_T CmdType)
 	case MSG_CMD_SET_PUSH_MSG_OPT:
 	case MSG_CMD_SET_VOICE_MSG_OPT:
 	case MSG_CMD_SET_GENERAL_MSG_OPT:
-	case MSG_CMD_SET_MSG_SIZE_OPT:
-	{
+	case MSG_CMD_SET_MSG_SIZE_OPT: {
 		ret = cynara_check(p_cynara, peer_client, peer_session, peer_user,
 				"http://tizen.org/privilege/message.write");
 		if (ret != CYNARA_API_ACCESS_ALLOWED) {
@@ -764,7 +718,7 @@ _END_OF_FUNC:
 void MsgTransactionManager::setSentStatusCB(int listenerFd)
 {
 	if (listenerFd <= 0)
-		THROW(MsgException::INVALID_PARAM,"InParam Error: listenerFd %d",listenerFd);
+		THROW(MsgException::INVALID_PARAM, "InParam Error: listenerFd %d", listenerFd);
 
 	statusCBFdMap[listenerFd] = true;
 }
@@ -772,8 +726,7 @@ void MsgTransactionManager::setSentStatusCB(int listenerFd)
 
 void MsgTransactionManager::setIncomingMsgCB(MSG_CMD_REG_INCOMING_MSG_CB_S *pCbInfo)
 {
-	if (!pCbInfo)
-	{
+	if (!pCbInfo) {
 		MSG_FATAL("cbinfo NULL");
 		return;
 	}
@@ -782,10 +735,8 @@ void MsgTransactionManager::setIncomingMsgCB(MSG_CMD_REG_INCOMING_MSG_CB_S *pCbI
 
 	newmsg_list::iterator it = newMsgCBList.begin();
 
-	for (; it != newMsgCBList.end(); it++)
-	{
-		if ((it->listenerFd == pCbInfo->listenerFd) && (it->msgType == pCbInfo->msgType) && (it->port == pCbInfo->port))
-		{
+	for (; it != newMsgCBList.end(); it++) {
+		if ((it->listenerFd == pCbInfo->listenerFd) && (it->msgType == pCbInfo->msgType) && (it->port == pCbInfo->port)) {
 			MSG_DEBUG("Duplicated messageCB info fd %d, mType %d, port %d", it->listenerFd, it->msgType, it->port);
 			return;
 		}
@@ -797,8 +748,7 @@ void MsgTransactionManager::setIncomingMsgCB(MSG_CMD_REG_INCOMING_MSG_CB_S *pCbI
 
 void MsgTransactionManager::setMMSConfMsgCB(MSG_CMD_REG_INCOMING_MMS_CONF_MSG_CB_S *pCbInfo)
 {
-	if (!pCbInfo)
-	{
+	if (!pCbInfo) {
 		MSG_FATAL("cbinfo NULL");
 		return;
 	}
@@ -807,10 +757,8 @@ void MsgTransactionManager::setMMSConfMsgCB(MSG_CMD_REG_INCOMING_MMS_CONF_MSG_CB
 
 	mmsconf_list::iterator it = newMMSConfMsgCBList.begin();
 
-	for (; it != newMMSConfMsgCBList.end(); it++)
-	{
-		if ((it->listenerFd == pCbInfo->listenerFd) && (it->msgType == pCbInfo->msgType) && (!strncmp(it->appId, pCbInfo->appId, MAX_MMS_JAVA_APPID_LEN)))
-		{
+	for (; it != newMMSConfMsgCBList.end(); it++) {
+		if ((it->listenerFd == pCbInfo->listenerFd) && (it->msgType == pCbInfo->msgType) && (!strncmp(it->appId, pCbInfo->appId, MAX_MMS_JAVA_APPID_LEN))) {
 			MSG_DEBUG("Duplicated MMSConfMessageCB info fd:%d, mType:%d, appId:%s", it->listenerFd, it->msgType, it->appId);
 			return;
 		}
@@ -822,8 +770,7 @@ void MsgTransactionManager::setMMSConfMsgCB(MSG_CMD_REG_INCOMING_MMS_CONF_MSG_CB
 
 void MsgTransactionManager::setPushMsgCB(MSG_CMD_REG_INCOMING_PUSH_MSG_CB_S *pCbInfo)
 {
-	if (!pCbInfo)
-	{
+	if (!pCbInfo) {
 		MSG_FATAL("cbinfo NULL");
 		return;
 	}
@@ -832,10 +779,8 @@ void MsgTransactionManager::setPushMsgCB(MSG_CMD_REG_INCOMING_PUSH_MSG_CB_S *pCb
 
 	pushmsg_list::iterator it = newPushMsgCBList.begin();
 
-	for (; it != newPushMsgCBList.end(); it++)
-	{
-		if ((it->listenerFd == pCbInfo->listenerFd) && (it->msgType == pCbInfo->msgType) && !strncmp(it->appId, pCbInfo->appId, MAX_WAPPUSH_ID_LEN))
-		{
+	for (; it != newPushMsgCBList.end(); it++) {
+		if ((it->listenerFd == pCbInfo->listenerFd) && (it->msgType == pCbInfo->msgType) && !strncmp(it->appId, pCbInfo->appId, MAX_WAPPUSH_ID_LEN)) {
 			MSG_DEBUG("Duplicated messageCB info fd %d, mType %d", it->listenerFd, it->msgType);
 			return;
 		}
@@ -847,8 +792,7 @@ void MsgTransactionManager::setPushMsgCB(MSG_CMD_REG_INCOMING_PUSH_MSG_CB_S *pCb
 void MsgTransactionManager::setCBMsgCB(MSG_CMD_REG_INCOMING_CB_MSG_CB_S *pCbInfo)
 {
 	MSG_BEGIN();
-	if (!pCbInfo)
-	{
+	if (!pCbInfo) {
 		MSG_FATAL("cbinfo NULL");
 		return;
 	}
@@ -857,19 +801,18 @@ void MsgTransactionManager::setCBMsgCB(MSG_CMD_REG_INCOMING_CB_MSG_CB_S *pCbInfo
 
 	cbmsg_list::iterator it = newCBMsgCBList.begin();
 
-	for (; it != newCBMsgCBList.end(); it++)
-	{
-		if ((it->listenerFd == pCbInfo->listenerFd) && (it->msgType == pCbInfo->msgType))
-		{
+	for (; it != newCBMsgCBList.end(); it++) {
+		if ((it->listenerFd == pCbInfo->listenerFd) && (it->msgType == pCbInfo->msgType)) {
 			MSG_DEBUG("Duplicated messageCB info fd %d, mType %d", it->listenerFd, it->msgType);
 			return;
 		}
 	}
 	MSG_DEBUG("bSave : [%d]", pCbInfo->bsave);
 
-	if(pCbInfo->bsave)
+	if(pCbInfo->bsave) {
 		if(MsgSettingSetBool(CB_SAVE, pCbInfo->bsave) != MSG_SUCCESS)
 			MSG_DEBUG("MsgSettingSetBool FAIL: CB_SAVE");
+	}
 
 
 	newCBMsgCBList.push_back(*pCbInfo);
@@ -880,8 +823,7 @@ void MsgTransactionManager::setCBMsgCB(MSG_CMD_REG_INCOMING_CB_MSG_CB_S *pCbInfo
 
 void MsgTransactionManager::setSyncMLMsgCB(MSG_CMD_REG_INCOMING_SYNCML_MSG_CB_S *pCbInfo)
 {
-	if (!pCbInfo)
-	{
+	if (!pCbInfo) {
 		MSG_FATAL("cbinfo NULL");
 		return;
 	}
@@ -890,10 +832,8 @@ void MsgTransactionManager::setSyncMLMsgCB(MSG_CMD_REG_INCOMING_SYNCML_MSG_CB_S 
 
 	syncmlmsg_list::iterator it = newSyncMLMsgCBList.begin();
 
-	for (; it != newSyncMLMsgCBList.end(); it++)
-	{
-		if ((it->listenerFd == pCbInfo->listenerFd) && (it->msgType == pCbInfo->msgType))
-		{
+	for (; it != newSyncMLMsgCBList.end(); it++) {
+		if ((it->listenerFd == pCbInfo->listenerFd) && (it->msgType == pCbInfo->msgType)) {
 			MSG_DEBUG("Duplicated messageCB info fd %d, mType %d", it->listenerFd, it->msgType);
 			return;
 		}
@@ -905,8 +845,7 @@ void MsgTransactionManager::setSyncMLMsgCB(MSG_CMD_REG_INCOMING_SYNCML_MSG_CB_S 
 
 void MsgTransactionManager::setLBSMsgCB(MSG_CMD_REG_INCOMING_LBS_MSG_CB_S *pCbInfo)
 {
-	if (!pCbInfo)
-	{
+	if (!pCbInfo) {
 		MSG_FATAL("cbinfo NULL");
 		return;
 	}
@@ -915,10 +854,8 @@ void MsgTransactionManager::setLBSMsgCB(MSG_CMD_REG_INCOMING_LBS_MSG_CB_S *pCbIn
 
 	lbsmsg_list::iterator it = newLBSMsgCBList.begin();
 
-	for (; it != newLBSMsgCBList.end(); it++)
-	{
-		if ((it->listenerFd == pCbInfo->listenerFd) && (it->msgType == pCbInfo->msgType))
-		{
+	for (; it != newLBSMsgCBList.end(); it++) {
+		if ((it->listenerFd == pCbInfo->listenerFd) && (it->msgType == pCbInfo->msgType)) {
 			MSG_DEBUG("Duplicated messageCB info fd %d, mType %d", it->listenerFd, it->msgType);
 			return;
 		}
@@ -930,18 +867,15 @@ void MsgTransactionManager::setLBSMsgCB(MSG_CMD_REG_INCOMING_LBS_MSG_CB_S *pCbIn
 
 void MsgTransactionManager::setJavaMMSList(MSG_CMD_REG_INCOMING_JAVAMMS_TRID_S *pTrId)
 {
-	if (!pTrId)
-	{
+	if (!pTrId) {
 		MSG_FATAL("trId NULL");
 		return;
 	}
 
 	javamms_list::iterator it;
 
-	for (it = javaMMSList.begin(); it != javaMMSList.end(); it++)
-	{
-		if (!strcmp(it->id, pTrId->id))
-		{
+	for (it = javaMMSList.begin(); it != javaMMSList.end(); it++) {
+		if (!strcmp(it->id, pTrId->id)) {
 			MSG_SEC_DEBUG("Duplicated javaMMS transaction Id:%s", it->id);
 			return;
 		}
@@ -953,8 +887,7 @@ void MsgTransactionManager::setJavaMMSList(MSG_CMD_REG_INCOMING_JAVAMMS_TRID_S *
 
 void MsgTransactionManager::setSyncMLMsgOperationCB(MSG_CMD_REG_SYNCML_MSG_OPERATION_CB_S *pCbInfo)
 {
-	if (!pCbInfo)
-	{
+	if (!pCbInfo) {
 		MSG_FATAL("cbinfo NULL");
 		return;
 	}
@@ -963,10 +896,8 @@ void MsgTransactionManager::setSyncMLMsgOperationCB(MSG_CMD_REG_SYNCML_MSG_OPERA
 
 	syncmlop_list::iterator it = operationSyncMLMsgCBList.begin();
 
-	for (; it != operationSyncMLMsgCBList.end(); it++)
-	{
-		if ((it->listenerFd == pCbInfo->listenerFd) && (it->msgType == pCbInfo->msgType))
-		{
+	for (; it != operationSyncMLMsgCBList.end(); it++) {
+		if ((it->listenerFd == pCbInfo->listenerFd) && (it->msgType == pCbInfo->msgType)) {
 			MSG_DEBUG("Duplicated messageCB info fd %d, mType %d", it->listenerFd, it->msgType);
 			return;
 		}
@@ -979,7 +910,7 @@ void MsgTransactionManager::setSyncMLMsgOperationCB(MSG_CMD_REG_SYNCML_MSG_OPERA
 void MsgTransactionManager::setStorageChangeCB(int listenerFd)
 {
 	if (listenerFd <= 0)
-		THROW(MsgException::INVALID_PARAM,"InParam Error: listenerFd %d", listenerFd);
+		THROW(MsgException::INVALID_PARAM, "InParam Error: listenerFd %d", listenerFd);
 
 	MutexLocker lock(mx);
 
@@ -990,7 +921,7 @@ void MsgTransactionManager::setStorageChangeCB(int listenerFd)
 void MsgTransactionManager::setReportMsgCB(int listenerFd)
 {
 	if (listenerFd <= 0)
-		THROW(MsgException::INVALID_PARAM,"InParam Error: listenerFd %d", listenerFd);
+		THROW(MsgException::INVALID_PARAM, "InParam Error: listenerFd %d", listenerFd);
 
 	MutexLocker lock(mx);
 
@@ -1044,9 +975,8 @@ void MsgTransactionManager::broadcastIncomingMsgCB(const msg_error_t err, const 
 
 	newmsg_list::iterator it = newMsgCBList.begin();
 
-	for (; it != newMsgCBList.end(); it++)
-	{
-		MSG_DEBUG("fd %d dstport %d",it->listenerFd, it->port);
+	for (; it != newMsgCBList.end(); it++) {
+		MSG_DEBUG("fd %d dstport %d", it->listenerFd, it->port);
 
 		if ((msgInfo->msgPort.valid == false) && (it->port == 0)) {
 			MSG_DEBUG("Send incoming normal msg to listener %d", it->listenerFd);
@@ -1066,7 +996,7 @@ void MsgTransactionManager::broadcastIncomingMsgCB(const msg_error_t err, const 
 		} else {
 			bundle_add(b, EVT_KEY_MSG_TYPE, EVT_VAL_SMS);
 		}
-		char msgId[MSG_EVENT_MSG_ID_LEN] = {0,};
+		char msgId[MSG_EVENT_MSG_ID_LEN] = {0, };
 		snprintf(msgId, sizeof(msgId), "%u", msgInfo->msgId);
 		bundle_add(b, EVT_KEY_MSG_ID, msgId);
 		eventsystem_send_system_event(SYS_EVENT_INCOMMING_MSG, b);
@@ -1094,22 +1024,16 @@ void MsgTransactionManager::broadcastMMSConfCB(const msg_error_t err, const MSG_
 
 	mmsconf_list::iterator it = newMMSConfMsgCBList.begin();
 
-	for (; it != newMMSConfMsgCBList.end(); it++)
-	{
-		MSG_DEBUG("fd:%d appId:%s",it->listenerFd, it->appId);
+	for (; it != newMMSConfMsgCBList.end(); it++) {
+		MSG_DEBUG("fd:%d appId:%s", it->listenerFd, it->appId);
 
-		if (mmsRecvData->msgAppId.valid == true)
-		{
-			if (!strcmp(it->appId, mmsRecvData->msgAppId.appId))
-			{
+		if (mmsRecvData->msgAppId.valid == true) {
+			if (!strcmp(it->appId, mmsRecvData->msgAppId.appId)) {
 				MSG_DEBUG("Send incoming java msg to listener %d", it->listenerFd);
 				write(it->listenerFd, pEventData, eventSize);
 			}
-		}
-		else
-		{
-			if (strlen(it->appId) <= 0)
-			{
+		} else {
+			if (strlen(it->appId) <= 0) {
 				MSG_DEBUG("Send incoming normal msg to listener %d", it->listenerFd);
 				write(it->listenerFd, pEventData, eventSize);
 			}
@@ -1133,11 +1057,9 @@ void MsgTransactionManager::broadcastPushMsgCB(const msg_error_t err, const MSG_
 
 	pushmsg_list::iterator it = newPushMsgCBList.begin();
 
-	for (; it != newPushMsgCBList.end(); it++)
-	{
+	for (; it != newPushMsgCBList.end(); it++) {
 		MSG_DEBUG("registered_appid : %s, incoming_appid: %s", it->appId, pushData->pushAppId);
-		if (!strcmp(it->appId, pushData->pushAppId))
-		{
+		if (!strcmp(it->appId, pushData->pushAppId)) {
 			MSG_DEBUG("Send incoming Push information to listener %d", it->listenerFd);
 			write(it->listenerFd, pEventData, eventSize);
 		}
@@ -1159,8 +1081,7 @@ void MsgTransactionManager::broadcastCBMsgCB(const msg_error_t err, const MSG_CB
 
 	cbmsg_list::iterator it = newCBMsgCBList.begin();
 
-	for (; it != newCBMsgCBList.end(); it++)
-	{
+	for (; it != newCBMsgCBList.end(); it++) {
 		MSG_DEBUG("Send incoming CB information to listener %d", it->listenerFd);
 		write(it->listenerFd, pEventData, eventSize);
 	}
@@ -1170,7 +1091,7 @@ void MsgTransactionManager::broadcastCBMsgCB(const msg_error_t err, const MSG_CB
 	b = bundle_create();
 	if (b) {
 		bundle_add(b, EVT_KEY_MSG_TYPE, EVT_VAL_CB);
-		char msgId[MSG_EVENT_MSG_ID_LEN] = {0,};
+		char msgId[MSG_EVENT_MSG_ID_LEN] = {0, };
 		snprintf(msgId, sizeof(msgId), "%u", cbMsgId);
 		bundle_add(b, EVT_KEY_MSG_ID, msgId);
 		eventsystem_send_system_event(SYS_EVENT_INCOMMING_MSG, b);
@@ -1193,8 +1114,7 @@ void MsgTransactionManager::broadcastSyncMLMsgCB(const msg_error_t err, const MS
 
 	syncmlmsg_list::iterator it = newSyncMLMsgCBList.begin();
 
-	for (; it != newSyncMLMsgCBList.end(); it++)
-	{
+	for (; it != newSyncMLMsgCBList.end(); it++) {
 		MSG_DEBUG("Send incoming SyncML information to listener %d", it->listenerFd);
 		write(it->listenerFd, pEventData, eventSize);
 	}
@@ -1217,8 +1137,7 @@ void MsgTransactionManager::broadcastLBSMsgCB(const msg_error_t err, const MSG_L
 
 	lbsmsg_list::iterator it = newLBSMsgCBList.begin();
 
-	for (; it != newLBSMsgCBList.end(); it++)
-	{
+	for (; it != newLBSMsgCBList.end(); it++) {
 		MSG_DEBUG("Send incoming LBS msg to listener %d", it->listenerFd);
 		write(it->listenerFd, pEventData, eventSize);
 	}
@@ -1239,7 +1158,7 @@ void MsgTransactionManager::broadcastSyncMLMsgOperationCB(const msg_error_t err,
 	char* encodedData = NULL;
 	unique_ptr<char*, void(*)(char**)> buf(&encodedData, unique_ptr_deleter);
 
-	// Encoding Storage Change Data
+	/* Encoding Storage Change Data */
 	int dataSize = MsgEncodeSyncMLOperationData(msgId, extId, &encodedData);
 
 	int eventSize = MsgMakeEvent(encodedData, dataSize, MSG_EVENT_SYNCML_OPERATION, err, (void**)(&pEventData));
@@ -1248,8 +1167,7 @@ void MsgTransactionManager::broadcastSyncMLMsgOperationCB(const msg_error_t err,
 
 	syncmlop_list::iterator it = operationSyncMLMsgCBList.begin();
 
-	for( ; it != operationSyncMLMsgCBList.end() ; it++ )
-	{
+	for( ; it != operationSyncMLMsgCBList.end() ; it++ ) {
 		MSG_DEBUG("Send SyncML operation to listener %d", it->listenerFd);
 		write(it->listenerFd, pEventData, eventSize);
 	}
@@ -1277,7 +1195,7 @@ void MsgTransactionManager::broadcastStorageChangeCB(const msg_error_t err, cons
 	char* encodedData = NULL;
 	unique_ptr<char*, void(*)(char**)> buf(&encodedData, unique_ptr_deleter);
 
-	// Encoding Storage Change Data
+	/* Encoding Storage Change Data */
 	dataSize = MsgEncodeStorageChangeData(storageChangeType, pMsgIdList, &encodedData);
 
 	int eventSize = MsgMakeEvent(encodedData, dataSize, MSG_EVENT_PLG_STORAGE_CHANGE_IND, err, (void**)(&pEventData));
@@ -1286,8 +1204,7 @@ void MsgTransactionManager::broadcastStorageChangeCB(const msg_error_t err, cons
 
 	fd_map::iterator it = storageChangeFdMap.begin();
 
-	for (; it != storageChangeFdMap.end(); it++)
-	{
+	for (; it != storageChangeFdMap.end(); it++) {
 		MSG_DEBUG("Send Storage Change Callback to listener %d", it->first);
 		write(it->first, pEventData, eventSize);
 	}
@@ -1315,7 +1232,7 @@ void MsgTransactionManager::broadcastReportMsgCB(const msg_error_t err, const ms
 	char* encodedData = NULL;
 	unique_ptr<char*, void(*)(char**)> buf(&encodedData, unique_ptr_deleter);
 
-	// Encoding Storage Change Data
+	/* Encoding Storage Change Data */
 	dataSize = MsgEncodeReportMsgData(reportMsgType, pMsgInfo, &encodedData);
 
 	int eventSize = MsgMakeEvent(encodedData, dataSize, MSG_EVENT_PLG_REPORT_MSG_INCOMING_IND, err, (void**)(&pEventData));
@@ -1324,8 +1241,7 @@ void MsgTransactionManager::broadcastReportMsgCB(const msg_error_t err, const ms
 
 	fd_map::iterator it = reportMsgCBFdMap.begin();
 
-	for (; it != reportMsgCBFdMap.end(); it++)
-	{
+	for (; it != reportMsgCBFdMap.end(); it++) {
 		MSG_DEBUG("Send Report Message Incoming Callback to listener %d", it->first);
 		write(it->first, pEventData, eventSize);
 	}
@@ -1372,7 +1288,7 @@ void MsgTransactionManager::finishCynara()
 	if (ret == CYNARA_API_SUCCESS) {
 		MSG_INFO("cynara_finish() is successful");
 	} else {
-		MSG_INFO("cynara_finish() is failed [%d]",ret);
+		MSG_INFO("cynara_finish() is failed [%d]", ret);
 	}
 
 	p_cynara = NULL;

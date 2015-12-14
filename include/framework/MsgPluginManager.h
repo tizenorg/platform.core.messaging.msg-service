@@ -61,7 +61,7 @@ public:
 
 	msg_error_t getDefaultNetworkSimId(int *simId);
 
-	// MMS handlers
+	/* MMS handlers */
 	msg_error_t addMessage(MSG_MESSAGE_INFO_S *pMsgInfo, MSG_SENDINGOPT_INFO_S *pSendOptInfo, char *pFileData);
 	msg_error_t updateMessage(MSG_MESSAGE_INFO_S *pMsgInfo, MSG_SENDINGOPT_INFO_S *pSendOptInfo, char *pFileData);
 	msg_error_t processReceivedInd(MSG_MESSAGE_INFO_S *pMsgInfo, MSG_REQUEST_INFO_S *pRequest, bool *bReject);
@@ -72,14 +72,14 @@ public:
 	msg_error_t restoreMsg(MSG_MESSAGE_INFO_S *pMsgInfo, char* pRecvBody, int rcvdBodyLen, char* filePath);
 
 	operator void*() const {
-		return (mSupportedMsg==MSG_UNKNOWN_TYPE)? NULL:(void*) this;
+		return (mSupportedMsg == MSG_UNKNOWN_TYPE)? NULL:(void*) this;
 	}
 
 private:
 	MSG_MAIN_TYPE_T 			mSupportedMsg;
 	MSG_PLUGIN_HANDLER_S 	mPlgHandler;
 
-	void	*mLibHandler;    // plugin library pointer
+	void	*mLibHandler;    /* plugin library pointer */
 };
 
 
@@ -120,5 +120,5 @@ private:
 	MsgPluginMap plgMap;
 };
 
-#endif // MSG_PLUGIN_MANAGER_H
+#endif /* MSG_PLUGIN_MANAGER_H */
 

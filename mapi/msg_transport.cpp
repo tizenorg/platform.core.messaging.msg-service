@@ -395,7 +395,7 @@ static int msg_send_single_sms(const char *phone_num, const char *sms_text, msg_
 		return MSG_ERR_INVALID_PARAMETER;
 	}
 
-	msg_struct_s req = {0,};
+	msg_struct_s req = {0, };
 	MSG_REQUEST_S msgReq = {0};
 
 	req.type = MSG_STRUCT_REQUEST_INFO;
@@ -409,8 +409,8 @@ static int msg_send_single_sms(const char *phone_num, const char *sms_text, msg_
 		return retVal;
 	}
 
-	MSG_MESSAGE_HIDDEN_S msg_info = {0,};
-	msg_struct_s msg = {0,};
+	MSG_MESSAGE_HIDDEN_S msg_info = {0, };
+	msg_struct_s msg = {0, };
 
 	msg.type = MSG_STRUCT_MESSAGE_INFO;
 	msg.data = &msg_info;
@@ -423,14 +423,14 @@ static int msg_send_single_sms(const char *phone_num, const char *sms_text, msg_
 	msg_info.simIndex = MSG_SIM_SLOT_ID_1;
 
 	/* fill the destination number in msgReq */
-	MSG_ADDRESS_INFO_S address = {0,};
+	MSG_ADDRESS_INFO_S address = {0, };
 	memset(&address, 0x00, sizeof(MSG_ADDRESS_INFO_S));
 
 	address.addressType = MSG_ADDRESS_TYPE_PLMN;
 	address.recipientType = MSG_RECIPIENTS_TYPE_TO;
 	snprintf(address.addressVal, MAX_ADDRESS_VAL_LEN, "%s", phone_num);
 
-	msg_struct_list_s addr_list = {0,};
+	msg_struct_list_s addr_list = {0, };
 
 	addr_list.nCount = 1;
 	addr_list.msg_struct_info = (msg_struct_t *)calloc(1, sizeof(msg_struct_t));
@@ -455,15 +455,15 @@ static int msg_send_single_sms(const char *phone_num, const char *sms_text, msg_
 	msg_info.pData = (void*)sms_text;
 
 	/* Send option */
-	msg_struct_s sendOpt = {0,};
+	msg_struct_s sendOpt = {0, };
 	MSG_SENDINGOPT_S send_info;
 	memset(&send_info, 0x00, sizeof(MSG_SENDINGOPT_S));
 
 	sendOpt.type = MSG_STRUCT_SENDOPT;
 	sendOpt.data = (void *)&send_info;
 
-	msg_struct_s smsSendOpt = {0,};
-	SMS_SENDINGOPT_INFO_S sms_send_opt = {0,};
+	msg_struct_s smsSendOpt = {0, };
+	SMS_SENDINGOPT_INFO_S sms_send_opt = {0, };
 	memset(&sms_send_opt, 0x00, sizeof(SMS_SENDINGOPT_INFO_S));
 
 	smsSendOpt.type = MSG_STRUCT_SMS_SENDOPT;
@@ -525,7 +525,7 @@ EXPORT_API int msg_sms_send(const char *phone_num_list, const char *sms_text, ms
 	if (retVal != MSG_SUCCESS)
 		return retVal;
 
-	for (char* cur_num = strtok_r(trimmed_num,", ", &temp); cur_num ; cur_num = strtok_r(NULL,", ", &temp)) {
+	for (char* cur_num = strtok_r(trimmed_num, ", ", &temp); cur_num ; cur_num = strtok_r(NULL, ", ", &temp)) {
 		if (strlen(cur_num) > MAX_PHONE_NUMBER_LEN) {
 			MSG_SEC_DEBUG("Phone number is too long [%s], and sending is skipped", cur_num);
 			continue;
@@ -729,7 +729,7 @@ EXPORT_API int msg_mms_forward_message(msg_handle_t handle, msg_struct_t req)
 	if (ret != PRIV_MGR_ERROR_SUCCESS)
 		return MSG_ERR_PERMISSION_DENIED;
 
-	if (handle == NULL || req == NULL ) {
+	if (handle == NULL || req == NULL) {
 		MSG_FATAL("handle or req is NULL");
 		return MSG_ERR_INVALID_PARAMETER;
 	}
@@ -887,7 +887,6 @@ int msg_request_get_struct_handle(msg_struct_s *msg_struct, int field, void **va
 	default:
 		err = MSG_ERR_UNKNOWN;
 		break;
-
 	}
 
 	return err;
@@ -926,16 +925,14 @@ int msg_request_set_struct_handle(msg_struct_s *msg_struct, int field, msg_struc
 
 
 	switch (field) {
-	case MSG_REQUEST_MESSAGE_HND:
-	{
+	case MSG_REQUEST_MESSAGE_HND: {
 		pTmp = (msg_struct_s *)pRequest->msg;
 		MSG_MESSAGE_HIDDEN_S *pSrc = (MSG_MESSAGE_HIDDEN_S *)value->data;
 		MSG_MESSAGE_HIDDEN_S *pDst = (MSG_MESSAGE_HIDDEN_S *)pTmp->data;
 		msg_message_copy_message(pSrc, pDst);
 		break;
 	}
-	case MSG_REQUEST_SENDOPT_HND:
-	{
+	case MSG_REQUEST_SENDOPT_HND: {
 		pTmp = (msg_struct_s *)pRequest->sendOpt;
 		MSG_SENDINGOPT_S *pSrc = (MSG_SENDINGOPT_S *)value->data;
 		MSG_SENDINGOPT_S *pDst = (MSG_SENDINGOPT_S *)pTmp->data;

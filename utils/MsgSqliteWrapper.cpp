@@ -36,8 +36,10 @@ void __clear_db_handle(sqlite3 *pDB);
 /*==================================================================================================
                                      VARIABLES
 ==================================================================================================*/
-//__thread sqlite3 *handle = NULL;
-//__thread sqlite3_stmt *stmt = NULL;
+#if 0
+__thread sqlite3 *handle = NULL;
+__thread sqlite3_stmt *stmt = NULL;
+#endif
 
 /*==================================================================================================
                                      IMPLEMENTATION OF MsgDbHandler - Member Functions
@@ -90,7 +92,6 @@ msg_error_t MsgDbHandler::connect()
 /* Use only in app side */
 msg_error_t MsgDbHandler::connectReadOnly()
 {
-
 	int ret = 0;
 
 	if (handle == NULL) {
@@ -205,7 +206,7 @@ msg_error_t MsgDbHandler::getTable(const char *pQuery, int *pRowCnt, int *pColum
 	ret = sqlite3_get_table(handle, pQuery, &result, pRowCnt, pColumnCnt, NULL);
 
 	if (ret == SQLITE_OK) {
-		if (*pRowCnt == 0) {// when the no record return 'MSG_ERR_DB_NORECORD'
+		if (*pRowCnt == 0) { /* when the no record return 'MSG_ERR_DB_NORECORD' */
 			MSG_DEBUG("No Query Result");
 			return MSG_ERR_DB_NORECORD;
 		}
@@ -364,7 +365,7 @@ void MsgDbHandler::getMmapMutex(const char *shm_file_name)
 	MSG_BEGIN();
 
 	if(!shm_file_name) {
-		MSG_FATAL ("NULL INPUT_PARAM");
+		MSG_FATAL("NULL INPUT_PARAM");
 		return;
 	}
 
@@ -385,7 +386,7 @@ void MsgDbHandler::getMmapMutex(const char *shm_file_name)
 	mmapMx = tmp;
 }
 
-void MsgDbHandler::shm_mutex_timedlock (int sec)
+void MsgDbHandler::shm_mutex_timedlock(int sec)
 {
 	MSG_BEGIN();
 	if (!mmapMx) {
@@ -600,7 +601,7 @@ msg_error_t MsgConvertStrWithEscape(const char *input, char **output)
 
 	tmpStr[j++] = '%';
 
-	for(i=0;i<inputSize;i++) {
+	for(i = 0; i < inputSize; i++) {
 		if (input[i] == '\'' || input[i] == '_' || input[i] == '%' || input[i] == '\\') {
 			tmpStr[j++] = MSGFW_DB_ESCAPE_CHAR;
 		}
@@ -628,7 +629,7 @@ MsgDbHandler *getDbHandle()
 		MSG_DEBUG("New DB handle added.");
 		MutexLocker locker(mu);
 		tmp = new MsgDbHandler();
-		gDbHandles.insert ( std::pair<pthread_t,MsgDbHandler*>(self,tmp));
+		gDbHandles.insert(std::pair<pthread_t, MsgDbHandler*>(self, tmp));
 
 	} else {
 		tmp = it->second;
@@ -647,7 +648,7 @@ void removeDbHandle()
 		MutexLocker locker(mu);
 		tmp = it->second;
 		delete tmp;
-		gDbHandles.erase (it);
+		gDbHandles.erase(it);
 	}
 }
 
@@ -655,7 +656,7 @@ void removeDbHandle()
 static int __msg_db_util_busyhandler(void *pData, int count)
 {
 	if(20 - count > 0) {
-		struct timespec time = {0,};
+		struct timespec time = {0, };
 		time.tv_sec = 0;
 		time.tv_nsec = (count + 1) * 50 * 1000 * 1000;
 
@@ -685,7 +686,7 @@ int __msg_db_util_open(const char *pszFilePath, sqlite3 **ppDB, int flags, const
 	/* Open DB */
 	int rc = sqlite3_open_v2(pszFilePath, ppDB, flags, zVfs);
 	if (SQLITE_OK != rc) {
-		MSG_ERR("sqlite3_open_v2 error(%d)",rc);
+		MSG_ERR("sqlite3_open_v2 error(%d)", rc);
 		return rc;
 	}
 

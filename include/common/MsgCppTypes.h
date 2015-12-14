@@ -24,7 +24,7 @@
 #include <memory>
 
 template <typename T>
-void unique_ptr_deleter( T **ptr ) {
+void unique_ptr_deleter(T **ptr) {
 	  if (ptr && *ptr )
 		  delete[] *ptr;
 }
@@ -34,7 +34,7 @@ template <class T>
 class AutoPtr
 {
 private:
-	T** ptr; // Caution: Memory allocation should be done by "new" not "malloc"
+	T** ptr; /* Caution: Memory allocation should be done by "new" not "malloc" */
 
 
 public:
@@ -51,5 +51,5 @@ public:
 	}
 };
 
-#endif // #ifndef __MSG_CPP_TYPES_H__
+#endif /* __MSG_CPP_TYPES_H__ */
 

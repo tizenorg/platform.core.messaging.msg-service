@@ -211,7 +211,6 @@ const MmsField gMmsField[MMS_MAX_FIELD_TYPE_COUNT][MMS_MAX_FIELD_VALUE_COUNT] = 
 
 		/* Add by MMSENC v1.2 */
 		{"Unreachable", 0x07 }
-
 	},
 
 	/* MmsCodeReadStatus */
@@ -386,7 +385,7 @@ int MmsGetTextType(MmsCode i, char *pValue)
 
 	for (j = 0; j < MMS_MAX_FIELD_VALUE_COUNT; j++) {
 		if (gMmsField[i][j].szText != NULL) {
-			if (strcasecmp( gMmsField[i][j].szText, pValue ) == 0) {
+			if (strcasecmp(gMmsField[i][j].szText, pValue) == 0) {
 				return j;
 			}
 		}
@@ -675,26 +674,23 @@ int extract_encoded_word_param(char *encoded_word, char **charset,  char **encod
 	char *char_set = NULL;
 	char *l_encoded_text = NULL;
 
-	char l_encoding[2] = {0,};
+	char l_encoding[2] = {0, };
 
 	if (encoded_word == NULL)
 		goto __CATCH;
 
-	if ( 6 > strlen(encoded_word)) {
+	if (6 > strlen(encoded_word)) {
 		goto __CATCH;
 	}
 
 	start_ptr = encoded_word;
 
-	if ( (encoded_word[0] == '=' && encoded_word[1] == '?') /* "=?" */
+	if ((encoded_word[0] == '=' && encoded_word[1] == '?') /* "=?" */
 			 && ((q1_ptr = strchr(start_ptr + 2, MSG_CH_QUESTION)) != NULL)	/* '?' */
 			 && ((q2_ptr = strchr(q1_ptr + 1, MSG_CH_QUESTION))!= NULL)		/* '?' */
-			 && ((end_ptr = strstr(q2_ptr + 1, MSG_STR_DEC_END))!= NULL)) /* "?=" */
-	{
-
+			 && ((end_ptr = strstr(q2_ptr + 1, MSG_STR_DEC_END))!= NULL)) { /* "?=" */
 		/* extract character set */
 		if ( q1_ptr - (start_ptr + 2) > 0 ) {
-
 			char_set = (char*)calloc(1, q1_ptr - (start_ptr + 2) + 1);
 
 			if (char_set) {
@@ -711,15 +707,12 @@ int extract_encoded_word_param(char *encoded_word, char **charset,  char **encod
 
 		/* extract encode type */
 		if ((*(q2_ptr - 1) == MSG_CH_BASE64_UPPER) || (*(q2_ptr - 1) == MSG_CH_BASE64_LOWER)
-				|| (*(q1_ptr + 1) == MSG_CH_BASE64_UPPER) || (*(q1_ptr + 1) == MSG_CH_BASE64_LOWER))
-		{
+				|| (*(q1_ptr + 1) == MSG_CH_BASE64_UPPER) || (*(q1_ptr + 1) == MSG_CH_BASE64_LOWER)) {
 			l_encoding[0] = MSG_CH_BASE64_UPPER;
 		} else if ((*(q2_ptr-1) == MSG_CH_QPRINT_UPPER) || (*(q2_ptr-1) == MSG_CH_QPRINT_LOWER)
-				|| (*(q1_ptr+1) == MSG_CH_QPRINT_UPPER) || (*(q1_ptr+1) == MSG_CH_QPRINT_LOWER))
-		{
+				|| (*(q1_ptr+1) == MSG_CH_QPRINT_UPPER) || (*(q1_ptr+1) == MSG_CH_QPRINT_LOWER)) {
 			/* QPRINT */
 			l_encoding[0] = MSG_CH_QPRINT_UPPER;
-
 		} else {
 			MSG_DEBUG("unknown encoding");
 			goto __CATCH;
@@ -742,7 +735,6 @@ int extract_encoded_word_param(char *encoded_word, char **charset,  char **encod
 		*encoding = g_strdup(l_encoding);
 		*encoded_text = l_encoded_text;
 		*encoded_word_size = end_ptr - start_ptr + 2;
-
 	} else {
 		MSG_DEBUG("It is not encoded word type");
 		return -1;
@@ -770,7 +762,7 @@ char *MsgDecodeText(const char *pOri)
 	char *encoded_text = NULL;
 	char *decoded_text = NULL;
 
-	char *return_string= NULL;
+	char *return_string = NULL;
 	string result_string;
 
 	bool b_encoded_word = false;
@@ -793,16 +785,13 @@ char *MsgDecodeText(const char *pOri)
 	normal_word_start_ptr = pSrc;
 
 	while (normal_word_start_ptr < pSrc + total_len) {
-
 		encoded_word_start_ptr = strstr(normal_word_start_ptr, MSG_STR_DEC_START);
 
 		b_encoded_word = false;
 
 		/* Find encoded word */
-		while (b_encoded_word == false && encoded_word_start_ptr != NULL ) {
-
+		while (b_encoded_word == false && encoded_word_start_ptr != NULL) {
 			if (extract_encoded_word_param(encoded_word_start_ptr, &charset, &encoding, &encoded_text, &encoded_word_size) == 0) {
-
 				if (charset && encoding && encoded_text && encoded_word_size > 0) {
 					b_encoded_word = true;
 					MSG_DEBUG("charset [%s], encoding [%s], encoded_text [%s], encoded_word_size [%d]", charset, encoding, encoded_text, encoded_word_size);
@@ -816,11 +805,9 @@ char *MsgDecodeText(const char *pOri)
 			}
 
 			encoded_word_start_ptr = strstr(encoded_word_start_ptr+1, MSG_STR_DEC_START); /* find next encoded_start_ptr */
-
 		} /* end of while */
 
 		if (b_encoded_word) {
-
 			/* copy normal text */
 			if (encoded_word_start_ptr - normal_word_start_ptr > 0) {
 				result_string.append(normal_word_start_ptr, encoded_word_start_ptr - normal_word_start_ptr);
@@ -828,13 +815,11 @@ char *MsgDecodeText(const char *pOri)
 			}
 
 			if (strcasecmp(encoding, "B") == 0) {
-
 				MSG_DEBUG("Base64 encoded text [%s][%d]", encoded_text, strlen(encoded_text));
 
 				decoded_text = (char *)MsgDecodeBase64((unsigned char *)encoded_text, strlen(encoded_text), (ULONG *)&decoded_len);
 
 				if (decoded_text && decoded_len > 0) {
-
 					char *result_text = NULL;
 					int result_text_len = 0;
 
@@ -859,7 +844,6 @@ char *MsgDecodeText(const char *pOri)
 				MSG_FREE(decoded_text);
 
 			} else if (strcasecmp(encoding, "Q") == 0) {
-
 				char *result_text = NULL;
 				int result_text_len = 0;
 
@@ -868,7 +852,6 @@ char *MsgDecodeText(const char *pOri)
 				decoded_text = (char *)MsgDecodeQuotePrintable((unsigned char *)encoded_text, strlen(encoded_text), (ULONG *)&decoded_len);
 
 				if (decoded_text && decoded_len > 0) {
-
 					MSG_DEBUG("Qprint decoded text [%s][%d], outlen [%d]", decoded_text, strlen(decoded_text), decoded_len);
 
 					if (MmsPluginTextConvert("UTF-8", charset, decoded_text, decoded_len, &result_text, &result_text_len) == false) {
@@ -906,7 +889,6 @@ char *MsgDecodeText(const char *pOri)
 
 			break;
 		}
-
 	} /* end of while */
 
 	if (result_string.length() > 0) {
@@ -1188,7 +1170,6 @@ const char *MmsDebugGetMimeType(MimeType mimeType)
 		return "MIME_TEXT_X_IMELODY";
 	case MIME_TEXT_X_VTODO:
 		return "MIME_TEXT_X_VTODO";
-
 
 	case MIME_VIDEO_MPEG4:
 		return "MIME_VIDEO_MPEG4";
@@ -1667,7 +1648,7 @@ bool MmsReleaseMmsAttrib(MmsAttrib *pAttrib)
 		MmsMsgMultiStatus *pMultiStatus = pAttrib->pMultiStatus;
 		MmsMsgMultiStatus *pCurStatus = NULL;
 
-		while (pMultiStatus != NULL ) {
+		while (pMultiStatus != NULL) {
 			pCurStatus = pMultiStatus;
 			pMultiStatus = pMultiStatus->pNext;
 
@@ -1690,7 +1671,7 @@ bool MmsReleaseMsgBody(MsgBody *pBody, int type)
 	MSG_BEGIN();
 
 	if (pBody == NULL) {
-		MSG_DEBUG("pBody == NULL \n" );
+		MSG_DEBUG("pBody == NULL \n");
 		MSG_END();
 
 		return false;
@@ -1803,8 +1784,7 @@ bool MmsIsTextType(int type)
 		|| type == MIME_TEXT_VND_WAP_WML
 		|| type == MIME_TEXT_X_VNOTE
 		|| type == MIME_APPLICATION_SMIL
-		|| type == MIME_TEXT_X_IMELODY)
-	{
+		|| type == MIME_TEXT_X_IMELODY) {
 		return true;
 	} else {
 		return false;
@@ -1832,8 +1812,7 @@ bool MmsIsVitemContent(int type, char *pszName)
 	case MIME_TEXT_X_VCALENDAR:
 	case MIME_TEXT_X_VNOTE:	/* vnt */
 	case MIME_TEXT_X_VTODO:
-	case MIME_TEXT_PLAIN:	/* vbm - It SHOULD be distinguished from a normal text file. */
-	{
+	case MIME_TEXT_PLAIN: {	/* vbm - It SHOULD be distinguished from a normal text file. */
 		char *pszExt = NULL;
 
 		if (!pszName)

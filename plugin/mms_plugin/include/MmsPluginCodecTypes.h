@@ -380,7 +380,6 @@ typedef struct _MMS_ATTRIB_S {
 	char szRetrieveText[MMS_LOCALE_RESP_TEXT_LEN + 1];
 
 	MmsMsgMultiStatus *pMultiStatus;
-
 } MmsAttrib;
 
 typedef struct _MsgContentParam {

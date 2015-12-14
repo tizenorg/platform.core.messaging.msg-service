@@ -26,7 +26,7 @@
 		if (a == NULL) { \
 			return MSG_ERR_NULL_POINTER; \
 		} \
-	} while(0)
+	} while (0)
 
 /*==================================================================================================
                                      IMPLEMENTATION OF MsgHandle - Setting Member Functions
@@ -77,7 +77,7 @@ msg_error_t MsgHandle::getSMSCOption(msg_struct_t msg_struct)
 	}
 
 	if (pEvent->result == MSG_SUCCESS) {
-		MSG_SMSC_LIST_S smsc_list_tmp = {0,};
+		MSG_SMSC_LIST_S smsc_list_tmp = {0, };
 		int dataSize = 0;
 
 		dataSize = sizeof(MSG_SMSC_LIST_S);
@@ -121,7 +121,7 @@ msg_error_t MsgHandle::setSMSCOption(msg_struct_t msg_struct)
 	msg_struct_s *pTmp = (msg_struct_s *)msg_struct;
 	MSG_SMSC_LIST_HIDDEN_S *pTmpList = (MSG_SMSC_LIST_HIDDEN_S *)pTmp->data;
 
-	MSG_SMSC_LIST_S smsc_list_tmp = {0,};
+	MSG_SMSC_LIST_S smsc_list_tmp = {0, };
 
 	smsc_list_tmp.totalCnt = pTmpList->smsc_list->nCount;
 	smsc_list_tmp.selected = pTmpList->selected;
@@ -149,7 +149,7 @@ msg_error_t MsgHandle::setSMSCOption(msg_struct_t msg_struct)
 	/* Copy Cookie */
 	memcpy(pCmd->cmdCookie, mCookie, MAX_COOKIE_LEN);
 
-	MSG_SETTING_S pSetting = {0,};
+	MSG_SETTING_S pSetting = {0, };
 
 	pSetting.type = optionType;
 	memcpy(&(pSetting.option.smscList), &smsc_list_tmp, sizeof(MSG_SMSC_LIST_S));
@@ -217,7 +217,7 @@ msg_error_t MsgHandle::getCBOption(msg_struct_t msg_struct)
 
 	if (pEvent->result == MSG_SUCCESS) {
 		int i = 0;
-		MSG_CBMSG_OPT_S cb_opt_tmp = {0,};
+		MSG_CBMSG_OPT_S cb_opt_tmp = {0, };
 		memcpy(&cb_opt_tmp, pEvent->data, sizeof(MSG_CBMSG_OPT_S));
 
 		MSG_CBMSG_OPT_HIDDEN_S *pTmp = (MSG_CBMSG_OPT_HIDDEN_S *)cb_opt->data;
@@ -265,7 +265,7 @@ msg_error_t MsgHandle::setCBOption(msg_struct_t msg_struct)
 	memcpy(pCmd->cmdCookie, mCookie, MAX_COOKIE_LEN);
 
 	/* Copy Command Data */
-	MSG_CBMSG_OPT_S cb_opt_tmp = {0,};
+	MSG_CBMSG_OPT_S cb_opt_tmp = {0, };
 	MSG_CBMSG_OPT_HIDDEN_S *cb_msg_opt = (MSG_CBMSG_OPT_HIDDEN_S *)cb_opt->data;
 
 	cb_opt_tmp.bReceive = cb_msg_opt->bReceive;
@@ -284,7 +284,7 @@ msg_error_t MsgHandle::setCBOption(msg_struct_t msg_struct)
 		memcpy(&(cb_opt_tmp.channelData.channelInfo[i]), pStructTmp->data, sizeof(MSG_CB_CHANNEL_INFO_S));
 	}
 
-	MSG_SETTING_S pSetting = {0,};
+	MSG_SETTING_S pSetting = {0, };
 	pSetting.type = optionType;
 
 	memcpy(&(pSetting.option.cbMsgOpt), &cb_opt_tmp, sizeof(MSG_CBMSG_OPT_S));
@@ -376,7 +376,7 @@ msg_error_t MsgHandle::setSmsSendOpt(msg_struct_t msg_struct)
 	memcpy(pCmd->cmdCookie, mCookie, MAX_COOKIE_LEN);
 
 	/* Copy Command Data */
-	MSG_SETTING_S pSetting = {0,};
+	MSG_SETTING_S pSetting = {0, };
 	pSetting.type = optionType;
 
 	memcpy(&(pSetting.option.smsSendOpt), sms_send_opt->data, sizeof(MSG_SMS_SENDOPT_S));
@@ -468,7 +468,7 @@ msg_error_t MsgHandle::setMmsSendOpt(msg_struct_t msg_struct)
 	memcpy(pCmd->cmdCookie, mCookie, MAX_COOKIE_LEN);
 
 	/* Copy Command Data */
-	MSG_SETTING_S pSetting = {0,};
+	MSG_SETTING_S pSetting = {0, };
 	pSetting.type = optionType;
 
 	memcpy(&(pSetting.option.mmsSendOpt), mms_send_opt->data, sizeof(MSG_MMS_SENDOPT_S));
@@ -560,7 +560,7 @@ msg_error_t MsgHandle::setMmsRecvOpt(msg_struct_t msg_struct)
 	memcpy(pCmd->cmdCookie, mCookie, MAX_COOKIE_LEN);
 
 	/* Copy Command Data */
-	MSG_SETTING_S pSetting = {0,};
+	MSG_SETTING_S pSetting = {0, };
 	pSetting.type = optionType;
 
 	memcpy(&(pSetting.option.mmsRecvOpt), mms_recv_opt->data, sizeof(MSG_MMS_RECVOPT_S));
@@ -652,7 +652,7 @@ msg_error_t MsgHandle::setPushMsgOpt(msg_struct_t msg_struct)
 	memcpy(pCmd->cmdCookie, mCookie, MAX_COOKIE_LEN);
 
 	/* Copy Command Data */
-	MSG_SETTING_S pSetting = {0,};
+	MSG_SETTING_S pSetting = {0, };
 	pSetting.type = optionType;
 
 	memcpy(&(pSetting.option.pushMsgOpt), push_opt->data, sizeof(MSG_PUSHMSG_OPT_S));
@@ -750,7 +750,7 @@ msg_error_t MsgHandle::setVoiceMsgOpt(msg_struct_t msg_struct)
 	memcpy(pCmd->cmdCookie, mCookie, MAX_COOKIE_LEN);
 
 	/* Copy Command Data */
-	MSG_SETTING_S pSetting = {0,};
+	MSG_SETTING_S pSetting = {0, };
 	pSetting.type = optionType;
 
 	memcpy(&(pSetting.option.voiceMailOpt), voice_opt->data, sizeof(MSG_VOICEMAIL_OPT_S));
@@ -842,7 +842,7 @@ msg_error_t MsgHandle::setGeneralOpt(msg_struct_t msg_struct)
 	memcpy(pCmd->cmdCookie, mCookie, MAX_COOKIE_LEN);
 
 	/* Copy Command Data */
-	MSG_SETTING_S pSetting = {0,};
+	MSG_SETTING_S pSetting = {0, };
 	pSetting.type = optionType;
 
 	memcpy(&(pSetting.option.generalOpt), general_opt->data, sizeof(MSG_GENERAL_OPT_S));
@@ -934,7 +934,7 @@ msg_error_t MsgHandle::setMsgSizeOpt(msg_struct_t msg_struct)
 	memcpy(pCmd->cmdCookie, mCookie, MAX_COOKIE_LEN);
 
 	/* Copy Command Data */
-	MSG_SETTING_S pSetting = {0,};
+	MSG_SETTING_S pSetting = {0, };
 	pSetting.type = optionType;
 
 	memcpy(&(pSetting.option.msgSizeOpt), msg_size_opt->data, sizeof(MSG_MSGSIZE_OPT_S));

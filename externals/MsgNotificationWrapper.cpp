@@ -258,7 +258,6 @@ msg_error_t MsgInsertNotification(MSG_MESSAGE_INFO_S *msg_info)
 	MSG_END();
 
 	return err;
-
 }
 
 msg_error_t MsgInsertOnlyActiveNotification(msg_notification_type_t noti_type, MSG_MESSAGE_INFO_S *msg_info)
@@ -269,7 +268,7 @@ msg_error_t MsgInsertOnlyActiveNotification(msg_notification_type_t noti_type, M
 #ifndef MSG_WEARABLE_PROFILE
 	notification_h noti_h = NULL;
 
-	MSG_NOTI_INFO_S noti_info = {0,};
+	MSG_NOTI_INFO_S noti_info = {0, };
 
 	noti_info.type = noti_type;
 	noti_info.active_noti_button_num = 1;
@@ -411,7 +410,6 @@ __END_OF_REFRESH_NOTI :
 
 msg_error_t MsgRefreshNotification(msg_notification_type_t noti_type, bool bFeedback, msg_active_notification_type_t active_type)
 {
-
 	msg_error_t msg_err = MSG_SUCCESS;
 
 #ifndef MSG_WEARABLE_PROFILE
@@ -489,7 +487,7 @@ msg_error_t MsgAddNotification(msg_notification_type_t noti_type, MSG_MESSAGE_IN
 #ifndef MSG_WEARABLE_PROFILE
 	notification_h noti_h = NULL;
 
-	MSG_NOTI_INFO_S noti_info = {0,};
+	MSG_NOTI_INFO_S noti_info = {0, };
 
 	noti_info.type = noti_type;
 
@@ -564,9 +562,7 @@ void MsgDeleteNotification(msg_notification_type_t noti_type, int simIndex)
 	int noti_err = NOTIFICATION_ERROR_NONE;
 
 	if (noti_type == MSG_NOTI_TYPE_ALL) {
-
 		noti_err = notification_delete_all_by_type(NULL, NOTIFICATION_TYPE_NOTI);
-
 	} else if (noti_type == MSG_NOTI_TYPE_VOICE_1 || noti_type == MSG_NOTI_TYPE_VOICE_2 || noti_type == MSG_NOTI_TYPE_SIM) {
 		int notiId = 0;
 
@@ -615,7 +611,7 @@ bool MsgCheckNotificationSettingEnable(void)
 		if (allow_to_notify) {
 			MSG_DEBUG("message notification is allowed");
 
-			// check do not disturb mode
+			/* check do not disturb mode */
 			err = notification_system_setting_load_system_setting(&system_setting);
 
 			if (err != NOTIFICATION_ERROR_NONE || system_setting == NULL) {
@@ -987,13 +983,13 @@ int getPrivId(msg_notification_type_t noti_type, int sim_idx)
 		noti_id = MsgSettingGetInt(MSG_SENTFAIL_NOTI_ID);
 		break;
 	case MSG_NOTI_TYPE_VOICE_1: {
-		char keyName[MAX_VCONFKEY_NAME_LEN] = {0,};
+		char keyName[MAX_VCONFKEY_NAME_LEN] = {0, };
 		snprintf(keyName, sizeof(keyName), "%s/%d", VOICE_NOTI_ID_1, sim_idx);
 		noti_id = MsgSettingGetInt(keyName);
 		break;
 	}
 	case MSG_NOTI_TYPE_VOICE_2: {
-		char keyName[MAX_VCONFKEY_NAME_LEN] = {0,};
+		char keyName[MAX_VCONFKEY_NAME_LEN] = {0, };
 		snprintf(keyName, sizeof(keyName), "%s/%d", VOICE_NOTI_ID_2, sim_idx);
 		noti_id = MsgSettingGetInt(keyName);
 		break;
@@ -1044,13 +1040,13 @@ void updatePrivId(msg_notification_type_t noti_type, int noti_id, int sim_idx)
 		err = MsgSettingSetInt(MSG_SENTFAIL_NOTI_ID, noti_id);
 		break;
 	case MSG_NOTI_TYPE_VOICE_1: {
-		char keyName[MAX_VCONFKEY_NAME_LEN] = {0,};
+		char keyName[MAX_VCONFKEY_NAME_LEN] = {0, };
 		snprintf(keyName, sizeof(keyName), "%s/%d", VOICE_NOTI_ID_1, sim_idx);
 		err = MsgSettingSetInt(keyName, noti_id);
 		break;
 	}
 	case MSG_NOTI_TYPE_VOICE_2: {
-		char keyName[MAX_VCONFKEY_NAME_LEN] = {0,};
+		char keyName[MAX_VCONFKEY_NAME_LEN] = {0, };
 		snprintf(keyName, sizeof(keyName), "%s/%d", VOICE_NOTI_ID_2, sim_idx);
 		err = MsgSettingSetInt(keyName, noti_id);
 		break;
@@ -1222,7 +1218,7 @@ void createInfoData(MSG_NOTI_INFO_S *noti_info, MSG_MESSAGE_INFO_S *msg_info)
 			setServiceOperation(noti_info->svc_h, APP_CONTROL_OPERATION_CALL);
 			setServiceUri(noti_info->svc_h, MSG_TEL_URI_VOICEMAIL);
 
-			char slot_id[5] = {0,};
+			char slot_id[5] = {0, };
 			snprintf(slot_id, sizeof(slot_id), "%d", msg_info->sim_idx - 1);
 			addServiceExtraData(noti_info->svc_h, "slot_id", slot_id);
 		}
@@ -1251,7 +1247,7 @@ void createInfoData(MSG_NOTI_INFO_S *noti_info, MSG_MESSAGE_INFO_S *msg_info)
 				setServiceOperation(noti_info->svc_h, APP_CONTROL_OPERATION_CALL);
 				setServiceUri(noti_info->svc_h, MSG_TEL_URI_VOICEMAIL);
 
-				char slot_id[5] = {0,};
+				char slot_id[5] = {0, };
 				snprintf(slot_id, sizeof(slot_id), "%d", msg_info->sim_idx - 1);
 				addServiceExtraData(noti_info->svc_h, "slot_id", slot_id);
 			}
@@ -1279,12 +1275,12 @@ void createInfoData(MSG_NOTI_INFO_S *noti_info, MSG_MESSAGE_INFO_S *msg_info)
 		}
 
 		snprintf(msg_info->addressList[0].displayName, sizeof(msg_info->addressList[0].displayName), "%s", contactInfo.firstName);
-#endif //MSG_CONTACTS_SERVICE_NOT_SUPPORTED
+#endif /*MSG_CONTACTS_SERVICE_NOT_SUPPORTED */
 
 		if (msg_info->addressList[0].displayName[0] == '\0')
-			snprintf(noti_info->sender, sizeof(noti_info->sender), "%s",msg_info->addressList[0].addressVal);
+			snprintf(noti_info->sender, sizeof(noti_info->sender), "%s", msg_info->addressList[0].addressVal);
 		else
-			snprintf(noti_info->sender, sizeof(noti_info->sender), "%s",msg_info->addressList[0].displayName);
+			snprintf(noti_info->sender, sizeof(noti_info->sender), "%s", msg_info->addressList[0].displayName);
 
 		snprintf(noti_info->number, sizeof(noti_info->number), "%s", msg_info->addressList[0].addressVal);
 
@@ -1312,18 +1308,18 @@ void createInfoData(MSG_NOTI_INFO_S *noti_info, MSG_MESSAGE_INFO_S *msg_info)
 		}
 
 		snprintf(msg_info->addressList[0].displayName, sizeof(msg_info->addressList[0].displayName), "%s", contactInfo.firstName);
-#endif //MSG_CONTACTS_SERVICE_NOT_SUPPORTED
+#endif /*MSG_CONTACTS_SERVICE_NOT_SUPPORTED */
 				if (msg_info->addressList[0].displayName[0] == '\0')
-					snprintf(noti_info->sender, sizeof(noti_info->sender), "%s",msg_info->addressList[0].addressVal);
+					snprintf(noti_info->sender, sizeof(noti_info->sender), "%s", msg_info->addressList[0].addressVal);
 				else
-					snprintf(noti_info->sender, sizeof(noti_info->sender), "%s",msg_info->addressList[0].displayName);
+					snprintf(noti_info->sender, sizeof(noti_info->sender), "%s", msg_info->addressList[0].displayName);
 
 		if (msg_info->addressList[0].displayName[0] == '\0')
-			snprintf(noti_info->sender, sizeof(noti_info->sender), "%s",msg_info->addressList[0].addressVal);
+			snprintf(noti_info->sender, sizeof(noti_info->sender), "%s", msg_info->addressList[0].addressVal);
 		else
-			snprintf(noti_info->sender, sizeof(noti_info->sender), "%s",msg_info->addressList[0].displayName);
+			snprintf(noti_info->sender, sizeof(noti_info->sender), "%s", msg_info->addressList[0].displayName);
 
-		snprintf(noti_info->number, sizeof(noti_info->number), "%s",msg_info->addressList[0].addressVal);
+		snprintf(noti_info->number, sizeof(noti_info->number), "%s", msg_info->addressList[0].addressVal);
 
 		MsgDbHandler *dbhandler = getDbHandle();
 		char sqlQuery[MAX_QUERY_LEN+1];
@@ -1559,7 +1555,7 @@ void setText(notification_h noti_h, MSG_NOTI_INFO_S *noti_info)
 {
 	MSG_BEGIN();
 
-	char unreadMsgCntStr[10] = {0,};
+	char unreadMsgCntStr[10] = {0, };
 	bool bPreview;
 
 	if (MsgSettingGetBool(MSG_SETTING_PREVIEW, &bPreview) != MSG_SUCCESS) {
@@ -1773,7 +1769,6 @@ void setText(notification_h noti_h, MSG_NOTI_INFO_S *noti_info)
 	}
 
 	MSG_END();
-
 }
 
 void setIcon(notification_h noti_h, MSG_NOTI_INFO_S *noti_info)
@@ -1782,10 +1777,9 @@ void setIcon(notification_h noti_h, MSG_NOTI_INFO_S *noti_info)
 
 	switch (noti_info->type) {
 #ifdef MSG_NOTI_INTEGRATION
-	case MSG_NOTI_TYPE_NORMAL :
-	case MSG_NOTI_TYPE_CB :
-	case MSG_NOTI_TYPE_SIM :
-	{
+	case MSG_NOTI_TYPE_NORMAL:
+	case MSG_NOTI_TYPE_CB:
+	case MSG_NOTI_TYPE_SIM: {
 		setNotiImage(noti_h, NOTIFICATION_IMAGE_TYPE_ICON_FOR_INDICATOR, MSG_NORMAL_STATUS_ICON);
 		if (noti_info->count > 1 && noti_info->senderCount > 1) {
 			setNotiImage(noti_h, NOTIFICATION_IMAGE_TYPE_ICON_FOR_LOCK, MSG_NORMAL_ICON_PATH);
@@ -1815,8 +1809,7 @@ void setIcon(notification_h noti_h, MSG_NOTI_INFO_S *noti_info)
 		break;
 	}
 #else
-	case MSG_NOTI_TYPE_NORMAL :
-	{
+	case MSG_NOTI_TYPE_NORMAL: {
 		setNotiImage(noti_h, NOTIFICATION_IMAGE_TYPE_ICON_FOR_INDICATOR, MSG_NORMAL_STATUS_ICON);
 		setNotiImage(noti_h, NOTIFICATION_IMAGE_TYPE_ICON_FOR_LOCK, MSG_NORMAL_ICON_PATH);
 
@@ -1934,7 +1927,6 @@ void setActiveText(notification_h noti_h, MSG_NOTI_INFO_S *noti_info)
 	}
 
 	MSG_END();
-
 }
 
 
@@ -1943,19 +1935,18 @@ void setActiveIcon(notification_h noti_h, MSG_NOTI_INFO_S *noti_info)
 	MSG_BEGIN();
 
 	switch (noti_info->type) {
-	case MSG_NOTI_TYPE_NORMAL :
-	case MSG_NOTI_TYPE_SIM :
-	{
+	case MSG_NOTI_TYPE_NORMAL:
+	case MSG_NOTI_TYPE_SIM: {
 		switch (noti_info->active_subtype) {
-		case MSG_CB_SMS :
+		case MSG_CB_SMS:
 			setNotiImage(noti_h, NOTIFICATION_IMAGE_TYPE_ICON, MSG_CB_ICON_PATH);
 			break;
-		case MSG_WAP_SI_SMS :
-		case MSG_WAP_SL_SMS :
+		case MSG_WAP_SI_SMS:
+		case MSG_WAP_SL_SMS:
 			setNotiImage(noti_h, NOTIFICATION_IMAGE_TYPE_ICON, MSG_ACTIVE_PUSH_ICON_PATH);
-		case MSG_SYNCML_CP :
+		case MSG_SYNCML_CP:
 			setNotiImage(noti_h, NOTIFICATION_IMAGE_TYPE_ICON, MSG_OTA_ICON_PATH);
-		default :
+		default:
 			if (noti_info->imagePath[0] != '\0')
 				setNotiImage(noti_h, NOTIFICATION_IMAGE_TYPE_ICON, noti_info->imagePath);
 			else
@@ -1966,12 +1957,11 @@ void setActiveIcon(notification_h noti_h, MSG_NOTI_INFO_S *noti_info)
 
 		break;
 	}
-	case MSG_NOTI_TYPE_CB :
-	{
+	case MSG_NOTI_TYPE_CB: {
 		setNotiImage(noti_h, NOTIFICATION_IMAGE_TYPE_ICON, MSG_CB_ICON_PATH);
 		break;
 	}
-	case MSG_NOTI_TYPE_CLASS0 :
+	case MSG_NOTI_TYPE_CLASS0:
 		setNotiImage(noti_h, NOTIFICATION_IMAGE_TYPE_ICON, MSG_NORMAL_ICON_PATH);
 		break;
 	default:
@@ -2004,7 +1994,7 @@ msg_error_t MsgInsertInstantMessage(msg_notification_type_t noti_type)
 		if (msg_err == MSG_SUCCESS) {
 			MSG_DEBUG("Unread count [%d]", noti_info.count);
 			if (noti_info.count == 1) {
-				MSG_SEC_DEBUG("noti_info.sender [%s]",noti_info.sender);
+				MSG_SEC_DEBUG("noti_info.sender [%s]", noti_info.sender);
 				setNotiText(noti, NOTIFICATION_TEXT_TYPE_TITLE, noti_info.sender, NULL);
 				setNotiText(noti, NOTIFICATION_TEXT_TYPE_CONTENT, noti_info.text, NULL);
 			} else if (noti_info.count > 1) {
@@ -2021,7 +2011,6 @@ msg_error_t MsgInsertInstantMessage(msg_notification_type_t noti_type)
 			setNotiImage(noti, NOTIFICATION_IMAGE_TYPE_ICON, MSG_NORMAL_ICON_PATH);
 		}
 		break;
-
 	}
 	case MSG_NOTI_TYPE_FAILED: {
 		notiMsg = getTranslateText(MSG_APP_PACKAGE_NAME, MSG_APP_LOCALEDIR, FAILED_TO_SEND_MESSAGE);
@@ -2161,7 +2150,7 @@ void setActiveNotification(notification_h noti_h, MSG_NOTI_INFO_S *noti_info)
 
 			MSG_DEBUG("Active Notification button 1 - Msg Id = [%d]", noti_info->msg_id);
 
-			char tel_num[MSG_NOTI_TEXT_LEN_S] = {0,};
+			char tel_num[MSG_NOTI_TEXT_LEN_S] = {0, };
 			snprintf(tel_num, sizeof(tel_num), "tel:%s", noti_info->number);
 			MSG_SEC_DEBUG("Active sender number [%s]", noti_info->number);
 			setServiceUri(noti_info->active_noti_svc_h[0], tel_num);
@@ -2175,7 +2164,7 @@ void setActiveNotification(notification_h noti_h, MSG_NOTI_INFO_S *noti_info)
 			addServiceExtraData(noti_info->active_noti_svc_h[1], "type", "reply");
 			addServiceExtraData(noti_info->active_noti_svc_h[1], "msgId", noti_info->msg_id);
 
-			char slot_id[5] = {0,};
+			char slot_id[5] = {0, };
 			snprintf(slot_id, sizeof(slot_id), "%d", noti_info->sim_idx - 1);
 			addServiceExtraData(noti_info->active_noti_svc_h[1], "slot_id", slot_id);
 		}
@@ -2190,7 +2179,7 @@ void setActiveNotification(notification_h noti_h, MSG_NOTI_INFO_S *noti_info)
 		addServiceExtraData(noti_info->active_noti_svc_h[2], "msgId", noti_info->msg_id);
 		addServiceExtraData(noti_info->active_noti_svc_h[2], "CALLER", "active_noti");
 
-		char slot_id[5] = {0,};
+		char slot_id[5] = {0, };
 		snprintf(slot_id, sizeof(slot_id), "%d", noti_info->sim_idx - 1);
 		addServiceExtraData(noti_info->active_noti_svc_h[2], "slot_id", slot_id);
 	}
@@ -2287,8 +2276,8 @@ msg_error_t getLatestMsgInfo(MSG_NOTI_INFO_S *noti_info, bool isForInstantMessag
 	case MSG_NOTI_TYPE_CB:
 	case MSG_NOTI_TYPE_SIM:
 #endif
-	{
-		int smsUnreadCnt = 0;
+    {
+    	int smsUnreadCnt = 0;
 		int mmsUnreadCnt = 0;
 
 		char sqlQuery[MAX_QUERY_LEN+1];
@@ -2466,7 +2455,6 @@ msg_error_t getLatestMsgInfo(MSG_NOTI_INFO_S *noti_info, bool isForInstantMessag
 			return MSG_ERR_DB_PREPARE;
 
 		if (dbhandler->stepQuery() == MSG_ERR_DB_ROW) {
-
 			smsUnreadCnt = dbhandler->columnInt(6);
 			mmsUnreadCnt = dbhandler->columnInt(7);
 			msgSize = dbhandler->columnInt(8);
@@ -2543,7 +2531,6 @@ msg_error_t getLatestMsgInfo(MSG_NOTI_INFO_S *noti_info, bool isForInstantMessag
 					MsgSoundSetRepeatAlarm();
 				}
 			} else {
-
 				MSG_DEBUG("No unread message.");
 				MSG_DEBUG("notiPrivId [%d]", noti_info->id);
 
@@ -2563,7 +2550,7 @@ msg_error_t getLatestMsgInfo(MSG_NOTI_INFO_S *noti_info, bool isForInstantMessag
 					if (MsgSettingSetInt(NOTIFICATION_PRIV_ID, noti_info->id) != MSG_SUCCESS)
 						MSG_DEBUG("MsgSettingSetInt fail : NOTIFICATION_PRIV_ID");
 
-					MsgSettingHandleNewMsg(0,0);
+					MsgSettingHandleNewMsg(0, 0);
 					MsgInsertBadge(0);
 					MsgSoundSetRepeatAlarm();
 				}
@@ -2699,7 +2686,6 @@ msg_error_t getLatestMsgInfo(MSG_NOTI_INFO_S *noti_info, bool isForInstantMessag
 			return MSG_ERR_DB_PREPARE;
 
 		if (dbhandler->stepQuery() == MSG_ERR_DB_ROW) {
-
 			noti_info->count = dbhandler->columnInt(4);
 
 			if (noti_info->count > 0) {
@@ -2738,7 +2724,6 @@ msg_error_t getLatestMsgInfo(MSG_NOTI_INFO_S *noti_info, bool isForInstantMessag
 
 				MSG_DEBUG("unread SIM message [%d].", noti_info->msg_id);
 			} else {
-
 				MSG_DEBUG("No unread SIM message.");
 				MSG_DEBUG("notiPrivId [%d]", noti_info->id);
 
@@ -2800,7 +2785,6 @@ msg_error_t getLatestMsgInfo(MSG_NOTI_INFO_S *noti_info, bool isForInstantMessag
 			return MSG_ERR_DB_PREPARE;
 
 		if (dbhandler->stepQuery() == MSG_ERR_DB_ROW) {
-
 			noti_info->count = dbhandler->columnInt(6);
 
 			if (noti_info->count > 0) {
@@ -2861,7 +2845,6 @@ msg_error_t getLatestMsgInfo(MSG_NOTI_INFO_S *noti_info, bool isForInstantMessag
 					}
 				}
 			} else {
-
 				MSG_DEBUG("No sent failed message.");
 				MSG_DEBUG("failedNotiId [%d]", noti_info->id);
 

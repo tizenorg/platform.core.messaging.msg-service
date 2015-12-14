@@ -58,7 +58,6 @@ SmsPluginTransport::SmsPluginTransport()
 
 SmsPluginTransport::~SmsPluginTransport()
 {
-
 }
 
 
@@ -98,8 +97,7 @@ unsigned char SmsPluginTransport::getSubmitMsgId()
 void SmsPluginTransport::convertMsgInfoToTelesvcMsg(const MSG_MESSAGE_INFO_S *pMsgInfo, sms_trans_msg_s *pTransMsg)
 {
 	switch (pTransMsg->type) {
-	case SMS_TRANS_P2P_MSG:
-	{
+	case SMS_TRANS_P2P_MSG: {
 		MSG_DEBUG("Convert  MSG_MESSAGE_INFO_S data to SMS_TRANS_MSG_S data.");
 		sms_trans_p2p_msg_s *pPtpMsg = (sms_trans_p2p_msg_s *)&(pTransMsg->data.p2p_msg);
 
@@ -115,7 +113,6 @@ void SmsPluginTransport::convertMsgInfoToTelesvcMsg(const MSG_MESSAGE_INFO_S *pM
 
 void SmsPluginTransport::convertMsgInfoToPtp(const MSG_MESSAGE_INFO_S *pMsgInfo, sms_trans_p2p_msg_s *pPtpMsg)
 {
-
 	/* 1. Set Teleservice ID */
 	pPtpMsg->telesvc_id = SMS_TRANS_TELESVC_CMT_95;
 
@@ -151,7 +148,6 @@ void SmsPluginTransport::convertMsgInfoToPtp(const MSG_MESSAGE_INFO_S *pMsgInfo,
 	default:
 		break;
 	}
-
 }
 
 
@@ -248,7 +244,6 @@ void SmsPluginTransport::convertMsgInfoToSubmit(const MSG_MESSAGE_INFO_S *pMsgIn
 
 	/* 13. Set Service category program data */
 	/* TODO */
-
 }
 
 
@@ -300,7 +295,7 @@ void SmsPluginTransport::submitRequest(sms_request_info_s *pReqInfo)
 	convertMsgInfoToTelesvcMsg(&pReqInfo->msgInfo, &trans_msg);
 
 	/* encode msg data */
-	unsigned char tel_sms_data[TAPI_NETTEXT_SMDATA_SIZE_MAX+1] = {0,};
+	unsigned char tel_sms_data[TAPI_NETTEXT_SMDATA_SIZE_MAX+1] = {0, };
 
 	tapi_data_pkg.MsgLength = SmsPluginMsgCodec::instance()->encodeMsg(&trans_msg, tel_sms_data);
 
@@ -380,7 +375,6 @@ void SmsPluginTransport::submitRequest(sms_request_info_s *pReqInfo)
 			MsgInsertTicker("Unable to send message. It will be sent when service available.", SMS_MESSAGE_SENDING_PENDING, true, 0);
 		else
 			MsgInsertTicker("Sending SMS is failed", SMS_MESSAGE_SENDING_FAIL, true, pReqInfo->msgInfo.msgId);
-
 	}
 
 _RETURN_FUNC :
@@ -429,7 +423,6 @@ void SmsPluginTransport::sendDeliverReport(msg_error_t err, sms_trans_p2p_msg_s 
 				MSG_DEBUG("########  tel_set_sms_memory_status() Success !!! #######");
 			else
 				MSG_DEBUG("########  tel_set_sms_memory_status() Failed !!! return : [%d] #######", tapiRet);
-
 		}
 
 	} else if (err == MSG_ERR_MESSAGE_COUNT_FULL) {
@@ -460,7 +453,6 @@ void SmsPluginTransport::sendDeliverReport(msg_error_t err, sms_trans_p2p_msg_s 
 	} else {
 		cause_code.error_class = SMS_TRANS_ERR_CLASS_TEMPORARY;
 		response = TAPI_NETTEXT_SIM_FULL;
-
 	}
 
 	memcpy(&(trans_msg.data.ack_msg.cause_code), &(cause_code), sizeof(sms_trans_cause_code_s));

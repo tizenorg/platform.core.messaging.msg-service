@@ -58,7 +58,6 @@ SmsPluginEventHandler::SmsPluginEventHandler()
 
 SmsPluginEventHandler::~SmsPluginEventHandler()
 {
-
 }
 
 
@@ -84,7 +83,7 @@ void SmsPluginEventHandler::handleSentStatus(msg_network_status_t NetStatus)
 	if (sentInfo.bLast == true || NetStatus != MSG_NETWORK_SEND_SUCCESS) {
 		/** Update Msg Status */
 		if (sentInfo.reqInfo.msgInfo.msgPort.valid == false) {
-//			SmsPluginStorage::instance()->updateSentMsg(&(sentInfo.reqInfo.msgInfo), NetStatus);
+			/*SmsPluginStorage::instance()->updateSentMsg(&(sentInfo.reqInfo.msgInfo), NetStatus); */
 
 			sentInfo.reqInfo.msgInfo.networkStatus = NetStatus;
 
@@ -93,7 +92,7 @@ void SmsPluginEventHandler::handleSentStatus(msg_network_status_t NetStatus)
 #ifndef MSG_CONTACTS_SERVICE_NOT_SUPPORTED
 				MSG_DEBUG("Add phone log");
 				MsgAddPhoneLog(&(sentInfo.reqInfo.msgInfo));
-#endif //MSG_CONTACTS_SERVICE_NOT_SUPPORTED
+#endif /* MSG_CONTACTS_SERVICE_NOT_SUPPORTED */
 				sentInfo.reqInfo.msgInfo.folderId = MSG_SENTBOX_ID; /* It should be set after adding phone log. */
 			} else {
 				sentInfo.reqInfo.msgInfo.bRead = false;
@@ -128,7 +127,6 @@ void SmsPluginEventHandler::handleSentStatus(msg_network_status_t NetStatus)
 
 void SmsPluginEventHandler::handleMsgIncoming(TapiHandle *handle, SMS_TPDU_S *pTpdu)
 {
-
 	/** Make MSG_MESSAGE_INFO_S */
 	MSG_MESSAGE_INFO_S msgInfo;
 	MSG_MESSAGE_INFO_S stored_msgInfo;
@@ -407,7 +405,7 @@ void SmsPluginEventHandler::handleSyncMLMsgIncoming(msg_syncml_message_type_t ms
 	syncMLData.pushBodyLen = PushBodyLen;
 	memcpy(syncMLData.pushBody, pPushBody, PushBodyLen);
 
-	syncMLData.wspHeaderLen= WspHeaderLen;
+	syncMLData.wspHeaderLen = WspHeaderLen;
 	memcpy(syncMLData.wspHeader, pWspHeader, WspHeaderLen);
 
 	/** Callback to MSG FW */
@@ -486,7 +484,6 @@ msg_error_t SmsPluginEventHandler::callbackStorageChange(msg_storage_change_type
 
 void SmsPluginEventHandler::convertTpduToMsginfo(SMS_TPDU_S *pTpdu, MSG_MESSAGE_INFO_S *msgInfo)
 {
-
 	switch (pTpdu->tpduType) {
 	case SMS_TPDU_SUBMIT :
 		convertSubmitTpduToMsginfo(&pTpdu->data.submit, msgInfo);
@@ -540,11 +537,6 @@ void SmsPluginEventHandler::convertSubmitTpduToMsginfo(const SMS_SUBMIT_S *pTpdu
 	memset(msgInfo->subject, 0x00, MAX_SUBJECT_LEN+1);
 
 	/** What kind of time has to be saved?? (temporary store time) */
-
-//CID 315780 (#1 of 1): Other violation (DC.SECURE_CODING_CRITICAL)
-//dont_call: Calling localtime(time_t const *) is a DC.SECURE_CODING_CRITICAL defect.
-//	time_t curTime;
-//	localtime(&curTime);
 	msgInfo->displayTime = time(NULL);
 
 	/** Convert Address values */
@@ -566,7 +558,7 @@ void SmsPluginEventHandler::convertSubmitTpduToMsginfo(const SMS_SUBMIT_S *pTpdu
 	/** Convert Data values */
 	MsgTextConvert *textCvt = MsgTextConvert::instance();
 	if (pTpdu->dcs.codingScheme == SMS_CHARSET_7BIT) {
-		MSG_LANG_INFO_S langInfo = {0,};
+		MSG_LANG_INFO_S langInfo = {0, };
 
 		langInfo.bSingleShift = false;
 		langInfo.bLockingShift = false;
@@ -594,7 +586,6 @@ void SmsPluginEventHandler::convertDeliverTpduToMsginfo(const SMS_DELIVER_S *pTp
 	/*** Comment below lines to save local UTC time..... (it could be used later.)
 	***/
 		if (pTpdu->timeStamp.format == SMS_TIME_ABSOLUTE) {
-
 			MSG_DEBUG("year : %d", pTpdu->timeStamp.time.absolute.year);
 			MSG_DEBUG("month : %d", pTpdu->timeStamp.time.absolute.month);
 			MSG_DEBUG("day : %d", pTpdu->timeStamp.time.absolute.day);
@@ -798,12 +789,12 @@ void SmsPluginEventHandler::convertDeliverTpduToMsginfo(const SMS_DELIVER_S *pTp
 	/** Convert Data values */
 	MsgTextConvert *textCvt = MsgTextConvert::instance();
 	if (pTpdu->dcs.codingScheme == SMS_CHARSET_7BIT) {
-		MSG_LANG_INFO_S langInfo = {0,};
+		MSG_LANG_INFO_S langInfo = {0, };
 
 		langInfo.bSingleShift = false;
 		langInfo.bLockingShift = false;
 
-		for (int i = 0; i < pTpdu->userData.headerCnt; i++) 	{
+		for (int i = 0; i < pTpdu->userData.headerCnt; i++) {
 			if (pTpdu->userData.header[i].udhType == SMS_UDH_SINGLE_SHIFT) {
 				langInfo.bSingleShift = true;
 				langInfo.singleLang = pTpdu->userData.header[i].udh.singleShift.langId;
@@ -969,7 +960,6 @@ MSG_SUB_TYPE_T SmsPluginEventHandler::convertMsgSubType(SMS_PID_T pid)
 	default :
 		return MSG_NORMAL_SMS;
 	}
-
 }
 
 

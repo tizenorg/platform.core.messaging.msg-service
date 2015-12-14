@@ -29,25 +29,25 @@ using namespace std;
 /*==================================================================================================
                                          DEFINES
 ==================================================================================================*/
-#define THROW(errCode, debugFmt,...) \
+#define THROW(errCode, debugFmt, ...) \
 do {\
 	char __debugBuf[256];\
 	snprintf(__debugBuf, 256, debugFmt, ##__VA_ARGS__);\
 	MsgException e(errCode, __debugBuf);\
 	MSG_FATAL("%s [%d]", e.what(), e.errorCode());\
     throw e; \
-} while(0)
+} while (0)
 
 
 /*==================================================================================================
                                      CLASS DEFINITIONS
 ==================================================================================================*/
-class MsgException : public runtime_error //public exception
+class MsgException : public runtime_error /* public exception */
 {
 public:
 	MsgException(int errCode, const string& msg = "")
-	    : runtime_error( errorStrings[errCode] + " : " +  msg), eCode(errCode)
-	{}
+	    : runtime_error(errorStrings[errCode] + " : " +  msg), eCode(errCode) {
+	}
 
 	enum
 	{
@@ -70,7 +70,7 @@ public:
 		SERVER_READY_ERROR = 13,
 
 		REQ_EXIST_ERROR,
-		// dont erase NUM_ERRORS. place a new error code in ahead of NUM_ERRORS
+		/* dont erase NUM_ERRORS. place a new error code in ahead of NUM_ERRORS */
 		NUM_ERRORS
 	};
 
@@ -81,6 +81,6 @@ private:
 	int eCode;
 };
 
-#endif //#ifndef __MSG_EXCEPTION_H__
+#endif /* __MSG_EXCEPTION_H__ */
 
 

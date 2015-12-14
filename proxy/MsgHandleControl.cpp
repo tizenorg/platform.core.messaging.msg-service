@@ -39,7 +39,6 @@ MsgHandle::MsgHandle() : mCounter(0), mClientSock()
 
 MsgHandle::~MsgHandle()
 {
-
 }
 
 
@@ -81,7 +80,7 @@ void MsgHandle::closeHandle(MsgHandle* pHandle)
 	if (MsgCloseContactSvc() != MSG_SUCCESS) {
 		MSG_WARN("Fail to close contact service.");
 	}
-#endif // MSG_CONTACTS_SERVICE_NOT_SUPPORTED
+#endif /* MSG_CONTACTS_SERVICE_NOT_SUPPORTED */
 	removeDbHandle(); /* unregister db handler */
 
 	MSG_END();
@@ -157,7 +156,7 @@ void MsgHandle::convertMsgStruct(const MSG_MESSAGE_HIDDEN_S *pSrc, MSG_MESSAGE_I
 	pDest->folderId = pSrc->folderId;
 	pDest->msgType.mainType = pSrc->mainType;
 	pDest->msgType.subType = pSrc->subType;
-	pDest->msgType.classType= pSrc->classType;
+	pDest->msgType.classType = pSrc->classType;
 	pDest->storageId = pSrc->storageId;
 
 	if (g_list_length(pSrc->addressList) > 0) {
@@ -169,7 +168,7 @@ void MsgHandle::convertMsgStruct(const MSG_MESSAGE_HIDDEN_S *pSrc, MSG_MESSAGE_I
 		memset(pDest->addressList, 0x00, sizeof(MSG_ADDRESS_INFO_S) * pDest->nAddressCnt);
 
 		for (int i = 0; i < pDest->nAddressCnt; i++) {
-			addr_info = (msg_struct_s *)g_list_nth_data(pSrc->addressList,(guint)i);
+			addr_info = (msg_struct_s *)g_list_nth_data(pSrc->addressList, (guint)i);
 			address = (MSG_ADDRESS_INFO_S *)addr_info->data;
 
 			pDest->addressList[i].addressType = address->addressType;
@@ -179,7 +178,6 @@ void MsgHandle::convertMsgStruct(const MSG_MESSAGE_HIDDEN_S *pSrc, MSG_MESSAGE_I
 			strncpy(pDest->addressList[i].displayName, address->displayName, MAX_DISPLAY_NAME_LEN);
 		}
 	} else {
-
 		msg_struct_list_s *addr_info_s = pSrc->addr_list;
 
 		if (addr_info_s && (addr_info_s->nCount > 0)) {
@@ -269,7 +267,6 @@ void MsgHandle::convertMsgStruct(const MSG_MESSAGE_HIDDEN_S *pSrc, MSG_MESSAGE_I
 
 		MSG_SEC_DEBUG("msgText = %s", pDest->msgText);
 	} else if (pSrc->mainType == MSG_MMS_TYPE) {
-
 		pDest->bTextSms = false;
 		pDest->dataSize = pSrc->dataSize;
 
@@ -292,7 +289,7 @@ void MsgHandle::convertMsgStruct(const MSG_MESSAGE_HIDDEN_S *pSrc, MSG_MESSAGE_I
 			/* change file extension in case of java MMS msg */
 			if (pSrc->subType == MSG_SENDREQ_JAVA_MMS) {
 				char* pFileNameExt = NULL;
-				pFileNameExt = strstr(fileName,"DATA");
+				pFileNameExt = strstr(fileName, "DATA");
 				if (pFileNameExt)
 					snprintf(pFileNameExt, strlen("JAVA")+1, "JAVA");
 			}

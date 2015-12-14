@@ -30,7 +30,6 @@
 class SmsPluginParamCodec
 {
 public:
-
 	static SmsPluginParamCodec* instance();
 
 	static int convertDigitToBcd(char *pDigit, int DigitLen, unsigned char *pBcd);

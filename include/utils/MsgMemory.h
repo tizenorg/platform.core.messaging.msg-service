@@ -32,8 +32,8 @@
 #define GETSP() ({ unsigned int sp; asm volatile ("mov %0,sp " : "=r"(sp) ); sp;})
 #define BUF_SIZE				256
 #define PAGE_SIZE       		(1 << 12)
-#define _ALIGN_UP(addr,size)    (((addr)+((size)-1))&(~((size)-1)))
-#define _ALIGN_DOWN(addr,size)  ((addr)&(~((size)-1)))
+#define _ALIGN_UP(addr, size)    (((addr)+((size)-1))&(~((size)-1)))
+#define _ALIGN_DOWN(addr, size)  ((addr)&(~((size)-1)))
 #define PAGE_ALIGN(addr)        _ALIGN_DOWN(addr, PAGE_SIZE)
 
 
@@ -51,10 +51,10 @@ stack_trim(void)
 
 	sp = GETSP();
 
-	snprintf(buf, BUF_SIZE, "/proc/%d/maps",getpid());
-	file = fopen(buf,"r");
-	while(fgets(buf, BUF_SIZE, file) != NULL) {
-		if(strstr(buf, "[stack]")){
+	snprintf(buf, BUF_SIZE, "/proc/%d/maps", getpid());
+	file = fopen(buf, "r");
+	while (fgets(buf, BUF_SIZE, file) != NULL) {
+		if (strstr(buf, "[stack]")) {
 			found = 1;
 			break;
 		}
@@ -62,7 +62,7 @@ stack_trim(void)
 	fclose(file);
 
 	if(found) {
-		sscanf(buf,"%x-",&stacktop);
+		sscanf(buf, "%x-", &stacktop);
 		if(madvise((void*)PAGE_ALIGN(stacktop), PAGE_ALIGN(sp)-stacktop, MADV_DONTNEED) < 0)
 			perror("stack madvise fail");
 	}
@@ -72,5 +72,5 @@ stack_trim(void)
 void MsgReleaseMemory();
 
 
-#endif // __MSG_MEMORY_H__
+#endif /* __MSG_MEMORY_H__ */
 

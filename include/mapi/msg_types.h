@@ -1207,7 +1207,7 @@ enum _MSG_ERROR_E {
 	MSG_ERR_INVALID_STORAGE_ID = -4,        /**< Storage ID is invalid */
 	MSG_ERR_INVALID_MSG_TYPE = -5,          /**< Message type is invalid */
 
-	MSG_ERR_INVALID_STORAGE_REG= -6,        /**< Storage registry is invalid */
+	MSG_ERR_INVALID_STORAGE_REG = -6,       /**< Storage registry is invalid */
 	MSG_ERR_INVALID_MESSAGE_ID = -7,        /**< Message ID is invalid */
 	MSG_ERR_INVALID_MSGHANDLE = -8,         /**< Message handle is invalid */
 	MSG_ERR_INVALID_PARAMETER = -9,         /**< Parameter is invalid */
@@ -1241,13 +1241,13 @@ enum _MSG_ERROR_E {
 
 	MSG_ERR_DB_PREPARE = -31,               /**< DB prepare query error*/
 	MSG_ERR_DB_STEP = -32,                  /**< DB step query error*/
-	MSG_ERR_DB_NORECORD= -33,               /**< DB no-record error*/
+	MSG_ERR_DB_NORECORD = -33,              /**< DB no-record error*/
 	MSG_ERR_DB_STORAGE_INIT = -34,          /**< DB storage init error*/
 	MSG_ERR_DB_MAKE_DIR = -35,              /**< mkdir error*/
 
 	MSG_ERR_DB_ROW = -36,                   /**< DB step() has another row ready */
 	MSG_ERR_DB_DONE = -37,                  /**< DB step() has finished executing */
-	MSG_ERR_DB_GENERIC= -38,                /**< Generic DB error*/
+	MSG_ERR_DB_GENERIC = -38,               /**< Generic DB error*/
 	MSG_ERR_DB_END = -39,                   /**< DB end error*/
 	/* End Database Errors */
 
@@ -1689,7 +1689,6 @@ typedef enum	_MimeType {
 
 	MIME_TYPE_VALUE_MAX                                 = 0x7207, /**< Indicates the maximum MIME type  */
 	MIME_UNKNOWN                                        = 0xffff  /**< Indicates the unknown MIME type  */
-
 } MimeType;
 
 /**
@@ -1740,7 +1739,7 @@ typedef enum {
 	MMS_SMIL_TRANS_IRISWIPE = 7,     /**< Indicates the iris wipe transition */
  	MMS_SMIL_TRANS_BOXWIPE = 8,      /**< Indicates the box wipe transition */
 	MMS_SMIL_TRANS_FOURBOXWIPE = 9,  /**< Indicates the four box wipe transition */
-	MMS_SMIL_TRANS_PUSHWIPE  =10,    /**< Indicates the push wipe transition */
+	MMS_SMIL_TRANS_PUSHWIPE  = 10,   /**< Indicates the push wipe transition */
 	MMS_SMIL_TRANS_ELLIPSEWIPE  = 11 /**< Indicates the ellipse wipe transition */
 }MmsSmilTransType;
 

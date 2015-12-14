@@ -28,15 +28,11 @@ SmsPluginParamCodec* SmsPluginParamCodec::pInstance = NULL;
 
 SmsPluginParamCodec::SmsPluginParamCodec()
 {
-
-
 }
 
 
 SmsPluginParamCodec::~SmsPluginParamCodec()
 {
-
-
 }
 
 

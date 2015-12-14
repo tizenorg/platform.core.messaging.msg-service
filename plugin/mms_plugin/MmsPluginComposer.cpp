@@ -51,14 +51,12 @@ MmsPluginComposer *MmsPluginComposer::instance()
 	return MmsPluginComposer::pInstance;
 }
 
-MmsPluginComposer::MmsPluginComposer(){}
-MmsPluginComposer::~MmsPluginComposer(){}
+MmsPluginComposer::MmsPluginComposer() {}
+MmsPluginComposer::~MmsPluginComposer() {}
 
 void MmsPluginComposer::composeSendReq(MSG_MESSAGE_INFO_S *pMsgInfo, MSG_SENDINGOPT_INFO_S *pSendOptInfo, MMS_DATA_S *pMmsData)
 {
-
 	if (pMsgInfo->msgType.subType == MSG_SENDREQ_MMS) {
-
 		if (pMmsData->header == NULL) { /* send req from user */
 			pMmsData->header = MsgMmsCreateHeader();
 		}
@@ -71,7 +69,6 @@ void MmsPluginComposer::composeSendReq(MSG_MESSAGE_INFO_S *pMsgInfo, MSG_SENDING
 		int len = g_list_length(pMmsData->multipartlist);
 
 		for (int i = 0; i < len; i++) {
-
 			MMS_MULTIPART_DATA_S *multipart = (MMS_MULTIPART_DATA_S *)g_list_nth_data(pMmsData->multipartlist, i);
 
 			if (multipart) {
@@ -102,14 +99,12 @@ MMSList *getAddressList(const MSG_MESSAGE_INFO_S *pMsgInfo, int recipientType)
 
 	/* Calculate allocated buffer size */
 	for (int i = 0; i < nAddressCnt; ++i) {
-
 		MSG_SEC_DEBUG("recipientType: %d, address value: %s", pMsgInfo->addressList[i].recipientType, pMsgInfo->addressList[i].addressVal);
 
 		if (pMsgInfo->addressList[i].recipientType == MSG_RECIPIENTS_TYPE_UNKNOWN)
 			pMsgInfo->addressList[i].recipientType = MSG_RECIPIENTS_TYPE_TO;
 
 		if (pMsgInfo->addressList[i].recipientType == recipientType) {
-
 			MMS_ADDRESS_DATA_S * pAddressData = NULL;
 			if (pMsgInfo->addressList[i].addressType == MSG_ADDRESS_TYPE_PLMN) {
 				pAddressData = MsgMmsCreateAddress(MSG_ADDRESS_TYPE_PLMN, pMsgInfo->addressList[i].addressVal);

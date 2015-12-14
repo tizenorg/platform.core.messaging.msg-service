@@ -332,7 +332,9 @@ typedef struct
 {
 	MSG_MMS_HOME_RETRIEVE_TYPE_T		homeNetwork;	/**< Indicates the retrieve type for MMS home network. */
 	MSG_MMS_ABROAD_RETRIEVE_TYPE_T	abroadNetwok;	/**< Indicates the retrieve type for MMS abroad network. */
-//	MSG_MMS_SEND_READ_REPORT_T		readReceipt;	/**< Indicates whether the read report will be sent or not. */
+#if 0
+	MSG_MMS_SEND_READ_REPORT_T		readReceipt;	/**< Indicates whether the read report will be sent or not. */
+#endif
 	bool				readReceipt;					/**< Indicates whether the read report will be sent or not. */
 	bool				bDeliveryReceipt;			/**< Indicates whether the delivery report will be sent or not. */
 	bool				bRejectUnknown;			/**< Indicates whether unknown addresses are rejected or not. */
@@ -423,8 +425,7 @@ typedef struct
 {
 	MSG_OPTION_TYPE_T	type;		/**< The option type in a setting */
 
-	union
-	{
+	union {
 		MSG_GENERAL_OPT_S		generalOpt;		/**< General option */
 		MSG_SMS_SENDOPT_S		smsSendOpt;		/**< SMS send option */
 		MSG_SMSC_LIST_S			smscList;			/**< SMSC list option */
@@ -443,5 +444,5 @@ typedef struct
  *	@}
  */
 
-#endif // MSG_SETTING_TYPES_H
+#endif /* MSG_SETTING_TYPES_H */
 

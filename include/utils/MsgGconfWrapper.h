@@ -17,7 +17,7 @@
 #ifndef MSG_GCONF_WRAPPER_H
 #define MSG_GCONF_WRAPPER_H
 
-//#define USE_GCONF
+/* #define USE_GCONF */
 /*==================================================================================================
                                          INCLUDE FILES
 ==================================================================================================*/
@@ -63,4 +63,4 @@ bool	MsgSettingGetUnknownAutoReject();
 void MsgSettingRegVconfCBCommon(const char *pKey, _vconf_change_cb pCb);
 void MsgSettingRemoveVconfCBCommon(const char *pKey, _vconf_change_cb pCb);
 
-#endif // MSG_GCONF_WRAPPER_H
+#endif /* MSG_GCONF_WRAPPER_H */

@@ -328,7 +328,6 @@ MMS_MEDIA_S *_MsgMmsGetMedia(MMS_PAGE_S *pPage, int mediaIdx)
 		media = (MMS_MEDIA_S *)g_list_nth_data(pPage->medialist, mediaIdx);
 
 	return media;
-
 }
 
 int _MsgMmsGetTransitionCount(MMS_MESSAGE_DATA_S *pMsgData)
@@ -410,50 +409,48 @@ char* _MsgMmsSerializeMessageData(const MMS_MESSAGE_DATA_S *pMsgData, unsigned i
 	int pageCnt = 0;
 	char *buf = NULL;
 
-	bufsize += sizeof(int);	// Page cnt
+	bufsize += sizeof(int);	/* Page cnt */
 
 	pageCnt = pMsgData->pageCnt;
 
 	if (pMsgData->pagelist) {
-
 		for (int pageIdx = 0; pageIdx < pageCnt; pageIdx++) {
-
 			int mediaCnt = 0;
 
 			MMS_PAGE_S *page = (MMS_PAGE_S *)g_list_nth_data(pMsgData->pagelist, pageIdx);
 
 			mediaCnt = page->mediaCnt;
 
-			bufsize += sizeof(int);	// Media cnt
+			bufsize += sizeof(int);	/* Media cnt */
 
 			if (page->medialist) {
 				bufsize += sizeof(MMS_MEDIA_S) * mediaCnt;
 			}
 
-			bufsize += sizeof(int) * 6;//Dur, Begin, End, Min, Max, Repeat
+			bufsize += sizeof(int) * 6; /* Dur, Begin, End, Min, Max, Repeat */
 		}
 	}
 
-	bufsize += sizeof(int); // region count;
+	bufsize += sizeof(int); /* region count; */
 
 	if (pMsgData->regionlist) {
 		int elementSize = g_list_length(pMsgData->regionlist);
 		bufsize += elementSize * (sizeof(MMS_SMIL_REGION));
 	}
 
-	bufsize += sizeof(int); // attachment count;
+	bufsize += sizeof(int); /* attachment count; */
 	if (pMsgData->attachlist) {
 		int elementSize = g_list_length(pMsgData->attachlist);
 		bufsize += elementSize * sizeof(MMS_ATTACH_S);
 	}
 
-	bufsize += sizeof(int); // transition count;
+	bufsize += sizeof(int); /* transition count; */
 	if (pMsgData->transitionlist) {
 		int elementSize = g_list_length(pMsgData->transitionlist);
 		bufsize += elementSize * sizeof(MMS_SMIL_TRANSITION);
 	}
 
-	bufsize += sizeof(int); // meta count;
+	bufsize += sizeof(int); /* meta count; */
 	if (pMsgData->metalist) {
 		int elementSize = g_list_length(pMsgData->metalist);
 		bufsize += elementSize * sizeof(MMS_SMIL_META);
@@ -469,7 +466,7 @@ char* _MsgMmsSerializeMessageData(const MMS_MESSAGE_DATA_S *pMsgData, unsigned i
 
 	bufsize += sizeof(int) + filePathLen;
 
-	bufsize += sizeof(int);	// type
+	bufsize += sizeof(int);	/* type */
 	bufsize += sizeof(MMS_HEADER_DATA_S);
 	bufsize += sizeof(MMS_MULTIPART_DATA_S);
 
@@ -483,14 +480,14 @@ char* _MsgMmsSerializeMessageData(const MMS_MESSAGE_DATA_S *pMsgData, unsigned i
 	int serial_index = 0;
 
 	memcpy(buf, &pMsgData->backup_type, sizeof(int));
-	MSG_DEBUG("[#%2d][%5d] backup type = %d",serial_index++, offset, pMsgData->backup_type);
+	MSG_DEBUG("[#%2d][%5d] backup type = %d", serial_index++, offset, pMsgData->backup_type);
 	offset += sizeof(int);
 
-	//smilFilePath
+	/* smilFilePath */
 	memcpy(buf + offset , &filePathLen, sizeof(int));
 
-	// copy file path
-	MSG_SEC_DEBUG("[#%2d][%5d] smilFilePath = %s, len = %d",serial_index++, offset, pMsgData->szSmilFilePath, filePathLen);
+	/* copy file path */
+	MSG_SEC_DEBUG("[#%2d][%5d] smilFilePath = %s, len = %d", serial_index++, offset, pMsgData->szSmilFilePath, filePathLen);
 	offset += sizeof(int);
 
 	if (filePathLen > 0) {
@@ -498,22 +495,21 @@ char* _MsgMmsSerializeMessageData(const MMS_MESSAGE_DATA_S *pMsgData, unsigned i
 		offset += filePathLen;
 	}
 
-	// copy page count
-	MSG_DEBUG("[#%2d][%5d] page count = %d",serial_index++, offset, pMsgData->pageCnt);
+	/* copy page count */
+	MSG_DEBUG("[#%2d][%5d] page count = %d", serial_index++, offset, pMsgData->pageCnt);
 	memcpy(buf + offset, &(pMsgData->pageCnt), sizeof(int));
 	offset += sizeof(int);
 
 	if (pMsgData->pagelist) {
-
 		for (int pageIdx = 0; pageIdx < pageCnt; pageIdx++) {
 			MMS_PAGE_S *page = (MMS_PAGE_S *)g_list_nth_data(pMsgData->pagelist, pageIdx);
 
-			MSG_DEBUG("[#%2d][%5d][%d page] media count = %d",serial_index++, offset, pageIdx, page->mediaCnt);
+			MSG_DEBUG("[#%2d][%5d][%d page] media count = %d", serial_index++, offset, pageIdx, page->mediaCnt);
 			memcpy(buf + offset, &page->mediaCnt, sizeof(int));
 			offset += sizeof(int);
 
 			if (page->medialist) {
-				for (int i = 0; i < page->mediaCnt; ++ i) {
+				for (int i = 0; i < page->mediaCnt; ++i) {
 					MMS_MEDIA_S *media = (MMS_MEDIA_S *)g_list_nth_data(page->medialist, i);
 					memcpy(buf + offset, media, sizeof(MMS_MEDIA_S));
 					offset += sizeof(MMS_MEDIA_S);
@@ -536,26 +532,26 @@ char* _MsgMmsSerializeMessageData(const MMS_MESSAGE_DATA_S *pMsgData, unsigned i
 		}
 	}
 
-	MSG_DEBUG("[#%2d][%5d] region count = %d",serial_index++, offset, pMsgData->regionCnt);
+	MSG_DEBUG("[#%2d][%5d] region count = %d", serial_index++, offset, pMsgData->regionCnt);
 
 	memcpy(buf + offset, &pMsgData->regionCnt, sizeof(int));
 	offset += sizeof(int);
 
 	if (pMsgData->regionlist) {
-		for (int i = 0; i < pMsgData->regionCnt; ++ i) {
+		for (int i = 0; i < pMsgData->regionCnt; ++i) {
 			MMS_SMIL_REGION *region = (MMS_SMIL_REGION *)g_list_nth_data(pMsgData->regionlist, i);
 			memcpy(buf + offset, region, sizeof(MMS_SMIL_REGION));
 			offset += sizeof(MMS_SMIL_REGION);
 		}
 	}
 
-	MSG_DEBUG("[#%2d][%5d] attach count = %d",serial_index++, offset, pMsgData->attachCnt);
+	MSG_DEBUG("[#%2d][%5d] attach count = %d", serial_index++, offset, pMsgData->attachCnt);
 
 	memcpy(buf + offset, &pMsgData->attachCnt, sizeof(int));
 	offset += sizeof(int);
 
 	if (pMsgData->attachlist) {
-		for (int i = 0; i < pMsgData->attachCnt; ++ i) {
+		for (int i = 0; i < pMsgData->attachCnt; ++i) {
 			MMS_ATTACH_S *attach = (MMS_ATTACH_S *)g_list_nth_data(pMsgData->attachlist, i);
 			memcpy(buf + offset, attach, sizeof(MMS_ATTACH_S));
 			offset += sizeof(MMS_ATTACH_S);
@@ -563,24 +559,24 @@ char* _MsgMmsSerializeMessageData(const MMS_MESSAGE_DATA_S *pMsgData, unsigned i
 		}
 	}
 
-	MSG_DEBUG("[#%2d][%5d] transition count = %d",serial_index++, offset, pMsgData->transitionCnt);
+	MSG_DEBUG("[#%2d][%5d] transition count = %d", serial_index++, offset, pMsgData->transitionCnt);
 
 	memcpy(buf + offset, &pMsgData->transitionCnt, sizeof(int));
 	offset += sizeof(int);
 	if (pMsgData->transitionlist) {
-		for (int i = 0; i < pMsgData->transitionCnt; ++ i) {
+		for (int i = 0; i < pMsgData->transitionCnt; ++i) {
 			MMS_SMIL_TRANSITION *transition = (MMS_SMIL_TRANSITION *)g_list_nth_data(pMsgData->transitionlist, i);
 			memcpy(buf + offset, transition, sizeof(MMS_SMIL_TRANSITION));
 			offset += sizeof(MMS_SMIL_TRANSITION);
 		}
 	}
 
-	MSG_DEBUG("[#%2d][%5d] meta count = %d",serial_index++, offset, pMsgData->metaCnt);
+	MSG_DEBUG("[#%2d][%5d] meta count = %d", serial_index++, offset, pMsgData->metaCnt);
 	memcpy(buf + offset, &pMsgData->metaCnt, sizeof(int));
 	offset += sizeof(int);
 
 	if (pMsgData->metalist) {
-		for (int i = 0; i < pMsgData->metaCnt; ++ i) {
+		for (int i = 0; i < pMsgData->metaCnt; ++i) {
 			MMS_SMIL_META *meta = (MMS_SMIL_META *)g_list_nth_data(pMsgData->metalist, i);
 
 			memcpy(buf + offset, meta, sizeof(MMS_SMIL_META));
@@ -588,22 +584,22 @@ char* _MsgMmsSerializeMessageData(const MMS_MESSAGE_DATA_S *pMsgData, unsigned i
 		}
 	}
 
-	MSG_DEBUG("[#%2d][%5d] root layout",serial_index++, offset);
+	MSG_DEBUG("[#%2d][%5d] root layout", serial_index++, offset);
 	memcpy(buf + offset, &pMsgData->rootlayout, sizeof(MMS_SMIL_ROOTLAYOUT));
 	offset += sizeof(MMS_SMIL_ROOTLAYOUT);
 
 #ifdef FEATURE_JAVA_MMS
-	MSG_DEBUG("[#%2d][%5d] java mms",serial_index++, offset);
+	MSG_DEBUG("[#%2d][%5d] java mms", serial_index++, offset);
 	memcpy(buf + offset, &pMsgData->msgAppId, sizeof(MMS_APPID_INFO_S));
 	offset += sizeof(MMS_APPID_INFO_S);
 #endif
 
 	memcpy (buf + offset, &pMsgData->header, sizeof(MMS_HEADER_DATA_S));
-	MSG_DEBUG("[#%2d][%5d] mms header",serial_index++, offset);
+	MSG_DEBUG("[#%2d][%5d] mms header", serial_index++, offset);
 	offset += sizeof(MMS_HEADER_DATA_S);
 
 	memcpy (buf + offset, &pMsgData->smil, sizeof(MMS_MULTIPART_DATA_S));
-	MSG_DEBUG("[#%2d][%5d] mms smil",serial_index++, offset);
+	MSG_DEBUG("[#%2d][%5d] mms smil", serial_index++, offset);
 	offset += sizeof(MMS_MULTIPART_DATA_S);
 
 	*pSize = offset;
@@ -638,13 +634,13 @@ bool _MsgMmsDeserializeMessageData(MMS_MESSAGE_DATA_S *pMsgData, const char *pDa
 	int type;
 
 	memcpy(&type, pData, sizeof(int));
-	MSG_DEBUG("[#%2d][%5d] backup type = %d",serial_index++, offset, type);
+	MSG_DEBUG("[#%2d][%5d] backup type = %d", serial_index++, offset, type);
 	offset += sizeof(int);
 
 	pMsgData->backup_type = type;
 
 	memcpy(&filePathLen, pData + offset, sizeof(int));
-	MSG_DEBUG("[#%2d][%5d] smil path len = %d",serial_index, offset, filePathLen);
+	MSG_DEBUG("[#%2d][%5d] smil path len = %d", serial_index, offset, filePathLen);
 	offset += sizeof(int);
 
 	if (filePathLen > MSG_FILEPATH_LEN_MAX) {
@@ -656,14 +652,14 @@ bool _MsgMmsDeserializeMessageData(MMS_MESSAGE_DATA_S *pMsgData, const char *pDa
 
 	if (filePathLen > 0) {
 		memcpy(pMsgData->szSmilFilePath, pData + offset, filePathLen);
-		MSG_DEBUG("[#%2d][%5d] smil path = %s",serial_index, offset, pMsgData->szSmilFilePath);
+		MSG_DEBUG("[#%2d][%5d] smil path = %s", serial_index, offset, pMsgData->szSmilFilePath);
 		offset += filePathLen;
 	}
 
 	serial_index++;
 
 	memcpy(&(pMsgData->pageCnt), pData + offset, sizeof(int));
-	MSG_DEBUG("[#%2d][%5d] page count = %d",serial_index++, offset, pMsgData->pageCnt);
+	MSG_DEBUG("[#%2d][%5d] page count = %d", serial_index++, offset, pMsgData->pageCnt);
 	offset += sizeof(int);
 
 	pageCnt = pMsgData->pageCnt;
@@ -713,23 +709,24 @@ bool _MsgMmsDeserializeMessageData(MMS_MESSAGE_DATA_S *pMsgData, const char *pDa
 		offset += sizeof(int);
 
 		pMsgData->pagelist = g_list_append(pMsgData->pagelist, pPage);
-//		if (pPage->medialist) {
-//			pMsgData->pagelist = g_list_append(pMsgData->pagelist, pPage);
-//		} else {
-//			free(pPage);
-//			pPage = NULL;
-//		}
-
+#if 0
+		if (pPage->medialist) {
+			pMsgData->pagelist = g_list_append(pMsgData->pagelist, pPage);
+		} else {
+			free(pPage);
+			pPage = NULL;
+		}
+#endif
 	}
 
 	pMsgData->pageCnt = g_list_length(pMsgData->pagelist);
 
-	//Processing Region List
+	/* Processing Region List */
 	memcpy(&pMsgData->regionCnt, pData + offset, sizeof(int));
-	MSG_DEBUG("[#%2d][%5d] region count = %d",serial_index++, offset, pMsgData->regionCnt);
+	MSG_DEBUG("[#%2d][%5d] region count = %d", serial_index++, offset, pMsgData->regionCnt);
 	offset += sizeof(int);
 
-	//MSG_DEBUG(" pBody->regionCnt: %d", pBody->regionCnt);
+	/* MSG_DEBUG(" pBody->regionCnt: %d", pBody->regionCnt); */
 
 	for (int i = 0; i < pMsgData->regionCnt; ++i) {
 		pRegion = (MMS_SMIL_REGION *)calloc(sizeof(MMS_SMIL_REGION), 1);
@@ -742,9 +739,9 @@ bool _MsgMmsDeserializeMessageData(MMS_MESSAGE_DATA_S *pMsgData, const char *pDa
 		pMsgData->regionlist = g_list_append(pMsgData->regionlist, pRegion);
 	}
 
-	//Processing Attachment List
+	/* Processing Attachment List */
 	memcpy(&pMsgData->attachCnt, pData + offset, sizeof(int));
-	MSG_DEBUG("[#%2d][%5d] attach count = %d",serial_index++, offset, pMsgData->attachCnt);
+	MSG_DEBUG("[#%2d][%5d] attach count = %d", serial_index++, offset, pMsgData->attachCnt);
 	offset += sizeof(int);
 
 	for (int i = 0; i < pMsgData->attachCnt; ++i) {
@@ -766,9 +763,9 @@ bool _MsgMmsDeserializeMessageData(MMS_MESSAGE_DATA_S *pMsgData, const char *pDa
 
 	pMsgData->attachCnt = g_list_length(pMsgData->attachlist);
 
-	//Processing Transition List
+	/* Processing Transition List */
 	memcpy(&pMsgData->transitionCnt, pData + offset, sizeof(int));
-	MSG_DEBUG("[#%2d][%5d] transition count = %d",serial_index++, offset, pMsgData->transitionCnt);
+	MSG_DEBUG("[#%2d][%5d] transition count = %d", serial_index++, offset, pMsgData->transitionCnt);
 	offset += sizeof(int);
 
 	for (int i = 0; i < pMsgData->transitionCnt; ++i) {
@@ -782,9 +779,9 @@ bool _MsgMmsDeserializeMessageData(MMS_MESSAGE_DATA_S *pMsgData, const char *pDa
 		pMsgData->transitionlist = g_list_append(pMsgData->transitionlist, pTransition);
 	}
 
-	//Processing Meta List
+	/* Processing Meta List */
 	memcpy(&pMsgData->metaCnt, pData + offset, sizeof(int));
-	MSG_DEBUG("[#%2d][%5d] meta count = %d",serial_index++, offset, pMsgData->metaCnt);
+	MSG_DEBUG("[#%2d][%5d] meta count = %d", serial_index++, offset, pMsgData->metaCnt);
 	offset += sizeof(int);
 
 	for (int i = 0; i < pMsgData->metaCnt; ++i) {
@@ -798,23 +795,23 @@ bool _MsgMmsDeserializeMessageData(MMS_MESSAGE_DATA_S *pMsgData, const char *pDa
 		pMsgData->metalist = g_list_append(pMsgData->metalist, pMeta);
 	}
 
-	MSG_DEBUG("[#%2d][%5d] root layout",serial_index++, offset);
+	MSG_DEBUG("[#%2d][%5d] root layout", serial_index++, offset);
 	memcpy(&pMsgData->rootlayout, pData + offset, sizeof(MMS_SMIL_ROOTLAYOUT));
 	offset += sizeof(MMS_SMIL_ROOTLAYOUT);
 
 #ifdef FEATURE_JAVA_MMS
-	MSG_DEBUG("[#%2d][%5d] java mms",serial_index++, offset);
+	MSG_DEBUG("[#%2d][%5d] java mms", serial_index++, offset);
 	memcpy(&pMsgData->msgAppId, pData + offset, sizeof(MMS_APPID_INFO_S));
 	offset += sizeof(MMS_APPID_INFO_S);
-//	MSG_DEBUG("java_app_id valid:%d, appId:%s repleToAppId:%s", pBody->msgAppId.valid, pBody->msgAppId.appId, pBody->msgAppId.replyToAppId);
+/*	MSG_DEBUG("java_app_id valid:%d, appId:%s repleToAppId:%s", pBody->msgAppId.valid, pBody->msgAppId.appId, pBody->msgAppId.replyToAppId); */
 #endif
 
 	memcpy(&pMsgData->header, pData + offset, sizeof(MMS_HEADER_DATA_S));
-	MSG_DEBUG("[#%2d][%5d] mms header",serial_index++, offset);
+	MSG_DEBUG("[#%2d][%5d] mms header", serial_index++, offset);
 	offset += sizeof(MMS_HEADER_DATA_S);
 
 	memcpy(&pMsgData->smil, pData + offset, sizeof(MMS_MULTIPART_DATA_S));
-	MSG_DEBUG("[#%2d][%5d] mms smil",serial_index++, offset);
+	MSG_DEBUG("[#%2d][%5d] mms smil", serial_index++, offset);
 	offset += sizeof(MMS_MULTIPART_DATA_S);
 
 	MSG_DEBUG("Final offset : %d", offset);
@@ -846,19 +843,19 @@ void _MsgMmsMediaPrint(MMS_MEDIA_S *media)
 	}
 
 	if (media->mediatype == MMS_SMIL_MEDIA_INVALID) {
-		MSG_DEBUG("%-25s : %s", "Media type","MMS_SMIL_MEDIA_INVALID");
+		MSG_DEBUG("%-25s : %s", "Media type", "MMS_SMIL_MEDIA_INVALID");
 	} else if (media->mediatype == MMS_SMIL_MEDIA_IMG) {
-		MSG_DEBUG("%-25s : %s", "Media type","MMS_SMIL_MEDIA_IMG");
+		MSG_DEBUG("%-25s : %s", "Media type", "MMS_SMIL_MEDIA_IMG");
 	} else if (media->mediatype == MMS_SMIL_MEDIA_AUDIO) {
-		MSG_DEBUG("%-25s : %s", "Media type","MMS_SMIL_MEDIA_AUDIO");
+		MSG_DEBUG("%-25s : %s", "Media type", "MMS_SMIL_MEDIA_AUDIO");
 	} else if (media->mediatype == MMS_SMIL_MEDIA_VIDEO) {
-		MSG_DEBUG("%-25s : %s", "Media type","MMS_SMIL_MEDIA_VIDEO");
+		MSG_DEBUG("%-25s : %s", "Media type", "MMS_SMIL_MEDIA_VIDEO");
 	} else if (media->mediatype == MMS_SMIL_MEDIA_TEXT) {
-		MSG_DEBUG("%-25s : %s", "Media type","MMS_SMIL_MEDIA_TEXT");
+		MSG_DEBUG("%-25s : %s", "Media type", "MMS_SMIL_MEDIA_TEXT");
 	} else if (media->mediatype == MMS_SMIL_MEDIA_ANIMATE) {
-		MSG_DEBUG("%-25s : %s", "Media type","MMS_SMIL_MEDIA_ANIMATE");
+		MSG_DEBUG("%-25s : %s", "Media type", "MMS_SMIL_MEDIA_ANIMATE");
 	} else if (media->mediatype == MMS_SMIL_MEDIA_IMG_OR_VIDEO) {
-		MSG_DEBUG("%-25s : %s", "Media type","MMS_SMIL_MEDIA_REF");
+		MSG_DEBUG("%-25s : %s", "Media type", "MMS_SMIL_MEDIA_REF");
 	} else {
 		MSG_DEBUG("%-25s : Unknown [%d]", "Media type", media->mediatype);
 	}
@@ -895,7 +892,6 @@ void _MsgMmsPagePrint(MMS_PAGE_S *page)
 			} else {
 				MSG_DEBUG("Not Exist Media Data in [%d]th", i);
 			}
-
 		}
 	}
 }
@@ -918,7 +914,6 @@ void _MsgMmsPrint(MMS_MESSAGE_DATA_S *pMsgData)
 			} else {
 				MSG_DEBUG("Not Exist Page Data in [%d]th", i);
 			}
-
 		}
 	}
 
@@ -935,7 +930,6 @@ void _MsgMmsPrint(MMS_MESSAGE_DATA_S *pMsgData)
 			}
 		}
 	}
-
 }
 
 MMS_ADDRESS_DATA_S *MsgMmsCreateAddress(int addressType, const char *addressVal)
@@ -1048,73 +1042,75 @@ void MsgMmsInitHeader(MMS_HEADER_DATA_S *pMmsHeaderData)
 
 MMS_HEADER_DATA_S *MsgMmsCreateHeader()
 {
-	MMS_HEADER_DATA_S *pMmsHeaderData = (MMS_HEADER_DATA_S * )calloc(1, sizeof(MMS_HEADER_DATA_S));
+	MMS_HEADER_DATA_S *pMmsHeaderData = (MMS_HEADER_DATA_S *)calloc(1, sizeof(MMS_HEADER_DATA_S));
 	if (pMmsHeaderData) {
-		pMmsHeaderData->bcc = NULL;//	Bcc
-		pMmsHeaderData->cc = NULL;//	Cc
+		pMmsHeaderData->bcc = NULL; /* Bcc */
+		pMmsHeaderData->cc = NULL;  /* Cc */
 		pMmsHeaderData->contentLocation[0] = '\0';
 		pMmsHeaderData->szContentType[0] = '\0';
 		pMmsHeaderData->date = 0;
-		pMmsHeaderData->bDeliveryReport = false; //	X-Mms-Delivery-Report
+		pMmsHeaderData->bDeliveryReport = false; /* X-Mms-Delivery-Report */
 		pMmsHeaderData->delivery.type = MMS_TIMETYPE_NONE;
 		pMmsHeaderData->delivery.time = 0;
 		pMmsHeaderData->expiry.type = MMS_TIMETYPE_NONE;
 		pMmsHeaderData->expiry.time = 0;
-		pMmsHeaderData->szFrom[0] = '\0';//	From
-		pMmsHeaderData->messageClass = -1;//Personal | Advertisement | Informational | Auto
+		pMmsHeaderData->szFrom[0] = '\0'; /* From */
+		pMmsHeaderData->messageClass = -1; /* Personal | Advertisement | Informational | Auto */
 		pMmsHeaderData->messageID[0]= '\0';
-		pMmsHeaderData->messageType = -1;//MmsMsgType : ex) sendreq
-		pMmsHeaderData->mmsVersion = -1;//1.0 1.3
-		pMmsHeaderData->messageSize = 0; //	X-Mms-Message-Size
-		pMmsHeaderData->mmsPriority = -1;//_MSG_PRIORITY_TYPE_E : Low | Normal | High
-		pMmsHeaderData->bReadReport = 0;//	X-Mms-Read-Report
-		//	X-Mms-Report-Allowed
-		//	X-Mms-Response-Status
-		//	X-Mms-Response-Text
-		pMmsHeaderData->bHideAddress = false;//	X-Mms-Sender-Visibility
-		pMmsHeaderData->mmsStatus = MSG_DELIVERY_REPORT_NONE;//	X-Mms-Status
-		pMmsHeaderData->szSubject[0] = '\0';//	Subject
-		pMmsHeaderData->to = NULL;//	To
+		pMmsHeaderData->messageType = -1; /* MmsMsgType : ex) sendreq */
+		pMmsHeaderData->mmsVersion = -1; /* 1.0 1.3 */
+		pMmsHeaderData->messageSize = 0; /* X-Mms-Message-Size */
+		pMmsHeaderData->mmsPriority = -1; /* MSG_PRIORITY_TYPE_E : Low | Normal | High */
+		pMmsHeaderData->bReadReport = 0; /* X-Mms-Read-Report */
+		pMmsHeaderData->bHideAddress = false; /* X-Mms-Sender-Visibility */
+		pMmsHeaderData->mmsStatus = MSG_DELIVERY_REPORT_NONE; /* X-Mms-Status */
+		pMmsHeaderData->szSubject[0] = '\0'; /* Subject */
+		pMmsHeaderData->to = NULL;
 		pMmsHeaderData->trID[0] = '\0';
-		//	X-Mms-Retrieve-Status
-		//	X-Mms-Retrieve-Text
-		//	X-Mms-Read-Status
-		//	X-Mms-Reply-Charging
-		//	X-Mms-Reply-Charging-Deadline
-		//	X-Mms-Reply-Charging-ID
-		//	X-Mms-Reply-Charging-Size
-		//	X-Mms-Previously-Sent-By
-		//	X-Mms-Previously-Sent-Date
-		//	X-Mms-Store
-		//	X-Mms-MM-State
-		//	X-Mms-MM-Flags
-		//	X-Mms-Store-Status
-		//	X-Mms-Store-Status-Text
-		//	X-Mms-Stored
-		//	X-Mms-Attributes
-		//	X-Mms-Totals
-		//	X-Mms-Mbox-Totals
-		//	X-Mms-Quotas
-		//	X-Mms-Mbox-Quotas
-		//	X-Mms-Message-Count
-		//	Content
-		//	X-Mms-Start
-		//	Additional-headers
-		//	X-Mms-Distribution-Indicator
-		//	X-Mms-Element-Descriptor
-		//	X-Mms-Limit
-		//	X-Mms-Recommended-Retrieval-Mode
-		//	X-Mms-Recommended-Retrieval-Mode-Text
-		//	X-Mms-Status-Text
-		//	X-Mms-Applic-ID
-		//	X-Mms-Reply-Applic-ID
-		//	X-Mms-Aux-Applic-Info
-		pMmsHeaderData->contentClass = -1;//text | image-basic| image-rich | video-basic | video-rich | megapixel | content-basic | content-rich
-		//	X-Mms-DRM-Content
-		//	X-Mms-Adaptation-Allowed
-		//	X-Mms-Replace-ID
-		//	X-Mms-Cancel-ID
-		//	X-Mms-Cancel-Status
+		pMmsHeaderData->contentClass = -1;/* text | image-basic| image-rich | video-basic | video-rich | megapixel | content-basic | content-rich */
+#if 0
+		X-Mms-Report-Allowed
+		X-Mms-Response-Status
+		X-Mms-Response-Text
+		X-Mms-Retrieve-Status
+		X-Mms-Retrieve-Text
+		X-Mms-Read-Status
+		X-Mms-Reply-Charging
+		X-Mms-Reply-Charging-Deadline
+		X-Mms-Reply-Charging-ID
+		X-Mms-Reply-Charging-Size
+		X-Mms-Previously-Sent-By
+		X-Mms-Previously-Sent-Date
+		X-Mms-Store
+		X-Mms-MM-State
+		X-Mms-MM-Flags
+		X-Mms-Store-Status
+		X-Mms-Store-Status-Text
+		X-Mms-Stored
+		X-Mms-Attributes
+		X-Mms-Totals
+		X-Mms-Mbox-Totals
+		X-Mms-Quotas
+		X-Mms-Mbox-Quotas
+		X-Mms-Message-Count
+		Content
+		X-Mms-Start
+		Additional-headers
+		X-Mms-Distribution-Indicator
+		X-Mms-Element-Descriptor
+		X-Mms-Limit
+		X-Mms-Recommended-Retrieval-Mode
+		X-Mms-Recommended-Retrieval-Mode-Text
+		X-Mms-Status-Text
+		X-Mms-Applic-ID
+		X-Mms-Reply-Applic-ID
+		X-Mms-Aux-Applic-Info
+		X-Mms-DRM-Content
+		X-Mms-Adaptation-Allowed
+		X-Mms-Replace-ID
+		X-Mms-Cancel-ID
+		X-Mms-Cancel-Status
+#endif
 	}
 
 	return pMmsHeaderData;
@@ -1187,7 +1183,6 @@ static void __freeAddressListItem(gpointer data)
 	MMS_ADDRESS_DATA_S * pAddressData = (MMS_ADDRESS_DATA_S *)data;
 
 	MsgMmsReleaseAddress(&pAddressData);
-
 }
 
 int MsgMmsReleaseAddressList(MMSList **ppAddressList)
@@ -1222,8 +1217,7 @@ static void removeLessGreaterMark(const char *szSrcID, char *szDest, int destSiz
 static bool IsMatchedMedia(MMS_MEDIA_S *media, MMS_MULTIPART_DATA_S *pMultipart)
 {
 	if (strlen(pMultipart->szContentID) > 0) {
-
-		char szTempContentID[MSG_MSG_ID_LEN + 1] = {0,};
+		char szTempContentID[MSG_MSG_ID_LEN + 1] = {0, };
 		removeLessGreaterMark(pMultipart->szContentID, szTempContentID, sizeof(szTempContentID));
 
 		if (strcmp(media->szContentID, szTempContentID) == 0) {
@@ -1262,17 +1256,14 @@ static bool MmsFindAndInsertPart(MMS_MESSAGE_DATA_S *pMsgData, MMS_MULTIPART_DAT
 
 	if (pMsgData->pagelist) {
 		for (int pageIdx = 0; pageIdx < pMsgData->pageCnt; pageIdx++) {
-
 			MMS_PAGE_S *page = (MMS_PAGE_S *)g_list_nth_data(pMsgData->pagelist, pageIdx);
 
 			if (page && page->medialist) {
-
 				for (int mediaIdx = 0; mediaIdx < page->mediaCnt; mediaIdx++) {
-
 					MMS_MEDIA_S *media = (MMS_MEDIA_S *)g_list_nth_data(page->medialist, mediaIdx);
 
-					if (media) { // add media
-						if (IsMatchedMedia(media, pMultipart) == true) { //matched media
+					if (media) { /* add media */
+						if (IsMatchedMedia(media, pMultipart) == true) { /* matched media */
 							insert_media = true;
 							media->drmType = pMultipart->drmType;
 							snprintf(media->szFilePath, sizeof(media->szFilePath), "%s", pMultipart->szFilePath);
@@ -1284,9 +1275,9 @@ static bool MmsFindAndInsertPart(MMS_MESSAGE_DATA_S *pMsgData, MMS_MULTIPART_DAT
 									, pageIdx, mediaIdx, media, media->szFilePath, media->szFileName, media->szContentID, media->szContentLocation, media->szContentType);
 						}
 					}
-				} //end for media list
+				} /* end for media list */
 			}
-		} //end for page list
+		} /* end for page list */
 	}
 
 	return insert_media;
@@ -1383,7 +1374,7 @@ int MsgMmsConvertMmsMessageDataToMmsData(MMS_MESSAGE_DATA_S *pSrc, MMS_DATA_S *p
 		if (pMultipart)
 			memcpy(pMultipart, &pSrc->smil, sizeof(MMS_MULTIPART_DATA_S));
 		pDst->smil = pMultipart;
-	} else if (pageCnt > 0) {	// Multipart related
+	} else if (pageCnt > 0) {	/* Multipart related */
 		MsgSmilGenerateSmilDoc(pSrc, &pRawData);
 		if (pRawData) {
 			MMS_MULTIPART_DATA_S *pMultipart = MsgMmsCreateMultipart();
@@ -1424,7 +1415,7 @@ int MsgMmsConvertMmsMessageDataToMmsData(MMS_MESSAGE_DATA_S *pSrc, MMS_DATA_S *p
 		}
 	}
 
-	//Processing Attachment List
+	/* Processing Attachment List */
 	int attachCnt = _MsgMmsGetAttachCount(pSrc);
 
 	for (int i = 0; i < attachCnt; ++i) {
@@ -1458,8 +1449,7 @@ int MsgMmsGetSmilMultipart(MMSList *pMultipartList, MMS_MULTIPART_DATA_S **smil_
 		MMS_MULTIPART_DATA_S *multipart = (MMS_MULTIPART_DATA_S *)g_list_nth_data(pMultipartList, i);
 
 		if (multipart) {
-
-			if (strcasecmp(multipart->szContentType, smil_content_type) == 0 ) {
+			if (strcasecmp(multipart->szContentType, smil_content_type) == 0) {
 				*smil_multipart = multipart;
 				break;
 			}
@@ -1469,7 +1459,7 @@ int MsgMmsGetSmilMultipart(MMSList *pMultipartList, MMS_MULTIPART_DATA_S **smil_
 	return 0;
 }
 
-//get content from filepath and save to pMultipartData
+/* get content from filepath and save to pMultipartData */
 int MsgMmsSetMultipartData(MMS_MULTIPART_DATA_S *pMultipart)
 {
 	if (pMultipart->pMultipartData != NULL)
@@ -1478,8 +1468,8 @@ int MsgMmsSetMultipartData(MMS_MULTIPART_DATA_S *pMultipart)
 	if (g_file_get_contents((gchar*)pMultipart->szFilePath, (gchar**)&pMultipart->pMultipartData, (gsize*)&pMultipart->nMultipartDataLen, NULL) == false)
 		return -1;
 
-	//Due to Get data for Backup message
-	//memset(pMultipart->szFilePath, 0x00, sizeof(pMultipart->szFilePath));
+	/* Due to Get data for Backup message */
+	/* memset(pMultipart->szFilePath, 0x00, sizeof(pMultipart->szFilePath)); */
 	return 0;
 }
 
@@ -1490,17 +1480,15 @@ int MsgMmsSetMultipartListData(MMS_DATA_S *pMmsData)
 	MMSList *multipart_list = pMmsData->multipartlist;
 
 	if (multipart_list) {
-
 		if (pMmsData->smil) {
 			MsgMmsSetMultipartData(pMmsData->smil);
 		}
 
 		for (int i = 0; i < (int)g_list_length(multipart_list); i++) {
-
 			MMS_MULTIPART_DATA_S *pMultipart = (MMS_MULTIPART_DATA_S *)g_list_nth_data(multipart_list, i);
 
 			if (pMultipart) {
-				MsgMmsSetMultipartData(pMultipart);//app file -> data
+				MsgMmsSetMultipartData(pMultipart);/* app file -> data */
 			}
 		}
 	}
@@ -1509,7 +1497,7 @@ int MsgMmsSetMultipartListData(MMS_DATA_S *pMmsData)
 	return 0;
 }
 
-//pMultipartData set to file path
+/* pMultipartData set to file path */
 int MsgMmsSetMultipartFilePath(const char *dirPath, MMS_MULTIPART_DATA_S *pMultipart)
 {
 	if (g_file_test(dirPath, G_FILE_TEST_IS_DIR) != true) {
@@ -1524,7 +1512,7 @@ int MsgMmsSetMultipartFilePath(const char *dirPath, MMS_MULTIPART_DATA_S *pMulti
 	/* remove space character of original file name */
 	msg_replace_space_char(pMultipart->szFilePath);
 
-	if (!MsgCreateFile (pMultipart->szFilePath, pMultipart->pMultipartData, pMultipart->nMultipartDataLen)) {
+	if (!MsgCreateFile(pMultipart->szFilePath, pMultipart->pMultipartData, pMultipart->nMultipartDataLen)) {
 		MSG_SEC_DEBUG("Fail to set content to file [%s]", pMultipart->szFilePath);
 		return -1;
 	}
@@ -1536,7 +1524,7 @@ int MsgMmsSetMultipartListFilePath(const char *dirPath, MMS_DATA_S *pMmsData)
 {
 	MSG_BEGIN();
 
-	char working_dir[MSG_FILENAME_LEN_MAX+1] = {0,};
+	char working_dir[MSG_FILENAME_LEN_MAX+1] = {0, };
 
 	snprintf(working_dir, sizeof(working_dir), "%s", dirPath);
 
@@ -1557,13 +1545,11 @@ int MsgMmsSetMultipartListFilePath(const char *dirPath, MMS_DATA_S *pMmsData)
 	}
 
 	if (multipart_list) {
-
 		for (int i = 0; i < (int)g_list_length(multipart_list); i++) {
-
 			MMS_MULTIPART_DATA_S *pMultipart = (MMS_MULTIPART_DATA_S *)g_list_nth_data(multipart_list, i);
 
 			if (pMultipart) {
-				MsgMmsSetMultipartFilePath(working_dir, pMultipart);//data -> svc file
+				MsgMmsSetMultipartFilePath(working_dir, pMultipart); /* data -> svc file */
 			}
 		}
 	}
@@ -1627,7 +1613,6 @@ void _MsgMmsMultipartPrint(MMS_MULTIPART_DATA_S *multipart)
 	MSG_SEC_DEBUG("%-25s : %s", "Multipart content id", multipart->szContentID);
 	MSG_SEC_DEBUG("%-25s : %s", "Multipart content location", multipart->szContentLocation);
 	MSG_DEBUG("%-25s : %d", "Multipart drm type", multipart->drmType);
-
 }
 
 bool  _MsgMmsRemoveEmptyMedia(MMS_PAGE_S *pPage)
@@ -1637,7 +1622,6 @@ bool  _MsgMmsRemoveEmptyMedia(MMS_PAGE_S *pPage)
 	int mediaCnt  = g_list_length(pPage->medialist);
 
 	for (int i = 0; i < mediaCnt; i++) {
-
 		GList *nth = g_list_nth(pPage->medialist, i);
 
 		if (nth == NULL)
@@ -1655,7 +1639,6 @@ bool  _MsgMmsRemoveEmptyMedia(MMS_PAGE_S *pPage)
 
 			nth->data = NULL;
 		}
-
 	}
 
 	pPage->medialist = g_list_remove_all(pPage->medialist, NULL);
@@ -1665,7 +1648,7 @@ bool  _MsgMmsRemoveEmptyMedia(MMS_PAGE_S *pPage)
 	return true;
 }
 
-//remove media object with no filepath
+/* remove media object with no filepath */
 bool _MsgMmsRemoveEmptyObject(MMS_MESSAGE_DATA_S *pMmsMsg)
 {
 	MMS_PAGE_S *pPage;
@@ -1673,7 +1656,6 @@ bool _MsgMmsRemoveEmptyObject(MMS_MESSAGE_DATA_S *pMmsMsg)
 	int pageCnt = g_list_length(pMmsMsg->pagelist);
 
 	for (int i = 0; i < pageCnt; i++) {
-
 		GList *nth = g_list_nth(pMmsMsg->pagelist, i);
 
 		if (nth == NULL)
@@ -1686,14 +1668,15 @@ bool _MsgMmsRemoveEmptyObject(MMS_MESSAGE_DATA_S *pMmsMsg)
 
 		_MsgMmsRemoveEmptyMedia(pPage);
 
-//		if (g_list_length(pPage->medialist) == 0) {
-//
-//			MSG_DEBUG("Found Empty Page [%d]", i);
-//
-//			g_free(pPage);
-//
-//			nth->data = NULL;
-//		}
+#if 0
+		if (g_list_length(pPage->medialist) == 0) {
+			MSG_DEBUG("Found Empty Page [%d]", i);
+
+			g_free(pPage);
+
+			nth->data = NULL;
+		}
+#endif
 	}
 
 	pMmsMsg->pagelist = g_list_remove_all(pMmsMsg->pagelist, NULL);
@@ -1715,7 +1698,7 @@ int MsgMmsCheckFilepathSmack(int fd, const char* ipc_filename)
 
 	MSG_SEC_DEBUG("app_smack_label [%s]", app_smack_label);
 
-	char ipc_filepath[MSG_FILEPATH_LEN_MAX+1] = {0,};
+	char ipc_filepath[MSG_FILEPATH_LEN_MAX+1] = {0, };
 	snprintf(ipc_filepath, MSG_FILEPATH_LEN_MAX, "%s%s", MSG_IPC_DATA_PATH, ipc_filename);
 
 	gchar *serialized_data = NULL;

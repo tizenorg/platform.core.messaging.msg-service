@@ -78,7 +78,7 @@ static mms_json_item_s mms_json_table[] = {
 	{"header",		MMS_HEADER,	TYPE_INT},
 	{"multipart_list",	MMS_MULTIPART_LIST, TYPE_ARRAY},
 	{"smil",		MMS_SMIL_MULTIPART,	TYPE_OBJECT},
-//multipart
+/* multipart */
 	{"mp_type",	 MULTIPART_TYPE,	TYPE_INT},
 	{"mp_ct",	 MULTIPART_CONTENT_TYPE,	TYPE_STR},
 	{"mp_name",	 MULTIPART_NAME,	TYPE_STR},
@@ -87,7 +87,7 @@ static mms_json_item_s mms_json_table[] = {
 
 	{"mp_cid",	 MULTIPART_CONTENT_ID,	TYPE_STR},
 	{"mp_cl",	 MULTIPART_CONTENT_LOCATION,	TYPE_STR},
-//header
+/* header */
 	{"h_cl",	HEADER_CONTENT_LOCATION,	TYPE_STR},
 	{"h_ct",	HEADER_CONTENT_TYPE,	TYPE_STR},
 	{"h_ct_int",	HEADER_CONTENT_TYPE_INT,	TYPE_INT},
@@ -105,7 +105,6 @@ static mms_json_item_s mms_json_table[] = {
 	{"h_tid",	HEADER_TRID,	TYPE_STR},
 	{"h_cclass",	HEADER_CONTENT_CLASS, TYPE_INT},
 	{"backup_type",	MMS_BACKUP_TYPE, TYPE_INT},
-
 };
 
 mms_json_enum_e get_mms_key_type(const char * key)
@@ -189,8 +188,7 @@ int MsgParseHeader(msg_json_parser_object *parse_obj, MMS_HEADER_DATA_S *pheader
 	if (parse_obj == NULL)
 		return -1;
 
-	while(msg_json_parser_get_next_child(parse_obj, &child, index_child))
-	{
+	while (msg_json_parser_get_next_child(parse_obj, &child, index_child)) {
 		MSG_PRINT_PARSER_OBJECT(index_child, child);
 		type = get_mms_key_type(child.key);
 
@@ -296,8 +294,7 @@ int MsgParseMultipartData(msg_json_parser_object *parse_obj, MMS_MULTIPART_DATA_
 	if (parse_obj == NULL)
 		return -1;
 
-	while(msg_json_parser_get_next_child(parse_obj, &child, index_child))
-	{
+	while (msg_json_parser_get_next_child(parse_obj, &child, index_child)) {
 		MSG_PRINT_PARSER_OBJECT(index_child, child);
 
 		type = get_mms_key_type(child.key);
@@ -347,13 +344,11 @@ int MsgParseMultipartListData(msg_json_parser_object *parse_obj, MMS_DATA_S *pMs
 	if (parse_obj == NULL)
 		return -1;
 
-	while(msg_json_parser_get_next_child(parse_obj, &child, index_child))
-	{
+	while (msg_json_parser_get_next_child(parse_obj, &child, index_child)) {
 		if (child.value != NULL && child.type != MSG_JSON_PARSER_NULL) {
-
 			MSG_PRINT_PARSER_OBJECT(index_child, child);
 
-			MMS_MULTIPART_DATA_S *pMultipart= MsgMmsCreateMultipart();
+			MMS_MULTIPART_DATA_S *pMultipart = MsgMmsCreateMultipart();
 
 			if (pMultipart) {
 				if (MsgParseMultipartData(&child, pMultipart) == 0) {
@@ -385,10 +380,8 @@ int MsgParseMmsData(msg_json_parser_object *parse_obj, MMS_DATA_S *pMsgData)
 	if (parse_obj == NULL)
 		return -1;
 
-	while(msg_json_parser_get_next_child(parse_obj, &child, index_child))
-	{
+	while (msg_json_parser_get_next_child(parse_obj, &child, index_child)) {
 		if (child.key != NULL) {
-
 			MSG_PRINT_PARSER_OBJECT(index_child, child);
 
 			type = get_mms_key_type(child.key);
@@ -404,8 +397,7 @@ int MsgParseMmsData(msg_json_parser_object *parse_obj, MMS_DATA_S *pMsgData)
 				if (pMsgData->header)
 					MsgParseHeader(&child, pMsgData->header);
 				break;
-			case MMS_SMIL_MULTIPART:
-			{
+			case MMS_SMIL_MULTIPART: {
 				MMS_MULTIPART_DATA_S *pMultipart = MsgMmsCreateMultipart();
 				if (pMultipart) {
 					if (MsgParseMultipartData(&child, pMultipart) == 0) {
@@ -460,7 +452,7 @@ int MsgSerializeMmsJsonData(const MMS_DATA_S *pMsgData, char **pValue)
 
 	MSG_JSON_OBJ_SET_INT(object_main, get_mms_key(MMS_BACKUP_TYPE), pMsgData->backup_type);
 
-	//smil multipart
+	/* smil multipart */
 	if (pMsgData->smil) {
 		JsonObject *smil_object = NULL;
 
@@ -469,7 +461,7 @@ int MsgSerializeMmsJsonData(const MMS_DATA_S *pMsgData, char **pValue)
 	}
 
 	if (pMsgData->multipartlist) {
-		//multipart
+		/* multipart */
 		array_multipart = json_array_new();
 
 		int list_count = g_list_length(pMsgData->multipartlist);
@@ -477,7 +469,6 @@ int MsgSerializeMmsJsonData(const MMS_DATA_S *pMsgData, char **pValue)
 		MSG_DEBUG("Page Count is [%d]", list_count);
 
 		for (int i = 0; i < list_count; i++) {
-
 			MMS_MULTIPART_DATA_S *multipart = (MMS_MULTIPART_DATA_S *)g_list_nth_data(pMsgData->multipartlist, i);
 
 			if (multipart) {
@@ -495,7 +486,7 @@ int MsgSerializeMmsJsonData(const MMS_DATA_S *pMsgData, char **pValue)
 		MSG_JSON_OBJ_SET_ARRAY(object_main, get_mms_key(MMS_MULTIPART_LIST), array_multipart);
 	}
 
-	//header
+	/* header */
 	if (pMsgData->header) {
 		MsgSerializeHeader(pMsgData->header, &object_header);
 
@@ -571,18 +562,18 @@ int MsgSerializeMms(const MMS_DATA_S *pMsgData, char **pValue)
 	char *buf = NULL;
 	int i;
 
-	bufsize += sizeof(int);	// back-up type
+	bufsize += sizeof(int);	/* back-up type */
 
 	int to_cnt = 0;
 	int cc_cnt = 0;
 	int bcc_cnt = 0;
 
-	bufsize += sizeof(int); // check header data
+	bufsize += sizeof(int); /* check header data */
 
 	if (pMsgData->header) {
 		isExistHeader = 1;
 
-		bufsize += sizeof(MMS_HEADER_DATA_S); // header
+		bufsize += sizeof(MMS_HEADER_DATA_S); /* header */
 
 		to_cnt = g_list_length(pMsgData->header->to);
 		cc_cnt = g_list_length(pMsgData->header->cc);
@@ -595,37 +586,37 @@ int MsgSerializeMms(const MMS_DATA_S *pMsgData, char **pValue)
 		for (i = 0; i < to_cnt; i++) {
 			MMS_ADDRESS_DATA_S *addr_data = (MMS_ADDRESS_DATA_S *)g_list_nth_data(pMsgData->header->to, i);
 			if (addr_data && addr_data->address_val) {
-				bufsize += (sizeof(int) + sizeof(int) + strlen(addr_data->address_val)); // type, length, address
+				bufsize += (sizeof(int) + sizeof(int) + strlen(addr_data->address_val)); /* type, length, address */
 			}
 		}
 		for (i = 0; i < cc_cnt; i++) {
 			MMS_ADDRESS_DATA_S *addr_data = (MMS_ADDRESS_DATA_S *)g_list_nth_data(pMsgData->header->cc, i);
 			if (addr_data && addr_data->address_val) {
-				bufsize += (sizeof(int) + sizeof(int) + strlen(addr_data->address_val)); // type, length, address
+				bufsize += (sizeof(int) + sizeof(int) + strlen(addr_data->address_val)); /* type, length, address */
 			}
 		}
 		for (i = 0; i < bcc_cnt; i++) {
 			MMS_ADDRESS_DATA_S *addr_data = (MMS_ADDRESS_DATA_S *)g_list_nth_data(pMsgData->header->bcc, i);
 			if (addr_data && addr_data->address_val) {
-				bufsize += (sizeof(int) + sizeof(int) + strlen(addr_data->address_val)); // type, length, address
+				bufsize += (sizeof(int) + sizeof(int) + strlen(addr_data->address_val)); /* type, length, address */
 			}
 		}
 	}
 
-	bufsize += sizeof(int); // check smil data
+	bufsize += sizeof(int); /* check smil data */
 
 	if (pMsgData->smil) {
 		isExistSmil = 1;
-		bufsize += (sizeof(MMS_MULTIPART_DATA_S) + (sizeof(char)*pMsgData->smil->nMultipartDataLen)); // smil data
+		bufsize += (sizeof(MMS_MULTIPART_DATA_S) + (sizeof(char)*pMsgData->smil->nMultipartDataLen)); /* smil data */
 	}
 
-	bufsize += sizeof(int); // check multipart list data
+	bufsize += sizeof(int); /* check multipart list data */
 
 	if (pMsgData->multipartlist) {
 		isExistMultipart = 1;
 		multipart_cnt = g_list_length(pMsgData->multipartlist);
 
-		bufsize += sizeof(int); // multipart count
+		bufsize += sizeof(int); /* multipart count */
 
 		for (i = 0; i < multipart_cnt; i++) {
 			MMS_MULTIPART_DATA_S *multipart_data = (MMS_MULTIPART_DATA_S *)g_list_nth_data(pMsgData->multipartlist, i);
@@ -642,12 +633,12 @@ int MsgSerializeMms(const MMS_DATA_S *pMsgData, char **pValue)
 	int serial_index = 0;
 	int offset = 0;
 
-	// 1. Backup type
+	/* 1. Backup type */
 	memcpy(buf, &pMsgData->backup_type, sizeof(int));
 	MSG_DEBUG("[#%2d][%5d] backup type = %d", serial_index++, offset, pMsgData->backup_type);
 	offset += sizeof(int);
 
-	// 2. Header Data
+	/* 2. Header Data */
 	memcpy(buf + offset, &isExistHeader, sizeof(int));
 	offset += sizeof(int);
 
@@ -655,7 +646,7 @@ int MsgSerializeMms(const MMS_DATA_S *pMsgData, char **pValue)
 		memcpy(buf + offset, pMsgData->header, sizeof(MMS_HEADER_DATA_S));
 		offset += sizeof(MMS_HEADER_DATA_S);
 
-		// address
+		/* address */
 		memcpy(buf + offset, &to_cnt, sizeof(int));
 		MSG_DEBUG("[#%2d][%5d] TO Count = %d", serial_index++, offset, to_cnt);
 		offset += sizeof(int);
@@ -672,7 +663,7 @@ int MsgSerializeMms(const MMS_DATA_S *pMsgData, char **pValue)
 			}
 		}
 
-		// address
+		/* address */
 		memcpy(buf + offset, &cc_cnt, sizeof(int));
 		MSG_DEBUG("[#%2d][%5d] CC Count = %d", serial_index++, offset, cc_cnt);
 		offset += sizeof(int);
@@ -689,7 +680,7 @@ int MsgSerializeMms(const MMS_DATA_S *pMsgData, char **pValue)
 			}
 		}
 
-		// address
+		/* address */
 		memcpy(buf + offset, &bcc_cnt, sizeof(int));
 		MSG_DEBUG("[#%2d][%5d] BCC Count = %d", serial_index++, offset, bcc_cnt);
 		offset += sizeof(int);
@@ -707,7 +698,7 @@ int MsgSerializeMms(const MMS_DATA_S *pMsgData, char **pValue)
 		}
 	}
 
-	// 3. Smil Data
+	/* 3. Smil Data */
 	memcpy(buf + offset, &isExistSmil, sizeof(int));
 	offset += sizeof(int);
 
@@ -725,7 +716,7 @@ int MsgSerializeMms(const MMS_DATA_S *pMsgData, char **pValue)
 		}
 	}
 
-	// 4. Multipart list data
+	/* 4. Multipart list data */
 	memcpy(buf + offset, &isExistMultipart, sizeof(int));
 	offset += sizeof(int);
 
@@ -787,12 +778,12 @@ int MsgDeserializeMmsData(char* value, int value_len, MMS_DATA_S **ppMmsData)
 		return -1;
 
 
-	// 1. Backup type
+	/* 1. Backup type */
 	memcpy(&(pMmsData->backup_type), value, sizeof(int));
 	MSG_DEBUG("[#%2d][%5d] backup type = %d", deserial_index++, offset, pMmsData->backup_type);
 	offset += sizeof(int);
 
-	// 2. Header Data
+	/* 2. Header Data */
 	memcpy(&isExistHeader, value + offset, sizeof(int));
 	offset += sizeof(int);
 
@@ -868,7 +859,7 @@ int MsgDeserializeMmsData(char* value, int value_len, MMS_DATA_S **ppMmsData)
 		}
 	}
 
-	// 3. Smil Data
+	/* 3. Smil Data */
 	memcpy(&isExistSmil, value + offset, sizeof(int));
 	offset += sizeof(int);
 
@@ -896,7 +887,7 @@ int MsgDeserializeMmsData(char* value, int value_len, MMS_DATA_S **ppMmsData)
 		}
 	}
 
-	// 4. Multipart list data
+	/* 4. Multipart list data */
 	memcpy(&isExistMultipart, value + offset, sizeof(int));
 	offset += sizeof(int);
 

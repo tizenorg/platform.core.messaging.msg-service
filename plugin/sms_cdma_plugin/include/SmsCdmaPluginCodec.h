@@ -30,7 +30,6 @@
 class SmsPluginMsgCodec
 {
 public:
-
 	static SmsPluginMsgCodec* instance();
 
 	static bool checkInvalidPDU(const unsigned char *p_pkg_str, const int p_pkg_len);

@@ -44,8 +44,7 @@ msg_error_t MsgStoCheckDuplicatedFilter(const MSG_FILTER_S *pFilter)
 
 	MSG_DEBUG("sql : %s", sqlQuery);
 
-	if (dbHandle->prepareQuery(sqlQuery) != MSG_SUCCESS)
-	{
+	if (dbHandle->prepareQuery(sqlQuery) != MSG_SUCCESS) {
 		if (filterStr)
 			free(filterStr);
 		return MSG_ERR_DB_EXEC;
@@ -230,8 +229,7 @@ msg_error_t MsgStoGetFilterList(msg_struct_list_s *pFilterList)
 	if (pFilterList->msg_struct_info != NULL) {
 		msg_struct_s* pTmp = NULL;
 
-		for (int i = 0; i < rowCnt; i++)
-		{
+		for (int i = 0; i < rowCnt; i++) {
 			pFilterList->msg_struct_info[i] = (msg_struct_t)new msg_struct_s;
 
 			pTmp = (msg_struct_s *)pFilterList->msg_struct_info[i];

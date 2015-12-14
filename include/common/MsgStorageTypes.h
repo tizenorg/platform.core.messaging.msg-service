@@ -164,5 +164,5 @@ typedef struct
 	char appid[MAX_WAPPUSH_ID_LEN];
 } PUSH_APPLICATION_INFO_S;
 
-#endif // MSG_STORAGE_TYPES_H
+#endif /* MSG_STORAGE_TYPES_H */
 

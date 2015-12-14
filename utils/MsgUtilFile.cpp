@@ -23,7 +23,7 @@
 #include <sys/smack.h>
 #include <string.h>
 #include <dirent.h>
-#include <unistd.h>	//sync()
+#include <unistd.h>
 #include <fcntl.h>
 #include <libgen.h>
 
@@ -132,7 +132,7 @@ bool MakeThumbnail(char *srcPath, char *dstPath)
 	return true;
 }
 
-// File operation wrappers
+/* File operation wrappers */
 FILE *MsgOpenFile(const char *filepath, const char *opt)
 {
 	if (!filepath || !opt) {
@@ -183,7 +183,7 @@ int MsgFseek(FILE *pFile, long int offset, int origin)
 	MSG_DEBUG("[FILE] pFile [%p], offset [%d], origin [%d]", pFile, offset, origin);
 
 	try {
-		ret = fseek(pFile, offset, origin); 		// return 0, if success.
+		ret = fseek(pFile, offset, origin); /* return 0, if success. */
 	} catch (exception &e) {
 		MSG_FATAL("%s", e.what());
 		return -1;
@@ -237,7 +237,7 @@ long int MsgFtell(FILE *pFile)
 		return -1L;
 	}
 
-	long int ret = -1L; // -1L return if error occured.
+	long int ret = -1L; /* -1L return if error occured. */
 
 	try {
 		ret = ftell(pFile);
@@ -258,7 +258,7 @@ int MsgFflush(FILE *pFile)
 	int ret = -1;
 
 	try {
-		ret = fflush(pFile);		// return 0 if success
+		ret = fflush(pFile); /* return 0 if success */
 	} catch (exception &e) {
 		MSG_FATAL("%s", e.what());
 	}
@@ -276,7 +276,7 @@ int MsgFsync(FILE *pFile)
 	int ret = -1;
 
 	try {
-		ret = fdatasync(pFile->_fileno);	// return 0 if success
+		ret = fdatasync(pFile->_fileno); /* return 0 if success */
 	} catch (exception &e) {
 		MSG_FATAL("%s", e.what());
 	}
@@ -299,12 +299,12 @@ bool MsgCreateFileName(char *pFileName)
 			return false;
 		}
 
-		// Create Random Number
+		/* Create Random Number */
 		srandom((unsigned int)ts.tv_nsec);
 
 		MSG_DEBUG("ts.tv_nsec : %d", ts.tv_nsec);
 
-		// between 1 - 1000000000
+		/* between 1 - 1000000000 */
 		snprintf(pFileName, MSG_FILENAME_LEN_MAX, "MSG_%lu.DATA", random()%1000000000+1);
 	} catch (exception& e) {
 		MSG_FATAL("%s", e.what());
@@ -479,7 +479,7 @@ int MsgReadSmilFile(const char *pFileName, char **ppData)
 		return -1;
 	}
 
-	//ppData[FileSize] = '\0';
+	/* ppData[FileSize] = '\0'; */
 
 	nSize = FileSize;
 	MsgCloseFile(pFile);
@@ -488,7 +488,7 @@ int MsgReadSmilFile(const char *pFileName, char **ppData)
 }
 
 
-bool MsgWriteSmilFile(const char *pFilePath,char *pData, int DataSize)
+bool MsgWriteSmilFile(const char *pFilePath, char *pData, int DataSize)
 {
 	if(!pFilePath) {
 		MSG_DEBUG("pFilePath is NULL");
@@ -553,15 +553,14 @@ void MsgDeleteFile(const char *pFileName)
 		if (remove(fullPath) != 0)
 			MSG_SEC_ERR("File Delete Error [%s]: %s", fullPath, g_strerror(errno));
 	} catch (exception &e) {
-		MSG_FATAL ("%s", e.what());
+		MSG_FATAL("%s", e.what());
 	}
-
 }
 
 
 void MsgDeleteSmilFile(const char *pFileName)
 {
-	if (!pFileName ) {
+	if (!pFileName) {
 		MSG_FATAL("pFileName NULL");
 		return;
 	}
@@ -672,7 +671,7 @@ bool MsgWriteDataFromEncodeBuffer(FILE *pFile, char *pInBuffer, int *pPtr, int m
 
 	MsgFflush(pFile);
 
-	memset( pInBuffer, 0, maxLen );
+	memset(pInBuffer, 0, maxLen);
 
 	*pPtr = 0;
 
@@ -702,11 +701,11 @@ bool MsgOpenCreateAndOverwriteFile(char *pFullPath, char *pBuff, int TotalLength
 	}
 
 	if (MsgWriteFile(pBuff, sizeof(char), TotalLength, pFile) != (size_t)TotalLength) {
-		MsgCloseFile( pFile );
+		MsgCloseFile(pFile);
 		return false;
 	}
 
-	MsgFsync(pFile);	//file is written to device immediately, it prevents missing file data from unexpected power off
+	MsgFsync(pFile);	/* file is written to device immediately, it prevents missing file data from unexpected power off */
 	MsgFflush(pFile);
 	MsgCloseFile(pFile);
 
@@ -714,7 +713,7 @@ bool MsgOpenCreateAndOverwriteFile(char *pFullPath, char *pBuff, int TotalLength
 }
 
 
-char *MsgOpenAndReadMmsFile( const char *szFilePath, int offset, int size, int *npSize )
+char *MsgOpenAndReadMmsFile(const char *szFilePath, int offset, int size, int *npSize)
 {
 	FILE *pFile = NULL;
 	char *pData = NULL;
@@ -727,7 +726,7 @@ char *MsgOpenAndReadMmsFile( const char *szFilePath, int offset, int size, int *
 
 	*npSize = 0;
 
-	pFile = MsgOpenFile( szFilePath, "rb" );
+	pFile = MsgOpenFile(szFilePath, "rb");
 
 	if (pFile == NULL) {
 		MSG_ERR("Can't open file: %s", g_strerror(errno));
@@ -742,11 +741,13 @@ char *MsgOpenAndReadMmsFile( const char *szFilePath, int offset, int size, int *
 	} else {
 		readSize = size;
 	}
-// restore Kies backup data size greater than FM_READ_WRITE_BUFFER_MAX
-//	if (readSize > FM_READ_WRITE_BUFFER_MAX) {
-//		MSG_DEBUG("MsgOpenAndReadMmsFile: File size tried to read too big");
-//		goto __CATCH;
-//	}
+/* restore Kies backup data size greater than FM_READ_WRITE_BUFFER_MAX */
+#if 0
+	if (readSize > FM_READ_WRITE_BUFFER_MAX) {
+		MSG_DEBUG("MsgOpenAndReadMmsFile: File size tried to read too big");
+		goto __CATCH;
+	}
+#endif
 
 	pData = (char *)calloc(1, readSize + 1);
 	if ( NULL == pData ) {
@@ -754,7 +755,7 @@ char *MsgOpenAndReadMmsFile( const char *szFilePath, int offset, int size, int *
 		goto __CATCH;
 	}
 
-	if (MsgFseek( pFile, offset, SEEK_SET) < 0) {
+	if (MsgFseek(pFile, offset, SEEK_SET) < 0) {
 		MSG_ERR("FmSeekFile failed : %s", g_strerror(errno) );
 		goto __CATCH;
 	}
@@ -772,21 +773,21 @@ char *MsgOpenAndReadMmsFile( const char *szFilePath, int offset, int size, int *
 __CATCH:
 
 	if (pData) {
-		free( pData );
+		free(pData);
 		pData = NULL;
 	}
 
 	*npSize = 0;
 
 	if (pFile != NULL) {
-		MsgCloseFile( pFile );
+		MsgCloseFile(pFile);
 		pFile = NULL;
 	}
 
 	return NULL;
 }
 
-// it is equivalent to "rm -rf pDirPath"
+/* it is equivalent to "rm -rf pDirPath" */
 int MsgRmRf(char *pDirPath)
 {
 	struct dirent *d = NULL;
@@ -822,7 +823,6 @@ int MsgRmRf(char *pDirPath)
 			MsgRmRf(path);
 
 			if (rmdir(path) != 0) {
-
 				if (path != NULL)
 					free(path);
 
@@ -839,7 +839,6 @@ int MsgRmRf(char *pDirPath)
 				MsgDrmUnregisterFile(path);
 
 			if (remove(path) != 0) {
-
 				if (path != NULL)
 					free(path);
 
@@ -875,7 +874,7 @@ int MsgGetFileSize(const char *pFileName)
 }
 
 
-// it is equivalent to "du dir_path"
+/* it is equivalent to "du dir_path" */
 unsigned int MsgDu(const char *pDirPath)
 {
 	struct dirent *d = NULL;
@@ -901,7 +900,7 @@ unsigned int MsgDu(const char *pDirPath)
 	unsigned int totalFileSize = 0;
 
 	for (readdir_r(dir, &entry, &d); d != NULL; readdir_r(dir, &entry, &d)) {
-		if( d->d_type == DT_DIR) {
+		if(d->d_type == DT_DIR) {
 			snprintf(path, size, "%s/%s", pDirPath, d->d_name);
 
 			if ((strcmp(".", d->d_name) == 0) || (strcmp("..", d->d_name) == 0))
@@ -971,7 +970,7 @@ bool MsgAppendFile(const char *pFilePath, const char *pData, int DataSize)
 		return false;
 	}
 
-	MsgFsync(pFile);	//file is written to device immediately, it prevents missing file data from unexpected power off
+	MsgFsync(pFile);	/*file is written to device immediately, it prevents missing file data from unexpected power off */
 	MsgFflush(pFile);
 	MsgCloseFile(pFile);
 	return true;
@@ -990,14 +989,14 @@ void MsgMmsInitDir()
 		return;
 	}
 
-	// Remove temporal Mms folder (/opt/usr/data/msg-service/msgdata/*.dir)
+	/* Remove temporal Mms folder */
 	for (readdir_r(dir, &entry, &d); d != NULL; readdir_r(dir, &entry, &d)) {
 		if (d->d_type == DT_DIR) {
 			if ((strcmp(".", d->d_name) == 0) || (strcmp("..", d->d_name) == 0))
 				continue;
 
 			if(strstr(d->d_name, ".dir") != NULL) {
-				char filePath[MSG_FILEPATH_LEN_MAX] = {0,};
+				char filePath[MSG_FILEPATH_LEN_MAX] = {0, };
 				snprintf(filePath, MSG_FILEPATH_LEN_MAX, "%s%s", MSG_DATA_PATH, d->d_name);
 
 				MsgRmRf(filePath);
@@ -1010,7 +1009,7 @@ void MsgMmsInitDir()
 	closedir(dir);
 }
 
-//mode : R_OK, W_OK, X_OK, or the existence test F_OK.
+/* mode : R_OK, W_OK, X_OK, or the existence test F_OK. */
 bool MsgAccessFile(const char *filepath, int mode)
 {
 	int ret;
@@ -1113,7 +1112,7 @@ bool MsgChown(const char *filepath, int uid, int gid)
 	return true;
 }
 
-bool MsgCreateFile(const char *pFilePath,char *pData, int DataSize)
+bool MsgCreateFile(const char *pFilePath, char *pData, int DataSize)
 {
 	if(!pFilePath) {
 		MSG_DEBUG("pFilePath is NULL");
@@ -1140,7 +1139,7 @@ bool MsgCreateFile(const char *pFilePath,char *pData, int DataSize)
 	}
 
 	MsgFflush(pFile);
-	MsgFsync( pFile);
+	MsgFsync(pFile);
 	MsgCloseFile(pFile);
 
 	return true;

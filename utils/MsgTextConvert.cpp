@@ -79,332 +79,331 @@ MsgTextConvert::MsgTextConvert()
 	extCharList[0x00C2] = MSG_CHAR_PORTUGUESE;
 	extCharList[0x00E2] = MSG_CHAR_PORTUGUESE;
 
-	for (unsigned char i = 0; i < 128; i++)
-	{
+	for (unsigned char i = 0; i < 128; i++) {
 		ucs2toGSM7DefList[g_GSM7BitToUCS2[i]] = i;
 	}
 
-	// GSM 7 bit Extension
-	ucs2toGSM7ExtList[0x005B] = 0x3C; // [
-	ucs2toGSM7ExtList[0x005D] = 0x3E; // ]
-	ucs2toGSM7ExtList[0x007B] = 0x28; // {
-	ucs2toGSM7ExtList[0x007D] = 0x29; // }
-	ucs2toGSM7ExtList[0x000C] = 0x0A; // Page Break
+	/* GSM 7 bit Extension */
+	ucs2toGSM7ExtList[0x005B] = 0x3C; /* [ */
+	ucs2toGSM7ExtList[0x005D] = 0x3E; /* ] */
+	ucs2toGSM7ExtList[0x007B] = 0x28; /* { */
+	ucs2toGSM7ExtList[0x007D] = 0x29; /* } */
+	ucs2toGSM7ExtList[0x000C] = 0x0A; /* Page Break */
 	ucs2toGSM7ExtList[0x005C] = 0x2F; /* \ */
-	ucs2toGSM7ExtList[0x005E] = 0x14; // ^
-	ucs2toGSM7ExtList[0x007C] = 0x40; // |
-	ucs2toGSM7ExtList[0x007E] = 0x3D; // ~
-	ucs2toGSM7ExtList[0x20AC] = 0x65; // €
+	ucs2toGSM7ExtList[0x005E] = 0x14; /* ^ */
+	ucs2toGSM7ExtList[0x007C] = 0x40; /* | */
+	ucs2toGSM7ExtList[0x007E] = 0x3D; /* ~ */
+	ucs2toGSM7ExtList[0x20AC] = 0x65; /* € */
 
-	// Turkish
-	ucs2toTurkishList[0x005B] = 0x3C; // [
-	ucs2toTurkishList[0x005D] = 0x3E; // ]
-	ucs2toTurkishList[0x007B] = 0x28; // {
-	ucs2toTurkishList[0x007D] = 0x29; // }
-	ucs2toTurkishList[0x000C] = 0x0A; // Page Break
+	/* Turkish */
+	ucs2toTurkishList[0x005B] = 0x3C; /* [ */
+	ucs2toTurkishList[0x005D] = 0x3E; /* ] */
+	ucs2toTurkishList[0x007B] = 0x28; /* { */
+	ucs2toTurkishList[0x007D] = 0x29; /* } */
+	ucs2toTurkishList[0x000C] = 0x0A; /* Page Break */
 	ucs2toTurkishList[0x005C] = 0x2F; /* \ */
-	ucs2toTurkishList[0x005E] = 0x14; // ^
-	ucs2toTurkishList[0x007C] = 0x40; // |
-	ucs2toTurkishList[0x007E] = 0x3D; // ~
-	ucs2toTurkishList[0x20AC] = 0x65; // €
-	ucs2toTurkishList[0x00E7] = 0x63; // c LATIN SMALL LETTER S WITH CEDILLA
-	ucs2toTurkishList[0x011E] = 0x47; // G LATIN CAPITAL LETTER G WITH BREVE
-	ucs2toTurkishList[0x011F] = 0x67; // g LATIN SMALL LETTER G WITH BREVE
-	ucs2toTurkishList[0x01E6] = 0x47; // G LATIN CAPITAL LETTER G WITH CARON
-	ucs2toTurkishList[0x01E7] = 0x67; // g LATIN SMALL LETTER G WITH CARON
-	ucs2toTurkishList[0x0130] = 0x49; // I LATIN CAPITAL LETTER I WITH DOT ABOVE
-	ucs2toTurkishList[0x0131] = 0x69; // i LATIN SMALL LETTER DOTLESS
-	ucs2toTurkishList[0x015E] = 0x53; // S LATIN CAPITAL LETTER S WITH CEDILLA
-	ucs2toTurkishList[0x015F] = 0x73; // s LATIN SMALL LETTER S WITH CEDILLA
+	ucs2toTurkishList[0x005E] = 0x14; /* ^ */
+	ucs2toTurkishList[0x007C] = 0x40; /* | */
+	ucs2toTurkishList[0x007E] = 0x3D; /* ~ */
+	ucs2toTurkishList[0x20AC] = 0x65; /* € */
+	ucs2toTurkishList[0x00E7] = 0x63; /* c LATIN SMALL LETTER S WITH CEDILLA */
+	ucs2toTurkishList[0x011E] = 0x47; /* G LATIN CAPITAL LETTER G WITH BREVE */
+	ucs2toTurkishList[0x011F] = 0x67; /* g LATIN SMALL LETTER G WITH BREVE */
+	ucs2toTurkishList[0x01E6] = 0x47; /* G LATIN CAPITAL LETTER G WITH CARON */
+	ucs2toTurkishList[0x01E7] = 0x67; /* g LATIN SMALL LETTER G WITH CARON */
+	ucs2toTurkishList[0x0130] = 0x49; /* I LATIN CAPITAL LETTER I WITH DOT ABOVE */
+	ucs2toTurkishList[0x0131] = 0x69; /* i LATIN SMALL LETTER DOTLESS */
+	ucs2toTurkishList[0x015E] = 0x53; /* S LATIN CAPITAL LETTER S WITH CEDILLA */
+	ucs2toTurkishList[0x015F] = 0x73; /* s LATIN SMALL LETTER S WITH CEDILLA */
 
-	// Spanish
-	ucs2toSpanishList[0x005B] = 0x3C; // [
-	ucs2toSpanishList[0x005D] = 0x3E; // ]
-	ucs2toSpanishList[0x007B] = 0x28; // {
-	ucs2toSpanishList[0x007D] = 0x29; // }
-	ucs2toSpanishList[0x000C] = 0x0A; // Page Break
+	/* Spanish */
+	ucs2toSpanishList[0x005B] = 0x3C; /* [ */
+	ucs2toSpanishList[0x005D] = 0x3E; /* ] */
+	ucs2toSpanishList[0x007B] = 0x28; /* { */
+	ucs2toSpanishList[0x007D] = 0x29; /* } */
+	ucs2toSpanishList[0x000C] = 0x0A; /* Page Break */
 	ucs2toSpanishList[0x005C] = 0x2F; /* \ */
-	ucs2toSpanishList[0x005E] = 0x14; // ^
-	ucs2toSpanishList[0x007C] = 0x40; // |
-	ucs2toSpanishList[0x007E] = 0x3D; // ~
-	ucs2toSpanishList[0x20AC] = 0x65; // €
-	ucs2toSpanishList[0x00C1] = 0x41; // A LATIN CAPITAL LETTER A WITH ACUTE
-	ucs2toSpanishList[0x00E1] = 0x61; // a LATIN SMALL LETTER A WITH ACUTE
-	ucs2toSpanishList[0x00CD] = 0x49; // I LATIN CAPITAL LETTER I WITH ACUTE
-	ucs2toSpanishList[0x00ED] = 0x69; // i LATIN SMALL LETTER I WITH ACUTE
-	ucs2toSpanishList[0x00D3] = 0x4F; // O LATIN CAPITAL LETTER O WITH ACUTE
-	ucs2toSpanishList[0x00F3] = 0x6F; // o LATIN SMALL LETTER O WITH ACUTE
-	ucs2toSpanishList[0x00DA] = 0x55; // U LATIN CAPITAL LETTER U WITH ACUTE
-	ucs2toSpanishList[0x00FA] = 0x75; // u LATIN SMALL LETTER U WITH ACUTE
+	ucs2toSpanishList[0x005E] = 0x14; /* ^ */
+	ucs2toSpanishList[0x007C] = 0x40; /* | */
+	ucs2toSpanishList[0x007E] = 0x3D; /* ~ */
+	ucs2toSpanishList[0x20AC] = 0x65; /* € */
+	ucs2toSpanishList[0x00C1] = 0x41; /* A LATIN CAPITAL LETTER A WITH ACUTE */
+	ucs2toSpanishList[0x00E1] = 0x61; /* a LATIN SMALL LETTER A WITH ACUTE */
+	ucs2toSpanishList[0x00CD] = 0x49; /* I LATIN CAPITAL LETTER I WITH ACUTE */
+	ucs2toSpanishList[0x00ED] = 0x69; /* i LATIN SMALL LETTER I WITH ACUTE */
+	ucs2toSpanishList[0x00D3] = 0x4F; /* O LATIN CAPITAL LETTER O WITH ACUTE */
+	ucs2toSpanishList[0x00F3] = 0x6F; /* o LATIN SMALL LETTER O WITH ACUTE */
+	ucs2toSpanishList[0x00DA] = 0x55; /* U LATIN CAPITAL LETTER U WITH ACUTE */
+	ucs2toSpanishList[0x00FA] = 0x75; /* u LATIN SMALL LETTER U WITH ACUTE */
 
-	// Portuguese
-	ucs2toPortuList[0x005B] = 0x3C; // [
-	ucs2toPortuList[0x005D] = 0x3E; // ]
-	ucs2toPortuList[0x007B] = 0x28; // {
-	ucs2toPortuList[0x007D] = 0x29; // }
-	ucs2toPortuList[0x000C] = 0x0A; // Page Break
+	/* Portuguese */
+	ucs2toPortuList[0x005B] = 0x3C; /* [ */
+	ucs2toPortuList[0x005D] = 0x3E; /* ] */
+	ucs2toPortuList[0x007B] = 0x28; /* { */
+	ucs2toPortuList[0x007D] = 0x29; /* } */
+	ucs2toPortuList[0x000C] = 0x0A; /* Page Break */
 	ucs2toPortuList[0x005C] = 0x2F; /* \ */
-	ucs2toPortuList[0x005E] = 0x14; // ^
-	ucs2toPortuList[0x007C] = 0x40; // |
-	ucs2toPortuList[0x007E] = 0x3D; // ~
-	ucs2toPortuList[0x20AC] = 0x65; // €
-	ucs2toPortuList[0x00D4] = 0x0B; // O LATIN CAPITAL LETTER O WITH CIRCUMFLEX
-	ucs2toPortuList[0x00F4] = 0x0C; // o LATIN SMALL LETTER O WITH CIRCUMFLEX
-	ucs2toPortuList[0x00C1] = 0x0E; // A LATIN CAPITAL LETTER A WITH ACUTE
-	ucs2toPortuList[0x00E1] = 0x0F; // a LATIN SMALL LETTER A WITH ACUTE
-	ucs2toPortuList[0x00CA] = 0x1F; // E LATIN CAPITAL LETTER E WITH CIRCUMFLEX
-	ucs2toPortuList[0x00EA] = 0x05; // e LATIN SMALL LETTER E WITH CIRCUMFLEX
-	ucs2toPortuList[0x00C0] = 0x41; // A LATIN CAPITAL LETTER A WITH GRAVE
-	ucs2toPortuList[0x00E7] = 0x09; // c LATIN SMALL LETTER C WITH CEDILLA
-	ucs2toPortuList[0x00CD] = 0x49; // I LATIN CAPITAL LETTER I WITH ACUTE
-	ucs2toPortuList[0x00ED] = 0x69; // i LATIN SMALL LETTER I WITH ACUTE
-	ucs2toPortuList[0x00D3] = 0x4F; // O LATIN CAPITAL LETTER O WITH ACUTE
-	ucs2toPortuList[0x00F3] = 0x6F; // o LATIN SMALL LETTER O WITH ACUTE
-	ucs2toPortuList[0x00DA] = 0x55; // U LATIN CAPITAL LETTER U WITH ACUTE
-	ucs2toPortuList[0x00FA] = 0x75; // u LATIN SMALL LETTER U WITH ACUTE
-	ucs2toPortuList[0x00C3] = 0x61; // A LATIN CAPITAL LETTER A WITH TILDE
-	ucs2toPortuList[0x00E3] = 0x7B; // a LATIN SMALL LETTER A WITH TILDE
-	ucs2toPortuList[0x00D5] = 0x5C; // O LATIN CAPITAL LETTER O WITH TILDE
-	ucs2toPortuList[0x00F5] = 0x7C; // o LATIN SMALL LETTER O WITH TILDE
-	ucs2toPortuList[0x00C2] = 0x61; // A LATIN CAPITAL LETTER A WITH CIRCUMFLEX
-	ucs2toPortuList[0x00E2] = 0x7F; // a LATIN SMALL LETTER A WITH CIRCUMFLEX
-	ucs2toPortuList[0x03A6] = 0x12; // Φ GREEK CAPITAL LETTER PHI
-	ucs2toPortuList[0x0393] = 0x13; // Γ GREEK CAPITAL LETTER GAMMA
-	ucs2toPortuList[0x03A9] = 0x15; // Ω GREEK CAPITAL LETTER OMEGA
-	ucs2toPortuList[0x03A0] = 0x16; // Π GREEK CAPITAL LETTER PI
-	ucs2toPortuList[0x03A8] = 0x17; // Ψ GREEK CAPITAL LETTER PSI
-	ucs2toPortuList[0x03A3] = 0x18; // Σ GREEK CAPITAL LETTER SIGMA
-	ucs2toPortuList[0x0398] = 0x19; // Θ GREEK CAPITAL LETTER THETA
+	ucs2toPortuList[0x005E] = 0x14; /* ^ */
+	ucs2toPortuList[0x007C] = 0x40; /* | */
+	ucs2toPortuList[0x007E] = 0x3D; /* ~ */
+	ucs2toPortuList[0x20AC] = 0x65; /* € */
+	ucs2toPortuList[0x00D4] = 0x0B; /* O LATIN CAPITAL LETTER O WITH CIRCUMFLEX */
+	ucs2toPortuList[0x00F4] = 0x0C; /* o LATIN SMALL LETTER O WITH CIRCUMFLEX */
+	ucs2toPortuList[0x00C1] = 0x0E; /* A LATIN CAPITAL LETTER A WITH ACUTE */
+	ucs2toPortuList[0x00E1] = 0x0F; /* a LATIN SMALL LETTER A WITH ACUTE */
+	ucs2toPortuList[0x00CA] = 0x1F; /* E LATIN CAPITAL LETTER E WITH CIRCUMFLEX */
+	ucs2toPortuList[0x00EA] = 0x05; /* e LATIN SMALL LETTER E WITH CIRCUMFLEX */
+	ucs2toPortuList[0x00C0] = 0x41; /* A LATIN CAPITAL LETTER A WITH GRAVE */
+	ucs2toPortuList[0x00E7] = 0x09; /* c LATIN SMALL LETTER C WITH CEDILLA */
+	ucs2toPortuList[0x00CD] = 0x49; /* I LATIN CAPITAL LETTER I WITH ACUTE */
+	ucs2toPortuList[0x00ED] = 0x69; /* i LATIN SMALL LETTER I WITH ACUTE */
+	ucs2toPortuList[0x00D3] = 0x4F; /* O LATIN CAPITAL LETTER O WITH ACUTE */
+	ucs2toPortuList[0x00F3] = 0x6F; /* o LATIN SMALL LETTER O WITH ACUTE */
+	ucs2toPortuList[0x00DA] = 0x55; /* U LATIN CAPITAL LETTER U WITH ACUTE */
+	ucs2toPortuList[0x00FA] = 0x75; /* u LATIN SMALL LETTER U WITH ACUTE */
+	ucs2toPortuList[0x00C3] = 0x61; /* A LATIN CAPITAL LETTER A WITH TILDE */
+	ucs2toPortuList[0x00E3] = 0x7B; /* a LATIN SMALL LETTER A WITH TILDE */
+	ucs2toPortuList[0x00D5] = 0x5C; /* O LATIN CAPITAL LETTER O WITH TILDE */
+	ucs2toPortuList[0x00F5] = 0x7C; /* o LATIN SMALL LETTER O WITH TILDE */
+	ucs2toPortuList[0x00C2] = 0x61; /* A LATIN CAPITAL LETTER A WITH CIRCUMFLEX */
+	ucs2toPortuList[0x00E2] = 0x7F; /* a LATIN SMALL LETTER A WITH CIRCUMFLEX */
+	ucs2toPortuList[0x03A6] = 0x12; /* Φ GREEK CAPITAL LETTER PHI */
+	ucs2toPortuList[0x0393] = 0x13; /* Γ GREEK CAPITAL LETTER GAMMA */
+	ucs2toPortuList[0x03A9] = 0x15; /* Ω GREEK CAPITAL LETTER OMEGA */
+	ucs2toPortuList[0x03A0] = 0x16; /* Π GREEK CAPITAL LETTER PI */
+	ucs2toPortuList[0x03A8] = 0x17; /* Ψ GREEK CAPITAL LETTER PSI */
+	ucs2toPortuList[0x03A3] = 0x18; /* Σ GREEK CAPITAL LETTER SIGMA */
+	ucs2toPortuList[0x0398] = 0x19; /* Θ GREEK CAPITAL LETTER THETA */
 
 
-	// character replacement table
-	replaceCharList[0x00E0] = 0x61; // a LATIN SMALL LETTER A WITH GRAVE
-	replaceCharList[0x00E1] = 0x61; // a LATIN SMALL LETTER A WITH ACUTE
-	replaceCharList[0x00E2] = 0x61; // a LATIN SMALL LETTER A WITH CIRCUMFLEX
-	replaceCharList[0x00E3] = 0x61; // a LATIN SMALL LETTER A WITH TILDE
-	replaceCharList[0x00E4] = 0x61; // a LATIN SMALL LETTER A WITH DIAERESIS
-	replaceCharList[0x00E5] = 0x61; // a LATIN SMALL LETTER A WITH RING ABOVE
-	replaceCharList[0x00E6] = 0x61; // a LATIN SMALL LETTER AE
-	replaceCharList[0x0101] = 0x61; // a LATIN SMALL LETTER A WITH MACRON
-	replaceCharList[0x0103] = 0x61; // a LATIN SMALL LETTER A WITH BREVE
-	replaceCharList[0x0105] = 0x61; // a LATIN SMALL LETTER A WITH OGONEK
-	replaceCharList[0x01CE] = 0x61; // a LATIN SMALL LETTER A WITH CARON
+	/* character replacement table */
+	replaceCharList[0x00E0] = 0x61; /* a LATIN SMALL LETTER A WITH GRAVE */
+	replaceCharList[0x00E1] = 0x61; /* a LATIN SMALL LETTER A WITH ACUTE */
+	replaceCharList[0x00E2] = 0x61; /* a LATIN SMALL LETTER A WITH CIRCUMFLEX */
+	replaceCharList[0x00E3] = 0x61; /* a LATIN SMALL LETTER A WITH TILDE */
+	replaceCharList[0x00E4] = 0x61; /* a LATIN SMALL LETTER A WITH DIAERESIS */
+	replaceCharList[0x00E5] = 0x61; /* a LATIN SMALL LETTER A WITH RING ABOVE */
+	replaceCharList[0x00E6] = 0x61; /* a LATIN SMALL LETTER AE */
+	replaceCharList[0x0101] = 0x61; /* a LATIN SMALL LETTER A WITH MACRON */
+	replaceCharList[0x0103] = 0x61; /* a LATIN SMALL LETTER A WITH BREVE */
+	replaceCharList[0x0105] = 0x61; /* a LATIN SMALL LETTER A WITH OGONEK */
+	replaceCharList[0x01CE] = 0x61; /* a LATIN SMALL LETTER A WITH CARON */
 
-	replaceCharList[0x00C0] = 0x41; // A LATIN CAPITAL LETTER A WITH GRAVE
-	replaceCharList[0x00C1] = 0x41; // A LATIN CAPITAL LETTER A WITH ACUTE
-	replaceCharList[0x00C2] = 0x41; // A LATIN CAPITAL LETTER A WITH CIRCUMFLEX
-	replaceCharList[0x00C3] = 0x41; // A LATIN CAPITAL LETTER A WITH TILDE
-	replaceCharList[0x00C4] = 0x41; // A LATIN CAPITAL LETTER A WITH DIAERESIS
-	replaceCharList[0x00C5] = 0x41; // A LATIN CAPITAL LETTER A WITH RING ABOVE
-	replaceCharList[0x00C6] = 0x41; // A LATIN CAPITAL LETTER AE
-	replaceCharList[0x0100] = 0x41; // A LATIN CAPITAL LETTER A WITH MACRON
-	replaceCharList[0x0102] = 0x41; // A LATIN CAPITAL LETTER A WITH BREVE
-	replaceCharList[0x0104] = 0x41; // A LATIN CAPITAL LETTER A WITH OGONEK
-	replaceCharList[0x01CD] = 0x41; // A LATIN CAPITAL LETTER A WITH CARON
+	replaceCharList[0x00C0] = 0x41; /* A LATIN CAPITAL LETTER A WITH GRAVE */
+	replaceCharList[0x00C1] = 0x41; /* A LATIN CAPITAL LETTER A WITH ACUTE */
+	replaceCharList[0x00C2] = 0x41; /* A LATIN CAPITAL LETTER A WITH CIRCUMFLEX */
+	replaceCharList[0x00C3] = 0x41; /* A LATIN CAPITAL LETTER A WITH TILDE */
+	replaceCharList[0x00C4] = 0x41; /* A LATIN CAPITAL LETTER A WITH DIAERESIS */
+	replaceCharList[0x00C5] = 0x41; /* A LATIN CAPITAL LETTER A WITH RING ABOVE */
+	replaceCharList[0x00C6] = 0x41; /* A LATIN CAPITAL LETTER AE */
+	replaceCharList[0x0100] = 0x41; /* A LATIN CAPITAL LETTER A WITH MACRON */
+	replaceCharList[0x0102] = 0x41; /* A LATIN CAPITAL LETTER A WITH BREVE */
+	replaceCharList[0x0104] = 0x41; /* A LATIN CAPITAL LETTER A WITH OGONEK */
+	replaceCharList[0x01CD] = 0x41; /* A LATIN CAPITAL LETTER A WITH CARON */
 
-	replaceCharList[0x00E7] = 0x63; // c LATIN SMALL LETTER C WITH CEDILLA
-	replaceCharList[0x0107] = 0x63; // c LATIN SMALL LETTER C WITH ACUTE
-	replaceCharList[0x0109] = 0x63; // c LATIN SMALL LETTER C WITH CIRCUMFLEX
-	replaceCharList[0x010B] = 0x63; // c LATIN SMALL LETTER C WITH DOT ABOVE
-	replaceCharList[0x010D] = 0x63; // c LATIN SMALL LETTER C WITH CARON
+	replaceCharList[0x00E7] = 0x63; /* c LATIN SMALL LETTER C WITH CEDILLA */
+	replaceCharList[0x0107] = 0x63; /* c LATIN SMALL LETTER C WITH ACUTE */
+	replaceCharList[0x0109] = 0x63; /* c LATIN SMALL LETTER C WITH CIRCUMFLEX */
+	replaceCharList[0x010B] = 0x63; /* c LATIN SMALL LETTER C WITH DOT ABOVE */
+	replaceCharList[0x010D] = 0x63; /* c LATIN SMALL LETTER C WITH CARON */
 
-	replaceCharList[0x00C7] = 0x43; // C LATIN CAPITAL LETTER C WITH CEDILLA
-	replaceCharList[0x0106] = 0x43; // C LATIN CAPITAL LETTER C WITH ACUTE
-	replaceCharList[0x0108] = 0x43; // C LATIN CAPITAL LETTER C WITH CIRCUMFLEX
-	replaceCharList[0x010A] = 0x43; // C LATIN CAPITAL LETTER C WITH DOT ABOVE
-	replaceCharList[0x010C] = 0x43; // C LATIN CAPITAL LETTER C WITH CARON
+	replaceCharList[0x00C7] = 0x43; /* C LATIN CAPITAL LETTER C WITH CEDILLA */
+	replaceCharList[0x0106] = 0x43; /* C LATIN CAPITAL LETTER C WITH ACUTE */
+	replaceCharList[0x0108] = 0x43; /* C LATIN CAPITAL LETTER C WITH CIRCUMFLEX */
+	replaceCharList[0x010A] = 0x43; /* C LATIN CAPITAL LETTER C WITH DOT ABOVE */
+	replaceCharList[0x010C] = 0x43; /* C LATIN CAPITAL LETTER C WITH CARON */
 
-	replaceCharList[0x010F] = 0x64; // d LATIN SMALL LETTER D WITH CARON
-	replaceCharList[0x0111] = 0x64; // d LATIN SMALL LETTER D WITH STROKE
+	replaceCharList[0x010F] = 0x64; /* d LATIN SMALL LETTER D WITH CARON */
+	replaceCharList[0x0111] = 0x64; /* d LATIN SMALL LETTER D WITH STROKE */
 
-	replaceCharList[0x010E] = 0x44; // D LATIN CAPITAL LETTER D WITH CARON
-	replaceCharList[0x0110] = 0x44; // D LATIN CAPITAL LETTER D WITH STROKE
+	replaceCharList[0x010E] = 0x44; /* D LATIN CAPITAL LETTER D WITH CARON */
+	replaceCharList[0x0110] = 0x44; /* D LATIN CAPITAL LETTER D WITH STROKE */
 
-	replaceCharList[0x00E8] = 0x65; // e LATIN SMALL LETTER E WITH GRAVE
-	replaceCharList[0x00E9] = 0x65; // e LATIN SMALL LETTER E WITH ACUTE
-	replaceCharList[0x00EA] = 0x65; // e LATIN SMALL LETTER E WITH CIRCUMFLEX
-	replaceCharList[0x00EB] = 0x65; // e LATIN SMALL LETTER E WITH DIAERESIS
-	replaceCharList[0x0113] = 0x65; // e LATIN SMALL LETTER E WITH MACRON
-	replaceCharList[0x0115] = 0x65; // e LATIN SMALL LETTER E WITH BREVE
-	replaceCharList[0x0117] = 0x65; // e LATIN SMALL LETTER E WITH DOT ABOVE
-	replaceCharList[0x0119] = 0x65; // e LATIN SMALL LETTER E WITH OGONEK
-	replaceCharList[0x011B] = 0x65; // e LATIN SMALL LETTER E WITH CARON
-	replaceCharList[0x0259] = 0x65; // e LATIN SMALL LETTER SCHWA
+	replaceCharList[0x00E8] = 0x65; /* e LATIN SMALL LETTER E WITH GRAVE */
+	replaceCharList[0x00E9] = 0x65; /* e LATIN SMALL LETTER E WITH ACUTE */
+	replaceCharList[0x00EA] = 0x65; /* e LATIN SMALL LETTER E WITH CIRCUMFLEX */
+	replaceCharList[0x00EB] = 0x65; /* e LATIN SMALL LETTER E WITH DIAERESIS */
+	replaceCharList[0x0113] = 0x65; /* e LATIN SMALL LETTER E WITH MACRON */
+	replaceCharList[0x0115] = 0x65; /* e LATIN SMALL LETTER E WITH BREVE */
+	replaceCharList[0x0117] = 0x65; /* e LATIN SMALL LETTER E WITH DOT ABOVE */
+	replaceCharList[0x0119] = 0x65; /* e LATIN SMALL LETTER E WITH OGONEK */
+	replaceCharList[0x011B] = 0x65; /* e LATIN SMALL LETTER E WITH CARON */
+	replaceCharList[0x0259] = 0x65; /* e LATIN SMALL LETTER SCHWA */
 
-	replaceCharList[0x00C8] = 0x45; // E LATIN CAPITAL LETTER E WITH GRAVE
-	replaceCharList[0x00C9] = 0x45; // E LATIN CAPITAL LETTER E WITH ACUTE
-	replaceCharList[0x00CA] = 0x45; // E LATIN CAPITAL LETTER E WITH CIRCUMFLEX
-	replaceCharList[0x00CB] = 0x45; // E LATIN CAPITAL LETTER E WITH DIAERESIS
-	replaceCharList[0x0112] = 0x45; // E LATIN CAPITAL LETTER E WITH MACRON
-	replaceCharList[0x0114] = 0x45; // E LATIN CAPITAL LETTER E WITH BREVE
-	replaceCharList[0x0116] = 0x45; // E LATIN CAPITAL LETTER E WITH DOT ABOVE
-	replaceCharList[0x0118] = 0x45; // E LATIN CAPITAL LETTER E WITH OGONEK
-	replaceCharList[0x011A] = 0x45; // E LATIN CAPITAL LETTER E WITH CARON
-	replaceCharList[0x018F] = 0x45; // E LATIN CAPITAL LETTER SCHWA
+	replaceCharList[0x00C8] = 0x45; /* E LATIN CAPITAL LETTER E WITH GRAVE */
+	replaceCharList[0x00C9] = 0x45; /* E LATIN CAPITAL LETTER E WITH ACUTE */
+	replaceCharList[0x00CA] = 0x45; /* E LATIN CAPITAL LETTER E WITH CIRCUMFLEX */
+	replaceCharList[0x00CB] = 0x45; /* E LATIN CAPITAL LETTER E WITH DIAERESIS */
+	replaceCharList[0x0112] = 0x45; /* E LATIN CAPITAL LETTER E WITH MACRON */
+	replaceCharList[0x0114] = 0x45; /* E LATIN CAPITAL LETTER E WITH BREVE */
+	replaceCharList[0x0116] = 0x45; /* E LATIN CAPITAL LETTER E WITH DOT ABOVE */
+	replaceCharList[0x0118] = 0x45; /* E LATIN CAPITAL LETTER E WITH OGONEK */
+	replaceCharList[0x011A] = 0x45; /* E LATIN CAPITAL LETTER E WITH CARON */
+	replaceCharList[0x018F] = 0x45; /* E LATIN CAPITAL LETTER SCHWA */
 
-	replaceCharList[0x011D] = 0x67; // g LATIN SMALL LETTER G WITH CIRCUMFLEX
-	replaceCharList[0x011F] = 0x67; // g LATIN SMALL LETTER G WITH BREVE
-	replaceCharList[0x0121] = 0x67; // g LATIN SMALL LETTER G WITH DOT ABOVE
-	replaceCharList[0x0123] = 0x67; // g LATIN SMALL LETTER G WITH CEDILLA
-	replaceCharList[0x01E7] = 0x67; // g LATIN SMALL LETTER G WITH CARON
-	replaceCharList[0x01F5] = 0x67; // g LATIN SMALL LETTER G WITH ACUTE
-	replaceCharList[0x1E21] = 0x67; // g LATIN SMALL LETTER G WITH MACRON
+	replaceCharList[0x011D] = 0x67; /* g LATIN SMALL LETTER G WITH CIRCUMFLEX */
+	replaceCharList[0x011F] = 0x67; /* g LATIN SMALL LETTER G WITH BREVE */
+	replaceCharList[0x0121] = 0x67; /* g LATIN SMALL LETTER G WITH DOT ABOVE */
+	replaceCharList[0x0123] = 0x67; /* g LATIN SMALL LETTER G WITH CEDILLA */
+	replaceCharList[0x01E7] = 0x67; /* g LATIN SMALL LETTER G WITH CARON */
+	replaceCharList[0x01F5] = 0x67; /* g LATIN SMALL LETTER G WITH ACUTE */
+	replaceCharList[0x1E21] = 0x67; /* g LATIN SMALL LETTER G WITH MACRON */
 
-	replaceCharList[0x011C] = 0x47; // G LATIN CAPITAL LETTER G WITH CIRCUMFLEX
-	replaceCharList[0x011E] = 0x47; // G LATIN CAPITAL LETTER G WITH BREVE
-	replaceCharList[0x0120] = 0x47; // G LATIN CAPITAL LETTER G WITH DOT ABOVE
-	replaceCharList[0x0122] = 0x47; // G LATIN CAPITAL LETTER G WITH CEDILLA
-	replaceCharList[0x01E6] = 0x47; // G LATIN CAPITAL LETTER G WITH CARON
-	replaceCharList[0x01F4] = 0x47; // G LATIN CAPITAL LETTER G WITH ACUTE
-	replaceCharList[0x1E20] = 0x47; // G LATIN CAPITAL LETTER G WITH MACRON
+	replaceCharList[0x011C] = 0x47; /* G LATIN CAPITAL LETTER G WITH CIRCUMFLEX */
+	replaceCharList[0x011E] = 0x47; /* G LATIN CAPITAL LETTER G WITH BREVE */
+	replaceCharList[0x0120] = 0x47; /* G LATIN CAPITAL LETTER G WITH DOT ABOVE */
+	replaceCharList[0x0122] = 0x47; /* G LATIN CAPITAL LETTER G WITH CEDILLA */
+	replaceCharList[0x01E6] = 0x47; /* G LATIN CAPITAL LETTER G WITH CARON */
+	replaceCharList[0x01F4] = 0x47; /* G LATIN CAPITAL LETTER G WITH ACUTE */
+	replaceCharList[0x1E20] = 0x47; /* G LATIN CAPITAL LETTER G WITH MACRON */
 
-	replaceCharList[0x00EC] = 0x69; // i LATIN SMALL LETTER I WITH GRAVE
-	replaceCharList[0x00ED] = 0x69; // i LATIN SMALL LETTER I WITH ACUTE
-	replaceCharList[0x00EE] = 0x69; // i LATIN SMALL LETTER I WITH CIRCUMFLEX
-	replaceCharList[0x00EF] = 0x69; // i LATIN SMALL LETTER I WITH DIAERESIS
-	replaceCharList[0x0129] = 0x69; // i LATIN SMALL LETTER I WITH TILDE
-	replaceCharList[0x012B] = 0x69; // i LATIN SMALL LETTER I WITH MACRON
-	replaceCharList[0x012D] = 0x69; // i LATIN SMALL LETTER I WITH BREVE
-	replaceCharList[0x012F] = 0x69; // i LATIN SMALL LETTER I WITH OGONEK
-	replaceCharList[0x01D0] = 0x69; // i LATIN SMALL LETTER I WITH CARON
-	replaceCharList[0x0131] = 0x69; // i LATIN SMALL LETTER DOTLESS I
+	replaceCharList[0x00EC] = 0x69; /* i LATIN SMALL LETTER I WITH GRAVE */
+	replaceCharList[0x00ED] = 0x69; /* i LATIN SMALL LETTER I WITH ACUTE */
+	replaceCharList[0x00EE] = 0x69; /* i LATIN SMALL LETTER I WITH CIRCUMFLEX */
+	replaceCharList[0x00EF] = 0x69; /* i LATIN SMALL LETTER I WITH DIAERESIS */
+	replaceCharList[0x0129] = 0x69; /* i LATIN SMALL LETTER I WITH TILDE */
+	replaceCharList[0x012B] = 0x69; /* i LATIN SMALL LETTER I WITH MACRON */
+	replaceCharList[0x012D] = 0x69; /* i LATIN SMALL LETTER I WITH BREVE */
+	replaceCharList[0x012F] = 0x69; /* i LATIN SMALL LETTER I WITH OGONEK */
+	replaceCharList[0x01D0] = 0x69; /* i LATIN SMALL LETTER I WITH CARON */
+	replaceCharList[0x0131] = 0x69; /* i LATIN SMALL LETTER DOTLESS I */
 
-	replaceCharList[0x00CC] = 0x49; // I LATIN CAPITAL LETTER I WITH GRAVE
-	replaceCharList[0x00CD] = 0x49; // I LATIN CAPITAL LETTER I WITH ACUTE
-	replaceCharList[0x00CE] = 0x49; // I LATIN CAPITAL LETTER I WITH CIRCUMFLEX
-	replaceCharList[0x00CF] = 0x49; // I LATIN CAPITAL LETTER I WITH DIAERESIS
-	replaceCharList[0x0128] = 0x49; // I LATIN CAPITAL LETTER I WITH TILDE
-	replaceCharList[0x012A] = 0x49; // I LATIN CAPITAL LETTER I WITH MACRON
-	replaceCharList[0x012C] = 0x49; // I LATIN CAPITAL LETTER I WITH BREVE
-	replaceCharList[0x012E] = 0x49; // I LATIN CAPITAL LETTER I WITH OGONEK
-	replaceCharList[0x0130] = 0x49; // I LATIN CAPITAL LETTER I WITH DOT ABOVE
+	replaceCharList[0x00CC] = 0x49; /* I LATIN CAPITAL LETTER I WITH GRAVE */
+	replaceCharList[0x00CD] = 0x49; /* I LATIN CAPITAL LETTER I WITH ACUTE */
+	replaceCharList[0x00CE] = 0x49; /* I LATIN CAPITAL LETTER I WITH CIRCUMFLEX */
+	replaceCharList[0x00CF] = 0x49; /* I LATIN CAPITAL LETTER I WITH DIAERESIS */
+	replaceCharList[0x0128] = 0x49; /* I LATIN CAPITAL LETTER I WITH TILDE */
+	replaceCharList[0x012A] = 0x49; /* I LATIN CAPITAL LETTER I WITH MACRON */
+	replaceCharList[0x012C] = 0x49; /* I LATIN CAPITAL LETTER I WITH BREVE */
+	replaceCharList[0x012E] = 0x49; /* I LATIN CAPITAL LETTER I WITH OGONEK */
+	replaceCharList[0x0130] = 0x49; /* I LATIN CAPITAL LETTER I WITH DOT ABOVE */
 
-	replaceCharList[0x0137] = 0x6B; // k LATIN SMALL LETTER K WITH CEDILLA
+	replaceCharList[0x0137] = 0x6B; /* k LATIN SMALL LETTER K WITH CEDILLA */
 
-	replaceCharList[0x0136] = 0x4B; // K LATIN CAPITAL LETTER K WITH CEDILLA
+	replaceCharList[0x0136] = 0x4B; /* K LATIN CAPITAL LETTER K WITH CEDILLA */
 
-	replaceCharList[0x013A] = 0x6C; // l LATIN SMALL LETTER L WITH ACUTE
-	replaceCharList[0x013C] = 0x6C; // l LATIN SMALL LETTER L WITH CEDILLA
-	replaceCharList[0x013E] = 0x6C; // l LATIN SMALL LETTER L WITH CARON
-	replaceCharList[0x0140] = 0x6C; // l LATIN SMALL LETTER L WITH MIDDLE DOT
-	replaceCharList[0x0142] = 0x6C; // l LATIN SMALL LETTER L WITH STROKE
+	replaceCharList[0x013A] = 0x6C; /* l LATIN SMALL LETTER L WITH ACUTE */
+	replaceCharList[0x013C] = 0x6C; /* l LATIN SMALL LETTER L WITH CEDILLA */
+	replaceCharList[0x013E] = 0x6C; /* l LATIN SMALL LETTER L WITH CARON */
+	replaceCharList[0x0140] = 0x6C; /* l LATIN SMALL LETTER L WITH MIDDLE DOT */
+	replaceCharList[0x0142] = 0x6C; /* l LATIN SMALL LETTER L WITH STROKE */
 
-	replaceCharList[0x0139] = 0x4C; // L LATIN CAPITAL LETTER L WITH ACUTE
-	replaceCharList[0x013B] = 0x4C; // L LATIN CAPITAL LETTER L WITH CEDILLA
-	replaceCharList[0x013D] = 0x4C; // L LATIN CAPITAL LETTER L WITH CARON
-	replaceCharList[0x013F] = 0x4C; // L LATIN CAPITAL LETTER L WITH MIDDLE DOT
-	replaceCharList[0x0141] = 0x4C; // L LATIN CAPITAL LETTER L WITH STROKE
+	replaceCharList[0x0139] = 0x4C; /* L LATIN CAPITAL LETTER L WITH ACUTE */
+	replaceCharList[0x013B] = 0x4C; /* L LATIN CAPITAL LETTER L WITH CEDILLA */
+	replaceCharList[0x013D] = 0x4C; /* L LATIN CAPITAL LETTER L WITH CARON */
+	replaceCharList[0x013F] = 0x4C; /* L LATIN CAPITAL LETTER L WITH MIDDLE DOT */
+	replaceCharList[0x0141] = 0x4C; /* L LATIN CAPITAL LETTER L WITH STROKE */
 
-	replaceCharList[0x00F1] = 0x6E; // n LATIN SMALL LETTER N WITH TILDE
-	replaceCharList[0x0144] = 0x6E; // n LATIN SMALL LETTER N WITH ACUTE
-	replaceCharList[0x0146] = 0x6E; // n LATIN SMALL LETTER N WITH CEDILLA
-	replaceCharList[0x0148] = 0x6E; // n LATIN SMALL LETTER N WITH CARON
+	replaceCharList[0x00F1] = 0x6E; /* n LATIN SMALL LETTER N WITH TILDE */
+	replaceCharList[0x0144] = 0x6E; /* n LATIN SMALL LETTER N WITH ACUTE */
+	replaceCharList[0x0146] = 0x6E; /* n LATIN SMALL LETTER N WITH CEDILLA */
+	replaceCharList[0x0148] = 0x6E; /* n LATIN SMALL LETTER N WITH CARON */
 
-	replaceCharList[0x00D1] = 0x4E; // N LATIN CAPITAL LETTER N WITH TILDE
-	replaceCharList[0x0143] = 0x4E; // N LATIN CAPITAL LETTER N WITH ACUTE
-	replaceCharList[0x0145] = 0x4E; // N LATIN CAPITAL LETTER N WITH CEDILLA
-	replaceCharList[0x0147] = 0x4E; // N LATIN CAPITAL LETTER N WITH CARON
+	replaceCharList[0x00D1] = 0x4E; /* N LATIN CAPITAL LETTER N WITH TILDE */
+	replaceCharList[0x0143] = 0x4E; /* N LATIN CAPITAL LETTER N WITH ACUTE */
+	replaceCharList[0x0145] = 0x4E; /* N LATIN CAPITAL LETTER N WITH CEDILLA */
+	replaceCharList[0x0147] = 0x4E; /* N LATIN CAPITAL LETTER N WITH CARON */
 
-	replaceCharList[0x00F2] = 0x6F; // o LATIN SMALL LETTER O WITH GRAVE
-	replaceCharList[0x00F3] = 0x6F; // o LATIN SMALL LETTER O WITH ACUTE
-	replaceCharList[0x00F4] = 0x6F; // o LATIN SMALL LETTER O WITH CIRCUMFLEX
-	replaceCharList[0x00F5] = 0x6F; // o LATIN SMALL LETTER O WITH TILDE
-	replaceCharList[0x00F6] = 0x6F; // o LATIN SMALL LETTER O WITH DIAERESIS
-	replaceCharList[0x00F8] = 0x6F; // o LATIN SMALL LETTER O WITH STROKE
-	replaceCharList[0x014D] = 0x6F; // o LATIN SMALL LETTER O WITH MACRON
-	replaceCharList[0x014F] = 0x6F; // o LATIN SMALL LETTER O WITH BREVE
-	replaceCharList[0x01D2] = 0x6F; // o LATIN SMALL LETTER O WITH CARON
-	replaceCharList[0x01EB] = 0x6F; // o LATIN SMALL LETTER O WITH OGONEK
-	replaceCharList[0x0151] = 0x6F; // o LATIN SMALL LETTER O WITH DOUBLE ACUTE
-	replaceCharList[0x0153] = 0x6F; // LATIN SMALL LIGATURE OE
+	replaceCharList[0x00F2] = 0x6F; /* o LATIN SMALL LETTER O WITH GRAVE */
+	replaceCharList[0x00F3] = 0x6F; /* o LATIN SMALL LETTER O WITH ACUTE */
+	replaceCharList[0x00F4] = 0x6F; /* o LATIN SMALL LETTER O WITH CIRCUMFLEX */
+	replaceCharList[0x00F5] = 0x6F; /* o LATIN SMALL LETTER O WITH TILDE */
+	replaceCharList[0x00F6] = 0x6F; /* o LATIN SMALL LETTER O WITH DIAERESIS */
+	replaceCharList[0x00F8] = 0x6F; /* o LATIN SMALL LETTER O WITH STROKE */
+	replaceCharList[0x014D] = 0x6F; /* o LATIN SMALL LETTER O WITH MACRON */
+	replaceCharList[0x014F] = 0x6F; /* o LATIN SMALL LETTER O WITH BREVE */
+	replaceCharList[0x01D2] = 0x6F; /* o LATIN SMALL LETTER O WITH CARON */
+	replaceCharList[0x01EB] = 0x6F; /* o LATIN SMALL LETTER O WITH OGONEK */
+	replaceCharList[0x0151] = 0x6F; /* o LATIN SMALL LETTER O WITH DOUBLE ACUTE */
+	replaceCharList[0x0153] = 0x6F; /* LATIN SMALL LIGATURE OE */
 
-	replaceCharList[0x00D2] = 0x4F; // O LATIN CAPITAL LETTER O WITH GRAVE
-	replaceCharList[0x00D3] = 0x4F; // O LATIN CAPITAL LETTER O WITH ACUTE
-	replaceCharList[0x00D4] = 0x4F; // O LATIN CAPITAL LETTER O WITH CIRCUMFLEX
-	replaceCharList[0x00D5] = 0x4F; // O LATIN CAPITAL LETTER O WITH TILDE
-	replaceCharList[0x00D6] = 0x4F; // O LATIN CAPITAL LETTER O WITH DIAERESIS
-	replaceCharList[0x00D8] = 0x4F; // O LATIN CAPITAL LETTER O WITH STROKE
-	replaceCharList[0x014C] = 0x4F; // O LATIN CAPITAL LETTER O WITH MACRON
-	replaceCharList[0x014E] = 0x4F; // O LATIN CAPITAL LETTER O WITH BREVE
-	replaceCharList[0x01D1] = 0x4F; // O LATIN CAPITAL LETTER O WITH CARON
-	replaceCharList[0x01EA] = 0x4F; // O LATIN CAPITAL LETTER O WITH OGONEK
-	replaceCharList[0x0150] = 0x4F; // O LATIN CAPITAL LETTER O WITH DOUBLE ACUTE
-	replaceCharList[0x0152] = 0x4F; // LATIN CAPITAL LIGATURE OE
+	replaceCharList[0x00D2] = 0x4F; /* O LATIN CAPITAL LETTER O WITH GRAVE */
+	replaceCharList[0x00D3] = 0x4F; /* O LATIN CAPITAL LETTER O WITH ACUTE */
+	replaceCharList[0x00D4] = 0x4F; /* O LATIN CAPITAL LETTER O WITH CIRCUMFLEX */
+	replaceCharList[0x00D5] = 0x4F; /* O LATIN CAPITAL LETTER O WITH TILDE */
+	replaceCharList[0x00D6] = 0x4F; /* O LATIN CAPITAL LETTER O WITH DIAERESIS */
+	replaceCharList[0x00D8] = 0x4F; /* O LATIN CAPITAL LETTER O WITH STROKE */
+	replaceCharList[0x014C] = 0x4F; /* O LATIN CAPITAL LETTER O WITH MACRON */
+	replaceCharList[0x014E] = 0x4F; /* O LATIN CAPITAL LETTER O WITH BREVE */
+	replaceCharList[0x01D1] = 0x4F; /* O LATIN CAPITAL LETTER O WITH CARON */
+	replaceCharList[0x01EA] = 0x4F; /* O LATIN CAPITAL LETTER O WITH OGONEK */
+	replaceCharList[0x0150] = 0x4F; /* O LATIN CAPITAL LETTER O WITH DOUBLE ACUTE */
+	replaceCharList[0x0152] = 0x4F; /* LATIN CAPITAL LIGATURE OE */
 
-	replaceCharList[0x0155] = 0x72; // r LATIN SMALL LETTER R WITH ACUTE
-	replaceCharList[0x0157] = 0x72; // r LATIN SMALL LETTER R WITH CEDILLA
-	replaceCharList[0x0159] = 0x72; // r LATIN SMALL LETTER R WITH CARON
+	replaceCharList[0x0155] = 0x72; /* r LATIN SMALL LETTER R WITH ACUTE */
+	replaceCharList[0x0157] = 0x72; /* r LATIN SMALL LETTER R WITH CEDILLA */
+	replaceCharList[0x0159] = 0x72; /* r LATIN SMALL LETTER R WITH CARON */
 
-	replaceCharList[0x0154] = 0x52; // R LATIN CAPITAL LETTER R WITH ACUTE
-	replaceCharList[0x0156] = 0x52; // R LATIN CAPITAL LETTER R WITH CEDILLA
-	replaceCharList[0x0158] = 0x52; // R LATIN CAPITAL LETTER R WITH CARON
+	replaceCharList[0x0154] = 0x52; /* R LATIN CAPITAL LETTER R WITH ACUTE */
+	replaceCharList[0x0156] = 0x52; /* R LATIN CAPITAL LETTER R WITH CEDILLA */
+	replaceCharList[0x0158] = 0x52; /* R LATIN CAPITAL LETTER R WITH CARON */
 
-	replaceCharList[0x015B] = 0x73; // s LATIN SMALL LETTER S WITH ACUTE
-	replaceCharList[0x015D] = 0x73; // s LATIN SMALL LETTER S WITH CIRCUMFLEX
-	replaceCharList[0x015F] = 0x73; // s LATIN SMALL LETTER S WITH CEDILLA
-	replaceCharList[0x0161] = 0x73; // s LATIN SMALL LETTER S WITH CARON
+	replaceCharList[0x015B] = 0x73; /* s LATIN SMALL LETTER S WITH ACUTE */
+	replaceCharList[0x015D] = 0x73; /* s LATIN SMALL LETTER S WITH CIRCUMFLEX */
+	replaceCharList[0x015F] = 0x73; /* s LATIN SMALL LETTER S WITH CEDILLA */
+	replaceCharList[0x0161] = 0x73; /* s LATIN SMALL LETTER S WITH CARON */
 
-	replaceCharList[0x015A] = 0x53; // S LATIN CAPITAL LETTER S WITH ACUTE
-	replaceCharList[0x015C] = 0x53; // S LATIN CAPITAL LETTER S WITH CIRCUMFLEX
-	replaceCharList[0x015E] = 0x53; // S LATIN CAPITAL LETTER S WITH CEDILLA
-	replaceCharList[0x0160] = 0x53; // S LATIN CAPITAL LETTER S WITH CARON
+	replaceCharList[0x015A] = 0x53; /* S LATIN CAPITAL LETTER S WITH ACUTE */
+	replaceCharList[0x015C] = 0x53; /* S LATIN CAPITAL LETTER S WITH CIRCUMFLEX */
+	replaceCharList[0x015E] = 0x53; /* S LATIN CAPITAL LETTER S WITH CEDILLA */
+	replaceCharList[0x0160] = 0x53; /* S LATIN CAPITAL LETTER S WITH CARON */
 
-	replaceCharList[0x00FE] = 0x74; // t LATIN CAPITAL LETTER THORN
-	replaceCharList[0x0163] = 0x74; // t LATIN SMALL LETTER T WITH CEDILLA
-	replaceCharList[0x0165] = 0x74; // t LATIN SMALL LETTER T WITH CARON
-	replaceCharList[0x0167] = 0x74; // t LATIN SMALL LETTER T WITH STROKE
-	replaceCharList[0x021B] = 0x74; // t LATIN SMALL LETTER T WITH COMMA BELOW
+	replaceCharList[0x00FE] = 0x74; /* t LATIN CAPITAL LETTER THORN */
+	replaceCharList[0x0163] = 0x74; /* t LATIN SMALL LETTER T WITH CEDILLA */
+	replaceCharList[0x0165] = 0x74; /* t LATIN SMALL LETTER T WITH CARON */
+	replaceCharList[0x0167] = 0x74; /* t LATIN SMALL LETTER T WITH STROKE */
+	replaceCharList[0x021B] = 0x74; /* t LATIN SMALL LETTER T WITH COMMA BELOW */
 
-	replaceCharList[0x00DE] = 0x54; // T LATIN CAPITAL LETTER THORN
-	replaceCharList[0x0162] = 0x54; // T LATIN CAPITAL LETTER T WITH CEDILLA
-	replaceCharList[0x0164] = 0x54; // T LATIN CAPITAL LETTER T WITH CARON
-	replaceCharList[0x0166] = 0x54; // T LATIN CAPITAL LETTER T WITH STROKE
+	replaceCharList[0x00DE] = 0x54; /* T LATIN CAPITAL LETTER THORN */
+	replaceCharList[0x0162] = 0x54; /* T LATIN CAPITAL LETTER T WITH CEDILLA */
+	replaceCharList[0x0164] = 0x54; /* T LATIN CAPITAL LETTER T WITH CARON */
+	replaceCharList[0x0166] = 0x54; /* T LATIN CAPITAL LETTER T WITH STROKE */
 
-	replaceCharList[0x00F9] = 0x75; // u LATIN SMALL LETTER U WITH GRAVE
-	replaceCharList[0x00FA] = 0x75; // u LATIN SMALL LETTER U WITH ACUTE
-	replaceCharList[0x00FB] = 0x75; // u LATIN SMALL LETTER U WITH CIRCUMFLEX
-	replaceCharList[0x00FC] = 0x75; // u LATIN SMALL LETTER U WITH DIAERESIS
-	replaceCharList[0x0169] = 0x75; // u LATIN SMALL LETTER U WITH TILDE
-	replaceCharList[0x016B] = 0x75; // u LATIN SMALL LETTER U WITH MACRON
-	replaceCharList[0x016D] = 0x75; // u LATIN SMALL LETTER U WITH BREVE
-	replaceCharList[0x016F] = 0x75; // u LATIN SMALL LETTER U WITH RING ABOVE
-	replaceCharList[0x0171] = 0x75; // u LATIN SMALL LETTER U WITH DOUBLE ACUTE
-	replaceCharList[0x0173] = 0x75; // u LATIN SMALL LETTER U WITH OGONEK
-	replaceCharList[0x01D4] = 0x75; // u LATIN SMALL LETTER U WITH CARON
+	replaceCharList[0x00F9] = 0x75; /* u LATIN SMALL LETTER U WITH GRAVE */
+	replaceCharList[0x00FA] = 0x75; /* u LATIN SMALL LETTER U WITH ACUTE */
+	replaceCharList[0x00FB] = 0x75; /* u LATIN SMALL LETTER U WITH CIRCUMFLEX */
+	replaceCharList[0x00FC] = 0x75; /* u LATIN SMALL LETTER U WITH DIAERESIS */
+	replaceCharList[0x0169] = 0x75; /* u LATIN SMALL LETTER U WITH TILDE */
+	replaceCharList[0x016B] = 0x75; /* u LATIN SMALL LETTER U WITH MACRON */
+	replaceCharList[0x016D] = 0x75; /* u LATIN SMALL LETTER U WITH BREVE */
+	replaceCharList[0x016F] = 0x75; /* u LATIN SMALL LETTER U WITH RING ABOVE */
+	replaceCharList[0x0171] = 0x75; /* u LATIN SMALL LETTER U WITH DOUBLE ACUTE */
+	replaceCharList[0x0173] = 0x75; /* u LATIN SMALL LETTER U WITH OGONEK */
+	replaceCharList[0x01D4] = 0x75; /* u LATIN SMALL LETTER U WITH CARON */
 
-	replaceCharList[0x00D9] = 0x55; // U LATIN CAPITAL LETTER U WITH GRAVE
-	replaceCharList[0x00DA] = 0x55; // U LATIN CAPITAL LETTER U WITH ACUTE
-	replaceCharList[0x00DB] = 0x55; // U LATIN CAPITAL LETTER U WITH CIRCUMFLEX
-	replaceCharList[0x00DC] = 0x55; // U LATIN CAPITAL LETTER U WITH DIAERESIS
-	replaceCharList[0x0168] = 0x55; // U LATIN CAPITAL LETTER U WITH TILDE
-	replaceCharList[0x016A] = 0x55; // U LATIN CAPITAL LETTER U WITH MACRON
-	replaceCharList[0x016C] = 0x55; // U LATIN CAPITAL LETTER U WITH BREVE
-	replaceCharList[0x016E] = 0x55; // U LATIN CAPITAL LETTER U WITH RING ABOVE
-	replaceCharList[0x0170] = 0x55; // U LATIN CAPITAL LETTER U WITH DOUBLE ACUTE
-	replaceCharList[0x0172] = 0x55; // U LATIN CAPITAL LETTER U WITH OGONEK
-	replaceCharList[0x01D3] = 0x55; // U LATIN CAPITAL LETTER U WITH CARON
+	replaceCharList[0x00D9] = 0x55; /* U LATIN CAPITAL LETTER U WITH GRAVE */
+	replaceCharList[0x00DA] = 0x55; /* U LATIN CAPITAL LETTER U WITH ACUTE */
+	replaceCharList[0x00DB] = 0x55; /* U LATIN CAPITAL LETTER U WITH CIRCUMFLEX */
+	replaceCharList[0x00DC] = 0x55; /* U LATIN CAPITAL LETTER U WITH DIAERESIS */
+	replaceCharList[0x0168] = 0x55; /* U LATIN CAPITAL LETTER U WITH TILDE */
+	replaceCharList[0x016A] = 0x55; /* U LATIN CAPITAL LETTER U WITH MACRON */
+	replaceCharList[0x016C] = 0x55; /* U LATIN CAPITAL LETTER U WITH BREVE */
+	replaceCharList[0x016E] = 0x55; /* U LATIN CAPITAL LETTER U WITH RING ABOVE */
+	replaceCharList[0x0170] = 0x55; /* U LATIN CAPITAL LETTER U WITH DOUBLE ACUTE */
+	replaceCharList[0x0172] = 0x55; /* U LATIN CAPITAL LETTER U WITH OGONEK */
+	replaceCharList[0x01D3] = 0x55; /* U LATIN CAPITAL LETTER U WITH CARON */
 
-	replaceCharList[0x00FD] = 0x79; // y LATIN SMALL LETTER Y WITH ACUTE
-	replaceCharList[0x00FF] = 0x79; // y LATIN SMALL LETTER Y WITH DIAERESIS
-	replaceCharList[0x0177] = 0x79; // y LATIN SMALL LETTER Y WITH CIRCUMFLEX
-	replaceCharList[0x0233] = 0x79; // y LATIN SMALL LETTER Y WITH MACRON
-	replaceCharList[0x1EF3] = 0x79; // y LATIN SMALL LETTER Y WITH GRAVE
-	replaceCharList[0x1EF9] = 0x79; // y LATIN SMALL LETTER Y WITH TILDE
+	replaceCharList[0x00FD] = 0x79; /* y LATIN SMALL LETTER Y WITH ACUTE */
+	replaceCharList[0x00FF] = 0x79; /* y LATIN SMALL LETTER Y WITH DIAERESIS */
+	replaceCharList[0x0177] = 0x79; /* y LATIN SMALL LETTER Y WITH CIRCUMFLEX */
+	replaceCharList[0x0233] = 0x79; /* y LATIN SMALL LETTER Y WITH MACRON */
+	replaceCharList[0x1EF3] = 0x79; /* y LATIN SMALL LETTER Y WITH GRAVE */
+	replaceCharList[0x1EF9] = 0x79; /* y LATIN SMALL LETTER Y WITH TILDE */
 
-	replaceCharList[0x00DD] = 0x59; // Y LATIN CAPITAL LETTER Y WITH ACUTE
-	replaceCharList[0x0176] = 0x59; // Y LATIN CAPITAL LETTER Y WITH CIRCUMFLEX
-	replaceCharList[0x0178] = 0x59; // Y LATIN CAPITAL LETTER Y WITH DIAERESIS
-	replaceCharList[0x0232] = 0x59; // Y LATIN CAPITAL LETTER Y WITH MACRON
-	replaceCharList[0x1EF2] = 0x59; // Y LATIN CAPITAL LETTER Y WITH GRAVE
-	replaceCharList[0x1EF8] = 0x59; // Y LATIN CAPITAL LETTER Y WITH TILDE
+	replaceCharList[0x00DD] = 0x59; /* Y LATIN CAPITAL LETTER Y WITH ACUTE */
+	replaceCharList[0x0176] = 0x59; /* Y LATIN CAPITAL LETTER Y WITH CIRCUMFLEX */
+	replaceCharList[0x0178] = 0x59; /* Y LATIN CAPITAL LETTER Y WITH DIAERESIS */
+	replaceCharList[0x0232] = 0x59; /* Y LATIN CAPITAL LETTER Y WITH MACRON */
+	replaceCharList[0x1EF2] = 0x59; /* Y LATIN CAPITAL LETTER Y WITH GRAVE */
+	replaceCharList[0x1EF8] = 0x59; /* Y LATIN CAPITAL LETTER Y WITH TILDE */
 
-	replaceCharList[0x017A] = 0x7A; // z LATIN SMALL LETTER Z WITH ACUTE
-	replaceCharList[0x017C] = 0x7A; // z LATIN SMALL LETTER Z WITH DOT ABOVE
-	replaceCharList[0x017E] = 0x7A; // z LATIN SMALL LETTER Z WITH CARON
+	replaceCharList[0x017A] = 0x7A; /* z LATIN SMALL LETTER Z WITH ACUTE */
+	replaceCharList[0x017C] = 0x7A; /* z LATIN SMALL LETTER Z WITH DOT ABOVE */
+	replaceCharList[0x017E] = 0x7A; /* z LATIN SMALL LETTER Z WITH CARON */
 
-	replaceCharList[0x0179] = 0x5A; // Z LATIN CAPITAL LETTER Z WITH ACUTE
-	replaceCharList[0x017B] = 0x5A; // Z LATIN CAPITAL LETTER Z WITH DOT ABOVE
-	replaceCharList[0x017D] = 0x5A; // Z LATIN CAPITAL LETTER Z WITH CARON
+	replaceCharList[0x0179] = 0x5A; /* Z LATIN CAPITAL LETTER Z WITH ACUTE */
+	replaceCharList[0x017B] = 0x5A; /* Z LATIN CAPITAL LETTER Z WITH DOT ABOVE */
+	replaceCharList[0x017D] = 0x5A; /* Z LATIN CAPITAL LETTER Z WITH CARON */
 }
 
 
@@ -444,7 +443,7 @@ int MsgTextConvert::convertUTF8ToGSM7bit(OUT unsigned char *pDestText, IN int ma
 		utf8Length = srcTextLen;
 	}
 
-	int maxUCS2Length = utf8Length;		// max # of UCS2 chars, NOT bytes. when all utf8 chars are only one byte, UCS2Length is maxUCS2 Length. otherwise (ex: 2 bytes of UTF8 is one char) UCS2Length must be  less than utf8Length
+	int maxUCS2Length = utf8Length;		/* max # of UCS2 chars, NOT bytes. when all utf8 chars are only one byte, UCS2Length is maxUCS2 Length. otherwise (ex: 2 bytes of UTF8 is one char) UCS2Length must be  less than utf8Length  */
 
 	WCHAR *pUCS2Text = NULL;
 	unique_ptr<WCHAR*, void(*)(WCHAR**)> buf(&pUCS2Text, unique_ptr_deleter);
@@ -486,7 +485,7 @@ int MsgTextConvert::convertUTF8ToUCS2(OUT unsigned char *pDestText, IN int maxLe
 		return -1;
 	}
 
-	// null terminated string
+	/* null terminated string */
 	if ( srcTextLen == -1 ) {
 		textLen = strlen((char*)pSrcText);
 		srcTextLen = textLen;
@@ -495,7 +494,7 @@ int MsgTextConvert::convertUTF8ToUCS2(OUT unsigned char *pDestText, IN int maxLe
 	}
 
 	GIConv cd;
-	int err=0;
+	int err = 0;
 
 	cd = g_iconv_open("UTF16BE", "UTF8");
 
@@ -532,7 +531,7 @@ int MsgTextConvert::convertUTF8ToAuto(OUT unsigned char *pDestText, IN int maxLe
 
 	utf8Length = srcTextLen;
 
-	int maxUCS2Length = utf8Length;		// max # of UCS2 chars, NOT bytes. when all utf8 chars are only one byte, UCS2Length is maxUCS2 Length. otherwise (ex: 2 bytes of UTF8 is one char) UCS2Length must be  less than utf8Length
+	int maxUCS2Length = utf8Length;		/* max # of UCS2 chars, NOT bytes. when all utf8 chars are only one byte, UCS2Length is maxUCS2 Length. otherwise (ex: 2 bytes of UTF8 is one char) UCS2Length must be  less than utf8Length */
 	WCHAR pUCS2Text[maxUCS2Length];
 	memset(pUCS2Text, 0x00, maxUCS2Length * sizeof(WCHAR));
 
@@ -592,7 +591,7 @@ int MsgTextConvert::convertGSM7bitToUTF8(OUT unsigned char *pDestText, IN int ma
 {
 	int utf8Length = 0;
 	int ucs2Length = 0;
-	int maxUCS2Length = srcTextLen;		// max # of UCS2 chars, NOT bytes. when all gsm7 chars are only one byte(-there is no extenstion), UCS2Length is maxUCS2 Length. otherwise(ex: gsm7 char starts with 0x1b) UCS2Length must be less than gsm7 legnth
+	int maxUCS2Length = srcTextLen;		/* max # of UCS2 chars, NOT bytes. when all gsm7 chars are only one byte(-there is no extenstion), UCS2Length is maxUCS2 Length. otherwise(ex: gsm7 char starts with 0x1b) UCS2Length must be less than gsm7 legnth */
 
 	WCHAR pUCS2Text[maxUCS2Length];
 	memset(pUCS2Text, 0x00, maxUCS2Length * sizeof(WCHAR));
@@ -636,7 +635,7 @@ int MsgTextConvert::convertUCS2ToUTF8(OUT unsigned char *pDestText, IN int maxLe
 	GIConv cd;
 	int err = 0;
 
-	cd = g_iconv_open( "UTF8", "UTF16BE" );
+	cd = g_iconv_open("UTF8", "UTF16BE");
 
 	if (cd > 0) {
 		err = g_iconv(cd, (char**)&pSrcText, (gsize*)&srcTextLen, (char**)&pDestText, (gsize*)&remainedBuffer);
@@ -677,9 +676,9 @@ int MsgTextConvert::convertEUCKRToUTF8(OUT unsigned char *pDestText, IN int maxL
 	}
 
 	GIConv cd;
-	int err=0;
+	int err = 0;
 
-	cd = g_iconv_open( "UTF8", "EUCKR" );
+	cd = g_iconv_open("UTF8", "EUCKR");
 
 	if (cd > 0) {
 		err = g_iconv(cd, (char**)&pSrcText, (gsize*)&srcTextLen, (char**)&pDestText, (gsize*)&remainedBuffer);
@@ -719,9 +718,9 @@ int MsgTextConvert::convertSHIFTJISToUTF8(OUT unsigned char *pDestText, IN int m
 	}
 
 	GIConv cd;
-	int err=0;
+	int err = 0;
 
-	cd = g_iconv_open( "UTF8", "SHIFT-JIS" );
+	cd = g_iconv_open("UTF8", "SHIFT-JIS");
 
 	if (cd > 0) {
 		err = g_iconv(cd, (char**)&pSrcText, (gsize*)&srcTextLen, (char**)&pDestText, (gsize*)&remainedBuffer);
@@ -757,7 +756,7 @@ return:
 */
 int MsgTextConvert::convertUCS2ToGSM7bit(OUT unsigned char *pDestText, IN int maxLength, IN const unsigned char *pSrcText, IN int srcTextLen, OUT MSG_LANGUAGE_ID_T *pLangId, OUT bool *bIncludeAbnormalChar)
 {
-	// for UNICODE
+	/* for UNICODE */
 	int outTextLen = 0;
 	unsigned char lowerByte, upperByte;
 
@@ -775,9 +774,8 @@ int MsgTextConvert::convertUCS2ToGSM7bit(OUT unsigned char *pDestText, IN int ma
 
 	unsigned short inText;
 
-	// Get Language Type by checking each character
-	for (int index = 0; index < srcTextLen; index++)
-	{
+	/* Get Language Type by checking each character */
+	for (int index = 0; index < srcTextLen; index++) {
 		upperByte = pSrcText[index++];
 		lowerByte = pSrcText[index];
 
@@ -801,15 +799,14 @@ int MsgTextConvert::convertUCS2ToGSM7bit(OUT unsigned char *pDestText, IN int ma
 
 	MSG_DEBUG("charType : [%d]", currType);
 
-	for (int index = 0; index < srcTextLen; index++)
-	{
+	for (int index = 0; index < srcTextLen; index++) {
 		upperByte = pSrcText[index++];
 		lowerByte = pSrcText[index];
 
 		inText = (upperByte << 8) & 0xFF00;
 		inText = inText | lowerByte;
 
-		// Check Default Char
+		/* Check Default Char */
 		itChar = ucs2toGSM7DefList.find(inText);
 
 		if (itChar != ucs2toGSM7DefList.end()) {
@@ -819,7 +816,7 @@ int MsgTextConvert::convertUCS2ToGSM7bit(OUT unsigned char *pDestText, IN int ma
 				itExt = ucs2toGSM7ExtList.find(inText);
 
 				if (itExt != ucs2toGSM7ExtList.end()) {
-					// prevent buffer overflow
+					/* prevent buffer overflow */
 					if (maxLength <= outTextLen + 1) {
 						MSG_DEBUG("Buffer Full.");
 						break;
@@ -843,7 +840,7 @@ int MsgTextConvert::convertUCS2ToGSM7bit(OUT unsigned char *pDestText, IN int ma
 				itExt = ucs2toTurkishList.find(inText);
 
 				if (itExt != ucs2toTurkishList.end()) {
-					// prevent buffer overflow
+					/* prevent buffer overflow */
 					if (maxLength <= outTextLen + 1) {
 						MSG_DEBUG("Buffer Full.");
 						break;
@@ -867,7 +864,7 @@ int MsgTextConvert::convertUCS2ToGSM7bit(OUT unsigned char *pDestText, IN int ma
 				itExt = ucs2toSpanishList.find(inText);
 
 				if (itExt != ucs2toSpanishList.end()) {
-					// prevent buffer overflow
+					/* prevent buffer overflow */
 					if (maxLength <= outTextLen + 1) {
 						MSG_DEBUG("Buffer Full.");
 						break;
@@ -891,7 +888,7 @@ int MsgTextConvert::convertUCS2ToGSM7bit(OUT unsigned char *pDestText, IN int ma
 				itExt = ucs2toPortuList.find(inText);
 
 				if (itExt != ucs2toPortuList.end()) {
-					// prevent buffer overflow
+					/* prevent buffer overflow */
 					if (maxLength <= outTextLen + 1) {
 						MSG_DEBUG("Buffer Full.");
 						break;
@@ -921,7 +918,7 @@ int MsgTextConvert::convertUCS2ToGSM7bit(OUT unsigned char *pDestText, IN int ma
 			}
 		}
 
-		// prevent buffer overflow
+		/* prevent buffer overflow */
 		if (maxLength <= outTextLen) {
 			MSG_DEBUG("Buffer full.");
 			break;
@@ -940,7 +937,7 @@ int MsgTextConvert::convertUCS2ToGSM7bit(OUT unsigned char *pDestText, IN int ma
 #ifndef FEATURE_SMS_CDMA
 int MsgTextConvert::convertUCS2ToGSM7bitAuto(OUT unsigned char *pDestText, IN int maxLength, IN const unsigned char *pSrcText, IN int srcTextLen, OUT bool *pUnknown)
 {
-	// for UNICODE
+	/* for UNICODE */
 	int outTextLen = 0;
 	unsigned char lowerByte, upperByte;
 
@@ -954,15 +951,14 @@ int MsgTextConvert::convertUCS2ToGSM7bitAuto(OUT unsigned char *pDestText, IN in
 
 	unsigned short inText;
 
-	for (int index = 0; index < srcTextLen; index++)
-	{
+	for (int index = 0; index < srcTextLen; index++) {
 		upperByte = pSrcText[index++];
 		lowerByte = pSrcText[index];
 
 		inText = (upperByte << 8) & 0xFF00;
 		inText = inText | lowerByte;
 
-		// Check Default Char
+		/* Check Default Char */
 		itChar = ucs2toGSM7DefList.find(inText);
 
 		if (itChar != ucs2toGSM7DefList.end()) {
@@ -971,7 +967,7 @@ int MsgTextConvert::convertUCS2ToGSM7bitAuto(OUT unsigned char *pDestText, IN in
 			itExt = ucs2toGSM7ExtList.find(inText);
 
 			if (itExt != ucs2toGSM7ExtList.end()) {
-				// prevent buffer overflow
+				/* prevent buffer overflow */
 				if (maxLength <= outTextLen + 1) {
 					MSG_DEBUG("Buffer Full.");
 					break;
@@ -986,7 +982,7 @@ int MsgTextConvert::convertUCS2ToGSM7bitAuto(OUT unsigned char *pDestText, IN in
 			}
 		}
 
-		// prevent buffer overflow
+		/* prevent buffer overflow */
 		if (maxLength <= outTextLen) {
 			MSG_DEBUG("Buffer full\n");
 			break;
@@ -1005,7 +1001,7 @@ int MsgTextConvert::convertUCS2ToGSM7bitAuto(OUT unsigned char *pDestText, IN in
 #else
 int MsgTextConvert::convertUCS2ToASCII(OUT unsigned char *pDestText, IN int maxLength, IN const unsigned char *pSrcText, IN int srcTextLen, OUT bool *pUnknown)
 {
-	// for UNICODE
+	/* for UNICODE */
 	int outTextLen = 0;
 	unsigned char lowerByte, upperByte;
 
@@ -1019,15 +1015,14 @@ int MsgTextConvert::convertUCS2ToASCII(OUT unsigned char *pDestText, IN int maxL
 
 	unsigned short inText;
 
-	for (int index = 0; index < srcTextLen; index++)
-	{
+	for (int index = 0; index < srcTextLen; index++) {
 		upperByte = pSrcText[index++];
 		lowerByte = pSrcText[index];
 
 		inText = (upperByte << 8) & 0xFF00;
 		inText = inText | lowerByte;
 
-		// Check Default Char
+		/* Check Default Char */
 		if (inText > 0x007f) {
 			MSG_DEBUG("Abnormal character is included. inText : [%04x]", inText);
 			*pUnknown = true;
@@ -1036,12 +1031,11 @@ int MsgTextConvert::convertUCS2ToASCII(OUT unsigned char *pDestText, IN int maxL
 
 		pDestText[outTextLen++] = (unsigned char)inText;
 
-		// prevent buffer overflow
+		/* prevent buffer overflow */
 		if (maxLength <= outTextLen) {
 			MSG_DEBUG("Buffer full\n");
 			break;
 		}
-
 	}
 
 #ifdef CONVERT_DUMP
@@ -1074,27 +1068,26 @@ int MsgTextConvert::convertGSM7bitToUCS2(OUT unsigned char *pDestText, IN int ma
 		return -1;
 	}
 
-	for (int i = 0; i<srcTextLen; i++)
-	{
+	for (int i = 0; i < srcTextLen; i++) {
 		if (maxLength == 0) {
 			break;
 		}
 
 		if (pSrcText[i] >= 0x80) {
-			//error
+			/*error */
 			MSG_ERR(">>>>>>>a_pTextString[i]=%x, The alpha isn't the gsm 7bit code, Never Come here!!!\n", pSrcText[i]);
 			return -1;
 		}
 
-		if (pLangInfo->bLockingShift == true) { // National Language Locking Shift
+		if (pLangInfo->bLockingShift == true) { /* National Language Locking Shift */
 			MSG_DEBUG("Locking Shift [%d]", pLangInfo->lockingLang);
 
 			if (pLangInfo->lockingLang == MSG_LANG_ID_TURKISH) {
-				// Check Escape
+				/* Check Escape */
 				if (g_TurkishLockingToUCS2[pSrcText[i]] == 0x001B) {
 					i++;
 
-					if (pLangInfo->bSingleShift == true) { // National Language Single Shift
+					if (pLangInfo->bSingleShift == true) { /* National Language Single Shift */
 						MSG_DEBUG("Single Shift [%d]", pLangInfo->singleLang);
 
 						if (pLangInfo->singleLang == MSG_LANG_ID_TURKISH) {
@@ -1110,20 +1103,20 @@ int MsgTextConvert::convertGSM7bitToUCS2(OUT unsigned char *pDestText, IN int ma
 							lowerByte = g_GSM7BitExtToUCS2[pSrcText[i]] & 0x00FF;
 							upperByte = (g_GSM7BitExtToUCS2[pSrcText[i]] & 0xFF00) >> 8;
 						}
-					} else { // GSM 7 bit Default Alphabet Extension Table
+					} else { /* GSM 7 bit Default Alphabet Extension Table */
 						lowerByte = g_GSM7BitExtToUCS2[pSrcText[i]] & 0x00FF;
 						upperByte = (g_GSM7BitExtToUCS2[pSrcText[i]] & 0xFF00) >> 8;
 					}
-				} else { // TURKISH - National Language Locking Shift
+				} else { /* TURKISH - National Language Locking Shift */
 					lowerByte = g_TurkishLockingToUCS2[pSrcText[i]] & 0x00FF;
 					upperByte = (g_TurkishLockingToUCS2[pSrcText[i]] & 0xFF00) >> 8;
 				}
 			} else if (pLangInfo->lockingLang == MSG_LANG_ID_PORTUGUESE) {
-				// Check Escape
+				/* Check Escape */
 				if (g_PortuLockingToUCS2[pSrcText[i]] == 0x001B) {
 					i++;
 
-					if (pLangInfo->bSingleShift == true) { // National Language Single Shift
+					if (pLangInfo->bSingleShift == true) { /* National Language Single Shift */
 						MSG_DEBUG("Single Shift [%d]", pLangInfo->singleLang);
 
 						if (pLangInfo->singleLang == MSG_LANG_ID_TURKISH) {
@@ -1139,21 +1132,21 @@ int MsgTextConvert::convertGSM7bitToUCS2(OUT unsigned char *pDestText, IN int ma
 							lowerByte = g_GSM7BitExtToUCS2[pSrcText[i]] & 0x00FF;
 							upperByte = (g_GSM7BitExtToUCS2[pSrcText[i]] & 0xFF00) >> 8;
 						}
-					} else { // GSM 7 bit Default Alphabet Extension Table
+					} else { /* GSM 7 bit Default Alphabet Extension Table */
 						lowerByte = g_GSM7BitExtToUCS2[pSrcText[i]] & 0x00FF;
 						upperByte = (g_GSM7BitExtToUCS2[pSrcText[i]] & 0xFF00) >> 8;
 					}
-				} else { // PORTUGUESE - National Language Locking Shift
+				} else { /* PORTUGUESE - National Language Locking Shift */
 					lowerByte = g_PortuLockingToUCS2[pSrcText[i]] & 0x00FF;
 					upperByte = (g_PortuLockingToUCS2[pSrcText[i]] & 0xFF00) >> 8;
 				}
 			}
 		} else {
-			// Check Escape
+			/* Check Escape */
 			if (g_GSM7BitToUCS2[pSrcText[i]] == 0x001B) {
 				i++;
 
-				if (pLangInfo->bSingleShift == true) { // National Language Single Shift
+				if (pLangInfo->bSingleShift == true) { /* National Language Single Shift */
 					MSG_DEBUG("Single Shift [%d]", pLangInfo->singleLang);
 
 					if (pLangInfo->singleLang == MSG_LANG_ID_TURKISH) {
@@ -1169,7 +1162,7 @@ int MsgTextConvert::convertGSM7bitToUCS2(OUT unsigned char *pDestText, IN int ma
 						lowerByte = g_GSM7BitExtToUCS2[pSrcText[i]] & 0x00FF;
 						upperByte = (g_GSM7BitExtToUCS2[pSrcText[i]] & 0xFF00) >> 8;
 					}
-				} else { // GSM 7 bit Default Alphabet Extension Table
+				} else { /* GSM 7 bit Default Alphabet Extension Table */
 					lowerByte = g_GSM7BitExtToUCS2[pSrcText[i]] & 0x00FF;
 					upperByte = (g_GSM7BitExtToUCS2[pSrcText[i]] & 0xFF00) >> 8;
 				}
@@ -1200,8 +1193,7 @@ void MsgTextConvert::convertDumpTextToHex(const unsigned char *pText, int length
 	MSG_DEBUG("   Dump Text To Hex - Length :%d\n", length);
 	MSG_DEBUG("=======================================");
 
-	for (int i = 0; i < length; i++ )
-	{
+	for (int i = 0; i < length; i++) {
 		MSG_DEBUG("[%02x]", pText[i]);
 	}
 

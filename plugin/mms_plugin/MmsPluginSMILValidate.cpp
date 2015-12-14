@@ -165,7 +165,7 @@ MSG_SMIL_ERR_E _MsgMMSValidateSMILRegion(MMS_MESSAGE_DATA_S *pMsgData, bool *pbR
 				return eRet;
 			}
 
-			eRet = _MsgMMSAddDefaultSecondSMILRegion(pMsgData,!bTextReg);
+			eRet = _MsgMMSAddDefaultSecondSMILRegion(pMsgData, !bTextReg);
 			if (eRet != MSG_SMIL_SUCCESS) {
 				MSG_DEBUG("_MsgMMSValidateSMILRegion: Invalid Region Information\n");
 				return eRet;
@@ -251,7 +251,7 @@ MSG_SMIL_ERR_E _MsgMMSAddDefaultFirstSMILRegion(MMS_MESSAGE_DATA_S *pMsgData, bo
 	else
 		snprintf(pRegion->szID, MAX_SMIL_REGION_ID, "%s", MSG_SMIL_DEFAULT_IMG_REG);
 
-	if (_MsgMmsAddRegion(pMsgData,pRegion) != MSG_SUCCESS) {
+	if (_MsgMmsAddRegion(pMsgData, pRegion) != MSG_SUCCESS) {
 		MSG_DEBUG("_MsgMMSValidateSMILRegion: Add Region failed\n");
 		free(pRegion);
 
@@ -301,7 +301,7 @@ MSG_SMIL_ERR_E _MsgMMSAddDefaultSecondSMILRegion(MMS_MESSAGE_DATA_S *pMsgData, b
 	else
 		snprintf(pRegion->szID, MAX_SMIL_REGION_ID, "%s", MSG_SMIL_DEFAULT_IMG_REG);
 
-	if (_MsgMmsAddRegion(pMsgData,pRegion) != MSG_SUCCESS) {
+	if (_MsgMmsAddRegion(pMsgData, pRegion) != MSG_SUCCESS) {
 		MSG_DEBUG("_MsgMMSValidateSMILRegion: Add Region failed\n");
 		free(pRegion);
 
@@ -348,7 +348,7 @@ MSG_SMIL_ERR_E _MsgMMSAddDefaultFullSMILRegion(MMS_MESSAGE_DATA_S *pMsgData)
 
 	snprintf(pRegion->szID, MAX_SMIL_REGION_ID, "%s", MSG_SMIL_DEFAULT_FULL_REG);
 
-	if (_MsgMmsAddRegion(pMsgData,pRegion) != MSG_SUCCESS) {
+	if (_MsgMmsAddRegion(pMsgData, pRegion) != MSG_SUCCESS) {
 		MSG_DEBUG("_MsgMMSValidateSMILRegion: Add Region failed\n");
 		free(pRegion);
 
@@ -462,7 +462,7 @@ MSG_SMIL_ERR_E  _MsgMMSValidateSMILPage(MMS_MESSAGE_DATA_S *pMsgData, bool bRegA
 			if (bResetRegion) {
 				if (PageRegionCnt > 1) {
 					if (pMedia->mediatype == MMS_SMIL_MEDIA_AUDIO) {
-						memset(pMedia->regionId,0x00, MAX_SMIL_REGION_ID);
+						memset(pMedia->regionId, 0x00, MAX_SMIL_REGION_ID);
 						continue;
 					}
 

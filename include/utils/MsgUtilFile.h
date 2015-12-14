@@ -26,7 +26,6 @@
 /*==================================================================================================
 					FUNCTION PROTOTYPES
 ==================================================================================================*/
-//File Util
 bool MakeThumbnail(char *srcPath, char *dstPath);
 /**  file operation wrapper - for avoding runtime error */
 FILE* MsgOpenFile(const char* filepath, const char* opt);
@@ -41,15 +40,15 @@ int MsgFsync(FILE *pFile);
 bool MsgCreateFileName(char *pFileName);
 bool MsgOpenAndReadFile(const char *pFileName, char **ppData, int *pDataSize);
 bool MsgReadFileForDecode(FILE* pFile, char* pBuf, int length, int* nSize);
-bool	MsgWriteDataFromEncodeBuffer(FILE* pFile, char* pInBuffer, int *pPtr, int maxLen, int* pOffset );
+bool MsgWriteDataFromEncodeBuffer(FILE* pFile, char* pInBuffer, int *pPtr, int maxLen, int* pOffset);
 bool MsgWriteIpcFile(const char *pFileName, const char *pData, int DataSize);
 void MsgDeleteFile(const char *pFileName);
 bool MsgGetFileSize(const char *pFilePath, int* nSize);
 int MsgGetFileSize(const char *pFileName);
 FILE*  MsgOpenMMSFile(char *pFileName);
 bool MsgOpenCreateAndOverwriteFile(char *pFullPath, char *pBuff, int TotalLength);
-char* MsgOpenAndReadMmsFile(const char* szFilePath, int offset, int size, int* npSize );
-bool MsgWriteSmilFile(const char *pFilePath,char *pData, int DataSize);
+char* MsgOpenAndReadMmsFile(const char* szFilePath, int offset, int size, int* npSize);
+bool MsgWriteSmilFile(const char *pFilePath, char *pData, int DataSize);
 int	MsgReadSmilFile(const char *pFileName, char **ppData);
 void MsgDeleteSmilFile(const char *pFilePath);
 int MsgRmRf(char *pDirPath);
@@ -59,12 +58,12 @@ void MsgMmsInitDir();
 bool MsgAccessFile(const char *filepath, int mode);
 bool MsgChmod(const char *filepath, int mode);
 bool MsgChown(const char *filepath, int uid, int gid);
-bool MsgCreateFile(const char *pFilePath,char *pData, int DataSize);
+bool MsgCreateFile(const char *pFilePath, char *pData, int DataSize);
 char *MsgGetDirName(char *file_path);
 char *MsgGetFileName(char *file_path);
 int MsgCheckFilepathSmack(const char *app_smack_label, char *file_path);
 
 bool MsgScanFile(char *filePath);
 void MsgGetMimeType(char *filePath, char *mimeType, int size);
-#endif // MSG_UTIL_FILE_H
+#endif /* MSG_UTIL_FILE_H */
 

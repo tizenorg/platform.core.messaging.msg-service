@@ -28,7 +28,6 @@ extern "C"
 
 
 void MsgLbsSms(const char *msgBody, int msgSize) {
-
 	int ret = LBS_AGPS_ERROR_NONE;
 
 	ret = lbs_agps_sms(msgBody, msgSize);
@@ -39,7 +38,6 @@ void MsgLbsSms(const char *msgBody, int msgSize) {
 
 
 void MsgLbsWapPush(const char *pushHeader, const char *pushBody, int pushBodySize) {
-
 	int ret = LBS_AGPS_ERROR_NONE;
 
 	ret = lbs_agps_wap_push(pushHeader, pushBody, pushBodySize);

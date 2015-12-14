@@ -69,10 +69,10 @@ void msg_json_gen_free_obj(msg_json_gen_object *obj)
 }
 
 void msg_json_gen_set_child(msg_json_gen_object *parent, const char *key, msg_json_gen_object *child) {
-	if (parent == NULL || child == NULL)
-	{
+	if (parent == NULL || child == NULL) {
 		return;
 	}
+
 	switch(parent->type) {
 	case MSG_JSON_GEN_OBJECT:
 		if (key == NULL) {
@@ -101,10 +101,10 @@ void msg_json_gen_set_child(msg_json_gen_object *parent, const char *key, msg_js
 }
 
 void msg_json_gen_set_value(msg_json_gen_object *parent, const char *key, long long int value) {
-	if (parent == NULL)
-	{
+	if (parent == NULL) {
 		return;
 	}
+
 	switch(parent->type) {
 	case MSG_JSON_GEN_OBJECT:
 		if (key == NULL) {
@@ -119,10 +119,10 @@ void msg_json_gen_set_value(msg_json_gen_object *parent, const char *key, long l
 }
 
 void msg_json_gen_set_value(msg_json_gen_object *parent, const char *key, const char *value) {
-	if (parent == NULL)
-	{
+	if (parent == NULL) {
 		return;
 	}
+
 	switch(parent->type) {
 	case MSG_JSON_GEN_OBJECT:
 		if (key == NULL) {
@@ -137,8 +137,7 @@ void msg_json_gen_set_value(msg_json_gen_object *parent, const char *key, const 
 }
 
 char* msg_json_gen_make_json_msg(msg_json_gen_object *root_obj, unsigned long *len) {
-	if (root_obj == NULL)
-	{
+ 	if (root_obj == NULL) {
 		return NULL;
 	}
 	JsonGenerator *generator = json_generator_new();
@@ -171,57 +170,41 @@ int msg_json_parser_get_value(msg_json_parser_object *json_obj)
 
 	switch (json_node_get_value_type((JsonNode *) json_obj->value)) {
 	case G_TYPE_STRING:
-		{
-			json_obj->type = MSG_JSON_PARSER_STRING;
-			json_obj->value = (void *)g_value_get_string(&value);
-		}
+		json_obj->type = MSG_JSON_PARSER_STRING;
+		json_obj->value = (void *)g_value_get_string(&value);
 		break;
 	case G_TYPE_INT:
-		{
-			json_obj->type = MSG_JSON_PARSER_INT;
-			json_obj->value = NULL;
-			json_obj->number_value = g_value_get_int(&value);
-		}
+		json_obj->type = MSG_JSON_PARSER_INT;
+		json_obj->value = NULL;
+		json_obj->number_value = g_value_get_int(&value);
 		break;
 	case G_TYPE_UINT:
-		{
-			json_obj->type = MSG_JSON_PARSER_UINT;
-			json_obj->value = NULL;
-			json_obj->number_value = g_value_get_uint(&value);
-		}
+		json_obj->type = MSG_JSON_PARSER_UINT;
+		json_obj->value = NULL;
+		json_obj->number_value = g_value_get_uint(&value);
 		break;
 	case G_TYPE_BOOLEAN:
-		{
-			json_obj->type = MSG_JSON_PARSER_BOOLEAN;
-			json_obj->value = NULL;
-			json_obj->number_value = g_value_get_boolean(&value);
-		}
+		json_obj->type = MSG_JSON_PARSER_BOOLEAN;
+		json_obj->value = NULL;
+		json_obj->number_value = g_value_get_boolean(&value);
 		break;
 	case G_TYPE_INT64:
-		{
-			json_obj->type = MSG_JSON_PARSER_INT;
-			json_obj->value = NULL;
-			json_obj->number_value = g_value_get_int64(&value);
-		}
+		json_obj->type = MSG_JSON_PARSER_INT;
+		json_obj->value = NULL;
+		json_obj->number_value = g_value_get_int64(&value);
 		break;
 	case G_TYPE_UINT64:
-		{
-			json_obj->type = MSG_JSON_PARSER_UINT;
-			json_obj->value = NULL;
-			json_obj->number_value = g_value_get_uint64(&value);
-		}
+		json_obj->type = MSG_JSON_PARSER_UINT;
+		json_obj->value = NULL;
+		json_obj->number_value = g_value_get_uint64(&value);
 		break;
 	case G_TYPE_DOUBLE:
-		{
-			json_obj->type = MSG_JSON_PARSER_REAL;
-			json_obj->value = NULL;
-			json_obj->float_value = (double)g_value_get_double(&value);
-		}
+		json_obj->type = MSG_JSON_PARSER_REAL;
+		json_obj->value = NULL;
+		json_obj->float_value = (double)g_value_get_double(&value);
 		break;
 	default:
-		{
-			MSG_DEBUG(" Entering node default case");
-		}
+		MSG_DEBUG(" Entering node default case");
 		break;
 	}
 
@@ -247,57 +230,41 @@ int msg_json_parser_object_get_value(msg_json_parser_object *json_obj)
 
 	switch (json_node_get_value_type((JsonNode *) node)) {
 	case G_TYPE_STRING:
-		{
-			json_obj->type = MSG_JSON_PARSER_STRING;
-			json_obj->value = (void *)g_value_get_string(&value);
-		}
+		json_obj->type = MSG_JSON_PARSER_STRING;
+		json_obj->value = (void *)g_value_get_string(&value);
 		break;
 	case G_TYPE_INT:
-		{
-			json_obj->type = MSG_JSON_PARSER_INT;
-			json_obj->value = NULL;
-			json_obj->number_value = g_value_get_int(&value);
-		}
+		json_obj->type = MSG_JSON_PARSER_INT;
+		json_obj->value = NULL;
+		json_obj->number_value = g_value_get_int(&value);
 		break;
 	case G_TYPE_UINT:
-		{
-			json_obj->type = MSG_JSON_PARSER_UINT;
-			json_obj->value = NULL;
-			json_obj->number_value = g_value_get_uint(&value);
-		}
+		json_obj->type = MSG_JSON_PARSER_UINT;
+		json_obj->value = NULL;
+		json_obj->number_value = g_value_get_uint(&value);
 		break;
 	case G_TYPE_BOOLEAN:
-		{
-			json_obj->type = MSG_JSON_PARSER_BOOLEAN;
-			json_obj->value = NULL;
-			json_obj->number_value = g_value_get_boolean(&value);
-		}
+		json_obj->type = MSG_JSON_PARSER_BOOLEAN;
+		json_obj->value = NULL;
+		json_obj->number_value = g_value_get_boolean(&value);
 		break;
 	case G_TYPE_INT64:
-		{
-			json_obj->type = MSG_JSON_PARSER_INT;
-			json_obj->value = NULL;
-			json_obj->number_value = g_value_get_int64(&value);
-		}
+		json_obj->type = MSG_JSON_PARSER_INT;
+		json_obj->value = NULL;
+		json_obj->number_value = g_value_get_int64(&value);
 		break;
 	case G_TYPE_UINT64:
-		{
-			json_obj->type = MSG_JSON_PARSER_UINT;
-			json_obj->value = NULL;
-			json_obj->number_value = g_value_get_uint64(&value);
-		}
+		json_obj->type = MSG_JSON_PARSER_UINT;
+		json_obj->value = NULL;
+		json_obj->number_value = g_value_get_uint64(&value);
 		break;
 	case G_TYPE_DOUBLE:
-		{
-			json_obj->type = MSG_JSON_PARSER_REAL;
-			json_obj->value = NULL;
-			json_obj->float_value = (double)g_value_get_double(&value);
-		}
+		json_obj->type = MSG_JSON_PARSER_REAL;
+		json_obj->value = NULL;
+		json_obj->float_value = (double)g_value_get_double(&value);
 		break;
 	default:
-		{
-			MSG_DEBUG(" Entering node default case");
-		}
+		MSG_DEBUG(" Entering node default case");
 		break;
 	}
 
@@ -337,7 +304,6 @@ void msg_json_parser_parse_buffer(msg_json_parser_handle handle, const char* val
 	}
 
 	if (jsonParser != NULL) {
-
 		/** Loads a JSON stream from a buffer and parses it */
 		gRet = json_parser_load_from_data(jsonParser, value, value_len, &error);
 		if (gRet != TRUE) {
@@ -347,7 +313,6 @@ void msg_json_parser_parse_buffer(msg_json_parser_handle handle, const char* val
 			root = json_parser_get_root(jsonParser);
 
 			if (root != NULL) {
-
 				json_obj->key = root_key;
 				json_obj->value = root;
 				parentType = json_node_get_node_type(root);
@@ -367,7 +332,6 @@ void msg_json_parser_parse_buffer(msg_json_parser_handle handle, const char* val
 			}
 		}
 	} else {
-
 	}
 
 	return ;
@@ -392,8 +356,7 @@ int msg_json_parser_get_next_child(const msg_json_parser_object *parent, msg_jso
 	jNodeParentType = json_node_get_node_type((JsonNode *) parent->value);
 
 	switch (jNodeParentType) {
-	case JSON_NODE_OBJECT:
-		{
+	case JSON_NODE_OBJECT: {
 			/** Get the JSON object from JSON Parent Node */
 			tempObj = json_node_get_object((JsonNode *) parent->value);
 
@@ -412,39 +375,27 @@ int msg_json_parser_get_next_child(const msg_json_parser_object *parent, msg_jso
 			child->value = json_object_get_member(tempObj, child->key);
 
 			/** Identify the node type of the JSOSNNode */
-			jNodeChildType = json_node_get_node_type((JsonNode *) child->value);
+			jNodeChildType = json_node_get_node_type((JsonNode *)child->value);
 
 			switch (jNodeChildType) {
 			case JSON_NODE_OBJECT:
-				{
-					child->type = MSG_JSON_PARSER_OBJECT;
-				}
+				child->type = MSG_JSON_PARSER_OBJECT;
 				break;
 			case JSON_NODE_ARRAY:
-				{
-					child->type = MSG_JSON_PARSER_ARRAY;
-				}
+				child->type = MSG_JSON_PARSER_ARRAY;
 				break;
 			case JSON_NODE_VALUE:
-				{
-					lReturn = msg_json_parser_get_value(child);
-				}
+				lReturn = msg_json_parser_get_value(child);
 				break;
 			case JSON_NODE_NULL:
-				{
-				}
 				break;
 			default:
-				{
-					lReturn = 0;
-				}
+				lReturn = 0;
 				break;
 			}
-
 		}
 		break;
-	case JSON_NODE_ARRAY:
-		{
+	case JSON_NODE_ARRAY: {
 			/** Get the JSON array from the JSON node */
 			tempArray = json_node_get_array((JsonNode *) parent->value);
 
@@ -464,36 +415,24 @@ int msg_json_parser_get_next_child(const msg_json_parser_object *parent, msg_jso
 
 			switch (jNodeChildType) {
 			case JSON_NODE_OBJECT:
-				{
-					child->type = MSG_JSON_PARSER_OBJECT;
-				}
+				child->type = MSG_JSON_PARSER_OBJECT;
 				break;
 			case JSON_NODE_ARRAY:
-				{
-					child->type = MSG_JSON_PARSER_ARRAY;
-				}
+				child->type = MSG_JSON_PARSER_ARRAY;
 				break;
 			case JSON_NODE_VALUE:
-				{
-					lReturn = msg_json_parser_get_value(child);
-				}
+				lReturn = msg_json_parser_get_value(child);
 				break;
 			case JSON_NODE_NULL:
-				{
-				}
 				break;
 			default:
-				{
-					lReturn = 0;
-					break;
-				}
+				lReturn = 0;
+				break;
 			}
-
 		}
 		break;
 	case JSON_NODE_VALUE:
-	default:
-		{
+	default: {
 			child->key = NULL;
 			child->value = NULL;
 			lReturn = 0;
@@ -543,11 +482,9 @@ int msg_json_parser_get_child_by_name(const msg_json_parser_object *parent,
 	jNodeParentType = json_node_get_node_type((JsonNode *) parent->value);
 
 	switch (jNodeParentType) {
-	case JSON_NODE_OBJECT:
-		{
+	case JSON_NODE_OBJECT: {
 			/** Get the JSON object from JSON Parent Node */
-			tempObj =
-			    json_node_get_object((JsonNode *) parent->value);
+			tempObj = json_node_get_object((JsonNode *) parent->value);
 
 			/** Get the list of keys from the object node */
 			GList *members = json_object_get_members(tempObj);
@@ -558,7 +495,6 @@ int msg_json_parser_get_child_by_name(const msg_json_parser_object *parent,
 			/** Get the key by index from the list */
 			char *member = NULL;
 			for (unsigned int i = 0; i < g_list_length(members); i++) {
-
 				member = (char *)g_list_nth_data(members, i);
 
 				if (g_strcmp0((char *)name, member) == 0) {
@@ -580,38 +516,25 @@ int msg_json_parser_get_child_by_name(const msg_json_parser_object *parent,
 
 			switch (jNodeChildType) {
 			case JSON_NODE_OBJECT:
-				{
-					child->type = MSG_JSON_PARSER_OBJECT;
-				}
+				child->type = MSG_JSON_PARSER_OBJECT;
 				break;
 			case JSON_NODE_ARRAY:
-				{
-					child->type = MSG_JSON_PARSER_ARRAY;
-				}
+				child->type = MSG_JSON_PARSER_ARRAY;
 				break;
 			case JSON_NODE_VALUE:
-				{
-					lReturn = msg_json_parser_get_value(child);
-				}
+				lReturn = msg_json_parser_get_value(child);
 				break;
 			case JSON_NODE_NULL:
-				{
-
-				}
 				break;
 			default:
-				{
-					lReturn = -1;
-				}
+				lReturn = -1;
 				break;
 			}
-
 		}
 		break;
 	case JSON_NODE_ARRAY:
 	case JSON_NODE_VALUE:
-	default:
-		{
+	default: {
 			child->key = NULL;
 			child->value = NULL;
 			lReturn = -1;
@@ -650,8 +573,7 @@ int msg_json_parser_get_child_count(msg_json_parser_object *object)
 	jNodeParentType = json_node_get_node_type((JsonNode *) object->value);
 
 	switch (jNodeParentType) {
-	case JSON_NODE_OBJECT:
-		{
+	case JSON_NODE_OBJECT: {
 			MSG_DEBUG("  JSON_NODE_OBJECT ");
 			tempObj = NULL;
 			/** Get the JSON object from JSON Parent Node */
@@ -660,8 +582,7 @@ int msg_json_parser_get_child_count(msg_json_parser_object *object)
 			count = json_object_get_size(tempObj);
 		}
 		break;
-	case JSON_NODE_ARRAY:
-		{
+	case JSON_NODE_ARRAY: {
 			MSG_DEBUG("  JSON_NODE_ARRAY ");
 			tempArray = NULL;
 			/** Get the JSON array from the JSON node */
@@ -673,9 +594,6 @@ int msg_json_parser_get_child_count(msg_json_parser_object *object)
 		break;
 	case JSON_NODE_VALUE:
 	default:
-		{
-
-		}
 		break;
 	}
 

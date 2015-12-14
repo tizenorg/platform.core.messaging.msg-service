@@ -29,7 +29,7 @@
 #define MSG_SMIL_COLOR_SIZE	10
 #define MSG_STDSTR_SHORT	0x7F
 
-typedef int HMsgSmil; //SmilDoc Handle
+typedef int HMsgSmil; /* SmilDoc Handle */
 
 typedef enum _SMIL_ELEMENT_T {
 	ELEMENT_SMIL,
@@ -105,7 +105,7 @@ __thread MMS_MEDIA_S *gMedia = NULL;
 __thread MMS_SMIL_TRANSITION *gTransition = NULL;
 __thread MMS_SMIL_META *gMeta = NULL;
 
-//For Parse Smil
+/* For Parse Smil */
 static int MsgSmilGetColorValue(xmlChar *content);
 static int MsgSmilGetTime(char *pValue);
 static int MsgSmilAtoIHexa(char *pInput);
@@ -118,7 +118,7 @@ static MmsSmilFontType MsgSmilGetFontTypeValue(char *pString);
 
 static xmlNodePtr MsgSmilGetNodeByElementName(xmlNodePtr pstNode, char *pszName);
 
-//For Generate Smil
+/* For Generate Smil */
 static HMsgSmil MsgSmilCreateEmptySmilDoc(void);
 static HMsgSmil MsgSmilCreateSmilDoc(char *pszRawData);
 static bool MsgSmilDestroyDoc(HMsgSmil hSmilDoc);
@@ -141,13 +141,13 @@ static void MsgSmilSetAttribute(xmlNode *pNode, char *szField, char *szValue);
 int MsgSmilGetColorValue(xmlChar *content)
 {
 	int color;
-	char color_inp[9] = {0,};
+	char color_inp[9] = {0, };
 
-	if (content[0] == '#') {	// RGB value
-		snprintf(color_inp, sizeof(color_inp),"FF%s", (char *)&content[1]);
+	if (content[0] == '#') {	/* RGB value */
+		snprintf(color_inp, sizeof(color_inp), "FF%s", (char *)&content[1]);
 		color = MsgSmilAtoIHexa(color_inp);
 	} else if (content[0] == '0' && (content[1] == 'x' || content[1] == 'X')) {
-		snprintf(color_inp, sizeof(color_inp),"%s", (char *)&content[2]);
+		snprintf(color_inp, sizeof(color_inp), "%s", (char *)&content[2]);
 		color = MsgSmilAtoIHexa(color_inp);
 	} else {
 		MSG_DEBUG("Invalid Color Value");
@@ -469,7 +469,6 @@ int MsgSmilGetFontSizeValue(char *pString)
 
 MmsSmilFontType MsgSmilGetFontTypeValue(char *pString)
 {
-
 	if (!strcmp(pString, "normal"))
 		return MMS_SMIL_FONT_TYPE_NORMAL;
 	else if (!strcmp(pString, "italic"))
@@ -504,9 +503,8 @@ HMsgSmil MsgSmilCreateSmilDoc(char *pszRawData)
 
 	MSG_BEGIN();
 
-	// Destroy smil doc if present
+	/* Destroy smil doc if present */
 	if (NULL != __gpaMsgSmilDoc[nSmilDocNo]) {
-
 		if (false == MsgSmilDestroyDoc(nSmilDocNo)) {
 			MSG_DEBUG("MsgSmilDestroyDoc: Failed!");
 		}
@@ -530,7 +528,6 @@ HMsgSmil MsgSmilCreateSmilDoc(char *pszRawData)
 
 	__gpaMsgSmilDoc[nSmilDocNo]->pSmilDoc = xmlParseMemory(pszRawData, strlen(pszRawData));
 	if (NULL == __gpaMsgSmilDoc[nSmilDocNo]->pSmilDoc) {
-
 		if (false == MsgSmilDestroyDoc(nSmilDocNo)) {
 			MSG_DEBUG("MsgSmilDestroyDoc: Failed!");
 		}
@@ -574,7 +571,7 @@ bool MsgSmilDestroyDoc(HMsgSmil hSmilDoc)
 		}
 
 		if (__gpaMsgSmilDoc[nSmilDocNo]->pstRootNode) {
-			//Need to Check
+			/* Need to Check */
 		}
 		free(__gpaMsgSmilDoc[nSmilDocNo]);
 		__gpaMsgSmilDoc[nSmilDocNo] = NULL;
@@ -612,7 +609,7 @@ char *MsgSmilGetRawData(HMsgSmil hSmilDoc)
 	MSG_BEGIN();
 
 	if (IsValidSmilDocNo(nSmilDocNo)) {
-		//xmlSaveFormatFileEnc("-", __gpaMmsSmilDoc[nSmilDocNo]->pSmilDoc, "UTF-8", 1);
+		/* xmlSaveFormatFileEnc("-", __gpaMmsSmilDoc[nSmilDocNo]->pSmilDoc, "UTF-8", 1); */
 	 	xmlDocDumpMemory(__gpaMsgSmilDoc[nSmilDocNo]->pSmilDoc, (xmlChar **)(&pszRawData) , NULL);
 		if (NULL == pszRawData) {
 			MSG_DEBUG("Invalid pSmilDoc (now wellformed document)");
@@ -679,7 +676,6 @@ bool MsgSmilAddPage(HMsgSmil hSmilDoc, MMS_PAGE_S *pstSmilPage)
 		return false;
 	}
 
-
 	return ret;
 }
 
@@ -717,14 +713,13 @@ bool MsgSmilAddRootLayout(HMsgSmil hSmilDoc, MMS_SMIL_ROOTLAYOUT *pstSmilRootLay
 		}
 		MSG_SEC_DEBUG("Root Layout Element Name = %s", (char *)pstRootLayout->name);
 
-		if (pstSmilRootLayout->bBgColor == true) {	// Replace value later
-			if ( ( (pstSmilRootLayout->bgColor & 0xFF000000) >> 24 ) > 0) {//check alpha value
+		if (pstSmilRootLayout->bBgColor == true) {	/* Replace value later */
+			if (((pstSmilRootLayout->bgColor & 0xFF000000) >> 24) > 0) { /* check alpha value */
 				xmlSetProp(pstRootLayout, (const xmlChar *)"backgroundColor", (const xmlChar *)MsgSmilColorValueToString(pstSmilRootLayout->bgColor));
 			}
 		}
 
-
-		//width
+		/* width */
 		if (true == pstSmilRootLayout->width.bUnitPercent) {
 			snprintf(szBuf, MSG_STDSTR_SHORT, "%d%%", pstSmilRootLayout->width.value);
 			xmlSetProp(pstRootLayout, (const xmlChar *)"width", (const xmlChar *)szBuf);
@@ -738,7 +733,7 @@ bool MsgSmilAddRootLayout(HMsgSmil hSmilDoc, MMS_SMIL_ROOTLAYOUT *pstSmilRootLay
 			}
 		}
 
-		//Height
+		/* Height */
 		if (true == pstSmilRootLayout->height.bUnitPercent) {
 			snprintf(szBuf, MSG_STDSTR_SHORT, "%d%%", pstSmilRootLayout->height.value);
 			xmlSetProp(pstRootLayout, (const xmlChar *)"height", (const xmlChar *)szBuf);
@@ -747,7 +742,6 @@ bool MsgSmilAddRootLayout(HMsgSmil hSmilDoc, MMS_SMIL_ROOTLAYOUT *pstSmilRootLay
 				snprintf(szBuf, MSG_STDSTR_SHORT, "%d", pstSmilRootLayout->height.value);
 				xmlSetProp(pstRootLayout, (const xmlChar *)"height", (const xmlChar *)szBuf);
 			} else {
-
 				xmlSetProp(pstRootLayout, (const xmlChar *)"height", (const xmlChar *)"100%");
 			}
 		}
@@ -759,7 +753,6 @@ bool MsgSmilAddRootLayout(HMsgSmil hSmilDoc, MMS_SMIL_ROOTLAYOUT *pstSmilRootLay
 		MSG_DEBUG("Invalid SmilDoc(hSmilDoc:%d)", nSmilDocNo);
 		return false;
 	}
-
 }
 
 bool MsgSmilAddRegion(HMsgSmil hSmilDoc, MMS_SMIL_REGION *pstSmilRegion)
@@ -803,28 +796,28 @@ bool MsgSmilAddRegion(HMsgSmil hSmilDoc, MMS_SMIL_REGION *pstSmilRegion)
 			int	attrType;
 			MSG_SEC_DEBUG("AttributeType: (%s, %s) ", pstAttr->name, pstAttr->children->content);
 			switch (attrType = MsgSmilGetAttrID((char *)pstAttr->name)) {
-			case ATTRIBUTE_WIDTH:
-				{
-//					int bUnitPercent;
+			case ATTRIBUTE_WIDTH: {
+#if 0
+				int bUnitPercent;
 
-//					if (strchr((char *)pstAttr->children->content, '%'))
-//						bUnitPercent = true;
-//					else
-//						bUnitPercent = false;
-
+				if (strchr((char *)pstAttr->children->content, '%'))
+					bUnitPercent = true;
+				else
+					bUnitPercent = false;
+#endif
 					nRootWidth = atoi((char *)pstAttr->children->content);
 				}
 				break;
 
-			case ATTRIBUTE_HEIGHT:
-				{
-//					int bUnitPercent;
+			case ATTRIBUTE_HEIGHT: {
+#if 0
+				int bUnitPercent;
 
-//					if (strchr((char *)pstAttr->children->content, '%'))
-//						bUnitPercent = true;
-//					else
-//						bUnitPercent = false;
-
+				if (strchr((char *)pstAttr->children->content, '%'))
+					bUnitPercent = true;
+				else
+					bUnitPercent = false;
+#endif
 					nRootHeight = atoi((char *)pstAttr->children->content);
 				}
 				break;
@@ -850,7 +843,7 @@ bool MsgSmilAddRegion(HMsgSmil hSmilDoc, MMS_SMIL_REGION *pstSmilRegion)
 
 			if (pstSmilRegion->bBgColor == true) {
 				MSG_DEBUG(" [Set Attribute] : BkGrd Color");
-				if ( ( (pstSmilRegion->bgColor & 0xFF000000) >> 24 ) > 0) {
+				if (((pstSmilRegion->bgColor & 0xFF000000) >> 24) > 0) {
 					xmlSetProp(pstRegion, (const xmlChar *)"backgroundColor", (const xmlChar *)MsgSmilColorValueToString(pstSmilRegion->bgColor));
 					MSG_DEBUG("[Set Attribute] : backgroundColor [%s]", MsgSmilColorValueToString(pstSmilRegion->bgColor));
 				}
@@ -864,8 +857,8 @@ bool MsgSmilAddRegion(HMsgSmil hSmilDoc, MMS_SMIL_REGION *pstSmilRegion)
 					MSG_DEBUG("[Set Attribute] : Width : [%s]", szBuf);
 				}
 			} else {
-				// Note: nRootWidth should be in terms of value(pixel) not unitpercent(%)
-				// Validation should be done before this.
+				/* Note: nRootWidth should be in terms of value(pixel) not unitpercent(%) */
+				/* Validation should be done before this. */
 				if (pstSmilRegion->width.value >= 0 &&
 					pstSmilRegion->width.value <= nRootWidth &&
 					nRootWidth != 0) {
@@ -884,8 +877,8 @@ bool MsgSmilAddRegion(HMsgSmil hSmilDoc, MMS_SMIL_REGION *pstSmilRegion)
 					MSG_DEBUG("[Set Attribute] : Height : [%s]", szBuf);
 				}
 			} else {
-				// Note: nRootHeight should be in terms of value(pixel) not unitpercent(%)
-				// Validation should be done before this.
+				/* Note: nRootHeight should be in terms of value(pixel) not unitpercent(%) */
+				/* Validation should be done before this. */
 				if (pstSmilRegion->height.value >= 0 &&
 					pstSmilRegion->height.value <= nRootHeight &&
 					nRootHeight != 0) {
@@ -906,8 +899,8 @@ bool MsgSmilAddRegion(HMsgSmil hSmilDoc, MMS_SMIL_REGION *pstSmilRegion)
 					MSG_DEBUG("[Set Attribute] : Left : [%s]", szBuf);
 				}
 			} else {
-				// Note: nRootWidth should be in terms of value(pixel) not unitpercent(%)
-				// Validation should be done before this.
+				/* Note: nRootWidth should be in terms of value(pixel) not unitpercent(%) */
+				/* Validation should be done before this. */
 				if (pstSmilRegion->nLeft.value >= 0 && nRootWidth != 0) {
 					int iLeft = (pstSmilRegion->nLeft.value * 100) / nRootWidth;
 
@@ -925,8 +918,8 @@ bool MsgSmilAddRegion(HMsgSmil hSmilDoc, MMS_SMIL_REGION *pstSmilRegion)
 					MSG_DEBUG("[Set Attribute] : Top : [%s]", szBuf);
 				}
 			} else {
-				// Note: nRootHeight should be in terms of value(pixel) not unitpercent(%)
-				// Validation should be done before this.
+				/* Note: nRootHeight should be in terms of value(pixel) not unitpercent(%) */
+				/* Validation should be done before this. */
 				if (pstSmilRegion->nTop.value >= 0 && nRootHeight != 0) {
 					int iTop = (pstSmilRegion->nTop.value * 100) / nRootHeight;
 
@@ -936,7 +929,7 @@ bool MsgSmilAddRegion(HMsgSmil hSmilDoc, MMS_SMIL_REGION *pstSmilRegion)
 				}
 			}
 
-			//Fit Attribute
+			/* Fit Attribute */
 			if (MMSUI_IMAGE_REGION_FIT_MEET == pstSmilRegion->fit) {
 				xmlSetProp(pstRegion, (const xmlChar *)"fit", (const xmlChar *)"meet");
 				MSG_DEBUG("[Set Attribute] : fit : [meet]");
@@ -946,7 +939,6 @@ bool MsgSmilAddRegion(HMsgSmil hSmilDoc, MMS_SMIL_REGION *pstSmilRegion)
 			}
 
 			MsgSmilInsertNode(pstLayoutList, pstRootLayoutList, pstRegion);
-
 		} else
 			MSG_DEBUG("There is no attribute in <region> node");
 
@@ -1067,7 +1059,6 @@ xmlNode *MsgSmilCreateTextNode(MMS_MEDIA_S *pstSmilMedia, char *pszContentID)
 
 	/* Add attributes */
 	if (pstSmilMedia) {
-
 		if (strlen(pstSmilMedia->regionId) > 0) {
 			xmlSetProp(pstMedia, (const xmlChar *)"region", (const xmlChar *)pstSmilMedia->regionId);
 			MSG_DEBUG("[Set Attribute] Region Id : [%s]", pstSmilMedia->regionId);
@@ -1092,17 +1083,17 @@ xmlNode *MsgSmilCreateTextNode(MMS_MEDIA_S *pstSmilMedia, char *pszContentID)
 		}
 
 #if 0
-		char szFilePathWithCid[MSG_MSG_ID_LEN + 5];	// for "cid:"
+		char szFilePathWithCid[MSG_MSG_ID_LEN + 5];	/* for "cid:" */
 
 		snprintf (szFilePathWithCid, sizeof(szFilePathWithCid), "cid:%s", pszContentID);
 		MsgSmilSetAttribute(pstMedia, (char *)"src", szFilePathWithCid);
 #endif
 		if (strlen(pstSmilMedia->szContentLocation) > 0) {
-			MsgSmilSetAttribute(pstMedia, (char *)"src", pstSmilMedia->szContentLocation); //using content Location in Smil
+			MsgSmilSetAttribute(pstMedia, (char *)"src", pstSmilMedia->szContentLocation); /* using content Location in Smil */
 			MSG_DEBUG("[Set Attribute] Src : [%s]", pstSmilMedia->szContentLocation);
 		}
 
-		if ( ( (pstSmilMedia->sMedia.sText.nColor & 0xFF000000) >> 24 ) > 0) {
+		if (((pstSmilMedia->sMedia.sText.nColor & 0xFF000000) >> 24) > 0) {
 			pstParam = xmlNewNode(NULL, (xmlChar *)"param");
 
 			if (NULL == pstParam) {
@@ -1118,7 +1109,7 @@ xmlNode *MsgSmilCreateTextNode(MMS_MEDIA_S *pstSmilMedia, char *pszContentID)
 			MsgSmilInsertFirstChild(pstMedia, pstParam);
 		}
 
-		if ( ( (pstSmilMedia->sMedia.sText.nBgColor & 0xFF000000) >> 24 ) > 0) {
+		if (((pstSmilMedia->sMedia.sText.nBgColor & 0xFF000000) >> 24) > 0) {
 			pstParam = xmlNewNode(NULL, (xmlChar *)"param");
 
 			if (NULL == pstParam) {
@@ -1241,19 +1232,18 @@ xmlNode *MsgSmilCreateMMNode(MMS_MEDIA_S *pstSmilMedia, char *pszContentID)
 	}
 
 	if (pstMedia) {
-
 		if (strlen(pstSmilMedia->regionId) > 0) {
 			xmlSetProp(pstMedia, (const xmlChar *)"region", (const xmlChar *)pstSmilMedia->regionId);
 			MSG_DEBUG("[Set Attribute] Region Id : [%s]", pstSmilMedia->regionId);
 		}
 
-#if 0 //set src attribute cid
-		char szFilePathWithCid[MSG_MSG_ID_LEN + 5];  	// for "cid:"
+#if 0 /* set src attribute cid */
+		char szFilePathWithCid[MSG_MSG_ID_LEN + 5];  	/* for "cid:" */
 		snprintf (szFilePathWithCid, sizeof(szFilePathWithCid), "cid:%s", pszContentID);
 		MsgSmilSetAttribute(pstMedia, (char *)"src", szFilePathWithCid);
 #endif
 		if (strlen(pstSmilMedia->szContentLocation) > 0) {
-			MsgSmilSetAttribute(pstMedia, (char *)"src", pstSmilMedia->szContentLocation); //using content Location in Smil
+			MsgSmilSetAttribute(pstMedia, (char *)"src", pstSmilMedia->szContentLocation); /* using content Location in Smil */
 			MSG_SEC_DEBUG("[Set Attribute] src : [%s]", pstSmilMedia->szContentLocation);
 		}
 
@@ -1304,8 +1294,7 @@ bool MsgSmilInsertNode(xmlNode *pstParent, xmlNode *pstLeftSibling, xmlNode *pst
 
 	if (pstLeftSibling) {
 		/* Parent Node is Unused */
-
-		while (pstLeftSibling->next !=NULL)
+		while (pstLeftSibling->next != NULL)
 			pstLeftSibling = pstLeftSibling->next;
 
 		 if (NULL == xmlAddNextSibling(pstLeftSibling, pstCurr)) {
@@ -1339,7 +1328,6 @@ void MsgSmilSetAttribute(xmlNode *pNode, char *szField, char *szValue)
 
 xmlNodePtr MsgSmilGetNodeByElementName(xmlNodePtr pstNode, char *pszName)
 {
-
 	if ((NULL != pstNode) && (NULL != pszName)) {
 		xmlNodePtr pstTempNode;
 		xmlNodePtr pstReturnNode;
@@ -1347,7 +1335,6 @@ xmlNodePtr MsgSmilGetNodeByElementName(xmlNodePtr pstNode, char *pszName)
 		pstTempNode = pstNode;
 
 		for ( ; pstTempNode; pstTempNode = pstTempNode->next) {
-
 			if (0 == strcasecmp((char *)pstTempNode->name, pszName)) {
 				MSG_SEC_DEBUG("Find Node : name [%s][%p]", (char *)pstTempNode->name, pstTempNode);
 				return pstTempNode;
@@ -1359,7 +1346,6 @@ xmlNodePtr MsgSmilGetNodeByElementName(xmlNodePtr pstNode, char *pszName)
 					return pstReturnNode;
 				}
 			}
-
 		}
 	}
 	return NULL;
@@ -1374,7 +1360,7 @@ void MsgSmilParseNode(MMS_MESSAGE_DATA_S *pMmsMsg, xmlNode *a_node, int depth)
 
 	xmlNode *cur_node = NULL;
 
-	if (depth == 0) {//init
+	if (depth == 0) { /* init */
 		memset(gCmd, 0x00, ELEMENT_MAX);
 		memset(&gRootlayout, 0x00, sizeof(MMS_SMIL_ROOTLAYOUT));
 		gRegion = NULL;
@@ -1388,8 +1374,7 @@ void MsgSmilParseNode(MMS_MESSAGE_DATA_S *pMmsMsg, xmlNode *a_node, int depth)
 		MSG_SEC_DEBUG("## [%d] node type : [Element], name: [%s] ##", depth, cur_node->name);
 
 		if (cur_node->type == XML_ELEMENT_NODE) {
-			// Get Smil Element =====================================================
-
+			/* Get Smil Element */
 			switch (elementType = MsgSmilGetElementID((char *)cur_node->name)) {
 			case ELEMENT_ROOTLAYOUT:
 				gCmd[ELEMENT_ROOTLAYOUT] = true;
@@ -1435,7 +1420,7 @@ void MsgSmilParseNode(MMS_MESSAGE_DATA_S *pMmsMsg, xmlNode *a_node, int depth)
 				gCmd[ELEMENT_PAR] = true;
 				break;
 
-			case ELEMENT_PARAM: // Need to check the original element type
+			case ELEMENT_PARAM: /* Need to check the original element type */
 				gCmd[ELEMENT_PARAM] = true;
 				break;
 
@@ -1510,18 +1495,16 @@ void MsgSmilParseNode(MMS_MESSAGE_DATA_S *pMmsMsg, xmlNode *a_node, int depth)
 				break;
 			}
 
-			//Get Smil Attribute =====================================================
+			/* Get Smil Attribute */
 			xmlAttr *pAttr = cur_node->properties;
 
 			SMIL_ATTRIBUTE_T paramType = ATTRIBUTE_UNKNOWN;
 
 			for ( ; pAttr; pAttr = pAttr->next) {
-
 				MSG_SEC_DEBUG("## attribute type : name [%s] value [%s] ##", pAttr->name, pAttr->children->content);
 
 				switch (attrType = MsgSmilGetAttrID((char *)pAttr->name)) {
-				case ATTRIBUTE_ID:
-					{
+				case ATTRIBUTE_ID: {
 						if (gCmd[ELEMENT_REGION] && gRegion) {
 							strncpy(gRegion->szID, (char *)pAttr->children->content, MAX_SMIL_REGION_ID - 1);
 						} else if (gCmd[ELEMENT_TRANSITION] && gTransition) {
@@ -1532,8 +1515,7 @@ void MsgSmilParseNode(MMS_MESSAGE_DATA_S *pMmsMsg, xmlNode *a_node, int depth)
 					}
 					break;
 
-				case ATTRIBUTE_TOP:
-					{
+				case ATTRIBUTE_TOP: {
 						int bUnitPercent;
 						int value;
 
@@ -1551,8 +1533,7 @@ void MsgSmilParseNode(MMS_MESSAGE_DATA_S *pMmsMsg, xmlNode *a_node, int depth)
 					}
 					break;
 
-				case ATTRIBUTE_LEFT:
-					{
+				case ATTRIBUTE_LEFT: {
 						int bUnitPercent;
 						int value;
 
@@ -1571,8 +1552,7 @@ void MsgSmilParseNode(MMS_MESSAGE_DATA_S *pMmsMsg, xmlNode *a_node, int depth)
 					break;
 
 
-				case ATTRIBUTE_WIDTH:
-					{
+				case ATTRIBUTE_WIDTH: {
 						int bUnitPercent;
 						int value;
 
@@ -1593,8 +1573,7 @@ void MsgSmilParseNode(MMS_MESSAGE_DATA_S *pMmsMsg, xmlNode *a_node, int depth)
 					}
 					break;
 
-				case ATTRIBUTE_HEIGHT:
-					{
+				case ATTRIBUTE_HEIGHT: {
 						int bUnitPercent;
 						int value;
 
@@ -1653,10 +1632,9 @@ void MsgSmilParseNode(MMS_MESSAGE_DATA_S *pMmsMsg, xmlNode *a_node, int depth)
 					}
 					break;
 
-				case ATTRIBUTE_SRC:
-				{
+				case ATTRIBUTE_SRC: {
 					if (gMedia) {
-						char szContentID[MSG_MSG_ID_LEN + 1] = {0,};
+						char szContentID[MSG_MSG_ID_LEN + 1] = {0, };
 						int cLen;
 
 						snprintf(szContentID, sizeof(szContentID), "%s", (char *)pAttr->children->content);
@@ -1760,7 +1738,6 @@ void MsgSmilParseNode(MMS_MESSAGE_DATA_S *pMmsMsg, xmlNode *a_node, int depth)
 
 				case ATTRIBUTE_NAME:
 					if (gCmd[ELEMENT_PARAM]) {
-
 						if (!strcmp((char *)pAttr->children->content, "foreground-color") || !strcmp((char *)pAttr->children->content, "foregroundcolor"))
 							paramType = ATTRIBUTE_FGCOLOR;
 						else if (!strcmp((char *)pAttr->children->content, "background-color") || !strcmp((char *)pAttr->children->content, "backgroundcolor"))
@@ -1849,7 +1826,7 @@ void MsgSmilParseNode(MMS_MESSAGE_DATA_S *pMmsMsg, xmlNode *a_node, int depth)
 				}
 			}
 
-			if (cur_node->children) {//child first
+			if (cur_node->children) { /* child first */
 				MsgSmilParseNode(pMmsMsg, cur_node->children, depth + 1);
 			}
 
@@ -1940,19 +1917,18 @@ bool MsgSmilGenerateSmilDoc(MMS_MESSAGE_DATA_S *pstMsgMmsBody, char **ppSmilDoc)
 
 	hSmilDoc = MsgSmilCreateEmptySmilDoc();
 	if (INVALID_HOBJ == hSmilDoc) {
-		MSG_DEBUG("Invalid SmilDoc[%d]",hSmilDoc);
+		MSG_DEBUG("Invalid SmilDoc[%d]", hSmilDoc);
 		return false;
 	}
-	// Add Root Layout to Smil Document
+	/* Add Root Layout to Smil Document */
 	if (false == MsgSmilAddRootLayout(hSmilDoc, &(pstMsgMmsBody->rootlayout))) {
 		MSG_DEBUG("MsgSmilAddRootLayout Failed");
 		MsgSmilDestroyDoc(hSmilDoc);
 	}
-	//Add Region list to Smil Document
+	/* Add Region list to Smil Document */
 	nRegionCount = pstMsgMmsBody->regionCnt;
-	MSG_DEBUG(" Region Count = [%d]",nRegionCount);
+	MSG_DEBUG("Region Count = [%d]", nRegionCount);
 	for (nIndex = 0; nIndex < nRegionCount; nIndex++) {
-
 		pstRegion = _MsgMmsGetSmilRegion(pstMsgMmsBody, nIndex);
 		if (NULL == pstRegion) {
 			MSG_DEBUG("pstRegion is NULL");
@@ -1967,11 +1943,10 @@ bool MsgSmilGenerateSmilDoc(MMS_MESSAGE_DATA_S *pstMsgMmsBody, char **ppSmilDoc)
 		}
 	}
 
-	// Add page list to Smil Document
+	/* Add page list to Smil Document */
 	nTotalPageNum = pstMsgMmsBody->pageCnt ;
-	MSG_DEBUG(" Page Count = [%d]",nTotalPageNum);
+	MSG_DEBUG("Page Count = [%d]", nTotalPageNum);
 	for (nIndex = 0; nIndex < nTotalPageNum; nIndex++) {
-
 		pstPage = _MsgMmsGetPage(pstMsgMmsBody, nIndex);
 		if (NULL == pstPage) {
 			MSG_DEBUG("pstPage is NULL");
@@ -1979,7 +1954,7 @@ bool MsgSmilGenerateSmilDoc(MMS_MESSAGE_DATA_S *pstMsgMmsBody, char **ppSmilDoc)
 			return false;
 		}
 
-		// Add page to smil doc
+		/* Add page to smil doc */
 		if (false == MsgSmilAddPage(hSmilDoc, pstPage)) {
 			MSG_DEBUG("Adding page to smil doc failed");
 			MsgSmilDestroyDoc(hSmilDoc);
@@ -1987,9 +1962,8 @@ bool MsgSmilGenerateSmilDoc(MMS_MESSAGE_DATA_S *pstMsgMmsBody, char **ppSmilDoc)
 		}
 
 		nTotalMediaNum = pstPage->mediaCnt;
-		MSG_DEBUG(" Media Count = [%d]",nTotalMediaNum);
+		MSG_DEBUG("Media Count = [%d]", nTotalMediaNum);
 		for (nMediaIndex = 0; nMediaIndex < nTotalMediaNum; nMediaIndex++) {
-
 			pstMedia = _MsgMmsGetMedia(pstPage, nMediaIndex);
 			if (NULL == pstMedia) {
 				MSG_DEBUG("pMedia is NULL");

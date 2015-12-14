@@ -61,7 +61,7 @@ void msg_message_create_struct(msg_struct_s *msg_struct)
 	msg->msgId = 0;
 	msg->threadId = 0;
 	msg->folderId = MSG_DRAFT_ID;
-	msg->mainType= MSG_SMS_TYPE;
+	msg->mainType = MSG_SMS_TYPE;
 	msg->subType = MSG_NORMAL_SMS;
 	msg->classType = MSG_CLASS_NONE;
 	msg->storageId = MSG_STORAGE_PHONE;
@@ -163,66 +163,65 @@ int msg_message_get_int_value(void *data, int field, int *value)
 	MSG_MESSAGE_HIDDEN_S *msg_data = (MSG_MESSAGE_HIDDEN_S *)data;
 
 	switch (field) {
-	case MSG_MESSAGE_ID_INT :
+	case MSG_MESSAGE_ID_INT:
 		*value = msg_data->msgId;
 		break;
-	case MSG_MESSAGE_THREAD_ID_INT :
+	case MSG_MESSAGE_THREAD_ID_INT:
 		*value = msg_data->threadId;
 		break;
-	case MSG_MESSAGE_FOLDER_ID_INT :
+	case MSG_MESSAGE_FOLDER_ID_INT:
 		*value = msg_data->folderId;
 		break;
-	case MSG_MESSAGE_TYPE_INT :
-	{
+	case MSG_MESSAGE_TYPE_INT: {
 		if (msg_data->mainType == MSG_SMS_TYPE) {
 			switch (msg_data->subType) {
-				case MSG_CB_SMS :
+				case MSG_CB_SMS:
 					*value = MSG_TYPE_SMS_CB;
 					break;
-				case MSG_JAVACB_SMS :
+				case MSG_JAVACB_SMS:
 					*value = MSG_TYPE_SMS_JAVACB;
 					break;
-				case MSG_WAP_SI_SMS :
-				case MSG_WAP_SL_SMS :
+				case MSG_WAP_SI_SMS:
+				case MSG_WAP_SL_SMS:
 					*value = MSG_TYPE_SMS_WAPPUSH;
 					break;
-				case MSG_MWI_VOICE_SMS :
-				case MSG_MWI_FAX_SMS :
-				case MSG_MWI_EMAIL_SMS :
-				case MSG_MWI_OTHER_SMS :
+				case MSG_MWI_VOICE_SMS:
+				case MSG_MWI_FAX_SMS:
+				case MSG_MWI_EMAIL_SMS:
+				case MSG_MWI_OTHER_SMS:
 					*value = MSG_TYPE_SMS_MWI;
 					break;
-				case MSG_SYNCML_CP :
+				case MSG_SYNCML_CP:
 					*value = MSG_TYPE_SMS_SYNCML;
 					break;
-				case MSG_REJECT_SMS :
+				case MSG_REJECT_SMS:
 					*value = MSG_TYPE_SMS_REJECT;
 					break;
-				case MSG_ETWS_SMS :
+				case MSG_ETWS_SMS:
 					*value = MSG_TYPE_SMS_ETWS_PRIMARY;
 					break;
-				case MSG_CMAS_PRESIDENTIAL :
+				case MSG_CMAS_PRESIDENTIAL:
 					*value = MSG_TYPE_SMS_CMAS_PRESIDENTIAL;
 					break;
-				case MSG_CMAS_EXTREME :
+				case MSG_CMAS_EXTREME:
 					*value = MSG_TYPE_SMS_CMAS_EXTREME;
 					break;
-				case MSG_CMAS_SEVERE :
+				case MSG_CMAS_SEVERE:
 					*value = MSG_TYPE_SMS_CMAS_SEVERE;
 					break;
-				case MSG_CMAS_AMBER :
+				case MSG_CMAS_AMBER:
 					*value = MSG_TYPE_SMS_CMAS_AMBER;
 					break;
-				case MSG_CMAS_TEST :
+				case MSG_CMAS_TEST:
 					*value = MSG_TYPE_SMS_CMAS_TEST;
 					break;
-				case MSG_CMAS_EXERCISE :
+				case MSG_CMAS_EXERCISE:
 					*value = MSG_TYPE_SMS_CMAS_EXERCISE;
 					break;
-				case MSG_CMAS_OPERATOR_DEFINED :
+				case MSG_CMAS_OPERATOR_DEFINED:
 					*value = MSG_TYPE_SMS_CMAS_OPERATOR_DEFINED;
 					break;
-				default :
+				default:
 					*value = MSG_TYPE_SMS;
 					break;
 			}
@@ -240,43 +239,43 @@ int msg_message_get_int_value(void *data, int field, int *value)
 
 		break;
 	}
-	case MSG_MESSAGE_CLASS_TYPE_INT :
+	case MSG_MESSAGE_CLASS_TYPE_INT:
 		*value = msg_data->classType;
 		break;
-	case MSG_MESSAGE_STORAGE_ID_INT :
+	case MSG_MESSAGE_STORAGE_ID_INT:
 		*value = msg_data->storageId;
 		break;
-	case MSG_MESSAGE_DISPLAY_TIME_INT :
+	case MSG_MESSAGE_DISPLAY_TIME_INT:
 		*value = msg_data->displayTime;
 		break;
-	case MSG_MESSAGE_NETWORK_STATUS_INT :
+	case MSG_MESSAGE_NETWORK_STATUS_INT:
 		*value = msg_data->networkStatus;
 		break;
-	case MSG_MESSAGE_ENCODE_TYPE_INT :
+	case MSG_MESSAGE_ENCODE_TYPE_INT:
 		*value = msg_data->encodeType;
 		break;
-	case MSG_MESSAGE_PRIORITY_INT :
+	case MSG_MESSAGE_PRIORITY_INT:
 		*value = msg_data->priority;
 		break;
-	case MSG_MESSAGE_DIRECTION_INT :
+	case MSG_MESSAGE_DIRECTION_INT:
 		*value = msg_data->direction;
 		break;
-	case MSG_MESSAGE_DEST_PORT_INT :
+	case MSG_MESSAGE_DEST_PORT_INT:
 		*value = msg_data->dstPort;
 		break;
-	case MSG_MESSAGE_SRC_PORT_INT :
+	case MSG_MESSAGE_SRC_PORT_INT:
 		*value = msg_data->srcPort;
 		break;
-	case MSG_MESSAGE_ATTACH_COUNT_INT :
+	case MSG_MESSAGE_ATTACH_COUNT_INT:
 		*value = msg_data->attachCount;
 		break;
-	case MSG_MESSAGE_DATA_SIZE_INT :
+	case MSG_MESSAGE_DATA_SIZE_INT:
 		*value = msg_data->dataSize;
 		break;
-	case MSG_MESSAGE_SIM_INDEX_INT :
+	case MSG_MESSAGE_SIM_INDEX_INT:
 		*value = msg_data->simIndex;
 		break;
-	default :
+	default:
 		ret = MSG_ERR_INVALID_PARAMETER;
 		break;
 	}
@@ -294,27 +293,26 @@ int msg_message_get_bool_value(void *data, int field, bool *value)
 	MSG_MESSAGE_HIDDEN_S *msg_data = (MSG_MESSAGE_HIDDEN_S *)data;
 
 	switch (field) {
-	case MSG_MESSAGE_READ_BOOL :
+	case MSG_MESSAGE_READ_BOOL:
 		*value = msg_data->bRead;
 		break;
-	case MSG_MESSAGE_PROTECTED_BOOL :
+	case MSG_MESSAGE_PROTECTED_BOOL:
 		*value = msg_data->bProtected;
 		break;
-	case MSG_MESSAGE_BACKUP_BOOL :
+	case MSG_MESSAGE_BACKUP_BOOL:
 		*value = msg_data->bBackup;
 		break;
-	case MSG_MESSAGE_PORT_VALID_BOOL :
+	case MSG_MESSAGE_PORT_VALID_BOOL:
 		*value = msg_data->bPortValid;
 		break;
-	case MSG_MESSAGE_REPLACE_BOOL :
-	{
+	case MSG_MESSAGE_REPLACE_BOOL: {
 		if (msg_data->subType >= MSG_REPLACE_TYPE1_SMS && msg_data->subType <= MSG_REPLACE_TYPE7_SMS)
 			*value = true;
 		else
 			*value = false;
 		break;
 	}
-	default :
+	default:
 		ret = MSG_ERR_INVALID_PARAMETER;
 		break;
 	}
@@ -332,16 +330,15 @@ int msg_message_get_str_value(void *data, int field, char *value, int size)
 	MSG_MESSAGE_HIDDEN_S *msg_data = (MSG_MESSAGE_HIDDEN_S *)data;
 
 	switch (field) {
-	case MSG_MESSAGE_REPLY_ADDR_STR :
+	case MSG_MESSAGE_REPLY_ADDR_STR:
 		strncpy(value, msg_data->replyAddress, size);
 		break;
-	case MSG_MESSAGE_SUBJECT_STR :
+	case MSG_MESSAGE_SUBJECT_STR:
 		strncpy(value, msg_data->subject, size);
 		break;
-	case MSG_MESSAGE_SMS_DATA_STR :
-	case MSG_MESSAGE_MMS_TEXT_STR :
-		if (msg_data->pData)
-		{
+	case MSG_MESSAGE_SMS_DATA_STR:
+	case MSG_MESSAGE_MMS_TEXT_STR:
+		if (msg_data->pData) {
 			if (msg_data->mainType == MSG_SMS_TYPE) {
 				int data_len = 0;
 				((size_t)size >= msg_data->dataSize)? (data_len = msg_data->dataSize) : data_len = size;
@@ -354,7 +351,7 @@ int msg_message_get_str_value(void *data, int field, char *value, int size)
 		}
 		break;
 
-	default :
+	default:
 		ret = MSG_ERR_INVALID_PARAMETER;
 		break;
 	}
@@ -370,7 +367,7 @@ int msg_message_get_struct_hnd(void *data, int field, void **value)
 	int ret = MSG_SUCCESS;
 
 	switch (field) {
-	default :
+	default:
 		ret = MSG_ERR_INVALID_PARAMETER;
 		break;
 	}
@@ -388,13 +385,13 @@ int msg_message_get_list_hnd(void *data, int field, void **value)
 	MSG_MESSAGE_HIDDEN_S *msg_data = (MSG_MESSAGE_HIDDEN_S *)data;
 
 	switch (field) {
-	case MSG_MESSAGE_ADDR_LIST_STRUCT :
+	case MSG_MESSAGE_ADDR_LIST_STRUCT:
 		*value = (void *)msg_data->addr_list;
 		break;
-	case MSG_MESSAGE_ADDR_LIST_HND :
+	case MSG_MESSAGE_ADDR_LIST_HND:
 		*value = (msg_list_handle_t)msg_data->addressList;
 		break;
-	default :
+	default:
 		ret = MSG_ERR_INVALID_PARAMETER;
 		break;
 	}
@@ -412,17 +409,16 @@ int msg_message_set_int_value(void *data, int field, int value)
 	MSG_MESSAGE_HIDDEN_S *msg_data = (MSG_MESSAGE_HIDDEN_S *)data;
 
 	switch (field) {
-	case MSG_MESSAGE_ID_INT :
+	case MSG_MESSAGE_ID_INT:
 		msg_data->msgId = value;
 		break;
-	case MSG_MESSAGE_THREAD_ID_INT :
+	case MSG_MESSAGE_THREAD_ID_INT:
 		msg_data->threadId = value;
 		break;
-	case MSG_MESSAGE_FOLDER_ID_INT :
+	case MSG_MESSAGE_FOLDER_ID_INT:
 		msg_data->folderId = value;
 		break;
-	case MSG_MESSAGE_TYPE_INT :
-	{
+	case MSG_MESSAGE_TYPE_INT: {
 		if (value == MSG_TYPE_SMS) {
 			msg_data->mainType = MSG_SMS_TYPE;
 			msg_data->subType = MSG_NORMAL_SMS;
@@ -446,43 +442,43 @@ int msg_message_set_int_value(void *data, int field, int value)
 		}
 		break;
 	}
-	case MSG_MESSAGE_CLASS_TYPE_INT :
+	case MSG_MESSAGE_CLASS_TYPE_INT:
 		msg_data->classType = value;
 		break;
-	case MSG_MESSAGE_STORAGE_ID_INT :
+	case MSG_MESSAGE_STORAGE_ID_INT:
 		msg_data->storageId = value;
 		break;
-	case MSG_MESSAGE_DISPLAY_TIME_INT :
+	case MSG_MESSAGE_DISPLAY_TIME_INT:
 		msg_data->displayTime = value;
 		break;
-	case MSG_MESSAGE_NETWORK_STATUS_INT :
+	case MSG_MESSAGE_NETWORK_STATUS_INT:
 		msg_data->networkStatus = value;
 		break;
-	case MSG_MESSAGE_ENCODE_TYPE_INT :
+	case MSG_MESSAGE_ENCODE_TYPE_INT:
 		msg_data->encodeType = value;
 		break;
-	case MSG_MESSAGE_PRIORITY_INT :
+	case MSG_MESSAGE_PRIORITY_INT:
 		msg_data->priority = value;
 		break;
-	case MSG_MESSAGE_DIRECTION_INT :
+	case MSG_MESSAGE_DIRECTION_INT:
 		msg_data->direction = value;
 		break;
-	case MSG_MESSAGE_DEST_PORT_INT :
+	case MSG_MESSAGE_DEST_PORT_INT:
 		msg_data->dstPort = value;
 		break;
-	case MSG_MESSAGE_SRC_PORT_INT :
+	case MSG_MESSAGE_SRC_PORT_INT:
 		msg_data->srcPort = value;
 		break;
-	case MSG_MESSAGE_ATTACH_COUNT_INT :
+	case MSG_MESSAGE_ATTACH_COUNT_INT:
 		 msg_data->attachCount = value;
 		break;
-	case MSG_MESSAGE_DATA_SIZE_INT :
+	case MSG_MESSAGE_DATA_SIZE_INT:
 		msg_data->dataSize = value;
 		break;
-	case MSG_MESSAGE_SIM_INDEX_INT :
+	case MSG_MESSAGE_SIM_INDEX_INT:
 		msg_data->simIndex = value;
 		break;
-	default :
+	default:
 		ret = MSG_ERR_INVALID_PARAMETER;
 		break;
 	}
@@ -500,19 +496,19 @@ int msg_message_set_bool_value(void *data, int field, bool value)
 	MSG_MESSAGE_HIDDEN_S *msg_data = (MSG_MESSAGE_HIDDEN_S *)data;
 
 	switch (field) {
-	case MSG_MESSAGE_READ_BOOL :
+	case MSG_MESSAGE_READ_BOOL:
 		msg_data->bRead = value;
 		break;
-	case MSG_MESSAGE_PROTECTED_BOOL :
+	case MSG_MESSAGE_PROTECTED_BOOL:
 		msg_data->bProtected = value;
 		break;
-	case MSG_MESSAGE_BACKUP_BOOL :
+	case MSG_MESSAGE_BACKUP_BOOL:
 		msg_data->bBackup = value;
 		break;
-	case MSG_MESSAGE_PORT_VALID_BOOL :
+	case MSG_MESSAGE_PORT_VALID_BOOL:
 		msg_data->bPortValid = value;
 		break;
-	default :
+	default:
 		ret = MSG_ERR_INVALID_PARAMETER;
 		break;
 	}
@@ -530,14 +526,13 @@ int msg_message_set_str_value(void *data, int field, char *value, int size)
 	MSG_MESSAGE_HIDDEN_S *msg_data = (MSG_MESSAGE_HIDDEN_S *)data;
 
 	switch (field) {
-	case MSG_MESSAGE_REPLY_ADDR_STR :
+	case MSG_MESSAGE_REPLY_ADDR_STR:
 		snprintf(msg_data->replyAddress, sizeof(msg_data->replyAddress), "%s", value);
 		break;
-	case MSG_MESSAGE_SUBJECT_STR :
-		snprintf(msg_data->subject, sizeof(msg_data->subject), "%s",value);
+	case MSG_MESSAGE_SUBJECT_STR:
+		snprintf(msg_data->subject, sizeof(msg_data->subject), "%s", value);
 		break;
-	case MSG_MESSAGE_SMS_DATA_STR :
-	{
+	case MSG_MESSAGE_SMS_DATA_STR: {
 		if (msg_data->pData)
 			delete [] static_cast<char*>(msg_data->pData);
 
@@ -547,7 +542,7 @@ int msg_message_set_str_value(void *data, int field, char *value, int size)
 		((char*) msg_data->pData)[msg_data->dataSize] = '\0';
 	}
 		break;
-	default :
+	default:
 		ret = MSG_ERR_INVALID_PARAMETER;
 		break;
 	}
@@ -563,7 +558,7 @@ int msg_message_set_struct_hnd(void *data, int field, void *value)
 	int ret = MSG_SUCCESS;
 
 	switch (field) {
-	default :
+	default:
 		ret = MSG_ERR_INVALID_PARAMETER;
 		break;
 	}
@@ -573,7 +568,6 @@ int msg_message_set_struct_hnd(void *data, int field, void *value)
 
 void msg_message_copy_message(MSG_MESSAGE_HIDDEN_S *pSrc, MSG_MESSAGE_HIDDEN_S *pDst)
 {
-
 	pDst->msgId = pSrc->msgId;
 	pDst->threadId = pSrc->msgId;
 	pDst->folderId = pSrc->folderId;
@@ -626,7 +620,7 @@ void msg_message_copy_message(MSG_MESSAGE_HIDDEN_S *pSrc, MSG_MESSAGE_HIDDEN_S *
 		msg_struct_s *addr_struct = __msg_message_create_address_struct();
 		MSG_ADDRESS_INFO_S *addrInfo = (MSG_ADDRESS_INFO_S *)addr_struct->data;
 
-		msg_struct_s *addr_info = (msg_struct_s *)g_list_nth_data(pSrc->addressList,(guint)i);
+		msg_struct_s *addr_info = (msg_struct_s *)g_list_nth_data(pSrc->addressList, (guint)i);
 		MSG_ADDRESS_INFO_S *address = (MSG_ADDRESS_INFO_S *)addr_info->data;
 
 		addrInfo->addressType = address->addressType;
@@ -652,60 +646,59 @@ int msg_cb_message_get_int_value(void *data, int field, int *value)
 	*value = 0;
 
 	switch (field) {
-	case MSG_CB_MSG_TYPE_INT :
-		{
+	case MSG_CB_MSG_TYPE_INT: {
 			switch (cb_msg->type) {
-			case MSG_ETWS_SMS :
+			case MSG_ETWS_SMS:
 				*value = MSG_TYPE_SMS_ETWS_PRIMARY;
 				break;
 			case MSG_CB_SMS:
-				*value = ((cb_msg->messageId & 0xFFF8) == 0x1100 ) ? MSG_TYPE_SMS_ETWS_SECONDARY : MSG_TYPE_SMS_CB;
+				*value = ((cb_msg->messageId & 0xFFF8) == 0x1100) ? MSG_TYPE_SMS_ETWS_SECONDARY : MSG_TYPE_SMS_CB;
 				break;
-			case MSG_CMAS_PRESIDENTIAL :
+			case MSG_CMAS_PRESIDENTIAL:
 				*value = MSG_TYPE_SMS_CMAS_PRESIDENTIAL;
 				break;
-			case MSG_CMAS_EXTREME :
+			case MSG_CMAS_EXTREME:
 				*value = MSG_TYPE_SMS_CMAS_EXTREME;
 				break;
-			case MSG_CMAS_SEVERE :
+			case MSG_CMAS_SEVERE:
 				*value = MSG_TYPE_SMS_CMAS_SEVERE;
 				break;
-			case MSG_CMAS_AMBER :
+			case MSG_CMAS_AMBER:
 				*value = MSG_TYPE_SMS_CMAS_AMBER;
 				break;
-			case MSG_CMAS_TEST :
+			case MSG_CMAS_TEST:
 				*value = MSG_TYPE_SMS_CMAS_TEST;
 				break;
-			case MSG_CMAS_EXERCISE :
+			case MSG_CMAS_EXERCISE:
 				*value = MSG_TYPE_SMS_CMAS_EXERCISE;
 				break;
-			case MSG_CMAS_OPERATOR_DEFINED :
+			case MSG_CMAS_OPERATOR_DEFINED:
 				*value = MSG_TYPE_SMS_CMAS_OPERATOR_DEFINED;
 				break;
-			default :
+			default:
 				ret = MSG_ERR_UNKNOWN;
 			}
 		}
 		break;
-	case MSG_CB_MSG_RECV_TIME_INT :
+	case MSG_CB_MSG_RECV_TIME_INT:
 		*value = cb_msg->receivedTime;
 		break;
-	case MSG_CB_MSG_SERIAL_NUM_INT :
+	case MSG_CB_MSG_SERIAL_NUM_INT:
 		*value = cb_msg->serialNum;
 		break;
-	case MSG_CB_MSG_MSG_ID_INT :
+	case MSG_CB_MSG_MSG_ID_INT:
 		*value = cb_msg->messageId;
 		break;
-	case MSG_CB_MSG_DCS_INT :
+	case MSG_CB_MSG_DCS_INT:
 		*value = (int)cb_msg->dcs;
 		break;
-	case MSG_CB_MSG_CB_TEXT_LEN_INT :
+	case MSG_CB_MSG_CB_TEXT_LEN_INT:
 		*value = cb_msg->cbTextLen;
 		break;
-	case MSG_CB_MSG_ETWS_WARNING_TYPE_INT :
+	case MSG_CB_MSG_ETWS_WARNING_TYPE_INT:
 		*value = cb_msg->etwsWarningType;
 		break;
-	default :
+	default:
 		ret = MSG_ERR_INVALID_PARAMETER;
 		break;
 	}
@@ -723,24 +716,21 @@ int msg_cb_message_get_str_value(void *data, int field, char *value, int size)
 	MSG_CB_MSG_S *cb_msg = (MSG_CB_MSG_S *)data;
 
 	switch (field) {
-	case MSG_CB_MSG_CB_TEXT_STR:
-	{
+	case MSG_CB_MSG_CB_TEXT_STR: {
 		int	copylen = 0;
 		copylen = (size > cb_msg->cbTextLen) ? cb_msg->cbTextLen : size - 1;
-		memcpy (value, cb_msg->cbText, copylen);
+		memcpy(value, cb_msg->cbText, copylen);
 		value[copylen] = '\0';
 	}
 	break;
-	case MSG_CB_MSG_LANGUAGE_TYPE_STR:
-	{
+	case MSG_CB_MSG_LANGUAGE_TYPE_STR: {
 		int	copylen = 0;
 		copylen = ((size_t)size > strlen((const char*)cb_msg->language_type)) ? strlen((const char*)cb_msg->language_type) : size - 1;
-		memcpy (value, cb_msg->language_type, copylen);
+		memcpy(value, cb_msg->language_type, copylen);
 		value[copylen] = '\0';
 	}
 	break;
-	case MSG_CB_MSG_ETWS_WARNING_SECU_INFO_STR:
-	{
+	case MSG_CB_MSG_ETWS_WARNING_SECU_INFO_STR: {
 		if ((size_t)size < sizeof(cb_msg->etwsWarningSecurityInfo))
 			ret = MSG_ERR_INVALID_PARAMETER;
 		else
@@ -748,7 +738,7 @@ int msg_cb_message_get_str_value(void *data, int field, char *value, int size)
 	}
 	break;
 
-	default :
+	default:
 		ret = MSG_ERR_INVALID_PARAMETER;
 		break;
 	}
@@ -843,14 +833,13 @@ int msg_message_list_append(msg_struct_t msg_struct_handle, int field, msg_struc
 
 	msg_struct_s *msg_struct_item = NULL;
 	switch (field) {
-	case MSG_MESSAGE_ADDR_LIST_HND:
-	{
+	case MSG_MESSAGE_ADDR_LIST_HND: {
 		msg_struct_item = __msg_message_create_address_struct();
 		msg_data->addressList = g_list_append(msg_data->addressList, msg_struct_item);
 		*item = (msg_struct_t)msg_struct_item;
 	}
 	break;
-	default :
+	default:
 		err = MSG_ERR_INVALID_PARAMETER;
 		break;
 	}
@@ -866,8 +855,7 @@ int msg_message_list_clear(msg_struct_t msg_struct_handle, int field)
 	MSG_MESSAGE_HIDDEN_S *msg_data = (MSG_MESSAGE_HIDDEN_S *)msg_struct->data;
 
 	switch (field) {
-	case MSG_MESSAGE_ADDR_LIST_HND:
-	{
+	case MSG_MESSAGE_ADDR_LIST_HND: {
 		/* Free GList *addressList */
 		if (msg_data->addressList) {
 			g_list_free_full(msg_data->addressList, __msg_message_release_address_struct);
@@ -875,7 +863,7 @@ int msg_message_list_clear(msg_struct_t msg_struct_handle, int field)
 		}
 	}
 	break;
-	default :
+	default:
 		err = MSG_ERR_INVALID_PARAMETER;
 		break;
 	}
@@ -893,10 +881,10 @@ int msg_conversation_get_list_hnd(void *data, int field, void **value)
 	MSG_CONVERSATION_VIEW_S *msg_data = (MSG_CONVERSATION_VIEW_S *)data;
 
 	switch (field) {
-	case MSG_CONV_MSG_MULTIPART_HND :
+	case MSG_CONV_MSG_MULTIPART_HND:
 		*value = (void *)msg_data->multipart_list;
 		break;
-	default :
+	default:
 		ret = MSG_ERR_INVALID_PARAMETER;
 		break;
 	}

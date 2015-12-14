@@ -45,29 +45,25 @@ EXPORT_API msg_struct_t msg_create_struct(int field)
 	msg_struct->data = NULL;
 
 	switch (field) {
-	case MSG_STRUCT_MESSAGE_INFO :
+	case MSG_STRUCT_MESSAGE_INFO:
 		msg_message_create_struct(msg_struct);
 		break;
-	case MSG_STRUCT_CONV_INFO:
-	{
+	case MSG_STRUCT_CONV_INFO: {
 		msg_struct->data = (void *)new MSG_CONVERSATION_VIEW_S;
 		memset(msg_struct->data, 0x00, sizeof(MSG_CONVERSATION_VIEW_S));
 		break;
 	}
-	case MSG_STRUCT_FILTER:
-	{
+	case MSG_STRUCT_FILTER: {
 		msg_struct->data = (void *)new MSG_FILTER_S;
 		memset(msg_struct->data, 0x00, sizeof(MSG_FILTER_S));
 		break;
 	}
-	case MSG_STRUCT_THREAD_INFO:
-	{
+	case MSG_STRUCT_THREAD_INFO: {
 		msg_struct->data = (void *)new MSG_THREAD_VIEW_S;
 		memset(msg_struct->data, 0x00, sizeof(MSG_THREAD_VIEW_S));
 		break;
 	}
-	case MSG_STRUCT_SENDOPT:
-	{
+	case MSG_STRUCT_SENDOPT: {
 		MSG_SENDINGOPT_S *pOpt = (MSG_SENDINGOPT_S *)new MSG_SENDINGOPT_S;
 		memset(pOpt, 0x00, sizeof(MSG_SENDINGOPT_S));
 		msg_struct->data = pOpt;
@@ -87,9 +83,8 @@ EXPORT_API msg_struct_t msg_create_struct(int field)
 		memset(pSms->data, 0x00, sizeof(SMS_SENDINGOPT_S));
 		break;
 	}
-	case MSG_STRUCT_SYNCML_INFO:
-	{
-		MSG_SYNCML_MESSAGE_S *pSyncML= (MSG_SYNCML_MESSAGE_S *)new MSG_SYNCML_MESSAGE_S;
+	case MSG_STRUCT_SYNCML_INFO: {
+		MSG_SYNCML_MESSAGE_S *pSyncML = (MSG_SYNCML_MESSAGE_S *)new MSG_SYNCML_MESSAGE_S;
 		memset(pSyncML, 0x00, sizeof(MSG_SYNCML_MESSAGE_S));
 		msg_struct->data = pSyncML;
 
@@ -100,20 +95,17 @@ EXPORT_API msg_struct_t msg_create_struct(int field)
 
 		break;
 	}
-	case MSG_STRUCT_COUNT_INFO:
-	{
+	case MSG_STRUCT_COUNT_INFO: {
 		msg_struct->data = new MSG_COUNT_INFO_S;
 		memset(msg_struct->data, 0x00, sizeof(MSG_COUNT_INFO_S));
 		break;
 	}
-	case MSG_STRUCT_THREAD_COUNT_INFO:
-	{
+	case MSG_STRUCT_THREAD_COUNT_INFO: {
 		msg_struct->data = new MSG_THREAD_COUNT_INFO_S;
 		memset(msg_struct->data, 0x00, sizeof(MSG_THREAD_COUNT_INFO_S));
 		break;
 	}
-	case MSG_STRUCT_THREAD_LIST_INDEX:
-	{
+	case MSG_STRUCT_THREAD_LIST_INDEX: {
 		MSG_THREAD_LIST_INDEX_INFO_S * pThread = (MSG_THREAD_LIST_INDEX_INFO_S *)new MSG_THREAD_LIST_INDEX_INFO_S;
 		memset(pThread, 0x00, sizeof(MSG_THREAD_LIST_INDEX_INFO_S));
 
@@ -128,20 +120,17 @@ EXPORT_API msg_struct_t msg_create_struct(int field)
 
 		break;
 	}
-	case MSG_STRUCT_SORT_RULE:
-	{
+	case MSG_STRUCT_SORT_RULE: {
 		msg_struct->data = new MSG_SORT_RULE_S;
 		memset(msg_struct->data, 0x00, sizeof(MSG_SORT_RULE_S));
 		break;
 	}
-	case MSG_STRUCT_FOLDER_INFO:
-	{
+	case MSG_STRUCT_FOLDER_INFO: {
 		msg_struct->data = new MSG_FOLDER_INFO_S;
 		memset(msg_struct->data, 0x00, sizeof(MSG_FOLDER_INFO_S));
 		break;
 	}
-	case MSG_STRUCT_MSG_LIST_CONDITION:
-	{
+	case MSG_STRUCT_MSG_LIST_CONDITION: {
 		msg_struct->data = new MSG_LIST_CONDITION_S;
 		memset(msg_struct->data, 0x00, sizeof(MSG_LIST_CONDITION_S));
 
@@ -154,14 +143,12 @@ EXPORT_API msg_struct_t msg_create_struct(int field)
 
 		break;
 	}
-	case MSG_STRUCT_REPORT_STATUS_INFO:
-	{
+	case MSG_STRUCT_REPORT_STATUS_INFO: {
 		msg_struct->data = new MSG_REPORT_STATUS_INFO_S;
 		memset(msg_struct->data, 0x00, sizeof(MSG_REPORT_STATUS_INFO_S));
 		break;
 	}
-	case MSG_STRUCT_SETTING_SMSC_OPT :
-	{
+	case MSG_STRUCT_SETTING_SMSC_OPT: {
 		msg_struct->data = new MSG_SMSC_LIST_HIDDEN_S;
 		memset(msg_struct->data, 0x00, sizeof(MSG_SMSC_LIST_HIDDEN_S));
 
@@ -188,14 +175,12 @@ EXPORT_API msg_struct_t msg_create_struct(int field)
 		}
 		break;
 	}
-	case MSG_STRUCT_SETTING_SMSC_INFO :
-	{
+	case MSG_STRUCT_SETTING_SMSC_INFO: {
 		msg_struct->data = new MSG_SMSC_DATA_S;
 		memset(msg_struct->data, 0x00, sizeof(MSG_SMSC_DATA_S));
 		break;
 	}
-	case MSG_STRUCT_SETTING_CB_OPT :
-	{
+	case MSG_STRUCT_SETTING_CB_OPT: {
 		msg_struct->data = new MSG_CBMSG_OPT_HIDDEN_S;
 		memset(msg_struct->data, 0x00, sizeof(MSG_CBMSG_OPT_HIDDEN_S));
 
@@ -221,70 +206,59 @@ EXPORT_API msg_struct_t msg_create_struct(int field)
 		}
 		break;
 	}
-	case MSG_STRUCT_SETTING_CB_CHANNEL_INFO :
-	{
+	case MSG_STRUCT_SETTING_CB_CHANNEL_INFO: {
 		msg_struct->data = new MSG_CB_CHANNEL_INFO_S;
 		memset(msg_struct->data, 0x00, sizeof(MSG_CB_CHANNEL_INFO_S));
 		break;
 	}
-	case MSG_STRUCT_SETTING_SMS_SEND_OPT :
-	{
+	case MSG_STRUCT_SETTING_SMS_SEND_OPT: {
 		msg_struct->data = new MSG_SMS_SENDOPT_S;
 		memset(msg_struct->data, 0x00, sizeof(MSG_SMS_SENDOPT_S));
 		break;
 	}
-	case MSG_STRUCT_SETTING_MMS_SEND_OPT :
-	{
+	case MSG_STRUCT_SETTING_MMS_SEND_OPT: {
 		msg_struct->data = new MSG_MMS_SENDOPT_S;
 		memset(msg_struct->data, 0x00, sizeof(MSG_MMS_SENDOPT_S));
 		break;
 	}
-	case MSG_STRUCT_SETTING_MMS_RECV_OPT :
-	{
+	case MSG_STRUCT_SETTING_MMS_RECV_OPT: {
 		msg_struct->data = new MSG_MMS_RECVOPT_S;
 		memset(msg_struct->data, 0x00, sizeof(MSG_MMS_RECVOPT_S));
 		break;
 	}
-	case MSG_STRUCT_SETTING_PUSH_MSG_OPT :
-	{
+	case MSG_STRUCT_SETTING_PUSH_MSG_OPT: {
 		msg_struct->data = new MSG_PUSHMSG_OPT_S;
 		memset(msg_struct->data, 0x00, sizeof(MSG_PUSHMSG_OPT_S));
 		break;
 	}
-	case MSG_STRUCT_SETTING_VOICE_MSG_OPT :
-	{
+	case MSG_STRUCT_SETTING_VOICE_MSG_OPT: {
 		msg_struct->data = new MSG_VOICEMAIL_OPT_S;
 		memset(msg_struct->data, 0x00, sizeof(MSG_VOICEMAIL_OPT_S));
 		MSG_VOICEMAIL_OPT_S *pTmp = (MSG_VOICEMAIL_OPT_S *)msg_struct->data;
 		pTmp->simIndex = MSG_SIM_SLOT_ID_1; /* default sim index */
 		break;
 	}
-	case MSG_STRUCT_SETTING_GENERAL_OPT :
-	{
+	case MSG_STRUCT_SETTING_GENERAL_OPT: {
 		msg_struct->data = new MSG_GENERAL_OPT_S;
 		memset(msg_struct->data, 0x00, sizeof(MSG_GENERAL_OPT_S));
 		break;
 	}
-	case MSG_STRUCT_SETTING_MSGSIZE_OPT :
-	{
+	case MSG_STRUCT_SETTING_MSGSIZE_OPT: {
 		msg_struct->data = new MSG_MSGSIZE_OPT_S;
 		memset(msg_struct->data, 0x00, sizeof(MSG_MSGSIZE_OPT_S));
 		break;
 	}
-	case MSG_STRUCT_SMS_SENDOPT:
-	{
+	case MSG_STRUCT_SMS_SENDOPT: {
 		msg_struct->data = new SMS_SENDINGOPT_S;
 		memset(msg_struct->data, 0x00, sizeof(SMS_SENDINGOPT_S));
 		break;
 	}
-	case MSG_STRUCT_MMS_SENDOPT:
-	{
+	case MSG_STRUCT_MMS_SENDOPT: {
 		msg_struct->data = new MMS_SENDINGOPT_S;
 		memset(msg_struct->data, 0x00, sizeof(MMS_SENDINGOPT_S));
 		break;
 	}
-	case MSG_STRUCT_REQUEST_INFO:
-	{
+	case MSG_STRUCT_REQUEST_INFO: {
 		MSG_REQUEST_S *pRequest = (MSG_REQUEST_S *)new MSG_REQUEST_S;
 		memset(pRequest, 0x00, sizeof(MSG_REQUEST_S));
 		msg_struct->data = pRequest;
@@ -334,7 +308,7 @@ EXPORT_API msg_struct_t msg_create_struct(int field)
 		msg_struct->data = new MSG_PUSH_EVENT_INFO_S;
 		memset(msg_struct->data, 0x00, sizeof(MSG_PUSH_EVENT_INFO_S));
 		break;
-	default :
+	default:
 		delete msg_struct;
 		return NULL;
 		break;
@@ -354,15 +328,13 @@ static int _release_msg_struct(msg_struct_t *msg_struct_handle)
 	msg_struct_s *msg_struct = (msg_struct_s *)*msg_struct_handle;
 
 	switch (msg_struct->type) {
-	case MSG_STRUCT_MESSAGE_INFO :
-	{
+	case MSG_STRUCT_MESSAGE_INFO: {
 		msg_message_release(&msg_struct);
 
 		*msg_struct_handle = NULL;
 		break;
 	}
-	case MSG_STRUCT_FILTER:
-	{
+	case MSG_STRUCT_FILTER: {
 		delete (MSG_FILTER_S*)(msg_struct->data);
 		msg_struct->data = NULL;
 
@@ -370,8 +342,7 @@ static int _release_msg_struct(msg_struct_t *msg_struct_handle)
 		*msg_struct_handle = NULL;
 		break;
 	}
-	case MSG_STRUCT_CONV_INFO:
-	{
+	case MSG_STRUCT_CONV_INFO: {
 		MSG_CONVERSATION_VIEW_S *pConv = (MSG_CONVERSATION_VIEW_S*)(msg_struct->data);
 
 		if (pConv->multipart_list) {
@@ -391,8 +362,7 @@ static int _release_msg_struct(msg_struct_t *msg_struct_handle)
 		*msg_struct_handle = NULL;
 		break;
 	}
-	case MSG_STRUCT_THREAD_INFO:
-	{
+	case MSG_STRUCT_THREAD_INFO: {
 		delete (MSG_THREAD_VIEW_S*)(msg_struct->data);
 		msg_struct->data = NULL;
 
@@ -400,8 +370,7 @@ static int _release_msg_struct(msg_struct_t *msg_struct_handle)
 		*msg_struct_handle = NULL;
 		break;
 	}
-	case MSG_STRUCT_SENDOPT:
-	{
+	case MSG_STRUCT_SENDOPT: {
 		MSG_SENDINGOPT_S *pOpt = (MSG_SENDINGOPT_S*)(msg_struct->data);
 		delete (MMS_SENDINGOPT_S *)(((msg_struct_s *)pOpt->mmsSendOpt)->data);
 		((msg_struct_s *)pOpt->mmsSendOpt)->data = NULL;
@@ -421,8 +390,7 @@ static int _release_msg_struct(msg_struct_t *msg_struct_handle)
 
 		break;
 	}
-	case MSG_STRUCT_SYNCML_INFO:
-	{
+	case MSG_STRUCT_SYNCML_INFO: {
 		MSG_SYNCML_MESSAGE_S *pSyncML = (MSG_SYNCML_MESSAGE_S*)(msg_struct->data);
 		msg_struct_s *msg = (msg_struct_s *)pSyncML->msg;
 		msg_message_release(&msg);
@@ -434,8 +402,7 @@ static int _release_msg_struct(msg_struct_t *msg_struct_handle)
 		*msg_struct_handle = NULL;
 		break;
 	}
-	case MSG_STRUCT_COUNT_INFO:
-	{
+	case MSG_STRUCT_COUNT_INFO: {
 		delete (MSG_COUNT_INFO_S*)(msg_struct->data);
 		msg_struct->data = NULL;
 
@@ -443,8 +410,7 @@ static int _release_msg_struct(msg_struct_t *msg_struct_handle)
 		*msg_struct_handle = NULL;
 		break;
 	}
-	case MSG_STRUCT_THREAD_COUNT_INFO:
-	{
+	case MSG_STRUCT_THREAD_COUNT_INFO: {
 		delete (MSG_THREAD_COUNT_INFO_S*)(msg_struct->data);
 		msg_struct->data = NULL;
 
@@ -453,8 +419,7 @@ static int _release_msg_struct(msg_struct_t *msg_struct_handle)
 
 		break;
 	}
-	case MSG_STRUCT_THREAD_LIST_INDEX:
-	{
+	case MSG_STRUCT_THREAD_LIST_INDEX: {
 		MSG_THREAD_LIST_INDEX_INFO_S *pThread = (MSG_THREAD_LIST_INDEX_INFO_S*)(msg_struct->data);
 		delete (MSG_ADDRESS_INFO_S *)(((msg_struct_s *)pThread->msgAddrInfo)->data);
 		((msg_struct_s *)pThread->msgAddrInfo)->data = NULL;
@@ -468,8 +433,7 @@ static int _release_msg_struct(msg_struct_t *msg_struct_handle)
 
 		break;
 	}
-	case MSG_STRUCT_SORT_RULE:
-	{
+	case MSG_STRUCT_SORT_RULE: {
 		delete (MSG_SORT_RULE_S*)(msg_struct->data);
 		msg_struct->data = NULL;
 
@@ -478,8 +442,7 @@ static int _release_msg_struct(msg_struct_t *msg_struct_handle)
 
 		break;
 	}
-	case MSG_STRUCT_FOLDER_INFO:
-	{
+	case MSG_STRUCT_FOLDER_INFO: {
 		delete (MSG_FOLDER_INFO_S*)(msg_struct->data);
 		msg_struct->data = NULL;
 
@@ -488,8 +451,7 @@ static int _release_msg_struct(msg_struct_t *msg_struct_handle)
 
 		break;
 	}
-	case MSG_STRUCT_MSG_LIST_CONDITION:
-	{
+	case MSG_STRUCT_MSG_LIST_CONDITION: {
 		MSG_LIST_CONDITION_S *pCond = (MSG_LIST_CONDITION_S*)(msg_struct->data);
 		MSG_SORT_RULE_S *pSortRule = (MSG_SORT_RULE_S *)(((msg_struct_s *)pCond->sortRule)->data);
 
@@ -506,8 +468,7 @@ static int _release_msg_struct(msg_struct_t *msg_struct_handle)
 
 		break;
 	}
-	case MSG_STRUCT_REPORT_STATUS_INFO:
-	{
+	case MSG_STRUCT_REPORT_STATUS_INFO: {
 		delete (MSG_REPORT_STATUS_INFO_S*)(msg_struct->data);
 		msg_struct->data = NULL;
 
@@ -516,8 +477,7 @@ static int _release_msg_struct(msg_struct_t *msg_struct_handle)
 
 		break;
 	}
-	case MSG_STRUCT_SMS_SENDOPT:
-	{
+	case MSG_STRUCT_SMS_SENDOPT: {
 		delete (SMS_SENDINGOPT_S*)(msg_struct->data);
 		msg_struct->data = NULL;
 
@@ -526,8 +486,7 @@ static int _release_msg_struct(msg_struct_t *msg_struct_handle)
 
 		break;
 	}
-	case MSG_STRUCT_MMS_SENDOPT:
-	{
+	case MSG_STRUCT_MMS_SENDOPT: {
 		delete (MMS_SENDINGOPT_S*)(msg_struct->data);
 		msg_struct->data = NULL;
 
@@ -536,8 +495,7 @@ static int _release_msg_struct(msg_struct_t *msg_struct_handle)
 
 		break;
 	}
-	case MSG_STRUCT_REQUEST_INFO:
-	{
+	case MSG_STRUCT_REQUEST_INFO: {
 		MSG_REQUEST_S *pRequest = (MSG_REQUEST_S*)(msg_struct->data);
 
 		MSG_SENDINGOPT_S *pSendingOpt = (MSG_SENDINGOPT_S *)(((msg_struct_s *)pRequest->sendOpt)->data);
@@ -578,14 +536,12 @@ static int _release_msg_struct(msg_struct_t *msg_struct_handle)
 	case MSG_STRUCT_MMS_META:
 	case MSG_STRUCT_MMS_SMIL_TEXT:
 	case MSG_STRUCT_MMS_SMIL_AVI:
-	case MSG_STRUCT_MULTIPART_INFO:
-	{
+	case MSG_STRUCT_MULTIPART_INFO: {
 		msg_mms_release_struct(&msg_struct);
 		*msg_struct_handle = NULL;
 		break;
 	}
-	case MSG_STRUCT_SETTING_SMSC_OPT :
-	{
+	case MSG_STRUCT_SETTING_SMSC_OPT: {
 		msg_struct_list_s *smsc_list = NULL;
 		msg_struct_s *smsc_info = NULL;
 		MSG_SMSC_LIST_HIDDEN_S *pTmp = NULL;
@@ -610,8 +566,7 @@ static int _release_msg_struct(msg_struct_t *msg_struct_handle)
 		*msg_struct_handle = NULL;
 		break;
 	}
-	case MSG_STRUCT_SETTING_CB_CHANNEL_INFO :
-	{
+	case MSG_STRUCT_SETTING_CB_CHANNEL_INFO: {
 		delete (MSG_CB_CHANNEL_INFO_S*)(msg_struct->data);
 		msg_struct->data = NULL;
 
@@ -619,8 +574,7 @@ static int _release_msg_struct(msg_struct_t *msg_struct_handle)
 		*msg_struct_handle = NULL;
 		break;
 	}
-	case MSG_STRUCT_SETTING_CB_OPT :
-	{
+	case MSG_STRUCT_SETTING_CB_OPT: {
 		msg_struct_list_s *cb_list = NULL;
 		msg_struct_s *cb_info = NULL;
 		MSG_CBMSG_OPT_HIDDEN_S *pTmp = NULL;
@@ -645,8 +599,7 @@ static int _release_msg_struct(msg_struct_t *msg_struct_handle)
 		*msg_struct_handle = NULL;
 		break;
 	}
-	case MSG_STRUCT_SETTING_SMS_SEND_OPT :
-	{
+	case MSG_STRUCT_SETTING_SMS_SEND_OPT: {
 		delete (MSG_SMS_SENDOPT_S*)(msg_struct->data);
 		msg_struct->data = NULL;
 
@@ -654,8 +607,7 @@ static int _release_msg_struct(msg_struct_t *msg_struct_handle)
 		*msg_struct_handle = NULL;
 		break;
 	}
-	case MSG_STRUCT_SETTING_MMS_SEND_OPT :
-	{
+	case MSG_STRUCT_SETTING_MMS_SEND_OPT: {
 		delete (MSG_MMS_SENDOPT_S*)(msg_struct->data);
 		msg_struct->data = NULL;
 
@@ -663,8 +615,7 @@ static int _release_msg_struct(msg_struct_t *msg_struct_handle)
 		*msg_struct_handle = NULL;
 		break;
 	}
-	case MSG_STRUCT_SETTING_MMS_RECV_OPT :
-	{
+	case MSG_STRUCT_SETTING_MMS_RECV_OPT: {
 		delete (MSG_MMS_RECVOPT_S*)(msg_struct->data);
 		msg_struct->data = NULL;
 
@@ -672,8 +623,7 @@ static int _release_msg_struct(msg_struct_t *msg_struct_handle)
 		*msg_struct_handle = NULL;
 		break;
 	}
-	case MSG_STRUCT_SETTING_PUSH_MSG_OPT :
-	{
+	case MSG_STRUCT_SETTING_PUSH_MSG_OPT: {
 		delete (MSG_PUSHMSG_OPT_S*)(msg_struct->data);
 		msg_struct->data = NULL;
 
@@ -681,8 +631,7 @@ static int _release_msg_struct(msg_struct_t *msg_struct_handle)
 		*msg_struct_handle = NULL;
 		break;
 	}
-	case MSG_STRUCT_SETTING_VOICE_MSG_OPT :
-	{
+	case MSG_STRUCT_SETTING_VOICE_MSG_OPT: {
 		delete (MSG_VOICEMAIL_OPT_S*)(msg_struct->data);
 		msg_struct->data = NULL;
 
@@ -690,8 +639,7 @@ static int _release_msg_struct(msg_struct_t *msg_struct_handle)
 		*msg_struct_handle = NULL;
 		break;
 	}
-	case MSG_STRUCT_SETTING_GENERAL_OPT :
-	{
+	case MSG_STRUCT_SETTING_GENERAL_OPT: {
 		delete (MSG_GENERAL_OPT_S*)(msg_struct->data);
 		msg_struct->data = NULL;
 
@@ -699,8 +647,7 @@ static int _release_msg_struct(msg_struct_t *msg_struct_handle)
 		*msg_struct_handle = NULL;
 		break;
 	}
-	case MSG_STRUCT_SETTING_MSGSIZE_OPT :
-	{
+	case MSG_STRUCT_SETTING_MSGSIZE_OPT: {
 		delete (MSG_MSGSIZE_OPT_S*)(msg_struct->data);
 		msg_struct->data = NULL;
 
@@ -708,8 +655,7 @@ static int _release_msg_struct(msg_struct_t *msg_struct_handle)
 		*msg_struct_handle = NULL;
 		break;
 	}
-	case MSG_STRUCT_ADDRESS_INFO :
-	{
+	case MSG_STRUCT_ADDRESS_INFO: {
 		delete (MSG_ADDRESS_INFO_S*)(msg_struct->data);
 		msg_struct->data = NULL;
 
@@ -717,8 +663,7 @@ static int _release_msg_struct(msg_struct_t *msg_struct_handle)
 		*msg_struct_handle = NULL;
 		break;
 	}
-	case MSG_STRUCT_PUSH_CONFIG_INFO:
-	{
+	case MSG_STRUCT_PUSH_CONFIG_INFO: {
 		delete (MSG_PUSH_EVENT_INFO_S*)(msg_struct->data);
 		msg_struct->data = NULL;
 
@@ -726,8 +671,7 @@ static int _release_msg_struct(msg_struct_t *msg_struct_handle)
 		*msg_struct_handle = NULL;
 		break;
 	}
-	case MSG_STRUCT_MEDIA_INFO:
-	{
+	case MSG_STRUCT_MEDIA_INFO: {
 		delete (MSG_MEDIA_INFO_S*)(msg_struct->data);
 		msg_struct->data = NULL;
 
@@ -735,7 +679,7 @@ static int _release_msg_struct(msg_struct_t *msg_struct_handle)
 		*msg_struct_handle = NULL;
 		break;
 	}
-	default :
+	default:
 		err = MSG_ERR_INVALID_PARAMETER;
 		break;
 	}
@@ -798,58 +742,58 @@ EXPORT_API int msg_get_int_value(msg_struct_t msg_struct_handle, int field, int 
 		return MSG_ERR_NULL_POINTER;
 
 	switch (msg_struct->type) {
-	case MSG_STRUCT_MESSAGE_INFO :
+	case MSG_STRUCT_MESSAGE_INFO:
 		err = msg_message_get_int_value(msg_struct->data, field, value);
 		break;
 	case MSG_STRUCT_FILTER:
 		err = msg_get_filter_info_int(msg_struct->data, field, value);
 		break;
-	case MSG_STRUCT_SYNCML_INFO :
+	case MSG_STRUCT_SYNCML_INFO:
 		err = msg_syncml_info_get_int(msg_struct->data, field, value);
 		break;
-	case MSG_STRUCT_COUNT_INFO :
+	case MSG_STRUCT_COUNT_INFO:
 		err = msg_count_info_get_int(msg_struct->data, field, value);
 		break;
-	case MSG_STRUCT_THREAD_COUNT_INFO :
+	case MSG_STRUCT_THREAD_COUNT_INFO:
 		err = msg_thread_count_get_int(msg_struct->data, field, value);
 		break;
-	case MSG_STRUCT_THREAD_LIST_INDEX :
+	case MSG_STRUCT_THREAD_LIST_INDEX:
 		err = msg_thread_index_get_int(msg_struct->data, field, value);
 		break;
-	case MSG_STRUCT_SORT_RULE :
+	case MSG_STRUCT_SORT_RULE:
 		err = msg_sortrule_get_int(msg_struct->data, field, value);
 		break;
-	case MSG_STRUCT_FOLDER_INFO :
+	case MSG_STRUCT_FOLDER_INFO:
 		err = msg_folder_info_get_int(msg_struct->data, field, value);
 		break;
-	case MSG_STRUCT_THREAD_INFO :
+	case MSG_STRUCT_THREAD_INFO:
 		err = msg_thread_info_get_int(msg_struct->data, field, value);
 		break;
-	case MSG_STRUCT_CONV_INFO :
+	case MSG_STRUCT_CONV_INFO:
 		err = msg_conv_info_get_int(msg_struct->data, field, value);
 		break;
-	case MSG_STRUCT_MSG_LIST_CONDITION :
+	case MSG_STRUCT_MSG_LIST_CONDITION:
 		err = msg_list_condition_get_int(msg_struct->data, field, value);
 		break;
-	case MSG_STRUCT_REPORT_STATUS_INFO :
+	case MSG_STRUCT_REPORT_STATUS_INFO:
 		err = msg_report_status_get_int(msg_struct->data, field, value);
 		break;
-	case MSG_STRUCT_ADDRESS_INFO :
+	case MSG_STRUCT_ADDRESS_INFO:
 		err = msg_address_info_get_int(msg_struct->data, field, value);
 		break;
-	case MSG_STRUCT_MMS_SENDOPT :
+	case MSG_STRUCT_MMS_SENDOPT:
 		err = msg_mms_sendopt_get_int(msg_struct->data, field, value);
 		break;
-	case MSG_STRUCT_REJECT_MSG_INFO :
+	case MSG_STRUCT_REJECT_MSG_INFO:
 		err = msg_reject_message_get_int(msg_struct->data, field, value);
 		break;
-	case MSG_STRUCT_REQUEST_INFO :
+	case MSG_STRUCT_REQUEST_INFO:
 		err = msg_request_get_int(msg_struct->data, field, value);
 		break;
-	case MSG_STRUCT_SENT_STATUS_INFO :
+	case MSG_STRUCT_SENT_STATUS_INFO:
 		err = msg_sent_status_get_int((MSG_SENT_STATUS_S *)msg_struct->data, field, value);
 		break;
-	case MSG_STRUCT_CB_MSG :
+	case MSG_STRUCT_CB_MSG:
 		err = msg_cb_message_get_int_value(msg_struct->data, field, value);
 		break;
 	case MSG_STRUCT_MMS:
@@ -864,23 +808,23 @@ EXPORT_API int msg_get_int_value(msg_struct_t msg_struct_handle, int field, int 
 	case MSG_STRUCT_MULTIPART_INFO:
 		err = msg_mms_get_int_value(msg_struct, field, value);
 		break;
-	case MSG_STRUCT_SETTING_SMSC_OPT :
-	case MSG_STRUCT_SETTING_SMSC_INFO :
-	case MSG_STRUCT_SETTING_CB_OPT :
-	case MSG_STRUCT_SETTING_CB_CHANNEL_INFO :
-	case MSG_STRUCT_SETTING_SMS_SEND_OPT :
-	case MSG_STRUCT_SETTING_MMS_SEND_OPT :
-	case MSG_STRUCT_SETTING_MMS_RECV_OPT :
-	case MSG_STRUCT_SETTING_PUSH_MSG_OPT :
-	case MSG_STRUCT_SETTING_GENERAL_OPT :
-	case MSG_STRUCT_SETTING_MSGSIZE_OPT :
-	case MSG_STRUCT_SETTING_VOICE_MSG_OPT :
+	case MSG_STRUCT_SETTING_SMSC_OPT:
+	case MSG_STRUCT_SETTING_SMSC_INFO:
+	case MSG_STRUCT_SETTING_CB_OPT:
+	case MSG_STRUCT_SETTING_CB_CHANNEL_INFO:
+	case MSG_STRUCT_SETTING_SMS_SEND_OPT:
+	case MSG_STRUCT_SETTING_MMS_SEND_OPT:
+	case MSG_STRUCT_SETTING_MMS_RECV_OPT:
+	case MSG_STRUCT_SETTING_PUSH_MSG_OPT:
+	case MSG_STRUCT_SETTING_GENERAL_OPT:
+	case MSG_STRUCT_SETTING_MSGSIZE_OPT:
+	case MSG_STRUCT_SETTING_VOICE_MSG_OPT:
 		err = msg_setting_get_int_value(msg_struct, field, value);
 		break;
-	case MSG_STRUCT_MEDIA_INFO :
+	case MSG_STRUCT_MEDIA_INFO:
 		err = msg_media_item_get_int(msg_struct->data, field, value);
 		break;
-	default :
+	default:
 		err = MSG_ERR_INVALID_PARAMETER;
 		break;
 	}
@@ -905,33 +849,33 @@ EXPORT_API int msg_get_str_value(msg_struct_t msg_struct_handle, int field, char
 		return MSG_ERR_NULL_POINTER;
 
 	switch (msg_struct->type) {
-	case MSG_STRUCT_MESSAGE_INFO :
+	case MSG_STRUCT_MESSAGE_INFO:
 		err = msg_message_get_str_value(msg_struct->data, field, value, size);
 		break;
 	case MSG_STRUCT_FILTER:
 		err = msg_get_filter_info_str(msg_struct->data, field, value, size);
 		break;
-	case MSG_STRUCT_FOLDER_INFO :
+	case MSG_STRUCT_FOLDER_INFO:
 		err = msg_folder_info_get_str(msg_struct->data, field, value, size);
 		break;
-	case MSG_STRUCT_THREAD_INFO :
+	case MSG_STRUCT_THREAD_INFO:
 		err = msg_thread_info_get_str(msg_struct->data, field, value, size);
 		break;
-	case MSG_STRUCT_CONV_INFO :
+	case MSG_STRUCT_CONV_INFO:
 		err = msg_conv_info_get_str(msg_struct->data, field, value, size);
 		break;
-	case MSG_STRUCT_MSG_LIST_CONDITION :
+	case MSG_STRUCT_MSG_LIST_CONDITION:
 		err = msg_list_condition_get_str(msg_struct->data, field, value, size);
 		break;
 
-	case MSG_STRUCT_ADDRESS_INFO :
+	case MSG_STRUCT_ADDRESS_INFO:
 		err = msg_address_info_get_str(msg_struct->data, field, value, size);
 		break;
 
-	case MSG_STRUCT_REJECT_MSG_INFO :
+	case MSG_STRUCT_REJECT_MSG_INFO:
 		err = msg_reject_message_get_str(msg_struct->data, field, value, size);
 		break;
-	case MSG_STRUCT_MEDIA_INFO :
+	case MSG_STRUCT_MEDIA_INFO:
 		err = msg_media_item_get_str(msg_struct->data, field, value, size);
 		break;
 	case MSG_STRUCT_MMS:
@@ -946,22 +890,22 @@ EXPORT_API int msg_get_str_value(msg_struct_t msg_struct_handle, int field, char
 	case MSG_STRUCT_MULTIPART_INFO:
 		err = msg_mms_get_str_value(msg_struct, field, value, size);
 		break;
-	case MSG_STRUCT_SETTING_GENERAL_OPT :
-	case MSG_STRUCT_SETTING_SMSC_INFO :
-	case MSG_STRUCT_SETTING_CB_CHANNEL_INFO :
-	case MSG_STRUCT_SETTING_VOICE_MSG_OPT :
+	case MSG_STRUCT_SETTING_GENERAL_OPT:
+	case MSG_STRUCT_SETTING_SMSC_INFO:
+	case MSG_STRUCT_SETTING_CB_CHANNEL_INFO:
+	case MSG_STRUCT_SETTING_VOICE_MSG_OPT:
 		err = msg_setting_get_str_value(msg_struct, field, value, size);
 		break;
-	case MSG_STRUCT_PUSH_CONFIG_INFO :
+	case MSG_STRUCT_PUSH_CONFIG_INFO:
 		err = msg_push_config_get_str(msg_struct->data, field, value, size);
 		break;
 	case MSG_STRUCT_REPORT_STATUS_INFO:
 		err = msg_report_status_get_str(msg_struct->data, field, value, size);
 		break;
-	case MSG_STRUCT_CB_MSG :
+	case MSG_STRUCT_CB_MSG:
 		err = msg_cb_message_get_str_value(msg_struct->data, field, value, size);
 		break;
-	default :
+	default:
 		err = MSG_ERR_INVALID_PARAMETER;
 		break;
 	}
@@ -983,13 +927,13 @@ EXPORT_API int msg_get_bool_value(msg_struct_t msg_struct_handle, int field, boo
 		return MSG_ERR_NULL_POINTER;
 
 	switch (msg_struct->type) {
-	case MSG_STRUCT_FILTER :
+	case MSG_STRUCT_FILTER:
 		err = msg_get_filter_info_bool(msg_struct->data, field, value);
 		break;
-	case MSG_STRUCT_MESSAGE_INFO :
+	case MSG_STRUCT_MESSAGE_INFO:
 		err = msg_message_get_bool_value(msg_struct->data, field, value);
 		break;
-	case MSG_STRUCT_THREAD_INFO :
+	case MSG_STRUCT_THREAD_INFO:
 		err = msg_thread_info_get_bool(msg_struct->data, field, value);
 		break;
 	case MSG_STRUCT_CONV_INFO:
@@ -1021,19 +965,19 @@ EXPORT_API int msg_get_bool_value(msg_struct_t msg_struct_handle, int field, boo
 	case MSG_STRUCT_MMS_SMIL_AVI:
 		err = msg_mms_get_bool_value(msg_struct, field, value);
 		break;
-	case MSG_STRUCT_SETTING_CB_OPT :
-	case MSG_STRUCT_SETTING_CB_CHANNEL_INFO :
-	case MSG_STRUCT_SETTING_SMS_SEND_OPT :
-	case MSG_STRUCT_SETTING_MMS_SEND_OPT :
-	case MSG_STRUCT_SETTING_MMS_RECV_OPT :
-	case MSG_STRUCT_SETTING_PUSH_MSG_OPT :
-	case MSG_STRUCT_SETTING_GENERAL_OPT :
+	case MSG_STRUCT_SETTING_CB_OPT:
+	case MSG_STRUCT_SETTING_CB_CHANNEL_INFO:
+	case MSG_STRUCT_SETTING_SMS_SEND_OPT:
+	case MSG_STRUCT_SETTING_MMS_SEND_OPT:
+	case MSG_STRUCT_SETTING_MMS_RECV_OPT:
+	case MSG_STRUCT_SETTING_PUSH_MSG_OPT:
+	case MSG_STRUCT_SETTING_GENERAL_OPT:
 		err = msg_setting_get_bool_value(msg_struct, field, value);
 		break;
 	case MSG_STRUCT_PUSH_CONFIG_INFO:
 		err = msg_push_config_get_bool(msg_struct->data, field, value);
 		break;
-	default :
+	default:
 		err = MSG_ERR_INVALID_PARAMETER;
 		break;
 	}
@@ -1055,7 +999,7 @@ EXPORT_API int msg_get_struct_handle(msg_struct_t msg_struct_handle, int field, 
 		return MSG_ERR_NULL_POINTER;
 
 	switch (msg_struct->type) {
-	case MSG_STRUCT_MESSAGE_INFO :
+	case MSG_STRUCT_MESSAGE_INFO:
 		err = msg_message_get_struct_hnd(msg_struct->data, field, (void **)value);
 		break;
 	case MSG_STRUCT_SENDOPT:
@@ -1076,7 +1020,7 @@ EXPORT_API int msg_get_struct_handle(msg_struct_t msg_struct_handle, int field, 
 	case MSG_STRUCT_REQUEST_INFO:
 		err = msg_request_get_struct_handle(msg_struct, field, (void **)value);
 		break;
-	default :
+	default:
 		err = MSG_ERR_INVALID_PARAMETER;
 		break;
 	}
@@ -1098,7 +1042,7 @@ EXPORT_API int msg_get_list_handle(msg_struct_t msg_struct_handle, int field, vo
 		return MSG_ERR_NULL_POINTER;
 
 	switch (msg_struct->type) {
-	case MSG_STRUCT_MESSAGE_INFO :
+	case MSG_STRUCT_MESSAGE_INFO:
 		err = msg_message_get_list_hnd(msg_struct->data, field, value);
 		break;
 	case MSG_STRUCT_CONV_INFO:
@@ -1108,11 +1052,11 @@ EXPORT_API int msg_get_list_handle(msg_struct_t msg_struct_handle, int field, vo
 	case MSG_STRUCT_MMS_PAGE:
 		err = msg_mms_get_list_handle(msg_struct, field, (msg_list_handle_t *)value);
 		break;
-	case MSG_STRUCT_SETTING_CB_OPT :
-	case MSG_STRUCT_SETTING_SMSC_OPT :
+	case MSG_STRUCT_SETTING_CB_OPT:
+	case MSG_STRUCT_SETTING_SMSC_OPT:
 		err = msg_setting_get_list_handle(msg_struct, field, value);
 		break;
-	default :
+	default:
 		err = MSG_ERR_INVALID_PARAMETER;
 		break;
 	}
@@ -1134,46 +1078,46 @@ EXPORT_API int msg_set_int_value(msg_struct_t msg_struct_handle, int field, int 
 		return MSG_ERR_NULL_POINTER;
 
 	switch (msg_struct->type) {
-	case MSG_STRUCT_MESSAGE_INFO :
+	case MSG_STRUCT_MESSAGE_INFO:
 		err = msg_message_set_int_value(msg_struct->data, field, value);
 		break;
-	case MSG_STRUCT_FILTER :
+	case MSG_STRUCT_FILTER:
 		err = msg_set_filter_info_int(msg_struct->data, field, value);
 		break;
-	case MSG_STRUCT_SYNCML_INFO :
+	case MSG_STRUCT_SYNCML_INFO:
 		err = msg_syncml_info_set_int(msg_struct->data, field, value);
 		break;
-	case MSG_STRUCT_COUNT_INFO :
+	case MSG_STRUCT_COUNT_INFO:
 		err = msg_count_info_set_int(msg_struct->data, field, value);
 		break;
-	case MSG_STRUCT_THREAD_COUNT_INFO :
+	case MSG_STRUCT_THREAD_COUNT_INFO:
 		err = msg_thread_count_set_int(msg_struct->data, field, value);
 		break;
-	case MSG_STRUCT_THREAD_LIST_INDEX :
+	case MSG_STRUCT_THREAD_LIST_INDEX:
 		err = msg_thread_index_set_int(msg_struct->data, field, value);
 		break;
-	case MSG_STRUCT_SORT_RULE :
+	case MSG_STRUCT_SORT_RULE:
 		err = msg_sortrule_set_int(msg_struct->data, field, value);
 		break;
-	case MSG_STRUCT_FOLDER_INFO :
+	case MSG_STRUCT_FOLDER_INFO:
 		err = msg_folder_info_set_int(msg_struct->data, field, value);
 		break;
-	case MSG_STRUCT_MSG_LIST_CONDITION :
+	case MSG_STRUCT_MSG_LIST_CONDITION:
 		err = msg_list_condition_set_int(msg_struct->data, field, value);
 		break;
-	case MSG_STRUCT_REPORT_STATUS_INFO :
+	case MSG_STRUCT_REPORT_STATUS_INFO:
 		err = msg_report_status_set_int(msg_struct->data, field, value);
 		break;
-	case MSG_STRUCT_ADDRESS_INFO :
+	case MSG_STRUCT_ADDRESS_INFO:
 		err = msg_address_info_set_int(msg_struct->data, field, value);
 		break;
-	case MSG_STRUCT_MMS_SENDOPT :
+	case MSG_STRUCT_MMS_SENDOPT:
 		err = msg_mms_sendopt_set_int(msg_struct->data, field, value);
 		break;
-	case MSG_STRUCT_REJECT_MSG_INFO :
+	case MSG_STRUCT_REJECT_MSG_INFO:
 		err = msg_reject_message_set_int(msg_struct->data, field, value);
 		break;
-	case MSG_STRUCT_REQUEST_INFO :
+	case MSG_STRUCT_REQUEST_INFO:
 		err = msg_request_set_int(msg_struct->data, field, value);
 		break;
 	case MSG_STRUCT_MMS:
@@ -1187,20 +1131,20 @@ EXPORT_API int msg_set_int_value(msg_struct_t msg_struct_handle, int field, int 
 	case MSG_STRUCT_MMS_SMIL_AVI:
 		err = msg_mms_set_int_value(msg_struct, field, value);
 		break;
-	case MSG_STRUCT_SETTING_SMSC_OPT :
-	case MSG_STRUCT_SETTING_SMSC_INFO :
-	case MSG_STRUCT_SETTING_CB_OPT :
-	case MSG_STRUCT_SETTING_CB_CHANNEL_INFO :
-	case MSG_STRUCT_SETTING_SMS_SEND_OPT :
-	case MSG_STRUCT_SETTING_MMS_SEND_OPT :
-	case MSG_STRUCT_SETTING_MMS_RECV_OPT :
-	case MSG_STRUCT_SETTING_PUSH_MSG_OPT :
-	case MSG_STRUCT_SETTING_GENERAL_OPT :
-	case MSG_STRUCT_SETTING_MSGSIZE_OPT :
-	case MSG_STRUCT_SETTING_VOICE_MSG_OPT :
+	case MSG_STRUCT_SETTING_SMSC_OPT:
+	case MSG_STRUCT_SETTING_SMSC_INFO:
+	case MSG_STRUCT_SETTING_CB_OPT:
+	case MSG_STRUCT_SETTING_CB_CHANNEL_INFO:
+	case MSG_STRUCT_SETTING_SMS_SEND_OPT:
+	case MSG_STRUCT_SETTING_MMS_SEND_OPT:
+	case MSG_STRUCT_SETTING_MMS_RECV_OPT:
+	case MSG_STRUCT_SETTING_PUSH_MSG_OPT:
+	case MSG_STRUCT_SETTING_GENERAL_OPT:
+	case MSG_STRUCT_SETTING_MSGSIZE_OPT:
+	case MSG_STRUCT_SETTING_VOICE_MSG_OPT:
 		err = msg_setting_set_int_value(msg_struct, field, value);
 		break;
-	default :
+	default:
 		err = MSG_ERR_INVALID_PARAMETER;
 		break;
 	}
@@ -1225,22 +1169,22 @@ EXPORT_API int msg_set_str_value(msg_struct_t msg_struct_handle, int field, char
 		return MSG_ERR_NULL_POINTER;
 
 	switch (msg_struct->type) {
-	case MSG_STRUCT_MESSAGE_INFO :
+	case MSG_STRUCT_MESSAGE_INFO:
 		err = msg_message_set_str_value(msg_struct->data, field, value, size);
 		break;
-	case MSG_STRUCT_FILTER :
+	case MSG_STRUCT_FILTER:
 		err = msg_set_filter_info_str(msg_struct->data, field, value, size);
 		break;
-	case MSG_STRUCT_FOLDER_INFO :
+	case MSG_STRUCT_FOLDER_INFO:
 		err = msg_folder_info_set_str(msg_struct->data, field, value, size);
 		break;
-	case MSG_STRUCT_MSG_LIST_CONDITION :
+	case MSG_STRUCT_MSG_LIST_CONDITION:
 		err = msg_list_condition_set_str(msg_struct->data, field, value, size);
 		break;
-	case MSG_STRUCT_ADDRESS_INFO :
+	case MSG_STRUCT_ADDRESS_INFO:
 		err = msg_address_info_set_str(msg_struct->data, field, value, size);
 		break;
-	case MSG_STRUCT_REJECT_MSG_INFO :
+	case MSG_STRUCT_REJECT_MSG_INFO:
 		err = msg_reject_message_set_str(msg_struct->data, field, value, size);
 		break;
 	case MSG_STRUCT_MMS:
@@ -1255,19 +1199,19 @@ EXPORT_API int msg_set_str_value(msg_struct_t msg_struct_handle, int field, char
 	case MSG_STRUCT_MULTIPART_INFO:
 		err = msg_mms_set_str_value(msg_struct, field, value, size);
 		break;
-	case MSG_STRUCT_SETTING_GENERAL_OPT :
-	case MSG_STRUCT_SETTING_SMSC_INFO :
-	case MSG_STRUCT_SETTING_CB_CHANNEL_INFO :
-	case MSG_STRUCT_SETTING_VOICE_MSG_OPT :
+	case MSG_STRUCT_SETTING_GENERAL_OPT:
+	case MSG_STRUCT_SETTING_SMSC_INFO:
+	case MSG_STRUCT_SETTING_CB_CHANNEL_INFO:
+	case MSG_STRUCT_SETTING_VOICE_MSG_OPT:
 		err = msg_setting_set_str_value(msg_struct, field, value, size);
 		break;
 	case MSG_STRUCT_PUSH_CONFIG_INFO:
 		err = msg_push_config_set_str(msg_struct->data, field, value, size);
 		break;
-	case MSG_STRUCT_MEDIA_INFO :
+	case MSG_STRUCT_MEDIA_INFO:
 		err = msg_media_info_set_str(msg_struct->data, field, value, size);
 		break;
-	default :
+	default:
 		err = MSG_ERR_INVALID_PARAMETER;
 		break;
 	}
@@ -1289,10 +1233,10 @@ EXPORT_API int msg_set_bool_value(msg_struct_t msg_struct_handle, int field, boo
 		return MSG_ERR_NULL_POINTER;
 
 	switch (msg_struct->type) {
-	case MSG_STRUCT_FILTER :
+	case MSG_STRUCT_FILTER:
 		err = msg_set_filter_info_bool(msg_struct->data, field, value);
 		break;
-	case MSG_STRUCT_MESSAGE_INFO :
+	case MSG_STRUCT_MESSAGE_INFO:
 		err = msg_message_set_bool_value(msg_struct->data, field, value);
 		break;
 	case MSG_STRUCT_SENDOPT:
@@ -1321,19 +1265,19 @@ EXPORT_API int msg_set_bool_value(msg_struct_t msg_struct_handle, int field, boo
 	case MSG_STRUCT_MMS_SMIL_AVI:
 		err = msg_mms_set_bool_value(msg_struct, field, value);
 		break;
-	case MSG_STRUCT_SETTING_CB_OPT :
-	case MSG_STRUCT_SETTING_CB_CHANNEL_INFO :
-	case MSG_STRUCT_SETTING_SMS_SEND_OPT :
-	case MSG_STRUCT_SETTING_MMS_SEND_OPT :
-	case MSG_STRUCT_SETTING_MMS_RECV_OPT :
-	case MSG_STRUCT_SETTING_PUSH_MSG_OPT :
-	case MSG_STRUCT_SETTING_GENERAL_OPT :
+	case MSG_STRUCT_SETTING_CB_OPT:
+	case MSG_STRUCT_SETTING_CB_CHANNEL_INFO:
+	case MSG_STRUCT_SETTING_SMS_SEND_OPT:
+	case MSG_STRUCT_SETTING_MMS_SEND_OPT:
+	case MSG_STRUCT_SETTING_MMS_RECV_OPT:
+	case MSG_STRUCT_SETTING_PUSH_MSG_OPT:
+	case MSG_STRUCT_SETTING_GENERAL_OPT:
 		err = msg_setting_set_bool_value(msg_struct, field, value);
 		break;
 	case MSG_STRUCT_PUSH_CONFIG_INFO:
 		err = msg_push_config_set_bool(msg_struct->data, field, value);
 		break;
-	default :
+	default:
 		err = MSG_ERR_INVALID_PARAMETER;
 		break;
 	}
@@ -1355,7 +1299,7 @@ EXPORT_API int msg_set_struct_handle(msg_struct_t msg_struct_handle, int field, 
 		return MSG_ERR_NULL_POINTER;
 
 	switch (msg_struct->type) {
-	case MSG_STRUCT_MESSAGE_INFO :
+	case MSG_STRUCT_MESSAGE_INFO:
 		err = msg_message_set_struct_hnd(msg_struct->data, field, (void *)value);
 		break;
 	case MSG_STRUCT_SENDOPT:
@@ -1376,7 +1320,7 @@ EXPORT_API int msg_set_struct_handle(msg_struct_t msg_struct_handle, int field, 
 	case MSG_STRUCT_REQUEST_INFO:
 		err = msg_request_set_struct_handle(msg_struct, field, (msg_struct_s *)value);
 		break;
-	default :
+	default:
 		err = MSG_ERR_INVALID_PARAMETER;
 		break;
 	}
@@ -1398,9 +1342,8 @@ EXPORT_API int msg_set_list_handle(msg_struct_t msg_struct_handle, int field, vo
 		return MSG_ERR_NULL_POINTER;
 
 #if 0 /* No operations */
-	switch (msg_struct->type)
-	{
-	default :
+	switch (msg_struct->type) {
+	default:
 		err = MSG_ERR_INVALID_PARAMETER;
 		break;
 	}
@@ -1419,18 +1362,16 @@ EXPORT_API int msg_list_add_item(msg_struct_t msg_struct_handle, int field, msg_
 	msg_struct_s *msg_struct = (msg_struct_s *)msg_struct_handle;
 
 	switch (msg_struct->type) {
-	case MSG_STRUCT_MESSAGE_INFO:
-	{
+	case MSG_STRUCT_MESSAGE_INFO: {
 		err = msg_message_list_append(msg_struct_handle, field, item);
 	}
 	break;
 	case MSG_STRUCT_MMS:
-	case MSG_STRUCT_MMS_PAGE:
-	{
+	case MSG_STRUCT_MMS_PAGE: {
 		err = msg_mms_list_append(msg_struct_handle, field, item);
 	}
 	break;
-	default :
+	default:
 		err = MSG_ERR_INVALID_PARAMETER;
 		break;
 	}
@@ -1467,12 +1408,11 @@ EXPORT_API int msg_list_clear(msg_struct_t msg_struct_handle, int field)
 	msg_struct_s *msg_struct = (msg_struct_s *)msg_struct_handle;
 
 	switch (msg_struct->type) {
-	case MSG_STRUCT_MESSAGE_INFO:
-	{
+	case MSG_STRUCT_MESSAGE_INFO: {
 		err = msg_message_list_clear(msg_struct_handle, field);
 	}
 	break;
-	default :
+	default:
 		err = MSG_ERR_INVALID_PARAMETER;
 		break;
 	}
@@ -1532,16 +1472,16 @@ EXPORT_API int msg_util_calculate_text_length(const char* msg_text, msg_encode_t
 	*segment_size = 0;
 
 	switch (msg_encode_type_to) {
-	case MSG_ENCODE_GSM7BIT :
+	case MSG_ENCODE_GSM7BIT:
 		decodeLen = textCvt->convertUTF8ToGSM7bit(decodeData, bufSize, (const unsigned char*)msg_text, textSize, &langId, &bAbnormal);
 		break;
-	case MSG_ENCODE_UCS2 :
+	case MSG_ENCODE_UCS2:
 		decodeLen = textCvt->convertUTF8ToUCS2(decodeData, bufSize, (const unsigned char*)msg_text, textSize);
 		break;
-	case MSG_ENCODE_AUTO :
+	case MSG_ENCODE_AUTO:
 		decodeLen = textCvt->convertUTF8ToAuto(decodeData, bufSize, (const unsigned char*)msg_text, textSize, &encodeType);
 		break;
-	default :
+	default:
 		return MSG_ERR_INVALID_PARAMETER;
 	}
 

@@ -98,7 +98,7 @@ struct _VObject
 	VObject*	pParent;
 	VObject*	pChild;
 
-	char*		pszGroupName; //VDATA_GROUPNAME_SUPPORTED
+	char*		pszGroupName; /* VDATA_GROUPNAME_SUPPORTED */
 };
 
 struct _ValueObj
@@ -112,4 +112,4 @@ struct _ValueObj
 #endif /* __cplusplus */
 
 
-#endif // _VTYPES_H
+#endif /* _VTYPES_H */

@@ -37,4 +37,4 @@ bool MsgSmilParseSmilDoc(MMS_MESSAGE_DATA_S *pstMsgMmsBody, const char *pSmilDoc
  */
 bool MsgSmilGenerateSmilDoc(MMS_MESSAGE_DATA_S *pstMsgMmsBody, char **ppSmilDoc);
 
-#endif//MSG_SMIL_H
+#endif /* MSG_SMIL_H */

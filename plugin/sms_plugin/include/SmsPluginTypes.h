@@ -38,8 +38,7 @@ extern "C"
 #define MAX_USER_DATA_LEN 			160
 #define MAX_GSM_7BIT_DATA_LEN 		160
 #define MAX_UCS2_DATA_LEN 			140
-//#define MAX_TPDU_DATA_LEN			165
-/* CID 321400: Making MAX_TPDU_DATA_LEN same as TAPI_NETTEXT_SMDATA_SIZE_MAX of TelSms.h to prevent any buffer overflow */
+/* #define MAX_TPDU_DATA_LEN			165 */
 #define MAX_TPDU_DATA_LEN			255
 #define MAX_SMS_SEND_RETRY			4
 #define MAX_SMSC_LEN 				20

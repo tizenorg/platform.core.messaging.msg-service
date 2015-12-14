@@ -40,5 +40,5 @@ void MsgLaunchClass0(msg_message_id_t msgId);
 ==================================================================================================*/
 #define MSG_SVC_PKG_NAME_BROWSER	"org.tizen.browser"
 
-#endif // MSG_DELIVER_HANDLER_H
+#endif /* MSG_DELIVER_HANDLER_H */
 

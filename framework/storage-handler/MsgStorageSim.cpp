@@ -45,7 +45,7 @@ msg_error_t MsgStoClearSimMessageInDB()
 
 	queue<msg_thread_id_t> threadList;
 
-	// Get Address ID of SIM Message
+	/* Get Address ID of SIM Message */
 	memset(sqlQuery, 0x00, sizeof(sqlQuery));
 
 	snprintf(sqlQuery, sizeof(sqlQuery), "SELECT DISTINCT(CONV_ID) FROM %s WHERE STORAGE_ID = %d",
@@ -66,8 +66,7 @@ msg_error_t MsgStoClearSimMessageInDB()
 		return MSG_SUCCESS;
 	}
 
-	for (int i = 1; i <= rowCnt; i++)
-	{
+	for (int i = 1; i <= rowCnt; i++) {
 		MSG_DEBUG("thread ID : %d", dbHandle->getColumnToInt(i));
 		threadList.push((msg_thread_id_t)dbHandle->getColumnToInt(i));
 	}
@@ -80,30 +79,28 @@ msg_error_t MsgStoClearSimMessageInDB()
 
 	dbHandle->beginTrans();
 
-	for (int i = 0; i < listCnt; i++)
-	{
+	for (int i = 0; i < listCnt; i++) {
 		memset(sqlQuery, 0x00, sizeof(sqlQuery));
 
 		snprintf(sqlQuery, sizeof(sqlQuery), "DELETE FROM %s WHERE MSG_ID IN \
 				(SELECT MSG_ID FROM %s WHERE STORAGE_ID = %d);",
 				tableList[i], MSGFW_MESSAGE_TABLE_NAME, MSG_STORAGE_SIM);
 
-		// Delete SIM Message in tables
+		/* Delete SIM Message in tables */
 		if (dbHandle->execQuery(sqlQuery) != MSG_SUCCESS) {
 			dbHandle->endTrans(false);
 			return MSG_ERR_DB_EXEC;
 		}
 	}
 
-	// Clear Conversation table
+	/* Clear Conversation table */
 	if (MsgStoClearConversationTable(dbHandle) != MSG_SUCCESS) {
 		dbHandle->endTrans(false);
 		return MSG_ERR_DB_EXEC;
 	}
 
-	// Update Address
-	while (!threadList.empty())
-	{
+	/* Update Address */
+	while (!threadList.empty()) {
 		err = MsgStoUpdateConversation(dbHandle, threadList.front());
 
 		threadList.pop();

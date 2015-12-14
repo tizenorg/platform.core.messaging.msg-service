@@ -118,6 +118,5 @@ private:
 
 	MmsPluginDecoder();
 	~MmsPluginDecoder();
-
 };
 #endif /* MMS_PLUGIN_DECODE_H */

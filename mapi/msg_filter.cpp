@@ -231,10 +231,10 @@ int msg_get_filter_info_bool(void *filter, int field, bool *value)
 	MSG_FILTER_S *filter_data = (MSG_FILTER_S *)filter;
 
 	switch (field) {
-	case MSG_FILTER_ACTIVE_BOOL :
+	case MSG_FILTER_ACTIVE_BOOL:
 		*value = filter_data->bActive;
 		break;
-	default :
+	default:
 		ret = MSG_ERR_INVALID_PARAMETER;
 		break;
 	}
@@ -253,13 +253,13 @@ int msg_get_filter_info_int(void *filter, int field, int *value)
 	MSG_FILTER_S *filter_data = (MSG_FILTER_S *)filter;
 
 	switch (field) {
-	case MSG_FILTER_ID_INT :
+	case MSG_FILTER_ID_INT:
 		*value = filter_data->filterId;
 		break;
-	case MSG_FILTER_TYPE_INT :
+	case MSG_FILTER_TYPE_INT:
 		*value = filter_data->filterType;
 		break;
-	default :
+	default:
 		ret = MSG_ERR_INVALID_PARAMETER;
 		break;
 	}
@@ -276,10 +276,10 @@ int msg_get_filter_info_str(void *filter, int field, char *value, int size)
 	MSG_FILTER_S *filter_data = (MSG_FILTER_S *)filter;
 
 	switch (field) {
-	case MSG_FILTER_VALUE_STR :
+	case MSG_FILTER_VALUE_STR:
 		strncpy(value, filter_data->filterValue, size);
 		break;
-	default :
+	default:
 		return MSG_ERR_INVALID_PARAMETER;
 	}
 
@@ -295,10 +295,10 @@ int msg_set_filter_info_bool(void *filter, int field, bool value)
 	MSG_FILTER_S *filter_data = (MSG_FILTER_S *)filter;
 
 	switch (field) {
-	case MSG_FILTER_ACTIVE_BOOL :
+	case MSG_FILTER_ACTIVE_BOOL:
 		filter_data->bActive = value;
 		break;
-	default :
+	default:
 		return MSG_ERR_INVALID_PARAMETER;
 	}
 
@@ -314,13 +314,13 @@ int msg_set_filter_info_int(void *filter, int field, int value)
 	MSG_FILTER_S *filter_data = (MSG_FILTER_S *)filter;
 
 	switch (field) {
-	case MSG_FILTER_ID_INT :
+	case MSG_FILTER_ID_INT:
 		filter_data->filterId = value;
 		break;
-	case MSG_FILTER_TYPE_INT :
+	case MSG_FILTER_TYPE_INT:
 		filter_data->filterType = value;
 		break;
-	default :
+	default:
 		return MSG_ERR_INVALID_PARAMETER;
 	}
 
@@ -336,13 +336,12 @@ int msg_set_filter_info_str(void *filter, int field, char *value, int size)
 	MSG_FILTER_S *filter_data = (MSG_FILTER_S *)filter;
 
 	switch (field) {
-	case MSG_FILTER_VALUE_STR :
-	{
+	case MSG_FILTER_VALUE_STR: {
 		int len = (size > MAX_FILTER_VALUE_LEN)?MAX_FILTER_VALUE_LEN:size;
 		strncpy(filter_data->filterValue, value, len);
 		break;
 	}
-	default :
+	default:
 		return MSG_ERR_INVALID_PARAMETER;
 	}
 

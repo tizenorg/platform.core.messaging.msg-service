@@ -77,7 +77,7 @@ private:
 	void Decode2gCbMsg(TelSmsCbMsg_t *pCbMsg, SMS_CBMSG_PAGE_S *pCbPage);
 	void Decode3gCbMsg(TelSmsCbMsg_t *pCbMsg, SMS_CBMSG_PAGE_S *pCbPage);
 	void DecodeEtwsMsg(TelSmsEtwsMsg_t *pEtwsMsg, SMS_ETWS_PRIMARY_S *pEtwsPn);
-	unsigned short encodeCbSerialNum ( SMS_CBMSG_SERIAL_NUM_S snFields );
+	unsigned short encodeCbSerialNum(SMS_CBMSG_SERIAL_NUM_S snFields);
 	int CMAS_class(unsigned short message_id);
 
 	bool checkCbOpt(SMS_CBMSG_PAGE_S *CbPage, bool *pJavaMsg, msg_sim_slot_id_t simIndex);
@@ -85,7 +85,7 @@ private:
 	void MakeCbMsg(SMS_CBMSG_PAGE_S *CbPage, SMS_CBMSG_S *pCbMsg);
 	void convertCbMsgToMsginfo(SMS_CBMSG_S *pCbMsg, MSG_MESSAGE_INFO_S *pMsgInfo, msg_sim_slot_id_t simIndex);
 	void convertEtwsMsgToMsginfo(SMS_CBMSG_PAGE_S *EtwsMsg, MSG_MESSAGE_INFO_S *pMsgInfo, msg_sim_slot_id_t simIndex);
-	int convertTextToUtf8 (unsigned char* outBuf, int outBufSize, SMS_CBMSG_S* pCbMsg);
+	int convertTextToUtf8(unsigned char* outBuf, int outBufSize, SMS_CBMSG_S* pCbMsg);
 	void addToPageList(SMS_CBMSG_PAGE_S *CbPage);
 	void removeFromPageList(SMS_CBMSG_PAGE_S *CbPage);
 
@@ -95,7 +95,6 @@ private:
 	void getDisplayName(unsigned short	MsgId, char *pDisplayName, msg_sim_slot_id_t simIndex);
 
 	vector<CB_PAGE_INFO_S> pageList;
-
 };
 
 #endif /* SMS_PLUGIN_CBMSG_HANDLER_H */

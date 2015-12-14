@@ -38,13 +38,11 @@ SmsPluginStorage* SmsPluginStorage::pInstance = NULL;
 
 SmsPluginStorage::SmsPluginStorage()
 {
-
 }
 
 
 SmsPluginStorage::~SmsPluginStorage()
 {
-
 }
 
 
@@ -87,7 +85,6 @@ msg_error_t SmsPluginStorage::insertMsgRef(MSG_MESSAGE_INFO_S *pMsg, unsigned ch
 	MSG_END();
 
 	return MSG_SUCCESS;
-
 }
 
 
@@ -251,7 +248,7 @@ msg_error_t SmsPluginStorage::checkMessage(MSG_MESSAGE_INFO_S *pMsgInfo)
 			err = addClass2Message(pMsgInfo);
 		}
 		*/
-		else if (pMsgInfo->msgType.subType == MSG_NOTIFICATIONIND_MMS){
+		else if (pMsgInfo->msgType.subType == MSG_NOTIFICATIONIND_MMS) {
 			err = MSG_SUCCESS;
 		}
 		return err;
@@ -313,7 +310,6 @@ msg_error_t SmsPluginStorage::addSmsMessage(MSG_MESSAGE_INFO_S *pMsgInfo)
 	dbHandle->beginTrans();
 
 	if (pMsgInfo->nAddressCnt > 0) {
-
 		err = MsgStoAddAddress(dbHandle, pMsgInfo, &convId);
 
 		if (err != MSG_SUCCESS) {
@@ -532,7 +528,6 @@ msg_error_t SmsPluginStorage::checkStorageStatus(MSG_MESSAGE_INFO_S *pMsgInfo)
 	err = MsgStoCheckMsgCntFull(dbHandle, &(pMsgInfo->msgType), pMsgInfo->folderId);
 
 	if (err != MSG_SUCCESS) {
-
 		if (err == MSG_ERR_MESSAGE_COUNT_FULL) {
 			bool bAutoErase = false;
 
@@ -581,13 +576,13 @@ msg_error_t SmsPluginStorage::getRegisteredPushEvent(char* pPushHeader, int *cou
 	if (err == MSG_ERR_DB_NORECORD) {
 		dbHandle->freeTable();
 		return MSG_SUCCESS;
-	} else if ( err != MSG_SUCCESS) {
+	} else if (err != MSG_SUCCESS) {
 		dbHandle->freeTable();
 		return err;
 	}
 
-	char contentType[MAX_WAPPUSH_CONTENT_TYPE_LEN + 1] = {0,};
-	char appId[MAX_WAPPUSH_ID_LEN + 1] = {0,};
+	char contentType[MAX_WAPPUSH_CONTENT_TYPE_LEN + 1] = {0, };
+	char appId[MAX_WAPPUSH_ID_LEN + 1] = {0, };
 	int appcode = 0, default_appcode = 0;
 	bool found = false;
 	char *_content_type = NULL, *_app_id = NULL;
@@ -647,7 +642,7 @@ msg_error_t SmsPluginStorage::getnthPushEvent(int index, int *appcode)
 	std::list<PUSH_APPLICATION_INFO_S>::iterator it = pushAppInfoList.begin();
 	int count = 0;
 	for (; it != pushAppInfoList.end(); it++) {
-		if (index == count){
+		if (index == count) {
 			*appcode = it->appcode;
 			break;
 		}

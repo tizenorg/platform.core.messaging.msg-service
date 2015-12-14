@@ -65,7 +65,7 @@ public:
       void workerEventQueue();
 	void write(int fd, const char* buf, int len);
 
-	// methods for sent status event
+	/* methods for sent status event */
 	void insertSentMsg(int reqId, MSG_PROXY_INFO_S* pChInfo);
 	MSG_PROXY_INFO_S* getProxyInfo(int reqId);
 	void delProxyInfo(int reqId);
@@ -103,7 +103,7 @@ private:
 
 	void handleRequest(int fd);
 	void cleanup(int fd);
-//	bool checkPrivilege(MSG_CMD_TYPE_T CmdType, const char *pCookie);
+/*	bool checkPrivilege(MSG_CMD_TYPE_T CmdType, const char *pCookie); */
 	bool checkPrivilege(int fd, MSG_CMD_TYPE_T CmdType);
 
 	static MsgTransactionManager* pInstance;
@@ -112,20 +112,20 @@ private:
 	bool running;
 
 	handler_map handlerMap;
-	sentmsg_map sentMsgMap; 		// req_id, listener_fd, msghandle_addr
-	fd_map statusCBFdMap; 		// src_fd, true if registered
+	sentmsg_map sentMsgMap;
+	fd_map statusCBFdMap;
 
-	newmsg_list newMsgCBList;	// src_fd, msgType, port if registered
-	mmsconf_list newMMSConfMsgCBList;	// src_fd, msgType, port if registered
-	pushmsg_list newPushMsgCBList;	// src_fd, msgType, port if registered
-	cbmsg_list newCBMsgCBList;	// src_fd, msgType, port if registered
-	syncmlmsg_list newSyncMLMsgCBList; 	// src_fd, msgType, port if registered
-	lbsmsg_list newLBSMsgCBList; 	// src_fd, msgType, port if registered
-	javamms_list javaMMSList; // trId list to distinguish sent Java MMS msg when sendconf received
-	syncmlop_list operationSyncMLMsgCBList; 	// src_fd, msgType, port if registered
+	newmsg_list newMsgCBList;
+	mmsconf_list newMMSConfMsgCBList;
+	pushmsg_list newPushMsgCBList;
+	cbmsg_list newCBMsgCBList;
+	syncmlmsg_list newSyncMLMsgCBList;
+	lbsmsg_list newLBSMsgCBList;
+	javamms_list javaMMSList;
+	syncmlop_list operationSyncMLMsgCBList;
 
-	fd_map storageChangeFdMap; 	// src_fd, true if registered
-	fd_map reportMsgCBFdMap; 	// src_fd, true if registered
+	fd_map storageChangeFdMap;
+	fd_map reportMsgCBFdMap;
 
 	Mutex mx; /* mutex for shared resources like callback listeners */
 	Mutex mxQ; /* mutex for event queue */
@@ -137,5 +137,5 @@ private:
 	enum cynara_user_creds user_method;
 };
 
-#endif //MSG_TRANSACTION_MANAGER_H
+#endif /* MSG_TRANSACTION_MANAGER_H */
 

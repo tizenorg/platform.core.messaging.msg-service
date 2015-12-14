@@ -52,11 +52,9 @@ bool MmsPluginTextConvert(const char *pToCodeSet, const char *pFromCodeset, cons
 	}
 
 	if (strcasecmp("utf-16", pFromCodeset) == 0) { /* check utf-8 str though utf-16 */
-
 		MSG_DEBUG("Codeset [%s] check utf-8 type", pFromCodeset);
 
 		if (((UINT8)pSrc[0] == 0xFF && (UINT8)pSrc[1] == 0xFE) || ((UINT8)pSrc[0] == 0xFE && (UINT8)pSrc[1] == 0xFF)) {
-
 			char *pTemp = (char *)calloc(1, srcLen + 1);
 			if (pTemp == NULL) {
 				MSG_DEBUG("fail to calloc");
@@ -92,11 +90,10 @@ bool MmsPluginTextConvert(const char *pToCodeSet, const char *pFromCodeset, cons
 				free(pTemp);
 				pTemp = NULL;
 			}
-
 		}
 	}
 
-	pDest = g_convert (pSrc, srcLen,
+	pDest = g_convert(pSrc, srcLen,
 			pToCodeSet, pFromCodeset,
 	       &bytes_read, &bytes_written,
 	       &error);

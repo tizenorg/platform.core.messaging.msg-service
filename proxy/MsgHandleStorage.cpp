@@ -28,8 +28,8 @@
 ==================================================================================================*/
 int MsgHandle::addMessage(MSG_MESSAGE_HIDDEN_S *pMsg, const MSG_SENDINGOPT_S *pSendOpt)
 {
-	MSG_MESSAGE_INFO_S msgInfo = {0,};
-	MSG_SENDINGOPT_INFO_S sendOptInfo = {0,};
+	MSG_MESSAGE_INFO_S msgInfo = {0, };
+	MSG_SENDINGOPT_INFO_S sendOptInfo = {0, };
 
 	msgInfo.addressList = NULL;
 	unique_ptr<MSG_ADDRESS_INFO_S*, void(*)(MSG_ADDRESS_INFO_S**)> addressListBuf(&msgInfo.addressList, unique_ptr_deleter);
@@ -38,7 +38,7 @@ int MsgHandle::addMessage(MSG_MESSAGE_HIDDEN_S *pMsg, const MSG_SENDINGOPT_S *pS
 	convertMsgStruct(pMsg, &msgInfo);
 
 	/* Covert MSG_SENDINGOPT_S to MSG_SENDINGOPT_INFO_S */
-	MSG_MESSAGE_TYPE_S msgType = {0,};
+	MSG_MESSAGE_TYPE_S msgType = {0, };
 
 	msgType.mainType = pMsg->mainType;
 	msgType.subType = pMsg->subType;
@@ -168,7 +168,7 @@ msg_error_t MsgHandle::updateMessage(const MSG_MESSAGE_HIDDEN_S *pMsg, const MSG
 	convertMsgStruct(pMsg, &msgInfo);
 
 	if (pSendOpt != NULL) {
-		MSG_MESSAGE_TYPE_S msgType = {0,};
+		MSG_MESSAGE_TYPE_S msgType = {0, };
 
 		msgType.mainType = pMsg->mainType;
 		msgType.subType = pMsg->subType;
@@ -427,7 +427,7 @@ msg_error_t MsgHandle::deleteMessagesByList(msg_id_list_s *pMsgIdList)
 
 	/* Copy Command Data */
 	memcpy((void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN), &(pMsgIdList->nCount), sizeof(int));
-	for (int i=0; i<pMsgIdList->nCount; i++) {
+	for (int i = 0; i < pMsgIdList->nCount; i++) {
 		memcpy((void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN+sizeof(int)+(sizeof(int)*i)), &(pMsgIdList->msgIdList[i]), sizeof(int));
 	}
 
@@ -714,7 +714,7 @@ msg_error_t MsgHandle::getMessage(msg_message_id_t MsgId, MSG_MESSAGE_HIDDEN_S *
 	convertMsgStruct(&msgInfo, pMsg);
 
 	if (pSendOpt != NULL) {
-		MSG_MESSAGE_TYPE_S msgType = {0,};
+		MSG_MESSAGE_TYPE_S msgType = {0, };
 
 		msgType.mainType = pMsg->mainType;
 		msgType.subType = pMsg->subType;
@@ -1175,7 +1175,7 @@ msg_error_t MsgHandle::backupMessage(msg_message_backup_type_t type, const char 
 	}
 	MsgCloseFile(pFile);
 
-	char path[MSG_FILEPATH_LEN_MAX+1] = {0,};
+	char path[MSG_FILEPATH_LEN_MAX+1] = {0, };
 	strncpy(path, backup_filepath, MSG_FILEPATH_LEN_MAX);
 
 	/* Allocate Memory to Command Data */
@@ -1223,7 +1223,7 @@ msg_error_t MsgHandle::restoreMessage(const char *backup_filepath)
 		return MSG_ERR_UNKNOWN;
 	}
 
-	char path[MSG_FILEPATH_LEN_MAX+1] = {0,};
+	char path[MSG_FILEPATH_LEN_MAX+1] = {0, };
 	strncpy(path, backup_filepath, MSG_FILEPATH_LEN_MAX);
 
 	/* Allocate Memory to Command Data */
@@ -1535,7 +1535,7 @@ msg_error_t MsgHandle::getThreadIdByAddress(msg_list_handle_t msg_address_list, 
 	memcpy((void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN), &addrCnt, sizeof(int));
 	int addSize = sizeof(MSG_ADDRESS_INFO_S);
 	for (int i = 0; i < addrCnt; i++) {
-		memcpy((void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+sizeof(addrCnt)+(addSize*i)+MAX_COOKIE_LEN), ((msg_struct_s *)(g_list_nth_data((GList *)msg_address_list,(guint)i)))->data, sizeof(MSG_ADDRESS_INFO_S));
+		memcpy((void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+sizeof(addrCnt)+(addSize*i)+MAX_COOKIE_LEN), ((msg_struct_s *)(g_list_nth_data((GList *)msg_address_list, (guint)i)))->data, sizeof(MSG_ADDRESS_INFO_S));
 	}
 
 	/* Send Command to Messaging FW */
@@ -1839,8 +1839,8 @@ msg_error_t MsgHandle::getVobject(msg_message_id_t MsgId, void** encodedData)
 		return pEvent->result;
 
 	/* Decode Return Data */
-	MSG_MESSAGE_INFO_S msgInfo = {0,};
-	MSG_SENDINGOPT_INFO_S sendOptInfo = {0,};
+	MSG_MESSAGE_INFO_S msgInfo = {0, };
+	MSG_SENDINGOPT_INFO_S sendOptInfo = {0, };
 
 	msgInfo.addressList = NULL;
 	unique_ptr<MSG_ADDRESS_INFO_S*, void(*)(MSG_ADDRESS_INFO_S**)> addressListBuf(&msgInfo.addressList, unique_ptr_deleter);

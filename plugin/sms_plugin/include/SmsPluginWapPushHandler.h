@@ -38,8 +38,8 @@
 #define WSP_CODE_BUFFER_LEFT_LEN_MAX	1024
 #define WSP_CODE_BUFFER_RIGHT_LEN_MAX	2048
 
-#define  AcStrlen(x) ((x==NULL)?0:strlen(x))
-#define MIN(a,b)  (((a)  <  (b)) ? (a)  :  (b))
+#define  AcStrlen(x) ((x == NULL)?0:strlen(x))
+#define MIN(a, b)  (((a) < (b)) ? (a) : (b))
 
 
 /*==================================================================================================
@@ -77,22 +77,21 @@ private:
 	msg_push_action_t convertSIActionStrToEnum(char* pAction);
 	msg_push_action_t convertSLActionStrToEnum(char* pAction);
 
-	unsigned long wspRetriveUintvarDecode( unsigned char* sourceData, unsigned long* currentPointer );
-	unsigned long wspDecodeUintvar(unsigned long length, unsigned char* userVar );
-	void wspDecodeHeader( unsigned char* sEncodedHeader, unsigned long encodedHeaderLen, unsigned long contentsLength, bool fContentType, char** pHeader);
-	unsigned long wspHeaderDecodeInteger( unsigned char* data );
-	void wspHeaderDecodeQValue( unsigned long length, unsigned char* data, char** pDecodedString);
-	unsigned long wspHeaderDecodeIntegerByLength(unsigned char* data, unsigned long length );
-	char* wspExtendedDecodeType(char contentType  );
-	void wspHeaderDecodeParameter( unsigned char* data, unsigned long length, char** pParam);
-	void wspHeaderDecodeCharset( unsigned long length, unsigned char* data, char**pDecodedString);
-	void wspHeaderDecodeVersion( unsigned long length, unsigned char* data, char** pDecodedString );
-	void wspHeaderDecodeDateValue( unsigned long length, unsigned char* data, char** pDecodedString );
-	void wspHeaderCopyDecodedString( unsigned char* szDecodedString, unsigned long* currentLen, char** pTemper );
-	void wspHeaderDecodeAuth(unsigned long fieldValueLen, unsigned char* fieldValue, char** pDecodedString );
-	void wspHeaderDecodeChallenge(unsigned long fieldValueLen, unsigned char* fieldValue, char** pDecodedString );
+	unsigned long wspRetriveUintvarDecode(unsigned char* sourceData, unsigned long* currentPointer);
+	unsigned long wspDecodeUintvar(unsigned long length, unsigned char* userVar);
+	void wspDecodeHeader(unsigned char* sEncodedHeader, unsigned long encodedHeaderLen, unsigned long contentsLength, bool fContentType, char** pHeader);
+	unsigned long wspHeaderDecodeInteger(unsigned char* data);
+	void wspHeaderDecodeQValue(unsigned long length, unsigned char* data, char** pDecodedString);
+	unsigned long wspHeaderDecodeIntegerByLength(unsigned char* data, unsigned long length);
+	char* wspExtendedDecodeType(char contentType);
+	void wspHeaderDecodeParameter(unsigned char* data, unsigned long length, char** pParam);
+	void wspHeaderDecodeCharset(unsigned long length, unsigned char* data, char**pDecodedString);
+	void wspHeaderDecodeVersion(unsigned long length, unsigned char* data, char** pDecodedString);
+	void wspHeaderDecodeDateValue(unsigned long length, unsigned char* data, char** pDecodedString);
+	void wspHeaderCopyDecodedString(unsigned char* szDecodedString, unsigned long* currentLen, char** pTemper);
+	void wspHeaderDecodeAuth(unsigned long fieldValueLen, unsigned char* fieldValue, char** pDecodedString);
+	void wspHeaderDecodeChallenge(unsigned long fieldValueLen, unsigned char* fieldValue, char** pDecodedString);
 	void wspHeaderDecodeCacheControl(unsigned char* fieldValue, unsigned long fieldValueLen, char** pCacheString);
-
 
 	SMS_ADDRESS_S	tmpAddress;
 	SMS_TIMESTAMP_S	tmpTimeStamp;

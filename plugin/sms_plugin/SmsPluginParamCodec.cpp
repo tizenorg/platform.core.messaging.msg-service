@@ -28,15 +28,11 @@
 ==================================================================================================*/
 SmsPluginParamCodec::SmsPluginParamCodec()
 {
-
-
 }
 
 
 SmsPluginParamCodec::~SmsPluginParamCodec()
 {
-
-
 }
 
 
@@ -121,8 +117,7 @@ int SmsPluginParamCodec::encodeDCS(const SMS_DCS_S *pDCS, char **ppParam)
 	**ppParam = 0x00;
 
 	switch (pDCS->codingGroup) {
-	case SMS_GROUP_GENERAL:
-	{
+	case SMS_GROUP_GENERAL: {
 		if (pDCS->msgClass != SMS_MSG_CLASS_NONE)
 			**ppParam = 0x10 + pDCS->msgClass;
 
@@ -131,8 +126,7 @@ int SmsPluginParamCodec::encodeDCS(const SMS_DCS_S *pDCS, char **ppParam)
 	}
 		break;
 
-	case SMS_GROUP_CODING_CLASS:
-	{
+	case SMS_GROUP_CODING_CLASS: {
 		**ppParam = 0xF0 + pDCS->msgClass;
 	}
 		break;
@@ -265,9 +259,9 @@ int SmsPluginParamCodec::decodeAddress(const unsigned char *pTpdu, SMS_ADDRESS_S
 		char* tmpAddress = new char[MAX_ADDRESS_LEN];
 		int tmplength = 0;
 
-		tmplength = SmsPluginUDCodec::unpack7bitChar(&(pTpdu[offset]), (addrLen*4 )/7, 0, tmpAddress);
+		tmplength = SmsPluginUDCodec::unpack7bitChar(&(pTpdu[offset]), (addrLen*4)/7, 0, tmpAddress);
 
-		MSG_LANG_INFO_S langInfo = {0,};
+		MSG_LANG_INFO_S langInfo = {0, };
 
 		langInfo.bSingleShift = false;
 		langInfo.bLockingShift = false;

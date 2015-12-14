@@ -50,7 +50,6 @@ SmsPluginEventHandler::SmsPluginEventHandler()
 
 SmsPluginEventHandler::~SmsPluginEventHandler()
 {
-
 }
 
 
@@ -284,7 +283,7 @@ void SmsPluginEventHandler::convertCMASMsgToMsgInfo(sms_telesvc_deliver_s *p_del
 			p_msg_info->dataSize = textCvt->convertSHIFTJISToUTF8((unsigned char*)&p_msg_info->msgText, MAX_MSG_TEXT_LEN, (unsigned char*)&p_deliver->cmas_data.alert_text, p_deliver->cmas_data.data_len);
 		} else if (p_msg_info->encodeType == MSG_ENCODE_GSM7BIT) {
 			MSG_DEBUG("Encode Type = GSM7BIT");
-			MSG_LANG_INFO_S langinfo = {0,};
+			MSG_LANG_INFO_S langinfo = {0, };
 			MsgTextConvert *textCvt = MsgTextConvert::instance();
 			p_msg_info->dataSize = textCvt->convertGSM7bitToUTF8((unsigned char*)&p_msg_info->msgText, MAX_MSG_TEXT_LEN, (unsigned char*)&p_deliver->cmas_data.alert_text, p_deliver->cmas_data.data_len, &langinfo);
 		} else {
@@ -411,7 +410,7 @@ void SmsPluginEventHandler::convertDeliverMsgToMsgInfo(sms_telesvc_deliver_s *p_
 			p_msg_info->dataSize = textCvt->convertSHIFTJISToUTF8((unsigned char*)&p_msg_info->msgText, MAX_MSG_TEXT_LEN, (unsigned char*)&p_deliver->user_data.user_data, p_deliver->user_data.data_len);
 		} else if (p_msg_info->encodeType == MSG_ENCODE_GSM7BIT) {
 			MSG_DEBUG("Encode Type = GSM7BIT");
-			MSG_LANG_INFO_S langinfo = {0,};
+			MSG_LANG_INFO_S langinfo = {0, };
 			MsgTextConvert *textCvt = MsgTextConvert::instance();
 			p_msg_info->dataSize = textCvt->convertGSM7bitToUTF8((unsigned char*)&p_msg_info->msgText, MAX_MSG_TEXT_LEN, (unsigned char*)&p_deliver->user_data.user_data, p_deliver->user_data.data_len, &langinfo);
 		} else {
@@ -426,13 +425,11 @@ void SmsPluginEventHandler::convertDeliverMsgToMsgInfo(sms_telesvc_deliver_s *p_
 
 void SmsPluginEventHandler::convertAckMsgToMsgInfo(sms_telesvc_deliver_ack_s *p_deliver, MSG_MESSAGE_INFO_S *p_msg_info)
 {
-
 }
 
 
 void SmsPluginEventHandler::convertReportMsgToMsgInfo(sms_telesvc_report_s *p_deliver, MSG_MESSAGE_INFO_S *p_msg_info)
 {
-
 }
 
 
@@ -454,7 +451,6 @@ void SmsPluginEventHandler::handleSentStatus(msg_network_status_t NetStatus)
 	if (sentInfo.bLast == true || NetStatus != MSG_NETWORK_SEND_SUCCESS) {
 		/* Update Msg Status */
 		if (sentInfo.reqInfo.msgInfo.msgPort.valid == false) {
-
 			sentInfo.reqInfo.msgInfo.networkStatus = NetStatus;
 
 			if (NetStatus == MSG_NETWORK_SEND_SUCCESS) {
@@ -491,7 +487,6 @@ void SmsPluginEventHandler::handleSentStatus(msg_network_status_t NetStatus)
 
 void SmsPluginEventHandler::handleMsgIncoming(sms_trans_p2p_msg_s *p_p2p_msg)
 {
-
 	/* Make MSG_MESSAGE_INFO_S */
 	MSG_MESSAGE_INFO_S msgInfo;
 
@@ -594,7 +589,6 @@ void SmsPluginEventHandler::handleMsgIncoming(sms_trans_p2p_msg_s *p_p2p_msg)
 		/* Handling of Fail Case ?? */
 		/* SmsPluginTransport::instance()->sendDeliverReport(MSG_SUCCESS); */
 	} else { /* SMS Deliver */
-
 		/* Add message to DB */
 		if (msgInfo.msgPort.valid == false) {
 			if (p_p2p_msg->telesvc_id != SMS_TRANS_TELESVC_VMN_95) {
@@ -726,7 +720,6 @@ void SmsPluginEventHandler::handleCbMsgIncoming(sms_trans_broadcast_msg_s *p_cb_
 
 	/* Callback to MSG FW */
 	if (err == MSG_SUCCESS) {
-
 #if 1
 		MSG_CB_MSG_S cbOutMsg = {0, };
 		bool is_duplicate = false;
@@ -760,7 +753,7 @@ void SmsPluginEventHandler::handleCbMsgIncoming(sms_trans_broadcast_msg_s *p_cb_
 		/* cbOutMsg.dcs = CbMsgPage.pageHeader.dcs.rawData; */
 		memset (cbOutMsg.cbText, 0x00, sizeof(cbOutMsg.cbText));
 
-		cbOutMsg.cbTextLen= msgInfo.dataSize;
+		cbOutMsg.cbTextLen = msgInfo.dataSize;
 		memset(cbOutMsg.language_type, 0x00, sizeof(cbOutMsg.language_type));
 		/* memcpy(cbOutMsg.language_type, CbMsgPage.pageHeader.dcs.iso639Lang, 3); */
 
@@ -820,7 +813,7 @@ void SmsPluginEventHandler::handleWapMsgIncoming(sms_trans_p2p_msg_s *p_p2p_msg)
 	msg.totalSeg = p_p2p_msg->telesvc_msg.data.deliver.user_data.user_data[1];
 	msg.segNum = p_p2p_msg->telesvc_msg.data.deliver.user_data.user_data[2];
 
-	char tmpUserText[SMS_MAX_USER_DATA_LEN+1] = {0,};
+	char tmpUserText[SMS_MAX_USER_DATA_LEN+1] = {0, };
 	sms_telesvc_userdata_s tmpUserData;
 	memset(&tmpUserData, 0x00, sizeof(sms_telesvc_userdata_s));
 
@@ -844,7 +837,7 @@ void SmsPluginEventHandler::handleWapMsgIncoming(sms_trans_p2p_msg_s *p_p2p_msg)
 		unique_ptr<char*, void(*)(char**)> dataBuf(&pUserData, unique_ptr_deleter);
 		unique_ptr<char*, void(*)(char**)> dataBuf1(&pTmpUserData, unique_ptr_deleter);
 
-		MSG_MESSAGE_INFO_S msgInfo = {0,};
+		MSG_MESSAGE_INFO_S msgInfo = {0, };
 
 		msgInfo.addressList = NULL;
 		unique_ptr<MSG_ADDRESS_INFO_S*, void(*)(MSG_ADDRESS_INFO_S**)> addressListBuf(&msgInfo.addressList, unique_ptr_deleter);
@@ -1095,7 +1088,6 @@ int SmsPluginEventHandler::MakeWapUserData(unsigned short msgId, char **ppTotalD
 	}
 
 	return totalSize;
-
 }
 
 
@@ -1111,7 +1103,7 @@ void SmsPluginEventHandler::handleSyncMLMsgIncoming(msg_syncml_message_type_t ms
 	syncMLData.pushBodyLen = PushBodyLen;
 	memcpy(syncMLData.pushBody, pPushBody, PushBodyLen);
 
-	syncMLData.wspHeaderLen= WspHeaderLen;
+	syncMLData.wspHeaderLen = WspHeaderLen;
 	memcpy(syncMLData.wspHeader, pWspHeader, WspHeaderLen);
 
 	/* Callback to MSG FW */
@@ -1175,7 +1167,7 @@ bool SmsPluginEventHandler::checkCbOpt(sms_trans_svc_ctg_t svc_ctg)
 	if (svc_ctg >= SMS_TRANS_SVC_CTG_CMAS_PRESIDENTIAL && svc_ctg <= SMS_TRANS_SVC_CTG_CMAS_TEST) {
 		bool bActivate = false;
 		short Category = 0;
-		MSG_CB_CHANNEL_S cbChannelInfo = {0,};
+		MSG_CB_CHANNEL_S cbChannelInfo = {0, };
 		msg_error_t err = MSG_SUCCESS;
 		MsgDbHandler *dbHandle = getDbHandle();
 

@@ -21,12 +21,12 @@
 #include <list>
 
 
-template <typename T> 
+template <typename T>
 class MsgSimpleQ
 {
 public:
 	MsgSimpleQ(){};
-	void pop_front ();
+	void pop_front();
 	bool front(T* qItem);
 	void push_front(T const & input);
 	void push_back(T const & input);
@@ -39,62 +39,61 @@ private:
 	std::list <T> q;
 };
 
-template <typename T> 
+template <typename T>
 void MsgSimpleQ<T>::pop_front()
 {
-	if( q.empty() ) return;
+	if(q.empty()) return;
 
 	q.pop_front();
 }
 
-template <typename T> 
+template <typename T>
 bool MsgSimpleQ<T>::front(T* qItem)
 {
 	if( qItem == NULL || q.empty() )
-		return false; // Fail
+		return false; /* Fail */
 
-	*qItem = q.front(); // copy
+	*qItem = q.front(); /* copy */
 
-	return true; // Success
+	return true; /* Success */
 }
 
 
-template <typename T> 
+template <typename T>
 void MsgSimpleQ<T>::push_back(T const & qItem)
 {
 	q.push_back(qItem);
 }
 
-template <typename T> void 
+template <typename T> void
 MsgSimpleQ<T>::push_front(T const & qItem)
 {
 	q.push_front(qItem);
 }
 
 
-template <typename T> 
+template <typename T>
 int MsgSimpleQ<T>::size()
 {
 	return q.size();
 }
 
-template <typename T> 
+template <typename T>
 bool MsgSimpleQ<T>::empty()
 {
 	return q.empty();
 }
 
-template <typename T> 
+template <typename T>
 void MsgSimpleQ<T>::clear()
 {
 	q.clear();
 }
 
-template <typename T> 
+template <typename T>
 bool MsgSimpleQ<T>::checkExist(T const & qItem, bool(cmp)(T const &, T const &))
 {
-	for(typename list<T>::iterator iterPos = q.begin(); iterPos != q.end(); ++iterPos) 	{
-
+	for (typename list<T>::iterator iterPos = q.begin(); iterPos != q.end(); ++iterPos) {
 		if (cmp(qItem, *iterPos) == true)
 			return true;
 	}
@@ -105,13 +104,12 @@ bool MsgSimpleQ<T>::checkExist(T const & qItem, bool(cmp)(T const &, T const &))
 template <typename T>
 void MsgSimpleQ<T>::remove(T const & qItem, bool(cmp)(T const &, T const &))
 {
-	for(typename list<T>::iterator iterPos = q.begin(); iterPos != q.end(); ) 	{
-
+	for (typename list<T>::iterator iterPos = q.begin(); iterPos != q.end(); ) {
 		if (cmp(qItem, *iterPos) == true)
 			q.erase(iterPos++);
 		else
 			++iterPos;
 	}
 }
-#endif // __MsgThdSafeQ_H__
+#endif /* __MsgThdSafeQ_H__ */
 

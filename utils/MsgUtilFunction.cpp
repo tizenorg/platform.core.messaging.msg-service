@@ -71,7 +71,7 @@ bool MsgCheckFeatureSupport(const char *feature_name)
 	return result;
 }
 
-// Encoders
+/* Encoders */
 int MsgEncodeCountInfo(MSG_COUNT_INFO_S *pCountInfo, char **ppDest)
 {
 	int dataSize = 0;
@@ -102,8 +102,7 @@ int MsgEncodeRecipientList(MSG_RECIPIENTS_LIST_S *pRecipientList, char **ppDest)
 	memcpy(p, &count, sizeof(int));
 	p = (void*)((char*)p + sizeof(int));
 
-	for (int i = 0; i < count; i++)
-	{
+	for (int i = 0; i < count; i++) {
 		memcpy(p, &(pRecipientList->recipientAddr[i]), sizeof(MSG_ADDRESS_INFO_S));
 		p = (void*)((char*)p + sizeof(MSG_ADDRESS_INFO_S));
 	}
@@ -210,8 +209,7 @@ int MsgEncodeFolderList(msg_struct_list_s *pFolderList, char **ppDest)
 
 	msg_struct_s *folder_info = NULL;
 
-	for (int i = 0; i < count; i++)
-	{
+	for (int i = 0; i < count; i++) {
 		folder_info = (msg_struct_s *)pFolderList->msg_struct_info[i];
 		memcpy(p, folder_info->data, sizeof(MSG_FOLDER_INFO_S));
 		p = (void*)((char*)p + sizeof(MSG_FOLDER_INFO_S));
@@ -237,8 +235,7 @@ int MsgEncodeFilterList(msg_struct_list_s *pFilterList, char **ppDest)
 
 	msg_struct_s *filter_info = NULL;
 
-	for (int i = 0; i < count; i++)
-	{
+	for (int i = 0; i < count; i++) {
 		filter_info = (msg_struct_s *)pFilterList->msg_struct_info[i];
 		memcpy(p, filter_info->data, sizeof(MSG_FILTER_S));
 		p = (void*)((char*)p + sizeof(MSG_FILTER_S));
@@ -281,8 +278,7 @@ int MsgEncodeThreadViewList(msg_struct_list_s *pThreadViewList, char **ppDest)
 
 	msg_struct_s *thread_info = NULL;
 
-	for (int i = 0; i < count; i++)
-	{
+	for (int i = 0; i < count; i++) {
 		thread_info = (msg_struct_s *)pThreadViewList->msg_struct_info[i];
 		memcpy(p, thread_info->data, sizeof(MSG_THREAD_VIEW_S));
 		p = (void*)((char*)p + sizeof(MSG_THREAD_VIEW_S));
@@ -307,8 +303,7 @@ int MsgEncodeConversationViewList(msg_struct_list_s *pConvViewList, char **ppDes
 	memcpy(p, &count, sizeof(int));
 	p = (void*)((char*)p + sizeof(int));
 
-	for (int i = 0; i < count; i++)
-	{
+	for (int i = 0; i < count; i++) {
 		memcpy(p, &(pConvViewList->msg_struct_info[i]), sizeof(msg_struct_list_s));
 		p = (void*)((char*)p + sizeof(msg_struct_list_s));
 	}
@@ -488,8 +483,7 @@ int MsgEncodeThreadInfo(MSG_THREAD_VIEW_S *pThreadInfo, char **ppDest)
 }
 
 
-
-// Decoders
+/* Decoders */
 void MsgDecodeMsgId(char *pSrc, msg_message_id_t *pMsgId)
 {
 	memcpy(pMsgId, pSrc, sizeof(msg_message_id_t));
@@ -519,7 +513,7 @@ void MsgDecodeMsgInfo(char *pSrc, MSG_MESSAGE_INFO_S *pMsgInfo)
 	pMsgInfo->addressList = (MSG_ADDRESS_INFO_S *)new char[sizeof(MSG_ADDRESS_INFO_S) * pMsgInfo->nAddressCnt];
 	memset(pMsgInfo->addressList, 0x00, sizeof(MSG_ADDRESS_INFO_S) * pMsgInfo->nAddressCnt);
 
-	for (int i=0; i<pMsgInfo->nAddressCnt; i++) {
+	for (int i = 0; i < pMsgInfo->nAddressCnt; i++) {
 		memcpy(&(pMsgInfo->addressList[i]), pSrc + (sizeof(MSG_ADDRESS_INFO_S)*i), sizeof(MSG_ADDRESS_INFO_S));
 	}
 }
@@ -535,14 +529,13 @@ void MsgDecodeMsgInfo(char *pSrc, MSG_MESSAGE_INFO_S *pMsgInfo, MSG_SENDINGOPT_I
 
 	pSrc = pSrc + sizeof(MSG_SENDINGOPT_INFO_S);
 
-
 	if(pMsgInfo->nAddressCnt > 0) {
 		pMsgInfo->addressList = NULL;
 
 		pMsgInfo->addressList = (MSG_ADDRESS_INFO_S *)new char[sizeof(MSG_ADDRESS_INFO_S) * pMsgInfo->nAddressCnt];
 		memset(pMsgInfo->addressList, 0x00, sizeof(MSG_ADDRESS_INFO_S) * pMsgInfo->nAddressCnt);
 
-		for (int i=0; i<pMsgInfo->nAddressCnt; i++) {
+		for (int i = 0; i < pMsgInfo->nAddressCnt; i++) {
 			memcpy(&(pMsgInfo->addressList[i]), pSrc + (sizeof(MSG_ADDRESS_INFO_S)*i), sizeof(MSG_ADDRESS_INFO_S));
 		}
 	}
@@ -556,13 +549,12 @@ void MsgDecodeRecipientList(char *pSrc, MSG_RECIPIENTS_LIST_S *pRecipientList)
 	memcpy(&count, pSrc, sizeof(int));
 	pSrc = pSrc + sizeof(int);
 
-	pRecipientList->recipientCnt= count;
+	pRecipientList->recipientCnt = count;
 	pRecipientList->recipientAddr = (MSG_ADDRESS_INFO_S*)new char[sizeof(MSG_ADDRESS_INFO_S)*count];
 
 	MSG_ADDRESS_INFO_S* pInfoTmp = pRecipientList->recipientAddr;
 
-	for (int i = 0; i < count; i++)
-	{
+	for (int i = 0; i < count; i++) {
 		memcpy(pInfoTmp, pSrc, sizeof(MSG_ADDRESS_INFO_S));
 		pSrc = pSrc + sizeof(MSG_ADDRESS_INFO_S);
 		pInfoTmp++;
@@ -577,19 +569,16 @@ void MsgDecodeFolderList(char *pSrc, msg_struct_list_s *pFolderList)
 	memcpy(&count, pSrc, sizeof(int));
 	pSrc = pSrc + sizeof(int);
 
-	if( count > 0 )
-	{
+	if( count > 0 ) {
 		pFolderList->nCount = count;
 		pFolderList->msg_struct_info = (msg_struct_t *)calloc(count, sizeof(msg_struct_t));
-		if (pFolderList->msg_struct_info == NULL)
-		{
+		if (pFolderList->msg_struct_info == NULL) {
 			pFolderList->nCount = 0;
 			return;
 		}
 		msg_struct_s *pInfoTmp = NULL;
 
-		for (int i = 0; i < count; i++)
-		{
+		for (int i = 0; i < count; i++) {
 			pFolderList->msg_struct_info[i] = (msg_struct_t )new msg_struct_s;
 			pInfoTmp = (msg_struct_s *)pFolderList->msg_struct_info[i];
 			pInfoTmp->type = MSG_STRUCT_FOLDER_INFO;
@@ -597,9 +586,7 @@ void MsgDecodeFolderList(char *pSrc, msg_struct_list_s *pFolderList)
 			memcpy(pInfoTmp->data, pSrc, sizeof(MSG_FOLDER_INFO_S));
 			pSrc = pSrc + sizeof(MSG_FOLDER_INFO_S);
 		}
-	}
-	else if ( count == 0 )
-	{
+	} else if ( count == 0 ) {
 		pFolderList->nCount = count;
 		pFolderList->msg_struct_info = NULL;
 	}
@@ -613,8 +600,7 @@ void MsgDecodeFilterList(char *pSrc, msg_struct_list_s *pFilterList)
 	memcpy(&count, pSrc, sizeof(int));
 	pSrc = pSrc + sizeof(int);
 
-	if( count > 0 )
-	{
+	if( count > 0 ) {
 		pFilterList->nCount = count;
 		pFilterList->msg_struct_info = (msg_struct_t *)calloc(count, sizeof(MSG_FILTER_S *));
 
@@ -625,8 +611,7 @@ void MsgDecodeFilterList(char *pSrc, msg_struct_list_s *pFilterList)
 
 		msg_struct_s *pStructTmp = NULL;
 
-		for (int i = 0; i < count; i++)
-		{
+		for (int i = 0; i < count; i++) {
 			pFilterList->msg_struct_info[i] = (msg_struct_t )new msg_struct_s;
 			pStructTmp = (msg_struct_s *)pFilterList->msg_struct_info[i];
 			pStructTmp->type = MSG_STRUCT_FILTER;
@@ -634,13 +619,10 @@ void MsgDecodeFilterList(char *pSrc, msg_struct_list_s *pFilterList)
 			memcpy(pStructTmp->data, pSrc, sizeof(MSG_FILTER_S));
 			pSrc = pSrc + sizeof(MSG_FILTER_S);
 		}
-	}
-	else if ( count == 0 )
-	{
+	} else if ( count == 0 ) {
 		pFilterList->nCount = count;
 		pFilterList->msg_struct_info = NULL;
 	}
-
 }
 
 
@@ -701,7 +683,6 @@ void MsgDecodeReportStatus(char *pSrc,  msg_struct_list_s *report_list)
 
 	msg_struct_t *report_status =  (msg_struct_t *)new char[sizeof(msg_struct_t)*count];
 	for (int i = 0; i < count; i++) {
-
 		msg_struct_s *report_status_item = new msg_struct_s;
 		report_status_item->type = MSG_STRUCT_REPORT_STATUS_INFO;
 		report_status_item->data = new MSG_REPORT_STATUS_INFO_S;
@@ -733,7 +714,7 @@ void MsgDecodeThreadInfo(char *pSrc, MSG_THREAD_VIEW_S *pThreadInfo)
 	memcpy(pThreadInfo, pSrc, sizeof(MSG_THREAD_VIEW_S));
 }
 
-// Event Encoder
+/* Event Encoder */
 int MsgMakeEvent(const void *pData, int DataSize, MSG_EVENT_TYPE_T MsgEvent, msg_error_t MsgError, void **ppEvent)
 {
 	MSG_EVENT_S* pMsgEvent = NULL;
@@ -793,7 +774,6 @@ int msg_verify_email(const char *raw)
 	}
 
 	for (int i = 0; raw[i]; i++) {
-
 		if (raw[i] == '@') {
 			onlyNum = false;
 
@@ -833,14 +813,12 @@ char* msg_clean_country_code(char *src)
 {
 	int ret = 1;
 
-	switch (src[ret++]-'0')
-	{
+	switch (src[ret++]-'0') {
 		case 1:
 		case 7:
 			break;
 		case 2:
-			switch (src[ret++]-'0')
-			{
+			switch (src[ret++]-'0') {
 				case 0:
 				case 7:
 					break;
@@ -860,8 +838,7 @@ char* msg_clean_country_code(char *src)
 			}
 			break;
 		case 3:
-			switch (src[ret++]-'0')
-			{
+			switch (src[ret++]-'0') {
 				case 0:
 				case 1:
 				case 2:
@@ -881,8 +858,7 @@ char* msg_clean_country_code(char *src)
 			}
 			break;
 		case 4:
-			switch (src[ret++]-'0')
-			{
+			switch (src[ret++]-'0') {
 				case 0:
 				case 1:
 				case 3:
@@ -902,8 +878,7 @@ char* msg_clean_country_code(char *src)
 			}
 			break;
 		case 5:
-			switch (src[ret++]-'0')
-			{
+			switch (src[ret++]-'0') {
 				case 1:
 				case 2:
 				case 3:
@@ -923,8 +898,7 @@ char* msg_clean_country_code(char *src)
 			}
 			break;
 		case 6:
-			switch (src[ret++]-'0')
-			{
+			switch (src[ret++]-'0') {
 				case 0:
 				case 1:
 				case 2:
@@ -944,8 +918,7 @@ char* msg_clean_country_code(char *src)
 			}
 			break;
 		case 8:
-			switch (src[ret++]-'0')
-			{
+			switch (src[ret++]-'0') {
 				case 1:
 				case 2:
 				case 4:
@@ -965,8 +938,7 @@ char* msg_clean_country_code(char *src)
 			}
 			break;
 		case 9:
-			switch (src[ret++]-'0')
-			{
+			switch (src[ret++]-'0') {
 				case 0:
 				case 1:
 				case 2:
@@ -1027,8 +999,7 @@ msg_error_t MsgMakeSortRule(const MSG_SORT_RULE_S *pSortRule, char *pSqlSort)
 
 	int nameOrder = MsgGetContactNameOrder();
 
-	switch (pSortRule->sortType)
-	{
+	switch (pSortRule->sortType) {
 		case MSG_SORT_BY_DISPLAY_FROM :
 			if (nameOrder == 0)
 				snprintf(sql, sizeof(sql), "ORDER BY B.FIRST_NAME %s, B.LAST_NAME %s, B.ADDRESS_VAL, A.DISPLAY_TIME DESC;", order, order);
@@ -1088,7 +1059,7 @@ msg_error_t msg_write_text_to_msg_info(MSG_MESSAGE_INFO_S *pMsgInfo, char *text)
 	if (pMsgInfo->dataSize > MAX_MSG_TEXT_LEN) {
 		pMsgInfo->bTextSms = false;
 
-		// Save Message Data into File
+		/* Save Message Data into File */
 		char fileName[MSG_FILENAME_LEN_MAX+1];
 		memset(fileName, 0x00, sizeof(fileName));
 
@@ -1172,11 +1143,11 @@ gchar * msg_replace_non_ascii_char(const gchar *pszText, gunichar replacementCha
 	gchar *res;
 	gsize result_len = 0;
 	const gchar *p;
-	result_len = g_utf8_strlen (pszText, -1) + 1; //+1 for malloc of non-terminating chracter
+	result_len = g_utf8_strlen(pszText, -1) + 1; /* +1 for malloc of non-terminating chracter */
 	res = (gchar *)g_malloc (result_len * sizeof (gchar));
 	int i = 0;
-	for (p = pszText, i = 0; *p != '\0'; p = g_utf8_next_char (p), i++) {
-		res[i] = isascii(g_utf8_get_char (p)) ? *p : replacementChar;
+	for (p = pszText, i = 0; *p != '\0'; p = g_utf8_next_char(p), i++) {
+		res[i] = isascii(g_utf8_get_char(p)) ? *p : replacementChar;
 	}
 	res[i] = '\0';
 	return res;

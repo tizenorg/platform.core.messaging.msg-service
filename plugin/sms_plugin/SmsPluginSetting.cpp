@@ -218,7 +218,7 @@ void SmsPluginSetting::initConfigData(TapiHandle *handle)
 	MSG_INFO("Parameter Count [%d]", paramCnt);
 
 	MSG_SMSC_DATA_S tmpSmscData = {};
-	MSG_SMSC_LIST_S tmpSmscList = {0,};
+	MSG_SMSC_LIST_S tmpSmscList = {0, };
 
 	for (int index = 0; index < paramCnt; index++) {
 		memset(&tmpSmscData, 0x00, sizeof(MSG_SMSC_DATA_S));
@@ -256,7 +256,7 @@ void SmsPluginSetting::initConfigData(TapiHandle *handle)
 	if (simStatus[sim_idx] != MSG_SIM_STATUS_NOT_FOUND) {
 		MSG_DEBUG("simStatus == [%d]", simStatus[sim_idx]);
 
-		MSG_CBMSG_OPT_S cbMsgOpt = {0,};
+		MSG_CBMSG_OPT_S cbMsgOpt = {0, };
 		cbMsgOpt.simIndex = sim_idx;
 
 		if (getCbConfig(&cbMsgOpt) == true) {
@@ -276,21 +276,6 @@ void SmsPluginSetting::initConfigData(TapiHandle *handle)
 			}
 		} else {
 			MSG_WARN("########  getCbConfig Fail !!! #######");
-
-#if 0
-			// CSC doesn't support CB Info any longer
-			if (MsgCscGetCBInfo(&cbMsgOpt) == true) {
-				err = addCbOpt(&cbMsgOpt);
-
-				if (err == MSG_SUCCESS) {
-					MSG_DEBUG("########  Add CB Option From CSC Success !!! #######");
-				} else {
-					MSG_DEBUG("########  Add CB Option from CSC Fail !!! return : %d #######", err);
-				}
-			} else {
-				MSG_DEBUG("########  MsgCscGetCBInfo Fail !!! #######");
-			}
-#endif
 		}
 
 		/*==================== Default Voice mail Setting ====================*/
@@ -412,7 +397,6 @@ void SmsPluginSetting::SimRefreshCb(TapiHandle *handle)
 	}
 
 	pthread_detach(thd);
-
 }
 
 
@@ -437,7 +421,6 @@ void SmsPluginSetting::setConfigData(const MSG_SETTING_S *pSetting)
 	case MSG_SMSC_LIST :
 		setParamList(&pSetting->option.smscList);
 		addSMSCList((MSG_SMSC_LIST_S *)(&pSetting->option.smscList));
-//		setSmscInfo(&pSetting->option.smscList);
 		break;
 	case MSG_CBMSG_OPT :
 		if (setCbConfig(&pSetting->option.cbMsgOpt) == false) {
@@ -460,7 +443,6 @@ void SmsPluginSetting::getConfigData(MSG_SETTING_S *pSetting)
 
 	switch (pSetting->type) {
 	case MSG_SMSC_LIST :
-//		getParamList(&pSetting->option.smscList);
 		getSmscListInfo(pSetting->option.smscList.simIndex, &(pSetting->option.smscList));
 		break;
 
@@ -524,7 +506,7 @@ void SmsPluginSetting::addSMSCList(MSG_SMSC_LIST_S *pSmscList)
 			else
 				pTmpSmscList.smscData[i].smscAddr.ton = MSG_TON_NATIONAL;
 
-			pTmpSmscList.smscData[i].smscAddr.npi = MSG_NPI_ISDN; // app cannot set this value
+			pTmpSmscList.smscData[i].smscAddr.npi = MSG_NPI_ISDN; /* app cannot set this value */
 		}
 	}
 
@@ -573,7 +555,7 @@ msg_error_t SmsPluginSetting::addCbOpt(MSG_CBMSG_OPT_S *pCbOpt)
 	}
 
 #if 0
-	// Set Setting Data into Vconf
+	/* Set Setting Data into Vconf */
 	memset(keyName, 0x00, sizeof(keyName));
 	snprintf(keyName, sizeof(keyName), "%s/%d", CB_RECEIVE, pCbOpt->simIndex);
 	if (MsgSettingSetBool(keyName, pCbOpt->bReceive) != MSG_SUCCESS) {
@@ -632,7 +614,6 @@ void SmsPluginSetting::getCbOpt(MSG_SETTING_S *pSetting, int simIndex)
 
 		MsgSettingGetBool(keyName, &pSetting->option.cbMsgOpt.bLanguage[i]);
 	}
-
 }
 
 
@@ -829,7 +810,6 @@ void SmsPluginSetting::setSmscInfo(const MSG_SMSC_LIST_S *pSmscList)
 	memset(&sca, 0x00, sizeof(TelSmsAddressInfo_t));
 
 	if (strlen(pSmscData->smscAddr.address) > 0) {
-
 		if (pSmscData->smscAddr.address[0] == '+')
 			sca.Ton = TAPI_SIM_TON_INTERNATIONAL;
 		else
@@ -879,8 +859,6 @@ bool SmsPluginSetting::setCbConfig(const MSG_CBMSG_OPT_S *pCbOpt)
 		for (int i = 1; i <= simCnt; i++) {
 			MutexLocker lock(mx);
 
- 			//if (i == pCbOpt->simIndex)
-			//	continue;
 			memset(keyName, 0x00, sizeof(keyName));
 			snprintf(keyName, sizeof(keyName), "%s/%d", MSG_SIM_CHANGED, i);
 			simStatus = (MSG_SIM_STATUS_T)MsgSettingGetInt(keyName);
@@ -927,7 +905,7 @@ bool SmsPluginSetting::setCbConfig(const MSG_CBMSG_OPT_S *pCbOpt)
 
 			msg_error_t err = MSG_SUCCESS;
 			MsgDbHandler *dbHandle = getDbHandle();
-			err = MsgStoAddCBChannelInfo(dbHandle, const_cast<MSG_CB_CHANNEL_S*>(&pCbOpt->channelData),i);
+			err = MsgStoAddCBChannelInfo(dbHandle, const_cast<MSG_CB_CHANNEL_S*>(&pCbOpt->channelData), i);
 			if (err != MSG_SUCCESS) {
 				MSG_DEBUG("MsgStoAddCBChannelInfo is failed [%d]", err);
 				return false;
@@ -1027,7 +1005,7 @@ void SmsPluginSetting::setVoiceMailInfo(const MSG_VOICEMAIL_OPT_S *pVoiceOpt)
 		return;
 	}
 
-	TelSimMailBoxNumber_t mailboxInfo = {0,};
+	TelSimMailBoxNumber_t mailboxInfo = {0, };
 	bool bExistVoicetype = false;
 	int i = 0;
 
@@ -1046,7 +1024,7 @@ void SmsPluginSetting::setVoiceMailInfo(const MSG_VOICEMAIL_OPT_S *pVoiceOpt)
 		return;
 
 	if (pTmpSimMailboxList.count == 0) {
-		char num[MAX_PHONE_NUMBER_LEN + 1] = {0,};
+		char num[MAX_PHONE_NUMBER_LEN + 1] = {0, };
 
 		mailboxInfo.mb_type = TAPI_SIM_MAILBOX_VOICE;
 		mailboxInfo.rec_index = 1;
@@ -1228,7 +1206,7 @@ void SmsPluginSetting::setMwiInfo(int simIndex, MSG_SUB_TYPE_T type, int count)
 	}
 
 	int ret = TAPI_API_SUCCESS;
-	TelSimMessageWaitingReq_t mwReq = {0,};
+	TelSimMessageWaitingReq_t mwReq = {0, };
 
 	simMwiInfoMap::iterator iter = simMwiInfo.find(simIndex);
 	if(iter == simMwiInfo.end()) {
@@ -1490,7 +1468,7 @@ void SmsPluginSetting::setCbConfigEvent(TapiHandle *handle, const MSG_CBMSG_OPT_
 	if (bTapiResult == true) {
 		MSG_DEBUG("Success to get cb config data");
 
-		pair <int, MSG_CBMSG_OPT_S> newCbOpt (simIndex, *pCbOpt);
+		pair <int, MSG_CBMSG_OPT_S> newCbOpt(simIndex, *pCbOpt);
 		cbOptMap::iterator it = cbOpt.find(simIndex);
 
 		if (it == cbOpt.end()) {
@@ -1516,7 +1494,7 @@ void SmsPluginSetting::setCbConfigEvent(TapiHandle *handle, const MSG_CBMSG_OPT_
 			MSG_CBMSG_OPT_S pTmpCbOpt;
 
 			memset(&pTmpCbOpt, 0x00, sizeof(MSG_CBMSG_OPT_S));
-			pair <int, MSG_CBMSG_OPT_S> newCbOpt (simIndex, pTmpCbOpt);
+			pair <int, MSG_CBMSG_OPT_S> newCbOpt(simIndex, pTmpCbOpt);
 
 			cbOpt.insert(newCbOpt);
 		}
@@ -1662,7 +1640,7 @@ void SmsPluginSetting::setMailboxInfoEvent(TapiHandle *handle, SMS_SIM_MAILBOX_L
 			if (pTmpMailboxList.list[i].alpha_id[0] != '\0') {
 				char unpackAlphaId[MAX_SIM_XDN_ALPHA_ID_LEN+8];
 				int tmpLen = 0;
-				MSG_LANG_INFO_S langInfo = {0,};
+				MSG_LANG_INFO_S langInfo = {0, };
 
 				memset(unpackAlphaId, 0x00, sizeof(unpackAlphaId));
 
@@ -1687,7 +1665,7 @@ void SmsPluginSetting::setMailboxInfoEvent(TapiHandle *handle, SMS_SIM_MAILBOX_L
 		SMS_SIM_MAILBOX_LIST_S pDummySimMailboxList;
 
 		memset(&pDummySimMailboxList, 0x00, sizeof(SMS_SIM_MAILBOX_LIST_S));
-		pair <int, SMS_SIM_MAILBOX_LIST_S> newTmpList (simIndex, pDummySimMailboxList);
+		pair <int, SMS_SIM_MAILBOX_LIST_S> newTmpList(simIndex, pDummySimMailboxList);
 		simMailboxList.insert(newTmpList);
 	}
 
@@ -1701,12 +1679,8 @@ bool SmsPluginSetting::getMailboxInfoEvent()
 {
 	int ret = 0;
 
-	//mx.lock();
-
 	bTapiResult = false;
 	ret = cv.timedwait(mx.pMutex(), MAX_TAPI_SIM_API_TIMEOUT);
-
-	//mx.unlock();
 
 	if (ret == ETIMEDOUT) {
 		MSG_DEBUG("WARNING: TAPI callback TIME-OUT");
@@ -1730,7 +1704,7 @@ void SmsPluginSetting::setMwiInfoEvent(struct tapi_handle *handle, SMS_SIM_MWI_I
 		int mwiCnt = 0;
 		char keyName[MAX_VCONFKEY_NAME_LEN];
 
-		pair <int, SMS_SIM_MWI_INFO_S> newList (index, *pMwiInfo);
+		pair <int, SMS_SIM_MWI_INFO_S> newList(index, *pMwiInfo);
 		simMwiInfoMap::iterator it = simMwiInfo.find(index);
 
 		if (it == simMwiInfo.end()) {
@@ -1749,7 +1723,7 @@ void SmsPluginSetting::setMwiInfoEvent(struct tapi_handle *handle, SMS_SIM_MWI_I
 		if (pTmpsimMwiInfoList.b_cphs == true) {
 			mwiCnt = pTmpsimMwiInfoList.cphs_mwi.b_voice1;
 		} else {
-			mwiCnt = pTmpsimMwiInfoList.mwi_list.mw_info[0].voice_count; // Normal case
+			mwiCnt = pTmpsimMwiInfoList.mwi_list.mw_info[0].voice_count;
 		}
 		/* TODO :: Add operation for voice mail of line 2 */
 
@@ -1768,7 +1742,7 @@ void SmsPluginSetting::setMwiInfoEvent(struct tapi_handle *handle, SMS_SIM_MWI_I
 
 		memset(&pTmpsimMwiInfo, 0x00, sizeof(SMS_SIM_MWI_INFO_S));
 
-		pair <int, SMS_SIM_MWI_INFO_S> newList (index, pTmpsimMwiInfo);
+		pair <int, SMS_SIM_MWI_INFO_S> newList(index, pTmpsimMwiInfo);
 		simMwiInfoMap::iterator it = simMwiInfo.find(index);
 
 		if (it == simMwiInfo.end()) {
@@ -1847,11 +1821,7 @@ bool SmsPluginSetting::getResultFromSim()
 
 	MSG_DEBUG("getResultFromSim() is called .");
 
-	//mx.lock(); /*  Caller of this function MUST acquire the mutex before calling the TAPI API */
-
 	ret = cv.timedwait(mx.pMutex(), MAX_TAPI_SIM_API_TIMEOUT);
-
-	//mx.unlock();
 
 	if (ret == ETIMEDOUT) {
 		MSG_DEBUG("WARNING: TAPI callback TIME-OUT");
@@ -1898,7 +1868,7 @@ void SmsPluginSetting::deliverVoiceMsgNoti(int simIndex, int mwiCnt)
 {
 	MSG_BEGIN();
 
-	MSG_MESSAGE_INFO_S msgInfo = {0,};
+	MSG_MESSAGE_INFO_S msgInfo = {0, };
 
 	msgInfo.addressList = NULL;
 	unique_ptr<MSG_ADDRESS_INFO_S*, void(*)(MSG_ADDRESS_INFO_S**)> addressListBuf(&msgInfo.addressList, unique_ptr_deleter);
@@ -1927,7 +1897,7 @@ void SmsPluginSetting::deliverVoiceMsgNoti(int simIndex, int mwiCnt)
 	msgInfo.sim_idx = simIndex;
 
 #if 0
-	if (simMwiInfo.b_cphs == false) { // Normal case
+	if (simMwiInfo.b_cphs == false) {
 		snprintf(msgInfo.msgText, sizeof(msgInfo.msgText), "%d new voice message", mwiCnt);
 	} else {
 		snprintf(msgInfo.msgText, sizeof(msgInfo.msgText), "New voice message");
@@ -1960,7 +1930,7 @@ void SmsPluginSetting::setSimChangeStatus(TapiHandle *handle, bool bInitializing
 	int simIndex = SmsPluginDSHandler::instance()->getSimIndex(handle);
 
 	pthread_t thd;
-	char keyName[MAX_VCONFKEY_NAME_LEN] = {0,};
+	char keyName[MAX_VCONFKEY_NAME_LEN] = {0, };
 
 	tapiRet = tel_get_sim_init_info(handle, &status, &cardChanged);
 	MSG_INFO("Tapi Ret=[%d], SIM index [%d], SIM status [%d], CardChanged [%d]", tapiRet, simIndex, status, cardChanged);
@@ -1972,11 +1942,11 @@ void SmsPluginSetting::setSimChangeStatus(TapiHandle *handle, bool bInitializing
 				MsgSettingSetInt(keyName, MSG_SIM_STATUS_CHANGED);
 				simStatus[simIndex] = MSG_SIM_STATUS_CHANGED;
 			} else {
-				snprintf(keyName, sizeof(keyName),"%s/%d", MSG_SIM_CHANGED, simIndex);
+				snprintf(keyName, sizeof(keyName), "%s/%d", MSG_SIM_CHANGED, simIndex);
 				MsgSettingSetInt(keyName, MSG_SIM_STATUS_NORMAL);
 				simStatus[simIndex] = MSG_SIM_STATUS_NORMAL;
 			}
-//			tel_handle_list.push_back(handle);
+
 			/* Modified to call initSimInfo for SIM separately */
 			MSG_DEBUG("calling initSimInfo");
 			if (pthread_create(&thd, NULL, &initSimInfo, handle) < 0) {
@@ -1995,7 +1965,6 @@ void SmsPluginSetting::setSimChangeStatus(TapiHandle *handle, bool bInitializing
 			MSG_DEBUG("Fail to set MSG_SIM_CHANGED to MSG_SIM_STATUS_NOT_FOUND");
 
 		simStatus[simIndex] = MSG_SIM_STATUS_NOT_FOUND;
-
 	}
 
 	MSG_END();

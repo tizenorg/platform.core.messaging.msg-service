@@ -45,7 +45,7 @@
 
 bool MsgCheckFeatureSupport(const char *feature_name);
 
-// Encoders
+/* Encoders */
 int MsgEncodeCountInfo(MSG_COUNT_INFO_S *pCountInfo, char **ppDest);
 
 int MsgEncodeCountByMsgType(int MsgCount, char **ppDest);
@@ -89,7 +89,7 @@ int MsgEncodeThreadId(msg_thread_id_t *pThreadId, char **ppDest);
 int MsgEncodeThreadInfo(MSG_THREAD_VIEW_S *pThreadInfo, char **ppDest);
 
 
-// Decoders
+/* Decoders */
 void MsgDecodeMsgId(char *pSrc, msg_message_id_t *pMsgId);
 
 void MsgDecodeCountInfo(char *pSrc, MSG_COUNT_INFO_S *pCountInfo);
@@ -123,11 +123,11 @@ void MsgDecodeThreadId(char *pSrc, msg_thread_id_t *pThreadId);
 void MsgDecodeThreadInfo(char *pSrc, MSG_THREAD_VIEW_S *pThreadInfo);
 
 
-// Event Encoder
+/* Event Encoder */
 int MsgMakeEvent(const void *pData, int DataSize, MSG_EVENT_TYPE_T MsgEvent, msg_error_t MsgError, void **ppEvent);
 
 
-// Utin functions
+/* Util functions */
 int msg_verify_number(const char *raw, char *trimmed);
 
 int msg_verify_email(const char *raw);
@@ -154,4 +154,4 @@ gchar * msg_replace_non_ascii_char(const gchar *pszText, gunichar replacementCha
 void MsgDbusInit();
 void MsgDbusDeinit();
 
-#endif // MSG_UTIL_FUNCTION_H
+#endif /* MSG_UTIL_FUNCTION_H */

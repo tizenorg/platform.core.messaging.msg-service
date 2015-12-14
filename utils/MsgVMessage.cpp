@@ -88,10 +88,10 @@ enum {
 
 
 enum {
-	 // vMessage
+	 /* vMessage */
 	VMSG_VALUE_NONE = 0,
 	BEGIN_VMSG = 1,
-	VERSION_VMSG =2,
+	VERSION_VMSG = 2,
 	BEGIN_VCARD = 3,
 	VERSION_VCARD = 4,
 	END_VCARD = 5,
@@ -107,36 +107,36 @@ enum {
 	TEL_VCARD_CELL = 14,
 
 	DATE_VMSG = 15,
-	SUBJECT_VMSG =16 ,
+	SUBJECT_VMSG = 16,
 
 	FNAME_UTF8_VCARD = 17,
 	NAME_UTF8_VCARD = 18,
 
-	// Encodings
+	/* Encodings */
 	VMSG_ATTR_ENCODING_QP = 19,
 	VMSG_ATTR_ENCODING_BASE64_V21 = 20,
 	VMSG_ATTR_ENCODING_BASE64_V30 = 21,
 
-	// Message type indication
+	/* Message type indication */
 	VMSG_INDICATION_MESSAGE_TYPE = 22,
 	VMSG_INDICATION_MESSAGE_TYPE_INET = 23,
 	VMSG_INDICATION_MESSAGE_TYPE_MSG = 24,
 
-	// Read status indication
+	/* Read status indication */
 	VMSG_INDICATION_READ_STATUS = 25,
 	VMSG_INDICATION_READ_STATUS_READ = 26,
 	VMSG_INDICATION_READ_STATUS_UNREAD = 27,
 
-	// Mailbox status indication
+	/* Mailbox status indication */
 	VMSG_INDICATION_MSG_BOX = 28,
 	VMSG_INDICATION_MSG_BOX_SENT = 29,
 	VMSG_INDICATION_MSG_BOX_INBOX = 30,
 	VMSG_INDICATION_MSG_BOX_DRAFT = 31,
 
-	// Character set
+	/* Character set */
 	VMSG_ATTR_CHARSET_PROPERTY = 32,
 
-	// Language
+	/* Language */
 	VMSG_ATTR_LANGUAGE_PROPERTY = 33,
 	VMSG_DATA_SEPARATOR = 34,
 
@@ -148,7 +148,7 @@ enum {
 	KEY_BODY = 39,
 	KEY_DATE = 40,
 
-	 //DECODER
+	/* DECODER */
 	VMSG_VCARD_TEL = 41,
 	VMSG_MSG_BEGIN = 42,
 	VMSG_MSG_END = 43,
@@ -162,8 +162,7 @@ bool needCharset = false;
 static void __msgsvc_vmsg_initial(void)
 {
 	if (NULL == *content_name) {
-
-		// vMessage
+		/* vMessage */
 		content_name[BEGIN_VMSG] = "BEGIN:VMSG";
 		content_name[VERSION_VMSG] = "VERSION:1.1";
 		content_name[BEGIN_VCARD] = "BEGIN:VCARD";
@@ -186,31 +185,31 @@ static void __msgsvc_vmsg_initial(void)
 		content_name[FNAME_UTF8_VCARD] = "FN;CHARSET=UTF-8:";
 		content_name[NAME_UTF8_VCARD] = "N;CHARSET=UTF-8:";
 
-		// Encodings
+		/* Encodings */
 		content_name[VMSG_ATTR_ENCODING_QP] = "ENCODING=QUOTED-PRINTABLE";
 		content_name[VMSG_ATTR_ENCODING_BASE64_V21] = "ENCODING=BASE64";
 		content_name[VMSG_ATTR_ENCODING_BASE64_V30] = "ENCODING=b";
 
-		// Message type indication
+		/* Message type indication */
 		content_name[VMSG_INDICATION_MESSAGE_TYPE] = "X-IRMC-TYPE";
 		content_name[VMSG_INDICATION_MESSAGE_TYPE_INET] = "INET";
 		content_name[VMSG_INDICATION_MESSAGE_TYPE_MSG] = "MSG";
 
-		// Read status indication
+		/* Read status indication */
 		content_name[VMSG_INDICATION_READ_STATUS] = "X-IRMC-STATUS";
 		content_name[VMSG_INDICATION_READ_STATUS_READ] = "READ";
 		content_name[VMSG_INDICATION_READ_STATUS_UNREAD] =  "UNREAD";
 
-		// Mailbox status indication
+		/* Mailbox status indication */
 		content_name[VMSG_INDICATION_MSG_BOX] = "X-IRMC-BOX";
 		content_name[VMSG_INDICATION_MSG_BOX_SENT] = "SENT";
 		content_name[VMSG_INDICATION_MSG_BOX_INBOX] = "INBOX";
 		content_name[VMSG_INDICATION_MSG_BOX_DRAFT] =  "DRAFT";
 
-		// Character set
+		/* Character set */
 		content_name[VMSG_ATTR_CHARSET_PROPERTY] = "CHARSET";
 
-		// Language
+		/* Language */
 		content_name[VMSG_ATTR_LANGUAGE_PROPERTY] =  "LANGUAGE";
 		content_name[VMSG_DATA_SEPARATOR] = ":";
 
@@ -271,7 +270,7 @@ static int __msgsvc_vmsg_append_str(char **buf, int *buf_size, int len, const ch
 				*r = '\\';
 				r++;
 				str_len++;
-				if (*buf_size<str_len+len+1) {
+				if (*buf_size < str_len+len+1) {
 					*buf_size = *buf_size * 2;
 					if (NULL == (tmp = (char *)realloc(*buf, *buf_size)))
 						return -1;
@@ -292,7 +291,7 @@ static int __msgsvc_vmsg_append_str(char **buf, int *buf_size, int len, const ch
 				*r = '\\';
 				r++;
 				str_len++;
-				if (*buf_size<str_len+len+1) {
+				if (*buf_size < str_len+len+1) {
 					*buf_size = *buf_size * 2;
 					if (NULL == (tmp = (char *)realloc(*buf, *buf_size)))
 						return -1;
@@ -305,11 +304,11 @@ static int __msgsvc_vmsg_append_str(char **buf, int *buf_size, int len, const ch
 				*r = *s;
 				break;
 			case 0xA1:
-				if (*(s+1) && 0xAC == *(s+1)) { // en/em backslash
+				if (*(s+1) && 0xAC == *(s+1)) { /* en/em backslash */
 					*r = '\\';
 					r++;
 					str_len++;
-					if (*buf_size<str_len+len+1) {
+					if (*buf_size < str_len+len+1) {
 						*buf_size = *buf_size * 2;
 						if (NULL == (tmp = (char *)realloc(*buf, *buf_size)))
 							return -1;
@@ -323,7 +322,7 @@ static int __msgsvc_vmsg_append_str(char **buf, int *buf_size, int len, const ch
 					*r = *s;
 					r++;
 					s++;
-					if (*buf_size<str_len+len+1) {
+					if (*buf_size < str_len+len+1) {
 						*buf_size = *buf_size * 2;
 						if (NULL == (tmp = (char *)realloc(*buf, *buf_size)))
 							return -1;
@@ -340,11 +339,11 @@ static int __msgsvc_vmsg_append_str(char **buf, int *buf_size, int len, const ch
 				}
 				break;
 			case 0x81:
-				if (*(s+1) && 0x5F == *(s+1)) { // en/em backslash
+				if (*(s+1) && 0x5F == *(s+1)) { /* en/em backslash */
 					*r = '\\';
 					r++;
 					str_len++;
-					if (*buf_size<str_len+len+1) {
+					if (*buf_size < str_len+len+1) {
 						*buf_size = *buf_size * 2;
 						if (NULL == (tmp = (char *)realloc(*buf, *buf_size)))
 							return -1;
@@ -358,7 +357,7 @@ static int __msgsvc_vmsg_append_str(char **buf, int *buf_size, int len, const ch
 					*r = *s;
 					r++;
 					s++;
-					if (*buf_size<str_len+len+1) {
+					if (*buf_size < str_len+len+1) {
 						*buf_size = *buf_size * 2;
 						if (NULL == (tmp = (char *)realloc(*buf, *buf_size)))
 							return -1;
@@ -397,7 +396,7 @@ static int __msgsvc_vmsg_append_str(char **buf, int *buf_size, int len, const ch
 #define INSERT_VMSG_OBJ pObject = (VObject*)calloc(1, sizeof(VObject));	\
                                       if ( !pObject )\
 {\
-   vmsg_free_vtree_memory( pMessage );\
+   vmsg_free_vtree_memory(pMessage);\
    return false;\
 }\
 if (pMessage->pTop == NULL)\
@@ -414,7 +413,7 @@ pMessage->pCur = pObject;
 #define INSERT_VBODY_OBJ pObject = (VObject*)calloc(1, sizeof(VObject));	\
                                       if ( !pObject )\
 {\
-   vmsg_free_vtree_memory( pMessage );\
+   vmsg_free_vtree_memory(pMessage);\
    return false;\
 }\
 if (pBody->pTop == NULL)\
@@ -431,7 +430,7 @@ pBody->pCur = pObject;
 #define INSERT_VCARD_OBJ pObject = (VObject*)calloc(1, sizeof(VObject));	\
                                       if ( !pObject )\
 {\
-   vmsg_free_vtree_memory( pMessage );\
+   vmsg_free_vtree_memory(pMessage);\
    return false;\
 }\
 if (pCard->pTop == NULL)\
@@ -448,7 +447,7 @@ pCard->pCur = pObject;
 #define INSERT_PARAM  param = (VParam*)calloc(1, sizeof(VParam));\
                              if (!param)\
 {\
-   vmsg_free_vtree_memory( pMessage );\
+   vmsg_free_vtree_memory(pMessage);\
    if (pObject != NULL)\
    {\
       free(pObject);\
@@ -479,7 +478,6 @@ char* _convert_tm_to_vdata_str(const struct tm * tm)
 
 bool _convert_vdata_str_to_tm(const char* szText, struct tm * tm)
 {
-
    if (szText == NULL) return false;
    if (strlen(szText) < 15) return false;
    if (szText[8] != 'T') return false;
@@ -487,7 +485,7 @@ bool _convert_vdata_str_to_tm(const char* szText, struct tm * tm)
    char szBuff[8]={0};
    memset(tm, 0, sizeof(struct tm));
 
-   // year, month, day
+   /* year, month, day */
    memcpy(szBuff, &(szText[0]), 4);
    szBuff[4] = '\0';
    tm->tm_year = atol(szBuff) - 1900;
@@ -506,7 +504,7 @@ bool _convert_vdata_str_to_tm(const char* szText, struct tm * tm)
    if ((tm->tm_mday > 31) || (tm->tm_mday < 1))
       tm->tm_mday = 31;
 
-   // hour, minute, second
+   /* hour, minute, second */
    memcpy(szBuff, &(szText[9]), 2);
    szBuff[2] = '\0';
    tm->tm_hour = atol(szBuff);
@@ -546,62 +544,61 @@ int msgsvc_check_utf8(char c)
 		return MSG_ERR_INVALID_PARAMETER;
 }
 
-char* __msgsvc_vmsg_convert_tm_to_vdata_str( struct tm * tm)
+char* __msgsvc_vmsg_convert_tm_to_vdata_str(struct tm * tm)
 {
 	char str[22] = {0, };
 	char APM[3] = {0, };
 	char month[15] = {0, };
 	int mon = 0;
 	int hour = 0;
-	mon = tm->tm_mon  +1;
+	mon = tm->tm_mon + 1;
 
 	if (tm->tm_hour >= 12)
-		strcpy(APM,"PM");
+		strcpy(APM, "PM");
 	else
-		strcpy(APM,"AM");
+		strcpy(APM, "AM");
 
 	if (tm->tm_hour > 12)
 		hour = tm->tm_hour - 12;
 	else
 		hour = tm->tm_hour;
 
-	switch(mon)
-	{
+	switch(mon) {
 		case 1:
-			strcpy(month,"Jan");
+			strcpy(month, "Jan");
 			break;
 		case 2:
-			strcpy(month,"Feb");
+			strcpy(month, "Feb");
 			break;
 		case 3:
-			strcpy(month,"Mar");
+			strcpy(month, "Mar");
 			break;
 		case 4:
-			strcpy(month,"Apr");
+			strcpy(month, "Apr");
 			break;
 		case 5:
-			strcpy(month,"May");
+			strcpy(month, "May");
 			break;
 		case 6:
-			strcpy(month,"Jun");
+			strcpy(month, "Jun");
 			break;
 		case 7:
-			strcpy(month,"Jul");
+			strcpy(month, "Jul");
 			break;
 		case 8:
-			strcpy(month,"Aug");
+			strcpy(month, "Aug");
 			break;
 		case 9:
-			strcpy(month,"Sep");
+			strcpy(month, "Sep");
 			break;
 		case 10:
-			strcpy(month,"Oct");
+			strcpy(month, "Oct");
 			break;
 		case 11:
-			strcpy(month,"Nov");
+			strcpy(month, "Nov");
 			break;
 		case 12:
-			strcpy(month,"Dec");
+			strcpy(month, "Dec");
 			break;
 		default:
 			MSG_DEBUG("invalid month number");
@@ -728,8 +725,7 @@ static inline int __msgsvc_vmsg_append_box_type(MSG_MESSAGE_INFO_S *pMsg, char *
 {
 	MSGSVC_VMSG_APPEND_STR(buf, buf_size, len, content_name[VMSG_INDICATION_MSG_BOX]);
 	MSGSVC_VMSG_APPEND_STR(buf, buf_size, len, content_name[VMSG_DATA_SEPARATOR]);
-	switch(pMsg->folderId)
-	{
+	switch(pMsg->folderId) {
 		case MSG_INBOX_ID:
 			MSGSVC_VMSG_APPEND_STR(buf, buf_size, len, content_name[VMSG_INDICATION_MSG_BOX_INBOX]);
 
@@ -742,7 +738,7 @@ static inline int __msgsvc_vmsg_append_box_type(MSG_MESSAGE_INFO_S *pMsg, char *
 			MSGSVC_VMSG_APPEND_STR(buf, buf_size, len, content_name[VMSG_INDICATION_MSG_BOX_DRAFT]);
 			break;
 		default:
-			// Discard User Defined, outbox or Spam folder's messages.
+			/* Discard User Defined, outbox or Spam folder's messages. */
 			MSG_DEBUG("Invalid or unhandled msg box");
 	}
 	MSGSVC_VMSG_APPEND_STR(buf, buf_size, len, MSGSVC_CRLF);
@@ -751,7 +747,7 @@ static inline int __msgsvc_vmsg_append_box_type(MSG_MESSAGE_INFO_S *pMsg, char *
 
 static inline int __msgsvc_vmsg_append_msg_type(MSG_MESSAGE_INFO_S *pMsg, char **buf, int *buf_size, int len)
 {
-	//TO DO check with msg text contains Only PrintableAscii if true then else handle INET_TYPE
+	/* TO DO check with msg text contains Only PrintableAscii if true then else handle INET_TYPE */
 	MSGSVC_VMSG_APPEND_STR(buf, buf_size, len, content_name[VMSG_INDICATION_MESSAGE_TYPE]);
 	MSGSVC_VMSG_APPEND_STR(buf, buf_size, len, content_name[VMSG_DATA_SEPARATOR]);
 	MSGSVC_VMSG_APPEND_STR(buf, buf_size, len, content_name[VMSG_INDICATION_MESSAGE_TYPE_MSG]);
@@ -772,7 +768,7 @@ static inline int __msgsvc_vmsg_append_origin_address_vcard(MSG_MESSAGE_INFO_S *
 		strcpy(originAddress, pMsg->addressList[0].addressVal);
 	}
 
-	needCharset = true; //as per android
+	needCharset = true; /* as per android */
 
 	if (strlen(originAddress) > 0) {
 		MSG_CONTACT_INFO_S contactInfo;
@@ -820,16 +816,14 @@ static inline int __msgsvc_vmsg_append_origin_address_vcard(MSG_MESSAGE_INFO_S *
 
 static inline int __msgsvc_vmsg_append_recipient_address_vcard(MSG_MESSAGE_INFO_S *pMsg, char **buf, int *buf_size, int len)
 {
-	//To do
 	MSGSVC_VMSG_APPEND_STR(buf, buf_size, len, content_name[BEGIN_VCARD]);
 	MSGSVC_VMSG_APPEND_STR(buf, buf_size, len, MSGSVC_CRLF);
 	MSGSVC_VMSG_APPEND_STR(buf, buf_size, len, content_name[VERSION_VCARD]);
 	MSGSVC_VMSG_APPEND_STR(buf, buf_size, len, MSGSVC_CRLF);
 
-	needCharset = true; //as per android
+	needCharset = true; /* as per android */
 
-	for(int i = 0; i < pMsg->nAddressCnt; ++i)
-	{
+	for (int i = 0; i < pMsg->nAddressCnt; ++i) {
 		char originAddress[MAX_ADDRESS_VAL_LEN + 1] = {0, };
 		bool isDisplayName = false;
 
@@ -892,7 +886,7 @@ static inline int __msgsvc_vmsg_append_msg_body(MSG_MESSAGE_INFO_S *pMsg, char *
 	MSGSVC_VMSG_APPEND_STR(buf, buf_size, len, content_name[BEGIN_VBODY]);
 	MSGSVC_VMSG_APPEND_STR(buf, buf_size, len, MSGSVC_CRLF);
 
-	//Date:
+	/* Date: */
 	tzset();
 	localtime_r(&(pMsg->displayTime), &display_time);
 	char *msgDate = __msgsvc_vmsg_convert_tm_to_vdata_str(&display_time);
@@ -905,7 +899,7 @@ static inline int __msgsvc_vmsg_append_msg_body(MSG_MESSAGE_INFO_S *pMsg, char *
 		g_free(msgDate);
 	}
 
-	//Subject:
+	/* Subject: */
 	if (pMsg->subject[0] != '\0') {
 		MSGSVC_VMSG_APPEND_STR(buf, buf_size, len, content_name[VMSG_BODY_PROPERTY_SUBJECT]);
 		MSGSVC_VMSG_APPEND_STR(buf, buf_size, len, content_name[VMSG_DATA_SEPARATOR]);
@@ -913,13 +907,10 @@ static inline int __msgsvc_vmsg_append_msg_body(MSG_MESSAGE_INFO_S *pMsg, char *
 		MSGSVC_VMSG_APPEND_STR(buf, buf_size, len, MSGSVC_CRLF);
 	}
 
-	//body:
-	if(pMsg->msgType.mainType == MSG_SMS_TYPE)
-	{
-		if(pMsg->msgType.subType == MSG_NORMAL_SMS)
-		{
-			if (pMsg->bTextSms == false)
-			{
+	/* body: */
+	if(pMsg->msgType.mainType == MSG_SMS_TYPE) {
+		if(pMsg->msgType.subType == MSG_NORMAL_SMS) {
+			if (pMsg->bTextSms == false) {
 				char* pFileData = NULL;
 				unique_ptr<char*, void(*)(char**)> buff(&pFileData, unique_ptr_deleter);
 
@@ -931,12 +922,10 @@ static inline int __msgsvc_vmsg_append_msg_body(MSG_MESSAGE_INFO_S *pMsg, char *
 
 				msgText = (char *)calloc(1, fileSize);
 				memcpy(msgText, pFileData, fileSize);
-				MSGSVC_VMSG_APPEND_STR_FREE(buf,buf_size, len, msgText);
+				MSGSVC_VMSG_APPEND_STR_FREE(buf, buf_size, len, msgText);
 				g_free(msgText);
-			}
-			else
-			{
-				MSGSVC_VMSG_APPEND_STR(buf,buf_size, len, pMsg->msgText);
+			} else {
+				MSGSVC_VMSG_APPEND_STR(buf, buf_size, len, pMsg->msgText);
 			}
 		}
 	}
@@ -953,7 +942,6 @@ static inline int __msgsvc_vmsg_append_msg_body(MSG_MESSAGE_INFO_S *pMsg, char *
 
 static inline int __msgsvc_vmsg_append_msg_envelope(MSG_MESSAGE_INFO_S *pMsg, char **buf, int *buf_size, int len)
 {
-
 	MSGSVC_VMSG_APPEND_STR(buf, buf_size, len, content_name[BEGIN_VENV]);
 	MSGSVC_VMSG_APPEND_STR(buf, buf_size, len, MSGSVC_CRLF);
 
@@ -996,18 +984,18 @@ char *MsgVMessageEncode(MSG_MESSAGE_INFO_S *pMsg)
 	VParam*		param = NULL;
 	VTree *		pBody = NULL;
 	VTree *		pCard = NULL;
-	VTree *		pCurrent= NULL;
+	VTree *		pCurrent = NULL;
 	struct tm	display_time;
 	char*		encoded_data = NULL;
 
 	VTree* pMessage = NULL;
 
-	//to encode sms
+	/* to encode sms */
 	if (pMsg->msgType.mainType == MSG_SMS_TYPE && pMsg->msgType.subType == MSG_NORMAL_SMS) {
 		return MsgVMessageEncodeSMS(pMsg);
 	}
 
-	//to encode mms
+	/* to encode mms */
 	if (pMessage == NULL) {
 		pMessage = (VTree *)malloc(sizeof(VTree));
 		if (!pMessage) {
@@ -1017,11 +1005,10 @@ char *MsgVMessageEncode(MSG_MESSAGE_INFO_S *pMsg)
 		pMessage->pTop = NULL;
 		pMessage->pCur = NULL;
 		pMessage->pNext = NULL;
-
 	}
 		pCurrent = pMessage;
 
-	//Insert VObject (X-MESSAGE-TYPE) to VMessage tree
+	/* Insert VObject (X-MESSAGE-TYPE) to VMessage tree */
 	INSERT_VMSG_OBJ;
 
 	pObject->property = VMSG_TYPE_MSGTYPE;
@@ -1029,7 +1016,7 @@ char *MsgVMessageEncode(MSG_MESSAGE_INFO_S *pMsg)
 	if (pMsg->msgType.mainType == MSG_MMS_TYPE && (pMsg->msgType.subType == MSG_SENDREQ_MMS || pMsg->msgType.subType == MSG_SENDCONF_MMS))
 		pObject->pszValue[0] = strdup("MMS SEND");
 #if 0
-	else if(pMsg->msgType.mainType == MSG_MMS_TYPE && pMsg->msgType.subType == MSG_NOTIFICATIONIND_MMS)
+	else if (pMsg->msgType.mainType == MSG_MMS_TYPE && pMsg->msgType.subType == MSG_NOTIFICATIONIND_MMS)
 		pObject->pszValue[0] = strdup("MMS NOTIFICATION");
 #endif
 
@@ -1042,13 +1029,12 @@ char *MsgVMessageEncode(MSG_MESSAGE_INFO_S *pMsg)
 	pObject->valueCount = 1;
 
 
-	//Insert VObject (X-IRMC-BOX) to VMessate tree
+	/* Insert VObject (X-IRMC-BOX) to VMessate tree */
 	INSERT_VMSG_OBJ;
 
 	pObject->property = VMSG_TYPE_MSGBOX;
 
-	switch(pMsg->folderId)
-	{
+	switch(pMsg->folderId) {
 		case MSG_INBOX_ID:
 			pObject->pszValue[0] = strdup("INBOX");
 			break;
@@ -1062,13 +1048,13 @@ char *MsgVMessageEncode(MSG_MESSAGE_INFO_S *pMsg)
 			pObject->pszValue[0] = strdup("DRAFTBOX");
 			break;
 		default:
-			// Discard User Defined or Spam folder's messages.
+			/* Discard User Defined or Spam folder's messages. */
 			goto __CATCH_FAIL__;
 	}
 	pObject->valueCount = 1;
 
 
-	//Insert VObject (X-SS-DT) to VMessage tree
+	/* Insert VObject (X-SS-DT) to VMessage tree */
 	INSERT_VMSG_OBJ;
 
 	pObject->property = VMSG_TYPE_DATE;
@@ -1078,7 +1064,7 @@ char *MsgVMessageEncode(MSG_MESSAGE_INFO_S *pMsg)
 	pObject->valueCount = 1;
 
 
-	//Insert Vobject read status to VMessage tree
+	/* Insert Vobject read status to VMessage tree */
 	INSERT_VMSG_OBJ;
 
 	pObject->property = VMSG_TYPE_STATUS;
@@ -1091,7 +1077,7 @@ char *MsgVMessageEncode(MSG_MESSAGE_INFO_S *pMsg)
 	pObject->valueCount = 1;
 
 
-	//Insert VBody  tree for message body;
+	/* Insert VBody  tree for message body; */
 	pBody = (VTree*)calloc(1, sizeof(VTree));
 	if ( !pBody )
 		goto __CATCH_FAIL__;
@@ -1103,30 +1089,28 @@ char *MsgVMessageEncode(MSG_MESSAGE_INFO_S *pMsg)
 	pCurrent = pBody;
 
 	if (strlen(pMsg->subject) > 0) {
-		//Insert Subject object
+		/* Insert Subject object */
 		INSERT_VBODY_OBJ;
 		pObject->property = VMSG_TYPE_SUBJECT;
 		pObject->pszValue[0] = strdup(pMsg->subject);
 		pObject->valueCount = 1;
 	}
-	//Insert VBody object
+	/* Insert VBody object */
 	INSERT_VBODY_OBJ;
 	pObject->property = VMSG_TYPE_BODY;
 
 	if (pMsg->msgType.mainType == MSG_MMS_TYPE) {
-		//Insert VBody for mms raw data;
+		/* Insert VBody for mms raw data; */
 		char* pFileData = NULL;
 		unique_ptr<char*, void(*)(char**)> buf(&pFileData, unique_ptr_deleter);
 		MMS_DATA_S *pMmsData = NULL;
 		int fileSize = 0;
 		char* msgText = NULL;
 #if 0
-		char		filePath[MSG_FILEPATH_LEN_MAX] = {0, };
+		char filePath[MSG_FILEPATH_LEN_MAX] = {0, };
 		if(pMsg->msgType.subType == MSG_NOTIFICATIONIND_MMS)
 			pFileData = MsgOpenAndReadMmsFile(pMsg->msgData, 0, -1, &fileSize);
-
-		else
-		{
+		else {
 			err = MsgStoGetMmsRawFilePath(pDbHandle, pMsg->msgId, filePath);
 
 			if (err != MSG_SUCCESS)
@@ -1138,7 +1122,6 @@ char *MsgVMessageEncode(MSG_MESSAGE_INFO_S *pMsg)
 
 		if (pMsg->bTextSms == false) {
 			if (MsgOpenAndReadFile(pMsg->msgData, &pFileData, &fileSize) == false) {
-				//CID 16205: Memory leak in case of failure
 				goto __CATCH_FAIL__;
 			}
 		} else {
@@ -1158,7 +1141,7 @@ char *MsgVMessageEncode(MSG_MESSAGE_INFO_S *pMsg)
 		int serializedDataSize = 0;
 
 		if (pMmsData) {
-			MsgMmsSetMultipartListData(pMmsData);//app file -> data
+			MsgMmsSetMultipartListData(pMmsData); /* app file -> data */
 			serializedDataSize = MsgSerializeMms(pMmsData, &pFileData);
 		}
 
@@ -1184,14 +1167,14 @@ char *MsgVMessageEncode(MSG_MESSAGE_INFO_S *pMsg)
 		}
 	}
 
-	// Insert parameter for base64 encoding
+	/* Insert parameter for base64 encoding */
 	MSG_DEBUG("before to start INSERT_PARAM");
 	INSERT_PARAM;
 	pObject->pParam = param;
 	param->parameter = VMSG_PARAM_ENCODING;
 	param->paramValue = VMSG_ENC_PARAM_BASE64;
 
-	// Add VCard tree for recipient address information.
+	/* Add VCard tree for recipient address information. */
 	for (int i = 0; i < pMsg->nAddressCnt; ++i) {
 		pCard = (VTree*)calloc(1, sizeof(VTree));
 		if ( !pCard )
@@ -1206,7 +1189,7 @@ char *MsgVMessageEncode(MSG_MESSAGE_INFO_S *pMsg)
 
 		INSERT_VCARD_OBJ;
 		pObject->property = VCARD_TYPE_TEL;
-		pObject->pszValue	[0] = strdup(pMsg->addressList[i].addressVal);
+		pObject->pszValue[0] = strdup(pMsg->addressList[i].addressVal);
 		pObject->valueCount = 1;
 	}
 	MSG_DEBUG("before to start vmsg_encode");
@@ -1217,14 +1200,13 @@ char *MsgVMessageEncode(MSG_MESSAGE_INFO_S *pMsg)
 	return encoded_data;
 
 __CATCH_FAIL__ :
-	vmsg_free_vtree_memory( pMessage );
+	vmsg_free_vtree_memory(pMessage);
 
 	return NULL;
 }
 
 char *MsgVMessageEncodeSMS(MSG_MESSAGE_INFO_S *pMsg)
 {
-
 	MSG_BEGIN();
 
 	char *buf = NULL;
@@ -1275,7 +1257,7 @@ bool __msgsvc_vmsg_convert_vdata_to_tm_str(const char* szText, struct tm * tm)
 	if (token && token[0]) {
 		g_strstrip(token[0]);
 		strptime(token[0], "%I:%M%p", tm);
-	}else {
+	} else {
 		g_strfreev(token);
 		return false;
 	}
@@ -1357,7 +1339,7 @@ static inline int __msgsvc_vmsg_check_quoted(char *src, int max, int *quoted)
 				*quoted = TRUE;
 				return TRUE;
 			}
-		}else if (':' == *src) {
+		} else if (':' == *src) {
 			break;
 		}
 		src++;
@@ -1717,7 +1699,7 @@ static char* __msgsvc_vmsg_remove_escape_char(char *str)
 				*r = *n;
 				s++;
 				break;
-			case 0xA1: // en/em backslash
+			case 0xA1: /* en/em backslash */
 				if (*(n+1) && 0xAC == *(n+1)) {
 					*r = *n;
 					r++;
@@ -1725,7 +1707,7 @@ static char* __msgsvc_vmsg_remove_escape_char(char *str)
 					s+=2;
 				}
 				break;
-			case 0x81:  // en/em backslash
+			case 0x81:  /* en/em backslash */
 				if (*(n+1) && 0x5F == *(n+1)) {
 					*r = *n;
 					r++;
@@ -1739,8 +1721,7 @@ static char* __msgsvc_vmsg_remove_escape_char(char *str)
 			}
 			r++;
 			s++;
-		}
-		else {
+		} else {
 			*r = *s;
 			r++;
 			s++;
@@ -1765,7 +1746,8 @@ static inline msg_error_t __msgsvc_vmsg_get_read_status(MSG_MESSAGE_INFO_S *pMsg
 		pMsg->bRead = false;
 	else
 		return MSG_ERR_INVALID_PARAMETER;
-	MSG_DEBUG("pMsg->bRead = %d",pMsg->bRead);
+
+	MSG_DEBUG("pMsg->bRead = %d", pMsg->bRead);
 	return MSG_SUCCESS;
 }
 
@@ -1780,22 +1762,21 @@ static inline msg_error_t __msgsvc_vmsg_get_msg_box(MSG_MESSAGE_INFO_S *pMsg, ch
 
 	if (strcmp(temp, content_name[VMSG_INDICATION_MSG_BOX_DRAFT]) == 0) {
 		pMsg->folderId = MSG_DRAFT_ID;
-		pMsg->direction=MSG_DIRECTION_TYPE_MO;
-		pMsg->networkStatus=MSG_NETWORK_NOT_SEND;
+		pMsg->direction = MSG_DIRECTION_TYPE_MO;
+		pMsg->networkStatus = MSG_NETWORK_NOT_SEND;
 	}
 	else if (strcmp(temp, content_name[VMSG_INDICATION_MSG_BOX_INBOX]) == 0) {
 		pMsg->folderId = MSG_INBOX_ID;
-		pMsg->direction=MSG_DIRECTION_TYPE_MT;
-		pMsg->networkStatus=MSG_NETWORK_RECEIVED;
-	}
-	else if (strcmp(temp, content_name[VMSG_INDICATION_MSG_BOX_SENT]) == 0) {
+		pMsg->direction = MSG_DIRECTION_TYPE_MT;
+		pMsg->networkStatus = MSG_NETWORK_RECEIVED;
+	} else if (strcmp(temp, content_name[VMSG_INDICATION_MSG_BOX_SENT]) == 0) {
 		pMsg->folderId = MSG_SENTBOX_ID;
-		pMsg->direction=MSG_DIRECTION_TYPE_MO;
-		pMsg->networkStatus=MSG_NETWORK_SEND_SUCCESS;
-	}
-	else
+		pMsg->direction = MSG_DIRECTION_TYPE_MO;
+		pMsg->networkStatus = MSG_NETWORK_SEND_SUCCESS;
+	} else
 		return MSG_ERR_INVALID_PARAMETER;
-	MSG_DEBUG("pMsg->folderId = %d",pMsg->folderId);
+
+	MSG_DEBUG("pMsg->folderId = %d", pMsg->folderId);
 	return MSG_SUCCESS;
 }
 
@@ -1814,18 +1795,19 @@ static inline msg_error_t __msgsvc_vmsg_get_msg_type(MSG_MESSAGE_INFO_S *pMsg, c
 		pMsg->msgType.classType = MSG_CLASS_NONE;
 	}
 	else if (strcmp(temp, content_name[VMSG_INDICATION_MESSAGE_TYPE_INET]) == 0) {
-		//To do
+		/* To do */
 	}
 	else
 		return MSG_ERR_INVALID_PARAMETER;
-	MSG_DEBUG("pMsg->msgType.subType = %d",pMsg->msgType.subType);
+
+	MSG_DEBUG("pMsg->msgType.subType = %d", pMsg->msgType.subType);
 	return MSG_SUCCESS;
 }
 
 static inline msg_error_t __msgsvc_vmsg_get_address(MSG_MESSAGE_INFO_S *pMsg, char *prefix, char *val, int* vCardCnt)
 {
 	char *temp;
-	MSG_DEBUG("vCardCnt is : %d",*vCardCnt);
+	MSG_DEBUG("vCardCnt is : %d", *vCardCnt);
 	if ((pMsg->folderId == MSG_SENTBOX_ID || pMsg->folderId == MSG_DRAFT_ID) && *vCardCnt == 1)
 		return MSG_SUCCESS;
 
@@ -1839,8 +1821,8 @@ static inline msg_error_t __msgsvc_vmsg_get_address(MSG_MESSAGE_INFO_S *pMsg, ch
 	MSG_ADDRESS_INFO_S * addrInfo = NULL;
 
 	pMsg->nAddressCnt++;
-	MSG_DEBUG("Address is : %s",temp);
-	MSG_DEBUG("Address Cnt : %d",pMsg->nAddressCnt);
+	MSG_DEBUG("Address is : %s", temp);
+	MSG_DEBUG("Address Cnt : %d", pMsg->nAddressCnt);
 
 
 	if (pMsg->addressList == NULL) {
@@ -1857,7 +1839,7 @@ static inline msg_error_t __msgsvc_vmsg_get_address(MSG_MESSAGE_INFO_S *pMsg, ch
 	pMsg->addressList[pMsg->nAddressCnt-1].addressType = MSG_ADDRESS_TYPE_PLMN;
 	pMsg->addressList[pMsg->nAddressCnt-1].recipientType = MSG_RECIPIENTS_TYPE_TO;
 	strncpy(pMsg->addressList[pMsg->nAddressCnt-1].addressVal, temp, MAX_ADDRESS_VAL_LEN);
-	MSG_DEBUG("pMsg->addressList[pMsg->nAddressCnt-1].addressVal = %s",pMsg->addressList[pMsg->nAddressCnt-1].addressVal);
+	MSG_DEBUG("pMsg->addressList[pMsg->nAddressCnt-1].addressVal = %s", pMsg->addressList[pMsg->nAddressCnt-1].addressVal);
 	return MSG_SUCCESS;
 }
 
@@ -1889,7 +1871,7 @@ static inline msg_error_t __msgsvc_vmsg_get_msg_subject(MSG_MESSAGE_INFO_S *pMsg
 
 	if (temp && temp[0] != '\0')
 		strncpy(pMsg->subject, temp, MAX_SUBJECT_LEN);
-	MSG_DEBUG("pMsg->subject = %s",pMsg->subject);
+	MSG_DEBUG("pMsg->subject = %s", pMsg->subject);
 	return MSG_SUCCESS;
 }
 
@@ -1953,13 +1935,12 @@ static inline msg_error_t __msgsvc_vmsg_get_msg(int ver, char *vmsg, MSG_MESSAGE
 		type =  __msgsvc_vmsg_check_content_type(&cursor);
 
 		if (VMSG_VALUE_NONE == type) {
-
 			if (isDateAvailable == true) {
 				isDateAvailable = false;
-				//body decoding
+				/* body decoding */
 				MSG_DEBUG("Decoding body :");
 				bodyStart = __msgsvc_vmsg_pass_unsupported(bodyStart);
-				int i =0;
+				int i = 0;
 				char tempMsgText[MAX_MSG_TEXT_LEN + 1] = {0, };
 				while (bodyStart) {
 					if (i >= MAX_MSG_TEXT_LEN)
@@ -1995,7 +1976,7 @@ static inline msg_error_t __msgsvc_vmsg_get_msg(int ver, char *vmsg, MSG_MESSAGE
 				g_free(prefix);
 				g_free(val);
 				return MSG_SUCCESS;
-			}else {
+			} else {
 				new_start =  __msgsvc_vmsg_pass_unsupported(cursor);
 				if (new_start) {
 					cursor = new_start;
@@ -2088,7 +2069,7 @@ msg_error_t MsgVMessageDecodeSMS(const char *vmsg_stream, MSG_MESSAGE_INFO_S *pM
 	vmsg  = __msgsvc_vmsg_check_word(vmsg, "BEGIN:VMSG");
 	MSG_ERR_RET_VM(NULL == vmsg, MSG_ERR_INVALID_PARAMETER, "Invalid parameter : The vmsg is invalid.");
 
-	//check for mms()
+	/* check for mms() */
 	MMSsend = vmsg;
 	MMSretrieve = vmsg;
 	MMSnoti = vmsg;
@@ -2102,7 +2083,7 @@ msg_error_t MsgVMessageDecodeSMS(const char *vmsg_stream, MSG_MESSAGE_INFO_S *pM
 	MMSnoti = __msgsvc_vmsg_check_word(MMSnoti, "X-MESSAGE-TYPE:MMS NOTIFICATION");
 	MSG_ERR_RET_VM(NULL != MMSnoti, MSG_ERR_INVALID_MESSAGE, "Invalid parameter : The vmsg format is invalid.");
 
-	//decode sms()
+	/* decode sms() */
 	__msgsvc_vmsg_initial();
 
 	vmsg = __msgsvc_vmsg_check_word(vmsg, "VERSION:1.1");

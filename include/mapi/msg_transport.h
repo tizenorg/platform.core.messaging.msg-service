@@ -554,5 +554,5 @@ int msg_mms_reject_message(msg_handle_t handle, msg_struct_t req);
 }
 #endif
 
-#endif // MAPI_TRANSPORT_H
+#endif /* MAPI_TRANSPORT_H */
 

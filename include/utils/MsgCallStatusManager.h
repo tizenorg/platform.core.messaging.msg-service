@@ -37,5 +37,5 @@ void MsgInitCallStatusManager();
 void MsgDeInitCallStatusManager();
 int MsgGetCallStatus();
 
-#endif // MSG_CALL_STATUS_MANAGER_H
+#endif /* MSG_CALL_STATUS_MANAGER_H */
 

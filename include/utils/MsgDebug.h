@@ -44,123 +44,105 @@
 
 /*log macros*/
 #define MSG_BEGIN()\
-	do\
-	{\
+	do { \
 		SLOGD(" BEGIN >>>> \n");\
-	} while(0)
+	} while (0)
 
 #define MSG_END()\
-	do\
-	{\
+	do { \
 		SLOGD(" END   <<<<  \n");\
-	} while(0)
+	} while (0)
 
 #define MSG_DEBUG(fmt, ...)\
-	do\
-	{\
+	do { \
 		SLOGD(fmt"\n", ##__VA_ARGS__);\
-	} while(0)
+	} while (0)
 
 #define MSG_INFO(fmt, ...)\
-	do\
-	{\
+	do { \
 		SLOGI("* Info * " fmt "\n", ##__VA_ARGS__);\
-	} while(0)
+	} while (0)
 
 #define MSG_WARN(fmt, ...)\
-	do\
-	{\
+	do { \
 		SLOGW("* Warning * " fmt "\n", ##__VA_ARGS__);\
-	} while(0)
+	} while (0)
 
 #define MSG_ERR(fmt, ...)\
-	do\
-	{\
+	do { \
 		SLOGE("* Error * " fmt "\n", ##__VA_ARGS__);\
-	} while(0)
+	} while (0)
 
 #define MSG_FATAL(fmt, ...)\
-	do\
-	{\
+	do { \
 		SLOGE(" ERROR << " fmt " >>\n", ##__VA_ARGS__);\
-	} while(0)
+	} while (0)
 
 /*secure log macros*/
 #define MSG_SEC_DEBUG(fmt, ...)\
-	do\
-	{\
+	do { \
 		SECURE_SLOGD(fmt"\n", ##__VA_ARGS__);\
 	} while (0)
 
 #define MSG_SEC_INFO(fmt, ...)\
-	do\
-	{\
+	do { \
 		SECURE_SLOGI("* Info * " fmt"\n", ##__VA_ARGS__);\
 	} while (0)
 
 #define MSG_SEC_ERR(fmt, ...)\
-	do\
-	{\
+	do { \
 		SECURE_LOG(LOG_ERROR, LOG_TAG, "* Error *" fmt "\n", ##__VA_ARGS__);\
 	} while (0)
 
 /*valid data log macros*/
 #define MSG_SMS_VLD_INFO(fmt, ...)\
-	do\
-	{\
+	do { \
 		SLOG(LOG_DEBUG, MSG_SMS_VALID_TAG, "[SMS INFO]%s, " fmt "\n", __TIMESTAMP__, ##__VA_ARGS__);\
 	} while (0)
 
 #define MSG_SMS_VLD_TXT(fmt, ...)\
-	do\
-	{\
+	do { \
 		SLOG(LOG_DEBUG, MSG_SMS_VALID_TAG, "[SMS_TEXT]%s, " fmt "\n", __TIMESTAMP__, ##__VA_ARGS__);\
 	} while (0)
 
 #define MSG_MMS_VLD_INFO(fmt, ...)\
-	do\
-	{\
+	do { \
 		SLOG(LOG_DEBUG, MSG_MMS_VALID_TAG, "[MMS INFO]%s, " fmt "\n", __TIMESTAMP__, ##__VA_ARGS__);\
 	} while (0)
 
 #define MSG_MMS_VLD_TXT(fmt, ...)\
-	do\
-	{\
+	do { \
 		SLOG(LOG_DEBUG, MSG_MMS_VALID_TAG, "[MMS TEXT]%s, " fmt "\n", __TIMESTAMP__, ##__VA_ARGS__);\
 	} while (0)
 
 #define MSG_MMS_VLD_FILE(fmt, ...)\
-	do\
-	{\
+	do { \
 		SLOG(LOG_DEBUG, MSG_MMS_VALID_TAG, "[MMS FILE]%s, " fmt "\n", __TIMESTAMP__, ##__VA_ARGS__);\
 	} while (0)
 
 /*err & warn return message log macros*/
 #define MSG_ERR_RET_VM(expr, val, fmt, ...)\
-	do\
-	{\
+	do { \
 		if (expr) {\
 			MSG_ERR(fmt, ##__VA_ARGS__);\
 			return (val);\
 		}\
-	} while(0)
+	} while (0)
 
 #define MSG_ERR_RET_M(expr, fmt, ...)\
-	do\
-	{\
+	do { \
 		if (expr) {\
 			MSG_ERR(fmt, ##__VA_ARGS__);\
 			return;\
 		}\
-	} while(0)
+	} while (0)
 
 #define MSG_WARN_M(expr, fmt, ...)\
-	do\
-	{\
+	do { \
 		if (expr) {\
 			MSG_WARN(fmt, ##__VA_ARGS__);\
 		}\
-	} while(0)
+	} while (0)
 
 /*profile log macros*/
 #define MSG_PROFILE_BEGIN(pfid) \
@@ -178,12 +160,12 @@
 		long __ds = __prf_2_##pfid.tv_sec - __prf_1_##pfid.tv_sec;\
 		long __dm = __prf_2_##pfid.tv_usec - __prf_1_##pfid.tv_usec;\
 		if ( __dm < 0 ) { __ds--; __dm = 1000000 + __dm; } \
-		SLOGD("**PROFILE** [MSGFW: %s: %s() %u ~ %u] " #pfid " -> Elapsed Time: %u.%06u seconds\n",\
-		rindex(__FILE__, '/')+1,\
+		SLOGD("**PROFILE** [MSGFW: %s: %s() %u ~ %u] " #pfid " -> Elapsed Time: %u.%06u seconds\n", \
+		rindex(__FILE__, '/')+1, \
 		__FUNCTION__, \
-		__prf_l1_##pfid,\
-		__prf_l2_##pfid,\
-		(unsigned int)(__ds),\
+		__prf_l1_##pfid, \
+		__prf_l2_##pfid, \
+		(unsigned int)(__ds), \
 		(unsigned int)(__dm));\
 	} while (0)
 
@@ -192,29 +174,25 @@
 int get_tid();
 
 #define MSG_FATAL(fmt, ...) \
-	do \
-	{\
+	do { \
 		printf("\n[%d] [MSGFW: %s: %s(): %d] *FAILED* << " fmt" >>\n", get_tid(), rindex(__FILE__, '/')+1,  __FUNCTION__, __LINE__,  ##__VA_ARGS__);\
 	} while (0)
 
 #define MSG_DEBUG(fmt, ...) \
-	do\
-	{\
+	do { \
 		printf("\n[%d] [MSGFW: %s: %s(): %d] " fmt"\n", get_tid(), rindex(__FILE__, '/')+1, __FUNCTION__, __LINE__, ##__VA_ARGS__);\
 	} while (0)
 
 #define MSG_BEGIN() \
-	do\
-    {\
-        printf("\n[%d] BEGIN >>>> %s() at [MSGFW: %s: %d]\n", get_tid(),__FUNCTION__, rindex(__FILE__, '/')+1,  __LINE__ );\
-    } while( 0 )
+	do { \
+        printf("\n[%d] BEGIN >>>> %s() at [MSGFW: %s: %d]\n", get_tid(), __FUNCTION__, rindex(__FILE__, '/')+1,  __LINE__);\
+    } while (0)
 
 #define MSG_END() \
-	do\
-    {\
+	do { \
         printf("\n[%d] END   <<<< %s() at [MSGFW: %s: %d]\n", get_tid(), __FUNCTION__, rindex(__FILE__, '/')+1,  __LINE__); \
     } \
-    while( 0 )
+    while (0)
 
 #define MSG_PROFILE_BEGIN(pfid) \
 	unsigned int __prf_l1_##pfid = __LINE__;    \
@@ -278,7 +256,7 @@ int get_tid();
 
 #define MSG_FREE(x) \
 	({\
-		if (x != NULL){\
+		if (x != NULL) {\
 		free(x);\
 		x = NULL;}\
 	})
@@ -291,5 +269,5 @@ int get_tid();
 const char * MsgDbgCmdStr(MSG_CMD_TYPE_T cmdType);
 const char * MsgDbgEvtStr(MSG_EVENT_TYPE_T evtType);
 
-#endif //__MSG_DEBUG_H__
+#endif /*__MSG_DEBUG_H__ */
 

@@ -39,14 +39,14 @@
 #define MSG_THUMBNAIL_PATH		MSG_DATA_PATH"thumbnails/"
 
 
-// temporary
+/* temporary */
 #define MSG_SIM_MSISDN	"memory/private/msg-service/msisdn"
 
-#define MAX_FULL_PATH_SIZE		320	// max length for internal file path
+#define MAX_FULL_PATH_SIZE		320	/* max length for internal file path */
 #define MAX_THREAD_ADDR_LEN	40
 #define MAX_THREAD_NAME_LEN	195
 #define MAX_THREAD_DATA_LEN	128
-#define MAX_CB_MSG_TEXT_LEN	4200	// 1page max char(93)*max page(15)*max bytes of UTF8 1 char(3)
+#define MAX_CB_MSG_TEXT_LEN	4200	/* 1page max char(93)*max page(15)*max bytes of UTF8 1 char(3) */
 #define MAX_CB_MSG_LANGUAGE_TYPE_LEN	3
 #define MAX_ETWS_WARNING_SECURITY_INFO_LEN	50
 #define MAX_ME_IMEI_LEN		20
@@ -88,7 +88,7 @@
 #define DEFAULT_SIM_COUNT_PATH			DEFAULT_SETTING_PATH"/sim_count"
 
 #define MSG_KEEP_COPY				DEFAULT_GENERAL_OPT_PATH"/keep_copy"
-//#define MSG_ALERT_REP_TYPE			DEFAULT_GENERAL_OPT_PATH"/alert_rep_type"
+/* #define MSG_ALERT_REP_TYPE			DEFAULT_GENERAL_OPT_PATH"/alert_rep_type" */
 #define MSG_ALERT_REP_TYPE			"db/setting/sound/noti/msg_alert_rep_type"
 #define MSG_AUTO_ERASE				DEFAULT_GENERAL_OPT_PATH"/auto_erase"
 #define MSG_BLOCK_MESSAGE		DEFAULT_GENERAL_OPT_PATH"/block_msg"
@@ -247,7 +247,9 @@ typedef struct
 	MSG_MESSAGE_TYPE_S		msgType;										/**< Indicates the message type such as SMS and MMS */
 	msg_storage_id_t		storageId;										/**< Indicates where the message is saved. */
 	int						nAddressCnt;									/**< Indicates the count of addresses. */
-//	MSG_ADDRESS_INFO_S		addressList[MAX_TO_ADDRESS_CNT];				/**< Indicates the address information list. */
+#if 0
+	MSG_ADDRESS_INFO_S		addressList[MAX_TO_ADDRESS_CNT];				/**< Indicates the address information list. */
+#endif
 	MSG_ADDRESS_INFO_S		*addressList;				/**< Indicates the address information list. */
 	char					replyAddress[MAX_PHONE_NUMBER_LEN+1];			/**< Indicates the reply address. */
 	char					subject[MAX_SUBJECT_LEN+1];						/**< Indicates the message subject. */
@@ -354,7 +356,7 @@ typedef struct
 	size_t								textSize;								/**< Indicates the data size. The unit is byte. */
 	char									*pText;									/**< Indicates the message payload information as a body. default character encoding is UTF-8*/
 	int tcs_bc_level;
-	char									firstMediaPath[MSG_FILEPATH_LEN_MAX+1]; // First Media Path in mms;
+	char									firstMediaPath[MSG_FILEPATH_LEN_MAX+1]; /**< First Media Path in mms; */
 	msg_list_handle_t multipart_list;
 	int								simIndex;
 } MSG_CONVERSATION_VIEW_S;
@@ -499,10 +501,10 @@ typedef struct
 	time_t					receivedTime;
 
 	unsigned short			serialNum;
-	unsigned short			messageId;	// Message Identifier
-	unsigned char			dcs;		// data coding scheme
-	int						cbTextLen;	// length of cbText
-	unsigned char			cbText[MAX_CB_MSG_TEXT_LEN];// cb message text (UTF8)
+	unsigned short			messageId;	/**< Message Identifier */
+	unsigned char			dcs;		/**< data coding scheme */
+	int						cbTextLen;	/**< length of cbText */
+	unsigned char			cbText[MAX_CB_MSG_TEXT_LEN]; /**< cb message text (UTF8) */
 
 	unsigned short			etwsWarningType;
 	unsigned char			etwsWarningSecurityInfo[MAX_ETWS_WARNING_SECURITY_INFO_LEN];
@@ -523,7 +525,7 @@ typedef struct
 {
 	time_t					receivedTime;
 	unsigned short			serialNum;
-	unsigned short			messageId;	// Message Identifier
+	unsigned short			messageId;	/**< Message Identifier */
 } MSG_CB_DUPLICATE_S;
 #endif
 

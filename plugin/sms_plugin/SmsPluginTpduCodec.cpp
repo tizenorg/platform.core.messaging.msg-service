@@ -32,15 +32,11 @@
 ==================================================================================================*/
 SmsPluginTpduCodec::SmsPluginTpduCodec()
 {
-
-
 }
 
 
 SmsPluginTpduCodec::~SmsPluginTpduCodec()
 {
-
-
 }
 
 
@@ -192,8 +188,7 @@ int SmsPluginTpduCodec::encodeSubmit(const SMS_SUBMIT_S *pSubmit, char *pTpdu)
 
 #if 0
 	printf("\n\n[encodeSubmit] pTpdu data.\n");
-	for (int i = 0; i < offset; i++)
-	{
+	for (int i = 0; i < offset; i++) {
 		printf(" [%02x]", pTpdu[i]);
 	}
 	printf("\n\n");
@@ -532,7 +527,7 @@ int SmsPluginTpduCodec::decodeDeliver(const unsigned char *pTpdu, int TpduLen, S
 	}
 
 #else
-	//For alphanumeric address test
+	/* For alphanumeric address test */
 
 	offset += SmsPluginParamCodec::decodeAddress(&pTpdu[offset], &(pDeliver->originAddress));
 
@@ -558,7 +553,7 @@ int SmsPluginTpduCodec::decodeDeliver(const unsigned char *pTpdu, int TpduLen, S
 	pDeliver->pid = 0x20;
 	offset++;
 	offset += SmsPluginParamCodec::decodeDCS((unsigned char*)address, &(pDeliver->dcs));
-	// end test
+	/* end test */
 #endif
 
 	if (pDeliver->pid == 0x20 && pDeliver->originAddress.ton == SMS_TON_ALPHANUMERIC) {
@@ -600,8 +595,7 @@ int SmsPluginTpduCodec::decodeStatusReport(const unsigned char *pTpdu, int TpduL
 #ifdef LOG_ENABLE
 	printf("\n\n[decodeStatusReport] pTpdu data - Length [%d]\n", TpduLen);
 
-	for (int i = 0; i < TpduLen; i++)
-	{
+	for (int i = 0; i < TpduLen; i++) {
 		printf(" [%02x]", pTpdu[i]);
 	}
 	printf("\n\n");

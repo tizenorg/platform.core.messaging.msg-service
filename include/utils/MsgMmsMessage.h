@@ -69,7 +69,7 @@ void MsgMmsRelease(MMS_DATA_S **ppMmsData);
 
 int MsgMmsReleaseMultipartList(MMSList **ppMultipartList);
 
-int MsgMmsGetSmilMultipart(MMSList *pMultipartList, MMS_MULTIPART_DATA_S **smil_multipart);//TODO : delete
+int MsgMmsGetSmilMultipart(MMSList *pMultipartList, MMS_MULTIPART_DATA_S **smil_multipart); /*TODO : delete */
 
 int MsgMmsConvertMmsDataToMmsMessageData(MMS_DATA_S *pSrc, MMS_MESSAGE_DATA_S *pDst);
 
@@ -86,7 +86,7 @@ int MsgMmsSetMultipartListData(MMS_DATA_S *pMmsData);
 int MsgMmsSetMultipartListFilePath(const char *dirPath, MMS_DATA_S *pMmsData);
 
 int printMultipart(MMS_MULTIPART_DATA_S *multipart);
-int printMultipartList(MMSList *pMultipartList);//for debug
+int printMultipartList(MMSList *pMultipartList); /*for debug */
 
 void _MsgMmsMultipartPrint(MMS_MULTIPART_DATA_S *multipart);
 
@@ -94,4 +94,4 @@ bool  _MsgMmsRemoveEmptyObject(MMS_MESSAGE_DATA_S *pMmsMsg);
 
 int MsgMmsCheckFilepathSmack(int fd, const char *ipc_filename);
 
-#endif // MSG_MMS_MESSAGE_H
+#endif /* MSG_MMS_MESSAGE_H */

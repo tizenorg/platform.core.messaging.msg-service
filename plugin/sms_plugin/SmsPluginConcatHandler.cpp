@@ -301,7 +301,6 @@ void SmsPluginConcatHandler::handleSimConcatMsg(TapiHandle *handle, SMS_TPDU_S *
 			dataSize = makeConcatUserData(msg.msgRef, msg.simIndex, &pUserData, msg.originAddress.address);
 
 			if (dataSize > 0) {
-
 				convertConcatToMsginfo(&(pTpdu->data.deliver), pUserData, dataSize, &msgInfo);
 				/* set Sim Message ID */
 				msgInfo.msgId = msgId;
@@ -315,8 +314,7 @@ void SmsPluginConcatHandler::handleSimConcatMsg(TapiHandle *handle, SMS_TPDU_S *
 				if (concatList[index].msgRef == msg.msgRef && concatList[index].simIndex == msg.simIndex
 					&& g_strcmp0(concatList[index].originAddress.address, msg.originAddress.address) == 0) {
 					memcpy(simIdList, concatList[index].simIdList, sizeof(int) * MAX_SIM_SMS_NUM);
-					for (int i = 0; i < 255; ++i)
-					{
+					for (int i = 0; i < 255; ++i) {
 						MSG_DEBUG("sim id [%d]", simIdList[i]);
 					}
 					break;
@@ -848,7 +846,7 @@ void SmsPluginConcatHandler::convertConcatToMsginfo(const SMS_DELIVER_S *pTpdu, 
 	/** Convert Data values */
 	MsgTextConvert *textCvt = MsgTextConvert::instance();
 	if (pTpdu->dcs.codingScheme == SMS_CHARSET_7BIT) {
-		MSG_LANG_INFO_S langInfo = {0,};
+		MSG_LANG_INFO_S langInfo = {0, };
 
 		langInfo.bSingleShift = false;
 		langInfo.bLockingShift = false;
@@ -976,7 +974,7 @@ void SmsPluginConcatHandler::convertConcatToMsginfo(const SMS_SUBMIT_S *pTpdu, c
 	/** Convert Data values */
 	MsgTextConvert *textCvt = MsgTextConvert::instance();
 	if (pTpdu->dcs.codingScheme == SMS_CHARSET_7BIT) {
-		MSG_LANG_INFO_S langInfo = {0,};
+		MSG_LANG_INFO_S langInfo = {0, };
 
 		langInfo.bSingleShift = false;
 		langInfo.bLockingShift = false;

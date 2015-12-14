@@ -207,8 +207,7 @@ msg_error_t MsgStoCleanAbnormalMmsData()
 	}
 
 
-	for (int i = 0; i < rowCnt; i++)
-	{
+	for (int i = 0; i < rowCnt; i++) {
 		memset(filePath, 0x00, sizeof(filePath));
 
 		msgId = dbHandle->getColumnToInt(index++);
@@ -227,7 +226,6 @@ msg_error_t MsgStoCleanAbnormalMmsData()
 				MsgStoDeleteMessage(msgId, false);
 			}
 		}
-
 	}
 	dbHandle->freeTable();
 
@@ -268,7 +266,6 @@ msg_error_t MsgStoAutoDeleteConversation(msg_thread_id_t threadId, msg_id_list_s
 	MsgSettingGetBool(MSG_AUTO_ERASE, &bAutoErase);
 
 	if (bAutoErase) {
-
 		MSG_DEBUG("threadId [%d]", threadId);
 
 		//msg_id_list_s msgIdList;
@@ -361,10 +358,10 @@ msg_error_t MsgStoAutoDeleteConversation(msg_thread_id_t threadId, msg_id_list_s
 				MSGFW_MESSAGE_TABLE_NAME,
 				MSGFW_MESSAGE_TABLE_NAME,
 				threadId, MSG_ALLBOX_ID, MSG_SPAMBOX_ID, MSG_STORAGE_PHONE,
-				MSG_SMS_TYPE, ((currentSmsCnt-limitSmsCnt)>0)?(currentSmsCnt-limitSmsCnt):0,
+				MSG_SMS_TYPE, ((currentSmsCnt-limitSmsCnt) > 0)?(currentSmsCnt-limitSmsCnt):0,
 				MSGFW_MESSAGE_TABLE_NAME,
 				threadId, MSG_ALLBOX_ID, MSG_SPAMBOX_ID, MSG_STORAGE_PHONE,
-				MSG_MMS_TYPE, MSG_DELIVERYIND_MMS, MSG_READRECIND_MMS, MSG_READORGIND_MMS, ((currentMmsCnt-limitMmsCnt)>0)?(currentMmsCnt-limitMmsCnt):0);
+				MSG_MMS_TYPE, MSG_DELIVERYIND_MMS, MSG_READRECIND_MMS, MSG_READORGIND_MMS, ((currentMmsCnt-limitMmsCnt) > 0)?(currentMmsCnt-limitMmsCnt):0);
 #else
 		snprintf(sqlQuery, sizeof(sqlQuery),
 				"SELECT DISTINCT(MSG_ID) FROM %s "
@@ -379,10 +376,10 @@ msg_error_t MsgStoAutoDeleteConversation(msg_thread_id_t threadId, msg_id_list_s
 				MSGFW_MESSAGE_TABLE_NAME,
 				MSGFW_MESSAGE_TABLE_NAME,
 				threadId, MSG_ALLBOX_ID, MSG_CBMSGBOX_ID, MSG_STORAGE_PHONE,
-				MSG_SMS_TYPE, ((currentSmsCnt-limitSmsCnt)>0)?(currentSmsCnt-limitSmsCnt):0,
+				MSG_SMS_TYPE, ((currentSmsCnt-limitSmsCnt) > 0)?(currentSmsCnt-limitSmsCnt):0,
 				MSGFW_MESSAGE_TABLE_NAME,
 				threadId, MSG_ALLBOX_ID, MSG_CBMSGBOX_ID, MSG_STORAGE_PHONE,
-				MSG_MMS_TYPE, MSG_DELIVERYIND_MMS, MSG_READRECIND_MMS, MSG_READORGIND_MMS, ((currentMmsCnt-limitMmsCnt)>0)?(currentMmsCnt-limitMmsCnt):0);
+				MSG_MMS_TYPE, MSG_DELIVERYIND_MMS, MSG_READRECIND_MMS, MSG_READORGIND_MMS, ((currentMmsCnt-limitMmsCnt) > 0)?(currentMmsCnt-limitMmsCnt):0);
 #endif
 		err = dbHandle->getTable(sqlQuery, &rowCnt, &index);
 
@@ -526,7 +523,6 @@ msg_error_t MsgStoAddWAPMsg(MSG_MESSAGE_INFO_S *pMsgInfo)
 	dbHandle->beginTrans();
 
 	if (pMsgInfo->nAddressCnt > 0) {
-
 		err = MsgStoAddAddress(dbHandle, pMsgInfo, &convId);
 
 		if (err != MSG_SUCCESS) {
@@ -605,7 +601,6 @@ msg_error_t MsgStoAddCOWAPMsg(MSG_MESSAGE_INFO_S *pMsgInfo)
 	pPushMsg = (MSG_PUSH_CACHEOP_S*)pFileData;
 
 	for (int i = 0; i < pPushMsg->invalObjectCnt; i++) {
-
 		int msgid = -1;
 
 		memset(href, 0x00, sizeof(href));
@@ -619,7 +614,6 @@ msg_error_t MsgStoAddCOWAPMsg(MSG_MESSAGE_INFO_S *pMsgInfo)
 		err = dbHandle->prepareQuery(sqlQuery);
 
 		if ((dbHandle->stepQuery() == MSG_ERR_DB_ROW) && err == MSG_SUCCESS) {
-
 			msgid = dbHandle->columnInt(0);
 
 			memset(sqlQuery, 0x00, sizeof(sqlQuery));
@@ -663,7 +657,6 @@ msg_error_t MsgStoAddCOWAPMsg(MSG_MESSAGE_INFO_S *pMsgInfo)
 	}
 
 	for (int i = 0; i < pPushMsg->invalServiceCnt; i++) {
-
 		int msgid = -1;
 
 		memset(href, 0x00, sizeof(href));
@@ -677,7 +670,6 @@ msg_error_t MsgStoAddCOWAPMsg(MSG_MESSAGE_INFO_S *pMsgInfo)
 		err = dbHandle->prepareQuery(sqlQuery);
 
 		if ((dbHandle->stepQuery() == MSG_ERR_DB_ROW) && err == MSG_SUCCESS) {
-
 			msgid = dbHandle->columnInt(0);
 
 			memset(sqlQuery, 0x00, sizeof(sqlQuery));
@@ -848,13 +840,12 @@ msg_error_t MsgStoUpdateAllAddress()
 	if (err == MSG_ERR_DB_NORECORD) {
 		dbHandle->freeTable();
 		return MSG_SUCCESS;
-	} else if ( err != MSG_SUCCESS) {
+	} else if (err != MSG_SUCCESS) {
 		dbHandle->freeTable();
 		return err;
 	}
 
 	for (int i = 0; i < rowCnt; i++) {
-
 		err = MsgStoUpdateConversation(dbHandle, index++);
 
 		if (err != MSG_SUCCESS)

@@ -49,22 +49,22 @@ msg_error_t MsgIpcClientSocket::connect(const char* path)
 	sockfd = socket(AF_UNIX, SOCK_STREAM, 0);
 
 	if (sockfd < 0) {
-		THROW(MsgException::IPC_ERROR,"socket not opened %s",g_strerror(errno));
+		THROW(MsgException::IPC_ERROR, "socket not opened %s", g_strerror(errno));
 	}
 
 	struct sockaddr_un serverSA = {0, };
 	serverSA.sun_family = AF_UNIX;
 
 	memset(serverSA.sun_path, 0x00, sizeof(serverSA.sun_path));
-	strncpy(serverSA.sun_path, path, sizeof(serverSA.sun_path)-1);  /* // "./socket" */
+	strncpy(serverSA.sun_path, path, sizeof(serverSA.sun_path)-1);
 
 	int len = strlen(serverSA.sun_path) + sizeof(serverSA.sun_family);
 
 	if (::connect(sockfd, (struct sockaddr *)&serverSA, len) == CUSTOM_SOCKET_ERROR) {
 		if(errno == EACCES)
-			THROW(MsgException::SECURITY_ERROR,"cannot connect server %s", g_strerror(errno));
+			THROW(MsgException::SECURITY_ERROR, "cannot connect server %s", g_strerror(errno));
 		else
-			THROW(MsgException::IPC_ERROR,"cannot connect server %s", g_strerror(errno));
+			THROW(MsgException::IPC_ERROR, "cannot connect server %s", g_strerror(errno));
 	}
 
 	/* add fd for select() */
@@ -82,7 +82,7 @@ msg_error_t MsgIpcClientSocket::connect(const char* path)
 	read(&rfd, &rlen);
 
 	if (rfd == NULL) {
-		THROW(MsgException::IPC_ERROR,"rfd is NULL %s", g_strerror(errno));
+		THROW(MsgException::IPC_ERROR, "rfd is NULL %s", g_strerror(errno));
 	}
 
 	memcpy(&remotefd, rfd, sizeof(rlen));
@@ -125,7 +125,7 @@ void MsgIpcClientSocket::addfd(int fd)
 		maxfd = fd;
 }
 
-int MsgIpcClientSocket::writen (const char *buf, unsigned int len)
+int MsgIpcClientSocket::writen(const char *buf, unsigned int len)
 {
 	unsigned int nleft;
 	int nwrite;
@@ -175,7 +175,7 @@ int MsgIpcClientSocket::write(const char* buf, unsigned int len)
 	return len;
 }
 
-int MsgIpcClientSocket::readn( char *buf, unsigned int len )
+int MsgIpcClientSocket::readn(char *buf, unsigned int len )
 {
 	unsigned int nleft;
 	int nread;
@@ -188,7 +188,7 @@ int MsgIpcClientSocket::readn( char *buf, unsigned int len )
 		if (nread < 0) {
 			MSG_FATAL("WARNING read value %d: %s", nread, g_strerror(errno));
 			return nread;
-		} else if( nread == 0 ) {
+		} else if (nread == 0) {
 			break;
 		}
 
@@ -200,14 +200,14 @@ int MsgIpcClientSocket::readn( char *buf, unsigned int len )
 	return (len-nleft);
 }
 
-bool MsgIpcClientSocket::wait_for_reply ()
+bool MsgIpcClientSocket::wait_for_reply()
 {
 	int err = -1;
 	fd_set fds;
 	struct timeval tv;
 
 	if (sockfd < 0) {
-		MSG_FATAL ("Invalid file description : [%d]", sockfd);
+		MSG_FATAL("Invalid file description : [%d]", sockfd);
 		return false;
 	}
 
@@ -217,14 +217,14 @@ bool MsgIpcClientSocket::wait_for_reply ()
 	tv.tv_sec  = 5; /* should be tuned */
 	tv.tv_usec = 0;
 
-	MSG_DEBUG ("wait for response [%d]", sockfd);
+	MSG_DEBUG("wait for response [%d]", sockfd);
 	err = select(sockfd + 1, &fds, NULL, NULL, &tv);
 	if (err == -1) {
 		MSG_FATAL("select error[%d] fd[%d]", errno, sockfd);
 		return false;
 	}
 	else if (err == 0) {
-		MSG_FATAL ("select timeout fd[%d]", sockfd);
+		MSG_FATAL("select timeout fd[%d]", sockfd);
 		return false;
 	}
 
@@ -418,7 +418,7 @@ void MsgIpcServerSocket::close(int fd)
 	if (fd == maxfd) {
 		int newmax = 0;
 		for (it = mapFds.begin() ; it != mapFds.end() ; it++)
-			newmax = (it->second > newmax )? it->second : newmax;
+			newmax = (it->second > newmax)? it->second : newmax;
 		maxfd = newmax;
 	}
 	MSG_DEBUG("fd %d removal done", fd);
@@ -427,7 +427,7 @@ void MsgIpcServerSocket::close(int fd)
 	MSG_END();
 }
 
-int MsgIpcServerSocket::readn( int fd, char *buf, unsigned int len )
+int MsgIpcServerSocket::readn(int fd, char *buf, unsigned int len )
 {
 	size_t nleft;
 	int nread;

@@ -57,7 +57,7 @@ void MsgGetMsgSizeOpt(MSG_SETTING_S *pSetting);
 msg_error_t MsgSetConfigInSim(const MSG_SETTING_S *pSetting);
 msg_error_t MsgGetConfigInSim(MSG_SETTING_S *pSetting);
 
-//void MsgSetDefaultConfig();
+/* void MsgSetDefaultConfig(); */
 
 #endif
 

@@ -121,6 +121,7 @@ static gboolean MsgSoundMelodyTimeout(gpointer data)
 }
 */
 
+#if 0
 static int MsgSoundPlayCallback(int message, void *param, void *user_param)
 {
 #ifdef _USE_MM_FW_
@@ -149,6 +150,7 @@ static int MsgSoundPlayCallback(int message, void *param, void *user_param)
 #endif
 	return 1;
 }
+#endif
 
 /*==================================================================================================
                                      IMPLEMENTATION OF MsgSoundPlayer - Member Functions
@@ -190,7 +192,6 @@ MsgSoundPlayer::MsgSoundPlayer()
 
 MsgSoundPlayer::~MsgSoundPlayer()
 {
-
 }
 
 
@@ -254,7 +255,6 @@ void MsgSoundPlayer::MsgGetRingtonePath(char *userRingtonePath, char **msg_tone_
 		tmpFilePath = NULL;
 	}
 #endif /* MSG_WEARABLE_PROFILE */
-
 }
 
 
@@ -358,7 +358,7 @@ void MsgSoundPlayer::MsgGetPlayStatus(bool bVoiceMail, bool *bPlaySound, bool *b
 	bool bMsgSettingNoti = true; /* Alert for message notification */
 	bool bMsgSettingVibration = false; /* vibration for message notification */
 
-	MSG_RINGTONE_TYPE_T ringtoneType = MSG_RINGTONE_TYPE_DEFAULT; //sound type for message notification
+	MSG_RINGTONE_TYPE_T ringtoneType = MSG_RINGTONE_TYPE_DEFAULT; /*sound type for message notification */
 	bool bMsgSettingSound = true;
 
 	MsgSettingGetBool(MSG_SETTING_VIBRATION, &bMsgSettingVibration);
@@ -563,7 +563,7 @@ void MsgSoundPlayer::MsgSoundPlayStop()
 
 	pthread_mutex_lock(&muMmPlay);
 
-	if (bPlaying == true && hPlayerHandle != 0 ) {
+	if (bPlaying == true && hPlayerHandle != 0) {
 		MSG_DEBUG("stopping the player.");
 		/* Stop playing media contents */
 		int err = mm_player_stop(hPlayerHandle);

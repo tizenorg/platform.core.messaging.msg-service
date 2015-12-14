@@ -45,7 +45,6 @@ SmsPluginStorage::SmsPluginStorage()
 
 SmsPluginStorage::~SmsPluginStorage()
 {
-
 }
 
 
@@ -89,7 +88,6 @@ msg_error_t SmsPluginStorage::insertMsgRef(MSG_MESSAGE_INFO_S *pMsg, unsigned ch
 	MSG_END();
 
 	return MSG_SUCCESS;
-
 }
 
 
@@ -230,13 +228,13 @@ msg_error_t SmsPluginStorage::updateSentMsg(MSG_MESSAGE_INFO_S *pMsgInfo, msg_ne
 		MSG_DEBUG("MsgExecQuery() : [%s]", sqlQuery);
 		return MSG_ERR_DB_EXEC;
 	}
-	//contacts-service is not used for gear
+
 #ifndef MSG_CONTACTS_SERVICE_NOT_SUPPORTED
 	if (status == MSG_NETWORK_SEND_SUCCESS) {
 		MSG_DEBUG("MsgAddPhoneLog() : folderId [%d]", pMsgInfo->folderId);
 		MsgAddPhoneLog(pMsgInfo);
 	}
-#endif //MSG_CONTACTS_SERVICE_NOT_SUPPORTED
+#endif /* MSG_CONTACTS_SERVICE_NOT_SUPPORTED */
 	MSG_END();
 
 	return MSG_SUCCESS;
@@ -353,7 +351,6 @@ msg_error_t SmsPluginStorage::addSimMessage(MSG_MESSAGE_INFO_S *pSimMsgInfo, int
 	}
 
 	return err;
-
 }
 
 
@@ -423,7 +420,7 @@ msg_error_t SmsPluginStorage::checkMessage(MSG_MESSAGE_INFO_S *pMsgInfo)
 				(pMsgInfo->msgType.subType == MSG_NORMAL_SMS || pMsgInfo->msgType.subType == MSG_REJECT_SMS)) {
 			err = addClass2Message(pMsgInfo);
 		}
-		else if (pMsgInfo->msgType.subType == MSG_NOTIFICATIONIND_MMS){
+		else if (pMsgInfo->msgType.subType == MSG_NOTIFICATIONIND_MMS) {
 			err = MSG_SUCCESS;
 		}
 		return err;
@@ -431,7 +428,6 @@ msg_error_t SmsPluginStorage::checkMessage(MSG_MESSAGE_INFO_S *pMsgInfo)
 
 	/**  Amend message information for type **/
 	if (pMsgInfo->msgType.subType == MSG_NORMAL_SMS || pMsgInfo->msgType.subType == MSG_REJECT_SMS) {
-
 		MSG_DEBUG("Normal SMS");
 
 		if (pMsgInfo->msgType.classType == MSG_CLASS_2) {
@@ -486,7 +482,6 @@ msg_error_t SmsPluginStorage::addSmsMessage(MSG_MESSAGE_INFO_S *pMsgInfo)
 	dbHandle->beginTrans();
 
 	if (pMsgInfo->nAddressCnt > 0) {
-
 		err = MsgStoAddAddress(dbHandle, pMsgInfo, &convId);
 
 		if (err != MSG_SUCCESS) {
@@ -846,7 +841,6 @@ msg_error_t SmsPluginStorage::checkStorageStatus(MSG_MESSAGE_INFO_S *pMsgInfo)
 	err = MsgStoCheckMsgCntFull(dbHandle, &(pMsgInfo->msgType), pMsgInfo->folderId);
 
 	if (err != MSG_SUCCESS) {
-
 		if (err == MSG_ERR_MESSAGE_COUNT_FULL) {
 			bool bAutoErase = false;
 
@@ -891,7 +885,7 @@ msg_error_t SmsPluginStorage::isReceivedCBMessage(SMS_CBMSG_PAGE_S CbPage)
 
 	snprintf(sqlQuery, sizeof(sqlQuery), "SELECT * FROM %s WHERE GEO_SCOPE = %d AND MSG_CODE = %d AND MESSAGE_ID = %d AND UPDATE_NUM = %d",
 			MSGFW_RECEIVED_CB_MSG_TABLE_NAME, CbPage.pageHeader.serialNum.geoScope,
-			CbPage.pageHeader.serialNum.msgCode,CbPage.pageHeader.msgId, CbPage.pageHeader.serialNum.updateNum);
+			CbPage.pageHeader.serialNum.msgCode, CbPage.pageHeader.msgId, CbPage.pageHeader.serialNum.updateNum);
 
 	err = dbHandle->getTable(sqlQuery, &rowCnt, NULL);
 	MSG_DEBUG("rowCnt: %d", rowCnt);
@@ -902,7 +896,6 @@ msg_error_t SmsPluginStorage::isReceivedCBMessage(SMS_CBMSG_PAGE_S CbPage)
 
 msg_error_t SmsPluginStorage::insertReceivedCBMessage(SMS_CBMSG_PAGE_S CbPage)
 {
-
 	msg_error_t err = MSG_SUCCESS;
 
 	unsigned int rowId = 0;
@@ -916,17 +909,16 @@ msg_error_t SmsPluginStorage::insertReceivedCBMessage(SMS_CBMSG_PAGE_S CbPage)
 	if (err != MSG_SUCCESS)
 		return err;
 
-	// Add Folder
+	/* Add Folder */
 	memset(sqlQuery, 0x00, sizeof(sqlQuery));
 	snprintf(sqlQuery, sizeof(sqlQuery), "INSERT INTO %s VALUES (%d, %d, %d, %d, %d);",
 			MSGFW_RECEIVED_CB_MSG_TABLE_NAME, rowId, CbPage.pageHeader.serialNum.geoScope,
-			CbPage.pageHeader.serialNum.msgCode,CbPage.pageHeader.msgId, CbPage.pageHeader.serialNum.updateNum);
+			CbPage.pageHeader.serialNum.msgCode, CbPage.pageHeader.msgId, CbPage.pageHeader.serialNum.updateNum);
 
 	if (dbHandle->execQuery(sqlQuery) != MSG_SUCCESS)
 		return MSG_ERR_DB_EXEC;
 
 	return MSG_SUCCESS;
-
 }
 
 #endif
@@ -957,8 +949,8 @@ msg_error_t SmsPluginStorage::getRegisteredPushEvent(char* pPushHeader, int *cou
 			return err;
 	}
 
-	char contentType[MAX_WAPPUSH_CONTENT_TYPE_LEN + 1] = {0,};
-	char appId[MAX_WAPPUSH_ID_LEN + 1] = {0,};
+	char contentType[MAX_WAPPUSH_CONTENT_TYPE_LEN + 1] = {0, };
+	char appId[MAX_WAPPUSH_ID_LEN + 1] = {0, };
 	int appcode = 0, default_appcode = 0;
 	bool found = false;
 	char *_content_type = NULL, *_app_id = NULL;
@@ -973,7 +965,7 @@ msg_error_t SmsPluginStorage::getRegisteredPushEvent(char* pPushHeader, int *cou
 		dbHandle->getColumnToString(index++, MAX_WAPPUSH_ID_LEN + 1, appId);
 		appcode = dbHandle->getColumnToInt(index++);
 
-		//MSG_DEBUG("content_type: %s, app_id: %s", content_type, app_id);
+		/* MSG_DEBUG("content_type: %s, app_id: %s", content_type, app_id); */
 		_content_type = strcasestr(pPushHeader, contentType);
 		if (_content_type) {
 			_app_id = strcasestr(pPushHeader, appId);
@@ -1018,7 +1010,7 @@ msg_error_t SmsPluginStorage::getnthPushEvent(int index, int *appcode)
 	std::list<PUSH_APPLICATION_INFO_S>::iterator it = pushAppInfoList.begin();
 	int count = 0;
 	for (; it != pushAppInfoList.end(); it++) {
-		if (index == count){
+		if (index == count) {
 			*appcode = it->appcode;
 			break;
 		}
@@ -1045,7 +1037,7 @@ msg_error_t SmsPluginStorage::updateSmsMessage(MSG_MESSAGE_INFO_S *pMsgInfo)
 {
 	MSG_BEGIN();
 	MsgDbHandler *dbHandle = getDbHandle();
-	char sqlQuery[MAX_QUERY_LEN+1] = {0,};
+	char sqlQuery[MAX_QUERY_LEN+1] = {0, };
 	msg_thread_id_t convId = 0;
 
 	dbHandle->beginTrans();

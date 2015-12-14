@@ -33,5 +33,5 @@ char *MsgVMessageEncodeSMS(MSG_MESSAGE_INFO_S *pMsg);
 msg_error_t MsgVMessageDecodeSMS(const char *vmsg_stream, MSG_MESSAGE_INFO_S *pMsg);
 bool _convert_vdata_str_to_tm(const char* szText, struct tm * tm);
 
-#endif //MSG_VMESSAGE_H
+#endif /* MSG_VMESSAGE_H */
 

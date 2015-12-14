@@ -30,13 +30,11 @@ MmsPluginTransport *MmsPluginTransport::pInstance = NULL;
 
 MmsPluginTransport::MmsPluginTransport()
 {
-
 }
 
 
 MmsPluginTransport::~MmsPluginTransport()
 {
-
 }
 
 
@@ -89,8 +87,7 @@ void MmsPluginTransport::submitRequest(const MSG_REQUEST_INFO_S *pReqInfo)
 		MSG_MMS_VLD_INFO("%d, MMS Receive Auto Start %s->%s, Success", pReqInfo->msgInfo.msgId, pReqInfo->msgInfo.addressList[0].addressVal, (msisdn == NULL)?"ME":msisdn);
 		break;
 
-	case MSG_NOTIFYRESPIND_MMS: /* reject */
-	{
+	case MSG_NOTIFYRESPIND_MMS: {/* reject */
 		MSG_DEBUG("######### MANUAL RETRIEVE : SEND NOTIFY RESPONSE IND");
 		reqItem.msgId = pReqInfo->msgInfo.msgId;
 		reqItem.eMmsPduType = eMMS_NOTIFYRESP_IND;
@@ -163,7 +160,5 @@ void MmsPluginTransport::submitRequest(const MSG_REQUEST_INFO_S *pReqInfo)
 
 void MmsPluginTransport::cancelRequest(msg_request_id_t reqId)
 {
-
-
 }
 

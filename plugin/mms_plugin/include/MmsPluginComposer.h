@@ -41,6 +41,5 @@ private:
 
 	MmsPluginComposer();
 	~MmsPluginComposer();
-
 };
 #endif /* MMS_PLUGIN_COMPOSER_H */

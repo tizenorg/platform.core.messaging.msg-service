@@ -66,8 +66,6 @@ SmsPluginSetting::SmsPluginSetting()
 
 SmsPluginSetting::~SmsPluginSetting()
 {
-
-
 }
 
 
@@ -184,7 +182,7 @@ void SmsPluginSetting::initConfigData()
 	if (simStatus != MSG_SIM_STATUS_NOT_FOUND) {
 		MSG_DEBUG("simStatus == [%d]", simStatus);
 	*/
-		MSG_CBMSG_OPT_S cbMsgOpt = {0,};
+		MSG_CBMSG_OPT_S cbMsgOpt = {0, };
 
 		if (getCbConfig(&cbMsgOpt) == true) {
 			err = addCbOpt(&cbMsgOpt);
@@ -237,7 +235,6 @@ void SmsPluginSetting::SimRefreshCb()
 	}
 
 	pthread_detach(thd);
-
 }
 
 

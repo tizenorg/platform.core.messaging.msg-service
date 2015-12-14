@@ -23,8 +23,6 @@
 ==================================================================================================*/
 #include <map>
 
-//#include "SmsPluginTypes.h"
-
 
 /*==================================================================================================
                                 DEFINES
@@ -98,7 +96,7 @@ typedef struct _MSG_LOCKING_SHIFT_S
 } MSG_LOCKING_SHIFT_S;
 
 
-// ETSI GSM 03.38 GSM 7 bit Default Alphabet Table -> UCS2
+/* ETSI GSM 03.38 GSM 7 bit Default Alphabet Table -> UCS2 */
 static const WCHAR g_GSM7BitToUCS2[] =
 {
 	/* @ */
@@ -120,10 +118,10 @@ static const WCHAR g_GSM7BitToUCS2[] =
 };
 
 
-//GSM 7 bit Default Alphabet Extension Table -> UCS2
+/* GSM 7 bit Default Alphabet Extension Table -> UCS2 */
 static const WCHAR g_GSM7BitExtToUCS2[] =
 {
-	// 0x0020 -> (SP) for invalid code
+	/* 0x0020 -> (SP) for invalid code */
 																     /* Page Break */
 	0x0020, 0x0020, 0x0020, 0x0020, 0x0020, 0x0020, 0x0020, 0x0020, 0x0020, 0x0020, 0x000C, 0x0020, 0x0020, 0x0020, 0x0020, 0x0020,
 							  /* ^ */
@@ -141,10 +139,10 @@ static const WCHAR g_GSM7BitExtToUCS2[] =
 };
 
 
-//Turkish National Language Single Shift Table -> UCS2
+/* Turkish National Language Single Shift Table -> UCS2 */
 static const WCHAR g_TurkishSingleToUCS2[] =
 {
-	// 0x0020 -> (SP) for invalid code
+	/* 0x0020 -> (SP) for invalid code */
 																     /* Page Break */
 	0x0020, 0x0020, 0x0020, 0x0020, 0x0020, 0x0020, 0x0020, 0x0020, 0x0020, 0x0020, 0x000C, 0x0020, 0x0020, 0x0020, 0x0020, 0x0020,
 							  /* ^ */
@@ -162,7 +160,7 @@ static const WCHAR g_TurkishSingleToUCS2[] =
 };
 
 
-// Turkish National Language Locking Shift Table -> UCS2
+/* Turkish National Language Locking Shift Table -> UCS2 */
 static const WCHAR g_TurkishLockingToUCS2[] =
 {
 	/* @ */
@@ -184,10 +182,10 @@ static const WCHAR g_TurkishLockingToUCS2[] =
 };
 
 
-// Spanish National Language Single Shift Table -> UCS2
+/* Spanish National Language Single Shift Table -> UCS2 */
 static const WCHAR g_SpanishSingleToUCS2[] =
 {
-	// 0x0020 -> (SP) for invalid code
+	/* 0x0020 -> (SP) for invalid code */
 																     /* Page Break */
 	0x0020, 0x0020, 0x0020, 0x0020, 0x0020, 0x0020, 0x0020, 0x0020, 0x0020, 0x00E7, 0x000C, 0x0020, 0x0020, 0x0020, 0x0020, 0x0020,
 							  /* ^ */
@@ -205,10 +203,10 @@ static const WCHAR g_SpanishSingleToUCS2[] =
 };
 
 
-// Portuguese National Language Single Shift Table -> UCS2
+/* Portuguese National Language Single Shift Table -> UCS2 */
 static const WCHAR g_PortuSingleToUCS2[] =
 {
-	// 0x0020 -> (SP) for invalid code
+	/* 0x0020 -> (SP) for invalid code */
 																     /* Page Break */
 	0x0020, 0x0020, 0x0020, 0x0020, 0x0020, 0x00EA, 0x0020, 0x0020, 0x0020, 0x00E7, 0x000C, 0x00D4, 0x00F4, 0x0020, 0x00C1, 0x00E1,
 							  /* ^ */
@@ -226,7 +224,7 @@ static const WCHAR g_PortuSingleToUCS2[] =
 };
 
 
-// Portuguese National Language Locking Shift Table -> UCS2
+/* Portuguese National Language Locking Shift Table -> UCS2 */
 static const WCHAR g_PortuLockingToUCS2[] =
 {
 	/* @ */
@@ -290,8 +288,6 @@ private:
 	std::map<unsigned short, unsigned char> ucs2toPortuList;
 
 	std::map<unsigned short, unsigned char> replaceCharList;
-
 };
 
-#endif //MSG_TEXT_CONVERT_H
-
+#endif /* MSG_TEXT_CONVERT_H */

@@ -63,7 +63,6 @@ private:
 	char *dns_address_list;
 	Mutex mx;
 	CndVar cv;
-
 };
 
 #endif /* MMS_PLUGIN_CONNMAN_H */

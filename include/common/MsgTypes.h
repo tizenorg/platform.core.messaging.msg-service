@@ -53,7 +53,7 @@
 /**
  *	@brief	Defines the enabled MMS version
  */
-#define	MMS_V1_2								// MMS Version : MMS_V1_0 / MMS_V1_1 / MMS_V1_2
+#define	MMS_V1_2	/* MMS Version : MMS_V1_0 / MMS_V1_1 / MMS_V1_2 */
 
 
 /**
@@ -72,7 +72,7 @@
  *	@brief	Defines message struct handle.
  */
 
-typedef struct _msg_struct{
+typedef struct _msg_struct {
 	int type;
 	void *data;
 }msg_struct_s;
@@ -138,15 +138,14 @@ typedef struct
 	bool bKeepCopy;
 	msg_struct_t mmsSendOpt;
 	msg_struct_t smsSendOpt;
-
 } MSG_SENDINGOPT_S;
 
 
 typedef	enum
 {
-	MMS_TIMETYPE_NONE		= -1,	// fixme: backward compatibility
-	MMS_TIMETYPE_ERROR		= -1,	// error return in Get method
-	MMS_TIMETYPE_RELATIVE	= 0,	// default
+	MMS_TIMETYPE_NONE		= -1,	/**< fixme: backward compatibility */
+	MMS_TIMETYPE_ERROR		= -1,	/**< error return in Get method */
+	MMS_TIMETYPE_RELATIVE	= 0,	/**< default */
 	MMS_TIMETYPE_ABSOLUTE   = 1
 }MmsTimeType;
 
@@ -189,8 +188,7 @@ typedef struct
 	bool bDeliverReq;
 	bool bKeepCopy;
 
-	union
-	{
+	union {
 		MMS_SENDINGOPT_INFO_S 	mmsSendOptInfo;
 		SMS_SENDINGOPT_INFO_S 	smsSendOptInfo;
 	} option;
@@ -345,5 +343,5 @@ typedef struct
  *	@}
  */
 
-#endif // MSG_TYPES_H
+#endif /* MSG_TYPES_H */
 

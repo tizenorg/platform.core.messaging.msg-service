@@ -56,7 +56,7 @@ class MsgIpcClientSocket
 {
 public:
 	MsgIpcClientSocket();
-//	~MsgIpcClientSocket();
+/*	~MsgIpcClientSocket(); */
 
 	int 	maxFd() { return (maxfd+1); }
 	fd_set 	fdSet() { return fds; }
@@ -71,8 +71,8 @@ public:
 	void 	addfd(int fd);
 	int		getRemoteFd() {return remotefd; }
 private:
-	int readn(char *buf, unsigned int len );
-	int writen (const char *buf, unsigned int len);
+	int readn(char *buf, unsigned int len);
+	int writen(const char *buf, unsigned int len);
 	bool wait_for_reply();
 
 	int sockfd, remotefd, maxfd;
@@ -94,15 +94,15 @@ public:
 	void 		close(int fd);
 
 	/* read msg from client of fd */
-	int 	read(int fd, char** buf, int* len );
+	int 	read(int fd, char** buf, int* len);
 	/* write msg to ipc client */
 	int 	write(int fd, const char* buf, unsigned int len);
 	void 	addfd(int fd);
 	void    setSockfd(int fd) { sockfd = fd; }
 
 private:
-	int readn(int fd, char *buf, unsigned int len );
-	int writen (int fd, const char *buf, unsigned int len);
+	int readn(int fd, char *buf, unsigned int len);
+	int writen(int fd, const char *buf, unsigned int len);
 
 	/* server socket fd */
 	int sockfd;
@@ -113,5 +113,5 @@ private:
 	std::map<int, int> 	mapFds;
 };
 
-#endif //__IPCSocket_H__
+#endif /*__IPCSocket_H__ */
 

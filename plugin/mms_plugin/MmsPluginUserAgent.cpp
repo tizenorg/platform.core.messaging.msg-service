@@ -214,7 +214,6 @@ MmsPluginUaManager::MmsPluginUaManager()
 
 MmsPluginUaManager::~MmsPluginUaManager()
 {
-
 }
 
 MmsPluginUaManager *MmsPluginUaManager::instance()
@@ -232,7 +231,6 @@ void MmsPluginUaManager::start()
 	MutexLocker lock(mx);
 
 	if (!running) {
-
 		running = true;
 		MsgThread::start();
 	}
@@ -275,7 +273,6 @@ MMS_NET_ERROR_T MmsPluginUaManager::submitHandler(mmsTranQEntity *qEntity)
 	memset(&request_info, 0x00, sizeof(request_info));
 
 	if (qEntity->eHttpCmdType == eHTTP_CMD_POST_TRANSACTION) {
-
 		request_info.transaction_type = MMS_HTTP_TRANSACTION_TYPE_POST;
 
 		request_info.url = home_url;
@@ -423,7 +420,6 @@ void MmsPluginUaManager::run()
 			MSG_DEBUG("\n\n ===================  MMS Transaction Start ========================");
 
 			do {
-
 				MMS_NET_ERROR_T mms_net_status = submitHandler(&reqEntity);
 				reqEntity.eMmsTransactionStatus = mms_net_status;
 				if (mms_net_status != eMMS_SUCCESS) {
@@ -461,18 +457,18 @@ void MmsPluginUaManager::run()
 				}
 				lock();
 				mmsTranQ.remove(reqEntity, compare_func_for_removal);
-/*				mmsTranQ.pop_front(); */
+				/* mmsTranQ.pop_front(); */
 				unlock();
-				//////// Waiting Conf //////////////////////
+				/*  Waiting Conf */
 				MMS_NET_ERROR_T networkErr;
 
 				if ((networkErr = waitingConf(&reqEntity)) == eMMS_HTTP_CONF_SUCCESS) {
 					bool bReportAllowed;
-					char retrievedFilePath[MAX_FULL_PATH_SIZE+1] = {0,};
+					char retrievedFilePath[MAX_FULL_PATH_SIZE+1] = {0, };
 
 					/* process Http data */
 					try {
-						if (processReceivedData(reqEntity.msgId, reqEntity.pGetData, reqEntity.getDataLen, retrievedFilePath) == false)	{
+						if (processReceivedData(reqEntity.msgId, reqEntity.pGetData, reqEntity.getDataLen, retrievedFilePath) == false) {
 							MmsPluginEventHandler::instance()->handleMmsError(&reqEntity);
 							break;
 						}
@@ -480,7 +476,6 @@ void MmsPluginUaManager::run()
 						MSG_FATAL("%s", e.what());
 						MmsPluginEventHandler::instance()->handleMmsError(&reqEntity);
 						break;
-
 					} catch (exception& e) {
 						MSG_FATAL("%s", e.what());
 						MmsPluginEventHandler::instance()->handleMmsError(&reqEntity);
@@ -601,7 +596,6 @@ void MmsPluginUaManager::run()
 					MmsPluginEventHandler::instance()->handleMmsError(&reqEntity);
 					break;
 				}
-
 			} while (reqEntity.isCompleted == false);
 
 			MSG_DEBUG("==== MMS Transaction Completed ====\n\n");
@@ -615,12 +609,10 @@ void MmsPluginUaManager::run()
 				free(reqEntity.pGetData);
 				reqEntity.pGetData = NULL;
 			}
-
 		}
 
 		/* Request CM Close */
 		cmAgent->close();
-
 	}
 
 	MSG_END();
@@ -677,7 +669,7 @@ bool MmsPluginUaManager::processReceivedData(int msgId, char *pRcvdBody, int rcv
 
 	/* create temp file */
 	if (!MsgOpenCreateAndOverwriteFile(retrievedFilePath, (char *)pRcvdBody, rcvdBodyLen)) {
-		MSG_ERR( "_MmsUaInitMsgDecoder: creating temporary file failed(msgID=%d)\n", msgId);
+		MSG_ERR("_MmsUaInitMsgDecoder: creating temporary file failed(msgID=%d)\n", msgId);
 		return false;
 	}
 #if 1

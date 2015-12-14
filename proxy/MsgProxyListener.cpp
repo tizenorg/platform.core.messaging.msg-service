@@ -334,7 +334,6 @@ bool MsgProxyListener::regCBMessageIncomingEventCB(MsgHandle* pMsgHandle, int fd
 				it->fd = fd;
 				return true;
 			}
-
 		}
 	}
 
@@ -767,7 +766,7 @@ void MsgProxyListener::handleEvent(const MSG_EVENT_S* pMsgEvent)
 
 		memcpy(&chInfo, (void*)((char*)pMsgEvent+sizeof(MSG_EVENT_TYPE_T)+sizeof(msg_error_t)), sizeof(chInfo));
 
-		msg_struct_s status = {0,};
+		msg_struct_s status = {0, };
 		MSG_SENT_STATUS_S statusData = {(msg_request_id_t)chInfo[0], (msg_network_status_t)chInfo[1]};
 
 		status.type = MSG_STRUCT_SENT_STATUS_INFO;
@@ -805,7 +804,7 @@ void MsgProxyListener::handleEvent(const MSG_EVENT_S* pMsgEvent)
 		MsgNewMessageCBList matchList;
 
 		for ( ; it != newMessageCBList.end() ; it++) {
-			if ( portKey == it->port) {
+			if (portKey == it->port) {
 				matchList.push_back(*it);
 			}
 		}
@@ -817,7 +816,7 @@ void MsgProxyListener::handleEvent(const MSG_EVENT_S* pMsgEvent)
 		for ( ; it != matchList.end(); it++ ) {
 			MsgHandle* pHandle = it->hAddr;
 
-			MSG_MESSAGE_HIDDEN_S msgHidden = {0,};
+			MSG_MESSAGE_HIDDEN_S msgHidden = {0, };
 
 			msgHidden.pData = NULL;
 			msgHidden.pMmsData = NULL;
@@ -851,7 +850,7 @@ void MsgProxyListener::handleEvent(const MSG_EVENT_S* pMsgEvent)
 				MSG_FATAL("%s", e.what());
 			}
 
-			msg_struct_s msg = {0,};
+			msg_struct_s msg = {0, };
 			msg.type = MSG_STRUCT_MESSAGE_INFO;
 			msg.data = &msgHidden;
 
@@ -867,7 +866,7 @@ void MsgProxyListener::handleEvent(const MSG_EVENT_S* pMsgEvent)
 
 			/* address Memory Free */
 			if (msgHidden.addr_list!= NULL) {
-				for (int i=0; i<MAX_TO_ADDRESS_CNT; i++) {
+				for (int i = 0; i < MAX_TO_ADDRESS_CNT; i++) {
 					msg_struct_s * addrInfo = (msg_struct_s *)msgHidden.addr_list->msg_struct_info[i];
 					delete (MSG_ADDRESS_INFO_S *)addrInfo->data;
 					addrInfo->data = NULL;
@@ -880,7 +879,6 @@ void MsgProxyListener::handleEvent(const MSG_EVENT_S* pMsgEvent)
 				delete msgHidden.addr_list;
 				msgHidden.addr_list = NULL;
 			}
-
 		}
 
 	} else if (pMsgEvent->eventType == MSG_EVENT_PLG_INCOMING_MMS_CONF) {
@@ -893,7 +891,7 @@ void MsgProxyListener::handleEvent(const MSG_EVENT_S* pMsgEvent)
 		MsgDecodeMsgInfo((char *)pMsgEvent->data, &msgInfo);
 
 
-	 	MMS_RECV_DATA_S* pMmsRecvData = ( MMS_RECV_DATA_S*)msgInfo.msgData;
+	 	MMS_RECV_DATA_S* pMmsRecvData = (MMS_RECV_DATA_S*)msgInfo.msgData;
 
 		char* appIdKey = (pMmsRecvData->msgAppId.valid)? pMmsRecvData->msgAppId.appId: NULL;
 
@@ -929,7 +927,7 @@ void MsgProxyListener::handleEvent(const MSG_EVENT_S* pMsgEvent)
 		for ( ; it != matchList.end(); it++) {
 			MsgHandle* pHandle = it->hAddr;
 
-			MSG_MESSAGE_HIDDEN_S msgHidden = {0,};
+			MSG_MESSAGE_HIDDEN_S msgHidden = {0, };
 
 			msgHidden.pData = NULL;
 			msgHidden.pMmsData = NULL;
@@ -963,7 +961,7 @@ void MsgProxyListener::handleEvent(const MSG_EVENT_S* pMsgEvent)
 				MSG_FATAL("%s", e.what());
 			}
 
-			msg_struct_s msg = {0,};
+			msg_struct_s msg = {0, };
 			msg.type = MSG_STRUCT_MESSAGE_INFO;
 			msg.data = &msgHidden;
 
@@ -995,7 +993,7 @@ void MsgProxyListener::handleEvent(const MSG_EVENT_S* pMsgEvent)
 			/* Here the retrieved message will be deleted from native storage. */
 			/* as of now, msg which have appId is considered as JAVA MMS message and it will be sent and handled in JAVA app. */
 			if (appIdKey) {
-				MSG_DEBUG("delete received JAVA MMS message:%s from native storage",tempFileName);
+				MSG_DEBUG("delete received JAVA MMS message:%s from native storage", tempFileName);
 				pHandle->deleteMessage(msgInfo.msgId);
 			}
 		}
@@ -1102,7 +1100,7 @@ void MsgProxyListener::handleEvent(const MSG_EVENT_S* pMsgEvent)
 
 		for ( ; it != newCBMessageCBList.end(); it++) {
 			MsgHandle* pHandle = it->hAddr;
-			msg_struct_s msg = {0,};
+			msg_struct_s msg = {0, };
 
 			msg.type = MSG_STRUCT_CB_MSG;
 			msg.data = pCbMsg;

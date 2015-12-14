@@ -32,12 +32,10 @@ class MsgThread
 public:
 	MsgThread(): thd(0) {};
 
-	virtual void start()
-	{
+	virtual void start() {
 		MSG_DEBUG("MsgThread::Start() called");
 
-		if (pthread_create(&thd, NULL, &MsgThread::thdMain, this) < 0)
-		{
+		if (pthread_create(&thd, NULL, &MsgThread::thdMain, this) < 0) {
 			MSG_DEBUG("pthread_create() error");
 			return;
 		}
@@ -45,21 +43,18 @@ public:
 		pthread_detach(thd);
 	}
 
-	virtual void stop()
-	{
+	virtual void stop() {
 		MSG_DEBUG("MsgThread::stop() called");
 	}
 
-	void wait()
-	{
+	void wait() {
 		MSG_DEBUG("MsgThread::Wait() called");
 		void* pData;
 		pthread_join(thd, &pData);
 	}
 
 private:
-	static void* thdMain(void* pInst)
-	{
+	static void* thdMain(void* pInst) {
 		MSG_DEBUG("MsgThread::thdMain() called");
 		MsgThread* pt = static_cast<MsgThread*>(pInst);
 		pt->run();

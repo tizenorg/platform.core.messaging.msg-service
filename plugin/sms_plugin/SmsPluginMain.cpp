@@ -82,7 +82,7 @@ msg_error_t MsgPlgCreateHandle(MSG_PLUGIN_HANDLER_S *pPluginHandle)
 		pPluginHandle->pfGetDefaultNetworkSimId = SmsPlgGetDefaultNetworkSimId;
 
 		MSG_DEBUG("SMS plugin: create handler OK");
-		MSG_DEBUG ("SMS plugin %p", pPluginHandle);
+		MSG_DEBUG("SMS plugin %p", pPluginHandle);
 	}
 
 	return MSG_SUCCESS;
@@ -212,7 +212,7 @@ msg_error_t SmsPlgSubmitRequest(MSG_REQUEST_INFO_S *pReqInfo)
 	}
 
 	/* Check SIM is present or not */
-	char keyName[MAX_VCONFKEY_NAME_LEN] = {0,};
+	char keyName[MAX_VCONFKEY_NAME_LEN] = {0, };
 	snprintf(keyName, sizeof(keyName), "%s/%d", MSG_SIM_CHANGED, pReqInfo->msgInfo.sim_idx);
 	MSG_SIM_STATUS_T simStatus = (MSG_SIM_STATUS_T)MsgSettingGetInt(keyName);
 
@@ -279,7 +279,7 @@ msg_error_t SmsPlgSaveSimMessage(const MSG_MESSAGE_INFO_S *pMsgInfo, SMS_SIM_ID_
 msg_error_t SmsPlgDeleteSimMessage(msg_sim_slot_id_t sim_idx, msg_sim_id_t SimMsgId)
 {
 	/* Check SIM is present or not */
-	char keyName[MAX_VCONFKEY_NAME_LEN]={0,};
+	char keyName[MAX_VCONFKEY_NAME_LEN] = {0, };
 	snprintf(keyName, sizeof(keyName), "%s/%d", MSG_SIM_CHANGED, sim_idx);
 	MSG_SIM_STATUS_T simStatus = (MSG_SIM_STATUS_T)MsgSettingGetInt(keyName);
 
@@ -305,7 +305,7 @@ msg_error_t SmsPlgDeleteSimMessage(msg_sim_slot_id_t sim_idx, msg_sim_id_t SimMs
 msg_error_t SmsPlgSetReadStatus(msg_sim_slot_id_t sim_idx, msg_sim_id_t SimMsgId)
 {
 	/* Check SIM is present or not */
-	char keyName[MAX_VCONFKEY_NAME_LEN]={0,};
+	char keyName[MAX_VCONFKEY_NAME_LEN] = {0, };
 	snprintf(keyName, sizeof(keyName), "%s/%d", MSG_SIM_CHANGED, sim_idx);
 	MSG_SIM_STATUS_T simStatus = (MSG_SIM_STATUS_T)MsgSettingGetInt(keyName);
 
@@ -413,7 +413,6 @@ msg_error_t SmsPlgGetConfigData(MSG_SETTING_S *pSetting)
 
 msg_error_t SmsPlgAddMessage(MSG_MESSAGE_INFO_S *pMsgInfo,  MSG_SENDINGOPT_INFO_S* pSendOptInfo, char* pFileData)
 {
-
 	int *simIdList = (int*)pFileData;
 	try {
 		SmsPluginStorage::instance()->addSmsSendOption(pMsgInfo, pSendOptInfo);
@@ -433,7 +432,6 @@ msg_error_t SmsPlgAddMessage(MSG_MESSAGE_INFO_S *pMsgInfo,  MSG_SENDINGOPT_INFO_
 
 msg_error_t SmsPlgGetDefaultNetworkSimId(int *simId)
 {
-
 	try {
 		SmsPluginDSHandler::instance()->getDefaultNetworkSimId(simId);
 	} catch (MsgException& e) {
@@ -522,7 +520,6 @@ _DBUS_ERROR:
 
 	MSG_END();
 	return;
-
 }
 
 

@@ -81,27 +81,27 @@ msg_error_t MsgStoGetThreadUnreadCnt(msg_thread_id_t ThreadId, int *cnt);
 
 msg_error_t MsgStoGetThreadInfo(msg_thread_id_t threadId, MSG_THREAD_VIEW_S *pThreadInfo);
 
-// Folder
+/* Folder */
 msg_error_t MsgStoAddFolder(const MSG_FOLDER_INFO_S *pFolderInfo);
 msg_error_t MsgStoUpdateFolder(const MSG_FOLDER_INFO_S *pFolderInfo);
 msg_error_t MsgStoDeleteFolder(msg_folder_id_t FolderId);
 msg_error_t MsgStoGetFolderList(msg_struct_list_s *pFolderList);
 
-// Filter
+/* Filter */
 msg_error_t MsgStoAddFilter(const MSG_FILTER_S *pFilter);
 msg_error_t MsgStoUpdateFilter(const MSG_FILTER_S *pFilter);
 msg_error_t MsgStoDeleteFilter(msg_filter_id_t FilterId);
 msg_error_t MsgStoGetFilterList(msg_struct_list_s *pFilterList);
 msg_error_t MsgStoSetFilterActivation(msg_filter_id_t filterId, bool bActive);
 
-// Sim Operation related Functions
+/* Sim Operation related Functions */
 msg_error_t MsgStoClearSimMessageInDB();
 
-// Internal Function
+/* Internal Function */
 msg_error_t MsgStoGetSmsSendOpt(MSG_MESSAGE_INFO_S *pMsg, MSG_SENDINGOPT_INFO_S* pSendOpt);
 msg_error_t MsgStoGetMmsSendOpt(msg_message_id_t MsgId, MSG_SENDINGOPT_INFO_S* pSendOpt);
 
-// SyncML Msg
+/* SyncML Msg */
 msg_error_t MsgStoGetSyncMLExtId(msg_message_id_t msgId, int *extId);
 bool MsgStoCheckSyncMLMsgInThread(msg_thread_id_t threadId);
 
@@ -110,15 +110,13 @@ msg_error_t MsgStoGetContentLocation(MSG_MESSAGE_INFO_S* pMsgInfo);
 msg_error_t MsgStoSetReadReportSendStatus(msg_message_id_t msgId, int readReportSendStatus);
 msg_error_t MsgStoGetReadReportSendStatus(msg_message_id_t msgId, int *pReadReportSendStatus);
 
-///////////////////////////////////////////////////////////////////////////////////
-// For MMS - will be removed
+/* For MMS - will be removed */
 msg_error_t MsgStoGetOrgAddressList(MSG_MESSAGE_INFO_S *pMsg);
 msg_error_t MsgStoGetSubject(msg_message_id_t MsgId, char* pSubject);
 msg_error_t MsgStoGetRecipientList(msg_message_id_t msgId, MSG_RECIPIENTS_LIST_S *pRecipientList);
 msg_error_t MsgStoGetReadStatus(msg_message_id_t MsgId, bool *pReadStatus);
 msg_error_t MsgStoGetAddrInfo(msg_message_id_t MsgId, MSG_ADDRESS_INFO_S *pAddrInfo);
 
-///////////////////////////////////////////////////////////////////////////////////
 
 msg_error_t MsgStoResetNetworkStatus();
 #if 0
@@ -146,5 +144,5 @@ msg_error_t MsgCheckUniqueness(bool bInsert, msg_message_id_t msgId, MSG_UNIQUE_
 #endif
 msg_error_t MsgStoUpdateIMSI(int sim_idx);
 
-#endif // MSG_STORAGE_HANDLER_H
+#endif /* MSG_STORAGE_HANDLER_H */
 

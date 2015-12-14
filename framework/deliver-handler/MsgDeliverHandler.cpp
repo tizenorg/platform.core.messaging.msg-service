@@ -59,7 +59,6 @@ void MsgPlayTTSMode(MSG_SUB_TYPE_T msgSubType, msg_message_id_t msgId, bool isFa
 	MSG_DEBUG("VCONFKEY_SETAPPL_DRIVINGMODE_DRIVINGMODE [%d]", isTTSOn);
 
 	if(isTTSOn) {
-
 		bool isVoiceMail = false;
 
 		if (msgSubType == MSG_MWI_VOICE_SMS) {
@@ -263,7 +262,7 @@ msg_error_t MsgHandleMmsConfIncomingMsg(MSG_MESSAGE_INFO_S *pMsgInfo, msg_reques
 			if (pMsgInfo->folderId == MSG_INBOX_ID)
 				MsgInsertNotification(pMsgInfo);
 
-		}  else if (subType == MSG_RETRIEVE_MANUALCONF_MMS) {
+		} else if (subType == MSG_RETRIEVE_MANUALCONF_MMS) {
 			if (pMsgInfo->networkStatus == MSG_NETWORK_RETRIEVE_SUCCESS) {
 				MSG_DEBUG("Manual success");
 #if 0 //disable as per UX request to not show success notification : 2015.9.18
@@ -275,9 +274,7 @@ msg_error_t MsgHandleMmsConfIncomingMsg(MSG_MESSAGE_INFO_S *pMsgInfo, msg_reques
 				MsgInsertTicker("Retrieving message failed", RETRIEVING_MESSAGE_FAILED, true, pMsgInfo->msgId);
 			}
 		}
-	}
-	else if (pMsgInfo->msgType.subType == MSG_SENDREQ_MMS || pMsgInfo->msgType.subType == MSG_SENDCONF_MMS)
-	{
+	} else if (pMsgInfo->msgType.subType == MSG_SENDREQ_MMS || pMsgInfo->msgType.subType == MSG_SENDCONF_MMS) {
 		MsgPlugin *plg = MsgPluginManager::instance()->getPlugin(pMsgInfo->msgType.mainType);
 		if (plg == NULL)
 			return MSG_ERR_NULL_POINTER;
@@ -300,8 +297,7 @@ msg_error_t MsgHandleMmsConfIncomingMsg(MSG_MESSAGE_INFO_S *pMsgInfo, msg_reques
 		if (err != MSG_SUCCESS)
 			return MSG_ERR_STORAGE_ERROR;
 
-		if (pMsgInfo->networkStatus == MSG_NETWORK_SEND_SUCCESS)
-		{
+		if (pMsgInfo->networkStatus == MSG_NETWORK_SEND_SUCCESS) {
 			err = MsgStoMoveMessageToFolder(pMsgInfo->msgId, MSG_SENTBOX_ID);
 			if (err != MSG_SUCCESS)
 				return MSG_ERR_STORAGE_ERROR;
@@ -324,12 +320,11 @@ msg_error_t MsgHandleIncomingMsg(MSG_MESSAGE_INFO_S *pMsgInfo, bool *pSendNoti)
 	MsgDisplayLock();
 
 	if (pMsgInfo->msgType.mainType == MSG_SMS_TYPE) {
-
 		bool bOnlyNoti = false;
 
 		err = MsgHandleSMS(pMsgInfo, pSendNoti, &bOnlyNoti);
 
-		if (err == MSG_SUCCESS && ((*pSendNoti)||bOnlyNoti)) {
+		if (err == MSG_SUCCESS && ((*pSendNoti) || bOnlyNoti)) {
 #ifndef MSG_CONTACTS_SERVICE_NOT_SUPPORTED
 			bool isFavorites = false;
 			if (!checkBlockingMode(pMsgInfo->addressList[0].addressVal, &isFavorites)) {
@@ -338,9 +333,7 @@ msg_error_t MsgHandleIncomingMsg(MSG_MESSAGE_INFO_S *pMsgInfo, bool *pSendNoti)
 #endif /* MSG_CONTACTS_SERVICE_NOT_SUPPORTED */
 			MsgInsertNotification(pMsgInfo);
 		}
-	}
-	else if (pMsgInfo->msgType.mainType == MSG_MMS_TYPE)
-	{
+	} else if (pMsgInfo->msgType.mainType == MSG_MMS_TYPE) {
 		err = MsgHandleMMS(pMsgInfo, pSendNoti);
 	}
 
@@ -351,10 +344,8 @@ msg_error_t MsgHandleIncomingMsg(MSG_MESSAGE_INFO_S *pMsgInfo, bool *pSendNoti)
 		(pMsgInfo->folderId == MSG_INBOX_ID || pMsgInfo->folderId == MSG_SPAMBOX_ID) &&
 		(pMsgInfo->msgType.mainType == MSG_SMS_TYPE) &&
 		(pMsgInfo->msgType.subType != MSG_WAP_SL_SMS)) {
-
 #ifndef MSG_CONTACTS_SERVICE_NOT_SUPPORTED
 		MSG_DEBUG("Enter MsgAddPhoneLog() : pMsg->folderId [%d]", pMsgInfo->folderId);
-
 		MsgAddPhoneLog(pMsgInfo);
 #endif //MSG_CONTACTS_SERVICE_NOT_SUPPORTED
 	}
@@ -412,8 +403,7 @@ msg_error_t MsgHandleSMS(MSG_MESSAGE_INFO_S *pMsgInfo, bool *pSendNoti, bool *bO
 		}
 	} else if ((pMsgInfo->msgType.subType == MSG_WAP_SI_SMS) || (pMsgInfo->msgType.subType == MSG_WAP_CO_SMS) || (pMsgInfo->msgType.subType == MSG_WAP_SL_SMS)) {
 		MSG_DEBUG("Add WAP Push Message");
-		switch (pMsgInfo->msgType.subType)
-		{
+		switch (pMsgInfo->msgType.subType) {
 			case MSG_WAP_SI_SMS:
 			case MSG_WAP_SL_SMS:
 				err = MsgStoAddWAPMsg(pMsgInfo);
@@ -426,11 +416,9 @@ msg_error_t MsgHandleSMS(MSG_MESSAGE_INFO_S *pMsgInfo, bool *pSendNoti, bool *bO
 		}
 	} else if ((pMsgInfo->msgType.subType == MSG_CB_SMS) || (pMsgInfo->msgType.subType == MSG_JAVACB_SMS)) {
 		/** check add message option */
-	}
-	else if (pMsgInfo->msgType.subType == MSG_STATUS_REPORT_SMS) {
+	} else if (pMsgInfo->msgType.subType == MSG_STATUS_REPORT_SMS) {
 		MSG_DEBUG("Add Report Message");
-	}
-	else if (pMsgInfo->msgType.subType >= MSG_MWI_VOICE_SMS && pMsgInfo->msgType.subType <= MSG_MWI_OTHER_SMS) {
+	} else if (pMsgInfo->msgType.subType >= MSG_MWI_VOICE_SMS && pMsgInfo->msgType.subType <= MSG_MWI_OTHER_SMS) {
 		char keyName[MAX_VCONFKEY_NAME_LEN];
 		memset(keyName, 0x00, sizeof(keyName));
 		snprintf(keyName, sizeof(keyName), "%s/%d", VOICEMAIL_NUMBER, pMsgInfo->sim_idx);
@@ -506,8 +494,7 @@ msg_error_t MsgHandleSMS(MSG_MESSAGE_INFO_S *pMsgInfo, bool *pSendNoti, bool *bO
 		app_control_h svc_handle = NULL;
 
 		switch (pMsgInfo->msgType.subType) {
-			case MSG_WAP_SL_SMS:
-			{
+			case MSG_WAP_SL_SMS: {
 				*pSendNoti = true;
 
 				if (serviceType == MSG_PUSH_SERVICE_ALWAYS) {
@@ -543,7 +530,6 @@ msg_error_t MsgHandleSMS(MSG_MESSAGE_INFO_S *pMsgInfo, bool *pSendNoti, bool *bO
 					app_control_destroy(svc_handle);
 
 				} else if (serviceType == MSG_PUSH_SERVICE_PROMPT) {
-
 					MSG_DEBUG("WAP Message SL(Always Ask) start.");
 
 					app_control_h svc_h;
@@ -760,10 +746,8 @@ msg_error_t MsgHandleMMS(MSG_MESSAGE_INFO_S *pMsgInfo,  bool *pSendNoti)
 			} else {
 				MSG_DEBUG("Process Message Fail : processReceivedInd()");
 			}
-
 		}
 	}
 
 	return err;
 }
-

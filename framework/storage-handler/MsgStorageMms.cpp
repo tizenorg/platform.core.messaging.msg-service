@@ -45,7 +45,6 @@ msg_error_t MsgStoGetText(msg_message_id_t msgId, char *pSubject, char *pMsgText
 		return MSG_ERR_DB_PREPARE;
 
 	if(dbHandle->stepQuery() == MSG_ERR_DB_ROW) {
-
 		char *subject = (char*)dbHandle->columnText(0);
 		char *text = (char*)dbHandle->columnText(1);
 
@@ -61,7 +60,6 @@ msg_error_t MsgStoGetText(msg_message_id_t msgId, char *pSubject, char *pMsgText
 	dbHandle->finalizeQuery();
 
 	return MSG_SUCCESS;
-
 }
 
 
@@ -180,7 +178,7 @@ msg_error_t MsgStoUpdateMMSMessage(MSG_MESSAGE_INFO_S *pMsg)
 	if(pMsg->msgType.subType == MSG_RETRIEVE_AUTOCONF_MMS || pMsg->msgType.subType == MSG_RETRIEVE_MANUALCONF_MMS) {
 		if (pMsg->addressList) {
 			if (pMsg->nAddressCnt == 1) {
-				char tmpAddressVal[MAX_ADDRESS_VAL_LEN+1] = {0,};
+				char tmpAddressVal[MAX_ADDRESS_VAL_LEN+1] = {0, };
 				msg_address_type_t tmpAddressType;
 				msg_recipient_type_t tmpRecipientType;
 				int tmpConvId;
@@ -219,7 +217,6 @@ msg_error_t MsgStoUpdateMMSMessage(MSG_MESSAGE_INFO_S *pMsg)
 					if (tmpAddressType != pMsg->addressList->addressType ||
 						tmpRecipientType != pMsg->addressList->recipientType ||
 						(strncmp(tmpAddressVal, pMsg->addressList->addressVal, MAX_ADDRESS_VAL_LEN) != 0)) {
-
 						MSG_WARN("AddressList of NotiInd and MMSConf are different!!, Replace AddressList to MMSConf data");
 						MSG_WARN("AddType [NotiInd : %d], [MMSConf : %d]", tmpAddressType, pMsg->addressList->addressType);
 						MSG_WARN("RcptType [NotiInd : %d], [MMSConf : %d]", tmpRecipientType, pMsg->addressList->recipientType);
@@ -338,7 +335,6 @@ msg_error_t MsgStoUpdateMMSMessage(MSG_MESSAGE_INFO_S *pMsg)
 	MSG_DEBUG("Conversation id:[%d]", convId);
 
 	if (convId > 0) {
-
 		if (MsgStoUpdateConversation(dbHandle, convId) != MSG_SUCCESS) {
 			MSG_DEBUG("MsgStoUpdateConversation() Error");
 			dbHandle->freeTable();
@@ -439,8 +435,7 @@ msg_error_t MsgStoGetOrgAddressList(MSG_MESSAGE_INFO_S *pMsg)
 		return err;
 	}
 
-	for(int i = 0; i < rowCnt; i++)
-	{
+	for (int i = 0; i < rowCnt; i++) {
 		pMsg->addressList[i].addressType = dbHandle->getColumnToInt(index++);
 		pMsg->addressList[i].recipientType = dbHandle->getColumnToInt(index++);
 		dbHandle->getColumnToString(index++, MAX_ADDRESS_VAL_LEN, pMsg->addressList[i].addressVal);
@@ -505,18 +500,17 @@ msg_error_t MsgStoGetRecipientList(msg_message_id_t msgId, MSG_RECIPIENTS_LIST_S
 		return MSG_ERR_DB_GETTABLE;
 	}
 
-	pRecipientList->recipientCnt= rowCnt;
+	pRecipientList->recipientCnt = rowCnt;
 
 	MSG_DEBUG("pRecipientList->recipientCnt [%d]", pRecipientList->recipientCnt);
 
-	pRecipientList->recipientAddr= (MSG_ADDRESS_INFO_S*)new char[sizeof(MSG_ADDRESS_INFO_S)*rowCnt];
+	pRecipientList->recipientAddr = (MSG_ADDRESS_INFO_S*)new char[sizeof(MSG_ADDRESS_INFO_S)*rowCnt];
 
 	MSG_ADDRESS_INFO_S* pTmp = pRecipientList->recipientAddr;
 
-	for (int i = 0; i < rowCnt; i++)
-	{
+	for (int i = 0; i < rowCnt; i++) {
 		pTmp->addressType = dbHandle->getColumnToInt(index++);
-		pTmp->recipientType= dbHandle->getColumnToInt(index++);
+		pTmp->recipientType = dbHandle->getColumnToInt(index++);
 
 		memset(pTmp->addressVal, 0x00, sizeof(pTmp->addressVal));
 		dbHandle->getColumnToString(index++, MAX_ADDRESS_VAL_LEN, pTmp->addressVal);

@@ -51,7 +51,7 @@ msg_error_t MsgPlgCreateHandle(MSG_PLUGIN_HANDLER_S *pPluginHandle)
 		pPluginHandle->pfRestoreMsg = MmsRestoreMsg;
 
 		MSG_DEBUG("MMS plugin: create handler OK");
-		MSG_DEBUG ("MMS plugin %p", pPluginHandle);
+		MSG_DEBUG("MMS plugin %p", pPluginHandle);
 	}
 
 	return MSG_SUCCESS;
@@ -237,7 +237,7 @@ msg_error_t MmsUpdateRejectStatus(MSG_MESSAGE_INFO_S *pMsgInfo)
 		char szTrID[MMS_TR_ID_LEN + 1] = {0x00};
 		bool bReportAllowed;
 
-		err = MmsPluginStorage::instance()->getTrID(pMsgInfo,szTrID,sizeof(szTrID));
+		err = MmsPluginStorage::instance()->getTrID(pMsgInfo, szTrID, sizeof(szTrID));
 		if (err != MSG_SUCCESS)
 			MSG_DEBUG("MmsPlgUpdRejectStatus : Get MMS Transacation id Failed");
 
@@ -306,7 +306,7 @@ msg_error_t MmsRestoreMsg(MSG_MESSAGE_INFO_S *pMsgInfo, char *pRcvBody, int rcvd
 			MsgCloseFile(pFile);
 		}
 	} else {
-		MSG_DEBUG(":::%d :%s ",rcvdBodyLen, pRcvBody);
+		MSG_DEBUG(":::%d :%s ", rcvdBodyLen, pRcvBody);
 
 		if (filePath) {
 			snprintf(filePath, MAX_FULL_PATH_SIZE, "%sBODY_%lu.DATA", MSG_DATA_PATH, random() % 1000000000 + 1);
@@ -315,7 +315,7 @@ msg_error_t MmsRestoreMsg(MSG_MESSAGE_INFO_S *pMsgInfo, char *pRcvBody, int rcvd
 		}
 
 		/* create temp file */
-		if (!MsgOpenCreateAndOverwriteFile(filePath, (char*)pRcvBody,rcvdBodyLen))
+		if (!MsgOpenCreateAndOverwriteFile(filePath, (char*)pRcvBody, rcvdBodyLen))
 			return MSG_ERR_PLUGIN_STORAGE;
 	}
 

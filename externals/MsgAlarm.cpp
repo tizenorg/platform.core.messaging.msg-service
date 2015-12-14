@@ -120,7 +120,7 @@ msg_error_t MsgAlarmRegistration(struct tm *timeInfo, msg_alarm_cb userCB, int *
 	target_time.min = timeInfo->tm_min;
 	target_time.sec = timeInfo->tm_sec;
 
-	MSG_DEBUG( "Alarm Time : [%d-%d-%d %d:%d:%d] ",
+	MSG_DEBUG("Alarm Time : [%d-%d-%d %d:%d:%d] ",
 			target_time.year, target_time.month, target_time.day,
 			target_time.hour, target_time.min, target_time.sec);
 

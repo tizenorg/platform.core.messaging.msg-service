@@ -36,22 +36,19 @@ int MsgAddFilterHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 
 	int eventSize = 0;
 
-	// Get Filter Structure
+	/* Get Filter Structure */
 	MSG_FILTER_S* pFilter = (MSG_FILTER_S*)pCmd->cmdData;
 
-	// Add Filter
+	/* Add Filter */
 	err = MsgStoAddFilter(pFilter);
 
-	if (err == MSG_SUCCESS)
-	{
+	if (err == MSG_SUCCESS) {
 		MSG_DEBUG("Command Handle Success : MsgStoAddFilter()");
-	}
-	else
-	{
+	} else {
 		MSG_DEBUG("Command Handle Fail : MsgStoAddFilter()");
 	}
 
-	// Make Event Data
+	/* Make Event Data */
 	eventSize = MsgMakeEvent(NULL, 0, MSG_EVENT_ADD_FILTER, err, (void**)ppEvent);
 
 	return eventSize;
@@ -69,22 +66,19 @@ int MsgUpdateFilterHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 
 	int eventSize = 0;
 
-	// Get Filter Structure
+	/* Get Filter Structure */
 	MSG_FILTER_S* pFilter = (MSG_FILTER_S*)pCmd->cmdData;
 
-	// Update Filter
+	/* Update Filter */
 	err = MsgStoUpdateFilter(pFilter);
 
-	if (err == MSG_SUCCESS)
-	{
+	if (err == MSG_SUCCESS) {
 		MSG_DEBUG("Command Handle Success : MsgStoUpdateFilter()");
-	}
-	else
-	{
+	} else {
 		MSG_DEBUG("Command Handle Fail : MsgStoUpdateFilter()");
 	}
 
-	// Make Event Data
+	/* Make Event Data */
 	eventSize = MsgMakeEvent(NULL, 0, MSG_EVENT_UPDATE_FILTER, err, (void**)ppEvent);
 
 	return eventSize;
@@ -102,24 +96,21 @@ int MsgDeleteFilterHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 
 	int eventSize = 0;
 
-	// Get Filter Structure
+	/* Get Filter Structure */
 	msg_filter_id_t  *pFilterId = (msg_filter_id_t *)pCmd->cmdData;
 
 	MSG_DEBUG("Delete Filter id : %d", *pFilterId);
 
-	// Delete Filter
+	/* Delete Filter */
 	err = MsgStoDeleteFilter(*pFilterId);
 
-	if (err == MSG_SUCCESS)
-	{
+	if (err == MSG_SUCCESS) {
 		MSG_DEBUG("Command Handle Success : MsgStoDeleteFilter()");
-	}
-	else
-	{
+	} else {
 		MSG_DEBUG("Command Handle Fail : MsgStoDeleteFilter()");
 	}
 
-	// Make Event Data
+	/* Make Event Data */
 	eventSize = MsgMakeEvent(NULL, 0, MSG_EVENT_DELETE_FILTER, err, (void**)ppEvent);
 
 	return eventSize;
@@ -137,7 +128,7 @@ int MsgSetFilterActivationHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 
 	int eventSize = 0;
 
-	// Get Filter Structure
+	/* Get Filter Structure */
 	msg_filter_id_t  *pFilterId = (msg_filter_id_t *)pCmd->cmdData;
 
 	bool setFlag = false;
@@ -146,19 +137,16 @@ int MsgSetFilterActivationHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 
 	MSG_DEBUG("Filter id : %d", *pFilterId);
 
-	// Delete Filter
+	/* Delete Filter */
 	err = MsgStoSetFilterActivation(*pFilterId, setFlag);
 
-	if (err == MSG_SUCCESS)
-	{
+	if (err == MSG_SUCCESS) {
 		MSG_DEBUG("Command Handle Success : MsgStoSetFilterActivation()");
-	}
-	else
-	{
+	} else {
 		MSG_DEBUG("Command Handle Fail : MsgStoSetFilterActivation()");
 	}
 
-	// Make Event Data
+	/* Make Event Data */
 	eventSize = MsgMakeEvent(NULL, 0, MSG_EVENT_SET_FILTER_ACTIVATION, err, (void**)ppEvent);
 
 	return eventSize;
@@ -179,16 +167,15 @@ int MsgGetFilterListHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 
 	int dataSize = 0, eventSize = 0;
 
-	// Get Filter List
+	/* Get Filter List */
 	msg_struct_list_s filterList;
 
 	err = MsgStoGetFilterList(&filterList);
 
-	if (err == MSG_SUCCESS)
-	{
+	if (err == MSG_SUCCESS) {
 		MSG_DEBUG("Command Handle Success : MsgStoGetFilterList()");
 
-		// Encoding Filter List Data
+		/* Encoding Filter List Data */
 		dataSize = MsgEncodeFilterList(&filterList, &encodedData);
 
 		if (filterList.msg_struct_info) {
@@ -202,13 +189,11 @@ int MsgGetFilterListHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 			}
 			g_free(filterList.msg_struct_info);
 		}
-	}
-	else
-	{
+	} else {
 		MSG_DEBUG("Command Handle Fail : MsgStoGetFilterList()");
 	}
 
-	// Make Event Data
+	/* Make Event Data */
 	eventSize = MsgMakeEvent(encodedData, dataSize, MSG_EVENT_GET_FILTERLIST, err, (void**)ppEvent);
 
 	return eventSize;
@@ -226,24 +211,21 @@ int MsgSetFilterOperationHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 
 	int eventSize = 0;
 
-	// Get Filter Flag
+	/* Get Filter Flag */
 	bool setFlag = false;
 
 	memcpy(&setFlag, pCmd->cmdData, sizeof(bool));
 
-	// Add Filter
+	/* Add Filter */
 	err = MsgSetFilterOperation(setFlag);
 
-	if (err == MSG_SUCCESS)
-	{
+	if (err == MSG_SUCCESS) {
 		MSG_DEBUG("Command Handle Success : MsgSetFilterOperation()");
-	}
-	else
-	{
+	} else {
 		MSG_DEBUG("Command Handle Fail : MsgSetFilterOperation()");
 	}
 
-	// Make Event Data
+	/* Make Event Data */
 	eventSize = MsgMakeEvent(NULL, 0, MSG_EVENT_SET_FILTER_OPERATION, err, (void**)ppEvent);
 
 	return eventSize;
@@ -264,24 +246,21 @@ int MsgGetFilterOperationHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 
 	int dataSize = 0, eventSize = 0;
 
-	// Get Filter List
+	/* Get Filter List */
 	bool setFlag = false;
 
 	err = MsgGetFilterOperation(&setFlag);
 
-	if (err == MSG_SUCCESS)
-	{
+	if (err == MSG_SUCCESS) {
 		MSG_DEBUG("Command Handle Success : MsgGetFilterOperation()");
 
-		// Encoding Filter List Data
+		/* Encoding Filter List Data */
 		dataSize = MsgEncodeFilterFlag(&setFlag, &encodedData);
-	}
-	else
-	{
+	} else {
 		MSG_DEBUG("Command Handle Fail : MsgFilterGetFilterList()");
 	}
 
-	// Make Event Data
+	/* Make Event Data */
 	eventSize = MsgMakeEvent(encodedData, dataSize, MSG_EVENT_GET_FILTER_OPERATION, err, (void**)ppEvent);
 
 	return eventSize;

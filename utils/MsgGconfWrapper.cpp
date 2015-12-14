@@ -40,8 +40,7 @@ bool bUnknownAutoReject = false;
 
 msg_error_t MsgSettingSetString(const char *pKey, const char *pSetValue)
 {
-	if (pKey == NULL || pSetValue == NULL)
-	{
+	if (pKey == NULL || pSetValue == NULL) {
 		MSG_DEBUG("IN Parameter is NULL");
 		return MSG_ERR_NULL_POINTER;
 	}
@@ -60,8 +59,7 @@ msg_error_t MsgSettingSetString(const char *pKey, const char *pSetValue)
 
 msg_error_t MsgSettingSetInt(const char *pKey, int nSetValue)
 {
-	if (pKey == NULL)
-	{
+	if (pKey == NULL) {
 		MSG_DEBUG("IN Parameter is NULL");
 		return MSG_ERR_NULL_POINTER;
 	}
@@ -80,8 +78,7 @@ msg_error_t MsgSettingSetInt(const char *pKey, int nSetValue)
 
 msg_error_t MsgSettingSetBool(const char *pKey, bool bSetValue)
 {
-	if (pKey == NULL)
-	{
+	if (pKey == NULL) {
 		MSG_DEBUG("IN Parameter is NULL");
 		return MSG_ERR_NULL_POINTER;
 	}
@@ -100,8 +97,7 @@ msg_error_t MsgSettingSetBool(const char *pKey, bool bSetValue)
 
 char* MsgSettingGetString(const char *pKey)
 {
-	if (pKey == NULL)
-	{
+	if (pKey == NULL) {
 		MSG_DEBUG("IN Parameter is NULL");
 		return NULL;
 	}
@@ -116,8 +112,7 @@ char* MsgSettingGetString(const char *pKey)
 
 int MsgSettingGetInt(const char *pKey)
 {
-	if (pKey == NULL)
-	{
+	if (pKey == NULL) {
 		MSG_DEBUG("IN Parameter is NULL");
 		return -1;
 	}
@@ -137,8 +132,7 @@ int MsgSettingGetInt(const char *pKey)
 
 int MsgSettingGetBool(const char *pKey, bool *pVal)
 {
-	if (pKey == NULL)
-	{
+	if (pKey == NULL) {
 		MSG_DEBUG("IN Parameter is NULL");
 		return -1;
 	}
@@ -164,30 +158,28 @@ msg_error_t MsgSettingHandleNewMsg(int SmsCnt, int MmsCnt)
 
 	MSG_DEBUG("smsCnt = %d, mmsCnt = %d ##", SmsCnt, MmsCnt);
 
-	// Set Msg Count into VConf
-	if (MsgSettingSetIndicator(SmsCnt, MmsCnt) != MSG_SUCCESS)
-	{
+	/* Set Msg Count into VConf */
+	if (MsgSettingSetIndicator(SmsCnt, MmsCnt) != MSG_SUCCESS) {
 		MSG_DEBUG("MsgSettingSetIndicator() FAILED");
 		return MSG_ERR_SET_SETTING;
 	}
 
-//	if (SmsCnt == 0 && MmsCnt == 0)
-//	{
-//		MSG_DEBUG("No New Message.");
-//	}
-//	else
-//	{
-//		MSG_DEBUG("New Message.");
-//
-//		bool bNotification = true;
-//
-//		if (MsgSettingGetBool(MSG_SETTING_NOTIFICATION, &bNotification) != MSG_SUCCESS) {
-//			MSG_DEBUG("MsgSettingGetBool is failed.");
-//		}
-//
-//		if (bNotification)
-//			MsgChangePmState();
-//	}
+#if 0
+	if (SmsCnt == 0 && MmsCnt == 0) {
+		MSG_DEBUG("No New Message.");
+	} else {
+		MSG_DEBUG("New Message.");
+
+		bool bNotification = true;
+
+		if (MsgSettingGetBool(MSG_SETTING_NOTIFICATION, &bNotification) != MSG_SUCCESS) {
+			MSG_DEBUG("MsgSettingGetBool is failed.");
+		}
+
+		if (bNotification)
+			MsgChangePmState();
+	}
+#endif
 
 	MSG_END();
 
@@ -197,7 +189,6 @@ msg_error_t MsgSettingHandleNewMsg(int SmsCnt, int MmsCnt)
 
 msg_error_t MsgSettingSetIndicator(int SmsCnt, int MmsCnt)
 {
-
 	if (MsgSettingSetInt(VCONFKEY_MESSAGE_RECV_SMS_STATE, SmsCnt) != 0)
 		return MSG_ERR_SET_SETTING;
 	if (MsgSettingSetInt(VCONFKEY_MESSAGE_RECV_MMS_STATE, MmsCnt) != 0)

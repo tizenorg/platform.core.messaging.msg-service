@@ -54,16 +54,14 @@ void* InitMsgServer(void*)
 	MSG_DEBUG("Start InitMsgServer.");
 
 #ifndef MSG_CONTACTS_SERVICE_NOT_SUPPORTED
-	// Init contact digit number
+	/* Init contact digit number */
 	MsgInitContactSvc();
-#endif // MSG_CONTACTS_SERVICE_NOT_SUPPORTED
+#endif /* MSG_CONTACTS_SERVICE_NOT_SUPPORTED */
 
 	MsgInitCallStatusManager();
 
-	//CID 356902: Moving try block up to include MsgStoInitDB which also throws MsgException
-	try
-	{
-		// storage handler initialize
+	try {
+		/* storage handler initialize */
 		err = MsgStoInitDB(false);
 		if (err != MSG_SUCCESS) {
 			MSG_ERR("FAIL TO INITIALIZE STORAGE HANDLER [%d]", err);
@@ -71,20 +69,15 @@ void* InitMsgServer(void*)
 
 		MsgInitNoti();
 
-		// plugin manager initialize
+		/* plugin manager initialize */
 		MsgPluginManager::instance()->initialize();
-	}
-	catch (MsgException& e)
-	{
+	} catch (MsgException& e) {
 		MSG_FATAL("%s", e.what());
-	}
-	catch (exception& e)
-	{
+	} catch (exception& e) {
 		MSG_FATAL("%s", e.what());
 	}
 
-
-//	MsgSoundPlayer::instance()->MsgSoundInitRepeatAlarm();
+/*	MsgSoundPlayer::instance()->MsgSoundInitRepeatAlarm(); */
 
 	MsgStoDisconnectDB();
 
@@ -97,20 +90,15 @@ void* InitMsgServer(void*)
 
 void* StartMsgServer(void*)
 {
-	try
-	{
+	try {
 		if (MsgTransactionManager::instance()->initCynara() == false) {
 			MSG_ERR("Cynara initialize failed. It will try again when API is called.");
 		}
 
 		MsgTransactionManager::instance()->run();
-	}
-	catch (MsgException& e)
-	{
+	} catch (MsgException& e) {
 		MSG_FATAL("%s", e.what());
-	}
-	catch (exception& e)
-	{
+	} catch (exception& e) {
 		MSG_FATAL("%s", e.what());
 	}
 
@@ -136,18 +124,17 @@ int main(void)
 #if !GLIB_CHECK_VERSION(2, 36, 0)
 	g_type_init();
 #endif
-	// Reset message server ready flag
+	/* Reset message server ready flag */
 	if(MsgSettingSetBool(VCONFKEY_MSG_SERVER_READY, false) != MSG_SUCCESS)
 		MSG_DEBUG("MsgSettingSetBool FAIL: VCONFKEY_MSG_SERVER_READY");
 
-	// init server
+	/* init server */
 	InitMsgServer(NULL);
 
 	pthread_t startThreadId;
 
-	// start transaction manager
-	if (pthread_create(&startThreadId, NULL, StartMsgServer, NULL) != 0)
-	{
+	/* start transaction manager */
+	if (pthread_create(&startThreadId, NULL, StartMsgServer, NULL) != 0) {
 		MSG_DEBUG("StartMsgServer not invoked: %s", g_strerror(errno));
 		return -1;
 	}
@@ -155,25 +142,22 @@ int main(void)
 
 	mainloop = g_main_loop_new(NULL, FALSE);
 
-	if (mainloop != NULL)
-	{
+	if (mainloop != NULL) {
 		MSG_DEBUG("Start Messaging Framework!!!");
 
-		// Run GMainLoop
+		/* Run GMainLoop */
 		g_main_loop_run(mainloop);
-	}
-	else
-	{
+	} else {
 		MSG_DEBUG("Fail to start Messaging Framework!!!");
 	}
 
-	//contacts-service is not used for gear
+	/* contacts-service is not used for gear */
 #ifndef MSG_CONTACTS_SERVICE_NOT_SUPPORTED
-	// Close Contact Sevice
+	/* Close Contact Sevice */
 	MsgCloseContactSvc();
-#endif //MSG_CONTACTS_SERVICE_NOT_SUPPORTED
+#endif /*MSG_CONTACTS_SERVICE_NOT_SUPPORTED */
 
-	// Disconnect to DB
+	/* Disconnect to DB */
 	MsgStoDisconnectDB();
 
 	MsgDeInitCallStatusManager();

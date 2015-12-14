@@ -49,8 +49,8 @@ public:
 	msg_error_t updateMsgDeliverStatus(MSG_MESSAGE_INFO_S *pMsgInfo, unsigned char msgRef);
 
 	msg_error_t updateSentMsg(MSG_MESSAGE_INFO_S *pMsgInfo, msg_network_status_t Status);
-//	msg_error_t updateMsgRef(msg_message_id_t MsgId, unsigned char MsgRef);
-//	msg_error_t updateStatusReport(unsigned char MsgRef, msg_delivery_report_status_t Status, time_t DeliveryTime);
+/*	msg_error_t updateMsgRef(msg_message_id_t MsgId, unsigned char MsgRef); */
+/*	msg_error_t updateStatusReport(unsigned char MsgRef, msg_delivery_report_status_t Status, time_t DeliveryTime); */
 
 	msg_error_t addSimMessage(MSG_MESSAGE_INFO_S *pSimMsgInfo, int *simIdList);
 	msg_error_t insertSimMessage(int simId, int msgId);

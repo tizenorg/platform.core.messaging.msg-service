@@ -135,8 +135,7 @@ msg_error_t MsgStoGetFolderList(msg_struct_list_s *pFolderList)
 
 	msg_struct_s* pTmp = NULL;
 
-	for (int i = 0; i < rowCnt; i++)
-	{
+	for (int i = 0; i < rowCnt; i++) {
 		pFolderList->msg_struct_info[i] = (msg_struct_t)new msg_struct_s;
 		pTmp = (msg_struct_s *)pFolderList->msg_struct_info[i];
 		pTmp->type = MSG_STRUCT_FOLDER_INFO;
@@ -150,7 +149,6 @@ msg_error_t MsgStoGetFolderList(msg_struct_list_s *pFolderList)
 
 		memset(pFolder->folderName, 0x00, sizeof(pFolder->folderName));
 		dbHandle->getColumnToString(index++, MAX_FOLDER_NAME_SIZE, pFolder->folderName);
-
 	}
 
 	dbHandle->freeTable();

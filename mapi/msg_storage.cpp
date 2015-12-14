@@ -850,41 +850,41 @@ EXPORT_API int msg_generate_message(msg_handle_t handle, msg_message_type_t msg_
 			msg_set_mms_struct((msg_struct_t)msg_s, mms_data);
 
 			msg_release_struct(&mms_data);
-/*
-*			MMS_MESSAGE_DATA_S* mms_data;
-*			MMS_PAGE_S* page[2];
-*			MMS_MEDIA_S* media[5];
-*
-*			mms_data = msg_mms_create_message();
-*
-*			msg_mms_set_rootlayout(mms_data, 100, 100, 0xffffff);
-*			msg_mms_add_region(mms_data, "Image", 0, 50, 100, 50, 0xffffff);
-*			msg_mms_add_region(mms_data, "Text", 0, 0, 100, 50, 0xffffff);
-*
-*			------------>  1st Slide Composing
-*			page[0] = msg_mms_add_page(mms_data, 5440);
-*
-*			media[0] = msg_mms_add_media(page[0], MMS_SMIL_MEDIA_IMG, "Image", (char*)"/opt/etc/msg-service/P091120_104633.jpg");
-*			media[1] = msg_mms_add_media(page[0], MMS_SMIL_MEDIA_AUDIO, NULL, (char*)"/opt/etc/msg-service/audio.amr");
-*			media[2] = msg_mms_add_media(page[0], MMS_SMIL_MEDIA_TEXT, "Text", (char*)"/opt/etc/msg-service/Temp0_2.txt");
-*			media[2]->sMedia.sText.nColor = 0x000000;
-*			media[2]->sMedia.sText.nSize = MMS_SMIL_FONT_SIZE_NORMAL;
-*			media[2]->sMedia.sText.bBold = true;
-*
-*			------------>  2nd Slide Composing
-*			page[1] = msg_mms_add_page(mms_data, 4544);
-*
-*			media[3] = msg_mms_add_media(page[1], MMS_SMIL_MEDIA_TEXT, "Text", (char*)"/opt/etc/msg-service/Temp1_0.txt");
-*			media[3]->sMedia.sText.nColor = 0x000000;
-*			media[3]->sMedia.sText.nSize = MMS_SMIL_FONT_SIZE_NORMAL;
-*			media[3]->sMedia.sText.bItalic = true;
-*			media[4] = msg_mms_add_media(page[1], MMS_SMIL_MEDIA_VIDEO, "Text", (char*)"/opt/etc/msg-service/V091120_104905.3gp");
-*			strncpy(media[4]->szAlt, "Video Load Fail", MAX_SMIL_ALT_LEN-1);
-*
-*			//FIXME msg_mms_set_message_body((msg_message_t)&msgInfo, mms_data);
-*
-*			msg_mms_destroy_message(mms_data);
-*/
+#if 0
+			MMS_MESSAGE_DATA_S* mms_data;
+			MMS_PAGE_S* page[2];
+			MMS_MEDIA_S* media[5];
+
+			mms_data = msg_mms_create_message();
+
+			msg_mms_set_rootlayout(mms_data, 100, 100, 0xffffff);
+			msg_mms_add_region(mms_data, "Image", 0, 50, 100, 50, 0xffffff);
+			msg_mms_add_region(mms_data, "Text", 0, 0, 100, 50, 0xffffff);
+
+			/* ------------>  1st Slide Composing */
+			page[0] = msg_mms_add_page(mms_data, 5440);
+
+			media[0] = msg_mms_add_media(page[0], MMS_SMIL_MEDIA_IMG, "Image", (char*)"/opt/etc/msg-service/P091120_104633.jpg");
+			media[1] = msg_mms_add_media(page[0], MMS_SMIL_MEDIA_AUDIO, NULL, (char*)"/opt/etc/msg-service/audio.amr");
+			media[2] = msg_mms_add_media(page[0], MMS_SMIL_MEDIA_TEXT, "Text", (char*)"/opt/etc/msg-service/Temp0_2.txt");
+			media[2]->sMedia.sText.nColor = 0x000000;
+			media[2]->sMedia.sText.nSize = MMS_SMIL_FONT_SIZE_NORMAL;
+			media[2]->sMedia.sText.bBold = true;
+
+			/* ------------>  2nd Slide Composing */
+			page[1] = msg_mms_add_page(mms_data, 4544);
+
+			media[3] = msg_mms_add_media(page[1], MMS_SMIL_MEDIA_TEXT, "Text", (char*)"/opt/etc/msg-service/Temp1_0.txt");
+			media[3]->sMedia.sText.nColor = 0x000000;
+			media[3]->sMedia.sText.nSize = MMS_SMIL_FONT_SIZE_NORMAL;
+			media[3]->sMedia.sText.bItalic = true;
+			media[4] = msg_mms_add_media(page[1], MMS_SMIL_MEDIA_VIDEO, "Text", (char*)"/opt/etc/msg-service/V091120_104905.3gp");
+			strncpy(media[4]->szAlt, "Video Load Fail", MAX_SMIL_ALT_LEN-1);
+
+			/* FIXME msg_mms_set_message_body((msg_message_t)&msgInfo, mms_data); */
+
+			msg_mms_destroy_message(mms_data);
+#endif
 		}
 
 		/*err = msg_add_message(handle, (msg_message_t)&msgInfo, &sendingOpt);*/
@@ -920,7 +920,7 @@ EXPORT_API int msg_get_quick_panel_data(msg_handle_t handle, msg_quickpanel_type
 	if (ret != PRIV_MGR_ERROR_SUCCESS)
 		return MSG_ERR_PERMISSION_DENIED;
 
-	if (handle == NULL || opq_msg == NULL ) {
+	if (handle == NULL || opq_msg == NULL) {
 		MSG_FATAL("handle or opq_msg is NULL");
 		return MSG_ERR_INVALID_PARAMETER;
 	}
@@ -996,7 +996,6 @@ EXPORT_API int msg_get_mem_size(msg_handle_t handle, unsigned int* memsize)
 	}
 
 	return err;
-
 }
 
 EXPORT_API int msg_backup_message(msg_handle_t handle, msg_message_backup_type_t type, const char *backup_filepath)
@@ -1260,7 +1259,7 @@ EXPORT_API int msg_get_thread(msg_handle_t handle, msg_thread_id_t thread_id, ms
 	if (ret != PRIV_MGR_ERROR_SUCCESS)
 		return MSG_ERR_PERMISSION_DENIED;
 
-	if (handle == NULL || msg_thread == NULL ) {
+	if (handle == NULL || msg_thread == NULL) {
 		MSG_FATAL("handle or msg_thread is NULL");
 		return MSG_ERR_INVALID_PARAMETER;
 	}
@@ -1340,39 +1339,39 @@ static int msg_get_msg_type(int mainType, int subType)
 {
 	if (mainType == MSG_SMS_TYPE) {
 		switch (subType) {
-		case MSG_CB_SMS :
+		case MSG_CB_SMS:
 			return MSG_TYPE_SMS_CB;
-		case MSG_JAVACB_SMS :
+		case MSG_JAVACB_SMS:
 			return MSG_TYPE_SMS_JAVACB;
-		case MSG_WAP_SI_SMS :
-		case MSG_WAP_SL_SMS :
+		case MSG_WAP_SI_SMS:
+		case MSG_WAP_SL_SMS:
 			return MSG_TYPE_SMS_WAPPUSH;
-		case MSG_MWI_VOICE_SMS :
-		case MSG_MWI_FAX_SMS :
-		case MSG_MWI_EMAIL_SMS :
-		case MSG_MWI_OTHER_SMS :
+		case MSG_MWI_VOICE_SMS:
+		case MSG_MWI_FAX_SMS:
+		case MSG_MWI_EMAIL_SMS:
+		case MSG_MWI_OTHER_SMS:
 			return MSG_TYPE_SMS_MWI;
-		case MSG_SYNCML_CP :
+		case MSG_SYNCML_CP:
 			return MSG_TYPE_SMS_SYNCML;
-		case MSG_REJECT_SMS :
+		case MSG_REJECT_SMS:
 			return MSG_TYPE_SMS_REJECT;
-		case MSG_ETWS_SMS :
+		case MSG_ETWS_SMS:
 			return MSG_TYPE_SMS_ETWS_PRIMARY;
-		case MSG_CMAS_PRESIDENTIAL :
+		case MSG_CMAS_PRESIDENTIAL:
 			return MSG_TYPE_SMS_CMAS_PRESIDENTIAL;
-		case MSG_CMAS_EXTREME :
+		case MSG_CMAS_EXTREME:
 			return MSG_TYPE_SMS_CMAS_EXTREME;
-		case MSG_CMAS_SEVERE :
+		case MSG_CMAS_SEVERE:
 			return MSG_TYPE_SMS_CMAS_SEVERE;
-		case MSG_CMAS_AMBER :
+		case MSG_CMAS_AMBER:
 			return MSG_TYPE_SMS_CMAS_AMBER;
-		case MSG_CMAS_TEST :
+		case MSG_CMAS_TEST:
 			return MSG_TYPE_SMS_CMAS_TEST;
-		case MSG_CMAS_EXERCISE :
+		case MSG_CMAS_EXERCISE:
 			return MSG_TYPE_SMS_CMAS_EXERCISE;
-		case MSG_CMAS_OPERATOR_DEFINED :
+		case MSG_CMAS_OPERATOR_DEFINED:
 			return MSG_TYPE_SMS_CMAS_OPERATOR_DEFINED;
-		default :
+		default:
 			return MSG_TYPE_SMS;
 		}
 	} else if (mainType == MSG_MMS_TYPE) {
@@ -1547,25 +1546,25 @@ int msg_thread_info_get_int(void *data, int field, int *value)
 	MSG_THREAD_VIEW_S *pThread = (MSG_THREAD_VIEW_S *)data;
 
 	switch (field) {
-	case MSG_THREAD_ID_INT :
+	case MSG_THREAD_ID_INT:
 		*value = pThread->threadId;
 		break;
-	case MSG_THREAD_MSG_TYPE_INT :
+	case MSG_THREAD_MSG_TYPE_INT:
 		*value = msg_get_msg_type(pThread->mainType, pThread->subType);
 		break;
-	case MSG_THREAD_MSG_TIME_INT :
+	case MSG_THREAD_MSG_TIME_INT:
 		*value = pThread->threadTime;
 		break;
-	case MSG_THREAD_DIRECTION_INT :
+	case MSG_THREAD_DIRECTION_INT:
 		*value = pThread->direction;
 		break;
-	case MSG_THREAD_UNREAD_COUNT_INT :
+	case MSG_THREAD_UNREAD_COUNT_INT:
 		*value = pThread->unreadCnt;
 		break;
-	case MSG_THREAD_SMS_COUNT_INT :
+	case MSG_THREAD_SMS_COUNT_INT:
 		*value = pThread->smsCnt;
 		break;
-	case MSG_THREAD_MMS_COUNT_INT :
+	case MSG_THREAD_MMS_COUNT_INT:
 		*value = pThread->mmsCnt;
 		break;
 	default:
@@ -1587,46 +1586,46 @@ int msg_conv_info_get_int(void *data, int field, int *value)
 	MSG_CONVERSATION_VIEW_S *pConv = (MSG_CONVERSATION_VIEW_S *)data;
 
 	switch (field) {
-	case MSG_CONV_MSG_ID_INT :
+	case MSG_CONV_MSG_ID_INT:
 		*value = pConv->msgId;
 		break;
-	case MSG_CONV_MSG_THREAD_ID_INT :
+	case MSG_CONV_MSG_THREAD_ID_INT:
 		*value = pConv->threadId;
 		break;
-	case MSG_CONV_MSG_FOLDER_ID_INT :
+	case MSG_CONV_MSG_FOLDER_ID_INT:
 		*value = pConv->folderId;
 		break;
-	case MSG_CONV_MSG_TYPE_INT :
+	case MSG_CONV_MSG_TYPE_INT:
 		*value = msg_get_msg_type(pConv->mainType, pConv->subType);
 		break;
-	case MSG_CONV_MSG_STORAGE_ID_INT :
+	case MSG_CONV_MSG_STORAGE_ID_INT:
 		*value = pConv->storageId;
 		break;
-	case MSG_CONV_MSG_DISPLAY_TIME_INT :
+	case MSG_CONV_MSG_DISPLAY_TIME_INT:
 		*value = pConv->displayTime;
 		break;
-	case MSG_CONV_MSG_SCHEDULED_TIME_INT :
+	case MSG_CONV_MSG_SCHEDULED_TIME_INT:
 		*value = pConv->scheduledTime;
 		break;
-	case MSG_CONV_MSG_NETWORK_STATUS_INT :
+	case MSG_CONV_MSG_NETWORK_STATUS_INT:
 		*value = pConv->networkStatus;
 		break;
-	case MSG_CONV_MSG_DIRECTION_INT :
+	case MSG_CONV_MSG_DIRECTION_INT:
 		*value = pConv->direction;
 		break;
-	case MSG_CONV_MSG_ATTACH_COUNT_INT :
+	case MSG_CONV_MSG_ATTACH_COUNT_INT:
 		*value = pConv->attachCount;
 		break;
-	case MSG_CONV_MSG_TEXT_SIZE_INT :
+	case MSG_CONV_MSG_TEXT_SIZE_INT:
 		*value = pConv->textSize;
 		break;
-	case MSG_CONV_MSG_PAGE_COUNT_INT :
+	case MSG_CONV_MSG_PAGE_COUNT_INT:
 		*value = pConv->pageCount;
 		break;
-	case MSG_CONV_MSG_TCS_BC_LEVEL_INT :
+	case MSG_CONV_MSG_TCS_BC_LEVEL_INT:
 		*value = pConv->tcs_bc_level;
 		break;
-	case MSG_CONV_MSG_SIM_INDEX_INT :
+	case MSG_CONV_MSG_SIM_INDEX_INT:
 		*value = pConv->simIndex;
 		break;
 	default:
@@ -1753,10 +1752,10 @@ int msg_thread_info_get_str(void *data, int field, char *value, int size)
 	MSG_THREAD_VIEW_S *pThread = (MSG_THREAD_VIEW_S *)data;
 
 	switch (field) {
-	case MSG_THREAD_NAME_STR :
+	case MSG_THREAD_NAME_STR:
 		strncpy(value, pThread->threadName, size);
 		break;
-	case MSG_THREAD_MSG_DATA_STR :
+	case MSG_THREAD_MSG_DATA_STR:
 		strncpy(value, pThread->threadData, size);
 		break;
 	default:
@@ -1775,26 +1774,26 @@ int msg_conv_info_get_str(void *data, int field, char *value, int size)
 	MSG_CONVERSATION_VIEW_S *pConv = (MSG_CONVERSATION_VIEW_S *)data;
 
 	switch (field) {
-	case MSG_CONV_MSG_SUBJECT_STR :
+	case MSG_CONV_MSG_SUBJECT_STR:
 		strncpy(value, pConv->subject, size);
 		break;
-	case MSG_CONV_MSG_ATTACH_NAME_STR :
+	case MSG_CONV_MSG_ATTACH_NAME_STR:
 		strncpy(value, pConv->attachFileName, size);
 		break;
-	case MSG_CONV_MSG_AUDIO_NAME_STR :
+	case MSG_CONV_MSG_AUDIO_NAME_STR:
 		strncpy(value, pConv->audioFileName, size);
 		break;
-	case MSG_CONV_MSG_IMAGE_THUMB_PATH_STR :
+	case MSG_CONV_MSG_IMAGE_THUMB_PATH_STR:
 		strncpy(value, pConv->imageThumbPath, size);
 		break;
-	case MSG_CONV_MSG_VIDEO_THUMB_PATH_STR :
+	case MSG_CONV_MSG_VIDEO_THUMB_PATH_STR:
 		strncpy(value, pConv->videoThumbPath, size);
 		break;
-	case MSG_CONV_MSG_TEXT_STR :
+	case MSG_CONV_MSG_TEXT_STR:
 		if (pConv->pText)
 			strncpy(value, pConv->pText, size);
 		break;
-	case MSG_CONV_MSG_1ST_MEDIA_PATH_STR :
+	case MSG_CONV_MSG_1ST_MEDIA_PATH_STR:
 		strncpy(value, pConv->firstMediaPath, size);
 		break;
 	default:
@@ -1914,13 +1913,13 @@ int msg_thread_info_get_bool(void *data, int field, bool *value)
 	case MSG_THREAD_PROTECTED_BOOL:
 		*value = pthreadInfo->bProtected;
 		break;
-	case MSG_THREAD_DRAFT_BOOL :
+	case MSG_THREAD_DRAFT_BOOL:
 		*value = pthreadInfo->bDraft;
 		break;
-	case MSG_THREAD_SEND_FAILED_BOOL :
+	case MSG_THREAD_SEND_FAILED_BOOL:
 		*value = pthreadInfo->bSendFailed;
 		break;
-	case MSG_THREAD_SENDING_BOOL :
+	case MSG_THREAD_SENDING_BOOL:
 		*value = pthreadInfo->bSending;
 		break;
 	default:
@@ -1945,10 +1944,10 @@ int msg_list_condition_get_bool(void *data, int field, bool *value)
 	case MSG_LIST_CONDITION_PROTECTED_BOOL:
 		*value = pCond->bProtected;
 		break;
-	case MSG_LIST_CONDITION_SCHEDULED_BOOL :
+	case MSG_LIST_CONDITION_SCHEDULED_BOOL:
 		*value = pCond->bScheduled;
 		break;
-	case MSG_LIST_CONDITION_AND_OPERATER_BOOL :
+	case MSG_LIST_CONDITION_AND_OPERATER_BOOL:
 		*value = pCond->bAnd;
 		break;
 	default:
@@ -2213,7 +2212,6 @@ int msg_sms_sendopt_get_bool(void *opt_info, int field, bool *value)
 
 int msg_syncml_info_set_int(void *syncml_info, int field, int value)
 {
-
 	msg_error_t err = MSG_SUCCESS;
 
 	if (!syncml_info)
@@ -2603,8 +2601,7 @@ int msg_syncml_set_struct_handle(msg_struct_s *msg_struct, int field, msg_struct
 	msg_struct_s *pTmp = NULL;
 
 	switch (field) {
-	case MSG_SYNCML_INFO_MESSAGE_HND:
-	{
+	case MSG_SYNCML_INFO_MESSAGE_HND: {
 		pTmp = (msg_struct_s *)pSync->msg;
 		MSG_MESSAGE_HIDDEN_S *pSrc = (MSG_MESSAGE_HIDDEN_S *)value->data;
 		MSG_MESSAGE_HIDDEN_S *pDst = (MSG_MESSAGE_HIDDEN_S *)pTmp->data;
@@ -3102,7 +3099,7 @@ int msg_media_item_get_int(void *data, int field, int *value)
 	case MSG_MEDIA_MESSAGE_ID_INT:
 		*value = pMedia->msg_id;
 		break;
-	default :
+	default:
 		ret = MSG_ERR_INVALID_PARAMETER;
 		break;
 	}

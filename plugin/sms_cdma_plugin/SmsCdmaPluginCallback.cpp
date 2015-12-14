@@ -44,8 +44,6 @@ SmsPluginCallback* SmsPluginCallback::pInstance = NULL;
 
 SmsPluginCallback::SmsPluginCallback()
 {
-
-
 }
 
 
@@ -85,7 +83,6 @@ void SmsPluginCallback::registerEvent()
 
 void SmsPluginCallback::deRegisterEvent()
 {
-
 }
 
 
@@ -105,7 +102,6 @@ void TapiEventDeviceReady(TapiHandle *handle, const char *noti_id, void *data, v
 		MSG_FATAL("%s", e.what());
 		return;
 	}
-
 }
 
 
@@ -353,7 +349,7 @@ void TapiEventSentStatus(TapiHandle *handle, int result, void *data, void *user_
 	if (sentStatus == SMS_NETWORK_SEND_FAIL) {
 		int svc_type;
 		tel_get_property_int(handle, TAPI_PROP_NETWORK_SERVICE_TYPE, &svc_type);
-		if (svc_type < TAPI_NETWORK_SERVICE_TYPE_2G){
+		if (svc_type < TAPI_NETWORK_SERVICE_TYPE_2G) {
 			sentStatus = SMS_NETWORK_SEND_PENDING;
 		}
 	}
@@ -385,7 +381,6 @@ void TapiEventSentStatus(TapiHandle *handle, int result, void *data, void *user_
 		MSG_FATAL("%s", e.what());
 		return;
 	}
-
 }
 
 
@@ -438,7 +433,6 @@ void TapiEventSetConfigData(TapiHandle *handle, int result, void *data, void *us
 	if ((TelSmsCause_t)result != TAPI_NETTEXT_SUCCESS) bRet = false;
 
 	SmsPluginSetting::instance()->setResultFromEvent(bRet);
-
 }
 
 
