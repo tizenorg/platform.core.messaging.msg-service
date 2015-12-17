@@ -1976,7 +1976,7 @@ int msg_sendopt_get_struct_handle(msg_struct_s *msg_struct, int field, void **va
 		*value = (void *)sendopt->smsSendOpt;
 		break;
 	default:
-		err = MSG_ERR_UNKNOWN;
+		err = MSG_ERR_INVALID_PARAMETER;
 		break;
 	}
 
@@ -1997,7 +1997,7 @@ int msg_syncml_get_struct_handle(msg_struct_s *msg_struct, int field, void **val
 		*value = (void *)pSync->msg;
 		break;
 	default:
-		err = MSG_ERR_UNKNOWN;
+		err = MSG_ERR_INVALID_PARAMETER;
 		break;
 	}
 
@@ -2018,7 +2018,7 @@ int msg_thread_index_get_struct_handle(msg_struct_s *msg_struct, int field, void
 		*value = (void *)pIndex->msgAddrInfo;
 		break;
 	default:
-		err = MSG_ERR_UNKNOWN;
+		err = MSG_ERR_INVALID_PARAMETER;
 		break;
 	}
 
@@ -2040,7 +2040,7 @@ int msg_list_condition_get_struct_handle(msg_struct_s *msg_struct, int field, vo
 		*value = (void *)pCond->sortRule;
 		break;
 	default:
-		err = MSG_ERR_UNKNOWN;
+		err = MSG_ERR_INVALID_PARAMETER;
 		break;
 	}
 
@@ -2227,7 +2227,7 @@ int msg_syncml_info_set_int(void *syncml_info, int field, int value)
 		pSync->pinCode = value;
 		break;
 	default:
-		err = MSG_ERR_UNKNOWN;
+		err = MSG_ERR_INVALID_PARAMETER;
 		break;
 	}
 
@@ -2257,7 +2257,7 @@ int msg_count_info_set_int(void *count_info, int field, int value)
 		pCount->nMms = value;
 		break;
 	default:
-		err = MSG_ERR_UNKNOWN;
+		err = MSG_ERR_INVALID_PARAMETER;
 		break;
 	}
 
@@ -2287,7 +2287,7 @@ int msg_thread_count_set_int(void *count_info, int field, int value)
 		pCount->mmsMsgCount = value;
 		break;
 	default:
-		err = MSG_ERR_UNKNOWN;
+		err = MSG_ERR_INVALID_PARAMETER;
 		break;
 	}
 
@@ -2308,7 +2308,7 @@ int msg_thread_index_set_int(void *index_info, int field, int value)
 		pIndex->contactId = value;
 		break;
 	default:
-		err = MSG_ERR_UNKNOWN;
+		err = MSG_ERR_INVALID_PARAMETER;
 		break;
 	}
 
@@ -2329,7 +2329,7 @@ int msg_sortrule_set_int(void *sort_info, int field, int value)
 		pSort->sortType = value;
 		break;
 	default:
-		err = MSG_ERR_UNKNOWN;
+		err = MSG_ERR_INVALID_PARAMETER;
 		break;
 	}
 
@@ -2353,7 +2353,7 @@ int msg_folder_info_set_int(void *folder_info, int field, int value)
 		pFolder->folderType = value;
 		break;
 	default:
-		err = MSG_ERR_UNKNOWN;
+		err = MSG_ERR_INVALID_PARAMETER;
 		break;
 	}
 
@@ -2399,7 +2399,7 @@ int msg_list_condition_set_int(void *condition_info, int field, int value)
 		pCond->simIndex = value;
 		break;
 	default:
-		err = MSG_ERR_UNKNOWN;
+		err = MSG_ERR_INVALID_PARAMETER;
 		break;
 	}
 
@@ -2427,14 +2427,14 @@ int msg_report_status_set_int(void *report_info, int field, int value)
 		pReport->statusTime = value;
 		break;
 	default:
-		err = MSG_ERR_UNKNOWN;
+		err = MSG_ERR_INVALID_PARAMETER;
 		break;
 	}
 
 	return err;
 }
 
-int msg_folder_info_set_str(void *folder_info, int field, char *value, int size)
+int msg_folder_info_set_str(void *folder_info, int field, const char *value, int size)
 {
 	msg_error_t err = MSG_SUCCESS;
 
@@ -2451,7 +2451,7 @@ int msg_folder_info_set_str(void *folder_info, int field, char *value, int size)
 		strncpy(pFolder->folderName, value, _len);
 		break;
 	default:
-		err = MSG_ERR_UNKNOWN;
+		err = MSG_ERR_INVALID_PARAMETER;
 		break;
 	}
 
@@ -2459,26 +2459,48 @@ int msg_folder_info_set_str(void *folder_info, int field, char *value, int size)
 }
 
 
-int msg_list_condition_set_str(void *condition_info, int field, char *value, int size)
+int msg_list_condition_set_str(void *condition_info, int field, const char *value, int size)
 {
 	msg_error_t err = MSG_SUCCESS;
 
 	if (!condition_info || !value)
 		return MSG_ERR_NULL_POINTER;
 
+	if (size <= 0) {
+		return MSG_ERR_INVALID_PARAMETER;
+	}
+
 	MSG_LIST_CONDITION_S *cond = (MSG_LIST_CONDITION_S *)condition_info;
 
 	switch (field) {
 	case MSG_LIST_CONDITION_ADDRESS_VALUE_STR:
-		if (size)
-			cond->pAddressVal = value;
+		if (size) {
+			if (cond->pAddressVal) {
+				delete cond->pAddressVal;
+				cond->pAddressVal = NULL;
+			}
+			cond->pAddressVal = (char *)new char[size+1];
+			if (cond->pAddressVal)
+				memcpy(cond->pAddressVal, value, sizeof(char)*size);
+			else
+				return MSG_ERR_MEMORY_ERROR;
+		}
 		break;
 	case MSG_LIST_CONDITION_TEXT_VALUE_STR:
-		if (size)
-			cond->pTextVal = value;
+		if (size) {
+			if (cond->pTextVal) {
+				delete cond->pTextVal;
+				cond->pTextVal = NULL;
+			}
+			cond->pTextVal = (char *)new char[size+1];
+			if (cond->pTextVal)
+				memcpy(cond->pTextVal, value, sizeof(char)*size);
+			else
+				return MSG_ERR_MEMORY_ERROR;
+		}
 		break;
 	default:
-		err = MSG_ERR_UNKNOWN;
+		err = MSG_ERR_INVALID_PARAMETER;
 		break;
 	}
 
@@ -2743,7 +2765,7 @@ int msg_reject_message_set_int(void *msg_info, int field, int value)
 	return err;
 }
 
-int msg_address_info_set_str(void *addr_info, int field, char *value, int size)
+int msg_address_info_set_str(void *addr_info, int field, const char *value, int size)
 {
 	msg_error_t err = MSG_SUCCESS;
 
@@ -2772,7 +2794,7 @@ int msg_address_info_set_str(void *addr_info, int field, char *value, int size)
 	return err;
 }
 
-int msg_media_info_set_str(void *media_info, int field, char *value, int size)
+int msg_media_info_set_str(void *media_info, int field, const char *value, int size)
 {
 	msg_error_t err = MSG_SUCCESS;
 
@@ -2806,7 +2828,7 @@ int msg_media_info_set_str(void *media_info, int field, char *value, int size)
 	return err;
 }
 
-int msg_reject_message_set_str(void *msg_info, int field, char *value, int size)
+int msg_reject_message_set_str(void *msg_info, int field, const char *value, int size)
 {
 	msg_error_t err = MSG_SUCCESS;
 
@@ -3010,7 +3032,7 @@ int msg_push_config_get_bool(void *event_info, int field, bool *value)
 	return ret;
 }
 
-int msg_push_config_set_str(void *event_info, int field, char *value, int size)
+int msg_push_config_set_str(void *event_info, int field, const char *value, int size)
 {
 	msg_error_t err = MSG_SUCCESS;
 

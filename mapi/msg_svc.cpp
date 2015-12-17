@@ -460,6 +460,16 @@ static int _release_msg_struct(msg_struct_t *msg_struct_handle)
 		delete (msg_struct_s *)pCond->sortRule;
 		pCond->sortRule = NULL;
 
+		if (pCond->pAddressVal) {
+			delete pCond->pAddressVal;
+			pCond->pAddressVal = NULL;
+		}
+
+		if (pCond->pTextVal) {
+			delete pCond->pTextVal;
+			pCond->pTextVal = NULL;
+		}
+
 		delete (MSG_LIST_CONDITION_S*)(msg_struct->data);
 		msg_struct->data = NULL;
 
@@ -1152,7 +1162,7 @@ EXPORT_API int msg_set_int_value(msg_struct_t msg_struct_handle, int field, int 
 	return err;
 }
 
-EXPORT_API int msg_set_str_value(msg_struct_t msg_struct_handle, int field, char *value, int size)
+EXPORT_API int msg_set_str_value(msg_struct_t msg_struct_handle, int field, const char *value, int size)
 {
 	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_SMS_FEATURE);
 	msg_error_t err = MSG_SUCCESS;

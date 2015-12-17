@@ -197,7 +197,7 @@ int msg_setting_set_int_value(msg_struct_s *msg_struct, int field, int value)
 	return err;
 }
 
-int msg_setting_set_str_value(msg_struct_s *msg_struct, int field, char *value, int size)
+int msg_setting_set_str_value(msg_struct_s *msg_struct, int field, const char *value, int size)
 {
 	int err = MSG_SUCCESS;
 
@@ -464,7 +464,7 @@ int msg_get_smsc_info_str(void *smsc_info, int field, char *value, int size)
 	return MSG_SUCCESS;
 }
 
-int msg_set_smsc_info_str(void *smsc_info, int field, char *val, int size)
+int msg_set_smsc_info_str(void *smsc_info, int field, const char *val, int size)
 {
 	if (!smsc_info)
 		return MSG_ERR_NULL_POINTER;
@@ -824,7 +824,7 @@ int msg_get_cb_channel_info_str(void *cb_ch_info, int field, char *value, int si
 	return MSG_SUCCESS;
 }
 
-int msg_set_cb_channel_info_str(void *cb_ch_info, int field, char *val, int size)
+int msg_set_cb_channel_info_str(void *cb_ch_info, int field, const char *val, int size)
 {
 	if (!cb_ch_info)
 		return MSG_ERR_NULL_POINTER;
@@ -1635,7 +1635,7 @@ int msg_get_voice_msg_opt_str(void *voice_msg_opt, int field, char *value, int s
 	return MSG_SUCCESS;
 }
 
-int msg_set_voice_msg_opt_str(void *voice_msg_opt, int field, char *val, int size)
+int msg_set_voice_msg_opt_str(void *voice_msg_opt, int field, const char *val, int size)
 {
 	if (!voice_msg_opt)
 		return MSG_ERR_NULL_POINTER;
@@ -1859,7 +1859,7 @@ int msg_get_general_opt_str(void *general_opt, int field, char *value, int size)
 	return MSG_SUCCESS;
 }
 
-int msg_set_general_opt_str(void *general_opt, int field, char *val, int size)
+int msg_set_general_opt_str(void *general_opt, int field, const char *val, int size)
 {
 	if (!general_opt)
 		return MSG_ERR_NULL_POINTER;

@@ -108,4 +108,4 @@ int MsgUpdateIMSIHandler(const MSG_CMD_S *pCmd, char **ppEvent);
 #ifdef FEATURE_SMS_CDMA
 int MsgCheckUniquenessHandler(const MSG_CMD_S *pCmd, char **ppEvent);
 #endif
-#endif // MSG_CMD_HANDLER_H
+#endif /* MSG_CMD_HANDLER_H */
