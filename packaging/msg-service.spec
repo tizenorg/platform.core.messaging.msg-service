@@ -158,6 +158,10 @@ rm %{buildroot}/usr/share/msg-service/msg-service-db.sql
 chmod 660 /usr/dbspace/.msg_service.db
 chmod 660 /usr/dbspace/.msg_service.db-journal
 
+chgrp priv_message_read /usr/dbspace/.msg_service.db
+chmod o= /usr/dbspace/.msg_service.db
+chsmack -a "*" /usr/dbspace/.msg_service.db
+
 mkdir -p -m 775 /opt/usr/data/msg-service
 mkdir -p -m 775 /opt/usr/data/msg-service/msgdata
 mkdir -p -m 775 /opt/usr/data/msg-service/smildata
