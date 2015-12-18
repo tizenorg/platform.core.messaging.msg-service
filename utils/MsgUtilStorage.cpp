@@ -1151,12 +1151,7 @@ msg_error_t MsgStoSetConversationDisplayName(MsgDbHandler *pDbHandle, int contac
 		return err;
 	}
 
-	/*contacts-service is not used for gear */
-#ifndef MSG_CONTACTS_SERVICE_NOT_SUPPORTED
 	int order = MsgGetContactNameOrder();
-#else /* MSG_CONTACTS_SERVICE_NOT_SUPPORTED */
-	int order = 0;
-#endif /* MSG_CONTACTS_SERVICE_NOT_SUPPORTED */
 	msg_struct_s *pAddrInfo = NULL;
 	MSG_ADDRESS_INFO_S *address = NULL;
 
@@ -1227,12 +1222,7 @@ msg_error_t MsgStoSetConversationDisplayName(MsgDbHandler *pDbHandle, msg_thread
 
 	msg_struct_list_s addressList = {0, };
 
-	/* contacts-service is not used for gear */
-#ifndef MSG_CONTACTS_SERVICE_NOT_SUPPORTED
 	int order = MsgGetContactNameOrder();
-#else /* MSG_CONTACTS_SERVICE_NOT_SUPPORTED */
-	int order = 0;
-#endif /* MSG_CONTACTS_SERVICE_NOT_SUPPORTED */
 
 	msg_struct_s *pAddrInfo = NULL;
 	MSG_ADDRESS_INFO_S *address = NULL;
@@ -2281,12 +2271,7 @@ msg_error_t MsgStoGetAddressList(const msg_thread_id_t threadId, msg_struct_list
 	msg_error_t err = MSG_SUCCESS;
 
 	/* contacts-service is not used for gear */
-#ifndef MSG_CONTACTS_SERVICE_NOT_SUPPORTED
 	int order = MsgGetContactNameOrder();
-#else /* MSG_CONTACTS_SERVICE_NOT_SUPPORTED */
-	int order = 0;
-#endif /* MSG_CONTACTS_SERVICE_NOT_SUPPORTED */
-
 
 	err = MsgStoGetAddressByConvId(dbHandle, threadId, order, pAddrList);
 

@@ -39,19 +39,9 @@ msg_error_t MsgStocheckMemoryStatus();
 int MsgStoCheckMsgCntLimit(const MSG_MESSAGE_TYPE_S* pMsgType, msg_folder_id_t FolderId);
 
 msg_error_t MsgStoAddAddress(MsgDbHandler *pDbHandle, const MSG_MESSAGE_INFO_S *pMsg, msg_thread_id_t *pConvId);
-
-/* contacts-service is not used for gear */
-#ifndef MSG_CONTACTS_SERVICE_NOT_SUPPORTED
 msg_error_t MsgStoGetAddressByMsgId(MsgDbHandler *pDbHandle, msg_message_id_t msgId, int contactNameOrder, int *nAddressCnt, MSG_ADDRESS_INFO_S **pAddress);
 msg_error_t MsgStoGetAddressByMsgId(MsgDbHandler *pDbHandle, msg_message_id_t msgId, int contactNameOrder, msg_struct_list_s *pAddress);
 msg_error_t MsgStoGetAddressByConvId(MsgDbHandler *pDbHandle, msg_thread_id_t convId, int contactNameOrder, msg_struct_list_s *pAddrlist);
-#else /* MSG_CONTACTS_SERVICE_NOT_SUPPORTED */
-/* contactNameOrder is never used */
-msg_error_t MsgStoGetAddressByMsgId(MsgDbHandler *pDbHandle, msg_message_id_t msgId, int *nAddressCnt, MSG_ADDRESS_INFO_S **pAddress);
-msg_error_t MsgStoGetAddressByMsgId(MsgDbHandler *pDbHandle, msg_message_id_t msgId, msg_struct_list_s *pAddress);
-msg_error_t MsgStoGetAddressByConvId(MsgDbHandler *pDbHandle, msg_thread_id_t convId, msg_struct_list_s *pAddrlist);
-#endif /* MSG_CONTACTS_SERVICE_NOT_SUPPORTED */
-
 void MsgStoUpdateAddress(MsgDbHandler *pDbHandle, const MSG_MESSAGE_INFO_S *pMsg, msg_thread_id_t convId);
 msg_error_t MsgStoAddConversation(MsgDbHandler *pDbHandle, msg_thread_id_t *pConvId);
 msg_error_t MsgStoUpdateConversation(MsgDbHandler *pDbHandle, msg_thread_id_t convId);

@@ -24,9 +24,7 @@
 
 extern "C"
 {
-#ifndef MSG_CONTACTS_SERVICE_NOT_SUPPORTED
 	#include <contacts.h>
-#endif /* MSG_CONTACTS_SERVICE_NOT_SUPPORTED */
 }
 
 /*==================================================================================================
@@ -206,7 +204,6 @@ void normalizeNumber(const char *orig, char* dest, unsigned int destSize)
 }
 
 
-#ifndef MSG_CONTACTS_SERVICE_NOT_SUPPORTED
 /*==================================================================================================
                                      FUNCTION IMPLEMENTATION
 ==================================================================================================*/
@@ -959,7 +956,6 @@ bool checkBlockingMode(char *address, bool *pisFavorites)
 	return false;
 #endif
 }
-#endif /* MSG_CONTACTS_SERVICE_NOT_SUPPORTED */
 
 int MsgContactGetMinMatchDigit()
 {

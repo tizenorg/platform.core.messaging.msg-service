@@ -101,14 +101,7 @@ void SmsPluginTransport::submitRequest(SMS_REQUEST_INFO_S *pReqInfo)
 
 	/* Get address informations. */
 	MsgDbHandler *dbHandle = getDbHandle();
-	/* contacts-service is not used for gear */
-#ifndef MSG_CONTACTS_SERVICE_NOT_SUPPORTED
 	MsgStoGetAddressByMsgId(dbHandle, pReqInfo->msgInfo.msgId, 0, &pReqInfo->msgInfo.nAddressCnt, &pReqInfo->msgInfo.addressList);
-#else /* MSG_CONTACTS_SERVICE_NOT_SUPPORTED */
-	/* contactNameOrder is never used */
-	MsgStoGetAddressByMsgId(dbHandle, pReqInfo->msgInfo.msgId, &pReqInfo->msgInfo.nAddressCnt, &pReqInfo->msgInfo.addressList);
-#endif /* MSG_CONTACTS_SERVICE_NOT_SUPPORTED */
-
 	MSG_DEBUG("pReqInfo->msgInfo.nAddressCnt [%d]", pReqInfo->msgInfo.nAddressCnt);
 
 	/* Get MSISDN */
