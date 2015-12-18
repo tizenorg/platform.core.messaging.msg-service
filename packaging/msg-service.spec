@@ -123,7 +123,7 @@ cmake . -DCMAKE_INSTALL_PREFIX=%{_prefix} \
 %else
 -D_TIZEN_I586_ENABLED:BOOL=OFF \
 %endif
-%if "%{?tizen_profile_name}" == "wearable"
+%if "%{?profile}" == "wearable"
 -D_MSG_WEARABLE_PROFILE:BOOL=ON \
 %else
 -D_MSG_WEARABLE_PROFILE:BOOL=OFF \
