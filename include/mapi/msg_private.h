@@ -71,7 +71,7 @@ int msg_message_get_list_hnd(void *data, int field, void **value);
 
 int msg_message_set_int_value(void *data, int field, int value);
 int msg_message_set_bool_value(void *data, int field, bool value);
-int msg_message_set_str_value(void *data, int field, char *value, int size);
+int msg_message_set_str_value(void *data, int field, const char *value, int size);
 int msg_message_set_struct_hnd(void *data, int field, void *value);
 
 void msg_message_copy_message(MSG_MESSAGE_HIDDEN_S *pSrc, MSG_MESSAGE_HIDDEN_S *pDst);
@@ -90,7 +90,7 @@ int msg_get_filter_info_int(void *filter, int field, int *value);
 int msg_get_filter_info_str(void *filter, int field, char *value, int size);
 int msg_set_filter_info_bool(void *filter, int field, bool value);
 int msg_set_filter_info_int(void *filter, int field, int value);
-int msg_set_filter_info_str(void *filter, int field, char *value, int size);
+int msg_set_filter_info_str(void *filter, int field, const char *value, int size);
 
 
 /* mms */
@@ -105,7 +105,7 @@ int msg_mms_get_struct_handle(msg_struct_s *msg_struct, int field, msg_struct_s 
 int msg_mms_get_list_handle(msg_struct_s *msg_struct, int field, msg_list_handle_t *value);
 
 int msg_mms_set_int_value(msg_struct_s *msg_struct, int field, int value);
-int msg_mms_set_str_value(msg_struct_s *msg_struct, int field, char *value, int size);
+int msg_mms_set_str_value(msg_struct_s *msg_struct, int field, const char *value, int size);
 int msg_mms_set_bool_value(msg_struct_s *msg_struct, int field, bool value);
 int msg_mms_set_struct_handle(msg_struct_s *msg_struct, int field, msg_struct_s *value);
 
@@ -122,7 +122,7 @@ int msg_setting_get_bool_value(msg_struct_s *msg_struct, int field, bool *value)
 int msg_setting_get_list_handle(msg_struct_s *msg_struct, int field, void **value);
 
 int msg_setting_set_int_value(msg_struct_s *msg_struct, int field, int value);
-int msg_setting_set_str_value(msg_struct_s *msg_struct, int field, char *value, int size);
+int msg_setting_set_str_value(msg_struct_s *msg_struct, int field, const char *value, int size);
 int msg_setting_set_bool_value(msg_struct_s *msg_struct, int field, bool value);
 
 int msg_get_smsc_opt_int(void *smsc_opt, int field, int *value);
@@ -132,7 +132,7 @@ int msg_get_smsc_opt_list(void *smsc_opt, int field, void **value);
 int msg_get_smsc_info_int(void *smsc_info, int field, int *value);
 int msg_set_smsc_info_int(void *smsc_info, int field, int value);
 int msg_get_smsc_info_str(void *smsc_info, int field, char *value, int size);
-int msg_set_smsc_info_str(void *smsc_info, int field, char *val, int size);
+int msg_set_smsc_info_str(void *smsc_info, int field, const char *val, int size);
 
 int msg_get_cb_option_int(void *cb_opt, int field, int *value);
 int msg_set_cb_option_int(void *cb_opt, int field, int value);
@@ -145,7 +145,7 @@ int msg_set_cb_channel_info_int(void *cb_ch_info, int field, int value);
 int msg_get_cb_channel_info_bool(void *cb_ch_info, int field, bool *value);
 int msg_set_cb_channel_info_bool(void *cb_ch_info, int field, bool value);
 int msg_get_cb_channel_info_str(void *cb_ch_info, int field, char *value, int size);
-int msg_set_cb_channel_info_str(void *cb_ch_info, int field, char *val, int size);
+int msg_set_cb_channel_info_str(void *cb_ch_info, int field, const char *val, int size);
 
 int msg_get_sms_send_opt_int(void *sms_send_opt, int field, int *value);
 int msg_set_sms_send_opt_int(void *sms_send_opt, int field, int value);
@@ -170,14 +170,14 @@ int msg_set_push_msg_opt_bool(void *push_msg_opt, int field, bool value);
 int msg_get_voice_msg_opt_int(void *voice_msg_opt, int field, int *value);
 int msg_set_voice_msg_opt_int(void *voice_msg_opt, int field, int value);
 int msg_get_voice_msg_opt_str(void *voice_msg_opt, int field, char *value, int size);
-int msg_set_voice_msg_opt_str(void *voice_msg_opt, int field, char *val, int size);
+int msg_set_voice_msg_opt_str(void *voice_msg_opt, int field, const char *val, int size);
 
 int msg_get_general_opt_int(void *general_opt, int field, int *value);
 int msg_set_general_opt_int(void *general_opt, int field, int value);
 int msg_get_general_opt_bool(void *general_opt, int field, bool *value);
 int msg_set_general_opt_bool(void *general_opt, int field, bool value);
 int msg_get_general_opt_str(void *general_opt, int field, char *value, int size);
-int msg_set_general_opt_str(void *general_opt, int field, char *val, int size);
+int msg_set_general_opt_str(void *general_opt, int field, const char *val, int size);
 
 int msg_get_msgsize_opt_int(void *size_opt, int field, int *value);
 int msg_set_msgsize_opt_int(void *size_opt, int field, int value);
@@ -185,7 +185,7 @@ int msg_set_msgsize_opt_int(void *size_opt, int field, int value);
 /* Wap Push */
 int msg_push_config_get_str(void *event_info, int field, char *value, int size);
 int msg_push_config_get_bool(void *event_info, int field, bool *value);
-int msg_push_config_set_str(void *event_info, int field, char *value, int size);
+int msg_push_config_set_str(void *event_info, int field, const char *value, int size);
 int msg_push_config_set_bool(void *event, int field, bool value);
 
 /* added internal apis for new managed api (storage) */
@@ -229,8 +229,8 @@ int msg_sortrule_set_int(void *sort_info, int field, int value);
 int msg_folder_info_set_int(void *folder_info, int field, int value);
 int msg_list_condition_set_int(void *condition_info, int field, int value);
 int msg_report_status_set_int(void *report_info, int field, int value);
-int msg_folder_info_set_str(void *folder_info, int field, char *value, int size);
-int msg_list_condition_set_str(void *condition_info, int field, char *value, int size);
+int msg_folder_info_set_str(void *folder_info, int field, const char *value, int size);
+int msg_list_condition_set_str(void *condition_info, int field, const char *value, int size);
 int msg_sendopt_set_bool(void *send_opt, int field, bool value);
 int msg_sortrule_set_bool(void *sort_rule, int field, bool value);
 int msg_list_condition_set_bool(void *data, int field, bool value);
@@ -241,9 +241,9 @@ int msg_list_condition_set_struct_handle(msg_struct_s *msg_struct, int field, ms
 int msg_address_info_set_int(void *addrinfo, int field, int value);
 int msg_mms_sendopt_set_int(void *opt_info, int field, int value);
 int msg_reject_message_set_int(void *msg_info, int field, int value);
-int msg_address_info_set_str(void *addr_info, int field, char *value, int size);
-int msg_media_info_set_str(void *media_info, int field, char *value, int size);
-int msg_reject_message_set_str(void *msg_info, int field, char *value, int size);
+int msg_address_info_set_str(void *addr_info, int field, const char *value, int size);
+int msg_media_info_set_str(void *media_info, int field, const char *value, int size);
+int msg_reject_message_set_str(void *msg_info, int field, const char *value, int size);
 int msg_mms_sendopt_set_bool(void *option, int field, bool value);
 int msg_sms_sendopt_set_bool(void *option, int field, bool value);
 
@@ -260,5 +260,5 @@ int msg_media_item_get_int(void *data, int field, int *value);
 int msg_conversation_get_list_hnd(void *data, int field, void **value);
 int msg_multipart_get_str_value(void *data, int field, char *value, int size);
 int msg_multipart_get_int_value(void *data, int field, int *value);
-int msg_multipart_set_str_value(void *data, int field, char *value, int size);
+int msg_multipart_set_str_value(void *data, int field, const char *value, int size);
 #endif /* MSG_PRIVATE_H_ */

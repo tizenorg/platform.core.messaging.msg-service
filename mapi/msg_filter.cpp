@@ -327,7 +327,7 @@ int msg_set_filter_info_int(void *filter, int field, int value)
 	return err;
 }
 
-int msg_set_filter_info_str(void *filter, int field, char *value, int size)
+int msg_set_filter_info_str(void *filter, int field, const char *value, int size)
 {
 	if (!filter || !value)
 		return MSG_ERR_NULL_POINTER;

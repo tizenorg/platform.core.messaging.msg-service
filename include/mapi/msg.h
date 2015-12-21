@@ -332,7 +332,7 @@ int msg_get_list_handle(msg_struct_t msg_struct_handle, int field, void **value)
  *
  * @param[in]  msg_struct_handle A pointer of message structure type
  * @param[in]  field             The enumeration to get a value of specific field
- * @param[out] value             The requested integer value
+ * @param[in] value             The requested integer value
  *
  * @return  @c 0 on success,
  *        otherwise a negative error value
@@ -356,7 +356,7 @@ int msg_set_int_value(msg_struct_t msg_struct_handle, int field, int value);
  *
  * @param[in]  msg_struct_handle A pointer of message structure type
  * @param[in]  field             The enumeration to get a value of specific field
- * @param[out] value             The requested string
+ * @param[in] value             The requested string
  * @param[in]  size              The requested size of string to set
  *
  * @return  @c 0 on success,
@@ -365,11 +365,12 @@ int msg_set_int_value(msg_struct_t msg_struct_handle, int field, int value);
  * @retval MSG_SUCCESS               Successfully done
  * @retval MSG_ERR_NULL_POINTER      Input parameter (msg_struct_handle/value) is NULL
  * @retval MSG_ERR_INVALID_PARAMETER Input parameter (field) is not valid
+ * @retval MSG_ERR_MEMORY_ERROR      Memory error
  * @retval MSG_ERR_NOT_SUPPORTED     Not supported
  *
  */
 
-int msg_set_str_value(msg_struct_t msg_struct_handle, int field, char *value, int size);
+int msg_set_str_value(msg_struct_t msg_struct_handle, int field, const char *value, int size);
 
 
 /**
@@ -383,7 +384,7 @@ int msg_set_str_value(msg_struct_t msg_struct_handle, int field, char *value, in
  *
  * @param[in]  msg_struct_handle  A pointer of message structure type
  * @param[in]  field              The enumeration to get a value of specific field
- * @param[out] value              The requested boolean value
+ * @param[in] value              The requested boolean value
  *
  * @return  @c 0 on success,
  *        otherwise a negative error value
@@ -407,7 +408,7 @@ int msg_set_bool_value(msg_struct_t msg_struct_handle, int field, bool value);
  *
  * @param[in]  msg_struct_handle A pointer of message structure type
  * @param[in]  field             The enumeration to get a value of specific field
- * @param[out] value             The requested structure handle to set
+ * @param[in] value             The requested structure handle to set
  *
  * @return  @c 0 on success,
  *        otherwise a negative error value
@@ -431,7 +432,7 @@ int msg_set_struct_handle(msg_struct_t msg_struct_handle, int field, msg_struct_
  *
  * @param[in]  msg_struct_handle A pointer of message structure type
  * @param[in]  field             The enumeration to get a value of specific field
- * @param[out] value             The requested list handle to set
+ * @param[in] value             The requested list handle to set
  *
  * @return  @c 0 on success,
  *        otherwise a negative error value
@@ -476,7 +477,7 @@ int msg_get_mms_struct(msg_struct_t msg_struct_handle, msg_struct_t mms_struct_h
  * @remarks Use valid structure handle.
  *
  * @param[in]  msg_struct_handle  A pointer of message structure type
- * @param[out] mms_struct_handle  The MMS structure handle to set
+ * @param[in] mms_struct_handle  The MMS structure handle to set
  *
  * @return  @c 0 on success,
  *        otherwise a negative error value

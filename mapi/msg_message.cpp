@@ -516,7 +516,7 @@ int msg_message_set_bool_value(void *data, int field, bool value)
 	return ret;
 }
 
-int msg_message_set_str_value(void *data, int field, char *value, int size)
+int msg_message_set_str_value(void *data, int field, const char *value, int size)
 {
 	if (!data || !value)
 		return MSG_ERR_NULL_POINTER;
