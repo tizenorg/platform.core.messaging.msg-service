@@ -18,6 +18,7 @@ Requires(postun): /sbin/ldconfig
 Requires(post): systemd
 Requires(postun): systemd
 BuildRequires: cmake
+BuildRequires: libacl-devel
 BuildRequires: pkgconfig(alarm-service)
 BuildRequires: pkgconfig(aul)
 BuildRequires: pkgconfig(badge)
@@ -155,18 +156,28 @@ rm %{buildroot}/usr/share/msg-service/msg-service-db.sql
 %post tools
 /sbin/ldconfig
 
-chmod 660 /usr/dbspace/.msg_service.db
+chmod 640 /usr/dbspace/.msg_service.db
 chmod 660 /usr/dbspace/.msg_service.db-journal
 
-chgrp priv_message_read /usr/dbspace/.msg_service.db
-chmod o= /usr/dbspace/.msg_service.db
-chsmack -a "*" /usr/dbspace/.msg_service.db
-
 mkdir -p -m 775 /opt/usr/data/msg-service
-mkdir -p -m 775 /opt/usr/data/msg-service/msgdata
-mkdir -p -m 775 /opt/usr/data/msg-service/smildata
-mkdir -p -m 775 /opt/usr/data/msg-service/ipcdata
-mkdir -p -m 775 /opt/usr/data/msg-service/msgdata/thumbnails
+mkdir -p -m 770 /opt/usr/data/msg-service/msgdata
+mkdir -p -m 770 /opt/usr/data/msg-service/smildata
+mkdir -p -m 770 /opt/usr/data/msg-service/ipcdata
+mkdir -p -m 770 /opt/usr/data/msg-service/msgdata/thumbnails
+
+
+chgrp priv_message_read /usr/dbspace/.msg_service.db
+chgrp priv_message_read /opt/usr/data/msg-service/msgdata
+chgrp priv_message_read /opt/usr/data/msg-service/smildata
+chgrp priv_message_write /opt/usr/data/msg-service/ipcdata
+chgrp priv_message_read /opt/usr/data/msg-service/msgdata/thumbnails
+
+
+chsmack -a "*" /usr/dbspace/.msg_service.db
+chsmack -a "System::Shared" /opt/usr/data/msg-service/msgdata -t
+chsmack -a "System::Shared" /opt/usr/data/msg-service/smildata -t
+chsmack -a "System::Run" /opt/usr/data/msg-service/ipcdata -t
+chsmack -a "System::Shared" /opt/usr/data/msg-service/msgdata/thumbnails -t
 
 %post -n sms-plugin -p /sbin/ldconfig
 %post -n mms-plugin -p /sbin/ldconfig

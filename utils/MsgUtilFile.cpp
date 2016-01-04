@@ -26,6 +26,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <libgen.h>
+#include <acl/libacl.h>
 
 #include <media_content.h>
 #include <thumbnail_util.h>
@@ -1256,4 +1257,49 @@ bool MsgScanFile(char *filePath)
 void MsgGetMimeType(char *filePath, char *mimeType, int size)
 {
 	aul_get_mime_from_file(filePath, mimeType, size);
+}
+
+
+bool MsgAclInit()
+{
+	/* ACL */
+	/* In msg-service.spec file use libacl-devel. Because acl get not process open API */
+	/* So have to set TARGET_LINK_LIBRARIES(acl) in makefile */
+	/* After GPL-3.0, not supply shell commend (setfacl, getfacl) by license issue, use the API */
+	MSG_BEGIN();
+
+	const char *priv_read =
+			"user::rwx\n"
+			"group::rwx\n"
+			"group:priv_message_read:rwx\n"
+			"mask::rwx\n"
+			"other::---";
+	acl_t acl = NULL;
+	int ret = 0;
+
+	acl = acl_from_text(priv_read);
+	if (!acl) {
+		MSG_ERR("%s: `%s': %s\n", MSG_IPC_DATA_PATH, priv_read, strerror(errno));
+		return false;
+	}
+
+	ret = acl_check(acl, NULL);
+	if (ret != 0) {
+		acl_free(acl);
+		if (ret == ACL_DUPLICATE_ERROR) {
+			MSG_DEBUG("Already Set ACL");
+			return true;
+		}
+		MSG_ERR("acl_check Fail : [%d],[%s]", ret, acl_error(ret));
+		return false;
+	}
+
+	ret = acl_set_file((const char *)MSG_IPC_DATA_PATH, ACL_TYPE_ACCESS, acl);
+	if (ret != 0) {
+		MSG_ERR("acl_set_file Fail : [%d][%s]", ret, strerror(errno));
+	}
+	acl_free(acl);
+
+	MSG_END();
+	return true;
 }

@@ -2480,6 +2480,7 @@ int msg_list_condition_set_str(void *condition_info, int field, const char *valu
 				cond->pAddressVal = NULL;
 			}
 			cond->pAddressVal = (char *)new char[size+1];
+			memset(cond->pAddressVal, 0x00, sizeof(char)*(size+1));
 			if (cond->pAddressVal)
 				memcpy(cond->pAddressVal, value, sizeof(char)*size);
 			else
@@ -2493,6 +2494,7 @@ int msg_list_condition_set_str(void *condition_info, int field, const char *valu
 				cond->pTextVal = NULL;
 			}
 			cond->pTextVal = (char *)new char[size+1];
+			memset(cond->pTextVal, 0x00, sizeof(char)*(size+1));
 			if (cond->pTextVal)
 				memcpy(cond->pTextVal, value, sizeof(char)*size);
 			else
