@@ -41,7 +41,6 @@
 
 #include <feedback.h>
 #include <feedback-internal.h>
-#include <feedback-ids-mobile.h>
 
 /*==================================================================================================
                                     DEFINES
@@ -542,7 +541,7 @@ void MsgSoundPlayer::MsgSoundPlayStart(const MSG_ADDRESS_INFO_S *pAddrInfo, MSG_
 #ifndef MSG_CONTACTS_SERVICE_NOT_SUPPORTED
 	/* play vibration */
 	if (bPlayVibration) {
-		MsgSoundPlayVibration(contactInfo.vibrationPath, bOnCall);
+		MsgSoundPlayVibration(contactInfo.vibrationPath);
 	}
 #endif /* MSG_CONTACTS_SERVICE_NOT_SUPPORTED */
 
@@ -670,7 +669,7 @@ void MsgSoundPlayer::MsgSoundPlayMelody(char *pMsgToneFilePath)
 }
 
 
-void MsgSoundPlayer::MsgSoundPlayVibration(char *vibrationPath, bool isOnCall)
+void MsgSoundPlayer::MsgSoundPlayVibration(char *vibrationPath)
 {
 	MSG_BEGIN();
 
@@ -701,15 +700,11 @@ void MsgSoundPlayer::MsgSoundPlayVibration(char *vibrationPath, bool isOnCall)
 		if (ret != FEEDBACK_ERROR_NONE)
 			MSG_DEBUG("Fail to feedback_play_type");
 	} else {
-		if (isOnCall) {
-			ret = feedback_play_type(FEEDBACK_TYPE_VIBRATION, (feedback_pattern_e)FEEDBACK_PATTERN_MOBILE_MESSAGE_ON_CALL);
-		} else {
-			ret = feedback_set_resource_path(FEEDBACK_TYPE_VIBRATION, FEEDBACK_PATTERN_MESSAGE, NULL);
-			if (ret != FEEDBACK_ERROR_NONE)
-				MSG_DEBUG("Fail to feedback_set_resource_path");
-			ret = feedback_play_type(FEEDBACK_TYPE_VIBRATION, FEEDBACK_PATTERN_MESSAGE);
-		}
+		ret = feedback_set_resource_path(FEEDBACK_TYPE_VIBRATION, FEEDBACK_PATTERN_MESSAGE, NULL);
+		if (ret != FEEDBACK_ERROR_NONE)
+			MSG_DEBUG("Fail to feedback_set_resource_path");
 
+		ret = feedback_play_type(FEEDBACK_TYPE_VIBRATION, FEEDBACK_PATTERN_MESSAGE);
 		if (ret != FEEDBACK_ERROR_NONE)
 			MSG_DEBUG("Fail to feedback_play_type");
 	}

@@ -55,7 +55,7 @@ private:
 	~MsgSoundPlayer();
 
 	void MsgSoundPlayMelody(char *pMsgToneFilePath);
-	void MsgSoundPlayVibration(char *vibrationPath, bool isOnCall);
+	void MsgSoundPlayVibration(char *vibrationPath);
 
 	void MsgSoundSetRepeatAlarm();
 	void MsgSoundCreateRepeatAlarm(int RepeatTime);
