@@ -256,36 +256,6 @@ void MsgSoundPlayer::MsgGetRingtonePath(char *userRingtonePath, char **msg_tone_
 #endif /* MSG_WEARABLE_PROFILE */
 }
 
-
-bool MsgIsSoundPlayOnCall(void)
-{
-	bool bPlayOnCall = false;
-#ifdef _USE_MM_FW_
-#ifndef MSG_WEARABLE_PROFILE
-
-	int err = MM_ERROR_NONE;
-
-	mm_sound_device_in soundIn = MM_SOUND_DEVICE_IN_NONE;
-	mm_sound_device_out soundOut = MM_SOUND_DEVICE_OUT_NONE;
-
-	err = mm_sound_get_active_device(&soundIn, &soundOut);
-
-	if (err == MM_ERROR_NONE) {
-		if (soundOut & (MM_SOUND_DEVICE_OUT_RECEIVER|MM_SOUND_DEVICE_OUT_SPEAKER|MM_SOUND_DEVICE_OUT_BT_SCO))
-			bPlayOnCall = true;
-		else
-			bPlayOnCall = false;
-
-		MSG_DEBUG("mm_sound_device_out=[0x%04x],bPlayOnCall=[%d]", soundOut, bPlayOnCall);
-	} else {
-		MSG_DEBUG("mm_sound_get_active_device() err=[%d]", err);
-	}
-
-#endif /* MSG_WEARABLE_PROFILE */
-#endif
-	return bPlayOnCall;
-}
-
 #ifndef MSG_WEARABLE_PROFILE
 void MsgSoundPlayer::MsgGetPlayStatus(bool bOnCall, bool bSound, bool bVibration, bool bMsgSound, bool bMsgVibration, bool *bPlaySound, bool *bPlayVibration)
 {
@@ -378,46 +348,7 @@ void MsgSoundPlayer::MsgGetPlayStatus(bool bVoiceMail, bool *bPlaySound, bool *b
 	/* Check call status */
 	if (callStatus > 0 && callStatus < 3) {
 		/* 1. On Call */
-
 		*bOnCall = true; /* set call status; */
-#if 0
-		alertOnCall = MsgSettingGetInt(VCONFKEY_CISSAPPL_ALERT_ON_CALL_INT);
-		MSG_DEBUG("Alert On Call [%d]", alertOnCall);
-
-		if (alertOnCall == 0) {
-			MSG_DEBUG("Call is active & Alert on Call - Off");
-		} else if (alertOnCall == 1) {
-			/* set default value to true, while on Call alert sound to be played and vibration to be off. */
-			bool bPlayOnCall = true;
-
-			if (!bSoundOn) {
-				/* check whther sound should be on when sound setting on notification panel is off */
-				bPlayOnCall = MsgIsSoundPlayOnCall();
-			}
-
-			if (bVoiceMail) {	/* 1-1. Voice message */
-				if (bPlayOnCall && bMsgSettingNoti) {
-					MSG_DEBUG("On call, Play sound - voice message");
-					*bPlaySound = true;
-				} else {
-					MSG_DEBUG("On call, It doesn't play sound - voice message");
-				}
-
-				MSG_DEBUG("On call, It doesn't play vibration - voice message");
-			} else {	/* 1-2. Normal message */
-				if (bMsgSettingNoti) {
-					if (bPlayOnCall) {
-						MSG_DEBUG("On call, Play sound");
-						*bPlaySound = true;
-					} else {
-						MSG_DEBUG("On call, It doesn't play sound");
-					}
-
-					MSG_DEBUG("On call, It doesn't play vibration");
-				}
-			}
-		}
-#endif
 	} else {
 		/* 2. Call is not active */
 
