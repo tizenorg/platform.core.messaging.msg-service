@@ -32,13 +32,8 @@
 
 #ifndef MSG_WEARABLE_PROFILE
 
-#ifdef _USE_MM_FW_
-#include <mm_error.h>
-#include <mm_player.h>
-#include <mm_session_private.h>
-#include <mm_sound.h>
-#endif
-
+#include <player.h>
+#include <sound_manager.h>
 #include <feedback.h>
 #include <feedback-internal.h>
 
@@ -57,11 +52,11 @@
 /*==================================================================================================
                                      VARIABLES
 ==================================================================================================*/
-#ifdef _USE_MM_FW_
-MMHandleType hPlayerHandle = 0;
-#endif
+player_h g_PlayerHandle = NULL;
+sound_stream_info_h g_stream_info = NULL;
 
 pthread_mutex_t muMmPlay = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t muStream = PTHREAD_MUTEX_INITIALIZER;
 
 #endif /* MSG_WEARABLE_PROFILE */
 
@@ -120,34 +115,37 @@ static gboolean MsgSoundMelodyTimeout(gpointer data)
 }
 */
 
-#if 0
-static int MsgSoundPlayCallback(int message, void *param, void *user_param)
-{
-#ifdef _USE_MM_FW_
 #ifndef MSG_WEARABLE_PROFILE
-	switch (message) {
-	case MM_MESSAGE_BEGIN_OF_STREAM:
-		MSG_DEBUG("Play is started.");
-		break;
-	case MM_MESSAGE_END_OF_STREAM:
-	case MM_MESSAGE_STATE_INTERRUPTED:
-		MSG_DEBUG("EOS or Interrupted.");
+static void MsgSoundPlayeErrorCallback(int error_code, void *user_data)
+{
+	MSG_DEBUG("MsgSoundPlayeErrorCallback called [%d]", error_code);
+	MsgSoundPlayer::instance()->MsgStreamStop();
+	MsgSoundPlayer::instance()->MsgSoundPlayStart(NULL, MSG_SOUND_PLAY_DEFAULT);
+}
+
+static void MsgSoundPlayeCompletedCallback(void *user_data)
+{
+	MSG_DEBUG("MsgSoundPlayeCompletedCallback called");
+	MsgSoundPlayer::instance()->MsgSoundPlayStop();
+}
+
+static void MsgSoundPlayeInterruptedCallback(player_interrupted_code_e code, void *user_data)
+{
+	MSG_DEBUG("MsgSoundPlayeInterruptedCallback called [%d]", code);
+	MsgSoundPlayer::instance()->MsgSoundPlayStop();
+}
+
+static void MsgStreamFocusCallback(sound_stream_info_h stream_info, sound_stream_focus_change_reason_e reason_for_change, const char *additional_info, void *user_data)
+{
+	MSG_DEBUG("MsgStreamFocusCallback called, reason_for_change [%d], additional_info [%s]", reason_for_change, additional_info);
+
+	sound_stream_focus_state_e playback_focus_state = SOUND_STREAM_FOCUS_STATE_ACQUIRED;
+
+	sound_manager_get_focus_state(stream_info, &playback_focus_state, NULL);
+	if (playback_focus_state == SOUND_STREAM_FOCUS_STATE_RELEASED) {
+		MSG_DEBUG("sound stream focus released");
 		MsgSoundPlayer::instance()->MsgSoundPlayStop();
-		break;
-	case MM_MESSAGE_FILE_NOT_SUPPORTED:
-	case MM_MESSAGE_FILE_NOT_FOUND:
-	case MM_MESSAGE_DRM_NOT_AUTHORIZED:
-	case MM_MESSAGE_ERROR:
-		MSG_DEBUG("message [%d] & play with default", message);
-		MsgSoundPlayer::instance()->MsgSoundPlayStart(NULL, MSG_SOUND_PLAY_DEFAULT);
-		break;
-	default:
-		MSG_DEBUG("message [%d]", message);
-		break;
 	}
-#endif /* MSG_WEARABLE_PROFILE */
-#endif
-	return 1;
 }
 #endif
 
@@ -159,7 +157,6 @@ MsgSoundPlayer* MsgSoundPlayer::pInstance = NULL;
 
 MsgSoundPlayer::MsgSoundPlayer()
 {
-#ifdef _USE_MM_FW_
 #ifndef MSG_WEARABLE_PROFILE
 	bPlaying = false;
 	bVibrating = false;
@@ -185,7 +182,6 @@ MsgSoundPlayer::MsgSoundPlayer()
 		MSG_DEBUG("Fail to MsgSensorConnect.");
 	}
 #endif /* MSG_WEARABLE_PROFILE */
-#endif
 }
 
 
@@ -384,7 +380,6 @@ void MsgSoundPlayer::MsgGetPlayStatus(bool bVoiceMail, bool *bPlaySound, bool *b
 void MsgSoundPlayer::MsgSoundPlayStart(const MSG_ADDRESS_INFO_S *pAddrInfo, MSG_SOUND_TYPE_T soundType)
 {
 	MSG_BEGIN();
-#ifdef _USE_MM_FW_
 #ifndef MSG_WEARABLE_PROFILE
 
 	MSG_DEBUG("soundType [%d]", soundType);
@@ -445,27 +440,12 @@ void MsgSoundPlayer::MsgSoundPlayStart(const MSG_ADDRESS_INFO_S *pAddrInfo, MSG_
 
 	/* play sound */
 	if (bPlaySound) {
-		int err = MM_ERROR_NONE;
+		int err = MsgStreamStart(soundType);
 
-		if (soundType == MSG_SOUND_PLAY_EMERGENCY)
-			err = mm_session_init(MM_SESSION_TYPE_EMERGENCY);
+		if (err != SOUND_MANAGER_ERROR_NONE)
+			MSG_DEBUG("MsgStreamStart() Failed : %d", err);
 		else
-			err = mm_session_init(MM_SESSION_TYPE_NOTIFY);
-
-		if (err != MM_ERROR_NONE)
-			MSG_DEBUG("MM Session Init Failed");
-		else
-			MSG_DEBUG("MM Session Init Success : %d", err);
-
-
-		MsgSoundPlayMelody(msg_tone_file_path);
-
-		err = mm_session_finish();
-
-		if (err != MM_ERROR_NONE)
-			MSG_DEBUG("MM Session Finish Failed.");
-		else
-			MSG_DEBUG("MM Session Finish Success : %d", err);
+			MsgSoundPlayMelody(msg_tone_file_path);
 	}
 
 /* contacts-service is not used for gear */
@@ -480,7 +460,6 @@ void MsgSoundPlayer::MsgSoundPlayStart(const MSG_ADDRESS_INFO_S *pAddrInfo, MSG_
 /*	MsgSoundSetRepeatAlarm(); */
 
 #endif /* MSG_WEARABLE_PROFILE */
-#endif
 	MSG_END();
 }
 
@@ -488,37 +467,98 @@ void MsgSoundPlayer::MsgSoundPlayStart(const MSG_ADDRESS_INFO_S *pAddrInfo, MSG_
 void MsgSoundPlayer::MsgSoundPlayStop()
 {
 	MSG_BEGIN();
-#ifdef _USE_MM_FW_
 #ifndef MSG_WEARABLE_PROFILE
 
+	int err = 0;
 	pthread_mutex_lock(&muMmPlay);
 
-	if (bPlaying == true && hPlayerHandle != 0) {
+	if (bPlaying == true && g_PlayerHandle != NULL) {
 		MSG_DEBUG("stopping the player.");
 		/* Stop playing media contents */
-		int err = mm_player_stop(hPlayerHandle);
+		err = player_stop(g_PlayerHandle);
 
-		if (err != MM_ERROR_NONE)
+		if (err != PLAYER_ERROR_NONE)
 			MSG_DEBUG("stopping the player handle failed");
 	}
 
-	if (hPlayerHandle != 0) {
+	if (g_PlayerHandle != NULL) {
 		MSG_DEBUG("destroy the player.");
 
-		/* Uninitializing the player module */
-		mm_player_unrealize(hPlayerHandle);
-
-		/* Destroying the player handle */
-		mm_player_destroy(hPlayerHandle);
+		player_unset_error_cb(g_PlayerHandle);
+		player_unset_completed_cb(g_PlayerHandle);
+		player_unset_interrupted_cb(g_PlayerHandle);
+		player_unprepare(g_PlayerHandle);
+		player_destroy(g_PlayerHandle);
 	}
 
-	hPlayerHandle = 0;
+	g_PlayerHandle = NULL;
 	bPlaying = false;
 
 	pthread_mutex_unlock(&muMmPlay);
 
+	MsgStreamStop();
+
 #endif /* MSG_WEARABLE_PROFILE */
-#endif
+	MSG_END();
+}
+
+
+int MsgSoundPlayer::MsgStreamStart(MSG_SOUND_TYPE_T soundType)
+{
+	MSG_BEGIN();
+	int err = 0;
+
+#ifndef MSG_WEARABLE_PROFILE
+	pthread_mutex_lock(&muStream);
+
+	if (g_stream_info != NULL) {
+		err = sound_manager_destroy_stream_information(g_stream_info);
+		if (err != SOUND_MANAGER_ERROR_NONE)
+			MSG_DEBUG("sound_manager_destroy_stream_information() Failed : %d", err);
+
+		g_stream_info = NULL;
+	}
+
+	if (soundType == MSG_SOUND_PLAY_EMERGENCY)
+		err = sound_manager_create_stream_information(SOUND_STREAM_TYPE_EMERGENCY, MsgStreamFocusCallback, NULL, &g_stream_info);
+	else
+		err = sound_manager_create_stream_information(SOUND_STREAM_TYPE_NOTIFICATION, MsgStreamFocusCallback, NULL, &g_stream_info);
+
+	if (err != SOUND_MANAGER_ERROR_NONE) {
+		MSG_DEBUG("sound_manager_create_stream_information() Failed : %d", err);
+		pthread_mutex_unlock(&muStream);
+		return err;
+	}
+
+	err = sound_manager_acquire_focus(g_stream_info, SOUND_STREAM_FOCUS_FOR_PLAYBACK, NULL);
+	pthread_mutex_unlock(&muStream);
+
+#endif /* MSG_WEARABLE_PROFILE */
+	MSG_END();
+	return err;
+}
+
+
+void MsgSoundPlayer::MsgStreamStop()
+{
+	MSG_BEGIN();
+#ifndef MSG_WEARABLE_PROFILE
+	pthread_mutex_lock(&muStream);
+
+	if (g_stream_info != NULL) {
+		int err = sound_manager_release_focus(g_stream_info, SOUND_STREAM_FOCUS_FOR_PLAYBACK, NULL);
+		if (err != SOUND_MANAGER_ERROR_NONE)
+			MSG_DEBUG("sound_manager_release_focus() Failed : %d", err);
+
+		err = sound_manager_destroy_stream_information(g_stream_info);
+		if (err != SOUND_MANAGER_ERROR_NONE)
+			MSG_DEBUG("sound_manager_destroy_stream_information() Failed : %d", err);
+
+		g_stream_info = NULL;
+	}
+	pthread_mutex_unlock(&muStream);
+
+#endif /* MSG_WEARABLE_PROFILE */
 	MSG_END();
 }
 
@@ -526,8 +566,7 @@ void MsgSoundPlayer::MsgSoundPlayStop()
 void MsgSoundPlayer::MsgSoundPlayMelody(char *pMsgToneFilePath)
 {
 #ifndef MSG_WEARABLE_PROFILE
-#ifdef _USE_MM_FW_
-	int err = MM_ERROR_NONE;
+	int err = PLAYER_ERROR_NONE;
 
 	if (!pMsgToneFilePath) {
 		MSG_DEBUG("Ringtone path is NULL");
@@ -536,54 +575,58 @@ void MsgSoundPlayer::MsgSoundPlayMelody(char *pMsgToneFilePath)
 
 	pthread_mutex_lock(&muMmPlay);
 
-	if (hPlayerHandle != 0) {
-		mm_player_unrealize(hPlayerHandle);
-		mm_player_destroy(hPlayerHandle);
-		hPlayerHandle = 0;
+	if (g_stream_info == NULL) {
+		MSG_DEBUG("g_stream_info is NULL");
+		return;
 	}
 
-	err = mm_player_create(&hPlayerHandle);
+	if (g_PlayerHandle) {
+		player_unset_error_cb(g_PlayerHandle);
+		player_unset_completed_cb(g_PlayerHandle);
+		player_unset_interrupted_cb(g_PlayerHandle);
+		player_unprepare(g_PlayerHandle);
+		player_destroy(g_PlayerHandle);
+	}
+
+	err = player_create(&g_PlayerHandle);
 
 	pthread_mutex_unlock(&muMmPlay);
 
-	if (err != MM_ERROR_NONE) {
+	if (err != PLAYER_ERROR_NONE) {
 		MSG_DEBUG("creating the player handle failed");
 		return;
 	}
 
 	/* Setting the call back function msg_callback */
-	mm_player_set_message_callback(hPlayerHandle, MsgSoundPlayCallback, NULL);
+	player_set_error_cb(g_PlayerHandle, MsgSoundPlayeErrorCallback, NULL);
+	player_set_completed_cb(g_PlayerHandle, MsgSoundPlayeCompletedCallback, NULL);
+	player_set_interrupted_cb(g_PlayerHandle, MsgSoundPlayeInterruptedCallback, NULL);
+
+	player_set_audio_policy_info(g_PlayerHandle, g_stream_info);
 
 	do {
-		/* Setting fade in/out, Volume */
-		err = mm_player_set_attribute(hPlayerHandle, NULL,
-				"sound_volume_type", MM_SOUND_VOLUME_TYPE_NOTIFICATION,
-				"profile_uri", pMsgToneFilePath, strlen(pMsgToneFilePath),
-				"sound_priority", 2,
-				NULL);
+		err = player_set_uri(g_PlayerHandle, (const char *)pMsgToneFilePath);
+		if (err != PLAYER_ERROR_NONE)
+			MSG_DEBUG("player_set_uri() error : [%d]", err);
 
-		if (err != MM_ERROR_NONE)
-			MSG_DEBUG("error setting the profile attr [%d]", err);
-
-		err = mm_player_realize(hPlayerHandle);
-
-		if (err != MM_ERROR_NONE) {
-			MSG_DEBUG("mm_player_realize() error : [%d]", err);
+		err = player_prepare(g_PlayerHandle);
+		if (err != PLAYER_ERROR_NONE) {
+			MSG_DEBUG("player_prepare() error : [%d]", err);
 			if (pMsgToneFilePath != defaultRingtonePath) {
 				pMsgToneFilePath = defaultRingtonePath;
 			} else {
 				return;
 			}
 		}
-	} while (err != MM_ERROR_NONE);
+	} while (err != PLAYER_ERROR_NONE);
 
 
 	pthread_mutex_lock(&muMmPlay);
-	MSG_DEBUG("mm_player_start with [%s]", pMsgToneFilePath);
-	err = mm_player_start(hPlayerHandle);
+	MSG_DEBUG("player_start with [%s]", pMsgToneFilePath);
+	err = player_start(g_PlayerHandle);
 
-	if (err != MM_ERROR_NONE) {
-	 	MSG_DEBUG("mm_player_start, FAIL [%x]", err);
+	if (err != PLAYER_ERROR_NONE) {
+	 	MSG_DEBUG("player_start, FAIL [%x]", err);
 	} else {
 		/* Add Timer to stop playing after 5 sec. */
 		/*
@@ -595,7 +638,6 @@ void MsgSoundPlayer::MsgSoundPlayMelody(char *pMsgToneFilePath)
 	}
 	pthread_mutex_unlock(&muMmPlay);
 
-#endif /* MSG_WEARABLE_PROFILE */
 #endif
 }
 
@@ -642,28 +684,6 @@ void MsgSoundPlayer::MsgSoundPlayVibration(char *vibrationPath)
 
 #endif /* MSG_WEARABLE_PROFILE */
 
-	MSG_END();
-}
-
-void MsgSoundPlayer::MsgSoundPlayDtmf()
-{
-	MSG_BEGIN();
-#ifdef _USE_MM_FW_
-#ifndef MSG_WEARABLE_PROFILE
-
-	int ret = 0;
-	int hToneHandle = 0;
-
-	ret = mm_sound_play_tone(MM_SOUND_TONE_PROP_BEEP2, VOLUME_TYPE_SYSTEM, 1.0, 300, &hToneHandle);
-
-	if (ret < 0) {
-		MSG_DEBUG("play tone failed.");
-	} else {
-		MSG_DEBUG("play tone success.");
-	}
-
-#endif /* MSG_WEARABLE_PROFILE */
-#endif
 	MSG_END();
 }
 

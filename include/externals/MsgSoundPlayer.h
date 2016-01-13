@@ -44,8 +44,10 @@ public:
 	void MsgSoundPlayStart(const MSG_ADDRESS_INFO_S *pAddrInfo, MSG_SOUND_TYPE_T soundType);
 	void MsgSoundPlayStop();
 
+	int MsgStreamStart(MSG_SOUND_TYPE_T soundType);
+	void MsgStreamStop();
+
 	void MsgSoundInitRepeatAlarm();
-	void MsgSoundPlayDtmf();
 
 	void MsgGetRingtonePath(char *userRingtonePath, char **msg_tone_file_path_p);
 	void MsgGetPlayStatus(bool bVoiceMail, bool *bPlaySound, bool *bPlayVibration, bool *bOnCall);
