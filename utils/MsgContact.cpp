@@ -726,9 +726,9 @@ void MsgAddPhoneLog(const MSG_MESSAGE_INFO_S *pMsgInfo)
 
 		if (pMsgInfo->folderId == MSG_INBOX_ID) {
 			if (pMsgInfo->msgType.mainType == MSG_SMS_TYPE)
-				contacts_record_set_int(plog, _contacts_phone_log.log_type, CONTACTS_PLOG_TYPE_SMS_INCOMMING);
+				contacts_record_set_int(plog, _contacts_phone_log.log_type, CONTACTS_PLOG_TYPE_SMS_INCOMING);
 			else if (pMsgInfo->msgType.mainType == MSG_MMS_TYPE)
-				contacts_record_set_int(plog, _contacts_phone_log.log_type, CONTACTS_PLOG_TYPE_MMS_INCOMMING);
+				contacts_record_set_int(plog, _contacts_phone_log.log_type, CONTACTS_PLOG_TYPE_MMS_INCOMING);
 		} else if (pMsgInfo->folderId == MSG_OUTBOX_ID) {
 			if (pMsgInfo->msgType.mainType == MSG_SMS_TYPE)
 				contacts_record_set_int(plog, _contacts_phone_log.log_type, CONTACTS_PLOG_TYPE_SMS_OUTGOING);
