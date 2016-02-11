@@ -43,6 +43,7 @@ extern "C"
 #define MAX_SMS_SEND_RETRY			4
 #define MAX_SMSC_LEN 				20
 #define MAX_ADD_PARAM_LEN			12
+#define MAX_DCS_PARAM_LEN			1
 #define MAX_ABS_TIME_PARAM_LEN		7
 #define MAX_REL_TIME_PARAM_LEN		1
 #define MAX_UD_HEADER_NUM			7

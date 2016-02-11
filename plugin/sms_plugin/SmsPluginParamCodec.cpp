@@ -112,7 +112,7 @@ int SmsPluginParamCodec::encodeTime(const SMS_TIMESTAMP_S *pTimeStamp, char **pp
 
 int SmsPluginParamCodec::encodeDCS(const SMS_DCS_S *pDCS, char **ppParam)
 {
-	*ppParam = new char;
+	*ppParam = new char[MAX_DCS_PARAM_LEN];
 
 	**ppParam = 0x00;
 
@@ -164,7 +164,7 @@ int SmsPluginParamCodec::encodeDCS(const SMS_DCS_S *pDCS, char **ppParam)
 		return 0;
 	}
 
-	return 1;
+	return MAX_DCS_PARAM_LEN;
 }
 
 
