@@ -35,7 +35,6 @@ BuildRequires: pkgconfig(capi-system-device)
 BuildRequires: pkgconfig(capi-system-info)
 BuildRequires: pkgconfig(capi-system-system-settings)
 BuildRequires: pkgconfig(capi-telephony)
-BuildRequires: pkgconfig(contacts-service2)
 BuildRequires: pkgconfig(cynara-client)
 BuildRequires: pkgconfig(cynara-creds-commons)
 BuildRequires: pkgconfig(cynara-creds-socket)
@@ -61,6 +60,9 @@ BuildRequires: pkgconfig(sqlite3)
 BuildRequires: pkgconfig(storage)
 BuildRequires: pkgconfig(tapi)
 BuildRequires: pkgconfig(vconf)
+%if "%{?profile}" == "mobile"
+BuildRequires: pkgconfig(contacts-service2)
+%endif
 
 %description
 Description: Messaging Framework Library

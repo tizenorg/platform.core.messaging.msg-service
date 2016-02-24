@@ -254,7 +254,7 @@ static int __msgsvc_vmsg_append_str(char **buf, int *buf_size, int len, const ch
 		char *r = (char *)(*buf+len);
 
 		while (*s) {
-			switch (*s) {
+			switch ((unsigned int)*s) {
 			case '\r':
 				if (*(s+1) && '\n' == *(s+1)) {
 					s++;
@@ -1684,7 +1684,7 @@ static char* __msgsvc_vmsg_remove_escape_char(char *str)
 	while (*s) {
 		if (*s == '\\' && *(s+1)) {
 			char *n = (char*)(s+1);
-			switch (*n) {
+			switch ((unsigned int)*n) {
 			case 'n':
 			case 'N':
 				*r = '\n';

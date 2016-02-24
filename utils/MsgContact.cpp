@@ -22,10 +22,12 @@
 #include "MsgGconfWrapper.h"
 #include "MsgContact.h"
 
+#ifndef MSG_CONTACTS_SERVICE_NOT_SUPPORTED
 extern "C"
 {
 	#include <contacts.h>
 }
+#endif /* MSG_CONTACTS_SERVICE_NOT_SUPPORTED */
 
 /*==================================================================================================
                                      VARIABLES
@@ -38,11 +40,14 @@ MsgDbHandler ContactDbHandle;
 #define PHONENUMBER_MIN_MATCH_DIGIT VCONFKEY_CONTACTS_SVC_PHONENUMBER_MIN_MATCH_DIGIT
 #define DEFAULT_MIN_MATCH_DIGIT 8
 
+#ifndef MSG_CONTACTS_SERVICE_NOT_SUPPORTED
 static int phonenumberMinMatchDigit = -1;
+#endif
 
 /*==================================================================================================
                                      INTERNAL FUNCTION IMPLEMENTATION
 ==================================================================================================*/
+
 int countryCodeLength(const char *src)
 {
 	int ret = 0;
@@ -203,12 +208,12 @@ void normalizeNumber(const char *orig, char* dest, unsigned int destSize)
 	}
 }
 
-
 /*==================================================================================================
                                      FUNCTION IMPLEMENTATION
 ==================================================================================================*/
 msg_error_t MsgOpenContactSvc()
 {
+#ifndef MSG_CONTACTS_SERVICE_NOT_SUPPORTED
 	int errCode = CONTACTS_ERROR_NONE;
 
 	if (!isContactSvcConnected) {
@@ -225,13 +230,14 @@ msg_error_t MsgOpenContactSvc()
 	} else {
 		MSG_DEBUG("Already connected to Contact Service.");
 	}
-
+#endif /* MSG_CONTACTS_SERVICE_NOT_SUPPORTED */
 	return MSG_SUCCESS;
 }
 
 
 msg_error_t MsgCloseContactSvc()
 {
+#ifndef MSG_CONTACTS_SERVICE_NOT_SUPPORTED
 	int errCode = CONTACTS_ERROR_NONE;
 
 	if (isContactSvcConnected) {
@@ -245,20 +251,21 @@ msg_error_t MsgCloseContactSvc()
 			return MSG_ERR_DB_DISCONNECT;
 		}
 	}
-
+#endif /* MSG_CONTACTS_SERVICE_NOT_SUPPORTED */
 	return MSG_SUCCESS;
 }
 
 
 msg_error_t MsgInitContactSvc()
 {
+#ifndef MSG_CONTACTS_SERVICE_NOT_SUPPORTED
 	phonenumberMinMatchDigit = MsgSettingGetInt(PHONENUMBER_MIN_MATCH_DIGIT);
 	MSG_DEBUG("phonenumberMinMatchDigit [%d]", phonenumberMinMatchDigit);
 
 	if (phonenumberMinMatchDigit < 1) {
 		phonenumberMinMatchDigit = DEFAULT_MIN_MATCH_DIGIT;
 	}
-
+#endif /* MSG_CONTACTS_SERVICE_NOT_SUPPORTED */
 	return MSG_SUCCESS;
 }
 
@@ -266,7 +273,7 @@ msg_error_t MsgInitContactSvc()
 msg_error_t MsgGetContactInfo(const MSG_ADDRESS_INFO_S *pAddrInfo, MSG_CONTACT_INFO_S *pContactInfo)
 {
 	MSG_BEGIN();
-
+#ifndef MSG_CONTACTS_SERVICE_NOT_SUPPORTED
 	msg_error_t err = MSG_SUCCESS;
 
 	if ((err = MsgOpenContactSvc()) != MSG_SUCCESS) {
@@ -487,6 +494,7 @@ msg_error_t MsgGetContactInfo(const MSG_ADDRESS_INFO_S *pAddrInfo, MSG_CONTACT_I
 
 	contacts_record_destroy(contact, true);
 
+#endif /* MSG_CONTACTS_SERVICE_NOT_SUPPORTED */
 	MSG_END();
 
 	return MSG_SUCCESS;
@@ -496,6 +504,7 @@ msg_error_t MsgGetContactInfo(const MSG_ADDRESS_INFO_S *pAddrInfo, MSG_CONTACT_I
 msg_error_t MsgGetContactSearchList(const char *pSearchVal, MSG_ADDRESS_INFO_S **pAddrInfo, int *count)
 {
 	MSG_BEGIN();
+#ifndef MSG_CONTACTS_SERVICE_NOT_SUPPORTED
 
 	msg_error_t err = MSG_SUCCESS;
 
@@ -581,6 +590,7 @@ msg_error_t MsgGetContactSearchList(const char *pSearchVal, MSG_ADDRESS_INFO_S *
 
 	contacts_list_destroy(personNumbers, true);
 
+#endif /* MSG_CONTACTS_SERVICE_NOT_SUPPORTED */
 	MSG_END();
 
 	return MSG_SUCCESS;
@@ -589,14 +599,20 @@ msg_error_t MsgGetContactSearchList(const char *pSearchVal, MSG_ADDRESS_INFO_S *
 
 int MsgGetContactNameOrder()
 {
+#ifndef MSG_CONTACTS_SERVICE_NOT_SUPPORTED
 	contacts_name_display_order_e order = CONTACTS_NAME_DISPLAY_ORDER_FIRSTLAST;
 
 	return (int)order;
+#else
+	return 0;
+#endif /* MSG_CONTACTS_SERVICE_NOT_SUPPORTED */
 }
 
 
 msg_error_t MsgGetContactStyleDisplayName(const char *first, const char *last, const char *middle, const char *prefix, const char *suffix, int contactNameOrder, char *displayName, unsigned int size)
 {
+#ifndef MSG_CONTACTS_SERVICE_NOT_SUPPORTED
+
 	if (first == NULL || last == NULL || middle == NULL || prefix == NULL || suffix == NULL || displayName == NULL || size ==0) {
 		MSG_DEBUG("Invalid parameter.");
 		return MSG_ERR_INVALID_PARAMETER;
@@ -658,12 +674,15 @@ msg_error_t MsgGetContactStyleDisplayName(const char *first, const char *last, c
 
 	MSG_SEC_DEBUG("displayName [%s]", displayName);
 
+#endif /* MSG_CONTACTS_SERVICE_NOT_SUPPORTED */
 	return MSG_SUCCESS;
 }
 
 
 void MsgAddPhoneLog(const MSG_MESSAGE_INFO_S *pMsgInfo)
 {
+#ifndef MSG_CONTACTS_SERVICE_NOT_SUPPORTED
+
 	msg_error_t err = MSG_SUCCESS;
 
 	if ((err = MsgOpenContactSvc()) != MSG_SUCCESS) {
@@ -749,11 +768,13 @@ void MsgAddPhoneLog(const MSG_MESSAGE_INFO_S *pMsgInfo)
 
 		contacts_record_destroy(plog, true);
 	}
+#endif /* MSG_CONTACTS_SERVICE_NOT_SUPPORTED */
 }
 
 
 void MsgDeletePhoneLog(msg_message_id_t msgId)
 {
+#ifndef MSG_CONTACTS_SERVICE_NOT_SUPPORTED
 	msg_error_t err = MSG_SUCCESS;
 
 	if ((err = MsgOpenContactSvc()) != MSG_SUCCESS) {
@@ -812,6 +833,7 @@ void MsgDeletePhoneLog(msg_message_id_t msgId)
 	contacts_query_destroy(query);
 	contacts_filter_destroy(filter);
 	contacts_list_destroy(plogs, true);
+#endif /* MSG_CONTACTS_SERVICE_NOT_SUPPORTED */
 }
 
 
@@ -960,7 +982,11 @@ bool checkBlockingMode(char *address, bool *pisFavorites)
 
 int MsgContactGetMinMatchDigit()
 {
+#ifndef MSG_CONTACTS_SERVICE_NOT_SUPPORTED
 	return phonenumberMinMatchDigit;
+#else
+	return DEFAULT_MIN_MATCH_DIGIT;
+#endif
 }
 
 
