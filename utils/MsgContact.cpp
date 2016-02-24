@@ -692,6 +692,7 @@ void MsgAddPhoneLog(const MSG_MESSAGE_INFO_S *pMsgInfo)
 			break;
 		}
 
+		contacts_record_set_int(plog, _contacts_phone_log.sim_slot_no, (int)pMsgInfo->sim_idx-1);
 		contacts_record_set_str(plog, _contacts_phone_log.address, (char*)pMsgInfo->addressList[i].addressVal);
 		contacts_record_set_int(plog, _contacts_phone_log.log_time, (int)time(NULL));
 
