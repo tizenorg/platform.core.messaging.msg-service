@@ -850,41 +850,6 @@ EXPORT_API int msg_generate_message(msg_handle_t handle, msg_message_type_t msg_
 			msg_set_mms_struct((msg_struct_t)msg_s, mms_data);
 
 			msg_release_struct(&mms_data);
-#if 0
-			MMS_MESSAGE_DATA_S* mms_data;
-			MMS_PAGE_S* page[2];
-			MMS_MEDIA_S* media[5];
-
-			mms_data = msg_mms_create_message();
-
-			msg_mms_set_rootlayout(mms_data, 100, 100, 0xffffff);
-			msg_mms_add_region(mms_data, "Image", 0, 50, 100, 50, 0xffffff);
-			msg_mms_add_region(mms_data, "Text", 0, 0, 100, 50, 0xffffff);
-
-			/* ------------>  1st Slide Composing */
-			page[0] = msg_mms_add_page(mms_data, 5440);
-
-			media[0] = msg_mms_add_media(page[0], MMS_SMIL_MEDIA_IMG, "Image", (char*)"/opt/etc/msg-service/P091120_104633.jpg");
-			media[1] = msg_mms_add_media(page[0], MMS_SMIL_MEDIA_AUDIO, NULL, (char*)"/opt/etc/msg-service/audio.amr");
-			media[2] = msg_mms_add_media(page[0], MMS_SMIL_MEDIA_TEXT, "Text", (char*)"/opt/etc/msg-service/Temp0_2.txt");
-			media[2]->sMedia.sText.nColor = 0x000000;
-			media[2]->sMedia.sText.nSize = MMS_SMIL_FONT_SIZE_NORMAL;
-			media[2]->sMedia.sText.bBold = true;
-
-			/* ------------>  2nd Slide Composing */
-			page[1] = msg_mms_add_page(mms_data, 4544);
-
-			media[3] = msg_mms_add_media(page[1], MMS_SMIL_MEDIA_TEXT, "Text", (char*)"/opt/etc/msg-service/Temp1_0.txt");
-			media[3]->sMedia.sText.nColor = 0x000000;
-			media[3]->sMedia.sText.nSize = MMS_SMIL_FONT_SIZE_NORMAL;
-			media[3]->sMedia.sText.bItalic = true;
-			media[4] = msg_mms_add_media(page[1], MMS_SMIL_MEDIA_VIDEO, "Text", (char*)"/opt/etc/msg-service/V091120_104905.3gp");
-			strncpy(media[4]->szAlt, "Video Load Fail", MAX_SMIL_ALT_LEN-1);
-
-			/* FIXME msg_mms_set_message_body((msg_message_t)&msgInfo, mms_data); */
-
-			msg_mms_destroy_message(mms_data);
-#endif
 		}
 
 		/*err = msg_add_message(handle, (msg_message_t)&msgInfo, &sendingOpt);*/

@@ -1269,7 +1269,7 @@ msg_error_t MmsPluginStorage::addMessage(MSG_MESSAGE_INFO_S *pMsgInfo, MSG_SENDI
 		MmsPluginComposer::instance()->composeSendReq(pMsgInfo, pSendOptInfo, pMmsData);
 
 		/* encode */
-		snprintf(working_dir, sizeof(working_dir), MSG_DATA_PATH"%d.mms.dir", pMsgInfo->msgId);
+		snprintf(working_dir, sizeof(working_dir), "%s%d.mms.dir", MSG_DATA_PATH, pMsgInfo->msgId);
 
 		MsgMmsSetMultipartListData(pMmsData); /* app file -> data */
 
@@ -1306,7 +1306,7 @@ msg_error_t MmsPluginStorage::addMessage(MSG_MESSAGE_INFO_S *pMsgInfo, MSG_SENDI
 		MmsPluginComposer::instance()->composeRetrieveConf(pMsgInfo, pSendOptInfo, pMmsData);
 
 		/* encode */
-		snprintf(working_dir, sizeof(working_dir), MSG_DATA_PATH"%d.mms.dir", pMsgInfo->msgId);
+		snprintf(working_dir, sizeof(working_dir), "%s%d.mms.dir", MSG_DATA_PATH, pMsgInfo->msgId);
 
 		MsgMmsSetMultipartListData(pMmsData); /* app file -> data */
 
@@ -1404,7 +1404,7 @@ msg_error_t MmsPluginStorage::updateMessage(MSG_MESSAGE_INFO_S *pMsgInfo, MSG_SE
 			return MSG_ERR_DB_EXEC;
 		}
 
-		snprintf(working_dir, sizeof(working_dir), MSG_DATA_PATH"%d.mms.dir", pMsgInfo->msgId);
+		snprintf(working_dir, sizeof(working_dir), "%s%d.mms.dir", MSG_DATA_PATH, pMsgInfo->msgId);
 
 		MsgMmsSetMultipartListData(pMmsData); /* app file -> data */
 

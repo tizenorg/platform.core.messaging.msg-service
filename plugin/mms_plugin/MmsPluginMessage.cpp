@@ -412,9 +412,9 @@ msg_error_t MmsMakeMultipartThumbnailInfo(MMS_MULTIPART_DATA_S *pMultipart, char
 		snprintf(szFileName, MSG_FILENAME_LEN_MAX+1, "thumb_msg_%s", szFileNameWoExt);
 
 		if (pszExt && !strcasecmp(pszExt, ".png")) {
-			snprintf(thumbPath, MSG_FILEPATH_LEN_MAX, MSG_THUMBNAIL_PATH"%s.png", szFileName);
+			snprintf(thumbPath, MSG_FILEPATH_LEN_MAX, "%s%s.png", MSG_THUMBNAIL_PATH, szFileName);
 		} else {
-			snprintf(thumbPath, MSG_FILEPATH_LEN_MAX, MSG_THUMBNAIL_PATH"%s.jpg", szFileName);
+			snprintf(thumbPath, MSG_FILEPATH_LEN_MAX, "%s%s.jpg", MSG_THUMBNAIL_PATH, szFileName);
 		}
 
 		if (MakeThumbnail(pMultipart->szFilePath, thumbPath) == true) {
@@ -987,7 +987,7 @@ bool MmsConvertMmsData(MmsMsg *pMmsMsg, MMS_DATA_S *pMmsData)
 			snprintf(pMultipart->szContentID, sizeof(pMultipart->szContentID), "%s", pMmsMsg->msgBody.presentationType.szContentID);
 			snprintf(pMultipart->szContentLocation, sizeof(pMultipart->szContentLocation), "%s", pMmsMsg->msgBody.presentationType.szContentLocation);
 			snprintf(pMultipart->szFileName, sizeof(pMultipart->szFileName), "%s", pMmsMsg->msgBody.presentationType.param.szName);
-			snprintf(pMultipart->szFilePath, sizeof(pMultipart->szFilePath), MSG_DATA_PATH"%s", pMmsMsg->msgBody.presentationType.param.szFileName);
+			snprintf(pMultipart->szFilePath, sizeof(pMultipart->szFilePath), "%s%s", MSG_DATA_PATH, pMmsMsg->msgBody.presentationType.param.szFileName);
 
 			pMmsData->smil = pMultipart;
 		}

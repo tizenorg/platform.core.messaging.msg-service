@@ -27,6 +27,10 @@ ENDIF(_MSG_WEARABLE_PROFILE)
 
 ADD_DEFINITIONS("-D_FILE_OFFSET_BITS=64")
 
+ADD_DEFINITIONS(-DTZ_SYS_RO_APP_PATH="${TZ_SYS_RO_APP}")
+ADD_DEFINITIONS(-DTZ_SYS_DATA_PATH="${TZ_SYS_DATA}")
+ADD_DEFINITIONS(-DTZ_SYS_DB_PATH="${TZ_SYS_DB}")
+
 CHECK_CXX_COMPILER_FLAG("-std=c++11" COMPILER_SUPPORTS_CXX11)
 CHECK_CXX_COMPILER_FLAG("-std=c++0x" COMPILER_SUPPORTS_CXX0X)
 IF(COMPILER_SUPPORTS_CXX11)
@@ -70,13 +74,8 @@ INSTALL(FILES ${MAPI-HEADERS} DESTINATION include/msg-service)
 # Install etc Files
 ##########################################################
 
-#INSTALL(FILES ${MMS-FILES} DESTINATION /opt/etc/msg-service)
-
 CONFIGURE_FILE(msg-service.pc.in msg-service.pc @ONLY)
 INSTALL(FILES ${CMAKE_BINARY_DIR}/msg-service.pc DESTINATION ${LIBDIR}/pkgconfig)
-
-# LICENSE file
-INSTALL(FILES ${CMAKE_SOURCE_DIR}/LICENSE.APLv2 DESTINATION /usr/share/license/msg-service)
 
 #Install sysinfo file to provide which features are supported.
 IF(_FEATURE_SMS_CDMA)

@@ -42,7 +42,7 @@
 ==================================================================================================*/
 #define MAX_SOUND_FILE_LEN 1024
 
-#define DEFAULT_ALERT_FILE		"/opt/usr/share/settings/Alerts/Whistle.ogg"
+#define DEFAULT_ALERT_FILE		TZ_SYS_RO_APP_PATH "/" MSG_SETTING_APP_ID "shared/res/settings/Alerts/General notification_sdk.wav"
 
 #define HAPTIC_TEST_ITERATION 1
 #define MSG_VIBRATION_INTERVAL 3000

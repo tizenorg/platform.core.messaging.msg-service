@@ -32,7 +32,7 @@
 /*==================================================================================================
                                     DEFINES
 ==================================================================================================*/
-#define MSG_DATA_ROOT_PATH		"/opt/usr/data/msg-service/"
+#define MSG_DATA_ROOT_PATH		TZ_SYS_DATA_PATH"/msg-service/"
 #define MSG_DATA_PATH				MSG_DATA_ROOT_PATH"msgdata/"
 #define MSG_SMIL_FILE_PATH		MSG_DATA_ROOT_PATH"smildata/"
 #define MSG_IPC_DATA_PATH			MSG_DATA_ROOT_PATH"ipcdata/"
@@ -189,6 +189,7 @@
 #define MSG_QUICKPANEL_APP_ID		"org.tizen.quickpanel"
 #define MSG_INDICATOR_APP_ID		"org.tizen.indicator"
 #define MSG_CALL_APP_ID				"org.tizen.call-ui"
+#define MSG_SETTING_APP_ID			"org.tizen.setting"
 #define MSG_TEL_URI_VOICEMAIL		"tel:VOICEMAIL"
 
 #define MSG_TELEPHONY_SMS_FEATURE	"http://tizen.org/feature/network.telephony.sms"

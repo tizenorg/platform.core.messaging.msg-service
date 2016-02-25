@@ -28,35 +28,35 @@
 ==================================================================================================*/
 #define MSG_APP_PACKAGE_NAME	"message"
 
-#define MSG_APP_LOCALEDIR			"/usr/apps/" MSG_DEFAULT_APP_ID "/res/locale"
+#define MSG_APP_LOCALEDIR			TZ_SYS_RO_APP_PATH "/" MSG_DEFAULT_APP_ID "/res/locale"
 
-#define MSG_NOTIFICATION_ICON_DIR			MSG_QUICKPANEL_APP_ID "/shared/res/noti_icons"
+#define MSG_NOTIFICATION_ICON_DIR			"/" MSG_QUICKPANEL_APP_ID "/shared/res/noti_icons"
 #define MSG_STATUS_ICON_DIR			MSG_INDICATOR_APP_ID "/res/icons"
 
 /* notification icon */
-#define MSG_NORMAL_ICON_PATH	"/usr/apps/" MSG_NOTIFICATION_ICON_DIR "/Message/noti_message.png"
-#define MSG_SIM_ICON_PATH	"/usr/apps/" MSG_NOTIFICATION_ICON_DIR "/Message/noti_message_sim-card.png"
-#define MSG_OTA_ICON_PATH	"/usr/apps/" MSG_NOTIFICATION_ICON_DIR "/Message/noti_message_OTA.png"
-#define MSG_VOICE_ICON_PATH		"/usr/apps/" MSG_NOTIFICATION_ICON_DIR "/Message/noti_voice_mail.png"
-#define MSG_CB_ICON_PATH			"/usr/apps/" MSG_NOTIFICATION_ICON_DIR "/Message/noti_message_cb-msg.png"
-#define MSG_READ_ICON_PATH		"/usr/apps/" MSG_NOTIFICATION_ICON_DIR "/Message/noti_message_read_report.png"
-#define MSG_DELIVERY_ICON_PATH	"/usr/apps/" MSG_NOTIFICATION_ICON_DIR "/Message/noti_message_delivery_report.png"
-#define MSG_REPLY_ICON_PATH			"/usr/apps/" MSG_NOTIFICATION_ICON_DIR "/Message/noti_message_reply.png"
-#define MSG_SMS_SENDING_FAILED_ICON_PATH		"/usr/apps/" MSG_NOTIFICATION_ICON_DIR "/Message/noti_message_failed.png"
-#define MSG_MMS_SENDING_FAILED_ICON_PATH		"/usr/apps/" MSG_NOTIFICATION_ICON_DIR "/Message/noti_message_mms_failed.png"
-#define MSG_MMS_RETRIVE_FAILED_ICON_PATH		"/usr/apps/" MSG_NOTIFICATION_ICON_DIR "/Message/noti_message_mms_problem.png"
-#define MSG_EMERGENCY_ICON_PATH		"/usr/apps/" MSG_DEFAULT_APP_ID "/res/icons/default/small/noti_emergency_mode.png"
-#define MSG_NO_CONTACT_PROFILE_ICON_PATH	"/usr/apps/" MSG_NOTIFICATION_ICON_DIR "/Contact/noti_contact_default.png"
+#define MSG_NORMAL_ICON_PATH	TZ_SYS_RO_APP_PATH MSG_NOTIFICATION_ICON_DIR "/Message/noti_message.png"
+#define MSG_SIM_ICON_PATH	TZ_SYS_RO_APP_PATH MSG_NOTIFICATION_ICON_DIR "/Message/noti_message_sim-card.png"
+#define MSG_OTA_ICON_PATH	TZ_SYS_RO_APP_PATH MSG_NOTIFICATION_ICON_DIR "/Message/noti_message_OTA.png"
+#define MSG_VOICE_ICON_PATH		TZ_SYS_RO_APP_PATH MSG_NOTIFICATION_ICON_DIR "/Message/noti_voice_mail.png"
+#define MSG_CB_ICON_PATH			TZ_SYS_RO_APP_PATH MSG_NOTIFICATION_ICON_DIR "/Message/noti_message_cb-msg.png"
+#define MSG_READ_ICON_PATH		TZ_SYS_RO_APP_PATH MSG_NOTIFICATION_ICON_DIR "/Message/noti_message_read_report.png"
+#define MSG_DELIVERY_ICON_PATH	TZ_SYS_RO_APP_PATH MSG_NOTIFICATION_ICON_DIR "/Message/noti_message_delivery_report.png"
+#define MSG_REPLY_ICON_PATH			TZ_SYS_RO_APP_PATH MSG_NOTIFICATION_ICON_DIR "/Message/noti_message_reply.png"
+#define MSG_SMS_SENDING_FAILED_ICON_PATH		TZ_SYS_RO_APP_PATH MSG_NOTIFICATION_ICON_DIR "/Message/noti_message_failed.png"
+#define MSG_MMS_SENDING_FAILED_ICON_PATH		TZ_SYS_RO_APP_PATH MSG_NOTIFICATION_ICON_DIR "/Message/noti_message_mms_failed.png"
+#define MSG_MMS_RETRIVE_FAILED_ICON_PATH		TZ_SYS_RO_APP_PATH MSG_NOTIFICATION_ICON_DIR "/Message/noti_message_mms_problem.png"
+#define MSG_EMERGENCY_ICON_PATH		TZ_SYS_RO_APP_PATH MSG_DEFAULT_APP_ID "/res/icons/default/small/noti_emergency_mode.png"
+#define MSG_NO_CONTACT_PROFILE_ICON_PATH	TZ_SYS_RO_APP_PATH MSG_NOTIFICATION_ICON_DIR "/Contact/noti_contact_default.png"
 #define MSG_ACTIVE_PUSH_ICON_PATH		"reserved:push_message"
-#define MSG_MESSAGE_APP_SUB_ICON		"/usr/apps/" MSG_DEFAULT_APP_ID "/res/icons/default/small/org.tizen.message.png"
+#define MSG_MESSAGE_APP_SUB_ICON		TZ_SYS_RO_APP_PATH MSG_DEFAULT_APP_ID "/res/icons/default/small/org.tizen.message.png"
 
 /* status bar icon */
-#define MSG_NORMAL_STATUS_ICON				"/usr/apps/" MSG_STATUS_ICON_DIR "/Notify/B03_notify_message.png"
-#define MSG_FAILED_STATUS_ICON				"/usr/apps/" MSG_STATUS_ICON_DIR "/Notify/B03_notify_message_failed.png"
-#define MSG_DELIVER_REPORT_STATUS_ICON	"/usr/apps/" MSG_STATUS_ICON_DIR "/Event/B03_event_delivery_report_message.png"
-#define MSG_READ_REPORT_STATUS_ICON		"/usr/apps/" MSG_STATUS_ICON_DIR "/Event/B03_event_read_report_message.png"
-#define MSG_VOICE_MSG_STATUS_ICON			"/usr/apps/" MSG_STATUS_ICON_DIR "/Event/B03_event_voicemail.png"
-#define MSG_SIM_FULL_STATUS_ICON		"/usr/apps/" MSG_STATUS_ICON_DIR "/SIM card full/B03_sim_card_full.png"
+#define MSG_NORMAL_STATUS_ICON				TZ_SYS_RO_APP_PATH MSG_STATUS_ICON_DIR "/Notify/B03_notify_message.png"
+#define MSG_FAILED_STATUS_ICON				TZ_SYS_RO_APP_PATH MSG_STATUS_ICON_DIR "/Notify/B03_notify_message_failed.png"
+#define MSG_DELIVER_REPORT_STATUS_ICON	TZ_SYS_RO_APP_PATH MSG_STATUS_ICON_DIR "/Event/B03_event_delivery_report_message.png"
+#define MSG_READ_REPORT_STATUS_ICON		TZ_SYS_RO_APP_PATH MSG_STATUS_ICON_DIR "/Event/B03_event_read_report_message.png"
+#define MSG_VOICE_MSG_STATUS_ICON			TZ_SYS_RO_APP_PATH MSG_STATUS_ICON_DIR "/Event/B03_event_voicemail.png"
+#define MSG_SIM_FULL_STATUS_ICON		TZ_SYS_RO_APP_PATH MSG_STATUS_ICON_DIR "/SIM card full/B03_sim_card_full.png"
 
 #ifndef TIZEN_I586_ENABLED
 /* system string */

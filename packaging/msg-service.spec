@@ -119,6 +119,9 @@ Description: MMS plugin library
 %build
 cmake . -DCMAKE_INSTALL_PREFIX=%{_prefix} \
         -DLIB_INSTALL_DIR=%{_libdir} \
+        -DTZ_SYS_RO_APP=%TZ_SYS_RO_APP \
+        -DTZ_SYS_DATA=%TZ_SYS_DATA \
+        -DTZ_SYS_DB=%TZ_SYS_DB \
 %ifarch i586
 -D_TIZEN_I586_ENABLED:BOOL=ON \
 %else
@@ -147,37 +150,37 @@ mkdir -p %{buildroot}%{_unitdir}/sockets.target.wants
 install -m 0644 %SOURCE2 %{buildroot}%{_unitdir}/msg-server.socket
 %install_service sockets.target.wants msg-server.socket
 
-mkdir -p %{buildroot}/usr/dbspace
-sqlite3 %{buildroot}/usr/dbspace/.msg_service.db "PRAGMA journal_mode = PERSIST;"
-sqlite3 %{buildroot}/usr/dbspace/.msg_service.db < %{buildroot}/usr/share/msg-service/msg-service-db.sql
+mkdir -p %{buildroot}%{TZ_SYS_DB}
+sqlite3 %{buildroot}%{TZ_SYS_DB}/.msg_service.db "PRAGMA journal_mode = PERSIST;"
+sqlite3 %{buildroot}%{TZ_SYS_DB}/.msg_service.db < %{buildroot}/usr/share/msg-service/msg-service-db.sql
 
 rm %{buildroot}/usr/share/msg-service/msg-service-db.sql
 
 %post tools
 /sbin/ldconfig
 
-chmod 640 /usr/dbspace/.msg_service.db
-chmod 660 /usr/dbspace/.msg_service.db-journal
+chmod 640 %{TZ_SYS_DB}/.msg_service.db
+chmod 660 %{TZ_SYS_DB}/.msg_service.db-journal
 
-mkdir -p -m 775 /opt/usr/data/msg-service
-mkdir -p -m 770 /opt/usr/data/msg-service/msgdata
-mkdir -p -m 770 /opt/usr/data/msg-service/smildata
-mkdir -p -m 770 /opt/usr/data/msg-service/ipcdata
-mkdir -p -m 770 /opt/usr/data/msg-service/msgdata/thumbnails
-
-
-chgrp priv_message_read /usr/dbspace/.msg_service.db
-chgrp priv_message_read /opt/usr/data/msg-service/msgdata
-chgrp priv_message_read /opt/usr/data/msg-service/smildata
-chgrp priv_message_write /opt/usr/data/msg-service/ipcdata
-chgrp priv_message_read /opt/usr/data/msg-service/msgdata/thumbnails
+mkdir -p -m 775 %{TZ_SYS_DATA}/msg-service
+mkdir -p -m 770 %{TZ_SYS_DATA}/msg-service/msgdata
+mkdir -p -m 770 %{TZ_SYS_DATA}/msg-service/smildata
+mkdir -p -m 770 %{TZ_SYS_DATA}/msg-service/ipcdata
+mkdir -p -m 770 %{TZ_SYS_DATA}/msg-service/msgdata/thumbnails
 
 
-chsmack -a "*" /usr/dbspace/.msg_service.db
-chsmack -a "System::Shared" /opt/usr/data/msg-service/msgdata -t
-chsmack -a "System::Shared" /opt/usr/data/msg-service/smildata -t
-chsmack -a "System::Run" /opt/usr/data/msg-service/ipcdata -t
-chsmack -a "System::Shared" /opt/usr/data/msg-service/msgdata/thumbnails -t
+chgrp priv_message_read %{TZ_SYS_DB}/.msg_service.db
+chgrp priv_message_read %{TZ_SYS_DATA}/msg-service/msgdata
+chgrp priv_message_read %{TZ_SYS_DATA}/msg-service/smildata
+chgrp priv_message_write %{TZ_SYS_DATA}/msg-service/ipcdata
+chgrp priv_message_read %{TZ_SYS_DATA}/msg-service/msgdata/thumbnails
+
+
+chsmack -a "*" %{TZ_SYS_DB}/.msg_service.db
+chsmack -a "System::Shared" %{TZ_SYS_DATA}/msg-service/msgdata -t
+chsmack -a "System::Shared" %{TZ_SYS_DATA}/msg-service/smildata -t
+chsmack -a "System::Run" %{TZ_SYS_DATA}/msg-service/ipcdata -t
+chsmack -a "System::Shared" %{TZ_SYS_DATA}/msg-service/msgdata/thumbnails -t
 
 %post -n sms-plugin -p /sbin/ldconfig
 %post -n mms-plugin -p /sbin/ldconfig
@@ -193,6 +196,7 @@ chsmack -a "System::Shared" /opt/usr/data/msg-service/msgdata/thumbnails -t
 
 %files
 %manifest msg-service.manifest
+%license LICENSE.APLv2
 %{_libdir}/libmsg_plugin_manager.so
 %{_libdir}/libmsg_mapi.so.*
 %{_libdir}/libmsg_framework_handler.so
@@ -201,32 +205,32 @@ chsmack -a "System::Shared" /opt/usr/data/msg-service/msgdata/thumbnails -t
 %{_libdir}/libmsg_externals.so
 %{_libdir}/libmsg_transaction_proxy.so
 %{_libdir}/libmsg_vobject.so
-/usr/share/license/msg-service/LICENSE.APLv2
 
 %files devel
+%license LICENSE.APLv2
 %{_libdir}/libmsg_mapi.so
 %{_libdir}/pkgconfig/msg-service.pc
 %{_includedir}/msg-service/*
 
 %files tools
 %manifest msg-service-tools.manifest
+%license LICENSE.APLv2
 %caps(cap_chown,cap_dac_override,cap_lease=eip) %{_bindir}/msg-server
-%config(noreplace) /usr/dbspace/.msg_service.db*
+%config(noreplace) %{TZ_SYS_DB}/.msg_service.db*
 %{_unitdir}/msg-server.service
 %{_unitdir}/multi-user.target.wants/msg-server.service
 %{_unitdir}/msg-server.socket
 %{_unitdir}/sockets.target.wants/msg-server.socket
-/usr/share/license/msg-service/LICENSE.APLv2
 /etc/config/*
 
 %files -n sms-plugin
 %manifest sms-plugin.manifest
+%license LICENSE.APLv2
 %{_libdir}/libmsg_sms_plugin.so
-/usr/share/license/msg-service/LICENSE.APLv2
 
 %files -n mms-plugin
 %manifest mms-plugin.manifest
+%license LICENSE.APLv2
 %{_libdir}/libmsg_mms_plugin.so
-/usr/share/license/msg-service/LICENSE.APLv2
 
 %changelog

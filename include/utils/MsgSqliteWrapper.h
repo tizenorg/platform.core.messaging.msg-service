@@ -27,7 +27,7 @@
 /*==================================================================================================
                                     DEFINES
 ==================================================================================================*/
-#define MSGFW_DB_NAME 			"/usr/dbspace/.msg_service.db"
+#define MSGFW_DB_NAME 			TZ_SYS_DB_PATH"/.msg_service.db"
 
 #define MSGFW_MESSAGE_TABLE_NAME				"MSG_MESSAGE_TABLE"
 #define MSGFW_FOLDER_TABLE_NAME					"MSG_FOLDER_TABLE"
