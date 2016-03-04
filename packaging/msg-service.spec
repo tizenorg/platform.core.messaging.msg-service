@@ -60,7 +60,7 @@ BuildRequires: pkgconfig(sqlite3)
 BuildRequires: pkgconfig(storage)
 BuildRequires: pkgconfig(tapi)
 BuildRequires: pkgconfig(vconf)
-%if "%{?profile}" == "mobile"
+%if "%{?profile}" != "wearable"
 BuildRequires: pkgconfig(contacts-service2)
 %endif
 
