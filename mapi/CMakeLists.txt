@@ -35,7 +35,7 @@ INCLUDE_DIRECTORIES(
 )
 
 INCLUDE(FindPkgConfig)
-pkg_check_modules(mapi_pkgs REQUIRED glib-2.0 dlog privacy-manager-client vconf)
+pkg_check_modules(mapi_pkgs REQUIRED glib-2.0 dlog vconf)
 
 FOREACH(flag ${mapi_pkgs_CFLAGS})
 	SET(EXTRA_CFLAGS "${EXTRA_CFLAGS} ${flag}")
