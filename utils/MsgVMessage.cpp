@@ -554,9 +554,9 @@ char* __msgsvc_vmsg_convert_tm_to_vdata_str(struct tm * tm)
 	mon = tm->tm_mon + 1;
 
 	if (tm->tm_hour >= 12)
-		strcpy(APM, "PM");
+		strncpy(APM, "PM", 2);
 	else
-		strcpy(APM, "AM");
+		strncpy(APM, "AM", 2);
 
 	if (tm->tm_hour > 12)
 		hour = tm->tm_hour - 12;
@@ -565,40 +565,40 @@ char* __msgsvc_vmsg_convert_tm_to_vdata_str(struct tm * tm)
 
 	switch(mon) {
 		case 1:
-			strcpy(month, "Jan");
+			strncpy(month, "Jan", 3);
 			break;
 		case 2:
-			strcpy(month, "Feb");
+			strncpy(month, "Feb", 3);
 			break;
 		case 3:
-			strcpy(month, "Mar");
+			strncpy(month, "Mar", 3);
 			break;
 		case 4:
-			strcpy(month, "Apr");
+			strncpy(month, "Apr", 3);
 			break;
 		case 5:
-			strcpy(month, "May");
+			strncpy(month, "May", 3);
 			break;
 		case 6:
-			strcpy(month, "Jun");
+			strncpy(month, "Jun", 3);
 			break;
 		case 7:
-			strcpy(month, "Jul");
+			strncpy(month, "Jul", 3);
 			break;
 		case 8:
-			strcpy(month, "Aug");
+			strncpy(month, "Aug", 3);
 			break;
 		case 9:
-			strcpy(month, "Sep");
+			strncpy(month, "Sep", 3);
 			break;
 		case 10:
-			strcpy(month, "Oct");
+			strncpy(month, "Oct", 3);
 			break;
 		case 11:
-			strcpy(month, "Nov");
+			strncpy(month, "Nov", 3);
 			break;
 		case 12:
-			strcpy(month, "Dec");
+			strncpy(month, "Dec", 3);
 			break;
 		default:
 			MSG_DEBUG("invalid month number");
@@ -764,7 +764,7 @@ static inline int __msgsvc_vmsg_append_origin_address_vcard(MSG_MESSAGE_INFO_S *
 	char originAddress[MAX_ADDRESS_VAL_LEN + 1] = {0, };
 	bool isDisplayName = false;
 
-	if (pMsg->folderId == MSG_INBOX_ID) {
+	if ((unsigned char)(pMsg->folderId) == (unsigned char)MSG_INBOX_ID) {
 		strcpy(originAddress, pMsg->addressList[0].addressVal);
 	}
 
@@ -1955,7 +1955,7 @@ static inline msg_error_t __msgsvc_vmsg_get_msg(int ver, char *vmsg, MSG_MESSAGE
 				}
 				tempMsgText[i] = '\0';
 				char * temp = __msgsvc_vmsg_remove_escape_char(tempMsgText);
-				strcpy(pMsg->msgText, temp);
+				snprintf(pMsg->msgText, sizeof(pMsg->msgText), "%s", temp);
 				MSG_DEBUG("pMsg->msgText : %s", pMsg->msgText);
 				pMsg->dataSize = strlen(pMsg->msgText);
 				pMsg->bTextSms = true;
@@ -2031,6 +2031,7 @@ static inline msg_error_t __msgsvc_vmsg_get_msg(int ver, char *vmsg, MSG_MESSAGE
 			break;
 		case VMSG_MSG_BEGIN:
 			end = __msgsvc_vmsg_get_msg_begin(pMsg, val, &vCardCnt);
+			break;
 		case VMSG_MSG_END:
 			end = __msgsvc_vmsg_get_msg_end(pMsg, val);
 			if (end) {

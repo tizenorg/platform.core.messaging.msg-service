@@ -765,8 +765,7 @@ VMsgGetCharsetValue(int index)
  * @param       pVMsgRaw            The raw data
  * @return      vObject             The result value
  */
-SLPAPI VTree*
-vmsg_decode(char *pMsgRaw)
+VTree* vmsg_decode(char *pMsgRaw)
 {
 	VDATA_TRACE_BEGINE;
 
@@ -1045,7 +1044,7 @@ CATCH:
 CATCH1:
 	VFREE(szMsgBegin);
 	VFREE(pMsgRawTmp);
-	__VMsgFreeVTreeMemory(pVMsg);
+	vmsg_free_vtree_memory(pVMsg);
 	VDATA_TRACE_END
 	return NULL;
 }
@@ -1056,8 +1055,7 @@ CATCH1:
  * @param       pVMsgRaw            Data which will be encoded
  * @return      char *              Encoded result
  */
-SLPAPI char*
-vmsg_encode(VTree *pVMsgRaw)
+char* vmsg_encode(VTree *pVMsgRaw)
 {
 	VDATA_TRACE_BEGINE
 	char*		pVMsgRes = NULL;
@@ -1523,7 +1521,7 @@ __VMsgParamEncode(VObject* pTypeObj, int* pEnc)
 	return szParam;
 }
 
-SLPAPI bool
+bool
 vmsg_free_vtree_memory(VTree * pTree)
 {
 	VDATA_TRACE_BEGINE

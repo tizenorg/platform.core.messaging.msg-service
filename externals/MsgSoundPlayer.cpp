@@ -577,6 +577,7 @@ void MsgSoundPlayer::MsgSoundPlayMelody(char *pMsgToneFilePath)
 
 	if (g_stream_info == NULL) {
 		MSG_DEBUG("g_stream_info is NULL");
+		pthread_mutex_unlock(&muMmPlay);
 		return;
 	}
 

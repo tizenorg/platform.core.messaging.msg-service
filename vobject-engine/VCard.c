@@ -814,8 +814,7 @@ VCardGetCharsetValue(int index)
  * @param       pVCardRaw            The raw data
  * @return      vObject             The result value
  */
-SLPAPI VTree*
-vcard_decode(char *pCardRaw)
+VTree* vcard_decode(char *pCardRaw)
 {
 	VDATA_TRACE_BEGINE;
 	char* szValue = NULL;
@@ -1057,7 +1056,7 @@ CATCH:
 	VFREE(pTemp);
 CATCH1:
 	VFREE(pCardRawTmp);
-	__VCardFreeVTreeMemory(pVCard);
+	vcard_free_vtree_memory(pVCard);
 	VDATA_TRACE_END
 	return NULL;
 }
@@ -1068,8 +1067,7 @@ CATCH1:
  * @param       pVCardRaw            Data which will be encoded
  * @return      char *              Encoded result
  */
-SLPAPI char*
-vcard_encode(VTree *pVCardRaw)
+char* vcard_encode(VTree *pVCardRaw)
 {
 	VDATA_TRACE_BEGINE
 	char*		pVCardRes = NULL;
@@ -1473,8 +1471,7 @@ __VCardParamEncode(VObject* pTypeObj, int* pEnc)
 	return szParam;
 }
 
-SLPAPI bool
-vcard_free_vtree_memory(VTree * pTree)
+bool vcard_free_vtree_memory(VTree * pTree)
 {
 	VDATA_TRACE_BEGINE
 	if (pTree == NULL) {

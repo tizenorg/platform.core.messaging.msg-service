@@ -23,10 +23,6 @@
 #include "string.h"
 #include "ctype.h"
 
-#ifndef SLPAPI
-#define SLPAPI __attribute__ ((visibility("default")))
-#endif
-
 #define CR				0x0d
 #define LF				0x0a
 #define TAB				0x09

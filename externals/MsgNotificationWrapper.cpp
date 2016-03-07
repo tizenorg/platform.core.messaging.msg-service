@@ -1944,8 +1944,10 @@ void setActiveIcon(notification_h noti_h, MSG_NOTI_INFO_S *noti_info)
 		case MSG_WAP_SI_SMS:
 		case MSG_WAP_SL_SMS:
 			setNotiImage(noti_h, NOTIFICATION_IMAGE_TYPE_ICON, MSG_ACTIVE_PUSH_ICON_PATH);
+			break;
 		case MSG_SYNCML_CP:
 			setNotiImage(noti_h, NOTIFICATION_IMAGE_TYPE_ICON, MSG_OTA_ICON_PATH);
+			break;
 		default:
 			if (noti_info->imagePath[0] != '\0')
 				setNotiImage(noti_h, NOTIFICATION_IMAGE_TYPE_ICON, noti_info->imagePath);
@@ -1953,6 +1955,7 @@ void setActiveIcon(notification_h noti_h, MSG_NOTI_INFO_S *noti_info)
 				setNotiImage(noti_h, NOTIFICATION_IMAGE_TYPE_ICON, MSG_NO_CONTACT_PROFILE_ICON_PATH);
 
 			setNotiImage(noti_h, NOTIFICATION_IMAGE_TYPE_ICON_SUB, MSG_MESSAGE_APP_SUB_ICON);
+			break;
 		}
 
 		break;

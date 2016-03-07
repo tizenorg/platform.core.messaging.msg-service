@@ -401,7 +401,7 @@ msg_error_t SmsPluginSimMsg::saveClass2Message(const MSG_MESSAGE_INFO_S *pMsgInf
 		TelSmsData_t simSmsData = {0, };
 
 		if (submitData.segCount == 1) {
-			memcpy(&simSmsData.SmsData.Sca, &simMsgDataInfo.sca, sizeof(simSmsData.SmsData.Sca));
+			memcpy(&simSmsData.SmsData.Sca, &simMsgDataInfo.sca, sizeof(simSmsData.SmsData.Sca)-1);
 			memcpy(&simSmsData.SmsData.szData, &simMsgDataInfo.szData, sizeof(simSmsData.SmsData.szData)-1);
 			simSmsData.SmsData.MsgLength = simMsgDataInfo.msgLength;
 
@@ -415,7 +415,7 @@ msg_error_t SmsPluginSimMsg::saveClass2Message(const MSG_MESSAGE_INFO_S *pMsgInf
 
 			/* Set TPDU data */
 			int copyLen = (bufLen > TAPI_NETTEXT_SMDATA_SIZE_MAX) ? TAPI_NETTEXT_SMDATA_SIZE_MAX : bufLen;
-			memcpy((void*)simSmsData.SmsData.Sca, &simMsgDataInfo.sca, sizeof(simSmsData.SmsData.Sca));
+			memcpy((void*)simSmsData.SmsData.Sca, &simMsgDataInfo.sca, sizeof(simSmsData.SmsData.Sca)-1);
 			memcpy((void*)simSmsData.SmsData.szData, buf, (size_t)copyLen);
 			simSmsData.SmsData.szData[copyLen] = 0;
 			simSmsData.SmsData.MsgLength = copyLen;

@@ -638,7 +638,7 @@ msg_error_t SmsPluginStorage::deleteSmsMessage(msg_message_id_t msgId)
 
 	dbHandle->endTrans(true);
 
-	if (folderId == MSG_INBOX_ID) {
+	if ((unsigned char)folderId == (unsigned char)MSG_INBOX_ID) {
 		msgType.classType = MSG_CLASS_NONE;
 
 		/**  Set memory status in SIM */

@@ -303,6 +303,7 @@ void MsgTransactionManager::workerEventQueue()
 	MSG_CMD_S* pCmd = NULL;
 	int (*pfHandler)(const MSG_CMD_S*, char**) = NULL;
 	char* pEventData = NULL;
+	unique_ptr<char*, void(*)(char**)> eventBuf(&pEventData, unique_ptr_deleter);
 
 	int fd = -1;
 	int eventSize = 0;
@@ -344,7 +345,6 @@ void MsgTransactionManager::workerEventQueue()
 		MSG_DEBUG("Replying to fd [%d], size [%d]", fd, eventSize);
 		servSock.write(fd, pEventData, eventSize);
 		g_free(pCmd); pCmd = NULL;
-		g_free(pEventData); pEventData = NULL;
 	}
 }
 

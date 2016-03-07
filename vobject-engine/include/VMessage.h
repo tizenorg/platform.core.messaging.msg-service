@@ -177,7 +177,7 @@ typedef enum
 * @param[in] pVCardRaw  Points to the vcard string.
 * @see vcard_encode
 */
-SLPAPI VTree*	vmsg_decode(char* pVMsgRaw);
+VTree*	vmsg_decode(char* pVMsgRaw);
 
 /**
 * @fn char* vcard_encode(VTree* pVTree);
@@ -187,7 +187,7 @@ SLPAPI VTree*	vmsg_decode(char* pVMsgRaw);
 * @param[in] pVTree  Points to a VTree.
 * @see vcard_decode
 */
-SLPAPI char*	vmsg_encode(VTree* pVTree);
+char*	vmsg_encode(VTree* pVTree);
 
 /**
 * @fn char* vcard_free_vtree_memory(VTree* pTree);
@@ -196,7 +196,7 @@ SLPAPI char*	vmsg_encode(VTree* pVTree);
 * @return	This function returns value of success or fail
 * @param[in] pVTree  Points to a VTree.
 */
-SLPAPI bool vmsg_free_vtree_memory(VTree * pTree);
+bool vmsg_free_vtree_memory(VTree * pTree);
 
 #ifdef __cplusplus
 }
