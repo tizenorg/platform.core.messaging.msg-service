@@ -2880,7 +2880,7 @@ void SmsPluginWapPushHandler::wspHeaderDecodeQValue(unsigned long length, unsign
 	if (qValue > 100) {
 		qValue = qValue - 100;
 		qValue = qValue / 1000;
-		sprintf((char*)*pDecodedString, "; q=%.3f", qValue);
+		snprintf((char*)*pDecodedString, sizeof(char)*WSP_STANDARD_STR_LEN_MAX, "; q=%.3f", qValue);
 	} else {
 		/* qValue variable is divided by 100. And it's multiplied by 100.
 		   It's to resolve problem of changed 0.01 of qValue. */
@@ -2889,9 +2889,9 @@ void SmsPluginWapPushHandler::wspHeaderDecodeQValue(unsigned long length, unsign
 		qValue = qValue / 100;
 		qValueTemp = (unsigned long)(qValue * 100);
 		if (0 == (qValueTemp % 10))
-			sprintf((char*)*pDecodedString, "; q=%.1f", qValue);
+			snprintf((char*)*pDecodedString, sizeof(char)*WSP_STANDARD_STR_LEN_MAX, "; q=%.1f", qValue);
 		else
-			sprintf((char*)*pDecodedString, "; q=%.2f", qValue);
+			snprintf((char*)*pDecodedString, sizeof(char)*WSP_STANDARD_STR_LEN_MAX, "; q=%.2f", qValue);
 	}
 	return;
 }
@@ -2985,7 +2985,7 @@ void SmsPluginWapPushHandler::wspHeaderDecodeParameter(unsigned char* data, unsi
 			MSG_DEBUG("WspLHeaderDecodeParameter: 0x03 MemAlloc failed\n");
 			return;
 		} else {
-			sprintf((char*)param, "Type=%i", (int)wspHeaderDecodeInteger(data + 1));
+			snprintf((char*)param, sizeof(char)*WSP_STANDARD_STR_LEN_MAX, "Type=%i", (int)wspHeaderDecodeInteger(data + 1));
 		}
 		break;
 	case 0x08:
@@ -2995,7 +2995,7 @@ void SmsPluginWapPushHandler::wspHeaderDecodeParameter(unsigned char* data, unsi
 			MSG_DEBUG("WspLHeaderDecodeParameter:0x08 MemAlloc failed\n");
 			return;
 		} else {
-			sprintf((char*)param, "Padding=%i", (int)wspHeaderDecodeInteger(data + 1));
+			snprintf((char*)param, sizeof(char)*WSP_STANDARD_STR_LEN_MAX, "Padding=%i", (int)wspHeaderDecodeInteger(data + 1));
 		}
 		break;
 	case 0x05:
@@ -3107,7 +3107,7 @@ void SmsPluginWapPushHandler::wspHeaderDecodeVersion(unsigned long length, unsig
 		/* typed version */
 		unsigned char majorVer  = ((data[0] & 0x7f) >> 4);
 		unsigned char minorVer = data[0] & 0x0f;
-		sprintf((char*)*pDecodedString, "level=%u.%u", majorVer, minorVer);
+		snprintf((char*)*pDecodedString, sizeof(char)*WSP_STANDARD_STR_LEN_MAX, "level=%u.%u", majorVer, minorVer);
 	}
 
 	return;

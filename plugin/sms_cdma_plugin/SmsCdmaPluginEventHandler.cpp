@@ -265,7 +265,7 @@ void SmsPluginEventHandler::convertCMASMsgToMsgInfo(sms_telesvc_deliver_s *p_del
 		memset(p_msg_info->msgText, 0x00, sizeof(p_msg_info->msgText));
 		p_msg_info->dataSize = 0;
 	} else if (p_deliver->cmas_data.data_len > MAX_MSG_TEXT_LEN) {
-		sprintf(p_msg_info->msgText, "[Broken Message]");
+		snprintf(p_msg_info->msgText, MAX_MSG_TEXT_LEN, "[Broken Message]");
 		p_msg_info->dataSize = strlen(p_msg_info->msgData);
 		return;
 	} else {
@@ -392,7 +392,7 @@ void SmsPluginEventHandler::convertDeliverMsgToMsgInfo(sms_telesvc_deliver_s *p_
 		memset(p_msg_info->msgText, 0x00, sizeof(p_msg_info->msgText));
 		p_msg_info->dataSize = 0;
 	} else if (p_deliver->user_data.data_len > MAX_MSG_TEXT_LEN) {
-		sprintf(p_msg_info->msgText, "[Broken Message]");
+		snprintf(p_msg_info->msgText, MAX_MSG_TEXT_LEN, "[Broken Message]");
 		p_msg_info->dataSize = strlen(p_msg_info->msgData);
 		return;
 	} else {
