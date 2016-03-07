@@ -48,7 +48,6 @@
 #define MSG_EMERGENCY_ICON_PATH		TZ_SYS_RO_APP_PATH MSG_DEFAULT_APP_ID "/res/icons/default/small/noti_emergency_mode.png"
 #define MSG_NO_CONTACT_PROFILE_ICON_PATH	TZ_SYS_RO_APP_PATH MSG_NOTIFICATION_ICON_DIR "/Contact/noti_contact_default.png"
 #define MSG_ACTIVE_PUSH_ICON_PATH		"reserved:push_message"
-#define MSG_MESSAGE_APP_SUB_ICON		TZ_SYS_RO_APP_PATH MSG_DEFAULT_APP_ID "/res/icons/default/small/org.tizen.message.png"
 
 /* status bar icon */
 #define MSG_NORMAL_STATUS_ICON				TZ_SYS_RO_APP_PATH MSG_STATUS_ICON_DIR "/Notify/B03_notify_message.png"

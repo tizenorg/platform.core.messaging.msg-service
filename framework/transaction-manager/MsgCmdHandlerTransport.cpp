@@ -16,6 +16,10 @@
 
 #include <time.h>
 
+#include <aul.h>
+#include <bundle.h>
+#include <eventsystem.h>
+
 #include "MsgDebug.h"
 #include "MsgException.h"
 #include "MsgUtilFile.h"
@@ -479,6 +483,30 @@ int MsgIncomingMsgHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 	/* normal process */
 	err = MsgHandleIncomingMsg(&msgInfo, &sendNoti);
 
+	if (msgInfo.msgType.mainType == MSG_SMS_TYPE) {
+		/* Send system event */
+		bundle *b = NULL;
+		b = bundle_create();
+		if (b) {
+			char msgId[MSG_EVENT_MSG_ID_LEN] = {0, };
+			snprintf(msgId, sizeof(msgId), "%u", msgInfo.msgId);
+			bundle_add_str(b, EVT_KEY_MSG_ID, msgId);
+
+			if (msgInfo.msgType.subType >= MSG_WAP_SI_SMS && msgInfo.msgType.subType <= MSG_WAP_CO_SMS) {
+				bundle_add_str(b, EVT_KEY_MSG_TYPE, EVT_VAL_PUSH);
+			} else {
+				bundle_add_str(b, EVT_KEY_MSG_TYPE, EVT_VAL_SMS);
+				bundle_add_str(b, "cmd", "incoming_msg");
+				int ret = aul_launch_app_for_uid("org.tizen.msg-manager", b, msg_get_login_user());
+				if (ret <= 0) {
+					MSG_DEBUG("aul_launch_app_for_uid() is failed : %d", ret);
+				}
+			}
+			eventsystem_send_system_event(SYS_EVENT_INCOMMING_MSG, b);
+			bundle_free(b);
+		}
+	}
+
 	if (isClass2msg == true) {
 		msgIdList.nCount = 2;
 		msgIds[0] = class2msgId;
@@ -704,6 +732,22 @@ __BYPASS_UPDATE:
 #ifndef MSG_CONTACTS_SERVICE_NOT_SUPPORTED
 			MSG_SEC_DEBUG("Enter MsgAddPhoneLog() : msgInfo.addressList[0].addressVal [%s]", msgInfo.addressList[0].addressVal);
 			MsgAddPhoneLog(&msgInfo);
+			/* Send system event */
+			bundle *b = NULL;
+			b = bundle_create();
+			if (b) {
+				bundle_add_str(b, EVT_KEY_MSG_TYPE, EVT_VAL_MMS);
+				char msgId[MSG_EVENT_MSG_ID_LEN] = {0, };
+				snprintf(msgId, sizeof(msgId), "%u", msgInfo.msgId);
+				bundle_add_str(b, EVT_KEY_MSG_ID, msgId);
+				eventsystem_send_system_event(SYS_EVENT_INCOMMING_MSG, b);
+				bundle_add_str(b, "cmd", "incoming_msg");
+				int ret = aul_launch_app_for_uid("org.tizen.msg-manager", b, msg_get_login_user());
+				if (ret <= 0) {
+					MSG_DEBUG("aul_launch_app_for_uid() is failed : %d", ret);
+				}
+				bundle_free(b);
+			}
 #endif /*MSG_CONTACTS_SERVICE_NOT_SUPPORTED */
 		}
 

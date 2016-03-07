@@ -19,6 +19,10 @@
 #include <stdlib.h>
 #include <errno.h>
 
+#include <aul.h>
+#include <bundle.h>
+#include <eventsystem.h>
+
 #include "MsgDebug.h"
 #include "MsgUtilFile.h"
 #include "MsgUtilFunction.h"
@@ -95,6 +99,26 @@ void SmsPluginEventHandler::handleSentStatus(msg_network_status_t NetStatus)
 				MsgAddPhoneLog(&(sentInfo.reqInfo.msgInfo));
 #endif /* MSG_CONTACTS_SERVICE_NOT_SUPPORTED */
 				sentInfo.reqInfo.msgInfo.folderId = MSG_SENTBOX_ID; /* It should be set after adding phone log. */
+				/* Send system event */
+				bundle *b = NULL;
+				b = bundle_create();
+				if (b) {
+					if (sentInfo.reqInfo.msgInfo.msgType.mainType == MSG_SMS_TYPE)
+						bundle_add_str(b, EVT_KEY_OUT_MSG_TYPE, EVT_VAL_SMS);
+					else
+						bundle_add_str(b, EVT_KEY_OUT_MSG_TYPE, EVT_VAL_MMS);
+
+					char msgId[MSG_EVENT_MSG_ID_LEN] = {0, };
+					snprintf(msgId, sizeof(msgId), "%u", sentInfo.reqInfo.msgInfo.msgId);
+					bundle_add_str(b, EVT_KEY_OUT_MSG_ID, msgId);
+					eventsystem_send_system_event(SYS_EVENT_OUTGOING_MSG, b);
+					bundle_add_str(b, "cmd", "outgoing_msg");
+					int ret = aul_launch_app_for_uid("org.tizen.msg-manager", b, msg_get_login_user());
+					if (ret <= 0) {
+						MSG_DEBUG("aul_launch_app_for_uid() is failed : %d", ret);
+					}
+					bundle_free(b);
+				}
 			} else {
 				sentInfo.reqInfo.msgInfo.bRead = false;
 			}

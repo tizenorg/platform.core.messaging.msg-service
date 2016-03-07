@@ -4,10 +4,6 @@
     <service-application appid="org.tizen.msg-manager" auto-restart="false" exec="msg-manager" multiple="false" nodisplay="true" on-boot="false" taskmanage="false" type="capp">
         <label>msg-manager</label>
         <icon>msg-manager.png</icon>
-        <app-control>
-            <operation name="http://tizen.org/appcontrol/operation/launch_on_event"/>
-            <uri name="event://tizen.system.event.incoming_msg"/>
-        </app-control>
     </service-application>
     <privileges>
         <privilege>http://tizen.org/privilege/message.read</privilege>

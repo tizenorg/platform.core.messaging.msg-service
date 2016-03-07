@@ -15,6 +15,7 @@
 */
 
 #include <gio/gio.h>
+#include <systemd/sd-login.h>
 
 #include "MsgDebug.h"
 #include "MsgContact.h"
@@ -1174,6 +1175,51 @@ gchar * msg_replace_non_ascii_char(const gchar *pszText, gunichar replacementCha
 	res[i] = '\0';
 	return res;
 }
+
+
+static int __find_login_user(uid_t *uid)
+{
+	uid_t *uids = NULL;
+	char *state = NULL;
+
+	int uids_len = sd_get_uids(&uids);
+	if (uids_len <= 0)
+		return -1;
+
+	for (int i = 0; i < uids_len; i++) {
+		if (sd_uid_get_state(uids[i], &state) < 0) {
+			free(uids);
+			return -1;
+		} else {
+			if (g_strcmp0(state, "online") == 0) {
+				*uid = uids[i];
+				free(uids);
+				free(state);
+				return 0;
+			}
+		}
+
+		free(state);
+	}
+
+	free(uids);
+	return -1;
+}
+
+
+uid_t msg_get_login_user()
+{
+	uid_t uid = -1;
+
+	if (__find_login_user(&uid) < 0) {
+		MSG_WARN("Cannot find login user");
+	}
+
+	MSG_DEBUG("login user id [%d]", uid);
+
+	return uid;
+}
+
 
 void MsgDbusInit()
 {

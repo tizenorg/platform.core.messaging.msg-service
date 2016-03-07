@@ -45,6 +45,7 @@ extern "C"
 #include <notification_setting_internal.h>
 #include <feedback.h>
 #include <badge_internal.h>
+#include <package_manager.h>
 #endif /* MSG_WEARABLE_PROFILE */
 }
 
@@ -107,6 +108,7 @@ void createInfoData(MSG_NOTI_INFO_S *noti_info, msg_active_notification_type_t a
 void createActiveInfoData(MSG_NOTI_INFO_S *noti_info, MSG_MESSAGE_INFO_S *msg_info);
 void clearInfoData(notification_h noti_h, MSG_NOTI_INFO_S *noti_info);
 
+msg_error_t getAppIcon(const char *app_id, char **icon_path);
 msg_error_t getLatestMsgInfo(MSG_NOTI_INFO_S *noti_info, bool isForInstantMessage);
 
 void setProperty(notification_h noti_h, MSG_NOTI_INFO_S *noti_info);
@@ -1803,7 +1805,13 @@ void setIcon(notification_h noti_h, MSG_NOTI_INFO_S *noti_info)
 					setNotiImage(noti_h, NOTIFICATION_IMAGE_TYPE_ICON, MSG_NO_CONTACT_PROFILE_ICON_PATH);
 				}
 
-				setNotiImage(noti_h, NOTIFICATION_IMAGE_TYPE_ICON_SUB, MSG_MESSAGE_APP_SUB_ICON);
+				char *msg_icon_path = NULL;
+				if (getAppIcon(MSG_DEFAULT_APP_ID, &msg_icon_path) == MSG_SUCCESS) {
+					setNotiImage(noti_h, NOTIFICATION_IMAGE_TYPE_ICON_SUB, msg_icon_path);
+					g_free(msg_icon_path);
+				} else {
+					MSG_ERR("fail to get message-app icon");
+				}
 			}
 		}
 		break;
@@ -1954,7 +1962,14 @@ void setActiveIcon(notification_h noti_h, MSG_NOTI_INFO_S *noti_info)
 			else
 				setNotiImage(noti_h, NOTIFICATION_IMAGE_TYPE_ICON, MSG_NO_CONTACT_PROFILE_ICON_PATH);
 
-			setNotiImage(noti_h, NOTIFICATION_IMAGE_TYPE_ICON_SUB, MSG_MESSAGE_APP_SUB_ICON);
+			char *msg_icon_path = NULL;
+			if (getAppIcon(MSG_DEFAULT_APP_ID, &msg_icon_path) == MSG_SUCCESS) {
+				setNotiImage(noti_h, NOTIFICATION_IMAGE_TYPE_ICON_SUB, msg_icon_path);
+				g_free(msg_icon_path);
+			} else {
+				MSG_ERR("fail to get message-app icon");
+			}
+
 			break;
 		}
 
@@ -2262,6 +2277,51 @@ void setNotification(notification_h noti_h, MSG_NOTI_INFO_S *noti_info, bool bFe
 	}
 
 	MSG_END();
+}
+
+
+msg_error_t getAppIcon(const char *app_id, char **icon_path)
+{
+	MSG_BEGIN();
+
+	package_info_h pkg_info_h = NULL;
+	int pkg_err = PACKAGE_MANAGER_ERROR_NONE;
+	int ret = MSG_SUCCESS;
+
+	if (app_id == NULL) {
+		MSG_ERR("app id is NULL");
+		ret = MSG_ERR_UNKNOWN;
+		goto END_OF_GET_APP_ICON;
+	}
+
+	pkg_err = package_info_create(app_id, &pkg_info_h);
+	if (pkg_err != PACKAGE_MANAGER_ERROR_NONE) {
+		MSG_ERR("package_info_create failed (%d)", pkg_err);
+		ret = MSG_ERR_UNKNOWN;
+		goto END_OF_GET_APP_ICON;
+	}
+
+	pkg_err = package_info_get_icon(pkg_info_h, icon_path);
+	if (pkg_err != PACKAGE_MANAGER_ERROR_NONE) {
+		MSG_ERR("package_info_get_icon failed (%d)", pkg_err);
+	} else {
+		if (icon_path == NULL) {
+			MSG_WARN("icon path is NULL");
+			ret = MSG_ERR_UNKNOWN;
+		}
+	}
+
+END_OF_GET_APP_ICON:
+	if (pkg_info_h) {
+		pkg_err = package_info_destroy(pkg_info_h);
+		if (pkg_err != PACKAGE_MANAGER_ERROR_NONE) {
+			MSG_ERR("package_info_destroy failed (%d)", pkg_err);
+		}
+
+		pkg_info_h = NULL;
+	}
+
+	return ret;
 }
 
 

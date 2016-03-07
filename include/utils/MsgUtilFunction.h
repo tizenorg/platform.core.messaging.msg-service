@@ -150,6 +150,8 @@ void msg_replace_space_char(char *pszText);
 
 gchar * msg_replace_non_ascii_char(const gchar *pszText, gunichar replacementChar);
 
+uid_t msg_get_login_user();
+
 /* Dbus function */
 void MsgDbusInit();
 void MsgDbusDeinit();

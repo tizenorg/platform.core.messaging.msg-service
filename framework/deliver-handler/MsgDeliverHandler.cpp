@@ -16,11 +16,15 @@
 
 #ifndef MSG_WEARABLE_PROFILE
 #include <app_control.h>
+#include <aul.h>
 #endif // MSG_WEARABLE_PROFILE
+#include <bundle.h>
+#include <eventsystem.h>
 
 #include "MsgDebug.h"
 #include "MsgUtilFile.h"
 #include "MsgContact.h"
+#include "MsgUtilFunction.h"
 #include "MsgUtilStorage.h"
 #include "MsgGconfWrapper.h"
 #include "MsgSoundPlayer.h"
@@ -257,6 +261,22 @@ msg_error_t MsgHandleMmsConfIncomingMsg(MSG_MESSAGE_INFO_S *pMsgInfo, msg_reques
 			// add phone log
 			MSG_DEBUG("Enter MsgAddPhoneLog() for mms message.");
 			MsgAddPhoneLog(pMsgInfo);
+			/* Send system event */
+			bundle *b = NULL;
+			b = bundle_create();
+			if (b) {
+				bundle_add_str(b, EVT_KEY_MSG_TYPE, EVT_VAL_MMS);
+				char msgId[MSG_EVENT_MSG_ID_LEN] = {0, };
+				snprintf(msgId, sizeof(msgId), "%u", pMsgInfo->msgId);
+				bundle_add_str(b, EVT_KEY_MSG_ID, msgId);
+				eventsystem_send_system_event(SYS_EVENT_INCOMMING_MSG, b);
+				bundle_add_str(b, "cmd", "incoming_msg");
+				int ret = aul_launch_app_for_uid("org.tizen.msg-manager", b, msg_get_login_user());
+				if (ret <= 0) {
+					MSG_DEBUG("aul_launch_app_for_uid() is failed : %d", ret);
+				}
+				bundle_free(b);
+			}
 #endif //MSG_CONTACTS_SERVICE_NOT_SUPPORTED
 
 			if (pMsgInfo->folderId == MSG_INBOX_ID)

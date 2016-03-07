@@ -153,7 +153,7 @@ void MsgMgrAddPhoneLog(contactInfo *contact_info)
 				contacts_record_set_int(plog, _contacts_phone_log.log_type, CONTACTS_PLOG_TYPE_SMS_INCOMING);
 			else
 				contacts_record_set_int(plog, _contacts_phone_log.log_type, CONTACTS_PLOG_TYPE_MMS_INCOMING);
-		} else if (contact_info->folderId == MSG_OUTBOX_ID) {
+		} else if (contact_info->folderId == MSG_OUTBOX_ID || contact_info->folderId == MSG_SENTBOX_ID) {
 			if (contact_info->msgType != MSG_TYPE_MMS && contact_info->msgType != MSG_TYPE_MMS_NOTI && contact_info->msgType != MSG_TYPE_MMS_JAVA)
 				contacts_record_set_int(plog, _contacts_phone_log.log_type, CONTACTS_PLOG_TYPE_SMS_OUTGOING);
 			else

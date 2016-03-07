@@ -20,7 +20,7 @@
 #include <sys/stat.h>
 #include <pthread.h>
 
-#include <bundle_internal.h>
+#include <bundle.h>
 #include <eventsystem.h>
 
 #include "MsgDebug.h"
@@ -40,7 +40,6 @@
 #include "MsgTransManager.h"
 
 #define MSG_CHECK_PRIVILEGE
-#define MSG_EVENT_MSG_ID_LEN	(32)
 
 void MsgMakeErrorEvent(MSG_CMD_TYPE_T cmdType, msg_error_t errType, int *pEventSize, char **ppEvent)
 {
@@ -987,22 +986,6 @@ void MsgTransactionManager::broadcastIncomingMsgCB(const msg_error_t err, const 
 		}
 	}
 
-	/* Send system event */
-	bundle *b = NULL;
-	b = bundle_create();
-	if (b) {
-		if (msgInfo->msgType.subType >= MSG_WAP_SI_SMS && msgInfo->msgType.subType <= MSG_WAP_CO_SMS) {
-			bundle_add(b, EVT_KEY_MSG_TYPE, EVT_VAL_PUSH);
-		} else {
-			bundle_add(b, EVT_KEY_MSG_TYPE, EVT_VAL_SMS);
-		}
-		char msgId[MSG_EVENT_MSG_ID_LEN] = {0, };
-		snprintf(msgId, sizeof(msgId), "%u", msgInfo->msgId);
-		bundle_add(b, EVT_KEY_MSG_ID, msgId);
-		eventsystem_send_system_event(SYS_EVENT_INCOMMING_MSG, b);
-		bundle_free(b);
-	}
-
 	MSG_END();
 }
 
@@ -1090,10 +1073,10 @@ void MsgTransactionManager::broadcastCBMsgCB(const msg_error_t err, const MSG_CB
 	bundle *b = NULL;
 	b = bundle_create();
 	if (b) {
-		bundle_add(b, EVT_KEY_MSG_TYPE, EVT_VAL_CB);
+		bundle_add_str(b, EVT_KEY_MSG_TYPE, EVT_VAL_CB);
 		char msgId[MSG_EVENT_MSG_ID_LEN] = {0, };
 		snprintf(msgId, sizeof(msgId), "%u", cbMsgId);
-		bundle_add(b, EVT_KEY_MSG_ID, msgId);
+		bundle_add_str(b, EVT_KEY_MSG_ID, msgId);
 		eventsystem_send_system_event(SYS_EVENT_INCOMMING_MSG, b);
 		bundle_free(b);
 	}
