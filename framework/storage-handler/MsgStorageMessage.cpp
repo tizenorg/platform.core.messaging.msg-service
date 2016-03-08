@@ -1032,6 +1032,7 @@ msg_error_t MsgStoDeleteAllMessageInFolder(msg_folder_id_t folderId, bool bOnlyD
 	int listCnt = sizeof(tableList)/sizeof(char *);
 	int rowCnt = 0;
 	MsgDbHandler *dbHandle = getDbHandle();
+	signed char folder_id;
 
 	/* Get conversation ID from Folder */
 	memset(sqlQuery, 0x00, sizeof(sqlQuery));
@@ -1103,7 +1104,8 @@ msg_error_t MsgStoDeleteAllMessageInFolder(msg_folder_id_t folderId, bool bOnlyD
 	/*** **/
 
 	/*** Delete Sim Message In Folder **/
-	if ((unsigned char)folderId >= (unsigned char)MSG_INBOX_ID) {
+	folder_id = (signed char)folderId;
+	if (folder_id >= MSG_INBOX_ID) {
 		memset(sqlQuery, 0x00, sizeof(sqlQuery));
 
 		snprintf(sqlQuery, sizeof(sqlQuery), "SELECT MSG_ID FROM %s WHERE FOLDER_ID = %d AND STORAGE_ID = %d",
@@ -1674,7 +1676,8 @@ msg_error_t MsgStoMoveMessageToFolder(msg_message_id_t msgId, msg_folder_id_t de
 	err = MsgStoUpdateConversation(dbHandle, convId);
 
 	/* update notification */
-	if ((unsigned char)destFolderId != (unsigned char)MSG_SPAMBOX_ID)
+	signed char dest_folder_id = (signed char)destFolderId;
+	if (dest_folder_id != MSG_SPAMBOX_ID)
 		MsgRefreshAllNotification(true, false, MSG_ACTIVE_NOTI_TYPE_NONE);
 
 	return err;

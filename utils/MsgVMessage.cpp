@@ -764,8 +764,9 @@ static inline int __msgsvc_vmsg_append_origin_address_vcard(MSG_MESSAGE_INFO_S *
 	char originAddress[MAX_ADDRESS_VAL_LEN + 1] = {0, };
 	bool isDisplayName = false;
 
-	if ((unsigned char)(pMsg->folderId) == (unsigned char)MSG_INBOX_ID) {
-		strcpy(originAddress, pMsg->addressList[0].addressVal);
+	signed char folderId = (signed char)pMsg->folderId;
+	if (folderId == (signed char)MSG_INBOX_ID) {
+		snprintf(originAddress, sizeof(originAddress), "%s", pMsg->addressList[0].addressVal);
 	}
 
 	needCharset = true; /* as per android */
@@ -822,13 +823,15 @@ static inline int __msgsvc_vmsg_append_recipient_address_vcard(MSG_MESSAGE_INFO_
 	MSGSVC_VMSG_APPEND_STR(buf, buf_size, len, MSGSVC_CRLF);
 
 	needCharset = true; /* as per android */
+	signed char folderId;
 
 	for (int i = 0; i < pMsg->nAddressCnt; ++i) {
 		char originAddress[MAX_ADDRESS_VAL_LEN + 1] = {0, };
 		bool isDisplayName = false;
 
-		if (pMsg->folderId == MSG_SENTBOX_ID) {
-			strcpy(originAddress, pMsg->addressList[0].addressVal);
+		folderId = (signed char)pMsg->folderId;
+		if (folderId == MSG_SENTBOX_ID) {
+			snprintf(originAddress, sizeof(originAddress), "%s", pMsg->addressList[0].addressVal);
 		}
 
 		if (strlen(originAddress) > 0) {
@@ -1969,7 +1972,7 @@ static inline msg_error_t __msgsvc_vmsg_get_msg(int ver, char *vmsg, MSG_MESSAGE
 						pMsg->dataSize = strlen(pMsg->msgText);
 						free(decodedText);
 					} else {
-						strcpy(pMsg->msgText, "");
+						pMsg->msgText[0] = '\0';
 						pMsg->dataSize = 0;
 					}
 				}

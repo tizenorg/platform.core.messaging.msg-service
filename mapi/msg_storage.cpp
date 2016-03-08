@@ -617,7 +617,8 @@ EXPORT_API int msg_generate_message(msg_handle_t handle, msg_message_type_t msg_
 		return MSG_ERR_INVALID_PARAMETER;
 	}
 
-	if ((unsigned char)folder_id >= (unsigned char)MSG_MAX_FOLDER_ID) {
+	signed char folderId = (signed char)folder_id;
+	if (folderId >= MSG_MAX_FOLDER_ID) {
 		MSG_DEBUG("folderId is invalid [%d]", folder_id);
 		return MSG_ERR_INVALID_PARAMETER;
 	}
