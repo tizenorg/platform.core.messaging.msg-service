@@ -2376,22 +2376,8 @@ msg_error_t MsgStoDeleteThreadMessageList(msg_thread_id_t threadId, bool bInclud
 }
 
 
-msg_error_t MsgStoSetTempAddressTable(const char *pSearchVal, int *count)
+msg_error_t MsgStoSetTempAddressTable(MSG_ADDRESS_INFO_S *pAddrInfo, int addr_cnt)
 {
-	MSG_ADDRESS_INFO_S *pAddrInfo = NULL;
-	unique_ptr<MSG_ADDRESS_INFO_S*, void(*)(MSG_ADDRESS_INFO_S**)> buf(&pAddrInfo, unique_ptr_deleter);
-	*count = 0;
-
-	/* get contact search list */
-	if (MsgGetContactSearchList(pSearchVal, &pAddrInfo, count) != MSG_SUCCESS) {
-		MSG_DEBUG("MsgGetContactSearchList fail.");
-		*count = 0;
-		return MSG_SUCCESS;
-	}
-
-	if (*count == 0) {
-		return MSG_SUCCESS;
-	}
 	MsgDbHandler *dbHandle = getDbHandle();
 	char sqlQuery[MAX_QUERY_LEN+1];
 
@@ -2421,7 +2407,7 @@ msg_error_t MsgStoSetTempAddressTable(const char *pSearchVal, int *count)
 
 	char newPhoneNum[MAX_ADDRESS_VAL_LEN+1];
 	char tmpNum[MAX_ADDRESS_VAL_LEN+1];
-	for (int i = 0; i < *count; i++) {
+	for (int i = 0; i < addr_cnt; i++) {
 		memset(newPhoneNum, 0x00, sizeof(newPhoneNum));
 		memset(tmpNum, 0x00, sizeof(tmpNum));
 		MsgConvertNumber(pAddrInfo[i].addressVal, tmpNum, sizeof(tmpNum));

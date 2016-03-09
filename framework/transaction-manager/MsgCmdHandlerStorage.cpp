@@ -1007,26 +1007,24 @@ int MsgSetTempAddressTableHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 		return 0;
 	}
 
-	int search_len = 0;
-	memcpy(&search_len, (void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN), sizeof(int));
+	int count = 0;
+	memcpy(&count, (void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN), sizeof(int));
 
-	char search_val[search_len + 1] = {0, };
-	memcpy(&search_val, (void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN+sizeof(int)), sizeof(char)*search_len);
+	MSG_ADDRESS_INFO_S addr_info[count] = {0, };
+	memcpy(addr_info, (void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN+sizeof(int)), sizeof(MSG_ADDRESS_INFO_S)*count);
 
 	int eventSize = 0;
-	int count = 0;
 
-	err = MsgStoSetTempAddressTable(search_val, &count);
+	err = MsgStoSetTempAddressTable(addr_info, count);
 
 	if (err == MSG_SUCCESS) {
 		MSG_DEBUG("Command Handle Success : MsgStoSetTmpAddressTable()");
 	} else {
 		MSG_DEBUG("Command Handle Fail : MsgStoSetTmpAddressTable()");
-		count = 0;
 	}
 
 	/* Make Event Data */
-	eventSize = MsgMakeEvent(&count, sizeof(int), MSG_EVENT_SET_TEMP_ADDRESS_TABLE, err, (void**)ppEvent);
+	eventSize = MsgMakeEvent(NULL, 0, MSG_EVENT_SET_TEMP_ADDRESS_TABLE, err, (void**)ppEvent);
 
 	MSG_END();
 

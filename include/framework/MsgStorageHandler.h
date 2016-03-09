@@ -72,7 +72,7 @@ msg_error_t MsgStoGetMsgType(msg_message_id_t msgId, MSG_MESSAGE_TYPE_S* pMsgTyp
 msg_error_t MsgStoGetText(msg_message_id_t MsgId, char *pSubject, char *pMsgText);
 msg_error_t MsgStoGetQuickPanelData(msg_quickpanel_type_t Type, MSG_MESSAGE_INFO_S *pMsg);
 msg_error_t MsgStoDeleteThreadMessageList(msg_thread_id_t ThreadId, bool bIncludeProtect, msg_id_list_s *pMsgIdList);
-msg_error_t MsgStoSetTempAddressTable(const char *pSearchVal, int *count);
+msg_error_t MsgStoSetTempAddressTable(MSG_ADDRESS_INFO_S *pAddrInfo, int addr_cnt);
 msg_error_t MsgStoCountMsgByContact(const MSG_THREAD_LIST_INDEX_S *pAddrInfo, MSG_THREAD_COUNT_INFO_S *pThreadCountInfo);
 msg_error_t MsgStoGetSmsReportStatus(msg_message_id_t msgId, int *count, MSG_REPORT_STATUS_INFO_S **pReportStatus);
 msg_error_t MsgStoGetMmsReportStatus(msg_message_id_t msgId, int *count, MSG_REPORT_STATUS_INFO_S **pReportStatus);

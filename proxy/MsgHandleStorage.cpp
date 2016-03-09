@@ -22,6 +22,7 @@
 #include "MsgProxyListener.h"
 #include "MsgHandle.h"
 
+#include "MsgContact.h"
 #include "MsgVMessage.h"
 /*==================================================================================================
                                      IMPLEMENTATION OF MsgHandle - Storage Member Functions
@@ -1266,42 +1267,51 @@ msg_error_t MsgHandle::searchMessage(const char *pSearchString, msg_struct_list_
 
 	int count = 0;
 
-	int search_len = strlen(pSearchString);
+	MSG_ADDRESS_INFO_S *pAddrInfo = NULL;
+	unique_ptr<MSG_ADDRESS_INFO_S*, void(*)(MSG_ADDRESS_INFO_S**)> buf(&pAddrInfo, unique_ptr_deleter);
 
-	/* Allocate Memory to Command Data */
-	int cmdSize = sizeof(MSG_CMD_S) + sizeof(int) + sizeof(char) * search_len;
-
-	char cmdBuf[cmdSize];
-	bzero(cmdBuf, cmdSize);
-	MSG_CMD_S* pCmd = (MSG_CMD_S*)cmdBuf;
-
-	/* Set Command Parameters */
-	pCmd->cmdType = MSG_CMD_SET_TEMP_ADDRESS_TABLE;
-
-	/* Copy Cookie */
-	memcpy(pCmd->cmdCookie, mCookie, MAX_COOKIE_LEN);
-
-	/* Copy Command Data */
-	memcpy((void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN), &search_len, sizeof(int));
-	memcpy((void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN+sizeof(int)), pSearchString, sizeof(char) * search_len);
-
-	/* Send Command to Messaging FW */
-	char* pEventData = NULL;
-	unique_ptr<char*, void(*)(char**)> eventBuf(&pEventData, unique_ptr_deleter);
-
-	write((char*)pCmd, cmdSize, &pEventData);
-
-	/* Get Return Data */
-	MSG_EVENT_S* pEvent = (MSG_EVENT_S*)pEventData;
-
-	if (pEvent == NULL)
-		THROW(MsgException::INVALID_RESULT, "Event is NULL");
-
-	if (pEvent->eventType != MSG_EVENT_SET_TEMP_ADDRESS_TABLE) {
-		THROW(MsgException::INVALID_RESULT, "Event Data Error");
+	/* get contact search list */
+	if (MsgGetContactSearchList(pSearchString, &pAddrInfo, &count) != MSG_SUCCESS) {
+		MSG_DEBUG("MsgGetContactSearchList fail.");
+		count = 0;
 	}
 
-	memcpy(&count, pEvent->data, sizeof(int));
+	if (count > 0) {
+		/* Allocate Memory to Command Data */
+		int cmdSize = sizeof(MSG_CMD_S) + sizeof(int) + sizeof(MSG_ADDRESS_INFO_S) * count;
+
+		char cmdBuf[cmdSize];
+		bzero(cmdBuf, cmdSize);
+		MSG_CMD_S* pCmd = (MSG_CMD_S*)cmdBuf;
+
+		/* Set Command Parameters */
+		pCmd->cmdType = MSG_CMD_SET_TEMP_ADDRESS_TABLE;
+
+		/* Copy Cookie */
+		memcpy(pCmd->cmdCookie, mCookie, MAX_COOKIE_LEN);
+
+		/* Copy Command Data */
+		memcpy((void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN), &count, sizeof(int));
+		memcpy((void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN+sizeof(int)), pAddrInfo, sizeof(MSG_ADDRESS_INFO_S) * count);
+
+		/* Send Command to Messaging FW */
+		char* pEventData = NULL;
+		unique_ptr<char*, void(*)(char**)> eventBuf(&pEventData, unique_ptr_deleter);
+
+		write((char*)pCmd, cmdSize, &pEventData);
+
+		/* Get Return Data */
+		MSG_EVENT_S* pEvent = (MSG_EVENT_S*)pEventData;
+
+		if (pEvent == NULL)
+			THROW(MsgException::INVALID_RESULT, "Event is NULL");
+
+		if (pEvent->eventType != MSG_EVENT_SET_TEMP_ADDRESS_TABLE)
+			THROW(MsgException::INVALID_RESULT, "Event Data Error");
+
+		if (pEvent->result != MSG_SUCCESS)
+			count = 0;
+	}
 
 	err = MsgStoSearchMessage(pSearchString, pThreadViewList, count);
 
@@ -1619,42 +1629,51 @@ msg_error_t MsgHandle::getMessageList(const MSG_LIST_CONDITION_S *pListCond, msg
 	int count = 0;
 
 	if (pListCond->pAddressVal) {
-		int address_len = strlen(pListCond->pAddressVal);
+		MSG_ADDRESS_INFO_S *pAddrInfo = NULL;
+		unique_ptr<MSG_ADDRESS_INFO_S*, void(*)(MSG_ADDRESS_INFO_S**)> buf(&pAddrInfo, unique_ptr_deleter);
 
-		/* Allocate Memory to Command Data */
-		int cmdSize = sizeof(MSG_CMD_S) + sizeof(int) + sizeof(char) * address_len;
-
-		char cmdBuf[cmdSize];
-		bzero(cmdBuf, cmdSize);
-		MSG_CMD_S* pCmd = (MSG_CMD_S*)cmdBuf;
-
-		/* Set Command Parameters */
-		pCmd->cmdType = MSG_CMD_SET_TEMP_ADDRESS_TABLE;
-
-		/* Copy Cookie */
-		memcpy(pCmd->cmdCookie, mCookie, MAX_COOKIE_LEN);
-
-		/* Copy Command Data */
-		memcpy((void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN), &address_len, sizeof(int));
-		memcpy((void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN+sizeof(int)), pListCond->pAddressVal, sizeof(char) * address_len);
-
-		/* Send Command to Messaging FW */
-		char* pEventData = NULL;
-		unique_ptr<char*, void(*)(char**)> eventBuf(&pEventData, unique_ptr_deleter);
-
-		write((char*)pCmd, cmdSize, &pEventData);
-
-		/* Get Return Data */
-		MSG_EVENT_S* pEvent = (MSG_EVENT_S*)pEventData;
-
-		if (pEvent == NULL)
-			THROW(MsgException::INVALID_RESULT, "Event is NULL");
-
-		if (pEvent->eventType != MSG_EVENT_SET_TEMP_ADDRESS_TABLE) {
-			THROW(MsgException::INVALID_RESULT, "Event Data Error");
+		/* get contact search list */
+		if (MsgGetContactSearchList(pListCond->pAddressVal, &pAddrInfo, &count) != MSG_SUCCESS) {
+			MSG_DEBUG("MsgGetContactSearchList fail.");
+			count = 0;
 		}
 
-		memcpy(&count, pEvent->data, sizeof(int));
+		if (count > 0) {
+			/* Allocate Memory to Command Data */
+			int cmdSize = sizeof(MSG_CMD_S) + sizeof(int) + sizeof(MSG_ADDRESS_INFO_S) * count;
+
+			char cmdBuf[cmdSize];
+			bzero(cmdBuf, cmdSize);
+			MSG_CMD_S* pCmd = (MSG_CMD_S*)cmdBuf;
+
+			/* Set Command Parameters */
+			pCmd->cmdType = MSG_CMD_SET_TEMP_ADDRESS_TABLE;
+
+			/* Copy Cookie */
+			memcpy(pCmd->cmdCookie, mCookie, MAX_COOKIE_LEN);
+
+			/* Copy Command Data */
+			memcpy((void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN), &count, sizeof(int));
+			memcpy((void*)((char*)pCmd+sizeof(MSG_CMD_TYPE_T)+MAX_COOKIE_LEN+sizeof(int)), pAddrInfo, sizeof(MSG_ADDRESS_INFO_S) * count);
+
+			/* Send Command to Messaging FW */
+			char* pEventData = NULL;
+			unique_ptr<char*, void(*)(char**)> eventBuf(&pEventData, unique_ptr_deleter);
+
+			write((char*)pCmd, cmdSize, &pEventData);
+
+			/* Get Return Data */
+			MSG_EVENT_S* pEvent = (MSG_EVENT_S*)pEventData;
+
+			if (pEvent == NULL)
+				THROW(MsgException::INVALID_RESULT, "Event is NULL");
+
+			if (pEvent->eventType != MSG_EVENT_SET_TEMP_ADDRESS_TABLE)
+				THROW(MsgException::INVALID_RESULT, "Event Data Error");
+
+			if (pEvent->result != MSG_SUCCESS)
+				count = 0;
+		}
 	}
 
 	err = MsgStoGetMessageList(pListCond, pMsgList, count);
