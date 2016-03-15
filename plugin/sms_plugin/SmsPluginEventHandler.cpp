@@ -21,6 +21,7 @@
 
 #include "MsgDebug.h"
 #include "MsgUtilFile.h"
+#include "MsgUtilFunction.h"
 #include "MsgCppTypes.h"
 #include "MsgContact.h"
 #include "MsgGconfWrapper.h"

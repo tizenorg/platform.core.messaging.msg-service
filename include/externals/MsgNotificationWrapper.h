@@ -222,6 +222,4 @@ void MsgDeleteNotification(msg_notification_type_t noti_type, int simIndex);
 void MsgInitReportNotiList();
 bool MsgCheckNotificationSettingEnable(void);
 
-char *getTranslateText(const char *pkg_name, const char *locale_dir, const char *text);
-
 #endif

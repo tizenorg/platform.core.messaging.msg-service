@@ -3073,27 +3073,6 @@ void setNotiEventHandler(notification_h noti_h, notification_event_type_e type, 
 }
 
 
-char *getTranslateText(const char *pkg_name, const char *locale_dir, const char *text)
-{
-	char *notiMsg = NULL;
-	char *lang = NULL;
-
-	lang = vconf_get_str(VCONFKEY_LANGSET);
-
-	setlocale(LC_MESSAGES, lang);
-
-	bindtextdomain(pkg_name, locale_dir);
-
-	notiMsg = dgettext(pkg_name, text);
-
-	if (lang) {
-		free(lang);
-		lang = NULL;
-	}
-
-	return g_strdup(notiMsg);
-}
-
 void MsgNotiSoundRepeatAlarmCB(int alarmId)
 {
 	MSG_BEGIN();

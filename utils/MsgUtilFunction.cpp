@@ -984,6 +984,28 @@ char* msg_normalize_number(char *src)
 }
 
 
+char *getTranslateText(const char *pkg_name, const char *locale_dir, const char *text)
+{
+	char *notiMsg = NULL;
+	char *lang = NULL;
+
+	lang = vconf_get_str(VCONFKEY_LANGSET);
+
+	setlocale(LC_MESSAGES, lang);
+
+	bindtextdomain(pkg_name, locale_dir);
+
+	notiMsg = dgettext(pkg_name, text);
+
+	if (lang) {
+		free(lang);
+		lang = NULL;
+	}
+
+	return g_strdup(notiMsg);
+}
+
+
 msg_error_t MsgMakeSortRule(const MSG_SORT_RULE_S *pSortRule, char *pSqlSort)
 {
 	char sql[128];
