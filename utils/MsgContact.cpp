@@ -682,7 +682,7 @@ msg_error_t MsgGetContactStyleDisplayName(const char *first, const char *last, c
 void MsgAddPhoneLog(const MSG_MESSAGE_INFO_S *pMsgInfo)
 {
 #ifndef MSG_CONTACTS_SERVICE_NOT_SUPPORTED
-
+#if 0
 	msg_error_t err = MSG_SUCCESS;
 
 	if ((err = MsgOpenContactSvc()) != MSG_SUCCESS) {
@@ -768,6 +768,7 @@ void MsgAddPhoneLog(const MSG_MESSAGE_INFO_S *pMsgInfo)
 
 		contacts_record_destroy(plog, true);
 	}
+#endif
 #endif /* MSG_CONTACTS_SERVICE_NOT_SUPPORTED */
 }
 
@@ -775,6 +776,7 @@ void MsgAddPhoneLog(const MSG_MESSAGE_INFO_S *pMsgInfo)
 void MsgDeletePhoneLog(msg_message_id_t msgId)
 {
 #ifndef MSG_CONTACTS_SERVICE_NOT_SUPPORTED
+#if 0
 	msg_error_t err = MSG_SUCCESS;
 
 	if ((err = MsgOpenContactSvc()) != MSG_SUCCESS) {
@@ -833,6 +835,7 @@ void MsgDeletePhoneLog(msg_message_id_t msgId)
 	contacts_query_destroy(query);
 	contacts_filter_destroy(filter);
 	contacts_list_destroy(plogs, true);
+#endif
 #endif /* MSG_CONTACTS_SERVICE_NOT_SUPPORTED */
 }
 
