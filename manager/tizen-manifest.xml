@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<manifest xmlns="http://tizen.org/ns/packages" api-version="3.0" package="org.tizen.msg-manager" version="1.0.0">
+    <profile name="mobile"/>
+    <service-application appid="org.tizen.msg-manager" auto-restart="false" exec="msg-manager" multiple="false" nodisplay="true" on-boot="false" taskmanage="false" type="capp">
+        <label>msg-manager</label>
+        <icon>msg-manager.png</icon>
+        <app-control>
+            <operation name="http://tizen.org/appcontrol/operation/launch_on_event"/>
+            <uri name="event://tizen.system.event.incoming_msg"/>
+        </app-control>
+    </service-application>
+    <privileges>
+        <privilege>http://tizen.org/privilege/message.read</privilege>
+        <privilege>http://tizen.org/privilege/callhistory.write</privilege>
+    </privileges>
+</manifest>

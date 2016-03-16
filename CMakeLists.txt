@@ -15,6 +15,7 @@ SET(TRANS-PROXY-LIB msg_transaction_proxy)
 SET(MAPI-LIB msg_mapi)
 SET(SMS-PLUGIN-LIB msg_sms_plugin)
 SET(MMS-PLUGIN-LIB msg_mms_plugin)
+SET(MSG-MGR msg-manager)
 
 IF(_FEATURE_SMS_CDMA)
 	ADD_DEFINITIONS("-DFEATURE_SMS_CDMA")
@@ -55,6 +56,9 @@ ELSE(_FEATURE_SMS_CDMA)
 ADD_SUBDIRECTORY(plugin/sms_plugin)
 ENDIF(_FEATURE_SMS_CDMA)
 ADD_SUBDIRECTORY(plugin/mms_plugin)
+IF(NOT _MSG_WEARABLE_PROFILE)
+ADD_SUBDIRECTORY(manager)
+ENDIF()
 
 ##########################################################
 # Install Header Files

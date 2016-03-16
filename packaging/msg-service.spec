@@ -20,6 +20,7 @@ Requires(postun): systemd
 BuildRequires: cmake
 BuildRequires: libacl-devel
 BuildRequires: pkgconfig(alarm-service)
+BuildRequires: pkgconfig(appcore-agent)
 BuildRequires: pkgconfig(aul)
 BuildRequires: pkgconfig(badge)
 BuildRequires: pkgconfig(bundle)
@@ -50,6 +51,7 @@ BuildRequires: pkgconfig(iniparser)
 BuildRequires: pkgconfig(json-glib-1.0)
 BuildRequires: pkgconfig(lbs-dbus)
 BuildRequires: pkgconfig(libcurl)
+BuildRequires: pkgconfig(libtzplatform-config)
 BuildRequires: pkgconfig(libxml-2.0)
 BuildRequires: pkgconfig(libwbxml2)
 BuildRequires: pkgconfig(motion)
@@ -112,15 +114,34 @@ Requires(postun): /sbin/ldconfig
 %description -n mms-plugin
 Description: MMS plugin library
 
+%package -n msg-manager
+License:        Apache-2.0
+Summary:        Message manager application
+Requires:       %{name} = %{version}-%{release}
+Group:          Applications
+
+%description -n msg-manager
+Description: Message manager application
+
+%if "%{?profile}" != "wearable"
+%define APP_PREFIX         %{TZ_SYS_RO_APP}/msg-manager
+%define APP_BINDIR         %{APP_PREFIX}/bin
+%define APP_MANIFESTDIR    %{TZ_SYS_RO_PACKAGES}
+%endif
+
 %prep
 %setup -q
 
 %build
 cmake . -DCMAKE_INSTALL_PREFIX=%{_prefix} \
-        -DLIB_INSTALL_DIR=%{_libdir} \
-        -DTZ_SYS_RO_APP=%TZ_SYS_RO_APP \
-        -DTZ_SYS_DATA=%TZ_SYS_DATA \
-        -DTZ_SYS_DB=%TZ_SYS_DB \
+		-DLIB_INSTALL_DIR=%{_libdir} \
+%if "%{?profile}" != "wearable"
+		-DAPP_MANIFESTDIR=%{APP_MANIFESTDIR}   \
+		-DAPP_BINDIR=%{APP_BINDIR}   \
+%endif
+		-DTZ_SYS_RO_APP=%TZ_SYS_RO_APP \
+		-DTZ_SYS_DATA=%TZ_SYS_DATA \
+		-DTZ_SYS_DB=%TZ_SYS_DB \
 %ifarch i586
 -D_TIZEN_I586_ENABLED:BOOL=ON \
 %else
@@ -231,5 +252,13 @@ chsmack -a "System::Shared" %{TZ_SYS_DATA}/msg-service/msgdata/thumbnails -t
 %manifest mms-plugin.manifest
 %license LICENSE.APLv2
 %{_libdir}/libmsg_mms_plugin.so
+
+%if "%{?profile}" != "wearable"
+%files -n msg-manager
+%manifest msg-manager.manifest
+%license LICENSE.APLv2
+%{APP_BINDIR}/msg-manager
+%{APP_MANIFESTDIR}/*.xml
+%endif
 
 %changelog
