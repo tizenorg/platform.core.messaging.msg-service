@@ -124,9 +124,10 @@ Group:          Applications
 Description: Message manager application
 
 %if "%{?profile}" != "wearable"
-%define APP_PREFIX         %{TZ_SYS_RO_APP}/msg-manager
-%define APP_BINDIR         %{APP_PREFIX}/bin
-%define APP_MANIFESTDIR    %{TZ_SYS_RO_PACKAGES}
+%define APP_PKGNAME	org.tizen.msg-manager
+%define APP_PREFIX	%{TZ_SYS_RO_APP}/%{APP_PKGNAME}
+%define APP_BINDIR	%{APP_PREFIX}/bin
+%define APP_MANIFESTDIR	%{TZ_SYS_RO_PACKAGES}
 %endif
 
 %prep
