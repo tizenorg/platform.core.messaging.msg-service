@@ -1883,3 +1883,25 @@ msg_error_t MsgHandle::getVobject(msg_message_id_t MsgId, void** encodedData)
 
 	return MSG_SUCCESS;
 }
+
+
+msg_error_t MsgHandle::dbSelectWithQuery(const char *query, char ***db_res, int *row_count, int *col_count)
+{
+	msg_error_t err = MSG_SUCCESS;
+
+	err = MsgStoDbSelectWithQuery(query, db_res, row_count, col_count);
+
+	if (err != MSG_SUCCESS)
+		return err;
+
+	MSG_END();
+
+	return err;
+}
+
+
+void MsgHandle::dbFree(char **db_res)
+{
+	MsgStoDbFree(db_res);
+	MSG_END();
+}

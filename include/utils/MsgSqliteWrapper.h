@@ -95,7 +95,9 @@ public:
 	bool checkTableExist(const char *pTableName);
 	msg_error_t execQuery(const char *pQuery);
 	msg_error_t getTable(const char *pQuery, int *pRowCnt, int *pColumnCnt);
+	msg_error_t getTableWithResult(const char *pQuery, char ***res, int *pRowCnt, int *pColumnCnt);
 	void freeTable();
+	void freeTable(char **db_res);
 	msg_error_t bindText(const char *pBindStr, int index);
 	msg_error_t bindInt(const int pBindint, int index);
 	msg_error_t bindBlob(const void * pBindBlob, int size, int index);

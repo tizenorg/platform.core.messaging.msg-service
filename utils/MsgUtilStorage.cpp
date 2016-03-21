@@ -28,6 +28,7 @@
 #include "MsgGconfWrapper.h"
 #include "MsgUtilFunction.h"
 #include "MsgUtilStorage.h"
+#include "MsgException.h"
 
 #include <storage.h>
 
@@ -2863,6 +2864,51 @@ msg_error_t MsgStoGetMediaList(const msg_thread_id_t threadId, msg_list_handle_t
 	MSG_END();
 	return MSG_SUCCESS;
 }
+
+
+msg_error_t MsgStoDbSelectWithQuery(const char *szQuery, char ***db_res, int *row_count, int *col_count)
+{
+	MSG_BEGIN();
+
+	msg_error_t err = MSG_SUCCESS;
+
+	MsgDbHandler *dbHandle = getDbHandle();
+	err = dbHandle->connectReadOnly();
+	if (err != MSG_SUCCESS) {
+		MSG_ERR("db connect (read only) is failed [%d]", err);
+		return err;
+	}
+
+	char *zSQL = sqlite3_mprintf("SELECT %q;", szQuery);
+
+	if (zSQL) {
+		err = dbHandle->getTableWithResult((const char *)zSQL, db_res, row_count, col_count);
+		sqlite3_free(zSQL);
+		zSQL = NULL;
+	} else {
+		THROW(MsgException::INVALID_RESULT, "sqlite3_mprintf() is failed");
+	}
+
+	MSG_DEBUG("getTableWithResult :: row_count=[%d], col_count=[%d]", *row_count, *col_count);
+
+	if (err == MSG_ERR_DB_NORECORD) {
+		dbHandle->freeTable(*db_res);
+		err = MSG_SUCCESS;
+	} else if (err != MSG_SUCCESS) {
+		MSG_DEBUG("Fail to getTable().");
+		dbHandle->freeTable(*db_res);
+	}
+
+	return err;
+}
+
+
+void MsgStoDbFree(char **db_res)
+{
+	MsgDbHandler *dbHandle = getDbHandle();
+	dbHandle->freeTable(db_res);
+}
+
 
 #ifdef FEATURE_SMS_CDMA
 msg_error_t MsgStoClearUniquenessTable()

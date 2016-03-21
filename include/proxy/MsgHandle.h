@@ -129,6 +129,10 @@ class MsgHandle
 		/* ETC */
 		msg_error_t searchMessage(const char *pSearchString, msg_struct_list_s *pThreadViewList);
 
+
+		msg_error_t dbSelectWithQuery(const char *query, char ***db_res, int *row_count, int *col_count);
+		void dbFree(char **db_res);
+
 		msg_error_t getRejectMsgList(const char *pNumber, msg_struct_list_s *pRejectMsgList);
 		msg_error_t regStorageChangeCallback(msg_storage_change_cb onStorageChange, void *pUserParam);
 		msg_error_t getReportStatus(msg_message_id_t msg_id, msg_struct_list_s *report_list);

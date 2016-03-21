@@ -78,6 +78,9 @@ msg_error_t MsgDbHandler::connect()
 		if (ret == SQLITE_OK) {
 			MSG_DEBUG("DB Connect Success : [%p]", handle);
 			return MSG_SUCCESS;
+		} else if (ret == SQLITE_PERM){
+			MSG_DEBUG("DB Connect Fail [%d]", ret);
+			return MSG_ERR_PERMISSION_DENIED;
 		} else {
 			MSG_DEBUG("DB Connect Fail [%d]", ret);
 			return MSG_ERR_DB_CONNECT;
@@ -106,6 +109,9 @@ msg_error_t MsgDbHandler::connectReadOnly()
 		if (ret == SQLITE_OK) {
 			MSG_DEBUG("DB Connect Success : [%p]", handle);
 			return MSG_SUCCESS;
+		} else if (ret == SQLITE_PERM){
+			MSG_DEBUG("DB Connect Fail [%d]", ret);
+			return MSG_ERR_PERMISSION_DENIED;
 		} else {
 			MSG_DEBUG("DB Connect Fail [%d]", ret);
 			return MSG_ERR_DB_CONNECT;
@@ -225,6 +231,36 @@ msg_error_t MsgDbHandler::getTable(const char *pQuery, int *pRowCnt, int *pColum
 }
 
 
+msg_error_t MsgDbHandler::getTableWithResult(const char *pQuery, char ***res, int *pRowCnt, int *pColumnCnt)
+{
+	int ret = 0;
+
+	*pRowCnt = 0;
+	if (pColumnCnt)
+		*pColumnCnt = 0;
+
+	MSG_DEBUG("[%s]", pQuery);
+	ret = sqlite3_get_table(handle, pQuery, res, pRowCnt, pColumnCnt, NULL);
+
+	if (ret == SQLITE_OK) {
+		if (*pRowCnt == 0) { /* when the no record return 'MSG_ERR_DB_NORECORD' */
+			MSG_DEBUG("No Query Result");
+			return MSG_ERR_DB_NORECORD;
+		}
+
+		MSG_DEBUG("Get Table Success");
+		return MSG_SUCCESS;
+	} else if (ret == SQLITE_BUSY) {
+		MSG_DEBUG("The database file is locked [%d]", ret);
+		return MSG_ERR_DB_BUSY;
+	} else {
+		MSG_DEBUG("Get Table Fail [%d]", ret);
+		return MSG_ERR_DB_GETTABLE;
+	}
+
+	return MSG_SUCCESS;
+}
+
 void MsgDbHandler::freeTable()
 {
 	if (result) {
@@ -233,6 +269,13 @@ void MsgDbHandler::freeTable()
 	}
 }
 
+void MsgDbHandler::freeTable(char **db_res)
+{
+	if (db_res) {
+		sqlite3_free_table(db_res);
+		db_res = NULL;
+	}
+}
 
 msg_error_t MsgDbHandler::bindText(const char *pBindStr, int index)
 {

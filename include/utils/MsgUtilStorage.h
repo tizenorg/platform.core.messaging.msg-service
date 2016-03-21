@@ -81,6 +81,9 @@ msg_error_t MsgStoGetAddressList(const msg_thread_id_t threadId, msg_struct_list
 msg_error_t MsgStoGetMessageList(const MSG_LIST_CONDITION_S *pListCond, msg_struct_list_s *pMsgList, int contactCount);
 msg_error_t MsgStoGetMediaList(const msg_thread_id_t threadId, msg_list_handle_t *pMediaList);
 
+msg_error_t MsgStoDbSelectWithQuery(const char *query, char ***db_res, int *row_count, int *col_count);
+void MsgStoDbFree(char **db_res);
+
 #ifdef FEATURE_SMS_CDMA
 msg_error_t MsgStoClearUniquenessTable();
 #endif

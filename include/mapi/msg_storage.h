@@ -737,7 +737,7 @@ int msg_get_mem_size(msg_handle_t handle, unsigned int* memsize);
  * @retval MSG_ERR_NOT_SUPPORTED     Not supported
  */
 
-int msg_backup_message(msg_handle_t handle, msg_message_backup_type_t type, const char *backup_filepath);
+int msg_backup_message(msg_handle_t handle, msg_message_backup_type_t type, const char *backup_filepath) DEPRECATED;
 
 
 /**
@@ -760,7 +760,7 @@ int msg_backup_message(msg_handle_t handle, msg_message_backup_type_t type, cons
  * @retval MSG_ERR_NOT_SUPPORTED     Not supported
  */
 
-int msg_restore_message(msg_handle_t handle, const char *backup_filepath);
+int msg_restore_message(msg_handle_t handle, const char *backup_filepath) DEPRECATED;
 
 
 /**
@@ -1124,6 +1124,59 @@ int msg_delete_msgs_by_list(msg_handle_t handle, msg_id_list_s *msg_id_list);
  */
 
 int msg_set_conversation_to_read(msg_handle_t handle,  msg_thread_id_t thread_id);
+
+
+/**
+ * @brief Gets a DB records with specified query.
+ *
+ * @since_tizen 3.0
+ * @privlevel public
+ * @privilege %http://tizen.org/privilege/message.read
+ *
+ * @remarks You must release @a db_res using msg_db_free().
+ * @remarks You should set @a query with SQL query string after 'SELECT'.
+ *
+ * @param[in] handle     The Message handle
+ * @param[in] query      The SQL SELECT query
+ * @param[out] db_res    The result of SQL SELECT query
+ * @param[out] row_count The row count of result
+ * @param[out] col_count The column count of result
+ *
+ * @return  @c 0 on success,
+ *        otherwise a negative error value
+ *
+ * @retval MSG_SUCCESS               Success in operation
+ * @retval MSG_ERR_INVALID_PARAMETER Parameter is invalid
+ * @retval MSG_ERR_STORAGE_ERROR     Storage error
+ * @retval MSG_ERR_DB_BUSY           DB operation is busy
+ * @retval MSG_ERR_DB_GETTABLE       DB get table operation is failed
+ * @retval MSG_ERR_PERMISSION_DENIED The application does not have the privilege to call this method
+ * @retval MSG_ERR_NOT_SUPPORTED     Not supported
+ *
+ * @see msg_db_free()
+ */
+int msg_db_select_with_query(msg_handle_t handle, const char *query, char ***db_res, int *row_count, int *col_count);
+
+/**
+ * @brief Release memory for result of SQL query.
+ *
+ * @since_tizen 3.0
+ *
+ * @param[in] handle     The Message handle
+ * @param[in] db_res     The result of SQL SELECT query
+ *
+ * @return  @c 0 on success,
+ *        otherwise a negative error value
+ *
+ * @retval MSG_SUCCESS               Success in operation
+ * @retval MSG_ERR_INVALID_PARAMETER Parameter is invalid
+ * @retval MSG_ERR_STORAGE_ERROR     Storage error
+ * @retval MSG_ERR_PERMISSION_DENIED The application does not have the privilege to call this method
+ * @retval MSG_ERR_NOT_SUPPORTED     Not supported
+ *
+ * @see msg_db_select_with_query()
+ */
+int msg_db_free(msg_handle_t handle, char **db_res);
 /**
  *	@}
  */

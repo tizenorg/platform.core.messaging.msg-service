@@ -861,6 +861,49 @@ EXPORT_API int msg_search_message_for_thread_view(msg_handle_t handle, const cha
 	return err;
 }
 
+
+EXPORT_API int msg_db_select_with_query(msg_handle_t handle, const char *query, char ***db_res, int *row_count, int *col_count)
+{
+	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_SMS_FEATURE);
+	msg_error_t err = MSG_SUCCESS;
+
+	if (handle == NULL || query == NULL)
+		return MSG_ERR_INVALID_PARAMETER;
+
+	MsgHandle* pHandle = (MsgHandle*)handle;
+
+	try {
+		err = pHandle->dbSelectWithQuery(query, db_res, row_count, col_count);
+	} catch (MsgException& e) {
+		MSG_FATAL("%s", e.what());
+		return MSG_ERR_STORAGE_ERROR;
+	}
+
+	return err;
+}
+
+
+EXPORT_API int msg_db_free(msg_handle_t handle, char **db_res)
+{
+	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_SMS_FEATURE);
+
+	if (handle == NULL || db_res == NULL)
+		return MSG_ERR_INVALID_PARAMETER;
+
+	MsgHandle* pHandle = (MsgHandle*)handle;
+
+	try {
+		pHandle->dbFree(db_res);
+	} catch (MsgException& e) {
+		MSG_FATAL("%s", e.what());
+		return MSG_ERR_STORAGE_ERROR;
+	}
+
+	return MSG_SUCCESS;
+}
+
+
+
 EXPORT_API int msg_get_reject_msg_list(msg_handle_t handle, const char *phone_num, msg_struct_list_s *msg_reject_msg_list)
 {
 	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_SMS_FEATURE);
