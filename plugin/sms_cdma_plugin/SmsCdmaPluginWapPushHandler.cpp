@@ -880,7 +880,8 @@ void SmsPluginWapPushHandler::handleWapPushCallback(char* pPushHeader, char* pPu
 	/*  check Push message receive setting */
 	bool bPushRecv = false;
 
-	MsgSettingGetBool(PUSH_RECV_OPTION, &bPushRecv);
+	if (MsgSettingGetBool(PUSH_RECV_OPTION, &bPushRecv) != MSG_SUCCESS)
+		MSG_INFO("MsgSettingGetBool() is failed");
 
 	if ((bPushRecv == false) && (appCode != SMS_WAP_APPLICATION_MMS_UA)) {
 		MSG_DEBUG("Push Message Receive option is OFF. Drop Push Message.");
@@ -1144,7 +1145,8 @@ void SmsPluginWapPushHandler::handleWapPushCallback(char* pPushHeader, char* pPu
 		/*  check Push message receive setting */
 		bool bPushRecv = false;
 		int appcode = 0;
-		MsgSettingGetBool(PUSH_RECV_OPTION, &bPushRecv);
+		if (MsgSettingGetBool(PUSH_RECV_OPTION, &bPushRecv) != MSG_SUCCESS)
+			MSG_INFO("MsgSettingGetBool() is failed");
 
 		storageHandler->getnthPushEvent(i, &appcode);
 		MSG_DEBUG("pushEvt_cnt: %d, appcode: %d", pushEvt_cnt, appcode);

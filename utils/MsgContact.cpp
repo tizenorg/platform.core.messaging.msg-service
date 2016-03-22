@@ -259,7 +259,9 @@ msg_error_t MsgCloseContactSvc()
 msg_error_t MsgInitContactSvc()
 {
 #ifndef MSG_CONTACTS_SERVICE_NOT_SUPPORTED
-	phonenumberMinMatchDigit = MsgSettingGetInt(PHONENUMBER_MIN_MATCH_DIGIT);
+	if (MsgSettingGetInt(PHONENUMBER_MIN_MATCH_DIGIT, &phonenumberMinMatchDigit) != MSG_SUCCESS) {
+		MSG_INFO("MsgSettingGetInt() is failed");
+	}
 	MSG_DEBUG("phonenumberMinMatchDigit [%d]", phonenumberMinMatchDigit);
 
 	if (phonenumberMinMatchDigit < 1) {
@@ -850,11 +852,14 @@ bool checkBlockingMode(char *address, bool *pisFavorites)
 	bool isBlockModeOn = false;
 	bool isblock = true;
 
-	MsgSettingGetBool(VCONFKEY_SETAPPL_BLOCKINGMODE_NOTIFICATIONS, &isBlockModeOn);
+	if (MsgSettingGetBool(VCONFKEY_SETAPPL_BLOCKINGMODE_NOTIFICATIONS, &isBlockModeOn) != MSG_SUCCESS)
+		MSG_INFO("MsgSettingGetBool() is failed");
 
 	int blockModeType = -1;
 
-	blockModeType = MsgSettingGetInt(VCONFKEY_SETAPPL_BLOCKINGMODE_ALLOWED_CONTACT_TYPE);
+	if (MsgSettingGetInt(VCONFKEY_SETAPPL_BLOCKINGMODE_ALLOWED_CONTACT_TYPE, &blockModeType) != MSG_SUCCESS) {
+		MSG_INFO("MsgSettingGetInt() is failed");
+	}
 
 	if (!isBlockModeOn)
 		isblock = false;
@@ -948,7 +953,10 @@ bool checkBlockingMode(char *address, bool *pisFavorites)
 		break;
 	}
 	case 3: { /* For Custom allow in blocking mode. */
-		char *allowList = MsgSettingGetString(VCONFKEY_SETAPPL_BLOCKINGMODE_ALLOWED_CONTACT_LIST);
+		char *allowList = NULL;
+		if (MsgSettingGetString(VCONFKEY_SETAPPL_BLOCKINGMODE_ALLOWED_CONTACT_LIST, &allowList) != MSG_SUCCESS) {
+			MSG_INFO("MsgSettingGetString() is failed");
+		}
 		char *temp = NULL;
 		char *personIdStr = strtok_r(allowList, " ,", &temp);
 		while (personIdStr != NULL) {

@@ -76,7 +76,11 @@ void SmsPluginCallback::registerEvent()
 	if (tel_register_noti_event(pTapiHandle, TAPI_NOTI_SIM_REFRESHED, TapiEventSimRefreshed, NULL) != TAPI_API_SUCCESS)
 		MSG_DEBUG("tel_register_noti_event is failed : [%s]", TAPI_NOTI_SIM_REFRESHED);
 
-	MsgSettingRegVconfCBCommon(VCONFKEY_DNET_STATE, _dnet_state_changed_cb);
+	msg_error_t err = MSG_SUCCESS;
+	err = MsgSettingRegVconfCBCommon(VCONFKEY_DNET_STATE, _dnet_state_changed_cb);
+	if (err != MSG_SUCCESS) {
+		MSG_DEBUG("MsgSettingRegVconfCBCommon() is failed");
+	}
 	/* MsgSettingRegVconfCBCommon(VCONFKEY_TELEPHONY_MDN, _TapiMdnChangedCb); */
 }
 
@@ -147,7 +151,10 @@ void TapiEventMsgIncoming(TapiHandle *handle, const char *noti_id, void *data, v
 
 		sms_trans_msg.data.p2p_msg.telesvc_msg.data.deliver.num_msg = num_msg;
 
-		char *voiceNumber = MsgSettingGetString(VOICEMAIL_NUMBER);
+		char *voiceNumber = NULL;
+		if (MsgSettingGetString(VOICEMAIL_NUMBER, &voiceNumber) != MSG_SUCCESS) {
+			MSG_INFO("MsgSettingGetString() is failed");
+		}
 		if (voiceNumber) {
 			snprintf(sms_trans_msg.data.p2p_msg.address.szData, sizeof(sms_trans_msg.data.p2p_msg.address.szData), "%s", voiceNumber);
 			free(voiceNumber);
@@ -519,7 +526,10 @@ void TapiEventGetMsisdnInfo(TapiHandle *handle, int result, void *data, void *us
 
 void _dnet_state_changed_cb(keynode_t *key, void* data)
 {
-	int dnet_state = MsgSettingGetInt(VCONFKEY_DNET_STATE);
+	int dnet_state = 0;
+	if (MsgSettingGetInt(VCONFKEY_DNET_STATE, &dnet_state) != MSG_SUCCESS) {
+		MSG_INFO("MsgSettingGetInt() is failed");
+	}
 
 	if (dnet_state > VCONFKEY_DNET_OFF) {
 		/* Call Event Handler */

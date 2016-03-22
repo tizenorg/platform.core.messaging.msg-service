@@ -38,6 +38,7 @@ msg_error_t MsgSetConfigData(const MSG_SETTING_S *pSetting)
 	char keyName[MAX_VCONFKEY_NAME_LEN];
 	memset(keyName, 0x00, sizeof(keyName));
 	MSG_SIM_STATUS_T simStatus = MSG_SIM_STATUS_NOT_FOUND;
+	int tmpVal = 0;
 
 #ifdef USE_GCONF
 	err = MsgGconfGetClient();
@@ -61,7 +62,10 @@ msg_error_t MsgSetConfigData(const MSG_SETTING_S *pSetting)
 		case MSG_SMSC_LIST :
 			/* Check SIM is present or not */
 			snprintf(keyName, sizeof(keyName), "%s/%d", MSG_SIM_CHANGED, pSetting->option.smscList.simIndex);
-			simStatus = (MSG_SIM_STATUS_T)MsgSettingGetInt(keyName);
+			if (MsgSettingGetInt(keyName, &tmpVal) != MSG_SUCCESS) {
+				MSG_INFO("MsgSettingGetInt() is failed");
+			}
+			simStatus = (MSG_SIM_STATUS_T)tmpVal;
 
 			if (simStatus == MSG_SIM_STATUS_NOT_FOUND) {
 				MSG_DEBUG("SIM is not present..");
@@ -86,7 +90,10 @@ msg_error_t MsgSetConfigData(const MSG_SETTING_S *pSetting)
 			if (pSetting->option.cbMsgOpt.simIndex != 0) {
 				/* Check SIM is present or not */
 				snprintf(keyName, sizeof(keyName), "%s/%d", MSG_SIM_CHANGED, pSetting->option.cbMsgOpt.simIndex);
-				simStatus = (MSG_SIM_STATUS_T)MsgSettingGetInt(keyName);
+				if (MsgSettingGetInt(keyName, &tmpVal) != MSG_SUCCESS) {
+					MSG_INFO("MsgSettingGetInt() is failed");
+				}
+				simStatus = (MSG_SIM_STATUS_T)tmpVal;
 
 				if (simStatus == MSG_SIM_STATUS_NOT_FOUND) {
 					MSG_DEBUG("SIM is not present..");
@@ -98,7 +105,10 @@ msg_error_t MsgSetConfigData(const MSG_SETTING_S *pSetting)
 		case MSG_VOICEMAIL_OPT :
 			/* Check SIM is present or not */
 			snprintf(keyName, sizeof(keyName), "%s/%d", MSG_SIM_CHANGED, pSetting->option.voiceMailOpt.simIndex);
-			simStatus = (MSG_SIM_STATUS_T)MsgSettingGetInt(keyName);
+			if (MsgSettingGetInt(keyName, &tmpVal) != MSG_SUCCESS) {
+				MSG_INFO("MsgSettingGetInt() is failed");
+			}
+			simStatus = (MSG_SIM_STATUS_T)tmpVal;
 
 			if (simStatus == MSG_SIM_STATUS_NOT_FOUND) {
 				MSG_DEBUG("SIM is not present..");
@@ -133,6 +143,7 @@ msg_error_t MsgGetConfigData(MSG_SETTING_S *pSetting)
 #endif
 	char keyName[MAX_VCONFKEY_NAME_LEN] = {0, };
 	MSG_SIM_STATUS_T simStatus = MSG_SIM_STATUS_NOT_FOUND;
+	int tmpVal = 0;
 
 	switch (pSetting->type) {
 		case MSG_GENERAL_OPT:
@@ -144,7 +155,10 @@ msg_error_t MsgGetConfigData(MSG_SETTING_S *pSetting)
 		case MSG_SMSC_LIST: {
 			/* Check SIM is present or not */
 			snprintf(keyName, sizeof(keyName), "%s/%d", MSG_SIM_CHANGED, pSetting->option.smscList.simIndex);
-			simStatus = (MSG_SIM_STATUS_T)MsgSettingGetInt(keyName);
+			if (MsgSettingGetInt(keyName, &tmpVal) != MSG_SUCCESS) {
+				MSG_INFO("MsgSettingGetInt() is failed");
+			}
+			simStatus = (MSG_SIM_STATUS_T)tmpVal;
 
 			if (simStatus == MSG_SIM_STATUS_NOT_FOUND) {
 				MSG_DEBUG("SIM is not present..");
@@ -168,7 +182,10 @@ msg_error_t MsgGetConfigData(MSG_SETTING_S *pSetting)
 		case MSG_CBMSG_OPT: {
 			/* Check SIM is present or not */
 			snprintf(keyName, sizeof(keyName), "%s/%d", MSG_SIM_CHANGED, pSetting->option.cbMsgOpt.simIndex);
-			simStatus = (MSG_SIM_STATUS_T)MsgSettingGetInt(keyName);
+			if (MsgSettingGetInt(keyName, &tmpVal) != MSG_SUCCESS) {
+				MSG_INFO("MsgSettingGetInt() is failed");
+			}
+			simStatus = (MSG_SIM_STATUS_T)tmpVal;
 
 			if (simStatus == MSG_SIM_STATUS_NOT_FOUND) {
 				MSG_DEBUG("SIM is not present..");
@@ -185,7 +202,10 @@ msg_error_t MsgGetConfigData(MSG_SETTING_S *pSetting)
 			}
 
 			snprintf(keyName, sizeof(keyName), "%s/%d", MSG_SIM_CHANGED, pSetting->option.voiceMailOpt.simIndex);
-			simStatus = (MSG_SIM_STATUS_T)MsgSettingGetInt(keyName);
+			if (MsgSettingGetInt(keyName, &tmpVal) != MSG_SUCCESS) {
+				MSG_INFO("MsgSettingGetInt() is failed");
+			}
+			simStatus = (MSG_SIM_STATUS_T)tmpVal;
 
 			if (simStatus == MSG_SIM_STATUS_NOT_FOUND) {
 				MSG_DEBUG("SIM is not present..");
@@ -218,7 +238,9 @@ msg_error_t MsgSetGeneralOpt(const MSG_SETTING_S *pSetting)
 
 	memcpy(&generalOpt, &(pSetting->option.generalOpt), sizeof(MSG_GENERAL_OPT_S));
 
-	MsgSettingGetBool(MSG_KEEP_COPY, &bValue);
+	if (MsgSettingGetBool(MSG_KEEP_COPY, &bValue) != MSG_SUCCESS)
+		MSG_INFO("MsgSettingGetBool() is failed");
+
 	if (bValue != generalOpt.bKeepCopy) {
 		if (MsgSettingSetBool(MSG_KEEP_COPY, generalOpt.bKeepCopy) != MSG_SUCCESS) {
 			MSG_DEBUG("Error to set config data [%s]", MSG_KEEP_COPY);
@@ -226,7 +248,9 @@ msg_error_t MsgSetGeneralOpt(const MSG_SETTING_S *pSetting)
 		}
 	}
 
-	MsgSettingGetBool(MSG_AUTO_ERASE, &bValue);
+	if (MsgSettingGetBool(MSG_AUTO_ERASE, &bValue) != MSG_SUCCESS)
+		MSG_INFO("MsgSettingGetBool() is failed");
+
 	if (bValue != generalOpt.bAutoErase) {
 		if (MsgSettingSetBool(MSG_AUTO_ERASE, generalOpt.bAutoErase) != MSG_SUCCESS) {
 			MSG_DEBUG("Error to set config data [%s]", MSG_AUTO_ERASE);
@@ -234,7 +258,9 @@ msg_error_t MsgSetGeneralOpt(const MSG_SETTING_S *pSetting)
 		}
 	}
 
-	MsgSettingGetBool(MSG_BLOCK_UNKNOWN_MSG, &bValue);
+	if (MsgSettingGetBool(MSG_BLOCK_UNKNOWN_MSG, &bValue) != MSG_SUCCESS)
+		MSG_INFO("MsgSettingGetBool() is failed");
+
 	if (bValue != generalOpt.bBlockUnknownMsg) {
 		if (MsgSettingSetBool(MSG_BLOCK_UNKNOWN_MSG, generalOpt.bBlockUnknownMsg) != MSG_SUCCESS) {
 			MSG_DEBUG("Error to set config data [%s]", MSG_BLOCK_UNKNOWN_MSG);
@@ -242,7 +268,9 @@ msg_error_t MsgSetGeneralOpt(const MSG_SETTING_S *pSetting)
 		}
 	}
 
-	iValue = MsgSettingGetInt(MSG_SMS_LIMIT);
+	if (MsgSettingGetInt(MSG_SMS_LIMIT, &iValue) != MSG_SUCCESS) {
+		MSG_INFO("MsgSettingGetInt() is failed");
+	}
 	if (iValue != (int)generalOpt.smsLimitCnt) {
 		if (MsgSettingSetInt(MSG_SMS_LIMIT, (int)generalOpt.smsLimitCnt) != MSG_SUCCESS) {
 			MSG_DEBUG("Error to set config data [%s]", MSG_SMS_LIMIT);
@@ -250,7 +278,9 @@ msg_error_t MsgSetGeneralOpt(const MSG_SETTING_S *pSetting)
 		}
 	}
 
-	iValue = MsgSettingGetInt(MSG_MMS_LIMIT);
+	if (MsgSettingGetInt(MSG_MMS_LIMIT, &iValue) != MSG_SUCCESS) {
+		MSG_INFO("MsgSettingGetInt() is failed");
+	}
 	if (iValue != (int)generalOpt.mmsLimitCnt) {
 		if (MsgSettingSetInt(MSG_MMS_LIMIT, (int)generalOpt.mmsLimitCnt) != MSG_SUCCESS) {
 			MSG_DEBUG("Error to set config data [%s]", MSG_MMS_LIMIT);
@@ -258,7 +288,9 @@ msg_error_t MsgSetGeneralOpt(const MSG_SETTING_S *pSetting)
 		}
 	}
 
-	MsgSettingGetBool(MSG_SETTING_NOTIFICATION, &bValue);
+	if (MsgSettingGetBool(MSG_SETTING_NOTIFICATION, &bValue) != MSG_SUCCESS)
+		MSG_INFO("MsgSettingGetBool() is failed");
+
 	if (bValue != generalOpt.bNotification) {
 		if (MsgSettingSetBool(MSG_SETTING_NOTIFICATION, generalOpt.bNotification) != MSG_SUCCESS) {
 			MSG_DEBUG("Error to set config data [%s]", MSG_SETTING_NOTIFICATION);
@@ -266,7 +298,9 @@ msg_error_t MsgSetGeneralOpt(const MSG_SETTING_S *pSetting)
 		}
 	}
 
-	MsgSettingGetBool(MSG_SETTING_VIBRATION, &bValue);
+	if (MsgSettingGetBool(MSG_SETTING_VIBRATION, &bValue) != MSG_SUCCESS)
+		MSG_INFO("MsgSettingGetBool() is failed");
+
 	if (bValue != generalOpt.bVibration) {
 		if (MsgSettingSetBool(MSG_SETTING_VIBRATION, generalOpt.bVibration) != MSG_SUCCESS) {
 			MSG_DEBUG("Error to set config data [%s]", MSG_SETTING_VIBRATION);
@@ -274,7 +308,9 @@ msg_error_t MsgSetGeneralOpt(const MSG_SETTING_S *pSetting)
 		}
 	}
 
-	MsgSettingGetBool(MSG_SETTING_PREVIEW, &bValue);
+	if (MsgSettingGetBool(MSG_SETTING_PREVIEW, &bValue) != MSG_SUCCESS)
+		MSG_INFO("MsgSettingGetBool() is failed");
+
 	if (bValue != generalOpt.bPreview) {
 		if (MsgSettingSetBool(MSG_SETTING_PREVIEW, generalOpt.bPreview) != MSG_SUCCESS) {
 			MSG_DEBUG("Error to set config data [%s]", MSG_SETTING_PREVIEW);
@@ -282,7 +318,9 @@ msg_error_t MsgSetGeneralOpt(const MSG_SETTING_S *pSetting)
 		}
 	}
 
-	iValue = MsgSettingGetInt(MSG_SETTING_RINGTONE_TYPE);
+	if (MsgSettingGetInt(MSG_SETTING_RINGTONE_TYPE, &iValue) != MSG_SUCCESS) {
+		MSG_INFO("MsgSettingGetInt() is failed");
+	}
 	if (iValue != generalOpt.ringtoneType) {
 		if (MsgSettingSetInt(MSG_SETTING_RINGTONE_TYPE, generalOpt.ringtoneType) != MSG_SUCCESS) {
 			MSG_DEBUG("Error to set config data [%s]", MSG_SETTING_RINGTONE_TYPE);
@@ -296,7 +334,9 @@ msg_error_t MsgSetGeneralOpt(const MSG_SETTING_S *pSetting)
 			return MSG_ERR_SET_SETTING;
 		}
 	} else {
-		strValue = MsgSettingGetString(MSG_SETTING_RINGTONE_PATH);
+		if (MsgSettingGetString(MSG_SETTING_RINGTONE_PATH, &strValue) != MSG_SUCCESS) {
+			MSG_INFO("MsgSettingGetString() is failed");
+		}
 		MSG_DEBUG("strValue=[%s], ringtone=[%s]", strValue, generalOpt.ringtonePath);
 
 		if (g_strcmp0(strValue, generalOpt.ringtonePath) != 0) {
@@ -312,7 +352,9 @@ msg_error_t MsgSetGeneralOpt(const MSG_SETTING_S *pSetting)
 		strValue = NULL;
 	}
 
-	iValue = MsgSettingGetInt(MSG_ALERT_REP_TYPE);
+	if (MsgSettingGetInt(MSG_ALERT_REP_TYPE, &iValue) != MSG_SUCCESS) {
+		MSG_INFO("MsgSettingGetInt() is failed");
+	}
 	if (iValue != (int)generalOpt.alertTone) {
 		if (MsgSettingSetInt(MSG_ALERT_REP_TYPE, (int)generalOpt.alertTone) != MSG_SUCCESS) {
 			MSG_DEBUG("Error to set config data [%s]", MSG_ALERT_REP_TYPE);
@@ -332,7 +374,9 @@ msg_error_t MsgSetSMSSendOpt(const MSG_SETTING_S *pSetting)
 
 	memcpy(&sendOpt, &(pSetting->option.smsSendOpt), sizeof(MSG_SMS_SENDOPT_S));
 
-	iValue = MsgSettingGetInt(SMS_SEND_DCS);
+	if (MsgSettingGetInt(SMS_SEND_DCS, &iValue) != MSG_SUCCESS) {
+		MSG_INFO("MsgSettingGetInt() is failed");
+	}
 	if (iValue != (int)sendOpt.dcs) {
 		if (MsgSettingSetInt(SMS_SEND_DCS, (int)sendOpt.dcs) != MSG_SUCCESS) {
 			MSG_DEBUG("Error to set config data [%s]", SMS_SEND_DCS);
@@ -340,7 +384,9 @@ msg_error_t MsgSetSMSSendOpt(const MSG_SETTING_S *pSetting)
 		}
 	}
 
-	iValue = MsgSettingGetInt(SMS_SEND_NETWORK_MODE);
+	if (MsgSettingGetInt(SMS_SEND_NETWORK_MODE, &iValue) != MSG_SUCCESS) {
+		MSG_INFO("MsgSettingGetInt() is failed");
+	}
 	if (iValue != (int)sendOpt.netMode) {
 		if (MsgSettingSetInt(SMS_SEND_NETWORK_MODE, (int)sendOpt.netMode) != MSG_SUCCESS) {
 			MSG_DEBUG("Error to set config data [%s]", SMS_SEND_NETWORK_MODE);
@@ -348,7 +394,9 @@ msg_error_t MsgSetSMSSendOpt(const MSG_SETTING_S *pSetting)
 		}
 	}
 
-	MsgSettingGetBool(SMS_SEND_REPLY_PATH, &bValue);
+	if (MsgSettingGetBool(SMS_SEND_REPLY_PATH, &bValue) != MSG_SUCCESS)
+		MSG_INFO("MsgSettingGetBool() is failed");
+
 	if (bValue != sendOpt.bReplyPath) {
 		if (MsgSettingSetBool(SMS_SEND_REPLY_PATH, sendOpt.bReplyPath) != MSG_SUCCESS) {
 			MSG_DEBUG("Error to set config data [%s]", SMS_SEND_REPLY_PATH);
@@ -356,7 +404,9 @@ msg_error_t MsgSetSMSSendOpt(const MSG_SETTING_S *pSetting)
 		}
 	}
 
-	MsgSettingGetBool(SMS_SEND_DELIVERY_REPORT, &bValue);
+	if (MsgSettingGetBool(SMS_SEND_DELIVERY_REPORT, &bValue) != MSG_SUCCESS)
+		MSG_INFO("MsgSettingGetBool() is failed");
+
 	if (bValue != sendOpt.bDeliveryReport) {
 		if (MsgSettingSetBool(SMS_SEND_DELIVERY_REPORT, sendOpt.bDeliveryReport) != MSG_SUCCESS) {
 			MSG_DEBUG("Error to set config data [%s]", SMS_SEND_DELIVERY_REPORT);
@@ -364,7 +414,9 @@ msg_error_t MsgSetSMSSendOpt(const MSG_SETTING_S *pSetting)
 		}
 	}
 
-	iValue = MsgSettingGetInt(SMS_SEND_SAVE_STORAGE);
+	if (MsgSettingGetInt(SMS_SEND_SAVE_STORAGE, &iValue) != MSG_SUCCESS) {
+		MSG_INFO("MsgSettingGetInt() is failed");
+	}
 	if (iValue != (int)sendOpt.saveStorage) {
 		if (MsgSettingSetInt(SMS_SEND_SAVE_STORAGE, (int)sendOpt.saveStorage) != MSG_SUCCESS) {
 			MSG_DEBUG("Error to set config data [%s]", SMS_SEND_SAVE_STORAGE);
@@ -434,7 +486,9 @@ msg_error_t MsgSetMMSSendOpt(const MSG_SETTING_S *pSetting)
 
 	memcpy(&sendOpt, &(pSetting->option.mmsSendOpt), sizeof(MSG_MMS_SENDOPT_S));
 
-	iValue = MsgSettingGetInt(MMS_SEND_MSG_CLASS);
+	if (MsgSettingGetInt(MMS_SEND_MSG_CLASS, &iValue) != MSG_SUCCESS) {
+		MSG_INFO("MsgSettingGetInt() is failed");
+	}
 	if (iValue != (int)sendOpt.msgClass) {
 		if (MsgSettingSetInt(MMS_SEND_MSG_CLASS, (int)sendOpt.msgClass) != MSG_SUCCESS) {
 			MSG_DEBUG("Error to set config data [%s]", MMS_SEND_MSG_CLASS);
@@ -442,7 +496,9 @@ msg_error_t MsgSetMMSSendOpt(const MSG_SETTING_S *pSetting)
 		}
 	}
 
-	iValue = MsgSettingGetInt(MMS_SEND_PRIORITY);
+	if (MsgSettingGetInt(MMS_SEND_PRIORITY, &iValue) != MSG_SUCCESS) {
+		MSG_INFO("MsgSettingGetInt() is failed");
+	}
 	if (iValue != (int)sendOpt.priority) {
 		if (MsgSettingSetInt(MMS_SEND_PRIORITY, (int)sendOpt.priority) != MSG_SUCCESS) {
 			MSG_DEBUG("Error to set config data [%s]", MMS_SEND_PRIORITY);
@@ -450,7 +506,9 @@ msg_error_t MsgSetMMSSendOpt(const MSG_SETTING_S *pSetting)
 		}
 	}
 
-	iValue = MsgSettingGetInt(MMS_SEND_EXPIRY_TIME);
+	if (MsgSettingGetInt(MMS_SEND_EXPIRY_TIME, &iValue) != MSG_SUCCESS) {
+		MSG_INFO("MsgSettingGetInt() is failed");
+	}
 	if (iValue != (int)sendOpt.expiryTime) {
 		if (MsgSettingSetInt(MMS_SEND_EXPIRY_TIME, (int)sendOpt.expiryTime) != MSG_SUCCESS) {
 			MSG_DEBUG("Error to set config data [%s]", MMS_SEND_EXPIRY_TIME);
@@ -458,7 +516,9 @@ msg_error_t MsgSetMMSSendOpt(const MSG_SETTING_S *pSetting)
 		}
 	}
 
-	iValue = MsgSettingGetInt(MMS_SEND_DELIVERY_TIME);
+	if (MsgSettingGetInt(MMS_SEND_DELIVERY_TIME, &iValue) != MSG_SUCCESS) {
+		MSG_INFO("MsgSettingGetInt() is failed");
+	}
 	if (iValue != (int)sendOpt.deliveryTime) {
 		if (MsgSettingSetInt(MMS_SEND_DELIVERY_TIME, (int)sendOpt.deliveryTime) != MSG_SUCCESS) {
 			MSG_DEBUG("Error to set config data [%s]", MMS_SEND_DELIVERY_TIME);
@@ -466,7 +526,9 @@ msg_error_t MsgSetMMSSendOpt(const MSG_SETTING_S *pSetting)
 		}
 	}
 
-	iValue = MsgSettingGetInt(MMS_SEND_CUSTOM_DELIVERY);
+	if (MsgSettingGetInt(MMS_SEND_CUSTOM_DELIVERY, &iValue) != MSG_SUCCESS) {
+		MSG_INFO("MsgSettingGetInt() is failed");
+	}
 	if (iValue != (int)sendOpt.customDeliveryTime) {
 		if (MsgSettingSetInt(MMS_SEND_CUSTOM_DELIVERY, sendOpt.customDeliveryTime) != MSG_SUCCESS) {
 			MSG_DEBUG("Error to set config data [%s]", MMS_SEND_CUSTOM_DELIVERY);
@@ -474,7 +536,9 @@ msg_error_t MsgSetMMSSendOpt(const MSG_SETTING_S *pSetting)
 		}
 	}
 
-	MsgSettingGetBool(MMS_SEND_SENDER_VISIBILITY, &bValue);
+	if (MsgSettingGetBool(MMS_SEND_SENDER_VISIBILITY, &bValue) != MSG_SUCCESS)
+		MSG_INFO("MsgSettingGetBool() is failed");
+
 	if (bValue != sendOpt.bSenderVisibility) {
 		if (MsgSettingSetBool(MMS_SEND_SENDER_VISIBILITY, sendOpt.bSenderVisibility) != MSG_SUCCESS) {
 			MSG_DEBUG("Error to set config data [%s]", MMS_SEND_SENDER_VISIBILITY);
@@ -482,7 +546,9 @@ msg_error_t MsgSetMMSSendOpt(const MSG_SETTING_S *pSetting)
 		}
 	}
 
-	MsgSettingGetBool(MMS_SEND_DELIVERY_REPORT, &bValue);
+	if (MsgSettingGetBool(MMS_SEND_DELIVERY_REPORT, &bValue) != MSG_SUCCESS)
+		MSG_INFO("MsgSettingGetBool() is failed");
+
 	if (bValue != sendOpt.bDeliveryReport) {
 		if (MsgSettingSetBool(MMS_SEND_DELIVERY_REPORT, sendOpt.bDeliveryReport) != MSG_SUCCESS) {
 			MSG_DEBUG("Error to set config data [%s]", MMS_SEND_DELIVERY_REPORT);
@@ -490,7 +556,9 @@ msg_error_t MsgSetMMSSendOpt(const MSG_SETTING_S *pSetting)
 		}
 	}
 
-	MsgSettingGetBool(MMS_SEND_READ_REPLY, &bValue);
+	if (MsgSettingGetBool(MMS_SEND_READ_REPLY, &bValue) != MSG_SUCCESS)
+		MSG_INFO("MsgSettingGetBool() is failed");
+
 	if (bValue != sendOpt.bReadReply) {
 		if (MsgSettingSetBool(MMS_SEND_READ_REPLY, sendOpt.bReadReply) != MSG_SUCCESS) {
 			MSG_DEBUG("Error to set config data [%s]", MMS_SEND_READ_REPLY);
@@ -504,7 +572,9 @@ msg_error_t MsgSetMMSSendOpt(const MSG_SETTING_S *pSetting)
 	}
 #endif	/* __NOT_USED_BY_DESIGN_CHANGE__ */
 
-	MsgSettingGetBool(MMS_SEND_BODY_REPLYING, &bValue);
+	if (MsgSettingGetBool(MMS_SEND_BODY_REPLYING, &bValue) != MSG_SUCCESS)
+		MSG_INFO("MsgSettingGetBool() is failed");
+
 	if (bValue != sendOpt.bBodyReplying) {
 		if (MsgSettingSetBool(MMS_SEND_BODY_REPLYING, sendOpt.bBodyReplying) != MSG_SUCCESS) {
 			MSG_DEBUG("Error to set config data [%s]", MMS_SEND_BODY_REPLYING);
@@ -512,7 +582,9 @@ msg_error_t MsgSetMMSSendOpt(const MSG_SETTING_S *pSetting)
 		}
 	}
 
-	MsgSettingGetBool(MMS_SEND_HIDE_RECIPIENTS, &bValue);
+	if (MsgSettingGetBool(MMS_SEND_HIDE_RECIPIENTS, &bValue) != MSG_SUCCESS)
+		MSG_INFO("MsgSettingGetBool() is failed");
+
 	if (bValue != sendOpt.bHideRecipients) {
 		if (MsgSettingSetBool(MMS_SEND_HIDE_RECIPIENTS, sendOpt.bHideRecipients) != MSG_SUCCESS) {
 			MSG_DEBUG("Error to set config data [%s]", MMS_SEND_HIDE_RECIPIENTS);
@@ -520,7 +592,9 @@ msg_error_t MsgSetMMSSendOpt(const MSG_SETTING_S *pSetting)
 		}
 	}
 
-	iValue = MsgSettingGetInt(MMS_SEND_REPLY_CHARGING);
+	if (MsgSettingGetInt(MMS_SEND_REPLY_CHARGING, &iValue) != MSG_SUCCESS) {
+		MSG_INFO("MsgSettingGetInt() is failed");
+	}
 	if (iValue != sendOpt.replyCharging) {
 		if (MsgSettingSetInt(MMS_SEND_REPLY_CHARGING, sendOpt.replyCharging) != MSG_SUCCESS) {
 			MSG_DEBUG("Error to set config data [%s]", MMS_SEND_REPLY_CHARGING);
@@ -528,7 +602,9 @@ msg_error_t MsgSetMMSSendOpt(const MSG_SETTING_S *pSetting)
 		}
 	}
 
-	iValue = MsgSettingGetInt(MMS_SEND_REPLY_CHARGING_DEADLINE);
+	if (MsgSettingGetInt(MMS_SEND_REPLY_CHARGING_DEADLINE, &iValue) != MSG_SUCCESS) {
+		MSG_INFO("MsgSettingGetInt() is failed");
+	}
 	if (iValue != (int)sendOpt.replyChargingDeadline) {
 		if (MsgSettingSetInt(MMS_SEND_REPLY_CHARGING_DEADLINE, sendOpt.replyChargingDeadline) != MSG_SUCCESS) {
 			MSG_DEBUG("Error to set config data [%s]", MMS_SEND_REPLY_CHARGING_DEADLINE);
@@ -536,7 +612,9 @@ msg_error_t MsgSetMMSSendOpt(const MSG_SETTING_S *pSetting)
 		}
 	}
 
-	iValue = MsgSettingGetInt(MMS_SEND_REPLY_CHARGING_SIZE);
+	if (MsgSettingGetInt(MMS_SEND_REPLY_CHARGING_SIZE, &iValue) != MSG_SUCCESS) {
+		MSG_INFO("MsgSettingGetInt() is failed");
+	}
 	if (iValue != (int)sendOpt.replyChargingSize) {
 		if (MsgSettingSetInt(MMS_SEND_REPLY_CHARGING_SIZE, sendOpt.replyChargingSize) != MSG_SUCCESS) {
 			MSG_DEBUG("Error to set config data [%s]", MMS_SEND_REPLY_CHARGING_SIZE);
@@ -544,7 +622,9 @@ msg_error_t MsgSetMMSSendOpt(const MSG_SETTING_S *pSetting)
 		}
 	}
 
-	iValue = MsgSettingGetInt(MMS_SEND_CREATION_MODE);
+	if (MsgSettingGetInt(MMS_SEND_CREATION_MODE, &iValue) != MSG_SUCCESS) {
+		MSG_INFO("MsgSettingGetInt() is failed");
+	}
 	if (iValue != sendOpt.creationMode) {
 		if (MsgSettingSetInt(MMS_SEND_CREATION_MODE, sendOpt.creationMode) != MSG_SUCCESS) {
 			MSG_DEBUG("Error to set config data [%s]", MMS_SEND_CREATION_MODE);
@@ -564,7 +644,9 @@ msg_error_t MsgSetMMSRecvOpt(const MSG_SETTING_S *pSetting)
 
 	memcpy(&recvOpt, &(pSetting->option.mmsRecvOpt), sizeof(MSG_MMS_RECVOPT_S));
 
-	iValue = MsgSettingGetInt(MMS_RECV_HOME_NETWORK);
+	if (MsgSettingGetInt(MMS_RECV_HOME_NETWORK, &iValue) != MSG_SUCCESS) {
+		MSG_INFO("MsgSettingGetInt() is failed");
+	}
 	if (iValue != (int)recvOpt.homeNetwork) {
 		if (MsgSettingSetInt(MMS_RECV_HOME_NETWORK, (int)recvOpt.homeNetwork) != MSG_SUCCESS) {
 			MSG_DEBUG("Error to set config data [%s]", MMS_RECV_HOME_NETWORK);
@@ -572,7 +654,9 @@ msg_error_t MsgSetMMSRecvOpt(const MSG_SETTING_S *pSetting)
 		}
 	}
 
-	iValue = MsgSettingGetInt(MMS_RECV_ABROAD_NETWORK);
+	if (MsgSettingGetInt(MMS_RECV_ABROAD_NETWORK, &iValue) != MSG_SUCCESS) {
+		MSG_INFO("MsgSettingGetInt() is failed");
+	}
 	if (iValue != (int)recvOpt.abroadNetwok) {
 		if (MsgSettingSetInt(MMS_RECV_ABROAD_NETWORK, (int)recvOpt.abroadNetwok) != MSG_SUCCESS) {
 			MSG_DEBUG("Error to set config data [%s]", MMS_RECV_ABROAD_NETWORK);
@@ -580,7 +664,9 @@ msg_error_t MsgSetMMSRecvOpt(const MSG_SETTING_S *pSetting)
 		}
 	}
 
-	MsgSettingGetBool(MMS_RECV_READ_RECEIPT, &bValue);
+	if (MsgSettingGetBool(MMS_RECV_READ_RECEIPT, &bValue) != MSG_SUCCESS)
+		MSG_INFO("MsgSettingGetBool() is failed");
+
 	if (bValue != recvOpt.readReceipt) {
 		if (MsgSettingSetBool(MMS_RECV_READ_RECEIPT, recvOpt.readReceipt) != MSG_SUCCESS) {
 			MSG_DEBUG("Error to set config data [%s]", MMS_RECV_READ_RECEIPT);
@@ -588,7 +674,9 @@ msg_error_t MsgSetMMSRecvOpt(const MSG_SETTING_S *pSetting)
 		}
 	}
 
-	MsgSettingGetBool(MMS_RECV_DELIVERY_RECEIPT, &bValue);
+	if (MsgSettingGetBool(MMS_RECV_DELIVERY_RECEIPT, &bValue) != MSG_SUCCESS)
+		MSG_INFO("MsgSettingGetBool() is failed");
+
 	if (bValue != recvOpt.bDeliveryReceipt) {
 		if (MsgSettingSetBool(MMS_RECV_DELIVERY_RECEIPT, recvOpt.bDeliveryReceipt) != MSG_SUCCESS) {
 			MSG_DEBUG("Error to set config data [%s]", MMS_RECV_DELIVERY_RECEIPT);
@@ -596,7 +684,9 @@ msg_error_t MsgSetMMSRecvOpt(const MSG_SETTING_S *pSetting)
 		}
 	}
 
-	MsgSettingGetBool(MMS_RECV_REJECT_UNKNOWN, &bValue);
+	if (MsgSettingGetBool(MMS_RECV_REJECT_UNKNOWN, &bValue) != MSG_SUCCESS)
+		MSG_INFO("MsgSettingGetBool() is failed");
+
 	if (bValue != recvOpt.bRejectUnknown) {
 		if (MsgSettingSetBool(MMS_RECV_REJECT_UNKNOWN, recvOpt.bRejectUnknown) != MSG_SUCCESS) {
 			MSG_DEBUG("Error to set config data [%s]", MMS_RECV_REJECT_UNKNOWN);
@@ -604,7 +694,9 @@ msg_error_t MsgSetMMSRecvOpt(const MSG_SETTING_S *pSetting)
 		}
 	}
 
-	MsgSettingGetBool(MMS_RECV_REJECT_ADVERTISE, &bValue);
+	if (MsgSettingGetBool(MMS_RECV_REJECT_ADVERTISE, &bValue) != MSG_SUCCESS)
+		MSG_INFO("MsgSettingGetBool() is failed");
+
 	if (bValue != recvOpt.bRejectAdvertisement) {
 		if (MsgSettingSetBool(MMS_RECV_REJECT_ADVERTISE, recvOpt.bRejectAdvertisement) != MSG_SUCCESS) {
 			MSG_DEBUG("Error to set config data [%s]", MMS_RECV_REJECT_ADVERTISE);
@@ -624,7 +716,9 @@ msg_error_t MsgSetMMSStyleOpt(const MSG_SETTING_S *pSetting)
 
 	memcpy(&styleOpt, &(pSetting->option.mmsStyleOpt), sizeof(MSG_MMS_STYLEOPT_S));
 
-	iValue = MsgSettingGetInt(MMS_STYLE_FONT_SIZE);
+	if (MsgSettingGetInt(MMS_STYLE_FONT_SIZE, &iValue) != MSG_SUCCESS) {
+		MSG_INFO("MsgSettingGetInt() is failed");
+	}
 	if (iValue != (int)styleOpt.fontSize) {
 		if (MsgSettingSetInt(MMS_STYLE_FONT_SIZE, styleOpt.fontSize) != MSG_SUCCESS) {
 			MSG_DEBUG("Error to set config data [%s]", MMS_STYLE_FONT_SIZE);
@@ -632,7 +726,9 @@ msg_error_t MsgSetMMSStyleOpt(const MSG_SETTING_S *pSetting)
 		}
 	}
 
-	MsgSettingGetBool(MMS_STYLE_FONT_STYLE_BOLD, &bValue);
+	if (MsgSettingGetBool(MMS_STYLE_FONT_STYLE_BOLD, &bValue) != MSG_SUCCESS)
+		MSG_INFO("MsgSettingGetBool() is failed");
+
 	if (bValue != styleOpt.bFontStyleBold) {
 		if (MsgSettingSetBool(MMS_STYLE_FONT_STYLE_BOLD, styleOpt.bFontStyleBold) != MSG_SUCCESS) {
 			MSG_DEBUG("Error to set config data [%s]", MMS_STYLE_FONT_STYLE_BOLD);
@@ -640,7 +736,9 @@ msg_error_t MsgSetMMSStyleOpt(const MSG_SETTING_S *pSetting)
 		}
 	}
 
-	MsgSettingGetBool(MMS_STYLE_FONT_STYLE_ITALIC, &bValue);
+	if (MsgSettingGetBool(MMS_STYLE_FONT_STYLE_ITALIC, &bValue) != MSG_SUCCESS)
+		MSG_INFO("MsgSettingGetBool() is failed");
+
 	if (bValue != styleOpt.bFontStyleItalic) {
 		if (MsgSettingSetBool(MMS_STYLE_FONT_STYLE_ITALIC, styleOpt.bFontStyleItalic) != MSG_SUCCESS) {
 			MSG_DEBUG("Error to set config data [%s]", MMS_STYLE_FONT_STYLE_ITALIC);
@@ -648,7 +746,9 @@ msg_error_t MsgSetMMSStyleOpt(const MSG_SETTING_S *pSetting)
 		}
 	}
 
-	MsgSettingGetBool(MMS_STYLE_FONT_STYLE_UNDERLINE, &bValue);
+	if (MsgSettingGetBool(MMS_STYLE_FONT_STYLE_UNDERLINE, &bValue) != MSG_SUCCESS)
+		MSG_INFO("MsgSettingGetBool() is failed");
+
 	if (bValue != styleOpt.bFontStyleUnderline) {
 		if (MsgSettingSetBool(MMS_STYLE_FONT_STYLE_UNDERLINE, styleOpt.bFontStyleUnderline) != MSG_SUCCESS) {
 			MSG_DEBUG("Error to set config data [%s]", MMS_STYLE_FONT_STYLE_UNDERLINE);
@@ -656,7 +756,9 @@ msg_error_t MsgSetMMSStyleOpt(const MSG_SETTING_S *pSetting)
 		}
 	}
 
-	iValue = MsgSettingGetInt(MMS_STYLE_FONT_COLOR_RED);
+	if (MsgSettingGetInt(MMS_STYLE_FONT_COLOR_RED, &iValue) != MSG_SUCCESS) {
+		MSG_INFO("MsgSettingGetInt() is failed");
+	}
 	if (iValue != (int)styleOpt.fontColorRed) {
 		if (MsgSettingSetInt(MMS_STYLE_FONT_COLOR_RED, styleOpt.fontColorRed) != MSG_SUCCESS) {
 			MSG_DEBUG("Error to set config data [%s]", MMS_STYLE_FONT_COLOR_RED);
@@ -664,7 +766,9 @@ msg_error_t MsgSetMMSStyleOpt(const MSG_SETTING_S *pSetting)
 		}
 	}
 
-	iValue = MsgSettingGetInt(MMS_STYLE_FONT_COLOR_GREEN);
+	if (MsgSettingGetInt(MMS_STYLE_FONT_COLOR_GREEN, &iValue) != MSG_SUCCESS) {
+		MSG_INFO("MsgSettingGetInt() is failed");
+	}
 	if (iValue != (int)styleOpt.fontColorGreen) {
 		if (MsgSettingSetInt(MMS_STYLE_FONT_COLOR_GREEN, styleOpt.fontColorGreen) != MSG_SUCCESS) {
 			MSG_DEBUG("Error to set config data [%s]", MMS_STYLE_FONT_COLOR_GREEN);
@@ -672,7 +776,9 @@ msg_error_t MsgSetMMSStyleOpt(const MSG_SETTING_S *pSetting)
 		}
 	}
 
-	iValue = MsgSettingGetInt(MMS_STYLE_FONT_COLOR_BLUE);
+	if (MsgSettingGetInt(MMS_STYLE_FONT_COLOR_BLUE, &iValue) != MSG_SUCCESS) {
+		MSG_INFO("MsgSettingGetInt() is failed");
+	}
 	if (iValue != (int)styleOpt.fontColorBlue) {
 		if (MsgSettingSetInt(MMS_STYLE_FONT_COLOR_BLUE, styleOpt.fontColorBlue) != MSG_SUCCESS) {
 			MSG_DEBUG("Error to set config data [%s]", MMS_STYLE_FONT_COLOR_BLUE);
@@ -680,7 +786,9 @@ msg_error_t MsgSetMMSStyleOpt(const MSG_SETTING_S *pSetting)
 		}
 	}
 
-	iValue = MsgSettingGetInt(MMS_STYLE_FONT_COLOR_HUE);
+	if (MsgSettingGetInt(MMS_STYLE_FONT_COLOR_HUE, &iValue) != MSG_SUCCESS) {
+		MSG_INFO("MsgSettingGetInt() is failed");
+	}
 	if (iValue != (int)styleOpt.fontColorHue) {
 		if (MsgSettingSetInt(MMS_STYLE_FONT_COLOR_HUE, styleOpt.fontColorHue) != MSG_SUCCESS) {
 			MSG_DEBUG("Error to set config data [%s]", MMS_STYLE_FONT_COLOR_HUE);
@@ -688,7 +796,9 @@ msg_error_t MsgSetMMSStyleOpt(const MSG_SETTING_S *pSetting)
 		}
 	}
 
-	iValue = MsgSettingGetInt(MMS_STYLE_BG_COLOR_RED);
+	if (MsgSettingGetInt(MMS_STYLE_BG_COLOR_RED, &iValue) != MSG_SUCCESS) {
+		MSG_INFO("MsgSettingGetInt() is failed");
+	}
 	if (iValue != (int)styleOpt.bgColorRed) {
 		if (MsgSettingSetInt(MMS_STYLE_BG_COLOR_RED, styleOpt.bgColorRed) != MSG_SUCCESS) {
 			MSG_DEBUG("Error to set config data [%s]", MMS_STYLE_BG_COLOR_RED);
@@ -696,7 +806,9 @@ msg_error_t MsgSetMMSStyleOpt(const MSG_SETTING_S *pSetting)
 		}
 	}
 
-	iValue = MsgSettingGetInt(MMS_STYLE_BG_COLOR_GREEN);
+	if (MsgSettingGetInt(MMS_STYLE_BG_COLOR_GREEN, &iValue) != MSG_SUCCESS) {
+		MSG_INFO("MsgSettingGetInt() is failed");
+	}
 	if (iValue != (int)styleOpt.bgColorGreen) {
 		if (MsgSettingSetInt(MMS_STYLE_BG_COLOR_GREEN, styleOpt.bgColorGreen) != MSG_SUCCESS) {
 			MSG_DEBUG("Error to set config data [%s]", MMS_STYLE_BG_COLOR_GREEN);
@@ -704,7 +816,9 @@ msg_error_t MsgSetMMSStyleOpt(const MSG_SETTING_S *pSetting)
 		}
 	}
 
-	iValue = MsgSettingGetInt(MMS_STYLE_BG_COLOR_BLUE);
+	if (MsgSettingGetInt(MMS_STYLE_BG_COLOR_BLUE, &iValue) != MSG_SUCCESS) {
+		MSG_INFO("MsgSettingGetInt() is failed");
+	}
 	if (iValue != (int)styleOpt.bgColorBlue) {
 		if (MsgSettingSetInt(MMS_STYLE_BG_COLOR_BLUE, styleOpt.bgColorBlue) != MSG_SUCCESS) {
 			MSG_DEBUG("Error to set config data [%s]", MMS_STYLE_BG_COLOR_BLUE);
@@ -712,7 +826,9 @@ msg_error_t MsgSetMMSStyleOpt(const MSG_SETTING_S *pSetting)
 		}
 	}
 
-	iValue = MsgSettingGetInt(MMS_STYLE_BG_COLOR_HUE);
+	if (MsgSettingGetInt(MMS_STYLE_BG_COLOR_HUE, &iValue) != MSG_SUCCESS) {
+		MSG_INFO("MsgSettingGetInt() is failed");
+	}
 	if (iValue != (int)styleOpt.bgColorHue) {
 		if (MsgSettingSetInt(MMS_STYLE_BG_COLOR_HUE, styleOpt.bgColorHue) != MSG_SUCCESS) {
 			MSG_DEBUG("Error to set config data [%s]", MMS_STYLE_BG_COLOR_HUE);
@@ -720,7 +836,9 @@ msg_error_t MsgSetMMSStyleOpt(const MSG_SETTING_S *pSetting)
 		}
 	}
 
-	iValue = MsgSettingGetInt(MMS_STYLE_PAGE_DUR);
+	if (MsgSettingGetInt(MMS_STYLE_PAGE_DUR, &iValue) != MSG_SUCCESS) {
+		MSG_INFO("MsgSettingGetInt() is failed");
+	}
 	if (iValue != (int)styleOpt.pageDur) {
 		if (MsgSettingSetInt(MMS_STYLE_PAGE_DUR, styleOpt.pageDur) != MSG_SUCCESS) {
 			MSG_DEBUG("Error to set config data [%s]", MMS_STYLE_PAGE_DUR);
@@ -728,7 +846,9 @@ msg_error_t MsgSetMMSStyleOpt(const MSG_SETTING_S *pSetting)
 		}
 	}
 
-	iValue = MsgSettingGetInt(MMS_STYLE_PAGE_CUSTOM_DUR);
+	if (MsgSettingGetInt(MMS_STYLE_PAGE_CUSTOM_DUR, &iValue) != MSG_SUCCESS) {
+		MSG_INFO("MsgSettingGetInt() is failed");
+	}
 	if (iValue != (int)styleOpt.pageCustomDur) {
 		if (MsgSettingSetInt(MMS_STYLE_PAGE_CUSTOM_DUR, styleOpt.pageCustomDur) != MSG_SUCCESS) {
 			MSG_DEBUG("Error to set config data [%s]", MMS_STYLE_PAGE_CUSTOM_DUR);
@@ -736,7 +856,9 @@ msg_error_t MsgSetMMSStyleOpt(const MSG_SETTING_S *pSetting)
 		}
 	}
 
-	iValue = MsgSettingGetInt(MMS_STYLE_PAGE_DUR_MANUAL);
+	if (MsgSettingGetInt(MMS_STYLE_PAGE_DUR_MANUAL, &iValue) != MSG_SUCCESS) {
+		MSG_INFO("MsgSettingGetInt() is failed");
+	}
 	if (iValue != (int)styleOpt.pageDurManual) {
 		if (MsgSettingSetInt(MMS_STYLE_PAGE_DUR_MANUAL, styleOpt.pageDurManual) != MSG_SUCCESS) {
 			MSG_DEBUG("Error to set config data [%s]", MMS_STYLE_PAGE_DUR_MANUAL);
@@ -755,7 +877,9 @@ msg_error_t MsgSetPushMsgOpt(const MSG_SETTING_S *pSetting)
 
 	memcpy(&pushOpt, &(pSetting->option.pushMsgOpt), sizeof(MSG_PUSHMSG_OPT_S));
 
-	MsgSettingGetBool(PUSH_RECV_OPTION, &bValue);
+	if (MsgSettingGetBool(PUSH_RECV_OPTION, &bValue) != MSG_SUCCESS)
+		MSG_INFO("MsgSettingGetBool() is failed");
+
 	if (bValue != pushOpt.bReceive) {
 		if (MsgSettingSetBool(PUSH_RECV_OPTION, pushOpt.bReceive) != MSG_SUCCESS) {
 			MSG_DEBUG("Error to set config data [%s]", PUSH_RECV_OPTION);
@@ -763,7 +887,9 @@ msg_error_t MsgSetPushMsgOpt(const MSG_SETTING_S *pSetting)
 		}
 	}
 
-	iValue = MsgSettingGetInt(PUSH_SERVICE_TYPE);
+	if (MsgSettingGetInt(PUSH_SERVICE_TYPE, &iValue) != MSG_SUCCESS) {
+		MSG_INFO("MsgSettingGetInt() is failed");
+	}
 	if (iValue != (int)pushOpt.serviceType) {
 		if (MsgSettingSetInt(PUSH_SERVICE_TYPE, (int)pushOpt.serviceType) != MSG_SUCCESS) {
 			MSG_DEBUG("Error to set config data [%s]", PUSH_SERVICE_TYPE);
@@ -798,7 +924,9 @@ msg_error_t MsgSetCBMsgOpt(const MSG_SETTING_S *pSetting, bool bSetSim)
 		if (simIndex != 0) {
 			memset(keyName, 0x00, sizeof(keyName));
 			snprintf(keyName, sizeof(keyName), "%s/%d", CB_MAX_SIM_COUNT, simIndex);
-			cbOpt.maxSimCnt = MsgSettingGetInt(keyName);
+			if (MsgSettingGetInt(keyName, &(cbOpt.maxSimCnt)) != MSG_SUCCESS) {
+				MSG_INFO("MsgSettingGetInt() is failed");
+			}
 
 			if (cbOpt.channelData.channelCnt > cbOpt.maxSimCnt) {
 				MSG_DEBUG("Channel Count [%d] is over Max SIM Count [%d]", cbOpt.channelData.channelCnt, cbOpt.maxSimCnt);
@@ -815,7 +943,9 @@ msg_error_t MsgSetCBMsgOpt(const MSG_SETTING_S *pSetting, bool bSetSim)
 
 	memset(keyName, 0x00, sizeof(keyName));
 	snprintf(keyName, sizeof(keyName), "%s/%d", CB_RECEIVE, simIndex);
-	MsgSettingGetBool(keyName, &bValue);
+	if (MsgSettingGetBool(keyName, &bValue) != MSG_SUCCESS)
+		MSG_INFO("MsgSettingGetBool() is failed");
+
 	if (bValue != cbOpt.bReceive) {
 		if (MsgSettingSetBool(keyName, cbOpt.bReceive) != MSG_SUCCESS) {
 			MSG_DEBUG("Error to set config data [%s]", keyName);
@@ -831,7 +961,9 @@ msg_error_t MsgSetCBMsgOpt(const MSG_SETTING_S *pSetting, bool bSetSim)
 
 	memset(keyName, 0x00, sizeof(keyName));
 	snprintf(keyName, sizeof(keyName), "%s/%d", CB_MAX_SIM_COUNT, simIndex);
-	iValue = MsgSettingGetInt(keyName);
+	if (MsgSettingGetInt(keyName, &iValue) != MSG_SUCCESS) {
+		MSG_INFO("MsgSettingGetInt() is failed");
+	}
 	if (iValue != cbOpt.maxSimCnt) {
 		if (MsgSettingSetInt(keyName, cbOpt.maxSimCnt) != MSG_SUCCESS) {
 			MSG_DEBUG("Error to set config data [%s]", keyName);
@@ -883,7 +1015,9 @@ msg_error_t MsgSetVoiceMailOpt(const MSG_SETTING_S *pSetting, bool bSetSim)
 	memset(keyName, 0x00, sizeof(keyName));
 	snprintf(keyName, sizeof(keyName), "%s/%d", VOICEMAIL_NUMBER, simIndex);
 
-	pValue = MsgSettingGetString(keyName);
+	if (MsgSettingGetString(keyName, &pValue) != MSG_SUCCESS) {
+		MSG_INFO("MsgSettingGetString() is failed");
+	}
 
 	if (pValue != NULL && strcmp(pValue, voiceMailOpt.mailNumber) == 0) {
 		/* Value is same with previous one. Therefore, we don't need to save it. */
@@ -927,7 +1061,9 @@ msg_error_t MsgSetMsgSizeOpt(const MSG_SETTING_S *pSetting)
 
 	memcpy(&msgSizeOpt, &(pSetting->option.msgSizeOpt), sizeof(MSG_MSGSIZE_OPT_S));
 
-	iValue = MsgSettingGetInt(MSGSIZE_OPTION);
+	if (MsgSettingGetInt(MSGSIZE_OPTION, &iValue) != MSG_SUCCESS) {
+		MSG_INFO("MsgSettingGetInt() is failed");
+	}
 	if (iValue != msgSizeOpt.nMsgSize) {
 		if (MsgSettingSetInt(MSGSIZE_OPTION, msgSizeOpt.nMsgSize) != MSG_SUCCESS) {
 			MSG_DEBUG("Error to set config data [%s]", MSGSIZE_OPTION);
@@ -945,48 +1081,75 @@ void MsgGetGeneralOpt(MSG_SETTING_S *pSetting)
 
 	memset(&(pSetting->option.generalOpt), 0x00, sizeof(MSG_GENERAL_OPT_S));
 
-	MsgSettingGetBool(MSG_KEEP_COPY, &pSetting->option.generalOpt.bKeepCopy);
+	if (MsgSettingGetBool(MSG_KEEP_COPY, &pSetting->option.generalOpt.bKeepCopy) != MSG_SUCCESS)
+		MSG_INFO("MsgSettingGetBool() is failed");
 
-	MsgSettingGetBool(MSG_BLOCK_UNKNOWN_MSG, &pSetting->option.generalOpt.bBlockUnknownMsg);
+	if (MsgSettingGetBool(MSG_BLOCK_UNKNOWN_MSG, &pSetting->option.generalOpt.bBlockUnknownMsg) != MSG_SUCCESS)
+		MSG_INFO("MsgSettingGetBool() is failed");
 
-	pSetting->option.generalOpt.smsLimitCnt = MsgSettingGetInt(MSG_SMS_LIMIT);
+	if (MsgSettingGetInt(MSG_SMS_LIMIT, &(pSetting->option.generalOpt.smsLimitCnt)) != MSG_SUCCESS)
+		MSG_INFO("MsgSettingGetInt() is failed");
 
-	pSetting->option.generalOpt.mmsLimitCnt = MsgSettingGetInt(MSG_MMS_LIMIT);
+	if (MsgSettingGetInt(MSG_MMS_LIMIT, &(pSetting->option.generalOpt.mmsLimitCnt)) != MSG_SUCCESS)
+		MSG_INFO("MsgSettingGetInt() is failed");
 
-	MsgSettingGetBool(MSG_SETTING_NOTIFICATION, &pSetting->option.generalOpt.bNotification);
+	if (MsgSettingGetBool(MSG_SETTING_NOTIFICATION, &pSetting->option.generalOpt.bNotification) != MSG_SUCCESS)
+		MSG_INFO("MsgSettingGetBool() is failed");
 
-	MsgSettingGetBool(MSG_SETTING_VIBRATION, &pSetting->option.generalOpt.bVibration);
+	if (MsgSettingGetBool(MSG_SETTING_VIBRATION, &pSetting->option.generalOpt.bVibration) != MSG_SUCCESS)
+		MSG_INFO("MsgSettingGetBool() is failed");
 
-	MsgSettingGetBool(MSG_SETTING_PREVIEW, &pSetting->option.generalOpt.bPreview);
+	if (MsgSettingGetBool(MSG_SETTING_PREVIEW, &pSetting->option.generalOpt.bPreview) != MSG_SUCCESS)
+		MSG_INFO("MsgSettingGetBool() is failed");
 
-	MsgSettingGetBool(MSG_AUTO_ERASE, &pSetting->option.generalOpt.bAutoErase);
+	if (MsgSettingGetBool(MSG_AUTO_ERASE, &pSetting->option.generalOpt.bAutoErase) != MSG_SUCCESS)
+		MSG_INFO("MsgSettingGetBool() is failed");
 
-	pSetting->option.generalOpt.ringtoneType = MsgSettingGetInt(MSG_SETTING_RINGTONE_TYPE);
+	if (MsgSettingGetInt(MSG_SETTING_RINGTONE_TYPE, &(pSetting->option.generalOpt.ringtoneType)) != MSG_SUCCESS)
+		MSG_INFO("MsgSettingGetInt() is failed");
 
-	tmpValue = MsgSettingGetString(MSG_SETTING_RINGTONE_PATH);
+	if (MsgSettingGetString(MSG_SETTING_RINGTONE_PATH, &tmpValue) != MSG_SUCCESS) {
+		MSG_INFO("MsgSettingGetString() is failed");
+	}
 	if (tmpValue != NULL) {
 		strncpy(pSetting->option.generalOpt.ringtonePath, tmpValue, MSG_FILEPATH_LEN_MAX);
 		free(tmpValue);
 		tmpValue = NULL;
 	}
 
-	pSetting->option.generalOpt.alertTone = (MSG_ALERT_TONE_T)MsgSettingGetInt(MSG_ALERT_REP_TYPE);
+	int tmpVal = 0;
+	if (MsgSettingGetInt(MSG_ALERT_REP_TYPE, &tmpVal) != MSG_SUCCESS)
+		MSG_INFO("MsgSettingGetInt() is failed");
+
+	pSetting->option.generalOpt.alertTone = (MSG_ALERT_TONE_T)tmpVal;
 }
 
 
 void MsgGetSMSSendOpt(MSG_SETTING_S *pSetting)
 {
+	int tmpVal = 0;
 	memset(&(pSetting->option.smsSendOpt), 0x00, sizeof(MSG_SMS_SENDOPT_S));
 
-	pSetting->option.smsSendOpt.dcs = (msg_encode_type_t)MsgSettingGetInt(SMS_SEND_DCS);
+	if (MsgSettingGetInt(SMS_SEND_DCS, &tmpVal) != MSG_SUCCESS)
+		MSG_INFO("MsgSettingGetInt() is failed");
 
-	pSetting->option.smsSendOpt.netMode = (MSG_SMS_NETWORK_MODE_T)MsgSettingGetInt(SMS_SEND_NETWORK_MODE);
+	pSetting->option.smsSendOpt.dcs = (msg_encode_type_t)tmpVal;
 
-	MsgSettingGetBool(SMS_SEND_REPLY_PATH, &pSetting->option.smsSendOpt.bReplyPath);
+	if (MsgSettingGetInt(SMS_SEND_NETWORK_MODE, &tmpVal) != MSG_SUCCESS)
+		MSG_INFO("MsgSettingGetInt() is failed");
 
-	MsgSettingGetBool(SMS_SEND_DELIVERY_REPORT, &pSetting->option.smsSendOpt.bDeliveryReport);
+	pSetting->option.smsSendOpt.netMode = (MSG_SMS_NETWORK_MODE_T)tmpVal;
 
-	pSetting->option.smsSendOpt.saveStorage = (MSG_SMS_SAVE_STORAGE_T)MsgSettingGetInt(SMS_SEND_SAVE_STORAGE);
+	if (MsgSettingGetBool(SMS_SEND_REPLY_PATH, &pSetting->option.smsSendOpt.bReplyPath) != MSG_SUCCESS)
+		MSG_INFO("MsgSettingGetBool() is failed");
+
+	if (MsgSettingGetBool(SMS_SEND_DELIVERY_REPORT, &pSetting->option.smsSendOpt.bDeliveryReport) != MSG_SUCCESS)
+		MSG_INFO("MsgSettingGetBool() is failed");
+
+	if (MsgSettingGetInt(SMS_SEND_SAVE_STORAGE, &tmpVal) != MSG_SUCCESS)
+		MSG_INFO("MsgSettingGetInt() is failed");
+
+	pSetting->option.smsSendOpt.saveStorage = (MSG_SMS_SAVE_STORAGE_T)tmpVal;
 }
 
 
@@ -1002,57 +1165,98 @@ void MsgGetSMSCList(MSG_SETTING_S *pSetting)
 
 void MsgGetMMSSendOpt(MSG_SETTING_S *pSetting)
 {
+	int tmpVal = 0;
 	memset(&(pSetting->option.mmsSendOpt), 0x00, sizeof(MSG_MMS_SENDOPT_S));
 
-	pSetting->option.mmsSendOpt.msgClass = (MSG_MMS_MSG_CLASS_TYPE_T)MsgSettingGetInt(MMS_SEND_MSG_CLASS);
+	if (MsgSettingGetInt(MMS_SEND_MSG_CLASS, &tmpVal) != MSG_SUCCESS)
+		MSG_INFO("MsgSettingGetInt() is failed");
 
-	pSetting->option.mmsSendOpt.priority = (msg_priority_type_t)MsgSettingGetInt(MMS_SEND_PRIORITY);
+	pSetting->option.mmsSendOpt.msgClass = (MSG_MMS_MSG_CLASS_TYPE_T)tmpVal;
 
-	pSetting->option.mmsSendOpt.expiryTime = (MSG_MMS_EXPIRY_TIME_T)MsgSettingGetInt(MMS_SEND_EXPIRY_TIME);
+	if (MsgSettingGetInt(MMS_SEND_PRIORITY, &tmpVal) != MSG_SUCCESS)
+		MSG_INFO("MsgSettingGetInt() is failed");
 
-	pSetting->option.mmsSendOpt.deliveryTime = (MSG_MMS_DELIVERY_TIME_T)MsgSettingGetInt(MMS_SEND_DELIVERY_TIME);
+	pSetting->option.mmsSendOpt.priority = (msg_priority_type_t)tmpVal;
 
-	pSetting->option.mmsSendOpt.customDeliveryTime = MsgSettingGetInt(MMS_SEND_CUSTOM_DELIVERY);
+	if (MsgSettingGetInt(MMS_SEND_EXPIRY_TIME, &tmpVal) != MSG_SUCCESS)
+		MSG_INFO("MsgSettingGetInt() is failed");
 
-	MsgSettingGetBool(MMS_SEND_SENDER_VISIBILITY, &pSetting->option.mmsSendOpt.bSenderVisibility);
+	pSetting->option.mmsSendOpt.expiryTime = (MSG_MMS_EXPIRY_TIME_T)tmpVal;
 
-	MsgSettingGetBool(MMS_SEND_DELIVERY_REPORT, &pSetting->option.mmsSendOpt.bDeliveryReport);
+	if (MsgSettingGetInt(MMS_SEND_DELIVERY_TIME, &tmpVal) != MSG_SUCCESS)
+		MSG_INFO("MsgSettingGetInt() is failed");
 
-	MsgSettingGetBool(MMS_SEND_READ_REPLY, &pSetting->option.mmsSendOpt.bReadReply);
+	pSetting->option.mmsSendOpt.deliveryTime = (MSG_MMS_DELIVERY_TIME_T)tmpVal;
+
+	if (MsgSettingGetInt(MMS_SEND_CUSTOM_DELIVERY, &tmpVal) != MSG_SUCCESS)
+		MSG_INFO("MsgSettingGetInt() is failed");
+
+	if (MsgSettingGetBool(MMS_SEND_SENDER_VISIBILITY, &pSetting->option.mmsSendOpt.bSenderVisibility) != MSG_SUCCESS)
+		MSG_INFO("MsgSettingGetBool() is failed");
+
+	if (MsgSettingGetBool(MMS_SEND_DELIVERY_REPORT, &pSetting->option.mmsSendOpt.bDeliveryReport) != MSG_SUCCESS)
+		MSG_INFO("MsgSettingGetBool() is failed");
+
+	if (MsgSettingGetBool(MMS_SEND_READ_REPLY, &pSetting->option.mmsSendOpt.bReadReply) != MSG_SUCCESS)
+		MSG_INFO("MsgSettingGetBool() is failed");
 
 #ifdef	__NOT_USED_BY_DESIGN_CHANGE__
-	MsgSettingGetBool(MMS_SEND_KEEP_COPY, &pSetting->option.mmsSendOpt.bKeepCopy);
+	if (MsgSettingGetBool(MMS_SEND_KEEP_COPY, &pSetting->option.mmsSendOpt.bKeepCopy) != MSG_SUCCESS)
+		MSG_INFO("MsgSettingGetBool() is failed");
 #endif	/* __NOT_USED_BY_DESIGN_CHANGE__ */
 
-	MsgSettingGetBool(MMS_SEND_BODY_REPLYING, &pSetting->option.mmsSendOpt.bBodyReplying);
+	if (MsgSettingGetBool(MMS_SEND_BODY_REPLYING, &pSetting->option.mmsSendOpt.bBodyReplying) != MSG_SUCCESS)
+		MSG_INFO("MsgSettingGetBool() is failed");
 
-	MsgSettingGetBool(MMS_SEND_HIDE_RECIPIENTS, &pSetting->option.mmsSendOpt.bHideRecipients);
+	if (MsgSettingGetBool(MMS_SEND_HIDE_RECIPIENTS, &pSetting->option.mmsSendOpt.bHideRecipients) != MSG_SUCCESS)
+		MSG_INFO("MsgSettingGetBool() is failed");
 
-	pSetting->option.mmsSendOpt.replyCharging = MsgSettingGetInt(MMS_SEND_REPLY_CHARGING);
+	if (MsgSettingGetInt(MMS_SEND_REPLY_CHARGING, &tmpVal) != MSG_SUCCESS)
+		MSG_INFO("MsgSettingGetInt() is failed");
 
-	pSetting->option.mmsSendOpt.replyChargingDeadline = MsgSettingGetInt(MMS_SEND_REPLY_CHARGING_DEADLINE);
+	pSetting->option.mmsSendOpt.replyCharging = (MSG_MMS_REPLY_CHARGING_TYPE_T)tmpVal;
 
-	pSetting->option.mmsSendOpt.replyChargingSize = MsgSettingGetInt(MMS_SEND_REPLY_CHARGING_SIZE);
+	if (MsgSettingGetInt(MMS_SEND_REPLY_CHARGING_DEADLINE, &tmpVal) != MSG_SUCCESS)
+		MSG_INFO("MsgSettingGetInt() is failed");
 
-	pSetting->option.mmsSendOpt.creationMode = MsgSettingGetInt(MMS_SEND_CREATION_MODE);
+	pSetting->option.mmsSendOpt.replyChargingDeadline = (unsigned int)tmpVal;
+
+	if (MsgSettingGetInt(MMS_SEND_REPLY_CHARGING_SIZE, &tmpVal) != MSG_SUCCESS)
+		MSG_INFO("MsgSettingGetInt() is failed");
+
+	pSetting->option.mmsSendOpt.replyChargingSize = (unsigned int)tmpVal;
+
+	if (MsgSettingGetInt(MMS_SEND_CREATION_MODE, &tmpVal) != MSG_SUCCESS)
+		MSG_INFO("MsgSettingGetInt() is failed");
+
+	pSetting->option.mmsSendOpt.creationMode = (MSG_MMS_CREATION_MODE_T)tmpVal;
 }
 
 
 void MsgGetMMSRecvOpt(MSG_SETTING_S *pSetting)
 {
+	int tmpVal = 0;
 	memset(&(pSetting->option.mmsRecvOpt), 0x00, sizeof(MSG_MMS_RECVOPT_S));
 
-	pSetting->option.mmsRecvOpt.homeNetwork = (MSG_MMS_HOME_RETRIEVE_TYPE_T)MsgSettingGetInt(MMS_RECV_HOME_NETWORK);
+	if (MsgSettingGetInt(MMS_RECV_HOME_NETWORK, &tmpVal) != MSG_SUCCESS)
+		MSG_INFO("MsgSettingGetInt() is failed");
+	pSetting->option.mmsRecvOpt.homeNetwork = (MSG_MMS_HOME_RETRIEVE_TYPE_T)tmpVal;
 
-	pSetting->option.mmsRecvOpt.abroadNetwok = (MSG_MMS_ABROAD_RETRIEVE_TYPE_T)MsgSettingGetInt(MMS_RECV_ABROAD_NETWORK);
+	if (MsgSettingGetInt(MMS_RECV_ABROAD_NETWORK, &tmpVal) != MSG_SUCCESS)
+		MSG_INFO("MsgSettingGetInt() is failed");
+	pSetting->option.mmsRecvOpt.abroadNetwok = (MSG_MMS_ABROAD_RETRIEVE_TYPE_T)tmpVal;
 
-	MsgSettingGetBool(MMS_RECV_READ_RECEIPT, &pSetting->option.mmsRecvOpt.readReceipt);
+	if (MsgSettingGetBool(MMS_RECV_READ_RECEIPT, &pSetting->option.mmsRecvOpt.readReceipt) != MSG_SUCCESS)
+		MSG_INFO("MsgSettingGetBool() is failed");
 
-	MsgSettingGetBool(MMS_RECV_DELIVERY_RECEIPT, &pSetting->option.mmsRecvOpt.bDeliveryReceipt);
+	if (MsgSettingGetBool(MMS_RECV_DELIVERY_RECEIPT, &pSetting->option.mmsRecvOpt.bDeliveryReceipt) != MSG_SUCCESS)
+		MSG_INFO("MsgSettingGetBool() is failed");
 
-	MsgSettingGetBool(MMS_RECV_REJECT_UNKNOWN, &pSetting->option.mmsRecvOpt.bRejectUnknown);
+	if (MsgSettingGetBool(MMS_RECV_REJECT_UNKNOWN, &pSetting->option.mmsRecvOpt.bRejectUnknown) != MSG_SUCCESS)
+		MSG_INFO("MsgSettingGetBool() is failed");
 
-	MsgSettingGetBool(MMS_RECV_REJECT_ADVERTISE, &pSetting->option.mmsRecvOpt.bRejectAdvertisement);
+	if (MsgSettingGetBool(MMS_RECV_REJECT_ADVERTISE, &pSetting->option.mmsRecvOpt.bRejectAdvertisement) != MSG_SUCCESS)
+		MSG_INFO("MsgSettingGetBool() is failed");
 }
 
 
@@ -1060,35 +1264,50 @@ void MsgGetMMSStyleOpt(MSG_SETTING_S *pSetting)
 {
 	memset(&(pSetting->option.mmsStyleOpt), 0x00, sizeof(MSG_MMS_STYLEOPT_S));
 
-	pSetting->option.mmsStyleOpt.fontSize = MsgSettingGetInt(MMS_STYLE_FONT_SIZE);
+	if (MsgSettingGetInt(MMS_STYLE_FONT_SIZE, (int *)&(pSetting->option.mmsStyleOpt.fontSize)) != MSG_SUCCESS)
+		MSG_INFO("MsgSettingGetInt() is failed");
 
-	MsgSettingGetBool(MMS_STYLE_FONT_STYLE_BOLD, &pSetting->option.mmsStyleOpt.bFontStyleBold);
+	if (MsgSettingGetBool(MMS_STYLE_FONT_STYLE_BOLD, &pSetting->option.mmsStyleOpt.bFontStyleBold) != MSG_SUCCESS)
+		MSG_INFO("MsgSettingGetBool() is failed");
 
-	MsgSettingGetBool(MMS_STYLE_FONT_STYLE_ITALIC, &pSetting->option.mmsStyleOpt.bFontStyleItalic);
+	if (MsgSettingGetBool(MMS_STYLE_FONT_STYLE_ITALIC, &pSetting->option.mmsStyleOpt.bFontStyleItalic) != MSG_SUCCESS)
+		MSG_INFO("MsgSettingGetBool() is failed");
 
-	MsgSettingGetBool(MMS_STYLE_FONT_STYLE_UNDERLINE, &pSetting->option.mmsStyleOpt.bFontStyleUnderline);
+	if (MsgSettingGetBool(MMS_STYLE_FONT_STYLE_UNDERLINE, &pSetting->option.mmsStyleOpt.bFontStyleUnderline) != MSG_SUCCESS)
+		MSG_INFO("MsgSettingGetBool() is failed");
 
-	pSetting->option.mmsStyleOpt.fontColorRed = MsgSettingGetInt(MMS_STYLE_FONT_COLOR_RED);
+	if (MsgSettingGetInt(MMS_STYLE_FONT_COLOR_RED, (int *)&(pSetting->option.mmsStyleOpt.fontColorRed)) != MSG_SUCCESS)
+		MSG_INFO("MsgSettingGetInt() is failed");
 
-	pSetting->option.mmsStyleOpt.fontColorGreen = MsgSettingGetInt(MMS_STYLE_FONT_COLOR_GREEN);
+	if (MsgSettingGetInt(MMS_STYLE_FONT_COLOR_GREEN, (int *)&(pSetting->option.mmsStyleOpt.fontColorGreen)) != MSG_SUCCESS)
+		MSG_INFO("MsgSettingGetInt() is failed");
 
-	pSetting->option.mmsStyleOpt.fontColorBlue = MsgSettingGetInt(MMS_STYLE_FONT_COLOR_BLUE);
+	if (MsgSettingGetInt(MMS_STYLE_FONT_COLOR_BLUE, (int *)&(pSetting->option.mmsStyleOpt.fontColorBlue)) != MSG_SUCCESS)
+		MSG_INFO("MsgSettingGetInt() is failed");
 
-	pSetting->option.mmsStyleOpt.fontColorHue = MsgSettingGetInt(MMS_STYLE_FONT_COLOR_HUE);
+	if (MsgSettingGetInt(MMS_STYLE_FONT_COLOR_HUE, (int *)&(pSetting->option.mmsStyleOpt.fontColorHue)) != MSG_SUCCESS)
+		MSG_INFO("MsgSettingGetInt() is failed");
 
-	pSetting->option.mmsStyleOpt.bgColorRed = MsgSettingGetInt(MMS_STYLE_BG_COLOR_RED);
+	if (MsgSettingGetInt(MMS_STYLE_BG_COLOR_RED, (int *)&(pSetting->option.mmsStyleOpt.bgColorRed)) != MSG_SUCCESS)
+		MSG_INFO("MsgSettingGetInt() is failed");
 
-	pSetting->option.mmsStyleOpt.bgColorGreen = MsgSettingGetInt(MMS_STYLE_BG_COLOR_GREEN);
+	if (MsgSettingGetInt(MMS_STYLE_BG_COLOR_GREEN, (int *)&(pSetting->option.mmsStyleOpt.bgColorGreen)) != MSG_SUCCESS)
+		MSG_INFO("MsgSettingGetInt() is failed");
 
-	pSetting->option.mmsStyleOpt.bgColorBlue = MsgSettingGetInt(MMS_STYLE_BG_COLOR_BLUE);
+	if (MsgSettingGetInt(MMS_STYLE_BG_COLOR_BLUE, (int *)&(pSetting->option.mmsStyleOpt.bgColorBlue)) != MSG_SUCCESS)
+		MSG_INFO("MsgSettingGetInt() is failed");
 
-	pSetting->option.mmsStyleOpt.bgColorHue = MsgSettingGetInt(MMS_STYLE_BG_COLOR_HUE);
+	if (MsgSettingGetInt(MMS_STYLE_BG_COLOR_HUE, (int *)&(pSetting->option.mmsStyleOpt.bgColorHue)) != MSG_SUCCESS)
+		MSG_INFO("MsgSettingGetInt() is failed");
 
-	pSetting->option.mmsStyleOpt.pageDur = MsgSettingGetInt(MMS_STYLE_PAGE_DUR);
+	if (MsgSettingGetInt(MMS_STYLE_PAGE_DUR, (int *)&(pSetting->option.mmsStyleOpt.pageDur)) != MSG_SUCCESS)
+		MSG_INFO("MsgSettingGetInt() is failed");
 
-	pSetting->option.mmsStyleOpt.pageCustomDur = MsgSettingGetInt(MMS_STYLE_PAGE_CUSTOM_DUR);
+	if (MsgSettingGetInt(MMS_STYLE_PAGE_CUSTOM_DUR, (int *)&(pSetting->option.mmsStyleOpt.pageCustomDur)) != MSG_SUCCESS)
+		MSG_INFO("MsgSettingGetInt() is failed");
 
-	pSetting->option.mmsStyleOpt.pageDurManual = MsgSettingGetInt(MMS_STYLE_PAGE_DUR_MANUAL);
+	if (MsgSettingGetInt(MMS_STYLE_PAGE_DUR_MANUAL, (int *)&(pSetting->option.mmsStyleOpt.pageDurManual)) != MSG_SUCCESS)
+		MSG_INFO("MsgSettingGetInt() is failed");
 }
 
 
@@ -1096,9 +1315,14 @@ void MsgGetPushMsgOpt(MSG_SETTING_S *pSetting)
 {
 	memset(&(pSetting->option.pushMsgOpt), 0x00, sizeof(MSG_PUSHMSG_OPT_S));
 
-	MsgSettingGetBool(PUSH_RECV_OPTION, &pSetting->option.pushMsgOpt.bReceive);
+	if (MsgSettingGetBool(PUSH_RECV_OPTION, &pSetting->option.pushMsgOpt.bReceive) != MSG_SUCCESS)
+		MSG_INFO("MsgSettingGetBool() is failed");
 
-	pSetting->option.pushMsgOpt.serviceType = (MSG_PUSH_SERVICE_TYPE_T)MsgSettingGetInt(PUSH_SERVICE_TYPE);
+	int tmpVal;
+	if (MsgSettingGetInt(PUSH_SERVICE_TYPE, &tmpVal) != MSG_SUCCESS)
+		MSG_INFO("MsgSettingGetInt() is failed");
+
+	pSetting->option.pushMsgOpt.serviceType = (MSG_PUSH_SERVICE_TYPE_T)tmpVal;
 }
 
 
@@ -1119,7 +1343,8 @@ void MsgGetCBMsgOpt(MSG_SETTING_S *pSetting)
 
 	memset(keyName, 0x00, sizeof(keyName));
 	snprintf(keyName, sizeof(keyName), "%s/%d", CB_RECEIVE, simIndex);
-	MsgSettingGetBool(keyName, &pSetting->option.cbMsgOpt.bReceive);
+	if (MsgSettingGetBool(keyName, &pSetting->option.cbMsgOpt.bReceive) != MSG_SUCCESS)
+		MSG_INFO("MsgSettingGetBool() is failed");
 
 	if (simIndex == 0) {
 		MSG_DEBUG("SIM Index = 0, bReceive is gotten");
@@ -1129,7 +1354,9 @@ void MsgGetCBMsgOpt(MSG_SETTING_S *pSetting)
 #ifndef FEATURE_SMS_CDMA
 	memset(keyName, 0x00, sizeof(keyName));
 	snprintf(keyName, sizeof(keyName), "%s/%d", CB_MAX_SIM_COUNT, simIndex);
-	pSetting->option.cbMsgOpt.maxSimCnt = MsgSettingGetInt(keyName);
+	if (MsgSettingGetInt(keyName, &(pSetting->option.cbMsgOpt.maxSimCnt)) != MSG_SUCCESS)
+		MSG_INFO("MsgSettingGetInt() is failed");
+
 #endif
 
 	err = MsgStoGetCBChannelInfo(dbHandle, &pSetting->option.cbMsgOpt.channelData, simIndex);
@@ -1142,7 +1369,8 @@ void MsgGetCBMsgOpt(MSG_SETTING_S *pSetting)
 		memset(keyName, 0x00, sizeof(keyName));
 		snprintf(keyName, DEF_BUF_LEN, "%s/%d", CB_LANGUAGE, i);
 
-		MsgSettingGetBool(keyName, &pSetting->option.cbMsgOpt.bLanguage[i]);
+		if (MsgSettingGetBool(keyName, &pSetting->option.cbMsgOpt.bLanguage[i]) != MSG_SUCCESS)
+			MSG_INFO("MsgSettingGetBool() is failed");
 	}
 #endif
 }
@@ -1159,7 +1387,9 @@ void MsgGetVoiceMailOpt(MSG_SETTING_S *pSetting)
 
 	memset(keyName, 0x00, sizeof(keyName));
 	snprintf(keyName, sizeof(keyName), "%s/%d", VOICEMAIL_NUMBER, simIndex);
-	tmpValue = MsgSettingGetString(keyName);
+	if (MsgSettingGetString(keyName, &tmpValue) != MSG_SUCCESS) {
+		MSG_INFO("MsgSettingGetString() is failed");
+	}
 	memset(pSetting->option.voiceMailOpt.mailNumber, 0x00, sizeof(pSetting->option.voiceMailOpt.mailNumber));
 	if (tmpValue != NULL) {
 		strncpy(pSetting->option.voiceMailOpt.mailNumber, tmpValue, MAX_PHONE_NUMBER_LEN);
@@ -1170,7 +1400,9 @@ void MsgGetVoiceMailOpt(MSG_SETTING_S *pSetting)
 
 	memset(keyName, 0x00, sizeof(keyName));
 	snprintf(keyName, sizeof(keyName), "%s/%d", VOICEMAIL_ALPHA_ID, simIndex);
-	tmpValue = MsgSettingGetString(keyName);
+	if (MsgSettingGetString(keyName, &tmpValue) != MSG_SUCCESS) {
+		MSG_INFO("MsgSettingGetString() is failed");
+	}
 	memset(pSetting->option.voiceMailOpt.alpahId, 0x00, sizeof(pSetting->option.voiceMailOpt.alpahId));
 	if (tmpValue != NULL) {
 		strncpy(pSetting->option.voiceMailOpt.alpahId, tmpValue, MAX_SIM_XDN_ALPHA_ID_LEN);
@@ -1181,7 +1413,8 @@ void MsgGetVoiceMailOpt(MSG_SETTING_S *pSetting)
 
 	memset(keyName, 0x00, sizeof(keyName));
 	snprintf(keyName, sizeof(keyName), "%s/%d", VOICEMAIL_COUNT, simIndex);
-	pSetting->option.voiceMailOpt.voiceCnt = MsgSettingGetInt(keyName);
+	if (MsgSettingGetInt(keyName, &(pSetting->option.voiceMailOpt.voiceCnt)) != MSG_SUCCESS)
+		MSG_INFO("MsgSettingGetInt() is failed");
 }
 
 
@@ -1189,7 +1422,8 @@ void MsgGetMsgSizeOpt(MSG_SETTING_S *pSetting)
 {
 	memset(&(pSetting->option.msgSizeOpt), 0x00, sizeof(MSG_MSGSIZE_OPT_S));
 
-	pSetting->option.msgSizeOpt.nMsgSize = MsgSettingGetInt(MSGSIZE_OPTION);
+	if (MsgSettingGetInt(MSGSIZE_OPTION, &(pSetting->option.msgSizeOpt.nMsgSize)) != MSG_SUCCESS)
+		MSG_INFO("MsgSettingGetInt() is failed");
 }
 
 

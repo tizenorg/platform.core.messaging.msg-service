@@ -109,7 +109,9 @@ void SmsPluginTransport::submitRequest(SMS_REQUEST_INFO_S *pReqInfo)
 	char keyName[MAX_VCONFKEY_NAME_LEN];
 	memset(keyName, 0x00, sizeof(keyName));
 	snprintf(keyName, sizeof(keyName), "%s/%d", MSG_SIM_MSISDN, pReqInfo->msgInfo.sim_idx);
-	msisdn = MsgSettingGetString(keyName);
+	if (MsgSettingGetString(keyName, &msisdn) != MSG_SUCCESS) {
+		MSG_INFO("MsgSettingGetString() is failed");
+	}
 
 	for (int i = 0; i < pReqInfo->msgInfo.nAddressCnt; i++) {
 		/* Make SMS_SUBMIT_DATA_S from MSG_REQUEST_INFO_S */
@@ -622,8 +624,11 @@ void SmsPluginTransport::getSmsSendOption(int simIndex, SMS_SUBMIT_S *pSubmit)
 	pSubmit->bRejectDup = false;
 	pSubmit->bHeaderInd = false;
 
-	MsgSettingGetBool(SMS_SEND_DELIVERY_REPORT, &pSubmit->bStatusReport);
-	MsgSettingGetBool(SMS_SEND_REPLY_PATH, &pSubmit->bReplyPath);
+	if (MsgSettingGetBool(SMS_SEND_DELIVERY_REPORT, &pSubmit->bStatusReport) != MSG_SUCCESS)
+		MSG_INFO("MsgSettingGetBool() is failed");
+
+	if (MsgSettingGetBool(SMS_SEND_REPLY_PATH, &pSubmit->bReplyPath) != MSG_SUCCESS)
+		MSG_INFO("MsgSettingGetBool() is failed");
 
 	pSubmit->msgRef = msgRef++;
 
@@ -631,8 +636,11 @@ void SmsPluginTransport::getSmsSendOption(int simIndex, SMS_SUBMIT_S *pSubmit)
 	pSubmit->dcs.msgClass = SMS_MSG_CLASS_NONE;
 	pSubmit->dcs.codingGroup = SMS_GROUP_GENERAL;
 
-	pSubmit->dcs.codingScheme = (SMS_CODING_SCHEME_T)MsgSettingGetInt(SMS_SEND_DCS);
-
+	int codingScheme = 0;
+	if (MsgSettingGetInt(SMS_SEND_DCS, &codingScheme) != MSG_SUCCESS) {
+		MSG_INFO("MsgSettingGetInt() is failed");
+	}
+	pSubmit->dcs.codingScheme = (SMS_CODING_SCHEME_T)codingScheme;
 	MSG_DEBUG("DCS : %d", pSubmit->dcs.codingScheme);
 
 	MSG_SMSC_LIST_S smscList = {0, };

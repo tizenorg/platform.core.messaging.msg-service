@@ -136,15 +136,22 @@ bool composeSendReqHeader(MSG_MESSAGE_INFO_S *pMsgInfo, MSG_SENDINGOPT_INFO_S *p
 	struct tm timeInfo;
 	time_t RawTime = 0;
 	time_t nTimeInSecs = 0;
+	int tmpVal = 0;
 
 	MMS_HEADER_DATA_S *pHeaderData = pMsgData->header;
 	if (pSendOptInfo) {
 		if (pSendOptInfo->bSetting == false) {
 			unsigned int settingTime;
 
-			priority = (MmsPriority)MsgSettingGetInt(MMS_SEND_PRIORITY);
+			if (MsgSettingGetInt(MMS_SEND_PRIORITY, &tmpVal) != MSG_SUCCESS) {
+				MSG_INFO("MsgSettingGetInt() is failed");
+			}
+			priority = (MmsPriority)tmpVal;
 
-			settingTime = (unsigned int)MsgSettingGetInt(MMS_SEND_EXPIRY_TIME);
+			if (MsgSettingGetInt(MMS_SEND_EXPIRY_TIME, &tmpVal) != MSG_SUCCESS) {
+				MSG_INFO("MsgSettingGetInt() is failed");
+			}
+			settingTime = (unsigned int)tmpVal;
 			if (settingTime == 0) {
 				expiryTime.type = MMS_TIMETYPE_NONE;
 				expiryTime.time = 0;
@@ -153,7 +160,10 @@ bool composeSendReqHeader(MSG_MESSAGE_INFO_S *pMsgInfo, MSG_SENDINGOPT_INFO_S *p
 				expiryTime.time = settingTime;
 			}
 
-			settingTime = (unsigned int)MsgSettingGetInt(MMS_SEND_DELIVERY_TIME);
+			if (MsgSettingGetInt(MMS_SEND_DELIVERY_TIME, &tmpVal) != MSG_SUCCESS) {
+				MSG_INFO("MsgSettingGetInt() is failed");
+			}
+			settingTime = (unsigned int)tmpVal;
 			if (settingTime == 0) {
 				deliveryTime.type = MMS_TIMETYPE_NONE;
 				deliveryTime.time = 0;
@@ -162,8 +172,11 @@ bool composeSendReqHeader(MSG_MESSAGE_INFO_S *pMsgInfo, MSG_SENDINGOPT_INFO_S *p
 				deliveryTime.time = (unsigned int)settingTime;
 			}
 
-			MsgSettingGetBool(MMS_SEND_DELIVERY_REPORT, &bAskDeliveryReport);
-			MsgSettingGetBool(MMS_SEND_READ_REPLY, &bAskReadReply);
+			if (MsgSettingGetBool(MMS_SEND_DELIVERY_REPORT, &bAskDeliveryReport) != MSG_SUCCESS)
+				MSG_INFO("MsgSettingGetBool() is failed");
+
+			if (MsgSettingGetBool(MMS_SEND_READ_REPLY, &bAskReadReply) != MSG_SUCCESS)
+				MSG_INFO("MsgSettingGetBool() is failed");
 		} else {
 			priority = (MmsPriority)pSendOptInfo->option.mmsSendOptInfo.priority;
 
@@ -177,7 +190,10 @@ bool composeSendReqHeader(MSG_MESSAGE_INFO_S *pMsgInfo, MSG_SENDINGOPT_INFO_S *p
 			bAskReadReply = pSendOptInfo->option.mmsSendOptInfo.bReadReq;
 		}
 
-		msgClass = (MmsMsgClass)MsgSettingGetInt(MMS_SEND_MSG_CLASS);
+		if (MsgSettingGetInt(MMS_SEND_MSG_CLASS, &tmpVal) != MSG_SUCCESS) {
+			MSG_INFO("MsgSettingGetInt() is failed");
+		}
+		msgClass = (MmsMsgClass)tmpVal;
 
 		/* set Header */
 		time(&RawTime);

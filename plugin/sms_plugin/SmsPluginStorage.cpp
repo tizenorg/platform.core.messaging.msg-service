@@ -800,10 +800,14 @@ msg_error_t SmsPluginStorage::addSmsSendOption(MSG_MESSAGE_INFO_S *pMsg, MSG_SEN
 	msg_error_t err = MSG_SUCCESS;
 
 	if (pSendOptInfo->bSetting == false) {
-		MsgSettingGetBool(SMS_SEND_DELIVERY_REPORT, &pSendOptInfo->bDeliverReq);
-		MsgSettingGetBool(SMS_SEND_REPLY_PATH, &pSendOptInfo->option.smsSendOptInfo.bReplyPath);
+		if (MsgSettingGetBool(SMS_SEND_DELIVERY_REPORT, &pSendOptInfo->bDeliverReq) != MSG_SUCCESS)
+			MSG_INFO("MsgSettingGetBool() is failed");
 
-		MsgSettingGetBool(MSG_KEEP_COPY, &pSendOptInfo->bKeepCopy);
+		if (MsgSettingGetBool(SMS_SEND_REPLY_PATH, &pSendOptInfo->option.smsSendOptInfo.bReplyPath) != MSG_SUCCESS)
+			MSG_INFO("MsgSettingGetBool() is failed");
+
+		if (MsgSettingGetBool(MSG_KEEP_COPY, &pSendOptInfo->bKeepCopy) != MSG_SUCCESS)
+			MSG_INFO("MsgSettingGetBool() is failed");
 	}
 
 	MsgDbHandler *dbHandle = getDbHandle();
@@ -845,7 +849,8 @@ msg_error_t SmsPluginStorage::checkStorageStatus(MSG_MESSAGE_INFO_S *pMsgInfo)
 		if (err == MSG_ERR_MESSAGE_COUNT_FULL) {
 			bool bAutoErase = false;
 
-			MsgSettingGetBool(MSG_AUTO_ERASE, &bAutoErase);
+			if (MsgSettingGetBool(MSG_AUTO_ERASE, &bAutoErase) != MSG_SUCCESS)
+				MSG_INFO("MsgSettingGetBool() is failed");
 
 			MSG_DEBUG("bAutoErase: %d", bAutoErase);
 

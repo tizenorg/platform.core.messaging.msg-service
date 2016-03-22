@@ -43,7 +43,8 @@ msg_error_t MsgGetFilterOperation(bool *pSetFlag)
 {
 	MSG_BEGIN();
 
-	MsgSettingGetBool(MSG_BLOCK_MESSAGE, pSetFlag);
+	if (MsgSettingGetBool(MSG_BLOCK_MESSAGE, pSetFlag) != MSG_SUCCESS)
+		MSG_INFO("MsgSettingGetBool() is failed");
 
 	MSG_END();
 

@@ -50,9 +50,9 @@ msg_error_t 	MsgSettingSetString(const char *pKey, const char *pSetValue);
 msg_error_t 	MsgSettingSetInt(const char *pKey, int nSetValue);
 msg_error_t 	MsgSettingSetBool(const char *pKey, bool bSetValue);
 
-char* 			MsgSettingGetString(const char *pKey);
-int 				MsgSettingGetInt(const char *pKey);
-int 				MsgSettingGetBool(const char *pKey, bool *pVal);
+msg_error_t 	MsgSettingGetString(const char *pKey, char **pVal);
+msg_error_t		MsgSettingGetInt(const char *pKey, int *pVal);
+msg_error_t 	MsgSettingGetBool(const char *pKey, bool *pVal);
 
 msg_error_t 	MsgSettingHandleNewMsg(int SmsCnt, int MmsCnt);
 msg_error_t 	MsgSettingSetIndicator(int SmsCnt, int MmsCnt);
@@ -60,7 +60,7 @@ msg_error_t 	MsgSettingSetIndicator(int SmsCnt, int MmsCnt);
 int	MsgSettingGetAutoReject();
 bool	MsgSettingGetUnknownAutoReject();
 
-void MsgSettingRegVconfCBCommon(const char *pKey, _vconf_change_cb pCb);
-void MsgSettingRemoveVconfCBCommon(const char *pKey, _vconf_change_cb pCb);
+msg_error_t MsgSettingRegVconfCBCommon(const char *pKey, _vconf_change_cb pCb);
+msg_error_t MsgSettingRemoveVconfCBCommon(const char *pKey, _vconf_change_cb pCb);
 
 #endif /* MSG_GCONF_WRAPPER_H */

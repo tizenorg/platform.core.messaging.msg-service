@@ -49,7 +49,8 @@ void MsgHandle::openHandle()
 	MsgProxyListener::instance()->insertOpenHandleSet(this);
 
 	/* server is currently booting and service is not available until the end of booting */
-	MsgSettingGetBool(VCONFKEY_MSG_SERVER_READY, &bReady);
+	if (MsgSettingGetBool(VCONFKEY_MSG_SERVER_READY, &bReady) != MSG_SUCCESS)
+		MSG_INFO("MsgSettingGetBool() is failed");
 
 	if (bReady == false) {
 		THROW(MsgException::SERVER_READY_ERROR, "Msg Server is not ready !!!!!");

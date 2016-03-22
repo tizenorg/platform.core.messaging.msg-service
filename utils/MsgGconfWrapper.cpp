@@ -21,14 +21,6 @@
 #include "MsgGconfWrapper.h"
 #include "MsgException.h"
 
-#ifdef USE_GCONF
-
-#define GCONF_SUCCESS 1
-
-MSG_GOBJECT_CLIENT_S* pClient = NULL;
-
-#endif
-
 int autoReject = 0;
 bool bUnknownAutoReject = false;
 
@@ -45,13 +37,11 @@ msg_error_t MsgSettingSetString(const char *pKey, const char *pSetValue)
 		return MSG_ERR_NULL_POINTER;
 	}
 
-#ifdef USE_GCONF
-	if (gconf_client_set_string((GConfClient*)pClient, pKey, pSetValue, NULL) !=  GCONF_SUCCESS)
+	if (vconf_set_str(pKey, pSetValue) != 0) {
+		int vconf_err = vconf_get_ext_errno();
+		MSG_DEBUG("Fail to vconf_set_str with [%s], err=[%d]", pKey, vconf_err);
 		return MSG_ERR_SET_SETTING;
-#else
-	if (vconf_set_str(pKey, pSetValue) != 0)
-		return MSG_ERR_SET_SETTING;
-#endif
+	}
 
 	return MSG_SUCCESS;
 }
@@ -64,13 +54,11 @@ msg_error_t MsgSettingSetInt(const char *pKey, int nSetValue)
 		return MSG_ERR_NULL_POINTER;
 	}
 
-#ifdef USE_GCONF
-	if (gconf_client_set_int((GConfClient*)pClient, pKey, nSetValue, NULL) !=  GCONF_SUCCESS)
+	if (vconf_set_int(pKey, nSetValue) != 0) {
+		int vconf_err = vconf_get_ext_errno();
+		MSG_DEBUG("Fail to vconf_set_int with [%s], err=[%d]", pKey, vconf_err);
 		return MSG_ERR_SET_SETTING;
-#else
-	if (vconf_set_int(pKey, nSetValue) != 0)
-		return MSG_ERR_SET_SETTING;
-#endif
+	}
 
 	return MSG_SUCCESS;
 }
@@ -83,70 +71,87 @@ msg_error_t MsgSettingSetBool(const char *pKey, bool bSetValue)
 		return MSG_ERR_NULL_POINTER;
 	}
 
-#ifdef USE_GCONF
-	if (gconf_client_set_bool((GConfClient*)pClient, pKey, bSetValue, NULL) !=  GCONF_SUCCESS)
+	if (vconf_set_bool(pKey, bSetValue) != 0) {
+		int vconf_err = vconf_get_ext_errno();
+		MSG_DEBUG("Fail to vconf_set_bool with [%s], err=[%d]", pKey, vconf_err);
 		return MSG_ERR_SET_SETTING;
-#else
-	if (vconf_set_bool(pKey, bSetValue) != 0)
-		return MSG_ERR_SET_SETTING;
-#endif
+	}
 
 	return MSG_SUCCESS;
 }
 
 
-char* MsgSettingGetString(const char *pKey)
+msg_error_t MsgSettingGetString(const char *pKey, char **pVal)
 {
 	if (pKey == NULL) {
 		MSG_DEBUG("IN Parameter is NULL");
-		return NULL;
+		return MSG_ERR_NULL_POINTER;
 	}
 
-#ifdef USE_GCONF
-	return gconf_client_get_string((GConfClient*)pClient, pKey, NULL);
-#else
-	return vconf_get_str(pKey);
-#endif
-}
+	msg_error_t retVal = MSG_SUCCESS;
+	char *param = NULL;
 
-
-int MsgSettingGetInt(const char *pKey)
-{
-	if (pKey == NULL) {
-		MSG_DEBUG("IN Parameter is NULL");
-		return -1;
+	param = vconf_get_str(pKey);
+	if (param == NULL) {
+		int vconf_err = vconf_get_ext_errno();
+		MSG_DEBUG("Fail to vconf_get_str with [%s], err=[%d]", pKey, vconf_err);
+		if (vconf_err == VCONF_ERROR_FILE_PERM)
+			retVal = MSG_ERR_PERMISSION_DENIED;
+		else
+			retVal = MSG_ERR_UNKNOWN;
 	}
 
-	int retVal = 0;
-
-#ifdef USE_GCONF
-	retVal = gconf_client_get_int((GConfClient*)pClient, pKey, NULL);
-#else
-	if (vconf_get_int(pKey, &retVal) < 0)
-		return -1;
-#endif
+	*pVal = param;
 
 	return retVal;
 }
 
 
-int MsgSettingGetBool(const char *pKey, bool *pVal)
+msg_error_t MsgSettingGetInt(const char *pKey, int *pVal)
 {
 	if (pKey == NULL) {
 		MSG_DEBUG("IN Parameter is NULL");
 		return -1;
 	}
 
-	int retVal = 0, param = 0;
+	msg_error_t retVal = MSG_SUCCESS;
+	int param = 0;
 
-#ifdef USE_GCONF
-	*pVal = gconf_client_get_bool((GConfClient*)pClient, pKey, NULL);
-#else
-	if (vconf_get_bool(pKey, &param) < 0)
+	if (vconf_get_int(pKey, &param) < 0) {
+		int vconf_err = vconf_get_ext_errno();
+		MSG_DEBUG("Fail to vconf_get_int with [%s], err=[%d]", pKey, vconf_err);
+		if (vconf_err == VCONF_ERROR_FILE_PERM)
+			retVal = MSG_ERR_PERMISSION_DENIED;
+		else
+			retVal = MSG_ERR_UNKNOWN;
+	}
+
+	*pVal = (int)param;
+
+	return retVal;
+}
+
+
+msg_error_t MsgSettingGetBool(const char *pKey, bool *pVal)
+{
+	if (pKey == NULL) {
+		MSG_DEBUG("IN Parameter is NULL");
 		return -1;
-#endif
+	}
 
- 	*pVal = (bool)param;
+	msg_error_t retVal = MSG_SUCCESS;
+	int param = 0;
+
+	if (vconf_get_bool(pKey, &param) < 0) {
+		int vconf_err = vconf_get_ext_errno();
+		MSG_DEBUG("Fail to vconf_get_bool with [%s], err=[%d]", pKey, vconf_err);
+		if (vconf_err == VCONF_ERROR_FILE_PERM)
+			retVal = MSG_ERR_PERMISSION_DENIED;
+		else
+			retVal = MSG_ERR_UNKNOWN;
+	}
+
+	*pVal = (bool)param;
 
 	return retVal;
 }
@@ -208,20 +213,38 @@ bool MsgSettingGetUnknownAutoReject()
 	return bUnknownAutoReject;
 }
 
-void MsgSettingRegVconfCBCommon(const char *pKey, _vconf_change_cb pCb)
+msg_error_t MsgSettingRegVconfCBCommon(const char *pKey, _vconf_change_cb pCb)
 {
+	msg_error_t err = MSG_SUCCESS;
+
 	if (vconf_notify_key_changed(pKey, pCb, NULL) < 0) {
-		MSG_DEBUG("Fail to regist vconf CB with [%s]", pKey);
+		int vconf_err = vconf_get_ext_errno();
+		MSG_DEBUG("Fail to regist vconf CB with [%s], err=[%d]", pKey, vconf_err);
+		if (vconf_err == VCONF_ERROR_FILE_PERM)
+			err = MSG_ERR_PERMISSION_DENIED;
+		else
+			err = MSG_ERR_UNKNOWN;
 	} else {
 		MSG_DEBUG("Success to regist vconf CB with [%s]", pKey);
 	}
+
+	return err;
 }
 
-void MsgSettingRemoveVconfCBCommon(const char *pKey, _vconf_change_cb pCb)
+msg_error_t MsgSettingRemoveVconfCBCommon(const char *pKey, _vconf_change_cb pCb)
 {
+	msg_error_t err = MSG_SUCCESS;
+
 	if (vconf_ignore_key_changed(pKey, pCb) < 0) {
-		MSG_DEBUG("Fail to remove vconf CB with [%s]", pKey);
+		int vconf_err = vconf_get_ext_errno();
+		MSG_DEBUG("Fail to remove vconf CB with [%s], err=[%d]", pKey, vconf_err);
+		if (vconf_err == VCONF_ERROR_FILE_PERM)
+			err = MSG_ERR_PERMISSION_DENIED;
+		else
+			err = MSG_ERR_UNKNOWN;
 	} else {
 		MSG_DEBUG("Success to remove vconf CB with [%s]", pKey);
 	}
+
+	return err;
 }

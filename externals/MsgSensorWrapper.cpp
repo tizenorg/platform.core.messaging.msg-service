@@ -50,11 +50,20 @@ void MsgGestureCB(gesture_type_e gesture, const gesture_data_h data, double time
 	if (ret == GESTURE_ERROR_NONE && event == GESTURE_EVENT_DETECTED && \
 			gesture == GESTURE_TURN_FACE_DOWN) {
 		MSG_DEBUG("GESTURE_TURN_FACE_DOWN gesture detected.");
-		if (MsgSettingGetInt(VCONFKEY_SETAPPL_MOTION_ACTIVATION)) {
-			if (MsgSettingGetInt(VCONFKEY_SETAPPL_USE_TURN_OVER)) {
-				if (SensorCBFunction)
-					SensorCBFunction();
-			}
+		int motion_activation = 0;
+		int use_turn_over = 0;
+
+		if (MsgSettingGetInt(VCONFKEY_SETAPPL_MOTION_ACTIVATION, &motion_activation) != MSG_SUCCESS) {
+			MSG_INFO("MsgSettingGetInt() is failed");
+		}
+
+		if (MsgSettingGetInt(VCONFKEY_SETAPPL_USE_TURN_OVER, &use_turn_over) != MSG_SUCCESS) {
+			MSG_INFO("MsgSettingGetInt() is failed");
+		}
+
+		if (motion_activation && use_turn_over) {
+			if (SensorCBFunction)
+				SensorCBFunction();
 		}
 	}
 }

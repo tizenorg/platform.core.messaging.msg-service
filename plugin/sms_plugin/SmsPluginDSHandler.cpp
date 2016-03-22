@@ -100,12 +100,16 @@ TapiHandle *SmsPluginDSHandler::getTelHandle(int sim_idx)
 		return handle_list.handle[sim_idx-1];
 	} else {
 		int SIM_Status = 0;
-		SIM_Status = MsgSettingGetInt(VCONFKEY_TELEPHONY_SIM_SLOT);
+		if (MsgSettingGetInt(VCONFKEY_TELEPHONY_SIM_SLOT, &SIM_Status) != MSG_SUCCESS) {
+			MSG_INFO("MsgSettingGetInt() is failed");
+		}
 		if (SIM_Status == 1) {
 			return handle_list.handle[0];
 		}
 
-		SIM_Status = MsgSettingGetInt(VCONFKEY_TELEPHONY_SIM_SLOT2);
+		if (MsgSettingGetInt(VCONFKEY_TELEPHONY_SIM_SLOT2, &SIM_Status) != MSG_SUCCESS) {
+			MSG_INFO("MsgSettingGetInt() is failed");
+		}
 		if (SIM_Status == 1) {
 			return handle_list.handle[1];
 		}
@@ -158,14 +162,17 @@ int SmsPluginDSHandler::getActiveSimCount()
 	int active_count = 0;
 	int sim_status = VCONFKEY_TELEPHONY_SIM_UNKNOWN;
 
-	sim_status = MsgSettingGetInt(VCONFKEY_TELEPHONY_SIM_SLOT);
+	if (MsgSettingGetInt(VCONFKEY_TELEPHONY_SIM_SLOT, &sim_status) != MSG_SUCCESS) {
+		MSG_INFO("MsgSettingGetInt() is failed");
+	}
 	MSG_DEBUG("sim1 status : %d", sim_status);
 	if (sim_status == VCONFKEY_TELEPHONY_SIM_INSERTED)
 		active_count++;
 
 	sim_status = VCONFKEY_TELEPHONY_SIM_UNKNOWN;
-	sim_status = MsgSettingGetInt(VCONFKEY_TELEPHONY_SIM_SLOT2);
-
+	if (MsgSettingGetInt(VCONFKEY_TELEPHONY_SIM_SLOT2, &sim_status) != MSG_SUCCESS) {
+		MSG_INFO("MsgSettingGetInt() is failed");
+	}
 	MSG_DEBUG("sim2 status : %d", sim_status);
 	if (sim_status == VCONFKEY_TELEPHONY_SIM_INSERTED)
 		active_count++;

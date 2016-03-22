@@ -542,7 +542,8 @@ bool SmsPluginCbMsgHandler::checkCbOpt(SMS_CBMSG_PAGE_S *CbPage, bool *pJavaMsg,
 	char keyName[MAX_VCONFKEY_NAME_LEN];
 	memset(keyName, 0x00, sizeof(keyName));
 	snprintf(keyName, sizeof(keyName), "%s/%d", CB_RECEIVE, simIndex);
-	MsgSettingGetBool(keyName, &bReceive);
+	if (MsgSettingGetBool(keyName, &bReceive) != MSG_SUCCESS)
+		MSG_INFO("MsgSettingGetBool() is failed");
 
 	/* Receive CB Msg = FALSE */
 	if (!bReceive) {
@@ -557,7 +558,8 @@ bool SmsPluginCbMsgHandler::checkCbOpt(SMS_CBMSG_PAGE_S *CbPage, bool *pJavaMsg,
 	snprintf(keyName, sizeof(keyname), "%s/%d", CB_LANGUAGE, MSG_CBLANG_TYPE_ALL);
 
 	bool bAllLang = false;
-	MsgSettingGetBool(keyName, &bAllLang);
+	if (MsgSettingGetBool(keyName, &bAllLang) != MSG_SUCCESS)
+		MSG_INFO("MsgSettingGetBool() is failed");
 
 	if (!bAllLang) {
 		MSG_DEBUG("ALL LANGUAGE = FALSE");
@@ -567,7 +569,8 @@ bool SmsPluginCbMsgHandler::checkCbOpt(SMS_CBMSG_PAGE_S *CbPage, bool *pJavaMsg,
 
 		bool bLang = false;
 
-		MsgSettingGetBool(keyName, &bLang);
+		if (MsgSettingGetBool(keyName, &bLang) != MSG_SUCCESS)
+			MSG_INFO("MsgSettingGetBool() is failed");
 
 		if (!bLang || CbPage.pageHeader.langType == MSG_CBLANG_TYPE_MAX) {
 			MSG_DEBUG("LANGUAGE [%d] = FALSE", CbPage.pageHeader.langType);

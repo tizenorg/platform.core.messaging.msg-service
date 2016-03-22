@@ -195,7 +195,10 @@ void SmsPluginConcatHandler::handleConcatMsg(TapiHandle *handle, SMS_TPDU_S *pTp
 						char keyName[MAX_VCONFKEY_NAME_LEN];
 						memset(keyName, 0x00, sizeof(keyName));
 						snprintf(keyName, sizeof(keyName), "%s/%d", SIM_TOTAL_COUNT, msg.simIndex);
-						int totalCnt = MsgSettingGetInt(keyName);
+						int totalCnt;
+						if (MsgSettingGetInt(keyName, &totalCnt) != MSG_SUCCESS) {
+							MSG_INFO("MsgSettingGetInt() is failed");
+						}
 
 						if (segCnt > totalCnt) {
 							/* send DeliveryResport as MSG_SUCCESS and return when total sim storage cnt is less than segment cnt. */

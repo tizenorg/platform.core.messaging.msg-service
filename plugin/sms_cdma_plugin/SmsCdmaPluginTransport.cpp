@@ -52,7 +52,9 @@ SmsPluginTransport::SmsPluginTransport()
 	msgRef16bit	= 0x0000;
 
 	msgSeqNum   = 0x00;
-	msgSubmitId = MsgSettingGetInt(MSG_MESSAGE_ID_COUNTER);
+	if (MsgSettingGetInt(MSG_MESSAGE_ID_COUNTER, (int *)&msgSubmitId) != MSG_SUCCESS) {
+		MSG_INFO("MsgSettingGetInt() is failed");
+	}
 }
 
 
@@ -225,7 +227,8 @@ void SmsPluginTransport::convertMsgInfoToSubmit(const MSG_MESSAGE_INFO_S *pMsgIn
 	pSubmit->privacy = SMS_PRIVACY_NOT_RESTRICTED;
 
 	/* 7. Set Reply option */
-	MsgSettingGetBool(SMS_SEND_DELIVERY_REPORT, (bool *)&(pSubmit->reply_opt.deliver_ack_req));
+	if (MsgSettingGetBool(SMS_SEND_DELIVERY_REPORT, (bool *)&(pSubmit->reply_opt.deliver_ack_req)) != MSG_SUCCESS)
+		MSG_INFO("MsgSettingGetBool() is failed");
 
 	/* 8. Set Alert priority */
 	pSubmit->alert_priority = SMS_ALERT_MOBILE_DEFAULT;
@@ -275,7 +278,9 @@ void SmsPluginTransport::submitRequest(sms_request_info_s *pReqInfo)
 	memset(keyName, 0x00, sizeof(keyName));
 	snprintf(keyName, sizeof(keyName), "%s/%d", MSG_SIM_MSISDN, simIndex);
 
-	msisdn = MsgSettingGetString(keyName);
+	if (MsgSettingGetString(keyName, &msisdn) != MSG_SUCCESS) {
+		MSG_INFO("MsgSettingGetString() is failed");
+	}
 
 	/* Tapi Data Structure */
 	TelSmsDatapackageInfo_t tapi_data_pkg;

@@ -71,7 +71,10 @@ unsigned int MsgStoAddMessageTable(MsgDbHandler *pDbHandle, const MSG_MESSAGE_IN
 	memset(keyName, 0x00, sizeof(keyName));
 	snprintf(keyName, sizeof(keyName), "%s/%d", MSG_SIM_SUBS_ID, pMsgInfo->sim_idx);
 
-	char *imsi = MsgSettingGetString(keyName);
+	char *imsi = NULL;
+	if (MsgSettingGetString(keyName, &imsi) != MSG_SUCCESS) {
+		MSG_INFO("MsgSettingGetString() is failed");
+	}
 
 	/* Add Message */
 	char sqlQuery[MAX_QUERY_LEN+1];

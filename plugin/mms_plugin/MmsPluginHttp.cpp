@@ -257,7 +257,10 @@ static bool __httpGetHeaderField(MMS_HTTP_HEADER_FIELD_T httpHeaderItem, char *s
 				char szUserAgent[1024 + 1];
 				char *uagent = NULL;
 
-				uagent = MsgSettingGetString(VCONFKEY_BROWSER_USER_AGENT);
+				if (MsgSettingGetString(VCONFKEY_BROWSER_USER_AGENT, &uagent) != MSG_SUCCESS) {
+					MSG_INFO("MsgSettingGetString() is failed");
+				}
+
 				if (uagent && strlen(uagent) > 0) {
 					MSG_SEC_INFO("Get UserAgent : %s = %s", VCONFKEY_BROWSER_USER_AGENT, uagent);
 					memset(szUserAgent, 0x00, sizeof(szUserAgent));
@@ -281,7 +284,10 @@ static bool __httpGetHeaderField(MMS_HTTP_HEADER_FIELD_T httpHeaderItem, char *s
 			break;
 
 		case MMS_HH_UA_PROFILE: {
-				char *szUAProfile = MsgSettingGetString(MSG_MMS_UA_PROFILE);
+				char *szUAProfile = NULL;
+				if (MsgSettingGetString(MSG_MMS_UA_PROFILE, &szUAProfile) != MSG_SUCCESS) {
+					MSG_INFO("MsgSettingGetString() is failed");
+				}
 
 				snprintf((char *)szHeaderBuffer, 1024, "%s", szUAProfile);
 				if (szUAProfile) {
@@ -295,7 +301,11 @@ static bool __httpGetHeaderField(MMS_HTTP_HEADER_FIELD_T httpHeaderItem, char *s
 #if defined(FEATURE_SMS_CDMA)
 		case MMS_HH_MDN: {
 /*
-			char *mdn = MsgSettingGetString(MSG_SIM_MSISDN);
+			char *mdn = NULL;
+			if (MsgSettingGetString(MSG_SIM_MSISDN, &mdn) != MSG_SUCCESS) {
+				MSG_INFO("MsgSettingGetString() is failed");
+			}
+
 			if (mdn != NULL && strlen(mdn) > 0) {
 				result = true;
 				snprintf((char *)szHeaderBuffer, 1024, "%s", mdn);

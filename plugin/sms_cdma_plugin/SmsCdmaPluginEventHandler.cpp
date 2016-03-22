@@ -539,7 +539,10 @@ void SmsPluginEventHandler::handleMsgIncoming(sms_trans_p2p_msg_s *p_p2p_msg)
 		if (p_p2p_msg->telesvc_msg.data.deliver.num_msg < 0)
 			p_p2p_msg->telesvc_msg.data.deliver.num_msg = 0;
 
-		int voice_cnt = MsgSettingGetInt(VOICEMAIL_COUNT);
+		int voice_cnt = 0;
+		if (MsgSettingGetInt(VOICEMAIL_COUNT, &voice_cnt) != MSG_SUCCESS) {
+			MSG_INFO("MsgSettingGetInt() is failed");
+		}
 
 		/* repeated msg check for voicemail */
 		if (voice_cnt == p_p2p_msg->telesvc_msg.data.deliver.num_msg) {
@@ -665,7 +668,9 @@ void SmsPluginEventHandler::handleMsgIncoming(sms_trans_p2p_msg_s *p_p2p_msg)
 		memset(keyName, 0x00, sizeof(keyName));
 		snprintf(keyName, sizeof(keyName), "%s/%d", MSG_SIM_MSISDN, simIndex);
 
-		msisdn = MsgSettingGetString(keyName);
+		if (MsgSettingGetString(keyName, &msisdn) != MSG_SUCCESS) {
+			MSG_INFO("MsgSettingGetString() is failed");
+		}
 
 		MSG_SMS_VLD_INFO("%d, SMS Receive, %s->%s, %s", msgInfo.msgId, \
 														msgInfo.addressList[0].addressVal, \
@@ -808,7 +813,9 @@ void SmsPluginEventHandler::handleCbMsgIncoming(sms_trans_broadcast_msg_s *p_cb_
 	memset(keyName, 0x00, sizeof(keyName));
 	snprintf(keyName, sizeof(keyName), "%s/%d", MSG_SIM_MSISDN, simIndex);
 
-	msisdn = MsgSettingGetString(keyName);
+	if (MsgSettingGetString(keyName, &msisdn) != MSG_SUCCESS) {
+		MSG_INFO("MsgSettingGetString() is failed");
+	}
 
 	MSG_SMS_VLD_INFO("%d, SMS Receive, %s->%s, %s", msgInfo.msgId, \
 													msgInfo.addressList[0].addressVal, \
@@ -1180,7 +1187,8 @@ bool SmsPluginEventHandler::checkCbOpt(sms_trans_svc_ctg_t svc_ctg)
 
 	memset(keyName, 0x00, sizeof(keyName));
 	snprintf(keyName, sizeof(keyName), "%s/%d", CB_RECEIVE, sim_idx);
-	MsgSettingGetBool(keyName, &bReceive);
+	if (MsgSettingGetBool(keyName, &bReceive) != MSG_SUCCESS)
+		MSG_INFO("MsgSettingGetBool() is failed");
 
 	/* Receive CB Msg = FALSE */
 	if (!bReceive) {

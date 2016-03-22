@@ -255,7 +255,11 @@ msg_error_t MsgSubmitReqMMS(MSG_REQUEST_INFO_S *pReqInfo)
 	char keyName[MAX_VCONFKEY_NAME_LEN];
 	memset(keyName, 0x00, sizeof(keyName));
 	snprintf(keyName, sizeof(keyName), "%s/%d", MSG_SIM_CHANGED, pReqInfo->msgInfo.sim_idx);
-	MSG_SIM_STATUS_T simStatus = (MSG_SIM_STATUS_T)MsgSettingGetInt(keyName);
+	int tmpval = 0;
+	if (MsgSettingGetInt(keyName, &tmpval) != MSG_SUCCESS) {
+		MSG_INFO("MsgSettingGetInt() is failed");
+	}
+	MSG_SIM_STATUS_T simStatus = (MSG_SIM_STATUS_T)tmpval;
 
 	if(simStatus == MSG_SIM_STATUS_NOT_FOUND) {
 		MSG_DEBUG("SIM is not present...");
@@ -301,7 +305,7 @@ msg_error_t MsgUpdateSentMsg(msg_message_id_t MsgId, msg_network_status_t Status
 		if (MsgStoGetMmsSendOpt(MsgId, &sendOpt) == MSG_SUCCESS)
 			bKeepCopy = sendOpt.bKeepCopy;
 		else
-			ret = MsgSettingGetBool(MSG_KEEP_COPY, &bKeepCopy);
+			err = MsgSettingGetBool(MSG_KEEP_COPY, &bKeepCopy);
 	}
 
 	/* Move Msg to SENTBOX */

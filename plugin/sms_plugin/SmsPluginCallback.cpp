@@ -445,11 +445,15 @@ void TapiEventGetSimMsg(TapiHandle *handle, int result, void *data, void *user_d
 
 			memset(keyName, 0x00, sizeof(keyName));
 			snprintf(keyName, sizeof(keyName), "%s/%d", VOICEMAIL_NUMBER, msgInfo.sim_idx);
-			voiceNumber = MsgSettingGetString(keyName);
+			if (MsgSettingGetString(keyName, &voiceNumber) != MSG_SUCCESS) {
+				MSG_INFO("MsgSettingGetString() is failed");
+			}
 
 			memset(keyName, 0x00, sizeof(keyName));
 			snprintf(keyName, sizeof(keyName), "%s/%d", VOICEMAIL_ALPHA_ID, msgInfo.sim_idx);
-			voiceAlphaId = MsgSettingGetString(keyName);
+			if (MsgSettingGetString(keyName, &voiceAlphaId) != MSG_SUCCESS) {
+				MSG_INFO("MsgSettingGetString() is failed");
+			}
 
 			memset(msgInfo.addressList[0].addressVal, 0x00, sizeof(msgInfo.addressList[0].addressVal));
 			memset(msgInfo.addressList[0].displayName, 0x00, sizeof(msgInfo.addressList[0].displayName));
@@ -860,7 +864,9 @@ void TapiEventGetMailboxInfo(TapiHandle *handle, int result, void *data, void *u
 		char *voiceNum = NULL;
 		memset(keyName, 0x00, sizeof(keyName));
 		snprintf(keyName, sizeof(keyName), "%s/%d", VOICEMAIL_NUMBER, sim_idx);
-		voiceNum = MsgSettingGetString(keyName);
+		if (MsgSettingGetString(keyName, &voiceNum) != MSG_SUCCESS) {
+			MSG_INFO("MsgSettingGetString() is failed");
+		}
 
 		if (voiceNum && strlen(voiceNum)) {
 			MSG_DEBUG("Voice mailbox number exist in vconf");

@@ -254,8 +254,11 @@ bool MmsPluginInternal::processNotiInd(MSG_MESSAGE_INFO_S *pMsgInfo, MSG_REQUEST
 	int roamState = 0;
 	char pPduFilePath[MAX_FULL_PATH_SIZE] = {0};
 
-	roamState = MsgSettingGetInt(VCONFKEY_TELEPHONY_SVC_ROAM);
-	MsgSettingGetBool(MMS_SEND_REPORT_ALLOWED, &bReportAllowed);
+	if (MsgSettingGetInt(VCONFKEY_TELEPHONY_SVC_ROAM, &roamState) != MSG_SUCCESS)
+		MSG_INFO("MsgSettingGetInt() is failed");
+
+	if (MsgSettingGetBool(MMS_SEND_REPORT_ALLOWED, &bReportAllowed) != MSG_SUCCESS)
+		MSG_INFO("MsgSettingGetBool() is failed");
 
 	if (checkRejectNotiInd(roamState, bReportAllowed, pPduFilePath)) {
 		MSG_DEBUG("MMS Message Rejected......");
@@ -285,11 +288,18 @@ bool MmsPluginInternal::processNotiInd(MSG_MESSAGE_INFO_S *pMsgInfo, MSG_REQUEST
 		return true;
 	}
 
+	int tmpVal = 0;
 	if (roamState == VCONFKEY_TELEPHONY_SVC_ROAM_OFF) {
-		retrieveType = (MSG_MMS_HOME_RETRIEVE_TYPE_T)MsgSettingGetInt(MMS_RECV_HOME_NETWORK);
+		if (MsgSettingGetInt(MMS_RECV_HOME_NETWORK, &tmpVal) != MSG_SUCCESS) {
+			MSG_INFO("MsgSettingGetInt() is failed");
+		}
+		retrieveType = (MSG_MMS_HOME_RETRIEVE_TYPE_T)tmpVal;
 		MSG_DEBUG("$$$$$$$$$$ MMS_RECV_HOME_NETWORK = %d $$$$$$$$$$$$$", retrieveType);
 	} else {
-		retrieveType = (MSG_MMS_HOME_RETRIEVE_TYPE_T)MsgSettingGetInt(MMS_RECV_ABROAD_NETWORK);
+		if (MsgSettingGetInt(MMS_RECV_ABROAD_NETWORK, &tmpVal) != MSG_SUCCESS) {
+			MSG_INFO("MsgSettingGetInt() is failed");
+		}
+		retrieveType = (MSG_MMS_HOME_RETRIEVE_TYPE_T)tmpVal;
 		MSG_DEBUG("$$$$$$$$$$ MMS_RECV_ABROAD_NETWORK = %d $$$$$$$$$$$$$", retrieveType);
 
 		if (retrieveType == MSG_ABROAD_RESTRICTED) {
@@ -316,7 +326,9 @@ bool MmsPluginInternal::processNotiInd(MSG_MESSAGE_INFO_S *pMsgInfo, MSG_REQUEST
 		/* Check if current request sim index is different from default network SIM */
 		/* Convert auto-retrieve to manual retrieve in case sim indexes are different */
 		int default_sim = 0;
-		default_sim = MsgSettingGetInt(MSG_NETWORK_SIM);
+		if (MsgSettingGetInt(MSG_NETWORK_SIM, &default_sim) != MSG_SUCCESS) {
+			MSG_INFO("MsgSettingGetInt() is failed");
+		}
 
 		MSG_DEBUG("default_sim = %d, pMsgInfo->sim_idx = %d", default_sim, pMsgInfo->sim_idx);
 
@@ -497,7 +509,10 @@ void MmsPluginInternal::processSendConf(MSG_MESSAGE_INFO_S *pMsgInfo, mmsTranQEn
 	memset(keyName, 0x00, sizeof(keyName));
 
 	snprintf(keyName, sizeof(keyName), "%s/%d", MSG_SIM_MSISDN, pMsgInfo->sim_idx);
-	char *msisdn = MsgSettingGetString(keyName);
+	char *msisdn = NULL;
+	if (MsgSettingGetString(keyName, &msisdn) != MSG_SUCCESS) {
+		MSG_INFO("MsgSettingGetString() is failed");
+	}
 
 	MmsPluginStorage::instance()->getAddressInfo(pMsgInfo->msgId, &addressinfo);
 
@@ -582,7 +597,10 @@ void MmsPluginInternal::processRetrieveConf(MSG_MESSAGE_INFO_S *pMsgInfo, mmsTra
 	memset(keyName, 0x00, sizeof(keyName));
 
 	snprintf(keyName, sizeof(keyName), "%s/%d", MSG_SIM_MSISDN, pMsgInfo->sim_idx);
-	char *msisdn = MsgSettingGetString(keyName);
+	char *msisdn = NULL;
+	if (MsgSettingGetString(keyName, &msisdn) != MSG_SUCCESS) {
+		MSG_INFO("MsgSettingGetString() is failed");
+	}
 	char *normal_msisdn = NULL;
 	if (msisdn)
 		normal_msisdn = msg_normalize_number(msisdn);
@@ -840,7 +858,9 @@ void MmsPluginInternal::processRetrieveConf(MSG_MESSAGE_INFO_S *pMsgInfo, mmsTra
 	}
 
 	char *msisdn = NULL;
-	msisdn = MsgSettingGetString(MSG_SIM_MSISDN);
+	if (MsgSettingGetString(MSG_SIM_MSISDN, &msisdn) != MSG_SUCCESS) {
+		MSG_INFO("MsgSettingGetString() is failed");
+	}
 
 	if (mmsHeader.pFrom)
 		MmsAddrUtilRemovePlmnString(mmsHeader.pFrom->szAddr);
@@ -1008,8 +1028,11 @@ bool MmsPluginInternal::checkRejectNotiInd(int roamState, bool bReportAllowed, c
 	bool bRejectAnonymous;
 	bool bRejectAdvertisement;
 
-	MsgSettingGetBool(MMS_RECV_REJECT_UNKNOWN, &bRejectAnonymous);
-	MsgSettingGetBool(MMS_RECV_REJECT_ADVERTISE, &bRejectAdvertisement);
+	if (MsgSettingGetBool(MMS_RECV_REJECT_UNKNOWN, &bRejectAnonymous) != MSG_SUCCESS)
+		MSG_INFO("MsgSettingGetBool() is failed");
+
+	if (MsgSettingGetBool(MMS_RECV_REJECT_ADVERTISE, &bRejectAdvertisement) != MSG_SUCCESS)
+		MSG_INFO("MsgSettingGetBool() is failed");
 
 	/* Anonymous Reject */
 	if (bRejectAnonymous &&
@@ -1029,8 +1052,12 @@ bool MmsPluginInternal::checkRejectNotiInd(int roamState, bool bReportAllowed, c
 	}
 
 	/* Message Reject - Roaming Case */
+	int tmpVal = 0;
 	if (roamState == VCONFKEY_TELEPHONY_SVC_ROAM_ON) {
-		retrieveType = (MSG_MMS_HOME_RETRIEVE_TYPE_T)MsgSettingGetInt(MMS_RECV_ABROAD_NETWORK);
+		if (MsgSettingGetInt(MMS_RECV_ABROAD_NETWORK, &tmpVal) != MSG_SUCCESS) {
+			MSG_INFO("MsgSettingGetInt() is failed");
+		}
+		retrieveType = (MSG_MMS_HOME_RETRIEVE_TYPE_T)tmpVal;
 		if (retrieveType == MSG_ABROAD_REJECT) {
 			MSG_DEBUG("Abroad_Network : Notification Reject... ");
 			encodeNotifyRespInd(mmsHeader.szTrID, MSG_DELIVERY_REPORT_REJECTED, bReportAllowed, pSendFilePath);
@@ -1038,7 +1065,10 @@ bool MmsPluginInternal::checkRejectNotiInd(int roamState, bool bReportAllowed, c
 			return true;
 		}
 	} else {
-		retrieveType = (MSG_MMS_HOME_RETRIEVE_TYPE_T)MsgSettingGetInt(MMS_RECV_HOME_NETWORK);
+		if (MsgSettingGetInt(MMS_RECV_HOME_NETWORK, &tmpVal) != MSG_SUCCESS) {
+			MSG_INFO("MsgSettingGetInt() is failed");
+		}
+		retrieveType = (MSG_MMS_HOME_RETRIEVE_TYPE_T)tmpVal;
 		if (retrieveType == MSG_HOME_REJECT) {
 			MSG_DEBUG("Home_Network : Notification Reject... ");
 			encodeNotifyRespInd(mmsHeader.szTrID, MSG_DELIVERY_REPORT_REJECTED, bReportAllowed, pSendFilePath);

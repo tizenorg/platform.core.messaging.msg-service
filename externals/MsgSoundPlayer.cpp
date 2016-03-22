@@ -165,7 +165,9 @@ MsgSoundPlayer::MsgSoundPlayer()
 
 	defaultRingtonePath = NULL;
 
-	defaultRingtonePath = MsgSettingGetString(VCONFKEY_SETAPPL_NOTI_RINGTONE_DEFAULT_PATH_STR);
+	if (MsgSettingGetString(VCONFKEY_SETAPPL_NOTI_RINGTONE_DEFAULT_PATH_STR, &defaultRingtonePath) != MSG_SUCCESS) {
+		MSG_INFO("MsgSettingGetString() is failed");
+	}
 
 	if (defaultRingtonePath == NULL || MsgGetFileSize(defaultRingtonePath) < 1) {
 		defaultRingtonePath = (char *)DEFAULT_ALERT_FILE;
@@ -204,7 +206,11 @@ MsgSoundPlayer* MsgSoundPlayer::instance()
 void MsgSoundPlayer::MsgGetRingtonePath(char *userRingtonePath, char **msg_tone_file_path_p)
 {
 #ifndef MSG_WEARABLE_PROFILE
-	MSG_RINGTONE_TYPE_T ringtoneType = (MSG_RINGTONE_TYPE_T)MsgSettingGetInt(MSG_SETTING_RINGTONE_TYPE);
+	int tmpVal = 0;
+	if (MsgSettingGetInt(MSG_SETTING_RINGTONE_TYPE, &tmpVal) != MSG_SUCCESS) {
+		MSG_INFO("MsgSettingGetInt() is failed");
+	}
+	MSG_RINGTONE_TYPE_T ringtoneType = (MSG_RINGTONE_TYPE_T)tmpVal;
 
 	MSG_DEBUG("Ringtone type = [%d]", ringtoneType);
 
@@ -223,9 +229,13 @@ void MsgSoundPlayer::MsgGetRingtonePath(char *userRingtonePath, char **msg_tone_
 		tmpFilePath = userRingtonePath;
 	} else {
 		if (ringtoneType == MSG_RINGTONE_TYPE_DEFAULT) {
-			tmpFilePath = MsgSettingGetString(VCONFKEY_SETAPPL_NOTI_MSG_RINGTONE_PATH_STR);
+			if (MsgSettingGetString(VCONFKEY_SETAPPL_NOTI_MSG_RINGTONE_PATH_STR, &tmpFilePath) != MSG_SUCCESS) {
+				MSG_INFO("MsgSettingGetString() is failed");
+			}
 		} else {
-			tmpFilePath = MsgSettingGetString(MSG_SETTING_RINGTONE_PATH);
+			if (MsgSettingGetString(MSG_SETTING_RINGTONE_PATH, &tmpFilePath) != MSG_SUCCESS) {
+				MSG_INFO("MsgSettingGetString() is failed");
+			}
 		}
 	}
 
@@ -311,13 +321,17 @@ void MsgSoundPlayer::MsgGetPlayStatus(bool bVoiceMail, bool *bPlaySound, bool *b
 	bool bSoundOn = false; /* sound setting on notification panel */
 	bool bVibrationOn = false; /* vibration setting on notification panel */
 
-	MsgSettingGetBool(VCONFKEY_SETAPPL_SOUND_STATUS_BOOL, &bSoundOn);
-	MsgSettingGetBool(VCONFKEY_SETAPPL_VIBRATION_STATUS_BOOL, &bVibrationOn);
+	if (MsgSettingGetBool(VCONFKEY_SETAPPL_SOUND_STATUS_BOOL, &bSoundOn) != MSG_SUCCESS)
+		MSG_INFO("MsgSettingGetBool() is failed");
+
+	if (MsgSettingGetBool(VCONFKEY_SETAPPL_VIBRATION_STATUS_BOOL, &bVibrationOn) != MSG_SUCCESS)
+		MSG_INFO("MsgSettingGetBool() is failed");
 
 	/* Alert setting */
 #if 0	/* not used value */
 	bool bNotiVibrationOn = false; /* alert vibration */
-	MsgSettingGetBool(VCONFKEY_SETAPPL_VIBRATE_WHEN_NOTIFICATION_BOOL, &bNotiVibrationOn);
+	if (MsgSettingGetBool(VCONFKEY_SETAPPL_VIBRATE_WHEN_NOTIFICATION_BOOL, &bNotiVibrationOn) != MSG_SUCCESS)
+		MSG_INFO("MsgSettingGetBool() is failed");
 #endif
 
 	bool bMsgSettingNoti = true; /* Alert for message notification */
@@ -326,9 +340,17 @@ void MsgSoundPlayer::MsgGetPlayStatus(bool bVoiceMail, bool *bPlaySound, bool *b
 	MSG_RINGTONE_TYPE_T ringtoneType = MSG_RINGTONE_TYPE_DEFAULT; /*sound type for message notification */
 	bool bMsgSettingSound = true;
 
-	MsgSettingGetBool(MSG_SETTING_VIBRATION, &bMsgSettingVibration);
-	MsgSettingGetBool(MSG_SETTING_NOTIFICATION, &bMsgSettingNoti);
-	ringtoneType = (MSG_RINGTONE_TYPE_T)MsgSettingGetInt(MSG_SETTING_RINGTONE_TYPE);
+	if (MsgSettingGetBool(MSG_SETTING_VIBRATION, &bMsgSettingVibration) != MSG_SUCCESS)
+		MSG_INFO("MsgSettingGetBool() is failed");
+
+	if (MsgSettingGetBool(MSG_SETTING_NOTIFICATION, &bMsgSettingNoti) != MSG_SUCCESS)
+		MSG_INFO("MsgSettingGetBool() is failed");
+
+	int tmpVal = 0;
+	if (MsgSettingGetInt(MSG_SETTING_RINGTONE_TYPE, &tmpVal) != MSG_SUCCESS) {
+		MSG_INFO("MsgSettingGetInt() is failed");
+	}
+	ringtoneType = (MSG_RINGTONE_TYPE_T)tmpVal;
 	if (ringtoneType == MSG_RINGTONE_TYPE_SILENT)
 		bMsgSettingSound = false;
 
@@ -349,7 +371,10 @@ void MsgSoundPlayer::MsgGetPlayStatus(bool bVoiceMail, bool *bPlaySound, bool *b
 		/* 2. Call is not active */
 
 		MSG_DEBUG("Call is not active.");
-		int voiceRecording = MsgSettingGetInt(VCONFKEY_RECORDER_STATE);
+		int voiceRecording = 0;
+		if (MsgSettingGetInt(VCONFKEY_RECORDER_STATE, &voiceRecording) != MSG_SUCCESS) {
+			MSG_INFO("MsgSettingGetInt() is failed");
+		}
 
 		if (bVoiceMail) {	/* 2-1. Voice message */
 			if (bMsgSettingNoti) {
@@ -386,7 +411,9 @@ void MsgSoundPlayer::MsgSoundPlayStart(const MSG_ADDRESS_INFO_S *pAddrInfo, MSG_
 
 	/* check camera state */
 	int cameraState = 0;	/* camera recording state */
-	cameraState = MsgSettingGetInt(VCONFKEY_CAMERA_STATE);
+	if (MsgSettingGetInt(VCONFKEY_CAMERA_STATE, &cameraState) != MSG_SUCCESS) {
+		MSG_INFO("MsgSettingGetInt() is failed");
+	}
 	MSG_SEC_DEBUG("Camera state [%d]", cameraState);
 
 	if (cameraState == VCONFKEY_CAMERA_STATE_RECORDING) {
@@ -696,7 +723,9 @@ void MsgSoundPlayer::MsgSoundSetRepeatAlarm()
 	int nRepeatValue = 0;
 	long	nRepeatTime = 0;
 
-	nRepeatValue = MsgSettingGetInt(MSG_ALERT_REP_TYPE);
+	if (MsgSettingGetInt(MSG_ALERT_REP_TYPE, &nRepeatValue) != MSG_SUCCESS) {
+		MSG_INFO("MsgSettingGetInt() is failed");
+	}
 
 	switch (nRepeatValue) {
 	case MSG_ALERT_TONE_ONCE:
@@ -769,14 +798,22 @@ void MsgSoundPlayer::MsgSoundCreateRepeatAlarm(int RepeatTime)
 int MsgSoundPlayer::MsgSoundGetUnreadMsgCnt()
 {
 	int unreadCnt = 0;
+	int unreadSms = 0;
+	int unreadMms = 0;
 
 #ifndef MSG_WEARABLE_PROFILE
 
 	/* Get SMS Count */
-	unreadCnt = MsgSettingGetInt(VCONFKEY_MESSAGE_RECV_SMS_STATE);
+	if (MsgSettingGetInt(VCONFKEY_MESSAGE_RECV_SMS_STATE, &unreadSms) != MSG_SUCCESS) {
+		MSG_INFO("MsgSettingGetInt() is failed");
+	}
 
 	/* Get MMS Count */
-	unreadCnt += MsgSettingGetInt(VCONFKEY_MESSAGE_RECV_MMS_STATE);
+	if (MsgSettingGetInt(VCONFKEY_MESSAGE_RECV_MMS_STATE, &unreadMms) != MSG_SUCCESS) {
+		MSG_INFO("MsgSettingGetInt() is failed");
+	}
+
+	unreadCnt = unreadSms + unreadMms;
 
 	MSG_DEBUG("unread count : [%d]", unreadCnt);
 
@@ -801,7 +838,9 @@ void MsgSoundPlayer::MsgSoundInitRepeatAlarm()
 		return;
 	}
 
-	nRepeatValue = MsgSettingGetInt(MSG_ALERT_REP_TYPE);
+	if (MsgSettingGetInt(MSG_ALERT_REP_TYPE, &nRepeatValue) != MSG_SUCCESS) {
+		MSG_INFO("MsgSettingGetInt() is failed");
+	}
 
 	switch (nRepeatValue) {
 	case MSG_ALERT_TONE_ONCE:

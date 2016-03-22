@@ -287,8 +287,9 @@ msg_error_t SmsPluginSimMsg::saveSimMessage(const MSG_MESSAGE_INFO_S *pMsgInfo, 
 				char keyName[MAX_VCONFKEY_NAME_LEN];
 				memset(keyName, 0x00, sizeof(keyName));
 				snprintf(keyName, sizeof(keyName), "%s/%d", SIM_USED_COUNT, pMsgInfo->sim_idx);
-				usedCnt = MsgSettingGetInt(keyName);
-
+				if (MsgSettingGetInt(keyName, &usedCnt) != MSG_SUCCESS) {
+					MSG_INFO("MsgSettingGetInt() is failed");
+				}
 				usedCnt++;
 
 				if (MsgSettingSetInt(keyName, usedCnt) != MSG_SUCCESS)
@@ -480,10 +481,14 @@ void SmsPluginSimMsg::deleteSimMessage(msg_sim_slot_id_t sim_idx, msg_sim_id_t S
 		char keyName[MAX_VCONFKEY_NAME_LEN];
 		memset(keyName, 0x00, sizeof(keyName));
 		snprintf(keyName, sizeof(keyName), "%s/%d", SIM_USED_COUNT, sim_idx);
-		usedCnt = MsgSettingGetInt(keyName);
+		if (MsgSettingGetInt(keyName, &usedCnt) != MSG_SUCCESS) {
+			MSG_INFO("MsgSettingGetInt() is failed");
+		}
 		memset(keyName, 0x00, sizeof(keyName));
 		snprintf(keyName, sizeof(keyName), "%s/%d", SIM_TOTAL_COUNT, sim_idx);
-		totalCnt = MsgSettingGetInt(keyName);
+		if (MsgSettingGetInt(keyName, &totalCnt) != MSG_SUCCESS) {
+			MSG_INFO("MsgSettingGetInt() is failed");
+		}
 
 		if (usedCnt == totalCnt) {
 			tapiRet = tel_set_sms_memory_status(handle, TAPI_NETTEXT_PDA_MEMORY_STATUS_AVAILABLE, NULL, NULL);
@@ -514,10 +519,14 @@ bool SmsPluginSimMsg::checkSimMsgFull(msg_sim_slot_id_t sim_idx, unsigned int Se
 	char keyName[MAX_VCONFKEY_NAME_LEN];
 	memset(keyName, 0x00, sizeof(keyName));
 	snprintf(keyName, sizeof(keyName), "%s/%d", SIM_USED_COUNT, sim_idx);
-	usedCnt = MsgSettingGetInt(keyName);
+	if (MsgSettingGetInt(keyName, &usedCnt) != MSG_SUCCESS) {
+		MSG_INFO("MsgSettingGetInt() is failed");
+	}
 	memset(keyName, 0x00, sizeof(keyName));
 	snprintf(keyName, sizeof(keyName), "%s/%d", SIM_TOTAL_COUNT, sim_idx);
-	totalCnt = MsgSettingGetInt(keyName);
+	if (MsgSettingGetInt(keyName, &totalCnt) != MSG_SUCCESS) {
+		MSG_INFO("MsgSettingGetInt() is failed");
+	}
 
 	MSG_DEBUG("Segment Count [%d]", SegCnt);
 	MSG_DEBUG("usedCnt [%d], totalCnt [%d]", usedCnt, totalCnt);
@@ -608,8 +617,6 @@ void SmsPluginSimMsg::setSmsOptions(const MSG_MESSAGE_INFO_S* pMsgInfo, SMS_DELI
 	pDeliver->dcs.msgClass = SMS_MSG_CLASS_NONE;
 	pDeliver->dcs.codingGroup = SMS_GROUP_GENERAL;
 
-	/* use encoding type of received message instead of message settings */
-	/*pDeliver->dcs.codingScheme = (SMS_CODING_SCHEME_T)MsgSettingGetInt(SMS_SEND_DCS);*/
 	pDeliver->dcs.codingScheme = pMsgInfo->encodeType;
 
 	MSG_DEBUG("DCS : %d", pDeliver->dcs.codingScheme);
@@ -848,7 +855,9 @@ void SmsPluginSimMsg::setSaveClass2MsgEvent(TapiHandle *handle, int simId, int r
 			char keyName[MAX_VCONFKEY_NAME_LEN];
 			memset(keyName, 0x00, sizeof(keyName));
 			snprintf(keyName, sizeof(keyName), "%s/%d", SIM_USED_COUNT, pMsgInfo->sim_idx);
-			usedCnt = MsgSettingGetInt(keyName);
+			if (MsgSettingGetInt(keyName, &usedCnt) != MSG_SUCCESS) {
+				MSG_INFO("MsgSettingGetInt() is failed");
+			}
 			usedCnt++;
 
 			if (MsgSettingSetInt(keyName, usedCnt) != MSG_SUCCESS)

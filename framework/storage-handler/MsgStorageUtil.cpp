@@ -263,7 +263,8 @@ msg_error_t MsgStoAutoDeleteConversation(msg_thread_id_t threadId, msg_id_list_s
 	msg_error_t err = MSG_SUCCESS;
 
 	bool bAutoErase = false;
-	MsgSettingGetBool(MSG_AUTO_ERASE, &bAutoErase);
+	if (MsgSettingGetBool(MSG_AUTO_ERASE, &bAutoErase) != MSG_SUCCESS)
+		MSG_INFO("MsgSettingGetBool() is failed");
 
 	if (bAutoErase) {
 		MSG_DEBUG("threadId [%d]", threadId);
@@ -331,8 +332,13 @@ msg_error_t MsgStoAutoDeleteConversation(msg_thread_id_t threadId, msg_id_list_s
 		MSG_DEBUG("currentSmsCnt [%d], currentMmsCnt [%d]", currentSmsCnt, currentMmsCnt);
 
 		if (currentSmsCnt > 0 || currentMmsCnt > 0) {
-			limitSmsCnt = MsgSettingGetInt(MSG_SMS_LIMIT);
-			limitMmsCnt = MsgSettingGetInt(MSG_MMS_LIMIT);
+			if (MsgSettingGetInt(MSG_SMS_LIMIT, &limitSmsCnt) != MSG_SUCCESS) {
+				MSG_INFO("MsgSettingGetInt() is failed");
+			}
+
+			if (MsgSettingGetInt(MSG_MMS_LIMIT, &limitMmsCnt) != MSG_SUCCESS) {
+				MSG_INFO("MsgSettingGetInt() is failed");
+			}
 
 			if (limitSmsCnt < 0 || limitMmsCnt < 0) {
 				MSG_DEBUG("limitSmsCnt [%d], limitMmsCnt [%d]", limitSmsCnt, limitMmsCnt);

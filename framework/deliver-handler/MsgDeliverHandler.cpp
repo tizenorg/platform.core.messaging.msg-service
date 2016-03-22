@@ -59,7 +59,9 @@ void MsgPlayTTSMode(MSG_SUB_TYPE_T msgSubType, msg_message_id_t msgId, bool isFa
 	}
 
 	bool isTTSOn = false;
-	MsgSettingGetBool(VCONFKEY_SETAPPL_DRIVINGMODE_DRIVINGMODE, &isTTSOn);
+	if (MsgSettingGetBool(VCONFKEY_SETAPPL_DRIVINGMODE_DRIVINGMODE, &isTTSOn) != MSG_SUCCESS)
+		MSG_INFO("MsgSettingGetBool() is failed");
+
 	MSG_DEBUG("VCONFKEY_SETAPPL_DRIVINGMODE_DRIVINGMODE [%d]", isTTSOn);
 
 	if(isTTSOn) {
@@ -67,7 +69,9 @@ void MsgPlayTTSMode(MSG_SUB_TYPE_T msgSubType, msg_message_id_t msgId, bool isFa
 
 		if (msgSubType == MSG_MWI_VOICE_SMS) {
 			bool isVoiceMailOn = false;
-			MsgSettingGetBool(VCONFKEY_SETAPPL_DRIVINGMODE_NEWVOICEMAILS, &isVoiceMailOn);
+			if (MsgSettingGetBool(VCONFKEY_SETAPPL_DRIVINGMODE_NEWVOICEMAILS, &isVoiceMailOn) != MSG_SUCCESS)
+				MSG_INFO("MsgSettingGetBool() is failed");
+
 			MSG_DEBUG("VCONFKEY_SETAPPL_DRIVINGMODE_NEWVOICEMAILS [%d]", isVoiceMailOn);
 			if (isVoiceMailOn) {
 				isVoiceMail = true;
@@ -76,7 +80,9 @@ void MsgPlayTTSMode(MSG_SUB_TYPE_T msgSubType, msg_message_id_t msgId, bool isFa
 			}
 		} else {
 			bool isTTSMsgOn = false;
-			MsgSettingGetBool(VCONFKEY_SETAPPL_DRIVINGMODE_MESSAGE, &isTTSMsgOn);
+			if (MsgSettingGetBool(VCONFKEY_SETAPPL_DRIVINGMODE_MESSAGE, &isTTSMsgOn) != MSG_SUCCESS)
+				MSG_INFO("MsgSettingGetBool() is failed");
+
 			MSG_DEBUG("VCONFKEY_SETAPPL_DRIVINGMODE_MESSAGE [%d]", isTTSMsgOn);
 			if (!isTTSMsgOn || !isFavorites) {
 				return;
@@ -442,7 +448,10 @@ msg_error_t MsgHandleSMS(MSG_MESSAGE_INFO_S *pMsgInfo, bool *pSendNoti, bool *bO
 		char keyName[MAX_VCONFKEY_NAME_LEN];
 		memset(keyName, 0x00, sizeof(keyName));
 		snprintf(keyName, sizeof(keyName), "%s/%d", VOICEMAIL_NUMBER, pMsgInfo->sim_idx);
-		char *voiceNumber = MsgSettingGetString(keyName);
+		char *voiceNumber = NULL;
+		if (MsgSettingGetString(keyName, &voiceNumber) != MSG_SUCCESS) {
+			MSG_INFO("MsgSettingGetString() is failed");
+		}
 
 		if (voiceNumber) {
 			MSG_SEC_DEBUG("Voice Mail Number [%s]", voiceNumber);
@@ -451,7 +460,10 @@ msg_error_t MsgHandleSMS(MSG_MESSAGE_INFO_S *pMsgInfo, bool *pSendNoti, bool *bO
 			snprintf(pMsgInfo->addressList[0].addressVal, sizeof(pMsgInfo->addressList[0].addressVal), "%s", voiceNumber);
 			memset(keyName, 0x00, sizeof(keyName));
 			snprintf(keyName, sizeof(keyName), "%s/%d", VOICEMAIL_ALPHA_ID, pMsgInfo->sim_idx);
-			char *alphaId = MsgSettingGetString(keyName);
+			char *alphaId = NULL;
+			if (MsgSettingGetString(keyName, &alphaId) != MSG_SUCCESS) {
+				MSG_INFO("MsgSettingGetString() is failed");
+			}
 			if (alphaId) {
 				memset(pMsgInfo->addressList->displayName, 0x00, sizeof(pMsgInfo->addressList->displayName));
 				memcpy(pMsgInfo->addressList->displayName, alphaId, sizeof(pMsgInfo->addressList->displayName)-1);
@@ -465,7 +477,10 @@ msg_error_t MsgHandleSMS(MSG_MESSAGE_INFO_S *pMsgInfo, bool *pSendNoti, bool *bO
 
 		memset(keyName, 0x00, sizeof(keyName));
 		snprintf(keyName, sizeof(keyName), "%s/%d", VOICEMAIL_COUNT, pMsgInfo->sim_idx);
-		int voicecnt = MsgSettingGetInt(keyName);
+		int voicecnt = 0;
+		if (MsgSettingGetInt(keyName, &voicecnt) != MSG_SUCCESS) {
+			MSG_INFO("MsgSettingGetInt() is failed");
+		}
 		memset(pMsgInfo->msgText, 0x00, sizeof(pMsgInfo->msgText));
 		snprintf(pMsgInfo->msgText, sizeof(pMsgInfo->msgText), "%d", voicecnt);
 		pMsgInfo->dataSize = strlen(pMsgInfo->msgText);
@@ -510,7 +525,11 @@ msg_error_t MsgHandleSMS(MSG_MESSAGE_INFO_S *pMsgInfo, bool *pSendNoti, bool *bO
 		MSG_DEBUG("Starting WAP Message Incoming.");
 
 #ifndef MSG_WEARABLE_PROFILE
-		MSG_PUSH_SERVICE_TYPE_T serviceType = (MSG_PUSH_SERVICE_TYPE_T)MsgSettingGetInt(PUSH_SERVICE_TYPE);
+		int tmpVal = 0;
+		if (MsgSettingGetInt(PUSH_SERVICE_TYPE, &tmpVal) != MSG_SUCCESS) {
+			MSG_INFO("MsgSettingGetInt() is failed");
+		}
+		MSG_PUSH_SERVICE_TYPE_T serviceType = (MSG_PUSH_SERVICE_TYPE_T)tmpVal;
 		app_control_h svc_handle = NULL;
 
 		switch (pMsgInfo->msgType.subType) {

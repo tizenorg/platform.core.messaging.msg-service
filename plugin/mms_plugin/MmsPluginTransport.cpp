@@ -59,7 +59,10 @@ void MmsPluginTransport::submitRequest(const MSG_REQUEST_INFO_S *pReqInfo)
 	memset(keyName, 0x00, sizeof(keyName));
 
 	snprintf(keyName, sizeof(keyName), "%s/%d", MSG_SIM_MSISDN, pReqInfo->msgInfo.sim_idx);
-	char *msisdn = MsgSettingGetString(keyName);
+	char *msisdn = NULL;
+	if (MsgSettingGetString(keyName, &msisdn) != MSG_SUCCESS) {
+		MSG_INFO("MsgSettingGetString() is failed");
+	}
 
 	MSG_DEBUG("pReqInfo->msgInfo.msgType.subType [%d]", pReqInfo->msgInfo.msgType.subType);
 

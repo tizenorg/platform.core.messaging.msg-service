@@ -242,7 +242,9 @@ msg_error_t MmsUpdateRejectStatus(MSG_MESSAGE_INFO_S *pMsgInfo)
 			MSG_DEBUG("MmsPlgUpdRejectStatus : Get MMS Transacation id Failed");
 
 		memset(pMsgInfo->msgData, 0, MAX_MSG_DATA_LEN + 1);
-		MsgSettingGetBool(MMS_SEND_REPORT_ALLOWED, &bReportAllowed);
+		if (MsgSettingGetBool(MMS_SEND_REPORT_ALLOWED, &bReportAllowed) != MSG_SUCCESS)
+			MSG_INFO("MsgSettingGetBool() is failed");
+
 		if (MmsPluginInternal::instance()->encodeNotifyRespInd(szTrID, MSG_DELIVERY_REPORT_REJECTED, bReportAllowed, pMsgInfo->msgData)) {
 			MSG_DEBUG("MmsPlgUpdRejectStatus : Encode Notify Response Success");
 			pMsgInfo->dataSize = strlen(pMsgInfo->msgData);

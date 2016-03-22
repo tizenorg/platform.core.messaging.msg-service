@@ -264,7 +264,8 @@ void SmsPluginSetting::initConfigData(TapiHandle *handle)
 
 			memset(keyName, 0x00, sizeof(keyName));
 			snprintf(keyName, sizeof(keyName), "%s/%d", CB_RECEIVE, sim_idx);
-			MsgSettingGetBool(keyName, &bAPReceive);
+			if (MsgSettingGetBool(keyName, &bAPReceive) != MSG_SUCCESS)
+				MSG_INFO("MsgSettingGetBool() is failed");
 
 			if (cbMsgOpt.bReceive == false && bAPReceive == false) {
 				MSG_DEBUG("CB is off in CP and in AP. No need to send CB request to CP. ");
@@ -307,7 +308,10 @@ void SmsPluginSetting::initConfigData(TapiHandle *handle)
 		/*==================== Default Voice mail Setting ====================*/
 		memset(keyName, 0x00, sizeof(keyName));
 		snprintf(keyName, sizeof(keyName), "%s/%d", VOICEMAIL_DEFAULT_NUMBER, sim_idx);
-		char *num = MsgSettingGetString(keyName);
+		char *num = NULL;
+		if (MsgSettingGetString(keyName, &num) != MSG_SUCCESS) {
+			MSG_INFO("MsgSettingGetString() is failed");
+		}
 
 		if (num && num[0] != '\0') {
 			MSG_DEBUG("Voicemail Default Number [%s]", num);
@@ -326,7 +330,10 @@ void SmsPluginSetting::initConfigData(TapiHandle *handle)
 			memset(keyName, 0x00, sizeof(keyName));
 			snprintf(keyName, sizeof(keyName), "%s/%d", VOICEMAIL_NUMBER, sim_idx);
 
-			char *voicemail = MsgSettingGetString(keyName);
+			char *voicemail = NULL;
+			if (MsgSettingGetString(keyName, &voicemail) != MSG_SUCCESS) {
+				MSG_INFO("MsgSettingGetString() is failed");
+			}
 
 			if (!voicemail || voicemail[0] == '\0') {
 				if (MsgSettingSetString(keyName, "") != MSG_SUCCESS)
@@ -340,7 +347,10 @@ void SmsPluginSetting::initConfigData(TapiHandle *handle)
 			memset(keyName, 0x00, sizeof(keyName));
 			snprintf(keyName, sizeof(keyName), "%s/%d", VOICEMAIL_NUMBER, sim_idx);
 
-			char *voiceNumber = MsgSettingGetString(keyName);
+			char *voiceNumber = NULL;
+			if (MsgSettingGetString(keyName, &voiceNumber) != MSG_SUCCESS) {
+				MSG_INFO("MsgSettingGetString() is failed");
+			}
 
 			if (!voiceNumber || (voiceNumber && voiceNumber[0] == '\0')) {
 				MSG_WARN("Voice Number is Empty!!");
@@ -365,7 +375,10 @@ void SmsPluginSetting::initConfigData(TapiHandle *handle)
 			char keyName[MAX_VCONFKEY_NAME_LEN];
 			memset(keyName, 0x00, sizeof(keyName));
 			snprintf(keyName, sizeof(keyName), "%s/%d", VOICEMAIL_COUNT, sim_idx);
-			if ((mwiCnt = MsgSettingGetInt(keyName)) > 0)
+			if (MsgSettingGetInt(keyName, &mwiCnt) != MSG_SUCCESS) {
+				MSG_INFO("MsgSettingGetInt() is failed");
+			}
+			if (mwiCnt > 0)
 				deliverVoiceMsgNoti(sim_idx, mwiCnt);
 		}
 
@@ -598,11 +611,16 @@ void SmsPluginSetting::getCbOpt(MSG_SETTING_S *pSetting, int simIndex)
 
 	memset(keyName, 0x00, sizeof(keyName));
 	snprintf(keyName, sizeof(keyName), "%s/%d", CB_RECEIVE, simIndex);
-	MsgSettingGetBool(keyName, &pSetting->option.cbMsgOpt.bReceive);
+	if (MsgSettingGetBool(keyName, &pSetting->option.cbMsgOpt.bReceive) != MSG_SUCCESS)
+		MSG_INFO("MsgSettingGetBool() is failed");
 
 	memset(keyName, 0x00, sizeof(keyName));
 	snprintf(keyName, sizeof(keyName), "%s/%d", CB_MAX_SIM_COUNT, simIndex);
-	pSetting->option.cbMsgOpt.maxSimCnt = MsgSettingGetInt(keyName);
+	int maxSimCnt = 0;
+	if (MsgSettingGetInt(keyName, &maxSimCnt) != MSG_SUCCESS) {
+		MSG_INFO("MsgSettingGetInt() is failed");
+	}
+	pSetting->option.cbMsgOpt.maxSimCnt = maxSimCnt;
 
 	err = MsgStoGetCBChannelInfo(dbHandle, &pSetting->option.cbMsgOpt.channelData, simIndex);
 	if (err != MSG_SUCCESS)
@@ -612,7 +630,8 @@ void SmsPluginSetting::getCbOpt(MSG_SETTING_S *pSetting, int simIndex)
 		memset(keyName, 0x00, sizeof(keyName));
 		snprintf(keyName, sizeof(keyName), "%s/%d", CB_LANGUAGE, i);
 
-		MsgSettingGetBool(keyName, &pSetting->option.cbMsgOpt.bLanguage[i]);
+		if (MsgSettingGetBool(keyName, &pSetting->option.cbMsgOpt.bLanguage[i]) != MSG_SUCCESS)
+			MSG_INFO("MsgSettingGetBool() is failed");
 	}
 }
 
@@ -861,7 +880,11 @@ bool SmsPluginSetting::setCbConfig(const MSG_CBMSG_OPT_S *pCbOpt)
 
 			memset(keyName, 0x00, sizeof(keyName));
 			snprintf(keyName, sizeof(keyName), "%s/%d", MSG_SIM_CHANGED, i);
-			simStatus = (MSG_SIM_STATUS_T)MsgSettingGetInt(keyName);
+			int tmpVal = 0;
+			if (MsgSettingGetInt(keyName, &tmpVal) != MSG_SUCCESS) {
+				MSG_INFO("MsgSettingGetInt() is failed");
+			}
+			simStatus = (MSG_SIM_STATUS_T)tmpVal;
 
 			if (simStatus == MSG_SIM_STATUS_NOT_FOUND) {
 				MSG_DEBUG("SIM %d is not present..", i);
@@ -1884,7 +1907,9 @@ void SmsPluginSetting::deliverVoiceMsgNoti(int simIndex, int mwiCnt)
 	char *voiceNum = NULL;
 	memset(keyName, 0x00, sizeof(keyName));
 	snprintf(keyName, sizeof(keyName), "%s/%d", VOICEMAIL_NUMBER, simIndex);
-	voiceNum = MsgSettingGetString(keyName);
+	if (MsgSettingGetString(keyName, &voiceNum) != MSG_SUCCESS) {
+		MSG_INFO("MsgSettingGetString() is failed");
+	}
 
 	if (voiceNum) {
 		snprintf(msgInfo.addressList[0].addressVal, sizeof(msgInfo.addressList[0].addressVal), "%s", voiceNum);

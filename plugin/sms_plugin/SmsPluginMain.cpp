@@ -109,7 +109,9 @@ msg_error_t SmsPlgInitialize()
 	bool bReady = false;
 
 	for (int i = 0; i < 100; i++) {
-		MsgSettingGetBool(VCONFKEY_TELEPHONY_READY, &bReady);
+		if (MsgSettingGetBool(VCONFKEY_TELEPHONY_READY, &bReady) != MSG_SUCCESS)
+			MSG_INFO("MsgSettingGetBool() is failed");
+
 		MSG_DEBUG("Get VCONFKEY_TELEPHONY_READY [%d].", bReady ? 1 : 0);
 
 		if (bReady)
@@ -214,7 +216,11 @@ msg_error_t SmsPlgSubmitRequest(MSG_REQUEST_INFO_S *pReqInfo)
 	/* Check SIM is present or not */
 	char keyName[MAX_VCONFKEY_NAME_LEN] = {0, };
 	snprintf(keyName, sizeof(keyName), "%s/%d", MSG_SIM_CHANGED, pReqInfo->msgInfo.sim_idx);
-	MSG_SIM_STATUS_T simStatus = (MSG_SIM_STATUS_T)MsgSettingGetInt(keyName);
+	int tmpValue = 0;
+	if (MsgSettingGetInt(keyName, &tmpValue) != MSG_SUCCESS) {
+		MSG_INFO("MsgSettingGetInt() is failed");
+	}
+	MSG_SIM_STATUS_T simStatus = (MSG_SIM_STATUS_T)tmpValue;
 
 	if (simStatus == MSG_SIM_STATUS_NOT_FOUND) {
 		MSG_DEBUG("SIM is not present..");
@@ -253,7 +259,11 @@ msg_error_t SmsPlgSaveSimMessage(const MSG_MESSAGE_INFO_S *pMsgInfo, SMS_SIM_ID_
 	char keyName[MAX_VCONFKEY_NAME_LEN];
 	memset(keyName, 0x00, sizeof(keyName));
 	snprintf(keyName, sizeof(keyName), "%s/%d", MSG_SIM_CHANGED, pMsgInfo->sim_idx);
-	MSG_SIM_STATUS_T simStatus = (MSG_SIM_STATUS_T)MsgSettingGetInt(keyName);
+	int tmpValue = 0;
+	if (MsgSettingGetInt(keyName, &tmpValue) != MSG_SUCCESS) {
+		MSG_INFO("MsgSettingGetInt() is failed");
+	}
+	MSG_SIM_STATUS_T simStatus = (MSG_SIM_STATUS_T)tmpValue;
 
 	if (simStatus == MSG_SIM_STATUS_NOT_FOUND) {
 		MSG_DEBUG("SIM is not present..");
@@ -281,7 +291,11 @@ msg_error_t SmsPlgDeleteSimMessage(msg_sim_slot_id_t sim_idx, msg_sim_id_t SimMs
 	/* Check SIM is present or not */
 	char keyName[MAX_VCONFKEY_NAME_LEN] = {0, };
 	snprintf(keyName, sizeof(keyName), "%s/%d", MSG_SIM_CHANGED, sim_idx);
-	MSG_SIM_STATUS_T simStatus = (MSG_SIM_STATUS_T)MsgSettingGetInt(keyName);
+	int tmpValue = 0;
+	if (MsgSettingGetInt(keyName, &tmpValue) != MSG_SUCCESS) {
+		MSG_INFO("MsgSettingGetInt() is failed");
+	}
+	MSG_SIM_STATUS_T simStatus = (MSG_SIM_STATUS_T)tmpValue;
 
 	if (simStatus == MSG_SIM_STATUS_NOT_FOUND) {
 		MSG_DEBUG("SIM is not present..");
@@ -307,7 +321,11 @@ msg_error_t SmsPlgSetReadStatus(msg_sim_slot_id_t sim_idx, msg_sim_id_t SimMsgId
 	/* Check SIM is present or not */
 	char keyName[MAX_VCONFKEY_NAME_LEN] = {0, };
 	snprintf(keyName, sizeof(keyName), "%s/%d", MSG_SIM_CHANGED, sim_idx);
-	MSG_SIM_STATUS_T simStatus = (MSG_SIM_STATUS_T)MsgSettingGetInt(keyName);
+	int tmpValue = 0;
+	if (MsgSettingGetInt(keyName, &tmpValue) != MSG_SUCCESS) {
+		MSG_INFO("MsgSettingGetInt() is failed");
+	}
+	MSG_SIM_STATUS_T simStatus = (MSG_SIM_STATUS_T)tmpValue;
 
 	if (simStatus == MSG_SIM_STATUS_NOT_FOUND) {
 		MSG_DEBUG("SIM is not present..");
@@ -335,7 +353,11 @@ msg_error_t SmsPlgSetMemoryStatus(msg_sim_slot_id_t simIndex, msg_error_t Error)
 
 	memset(keyName, 0x00, sizeof(keyName));
 	snprintf(keyName, sizeof(keyName), "%s/%d", MSG_SIM_CHANGED, simIndex);
-	MSG_SIM_STATUS_T simStatus = (MSG_SIM_STATUS_T)MsgSettingGetInt(keyName);
+	int tmpValue = 0;
+	if (MsgSettingGetInt(keyName, &tmpValue) != MSG_SUCCESS) {
+		MSG_INFO("MsgSettingGetInt() is failed");
+	}
+	MSG_SIM_STATUS_T simStatus = (MSG_SIM_STATUS_T)tmpValue;
 
 	if (simStatus == MSG_SIM_STATUS_NOT_FOUND) {
 		MSG_DEBUG("SIM is not present..");
@@ -365,14 +387,6 @@ msg_error_t SmsPlgSetMemoryStatus(msg_sim_slot_id_t simIndex, msg_error_t Error)
 
 msg_error_t SmsPlgSetConfigData(const MSG_SETTING_S *pSetting)
 {
-	/* Check SIM is present or not */
-	MSG_SIM_STATUS_T simStatus = (MSG_SIM_STATUS_T)MsgSettingGetInt(MSG_SIM_CHANGED);
-
-	if (simStatus == MSG_SIM_STATUS_NOT_FOUND) {
-		MSG_DEBUG("SIM is not present..");
-		return MSG_ERR_NO_SIM;
-	}
-
 	try {
 		SmsPluginSetting::instance()->setConfigData(pSetting);
 	} catch (MsgException& e) {
@@ -389,14 +403,6 @@ msg_error_t SmsPlgSetConfigData(const MSG_SETTING_S *pSetting)
 
 msg_error_t SmsPlgGetConfigData(MSG_SETTING_S *pSetting)
 {
-	/* Check SIM is present or not */
-	MSG_SIM_STATUS_T simStatus = (MSG_SIM_STATUS_T)MsgSettingGetInt(MSG_SIM_CHANGED);
-
-	if (simStatus == MSG_SIM_STATUS_NOT_FOUND) {
-		MSG_DEBUG("SIM is not present..");
-		return MSG_ERR_NO_SIM;
-	}
-
 	try {
 		SmsPluginSetting::instance()->getConfigData(pSetting);
 	} catch (MsgException& e) {

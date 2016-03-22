@@ -340,9 +340,8 @@ void SmsPluginSetting::getCbOpt(MSG_SETTING_S *pSetting)
 
 	memset(&(pSetting->option.cbMsgOpt), 0x00, sizeof(MSG_CBMSG_OPT_S));
 
-	MsgSettingGetBool(CB_RECEIVE, &pSetting->option.cbMsgOpt.bReceive);
-
-	/* pSetting->option.cbMsgOpt.maxSimCnt = MsgSettingGetInt(CB_MAX_SIM_COUNT); */
+	if (MsgSettingGetBool(CB_RECEIVE, &pSetting->option.cbMsgOpt.bReceive) != MSG_SUCCESS)
+		MSG_INFO("MsgSettingGetBool() is failed");
 
 	err = MsgStoGetCBChannelInfo(&dbHandle, &pSetting->option.cbMsgOpt.channelData);
 	MSG_DEBUG("MsgStoAddCBChannelInfo : err=[%d]", err);
@@ -354,7 +353,8 @@ void SmsPluginSetting::getCbOpt(MSG_SETTING_S *pSetting)
 		memset(keyName, 0x00, sizeof(keyName));
 		snprintf(keyName, sizeof(keyName), "%s/%d", CB_LANGUAGE, i);
 
-		MsgSettingGetBool(keyName, &pSetting->option.cbMsgOpt.bLanguage[i]);
+		if (MsgSettingGetBool(keyName, &pSetting->option.cbMsgOpt.bLanguage[i]) != MSG_SUCCESS)
+			MSG_INFO("MsgSettingGetBool() is failed");
 	}
 #endif
 }

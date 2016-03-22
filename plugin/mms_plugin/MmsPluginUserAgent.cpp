@@ -502,7 +502,8 @@ void MmsPluginUaManager::run()
 						break;
 					}
 
-					MsgSettingGetBool(MMS_SEND_REPORT_ALLOWED, &bReportAllowed);
+					if (MsgSettingGetBool(MMS_SEND_REPORT_ALLOWED, &bReportAllowed) != MSG_SUCCESS)
+						MSG_INFO("MsgSettingGetBool() is failed");
 
 					MSG_DEBUG("conf received successfully -2");
 					MSG_DEBUG("reqEntity.eMmsPduType [%d]", reqEntity.eMmsPduType);

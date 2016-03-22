@@ -127,7 +127,10 @@ msg_error_t MsgStoAddMessage(MSG_MESSAGE_INFO_S *pMsg, MSG_SENDINGOPT_INFO_S *pS
 	memset(keyName, 0x00, sizeof(keyName));
 	snprintf(keyName, sizeof(keyName), "%s/%d", MSG_SIM_SUBS_ID, pMsg->sim_idx);
 
-	char *imsi = MsgSettingGetString(keyName);
+	char *imsi = NULL;
+	if (MsgSettingGetString(keyName, &imsi) != MSG_SUCCESS) {
+		MSG_INFO("MsgSettingGetString() is failed");
+	}
 
 	/* Add Message */
 	memset(sqlQuery, 0x00, sizeof(sqlQuery));
@@ -363,27 +366,48 @@ msg_error_t MsgStoUpdateMessage(MSG_MESSAGE_INFO_S *pMsg, MSG_SENDINGOPT_INFO_S 
 	if (pSendOptInfo != NULL) {
 		/* Get Global setting value if bSetting == false */
 		if (pSendOptInfo->bSetting == false) {
-			MsgSettingGetBool(MSG_KEEP_COPY, &pSendOptInfo->bKeepCopy);
+			if (MsgSettingGetBool(MSG_KEEP_COPY, &pSendOptInfo->bKeepCopy) != MSG_SUCCESS)
+				MSG_INFO("MsgSettingGetBool() is failed");
 
 			if (pMsg->msgType.mainType == MSG_SMS_TYPE) {
-				MsgSettingGetBool(SMS_SEND_DELIVERY_REPORT, &pSendOptInfo->bDeliverReq);
-				MsgSettingGetBool(SMS_SEND_REPLY_PATH, &pSendOptInfo->option.smsSendOptInfo.bReplyPath);
-			} else if (pMsg->msgType.mainType == MSG_MMS_TYPE) {
-				MsgSettingGetBool(MMS_SEND_DELIVERY_REPORT, &pSendOptInfo->bDeliverReq);
-				MsgSettingGetBool(MMS_SEND_READ_REPLY, &pSendOptInfo->option.mmsSendOptInfo.bReadReq);
-				pSendOptInfo->option.mmsSendOptInfo.expiryTime.time = (unsigned int)MsgSettingGetInt(MMS_SEND_EXPIRY_TIME);
+				if (MsgSettingGetBool(SMS_SEND_DELIVERY_REPORT, &pSendOptInfo->bDeliverReq) != MSG_SUCCESS)
+					MSG_INFO("MsgSettingGetBool() is failed");
 
-				MSG_MMS_DELIVERY_TIME_T deliveryTime = (MSG_MMS_DELIVERY_TIME_T)MsgSettingGetInt(MMS_SEND_DELIVERY_TIME);
+				if (MsgSettingGetBool(SMS_SEND_REPLY_PATH, &pSendOptInfo->option.smsSendOptInfo.bReplyPath) != MSG_SUCCESS)
+					MSG_INFO("MsgSettingGetBool() is failed");
+			} else if (pMsg->msgType.mainType == MSG_MMS_TYPE) {
+				if (MsgSettingGetBool(MMS_SEND_DELIVERY_REPORT, &pSendOptInfo->bDeliverReq) != MSG_SUCCESS)
+					MSG_INFO("MsgSettingGetBool() is failed");
+
+				if (MsgSettingGetBool(MMS_SEND_READ_REPLY, &pSendOptInfo->option.mmsSendOptInfo.bReadReq) != MSG_SUCCESS)
+					MSG_INFO("MsgSettingGetBool() is failed");
+
+				int tmpVal = 0;
+				if (MsgSettingGetInt(MMS_SEND_EXPIRY_TIME, &tmpVal) != MSG_SUCCESS) {
+					MSG_INFO("MsgSettingGetInt() is failed");
+				}
+				pSendOptInfo->option.mmsSendOptInfo.expiryTime.time = (unsigned int)tmpVal;
+
+				if (MsgSettingGetInt(MMS_SEND_DELIVERY_TIME, &tmpVal) != MSG_SUCCESS) {
+					MSG_INFO("MsgSettingGetInt() is failed");
+				}
+				MSG_MMS_DELIVERY_TIME_T deliveryTime = (MSG_MMS_DELIVERY_TIME_T)tmpVal;
 
 				if (deliveryTime == MSG_DELIVERY_TIME_CUSTOM) {
 					pSendOptInfo->option.mmsSendOptInfo.bUseDeliveryCustomTime = true;
-					pSendOptInfo->option.mmsSendOptInfo.deliveryTime.time = (unsigned int)MsgSettingGetInt(MMS_SEND_CUSTOM_DELIVERY);
+					if (MsgSettingGetInt(MMS_SEND_CUSTOM_DELIVERY, &tmpVal) != MSG_SUCCESS) {
+						MSG_INFO("MsgSettingGetInt() is failed");
+					}
+					pSendOptInfo->option.mmsSendOptInfo.deliveryTime.time = (unsigned int)tmpVal;
 				} else {
 					pSendOptInfo->option.mmsSendOptInfo.bUseDeliveryCustomTime = false;
 					pSendOptInfo->option.mmsSendOptInfo.deliveryTime.time = (unsigned int)deliveryTime;
 				}
 
-				pSendOptInfo->option.mmsSendOptInfo.priority = (msg_priority_type_t)MsgSettingGetInt(MMS_SEND_PRIORITY);
+				if (MsgSettingGetInt(MMS_SEND_PRIORITY, &tmpVal) != MSG_SUCCESS) {
+					MSG_INFO("MsgSettingGetInt() is failed");
+				}
+				pSendOptInfo->option.mmsSendOptInfo.priority = (msg_priority_type_t)tmpVal;
 			}
 		}
 	}
@@ -2861,7 +2885,10 @@ msg_error_t MsgStoRestoreMessage(MSG_MESSAGE_INFO_S *pMsg, MSG_SENDINGOPT_INFO_S
 			memset(keyName, 0x00, sizeof(keyName));
 			snprintf(keyName, sizeof(keyName), "%s/%d", MSG_SIM_SUBS_ID, pMsg->sim_idx);
 
-			char *imsi = MsgSettingGetString(keyName);
+			char *imsi = NULL;
+			if (MsgSettingGetString(keyName, &imsi) != MSG_SUCCESS) {
+				MSG_INFO("MsgSettingGetString() is failed");
+			}
 
 			/* Add Message */
 			memset(sqlQuery, 0x00, sizeof(sqlQuery));
@@ -3084,7 +3111,10 @@ msg_error_t MsgStoUpdateIMSI(int sim_idx)
 		memset(keyName, 0x00, sizeof(keyName));
 		snprintf(keyName, sizeof(keyName), "%s/%d", MSG_SIM_SUBS_ID, sim_idx);
 
-		char *imsi = MsgSettingGetString(keyName);
+		char *imsi = NULL;
+		if (MsgSettingGetString(keyName, &imsi) != MSG_SUCCESS) {
+			MSG_INFO("MsgSettingGetString() is failed");
+		}
 
 		MSG_SEC_DEBUG("imsi value exist -> %s", imsi);
 

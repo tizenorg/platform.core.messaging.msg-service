@@ -117,7 +117,9 @@ msg_error_t SmsPlgInitialize()
 	bool bReady = false;
 
 	for (int i = 0; i < 100; i++) {
-		MsgSettingGetBool(VCONFKEY_TELEPHONY_READY, &bReady);
+		if (MsgSettingGetBool(VCONFKEY_TELEPHONY_READY, &bReady) != MSG_SUCCESS)
+			MSG_INFO("MsgSettingGetBool() is failed");
+
 		MSG_DEBUG("Get VCONFKEY_TELEPHONY_READY [%d].", bReady ? 1 : 0);
 
 		if (bReady)
@@ -208,20 +210,6 @@ msg_error_t SmsPlgSubmitRequest(MSG_REQUEST_INFO_S *pReqInfo)
 			}
 		}
 	}
-
-	/* Check SIM is present or not */
-	/*
-	MSG_SIM_STATUS_T simStatus = (MSG_SIM_STATUS_T)MsgSettingGetInt(MSG_SIM_CHANGED);
-
-	if (simStatus == MSG_SIM_STATUS_NOT_FOUND) {
-		MSG_DEBUG("SIM is not present..");
-
-		if (pReqInfo->msgInfo.msgPort.valid == false)
-			SmsPluginStorage::instance()->updateSentMsg(&(pReqInfo->msgInfo), MSG_NETWORK_SEND_FAIL);
-
-		return MSG_ERR_NO_SIM;
-	}
-	*/
 
 	sms_request_info_s *request = NULL;
 

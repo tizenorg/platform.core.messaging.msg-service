@@ -112,12 +112,16 @@ TapiHandle *MmsPluginEventHandler::getTelHandle(int sim_idx)
 		return handle_list.handle[sim_idx-1];
 	} else {
 		int SIM_Status = 0;
-		SIM_Status = MsgSettingGetInt(VCONFKEY_TELEPHONY_SIM_SLOT);
+		if (MsgSettingGetInt(VCONFKEY_TELEPHONY_SIM_SLOT, &SIM_Status) != MSG_SUCCESS) {
+			MSG_INFO("MsgSettingGetInt() is failed");
+		}
 		if (SIM_Status == 1) {
 			return handle_list.handle[0];
 		}
 
-		SIM_Status = MsgSettingGetInt(VCONFKEY_TELEPHONY_SIM_SLOT2);
+		if (MsgSettingGetInt(VCONFKEY_TELEPHONY_SIM_SLOT2, &SIM_Status) != MSG_SUCCESS) {
+			MSG_INFO("MsgSettingGetInt() is failed");
+		}
 		if (SIM_Status == 1) {
 			return handle_list.handle[1];
 		}
@@ -234,10 +238,15 @@ void MmsPluginEventHandler::handleMmsError(mmsTranQEntity *pRequest)
 	}
 
 	int dnet_state = 0;
-	if (msgInfo.sim_idx == 1)
-		dnet_state = MsgSettingGetInt(VCONFKEY_DNET_STATE);
-	else if (msgInfo.sim_idx == 2)
-		dnet_state = MsgSettingGetInt(VCONFKEY_DNET_STATE2);
+	if (msgInfo.sim_idx == 1) {
+		if (MsgSettingGetInt(VCONFKEY_DNET_STATE, &dnet_state) != MSG_SUCCESS) {
+			MSG_INFO("MsgSettingGetInt() is failed");
+		}
+	} else if (msgInfo.sim_idx == 2) {
+		if (MsgSettingGetInt(VCONFKEY_DNET_STATE2, &dnet_state) != MSG_SUCCESS) {
+			MSG_INFO("MsgSettingGetInt() is failed");
+		}
+	}
 
 	int net_cell_type = 0;
 
@@ -249,9 +258,13 @@ void MmsPluginEventHandler::handleMmsError(mmsTranQEntity *pRequest)
 	deinitTelHandle();
 
 	bool data_enable = FALSE;
-	int call_status = MsgSettingGetInt(MSG_MESSAGE_DURING_CALL);
+	int call_status = 0;
+	if (MsgSettingGetInt(MSG_MESSAGE_DURING_CALL, &call_status) != MSG_SUCCESS) {
+		MSG_INFO("MsgSettingGetInt() is failed");
+	}
 
-	MsgSettingGetBool(VCONFKEY_3G_ENABLE, &data_enable);
+	if (MsgSettingGetBool(VCONFKEY_3G_ENABLE, &data_enable) != MSG_SUCCESS)
+		MSG_INFO("MsgSettingGetBool() is failed");
 
 	MSG_INFO("Call[%d], Data[%d], SubType[%d]", call_status, data_enable, msgInfo.msgType.subType);
 	MSG_INFO("sim_idx[%d], dnet_state[%d], net_cell_type[%d]", msgInfo.sim_idx, dnet_state, net_cell_type);

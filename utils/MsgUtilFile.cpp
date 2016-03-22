@@ -1279,7 +1279,7 @@ bool MsgAclInit()
 
 	acl = acl_from_text(priv_read);
 	if (!acl) {
-		MSG_ERR("%s: `%s': %s\n", MSG_IPC_DATA_PATH, priv_read, strerror(errno));
+		MSG_ERR("%s: `%s': %s\n", MSG_IPC_DATA_PATH, priv_read, g_strerror(errno));
 		return false;
 	}
 
@@ -1296,7 +1296,7 @@ bool MsgAclInit()
 
 	ret = acl_set_file((const char *)MSG_IPC_DATA_PATH, ACL_TYPE_ACCESS, acl);
 	if (ret != 0) {
-		MSG_ERR("acl_set_file Fail : [%d][%s]", ret, strerror(errno));
+		MSG_ERR("acl_set_file Fail : [%d][%s]", ret, g_strerror(errno));
 	}
 	acl_free(acl);
 

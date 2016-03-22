@@ -515,7 +515,8 @@ time_t SmsPluginParamCodec::convertTime(const SMS_TIMESTAMP_S *time_stamp)
 		MSG_DEBUG("timezone : %d", time_stamp->time.absolute.timeZone);
 
 		char displayTime[32];
-		struct tm * timeTM;
+		struct tm timeTM;
+		memset(&timeTM, 0x00, sizeof(tm));
 
 		struct tm timeinfo;
 		memset(&timeinfo, 0x00, sizeof(tm));
@@ -541,9 +542,9 @@ time_t SmsPluginParamCodec::convertTime(const SMS_TIMESTAMP_S *time_stamp)
 
 		rawtime -= (time_stamp->time.absolute.timeZone * (3600/4));
 
-		timeTM = localtime(&rawtime);
+		localtime_r(&rawtime, &timeTM);
 		memset(displayTime, 0x00, sizeof(displayTime));
-		strftime(displayTime, 32, "%Y-%02m-%02d %T %z", timeTM);
+		strftime(displayTime, 32, "%Y-%02m-%02d %T %z", &timeTM);
 		MSG_DEBUG("displayTime [%s]", displayTime);
 
 /* timezone value is tiemzone + daylight. So should not add daylight */
@@ -553,9 +554,10 @@ time_t SmsPluginParamCodec::convertTime(const SMS_TIMESTAMP_S *time_stamp)
 		rawtime -= timezone;
 #endif
 
-		timeTM = localtime(&rawtime);
+		memset(&timeTM, 0x00, sizeof(tm));
+		localtime_r(&rawtime, &timeTM);
 		memset(displayTime, 0x00, sizeof(displayTime));
-		strftime(displayTime, 32, "%Y-%02m-%02d %T %z", timeTM);
+		strftime(displayTime, 32, "%Y-%02m-%02d %T %z", &timeTM);
 		MSG_DEBUG("displayTime [%s]", displayTime);
 	} else {
 		rawtime = time(NULL);

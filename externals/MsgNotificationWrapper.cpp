@@ -968,7 +968,9 @@ int getPrivId(msg_notification_type_t noti_type, int sim_idx)
 	case MSG_NOTI_TYPE_NORMAL:
 	case MSG_NOTI_TYPE_SIM:
 	case MSG_NOTI_TYPE_CB:
-		noti_id = MsgSettingGetInt(NOTIFICATION_PRIV_ID);
+		if (MsgSettingGetInt(NOTIFICATION_PRIV_ID, &noti_id) != MSG_SUCCESS) {
+			MSG_INFO("MsgSettingGetInt() is failed");
+		}
 		break;
 #else
 	case MSG_NOTI_TYPE_NORMAL:
@@ -982,22 +984,30 @@ int getPrivId(msg_notification_type_t noti_type, int sim_idx)
 		break;
 #endif
 	case MSG_NOTI_TYPE_FAILED:
-		noti_id = MsgSettingGetInt(MSG_SENTFAIL_NOTI_ID);
+		if (MsgSettingGetInt(MSG_SENTFAIL_NOTI_ID, &noti_id) != MSG_SUCCESS) {
+			MSG_INFO("MsgSettingGetInt() is failed");
+		}
 		break;
 	case MSG_NOTI_TYPE_VOICE_1: {
 		char keyName[MAX_VCONFKEY_NAME_LEN] = {0, };
 		snprintf(keyName, sizeof(keyName), "%s/%d", VOICE_NOTI_ID_1, sim_idx);
-		noti_id = MsgSettingGetInt(keyName);
+		if (MsgSettingGetInt(keyName, &noti_id) != MSG_SUCCESS) {
+			MSG_INFO("MsgSettingGetInt() is failed");
+		}
 		break;
 	}
 	case MSG_NOTI_TYPE_VOICE_2: {
 		char keyName[MAX_VCONFKEY_NAME_LEN] = {0, };
 		snprintf(keyName, sizeof(keyName), "%s/%d", VOICE_NOTI_ID_2, sim_idx);
-		noti_id = MsgSettingGetInt(keyName);
+		if (MsgSettingGetInt(keyName, &noti_id) != MSG_SUCCESS) {
+			MSG_INFO("MsgSettingGetInt() is failed");
+		}
 		break;
 	}
 	case MSG_NOTI_TYPE_SIM_FULL:
-		noti_id = MsgSettingGetInt(SIM_FULL_NOTI_PRIV_ID);
+		if (MsgSettingGetInt(SIM_FULL_NOTI_PRIV_ID, &noti_id) != MSG_SUCCESS) {
+			MSG_INFO("MsgSettingGetInt() is failed");
+		}
 		break;
 	default:
 		MSG_DEBUG("No matching noti type [%d]", noti_type);
@@ -1190,16 +1200,24 @@ void createInfoData(MSG_NOTI_INFO_S *noti_info, MSG_MESSAGE_INFO_S *msg_info)
 	case MSG_NOTI_TYPE_VOICE_2: {
 		memset(keyName, 0x00, sizeof(keyName));
 		snprintf(keyName, sizeof(keyName), "%s/%d", VOICEMAIL_COUNT, msg_info->sim_idx);
-		noti_info->count = MsgSettingGetInt(keyName);
+		if (MsgSettingGetInt(keyName, &(noti_info->count)) != MSG_SUCCESS) {
+			MSG_INFO("MsgSettingGetInt() is failed");
+		}
 		noti_info->layout = NOTIFICATION_LY_NOTI_EVENT_SINGLE;
 		noti_info->time = msg_info->displayTime;
 
 		memset(keyName, 0x00, sizeof(keyName));
 		snprintf(keyName, sizeof(keyName), "%s/%d", VOICEMAIL_NUMBER, msg_info->sim_idx);
-		char *voiceNumber = MsgSettingGetString(keyName);
+		char *voiceNumber = NULL;
+		if (MsgSettingGetString(keyName, &voiceNumber) != MSG_SUCCESS) {
+			MSG_INFO("MsgSettingGetString() is failed");
+		}
 		memset(keyName, 0x00, sizeof(keyName));
 		snprintf(keyName, sizeof(keyName), "%s/%d", VOICEMAIL_ALPHA_ID, msg_info->sim_idx);
-		char *voiceAlphaId = MsgSettingGetString(keyName);
+		char *voiceAlphaId = NULL;
+		if (MsgSettingGetString(keyName, &voiceAlphaId) != MSG_SUCCESS) {
+			MSG_INFO("MsgSettingGetString() is failed");
+		}
 		char *dialNumber = NULL;
 
 		MSG_SEC_DEBUG("Voice mail server - alpha id = [%s], default num = [%s]", voiceAlphaId, voiceNumber);
@@ -2115,7 +2133,11 @@ void setSoundAndVibration(notification_h noti_h, char *addressVal, bool bVoiceMa
 				setNotiSound(noti_h, NOTIFICATION_SOUND_TYPE_USER_DATA, msg_tone_file_path);
 			else {
 #endif /* MSG_CONTACTS_SERVICE_NOT_SUPPORTED */
-				MSG_RINGTONE_TYPE_T ringtoneType = (MSG_RINGTONE_TYPE_T)MsgSettingGetInt(MSG_SETTING_RINGTONE_TYPE);
+				int tmpVal = 0;
+				if (MsgSettingGetInt(MSG_SETTING_RINGTONE_TYPE, &tmpVal) != MSG_SUCCESS) {
+					MSG_INFO("MsgSettingGetInt() is failed");
+				}
+				MSG_RINGTONE_TYPE_T ringtoneType = (MSG_RINGTONE_TYPE_T)tmpVal;
 				if (ringtoneType == MSG_RINGTONE_TYPE_SILENT)
 					setNotiSound(noti_h, NOTIFICATION_SOUND_TYPE_NONE, NULL);
 				else
@@ -3182,7 +3204,9 @@ void MsgSoundSetRepeatAlarm()
 	int nRepeatValue = 0;
 	long	nRepeatTime = 0;
 
-	nRepeatValue = MsgSettingGetInt(MSG_ALERT_REP_TYPE);
+	if (MsgSettingGetInt(MSG_ALERT_REP_TYPE, &nRepeatValue) != MSG_SUCCESS) {
+		MSG_INFO("MsgSettingGetInt() is failed");
+	}
 
 	switch (nRepeatValue) {
 	case MSG_ALERT_TONE_ONCE:

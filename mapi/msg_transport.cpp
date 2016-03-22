@@ -68,6 +68,8 @@ EXPORT_API int msg_reg_sent_status_callback(msg_handle_t handle, msg_sent_status
 	} catch (MsgException& e) {
 		MSG_FATAL("%s", e.what());
 		if (e.errorCode() == MsgException::SERVER_READY_ERROR)
+			return MSG_ERR_SERVER_NOT_READY;
+		else if (e.errorCode() == MsgException::SECURITY_ERROR)
 			return MSG_ERR_PERMISSION_DENIED;
 		else
 			return MSG_ERR_CALLBACK_ERROR;
@@ -92,6 +94,8 @@ EXPORT_API int msg_reg_sms_message_callback(msg_handle_t handle, msg_sms_incomin
 	} catch (MsgException& e) {
 		MSG_FATAL("%s", e.what());
 		if (e.errorCode() == MsgException::SERVER_READY_ERROR)
+			return MSG_ERR_SERVER_NOT_READY;
+		else if (e.errorCode() == MsgException::SECURITY_ERROR)
 			return MSG_ERR_PERMISSION_DENIED;
 		else
 			return MSG_ERR_CALLBACK_ERROR;
@@ -119,6 +123,8 @@ EXPORT_API int msg_reg_mms_conf_message_callback(msg_handle_t handle, msg_mms_co
 	} catch (MsgException& e) {
 		MSG_FATAL("%s", e.what());
 		if (e.errorCode() == MsgException::SERVER_READY_ERROR)
+			return MSG_ERR_SERVER_NOT_READY;
+		else if (e.errorCode() == MsgException::SECURITY_ERROR)
 			return MSG_ERR_PERMISSION_DENIED;
 		else
 			return MSG_ERR_CALLBACK_ERROR;
@@ -143,6 +149,8 @@ EXPORT_API int msg_reg_syncml_message_callback(msg_handle_t handle,  msg_syncml_
 	} catch (MsgException& e) {
 		MSG_FATAL("%s", e.what());
 		if (e.errorCode() == MsgException::SERVER_READY_ERROR)
+			return MSG_ERR_SERVER_NOT_READY;
+		else if (e.errorCode() == MsgException::SECURITY_ERROR)
 			return MSG_ERR_PERMISSION_DENIED;
 		else
 			return MSG_ERR_CALLBACK_ERROR;
@@ -167,6 +175,8 @@ EXPORT_API int msg_reg_lbs_message_callback(msg_handle_t handle, msg_lbs_msg_inc
 	} catch (MsgException& e) {
 		MSG_FATAL("%s", e.what());
 		if (e.errorCode() == MsgException::SERVER_READY_ERROR)
+			return MSG_ERR_SERVER_NOT_READY;
+		else if (e.errorCode() == MsgException::SECURITY_ERROR)
 			return MSG_ERR_PERMISSION_DENIED;
 		else
 			return MSG_ERR_CALLBACK_ERROR;
@@ -191,6 +201,8 @@ EXPORT_API int msg_reg_syncml_message_operation_callback(msg_handle_t handle,  m
 	} catch (MsgException& e) {
 		MSG_FATAL("%s", e.what());
 		if (e.errorCode() == MsgException::SERVER_READY_ERROR)
+			return MSG_ERR_SERVER_NOT_READY;
+		else if (e.errorCode() == MsgException::SECURITY_ERROR)
 			return MSG_ERR_PERMISSION_DENIED;
 		else
 			return MSG_ERR_CALLBACK_ERROR;
@@ -218,6 +230,8 @@ EXPORT_API int msg_reg_push_message_callback(msg_handle_t handle,  msg_push_msg_
 	} catch (MsgException& e) {
 		MSG_FATAL("%s", e.what());
 		if (e.errorCode() == MsgException::SERVER_READY_ERROR)
+			return MSG_ERR_SERVER_NOT_READY;
+		else if (e.errorCode() == MsgException::SECURITY_ERROR)
 			return MSG_ERR_PERMISSION_DENIED;
 		else
 			return MSG_ERR_CALLBACK_ERROR;
@@ -241,6 +255,8 @@ EXPORT_API int msg_reg_cb_message_callback(msg_handle_t handle, msg_cb_incoming_
 	} catch (MsgException& e) {
 		MSG_FATAL("%s", e.what());
 		if (e.errorCode() == MsgException::SERVER_READY_ERROR)
+			return MSG_ERR_SERVER_NOT_READY;
+		else if (e.errorCode() == MsgException::SECURITY_ERROR)
 			return MSG_ERR_PERMISSION_DENIED;
 		else
 			return MSG_ERR_CALLBACK_ERROR;
@@ -265,6 +281,8 @@ EXPORT_API int msg_reg_report_message_callback(msg_handle_t handle, msg_report_m
 	} catch (MsgException& e) {
 		MSG_FATAL("%s", e.what());
 		if (e.errorCode() == MsgException::SERVER_READY_ERROR)
+			return MSG_ERR_SERVER_NOT_READY;
+		else if (e.errorCode() == MsgException::SECURITY_ERROR)
 			return MSG_ERR_PERMISSION_DENIED;
 		else
 			return MSG_ERR_CALLBACK_ERROR;

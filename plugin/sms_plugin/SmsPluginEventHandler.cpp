@@ -219,11 +219,15 @@ void SmsPluginEventHandler::handleMsgIncoming(TapiHandle *handle, SMS_TPDU_S *pT
 
 					memset(keyName, 0x00, sizeof(keyName));
 					snprintf(keyName, sizeof(keyName), "%s/%d", VOICEMAIL_NUMBER, msgInfo.sim_idx);
-					voiceNumber = MsgSettingGetString(keyName);
+					if (MsgSettingGetString(keyName, &voiceNumber) != MSG_SUCCESS) {
+						MSG_INFO("MsgSettingGetString() is failed");
+					}
 
 					memset(keyName, 0x00, sizeof(keyName));
 					snprintf(keyName, sizeof(keyName), "%s/%d", VOICEMAIL_ALPHA_ID, msgInfo.sim_idx);
-					voiceAlphaId = MsgSettingGetString(keyName);
+					if (MsgSettingGetString(keyName, &voiceAlphaId) != MSG_SUCCESS) {
+						MSG_INFO("MsgSettingGetString() is failed");
+					}
 
 					memset(msgInfo.addressList[0].addressVal, 0x00, sizeof(msgInfo.addressList[0].addressVal));
 					memset(msgInfo.addressList[0].displayName, 0x00, sizeof(msgInfo.addressList[0].displayName));
@@ -374,7 +378,9 @@ void SmsPluginEventHandler::handleMsgIncoming(TapiHandle *handle, SMS_TPDU_S *pT
 		char keyName[MAX_VCONFKEY_NAME_LEN];
 		memset(keyName, 0x00, sizeof(keyName));
 		snprintf(keyName, sizeof(keyName), "%s/%d", MSG_SIM_MSISDN, msgInfo.sim_idx);
-		msisdn = MsgSettingGetString(keyName);
+		if (MsgSettingGetString(keyName, &msisdn) != MSG_SUCCESS) {
+			MSG_INFO("MsgSettingGetString() is failed");
+		}
 
 		MSG_SMS_VLD_INFO("%d, SMS Receive, %s->%s, %s",  msgInfo.msgId, \
 																msgInfo.addressList[0].addressVal, \

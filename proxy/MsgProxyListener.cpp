@@ -29,7 +29,9 @@ void MsgServerRestartCb(keynode_t *key, void* data)
 	bool bReady = false;
 	MSG_DEBUG("Message Service Running State Changed");
 	/* server is currently booting and service is not available until the end of booting */
-	MsgSettingGetBool(VCONFKEY_MSG_SERVER_READY, &bReady);
+	if (MsgSettingGetBool(VCONFKEY_MSG_SERVER_READY, &bReady) != MSG_SUCCESS)
+		MSG_INFO("MsgSettingGetBool() is failed");
+
 	MSG_INFO("Message Service Running State Changed bReady:(%d)", bReady);
 
 	/* bReady false indicates that server has restarted. Hence the proxylistener needs to be reset */
@@ -105,7 +107,16 @@ MsgProxyListener::MsgProxyListener() : running(0)
 {
 	clearProxyCBLists();
 	clearOpenHandleSet();
-	MsgSettingRegVconfCBCommon(VCONFKEY_MSG_SERVER_READY, MsgServerRestartCb);
+
+	msg_error_t err = MSG_SUCCESS;
+	err = MsgSettingRegVconfCBCommon(VCONFKEY_MSG_SERVER_READY, MsgServerRestartCb);
+	if (err != MSG_SUCCESS) {
+		if (err == MSG_ERR_PERMISSION_DENIED) {
+			THROW(MsgException::SECURITY_ERROR, "It must have privilege to access vconf key");
+		} else {
+			THROW(MsgException::SERVER_READY_ERROR, "vconf register fail");
+		}
+	}
 
 	channel = NULL;
 	eventSourceId = 0;
@@ -116,7 +127,16 @@ MsgProxyListener::~MsgProxyListener()
 {
 	clearProxyCBLists();
 	clearOpenHandleSet();
-	MsgSettingRemoveVconfCBCommon(VCONFKEY_MSG_SERVER_READY, MsgServerRestartCb);
+
+	msg_error_t err = MSG_SUCCESS;
+	err = MsgSettingRemoveVconfCBCommon(VCONFKEY_MSG_SERVER_READY, MsgServerRestartCb);
+	if (err != MSG_SUCCESS) {
+		if (err == MSG_ERR_PERMISSION_DENIED) {
+			MSG_DEBUG("It must have privilege to access vconf key");
+		} else {
+			MSG_DEBUG("vconf register fail");
+		}
+	}
 }
 
 
