@@ -1020,7 +1020,7 @@ msg_error_t MsgMakeSortRule(const MSG_SORT_RULE_S *pSortRule, char *pSqlSort)
 	else
 		strncpy(order, "DESC", 5);
 
-	int nameOrder = MsgGetContactNameOrder();
+	int nameOrder = 0;
 
 	switch (pSortRule->sortType) {
 		case MSG_SORT_BY_DISPLAY_FROM :

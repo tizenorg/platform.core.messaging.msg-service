@@ -22,7 +22,7 @@
 #include "MsgProxyListener.h"
 #include "MsgHandle.h"
 
-#include "MsgContact.h"
+#include "MsgProxyContact.h"
 #include "MsgVMessage.h"
 /*==================================================================================================
                                      IMPLEMENTATION OF MsgHandle - Storage Member Functions

@@ -438,7 +438,7 @@ msg_error_t MsgStoAddAddress(MsgDbHandler *pDbHandle, const MSG_MESSAGE_INFO_S *
 	return err;
 }
 
-msg_error_t MsgStoGetAddressByMsgId(MsgDbHandler *pDbHandle, msg_message_id_t msgId, int contactNameOrder, int *nAddressCnt, MSG_ADDRESS_INFO_S **pAddress)
+msg_error_t MsgStoGetAddressByMsgId(MsgDbHandler *pDbHandle, msg_message_id_t msgId, int *nAddressCnt, MSG_ADDRESS_INFO_S **pAddress)
 {
 	char sqlQuery[MAX_QUERY_LEN+1];
 	int rowCnt = 0, index = 0;
@@ -487,7 +487,7 @@ msg_error_t MsgStoGetAddressByMsgId(MsgDbHandler *pDbHandle, msg_message_id_t ms
 	return MSG_SUCCESS;
 }
 
-msg_error_t MsgStoGetAddressByMsgId(MsgDbHandler *pDbHandle, msg_message_id_t msgId, int contactNameOrder, msg_struct_list_s *pAddress)
+msg_error_t MsgStoGetAddressByMsgId(MsgDbHandler *pDbHandle, msg_message_id_t msgId, msg_struct_list_s *pAddress)
 {
 	char sqlQuery[MAX_QUERY_LEN+1];
 
@@ -554,7 +554,7 @@ msg_error_t MsgStoGetAddressByMsgId(MsgDbHandler *pDbHandle, msg_message_id_t ms
 }
 
 
-msg_error_t MsgStoGetAddressByConvId(MsgDbHandler *pDbHandle, msg_thread_id_t convId, int contactNameOrder, msg_struct_list_s *pAddrlist)
+msg_error_t MsgStoGetAddressByConvId(MsgDbHandler *pDbHandle, msg_thread_id_t convId, msg_struct_list_s *pAddrlist)
 {
 	char sqlQuery[MAX_QUERY_LEN+1];
 
@@ -1155,7 +1155,6 @@ msg_error_t MsgStoSetConversationDisplayName(MsgDbHandler *pDbHandle, int contac
 		return err;
 	}
 
-	int order = MsgGetContactNameOrder();
 	msg_struct_s *pAddrInfo = NULL;
 	MSG_ADDRESS_INFO_S *address = NULL;
 
@@ -1163,7 +1162,7 @@ msg_error_t MsgStoSetConversationDisplayName(MsgDbHandler *pDbHandle, int contac
 		memset(displayName, 0x00, sizeof(displayName));
 		MsgDbHandler tmpDbHandle;
 		msg_struct_list_s addressList = {0, };
-		MsgStoGetAddressByConvId(&tmpDbHandle, (msg_thread_id_t)pDbHandle->getColumnToInt(i), order, &addressList);
+		MsgStoGetAddressByConvId(&tmpDbHandle, (msg_thread_id_t)pDbHandle->getColumnToInt(i), &addressList);
 
 		for (int j = 0; j < addressList.nCount; j++) {
 			if (j >0)
@@ -1226,14 +1225,12 @@ msg_error_t MsgStoSetConversationDisplayName(MsgDbHandler *pDbHandle, msg_thread
 
 	msg_struct_list_s addressList = {0, };
 
-	int order = MsgGetContactNameOrder();
-
 	msg_struct_s *pAddrInfo = NULL;
 	MSG_ADDRESS_INFO_S *address = NULL;
 
 	memset(displayName, 0x00, sizeof(displayName));
 
-	MsgStoGetAddressByConvId(pDbHandle, convId, order, &addressList);
+	MsgStoGetAddressByConvId(pDbHandle, convId, &addressList);
 
 	for (int j = 0; j < addressList.nCount; j++) {
 		if (j >0)
@@ -2274,10 +2271,7 @@ msg_error_t MsgStoGetAddressList(const msg_thread_id_t threadId, msg_struct_list
 
 	msg_error_t err = MSG_SUCCESS;
 
-	/* contacts-service is not used for gear */
-	int order = MsgGetContactNameOrder();
-
-	err = MsgStoGetAddressByConvId(dbHandle, threadId, order, pAddrList);
+	err = MsgStoGetAddressByConvId(dbHandle, threadId, pAddrList);
 
 	return err;
 }

@@ -597,8 +597,7 @@ int MsgIncomingMMSConfMsgHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 	MsgDbHandler *dbHandle = getDbHandle();
 	int tmpAddrCnt = 0;
 	MSG_ADDRESS_INFO_S *tmpAddr = NULL;
-	int order = MsgGetContactNameOrder();
-	err = MsgStoGetAddressByMsgId(dbHandle, msgInfo.msgId, order, &tmpAddrCnt, &tmpAddr);
+	err = MsgStoGetAddressByMsgId(dbHandle, msgInfo.msgId, &tmpAddrCnt, &tmpAddr);
 	if (err != MSG_SUCCESS) {
 		MSG_DEBUG("MsgStoGetAddressByMsgId() fail.");
 	}

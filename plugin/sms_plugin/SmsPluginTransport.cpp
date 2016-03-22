@@ -101,7 +101,7 @@ void SmsPluginTransport::submitRequest(SMS_REQUEST_INFO_S *pReqInfo)
 
 	/* Get address informations. */
 	MsgDbHandler *dbHandle = getDbHandle();
-	MsgStoGetAddressByMsgId(dbHandle, pReqInfo->msgInfo.msgId, 0, &pReqInfo->msgInfo.nAddressCnt, &pReqInfo->msgInfo.addressList);
+	MsgStoGetAddressByMsgId(dbHandle, pReqInfo->msgInfo.msgId, &pReqInfo->msgInfo.nAddressCnt, &pReqInfo->msgInfo.addressList);
 	MSG_DEBUG("pReqInfo->msgInfo.nAddressCnt [%d]", pReqInfo->msgInfo.nAddressCnt);
 
 	/* Get MSISDN */

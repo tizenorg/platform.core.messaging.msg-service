@@ -156,12 +156,6 @@ int main(void)
 		MSG_DEBUG("Fail to start Messaging Framework!!!");
 	}
 
-	/* contacts-service is not used for gear */
-#ifndef MSG_CONTACTS_SERVICE_NOT_SUPPORTED
-	/* Close Contact Sevice */
-	MsgCloseContactSvc();
-#endif /*MSG_CONTACTS_SERVICE_NOT_SUPPORTED */
-
 	/* Disconnect to DB */
 	MsgStoDisconnectDB();
 

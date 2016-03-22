@@ -15,6 +15,7 @@ SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS} ${EXTRA_CFLAGS} -O2 -g -Wall")
 ##########################################################
 
 SET(TRANS-PROXY-SRCS
+	${CMAKE_SOURCE_DIR}/proxy/MsgProxyContact.cpp
 	${CMAKE_SOURCE_DIR}/proxy/MsgProxyListener.cpp
 	${CMAKE_SOURCE_DIR}/proxy/MsgHandleControl.cpp
 	${CMAKE_SOURCE_DIR}/proxy/MsgHandleSetting.cpp
@@ -24,14 +25,14 @@ SET(TRANS-PROXY-SRCS
 )
 
 INCLUDE_DIRECTORIES(
-    ${CMAKE_SOURCE_DIR}/include/mapi
+	${CMAKE_SOURCE_DIR}/include/mapi
 	${CMAKE_SOURCE_DIR}/include/common
 	${CMAKE_SOURCE_DIR}/include/utils
 	${CMAKE_SOURCE_DIR}/include/proxy
 )
 
 INCLUDE(FindPkgConfig)
-pkg_check_modules(trans_proxy_pkgs REQUIRED glib-2.0 dlog vconf)
+pkg_check_modules(trans_proxy_pkgs REQUIRED glib-2.0 dlog vconf contacts-service2)
 
 FOREACH(flag ${trans_proxy_pkgs_CFLAGS})
 	SET(EXTRA_CFLAGS "${EXTRA_CFLAGS} ${flag}")

@@ -14,8 +14,9 @@
  * limitations under the License.
 */
 
-#ifndef MSG_CONTACT_H
-#define MSG_CONTACT_H
+#ifndef MSG_PROXY_CONTACT_H
+#define MSG_PROXY_CONTACT_H
+
 
 /*==================================================================================================
                                          INCLUDE FILES
@@ -26,19 +27,11 @@
 /*==================================================================================================
                                      FUNCTION PROTOTYPES
 ==================================================================================================*/
-msg_error_t MsgInitContactSvc();
+msg_error_t MsgOpenContactSvc();
+msg_error_t MsgCloseContactSvc();
 
-msg_error_t MsgGetContactInfo(const MSG_ADDRESS_INFO_S *pAddrInfo, MSG_CONTACT_INFO_S *pContactInfo);
+msg_error_t MsgGetContactSearchList(const char *pSearchVal, MSG_ADDRESS_INFO_S **pAddrInfo, int *count);
 
-msg_error_t MsgGetContactStyleDisplayName(const char *first, const char *last, const char *middle, const char *prefix, const char *suffix, int contactNameOrder, char *displayName, unsigned int size);
 
-void MsgAddPhoneLog(const MSG_MESSAGE_INFO_S *pMsgInfo);
-void MsgDeletePhoneLog(msg_message_id_t msgId);
-
-bool checkBlockingMode(char *address, bool *pisFavorites);
-
-int MsgContactGetMinMatchDigit();
-void MsgConvertNumber(const char* pSrcNum, char* pDestNum, int destSize);
-bool MsgIsNumber(const char* pSrc);
-#endif /* MSG_CONTACT_H */
+#endif /* MSG_PROXY_CONTACT_H */
 

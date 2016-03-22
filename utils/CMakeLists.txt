@@ -46,11 +46,7 @@ INCLUDE_DIRECTORIES(
 
 INCLUDE(FindPkgConfig)
 
-IF(_MSG_WEARABLE_PROFILE)
 SET(PKG_MODULES glib-2.0 vconf dlog libxml-2.0 storage json-glib-1.0 capi-system-info capi-media-thumbnail-util capi-media-image-util capi-content-media-content aul sqlite3 capi-media-metadata-extractor icu-uc libsystemd-login)
-ELSE()
-SET(PKG_MODULES glib-2.0 vconf contacts-service2 dlog libxml-2.0 storage json-glib-1.0 capi-system-info capi-media-thumbnail-util capi-media-image-util capi-content-media-content aul sqlite3 capi-media-metadata-extractor icu-uc libsystemd-login)
-ENDIF()
 pkg_check_modules(utils_pkgs REQUIRED ${PKG_MODULES})
 
 FOREACH(flag ${utils_pkgs_CFLAGS})

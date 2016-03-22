@@ -2074,11 +2074,7 @@ msg_error_t MsgStoGetMessage(msg_message_id_t msgId, MSG_MESSAGE_INFO_S *pMsg, M
 
 
 	/* get address information. */
-	/*contacts-service is not used for gear */
-	/*contactNameOrder is never used */
-#ifndef MSG_CONTACTS_SERVICE_NOT_SUPPORTED
-	MsgStoGetAddressByMsgId(dbHandle, pMsg->msgId, MsgGetContactNameOrder(), &pMsg->nAddressCnt, &pMsg->addressList);
-#endif /*MSG_CONTACTS_SERVICE_NOT_SUPPORTED */
+	MsgStoGetAddressByMsgId(dbHandle, pMsg->msgId, &pMsg->nAddressCnt, &pMsg->addressList);
 
 	/* Get MMS body if it is MMS. */
 	if ((pMsg->networkStatus == MSG_NETWORK_RETRIEVE_SUCCESS &&
