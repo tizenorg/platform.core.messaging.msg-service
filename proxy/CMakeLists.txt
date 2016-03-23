@@ -32,7 +32,11 @@ INCLUDE_DIRECTORIES(
 )
 
 INCLUDE(FindPkgConfig)
+IF(_MSG_WEARABLE_PROFILE)
+pkg_check_modules(trans_proxy_pkgs REQUIRED glib-2.0 dlog vconf)
+ELSE()
 pkg_check_modules(trans_proxy_pkgs REQUIRED glib-2.0 dlog vconf contacts-service2)
+ENDIF()
 
 FOREACH(flag ${trans_proxy_pkgs_CFLAGS})
 	SET(EXTRA_CFLAGS "${EXTRA_CFLAGS} ${flag}")

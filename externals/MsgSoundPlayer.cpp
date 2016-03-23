@@ -798,10 +798,10 @@ void MsgSoundPlayer::MsgSoundCreateRepeatAlarm(int RepeatTime)
 int MsgSoundPlayer::MsgSoundGetUnreadMsgCnt()
 {
 	int unreadCnt = 0;
-	int unreadSms = 0;
-	int unreadMms = 0;
 
 #ifndef MSG_WEARABLE_PROFILE
+	int unreadSms = 0;
+	int unreadMms = 0;
 
 	/* Get SMS Count */
 	if (MsgSettingGetInt(VCONFKEY_MESSAGE_RECV_SMS_STATE, &unreadSms) != MSG_SUCCESS) {
