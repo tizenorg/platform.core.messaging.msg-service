@@ -117,7 +117,7 @@ msg_error_t MsgSettingGetInt(const char *pKey, int *pVal)
 	msg_error_t retVal = MSG_SUCCESS;
 	int param = 0;
 
-	if (vconf_get_int(pKey, &param) < 0) {
+	if (vconf_get_int(pKey, &param) != 0) {
 		int vconf_err = vconf_get_ext_errno();
 		MSG_DEBUG("Fail to vconf_get_int with [%s], err=[%d]", pKey, vconf_err);
 		if (vconf_err == VCONF_ERROR_FILE_PERM)
@@ -142,7 +142,7 @@ msg_error_t MsgSettingGetBool(const char *pKey, bool *pVal)
 	msg_error_t retVal = MSG_SUCCESS;
 	int param = 0;
 
-	if (vconf_get_bool(pKey, &param) < 0) {
+	if (vconf_get_bool(pKey, &param) != 0) {
 		int vconf_err = vconf_get_ext_errno();
 		MSG_DEBUG("Fail to vconf_get_bool with [%s], err=[%d]", pKey, vconf_err);
 		if (vconf_err == VCONF_ERROR_FILE_PERM)
@@ -217,9 +217,9 @@ msg_error_t MsgSettingRegVconfCBCommon(const char *pKey, _vconf_change_cb pCb)
 {
 	msg_error_t err = MSG_SUCCESS;
 
-	if (vconf_notify_key_changed(pKey, pCb, NULL) < 0) {
+	if (vconf_notify_key_changed(pKey, pCb, NULL) != 0) {
 		int vconf_err = vconf_get_ext_errno();
-		MSG_DEBUG("Fail to regist vconf CB with [%s], err=[%d]", pKey, vconf_err);
+		MSG_DEBUG("Fail to vconf_notify_key_changed with [%s], err=[%d]", pKey, vconf_err);
 		if (vconf_err == VCONF_ERROR_FILE_PERM)
 			err = MSG_ERR_PERMISSION_DENIED;
 		else
@@ -235,9 +235,9 @@ msg_error_t MsgSettingRemoveVconfCBCommon(const char *pKey, _vconf_change_cb pCb
 {
 	msg_error_t err = MSG_SUCCESS;
 
-	if (vconf_ignore_key_changed(pKey, pCb) < 0) {
+	if (vconf_ignore_key_changed(pKey, pCb) != 0) {
 		int vconf_err = vconf_get_ext_errno();
-		MSG_DEBUG("Fail to remove vconf CB with [%s], err=[%d]", pKey, vconf_err);
+		MSG_DEBUG("Fail to vconf_ignore_key_changed [%s], err=[%d]", pKey, vconf_err);
 		if (vconf_err == VCONF_ERROR_FILE_PERM)
 			err = MSG_ERR_PERMISSION_DENIED;
 		else
