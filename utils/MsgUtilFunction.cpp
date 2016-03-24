@@ -19,6 +19,7 @@
 
 #include "MsgDebug.h"
 #include "MsgContact.h"
+#include "MsgGconfWrapper.h"
 #include "MsgUtilFile.h"
 #include "MsgUtilFunction.h"
 
@@ -27,7 +28,10 @@
 #include <locale.h>
 #include <vconf.h>
 #include <ctype.h>
+#include <aul.h>
 
+
+#define DEFAULT_MIN_MATCH_DIGIT 8
 
 enum _FEATURE_INDEX_E {
 	FEATURE_INDEX_SMS = 0,
@@ -41,6 +45,9 @@ static bool b_feature_support[] = {
 };
 
 int _dbus_owner_id = 0;
+#ifndef MSG_CONTACTS_SERVICE_NOT_SUPPORTED
+static int phonenumberMinMatchDigit = -1;
+#endif
 
 /*==================================================================================================
                                      FUNCTION IMPLEMENTATION
@@ -70,6 +77,27 @@ bool MsgCheckFeatureSupport(const char *feature_name)
 	}
 
 	return result;
+}
+
+
+int MsgContactGetMinMatchDigit()
+{
+#ifndef MSG_CONTACTS_SERVICE_NOT_SUPPORTED
+	if (phonenumberMinMatchDigit <= 0) {
+		if (MsgSettingGetInt(VCONFKEY_CONTACTS_SVC_PHONENUMBER_MIN_MATCH_DIGIT, &phonenumberMinMatchDigit) != MSG_SUCCESS) {
+			MSG_INFO("MsgSettingGetInt() is failed");
+		}
+		MSG_DEBUG("phonenumberMinMatchDigit [%d]", phonenumberMinMatchDigit);
+
+		if (phonenumberMinMatchDigit < 1) {
+			phonenumberMinMatchDigit = DEFAULT_MIN_MATCH_DIGIT;
+		}
+	}
+
+	return phonenumberMinMatchDigit;
+#else
+	return DEFAULT_MIN_MATCH_DIGIT;
+#endif
 }
 
 /* Encoders */
@@ -1207,6 +1235,18 @@ uid_t msg_get_login_user()
 	MSG_DEBUG("login user id [%d]", uid);
 
 	return uid;
+}
+
+
+msg_error_t msg_launch_app(const char *app_id, bundle *bundle_data)
+{
+	int ret = aul_launch_app_for_uid(app_id, bundle_data, msg_get_login_user());
+	if (ret <= 0) {
+		MSG_DEBUG("aul_launch_app_for_uid() is failed : %d", ret);
+		return MSG_ERR_UNKNOWN;
+	}
+
+	return MSG_SUCCESS;
 }
 
 

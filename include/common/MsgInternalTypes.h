@@ -186,11 +186,7 @@
 #define MSG_MESSAGE_DURING_CALL			DEFAULT_GENERAL_OPT_PATH"/during_call"
 
 #define MSG_DEFAULT_APP_ID			"org.tizen.message"
-#define MSG_QUICKPANEL_APP_ID		"org.tizen.quickpanel"
-#define MSG_INDICATOR_APP_ID		"org.tizen.indicator"
-#define MSG_CALL_APP_ID				"org.tizen.call-ui"
-#define MSG_SETTING_APP_ID			"org.tizen.setting"
-#define MSG_TEL_URI_VOICEMAIL		"tel:VOICEMAIL"
+#define MSG_MGR_APP_ID				"org.tizen.msg-manager"
 
 #define MSG_TELEPHONY_SMS_FEATURE	"http://tizen.org/feature/network.telephony.sms"
 #define MSG_TELEPHONY_MMS_FEATURE	"http://tizen.org/feature/network.telephony.mms"

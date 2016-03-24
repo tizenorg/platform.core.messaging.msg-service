@@ -16,7 +16,6 @@
 
 #ifndef MSG_WEARABLE_PROFILE
 #include <app_control.h>
-#include <aul.h>
 #endif // MSG_WEARABLE_PROFILE
 #include <bundle.h>
 #include <eventsystem.h>
@@ -27,7 +26,6 @@
 #include "MsgUtilFunction.h"
 #include "MsgUtilStorage.h"
 #include "MsgGconfWrapper.h"
-#include "MsgSoundPlayer.h"
 #include "MsgSpamFilter.h"
 #include "MsgPluginManager.h"
 #include "MsgStorageHandler.h"
@@ -42,104 +40,6 @@
 /*==================================================================================================
                                      FUNCTION IMPLEMENTATION
 ==================================================================================================*/
-
-void MsgPlayTTSMode(MSG_SUB_TYPE_T msgSubType, msg_message_id_t msgId, bool isFavorites)
-{
-	MSG_BEGIN();
-#if 0
-	bool bNotification = true;
-
-	if (MsgSettingGetBool(MSG_SETTING_NOTIFICATION, &bNotification) != MSG_SUCCESS) {
-		MSG_DEBUG("MsgSettingGetBool is failed.");
-	}
-
-	if (bNotification == false) {
-		MSG_DEBUG("Msg Alert notification is off.");
-		return;
-	}
-
-	bool isTTSOn = false;
-	if (MsgSettingGetBool(VCONFKEY_SETAPPL_DRIVINGMODE_DRIVINGMODE, &isTTSOn) != MSG_SUCCESS)
-		MSG_INFO("MsgSettingGetBool() is failed");
-
-	MSG_DEBUG("VCONFKEY_SETAPPL_DRIVINGMODE_DRIVINGMODE [%d]", isTTSOn);
-
-	if(isTTSOn) {
-		bool isVoiceMail = false;
-
-		if (msgSubType == MSG_MWI_VOICE_SMS) {
-			bool isVoiceMailOn = false;
-			if (MsgSettingGetBool(VCONFKEY_SETAPPL_DRIVINGMODE_NEWVOICEMAILS, &isVoiceMailOn) != MSG_SUCCESS)
-				MSG_INFO("MsgSettingGetBool() is failed");
-
-			MSG_DEBUG("VCONFKEY_SETAPPL_DRIVINGMODE_NEWVOICEMAILS [%d]", isVoiceMailOn);
-			if (isVoiceMailOn) {
-				isVoiceMail = true;
-			} else {
-				return;
-			}
-		} else {
-			bool isTTSMsgOn = false;
-			if (MsgSettingGetBool(VCONFKEY_SETAPPL_DRIVINGMODE_MESSAGE, &isTTSMsgOn) != MSG_SUCCESS)
-				MSG_INFO("MsgSettingGetBool() is failed");
-
-			MSG_DEBUG("VCONFKEY_SETAPPL_DRIVINGMODE_MESSAGE [%d]", isTTSMsgOn);
-			if (!isTTSMsgOn || !isFavorites) {
-				return;
-			}
-		}
-
-#ifndef MSG_WEARABLE_PROFILE
-		app_control_h svc_h;
-
-		int ret = APP_CONTROL_ERROR_NONE;
-
-		ret = app_control_create(&svc_h);
-		if (ret != APP_CONTROL_ERROR_NONE) {
-			MSG_DEBUG("app_control_create() is failed : %d", ret);
-			app_control_destroy(svc_h);
-			return;
-		}
-
-		ret = app_control_set_app_id(svc_h, "org.tizen.msg-ui-tts-play");
-		if (ret != APP_CONTROL_ERROR_NONE) {
-			MSG_DEBUG("app_control_set_app_id() is failed : %d", ret);
-			app_control_destroy(svc_h);
-			return;
-		}
-
-		if (isVoiceMail) {
-			ret = app_control_add_extra_data(svc_h, "type", "voicemail");
-		} else {
-			char tmpStrMsgId[10];
-			memset(&tmpStrMsgId, 0x00, sizeof(tmpStrMsgId));
-			snprintf(tmpStrMsgId, sizeof(tmpStrMsgId), "%d", msgId);
-			MSG_DEBUG("tmpStrMsgId [%s]", tmpStrMsgId);
-			ret = app_control_add_extra_data(svc_h, "msgId", tmpStrMsgId);
-		}
-
-		if (ret != APP_CONTROL_ERROR_NONE) {
-			MSG_DEBUG("app_control_add_extra_data() is failed : %d", ret);
-			app_control_destroy(svc_h);
-			return;
-		}
-
-		ret = app_control_send_launch_request(svc_h, NULL, NULL);
-		if (ret != APP_CONTROL_ERROR_NONE) {
-			MSG_DEBUG("app_control_send_launch_request() is failed : %d", ret);
-			app_control_destroy(svc_h);
-			return;
-		}
-
-		app_control_destroy(svc_h);
-#endif // MSG_WEARABLE_PROFILE
-	}
-
-	MsgChangePmState();
-#endif
-	MSG_END();
-}
-
 
 void MsgLaunchClass0(msg_message_id_t msgId)
 {
@@ -259,11 +159,6 @@ msg_error_t MsgHandleMmsConfIncomingMsg(MSG_MESSAGE_INFO_S *pMsgInfo, msg_reques
 
 		if (subType == MSG_RETRIEVE_AUTOCONF_MMS && pMsgInfo->networkStatus == MSG_NETWORK_RETRIEVE_SUCCESS) {
 #ifndef MSG_CONTACTS_SERVICE_NOT_SUPPORTED
-			bool isFavorites = false;
-			if (!checkBlockingMode(pMsgInfo->addressList[0].addressVal, &isFavorites)) {
-				MsgPlayTTSMode(subType, pMsgInfo->msgId, isFavorites);
-			}
-
 			// add phone log
 			MSG_DEBUG("Enter MsgAddPhoneLog() for mms message.");
 			MsgAddPhoneLog(pMsgInfo);
@@ -277,10 +172,7 @@ msg_error_t MsgHandleMmsConfIncomingMsg(MSG_MESSAGE_INFO_S *pMsgInfo, msg_reques
 				bundle_add_str(b, EVT_KEY_MSG_ID, msgId);
 				eventsystem_send_system_event(SYS_EVENT_INCOMMING_MSG, b);
 				bundle_add_str(b, "cmd", "incoming_msg");
-				int ret = aul_launch_app_for_uid("org.tizen.msg-manager", b, msg_get_login_user());
-				if (ret <= 0) {
-					MSG_DEBUG("aul_launch_app_for_uid() is failed : %d", ret);
-				}
+				msg_launch_app(MSG_MGR_APP_ID, b);
 				bundle_free(b);
 			}
 #endif //MSG_CONTACTS_SERVICE_NOT_SUPPORTED
@@ -350,15 +242,9 @@ msg_error_t MsgHandleIncomingMsg(MSG_MESSAGE_INFO_S *pMsgInfo, bool *pSendNoti)
 
 		err = MsgHandleSMS(pMsgInfo, pSendNoti, &bOnlyNoti);
 
-		if (err == MSG_SUCCESS && ((*pSendNoti) || bOnlyNoti)) {
-#ifndef MSG_CONTACTS_SERVICE_NOT_SUPPORTED
-			bool isFavorites = false;
-			if (!checkBlockingMode(pMsgInfo->addressList[0].addressVal, &isFavorites)) {
-				MsgPlayTTSMode(pMsgInfo->msgType.subType, pMsgInfo->msgId, isFavorites);
-			}
-#endif /* MSG_CONTACTS_SERVICE_NOT_SUPPORTED */
+		if (err == MSG_SUCCESS && ((*pSendNoti) || bOnlyNoti))
 			MsgInsertNotification(pMsgInfo);
-		}
+
 	} else if (pMsgInfo->msgType.mainType == MSG_MMS_TYPE) {
 		err = MsgHandleMMS(pMsgInfo, pSendNoti);
 	}
@@ -509,13 +395,8 @@ msg_error_t MsgHandleSMS(MSG_MESSAGE_INFO_S *pMsgInfo, bool *pSendNoti, bool *bO
 			*bOnlyNoti = false;
 		} else if (pMsgInfo->msgType.classType == MSG_CLASS_0) {
 			MsgLaunchClass0(pMsgInfo->msgId);
-#ifndef MSG_CONTACTS_SERVICE_NOT_SUPPORTED
-			bool isFavorites = false;
-			if (!checkBlockingMode(pMsgInfo->addressList[0].addressVal, &isFavorites)) {
-				MsgPlayTTSMode(pMsgInfo->msgType.subType, pMsgInfo->msgId, isFavorites);
-				MsgSoundPlayer::instance()->MsgSoundPlayStart(&(pMsgInfo->addressList[0]), MSG_SOUND_PLAY_USER);
-			}
-#endif //MSG_CONTACTS_SERVICE_NOT_SUPPORTED
+			MsgSoundPlayStart(&(pMsgInfo->addressList[0]), MSG_SOUND_PLAY_USER);
+
 			*pSendNoti = false;
 			*bOnlyNoti = false;
 
@@ -733,15 +614,8 @@ msg_error_t MsgHandleMMS(MSG_MESSAGE_INFO_S *pMsgInfo,  bool *pSendNoti)
 			return err;
 		}
 	} else if (pMsgInfo->msgType.subType == MSG_READORGIND_MMS || pMsgInfo->msgType.subType == MSG_DELIVERYIND_MMS) {
-		if (MsgInsertNotification(pMsgInfo) == MSG_SUCCESS) {
-#ifndef MSG_CONTACTS_SERVICE_NOT_SUPPORTED
-			bool isFavorites = false;
-			if (!checkBlockingMode(pMsgInfo->addressList[0].addressVal, &isFavorites)) {
-				MsgPlayTTSMode(pMsgInfo->msgType.subType, pMsgInfo->msgId, isFavorites);
-			}
-#endif /* MSG_CONTACTS_SERVICE_NOT_SUPPORTED */
+		if (MsgInsertNotification(pMsgInfo) == MSG_SUCCESS)
 			*pSendNoti = false;
-		}
 	}
 
 #if 0
@@ -753,18 +627,10 @@ msg_error_t MsgHandleMMS(MSG_MESSAGE_INFO_S *pMsgInfo,  bool *pSendNoti)
 	//In the case of m-notification-ind, we should decide whether to send m-notify-response-ind or http 'Get'
 	//submit request
 	if (pMsgInfo->msgType.subType == MSG_NOTIFICATIONIND_MMS) {
-		if (request.msgInfo.msgType.subType == MSG_NOTIFYRESPIND_MMS && bReject == false && bFiltered == false) {
-#ifndef MSG_CONTACTS_SERVICE_NOT_SUPPORTED
-			bool isFavorites = false;
-			if (!checkBlockingMode(pMsgInfo->addressList[0].addressVal, &isFavorites)) {
-				MsgPlayTTSMode(pMsgInfo->msgType.subType, pMsgInfo->msgId, isFavorites);
-			}
-#endif /* MSG_CONTACTS_SERVICE_NOT_SUPPORTED */
-
+		if (request.msgInfo.msgType.subType == MSG_NOTIFYRESPIND_MMS && bReject == false && bFiltered == false)
 			MsgInsertNotification(pMsgInfo);
-		} else {
+		else
 			*pSendNoti = false;
-		}
 
 		MSG_DEBUG("default_sim = %d, pMsgInfo->sim_idx = %d", defaultNetworkSimId, pMsgInfo->sim_idx);
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd. All rights reserved
+ * Copyright (c) 2016 Samsung Electronics Co., Ltd. All rights reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,28 +14,29 @@
  * limitations under the License.
 */
 
-#ifndef MSG_CONTACT_H
-#define MSG_CONTACT_H
+#ifndef __MSG_MGR_ALARM_H__
+#define __MSG_MGR_ALARM_H__
 
 /*==================================================================================================
                                          INCLUDE FILES
 ==================================================================================================*/
-#include "MsgStorageTypes.h"
-#include "MsgInternalTypes.h"
+#include <time.h>
+
+#include <msg.h>
+#include <alarm.h>
 
 /*==================================================================================================
-                                     FUNCTION PROTOTYPES
+					DEFINES
 ==================================================================================================*/
-msg_error_t MsgGetContactInfo(const MSG_ADDRESS_INFO_S *pAddrInfo, MSG_CONTACT_INFO_S *pContactInfo);
 
-msg_error_t MsgGetContactStyleDisplayName(const char *first, const char *last, const char *middle, const char *prefix, const char *suffix, int contactNameOrder, char *displayName, unsigned int size);
+typedef void (*msg_mgr_alarm_cb)(int alarmId);
 
-void MsgAddPhoneLog(const MSG_MESSAGE_INFO_S *pMsgInfo);
-void MsgDeletePhoneLog(msg_message_id_t msgId);
+/*==================================================================================================
+					FUNCTION PROTOTYPES
+==================================================================================================*/
+int MsgMgrAlarmRegistration(struct tm *timeInfo, msg_mgr_alarm_cb userCB, int *alarmId);
+int MsgMgrAlarmRemove(int alarmId);
 
-bool checkBlockingMode(char *address, bool *pisFavorites);
 
-void MsgConvertNumber(const char* pSrcNum, char* pDestNum, int destSize);
-bool MsgIsNumber(const char* pSrc);
-#endif /* MSG_CONTACT_H */
+#endif /*__MSG_MGR_ALARM_H__ */
 

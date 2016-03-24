@@ -22,7 +22,6 @@
 #include "MsgException.h"
 #include "MsgGconfWrapper.h"
 #include "MsgNotificationWrapper.h"
-#include "MsgSoundPlayer.h"
 #include "MsgContact.h"
 #include "MsgUtilStorage.h"
 #include "MsgTextConvert.h"
@@ -288,7 +287,7 @@ void SmsPluginSetting::initConfigData(TapiHandle *handle)
 			memset(keyName, 0x00, sizeof(keyName));
 			snprintf(keyName, sizeof(keyName), "%s/%d", VOICEMAIL_NUMBER, sim_idx);
 			if (MsgSettingSetString(keyName, "") != MSG_SUCCESS)
-				MSG_DEBUG("MsgSettingSetInt is failed!!");
+				MSG_DEBUG("MsgSettingSetString is failed!!");
 
 			memset(keyName, 0x00, sizeof(keyName));
 			snprintf(keyName, sizeof(keyName), "%s/%d", VOICEMAIL_COUNT, sim_idx);

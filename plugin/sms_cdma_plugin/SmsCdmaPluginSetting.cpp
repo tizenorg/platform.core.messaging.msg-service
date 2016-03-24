@@ -23,7 +23,6 @@
 #include "MsgGconfWrapper.h"
 #include "MsgNotificationWrapper.h"
 
-#include "MsgSoundPlayer.h"
 #include "MsgContact.h"
 #include "MsgUtilStorage.h"
 #include "MsgTextConvert.h"

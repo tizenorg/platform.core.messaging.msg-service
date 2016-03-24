@@ -70,7 +70,7 @@ INCLUDE_DIRECTORIES(
 )
 
 INCLUDE(FindPkgConfig)
-pkg_check_modules(fw_handler_pkgs REQUIRED glib-2.0 gio-2.0 dlog vconf capi-appfw-application aul)
+pkg_check_modules(fw_handler_pkgs REQUIRED glib-2.0 gio-2.0 dlog vconf capi-appfw-application)
 
 FOREACH(flag ${fw_handler_pkgs_CFLAGS})
 	SET(EXTRA_CFLAGS "${EXTRA_CFLAGS} ${flag} -std=c++0x")

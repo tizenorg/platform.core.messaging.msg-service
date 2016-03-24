@@ -16,7 +16,6 @@
 
 #include <time.h>
 
-#include <aul.h>
 #include <bundle.h>
 #include <eventsystem.h>
 
@@ -24,7 +23,6 @@
 #include "MsgException.h"
 #include "MsgUtilFile.h"
 #include "MsgContact.h"
-#include "MsgSoundPlayer.h"
 #include "MsgGconfWrapper.h"
 #include "MsgNotificationWrapper.h"
 #include "MsgUtilFunction.h"
@@ -497,10 +495,7 @@ int MsgIncomingMsgHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 			} else {
 				bundle_add_str(b, EVT_KEY_MSG_TYPE, EVT_VAL_SMS);
 				bundle_add_str(b, "cmd", "incoming_msg");
-				int ret = aul_launch_app_for_uid("org.tizen.msg-manager", b, msg_get_login_user());
-				if (ret <= 0) {
-					MSG_DEBUG("aul_launch_app_for_uid() is failed : %d", ret);
-				}
+				msg_launch_app(MSG_MGR_APP_ID, b);
 			}
 			eventsystem_send_system_event(SYS_EVENT_INCOMMING_MSG, b);
 			bundle_free(b);
@@ -712,7 +707,6 @@ __BYPASS_UPDATE:
 		if (msgInfo.networkStatus == MSG_NETWORK_SEND_FAIL) {
 			MSG_DEBUG("message-dialog: send fail");
 			MsgInsertTicker("Sending multimedia message failed.", SENDING_MULTIMEDIA_MESSAGE_FAILED, true, msgInfo.msgId);
-/*			MsgSoundPlayer::instance()->MsgSoundPlayStart(NULL, MSG_NORMAL_SOUND_PLAY); */
 		} else {
 			MSG_DEBUG("message-dialog: send success");
 
@@ -741,10 +735,7 @@ __BYPASS_UPDATE:
 				bundle_add_str(b, EVT_KEY_MSG_ID, msgId);
 				eventsystem_send_system_event(SYS_EVENT_INCOMMING_MSG, b);
 				bundle_add_str(b, "cmd", "incoming_msg");
-				int ret = aul_launch_app_for_uid("org.tizen.msg-manager", b, msg_get_login_user());
-				if (ret <= 0) {
-					MSG_DEBUG("aul_launch_app_for_uid() is failed : %d", ret);
-				}
+				msg_launch_app(MSG_MGR_APP_ID, b);
 				bundle_free(b);
 			}
 #endif /*MSG_CONTACTS_SERVICE_NOT_SUPPORTED */
@@ -850,11 +841,7 @@ int MsgIncomingCBMsgHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 
 	if (msgInfo.msgType.classType == MSG_CLASS_0) {
 		MsgLaunchClass0(msgInfo.msgId);
-		bool isFavorites = false;
-		if (!checkBlockingMode(msgInfo.addressList[0].addressVal, &isFavorites)) {
-			MsgPlayTTSMode(msgInfo.msgType.subType, msgInfo.msgId, isFavorites);
-			MsgSoundPlayer::instance()->MsgSoundPlayStart(&(msgInfo.addressList[0]), MSG_SOUND_PLAY_USER);
-		}
+		MsgSoundPlayStart(&(msgInfo.addressList[0]), MSG_SOUND_PLAY_USER);
 	} else {
 		MsgInsertNotification(&msgInfo);
 	}

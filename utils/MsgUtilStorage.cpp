@@ -2891,9 +2891,11 @@ msg_error_t MsgStoDbSelectWithQuery(const char *szQuery, char ***db_res, int *ro
 	if (err == MSG_ERR_DB_NORECORD) {
 		dbHandle->freeTable(*db_res);
 		err = MSG_SUCCESS;
+		*db_res = NULL;
 	} else if (err != MSG_SUCCESS) {
 		MSG_DEBUG("Fail to getTable().");
 		dbHandle->freeTable(*db_res);
+		*db_res = NULL;
 	}
 
 	return err;

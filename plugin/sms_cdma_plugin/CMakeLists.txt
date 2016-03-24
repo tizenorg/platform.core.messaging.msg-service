@@ -36,7 +36,7 @@ INCLUDE_DIRECTORIES(
 )
 
 INCLUDE(FindPkgConfig)
-pkg_check_modules(sms_plugin_pkgs REQUIRED glib-2.0 tapi libxml-2.0 libwbxml2 dlog vconf gio-2.0 bundle eventsystem aul)
+pkg_check_modules(sms_plugin_pkgs REQUIRED glib-2.0 tapi libxml-2.0 libwbxml2 dlog vconf gio-2.0 bundle eventsystem)
 
 FOREACH(flag ${sms_plugin_pkgs_CFLAGS})
 	SET(EXTRA_CFLAGS "${EXTRA_CFLAGS} ${flag}")

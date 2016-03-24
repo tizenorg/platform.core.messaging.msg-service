@@ -19,6 +19,7 @@
 #include "MsgCppTypes.h"
 #include "MsgGconfWrapper.h"
 #include "MsgSensorWrapper.h"
+#include "MsgNotificationWrapper.h"
 
 #ifndef MSG_WEARABLE_PROFILE
 #include <gesture_recognition.h>
@@ -68,7 +69,35 @@ void MsgGestureCB(gesture_type_e gesture, const gesture_data_h data, double time
 	}
 }
 
+void MsgSensorCBStop()
+{
+	MSG_BEGIN();
+
+
+	MsgDeleteNotification(MSG_NOTI_TYPE_ALL, -1);
+	MsgRefreshNotification(MSG_NOTI_TYPE_ALL, false, MSG_ACTIVE_NOTI_TYPE_NONE);
+#ifndef MSG_NOTI_INTEGRATION
+	MsgRefreshNotification(MSG_NOTI_TYPE_SIM, false, MSG_ACTIVE_NOTI_TYPE_NONE);
+#endif
+
+	MSG_END();
+}
 #endif /* MSG_WEARABLE_PROFILE */
+
+void MsgInitSensor()
+{
+#ifndef MSG_WEARABLE_PROFILE
+	if (MsgSensorConnect() == MSG_SUCCESS) {
+		if (MsgRegSensorCB(&MsgSensorCBStop) != MSG_SUCCESS) {
+			MSG_DEBUG("Fail to MsgRegSensorCB.");
+			MsgSensorDisconnect();
+		}
+	} else {
+		MSG_DEBUG("Fail to MsgSensorConnect.");
+	}
+#endif /* MSG_WEARABLE_PROFILE */
+}
+
 
 msg_error_t MsgSensorConnect()
 {

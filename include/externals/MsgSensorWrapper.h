@@ -30,6 +30,7 @@ typedef void (*msg_sensor_cb)();
 					FUNCTION PROTOTYPES
 ==================================================================================================*/
 
+void MsgInitSensor();
 msg_error_t MsgSensorConnect();
 void MsgSensorDisconnect();
 msg_error_t MsgRegSensorCB(msg_sensor_cb cb);

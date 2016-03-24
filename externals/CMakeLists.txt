@@ -15,7 +15,6 @@ SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS} ${EXTRA_CFLAGS} -O2 -g -Wall")
 ##########################################################
 
 SET(EXTERNALS-SRCS
-	${CMAKE_SOURCE_DIR}/externals/MsgSoundPlayer.cpp
 	${CMAKE_SOURCE_DIR}/externals/MsgNotificationWrapper.cpp
 	${CMAKE_SOURCE_DIR}/externals/MsgSpamFilter.cpp
 	${CMAKE_SOURCE_DIR}/externals/MsgLbs.cpp
@@ -32,7 +31,7 @@ INCLUDE_DIRECTORIES(
 )
 
 INCLUDE(FindPkgConfig)
-pkg_check_modules(externals_pkgs REQUIRED glib-2.0 alarm-service notification badge iniparser capi-appfw-package-manager capi-appfw-application lbs-dbus feedback capi-system-device motion capi-media-player capi-media-sound-manager)
+pkg_check_modules(externals_pkgs REQUIRED glib-2.0 alarm-service notification iniparser lbs-dbus feedback capi-system-device motion)
 
 FOREACH(flag ${externals_pkgs_CFLAGS})
 	SET(EXTRA_CFLAGS "${EXTRA_CFLAGS} ${flag}")

@@ -6,7 +6,13 @@
         <icon>msg-manager.png</icon>
     </service-application>
     <privileges>
+        <privilege>http://tizen.org/privilege/alarm.set</privilege>
         <privilege>http://tizen.org/privilege/message.read</privilege>
+        <privilege>http://tizen.org/privilege/callhistory.read</privilege>
         <privilege>http://tizen.org/privilege/callhistory.write</privilege>
+        <privilege>http://tizen.org/privilege/notification</privilege>
+        <privilege>http://tizen.org/privilege/haptic</privilege>
+        <privilege>http://tizen.org/privilege/mediastorage</privilege>
+        <privilege>http://tizen.org/privilege/externalstorage</privilege>
     </privileges>
 </manifest>

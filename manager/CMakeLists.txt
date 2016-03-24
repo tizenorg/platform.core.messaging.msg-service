@@ -1,5 +1,4 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
-include(CheckCCompilerFlag)
 
 SET(MSG-MGR-PKGNAME org.tizen.msg-manager)
 
@@ -20,17 +19,19 @@ SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS} ${EXTRA_CFLAGS} -O2 -g -Wall")
 
 SET(MSG-MANAGER-SRCS
         ${CMAKE_CURRENT_SOURCE_DIR}/src/msg-manager.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/msg-manager-alarm.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/src/msg-manager-contact.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/src/msg-manager-notification.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/msg-manager-sound.cpp
 )
 
 INCLUDE_DIRECTORIES(
 		${CMAKE_SOURCE_DIR}/include/mapi
-        ${CMAKE_CURRENT_SOURCE_DIR}/inc/
+		${CMAKE_CURRENT_SOURCE_DIR}/inc/
 )
 
 INCLUDE(FindPkgConfig)
-pkg_check_modules(mgr_pkgs REQUIRED glib-2.0 dlog appcore-agent bundle contacts-service2 capi-appfw-application notification)
+pkg_check_modules(mgr_pkgs REQUIRED glib-2.0 dlog alarm-service appcore-agent badge bundle callmgr_client contacts-service2 capi-appfw-application capi-appfw-package-manager notification vconf phonenumber-utils feedback capi-media-player capi-media-sound-manager)
 INCLUDE_DIRECTORIES(${mgr_pkgs_INCLUDE_DIRS})
 LINK_DIRECTORIES(${mgr_pkgs_LIBRARY_DIRS})
 

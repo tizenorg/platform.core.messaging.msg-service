@@ -29,13 +29,6 @@
 #if 0
 __thread bool isContactSvcConnected = false;
 #endif
-/* phonenumber minimum match digit. */
-#define PHONENUMBER_MIN_MATCH_DIGIT VCONFKEY_CONTACTS_SVC_PHONENUMBER_MIN_MATCH_DIGIT
-#define DEFAULT_MIN_MATCH_DIGIT 8
-
-#ifndef MSG_CONTACTS_SERVICE_NOT_SUPPORTED
-static int phonenumberMinMatchDigit = -1;
-#endif
 
 /*==================================================================================================
                                      INTERNAL FUNCTION IMPLEMENTATION
@@ -204,22 +197,6 @@ void normalizeNumber(const char *orig, char* dest, unsigned int destSize)
 /*==================================================================================================
                                      FUNCTION IMPLEMENTATION
 ==================================================================================================*/
-msg_error_t MsgInitContactSvc()
-{
-#ifndef MSG_CONTACTS_SERVICE_NOT_SUPPORTED
-	if (MsgSettingGetInt(PHONENUMBER_MIN_MATCH_DIGIT, &phonenumberMinMatchDigit) != MSG_SUCCESS) {
-		MSG_INFO("MsgSettingGetInt() is failed");
-	}
-	MSG_DEBUG("phonenumberMinMatchDigit [%d]", phonenumberMinMatchDigit);
-
-	if (phonenumberMinMatchDigit < 1) {
-		phonenumberMinMatchDigit = DEFAULT_MIN_MATCH_DIGIT;
-	}
-#endif /* MSG_CONTACTS_SERVICE_NOT_SUPPORTED */
-	return MSG_SUCCESS;
-}
-
-
 msg_error_t MsgGetContactInfo(const MSG_ADDRESS_INFO_S *pAddrInfo, MSG_CONTACT_INFO_S *pContactInfo)
 {
 	MSG_BEGIN();
@@ -829,15 +806,6 @@ bool checkBlockingMode(char *address, bool *pisFavorites)
 		*pisFavorites = false;
 
 	return false;
-#endif
-}
-
-int MsgContactGetMinMatchDigit()
-{
-#ifndef MSG_CONTACTS_SERVICE_NOT_SUPPORTED
-	return phonenumberMinMatchDigit;
-#else
-	return DEFAULT_MIN_MATCH_DIGIT;
 #endif
 }
 

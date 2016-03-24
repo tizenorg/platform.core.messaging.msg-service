@@ -19,7 +19,6 @@
 #include <stdlib.h>
 #include <errno.h>
 
-#include <aul.h>
 #include <bundle.h>
 #include <eventsystem.h>
 
@@ -113,10 +112,7 @@ void SmsPluginEventHandler::handleSentStatus(msg_network_status_t NetStatus)
 					bundle_add_str(b, EVT_KEY_OUT_MSG_ID, msgId);
 					eventsystem_send_system_event(SYS_EVENT_OUTGOING_MSG, b);
 					bundle_add_str(b, "cmd", "outgoing_msg");
-					int ret = aul_launch_app_for_uid("org.tizen.msg-manager", b, msg_get_login_user());
-					if (ret <= 0) {
-						MSG_DEBUG("aul_launch_app_for_uid() is failed : %d", ret);
-					}
+					msg_launch_app(MSG_MGR_APP_ID, b);
 					bundle_free(b);
 				}
 			} else {

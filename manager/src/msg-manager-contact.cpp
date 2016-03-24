@@ -19,7 +19,7 @@
 ==================================================================================================*/
 
 #include <stdlib.h>
-#include <stdbool.h>
+#include <stdio.h>
 #include <glib.h>
 
 #include <msg_storage.h>
@@ -172,4 +172,234 @@ void MsgMgrAddPhoneLog(contactInfo *contact_info)
 
 		contacts_record_destroy(plog, true);
 	}
+}
+
+int MsgMgrGetContactInfo(const MSG_MGR_ADDRESS_INFO_S *pAddrInfo, MSG_MGR_CONTACT_INFO_S *pContactInfo)
+{
+	MSG_MGR_BEGIN();
+#ifndef MSG_CONTACTS_SERVICE_NOT_SUPPORTED
+	int err = 0;
+
+	if ((err = MsgMgrOpenContactSvc()) != 0) {
+		MSG_MGR_DEBUG("MsgMgrOpenContactSvc fail.");
+		return err;
+	}
+
+	if (!isContactSvcConnected) {
+		MSG_MGR_DEBUG("Contact Service Not Opened.");
+		return -1;
+	}
+
+	MSG_MGR_SEC_DEBUG("Address Type [%d], Address Value [%s]", pAddrInfo->addressType, pAddrInfo->addressVal);
+
+	memset(pContactInfo, 0x00, sizeof(MSG_MGR_CONTACT_INFO_S));
+
+	if (pAddrInfo->addressType == MSG_ADDRESS_TYPE_PLMN && strlen(pAddrInfo->addressVal) > (MAX_PHONE_NUMBER_LEN+1)) {
+		MSG_MGR_SEC_DEBUG("Phone Number is too long [%s]", pAddrInfo->addressVal);
+		return -1;
+	}
+
+	int ret = 0;
+	int index = 0;
+	int count = 0;
+	contacts_query_h query = NULL;
+	contacts_filter_h filter = NULL;
+	contacts_list_h contacts = NULL;
+
+	if (pAddrInfo->addressType == MSG_ADDRESS_TYPE_PLMN || pAddrInfo->addressType == MSG_ADDRESS_TYPE_UNKNOWN) {
+		ret = contacts_query_create(_contacts_contact_number._uri, &query);
+		ret = contacts_filter_create(_contacts_contact_number._uri, &filter);
+
+		ret = contacts_filter_add_str(filter, _contacts_contact_number.number_filter, CONTACTS_MATCH_EXACTLY, pAddrInfo->addressVal);
+
+	} else if (pAddrInfo->addressType == MSG_ADDRESS_TYPE_EMAIL) {
+		ret = contacts_query_create(_contacts_contact_email._uri, &query);
+		ret = contacts_filter_create(_contacts_contact_email._uri, &filter);
+
+		ret = contacts_filter_add_str(filter, _contacts_contact_email.email, CONTACTS_MATCH_EXACTLY, pAddrInfo->addressVal);
+
+	} else {
+		MSG_MGR_DEBUG("Invalid pAddrInfo->addressType.");
+		return -1;
+	}
+
+	ret = contacts_query_set_filter(query, filter);
+	ret = contacts_db_get_records_with_query(query, 0, 1, &contacts);
+	if (ret != CONTACTS_ERROR_NONE) {
+		MSG_MGR_DEBUG("contacts_db_get_records_with_query() Error [%d]", ret);
+		contacts_query_destroy(query);
+		contacts_filter_destroy(filter);
+		contacts_list_destroy(contacts, true);
+		return -1;
+	}
+
+	ret = contacts_list_get_count(contacts, &count);
+
+	if (count == 0 || ret != CONTACTS_ERROR_NONE) {
+		MSG_MGR_DEBUG("No Serach Data from Contact Service.");
+		contacts_query_destroy(query);
+		contacts_filter_destroy(filter);
+		contacts_list_destroy(contacts, true);
+		return 0;
+	}
+
+	contacts_query_destroy(query);
+	contacts_filter_destroy(filter);
+
+	contacts_record_h contact = NULL;
+
+	if (pAddrInfo->addressType == MSG_ADDRESS_TYPE_PLMN || pAddrInfo->addressType == MSG_ADDRESS_TYPE_UNKNOWN) {
+		contacts_record_h number = NULL;
+
+		ret = contacts_list_get_current_record_p(contacts, &number);
+		if (ret != CONTACTS_ERROR_NONE) {
+			MSG_MGR_DEBUG("contacts_list_get_current_record_p() Error [%d]", ret);
+			contacts_list_destroy(contacts, true);
+			return -1;
+		}
+
+		ret = contacts_record_get_int(number, _contacts_contact_number.contact_id, &index);
+		if (ret != CONTACTS_ERROR_NONE) {
+			MSG_MGR_DEBUG("contacts_record_get_int() Error [%d]", ret);
+			contacts_list_destroy(contacts, true);
+			return -1;
+		}
+
+		ret = contacts_db_get_record(_contacts_contact._uri, index, &contact);
+		if (ret != CONTACTS_ERROR_NONE) {
+			MSG_MGR_DEBUG("contacts_db_get_record() Error [%d]", ret);
+			contacts_list_destroy(contacts, true);
+			return -1;
+		}
+	} else if (pAddrInfo->addressType == MSG_ADDRESS_TYPE_EMAIL) {
+		contacts_record_h email = NULL;
+
+		ret = contacts_list_get_current_record_p(contacts, &email);
+		if (ret != CONTACTS_ERROR_NONE) {
+			MSG_MGR_DEBUG("contacts_list_get_current_record_p() Error [%d]", ret);
+			contacts_list_destroy(contacts, true);
+			return -1;
+		}
+
+		ret = contacts_record_get_int(email, _contacts_contact_email.contact_id, &index);
+		if (ret != CONTACTS_ERROR_NONE) {
+			MSG_MGR_DEBUG("contacts_record_get_int() Error [%d]", ret);
+			contacts_list_destroy(contacts, true);
+			return -1;
+		}
+
+		ret = contacts_db_get_record(_contacts_contact._uri, index, &contact);
+		if (ret != CONTACTS_ERROR_NONE) {
+			MSG_MGR_DEBUG("contacts_db_get_record() Error [%d]", ret);
+			contacts_list_destroy(contacts, true);
+			return -1;
+		}
+	}
+
+	contacts_list_destroy(contacts, true);
+
+	ret = contacts_record_get_int(contact, _contacts_contact.id, (int*)&pContactInfo->contactId);
+	if (ret != CONTACTS_ERROR_NONE) {
+		MSG_MGR_DEBUG("contacts_db_get_record() Error [%d]", ret);
+		contacts_record_destroy(contact, true);
+		return -1;
+	}
+
+	MSG_MGR_DEBUG("Contact ID [%d]", pContactInfo->contactId);
+
+	ret = contacts_record_get_int(contact, _contacts_contact.address_book_id, (int*)&pContactInfo->addrbookId);
+	if (ret != CONTACTS_ERROR_NONE) {
+		MSG_MGR_DEBUG("contacts_db_get_record() Error [%d]", ret);
+		contacts_record_destroy(contact, true);
+		return -1;
+	}
+
+	MSG_MGR_DEBUG("Address Book ID [%d]", pContactInfo->addrbookId);
+
+	char* strImagePath = NULL;
+	ret = contacts_record_get_str_p(contact, _contacts_contact.image_thumbnail_path, &strImagePath);
+	if (ret != CONTACTS_ERROR_NONE) {
+		MSG_MGR_DEBUG("contacts_record_get_str_p() Error [%d]", ret);
+	}
+	if (strImagePath != NULL) {
+		strncpy(pContactInfo->imagePath , strImagePath, MAX_IMAGE_PATH_LEN);
+		MSG_MGR_DEBUG("Image Path [%s]", pContactInfo->imagePath);
+	}
+
+	char* alerttonePath = NULL;
+	ret = contacts_record_get_str_p(contact, _contacts_contact.message_alert, &alerttonePath);
+	if (ret != CONTACTS_ERROR_NONE) {
+		MSG_MGR_DEBUG("contacts_record_get_str_p() Error [%d]", ret);
+	}
+
+	if (alerttonePath != NULL && access(alerttonePath, F_OK) != 0) {
+		alerttonePath = NULL;
+	}
+
+	if (alerttonePath != NULL) {
+		MSG_MGR_DEBUG("alert tone Path [%s]", alerttonePath);
+		strncpy(pContactInfo->alerttonePath , alerttonePath, MSG_FILEPATH_LEN_MAX);
+	} else {
+		MSG_MGR_DEBUG("alert tone Path for this contact is default");
+		count = 0;
+		ret = contacts_record_get_child_record_count(contact, _contacts_contact.group_relation, &count);
+		if (ret != CONTACTS_ERROR_NONE) {
+			MSG_MGR_DEBUG("contacts_record_get_child_record_count() Error [%d]", ret);
+		}
+
+		contacts_record_h group_relation_record;
+
+		for (int i = 0; i < count; i++) {
+			int group_id = 0;
+			contacts_record_get_child_record_at_p(contact, _contacts_contact.group_relation, i, &group_relation_record);
+			contacts_record_get_int(group_relation_record, _contacts_group_relation.group_id, &group_id);
+
+			contacts_record_h group_record;
+			contacts_db_get_record(_contacts_group._uri, group_id, &group_record);
+
+			MSG_MGR_DEBUG("Group ID = [%d]", group_id);
+
+			char *group_ringtone_path;
+			ret = contacts_record_get_str_p(group_record, _contacts_group.message_alert, &group_ringtone_path);
+			if (ret != CONTACTS_ERROR_NONE) {
+				MSG_MGR_DEBUG("contacts_record_get_child_record_count() Error [%d]", ret);
+			} else {
+				if (group_ringtone_path) {
+					MSG_MGR_DEBUG("Msg alert_tone is change to [%s] as contact group", group_ringtone_path);
+					memset(pContactInfo->alerttonePath, 0x00, sizeof(pContactInfo->alerttonePath));
+					snprintf(pContactInfo->alerttonePath, sizeof(pContactInfo->alerttonePath), "%s", group_ringtone_path);
+					contacts_record_destroy(group_record, true);
+					break;
+				}
+			}
+			contacts_record_destroy(group_record, true);
+		}
+	}
+
+	char* vibrationPath = NULL;
+	ret = contacts_record_get_str_p(contact, _contacts_contact.vibration, &vibrationPath);
+	if (ret != CONTACTS_ERROR_NONE) {
+		MSG_MGR_DEBUG("contacts_record_get_str_p() Error [%d]", ret);
+	}
+	if (vibrationPath != NULL) {
+		MSG_MGR_DEBUG("vibration Path [%s]", vibrationPath);
+		strncpy(pContactInfo->vibrationPath , vibrationPath, MSG_FILEPATH_LEN_MAX);
+	}
+
+	char* displayName = NULL;
+	ret = contacts_record_get_str_p(contact, _contacts_contact.display_name, &displayName);
+	if (ret != CONTACTS_ERROR_NONE) {
+		MSG_MGR_DEBUG("contacts_record_get_str_p() Error [%d]", ret);
+	}
+	if (displayName != NULL) {
+		MSG_MGR_DEBUG("displayName [%s]", displayName);
+		strncpy(pContactInfo->firstName , displayName, MAX_DISPLAY_NAME_LEN);
+	}
+
+	contacts_record_destroy(contact, true);
+
+#endif /* MSG_CONTACTS_SERVICE_NOT_SUPPORTED */
+	MSG_MGR_END();
+
+	return 0;
 }

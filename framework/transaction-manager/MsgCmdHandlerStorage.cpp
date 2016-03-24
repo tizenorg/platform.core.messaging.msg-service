@@ -15,20 +15,20 @@
 */
 
 #include <stdlib.h>
+#include <glib.h>
 
 #include "MsgDebug.h"
 #include "MsgUtilFile.h"
 #include "MsgException.h"
 #include "MsgCppTypes.h"
-/*#include "MsgSoundPlayer.h" */
 #include "MsgUtilFunction.h"
 #include "MsgStorageHandler.h"
 #include "MsgPluginManager.h"
 #include "MsgTransManager.h"
 #include "MsgCmdHandler.h"
 #include "MsgNotificationWrapper.h"
+#include "MsgSqliteWrapper.h"
 #include "MsgMutex.h"
-#include <glib.h>
 
 /*==================================================================================================
                                      FUNCTION IMPLEMENTATION

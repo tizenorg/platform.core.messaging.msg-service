@@ -23,7 +23,6 @@
 #include "MsgCppTypes.h"
 #include "MsgUtilFile.h"
 #include "MsgContact.h"
-#include "MsgSoundPlayer.h"
 #include "MsgGconfWrapper.h"
 #include "MsgSqliteWrapper.h"
 #include "MsgPluginManager.h"

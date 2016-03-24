@@ -32,7 +32,6 @@ msg_error_t MsgHandleIncomingMsg(MSG_MESSAGE_INFO_S *pMsgInfo, bool *pSendNoti);
 msg_error_t MsgHandleSMS(MSG_MESSAGE_INFO_S *pMsgInfo, bool *pSendNoti, bool *bOnlyNoti);
 msg_error_t MsgHandleMMS(MSG_MESSAGE_INFO_S *pMsgInfo, bool *pSendNoti);
 
-void MsgPlayTTSMode(MSG_SUB_TYPE_T msgSubType, msg_message_id_t msgId, bool isFavorites);
 void MsgLaunchClass0(msg_message_id_t msgId);
 
 /*==================================================================================================

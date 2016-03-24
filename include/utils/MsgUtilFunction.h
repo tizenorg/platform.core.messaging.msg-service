@@ -28,6 +28,8 @@
 #include "MsgInternalTypes.h"
 #include "MsgCmdTypes.h"
 
+#include <bundle.h>
+
 /*==================================================================================================
                                       DEFINES
 ==================================================================================================*/
@@ -44,6 +46,8 @@
 ==================================================================================================*/
 
 bool MsgCheckFeatureSupport(const char *feature_name);
+
+int MsgContactGetMinMatchDigit();
 
 /* Encoders */
 int MsgEncodeCountInfo(MSG_COUNT_INFO_S *pCountInfo, char **ppDest);
@@ -151,6 +155,8 @@ void msg_replace_space_char(char *pszText);
 gchar * msg_replace_non_ascii_char(const gchar *pszText, gunichar replacementChar);
 
 uid_t msg_get_login_user();
+
+msg_error_t msg_launch_app(const char *app_id, bundle *bundle_data);
 
 /* Dbus function */
 void MsgDbusInit();

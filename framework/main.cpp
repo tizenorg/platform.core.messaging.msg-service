@@ -23,6 +23,7 @@
 #include "MsgContact.h"
 #include "MsgMemory.h"
 #include "MsgGconfWrapper.h"
+#include "MsgSensorWrapper.h"
 #include "MsgPluginManager.h"
 #include "MsgSettingHandler.h"
 #include "MsgStorageHandler.h"
@@ -30,7 +31,6 @@
 #include "MsgDeliverHandler.h"
 #include "MsgTransManager.h"
 #include "MsgStorageTypes.h"
-#include "MsgSoundPlayer.h"
 #include "MsgCmdHandler.h"
 #include "MsgUtilFile.h"
 #include "MsgUtilStorage.h"
@@ -53,11 +53,6 @@ void* InitMsgServer(void*)
 	msg_error_t err = MSG_SUCCESS;
 	MSG_DEBUG("Start InitMsgServer.");
 
-#ifndef MSG_CONTACTS_SERVICE_NOT_SUPPORTED
-	/* Init contact digit number */
-	MsgInitContactSvc();
-#endif /* MSG_CONTACTS_SERVICE_NOT_SUPPORTED */
-
 	MsgInitCallStatusManager();
 
 	try {
@@ -72,7 +67,7 @@ void* InitMsgServer(void*)
 			MSG_ERR("FAIL TO INITIALIZE STORAGE HANDLER [%d]", err);
 		}
 
-		MsgInitNoti();
+		MsgInitSensor();
 
 		/* plugin manager initialize */
 		MsgPluginManager::instance()->initialize();
@@ -81,8 +76,6 @@ void* InitMsgServer(void*)
 	} catch (exception& e) {
 		MSG_FATAL("%s", e.what());
 	}
-
-/*	MsgSoundPlayer::instance()->MsgSoundInitRepeatAlarm(); */
 
 	MsgStoDisconnectDB();
 
