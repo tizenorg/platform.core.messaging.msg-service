@@ -364,8 +364,8 @@ void MsgTransactionManager::handleRequest(int fd)
 		return;
 	}
 
-	if (len <= 0)
-		THROW(MsgException::INVALID_RESULT, "read buffer size <= 0");
+	if (len <= 0 && len >= MSG_MAX_IPC_SIZE)
+		THROW(MsgException::INVALID_RESULT, "read buffer size <= 0 or over max ipc size");
 
 	char* pEventData = NULL;
 	unique_ptr<char*, void(*)(char**)> eventBuf(&pEventData, unique_ptr_deleter);

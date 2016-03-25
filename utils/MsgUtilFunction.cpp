@@ -1020,20 +1020,12 @@ msg_error_t MsgMakeSortRule(const MSG_SORT_RULE_S *pSortRule, char *pSqlSort)
 	else
 		strncpy(order, "DESC", 5);
 
-	int nameOrder = 0;
-
 	switch (pSortRule->sortType) {
 		case MSG_SORT_BY_DISPLAY_FROM :
-			if (nameOrder == 0)
-				snprintf(sql, sizeof(sql), "ORDER BY B.FIRST_NAME %s, B.LAST_NAME %s, B.ADDRESS_VAL, A.DISPLAY_TIME DESC;", order, order);
-			else
-				snprintf(sql, sizeof(sql), "ORDER BY B.LAST_NAME %s, B.FIRST_NAME %s, B.ADDRESS_VAL, A.DISPLAY_TIME DESC;", order, order);
+			snprintf(sql, sizeof(sql), "ORDER BY B.FIRST_NAME %s, B.LAST_NAME %s, B.ADDRESS_VAL, A.DISPLAY_TIME DESC;", order, order);
 			break;
 		case MSG_SORT_BY_DISPLAY_TO :
-			if (nameOrder == 0)
-				snprintf(sql, sizeof(sql), "ORDER BY B.FIRST_NAME %s, B.LAST_NAME %s, B.ADDRESS_VAL, A.DISPLAY_TIME DESC;", order, order);
-			else
-				snprintf(sql, sizeof(sql), "ORDER BY B.LAST_NAME %s, B.FIRST_NAME %s, B.ADDRESS_VAL, A.DISPLAY_TIME DESC;", order, order);
+			snprintf(sql, sizeof(sql), "ORDER BY B.FIRST_NAME %s, B.LAST_NAME %s, B.ADDRESS_VAL, A.DISPLAY_TIME DESC;", order, order);
 			break;
 		case MSG_SORT_BY_DISPLAY_TIME :
 			snprintf(sql, sizeof(sql), "ORDER BY DISPLAY_TIME %s;", order);
@@ -1048,10 +1040,7 @@ msg_error_t MsgMakeSortRule(const MSG_SORT_RULE_S *pSortRule, char *pSqlSort)
 			snprintf(sql, sizeof(sql), "ORDER BY A.STORAGE_ID %s, A.DISPLAY_TIME DESC;", order);
 			break;
 		case MSG_SORT_BY_THREAD_NAME :
-			if (nameOrder == 0)
-				snprintf(sql, sizeof(sql), "ORDER BY FIRST_NAME %s, LAST_NAME %s;", order, order);
-			else
-				snprintf(sql, sizeof(sql), "ORDER BY LAST_NAME %s, FIRST_NAME %s;", order, order);
+			snprintf(sql, sizeof(sql), "ORDER BY FIRST_NAME %s, LAST_NAME %s;", order, order);
 			break;
 		case MSG_SORT_BY_THREAD_DATE :
 			snprintf(sql, sizeof(sql), "ORDER BY MSG_TIME %s;", order);

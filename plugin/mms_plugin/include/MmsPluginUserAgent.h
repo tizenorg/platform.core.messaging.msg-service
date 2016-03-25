@@ -27,7 +27,7 @@ class MmsPluginUaManager: public MsgThread {
 		static MmsPluginUaManager *instance();
 		virtual void start();
 
-		void addMmsReqEntity(mmsTranQEntity req);
+		void addMmsReqEntity(mmsTranQEntity *req);
 		void getMmsPduData(mmsTranQEntity *qEntity);
 		bool processReceivedData(int msgId, char *pRcvdBody, int rcvdBodyLen, char *retrievedFilePath);
 

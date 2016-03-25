@@ -503,7 +503,7 @@ _VUnfolding(char *string)
 
 		/* 12.03.2004 Process garbage character at the end of vcard/vcal */
 		if (_VIsSpace(string[i]) &&  (i < len-5)) {
-			if (string[i-1] == LF || string[i-1] == CR) {
+			if (i >= 1 && (string[i-1] == LF || string[i-1] == CR)) {
 				if (j < 2)
 					j = 0;
 				else
@@ -512,7 +512,7 @@ _VUnfolding(char *string)
 				string[i-1] = 0;
 			}
 
-			if (string[i-2] == LF || string[i-2] == CR) {
+			if (i >= 2 && (string[i-2] == LF || string[i-2] == CR)) {
 				if (j < 1)
 					j = 0;
 				else
@@ -635,29 +635,45 @@ _VUnfoldingNoSpecNew(char *string)
 				if (string[i+1] == CR && string[i+2] == LF) {
 
 					if (__VIsNewType(string) == false) {
-						j -= 2;
+						if (j >= 2)
+							j -= 2;
+						else
+							j = 0;
 						i += 2;
 					}
 				} else if (string[i+1] == CR || string[i+1] == LF) {
 					if (__VIsNewType(string) == false) {
-						j -= 1;
+						if (j >= 1)
+							j -= 1;
+						else
+							j = 0;
 						i += 1;
 					}
 				}
 			} else if (string[i] == ' ') {
 
-				if (string[i-2] == CR && string[i-1] == LF) {
-					if (__VIsNewType(string) == false)
-						j -= 3;
-					else
+				if (i >= 2 && string[i-2] == CR && string[i-1] == LF) {
+					if (__VIsNewType(string) == false) {
+						if (j >= 3)
+							j -= 3;
+						else
+							j = 0;
+					} else {
 						j -= 1;
-				} else if (string[i-1] == CR || string[i-1] == LF) {
-					j -= 2;
+					}
+				} else if (i >= 1 && (string[i-1] == CR || string[i-1] == LF)) {
+					if (j >= 2)
+						j -= 2;
+					else
+						j = 0;
 				}
 			} else if ((string[i] == CR || string[i] == LF) && __VIsNewType(string) == false) {
 
 				if (string[i+1] == LF) {
-					j -= 1;
+					if (j >= 1)
+						j -= 1;
+					else
+						j = 0;
 					i += 1;
 				}
 			}
@@ -704,7 +720,7 @@ _VUnfoldingNoSpec(char *string, int vType)
 					i += 2;
 				}
 			} else if (string[i] == WSP || string[i] == TAB) {
-				if (string[i-2] == CR && string[i-1] == LF) {
+				if (i >= 2 && string[i-2] == CR && string[i-1] == LF) {
 					string[i] = 0;
 					string[i-1] = 0;
 					string[i-2] = 0;
@@ -712,7 +728,7 @@ _VUnfoldingNoSpec(char *string, int vType)
 						j -= 3;
 					else
 						j = 0;
-				} else if (string[i-1] == CR || string[i-1] == LF) {
+				} else if (i >= 1 && (string[i-1] == CR || string[i-1] == LF)) {
 					string[i] = 0;
 					string[i-1] = 0;
 

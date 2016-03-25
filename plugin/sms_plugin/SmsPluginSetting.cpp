@@ -284,12 +284,11 @@ void SmsPluginSetting::initConfigData(TapiHandle *handle)
 			char keyName[MAX_VCONFKEY_NAME_LEN];
 
 			MSG_INFO("=================SIM CHANGED===================");
-			/* reset default voicemail number and voicemail number */
-
+			/* reset voicemail number */
 			memset(keyName, 0x00, sizeof(keyName));
-			snprintf(keyName, sizeof(keyName), "%s/%d", VOICEMAIL_DEFAULT_NUMBER, sim_idx);
+			snprintf(keyName, sizeof(keyName), "%s/%d", VOICEMAIL_NUMBER, sim_idx);
 			if (MsgSettingSetString(keyName, "") != MSG_SUCCESS)
-				MSG_DEBUG("MsgSettingSetString is failed!!");
+				MSG_DEBUG("MsgSettingSetInt is failed!!");
 
 			memset(keyName, 0x00, sizeof(keyName));
 			snprintf(keyName, sizeof(keyName), "%s/%d", VOICEMAIL_COUNT, sim_idx);
@@ -303,42 +302,6 @@ void SmsPluginSetting::initConfigData(TapiHandle *handle)
 
 			MsgDeleteNoti(MSG_NOTI_TYPE_VOICE_1, sim_idx);
 			MsgDeleteNoti(MSG_NOTI_TYPE_VOICE_2, sim_idx);
-		}
-
-		/*==================== Default Voice mail Setting ====================*/
-		memset(keyName, 0x00, sizeof(keyName));
-		snprintf(keyName, sizeof(keyName), "%s/%d", VOICEMAIL_DEFAULT_NUMBER, sim_idx);
-		char *num = NULL;
-		if (MsgSettingGetString(keyName, &num) != MSG_SUCCESS) {
-			MSG_INFO("MsgSettingGetString() is failed");
-		}
-
-		if (num && num[0] != '\0') {
-			MSG_DEBUG("Voicemail Default Number [%s]", num);
-
-			memset(keyName, 0x00, sizeof(keyName));
-			snprintf(keyName, sizeof(keyName), "%s/%d", VOICEMAIL_NUMBER, sim_idx);
-
-			if (MsgSettingSetString(keyName, num) != MSG_SUCCESS)
-				MSG_DEBUG("MsgSettingSetInt is failed!!");
-
-			free(num);
-			num = NULL;
-		} else {
-			MSG_DEBUG("Voicemail Default Number is NULL");
-
-			memset(keyName, 0x00, sizeof(keyName));
-			snprintf(keyName, sizeof(keyName), "%s/%d", VOICEMAIL_NUMBER, sim_idx);
-
-			char *voicemail = NULL;
-			if (MsgSettingGetString(keyName, &voicemail) != MSG_SUCCESS) {
-				MSG_INFO("MsgSettingGetString() is failed");
-			}
-
-			if (!voicemail || voicemail[0] == '\0') {
-				if (MsgSettingSetString(keyName, "") != MSG_SUCCESS)
-					MSG_DEBUG("MsgSettingSetInt is failed!!");
-			}
 		}
 
 		/*==================== Voice mail information update ====================*/
@@ -1702,8 +1665,12 @@ bool SmsPluginSetting::getMailboxInfoEvent()
 {
 	int ret = 0;
 
+	mx.lock();
+
 	bTapiResult = false;
 	ret = cv.timedwait(mx.pMutex(), MAX_TAPI_SIM_API_TIMEOUT);
+
+	mx.unlock();
 
 	if (ret == ETIMEDOUT) {
 		MSG_DEBUG("WARNING: TAPI callback TIME-OUT");

@@ -890,12 +890,11 @@ static inline int __msgsvc_vmsg_append_msg_body(MSG_MESSAGE_INFO_S *pMsg, char *
 	MSGSVC_VMSG_APPEND_STR(buf, buf_size, len, MSGSVC_CRLF);
 
 	/* Date: */
+	MSGSVC_VMSG_APPEND_STR(buf, buf_size, len, content_name[VMSG_BODY_PROPERTY_DATE]);
+	MSGSVC_VMSG_APPEND_STR(buf, buf_size, len, content_name[VMSG_DATA_SEPARATOR]);
 	tzset();
 	localtime_r(&(pMsg->displayTime), &display_time);
 	char *msgDate = __msgsvc_vmsg_convert_tm_to_vdata_str(&display_time);
-
-	MSGSVC_VMSG_APPEND_STR(buf, buf_size, len, content_name[VMSG_BODY_PROPERTY_DATE]);
-	MSGSVC_VMSG_APPEND_STR(buf, buf_size, len, content_name[VMSG_DATA_SEPARATOR]);
 	if (msgDate !=NULL) {
 		MSGSVC_VMSG_APPEND_STR_FREE(buf, buf_size, len, msgDate);
 		MSGSVC_VMSG_APPEND_STR(buf, buf_size, len, MSGSVC_CRLF);
@@ -1156,10 +1155,11 @@ char *MsgVMessageEncode(MSG_MESSAGE_INFO_S *pMsg)
 
 #endif
 		MSG_DEBUG("FILE SIZE IS %d, %s", fileSize, pFileData);
-		msgText = (char *)calloc(1, fileSize);
-		if(pFileData && msgText)
-			memcpy(msgText, pFileData, fileSize);
-
+		if (fileSize > 0) {
+			msgText = (char *)calloc(1, fileSize);
+			if(pFileData && msgText)
+				memcpy(msgText, pFileData, fileSize);
+		}
 		pObject->numOfBiData = fileSize;
 		pObject->pszValue[0] = msgText;
 		pObject->valueCount = 1;

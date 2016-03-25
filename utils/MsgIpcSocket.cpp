@@ -192,7 +192,11 @@ int MsgIpcClientSocket::readn(char *buf, unsigned int len )
 			break;
 		}
 
-		nleft -= nread;
+		if (nleft >= (unsigned int)nread)
+			nleft -= nread;
+		else
+			return -1;
+
 		memcpy(buf, t_buf, nread);
 		buf += nread;
 	}
@@ -442,7 +446,11 @@ int MsgIpcServerSocket::readn(int fd, char *buf, unsigned int len )
 		else if (nread == 0)
 			break;
 
-		nleft -= nread;
+		if (nleft >= (unsigned int)nread)
+			nleft -= nread;
+		else
+			return -1;
+
 		buf += nread;
 	}
 	return (len-nleft);
@@ -483,7 +491,7 @@ int MsgIpcServerSocket::read(int fd, char** buf, int* len )
 		return *len;
 
 	/* read the data in subsequence */
-	if (*len > 0) {
+	if (*len > 0 && *len < MSG_MAX_IPC_SIZE) {
 		unsigned int ulen = (unsigned int)*len;
 		*buf = new char[ulen+1];
 		bzero(*buf, ulen+1);

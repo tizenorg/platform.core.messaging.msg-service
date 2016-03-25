@@ -1012,7 +1012,7 @@ VTree* vmsg_decode(char *pMsgRaw)
 				dLen = 0;
 				temp = __VMsgGetTypeVal(pMsgRaw, &status, &dLen, enc, pCurrent->pCur);
 
-				if (valueCount <= VDATA_VALUE_COUNT_MAX) {
+				if (valueCount < VDATA_VALUE_COUNT_MAX) {
 					pCurrent->pCur->pszValue[valueCount] = temp;
 					valueCount++;
 					pCurrent->pCur->valueCount = valueCount;

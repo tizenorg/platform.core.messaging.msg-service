@@ -1631,11 +1631,11 @@ void convert_to_hidden_mmsdata(MMS_DATA_S *pSrc, msg_struct_s *pDest)
 			if (src_multipart) {
 				msg_struct_s *multipart_struct = (msg_struct_s *)msg_create_struct(MSG_STRUCT_MULTIPART_INFO);
 
-				MMS_MULTIPART_DATA_S *dst_multipart = (MMS_MULTIPART_DATA_S*)multipart_struct->data;
-
-				memcpy(dst_multipart, src_multipart, sizeof(MMS_MULTIPART_DATA_S));
-
-				pDestMms->multipartlist = g_list_append(pDestMms->multipartlist, multipart_struct);
+				if (multipart_struct) {
+					MMS_MULTIPART_DATA_S *dst_multipart = (MMS_MULTIPART_DATA_S*)multipart_struct->data;
+					memcpy(dst_multipart, src_multipart, sizeof(MMS_MULTIPART_DATA_S));
+					pDestMms->multipartlist = g_list_append(pDestMms->multipartlist, multipart_struct);
+				}
 			}
 		}
 	}

@@ -174,7 +174,6 @@
 #define VOICEMAIL_NUMBER				DEFAULT_VOICE_MAIL_OPT_PATH"/voice_mail_number"
 #define VOICEMAIL_COUNT				DEFAULT_VOICE_MAIL_OPT_PATH"/voice_mail_count"
 #define VOICEMAIL_ALPHA_ID				DEFAULT_VOICE_MAIL_OPT_PATH"/voice_mail_alphaid"
-#define VOICEMAIL_DEFAULT_NUMBER		DEFAULT_VOICE_MAIL_OPT_PATH"/voice_mail_default_number"
 #define VOICEMAIL_DEFAULT_ALPHA_ID	""
 
 #define MSGSIZE_OPTION					DEFAULT_MSGSIZE_OPT_PATH"/msg_size"

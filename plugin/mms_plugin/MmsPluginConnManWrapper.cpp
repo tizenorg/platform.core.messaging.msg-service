@@ -221,7 +221,7 @@ static gboolean __connection_create(void *pVoid)
 	} else {
 		int err = connection_create(&g_connection);
 
-		if (CONNECTION_ERROR_NONE == err) {
+		if (CONNECTION_ERROR_NONE == err && g_connection) {
 			connection_cellular_state_e cellular_state;
 			connection_type_e net_state;
 

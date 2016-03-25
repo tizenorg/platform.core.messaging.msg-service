@@ -628,15 +628,22 @@ void MmsPluginUaManager::getMmsPduData(mmsTranQEntity *qEntity)
 	unlock();
 }
 
-void MmsPluginUaManager::addMmsReqEntity(mmsTranQEntity req)
+void MmsPluginUaManager::addMmsReqEntity(mmsTranQEntity *req)
 {
+	if (req == NULL)
+		return;
+
+	mmsTranQEntity reqTmp = {0, };
+
+	memcpy(&reqTmp, req, sizeof(mmsTranQEntity));
+
 	lock();
-	if (mmsTranQ.checkExist(req, compare_func) == true) {
-		MSG_DEBUG("request Already Exist, req_id = %d", req.msgId);
+	if (mmsTranQ.checkExist(reqTmp, compare_func) == true) {
+		MSG_DEBUG("request Already Exist, req_id = %d", reqTmp.msgId);
 		unlock();
 		THROW(MsgException::REQ_EXIST_ERROR, "MMS request already exist");
 	}
-	mmsTranQ.push_back(req);
+	mmsTranQ.push_back(reqTmp);
 	signal();
 	unlock();
 

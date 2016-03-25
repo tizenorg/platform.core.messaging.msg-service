@@ -1036,12 +1036,6 @@ msg_error_t MsgSetVoiceMailOpt(const MSG_SETTING_S *pSetting, bool bSetSim)
 		err = MsgSettingSetString(keyName, voiceMailOpt.mailNumber);
 		if (err != MSG_SUCCESS)
 			MSG_ERR("Error to set config data [%s]", keyName);
-
-		memset(keyName, 0x00, sizeof(keyName));
-		snprintf(keyName, sizeof(keyName), "%s/%d", VOICEMAIL_DEFAULT_NUMBER, simIndex);
-		err = MsgSettingSetString(keyName, voiceMailOpt.mailNumber);
-		if (err != MSG_SUCCESS)
-			MSG_ERR("Error to set config data [%s]", keyName);
 	}
 
 _END_OF_SET_VOICE_OPT:

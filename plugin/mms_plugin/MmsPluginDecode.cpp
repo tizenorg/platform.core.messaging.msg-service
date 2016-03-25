@@ -1341,7 +1341,7 @@ static bool __MmsBinaryDecodeParameter(FILE *pFile, MsgType *pMsgType, int value
 
 					if (szTypeValue) {
 						/* checkMe:  forwardLock needs boudary string */
-						if (strcasecmp(szTypeString, "boundary") == 0) {
+						if (g_ascii_strcasecmp(szTypeString, "boundary") == 0) {
 							memset(pMsgType->param.szBoundary, 0, MSG_BOUNDARY_LEN + 1);
 							strncpy(pMsgType->param.szBoundary, szTypeValue, MSG_BOUNDARY_LEN);
 #ifdef FEATURE_JAVA_MMS

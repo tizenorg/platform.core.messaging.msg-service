@@ -152,7 +152,7 @@ void MmsPluginTransport::submitRequest(const MSG_REQUEST_INFO_S *pReqInfo)
 		break;
 	}
 
-	MmsPluginUaManager::instance()->addMmsReqEntity(reqItem);
+	MmsPluginUaManager::instance()->addMmsReqEntity(&reqItem);
 	MmsPluginUaManager::instance()->start();
 
 	if (msisdn) {

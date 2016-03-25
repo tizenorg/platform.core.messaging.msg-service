@@ -1049,26 +1049,27 @@ msg_error_t MmsPluginStorage::getMultipartList(msg_message_id_t msgId, MMSList *
 	if (err == MSG_SUCCESS) {
 		for (int i = 0; i < rowCnt; i++) {
 			MMS_MULTIPART_DATA_S *multipart = MsgMmsCreateMultipart();
+			if (multipart) {
+				dbHandle->getColumnToString(index++, sizeof(multipart->szContentType), multipart->szContentType);
 
-			dbHandle->getColumnToString(index++, sizeof(multipart->szContentType), multipart->szContentType);
+				dbHandle->getColumnToString(index++, sizeof(multipart->szFileName), multipart->szFileName);
 
-			dbHandle->getColumnToString(index++, sizeof(multipart->szFileName), multipart->szFileName);
+				dbHandle->getColumnToString(index++, sizeof(multipart->szFilePath), multipart->szFilePath);
 
-			dbHandle->getColumnToString(index++, sizeof(multipart->szFilePath), multipart->szFilePath);
+				dbHandle->getColumnToString(index++, sizeof(multipart->szContentID), multipart->szContentID);
 
-			dbHandle->getColumnToString(index++, sizeof(multipart->szContentID), multipart->szContentID);
+				dbHandle->getColumnToString(index++, sizeof(multipart->szContentLocation), multipart->szContentLocation);
 
-			dbHandle->getColumnToString(index++, sizeof(multipart->szContentLocation), multipart->szContentLocation);
+				multipart->tcs_bc_level = dbHandle->getColumnToInt(index++);
 
-			multipart->tcs_bc_level = dbHandle->getColumnToInt(index++);
+				multipart->malware_allow = dbHandle->getColumnToInt(index++);
 
-			multipart->malware_allow = dbHandle->getColumnToInt(index++);
+				dbHandle->getColumnToString(index++, sizeof(multipart->szThumbFilePath), multipart->szThumbFilePath);
 
-			dbHandle->getColumnToString(index++, sizeof(multipart->szThumbFilePath), multipart->szThumbFilePath);
+				multipart->type = MimeGetMimeIntFromMimeString(multipart->szContentType);
 
-			multipart->type = MimeGetMimeIntFromMimeString(multipart->szContentType);
-
-			*multipart_list = g_list_append(*multipart_list, multipart);
+				*multipart_list = g_list_append(*multipart_list, multipart);
+			}
 		}
 	}
 

@@ -1029,7 +1029,7 @@ VTree* vcard_decode(char *pCardRaw)
 				dLen = 0;
 				temp = __VCardGetTypeVal(pCardRaw, &status, &dLen, enc, pVCard->pCur);
 
-				if (valueCount <= VDATA_VALUE_COUNT_MAX) {
+				if (valueCount < VDATA_VALUE_COUNT_MAX) {
 					pVCard->pCur->pszValue[valueCount] = temp;
 					valueCount++;
 					pVCard->pCur->valueCount = valueCount;
