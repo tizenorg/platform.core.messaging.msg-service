@@ -131,7 +131,7 @@ msg_error_t MmsMakePreviewInfo(int msgId, MMS_MESSAGE_DATA_S *pMmsMsg, bool allo
 
 	/* scan malware in raw file */
 	if (raw_filepath && strlen(raw_filepath) > 0 && MsgAccessFile(raw_filepath, F_OK) == true) {
-		int tcs_ret = 0; /* MmsPluginTcsScanFile(raw_filepath, &bc_level); */
+		int tcs_ret = MsgTcsScanFile(raw_filepath, &bc_level);
 		if (tcs_ret == 0) {
 			if (bc_level > -1) {
 				MSG_DEBUG("malware exist, level = %d", bc_level);

@@ -857,7 +857,7 @@ msg_error_t MmsPluginStorage::insertMultipart(msg_message_id_t msgId, MMS_MULTIP
 		/* CID 41991: pMultipart->szFilePath is an array, hence checking for null is not required */
 		if (strlen(pMultipart->szFilePath) > 0 && MsgAccessFile(pMultipart->szFilePath, F_OK) == true) {
 			int bc_level = -1;
-			int tcs_ret = 0; /* MsgTcsScanFile(pMultipart->szFilePath, &bc_level); */
+			int tcs_ret = MsgTcsScanFile(pMultipart->szFilePath, &bc_level);
 			if (tcs_ret == 0) {
 				if (bc_level > -1) {
 					MSG_DEBUG("This content is malware, level = %d", bc_level);
