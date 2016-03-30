@@ -487,7 +487,7 @@ bool SmsPluginSetting::getCbConfigEvent(MSG_CBMSG_OPT_S *pCbOpt)
 	mx.lock();
 
 	bTapiResult = false;
-	ret = cv.timedwait(mx.pMutex(), 25);
+	ret = cv.timedwait(mx.pMsgMutex(), 25);
 
 	mx.unlock();
 
@@ -530,7 +530,7 @@ bool SmsPluginSetting::getResultImei(char *pImei)
 
 	mx.lock();
 
-	ret = cv.timedwait(mx.pMutex(), 25);
+	ret = cv.timedwait(mx.pMsgMutex(), 25);
 
 	mx.unlock();
 
@@ -629,7 +629,7 @@ bool SmsPluginSetting::getResultFromSim()
 
 	mx.lock();
 
-	ret = cv.timedwait(mx.pMutex(), 25);
+	ret = cv.timedwait(mx.pMsgMutex(), 25);
 
 	mx.unlock();
 

@@ -96,8 +96,8 @@ private:
 
 	SMS_DATA_INFO_S			simMsgDataInfo;
 
-	Mutex mx;
-	CndVar cv;
+	MsgMutex mx;
+	MsgCndVar cv;
 };
 
 #endif /* SMS_PLUGIN_SIMMSG_H */

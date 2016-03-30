@@ -109,7 +109,7 @@ void MsgHandle::write(const char *pCmdData, int cmdSize, char **ppEvent)
 	int ret = 0;
 
 	/* Send Command to MSG FW */
-	MutexLocker lock(mx);
+	MsgMutexLocker lock(mx);
 	ret = mClientSock.write(pCmdData, cmdSize);
 	if (ret < 0)
 		THROW(MsgException::IPC_ERROR, "IPC write error");

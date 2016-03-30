@@ -33,7 +33,7 @@ class MmsPluginUaManager: public MsgThread {
 
 		void lock() { mx.lock(); }
 		void unlock() { mx.unlock(); }
-		void wait() { cv.wait(mx.pMutex()); }
+		void wait() { cv.wait(mx.pMsgMutex()); }
 		void signal() { cv.signal(); }
 
 	private:
@@ -43,8 +43,8 @@ class MmsPluginUaManager: public MsgThread {
 		static MmsPluginUaManager *pInstance;
 		virtual void run();
 
-		Mutex mx;
-		CndVar cv;
+		MsgMutex mx;
+		MsgCndVar cv;
 
 		MMS_NET_ERROR_T submitHandler(mmsTranQEntity *qEntity);
 		MMS_NET_ERROR_T waitingConf(mmsTranQEntity *qEntity);

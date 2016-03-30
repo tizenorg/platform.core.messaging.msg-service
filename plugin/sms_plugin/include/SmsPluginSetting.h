@@ -127,8 +127,8 @@ private:
 
 	bool 	bMbdnEnable[MAX_TELEPHONY_HANDLE_CNT];
 
-	Mutex mx;
-	CndVar cv;
+	MsgMutex mx;
+	MsgCndVar cv;
 };
 
 #endif /* SMS_PLUGIN_SETTING_H */

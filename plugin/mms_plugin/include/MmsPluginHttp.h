@@ -78,12 +78,12 @@ class MmsPluginHttpAgent {
 		MMS_HTTP_ERROR_E httpRequest(http_request_info_s &request_info);
 
 		void setAbortFlag(){
-			MutexLocker locker(mx);
+			MsgMutexLocker locker(mx);
 			abort = true;
 		};
 
 		bool getAbortFlag(){
-			MutexLocker locker(mx);
+			MsgMutexLocker locker(mx);
 			return abort;
 		};
 
@@ -99,7 +99,7 @@ class MmsPluginHttpAgent {
 		void clearSession();
 
 		void initAbortFlag(){
-			MutexLocker locker(mx);
+			MsgMutexLocker locker(mx);
 			abort = false;
 		};
 
@@ -110,7 +110,7 @@ class MmsPluginHttpAgent {
 
 		FILE *respfile;
 		bool abort;
-		Mutex mx;
+		MsgMutex mx;
 };
 
 #endif /* MMS_PLUGIN_HTTP_H */

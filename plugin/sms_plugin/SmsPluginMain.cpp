@@ -51,8 +51,8 @@ gint subs_id = 0;
 
 bool isMemAvailable = true;
 
-Mutex mx;
-CndVar cv;
+MsgMutex mx;
+MsgCndVar cv;
 
 
 void MsgResourceMonitorInit(void);

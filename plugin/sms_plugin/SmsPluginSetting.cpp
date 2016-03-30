@@ -99,8 +99,8 @@ SmsPluginSetting* SmsPluginSetting::instance()
 
 void* SmsPluginSetting::initSimInfo(void *data)
 {
-	static Mutex mm;
-	MutexLocker lock(mm);
+	static MsgMutex mm;
+	MsgMutexLocker lock(mm);
 
 	instance()->processInitSimInfo(data);
 
@@ -603,7 +603,7 @@ void SmsPluginSetting::setParamList(const MSG_SMSC_LIST_S *pSMSCList)
 {
 	MSG_BEGIN();
 
-	MutexLocker lock(mx);
+	MsgMutexLocker lock(mx);
 
 	TelSmsParams_t smsParam = {0};
 
@@ -775,7 +775,7 @@ void SmsPluginSetting::setSmscInfo(const MSG_SMSC_LIST_S *pSmscList)
 {
 	MSG_BEGIN();
 
-	MutexLocker lock(mx);
+	MsgMutexLocker lock(mx);
 
 	int ret = TAPI_API_SUCCESS;
 
@@ -839,7 +839,7 @@ bool SmsPluginSetting::setCbConfig(const MSG_CBMSG_OPT_S *pCbOpt)
 		MSG_SIM_STATUS_T simStatus = MSG_SIM_STATUS_NOT_FOUND;
 
 		for (int i = 1; i <= simCnt; i++) {
-			MutexLocker lock(mx);
+			MsgMutexLocker lock(mx);
 
 			memset(keyName, 0x00, sizeof(keyName));
 			snprintf(keyName, sizeof(keyName), "%s/%d", MSG_SIM_CHANGED, i);
@@ -901,7 +901,7 @@ bool SmsPluginSetting::setCbConfig(const MSG_CBMSG_OPT_S *pCbOpt)
 		MSG_DEBUG("SIM Index = [0], Set CB Receive is done");
 		return true;
 	} else {
-		MutexLocker lock(mx);
+		MsgMutexLocker lock(mx);
 
 		handle = SmsPluginDSHandler::instance()->getTelHandle(pCbOpt->simIndex);
 
@@ -979,7 +979,7 @@ bool SmsPluginSetting::getCbConfig(MSG_CBMSG_OPT_S *pCbOpt)
 void SmsPluginSetting::setVoiceMailInfo(const MSG_VOICEMAIL_OPT_S *pVoiceOpt)
 {
 	MSG_BEGIN();
-	MutexLocker lock(mx);
+	MsgMutexLocker lock(mx);
 
 	int ret = TAPI_API_SUCCESS;
 	bool *bShowError = NULL; /* When invalid voicemail data exists on SIM, update error should not be handled. */
@@ -1114,7 +1114,7 @@ void SmsPluginSetting::setVoiceMailInfo(const MSG_VOICEMAIL_OPT_S *pVoiceOpt)
 
 bool SmsPluginSetting::getVoiceMailInfo(TapiHandle *handle)
 {
-	MutexLocker lock(mx);
+	MsgMutexLocker lock(mx);
 
 	int ret = TAPI_API_SUCCESS;
 
@@ -1281,7 +1281,7 @@ void SmsPluginSetting::setMwiInfo(int simIndex, MSG_SUB_TYPE_T type, int count)
 
 bool SmsPluginSetting::getMwiInfo(TapiHandle *handle)
 {
-	MutexLocker lock(mx);
+	MsgMutexLocker lock(mx);
 
 	int ret = TAPI_API_SUCCESS;
 
@@ -1307,7 +1307,7 @@ bool SmsPluginSetting::getMwiInfo(TapiHandle *handle)
 
 bool SmsPluginSetting::getMsisdnInfo(TapiHandle *handle)
 {
-	MutexLocker lock(mx);
+	MsgMutexLocker lock(mx);
 
 	int ret = TAPI_API_SUCCESS;
 
@@ -1333,7 +1333,7 @@ bool SmsPluginSetting::getMsisdnInfo(TapiHandle *handle)
 
 bool SmsPluginSetting::getSimServiceTable(TapiHandle *handle)
 {
-	MutexLocker lock(mx);
+	MsgMutexLocker lock(mx);
 
 	int ret = TAPI_API_SUCCESS;
 
@@ -1375,7 +1375,7 @@ int SmsPluginSetting::getParamCntEvent()
 
 	mx.lock();
 
-	ret = cv.timedwait(mx.pMutex(), MAX_TAPI_SIM_API_TIMEOUT);
+	ret = cv.timedwait(mx.pMsgMutex(), MAX_TAPI_SIM_API_TIMEOUT);
 
 	mx.unlock();
 
@@ -1419,7 +1419,7 @@ bool SmsPluginSetting::getParamEvent(TapiHandle *handle, MSG_SMSC_DATA_S *pSmscD
 	mx.lock();
 
 	bTapiResult = false;
-	ret = cv.timedwait(mx.pMutex(), MAX_TAPI_SIM_API_TIMEOUT);
+	ret = cv.timedwait(mx.pMsgMutex(), MAX_TAPI_SIM_API_TIMEOUT);
 
 	mx.unlock();
 
@@ -1502,7 +1502,7 @@ bool SmsPluginSetting::getCbConfigEvent(MSG_CBMSG_OPT_S *pCbOpt)
 	mx.lock();
 
 	bTapiResult = false;
-	ret = cv.timedwait(mx.pMutex(), MAX_TAPI_SIM_API_TIMEOUT);
+	ret = cv.timedwait(mx.pMsgMutex(), MAX_TAPI_SIM_API_TIMEOUT);
 
 	mx.unlock();
 
@@ -1668,7 +1668,7 @@ bool SmsPluginSetting::getMailboxInfoEvent()
 	mx.lock();
 
 	bTapiResult = false;
-	ret = cv.timedwait(mx.pMutex(), MAX_TAPI_SIM_API_TIMEOUT);
+	ret = cv.timedwait(mx.pMsgMutex(), MAX_TAPI_SIM_API_TIMEOUT);
 
 	mx.unlock();
 
@@ -1776,7 +1776,7 @@ bool SmsPluginSetting::getResultImei(char *pImei)
 
 	mx.lock();
 
-	ret = cv.timedwait(mx.pMutex(), MAX_TAPI_SIM_API_TIMEOUT);
+	ret = cv.timedwait(mx.pMsgMutex(), MAX_TAPI_SIM_API_TIMEOUT);
 
 	mx.unlock();
 
@@ -1811,7 +1811,7 @@ bool SmsPluginSetting::getResultFromSim()
 
 	MSG_DEBUG("getResultFromSim() is called .");
 
-	ret = cv.timedwait(mx.pMutex(), MAX_TAPI_SIM_API_TIMEOUT);
+	ret = cv.timedwait(mx.pMsgMutex(), MAX_TAPI_SIM_API_TIMEOUT);
 
 	if (ret == ETIMEDOUT) {
 		MSG_DEBUG("WARNING: TAPI callback TIME-OUT");

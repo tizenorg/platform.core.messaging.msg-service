@@ -42,12 +42,12 @@ using namespace std;
                                      VARIABLES
 ==================================================================================================*/
 
-Mutex delNotiMx;
-CndVar delNoticv;
+MsgMutex delNotiMx;
+MsgCndVar delNoticv;
 bool delNotiRunning = false;
 
-Mutex delLogMx;
-CndVar delLogcv;
+MsgMutex delLogMx;
+MsgCndVar delLogcv;
 bool delLogRunning = false;
 
 

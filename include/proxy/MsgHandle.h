@@ -168,7 +168,7 @@ class MsgHandle
 		char mCookie[MAX_COOKIE_LEN];
 
 		MsgIpcClientSocket mClientSock;
-		Mutex mx;
+		MsgMutex mx;
 };
 
 #endif /* MSG_HANDLE_H */

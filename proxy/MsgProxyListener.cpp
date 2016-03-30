@@ -142,8 +142,8 @@ MsgProxyListener::~MsgProxyListener()
 
 MsgProxyListener* MsgProxyListener::instance()
 {
-	static Mutex mm;
-	MutexLocker lock(mm);
+	static MsgMutex mm;
+	MsgMutexLocker lock(mm);
 
 	if (!pInstance) {
 		pInstance = new MsgProxyListener();
@@ -155,7 +155,7 @@ MsgProxyListener* MsgProxyListener::instance()
 
 void MsgProxyListener::start(MsgHandle* pMsgHandle)
 {
-	MutexLocker lock(mx);
+	MsgMutexLocker lock(mx);
 
 	this->insertOpenHandleSet(pMsgHandle);
 
@@ -186,7 +186,7 @@ void MsgProxyListener::stop()
 {
 	MSG_BEGIN();
 
-	MutexLocker lock(mx);
+	MsgMutexLocker lock(mx);
 
 	if (running > 1) {
 		running--;
@@ -214,7 +214,7 @@ void MsgProxyListener::stop()
 
 bool MsgProxyListener::regSentStatusEventCB(MsgHandle* pMsgHandle, int fd, msg_sent_status_cb pfSentStatus, void *pUserParam)
 {
-	MutexLocker lock(mx);
+	MsgMutexLocker lock(mx);
 
 	std::list<MSG_SENT_STATUS_CB_ITEM_S>::iterator it = sentStatusCBList.begin();
 
@@ -241,7 +241,7 @@ bool MsgProxyListener::regSentStatusEventCB(MsgHandle* pMsgHandle, int fd, msg_s
 
 bool MsgProxyListener::regMessageIncomingEventCB(MsgHandle* pMsgHandle, int fd, msg_sms_incoming_cb pfNewMessage, int port, void *pUserParam)
 {
-	MutexLocker lock(mx);
+	MsgMutexLocker lock(mx);
 
 	std::list<MSG_INCOMING_CB_ITEM_S>::iterator it = newMessageCBList.begin();
 
@@ -268,7 +268,7 @@ bool MsgProxyListener::regMessageIncomingEventCB(MsgHandle* pMsgHandle, int fd, 
 
 bool MsgProxyListener::regMMSConfMessageIncomingEventCB(MsgHandle* pMsgHandle, int fd, msg_mms_conf_msg_incoming_cb pfNewMMSConfMessage, const char *pAppId, void *pUserParam)
 {
-	MutexLocker lock(mx);
+	MsgMutexLocker lock(mx);
 
 	std::list<MSG_MMS_CONF_INCOMING_CB_ITEM_S>::iterator it = newMMSConfMessageCBList.begin();
 
@@ -303,7 +303,7 @@ bool MsgProxyListener::regMMSConfMessageIncomingEventCB(MsgHandle* pMsgHandle, i
 
 bool MsgProxyListener::regPushMessageIncomingEventCB(MsgHandle* pMsgHandle, int fd, msg_push_msg_incoming_cb pfNewPushMessage, const char *pAppId, void *pUserParam)
 {
-	MutexLocker lock(mx);
+	MsgMutexLocker lock(mx);
 
 	std::list<MSG_PUSH_INCOMING_CB_ITEM_S>::iterator it = newPushMessageCBList.begin();
 
@@ -338,7 +338,7 @@ bool MsgProxyListener::regPushMessageIncomingEventCB(MsgHandle* pMsgHandle, int 
 
 bool MsgProxyListener::regCBMessageIncomingEventCB(MsgHandle* pMsgHandle, int fd, msg_cb_incoming_cb pfNewCBMessage, bool bSave, void *pUserParam)
 {
-	MutexLocker lock(mx);
+	MsgMutexLocker lock(mx);
 
 	std::list<MSG_CB_INCOMING_CB_ITEM_S>::iterator it = newCBMessageCBList.begin();
 
@@ -367,7 +367,7 @@ bool MsgProxyListener::regCBMessageIncomingEventCB(MsgHandle* pMsgHandle, int fd
 
 bool MsgProxyListener::regReportMsgIncomingCB(MsgHandle* pMsgHandle, int fd, msg_report_msg_incoming_cb pfReportMessage, void *pUserParam)
 {
-	MutexLocker lock(mx);
+	MsgMutexLocker lock(mx);
 
 	std::list<MSG_REPORT_INCOMING_CB_ITEM_S>::iterator it = reportMessageCBList.begin();
 
@@ -395,7 +395,7 @@ bool MsgProxyListener::regReportMsgIncomingCB(MsgHandle* pMsgHandle, int fd, msg
 
 bool MsgProxyListener::regSyncMLMessageIncomingEventCB(MsgHandle* pMsgHandle, int fd, msg_syncml_msg_incoming_cb pfNewSyncMLMessage, void *pUserParam)
 {
-	MutexLocker lock(mx);
+	MsgMutexLocker lock(mx);
 
 	std::list<MSG_SYNCML_INCOMING_CB_ITEM_S>::iterator it = newSyncMLMessageCBList.begin();
 
@@ -422,7 +422,7 @@ bool MsgProxyListener::regSyncMLMessageIncomingEventCB(MsgHandle* pMsgHandle, in
 
 bool MsgProxyListener::regLBSMessageIncomingEventCB(MsgHandle* pMsgHandle, int fd, msg_lbs_msg_incoming_cb pfNewLBSMsgIncoming, void *pUserParam)
 {
-	MutexLocker lock(mx);
+	MsgMutexLocker lock(mx);
 
 	std::list<MSG_LBS_INCOMING_CB_ITEM_S>::iterator it = newLBSMessageCBList.begin();
 
@@ -449,7 +449,7 @@ bool MsgProxyListener::regLBSMessageIncomingEventCB(MsgHandle* pMsgHandle, int f
 
 bool MsgProxyListener::regSyncMLMessageOperationEventCB(MsgHandle* pMsgHandle, int fd, msg_syncml_msg_operation_cb pfSyncMLMessageOperation, void *pUserParam)
 {
-	MutexLocker lock(mx);
+	MsgMutexLocker lock(mx);
 
 	std::list<MSG_SYNCML_OPERATION_CB_ITEM_S>::iterator it = operationSyncMLMessageCBList.begin();
 
@@ -476,7 +476,7 @@ bool MsgProxyListener::regSyncMLMessageOperationEventCB(MsgHandle* pMsgHandle, i
 
 bool MsgProxyListener::regStorageChangeEventCB(MsgHandle* pMsgHandle, int fd, msg_storage_change_cb pfStorageChangeOperation, void *pUserParam)
 {
-	MutexLocker lock(mx);
+	MsgMutexLocker lock(mx);
 
 	std::list<MSG_STORAGE_CHANGE_CB_ITEM_S>::iterator it = storageChangeCBList.begin();
 
@@ -505,7 +505,7 @@ void MsgProxyListener::clearListOfClosedHandle(MsgHandle* pMsgHandle)
 {
 	MSG_BEGIN();
 
-	MutexLocker lock(mx);
+	MsgMutexLocker lock(mx);
 
 	/* sent status CB list */
 	std::list<MSG_SENT_STATUS_CB_ITEM_S>::iterator it = sentStatusCBList.begin();
@@ -638,7 +638,7 @@ void MsgProxyListener::refreshListOfOpenedHandle(MsgHandle* pMsgHandle)
 {
 	MSG_BEGIN();
 
-	MutexLocker lock(mx);
+	MsgMutexLocker lock(mx);
 
 	/* sent status CB list */
 	std::list<MSG_SENT_STATUS_CB_ITEM_S>::iterator it = sentStatusCBList.begin();
@@ -1203,7 +1203,7 @@ int MsgProxyListener::readFromSocket(char** buf, unsigned int* len)
 void MsgProxyListener::resetProxyListener()
 {
 	MSG_DEBUG("client Listener reset");
-	MutexLocker lock(mx);
+	MsgMutexLocker lock(mx);
 
 	if (channel) {
 		g_io_channel_unref(channel);
@@ -1231,7 +1231,7 @@ void MsgProxyListener::resetProxyListener()
 void MsgProxyListener::refreshProxyListener()
 {
 	MSG_DEBUG("refresh proxy listener");
-	MutexLocker lock(mx);
+	MsgMutexLocker lock(mx);
 
 	handle_set::iterator it = openHandleSet.begin();
 	for (; it != openHandleSet.end(); it++) {
@@ -1263,7 +1263,7 @@ void MsgProxyListener::insertOpenHandleSet(MsgHandle* pMsgHandle)
 {
 	MSG_DEBUG("try to insert opened handle. handle=[%p]", pMsgHandle);
 
-	MutexLocker lock(mx);
+	MsgMutexLocker lock(mx);
 
 	handle_set::iterator it = openHandleSet.find(pMsgHandle);
 	if (it == openHandleSet.end()) {

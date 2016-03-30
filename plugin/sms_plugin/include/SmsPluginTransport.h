@@ -80,8 +80,8 @@ private:
 	SMS_NETWORK_STATUS_T curStatus;
 	TelSatMoSmCtrlIndData_t curMoCtrlData;
 
-	Mutex mx;
-	CndVar cv;
+	MsgMutex mx;
+	MsgCndVar cv;
 };
 
 #endif /* SMS_PLUGIN_TRANSPORT_H */

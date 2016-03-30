@@ -259,7 +259,7 @@ void MsgTransactionManager::insertSentMsg(int reqId, MSG_PROXY_INFO_S* pPrxInfo)
 
 	MSG_DEBUG("msg for submit: reqId %d listenerFd %d handleAddr %x", reqId, pPrxInfo->listenerFd, pPrxInfo->handleAddr);
 
-	MutexLocker lock(mx);
+	MsgMutexLocker lock(mx);
 
 	fd_map::iterator it = statusCBFdMap.find(pPrxInfo->listenerFd);
 
@@ -286,7 +286,7 @@ MSG_PROXY_INFO_S* MsgTransactionManager::getProxyInfo(int reqId)
 
 void MsgTransactionManager::delProxyInfo(int reqId)
 {
-	MutexLocker lock(mx);
+	MsgMutexLocker lock(mx);
 
 	sentmsg_map::iterator it = sentMsgMap.find(reqId);
 
@@ -311,7 +311,7 @@ void MsgTransactionManager::workerEventQueue()
 		mxQ.lock();
 		while (!eventQueue.front(&pCmd)) { /* if no item, wait */
 			MSG_DEBUG("waiting for task");
-			cv.wait(mxQ.pMutex());
+			cv.wait(mxQ.pMsgMutex());
 		}
 		eventQueue.pop_front();	/* pop it from queue*/
 		mxQ.unlock();
@@ -448,7 +448,7 @@ void MsgTransactionManager::cleanup(int fd)
 {
 	MSG_BEGIN();
 
-	MutexLocker lock(mx);
+	MsgMutexLocker lock(mx);
 
 	servSock.close(fd);
 
@@ -730,7 +730,7 @@ void MsgTransactionManager::setIncomingMsgCB(MSG_CMD_REG_INCOMING_MSG_CB_S *pCbI
 		return;
 	}
 
-	MutexLocker lock(mx);
+	MsgMutexLocker lock(mx);
 
 	newmsg_list::iterator it = newMsgCBList.begin();
 
@@ -752,7 +752,7 @@ void MsgTransactionManager::setMMSConfMsgCB(MSG_CMD_REG_INCOMING_MMS_CONF_MSG_CB
 		return;
 	}
 
-	MutexLocker lock(mx);
+	MsgMutexLocker lock(mx);
 
 	mmsconf_list::iterator it = newMMSConfMsgCBList.begin();
 
@@ -774,7 +774,7 @@ void MsgTransactionManager::setPushMsgCB(MSG_CMD_REG_INCOMING_PUSH_MSG_CB_S *pCb
 		return;
 	}
 
-	MutexLocker lock(mx);
+	MsgMutexLocker lock(mx);
 
 	pushmsg_list::iterator it = newPushMsgCBList.begin();
 
@@ -796,7 +796,7 @@ void MsgTransactionManager::setCBMsgCB(MSG_CMD_REG_INCOMING_CB_MSG_CB_S *pCbInfo
 		return;
 	}
 
-	MutexLocker lock(mx);
+	MsgMutexLocker lock(mx);
 
 	cbmsg_list::iterator it = newCBMsgCBList.begin();
 
@@ -827,7 +827,7 @@ void MsgTransactionManager::setSyncMLMsgCB(MSG_CMD_REG_INCOMING_SYNCML_MSG_CB_S 
 		return;
 	}
 
-	MutexLocker lock(mx);
+	MsgMutexLocker lock(mx);
 
 	syncmlmsg_list::iterator it = newSyncMLMsgCBList.begin();
 
@@ -849,7 +849,7 @@ void MsgTransactionManager::setLBSMsgCB(MSG_CMD_REG_INCOMING_LBS_MSG_CB_S *pCbIn
 		return;
 	}
 
-	MutexLocker lock(mx);
+	MsgMutexLocker lock(mx);
 
 	lbsmsg_list::iterator it = newLBSMsgCBList.begin();
 
@@ -891,7 +891,7 @@ void MsgTransactionManager::setSyncMLMsgOperationCB(MSG_CMD_REG_SYNCML_MSG_OPERA
 		return;
 	}
 
-	MutexLocker lock(mx);
+	MsgMutexLocker lock(mx);
 
 	syncmlop_list::iterator it = operationSyncMLMsgCBList.begin();
 
@@ -911,7 +911,7 @@ void MsgTransactionManager::setStorageChangeCB(int listenerFd)
 	if (listenerFd <= 0)
 		THROW(MsgException::INVALID_PARAM, "InParam Error: listenerFd %d", listenerFd);
 
-	MutexLocker lock(mx);
+	MsgMutexLocker lock(mx);
 
 	storageChangeFdMap[listenerFd] = true;
 }
@@ -922,7 +922,7 @@ void MsgTransactionManager::setReportMsgCB(int listenerFd)
 	if (listenerFd <= 0)
 		THROW(MsgException::INVALID_PARAM, "InParam Error: listenerFd %d", listenerFd);
 
-	MutexLocker lock(mx);
+	MsgMutexLocker lock(mx);
 
 	reportMsgCBFdMap[listenerFd] = true;
 }
@@ -970,7 +970,7 @@ void MsgTransactionManager::broadcastIncomingMsgCB(const msg_error_t err, const 
 
 	MSG_DEBUG("valid %d dstport %d", msgInfo->msgPort.valid, msgInfo->msgPort.dstPort);
 
-	MutexLocker lock(mx);
+	MsgMutexLocker lock(mx);
 
 	newmsg_list::iterator it = newMsgCBList.begin();
 
@@ -1003,7 +1003,7 @@ void MsgTransactionManager::broadcastMMSConfCB(const msg_error_t err, const MSG_
 
 	int eventSize = MsgMakeEvent(encodedData, dataSize, MSG_EVENT_PLG_INCOMING_MMS_CONF, err, (void**)(&pEventData));
 
-	MutexLocker lock(mx);
+	MsgMutexLocker lock(mx);
 
 	mmsconf_list::iterator it = newMMSConfMsgCBList.begin();
 
@@ -1036,7 +1036,7 @@ void MsgTransactionManager::broadcastPushMsgCB(const msg_error_t err, const MSG_
 
 	int eventSize = MsgMakeEvent(pushData, sizeof(MSG_PUSH_MESSAGE_DATA_S), MSG_EVENT_PLG_INCOMING_PUSH_MSG_IND, err, (void**)(&pEventData));
 
-	MutexLocker lock(mx);
+	MsgMutexLocker lock(mx);
 
 	pushmsg_list::iterator it = newPushMsgCBList.begin();
 
@@ -1060,7 +1060,7 @@ void MsgTransactionManager::broadcastCBMsgCB(const msg_error_t err, const MSG_CB
 
 	int eventSize = MsgMakeEvent(cbMsg, sizeof(MSG_CB_MSG_S), MSG_EVENT_PLG_INCOMING_CB_MSG_IND, err, (void**)(&pEventData));
 
-	MutexLocker lock(mx);
+	MsgMutexLocker lock(mx);
 
 	cbmsg_list::iterator it = newCBMsgCBList.begin();
 
@@ -1093,7 +1093,7 @@ void MsgTransactionManager::broadcastSyncMLMsgCB(const msg_error_t err, const MS
 
 	int eventSize = MsgMakeEvent(syncMLData, sizeof(MSG_SYNCML_MESSAGE_DATA_S), MSG_EVENT_PLG_INCOMING_SYNCML_MSG_IND, err, (void**)(&pEventData));
 
-	MutexLocker lock(mx);
+	MsgMutexLocker lock(mx);
 
 	syncmlmsg_list::iterator it = newSyncMLMsgCBList.begin();
 
@@ -1116,7 +1116,7 @@ void MsgTransactionManager::broadcastLBSMsgCB(const msg_error_t err, const MSG_L
 
 	int eventSize = MsgMakeEvent(lbsData, sizeof(MSG_LBS_MESSAGE_DATA_S), MSG_EVENT_PLG_INCOMING_LBS_MSG_IND, err, (void**)(&pEventData));
 
-	MutexLocker lock(mx);
+	MsgMutexLocker lock(mx);
 
 	lbsmsg_list::iterator it = newLBSMsgCBList.begin();
 
@@ -1146,7 +1146,7 @@ void MsgTransactionManager::broadcastSyncMLMsgOperationCB(const msg_error_t err,
 
 	int eventSize = MsgMakeEvent(encodedData, dataSize, MSG_EVENT_SYNCML_OPERATION, err, (void**)(&pEventData));
 
-	MutexLocker lock(mx);
+	MsgMutexLocker lock(mx);
 
 	syncmlop_list::iterator it = operationSyncMLMsgCBList.begin();
 
@@ -1183,7 +1183,7 @@ void MsgTransactionManager::broadcastStorageChangeCB(const msg_error_t err, cons
 
 	int eventSize = MsgMakeEvent(encodedData, dataSize, MSG_EVENT_PLG_STORAGE_CHANGE_IND, err, (void**)(&pEventData));
 
-	MutexLocker lock(mx);
+	MsgMutexLocker lock(mx);
 
 	fd_map::iterator it = storageChangeFdMap.begin();
 
@@ -1220,7 +1220,7 @@ void MsgTransactionManager::broadcastReportMsgCB(const msg_error_t err, const ms
 
 	int eventSize = MsgMakeEvent(encodedData, dataSize, MSG_EVENT_PLG_REPORT_MSG_INCOMING_IND, err, (void**)(&pEventData));
 
-	MutexLocker lock(mx);
+	MsgMutexLocker lock(mx);
 
 	fd_map::iterator it = reportMsgCBFdMap.begin();
 

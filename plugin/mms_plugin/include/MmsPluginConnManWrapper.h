@@ -61,8 +61,8 @@ private:
 	char *interface_name;
 	char *proxy_address;
 	char *dns_address_list;
-	Mutex mx;
-	CndVar cv;
+	MsgMutex mx;
+	MsgCndVar cv;
 };
 
 #endif /* MMS_PLUGIN_CONNMAN_H */

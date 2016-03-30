@@ -974,7 +974,7 @@ bool SmsPluginEventHandler::getDeviceStatus()
 
 	mx.lock();
 
-	ret = cv.timedwait(mx.pMutex(), 25);
+	ret = cv.timedwait(mx.pMsgMutex(), 25);
 
 	if (ret == ETIMEDOUT) {
 		MSG_DEBUG("WARNING: DEVICE STATUS TIME-OUT");

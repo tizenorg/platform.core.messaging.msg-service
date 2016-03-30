@@ -106,8 +106,8 @@ private:
 	bool devStatus;
 	bool bNeedInitConfig;
 
-	Mutex mx;
-	CndVar cv;
+	MsgMutex mx;
+	MsgCndVar cv;
 	vector<sms_wap_info_s> wapList;
 
 	void convertDeliverMsgToMsgInfo(sms_telesvc_deliver_s *p_deliver, MSG_MESSAGE_INFO_S *p_msg_info);

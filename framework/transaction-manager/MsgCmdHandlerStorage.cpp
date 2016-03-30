@@ -34,7 +34,7 @@
                                      FUNCTION IMPLEMENTATION
 ==================================================================================================*/
 
-Mutex mx;
+MsgMutex mx;
 int g_job_cnt = 0;
 
 static gboolean  __refresh_noti(void *data)

@@ -68,8 +68,8 @@ private:
 
 	sms_network_status_t	curStatus;
 
-	Mutex mx;
-	CndVar cv;
+	MsgMutex mx;
+	MsgCndVar cv;
 };
 
 #endif /* SMS_PLUGIN_TRANSPORT_H */

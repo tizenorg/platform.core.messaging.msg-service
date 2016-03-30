@@ -85,8 +85,8 @@ private:
 
 	char 	meImei[MAX_ME_IMEI_LEN + 1];
 
-	Mutex mx;
-	CndVar cv;
+	MsgMutex mx;
+	MsgCndVar cv;
 };
 
 #endif /* SMS_CDMA_PLUGIN_SETTING_H */

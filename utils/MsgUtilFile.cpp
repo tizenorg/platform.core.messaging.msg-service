@@ -47,21 +47,24 @@ extern "C" {
 	#include <aul.h>
 }
 
-Mutex g_mx;
-CndVar g_cv;
+MsgMutex g_mx;
+MsgCndVar g_cv;
 
 void thumbnail_completed_cb(thumbnail_util_error_e error, const char *request_id,
 									int thumb_width, int thumb_height,
 									unsigned char *thumb_data, int thumb_size, void *user_data)
 {
-	if (!user_data) {
-		MSG_WARN("dstPath is NULL");
-		return;
-	}
-
 	MSG_BEGIN();
 
 	g_mx.lock();
+
+	if (!user_data) {
+		MSG_WARN("dstPath is NULL");
+		g_cv.signal();
+		g_mx.unlock();
+		return;
+	}
+
 	MSG_DEBUG("=================[RESULT]");
 	MSG_DEBUG("error_code [%d]", error);
 	MSG_DEBUG("request id [%s]", request_id);
@@ -117,7 +120,7 @@ bool MakeThumbnail(char *srcPath, char *dstPath)
 		return false;
 	}
 
-	time_ret = g_cv.timedwait(g_mx.pMutex(), 5);
+	time_ret = g_cv.timedwait(g_mx.pMsgMutex(), 5);
 
 	g_mx.unlock();
 

@@ -30,17 +30,17 @@ using namespace std;
 int GetMsgReady();
 void WaitMsgReady(int sec);
 
-class Mutex
+class MsgMutex
 {
 public:
-	Mutex() {
+	MsgMutex() {
 		pthread_mutexattr_t mattr;
 		pthread_mutexattr_init(&mattr);
 		pthread_mutexattr_settype(&mattr, PTHREAD_MUTEX_RECURSIVE);
 		pthread_mutex_init(&m, &mattr);
 		pthread_mutexattr_destroy(&mattr);
 	}
-	~Mutex() { pthread_mutex_destroy(&m); }
+	~MsgMutex() { pthread_mutex_destroy(&m); }
 	void lock() { pthread_mutex_lock(&m); }
 
 	int timedlock() {
@@ -51,32 +51,33 @@ public:
 	}
 
 	void unlock() { pthread_mutex_unlock(&m); }
-	pthread_mutex_t* pMutex() { return &m; }
+	pthread_mutex_t* pMsgMutex() { return &m; }
 
 private:
 	pthread_mutex_t m;
 };
 
-class MutexLocker
+class MsgMutexLocker
 {
 public:
-	MutexLocker(Mutex& mx) {
+	MsgMutexLocker(MsgMutex& mx) {
 		pm = &mx;
 		pm->lock();
 	}
 
-	~MutexLocker() {
+	~MsgMutexLocker() {
 		pm->unlock();
 	}
 
 private:
-	Mutex *pm;
+	MsgMutex *pm;
 };
 
-class CndVar
+class MsgCndVar
 {
 public:
-	CndVar() { pthread_cond_init(&c, 0); }
+	MsgCndVar() { pthread_cond_init(&c, 0); }
+	~MsgCndVar() { pthread_cond_destroy(&c); }
 	void wait(pthread_mutex_t* m) { pthread_cond_wait(&c, m); }
 	int timedwait(pthread_mutex_t* m, int sec) {
 		struct timeval now = {0};

@@ -1044,10 +1044,10 @@ static void launchProcessByAppcode(int appcode)
 				MSG_DEBUG("invoking service proxy call failed: %s\n", error->message);
 				goto _DBUS_ERROR;
 			}
-			Mutex mx;
-			CndVar cv;
+			MsgMutex mx;
+			MsgCndVar cv;
 			mx.lock();
-			cv.timedwait(mx.pMutex(), 2);
+			cv.timedwait(mx.pMsgMutex(), 2);
 			mx.unlock();
 			MSG_END();
 		}

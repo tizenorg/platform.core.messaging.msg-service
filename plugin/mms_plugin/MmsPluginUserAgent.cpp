@@ -228,7 +228,7 @@ void MmsPluginUaManager::start()
 {
 /*	bool bStart = true; */
 
-	MutexLocker lock(mx);
+	MsgMutexLocker lock(mx);
 
 	if (!running) {
 		running = true;

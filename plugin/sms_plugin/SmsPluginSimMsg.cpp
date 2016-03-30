@@ -701,7 +701,7 @@ bool SmsPluginSimMsg::getSimMsgCntEvent(TapiHandle *handle, MSG_SIM_COUNT_S *pSi
 
 	mx.lock();
 
-	ret = cv.timedwait(mx.pMutex(), 10);
+	ret = cv.timedwait(mx.pMsgMutex(), 10);
 
 	mx.unlock();
 
@@ -745,7 +745,7 @@ bool SmsPluginSimMsg::getSimMsgEvent(TapiHandle *handle, MSG_MESSAGE_INFO_S *pMs
 	mx.lock();
 
 	bTapiResult = false;
-	ret = cv.timedwait(mx.pMutex(), 10);
+	ret = cv.timedwait(mx.pMsgMutex(), 10);
 
 	mx.unlock();
 
@@ -899,7 +899,7 @@ bool SmsPluginSimMsg::getSimEvent(msg_sim_id_t *pSimId)
 	mx.lock();
 
 	bTapiResult = false;
-	ret = cv.timedwait(mx.pMutex(), 10);
+	ret = cv.timedwait(mx.pMsgMutex(), 10);
 
 	mx.unlock();
 
@@ -937,7 +937,7 @@ bool SmsPluginSimMsg::getDelSimEvent(int *pSimId)
 
 	delSimMsgId = -1;
 	bTapiResult = false;
-	ret = cv.timedwait(mx.pMutex(), 10);
+	ret = cv.timedwait(mx.pMsgMutex(), 10);
 
 	mx.unlock();
 

@@ -660,7 +660,7 @@ msg_error_t MsgConvertStrWithEscape(const char *input, char **output)
 
 typedef std::map<pthread_t, MsgDbHandler*> dbMap_t;
 dbMap_t gDbHandles;
-Mutex mu;
+MsgMutex mu;
 
 MsgDbHandler *getDbHandle()
 {
@@ -670,7 +670,7 @@ MsgDbHandler *getDbHandle()
 	dbMap_t::iterator it = gDbHandles.find(self);
 	if (it == gDbHandles.end()) {
 		MSG_DEBUG("New DB handle added.");
-		MutexLocker locker(mu);
+		MsgMutexLocker locker(mu);
 		tmp = new MsgDbHandler();
 		gDbHandles.insert(std::pair<pthread_t, MsgDbHandler*>(self, tmp));
 
@@ -688,7 +688,7 @@ void removeDbHandle()
 
 	dbMap_t::iterator it = gDbHandles.find(self);
 	if (it != gDbHandles.end()) {
-		MutexLocker locker(mu);
+		MsgMutexLocker locker(mu);
 		tmp = it->second;
 		delete tmp;
 		gDbHandles.erase(it);

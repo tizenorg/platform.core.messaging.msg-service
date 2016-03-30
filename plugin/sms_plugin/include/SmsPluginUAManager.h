@@ -44,7 +44,7 @@ private:
 	~SmsPluginUAManager();
 	void lock() 	{ mx.lock(); };
 	void unlock() 	{ mx.unlock(); };
-	void wait() 	{ cv.wait(mx.pMutex()); };
+	void wait() 	{ cv.wait(mx.pMsgMutex()); };
 	void signal() 	{ cv.signal(); };
 
 	virtual void run();
@@ -53,8 +53,8 @@ private:
 
 	MsgSimpleQ <SMS_REQUEST_INFO_S> smsTranQ;
 
-	Mutex mx;
-	CndVar cv;
+	MsgMutex mx;
+	MsgCndVar cv;
 };
 
 #endif /* SMS_PLUGIN_UA_MANAGER_H */

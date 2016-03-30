@@ -25,8 +25,8 @@
 #define MMS_CONTEXT_INVOKE_WAIT_TIME	30
 #define MMS_CONNECTION_API_WAIT_TIME	420
 
-static Mutex g_mx;
-static CndVar g_cv;
+static MsgMutex g_mx;
+static MsgCndVar g_cv;
 static connection_h g_connection = NULL;
 static connection_profile_h g_profile = NULL;
 
@@ -374,7 +374,7 @@ void context_invoke(GSourceFunc func, void *ret)
 
 	MSG_INFO("@@ WAIT @@");
 
-	time_ret = g_cv.timedwait(g_mx.pMutex(), MMS_CONTEXT_INVOKE_WAIT_TIME);
+	time_ret = g_cv.timedwait(g_mx.pMsgMutex(), MMS_CONTEXT_INVOKE_WAIT_TIME);
 
 	g_mx.unlock();
 
@@ -453,7 +453,7 @@ bool MmsPluginCmAgent::open()
 
 	MSG_INFO("## WAITING UNTIL __connection_profile_state CONNECT. ##");
 
-	time_ret = cv.timedwait(mx.pMutex(), MMS_CONNECTION_API_WAIT_TIME); /* isCmOpened will changed by processCBdatas */
+	time_ret = cv.timedwait(mx.pMsgMutex(), MMS_CONNECTION_API_WAIT_TIME); /* isCmOpened will changed by processCBdatas */
 
 	if (time_ret == ETIMEDOUT) {
 		MSG_WARN("## WAKE by timeout ##");
@@ -505,7 +505,7 @@ void MmsPluginCmAgent::close()
 
 	MSG_INFO("## WAITING UNTIL connection_profile_close_callback ##");
 
-	time_ret = cv.timedwait(mx.pMutex(), MMS_CONNECTION_API_WAIT_TIME);
+	time_ret = cv.timedwait(mx.pMsgMutex(), MMS_CONNECTION_API_WAIT_TIME);
 
 	if (time_ret == ETIMEDOUT) {
 		MSG_WARN("## WAKE by timeout ##");

@@ -25,7 +25,7 @@
 #include "MsgDevicedWrapper.h"
 
 int g_lock_cnt = 0;
-Mutex mx;
+MsgMutex mx;
 
 void MsgDisplayLock()
 {

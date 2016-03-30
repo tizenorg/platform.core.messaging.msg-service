@@ -65,8 +65,8 @@ private:
 	bool bSMSPChanged;
 	bool bCBMIChanged;
 
-	Mutex mx;
-	CndVar cv;
+	MsgMutex mx;
+	MsgCndVar cv;
 };
 
 #endif /* SMS_PLUGIN_SAT_HANDLER_H */

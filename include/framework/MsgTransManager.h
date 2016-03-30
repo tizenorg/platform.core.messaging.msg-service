@@ -127,9 +127,9 @@ private:
 	fd_map storageChangeFdMap;
 	fd_map reportMsgCBFdMap;
 
-	Mutex mx; /* mutex for shared resources like callback listeners */
-	Mutex mxQ; /* mutex for event queue */
-	CndVar cv;
+	MsgMutex mx; /* mutex for shared resources like callback listeners */
+	MsgMutex mxQ; /* mutex for event queue */
+	MsgCndVar cv;
 	MsgSimpleQ<MSG_CMD_S*> eventQueue;
 
 	cynara *p_cynara;

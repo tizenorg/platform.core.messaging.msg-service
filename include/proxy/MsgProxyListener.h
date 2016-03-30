@@ -180,8 +180,8 @@ private:
 
 	MsgIpcClientSocket cliSock;
 
-	Mutex mx;
-	CndVar cv;
+	MsgMutex mx;
+	MsgCndVar cv;
 
 	MsgSentStatusCBList sentStatusCBList;
 	MsgNewMessageCBList newMessageCBList;

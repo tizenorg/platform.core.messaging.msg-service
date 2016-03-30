@@ -51,8 +51,8 @@ GDBusConnection *gdbus_conn = NULL;
 GDBusProxy *gdbus_proxy = NULL;
 gint subs_id = 0;
 
-Mutex mx;
-CndVar cv;
+MsgMutex mx;
+MsgCndVar cv;
 
 
 void MsgResourceMonitorInit(void);

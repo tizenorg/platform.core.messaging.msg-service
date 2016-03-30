@@ -79,8 +79,8 @@ private:
 	bool bUdhMwiMethod;
 	int udhMwiCnt;
 
-	Mutex mx;
-	CndVar cv;
+	MsgMutex mx;
+	MsgCndVar cv;
 	TapiHandle *devHandle;
 };
 

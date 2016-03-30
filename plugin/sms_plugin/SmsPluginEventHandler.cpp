@@ -1021,7 +1021,7 @@ bool SmsPluginEventHandler::getDeviceStatus(TapiHandle *handle)
 
 	mx.lock();
 	devHandle = handle;
-	ret = cv.timedwait(mx.pMutex(), MAX_TAPI_SIM_API_TIMEOUT);
+	ret = cv.timedwait(mx.pMsgMutex(), MAX_TAPI_SIM_API_TIMEOUT);
 
 	if (ret == ETIMEDOUT) {
 		MSG_WARN("WARNING: DEVICE STATUS TIME-OUT");

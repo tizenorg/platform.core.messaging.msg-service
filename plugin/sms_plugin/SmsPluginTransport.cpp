@@ -1013,7 +1013,7 @@ SMS_NETWORK_STATUS_T SmsPluginTransport::getNetStatus()
 	int ret = 0;
 
 	if (curStatus == SMS_NETWORK_SENDING)
-		ret = cv.timedwait(mx.pMutex(), 125);
+		ret = cv.timedwait(mx.pMsgMutex(), 125);
 
 	mx.unlock();
 
@@ -1047,7 +1047,7 @@ int SmsPluginTransport::getMoCtrlStatus()
 
 	int ret = 0;
 
-	ret = cv.timedwait(mx.pMutex(), 10);
+	ret = cv.timedwait(mx.pMsgMutex(), 10);
 
 	mx.unlock();
 
