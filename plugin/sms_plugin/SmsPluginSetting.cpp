@@ -1665,12 +1665,8 @@ bool SmsPluginSetting::getMailboxInfoEvent()
 {
 	int ret = 0;
 
-	mx.lock();
-
 	bTapiResult = false;
 	ret = cv.timedwait(mx.pMsgMutex(), MAX_TAPI_SIM_API_TIMEOUT);
-
-	mx.unlock();
 
 	if (ret == ETIMEDOUT) {
 		MSG_DEBUG("WARNING: TAPI callback TIME-OUT");
