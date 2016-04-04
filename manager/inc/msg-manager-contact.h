@@ -74,5 +74,8 @@ int MsgMgrCloseContactSvc();
 void MsgMgrAddPhoneLog(contactInfo *contact_info);
 int MsgMgrGetContactInfo(const MSG_MGR_ADDRESS_INFO_S *pAddrInfo, MSG_MGR_CONTACT_INFO_S *pContactInfo);
 
+char* msg_mgr_clean_country_code(char *src);
+char* msg_mgr_normalize_number(char *src);
+
 #endif /*__MSG_MGR_CONTACT_H__ */
 

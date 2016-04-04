@@ -34,7 +34,6 @@
 #include <notification_internal.h>
 #include <notification_status.h>
 #include <package_manager.h>
-#include <phone_number.h>
 #include <vconf.h>
 
 #include <msg.h>
@@ -173,16 +172,11 @@ bool _is_valid_email(char *pAddress)
 bool isExistAddressInReportTable(const char *addr)
 {
 	char sqlQuery[MAX_QUERY_LEN+1];
-	char *normal_addr = NULL;
 	int rowCnt = 0, colCnt = 0;
 	char **db_res = NULL;
 	int msg_err = 0;
 
-	int ret = phone_number_get_normalized_number(addr, &normal_addr);
-	if (ret != PHONE_NUMBER_ERROR_NONE) {
-		MSG_MGR_ERR("phone_number_get_normalized_number() failed [%d]", ret);
-		return false;
-	}
+	char *normal_addr = msg_mgr_normalize_number((char *)addr);
 
 	memset(sqlQuery, 0x00, sizeof(sqlQuery));
 	snprintf(sqlQuery, sizeof(sqlQuery), "* FROM %s WHERE ADDRESS_VAL LIKE '%%%%%s'", MSGFW_SMS_REPORT_TABLE_NAME, normal_addr);
@@ -190,26 +184,20 @@ bool isExistAddressInReportTable(const char *addr)
 	msg_err = msg_db_select_with_query(msg_handle, sqlQuery, &db_res, &rowCnt, &colCnt);
 	if (msg_err != MSG_SUCCESS) {
 		MSG_MGR_ERR("msg_db_select_with_query() failed [%d]", msg_err);
-		g_free(normal_addr);
 		return false;
 	}
 
 	msg_err = msg_db_free(msg_handle, db_res);
 	if (msg_err != MSG_SUCCESS) {
 		MSG_MGR_ERR("msg_db_free() failed [%d]", msg_err);
-		g_free(normal_addr);
 		return false;
 	}
 
-	if (rowCnt > 0) {
-		g_free(normal_addr);
+	if (rowCnt > 0)
 		return true;
-	}
 
 	memset(sqlQuery, 0x00, sizeof(sqlQuery));
 	snprintf(sqlQuery, sizeof(sqlQuery), "* FROM %s WHERE ADDRESS_VAL LIKE '%%%%%s'", MSGFW_REPORT_TABLE_NAME, normal_addr);
-
-	g_free(normal_addr);
 
 	msg_err = msg_db_select_with_query(msg_handle, sqlQuery, &db_res, &rowCnt, &colCnt);
 	if (msg_err != MSG_SUCCESS) {
@@ -495,7 +483,7 @@ int MsgMgrDeleteReportNotification(const char *addr)
 				MSG_MGR_DEBUG("notification with priv_id [%d] is NULL", info->priv_id);
 				isDelete = true;
 			} else {
-				phone_number_get_normalized_number(info->addressVal, &normalAddr);
+				normalAddr = msg_mgr_normalize_number(info->addressVal);
 
 				if (normalAddr) {
 					MSG_MGR_SEC_DEBUG("normalized number = %s", normalAddr);
@@ -508,9 +496,6 @@ int MsgMgrDeleteReportNotification(const char *addr)
 							MSG_MGR_DEBUG("delete notification failed");
 						}
 					}
-
-					g_free(normalAddr);
-					normalAddr = NULL;
 				}
 
 				notification_free(noti_h);
@@ -2403,20 +2388,13 @@ void createInfoData(MSG_MGR_NOTI_INFO_S *noti_info, MSG_MGR_MESSAGE_INFO_S *msg_
 			report_status_type = MSG_REPORT_TYPE_DELIVERY;
 		}
 
-		char *normalNum = NULL;
-		if (msg_info->addressVal[0] != '\0')
-			phone_number_get_normalized_number(msg_info->addressVal, &normalNum);
-
 		snprintf(sqlQuery, sizeof(sqlQuery),
 				"STATUS "
 				"FROM %s "
 				"WHERE MSG_ID=%d AND STATUS_TYPE=%d AND ADDRESS_VAL LIKE '%%%s';",
-				MSGFW_REPORT_TABLE_NAME, msg_info->msgId, report_status_type, normalNum);
+				MSGFW_REPORT_TABLE_NAME, msg_info->msgId, report_status_type, msg_mgr_normalize_number(msg_info->addressVal));
 
 		MSG_MGR_DEBUG("sqlQuery = [%s]", sqlQuery);
-
-		if (normalNum)
-			g_free(normalNum);
 
 		char **db_res = NULL;
 		int row_cnt = 0, col_cnt = 0;

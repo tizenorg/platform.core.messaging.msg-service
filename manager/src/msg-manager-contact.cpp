@@ -403,3 +403,177 @@ int MsgMgrGetContactInfo(const MSG_MGR_ADDRESS_INFO_S *pAddrInfo, MSG_MGR_CONTAC
 
 	return 0;
 }
+
+char* msg_mgr_clean_country_code(char *src)
+{
+	int ret = 1;
+
+	switch (src[ret++]-'0') {
+		case 1:
+		case 7:
+			break;
+		case 2:
+			switch (src[ret++]-'0') {
+				case 0:
+				case 7:
+					break;
+				case 1:
+				case 2:
+				case 3:
+				case 4:
+				case 5:
+				case 6:
+				case 8:
+				case 9:
+					ret += 1;
+					break;
+				default:
+					MSG_MGR_DEBUG("The parameter(src:%s) has invalid character set", src);
+					break;
+			}
+			break;
+		case 3:
+			switch (src[ret++]-'0') {
+				case 0:
+				case 1:
+				case 2:
+				case 3:
+				case 4:
+				case 6:
+				case 9:
+					break;
+				case 5:
+				case 7:
+				case 8:
+					ret += 1;
+					break;
+				default:
+					MSG_MGR_DEBUG("The parameter(src:%s) has invalid character set", src);
+					break;
+			}
+			break;
+		case 4:
+			switch (src[ret++]-'0') {
+				case 0:
+				case 1:
+				case 3:
+				case 4:
+				case 5:
+				case 6:
+				case 7:
+				case 8:
+				case 9:
+					break;
+				case 2:
+					ret += 1;
+					break;
+				default:
+					MSG_MGR_DEBUG("The parameter(src:%s) has invalid character set", src);
+					break;
+			}
+			break;
+		case 5:
+			switch (src[ret++]-'0') {
+				case 1:
+				case 2:
+				case 3:
+				case 4:
+				case 5:
+				case 6:
+				case 7:
+				case 8:
+					break;
+				case 0:
+				case 9:
+					ret += 1;
+					break;
+				default:
+					MSG_MGR_DEBUG("The parameter(src:%s) has invalid character set", src);
+					break;
+			}
+			break;
+		case 6:
+			switch (src[ret++]-'0') {
+				case 0:
+				case 1:
+				case 2:
+				case 3:
+				case 4:
+				case 5:
+				case 6:
+					break;
+				case 7:
+				case 8:
+				case 9:
+					ret += 1;
+					break;
+				default:
+					MSG_MGR_DEBUG("The parameter(src:%s) has invalid character set", src);
+					break;
+			}
+			break;
+		case 8:
+			switch (src[ret++]-'0') {
+				case 1:
+				case 2:
+				case 4:
+				case 6:
+					break;
+				case 0:
+				case 3:
+				case 5:
+				case 7:
+				case 8:
+				case 9:
+					ret += 1;
+					break;
+				default:
+					MSG_MGR_DEBUG("The parameter(src:%s) has invalid character set", src);
+					break;
+			}
+			break;
+		case 9:
+			switch (src[ret++]-'0') {
+				case 0:
+				case 1:
+				case 2:
+				case 3:
+				case 4:
+				case 5:
+				case 8:
+					break;
+				case 6:
+				case 7:
+				case 9:
+					ret += 1;
+					break;
+				default:
+					MSG_MGR_DEBUG("The parameter(src:%s) has invalid character set", src);
+					break;
+			}
+			break;
+		case 0:
+		default:
+			MSG_MGR_DEBUG("The parameter(src:%s) has invalid character set", src);
+			return src;
+	}
+
+	return &src[ret];
+}
+
+
+char* msg_mgr_normalize_number(char *src)
+{
+	char *normalized_number;
+
+	if ('+' == src[0])
+		normalized_number = msg_mgr_clean_country_code(src);
+	else if ('0' == src[0])
+		normalized_number = src+1;
+	else
+		normalized_number = src;
+
+	MSG_MGR_DEBUG("src = %s, normalized = %s", src, normalized_number);
+
+	return normalized_number;
+}
