@@ -439,6 +439,9 @@ void _insert_only_active_noti_func(app_control_h app_control)
 			msg_get_str_value(msg, MSG_MESSAGE_SMS_DATA_STR, msg_info.msgText, MAX_MSG_TEXT_LEN);
 	}
 
+	msg_release_struct(&msg);
+	msg_release_struct(&opt);
+
 	g_free(msgId);
 
 	MsgMgrInsertOnlyActiveNotification(noti_type, &msg_info);

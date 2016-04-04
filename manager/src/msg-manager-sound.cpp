@@ -616,5 +616,3 @@ void MsgMgrSoundPlayVibration(char *vibrationPath)
 
 	MSG_MGR_END();
 }
-
-
