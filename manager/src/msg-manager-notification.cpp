@@ -26,9 +26,8 @@
 #include <locale.h>
 #include <stdarg.h>
 
-#include <app_control_internal.h>
+#include <app_control.h>
 #include <badge_internal.h>
-#include <bundle.h>
 #include <notification_list.h>
 #include <notification_text_domain.h>
 #include <notification_internal.h>
@@ -233,7 +232,7 @@ void MsgMgrInitReportNotiList()
 	notification_list_h noti_list = NULL;
 	notification_list_h head_noti_list = NULL;
 	int noti_err = NOTIFICATION_ERROR_NONE;
-	bundle *b = NULL;
+	app_control_h app_control = NULL;
 
 	noti_err = notification_get_list(NOTIFICATION_TYPE_NONE, -1, &noti_list);
 	if (noti_err != NOTIFICATION_ERROR_NONE) {
@@ -249,26 +248,29 @@ void MsgMgrInitReportNotiList()
 		char tempAddr[MAX_ADDRESS_VAL_LEN+1];
 		memset(tempAddr, 0x00, sizeof(tempAddr));
 
-		noti_err = notification_get_execute_option(noti, NOTIFICATION_EXECUTE_TYPE_SINGLE_LAUNCH, NULL, &b);
+		noti_err = notification_get_launch_option(noti, NOTIFICATION_LAUNCH_OPTION_APP_CONTROL, &app_control);
 		if (noti_err != NOTIFICATION_ERROR_NONE) {
 			MSG_MGR_DEBUG("notification_get_excute_option() failed!!");
 			break;
 		}
 
-		char *bundle_addr = NULL;
+		char *addr = NULL;
 
-		int ret = bundle_get_str(b, "address", &bundle_addr);
-		if (ret == BUNDLE_ERROR_NONE && bundle_addr != NULL) {
-			if (isExistAddressInReportTable(bundle_addr)) {
+		int ret = app_control_get_extra_data(app_control, "address", &addr);
+		if (ret == APP_CONTROL_ERROR_NONE && addr != NULL) {
+			if (isExistAddressInReportTable(addr)) {
 				report_notification_s *info = new report_notification_s;
 				memset(info, 0x00, sizeof(report_notification_s));
 
 				notification_get_id(noti, NULL, &(info->priv_id));
-				snprintf(info->addressVal, sizeof(info->addressVal), "%s", bundle_addr);
+				snprintf(info->addressVal, sizeof(info->addressVal), "%s", addr);
 
 				msg_report_notification_list = g_list_append(msg_report_notification_list, (void *)info);
 				MSG_MGR_SEC_DEBUG("appended list data = [priv_id = %d address = %s]", info->priv_id, info->addressVal);
 			}
+
+			g_free(addr);
+			addr = NULL;
 		}
 
 		noti_list = notification_list_get_next(noti_list);
@@ -611,31 +613,17 @@ void setProperty(notification_h noti_h, MSG_MGR_NOTI_INFO_S *noti_info)
 		MSG_MGR_DEBUG("Fail to notification_set_led.");
 	}
 
-	/* set execute option */
-	bundle *bundle_data = NULL;
-	bundle *reply_msg = NULL;
-
-	app_control_to_bundle(noti_info->svc_h, &bundle_data);
-
-	if (bundle_data == NULL) {
-		MSG_MGR_DEBUG("bundle is NULL");
-	}
-
 	/* set execute option and property */
 	switch (noti_info->type) {
 	case MSG_MGR_NOTI_TYPE_NORMAL: {
 		if (noti_info->count > 1) {
-			notification_set_execute_option(noti_h, NOTIFICATION_EXECUTE_TYPE_MULTI_LAUNCH, NULL, NULL, bundle_data);
-			notification_set_execute_option(noti_h, NOTIFICATION_EXECUTE_TYPE_RESPONDING, NULL, NULL, NULL);
+			notification_set_launch_option(noti_h, NOTIFICATION_LAUNCH_OPTION_APP_CONTROL, noti_info->svc_h);
 		} else {
 			if (noti_info->svc_h) { /* overwrite bundle key "type" */
 				/* addServiceExtraData(noti_info->svc_h, "type", "reply"); */
 				addServiceExtraData(noti_info->svc_h, "show_list", "list_show");
-
-				app_control_to_bundle(noti_info->svc_h, &reply_msg);
 			}
-			notification_set_execute_option(noti_h, NOTIFICATION_EXECUTE_TYPE_SINGLE_LAUNCH, NULL, NULL, bundle_data);
-			notification_set_execute_option(noti_h, NOTIFICATION_EXECUTE_TYPE_RESPONDING, NULL, NULL, reply_msg);
+			notification_set_launch_option(noti_h, NOTIFICATION_LAUNCH_OPTION_APP_CONTROL, noti_info->svc_h);
 		}
 
 		notification_set_property(noti_h, NOTIFICATION_PROP_DISABLE_AUTO_DELETE);
@@ -643,22 +631,17 @@ void setProperty(notification_h noti_h, MSG_MGR_NOTI_INFO_S *noti_info)
 	}
 	case MSG_MGR_NOTI_TYPE_CB:
 	case MSG_MGR_NOTI_TYPE_SIM: {
-		if (noti_info->count > 1) {
-			notification_set_execute_option(noti_h, NOTIFICATION_EXECUTE_TYPE_MULTI_LAUNCH, NULL, NULL, bundle_data);
-		} else {
-			notification_set_execute_option(noti_h, NOTIFICATION_EXECUTE_TYPE_SINGLE_LAUNCH, NULL, NULL, bundle_data);
-		}
-
+		notification_set_launch_option(noti_h, NOTIFICATION_LAUNCH_OPTION_APP_CONTROL, noti_info->svc_h);
 		notification_set_property(noti_h, NOTIFICATION_PROP_DISABLE_AUTO_DELETE|NOTIFICATION_PROP_VOLATILE_DISPLAY);
 		break;
 	}
 	case MSG_MGR_NOTI_TYPE_FAILED: {
-		notification_set_execute_option(noti_h, NOTIFICATION_EXECUTE_TYPE_SINGLE_LAUNCH, NULL, NULL, bundle_data);
+		notification_set_launch_option(noti_h, NOTIFICATION_LAUNCH_OPTION_APP_CONTROL, noti_info->svc_h);
 		notification_set_property(noti_h, NOTIFICATION_PROP_DISABLE_AUTO_DELETE);
 		break;
 	}
 	case MSG_MGR_NOTI_TYPE_SIM_FULL: {
-		notification_set_execute_option(noti_h, NOTIFICATION_EXECUTE_TYPE_SINGLE_LAUNCH, NULL, NULL, bundle_data);
+		notification_set_launch_option(noti_h, NOTIFICATION_LAUNCH_OPTION_APP_CONTROL, noti_info->svc_h);
 		break;
 	}
 	case MSG_MGR_NOTI_TYPE_VOICE_1:
@@ -668,11 +651,11 @@ void setProperty(notification_h noti_h, MSG_MGR_NOTI_INFO_S *noti_info)
 	case MSG_MGR_NOTI_TYPE_SMS_DELIVERY_REPORT:
 	case MSG_MGR_NOTI_TYPE_MMS_READ_REPORT:
 	case MSG_MGR_NOTI_TYPE_MMS_DELIVERY_REPORT: {
-		notification_set_execute_option(noti_h, NOTIFICATION_EXECUTE_TYPE_SINGLE_LAUNCH, NULL, NULL, bundle_data);
+		notification_set_launch_option(noti_h, NOTIFICATION_LAUNCH_OPTION_APP_CONTROL, noti_info->svc_h);
 		break;
 	}
 	default:
-		MSG_MGR_DEBUG("No matching type for notification_set_execute_option() [%d]", noti_info->type);
+		MSG_MGR_DEBUG("No matching type for notification_set_launch_option() [%d]", noti_info->type);
 		break;
 	}
 

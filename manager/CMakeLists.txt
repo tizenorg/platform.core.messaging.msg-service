@@ -31,7 +31,7 @@ INCLUDE_DIRECTORIES(
 )
 
 INCLUDE(FindPkgConfig)
-pkg_check_modules(mgr_pkgs REQUIRED glib-2.0 dlog alarm-service appcore-agent badge bundle callmgr_client contacts-service2 capi-appfw-application capi-appfw-package-manager notification vconf feedback capi-media-player capi-media-sound-manager)
+pkg_check_modules(mgr_pkgs REQUIRED glib-2.0 dlog alarm-service appcore-agent badge callmgr_client contacts-service2 capi-appfw-application capi-appfw-package-manager notification vconf feedback capi-media-player capi-media-sound-manager)
 INCLUDE_DIRECTORIES(${mgr_pkgs_INCLUDE_DIRS})
 LINK_DIRECTORIES(${mgr_pkgs_LIBRARY_DIRS})
 

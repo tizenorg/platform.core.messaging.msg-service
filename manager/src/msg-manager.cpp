@@ -7,7 +7,6 @@ extern "C"
 #include <tizen.h>
 #include <service_app.h>
 #include <app_event.h>
-#include <bundle.h>
 #include <notification_list.h>
 #include <notification_text_domain.h>
 #include <notification_internal.h>

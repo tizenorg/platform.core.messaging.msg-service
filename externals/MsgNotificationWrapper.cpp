@@ -377,7 +377,7 @@ void MsgDeleteNotification(msg_notification_type_t noti_type, int simIndex)
 	int noti_err = NOTIFICATION_ERROR_NONE;
 
 	if (noti_type == MSG_NOTI_TYPE_ALL) {
-		noti_err = notification_delete_all_by_type(NULL, NOTIFICATION_TYPE_NOTI);
+		noti_err = notification_delete_all(NOTIFICATION_TYPE_NOTI);
 	} else if (noti_type == MSG_NOTI_TYPE_VOICE_1 || noti_type == MSG_NOTI_TYPE_VOICE_2 || noti_type == MSG_NOTI_TYPE_SIM) {
 		int notiId = 0;
 
@@ -392,7 +392,7 @@ void MsgDeleteNotification(msg_notification_type_t noti_type, int simIndex)
 	}
 
 	if (noti_err != NOTIFICATION_ERROR_NONE) {
-		MSG_DEBUG("Fail to notification_delete_all_by_type noti_err [%d]", noti_err);
+		MSG_DEBUG("Fail to notification_delete_all noti_err [%d]", noti_err);
 	}
 
 	updatePrivId(noti_type, 0, simIndex);
