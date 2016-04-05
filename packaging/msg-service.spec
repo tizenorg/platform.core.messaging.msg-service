@@ -24,7 +24,6 @@ BuildRequires: pkgconfig(appcore-agent)
 BuildRequires: pkgconfig(aul)
 BuildRequires: pkgconfig(badge)
 BuildRequires: pkgconfig(bundle)
-BuildRequires: pkgconfig(callmgr_client)
 BuildRequires: pkgconfig(capi-appfw-application)
 BuildRequires: pkgconfig(capi-appfw-package-manager)
 BuildRequires: pkgconfig(capi-content-media-content)
@@ -66,6 +65,7 @@ BuildRequires: pkgconfig(storage)
 BuildRequires: pkgconfig(tapi)
 BuildRequires: pkgconfig(vconf)
 %if "%{?profile}" != "wearable"
+BuildRequires: pkgconfig(callmgr_client)
 BuildRequires: pkgconfig(contacts-service2)
 %endif
 

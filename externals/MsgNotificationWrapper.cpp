@@ -164,6 +164,9 @@ msg_error_t MsgInsertNotification(MSG_MESSAGE_INFO_S *msg_info)
 msg_error_t MsgInsertOnlyActiveNotification(msg_notification_type_t noti_type, MSG_MESSAGE_INFO_S *msg_info)
 {
 	MSG_BEGIN();
+
+	msg_error_t err = MSG_SUCCESS;
+
 #ifndef MSG_WEARABLE_PROFILE
 	bundle *bundle_data = bundle_create();
 
@@ -173,7 +176,7 @@ msg_error_t MsgInsertOnlyActiveNotification(msg_notification_type_t noti_type, M
 	else if (noti_type == MSG_NOTI_TYPE_CLASS0)
 		bundle_add_str(bundle_data, "type", "class0");
 
-	msg_error_t err = msg_launch_app(MSG_MGR_APP_ID, bundle_data);
+	err = msg_launch_app(MSG_MGR_APP_ID, bundle_data);
 
 	bundle_free(bundle_data);
 #endif /* MSG_WEARABLE_PROFILE */
@@ -185,13 +188,16 @@ msg_error_t MsgInsertOnlyActiveNotification(msg_notification_type_t noti_type, M
 msg_error_t MsgDeleteReportNotification(const char *addr)
 {
 	MSG_BEGIN();
+
+	msg_error_t err = MSG_SUCCESS;
+
 #ifndef MSG_WEARABLE_PROFILE
 	bundle *bundle_data = bundle_create();
 
 	bundle_add_str(bundle_data, "cmd", "del_report_noti");
 	bundle_add_str(bundle_data, "address", addr);
 
-	msg_error_t err = msg_launch_app(MSG_MGR_APP_ID, bundle_data);
+	err = msg_launch_app(MSG_MGR_APP_ID, bundle_data);
 
 	bundle_free(bundle_data);
 #endif /* MSG_WEARABLE_PROFILE */
@@ -202,6 +208,8 @@ msg_error_t MsgDeleteReportNotification(const char *addr)
 
 msg_error_t MsgAddReportNotification(msg_notification_type_t noti_type, MSG_MESSAGE_INFO_S *msg_info)
 {
+	msg_error_t err = MSG_SUCCESS;
+
 #ifndef MSG_WEARABLE_PROFILE
 	bundle *bundle_data = bundle_create();
 
@@ -226,7 +234,7 @@ msg_error_t MsgAddReportNotification(msg_notification_type_t noti_type, MSG_MESS
 		g_free(msg_id);
 	}
 
-	msg_error_t err = msg_launch_app(MSG_MGR_APP_ID, bundle_data);
+	err = msg_launch_app(MSG_MGR_APP_ID, bundle_data);
 
 	bundle_free(bundle_data);
 #endif /* MSG_WEARABLE_PROFILE */
@@ -236,6 +244,8 @@ msg_error_t MsgAddReportNotification(msg_notification_type_t noti_type, MSG_MESS
 
 msg_error_t MsgRefreshNotification(msg_notification_type_t noti_type, bool bFeedback, msg_active_notification_type_t active_type)
 {
+	msg_error_t err = MSG_SUCCESS;
+
 #ifndef MSG_WEARABLE_PROFILE
 	bundle *bundle_data = bundle_create();
 
@@ -276,7 +286,7 @@ msg_error_t MsgRefreshNotification(msg_notification_type_t noti_type, bool bFeed
 	else
 		bundle_add_str(bundle_data, "feedback", "false");
 
-	msg_error_t err = msg_launch_app(MSG_MGR_APP_ID, bundle_data);
+	err = msg_launch_app(MSG_MGR_APP_ID, bundle_data);
 
 	bundle_free(bundle_data);
 #endif /* MSG_WEARABLE_PROFILE */
@@ -286,6 +296,8 @@ msg_error_t MsgRefreshNotification(msg_notification_type_t noti_type, bool bFeed
 
 msg_error_t MsgAddNotification(msg_notification_type_t noti_type, MSG_MESSAGE_INFO_S *msg_info)
 {
+	msg_error_t err = MSG_SUCCESS;
+
 #ifndef MSG_WEARABLE_PROFILE
 	bundle *bundle_data = bundle_create();
 
@@ -313,7 +325,7 @@ msg_error_t MsgAddNotification(msg_notification_type_t noti_type, MSG_MESSAGE_IN
 		g_free(msg_id);
 	}
 
-	msg_error_t err = msg_launch_app(MSG_MGR_APP_ID, bundle_data);
+	err = msg_launch_app(MSG_MGR_APP_ID, bundle_data);
 
 	bundle_free(bundle_data);
 #endif /* MSG_WEARABLE_PROFILE */
