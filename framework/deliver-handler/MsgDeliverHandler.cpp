@@ -14,9 +14,6 @@
  * limitations under the License.
 */
 
-#ifndef MSG_WEARABLE_PROFILE
-#include <app_control.h>
-#endif // MSG_WEARABLE_PROFILE
 #include <bundle.h>
 #include <eventsystem.h>
 
@@ -45,28 +42,20 @@ void MsgLaunchClass0(msg_message_id_t msgId)
 {
 	MSG_BEGIN();
 #ifndef MSG_WEARABLE_PROFILE
-	app_control_h svc_h;
+	int ret = 0;
+	msg_error_t err = MSG_SUCCESS;
+	bundle *b = NULL;
 
-	int ret = APP_CONTROL_ERROR_NONE;
-
-	ret = app_control_create(&svc_h);
-	if (ret != APP_CONTROL_ERROR_NONE) {
-		MSG_DEBUG("app_control_create() is failed : %d", ret);
-		app_control_destroy(svc_h);
+	b = bundle_create();
+	if (b == NULL) {
+		MSG_DEBUG("bundle_create() is failed");
 		return;
 	}
 
-	ret = app_control_set_app_id(svc_h, "org.tizen.msg-ui-class0");
-	if (ret != APP_CONTROL_ERROR_NONE) {
-		MSG_DEBUG("app_control_set_app_id() is failed : %d", ret);
-		app_control_destroy(svc_h);
-		return;
-	}
-
-	ret = app_control_add_extra_data(svc_h, "type", "msg_id");
-	if (ret != APP_CONTROL_ERROR_NONE) {
-		MSG_DEBUG("app_control_add_extra_data() is failed : %d", ret);
-		app_control_destroy(svc_h);
+	ret = bundle_add_str(b, "type", "msg_id");
+	if (ret != 0) {
+		MSG_DEBUG("bundle_add_str() is failed : %d", ret);
+		bundle_free(b);
 		return;
 	}
 
@@ -74,21 +63,19 @@ void MsgLaunchClass0(msg_message_id_t msgId)
 	memset(&tmpStrMsgId, 0x00, sizeof(tmpStrMsgId));
 	snprintf(tmpStrMsgId, sizeof(tmpStrMsgId), "%d", msgId);
 	MSG_DEBUG("tmpStrMsgId [%s]", tmpStrMsgId);
-	ret = app_control_add_extra_data(svc_h, "msgId", tmpStrMsgId);
-	if (ret != APP_CONTROL_ERROR_NONE) {
-		MSG_DEBUG("app_control_add_extra_data() is failed : %d", ret);
-		app_control_destroy(svc_h);
+	ret = bundle_add_str(b, "msgId", tmpStrMsgId);
+	if (ret != 0) {
+		MSG_DEBUG("bundle_add_str() is failed : %d", ret);
+		bundle_free(b);
 		return;
 	}
 
-	ret = app_control_send_launch_request(svc_h, NULL, NULL);
-	if (ret != APP_CONTROL_ERROR_NONE) {
-		MSG_DEBUG("app_control_send_launch_request() is failed : %d", ret);
-		app_control_destroy(svc_h);
-		return;
+	err = msg_launch_app("org.tizen.msg-ui-class0", b);
+	if (err != MSG_SUCCESS) {
+		MSG_DEBUG("msg_launch_app() is failed : %d", err);
 	}
 
-	app_control_destroy(svc_h);
+	bundle_free(b);
 #endif // MSG_WEARABLE_PROFILE
 	MSG_END();
 }
@@ -411,91 +398,76 @@ msg_error_t MsgHandleSMS(MSG_MESSAGE_INFO_S *pMsgInfo, bool *pSendNoti, bool *bO
 			MSG_INFO("MsgSettingGetInt() is failed");
 		}
 		MSG_PUSH_SERVICE_TYPE_T serviceType = (MSG_PUSH_SERVICE_TYPE_T)tmpVal;
-		app_control_h svc_handle = NULL;
-
 		switch (pMsgInfo->msgType.subType) {
 			case MSG_WAP_SL_SMS: {
 				*pSendNoti = true;
 
 				if (serviceType == MSG_PUSH_SERVICE_ALWAYS) {
-					if (app_control_create(&svc_handle) < 0) {
-						MSG_DEBUG("Fail to create service handle");
-						break;
-					}
-					if (!svc_handle) {
-						MSG_DEBUG("Service handle is NULL");
-						break;
-					}
-					if (app_control_set_operation(svc_handle, APP_CONTROL_OPERATION_VIEW) < 0) {
-						MSG_DEBUG("Fail to create service handle");
-						app_control_destroy(svc_handle);
-						break;
-					}
-					if (app_control_set_uri(svc_handle, pMsgInfo->msgText) < 0) {
-						MSG_DEBUG("Fail to set uri");
-						app_control_destroy(svc_handle);
-						break;
-					}
-					if (app_control_set_app_id(svc_handle, MSG_SVC_PKG_NAME_BROWSER) < 0) {
-						MSG_DEBUG("Fail to set package");
-						app_control_destroy(svc_handle);
-						break;
-					}
-					if (app_control_send_launch_request(svc_handle, NULL, NULL) < 0) {
-						MSG_DEBUG("Fail to launch browser");
-						app_control_destroy(svc_handle);
+					bundle *b = NULL;
+					b = bundle_create();
+					if (b == NULL) {
+						MSG_DEBUG("bundle_create() is failed");
 						break;
 					}
 
-					app_control_destroy(svc_handle);
+					err = msg_aul_svc_set_operation(b, "http://tizen.org/appcontrol/operation/view");
+					if (err != MSG_SUCCESS) {
+						MSG_DEBUG("msg_aul_svc_set_operation() is failed : %d", err);
+						bundle_free(b);
+						break;
+					}
 
+					err = msg_aul_svc_set_uri(b, pMsgInfo->msgText);
+					if (err != MSG_SUCCESS) {
+						MSG_DEBUG("msg_aul_svc_set_uri() is failed : %d", err);
+						bundle_free(b);
+						break;
+					}
+
+					err = msg_launch_app(MSG_SVC_PKG_NAME_BROWSER, b);
+					if (err != MSG_SUCCESS) {
+						MSG_DEBUG("msg_launch_app() is failed : %d", err);
+					}
+
+					bundle_free(b);
 				} else if (serviceType == MSG_PUSH_SERVICE_PROMPT) {
 					MSG_DEBUG("WAP Message SL(Always Ask) start.");
 
-					app_control_h svc_h;
-					int ret = APP_CONTROL_ERROR_NONE;
-
-					ret = app_control_create(&svc_h);
-					if (ret != APP_CONTROL_ERROR_NONE) {
-						MSG_DEBUG("app_control_create() is failed : %d", ret);
+					int ret = 0;
+					bundle *b = NULL;
+					b = bundle_create();
+					if (b == NULL) {
+						MSG_DEBUG("bundle_create() is failed");
 						break;
 					}
 
-					ret = app_control_set_app_id(svc_h, "org.tizen.message-dialog");
-					if (ret != APP_CONTROL_ERROR_NONE) {
-						MSG_DEBUG("app_control_set_app_id() is failed : %d", ret);
-						app_control_destroy(svc_h);
+					ret = bundle_add_str(b, "mode", "WAP_PUSH_SL");
+					if (ret != 0) {
+						MSG_DEBUG("bundle_add_str() is failed : %d", ret);
+						bundle_free(b);
 						break;
 					}
 
-					ret = app_control_add_extra_data(svc_h, "mode", "WAP_PUSH_SL");
-					if (ret != APP_CONTROL_ERROR_NONE) {
-						MSG_DEBUG("app_control_add_extra_data() is failed : %d", ret);
-						app_control_destroy(svc_h);
+					ret = bundle_add_str(b, "url", pMsgInfo->msgText);
+					if (ret != 0) {
+						MSG_DEBUG("bundle_add_str() is failed : %d", ret);
+						bundle_free(b);
 						break;
 					}
 
-					ret = app_control_add_extra_data(svc_h, "url", pMsgInfo->msgText);
-					if (ret != APP_CONTROL_ERROR_NONE) {
-						MSG_DEBUG("app_control_add_extra_data() is failed : %d", ret);
-						app_control_destroy(svc_h);
+					ret = bundle_add_str(b, "address", pMsgInfo->addressList[0].addressVal);
+					if (ret != 0) {
+						MSG_DEBUG("bundle_add_str() is failed : %d", ret);
+						bundle_free(b);
 						break;
 					}
 
-					ret = app_control_add_extra_data(svc_h, "address", pMsgInfo->addressList[0].addressVal);
-					if (ret != APP_CONTROL_ERROR_NONE) {
-						MSG_DEBUG("app_control_add_extra_data() is failed : %d", ret);
-						app_control_destroy(svc_h);
-						break;
+					err = msg_launch_app("org.tizen.message-dialog", b);
+					if (err != MSG_SUCCESS) {
+						MSG_DEBUG("msg_launch_app() is failed : %d", err);
 					}
 
-					ret = app_control_send_launch_request(svc_h, NULL, NULL);
-					if (ret != APP_CONTROL_ERROR_NONE) {
-						MSG_DEBUG("app_control_send_launch_request() is failed : %d", ret);
-					}
-
-					app_control_destroy(svc_h);
-					MSG_DEBUG("app_control_destroy() returns : %d", ret);
+					bundle_free(b);
 				}
 			}
 			break;

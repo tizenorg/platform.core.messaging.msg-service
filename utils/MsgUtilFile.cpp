@@ -28,7 +28,6 @@
 #include <libgen.h>
 #include <acl/libacl.h>
 
-#include <media_content.h>
 #include <thumbnail_util.h>
 #include <image_util.h>
 #include <TCSImpl.h>
@@ -1225,37 +1224,6 @@ __RETURN:
 	MSG_FREE(dir_smack_label);
 	MSG_FREE(dir_name);
 	return err;
-}
-
-
-bool MsgScanFile(char *filePath)
-{
-	if (filePath == NULL) {
-		MSG_DEBUG("Invalid Parameter src = %p", filePath);
-		return false;
-	}
-
-	msg_error_t ret = media_content_connect();
-
-	if (ret == MEDIA_CONTENT_ERROR_NONE) {
-		if (media_content_scan_file(filePath) != MEDIA_CONTENT_ERROR_NONE) {
-			MSG_ERR("media_content_scan_file() is failed , %d", ret);
-			media_content_disconnect();
-			return false;
-		}
-
-		ret = media_content_disconnect();
-
-		if (ret != MEDIA_CONTENT_ERROR_NONE) {
-			MSG_ERR("media_content_disconnect is failed , %d", ret);
-			return false;
-		}
-	} else {
-		MSG_ERR("media_content_connect is failed , %d", ret);
-		return false;
-	}
-
-	return true;
 }
 
 

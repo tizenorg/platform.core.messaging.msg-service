@@ -158,6 +158,10 @@ uid_t msg_get_login_user();
 
 msg_error_t msg_launch_app(const char *app_id, bundle *bundle_data);
 
+msg_error_t msg_aul_svc_set_operation(bundle *bundle_data, const char *operation);
+
+msg_error_t msg_aul_svc_set_uri(bundle *bundle_data, char *uri);
+
 /* Dbus function */
 void MsgDbusInit();
 void MsgDbusDeinit();

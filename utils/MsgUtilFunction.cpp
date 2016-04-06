@@ -29,6 +29,7 @@
 #include <vconf.h>
 #include <ctype.h>
 #include <aul.h>
+#include <aul_svc.h>
 
 
 #define DEFAULT_MIN_MATCH_DIGIT 8
@@ -1243,6 +1244,30 @@ msg_error_t msg_launch_app(const char *app_id, bundle *bundle_data)
 	int ret = aul_launch_app_for_uid(app_id, bundle_data, msg_get_login_user());
 	if (ret <= 0) {
 		MSG_DEBUG("aul_launch_app_for_uid() is failed : %d", ret);
+		return MSG_ERR_UNKNOWN;
+	}
+
+	return MSG_SUCCESS;
+}
+
+
+msg_error_t msg_aul_svc_set_operation(bundle *bundle_data, const char *operation)
+{
+	int ret = aul_svc_set_operation(bundle_data, operation);
+	if (ret < 0) {
+		MSG_DEBUG("aul_svc_set_operation() is failed : %d", ret);
+		return MSG_ERR_UNKNOWN;
+	}
+
+	return MSG_SUCCESS;
+}
+
+
+msg_error_t msg_aul_svc_set_uri(bundle *bundle_data, char *uri)
+{
+	int ret = aul_svc_set_uri(bundle_data, uri);
+	if (ret < 0) {
+		MSG_DEBUG("aul_svc_set_uri() is failed : %d", ret);
 		return MSG_ERR_UNKNOWN;
 	}
 
