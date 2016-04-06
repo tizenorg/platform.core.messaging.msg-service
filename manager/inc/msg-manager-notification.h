@@ -84,6 +84,10 @@
 
 
 /* message app string for ticker noti */
+#define SENDING_MULTIMEDIA_MESSAGE_FAILED	"IDS_MSGF_POP_SENDING_MULTIMEDIA_MESSAGE_FAILED"
+#define MESSAGE_RETRIEVED								"IDS_MSGF_BODY_MESSAGE_RETRIEVED"
+#define SMS_MESSAGE_SENDING_FAIL					"IDS_MSGF_POP_SENDING_MESSAGE_FAILED"
+#define SMS_MESSAGE_SIM_MESSAGE_FULL				"IDS_MSGF_BODY_SIM_MEMORY_FULL_DELETE_SOME_ITEMS"
 #define SMS_MESSAGE_MEMORY_FULL			"IDS_MSGF_POP_NOT_ENOUGH_MEMORY_DELETE_SOME_ITEMS"
 #define SMS_SIM_CARD_FULL				"IDS_MSG_HEADER_SIM_CARD_FULL"
 
@@ -287,9 +291,12 @@ int MsgMgrRefreshNotification(msg_mgr_notification_type_t noti_type, bool bFeedb
 int MsgMgrAddReportNotification(msg_mgr_notification_type_t noti_type, MSG_MGR_MESSAGE_INFO_S *msg_info);
 int MsgMgrDeleteReportNotification(const char *addr);
 int MsgMgrAddNotification(msg_mgr_notification_type_t noti_type, MSG_MGR_MESSAGE_INFO_S *msg_info);
+int MsgMgrDeleteNoti(msg_mgr_notification_type_t noti_type, int simIndex);
 
 void MsgMgrRefreshAllNotification(bool bWithSimNoti, bool bFeedback, msg_mgr_active_notification_type_t active_type);
 int MsgMgrInsertInstantMessage(msg_mgr_notification_type_t noti_type);
+bool MsgMgrCheckNotificationSettingEnable();
+int MsgMgrInsertTicker(const char* pTickerMsg, const char* pLocaleTickerMsg, bool bPlayFeedback, int msgId);
 int MsgMgrInsertBadge(unsigned int unreadMsgCnt);
 
 

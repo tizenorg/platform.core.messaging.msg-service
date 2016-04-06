@@ -15,14 +15,17 @@
 */
 
 
+#ifndef MSG_WEARABLE_PROFILE
+#include <bundle.h>
+#endif /* MSG_WEARABLE_PROFILE */
 #include <device/power.h>
-#include <device/display.h>
 
 #include "MsgCallStatusManager.h"
 #include "MsgDebug.h"
 #include "MsgMutex.h"
 #include "MsgGconfWrapper.h"
 #include "MsgDevicedWrapper.h"
+#include "MsgUtilFunction.h"
 
 int g_lock_cnt = 0;
 MsgMutex mx;
@@ -80,17 +83,14 @@ void MsgDisplayUnlock()
 void MsgChangePmState()
 {
 	MSG_BEGIN();
-	int callStatus = 0;
+#ifndef MSG_WEARABLE_PROFILE
+	bundle *bundle_data = bundle_create();
 
-	callStatus = MsgGetCallStatus();
-	MSG_DEBUG("Call Status = %d", callStatus);
+	bundle_add_str(bundle_data, "cmd", "change_pm_state");
 
-	if (callStatus > 0 && callStatus < 3) {
-		MSG_DEBUG("Call is activated. Do not turn on the lcd.");
-	} else {
-		MSG_DEBUG("Call is not activated. Turn on the lcd.");
-		device_display_change_state(DISPLAY_STATE_NORMAL);
-	}
+	msg_launch_app(MSG_MGR_APP_ID, bundle_data);
 
+	bundle_free(bundle_data);
+#endif /* MSG_WEARABLE_PROFILE */
 	MSG_END();
 }

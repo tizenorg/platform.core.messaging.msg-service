@@ -32,13 +32,15 @@
 #include <notification_text_domain.h>
 #include <notification_internal.h>
 #include <notification_status.h>
+#include <notification_setting.h>
+#include <notification_setting_internal.h>
 #include <package_manager.h>
 #include <vconf.h>
 
 #include <msg.h>
 #include <msg_storage.h>
 
-#include <msg-manager-alarm.h>
+#include <msg-manager-util.h>
 #include <msg-manager-contact.h>
 #include <msg-manager-debug.h>
 #include <msg-manager-notification.h>
@@ -95,12 +97,22 @@ typedef struct _msg_mgr_noti_info_s
 } MSG_MGR_NOTI_INFO_S;
 
 
+typedef struct _del_noti_info_s
+{
+	msg_mgr_notification_type_t			type;
+	int 		sim_idx;
+} DEL_NOTI_INFO_S;
+
+
 /*==================================================================================================
 										FUNCTION DEFINE
 ===================================================================================================*/
 
 void MsgMgrInitReportNotiList();
 void MsgRefreshNotiCb(void *data);
+void MsgMgrDeleteNotiCb(void *data);
+
+void MsgMgrDeleteNotification(msg_mgr_notification_type_t noti_type, int simIndex);
 
 notification_h getHandle(int *noti_id);
 
@@ -322,6 +334,21 @@ void MsgRefreshNotiCb(void *data)
 	MsgMgrInitReportNotiList();
 
 	if (data) {
+		free(data);
+		data = NULL;
+	}
+
+	return;
+}
+
+
+void MsgMgrDeleteNotiCb(void *data)
+{
+	if (data) {
+		DEL_NOTI_INFO_S *delNotiInfo = (DEL_NOTI_INFO_S *)data;
+
+		MsgMgrDeleteNotification(delNotiInfo->type, delNotiInfo->sim_idx);
+
 		free(data);
 		data = NULL;
 	}
@@ -554,6 +581,57 @@ __END_OF_ADD_NOTI :
 	clearInfoData(noti_h, &noti_info);
 
 	return ret;
+}
+
+
+void MsgMgrDeleteNotification(msg_mgr_notification_type_t noti_type, int simIndex)
+{
+	int noti_err = NOTIFICATION_ERROR_NONE;
+
+	if (noti_type == MSG_MGR_NOTI_TYPE_ALL) {
+		noti_err = notification_delete_all(NOTIFICATION_TYPE_NOTI);
+	} else if (noti_type == MSG_MGR_NOTI_TYPE_VOICE_1 || noti_type == MSG_MGR_NOTI_TYPE_VOICE_2 || noti_type == MSG_MGR_NOTI_TYPE_SIM) {
+		int notiId = 0;
+
+		notiId = getPrivId(noti_type, simIndex);
+		MSG_MGR_DEBUG("deleted notification ID = [%d] Type = [%d]", notiId, noti_type);
+
+		if (notiId > 0)
+			noti_err = notification_delete_by_priv_id(NULL, NOTIFICATION_TYPE_NOTI, notiId);
+
+	} else {
+		MSG_MGR_DEBUG("No matching type [%d]", noti_type);
+	}
+
+	if (noti_err != NOTIFICATION_ERROR_NONE) {
+		MSG_MGR_DEBUG("Fail to notification_delete_all noti_err [%d]", noti_err);
+	}
+
+	updatePrivId(noti_type, 0, simIndex);
+}
+
+
+int MsgMgrDeleteNoti(msg_mgr_notification_type_t noti_type, int simIndex)
+{
+	bool bNotiSvcReady = false;
+
+	DEL_NOTI_INFO_S *delNotiInfo = (DEL_NOTI_INFO_S *)calloc(1, sizeof(DEL_NOTI_INFO_S));
+
+	if (delNotiInfo) {
+		delNotiInfo->type = noti_type;
+		delNotiInfo->sim_idx = simIndex;
+	}
+
+	bNotiSvcReady = notification_is_service_ready();
+
+	if (bNotiSvcReady == true) {
+		MSG_MGR_DEBUG("Notification server is available");
+		MsgMgrDeleteNotiCb((void *)delNotiInfo);
+	} else {
+		MSG_MGR_DEBUG("Notification server is not available. Delete is defered");
+		notification_add_deferred_task(MsgMgrDeleteNotiCb, (void *)delNotiInfo);
+	}
+	return 0;
 }
 
 
@@ -2766,6 +2844,131 @@ _END_OF_INSTANT_NOTI:
 
 	MSG_MGR_END();
 	return 0;
+}
+
+
+bool MsgMgrCheckNotificationSettingEnable()
+{
+	bool msg_noti_enabled = false;
+	notification_system_setting_h system_setting = NULL;
+	notification_setting_h setting = NULL;
+
+	int err = NOTIFICATION_ERROR_NONE;
+
+	err = notification_setting_get_setting_by_package_name(MSG_DEFAULT_APP_ID, &setting);
+
+	if (err != NOTIFICATION_ERROR_NONE || setting == NULL) {
+		MSG_MGR_ERR("getting setting handle for [%s] is failed. err = %d", MSG_DEFAULT_APP_ID, err);
+	} else {
+		msg_noti_enabled = true;
+
+		bool allow_to_notify = false;
+		err = notification_setting_get_allow_to_notify(setting, &allow_to_notify);
+
+		if (err != NOTIFICATION_ERROR_NONE) {
+			MSG_MGR_ERR("getting do not disturb setting is failed. err = %d", err);
+			goto EXIT;
+		}
+
+		if (allow_to_notify) {
+			MSG_MGR_DEBUG("message notification is allowed");
+
+			/* check do not disturb mode */
+			err = notification_system_setting_load_system_setting(&system_setting);
+
+			if (err != NOTIFICATION_ERROR_NONE || system_setting == NULL) {
+				MSG_MGR_ERR("getting system setting is failed. err = %d", err);
+				goto EXIT;
+			}
+
+			bool do_not_disturb_mode = false;
+			err = notification_system_setting_get_do_not_disturb(system_setting, &do_not_disturb_mode);
+
+			if (err != NOTIFICATION_ERROR_NONE) {
+				MSG_MGR_ERR("getting do not disturb setting is failed. err = %d", err);
+				goto EXIT;
+			}
+
+			if (do_not_disturb_mode) {
+				bool is_msg_excepted = false;
+				err = notification_setting_get_do_not_disturb_except(setting, &is_msg_excepted);
+				if (err != NOTIFICATION_ERROR_NONE) {
+					MSG_MGR_ERR("getting do not disturb except status for [%s] is failed. err = %d", MSG_DEFAULT_APP_ID, err);
+					msg_noti_enabled = false;
+				} else {
+					MSG_MGR_INFO("do not disturb mode status for [%s] : %d", MSG_DEFAULT_APP_ID, is_msg_excepted);
+					msg_noti_enabled = (is_msg_excepted) ? true : false;
+				}
+			} else {
+				MSG_MGR_DEBUG("do not disturb mode is off");
+			}
+		} else {
+			MSG_MGR_INFO("message notification is not allowed");
+			msg_noti_enabled = false;
+		}
+	}
+
+EXIT:
+	if (system_setting)
+		notification_system_setting_free_system_setting(system_setting);
+
+	if (setting)
+		notification_setting_free_notification(setting);
+
+	return msg_noti_enabled;
+}
+
+
+int MsgMgrInsertTicker(const char* pTickerMsg, const char* pLocaleTickerMsg, bool bPlayFeedback, int msgId)
+{
+	MSG_MGR_DEBUG("pTickerMsg=[%s], pLocaleTickerMsg=[%s]", pTickerMsg, pLocaleTickerMsg);
+	MSG_MGR_DEBUG("play feedback=[%d], msgId=[%d]", bPlayFeedback, msgId);
+
+	MsgMgrChangePmState();
+
+	char *notiMsg = NULL;
+	msg_mgr_active_notification_type_t active_type = MSG_MGR_ACTIVE_NOTI_TYPE_NONE;
+	int err = 0;
+
+	notiMsg = get_translate_text(MSG_APP_PACKAGE_NAME, MSG_APP_LOCALEDIR, pLocaleTickerMsg);
+	MSG_MGR_DEBUG("notiMsg %s", notiMsg);
+
+	if (g_strcmp0(pLocaleTickerMsg, SMS_MESSAGE_SENDING_FAIL) != 0 &&
+		g_strcmp0(pLocaleTickerMsg, SENDING_MULTIMEDIA_MESSAGE_FAILED) != 0 &&
+		g_strcmp0(pLocaleTickerMsg, MESSAGE_RETRIEVED) != 0) {
+		if (g_strcmp0(pLocaleTickerMsg, notiMsg) == 0) {
+			notification_status_message_post(pTickerMsg);
+		} else {
+			notification_status_message_post(notiMsg);
+		}
+	} else {
+		/* Show ticker popup for sending failed msg. */
+		active_type = MSG_MGR_ACTIVE_NOTI_TYPE_INSTANT;
+	}
+
+	if (notiMsg) {
+		free(notiMsg);
+		notiMsg = NULL;
+	}
+
+	if (bPlayFeedback) {
+		if (msgId > 0 &&
+			(g_strcmp0(pLocaleTickerMsg, SMS_MESSAGE_SENDING_FAIL) == 0 || g_strcmp0(pLocaleTickerMsg, SENDING_MULTIMEDIA_MESSAGE_FAILED) == 0)) {
+			err = MsgMgrRefreshNotification(MSG_MGR_NOTI_TYPE_FAILED, true, active_type);
+			if (err != 0) {
+				MSG_MGR_DEBUG("MsgRefreshFailedNoti err=[%d]", err);
+			}
+		} else if (g_strcmp0(pLocaleTickerMsg, SMS_MESSAGE_SIM_MESSAGE_FULL) == 0) {
+			err = MsgMgrRefreshNotification(MSG_MGR_NOTI_TYPE_SIM_FULL, true, MSG_MGR_ACTIVE_NOTI_TYPE_NONE);
+			if (err != 0) {
+				MSG_MGR_DEBUG("MsgRefreshSimFullNoti err=[%d]", err);
+			}
+		} else {
+			MsgMgrSoundPlayStart(NULL, MSG_MGR_SOUND_PLAY_DEFAULT);
+		}
+	}
+
+	return err;
 }
 
 

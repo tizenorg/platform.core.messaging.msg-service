@@ -31,7 +31,7 @@ INCLUDE_DIRECTORIES(
 )
 
 INCLUDE(FindPkgConfig)
-pkg_check_modules(externals_pkgs REQUIRED glib-2.0 alarm-service notification iniparser lbs-dbus feedback capi-system-device motion)
+pkg_check_modules(externals_pkgs REQUIRED glib-2.0 alarm-service lbs-dbus capi-system-device motion)
 
 FOREACH(flag ${externals_pkgs_CFLAGS})
 	SET(EXTRA_CFLAGS "${EXTRA_CFLAGS} ${flag}")

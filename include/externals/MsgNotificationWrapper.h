@@ -121,7 +121,5 @@ msg_error_t MsgDeleteNoti(msg_notification_type_t noti_type, int simIndex);
 void MsgSoundPlayStart(const MSG_ADDRESS_INFO_S *pAddrInfo, MSG_SOUND_TYPE_T soundType);
 
 void MsgRefreshAllNotification(bool bWithSimNoti, bool bFeedback, msg_active_notification_type_t active_type);
-void MsgDeleteNotification(msg_notification_type_t noti_type, int simIndex);
-bool MsgCheckNotificationSettingEnable(void);
 
 #endif

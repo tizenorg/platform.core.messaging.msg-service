@@ -14,8 +14,8 @@
  * limitations under the License.
 */
 
-#ifndef __MSG_MGR_ALARM_H__
-#define __MSG_MGR_ALARM_H__
+#ifndef __MSG_MGR_UTIL_H__
+#define __MSG_MGR_UTIL_H__
 
 /*==================================================================================================
                                          INCLUDE FILES
@@ -23,7 +23,7 @@
 #include <time.h>
 
 #include <msg.h>
-#include <alarm.h>
+#include <call-manager.h>
 
 /*==================================================================================================
 					DEFINES
@@ -37,6 +37,9 @@ typedef void (*msg_mgr_alarm_cb)(int alarmId);
 int MsgMgrAlarmRegistration(struct tm *timeInfo, msg_mgr_alarm_cb userCB, int *alarmId);
 int MsgMgrAlarmRemove(int alarmId);
 
+cm_call_status_e MsgMgrGetCallStatus();
+void MsgMgrChangePmState();
 
-#endif /*__MSG_MGR_ALARM_H__ */
+
+#endif /*__MSG_MGR_UTIL_H__ */
 

@@ -21,6 +21,7 @@ extern "C"
 #include "msg-manager-debug.h"
 #include "msg-manager-notification.h"
 #include "msg-manager-sound.h"
+#include "msg-manager-util.h"
 
 /* below defines will be removed */
 #define EVENT_KEY_OUT_MSG_TYPE "msg_type"
@@ -306,6 +307,45 @@ void _add_noti_func(app_control_h app_control)
 	MsgMgrAddNotification(noti_type, &msg_info);
 }
 
+void _del_noti_func(app_control_h app_control)
+{
+	char *type;
+	msg_mgr_notification_type_t noti_type = MSG_MGR_NOTI_TYPE_ALL;
+
+	int ret = app_control_get_extra_data(app_control, "type", &type);
+	if (ret == APP_CONTROL_ERROR_NONE && type) {
+		if (g_strcmp0(type, "all") == 0) {
+			noti_type = MSG_MGR_NOTI_TYPE_ALL;
+		} else if (g_strcmp0(type, "normal") == 0) {
+			noti_type = MSG_MGR_NOTI_TYPE_NORMAL;
+		} else if (g_strcmp0(type, "sim") == 0) {
+			noti_type = MSG_MGR_NOTI_TYPE_SIM;
+		} else if (g_strcmp0(type, "voice1") == 0) {
+			noti_type = MSG_MGR_NOTI_TYPE_VOICE_1;
+		} else if (g_strcmp0(type, "voice2") == 0) {
+			noti_type = MSG_MGR_NOTI_TYPE_VOICE_2;
+		}
+
+		g_free(type);
+	} else {
+		MSG_MGR_ERR("app_control_get_extra_data failed");
+		return;
+	}
+
+	char *simIndex = NULL;
+	ret = app_control_get_extra_data(app_control, "sim_index", &simIndex);
+	if (ret != APP_CONTROL_ERROR_NONE || simIndex == NULL) {
+		MSG_MGR_ERR("app_control_get_extra_data failed");
+		return;
+	}
+
+	int sim_index = atoi(simIndex);
+
+	MsgMgrDeleteNoti(noti_type, sim_index);
+
+	g_free(simIndex);
+}
+
 void _add_report_noti_func(app_control_h app_control)
 {
 	char *type;
@@ -446,6 +486,64 @@ void _insert_only_active_noti_func(app_control_h app_control)
 	MsgMgrInsertOnlyActiveNotification(noti_type, &msg_info);
 }
 
+void _insert_ticker_func(app_control_h app_control)
+{
+	char *ticker_msg = NULL;
+	char *locale_ticker_msg = NULL;
+	char *feedback_str = NULL;
+	bool feedback = false;
+	char *msg_id_str = NULL;
+	int msg_id = 0;
+
+	int ret = app_control_get_extra_data(app_control, "ticker_msg", &ticker_msg);
+	if (ret != APP_CONTROL_ERROR_NONE || ticker_msg == NULL) {
+		MSG_MGR_ERR("app_control_get_extra_data failed [%d]", ret);
+		goto _END_OF_INSERT_TICKER;
+	}
+
+	ret = app_control_get_extra_data(app_control, "locale_ticker_msg", &locale_ticker_msg);
+	if (ret != APP_CONTROL_ERROR_NONE || locale_ticker_msg == NULL) {
+		MSG_MGR_ERR("app_control_get_extra_data failed [%d]", ret);
+		goto _END_OF_INSERT_TICKER;
+	}
+
+	ret = app_control_get_extra_data(app_control, "feedback", &feedback_str);
+	if (ret != APP_CONTROL_ERROR_NONE || feedback_str == NULL) {
+		MSG_MGR_ERR("app_control_get_extra_data failed [%d]", ret);
+		goto _END_OF_INSERT_TICKER;
+	} else {
+		if (g_strcmp0(feedback_str, "true") == 0)
+			feedback = true;
+		else
+			feedback = false;
+	}
+
+	ret = app_control_get_extra_data(app_control, "msg_id", &msg_id_str);
+	if (ret != APP_CONTROL_ERROR_NONE || msg_id_str == NULL) {
+		MSG_MGR_ERR("app_control_get_extra_data failed [%d]", ret);
+		goto _END_OF_INSERT_TICKER;
+	} else {
+		msg_id = atoi(msg_id_str);
+	}
+
+	ret = MsgMgrInsertTicker(ticker_msg, locale_ticker_msg, feedback, msg_id);
+	if (ret != 0)
+		MSG_MGR_ERR("MsgMgrInsertTicker failed [%d]", ret);
+
+_END_OF_INSERT_TICKER:
+	if (ticker_msg)
+		g_free(ticker_msg);
+
+	if (locale_ticker_msg)
+		g_free(locale_ticker_msg);
+
+	if (feedback_str)
+		g_free(feedback_str);
+
+	if (msg_id_str)
+		g_free(msg_id_str);
+}
+
 void _sound_play_start_func(app_control_h app_control)
 {
 	char *type;
@@ -484,6 +582,11 @@ void _sound_play_start_func(app_control_h app_control)
 	}
 }
 
+void _change_pm_state_func(app_control_h app_control)
+{
+	MsgMgrChangePmState();
+}
+
 void service_app_control(app_control_h app_control, void *data)
 {
 	MSG_MGR_INFO("service_app_control called");
@@ -507,14 +610,20 @@ void service_app_control(app_control_h app_control, void *data)
 					_refresh_noti_func(app_control);
 				} else if (g_strcmp0(cmd, "add_noti") == 0) {
 					_add_noti_func(app_control);
+				} else if (g_strcmp0(cmd, "del_noti") == 0) {
+					_del_noti_func(app_control);
 				} else if (g_strcmp0(cmd, "add_report_noti") == 0) {
 					_add_report_noti_func(app_control);
 				} else if (g_strcmp0(cmd, "del_report_noti") == 0) {
 					_del_report_noti_func(app_control);
 				} else if (g_strcmp0(cmd, "insert_only_active_noti") == 0) {
 					_insert_only_active_noti_func(app_control);
+				} else if (g_strcmp0(cmd, "insert_ticker") == 0) {
+					_insert_ticker_func(app_control);
 				} else if (g_strcmp0(cmd, "sound_play_start") == 0) {
 					_sound_play_start_func(app_control);
+				} else if (g_strcmp0(cmd, "change_pm_state") == 0) {
+					_change_pm_state_func(app_control);
 				}
 
 				g_free(cmd);

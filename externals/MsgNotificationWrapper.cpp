@@ -23,38 +23,10 @@
 
 extern "C"
 {
-#include <bundle.h>
 #ifndef MSG_WEARABLE_PROFILE
-#include <notification_internal.h>
-#include <notification_status.h>
-#include <notification_setting.h>
-#include <notification_setting_internal.h>
+#include <bundle.h>
 #endif /* MSG_WEARABLE_PROFILE */
 }
-
-#ifndef MSG_WEARABLE_PROFILE
-
-/*======================================================================================*/
-/*								VARIABLES AND STRUCTURES								*/
-/*======================================================================================*/
-
-typedef struct _del_noti_info_s
-{
-	msg_notification_type_t			type;
-	int 		sim_idx;
-}DEL_NOTI_INFO_S;
-
-
-/*======================================================================================*/
-/*									FUNCTION DEFINE										*/
-/*======================================================================================*/
-
-int getPrivId(msg_notification_type_t noti_type, int sim_idx);
-void updatePrivId(msg_notification_type_t noti_type, int noti_id, int sim_idx);
-
-void MsgDeleteNotiCb(void *data);
-
-#endif /* MSG_WEARABLE_PROFILE */
 
 /*======================================================================================*/
 /*								FUNCTION IMPLEMENTATION									*/
@@ -371,129 +343,41 @@ void MsgRefreshAllNotification(bool bWithSimNoti, bool bFeedback, msg_active_not
 }
 
 
-void MsgDeleteNotification(msg_notification_type_t noti_type, int simIndex)
-{
-#ifndef MSG_WEARABLE_PROFILE
-	int noti_err = NOTIFICATION_ERROR_NONE;
-
-	if (noti_type == MSG_NOTI_TYPE_ALL) {
-		noti_err = notification_delete_all(NOTIFICATION_TYPE_NOTI);
-	} else if (noti_type == MSG_NOTI_TYPE_VOICE_1 || noti_type == MSG_NOTI_TYPE_VOICE_2 || noti_type == MSG_NOTI_TYPE_SIM) {
-		int notiId = 0;
-
-		notiId = getPrivId(noti_type, simIndex);
-		MSG_DEBUG("deleted notification ID = [%d] Type = [%d]", notiId, noti_type);
-
-		if (notiId > 0)
-			noti_err = notification_delete_by_priv_id(NULL, NOTIFICATION_TYPE_NOTI, notiId);
-
-	} else {
-		MSG_DEBUG("No matching type [%d]", noti_type);
-	}
-
-	if (noti_err != NOTIFICATION_ERROR_NONE) {
-		MSG_DEBUG("Fail to notification_delete_all noti_err [%d]", noti_err);
-	}
-
-	updatePrivId(noti_type, 0, simIndex);
-#endif /* MSG_WEARABLE_PROFILE */
-}
-
-bool MsgCheckNotificationSettingEnable(void)
-{
-	bool msg_noti_enabled = false;
-#ifndef MSG_WEARABLE_PROFILE
-	notification_system_setting_h system_setting = NULL;
-	notification_setting_h setting = NULL;
-
-	int err = NOTIFICATION_ERROR_NONE;
-
-	err = notification_setting_get_setting_by_package_name(MSG_DEFAULT_APP_ID, &setting);
-
-	if (err != NOTIFICATION_ERROR_NONE || setting == NULL) {
-		MSG_ERR("getting setting handle for [%s] is failed. err = %d", MSG_DEFAULT_APP_ID, err);
-	} else {
-		msg_noti_enabled = true;
-
-		bool allow_to_notify = false;
-		err = notification_setting_get_allow_to_notify(setting, &allow_to_notify);
-
-		if (err != NOTIFICATION_ERROR_NONE) {
-			MSG_ERR("getting do not disturb setting is failed. err = %d", err);
-			goto EXIT;
-		}
-
-		if (allow_to_notify) {
-			MSG_DEBUG("message notification is allowed");
-
-			/* check do not disturb mode */
-			err = notification_system_setting_load_system_setting(&system_setting);
-
-			if (err != NOTIFICATION_ERROR_NONE || system_setting == NULL) {
-				MSG_ERR("getting system setting is failed. err = %d", err);
-				goto EXIT;
-			}
-
-			bool do_not_disturb_mode = false;
-			err = notification_system_setting_get_do_not_disturb(system_setting, &do_not_disturb_mode);
-
-			if (err != NOTIFICATION_ERROR_NONE) {
-				MSG_ERR("getting do not disturb setting is failed. err = %d", err);
-				goto EXIT;
-			}
-
-			if (do_not_disturb_mode) {
-				bool is_msg_excepted = false;
-				err = notification_setting_get_do_not_disturb_except(setting, &is_msg_excepted);
-				if (err != NOTIFICATION_ERROR_NONE) {
-					MSG_ERR("getting do not disturb except status for [%s] is failed. err = %d", MSG_DEFAULT_APP_ID, err);
-					msg_noti_enabled = false;
-				} else {
-					MSG_INFO("do not disturb mode status for [%s] : %d", MSG_DEFAULT_APP_ID, is_msg_excepted);
-					msg_noti_enabled = (is_msg_excepted) ? true : false;
-				}
-			} else {
-				MSG_DEBUG("do not disturb mode is off");
-			}
-		} else {
-			MSG_INFO("message notification is not allowed");
-			msg_noti_enabled = false;
-		}
-	}
-
-EXIT:
-	if (system_setting)
-		notification_system_setting_free_system_setting(system_setting);
-
-	if (setting)
-		notification_setting_free_notification(setting);
-
-#endif /* MSG_WEARABLE_PROFILE */
-	return msg_noti_enabled;
-}
-
-
 msg_error_t MsgDeleteNoti(msg_notification_type_t noti_type, int simIndex)
 {
 #ifndef MSG_WEARABLE_PROFILE
-	bool bNotiSvcReady = false;
+	bundle *bundle_data = bundle_create();
 
-	DEL_NOTI_INFO_S *delNotiInfo = (DEL_NOTI_INFO_S *)calloc(1, sizeof(DEL_NOTI_INFO_S));
-
-	if (delNotiInfo) {
-		delNotiInfo->type = noti_type;
-		delNotiInfo->sim_idx = simIndex;
+	bundle_add_str(bundle_data, "cmd", "del_noti");
+	switch (noti_type) {
+	case MSG_NOTI_TYPE_ALL:
+		bundle_add_str(bundle_data, "type", "all");
+		break;
+	case MSG_NOTI_TYPE_NORMAL:
+		bundle_add_str(bundle_data, "type", "normal");
+		break;
+	case MSG_NOTI_TYPE_SIM:
+		bundle_add_str(bundle_data, "type", "sim");
+		break;
+	case MSG_NOTI_TYPE_VOICE_1:
+		bundle_add_str(bundle_data, "type", "voice1");
+		break;
+	case MSG_NOTI_TYPE_VOICE_2:
+		bundle_add_str(bundle_data, "type", "voice2");
+		break;
+	default:
+		break;
 	}
 
-	bNotiSvcReady = notification_is_service_ready();
-
-	if (bNotiSvcReady == true) {
-		MSG_DEBUG("Notification server is available");
-		MsgDeleteNotiCb((void *)delNotiInfo);
-	} else {
-		MSG_DEBUG("Notification server is not available. Delete is defered");
-		notification_add_deferred_task(MsgDeleteNotiCb, (void *)delNotiInfo);
+	char *sim_index = g_strdup_printf("%d", simIndex);
+	if (sim_index) {
+		bundle_add_str(bundle_data, "sim_index", sim_index);
+		g_free(sim_index);
 	}
+
+	msg_launch_app(MSG_MGR_APP_ID, bundle_data);
+
+	bundle_free(bundle_data);
 #endif /* MSG_WEARABLE_PROFILE */
 	return MSG_SUCCESS;
 }
@@ -536,195 +420,31 @@ void MsgSoundPlayStart(const MSG_ADDRESS_INFO_S *pAddrInfo, MSG_SOUND_TYPE_T sou
 
 msg_error_t MsgInsertTicker(const char* pTickerMsg, const char* pLocaleTickerMsg, bool bPlayFeedback, int msgId)
 {
+	msg_error_t err = MSG_SUCCESS;
 #ifndef MSG_WEARABLE_PROFILE
 	MSG_DEBUG("pTickerMsg=[%s], pLocaleTickerMsg=[%s]", pTickerMsg, pLocaleTickerMsg);
 	MSG_DEBUG("play feedback=[%d], msgId=[%d]", bPlayFeedback, msgId);
 
-	if (MsgCheckNotificationSettingEnable())
-		MsgChangePmState();
+	bundle *bundle_data = bundle_create();
 
-	char *notiMsg = NULL;
-	msg_active_notification_type_t active_type = MSG_ACTIVE_NOTI_TYPE_NONE;
+	bundle_add_str(bundle_data, "cmd", "insert_ticker");
+	bundle_add_str(bundle_data, "ticker_msg", pTickerMsg);
+	bundle_add_str(bundle_data, "locale_ticker_msg", pLocaleTickerMsg);
 
-	notiMsg = getTranslateText(MSG_APP_PACKAGE_NAME, MSG_APP_LOCALEDIR, pLocaleTickerMsg);
-	MSG_DEBUG("notiMsg %s", notiMsg);
+	if (bPlayFeedback)
+		bundle_add_str(bundle_data, "feedback", "true");
+	else
+		bundle_add_str(bundle_data, "feedback", "false");
 
-	if (g_strcmp0(pLocaleTickerMsg, SMS_MESSAGE_SENDING_FAIL) != 0 &&
-		g_strcmp0(pLocaleTickerMsg, SENDING_MULTIMEDIA_MESSAGE_FAILED) != 0 &&
-		g_strcmp0(pLocaleTickerMsg, MESSAGE_RETRIEVED) != 0) {
-		if (g_strcmp0(pLocaleTickerMsg, notiMsg) == 0) {
-			notification_status_message_post(pTickerMsg);
-		} else {
-			notification_status_message_post(notiMsg);
-		}
-	} else {
-		/* Show ticker popup for sending failed msg. */
-		active_type = MSG_ACTIVE_NOTI_TYPE_INSTANT;
+	char *msg_id = g_strdup_printf("%d", msgId);
+	if (msg_id) {
+		bundle_add_str(bundle_data, "msg_id", msg_id);
+		g_free(msg_id);
 	}
 
-	if (notiMsg) {
-		free(notiMsg);
-		notiMsg = NULL;
-	}
+	err = msg_launch_app(MSG_MGR_APP_ID, bundle_data);
 
-	if (bPlayFeedback) {
-		if (msgId > 0 &&
-			(g_strcmp0(pLocaleTickerMsg, SMS_MESSAGE_SENDING_FAIL) == 0 || g_strcmp0(pLocaleTickerMsg, SENDING_MULTIMEDIA_MESSAGE_FAILED) == 0)) {
-			msg_error_t err = MSG_SUCCESS;
-			err = MsgRefreshNotification(MSG_NOTI_TYPE_FAILED, true, active_type);
-			if (err != MSG_SUCCESS) {
-				MSG_DEBUG("MsgRefreshFailedNoti err=[%d]", err);
-			}
-		} else if (g_strcmp0(pLocaleTickerMsg, SMS_MESSAGE_SIM_MESSAGE_FULL) == 0) {
-			msg_error_t err = MSG_SUCCESS;
-			err = MsgRefreshNotification(MSG_NOTI_TYPE_SIM_FULL, true, MSG_ACTIVE_NOTI_TYPE_NONE);
-			if (err != MSG_SUCCESS) {
-				MSG_DEBUG("MsgRefreshSimFullNoti err=[%d]", err);
-			}
-		} else {
-			MsgSoundPlayStart(NULL, MSG_SOUND_PLAY_DEFAULT);
-		}
-	}
-
+	bundle_free(bundle_data);
 #endif /* MSG_WEARABLE_PROFILE */
-	return MSG_SUCCESS;
+	return err;
 }
-
-
-#ifndef MSG_WEARABLE_PROFILE
-void MsgDeleteNotiCb(void *data)
-{
-	if (data) {
-		DEL_NOTI_INFO_S *delNotiInfo = (DEL_NOTI_INFO_S *)data;
-
-		MsgDeleteNotification(delNotiInfo->type, delNotiInfo->sim_idx);
-
-		free(data);
-		data = NULL;
-	}
-
-	return;
-}
-
-
-int getPrivId(msg_notification_type_t noti_type, int sim_idx)
-{
-	MSG_BEGIN();
-
-	int noti_id = 0;
-
-	switch (noti_type) {
-#ifdef MSG_NOTI_INTEGRATION
-	case MSG_NOTI_TYPE_NORMAL:
-	case MSG_NOTI_TYPE_SIM:
-	case MSG_NOTI_TYPE_CB:
-		if (MsgSettingGetInt(NOTIFICATION_PRIV_ID, &noti_id) != MSG_SUCCESS) {
-			MSG_INFO("MsgSettingGetInt() is failed");
-		}
-		break;
-#else
-	case MSG_NOTI_TYPE_NORMAL:
-		noti_id = MsgSettingGetInt(NOTIFICATION_PRIV_ID);
-		break;
-	case MSG_NOTI_TYPE_SIM:
-		noti_id = MsgSettingGetInt(SIM_MSG_NOTI_PRIV_ID);
-		break;
-	case MSG_NOTI_TYPE_CB:
-		noti_id = MsgSettingGetInt(CB_NOTI_PRIV_ID);
-		break;
-#endif
-	case MSG_NOTI_TYPE_FAILED:
-		if (MsgSettingGetInt(MSG_SENTFAIL_NOTI_ID, &noti_id) != MSG_SUCCESS) {
-			MSG_INFO("MsgSettingGetInt() is failed");
-		}
-		break;
-	case MSG_NOTI_TYPE_VOICE_1: {
-		char keyName[MAX_VCONFKEY_NAME_LEN] = {0, };
-		snprintf(keyName, sizeof(keyName), "%s/%d", VOICE_NOTI_ID_1, sim_idx);
-		if (MsgSettingGetInt(keyName, &noti_id) != MSG_SUCCESS) {
-			MSG_INFO("MsgSettingGetInt() is failed");
-		}
-		break;
-	}
-	case MSG_NOTI_TYPE_VOICE_2: {
-		char keyName[MAX_VCONFKEY_NAME_LEN] = {0, };
-		snprintf(keyName, sizeof(keyName), "%s/%d", VOICE_NOTI_ID_2, sim_idx);
-		if (MsgSettingGetInt(keyName, &noti_id) != MSG_SUCCESS) {
-			MSG_INFO("MsgSettingGetInt() is failed");
-		}
-		break;
-	}
-	case MSG_NOTI_TYPE_SIM_FULL:
-		if (MsgSettingGetInt(SIM_FULL_NOTI_PRIV_ID, &noti_id) != MSG_SUCCESS) {
-			MSG_INFO("MsgSettingGetInt() is failed");
-		}
-		break;
-	default:
-		MSG_DEBUG("No matching noti type [%d]", noti_type);
-		break;
-	}
-
-	MSG_DEBUG("Get noti type = %d, id = %d, sim_idx:%d", noti_type, noti_id, sim_idx);
-
-	MSG_END();
-
-	return noti_id;
-}
-
-
-void updatePrivId(msg_notification_type_t noti_type, int noti_id, int sim_idx)
-{
-	MSG_BEGIN();
-
-	msg_error_t err = MSG_SUCCESS;
-
-	MSG_DEBUG("Update noti type = %d, id = %d, sim_idx = %d", noti_type, noti_id, sim_idx);
-
-	switch (noti_type) {
-#ifdef MSG_NOTI_INTEGRATION
-	case MSG_NOTI_TYPE_NORMAL:
-	case MSG_NOTI_TYPE_SIM:
-	case MSG_NOTI_TYPE_CB:
-		err = MsgSettingSetInt(NOTIFICATION_PRIV_ID, noti_id);
-		break;
-#else
-	case MSG_NOTI_TYPE_NORMAL:
-		err = MsgSettingSetInt(NOTIFICATION_PRIV_ID, noti_id);
-		break;
-	case MSG_NOTI_TYPE_SIM:
-		err = MsgSettingSetInt(SIM_MSG_NOTI_PRIV_ID, noti_id);
-		break;
-	case MSG_NOTI_TYPE_CB:
-		err = MsgSettingSetInt(CB_NOTI_PRIV_ID, noti_id);
-		break;
-#endif
-	case MSG_NOTI_TYPE_FAILED:
-		err = MsgSettingSetInt(MSG_SENTFAIL_NOTI_ID, noti_id);
-		break;
-	case MSG_NOTI_TYPE_VOICE_1: {
-		char keyName[MAX_VCONFKEY_NAME_LEN] = {0, };
-		snprintf(keyName, sizeof(keyName), "%s/%d", VOICE_NOTI_ID_1, sim_idx);
-		err = MsgSettingSetInt(keyName, noti_id);
-		break;
-	}
-	case MSG_NOTI_TYPE_VOICE_2: {
-		char keyName[MAX_VCONFKEY_NAME_LEN] = {0, };
-		snprintf(keyName, sizeof(keyName), "%s/%d", VOICE_NOTI_ID_2, sim_idx);
-		err = MsgSettingSetInt(keyName, noti_id);
-		break;
-	}
-	case MSG_NOTI_TYPE_SIM_FULL:
-		err = MsgSettingSetInt(SIM_FULL_NOTI_PRIV_ID, noti_id);
-		break;
-	default:
-		MSG_DEBUG("No matching type [%d]", noti_type);
-		break;
-	}
-
-	if (err != MSG_SUCCESS)
-		MSG_INFO("MsgSettingSetInt fail : noti type = %d, id = %d, sim_idx = %d", noti_type, noti_id, sim_idx);
-
-	MSG_END();
-}
-
-#endif /* MSG_WEARABLE_PROFILE */

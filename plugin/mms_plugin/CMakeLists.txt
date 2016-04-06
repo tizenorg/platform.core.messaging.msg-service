@@ -42,7 +42,7 @@ INCLUDE_DIRECTORIES(
 )
 
 INCLUDE(FindPkgConfig)
-pkg_check_modules(mms_plugin_pkgs REQUIRED glib-2.0 libcurl vconf dlog capi-network-connection capi-telephony)
+pkg_check_modules(mms_plugin_pkgs REQUIRED glib-2.0 libcurl libsmack vconf dlog capi-network-connection capi-telephony)
 
 FOREACH(flag ${mms_plugin_pkgs_CFLAGS})
 	SET(EXTRA_CFLAGS "${EXTRA_CFLAGS} ${flag}")

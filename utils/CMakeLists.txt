@@ -46,7 +46,7 @@ INCLUDE_DIRECTORIES(
 
 INCLUDE(FindPkgConfig)
 
-SET(PKG_MODULES glib-2.0 vconf dlog libxml-2.0 storage json-glib-1.0 capi-system-info capi-media-thumbnail-util capi-media-image-util aul sqlite3 capi-media-metadata-extractor icu-uc libsystemd-login csr-framework)
+SET(PKG_MODULES glib-2.0 vconf dlog libxml-2.0 boost json-glib-1.0 capi-system-info capi-media-thumbnail-util capi-media-image-util aul sqlite3 capi-media-metadata-extractor icu-uc libsystemd-login csr-framework libsmack)
 pkg_check_modules(utils_pkgs REQUIRED ${PKG_MODULES})
 
 FOREACH(flag ${utils_pkgs_CFLAGS})

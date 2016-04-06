@@ -19,10 +19,10 @@ SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS} ${EXTRA_CFLAGS} -O2 -g -Wall")
 
 SET(MSG-MANAGER-SRCS
         ${CMAKE_CURRENT_SOURCE_DIR}/src/msg-manager.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/msg-manager-alarm.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/src/msg-manager-contact.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/src/msg-manager-notification.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/src/msg-manager-sound.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/msg-manager-util.cpp
 )
 
 INCLUDE_DIRECTORIES(
@@ -31,7 +31,7 @@ INCLUDE_DIRECTORIES(
 )
 
 INCLUDE(FindPkgConfig)
-pkg_check_modules(mgr_pkgs REQUIRED glib-2.0 dlog alarm-service appcore-agent badge callmgr_client contacts-service2 capi-appfw-application capi-appfw-package-manager notification vconf feedback capi-media-player capi-media-sound-manager)
+pkg_check_modules(mgr_pkgs REQUIRED glib-2.0 dlog alarm-service appcore-agent badge callmgr_client contacts-service2 capi-appfw-application capi-appfw-package-manager notification vconf feedback capi-media-player capi-media-sound-manager capi-system-device)
 INCLUDE_DIRECTORIES(${mgr_pkgs_INCLUDE_DIRS})
 LINK_DIRECTORIES(${mgr_pkgs_LIBRARY_DIRS})
 

@@ -846,8 +846,7 @@ int MsgIncomingCBMsgHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 		MsgInsertNotification(&msgInfo);
 	}
 
-	if (MsgCheckNotificationSettingEnable())
-		MsgChangePmState();
+	MsgChangePmState();
 
 	msg_id_list_s msgIdList;
 	msg_message_id_t msgIds[1];

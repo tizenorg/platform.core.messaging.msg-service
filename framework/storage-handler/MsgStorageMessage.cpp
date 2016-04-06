@@ -2230,8 +2230,7 @@ msg_error_t MsgStoAddSyncMLMessage(MSG_MESSAGE_INFO_S *pMsgInfo, int extId, int 
 	pMsgInfo->msgId = (msg_message_id_t)rowId;
 
 	MsgInsertNotification(pMsgInfo);
-	if (MsgCheckNotificationSettingEnable())
-		MsgChangePmState();
+	MsgChangePmState();
 
 	MSG_END();
 

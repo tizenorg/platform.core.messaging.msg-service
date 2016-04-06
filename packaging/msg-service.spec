@@ -20,16 +20,11 @@ Requires(postun): systemd
 BuildRequires: cmake
 BuildRequires: libacl-devel
 BuildRequires: pkgconfig(alarm-service)
-BuildRequires: pkgconfig(appcore-agent)
 BuildRequires: pkgconfig(aul)
-BuildRequires: pkgconfig(badge)
+BuildRequires: pkgconfig(boost)
 BuildRequires: pkgconfig(bundle)
-BuildRequires: pkgconfig(capi-appfw-application)
-BuildRequires: pkgconfig(capi-appfw-package-manager)
 BuildRequires: pkgconfig(capi-media-image-util)
 BuildRequires: pkgconfig(capi-media-metadata-extractor)
-BuildRequires: pkgconfig(capi-media-player)
-BuildRequires: pkgconfig(capi-media-sound-manager)
 BuildRequires: pkgconfig(capi-media-thumbnail-util)
 BuildRequires: pkgconfig(capi-network-connection)
 BuildRequires: pkgconfig(capi-system-device)
@@ -43,28 +38,31 @@ BuildRequires: pkgconfig(cynara-session)
 BuildRequires: pkgconfig(deviced)
 BuildRequires: pkgconfig(dlog)
 BuildRequires: pkgconfig(eventsystem)
-BuildRequires: pkgconfig(feedback)
 BuildRequires: pkgconfig(gio-2.0)
-BuildRequires: pkgconfig(gobject-2.0)
 BuildRequires: pkgconfig(icu-uc)
-BuildRequires: pkgconfig(iniparser)
 BuildRequires: pkgconfig(json-glib-1.0)
 BuildRequires: pkgconfig(lbs-dbus)
 BuildRequires: pkgconfig(libcurl)
+BuildRequires: pkgconfig(libsmack)
 BuildRequires: pkgconfig(libsystemd-login)
 BuildRequires: pkgconfig(libtzplatform-config)
 BuildRequires: pkgconfig(libxml-2.0)
 BuildRequires: pkgconfig(libwbxml2)
 BuildRequires: pkgconfig(motion)
-BuildRequires: pkgconfig(notification)
-BuildRequires: pkgconfig(security-server)
 BuildRequires: pkgconfig(sqlite3)
-BuildRequires: pkgconfig(storage)
 BuildRequires: pkgconfig(tapi)
 BuildRequires: pkgconfig(vconf)
 %if "%{?profile}" != "wearable"
+BuildRequires: pkgconfig(appcore-agent)
+BuildRequires: pkgconfig(badge)
 BuildRequires: pkgconfig(callmgr_client)
+BuildRequires: pkgconfig(capi-appfw-application)
+BuildRequires: pkgconfig(capi-appfw-package-manager)
+BuildRequires: pkgconfig(capi-media-player)
+BuildRequires: pkgconfig(capi-media-sound-manager)
 BuildRequires: pkgconfig(contacts-service2)
+BuildRequires: pkgconfig(feedback)
+BuildRequires: pkgconfig(notification)
 %endif
 
 %description
@@ -145,6 +143,7 @@ cmake . -DCMAKE_INSTALL_PREFIX=%{_prefix} \
 		-DTZ_SYS_RO_APP=%TZ_SYS_RO_APP \
 		-DTZ_SYS_DATA=%TZ_SYS_DATA \
 		-DTZ_SYS_DB=%TZ_SYS_DB \
+		-DTZ_SYS_HOME=%TZ_SYS_HOME \
 %ifarch i586
 -D_TIZEN_I586_ENABLED:BOOL=ON \
 %else

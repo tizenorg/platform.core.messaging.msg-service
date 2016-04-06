@@ -24,7 +24,6 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
-#include <call-manager.h>
 #include <player.h>
 #include <sound_manager.h>
 #include <feedback.h>
@@ -35,6 +34,7 @@
 #include <msg-manager-debug.h>
 #include <msg-manager-notification.h>
 #include <msg-manager-sound.h>
+#include <msg-manager-util.h>
 
 /*==================================================================================================
                                     DEFINES
@@ -57,13 +57,10 @@ bool bPlaying = false;
 pthread_mutex_t muMmPlay = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t muStream = PTHREAD_MUTEX_INITIALIZER;
 
-extern cm_client_h cm_handle;
-
 /*==================================================================================================
 										FUNCTION DEFINE
 ===================================================================================================*/
 int MsgMgrGetFileSize(const char *pFileName);
-cm_call_status_e MsgMgrGetCallStatus();
 
 int MsgMgrStreamStart(MSG_MGR_SOUND_TYPE_T soundType);
 void MsgMgrStreamStop();
@@ -85,15 +82,6 @@ int MsgMgrGetFileSize(const char *pFileName)
 	}
 
 	return (int)file_stat.st_size;
-}
-
-
-cm_call_status_e MsgMgrGetCallStatus()
-{
-	cm_call_status_e call_status = CM_CALL_STATUS_IDLE;
-	cm_get_call_status(cm_handle, &call_status);
-
-	return call_status;
 }
 
 

@@ -74,7 +74,7 @@ void MsgSensorCBStop()
 	MSG_BEGIN();
 
 
-	MsgDeleteNotification(MSG_NOTI_TYPE_ALL, -1);
+	MsgDeleteNoti(MSG_NOTI_TYPE_ALL, -1);
 	MsgRefreshNotification(MSG_NOTI_TYPE_ALL, false, MSG_ACTIVE_NOTI_TYPE_NONE);
 #ifndef MSG_NOTI_INTEGRATION
 	MsgRefreshNotification(MSG_NOTI_TYPE_SIM, false, MSG_ACTIVE_NOTI_TYPE_NONE);

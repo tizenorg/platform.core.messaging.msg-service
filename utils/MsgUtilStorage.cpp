@@ -21,6 +21,9 @@
 #include <queue>
 #include <glib.h>
 
+#include <boost/filesystem.hpp>
+#include <boost/chrono/detail/system.hpp>
+
 #include "MsgDebug.h"
 #include "MsgUtilFile.h"
 #include "MsgContact.h"
@@ -30,7 +33,6 @@
 #include "MsgUtilStorage.h"
 #include "MsgException.h"
 
-#include <storage.h>
 
 static int msgCntLimit[MSG_COUNT_LIMIT_MAILBOX_TYPE_MAX][MSG_COUNT_LIMIT_MSG_TYPE_MAX] = {{10, 10, 0, 10, 10}, {5, 10, 0, 0, 0}, {10, 10, 0, 0, 0}, {10, 10, 0, 0, 0}, {0, 0, 10, 0, 0}};
 
@@ -193,19 +195,18 @@ msg_error_t MsgStoCheckMsgCntFull(MsgDbHandler *pDbHandle, const MSG_MESSAGE_TYP
 
 	msg_error_t err = MSG_SUCCESS;
 
-	struct statvfs s;
-	double freeSpace;
-	int r;
-	r = storage_get_internal_memory_size(&s);
-	if (r < 0)
-		return MSG_ERR_STORAGE_ERROR;
-	else {
-		freeSpace = (double)s.f_bsize*s.f_bavail;
-		MSG_DEBUG("Free space of storage is [%lu] MB.", freeSpace);
+	boost::system::error_code ec;
+	boost::filesystem::space_info si = boost::filesystem::space(TZ_SYS_HOME_PATH, ec);
 
-		if (freeSpace < SMS_MINIMUM_SPACE && pMsgType->mainType == MSG_SMS_TYPE)
+	if (ec) {
+		MSG_ERR("Faile to get space info [%s]", ec.message().c_str());
+		return MSG_ERR_STORAGE_ERROR;
+	} else {
+		MSG_DEBUG("Free space of storage is [%llu] MB.", si.free);
+
+		if (si.free < SMS_MINIMUM_SPACE && pMsgType->mainType == MSG_SMS_TYPE)
 			err = MSG_ERR_MESSAGE_COUNT_FULL;
-		else if (freeSpace < MMS_MINIMUM_SPACE && pMsgType->mainType == MSG_MMS_TYPE)
+		else if (si.free < MMS_MINIMUM_SPACE && pMsgType->mainType == MSG_MMS_TYPE)
 			err = MSG_ERR_MESSAGE_COUNT_FULL;
 	}
 
@@ -345,18 +346,18 @@ int MsgStoCheckMsgCntLimit(const MSG_MESSAGE_TYPE_S* pMsgType, msg_folder_id_t f
 msg_error_t MsgStocheckMemoryStatus()
 {
 	msg_error_t err = MSG_SUCCESS;
-	struct statvfs s;
-	double freeSpace;
-	int r;
-	r = storage_get_internal_memory_size(&s);
-	if (r < 0)
+	boost::system::error_code ec;
+	boost::filesystem::space_info si = boost::filesystem::space(TZ_SYS_HOME_PATH, ec);
+
+	if (ec) {
+		MSG_ERR("Faile to get space info [%s]", ec.message().c_str());
 		return MSG_ERR_STORAGE_ERROR;
-	else {
-		freeSpace = (double)s.f_bsize*s.f_bavail;
-	    MSG_DEBUG("Free space of storage is [%ul] MB.", freeSpace);
-		if (freeSpace < SMS_MINIMUM_SPACE)
-			err = MSG_ERR_MESSAGE_COUNT_FULL;
 	}
+
+	MSG_DEBUG("Free space of storage is [%llu] MB.", si.free);
+
+	if (si.free < SMS_MINIMUM_SPACE)
+		err = MSG_ERR_MESSAGE_COUNT_FULL;
 
 	MSG_DEBUG("Memory status =[%d]", err);
 

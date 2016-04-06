@@ -1898,8 +1898,7 @@ void SmsPluginSetting::deliverVoiceMsgNoti(int simIndex, int mwiCnt)
 		MSG_DEBUG("callbackIncoming is failed.");
 #else
 	MsgInsertNotification(&msgInfo);
-	if (MsgCheckNotificationSettingEnable())
-		MsgChangePmState();
+	MsgChangePmState();
 #endif
 
 	MSG_END();

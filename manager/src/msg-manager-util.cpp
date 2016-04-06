@@ -23,10 +23,14 @@
 #include <stdio.h>
 #include <glib.h>
 
+#include <alarm.h>
+#include <device/display.h>
+
 #include <msg_storage.h>
 
-#include <msg-manager-alarm.h>
+#include <msg-manager-util.h>
 #include <msg-manager-debug.h>
+#include <msg-manager-notification.h>
 
 /*==================================================================================================
                                      DEFINES
@@ -38,6 +42,8 @@ typedef std::map<int, msg_mgr_alarm_cb> callBackMap;
 ==================================================================================================*/
 bool alarmInit = false;
 callBackMap alarmCBMap;
+
+extern cm_client_h cm_handle;
 
 /*==================================================================================================
                             INTERNAL FUNCTION IMPLEMENTATION
@@ -177,4 +183,35 @@ int MsgMgrAlarmRemove(int alarmId)
 
 	MSG_MGR_END();
 	return 0;
+}
+
+
+cm_call_status_e MsgMgrGetCallStatus()
+{
+	cm_call_status_e call_status = CM_CALL_STATUS_IDLE;
+	cm_get_call_status(cm_handle, &call_status);
+
+	return call_status;
+}
+
+
+void MsgMgrChangePmState()
+{
+	MSG_MGR_BEGIN();
+	if (MsgMgrCheckNotificationSettingEnable() == false)
+		return;
+
+	int callStatus = 0;
+
+	callStatus = MsgMgrGetCallStatus();
+	MSG_MGR_DEBUG("Call Status = %d", callStatus);
+
+	if (callStatus > 0 && callStatus < 3) {
+		MSG_MGR_DEBUG("Call is activated. Do not turn on the lcd.");
+	} else {
+		MSG_MGR_DEBUG("Call is not activated. Turn on the lcd.");
+		device_display_change_state(DISPLAY_STATE_NORMAL);
+	}
+
+	MSG_MGR_END();
 }
