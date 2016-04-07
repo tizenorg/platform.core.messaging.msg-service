@@ -2378,7 +2378,7 @@ void createInfoData(MSG_MGR_NOTI_INFO_S *noti_info, MSG_MGR_MESSAGE_INFO_S *msg_
 #ifndef MSG_CONTACTS_SERVICE_NOT_SUPPORTED
 		MSG_MGR_CONTACT_INFO_S contactInfo = {0,};
 		MSG_MGR_ADDRESS_INFO_S tmpAddressInfo = {0,};
-		if (msg_info->addressVal) {
+		if (msg_info->addressVal[0] != '\0') {
 			snprintf(tmpAddressInfo.addressVal, MAX_ADDRESS_VAL_LEN, "%s", msg_info->addressVal);
 			if (_is_valid_email(msg_info->addressVal)) {
 				tmpAddressInfo.addressType = MSG_ADDRESS_TYPE_EMAIL;

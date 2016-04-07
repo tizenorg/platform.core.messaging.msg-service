@@ -407,7 +407,7 @@ void MsgSoundPlayStart(const MSG_ADDRESS_INFO_S *pAddrInfo, MSG_SOUND_TYPE_T sou
 		break;
 	}
 
-	if (pAddrInfo && pAddrInfo->addressVal != '\0')
+	if (pAddrInfo && pAddrInfo->addressVal[0] != '\0')
 		bundle_add_str(bundle_data, "address", pAddrInfo->addressVal);
 
 	msg_launch_app(MSG_MGR_APP_ID, bundle_data);
