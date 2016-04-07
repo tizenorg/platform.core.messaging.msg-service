@@ -202,11 +202,11 @@ msg_error_t MsgStoCheckMsgCntFull(MsgDbHandler *pDbHandle, const MSG_MESSAGE_TYP
 		MSG_ERR("Faile to get space info [%s]", ec.message().c_str());
 		return MSG_ERR_STORAGE_ERROR;
 	} else {
-		MSG_DEBUG("Free space of storage is [%llu] MB.", si.free);
+		MSG_DEBUG("Free space of storage is [%llu] Bytes.", si.available);
 
-		if (si.free < SMS_MINIMUM_SPACE && pMsgType->mainType == MSG_SMS_TYPE)
+		if (si.available < SMS_MINIMUM_SPACE && pMsgType->mainType == MSG_SMS_TYPE)
 			err = MSG_ERR_MESSAGE_COUNT_FULL;
-		else if (si.free < MMS_MINIMUM_SPACE && pMsgType->mainType == MSG_MMS_TYPE)
+		else if (si.available < MMS_MINIMUM_SPACE && pMsgType->mainType == MSG_MMS_TYPE)
 			err = MSG_ERR_MESSAGE_COUNT_FULL;
 	}
 
@@ -354,9 +354,9 @@ msg_error_t MsgStocheckMemoryStatus()
 		return MSG_ERR_STORAGE_ERROR;
 	}
 
-	MSG_DEBUG("Free space of storage is [%llu] MB.", si.free);
+	MSG_DEBUG("Free space of storage is [%llu] Bytes.", si.available);
 
-	if (si.free < SMS_MINIMUM_SPACE)
+	if (si.available < SMS_MINIMUM_SPACE)
 		err = MSG_ERR_MESSAGE_COUNT_FULL;
 
 	MSG_DEBUG("Memory status =[%d]", err);
