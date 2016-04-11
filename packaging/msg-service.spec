@@ -53,6 +53,9 @@ BuildRequires: pkgconfig(sqlite3)
 BuildRequires: pkgconfig(tapi)
 BuildRequires: pkgconfig(vconf)
 %if "%{?profile}" != "wearable"
+BuildRequires: pkgconfig(contacts-service2)
+%endif
+%if "%{?profile}" == "mobile"
 BuildRequires: pkgconfig(appcore-agent)
 BuildRequires: pkgconfig(badge)
 BuildRequires: pkgconfig(callmgr_client)
@@ -60,7 +63,6 @@ BuildRequires: pkgconfig(capi-appfw-application)
 BuildRequires: pkgconfig(capi-appfw-package-manager)
 BuildRequires: pkgconfig(capi-media-player)
 BuildRequires: pkgconfig(capi-media-sound-manager)
-BuildRequires: pkgconfig(contacts-service2)
 BuildRequires: pkgconfig(feedback)
 BuildRequires: pkgconfig(notification)
 %endif
@@ -123,7 +125,7 @@ Group:          Applications
 %description -n msg-manager
 Description: Message manager application
 
-%if "%{?profile}" != "wearable"
+%if "%{?profile}" == "mobile"
 %define APP_PKGNAME	org.tizen.msg-manager
 %define APP_PREFIX	%{TZ_SYS_RO_APP}/%{APP_PKGNAME}
 %define APP_BINDIR	%{APP_PREFIX}/bin
@@ -136,7 +138,7 @@ Description: Message manager application
 %build
 cmake . -DCMAKE_INSTALL_PREFIX=%{_prefix} \
 		-DLIB_INSTALL_DIR=%{_libdir} \
-%if "%{?profile}" != "wearable"
+%if "%{?profile}" == "mobile"
 		-DAPP_MANIFESTDIR=%{APP_MANIFESTDIR}   \
 		-DAPP_BINDIR=%{APP_BINDIR}   \
 %endif
@@ -153,6 +155,11 @@ cmake . -DCMAKE_INSTALL_PREFIX=%{_prefix} \
 -D_MSG_WEARABLE_PROFILE:BOOL=ON \
 %else
 -D_MSG_WEARABLE_PROFILE:BOOL=OFF \
+%endif
+%if "%{?profile}" == "mobile"
+-D_MSG_MOBILE_PROFILE:BOOL=ON \
+%else
+-D_MSG_MOBILE_PROFILE:BOOL=OFF \
 %endif
 
 make %{?jobs:-j%jobs}
@@ -255,7 +262,7 @@ chsmack -a "System::Shared" %{TZ_SYS_DATA}/msg-service/msgdata/thumbnails -t
 %license LICENSE.APLv2
 %{_libdir}/libmsg_mms_plugin.so
 
-%if "%{?profile}" != "wearable"
+%if "%{?profile}" == "mobile"
 %files -n msg-manager
 %manifest msg-manager.manifest
 %license LICENSE.APLv2
