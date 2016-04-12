@@ -1568,8 +1568,6 @@ int getLatestMsgInfo(MSG_MGR_NOTI_INFO_S *noti_info, bool isForInstantMessage)
 			return -1;
 		}
 
-/* contacts-service is not used for gear */
-#ifndef MSG_CONTACTS_SERVICE_NOT_SUPPORTED
 		MSG_MGR_ADDRESS_INFO_S tmpAddressInfo;
 		int normalAddCnt = 0;
 		int index = col_cnt;
@@ -1648,7 +1646,6 @@ int getLatestMsgInfo(MSG_MGR_NOTI_INFO_S *noti_info, bool isForInstantMessage)
 		}
 
 		noti_info->senderCount = normalAddCnt;
-#endif /* MSG_CONTACTS_SERVICE_NOT_SUPPORTED */
 		msg_db_free(msg_handle, db_res);
 
 		MSG_MGR_SEC_DEBUG("sender info = [%s]", noti_info->sender);
@@ -2374,8 +2371,6 @@ void createInfoData(MSG_MGR_NOTI_INFO_S *noti_info, MSG_MGR_MESSAGE_INFO_S *msg_
 		noti_info->time = msg_info->displayTime;
 		noti_info->extra_data = msg_info->networkStatus;
 
-/* contacts-service is not used for gear */
-#ifndef MSG_CONTACTS_SERVICE_NOT_SUPPORTED
 		MSG_MGR_CONTACT_INFO_S contactInfo = {0,};
 		MSG_MGR_ADDRESS_INFO_S tmpAddressInfo = {0,};
 		if (msg_info->addressVal[0] != '\0') {
@@ -2390,7 +2385,6 @@ void createInfoData(MSG_MGR_NOTI_INFO_S *noti_info, MSG_MGR_MESSAGE_INFO_S *msg_
 		if (MsgMgrGetContactInfo(&tmpAddressInfo, &contactInfo) != 0) {
 			MSG_MGR_WARN("MsgMgrGetContactInfo() fail.");
 		}
-#endif /*MSG_CONTACTS_SERVICE_NOT_SUPPORTED */
 
 		if (contactInfo.firstName[0] == '\0')
 			snprintf(noti_info->sender, sizeof(noti_info->sender), "%s", msg_info->addressVal);
@@ -2413,11 +2407,9 @@ void createInfoData(MSG_MGR_NOTI_INFO_S *noti_info, MSG_MGR_MESSAGE_INFO_S *msg_
 		noti_info->layout = NOTIFICATION_LY_NOTI_EVENT_SINGLE;
 		noti_info->time = msg_info->displayTime;
 
-/* contacts-service is not used for gear */
-#ifndef MSG_CONTACTS_SERVICE_NOT_SUPPORTED
 		MSG_MGR_CONTACT_INFO_S contactInfo = {0,};
 		MSG_MGR_ADDRESS_INFO_S tmpAddressInfo = {0,};
-		if (msg_info->addressVal) {
+		if (msg_info->addressVal[0] != '\0') {
 			snprintf(tmpAddressInfo.addressVal, MAX_ADDRESS_VAL_LEN, "%s", msg_info->addressVal);
 			if (_is_valid_email(msg_info->addressVal)) {
 				tmpAddressInfo.addressType = MSG_ADDRESS_TYPE_EMAIL;
@@ -2429,7 +2421,6 @@ void createInfoData(MSG_MGR_NOTI_INFO_S *noti_info, MSG_MGR_MESSAGE_INFO_S *msg_
 		if (MsgMgrGetContactInfo(&tmpAddressInfo, &contactInfo) != 0) {
 			MSG_MGR_WARN("MsgMgrGetContactInfo() fail.");
 		}
-#endif /*MSG_CONTACTS_SERVICE_NOT_SUPPORTED */
 		if (contactInfo.firstName[0] == '\0')
 			snprintf(noti_info->sender, sizeof(noti_info->sender), "%s", msg_info->addressVal);
 		else

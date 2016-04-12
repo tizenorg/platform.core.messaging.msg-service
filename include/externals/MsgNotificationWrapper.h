@@ -60,14 +60,6 @@
 
 #endif
 
-#define NOTIFICATION_PRIV_ID 	DEFAULT_SETTING_PATH"/notification_priv_id"
-#define VOICE_NOTI_ID_1 		DEFAULT_SETTING_PATH"/voice_noti_id1"
-#define VOICE_NOTI_ID_2			DEFAULT_SETTING_PATH"/voice_noti_id2"
-#define CB_NOTI_PRIV_ID 		DEFAULT_SETTING_PATH"/cb_noti_priv_id"
-#define SIM_MSG_NOTI_PRIV_ID 	DEFAULT_SETTING_PATH"/sim_msg_noti_priv_id"
-#define MSG_SENTFAIL_NOTI_ID 		DEFAULT_SETTING_PATH"/sentfail_noti_id"
-#define SIM_FULL_NOTI_PRIV_ID	DEFAULT_SETTING_PATH"/sim_full_noti_id"
-
 enum _msg_notification_type_e {
 	MSG_NOTI_TYPE_ALL = 0x00,
 

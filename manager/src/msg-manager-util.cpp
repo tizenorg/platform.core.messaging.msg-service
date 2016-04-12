@@ -201,12 +201,12 @@ void MsgMgrChangePmState()
 	if (MsgMgrCheckNotificationSettingEnable() == false)
 		return;
 
-	int callStatus = 0;
+	cm_call_status_e callStatus = CM_CALL_STATUS_IDLE;
 
 	callStatus = MsgMgrGetCallStatus();
 	MSG_MGR_DEBUG("Call Status = %d", callStatus);
 
-	if (callStatus > 0 && callStatus < 3) {
+	if (callStatus > CM_CALL_STATUS_IDLE && callStatus < CM_CALL_STATUS_MAX) {
 		MSG_MGR_DEBUG("Call is activated. Do not turn on the lcd.");
 	} else {
 		MSG_MGR_DEBUG("Call is not activated. Turn on the lcd.");
