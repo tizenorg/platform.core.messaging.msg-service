@@ -331,7 +331,7 @@ typedef struct
 typedef struct
 {
 	MSG_MMS_HOME_RETRIEVE_TYPE_T		homeNetwork;	/**< Indicates the retrieve type for MMS home network. */
-	MSG_MMS_ABROAD_RETRIEVE_TYPE_T	abroadNetwok;	/**< Indicates the retrieve type for MMS abroad network. */
+	MSG_MMS_ABROAD_RETRIEVE_TYPE_T	abroadNetwork;	/**< Indicates the retrieve type for MMS abroad network. */
 #if 0
 	MSG_MMS_SEND_READ_REPORT_T		readReceipt;	/**< Indicates whether the read report will be sent or not. */
 #endif

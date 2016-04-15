@@ -32,7 +32,7 @@ static int msg_get_msg_type(int mainType, int subType);
 EXPORT_API int msg_add_message(msg_handle_t handle, msg_struct_t opq_msg, const msg_struct_t send_opt)
 {
 	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_SMS_FEATURE);
-	msg_error_t err = MSG_SUCCESS;
+	int msg_id = 0;
 
 	if (handle == NULL || opq_msg == NULL || send_opt == NULL)
 		return MSG_ERR_INVALID_PARAMETER;
@@ -46,13 +46,13 @@ EXPORT_API int msg_add_message(msg_handle_t handle, msg_struct_t opq_msg, const 
 	MSG_TYPE_CHECK(pStruct->type, MSG_STRUCT_SENDOPT);
 
 	try {
-		err = pHandle->addMessage((MSG_MESSAGE_HIDDEN_S *)pMsgStruct->data, (MSG_SENDINGOPT_S *)pStruct->data);
+		msg_id = pHandle->addMessage((MSG_MESSAGE_HIDDEN_S *)pMsgStruct->data, (MSG_SENDINGOPT_S *)pStruct->data);
 	} catch (MsgException& e) {
 		MSG_FATAL("%s", e.what());
 		return MSG_ERR_STORAGE_ERROR;
 	}
 
-	return err;
+	return msg_id;
 }
 
 

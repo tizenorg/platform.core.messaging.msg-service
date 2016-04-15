@@ -1226,7 +1226,7 @@ int msg_get_mms_recv_opt_int(void *mms_recv_opt, int field, int *value)
 		*value = recv_opt->homeNetwork;
 		break;
 	case MSG_MMS_RECVOPT_ABROAD_RETRIEVE_TYPE_INT:
-		*value = recv_opt->abroadNetwok;
+		*value = recv_opt->abroadNetwork;
 		break;
 	default:
 		ret = MSG_ERR_INVALID_PARAMETER;
@@ -1250,7 +1250,7 @@ int msg_set_mms_recv_opt_int(void *mms_recv_opt, int field, int value)
 		recv_opt->homeNetwork = value;
 		break;
 	case MSG_MMS_RECVOPT_ABROAD_RETRIEVE_TYPE_INT:
-		recv_opt->abroadNetwok = value;
+		recv_opt->abroadNetwork = value;
 		break;
 	default:
 		ret = MSG_ERR_INVALID_PARAMETER;
