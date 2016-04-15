@@ -803,7 +803,7 @@ EXPORT_API int msg_backup_message(msg_handle_t handle, msg_message_backup_type_t
 
 	if (handle == NULL || backup_filepath == NULL)
 		return MSG_ERR_INVALID_PARAMETER;
-
+#if 0
 	MsgHandle* pHandle = (MsgHandle*)handle;
 
 	try {
@@ -812,7 +812,7 @@ EXPORT_API int msg_backup_message(msg_handle_t handle, msg_message_backup_type_t
 		MSG_FATAL("%s", e.what());
 		return MSG_ERR_STORAGE_ERROR;
 	}
-
+#endif
 	return err;
 }
 
@@ -824,7 +824,7 @@ EXPORT_API int msg_restore_message(msg_handle_t handle, const char *backup_filep
 
 	if (handle == NULL || backup_filepath == NULL)
 		return MSG_ERR_INVALID_PARAMETER;
-
+#if 0
 	MsgHandle* pHandle = (MsgHandle*)handle;
 
 	try {
@@ -833,7 +833,7 @@ EXPORT_API int msg_restore_message(msg_handle_t handle, const char *backup_filep
 		MSG_FATAL("%s", e.what());
 		return MSG_ERR_STORAGE_ERROR;
 	}
-
+#endif
 	return err;
 }
 
