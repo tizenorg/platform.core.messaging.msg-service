@@ -867,7 +867,7 @@ EXPORT_API int msg_db_select_with_query(msg_handle_t handle, const char *query, 
 	CHECK_MSG_SUPPORTED(MSG_TELEPHONY_SMS_FEATURE);
 	msg_error_t err = MSG_SUCCESS;
 
-	if (handle == NULL || query == NULL)
+	if (handle == NULL || query == NULL || db_res == NULL || row_count == NULL || col_count == NULL)
 		return MSG_ERR_INVALID_PARAMETER;
 
 	MsgHandle* pHandle = (MsgHandle*)handle;
