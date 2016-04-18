@@ -1,4 +1,6 @@
 [Socket]
+SocketUser=messaging
+SocketGroup=messaging
 ListenStream=/tmp/.msgfw_socket
 Service=msg-server.service
 

@@ -61,6 +61,7 @@ msg_error_t MsgIpcClientSocket::connect(const char* path)
 	int len = strlen(serverSA.sun_path) + sizeof(serverSA.sun_family);
 
 	if (::connect(sockfd, (struct sockaddr *)&serverSA, len) == CUSTOM_SOCKET_ERROR) {
+		MSG_DEBUG("errno=[%d]", errno);
 		if(errno == EACCES)
 			THROW(MsgException::SECURITY_ERROR, "cannot connect server %s", g_strerror(errno));
 		else

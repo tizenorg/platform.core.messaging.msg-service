@@ -65,6 +65,5 @@ int MsgCheckFilepathSmack(const char *app_smack_label, char *file_path);
 
 void MsgGetMimeType(char *filePath, char *mimeType, int size);
 int MsgTcsScanFile(const char *filepath, int *bLevel);
-bool MsgAclInit();
 #endif /* MSG_UTIL_FILE_H */
 
