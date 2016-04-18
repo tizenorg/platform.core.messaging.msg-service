@@ -17,8 +17,9 @@ Requires(post): /sbin/ldconfig
 Requires(postun): /sbin/ldconfig
 Requires(post): systemd
 Requires(postun): systemd
+Requires: acl
+Requires: security-config
 BuildRequires: cmake
-BuildRequires: libacl-devel
 BuildRequires: pkgconfig(alarm-service)
 BuildRequires: pkgconfig(aul)
 BuildRequires: pkgconfig(boost)
@@ -191,25 +192,36 @@ rm %{buildroot}/usr/share/msg-service/msg-service-db.sql
 chmod 640 %{TZ_SYS_DB}/.msg_service.db
 chmod 660 %{TZ_SYS_DB}/.msg_service.db-journal
 
-mkdir -p -m 775 %{TZ_SYS_DATA}/msg-service
-mkdir -p -m 770 %{TZ_SYS_DATA}/msg-service/msgdata
-mkdir -p -m 770 %{TZ_SYS_DATA}/msg-service/smildata
+mkdir -p -m 770 %{TZ_SYS_DATA}/msg-service
+mkdir -p -m 750 %{TZ_SYS_DATA}/msg-service/msgdata
+mkdir -p -m 750 %{TZ_SYS_DATA}/msg-service/smildata
 mkdir -p -m 770 %{TZ_SYS_DATA}/msg-service/ipcdata
-mkdir -p -m 770 %{TZ_SYS_DATA}/msg-service/msgdata/thumbnails
+mkdir -p -m 750 %{TZ_SYS_DATA}/msg-service/msgdata/thumbnails
 
+chown messaging:priv_message_read %{TZ_SYS_DB}/.msg_service.db
+chown messaging:priv_message_read %{TZ_SYS_DB}/.msg_service.db-journal
+chown messaging:priv_message_read %{TZ_SYS_DATA}/msg-service
+chown messaging:priv_message_read %{TZ_SYS_DATA}/msg-service/msgdata
+chown messaging:priv_message_read %{TZ_SYS_DATA}/msg-service/smildata
+chown messaging:priv_message_read %{TZ_SYS_DATA}/msg-service/ipcdata
+chown messaging:priv_message_read %{TZ_SYS_DATA}/msg-service/msgdata/thumbnails
 
-chgrp priv_message_read %{TZ_SYS_DB}/.msg_service.db
-chgrp priv_message_read %{TZ_SYS_DATA}/msg-service/msgdata
-chgrp priv_message_read %{TZ_SYS_DATA}/msg-service/smildata
-chgrp priv_message_write %{TZ_SYS_DATA}/msg-service/ipcdata
-chgrp priv_message_read %{TZ_SYS_DATA}/msg-service/msgdata/thumbnails
-
+chmod g+s %{TZ_SYS_DATA}/msg-service/msgdata
+chmod g+s %{TZ_SYS_DATA}/msg-service/smildata
+chmod g+s %{TZ_SYS_DATA}/msg-service/ipcdata
+chmod g+s %{TZ_SYS_DATA}/msg-service/msgdata/thumbnails
 
 chsmack -a "*" %{TZ_SYS_DB}/.msg_service.db
+chsmack -a "*" %{TZ_SYS_DB}/.msg_service.db-journal
+chsmack -a "System::Shared" %{TZ_SYS_DATA}/msg-service/
 chsmack -a "System::Shared" %{TZ_SYS_DATA}/msg-service/msgdata -t
 chsmack -a "System::Shared" %{TZ_SYS_DATA}/msg-service/smildata -t
 chsmack -a "System::Run" %{TZ_SYS_DATA}/msg-service/ipcdata -t
 chsmack -a "System::Shared" %{TZ_SYS_DATA}/msg-service/msgdata/thumbnails -t
+
+#Multi group to ipcdata directory
+chmod o= %{TZ_SYS_DATA}/msg-service/ipcdata
+setfacl -m group:priv_message_write:rw %{TZ_SYS_DATA}/msg-service/ipcdata
 
 %post -n sms-plugin -p /sbin/ldconfig
 %post -n mms-plugin -p /sbin/ldconfig

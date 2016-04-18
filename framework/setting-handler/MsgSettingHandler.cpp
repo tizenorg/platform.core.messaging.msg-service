@@ -27,13 +27,13 @@
 
 /* To store latest setting values */
 /* when it sets to vconf, it will be compared with below values */
-MSG_GENERAL_OPT_S		g_generalOpt;
-MSG_SMS_SENDOPT_S		g_smsSendOpt;
-MSG_SMSC_LIST_S			g_smscList;
-MSG_MMS_SENDOPT_S		g_mmsSendOpt;
-MSG_MMS_RECVOPT_S		g_mmsRecvOpt;
-MSG_MMS_STYLEOPT_S		g_mmsStyleOpt;
-MSG_PUSHMSG_OPT_S		g_pushMsgOpt;
+MSG_GENERAL_OPT_S		g_generalOpt = {0,};
+MSG_SMS_SENDOPT_S		g_smsSendOpt = {0,};
+MSG_SMSC_LIST_S			g_smscList = {0,};
+MSG_MMS_SENDOPT_S		g_mmsSendOpt = {0,};
+MSG_MMS_RECVOPT_S		g_mmsRecvOpt = {0,};
+MSG_MMS_STYLEOPT_S		g_mmsStyleOpt = {0,};
+MSG_PUSHMSG_OPT_S		g_pushMsgOpt = {0,};
 
 /*==================================================================================================
                                      FUNCTION IMPLEMENTATION

@@ -56,11 +56,6 @@ void* InitMsgServer(void*)
 	MsgInitCallStatusManager();
 
 	try {
-		/* ipc data folder set acl for priv_read and priv_write */
-		if (!MsgAclInit()) {
-			MSG_ERR("FAIL TO INITIALIZE ACL [%d]", err);
-		}
-
 		/* storage handler initialize */
 		err = MsgStoInitDB(false);
 		if (err != MSG_SUCCESS) {

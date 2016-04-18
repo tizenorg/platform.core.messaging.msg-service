@@ -4,6 +4,8 @@ After=contacts-service.service
 
 [Service]
 Type=simple
+User=messaging
+Group=messaging
 ExecStart=/usr/bin/msg-server
 Restart=always
 MemoryLimit=10M
