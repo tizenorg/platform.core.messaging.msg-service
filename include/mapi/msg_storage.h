@@ -737,7 +737,7 @@ int msg_get_mem_size(msg_handle_t handle, unsigned int* memsize);
  * @retval MSG_ERR_NOT_SUPPORTED     Not supported
  */
 
-int msg_backup_message(msg_handle_t handle, msg_message_backup_type_t type, const char *backup_filepath) DEPRECATED;
+int msg_backup_message(msg_handle_t handle, msg_message_backup_type_t type, const char *backup_filepath);
 
 
 /**
@@ -760,7 +760,7 @@ int msg_backup_message(msg_handle_t handle, msg_message_backup_type_t type, cons
  * @retval MSG_ERR_NOT_SUPPORTED     Not supported
  */
 
-int msg_restore_message(msg_handle_t handle, const char *backup_filepath) DEPRECATED;
+int msg_restore_message(msg_handle_t handle, const char *backup_filepath);
 
 
 /**
