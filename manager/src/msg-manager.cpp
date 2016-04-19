@@ -30,6 +30,25 @@ extern "C"
 msg_handle_t msg_handle = NULL;
 cm_client_h cm_handle = NULL;
 
+pthread_mutex_t mx;
+static int job_cnt = 0;
+
+static int _check_app_ternimate(void *data)
+{
+	pthread_mutex_lock(&mx);
+
+	job_cnt--;
+	MSG_MGR_DEBUG("job_cnt [%d]", job_cnt);
+	if (job_cnt == 0) {
+		 MSG_MGR_INFO("kill msg-manager");
+		service_app_exit();
+	}
+
+	pthread_mutex_unlock(&mx);
+
+	return 0;
+}
+
 bool service_app_create(void *data)
 {
 	MSG_MGR_INFO("app_create");
@@ -65,6 +84,7 @@ void service_app_terminate(void *data)
 	cm_deinit(cm_handle);
 	MsgMgrCloseContactSvc();
 	msg_close_msg_handle(&msg_handle);
+	quick_exit(EXIT_SUCCESS);
 
 	return;
 }
@@ -591,6 +611,10 @@ void service_app_control(app_control_h app_control, void *data)
 {
 	MSG_MGR_INFO("service_app_control called");
 
+	pthread_mutex_lock(&mx);
+	job_cnt++;
+	pthread_mutex_unlock(&mx);
+
 	int ret = 0;
 	char *operation = NULL;
 	char *cmd = NULL;
@@ -631,6 +655,8 @@ void service_app_control(app_control_h app_control, void *data)
 		}
 		g_free(operation);
 	}
+
+	g_timeout_add_seconds(60, _check_app_ternimate, NULL);
 
 	return;
 }
