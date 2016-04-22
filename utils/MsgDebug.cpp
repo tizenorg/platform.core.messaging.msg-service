@@ -216,6 +216,8 @@ const char * MsgDbgCmdStr(MSG_CMD_TYPE_T cmdType)
 	case MSG_CMD_PLG_CHECK_UNIQUENESS:
 		return "MSG_CMD_PLG_CHECK_UNIQUENESS";
 #endif
+	case MSG_CMD_CHECK_PERMISSION:
+		return "MSG_CMD_CHECK_PERMISSION";
 
 	default:
 		return "Unknown Command Type!!!";
@@ -419,6 +421,8 @@ const char * MsgDbgEvtStr(MSG_EVENT_TYPE_T evtType)
 	case MSG_EVENT_PLG_CHECK_UNIQUENESS:
 		return "MSG_EVENT_PLG_CHECK_UNIQUENESS";
 #endif
+	case MSG_EVENT_CHECK_PERMISSION:
+		return "MSG_EVENT_CHECK_PERMISSION";
 
 	case MSG_EVENT_PLG_REPORT_MSG_INCOMING_IND:
 		return "MSG_EVENT_PLG_REPORT_MSG_INCOMING_IND";

@@ -46,7 +46,7 @@ class MsgException : public runtime_error /* public exception */
 {
 public:
 	MsgException(int errCode, const string& msg = "")
-	    : runtime_error(errorStrings[errCode] + " : " +  msg), eCode(errCode) {
+		: runtime_error(errorStrings[errCode] + " : " +  msg), eCode(errCode) {
 	}
 
 	enum
@@ -77,7 +77,7 @@ public:
 	int errorCode() { return eCode; }
 
 private:
-    	static string errorStrings[NUM_ERRORS];
+	static string errorStrings[NUM_ERRORS];
 	int eCode;
 };
 

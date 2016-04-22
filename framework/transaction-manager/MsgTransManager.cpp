@@ -380,7 +380,6 @@ void MsgTransactionManager::handleRequest(int fd)
 		THROW(MsgException::OUT_OF_RANGE, "request CMD is not defined");
 
 	/* check privilege */
-/*	if (checkPrivilege(pCmd->cmdType, pCmd->cmdCookie) == false) { */
 	if (checkPrivilege(fd, pCmd->cmdType) == false) {
 		MSG_DEBUG("No Privilege rule. Not allowed.");
 #ifdef MSG_CHECK_PRIVILEGE
@@ -395,6 +394,7 @@ void MsgTransactionManager::handleRequest(int fd)
 
 	/* determine the handler based on pCmd->cmdType */
 	int (*pfHandler)(const MSG_CMD_S*, char**) = NULL;
+	MSG_CMD_S* pCmdDup = NULL;
 
 	switch (pCmd->cmdType) {
 	case MSG_CMD_PLG_SENT_STATUS_CNF:
@@ -405,8 +405,8 @@ void MsgTransactionManager::handleRequest(int fd)
 	case MSG_CMD_PLG_INCOMING_LBS_IND:
 	case MSG_CMD_PLG_INIT_SIM_BY_SAT:
 	case MSG_CMD_PLG_INCOMING_PUSH_IND:
-	case MSG_CMD_PLG_INCOMING_CB_IND: {
-		MSG_CMD_S* pCmdDup = (MSG_CMD_S*)calloc(1, len); /* pCmdDup should be freed afterward */
+	case MSG_CMD_PLG_INCOMING_CB_IND:
+		pCmdDup = (MSG_CMD_S*)calloc(1, len); /* pCmdDup should be freed afterward */
 		if (pCmdDup != NULL) {
 			memcpy(pCmdDup, pCmd, len);
 			memcpy(pCmdDup->cmdCookie, &fd, sizeof(int)); /* Now, cmdCookie keeps fd for return */
@@ -417,7 +417,12 @@ void MsgTransactionManager::handleRequest(int fd)
 			mxQ.unlock();
 		}
 		break;
-	}
+	case MSG_CMD_CHECK_PERMISSION:
+		MSG_DEBUG("Client has privilege. Allowed.");
+		MsgMakeErrorEvent(pCmd->cmdType, MSG_SUCCESS, &eventSize, &pEventData);
+		MSG_DEBUG("Replying to fd [%d], size [%d]", fd, eventSize);
+		servSock.write(fd, pEventData, eventSize);
+		break;
 	default:
 		pfHandler = handlerMap[pCmd->cmdType];
 		if (!pfHandler) {
@@ -435,8 +440,8 @@ void MsgTransactionManager::handleRequest(int fd)
 		}
 
 		MSG_DEBUG("Replying to fd [%d], size [%d]", fd, eventSize);
-
 		servSock.write(fd, pEventData, eventSize);
+		break;
 	}
 
 	MSG_END();
@@ -651,15 +656,14 @@ bool MsgTransactionManager::checkPrivilege(int fd, MSG_CMD_TYPE_T CmdType)
 	case MSG_CMD_GET_PUSH_MSG_OPT:
 	case MSG_CMD_GET_VOICE_MSG_OPT:
 	case MSG_CMD_GET_GENERAL_MSG_OPT:
-	case MSG_CMD_GET_MSG_SIZE_OPT: {
+	case MSG_CMD_GET_MSG_SIZE_OPT:
 		ret = cynara_check(p_cynara, peer_client, peer_session, peer_user,
 				"http://tizen.org/privilege/message.read");
 		if (ret != CYNARA_API_ACCESS_ALLOWED) {
 			MSG_INFO("privilege [read] not allowd : [%d]", ret);
 			bAllowed = false;
 		}
-	}
-	break;
+		break;
 	case MSG_CMD_SUBMIT_REQ:
 	case MSG_CMD_SET_CB_OPT:
 	case MSG_CMD_ADD_PUSH_EVENT:
@@ -694,15 +698,28 @@ bool MsgTransactionManager::checkPrivilege(int fd, MSG_CMD_TYPE_T CmdType)
 	case MSG_CMD_SET_PUSH_MSG_OPT:
 	case MSG_CMD_SET_VOICE_MSG_OPT:
 	case MSG_CMD_SET_GENERAL_MSG_OPT:
-	case MSG_CMD_SET_MSG_SIZE_OPT: {
+	case MSG_CMD_SET_MSG_SIZE_OPT:
 		ret = cynara_check(p_cynara, peer_client, peer_session, peer_user,
 				"http://tizen.org/privilege/message.write");
 		if (ret != CYNARA_API_ACCESS_ALLOWED) {
 			MSG_INFO("privilege [write] not allowd : [%d]", ret);
 			bAllowed = false;
 		}
-	}
-	break;
+		break;
+	case MSG_CMD_CHECK_PERMISSION:
+		ret = cynara_check(p_cynara, peer_client, peer_session, peer_user,
+				"http://tizen.org/privilege/message.read");
+		if (ret != CYNARA_API_ACCESS_ALLOWED) {
+			ret = cynara_check(p_cynara, peer_client, peer_session, peer_user,
+					"http://tizen.org/privilege/message.write");
+			if (ret != CYNARA_API_ACCESS_ALLOWED) {
+				MSG_INFO("privilege [write] not allowd : [%d]", ret);
+				bAllowed = false;
+			}
+		}
+		break;
+	default :
+		break;
 	}
 
 _END_OF_FUNC:

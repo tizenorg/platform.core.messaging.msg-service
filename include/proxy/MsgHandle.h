@@ -160,7 +160,8 @@ class MsgHandle
 		void convertMsgStruct(const MSG_MESSAGE_HIDDEN_S *pSource, MSG_MESSAGE_INFO_S *pDest);
 		void convertSendOptStruct(const MSG_SENDINGOPT_S* pSrc, MSG_SENDINGOPT_INFO_S* pDest, MSG_MESSAGE_TYPE_S msgType);
 		int getSettingCmdSize(MSG_OPTION_TYPE_T optionType);
-		bool CheckEventData(char *pEventData);
+		bool checkEventData(char *pEventData);
+		msg_error_t checkPermission(void);
 
 		char mConnectionId[20];
 		short mCounter;

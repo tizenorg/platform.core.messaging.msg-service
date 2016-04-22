@@ -60,6 +60,11 @@ void MsgHandle::openHandle()
 
 	/* Open Socket IPC */
 	connectSocket();
+
+	/* Check cynara permission */
+	if (checkPermission() == MSG_ERR_PERMISSION_DENIED) {
+		THROW(MsgException::SECURITY_ERROR, "Client doesn't have permission");
+	}
 }
 
 
@@ -125,7 +130,7 @@ void MsgHandle::write(const char *pCmdData, int cmdSize, char **ppEvent)
 			break;
 		}
 
-		if (!CheckEventData(tmpEvent)) {
+		if (!checkEventData(tmpEvent)) {
 			delete [] tmpEvent;
 			tmpEvent = NULL;
 		} else {
@@ -593,7 +598,7 @@ int MsgHandle::getSettingCmdSize(MSG_OPTION_TYPE_T optionType)
 }
 
 
-bool MsgHandle::CheckEventData(char *pEventData)
+bool MsgHandle::checkEventData(char *pEventData)
 {
 	MSG_EVENT_S* pEvent = (MSG_EVENT_S*)pEventData;
 
@@ -615,4 +620,35 @@ bool MsgHandle::CheckEventData(char *pEventData)
 	}
 
 	return true;
+}
+
+msg_error_t MsgHandle::checkPermission(void)
+{
+	/* Allocate Memory to Command Data */
+	int cmdSize = sizeof(MSG_CMD_S);
+
+	char cmdBuf[cmdSize];
+	bzero(cmdBuf, cmdSize);
+	MSG_CMD_S* pCmd = (MSG_CMD_S*)cmdBuf;
+
+	/* Set Command Parameters */
+	pCmd->cmdType = MSG_CMD_CHECK_PERMISSION;
+
+	/* Send Command to Messaging FW */
+	char* pEventData = NULL;
+	unique_ptr<char*, void(*)(char**)> eventBuf(&pEventData, unique_ptr_deleter);
+
+	write((char*)pCmd, cmdSize, &pEventData);
+
+	/* Get Return Data */
+	MSG_EVENT_S* pEvent = (MSG_EVENT_S*)pEventData;
+
+	if (pEvent == NULL)
+		THROW(MsgException::INVALID_RESULT, "Event is NULL");
+
+	if (pEvent->eventType != MSG_EVENT_CHECK_PERMISSION) {
+		THROW(MsgException::INVALID_RESULT, "Event Data Error");
+	}
+
+	return pEvent->result;
 }

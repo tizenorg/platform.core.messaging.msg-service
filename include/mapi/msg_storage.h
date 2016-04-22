@@ -1163,7 +1163,7 @@ int msg_db_select_with_query(msg_handle_t handle, const char *query, char ***db_
  * @since_tizen 3.0
  *
  * @param[in] handle     The Message handle
- * @param[in] db_res     The result of SQL SELECT query
+ * @param[in] db_res     The DB result pointer to release
  *
  * @return  @c 0 on success,
  *        otherwise a negative error value
