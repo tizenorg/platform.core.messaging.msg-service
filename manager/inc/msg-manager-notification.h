@@ -49,7 +49,7 @@
 #define MSG_APP_LOCALEDIR			TZ_SYS_RO_APP_PATH "/" MSG_DEFAULT_APP_ID "/res/locale"
 
 #define MSG_NOTIFICATION_ICON_DIR			"/" MSG_QUICKPANEL_APP_ID "/shared/res/noti_icons"
-#define MSG_STATUS_ICON_DIR			MSG_INDICATOR_APP_ID "/res/icons"
+#define MSG_STATUS_ICON_DIR			"/" MSG_INDICATOR_APP_ID "/res/resource/icons"
 
 /* notification icon */
 #define MSG_NORMAL_ICON_PATH	TZ_SYS_RO_APP_PATH MSG_NOTIFICATION_ICON_DIR "/Message/noti_message.png"
@@ -72,7 +72,7 @@
 #define MSG_FAILED_STATUS_ICON				TZ_SYS_RO_APP_PATH MSG_STATUS_ICON_DIR "/Notify/B03_notify_message_failed.png"
 #define MSG_DELIVER_REPORT_STATUS_ICON	TZ_SYS_RO_APP_PATH MSG_STATUS_ICON_DIR "/Event/B03_event_delivery_report_message.png"
 #define MSG_READ_REPORT_STATUS_ICON		TZ_SYS_RO_APP_PATH MSG_STATUS_ICON_DIR "/Event/B03_event_read_report_message.png"
-#define MSG_VOICE_MSG_STATUS_ICON			TZ_SYS_RO_APP_PATH MSG_STATUS_ICON_DIR "/Event/B03_event_voicemail.png"
+#define MSG_VOICE_MSG_STATUS_ICON			TZ_SYS_RO_APP_PATH MSG_STATUS_ICON_DIR "/Event/B03_Event_voicemail.png"
 #define MSG_SIM_FULL_STATUS_ICON		TZ_SYS_RO_APP_PATH MSG_STATUS_ICON_DIR "/SIM card full/B03_sim_card_full.png"
 
 #ifndef TIZEN_I586_ENABLED
