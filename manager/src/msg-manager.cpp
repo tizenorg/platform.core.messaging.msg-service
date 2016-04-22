@@ -33,7 +33,7 @@ cm_client_h cm_handle = NULL;
 pthread_mutex_t mx;
 static int job_cnt = 0;
 
-static int _check_app_ternimate(void *data)
+static int _check_app_terminate(void *data)
 {
 	pthread_mutex_lock(&mx);
 
@@ -84,7 +84,6 @@ void service_app_terminate(void *data)
 	cm_deinit(cm_handle);
 	MsgMgrCloseContactSvc();
 	msg_close_msg_handle(&msg_handle);
-	quick_exit(EXIT_SUCCESS);
 
 	return;
 }
@@ -656,7 +655,7 @@ void service_app_control(app_control_h app_control, void *data)
 		g_free(operation);
 	}
 
-	g_timeout_add_seconds(60, _check_app_ternimate, NULL);
+	g_timeout_add_seconds(60, _check_app_terminate, NULL);
 
 	return;
 }
