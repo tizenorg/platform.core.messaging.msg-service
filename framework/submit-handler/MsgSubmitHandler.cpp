@@ -284,13 +284,6 @@ msg_error_t MsgSubmitReqMMS(MSG_REQUEST_INFO_S *pReqInfo)
 	return err;
 }
 
-msg_error_t MsgCancelReq(msg_request_id_t reqId)
-{
-	msg_error_t err = MSG_SUCCESS;
-
-	return err;
-}
-
 
 msg_error_t MsgUpdateSentMsg(msg_message_id_t MsgId, msg_network_status_t Status)
 {

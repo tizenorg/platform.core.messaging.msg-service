@@ -31,7 +31,6 @@ msg_error_t MsgSubmitReq(MSG_REQUEST_INFO_S* pReq, bool bScheduled);
 msg_error_t MsgSubmitReqSMS(MSG_REQUEST_INFO_S *pReqInfo);
 msg_error_t MsgSubmitReqMMS(MSG_REQUEST_INFO_S *pReqInfo);
 
-msg_error_t MsgCancelReq(msg_request_id_t reqId);
 msg_error_t MsgUpdateSentMsg(msg_message_id_t MsgId, msg_network_status_t Status);
 
 void MsgCopyReqInfo(MSG_REQUEST_INFO_S *pSrc, int addrIdx, MSG_REQUEST_INFO_S *pDest);
