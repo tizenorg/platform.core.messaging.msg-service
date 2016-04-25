@@ -32,6 +32,15 @@ cm_client_h cm_handle = NULL;
 
 pthread_mutex_t mx;
 static int job_cnt = 0;
+static bool terminated = false;
+
+static int _service_app_exit(void *data)
+{
+	MSG_MGR_INFO("kill msg-manager");
+	service_app_exit();
+
+	return 0;
+}
 
 static int _check_app_terminate(void *data)
 {
@@ -40,8 +49,8 @@ static int _check_app_terminate(void *data)
 	job_cnt--;
 	MSG_MGR_DEBUG("job_cnt [%d]", job_cnt);
 	if (job_cnt == 0) {
-		 MSG_MGR_INFO("kill msg-manager");
-		service_app_exit();
+		terminated = true;
+		g_idle_add(_service_app_exit, NULL);
 	}
 
 	pthread_mutex_unlock(&mx);
@@ -655,7 +664,10 @@ void service_app_control(app_control_h app_control, void *data)
 		g_free(operation);
 	}
 
-	g_timeout_add_seconds(60, _check_app_terminate, NULL);
+	pthread_mutex_lock(&mx);
+	if (!terminated)
+		g_timeout_add_seconds(60, _check_app_terminate, NULL);
+	pthread_mutex_unlock(&mx);
 
 	return;
 }
