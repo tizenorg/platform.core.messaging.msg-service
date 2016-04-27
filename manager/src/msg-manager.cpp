@@ -97,7 +97,7 @@ bool service_app_create(void *data)
 		if (msg_server_ready == 1) {
 			int msg_err = msg_open_msg_handle(&msg_handle);
 			if (msg_err != MSG_SUCCESS)
-				MSG_MGR_DEBUG("msg_open_msg_handle() failed [%d]", msg_err);
+				MSG_MGR_ERR("msg_open_msg_handle() failed [%d]", msg_err);
 			else
 				MSG_MGR_DEBUG("msg_open_msg_handle() success");
 
@@ -107,6 +107,9 @@ bool service_app_create(void *data)
 			sleep(1);
 		}
 	}
+
+	if (msg_handle == NULL)
+		return false;
 
 	MsgMgrInitNoti();
 	initMsgMgrSoundPlayer();
