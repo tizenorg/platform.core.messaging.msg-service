@@ -57,11 +57,11 @@ BuildRequires: pkgconfig(vconf)
 BuildRequires: pkgconfig(contacts-service2)
 %endif
 %if "%{?profile}" == "mobile"
-BuildRequires: pkgconfig(appcore-agent)
 BuildRequires: pkgconfig(badge)
 BuildRequires: pkgconfig(callmgr_client)
 BuildRequires: pkgconfig(capi-appfw-application)
 BuildRequires: pkgconfig(capi-appfw-package-manager)
+BuildRequires: pkgconfig(capi-appfw-service-application)
 BuildRequires: pkgconfig(capi-media-player)
 BuildRequires: pkgconfig(capi-media-sound-manager)
 BuildRequires: pkgconfig(feedback)
