@@ -897,8 +897,8 @@ static inline int __msgsvc_vmsg_append_msg_body(MSG_MESSAGE_INFO_S *pMsg, char *
 	char *msgDate = __msgsvc_vmsg_convert_tm_to_vdata_str(&display_time);
 	if (msgDate !=NULL) {
 		MSGSVC_VMSG_APPEND_STR_FREE(buf, buf_size, len, msgDate);
-		MSGSVC_VMSG_APPEND_STR(buf, buf_size, len, MSGSVC_CRLF);
 		g_free(msgDate);
+		MSGSVC_VMSG_APPEND_STR(buf, buf_size, len, MSGSVC_CRLF);
 	}
 
 	/* Subject: */
