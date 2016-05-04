@@ -583,6 +583,11 @@ void MsgMgrSoundPlayVibration(char *vibrationPath)
 		}
 	}
 
+#if 1
+	ret = feedback_play_type(FEEDBACK_TYPE_VIBRATION, FEEDBACK_PATTERN_MESSAGE);
+	if (ret != FEEDBACK_ERROR_NONE)
+		MSG_MGR_DEBUG("Fail to feedback_play_type");
+#else
 	if (vibrationPath && strlen(vibrationPath)) {
 		MSG_MGR_DEBUG("vibrationPath: [%s]", vibrationPath);
 		ret = feedback_set_resource_path(FEEDBACK_TYPE_VIBRATION, FEEDBACK_PATTERN_MESSAGE, vibrationPath);
@@ -601,6 +606,6 @@ void MsgMgrSoundPlayVibration(char *vibrationPath)
 		if (ret != FEEDBACK_ERROR_NONE)
 			MSG_MGR_DEBUG("Fail to feedback_play_type");
 	}
-
+#endif
 	MSG_MGR_END();
 }
