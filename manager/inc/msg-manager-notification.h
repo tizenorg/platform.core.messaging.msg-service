@@ -68,12 +68,21 @@
 #define MSG_ACTIVE_PUSH_ICON_PATH		"reserved:push_message"
 
 /* status bar icon */
+#if 0
 #define MSG_NORMAL_STATUS_ICON				TZ_SYS_RO_APP_PATH MSG_STATUS_ICON_DIR "/Notify/B03_notify_message.png"
 #define MSG_FAILED_STATUS_ICON				TZ_SYS_RO_APP_PATH MSG_STATUS_ICON_DIR "/Notify/B03_notify_message_failed.png"
 #define MSG_DELIVER_REPORT_STATUS_ICON	TZ_SYS_RO_APP_PATH MSG_STATUS_ICON_DIR "/Event/B03_event_delivery_report_message.png"
 #define MSG_READ_REPORT_STATUS_ICON		TZ_SYS_RO_APP_PATH MSG_STATUS_ICON_DIR "/Event/B03_event_read_report_message.png"
 #define MSG_VOICE_MSG_STATUS_ICON			TZ_SYS_RO_APP_PATH MSG_STATUS_ICON_DIR "/Event/B03_Event_voicemail.png"
 #define MSG_SIM_FULL_STATUS_ICON		TZ_SYS_RO_APP_PATH MSG_STATUS_ICON_DIR "/SIM card full/B03_sim_card_full.png"
+#else
+#define MSG_NORMAL_STATUS_ICON				"reserved://indicator/icons/notify_message"
+#define MSG_FAILED_STATUS_ICON				"reserved://indicator/icons/notify_message_failed"
+#define MSG_DELIVER_REPORT_STATUS_ICON	"reserved://indicator/icons/delivery_report_message"
+#define MSG_READ_REPORT_STATUS_ICON		"reserved://indicator/icons/read_report_message"
+#define MSG_VOICE_MSG_STATUS_ICON			"reserved://indicator/icons/notify_voicemail"
+#define MSG_SIM_FULL_STATUS_ICON			"reserved://indicator/icons/sim_card_full"
+#endif
 
 #ifndef TIZEN_I586_ENABLED
 /* system string */
