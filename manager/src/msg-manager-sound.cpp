@@ -67,7 +67,7 @@ void MsgMgrStreamStop();
 void MsgMgrGetPlayStatus(bool bOnCall, bool bSound, bool bVibration, bool bMsgSound, bool bMsgVibration, bool *bPlaySound, bool *bPlayVibration);
 
 void MsgMgrSoundPlayMelody(char *pMsgToneFilePath);
-void MsgMgrSoundPlayVibration(char *vibrationPath);
+void MsgMgrSoundPlayVibration();
 
 /*==================================================================================================
 									FUNCTION IMPLEMENTATION
@@ -385,7 +385,7 @@ void MsgMgrSoundPlayStart(const MSG_MGR_ADDRESS_INFO_S *pAddrInfo, MSG_MGR_SOUND
 	}
 
 	if (bPlayVibration)
-		MsgMgrSoundPlayVibration(contactInfo.vibrationPath);
+		MsgMgrSoundPlayVibration();
 
 	if (msg_tone_file_path)
 		delete [] msg_tone_file_path;
@@ -564,7 +564,7 @@ void MsgMgrSoundPlayMelody(char *pMsgToneFilePath)
 }
 
 
-void MsgMgrSoundPlayVibration(char *vibrationPath)
+void MsgMgrSoundPlayVibration()
 {
 	MSG_MGR_BEGIN();
 
