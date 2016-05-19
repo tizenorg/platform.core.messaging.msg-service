@@ -1253,29 +1253,54 @@ void MsgTransactionManager::broadcastReportMsgCB(const msg_error_t err, const ms
 bool MsgTransactionManager::initCynara()
 {
 	int ret;
+	bool result = true;
 
-	ret = cynara_initialize(&p_cynara, NULL);
+	cynara_configuration *p_conf = NULL;
+	size_t cache_size = 100;
 
+	ret = cynara_configuration_create(&p_conf);
+	if (ret != CYNARA_API_SUCCESS) {
+		MSG_ERR("cynara_configuration_create() is failed [%d]", ret);
+		result = false;
+		goto _RETURN_ERR;
+	}
+
+	ret = cynara_configuration_set_cache_size(p_conf, cache_size);
+	if (ret != CYNARA_API_SUCCESS) {
+		MSG_ERR("cynara_configuration_set_cache_size() is failed [%d]", ret);
+		result = false;
+		goto _RETURN_ERR;
+	}
+
+	ret = cynara_initialize(&p_cynara, p_conf);
 	if (ret == CYNARA_API_SUCCESS) {
 		MSG_INFO("cynara_initialize() is successful");
 	} else {
 		MSG_INFO("cynara_initialize() is failed [%d]", ret);
-		return false;
+		result = false;
+		goto _RETURN_ERR;
 	}
 
 	ret = cynara_creds_get_default_client_method(&client_method);
 	if (ret != CYNARA_API_SUCCESS) {
 		MSG_ERR("cynara_creds_get_default_client_method() is failed [%d]", ret);
-		return false;
+		result = false;
+		goto _RETURN_ERR;
 	}
 
 	ret = cynara_creds_get_default_user_method(&user_method);
 	if (ret != CYNARA_API_SUCCESS) {
 		MSG_ERR("cynara_creds_get_default_user_method() is failed [%d]", ret);
-		return false;
+		result = false;
+		goto _RETURN_ERR;
 	}
 
-	return true;
+_RETURN_ERR:
+	if (p_conf) {
+		cynara_configuration_destroy(p_conf);
+	}
+	return result;
+
 }
 
 
