@@ -67,7 +67,7 @@ void thumbnail_completed_cb(thumbnail_util_error_e error, const char *request_id
 	MSG_DEBUG("error_code [%d]", error);
 	MSG_DEBUG("request id [%s]", request_id);
 	MSG_DEBUG("width [%d], height [%d]", thumb_width, thumb_height);
-	MSG_DEBUG("raw_data [0x%x], size [%d]", *thumb_data, thumb_size);
+	MSG_DEBUG("size [%d]", thumb_size);
 
 	int ret = 0;
 	ret = image_util_encode_jpeg(thumb_data, thumb_width, thumb_height, IMAGE_UTIL_COLORSPACE_BGRA8888, 100, (char *)user_data);
