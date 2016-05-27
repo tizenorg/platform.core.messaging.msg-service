@@ -57,6 +57,7 @@ BuildRequires: pkgconfig(vconf)
 BuildRequires: pkgconfig(contacts-service2)
 %endif
 %if "%{?profile}" == "mobile"
+BuildRequires: hash-signer
 BuildRequires: pkgconfig(badge)
 BuildRequires: pkgconfig(callmgr_client)
 BuildRequires: pkgconfig(capi-appfw-application)
@@ -172,6 +173,14 @@ mkdir -p %{buildroot}/etc/config
 
 %make_install
 
+%if "%{?profile}" == "mobile"
+%define tizen_sign 1
+%define tizen_sign_base %{APP_PREFIX}
+%define tizen_sign_level platform
+%define tizen_author_sign 1
+%define tizen_dist_sign 1
+%endif
+
 mkdir -p %{buildroot}%{_unitdir}/multi-user.target.wants
 install -m 0644 %SOURCE1 %{buildroot}%{_unitdir}/msg-server.service
 %install_service multi-user.target.wants msg-server.service
@@ -280,6 +289,8 @@ setfacl -m group:priv_message_write:rw %{TZ_SYS_DATA}/msg-service/ipcdata
 %license LICENSE.APLv2
 %{APP_BINDIR}/msg-manager
 %{APP_MANIFESTDIR}/*.xml
+%{APP_PREFIX}/author-signature.xml
+%{APP_PREFIX}/signature1.xml
 %endif
 
 %changelog
