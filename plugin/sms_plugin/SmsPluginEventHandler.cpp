@@ -103,9 +103,9 @@ void SmsPluginEventHandler::handleSentStatus(msg_network_status_t NetStatus)
 				b = bundle_create();
 				if (b) {
 					if (sentInfo.reqInfo.msgInfo.msgType.mainType == MSG_SMS_TYPE)
-						bundle_add_str(b, EVT_KEY_OUT_MSG_TYPE, EVT_VAL_SMS);
+						bundle_add_str(b, EVT_KEY_OUT_MSG_TYPE, EVT_VAL_OUT_MSG_SMS);
 					else
-						bundle_add_str(b, EVT_KEY_OUT_MSG_TYPE, EVT_VAL_MMS);
+						bundle_add_str(b, EVT_KEY_OUT_MSG_TYPE, EVT_VAL_OUT_MSG_MMS);
 
 					char msgId[MSG_EVENT_MSG_ID_LEN] = {0, };
 					snprintf(msgId, sizeof(msgId), "%u", sentInfo.reqInfo.msgInfo.msgId);

@@ -191,12 +191,6 @@
 #define MSG_TELEPHONY_SMS_FEATURE	"http://tizen.org/feature/network.telephony.sms"
 #define MSG_TELEPHONY_MMS_FEATURE	"http://tizen.org/feature/network.telephony.mms"
 
-/*below defines will be removed */
-#define SYS_EVENT_OUTGOING_MSG "tizen.system.event.outgoing_msg"
-#define EVT_VAL_MMS "mms"
-#define EVT_KEY_OUT_MSG_ID "msg_id"
-#define EVT_KEY_OUT_MSG_TYPE "msg_type"
-
 /*==================================================================================================
                                          TYPES
 ==================================================================================================*/
