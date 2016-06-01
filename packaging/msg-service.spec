@@ -271,7 +271,6 @@ setfacl -m group:priv_message_write:rw %{TZ_SYS_DATA}/msg-service/ipcdata
 %{_unitdir}/multi-user.target.wants/msg-server.service
 %{_unitdir}/msg-server.socket
 %{_unitdir}/sockets.target.wants/msg-server.socket
-/etc/config/*
 
 %files -n sms-plugin
 %manifest sms-plugin.manifest

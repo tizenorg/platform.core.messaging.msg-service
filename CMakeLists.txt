@@ -82,11 +82,8 @@ INSTALL(FILES ${MAPI-HEADERS} DESTINATION include/msg-service)
 CONFIGURE_FILE(msg-service.pc.in msg-service.pc @ONLY)
 INSTALL(FILES ${CMAKE_BINARY_DIR}/msg-service.pc DESTINATION ${LIBDIR}/pkgconfig)
 
-#Install sysinfo file to provide which features are supported.
 IF(_FEATURE_SMS_CDMA)
 	INSTALL(FILES ${CMAKE_SOURCE_DIR}/config/msg-service-db.CDMA.sql DESTINATION /usr/share/msg-service RENAME msg-service-db.sql)
-	INSTALL(FILES ${CMAKE_SOURCE_DIR}/config/sysinfo-message.xml DESTINATION /etc/config)
 ELSE(_FEATURE_SMS_CDMA)
 	INSTALL(FILES ${CMAKE_SOURCE_DIR}/config/msg-service-db.sql DESTINATION /usr/share/msg-service RENAME msg-service-db.sql)
-	INSTALL(FILES ${CMAKE_SOURCE_DIR}/config/sysinfo-message.xml DESTINATION /etc/config)
 ENDIF(_FEATURE_SMS_CDMA)
