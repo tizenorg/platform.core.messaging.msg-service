@@ -31,6 +31,10 @@
 #include <aul.h>
 #include <aul_svc.h>
 
+typedef struct _msg_launch_app_data {
+	char *app_id;
+	bundle *bundle_data;
+} msg_launch_app_data;
 
 #define DEFAULT_MIN_MATCH_DIGIT 8
 
@@ -1239,14 +1243,35 @@ uid_t msg_get_login_user()
 }
 
 
-msg_error_t msg_launch_app(const char *app_id, bundle *bundle_data)
+void* _msg_launch_app(void *data)
 {
-	int ret = aul_launch_app_for_uid(app_id, bundle_data, msg_get_login_user());
-	if (ret <= 0) {
-		MSG_DEBUG("aul_launch_app_for_uid() is failed : %d", ret);
-		return MSG_ERR_UNKNOWN;
+	if (data) {
+		msg_launch_app_data *ad = (msg_launch_app_data *)data;
+		int ret = aul_launch_app_for_uid(ad->app_id, ad->bundle_data, msg_get_login_user());
+		if (ret <= 0) {
+			MSG_DEBUG("aul_launch_app_for_uid() is failed : %d", ret);
+		}
+
+		g_free(ad->app_id);
+		bundle_free(ad->bundle_data);
+		g_free(ad);
 	}
 
+	return NULL;
+}
+
+msg_error_t msg_launch_app(const char *app_id, bundle *bundle_data)
+{
+	msg_launch_app_data *data = (msg_launch_app_data *)calloc(1, sizeof(msg_launch_app_data));
+	data->app_id = g_strdup(app_id);
+	data->bundle_data = bundle_dup(bundle_data);
+	pthread_t thd;
+
+	if (pthread_create(&thd, NULL, &_msg_launch_app, data) < 0) {
+		MSG_DEBUG("pthread_create() error");
+	}
+
+	pthread_detach(thd);
 	return MSG_SUCCESS;
 }
 
