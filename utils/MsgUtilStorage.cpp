@@ -38,7 +38,10 @@ static int msgCntLimit[MSG_COUNT_LIMIT_MAILBOX_TYPE_MAX][MSG_COUNT_LIMIT_MSG_TYP
 
 using namespace std;
 
-#define ITERATION_SIZE 200
+#define CHECK_SIZE 1 * 1024 * 1024 * 1024
+#define RESERVE 100 * 1024 * 1024
+#define RESERVE_LITE 5 * 1024 * 1024
+
 /*==================================================================================================
                                      FUNCTION IMPLEMENTATION
 ==================================================================================================*/
@@ -197,16 +200,25 @@ msg_error_t MsgStoCheckMsgCntFull(MsgDbHandler *pDbHandle, const MSG_MESSAGE_TYP
 
 	boost::system::error_code ec;
 	boost::filesystem::space_info si = boost::filesystem::space(TZ_SYS_HOME_PATH, ec);
+	long long int available = 0;
 
 	if (ec) {
-		MSG_ERR("Faile to get space info [%s]", ec.message().c_str());
+		MSG_ERR("Failed to get space info [%s]", ec.message().c_str());
 		return MSG_ERR_STORAGE_ERROR;
 	} else {
-		MSG_DEBUG("Free space of storage is [%llu] Bytes.", si.available);
+		if (si.capacity < CHECK_SIZE)
+			available = si.available - RESERVE_LITE;
+		else
+			available = si.available - RESERVE;
 
-		if (si.available < SMS_MINIMUM_SPACE && pMsgType->mainType == MSG_SMS_TYPE)
+		if (available < 0)
+			available = 0;
+
+		MSG_DEBUG("Free space of storage is [%llu] Bytes.", available);
+
+		if (available < SMS_MINIMUM_SPACE && pMsgType->mainType == MSG_SMS_TYPE)
 			err = MSG_ERR_MESSAGE_COUNT_FULL;
-		else if (si.available < MMS_MINIMUM_SPACE && pMsgType->mainType == MSG_MMS_TYPE)
+		else if (available < MMS_MINIMUM_SPACE && pMsgType->mainType == MSG_MMS_TYPE)
 			err = MSG_ERR_MESSAGE_COUNT_FULL;
 	}
 
@@ -348,15 +360,24 @@ msg_error_t MsgStocheckMemoryStatus()
 	msg_error_t err = MSG_SUCCESS;
 	boost::system::error_code ec;
 	boost::filesystem::space_info si = boost::filesystem::space(TZ_SYS_HOME_PATH, ec);
+	long long int available = 0;
 
 	if (ec) {
-		MSG_ERR("Faile to get space info [%s]", ec.message().c_str());
+		MSG_ERR("Failed to get space info [%s]", ec.message().c_str());
 		return MSG_ERR_STORAGE_ERROR;
 	}
 
-	MSG_DEBUG("Free space of storage is [%llu] Bytes.", si.available);
+	if (si.capacity < CHECK_SIZE)
+		available = si.available - RESERVE_LITE;
+	else
+		available = si.available - RESERVE;
 
-	if (si.available < SMS_MINIMUM_SPACE)
+	if (available < 0)
+		available = 0;
+
+	MSG_DEBUG("Free space of storage is [%llu] Bytes.", available);
+
+	if (available < SMS_MINIMUM_SPACE)
 		err = MSG_ERR_MESSAGE_COUNT_FULL;
 
 	MSG_DEBUG("Memory status =[%d]", err);
