@@ -1,0 +1,945 @@
+msgid "IDS_COM_BODY_HOME"
+msgstr "自宅"
+
+msgid "IDS_MSGC_POP_DATA_ROAMING_IS_DISABLED_ENABLE_DATA_ROAMING_AND_TRY_AGAIN"
+msgstr "データローミングが無効です。データローミングを有効にしてから、再度実行してください。"
+
+msgid "IDS_MSG_ACBUTTON_CANCEL_ABB"
+msgstr "キャンセル"
+
+msgid "IDS_MSG_ACBUTTON_DONE_ABB"
+msgstr "完了"
+
+msgid "IDS_MSGF_POP_NEW_MESSAGE"
+msgstr "新しいメッセージ"
+
+msgid "IDS_COM_BUTTON_SHARE"
+msgstr "共有"
+
+msgid "IDS_COM_BODY_UNKNOWN"
+msgstr "不明"
+
+msgid "IDS_COM_BODY_MOBILE"
+msgstr "携帯"
+
+msgid "IDS_MSGC_POP_MOBILE_DATA_IS_DISABLED_ENABLE_MOBILE_DATA_AND_TRY_AGAIN"
+msgstr "モバイルデータが無効です。モバイルデータを有効にしてから、再度実行してください。"
+
+msgid "IDS_TPLATFORM_ACBUTTON_SEND_ABB"
+msgstr "送信"
+
+msgid "IDS_MSGC_POP_UNABLE_TO_SEND_MESSAGES_WHILE_IN_FLIGHT_MODE_DISABLE_FLIGHT_MODE_AND_TRY_AGAIN"
+msgstr "機内モードのときは、メッセージを送信できません。機内モードを無効にし、再度お試しください。"
+
+msgid "IDS_MSGC_POP_UNABLE_TO_ADD_FILE_IS_FORWARD_LOCKED"
+msgstr "転送できません。\nファイル転送はロックされています。"
+
+msgid "IDS_MSGC_POP_THERE_IS_NOT_ENOUGH_SPACE_IN_YOUR_DEVICE_STORAGE_GO_TO_SETTINGS_POWER_AND_STORAGE_STORAGE_THEN_DELETE_SOME_FILES_AND_TRY_AGAIN"
+msgstr "システムメモリ(本体)の空き容量が低下しています。[設定] > [電源とストレージ] > [ストレージ]に移動して不要なファイルを削除した後、再度実行してください。"
+
+msgid "IDS_MSGC_POP_TEXT_AT_TOP"
+msgstr "テキスト位置(上)"
+
+msgid "IDS_MSGC_POP_TEXT_AT_BOTTOM"
+msgstr "テキスト位置(下)"
+
+msgid "IDS_MSGC_POP_SELECT_LAYOUT"
+msgstr "レイアウトを選択"
+
+msgid "IDS_MSGC_POP_MMSCANTADD"
+msgstr "コンテンツを追加できません。"
+
+msgid "IDS_MSGC_POP_MESSAGE_SCHEDULED_TO_BE_SENT_TO_PS_SEND_NOW_Q"
+msgstr "メッセージは%sに送信予約されています。今すぐ送信しますか？"
+
+msgid "IDS_MSGC_POP_MAXIMUM_MESSAGE_SIZE_REACHED"
+msgstr "メッセージサイズが大きすぎます。"
+
+msgid "IDS_MSGC_POP_DURATION_MUST_BE_AT_LEAST_PD_SECONDS"
+msgstr "継続時間は%d秒以上である必要があります。"
+
+msgid "IDS_MSGC_POP_DISABLING_FLIGHT_MODE_ING"
+msgstr "機内モードを無効にします..."
+
+msgid "IDS_MSGC_POP_COPIED_TO_SIM_CARD"
+msgstr "SIMカードにコピーしました。"
+
+msgid "IDS_MSGC_OPT_USE_OTHER_CONTACT_INFO_ABB"
+msgstr "他の連絡先情報を使用"
+
+msgid "IDS_MSGC_OPT_SEND_VIA"
+msgstr "送信"
+
+msgid "IDS_MSGC_OPT_IMAGE"
+msgstr "画像"
+
+msgid "IDS_MSGC_OPT_EDIT_ITEM_REPLACE"
+msgstr "置き換え"
+
+msgid "IDS_MSGC_OPT_CANCEL_MESSAGE"
+msgstr "メッセージをキャンセル"
+
+msgid "IDS_MSGC_HEADER_RECIPIENT_LIST"
+msgstr "宛先リスト"
+
+msgid "IDS_MSGC_HEADER_DURATION_FOR_SLIDE_PD_PD"
+msgstr "スライド%d/%dの期間"
+
+msgid "IDS_MSGC_BODY_WAIT_WHILE_ITEMS_ARE_ADDED_TO_SLIDESHOW"
+msgstr "アイテムがスライドショーに追加されるまでしばらくお待ちください。"
+
+msgid "IDS_MSGC_BODY_UNABLE_TO_SEND_MESSAGE"
+msgstr "メッセージを送信できません。"
+
+msgid "IDS_MSGC_BODY_SELECT_RINGTONE"
+msgstr "通知音"
+
+msgid "IDS_MSGC_BODY_READ_REPORT_WILL_BE_SENT"
+msgstr "既読通知が送信されます。"
+
+msgid "IDS_MSGC_BODY_NOT_REQUESTED"
+msgstr "不要"
+
+msgid "IDS_MSGC_BODY_MAXIMUM_NUMBER_OF_RECIPIENTS_HPD_REACHED"
+msgstr "宛先が最大件数（%d）に達しました。"
+
+msgid "IDS_MSGC_BODY_DUPLICATED_RECIPIENT"
+msgstr "宛先が重複しています。"
+
+msgid "IDS_MSGF_SK_FORWARD_LITE"
+msgstr "転送"
+
+msgid "IDS_MSGF_POP_UNABLE_TO_SAVE"
+msgstr "保存できません。"
+
+msgid "IDS_MSGF_POP_UNABLE_TO_DELETE"
+msgstr "削除できません。"
+
+msgid "IDS_MSGF_POP_UNABLE_TO_COPY"
+msgstr "コピーできません。"
+
+msgid "IDS_MSGF_POP_SOME_CHARACTERS_MAY_BE_LOST_CONTINUE_Q"
+msgstr "部分的に内容が失われることがあります。続行しますか?"
+
+msgid "IDS_MSGF_POP_SIM_NOT_INSERTED"
+msgstr "SIMが挿入されていません。"
+
+msgid "IDS_MSGF_POP_SAVING_FAILED"
+msgstr "保存に失敗しました。"
+
+msgid "IDS_MSGF_POP_SAVED_IN_MY_FILES"
+msgstr "マイファイルに保存されました。"
+
+msgid "IDS_MSGF_POP_RETRIEVING_MESSAGE_FAILED"
+msgstr "メッセージの取得に失敗しました。"
+
+msgid "IDS_MSGF_POP_RESTRICTED_CONTENT_TYPE_ATTACH_ANYWAY_Q"
+msgstr "制限されたコンテンツタイプです。添付しますか？"
+
+msgid "IDS_MSGF_POP_RESTORING_ING"
+msgstr "復元中..."
+
+msgid "IDS_MSGF_POP_READ_REPORT"
+msgstr "既読確認"
+
+msgid "IDS_MSGF_POP_NO_NUMBER"
+msgstr "番号なし"
+
+msgid "IDS_MSGF_POP_NO_ATTACHMENTS"
+msgstr "添付ファイルがありません。"
+
+msgid "IDS_MSGF_POP_NEW_MESSAGES"
+msgstr "新着メッセージ"
+
+msgid "IDS_MSGF_POP_MESSAGE_COPIED_FROM_SIM_CARD"
+msgstr "メッセージをSIMカードからコピーしました。"
+
+msgid "IDS_MSGF_POP_MAXIMUM_NUMBER_OF_RECIPIENTS_IS_PD_SOME_RECIPIENTS_MAY_BE_LOST"
+msgstr "受信者の最大%d人まで可能です。一部の受信者を失われた可能性があります。"
+
+msgid "IDS_MSGF_POP_MAXIMUM_NUMBER_OF_ATTACHMENTS_HPS_EXCEEDED"
+msgstr "最大添付ファイル数（%s）を超えています。"
+
+msgid "IDS_MSGF_POP_MAXIMUM_CHARACTERS"
+msgstr "最大文字数に達しました。"
+
+msgid "IDS_MSGF_POP_IN_PROGRESS_ING"
+msgstr "進行中..."
+
+msgid "IDS_MSGF_POP_INTIALISING"
+msgstr "初期化中..."
+
+msgid "IDS_MSGF_POP_IF_YOU_DONT_WANT_TO_REPLACE_THE_FILE_RENAME_IT"
+msgstr "ファイルを置き換えたくない場合は、名前を変更してください。"
+
+msgid "IDS_MSGF_POP_HELP_PAGE_MESSAGE_FOR_ONE_FILE"
+msgstr "このメッセージには非表示の添付ファイルが含まれています。"
+
+msgid "IDS_MSGF_POP_HELP_PAGE_MESSAGE"
+msgstr "このメッセージには非表示の添付ファイルが含まれています。"
+
+msgid "IDS_MSGF_POP_FILE_NAME_ALREADY_EXISTS"
+msgstr "ファイル名が既に登録されています。"
+
+msgid "IDS_MSGF_POP_CONVERTING_TO_TEXT_MESSAGE_ING"
+msgstr "SMSに変換中..."
+
+msgid "IDS_MSGF_POP_CONVERTING_TO_MULTIMEDIA_MESSAGE_ING"
+msgstr "マルチメディアメッセージへ変換中..."
+
+msgid "IDS_MSGF_POP_ABOUT_TO_GO_ONLINE_CONTINUE_Q"
+msgstr "オンラインしようとしています（%s）。続行しますか？"
+
+msgid "IDS_MSGF_OPT_TEXT_MESSAGE"
+msgstr "SMS"
+
+msgid "IDS_MSGF_OPT_SENDER_ABB"
+msgstr "送信者"
+
+msgid "IDS_MSGF_OPT_SAVE_ATTACHMENT"
+msgstr "添付を保存"
+
+msgid "IDS_MSGF_OPT_INSTALL"
+msgstr "インストール"
+
+msgid "IDS_MSGF_OPT_EDIT_MESSAGE"
+msgstr "メッセージを編集"
+
+msgid "IDS_MSGF_OPT_DELETE_MESSAGES"
+msgstr "メッセージを削除"
+
+msgid "IDS_MSGF_HEADER_SELECT_MESSAGES"
+msgstr "メッセージを選択"
+
+msgid "IDS_MSGF_HEADER_SAVE_ALL"
+msgstr "全て保存"
+
+msgid "IDS_MSGF_HEADER_MESSAGE_DETAILS"
+msgstr "メッセージの詳細"
+
+msgid "IDS_MSGF_HEADER_EXPIRES_C_PS"
+msgstr "有効期限： %s"
+
+msgid "IDS_MSGF_BUTTON_SAVE_ALL_ATTACHMENTS_ABB"
+msgstr "全添付ﾌｧｲﾙを保存"
+
+msgid "IDS_MSGF_BODY_TO_C"
+msgstr "宛先："
+
+msgid "IDS_MSGF_BODY_TEXT_MESSAGES"
+msgstr "SMS"
+
+msgid "IDS_MSGF_BODY_SIM_MEMORY_FULL_DELETE_SOME_ITEMS"
+msgstr "SIMのメモリがいっぱいです。不要なアイテムを削除してください。"
+
+msgid "IDS_MSGF_BODY_SENT_M_DATE_C"
+msgstr "送信日時："
+
+msgid "IDS_MSGF_BODY_REQUESTED"
+msgstr "要求しました。"
+
+msgid "IDS_MSGF_BODY_RECEIVED_M_DATE_C"
+msgstr "受信日時："
+
+msgid "IDS_MSGF_BODY_READ_REPORT"
+msgstr "既読確認"
+
+msgid "IDS_MSGF_BODY_PUSH_MESSAGES"
+msgstr "プッシュメッセージ"
+
+msgid "IDS_MSGF_BODY_PD_MESSAGES"
+msgstr "%d件のメッセージ"
+
+msgid "IDS_MSGF_BODY_PD_CONVERSATIONS"
+msgstr "%d件のスレッド"
+
+msgid "IDS_MSGF_BODY_NO_NAME"
+msgstr "名前なし"
+
+msgid "IDS_MSGF_BODY_MULTIMEDIA_MESSAGE_NOTIFICATION"
+msgstr "MMS通知"
+
+msgid "IDS_MSGF_BODY_MULTIMEDIA_MESSAGE"
+msgstr "マルチメディアメッセージ"
+
+msgid "IDS_MSGF_BODY_MMSREADREPLYMSGREAD"
+msgstr "既読"
+
+msgid "IDS_MSGF_BODY_MMSDELIVERYMSGREJECTED"
+msgstr "メッセージが拒否されました。"
+
+msgid "IDS_MSGF_BODY_MMS"
+msgstr "MMS"
+
+msgid "IDS_MSGF_BODY_MESSAGE_SIZE"
+msgstr "メッセージサイズ"
+
+msgid "IDS_MSGF_BODY_MESSAGE_OPTIONS"
+msgstr "メッセージオプション"
+
+msgid "IDS_MSGF_BODY_MESSAGE_DELIVERED"
+msgstr "メッセージ​が​配信​されました"
+
+msgid "IDS_MSGF_BODY_MAXIMUM_NUMBER_OF_ATTACHMENTS_HP1SS_EXCEEDED_ONLY_FIRST_P2SS_WILL_BE_ADDED"
+msgstr "添付ファイルは%1$s件までに制限されています。最初の%2$s件のみ追加されます。"
+
+msgid "IDS_MSGF_BODY_INVALID_RECIPIENT"
+msgstr "無効な宛先です。"
+
+msgid "IDS_MSGF_BODY_FROM"
+msgstr "送信元"
+
+msgid "IDS_MSGF_BODY_FLFROM"
+msgstr "送信元："
+
+msgid "IDS_MSGF_BODY_DETAILSSENDINGFAILED"
+msgstr "送信に失敗しました。"
+
+msgid "IDS_MSGF_BODY_DELIVERY_REPORT"
+msgstr "配信状態"
+
+msgid "IDS_MSGF_BODY_CP_MESSAGES"
+msgstr "CPメッセージ"
+
+msgid "IDS_MSGF_BODY_COPY_TEXT"
+msgstr "テキストをコピー"
+
+msgid "IDS_MSGF_BODY_CB_MESSAGES"
+msgstr "CBメッセージ"
+
+msgid "IDS_MSGF_BODY_1_MESSAGE"
+msgstr "1件のメッセージ"
+
+msgid "IDS_MSGF_BODY_1_CONVERSATION"
+msgstr "1件のスレッド"
+
+msgid "IDS_MSGS_BODY_REQUEST_A_READ_REPORT_FOR_EACH_MESSAGE_YOU_SEND"
+msgstr "送信するメッセージごとに既読確認を要求"
+
+msgid "IDS_MSGS_BODY_REQUEST_A_DELIVERY_REPORT_FOR_EACH_MESSAGE_YOU_SEND"
+msgstr "送信するメッセージごとに配信確認を要求"
+
+msgid "IDS_MSGS_BODY_RADIO_BUTTON"
+msgstr "ラジオボタン"
+
+msgid "IDS_MSGS_BODY_ON_OFF_BUTTON_T_TTS"
+msgstr "ON/OFFボタン"
+
+msgid "IDS_MSGS_BODY_EXPANDABLE_LIST_T_TTS"
+msgstr "拡張できるリストです。"
+
+msgid "IDS_MSGS_BODY_AUTOMATICALLY_RETRIEVE_MMS_MESSAGES"
+msgstr "MMSメッセージを自動受信"
+
+msgid "IDS_MSG_TPOP_UNABLE_TO_PREVIEW_FILE_UNSUPPORTED_FILE_TYPE"
+msgstr "ファイルをプレビューすることができません。未対応のファイルです。"
+
+msgid "IDS_MSG_TPOP_UNABLE_TO_ATTACH_FILE_FILE_FORMAT_NOT_SUPPORTED"
+msgstr "ファイルを添付できません。対応していないファイル形式です。"
+
+msgid "IDS_MSG_TPOP_UNABLE_TO_ADD_SOME_RECIPIENTS_NUMBERS_NOT_VALID"
+msgstr "一部の宛先を追加できません。番号が無効です。"
+
+msgid "IDS_MSG_TPOP_UNABLE_TO_ADD_RECIPIENT_NUMBER_NOT_VALID"
+msgstr "宛先を追加できません。番号が無効です。"
+
+msgid "IDS_MSG_TPOP_UNABLE_TO_ADD_RECIPIENTS_NUMBERS_NOT_VALID"
+msgstr "宛先を追加できません。番号が無効です。"
+
+msgid "IDS_MSG_TPOP_UNABLE_TO_ADD_ATTACHMENT_MAXIMUM_NUMBER_OF_ATTACHMENTS_HPD_REACHED"
+msgstr "添付ファイルを追加できません。添付ファイルの最大件数(%d件)に達しました。"
+
+msgid "IDS_MSG_TPOP_THIS_NUMBER_IS_NOT_VALID"
+msgstr "この番号は無効です。"
+
+msgid "IDS_MSG_TPOP_SOME_RECIPIENTS_ALREADY_ADDED"
+msgstr "一部の宛先は既に追加されています。"
+
+msgid "IDS_MSG_TPOP_SELECTED_MESSAGES_COPIED_TO_MOBILE_DEVICE"
+msgstr "選択したメッセージをモバイル端末にコピーしました。"
+
+msgid "IDS_MSG_TPOP_PD_MESSAGES_MOVED_TO_MESSAGE_LIST"
+msgstr "%d件のメッセージをメッセージリストに移動しました。"
+
+msgid "IDS_MSG_TPOP_NUMBER_REMOVED_FROM_MESSAGE_BLOCK_LIST"
+msgstr "メッセージブロックリストから番号を削除しました。"
+
+msgid "IDS_MSG_TPOP_NUMBER_ADDED_TO_MESSAGE_BLOCK_LIST"
+msgstr "メッセージブロックリストに番号を追加しました。"
+
+msgid "IDS_MSG_TPOP_NETWORK_NOT_AVAILABLE_MESSAGE_WILL_BE_SENT_WHEN_CONNECTED_TO_NETWORK"
+msgstr "ネットワークを利用できません。ネットワークに接続すると、メッセージが送信されます。"
+
+msgid "IDS_MSG_TPOP_MESSAGE_COPIED_TO_PS_SIM_CARD"
+msgstr "メッセージを%sのSIMカードにコピーしました。"
+
+msgid "IDS_MSG_TPOP_MAXIMUM_NUMBER_OF_CHARACTERS_EXCEEDED"
+msgstr "最大文字数に達しました。"
+
+msgid "IDS_MSG_TPOP_MAXIMUM_MESSAGE_SIZE_HPS_EXCEEDED_RESIZING_ATTACHMENTS_ING"
+msgstr "メッセージの最大サイズ(%s)を超えました。添付ファイルのサイズを変更中..."
+
+msgid "IDS_MSG_TPOP_INVALID_CHARACTER_ENTERED"
+msgstr "無効な文字が入力されました。"
+
+msgid "IDS_MSG_TPOP_ADD_RECIPIENTS"
+msgstr "宛先を入力してください。"
+
+msgid "IDS_MSG_TPOP_1_MESSAGE_MOVED_TO_MESSAGE_LIST"
+msgstr "1件のメッセージをメッセージリストに移動しました。"
+
+msgid "IDS_MSG_TMBODY_TEXT_MESSAGES"
+msgstr "SMS"
+
+msgid "IDS_MSG_TMBODY_SOUND"
+msgstr "音"
+
+msgid "IDS_MSG_TMBODY_MULTIMEDIA_MESSAGES"
+msgstr "マルチメディアメッセージ"
+
+msgid "IDS_MSG_TMBODY_MESSAGES_ON_SIM_CARD"
+msgstr "SIMカード内のSMS"
+
+msgid "IDS_MSG_TMBODY_INPUT_MODE"
+msgstr "入力モード"
+
+msgid "IDS_MSG_TMBODY_AUTO_RETRIEVE_WHILE_ROAMING"
+msgstr "ローミング中に自動取得"
+
+msgid "IDS_MSG_TMBODY_AUTO_RETRIEVE"
+msgstr "自動取得"
+
+msgid "IDS_MSG_SK_SEND_NOW"
+msgstr "すぐに送信"
+
+msgid "IDS_MSG_SBODY_SELECT_AN_INPUT_MODE_FOR_COMPOSING_MESSAGES"
+msgstr "SMSを作成する際に使用する入力モードを選択"
+
+msgid "IDS_MSG_SBODY_NONE_M_STATUS"
+msgstr "なし"
+
+msgid "IDS_MSG_SBODY_MANAGE_THE_MESSAGES_STORED_ON_YOUR_SIM_CARD"
+msgstr "SIMカードに保存されたSMSを管理"
+
+msgid "IDS_MSG_POP_UNABLE_TO_SEND_SCHEDULED_MESSAGE_SET_ANOTHER_TIME"
+msgstr "予約メッセージを送信できません。他の時刻を設定してください。"
+
+msgid "IDS_MSG_POP_UNABLE_TO_ATTACH_FILE_FILE_SIZE_TOO_LARGE_TRY_SENDING_VIA_EMAIL_BLUETOOTH_WI_FI_ETC"
+msgstr "ファイルを添付できません。ファイルサイズが大きすぎます。Eメール、Bluetooth、Wi-Fi等で送信してください。"
+
+msgid "IDS_MSG_POP_TO_SEND_THIS_MULTIMEDIA_MESSAGE_THE_DEVICE_WILL_CONNECT_TO_A_DIFFERENT_MOBILE_NETWORK_THIS_WILL_DISCONNECT_YOUR_DEVICE_FROM_YOUR_MSG"
+msgstr "マルチメディアメッセージを送信するため、端末を他のモバイルネットワークに接続します。現在のモバイルネットワークとの接続は解除されます。"
+
+msgid "IDS_MSG_POP_TO_DOWNLOAD_THIS_MULTIMEDIA_MESSAGE_THE_DEVICE_WILL_CONNECT_TO_A_DIFFERENT_MOBILE_NETWORK_MSG"
+msgstr "このマルチメディアメッセージをダウンロードするため、端末を他のモバイルネットワークに接続します。現在のモバイルネットワークとの接続は解除されます。"
+
+msgid "IDS_MSG_POP_THIS_MESSAGE_WILL_BE_RESENT"
+msgstr "このメッセージを再送信します。"
+
+msgid "IDS_MSG_POP_PD_MESSAGES_WILL_BE_DELETED"
+msgstr "%d件のメッセージを削除します。"
+
+msgid "IDS_MSG_POP_PD_CONVERSATIONS_WILL_BE_DELETED"
+msgstr "%d件のスレッドを削除します。"
+
+msgid "IDS_MSG_POP_NO_TEMPLATES_IN_LIST"
+msgstr "リストに定型文がありません。"
+
+msgid "IDS_MSG_POP_INCLUDE_ORIGINAL_TEXT_IN_OUTGOING_MESSAGE"
+msgstr "送信メッセージにオリジナルテキストを含める"
+
+msgid "IDS_MSG_POP_DURATION_MUST_BE_SHORTER_THAN_PD_SECONDS"
+msgstr "持続時間は%d秒未満にする必要があります。"
+
+msgid "IDS_MSG_POP_1_MESSAGE_WILL_BE_DELETED"
+msgstr "1件のメッセージを削除します。"
+
+msgid "IDS_MSG_POP_1_CONVERSATION_WILL_BE_DELETED"
+msgstr "1件のスレッドを削除します。"
+
+msgid "IDS_MSG_OPT_VIEW_DETAILS_ABB"
+msgstr "詳細表示"
+
+msgid "IDS_MSG_OPT_VIEW_CONTACT_DETAILS_ABB"
+msgstr "連絡先の詳細を表示"
+
+msgid "IDS_MSG_OPT_VIEW_AS_SLIDESHOW_ABB"
+msgstr "スライドショーとして表示"
+
+msgid "IDS_MSG_OPT_UPDATE_CONTACT"
+msgstr "連絡先を更新"
+
+msgid "IDS_MSG_OPT_UNICODE"
+msgstr "Unicode"
+
+msgid "IDS_MSG_OPT_TAKE_PICTURE_ABB"
+msgstr "写真を撮影"
+
+msgid "IDS_MSG_OPT_SAVE_ATTACHMENTS_ABB"
+msgstr "添付ファイルを保存"
+
+msgid "IDS_MSG_OPT_RESEND"
+msgstr "再送信"
+
+msgid "IDS_MSG_OPT_REPLY"
+msgstr "返信"
+
+msgid "IDS_MSG_OPT_REMOVE_FROM_BLOCK_LIST_ABB"
+msgstr "ブロックリストから削除"
+
+msgid "IDS_MSG_OPT_RECORD_AUDIO_FILE_ABB"
+msgstr "録音ファイル"
+
+msgid "IDS_MSG_OPT_QUICK_RESPONSE_ABB"
+msgstr "クイック返信"
+
+msgid "IDS_MSG_OPT_MAKE_VOICE_CALL"
+msgstr "音声通話をかける"
+
+msgid "IDS_MSG_OPT_GSM_ALPHABET_ABB"
+msgstr "GSMアルファベット"
+
+msgid "IDS_MSG_OPT_EXPORT_TO_DEVICE_MEMORY"
+msgstr "本体メモリにエクスポート"
+
+msgid "IDS_MSG_OPT_DELETE_MESSAGE"
+msgstr "メッセージを削除"
+
+msgid "IDS_MSG_OPT_DELETE_CONVERSATION_ABB"
+msgstr "スレッドを削除"
+
+msgid "IDS_MSG_OPT_CREATE_CONTACT_ABB"
+msgstr "連絡先を作成"
+
+msgid "IDS_MSG_OPT_COPY_TO_SIM_CARD_ABB"
+msgstr "SIMカードにコピー"
+
+msgid "IDS_MSG_OPT_COPY_TO_DEVICE_ABB"
+msgstr "端末にコピー"
+
+msgid "IDS_MSG_OPT_COPY_TEXT"
+msgstr "テキストをコピー"
+
+msgid "IDS_MSG_OPT_COPY"
+msgstr "コピー"
+
+msgid "IDS_MSG_OPT_BACK_UP"
+msgstr "バックアップ"
+
+msgid "IDS_MSG_OPT_AUTOMATIC"
+msgstr "自動"
+
+msgid "IDS_MSG_OPT_AUDIO_FILES_ABB2"
+msgstr "オーディオファイル"
+
+msgid "IDS_MSG_OPT_ATTACHMENT_ABB"
+msgstr "添付"
+
+msgid "IDS_MSG_OPT_ADD_TO_CONTACTS_ABB"
+msgstr "連絡先に追加"
+
+msgid "IDS_MSG_OPT_ADD_TO_BLOCK_LIST_ABB"
+msgstr "ブロックリストに追加"
+
+msgid "IDS_MSG_OPT_ADD_RECIPIENTS_ABB"
+msgstr "宛先を追加"
+
+msgid "IDS_MSG_NPBODY_SEARCH"
+msgstr "検索"
+
+msgid "IDS_MSG_NPBODY_NO_RESULTS_FOUND_ABB"
+msgstr "検索結果がありません"
+
+msgid "IDS_MSG_NPBODY_NO_QUICK_RESPONSES"
+msgstr "クイック返信がありません"
+
+msgid "IDS_MSG_NPBODY_NO_PHRASES_BLOCKED"
+msgstr "ブロックしたフレーズがありません"
+
+msgid "IDS_MSG_NPBODY_NO_MESSAGES_ON_SIM_CARD"
+msgstr "SIMカードにメッセージがありません"
+
+msgid "IDS_MSG_NPBODY_NO_MESSAGES"
+msgstr "メッセージがありません"
+
+msgid "IDS_MSG_NPBODY_NO_BLOCKED_NUMBERS"
+msgstr "ブロックした番号はありません"
+
+msgid "IDS_MSG_MBODY_VIBRATION"
+msgstr "バイブ"
+
+msgid "IDS_MSG_MBODY_UNKNOWN_NUMBER"
+msgstr "非通知番号"
+
+msgid "IDS_MSG_MBODY_TEXT_MESSAGE_CENTRE_NUMBER_ABB"
+msgstr "テキストメッセージセンター番号"
+
+msgid "IDS_MSG_HEADER_TEXT_MESSAGES_ABB"
+msgstr "SMS"
+
+msgid "IDS_MSG_HEADER_SWITCH_MOBILE_NETWORK_ABB2"
+msgstr "モバイルネットワークの切り替え"
+
+msgid "IDS_MSG_HEADER_SMS_CENTRE_ABB2"
+msgstr "SMSセンター"
+
+msgid "IDS_MSG_HEADER_SELECT_RECIPIENT"
+msgstr "受信者を選択"
+
+msgid "IDS_MSG_HEADER_PD_SELECTED_ABB3"
+msgstr "%d件選択"
+
+msgid "IDS_MSG_HEADER_MESSAGES_ON_SIM_CARD_ABB"
+msgstr "SIMカード内のSMS"
+
+msgid "IDS_MSG_HEADER_INPUT_MODE_ABB"
+msgstr "入力モード"
+
+msgid "IDS_MSG_HEADER_FILE_SIZE_TOO_LARGE_ABB"
+msgstr "ファイルサイズ超過"
+
+msgid "IDS_MSG_HEADER_FAILED_TO_SEND_MESSAGE_ABB"
+msgstr "メッセージの送信に失敗"
+
+msgid "IDS_MSG_HEADER_DISCARD_MESSAGE_M_CLOSE_ABB"
+msgstr "メッセージを破棄"
+
+msgid "IDS_MSG_HEADER_CREATE"
+msgstr "作成"
+
+msgid "IDS_MSG_HEADER_ADD_CONTENT_ABB"
+msgstr "コンテンツを追加"
+
+msgid "IDS_MSG_BUTTON_SWITCH_ABB2"
+msgstr "切替"
+
+msgid "IDS_MSG_BUTTON_SAVE_ABB2"
+msgstr "保存"
+
+msgid "IDS_MSG_BUTTON_RESEND_ABB"
+msgstr "再送信"
+
+msgid "IDS_MSG_BUTTON_DISCARD_ABB"
+msgstr "破棄"
+
+msgid "IDS_MSG_BUTTON_DELETE_ABB4"
+msgstr "削除"
+
+msgid "IDS_MSG_BUTTON_CANCEL_ABB2"
+msgstr "キャンセル"
+
+msgid "IDS_MSG_BUTTON2_CONTACTS_ABB_M_APPLICATION_NAME"
+msgstr "連絡先"
+
+msgid "IDS_MSG_BODY_YOU_HAVE_SELECTED_A_SOUND_N_SHOT_FILE_SOUND_DATA_IS_NOT_SUPPORTED_FOR_MMS_SO_ONLY_THE_PICTURE_WILL_BE_ATTACHED"
+msgstr "サウンド&ショットファイルが選択されました。サウンドデータはMMSに対応していないため、写真のみ添付されます。"
+
+msgid "IDS_MSG_BODY_WAITING_TO_SEND_ING_M_STATUS"
+msgstr "送信を待機中..."
+
+msgid "IDS_MSG_BODY_UNABLE_TO_SEND_THIS_MESSAGE_INSERT_YOUR_SIM_CARD_AND_TRY_AGAIN"
+msgstr "メッセージを送信することができません。SIMカードを挿入し、再度実行してください。"
+
+msgid "IDS_MSG_BODY_TYPE_C"
+msgstr "タイプ："
+
+msgid "IDS_MSG_BODY_TO_USE_RESTRICTED_MEDIA_TYPES_CHANGE_YOUR_MMS_CREATION_MODE_SETTING"
+msgstr "制限されたメディアタイプを使用するには、MMS作成モード設定を変更してください。"
+
+msgid "IDS_MSG_BODY_TIME_SENT_C"
+msgstr "送信時刻:"
+
+msgid "IDS_MSG_BODY_TIME_RECEIVED_C"
+msgstr "受信時刻:"
+
+msgid "IDS_MSG_BODY_STATUS_C"
+msgstr "ステータス："
+
+msgid "IDS_MSG_BODY_SENT_M_STATUS"
+msgstr "送信済み"
+
+msgid "IDS_MSG_BODY_SENDING_ING_M_STATUS_ABB"
+msgstr "送信中..."
+
+msgid "IDS_MSG_BODY_SENDING_FAILED_M_STATUS"
+msgstr "送信失敗"
+
+msgid "IDS_MSG_BODY_RETRIEVE_MESSAGES_AUTOMATICALLY_WHILE_ROAMING"
+msgstr "ローミング中にメッセージを自動取得"
+
+msgid "IDS_MSG_BODY_RETRIEVE_MESSAGES_AUTOMATICALLY"
+msgstr "メッセージを自動取得"
+
+msgid "IDS_MSG_BODY_READ_REPORT_C_PS"
+msgstr "既読確認: %s"
+
+msgid "IDS_MSG_BODY_OTHER_PERSON"
+msgstr "相手"
+
+msgid "IDS_MSG_BODY_MEMO_T_MAINMENU"
+msgstr "メモ"
+
+msgid "IDS_MSG_BODY_FAILED_M_STATUS_ABB2"
+msgstr "送信失敗"
+
+msgid "IDS_MSG_BODY_ENTER_TEXT_M_NOUN"
+msgstr "テキストを入力"
+
+msgid "IDS_MSG_BODY_DRAFT_M_STATUS_ABB"
+msgstr "下書き"
+
+msgid "IDS_MSG_BODY_DELIVERY_REPORT_C_PS"
+msgstr "配信確認: %s"
+
+msgid "IDS_MSG_BODY_CB_MESSAGE"
+msgstr "CBメッセージ"
+
+msgid "IDS_MSG_BODY_CALENDAR_M_APPLICATION_NAME_ABB"
+msgstr "カレンダー"
+
+msgid "IDS_MSG_BODY_AFTER_YOU_SEND_OR_RECEIVE_MESSAGES_THEY_WILL_BE_SHOWN_HERE"
+msgstr "メッセージを送受信すると、ここに表示されます。"
+
+msgid "IDS_MSG_BODY_AFTER_YOU_CREATE_QUICK_RESPONSES_THEY_WILL_BE_SHOWN_HERE"
+msgstr "クイック返信を作成すると、ここに表示されます。"
+
+msgid "IDS_MSG_BODY_AFTER_YOU_COPY_MESSAGES_TO_THE_SIM_CARD_THEY_WILL_BE_SHOWN_HERE"
+msgstr "メッセージをSIMカードにコピーすると、ここに表示されます。"
+
+msgid "IDS_MSG_BODY_AFTER_YOU_ADD_PHRASES_THEY_WILL_BE_SHOWN_HERE"
+msgstr "フレーズを追加すると、ここに表示されます。"
+
+msgid "IDS_MSG_BODY_AFTER_YOU_ADD_NUMBERS_TO_THE_MESSAGE_BLOCK_LIST_THEY_WILL_BE_SHOWN_HERE"
+msgstr "メッセージブロックリストに番号を追加すると、ここに表示されます。"
+
+msgid "IDS_MSG_ACBUTTON_DELETE_ABB"
+msgstr "削除"
+
+msgid "IDS_MSGC_POP_UNSUPPORTED_MEDIA_TYPE"
+msgstr "未対応のメディアです。"
+
+msgid "IDS_MSGC_POP_LOW_BATTERY"
+msgstr "バッテリー残量が不足しています。"
+
+msgid "IDS_MSGC_POP_CANCELLED"
+msgstr "キャンセルしました。"
+
+msgid "IDS_MSGC_OPT_EMAIL"
+msgstr "Eメール"
+
+msgid "IDS_MSGC_OPT_EDITITEM_VIEW"
+msgstr "表示"
+
+msgid "IDS_MSGC_OPT_EDITITEM_REMOVE"
+msgstr "削除"
+
+msgid "IDS_MSGC_OPT_EDITITEM_PLAY"
+msgstr "再生"
+
+msgid "IDS_MSGC_OPT_CHANGE_RECIPIENTS_TO"
+msgstr "宛先"
+
+msgid "IDS_MSGC_HEADER_PREVIEW"
+msgstr "プレビュー"
+
+msgid "IDS_MSGC_BODY_ENTER_SUBJECT"
+msgstr "件名を入力"
+
+msgid "IDS_MSGF_POP_UNABLE_TO_FIND_LOCATION"
+msgstr "現在地を検索できません。"
+
+msgid "IDS_MSGF_POP_REJECTED"
+msgstr "拒否しました。"
+
+msgid "IDS_MSGF_POP_DELETING"
+msgstr "削除中..."
+
+msgid "IDS_MSGF_POP_COPIED_TO_CLIPBOARD"
+msgstr "クリップボードにコピーしました。"
+
+msgid "IDS_MSGF_POP_BLOCK_PS_Q"
+msgstr "%sをブロックしますか？"
+
+msgid "IDS_MSGF_OPT_SUBJECT_COLON"
+msgstr "件名:"
+
+msgid "IDS_MSGF_OPT_SENDER_VIA_EMAIL"
+msgstr "Eメールで送信"
+
+msgid "IDS_MSGF_OPT_SELECT"
+msgstr "選択"
+
+msgid "IDS_MSGF_OPT_SAVE"
+msgstr "保存"
+
+msgid "IDS_MSGF_OPT_REMOVE"
+msgstr "削除"
+
+msgid "IDS_MSGF_OPT_FORWARD"
+msgstr "転送"
+
+msgid "IDS_MSGF_OPT_DELETE_Q"
+msgstr "削除しますか？"
+
+msgid "IDS_MSGF_HEADER_ADVANCED_SEARCH"
+msgstr "詳細検索"
+
+msgid "IDS_MSGF_BODY_UNKNOWN"
+msgstr "不明"
+
+msgid "IDS_MSGF_BODY_SETTINGS"
+msgstr "設定"
+
+msgid "IDS_MSGF_BODY_RECIPIENTS"
+msgstr "宛先"
+
+msgid "IDS_MSGF_BODY_RECEIVED"
+msgstr "受信完了"
+
+msgid "IDS_MSGF_BODY_OTHER"
+msgstr "その他"
+
+msgid "IDS_MSGF_BODY_NO_SUBJECT"
+msgstr "件名なし"
+
+msgid "IDS_MSGF_BODY_MSGSIZE_KB"
+msgstr "KB"
+
+msgid "IDS_MSGF_BODY_MESSAGE"
+msgstr "メッセージ"
+
+msgid "IDS_MSGF_BODY_ME"
+msgstr "自分"
+
+msgid "IDS_MSGF_BODY_EXPIRED"
+msgstr "期限切れ"
+
+msgid "IDS_MSGF_BODY_ALL"
+msgstr "全て"
+
+msgid "IDS_MSG_SK_NO_ABB"
+msgstr "いいえ"
+
+msgid "IDS_MSG_POP_YOUR_MESSAGE_WILL_BE_DISCARDED_NO_RECIPIENTS_HAVE_BEEN_SELECTED"
+msgstr "宛先が選択されていないため、メッセージが破棄されます。"
+
+msgid "IDS_MSG_POP_UNABLE_TO_PLAY_DURING_CALL"
+msgstr "通話中は再生できません。"
+
+msgid "IDS_MSG_POP_INCOMING_MESSAGES_ONLY"
+msgstr "受信メッセージのみ"
+
+msgid "IDS_MSG_POP_DELETED"
+msgstr "削除しました。"
+
+msgid "IDS_MSG_OPT_VIDEOS"
+msgstr "動画"
+
+msgid "IDS_MSG_OPT_TEXT"
+msgstr "テキスト"
+
+msgid "IDS_MSG_OPT_SETTINGS"
+msgstr "設定"
+
+msgid "IDS_MSG_OPT_SEARCH"
+msgstr "検索"
+
+msgid "IDS_MSG_OPT_RECORD_VIDEO_ABB"
+msgstr "録画"
+
+msgid "IDS_MSG_OPT_NONE"
+msgstr "なし"
+
+msgid "IDS_MSG_OPT_IMAGES"
+msgstr "画像"
+
+msgid "IDS_MSG_OPT_EDIT"
+msgstr "編集"
+
+msgid "IDS_MSG_OPT_DELETE"
+msgstr "削除"
+
+msgid "IDS_MSG_OPT_DEFAULT"
+msgstr "標準"
+
+msgid "IDS_MSG_MBODY_SELECT_ALL"
+msgstr "全て選択"
+
+msgid "IDS_MSG_MBODY_ALERTS"
+msgstr "通知"
+
+msgid "IDS_MSG_HEADER_TRANSLATE"
+msgstr "翻訳"
+
+msgid "IDS_MSG_HEADER_SETTINGS"
+msgstr "設定"
+
+msgid "IDS_MSG_HEADER_MESSAGES"
+msgstr "メッセージ"
+
+msgid "IDS_MSG_HEADER_DELETE"
+msgstr "削除"
+
+msgid "IDS_MSG_HEADER_ATTENTION"
+msgstr "注意"
+
+msgid "IDS_MSG_BUTTON_REMOVE_ABB"
+msgstr "削除"
+
+msgid "IDS_MSG_BUTTON_OK_ABB"
+msgstr "OK"
+
+msgid "IDS_MSG_BUTTON_DOWNLOAD_ABB3"
+msgstr "ﾀﾞｳﾝﾛｰﾄﾞ"
+
+msgid "IDS_MSG_BUTTON_CANCEL_ABB"
+msgstr "ｷｬﾝｾﾙ"
+
+msgid "IDS_MSG_BODY_YES"
+msgstr "はい"
+
+msgid "IDS_MSG_BODY_TICK_BOX_T_TTS"
+msgstr "チェックボックス"
+
+msgid "IDS_MSG_BODY_SEC"
+msgstr "秒"
+
+msgid "IDS_MSG_BODY_MESSAGE"
+msgstr "メッセージ"
+
+msgid "IDS_MSG_BUTTON_SEND_ABB5"
+msgstr "送信"
+
+msgid "IDS_MSG_BUTTON_SEND_ABB3"
+msgstr "送信"
+
+msgid "IDS_MSG_ACBUTTON_SEND_ABB3"
+msgstr "送信"
+
+msgid "IDS_ST_BODY_LOADING_ING"
+msgstr "読み込み中..."
+
+msgid "IDS_MSGS_BODY_NOTIFICATIONS"
+msgstr "通知"
+
+msgid "IDS_MSG_HEADER_ME"
+msgstr "自分"
+
+msgid "IDS_MSG_BODY_UNKNOWN"
+msgstr "不明"
+
+msgid "IDS_MSG_TMBODY_ADD_OR_REMOVE_RECIPIENTS"
+msgstr "宛先を追加または削除"
+
+msgid "IDS_MSG_POP_THE_SENDER_HAS_REQUESTED_A_READ_REPORT_TAP_SEND_TO_SEND_ONE"
+msgstr "送信者が既読確認を要求しています。既読確認を送信するには、[送信]をタップしてください。"
+
+msgid "IDS_MSGF_OPT_SEND_READ_REPORT"
+msgstr "既読通知を送信"
+
+msgid "IDS_MSG_HEADER_COMPOSE_MESSAGE_ABB"
+msgstr "メッセージを作成"
+
+msgid "IDS_MSG_POP_NO_VALID_RECIPIENTS_HAVE_BEEN_ADDED_THIS_MESSAGE_WILL_BE_DISCARDED"
+msgstr "有効な宛先が追加されていません。このメッセージを破棄します。"
+

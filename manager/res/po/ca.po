@@ -1,0 +1,945 @@
+msgid "IDS_COM_BODY_HOME"
+msgstr "Casa"
+
+msgid "IDS_MSGC_POP_DATA_ROAMING_IS_DISABLED_ENABLE_DATA_ROAMING_AND_TRY_AGAIN"
+msgstr "La itinerància de dades està deshabilitada. Habiliti-la i torni-ho a intentar."
+
+msgid "IDS_MSG_ACBUTTON_CANCEL_ABB"
+msgstr "CANCEL·LAR"
+
+msgid "IDS_MSG_ACBUTTON_DONE_ABB"
+msgstr "REALITZAT"
+
+msgid "IDS_MSGF_POP_NEW_MESSAGE"
+msgstr "Nou missatge"
+
+msgid "IDS_COM_BUTTON_SHARE"
+msgstr "Compart"
+
+msgid "IDS_COM_BODY_UNKNOWN"
+msgstr "Desconegut"
+
+msgid "IDS_COM_BODY_MOBILE"
+msgstr "Mòbil"
+
+msgid "IDS_MSGC_POP_MOBILE_DATA_IS_DISABLED_ENABLE_MOBILE_DATA_AND_TRY_AGAIN"
+msgstr "Les dades mòbils estan deshabilitades. Habiliti-les i torni-ho a intentar."
+
+msgid "IDS_TPLATFORM_ACBUTTON_SEND_ABB"
+msgstr "ENVIAR"
+
+msgid "IDS_MSGC_POP_UNABLE_TO_SEND_MESSAGES_WHILE_IN_FLIGHT_MODE_DISABLE_FLIGHT_MODE_AND_TRY_AGAIN"
+msgstr "No es poden enviar missatges durant el mode Vol. Deshabiliti el mode Vol i torni-ho a intentar."
+
+msgid "IDS_MSGC_POP_UNABLE_TO_ADD_FILE_IS_FORWARD_LOCKED"
+msgstr "No es pot reenviar.\nEl fitxer està bloquejat per a reenviaments"
+
+msgid "IDS_MSGC_POP_THERE_IS_NOT_ENOUGH_SPACE_IN_YOUR_DEVICE_STORAGE_GO_TO_SETTINGS_POWER_AND_STORAGE_STORAGE_THEN_DELETE_SOME_FILES_AND_TRY_AGAIN"
+msgstr "No hi ha prou espai a l'emmagatzematge del seu dispositiu. Vagi a Ajustaments > Energia i emmagatzematge > Emmagatzematge i esborri alguns fitxers i torni-ho a intentar."
+
+msgid "IDS_MSGC_POP_TEXT_AT_TOP"
+msgstr "Text a la part superior"
+
+msgid "IDS_MSGC_POP_TEXT_AT_BOTTOM"
+msgstr "Text a la part inferior"
+
+msgid "IDS_MSGC_POP_SELECT_LAYOUT"
+msgstr "Seleccionar disseny"
+
+msgid "IDS_MSGC_POP_MMSCANTADD"
+msgstr "No es pot afegir contingut"
+
+msgid "IDS_MSGC_POP_MESSAGE_SCHEDULED_TO_BE_SENT_TO_PS_SEND_NOW_Q"
+msgstr "Missatge programat per enviar-se a %s. Enviar ara?"
+
+msgid "IDS_MSGC_POP_MAXIMUM_MESSAGE_SIZE_REACHED"
+msgstr "S'ha assolit la mida màxima de missatge"
+
+msgid "IDS_MSGC_POP_DURATION_MUST_BE_AT_LEAST_PD_SECONDS"
+msgstr "La durada ha de ser d'almenys %d segons"
+
+msgid "IDS_MSGC_POP_DISABLING_FLIGHT_MODE_ING"
+msgstr "Deshabilitant mode Vol..."
+
+msgid "IDS_MSGC_POP_COPIED_TO_SIM_CARD"
+msgstr "Copiat a targeta SIM."
+
+msgid "IDS_MSGC_OPT_USE_OTHER_CONTACT_INFO_ABB"
+msgstr "Util info altres cont"
+
+msgid "IDS_MSGC_OPT_SEND_VIA"
+msgstr "Enviar mitjançant"
+
+msgid "IDS_MSGC_OPT_IMAGE"
+msgstr "Imatge"
+
+msgid "IDS_MSGC_OPT_EDIT_ITEM_REPLACE"
+msgstr "Substituir"
+
+msgid "IDS_MSGC_OPT_CANCEL_MESSAGE"
+msgstr "Cancel·lar missatge"
+
+msgid "IDS_MSGC_HEADER_RECIPIENT_LIST"
+msgstr "Llista destinataris"
+
+msgid "IDS_MSGC_HEADER_DURATION_FOR_SLIDE_PD_PD"
+msgstr "Durada de la diapositiva %d/%d"
+
+msgid "IDS_MSGC_BODY_WAIT_WHILE_ITEMS_ARE_ADDED_TO_SLIDESHOW"
+msgstr "Esperi mentre s'afegeixen elements a la presentació de diapositives"
+
+msgid "IDS_MSGC_BODY_UNABLE_TO_SEND_MESSAGE"
+msgstr "No es pot enviar el missatge"
+
+msgid "IDS_MSGC_BODY_SELECT_RINGTONE"
+msgstr "Seleccionar melodia"
+
+msgid "IDS_MSGC_BODY_READ_REPORT_WILL_BE_SENT"
+msgstr "S'enviarà un informe de lectura"
+
+msgid "IDS_MSGC_BODY_NOT_REQUESTED"
+msgstr "No sol·licitat"
+
+msgid "IDS_MSGC_BODY_MAXIMUM_NUMBER_OF_RECIPIENTS_HPD_REACHED"
+msgstr "S'ha assolit el nombre màxim de destinataris (%d)"
+
+msgid "IDS_MSGC_BODY_DUPLICATED_RECIPIENT"
+msgstr "Destinatari duplicat"
+
+msgid "IDS_MSGF_SK_FORWARD_LITE"
+msgstr "Reenv"
+
+msgid "IDS_MSGF_POP_UNABLE_TO_SAVE"
+msgstr "No es poden desar"
+
+msgid "IDS_MSGF_POP_UNABLE_TO_DELETE"
+msgstr "No es pot esborrar"
+
+msgid "IDS_MSGF_POP_UNABLE_TO_COPY"
+msgstr "No es pot copiar"
+
+msgid "IDS_MSGF_POP_SOME_CHARACTERS_MAY_BE_LOST_CONTINUE_Q"
+msgstr "Es poden perdre alguns caràcters.\nVol continuar?"
+
+msgid "IDS_MSGF_POP_SIM_NOT_INSERTED"
+msgstr "No s'ha inserit SIM"
+
+msgid "IDS_MSGF_POP_SAVING_FAILED"
+msgstr "Error en desar"
+
+msgid "IDS_MSGF_POP_SAVED_IN_MY_FILES"
+msgstr "Desat a Els meus fitxers"
+
+msgid "IDS_MSGF_POP_RETRIEVING_MESSAGE_FAILED"
+msgstr "Error en recuperar missatge"
+
+msgid "IDS_MSGF_POP_RESTRICTED_CONTENT_TYPE_ATTACH_ANYWAY_Q"
+msgstr "Tipus de contingut restringit. Adjuntar igualment?"
+
+msgid "IDS_MSGF_POP_RESTORING_ING"
+msgstr "Restaurant..."
+
+msgid "IDS_MSGF_POP_READ_REPORT"
+msgstr "Informe de lectura"
+
+msgid "IDS_MSGF_POP_NO_NUMBER"
+msgstr "Sense número"
+
+msgid "IDS_MSGF_POP_NO_ATTACHMENTS"
+msgstr "Sense adjunts"
+
+msgid "IDS_MSGF_POP_NEW_MESSAGES"
+msgstr "Nous missatges"
+
+msgid "IDS_MSGF_POP_MESSAGE_COPIED_FROM_SIM_CARD"
+msgstr "S'ha copiat el missatge de la targeta SIM"
+
+msgid "IDS_MSGF_POP_MAXIMUM_NUMBER_OF_RECIPIENTS_IS_PD_SOME_RECIPIENTS_MAY_BE_LOST"
+msgstr "El nombre màxim de destinataris es %d. Es poden perdre alguns recipients."
+
+msgid "IDS_MSGF_POP_MAXIMUM_NUMBER_OF_ATTACHMENTS_HPS_EXCEEDED"
+msgstr "S'ha excedit el nombre màxim de fitxers adjunts (%s)"
+
+msgid "IDS_MSGF_POP_MAXIMUM_CHARACTERS"
+msgstr "S'ha assolit el nombre màxim de caràcters"
+
+msgid "IDS_MSGF_POP_IN_PROGRESS_ING"
+msgstr "En curs..."
+
+msgid "IDS_MSGF_POP_INTIALISING"
+msgstr "Inicialitzant..."
+
+msgid "IDS_MSGF_POP_IF_YOU_DONT_WANT_TO_REPLACE_THE_FILE_RENAME_IT"
+msgstr "Si no vol substituir el fitxer, canviï-li el nom"
+
+msgid "IDS_MSGF_POP_HELP_PAGE_MESSAGE_FOR_ONE_FILE"
+msgstr "Aquest missatge inclou un fitxer adjunt que no es mostra"
+
+msgid "IDS_MSGF_POP_HELP_PAGE_MESSAGE"
+msgstr "Aquest missatge inclou fitxers adjunts que no es mostren"
+
+msgid "IDS_MSGF_POP_FILE_NAME_ALREADY_EXISTS"
+msgstr "El nom de fitxer ja existeix"
+
+msgid "IDS_MSGF_POP_CONVERTING_TO_TEXT_MESSAGE_ING"
+msgstr "Convertint a missatge de text..."
+
+msgid "IDS_MSGF_POP_CONVERTING_TO_MULTIMEDIA_MESSAGE_ING"
+msgstr "S'està convertint a missatge multimèdia..."
+
+msgid "IDS_MSGF_POP_ABOUT_TO_GO_ONLINE_CONTINUE_Q"
+msgstr "Està a punt de connectar-se (%s). Vol continuar?"
+
+msgid "IDS_MSGF_OPT_TEXT_MESSAGE"
+msgstr "Missatge de text"
+
+msgid "IDS_MSGF_OPT_SENDER_ABB"
+msgstr "Remitent"
+
+msgid "IDS_MSGF_OPT_SAVE_ATTACHMENT"
+msgstr "Desar annex"
+
+msgid "IDS_MSGF_OPT_INSTALL"
+msgstr "Instal·lar"
+
+msgid "IDS_MSGF_OPT_EDIT_MESSAGE"
+msgstr "Editar missatge"
+
+msgid "IDS_MSGF_OPT_DELETE_MESSAGES"
+msgstr "Esborrar missatges"
+
+msgid "IDS_MSGF_HEADER_SELECT_MESSAGES"
+msgstr "Seleccionar missatges"
+
+msgid "IDS_MSGF_HEADER_SAVE_ALL"
+msgstr "Desar-ho tot"
+
+msgid "IDS_MSGF_HEADER_MESSAGE_DETAILS"
+msgstr "Detalls del missatge"
+
+msgid "IDS_MSGF_HEADER_EXPIRES_C_PS"
+msgstr "Caduca: %s"
+
+msgid "IDS_MSGF_BUTTON_SAVE_ALL_ATTACHMENTS_ABB"
+msgstr "Desar tots fitx adj"
+
+msgid "IDS_MSGF_BODY_TO_C"
+msgstr "A:"
+
+msgid "IDS_MSGF_BODY_TEXT_MESSAGES"
+msgstr "Missatges de text"
+
+msgid "IDS_MSGF_BODY_SIM_MEMORY_FULL_DELETE_SOME_ITEMS"
+msgstr "Memòria SIM plena. Esborri'n alguns elements."
+
+msgid "IDS_MSGF_BODY_SENT_M_DATE_C"
+msgstr "Enviat:"
+
+msgid "IDS_MSGF_BODY_REQUESTED"
+msgstr "Sol·licitat"
+
+msgid "IDS_MSGF_BODY_RECEIVED_M_DATE_C"
+msgstr "Rebut:"
+
+msgid "IDS_MSGF_BODY_READ_REPORT"
+msgstr "Informe de lectura"
+
+msgid "IDS_MSGF_BODY_PUSH_MESSAGES"
+msgstr "Missatges Push"
+
+msgid "IDS_MSGF_BODY_PD_MESSAGES"
+msgstr "%d missatges"
+
+msgid "IDS_MSGF_BODY_PD_CONVERSATIONS"
+msgstr "%d converses"
+
+msgid "IDS_MSGF_BODY_NO_NAME"
+msgstr "Sense nom"
+
+msgid "IDS_MSGF_BODY_MULTIMEDIA_MESSAGE_NOTIFICATION"
+msgstr "Notificació de missatge multimèdia"
+
+msgid "IDS_MSGF_BODY_MULTIMEDIA_MESSAGE"
+msgstr "Missatge multimèdia"
+
+msgid "IDS_MSGF_BODY_MMSREADREPLYMSGREAD"
+msgstr "Llegir"
+
+msgid "IDS_MSGF_BODY_MMSDELIVERYMSGREJECTED"
+msgstr "Missatge rebutjat"
+
+msgid "IDS_MSGF_BODY_MMS"
+msgstr "MMS"
+
+msgid "IDS_MSGF_BODY_MESSAGE_SIZE"
+msgstr "Mida del missatge"
+
+msgid "IDS_MSGF_BODY_MESSAGE_OPTIONS"
+msgstr "Opcions de missatge"
+
+msgid "IDS_MSGF_BODY_MESSAGE_DELIVERED"
+msgstr "Missatge entregat"
+
+msgid "IDS_MSGF_BODY_MAXIMUM_NUMBER_OF_ATTACHMENTS_HP1SS_EXCEEDED_ONLY_FIRST_P2SS_WILL_BE_ADDED"
+msgstr "S'ha superat el nombre màxim de fitxers adjunts (%1$s). Només s'afegiran els primers %2$s."
+
+msgid "IDS_MSGF_BODY_INVALID_RECIPIENT"
+msgstr "Destinatari no vàlid"
+
+msgid "IDS_MSGF_BODY_FROM"
+msgstr "De"
+
+msgid "IDS_MSGF_BODY_FLFROM"
+msgstr "De:"
+
+msgid "IDS_MSGF_BODY_DETAILSSENDINGFAILED"
+msgstr "Error en enviar"
+
+msgid "IDS_MSGF_BODY_DELIVERY_REPORT"
+msgstr "Informe de lliurament"
+
+msgid "IDS_MSGF_BODY_CP_MESSAGES"
+msgstr "Missatges CP"
+
+msgid "IDS_MSGF_BODY_COPY_TEXT"
+msgstr "Copiar text"
+
+msgid "IDS_MSGF_BODY_CB_MESSAGES"
+msgstr "Missatges CB"
+
+msgid "IDS_MSGF_BODY_1_MESSAGE"
+msgstr "1 missatge"
+
+msgid "IDS_MSGF_BODY_1_CONVERSATION"
+msgstr "1 conversa"
+
+msgid "IDS_MSGS_BODY_REQUEST_A_READ_REPORT_FOR_EACH_MESSAGE_YOU_SEND"
+msgstr "Sol·licitar un informe de lectura per cada missatge que enviï"
+
+msgid "IDS_MSGS_BODY_REQUEST_A_DELIVERY_REPORT_FOR_EACH_MESSAGE_YOU_SEND"
+msgstr "Sol·licitar un informe d'enviament per cada missatge que enviï"
+
+msgid "IDS_MSGS_BODY_RADIO_BUTTON"
+msgstr "Botó de ràdio"
+
+msgid "IDS_MSGS_BODY_ON_OFF_BUTTON_T_TTS"
+msgstr "Botó activat/desactivat"
+
+msgid "IDS_MSGS_BODY_EXPANDABLE_LIST_T_TTS"
+msgstr "Llista ampliable"
+
+msgid "IDS_MSGS_BODY_AUTOMATICALLY_RETRIEVE_MMS_MESSAGES"
+msgstr "Recuperar missatges MMS automàticament"
+
+msgid "IDS_MSG_TPOP_UNABLE_TO_PREVIEW_FILE_UNSUPPORTED_FILE_TYPE"
+msgstr "No es pot previsualitzar el fitxer. Tipus de fitxer no compatible."
+
+msgid "IDS_MSG_TPOP_UNABLE_TO_ATTACH_FILE_FILE_FORMAT_NOT_SUPPORTED"
+msgstr "No es pot afegir el fitxer com a adjunt. Tipus de fitxer no compatible."
+
+msgid "IDS_MSG_TPOP_UNABLE_TO_ADD_SOME_RECIPIENTS_NUMBERS_NOT_VALID"
+msgstr "No es poden afegir alguns destinataris. Números no vàlids."
+
+msgid "IDS_MSG_TPOP_UNABLE_TO_ADD_RECIPIENT_NUMBER_NOT_VALID"
+msgstr "No es pot afegir el destinatari. Número no vàlid."
+
+msgid "IDS_MSG_TPOP_UNABLE_TO_ADD_RECIPIENTS_NUMBERS_NOT_VALID"
+msgstr "No es poden afegir destinataris. Números no vàlids."
+
+msgid "IDS_MSG_TPOP_UNABLE_TO_ADD_ATTACHMENT_MAXIMUM_NUMBER_OF_ATTACHMENTS_HPD_REACHED"
+msgstr "No es poden afegir més fitxers adjunts. S'ha assolit el nombre màxim de fitxers adjunts (%d)."
+
+msgid "IDS_MSG_TPOP_THIS_NUMBER_IS_NOT_VALID"
+msgstr "Aquest número no és vàlid."
+
+msgid "IDS_MSG_TPOP_SOME_RECIPIENTS_ALREADY_ADDED"
+msgstr "Alguns destinataris ja s'han afegit."
+
+msgid "IDS_MSG_TPOP_SELECTED_MESSAGES_COPIED_TO_MOBILE_DEVICE"
+msgstr "Els missatges seleccionats s'han copiat al dispositiu mòbil."
+
+msgid "IDS_MSG_TPOP_PD_MESSAGES_MOVED_TO_MESSAGE_LIST"
+msgstr "%d missatges moguts a la llista de missatges."
+
+msgid "IDS_MSG_TPOP_NUMBER_REMOVED_FROM_MESSAGE_BLOCK_LIST"
+msgstr "S'ha eliminat el número de la llista de bloqueig de missatges."
+
+msgid "IDS_MSG_TPOP_NUMBER_ADDED_TO_MESSAGE_BLOCK_LIST"
+msgstr "Número afegit a llista de bloqueig de missatges."
+
+msgid "IDS_MSG_TPOP_NETWORK_NOT_AVAILABLE_MESSAGE_WILL_BE_SENT_WHEN_CONNECTED_TO_NETWORK"
+msgstr "Xarxa no disponible. El missatge s'enviarà quan estigui connectat a la xarxa."
+
+msgid "IDS_MSG_TPOP_MESSAGE_COPIED_TO_PS_SIM_CARD"
+msgstr "Missatge copiat a la targeta SIM %s."
+
+msgid "IDS_MSG_TPOP_MAXIMUM_NUMBER_OF_CHARACTERS_EXCEEDED"
+msgstr "S'ha excedit el nombre màxim de caràcters."
+
+msgid "IDS_MSG_TPOP_MAXIMUM_MESSAGE_SIZE_HPS_EXCEEDED_RESIZING_ATTACHMENTS_ING"
+msgstr "S'ha excedit la mida màxima de missatge (%s). Canviant la mida dels fitxers adjunts..."
+
+msgid "IDS_MSG_TPOP_INVALID_CHARACTER_ENTERED"
+msgstr "S'ha introduït un caràcter no vàlid."
+
+msgid "IDS_MSG_TPOP_ADD_RECIPIENTS"
+msgstr "Afegir destinataris."
+
+msgid "IDS_MSG_TPOP_1_MESSAGE_MOVED_TO_MESSAGE_LIST"
+msgstr "1 missatge mogut a la llista de missatges."
+
+msgid "IDS_MSG_TMBODY_TEXT_MESSAGES"
+msgstr "Missatges de text"
+
+msgid "IDS_MSG_TMBODY_SOUND"
+msgstr "So"
+
+msgid "IDS_MSG_TMBODY_MULTIMEDIA_MESSAGES"
+msgstr "Missatges multimèdia"
+
+msgid "IDS_MSG_TMBODY_MESSAGES_ON_SIM_CARD"
+msgstr "Missatges a la targeta SIM"
+
+msgid "IDS_MSG_TMBODY_INPUT_MODE"
+msgstr "Mode d'entrada"
+
+msgid "IDS_MSG_TMBODY_AUTO_RETRIEVE_WHILE_ROAMING"
+msgstr "Recup automàtic en itinerància"
+
+msgid "IDS_MSG_TMBODY_AUTO_RETRIEVE"
+msgstr "Recuperar automàticament"
+
+msgid "IDS_MSG_SK_SEND_NOW"
+msgstr "Env ara"
+
+msgid "IDS_MSG_SBODY_SELECT_AN_INPUT_MODE_FOR_COMPOSING_MESSAGES"
+msgstr "Seleccioni un mode d'introducció per redactar missatges."
+
+msgid "IDS_MSG_SBODY_NONE_M_STATUS"
+msgstr "Cap"
+
+msgid "IDS_MSG_SBODY_MANAGE_THE_MESSAGES_STORED_ON_YOUR_SIM_CARD"
+msgstr "Gestioni els missatges emmagatzemats a la targeta SIM."
+
+msgid "IDS_MSG_POP_UNABLE_TO_SEND_SCHEDULED_MESSAGE_SET_ANOTHER_TIME"
+msgstr "No es pot enviar el missatge programat. Defineixi una altra hora."
+
+msgid "IDS_MSG_POP_UNABLE_TO_ATTACH_FILE_FILE_SIZE_TOO_LARGE_TRY_SENDING_VIA_EMAIL_BLUETOOTH_WI_FI_ETC"
+msgstr "No es pot adjuntar el fitxer. La mida del fitxer és massa gran. Intenti l'enviament mitjançant Correu electrònic, Bluetooth, Wi-Fi, etc."
+
+msgid "IDS_MSG_POP_TO_SEND_THIS_MULTIMEDIA_MESSAGE_THE_DEVICE_WILL_CONNECT_TO_A_DIFFERENT_MOBILE_NETWORK_THIS_WILL_DISCONNECT_YOUR_DEVICE_FROM_YOUR_MSG"
+msgstr "Per enviar aquest missatge multimèdia, el dispositiu es connectarà a una xarxa mòbil diferent. Aquesta acció desconnectarà el dispositiu de qualsevol xarxa mòbil."
+
+msgid "IDS_MSG_POP_TO_DOWNLOAD_THIS_MULTIMEDIA_MESSAGE_THE_DEVICE_WILL_CONNECT_TO_A_DIFFERENT_MOBILE_NETWORK_MSG"
+msgstr "Per descarregar aquest missatge multimèdia, el dispositiu es connectarà a una xarxa mòbil diferent. Aquesta acció desconnectarà el dispositiu de qualsevol xarxa mòbil."
+
+msgid "IDS_MSG_POP_THIS_MESSAGE_WILL_BE_RESENT"
+msgstr "Es reenviarà aquest missatge."
+
+msgid "IDS_MSG_POP_PD_MESSAGES_WILL_BE_DELETED"
+msgstr "S'esborraran %d missatges"
+
+msgid "IDS_MSG_POP_PD_CONVERSATIONS_WILL_BE_DELETED"
+msgstr "S'esborraran %d converses."
+
+msgid "IDS_MSG_POP_NO_TEMPLATES_IN_LIST"
+msgstr "Sense plantilles a la llista"
+
+msgid "IDS_MSG_POP_INCLUDE_ORIGINAL_TEXT_IN_OUTGOING_MESSAGE"
+msgstr "Incloure el text original al missatge de sortida"
+
+msgid "IDS_MSG_POP_DURATION_MUST_BE_SHORTER_THAN_PD_SECONDS"
+msgstr "La durada ha de ser inferior a %d segons"
+
+msgid "IDS_MSG_POP_1_MESSAGE_WILL_BE_DELETED"
+msgstr "S'esborrarà 1 missatge"
+
+msgid "IDS_MSG_POP_1_CONVERSATION_WILL_BE_DELETED"
+msgstr "S'esborrarà 1 conversa."
+
+msgid "IDS_MSG_OPT_VIEW_DETAILS_ABB"
+msgstr "Veure detalls"
+
+msgid "IDS_MSG_OPT_VIEW_CONTACT_DETAILS_ABB"
+msgstr "Veure detalls contacte"
+
+msgid "IDS_MSG_OPT_VIEW_AS_SLIDESHOW_ABB"
+msgstr "Veure com a presentació diapos"
+
+msgid "IDS_MSG_OPT_UPDATE_CONTACT"
+msgstr "Actualitzar contacte"
+
+msgid "IDS_MSG_OPT_UNICODE"
+msgstr "Unicode"
+
+msgid "IDS_MSG_OPT_TAKE_PICTURE_ABB"
+msgstr "Fer foto"
+
+msgid "IDS_MSG_OPT_SAVE_ATTACHMENTS_ABB"
+msgstr "Desar fitxers adjunts"
+
+msgid "IDS_MSG_OPT_RESEND"
+msgstr "Reenviar"
+
+msgid "IDS_MSG_OPT_REPLY"
+msgstr "Respondre"
+
+msgid "IDS_MSG_OPT_REMOVE_FROM_BLOCK_LIST_ABB"
+msgstr "Eliminar de la llista bloqueig"
+
+msgid "IDS_MSG_OPT_RECORD_AUDIO_FILE_ABB"
+msgstr "Gravar fitxer d'àudio"
+
+msgid "IDS_MSG_OPT_QUICK_RESPONSE_ABB"
+msgstr "Resposta ràpida"
+
+msgid "IDS_MSG_OPT_MAKE_VOICE_CALL"
+msgstr "Realitzar trucada de veu"
+
+msgid "IDS_MSG_OPT_GSM_ALPHABET_ABB"
+msgstr "Alfabet GSM"
+
+msgid "IDS_MSG_OPT_EXPORT_TO_DEVICE_MEMORY"
+msgstr "Exportació al dispositiu de memòria"
+
+msgid "IDS_MSG_OPT_DELETE_MESSAGE"
+msgstr "Esborrar missatge"
+
+msgid "IDS_MSG_OPT_DELETE_CONVERSATION_ABB"
+msgstr "Esborrar conversa"
+
+msgid "IDS_MSG_OPT_CREATE_CONTACT_ABB"
+msgstr "Crear contacte"
+
+msgid "IDS_MSG_OPT_COPY_TO_SIM_CARD_ABB"
+msgstr "Copiar a targeta SIM"
+
+msgid "IDS_MSG_OPT_COPY_TO_DEVICE_ABB"
+msgstr "Copiar al dispositiu"
+
+msgid "IDS_MSG_OPT_COPY_TEXT"
+msgstr "Copiar text"
+
+msgid "IDS_MSG_OPT_COPY"
+msgstr "Copiar"
+
+msgid "IDS_MSG_OPT_BACK_UP"
+msgstr "Còpia de seguretat"
+
+msgid "IDS_MSG_OPT_AUTOMATIC"
+msgstr "Automàtica"
+
+msgid "IDS_MSG_OPT_AUDIO_FILES_ABB2"
+msgstr "Fitxers d'àudio"
+
+msgid "IDS_MSG_OPT_ATTACHMENT_ABB"
+msgstr "Fitxer adjunt"
+
+msgid "IDS_MSG_OPT_ADD_TO_CONTACTS_ABB"
+msgstr "Afegir a Contactes"
+
+msgid "IDS_MSG_OPT_ADD_TO_BLOCK_LIST_ABB"
+msgstr "Afegir a llista de bloqueig"
+
+msgid "IDS_MSG_OPT_ADD_RECIPIENTS_ABB"
+msgstr "Afegir destinataris"
+
+msgid "IDS_MSG_NPBODY_SEARCH"
+msgstr "Cercar"
+
+msgid "IDS_MSG_NPBODY_NO_RESULTS_FOUND_ABB"
+msgstr "No s'han trobat resultats"
+
+msgid "IDS_MSG_NPBODY_NO_QUICK_RESPONSES"
+msgstr "Sense respostes ràpides"
+
+msgid "IDS_MSG_NPBODY_NO_PHRASES_BLOCKED"
+msgstr "Sense frases bloquejades"
+
+msgid "IDS_MSG_NPBODY_NO_MESSAGES_ON_SIM_CARD"
+msgstr "Cap missatge a la targeta SIM"
+
+msgid "IDS_MSG_NPBODY_NO_MESSAGES"
+msgstr "No hi ha cap missatge"
+
+msgid "IDS_MSG_NPBODY_NO_BLOCKED_NUMBERS"
+msgstr "No hi ha números bloquejats"
+
+msgid "IDS_MSG_MBODY_VIBRATION"
+msgstr "Vibració"
+
+msgid "IDS_MSG_MBODY_UNKNOWN_NUMBER"
+msgstr "Número desconegut"
+
+msgid "IDS_MSG_MBODY_TEXT_MESSAGE_CENTRE_NUMBER_ABB"
+msgstr "Número centre missatges text"
+
+msgid "IDS_MSG_HEADER_TEXT_MESSAGES_ABB"
+msgstr "Missatges de text"
+
+msgid "IDS_MSG_HEADER_SWITCH_MOBILE_NETWORK_ABB2"
+msgstr "Canviar xarxa mòbil"
+
+msgid "IDS_MSG_HEADER_SMS_CENTRE_ABB2"
+msgstr "Centre SMS"
+
+msgid "IDS_MSG_HEADER_SELECT_RECIPIENT"
+msgstr "Seleccionar destinatari"
+
+msgid "IDS_MSG_HEADER_PD_SELECTED_ABB3"
+msgstr "%d seleccionats"
+
+msgid "IDS_MSG_HEADER_MESSAGES_ON_SIM_CARD_ABB"
+msgstr "Missatges a la targeta SIM"
+
+msgid "IDS_MSG_HEADER_INPUT_MODE_ABB"
+msgstr "Mode d'entrada"
+
+msgid "IDS_MSG_HEADER_FILE_SIZE_TOO_LARGE_ABB"
+msgstr "Mida de fitxer massa gran"
+
+msgid "IDS_MSG_HEADER_FAILED_TO_SEND_MESSAGE_ABB"
+msgstr "Error en enviar un missatge"
+
+msgid "IDS_MSG_HEADER_DISCARD_MESSAGE_M_CLOSE_ABB"
+msgstr "Descartar missatge"
+
+msgid "IDS_MSG_HEADER_CREATE"
+msgstr "Crear"
+
+msgid "IDS_MSG_HEADER_ADD_CONTENT_ABB"
+msgstr "Afegir contingut"
+
+msgid "IDS_MSG_BUTTON_SWITCH_ABB2"
+msgstr "Canviar"
+
+msgid "IDS_MSG_BUTTON_SAVE_ABB2"
+msgstr "Desar"
+
+msgid "IDS_MSG_BUTTON_RESEND_ABB"
+msgstr "Reenviar"
+
+msgid "IDS_MSG_BUTTON_DISCARD_ABB"
+msgstr "Descartar"
+
+msgid "IDS_MSG_BUTTON_DELETE_ABB4"
+msgstr "Esborrar"
+
+msgid "IDS_MSG_BUTTON_CANCEL_ABB2"
+msgstr "Cancel·lar"
+
+msgid "IDS_MSG_BUTTON2_CONTACTS_ABB_M_APPLICATION_NAME"
+msgstr "Contactes"
+
+msgid "IDS_MSG_BODY_YOU_HAVE_SELECTED_A_SOUND_N_SHOT_FILE_SOUND_DATA_IS_NOT_SUPPORTED_FOR_MMS_SO_ONLY_THE_PICTURE_WILL_BE_ATTACHED"
+msgstr "Ha seleccionat un fitxer de Sound & shot. Les dades de so no són compatibles amb MMS, de manera que només s'adjuntarà la foto."
+
+msgid "IDS_MSG_BODY_WAITING_TO_SEND_ING_M_STATUS"
+msgstr "Esperant per enviar..."
+
+msgid "IDS_MSG_BODY_UNABLE_TO_SEND_THIS_MESSAGE_INSERT_YOUR_SIM_CARD_AND_TRY_AGAIN"
+msgstr "No es pot enviar aquest missatge. Insereixi la seva targeta SIM i torni-ho a intentar."
+
+msgid "IDS_MSG_BODY_TYPE_C"
+msgstr "Tipus:"
+
+msgid "IDS_MSG_BODY_TO_USE_RESTRICTED_MEDIA_TYPES_CHANGE_YOUR_MMS_CREATION_MODE_SETTING"
+msgstr "Per utilitzar tipus de mitjans restringits, canviï l'ajustament de mode de creació MMS"
+
+msgid "IDS_MSG_BODY_TIME_SENT_C"
+msgstr "Hora d'enviament:"
+
+msgid "IDS_MSG_BODY_TIME_RECEIVED_C"
+msgstr "Hora de rebuda:"
+
+msgid "IDS_MSG_BODY_STATUS_C"
+msgstr "Estat:"
+
+msgid "IDS_MSG_BODY_SENT_M_STATUS"
+msgstr "Enviat"
+
+msgid "IDS_MSG_BODY_SENDING_ING_M_STATUS_ABB"
+msgstr "Enviant..."
+
+msgid "IDS_MSG_BODY_SENDING_FAILED_M_STATUS"
+msgstr "Error d'enviament"
+
+msgid "IDS_MSG_BODY_RETRIEVE_MESSAGES_AUTOMATICALLY_WHILE_ROAMING"
+msgstr "Recuperi missatges automàticament en itinerància."
+
+msgid "IDS_MSG_BODY_RETRIEVE_MESSAGES_AUTOMATICALLY"
+msgstr "Recuperar missatges automàticament."
+
+msgid "IDS_MSG_BODY_READ_REPORT_C_PS"
+msgstr "Informe de lectura: %s"
+
+msgid "IDS_MSG_BODY_OTHER_PERSON"
+msgstr "Una altra persona"
+
+msgid "IDS_MSG_BODY_MEMO_T_MAINMENU"
+msgstr "Memoràndum"
+
+msgid "IDS_MSG_BODY_FAILED_M_STATUS_ABB2"
+msgstr "Error"
+
+msgid "IDS_MSG_BODY_ENTER_TEXT_M_NOUN"
+msgstr "Introduir text"
+
+msgid "IDS_MSG_BODY_DRAFT_M_STATUS_ABB"
+msgstr "Esborrany"
+
+msgid "IDS_MSG_BODY_DELIVERY_REPORT_C_PS"
+msgstr "Informe de lliurament: %s"
+
+msgid "IDS_MSG_BODY_CB_MESSAGE"
+msgstr "Missatge CB"
+
+msgid "IDS_MSG_BODY_CALENDAR_M_APPLICATION_NAME_ABB"
+msgstr "Calendari"
+
+msgid "IDS_MSG_BODY_AFTER_YOU_SEND_OR_RECEIVE_MESSAGES_THEY_WILL_BE_SHOWN_HERE"
+msgstr "Després d'enviar o rebre missatges, es mostraran aquí."
+
+msgid "IDS_MSG_BODY_AFTER_YOU_CREATE_QUICK_RESPONSES_THEY_WILL_BE_SHOWN_HERE"
+msgstr "Després de crear respostes ràpides, es mostraran aquí."
+
+msgid "IDS_MSG_BODY_AFTER_YOU_COPY_MESSAGES_TO_THE_SIM_CARD_THEY_WILL_BE_SHOWN_HERE"
+msgstr "Després de copiar missatges a la targeta SIM, es mostraran aquí."
+
+msgid "IDS_MSG_BODY_AFTER_YOU_ADD_PHRASES_THEY_WILL_BE_SHOWN_HERE"
+msgstr "Després d'afegir frases, es mostraran aquí."
+
+msgid "IDS_MSG_BODY_AFTER_YOU_ADD_NUMBERS_TO_THE_MESSAGE_BLOCK_LIST_THEY_WILL_BE_SHOWN_HERE"
+msgstr "Després d'afegir números a la llista de bloqueig de missatges, es mostraran aquí."
+
+msgid "IDS_MSG_ACBUTTON_DELETE_ABB"
+msgstr "ESBORRAR"
+
+msgid "IDS_MSGC_POP_UNSUPPORTED_MEDIA_TYPE"
+msgstr "No s'admet aquest tipus de mitjà"
+
+msgid "IDS_MSGC_POP_LOW_BATTERY"
+msgstr "Bateria baixa"
+
+msgid "IDS_MSGC_POP_CANCELLED"
+msgstr "Cancel·lat"
+
+msgid "IDS_MSGC_OPT_EMAIL"
+msgstr "Correu electrònic"
+
+msgid "IDS_MSGC_OPT_EDITITEM_VIEW"
+msgstr "Veure"
+
+msgid "IDS_MSGC_OPT_EDITITEM_REMOVE"
+msgstr "Elimina"
+
+msgid "IDS_MSGC_OPT_EDITITEM_PLAY"
+msgstr "Reproduir"
+
+msgid "IDS_MSGC_OPT_CHANGE_RECIPIENTS_TO"
+msgstr "A"
+
+msgid "IDS_MSGC_HEADER_PREVIEW"
+msgstr "Vista prèvia"
+
+msgid "IDS_MSGC_BODY_ENTER_SUBJECT"
+msgstr "Introduir assumpte"
+
+msgid "IDS_MSGF_POP_UNABLE_TO_FIND_LOCATION"
+msgstr "No es pot trobar la ubicació"
+
+msgid "IDS_MSGF_POP_REJECTED"
+msgstr "Rebutjat"
+
+msgid "IDS_MSGF_POP_DELETING"
+msgstr "Esborrant..."
+
+msgid "IDS_MSGF_POP_COPIED_TO_CLIPBOARD"
+msgstr "S'ha copiat al porta-retalls"
+
+msgid "IDS_MSGF_POP_BLOCK_PS_Q"
+msgstr "Bloquejar %s?"
+
+msgid "IDS_MSGF_OPT_SUBJECT_COLON"
+msgstr "Assumpte:"
+
+msgid "IDS_MSGF_OPT_SENDER_VIA_EMAIL"
+msgstr "Enviar mitjançant correu electrònic"
+
+msgid "IDS_MSGF_OPT_SELECT"
+msgstr "Seleccionar"
+
+msgid "IDS_MSGF_OPT_SAVE"
+msgstr "Desar"
+
+msgid "IDS_MSGF_OPT_REMOVE"
+msgstr "Elimina"
+
+msgid "IDS_MSGF_OPT_FORWARD"
+msgstr "Endavant"
+
+msgid "IDS_MSGF_OPT_DELETE_Q"
+msgstr "Esborrar?"
+
+msgid "IDS_MSGF_HEADER_ADVANCED_SEARCH"
+msgstr "Cerca avançada"
+
+msgid "IDS_MSGF_BODY_UNKNOWN"
+msgstr "Desconegut"
+
+msgid "IDS_MSGF_BODY_SETTINGS"
+msgstr "Ajustaments"
+
+msgid "IDS_MSGF_BODY_RECIPIENTS"
+msgstr "Destinataris"
+
+msgid "IDS_MSGF_BODY_RECEIVED"
+msgstr "Rebut"
+
+msgid "IDS_MSGF_BODY_OTHER"
+msgstr "Altres"
+
+msgid "IDS_MSGF_BODY_NO_SUBJECT"
+msgstr "Sense assumpte"
+
+msgid "IDS_MSGF_BODY_MSGSIZE_KB"
+msgstr "KB"
+
+msgid "IDS_MSGF_BODY_MESSAGE"
+msgstr "Missatge"
+
+msgid "IDS_MSGF_BODY_ME"
+msgstr "Jo"
+
+msgid "IDS_MSGF_BODY_EXPIRED"
+msgstr "Caducat"
+
+msgid "IDS_MSGF_BODY_ALL"
+msgstr "Tot"
+
+msgid "IDS_MSG_SK_NO_ABB"
+msgstr "No"
+
+msgid "IDS_MSG_POP_YOUR_MESSAGE_WILL_BE_DISCARDED_NO_RECIPIENTS_HAVE_BEEN_SELECTED"
+msgstr "El seu missatge es descartarà. No s'han seleccionat destinataris."
+
+msgid "IDS_MSG_POP_UNABLE_TO_PLAY_DURING_CALL"
+msgstr "No es pot reproduir durant la trucada"
+
+msgid "IDS_MSG_POP_INCOMING_MESSAGES_ONLY"
+msgstr "Només missatges d'entrada"
+
+msgid "IDS_MSG_POP_DELETED"
+msgstr "Esborrat"
+
+msgid "IDS_MSG_OPT_VIDEOS"
+msgstr "Vídeos"
+
+msgid "IDS_MSG_OPT_TEXT"
+msgstr "Text"
+
+msgid "IDS_MSG_OPT_SETTINGS"
+msgstr "Ajustaments"
+
+msgid "IDS_MSG_OPT_SEARCH"
+msgstr "Cercar"
+
+msgid "IDS_MSG_OPT_RECORD_VIDEO_ABB"
+msgstr "Gravar vídeo"
+
+msgid "IDS_MSG_OPT_NONE"
+msgstr "Cap"
+
+msgid "IDS_MSG_OPT_IMAGES"
+msgstr "Imatges"
+
+msgid "IDS_MSG_OPT_EDIT"
+msgstr "Editar"
+
+msgid "IDS_MSG_OPT_DELETE"
+msgstr "Esborrar"
+
+msgid "IDS_MSG_OPT_DEFAULT"
+msgstr "Predeterminat"
+
+msgid "IDS_MSG_MBODY_SELECT_ALL"
+msgstr "Seleccionar tot"
+
+msgid "IDS_MSG_MBODY_ALERTS"
+msgstr "Avisos"
+
+msgid "IDS_MSG_HEADER_TRANSLATE"
+msgstr "Traduir"
+
+msgid "IDS_MSG_HEADER_SETTINGS"
+msgstr "Ajustaments"
+
+msgid "IDS_MSG_HEADER_MESSAGES"
+msgstr "Missatges"
+
+msgid "IDS_MSG_HEADER_DELETE"
+msgstr "Esborrar"
+
+msgid "IDS_MSG_HEADER_ATTENTION"
+msgstr "Atenció"
+
+msgid "IDS_MSG_BUTTON_REMOVE_ABB"
+msgstr "Eliminar"
+
+msgid "IDS_MSG_BUTTON_OK_ABB"
+msgstr "Acceptar"
+
+msgid "IDS_MSG_BUTTON_DOWNLOAD_ABB3"
+msgstr "Descarreg"
+
+msgid "IDS_MSG_BUTTON_CANCEL_ABB"
+msgstr "Cancel·lar"
+
+msgid "IDS_MSG_BODY_YES"
+msgstr "Sí"
+
+msgid "IDS_MSG_BODY_TICK_BOX_T_TTS"
+msgstr "Quadre de verificació"
+
+msgid "IDS_MSG_BODY_SEC"
+msgstr "seg"
+
+msgid "IDS_MSG_BODY_MESSAGE"
+msgstr "Missatge"
+
+msgid "IDS_MSG_BUTTON_SEND_ABB5"
+msgstr "Env"
+
+msgid "IDS_MSG_BUTTON_SEND_ABB3"
+msgstr "Env"
+
+msgid "IDS_MSG_ACBUTTON_SEND_ABB3"
+msgstr "ENV"
+
+msgid "IDS_ST_BODY_LOADING_ING"
+msgstr "Carregant..."
+
+msgid "IDS_MSGS_BODY_NOTIFICATIONS"
+msgstr "Notificacions"
+
+msgid "IDS_MSG_HEADER_ME"
+msgstr "Jo"
+
+msgid "IDS_MSG_BODY_UNKNOWN"
+msgstr "Desconegut"
+
+msgid "IDS_MSG_TMBODY_ADD_OR_REMOVE_RECIPIENTS"
+msgstr "Afegir o eliminar destinataris"
+
+msgid "IDS_MSG_POP_THE_SENDER_HAS_REQUESTED_A_READ_REPORT_TAP_SEND_TO_SEND_ONE"
+msgstr "El remitent ha sol·licitat un informe de lectura. Toqui Enviar per enviar-ne un."
+
+msgid "IDS_MSGF_OPT_SEND_READ_REPORT"
+msgstr "Enviar informe de lectura"
+
+msgid "IDS_MSG_HEADER_COMPOSE_MESSAGE_ABB"
+msgstr "Redactar missatge"
+
+msgid "IDS_MSG_POP_NO_VALID_RECIPIENTS_HAVE_BEEN_ADDED_THIS_MESSAGE_WILL_BE_DISCARDED"
+msgstr "No s'han afegit destinataris vàlids. Es descartarà aquest missatge."
+

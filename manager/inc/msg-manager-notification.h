@@ -38,6 +38,7 @@
 #define MSGFW_SMS_REPORT_TABLE_NAME		"MSG_SMS_REPORT_TABLE"
 #define MSGFW_REPORT_TABLE_NAME					"MSG_REPORT_TABLE"
 
+#define MSG_MGR_APP_ID				"org.tizen.msg-manager"
 #define MSG_DEFAULT_APP_ID			"org.tizen.message"
 #define MSG_QUICKPANEL_APP_ID		"org.tizen.quickpanel"
 #define MSG_CALL_APP_ID				"org.tizen.call-ui"
@@ -45,7 +46,7 @@
 
 #define MSG_APP_PACKAGE_NAME	"message"
 
-#define MSG_APP_LOCALEDIR			TZ_SYS_RO_APP_PATH "/" MSG_DEFAULT_APP_ID "/res/locale"
+#define MSG_APP_LOCALEDIR			TZ_SYS_RO_APP_PATH "/" MSG_MGR_APP_ID "/res/locale"
 
 #define MSG_NOTIFICATION_ICON_DIR			"/" MSG_QUICKPANEL_APP_ID "/shared/res/noti_icons"
 

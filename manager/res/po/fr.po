@@ -1,0 +1,945 @@
+msgid "IDS_COM_BODY_HOME"
+msgstr "Domicile"
+
+msgid "IDS_MSGC_POP_DATA_ROAMING_IS_DISABLED_ENABLE_DATA_ROAMING_AND_TRY_AGAIN"
+msgstr "L'itinérance des données est désactivée. Activez l'itinérance des données et réessayez."
+
+msgid "IDS_MSG_ACBUTTON_CANCEL_ABB"
+msgstr "ANNULER"
+
+msgid "IDS_MSG_ACBUTTON_DONE_ABB"
+msgstr "OK"
+
+msgid "IDS_MSGF_POP_NEW_MESSAGE"
+msgstr "Nouveau message"
+
+msgid "IDS_COM_BUTTON_SHARE"
+msgstr "Partage"
+
+msgid "IDS_COM_BODY_UNKNOWN"
+msgstr "Inconnu"
+
+msgid "IDS_COM_BODY_MOBILE"
+msgstr "Mobile"
+
+msgid "IDS_MSGC_POP_MOBILE_DATA_IS_DISABLED_ENABLE_MOBILE_DATA_AND_TRY_AGAIN"
+msgstr "Les données mobiles sont désactivées. Activez les données mobiles et réessayez."
+
+msgid "IDS_TPLATFORM_ACBUTTON_SEND_ABB"
+msgstr "ENVOYER"
+
+msgid "IDS_MSGC_POP_UNABLE_TO_SEND_MESSAGES_WHILE_IN_FLIGHT_MODE_DISABLE_FLIGHT_MODE_AND_TRY_AGAIN"
+msgstr "Impossible d'envoyer des messages en mode Hors-ligne. Désactivez le mode Hors-ligne et réessayez."
+
+msgid "IDS_MSGC_POP_UNABLE_TO_ADD_FILE_IS_FORWARD_LOCKED"
+msgstr "Transfert impossible.\nLe transfert du fichier est interdit"
+
+msgid "IDS_MSGC_POP_THERE_IS_NOT_ENOUGH_SPACE_IN_YOUR_DEVICE_STORAGE_GO_TO_SETTINGS_POWER_AND_STORAGE_STORAGE_THEN_DELETE_SOME_FILES_AND_TRY_AGAIN"
+msgstr "Espace insuffisant sur votre appareil. Accédez à Paramètres > Alimentation et stockage > Stockage, supprimez des fichiers, puis réessayez."
+
+msgid "IDS_MSGC_POP_TEXT_AT_TOP"
+msgstr "Texte au premier plan"
+
+msgid "IDS_MSGC_POP_TEXT_AT_BOTTOM"
+msgstr "Texte en bas"
+
+msgid "IDS_MSGC_POP_SELECT_LAYOUT"
+msgstr "Sélectionner une mise en forme"
+
+msgid "IDS_MSGC_POP_MMSCANTADD"
+msgstr "Impossible d'ajouter du contenu."
+
+msgid "IDS_MSGC_POP_MESSAGE_SCHEDULED_TO_BE_SENT_TO_PS_SEND_NOW_Q"
+msgstr "Message devant être envoyé à %s. Envoyer maintenant ?"
+
+msgid "IDS_MSGC_POP_MAXIMUM_MESSAGE_SIZE_REACHED"
+msgstr "Taille maximum de message atteinte"
+
+msgid "IDS_MSGC_POP_DURATION_MUST_BE_AT_LEAST_PD_SECONDS"
+msgstr "La durée est d'au moins %d secondes."
+
+msgid "IDS_MSGC_POP_DISABLING_FLIGHT_MODE_ING"
+msgstr "Désactivation du mode Hors-ligne..."
+
+msgid "IDS_MSGC_POP_COPIED_TO_SIM_CARD"
+msgstr "Copié vers la carte SIM."
+
+msgid "IDS_MSGC_OPT_USE_OTHER_CONTACT_INFO_ABB"
+msgstr "Util autr. infos cont."
+
+msgid "IDS_MSGC_OPT_SEND_VIA"
+msgstr "Envoyer via"
+
+msgid "IDS_MSGC_OPT_IMAGE"
+msgstr "Image"
+
+msgid "IDS_MSGC_OPT_EDIT_ITEM_REPLACE"
+msgstr "Remplacer"
+
+msgid "IDS_MSGC_OPT_CANCEL_MESSAGE"
+msgstr "Annuler le message"
+
+msgid "IDS_MSGC_HEADER_RECIPIENT_LIST"
+msgstr "Liste des destinataires"
+
+msgid "IDS_MSGC_HEADER_DURATION_FOR_SLIDE_PD_PD"
+msgstr "Durée de la diapositive %d/%d"
+
+msgid "IDS_MSGC_BODY_WAIT_WHILE_ITEMS_ARE_ADDED_TO_SLIDESHOW"
+msgstr "Veuillez patienter pendant l'ajout des éléments au diaporama."
+
+msgid "IDS_MSGC_BODY_UNABLE_TO_SEND_MESSAGE"
+msgstr "Impossible d'envoyer le message."
+
+msgid "IDS_MSGC_BODY_SELECT_RINGTONE"
+msgstr "Sélectionner sonnerie"
+
+msgid "IDS_MSGC_BODY_READ_REPORT_WILL_BE_SENT"
+msgstr "Une confirmation de lecture sera envoyée."
+
+msgid "IDS_MSGC_BODY_NOT_REQUESTED"
+msgstr "Non demandé"
+
+msgid "IDS_MSGC_BODY_MAXIMUM_NUMBER_OF_RECIPIENTS_HPD_REACHED"
+msgstr "Nombre maximum de destinataires (%d) atteint"
+
+msgid "IDS_MSGC_BODY_DUPLICATED_RECIPIENT"
+msgstr "Destinataire en double"
+
+msgid "IDS_MSGF_SK_FORWARD_LITE"
+msgstr "Transf."
+
+msgid "IDS_MSGF_POP_UNABLE_TO_SAVE"
+msgstr "Enregistrement impossible"
+
+msgid "IDS_MSGF_POP_UNABLE_TO_DELETE"
+msgstr "Suppression impossible"
+
+msgid "IDS_MSGF_POP_UNABLE_TO_COPY"
+msgstr "Copie impossible"
+
+msgid "IDS_MSGF_POP_SOME_CHARACTERS_MAY_BE_LOST_CONTINUE_Q"
+msgstr "Certains caractères risquent d'être perdus. Continuer ?"
+
+msgid "IDS_MSGF_POP_SIM_NOT_INSERTED"
+msgstr "Carte SIM non insérée"
+
+msgid "IDS_MSGF_POP_SAVING_FAILED"
+msgstr "Échec de l'enregistrement."
+
+msgid "IDS_MSGF_POP_SAVED_IN_MY_FILES"
+msgstr "Enregistré dans Mes fichiers"
+
+msgid "IDS_MSGF_POP_RETRIEVING_MESSAGE_FAILED"
+msgstr "Échec de la récupération du message"
+
+msgid "IDS_MSGF_POP_RESTRICTED_CONTENT_TYPE_ATTACH_ANYWAY_Q"
+msgstr "Type de contenu restreint. Joindre quand même ?"
+
+msgid "IDS_MSGF_POP_RESTORING_ING"
+msgstr "Restauration..."
+
+msgid "IDS_MSGF_POP_READ_REPORT"
+msgstr "Confirmation de lecture"
+
+msgid "IDS_MSGF_POP_NO_NUMBER"
+msgstr "Aucun numéro"
+
+msgid "IDS_MSGF_POP_NO_ATTACHMENTS"
+msgstr "Pas de pièce jointe"
+
+msgid "IDS_MSGF_POP_NEW_MESSAGES"
+msgstr "Nouveaux messages"
+
+msgid "IDS_MSGF_POP_MESSAGE_COPIED_FROM_SIM_CARD"
+msgstr "Message copié à partir de la carte SIM"
+
+msgid "IDS_MSGF_POP_MAXIMUM_NUMBER_OF_RECIPIENTS_IS_PD_SOME_RECIPIENTS_MAY_BE_LOST"
+msgstr "Le nombre maximum de destinataires est %d. Certains destinataires peuvent être perdus."
+
+msgid "IDS_MSGF_POP_MAXIMUM_NUMBER_OF_ATTACHMENTS_HPS_EXCEEDED"
+msgstr "Nombre maximum de pièces jointes (%s) dépassé"
+
+msgid "IDS_MSGF_POP_MAXIMUM_CHARACTERS"
+msgstr "Nb max de caractères atteint"
+
+msgid "IDS_MSGF_POP_IN_PROGRESS_ING"
+msgstr "En cours..."
+
+msgid "IDS_MSGF_POP_INTIALISING"
+msgstr "Initialisation en cours..."
+
+msgid "IDS_MSGF_POP_IF_YOU_DONT_WANT_TO_REPLACE_THE_FILE_RENAME_IT"
+msgstr "Si vous ne souhaitez pas remplacer le fichier, renommez-le."
+
+msgid "IDS_MSGF_POP_HELP_PAGE_MESSAGE_FOR_ONE_FILE"
+msgstr "Ce message comporte une pièce jointe non affichée."
+
+msgid "IDS_MSGF_POP_HELP_PAGE_MESSAGE"
+msgstr "Ce message inclut les fichiers joints non affichés."
+
+msgid "IDS_MSGF_POP_FILE_NAME_ALREADY_EXISTS"
+msgstr "Nom de fichier déjà utilisé."
+
+msgid "IDS_MSGF_POP_CONVERTING_TO_TEXT_MESSAGE_ING"
+msgstr "Conversion en SMS..."
+
+msgid "IDS_MSGF_POP_CONVERTING_TO_MULTIMEDIA_MESSAGE_ING"
+msgstr "Conversion en MMS..."
+
+msgid "IDS_MSGF_POP_ABOUT_TO_GO_ONLINE_CONTINUE_Q"
+msgstr "Connexion imminente (%s). Continuer ?"
+
+msgid "IDS_MSGF_OPT_TEXT_MESSAGE"
+msgstr "SMS"
+
+msgid "IDS_MSGF_OPT_SENDER_ABB"
+msgstr "Expéditeur"
+
+msgid "IDS_MSGF_OPT_SAVE_ATTACHMENT"
+msgstr "Enregistrer la pièce jointe"
+
+msgid "IDS_MSGF_OPT_INSTALL"
+msgstr "Installer"
+
+msgid "IDS_MSGF_OPT_EDIT_MESSAGE"
+msgstr "Modifier le message"
+
+msgid "IDS_MSGF_OPT_DELETE_MESSAGES"
+msgstr "Supprimer les messages"
+
+msgid "IDS_MSGF_HEADER_SELECT_MESSAGES"
+msgstr "Sélectionner des messages"
+
+msgid "IDS_MSGF_HEADER_SAVE_ALL"
+msgstr "Tout enreg."
+
+msgid "IDS_MSGF_HEADER_MESSAGE_DETAILS"
+msgstr "Détails du message"
+
+msgid "IDS_MSGF_HEADER_EXPIRES_C_PS"
+msgstr "Expiration : %s"
+
+msgid "IDS_MSGF_BUTTON_SAVE_ALL_ATTACHMENTS_ABB"
+msgstr "Enregistrer ttes PJ"
+
+msgid "IDS_MSGF_BODY_TO_C"
+msgstr "À :"
+
+msgid "IDS_MSGF_BODY_TEXT_MESSAGES"
+msgstr "SMS"
+
+msgid "IDS_MSGF_BODY_SIM_MEMORY_FULL_DELETE_SOME_ITEMS"
+msgstr "Carte SIM saturée. Supprimez certains éléments."
+
+msgid "IDS_MSGF_BODY_SENT_M_DATE_C"
+msgstr "Envoyé :"
+
+msgid "IDS_MSGF_BODY_REQUESTED"
+msgstr "En attente"
+
+msgid "IDS_MSGF_BODY_RECEIVED_M_DATE_C"
+msgstr "Reçu :"
+
+msgid "IDS_MSGF_BODY_READ_REPORT"
+msgstr "Confirmation de lecture"
+
+msgid "IDS_MSGF_BODY_PUSH_MESSAGES"
+msgstr "Messages Push"
+
+msgid "IDS_MSGF_BODY_PD_MESSAGES"
+msgstr "%d messages"
+
+msgid "IDS_MSGF_BODY_PD_CONVERSATIONS"
+msgstr "%d conversations"
+
+msgid "IDS_MSGF_BODY_NO_NAME"
+msgstr "Aucun nom"
+
+msgid "IDS_MSGF_BODY_MULTIMEDIA_MESSAGE_NOTIFICATION"
+msgstr "Notification de message MMS"
+
+msgid "IDS_MSGF_BODY_MULTIMEDIA_MESSAGE"
+msgstr "MMS"
+
+msgid "IDS_MSGF_BODY_MMSREADREPLYMSGREAD"
+msgstr "Lire"
+
+msgid "IDS_MSGF_BODY_MMSDELIVERYMSGREJECTED"
+msgstr "Message rejeté"
+
+msgid "IDS_MSGF_BODY_MMS"
+msgstr "MMS"
+
+msgid "IDS_MSGF_BODY_MESSAGE_SIZE"
+msgstr "Taille message"
+
+msgid "IDS_MSGF_BODY_MESSAGE_OPTIONS"
+msgstr "Options de message"
+
+msgid "IDS_MSGF_BODY_MESSAGE_DELIVERED"
+msgstr "Message remis"
+
+msgid "IDS_MSGF_BODY_MAXIMUM_NUMBER_OF_ATTACHMENTS_HP1SS_EXCEEDED_ONLY_FIRST_P2SS_WILL_BE_ADDED"
+msgstr "Nombre maximum de pièces jointes (%1$s) dépassé. Seuls les premiers %2$s seront ajoutés."
+
+msgid "IDS_MSGF_BODY_INVALID_RECIPIENT"
+msgstr "Destinataire non valide"
+
+msgid "IDS_MSGF_BODY_FROM"
+msgstr "De"
+
+msgid "IDS_MSGF_BODY_FLFROM"
+msgstr "De :"
+
+msgid "IDS_MSGF_BODY_DETAILSSENDINGFAILED"
+msgstr "Échec de l'envoi."
+
+msgid "IDS_MSGF_BODY_DELIVERY_REPORT"
+msgstr "Accusé de réception"
+
+msgid "IDS_MSGF_BODY_CP_MESSAGES"
+msgstr "Messages CP"
+
+msgid "IDS_MSGF_BODY_COPY_TEXT"
+msgstr "Copier le texte"
+
+msgid "IDS_MSGF_BODY_CB_MESSAGES"
+msgstr "Messages de diffusion"
+
+msgid "IDS_MSGF_BODY_1_MESSAGE"
+msgstr "1 message"
+
+msgid "IDS_MSGF_BODY_1_CONVERSATION"
+msgstr "1 conversation"
+
+msgid "IDS_MSGS_BODY_REQUEST_A_READ_REPORT_FOR_EACH_MESSAGE_YOU_SEND"
+msgstr "Demander une confirmation de lecture pour chaque message envoyé."
+
+msgid "IDS_MSGS_BODY_REQUEST_A_DELIVERY_REPORT_FOR_EACH_MESSAGE_YOU_SEND"
+msgstr "Demander un accusé de réception pour chaque message envoyé."
+
+msgid "IDS_MSGS_BODY_RADIO_BUTTON"
+msgstr "Touche radio"
+
+msgid "IDS_MSGS_BODY_ON_OFF_BUTTON_T_TTS"
+msgstr "Bouton d'activation/désactivation"
+
+msgid "IDS_MSGS_BODY_EXPANDABLE_LIST_T_TTS"
+msgstr "Liste déroulante"
+
+msgid "IDS_MSGS_BODY_AUTOMATICALLY_RETRIEVE_MMS_MESSAGES"
+msgstr "Récupérer automatiquement les messages MMS."
+
+msgid "IDS_MSG_TPOP_UNABLE_TO_PREVIEW_FILE_UNSUPPORTED_FILE_TYPE"
+msgstr "Impossible de visualiser le fichier. Type de fichier non pris en charge."
+
+msgid "IDS_MSG_TPOP_UNABLE_TO_ATTACH_FILE_FILE_FORMAT_NOT_SUPPORTED"
+msgstr "Impossible de joindre le fichier. Format de fichier non pris en charge."
+
+msgid "IDS_MSG_TPOP_UNABLE_TO_ADD_SOME_RECIPIENTS_NUMBERS_NOT_VALID"
+msgstr "Impossible d'ajouter des destinataires. Leurs numéros ne sont pas valides."
+
+msgid "IDS_MSG_TPOP_UNABLE_TO_ADD_RECIPIENT_NUMBER_NOT_VALID"
+msgstr "Impossible d'ajouter le destinataire. Son numéro n'est pas valide."
+
+msgid "IDS_MSG_TPOP_UNABLE_TO_ADD_RECIPIENTS_NUMBERS_NOT_VALID"
+msgstr "Impossible d'ajouter les destinataires. Leurs numéros ne sont pas valides."
+
+msgid "IDS_MSG_TPOP_UNABLE_TO_ADD_ATTACHMENT_MAXIMUM_NUMBER_OF_ATTACHMENTS_HPD_REACHED"
+msgstr "Impossible d'ajouter la pièce jointe. Nombre maximum de pièces jointes (%d) atteint."
+
+msgid "IDS_MSG_TPOP_THIS_NUMBER_IS_NOT_VALID"
+msgstr "Ce numéro n'est pas valide."
+
+msgid "IDS_MSG_TPOP_SOME_RECIPIENTS_ALREADY_ADDED"
+msgstr "Certains destinataires ont déjà été ajoutés."
+
+msgid "IDS_MSG_TPOP_SELECTED_MESSAGES_COPIED_TO_MOBILE_DEVICE"
+msgstr "Messages sélectionnés copiés vers l'appareil mobile."
+
+msgid "IDS_MSG_TPOP_PD_MESSAGES_MOVED_TO_MESSAGE_LIST"
+msgstr "%d messages ont été déplacés dans la liste des messages."
+
+msgid "IDS_MSG_TPOP_NUMBER_REMOVED_FROM_MESSAGE_BLOCK_LIST"
+msgstr "Le numéro a été supprimé de la liste des messages bloqués."
+
+msgid "IDS_MSG_TPOP_NUMBER_ADDED_TO_MESSAGE_BLOCK_LIST"
+msgstr "Le numéro a été ajouté à la liste des messages bloqués."
+
+msgid "IDS_MSG_TPOP_NETWORK_NOT_AVAILABLE_MESSAGE_WILL_BE_SENT_WHEN_CONNECTED_TO_NETWORK"
+msgstr "Réseau non disponible. Le message sera envoyé lorsque vous serez connecté au réseau."
+
+msgid "IDS_MSG_TPOP_MESSAGE_COPIED_TO_PS_SIM_CARD"
+msgstr "Le message a été copié sur la carte SIM %s."
+
+msgid "IDS_MSG_TPOP_MAXIMUM_NUMBER_OF_CHARACTERS_EXCEEDED"
+msgstr "Le nombre maximal de caractères a été dépassé."
+
+msgid "IDS_MSG_TPOP_MAXIMUM_MESSAGE_SIZE_HPS_EXCEEDED_RESIZING_ATTACHMENTS_ING"
+msgstr "La taille de message maximale (%s) a été dépassée. Redimensionnement des pièces jointes..."
+
+msgid "IDS_MSG_TPOP_INVALID_CHARACTER_ENTERED"
+msgstr "Le caractère saisi n'est pas valide."
+
+msgid "IDS_MSG_TPOP_ADD_RECIPIENTS"
+msgstr "Ajouter destinataires."
+
+msgid "IDS_MSG_TPOP_1_MESSAGE_MOVED_TO_MESSAGE_LIST"
+msgstr "1 message a été déplacé dans la liste des messages."
+
+msgid "IDS_MSG_TMBODY_TEXT_MESSAGES"
+msgstr "SMS"
+
+msgid "IDS_MSG_TMBODY_SOUND"
+msgstr "Son"
+
+msgid "IDS_MSG_TMBODY_MULTIMEDIA_MESSAGES"
+msgstr "MMS"
+
+msgid "IDS_MSG_TMBODY_MESSAGES_ON_SIM_CARD"
+msgstr "Messages sur la carte SIM"
+
+msgid "IDS_MSG_TMBODY_INPUT_MODE"
+msgstr "Mode de saisie"
+
+msgid "IDS_MSG_TMBODY_AUTO_RETRIEVE_WHILE_ROAMING"
+msgstr "Récup. automatiq. en itinérance"
+
+msgid "IDS_MSG_TMBODY_AUTO_RETRIEVE"
+msgstr "Récupération automatique"
+
+msgid "IDS_MSG_SK_SEND_NOW"
+msgstr "Envoyer"
+
+msgid "IDS_MSG_SBODY_SELECT_AN_INPUT_MODE_FOR_COMPOSING_MESSAGES"
+msgstr "Sélectionnez le mode de saisie pour rédiger les messages."
+
+msgid "IDS_MSG_SBODY_NONE_M_STATUS"
+msgstr "Aucune"
+
+msgid "IDS_MSG_SBODY_MANAGE_THE_MESSAGES_STORED_ON_YOUR_SIM_CARD"
+msgstr "Gérez les messages stockés sur votre carte SIM."
+
+msgid "IDS_MSG_POP_UNABLE_TO_SEND_SCHEDULED_MESSAGE_SET_ANOTHER_TIME"
+msgstr "Impossible d'envoyer un message programmé. Définissez un autre horaire."
+
+msgid "IDS_MSG_POP_UNABLE_TO_ATTACH_FILE_FILE_SIZE_TOO_LARGE_TRY_SENDING_VIA_EMAIL_BLUETOOTH_WI_FI_ETC"
+msgstr "Impossible de joindre le fichier. Fichier trop volumineux. Essayez de l'envoyer par e-mail, Bluetooth, Wi-Fi, etc."
+
+msgid "IDS_MSG_POP_TO_SEND_THIS_MULTIMEDIA_MESSAGE_THE_DEVICE_WILL_CONNECT_TO_A_DIFFERENT_MOBILE_NETWORK_THIS_WILL_DISCONNECT_YOUR_DEVICE_FROM_YOUR_MSG"
+msgstr "Pour envoyer ce MMS, l'appareil va se connecter à un autre réseau mobile. Votre appareil va donc être déconnecté du réseau mobile actuel."
+
+msgid "IDS_MSG_POP_TO_DOWNLOAD_THIS_MULTIMEDIA_MESSAGE_THE_DEVICE_WILL_CONNECT_TO_A_DIFFERENT_MOBILE_NETWORK_MSG"
+msgstr "Pour télécharger ce MMS, l'appareil va se connecter à un autre réseau mobile. Votre appareil va donc être déconnecté du réseau mobile actuel."
+
+msgid "IDS_MSG_POP_THIS_MESSAGE_WILL_BE_RESENT"
+msgstr "Ce message sera renvoyé."
+
+msgid "IDS_MSG_POP_PD_MESSAGES_WILL_BE_DELETED"
+msgstr "%d messages seront supprimés."
+
+msgid "IDS_MSG_POP_PD_CONVERSATIONS_WILL_BE_DELETED"
+msgstr "%d conversations seront supprimées."
+
+msgid "IDS_MSG_POP_NO_TEMPLATES_IN_LIST"
+msgstr "Aucun modèle dans la liste"
+
+msgid "IDS_MSG_POP_INCLUDE_ORIGINAL_TEXT_IN_OUTGOING_MESSAGE"
+msgstr "Inclure le texte d'origine dans le message sortant"
+
+msgid "IDS_MSG_POP_DURATION_MUST_BE_SHORTER_THAN_PD_SECONDS"
+msgstr "La durée doit être inférieure à %d secondes."
+
+msgid "IDS_MSG_POP_1_MESSAGE_WILL_BE_DELETED"
+msgstr "1 message sera supprimé."
+
+msgid "IDS_MSG_POP_1_CONVERSATION_WILL_BE_DELETED"
+msgstr "1 conversation va être supprimée."
+
+msgid "IDS_MSG_OPT_VIEW_DETAILS_ABB"
+msgstr "Afficher les détails"
+
+msgid "IDS_MSG_OPT_VIEW_CONTACT_DETAILS_ABB"
+msgstr "Afficher détails du contact"
+
+msgid "IDS_MSG_OPT_VIEW_AS_SLIDESHOW_ABB"
+msgstr "Afficher en tant que diaporama"
+
+msgid "IDS_MSG_OPT_UPDATE_CONTACT"
+msgstr "Mettre à jour le contact"
+
+msgid "IDS_MSG_OPT_UNICODE"
+msgstr "Unicode"
+
+msgid "IDS_MSG_OPT_TAKE_PICTURE_ABB"
+msgstr "Photographier"
+
+msgid "IDS_MSG_OPT_SAVE_ATTACHMENTS_ABB"
+msgstr "Enregistrer les pièces jointes"
+
+msgid "IDS_MSG_OPT_RESEND"
+msgstr "Renvoyer"
+
+msgid "IDS_MSG_OPT_REPLY"
+msgstr "Répondre"
+
+msgid "IDS_MSG_OPT_REMOVE_FROM_BLOCK_LIST_ABB"
+msgstr "Supprimer de la liste bloquée"
+
+msgid "IDS_MSG_OPT_RECORD_AUDIO_FILE_ABB"
+msgstr "Enregistrer un fichier audio"
+
+msgid "IDS_MSG_OPT_QUICK_RESPONSE_ABB"
+msgstr "Réponse rapide"
+
+msgid "IDS_MSG_OPT_MAKE_VOICE_CALL"
+msgstr "Effectuer un appel vocal"
+
+msgid "IDS_MSG_OPT_GSM_ALPHABET_ABB"
+msgstr "Alphabet GSM"
+
+msgid "IDS_MSG_OPT_EXPORT_TO_DEVICE_MEMORY"
+msgstr "Exporter vers la mémoire du périphérique"
+
+msgid "IDS_MSG_OPT_DELETE_MESSAGE"
+msgstr "Supprimer le message"
+
+msgid "IDS_MSG_OPT_DELETE_CONVERSATION_ABB"
+msgstr "Supprimer la conversation"
+
+msgid "IDS_MSG_OPT_CREATE_CONTACT_ABB"
+msgstr "Créer un contact"
+
+msgid "IDS_MSG_OPT_COPY_TO_SIM_CARD_ABB"
+msgstr "Copier sur la carte SIM"
+
+msgid "IDS_MSG_OPT_COPY_TO_DEVICE_ABB"
+msgstr "Copier sur l'appareil"
+
+msgid "IDS_MSG_OPT_COPY_TEXT"
+msgstr "Copier le texte"
+
+msgid "IDS_MSG_OPT_COPY"
+msgstr "Copier"
+
+msgid "IDS_MSG_OPT_BACK_UP"
+msgstr "Sauvegarder"
+
+msgid "IDS_MSG_OPT_AUTOMATIC"
+msgstr "Automatique"
+
+msgid "IDS_MSG_OPT_AUDIO_FILES_ABB2"
+msgstr "Fichiers audio"
+
+msgid "IDS_MSG_OPT_ATTACHMENT_ABB"
+msgstr "Pièce jointe"
+
+msgid "IDS_MSG_OPT_ADD_TO_CONTACTS_ABB"
+msgstr "Ajouter aux contacts"
+
+msgid "IDS_MSG_OPT_ADD_TO_BLOCK_LIST_ABB"
+msgstr "Ajouter à la liste bloquée"
+
+msgid "IDS_MSG_OPT_ADD_RECIPIENTS_ABB"
+msgstr "Ajouter des destinataires"
+
+msgid "IDS_MSG_NPBODY_SEARCH"
+msgstr "Rechercher"
+
+msgid "IDS_MSG_NPBODY_NO_RESULTS_FOUND_ABB"
+msgstr "Aucun résultat trouvé"
+
+msgid "IDS_MSG_NPBODY_NO_QUICK_RESPONSES"
+msgstr "Aucune réponse rapide"
+
+msgid "IDS_MSG_NPBODY_NO_PHRASES_BLOCKED"
+msgstr "Aucune phrase bloquée"
+
+msgid "IDS_MSG_NPBODY_NO_MESSAGES_ON_SIM_CARD"
+msgstr "Aucun message sur la carte SIM"
+
+msgid "IDS_MSG_NPBODY_NO_MESSAGES"
+msgstr "Aucun message"
+
+msgid "IDS_MSG_NPBODY_NO_BLOCKED_NUMBERS"
+msgstr "Aucun numéro bloqué"
+
+msgid "IDS_MSG_MBODY_VIBRATION"
+msgstr "Vibreur"
+
+msgid "IDS_MSG_MBODY_UNKNOWN_NUMBER"
+msgstr "Numéro inconnu"
+
+msgid "IDS_MSG_MBODY_TEXT_MESSAGE_CENTRE_NUMBER_ABB"
+msgstr "Numéro du centre SMS"
+
+msgid "IDS_MSG_HEADER_TEXT_MESSAGES_ABB"
+msgstr "SMS"
+
+msgid "IDS_MSG_HEADER_SWITCH_MOBILE_NETWORK_ABB2"
+msgstr "Changer de réseau mobile"
+
+msgid "IDS_MSG_HEADER_SMS_CENTRE_ABB2"
+msgstr "Centre SMS"
+
+msgid "IDS_MSG_HEADER_SELECT_RECIPIENT"
+msgstr "Sélectionner un destinataire"
+
+msgid "IDS_MSG_HEADER_PD_SELECTED_ABB3"
+msgstr "Sélection : %d"
+
+msgid "IDS_MSG_HEADER_MESSAGES_ON_SIM_CARD_ABB"
+msgstr "Messages sur la carte SIM"
+
+msgid "IDS_MSG_HEADER_INPUT_MODE_ABB"
+msgstr "Mode de saisie"
+
+msgid "IDS_MSG_HEADER_FILE_SIZE_TOO_LARGE_ABB"
+msgstr "Fichier trop volumineux"
+
+msgid "IDS_MSG_HEADER_FAILED_TO_SEND_MESSAGE_ABB"
+msgstr "Imp. d'envoyer le message"
+
+msgid "IDS_MSG_HEADER_DISCARD_MESSAGE_M_CLOSE_ABB"
+msgstr "Ignorer le message"
+
+msgid "IDS_MSG_HEADER_CREATE"
+msgstr "Créer"
+
+msgid "IDS_MSG_HEADER_ADD_CONTENT_ABB"
+msgstr "Ajouter du contenu"
+
+msgid "IDS_MSG_BUTTON_SWITCH_ABB2"
+msgstr "Changer"
+
+msgid "IDS_MSG_BUTTON_SAVE_ABB2"
+msgstr "Enregistrer"
+
+msgid "IDS_MSG_BUTTON_RESEND_ABB"
+msgstr "Renvoyer"
+
+msgid "IDS_MSG_BUTTON_DISCARD_ABB"
+msgstr "Ignorer"
+
+msgid "IDS_MSG_BUTTON_DELETE_ABB4"
+msgstr "Supprimer"
+
+msgid "IDS_MSG_BUTTON_CANCEL_ABB2"
+msgstr "Annuler"
+
+msgid "IDS_MSG_BUTTON2_CONTACTS_ABB_M_APPLICATION_NAME"
+msgstr "Contacts"
+
+msgid "IDS_MSG_BODY_YOU_HAVE_SELECTED_A_SOUND_N_SHOT_FILE_SOUND_DATA_IS_NOT_SUPPORTED_FOR_MMS_SO_ONLY_THE_PICTURE_WILL_BE_ATTACHED"
+msgstr "Vous avez sélectionné un fichier Son & prise. Les données audio n'étant pas prises en charge pour les MMS, seule la photo sera jointe."
+
+msgid "IDS_MSG_BODY_WAITING_TO_SEND_ING_M_STATUS"
+msgstr "En attente d'envoi..."
+
+msgid "IDS_MSG_BODY_UNABLE_TO_SEND_THIS_MESSAGE_INSERT_YOUR_SIM_CARD_AND_TRY_AGAIN"
+msgstr "Impossible d'envoyer ce message. Insérez votre carte SIM, puis réessayez."
+
+msgid "IDS_MSG_BODY_TYPE_C"
+msgstr "Type :"
+
+msgid "IDS_MSG_BODY_TO_USE_RESTRICTED_MEDIA_TYPES_CHANGE_YOUR_MMS_CREATION_MODE_SETTING"
+msgstr "Pour utiliser des types de médias restreints, modifiez le paramètre du mode de création MMS."
+
+msgid "IDS_MSG_BODY_TIME_SENT_C"
+msgstr "Heure de l'envoi :"
+
+msgid "IDS_MSG_BODY_TIME_RECEIVED_C"
+msgstr "Heure de réception :"
+
+msgid "IDS_MSG_BODY_STATUS_C"
+msgstr "Statut :"
+
+msgid "IDS_MSG_BODY_SENT_M_STATUS"
+msgstr "Envoyé"
+
+msgid "IDS_MSG_BODY_SENDING_ING_M_STATUS_ABB"
+msgstr "Envoi..."
+
+msgid "IDS_MSG_BODY_SENDING_FAILED_M_STATUS"
+msgstr "Échec de l'envoi"
+
+msgid "IDS_MSG_BODY_RETRIEVE_MESSAGES_AUTOMATICALLY_WHILE_ROAMING"
+msgstr "Récupérez automatiquement les messages en itinérance."
+
+msgid "IDS_MSG_BODY_RETRIEVE_MESSAGES_AUTOMATICALLY"
+msgstr "Récupérez automatiquement les messages."
+
+msgid "IDS_MSG_BODY_READ_REPORT_C_PS"
+msgstr "Confirmation de lecture : %s"
+
+msgid "IDS_MSG_BODY_OTHER_PERSON"
+msgstr "Autre personne"
+
+msgid "IDS_MSG_BODY_MEMO_T_MAINMENU"
+msgstr "Mémo"
+
+msgid "IDS_MSG_BODY_FAILED_M_STATUS_ABB2"
+msgstr "Échec"
+
+msgid "IDS_MSG_BODY_ENTER_TEXT_M_NOUN"
+msgstr "Entrez du texte"
+
+msgid "IDS_MSG_BODY_DRAFT_M_STATUS_ABB"
+msgstr "Brouillon"
+
+msgid "IDS_MSG_BODY_DELIVERY_REPORT_C_PS"
+msgstr "Accusé de réception : %s"
+
+msgid "IDS_MSG_BODY_CB_MESSAGE"
+msgstr "Message CB"
+
+msgid "IDS_MSG_BODY_CALENDAR_M_APPLICATION_NAME_ABB"
+msgstr "Calendrier"
+
+msgid "IDS_MSG_BODY_AFTER_YOU_SEND_OR_RECEIVE_MESSAGES_THEY_WILL_BE_SHOWN_HERE"
+msgstr "Les messages envoyés ou reçus seront affichés ici."
+
+msgid "IDS_MSG_BODY_AFTER_YOU_CREATE_QUICK_RESPONSES_THEY_WILL_BE_SHOWN_HERE"
+msgstr "Les réponses rapides créées seront affichées ici."
+
+msgid "IDS_MSG_BODY_AFTER_YOU_COPY_MESSAGES_TO_THE_SIM_CARD_THEY_WILL_BE_SHOWN_HERE"
+msgstr "Les messages copiés sur la carte SIM seront affichés ici."
+
+msgid "IDS_MSG_BODY_AFTER_YOU_ADD_PHRASES_THEY_WILL_BE_SHOWN_HERE"
+msgstr "Après avoir ajouté des phrases, elles seront affichées ici."
+
+msgid "IDS_MSG_BODY_AFTER_YOU_ADD_NUMBERS_TO_THE_MESSAGE_BLOCK_LIST_THEY_WILL_BE_SHOWN_HERE"
+msgstr "Après avoir ajouté des numéros à votre liste de blocage des messages, ils seront affichés ici."
+
+msgid "IDS_MSG_ACBUTTON_DELETE_ABB"
+msgstr "SUPPRIMER"
+
+msgid "IDS_MSGC_POP_UNSUPPORTED_MEDIA_TYPE"
+msgstr "Type de support non pris en charge"
+
+msgid "IDS_MSGC_POP_LOW_BATTERY"
+msgstr "Batterie faible"
+
+msgid "IDS_MSGC_POP_CANCELLED"
+msgstr "Annulé"
+
+msgid "IDS_MSGC_OPT_EMAIL"
+msgstr "Email"
+
+msgid "IDS_MSGC_OPT_EDITITEM_VIEW"
+msgstr "Afficher"
+
+msgid "IDS_MSGC_OPT_EDITITEM_REMOVE"
+msgstr "Supprimer"
+
+msgid "IDS_MSGC_OPT_EDITITEM_PLAY"
+msgstr "Lire"
+
+msgid "IDS_MSGC_OPT_CHANGE_RECIPIENTS_TO"
+msgstr "A"
+
+msgid "IDS_MSGC_HEADER_PREVIEW"
+msgstr "Aperçu"
+
+msgid "IDS_MSGC_BODY_ENTER_SUBJECT"
+msgstr "Saisir un objet"
+
+msgid "IDS_MSGF_POP_UNABLE_TO_FIND_LOCATION"
+msgstr "Localisation introuvable"
+
+msgid "IDS_MSGF_POP_REJECTED"
+msgstr "Rejeté"
+
+msgid "IDS_MSGF_POP_DELETING"
+msgstr "Suppression..."
+
+msgid "IDS_MSGF_POP_COPIED_TO_CLIPBOARD"
+msgstr "Copié dans le Presse-papier"
+
+msgid "IDS_MSGF_POP_BLOCK_PS_Q"
+msgstr "Bloquer %s ?"
+
+msgid "IDS_MSGF_OPT_SUBJECT_COLON"
+msgstr "Objet :"
+
+msgid "IDS_MSGF_OPT_SENDER_VIA_EMAIL"
+msgstr "Expéditeur par e-mail"
+
+msgid "IDS_MSGF_OPT_SELECT"
+msgstr "Sélectionner"
+
+msgid "IDS_MSGF_OPT_SAVE"
+msgstr "Enregistrer"
+
+msgid "IDS_MSGF_OPT_REMOVE"
+msgstr "Supprimer"
+
+msgid "IDS_MSGF_OPT_FORWARD"
+msgstr "Transférer"
+
+msgid "IDS_MSGF_OPT_DELETE_Q"
+msgstr "Supprimer ?"
+
+msgid "IDS_MSGF_HEADER_ADVANCED_SEARCH"
+msgstr "Recherche avancée"
+
+msgid "IDS_MSGF_BODY_UNKNOWN"
+msgstr "Inconnu"
+
+msgid "IDS_MSGF_BODY_SETTINGS"
+msgstr "Paramètres"
+
+msgid "IDS_MSGF_BODY_RECIPIENTS"
+msgstr "Destinataires"
+
+msgid "IDS_MSGF_BODY_RECEIVED"
+msgstr "Reçu(s)"
+
+msgid "IDS_MSGF_BODY_OTHER"
+msgstr "Autre"
+
+msgid "IDS_MSGF_BODY_NO_SUBJECT"
+msgstr "Aucun objet"
+
+msgid "IDS_MSGF_BODY_MSGSIZE_KB"
+msgstr "Ko"
+
+msgid "IDS_MSGF_BODY_MESSAGE"
+msgstr "Message"
+
+msgid "IDS_MSGF_BODY_ME"
+msgstr "Moi"
+
+msgid "IDS_MSGF_BODY_EXPIRED"
+msgstr "La date a expiré."
+
+msgid "IDS_MSGF_BODY_ALL"
+msgstr "Tout"
+
+msgid "IDS_MSG_SK_NO_ABB"
+msgstr "Non"
+
+msgid "IDS_MSG_POP_YOUR_MESSAGE_WILL_BE_DISCARDED_NO_RECIPIENTS_HAVE_BEEN_SELECTED"
+msgstr "Votre message va être annulé. Aucun destinataire n'a été sélectionné."
+
+msgid "IDS_MSG_POP_UNABLE_TO_PLAY_DURING_CALL"
+msgstr "Lecture impossible pendant un appel"
+
+msgid "IDS_MSG_POP_INCOMING_MESSAGES_ONLY"
+msgstr "Messages entrants uniquement"
+
+msgid "IDS_MSG_POP_DELETED"
+msgstr "Supprimé"
+
+msgid "IDS_MSG_OPT_VIDEOS"
+msgstr "Vidéos"
+
+msgid "IDS_MSG_OPT_TEXT"
+msgstr "Texte"
+
+msgid "IDS_MSG_OPT_SETTINGS"
+msgstr "Paramètres"
+
+msgid "IDS_MSG_OPT_SEARCH"
+msgstr "Rechercher"
+
+msgid "IDS_MSG_OPT_RECORD_VIDEO_ABB"
+msgstr "Enregistrer une vidéo"
+
+msgid "IDS_MSG_OPT_NONE"
+msgstr "Aucun(e)"
+
+msgid "IDS_MSG_OPT_IMAGES"
+msgstr "Images"
+
+msgid "IDS_MSG_OPT_EDIT"
+msgstr "Modifier"
+
+msgid "IDS_MSG_OPT_DELETE"
+msgstr "Supprimer"
+
+msgid "IDS_MSG_OPT_DEFAULT"
+msgstr "Par défaut"
+
+msgid "IDS_MSG_MBODY_SELECT_ALL"
+msgstr "Sélectionner tout"
+
+msgid "IDS_MSG_MBODY_ALERTS"
+msgstr "Alertes"
+
+msgid "IDS_MSG_HEADER_TRANSLATE"
+msgstr "Traduire"
+
+msgid "IDS_MSG_HEADER_SETTINGS"
+msgstr "Paramètres"
+
+msgid "IDS_MSG_HEADER_MESSAGES"
+msgstr "Messages"
+
+msgid "IDS_MSG_HEADER_DELETE"
+msgstr "Supprimer"
+
+msgid "IDS_MSG_HEADER_ATTENTION"
+msgstr "Attention"
+
+msgid "IDS_MSG_BUTTON_REMOVE_ABB"
+msgstr "Supprimer"
+
+msgid "IDS_MSG_BUTTON_OK_ABB"
+msgstr "OK"
+
+msgid "IDS_MSG_BUTTON_DOWNLOAD_ABB3"
+msgstr "Télécharg."
+
+msgid "IDS_MSG_BUTTON_CANCEL_ABB"
+msgstr "Annuler"
+
+msgid "IDS_MSG_BODY_YES"
+msgstr "Oui"
+
+msgid "IDS_MSG_BODY_TICK_BOX_T_TTS"
+msgstr "Cocher la case"
+
+msgid "IDS_MSG_BODY_SEC"
+msgstr "sec"
+
+msgid "IDS_MSG_BODY_MESSAGE"
+msgstr "Message"
+
+msgid "IDS_MSG_BUTTON_SEND_ABB5"
+msgstr "Envoyer"
+
+msgid "IDS_MSG_BUTTON_SEND_ABB3"
+msgstr "Envoi"
+
+msgid "IDS_MSG_ACBUTTON_SEND_ABB3"
+msgstr "ENV."
+
+msgid "IDS_ST_BODY_LOADING_ING"
+msgstr "Chargement en cours."
+
+msgid "IDS_MSGS_BODY_NOTIFICATIONS"
+msgstr "Notifications"
+
+msgid "IDS_MSG_HEADER_ME"
+msgstr "Moi"
+
+msgid "IDS_MSG_BODY_UNKNOWN"
+msgstr "Inconnu"
+
+msgid "IDS_MSG_TMBODY_ADD_OR_REMOVE_RECIPIENTS"
+msgstr "Ajout ou suppr. destinataires"
+
+msgid "IDS_MSG_POP_THE_SENDER_HAS_REQUESTED_A_READ_REPORT_TAP_SEND_TO_SEND_ONE"
+msgstr "L'expéditeur a demandé une confirmation de lecture. Appuyez sur Envoyer pour en envoyer une."
+
+msgid "IDS_MSGF_OPT_SEND_READ_REPORT"
+msgstr "Confirmation de lecture"
+
+msgid "IDS_MSG_HEADER_COMPOSE_MESSAGE_ABB"
+msgstr "Rédiger message"
+
+msgid "IDS_MSG_POP_NO_VALID_RECIPIENTS_HAVE_BEEN_ADDED_THIS_MESSAGE_WILL_BE_DISCARDED"
+msgstr "Aucun destinataire valide n'a été ajouté. Ce message va être ignoré."
+

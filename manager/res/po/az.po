@@ -1,0 +1,945 @@
+msgid "IDS_COM_BODY_HOME"
+msgstr "Ev"
+
+msgid "IDS_MSGC_POP_DATA_ROAMING_IS_DISABLED_ENABLE_DATA_ROAMING_AND_TRY_AGAIN"
+msgstr "Verilənlər rouminqi qeyri-aktiv edilib. Verilənlər rouminqini aktivləşdirin və yenidən cəhd edin."
+
+msgid "IDS_MSG_ACBUTTON_CANCEL_ABB"
+msgstr "LƏĞV ET"
+
+msgid "IDS_MSG_ACBUTTON_DONE_ABB"
+msgstr "HAZIR"
+
+msgid "IDS_MSGF_POP_NEW_MESSAGE"
+msgstr "Yeni mesaj"
+
+msgid "IDS_COM_BUTTON_SHARE"
+msgstr "Paylaş"
+
+msgid "IDS_COM_BODY_UNKNOWN"
+msgstr "Naməlum"
+
+msgid "IDS_COM_BODY_MOBILE"
+msgstr "Mobil"
+
+msgid "IDS_MSGC_POP_MOBILE_DATA_IS_DISABLED_ENABLE_MOBILE_DATA_AND_TRY_AGAIN"
+msgstr "Mobil məlumatlar qeyri-aktiv edilib. Mobil məlumatları aktivləşdirin və yenidən cəhd edin."
+
+msgid "IDS_TPLATFORM_ACBUTTON_SEND_ABB"
+msgstr "GÖNDƏR"
+
+msgid "IDS_MSGC_POP_UNABLE_TO_SEND_MESSAGES_WHILE_IN_FLIGHT_MODE_DISABLE_FLIGHT_MODE_AND_TRY_AGAIN"
+msgstr "Uçuş rejimində mesaj göndərmək mümkün deyil. Uçuş rejimini qeyri-aktiv et və yenidən cəhd et."
+
+msgid "IDS_MSGC_POP_UNABLE_TO_ADD_FILE_IS_FORWARD_LOCKED"
+msgstr "Göndərmək mümkün deyil.\nGöndərmə əməliyyatı blokirovkadadır."
+
+msgid "IDS_MSGC_POP_THERE_IS_NOT_ENOUGH_SPACE_IN_YOUR_DEVICE_STORAGE_GO_TO_SETTINGS_POWER_AND_STORAGE_STORAGE_THEN_DELETE_SOME_FILES_AND_TRY_AGAIN"
+msgstr "Cihazınızın yaddaşında kifayət qədər yer yoxdur. Parametrlər > Enerji və yaddaş > Yaddaş seçin və bir neçə faylı silərək yenidən cəhd edin."
+
+msgid "IDS_MSGC_POP_TEXT_AT_TOP"
+msgstr "Mətn yuxarıda"
+
+msgid "IDS_MSGC_POP_TEXT_AT_BOTTOM"
+msgstr "Mətn aşağıda"
+
+msgid "IDS_MSGC_POP_SELECT_LAYOUT"
+msgstr "Tərtibat seçin"
+
+msgid "IDS_MSGC_POP_MMSCANTADD"
+msgstr "Məzmun əlavə etmək mümkün deyil."
+
+msgid "IDS_MSGC_POP_MESSAGE_SCHEDULED_TO_BE_SENT_TO_PS_SEND_NOW_Q"
+msgstr "Mesajın %s-a göndərilməsi planlaşdırılıb. İndi göndərilsin?"
+
+msgid "IDS_MSGC_POP_MAXIMUM_MESSAGE_SIZE_REACHED"
+msgstr "Mesaj ölçüsü maksimuma çatıb."
+
+msgid "IDS_MSGC_POP_DURATION_MUST_BE_AT_LEAST_PD_SECONDS"
+msgstr "Müddət minimum %d saniyə olmalıdır."
+
+msgid "IDS_MSGC_POP_DISABLING_FLIGHT_MODE_ING"
+msgstr "Uçuş rejimi qeyri aktiv edilir..."
+
+msgid "IDS_MSGC_POP_COPIED_TO_SIM_CARD"
+msgstr "SIM karta köçürüldü."
+
+msgid "IDS_MSGC_OPT_USE_OTHER_CONTACT_INFO_ABB"
+msgstr "Dgr kntkt mlm.ist. et"
+
+msgid "IDS_MSGC_OPT_SEND_VIA"
+msgstr "Göndərmə vasitəsi"
+
+msgid "IDS_MSGC_OPT_IMAGE"
+msgstr "Şəkil"
+
+msgid "IDS_MSGC_OPT_EDIT_ITEM_REPLACE"
+msgstr "Əvəz et"
+
+msgid "IDS_MSGC_OPT_CANCEL_MESSAGE"
+msgstr "Mesajı ləğv et"
+
+msgid "IDS_MSGC_HEADER_RECIPIENT_LIST"
+msgstr "Qəbul edənlərin siyahısı"
+
+msgid "IDS_MSGC_HEADER_DURATION_FOR_SLIDE_PD_PD"
+msgstr "Slayd üçün müddət %d/%d"
+
+msgid "IDS_MSGC_BODY_WAIT_WHILE_ITEMS_ARE_ADDED_TO_SLIDESHOW"
+msgstr "Elementlər slayd nümayişinə əlavə edilərkən gözləyin."
+
+msgid "IDS_MSGC_BODY_UNABLE_TO_SEND_MESSAGE"
+msgstr "Mesaj göndərmək mümkün deyil."
+
+msgid "IDS_MSGC_BODY_SELECT_RINGTONE"
+msgstr "Zəng melodiyası seçin"
+
+msgid "IDS_MSGC_BODY_READ_REPORT_WILL_BE_SENT"
+msgstr "Oxunma hesabatı göndəriləcək."
+
+msgid "IDS_MSGC_BODY_NOT_REQUESTED"
+msgstr "Təklif edilməyib"
+
+msgid "IDS_MSGC_BODY_MAXIMUM_NUMBER_OF_RECIPIENTS_HPD_REACHED"
+msgstr "Qəbul edənlərin sayı maksimuma (%d) çatıb."
+
+msgid "IDS_MSGC_BODY_DUPLICATED_RECIPIENT"
+msgstr "Duplikat qəbul edən."
+
+msgid "IDS_MSGF_SK_FORWARD_LITE"
+msgstr "Ötür"
+
+msgid "IDS_MSGF_POP_UNABLE_TO_SAVE"
+msgstr "Saxlamaq mümkün deyil."
+
+msgid "IDS_MSGF_POP_UNABLE_TO_DELETE"
+msgstr "Silmək mümkün deyil."
+
+msgid "IDS_MSGF_POP_UNABLE_TO_COPY"
+msgstr "Surətini köçürmək mümkün deyildir."
+
+msgid "IDS_MSGF_POP_SOME_CHARACTERS_MAY_BE_LOST_CONTINUE_Q"
+msgstr "Bəzi simvollar itə bilər.\nDavam etsin?"
+
+msgid "IDS_MSGF_POP_SIM_NOT_INSERTED"
+msgstr "SIM daxil edilməyib."
+
+msgid "IDS_MSGF_POP_SAVING_FAILED"
+msgstr "Yaddaşa yazmaq mümkün olmadı."
+
+msgid "IDS_MSGF_POP_SAVED_IN_MY_FILES"
+msgstr "Fayllarımda saxlandı."
+
+msgid "IDS_MSGF_POP_RETRIEVING_MESSAGE_FAILED"
+msgstr "Mesajın bərpa edilməsi mümkün olmadı"
+
+msgid "IDS_MSGF_POP_RESTRICTED_CONTENT_TYPE_ATTACH_ANYWAY_Q"
+msgstr "Məhdudlaşdırılmış məzmun növü. İstənilən halda əlavə edilsin?"
+
+msgid "IDS_MSGF_POP_RESTORING_ING"
+msgstr "Bərpa edilir..."
+
+msgid "IDS_MSGF_POP_READ_REPORT"
+msgstr "Oxunma hesabatı"
+
+msgid "IDS_MSGF_POP_NO_NUMBER"
+msgstr "Nömrə yoxdur"
+
+msgid "IDS_MSGF_POP_NO_ATTACHMENTS"
+msgstr "Əlavələr yoxdur"
+
+msgid "IDS_MSGF_POP_NEW_MESSAGES"
+msgstr "Yeni mesaj"
+
+msgid "IDS_MSGF_POP_MESSAGE_COPIED_FROM_SIM_CARD"
+msgstr "Mesaj SIM kartdan köçürüldü."
+
+msgid "IDS_MSGF_POP_MAXIMUM_NUMBER_OF_RECIPIENTS_IS_PD_SOME_RECIPIENTS_MAY_BE_LOST"
+msgstr "Qəbul edənlərin maksimum sayı %d-dir. Qəbul edənlərin bəziləri itirilə bilər."
+
+msgid "IDS_MSGF_POP_MAXIMUM_NUMBER_OF_ATTACHMENTS_HPS_EXCEEDED"
+msgstr "Əlavələrin sayı maksimumu (%s) keçmişdir."
+
+msgid "IDS_MSGF_POP_MAXIMUM_CHARACTERS"
+msgstr "Simvol sayı maksimuma çatıb."
+
+msgid "IDS_MSGF_POP_IN_PROGRESS_ING"
+msgstr "İşlənilir..."
+
+msgid "IDS_MSGF_POP_INTIALISING"
+msgstr "İlkin vəziyyətə gətirilmə"
+
+msgid "IDS_MSGF_POP_IF_YOU_DONT_WANT_TO_REPLACE_THE_FILE_RENAME_IT"
+msgstr "Faylı əvəz etmək istəmirsinizsə, onun adını dəyişin."
+
+msgid "IDS_MSGF_POP_HELP_PAGE_MESSAGE_FOR_ONE_FILE"
+msgstr "Bu mesaj göstərilməyən əlavə edilmiş fayldan ibarətdir."
+
+msgid "IDS_MSGF_POP_HELP_PAGE_MESSAGE"
+msgstr "Bu mesaja göstərilməyən əlavə edilmiş fayllar daxildir."
+
+msgid "IDS_MSGF_POP_FILE_NAME_ALREADY_EXISTS"
+msgstr "Artıq var."
+
+msgid "IDS_MSGF_POP_CONVERTING_TO_TEXT_MESSAGE_ING"
+msgstr "Mətn mesaja çevrilir..."
+
+msgid "IDS_MSGF_POP_CONVERTING_TO_MULTIMEDIA_MESSAGE_ING"
+msgstr "Multimedia mesajına çevrilir..."
+
+msgid "IDS_MSGF_POP_ABOUT_TO_GO_ONLINE_CONTINUE_Q"
+msgstr "Siz şəbəkəyə qoşulmaq üzrəsiniz(%s). Davam edilsin?"
+
+msgid "IDS_MSGF_OPT_TEXT_MESSAGE"
+msgstr "Mətn mesajı"
+
+msgid "IDS_MSGF_OPT_SENDER_ABB"
+msgstr "Göndərən"
+
+msgid "IDS_MSGF_OPT_SAVE_ATTACHMENT"
+msgstr "Əlavəni saxla"
+
+msgid "IDS_MSGF_OPT_INSTALL"
+msgstr "Yüklə"
+
+msgid "IDS_MSGF_OPT_EDIT_MESSAGE"
+msgstr "Mesajı redaktə et"
+
+msgid "IDS_MSGF_OPT_DELETE_MESSAGES"
+msgstr "Mesajları silin"
+
+msgid "IDS_MSGF_HEADER_SELECT_MESSAGES"
+msgstr "Mesajları seç"
+
+msgid "IDS_MSGF_HEADER_SAVE_ALL"
+msgstr "Hamısını yaddaşa yaz"
+
+msgid "IDS_MSGF_HEADER_MESSAGE_DETAILS"
+msgstr "Mesaj təfərrüatları"
+
+msgid "IDS_MSGF_HEADER_EXPIRES_C_PS"
+msgstr "Tamamlanır: %s"
+
+msgid "IDS_MSGF_BUTTON_SAVE_ALL_ATTACHMENTS_ABB"
+msgstr "Bütün əlav yad sax"
+
+msgid "IDS_MSGF_BODY_TO_C"
+msgstr "Kimə:"
+
+msgid "IDS_MSGF_BODY_TEXT_MESSAGES"
+msgstr "Mətn mesajları"
+
+msgid "IDS_MSGF_BODY_SIM_MEMORY_FULL_DELETE_SOME_ITEMS"
+msgstr "SIM yaddaşı doludur. Bəzi elementləri sil."
+
+msgid "IDS_MSGF_BODY_SENT_M_DATE_C"
+msgstr "Göndərilmişdir:"
+
+msgid "IDS_MSGF_BODY_REQUESTED"
+msgstr "Tələb edildi."
+
+msgid "IDS_MSGF_BODY_RECEIVED_M_DATE_C"
+msgstr "Qəbul edildi:"
+
+msgid "IDS_MSGF_BODY_READ_REPORT"
+msgstr "Oxunma hesabatı"
+
+msgid "IDS_MSGF_BODY_PUSH_MESSAGES"
+msgstr "Puş mesajları"
+
+msgid "IDS_MSGF_BODY_PD_MESSAGES"
+msgstr "%d mesaj"
+
+msgid "IDS_MSGF_BODY_PD_CONVERSATIONS"
+msgstr "%d söhbət"
+
+msgid "IDS_MSGF_BODY_NO_NAME"
+msgstr "Ad yoxdur"
+
+msgid "IDS_MSGF_BODY_MULTIMEDIA_MESSAGE_NOTIFICATION"
+msgstr "Multimedia mesajı bildirişi"
+
+msgid "IDS_MSGF_BODY_MULTIMEDIA_MESSAGE"
+msgstr "Multimediya mesajı"
+
+msgid "IDS_MSGF_BODY_MMSREADREPLYMSGREAD"
+msgstr "Oxu"
+
+msgid "IDS_MSGF_BODY_MMSDELIVERYMSGREJECTED"
+msgstr "Mesajdan imtina edildi."
+
+msgid "IDS_MSGF_BODY_MMS"
+msgstr "MMS"
+
+msgid "IDS_MSGF_BODY_MESSAGE_SIZE"
+msgstr "Mesajın ölçüsü"
+
+msgid "IDS_MSGF_BODY_MESSAGE_OPTIONS"
+msgstr "Mesaj seçimləri"
+
+msgid "IDS_MSGF_BODY_MESSAGE_DELIVERED"
+msgstr "Mesaj çatdırılmışdır"
+
+msgid "IDS_MSGF_BODY_MAXIMUM_NUMBER_OF_ATTACHMENTS_HP1SS_EXCEEDED_ONLY_FIRST_P2SS_WILL_BE_ADDED"
+msgstr "Qoşmaların sayı maksimumu (%1$s) keçib. Yalnız ilk %2$s əlavə ediləcək."
+
+msgid "IDS_MSGF_BODY_INVALID_RECIPIENT"
+msgstr "Qəbuledən səhvdir."
+
+msgid "IDS_MSGF_BODY_FROM"
+msgstr "Kimdən"
+
+msgid "IDS_MSGF_BODY_FLFROM"
+msgstr "Kimdən:"
+
+msgid "IDS_MSGF_BODY_DETAILSSENDINGFAILED"
+msgstr "Göndərmək mümkün olmadı."
+
+msgid "IDS_MSGF_BODY_DELIVERY_REPORT"
+msgstr "Çatdırılma haqqında hesabat"
+
+msgid "IDS_MSGF_BODY_CP_MESSAGES"
+msgstr "CP mesajları"
+
+msgid "IDS_MSGF_BODY_COPY_TEXT"
+msgstr "Mətnin surətini çıxar"
+
+msgid "IDS_MSGF_BODY_CB_MESSAGES"
+msgstr "CB mesajları"
+
+msgid "IDS_MSGF_BODY_1_MESSAGE"
+msgstr "1 mesaj"
+
+msgid "IDS_MSGF_BODY_1_CONVERSATION"
+msgstr "1 söhbət"
+
+msgid "IDS_MSGS_BODY_REQUEST_A_READ_REPORT_FOR_EACH_MESSAGE_YOU_SEND"
+msgstr "Göndərdiyiniz hər mesaj üçün oxunma hesabatı üçün təklif edin."
+
+msgid "IDS_MSGS_BODY_REQUEST_A_DELIVERY_REPORT_FOR_EACH_MESSAGE_YOU_SEND"
+msgstr "Göndərdiyiniz hər mesaj üçün çatdırılma hesabatı üçün təklif edin."
+
+msgid "IDS_MSGS_BODY_RADIO_BUTTON"
+msgstr "Radio düyməsi"
+
+msgid "IDS_MSGS_BODY_ON_OFF_BUTTON_T_TTS"
+msgstr "Yandır/söndür düyməsi"
+
+msgid "IDS_MSGS_BODY_EXPANDABLE_LIST_T_TTS"
+msgstr "Genişlənən siyahı"
+
+msgid "IDS_MSGS_BODY_AUTOMATICALLY_RETRIEVE_MMS_MESSAGES"
+msgstr "MMS mesajlarını avtomatik əldə et."
+
+msgid "IDS_MSG_TPOP_UNABLE_TO_PREVIEW_FILE_UNSUPPORTED_FILE_TYPE"
+msgstr "Fayla ilkin baxış olmadı. Dəstəklənməyən fayl növü."
+
+msgid "IDS_MSG_TPOP_UNABLE_TO_ATTACH_FILE_FILE_FORMAT_NOT_SUPPORTED"
+msgstr "Fayl əlavə etmək mümkün deyil. Fayl formatı dəstəklənmir."
+
+msgid "IDS_MSG_TPOP_UNABLE_TO_ADD_SOME_RECIPIENTS_NUMBERS_NOT_VALID"
+msgstr "Bəzi qəbul edənləri əlavə etmək mümkün olmadı. Nömrələr etibarlı deyil."
+
+msgid "IDS_MSG_TPOP_UNABLE_TO_ADD_RECIPIENT_NUMBER_NOT_VALID"
+msgstr "Qəbul edən əlavə etmək mümkün olmadı. Nömrə etibarlı deyil."
+
+msgid "IDS_MSG_TPOP_UNABLE_TO_ADD_RECIPIENTS_NUMBERS_NOT_VALID"
+msgstr "Qəbul edənləri əlavə etmək mümkün olmadı. Nömrələr etibarlı deyil."
+
+msgid "IDS_MSG_TPOP_UNABLE_TO_ADD_ATTACHMENT_MAXIMUM_NUMBER_OF_ATTACHMENTS_HPD_REACHED"
+msgstr "Qoşma əlavə etmək mümkün deyil. Qoşmaların sayı maksimuma (%d) çatıb."
+
+msgid "IDS_MSG_TPOP_THIS_NUMBER_IS_NOT_VALID"
+msgstr "Bu nömrə etibarlı deyil."
+
+msgid "IDS_MSG_TPOP_SOME_RECIPIENTS_ALREADY_ADDED"
+msgstr "Bəzi qəbul edənlər artıq əlavə edildi."
+
+msgid "IDS_MSG_TPOP_SELECTED_MESSAGES_COPIED_TO_MOBILE_DEVICE"
+msgstr "Seçilmiş mesajlar mobil cihaza kopyalandı."
+
+msgid "IDS_MSG_TPOP_PD_MESSAGES_MOVED_TO_MESSAGE_LIST"
+msgstr "%d mesaj mesaj siyahısına köçürüldü."
+
+msgid "IDS_MSG_TPOP_NUMBER_REMOVED_FROM_MESSAGE_BLOCK_LIST"
+msgstr "Nömrə mesaj blok siyahısından silindi."
+
+msgid "IDS_MSG_TPOP_NUMBER_ADDED_TO_MESSAGE_BLOCK_LIST"
+msgstr "Nömrə mesaj blok siyahısına əlavə edildi."
+
+msgid "IDS_MSG_TPOP_NETWORK_NOT_AVAILABLE_MESSAGE_WILL_BE_SENT_WHEN_CONNECTED_TO_NETWORK"
+msgstr "Şəbəkə mövcud deyil. Şəbəkəyə qoşulan zaman mmesaj göndəriləcək."
+
+msgid "IDS_MSG_TPOP_MESSAGE_COPIED_TO_PS_SIM_CARD"
+msgstr "Mesaj %s SIM karta kopyalandı."
+
+msgid "IDS_MSG_TPOP_MAXIMUM_NUMBER_OF_CHARACTERS_EXCEEDED"
+msgstr "Simvolların sayı maksimumu keçmişdir."
+
+msgid "IDS_MSG_TPOP_MAXIMUM_MESSAGE_SIZE_HPS_EXCEEDED_RESIZING_ATTACHMENTS_ING"
+msgstr "Mesaj ölçüsü maksimumu (%s) keçmişdir. Qoşmaların ölçüsü dəyişilir..."
+
+msgid "IDS_MSG_TPOP_INVALID_CHARACTER_ENTERED"
+msgstr "Səhv simvol daxil edilib"
+
+msgid "IDS_MSG_TPOP_ADD_RECIPIENTS"
+msgstr "Qəbul edənləri əlavə et."
+
+msgid "IDS_MSG_TPOP_1_MESSAGE_MOVED_TO_MESSAGE_LIST"
+msgstr "1 mesaj mesajlar siyahısına köçürüldü."
+
+msgid "IDS_MSG_TMBODY_TEXT_MESSAGES"
+msgstr "Mətn mesajları"
+
+msgid "IDS_MSG_TMBODY_SOUND"
+msgstr "Səs"
+
+msgid "IDS_MSG_TMBODY_MULTIMEDIA_MESSAGES"
+msgstr "Multimedia mesajları"
+
+msgid "IDS_MSG_TMBODY_MESSAGES_ON_SIM_CARD"
+msgstr "SIM kartdakı mesajlar"
+
+msgid "IDS_MSG_TMBODY_INPUT_MODE"
+msgstr "Daxiletmə rejimi"
+
+msgid "IDS_MSG_TMBODY_AUTO_RETRIEVE_WHILE_ROAMING"
+msgstr "Rouminq zamanı avtomat çıxarma"
+
+msgid "IDS_MSG_TMBODY_AUTO_RETRIEVE"
+msgstr "Avtomatik çıxarma"
+
+msgid "IDS_MSG_SK_SEND_NOW"
+msgstr "İndi gndr"
+
+msgid "IDS_MSG_SBODY_SELECT_AN_INPUT_MODE_FOR_COMPOSING_MESSAGES"
+msgstr "Mesaj yazmaq üçün daxiletmə rejimini seçin."
+
+msgid "IDS_MSG_SBODY_NONE_M_STATUS"
+msgstr "Yoxdur"
+
+msgid "IDS_MSG_SBODY_MANAGE_THE_MESSAGES_STORED_ON_YOUR_SIM_CARD"
+msgstr "SIM kartınızda saxlanan mesajları idarə edin."
+
+msgid "IDS_MSG_POP_UNABLE_TO_SEND_SCHEDULED_MESSAGE_SET_ANOTHER_TIME"
+msgstr "Planlaşdırılmış mesajı göndərmək mümkün deyil. Başqa bir vaxtı qur."
+
+msgid "IDS_MSG_POP_UNABLE_TO_ATTACH_FILE_FILE_SIZE_TOO_LARGE_TRY_SENDING_VIA_EMAIL_BLUETOOTH_WI_FI_ETC"
+msgstr "Faylı qoşmaq mümkün deyil. Faylın ölçüsü çox böyükdür. E-poçt, Bluetooth, Wi-Fi və s. ilə göndərməyə cəhd et."
+
+msgid "IDS_MSG_POP_TO_SEND_THIS_MULTIMEDIA_MESSAGE_THE_DEVICE_WILL_CONNECT_TO_A_DIFFERENT_MOBILE_NETWORK_THIS_WILL_DISCONNECT_YOUR_DEVICE_FROM_YOUR_MSG"
+msgstr "Bu multimedia mesajını göndərmək üçün cihaz fərqli mobil şəbəkəyə qoşulacaqdır. Bu, sizin cihazınızı hazırki mobil şəbəkədən ayıracaq."
+
+msgid "IDS_MSG_POP_TO_DOWNLOAD_THIS_MULTIMEDIA_MESSAGE_THE_DEVICE_WILL_CONNECT_TO_A_DIFFERENT_MOBILE_NETWORK_MSG"
+msgstr "Bu multimedia mesajını yükləmək üçün cihaz fərqli mobil şəbəkəyə qoşulacaq. Bu, sizin cihazınızı hazırki mobil şəbəkədən ayıracaq."
+
+msgid "IDS_MSG_POP_THIS_MESSAGE_WILL_BE_RESENT"
+msgstr "Bu mesaj yenidən göndəriləcək."
+
+msgid "IDS_MSG_POP_PD_MESSAGES_WILL_BE_DELETED"
+msgstr "%d mesaj silinəcək."
+
+msgid "IDS_MSG_POP_PD_CONVERSATIONS_WILL_BE_DELETED"
+msgstr "%d söhbət silinəcək."
+
+msgid "IDS_MSG_POP_NO_TEMPLATES_IN_LIST"
+msgstr "Siyahıda şablon yoxdur"
+
+msgid "IDS_MSG_POP_INCLUDE_ORIGINAL_TEXT_IN_OUTGOING_MESSAGE"
+msgstr "İlkin mətni çıxan mesaja daxil edin"
+
+msgid "IDS_MSG_POP_DURATION_MUST_BE_SHORTER_THAN_PD_SECONDS"
+msgstr "Müddət %d saniyədən az olmalıdır."
+
+msgid "IDS_MSG_POP_1_MESSAGE_WILL_BE_DELETED"
+msgstr "1 mesaj silinəcək."
+
+msgid "IDS_MSG_POP_1_CONVERSATION_WILL_BE_DELETED"
+msgstr "1 kontakt silinəcək."
+
+msgid "IDS_MSG_OPT_VIEW_DETAILS_ABB"
+msgstr "Detallara bax"
+
+msgid "IDS_MSG_OPT_VIEW_CONTACT_DETAILS_ABB"
+msgstr "Kontakt təfərrüatlarına bax"
+
+msgid "IDS_MSG_OPT_VIEW_AS_SLIDESHOW_ABB"
+msgstr "Slayd nümayiş kimi bax"
+
+msgid "IDS_MSG_OPT_UPDATE_CONTACT"
+msgstr "Kontaktı yenilə"
+
+msgid "IDS_MSG_OPT_UNICODE"
+msgstr "Yunikod"
+
+msgid "IDS_MSG_OPT_TAKE_PICTURE_ABB"
+msgstr "Şəkil çək"
+
+msgid "IDS_MSG_OPT_SAVE_ATTACHMENTS_ABB"
+msgstr "Qoşmaları saxla"
+
+msgid "IDS_MSG_OPT_RESEND"
+msgstr "Yenidən göndər"
+
+msgid "IDS_MSG_OPT_REPLY"
+msgstr "Cavab ver"
+
+msgid "IDS_MSG_OPT_REMOVE_FROM_BLOCK_LIST_ABB"
+msgstr "Blok siyahısından silin"
+
+msgid "IDS_MSG_OPT_RECORD_AUDIO_FILE_ABB"
+msgstr "Audio fayl yaz"
+
+msgid "IDS_MSG_OPT_QUICK_RESPONSE_ABB"
+msgstr "Çevik cavab"
+
+msgid "IDS_MSG_OPT_MAKE_VOICE_CALL"
+msgstr "Səsli zəng et"
+
+msgid "IDS_MSG_OPT_GSM_ALPHABET_ABB"
+msgstr "GSM əlifba"
+
+msgid "IDS_MSG_OPT_EXPORT_TO_DEVICE_MEMORY"
+msgstr "Cihaz yaddaşına ixrac et"
+
+msgid "IDS_MSG_OPT_DELETE_MESSAGE"
+msgstr "Mesajı sil"
+
+msgid "IDS_MSG_OPT_DELETE_CONVERSATION_ABB"
+msgstr "Söhbəti sil"
+
+msgid "IDS_MSG_OPT_CREATE_CONTACT_ABB"
+msgstr "Kontakt yarat"
+
+msgid "IDS_MSG_OPT_COPY_TO_SIM_CARD_ABB"
+msgstr "SIM karta kopyala"
+
+msgid "IDS_MSG_OPT_COPY_TO_DEVICE_ABB"
+msgstr "Cihaza köçür"
+
+msgid "IDS_MSG_OPT_COPY_TEXT"
+msgstr "Mətnin surətini çıxar"
+
+msgid "IDS_MSG_OPT_COPY"
+msgstr "Köçür"
+
+msgid "IDS_MSG_OPT_BACK_UP"
+msgstr "Ehtiyat nüsxə çıxar"
+
+msgid "IDS_MSG_OPT_AUTOMATIC"
+msgstr "Avtomatik"
+
+msgid "IDS_MSG_OPT_AUDIO_FILES_ABB2"
+msgstr "Audio fayllar"
+
+msgid "IDS_MSG_OPT_ATTACHMENT_ABB"
+msgstr "Qoşma"
+
+msgid "IDS_MSG_OPT_ADD_TO_CONTACTS_ABB"
+msgstr "Kontaktlara əlavə et"
+
+msgid "IDS_MSG_OPT_ADD_TO_BLOCK_LIST_ABB"
+msgstr "Blok siyahısına əlavə et"
+
+msgid "IDS_MSG_OPT_ADD_RECIPIENTS_ABB"
+msgstr "Qəbul edənləri əlavə et"
+
+msgid "IDS_MSG_NPBODY_SEARCH"
+msgstr "Axtar"
+
+msgid "IDS_MSG_NPBODY_NO_RESULTS_FOUND_ABB"
+msgstr "Nəticə tapılmadı"
+
+msgid "IDS_MSG_NPBODY_NO_QUICK_RESPONSES"
+msgstr "Cəld cavab yoxdur"
+
+msgid "IDS_MSG_NPBODY_NO_PHRASES_BLOCKED"
+msgstr "Heç bir ifadə bloklanmayıb"
+
+msgid "IDS_MSG_NPBODY_NO_MESSAGES_ON_SIM_CARD"
+msgstr "SIM kartda mesaj yoxdur"
+
+msgid "IDS_MSG_NPBODY_NO_MESSAGES"
+msgstr "Mesaj yoxdur"
+
+msgid "IDS_MSG_NPBODY_NO_BLOCKED_NUMBERS"
+msgstr "Bloklanmış nömrə yoxdur"
+
+msgid "IDS_MSG_MBODY_VIBRATION"
+msgstr "Vibrasiya"
+
+msgid "IDS_MSG_MBODY_UNKNOWN_NUMBER"
+msgstr "Naməlum nömrə"
+
+msgid "IDS_MSG_MBODY_TEXT_MESSAGE_CENTRE_NUMBER_ABB"
+msgstr "Mətn mesaj mərkəzinin nömrəsi"
+
+msgid "IDS_MSG_HEADER_TEXT_MESSAGES_ABB"
+msgstr "Mətn mesajları"
+
+msgid "IDS_MSG_HEADER_SWITCH_MOBILE_NETWORK_ABB2"
+msgstr "Mobil şəbəkəni keçir"
+
+msgid "IDS_MSG_HEADER_SMS_CENTRE_ABB2"
+msgstr "SMS mərkəzi"
+
+msgid "IDS_MSG_HEADER_SELECT_RECIPIENT"
+msgstr "Qəbul edəni seç"
+
+msgid "IDS_MSG_HEADER_PD_SELECTED_ABB3"
+msgstr "%d seçilmişdir"
+
+msgid "IDS_MSG_HEADER_MESSAGES_ON_SIM_CARD_ABB"
+msgstr "SIM kartdakı mesajlar"
+
+msgid "IDS_MSG_HEADER_INPUT_MODE_ABB"
+msgstr "Daxiletmə rejimi"
+
+msgid "IDS_MSG_HEADER_FILE_SIZE_TOO_LARGE_ABB"
+msgstr "Fayl ölçüsü çox boyükdür"
+
+msgid "IDS_MSG_HEADER_FAILED_TO_SEND_MESSAGE_ABB"
+msgstr "Mesaj göndərmək olmadı"
+
+msgid "IDS_MSG_HEADER_DISCARD_MESSAGE_M_CLOSE_ABB"
+msgstr "Mesajı ləğv et"
+
+msgid "IDS_MSG_HEADER_CREATE"
+msgstr "Yarat"
+
+msgid "IDS_MSG_HEADER_ADD_CONTENT_ABB"
+msgstr "Məzmun əlavə et"
+
+msgid "IDS_MSG_BUTTON_SWITCH_ABB2"
+msgstr "Keçir"
+
+msgid "IDS_MSG_BUTTON_SAVE_ABB2"
+msgstr "Yaddaşda saxla"
+
+msgid "IDS_MSG_BUTTON_RESEND_ABB"
+msgstr "Yenidən göndər"
+
+msgid "IDS_MSG_BUTTON_DISCARD_ABB"
+msgstr "Ləğv et"
+
+msgid "IDS_MSG_BUTTON_DELETE_ABB4"
+msgstr "Sil"
+
+msgid "IDS_MSG_BUTTON_CANCEL_ABB2"
+msgstr "Ləğv et"
+
+msgid "IDS_MSG_BUTTON2_CONTACTS_ABB_M_APPLICATION_NAME"
+msgstr "Əlaqələr"
+
+msgid "IDS_MSG_BODY_YOU_HAVE_SELECTED_A_SOUND_N_SHOT_FILE_SOUND_DATA_IS_NOT_SUPPORTED_FOR_MMS_SO_ONLY_THE_PICTURE_WILL_BE_ATTACHED"
+msgstr "Siz səs və şəkil faylını seçmisiniz. Səs məlumatları MMS tərəfindən dəstəklənmir və yalnız şəkil əlavə ediləcək"
+
+msgid "IDS_MSG_BODY_WAITING_TO_SEND_ING_M_STATUS"
+msgstr "Göndərilməsi gözlənilir..."
+
+msgid "IDS_MSG_BODY_UNABLE_TO_SEND_THIS_MESSAGE_INSERT_YOUR_SIM_CARD_AND_TRY_AGAIN"
+msgstr "Bu mesajı göndərmək mümkün deyil. SIM kartı daxil edin və yenidən cəhd edin"
+
+msgid "IDS_MSG_BODY_TYPE_C"
+msgstr "Tipi:"
+
+msgid "IDS_MSG_BODY_TO_USE_RESTRICTED_MEDIA_TYPES_CHANGE_YOUR_MMS_CREATION_MODE_SETTING"
+msgstr "Məhdud media növündən istifadə etmək üçün MMS yaratma rejimi parametrini dəyişin."
+
+msgid "IDS_MSG_BODY_TIME_SENT_C"
+msgstr "Göndərilmə vaxtı:"
+
+msgid "IDS_MSG_BODY_TIME_RECEIVED_C"
+msgstr "Qəbul edilmə vaxtı:"
+
+msgid "IDS_MSG_BODY_STATUS_C"
+msgstr "Vəziyyət:"
+
+msgid "IDS_MSG_BODY_SENT_M_STATUS"
+msgstr "Göndərildi"
+
+msgid "IDS_MSG_BODY_SENDING_ING_M_STATUS_ABB"
+msgstr "Göndərilir..."
+
+msgid "IDS_MSG_BODY_SENDING_FAILED_M_STATUS"
+msgstr "Göndərmə uğursuz oldu"
+
+msgid "IDS_MSG_BODY_RETRIEVE_MESSAGES_AUTOMATICALLY_WHILE_ROAMING"
+msgstr "Rouminq zamanı mesajları avtomatik çıxar."
+
+msgid "IDS_MSG_BODY_RETRIEVE_MESSAGES_AUTOMATICALLY"
+msgstr "Mesajları avtomatik çıxar."
+
+msgid "IDS_MSG_BODY_READ_REPORT_C_PS"
+msgstr "Oxunma hesabatı: %s"
+
+msgid "IDS_MSG_BODY_OTHER_PERSON"
+msgstr "Digər şəxs"
+
+msgid "IDS_MSG_BODY_MEMO_T_MAINMENU"
+msgstr "Yaddaş"
+
+msgid "IDS_MSG_BODY_FAILED_M_STATUS_ABB2"
+msgstr "Alınmadı"
+
+msgid "IDS_MSG_BODY_ENTER_TEXT_M_NOUN"
+msgstr "Mətni daxil edin"
+
+msgid "IDS_MSG_BODY_DRAFT_M_STATUS_ABB"
+msgstr "Qaralama"
+
+msgid "IDS_MSG_BODY_DELIVERY_REPORT_C_PS"
+msgstr "Çatdırılma hesabatı: %s"
+
+msgid "IDS_MSG_BODY_CB_MESSAGE"
+msgstr "CB mesajı"
+
+msgid "IDS_MSG_BODY_CALENDAR_M_APPLICATION_NAME_ABB"
+msgstr "Təqvim"
+
+msgid "IDS_MSG_BODY_AFTER_YOU_SEND_OR_RECEIVE_MESSAGES_THEY_WILL_BE_SHOWN_HERE"
+msgstr "Mesajları aldıqdan və ya göndərdikdən sonra, onlar burada göstəriləcəkdir."
+
+msgid "IDS_MSG_BODY_AFTER_YOU_CREATE_QUICK_RESPONSES_THEY_WILL_BE_SHOWN_HERE"
+msgstr "Cəld cavablar yaratdıqdan sonra onlar burada görünəcək."
+
+msgid "IDS_MSG_BODY_AFTER_YOU_COPY_MESSAGES_TO_THE_SIM_CARD_THEY_WILL_BE_SHOWN_HERE"
+msgstr "Mesajları SIM karta kopyaladıqdan sonra onlar burada görünəcək."
+
+msgid "IDS_MSG_BODY_AFTER_YOU_ADD_PHRASES_THEY_WILL_BE_SHOWN_HERE"
+msgstr "İfadələri əlavə etdikdən sonra onlar burada görünəcək."
+
+msgid "IDS_MSG_BODY_AFTER_YOU_ADD_NUMBERS_TO_THE_MESSAGE_BLOCK_LIST_THEY_WILL_BE_SHOWN_HERE"
+msgstr "Mesaj blok siyahısına nömrələr əlavə etdikdən sonra onlar burada görünəcək."
+
+msgid "IDS_MSG_ACBUTTON_DELETE_ABB"
+msgstr "SİL"
+
+msgid "IDS_MSGC_POP_UNSUPPORTED_MEDIA_TYPE"
+msgstr "Dəstəklənməyən media növü."
+
+msgid "IDS_MSGC_POP_LOW_BATTERY"
+msgstr "Batareya zəifdir."
+
+msgid "IDS_MSGC_POP_CANCELLED"
+msgstr "Ləğv edildi."
+
+msgid "IDS_MSGC_OPT_EMAIL"
+msgstr "Elektron poçtlar"
+
+msgid "IDS_MSGC_OPT_EDITITEM_VIEW"
+msgstr "Bax"
+
+msgid "IDS_MSGC_OPT_EDITITEM_REMOVE"
+msgstr "Sil"
+
+msgid "IDS_MSGC_OPT_EDITITEM_PLAY"
+msgstr "Səsləndir"
+
+msgid "IDS_MSGC_OPT_CHANGE_RECIPIENTS_TO"
+msgstr "Kimə"
+
+msgid "IDS_MSGC_HEADER_PREVIEW"
+msgstr "Nəzər yetirmə"
+
+msgid "IDS_MSGC_BODY_ENTER_SUBJECT"
+msgstr "Movzunu daxil et."
+
+msgid "IDS_MSGF_POP_UNABLE_TO_FIND_LOCATION"
+msgstr "Yeri tapmaq mümkün deyil."
+
+msgid "IDS_MSGF_POP_REJECTED"
+msgstr "İmtina edildi."
+
+msgid "IDS_MSGF_POP_DELETING"
+msgstr "Silinmə"
+
+msgid "IDS_MSGF_POP_COPIED_TO_CLIPBOARD"
+msgstr "Mübadilə buferinə köçürüldü."
+
+msgid "IDS_MSGF_POP_BLOCK_PS_Q"
+msgstr "%s bloklansın?"
+
+msgid "IDS_MSGF_OPT_SUBJECT_COLON"
+msgstr "Mövzu:"
+
+msgid "IDS_MSGF_OPT_SENDER_VIA_EMAIL"
+msgstr "E-poçt ilə göndərən"
+
+msgid "IDS_MSGF_OPT_SELECT"
+msgstr "Seç"
+
+msgid "IDS_MSGF_OPT_SAVE"
+msgstr "Yaddaşa yaz"
+
+msgid "IDS_MSGF_OPT_REMOVE"
+msgstr "Sil"
+
+msgid "IDS_MSGF_OPT_FORWARD"
+msgstr "Ötürün"
+
+msgid "IDS_MSGF_OPT_DELETE_Q"
+msgstr "Silinsin?"
+
+msgid "IDS_MSGF_HEADER_ADVANCED_SEARCH"
+msgstr "Təkmil axtarış"
+
+msgid "IDS_MSGF_BODY_UNKNOWN"
+msgstr "Naməlum"
+
+msgid "IDS_MSGF_BODY_SETTINGS"
+msgstr "Parametrlər"
+
+msgid "IDS_MSGF_BODY_RECIPIENTS"
+msgstr "Qəbul edənlər"
+
+msgid "IDS_MSGF_BODY_RECEIVED"
+msgstr "Qəbul edildi."
+
+msgid "IDS_MSGF_BODY_OTHER"
+msgstr "Başqa"
+
+msgid "IDS_MSGF_BODY_NO_SUBJECT"
+msgstr "Mövzu yoxdur"
+
+msgid "IDS_MSGF_BODY_MSGSIZE_KB"
+msgstr "KB"
+
+msgid "IDS_MSGF_BODY_MESSAGE"
+msgstr "Mesaj"
+
+msgid "IDS_MSGF_BODY_ME"
+msgstr "Mən"
+
+msgid "IDS_MSGF_BODY_EXPIRED"
+msgstr "Etibarlılıq tarixi artıq keçmişdir"
+
+msgid "IDS_MSGF_BODY_ALL"
+msgstr "Hamısını"
+
+msgid "IDS_MSG_SK_NO_ABB"
+msgstr "Xeyr"
+
+msgid "IDS_MSG_POP_YOUR_MESSAGE_WILL_BE_DISCARDED_NO_RECIPIENTS_HAVE_BEEN_SELECTED"
+msgstr "Sizin mesajınız ləğv ediləcəkdir. Heç bir alıcı seçilmədi."
+
+msgid "IDS_MSG_POP_UNABLE_TO_PLAY_DURING_CALL"
+msgstr "Zəng zamanı səsləndirmək olmur."
+
+msgid "IDS_MSG_POP_INCOMING_MESSAGES_ONLY"
+msgstr "Yalnız gələn mesajlar"
+
+msgid "IDS_MSG_POP_DELETED"
+msgstr "Silindi."
+
+msgid "IDS_MSG_OPT_VIDEOS"
+msgstr "Video"
+
+msgid "IDS_MSG_OPT_TEXT"
+msgstr "Mətn"
+
+msgid "IDS_MSG_OPT_SETTINGS"
+msgstr "Parametrlər"
+
+msgid "IDS_MSG_OPT_SEARCH"
+msgstr "Axtar"
+
+msgid "IDS_MSG_OPT_RECORD_VIDEO_ABB"
+msgstr "Video yaz"
+
+msgid "IDS_MSG_OPT_NONE"
+msgstr "Yoxdur"
+
+msgid "IDS_MSG_OPT_IMAGES"
+msgstr "Təsvirlər"
+
+msgid "IDS_MSG_OPT_EDIT"
+msgstr "Redaktə et"
+
+msgid "IDS_MSG_OPT_DELETE"
+msgstr "Sil"
+
+msgid "IDS_MSG_OPT_DEFAULT"
+msgstr "İlkin təyin olunan"
+
+msgid "IDS_MSG_MBODY_SELECT_ALL"
+msgstr "Hamısını seç"
+
+msgid "IDS_MSG_MBODY_ALERTS"
+msgstr "Siqnallar"
+
+msgid "IDS_MSG_HEADER_TRANSLATE"
+msgstr "Tərcümə edin"
+
+msgid "IDS_MSG_HEADER_SETTINGS"
+msgstr "Parametrlər"
+
+msgid "IDS_MSG_HEADER_MESSAGES"
+msgstr "Mesajlar"
+
+msgid "IDS_MSG_HEADER_DELETE"
+msgstr "Sil"
+
+msgid "IDS_MSG_HEADER_ATTENTION"
+msgstr "Diqqət"
+
+msgid "IDS_MSG_BUTTON_REMOVE_ABB"
+msgstr "Sil"
+
+msgid "IDS_MSG_BUTTON_OK_ABB"
+msgstr "OK"
+
+msgid "IDS_MSG_BUTTON_DOWNLOAD_ABB3"
+msgstr "Yüklə"
+
+msgid "IDS_MSG_BUTTON_CANCEL_ABB"
+msgstr "Ləğv et"
+
+msgid "IDS_MSG_BODY_YES"
+msgstr "Bəli"
+
+msgid "IDS_MSG_BODY_TICK_BOX_T_TTS"
+msgstr "Qeyd xanası"
+
+msgid "IDS_MSG_BODY_SEC"
+msgstr "san"
+
+msgid "IDS_MSG_BODY_MESSAGE"
+msgstr "Mesaj"
+
+msgid "IDS_MSG_BUTTON_SEND_ABB5"
+msgstr "Gönd"
+
+msgid "IDS_MSG_BUTTON_SEND_ABB3"
+msgstr "Göndər"
+
+msgid "IDS_MSG_ACBUTTON_SEND_ABB3"
+msgstr "GÖND"
+
+msgid "IDS_ST_BODY_LOADING_ING"
+msgstr "Yüklənir..."
+
+msgid "IDS_MSGS_BODY_NOTIFICATIONS"
+msgstr "Bildiriş səsi"
+
+msgid "IDS_MSG_HEADER_ME"
+msgstr "Mən"
+
+msgid "IDS_MSG_BODY_UNKNOWN"
+msgstr "Naməlum"
+
+msgid "IDS_MSG_TMBODY_ADD_OR_REMOVE_RECIPIENTS"
+msgstr "Qəbul ed əlavə et və ya sil"
+
+msgid "IDS_MSG_POP_THE_SENDER_HAS_REQUESTED_A_READ_REPORT_TAP_SEND_TO_SEND_ONE"
+msgstr "Göndərən oxunma hesabatı tələb edir. Göndərmək üçün Göndər vurun."
+
+msgid "IDS_MSGF_OPT_SEND_READ_REPORT"
+msgstr "Oxunma haqqında hesabat göndər"
+
+msgid "IDS_MSG_HEADER_COMPOSE_MESSAGE_ABB"
+msgstr "Mesaj yaz"
+
+msgid "IDS_MSG_POP_NO_VALID_RECIPIENTS_HAVE_BEEN_ADDED_THIS_MESSAGE_WILL_BE_DISCARDED"
+msgstr "Etibarlı qəbul edən daxil edilməmişdir. Bu mesaj silinəcəkdir."
+

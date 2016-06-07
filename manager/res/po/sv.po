@@ -1,0 +1,945 @@
+msgid "IDS_COM_BODY_HOME"
+msgstr "Hem"
+
+msgid "IDS_MSGC_POP_DATA_ROAMING_IS_DISABLED_ENABLE_DATA_ROAMING_AND_TRY_AGAIN"
+msgstr "Dataroaming är inaktiverat. Aktivera dataroaming och försök igen."
+
+msgid "IDS_MSG_ACBUTTON_CANCEL_ABB"
+msgstr "AVBRYT"
+
+msgid "IDS_MSG_ACBUTTON_DONE_ABB"
+msgstr "KLAR"
+
+msgid "IDS_MSGF_POP_NEW_MESSAGE"
+msgstr "Nytt meddelande"
+
+msgid "IDS_COM_BUTTON_SHARE"
+msgstr "Dela"
+
+msgid "IDS_COM_BODY_UNKNOWN"
+msgstr "Okänd"
+
+msgid "IDS_COM_BODY_MOBILE"
+msgstr "Mobil"
+
+msgid "IDS_MSGC_POP_MOBILE_DATA_IS_DISABLED_ENABLE_MOBILE_DATA_AND_TRY_AGAIN"
+msgstr "Mobila data är inaktiverat. Aktivera mobila data och försök igen."
+
+msgid "IDS_TPLATFORM_ACBUTTON_SEND_ABB"
+msgstr "SKICKA"
+
+msgid "IDS_MSGC_POP_UNABLE_TO_SEND_MESSAGES_WHILE_IN_FLIGHT_MODE_DISABLE_FLIGHT_MODE_AND_TRY_AGAIN"
+msgstr "Det går inte att skicka meddelanden i Flygläge. Inaktivera Flygläge och försök igen."
+
+msgid "IDS_MSGC_POP_UNABLE_TO_ADD_FILE_IS_FORWARD_LOCKED"
+msgstr "Det går inte att vidarebefordra.\nFilen är låst"
+
+msgid "IDS_MSGC_POP_THERE_IS_NOT_ENOUGH_SPACE_IN_YOUR_DEVICE_STORAGE_GO_TO_SETTINGS_POWER_AND_STORAGE_STORAGE_THEN_DELETE_SOME_FILES_AND_TRY_AGAIN"
+msgstr "Det finns inte tillräckligt med utrymme på enhetens lagringsutrymme. Gå till Inställningar > Ström och lagring > Lagring och ta bort några filer. Försök sedan igen."
+
+msgid "IDS_MSGC_POP_TEXT_AT_TOP"
+msgstr "Texten överst"
+
+msgid "IDS_MSGC_POP_TEXT_AT_BOTTOM"
+msgstr "Text längst ned"
+
+msgid "IDS_MSGC_POP_SELECT_LAYOUT"
+msgstr "Välj layout"
+
+msgid "IDS_MSGC_POP_MMSCANTADD"
+msgstr "Det går inte att lägga till innehåll."
+
+msgid "IDS_MSGC_POP_MESSAGE_SCHEDULED_TO_BE_SENT_TO_PS_SEND_NOW_Q"
+msgstr "Meddelandet är schemalagt att skickas till %s. Skicka nu?"
+
+msgid "IDS_MSGC_POP_MAXIMUM_MESSAGE_SIZE_REACHED"
+msgstr "Högsta meddelandestorlek har uppnåtts."
+
+msgid "IDS_MSGC_POP_DURATION_MUST_BE_AT_LEAST_PD_SECONDS"
+msgstr "Varaktigheten måste vara minst %d sekunder."
+
+msgid "IDS_MSGC_POP_DISABLING_FLIGHT_MODE_ING"
+msgstr "Inaktiverar Flygläget..."
+
+msgid "IDS_MSGC_POP_COPIED_TO_SIM_CARD"
+msgstr "Kopierat på SIM-kort."
+
+msgid "IDS_MSGC_OPT_USE_OTHER_CONTACT_INFO_ABB"
+msgstr "Anv. ann. kontaktinfo."
+
+msgid "IDS_MSGC_OPT_SEND_VIA"
+msgstr "Skicka via"
+
+msgid "IDS_MSGC_OPT_IMAGE"
+msgstr "Bild"
+
+msgid "IDS_MSGC_OPT_EDIT_ITEM_REPLACE"
+msgstr "Ersätt"
+
+msgid "IDS_MSGC_OPT_CANCEL_MESSAGE"
+msgstr "Avbryt meddelande"
+
+msgid "IDS_MSGC_HEADER_RECIPIENT_LIST"
+msgstr "Mottagarlista"
+
+msgid "IDS_MSGC_HEADER_DURATION_FOR_SLIDE_PD_PD"
+msgstr "Tidslängd för bild %d/%d"
+
+msgid "IDS_MSGC_BODY_WAIT_WHILE_ITEMS_ARE_ADDED_TO_SLIDESHOW"
+msgstr "Vänta medan objekten läggs till i bildspel."
+
+msgid "IDS_MSGC_BODY_UNABLE_TO_SEND_MESSAGE"
+msgstr "Kan inte skicka meddelande."
+
+msgid "IDS_MSGC_BODY_SELECT_RINGTONE"
+msgstr "Välj ringsignal"
+
+msgid "IDS_MSGC_BODY_READ_REPORT_WILL_BE_SENT"
+msgstr "Läsrapport skickas."
+
+msgid "IDS_MSGC_BODY_NOT_REQUESTED"
+msgstr "Inte begärd"
+
+msgid "IDS_MSGC_BODY_MAXIMUM_NUMBER_OF_RECIPIENTS_HPD_REACHED"
+msgstr "Högsta antalet mottagare (%d) har uppnåtts."
+
+msgid "IDS_MSGC_BODY_DUPLICATED_RECIPIENT"
+msgstr "Mottagare finns redan."
+
+msgid "IDS_MSGF_SK_FORWARD_LITE"
+msgstr "Vidare."
+
+msgid "IDS_MSGF_POP_UNABLE_TO_SAVE"
+msgstr "Kunde ej spara."
+
+msgid "IDS_MSGF_POP_UNABLE_TO_DELETE"
+msgstr "Kan inte radera."
+
+msgid "IDS_MSGF_POP_UNABLE_TO_COPY"
+msgstr "Det går inte att kopiera."
+
+msgid "IDS_MSGF_POP_SOME_CHARACTERS_MAY_BE_LOST_CONTINUE_Q"
+msgstr "Det kan hända att tecken försvinner.\nFortsätta?"
+
+msgid "IDS_MSGF_POP_SIM_NOT_INSERTED"
+msgstr "SIM-kortet är inte isatt."
+
+msgid "IDS_MSGF_POP_SAVING_FAILED"
+msgstr "Det gick inte att spara."
+
+msgid "IDS_MSGF_POP_SAVED_IN_MY_FILES"
+msgstr "Sparat i Mina filer."
+
+msgid "IDS_MSGF_POP_RETRIEVING_MESSAGE_FAILED"
+msgstr "Fel vid hämtning av meddelande"
+
+msgid "IDS_MSGF_POP_RESTRICTED_CONTENT_TYPE_ATTACH_ANYWAY_Q"
+msgstr "Begränsad innehållstyp. Bifoga ändå?"
+
+msgid "IDS_MSGF_POP_RESTORING_ING"
+msgstr "Återställer..."
+
+msgid "IDS_MSGF_POP_READ_REPORT"
+msgstr "Läsrapport"
+
+msgid "IDS_MSGF_POP_NO_NUMBER"
+msgstr "Inget nummer"
+
+msgid "IDS_MSGF_POP_NO_ATTACHMENTS"
+msgstr "Inga bilagor"
+
+msgid "IDS_MSGF_POP_NEW_MESSAGES"
+msgstr "Nya meddelanden"
+
+msgid "IDS_MSGF_POP_MESSAGE_COPIED_FROM_SIM_CARD"
+msgstr "Meddelandet har kopierats från SIM-kortet."
+
+msgid "IDS_MSGF_POP_MAXIMUM_NUMBER_OF_RECIPIENTS_IS_PD_SOME_RECIPIENTS_MAY_BE_LOST"
+msgstr "Högsta antal mottagare är %d. Vissa mottagare kan förloras."
+
+msgid "IDS_MSGF_POP_MAXIMUM_NUMBER_OF_ATTACHMENTS_HPS_EXCEEDED"
+msgstr "Högsta tillåtna antalet bilagor (%s) har överskridits."
+
+msgid "IDS_MSGF_POP_MAXIMUM_CHARACTERS"
+msgstr "Maximalt antal tecken har använts."
+
+msgid "IDS_MSGF_POP_IN_PROGRESS_ING"
+msgstr "Pågår..."
+
+msgid "IDS_MSGF_POP_INTIALISING"
+msgstr "Initierar..."
+
+msgid "IDS_MSGF_POP_IF_YOU_DONT_WANT_TO_REPLACE_THE_FILE_RENAME_IT"
+msgstr "Om du inte vill ersätta filen anger du ett nytt namn."
+
+msgid "IDS_MSGF_POP_HELP_PAGE_MESSAGE_FOR_ONE_FILE"
+msgstr "Meddelandet innehåller en bifogad fil som inte visas."
+
+msgid "IDS_MSGF_POP_HELP_PAGE_MESSAGE"
+msgstr "Meddelandet innehåller bifogade filer som inte visas."
+
+msgid "IDS_MSGF_POP_FILE_NAME_ALREADY_EXISTS"
+msgstr "Filnamnet finns redan."
+
+msgid "IDS_MSGF_POP_CONVERTING_TO_TEXT_MESSAGE_ING"
+msgstr "Konverterar till SMS..."
+
+msgid "IDS_MSGF_POP_CONVERTING_TO_MULTIMEDIA_MESSAGE_ING"
+msgstr "Konverterar till MMS..."
+
+msgid "IDS_MSGF_POP_ABOUT_TO_GO_ONLINE_CONTINUE_Q"
+msgstr "Du kommer att ansluta (%s). Fortsätt?"
+
+msgid "IDS_MSGF_OPT_TEXT_MESSAGE"
+msgstr "Textmeddelande"
+
+msgid "IDS_MSGF_OPT_SENDER_ABB"
+msgstr "Avsändare"
+
+msgid "IDS_MSGF_OPT_SAVE_ATTACHMENT"
+msgstr "Spara bilaga"
+
+msgid "IDS_MSGF_OPT_INSTALL"
+msgstr "Installera"
+
+msgid "IDS_MSGF_OPT_EDIT_MESSAGE"
+msgstr "Redigera meddelande"
+
+msgid "IDS_MSGF_OPT_DELETE_MESSAGES"
+msgstr "Radera meddelanden"
+
+msgid "IDS_MSGF_HEADER_SELECT_MESSAGES"
+msgstr "Markera meddelanden"
+
+msgid "IDS_MSGF_HEADER_SAVE_ALL"
+msgstr "Spara alla"
+
+msgid "IDS_MSGF_HEADER_MESSAGE_DETAILS"
+msgstr "Meddelandeinformation"
+
+msgid "IDS_MSGF_HEADER_EXPIRES_C_PS"
+msgstr "Upphör att gälla: %s"
+
+msgid "IDS_MSGF_BUTTON_SAVE_ALL_ATTACHMENTS_ABB"
+msgstr "Spara alla bilagor"
+
+msgid "IDS_MSGF_BODY_TO_C"
+msgstr "Till:"
+
+msgid "IDS_MSGF_BODY_TEXT_MESSAGES"
+msgstr "SMS"
+
+msgid "IDS_MSGF_BODY_SIM_MEMORY_FULL_DELETE_SOME_ITEMS"
+msgstr "SIM-minnet är fullt. Radera några objekt."
+
+msgid "IDS_MSGF_BODY_SENT_M_DATE_C"
+msgstr "Skickat:"
+
+msgid "IDS_MSGF_BODY_REQUESTED"
+msgstr "Begärt."
+
+msgid "IDS_MSGF_BODY_RECEIVED_M_DATE_C"
+msgstr "Mottaget:"
+
+msgid "IDS_MSGF_BODY_READ_REPORT"
+msgstr "Läsrapport"
+
+msgid "IDS_MSGF_BODY_PUSH_MESSAGES"
+msgstr "Push-meddelanden"
+
+msgid "IDS_MSGF_BODY_PD_MESSAGES"
+msgstr "%d meddelanden"
+
+msgid "IDS_MSGF_BODY_PD_CONVERSATIONS"
+msgstr "%d konversationer"
+
+msgid "IDS_MSGF_BODY_NO_NAME"
+msgstr "Inget namn"
+
+msgid "IDS_MSGF_BODY_MULTIMEDIA_MESSAGE_NOTIFICATION"
+msgstr "MMS-meddelande"
+
+msgid "IDS_MSGF_BODY_MULTIMEDIA_MESSAGE"
+msgstr "Multimediemeddelande"
+
+msgid "IDS_MSGF_BODY_MMSREADREPLYMSGREAD"
+msgstr "Läst"
+
+msgid "IDS_MSGF_BODY_MMSDELIVERYMSGREJECTED"
+msgstr "Meddelandet avvisat."
+
+msgid "IDS_MSGF_BODY_MMS"
+msgstr "Multimediemeddelande"
+
+msgid "IDS_MSGF_BODY_MESSAGE_SIZE"
+msgstr "Meddelandestorlek"
+
+msgid "IDS_MSGF_BODY_MESSAGE_OPTIONS"
+msgstr "Alternativ för meddelande"
+
+msgid "IDS_MSGF_BODY_MESSAGE_DELIVERED"
+msgstr "Meddelande levererat"
+
+msgid "IDS_MSGF_BODY_MAXIMUM_NUMBER_OF_ATTACHMENTS_HP1SS_EXCEEDED_ONLY_FIRST_P2SS_WILL_BE_ADDED"
+msgstr "Högsta antalet bilagor (%1$s) har överskridits. Endast de %2$s första läggs till."
+
+msgid "IDS_MSGF_BODY_INVALID_RECIPIENT"
+msgstr "Ogiltig mottagare."
+
+msgid "IDS_MSGF_BODY_FROM"
+msgstr "Från"
+
+msgid "IDS_MSGF_BODY_FLFROM"
+msgstr "Från:"
+
+msgid "IDS_MSGF_BODY_DETAILSSENDINGFAILED"
+msgstr "Sändningsfel."
+
+msgid "IDS_MSGF_BODY_DELIVERY_REPORT"
+msgstr "Leveransrapport"
+
+msgid "IDS_MSGF_BODY_CP_MESSAGES"
+msgstr "CP-meddelanden"
+
+msgid "IDS_MSGF_BODY_COPY_TEXT"
+msgstr "Kopiera text"
+
+msgid "IDS_MSGF_BODY_CB_MESSAGES"
+msgstr "CB-meddelanden"
+
+msgid "IDS_MSGF_BODY_1_MESSAGE"
+msgstr "1 meddelande"
+
+msgid "IDS_MSGF_BODY_1_CONVERSATION"
+msgstr "1 konversation"
+
+msgid "IDS_MSGS_BODY_REQUEST_A_READ_REPORT_FOR_EACH_MESSAGE_YOU_SEND"
+msgstr "Begär en läsrapport för alla meddelanden som du skickar."
+
+msgid "IDS_MSGS_BODY_REQUEST_A_DELIVERY_REPORT_FOR_EACH_MESSAGE_YOU_SEND"
+msgstr "Begär en leveransrapport för alla meddelanden som du skickar."
+
+msgid "IDS_MSGS_BODY_RADIO_BUTTON"
+msgstr "Radioknapp"
+
+msgid "IDS_MSGS_BODY_ON_OFF_BUTTON_T_TTS"
+msgstr "På-/av-knapp"
+
+msgid "IDS_MSGS_BODY_EXPANDABLE_LIST_T_TTS"
+msgstr "Expanderbar lista"
+
+msgid "IDS_MSGS_BODY_AUTOMATICALLY_RETRIEVE_MMS_MESSAGES"
+msgstr "Hämta MMS-meddelanden automatiskt."
+
+msgid "IDS_MSG_TPOP_UNABLE_TO_PREVIEW_FILE_UNSUPPORTED_FILE_TYPE"
+msgstr "Det går inte att förhandsgranska filen. Filtypen stöds inte."
+
+msgid "IDS_MSG_TPOP_UNABLE_TO_ATTACH_FILE_FILE_FORMAT_NOT_SUPPORTED"
+msgstr "Det går inte att bifoga filen. Filformatet stöds inte."
+
+msgid "IDS_MSG_TPOP_UNABLE_TO_ADD_SOME_RECIPIENTS_NUMBERS_NOT_VALID"
+msgstr "Det går inte att lägga till vissa mottagare. Numren är ogiltiga."
+
+msgid "IDS_MSG_TPOP_UNABLE_TO_ADD_RECIPIENT_NUMBER_NOT_VALID"
+msgstr "Det går inte att lägga till mottagare. Numret är ogiltigt."
+
+msgid "IDS_MSG_TPOP_UNABLE_TO_ADD_RECIPIENTS_NUMBERS_NOT_VALID"
+msgstr "Det går inte att lägga till mottagare. Numren är ogiltiga."
+
+msgid "IDS_MSG_TPOP_UNABLE_TO_ADD_ATTACHMENT_MAXIMUM_NUMBER_OF_ATTACHMENTS_HPD_REACHED"
+msgstr "Det går inte att lägga till bilagan. Det högsta antalet bilagor (%d) har uppnåtts."
+
+msgid "IDS_MSG_TPOP_THIS_NUMBER_IS_NOT_VALID"
+msgstr "Det här numret är ogiltigt."
+
+msgid "IDS_MSG_TPOP_SOME_RECIPIENTS_ALREADY_ADDED"
+msgstr "Vissa mottagare har redan lagts till."
+
+msgid "IDS_MSG_TPOP_SELECTED_MESSAGES_COPIED_TO_MOBILE_DEVICE"
+msgstr "Valda meddelanden kopieras till den mobila enheten."
+
+msgid "IDS_MSG_TPOP_PD_MESSAGES_MOVED_TO_MESSAGE_LIST"
+msgstr "%d meddelanden har flyttats till meddelandelistan."
+
+msgid "IDS_MSG_TPOP_NUMBER_REMOVED_FROM_MESSAGE_BLOCK_LIST"
+msgstr "Numret har tagits bort från meddelandespärrlistan."
+
+msgid "IDS_MSG_TPOP_NUMBER_ADDED_TO_MESSAGE_BLOCK_LIST"
+msgstr "Numret har lagts till i meddelandespärrlistan."
+
+msgid "IDS_MSG_TPOP_NETWORK_NOT_AVAILABLE_MESSAGE_WILL_BE_SENT_WHEN_CONNECTED_TO_NETWORK"
+msgstr "Nätverket är inte tillgängligt. Meddelandet skickas när du ansluter till nätverket."
+
+msgid "IDS_MSG_TPOP_MESSAGE_COPIED_TO_PS_SIM_CARD"
+msgstr "Meddelandet har kopierats till %s från SIM-kortet."
+
+msgid "IDS_MSG_TPOP_MAXIMUM_NUMBER_OF_CHARACTERS_EXCEEDED"
+msgstr "Högsta antal tecken har uppnåtts."
+
+msgid "IDS_MSG_TPOP_MAXIMUM_MESSAGE_SIZE_HPS_EXCEEDED_RESIZING_ATTACHMENTS_ING"
+msgstr "Den största meddelandestorleken (%s) har överskridits. Ändrar storlek på bilagor ..."
+
+msgid "IDS_MSG_TPOP_INVALID_CHARACTER_ENTERED"
+msgstr "Ett ogiltigt tecken har angivits."
+
+msgid "IDS_MSG_TPOP_ADD_RECIPIENTS"
+msgstr "Lägg till mottagare."
+
+msgid "IDS_MSG_TPOP_1_MESSAGE_MOVED_TO_MESSAGE_LIST"
+msgstr "1 meddelande har flyttars till meddelandelistan."
+
+msgid "IDS_MSG_TMBODY_TEXT_MESSAGES"
+msgstr "SMS"
+
+msgid "IDS_MSG_TMBODY_SOUND"
+msgstr "Ljud"
+
+msgid "IDS_MSG_TMBODY_MULTIMEDIA_MESSAGES"
+msgstr "MMS"
+
+msgid "IDS_MSG_TMBODY_MESSAGES_ON_SIM_CARD"
+msgstr "Meddelanden på SIM-kortet"
+
+msgid "IDS_MSG_TMBODY_INPUT_MODE"
+msgstr "Inmatningsläge"
+
+msgid "IDS_MSG_TMBODY_AUTO_RETRIEVE_WHILE_ROAMING"
+msgstr "Hämta automatiskt vid roaming"
+
+msgid "IDS_MSG_TMBODY_AUTO_RETRIEVE"
+msgstr "Hämta automatiskt"
+
+msgid "IDS_MSG_SK_SEND_NOW"
+msgstr "Skicka nu"
+
+msgid "IDS_MSG_SBODY_SELECT_AN_INPUT_MODE_FOR_COMPOSING_MESSAGES"
+msgstr "Välj ett inmatningsläge för att skriva meddelanden."
+
+msgid "IDS_MSG_SBODY_NONE_M_STATUS"
+msgstr "Ingen"
+
+msgid "IDS_MSG_SBODY_MANAGE_THE_MESSAGES_STORED_ON_YOUR_SIM_CARD"
+msgstr "Hantera meddelanden som lagrats på SIM-kortet."
+
+msgid "IDS_MSG_POP_UNABLE_TO_SEND_SCHEDULED_MESSAGE_SET_ANOTHER_TIME"
+msgstr "Det går inte att skicka schemalagt meddelande. Ange en annan tid."
+
+msgid "IDS_MSG_POP_UNABLE_TO_ATTACH_FILE_FILE_SIZE_TOO_LARGE_TRY_SENDING_VIA_EMAIL_BLUETOOTH_WI_FI_ETC"
+msgstr "Det går inte att bifoga filen. Filen är för stor. Försök att skicka den med E-post, Bluetooth, Wi-Fi osv."
+
+msgid "IDS_MSG_POP_TO_SEND_THIS_MULTIMEDIA_MESSAGE_THE_DEVICE_WILL_CONNECT_TO_A_DIFFERENT_MOBILE_NETWORK_THIS_WILL_DISCONNECT_YOUR_DEVICE_FROM_YOUR_MSG"
+msgstr "Om du vill skicka detta MMS ansluts enheten till ett annat mobilnät. Då kopplas enheten bort från ditt nuvarande mobilnät."
+
+msgid "IDS_MSG_POP_TO_DOWNLOAD_THIS_MULTIMEDIA_MESSAGE_THE_DEVICE_WILL_CONNECT_TO_A_DIFFERENT_MOBILE_NETWORK_MSG"
+msgstr "Om du vill hämta detta MMS ansluts enheten till ett annat mobilnät. Då kopplas enheten bort från ditt nuvarande mobilnät."
+
+msgid "IDS_MSG_POP_THIS_MESSAGE_WILL_BE_RESENT"
+msgstr "Det här meddelandet skickas igen."
+
+msgid "IDS_MSG_POP_PD_MESSAGES_WILL_BE_DELETED"
+msgstr "%d meddelanden kommer att raderas."
+
+msgid "IDS_MSG_POP_PD_CONVERSATIONS_WILL_BE_DELETED"
+msgstr "%d konversationer kommer att tas bort."
+
+msgid "IDS_MSG_POP_NO_TEMPLATES_IN_LIST"
+msgstr "Inga mallar i listan"
+
+msgid "IDS_MSG_POP_INCLUDE_ORIGINAL_TEXT_IN_OUTGOING_MESSAGE"
+msgstr "Ta med originaltexten i det utgående meddelandet"
+
+msgid "IDS_MSG_POP_DURATION_MUST_BE_SHORTER_THAN_PD_SECONDS"
+msgstr "Varaktigheten måste vara kortare än %d sekunder."
+
+msgid "IDS_MSG_POP_1_MESSAGE_WILL_BE_DELETED"
+msgstr "1 meddelande kommer att tas bort."
+
+msgid "IDS_MSG_POP_1_CONVERSATION_WILL_BE_DELETED"
+msgstr "1 konversation tas bort."
+
+msgid "IDS_MSG_OPT_VIEW_DETAILS_ABB"
+msgstr "Visa info"
+
+msgid "IDS_MSG_OPT_VIEW_CONTACT_DETAILS_ABB"
+msgstr "Visa kontaktinformation"
+
+msgid "IDS_MSG_OPT_VIEW_AS_SLIDESHOW_ABB"
+msgstr "Visa som bildspel"
+
+msgid "IDS_MSG_OPT_UPDATE_CONTACT"
+msgstr "Uppdatera kontakt"
+
+msgid "IDS_MSG_OPT_UNICODE"
+msgstr "Unicode"
+
+msgid "IDS_MSG_OPT_TAKE_PICTURE_ABB"
+msgstr "Ta foto"
+
+msgid "IDS_MSG_OPT_SAVE_ATTACHMENTS_ABB"
+msgstr "Spara bilagor"
+
+msgid "IDS_MSG_OPT_RESEND"
+msgstr "Skicka igen"
+
+msgid "IDS_MSG_OPT_REPLY"
+msgstr "Svara"
+
+msgid "IDS_MSG_OPT_REMOVE_FROM_BLOCK_LIST_ABB"
+msgstr "Ta bort från spärrlista"
+
+msgid "IDS_MSG_OPT_RECORD_AUDIO_FILE_ABB"
+msgstr "Spela in ljudfil"
+
+msgid "IDS_MSG_OPT_QUICK_RESPONSE_ABB"
+msgstr "Snabbsvar"
+
+msgid "IDS_MSG_OPT_MAKE_VOICE_CALL"
+msgstr "Röstsamtal"
+
+msgid "IDS_MSG_OPT_GSM_ALPHABET_ABB"
+msgstr "GSM-alfabet"
+
+msgid "IDS_MSG_OPT_EXPORT_TO_DEVICE_MEMORY"
+msgstr "Exportera till enhetsminne"
+
+msgid "IDS_MSG_OPT_DELETE_MESSAGE"
+msgstr "Ta bort meddelande"
+
+msgid "IDS_MSG_OPT_DELETE_CONVERSATION_ABB"
+msgstr "Ta bort konversation"
+
+msgid "IDS_MSG_OPT_CREATE_CONTACT_ABB"
+msgstr "Skapa kontakt"
+
+msgid "IDS_MSG_OPT_COPY_TO_SIM_CARD_ABB"
+msgstr "Kopiera till SIM-kortet"
+
+msgid "IDS_MSG_OPT_COPY_TO_DEVICE_ABB"
+msgstr "Kopiera till enhet"
+
+msgid "IDS_MSG_OPT_COPY_TEXT"
+msgstr "Kopiera text"
+
+msgid "IDS_MSG_OPT_COPY"
+msgstr "Kopiera"
+
+msgid "IDS_MSG_OPT_BACK_UP"
+msgstr "Säkerhetskopiera"
+
+msgid "IDS_MSG_OPT_AUTOMATIC"
+msgstr "Automatisk"
+
+msgid "IDS_MSG_OPT_AUDIO_FILES_ABB2"
+msgstr "Ljudfiler"
+
+msgid "IDS_MSG_OPT_ATTACHMENT_ABB"
+msgstr "Bilaga"
+
+msgid "IDS_MSG_OPT_ADD_TO_CONTACTS_ABB"
+msgstr "Lägg till i kontakter"
+
+msgid "IDS_MSG_OPT_ADD_TO_BLOCK_LIST_ABB"
+msgstr "Lägg till i spärrlista"
+
+msgid "IDS_MSG_OPT_ADD_RECIPIENTS_ABB"
+msgstr "Lägg till mottagare"
+
+msgid "IDS_MSG_NPBODY_SEARCH"
+msgstr "Sök"
+
+msgid "IDS_MSG_NPBODY_NO_RESULTS_FOUND_ABB"
+msgstr "Inga resultat hittades"
+
+msgid "IDS_MSG_NPBODY_NO_QUICK_RESPONSES"
+msgstr "Inga snabbsvar"
+
+msgid "IDS_MSG_NPBODY_NO_PHRASES_BLOCKED"
+msgstr "Inga blockerade fraser"
+
+msgid "IDS_MSG_NPBODY_NO_MESSAGES_ON_SIM_CARD"
+msgstr "Inga meddelanden på SIM-kort"
+
+msgid "IDS_MSG_NPBODY_NO_MESSAGES"
+msgstr "Inga meddelanden"
+
+msgid "IDS_MSG_NPBODY_NO_BLOCKED_NUMBERS"
+msgstr "Inga blockerade nummer"
+
+msgid "IDS_MSG_MBODY_VIBRATION"
+msgstr "Vibration"
+
+msgid "IDS_MSG_MBODY_UNKNOWN_NUMBER"
+msgstr "Okänt nummer"
+
+msgid "IDS_MSG_MBODY_TEXT_MESSAGE_CENTRE_NUMBER_ABB"
+msgstr "Nummer på SMS-center"
+
+msgid "IDS_MSG_HEADER_TEXT_MESSAGES_ABB"
+msgstr "SMS"
+
+msgid "IDS_MSG_HEADER_SWITCH_MOBILE_NETWORK_ABB2"
+msgstr "Byt mobilnät"
+
+msgid "IDS_MSG_HEADER_SMS_CENTRE_ABB2"
+msgstr "SMS-center"
+
+msgid "IDS_MSG_HEADER_SELECT_RECIPIENT"
+msgstr "Välj mottagare"
+
+msgid "IDS_MSG_HEADER_PD_SELECTED_ABB3"
+msgstr "%d valda"
+
+msgid "IDS_MSG_HEADER_MESSAGES_ON_SIM_CARD_ABB"
+msgstr "Meddelanden på SIM-kortet"
+
+msgid "IDS_MSG_HEADER_INPUT_MODE_ABB"
+msgstr "Inmatningsläge"
+
+msgid "IDS_MSG_HEADER_FILE_SIZE_TOO_LARGE_ABB"
+msgstr "Filstorleken är för stor"
+
+msgid "IDS_MSG_HEADER_FAILED_TO_SEND_MESSAGE_ABB"
+msgstr "Kunde inte skicka meddelandet"
+
+msgid "IDS_MSG_HEADER_DISCARD_MESSAGE_M_CLOSE_ABB"
+msgstr "Förkasta meddelande"
+
+msgid "IDS_MSG_HEADER_CREATE"
+msgstr "Skapa"
+
+msgid "IDS_MSG_HEADER_ADD_CONTENT_ABB"
+msgstr "Lägg till innehåll"
+
+msgid "IDS_MSG_BUTTON_SWITCH_ABB2"
+msgstr "Växla"
+
+msgid "IDS_MSG_BUTTON_SAVE_ABB2"
+msgstr "Spara"
+
+msgid "IDS_MSG_BUTTON_RESEND_ABB"
+msgstr "Skicka igen"
+
+msgid "IDS_MSG_BUTTON_DISCARD_ABB"
+msgstr "Ignorera"
+
+msgid "IDS_MSG_BUTTON_DELETE_ABB4"
+msgstr "Ta bort"
+
+msgid "IDS_MSG_BUTTON_CANCEL_ABB2"
+msgstr "Avbryt"
+
+msgid "IDS_MSG_BUTTON2_CONTACTS_ABB_M_APPLICATION_NAME"
+msgstr "Kontakter"
+
+msgid "IDS_MSG_BODY_YOU_HAVE_SELECTED_A_SOUND_N_SHOT_FILE_SOUND_DATA_IS_NOT_SUPPORTED_FOR_MMS_SO_ONLY_THE_PICTURE_WILL_BE_ATTACHED"
+msgstr "Du har valt en ljud och foto-fil. Ljuddata stöds inte för MMS, så bara bilden bifogas."
+
+msgid "IDS_MSG_BODY_WAITING_TO_SEND_ING_M_STATUS"
+msgstr "Väntar på att skicka ..."
+
+msgid "IDS_MSG_BODY_UNABLE_TO_SEND_THIS_MESSAGE_INSERT_YOUR_SIM_CARD_AND_TRY_AGAIN"
+msgstr "Det går inte att skicka det här meddelandet. Sätt i SIM-kortet och försök igen."
+
+msgid "IDS_MSG_BODY_TYPE_C"
+msgstr "Typ"
+
+msgid "IDS_MSG_BODY_TO_USE_RESTRICTED_MEDIA_TYPES_CHANGE_YOUR_MMS_CREATION_MODE_SETTING"
+msgstr "Om du vill använda begränsade medietyper ändrar du inställningsläget för att skapa MMS."
+
+msgid "IDS_MSG_BODY_TIME_SENT_C"
+msgstr "Skickat kl:"
+
+msgid "IDS_MSG_BODY_TIME_RECEIVED_C"
+msgstr "Mottaget kl:"
+
+msgid "IDS_MSG_BODY_STATUS_C"
+msgstr "Status:"
+
+msgid "IDS_MSG_BODY_SENT_M_STATUS"
+msgstr "Skickat"
+
+msgid "IDS_MSG_BODY_SENDING_ING_M_STATUS_ABB"
+msgstr "Skicka ..."
+
+msgid "IDS_MSG_BODY_SENDING_FAILED_M_STATUS"
+msgstr "Misslyckades att skicka"
+
+msgid "IDS_MSG_BODY_RETRIEVE_MESSAGES_AUTOMATICALLY_WHILE_ROAMING"
+msgstr "Hämta meddelanden automatiskt vid roaming."
+
+msgid "IDS_MSG_BODY_RETRIEVE_MESSAGES_AUTOMATICALLY"
+msgstr "Hämta meddelanden automatiskt."
+
+msgid "IDS_MSG_BODY_READ_REPORT_C_PS"
+msgstr "Läs rapport: %s"
+
+msgid "IDS_MSG_BODY_OTHER_PERSON"
+msgstr "Annan person"
+
+msgid "IDS_MSG_BODY_MEMO_T_MAINMENU"
+msgstr "Memo"
+
+msgid "IDS_MSG_BODY_FAILED_M_STATUS_ABB2"
+msgstr "Misslyck."
+
+msgid "IDS_MSG_BODY_ENTER_TEXT_M_NOUN"
+msgstr "Skriv in text"
+
+msgid "IDS_MSG_BODY_DRAFT_M_STATUS_ABB"
+msgstr "Utkast"
+
+msgid "IDS_MSG_BODY_DELIVERY_REPORT_C_PS"
+msgstr "Leveransrapport: %s"
+
+msgid "IDS_MSG_BODY_CB_MESSAGE"
+msgstr "CB-meddelande"
+
+msgid "IDS_MSG_BODY_CALENDAR_M_APPLICATION_NAME_ABB"
+msgstr "Kalender"
+
+msgid "IDS_MSG_BODY_AFTER_YOU_SEND_OR_RECEIVE_MESSAGES_THEY_WILL_BE_SHOWN_HERE"
+msgstr "Om du har skickat eller tagit emot meddelanden visas de här."
+
+msgid "IDS_MSG_BODY_AFTER_YOU_CREATE_QUICK_RESPONSES_THEY_WILL_BE_SHOWN_HERE"
+msgstr "När du har skapat snabbsvar visas de här."
+
+msgid "IDS_MSG_BODY_AFTER_YOU_COPY_MESSAGES_TO_THE_SIM_CARD_THEY_WILL_BE_SHOWN_HERE"
+msgstr "När du har kopierat meddelanden till SIM-kortet visas de här."
+
+msgid "IDS_MSG_BODY_AFTER_YOU_ADD_PHRASES_THEY_WILL_BE_SHOWN_HERE"
+msgstr "När du har lagt till fraser visas de här."
+
+msgid "IDS_MSG_BODY_AFTER_YOU_ADD_NUMBERS_TO_THE_MESSAGE_BLOCK_LIST_THEY_WILL_BE_SHOWN_HERE"
+msgstr "När du har lagt till nummer i meddelandespärrlistan visas de här."
+
+msgid "IDS_MSG_ACBUTTON_DELETE_ABB"
+msgstr "TA BORT"
+
+msgid "IDS_MSGC_POP_UNSUPPORTED_MEDIA_TYPE"
+msgstr "Mediatypen stöds inte."
+
+msgid "IDS_MSGC_POP_LOW_BATTERY"
+msgstr "Låg batterinivå."
+
+msgid "IDS_MSGC_POP_CANCELLED"
+msgstr "Avbruten."
+
+msgid "IDS_MSGC_OPT_EMAIL"
+msgstr "E-post"
+
+msgid "IDS_MSGC_OPT_EDITITEM_VIEW"
+msgstr "Visa"
+
+msgid "IDS_MSGC_OPT_EDITITEM_REMOVE"
+msgstr "Ta bort"
+
+msgid "IDS_MSGC_OPT_EDITITEM_PLAY"
+msgstr "Spela"
+
+msgid "IDS_MSGC_OPT_CHANGE_RECIPIENTS_TO"
+msgstr "Till"
+
+msgid "IDS_MSGC_HEADER_PREVIEW"
+msgstr "Förhandsgranska"
+
+msgid "IDS_MSGC_BODY_ENTER_SUBJECT"
+msgstr "Ange rubrik."
+
+msgid "IDS_MSGF_POP_UNABLE_TO_FIND_LOCATION"
+msgstr "Kan inte hitta platsen."
+
+msgid "IDS_MSGF_POP_REJECTED"
+msgstr "Avvisat."
+
+msgid "IDS_MSGF_POP_DELETING"
+msgstr "Raderar..."
+
+msgid "IDS_MSGF_POP_COPIED_TO_CLIPBOARD"
+msgstr "Kopierat till Urklipp."
+
+msgid "IDS_MSGF_POP_BLOCK_PS_Q"
+msgstr "Blockera %s?"
+
+msgid "IDS_MSGF_OPT_SUBJECT_COLON"
+msgstr "Rubrik:"
+
+msgid "IDS_MSGF_OPT_SENDER_VIA_EMAIL"
+msgstr "Avsändare via e-post"
+
+msgid "IDS_MSGF_OPT_SELECT"
+msgstr "Välj"
+
+msgid "IDS_MSGF_OPT_SAVE"
+msgstr "Spara"
+
+msgid "IDS_MSGF_OPT_REMOVE"
+msgstr "Ta bort"
+
+msgid "IDS_MSGF_OPT_FORWARD"
+msgstr "Vidarebefordra"
+
+msgid "IDS_MSGF_OPT_DELETE_Q"
+msgstr "Radera?"
+
+msgid "IDS_MSGF_HEADER_ADVANCED_SEARCH"
+msgstr "Avancerad sökning"
+
+msgid "IDS_MSGF_BODY_UNKNOWN"
+msgstr "Okänd"
+
+msgid "IDS_MSGF_BODY_SETTINGS"
+msgstr "Inställningar"
+
+msgid "IDS_MSGF_BODY_RECIPIENTS"
+msgstr "Mottagare"
+
+msgid "IDS_MSGF_BODY_RECEIVED"
+msgstr "Mottaget."
+
+msgid "IDS_MSGF_BODY_OTHER"
+msgstr "Annat"
+
+msgid "IDS_MSGF_BODY_NO_SUBJECT"
+msgstr "Ingen rubrik"
+
+msgid "IDS_MSGF_BODY_MSGSIZE_KB"
+msgstr "kB"
+
+msgid "IDS_MSGF_BODY_MESSAGE"
+msgstr "Meddelande"
+
+msgid "IDS_MSGF_BODY_ME"
+msgstr "Mig"
+
+msgid "IDS_MSGF_BODY_EXPIRED"
+msgstr "Giltighetstiden har gått ut."
+
+msgid "IDS_MSGF_BODY_ALL"
+msgstr "Alla"
+
+msgid "IDS_MSG_SK_NO_ABB"
+msgstr "Nej"
+
+msgid "IDS_MSG_POP_YOUR_MESSAGE_WILL_BE_DISCARDED_NO_RECIPIENTS_HAVE_BEEN_SELECTED"
+msgstr "Ditt meddelande kasseras. Inga mottagare har valts."
+
+msgid "IDS_MSG_POP_UNABLE_TO_PLAY_DURING_CALL"
+msgstr "Kan inte spela upp under samtal."
+
+msgid "IDS_MSG_POP_INCOMING_MESSAGES_ONLY"
+msgstr "Endast inkommande meddelanden"
+
+msgid "IDS_MSG_POP_DELETED"
+msgstr "Raderad."
+
+msgid "IDS_MSG_OPT_VIDEOS"
+msgstr "Videoklipp"
+
+msgid "IDS_MSG_OPT_TEXT"
+msgstr "Text"
+
+msgid "IDS_MSG_OPT_SETTINGS"
+msgstr "Inställningar"
+
+msgid "IDS_MSG_OPT_SEARCH"
+msgstr "Sök"
+
+msgid "IDS_MSG_OPT_RECORD_VIDEO_ABB"
+msgstr "Spela in video"
+
+msgid "IDS_MSG_OPT_NONE"
+msgstr "Ingen"
+
+msgid "IDS_MSG_OPT_IMAGES"
+msgstr "Bilder"
+
+msgid "IDS_MSG_OPT_EDIT"
+msgstr "Redigera"
+
+msgid "IDS_MSG_OPT_DELETE"
+msgstr "Ta bort"
+
+msgid "IDS_MSG_OPT_DEFAULT"
+msgstr "Standard"
+
+msgid "IDS_MSG_MBODY_SELECT_ALL"
+msgstr "Välj alla"
+
+msgid "IDS_MSG_MBODY_ALERTS"
+msgstr "Varningar"
+
+msgid "IDS_MSG_HEADER_TRANSLATE"
+msgstr "Översätt"
+
+msgid "IDS_MSG_HEADER_SETTINGS"
+msgstr "Inställningar"
+
+msgid "IDS_MSG_HEADER_MESSAGES"
+msgstr "Meddelanden"
+
+msgid "IDS_MSG_HEADER_DELETE"
+msgstr "Ta bort"
+
+msgid "IDS_MSG_HEADER_ATTENTION"
+msgstr "Obs!"
+
+msgid "IDS_MSG_BUTTON_REMOVE_ABB"
+msgstr "Ta bort"
+
+msgid "IDS_MSG_BUTTON_OK_ABB"
+msgstr "OK"
+
+msgid "IDS_MSG_BUTTON_DOWNLOAD_ABB3"
+msgstr "Hämta"
+
+msgid "IDS_MSG_BUTTON_CANCEL_ABB"
+msgstr "Avbryt"
+
+msgid "IDS_MSG_BODY_YES"
+msgstr "Ja"
+
+msgid "IDS_MSG_BODY_TICK_BOX_T_TTS"
+msgstr "Kryssruta"
+
+msgid "IDS_MSG_BODY_SEC"
+msgstr "s"
+
+msgid "IDS_MSG_BODY_MESSAGE"
+msgstr "Meddelande"
+
+msgid "IDS_MSG_BUTTON_SEND_ABB5"
+msgstr "Sänd"
+
+msgid "IDS_MSG_BUTTON_SEND_ABB3"
+msgstr "Sänd"
+
+msgid "IDS_MSG_ACBUTTON_SEND_ABB3"
+msgstr "SÄND"
+
+msgid "IDS_ST_BODY_LOADING_ING"
+msgstr "Laddar..."
+
+msgid "IDS_MSGS_BODY_NOTIFICATIONS"
+msgstr "Aviseringar"
+
+msgid "IDS_MSG_HEADER_ME"
+msgstr "Mig"
+
+msgid "IDS_MSG_BODY_UNKNOWN"
+msgstr "Okänd"
+
+msgid "IDS_MSG_TMBODY_ADD_OR_REMOVE_RECIPIENTS"
+msgstr "Lägg t. eller ta bort mottagare"
+
+msgid "IDS_MSG_POP_THE_SENDER_HAS_REQUESTED_A_READ_REPORT_TAP_SEND_TO_SEND_ONE"
+msgstr "Avsändaren har begärt en läskvittens. Skicka en genom att trycka på Skicka."
+
+msgid "IDS_MSGF_OPT_SEND_READ_REPORT"
+msgstr "Sänd läsrapport"
+
+msgid "IDS_MSG_HEADER_COMPOSE_MESSAGE_ABB"
+msgstr "Skriv meddelande"
+
+msgid "IDS_MSG_POP_NO_VALID_RECIPIENTS_HAVE_BEEN_ADDED_THIS_MESSAGE_WILL_BE_DISCARDED"
+msgstr "Inga giltiga mottagare har lagts till. Detta meddelande kommer att slängas."
+

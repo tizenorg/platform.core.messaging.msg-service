@@ -1,0 +1,945 @@
+msgid "IDS_COM_BODY_HOME"
+msgstr "Otthoni"
+
+msgid "IDS_MSGC_POP_DATA_ROAMING_IS_DISABLED_ENABLE_DATA_ROAMING_AND_TRY_AGAIN"
+msgstr "Az adatroaming le van tiltva. Engedélyezze az adatroamingot, és próbálja újra."
+
+msgid "IDS_MSG_ACBUTTON_CANCEL_ABB"
+msgstr "MÉGSE"
+
+msgid "IDS_MSG_ACBUTTON_DONE_ABB"
+msgstr "KÉSZ"
+
+msgid "IDS_MSGF_POP_NEW_MESSAGE"
+msgstr "Új üzenet"
+
+msgid "IDS_COM_BUTTON_SHARE"
+msgstr "Megoszt"
+
+msgid "IDS_COM_BODY_UNKNOWN"
+msgstr "Ismeretlen"
+
+msgid "IDS_COM_BODY_MOBILE"
+msgstr "Mobil"
+
+msgid "IDS_MSGC_POP_MOBILE_DATA_IS_DISABLED_ENABLE_MOBILE_DATA_AND_TRY_AGAIN"
+msgstr "A mobil internetkapcsolat le van tiltva. Engedélyezze a mobil internetkapcsolatot, és próbálja újra."
+
+msgid "IDS_TPLATFORM_ACBUTTON_SEND_ABB"
+msgstr "KÜLDÉS"
+
+msgid "IDS_MSGC_POP_UNABLE_TO_SEND_MESSAGES_WHILE_IN_FLIGHT_MODE_DISABLE_FLIGHT_MODE_AND_TRY_AGAIN"
+msgstr "Repülő üzemmódban nem lehet üzenetet küldeni. Kapcsolja ki a Repülő üzemmódot, és próbálja újra."
+
+msgid "IDS_MSGC_POP_UNABLE_TO_ADD_FILE_IS_FORWARD_LOCKED"
+msgstr "Nem lehet továbbküldeni. A fájl védett a továbbküldés ellen."
+
+msgid "IDS_MSGC_POP_THERE_IS_NOT_ENOUGH_SPACE_IN_YOUR_DEVICE_STORAGE_GO_TO_SETTINGS_POWER_AND_STORAGE_STORAGE_THEN_DELETE_SOME_FILES_AND_TRY_AGAIN"
+msgstr "Nincs elég hely az eszköz tárhelyén. Válassza a Beállítások > Energia és tárhely > Tárhely pontot, töröljön fájlokat, majd próbálja újra."
+
+msgid "IDS_MSGC_POP_TEXT_AT_TOP"
+msgstr "Szöveg felülre"
+
+msgid "IDS_MSGC_POP_TEXT_AT_BOTTOM"
+msgstr "Szöveg alul"
+
+msgid "IDS_MSGC_POP_SELECT_LAYOUT"
+msgstr "Elrendezés kiválasztása"
+
+msgid "IDS_MSGC_POP_MMSCANTADD"
+msgstr "A tartalom nem adható hozzá."
+
+msgid "IDS_MSGC_POP_MESSAGE_SCHEDULED_TO_BE_SENT_TO_PS_SEND_NOW_Q"
+msgstr "Be van ütemezve az üzenet küldése %s felhasználónak. Elküldi most?"
+
+msgid "IDS_MSGC_POP_MAXIMUM_MESSAGE_SIZE_REACHED"
+msgstr "Elérte a maximális üzenetméretet."
+
+msgid "IDS_MSGC_POP_DURATION_MUST_BE_AT_LEAST_PD_SECONDS"
+msgstr "Az időtartamnak legalább %d másodpercnek kell lennie."
+
+msgid "IDS_MSGC_POP_DISABLING_FLIGHT_MODE_ING"
+msgstr "Repülő üzemmód kikapcsolása..."
+
+msgid "IDS_MSGC_POP_COPIED_TO_SIM_CARD"
+msgstr "SIM kártyára másolva."
+
+msgid "IDS_MSGC_OPT_USE_OTHER_CONTACT_INFO_ABB"
+msgstr "Más kapcs.info. haszn."
+
+msgid "IDS_MSGC_OPT_SEND_VIA"
+msgstr "Küldés"
+
+msgid "IDS_MSGC_OPT_IMAGE"
+msgstr "Kép"
+
+msgid "IDS_MSGC_OPT_EDIT_ITEM_REPLACE"
+msgstr "Csere"
+
+msgid "IDS_MSGC_OPT_CANCEL_MESSAGE"
+msgstr "Üzenet visszavonása"
+
+msgid "IDS_MSGC_HEADER_RECIPIENT_LIST"
+msgstr "Címzettlista"
+
+msgid "IDS_MSGC_HEADER_DURATION_FOR_SLIDE_PD_PD"
+msgstr "%d./%d dia időtartama"
+
+msgid "IDS_MSGC_BODY_WAIT_WHILE_ITEMS_ARE_ADDED_TO_SLIDESHOW"
+msgstr "Várja meg a tételek hozzáadását a diabemutatóhoz."
+
+msgid "IDS_MSGC_BODY_UNABLE_TO_SEND_MESSAGE"
+msgstr "Nem lehet elküldeni az üzenetet."
+
+msgid "IDS_MSGC_BODY_SELECT_RINGTONE"
+msgstr "Csengőhang kiválasztása"
+
+msgid "IDS_MSGC_BODY_READ_REPORT_WILL_BE_SENT"
+msgstr "A készülék olvasási jelentést fog küldeni."
+
+msgid "IDS_MSGC_BODY_NOT_REQUESTED"
+msgstr "Nem kérték"
+
+msgid "IDS_MSGC_BODY_MAXIMUM_NUMBER_OF_RECIPIENTS_HPD_REACHED"
+msgstr "Elérte a címzettek maximális számát (%d)."
+
+msgid "IDS_MSGC_BODY_DUPLICATED_RECIPIENT"
+msgstr "Kétszer előforduló címzett"
+
+msgid "IDS_MSGF_SK_FORWARD_LITE"
+msgstr "Tov.k."
+
+msgid "IDS_MSGF_POP_UNABLE_TO_SAVE"
+msgstr "Nem menthető."
+
+msgid "IDS_MSGF_POP_UNABLE_TO_DELETE"
+msgstr "Nem törölhető."
+
+msgid "IDS_MSGF_POP_UNABLE_TO_COPY"
+msgstr "Nem lehet átmásolni."
+
+msgid "IDS_MSGF_POP_SOME_CHARACTERS_MAY_BE_LOST_CONTINUE_Q"
+msgstr "Bizonyos karakterek elveszhetnek.\nFolytatja?"
+
+msgid "IDS_MSGF_POP_SIM_NOT_INSERTED"
+msgstr "Nincs behelyezve SIM."
+
+msgid "IDS_MSGF_POP_SAVING_FAILED"
+msgstr "A mentés nem sikerült."
+
+msgid "IDS_MSGF_POP_SAVED_IN_MY_FILES"
+msgstr "Mentve a Saját fájlok közé."
+
+msgid "IDS_MSGF_POP_RETRIEVING_MESSAGE_FAILED"
+msgstr "Üzenet fogadása sikertelen"
+
+msgid "IDS_MSGF_POP_RESTRICTED_CONTENT_TYPE_ATTACH_ANYWAY_Q"
+msgstr "Korlátozott típusú tartalom. Így is kívánja csatolni?"
+
+msgid "IDS_MSGF_POP_RESTORING_ING"
+msgstr "Visszaállítás..."
+
+msgid "IDS_MSGF_POP_READ_REPORT"
+msgstr "Olvasási jelentés"
+
+msgid "IDS_MSGF_POP_NO_NUMBER"
+msgstr "Nincs szám"
+
+msgid "IDS_MSGF_POP_NO_ATTACHMENTS"
+msgstr "Nincs melléklet"
+
+msgid "IDS_MSGF_POP_NEW_MESSAGES"
+msgstr "Új üzenet"
+
+msgid "IDS_MSGF_POP_MESSAGE_COPIED_FROM_SIM_CARD"
+msgstr "Üzenet átmásolva a SIM kártyáról."
+
+msgid "IDS_MSGF_POP_MAXIMUM_NUMBER_OF_RECIPIENTS_IS_PD_SOME_RECIPIENTS_MAY_BE_LOST"
+msgstr "A címzettek maximális száma %d. Néhány címzett elveszhet."
+
+msgid "IDS_MSGF_POP_MAXIMUM_NUMBER_OF_ATTACHMENTS_HPS_EXCEEDED"
+msgstr "Túllépte a mellékletek maximális számát (%s)."
+
+msgid "IDS_MSGF_POP_MAXIMUM_CHARACTERS"
+msgstr "Nincs hely több karakternek."
+
+msgid "IDS_MSGF_POP_IN_PROGRESS_ING"
+msgstr "Folyamatban..."
+
+msgid "IDS_MSGF_POP_INTIALISING"
+msgstr "Inicializálás..."
+
+msgid "IDS_MSGF_POP_IF_YOU_DONT_WANT_TO_REPLACE_THE_FILE_RENAME_IT"
+msgstr "Ha nem szeretné lecserélni a fájlt, nevezze át."
+
+msgid "IDS_MSGF_POP_HELP_PAGE_MESSAGE_FOR_ONE_FILE"
+msgstr "Ez az üzenet nem megjeleníthető mellékletet tartalmaz."
+
+msgid "IDS_MSGF_POP_HELP_PAGE_MESSAGE"
+msgstr "Ez az üzenet megjelenítetlen csatolt fájlokat tartalmaz."
+
+msgid "IDS_MSGF_POP_FILE_NAME_ALREADY_EXISTS"
+msgstr "Ez a fájlnév már létezik."
+
+msgid "IDS_MSGF_POP_CONVERTING_TO_TEXT_MESSAGE_ING"
+msgstr "Átalakítás szöveges üzenetté..."
+
+msgid "IDS_MSGF_POP_CONVERTING_TO_MULTIMEDIA_MESSAGE_ING"
+msgstr "Átalakítás multimédia üzenetté..."
+
+msgid "IDS_MSGF_POP_ABOUT_TO_GO_ONLINE_CONTINUE_Q"
+msgstr "Kapcsolódni készül (%s). Folytatja?"
+
+msgid "IDS_MSGF_OPT_TEXT_MESSAGE"
+msgstr "Szöveges üzenet"
+
+msgid "IDS_MSGF_OPT_SENDER_ABB"
+msgstr "Küldő"
+
+msgid "IDS_MSGF_OPT_SAVE_ATTACHMENT"
+msgstr "Melléklet mentése"
+
+msgid "IDS_MSGF_OPT_INSTALL"
+msgstr "Telepít"
+
+msgid "IDS_MSGF_OPT_EDIT_MESSAGE"
+msgstr "Üzenet szerkesztése"
+
+msgid "IDS_MSGF_OPT_DELETE_MESSAGES"
+msgstr "Üzenetek törlése"
+
+msgid "IDS_MSGF_HEADER_SELECT_MESSAGES"
+msgstr "Üzenetek kiválasztása"
+
+msgid "IDS_MSGF_HEADER_SAVE_ALL"
+msgstr "Összes mentése"
+
+msgid "IDS_MSGF_HEADER_MESSAGE_DETAILS"
+msgstr "Üzenet részletei"
+
+msgid "IDS_MSGF_HEADER_EXPIRES_C_PS"
+msgstr "Elévül: %s"
+
+msgid "IDS_MSGF_BUTTON_SAVE_ALL_ATTACHMENTS_ABB"
+msgstr "Ö. melléklet mentése"
+
+msgid "IDS_MSGF_BODY_TO_C"
+msgstr "Címzett:"
+
+msgid "IDS_MSGF_BODY_TEXT_MESSAGES"
+msgstr "Szöveges üzenetek"
+
+msgid "IDS_MSGF_BODY_SIM_MEMORY_FULL_DELETE_SOME_ITEMS"
+msgstr "A SIM kártya megtelt. Töröljön néhány tételt."
+
+msgid "IDS_MSGF_BODY_SENT_M_DATE_C"
+msgstr "Elküldve:"
+
+msgid "IDS_MSGF_BODY_REQUESTED"
+msgstr "Kérés"
+
+msgid "IDS_MSGF_BODY_RECEIVED_M_DATE_C"
+msgstr "Fogadva:"
+
+msgid "IDS_MSGF_BODY_READ_REPORT"
+msgstr "Olvasási jelentés"
+
+msgid "IDS_MSGF_BODY_PUSH_MESSAGES"
+msgstr "Push üzenetek"
+
+msgid "IDS_MSGF_BODY_PD_MESSAGES"
+msgstr "%d üzenet"
+
+msgid "IDS_MSGF_BODY_PD_CONVERSATIONS"
+msgstr "%d beszélgetés"
+
+msgid "IDS_MSGF_BODY_NO_NAME"
+msgstr "Nincs név"
+
+msgid "IDS_MSGF_BODY_MULTIMEDIA_MESSAGE_NOTIFICATION"
+msgstr "Multimédia üzenet jelzése"
+
+msgid "IDS_MSGF_BODY_MULTIMEDIA_MESSAGE"
+msgstr "Multimédia üzenet"
+
+msgid "IDS_MSGF_BODY_MMSREADREPLYMSGREAD"
+msgstr "Olvas"
+
+msgid "IDS_MSGF_BODY_MMSDELIVERYMSGREJECTED"
+msgstr "Az üzenet elutasítva."
+
+msgid "IDS_MSGF_BODY_MMS"
+msgstr "MMS"
+
+msgid "IDS_MSGF_BODY_MESSAGE_SIZE"
+msgstr "Üzenet mérete"
+
+msgid "IDS_MSGF_BODY_MESSAGE_OPTIONS"
+msgstr "Üzenetopciók"
+
+msgid "IDS_MSGF_BODY_MESSAGE_DELIVERED"
+msgstr "Az üzenet kézbesítve"
+
+msgid "IDS_MSGF_BODY_MAXIMUM_NUMBER_OF_ATTACHMENTS_HP1SS_EXCEEDED_ONLY_FIRST_P2SS_WILL_BE_ADDED"
+msgstr "Túllépte a mellékletek maximális számát (%1$s). Csak az első %2$s lesz hozzáadva."
+
+msgid "IDS_MSGF_BODY_INVALID_RECIPIENT"
+msgstr "Érvénytelen címzett"
+
+msgid "IDS_MSGF_BODY_FROM"
+msgstr "Feladó"
+
+msgid "IDS_MSGF_BODY_FLFROM"
+msgstr "Feladó:"
+
+msgid "IDS_MSGF_BODY_DETAILSSENDINGFAILED"
+msgstr "A küldés sikertelen."
+
+msgid "IDS_MSGF_BODY_DELIVERY_REPORT"
+msgstr "Kézbesítési jelentés"
+
+msgid "IDS_MSGF_BODY_CP_MESSAGES"
+msgstr "Tartalomszolgáltatási üzenetek"
+
+msgid "IDS_MSGF_BODY_COPY_TEXT"
+msgstr "Szöveg másolása"
+
+msgid "IDS_MSGF_BODY_CB_MESSAGES"
+msgstr "Hírüzenetek"
+
+msgid "IDS_MSGF_BODY_1_MESSAGE"
+msgstr "1 üzenet"
+
+msgid "IDS_MSGF_BODY_1_CONVERSATION"
+msgstr "1 beszélgetés"
+
+msgid "IDS_MSGS_BODY_REQUEST_A_READ_REPORT_FOR_EACH_MESSAGE_YOU_SEND"
+msgstr "Olvasási jelentés kérése minden elküldött üzenetnél"
+
+msgid "IDS_MSGS_BODY_REQUEST_A_DELIVERY_REPORT_FOR_EACH_MESSAGE_YOU_SEND"
+msgstr "Kézbesítési jelentés kérése minden elküldött üzenetnél"
+
+msgid "IDS_MSGS_BODY_RADIO_BUTTON"
+msgstr "Választógomb"
+
+msgid "IDS_MSGS_BODY_ON_OFF_BUTTON_T_TTS"
+msgstr "Be-ki gomb"
+
+msgid "IDS_MSGS_BODY_EXPANDABLE_LIST_T_TTS"
+msgstr "Kibontható lista"
+
+msgid "IDS_MSGS_BODY_AUTOMATICALLY_RETRIEVE_MMS_MESSAGES"
+msgstr "MMS üzenetek automatikus letöltése"
+
+msgid "IDS_MSG_TPOP_UNABLE_TO_PREVIEW_FILE_UNSUPPORTED_FILE_TYPE"
+msgstr "Nem jeleníthető meg a fájl előnézete. Az alkalmazás nem támogatja ezt a fájltípust."
+
+msgid "IDS_MSG_TPOP_UNABLE_TO_ATTACH_FILE_FILE_FORMAT_NOT_SUPPORTED"
+msgstr "Nem lehet csatolni a fájlt. Az alkalmazás nem támogatja ezt a fájlformátumot."
+
+msgid "IDS_MSG_TPOP_UNABLE_TO_ADD_SOME_RECIPIENTS_NUMBERS_NOT_VALID"
+msgstr "Néhány címzettet nem lehet hozzáadni. Nem érvényes a számuk."
+
+msgid "IDS_MSG_TPOP_UNABLE_TO_ADD_RECIPIENT_NUMBER_NOT_VALID"
+msgstr "Nem lehet hozzáadni a címzettet. Nem érvényes a száma."
+
+msgid "IDS_MSG_TPOP_UNABLE_TO_ADD_RECIPIENTS_NUMBERS_NOT_VALID"
+msgstr "Nem lehet hozzáadni a címzetteket. Nem érvényes a számuk."
+
+msgid "IDS_MSG_TPOP_UNABLE_TO_ADD_ATTACHMENT_MAXIMUM_NUMBER_OF_ATTACHMENTS_HPD_REACHED"
+msgstr "Nem lehet több mellékletet hozzáadni. Elérte a mellékletek maximális számát (%d)."
+
+msgid "IDS_MSG_TPOP_THIS_NUMBER_IS_NOT_VALID"
+msgstr "A szám nem érvényes."
+
+msgid "IDS_MSG_TPOP_SOME_RECIPIENTS_ALREADY_ADDED"
+msgstr "Egyes partnerek már szerepelnek a címzettek között."
+
+msgid "IDS_MSG_TPOP_SELECTED_MESSAGES_COPIED_TO_MOBILE_DEVICE"
+msgstr "A mobileszközre másolta a kijelölt üzeneteket."
+
+msgid "IDS_MSG_TPOP_PD_MESSAGES_MOVED_TO_MESSAGE_LIST"
+msgstr "%d üzenetet áthelyezett az üzenetlistára."
+
+msgid "IDS_MSG_TPOP_NUMBER_REMOVED_FROM_MESSAGE_BLOCK_LIST"
+msgstr "Eltávolította a számot az üzenetblokkolási listáról."
+
+msgid "IDS_MSG_TPOP_NUMBER_ADDED_TO_MESSAGE_BLOCK_LIST"
+msgstr "Felvette a számot az üzenetblokkolási listára."
+
+msgid "IDS_MSG_TPOP_NETWORK_NOT_AVAILABLE_MESSAGE_WILL_BE_SENT_WHEN_CONNECTED_TO_NETWORK"
+msgstr "Nincs hálózat. Az eszköz hálózati kapcsolat létrehozása után küldi el az üzenetet."
+
+msgid "IDS_MSG_TPOP_MESSAGE_COPIED_TO_PS_SIM_CARD"
+msgstr "Átmásolta az üzenetet a(z) %s SIM kártyára."
+
+msgid "IDS_MSG_TPOP_MAXIMUM_NUMBER_OF_CHARACTERS_EXCEEDED"
+msgstr "Túllépte a karakterek maximális számát."
+
+msgid "IDS_MSG_TPOP_MAXIMUM_MESSAGE_SIZE_HPS_EXCEEDED_RESIZING_ATTACHMENTS_ING"
+msgstr "Túllépte a maximális üzenetméretet (%s). Mellékletek átméretezése..."
+
+msgid "IDS_MSG_TPOP_INVALID_CHARACTER_ENTERED"
+msgstr "Érvénytelen karaktert vitt be."
+
+msgid "IDS_MSG_TPOP_ADD_RECIPIENTS"
+msgstr "Adjon hozzá címzetteket."
+
+msgid "IDS_MSG_TPOP_1_MESSAGE_MOVED_TO_MESSAGE_LIST"
+msgstr "1 üzenetet áthelyezett az üzenetlistára."
+
+msgid "IDS_MSG_TMBODY_TEXT_MESSAGES"
+msgstr "Szöveges üzenetek"
+
+msgid "IDS_MSG_TMBODY_SOUND"
+msgstr "Hang"
+
+msgid "IDS_MSG_TMBODY_MULTIMEDIA_MESSAGES"
+msgstr "Multimédiás üzenetek"
+
+msgid "IDS_MSG_TMBODY_MESSAGES_ON_SIM_CARD"
+msgstr "Üzenetek a SIM kártyán"
+
+msgid "IDS_MSG_TMBODY_INPUT_MODE"
+msgstr "Beviteli mód"
+
+msgid "IDS_MSG_TMBODY_AUTO_RETRIEVE_WHILE_ROAMING"
+msgstr "Automatikus letöltés roamingban"
+
+msgid "IDS_MSG_TMBODY_AUTO_RETRIEVE"
+msgstr "Automatikus letöltés"
+
+msgid "IDS_MSG_SK_SEND_NOW"
+msgstr "Küldés"
+
+msgid "IDS_MSG_SBODY_SELECT_AN_INPUT_MODE_FOR_COMPOSING_MESSAGES"
+msgstr "Beviteli módot választhat az üzenetíráshoz."
+
+msgid "IDS_MSG_SBODY_NONE_M_STATUS"
+msgstr "Nincs"
+
+msgid "IDS_MSG_SBODY_MANAGE_THE_MESSAGES_STORED_ON_YOUR_SIM_CARD"
+msgstr "Kezelheti a SIM kártyán tárolt üzeneteket."
+
+msgid "IDS_MSG_POP_UNABLE_TO_SEND_SCHEDULED_MESSAGE_SET_ANOTHER_TIME"
+msgstr "Nem lehet elküldeni az ütemezett üzenetet. Más időt állítson be."
+
+msgid "IDS_MSG_POP_UNABLE_TO_ATTACH_FILE_FILE_SIZE_TOO_LARGE_TRY_SENDING_VIA_EMAIL_BLUETOOTH_WI_FI_ETC"
+msgstr "A fájl nem csatolható. Túl nagy a fájl. Próbálja e-mailben, Bluetooth-on, Wi-Fi-n stb. küldeni"
+
+msgid "IDS_MSG_POP_TO_SEND_THIS_MULTIMEDIA_MESSAGE_THE_DEVICE_WILL_CONNECT_TO_A_DIFFERENT_MOBILE_NETWORK_THIS_WILL_DISCONNECT_YOUR_DEVICE_FROM_YOUR_MSG"
+msgstr "Az eszköz egy másik mobilhálózathoz kapcsolódik a multimédiás üzenet elküldéséhez. Így megszakad a kapcsolata a jelenlegi mobilhálózattal."
+
+msgid "IDS_MSG_POP_TO_DOWNLOAD_THIS_MULTIMEDIA_MESSAGE_THE_DEVICE_WILL_CONNECT_TO_A_DIFFERENT_MOBILE_NETWORK_MSG"
+msgstr "Az eszköz egy másik mobilhálózathoz kapcsolódik a multimédiás üzenet letöltéséhez. Így megszakad az eszköz kapcsolata a jelenlegi mobilhálózattal."
+
+msgid "IDS_MSG_POP_THIS_MESSAGE_WILL_BE_RESENT"
+msgstr "Az eszköz újraküldi az üzenetet."
+
+msgid "IDS_MSG_POP_PD_MESSAGES_WILL_BE_DELETED"
+msgstr "%d üzenetet törölni fog."
+
+msgid "IDS_MSG_POP_PD_CONVERSATIONS_WILL_BE_DELETED"
+msgstr "Törölni fog %d beszélgetést."
+
+msgid "IDS_MSG_POP_NO_TEMPLATES_IN_LIST"
+msgstr "A lista nem tartalmaz sablont"
+
+msgid "IDS_MSG_POP_INCLUDE_ORIGINAL_TEXT_IN_OUTGOING_MESSAGE"
+msgstr "Eredeti szöveg hozzávétele a kimenő üzenethez"
+
+msgid "IDS_MSG_POP_DURATION_MUST_BE_SHORTER_THAN_PD_SECONDS"
+msgstr "Az időtartamnak rövidebbnek kell lennie %d másodpercnél."
+
+msgid "IDS_MSG_POP_1_MESSAGE_WILL_BE_DELETED"
+msgstr "Törölni fog 1 üzenetet."
+
+msgid "IDS_MSG_POP_1_CONVERSATION_WILL_BE_DELETED"
+msgstr "Töröl 1 beszélgetést."
+
+msgid "IDS_MSG_OPT_VIEW_DETAILS_ABB"
+msgstr "Részletek megtekintése"
+
+msgid "IDS_MSG_OPT_VIEW_CONTACT_DETAILS_ABB"
+msgstr "Névadatok megtekintése"
+
+msgid "IDS_MSG_OPT_VIEW_AS_SLIDESHOW_ABB"
+msgstr "Megtekintés diavetítésként"
+
+msgid "IDS_MSG_OPT_UPDATE_CONTACT"
+msgstr "Névjegy frissítése"
+
+msgid "IDS_MSG_OPT_UNICODE"
+msgstr "Ékezetes"
+
+msgid "IDS_MSG_OPT_TAKE_PICTURE_ABB"
+msgstr "Kép készítése"
+
+msgid "IDS_MSG_OPT_SAVE_ATTACHMENTS_ABB"
+msgstr "Mellékletek mentése"
+
+msgid "IDS_MSG_OPT_RESEND"
+msgstr "Újraküldés"
+
+msgid "IDS_MSG_OPT_REPLY"
+msgstr "Válasz"
+
+msgid "IDS_MSG_OPT_REMOVE_FROM_BLOCK_LIST_ABB"
+msgstr "Eltávolítás a tiltólistáról"
+
+msgid "IDS_MSG_OPT_RECORD_AUDIO_FILE_ABB"
+msgstr "Hangfájl rögzítése"
+
+msgid "IDS_MSG_OPT_QUICK_RESPONSE_ABB"
+msgstr "Gyors válasz"
+
+msgid "IDS_MSG_OPT_MAKE_VOICE_CALL"
+msgstr "Hanghívás indítása"
+
+msgid "IDS_MSG_OPT_GSM_ALPHABET_ABB"
+msgstr "Ékezet nélkül"
+
+msgid "IDS_MSG_OPT_EXPORT_TO_DEVICE_MEMORY"
+msgstr "Exportálás a memóriájába"
+
+msgid "IDS_MSG_OPT_DELETE_MESSAGE"
+msgstr "Üzenet törlése"
+
+msgid "IDS_MSG_OPT_DELETE_CONVERSATION_ABB"
+msgstr "Beszélgetés törlése"
+
+msgid "IDS_MSG_OPT_CREATE_CONTACT_ABB"
+msgstr "Névjegy létrehozása"
+
+msgid "IDS_MSG_OPT_COPY_TO_SIM_CARD_ABB"
+msgstr "Másolás a SIM kártyára"
+
+msgid "IDS_MSG_OPT_COPY_TO_DEVICE_ABB"
+msgstr "Másolás az eszközre"
+
+msgid "IDS_MSG_OPT_COPY_TEXT"
+msgstr "Szöveg másolása"
+
+msgid "IDS_MSG_OPT_COPY"
+msgstr "Másolás"
+
+msgid "IDS_MSG_OPT_BACK_UP"
+msgstr "Biztonsági mentés"
+
+msgid "IDS_MSG_OPT_AUTOMATIC"
+msgstr "Automatikus"
+
+msgid "IDS_MSG_OPT_AUDIO_FILES_ABB2"
+msgstr "Hangfájlok"
+
+msgid "IDS_MSG_OPT_ATTACHMENT_ABB"
+msgstr "Melléklet"
+
+msgid "IDS_MSG_OPT_ADD_TO_CONTACTS_ABB"
+msgstr "Felvétel a Névjegyzékbe"
+
+msgid "IDS_MSG_OPT_ADD_TO_BLOCK_LIST_ABB"
+msgstr "Hozzáadás a tiltólistához"
+
+msgid "IDS_MSG_OPT_ADD_RECIPIENTS_ABB"
+msgstr "Címzettek hozzáadása"
+
+msgid "IDS_MSG_NPBODY_SEARCH"
+msgstr "Keresés"
+
+msgid "IDS_MSG_NPBODY_NO_RESULTS_FOUND_ABB"
+msgstr "Nincs találat"
+
+msgid "IDS_MSG_NPBODY_NO_QUICK_RESPONSES"
+msgstr "Nincs gyors válasz"
+
+msgid "IDS_MSG_NPBODY_NO_PHRASES_BLOCKED"
+msgstr "Nincsenek blokkolt szavak"
+
+msgid "IDS_MSG_NPBODY_NO_MESSAGES_ON_SIM_CARD"
+msgstr "Nincs üzenet a SIM kártyán"
+
+msgid "IDS_MSG_NPBODY_NO_MESSAGES"
+msgstr "Nincs üzenet"
+
+msgid "IDS_MSG_NPBODY_NO_BLOCKED_NUMBERS"
+msgstr "Nincs blokkolt szám"
+
+msgid "IDS_MSG_MBODY_VIBRATION"
+msgstr "Rezgés"
+
+msgid "IDS_MSG_MBODY_UNKNOWN_NUMBER"
+msgstr "Ismeretlen szám"
+
+msgid "IDS_MSG_MBODY_TEXT_MESSAGE_CENTRE_NUMBER_ABB"
+msgstr "Szövegesüzenet-központ száma"
+
+msgid "IDS_MSG_HEADER_TEXT_MESSAGES_ABB"
+msgstr "Szöveges üzenetek"
+
+msgid "IDS_MSG_HEADER_SWITCH_MOBILE_NETWORK_ABB2"
+msgstr "Mobilhálózat-váltás"
+
+msgid "IDS_MSG_HEADER_SMS_CENTRE_ABB2"
+msgstr "SMS-központ"
+
+msgid "IDS_MSG_HEADER_SELECT_RECIPIENT"
+msgstr "Címzett kiválasztása"
+
+msgid "IDS_MSG_HEADER_PD_SELECTED_ABB3"
+msgstr "%d kijelölve"
+
+msgid "IDS_MSG_HEADER_MESSAGES_ON_SIM_CARD_ABB"
+msgstr "Üzenetek a SIM kártyán"
+
+msgid "IDS_MSG_HEADER_INPUT_MODE_ABB"
+msgstr "Beviteli mód"
+
+msgid "IDS_MSG_HEADER_FILE_SIZE_TOO_LARGE_ABB"
+msgstr "A fájl túl nagy méretű"
+
+msgid "IDS_MSG_HEADER_FAILED_TO_SEND_MESSAGE_ABB"
+msgstr "Nem sik. elküldeni az üzenetet"
+
+msgid "IDS_MSG_HEADER_DISCARD_MESSAGE_M_CLOSE_ABB"
+msgstr "Üzenet elvetése"
+
+msgid "IDS_MSG_HEADER_CREATE"
+msgstr "Létrehozás"
+
+msgid "IDS_MSG_HEADER_ADD_CONTENT_ABB"
+msgstr "Tartalom hozzáadása"
+
+msgid "IDS_MSG_BUTTON_SWITCH_ABB2"
+msgstr "Váltás"
+
+msgid "IDS_MSG_BUTTON_SAVE_ABB2"
+msgstr "Mentés"
+
+msgid "IDS_MSG_BUTTON_RESEND_ABB"
+msgstr "Újraküldés"
+
+msgid "IDS_MSG_BUTTON_DISCARD_ABB"
+msgstr "Elvetés"
+
+msgid "IDS_MSG_BUTTON_DELETE_ABB4"
+msgstr "Törlés"
+
+msgid "IDS_MSG_BUTTON_CANCEL_ABB2"
+msgstr "Mégse"
+
+msgid "IDS_MSG_BUTTON2_CONTACTS_ABB_M_APPLICATION_NAME"
+msgstr "Névjegyzék"
+
+msgid "IDS_MSG_BODY_YOU_HAVE_SELECTED_A_SOUND_N_SHOT_FILE_SOUND_DATA_IS_NOT_SUPPORTED_FOR_MMS_SO_ONLY_THE_PICTURE_WILL_BE_ATTACHED"
+msgstr "Hangosképfájlt választott ki. Mivel az MMS nem támogatja hangadatokat, csak a kép lesz csatolva."
+
+msgid "IDS_MSG_BODY_WAITING_TO_SEND_ING_M_STATUS"
+msgstr "Várakozás a küldésre..."
+
+msgid "IDS_MSG_BODY_UNABLE_TO_SEND_THIS_MESSAGE_INSERT_YOUR_SIM_CARD_AND_TRY_AGAIN"
+msgstr "Nem sikerült elküldeni az üzenetet. Helyezze be a SIM kártyát, és próbálja újra."
+
+msgid "IDS_MSG_BODY_TYPE_C"
+msgstr "Típus:"
+
+msgid "IDS_MSG_BODY_TO_USE_RESTRICTED_MEDIA_TYPES_CHANGE_YOUR_MMS_CREATION_MODE_SETTING"
+msgstr "Korlátozott médiatípusok használatához módosítsa az MMS-létrehozási mód beállítását."
+
+msgid "IDS_MSG_BODY_TIME_SENT_C"
+msgstr "Küldés időpontja:"
+
+msgid "IDS_MSG_BODY_TIME_RECEIVED_C"
+msgstr "Fogadás időpontja:"
+
+msgid "IDS_MSG_BODY_STATUS_C"
+msgstr "Állapot:"
+
+msgid "IDS_MSG_BODY_SENT_M_STATUS"
+msgstr "Elküldve"
+
+msgid "IDS_MSG_BODY_SENDING_ING_M_STATUS_ABB"
+msgstr "Küldés..."
+
+msgid "IDS_MSG_BODY_SENDING_FAILED_M_STATUS"
+msgstr "Sikertelen küldés"
+
+msgid "IDS_MSG_BODY_RETRIEVE_MESSAGES_AUTOMATICALLY_WHILE_ROAMING"
+msgstr "Roaming közben automatikusan letölti az üzeneteket."
+
+msgid "IDS_MSG_BODY_RETRIEVE_MESSAGES_AUTOMATICALLY"
+msgstr "Automatikusan letölti az üzeneteket."
+
+msgid "IDS_MSG_BODY_READ_REPORT_C_PS"
+msgstr "Olvasási jelentés: %s"
+
+msgid "IDS_MSG_BODY_OTHER_PERSON"
+msgstr "Más személy"
+
+msgid "IDS_MSG_BODY_MEMO_T_MAINMENU"
+msgstr "Jegyzet"
+
+msgid "IDS_MSG_BODY_FAILED_M_STATUS_ABB2"
+msgstr "Hiba"
+
+msgid "IDS_MSG_BODY_ENTER_TEXT_M_NOUN"
+msgstr "Szöveg bevitele"
+
+msgid "IDS_MSG_BODY_DRAFT_M_STATUS_ABB"
+msgstr "Piszkozat"
+
+msgid "IDS_MSG_BODY_DELIVERY_REPORT_C_PS"
+msgstr "Kézbesítési jelentés: %s"
+
+msgid "IDS_MSG_BODY_CB_MESSAGE"
+msgstr "Hírüzenet"
+
+msgid "IDS_MSG_BODY_CALENDAR_M_APPLICATION_NAME_ABB"
+msgstr "Naptár"
+
+msgid "IDS_MSG_BODY_AFTER_YOU_SEND_OR_RECEIVE_MESSAGES_THEY_WILL_BE_SHOWN_HERE"
+msgstr "Itt jelennek majd meg az elküldött és fogadott üzenetek."
+
+msgid "IDS_MSG_BODY_AFTER_YOU_CREATE_QUICK_RESPONSES_THEY_WILL_BE_SHOWN_HERE"
+msgstr "Itt jelennek majd meg a létrehozott gyors válaszok."
+
+msgid "IDS_MSG_BODY_AFTER_YOU_COPY_MESSAGES_TO_THE_SIM_CARD_THEY_WILL_BE_SHOWN_HERE"
+msgstr "Itt jelennek majd meg a SIM kártyára másolt üzenetek."
+
+msgid "IDS_MSG_BODY_AFTER_YOU_ADD_PHRASES_THEY_WILL_BE_SHOWN_HERE"
+msgstr "Itt jelennek majd meg a hozzáadott szavak."
+
+msgid "IDS_MSG_BODY_AFTER_YOU_ADD_NUMBERS_TO_THE_MESSAGE_BLOCK_LIST_THEY_WILL_BE_SHOWN_HERE"
+msgstr "Itt jelennek majd meg az üzenetblokkolási listához adott számok."
+
+msgid "IDS_MSG_ACBUTTON_DELETE_ABB"
+msgstr "TÖRLÉS"
+
+msgid "IDS_MSGC_POP_UNSUPPORTED_MEDIA_TYPE"
+msgstr "Nem támogatott médiatípus"
+
+msgid "IDS_MSGC_POP_LOW_BATTERY"
+msgstr "Az akkumulátor lemerült."
+
+msgid "IDS_MSGC_POP_CANCELLED"
+msgstr "Megszakítva."
+
+msgid "IDS_MSGC_OPT_EMAIL"
+msgstr "E-mail"
+
+msgid "IDS_MSGC_OPT_EDITITEM_VIEW"
+msgstr "Megtekint"
+
+msgid "IDS_MSGC_OPT_EDITITEM_REMOVE"
+msgstr "Eltávolít"
+
+msgid "IDS_MSGC_OPT_EDITITEM_PLAY"
+msgstr "Lejátszás"
+
+msgid "IDS_MSGC_OPT_CHANGE_RECIPIENTS_TO"
+msgstr "Címzett"
+
+msgid "IDS_MSGC_HEADER_PREVIEW"
+msgstr "Előnézet"
+
+msgid "IDS_MSGC_BODY_ENTER_SUBJECT"
+msgstr "Írja be a tárgyat."
+
+msgid "IDS_MSGF_POP_UNABLE_TO_FIND_LOCATION"
+msgstr "Nem található a hely."
+
+msgid "IDS_MSGF_POP_REJECTED"
+msgstr "Elutasítva."
+
+msgid "IDS_MSGF_POP_DELETING"
+msgstr "Törlés..."
+
+msgid "IDS_MSGF_POP_COPIED_TO_CLIPBOARD"
+msgstr "A vágólapra másolva."
+
+msgid "IDS_MSGF_POP_BLOCK_PS_Q"
+msgstr "Blokkolja %s felhasználót?"
+
+msgid "IDS_MSGF_OPT_SUBJECT_COLON"
+msgstr "Tárgy:"
+
+msgid "IDS_MSGF_OPT_SENDER_VIA_EMAIL"
+msgstr "Küldőnek e-mailben"
+
+msgid "IDS_MSGF_OPT_SELECT"
+msgstr "Választ"
+
+msgid "IDS_MSGF_OPT_SAVE"
+msgstr "Ment"
+
+msgid "IDS_MSGF_OPT_REMOVE"
+msgstr "Eltávolít"
+
+msgid "IDS_MSGF_OPT_FORWARD"
+msgstr "Továbbküldés"
+
+msgid "IDS_MSGF_OPT_DELETE_Q"
+msgstr "Törli?"
+
+msgid "IDS_MSGF_HEADER_ADVANCED_SEARCH"
+msgstr "Speciális keresés"
+
+msgid "IDS_MSGF_BODY_UNKNOWN"
+msgstr "Ismeretlen"
+
+msgid "IDS_MSGF_BODY_SETTINGS"
+msgstr "Beállítások"
+
+msgid "IDS_MSGF_BODY_RECIPIENTS"
+msgstr "Címzettek"
+
+msgid "IDS_MSGF_BODY_RECEIVED"
+msgstr "Fogadva."
+
+msgid "IDS_MSGF_BODY_OTHER"
+msgstr "Egyéb"
+
+msgid "IDS_MSGF_BODY_NO_SUBJECT"
+msgstr "Üres tárgymező"
+
+msgid "IDS_MSGF_BODY_MSGSIZE_KB"
+msgstr "KB"
+
+msgid "IDS_MSGF_BODY_MESSAGE"
+msgstr "Üzenet"
+
+msgid "IDS_MSGF_BODY_ME"
+msgstr "Én"
+
+msgid "IDS_MSGF_BODY_EXPIRED"
+msgstr "Lejárt"
+
+msgid "IDS_MSGF_BODY_ALL"
+msgstr "Mind"
+
+msgid "IDS_MSG_SK_NO_ABB"
+msgstr "Nem"
+
+msgid "IDS_MSG_POP_YOUR_MESSAGE_WILL_BE_DISCARDED_NO_RECIPIENTS_HAVE_BEEN_SELECTED"
+msgstr "Az üzenet el lesz vetve. Nem választott ki érvényes címzettet."
+
+msgid "IDS_MSG_POP_UNABLE_TO_PLAY_DURING_CALL"
+msgstr "Hívás közben nem lehet lejátszani."
+
+msgid "IDS_MSG_POP_INCOMING_MESSAGES_ONLY"
+msgstr "Csak a bejövő üzenetek"
+
+msgid "IDS_MSG_POP_DELETED"
+msgstr "Törölve."
+
+msgid "IDS_MSG_OPT_VIDEOS"
+msgstr "Videók"
+
+msgid "IDS_MSG_OPT_TEXT"
+msgstr "Szöveg"
+
+msgid "IDS_MSG_OPT_SETTINGS"
+msgstr "Beállítások"
+
+msgid "IDS_MSG_OPT_SEARCH"
+msgstr "Keresés"
+
+msgid "IDS_MSG_OPT_RECORD_VIDEO_ABB"
+msgstr "Videofelvétel"
+
+msgid "IDS_MSG_OPT_NONE"
+msgstr "Nincs"
+
+msgid "IDS_MSG_OPT_IMAGES"
+msgstr "Képek"
+
+msgid "IDS_MSG_OPT_EDIT"
+msgstr "Szerkeszt"
+
+msgid "IDS_MSG_OPT_DELETE"
+msgstr "Töröl"
+
+msgid "IDS_MSG_OPT_DEFAULT"
+msgstr "Alapértelmezett"
+
+msgid "IDS_MSG_MBODY_SELECT_ALL"
+msgstr "Összes kijelölése"
+
+msgid "IDS_MSG_MBODY_ALERTS"
+msgstr "Jelzések"
+
+msgid "IDS_MSG_HEADER_TRANSLATE"
+msgstr "Fordítás"
+
+msgid "IDS_MSG_HEADER_SETTINGS"
+msgstr "Beállítások"
+
+msgid "IDS_MSG_HEADER_MESSAGES"
+msgstr "Üzenetek"
+
+msgid "IDS_MSG_HEADER_DELETE"
+msgstr "Törlés"
+
+msgid "IDS_MSG_HEADER_ATTENTION"
+msgstr "Figyelem"
+
+msgid "IDS_MSG_BUTTON_REMOVE_ABB"
+msgstr "Eltávolít"
+
+msgid "IDS_MSG_BUTTON_OK_ABB"
+msgstr "OK"
+
+msgid "IDS_MSG_BUTTON_DOWNLOAD_ABB3"
+msgstr "Letöltés"
+
+msgid "IDS_MSG_BUTTON_CANCEL_ABB"
+msgstr "Mégse"
+
+msgid "IDS_MSG_BODY_YES"
+msgstr "Igen"
+
+msgid "IDS_MSG_BODY_TICK_BOX_T_TTS"
+msgstr "Jelölőnégyzet"
+
+msgid "IDS_MSG_BODY_SEC"
+msgstr "mp"
+
+msgid "IDS_MSG_BODY_MESSAGE"
+msgstr "Üzenet"
+
+msgid "IDS_MSG_BUTTON_SEND_ABB5"
+msgstr "Küld"
+
+msgid "IDS_MSG_BUTTON_SEND_ABB3"
+msgstr "Küld"
+
+msgid "IDS_MSG_ACBUTTON_SEND_ABB3"
+msgstr "KÜLD"
+
+msgid "IDS_ST_BODY_LOADING_ING"
+msgstr "Betöltés..."
+
+msgid "IDS_MSGS_BODY_NOTIFICATIONS"
+msgstr "Értesítések"
+
+msgid "IDS_MSG_HEADER_ME"
+msgstr "Én"
+
+msgid "IDS_MSG_BODY_UNKNOWN"
+msgstr "Ismeretlen"
+
+msgid "IDS_MSG_TMBODY_ADD_OR_REMOVE_RECIPIENTS"
+msgstr "Címzettek h.adása/eltávolítása"
+
+msgid "IDS_MSG_POP_THE_SENDER_HAS_REQUESTED_A_READ_REPORT_TAP_SEND_TO_SEND_ONE"
+msgstr "A feladó olvasási jelentést kért. A jelentés küldéséhez érintse meg a Küldés lehetőséget."
+
+msgid "IDS_MSGF_OPT_SEND_READ_REPORT"
+msgstr "Olvasási jelentés küldése"
+
+msgid "IDS_MSG_HEADER_COMPOSE_MESSAGE_ABB"
+msgstr "Üzenet írása"
+
+msgid "IDS_MSG_POP_NO_VALID_RECIPIENTS_HAVE_BEEN_ADDED_THIS_MESSAGE_WILL_BE_DISCARDED"
+msgstr "Nem adott hozzá érvényes címzettet. Elveti az üzenetet."
+

@@ -1,0 +1,945 @@
+msgid "IDS_COM_BODY_HOME"
+msgstr "Տուն"
+
+msgid "IDS_MSGC_POP_DATA_ROAMING_IS_DISABLED_ENABLE_DATA_ROAMING_AND_TRY_AGAIN"
+msgstr "Տվյալների ռոումինգը կասեցված է: Ընձեռեք տվյալների ռոումինգ և նորից փորձեք:"
+
+msgid "IDS_MSG_ACBUTTON_CANCEL_ABB"
+msgstr "ԴԱԴԱՐԵՑՆԵԼ"
+
+msgid "IDS_MSG_ACBUTTON_DONE_ABB"
+msgstr "ԱՐՎԱԾ"
+
+msgid "IDS_MSGF_POP_NEW_MESSAGE"
+msgstr "նոր հաղորդագրություն"
+
+msgid "IDS_COM_BUTTON_SHARE"
+msgstr "Համօգտ."
+
+msgid "IDS_COM_BODY_UNKNOWN"
+msgstr "Անհայտ"
+
+msgid "IDS_COM_BODY_MOBILE"
+msgstr "Բջջային"
+
+msgid "IDS_MSGC_POP_MOBILE_DATA_IS_DISABLED_ENABLE_MOBILE_DATA_AND_TRY_AGAIN"
+msgstr "Շարժական տվյալները կասեցված են: Ընձեռեք շարժական տվյալները և նորից փորձեք:"
+
+msgid "IDS_TPLATFORM_ACBUTTON_SEND_ABB"
+msgstr "ՈՒՂԱՐԿԵԼ"
+
+msgid "IDS_MSGC_POP_UNABLE_TO_SEND_MESSAGES_WHILE_IN_FLIGHT_MODE_DISABLE_FLIGHT_MODE_AND_TRY_AGAIN"
+msgstr "Անհնար է հաղորդագրություններ ուղարկել Թռիչքային ռեժիմում: Կասեցրեք Թռիչքային ռեժիմը և նորից փորձեք:"
+
+msgid "IDS_MSGC_POP_UNABLE_TO_ADD_FILE_IS_FORWARD_LOCKED"
+msgstr "Անհնար է վերահասցեավորել:\nՖայլը արգելափակված է վերահասցեավորումից:"
+
+msgid "IDS_MSGC_POP_THERE_IS_NOT_ENOUGH_SPACE_IN_YOUR_DEVICE_STORAGE_GO_TO_SETTINGS_POWER_AND_STORAGE_STORAGE_THEN_DELETE_SOME_FILES_AND_TRY_AGAIN"
+msgstr "Ձեր սարքի պահոցում բավարար տեղ չկա: Գնացեք Դրվածքներ > Էներգիա և պահոց > Պահոց, հետո վերացրեք որոշ ֆայլեր և նորից փորձեք:"
+
+msgid "IDS_MSGC_POP_TEXT_AT_TOP"
+msgstr "Տեքստը վերևում"
+
+msgid "IDS_MSGC_POP_TEXT_AT_BOTTOM"
+msgstr "Գրվածքը ստորև է"
+
+msgid "IDS_MSGC_POP_SELECT_LAYOUT"
+msgstr "Ընտրել դասավորություն"
+
+msgid "IDS_MSGC_POP_MMSCANTADD"
+msgstr "Անհնար է բովանդակություն ավելացնել:"
+
+msgid "IDS_MSGC_POP_MESSAGE_SCHEDULED_TO_BE_SENT_TO_PS_SEND_NOW_Q"
+msgstr "Պլանավորված է հաղորդագրությունն ուղարկել %sին. ուղարկե՞լ հիմա:"
+
+msgid "IDS_MSGC_POP_MAXIMUM_MESSAGE_SIZE_REACHED"
+msgstr "Հասել է հաղորդագրության առավելագույն չափին:"
+
+msgid "IDS_MSGC_POP_DURATION_MUST_BE_AT_LEAST_PD_SECONDS"
+msgstr "Տևողությունը պետք է լինի առնվազն %d վայրկյան:"
+
+msgid "IDS_MSGC_POP_DISABLING_FLIGHT_MODE_ING"
+msgstr "Թռիչքային ռեժիմը կասեցվում է..."
+
+msgid "IDS_MSGC_POP_COPIED_TO_SIM_CARD"
+msgstr "Պատճենվել է SIM քարտի մեջ:"
+
+msgid "IDS_MSGC_OPT_USE_OTHER_CONTACT_INFO_ABB"
+msgstr "Օգտ. այլ կոնտ. տվյլներ"
+
+msgid "IDS_MSGC_OPT_SEND_VIA"
+msgstr "Ուղարկել ... միջոցով"
+
+msgid "IDS_MSGC_OPT_IMAGE"
+msgstr "Պատկեր"
+
+msgid "IDS_MSGC_OPT_EDIT_ITEM_REPLACE"
+msgstr "Փոխարինել"
+
+msgid "IDS_MSGC_OPT_CANCEL_MESSAGE"
+msgstr "Դադարեցնել հաղորդագրությունը"
+
+msgid "IDS_MSGC_HEADER_RECIPIENT_LIST"
+msgstr "Ստացողների ցանկ"
+
+msgid "IDS_MSGC_HEADER_DURATION_FOR_SLIDE_PD_PD"
+msgstr "Սլայդի տևողությունը %d/%d"
+
+msgid "IDS_MSGC_BODY_WAIT_WHILE_ITEMS_ARE_ADDED_TO_SLIDESHOW"
+msgstr "Սպասեք, մինչև տարրերն ավելացվում են սլայդերի ցուցադրմանը:"
+
+msgid "IDS_MSGC_BODY_UNABLE_TO_SEND_MESSAGE"
+msgstr "Հնարավոր չէ ուղարկել հաղորդագրությունը:"
+
+msgid "IDS_MSGC_BODY_SELECT_RINGTONE"
+msgstr "Ընտրե՛ք զանգերանգը"
+
+msgid "IDS_MSGC_BODY_READ_REPORT_WILL_BE_SENT"
+msgstr "Ընթերցման հաղորդումը կուղարկվի:"
+
+msgid "IDS_MSGC_BODY_NOT_REQUESTED"
+msgstr "Չի պահանջվել"
+
+msgid "IDS_MSGC_BODY_MAXIMUM_NUMBER_OF_RECIPIENTS_HPD_REACHED"
+msgstr "Հասել է հասցեատերերի առավելագույն քանակին (%d):"
+
+msgid "IDS_MSGC_BODY_DUPLICATED_RECIPIENT"
+msgstr "Կրկնակված հասցեատեր:"
+
+msgid "IDS_MSGF_SK_FORWARD_LITE"
+msgstr "Առաջ"
+
+msgid "IDS_MSGF_POP_UNABLE_TO_SAVE"
+msgstr "Անհնար է պահել:"
+
+msgid "IDS_MSGF_POP_UNABLE_TO_DELETE"
+msgstr "Անհար է ջնջել:"
+
+msgid "IDS_MSGF_POP_UNABLE_TO_COPY"
+msgstr "Հնարավոր չէ պատճենել:"
+
+msgid "IDS_MSGF_POP_SOME_CHARACTERS_MAY_BE_LOST_CONTINUE_Q"
+msgstr "Որոշ նշաններ կարող են կորչել:\nՇարունակե՞լ:"
+
+msgid "IDS_MSGF_POP_SIM_NOT_INSERTED"
+msgstr "SIM-ը տեղադրված չէ:"
+
+msgid "IDS_MSGF_POP_SAVING_FAILED"
+msgstr "Պահպանումը ձախողվեց:"
+
+msgid "IDS_MSGF_POP_SAVED_IN_MY_FILES"
+msgstr "Պահպանվել է Իմ Ֆայլերում:"
+
+msgid "IDS_MSGF_POP_RETRIEVING_MESSAGE_FAILED"
+msgstr "Հաղորդագրության ստացումը ձախողվեց"
+
+msgid "IDS_MSGF_POP_RESTRICTED_CONTENT_TYPE_ATTACH_ANYWAY_Q"
+msgstr "Սահմանափակ տիպի բովանդակություն. կցե՞լ ամեն դեպքում:"
+
+msgid "IDS_MSGF_POP_RESTORING_ING"
+msgstr "Վերականգնումն ընթացքում է..."
+
+msgid "IDS_MSGF_POP_READ_REPORT"
+msgstr "Ընթերցման հաշվետվություն"
+
+msgid "IDS_MSGF_POP_NO_NUMBER"
+msgstr "Համար չկա"
+
+msgid "IDS_MSGF_POP_NO_ATTACHMENTS"
+msgstr "Ներդիր չկա"
+
+msgid "IDS_MSGF_POP_NEW_MESSAGES"
+msgstr "նոր հաղորդագրություններ"
+
+msgid "IDS_MSGF_POP_MESSAGE_COPIED_FROM_SIM_CARD"
+msgstr "Հաղորդագրությունը պատճենվեց SIM քարտից:"
+
+msgid "IDS_MSGF_POP_MAXIMUM_NUMBER_OF_RECIPIENTS_IS_PD_SOME_RECIPIENTS_MAY_BE_LOST"
+msgstr "Ստացողների առավելագույն քանակը %d է: Որոշ ստացողներ գուցե կորչեն:"
+
+msgid "IDS_MSGF_POP_MAXIMUM_NUMBER_OF_ATTACHMENTS_HPS_EXCEEDED"
+msgstr "Կցուրդների առավելագույն քանակը (%s) գերազանցվել է:"
+
+msgid "IDS_MSGF_POP_MAXIMUM_CHARACTERS"
+msgstr "Հասել եք նիշերի առավելագույն քանակին:"
+
+msgid "IDS_MSGF_POP_IN_PROGRESS_ING"
+msgstr "Ընթացքում է..."
+
+msgid "IDS_MSGF_POP_INTIALISING"
+msgstr "Գործարկում..."
+
+msgid "IDS_MSGF_POP_IF_YOU_DONT_WANT_TO_REPLACE_THE_FILE_RENAME_IT"
+msgstr "Եթե չեք ուզում փոխարինել ֆայլը, այն վերանվանեք:"
+
+msgid "IDS_MSGF_POP_HELP_PAGE_MESSAGE_FOR_ONE_FILE"
+msgstr "Այս հաղորդագրությունը պարունակում է կցված ֆայլ, որը չի ցուցադրվում:"
+
+msgid "IDS_MSGF_POP_HELP_PAGE_MESSAGE"
+msgstr "Այս հաղորդագրությունը ներառում է չպատկերված կից ֆայլեր:"
+
+msgid "IDS_MSGF_POP_FILE_NAME_ALREADY_EXISTS"
+msgstr "Ֆայլի անունն արդեն գոյություն ունի:"
+
+msgid "IDS_MSGF_POP_CONVERTING_TO_TEXT_MESSAGE_ING"
+msgstr "Փոխարկվում է տեքստային հաղորդագրության..."
+
+msgid "IDS_MSGF_POP_CONVERTING_TO_MULTIMEDIA_MESSAGE_ING"
+msgstr "Փոխարկվում է մուլտիմեդիա հաղորդագրության..."
+
+msgid "IDS_MSGF_POP_ABOUT_TO_GO_ONLINE_CONTINUE_Q"
+msgstr "Դուք կմիանաք ցանցին(%s): Շարունակե՞լ"
+
+msgid "IDS_MSGF_OPT_TEXT_MESSAGE"
+msgstr "Տեքստային հաղորդագրություն"
+
+msgid "IDS_MSGF_OPT_SENDER_ABB"
+msgstr "Ուղարկող"
+
+msgid "IDS_MSGF_OPT_SAVE_ATTACHMENT"
+msgstr "Պահպանել կիցը"
+
+msgid "IDS_MSGF_OPT_INSTALL"
+msgstr "Տեղադրել"
+
+msgid "IDS_MSGF_OPT_EDIT_MESSAGE"
+msgstr "Խմբագրել հաղորդագրությունը"
+
+msgid "IDS_MSGF_OPT_DELETE_MESSAGES"
+msgstr "Վերացնել հաղորդագրություններ"
+
+msgid "IDS_MSGF_HEADER_SELECT_MESSAGES"
+msgstr "Ընտրել ուղերձներ"
+
+msgid "IDS_MSGF_HEADER_SAVE_ALL"
+msgstr "Պահպանել բոլորը"
+
+msgid "IDS_MSGF_HEADER_MESSAGE_DETAILS"
+msgstr "Հաղորդագրության մանրամասներ"
+
+msgid "IDS_MSGF_HEADER_EXPIRES_C_PS"
+msgstr "Սպառված է. %s"
+
+msgid "IDS_MSGF_BUTTON_SAVE_ALL_ATTACHMENTS_ABB"
+msgstr "Պհպ. բոլոր կցուրդներ"
+
+msgid "IDS_MSGF_BODY_TO_C"
+msgstr "Ում՝"
+
+msgid "IDS_MSGF_BODY_TEXT_MESSAGES"
+msgstr "Տեքստային հաղորդագրություններ"
+
+msgid "IDS_MSGF_BODY_SIM_MEMORY_FULL_DELETE_SOME_ITEMS"
+msgstr "SIM հիշողությունը լիքն է. վերացնել որոշ տարրեր:"
+
+msgid "IDS_MSGF_BODY_SENT_M_DATE_C"
+msgstr "Ուղարկված՝"
+
+msgid "IDS_MSGF_BODY_REQUESTED"
+msgstr "Պահանջված:"
+
+msgid "IDS_MSGF_BODY_RECEIVED_M_DATE_C"
+msgstr "Ստացված."
+
+msgid "IDS_MSGF_BODY_READ_REPORT"
+msgstr "Ընթերցման հաշվետվություն"
+
+msgid "IDS_MSGF_BODY_PUSH_MESSAGES"
+msgstr "Push հաղորդագրություններ"
+
+msgid "IDS_MSGF_BODY_PD_MESSAGES"
+msgstr "%d հղրդ."
+
+msgid "IDS_MSGF_BODY_PD_CONVERSATIONS"
+msgstr "%d խոսակցություն"
+
+msgid "IDS_MSGF_BODY_NO_NAME"
+msgstr "Անուն չկա"
+
+msgid "IDS_MSGF_BODY_MULTIMEDIA_MESSAGE_NOTIFICATION"
+msgstr "Մուլտիմեդիա հաղորդագրության ծանուցում"
+
+msgid "IDS_MSGF_BODY_MULTIMEDIA_MESSAGE"
+msgstr "Մուլտիմեդիա հաղորդագրություն"
+
+msgid "IDS_MSGF_BODY_MMSREADREPLYMSGREAD"
+msgstr "Ընթերցել"
+
+msgid "IDS_MSGF_BODY_MMSDELIVERYMSGREJECTED"
+msgstr "Հաղորդագրությունը մերժված է:"
+
+msgid "IDS_MSGF_BODY_MMS"
+msgstr "MMS"
+
+msgid "IDS_MSGF_BODY_MESSAGE_SIZE"
+msgstr "Հաղորդագրության չափը"
+
+msgid "IDS_MSGF_BODY_MESSAGE_OPTIONS"
+msgstr "Հաղորդագրության ընտրանքներ"
+
+msgid "IDS_MSGF_BODY_MESSAGE_DELIVERED"
+msgstr "Հաղորդագրությունը առաքված է"
+
+msgid "IDS_MSGF_BODY_MAXIMUM_NUMBER_OF_ATTACHMENTS_HP1SS_EXCEEDED_ONLY_FIRST_P2SS_WILL_BE_ADDED"
+msgstr "Կցուրդների առավելագույն քանակը (%1$s) գերազանցվել է: Կավելացվի միայն առաջին %2$s-ը:"
+
+msgid "IDS_MSGF_BODY_INVALID_RECIPIENT"
+msgstr "Անվավեր հասցեատեր:"
+
+msgid "IDS_MSGF_BODY_FROM"
+msgstr "Ումից"
+
+msgid "IDS_MSGF_BODY_FLFROM"
+msgstr "Ումից՝"
+
+msgid "IDS_MSGF_BODY_DETAILSSENDINGFAILED"
+msgstr "Ուղարկումը ձախողվեց:"
+
+msgid "IDS_MSGF_BODY_DELIVERY_REPORT"
+msgstr "Առաքման զեկույց"
+
+msgid "IDS_MSGF_BODY_CP_MESSAGES"
+msgstr "CP հաղորդագրություններ"
+
+msgid "IDS_MSGF_BODY_COPY_TEXT"
+msgstr "Պատճենել տեքստը"
+
+msgid "IDS_MSGF_BODY_CB_MESSAGES"
+msgstr "ԲՀ հաղորդագրություններ"
+
+msgid "IDS_MSGF_BODY_1_MESSAGE"
+msgstr "1 հաղորդագրություն"
+
+msgid "IDS_MSGF_BODY_1_CONVERSATION"
+msgstr "1 խոսակցություն"
+
+msgid "IDS_MSGS_BODY_REQUEST_A_READ_REPORT_FOR_EACH_MESSAGE_YOU_SEND"
+msgstr "Ընթերցման մասին հաղորդում պահանջել Ձեր ուղարկած յուրաքանչյուր հաղորդագրության համար:"
+
+msgid "IDS_MSGS_BODY_REQUEST_A_DELIVERY_REPORT_FOR_EACH_MESSAGE_YOU_SEND"
+msgstr "Առաքման մասին հաղորդում պահանջել Ձեր ուղարկած յուրաքանչյուր հաղորդագրության համար:"
+
+msgid "IDS_MSGS_BODY_RADIO_BUTTON"
+msgstr "Ռադիոկոճակ"
+
+msgid "IDS_MSGS_BODY_ON_OFF_BUTTON_T_TTS"
+msgstr "Միացնել/անջատել կոճակ"
+
+msgid "IDS_MSGS_BODY_EXPANDABLE_LIST_T_TTS"
+msgstr "Ընդլայնելի ցուցակ"
+
+msgid "IDS_MSGS_BODY_AUTOMATICALLY_RETRIEVE_MMS_MESSAGES"
+msgstr "Ինքնաբերաբար առբերել MMS հաղորդագրություններ:"
+
+msgid "IDS_MSG_TPOP_UNABLE_TO_PREVIEW_FILE_UNSUPPORTED_FILE_TYPE"
+msgstr "Անհնար է նախադիտել ֆայլը. ֆայլի չապահովված տիպ:"
+
+msgid "IDS_MSG_TPOP_UNABLE_TO_ATTACH_FILE_FILE_FORMAT_NOT_SUPPORTED"
+msgstr "Անհնար է ֆայլը կցել: Ֆայլի ձևաչափն ապահովված չէ:"
+
+msgid "IDS_MSG_TPOP_UNABLE_TO_ADD_SOME_RECIPIENTS_NUMBERS_NOT_VALID"
+msgstr "Անհնար է որոշ հասցեատերեր ավելացնել. համարները վավերական չեն:"
+
+msgid "IDS_MSG_TPOP_UNABLE_TO_ADD_RECIPIENT_NUMBER_NOT_VALID"
+msgstr "Անհնար է ավելացնել հասցեատեր. համարը վավերական չէ:"
+
+msgid "IDS_MSG_TPOP_UNABLE_TO_ADD_RECIPIENTS_NUMBERS_NOT_VALID"
+msgstr "Անհնար է ավելացնել հասցեատերեր. համարները վավերական չեն:"
+
+msgid "IDS_MSG_TPOP_UNABLE_TO_ADD_ATTACHMENT_MAXIMUM_NUMBER_OF_ATTACHMENTS_HPD_REACHED"
+msgstr "Անհնար է կցուրդ ավելացնել: Հասել է կցուրդների առավելագույն քանակին (%d):"
+
+msgid "IDS_MSG_TPOP_THIS_NUMBER_IS_NOT_VALID"
+msgstr "Այս համարը վավեր չէ:"
+
+msgid "IDS_MSG_TPOP_SOME_RECIPIENTS_ALREADY_ADDED"
+msgstr "Որոշ հասցեատերեր արդեն ավելացվել են:"
+
+msgid "IDS_MSG_TPOP_SELECTED_MESSAGES_COPIED_TO_MOBILE_DEVICE"
+msgstr "Ընտրված հաղորդագրությունները պատճենվեցին շարժական սարքում:"
+
+msgid "IDS_MSG_TPOP_PD_MESSAGES_MOVED_TO_MESSAGE_LIST"
+msgstr "%d հաղորդագրություն տեղափոխվեց դեպի հաղորդագրությունների ցանկը:"
+
+msgid "IDS_MSG_TPOP_NUMBER_REMOVED_FROM_MESSAGE_BLOCK_LIST"
+msgstr "Համարը հեռացվեց հաղորդագրությունների արգելափակման ցուցակից:"
+
+msgid "IDS_MSG_TPOP_NUMBER_ADDED_TO_MESSAGE_BLOCK_LIST"
+msgstr "Համարն ավելացվեց հաղորդագրությունների արգելափակման ցուցակին:"
+
+msgid "IDS_MSG_TPOP_NETWORK_NOT_AVAILABLE_MESSAGE_WILL_BE_SENT_WHEN_CONNECTED_TO_NETWORK"
+msgstr "Ցանցը մատչելի չէ: Հաղորդագրությունը կուղարկվի, երբ միանաք ցանցին:"
+
+msgid "IDS_MSG_TPOP_MESSAGE_COPIED_TO_PS_SIM_CARD"
+msgstr "Հաղորդագրությունը պատճենվեց %s SIM քարտի մեջ:"
+
+msgid "IDS_MSG_TPOP_MAXIMUM_NUMBER_OF_CHARACTERS_EXCEEDED"
+msgstr "Նիշերի առավելագույն քանակը գերազանցվել է:"
+
+msgid "IDS_MSG_TPOP_MAXIMUM_MESSAGE_SIZE_HPS_EXCEEDED_RESIZING_ATTACHMENTS_ING"
+msgstr "Հաղորդագրության առավելագույն չափը (%s) գերազանցվել է: Կցուրդների չափերը փոխվում են..."
+
+msgid "IDS_MSG_TPOP_INVALID_CHARACTER_ENTERED"
+msgstr "Անվավեր նիշ է մուտքագրվել"
+
+msgid "IDS_MSG_TPOP_ADD_RECIPIENTS"
+msgstr "Ավելացրեք հասցեատերեր:"
+
+msgid "IDS_MSG_TPOP_1_MESSAGE_MOVED_TO_MESSAGE_LIST"
+msgstr "1 հաղորդագրություն տեղափոխվեց դեպի հաղորդագրությունների ցանկը:"
+
+msgid "IDS_MSG_TMBODY_TEXT_MESSAGES"
+msgstr "Տեքստային հաղորդագրություններ"
+
+msgid "IDS_MSG_TMBODY_SOUND"
+msgstr "Հնչյուն"
+
+msgid "IDS_MSG_TMBODY_MULTIMEDIA_MESSAGES"
+msgstr "Մուլտիմեդիա հաղորդագրություններ"
+
+msgid "IDS_MSG_TMBODY_MESSAGES_ON_SIM_CARD"
+msgstr "Հաղորդգրություններ՝ SIM քարտում"
+
+msgid "IDS_MSG_TMBODY_INPUT_MODE"
+msgstr "Ներածման ռեժիմ"
+
+msgid "IDS_MSG_TMBODY_AUTO_RETRIEVE_WHILE_ROAMING"
+msgstr "Ինքնառբերել ռոումինգի ժամանակ"
+
+msgid "IDS_MSG_TMBODY_AUTO_RETRIEVE"
+msgstr "Ինքնառբերում"
+
+msgid "IDS_MSG_SK_SEND_NOW"
+msgstr "Ուղ. հիմա"
+
+msgid "IDS_MSG_SBODY_SELECT_AN_INPUT_MODE_FOR_COMPOSING_MESSAGES"
+msgstr "Ընտրել ներածման ռեժիմ՝ հաղորդագրություններ ստեղծելու համար:"
+
+msgid "IDS_MSG_SBODY_NONE_M_STATUS"
+msgstr "Ոչ մի"
+
+msgid "IDS_MSG_SBODY_MANAGE_THE_MESSAGES_STORED_ON_YOUR_SIM_CARD"
+msgstr "Կառավարեք SIM քարտում պահվող հաղորդագրությունները:"
+
+msgid "IDS_MSG_POP_UNABLE_TO_SEND_SCHEDULED_MESSAGE_SET_ANOTHER_TIME"
+msgstr "Անհնար է պլանավորված հաղորդագրություն ուղարկել: Դրեք այլ ժամ:"
+
+msgid "IDS_MSG_POP_UNABLE_TO_ATTACH_FILE_FILE_SIZE_TOO_LARGE_TRY_SENDING_VIA_EMAIL_BLUETOOTH_WI_FI_ETC"
+msgstr "Անհնար է ֆայլը կցել: ֆայլի չափը շատ մեծ է: Փորձեք ուղարկել Էլ. փոստով, Bluetooth-ով, Wi-Fi-ով և այլն:"
+
+msgid "IDS_MSG_POP_TO_SEND_THIS_MULTIMEDIA_MESSAGE_THE_DEVICE_WILL_CONNECT_TO_A_DIFFERENT_MOBILE_NETWORK_THIS_WILL_DISCONNECT_YOUR_DEVICE_FROM_YOUR_MSG"
+msgstr "Այս մուլտիմեդիա հաղորդագրությունն ուղարկելու համար սարքը կմիանա ուրիշ շարժական կապի ցանցի: Դա սարքը կանջատի Ձեր ընթացիկ շարժական կապի ցանցից:"
+
+msgid "IDS_MSG_POP_TO_DOWNLOAD_THIS_MULTIMEDIA_MESSAGE_THE_DEVICE_WILL_CONNECT_TO_A_DIFFERENT_MOBILE_NETWORK_MSG"
+msgstr "Այս մուլտիմեդիա հաղորդագրությունը ներբեռնելու համար սարքը կմիանա ուրիշ շարժական կապի ցանցի: Դա սարքը կանջատի Ձեր ընթացիկ շարժական կապի ցանցից:"
+
+msgid "IDS_MSG_POP_THIS_MESSAGE_WILL_BE_RESENT"
+msgstr "Այս հաղորդագրությունը նորից կուղարկվի:"
+
+msgid "IDS_MSG_POP_PD_MESSAGES_WILL_BE_DELETED"
+msgstr "%d հաղորդագրություն կվերացվի:"
+
+msgid "IDS_MSG_POP_PD_CONVERSATIONS_WILL_BE_DELETED"
+msgstr "%d խոսակցություններ կվերացվեն:"
+
+msgid "IDS_MSG_POP_NO_TEMPLATES_IN_LIST"
+msgstr "Ցուցակում ձևանմուշներ չկան"
+
+msgid "IDS_MSG_POP_INCLUDE_ORIGINAL_TEXT_IN_OUTGOING_MESSAGE"
+msgstr "Սկզբնական տեքստը ներառել ելից հաղորդագրության մեջ"
+
+msgid "IDS_MSG_POP_DURATION_MUST_BE_SHORTER_THAN_PD_SECONDS"
+msgstr "Տևողությունը պետք է լինի %d վայրկյանից կարճ:"
+
+msgid "IDS_MSG_POP_1_MESSAGE_WILL_BE_DELETED"
+msgstr "1 հաղորդագրություն կվերացվի:"
+
+msgid "IDS_MSG_POP_1_CONVERSATION_WILL_BE_DELETED"
+msgstr "1 երգ կվերացվի:"
+
+msgid "IDS_MSG_OPT_VIEW_DETAILS_ABB"
+msgstr "Դիտել մանրամասները"
+
+msgid "IDS_MSG_OPT_VIEW_CONTACT_DETAILS_ABB"
+msgstr "Դիտել կոնտակտի տվյալները"
+
+msgid "IDS_MSG_OPT_VIEW_AS_SLIDESHOW_ABB"
+msgstr "Դիտել որպես սլայդ. ցուցադրում"
+
+msgid "IDS_MSG_OPT_UPDATE_CONTACT"
+msgstr "Թարմացնել կոնտակտը"
+
+msgid "IDS_MSG_OPT_UNICODE"
+msgstr "Unicode"
+
+msgid "IDS_MSG_OPT_TAKE_PICTURE_ABB"
+msgstr "Լուսանկարել"
+
+msgid "IDS_MSG_OPT_SAVE_ATTACHMENTS_ABB"
+msgstr "Պահպանել կցուրդները"
+
+msgid "IDS_MSG_OPT_RESEND"
+msgstr "Նորից ուղարկել"
+
+msgid "IDS_MSG_OPT_REPLY"
+msgstr "Պատասխանել"
+
+msgid "IDS_MSG_OPT_REMOVE_FROM_BLOCK_LIST_ABB"
+msgstr "Հեռացնել արգելափակման ցուցակից"
+
+msgid "IDS_MSG_OPT_RECORD_AUDIO_FILE_ABB"
+msgstr "Գրանցել\nձայնաֆայլ"
+
+msgid "IDS_MSG_OPT_QUICK_RESPONSE_ABB"
+msgstr "Արագ պատասխան"
+
+msgid "IDS_MSG_OPT_MAKE_VOICE_CALL"
+msgstr "Կատարել ձայնականչ"
+
+msgid "IDS_MSG_OPT_GSM_ALPHABET_ABB"
+msgstr "GSM այբուբեն"
+
+msgid "IDS_MSG_OPT_EXPORT_TO_DEVICE_MEMORY"
+msgstr "Արտահանել դեպի սարքի հիշողություն"
+
+msgid "IDS_MSG_OPT_DELETE_MESSAGE"
+msgstr "Վերացնել հաղորդագրությունը"
+
+msgid "IDS_MSG_OPT_DELETE_CONVERSATION_ABB"
+msgstr "Վերացնել խոսակցություն"
+
+msgid "IDS_MSG_OPT_CREATE_CONTACT_ABB"
+msgstr "Ստեղծել կոնտկտ"
+
+msgid "IDS_MSG_OPT_COPY_TO_SIM_CARD_ABB"
+msgstr "Պատճենել SIM քարտի մեջ"
+
+msgid "IDS_MSG_OPT_COPY_TO_DEVICE_ABB"
+msgstr "Պատճենել սարքի մեջ"
+
+msgid "IDS_MSG_OPT_COPY_TEXT"
+msgstr "Պատճենել տեքստը"
+
+msgid "IDS_MSG_OPT_COPY"
+msgstr "Պատճենել"
+
+msgid "IDS_MSG_OPT_BACK_UP"
+msgstr "Կրկնօրինակել"
+
+msgid "IDS_MSG_OPT_AUTOMATIC"
+msgstr "Ավտոմատ"
+
+msgid "IDS_MSG_OPT_AUDIO_FILES_ABB2"
+msgstr "Ձայնային ֆայլեր"
+
+msgid "IDS_MSG_OPT_ATTACHMENT_ABB"
+msgstr "Կցուրդ"
+
+msgid "IDS_MSG_OPT_ADD_TO_CONTACTS_ABB"
+msgstr "Ավելացնել Կոնտակտներին"
+
+msgid "IDS_MSG_OPT_ADD_TO_BLOCK_LIST_ABB"
+msgstr "Ավելացնել արգելափակ. ցուցակին"
+
+msgid "IDS_MSG_OPT_ADD_RECIPIENTS_ABB"
+msgstr "Ավելացնել հասցեատերեր"
+
+msgid "IDS_MSG_NPBODY_SEARCH"
+msgstr "Որոնել"
+
+msgid "IDS_MSG_NPBODY_NO_RESULTS_FOUND_ABB"
+msgstr "Արդյունքներ չեն գտնվել"
+
+msgid "IDS_MSG_NPBODY_NO_QUICK_RESPONSES"
+msgstr "Արագ պատասխաններ չկան"
+
+msgid "IDS_MSG_NPBODY_NO_PHRASES_BLOCKED"
+msgstr "Արգելափակված բառակապակցություններ չկան"
+
+msgid "IDS_MSG_NPBODY_NO_MESSAGES_ON_SIM_CARD"
+msgstr "Հաղորդագրություններ չկան SIM քարտում"
+
+msgid "IDS_MSG_NPBODY_NO_MESSAGES"
+msgstr "Նոր հաղորդագր-ր չկան"
+
+msgid "IDS_MSG_NPBODY_NO_BLOCKED_NUMBERS"
+msgstr "Արգելափակված համարներ չկան"
+
+msgid "IDS_MSG_MBODY_VIBRATION"
+msgstr "Թրթռում"
+
+msgid "IDS_MSG_MBODY_UNKNOWN_NUMBER"
+msgstr "Անհայտ համար"
+
+msgid "IDS_MSG_MBODY_TEXT_MESSAGE_CENTRE_NUMBER_ABB"
+msgstr "Տեքստ. հղգրթյան կենտրոնի համար"
+
+msgid "IDS_MSG_HEADER_TEXT_MESSAGES_ABB"
+msgstr "Տեքստային հաղորդագրություններ"
+
+msgid "IDS_MSG_HEADER_SWITCH_MOBILE_NETWORK_ABB2"
+msgstr "Փոխել շարժական կապի ցանցը"
+
+msgid "IDS_MSG_HEADER_SMS_CENTRE_ABB2"
+msgstr "SMS կենտրոն"
+
+msgid "IDS_MSG_HEADER_SELECT_RECIPIENT"
+msgstr "Ընտրել հասցեատեր"
+
+msgid "IDS_MSG_HEADER_PD_SELECTED_ABB3"
+msgstr "%d ընտրված"
+
+msgid "IDS_MSG_HEADER_MESSAGES_ON_SIM_CARD_ABB"
+msgstr "Հաղորդագրթյուններ՝ SIM քարտում"
+
+msgid "IDS_MSG_HEADER_INPUT_MODE_ABB"
+msgstr "Ներմուծման ռեժիմ"
+
+msgid "IDS_MSG_HEADER_FILE_SIZE_TOO_LARGE_ABB"
+msgstr "Ֆայլի չափը շատ մեծ է"
+
+msgid "IDS_MSG_HEADER_FAILED_TO_SEND_MESSAGE_ABB"
+msgstr "Չհաջողվեց ուղարկել հղրդգրթյուն"
+
+msgid "IDS_MSG_HEADER_DISCARD_MESSAGE_M_CLOSE_ABB"
+msgstr "Դեն նետել հաղորդագրությունը"
+
+msgid "IDS_MSG_HEADER_CREATE"
+msgstr "Ստեղծել"
+
+msgid "IDS_MSG_HEADER_ADD_CONTENT_ABB"
+msgstr "Ավելացնել բովանդակություն"
+
+msgid "IDS_MSG_BUTTON_SWITCH_ABB2"
+msgstr "Փոխել"
+
+msgid "IDS_MSG_BUTTON_SAVE_ABB2"
+msgstr "Պահպանել"
+
+msgid "IDS_MSG_BUTTON_RESEND_ABB"
+msgstr "Նորից ուղարկել"
+
+msgid "IDS_MSG_BUTTON_DISCARD_ABB"
+msgstr "Գցել"
+
+msgid "IDS_MSG_BUTTON_DELETE_ABB4"
+msgstr "Ջնջել"
+
+msgid "IDS_MSG_BUTTON_CANCEL_ABB2"
+msgstr "Դադարեցնել"
+
+msgid "IDS_MSG_BUTTON2_CONTACTS_ABB_M_APPLICATION_NAME"
+msgstr "Կոնտակտներ"
+
+msgid "IDS_MSG_BODY_YOU_HAVE_SELECTED_A_SOUND_N_SHOT_FILE_SOUND_DATA_IS_NOT_SUPPORTED_FOR_MMS_SO_ONLY_THE_PICTURE_WILL_BE_ATTACHED"
+msgstr "Դուք ընտրել եք «ձայն և նկար» ֆայլ: Ձայնային տվյալները չեն ապահովվում MMS-ի համար, ուստի միայն նկարը կկցվի"
+
+msgid "IDS_MSG_BODY_WAITING_TO_SEND_ING_M_STATUS"
+msgstr "Սպասում է ուղարկմանը..."
+
+msgid "IDS_MSG_BODY_UNABLE_TO_SEND_THIS_MESSAGE_INSERT_YOUR_SIM_CARD_AND_TRY_AGAIN"
+msgstr "Անհնար է ուղարկել այս հաղորդագրությունը: Մտցրեք Ձեր SIM քարտը և նորից փորձեք"
+
+msgid "IDS_MSG_BODY_TYPE_C"
+msgstr "Տեսակ"
+
+msgid "IDS_MSG_BODY_TO_USE_RESTRICTED_MEDIA_TYPES_CHANGE_YOUR_MMS_CREATION_MODE_SETTING"
+msgstr "Միջոցների սահմանափակված տեսակներ օգտագործելու համար փոխեք MMS-ի ստեղծման ռեժիմի դրվածքը:"
+
+msgid "IDS_MSG_BODY_TIME_SENT_C"
+msgstr "Ուղարկման ժամը՝"
+
+msgid "IDS_MSG_BODY_TIME_RECEIVED_C"
+msgstr "Ստացման ժամը՝"
+
+msgid "IDS_MSG_BODY_STATUS_C"
+msgstr "Կարգավիճակ՝"
+
+msgid "IDS_MSG_BODY_SENT_M_STATUS"
+msgstr "Ուղարկված"
+
+msgid "IDS_MSG_BODY_SENDING_ING_M_STATUS_ABB"
+msgstr "Ուղրկմ..."
+
+msgid "IDS_MSG_BODY_SENDING_FAILED_M_STATUS"
+msgstr "Չհաջողվեց ուղարկել"
+
+msgid "IDS_MSG_BODY_RETRIEVE_MESSAGES_AUTOMATICALLY_WHILE_ROAMING"
+msgstr "Ռոումինգի ժամանակ ինքնաբերաբար առբերել հաղորդագրություններ:"
+
+msgid "IDS_MSG_BODY_RETRIEVE_MESSAGES_AUTOMATICALLY"
+msgstr "Ինքնաբերաբար առբերել հաղորդագրություններ:"
+
+msgid "IDS_MSG_BODY_READ_REPORT_C_PS"
+msgstr "Ընթերցման հաղորդում՝ %s"
+
+msgid "IDS_MSG_BODY_OTHER_PERSON"
+msgstr "Այլ անձ"
+
+msgid "IDS_MSG_BODY_MEMO_T_MAINMENU"
+msgstr "Հուշագիր"
+
+msgid "IDS_MSG_BODY_FAILED_M_STATUS_ABB2"
+msgstr "Չհաջողվեց"
+
+msgid "IDS_MSG_BODY_ENTER_TEXT_M_NOUN"
+msgstr "Մուտքագրել տեքստ"
+
+msgid "IDS_MSG_BODY_DRAFT_M_STATUS_ABB"
+msgstr "Սևագիր"
+
+msgid "IDS_MSG_BODY_DELIVERY_REPORT_C_PS"
+msgstr "Առաքման մասին հաղորդում՝ %s"
+
+msgid "IDS_MSG_BODY_CB_MESSAGE"
+msgstr "CB հաղորդագրություն"
+
+msgid "IDS_MSG_BODY_CALENDAR_M_APPLICATION_NAME_ABB"
+msgstr "Օրացույց"
+
+msgid "IDS_MSG_BODY_AFTER_YOU_SEND_OR_RECEIVE_MESSAGES_THEY_WILL_BE_SHOWN_HERE"
+msgstr "Հաղորդագրություններ ուղարկելուց կամ ստանալուց հետո դրանք կցուցադրվեն այստեղ:"
+
+msgid "IDS_MSG_BODY_AFTER_YOU_CREATE_QUICK_RESPONSES_THEY_WILL_BE_SHOWN_HERE"
+msgstr "Արագ պատասխաններ ստեղծելուց հետո դրանք կցուցադրվեն այստեղ:"
+
+msgid "IDS_MSG_BODY_AFTER_YOU_COPY_MESSAGES_TO_THE_SIM_CARD_THEY_WILL_BE_SHOWN_HERE"
+msgstr "SIM քարտի մեջ հաղորդագրություններ պատճենելուց հետո դրանք կցուցադրվեն այստեղ:"
+
+msgid "IDS_MSG_BODY_AFTER_YOU_ADD_PHRASES_THEY_WILL_BE_SHOWN_HERE"
+msgstr "Արտահայտություններ ավելացնելուց հետո դրանք կցուցադրվեն այստեղ:"
+
+msgid "IDS_MSG_BODY_AFTER_YOU_ADD_NUMBERS_TO_THE_MESSAGE_BLOCK_LIST_THEY_WILL_BE_SHOWN_HERE"
+msgstr "Հաղորդագրությունների արգելափակման ցուցակին համարներ ավելացնելուց հետո դրանք կցուցադրվեն այստեղ:"
+
+msgid "IDS_MSG_ACBUTTON_DELETE_ABB"
+msgstr "ՎԵՐԱՑՆԵԼ"
+
+msgid "IDS_MSGC_POP_UNSUPPORTED_MEDIA_TYPE"
+msgstr "Չհամապատասխանող մեդիայի տեսակ:"
+
+msgid "IDS_MSGC_POP_LOW_BATTERY"
+msgstr "Մարտկոցի լիցքը թույլ է:"
+
+msgid "IDS_MSGC_POP_CANCELLED"
+msgstr "Չեղարկված է:"
+
+msgid "IDS_MSGC_OPT_EMAIL"
+msgstr "Էլ.փոստ"
+
+msgid "IDS_MSGC_OPT_EDITITEM_VIEW"
+msgstr "Դիտել"
+
+msgid "IDS_MSGC_OPT_EDITITEM_REMOVE"
+msgstr "Հեռացնել"
+
+msgid "IDS_MSGC_OPT_EDITITEM_PLAY"
+msgstr "Նվագել"
+
+msgid "IDS_MSGC_OPT_CHANGE_RECIPIENTS_TO"
+msgstr "Ում"
+
+msgid "IDS_MSGC_HEADER_PREVIEW"
+msgstr "Դիտել"
+
+msgid "IDS_MSGC_BODY_ENTER_SUBJECT"
+msgstr "Մուտքագրեք թեման:"
+
+msgid "IDS_MSGF_POP_UNABLE_TO_FIND_LOCATION"
+msgstr "Անհնար է տեղը գտնել:"
+
+msgid "IDS_MSGF_POP_REJECTED"
+msgstr "Մերժված է:"
+
+msgid "IDS_MSGF_POP_DELETING"
+msgstr "Ջնջվում է..."
+
+msgid "IDS_MSGF_POP_COPIED_TO_CLIPBOARD"
+msgstr "Պատճենվել է գզրոցի մեջ:"
+
+msgid "IDS_MSGF_POP_BLOCK_PS_Q"
+msgstr "Արգելափակե՞լ %s-ը:"
+
+msgid "IDS_MSGF_OPT_SUBJECT_COLON"
+msgstr "Թեմա՝"
+
+msgid "IDS_MSGF_OPT_SENDER_VIA_EMAIL"
+msgstr "Էլ. փոստի միջոցով ուղարկող"
+
+msgid "IDS_MSGF_OPT_SELECT"
+msgstr "Ընտրել"
+
+msgid "IDS_MSGF_OPT_SAVE"
+msgstr "Պահպանել"
+
+msgid "IDS_MSGF_OPT_REMOVE"
+msgstr "Հեռացնել"
+
+msgid "IDS_MSGF_OPT_FORWARD"
+msgstr "Վերահասցեավորել"
+
+msgid "IDS_MSGF_OPT_DELETE_Q"
+msgstr "Ջնջե՞լ"
+
+msgid "IDS_MSGF_HEADER_ADVANCED_SEARCH"
+msgstr "Ընդլայնված որոնում"
+
+msgid "IDS_MSGF_BODY_UNKNOWN"
+msgstr "Անհայտ"
+
+msgid "IDS_MSGF_BODY_SETTINGS"
+msgstr "Պարամետրեր"
+
+msgid "IDS_MSGF_BODY_RECIPIENTS"
+msgstr "Ստացողներ"
+
+msgid "IDS_MSGF_BODY_RECEIVED"
+msgstr "Ստացված է:"
+
+msgid "IDS_MSGF_BODY_OTHER"
+msgstr "Այլ"
+
+msgid "IDS_MSGF_BODY_NO_SUBJECT"
+msgstr "Թեմա չկա"
+
+msgid "IDS_MSGF_BODY_MSGSIZE_KB"
+msgstr "ԿԲ"
+
+msgid "IDS_MSGF_BODY_MESSAGE"
+msgstr "Հաղորդագրություն"
+
+msgid "IDS_MSGF_BODY_ME"
+msgstr "Իմ կողմից"
+
+msgid "IDS_MSGF_BODY_EXPIRED"
+msgstr "Սպառվել է"
+
+msgid "IDS_MSGF_BODY_ALL"
+msgstr "Բոլոր"
+
+msgid "IDS_MSG_SK_NO_ABB"
+msgstr "Ոչ"
+
+msgid "IDS_MSG_POP_YOUR_MESSAGE_WILL_BE_DISCARDED_NO_RECIPIENTS_HAVE_BEEN_SELECTED"
+msgstr "Ձեր հաղորդագրությունը դեն կնետվի. ոչ մի հասցեատեր չի ընտրվել:"
+
+msgid "IDS_MSG_POP_UNABLE_TO_PLAY_DURING_CALL"
+msgstr "Անհնար է վերարտադրել կանչի ընթացքում:"
+
+msgid "IDS_MSG_POP_INCOMING_MESSAGES_ONLY"
+msgstr "Միայն մտից հաղորդագրություններ"
+
+msgid "IDS_MSG_POP_DELETED"
+msgstr "Ջնջված է:"
+
+msgid "IDS_MSG_OPT_VIDEOS"
+msgstr "Տեսահոլովակներ"
+
+msgid "IDS_MSG_OPT_TEXT"
+msgstr "Տեքստ"
+
+msgid "IDS_MSG_OPT_SETTINGS"
+msgstr "Պարամետրեր"
+
+msgid "IDS_MSG_OPT_SEARCH"
+msgstr "Որոնել"
+
+msgid "IDS_MSG_OPT_RECORD_VIDEO_ABB"
+msgstr "Տեսագրել տեսանյութ"
+
+msgid "IDS_MSG_OPT_NONE"
+msgstr "Չկա"
+
+msgid "IDS_MSG_OPT_IMAGES"
+msgstr "Պատկերներ"
+
+msgid "IDS_MSG_OPT_EDIT"
+msgstr "Խմբագրել"
+
+msgid "IDS_MSG_OPT_DELETE"
+msgstr "Ջնջել"
+
+msgid "IDS_MSG_OPT_DEFAULT"
+msgstr "Լռելյայն"
+
+msgid "IDS_MSG_MBODY_SELECT_ALL"
+msgstr "Ընտրել բոլորը"
+
+msgid "IDS_MSG_MBODY_ALERTS"
+msgstr "Զգուշացումներ"
+
+msgid "IDS_MSG_HEADER_TRANSLATE"
+msgstr "Թարգմանել"
+
+msgid "IDS_MSG_HEADER_SETTINGS"
+msgstr "Պարամետրեր"
+
+msgid "IDS_MSG_HEADER_MESSAGES"
+msgstr "Հղրդգրթ"
+
+msgid "IDS_MSG_HEADER_DELETE"
+msgstr "Վերացնել"
+
+msgid "IDS_MSG_HEADER_ATTENTION"
+msgstr "Ուշադրություն"
+
+msgid "IDS_MSG_BUTTON_REMOVE_ABB"
+msgstr "Հեռացնել"
+
+msgid "IDS_MSG_BUTTON_OK_ABB"
+msgstr "Ընդունել"
+
+msgid "IDS_MSG_BUTTON_DOWNLOAD_ABB3"
+msgstr "Ներբեռնել"
+
+msgid "IDS_MSG_BUTTON_CANCEL_ABB"
+msgstr "Դադարեցնել"
+
+msgid "IDS_MSG_BODY_YES"
+msgstr "Այո"
+
+msgid "IDS_MSG_BODY_TICK_BOX_T_TTS"
+msgstr "Նշասալիկ"
+
+msgid "IDS_MSG_BODY_SEC"
+msgstr "վրկ"
+
+msgid "IDS_MSG_BODY_MESSAGE"
+msgstr "Հաղորդագրություն"
+
+msgid "IDS_MSG_BUTTON_SEND_ABB5"
+msgstr "Ուղրկլ"
+
+msgid "IDS_MSG_BUTTON_SEND_ABB3"
+msgstr "Ուղ."
+
+msgid "IDS_MSG_ACBUTTON_SEND_ABB3"
+msgstr "ՈՒՂ."
+
+msgid "IDS_ST_BODY_LOADING_ING"
+msgstr "Բեռնում է..."
+
+msgid "IDS_MSGS_BODY_NOTIFICATIONS"
+msgstr "Ծանուցումներ"
+
+msgid "IDS_MSG_HEADER_ME"
+msgstr "Իմ կողմից"
+
+msgid "IDS_MSG_BODY_UNKNOWN"
+msgstr "Անհայտ"
+
+msgid "IDS_MSG_TMBODY_ADD_OR_REMOVE_RECIPIENTS"
+msgstr "Ավլցնել կամ հեռցնել հասցեատերեր"
+
+msgid "IDS_MSG_POP_THE_SENDER_HAS_REQUESTED_A_READ_REPORT_TAP_SEND_TO_SEND_ONE"
+msgstr "Ուղարկողն ընթերցման հաղորդում է խնդրել: Հպեք Ուղարկել՝ ուղարկելու համար:"
+
+msgid "IDS_MSGF_OPT_SEND_READ_REPORT"
+msgstr "Ուղարկել ընթերցման ստացականը"
+
+msgid "IDS_MSG_HEADER_COMPOSE_MESSAGE_ABB"
+msgstr "Կազմել հաղորդագրություն"
+
+msgid "IDS_MSG_POP_NO_VALID_RECIPIENTS_HAVE_BEEN_ADDED_THIS_MESSAGE_WILL_BE_DISCARDED"
+msgstr "Ոչ մի վավեր հասցեատեր չի ավելացվել: Այս հաղորդագրությունը դեն կնետվի:"
+

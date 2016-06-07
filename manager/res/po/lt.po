@@ -1,0 +1,945 @@
+msgid "IDS_COM_BODY_HOME"
+msgstr "Namų"
+
+msgid "IDS_MSGC_POP_DATA_ROAMING_IS_DISABLED_ENABLE_DATA_ROAMING_AND_TRY_AGAIN"
+msgstr "Duomenų tarptinklinis ryšys išjungtas. Įjunkite duomenų tarptinklinį ryšį ir bandykite dar kartą."
+
+msgid "IDS_MSG_ACBUTTON_CANCEL_ABB"
+msgstr "ATŠAUKTI"
+
+msgid "IDS_MSG_ACBUTTON_DONE_ABB"
+msgstr "ATLIKTA"
+
+msgid "IDS_MSGF_POP_NEW_MESSAGE"
+msgstr "Nauja žinutė"
+
+msgid "IDS_COM_BUTTON_SHARE"
+msgstr "Bendr."
+
+msgid "IDS_COM_BODY_UNKNOWN"
+msgstr "Nežinomas"
+
+msgid "IDS_COM_BODY_MOBILE"
+msgstr "Mobilusis"
+
+msgid "IDS_MSGC_POP_MOBILE_DATA_IS_DISABLED_ENABLE_MOBILE_DATA_AND_TRY_AGAIN"
+msgstr "Mobiliojo telefono duomenys išjungti. Įjunkite mobiliojo telefono duomenis ir bandykite dar kartą."
+
+msgid "IDS_TPLATFORM_ACBUTTON_SEND_ABB"
+msgstr "SIŲSTI"
+
+msgid "IDS_MSGC_POP_UNABLE_TO_SEND_MESSAGES_WHILE_IN_FLIGHT_MODE_DISABLE_FLIGHT_MODE_AND_TRY_AGAIN"
+msgstr "Neįmanoma siųsti žinučių veikiant skrydžio režimui. Išjunkite skrydžio režimą ir bandykite dar kartą."
+
+msgid "IDS_MSGC_POP_UNABLE_TO_ADD_FILE_IS_FORWARD_LOCKED"
+msgstr "Persiųsti nepavyko.\nFailo persiuntimo galimybė užrakinta."
+
+msgid "IDS_MSGC_POP_THERE_IS_NOT_ENOUGH_SPACE_IN_YOUR_DEVICE_STORAGE_GO_TO_SETTINGS_POWER_AND_STORAGE_STORAGE_THEN_DELETE_SOME_FILES_AND_TRY_AGAIN"
+msgstr "Įrenginio atmintyje nepakanka vietos. Eikite į skirtuką Nustatymai > Maitinimas ir saugykla > Saugykla, tada ištrinkite kelis failus ir bandykite dar kartą."
+
+msgid "IDS_MSGC_POP_TEXT_AT_TOP"
+msgstr "Tekstas viršuje"
+
+msgid "IDS_MSGC_POP_TEXT_AT_BOTTOM"
+msgstr "Tekstas apatinėje ekrano eilutėje"
+
+msgid "IDS_MSGC_POP_SELECT_LAYOUT"
+msgstr "Pasirinkti išdėstymą"
+
+msgid "IDS_MSGC_POP_MMSCANTADD"
+msgstr "Įtraukti turinio nepavyko."
+
+msgid "IDS_MSGC_POP_MESSAGE_SCHEDULED_TO_BE_SENT_TO_PS_SEND_NOW_Q"
+msgstr "Žinutė, kurią planuojama siųsti %s. Siųsti dabar?"
+
+msgid "IDS_MSGC_POP_MAXIMUM_MESSAGE_SIZE_REACHED"
+msgstr "Pasiektas didžiausias žinutės dydis."
+
+msgid "IDS_MSGC_POP_DURATION_MUST_BE_AT_LEAST_PD_SECONDS"
+msgstr "Trukmė – ne mažiau nei %d sek."
+
+msgid "IDS_MSGC_POP_DISABLING_FLIGHT_MODE_ING"
+msgstr "Išjungiamas skrydžio režimas..."
+
+msgid "IDS_MSGC_POP_COPIED_TO_SIM_CARD"
+msgstr "Nukopijuota į SIM kortelę."
+
+msgid "IDS_MSGC_OPT_USE_OTHER_CONTACT_INFO_ABB"
+msgstr "Naud. kitą kontak.inf."
+
+msgid "IDS_MSGC_OPT_SEND_VIA"
+msgstr "Siųsti per"
+
+msgid "IDS_MSGC_OPT_IMAGE"
+msgstr "Vaizdas"
+
+msgid "IDS_MSGC_OPT_EDIT_ITEM_REPLACE"
+msgstr "Pakeisti"
+
+msgid "IDS_MSGC_OPT_CANCEL_MESSAGE"
+msgstr "Atšaukti žinutę"
+
+msgid "IDS_MSGC_HEADER_RECIPIENT_LIST"
+msgstr "Gavėjų sąrašas"
+
+msgid "IDS_MSGC_HEADER_DURATION_FOR_SLIDE_PD_PD"
+msgstr "Skaidrės trukmė %d/%d"
+
+msgid "IDS_MSGC_BODY_WAIT_WHILE_ITEMS_ARE_ADDED_TO_SLIDESHOW"
+msgstr "Palaukite, kol elementai bus įtraukti į skaidrių rodymą."
+
+msgid "IDS_MSGC_BODY_UNABLE_TO_SEND_MESSAGE"
+msgstr "Negalima išsiųsti žinutės."
+
+msgid "IDS_MSGC_BODY_SELECT_RINGTONE"
+msgstr "Skambėjimo tonas"
+
+msgid "IDS_MSGC_BODY_READ_REPORT_WILL_BE_SENT"
+msgstr "Bus išsiųsta ataskaita apie perskaitytą žinutę."
+
+msgid "IDS_MSGC_BODY_NOT_REQUESTED"
+msgstr "Neprašoma"
+
+msgid "IDS_MSGC_BODY_MAXIMUM_NUMBER_OF_RECIPIENTS_HPD_REACHED"
+msgstr "Pasiektas didžiausias gavėjų (%d) skaičius."
+
+msgid "IDS_MSGC_BODY_DUPLICATED_RECIPIENT"
+msgstr "Du tokie pat gavėjai."
+
+msgid "IDS_MSGF_SK_FORWARD_LITE"
+msgstr "Persiųs."
+
+msgid "IDS_MSGF_POP_UNABLE_TO_SAVE"
+msgstr "Neįmanoma įrašyti."
+
+msgid "IDS_MSGF_POP_UNABLE_TO_DELETE"
+msgstr "Ištrinti nepavyko."
+
+msgid "IDS_MSGF_POP_UNABLE_TO_COPY"
+msgstr "Negalima kopijuoti."
+
+msgid "IDS_MSGF_POP_SOME_CHARACTERS_MAY_BE_LOST_CONTINUE_Q"
+msgstr "Kai kurie ženklai gali būti prarasti. Tęsti?"
+
+msgid "IDS_MSGF_POP_SIM_NOT_INSERTED"
+msgstr "SIM neįdėta."
+
+msgid "IDS_MSGF_POP_SAVING_FAILED"
+msgstr "Išsaugoti nepavyko."
+
+msgid "IDS_MSGF_POP_SAVED_IN_MY_FILES"
+msgstr "Išsaugota aplanke „Mano failai“."
+
+msgid "IDS_MSGF_POP_RETRIEVING_MESSAGE_FAILED"
+msgstr "Žinutės gauti nepavyko"
+
+msgid "IDS_MSGF_POP_RESTRICTED_CONTENT_TYPE_ATTACH_ANYWAY_Q"
+msgstr "Apribotas turinio tipas. Vis tiek pridėti?"
+
+msgid "IDS_MSGF_POP_RESTORING_ING"
+msgstr "Atkuriama..."
+
+msgid "IDS_MSGF_POP_READ_REPORT"
+msgstr "Perskaitymo patvirtinimas"
+
+msgid "IDS_MSGF_POP_NO_NUMBER"
+msgstr "Nėra numerio"
+
+msgid "IDS_MSGF_POP_NO_ATTACHMENTS"
+msgstr "Priedų nėra"
+
+msgid "IDS_MSGF_POP_NEW_MESSAGES"
+msgstr "Naujos žinutės"
+
+msgid "IDS_MSGF_POP_MESSAGE_COPIED_FROM_SIM_CARD"
+msgstr "Iš SIM kortelės nukopijuota žinutė."
+
+msgid "IDS_MSGF_POP_MAXIMUM_NUMBER_OF_RECIPIENTS_IS_PD_SOME_RECIPIENTS_MAY_BE_LOST"
+msgstr "Didžiausias gavėjų skaičius yra %d. Kai kurie gavėjai gali būti prarasti."
+
+msgid "IDS_MSGF_POP_MAXIMUM_NUMBER_OF_ATTACHMENTS_HPS_EXCEEDED"
+msgstr "Viršytas didžiausias priedų (%s) skaičius."
+
+msgid "IDS_MSGF_POP_MAXIMUM_CHARACTERS"
+msgstr "Pasiektas didžiausias simbolių skaičius."
+
+msgid "IDS_MSGF_POP_IN_PROGRESS_ING"
+msgstr "Vykdoma..."
+
+msgid "IDS_MSGF_POP_INTIALISING"
+msgstr "Inicijuojama..."
+
+msgid "IDS_MSGF_POP_IF_YOU_DONT_WANT_TO_REPLACE_THE_FILE_RENAME_IT"
+msgstr "Jei nenorite pakeisti failo, pervardykite jį."
+
+msgid "IDS_MSGF_POP_HELP_PAGE_MESSAGE_FOR_ONE_FILE"
+msgstr "Šioje žinutėje yra pridėtas, tačiau nerodomas failas."
+
+msgid "IDS_MSGF_POP_HELP_PAGE_MESSAGE"
+msgstr "Šioje žinutėje yra keli pridėti, tačiau nerodomi failai."
+
+msgid "IDS_MSGF_POP_FILE_NAME_ALREADY_EXISTS"
+msgstr "Failas tokiu pavadinimu jau yra."
+
+msgid "IDS_MSGF_POP_CONVERTING_TO_TEXT_MESSAGE_ING"
+msgstr "Konvertuojama į teksto žinutę..."
+
+msgid "IDS_MSGF_POP_CONVERTING_TO_MULTIMEDIA_MESSAGE_ING"
+msgstr "Konvertuojama į MMS žinutę..."
+
+msgid "IDS_MSGF_POP_ABOUT_TO_GO_ONLINE_CONTINUE_Q"
+msgstr "Prisijungsite prie tinklo(%s). Tęsti?"
+
+msgid "IDS_MSGF_OPT_TEXT_MESSAGE"
+msgstr "Teksto žinutė"
+
+msgid "IDS_MSGF_OPT_SENDER_ABB"
+msgstr "Siuntėjas"
+
+msgid "IDS_MSGF_OPT_SAVE_ATTACHMENT"
+msgstr "Išsaugoti priedą"
+
+msgid "IDS_MSGF_OPT_INSTALL"
+msgstr "Įdiegti"
+
+msgid "IDS_MSGF_OPT_EDIT_MESSAGE"
+msgstr "Redaguoti žinutę"
+
+msgid "IDS_MSGF_OPT_DELETE_MESSAGES"
+msgstr "Panaikinti žinutes"
+
+msgid "IDS_MSGF_HEADER_SELECT_MESSAGES"
+msgstr "Pasirinkite žinutes"
+
+msgid "IDS_MSGF_HEADER_SAVE_ALL"
+msgstr "Išsaugoti viską"
+
+msgid "IDS_MSGF_HEADER_MESSAGE_DETAILS"
+msgstr "Žinutės informacija"
+
+msgid "IDS_MSGF_HEADER_EXPIRES_C_PS"
+msgstr "Baigiasi: %s"
+
+msgid "IDS_MSGF_BUTTON_SAVE_ALL_ATTACHMENTS_ABB"
+msgstr "Išsaug. visus pried."
+
+msgid "IDS_MSGF_BODY_TO_C"
+msgstr "Kam:"
+
+msgid "IDS_MSGF_BODY_TEXT_MESSAGES"
+msgstr "Teksto žinutės"
+
+msgid "IDS_MSGF_BODY_SIM_MEMORY_FULL_DELETE_SOME_ITEMS"
+msgstr "SIM atmintis pilna. Ištrinkite kelis elementus."
+
+msgid "IDS_MSGF_BODY_SENT_M_DATE_C"
+msgstr "Išsiųsta:"
+
+msgid "IDS_MSGF_BODY_REQUESTED"
+msgstr "Užklausta."
+
+msgid "IDS_MSGF_BODY_RECEIVED_M_DATE_C"
+msgstr "Gauta:"
+
+msgid "IDS_MSGF_BODY_READ_REPORT"
+msgstr "Perskaitymo patvirtinimas"
+
+msgid "IDS_MSGF_BODY_PUSH_MESSAGES"
+msgstr "Naujienų žinutės"
+
+msgid "IDS_MSGF_BODY_PD_MESSAGES"
+msgstr "%d žinutės"
+
+msgid "IDS_MSGF_BODY_PD_CONVERSATIONS"
+msgstr "%d pokalbiai (-ių)"
+
+msgid "IDS_MSGF_BODY_NO_NAME"
+msgstr "Nėra vardo"
+
+msgid "IDS_MSGF_BODY_MULTIMEDIA_MESSAGE_NOTIFICATION"
+msgstr "MMS žinutės pranešimas"
+
+msgid "IDS_MSGF_BODY_MULTIMEDIA_MESSAGE"
+msgstr "Daugialypė žinutė"
+
+msgid "IDS_MSGF_BODY_MMSREADREPLYMSGREAD"
+msgstr "Skaityti"
+
+msgid "IDS_MSGF_BODY_MMSDELIVERYMSGREJECTED"
+msgstr "Žinutė atmesta."
+
+msgid "IDS_MSGF_BODY_MMS"
+msgstr "MMS"
+
+msgid "IDS_MSGF_BODY_MESSAGE_SIZE"
+msgstr "Žinutės dydis"
+
+msgid "IDS_MSGF_BODY_MESSAGE_OPTIONS"
+msgstr "Žinutės parinktys"
+
+msgid "IDS_MSGF_BODY_MESSAGE_DELIVERED"
+msgstr "Žinutė pristatyta"
+
+msgid "IDS_MSGF_BODY_MAXIMUM_NUMBER_OF_ATTACHMENTS_HP1SS_EXCEEDED_ONLY_FIRST_P2SS_WILL_BE_ADDED"
+msgstr "Viršytas didžiausias priedų skaičius (%1$s). Bus pridėtas tik pirmasis %2$s."
+
+msgid "IDS_MSGF_BODY_INVALID_RECIPIENT"
+msgstr "Klaidingas gavėjas."
+
+msgid "IDS_MSGF_BODY_FROM"
+msgstr "Nuo"
+
+msgid "IDS_MSGF_BODY_FLFROM"
+msgstr "Nuo:"
+
+msgid "IDS_MSGF_BODY_DETAILSSENDINGFAILED"
+msgstr "Išsiųsti nepavyko."
+
+msgid "IDS_MSGF_BODY_DELIVERY_REPORT"
+msgstr "Ataskaita apie pristatymą"
+
+msgid "IDS_MSGF_BODY_CP_MESSAGES"
+msgstr "CP žinutės"
+
+msgid "IDS_MSGF_BODY_COPY_TEXT"
+msgstr "Kopijuoti tekstą"
+
+msgid "IDS_MSGF_BODY_CB_MESSAGES"
+msgstr "Tinklo žinutės"
+
+msgid "IDS_MSGF_BODY_1_MESSAGE"
+msgstr "1 message"
+
+msgid "IDS_MSGF_BODY_1_CONVERSATION"
+msgstr "1 pokalbis"
+
+msgid "IDS_MSGS_BODY_REQUEST_A_READ_REPORT_FOR_EACH_MESSAGE_YOU_SEND"
+msgstr "Reikalauti pranešimo apie kiekvieną perskaitytą jūsų siųstą žinutę."
+
+msgid "IDS_MSGS_BODY_REQUEST_A_DELIVERY_REPORT_FOR_EACH_MESSAGE_YOU_SEND"
+msgstr "Reikalauti pranešimo apie kiekvieną pristatytą jūsų siųstą žinutę."
+
+msgid "IDS_MSGS_BODY_RADIO_BUTTON"
+msgstr "Akutė"
+
+msgid "IDS_MSGS_BODY_ON_OFF_BUTTON_T_TTS"
+msgstr "Įjungimo / išjungimo mygtukas"
+
+msgid "IDS_MSGS_BODY_EXPANDABLE_LIST_T_TTS"
+msgstr "Išskleidžiamasis sąrašas"
+
+msgid "IDS_MSGS_BODY_AUTOMATICALLY_RETRIEVE_MMS_MESSAGES"
+msgstr "Automatiškai gauti MMS žinutes."
+
+msgid "IDS_MSG_TPOP_UNABLE_TO_PREVIEW_FILE_UNSUPPORTED_FILE_TYPE"
+msgstr "Negalima peržiūrėti failo. Nepalaikomas failo tipas."
+
+msgid "IDS_MSG_TPOP_UNABLE_TO_ATTACH_FILE_FILE_FORMAT_NOT_SUPPORTED"
+msgstr "Failo pridėti neįmanoma. Failo formatas nepalaikomas."
+
+msgid "IDS_MSG_TPOP_UNABLE_TO_ADD_SOME_RECIPIENTS_NUMBERS_NOT_VALID"
+msgstr "Neįmanoma pridėti kelių gavėjų. Numeriai neteisingi."
+
+msgid "IDS_MSG_TPOP_UNABLE_TO_ADD_RECIPIENT_NUMBER_NOT_VALID"
+msgstr "Neįmanoma pridėti gavėjo. Neteisingas numeris."
+
+msgid "IDS_MSG_TPOP_UNABLE_TO_ADD_RECIPIENTS_NUMBERS_NOT_VALID"
+msgstr "Neįmanoma pridėti gavėjų. Numeriai neteisingi."
+
+msgid "IDS_MSG_TPOP_UNABLE_TO_ADD_ATTACHMENT_MAXIMUM_NUMBER_OF_ATTACHMENTS_HPD_REACHED"
+msgstr "Neįmanoma pridėti priedo. Pasiektas didžiausias priedų skaičius (%d)."
+
+msgid "IDS_MSG_TPOP_THIS_NUMBER_IS_NOT_VALID"
+msgstr "Šis numeris yra netinkamas."
+
+msgid "IDS_MSG_TPOP_SOME_RECIPIENTS_ALREADY_ADDED"
+msgstr "Kai kurie gavėjai jau pridėti."
+
+msgid "IDS_MSG_TPOP_SELECTED_MESSAGES_COPIED_TO_MOBILE_DEVICE"
+msgstr "Pasirinktos žinutės nukopijuotos į mobilųjį įrenginį."
+
+msgid "IDS_MSG_TPOP_PD_MESSAGES_MOVED_TO_MESSAGE_LIST"
+msgstr "Perkelta žinučių į žinučių sąrašą: %d."
+
+msgid "IDS_MSG_TPOP_NUMBER_REMOVED_FROM_MESSAGE_BLOCK_LIST"
+msgstr "Numeris pašalintas iš žinučių blokavimo sąrašo."
+
+msgid "IDS_MSG_TPOP_NUMBER_ADDED_TO_MESSAGE_BLOCK_LIST"
+msgstr "Numeris pridėtas prie žinučių blokavimo sąrašo."
+
+msgid "IDS_MSG_TPOP_NETWORK_NOT_AVAILABLE_MESSAGE_WILL_BE_SENT_WHEN_CONNECTED_TO_NETWORK"
+msgstr "Tinklas nepasiekiamas. Žinutė bus išsiųsta prisijungus prie tinklo."
+
+msgid "IDS_MSG_TPOP_MESSAGE_COPIED_TO_PS_SIM_CARD"
+msgstr "Žinutė nukopijuota į %s SIM kortelę."
+
+msgid "IDS_MSG_TPOP_MAXIMUM_NUMBER_OF_CHARACTERS_EXCEEDED"
+msgstr "Viršytas didžiausias simbolių skaičius."
+
+msgid "IDS_MSG_TPOP_MAXIMUM_MESSAGE_SIZE_HPS_EXCEEDED_RESIZING_ATTACHMENTS_ING"
+msgstr "Viršytas didžiausias žinutės dydis (%s). Keičiamas priedų dydis..."
+
+msgid "IDS_MSG_TPOP_INVALID_CHARACTER_ENTERED"
+msgstr "Įvestas neleistinas simbolis"
+
+msgid "IDS_MSG_TPOP_ADD_RECIPIENTS"
+msgstr "Pridėti gavėjų."
+
+msgid "IDS_MSG_TPOP_1_MESSAGE_MOVED_TO_MESSAGE_LIST"
+msgstr "1 žinutė perkelta į žinučių sąrašą."
+
+msgid "IDS_MSG_TMBODY_TEXT_MESSAGES"
+msgstr "Teksto žinutės"
+
+msgid "IDS_MSG_TMBODY_SOUND"
+msgstr "Garsas"
+
+msgid "IDS_MSG_TMBODY_MULTIMEDIA_MESSAGES"
+msgstr "Multimedijos žinutės"
+
+msgid "IDS_MSG_TMBODY_MESSAGES_ON_SIM_CARD"
+msgstr "SIM kortelėje esančios žinutės"
+
+msgid "IDS_MSG_TMBODY_INPUT_MODE"
+msgstr "Įvesties režimas"
+
+msgid "IDS_MSG_TMBODY_AUTO_RETRIEVE_WHILE_ROAMING"
+msgstr "Autom. nauj. tarptink. ryšiu"
+
+msgid "IDS_MSG_TMBODY_AUTO_RETRIEVE"
+msgstr "Automatinis gavimas"
+
+msgid "IDS_MSG_SK_SEND_NOW"
+msgstr "Siųs.dbr."
+
+msgid "IDS_MSG_SBODY_SELECT_AN_INPUT_MODE_FOR_COMPOSING_MESSAGES"
+msgstr "Pasirinkti įvesties režimą, kad būtų galima kurti žinutes."
+
+msgid "IDS_MSG_SBODY_NONE_M_STATUS"
+msgstr "Nėra"
+
+msgid "IDS_MSG_SBODY_MANAGE_THE_MESSAGES_STORED_ON_YOUR_SIM_CARD"
+msgstr "Tvarkyti SIM kortelėje išsaugotas žinutes."
+
+msgid "IDS_MSG_POP_UNABLE_TO_SEND_SCHEDULED_MESSAGE_SET_ANOTHER_TIME"
+msgstr "Neįmanoma išsiųsti suplanuotos žinutės. Nustatyti kitą laiką."
+
+msgid "IDS_MSG_POP_UNABLE_TO_ATTACH_FILE_FILE_SIZE_TOO_LARGE_TRY_SENDING_VIA_EMAIL_BLUETOOTH_WI_FI_ETC"
+msgstr "Neįmanoma pridėti failo. Failas per didelis. Pabandykite siųsti el. paštu, naudodami „Bluetooth“, „Wi-Fi“ ir t. t."
+
+msgid "IDS_MSG_POP_TO_SEND_THIS_MULTIMEDIA_MESSAGE_THE_DEVICE_WILL_CONNECT_TO_A_DIFFERENT_MOBILE_NETWORK_THIS_WILL_DISCONNECT_YOUR_DEVICE_FROM_YOUR_MSG"
+msgstr "Kad būtų išsiųsta ši multimedijos žinutė, įrenginys prisijungs prie kito mobiliojo tinklo. Dėl to įrenginys atsijungs nuo dabartinio mobiliojo tinklo."
+
+msgid "IDS_MSG_POP_TO_DOWNLOAD_THIS_MULTIMEDIA_MESSAGE_THE_DEVICE_WILL_CONNECT_TO_A_DIFFERENT_MOBILE_NETWORK_MSG"
+msgstr "Kad būtų atsiųsta ši multimedijos žinutė, įrenginys prisijungs prie kito mobiliojo tinklo. Dėl to įrenginys atsijungs nuo dabartinio mobiliojo tinklo."
+
+msgid "IDS_MSG_POP_THIS_MESSAGE_WILL_BE_RESENT"
+msgstr "Ši žinutė bus išsiųsta pakartotinai."
+
+msgid "IDS_MSG_POP_PD_MESSAGES_WILL_BE_DELETED"
+msgstr "Bus ištrinta žinučių: %d."
+
+msgid "IDS_MSG_POP_PD_CONVERSATIONS_WILL_BE_DELETED"
+msgstr "Bus ištrinta pokalbių: %d."
+
+msgid "IDS_MSG_POP_NO_TEMPLATES_IN_LIST"
+msgstr "Sąraše šablonų nėra"
+
+msgid "IDS_MSG_POP_INCLUDE_ORIGINAL_TEXT_IN_OUTGOING_MESSAGE"
+msgstr "Įterpkite originalų tekstą į siunčiamą žinutę"
+
+msgid "IDS_MSG_POP_DURATION_MUST_BE_SHORTER_THAN_PD_SECONDS"
+msgstr "Trukmė turi būti trumpesnė nei %d sek."
+
+msgid "IDS_MSG_POP_1_MESSAGE_WILL_BE_DELETED"
+msgstr "1 žinutė bus ištrinta."
+
+msgid "IDS_MSG_POP_1_CONVERSATION_WILL_BE_DELETED"
+msgstr "Bus ištrintas 1 adresatas."
+
+msgid "IDS_MSG_OPT_VIEW_DETAILS_ABB"
+msgstr "Peržiūrėti išsamią informaciją"
+
+msgid "IDS_MSG_OPT_VIEW_CONTACT_DETAILS_ABB"
+msgstr "Peržiūrėt adresato informaciją"
+
+msgid "IDS_MSG_OPT_VIEW_AS_SLIDESHOW_ABB"
+msgstr "Peržiūrėti kaip skaidres"
+
+msgid "IDS_MSG_OPT_UPDATE_CONTACT"
+msgstr "Atnaujinti adresatą"
+
+msgid "IDS_MSG_OPT_UNICODE"
+msgstr "Unikodas"
+
+msgid "IDS_MSG_OPT_TAKE_PICTURE_ABB"
+msgstr "Fotografuoti"
+
+msgid "IDS_MSG_OPT_SAVE_ATTACHMENTS_ABB"
+msgstr "Išsaugoti priedus"
+
+msgid "IDS_MSG_OPT_RESEND"
+msgstr "Persiųsti"
+
+msgid "IDS_MSG_OPT_REPLY"
+msgstr "Atsakyti"
+
+msgid "IDS_MSG_OPT_REMOVE_FROM_BLOCK_LIST_ABB"
+msgstr "Pašalinti iš blokuojam. sąrašo"
+
+msgid "IDS_MSG_OPT_RECORD_AUDIO_FILE_ABB"
+msgstr "Įrašyti garso\nfailą"
+
+msgid "IDS_MSG_OPT_QUICK_RESPONSE_ABB"
+msgstr "Greitas atsakymas"
+
+msgid "IDS_MSG_OPT_MAKE_VOICE_CALL"
+msgstr "Atlikti balso skambutį"
+
+msgid "IDS_MSG_OPT_GSM_ALPHABET_ABB"
+msgstr "GSM abėcėlė"
+
+msgid "IDS_MSG_OPT_EXPORT_TO_DEVICE_MEMORY"
+msgstr "Eksportuoti į įrenginio atmintį"
+
+msgid "IDS_MSG_OPT_DELETE_MESSAGE"
+msgstr "Trinti žinutę"
+
+msgid "IDS_MSG_OPT_DELETE_CONVERSATION_ABB"
+msgstr "Trinti pokalbį"
+
+msgid "IDS_MSG_OPT_CREATE_CONTACT_ABB"
+msgstr "Kurti adresatą"
+
+msgid "IDS_MSG_OPT_COPY_TO_SIM_CARD_ABB"
+msgstr "Kopijuoti į SIM kortelę"
+
+msgid "IDS_MSG_OPT_COPY_TO_DEVICE_ABB"
+msgstr "Kopijuoti į įrenginį"
+
+msgid "IDS_MSG_OPT_COPY_TEXT"
+msgstr "Kopijuoti tekstą"
+
+msgid "IDS_MSG_OPT_COPY"
+msgstr "Kopijuoti"
+
+msgid "IDS_MSG_OPT_BACK_UP"
+msgstr "Kurti atsarginę kopiją"
+
+msgid "IDS_MSG_OPT_AUTOMATIC"
+msgstr "Automatinis"
+
+msgid "IDS_MSG_OPT_AUDIO_FILES_ABB2"
+msgstr "Garso failai"
+
+msgid "IDS_MSG_OPT_ATTACHMENT_ABB"
+msgstr "Priedas"
+
+msgid "IDS_MSG_OPT_ADD_TO_CONTACTS_ABB"
+msgstr "Pridėti prie adresatų"
+
+msgid "IDS_MSG_OPT_ADD_TO_BLOCK_LIST_ABB"
+msgstr "Pridėti prie blokuojam. sąrašo"
+
+msgid "IDS_MSG_OPT_ADD_RECIPIENTS_ABB"
+msgstr "Pridėti gavėjų"
+
+msgid "IDS_MSG_NPBODY_SEARCH"
+msgstr "Ieškoti"
+
+msgid "IDS_MSG_NPBODY_NO_RESULTS_FOUND_ABB"
+msgstr "Rezultatų nerasta"
+
+msgid "IDS_MSG_NPBODY_NO_QUICK_RESPONSES"
+msgstr "Nėra greitų atsakymų"
+
+msgid "IDS_MSG_NPBODY_NO_PHRASES_BLOCKED"
+msgstr "Nėra užblokuotų frazių"
+
+msgid "IDS_MSG_NPBODY_NO_MESSAGES_ON_SIM_CARD"
+msgstr "SIM kortelėje žinučių nėra"
+
+msgid "IDS_MSG_NPBODY_NO_MESSAGES"
+msgstr "Žinučių nėra"
+
+msgid "IDS_MSG_NPBODY_NO_BLOCKED_NUMBERS"
+msgstr "Užblokuotų numerių nėra"
+
+msgid "IDS_MSG_MBODY_VIBRATION"
+msgstr "Vibracija"
+
+msgid "IDS_MSG_MBODY_UNKNOWN_NUMBER"
+msgstr "Nežinomas numeris"
+
+msgid "IDS_MSG_MBODY_TEXT_MESSAGE_CENTRE_NUMBER_ABB"
+msgstr "Teksto žinučių centro numeris"
+
+msgid "IDS_MSG_HEADER_TEXT_MESSAGES_ABB"
+msgstr "Teksto žinutės"
+
+msgid "IDS_MSG_HEADER_SWITCH_MOBILE_NETWORK_ABB2"
+msgstr "Perjungti mobilųjį tinklą"
+
+msgid "IDS_MSG_HEADER_SMS_CENTRE_ABB2"
+msgstr "Žin.centras"
+
+msgid "IDS_MSG_HEADER_SELECT_RECIPIENT"
+msgstr "Pasirinkti gavėją"
+
+msgid "IDS_MSG_HEADER_PD_SELECTED_ABB3"
+msgstr "Pasirinkta: %d"
+
+msgid "IDS_MSG_HEADER_MESSAGES_ON_SIM_CARD_ABB"
+msgstr "SIM kortelėje esančios žinutės"
+
+msgid "IDS_MSG_HEADER_INPUT_MODE_ABB"
+msgstr "Įvesties režimas"
+
+msgid "IDS_MSG_HEADER_FILE_SIZE_TOO_LARGE_ABB"
+msgstr "Failas per didelis"
+
+msgid "IDS_MSG_HEADER_FAILED_TO_SEND_MESSAGE_ABB"
+msgstr "Nepavyko nusiųsti žinutės"
+
+msgid "IDS_MSG_HEADER_DISCARD_MESSAGE_M_CLOSE_ABB"
+msgstr "Panaikinti žinutę"
+
+msgid "IDS_MSG_HEADER_CREATE"
+msgstr "Kurti"
+
+msgid "IDS_MSG_HEADER_ADD_CONTENT_ABB"
+msgstr "Pridėti turinio"
+
+msgid "IDS_MSG_BUTTON_SWITCH_ABB2"
+msgstr "Įjungti"
+
+msgid "IDS_MSG_BUTTON_SAVE_ABB2"
+msgstr "Išsaugoti"
+
+msgid "IDS_MSG_BUTTON_RESEND_ABB"
+msgstr "Persiųsti"
+
+msgid "IDS_MSG_BUTTON_DISCARD_ABB"
+msgstr "Panaikinti"
+
+msgid "IDS_MSG_BUTTON_DELETE_ABB4"
+msgstr "Trinti"
+
+msgid "IDS_MSG_BUTTON_CANCEL_ABB2"
+msgstr "Atšaukti"
+
+msgid "IDS_MSG_BUTTON2_CONTACTS_ABB_M_APPLICATION_NAME"
+msgstr "Adresatai"
+
+msgid "IDS_MSG_BODY_YOU_HAVE_SELECTED_A_SOUND_N_SHOT_FILE_SOUND_DATA_IS_NOT_SUPPORTED_FOR_MMS_SO_ONLY_THE_PICTURE_WILL_BE_ATTACHED"
+msgstr "Pasirinkote garso ir kadro failą. MMS garso duomenys nepalaikomi, todėl bus pridėta tik nuotrauka."
+
+msgid "IDS_MSG_BODY_WAITING_TO_SEND_ING_M_STATUS"
+msgstr "Laukiama, kol išsiųs..."
+
+msgid "IDS_MSG_BODY_UNABLE_TO_SEND_THIS_MESSAGE_INSERT_YOUR_SIM_CARD_AND_TRY_AGAIN"
+msgstr "Šios žinutės neįmanoma išsiųsti. Įdėkite SIM kortelę ir bandykite dar kartą."
+
+msgid "IDS_MSG_BODY_TYPE_C"
+msgstr "Tipas:"
+
+msgid "IDS_MSG_BODY_TO_USE_RESTRICTED_MEDIA_TYPES_CHANGE_YOUR_MMS_CREATION_MODE_SETTING"
+msgstr "Kad galėtumėte naudoti draudžiamus medijos tipus, pakeiskite MMS kūrimo režimo nustatymą."
+
+msgid "IDS_MSG_BODY_TIME_SENT_C"
+msgstr "Išsiuntimo laikas:"
+
+msgid "IDS_MSG_BODY_TIME_RECEIVED_C"
+msgstr "Gavimo laikas:"
+
+msgid "IDS_MSG_BODY_STATUS_C"
+msgstr "Būsena:"
+
+msgid "IDS_MSG_BODY_SENT_M_STATUS"
+msgstr "Išsiųsta"
+
+msgid "IDS_MSG_BODY_SENDING_ING_M_STATUS_ABB"
+msgstr "Siunč..."
+
+msgid "IDS_MSG_BODY_SENDING_FAILED_M_STATUS"
+msgstr "Nepavyko išsiųsti"
+
+msgid "IDS_MSG_BODY_RETRIEVE_MESSAGES_AUTOMATICALLY_WHILE_ROAMING"
+msgstr "Automatiškai priimti žinutes naudojant tarptinklinį ryšį."
+
+msgid "IDS_MSG_BODY_RETRIEVE_MESSAGES_AUTOMATICALLY"
+msgstr "Automatiškai priimti žinutes."
+
+msgid "IDS_MSG_BODY_READ_REPORT_C_PS"
+msgstr "Perskaitytas pranešimas: %s"
+
+msgid "IDS_MSG_BODY_OTHER_PERSON"
+msgstr "Kitas asmuo"
+
+msgid "IDS_MSG_BODY_MEMO_T_MAINMENU"
+msgstr "Įrašas"
+
+msgid "IDS_MSG_BODY_FAILED_M_STATUS_ABB2"
+msgstr "Nepavyko"
+
+msgid "IDS_MSG_BODY_ENTER_TEXT_M_NOUN"
+msgstr "Įvesti tekstą"
+
+msgid "IDS_MSG_BODY_DRAFT_M_STATUS_ABB"
+msgstr "Juodrašt."
+
+msgid "IDS_MSG_BODY_DELIVERY_REPORT_C_PS"
+msgstr "Pristatymo pranešimas: %s"
+
+msgid "IDS_MSG_BODY_CB_MESSAGE"
+msgstr "CB pranešimas"
+
+msgid "IDS_MSG_BODY_CALENDAR_M_APPLICATION_NAME_ABB"
+msgstr "Kalendorius"
+
+msgid "IDS_MSG_BODY_AFTER_YOU_SEND_OR_RECEIVE_MESSAGES_THEY_WILL_BE_SHOWN_HERE"
+msgstr "Išsiuntus žinučių arba jų gavus, jos bus rodomos čia."
+
+msgid "IDS_MSG_BODY_AFTER_YOU_CREATE_QUICK_RESPONSES_THEY_WILL_BE_SHOWN_HERE"
+msgstr "Kai sukursite greitų atsakymų, jie bus rodomi čia."
+
+msgid "IDS_MSG_BODY_AFTER_YOU_COPY_MESSAGES_TO_THE_SIM_CARD_THEY_WILL_BE_SHOWN_HERE"
+msgstr "Kai nukopijuosite žinutes į SIM kortelę, jos bus rodomos čia."
+
+msgid "IDS_MSG_BODY_AFTER_YOU_ADD_PHRASES_THEY_WILL_BE_SHOWN_HERE"
+msgstr "Kai pridėsite frazes, jos bus rodomos čia."
+
+msgid "IDS_MSG_BODY_AFTER_YOU_ADD_NUMBERS_TO_THE_MESSAGE_BLOCK_LIST_THEY_WILL_BE_SHOWN_HERE"
+msgstr "Kai pridėsite numerių prie žinučių blokavimo sąrašo, jie bus rodomi čia."
+
+msgid "IDS_MSG_ACBUTTON_DELETE_ABB"
+msgstr "IŠTRINTI"
+
+msgid "IDS_MSGC_POP_UNSUPPORTED_MEDIA_TYPE"
+msgstr "Nepalaikomas pramogos tipas."
+
+msgid "IDS_MSGC_POP_LOW_BATTERY"
+msgstr "Senka akumuliatorius!"
+
+msgid "IDS_MSGC_POP_CANCELLED"
+msgstr "Atšaukta."
+
+msgid "IDS_MSGC_OPT_EMAIL"
+msgstr "El. paštas"
+
+msgid "IDS_MSGC_OPT_EDITITEM_VIEW"
+msgstr "Rodyti"
+
+msgid "IDS_MSGC_OPT_EDITITEM_REMOVE"
+msgstr "Šalinti"
+
+msgid "IDS_MSGC_OPT_EDITITEM_PLAY"
+msgstr "Paleisti"
+
+msgid "IDS_MSGC_OPT_CHANGE_RECIPIENTS_TO"
+msgstr "Kam"
+
+msgid "IDS_MSGC_HEADER_PREVIEW"
+msgstr "Peržiūra"
+
+msgid "IDS_MSGC_BODY_ENTER_SUBJECT"
+msgstr "Įvesti temą."
+
+msgid "IDS_MSGF_POP_UNABLE_TO_FIND_LOCATION"
+msgstr "Neįmanoma rasti vietos."
+
+msgid "IDS_MSGF_POP_REJECTED"
+msgstr "Atmesta."
+
+msgid "IDS_MSGF_POP_DELETING"
+msgstr "Trinama..."
+
+msgid "IDS_MSGF_POP_COPIED_TO_CLIPBOARD"
+msgstr "Nukopijuota į iškarpinę."
+
+msgid "IDS_MSGF_POP_BLOCK_PS_Q"
+msgstr "Blokuoti %s?"
+
+msgid "IDS_MSGF_OPT_SUBJECT_COLON"
+msgstr "Tema:"
+
+msgid "IDS_MSGF_OPT_SENDER_VIA_EMAIL"
+msgstr "Siuntėjas el. paštu"
+
+msgid "IDS_MSGF_OPT_SELECT"
+msgstr "Rinktis"
+
+msgid "IDS_MSGF_OPT_SAVE"
+msgstr "Išsaugoti"
+
+msgid "IDS_MSGF_OPT_REMOVE"
+msgstr "Šalinti"
+
+msgid "IDS_MSGF_OPT_FORWARD"
+msgstr "Persiųsti"
+
+msgid "IDS_MSGF_OPT_DELETE_Q"
+msgstr "Ar trinti?"
+
+msgid "IDS_MSGF_HEADER_ADVANCED_SEARCH"
+msgstr "Išplėstinė paieška"
+
+msgid "IDS_MSGF_BODY_UNKNOWN"
+msgstr "Nežinomas"
+
+msgid "IDS_MSGF_BODY_SETTINGS"
+msgstr "Nustatymai"
+
+msgid "IDS_MSGF_BODY_RECIPIENTS"
+msgstr "Gavėjai"
+
+msgid "IDS_MSGF_BODY_RECEIVED"
+msgstr "Gauta."
+
+msgid "IDS_MSGF_BODY_OTHER"
+msgstr "Kiti"
+
+msgid "IDS_MSGF_BODY_NO_SUBJECT"
+msgstr "Nėra temos"
+
+msgid "IDS_MSGF_BODY_MSGSIZE_KB"
+msgstr "KB"
+
+msgid "IDS_MSGF_BODY_MESSAGE"
+msgstr "Žinutė"
+
+msgid "IDS_MSGF_BODY_ME"
+msgstr "Aš"
+
+msgid "IDS_MSGF_BODY_EXPIRED"
+msgstr "Galiojimas pasibaigęs"
+
+msgid "IDS_MSGF_BODY_ALL"
+msgstr "Visos"
+
+msgid "IDS_MSG_SK_NO_ABB"
+msgstr "Ne"
+
+msgid "IDS_MSG_POP_YOUR_MESSAGE_WILL_BE_DISCARDED_NO_RECIPIENTS_HAVE_BEEN_SELECTED"
+msgstr "Jūsų žinutė bus panaikinta. Nepasirinkti jokie gavėjai."
+
+msgid "IDS_MSG_POP_UNABLE_TO_PLAY_DURING_CALL"
+msgstr "Negalima paleisti skambučio metu."
+
+msgid "IDS_MSG_POP_INCOMING_MESSAGES_ONLY"
+msgstr "Tik gaunami skambučiai"
+
+msgid "IDS_MSG_POP_DELETED"
+msgstr "Ištrinta."
+
+msgid "IDS_MSG_OPT_VIDEOS"
+msgstr "Vaizdo įrašai"
+
+msgid "IDS_MSG_OPT_TEXT"
+msgstr "Tekstas"
+
+msgid "IDS_MSG_OPT_SETTINGS"
+msgstr "Nustatymai"
+
+msgid "IDS_MSG_OPT_SEARCH"
+msgstr "Paieška"
+
+msgid "IDS_MSG_OPT_RECORD_VIDEO_ABB"
+msgstr "Vaizdo įrašymas"
+
+msgid "IDS_MSG_OPT_NONE"
+msgstr "Nėra"
+
+msgid "IDS_MSG_OPT_IMAGES"
+msgstr "Vaizdai"
+
+msgid "IDS_MSG_OPT_EDIT"
+msgstr "Redaguoti"
+
+msgid "IDS_MSG_OPT_DELETE"
+msgstr "Trinti"
+
+msgid "IDS_MSG_OPT_DEFAULT"
+msgstr "Numatytoji"
+
+msgid "IDS_MSG_MBODY_SELECT_ALL"
+msgstr "Rinktis viską"
+
+msgid "IDS_MSG_MBODY_ALERTS"
+msgstr "Įspėjimai"
+
+msgid "IDS_MSG_HEADER_TRANSLATE"
+msgstr "Versti"
+
+msgid "IDS_MSG_HEADER_SETTINGS"
+msgstr "Nustatymai"
+
+msgid "IDS_MSG_HEADER_MESSAGES"
+msgstr "Žinutės"
+
+msgid "IDS_MSG_HEADER_DELETE"
+msgstr "Trinti"
+
+msgid "IDS_MSG_HEADER_ATTENTION"
+msgstr "Dėmesio"
+
+msgid "IDS_MSG_BUTTON_REMOVE_ABB"
+msgstr "Šalinti"
+
+msgid "IDS_MSG_BUTTON_OK_ABB"
+msgstr "Gerai"
+
+msgid "IDS_MSG_BUTTON_DOWNLOAD_ABB3"
+msgstr "Atsisiųsti"
+
+msgid "IDS_MSG_BUTTON_CANCEL_ABB"
+msgstr "Atšaukti"
+
+msgid "IDS_MSG_BODY_YES"
+msgstr "Taip"
+
+msgid "IDS_MSG_BODY_TICK_BOX_T_TTS"
+msgstr "Pažymėti langelį"
+
+msgid "IDS_MSG_BODY_SEC"
+msgstr "sek."
+
+msgid "IDS_MSG_BODY_MESSAGE"
+msgstr "Žinutė"
+
+msgid "IDS_MSG_BUTTON_SEND_ABB5"
+msgstr "Siųsti"
+
+msgid "IDS_MSG_BUTTON_SEND_ABB3"
+msgstr "Siųst"
+
+msgid "IDS_MSG_ACBUTTON_SEND_ABB3"
+msgstr "SIŲST"
+
+msgid "IDS_ST_BODY_LOADING_ING"
+msgstr "Įkeliama..."
+
+msgid "IDS_MSGS_BODY_NOTIFICATIONS"
+msgstr "Pranešimai"
+
+msgid "IDS_MSG_HEADER_ME"
+msgstr "Aš"
+
+msgid "IDS_MSG_BODY_UNKNOWN"
+msgstr "Nežinomas"
+
+msgid "IDS_MSG_TMBODY_ADD_OR_REMOVE_RECIPIENTS"
+msgstr "Pridėti arba šalinti gavėjus"
+
+msgid "IDS_MSG_POP_THE_SENDER_HAS_REQUESTED_A_READ_REPORT_TAP_SEND_TO_SEND_ONE"
+msgstr "Siuntėjas paprašė perskaitymo patvirtinimo. Bakstelėkite „Siųsti“ ir išsiųskite."
+
+msgid "IDS_MSGF_OPT_SEND_READ_REPORT"
+msgstr "Siųsti ataskaitą apie perskaitymą"
+
+msgid "IDS_MSG_HEADER_COMPOSE_MESSAGE_ABB"
+msgstr "Kurti žinutę"
+
+msgid "IDS_MSG_POP_NO_VALID_RECIPIENTS_HAVE_BEEN_ADDED_THIS_MESSAGE_WILL_BE_DISCARDED"
+msgstr "Nepridėta jokių tinkamų gavėjų. Ši žinutė bus panaikinta."
+

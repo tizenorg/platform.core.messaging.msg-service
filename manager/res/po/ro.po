@@ -1,0 +1,945 @@
+msgid "IDS_COM_BODY_HOME"
+msgstr "Acasă"
+
+msgid "IDS_MSGC_POP_DATA_ROAMING_IS_DISABLED_ENABLE_DATA_ROAMING_AND_TRY_AGAIN"
+msgstr "Roamingul de date este dezactivat. Activați roamingul de date și încercați din nou."
+
+msgid "IDS_MSG_ACBUTTON_CANCEL_ABB"
+msgstr "ANULARE"
+
+msgid "IDS_MSG_ACBUTTON_DONE_ABB"
+msgstr "EFECTUAT"
+
+msgid "IDS_MSGF_POP_NEW_MESSAGE"
+msgstr "Mesaj nou"
+
+msgid "IDS_COM_BUTTON_SHARE"
+msgstr "Partaj."
+
+msgid "IDS_COM_BODY_UNKNOWN"
+msgstr "Necunoscut"
+
+msgid "IDS_COM_BODY_MOBILE"
+msgstr "Mobil"
+
+msgid "IDS_MSGC_POP_MOBILE_DATA_IS_DISABLED_ENABLE_MOBILE_DATA_AND_TRY_AGAIN"
+msgstr "Datele mobile sunt dezactivate. Activați datele mobile și încercați din nou."
+
+msgid "IDS_TPLATFORM_ACBUTTON_SEND_ABB"
+msgstr "TRIMITERE"
+
+msgid "IDS_MSGC_POP_UNABLE_TO_SEND_MESSAGES_WHILE_IN_FLIGHT_MODE_DISABLE_FLIGHT_MODE_AND_TRY_AGAIN"
+msgstr "Nu se pot trimite mesaje când sunteți în modul Avion. Dezactivați modul Avion și încercați din nou."
+
+msgid "IDS_MSGC_POP_UNABLE_TO_ADD_FILE_IS_FORWARD_LOCKED"
+msgstr "Imposibil de redirecţionat. Fişierul este blocat la redirecţionare."
+
+msgid "IDS_MSGC_POP_THERE_IS_NOT_ENOUGH_SPACE_IN_YOUR_DEVICE_STORAGE_GO_TO_SETTINGS_POWER_AND_STORAGE_STORAGE_THEN_DELETE_SOME_FILES_AND_TRY_AGAIN"
+msgstr "Spațiul din memoria dispozitivului este insuficient. Deschideți meniul Setări > Energie și stocare > Stocare, apoi ștergeți câteva fișiere și încercați din nou."
+
+msgid "IDS_MSGC_POP_TEXT_AT_TOP"
+msgstr "Textul deasupra"
+
+msgid "IDS_MSGC_POP_TEXT_AT_BOTTOM"
+msgstr "Text în partea de jos"
+
+msgid "IDS_MSGC_POP_SELECT_LAYOUT"
+msgstr "Selectare aspect"
+
+msgid "IDS_MSGC_POP_MMSCANTADD"
+msgstr "Imposibil de adăugat conținut"
+
+msgid "IDS_MSGC_POP_MESSAGE_SCHEDULED_TO_BE_SENT_TO_PS_SEND_NOW_Q"
+msgstr "Mesaj programat pentru a fi trimis la %s. Trimiteți acum?"
+
+msgid "IDS_MSGC_POP_MAXIMUM_MESSAGE_SIZE_REACHED"
+msgstr "Dimensiunea maximă a mesajului a fost atinsă."
+
+msgid "IDS_MSGC_POP_DURATION_MUST_BE_AT_LEAST_PD_SECONDS"
+msgstr "Durata trebuie să fie de cel puțin %d secunde."
+
+msgid "IDS_MSGC_POP_DISABLING_FLIGHT_MODE_ING"
+msgstr "Se dezactivează modul Avion..."
+
+msgid "IDS_MSGC_POP_COPIED_TO_SIM_CARD"
+msgstr "Copiat pe cartela SIM."
+
+msgid "IDS_MSGC_OPT_USE_OTHER_CONTACT_INFO_ABB"
+msgstr "Ut. alte inf. contact"
+
+msgid "IDS_MSGC_OPT_SEND_VIA"
+msgstr "Trimitere prin"
+
+msgid "IDS_MSGC_OPT_IMAGE"
+msgstr "Imagine"
+
+msgid "IDS_MSGC_OPT_EDIT_ITEM_REPLACE"
+msgstr "Înlocuire"
+
+msgid "IDS_MSGC_OPT_CANCEL_MESSAGE"
+msgstr "Revocare mesaj"
+
+msgid "IDS_MSGC_HEADER_RECIPIENT_LIST"
+msgstr "Listă destinatari"
+
+msgid "IDS_MSGC_HEADER_DURATION_FOR_SLIDE_PD_PD"
+msgstr "Durata pentru diapozitiv %d/%d"
+
+msgid "IDS_MSGC_BODY_WAIT_WHILE_ITEMS_ARE_ADDED_TO_SLIDESHOW"
+msgstr "Așteptați adăugarea elementelor la expunerea de diapozitive."
+
+msgid "IDS_MSGC_BODY_UNABLE_TO_SEND_MESSAGE"
+msgstr "Imposibil de trimis mesajul"
+
+msgid "IDS_MSGC_BODY_SELECT_RINGTONE"
+msgstr "Selectare ton de sonerie"
+
+msgid "IDS_MSGC_BODY_READ_REPORT_WILL_BE_SENT"
+msgstr "Raportul de citire va fi trimis."
+
+msgid "IDS_MSGC_BODY_NOT_REQUESTED"
+msgstr "Nesolicitat"
+
+msgid "IDS_MSGC_BODY_MAXIMUM_NUMBER_OF_RECIPIENTS_HPD_REACHED"
+msgstr "Numărul maxim de destinatari (%d) a fost atins."
+
+msgid "IDS_MSGC_BODY_DUPLICATED_RECIPIENT"
+msgstr "Destinatar dublat"
+
+msgid "IDS_MSGF_SK_FORWARD_LITE"
+msgstr "Redir"
+
+msgid "IDS_MSGF_POP_UNABLE_TO_SAVE"
+msgstr "Eroare de salvare"
+
+msgid "IDS_MSGF_POP_UNABLE_TO_DELETE"
+msgstr "Imposibil de șters"
+
+msgid "IDS_MSGF_POP_UNABLE_TO_COPY"
+msgstr "Imposibil de copiat"
+
+msgid "IDS_MSGF_POP_SOME_CHARACTERS_MAY_BE_LOST_CONTINUE_Q"
+msgstr "Este posibil ca unele caractere să se fi pierdut.\nContinuați?"
+
+msgid "IDS_MSGF_POP_SIM_NOT_INSERTED"
+msgstr "SIM neinserat"
+
+msgid "IDS_MSGF_POP_SAVING_FAILED"
+msgstr "Salvare nereușită"
+
+msgid "IDS_MSGF_POP_SAVED_IN_MY_FILES"
+msgstr "Salvat în Fișierele mele"
+
+msgid "IDS_MSGF_POP_RETRIEVING_MESSAGE_FAILED"
+msgstr "Preluare mesaj nereuşită"
+
+msgid "IDS_MSGF_POP_RESTRICTED_CONTENT_TYPE_ATTACH_ANYWAY_Q"
+msgstr "Tip de conținut restricționat. Atașați oricum?"
+
+msgid "IDS_MSGF_POP_RESTORING_ING"
+msgstr "Restabilire"
+
+msgid "IDS_MSGF_POP_READ_REPORT"
+msgstr "Citire raport"
+
+msgid "IDS_MSGF_POP_NO_NUMBER"
+msgstr "Nici un număr"
+
+msgid "IDS_MSGF_POP_NO_ATTACHMENTS"
+msgstr "Nicio atașare"
+
+msgid "IDS_MSGF_POP_NEW_MESSAGES"
+msgstr "Mesaje noi"
+
+msgid "IDS_MSGF_POP_MESSAGE_COPIED_FROM_SIM_CARD"
+msgstr "Mesaj copiat de pe cartela SIM"
+
+msgid "IDS_MSGF_POP_MAXIMUM_NUMBER_OF_RECIPIENTS_IS_PD_SOME_RECIPIENTS_MAY_BE_LOST"
+msgstr "Numărul maxim de destinatari este %d. Este posibil ca unii destinatari să se piardă."
+
+msgid "IDS_MSGF_POP_MAXIMUM_NUMBER_OF_ATTACHMENTS_HPS_EXCEEDED"
+msgstr "S-a depășit numărul maxim de atașări (%s)."
+
+msgid "IDS_MSGF_POP_MAXIMUM_CHARACTERS"
+msgstr "Adăugare la marcaje"
+
+msgid "IDS_MSGF_POP_IN_PROGRESS_ING"
+msgstr "În curs..."
+
+msgid "IDS_MSGF_POP_INTIALISING"
+msgstr "Inițializare"
+
+msgid "IDS_MSGF_POP_IF_YOU_DONT_WANT_TO_REPLACE_THE_FILE_RENAME_IT"
+msgstr "Dacă nu doriți să înlocuiți fișierul, redenumiți-l."
+
+msgid "IDS_MSGF_POP_HELP_PAGE_MESSAGE_FOR_ONE_FILE"
+msgstr "Acest mesaj include un fișiere atașat care nu este prezentat."
+
+msgid "IDS_MSGF_POP_HELP_PAGE_MESSAGE"
+msgstr "Acest mesaj conține fișiere atașate neafișate."
+
+msgid "IDS_MSGF_POP_FILE_NAME_ALREADY_EXISTS"
+msgstr "Numele fișierului există deja."
+
+msgid "IDS_MSGF_POP_CONVERTING_TO_TEXT_MESSAGE_ING"
+msgstr "Se transformă în mesaj text..."
+
+msgid "IDS_MSGF_POP_CONVERTING_TO_MULTIMEDIA_MESSAGE_ING"
+msgstr "Se transformă în mesaj multimedia..."
+
+msgid "IDS_MSGF_POP_ABOUT_TO_GO_ONLINE_CONTINUE_Q"
+msgstr "Sunteți pe cale să vă conectați (%s). Continuați?"
+
+msgid "IDS_MSGF_OPT_TEXT_MESSAGE"
+msgstr "Mesaj text"
+
+msgid "IDS_MSGF_OPT_SENDER_ABB"
+msgstr "Expeditor"
+
+msgid "IDS_MSGF_OPT_SAVE_ATTACHMENT"
+msgstr "Salvare atașare"
+
+msgid "IDS_MSGF_OPT_INSTALL"
+msgstr "Instalare"
+
+msgid "IDS_MSGF_OPT_EDIT_MESSAGE"
+msgstr "Editare mesaj"
+
+msgid "IDS_MSGF_OPT_DELETE_MESSAGES"
+msgstr "Ștergere mesaje"
+
+msgid "IDS_MSGF_HEADER_SELECT_MESSAGES"
+msgstr "Selectare mesaje"
+
+msgid "IDS_MSGF_HEADER_SAVE_ALL"
+msgstr "Salvare totală"
+
+msgid "IDS_MSGF_HEADER_MESSAGE_DETAILS"
+msgstr "Detalii mesaj"
+
+msgid "IDS_MSGF_HEADER_EXPIRES_C_PS"
+msgstr "Expiră la: %s"
+
+msgid "IDS_MSGF_BUTTON_SAVE_ALL_ATTACHMENTS_ABB"
+msgstr "Salv. toate ataș."
+
+msgid "IDS_MSGF_BODY_TO_C"
+msgstr "Către:"
+
+msgid "IDS_MSGF_BODY_TEXT_MESSAGES"
+msgstr "Mesaje text"
+
+msgid "IDS_MSGF_BODY_SIM_MEMORY_FULL_DELETE_SOME_ITEMS"
+msgstr "Memoria cartelei SIM este plină. Ștergeți câteva elemente."
+
+msgid "IDS_MSGF_BODY_SENT_M_DATE_C"
+msgstr "Trimis:"
+
+msgid "IDS_MSGF_BODY_REQUESTED"
+msgstr "Solicitat"
+
+msgid "IDS_MSGF_BODY_RECEIVED_M_DATE_C"
+msgstr "Primit:"
+
+msgid "IDS_MSGF_BODY_READ_REPORT"
+msgstr "Citire raport"
+
+msgid "IDS_MSGF_BODY_PUSH_MESSAGES"
+msgstr "Mesaje server"
+
+msgid "IDS_MSGF_BODY_PD_MESSAGES"
+msgstr "%d mesaje"
+
+msgid "IDS_MSGF_BODY_PD_CONVERSATIONS"
+msgstr "%d conversații"
+
+msgid "IDS_MSGF_BODY_NO_NAME"
+msgstr "Niciun nume"
+
+msgid "IDS_MSGF_BODY_MULTIMEDIA_MESSAGE_NOTIFICATION"
+msgstr "Notificare privind mesajul multimedia"
+
+msgid "IDS_MSGF_BODY_MULTIMEDIA_MESSAGE"
+msgstr "Mesaj multimedia"
+
+msgid "IDS_MSGF_BODY_MMSREADREPLYMSGREAD"
+msgstr "Citire"
+
+msgid "IDS_MSGF_BODY_MMSDELIVERYMSGREJECTED"
+msgstr "Mesaj respins"
+
+msgid "IDS_MSGF_BODY_MMS"
+msgstr "MMS"
+
+msgid "IDS_MSGF_BODY_MESSAGE_SIZE"
+msgstr "Dimensiune mesaj"
+
+msgid "IDS_MSGF_BODY_MESSAGE_OPTIONS"
+msgstr "Opțiuni mesaj"
+
+msgid "IDS_MSGF_BODY_MESSAGE_DELIVERED"
+msgstr "Mesaj livrat"
+
+msgid "IDS_MSGF_BODY_MAXIMUM_NUMBER_OF_ATTACHMENTS_HP1SS_EXCEEDED_ONLY_FIRST_P2SS_WILL_BE_ADDED"
+msgstr "Numărul maxim de fișiere atașate (%1$s) a fost depășit. Vor fi adăugate numai primele %2$s."
+
+msgid "IDS_MSGF_BODY_INVALID_RECIPIENT"
+msgstr "Destinatar nevalid"
+
+msgid "IDS_MSGF_BODY_FROM"
+msgstr "De la"
+
+msgid "IDS_MSGF_BODY_FLFROM"
+msgstr "De la:"
+
+msgid "IDS_MSGF_BODY_DETAILSSENDINGFAILED"
+msgstr "Trimitere eșuată"
+
+msgid "IDS_MSGF_BODY_DELIVERY_REPORT"
+msgstr "Raport livrare"
+
+msgid "IDS_MSGF_BODY_CP_MESSAGES"
+msgstr "Mesaje CP"
+
+msgid "IDS_MSGF_BODY_COPY_TEXT"
+msgstr "Copiere text"
+
+msgid "IDS_MSGF_BODY_CB_MESSAGES"
+msgstr "Mesaje CB"
+
+msgid "IDS_MSGF_BODY_1_MESSAGE"
+msgstr "1 mesaj"
+
+msgid "IDS_MSGF_BODY_1_CONVERSATION"
+msgstr "1 conversație"
+
+msgid "IDS_MSGS_BODY_REQUEST_A_READ_REPORT_FOR_EACH_MESSAGE_YOU_SEND"
+msgstr "Solicitați un raport de citire pentru fiecare mesaj trimis."
+
+msgid "IDS_MSGS_BODY_REQUEST_A_DELIVERY_REPORT_FOR_EACH_MESSAGE_YOU_SEND"
+msgstr "Solicitați un raport de livrare pentru fiecare mesaj trimis."
+
+msgid "IDS_MSGS_BODY_RADIO_BUTTON"
+msgstr "Buton radio"
+
+msgid "IDS_MSGS_BODY_ON_OFF_BUTTON_T_TTS"
+msgstr "Buton pornit/oprit"
+
+msgid "IDS_MSGS_BODY_EXPANDABLE_LIST_T_TTS"
+msgstr "Listă extensibilă"
+
+msgid "IDS_MSGS_BODY_AUTOMATICALLY_RETRIEVE_MMS_MESSAGES"
+msgstr "Se preiau automat mesajele MMS."
+
+msgid "IDS_MSG_TPOP_UNABLE_TO_PREVIEW_FILE_UNSUPPORTED_FILE_TYPE"
+msgstr "Fișierul nu poate fi previzualizat. Tip de fișier neacceptat."
+
+msgid "IDS_MSG_TPOP_UNABLE_TO_ATTACH_FILE_FILE_FORMAT_NOT_SUPPORTED"
+msgstr "Fișierul nu poate fi atașat. Formatul de fișier nu este acceptat."
+
+msgid "IDS_MSG_TPOP_UNABLE_TO_ADD_SOME_RECIPIENTS_NUMBERS_NOT_VALID"
+msgstr "Anumiți destinatari nu pot fi adăugați. Numerele nu sunt valide."
+
+msgid "IDS_MSG_TPOP_UNABLE_TO_ADD_RECIPIENT_NUMBER_NOT_VALID"
+msgstr "Destinatarul nu poate fi adăugat. Numărul nu este valid."
+
+msgid "IDS_MSG_TPOP_UNABLE_TO_ADD_RECIPIENTS_NUMBERS_NOT_VALID"
+msgstr "Destinatarii nu pot fi adăugați. Numerele nu sunt valide."
+
+msgid "IDS_MSG_TPOP_UNABLE_TO_ADD_ATTACHMENT_MAXIMUM_NUMBER_OF_ATTACHMENTS_HPD_REACHED"
+msgstr "Atașarea nu poate fi adăugată. A fost atins numărul maxim de atașări (%d)."
+
+msgid "IDS_MSG_TPOP_THIS_NUMBER_IS_NOT_VALID"
+msgstr "Numărul nu este valabil."
+
+msgid "IDS_MSG_TPOP_SOME_RECIPIENTS_ALREADY_ADDED"
+msgstr "Anumiți destinatari au fost deja adăugați."
+
+msgid "IDS_MSG_TPOP_SELECTED_MESSAGES_COPIED_TO_MOBILE_DEVICE"
+msgstr "Mesajele selectate au fost copiate pe dispozitivul mobil."
+
+msgid "IDS_MSG_TPOP_PD_MESSAGES_MOVED_TO_MESSAGE_LIST"
+msgstr "%d mesaje au fost mutate pe lista de mesaje."
+
+msgid "IDS_MSG_TPOP_NUMBER_REMOVED_FROM_MESSAGE_BLOCK_LIST"
+msgstr "Numărul a fost eliminat de pe lista de blocare a mesajelor."
+
+msgid "IDS_MSG_TPOP_NUMBER_ADDED_TO_MESSAGE_BLOCK_LIST"
+msgstr "Numărul a fost adăugat pe lista de blocare a mesajelor."
+
+msgid "IDS_MSG_TPOP_NETWORK_NOT_AVAILABLE_MESSAGE_WILL_BE_SENT_WHEN_CONNECTED_TO_NETWORK"
+msgstr "Rețeaua nu este disponibilă. Mesajul va fi trimis când sunteți conectat la rețea."
+
+msgid "IDS_MSG_TPOP_MESSAGE_COPIED_TO_PS_SIM_CARD"
+msgstr "Mesajul a fost copiat pe cartela SIM %s."
+
+msgid "IDS_MSG_TPOP_MAXIMUM_NUMBER_OF_CHARACTERS_EXCEEDED"
+msgstr "S-a depășit numărul maxim de caractere."
+
+msgid "IDS_MSG_TPOP_MAXIMUM_MESSAGE_SIZE_HPS_EXCEEDED_RESIZING_ATTACHMENTS_ING"
+msgstr "S-a depășit dimensiunea maximă a mesajului (%s). Se redimensionează atașările..."
+
+msgid "IDS_MSG_TPOP_INVALID_CHARACTER_ENTERED"
+msgstr "Un caracter nevalid a fost introdus."
+
+msgid "IDS_MSG_TPOP_ADD_RECIPIENTS"
+msgstr "Adăugați destinatari."
+
+msgid "IDS_MSG_TPOP_1_MESSAGE_MOVED_TO_MESSAGE_LIST"
+msgstr "1 mesaj a fost mutat pe lista de mesaje."
+
+msgid "IDS_MSG_TMBODY_TEXT_MESSAGES"
+msgstr "Mesaje text"
+
+msgid "IDS_MSG_TMBODY_SOUND"
+msgstr "Sunet"
+
+msgid "IDS_MSG_TMBODY_MULTIMEDIA_MESSAGES"
+msgstr "Mesaje multimedia"
+
+msgid "IDS_MSG_TMBODY_MESSAGES_ON_SIM_CARD"
+msgstr "Mesaje de pe cartela SIM"
+
+msgid "IDS_MSG_TMBODY_INPUT_MODE"
+msgstr "Mod de introducere"
+
+msgid "IDS_MSG_TMBODY_AUTO_RETRIEVE_WHILE_ROAMING"
+msgstr "Preluare automată în roaming"
+
+msgid "IDS_MSG_TMBODY_AUTO_RETRIEVE"
+msgstr "Preluare automată"
+
+msgid "IDS_MSG_SK_SEND_NOW"
+msgstr "Tr. acum"
+
+msgid "IDS_MSG_SBODY_SELECT_AN_INPUT_MODE_FOR_COMPOSING_MESSAGES"
+msgstr "Selectați un mod de introducere pentru compunerea mesajelor."
+
+msgid "IDS_MSG_SBODY_NONE_M_STATUS"
+msgstr "Fără"
+
+msgid "IDS_MSG_SBODY_MANAGE_THE_MESSAGES_STORED_ON_YOUR_SIM_CARD"
+msgstr "Gestionați mesajele stocate pe cartela SIM."
+
+msgid "IDS_MSG_POP_UNABLE_TO_SEND_SCHEDULED_MESSAGE_SET_ANOTHER_TIME"
+msgstr "Imposibil de trimis mesajul programat. Setați o altă oră."
+
+msgid "IDS_MSG_POP_UNABLE_TO_ATTACH_FILE_FILE_SIZE_TOO_LARGE_TRY_SENDING_VIA_EMAIL_BLUETOOTH_WI_FI_ETC"
+msgstr "Fișierul nu poate fi atașat. Fișierul este prea mare. Încercați prin Email, Bluetooth, Wi-Fi etc."
+
+msgid "IDS_MSG_POP_TO_SEND_THIS_MULTIMEDIA_MESSAGE_THE_DEVICE_WILL_CONNECT_TO_A_DIFFERENT_MOBILE_NETWORK_THIS_WILL_DISCONNECT_YOUR_DEVICE_FROM_YOUR_MSG"
+msgstr "Pentru a trimite mesajul multimedia, dispozitivul se va conecta la altă rețea mobilă. Această procedură va deconecta dispozitivul de la rețeaua mobilă actuală."
+
+msgid "IDS_MSG_POP_TO_DOWNLOAD_THIS_MULTIMEDIA_MESSAGE_THE_DEVICE_WILL_CONNECT_TO_A_DIFFERENT_MOBILE_NETWORK_MSG"
+msgstr "Pentru a descărca mesajul multimedia, dispozitivul se va conecta la altă rețea mobilă. Această procedură va deconecta dispozitivul de la rețeaua mobilă actuală."
+
+msgid "IDS_MSG_POP_THIS_MESSAGE_WILL_BE_RESENT"
+msgstr "Acest mesaj va fi retrimis."
+
+msgid "IDS_MSG_POP_PD_MESSAGES_WILL_BE_DELETED"
+msgstr "%d mesaje vor fi șterse."
+
+msgid "IDS_MSG_POP_PD_CONVERSATIONS_WILL_BE_DELETED"
+msgstr "%d conversații vor fi șterse."
+
+msgid "IDS_MSG_POP_NO_TEMPLATES_IN_LIST"
+msgstr "Niciun șablon pe listă"
+
+msgid "IDS_MSG_POP_INCLUDE_ORIGINAL_TEXT_IN_OUTGOING_MESSAGE"
+msgstr "Includere text original în mesajul trimis"
+
+msgid "IDS_MSG_POP_DURATION_MUST_BE_SHORTER_THAN_PD_SECONDS"
+msgstr "Durata trebuie să fie mai mică de %d secunde."
+
+msgid "IDS_MSG_POP_1_MESSAGE_WILL_BE_DELETED"
+msgstr "1 mesaj va fi șters."
+
+msgid "IDS_MSG_POP_1_CONVERSATION_WILL_BE_DELETED"
+msgstr "1 conversație va fi ștearsă."
+
+msgid "IDS_MSG_OPT_VIEW_DETAILS_ABB"
+msgstr "Vizualizare detalii"
+
+msgid "IDS_MSG_OPT_VIEW_CONTACT_DETAILS_ABB"
+msgstr "Vizualizare detalii contact"
+
+msgid "IDS_MSG_OPT_VIEW_AS_SLIDESHOW_ABB"
+msgstr "Viz. ca exp. de diapozitive"
+
+msgid "IDS_MSG_OPT_UPDATE_CONTACT"
+msgstr "Actualizare contact"
+
+msgid "IDS_MSG_OPT_UNICODE"
+msgstr "Unicode"
+
+msgid "IDS_MSG_OPT_TAKE_PICTURE_ABB"
+msgstr "Fotografiere"
+
+msgid "IDS_MSG_OPT_SAVE_ATTACHMENTS_ABB"
+msgstr "Salvare atașări"
+
+msgid "IDS_MSG_OPT_RESEND"
+msgstr "Retrimitere"
+
+msgid "IDS_MSG_OPT_REPLY"
+msgstr "Răspuns"
+
+msgid "IDS_MSG_OPT_REMOVE_FROM_BLOCK_LIST_ABB"
+msgstr "Elim. de pe lista de blocare"
+
+msgid "IDS_MSG_OPT_RECORD_AUDIO_FILE_ABB"
+msgstr "Înregistrare fișier audio"
+
+msgid "IDS_MSG_OPT_QUICK_RESPONSE_ABB"
+msgstr "Răspuns rapid"
+
+msgid "IDS_MSG_OPT_MAKE_VOICE_CALL"
+msgstr "Efectuare apel vocal"
+
+msgid "IDS_MSG_OPT_GSM_ALPHABET_ABB"
+msgstr "Alfabet GSM"
+
+msgid "IDS_MSG_OPT_EXPORT_TO_DEVICE_MEMORY"
+msgstr "Export în memoria dispozitivului"
+
+msgid "IDS_MSG_OPT_DELETE_MESSAGE"
+msgstr "Ștergere mesaj"
+
+msgid "IDS_MSG_OPT_DELETE_CONVERSATION_ABB"
+msgstr "Ștergeți conversația"
+
+msgid "IDS_MSG_OPT_CREATE_CONTACT_ABB"
+msgstr "Creare contact"
+
+msgid "IDS_MSG_OPT_COPY_TO_SIM_CARD_ABB"
+msgstr "Copiere pe cartela SIM"
+
+msgid "IDS_MSG_OPT_COPY_TO_DEVICE_ABB"
+msgstr "Copiere pe dispozitiv"
+
+msgid "IDS_MSG_OPT_COPY_TEXT"
+msgstr "Copiere text"
+
+msgid "IDS_MSG_OPT_COPY"
+msgstr "Copiere"
+
+msgid "IDS_MSG_OPT_BACK_UP"
+msgstr "Copiere de rezervă"
+
+msgid "IDS_MSG_OPT_AUTOMATIC"
+msgstr "Automat"
+
+msgid "IDS_MSG_OPT_AUDIO_FILES_ABB2"
+msgstr "Fișiere audio"
+
+msgid "IDS_MSG_OPT_ATTACHMENT_ABB"
+msgstr "Atașare"
+
+msgid "IDS_MSG_OPT_ADD_TO_CONTACTS_ABB"
+msgstr "Adăugare la Contacte"
+
+msgid "IDS_MSG_OPT_ADD_TO_BLOCK_LIST_ABB"
+msgstr "Adăugare pe lista de blocare"
+
+msgid "IDS_MSG_OPT_ADD_RECIPIENTS_ABB"
+msgstr "Adăugare destinatari"
+
+msgid "IDS_MSG_NPBODY_SEARCH"
+msgstr "Căutare"
+
+msgid "IDS_MSG_NPBODY_NO_RESULTS_FOUND_ABB"
+msgstr "Nu au fost găsite rezultate"
+
+msgid "IDS_MSG_NPBODY_NO_QUICK_RESPONSES"
+msgstr "Niciun răspuns rapid"
+
+msgid "IDS_MSG_NPBODY_NO_PHRASES_BLOCKED"
+msgstr "Nicio expresie blocată"
+
+msgid "IDS_MSG_NPBODY_NO_MESSAGES_ON_SIM_CARD"
+msgstr "Niciun mesaj pe cartela SIM"
+
+msgid "IDS_MSG_NPBODY_NO_MESSAGES"
+msgstr "Niciun mesaj"
+
+msgid "IDS_MSG_NPBODY_NO_BLOCKED_NUMBERS"
+msgstr "Niciun număr blocat"
+
+msgid "IDS_MSG_MBODY_VIBRATION"
+msgstr "Vibrație"
+
+msgid "IDS_MSG_MBODY_UNKNOWN_NUMBER"
+msgstr "Număr necunoscut"
+
+msgid "IDS_MSG_MBODY_TEXT_MESSAGE_CENTRE_NUMBER_ABB"
+msgstr "Nr. centrului de mesaje text"
+
+msgid "IDS_MSG_HEADER_TEXT_MESSAGES_ABB"
+msgstr "Mesaje text"
+
+msgid "IDS_MSG_HEADER_SWITCH_MOBILE_NETWORK_ABB2"
+msgstr "Comutare rețea mobilă"
+
+msgid "IDS_MSG_HEADER_SMS_CENTRE_ABB2"
+msgstr "Centru SMS"
+
+msgid "IDS_MSG_HEADER_SELECT_RECIPIENT"
+msgstr "Selectare destinatar"
+
+msgid "IDS_MSG_HEADER_PD_SELECTED_ABB3"
+msgstr "%d selectate"
+
+msgid "IDS_MSG_HEADER_MESSAGES_ON_SIM_CARD_ABB"
+msgstr "Mesaje de pe cartela SIM"
+
+msgid "IDS_MSG_HEADER_INPUT_MODE_ABB"
+msgstr "Mod de introducere"
+
+msgid "IDS_MSG_HEADER_FILE_SIZE_TOO_LARGE_ABB"
+msgstr "Fișierul este prea mare"
+
+msgid "IDS_MSG_HEADER_FAILED_TO_SEND_MESSAGE_ABB"
+msgstr "Mesajul nu s-a trimis"
+
+msgid "IDS_MSG_HEADER_DISCARD_MESSAGE_M_CLOSE_ABB"
+msgstr "Renunțare la mesaj"
+
+msgid "IDS_MSG_HEADER_CREATE"
+msgstr "Creare"
+
+msgid "IDS_MSG_HEADER_ADD_CONTENT_ABB"
+msgstr "Adăugare conținut"
+
+msgid "IDS_MSG_BUTTON_SWITCH_ABB2"
+msgstr "Comutare"
+
+msgid "IDS_MSG_BUTTON_SAVE_ABB2"
+msgstr "Salvare"
+
+msgid "IDS_MSG_BUTTON_RESEND_ABB"
+msgstr "Retrimitere"
+
+msgid "IDS_MSG_BUTTON_DISCARD_ABB"
+msgstr "Renunțare"
+
+msgid "IDS_MSG_BUTTON_DELETE_ABB4"
+msgstr "Ștergere"
+
+msgid "IDS_MSG_BUTTON_CANCEL_ABB2"
+msgstr "Anulare"
+
+msgid "IDS_MSG_BUTTON2_CONTACTS_ABB_M_APPLICATION_NAME"
+msgstr "Contacte"
+
+msgid "IDS_MSG_BODY_YOU_HAVE_SELECTED_A_SOUND_N_SHOT_FILE_SOUND_DATA_IS_NOT_SUPPORTED_FOR_MMS_SO_ONLY_THE_PICTURE_WILL_BE_ATTACHED"
+msgstr "Ați selectat un fișier sunet și foto. Datele audio nu sunt acceptate pentru MMS, deci va fi atașată doar fotografia."
+
+msgid "IDS_MSG_BODY_WAITING_TO_SEND_ING_M_STATUS"
+msgstr "Se așteaptă trimiterea..."
+
+msgid "IDS_MSG_BODY_UNABLE_TO_SEND_THIS_MESSAGE_INSERT_YOUR_SIM_CARD_AND_TRY_AGAIN"
+msgstr "Mesajul nu poate fi trimis. Introduceți cartela SIM și încercați din nou."
+
+msgid "IDS_MSG_BODY_TYPE_C"
+msgstr "Tip:"
+
+msgid "IDS_MSG_BODY_TO_USE_RESTRICTED_MEDIA_TYPES_CHANGE_YOUR_MMS_CREATION_MODE_SETTING"
+msgstr "Pentru a utiliza tipuri media restricționate, schimbați setarea pentru modul de creare a mesajelor MMS."
+
+msgid "IDS_MSG_BODY_TIME_SENT_C"
+msgstr "Trimis la:"
+
+msgid "IDS_MSG_BODY_TIME_RECEIVED_C"
+msgstr "Primit la:"
+
+msgid "IDS_MSG_BODY_STATUS_C"
+msgstr "Status:"
+
+msgid "IDS_MSG_BODY_SENT_M_STATUS"
+msgstr "Trimis"
+
+msgid "IDS_MSG_BODY_SENDING_ING_M_STATUS_ABB"
+msgstr "Se trim..."
+
+msgid "IDS_MSG_BODY_SENDING_FAILED_M_STATUS"
+msgstr "Trimiterea nu a reușit"
+
+msgid "IDS_MSG_BODY_RETRIEVE_MESSAGES_AUTOMATICALLY_WHILE_ROAMING"
+msgstr "Preluați automat mesajele în timp ce sunteți în roaming."
+
+msgid "IDS_MSG_BODY_RETRIEVE_MESSAGES_AUTOMATICALLY"
+msgstr "Preluați automat mesajele."
+
+msgid "IDS_MSG_BODY_READ_REPORT_C_PS"
+msgstr "Raport de citire: %s"
+
+msgid "IDS_MSG_BODY_OTHER_PERSON"
+msgstr "Altă persoană"
+
+msgid "IDS_MSG_BODY_MEMO_T_MAINMENU"
+msgstr "Notă"
+
+msgid "IDS_MSG_BODY_FAILED_M_STATUS_ABB2"
+msgstr "Nereușit"
+
+msgid "IDS_MSG_BODY_ENTER_TEXT_M_NOUN"
+msgstr "Introducere text"
+
+msgid "IDS_MSG_BODY_DRAFT_M_STATUS_ABB"
+msgstr "Schiță"
+
+msgid "IDS_MSG_BODY_DELIVERY_REPORT_C_PS"
+msgstr "Raport de livrare: %s"
+
+msgid "IDS_MSG_BODY_CB_MESSAGE"
+msgstr "Mesaj CB"
+
+msgid "IDS_MSG_BODY_CALENDAR_M_APPLICATION_NAME_ABB"
+msgstr "Calendar"
+
+msgid "IDS_MSG_BODY_AFTER_YOU_SEND_OR_RECEIVE_MESSAGES_THEY_WILL_BE_SHOWN_HERE"
+msgstr "După ce trimiteți sau primiți mesaje, acestea vor fi afișate aici."
+
+msgid "IDS_MSG_BODY_AFTER_YOU_CREATE_QUICK_RESPONSES_THEY_WILL_BE_SHOWN_HERE"
+msgstr "După ce creați răspunsuri rapide, acestea vor fi afișate aici."
+
+msgid "IDS_MSG_BODY_AFTER_YOU_COPY_MESSAGES_TO_THE_SIM_CARD_THEY_WILL_BE_SHOWN_HERE"
+msgstr "După ce copiați mesaje pe cartela SIM, acestea vor fi afișate aici."
+
+msgid "IDS_MSG_BODY_AFTER_YOU_ADD_PHRASES_THEY_WILL_BE_SHOWN_HERE"
+msgstr "După ce adăugați expresii, acestea vor fi afișate aici."
+
+msgid "IDS_MSG_BODY_AFTER_YOU_ADD_NUMBERS_TO_THE_MESSAGE_BLOCK_LIST_THEY_WILL_BE_SHOWN_HERE"
+msgstr "După ce adăugați numere pe lista de blocare a mesajelor, acestea vor fi afișate aici."
+
+msgid "IDS_MSG_ACBUTTON_DELETE_ABB"
+msgstr "ȘTERGERE"
+
+msgid "IDS_MSGC_POP_UNSUPPORTED_MEDIA_TYPE"
+msgstr "Tip suport neacceptat"
+
+msgid "IDS_MSGC_POP_LOW_BATTERY"
+msgstr "Baterie descărcată"
+
+msgid "IDS_MSGC_POP_CANCELLED"
+msgstr "Anulat"
+
+msgid "IDS_MSGC_OPT_EMAIL"
+msgstr "Email"
+
+msgid "IDS_MSGC_OPT_EDITITEM_VIEW"
+msgstr "Vizualizare"
+
+msgid "IDS_MSGC_OPT_EDITITEM_REMOVE"
+msgstr "Eliminare"
+
+msgid "IDS_MSGC_OPT_EDITITEM_PLAY"
+msgstr "Redare"
+
+msgid "IDS_MSGC_OPT_CHANGE_RECIPIENTS_TO"
+msgstr "Către"
+
+msgid "IDS_MSGC_HEADER_PREVIEW"
+msgstr "Previzualizare"
+
+msgid "IDS_MSGC_BODY_ENTER_SUBJECT"
+msgstr "Introduceți subiectul."
+
+msgid "IDS_MSGF_POP_UNABLE_TO_FIND_LOCATION"
+msgstr "Imposibil de găsit locația"
+
+msgid "IDS_MSGF_POP_REJECTED"
+msgstr "Respins"
+
+msgid "IDS_MSGF_POP_DELETING"
+msgstr "Se șterge..."
+
+msgid "IDS_MSGF_POP_COPIED_TO_CLIPBOARD"
+msgstr "Copiat în clipboard"
+
+msgid "IDS_MSGF_POP_BLOCK_PS_Q"
+msgstr "Se blochează %s?"
+
+msgid "IDS_MSGF_OPT_SUBJECT_COLON"
+msgstr "Subiect:"
+
+msgid "IDS_MSGF_OPT_SENDER_VIA_EMAIL"
+msgstr "Către expeditor prin email"
+
+msgid "IDS_MSGF_OPT_SELECT"
+msgstr "Selectare"
+
+msgid "IDS_MSGF_OPT_SAVE"
+msgstr "Salvare"
+
+msgid "IDS_MSGF_OPT_REMOVE"
+msgstr "Eliminare"
+
+msgid "IDS_MSGF_OPT_FORWARD"
+msgstr "Transfer"
+
+msgid "IDS_MSGF_OPT_DELETE_Q"
+msgstr "Ștergeți?"
+
+msgid "IDS_MSGF_HEADER_ADVANCED_SEARCH"
+msgstr "Căutare avansată"
+
+msgid "IDS_MSGF_BODY_UNKNOWN"
+msgstr "Necunoscut"
+
+msgid "IDS_MSGF_BODY_SETTINGS"
+msgstr "Setări"
+
+msgid "IDS_MSGF_BODY_RECIPIENTS"
+msgstr "Destinatari"
+
+msgid "IDS_MSGF_BODY_RECEIVED"
+msgstr "Primit"
+
+msgid "IDS_MSGF_BODY_OTHER"
+msgstr "Alte"
+
+msgid "IDS_MSGF_BODY_NO_SUBJECT"
+msgstr "Niciun subiect"
+
+msgid "IDS_MSGF_BODY_MSGSIZE_KB"
+msgstr "KO"
+
+msgid "IDS_MSGF_BODY_MESSAGE"
+msgstr "Mesaj"
+
+msgid "IDS_MSGF_BODY_ME"
+msgstr "Eu"
+
+msgid "IDS_MSGF_BODY_EXPIRED"
+msgstr "Expirat"
+
+msgid "IDS_MSGF_BODY_ALL"
+msgstr "Toate"
+
+msgid "IDS_MSG_SK_NO_ABB"
+msgstr "Nu"
+
+msgid "IDS_MSG_POP_YOUR_MESSAGE_WILL_BE_DISCARDED_NO_RECIPIENTS_HAVE_BEEN_SELECTED"
+msgstr "Mesajul va fi eliminat. Nu au fost selectați destinatari."
+
+msgid "IDS_MSG_POP_UNABLE_TO_PLAY_DURING_CALL"
+msgstr "Imposibil de redat în timpul unui apel"
+
+msgid "IDS_MSG_POP_INCOMING_MESSAGES_ONLY"
+msgstr "Numai pentru mesajele primite"
+
+msgid "IDS_MSG_POP_DELETED"
+msgstr "Șters"
+
+msgid "IDS_MSG_OPT_VIDEOS"
+msgstr "Videoclipuri"
+
+msgid "IDS_MSG_OPT_TEXT"
+msgstr "Text"
+
+msgid "IDS_MSG_OPT_SETTINGS"
+msgstr "Setări"
+
+msgid "IDS_MSG_OPT_SEARCH"
+msgstr "Căutare"
+
+msgid "IDS_MSG_OPT_RECORD_VIDEO_ABB"
+msgstr "Înregistrare videoclip"
+
+msgid "IDS_MSG_OPT_NONE"
+msgstr "Niciuna"
+
+msgid "IDS_MSG_OPT_IMAGES"
+msgstr "Imagini"
+
+msgid "IDS_MSG_OPT_EDIT"
+msgstr "Editare"
+
+msgid "IDS_MSG_OPT_DELETE"
+msgstr "Ștergere"
+
+msgid "IDS_MSG_OPT_DEFAULT"
+msgstr "Implicit"
+
+msgid "IDS_MSG_MBODY_SELECT_ALL"
+msgstr "Select. totală"
+
+msgid "IDS_MSG_MBODY_ALERTS"
+msgstr "Alerte"
+
+msgid "IDS_MSG_HEADER_TRANSLATE"
+msgstr "Traducere"
+
+msgid "IDS_MSG_HEADER_SETTINGS"
+msgstr "Setări"
+
+msgid "IDS_MSG_HEADER_MESSAGES"
+msgstr "Mesaje"
+
+msgid "IDS_MSG_HEADER_DELETE"
+msgstr "Ștergeți"
+
+msgid "IDS_MSG_HEADER_ATTENTION"
+msgstr "Atenție"
+
+msgid "IDS_MSG_BUTTON_REMOVE_ABB"
+msgstr "Eliminare"
+
+msgid "IDS_MSG_BUTTON_OK_ABB"
+msgstr "OK"
+
+msgid "IDS_MSG_BUTTON_DOWNLOAD_ABB3"
+msgstr "Descărc."
+
+msgid "IDS_MSG_BUTTON_CANCEL_ABB"
+msgstr "Anulare"
+
+msgid "IDS_MSG_BODY_YES"
+msgstr "Da"
+
+msgid "IDS_MSG_BODY_TICK_BOX_T_TTS"
+msgstr "Casetă de bifare"
+
+msgid "IDS_MSG_BODY_SEC"
+msgstr "sec"
+
+msgid "IDS_MSG_BODY_MESSAGE"
+msgstr "Mesaj"
+
+msgid "IDS_MSG_BUTTON_SEND_ABB5"
+msgstr "Trim."
+
+msgid "IDS_MSG_BUTTON_SEND_ABB3"
+msgstr "Trim."
+
+msgid "IDS_MSG_ACBUTTON_SEND_ABB3"
+msgstr "TRIM."
+
+msgid "IDS_ST_BODY_LOADING_ING"
+msgstr "Încărcare..."
+
+msgid "IDS_MSGS_BODY_NOTIFICATIONS"
+msgstr "Notificări"
+
+msgid "IDS_MSG_HEADER_ME"
+msgstr "Eu"
+
+msgid "IDS_MSG_BODY_UNKNOWN"
+msgstr "Necunoscut"
+
+msgid "IDS_MSG_TMBODY_ADD_OR_REMOVE_RECIPIENTS"
+msgstr "Ad. sau eliminare destinatari"
+
+msgid "IDS_MSG_POP_THE_SENDER_HAS_REQUESTED_A_READ_REPORT_TAP_SEND_TO_SEND_ONE"
+msgstr "Expeditorul a solicitat o confirmare de citire. Atingeți Trimitere pentru a o trimite."
+
+msgid "IDS_MSGF_OPT_SEND_READ_REPORT"
+msgstr "Trimitere raport citire"
+
+msgid "IDS_MSG_HEADER_COMPOSE_MESSAGE_ABB"
+msgstr "Compunere mesaj"
+
+msgid "IDS_MSG_POP_NO_VALID_RECIPIENTS_HAVE_BEEN_ADDED_THIS_MESSAGE_WILL_BE_DISCARDED"
+msgstr "Nu au fost adăugați destinatari valabili. Mesajul va fi eliminat."
+

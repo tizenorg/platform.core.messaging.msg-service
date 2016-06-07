@@ -1,0 +1,945 @@
+msgid "IDS_COM_BODY_HOME"
+msgstr "집"
+
+msgid "IDS_MSGC_POP_DATA_ROAMING_IS_DISABLED_ENABLE_DATA_ROAMING_AND_TRY_AGAIN"
+msgstr "[데이터 로밍]이 해제된 상태입니다. [데이터 로밍]을 실행한 후 다시 시도하세요."
+
+msgid "IDS_MSG_ACBUTTON_CANCEL_ABB"
+msgstr "취소"
+
+msgid "IDS_MSG_ACBUTTON_DONE_ABB"
+msgstr "완료"
+
+msgid "IDS_MSGF_POP_NEW_MESSAGE"
+msgstr "새 메시지"
+
+msgid "IDS_COM_BUTTON_SHARE"
+msgstr "공유"
+
+msgid "IDS_COM_BODY_UNKNOWN"
+msgstr "알 수 없음"
+
+msgid "IDS_COM_BODY_MOBILE"
+msgstr "휴대전화"
+
+msgid "IDS_MSGC_POP_MOBILE_DATA_IS_DISABLED_ENABLE_MOBILE_DATA_AND_TRY_AGAIN"
+msgstr "[모바일 데이터]가 해제된 상태입니다. [모바일 데이터]를 실행한 후 다시 시도하세요."
+
+msgid "IDS_TPLATFORM_ACBUTTON_SEND_ABB"
+msgstr "보내기"
+
+msgid "IDS_MSGC_POP_UNABLE_TO_SEND_MESSAGES_WHILE_IN_FLIGHT_MODE_DISABLE_FLIGHT_MODE_AND_TRY_AGAIN"
+msgstr "비행기 탑승 모드 실행 중에는 메시지를 보낼 수 없습니다. 비행기 탑승 모드를 해제한 후 다시 시도하세요."
+
+msgid "IDS_MSGC_POP_UNABLE_TO_ADD_FILE_IS_FORWARD_LOCKED"
+msgstr "전달할 수 없습니다.\n전달 잠금이 설정된 상태입니다."
+
+msgid "IDS_MSGC_POP_THERE_IS_NOT_ENOUGH_SPACE_IN_YOUR_DEVICE_STORAGE_GO_TO_SETTINGS_POWER_AND_STORAGE_STORAGE_THEN_DELETE_SOME_FILES_AND_TRY_AGAIN"
+msgstr "디바이스에 저장공간이 부족합니다. [설정 > 전원 및 저장공간 > 저장공간]에서 일부 파일을 삭제한 후 다시 시도하세요."
+
+msgid "IDS_MSGC_POP_TEXT_AT_TOP"
+msgstr "글자를 맨 위로"
+
+msgid "IDS_MSGC_POP_TEXT_AT_BOTTOM"
+msgstr "글자를 맨 아래로"
+
+msgid "IDS_MSGC_POP_SELECT_LAYOUT"
+msgstr "레이아웃 선택"
+
+msgid "IDS_MSGC_POP_MMSCANTADD"
+msgstr "첨부할 수 없습니다."
+
+msgid "IDS_MSGC_POP_MESSAGE_SCHEDULED_TO_BE_SENT_TO_PS_SEND_NOW_Q"
+msgstr "메시지를 %s에 보내도록 예약된 상태입니다. 지금 보낼까요?"
+
+msgid "IDS_MSGC_POP_MAXIMUM_MESSAGE_SIZE_REACHED"
+msgstr "최대 메시지 크기에 도달하였습니다."
+
+msgid "IDS_MSGC_POP_DURATION_MUST_BE_AT_LEAST_PD_SECONDS"
+msgstr "재생 시간은 최소 %d초 이상이어야 합니다."
+
+msgid "IDS_MSGC_POP_DISABLING_FLIGHT_MODE_ING"
+msgstr "비행기 탑승 모드 해제 중..."
+
+msgid "IDS_MSGC_POP_COPIED_TO_SIM_CARD"
+msgstr "SIM 카드에 복사하였습니다."
+
+msgid "IDS_MSGC_OPT_USE_OTHER_CONTACT_INFO_ABB"
+msgstr "다른 연락처 정보 사용"
+
+msgid "IDS_MSGC_OPT_SEND_VIA"
+msgstr "전송"
+
+msgid "IDS_MSGC_OPT_IMAGE"
+msgstr "이미지"
+
+msgid "IDS_MSGC_OPT_EDIT_ITEM_REPLACE"
+msgstr "대체"
+
+msgid "IDS_MSGC_OPT_CANCEL_MESSAGE"
+msgstr "메시지 취소"
+
+msgid "IDS_MSGC_HEADER_RECIPIENT_LIST"
+msgstr "받는 사람 목록"
+
+msgid "IDS_MSGC_HEADER_DURATION_FOR_SLIDE_PD_PD"
+msgstr "슬라이드 재생 시간 %d/%d"
+
+msgid "IDS_MSGC_BODY_WAIT_WHILE_ITEMS_ARE_ADDED_TO_SLIDESHOW"
+msgstr "파일이 슬라이드쇼에 추가되는 동안 기다려 주세요."
+
+msgid "IDS_MSGC_BODY_UNABLE_TO_SEND_MESSAGE"
+msgstr "메시지를 보낼 수 없습니다."
+
+msgid "IDS_MSGC_BODY_SELECT_RINGTONE"
+msgstr "벨소리 선택"
+
+msgid "IDS_MSGC_BODY_READ_REPORT_WILL_BE_SENT"
+msgstr "받는 사람이 메시지를 읽었는지 알려줍니다."
+
+msgid "IDS_MSGC_BODY_NOT_REQUESTED"
+msgstr "요청되지 않음"
+
+msgid "IDS_MSGC_BODY_MAXIMUM_NUMBER_OF_RECIPIENTS_HPD_REACHED"
+msgstr "최대 받는 사람 수 %d명에 도달하였습니다."
+
+msgid "IDS_MSGC_BODY_DUPLICATED_RECIPIENT"
+msgstr "받는 사람이 중복됩니다."
+
+msgid "IDS_MSGF_SK_FORWARD_LITE"
+msgstr "전달"
+
+msgid "IDS_MSGF_POP_UNABLE_TO_SAVE"
+msgstr "저장할 수 없습니다."
+
+msgid "IDS_MSGF_POP_UNABLE_TO_DELETE"
+msgstr "삭제할 수 없습니다."
+
+msgid "IDS_MSGF_POP_UNABLE_TO_COPY"
+msgstr "복사할 수 없습니다."
+
+msgid "IDS_MSGF_POP_SOME_CHARACTERS_MAY_BE_LOST_CONTINUE_Q"
+msgstr "일부 글자가 지워질 수 있습니다. 계속할까요?"
+
+msgid "IDS_MSGF_POP_SIM_NOT_INSERTED"
+msgstr "삽입된 SIM 카드가 없습니다."
+
+msgid "IDS_MSGF_POP_SAVING_FAILED"
+msgstr "저장하지 못하였습니다."
+
+msgid "IDS_MSGF_POP_SAVED_IN_MY_FILES"
+msgstr "[내 파일]에 저장하였습니다."
+
+msgid "IDS_MSGF_POP_RETRIEVING_MESSAGE_FAILED"
+msgstr "Retrieving message failed"
+
+msgid "IDS_MSGF_POP_RESTRICTED_CONTENT_TYPE_ATTACH_ANYWAY_Q"
+msgstr "제한된 컨텐츠 유형입니다. 그래도 첨부할까요?"
+
+msgid "IDS_MSGF_POP_RESTORING_ING"
+msgstr "복구 중..."
+
+msgid "IDS_MSGF_POP_READ_REPORT"
+msgstr "읽음 확인"
+
+msgid "IDS_MSGF_POP_NO_NUMBER"
+msgstr "전화번호가 없습니다"
+
+msgid "IDS_MSGF_POP_NO_ATTACHMENTS"
+msgstr "첨부파일 없음"
+
+msgid "IDS_MSGF_POP_NEW_MESSAGES"
+msgstr "새 메시지"
+
+msgid "IDS_MSGF_POP_MESSAGE_COPIED_FROM_SIM_CARD"
+msgstr "SIM 카드에서 메시지를 복사하였습니다."
+
+msgid "IDS_MSGF_POP_MAXIMUM_NUMBER_OF_RECIPIENTS_IS_PD_SOME_RECIPIENTS_MAY_BE_LOST"
+msgstr "최대 받는 사람 수는 %d명입니다. 그 이상을 추가하면 받는 사람 중 일부가 누락될 수 있습니다."
+
+msgid "IDS_MSGF_POP_MAXIMUM_NUMBER_OF_ATTACHMENTS_HPS_EXCEEDED"
+msgstr "최대 첨부파일 수(%s)를 초과하였습니다."
+
+msgid "IDS_MSGF_POP_MAXIMUM_CHARACTERS"
+msgstr "최대 글자 수에 도달하였습니다."
+
+msgid "IDS_MSGF_POP_IN_PROGRESS_ING"
+msgstr "진행 중..."
+
+msgid "IDS_MSGF_POP_INTIALISING"
+msgstr "초기화 중..."
+
+msgid "IDS_MSGF_POP_IF_YOU_DONT_WANT_TO_REPLACE_THE_FILE_RENAME_IT"
+msgstr "파일 대체를 원하지 않으면 이름을 변경하세요."
+
+msgid "IDS_MSGF_POP_HELP_PAGE_MESSAGE_FOR_ONE_FILE"
+msgstr "메시지에 숨겨진 첨부파일이 포함되어 있습니다."
+
+msgid "IDS_MSGF_POP_HELP_PAGE_MESSAGE"
+msgstr "메시지에 숨겨진 첨부파일이 포함되어 있습니다."
+
+msgid "IDS_MSGF_POP_FILE_NAME_ALREADY_EXISTS"
+msgstr "동일한 파일이 있습니다."
+
+msgid "IDS_MSGF_POP_CONVERTING_TO_TEXT_MESSAGE_ING"
+msgstr "문자 메시지로 전환 중..."
+
+msgid "IDS_MSGF_POP_CONVERTING_TO_MULTIMEDIA_MESSAGE_ING"
+msgstr "멀티미디어 메시지로 전환 중..."
+
+msgid "IDS_MSGF_POP_ABOUT_TO_GO_ONLINE_CONTINUE_Q"
+msgstr "%s에 접속합니다. 계속할까요?"
+
+msgid "IDS_MSGF_OPT_TEXT_MESSAGE"
+msgstr "문자 메시지"
+
+msgid "IDS_MSGF_OPT_SENDER_ABB"
+msgstr "보낸 사람"
+
+msgid "IDS_MSGF_OPT_SAVE_ATTACHMENT"
+msgstr "첨부파일 저장"
+
+msgid "IDS_MSGF_OPT_INSTALL"
+msgstr "설치"
+
+msgid "IDS_MSGF_OPT_EDIT_MESSAGE"
+msgstr "메시지 편집"
+
+msgid "IDS_MSGF_OPT_DELETE_MESSAGES"
+msgstr "메시지 삭제"
+
+msgid "IDS_MSGF_HEADER_SELECT_MESSAGES"
+msgstr "메시지 선택"
+
+msgid "IDS_MSGF_HEADER_SAVE_ALL"
+msgstr "모두 저장"
+
+msgid "IDS_MSGF_HEADER_MESSAGE_DETAILS"
+msgstr "메시지 상세정보"
+
+msgid "IDS_MSGF_HEADER_EXPIRES_C_PS"
+msgstr "만료: %s"
+
+msgid "IDS_MSGF_BUTTON_SAVE_ALL_ATTACHMENTS_ABB"
+msgstr "첨부파일 모두 저장"
+
+msgid "IDS_MSGF_BODY_TO_C"
+msgstr "받은 사람:"
+
+msgid "IDS_MSGF_BODY_TEXT_MESSAGES"
+msgstr "문자 메시지"
+
+msgid "IDS_MSGF_BODY_SIM_MEMORY_FULL_DELETE_SOME_ITEMS"
+msgstr "SIM 카드 저장공간을 모두 사용 중입니다. 일부 항목을 삭제하세요."
+
+msgid "IDS_MSGF_BODY_SENT_M_DATE_C"
+msgstr "발신:"
+
+msgid "IDS_MSGF_BODY_REQUESTED"
+msgstr "요청하였습니다."
+
+msgid "IDS_MSGF_BODY_RECEIVED_M_DATE_C"
+msgstr "수신:"
+
+msgid "IDS_MSGF_BODY_READ_REPORT"
+msgstr "읽음 확인"
+
+msgid "IDS_MSGF_BODY_PUSH_MESSAGES"
+msgstr "푸시 메시지"
+
+msgid "IDS_MSGF_BODY_PD_MESSAGES"
+msgstr "메시지 %d개"
+
+msgid "IDS_MSGF_BODY_PD_CONVERSATIONS"
+msgstr "대화 %d개"
+
+msgid "IDS_MSGF_BODY_NO_NAME"
+msgstr "이름이 없습니다"
+
+msgid "IDS_MSGF_BODY_MULTIMEDIA_MESSAGE_NOTIFICATION"
+msgstr "MMS 알림"
+
+msgid "IDS_MSGF_BODY_MULTIMEDIA_MESSAGE"
+msgstr "멀티미디어 메시지"
+
+msgid "IDS_MSGF_BODY_MMSREADREPLYMSGREAD"
+msgstr "읽기"
+
+msgid "IDS_MSGF_BODY_MMSDELIVERYMSGREJECTED"
+msgstr "메시지를 거절하였습니다."
+
+msgid "IDS_MSGF_BODY_MMS"
+msgstr "MMS"
+
+msgid "IDS_MSGF_BODY_MESSAGE_SIZE"
+msgstr "메시지 크기"
+
+msgid "IDS_MSGF_BODY_MESSAGE_OPTIONS"
+msgstr "메시지 옵션"
+
+msgid "IDS_MSGF_BODY_MESSAGE_DELIVERED"
+msgstr "Message delivered."
+
+msgid "IDS_MSGF_BODY_MAXIMUM_NUMBER_OF_ATTACHMENTS_HP1SS_EXCEEDED_ONLY_FIRST_P2SS_WILL_BE_ADDED"
+msgstr "최대 첨부파일 수(%1$s)를 초과하였습니다. 먼저 선택한 %2$s개만 첨부됩니다."
+
+msgid "IDS_MSGF_BODY_INVALID_RECIPIENT"
+msgstr "받는 사람이 바르지 않습니다."
+
+msgid "IDS_MSGF_BODY_FROM"
+msgstr "보낸 사람"
+
+msgid "IDS_MSGF_BODY_FLFROM"
+msgstr "발신:"
+
+msgid "IDS_MSGF_BODY_DETAILSSENDINGFAILED"
+msgstr "보내지 못하였습니다."
+
+msgid "IDS_MSGF_BODY_DELIVERY_REPORT"
+msgstr "받음 확인"
+
+msgid "IDS_MSGF_BODY_CP_MESSAGES"
+msgstr "CP 메시지"
+
+msgid "IDS_MSGF_BODY_COPY_TEXT"
+msgstr "글자 복사"
+
+msgid "IDS_MSGF_BODY_CB_MESSAGES"
+msgstr "방송 메시지"
+
+msgid "IDS_MSGF_BODY_1_MESSAGE"
+msgstr "메시지 1개"
+
+msgid "IDS_MSGF_BODY_1_CONVERSATION"
+msgstr "대화 1개"
+
+msgid "IDS_MSGS_BODY_REQUEST_A_READ_REPORT_FOR_EACH_MESSAGE_YOU_SEND"
+msgstr "모든 보낸 메시지에 대해 읽음 확인을 요청합니다."
+
+msgid "IDS_MSGS_BODY_REQUEST_A_DELIVERY_REPORT_FOR_EACH_MESSAGE_YOU_SEND"
+msgstr "모든 보낸 메시지에 대해 받음 확인을 요청합니다."
+
+msgid "IDS_MSGS_BODY_RADIO_BUTTON"
+msgstr "라디오 버튼"
+
+msgid "IDS_MSGS_BODY_ON_OFF_BUTTON_T_TTS"
+msgstr "사용 및 해제 버튼입니다."
+
+msgid "IDS_MSGS_BODY_EXPANDABLE_LIST_T_TTS"
+msgstr "확장할 수 있는 목록입니다."
+
+msgid "IDS_MSGS_BODY_AUTOMATICALLY_RETRIEVE_MMS_MESSAGES"
+msgstr "자동으로 MMS 메시지를 가져옵니다."
+
+msgid "IDS_MSG_TPOP_UNABLE_TO_PREVIEW_FILE_UNSUPPORTED_FILE_TYPE"
+msgstr "파일을 미리 볼 수 없습니다. 지원되지 않는 파일 형식입니다."
+
+msgid "IDS_MSG_TPOP_UNABLE_TO_ATTACH_FILE_FILE_FORMAT_NOT_SUPPORTED"
+msgstr "지원되지 않는 파일 형식이어서 첨부할 수 없습니다."
+
+msgid "IDS_MSG_TPOP_UNABLE_TO_ADD_SOME_RECIPIENTS_NUMBERS_NOT_VALID"
+msgstr "번호가 바르지 않아 일부 받는 사람을 추가할 수 없습니다."
+
+msgid "IDS_MSG_TPOP_UNABLE_TO_ADD_RECIPIENT_NUMBER_NOT_VALID"
+msgstr "번호가 바르지 않아 받는 사람을 추가할 수 없습니다."
+
+msgid "IDS_MSG_TPOP_UNABLE_TO_ADD_RECIPIENTS_NUMBERS_NOT_VALID"
+msgstr "번호가 바르지 않아 받는 사람을 추가할 수 없습니다."
+
+msgid "IDS_MSG_TPOP_UNABLE_TO_ADD_ATTACHMENT_MAXIMUM_NUMBER_OF_ATTACHMENTS_HPD_REACHED"
+msgstr "최대 첨부파일 수(%d)에 도달하여 추가할 수 없습니다."
+
+msgid "IDS_MSG_TPOP_THIS_NUMBER_IS_NOT_VALID"
+msgstr "번호가 바르지 않습니다."
+
+msgid "IDS_MSG_TPOP_SOME_RECIPIENTS_ALREADY_ADDED"
+msgstr "받는 사람 중 일부는 이미 추가된 상태입니다."
+
+msgid "IDS_MSG_TPOP_SELECTED_MESSAGES_COPIED_TO_MOBILE_DEVICE"
+msgstr "선택한 메시지를 모바일 디바이스에 복사하였습니다."
+
+msgid "IDS_MSG_TPOP_PD_MESSAGES_MOVED_TO_MESSAGE_LIST"
+msgstr "메시지 %d개를 메시지 목록으로 이동하였습니다."
+
+msgid "IDS_MSG_TPOP_NUMBER_REMOVED_FROM_MESSAGE_BLOCK_LIST"
+msgstr "메시지 차단 목록에서 번호를 삭제하였습니다."
+
+msgid "IDS_MSG_TPOP_NUMBER_ADDED_TO_MESSAGE_BLOCK_LIST"
+msgstr "메시지 차단 목록에 번호를 추가하였습니다."
+
+msgid "IDS_MSG_TPOP_NETWORK_NOT_AVAILABLE_MESSAGE_WILL_BE_SENT_WHEN_CONNECTED_TO_NETWORK"
+msgstr "네트워크를 사용할 수 없습니다. 네트워크에 연결되면 메시지를 보냅니다."
+
+msgid "IDS_MSG_TPOP_MESSAGE_COPIED_TO_PS_SIM_CARD"
+msgstr "메시지를 %s SIM 카드로 복사하였습니다."
+
+msgid "IDS_MSG_TPOP_MAXIMUM_NUMBER_OF_CHARACTERS_EXCEEDED"
+msgstr "최대 글자 수를 초과하였습니다."
+
+msgid "IDS_MSG_TPOP_MAXIMUM_MESSAGE_SIZE_HPS_EXCEEDED_RESIZING_ATTACHMENTS_ING"
+msgstr "최대 메시지 크기(%s)를 초과하였습니다. 첨부파일 크기 조절 중..."
+
+msgid "IDS_MSG_TPOP_INVALID_CHARACTER_ENTERED"
+msgstr "입력한 글자가 바르지 않습니다."
+
+msgid "IDS_MSG_TPOP_ADD_RECIPIENTS"
+msgstr "받는 사람을 추가하세요."
+
+msgid "IDS_MSG_TPOP_1_MESSAGE_MOVED_TO_MESSAGE_LIST"
+msgstr "메시지 1개를 메시지 목록으로 이동하였습니다."
+
+msgid "IDS_MSG_TMBODY_TEXT_MESSAGES"
+msgstr "문자 메시지"
+
+msgid "IDS_MSG_TMBODY_SOUND"
+msgstr "소리"
+
+msgid "IDS_MSG_TMBODY_MULTIMEDIA_MESSAGES"
+msgstr "멀티미디어 메시지"
+
+msgid "IDS_MSG_TMBODY_MESSAGES_ON_SIM_CARD"
+msgstr "SIM 카드 메시지"
+
+msgid "IDS_MSG_TMBODY_INPUT_MODE"
+msgstr "입력 모드"
+
+msgid "IDS_MSG_TMBODY_AUTO_RETRIEVE_WHILE_ROAMING"
+msgstr "로밍 중 자동으로 가져오기"
+
+msgid "IDS_MSG_TMBODY_AUTO_RETRIEVE"
+msgstr "자동으로 내용 보여주기"
+
+msgid "IDS_MSG_SK_SEND_NOW"
+msgstr "지금 보내기"
+
+msgid "IDS_MSG_SBODY_SELECT_AN_INPUT_MODE_FOR_COMPOSING_MESSAGES"
+msgstr "메시지를 작성할 때 사용할 입력 모드를 선택합니다."
+
+msgid "IDS_MSG_SBODY_NONE_M_STATUS"
+msgstr "설정 안 함"
+
+msgid "IDS_MSG_SBODY_MANAGE_THE_MESSAGES_STORED_ON_YOUR_SIM_CARD"
+msgstr "SIM 카드에 저장된 메시지를 관리합니다."
+
+msgid "IDS_MSG_POP_UNABLE_TO_SEND_SCHEDULED_MESSAGE_SET_ANOTHER_TIME"
+msgstr "예약 메시지를 보낼 수 없습니다. 다른 시간을 설정하세요."
+
+msgid "IDS_MSG_POP_UNABLE_TO_ATTACH_FILE_FILE_SIZE_TOO_LARGE_TRY_SENDING_VIA_EMAIL_BLUETOOTH_WI_FI_ETC"
+msgstr "파일 크기가 너무 커서 첨부할 수 없습니다. 이메일, 블루투스 또는 Wi-Fi로 보내세요."
+
+msgid "IDS_MSG_POP_TO_SEND_THIS_MULTIMEDIA_MESSAGE_THE_DEVICE_WILL_CONNECT_TO_A_DIFFERENT_MOBILE_NETWORK_THIS_WILL_DISCONNECT_YOUR_DEVICE_FROM_YOUR_MSG"
+msgstr "이 멀티미디어 메시지를 보낼 수 있도록, 디바이스를 다른 모바일 네트워크에 연결합니다. 현재 연결된 모바일 네트워크와 디바이스의 연결이 해제됩니다."
+
+msgid "IDS_MSG_POP_TO_DOWNLOAD_THIS_MULTIMEDIA_MESSAGE_THE_DEVICE_WILL_CONNECT_TO_A_DIFFERENT_MOBILE_NETWORK_MSG"
+msgstr "멀티미디어 메시지를 다운로드할 수 있도록, 디바이스를 다른 모바일 네트워크에 연결합니다. 현재 연결된 모바일 네트워크와 디바이스의 연결이 해제됩니다."
+
+msgid "IDS_MSG_POP_THIS_MESSAGE_WILL_BE_RESENT"
+msgstr "이 메시지를 다시 보냅니다."
+
+msgid "IDS_MSG_POP_PD_MESSAGES_WILL_BE_DELETED"
+msgstr "메시지 %d개를 삭제합니다."
+
+msgid "IDS_MSG_POP_PD_CONVERSATIONS_WILL_BE_DELETED"
+msgstr "대화 %d개를 삭제합니다."
+
+msgid "IDS_MSG_POP_NO_TEMPLATES_IN_LIST"
+msgstr "목록에 상용구가 없습니다"
+
+msgid "IDS_MSG_POP_INCLUDE_ORIGINAL_TEXT_IN_OUTGOING_MESSAGE"
+msgstr "메시지 보낼 때 원문 포함"
+
+msgid "IDS_MSG_POP_DURATION_MUST_BE_SHORTER_THAN_PD_SECONDS"
+msgstr "재생 시간은 %d초 미만으로 설정하세요."
+
+msgid "IDS_MSG_POP_1_MESSAGE_WILL_BE_DELETED"
+msgstr "메시지 1개를 삭제합니다."
+
+msgid "IDS_MSG_POP_1_CONVERSATION_WILL_BE_DELETED"
+msgstr "대화 1개를 삭제합니다."
+
+msgid "IDS_MSG_OPT_VIEW_DETAILS_ABB"
+msgstr "자세히 보기"
+
+msgid "IDS_MSG_OPT_VIEW_CONTACT_DETAILS_ABB"
+msgstr "연락처 상세 보기"
+
+msgid "IDS_MSG_OPT_VIEW_AS_SLIDESHOW_ABB"
+msgstr "슬라이드쇼로 보기"
+
+msgid "IDS_MSG_OPT_UPDATE_CONTACT"
+msgstr "연락처 업데이트"
+
+msgid "IDS_MSG_OPT_UNICODE"
+msgstr "유니코드"
+
+msgid "IDS_MSG_OPT_TAKE_PICTURE_ABB"
+msgstr "사진 촬영"
+
+msgid "IDS_MSG_OPT_SAVE_ATTACHMENTS_ABB"
+msgstr "첨부파일 저장"
+
+msgid "IDS_MSG_OPT_RESEND"
+msgstr "다시 보내기"
+
+msgid "IDS_MSG_OPT_REPLY"
+msgstr "답장"
+
+msgid "IDS_MSG_OPT_REMOVE_FROM_BLOCK_LIST_ABB"
+msgstr "차단 목록에서 이 번호 삭제"
+
+msgid "IDS_MSG_OPT_RECORD_AUDIO_FILE_ABB"
+msgstr "오디오 녹음"
+
+msgid "IDS_MSG_OPT_QUICK_RESPONSE_ABB"
+msgstr "빠른 답장 문구"
+
+msgid "IDS_MSG_OPT_MAKE_VOICE_CALL"
+msgstr "음성통화 걸기"
+
+msgid "IDS_MSG_OPT_GSM_ALPHABET_ABB"
+msgstr "GSM 알파벳"
+
+msgid "IDS_MSG_OPT_EXPORT_TO_DEVICE_MEMORY"
+msgstr "디바이스 저장공간으로 내보내기"
+
+msgid "IDS_MSG_OPT_DELETE_MESSAGE"
+msgstr "메시지 삭제"
+
+msgid "IDS_MSG_OPT_DELETE_CONVERSATION_ABB"
+msgstr "대화 삭제"
+
+msgid "IDS_MSG_OPT_CREATE_CONTACT_ABB"
+msgstr "새 연락처 추가"
+
+msgid "IDS_MSG_OPT_COPY_TO_SIM_CARD_ABB"
+msgstr "SIM 카드에 복사"
+
+msgid "IDS_MSG_OPT_COPY_TO_DEVICE_ABB"
+msgstr "디바이스에 복사"
+
+msgid "IDS_MSG_OPT_COPY_TEXT"
+msgstr "글자 복사"
+
+msgid "IDS_MSG_OPT_COPY"
+msgstr "복사"
+
+msgid "IDS_MSG_OPT_BACK_UP"
+msgstr "백업"
+
+msgid "IDS_MSG_OPT_AUTOMATIC"
+msgstr "자동"
+
+msgid "IDS_MSG_OPT_AUDIO_FILES_ABB2"
+msgstr "오디오"
+
+msgid "IDS_MSG_OPT_ATTACHMENT_ABB"
+msgstr "첨부파일"
+
+msgid "IDS_MSG_OPT_ADD_TO_CONTACTS_ABB"
+msgstr "연락처에 추가"
+
+msgid "IDS_MSG_OPT_ADD_TO_BLOCK_LIST_ABB"
+msgstr "차단 목록에 이 번호 추가"
+
+msgid "IDS_MSG_OPT_ADD_RECIPIENTS_ABB"
+msgstr "받는 사람 추가"
+
+msgid "IDS_MSG_NPBODY_SEARCH"
+msgstr "검색"
+
+msgid "IDS_MSG_NPBODY_NO_RESULTS_FOUND_ABB"
+msgstr "검색 결과가 없습니다"
+
+msgid "IDS_MSG_NPBODY_NO_QUICK_RESPONSES"
+msgstr "빠른 답장 문구가 없습니다"
+
+msgid "IDS_MSG_NPBODY_NO_PHRASES_BLOCKED"
+msgstr "차단된 문구가 없습니다"
+
+msgid "IDS_MSG_NPBODY_NO_MESSAGES_ON_SIM_CARD"
+msgstr "SIM 카드에 메시지가 없습니다"
+
+msgid "IDS_MSG_NPBODY_NO_MESSAGES"
+msgstr "메시지가 없습니다"
+
+msgid "IDS_MSG_NPBODY_NO_BLOCKED_NUMBERS"
+msgstr "차단된 번호가 없습니다"
+
+msgid "IDS_MSG_MBODY_VIBRATION"
+msgstr "진동"
+
+msgid "IDS_MSG_MBODY_UNKNOWN_NUMBER"
+msgstr "번호정보 없음"
+
+msgid "IDS_MSG_MBODY_TEXT_MESSAGE_CENTRE_NUMBER_ABB"
+msgstr "문자 메시지 서버번호"
+
+msgid "IDS_MSG_HEADER_TEXT_MESSAGES_ABB"
+msgstr "문자 메시지"
+
+msgid "IDS_MSG_HEADER_SWITCH_MOBILE_NETWORK_ABB2"
+msgstr "모바일 네트워크 전환"
+
+msgid "IDS_MSG_HEADER_SMS_CENTRE_ABB2"
+msgstr "문자 메시지 서버"
+
+msgid "IDS_MSG_HEADER_SELECT_RECIPIENT"
+msgstr "Select recipient"
+
+msgid "IDS_MSG_HEADER_PD_SELECTED_ABB3"
+msgstr "%d개 선택"
+
+msgid "IDS_MSG_HEADER_MESSAGES_ON_SIM_CARD_ABB"
+msgstr "SIM 카드 메시지"
+
+msgid "IDS_MSG_HEADER_INPUT_MODE_ABB"
+msgstr "입력 모드"
+
+msgid "IDS_MSG_HEADER_FILE_SIZE_TOO_LARGE_ABB"
+msgstr "파일 크기 초과"
+
+msgid "IDS_MSG_HEADER_FAILED_TO_SEND_MESSAGE_ABB"
+msgstr "메시지 보내기 안 됨"
+
+msgid "IDS_MSG_HEADER_DISCARD_MESSAGE_M_CLOSE_ABB"
+msgstr "작성 종료"
+
+msgid "IDS_MSG_HEADER_CREATE"
+msgstr "추가"
+
+msgid "IDS_MSG_HEADER_ADD_CONTENT_ABB"
+msgstr "컨텐츠 추가"
+
+msgid "IDS_MSG_BUTTON_SWITCH_ABB2"
+msgstr "전환"
+
+msgid "IDS_MSG_BUTTON_SAVE_ABB2"
+msgstr "저장"
+
+msgid "IDS_MSG_BUTTON_RESEND_ABB"
+msgstr "다시 보내기"
+
+msgid "IDS_MSG_BUTTON_DISCARD_ABB"
+msgstr "저장 안 함"
+
+msgid "IDS_MSG_BUTTON_DELETE_ABB4"
+msgstr "삭제"
+
+msgid "IDS_MSG_BUTTON_CANCEL_ABB2"
+msgstr "취소"
+
+msgid "IDS_MSG_BUTTON2_CONTACTS_ABB_M_APPLICATION_NAME"
+msgstr "연락처"
+
+msgid "IDS_MSG_BODY_YOU_HAVE_SELECTED_A_SOUND_N_SHOT_FILE_SOUND_DATA_IS_NOT_SUPPORTED_FOR_MMS_SO_ONLY_THE_PICTURE_WILL_BE_ATTACHED"
+msgstr "사운드&샷 파일을 선택하였습니다. MMS에서 소리 데이터가 지원되지 않아 사진만 첨부합니다."
+
+msgid "IDS_MSG_BODY_WAITING_TO_SEND_ING_M_STATUS"
+msgstr "전송 대기 중..."
+
+msgid "IDS_MSG_BODY_UNABLE_TO_SEND_THIS_MESSAGE_INSERT_YOUR_SIM_CARD_AND_TRY_AGAIN"
+msgstr "메시지를 보낼 수 없습니다. SIM 카드를 삽입한 후 다시 시도하세요."
+
+msgid "IDS_MSG_BODY_TYPE_C"
+msgstr "종류:"
+
+msgid "IDS_MSG_BODY_TO_USE_RESTRICTED_MEDIA_TYPES_CHANGE_YOUR_MMS_CREATION_MODE_SETTING"
+msgstr "제한된 미디어 형식을 사용하려면 MMS 작성 모드 설정을 변경하세요."
+
+msgid "IDS_MSG_BODY_TIME_SENT_C"
+msgstr "보낸 시간:"
+
+msgid "IDS_MSG_BODY_TIME_RECEIVED_C"
+msgstr "받은 시간:"
+
+msgid "IDS_MSG_BODY_STATUS_C"
+msgstr "상태:"
+
+msgid "IDS_MSG_BODY_SENT_M_STATUS"
+msgstr "전송 완료"
+
+msgid "IDS_MSG_BODY_SENDING_ING_M_STATUS_ABB"
+msgstr "보내는 중..."
+
+msgid "IDS_MSG_BODY_SENDING_FAILED_M_STATUS"
+msgstr "전송 안 됨"
+
+msgid "IDS_MSG_BODY_RETRIEVE_MESSAGES_AUTOMATICALLY_WHILE_ROAMING"
+msgstr "로밍 중에 메시지를 자동으로 가져옵니다."
+
+msgid "IDS_MSG_BODY_RETRIEVE_MESSAGES_AUTOMATICALLY"
+msgstr "메시지를 자동으로 가져옵니다."
+
+msgid "IDS_MSG_BODY_READ_REPORT_C_PS"
+msgstr "읽음 확인: %s"
+
+msgid "IDS_MSG_BODY_OTHER_PERSON"
+msgstr "상대방"
+
+msgid "IDS_MSG_BODY_MEMO_T_MAINMENU"
+msgstr "메모"
+
+msgid "IDS_MSG_BODY_FAILED_M_STATUS_ABB2"
+msgstr "보내기 안 됨"
+
+msgid "IDS_MSG_BODY_ENTER_TEXT_M_NOUN"
+msgstr "글자 입력"
+
+msgid "IDS_MSG_BODY_DRAFT_M_STATUS_ABB"
+msgstr "임시 저장"
+
+msgid "IDS_MSG_BODY_DELIVERY_REPORT_C_PS"
+msgstr "받음 확인: %s"
+
+msgid "IDS_MSG_BODY_CB_MESSAGE"
+msgstr "방송 메시지"
+
+msgid "IDS_MSG_BODY_CALENDAR_M_APPLICATION_NAME_ABB"
+msgstr "캘린더"
+
+msgid "IDS_MSG_BODY_AFTER_YOU_SEND_OR_RECEIVE_MESSAGES_THEY_WILL_BE_SHOWN_HERE"
+msgstr "메시지를 보내거나 받으면, 여기에 표시됩니다."
+
+msgid "IDS_MSG_BODY_AFTER_YOU_CREATE_QUICK_RESPONSES_THEY_WILL_BE_SHOWN_HERE"
+msgstr "빠른 답장 문구를 새로 추가하면, 여기에 표시됩니다."
+
+msgid "IDS_MSG_BODY_AFTER_YOU_COPY_MESSAGES_TO_THE_SIM_CARD_THEY_WILL_BE_SHOWN_HERE"
+msgstr "메시지를 SIM 카드에 복사하면, 여기에 표시됩니다."
+
+msgid "IDS_MSG_BODY_AFTER_YOU_ADD_PHRASES_THEY_WILL_BE_SHOWN_HERE"
+msgstr "문구를 추가하면, 여기에 표시됩니다."
+
+msgid "IDS_MSG_BODY_AFTER_YOU_ADD_NUMBERS_TO_THE_MESSAGE_BLOCK_LIST_THEY_WILL_BE_SHOWN_HERE"
+msgstr "메시지 차단 목록에 번호를 추가하면, 여기에 표시됩니다."
+
+msgid "IDS_MSG_ACBUTTON_DELETE_ABB"
+msgstr "삭제"
+
+msgid "IDS_MSGC_POP_UNSUPPORTED_MEDIA_TYPE"
+msgstr "지원되지 않는 미디어 방식입니다."
+
+msgid "IDS_MSGC_POP_LOW_BATTERY"
+msgstr "배터리가 부족합니다."
+
+msgid "IDS_MSGC_POP_CANCELLED"
+msgstr "취소하였습니다."
+
+msgid "IDS_MSGC_OPT_EMAIL"
+msgstr "이메일"
+
+msgid "IDS_MSGC_OPT_EDITITEM_VIEW"
+msgstr "보기"
+
+msgid "IDS_MSGC_OPT_EDITITEM_REMOVE"
+msgstr "삭제"
+
+msgid "IDS_MSGC_OPT_EDITITEM_PLAY"
+msgstr "재생"
+
+msgid "IDS_MSGC_OPT_CHANGE_RECIPIENTS_TO"
+msgstr "받는 사람"
+
+msgid "IDS_MSGC_HEADER_PREVIEW"
+msgstr "미리보기"
+
+msgid "IDS_MSGC_BODY_ENTER_SUBJECT"
+msgstr "제목을 입력하세요."
+
+msgid "IDS_MSGF_POP_UNABLE_TO_FIND_LOCATION"
+msgstr "위치를 찾을 수 없습니다."
+
+msgid "IDS_MSGF_POP_REJECTED"
+msgstr "거절하였습니다."
+
+msgid "IDS_MSGF_POP_DELETING"
+msgstr "삭제 중..."
+
+msgid "IDS_MSGF_POP_COPIED_TO_CLIPBOARD"
+msgstr "클립보드에 복사하였습니다."
+
+msgid "IDS_MSGF_POP_BLOCK_PS_Q"
+msgstr "%s 텍스트를 차단할까요?"
+
+msgid "IDS_MSGF_OPT_SUBJECT_COLON"
+msgstr "제목:"
+
+msgid "IDS_MSGF_OPT_SENDER_VIA_EMAIL"
+msgstr "이메일로 전송"
+
+msgid "IDS_MSGF_OPT_SELECT"
+msgstr "선택"
+
+msgid "IDS_MSGF_OPT_SAVE"
+msgstr "저장"
+
+msgid "IDS_MSGF_OPT_REMOVE"
+msgstr "삭제"
+
+msgid "IDS_MSGF_OPT_FORWARD"
+msgstr "전달"
+
+msgid "IDS_MSGF_OPT_DELETE_Q"
+msgstr "삭제할까요?"
+
+msgid "IDS_MSGF_HEADER_ADVANCED_SEARCH"
+msgstr "고급 검색"
+
+msgid "IDS_MSGF_BODY_UNKNOWN"
+msgstr "알 수 없음"
+
+msgid "IDS_MSGF_BODY_SETTINGS"
+msgstr "설정"
+
+msgid "IDS_MSGF_BODY_RECIPIENTS"
+msgstr "받는 사람"
+
+msgid "IDS_MSGF_BODY_RECEIVED"
+msgstr "받았습니다."
+
+msgid "IDS_MSGF_BODY_OTHER"
+msgstr "기타"
+
+msgid "IDS_MSGF_BODY_NO_SUBJECT"
+msgstr "제목 없음"
+
+msgid "IDS_MSGF_BODY_MSGSIZE_KB"
+msgstr "KB"
+
+msgid "IDS_MSGF_BODY_MESSAGE"
+msgstr "메시지"
+
+msgid "IDS_MSGF_BODY_ME"
+msgstr "나"
+
+msgid "IDS_MSGF_BODY_EXPIRED"
+msgstr "기한 만료"
+
+msgid "IDS_MSGF_BODY_ALL"
+msgstr "전체"
+
+msgid "IDS_MSG_SK_NO_ABB"
+msgstr "아니요"
+
+msgid "IDS_MSG_POP_YOUR_MESSAGE_WILL_BE_DISCARDED_NO_RECIPIENTS_HAVE_BEEN_SELECTED"
+msgstr "받는 사람이 선택되지 않아 메시지를 취소합니다"
+
+msgid "IDS_MSG_POP_UNABLE_TO_PLAY_DURING_CALL"
+msgstr "통화 중에는 재생할 수 없습니다."
+
+msgid "IDS_MSG_POP_INCOMING_MESSAGES_ONLY"
+msgstr "받는 메시지만"
+
+msgid "IDS_MSG_POP_DELETED"
+msgstr "삭제하였습니다."
+
+msgid "IDS_MSG_OPT_VIDEOS"
+msgstr "동영상"
+
+msgid "IDS_MSG_OPT_TEXT"
+msgstr "텍스트"
+
+msgid "IDS_MSG_OPT_SETTINGS"
+msgstr "설정"
+
+msgid "IDS_MSG_OPT_SEARCH"
+msgstr "검색"
+
+msgid "IDS_MSG_OPT_RECORD_VIDEO_ABB"
+msgstr "동영상 촬영"
+
+msgid "IDS_MSG_OPT_NONE"
+msgstr "설정 안 함"
+
+msgid "IDS_MSG_OPT_IMAGES"
+msgstr "이미지"
+
+msgid "IDS_MSG_OPT_EDIT"
+msgstr "편집"
+
+msgid "IDS_MSG_OPT_DELETE"
+msgstr "삭제"
+
+msgid "IDS_MSG_OPT_DEFAULT"
+msgstr "기본"
+
+msgid "IDS_MSG_MBODY_SELECT_ALL"
+msgstr "모두 선택"
+
+msgid "IDS_MSG_MBODY_ALERTS"
+msgstr "알림"
+
+msgid "IDS_MSG_HEADER_TRANSLATE"
+msgstr "번역"
+
+msgid "IDS_MSG_HEADER_SETTINGS"
+msgstr "설정"
+
+msgid "IDS_MSG_HEADER_MESSAGES"
+msgstr "메시지"
+
+msgid "IDS_MSG_HEADER_DELETE"
+msgstr "삭제"
+
+msgid "IDS_MSG_HEADER_ATTENTION"
+msgstr "주의"
+
+msgid "IDS_MSG_BUTTON_REMOVE_ABB"
+msgstr "삭제"
+
+msgid "IDS_MSG_BUTTON_OK_ABB"
+msgstr "확인"
+
+msgid "IDS_MSG_BUTTON_DOWNLOAD_ABB3"
+msgstr "다운로드"
+
+msgid "IDS_MSG_BUTTON_CANCEL_ABB"
+msgstr "취소"
+
+msgid "IDS_MSG_BODY_YES"
+msgstr "예"
+
+msgid "IDS_MSG_BODY_TICK_BOX_T_TTS"
+msgstr "체크박스"
+
+msgid "IDS_MSG_BODY_SEC"
+msgstr "초"
+
+msgid "IDS_MSG_BODY_MESSAGE"
+msgstr "메시지"
+
+msgid "IDS_MSG_BUTTON_SEND_ABB5"
+msgstr "보내기"
+
+msgid "IDS_MSG_BUTTON_SEND_ABB3"
+msgstr "보내기"
+
+msgid "IDS_MSG_ACBUTTON_SEND_ABB3"
+msgstr "보내기"
+
+msgid "IDS_ST_BODY_LOADING_ING"
+msgstr "불러오는 중..."
+
+msgid "IDS_MSGS_BODY_NOTIFICATIONS"
+msgstr "알림"
+
+msgid "IDS_MSG_HEADER_ME"
+msgstr "나"
+
+msgid "IDS_MSG_BODY_UNKNOWN"
+msgstr "알 수 없음"
+
+msgid "IDS_MSG_TMBODY_ADD_OR_REMOVE_RECIPIENTS"
+msgstr "받는 사람 추가/삭제"
+
+msgid "IDS_MSG_POP_THE_SENDER_HAS_REQUESTED_A_READ_REPORT_TAP_SEND_TO_SEND_ONE"
+msgstr "보낸 사람이 읽음 확인 메시지를 요청하였습니다. 읽음 확인 메시지를 보내려면 보내기 버튼을 누르세요."
+
+msgid "IDS_MSGF_OPT_SEND_READ_REPORT"
+msgstr "읽음 확인 설정"
+
+msgid "IDS_MSG_HEADER_COMPOSE_MESSAGE_ABB"
+msgstr "메시지 작성"
+
+msgid "IDS_MSG_POP_NO_VALID_RECIPIENTS_HAVE_BEEN_ADDED_THIS_MESSAGE_WILL_BE_DISCARDED"
+msgstr "올바른 받는 사람이 없습니다. 이 메시지를 저장하지 않고 작성을 종료합니다."
+

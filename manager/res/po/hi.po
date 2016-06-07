@@ -1,0 +1,945 @@
+msgid "IDS_COM_BODY_HOME"
+msgstr "घर"
+
+msgid "IDS_MSGC_POP_DATA_ROAMING_IS_DISABLED_ENABLE_DATA_ROAMING_AND_TRY_AGAIN"
+msgstr "डाटा रोमिंग अक्षम है। डाटा रोमिंग सक्षम करें और फिर से प्रयास करें।"
+
+msgid "IDS_MSG_ACBUTTON_CANCEL_ABB"
+msgstr "रद्द करें"
+
+msgid "IDS_MSG_ACBUTTON_DONE_ABB"
+msgstr "पूर्ण"
+
+msgid "IDS_MSGF_POP_NEW_MESSAGE"
+msgstr "नया सन्देश"
+
+msgid "IDS_COM_BUTTON_SHARE"
+msgstr "साझा"
+
+msgid "IDS_COM_BODY_UNKNOWN"
+msgstr "अज्ञात"
+
+msgid "IDS_COM_BODY_MOBILE"
+msgstr "मोबाइल"
+
+msgid "IDS_MSGC_POP_MOBILE_DATA_IS_DISABLED_ENABLE_MOBILE_DATA_AND_TRY_AGAIN"
+msgstr "मोबाइल डाटा अक्षम है। मोबाइल डाटा सक्षम करें और फिर से प्रयास करें।"
+
+msgid "IDS_TPLATFORM_ACBUTTON_SEND_ABB"
+msgstr "भेजें"
+
+msgid "IDS_MSGC_POP_UNABLE_TO_SEND_MESSAGES_WHILE_IN_FLIGHT_MODE_DISABLE_FLIGHT_MODE_AND_TRY_AGAIN"
+msgstr "फ़्लाइट मोड के दौरान संदेश भेजने में अक्षम। फ़्लाइट मोड अक्षम करें और फिर से प्रयास करें।"
+
+msgid "IDS_MSGC_POP_UNABLE_TO_ADD_FILE_IS_FORWARD_LOCKED"
+msgstr "आगे भेजने में असमर्थ।\n फाइल अग्रेषण लॉक है।"
+
+msgid "IDS_MSGC_POP_THERE_IS_NOT_ENOUGH_SPACE_IN_YOUR_DEVICE_STORAGE_GO_TO_SETTINGS_POWER_AND_STORAGE_STORAGE_THEN_DELETE_SOME_FILES_AND_TRY_AGAIN"
+msgstr "आपके डिवाइस स्टोरेज में पर्याप्त स्थान नहीं है। सेटिंग्स > पॉवर और संग्रहण > संग्रहण पर जाएँ, फिर कुछ फाइलें हटाएँ और फिर से प्रयास करें।"
+
+msgid "IDS_MSGC_POP_TEXT_AT_TOP"
+msgstr "शीर्ष पर टेक्‍स्‍ट"
+
+msgid "IDS_MSGC_POP_TEXT_AT_BOTTOM"
+msgstr "तल पर टेक्स्ट"
+
+msgid "IDS_MSGC_POP_SELECT_LAYOUT"
+msgstr "लेआउट चुनें"
+
+msgid "IDS_MSGC_POP_MMSCANTADD"
+msgstr "विषय वस्तु जोड़ने में अक्षम।"
+
+msgid "IDS_MSGC_POP_MESSAGE_SCHEDULED_TO_BE_SENT_TO_PS_SEND_NOW_Q"
+msgstr "सन्देश को %s पर भेजा जाना निर्धारित किया गया है। अभी भेजें?"
+
+msgid "IDS_MSGC_POP_MAXIMUM_MESSAGE_SIZE_REACHED"
+msgstr "सन्देश अधिकतम आकार तक पहुँच गया।"
+
+msgid "IDS_MSGC_POP_DURATION_MUST_BE_AT_LEAST_PD_SECONDS"
+msgstr "अवधि कम से कम %d सेकंडों का होना चाहिए"
+
+msgid "IDS_MSGC_POP_DISABLING_FLIGHT_MODE_ING"
+msgstr "फ्लाइट मोड अक्षम किया जा रहा है..."
+
+msgid "IDS_MSGC_POP_COPIED_TO_SIM_CARD"
+msgstr "SIM कार्ड में कॉपी किया गया।"
+
+msgid "IDS_MSGC_OPT_USE_OTHER_CONTACT_INFO_ABB"
+msgstr "अन्य संपर्क सूचना उपयोग करें"
+
+msgid "IDS_MSGC_OPT_SEND_VIA"
+msgstr "इसके द्वारा भेजें"
+
+msgid "IDS_MSGC_OPT_IMAGE"
+msgstr "छवि"
+
+msgid "IDS_MSGC_OPT_EDIT_ITEM_REPLACE"
+msgstr "बदलें"
+
+msgid "IDS_MSGC_OPT_CANCEL_MESSAGE"
+msgstr "सन्देश रद्द करें"
+
+msgid "IDS_MSGC_HEADER_RECIPIENT_LIST"
+msgstr "प्राप्तकर्ता सूची"
+
+msgid "IDS_MSGC_HEADER_DURATION_FOR_SLIDE_PD_PD"
+msgstr "स्लाइड अवधि %d/%d"
+
+msgid "IDS_MSGC_BODY_WAIT_WHILE_ITEMS_ARE_ADDED_TO_SLIDESHOW"
+msgstr "स्लाइडशो में मदें जोड़ते समय कृपया प्रतीक्षा करें।"
+
+msgid "IDS_MSGC_BODY_UNABLE_TO_SEND_MESSAGE"
+msgstr "सन्देश भेजने में असमर्थ।"
+
+msgid "IDS_MSGC_BODY_SELECT_RINGTONE"
+msgstr "रिंगटोन चुने"
+
+msgid "IDS_MSGC_BODY_READ_REPORT_WILL_BE_SENT"
+msgstr "पढ़ने की रिपोर्ट भेजी जाएगी।"
+
+msgid "IDS_MSGC_BODY_NOT_REQUESTED"
+msgstr "अनुरोध नहीं है"
+
+msgid "IDS_MSGC_BODY_MAXIMUM_NUMBER_OF_RECIPIENTS_HPD_REACHED"
+msgstr "प्राप्तकर्ताओं की अधिकतम संख्या (%d) तक पहुँच गया।"
+
+msgid "IDS_MSGC_BODY_DUPLICATED_RECIPIENT"
+msgstr "डुप्लीकेट किया गया प्राप्तकर्ता।"
+
+msgid "IDS_MSGF_SK_FORWARD_LITE"
+msgstr "आगे"
+
+msgid "IDS_MSGF_POP_UNABLE_TO_SAVE"
+msgstr "सुरक्षित करने में असमर्थ।"
+
+msgid "IDS_MSGF_POP_UNABLE_TO_DELETE"
+msgstr "हटाने में असमर्थ।"
+
+msgid "IDS_MSGF_POP_UNABLE_TO_COPY"
+msgstr "कॉपी करने में असमर्थ।"
+
+msgid "IDS_MSGF_POP_SOME_CHARACTERS_MAY_BE_LOST_CONTINUE_Q"
+msgstr "कुछ वर्ण खो सकते हैं।\nजारी रखें?"
+
+msgid "IDS_MSGF_POP_SIM_NOT_INSERTED"
+msgstr "SIM नहीं डाली गई।"
+
+msgid "IDS_MSGF_POP_SAVING_FAILED"
+msgstr "सुरक्षित करना विफल।"
+
+msgid "IDS_MSGF_POP_SAVED_IN_MY_FILES"
+msgstr "मेरी फ़ाइलों में सुरक्षित किया।"
+
+msgid "IDS_MSGF_POP_RETRIEVING_MESSAGE_FAILED"
+msgstr "सन्देश पुनः प्राप्त करना असफल"
+
+msgid "IDS_MSGF_POP_RESTRICTED_CONTENT_TYPE_ATTACH_ANYWAY_Q"
+msgstr "प्रतिबंधित सामग्री प्रकार। फिर भी संलग्न करें?"
+
+msgid "IDS_MSGF_POP_RESTORING_ING"
+msgstr "रीस्‍टोर हो रहा है..."
+
+msgid "IDS_MSGF_POP_READ_REPORT"
+msgstr "पढ़ने की रिपोर्ट"
+
+msgid "IDS_MSGF_POP_NO_NUMBER"
+msgstr "कोई नंबर नहीं"
+
+msgid "IDS_MSGF_POP_NO_ATTACHMENTS"
+msgstr "कोई संलग्नक नहीं"
+
+msgid "IDS_MSGF_POP_NEW_MESSAGES"
+msgstr "नये सन्देश"
+
+msgid "IDS_MSGF_POP_MESSAGE_COPIED_FROM_SIM_CARD"
+msgstr "SIM कार्ड से सन्देश कॉपी किया गया।"
+
+msgid "IDS_MSGF_POP_MAXIMUM_NUMBER_OF_RECIPIENTS_IS_PD_SOME_RECIPIENTS_MAY_BE_LOST"
+msgstr "प्राप्तकर्ताओं की अधिकतम संख्या है %d। कुछ प्राप्तकर्ता शायद गुम हो जाएँगे"
+
+msgid "IDS_MSGF_POP_MAXIMUM_NUMBER_OF_ATTACHMENTS_HPS_EXCEEDED"
+msgstr "संलग्नकों (%s) की अधिकतम संख्या पार हुई।"
+
+msgid "IDS_MSGF_POP_MAXIMUM_CHARACTERS"
+msgstr "वर्णो की संख्‍या अधिकतम पहुँची।"
+
+msgid "IDS_MSGF_POP_IN_PROGRESS_ING"
+msgstr "प्रगति पर..."
+
+msgid "IDS_MSGF_POP_INTIALISING"
+msgstr "शुरू हो रहा है..."
+
+msgid "IDS_MSGF_POP_IF_YOU_DONT_WANT_TO_REPLACE_THE_FILE_RENAME_IT"
+msgstr "यदि आप फ़ाइल बदलना नहीं चाहते, नाम बदलें"
+
+msgid "IDS_MSGF_POP_HELP_PAGE_MESSAGE_FOR_ONE_FILE"
+msgstr "इस सन्देश में अदृश्य संलग्न फाइल शामिल हैं।"
+
+msgid "IDS_MSGF_POP_HELP_PAGE_MESSAGE"
+msgstr "इस सन्देश में अप्रदर्शित संलग्न की गई फाइलें शामिल हैं।"
+
+msgid "IDS_MSGF_POP_FILE_NAME_ALREADY_EXISTS"
+msgstr "फाइल का नाम पहले से ही मौजूद।"
+
+msgid "IDS_MSGF_POP_CONVERTING_TO_TEXT_MESSAGE_ING"
+msgstr "टेक्स्ट सन्देश में रूपांतर हो रहा है..."
+
+msgid "IDS_MSGF_POP_CONVERTING_TO_MULTIMEDIA_MESSAGE_ING"
+msgstr "मल्टीमीडिया सन्देश में रूपांतर हो रहा है..."
+
+msgid "IDS_MSGF_POP_ABOUT_TO_GO_ONLINE_CONTINUE_Q"
+msgstr "आप ऑनलाइन (%s) होने जा रहें हैं। जारी रखें?"
+
+msgid "IDS_MSGF_OPT_TEXT_MESSAGE"
+msgstr "टेक्स्ट सन्देश"
+
+msgid "IDS_MSGF_OPT_SENDER_ABB"
+msgstr "प्रेषक"
+
+msgid "IDS_MSGF_OPT_SAVE_ATTACHMENT"
+msgstr "संलग्नक सुरक्षित करें"
+
+msgid "IDS_MSGF_OPT_INSTALL"
+msgstr "स्थापित करें"
+
+msgid "IDS_MSGF_OPT_EDIT_MESSAGE"
+msgstr "सन्देश संपादित करें"
+
+msgid "IDS_MSGF_OPT_DELETE_MESSAGES"
+msgstr "सन्देश हटाएँ"
+
+msgid "IDS_MSGF_HEADER_SELECT_MESSAGES"
+msgstr "सन्देश चुनें"
+
+msgid "IDS_MSGF_HEADER_SAVE_ALL"
+msgstr "सभी सुरक्षित करें"
+
+msgid "IDS_MSGF_HEADER_MESSAGE_DETAILS"
+msgstr "सन्देश विवरण"
+
+msgid "IDS_MSGF_HEADER_EXPIRES_C_PS"
+msgstr "समय सीमा समाप्ति: %s"
+
+msgid "IDS_MSGF_BUTTON_SAVE_ALL_ATTACHMENTS_ABB"
+msgstr "सभी अनुलग्नकों को सुरक्षित करें"
+
+msgid "IDS_MSGF_BODY_TO_C"
+msgstr "को:"
+
+msgid "IDS_MSGF_BODY_TEXT_MESSAGES"
+msgstr "टेक्स्ट सन्देश"
+
+msgid "IDS_MSGF_BODY_SIM_MEMORY_FULL_DELETE_SOME_ITEMS"
+msgstr "SIM मेमोरी पूरी भर गई। कुछ मदें हटाएँ।"
+
+msgid "IDS_MSGF_BODY_SENT_M_DATE_C"
+msgstr "भेजा गया:"
+
+msgid "IDS_MSGF_BODY_REQUESTED"
+msgstr "अनुरोध किया गया।"
+
+msgid "IDS_MSGF_BODY_RECEIVED_M_DATE_C"
+msgstr "प्राप्‍त:"
+
+msgid "IDS_MSGF_BODY_READ_REPORT"
+msgstr "पढ़ने की रिपोर्ट"
+
+msgid "IDS_MSGF_BODY_PUSH_MESSAGES"
+msgstr "पुश सन्देश"
+
+msgid "IDS_MSGF_BODY_PD_MESSAGES"
+msgstr "%d सन्देश"
+
+msgid "IDS_MSGF_BODY_PD_CONVERSATIONS"
+msgstr "%d वार्तालाप"
+
+msgid "IDS_MSGF_BODY_NO_NAME"
+msgstr "नाम नहीं"
+
+msgid "IDS_MSGF_BODY_MULTIMEDIA_MESSAGE_NOTIFICATION"
+msgstr "मल्टीमीडिया सन्देश अधिसूचना"
+
+msgid "IDS_MSGF_BODY_MULTIMEDIA_MESSAGE"
+msgstr "मल्टीमीडिया सन्देश"
+
+msgid "IDS_MSGF_BODY_MMSREADREPLYMSGREAD"
+msgstr "पढ़ें"
+
+msgid "IDS_MSGF_BODY_MMSDELIVERYMSGREJECTED"
+msgstr "सन्देश अस्वीकृत।"
+
+msgid "IDS_MSGF_BODY_MMS"
+msgstr "MMS"
+
+msgid "IDS_MSGF_BODY_MESSAGE_SIZE"
+msgstr "सन्देश आकार"
+
+msgid "IDS_MSGF_BODY_MESSAGE_OPTIONS"
+msgstr "सन्देश विकल्प"
+
+msgid "IDS_MSGF_BODY_MESSAGE_DELIVERED"
+msgstr "सन्देश वितरित हुआ"
+
+msgid "IDS_MSGF_BODY_MAXIMUM_NUMBER_OF_ATTACHMENTS_HP1SS_EXCEEDED_ONLY_FIRST_P2SS_WILL_BE_ADDED"
+msgstr "संलग्नकों (%1$s) की अधिकतम संख्या पार हुई। केवल पहले %2$s जोड़े जाएँगे।"
+
+msgid "IDS_MSGF_BODY_INVALID_RECIPIENT"
+msgstr "अमान्य प्राप्तकर्ता।"
+
+msgid "IDS_MSGF_BODY_FROM"
+msgstr "से"
+
+msgid "IDS_MSGF_BODY_FLFROM"
+msgstr "से:"
+
+msgid "IDS_MSGF_BODY_DETAILSSENDINGFAILED"
+msgstr "भेजना विफल हुआ।"
+
+msgid "IDS_MSGF_BODY_DELIVERY_REPORT"
+msgstr "वितरण रिपोर्ट"
+
+msgid "IDS_MSGF_BODY_CP_MESSAGES"
+msgstr "CP संदेशों"
+
+msgid "IDS_MSGF_BODY_COPY_TEXT"
+msgstr "टेक्‍स्‍ट कॉपी करें"
+
+msgid "IDS_MSGF_BODY_CB_MESSAGES"
+msgstr "CB सन्देश"
+
+msgid "IDS_MSGF_BODY_1_MESSAGE"
+msgstr "1 सन्देश"
+
+msgid "IDS_MSGF_BODY_1_CONVERSATION"
+msgstr "1 वार्तालाप"
+
+msgid "IDS_MSGS_BODY_REQUEST_A_READ_REPORT_FOR_EACH_MESSAGE_YOU_SEND"
+msgstr "आपके द्वारा भेजे गए प्रत्येक संदेश के लिए पठन रिपोर्ट का अनुरोध करें।"
+
+msgid "IDS_MSGS_BODY_REQUEST_A_DELIVERY_REPORT_FOR_EACH_MESSAGE_YOU_SEND"
+msgstr "आपके द्वारा भेजे गए प्रत्येक संदेश के लिए वितरण रिपोर्ट का अनुरोध करें।"
+
+msgid "IDS_MSGS_BODY_RADIO_BUTTON"
+msgstr "रेडियो बटन"
+
+msgid "IDS_MSGS_BODY_ON_OFF_BUTTON_T_TTS"
+msgstr "चालू/बंद बटन"
+
+msgid "IDS_MSGS_BODY_EXPANDABLE_LIST_T_TTS"
+msgstr "विस्तार करने योग्य सूची"
+
+msgid "IDS_MSGS_BODY_AUTOMATICALLY_RETRIEVE_MMS_MESSAGES"
+msgstr "MMS संदेशों को स्वचालित रूप से पुनः प्राप्त करना"
+
+msgid "IDS_MSG_TPOP_UNABLE_TO_PREVIEW_FILE_UNSUPPORTED_FILE_TYPE"
+msgstr "फाइल का पूर्वावलोकन करने में असमर्थ। असमर्थित फाइल प्रकार।"
+
+msgid "IDS_MSG_TPOP_UNABLE_TO_ATTACH_FILE_FILE_FORMAT_NOT_SUPPORTED"
+msgstr "फाइल संलग्न करने में असमर्थ। फाइल फॉर्मेट समर्थित नहीं है।"
+
+msgid "IDS_MSG_TPOP_UNABLE_TO_ADD_SOME_RECIPIENTS_NUMBERS_NOT_VALID"
+msgstr "कुछ प्राप्तकर्ताओं को जोड़ने में असमर्थ। नंबर्स मान्य नहीं हैं।"
+
+msgid "IDS_MSG_TPOP_UNABLE_TO_ADD_RECIPIENT_NUMBER_NOT_VALID"
+msgstr "प्राप्तकर्ता जोड़ने में असमर्थ। नंबर मान्य नहीं है।"
+
+msgid "IDS_MSG_TPOP_UNABLE_TO_ADD_RECIPIENTS_NUMBERS_NOT_VALID"
+msgstr "प्राप्तकर्ताओं को जोड़ने में असमर्थ। नंबर्स मान्य नहीं हैं।"
+
+msgid "IDS_MSG_TPOP_UNABLE_TO_ADD_ATTACHMENT_MAXIMUM_NUMBER_OF_ATTACHMENTS_HPD_REACHED"
+msgstr "संलग्नक जोड़ने में असमर्थ। संलग्नकों की अधिकतम संख्या (%d) तक पहुँच गई है।"
+
+msgid "IDS_MSG_TPOP_THIS_NUMBER_IS_NOT_VALID"
+msgstr "यह नंबर मान्य नहीं है।"
+
+msgid "IDS_MSG_TPOP_SOME_RECIPIENTS_ALREADY_ADDED"
+msgstr "कुछ प्राप्तकर्ता पहले से ही जोड़े गए हैं।"
+
+msgid "IDS_MSG_TPOP_SELECTED_MESSAGES_COPIED_TO_MOBILE_DEVICE"
+msgstr "चयनित सन्देश, मोबाइल डिवाइस में कॉपी किए गए।"
+
+msgid "IDS_MSG_TPOP_PD_MESSAGES_MOVED_TO_MESSAGE_LIST"
+msgstr "%d सन्देश, सन्देश सूची में ले जाए गए।"
+
+msgid "IDS_MSG_TPOP_NUMBER_REMOVED_FROM_MESSAGE_BLOCK_LIST"
+msgstr "नंबर सन्देश अवरुद्ध सूची से निकाला गया।"
+
+msgid "IDS_MSG_TPOP_NUMBER_ADDED_TO_MESSAGE_BLOCK_LIST"
+msgstr "नंबर सन्देश अवरुद्ध सूची में जोड़ा गया।"
+
+msgid "IDS_MSG_TPOP_NETWORK_NOT_AVAILABLE_MESSAGE_WILL_BE_SENT_WHEN_CONNECTED_TO_NETWORK"
+msgstr "नेटवर्क उपलब्‍ध नहीं। नेटवर्क से कनेक्टेड होने पर सन्देश भेजा जाएगा।"
+
+msgid "IDS_MSG_TPOP_MESSAGE_COPIED_TO_PS_SIM_CARD"
+msgstr "सन्देश %s SIM कार्ड में कॉपी किया गया।"
+
+msgid "IDS_MSG_TPOP_MAXIMUM_NUMBER_OF_CHARACTERS_EXCEEDED"
+msgstr "वर्णों की अधिकतम संख्या पार हुई।"
+
+msgid "IDS_MSG_TPOP_MAXIMUM_MESSAGE_SIZE_HPS_EXCEEDED_RESIZING_ATTACHMENTS_ING"
+msgstr "अधिकतम सन्देश आकार (%s) पार कर गया है। संलग्नकों का आकार बदला जा रहा है..."
+
+msgid "IDS_MSG_TPOP_INVALID_CHARACTER_ENTERED"
+msgstr "अमान्य वर्ण प्रविष्ट किया गया"
+
+msgid "IDS_MSG_TPOP_ADD_RECIPIENTS"
+msgstr "प्राप्तकर्ताओं को जोड़ें।"
+
+msgid "IDS_MSG_TPOP_1_MESSAGE_MOVED_TO_MESSAGE_LIST"
+msgstr "1 सन्देश, सन्देश सूची में ले जाया गया।"
+
+msgid "IDS_MSG_TMBODY_TEXT_MESSAGES"
+msgstr "टेक्स्ट सन्देश"
+
+msgid "IDS_MSG_TMBODY_SOUND"
+msgstr "ध्वनि"
+
+msgid "IDS_MSG_TMBODY_MULTIMEDIA_MESSAGES"
+msgstr "मल्टीमीडिया सन्देश"
+
+msgid "IDS_MSG_TMBODY_MESSAGES_ON_SIM_CARD"
+msgstr "SIM कार्ड के सन्देश"
+
+msgid "IDS_MSG_TMBODY_INPUT_MODE"
+msgstr "इनपुट मोड"
+
+msgid "IDS_MSG_TMBODY_AUTO_RETRIEVE_WHILE_ROAMING"
+msgstr "रोमिंग में स्वतः पुनर्प्राप्ति"
+
+msgid "IDS_MSG_TMBODY_AUTO_RETRIEVE"
+msgstr "स्वतः पुनर्प्राप्ति"
+
+msgid "IDS_MSG_SK_SEND_NOW"
+msgstr "अभी भेजें"
+
+msgid "IDS_MSG_SBODY_SELECT_AN_INPUT_MODE_FOR_COMPOSING_MESSAGES"
+msgstr "सन्देश लिखने के लिए एक इनपुट मोड चुनें।"
+
+msgid "IDS_MSG_SBODY_NONE_M_STATUS"
+msgstr "कुछ नहीं"
+
+msgid "IDS_MSG_SBODY_MANAGE_THE_MESSAGES_STORED_ON_YOUR_SIM_CARD"
+msgstr "आपके SIM कार्ड पर संग्रहीत सन्देश प्रबंधित करें।"
+
+msgid "IDS_MSG_POP_UNABLE_TO_SEND_SCHEDULED_MESSAGE_SET_ANOTHER_TIME"
+msgstr "अनुसूचित सन्देश भेजने में असमर्थ। दूसरा समय सेट करें।"
+
+msgid "IDS_MSG_POP_UNABLE_TO_ATTACH_FILE_FILE_SIZE_TOO_LARGE_TRY_SENDING_VIA_EMAIL_BLUETOOTH_WI_FI_ETC"
+msgstr "फाइल संलग्न करने में असमर्थ। फाइल आकार बहुत बड़ा है। ईमेल, ब्लूटूथ, Wi-Fi, इत्यादि के माध्यम से भेजने का प्रयास करें।"
+
+msgid "IDS_MSG_POP_TO_SEND_THIS_MULTIMEDIA_MESSAGE_THE_DEVICE_WILL_CONNECT_TO_A_DIFFERENT_MOBILE_NETWORK_THIS_WILL_DISCONNECT_YOUR_DEVICE_FROM_YOUR_MSG"
+msgstr "यह मल्टीमीडिया सन्देश भेजने के लिए, डिवाइस किसी भिन्न मोबाइल नेटवर्क से कनेक्ट होगा। ऐसा करने से आपका डिवाइस आपके वर्तमान मोबाइल नेटवर्क से डिस्कनेक्ट हो जाएगा।"
+
+msgid "IDS_MSG_POP_TO_DOWNLOAD_THIS_MULTIMEDIA_MESSAGE_THE_DEVICE_WILL_CONNECT_TO_A_DIFFERENT_MOBILE_NETWORK_MSG"
+msgstr "यह मल्टीमीडिया सन्देश डाउनलोड करने के लिए, डिवाइस किसी भिन्न मोबाइल नेटवर्क से कनेक्ट हो जाएगा। यह आपके डिवाइस को आपके वर्तमान मोबाइल नेटवर्क से डिस्कनेक्ट कर देगा।"
+
+msgid "IDS_MSG_POP_THIS_MESSAGE_WILL_BE_RESENT"
+msgstr "यह सन्देश फिर से भेजा जाएगा।"
+
+msgid "IDS_MSG_POP_PD_MESSAGES_WILL_BE_DELETED"
+msgstr "%d सन्देशों को हटाया जाएगा।"
+
+msgid "IDS_MSG_POP_PD_CONVERSATIONS_WILL_BE_DELETED"
+msgstr "%d वार्तालाप हटाए जाएँगे।"
+
+msgid "IDS_MSG_POP_NO_TEMPLATES_IN_LIST"
+msgstr "सूची में टेम्पलेट्स नहीं"
+
+msgid "IDS_MSG_POP_INCLUDE_ORIGINAL_TEXT_IN_OUTGOING_MESSAGE"
+msgstr "जाने वाले सन्देश में मूल टेक्स्ट शामिल करें"
+
+msgid "IDS_MSG_POP_DURATION_MUST_BE_SHORTER_THAN_PD_SECONDS"
+msgstr "अवधि %d सेकंड से कम होना आवश्‍यक है।"
+
+msgid "IDS_MSG_POP_1_MESSAGE_WILL_BE_DELETED"
+msgstr "1 सन्देश हटाया जाएगा।"
+
+msgid "IDS_MSG_POP_1_CONVERSATION_WILL_BE_DELETED"
+msgstr "1 वार्तालाप हटाया जाएगा।"
+
+msgid "IDS_MSG_OPT_VIEW_DETAILS_ABB"
+msgstr "विवरण देखें"
+
+msgid "IDS_MSG_OPT_VIEW_CONTACT_DETAILS_ABB"
+msgstr "संपर्क विवरण देखें"
+
+msgid "IDS_MSG_OPT_VIEW_AS_SLIDESHOW_ABB"
+msgstr "स्लाइडशो के रूप में देखें"
+
+msgid "IDS_MSG_OPT_UPDATE_CONTACT"
+msgstr "संपर्क अपडेट करें"
+
+msgid "IDS_MSG_OPT_UNICODE"
+msgstr "यूनिकोड"
+
+msgid "IDS_MSG_OPT_TAKE_PICTURE_ABB"
+msgstr "तस्वीर लें"
+
+msgid "IDS_MSG_OPT_SAVE_ATTACHMENTS_ABB"
+msgstr "अनुलग्नक सुरक्षित करें"
+
+msgid "IDS_MSG_OPT_RESEND"
+msgstr "पुन: भेजें"
+
+msgid "IDS_MSG_OPT_REPLY"
+msgstr "जवाब दें"
+
+msgid "IDS_MSG_OPT_REMOVE_FROM_BLOCK_LIST_ABB"
+msgstr "अवरुद्ध सूची से निकालें"
+
+msgid "IDS_MSG_OPT_RECORD_AUDIO_FILE_ABB"
+msgstr "ऑडियो फाइल रिकॉर्ड करें"
+
+msgid "IDS_MSG_OPT_QUICK_RESPONSE_ABB"
+msgstr "शीघ्र उत्तर"
+
+msgid "IDS_MSG_OPT_MAKE_VOICE_CALL"
+msgstr "वॉइस कॉल करें"
+
+msgid "IDS_MSG_OPT_GSM_ALPHABET_ABB"
+msgstr "GSM अक्षर"
+
+msgid "IDS_MSG_OPT_EXPORT_TO_DEVICE_MEMORY"
+msgstr "डिवाइस मेमोरी पर निर्यात करें"
+
+msgid "IDS_MSG_OPT_DELETE_MESSAGE"
+msgstr "सन्देश हटाएँ"
+
+msgid "IDS_MSG_OPT_DELETE_CONVERSATION_ABB"
+msgstr "वार्तालाप हटाएँ"
+
+msgid "IDS_MSG_OPT_CREATE_CONTACT_ABB"
+msgstr "संपर्क बनाएँ"
+
+msgid "IDS_MSG_OPT_COPY_TO_SIM_CARD_ABB"
+msgstr "SIM कार्ड पर कॉपी करें"
+
+msgid "IDS_MSG_OPT_COPY_TO_DEVICE_ABB"
+msgstr "डिवाइस में कॉपी करें"
+
+msgid "IDS_MSG_OPT_COPY_TEXT"
+msgstr "टेक्‍स्‍ट कॉपी करें"
+
+msgid "IDS_MSG_OPT_COPY"
+msgstr "कॉपी करें"
+
+msgid "IDS_MSG_OPT_BACK_UP"
+msgstr "बैकअप लें"
+
+msgid "IDS_MSG_OPT_AUTOMATIC"
+msgstr "स्वचालित"
+
+msgid "IDS_MSG_OPT_AUDIO_FILES_ABB2"
+msgstr "ऑडियो फाइलें"
+
+msgid "IDS_MSG_OPT_ATTACHMENT_ABB"
+msgstr "अनुलग्नक"
+
+msgid "IDS_MSG_OPT_ADD_TO_CONTACTS_ABB"
+msgstr "संपर्क में जोड़ें"
+
+msgid "IDS_MSG_OPT_ADD_TO_BLOCK_LIST_ABB"
+msgstr "अवरुद्ध सूची में जोड़ें"
+
+msgid "IDS_MSG_OPT_ADD_RECIPIENTS_ABB"
+msgstr "प्राप्तकर्ताओं को जोड़ें"
+
+msgid "IDS_MSG_NPBODY_SEARCH"
+msgstr "खोजें"
+
+msgid "IDS_MSG_NPBODY_NO_RESULTS_FOUND_ABB"
+msgstr "कोई परिणाम नहीं मिला"
+
+msgid "IDS_MSG_NPBODY_NO_QUICK_RESPONSES"
+msgstr "कोई शीघ्र जवाब नहीं"
+
+msgid "IDS_MSG_NPBODY_NO_PHRASES_BLOCKED"
+msgstr "कोई अवरुद्ध किए गए वाक्यांश नहीं हैं"
+
+msgid "IDS_MSG_NPBODY_NO_MESSAGES_ON_SIM_CARD"
+msgstr "SIM कार्ड पर कोई सन्देश नहीं हैं"
+
+msgid "IDS_MSG_NPBODY_NO_MESSAGES"
+msgstr "कोई सन्देश नहीं हैं"
+
+msgid "IDS_MSG_NPBODY_NO_BLOCKED_NUMBERS"
+msgstr "कोई अवरुद्ध नंबर नहीं"
+
+msgid "IDS_MSG_MBODY_VIBRATION"
+msgstr "कंपन"
+
+msgid "IDS_MSG_MBODY_UNKNOWN_NUMBER"
+msgstr "अज्ञात नंबर"
+
+msgid "IDS_MSG_MBODY_TEXT_MESSAGE_CENTRE_NUMBER_ABB"
+msgstr "टेक्‍स्‍ट सन्देश केन्द्र नंबर"
+
+msgid "IDS_MSG_HEADER_TEXT_MESSAGES_ABB"
+msgstr "टेक्स्ट सन्देश"
+
+msgid "IDS_MSG_HEADER_SWITCH_MOBILE_NETWORK_ABB2"
+msgstr "मोबाइल नेटवर्क स्विच करें"
+
+msgid "IDS_MSG_HEADER_SMS_CENTRE_ABB2"
+msgstr "SMS केन्द्र"
+
+msgid "IDS_MSG_HEADER_SELECT_RECIPIENT"
+msgstr "प्राप्‍तकर्ता चुनें"
+
+msgid "IDS_MSG_HEADER_PD_SELECTED_ABB3"
+msgstr "%d चयनित"
+
+msgid "IDS_MSG_HEADER_MESSAGES_ON_SIM_CARD_ABB"
+msgstr "SIM कार्ड के सन्देश"
+
+msgid "IDS_MSG_HEADER_INPUT_MODE_ABB"
+msgstr "इनपुट मोड"
+
+msgid "IDS_MSG_HEADER_FILE_SIZE_TOO_LARGE_ABB"
+msgstr "फाइल आकार बहुत बड़ा है"
+
+msgid "IDS_MSG_HEADER_FAILED_TO_SEND_MESSAGE_ABB"
+msgstr "सन्देश भेजने में विफल"
+
+msgid "IDS_MSG_HEADER_DISCARD_MESSAGE_M_CLOSE_ABB"
+msgstr "सन्देश निरस्त करें"
+
+msgid "IDS_MSG_HEADER_CREATE"
+msgstr "बनाएँ"
+
+msgid "IDS_MSG_HEADER_ADD_CONTENT_ABB"
+msgstr "सामग्री जोड़ें"
+
+msgid "IDS_MSG_BUTTON_SWITCH_ABB2"
+msgstr "स्विच करें"
+
+msgid "IDS_MSG_BUTTON_SAVE_ABB2"
+msgstr "सुरक्षित"
+
+msgid "IDS_MSG_BUTTON_RESEND_ABB"
+msgstr "पुनः भेजें"
+
+msgid "IDS_MSG_BUTTON_DISCARD_ABB"
+msgstr "निरस्त करें"
+
+msgid "IDS_MSG_BUTTON_DELETE_ABB4"
+msgstr "हटाएँ"
+
+msgid "IDS_MSG_BUTTON_CANCEL_ABB2"
+msgstr "रद्द करें"
+
+msgid "IDS_MSG_BUTTON2_CONTACTS_ABB_M_APPLICATION_NAME"
+msgstr "संपर्क"
+
+msgid "IDS_MSG_BODY_YOU_HAVE_SELECTED_A_SOUND_N_SHOT_FILE_SOUND_DATA_IS_NOT_SUPPORTED_FOR_MMS_SO_ONLY_THE_PICTURE_WILL_BE_ATTACHED"
+msgstr "आपने किसी साउंड और शॉट फाइल का चयन किया है। MMS के लिए ध्वनि डाटा समर्थित नहीं है इसलिए केवल तस्वीर संलग्न की जाएगी।"
+
+msgid "IDS_MSG_BODY_WAITING_TO_SEND_ING_M_STATUS"
+msgstr "भेजने के प्रतीक्षा कर रहा है..."
+
+msgid "IDS_MSG_BODY_UNABLE_TO_SEND_THIS_MESSAGE_INSERT_YOUR_SIM_CARD_AND_TRY_AGAIN"
+msgstr "यह सन्देश भेजने में अक्षम। आपका SIM कार्ड प्रविष्ट करें और फिर से प्रयास करें।"
+
+msgid "IDS_MSG_BODY_TYPE_C"
+msgstr "प्रकार:"
+
+msgid "IDS_MSG_BODY_TO_USE_RESTRICTED_MEDIA_TYPES_CHANGE_YOUR_MMS_CREATION_MODE_SETTING"
+msgstr "प्रतिबंधित मीडिया प्रकार उपयोग करने के लिए, अपनी MMS निर्माण मोड सेटिंग बदलें।"
+
+msgid "IDS_MSG_BODY_TIME_SENT_C"
+msgstr "भेजने का समय:"
+
+msgid "IDS_MSG_BODY_TIME_RECEIVED_C"
+msgstr "प्राप्ति का समय:"
+
+msgid "IDS_MSG_BODY_STATUS_C"
+msgstr "स्थिति:"
+
+msgid "IDS_MSG_BODY_SENT_M_STATUS"
+msgstr "भेजा गया"
+
+msgid "IDS_MSG_BODY_SENDING_ING_M_STATUS_ABB"
+msgstr "भेज रहा है..."
+
+msgid "IDS_MSG_BODY_SENDING_FAILED_M_STATUS"
+msgstr "भेजना विफल हुआ"
+
+msgid "IDS_MSG_BODY_RETRIEVE_MESSAGES_AUTOMATICALLY_WHILE_ROAMING"
+msgstr "रोमिंग के दौरान स्वचालित रूप से सन्देश पुनर्प्राप्त करें।"
+
+msgid "IDS_MSG_BODY_RETRIEVE_MESSAGES_AUTOMATICALLY"
+msgstr "स्वचालित रूप से सन्देश पुनर्प्राप्त करें।"
+
+msgid "IDS_MSG_BODY_READ_REPORT_C_PS"
+msgstr "रिपोर्ट पढ़ें: %s"
+
+msgid "IDS_MSG_BODY_OTHER_PERSON"
+msgstr "अन्य व्यक्ति"
+
+msgid "IDS_MSG_BODY_MEMO_T_MAINMENU"
+msgstr "मेमो"
+
+msgid "IDS_MSG_BODY_FAILED_M_STATUS_ABB2"
+msgstr "विफल"
+
+msgid "IDS_MSG_BODY_ENTER_TEXT_M_NOUN"
+msgstr "टेक्स्ट प्रविष्ट करें"
+
+msgid "IDS_MSG_BODY_DRAFT_M_STATUS_ABB"
+msgstr "ड्राफ्ट"
+
+msgid "IDS_MSG_BODY_DELIVERY_REPORT_C_PS"
+msgstr "वितरण रिपोर्ट: %s"
+
+msgid "IDS_MSG_BODY_CB_MESSAGE"
+msgstr "CB सन्देश"
+
+msgid "IDS_MSG_BODY_CALENDAR_M_APPLICATION_NAME_ABB"
+msgstr "कैलेंडर"
+
+msgid "IDS_MSG_BODY_AFTER_YOU_SEND_OR_RECEIVE_MESSAGES_THEY_WILL_BE_SHOWN_HERE"
+msgstr "आपके द्वारा सन्देश भेजने या प्राप्त करने के बाद, वे यहां दिखाए जाएँगे।"
+
+msgid "IDS_MSG_BODY_AFTER_YOU_CREATE_QUICK_RESPONSES_THEY_WILL_BE_SHOWN_HERE"
+msgstr "आपके द्वारा शीघ्र जवाब बनाने के बाद, वे यहां दिखाए देंगे।"
+
+msgid "IDS_MSG_BODY_AFTER_YOU_COPY_MESSAGES_TO_THE_SIM_CARD_THEY_WILL_BE_SHOWN_HERE"
+msgstr "आपके द्वारा सन्देशों को SIM कार्ड में कॉपी करने के बाद, वे यहां दिखाई देंगे।"
+
+msgid "IDS_MSG_BODY_AFTER_YOU_ADD_PHRASES_THEY_WILL_BE_SHOWN_HERE"
+msgstr "आपके द्वारा वाक्यांश जोड़ने के बाद, वे यहाँ दिखाई देंगे।"
+
+msgid "IDS_MSG_BODY_AFTER_YOU_ADD_NUMBERS_TO_THE_MESSAGE_BLOCK_LIST_THEY_WILL_BE_SHOWN_HERE"
+msgstr "आपके द्वारा सन्देश अवरुद्ध सूची में नंबर्स जोड़ने के बाद, वे यहाँ दिखाई देंगे।"
+
+msgid "IDS_MSG_ACBUTTON_DELETE_ABB"
+msgstr "हटाएँ"
+
+msgid "IDS_MSGC_POP_UNSUPPORTED_MEDIA_TYPE"
+msgstr "असमर्थित मीडिया प्रकार।"
+
+msgid "IDS_MSGC_POP_LOW_BATTERY"
+msgstr "बैटरी कम है।"
+
+msgid "IDS_MSGC_POP_CANCELLED"
+msgstr "रद्द हुआ।"
+
+msgid "IDS_MSGC_OPT_EMAIL"
+msgstr "ईमेल"
+
+msgid "IDS_MSGC_OPT_EDITITEM_VIEW"
+msgstr "देखें"
+
+msgid "IDS_MSGC_OPT_EDITITEM_REMOVE"
+msgstr "हटायें"
+
+msgid "IDS_MSGC_OPT_EDITITEM_PLAY"
+msgstr "चलाएँ"
+
+msgid "IDS_MSGC_OPT_CHANGE_RECIPIENTS_TO"
+msgstr "को"
+
+msgid "IDS_MSGC_HEADER_PREVIEW"
+msgstr "पूर्वावलोकन"
+
+msgid "IDS_MSGC_BODY_ENTER_SUBJECT"
+msgstr "विषय प्रविष्ट करें।"
+
+msgid "IDS_MSGF_POP_UNABLE_TO_FIND_LOCATION"
+msgstr "स्थान ढूँढने में असमर्थ।"
+
+msgid "IDS_MSGF_POP_REJECTED"
+msgstr "अस्‍वीकृत।"
+
+msgid "IDS_MSGF_POP_DELETING"
+msgstr "हटाया जा रहा है..."
+
+msgid "IDS_MSGF_POP_COPIED_TO_CLIPBOARD"
+msgstr "क्लिपबोर्ड में कॉपी किया गया।"
+
+msgid "IDS_MSGF_POP_BLOCK_PS_Q"
+msgstr "%s अवरुद्ध करें?"
+
+msgid "IDS_MSGF_OPT_SUBJECT_COLON"
+msgstr "विषय:"
+
+msgid "IDS_MSGF_OPT_SENDER_VIA_EMAIL"
+msgstr "ईमेल द्वारा भेजें"
+
+msgid "IDS_MSGF_OPT_SELECT"
+msgstr "चुनें"
+
+msgid "IDS_MSGF_OPT_SAVE"
+msgstr "सुरक्षित"
+
+msgid "IDS_MSGF_OPT_REMOVE"
+msgstr "हटायें"
+
+msgid "IDS_MSGF_OPT_FORWARD"
+msgstr "आगे भेजें"
+
+msgid "IDS_MSGF_OPT_DELETE_Q"
+msgstr "हटाएँ?"
+
+msgid "IDS_MSGF_HEADER_ADVANCED_SEARCH"
+msgstr "उन्नत खोज"
+
+msgid "IDS_MSGF_BODY_UNKNOWN"
+msgstr "अज्ञात"
+
+msgid "IDS_MSGF_BODY_SETTINGS"
+msgstr "सेटिंग्स"
+
+msgid "IDS_MSGF_BODY_RECIPIENTS"
+msgstr "प्राप्तकर्ता"
+
+msgid "IDS_MSGF_BODY_RECEIVED"
+msgstr "प्राप्त हुआ।"
+
+msgid "IDS_MSGF_BODY_OTHER"
+msgstr "अन्य"
+
+msgid "IDS_MSGF_BODY_NO_SUBJECT"
+msgstr "कोई विषय नहीं"
+
+msgid "IDS_MSGF_BODY_MSGSIZE_KB"
+msgstr "KB"
+
+msgid "IDS_MSGF_BODY_MESSAGE"
+msgstr "सन्देश"
+
+msgid "IDS_MSGF_BODY_ME"
+msgstr "मेरा"
+
+msgid "IDS_MSGF_BODY_EXPIRED"
+msgstr "समाप्त"
+
+msgid "IDS_MSGF_BODY_ALL"
+msgstr "सभी"
+
+msgid "IDS_MSG_SK_NO_ABB"
+msgstr "नहीं"
+
+msgid "IDS_MSG_POP_YOUR_MESSAGE_WILL_BE_DISCARDED_NO_RECIPIENTS_HAVE_BEEN_SELECTED"
+msgstr "आपका संदेश निरस्त कर दिया जाएगा। कोई प्राप्तकर्ता चयनित नहीं हैं।"
+
+msgid "IDS_MSG_POP_UNABLE_TO_PLAY_DURING_CALL"
+msgstr "कॉल के दौरान चलाने में असमर्थ।"
+
+msgid "IDS_MSG_POP_INCOMING_MESSAGES_ONLY"
+msgstr "केवल आने वाले सन्देश"
+
+msgid "IDS_MSG_POP_DELETED"
+msgstr "हटाया।"
+
+msgid "IDS_MSG_OPT_VIDEOS"
+msgstr "वीडियो"
+
+msgid "IDS_MSG_OPT_TEXT"
+msgstr "टेक्स्ट"
+
+msgid "IDS_MSG_OPT_SETTINGS"
+msgstr "सेटिंग्स"
+
+msgid "IDS_MSG_OPT_SEARCH"
+msgstr "खोजें"
+
+msgid "IDS_MSG_OPT_RECORD_VIDEO_ABB"
+msgstr "वीडियो रिकॉर्ड करें"
+
+msgid "IDS_MSG_OPT_NONE"
+msgstr "कुछ नहीं"
+
+msgid "IDS_MSG_OPT_IMAGES"
+msgstr "छवियाँ"
+
+msgid "IDS_MSG_OPT_EDIT"
+msgstr "संपादित करें"
+
+msgid "IDS_MSG_OPT_DELETE"
+msgstr "हटाएँ"
+
+msgid "IDS_MSG_OPT_DEFAULT"
+msgstr "डिफॉल्ट"
+
+msgid "IDS_MSG_MBODY_SELECT_ALL"
+msgstr "सभी चुनें"
+
+msgid "IDS_MSG_MBODY_ALERTS"
+msgstr "सतर्क"
+
+msgid "IDS_MSG_HEADER_TRANSLATE"
+msgstr "अनुवाद करें"
+
+msgid "IDS_MSG_HEADER_SETTINGS"
+msgstr "सेटिंग्स"
+
+msgid "IDS_MSG_HEADER_MESSAGES"
+msgstr "सन्देश"
+
+msgid "IDS_MSG_HEADER_DELETE"
+msgstr "हटाएँ"
+
+msgid "IDS_MSG_HEADER_ATTENTION"
+msgstr "ध्यान दें"
+
+msgid "IDS_MSG_BUTTON_REMOVE_ABB"
+msgstr "निकालें"
+
+msgid "IDS_MSG_BUTTON_OK_ABB"
+msgstr "ओके"
+
+msgid "IDS_MSG_BUTTON_DOWNLOAD_ABB3"
+msgstr "डाउनलोड"
+
+msgid "IDS_MSG_BUTTON_CANCEL_ABB"
+msgstr "रद्द करें"
+
+msgid "IDS_MSG_BODY_YES"
+msgstr "हाँ"
+
+msgid "IDS_MSG_BODY_TICK_BOX_T_TTS"
+msgstr "टिक बॉक्स"
+
+msgid "IDS_MSG_BODY_SEC"
+msgstr "सेकंड"
+
+msgid "IDS_MSG_BODY_MESSAGE"
+msgstr "सन्देश"
+
+msgid "IDS_MSG_BUTTON_SEND_ABB5"
+msgstr "भेजे"
+
+msgid "IDS_MSG_BUTTON_SEND_ABB3"
+msgstr "भेजें"
+
+msgid "IDS_MSG_ACBUTTON_SEND_ABB3"
+msgstr "भेजे"
+
+msgid "IDS_ST_BODY_LOADING_ING"
+msgstr "लोड हो रहा है..."
+
+msgid "IDS_MSGS_BODY_NOTIFICATIONS"
+msgstr "अधिसूचनाएँ"
+
+msgid "IDS_MSG_HEADER_ME"
+msgstr "मेरा"
+
+msgid "IDS_MSG_BODY_UNKNOWN"
+msgstr "अज्ञात"
+
+msgid "IDS_MSG_TMBODY_ADD_OR_REMOVE_RECIPIENTS"
+msgstr "प्राप्तकर्ता जोड़ें या निकालें"
+
+msgid "IDS_MSG_POP_THE_SENDER_HAS_REQUESTED_A_READ_REPORT_TAP_SEND_TO_SEND_ONE"
+msgstr "प्रेषक ने एक पठन रिपोर्ट का अनुरोध किया है। पठन रिपोर्ट भेजने के लिए “भेजें” पर टैप करें।"
+
+msgid "IDS_MSGF_OPT_SEND_READ_REPORT"
+msgstr "पढ़ने की रिपोर्ट भेजें"
+
+msgid "IDS_MSG_HEADER_COMPOSE_MESSAGE_ABB"
+msgstr "सन्देश लिखें"
+
+msgid "IDS_MSG_POP_NO_VALID_RECIPIENTS_HAVE_BEEN_ADDED_THIS_MESSAGE_WILL_BE_DISCARDED"
+msgstr "कोई मान्य प्राप्तकर्ता नहीं जोड़े गए। यह सन्देश निरस्त किया जाएगा।"
+

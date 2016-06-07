@@ -1,0 +1,945 @@
+msgid "IDS_COM_BODY_HOME"
+msgstr "Heima"
+
+msgid "IDS_MSGC_POP_DATA_ROAMING_IS_DISABLED_ENABLE_DATA_ROAMING_AND_TRY_AGAIN"
+msgstr "Slökkt er á gagnareiki. Virkjaðu gagnareiki og reyndu aftur."
+
+msgid "IDS_MSG_ACBUTTON_CANCEL_ABB"
+msgstr "HÆTTA VIÐ"
+
+msgid "IDS_MSG_ACBUTTON_DONE_ABB"
+msgstr "LOKIÐ"
+
+msgid "IDS_MSGF_POP_NEW_MESSAGE"
+msgstr "Ný boð"
+
+msgid "IDS_COM_BUTTON_SHARE"
+msgstr "Samnýta"
+
+msgid "IDS_COM_BODY_UNKNOWN"
+msgstr "Óþekkt"
+
+msgid "IDS_COM_BODY_MOBILE"
+msgstr "Farsími"
+
+msgid "IDS_MSGC_POP_MOBILE_DATA_IS_DISABLED_ENABLE_MOBILE_DATA_AND_TRY_AGAIN"
+msgstr "Slökkt er á farsímagögnum. Virkjaðu farsímagögn og reyndu aftur."
+
+msgid "IDS_TPLATFORM_ACBUTTON_SEND_ABB"
+msgstr "SENDA"
+
+msgid "IDS_MSGC_POP_UNABLE_TO_SEND_MESSAGES_WHILE_IN_FLIGHT_MODE_DISABLE_FLIGHT_MODE_AND_TRY_AGAIN"
+msgstr "Ekki er hægt að senda skilaboð þegar flugstilling er virk. Slökktu á flugstillingu og reyndu aftur."
+
+msgid "IDS_MSGC_POP_UNABLE_TO_ADD_FILE_IS_FORWARD_LOCKED"
+msgstr "Ekki tókst að framsenda\nLokað er fyrir framsendingu skrárinnar"
+
+msgid "IDS_MSGC_POP_THERE_IS_NOT_ENOUGH_SPACE_IN_YOUR_DEVICE_STORAGE_GO_TO_SETTINGS_POWER_AND_STORAGE_STORAGE_THEN_DELETE_SOME_FILES_AND_TRY_AGAIN"
+msgstr "Ekki er nægt rými í geymslu tækisins. Opnaðu Stillingar > Orka og geymsla > Geymsla til að eyða einhverjum skrám og reyndu svo aftur."
+
+msgid "IDS_MSGC_POP_TEXT_AT_TOP"
+msgstr "Texti efst"
+
+msgid "IDS_MSGC_POP_TEXT_AT_BOTTOM"
+msgstr "Texti neðst"
+
+msgid "IDS_MSGC_POP_SELECT_LAYOUT"
+msgstr "Velja útlit"
+
+msgid "IDS_MSGC_POP_MMSCANTADD"
+msgstr "Ekki tókst að bæta við innihaldi."
+
+msgid "IDS_MSGC_POP_MESSAGE_SCHEDULED_TO_BE_SENT_TO_PS_SEND_NOW_Q"
+msgstr "Skilaboð eru áætluð til sendingar til %s. Senda núna?"
+
+msgid "IDS_MSGC_POP_MAXIMUM_MESSAGE_SIZE_REACHED"
+msgstr "Hámarksstærð skilaboða er náð."
+
+msgid "IDS_MSGC_POP_DURATION_MUST_BE_AT_LEAST_PD_SECONDS"
+msgstr "Tímalengdin þarf að vera minnst %d sekúndur."
+
+msgid "IDS_MSGC_POP_DISABLING_FLIGHT_MODE_ING"
+msgstr "Geri flugstillingu óvirka..."
+
+msgid "IDS_MSGC_POP_COPIED_TO_SIM_CARD"
+msgstr "Afritað á SIM-kort."
+
+msgid "IDS_MSGC_OPT_USE_OTHER_CONTACT_INFO_ABB"
+msgstr "Nota aðr. tengil.uppl."
+
+msgid "IDS_MSGC_OPT_SEND_VIA"
+msgstr "Senda með"
+
+msgid "IDS_MSGC_OPT_IMAGE"
+msgstr "Mynd"
+
+msgid "IDS_MSGC_OPT_EDIT_ITEM_REPLACE"
+msgstr "Skipta út"
+
+msgid "IDS_MSGC_OPT_CANCEL_MESSAGE"
+msgstr "Hætta við skilaboð"
+
+msgid "IDS_MSGC_HEADER_RECIPIENT_LIST"
+msgstr "Viðtakendalisti"
+
+msgid "IDS_MSGC_HEADER_DURATION_FOR_SLIDE_PD_PD"
+msgstr "Tímalengd skyggnu %d/%d"
+
+msgid "IDS_MSGC_BODY_WAIT_WHILE_ITEMS_ARE_ADDED_TO_SLIDESHOW"
+msgstr "Bíddu á meðan atriðum er bætt við skyggnusýningu."
+
+msgid "IDS_MSGC_BODY_UNABLE_TO_SEND_MESSAGE"
+msgstr "Mistókst að senda skilaboð."
+
+msgid "IDS_MSGC_BODY_SELECT_RINGTONE"
+msgstr "Velja hringitón"
+
+msgid "IDS_MSGC_BODY_READ_REPORT_WILL_BE_SENT"
+msgstr "Lestilkynning verður send."
+
+msgid "IDS_MSGC_BODY_NOT_REQUESTED"
+msgstr "Ekki beðið um"
+
+msgid "IDS_MSGC_BODY_MAXIMUM_NUMBER_OF_RECIPIENTS_HPD_REACHED"
+msgstr "Hámarksfjölda viðtakenda (%d) náð."
+
+msgid "IDS_MSGC_BODY_DUPLICATED_RECIPIENT"
+msgstr "Viðtakandi kemur tvisvar fyrir."
+
+msgid "IDS_MSGF_SK_FORWARD_LITE"
+msgstr "Frams."
+
+msgid "IDS_MSGF_POP_UNABLE_TO_SAVE"
+msgstr "Ekki er hægt að vista."
+
+msgid "IDS_MSGF_POP_UNABLE_TO_DELETE"
+msgstr "Það er ekki hægt að eyða."
+
+msgid "IDS_MSGF_POP_UNABLE_TO_COPY"
+msgstr "Mistókst að afrita."
+
+msgid "IDS_MSGF_POP_SOME_CHARACTERS_MAY_BE_LOST_CONTINUE_Q"
+msgstr "Sumir stafir gætu glatast.\nÁ að halda áfram?"
+
+msgid "IDS_MSGF_POP_SIM_NOT_INSERTED"
+msgstr "Það er ekkert SIM-kort til staðar."
+
+msgid "IDS_MSGF_POP_SAVING_FAILED"
+msgstr "Mistókst að vista."
+
+msgid "IDS_MSGF_POP_SAVED_IN_MY_FILES"
+msgstr "Vistað í skránum þínum."
+
+msgid "IDS_MSGF_POP_RETRIEVING_MESSAGE_FAILED"
+msgstr "Mistókst að sækja skilaboð"
+
+msgid "IDS_MSGF_POP_RESTRICTED_CONTENT_TYPE_ATTACH_ANYWAY_Q"
+msgstr "Takmarkað efnissnið. Hengja það samt við?"
+
+msgid "IDS_MSGF_POP_RESTORING_ING"
+msgstr "Endurbyggja"
+
+msgid "IDS_MSGF_POP_READ_REPORT"
+msgstr "Lestilkynning"
+
+msgid "IDS_MSGF_POP_NO_NUMBER"
+msgstr "Númer vantar"
+
+msgid "IDS_MSGF_POP_NO_ATTACHMENTS"
+msgstr "Engin viðhengi"
+
+msgid "IDS_MSGF_POP_NEW_MESSAGES"
+msgstr "Ný skilaboð"
+
+msgid "IDS_MSGF_POP_MESSAGE_COPIED_FROM_SIM_CARD"
+msgstr "Skilaboð afrituð af SIM-korti."
+
+msgid "IDS_MSGF_POP_MAXIMUM_NUMBER_OF_RECIPIENTS_IS_PD_SOME_RECIPIENTS_MAY_BE_LOST"
+msgstr "Hámarksfjölda %d viðtakenda er náð. Ekki er víst að allir viðtakendur birtist."
+
+msgid "IDS_MSGF_POP_MAXIMUM_NUMBER_OF_ATTACHMENTS_HPS_EXCEEDED"
+msgstr "Hámarksfjölda viðhengja (%s) er náð."
+
+msgid "IDS_MSGF_POP_MAXIMUM_CHARACTERS"
+msgstr "Hámarksfjölda stafa hefur verið náð."
+
+msgid "IDS_MSGF_POP_IN_PROGRESS_ING"
+msgstr "Stendur yfir..."
+
+msgid "IDS_MSGF_POP_INTIALISING"
+msgstr "Verið er að frumstilla..."
+
+msgid "IDS_MSGF_POP_IF_YOU_DONT_WANT_TO_REPLACE_THE_FILE_RENAME_IT"
+msgstr "Ef þú vilt ekki skipta skránni út skaltu endurnefna hana."
+
+msgid "IDS_MSGF_POP_HELP_PAGE_MESSAGE_FOR_ONE_FILE"
+msgstr "Í þessum skilaboðum er viðhengi ekki sýnt."
+
+msgid "IDS_MSGF_POP_HELP_PAGE_MESSAGE"
+msgstr "Í þessum skilaboðum eru viðhengin ekki sýnd."
+
+msgid "IDS_MSGF_POP_FILE_NAME_ALREADY_EXISTS"
+msgstr "Sama skrárheiti er til fyrir."
+
+msgid "IDS_MSGF_POP_CONVERTING_TO_TEXT_MESSAGE_ING"
+msgstr "Breyti í textaskilaboð..."
+
+msgid "IDS_MSGF_POP_CONVERTING_TO_MULTIMEDIA_MESSAGE_ING"
+msgstr "Breyti í margmiðlunarskilaboð..."
+
+msgid "IDS_MSGF_POP_ABOUT_TO_GO_ONLINE_CONTINUE_Q"
+msgstr "Þú ert að fara að tengjast (%s)? Viltu halda áfram?"
+
+msgid "IDS_MSGF_OPT_TEXT_MESSAGE"
+msgstr "Textaskilaboð"
+
+msgid "IDS_MSGF_OPT_SENDER_ABB"
+msgstr "Sendandi"
+
+msgid "IDS_MSGF_OPT_SAVE_ATTACHMENT"
+msgstr "Vista viðhengi"
+
+msgid "IDS_MSGF_OPT_INSTALL"
+msgstr "Setja upp"
+
+msgid "IDS_MSGF_OPT_EDIT_MESSAGE"
+msgstr "Breyta skilaboðum"
+
+msgid "IDS_MSGF_OPT_DELETE_MESSAGES"
+msgstr "Eyða skilaboðum"
+
+msgid "IDS_MSGF_HEADER_SELECT_MESSAGES"
+msgstr "Velja skilaboð"
+
+msgid "IDS_MSGF_HEADER_SAVE_ALL"
+msgstr "Vista allt"
+
+msgid "IDS_MSGF_HEADER_MESSAGE_DETAILS"
+msgstr "Upplýsingar um skilaboð"
+
+msgid "IDS_MSGF_HEADER_EXPIRES_C_PS"
+msgstr "„Rennur út: %s"
+
+msgid "IDS_MSGF_BUTTON_SAVE_ALL_ATTACHMENTS_ABB"
+msgstr "Vista öll viðhengi"
+
+msgid "IDS_MSGF_BODY_TO_C"
+msgstr "Til:"
+
+msgid "IDS_MSGF_BODY_TEXT_MESSAGES"
+msgstr "Textaboð"
+
+msgid "IDS_MSGF_BODY_SIM_MEMORY_FULL_DELETE_SOME_ITEMS"
+msgstr "SIM-minnið er fullt. Eyddu einhverjum hlutum."
+
+msgid "IDS_MSGF_BODY_SENT_M_DATE_C"
+msgstr "Sent:"
+
+msgid "IDS_MSGF_BODY_REQUESTED"
+msgstr "Beiðnin var send."
+
+msgid "IDS_MSGF_BODY_RECEIVED_M_DATE_C"
+msgstr "Móttekið:"
+
+msgid "IDS_MSGF_BODY_READ_REPORT"
+msgstr "Lestilkynning"
+
+msgid "IDS_MSGF_BODY_PUSH_MESSAGES"
+msgstr "Push-skilaboð"
+
+msgid "IDS_MSGF_BODY_PD_MESSAGES"
+msgstr "%d skilaboð"
+
+msgid "IDS_MSGF_BODY_PD_CONVERSATIONS"
+msgstr "%d samtöl"
+
+msgid "IDS_MSGF_BODY_NO_NAME"
+msgstr "Ekkert heiti"
+
+msgid "IDS_MSGF_BODY_MULTIMEDIA_MESSAGE_NOTIFICATION"
+msgstr "Tilkynning um margmiðlunarskilaboð"
+
+msgid "IDS_MSGF_BODY_MULTIMEDIA_MESSAGE"
+msgstr "Margmiðlun"
+
+msgid "IDS_MSGF_BODY_MMSREADREPLYMSGREAD"
+msgstr "Lesa"
+
+msgid "IDS_MSGF_BODY_MMSDELIVERYMSGREJECTED"
+msgstr "Boðum hafnað."
+
+msgid "IDS_MSGF_BODY_MMS"
+msgstr "MMS"
+
+msgid "IDS_MSGF_BODY_MESSAGE_SIZE"
+msgstr "Stærð skilaboða"
+
+msgid "IDS_MSGF_BODY_MESSAGE_OPTIONS"
+msgstr "Valkostir skilaboða"
+
+msgid "IDS_MSGF_BODY_MESSAGE_DELIVERED"
+msgstr "Boð afhent"
+
+msgid "IDS_MSGF_BODY_MAXIMUM_NUMBER_OF_ATTACHMENTS_HP1SS_EXCEEDED_ONLY_FIRST_P2SS_WILL_BE_ADDED"
+msgstr "Hámarksfjölda skilaboða (%1$s) náð. Fyrstu %2$s verður eingöngu bætt við."
+
+msgid "IDS_MSGF_BODY_INVALID_RECIPIENT"
+msgstr "Ógildur viðtakandi."
+
+msgid "IDS_MSGF_BODY_FROM"
+msgstr "Frá"
+
+msgid "IDS_MSGF_BODY_FLFROM"
+msgstr "Frá:"
+
+msgid "IDS_MSGF_BODY_DETAILSSENDINGFAILED"
+msgstr "Sending mistókst."
+
+msgid "IDS_MSGF_BODY_DELIVERY_REPORT"
+msgstr "Skilatilkynning"
+
+msgid "IDS_MSGF_BODY_CP_MESSAGES"
+msgstr "CP-skilaboð"
+
+msgid "IDS_MSGF_BODY_COPY_TEXT"
+msgstr "Afrita texta"
+
+msgid "IDS_MSGF_BODY_CB_MESSAGES"
+msgstr "Skilaboð frá endurvarpa"
+
+msgid "IDS_MSGF_BODY_1_MESSAGE"
+msgstr "1 skilaboð"
+
+msgid "IDS_MSGF_BODY_1_CONVERSATION"
+msgstr "1 samtal"
+
+msgid "IDS_MSGS_BODY_REQUEST_A_READ_REPORT_FOR_EACH_MESSAGE_YOU_SEND"
+msgstr "Biðja um lestilkynningu fyrir öll send skilaboð."
+
+msgid "IDS_MSGS_BODY_REQUEST_A_DELIVERY_REPORT_FOR_EACH_MESSAGE_YOU_SEND"
+msgstr "Biðja um skilatilkynningu fyrir öll send skilaboð."
+
+msgid "IDS_MSGS_BODY_RADIO_BUTTON"
+msgstr "Valhringur"
+
+msgid "IDS_MSGS_BODY_ON_OFF_BUTTON_T_TTS"
+msgstr "Hnappur til að kveikja og slökkva"
+
+msgid "IDS_MSGS_BODY_EXPANDABLE_LIST_T_TTS"
+msgstr "Stækkanlegur listi"
+
+msgid "IDS_MSGS_BODY_AUTOMATICALLY_RETRIEVE_MMS_MESSAGES"
+msgstr "Sækja MMS-skilaboð sjálfkrafa."
+
+msgid "IDS_MSG_TPOP_UNABLE_TO_PREVIEW_FILE_UNSUPPORTED_FILE_TYPE"
+msgstr "Ekki er hægt að forskoða skrána. Skráargerðin er ekki studd."
+
+msgid "IDS_MSG_TPOP_UNABLE_TO_ATTACH_FILE_FILE_FORMAT_NOT_SUPPORTED"
+msgstr "Ekki er hægt að hengja skrá við. Skráarsniðið er ekki stutt."
+
+msgid "IDS_MSG_TPOP_UNABLE_TO_ADD_SOME_RECIPIENTS_NUMBERS_NOT_VALID"
+msgstr "Mistókst að bæta einhverjum viðtakendum við. Númer eru ekki gild."
+
+msgid "IDS_MSG_TPOP_UNABLE_TO_ADD_RECIPIENT_NUMBER_NOT_VALID"
+msgstr "Mistókst að bæta viðtakanda við. Númer er ekki gilt."
+
+msgid "IDS_MSG_TPOP_UNABLE_TO_ADD_RECIPIENTS_NUMBERS_NOT_VALID"
+msgstr "Mistókst að bæta viðtakendum við. Númer eru ekki gild."
+
+msgid "IDS_MSG_TPOP_UNABLE_TO_ADD_ATTACHMENT_MAXIMUM_NUMBER_OF_ATTACHMENTS_HPD_REACHED"
+msgstr "Ekki er hægt að bæta viðhengi við. Hámarksfjölda viðhengja (%d) hefur verið náð."
+
+msgid "IDS_MSG_TPOP_THIS_NUMBER_IS_NOT_VALID"
+msgstr "Þetta númer er ógilt."
+
+msgid "IDS_MSG_TPOP_SOME_RECIPIENTS_ALREADY_ADDED"
+msgstr "Einhverjum viðtakendum hefur þegar verið bætt við."
+
+msgid "IDS_MSG_TPOP_SELECTED_MESSAGES_COPIED_TO_MOBILE_DEVICE"
+msgstr "Valin skilaboð verða afrituð í fartæki."
+
+msgid "IDS_MSG_TPOP_PD_MESSAGES_MOVED_TO_MESSAGE_LIST"
+msgstr "%d skilaboð færð á skilaboðalista."
+
+msgid "IDS_MSG_TPOP_NUMBER_REMOVED_FROM_MESSAGE_BLOCK_LIST"
+msgstr "Númer var fjarlægt af útilokunarlista skilaboða."
+
+msgid "IDS_MSG_TPOP_NUMBER_ADDED_TO_MESSAGE_BLOCK_LIST"
+msgstr "Númeri var bætt á útilokunarlista skilaboða."
+
+msgid "IDS_MSG_TPOP_NETWORK_NOT_AVAILABLE_MESSAGE_WILL_BE_SENT_WHEN_CONNECTED_TO_NETWORK"
+msgstr "Engin tenging er til staðar. Skilaboðin verða send þegar tenging er komin á."
+
+msgid "IDS_MSG_TPOP_MESSAGE_COPIED_TO_PS_SIM_CARD"
+msgstr "Skilaboð afrituð yfir á SIM-kortið %s."
+
+msgid "IDS_MSG_TPOP_MAXIMUM_NUMBER_OF_CHARACTERS_EXCEEDED"
+msgstr "Hámarksfjölda stafa náð."
+
+msgid "IDS_MSG_TPOP_MAXIMUM_MESSAGE_SIZE_HPS_EXCEEDED_RESIZING_ATTACHMENTS_ING"
+msgstr "Hámarksstærð skeytis (%s) hefur verið náð. Breyti stærð viðhengja..."
+
+msgid "IDS_MSG_TPOP_INVALID_CHARACTER_ENTERED"
+msgstr "Ógildur stafur var sleginn inn."
+
+msgid "IDS_MSG_TPOP_ADD_RECIPIENTS"
+msgstr "Bættu við viðtakendum."
+
+msgid "IDS_MSG_TPOP_1_MESSAGE_MOVED_TO_MESSAGE_LIST"
+msgstr "1 skilaboð færð á skilaboðalista."
+
+msgid "IDS_MSG_TMBODY_TEXT_MESSAGES"
+msgstr "Textaskilaboð"
+
+msgid "IDS_MSG_TMBODY_SOUND"
+msgstr "Hljóð"
+
+msgid "IDS_MSG_TMBODY_MULTIMEDIA_MESSAGES"
+msgstr "Margmiðlunarskilaboð"
+
+msgid "IDS_MSG_TMBODY_MESSAGES_ON_SIM_CARD"
+msgstr "Skilaboð á SIM-korti"
+
+msgid "IDS_MSG_TMBODY_INPUT_MODE"
+msgstr "Innsláttaraðferð"
+
+msgid "IDS_MSG_TMBODY_AUTO_RETRIEVE_WHILE_ROAMING"
+msgstr "Sækja sjálfkrafa í reiki"
+
+msgid "IDS_MSG_TMBODY_AUTO_RETRIEVE"
+msgstr "Sækja sjálfkrafa"
+
+msgid "IDS_MSG_SK_SEND_NOW"
+msgstr "Senda nú"
+
+msgid "IDS_MSG_SBODY_SELECT_AN_INPUT_MODE_FOR_COMPOSING_MESSAGES"
+msgstr "Veldu innsláttaraðferð þegar skilaboð eru skrifuð."
+
+msgid "IDS_MSG_SBODY_NONE_M_STATUS"
+msgstr "Engin"
+
+msgid "IDS_MSG_SBODY_MANAGE_THE_MESSAGES_STORED_ON_YOUR_SIM_CARD"
+msgstr "Vinna með skilaboð á SIM-korti."
+
+msgid "IDS_MSG_POP_UNABLE_TO_SEND_SCHEDULED_MESSAGE_SET_ANOTHER_TIME"
+msgstr "Mistókst að senda áætluð skilaboð. Veldu annan tíma."
+
+msgid "IDS_MSG_POP_UNABLE_TO_ATTACH_FILE_FILE_SIZE_TOO_LARGE_TRY_SENDING_VIA_EMAIL_BLUETOOTH_WI_FI_ETC"
+msgstr "Ekki er hægt að hengja skrána við, þar sem hún er of stór. Prófaðu að senda í tölvupósti, um Bluetooth, Wi-Fi o.s.frv."
+
+msgid "IDS_MSG_POP_TO_SEND_THIS_MULTIMEDIA_MESSAGE_THE_DEVICE_WILL_CONNECT_TO_A_DIFFERENT_MOBILE_NETWORK_THIS_WILL_DISCONNECT_YOUR_DEVICE_FROM_YOUR_MSG"
+msgstr "Tækið mun tengjast öðru farsímakerfi til að senda þessi margmiðlunarskilaboð. Við það aftengist tækið frá núverandi farsímakerfi."
+
+msgid "IDS_MSG_POP_TO_DOWNLOAD_THIS_MULTIMEDIA_MESSAGE_THE_DEVICE_WILL_CONNECT_TO_A_DIFFERENT_MOBILE_NETWORK_MSG"
+msgstr "Tækið mun tengjast öðru farsímakerfi til að sækja þessi margmiðlunarskilaboð. Við það aftengist tækið frá núverandi farsímakerfi."
+
+msgid "IDS_MSG_POP_THIS_MESSAGE_WILL_BE_RESENT"
+msgstr "Þessi skilaboð verða endursend."
+
+msgid "IDS_MSG_POP_PD_MESSAGES_WILL_BE_DELETED"
+msgstr "%d skilaboðum verður eytt."
+
+msgid "IDS_MSG_POP_PD_CONVERSATIONS_WILL_BE_DELETED"
+msgstr "%d samtölum verður eytt."
+
+msgid "IDS_MSG_POP_NO_TEMPLATES_IN_LIST"
+msgstr "Engin sniðmát á lista"
+
+msgid "IDS_MSG_POP_INCLUDE_ORIGINAL_TEXT_IN_OUTGOING_MESSAGE"
+msgstr "Láta upprunalega textann fylgja sendum skilaboðum"
+
+msgid "IDS_MSG_POP_DURATION_MUST_BE_SHORTER_THAN_PD_SECONDS"
+msgstr "Lengdin verður að vera minni en %d sekúndur."
+
+msgid "IDS_MSG_POP_1_MESSAGE_WILL_BE_DELETED"
+msgstr "1 skilaboðum verður eytt."
+
+msgid "IDS_MSG_POP_1_CONVERSATION_WILL_BE_DELETED"
+msgstr "1 samtali verður eytt."
+
+msgid "IDS_MSG_OPT_VIEW_DETAILS_ABB"
+msgstr "Skoða upplýsingar"
+
+msgid "IDS_MSG_OPT_VIEW_CONTACT_DETAILS_ABB"
+msgstr "Skoða samskiptaupplýsingar"
+
+msgid "IDS_MSG_OPT_VIEW_AS_SLIDESHOW_ABB"
+msgstr "Skoða sem skyggnusýningu"
+
+msgid "IDS_MSG_OPT_UPDATE_CONTACT"
+msgstr "Uppfæra tengilið"
+
+msgid "IDS_MSG_OPT_UNICODE"
+msgstr "Unicode"
+
+msgid "IDS_MSG_OPT_TAKE_PICTURE_ABB"
+msgstr "Taka mynd"
+
+msgid "IDS_MSG_OPT_SAVE_ATTACHMENTS_ABB"
+msgstr "Vista viðhengi"
+
+msgid "IDS_MSG_OPT_RESEND"
+msgstr "Endursenda"
+
+msgid "IDS_MSG_OPT_REPLY"
+msgstr "Svara"
+
+msgid "IDS_MSG_OPT_REMOVE_FROM_BLOCK_LIST_ABB"
+msgstr "Fjarlægja af útilokunarlista"
+
+msgid "IDS_MSG_OPT_RECORD_AUDIO_FILE_ABB"
+msgstr "Taka upp hljóðskrá"
+
+msgid "IDS_MSG_OPT_QUICK_RESPONSE_ABB"
+msgstr "Hraðsvar"
+
+msgid "IDS_MSG_OPT_MAKE_VOICE_CALL"
+msgstr "Hringja símtal"
+
+msgid "IDS_MSG_OPT_GSM_ALPHABET_ABB"
+msgstr "GSM-stafróf"
+
+msgid "IDS_MSG_OPT_EXPORT_TO_DEVICE_MEMORY"
+msgstr "Flytja í minni tækis"
+
+msgid "IDS_MSG_OPT_DELETE_MESSAGE"
+msgstr "Eyða skilaboðum"
+
+msgid "IDS_MSG_OPT_DELETE_CONVERSATION_ABB"
+msgstr "Eyða samtali"
+
+msgid "IDS_MSG_OPT_CREATE_CONTACT_ABB"
+msgstr "Búa til tengilið"
+
+msgid "IDS_MSG_OPT_COPY_TO_SIM_CARD_ABB"
+msgstr "Afrita yfir á SIM-kort"
+
+msgid "IDS_MSG_OPT_COPY_TO_DEVICE_ABB"
+msgstr "Afrita í tæki"
+
+msgid "IDS_MSG_OPT_COPY_TEXT"
+msgstr "Afrita texta"
+
+msgid "IDS_MSG_OPT_COPY"
+msgstr "Afrita"
+
+msgid "IDS_MSG_OPT_BACK_UP"
+msgstr "Afrita"
+
+msgid "IDS_MSG_OPT_AUTOMATIC"
+msgstr "Sjálfvirkt"
+
+msgid "IDS_MSG_OPT_AUDIO_FILES_ABB2"
+msgstr "Hljóðskrár"
+
+msgid "IDS_MSG_OPT_ATTACHMENT_ABB"
+msgstr "Viðhengi"
+
+msgid "IDS_MSG_OPT_ADD_TO_CONTACTS_ABB"
+msgstr "Bæta við tengiliði"
+
+msgid "IDS_MSG_OPT_ADD_TO_BLOCK_LIST_ABB"
+msgstr "Bæta á útilokunarlista"
+
+msgid "IDS_MSG_OPT_ADD_RECIPIENTS_ABB"
+msgstr "Bæta viðtakendum við"
+
+msgid "IDS_MSG_NPBODY_SEARCH"
+msgstr "Leita"
+
+msgid "IDS_MSG_NPBODY_NO_RESULTS_FOUND_ABB"
+msgstr "Engar niðurstöður"
+
+msgid "IDS_MSG_NPBODY_NO_QUICK_RESPONSES"
+msgstr "Engin snarsvör"
+
+msgid "IDS_MSG_NPBODY_NO_PHRASES_BLOCKED"
+msgstr "Engar útilokaðar setningar"
+
+msgid "IDS_MSG_NPBODY_NO_MESSAGES_ON_SIM_CARD"
+msgstr "Engin skilaboð á SIM-korti"
+
+msgid "IDS_MSG_NPBODY_NO_MESSAGES"
+msgstr "Engin skilaboð"
+
+msgid "IDS_MSG_NPBODY_NO_BLOCKED_NUMBERS"
+msgstr "Engin númer á útilokunarlista"
+
+msgid "IDS_MSG_MBODY_VIBRATION"
+msgstr "Titringur"
+
+msgid "IDS_MSG_MBODY_UNKNOWN_NUMBER"
+msgstr "Óþekkt númer"
+
+msgid "IDS_MSG_MBODY_TEXT_MESSAGE_CENTRE_NUMBER_ABB"
+msgstr "Númer SMS-skilaboðamiðstöðvar"
+
+msgid "IDS_MSG_HEADER_TEXT_MESSAGES_ABB"
+msgstr "Textaskilaboð"
+
+msgid "IDS_MSG_HEADER_SWITCH_MOBILE_NETWORK_ABB2"
+msgstr "Skipta um farsímakerfi"
+
+msgid "IDS_MSG_HEADER_SMS_CENTRE_ABB2"
+msgstr "SMS-miðstöð"
+
+msgid "IDS_MSG_HEADER_SELECT_RECIPIENT"
+msgstr "Velja viðtakanda"
+
+msgid "IDS_MSG_HEADER_PD_SELECTED_ABB3"
+msgstr "%d valin"
+
+msgid "IDS_MSG_HEADER_MESSAGES_ON_SIM_CARD_ABB"
+msgstr "Skilaboð á SIM-korti"
+
+msgid "IDS_MSG_HEADER_INPUT_MODE_ABB"
+msgstr "Innsláttaraðferð"
+
+msgid "IDS_MSG_HEADER_FILE_SIZE_TOO_LARGE_ABB"
+msgstr "Skráin er of stór"
+
+msgid "IDS_MSG_HEADER_FAILED_TO_SEND_MESSAGE_ABB"
+msgstr "Mistókst að senda skilaboð"
+
+msgid "IDS_MSG_HEADER_DISCARD_MESSAGE_M_CLOSE_ABB"
+msgstr "Fleygja skilaboðum"
+
+msgid "IDS_MSG_HEADER_CREATE"
+msgstr "Búa til"
+
+msgid "IDS_MSG_HEADER_ADD_CONTENT_ABB"
+msgstr "Bæta við efni"
+
+msgid "IDS_MSG_BUTTON_SWITCH_ABB2"
+msgstr "Skipta"
+
+msgid "IDS_MSG_BUTTON_SAVE_ABB2"
+msgstr "Vista"
+
+msgid "IDS_MSG_BUTTON_RESEND_ABB"
+msgstr "Endursenda"
+
+msgid "IDS_MSG_BUTTON_DISCARD_ABB"
+msgstr "Fleygja"
+
+msgid "IDS_MSG_BUTTON_DELETE_ABB4"
+msgstr "Eyða"
+
+msgid "IDS_MSG_BUTTON_CANCEL_ABB2"
+msgstr "Hætta v."
+
+msgid "IDS_MSG_BUTTON2_CONTACTS_ABB_M_APPLICATION_NAME"
+msgstr "Tengiliðir"
+
+msgid "IDS_MSG_BODY_YOU_HAVE_SELECTED_A_SOUND_N_SHOT_FILE_SOUND_DATA_IS_NOT_SUPPORTED_FOR_MMS_SO_ONLY_THE_PICTURE_WILL_BE_ATTACHED"
+msgstr "Þú hefur valið skrá með hljóð og mynd. Hljóðgögn eru ekki studd í MMS-skilaboðum og því verður einungis myndin hengd við."
+
+msgid "IDS_MSG_BODY_WAITING_TO_SEND_ING_M_STATUS"
+msgstr "Bíð eftir að senda..."
+
+msgid "IDS_MSG_BODY_UNABLE_TO_SEND_THIS_MESSAGE_INSERT_YOUR_SIM_CARD_AND_TRY_AGAIN"
+msgstr "Ekki er hægt að senda þessi skilaboð. Settu SIM-kortið í og reyndu aftur."
+
+msgid "IDS_MSG_BODY_TYPE_C"
+msgstr "Tegund:"
+
+msgid "IDS_MSG_BODY_TO_USE_RESTRICTED_MEDIA_TYPES_CHANGE_YOUR_MMS_CREATION_MODE_SETTING"
+msgstr "Til að nota megi takmarkaðar skráargerðir skaltu breyta stillingum á takmörkunum MMS."
+
+msgid "IDS_MSG_BODY_TIME_SENT_C"
+msgstr "Sendingartími:"
+
+msgid "IDS_MSG_BODY_TIME_RECEIVED_C"
+msgstr "Tími móttöku:"
+
+msgid "IDS_MSG_BODY_STATUS_C"
+msgstr "Staða:"
+
+msgid "IDS_MSG_BODY_SENT_M_STATUS"
+msgstr "Sent"
+
+msgid "IDS_MSG_BODY_SENDING_ING_M_STATUS_ABB"
+msgstr "Sendi..."
+
+msgid "IDS_MSG_BODY_SENDING_FAILED_M_STATUS"
+msgstr "Sending mistókst"
+
+msgid "IDS_MSG_BODY_RETRIEVE_MESSAGES_AUTOMATICALLY_WHILE_ROAMING"
+msgstr "Sækja skilaboð sjálfkrafa í reiki."
+
+msgid "IDS_MSG_BODY_RETRIEVE_MESSAGES_AUTOMATICALLY"
+msgstr "Sækja skilaboð sjálfkrafa."
+
+msgid "IDS_MSG_BODY_READ_REPORT_C_PS"
+msgstr "Lestilkynning: %s"
+
+msgid "IDS_MSG_BODY_OTHER_PERSON"
+msgstr "Hinn aðilinn"
+
+msgid "IDS_MSG_BODY_MEMO_T_MAINMENU"
+msgstr "Minnisatriði"
+
+msgid "IDS_MSG_BODY_FAILED_M_STATUS_ABB2"
+msgstr "Mistókst"
+
+msgid "IDS_MSG_BODY_ENTER_TEXT_M_NOUN"
+msgstr "Sláðu inn texta"
+
+msgid "IDS_MSG_BODY_DRAFT_M_STATUS_ABB"
+msgstr "Drög"
+
+msgid "IDS_MSG_BODY_DELIVERY_REPORT_C_PS"
+msgstr "Skilatilkynning: %s"
+
+msgid "IDS_MSG_BODY_CB_MESSAGE"
+msgstr "HS-boð"
+
+msgid "IDS_MSG_BODY_CALENDAR_M_APPLICATION_NAME_ABB"
+msgstr "Dagatal"
+
+msgid "IDS_MSG_BODY_AFTER_YOU_SEND_OR_RECEIVE_MESSAGES_THEY_WILL_BE_SHOWN_HERE"
+msgstr "Skilaboð birtast hér þegar þú hefur sent þau eða fengið."
+
+msgid "IDS_MSG_BODY_AFTER_YOU_CREATE_QUICK_RESPONSES_THEY_WILL_BE_SHOWN_HERE"
+msgstr "Snarsvör birtast hér eftir að þau eru búin til."
+
+msgid "IDS_MSG_BODY_AFTER_YOU_COPY_MESSAGES_TO_THE_SIM_CARD_THEY_WILL_BE_SHOWN_HERE"
+msgstr "Skilaboð birtast hér eftir að þú afritar þau yfir á SIM-kortið."
+
+msgid "IDS_MSG_BODY_AFTER_YOU_ADD_PHRASES_THEY_WILL_BE_SHOWN_HERE"
+msgstr "Setningar birtast hér eftir að þeim er bætt við."
+
+msgid "IDS_MSG_BODY_AFTER_YOU_ADD_NUMBERS_TO_THE_MESSAGE_BLOCK_LIST_THEY_WILL_BE_SHOWN_HERE"
+msgstr "Númer birtast hér eftir að þau eru sett á útilokunarlista skilaboða."
+
+msgid "IDS_MSG_ACBUTTON_DELETE_ABB"
+msgstr "EYÐA"
+
+msgid "IDS_MSGC_POP_UNSUPPORTED_MEDIA_TYPE"
+msgstr "Óstudd tegund miðils."
+
+msgid "IDS_MSGC_POP_LOW_BATTERY"
+msgstr "Rafhlaðan er að tæmast."
+
+msgid "IDS_MSGC_POP_CANCELLED"
+msgstr "Hætt við."
+
+msgid "IDS_MSGC_OPT_EMAIL"
+msgstr "Tölvupóstur"
+
+msgid "IDS_MSGC_OPT_EDITITEM_VIEW"
+msgstr "Birta"
+
+msgid "IDS_MSGC_OPT_EDITITEM_REMOVE"
+msgstr "Fjarlægja"
+
+msgid "IDS_MSGC_OPT_EDITITEM_PLAY"
+msgstr "Spila"
+
+msgid "IDS_MSGC_OPT_CHANGE_RECIPIENTS_TO"
+msgstr "Til"
+
+msgid "IDS_MSGC_HEADER_PREVIEW"
+msgstr "Forskoða"
+
+msgid "IDS_MSGC_BODY_ENTER_SUBJECT"
+msgstr "Slá inn efni."
+
+msgid "IDS_MSGF_POP_UNABLE_TO_FIND_LOCATION"
+msgstr "Finn ekki staðsetningu."
+
+msgid "IDS_MSGF_POP_REJECTED"
+msgstr "Hafnað."
+
+msgid "IDS_MSGF_POP_DELETING"
+msgstr "Verið er að eyða..."
+
+msgid "IDS_MSGF_POP_COPIED_TO_CLIPBOARD"
+msgstr "Afritað á klemmuspjald."
+
+msgid "IDS_MSGF_POP_BLOCK_PS_Q"
+msgstr "Loka fyrir %s?"
+
+msgid "IDS_MSGF_OPT_SUBJECT_COLON"
+msgstr "Efni:"
+
+msgid "IDS_MSGF_OPT_SENDER_VIA_EMAIL"
+msgstr "Sendanda með tölvupósti"
+
+msgid "IDS_MSGF_OPT_SELECT"
+msgstr "Velja"
+
+msgid "IDS_MSGF_OPT_SAVE"
+msgstr "Vista"
+
+msgid "IDS_MSGF_OPT_REMOVE"
+msgstr "Fjarlægja"
+
+msgid "IDS_MSGF_OPT_FORWARD"
+msgstr "Framsenda"
+
+msgid "IDS_MSGF_OPT_DELETE_Q"
+msgstr "Á að eyða?"
+
+msgid "IDS_MSGF_HEADER_ADVANCED_SEARCH"
+msgstr "Ítarleg leit"
+
+msgid "IDS_MSGF_BODY_UNKNOWN"
+msgstr "Óþekkt"
+
+msgid "IDS_MSGF_BODY_SETTINGS"
+msgstr "Stillingar"
+
+msgid "IDS_MSGF_BODY_RECIPIENTS"
+msgstr "Viðtakendur"
+
+msgid "IDS_MSGF_BODY_RECEIVED"
+msgstr "Móttekið."
+
+msgid "IDS_MSGF_BODY_OTHER"
+msgstr "Annað"
+
+msgid "IDS_MSGF_BODY_NO_SUBJECT"
+msgstr "Ekkert efni"
+
+msgid "IDS_MSGF_BODY_MSGSIZE_KB"
+msgstr "KB"
+
+msgid "IDS_MSGF_BODY_MESSAGE"
+msgstr "Skilaboð"
+
+msgid "IDS_MSGF_BODY_ME"
+msgstr "Ég"
+
+msgid "IDS_MSGF_BODY_EXPIRED"
+msgstr "Útrunnið"
+
+msgid "IDS_MSGF_BODY_ALL"
+msgstr "Allt"
+
+msgid "IDS_MSG_SK_NO_ABB"
+msgstr "Nei"
+
+msgid "IDS_MSG_POP_YOUR_MESSAGE_WILL_BE_DISCARDED_NO_RECIPIENTS_HAVE_BEEN_SELECTED"
+msgstr "Skilaboðunum verður fleygt. Engir viðtakendur voru valdir."
+
+msgid "IDS_MSG_POP_UNABLE_TO_PLAY_DURING_CALL"
+msgstr "Ekki er hægt að spila á meðan símtal stendur yfir."
+
+msgid "IDS_MSG_POP_INCOMING_MESSAGES_ONLY"
+msgstr "Aðeins móttekin skilaboð"
+
+msgid "IDS_MSG_POP_DELETED"
+msgstr "Eytt."
+
+msgid "IDS_MSG_OPT_VIDEOS"
+msgstr "Myndskeið"
+
+msgid "IDS_MSG_OPT_TEXT"
+msgstr "Texti"
+
+msgid "IDS_MSG_OPT_SETTINGS"
+msgstr "Stillingar"
+
+msgid "IDS_MSG_OPT_SEARCH"
+msgstr "Leita"
+
+msgid "IDS_MSG_OPT_RECORD_VIDEO_ABB"
+msgstr "Taka upp myndskeið"
+
+msgid "IDS_MSG_OPT_NONE"
+msgstr "Ekkert"
+
+msgid "IDS_MSG_OPT_IMAGES"
+msgstr "Myndir"
+
+msgid "IDS_MSG_OPT_EDIT"
+msgstr "Breyta"
+
+msgid "IDS_MSG_OPT_DELETE"
+msgstr "Eyða"
+
+msgid "IDS_MSG_OPT_DEFAULT"
+msgstr "Sjálfgefið"
+
+msgid "IDS_MSG_MBODY_SELECT_ALL"
+msgstr "Velja allt"
+
+msgid "IDS_MSG_MBODY_ALERTS"
+msgstr "Áminningar"
+
+msgid "IDS_MSG_HEADER_TRANSLATE"
+msgstr "Þýða"
+
+msgid "IDS_MSG_HEADER_SETTINGS"
+msgstr "Stillingar"
+
+msgid "IDS_MSG_HEADER_MESSAGES"
+msgstr "Skilaboð"
+
+msgid "IDS_MSG_HEADER_DELETE"
+msgstr "Eyða"
+
+msgid "IDS_MSG_HEADER_ATTENTION"
+msgstr "Athuga"
+
+msgid "IDS_MSG_BUTTON_REMOVE_ABB"
+msgstr "Fjarlægja"
+
+msgid "IDS_MSG_BUTTON_OK_ABB"
+msgstr "Í lagi"
+
+msgid "IDS_MSG_BUTTON_DOWNLOAD_ABB3"
+msgstr "Sækja"
+
+msgid "IDS_MSG_BUTTON_CANCEL_ABB"
+msgstr "Hætta við"
+
+msgid "IDS_MSG_BODY_YES"
+msgstr "Já"
+
+msgid "IDS_MSG_BODY_TICK_BOX_T_TTS"
+msgstr "Gátreitur"
+
+msgid "IDS_MSG_BODY_SEC"
+msgstr "sek"
+
+msgid "IDS_MSG_BODY_MESSAGE"
+msgstr "Skilaboð"
+
+msgid "IDS_MSG_BUTTON_SEND_ABB5"
+msgstr "Sen."
+
+msgid "IDS_MSG_BUTTON_SEND_ABB3"
+msgstr "Senda"
+
+msgid "IDS_MSG_ACBUTTON_SEND_ABB3"
+msgstr "SEN."
+
+msgid "IDS_ST_BODY_LOADING_ING"
+msgstr "Hleð..."
+
+msgid "IDS_MSGS_BODY_NOTIFICATIONS"
+msgstr "Tilkynningar"
+
+msgid "IDS_MSG_HEADER_ME"
+msgstr "Ég"
+
+msgid "IDS_MSG_BODY_UNKNOWN"
+msgstr "Óþekkt"
+
+msgid "IDS_MSG_TMBODY_ADD_OR_REMOVE_RECIPIENTS"
+msgstr "Bæta við/fjarlægja viðtakendur"
+
+msgid "IDS_MSG_POP_THE_SENDER_HAS_REQUESTED_A_READ_REPORT_TAP_SEND_TO_SEND_ONE"
+msgstr "Sendandinn hefur óskað eftir lestilkynningu. Pikkaðu á „Senda“ til að senda hana."
+
+msgid "IDS_MSGF_OPT_SEND_READ_REPORT"
+msgstr "Senda lestilkynningu"
+
+msgid "IDS_MSG_HEADER_COMPOSE_MESSAGE_ABB"
+msgstr "Skrifa skilaboð"
+
+msgid "IDS_MSG_POP_NO_VALID_RECIPIENTS_HAVE_BEEN_ADDED_THIS_MESSAGE_WILL_BE_DISCARDED"
+msgstr "Engum gildum viðtakendum hefur verið bætt við. Skilaboðunum verður fleygt."
+

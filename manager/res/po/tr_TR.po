@@ -1,0 +1,945 @@
+msgid "IDS_COM_BODY_HOME"
+msgstr "Ev"
+
+msgid "IDS_MSGC_POP_DATA_ROAMING_IS_DISABLED_ENABLE_DATA_ROAMING_AND_TRY_AGAIN"
+msgstr "Veri dolaşımı devre dışı. Veri dolaşımını etkinleştirin ve tekrar deneyin."
+
+msgid "IDS_MSG_ACBUTTON_CANCEL_ABB"
+msgstr "İPTAL"
+
+msgid "IDS_MSG_ACBUTTON_DONE_ABB"
+msgstr "BİTTİ"
+
+msgid "IDS_MSGF_POP_NEW_MESSAGE"
+msgstr "Yeni mesaj"
+
+msgid "IDS_COM_BUTTON_SHARE"
+msgstr "Paylaş"
+
+msgid "IDS_COM_BODY_UNKNOWN"
+msgstr "Bilinmeyen"
+
+msgid "IDS_COM_BODY_MOBILE"
+msgstr "Cep Telefonu"
+
+msgid "IDS_MSGC_POP_MOBILE_DATA_IS_DISABLED_ENABLE_MOBILE_DATA_AND_TRY_AGAIN"
+msgstr "Mobil veri devre dışı. Mobil veriyi etkinleştirin ve tekrar deneyin."
+
+msgid "IDS_TPLATFORM_ACBUTTON_SEND_ABB"
+msgstr "GÖNDER"
+
+msgid "IDS_MSGC_POP_UNABLE_TO_SEND_MESSAGES_WHILE_IN_FLIGHT_MODE_DISABLE_FLIGHT_MODE_AND_TRY_AGAIN"
+msgstr "Uçuş modundayken, mesaj gönderilemiyor. Uçuş modunu devre dışı bırakın ve tekrar deneyin."
+
+msgid "IDS_MSGC_POP_UNABLE_TO_ADD_FILE_IS_FORWARD_LOCKED"
+msgstr "İletilemedi.\nDosya iletilmeye karşı kilitli"
+
+msgid "IDS_MSGC_POP_THERE_IS_NOT_ENOUGH_SPACE_IN_YOUR_DEVICE_STORAGE_GO_TO_SETTINGS_POWER_AND_STORAGE_STORAGE_THEN_DELETE_SOME_FILES_AND_TRY_AGAIN"
+msgstr "Cihazınızın hafızasında yeterli alan yok. Ayarlar > Güç ve hafıza > Hafıza bölümüne gidin, ardından bazı dosyaları silip tekrar deneyin."
+
+msgid "IDS_MSGC_POP_TEXT_AT_TOP"
+msgstr "Metin üstte"
+
+msgid "IDS_MSGC_POP_TEXT_AT_BOTTOM"
+msgstr "Metin altta"
+
+msgid "IDS_MSGC_POP_SELECT_LAYOUT"
+msgstr "Yerleşim seç"
+
+msgid "IDS_MSGC_POP_MMSCANTADD"
+msgstr "İçerik eklenemiyor."
+
+msgid "IDS_MSGC_POP_MESSAGE_SCHEDULED_TO_BE_SENT_TO_PS_SEND_NOW_Q"
+msgstr "Mesaj %s kişisine gönderilmek üzere programlandı. Şimdi gönderilsin mi?"
+
+msgid "IDS_MSGC_POP_MAXIMUM_MESSAGE_SIZE_REACHED"
+msgstr "Maksimum mesaj boyutuna ulaşıldı."
+
+msgid "IDS_MSGC_POP_DURATION_MUST_BE_AT_LEAST_PD_SECONDS"
+msgstr "Süre en az %d saniye olmalı."
+
+msgid "IDS_MSGC_POP_DISABLING_FLIGHT_MODE_ING"
+msgstr "Uçuş modu kapatılıyor..."
+
+msgid "IDS_MSGC_POP_COPIED_TO_SIM_CARD"
+msgstr "SIM karta kopyalandı."
+
+msgid "IDS_MSGC_OPT_USE_OTHER_CONTACT_INFO_ABB"
+msgstr "Dğr kişi blglrn kllnın"
+
+msgid "IDS_MSGC_OPT_SEND_VIA"
+msgstr "Gönder"
+
+msgid "IDS_MSGC_OPT_IMAGE"
+msgstr "Görüntü"
+
+msgid "IDS_MSGC_OPT_EDIT_ITEM_REPLACE"
+msgstr "Değiştir"
+
+msgid "IDS_MSGC_OPT_CANCEL_MESSAGE"
+msgstr "Mesajı iptal et"
+
+msgid "IDS_MSGC_HEADER_RECIPIENT_LIST"
+msgstr "Alıcı listesi"
+
+msgid "IDS_MSGC_HEADER_DURATION_FOR_SLIDE_PD_PD"
+msgstr "Slayt süresi %d/%d"
+
+msgid "IDS_MSGC_BODY_WAIT_WHILE_ITEMS_ARE_ADDED_TO_SLIDESHOW"
+msgstr "Öğeler slayt gösterisine eklenirken bekleyin."
+
+msgid "IDS_MSGC_BODY_UNABLE_TO_SEND_MESSAGE"
+msgstr "Mesaj gönderilemiyor."
+
+msgid "IDS_MSGC_BODY_SELECT_RINGTONE"
+msgstr "Zil sesi seç"
+
+msgid "IDS_MSGC_BODY_READ_REPORT_WILL_BE_SENT"
+msgstr "Okundu raporu gönderilecek."
+
+msgid "IDS_MSGC_BODY_NOT_REQUESTED"
+msgstr "Talep edilmedi"
+
+msgid "IDS_MSGC_BODY_MAXIMUM_NUMBER_OF_RECIPIENTS_HPD_REACHED"
+msgstr "Maksimum alıcı sayısına (%d) ulaşıldı."
+
+msgid "IDS_MSGC_BODY_DUPLICATED_RECIPIENT"
+msgstr "Alıcı çoğaltıldı."
+
+msgid "IDS_MSGF_SK_FORWARD_LITE"
+msgstr "İlet"
+
+msgid "IDS_MSGF_POP_UNABLE_TO_SAVE"
+msgstr "Kaydetme başarısız."
+
+msgid "IDS_MSGF_POP_UNABLE_TO_DELETE"
+msgstr "Silinemiyor."
+
+msgid "IDS_MSGF_POP_UNABLE_TO_COPY"
+msgstr "Kopyalanamıyor."
+
+msgid "IDS_MSGF_POP_SOME_CHARACTERS_MAY_BE_LOST_CONTINUE_Q"
+msgstr "Bazı karakterler kaybolabilir.\nDevam etmek istiyor musunuz?"
+
+msgid "IDS_MSGF_POP_SIM_NOT_INSERTED"
+msgstr "SIM takılı değil."
+
+msgid "IDS_MSGF_POP_SAVING_FAILED"
+msgstr "Kaydetme başarısız."
+
+msgid "IDS_MSGF_POP_SAVED_IN_MY_FILES"
+msgstr "Dosyalarım'a kaydedildi."
+
+msgid "IDS_MSGF_POP_RETRIEVING_MESSAGE_FAILED"
+msgstr "Mesaj alınamadı"
+
+msgid "IDS_MSGF_POP_RESTRICTED_CONTENT_TYPE_ATTACH_ANYWAY_Q"
+msgstr "Sınırlı içerik tipi. Yine de eklensin mi?"
+
+msgid "IDS_MSGF_POP_RESTORING_ING"
+msgstr "Geri alınıyor..."
+
+msgid "IDS_MSGF_POP_READ_REPORT"
+msgstr "Okundu raporu"
+
+msgid "IDS_MSGF_POP_NO_NUMBER"
+msgstr "Numara yok"
+
+msgid "IDS_MSGF_POP_NO_ATTACHMENTS"
+msgstr "Eklenti yok"
+
+msgid "IDS_MSGF_POP_NEW_MESSAGES"
+msgstr "Yeni mesaj"
+
+msgid "IDS_MSGF_POP_MESSAGE_COPIED_FROM_SIM_CARD"
+msgstr "Mesaj SIM karttan kopyalandı."
+
+msgid "IDS_MSGF_POP_MAXIMUM_NUMBER_OF_RECIPIENTS_IS_PD_SOME_RECIPIENTS_MAY_BE_LOST"
+msgstr "Maksimum alıcı sayısı %d. Bazı alıcılar kaybolabilir."
+
+msgid "IDS_MSGF_POP_MAXIMUM_NUMBER_OF_ATTACHMENTS_HPS_EXCEEDED"
+msgstr "Maksimum eklenti sayısı (%s) aşıldı."
+
+msgid "IDS_MSGF_POP_MAXIMUM_CHARACTERS"
+msgstr "Maksimum karakter sayısına ulaşıldı."
+
+msgid "IDS_MSGF_POP_IN_PROGRESS_ING"
+msgstr "Devam ediyor..."
+
+msgid "IDS_MSGF_POP_INTIALISING"
+msgstr "Başlatılıyor..."
+
+msgid "IDS_MSGF_POP_IF_YOU_DONT_WANT_TO_REPLACE_THE_FILE_RENAME_IT"
+msgstr "Dosyayı değiştirmek istemiyorsanız, yeniden adlandırın."
+
+msgid "IDS_MSGF_POP_HELP_PAGE_MESSAGE_FOR_ONE_FILE"
+msgstr "Bu mesajda gösterilmemiş ekli dosya var."
+
+msgid "IDS_MSGF_POP_HELP_PAGE_MESSAGE"
+msgstr "Bu mesajda gösterilmemiş bazı ekli dosyalar var."
+
+msgid "IDS_MSGF_POP_FILE_NAME_ALREADY_EXISTS"
+msgstr "Dosya adı zaten kullanılıyor."
+
+msgid "IDS_MSGF_POP_CONVERTING_TO_TEXT_MESSAGE_ING"
+msgstr "Metin mesajına dönüştürülüyor..."
+
+msgid "IDS_MSGF_POP_CONVERTING_TO_MULTIMEDIA_MESSAGE_ING"
+msgstr "Multimedya mesajına dönüştürülüyor..."
+
+msgid "IDS_MSGF_POP_ABOUT_TO_GO_ONLINE_CONTINUE_Q"
+msgstr "Çevrimiçine(%s) geçmek üzeresiniz. Devam edilsin mi?"
+
+msgid "IDS_MSGF_OPT_TEXT_MESSAGE"
+msgstr "Metin mesajı"
+
+msgid "IDS_MSGF_OPT_SENDER_ABB"
+msgstr "Gönderen"
+
+msgid "IDS_MSGF_OPT_SAVE_ATTACHMENT"
+msgstr "Eki kaydet"
+
+msgid "IDS_MSGF_OPT_INSTALL"
+msgstr "Kur"
+
+msgid "IDS_MSGF_OPT_EDIT_MESSAGE"
+msgstr "Mesajı düzenle"
+
+msgid "IDS_MSGF_OPT_DELETE_MESSAGES"
+msgstr "Mesajları sil"
+
+msgid "IDS_MSGF_HEADER_SELECT_MESSAGES"
+msgstr "Mesajları seç"
+
+msgid "IDS_MSGF_HEADER_SAVE_ALL"
+msgstr "Tümünü kaydet"
+
+msgid "IDS_MSGF_HEADER_MESSAGE_DETAILS"
+msgstr "Mesaj ayrıntıları"
+
+msgid "IDS_MSGF_HEADER_EXPIRES_C_PS"
+msgstr "Süresi dolar: %s"
+
+msgid "IDS_MSGF_BUTTON_SAVE_ALL_ATTACHMENTS_ABB"
+msgstr "Tüm ekleri kaydet"
+
+msgid "IDS_MSGF_BODY_TO_C"
+msgstr "Alıcı:"
+
+msgid "IDS_MSGF_BODY_TEXT_MESSAGES"
+msgstr "Metin mesajları"
+
+msgid "IDS_MSGF_BODY_SIM_MEMORY_FULL_DELETE_SOME_ITEMS"
+msgstr "SIM hafızası dolu. Bazı öğeleri silin."
+
+msgid "IDS_MSGF_BODY_SENT_M_DATE_C"
+msgstr "Gönderildi:"
+
+msgid "IDS_MSGF_BODY_REQUESTED"
+msgstr "Talep edildi."
+
+msgid "IDS_MSGF_BODY_RECEIVED_M_DATE_C"
+msgstr "Alındı:"
+
+msgid "IDS_MSGF_BODY_READ_REPORT"
+msgstr "Okundu raporu"
+
+msgid "IDS_MSGF_BODY_PUSH_MESSAGES"
+msgstr "İletim mesajları"
+
+msgid "IDS_MSGF_BODY_PD_MESSAGES"
+msgstr "%d mesaj"
+
+msgid "IDS_MSGF_BODY_PD_CONVERSATIONS"
+msgstr "%d görüşme"
+
+msgid "IDS_MSGF_BODY_NO_NAME"
+msgstr "İsim yok"
+
+msgid "IDS_MSGF_BODY_MULTIMEDIA_MESSAGE_NOTIFICATION"
+msgstr "Multimedya mesajı bildirimi"
+
+msgid "IDS_MSGF_BODY_MULTIMEDIA_MESSAGE"
+msgstr "Multimedya mesajı"
+
+msgid "IDS_MSGF_BODY_MMSREADREPLYMSGREAD"
+msgstr "Oku"
+
+msgid "IDS_MSGF_BODY_MMSDELIVERYMSGREJECTED"
+msgstr "Mesaj reddedildi."
+
+msgid "IDS_MSGF_BODY_MMS"
+msgstr "MMS"
+
+msgid "IDS_MSGF_BODY_MESSAGE_SIZE"
+msgstr "Mesaj boyutu"
+
+msgid "IDS_MSGF_BODY_MESSAGE_OPTIONS"
+msgstr "Mesaj seçenekleri"
+
+msgid "IDS_MSGF_BODY_MESSAGE_DELIVERED"
+msgstr "Mesaj iletildi"
+
+msgid "IDS_MSGF_BODY_MAXIMUM_NUMBER_OF_ATTACHMENTS_HP1SS_EXCEEDED_ONLY_FIRST_P2SS_WILL_BE_ADDED"
+msgstr "Maksimum ek sayısı (%1$s) aşıldı. Sadece ilk %2$s eklenecek."
+
+msgid "IDS_MSGF_BODY_INVALID_RECIPIENT"
+msgstr "Alıcı geçersiz."
+
+msgid "IDS_MSGF_BODY_FROM"
+msgstr "Kimden"
+
+msgid "IDS_MSGF_BODY_FLFROM"
+msgstr "Kimden:"
+
+msgid "IDS_MSGF_BODY_DETAILSSENDINGFAILED"
+msgstr "Gönderme başarısız."
+
+msgid "IDS_MSGF_BODY_DELIVERY_REPORT"
+msgstr "İletim raporu"
+
+msgid "IDS_MSGF_BODY_CP_MESSAGES"
+msgstr "CP mesajları"
+
+msgid "IDS_MSGF_BODY_COPY_TEXT"
+msgstr "Metni kopyala"
+
+msgid "IDS_MSGF_BODY_CB_MESSAGES"
+msgstr "CB mesajları"
+
+msgid "IDS_MSGF_BODY_1_MESSAGE"
+msgstr "1 mesaj"
+
+msgid "IDS_MSGF_BODY_1_CONVERSATION"
+msgstr "1 görüşme"
+
+msgid "IDS_MSGS_BODY_REQUEST_A_READ_REPORT_FOR_EACH_MESSAGE_YOU_SEND"
+msgstr "Gönderdiğiniz her mesaj için bir okundu raporu isteyin"
+
+msgid "IDS_MSGS_BODY_REQUEST_A_DELIVERY_REPORT_FOR_EACH_MESSAGE_YOU_SEND"
+msgstr "Gönderdiğiniz her mesaj için bir teslim raporu isteyin"
+
+msgid "IDS_MSGS_BODY_RADIO_BUTTON"
+msgstr "Radyo tuşu"
+
+msgid "IDS_MSGS_BODY_ON_OFF_BUTTON_T_TTS"
+msgstr "Açma/kapama düğmesi"
+
+msgid "IDS_MSGS_BODY_EXPANDABLE_LIST_T_TTS"
+msgstr "Genişletilebilen liste"
+
+msgid "IDS_MSGS_BODY_AUTOMATICALLY_RETRIEVE_MMS_MESSAGES"
+msgstr "MMS mesajlarını otomatik olarak al"
+
+msgid "IDS_MSG_TPOP_UNABLE_TO_PREVIEW_FILE_UNSUPPORTED_FILE_TYPE"
+msgstr "Dosya önizlenemiyor. Dosya türü desteklenmiyor."
+
+msgid "IDS_MSG_TPOP_UNABLE_TO_ATTACH_FILE_FILE_FORMAT_NOT_SUPPORTED"
+msgstr "Dosya eklenemiyor. Dosya biçimi desteklenmiyor."
+
+msgid "IDS_MSG_TPOP_UNABLE_TO_ADD_SOME_RECIPIENTS_NUMBERS_NOT_VALID"
+msgstr "Bazı alıcılar eklenemiyor. Numaralar geçerli değil."
+
+msgid "IDS_MSG_TPOP_UNABLE_TO_ADD_RECIPIENT_NUMBER_NOT_VALID"
+msgstr "Alıcı eklenemiyor. Numara geçerli değil."
+
+msgid "IDS_MSG_TPOP_UNABLE_TO_ADD_RECIPIENTS_NUMBERS_NOT_VALID"
+msgstr "Alıcılar eklenemiyor. Numaralar geçerli değil."
+
+msgid "IDS_MSG_TPOP_UNABLE_TO_ADD_ATTACHMENT_MAXIMUM_NUMBER_OF_ATTACHMENTS_HPD_REACHED"
+msgstr "Ek eklenemiyor. Maksimum ek sayısına (%d) ulaşıldı."
+
+msgid "IDS_MSG_TPOP_THIS_NUMBER_IS_NOT_VALID"
+msgstr "Bu numara geçerli değil."
+
+msgid "IDS_MSG_TPOP_SOME_RECIPIENTS_ALREADY_ADDED"
+msgstr "Bazı alıcılar zaten eklendi."
+
+msgid "IDS_MSG_TPOP_SELECTED_MESSAGES_COPIED_TO_MOBILE_DEVICE"
+msgstr "Seçili mesajlar mobil cihaza kopyalandı."
+
+msgid "IDS_MSG_TPOP_PD_MESSAGES_MOVED_TO_MESSAGE_LIST"
+msgstr "%d mesaj, mesaj listesine taşındı."
+
+msgid "IDS_MSG_TPOP_NUMBER_REMOVED_FROM_MESSAGE_BLOCK_LIST"
+msgstr "Numara, mesaj engelleme listesinden kaldırıldı."
+
+msgid "IDS_MSG_TPOP_NUMBER_ADDED_TO_MESSAGE_BLOCK_LIST"
+msgstr "Numara, mesaj engelleme listesine eklendi."
+
+msgid "IDS_MSG_TPOP_NETWORK_NOT_AVAILABLE_MESSAGE_WILL_BE_SENT_WHEN_CONNECTED_TO_NETWORK"
+msgstr "Ağa erişilemiyor. Mesaj, ağa bağlanıldığında gönderilecek."
+
+msgid "IDS_MSG_TPOP_MESSAGE_COPIED_TO_PS_SIM_CARD"
+msgstr "Mesaj %s SIM karta kopyalandı."
+
+msgid "IDS_MSG_TPOP_MAXIMUM_NUMBER_OF_CHARACTERS_EXCEEDED"
+msgstr "Maksimum karakter sayısı aşıldı."
+
+msgid "IDS_MSG_TPOP_MAXIMUM_MESSAGE_SIZE_HPS_EXCEEDED_RESIZING_ATTACHMENTS_ING"
+msgstr "Maksimum mesaj boyutu (%s) aşıldı. Ekler yeniden boyutlandırılıyor..."
+
+msgid "IDS_MSG_TPOP_INVALID_CHARACTER_ENTERED"
+msgstr "Geçersiz karakter girildi"
+
+msgid "IDS_MSG_TPOP_ADD_RECIPIENTS"
+msgstr "Alıcı ekle."
+
+msgid "IDS_MSG_TPOP_1_MESSAGE_MOVED_TO_MESSAGE_LIST"
+msgstr "1 mesaj, mesaj listesine taşındı."
+
+msgid "IDS_MSG_TMBODY_TEXT_MESSAGES"
+msgstr "Metin mesajları"
+
+msgid "IDS_MSG_TMBODY_SOUND"
+msgstr "Ses"
+
+msgid "IDS_MSG_TMBODY_MULTIMEDIA_MESSAGES"
+msgstr "Multimedya mesajları"
+
+msgid "IDS_MSG_TMBODY_MESSAGES_ON_SIM_CARD"
+msgstr "SIM karttaki mesajlar"
+
+msgid "IDS_MSG_TMBODY_INPUT_MODE"
+msgstr "Giriş modu"
+
+msgid "IDS_MSG_TMBODY_AUTO_RETRIEVE_WHILE_ROAMING"
+msgstr "Dolaşımdayken otomatk olarak al"
+
+msgid "IDS_MSG_TMBODY_AUTO_RETRIEVE"
+msgstr "Otomatik olarak al"
+
+msgid "IDS_MSG_SK_SEND_NOW"
+msgstr "Şmdi gndr"
+
+msgid "IDS_MSG_SBODY_SELECT_AN_INPUT_MODE_FOR_COMPOSING_MESSAGES"
+msgstr "Mesaj yazmak için bir giriş modu seçin."
+
+msgid "IDS_MSG_SBODY_NONE_M_STATUS"
+msgstr "Hiçbiri"
+
+msgid "IDS_MSG_SBODY_MANAGE_THE_MESSAGES_STORED_ON_YOUR_SIM_CARD"
+msgstr "SIM kartınızda kayıtlı mesajları yönetin."
+
+msgid "IDS_MSG_POP_UNABLE_TO_SEND_SCHEDULED_MESSAGE_SET_ANOTHER_TIME"
+msgstr "Zamanlanan mesaj gönderilemiyor. Başka zaman ayarlayın."
+
+msgid "IDS_MSG_POP_UNABLE_TO_ATTACH_FILE_FILE_SIZE_TOO_LARGE_TRY_SENDING_VIA_EMAIL_BLUETOOTH_WI_FI_ETC"
+msgstr "Dosya eklenemedi. Dosya boyutu çok fazla. E-posta, Bluetooth, Wi-Fi, vs. ile göndermeyi deneyin"
+
+msgid "IDS_MSG_POP_TO_SEND_THIS_MULTIMEDIA_MESSAGE_THE_DEVICE_WILL_CONNECT_TO_A_DIFFERENT_MOBILE_NETWORK_THIS_WILL_DISCONNECT_YOUR_DEVICE_FROM_YOUR_MSG"
+msgstr "Cihaz, bu multimedya mesajını göndermek için farklı bir mobil ağa bağlanacak. Bu işlem, cihazınızın geçerli mobil ağ bağlantısını keser."
+
+msgid "IDS_MSG_POP_TO_DOWNLOAD_THIS_MULTIMEDIA_MESSAGE_THE_DEVICE_WILL_CONNECT_TO_A_DIFFERENT_MOBILE_NETWORK_MSG"
+msgstr "Cihaz, bu multimedya mesajını indirmek için farklı bir mobil ağa bağlanacak. Bu işlem, cihazınızın geçerli mobil ağ bağlantısını keser."
+
+msgid "IDS_MSG_POP_THIS_MESSAGE_WILL_BE_RESENT"
+msgstr "Bu mesaj tekrar gönderilecek."
+
+msgid "IDS_MSG_POP_PD_MESSAGES_WILL_BE_DELETED"
+msgstr "%d mesaj silinecek."
+
+msgid "IDS_MSG_POP_PD_CONVERSATIONS_WILL_BE_DELETED"
+msgstr "%d konuşma silinecek."
+
+msgid "IDS_MSG_POP_NO_TEMPLATES_IN_LIST"
+msgstr "Listede şablon yok"
+
+msgid "IDS_MSG_POP_INCLUDE_ORIGINAL_TEXT_IN_OUTGOING_MESSAGE"
+msgstr "Giden mesaja orijinal metini dahil et"
+
+msgid "IDS_MSG_POP_DURATION_MUST_BE_SHORTER_THAN_PD_SECONDS"
+msgstr "Süre %d saniyeden kısa olmalıdır."
+
+msgid "IDS_MSG_POP_1_MESSAGE_WILL_BE_DELETED"
+msgstr "1 mesaj silinecek."
+
+msgid "IDS_MSG_POP_1_CONVERSATION_WILL_BE_DELETED"
+msgstr "1 görüşme silinecek."
+
+msgid "IDS_MSG_OPT_VIEW_DETAILS_ABB"
+msgstr "Ayrıntıları gör"
+
+msgid "IDS_MSG_OPT_VIEW_CONTACT_DETAILS_ABB"
+msgstr "Kişi ayrıntılarını görüntüle"
+
+msgid "IDS_MSG_OPT_VIEW_AS_SLIDESHOW_ABB"
+msgstr "Slayt gösterisi olrk görüntüle"
+
+msgid "IDS_MSG_OPT_UPDATE_CONTACT"
+msgstr "Kişiyi güncelle"
+
+msgid "IDS_MSG_OPT_UNICODE"
+msgstr "Çoklu dil"
+
+msgid "IDS_MSG_OPT_TAKE_PICTURE_ABB"
+msgstr "Resim çek"
+
+msgid "IDS_MSG_OPT_SAVE_ATTACHMENTS_ABB"
+msgstr "Ekleri kaydet"
+
+msgid "IDS_MSG_OPT_RESEND"
+msgstr "Tekrar gönder"
+
+msgid "IDS_MSG_OPT_REPLY"
+msgstr "Cevapla"
+
+msgid "IDS_MSG_OPT_REMOVE_FROM_BLOCK_LIST_ABB"
+msgstr "Engelleme listesinden kaldır"
+
+msgid "IDS_MSG_OPT_RECORD_AUDIO_FILE_ABB"
+msgstr "Ses dosyası kaydet"
+
+msgid "IDS_MSG_OPT_QUICK_RESPONSE_ABB"
+msgstr "Hızlı yanıt"
+
+msgid "IDS_MSG_OPT_MAKE_VOICE_CALL"
+msgstr "Sesli arama yap"
+
+msgid "IDS_MSG_OPT_GSM_ALPHABET_ABB"
+msgstr "GSM alfabesi"
+
+msgid "IDS_MSG_OPT_EXPORT_TO_DEVICE_MEMORY"
+msgstr "Cihaz hafızasından aktar"
+
+msgid "IDS_MSG_OPT_DELETE_MESSAGE"
+msgstr "Mesajı sil"
+
+msgid "IDS_MSG_OPT_DELETE_CONVERSATION_ABB"
+msgstr "Görüşmeyi sil"
+
+msgid "IDS_MSG_OPT_CREATE_CONTACT_ABB"
+msgstr "Kişi oluştur"
+
+msgid "IDS_MSG_OPT_COPY_TO_SIM_CARD_ABB"
+msgstr "SIM karta kopyala"
+
+msgid "IDS_MSG_OPT_COPY_TO_DEVICE_ABB"
+msgstr "Cihaza kopyala"
+
+msgid "IDS_MSG_OPT_COPY_TEXT"
+msgstr "Metni kopyala"
+
+msgid "IDS_MSG_OPT_COPY"
+msgstr "Kopyala"
+
+msgid "IDS_MSG_OPT_BACK_UP"
+msgstr "Yedekle"
+
+msgid "IDS_MSG_OPT_AUTOMATIC"
+msgstr "Otomatik"
+
+msgid "IDS_MSG_OPT_AUDIO_FILES_ABB2"
+msgstr "Ses dosyaları"
+
+msgid "IDS_MSG_OPT_ATTACHMENT_ABB"
+msgstr "Ek"
+
+msgid "IDS_MSG_OPT_ADD_TO_CONTACTS_ABB"
+msgstr "Kişilere ekle"
+
+msgid "IDS_MSG_OPT_ADD_TO_BLOCK_LIST_ABB"
+msgstr "Engelleme listesine ekle"
+
+msgid "IDS_MSG_OPT_ADD_RECIPIENTS_ABB"
+msgstr "Alıcı ekle"
+
+msgid "IDS_MSG_NPBODY_SEARCH"
+msgstr "Ara"
+
+msgid "IDS_MSG_NPBODY_NO_RESULTS_FOUND_ABB"
+msgstr "Sonuç bulunamadı"
+
+msgid "IDS_MSG_NPBODY_NO_QUICK_RESPONSES"
+msgstr "Hızlı yanıt yok"
+
+msgid "IDS_MSG_NPBODY_NO_PHRASES_BLOCKED"
+msgstr "Engellenen ifade yok"
+
+msgid "IDS_MSG_NPBODY_NO_MESSAGES_ON_SIM_CARD"
+msgstr "SIM kartta mesaj yok"
+
+msgid "IDS_MSG_NPBODY_NO_MESSAGES"
+msgstr "Mesaj yok"
+
+msgid "IDS_MSG_NPBODY_NO_BLOCKED_NUMBERS"
+msgstr "Engellenen numara yok"
+
+msgid "IDS_MSG_MBODY_VIBRATION"
+msgstr "Titreşim"
+
+msgid "IDS_MSG_MBODY_UNKNOWN_NUMBER"
+msgstr "Bilinmeyen numara"
+
+msgid "IDS_MSG_MBODY_TEXT_MESSAGE_CENTRE_NUMBER_ABB"
+msgstr "Metin mesajı merkezi numarası"
+
+msgid "IDS_MSG_HEADER_TEXT_MESSAGES_ABB"
+msgstr "Metin mesajları"
+
+msgid "IDS_MSG_HEADER_SWITCH_MOBILE_NETWORK_ABB2"
+msgstr "Mobil ağı değiştir"
+
+msgid "IDS_MSG_HEADER_SMS_CENTRE_ABB2"
+msgstr "SMS merkezi"
+
+msgid "IDS_MSG_HEADER_SELECT_RECIPIENT"
+msgstr "Alıcı seç"
+
+msgid "IDS_MSG_HEADER_PD_SELECTED_ABB3"
+msgstr "%d seçildi"
+
+msgid "IDS_MSG_HEADER_MESSAGES_ON_SIM_CARD_ABB"
+msgstr "SIM karttaki mesajlar"
+
+msgid "IDS_MSG_HEADER_INPUT_MODE_ABB"
+msgstr "Giriş modu"
+
+msgid "IDS_MSG_HEADER_FILE_SIZE_TOO_LARGE_ABB"
+msgstr "Dosya boyutu çok büyük"
+
+msgid "IDS_MSG_HEADER_FAILED_TO_SEND_MESSAGE_ABB"
+msgstr "Mesaj gönderilemedi"
+
+msgid "IDS_MSG_HEADER_DISCARD_MESSAGE_M_CLOSE_ABB"
+msgstr "Mesajı sil"
+
+msgid "IDS_MSG_HEADER_CREATE"
+msgstr "Oluştur"
+
+msgid "IDS_MSG_HEADER_ADD_CONTENT_ABB"
+msgstr "İçerik ekle"
+
+msgid "IDS_MSG_BUTTON_SWITCH_ABB2"
+msgstr "Değiştir"
+
+msgid "IDS_MSG_BUTTON_SAVE_ABB2"
+msgstr "Kaydet"
+
+msgid "IDS_MSG_BUTTON_RESEND_ABB"
+msgstr "Tekrar gönder"
+
+msgid "IDS_MSG_BUTTON_DISCARD_ABB"
+msgstr "Sil"
+
+msgid "IDS_MSG_BUTTON_DELETE_ABB4"
+msgstr "Sil"
+
+msgid "IDS_MSG_BUTTON_CANCEL_ABB2"
+msgstr "İptal"
+
+msgid "IDS_MSG_BUTTON2_CONTACTS_ABB_M_APPLICATION_NAME"
+msgstr "Kişiler"
+
+msgid "IDS_MSG_BODY_YOU_HAVE_SELECTED_A_SOUND_N_SHOT_FILE_SOUND_DATA_IS_NOT_SUPPORTED_FOR_MMS_SO_ONLY_THE_PICTURE_WILL_BE_ATTACHED"
+msgstr "Bir sesli fotoğraf dosyası seçtiniz. Ses verileri MMS için desteklenmiyor, bu nedenle sadece fotoğraf eklenecek."
+
+msgid "IDS_MSG_BODY_WAITING_TO_SEND_ING_M_STATUS"
+msgstr "Göndermek için bekleniyor..."
+
+msgid "IDS_MSG_BODY_UNABLE_TO_SEND_THIS_MESSAGE_INSERT_YOUR_SIM_CARD_AND_TRY_AGAIN"
+msgstr "Bu mesaj gönderilemiyor. SIM kartınızı takın ve tekrar deneyin."
+
+msgid "IDS_MSG_BODY_TYPE_C"
+msgstr "Tip:"
+
+msgid "IDS_MSG_BODY_TO_USE_RESTRICTED_MEDIA_TYPES_CHANGE_YOUR_MMS_CREATION_MODE_SETTING"
+msgstr "Kısıtlı ortam türlerini kullanmak için MMS oluşturma modu ayarınızı değiştirin."
+
+msgid "IDS_MSG_BODY_TIME_SENT_C"
+msgstr "Gönderilen saat:"
+
+msgid "IDS_MSG_BODY_TIME_RECEIVED_C"
+msgstr "Alınan saat:"
+
+msgid "IDS_MSG_BODY_STATUS_C"
+msgstr "Durum:"
+
+msgid "IDS_MSG_BODY_SENT_M_STATUS"
+msgstr "Gönderildi"
+
+msgid "IDS_MSG_BODY_SENDING_ING_M_STATUS_ABB"
+msgstr "Gndrlyr..."
+
+msgid "IDS_MSG_BODY_SENDING_FAILED_M_STATUS"
+msgstr "Gönderme başarısız"
+
+msgid "IDS_MSG_BODY_RETRIEVE_MESSAGES_AUTOMATICALLY_WHILE_ROAMING"
+msgstr "Dolaşımdayken mesajları otomatik olarak al."
+
+msgid "IDS_MSG_BODY_RETRIEVE_MESSAGES_AUTOMATICALLY"
+msgstr "Mesajları otomatik olarak al."
+
+msgid "IDS_MSG_BODY_READ_REPORT_C_PS"
+msgstr "Okundu raporu: %s"
+
+msgid "IDS_MSG_BODY_OTHER_PERSON"
+msgstr "Diğer kişi"
+
+msgid "IDS_MSG_BODY_MEMO_T_MAINMENU"
+msgstr "Not"
+
+msgid "IDS_MSG_BODY_FAILED_M_STATUS_ABB2"
+msgstr "Başarısız"
+
+msgid "IDS_MSG_BODY_ENTER_TEXT_M_NOUN"
+msgstr "Metin girin"
+
+msgid "IDS_MSG_BODY_DRAFT_M_STATUS_ABB"
+msgstr "Taslak"
+
+msgid "IDS_MSG_BODY_DELIVERY_REPORT_C_PS"
+msgstr "Teslim raporu: %s"
+
+msgid "IDS_MSG_BODY_CB_MESSAGE"
+msgstr "CB mesajı"
+
+msgid "IDS_MSG_BODY_CALENDAR_M_APPLICATION_NAME_ABB"
+msgstr "Takvim"
+
+msgid "IDS_MSG_BODY_AFTER_YOU_SEND_OR_RECEIVE_MESSAGES_THEY_WILL_BE_SHOWN_HERE"
+msgstr "Gönderdiğiniz veya aldığınız mesajlar burada gösterilir."
+
+msgid "IDS_MSG_BODY_AFTER_YOU_CREATE_QUICK_RESPONSES_THEY_WILL_BE_SHOWN_HERE"
+msgstr "Oluşturduğunuz hızlı yanıtlar burada gösterilir."
+
+msgid "IDS_MSG_BODY_AFTER_YOU_COPY_MESSAGES_TO_THE_SIM_CARD_THEY_WILL_BE_SHOWN_HERE"
+msgstr "SIM karta kopyaladığınız mesajlar burada gösterilir."
+
+msgid "IDS_MSG_BODY_AFTER_YOU_ADD_PHRASES_THEY_WILL_BE_SHOWN_HERE"
+msgstr "Eklediğiniz ifadeler burada gösterilecektir."
+
+msgid "IDS_MSG_BODY_AFTER_YOU_ADD_NUMBERS_TO_THE_MESSAGE_BLOCK_LIST_THEY_WILL_BE_SHOWN_HERE"
+msgstr "Mesaj engelleme listesine eklediğiniz numaralar burada gösterilecektir."
+
+msgid "IDS_MSG_ACBUTTON_DELETE_ABB"
+msgstr "SİL"
+
+msgid "IDS_MSGC_POP_UNSUPPORTED_MEDIA_TYPE"
+msgstr "Ortam türü desteklenmiyor."
+
+msgid "IDS_MSGC_POP_LOW_BATTERY"
+msgstr "Düşük pil."
+
+msgid "IDS_MSGC_POP_CANCELLED"
+msgstr "İptal edildi."
+
+msgid "IDS_MSGC_OPT_EMAIL"
+msgstr "E-posta"
+
+msgid "IDS_MSGC_OPT_EDITITEM_VIEW"
+msgstr "Göster"
+
+msgid "IDS_MSGC_OPT_EDITITEM_REMOVE"
+msgstr "Kaldır"
+
+msgid "IDS_MSGC_OPT_EDITITEM_PLAY"
+msgstr "Çal"
+
+msgid "IDS_MSGC_OPT_CHANGE_RECIPIENTS_TO"
+msgstr "Alıcı"
+
+msgid "IDS_MSGC_HEADER_PREVIEW"
+msgstr "Önizleme"
+
+msgid "IDS_MSGC_BODY_ENTER_SUBJECT"
+msgstr "Konu girin."
+
+msgid "IDS_MSGF_POP_UNABLE_TO_FIND_LOCATION"
+msgstr "Konum bulunamadı."
+
+msgid "IDS_MSGF_POP_REJECTED"
+msgstr "Reddedildi."
+
+msgid "IDS_MSGF_POP_DELETING"
+msgstr "Siliniyor..."
+
+msgid "IDS_MSGF_POP_COPIED_TO_CLIPBOARD"
+msgstr "Panoya kopyalandı."
+
+msgid "IDS_MSGF_POP_BLOCK_PS_Q"
+msgstr "%s engellensin mi?"
+
+msgid "IDS_MSGF_OPT_SUBJECT_COLON"
+msgstr "Konu:"
+
+msgid "IDS_MSGF_OPT_SENDER_VIA_EMAIL"
+msgstr "E-posta ile gönder"
+
+msgid "IDS_MSGF_OPT_SELECT"
+msgstr "Seç"
+
+msgid "IDS_MSGF_OPT_SAVE"
+msgstr "Kaydet"
+
+msgid "IDS_MSGF_OPT_REMOVE"
+msgstr "Kaldır"
+
+msgid "IDS_MSGF_OPT_FORWARD"
+msgstr "İlet"
+
+msgid "IDS_MSGF_OPT_DELETE_Q"
+msgstr "Sil?"
+
+msgid "IDS_MSGF_HEADER_ADVANCED_SEARCH"
+msgstr "Gelişmiş arama"
+
+msgid "IDS_MSGF_BODY_UNKNOWN"
+msgstr "Bilinmeyen"
+
+msgid "IDS_MSGF_BODY_SETTINGS"
+msgstr "Ayarlar"
+
+msgid "IDS_MSGF_BODY_RECIPIENTS"
+msgstr "Alıcılar"
+
+msgid "IDS_MSGF_BODY_RECEIVED"
+msgstr "Alındı."
+
+msgid "IDS_MSGF_BODY_OTHER"
+msgstr "Diğer"
+
+msgid "IDS_MSGF_BODY_NO_SUBJECT"
+msgstr "Konu yok"
+
+msgid "IDS_MSGF_BODY_MSGSIZE_KB"
+msgstr "KB"
+
+msgid "IDS_MSGF_BODY_MESSAGE"
+msgstr "Mesaj"
+
+msgid "IDS_MSGF_BODY_ME"
+msgstr "Ben"
+
+msgid "IDS_MSGF_BODY_EXPIRED"
+msgstr "Sona erdi"
+
+msgid "IDS_MSGF_BODY_ALL"
+msgstr "Hepsi"
+
+msgid "IDS_MSG_SK_NO_ABB"
+msgstr "Hayır"
+
+msgid "IDS_MSG_POP_YOUR_MESSAGE_WILL_BE_DISCARDED_NO_RECIPIENTS_HAVE_BEEN_SELECTED"
+msgstr "Mesajınız silinecek. Hiçbir alıcı seçilmedi."
+
+msgid "IDS_MSG_POP_UNABLE_TO_PLAY_DURING_CALL"
+msgstr "Görüşme sırasında çalınamaz."
+
+msgid "IDS_MSG_POP_INCOMING_MESSAGES_ONLY"
+msgstr "Sadece gelen mesajlar"
+
+msgid "IDS_MSG_POP_DELETED"
+msgstr "Silindi."
+
+msgid "IDS_MSG_OPT_VIDEOS"
+msgstr "Videolar"
+
+msgid "IDS_MSG_OPT_TEXT"
+msgstr "Metin"
+
+msgid "IDS_MSG_OPT_SETTINGS"
+msgstr "Ayarlar"
+
+msgid "IDS_MSG_OPT_SEARCH"
+msgstr "Ara"
+
+msgid "IDS_MSG_OPT_RECORD_VIDEO_ABB"
+msgstr "Video kaydet"
+
+msgid "IDS_MSG_OPT_NONE"
+msgstr "Hiçbiri"
+
+msgid "IDS_MSG_OPT_IMAGES"
+msgstr "Resimler"
+
+msgid "IDS_MSG_OPT_EDIT"
+msgstr "Düzenle"
+
+msgid "IDS_MSG_OPT_DELETE"
+msgstr "Sil"
+
+msgid "IDS_MSG_OPT_DEFAULT"
+msgstr "Varsayılan"
+
+msgid "IDS_MSG_MBODY_SELECT_ALL"
+msgstr "Tümünü seç"
+
+msgid "IDS_MSG_MBODY_ALERTS"
+msgstr "Uyarılar"
+
+msgid "IDS_MSG_HEADER_TRANSLATE"
+msgstr "Çevir"
+
+msgid "IDS_MSG_HEADER_SETTINGS"
+msgstr "Ayarlar"
+
+msgid "IDS_MSG_HEADER_MESSAGES"
+msgstr "Mesajlar"
+
+msgid "IDS_MSG_HEADER_DELETE"
+msgstr "Sil"
+
+msgid "IDS_MSG_HEADER_ATTENTION"
+msgstr "Dikkat"
+
+msgid "IDS_MSG_BUTTON_REMOVE_ABB"
+msgstr "Kaldır"
+
+msgid "IDS_MSG_BUTTON_OK_ABB"
+msgstr "Tamam"
+
+msgid "IDS_MSG_BUTTON_DOWNLOAD_ABB3"
+msgstr "İndir"
+
+msgid "IDS_MSG_BUTTON_CANCEL_ABB"
+msgstr "İptal"
+
+msgid "IDS_MSG_BODY_YES"
+msgstr "Evet"
+
+msgid "IDS_MSG_BODY_TICK_BOX_T_TTS"
+msgstr "İşaret kutusu"
+
+msgid "IDS_MSG_BODY_SEC"
+msgstr "sn"
+
+msgid "IDS_MSG_BODY_MESSAGE"
+msgstr "Mesaj"
+
+msgid "IDS_MSG_BUTTON_SEND_ABB5"
+msgstr "Gndr"
+
+msgid "IDS_MSG_BUTTON_SEND_ABB3"
+msgstr "Göndr"
+
+msgid "IDS_MSG_ACBUTTON_SEND_ABB3"
+msgstr "GNDR"
+
+msgid "IDS_ST_BODY_LOADING_ING"
+msgstr "Yükleniyor..."
+
+msgid "IDS_MSGS_BODY_NOTIFICATIONS"
+msgstr "Bildirimler"
+
+msgid "IDS_MSG_HEADER_ME"
+msgstr "Ben"
+
+msgid "IDS_MSG_BODY_UNKNOWN"
+msgstr "Bilinmeyen"
+
+msgid "IDS_MSG_TMBODY_ADD_OR_REMOVE_RECIPIENTS"
+msgstr "Alıcı ekle veya kaldır"
+
+msgid "IDS_MSG_POP_THE_SENDER_HAS_REQUESTED_A_READ_REPORT_TAP_SEND_TO_SEND_ONE"
+msgstr "Gönderici bir okundu raporu istedi. Göndermek için Gönder öğesine dokunun."
+
+msgid "IDS_MSGF_OPT_SEND_READ_REPORT"
+msgstr "Okundu raporu gönder"
+
+msgid "IDS_MSG_HEADER_COMPOSE_MESSAGE_ABB"
+msgstr "Mesaj yaz"
+
+msgid "IDS_MSG_POP_NO_VALID_RECIPIENTS_HAVE_BEEN_ADDED_THIS_MESSAGE_WILL_BE_DISCARDED"
+msgstr "Geçerli alıcı eklenmedi. Bu mesaj silinecek."
+

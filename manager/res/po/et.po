@@ -1,0 +1,945 @@
+msgid "IDS_COM_BODY_HOME"
+msgstr "Kodu"
+
+msgid "IDS_MSGC_POP_DATA_ROAMING_IS_DISABLED_ENABLE_DATA_ROAMING_AND_TRY_AGAIN"
+msgstr "Andmerändlus on desaktiveeritud. Aktiveerige andmerändlus ja proovige uuesti."
+
+msgid "IDS_MSG_ACBUTTON_CANCEL_ABB"
+msgstr "TÜHISTA"
+
+msgid "IDS_MSG_ACBUTTON_DONE_ABB"
+msgstr "VALMIS"
+
+msgid "IDS_MSGF_POP_NEW_MESSAGE"
+msgstr "Uus sõnum"
+
+msgid "IDS_COM_BUTTON_SHARE"
+msgstr "Jaga"
+
+msgid "IDS_COM_BODY_UNKNOWN"
+msgstr "Tundmatu"
+
+msgid "IDS_COM_BODY_MOBILE"
+msgstr "Mobiil"
+
+msgid "IDS_MSGC_POP_MOBILE_DATA_IS_DISABLED_ENABLE_MOBILE_DATA_AND_TRY_AGAIN"
+msgstr "Mobiilne andmeside on desaktiveeritud. Aktiveerige mobiilne andmeside ja proovige uuesti."
+
+msgid "IDS_TPLATFORM_ACBUTTON_SEND_ABB"
+msgstr "SAADA"
+
+msgid "IDS_MSGC_POP_UNABLE_TO_SEND_MESSAGES_WHILE_IN_FLIGHT_MODE_DISABLE_FLIGHT_MODE_AND_TRY_AGAIN"
+msgstr "Lennurežiimis ei saa sõnumeid saata. Desaktiveerige lennurežiim ja proovige uuesti."
+
+msgid "IDS_MSGC_POP_UNABLE_TO_ADD_FILE_IS_FORWARD_LOCKED"
+msgstr "Ei saa edastada.\nFailil on edastamislukk."
+
+msgid "IDS_MSGC_POP_THERE_IS_NOT_ENOUGH_SPACE_IN_YOUR_DEVICE_STORAGE_GO_TO_SETTINGS_POWER_AND_STORAGE_STORAGE_THEN_DELETE_SOME_FILES_AND_TRY_AGAIN"
+msgstr "Seadme mälus pole piisavalt ruumi. Avage menüü Seaded > Toide ja mälu > Mälu, seejärel kustutage mõned failid ja proovige uuesti."
+
+msgid "IDS_MSGC_POP_TEXT_AT_TOP"
+msgstr "Tekst üleval"
+
+msgid "IDS_MSGC_POP_TEXT_AT_BOTTOM"
+msgstr "Tekst all"
+
+msgid "IDS_MSGC_POP_SELECT_LAYOUT"
+msgstr "Vali paigutus"
+
+msgid "IDS_MSGC_POP_MMSCANTADD"
+msgstr "Ei saa lisada sisu."
+
+msgid "IDS_MSGC_POP_MESSAGE_SCHEDULED_TO_BE_SENT_TO_PS_SEND_NOW_Q"
+msgstr "Sõnumi saatmine ajastatud: %s. Kas saata kohe?"
+
+msgid "IDS_MSGC_POP_MAXIMUM_MESSAGE_SIZE_REACHED"
+msgstr "Maksimaalne sõnumi suurus on saavutatud."
+
+msgid "IDS_MSGC_POP_DURATION_MUST_BE_AT_LEAST_PD_SECONDS"
+msgstr "Kestus peab olema vahemalt %d sekundit."
+
+msgid "IDS_MSGC_POP_DISABLING_FLIGHT_MODE_ING"
+msgstr "Lennurežiimi desaktiveerimine..."
+
+msgid "IDS_MSGC_POP_COPIED_TO_SIM_CARD"
+msgstr "Kopeeritud SIM-kaardile."
+
+msgid "IDS_MSGC_OPT_USE_OTHER_CONTACT_INFO_ABB"
+msgstr "Kas. muud kon.-teavet"
+
+msgid "IDS_MSGC_OPT_SEND_VIA"
+msgstr "Saatmisviis"
+
+msgid "IDS_MSGC_OPT_IMAGE"
+msgstr "Pilt"
+
+msgid "IDS_MSGC_OPT_EDIT_ITEM_REPLACE"
+msgstr "Asenda"
+
+msgid "IDS_MSGC_OPT_CANCEL_MESSAGE"
+msgstr "Tühista sõnum"
+
+msgid "IDS_MSGC_HEADER_RECIPIENT_LIST"
+msgstr "Adressaadiloend"
+
+msgid "IDS_MSGC_HEADER_DURATION_FOR_SLIDE_PD_PD"
+msgstr "Slaidi kestus %d/%d"
+
+msgid "IDS_MSGC_BODY_WAIT_WHILE_ITEMS_ARE_ADDED_TO_SLIDESHOW"
+msgstr "Oodake, kuni uksused on slaidiseansile lisatud."
+
+msgid "IDS_MSGC_BODY_UNABLE_TO_SEND_MESSAGE"
+msgstr "Sõnumit ei saa saata."
+
+msgid "IDS_MSGC_BODY_SELECT_RINGTONE"
+msgstr "Vali helin"
+
+msgid "IDS_MSGC_BODY_READ_REPORT_WILL_BE_SENT"
+msgstr "Lugemisraport saadetakse."
+
+msgid "IDS_MSGC_BODY_NOT_REQUESTED"
+msgstr "Pole taotletud"
+
+msgid "IDS_MSGC_BODY_MAXIMUM_NUMBER_OF_RECIPIENTS_HPD_REACHED"
+msgstr "Maksimaalne adressaatide arv (%d) on saavutatud."
+
+msgid "IDS_MSGC_BODY_DUPLICATED_RECIPIENT"
+msgstr "Mitu adressaati."
+
+msgid "IDS_MSGF_SK_FORWARD_LITE"
+msgstr "Edasta"
+
+msgid "IDS_MSGF_POP_UNABLE_TO_SAVE"
+msgstr "Ei saa salvestada."
+
+msgid "IDS_MSGF_POP_UNABLE_TO_DELETE"
+msgstr "Ei saa kustutada."
+
+msgid "IDS_MSGF_POP_UNABLE_TO_COPY"
+msgstr "Ei saa kopeerida."
+
+msgid "IDS_MSGF_POP_SOME_CHARACTERS_MAY_BE_LOST_CONTINUE_Q"
+msgstr "Osa märkidest võib kaduda. Kas jätkata?"
+
+msgid "IDS_MSGF_POP_SIM_NOT_INSERTED"
+msgstr "SIM-kaart ei ole sisestatud."
+
+msgid "IDS_MSGF_POP_SAVING_FAILED"
+msgstr "Salvestamine nurjus."
+
+msgid "IDS_MSGF_POP_SAVED_IN_MY_FILES"
+msgstr "Salvestatud Minu failidesse."
+
+msgid "IDS_MSGF_POP_RETRIEVING_MESSAGE_FAILED"
+msgstr "Sõnumi laadimine nurjus"
+
+msgid "IDS_MSGF_POP_RESTRICTED_CONTENT_TYPE_ATTACH_ANYWAY_Q"
+msgstr "Piiratud sisutüüp. Kas manustada ikkagi?"
+
+msgid "IDS_MSGF_POP_RESTORING_ING"
+msgstr "Taastamine..."
+
+msgid "IDS_MSGF_POP_READ_REPORT"
+msgstr "Loe raportit"
+
+msgid "IDS_MSGF_POP_NO_NUMBER"
+msgstr "Number puudub"
+
+msgid "IDS_MSGF_POP_NO_ATTACHMENTS"
+msgstr "Manuseid ei ole"
+
+msgid "IDS_MSGF_POP_NEW_MESSAGES"
+msgstr "Uued sõnumid"
+
+msgid "IDS_MSGF_POP_MESSAGE_COPIED_FROM_SIM_CARD"
+msgstr "Sõnum on SIM-kaardilt kopeeritud."
+
+msgid "IDS_MSGF_POP_MAXIMUM_NUMBER_OF_RECIPIENTS_IS_PD_SOME_RECIPIENTS_MAY_BE_LOST"
+msgstr "Adressaatide maksimaalne arv on %d. Mõned adressaadid võivad kaduda."
+
+msgid "IDS_MSGF_POP_MAXIMUM_NUMBER_OF_ATTACHMENTS_HPS_EXCEEDED"
+msgstr "Maksimaalne arv manuseid (%s) on ületatud."
+
+msgid "IDS_MSGF_POP_MAXIMUM_CHARACTERS"
+msgstr "Lubatud arv märke on täis."
+
+msgid "IDS_MSGF_POP_IN_PROGRESS_ING"
+msgstr "Saatmine..."
+
+msgid "IDS_MSGF_POP_INTIALISING"
+msgstr "Lähtestamine..."
+
+msgid "IDS_MSGF_POP_IF_YOU_DONT_WANT_TO_REPLACE_THE_FILE_RENAME_IT"
+msgstr "Kui te ei soovi faili asendada, nimetage see umber."
+
+msgid "IDS_MSGF_POP_HELP_PAGE_MESSAGE_FOR_ONE_FILE"
+msgstr "Sellel sonumil on manusfaile, mida ei naidata."
+
+msgid "IDS_MSGF_POP_HELP_PAGE_MESSAGE"
+msgstr "See sonum sisaldab manustatud faile, mida ei naidata."
+
+msgid "IDS_MSGF_POP_FILE_NAME_ALREADY_EXISTS"
+msgstr "Failinimi on juba olemas."
+
+msgid "IDS_MSGF_POP_CONVERTING_TO_TEXT_MESSAGE_ING"
+msgstr "Tekstsõnumiks teisendamine..."
+
+msgid "IDS_MSGF_POP_CONVERTING_TO_MULTIMEDIA_MESSAGE_ING"
+msgstr "Multimeediumsõnumiks teisendamine..."
+
+msgid "IDS_MSGF_POP_ABOUT_TO_GO_ONLINE_CONTINUE_Q"
+msgstr "Hakkate minema Internetti (%s). Kas jätkata?"
+
+msgid "IDS_MSGF_OPT_TEXT_MESSAGE"
+msgstr "Tekstsõnum"
+
+msgid "IDS_MSGF_OPT_SENDER_ABB"
+msgstr "Saatja"
+
+msgid "IDS_MSGF_OPT_SAVE_ATTACHMENT"
+msgstr "Salvesta manus"
+
+msgid "IDS_MSGF_OPT_INSTALL"
+msgstr "Installi"
+
+msgid "IDS_MSGF_OPT_EDIT_MESSAGE"
+msgstr "Muuda sõnumit"
+
+msgid "IDS_MSGF_OPT_DELETE_MESSAGES"
+msgstr "Kustuta sõnumid"
+
+msgid "IDS_MSGF_HEADER_SELECT_MESSAGES"
+msgstr "Vali sõnumid"
+
+msgid "IDS_MSGF_HEADER_SAVE_ALL"
+msgstr "Salvesta kõik"
+
+msgid "IDS_MSGF_HEADER_MESSAGE_DETAILS"
+msgstr "Sõnumi üksikasjad"
+
+msgid "IDS_MSGF_HEADER_EXPIRES_C_PS"
+msgstr "Aegub: %s"
+
+msgid "IDS_MSGF_BUTTON_SAVE_ALL_ATTACHMENTS_ABB"
+msgstr "Salv. kõik manused"
+
+msgid "IDS_MSGF_BODY_TO_C"
+msgstr "Saaja:"
+
+msgid "IDS_MSGF_BODY_TEXT_MESSAGES"
+msgstr "Tekstsõnumid"
+
+msgid "IDS_MSGF_BODY_SIM_MEMORY_FULL_DELETE_SOME_ITEMS"
+msgstr "SIM-kaardi mälu on täis. Kustutage mõned üksused."
+
+msgid "IDS_MSGF_BODY_SENT_M_DATE_C"
+msgstr "Saadetud:"
+
+msgid "IDS_MSGF_BODY_REQUESTED"
+msgstr "Taotletud."
+
+msgid "IDS_MSGF_BODY_RECEIVED_M_DATE_C"
+msgstr "Vastuvõetud:"
+
+msgid "IDS_MSGF_BODY_READ_REPORT"
+msgstr "Loe raportit"
+
+msgid "IDS_MSGF_BODY_PUSH_MESSAGES"
+msgstr "Kommertsteated"
+
+msgid "IDS_MSGF_BODY_PD_MESSAGES"
+msgstr "%d sõnumit"
+
+msgid "IDS_MSGF_BODY_PD_CONVERSATIONS"
+msgstr "%d vestlust"
+
+msgid "IDS_MSGF_BODY_NO_NAME"
+msgstr "Nimi puudub"
+
+msgid "IDS_MSGF_BODY_MULTIMEDIA_MESSAGE_NOTIFICATION"
+msgstr "Multimeediumsõnumi teavitus"
+
+msgid "IDS_MSGF_BODY_MULTIMEDIA_MESSAGE"
+msgstr "Multimeediumsõnum"
+
+msgid "IDS_MSGF_BODY_MMSREADREPLYMSGREAD"
+msgstr "Loe"
+
+msgid "IDS_MSGF_BODY_MMSDELIVERYMSGREJECTED"
+msgstr "Sõnumist keelduti."
+
+msgid "IDS_MSGF_BODY_MMS"
+msgstr "MMS"
+
+msgid "IDS_MSGF_BODY_MESSAGE_SIZE"
+msgstr "Sõnumi maht"
+
+msgid "IDS_MSGF_BODY_MESSAGE_OPTIONS"
+msgstr "Sõnumi valikud"
+
+msgid "IDS_MSGF_BODY_MESSAGE_DELIVERED"
+msgstr "Sõnum on kohale toimetatud"
+
+msgid "IDS_MSGF_BODY_MAXIMUM_NUMBER_OF_ATTACHMENTS_HP1SS_EXCEEDED_ONLY_FIRST_P2SS_WILL_BE_ADDED"
+msgstr "Maksimaalne manuste arv (%1$s) on ületatud. Lisatakse ainult %2$s esimest."
+
+msgid "IDS_MSGF_BODY_INVALID_RECIPIENT"
+msgstr "Vale adressaat."
+
+msgid "IDS_MSGF_BODY_FROM"
+msgstr "Saatja"
+
+msgid "IDS_MSGF_BODY_FLFROM"
+msgstr "Saatja:"
+
+msgid "IDS_MSGF_BODY_DETAILSSENDINGFAILED"
+msgstr "Saatmine nurjus."
+
+msgid "IDS_MSGF_BODY_DELIVERY_REPORT"
+msgstr "Kohaletoimetamisraport"
+
+msgid "IDS_MSGF_BODY_CP_MESSAGES"
+msgstr "CP-sõnumid"
+
+msgid "IDS_MSGF_BODY_COPY_TEXT"
+msgstr "Kopeeri tekst"
+
+msgid "IDS_MSGF_BODY_CB_MESSAGES"
+msgstr "Võrguteabesõnumid"
+
+msgid "IDS_MSGF_BODY_1_MESSAGE"
+msgstr "1 message"
+
+msgid "IDS_MSGF_BODY_1_CONVERSATION"
+msgstr "1 vestlus"
+
+msgid "IDS_MSGS_BODY_REQUEST_A_READ_REPORT_FOR_EACH_MESSAGE_YOU_SEND"
+msgstr "Taotle lugemisraportit igale saadetud sonumile."
+
+msgid "IDS_MSGS_BODY_REQUEST_A_DELIVERY_REPORT_FOR_EACH_MESSAGE_YOU_SEND"
+msgstr "Taotle kohaletoimetamisraportit igale saadetud sonumile."
+
+msgid "IDS_MSGS_BODY_RADIO_BUTTON"
+msgstr "Raadio nupp"
+
+msgid "IDS_MSGS_BODY_ON_OFF_BUTTON_T_TTS"
+msgstr "Sisse-/väljalülitamise nupp"
+
+msgid "IDS_MSGS_BODY_EXPANDABLE_LIST_T_TTS"
+msgstr "Laiendatav loend"
+
+msgid "IDS_MSGS_BODY_AUTOMATICALLY_RETRIEVE_MMS_MESSAGES"
+msgstr "Lae MMS-sonumid automaatselt."
+
+msgid "IDS_MSG_TPOP_UNABLE_TO_PREVIEW_FILE_UNSUPPORTED_FILE_TYPE"
+msgstr "Faili ei saa eelvaates kuvada. Mittetoetatud failitüüp."
+
+msgid "IDS_MSG_TPOP_UNABLE_TO_ATTACH_FILE_FILE_FORMAT_NOT_SUPPORTED"
+msgstr "Faili ei saa lisada manusena. Failivormingut ei toetata."
+
+msgid "IDS_MSG_TPOP_UNABLE_TO_ADD_SOME_RECIPIENTS_NUMBERS_NOT_VALID"
+msgstr "Osasid adressaate ei saa lisada. Numbrid on kehtetud."
+
+msgid "IDS_MSG_TPOP_UNABLE_TO_ADD_RECIPIENT_NUMBER_NOT_VALID"
+msgstr "Adressaati ei saa lisada. Number on kehtetu."
+
+msgid "IDS_MSG_TPOP_UNABLE_TO_ADD_RECIPIENTS_NUMBERS_NOT_VALID"
+msgstr "Adressaate ei saa lisada. Numbrid on kehtetud."
+
+msgid "IDS_MSG_TPOP_UNABLE_TO_ADD_ATTACHMENT_MAXIMUM_NUMBER_OF_ATTACHMENTS_HPD_REACHED"
+msgstr "Manust ei saa lisada. Manuste maksimaalne arv (%d) on saavutatud."
+
+msgid "IDS_MSG_TPOP_THIS_NUMBER_IS_NOT_VALID"
+msgstr "See number ei kehti."
+
+msgid "IDS_MSG_TPOP_SOME_RECIPIENTS_ALREADY_ADDED"
+msgstr "Mõned adressaadid on juba lisatud."
+
+msgid "IDS_MSG_TPOP_SELECTED_MESSAGES_COPIED_TO_MOBILE_DEVICE"
+msgstr "Valitud sõnumid on kopeeritud mobiilsideseadmesse."
+
+msgid "IDS_MSG_TPOP_PD_MESSAGES_MOVED_TO_MESSAGE_LIST"
+msgstr "%d sõnumit on teisaldatud sõnumiloendisse."
+
+msgid "IDS_MSG_TPOP_NUMBER_REMOVED_FROM_MESSAGE_BLOCK_LIST"
+msgstr "Number on eemaldatud sõnumite blokeeritute loendist."
+
+msgid "IDS_MSG_TPOP_NUMBER_ADDED_TO_MESSAGE_BLOCK_LIST"
+msgstr "Number on lisatud sõnumite blokeeritute loendisse."
+
+msgid "IDS_MSG_TPOP_NETWORK_NOT_AVAILABLE_MESSAGE_WILL_BE_SENT_WHEN_CONNECTED_TO_NETWORK"
+msgstr "Võrk pole saadaval. Sõnum saadetakse võrguühenduse loomisel."
+
+msgid "IDS_MSG_TPOP_MESSAGE_COPIED_TO_PS_SIM_CARD"
+msgstr "Sõnum on kopeeritud SIM-kaardile %s."
+
+msgid "IDS_MSG_TPOP_MAXIMUM_NUMBER_OF_CHARACTERS_EXCEEDED"
+msgstr "Tähemärkide maksimaalne arv on ületatud."
+
+msgid "IDS_MSG_TPOP_MAXIMUM_MESSAGE_SIZE_HPS_EXCEEDED_RESIZING_ATTACHMENTS_ING"
+msgstr "Sõnumi maksimaalne suurus (%s) on ületatud. Manusfailide suuruse muutmine..."
+
+msgid "IDS_MSG_TPOP_INVALID_CHARACTER_ENTERED"
+msgstr "Sisestati vale tähemärk"
+
+msgid "IDS_MSG_TPOP_ADD_RECIPIENTS"
+msgstr "Saate lisada adressaadid."
+
+msgid "IDS_MSG_TPOP_1_MESSAGE_MOVED_TO_MESSAGE_LIST"
+msgstr "1 sõnum teisaldati sõnumiloendisse."
+
+msgid "IDS_MSG_TMBODY_TEXT_MESSAGES"
+msgstr "Tekstsõnumid"
+
+msgid "IDS_MSG_TMBODY_SOUND"
+msgstr "Heli"
+
+msgid "IDS_MSG_TMBODY_MULTIMEDIA_MESSAGES"
+msgstr "Multimeediumsõnumid"
+
+msgid "IDS_MSG_TMBODY_MESSAGES_ON_SIM_CARD"
+msgstr "SIM-kaardil olevad sõnumid"
+
+msgid "IDS_MSG_TMBODY_INPUT_MODE"
+msgstr "Sisestusrežiim"
+
+msgid "IDS_MSG_TMBODY_AUTO_RETRIEVE_WHILE_ROAMING"
+msgstr "Autom. laadimine rändluse ajal"
+
+msgid "IDS_MSG_TMBODY_AUTO_RETRIEVE"
+msgstr "Automaatne laadimine"
+
+msgid "IDS_MSG_SK_SEND_NOW"
+msgstr "Saada"
+
+msgid "IDS_MSG_SBODY_SELECT_AN_INPUT_MODE_FOR_COMPOSING_MESSAGES"
+msgstr "Valige sisestusrežiim sõnumite koostamiseks."
+
+msgid "IDS_MSG_SBODY_NONE_M_STATUS"
+msgstr "Puudub"
+
+msgid "IDS_MSG_SBODY_MANAGE_THE_MESSAGES_STORED_ON_YOUR_SIM_CARD"
+msgstr "Saate hallata oma SIM-kaardile salvestatud sõnumeid."
+
+msgid "IDS_MSG_POP_UNABLE_TO_SEND_SCHEDULED_MESSAGE_SET_ANOTHER_TIME"
+msgstr "Ajastatud sõnumit ei saa saata. Määrake teine aeg."
+
+msgid "IDS_MSG_POP_UNABLE_TO_ATTACH_FILE_FILE_SIZE_TOO_LARGE_TRY_SENDING_VIA_EMAIL_BLUETOOTH_WI_FI_ETC"
+msgstr "Faili ei saa manustada. Fail on liiga suur. Proovige saata e-kirja, Bluetooth-ühenduse, Wi-Fi jne kaudu."
+
+msgid "IDS_MSG_POP_TO_SEND_THIS_MULTIMEDIA_MESSAGE_THE_DEVICE_WILL_CONNECT_TO_A_DIFFERENT_MOBILE_NETWORK_THIS_WILL_DISCONNECT_YOUR_DEVICE_FROM_YOUR_MSG"
+msgstr "Selle multimeediumsõnumi saatmiseks loob seade ühenduse teise mobiilsidevõrguga. Sellega katkestatakse teie seadme ühendus teie hetkel kasutatava mobiilsidevõrguga."
+
+msgid "IDS_MSG_POP_TO_DOWNLOAD_THIS_MULTIMEDIA_MESSAGE_THE_DEVICE_WILL_CONNECT_TO_A_DIFFERENT_MOBILE_NETWORK_MSG"
+msgstr "Selle multimeediumsõnumi allalaadimiseks loob seade ühenduse teise mobiilsidevõrguga. Sellega katkestatakse teie seadme ühendus teie hetkel kasutatava mobiilsidevõrguga."
+
+msgid "IDS_MSG_POP_THIS_MESSAGE_WILL_BE_RESENT"
+msgstr "See sõnum saadetakse uuesti."
+
+msgid "IDS_MSG_POP_PD_MESSAGES_WILL_BE_DELETED"
+msgstr "%d sonumit kustutatakse."
+
+msgid "IDS_MSG_POP_PD_CONVERSATIONS_WILL_BE_DELETED"
+msgstr "%d vestlust kustutatakse."
+
+msgid "IDS_MSG_POP_NO_TEMPLATES_IN_LIST"
+msgstr "Loendis ei ole malle"
+
+msgid "IDS_MSG_POP_INCLUDE_ORIGINAL_TEXT_IN_OUTGOING_MESSAGE"
+msgstr "Kaasa algne tekst väljuvale sõnumile"
+
+msgid "IDS_MSG_POP_DURATION_MUST_BE_SHORTER_THAN_PD_SECONDS"
+msgstr "Kestus peab olema luhem kui %d sekundit."
+
+msgid "IDS_MSG_POP_1_MESSAGE_WILL_BE_DELETED"
+msgstr "1 sonum kustutatakse."
+
+msgid "IDS_MSG_POP_1_CONVERSATION_WILL_BE_DELETED"
+msgstr "1 kontakt kustutatakse."
+
+msgid "IDS_MSG_OPT_VIEW_DETAILS_ABB"
+msgstr "Kuva üksikasjad"
+
+msgid "IDS_MSG_OPT_VIEW_CONTACT_DETAILS_ABB"
+msgstr "Kuva kontakti üksikasjad"
+
+msgid "IDS_MSG_OPT_VIEW_AS_SLIDESHOW_ABB"
+msgstr "Kuva slaidiseansina"
+
+msgid "IDS_MSG_OPT_UPDATE_CONTACT"
+msgstr "Värskenda kontakti"
+
+msgid "IDS_MSG_OPT_UNICODE"
+msgstr "Unicode"
+
+msgid "IDS_MSG_OPT_TAKE_PICTURE_ABB"
+msgstr "Pildista"
+
+msgid "IDS_MSG_OPT_SAVE_ATTACHMENTS_ABB"
+msgstr "Salvesta manused"
+
+msgid "IDS_MSG_OPT_RESEND"
+msgstr "Saada uuesti"
+
+msgid "IDS_MSG_OPT_REPLY"
+msgstr "Vasta"
+
+msgid "IDS_MSG_OPT_REMOVE_FROM_BLOCK_LIST_ABB"
+msgstr "Eemalda blokeeritute loendist"
+
+msgid "IDS_MSG_OPT_RECORD_AUDIO_FILE_ABB"
+msgstr "Salvesta\nhelifail"
+
+msgid "IDS_MSG_OPT_QUICK_RESPONSE_ABB"
+msgstr "Kiirvastus"
+
+msgid "IDS_MSG_OPT_MAKE_VOICE_CALL"
+msgstr "Tee häälkõne"
+
+msgid "IDS_MSG_OPT_GSM_ALPHABET_ABB"
+msgstr "GSM-märgistik"
+
+msgid "IDS_MSG_OPT_EXPORT_TO_DEVICE_MEMORY"
+msgstr "Ekspordi seadme mällu"
+
+msgid "IDS_MSG_OPT_DELETE_MESSAGE"
+msgstr "Kustuta sõnum"
+
+msgid "IDS_MSG_OPT_DELETE_CONVERSATION_ABB"
+msgstr "Kustuta vestlus"
+
+msgid "IDS_MSG_OPT_CREATE_CONTACT_ABB"
+msgstr "Loo kontakt"
+
+msgid "IDS_MSG_OPT_COPY_TO_SIM_CARD_ABB"
+msgstr "Kopeeri SIM-kaardile"
+
+msgid "IDS_MSG_OPT_COPY_TO_DEVICE_ABB"
+msgstr "Kopeeri seadmesse"
+
+msgid "IDS_MSG_OPT_COPY_TEXT"
+msgstr "Kopeeri tekst"
+
+msgid "IDS_MSG_OPT_COPY"
+msgstr "Kopeeri"
+
+msgid "IDS_MSG_OPT_BACK_UP"
+msgstr "Varunda"
+
+msgid "IDS_MSG_OPT_AUTOMATIC"
+msgstr "Automaatne"
+
+msgid "IDS_MSG_OPT_AUDIO_FILES_ABB2"
+msgstr "Helifailid"
+
+msgid "IDS_MSG_OPT_ATTACHMENT_ABB"
+msgstr "Manus"
+
+msgid "IDS_MSG_OPT_ADD_TO_CONTACTS_ABB"
+msgstr "Lisa kontaktidesse"
+
+msgid "IDS_MSG_OPT_ADD_TO_BLOCK_LIST_ABB"
+msgstr "Lisa blokeeritute loendisse"
+
+msgid "IDS_MSG_OPT_ADD_RECIPIENTS_ABB"
+msgstr "Lisa adressaadid"
+
+msgid "IDS_MSG_NPBODY_SEARCH"
+msgstr "Otsi"
+
+msgid "IDS_MSG_NPBODY_NO_RESULTS_FOUND_ABB"
+msgstr "Tulemusi ei leitud"
+
+msgid "IDS_MSG_NPBODY_NO_QUICK_RESPONSES"
+msgstr "Kiirvastuseid ei ole"
+
+msgid "IDS_MSG_NPBODY_NO_PHRASES_BLOCKED"
+msgstr "Blokeeritud fraase pole"
+
+msgid "IDS_MSG_NPBODY_NO_MESSAGES_ON_SIM_CARD"
+msgstr "SIM-kaardil pole sõnumeid"
+
+msgid "IDS_MSG_NPBODY_NO_MESSAGES"
+msgstr "Sõnumeid pole"
+
+msgid "IDS_MSG_NPBODY_NO_BLOCKED_NUMBERS"
+msgstr "Blokeeritud numbreid pole"
+
+msgid "IDS_MSG_MBODY_VIBRATION"
+msgstr "Värin"
+
+msgid "IDS_MSG_MBODY_UNKNOWN_NUMBER"
+msgstr "Tundmatu number"
+
+msgid "IDS_MSG_MBODY_TEXT_MESSAGE_CENTRE_NUMBER_ABB"
+msgstr "Tekstsõnumikeskuse number"
+
+msgid "IDS_MSG_HEADER_TEXT_MESSAGES_ABB"
+msgstr "Tekstsõnumid"
+
+msgid "IDS_MSG_HEADER_SWITCH_MOBILE_NETWORK_ABB2"
+msgstr "Mobiilsidevõrgu vahetamine"
+
+msgid "IDS_MSG_HEADER_SMS_CENTRE_ABB2"
+msgstr "SMS-keskus"
+
+msgid "IDS_MSG_HEADER_SELECT_RECIPIENT"
+msgstr "Vali adressaat"
+
+msgid "IDS_MSG_HEADER_PD_SELECTED_ABB3"
+msgstr "%d on valitud"
+
+msgid "IDS_MSG_HEADER_MESSAGES_ON_SIM_CARD_ABB"
+msgstr "SIM-kaardil olevad sõnumid"
+
+msgid "IDS_MSG_HEADER_INPUT_MODE_ABB"
+msgstr "Sisestusrežiim"
+
+msgid "IDS_MSG_HEADER_FILE_SIZE_TOO_LARGE_ABB"
+msgstr "Fail on liiga suur"
+
+msgid "IDS_MSG_HEADER_FAILED_TO_SEND_MESSAGE_ABB"
+msgstr "Sõnumi saatmine nurjus"
+
+msgid "IDS_MSG_HEADER_DISCARD_MESSAGE_M_CLOSE_ABB"
+msgstr "Loobu sõnumist"
+
+msgid "IDS_MSG_HEADER_CREATE"
+msgstr "Loomine"
+
+msgid "IDS_MSG_HEADER_ADD_CONTENT_ABB"
+msgstr "Sisu lisamine"
+
+msgid "IDS_MSG_BUTTON_SWITCH_ABB2"
+msgstr "Vaheta"
+
+msgid "IDS_MSG_BUTTON_SAVE_ABB2"
+msgstr "Salvesta"
+
+msgid "IDS_MSG_BUTTON_RESEND_ABB"
+msgstr "Saada uuesti"
+
+msgid "IDS_MSG_BUTTON_DISCARD_ABB"
+msgstr "Loobu"
+
+msgid "IDS_MSG_BUTTON_DELETE_ABB4"
+msgstr "Kustuta"
+
+msgid "IDS_MSG_BUTTON_CANCEL_ABB2"
+msgstr "Tühista"
+
+msgid "IDS_MSG_BUTTON2_CONTACTS_ABB_M_APPLICATION_NAME"
+msgstr "Kontaktid"
+
+msgid "IDS_MSG_BODY_YOU_HAVE_SELECTED_A_SOUND_N_SHOT_FILE_SOUND_DATA_IS_NOT_SUPPORTED_FOR_MMS_SO_ONLY_THE_PICTURE_WILL_BE_ATTACHED"
+msgstr "Olete valinud režiimis Heli ja võte loodud faili. MMS ei toeta heliandmeid, seega manusena lisatakse ainult pilt."
+
+msgid "IDS_MSG_BODY_WAITING_TO_SEND_ING_M_STATUS"
+msgstr "Saatmine on ootel..."
+
+msgid "IDS_MSG_BODY_UNABLE_TO_SEND_THIS_MESSAGE_INSERT_YOUR_SIM_CARD_AND_TRY_AGAIN"
+msgstr "Seda sõnumit ei saa saata. Paigaldage SIM-kaart ja proovige uuesti."
+
+msgid "IDS_MSG_BODY_TYPE_C"
+msgstr "Tüüp:"
+
+msgid "IDS_MSG_BODY_TO_USE_RESTRICTED_MEDIA_TYPES_CHANGE_YOUR_MMS_CREATION_MODE_SETTING"
+msgstr "Piiratud meediumitüüpide kasutamiseks muutke oma MMS-i loomisrežiimi seadet."
+
+msgid "IDS_MSG_BODY_TIME_SENT_C"
+msgstr "Saatmise aeg:"
+
+msgid "IDS_MSG_BODY_TIME_RECEIVED_C"
+msgstr "Vastuvõtmise aeg:"
+
+msgid "IDS_MSG_BODY_STATUS_C"
+msgstr "Olek:"
+
+msgid "IDS_MSG_BODY_SENT_M_STATUS"
+msgstr "Saadetud"
+
+msgid "IDS_MSG_BODY_SENDING_ING_M_STATUS_ABB"
+msgstr "Saatm..."
+
+msgid "IDS_MSG_BODY_SENDING_FAILED_M_STATUS"
+msgstr "Saatmine nurjus"
+
+msgid "IDS_MSG_BODY_RETRIEVE_MESSAGES_AUTOMATICALLY_WHILE_ROAMING"
+msgstr "Sõnumeid laaditakse rändluse ajal automaatselt."
+
+msgid "IDS_MSG_BODY_RETRIEVE_MESSAGES_AUTOMATICALLY"
+msgstr "Sõnumeid laaditakse automaatselt."
+
+msgid "IDS_MSG_BODY_READ_REPORT_C_PS"
+msgstr "Lugemisraport: %s"
+
+msgid "IDS_MSG_BODY_OTHER_PERSON"
+msgstr "Teine inimene"
+
+msgid "IDS_MSG_BODY_MEMO_T_MAINMENU"
+msgstr "Memo"
+
+msgid "IDS_MSG_BODY_FAILED_M_STATUS_ABB2"
+msgstr "Nurjus"
+
+msgid "IDS_MSG_BODY_ENTER_TEXT_M_NOUN"
+msgstr "Sisestage tekst"
+
+msgid "IDS_MSG_BODY_DRAFT_M_STATUS_ABB"
+msgstr "Mustand"
+
+msgid "IDS_MSG_BODY_DELIVERY_REPORT_C_PS"
+msgstr "Saateraport: %s"
+
+msgid "IDS_MSG_BODY_CB_MESSAGE"
+msgstr "Võrguteabesõnumid"
+
+msgid "IDS_MSG_BODY_CALENDAR_M_APPLICATION_NAME_ABB"
+msgstr "Kalender"
+
+msgid "IDS_MSG_BODY_AFTER_YOU_SEND_OR_RECEIVE_MESSAGES_THEY_WILL_BE_SHOWN_HERE"
+msgstr "Sõnumid kuvatakse siin pärast nende saatmist või vastuvõtmist."
+
+msgid "IDS_MSG_BODY_AFTER_YOU_CREATE_QUICK_RESPONSES_THEY_WILL_BE_SHOWN_HERE"
+msgstr "Kiirvastused kuvatakse siin pärast nende loomist."
+
+msgid "IDS_MSG_BODY_AFTER_YOU_COPY_MESSAGES_TO_THE_SIM_CARD_THEY_WILL_BE_SHOWN_HERE"
+msgstr "Sõnumid kuvatakse siin pärast nende kopeerimist SIM-kaardile."
+
+msgid "IDS_MSG_BODY_AFTER_YOU_ADD_PHRASES_THEY_WILL_BE_SHOWN_HERE"
+msgstr "Fraasid kuvatakse siin pärast nende lisamist."
+
+msgid "IDS_MSG_BODY_AFTER_YOU_ADD_NUMBERS_TO_THE_MESSAGE_BLOCK_LIST_THEY_WILL_BE_SHOWN_HERE"
+msgstr "Numbrid kuvatakse siin pärast nende lisamist sõnumite blokeeritute loendisse."
+
+msgid "IDS_MSG_ACBUTTON_DELETE_ABB"
+msgstr "KUSTUTA"
+
+msgid "IDS_MSGC_POP_UNSUPPORTED_MEDIA_TYPE"
+msgstr "Toetuseta meediatüüp."
+
+msgid "IDS_MSGC_POP_LOW_BATTERY"
+msgstr "Aku on peaaegu tühi."
+
+msgid "IDS_MSGC_POP_CANCELLED"
+msgstr "Tühistatud."
+
+msgid "IDS_MSGC_OPT_EMAIL"
+msgstr "E-post"
+
+msgid "IDS_MSGC_OPT_EDITITEM_VIEW"
+msgstr "Kuva"
+
+msgid "IDS_MSGC_OPT_EDITITEM_REMOVE"
+msgstr "Eemalda"
+
+msgid "IDS_MSGC_OPT_EDITITEM_PLAY"
+msgstr "Esita"
+
+msgid "IDS_MSGC_OPT_CHANGE_RECIPIENTS_TO"
+msgstr "Saaja"
+
+msgid "IDS_MSGC_HEADER_PREVIEW"
+msgstr "Eelvaade"
+
+msgid "IDS_MSGC_BODY_ENTER_SUBJECT"
+msgstr "Sisestage teema."
+
+msgid "IDS_MSGF_POP_UNABLE_TO_FIND_LOCATION"
+msgstr "Asukohta ei leita."
+
+msgid "IDS_MSGF_POP_REJECTED"
+msgstr "Keeldutud."
+
+msgid "IDS_MSGF_POP_DELETING"
+msgstr "Kustutamine..."
+
+msgid "IDS_MSGF_POP_COPIED_TO_CLIPBOARD"
+msgstr "Kopeeritud lõikelauale."
+
+msgid "IDS_MSGF_POP_BLOCK_PS_Q"
+msgstr "Kas blokeerida sõber %s?"
+
+msgid "IDS_MSGF_OPT_SUBJECT_COLON"
+msgstr "Teema:"
+
+msgid "IDS_MSGF_OPT_SENDER_VIA_EMAIL"
+msgstr "Saatja e-postiga"
+
+msgid "IDS_MSGF_OPT_SELECT"
+msgstr "Vali"
+
+msgid "IDS_MSGF_OPT_SAVE"
+msgstr "Salvesta"
+
+msgid "IDS_MSGF_OPT_REMOVE"
+msgstr "Eemalda"
+
+msgid "IDS_MSGF_OPT_FORWARD"
+msgstr "Edasta"
+
+msgid "IDS_MSGF_OPT_DELETE_Q"
+msgstr "Kustutada?"
+
+msgid "IDS_MSGF_HEADER_ADVANCED_SEARCH"
+msgstr "Täpsem otsing"
+
+msgid "IDS_MSGF_BODY_UNKNOWN"
+msgstr "Tundmatu"
+
+msgid "IDS_MSGF_BODY_SETTINGS"
+msgstr "Seaded"
+
+msgid "IDS_MSGF_BODY_RECIPIENTS"
+msgstr "Adressaadid"
+
+msgid "IDS_MSGF_BODY_RECEIVED"
+msgstr "Vastu võetud."
+
+msgid "IDS_MSGF_BODY_OTHER"
+msgstr "Muu"
+
+msgid "IDS_MSGF_BODY_NO_SUBJECT"
+msgstr "Teema puudub"
+
+msgid "IDS_MSGF_BODY_MSGSIZE_KB"
+msgstr "kB"
+
+msgid "IDS_MSGF_BODY_MESSAGE"
+msgstr "Sõnum"
+
+msgid "IDS_MSGF_BODY_ME"
+msgstr "Mina"
+
+msgid "IDS_MSGF_BODY_EXPIRED"
+msgstr "Aegunud"
+
+msgid "IDS_MSGF_BODY_ALL"
+msgstr "Kõik"
+
+msgid "IDS_MSG_SK_NO_ABB"
+msgstr "Ei"
+
+msgid "IDS_MSG_POP_YOUR_MESSAGE_WILL_BE_DISCARDED_NO_RECIPIENTS_HAVE_BEEN_SELECTED"
+msgstr "Teie sõnumist loobutakse. Ühtegi adressaati pole valitud."
+
+msgid "IDS_MSG_POP_UNABLE_TO_PLAY_DURING_CALL"
+msgstr "Kõne ajal ei saa esitada."
+
+msgid "IDS_MSG_POP_INCOMING_MESSAGES_ONLY"
+msgstr "Ainult saabuvad sõnumid"
+
+msgid "IDS_MSG_POP_DELETED"
+msgstr "Kustutatud."
+
+msgid "IDS_MSG_OPT_VIDEOS"
+msgstr "Videod"
+
+msgid "IDS_MSG_OPT_TEXT"
+msgstr "Tekst"
+
+msgid "IDS_MSG_OPT_SETTINGS"
+msgstr "Seaded"
+
+msgid "IDS_MSG_OPT_SEARCH"
+msgstr "Otsi"
+
+msgid "IDS_MSG_OPT_RECORD_VIDEO_ABB"
+msgstr "Salvesta video"
+
+msgid "IDS_MSG_OPT_NONE"
+msgstr "Puudub"
+
+msgid "IDS_MSG_OPT_IMAGES"
+msgstr "Pildid"
+
+msgid "IDS_MSG_OPT_EDIT"
+msgstr "Muuda"
+
+msgid "IDS_MSG_OPT_DELETE"
+msgstr "Kustuta"
+
+msgid "IDS_MSG_OPT_DEFAULT"
+msgstr "Vaikimisi"
+
+msgid "IDS_MSG_MBODY_SELECT_ALL"
+msgstr "Vali kõik"
+
+msgid "IDS_MSG_MBODY_ALERTS"
+msgstr "Märguanded"
+
+msgid "IDS_MSG_HEADER_TRANSLATE"
+msgstr "Tõlgi"
+
+msgid "IDS_MSG_HEADER_SETTINGS"
+msgstr "Seaded"
+
+msgid "IDS_MSG_HEADER_MESSAGES"
+msgstr "Sõnumid"
+
+msgid "IDS_MSG_HEADER_DELETE"
+msgstr "Kustuta"
+
+msgid "IDS_MSG_HEADER_ATTENTION"
+msgstr "Tähelepanu!"
+
+msgid "IDS_MSG_BUTTON_REMOVE_ABB"
+msgstr "Eemalda"
+
+msgid "IDS_MSG_BUTTON_OK_ABB"
+msgstr "OK"
+
+msgid "IDS_MSG_BUTTON_DOWNLOAD_ABB3"
+msgstr "Lae alla"
+
+msgid "IDS_MSG_BUTTON_CANCEL_ABB"
+msgstr "Tühista"
+
+msgid "IDS_MSG_BODY_YES"
+msgstr "Jah"
+
+msgid "IDS_MSG_BODY_TICK_BOX_T_TTS"
+msgstr "Märkeruut"
+
+msgid "IDS_MSG_BODY_SEC"
+msgstr "sek."
+
+msgid "IDS_MSG_BODY_MESSAGE"
+msgstr "Sõnum"
+
+msgid "IDS_MSG_BUTTON_SEND_ABB5"
+msgstr "Saa."
+
+msgid "IDS_MSG_BUTTON_SEND_ABB3"
+msgstr "Saada"
+
+msgid "IDS_MSG_ACBUTTON_SEND_ABB3"
+msgstr "SAADA"
+
+msgid "IDS_ST_BODY_LOADING_ING"
+msgstr "Laadimine..."
+
+msgid "IDS_MSGS_BODY_NOTIFICATIONS"
+msgstr "Teavitused"
+
+msgid "IDS_MSG_HEADER_ME"
+msgstr "Mina"
+
+msgid "IDS_MSG_BODY_UNKNOWN"
+msgstr "Tundmatu"
+
+msgid "IDS_MSG_TMBODY_ADD_OR_REMOVE_RECIPIENTS"
+msgstr "Adressaatide lisam. või eemald."
+
+msgid "IDS_MSG_POP_THE_SENDER_HAS_REQUESTED_A_READ_REPORT_TAP_SEND_TO_SEND_ONE"
+msgstr "Saatja on taotlenud lugemisraportit. Toksake selle saatmiseks käsku Saada."
+
+msgid "IDS_MSGF_OPT_SEND_READ_REPORT"
+msgstr "Saada lugemisraport"
+
+msgid "IDS_MSG_HEADER_COMPOSE_MESSAGE_ABB"
+msgstr "Koosta sõnum"
+
+msgid "IDS_MSG_POP_NO_VALID_RECIPIENTS_HAVE_BEEN_ADDED_THIS_MESSAGE_WILL_BE_DISCARDED"
+msgstr "Kehtivaid adressaate pole lisatud. Sellest sõnumist loobutakse."
+

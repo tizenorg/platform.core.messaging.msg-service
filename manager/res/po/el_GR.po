@@ -1,0 +1,945 @@
+msgid "IDS_COM_BODY_HOME"
+msgstr "Σπίτι"
+
+msgid "IDS_MSGC_POP_DATA_ROAMING_IS_DISABLED_ENABLE_DATA_ROAMING_AND_TRY_AGAIN"
+msgstr "Η περιαγωγή δεδομένων είναι απενεργοποιημένη. Ενεργοποιήστε την περιαγωγή δεδομένων και προσπαθήστε ξανά."
+
+msgid "IDS_MSG_ACBUTTON_CANCEL_ABB"
+msgstr "ΑΚΥΡΟ"
+
+msgid "IDS_MSG_ACBUTTON_DONE_ABB"
+msgstr "ΤΕΛΟΣ"
+
+msgid "IDS_MSGF_POP_NEW_MESSAGE"
+msgstr "Νέο μήνυμα"
+
+msgid "IDS_COM_BUTTON_SHARE"
+msgstr "K.Χρήση"
+
+msgid "IDS_COM_BODY_UNKNOWN"
+msgstr "Άγνωστο"
+
+msgid "IDS_COM_BODY_MOBILE"
+msgstr "Κινητό"
+
+msgid "IDS_MSGC_POP_MOBILE_DATA_IS_DISABLED_ENABLE_MOBILE_DATA_AND_TRY_AGAIN"
+msgstr "Τα δεδομένα κινητής τηλεφωνίας είναι απενεργοποιημένα. Ενεργοποιήστε τα δεδομένα κιν. τηλεφ. και δοκιμάστε ξανά."
+
+msgid "IDS_TPLATFORM_ACBUTTON_SEND_ABB"
+msgstr "ΑΠΟΣΤΟΛΗ"
+
+msgid "IDS_MSGC_POP_UNABLE_TO_SEND_MESSAGES_WHILE_IN_FLIGHT_MODE_DISABLE_FLIGHT_MODE_AND_TRY_AGAIN"
+msgstr "Δεν είναι δυνατή η αποστολή μηνυμάτων, όσο είναι ενεργοποιημένη η λειτουργία πτήσης. Απενεργοποιήστε τη λειτουργία πτήσης και δοκιμάστε ξανά."
+
+msgid "IDS_MSGC_POP_UNABLE_TO_ADD_FILE_IS_FORWARD_LOCKED"
+msgstr "Δεν είναι δυνατή η προώθηση. Το αρχείο έχει προστασία κατά της προώθησης."
+
+msgid "IDS_MSGC_POP_THERE_IS_NOT_ENOUGH_SPACE_IN_YOUR_DEVICE_STORAGE_GO_TO_SETTINGS_POWER_AND_STORAGE_STORAGE_THEN_DELETE_SOME_FILES_AND_TRY_AGAIN"
+msgstr "Ο χώρος αποθήκευσης της συσκευής σας δεν επαρκεί. Μεταβείτε στις Ρυθμίσεις > Ενέργεια και χώρος αποθήκευσης > Χώρος αποθήκευσης και, στη συνέχεια, διαγράψτε ορισμένα αρχεία και δοκιμάστε ξανά."
+
+msgid "IDS_MSGC_POP_TEXT_AT_TOP"
+msgstr "Κείμενο στο επάνω μέρος"
+
+msgid "IDS_MSGC_POP_TEXT_AT_BOTTOM"
+msgstr "Κείμενο στο κάτω μέρος"
+
+msgid "IDS_MSGC_POP_SELECT_LAYOUT"
+msgstr "Επιλογή διάταξης"
+
+msgid "IDS_MSGC_POP_MMSCANTADD"
+msgstr "Αδύνατη η προσθήκη περιεχομένου."
+
+msgid "IDS_MSGC_POP_MESSAGE_SCHEDULED_TO_BE_SENT_TO_PS_SEND_NOW_Q"
+msgstr "Το μήνυμα έχει προγραμματιστεί να αποσταλεί στο χρήστη %s. Να γίνει τώρα η αποστολή;"
+
+msgid "IDS_MSGC_POP_MAXIMUM_MESSAGE_SIZE_REACHED"
+msgstr "Συμπληρώθηκε το μέγιστο όριο μεγέθους μηνύματος."
+
+msgid "IDS_MSGC_POP_DURATION_MUST_BE_AT_LEAST_PD_SECONDS"
+msgstr "Η διάρκεια πρέπει να είναι τουλάχιστον %d δευτερόλεπτα."
+
+msgid "IDS_MSGC_POP_DISABLING_FLIGHT_MODE_ING"
+msgstr "Λειτ.πτήσης απενερ..."
+
+msgid "IDS_MSGC_POP_COPIED_TO_SIM_CARD"
+msgstr "Αντιγράφηκε στην κάρτα SIM."
+
+msgid "IDS_MSGC_OPT_USE_OTHER_CONTACT_INFO_ABB"
+msgstr "Χρ. στοιχ. άλλης επαφ."
+
+msgid "IDS_MSGC_OPT_SEND_VIA"
+msgstr "Αποστολή μέσω"
+
+msgid "IDS_MSGC_OPT_IMAGE"
+msgstr "Εικόνα"
+
+msgid "IDS_MSGC_OPT_EDIT_ITEM_REPLACE"
+msgstr "Αντικατάσταση"
+
+msgid "IDS_MSGC_OPT_CANCEL_MESSAGE"
+msgstr "Ακύρωση μηνύματος"
+
+msgid "IDS_MSGC_HEADER_RECIPIENT_LIST"
+msgstr "Λίστα παραληπτών"
+
+msgid "IDS_MSGC_HEADER_DURATION_FOR_SLIDE_PD_PD"
+msgstr "Διάρκεια διαφάνειας %d/%d"
+
+msgid "IDS_MSGC_BODY_WAIT_WHILE_ITEMS_ARE_ADDED_TO_SLIDESHOW"
+msgstr "Περιμένετε όσο γίνεται προσθήκη στοιχείων στην παρουσίαση."
+
+msgid "IDS_MSGC_BODY_UNABLE_TO_SEND_MESSAGE"
+msgstr "Δεν είναι δυνατή η αποστολή μηνύματος."
+
+msgid "IDS_MSGC_BODY_SELECT_RINGTONE"
+msgstr "Επιλογή ήχου κλήσης"
+
+msgid "IDS_MSGC_BODY_READ_REPORT_WILL_BE_SENT"
+msgstr "Θα αποσταλεί μια αναφορά ανάγνωσης."
+
+msgid "IDS_MSGC_BODY_NOT_REQUESTED"
+msgstr "Δεν ζητήθηκε"
+
+msgid "IDS_MSGC_BODY_MAXIMUM_NUMBER_OF_RECIPIENTS_HPD_REACHED"
+msgstr "Συμπληρώθηκε ο μέγιστος αριθμός παραληπτών (%d)."
+
+msgid "IDS_MSGC_BODY_DUPLICATED_RECIPIENT"
+msgstr "Διπλότυπος παραλήπτης."
+
+msgid "IDS_MSGF_SK_FORWARD_LITE"
+msgstr "Προώθ."
+
+msgid "IDS_MSGF_POP_UNABLE_TO_SAVE"
+msgstr "Αδύνατη αποθήκευση."
+
+msgid "IDS_MSGF_POP_UNABLE_TO_DELETE"
+msgstr "Δεν είναι δυνατή η διαγραφή."
+
+msgid "IDS_MSGF_POP_UNABLE_TO_COPY"
+msgstr "Δεν είναι δυνατή η αντιγραφή."
+
+msgid "IDS_MSGF_POP_SOME_CHARACTERS_MAY_BE_LOST_CONTINUE_Q"
+msgstr "Μερικοί χαρακτήρες μπορεί να χαθούν\nΣυνέχεια;"
+
+msgid "IDS_MSGF_POP_SIM_NOT_INSERTED"
+msgstr "Δεν έχει τοποθετηθεί SIM."
+
+msgid "IDS_MSGF_POP_SAVING_FAILED"
+msgstr "Αποτυχία αποθήκευσης."
+
+msgid "IDS_MSGF_POP_SAVED_IN_MY_FILES"
+msgstr "Αποθηκεύτηκε στο φάκελο «Τα αρχεία μου»."
+
+msgid "IDS_MSGF_POP_RETRIEVING_MESSAGE_FAILED"
+msgstr "Αποτυχία ανάκτησης μηνύματος"
+
+msgid "IDS_MSGF_POP_RESTRICTED_CONTENT_TYPE_ATTACH_ANYWAY_Q"
+msgstr "Απαγορευμένος τύπος περιεχομένου. Να γίνει επισύναψη;"
+
+msgid "IDS_MSGF_POP_RESTORING_ING"
+msgstr "Επαναφορά..."
+
+msgid "IDS_MSGF_POP_READ_REPORT"
+msgstr "Αναφορά ανάγνωσης"
+
+msgid "IDS_MSGF_POP_NO_NUMBER"
+msgstr "Κανένας αριθμός"
+
+msgid "IDS_MSGF_POP_NO_ATTACHMENTS"
+msgstr "Χωρίς συνημμένα"
+
+msgid "IDS_MSGF_POP_NEW_MESSAGES"
+msgstr "Νέα μηνύματα"
+
+msgid "IDS_MSGF_POP_MESSAGE_COPIED_FROM_SIM_CARD"
+msgstr "Το μήνυμα αντιγράφηκε από την κάρτα SIM."
+
+msgid "IDS_MSGF_POP_MAXIMUM_NUMBER_OF_RECIPIENTS_IS_PD_SOME_RECIPIENTS_MAY_BE_LOST"
+msgstr "Ο μέγιστος αριθμός των παραληπτών είναι %d. Ορισμένοι παραλήπτες μπορεί να χαθούν."
+
+msgid "IDS_MSGF_POP_MAXIMUM_NUMBER_OF_ATTACHMENTS_HPS_EXCEEDED"
+msgstr "Έγινε υπέρβαση του μέγιστου αριθμού συνημμένων (%s)."
+
+msgid "IDS_MSGF_POP_MAXIMUM_CHARACTERS"
+msgstr "Ο μέγιστος αριθμός χαρακτήρων συμπληρώθηκε."
+
+msgid "IDS_MSGF_POP_IN_PROGRESS_ING"
+msgstr "Σε εξέλιξη..."
+
+msgid "IDS_MSGF_POP_INTIALISING"
+msgstr "Προετοιμασία..."
+
+msgid "IDS_MSGF_POP_IF_YOU_DONT_WANT_TO_REPLACE_THE_FILE_RENAME_IT"
+msgstr "Εάν δεν θέλετε να αντικαταστήσετε το αρχείο, μετονομάστε το."
+
+msgid "IDS_MSGF_POP_HELP_PAGE_MESSAGE_FOR_ONE_FILE"
+msgstr "Αυτό το μήνυμα περιέχει ένα συνημμένο αρχείο που δεν εμφανίζεται."
+
+msgid "IDS_MSGF_POP_HELP_PAGE_MESSAGE"
+msgstr "Αυτό το μήνυμα περιέχει μερικά συνημμένα που δεν εμφανίζονται."
+
+msgid "IDS_MSGF_POP_FILE_NAME_ALREADY_EXISTS"
+msgstr "Το όνομα αρχείου υπάρχει ήδη."
+
+msgid "IDS_MSGF_POP_CONVERTING_TO_TEXT_MESSAGE_ING"
+msgstr "Μετατροπή σε μήνυμα κειμένου..."
+
+msgid "IDS_MSGF_POP_CONVERTING_TO_MULTIMEDIA_MESSAGE_ING"
+msgstr "Μετατροπή σε μήνυμα πολυμέσων..."
+
+msgid "IDS_MSGF_POP_ABOUT_TO_GO_ONLINE_CONTINUE_Q"
+msgstr "Πρόκειται να συνδεθείτε (%s). Συνέχεια;"
+
+msgid "IDS_MSGF_OPT_TEXT_MESSAGE"
+msgstr "SMS"
+
+msgid "IDS_MSGF_OPT_SENDER_ABB"
+msgstr "Αποστολέας"
+
+msgid "IDS_MSGF_OPT_SAVE_ATTACHMENT"
+msgstr "Αποθήκευση συνημμένου"
+
+msgid "IDS_MSGF_OPT_INSTALL"
+msgstr "Εγκατάσταση"
+
+msgid "IDS_MSGF_OPT_EDIT_MESSAGE"
+msgstr "Επεξεργασία μηνύματος"
+
+msgid "IDS_MSGF_OPT_DELETE_MESSAGES"
+msgstr "Διαγραφή μηνυμάτων"
+
+msgid "IDS_MSGF_HEADER_SELECT_MESSAGES"
+msgstr "Επιλέξτε μηνύματα"
+
+msgid "IDS_MSGF_HEADER_SAVE_ALL"
+msgstr "Αποθήκευση όλων"
+
+msgid "IDS_MSGF_HEADER_MESSAGE_DETAILS"
+msgstr "Στοιχεία μηνύματος"
+
+msgid "IDS_MSGF_HEADER_EXPIRES_C_PS"
+msgstr "Λήξη: %s"
+
+msgid "IDS_MSGF_BUTTON_SAVE_ALL_ATTACHMENTS_ABB"
+msgstr "Αποθ.όλων των συνημ."
+
+msgid "IDS_MSGF_BODY_TO_C"
+msgstr "Προς:"
+
+msgid "IDS_MSGF_BODY_TEXT_MESSAGES"
+msgstr "SMS"
+
+msgid "IDS_MSGF_BODY_SIM_MEMORY_FULL_DELETE_SOME_ITEMS"
+msgstr "Η μνήμη SIM είναι πλήρης. Διαγράψτε κάποια στοιχεία."
+
+msgid "IDS_MSGF_BODY_SENT_M_DATE_C"
+msgstr "Εστάλη:"
+
+msgid "IDS_MSGF_BODY_REQUESTED"
+msgstr "Έγινε αίτημα."
+
+msgid "IDS_MSGF_BODY_RECEIVED_M_DATE_C"
+msgstr "Ελήφθη:"
+
+msgid "IDS_MSGF_BODY_READ_REPORT"
+msgstr "Αναφορά ανάγνωσης"
+
+msgid "IDS_MSGF_BODY_PUSH_MESSAGES"
+msgstr "Μηνύματα Push"
+
+msgid "IDS_MSGF_BODY_PD_MESSAGES"
+msgstr "%d μηνύματα"
+
+msgid "IDS_MSGF_BODY_PD_CONVERSATIONS"
+msgstr "%d συνομιλίες"
+
+msgid "IDS_MSGF_BODY_NO_NAME"
+msgstr "Κανένα όνομα"
+
+msgid "IDS_MSGF_BODY_MULTIMEDIA_MESSAGE_NOTIFICATION"
+msgstr "Ειδοποίηση μηνύματος πολυμέσων"
+
+msgid "IDS_MSGF_BODY_MULTIMEDIA_MESSAGE"
+msgstr "MMS"
+
+msgid "IDS_MSGF_BODY_MMSREADREPLYMSGREAD"
+msgstr "Ανάγνωση"
+
+msgid "IDS_MSGF_BODY_MMSDELIVERYMSGREJECTED"
+msgstr "Το μήνυμα απορρίφθηκε."
+
+msgid "IDS_MSGF_BODY_MMS"
+msgstr "MMS"
+
+msgid "IDS_MSGF_BODY_MESSAGE_SIZE"
+msgstr "Μέγεθος μηνύματος"
+
+msgid "IDS_MSGF_BODY_MESSAGE_OPTIONS"
+msgstr "Επιλογές μηνύματος"
+
+msgid "IDS_MSGF_BODY_MESSAGE_DELIVERED"
+msgstr "Το μήνυμα παραδόθηκε"
+
+msgid "IDS_MSGF_BODY_MAXIMUM_NUMBER_OF_ATTACHMENTS_HP1SS_EXCEEDED_ONLY_FIRST_P2SS_WILL_BE_ADDED"
+msgstr "Υπέρβαση μέγιστου αριθμού συνημμένων (%1$s). Θα γίνει προσθήκη μόνο των πρώτων %2$s."
+
+msgid "IDS_MSGF_BODY_INVALID_RECIPIENT"
+msgstr "Μη έγκυρος παραλήπτης."
+
+msgid "IDS_MSGF_BODY_FROM"
+msgstr "Από"
+
+msgid "IDS_MSGF_BODY_FLFROM"
+msgstr "Από:"
+
+msgid "IDS_MSGF_BODY_DETAILSSENDINGFAILED"
+msgstr "Αποτυχία αποστολής."
+
+msgid "IDS_MSGF_BODY_DELIVERY_REPORT"
+msgstr "Αναφορά παράδοσης"
+
+msgid "IDS_MSGF_BODY_CP_MESSAGES"
+msgstr "Μηνύματα CP"
+
+msgid "IDS_MSGF_BODY_COPY_TEXT"
+msgstr "Αντιγραφή κειμένου"
+
+msgid "IDS_MSGF_BODY_CB_MESSAGES"
+msgstr "Μηνύματα εκπομπής κυψέλης"
+
+msgid "IDS_MSGF_BODY_1_MESSAGE"
+msgstr "1 μήνυμα"
+
+msgid "IDS_MSGF_BODY_1_CONVERSATION"
+msgstr "1 συνομιλία"
+
+msgid "IDS_MSGS_BODY_REQUEST_A_READ_REPORT_FOR_EACH_MESSAGE_YOU_SEND"
+msgstr "Αίτηση αναφοράς ανάγνωσης για κάθε απεσταλμένο μήνυμα."
+
+msgid "IDS_MSGS_BODY_REQUEST_A_DELIVERY_REPORT_FOR_EACH_MESSAGE_YOU_SEND"
+msgstr "Αίτηση αναφοράς παράδοσης για κάθε απεσταλμένο μήνυμα."
+
+msgid "IDS_MSGS_BODY_RADIO_BUTTON"
+msgstr "Κουμπί επιλογής"
+
+msgid "IDS_MSGS_BODY_ON_OFF_BUTTON_T_TTS"
+msgstr "Κουμπί ενεργοποίησης/ενεργοποίησης"
+
+msgid "IDS_MSGS_BODY_EXPANDABLE_LIST_T_TTS"
+msgstr "Λίστα προς ανάπτυξη"
+
+msgid "IDS_MSGS_BODY_AUTOMATICALLY_RETRIEVE_MMS_MESSAGES"
+msgstr "Αυτόματη ανάκτηση μηνυμάτων MMS."
+
+msgid "IDS_MSG_TPOP_UNABLE_TO_PREVIEW_FILE_UNSUPPORTED_FILE_TYPE"
+msgstr "Δεν είναι δυνατή η προεπισκόπηση του αρχείου. Ο τύπος αρχείου δεν υποστηρίζεται."
+
+msgid "IDS_MSG_TPOP_UNABLE_TO_ATTACH_FILE_FILE_FORMAT_NOT_SUPPORTED"
+msgstr "Δεν είναι δυνατή η επισύναψη του αρχείου. Η μορφή αρχείου δεν υποστηρίζεται."
+
+msgid "IDS_MSG_TPOP_UNABLE_TO_ADD_SOME_RECIPIENTS_NUMBERS_NOT_VALID"
+msgstr "Δεν είναι δυνατή η προσθήκη ορισμένων παραληπτών. Οι αριθμοί δεν είναι έγκυροι."
+
+msgid "IDS_MSG_TPOP_UNABLE_TO_ADD_RECIPIENT_NUMBER_NOT_VALID"
+msgstr "Δεν είναι δυνατή η προσθήκη του παραλήπτη. Ο αριθμός δεν είναι έγκυρος."
+
+msgid "IDS_MSG_TPOP_UNABLE_TO_ADD_RECIPIENTS_NUMBERS_NOT_VALID"
+msgstr "Δεν είναι δυνατή η προσθήκη των παραληπτών. Οι αριθμοί δεν είναι έγκυροι."
+
+msgid "IDS_MSG_TPOP_UNABLE_TO_ADD_ATTACHMENT_MAXIMUM_NUMBER_OF_ATTACHMENTS_HPD_REACHED"
+msgstr "Δεν ήταν δυνατή η προσθήκη συνημμένου. Συμπληρώθηκε ο μέγιστος αριθμός συνημμένων (%d)."
+
+msgid "IDS_MSG_TPOP_THIS_NUMBER_IS_NOT_VALID"
+msgstr "Ο αριθμός δεν είναι έγκυρος."
+
+msgid "IDS_MSG_TPOP_SOME_RECIPIENTS_ALREADY_ADDED"
+msgstr "Ορισμένοι παραλήπτες έχουν ήδη προστεθεί."
+
+msgid "IDS_MSG_TPOP_SELECTED_MESSAGES_COPIED_TO_MOBILE_DEVICE"
+msgstr "Τα επιλεγμένα μηνύματα θα αντιγραφούν στην κινητή συσκευή."
+
+msgid "IDS_MSG_TPOP_PD_MESSAGES_MOVED_TO_MESSAGE_LIST"
+msgstr "%d μηνύματα μετακινήθηκαν στη λίστα μηνυμάτων."
+
+msgid "IDS_MSG_TPOP_NUMBER_REMOVED_FROM_MESSAGE_BLOCK_LIST"
+msgstr "Ο αριθμός καταργήθηκε από τη λίστα αποκλεισμού μηνυμάτων."
+
+msgid "IDS_MSG_TPOP_NUMBER_ADDED_TO_MESSAGE_BLOCK_LIST"
+msgstr "Ο αριθμός προστέθηκε στη λίστα αποκλεισμού μηνυμάτων."
+
+msgid "IDS_MSG_TPOP_NETWORK_NOT_AVAILABLE_MESSAGE_WILL_BE_SENT_WHEN_CONNECTED_TO_NETWORK"
+msgstr "Το δίκτυο δεν είναι διαθέσιμο. Το μήνυμα θα σταλεί μόλις συνδεθείτε στο δίκτυο."
+
+msgid "IDS_MSG_TPOP_MESSAGE_COPIED_TO_PS_SIM_CARD"
+msgstr "Το μήνυμα αντιγράφηκε στην κάρτα SIM %s."
+
+msgid "IDS_MSG_TPOP_MAXIMUM_NUMBER_OF_CHARACTERS_EXCEEDED"
+msgstr "Έγινε υπέρβαση του μέγιστου αριθμού χαρακτήρων."
+
+msgid "IDS_MSG_TPOP_MAXIMUM_MESSAGE_SIZE_HPS_EXCEEDED_RESIZING_ATTACHMENTS_ING"
+msgstr "Έγινε υπέρβαση του μέγιστου μεγέθους μηνύματος (%s). Αλλαγή μεγέθους συνημμένων..."
+
+msgid "IDS_MSG_TPOP_INVALID_CHARACTER_ENTERED"
+msgstr "Πληκτρολογήθηκε μη έγκυρος χαρακτήρας."
+
+msgid "IDS_MSG_TPOP_ADD_RECIPIENTS"
+msgstr "Να γίνει προσθήκη παραληπτών."
+
+msgid "IDS_MSG_TPOP_1_MESSAGE_MOVED_TO_MESSAGE_LIST"
+msgstr "1 μήνυμα μετακινήθηκε στη λίστα μηνυμάτων."
+
+msgid "IDS_MSG_TMBODY_TEXT_MESSAGES"
+msgstr "Μηνύματα κειμένου"
+
+msgid "IDS_MSG_TMBODY_SOUND"
+msgstr "Ήχος"
+
+msgid "IDS_MSG_TMBODY_MULTIMEDIA_MESSAGES"
+msgstr "Μηνύματα πολυμέσων"
+
+msgid "IDS_MSG_TMBODY_MESSAGES_ON_SIM_CARD"
+msgstr "Μηνύματα στην κάρτα SIM"
+
+msgid "IDS_MSG_TMBODY_INPUT_MODE"
+msgstr "Λειτουργία εισαγωγής"
+
+msgid "IDS_MSG_TMBODY_AUTO_RETRIEVE_WHILE_ROAMING"
+msgstr "Αυτ. ανάκτηση κατά την περιαγ."
+
+msgid "IDS_MSG_TMBODY_AUTO_RETRIEVE"
+msgstr "Αυτόματη ανάκτηση"
+
+msgid "IDS_MSG_SK_SEND_NOW"
+msgstr "Αποστολή"
+
+msgid "IDS_MSG_SBODY_SELECT_AN_INPUT_MODE_FOR_COMPOSING_MESSAGES"
+msgstr "Επιλέξτε μια λειτουργία εισαγωγής για τη σύνταξη μηνυμάτων."
+
+msgid "IDS_MSG_SBODY_NONE_M_STATUS"
+msgstr "Καμία"
+
+msgid "IDS_MSG_SBODY_MANAGE_THE_MESSAGES_STORED_ON_YOUR_SIM_CARD"
+msgstr "Να γίνεται διαχείριση των μηνυμάτων που είναι αποθηκευμένα στην κάρτα SIM."
+
+msgid "IDS_MSG_POP_UNABLE_TO_SEND_SCHEDULED_MESSAGE_SET_ANOTHER_TIME"
+msgstr "Δεν είναι δυνατή η αποστολή του προγραμματισμένου μηνύματος. Ορίστε άλλη ώρα."
+
+msgid "IDS_MSG_POP_UNABLE_TO_ATTACH_FILE_FILE_SIZE_TOO_LARGE_TRY_SENDING_VIA_EMAIL_BLUETOOTH_WI_FI_ETC"
+msgstr "Δεν ήταν δυνατή η επισύναψη του αρχείου. Το αρχείο είναι πολύ μεγάλο. Δοκιμάστε να το στείλετε μέσω Email, Bluetooth, Wi-Fi κλπ."
+
+msgid "IDS_MSG_POP_TO_SEND_THIS_MULTIMEDIA_MESSAGE_THE_DEVICE_WILL_CONNECT_TO_A_DIFFERENT_MOBILE_NETWORK_THIS_WILL_DISCONNECT_YOUR_DEVICE_FROM_YOUR_MSG"
+msgstr "Για την αποστολή αυτού του μηνύματος πολυμέσων, η συσκευή θα συνδεθεί σε διαφορετικό δίκτυο κινητής τηλεφωνίας. Η ενέργεια θα αποσυνδέσει τη συσκευή από το τρέχον δίκτυο κινητής τηλεφωνίας."
+
+msgid "IDS_MSG_POP_TO_DOWNLOAD_THIS_MULTIMEDIA_MESSAGE_THE_DEVICE_WILL_CONNECT_TO_A_DIFFERENT_MOBILE_NETWORK_MSG"
+msgstr "Για τη λήψη αυτού του μηνύματος πολυμέσων, η συσκευή θα συνδεθεί σε διαφορετικό δίκτυο κινητής τηλεφωνίας. Η ενέργεια θα αποσυνδέσει τη συσκευή από το τρέχον δίκτυο κινητής τηλεφωνίας."
+
+msgid "IDS_MSG_POP_THIS_MESSAGE_WILL_BE_RESENT"
+msgstr "Αυτό το μήνυμα θα σταλεί ξανά."
+
+msgid "IDS_MSG_POP_PD_MESSAGES_WILL_BE_DELETED"
+msgstr "Θα διαγραφούν %d μηνύματα."
+
+msgid "IDS_MSG_POP_PD_CONVERSATIONS_WILL_BE_DELETED"
+msgstr "Θα διαγραφούν %d συνομιλίες."
+
+msgid "IDS_MSG_POP_NO_TEMPLATES_IN_LIST"
+msgstr "Δεν υπάρχουν πρότυπα στη λίστα"
+
+msgid "IDS_MSG_POP_INCLUDE_ORIGINAL_TEXT_IN_OUTGOING_MESSAGE"
+msgstr "Συμπερίληψη αρχικού κειμένου στο εξερχόμενο μήνυμα"
+
+msgid "IDS_MSG_POP_DURATION_MUST_BE_SHORTER_THAN_PD_SECONDS"
+msgstr "Η διάρκεια πρέπει να είναι μικρότερη από %d δευτερόλεπτα."
+
+msgid "IDS_MSG_POP_1_MESSAGE_WILL_BE_DELETED"
+msgstr "Θα διαγραφεί 1 μήνυμα."
+
+msgid "IDS_MSG_POP_1_CONVERSATION_WILL_BE_DELETED"
+msgstr "1 συνομιλία θα διαγραφεί."
+
+msgid "IDS_MSG_OPT_VIEW_DETAILS_ABB"
+msgstr "Προβολή πληροφοριών"
+
+msgid "IDS_MSG_OPT_VIEW_CONTACT_DETAILS_ABB"
+msgstr "Προβολή επαφής"
+
+msgid "IDS_MSG_OPT_VIEW_AS_SLIDESHOW_ABB"
+msgstr "Προβολή ως παρουσίαση"
+
+msgid "IDS_MSG_OPT_UPDATE_CONTACT"
+msgstr "Ενημέρωση επαφής"
+
+msgid "IDS_MSG_OPT_UNICODE"
+msgstr "Unicode"
+
+msgid "IDS_MSG_OPT_TAKE_PICTURE_ABB"
+msgstr "Λήψη φωτογραφίας"
+
+msgid "IDS_MSG_OPT_SAVE_ATTACHMENTS_ABB"
+msgstr "Αποθήκευση συνημμένων"
+
+msgid "IDS_MSG_OPT_RESEND"
+msgstr "Επανάληψη αποστολής"
+
+msgid "IDS_MSG_OPT_REPLY"
+msgstr "Απάντηση"
+
+msgid "IDS_MSG_OPT_REMOVE_FROM_BLOCK_LIST_ABB"
+msgstr "Κατάργηση από τη λίστα αποκλ."
+
+msgid "IDS_MSG_OPT_RECORD_AUDIO_FILE_ABB"
+msgstr "Αρχείο\nηχογράφησης"
+
+msgid "IDS_MSG_OPT_QUICK_RESPONSE_ABB"
+msgstr "Γρήγορη απάντηση"
+
+msgid "IDS_MSG_OPT_MAKE_VOICE_CALL"
+msgstr "Πραγματοποίηση φωνητικής κλήσης"
+
+msgid "IDS_MSG_OPT_GSM_ALPHABET_ABB"
+msgstr "Αλφάβητο GSM"
+
+msgid "IDS_MSG_OPT_EXPORT_TO_DEVICE_MEMORY"
+msgstr "Εξαγωγή στη μνήμη συσκευής"
+
+msgid "IDS_MSG_OPT_DELETE_MESSAGE"
+msgstr "Διαγραφή μηνύματος"
+
+msgid "IDS_MSG_OPT_DELETE_CONVERSATION_ABB"
+msgstr "Διαγραφή συζήτησης"
+
+msgid "IDS_MSG_OPT_CREATE_CONTACT_ABB"
+msgstr "Δημιουργία επαφής"
+
+msgid "IDS_MSG_OPT_COPY_TO_SIM_CARD_ABB"
+msgstr "Αντιγραφή στην κάρτα SIM"
+
+msgid "IDS_MSG_OPT_COPY_TO_DEVICE_ABB"
+msgstr "Αντιγραφή στη συσκευή"
+
+msgid "IDS_MSG_OPT_COPY_TEXT"
+msgstr "Αντιγραφή κειμένου"
+
+msgid "IDS_MSG_OPT_COPY"
+msgstr "Αντιγραφή"
+
+msgid "IDS_MSG_OPT_BACK_UP"
+msgstr "Δημιουργία αντιγράφων ασφαλείας"
+
+msgid "IDS_MSG_OPT_AUTOMATIC"
+msgstr "Αυτόματα"
+
+msgid "IDS_MSG_OPT_AUDIO_FILES_ABB2"
+msgstr "Αρχεία ήχου"
+
+msgid "IDS_MSG_OPT_ATTACHMENT_ABB"
+msgstr "Συνημμένο"
+
+msgid "IDS_MSG_OPT_ADD_TO_CONTACTS_ABB"
+msgstr "Προσθήκη στις Επαφές"
+
+msgid "IDS_MSG_OPT_ADD_TO_BLOCK_LIST_ABB"
+msgstr "Προσθήκη στη λίστα αποκλ."
+
+msgid "IDS_MSG_OPT_ADD_RECIPIENTS_ABB"
+msgstr "Προσθήκη παραληπτών"
+
+msgid "IDS_MSG_NPBODY_SEARCH"
+msgstr "Αναζήτηση"
+
+msgid "IDS_MSG_NPBODY_NO_RESULTS_FOUND_ABB"
+msgstr "Δεν βρέθηκαν αποτελέσματα"
+
+msgid "IDS_MSG_NPBODY_NO_QUICK_RESPONSES"
+msgstr "Καμία γρήγορη απάντηση"
+
+msgid "IDS_MSG_NPBODY_NO_PHRASES_BLOCKED"
+msgstr "Δεν υπάρχουν αποκλεισμένες φράσεις"
+
+msgid "IDS_MSG_NPBODY_NO_MESSAGES_ON_SIM_CARD"
+msgstr "Δεν υπάρχουν μηνύματα στην κάρτα SIM"
+
+msgid "IDS_MSG_NPBODY_NO_MESSAGES"
+msgstr "Κανένα μήνυμα"
+
+msgid "IDS_MSG_NPBODY_NO_BLOCKED_NUMBERS"
+msgstr "Δεν υπάρχουν αποκλεισμένοι αριθμοί"
+
+msgid "IDS_MSG_MBODY_VIBRATION"
+msgstr "Δόνηση"
+
+msgid "IDS_MSG_MBODY_UNKNOWN_NUMBER"
+msgstr "Άγνωστος αριθμός"
+
+msgid "IDS_MSG_MBODY_TEXT_MESSAGE_CENTRE_NUMBER_ABB"
+msgstr "Αρ. κέντρου μηνυμάτων κειμένου"
+
+msgid "IDS_MSG_HEADER_TEXT_MESSAGES_ABB"
+msgstr "Μηνύματα κειμένου"
+
+msgid "IDS_MSG_HEADER_SWITCH_MOBILE_NETWORK_ABB2"
+msgstr "Αλλαγή δικτύου κινητής τηλεφ."
+
+msgid "IDS_MSG_HEADER_SMS_CENTRE_ABB2"
+msgstr "Κέντρο SMS"
+
+msgid "IDS_MSG_HEADER_SELECT_RECIPIENT"
+msgstr "Επιλογή παραλήπτη"
+
+msgid "IDS_MSG_HEADER_PD_SELECTED_ABB3"
+msgstr "Επιλέχθηκαν %d"
+
+msgid "IDS_MSG_HEADER_MESSAGES_ON_SIM_CARD_ABB"
+msgstr "Μηνύματα στην κάρτα SIM"
+
+msgid "IDS_MSG_HEADER_INPUT_MODE_ABB"
+msgstr "Λειτουργία εισαγωγής"
+
+msgid "IDS_MSG_HEADER_FILE_SIZE_TOO_LARGE_ABB"
+msgstr "Πολύ μεγάλο μέγεθος αρχείου"
+
+msgid "IDS_MSG_HEADER_FAILED_TO_SEND_MESSAGE_ABB"
+msgstr "Η αποστολή μηνύματος απέτυχε"
+
+msgid "IDS_MSG_HEADER_DISCARD_MESSAGE_M_CLOSE_ABB"
+msgstr "Απόρριψη μηνύματος"
+
+msgid "IDS_MSG_HEADER_CREATE"
+msgstr "Δημιουργία"
+
+msgid "IDS_MSG_HEADER_ADD_CONTENT_ABB"
+msgstr "Προσθήκη περιεχομένου"
+
+msgid "IDS_MSG_BUTTON_SWITCH_ABB2"
+msgstr "Εναλλαγή"
+
+msgid "IDS_MSG_BUTTON_SAVE_ABB2"
+msgstr "Αποθήκευση"
+
+msgid "IDS_MSG_BUTTON_RESEND_ABB"
+msgstr "Αποστολή ξανά"
+
+msgid "IDS_MSG_BUTTON_DISCARD_ABB"
+msgstr "Απόρριψη"
+
+msgid "IDS_MSG_BUTTON_DELETE_ABB4"
+msgstr "Διαγραφή"
+
+msgid "IDS_MSG_BUTTON_CANCEL_ABB2"
+msgstr "Ακύρωση"
+
+msgid "IDS_MSG_BUTTON2_CONTACTS_ABB_M_APPLICATION_NAME"
+msgstr "Επαφές"
+
+msgid "IDS_MSG_BODY_YOU_HAVE_SELECTED_A_SOUND_N_SHOT_FILE_SOUND_DATA_IS_NOT_SUPPORTED_FOR_MMS_SO_ONLY_THE_PICTURE_WILL_BE_ATTACHED"
+msgstr "Επιλέξατε ένα αρχείο ήχου και λήψης. Τα δεδομένα ήχου δεν υποστηρίζονται για μηνύματα MMS και επομένως θα γίνει επισύναψη μόνο της εικόνας."
+
+msgid "IDS_MSG_BODY_WAITING_TO_SEND_ING_M_STATUS"
+msgstr "Αναμονή για αποστολή..."
+
+msgid "IDS_MSG_BODY_UNABLE_TO_SEND_THIS_MESSAGE_INSERT_YOUR_SIM_CARD_AND_TRY_AGAIN"
+msgstr "Δεν είναι δυνατή η αποστολή αυτού του μηνύματος. Τοποθετήστε την κάρτα SIM και δοκιμάστε ξανά."
+
+msgid "IDS_MSG_BODY_TYPE_C"
+msgstr "Τύπος:"
+
+msgid "IDS_MSG_BODY_TO_USE_RESTRICTED_MEDIA_TYPES_CHANGE_YOUR_MMS_CREATION_MODE_SETTING"
+msgstr "Για τη χρήση περιορισμένων τύπων πολυμέσων, αλλάξτε τη ρύθμιση της λειτουργίας δημιουργίας MMS."
+
+msgid "IDS_MSG_BODY_TIME_SENT_C"
+msgstr "Ώρα αποστολής:"
+
+msgid "IDS_MSG_BODY_TIME_RECEIVED_C"
+msgstr "Ώρα λήψης:"
+
+msgid "IDS_MSG_BODY_STATUS_C"
+msgstr "Κατάσταση:"
+
+msgid "IDS_MSG_BODY_SENT_M_STATUS"
+msgstr "Στάλθηκε"
+
+msgid "IDS_MSG_BODY_SENDING_ING_M_STATUS_ABB"
+msgstr "Αποστ..."
+
+msgid "IDS_MSG_BODY_SENDING_FAILED_M_STATUS"
+msgstr "Η αποστολή απέτυχε"
+
+msgid "IDS_MSG_BODY_RETRIEVE_MESSAGES_AUTOMATICALLY_WHILE_ROAMING"
+msgstr "Να γίνεται αυτόματη ανάκτηση μηνυμάτων κατά την περιαγωγή."
+
+msgid "IDS_MSG_BODY_RETRIEVE_MESSAGES_AUTOMATICALLY"
+msgstr "Να γίνεται αυτόματη ανάκτηση μηνυμάτων."
+
+msgid "IDS_MSG_BODY_READ_REPORT_C_PS"
+msgstr "Αναφορά ανάγνωσης: %s"
+
+msgid "IDS_MSG_BODY_OTHER_PERSON"
+msgstr "Άλλο άτομο"
+
+msgid "IDS_MSG_BODY_MEMO_T_MAINMENU"
+msgstr "Σημείωση"
+
+msgid "IDS_MSG_BODY_FAILED_M_STATUS_ABB2"
+msgstr "Απέτυχε"
+
+msgid "IDS_MSG_BODY_ENTER_TEXT_M_NOUN"
+msgstr "Εισαγωγή κειμένου"
+
+msgid "IDS_MSG_BODY_DRAFT_M_STATUS_ABB"
+msgstr "Πρόχειρο"
+
+msgid "IDS_MSG_BODY_DELIVERY_REPORT_C_PS"
+msgstr "Αναφορά παράδοσης: %s"
+
+msgid "IDS_MSG_BODY_CB_MESSAGE"
+msgstr "Μήνυμα CB"
+
+msgid "IDS_MSG_BODY_CALENDAR_M_APPLICATION_NAME_ABB"
+msgstr "Ημερολόγιο"
+
+msgid "IDS_MSG_BODY_AFTER_YOU_SEND_OR_RECEIVE_MESSAGES_THEY_WILL_BE_SHOWN_HERE"
+msgstr "Μετά την αποστολή ή λήψη μηνυμάτων, τα μηνύματα θα εμφανιστούν εδώ."
+
+msgid "IDS_MSG_BODY_AFTER_YOU_CREATE_QUICK_RESPONSES_THEY_WILL_BE_SHOWN_HERE"
+msgstr "Μετά τη δημιουργία γρήγορων απαντήσεων, οι γρήγορες απαντήσεις θα εμφανίζονται εδώ."
+
+msgid "IDS_MSG_BODY_AFTER_YOU_COPY_MESSAGES_TO_THE_SIM_CARD_THEY_WILL_BE_SHOWN_HERE"
+msgstr "Μετά την αντιγραφή μηνυμάτων στην κάρτα SIM, τα μηνύματα θα εμφανίζονται εδώ."
+
+msgid "IDS_MSG_BODY_AFTER_YOU_ADD_PHRASES_THEY_WILL_BE_SHOWN_HERE"
+msgstr "Οι φράσεις που θα προσθέσετε, θα εμφανιστούν εδώ."
+
+msgid "IDS_MSG_BODY_AFTER_YOU_ADD_NUMBERS_TO_THE_MESSAGE_BLOCK_LIST_THEY_WILL_BE_SHOWN_HERE"
+msgstr "Αφού προσθέσετε αριθμούς στη λίστα αποκλεισμού μηνυμάτων, οι αριθμοί θα εμφανίζονται εδώ."
+
+msgid "IDS_MSG_ACBUTTON_DELETE_ABB"
+msgstr "ΔΙΑΓΡΑΦΗ"
+
+msgid "IDS_MSGC_POP_UNSUPPORTED_MEDIA_TYPE"
+msgstr "Μη υποστηριζόμενος τύπος μέσου."
+
+msgid "IDS_MSGC_POP_LOW_BATTERY"
+msgstr "Χαμηλή μπαταρία."
+
+msgid "IDS_MSGC_POP_CANCELLED"
+msgstr "Ακυρώθηκε."
+
+msgid "IDS_MSGC_OPT_EMAIL"
+msgstr "Email"
+
+msgid "IDS_MSGC_OPT_EDITITEM_VIEW"
+msgstr "Προβολή"
+
+msgid "IDS_MSGC_OPT_EDITITEM_REMOVE"
+msgstr "Κατάργηση"
+
+msgid "IDS_MSGC_OPT_EDITITEM_PLAY"
+msgstr "Αναπαραγωγή"
+
+msgid "IDS_MSGC_OPT_CHANGE_RECIPIENTS_TO"
+msgstr "Προς"
+
+msgid "IDS_MSGC_HEADER_PREVIEW"
+msgstr "Προεπισκόπηση"
+
+msgid "IDS_MSGC_BODY_ENTER_SUBJECT"
+msgstr "Εισαγωγή θέματος."
+
+msgid "IDS_MSGF_POP_UNABLE_TO_FIND_LOCATION"
+msgstr "Δεν είναι δυνατή η εύρεση τοποθεσίας."
+
+msgid "IDS_MSGF_POP_REJECTED"
+msgstr "Απόρριψη."
+
+msgid "IDS_MSGF_POP_DELETING"
+msgstr "Διαγραφή..."
+
+msgid "IDS_MSGF_POP_COPIED_TO_CLIPBOARD"
+msgstr "Αντιγράφηκε στο πρόχειρο."
+
+msgid "IDS_MSGF_POP_BLOCK_PS_Q"
+msgstr "Αποκλεισμός του %s;"
+
+msgid "IDS_MSGF_OPT_SUBJECT_COLON"
+msgstr "Θέμα:"
+
+msgid "IDS_MSGF_OPT_SENDER_VIA_EMAIL"
+msgstr "Αποστολέας μέσω email"
+
+msgid "IDS_MSGF_OPT_SELECT"
+msgstr "Επιλογή"
+
+msgid "IDS_MSGF_OPT_SAVE"
+msgstr "Αποθήκευση"
+
+msgid "IDS_MSGF_OPT_REMOVE"
+msgstr "Κατάργηση"
+
+msgid "IDS_MSGF_OPT_FORWARD"
+msgstr "Προώθηση"
+
+msgid "IDS_MSGF_OPT_DELETE_Q"
+msgstr "Διαγραφή;"
+
+msgid "IDS_MSGF_HEADER_ADVANCED_SEARCH"
+msgstr "Σύνθετη αναζήτηση"
+
+msgid "IDS_MSGF_BODY_UNKNOWN"
+msgstr "Άγνωστο"
+
+msgid "IDS_MSGF_BODY_SETTINGS"
+msgstr "Ρυθμίσεις"
+
+msgid "IDS_MSGF_BODY_RECIPIENTS"
+msgstr "Παραλήπτες"
+
+msgid "IDS_MSGF_BODY_RECEIVED"
+msgstr "Ελήφθη."
+
+msgid "IDS_MSGF_BODY_OTHER"
+msgstr "Άλλο"
+
+msgid "IDS_MSGF_BODY_NO_SUBJECT"
+msgstr "Χωρίς θέμα"
+
+msgid "IDS_MSGF_BODY_MSGSIZE_KB"
+msgstr "KB"
+
+msgid "IDS_MSGF_BODY_MESSAGE"
+msgstr "Μήνυμα"
+
+msgid "IDS_MSGF_BODY_ME"
+msgstr "Εγώ"
+
+msgid "IDS_MSGF_BODY_EXPIRED"
+msgstr "Έληξε"
+
+msgid "IDS_MSGF_BODY_ALL"
+msgstr "Όλα"
+
+msgid "IDS_MSG_SK_NO_ABB"
+msgstr "Όχι"
+
+msgid "IDS_MSG_POP_YOUR_MESSAGE_WILL_BE_DISCARDED_NO_RECIPIENTS_HAVE_BEEN_SELECTED"
+msgstr "Το μήνυμά σας θα απορριφθεί. Δεν έχουν επιλεγεί παραλήπτες."
+
+msgid "IDS_MSG_POP_UNABLE_TO_PLAY_DURING_CALL"
+msgstr "Δεν είναι δυνατή η αναπαραγωγή παιχνιδιού κατά την κλήση."
+
+msgid "IDS_MSG_POP_INCOMING_MESSAGES_ONLY"
+msgstr "Εισερχόμενα μηνύματα μόνο"
+
+msgid "IDS_MSG_POP_DELETED"
+msgstr "Διαγράφηκε."
+
+msgid "IDS_MSG_OPT_VIDEOS"
+msgstr "Βίντεο"
+
+msgid "IDS_MSG_OPT_TEXT"
+msgstr "Κείμενο"
+
+msgid "IDS_MSG_OPT_SETTINGS"
+msgstr "Ρυθμίσεις"
+
+msgid "IDS_MSG_OPT_SEARCH"
+msgstr "Αναζήτηση"
+
+msgid "IDS_MSG_OPT_RECORD_VIDEO_ABB"
+msgstr "Εγγραφή βίντεο"
+
+msgid "IDS_MSG_OPT_NONE"
+msgstr "Κανένα"
+
+msgid "IDS_MSG_OPT_IMAGES"
+msgstr "Εικόνες"
+
+msgid "IDS_MSG_OPT_EDIT"
+msgstr "Επεξεργασία"
+
+msgid "IDS_MSG_OPT_DELETE"
+msgstr "Διαγραφή"
+
+msgid "IDS_MSG_OPT_DEFAULT"
+msgstr "Προεπιλογή"
+
+msgid "IDS_MSG_MBODY_SELECT_ALL"
+msgstr "Επιλογή όλων"
+
+msgid "IDS_MSG_MBODY_ALERTS"
+msgstr "Ειδοποιήσεις"
+
+msgid "IDS_MSG_HEADER_TRANSLATE"
+msgstr "Μετάφραση"
+
+msgid "IDS_MSG_HEADER_SETTINGS"
+msgstr "Ρυθμίσεις"
+
+msgid "IDS_MSG_HEADER_MESSAGES"
+msgstr "Μηνύματα"
+
+msgid "IDS_MSG_HEADER_DELETE"
+msgstr "Διαγραφή"
+
+msgid "IDS_MSG_HEADER_ATTENTION"
+msgstr "Προσοχή"
+
+msgid "IDS_MSG_BUTTON_REMOVE_ABB"
+msgstr "Κατάργηση"
+
+msgid "IDS_MSG_BUTTON_OK_ABB"
+msgstr "OK"
+
+msgid "IDS_MSG_BUTTON_DOWNLOAD_ABB3"
+msgstr "Λήψη"
+
+msgid "IDS_MSG_BUTTON_CANCEL_ABB"
+msgstr "Ακύρωση"
+
+msgid "IDS_MSG_BODY_YES"
+msgstr "Ναι"
+
+msgid "IDS_MSG_BODY_TICK_BOX_T_TTS"
+msgstr "Πλαίσιο επιλογής"
+
+msgid "IDS_MSG_BODY_SEC"
+msgstr "δευτ."
+
+msgid "IDS_MSG_BODY_MESSAGE"
+msgstr "Μήνυμα"
+
+msgid "IDS_MSG_BUTTON_SEND_ABB5"
+msgstr "Απστ"
+
+msgid "IDS_MSG_BUTTON_SEND_ABB3"
+msgstr "Αποσ."
+
+msgid "IDS_MSG_ACBUTTON_SEND_ABB3"
+msgstr "ΑΠΟ."
+
+msgid "IDS_ST_BODY_LOADING_ING"
+msgstr "Φόρτωση..."
+
+msgid "IDS_MSGS_BODY_NOTIFICATIONS"
+msgstr "Ειδοποιήσεις"
+
+msgid "IDS_MSG_HEADER_ME"
+msgstr "Εγώ"
+
+msgid "IDS_MSG_BODY_UNKNOWN"
+msgstr "Άγνωστο"
+
+msgid "IDS_MSG_TMBODY_ADD_OR_REMOVE_RECIPIENTS"
+msgstr "Προσθήκη ή κατάργηση παραληπτών"
+
+msgid "IDS_MSG_POP_THE_SENDER_HAS_REQUESTED_A_READ_REPORT_TAP_SEND_TO_SEND_ONE"
+msgstr "Ο αποστολέας ζήτησε αναφορά ανάγνωσης. Πατήστε Αποστολή για να τη στείλετε."
+
+msgid "IDS_MSGF_OPT_SEND_READ_REPORT"
+msgstr "Αποστολή αναφοράς ανάγνωσης"
+
+msgid "IDS_MSG_HEADER_COMPOSE_MESSAGE_ABB"
+msgstr "Νέο Μήνυμα"
+
+msgid "IDS_MSG_POP_NO_VALID_RECIPIENTS_HAVE_BEEN_ADDED_THIS_MESSAGE_WILL_BE_DISCARDED"
+msgstr "Δεν έχουν προστεθεί έγκυροι παραλήπτες. Το μήνυμά σας θα απορριφθεί."
+

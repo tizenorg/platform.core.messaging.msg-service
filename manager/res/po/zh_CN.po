@@ -1,0 +1,945 @@
+msgid "IDS_COM_BODY_HOME"
+msgstr "家庭"
+
+msgid "IDS_MSGC_POP_DATA_ROAMING_IS_DISABLED_ENABLE_DATA_ROAMING_AND_TRY_AGAIN"
+msgstr "数据漫游已禁用。启用数据漫游并重试。"
+
+msgid "IDS_MSG_ACBUTTON_CANCEL_ABB"
+msgstr "取消"
+
+msgid "IDS_MSG_ACBUTTON_DONE_ABB"
+msgstr "完成"
+
+msgid "IDS_MSGF_POP_NEW_MESSAGE"
+msgstr "新信息"
+
+msgid "IDS_COM_BUTTON_SHARE"
+msgstr "分享"
+
+msgid "IDS_COM_BODY_UNKNOWN"
+msgstr "未知"
+
+msgid "IDS_COM_BODY_MOBILE"
+msgstr "手机"
+
+msgid "IDS_MSGC_POP_MOBILE_DATA_IS_DISABLED_ENABLE_MOBILE_DATA_AND_TRY_AGAIN"
+msgstr "移动数据已禁用。启用移动数据并重试。"
+
+msgid "IDS_TPLATFORM_ACBUTTON_SEND_ABB"
+msgstr "发送"
+
+msgid "IDS_MSGC_POP_UNABLE_TO_SEND_MESSAGES_WHILE_IN_FLIGHT_MODE_DISABLE_FLIGHT_MODE_AND_TRY_AGAIN"
+msgstr "飞行模式下无法发送信息。禁用飞行模式并重试。"
+
+msgid "IDS_MSGC_POP_UNABLE_TO_ADD_FILE_IS_FORWARD_LOCKED"
+msgstr "无法转寄\n文件已锁上转寄。"
+
+msgid "IDS_MSGC_POP_THERE_IS_NOT_ENOUGH_SPACE_IN_YOUR_DEVICE_STORAGE_GO_TO_SETTINGS_POWER_AND_STORAGE_STORAGE_THEN_DELETE_SOME_FILES_AND_TRY_AGAIN"
+msgstr "您的设备存储空间不足。请进入【设置】>【电源和存储】>【存储】，然后删除部分文件并重试。"
+
+msgid "IDS_MSGC_POP_TEXT_AT_TOP"
+msgstr "文本置上"
+
+msgid "IDS_MSGC_POP_TEXT_AT_BOTTOM"
+msgstr "文本置下"
+
+msgid "IDS_MSGC_POP_SELECT_LAYOUT"
+msgstr "选择布局"
+
+msgid "IDS_MSGC_POP_MMSCANTADD"
+msgstr "无法添加内容。"
+
+msgid "IDS_MSGC_POP_MESSAGE_SCHEDULED_TO_BE_SENT_TO_PS_SEND_NOW_Q"
+msgstr "信息已定时待发送至%s。是否立即发送？"
+
+msgid "IDS_MSGC_POP_MAXIMUM_MESSAGE_SIZE_REACHED"
+msgstr "已达到信息最大大小"
+
+msgid "IDS_MSGC_POP_DURATION_MUST_BE_AT_LEAST_PD_SECONDS"
+msgstr "持续时间必须至少%d秒。"
+
+msgid "IDS_MSGC_POP_DISABLING_FLIGHT_MODE_ING"
+msgstr "正在取消飞行模式…"
+
+msgid "IDS_MSGC_POP_COPIED_TO_SIM_CARD"
+msgstr "已复制至 SIM 卡"
+
+msgid "IDS_MSGC_OPT_USE_OTHER_CONTACT_INFO_ABB"
+msgstr "使用其他联系人信息"
+
+msgid "IDS_MSGC_OPT_SEND_VIA"
+msgstr "发送方式"
+
+msgid "IDS_MSGC_OPT_IMAGE"
+msgstr "图片"
+
+msgid "IDS_MSGC_OPT_EDIT_ITEM_REPLACE"
+msgstr "替换"
+
+msgid "IDS_MSGC_OPT_CANCEL_MESSAGE"
+msgstr "取消信息"
+
+msgid "IDS_MSGC_HEADER_RECIPIENT_LIST"
+msgstr "收件人列表"
+
+msgid "IDS_MSGC_HEADER_DURATION_FOR_SLIDE_PD_PD"
+msgstr "%d/%d幻灯片持续时间"
+
+msgid "IDS_MSGC_BODY_WAIT_WHILE_ITEMS_ARE_ADDED_TO_SLIDESHOW"
+msgstr "文件添加到幻灯片的期间请稍等。"
+
+msgid "IDS_MSGC_BODY_UNABLE_TO_SEND_MESSAGE"
+msgstr "无法发送信息。"
+
+msgid "IDS_MSGC_BODY_SELECT_RINGTONE"
+msgstr "选择铃声"
+
+msgid "IDS_MSGC_BODY_READ_REPORT_WILL_BE_SENT"
+msgstr "将发送已读报告。"
+
+msgid "IDS_MSGC_BODY_NOT_REQUESTED"
+msgstr "未请求"
+
+msgid "IDS_MSGC_BODY_MAXIMUM_NUMBER_OF_RECIPIENTS_HPD_REACHED"
+msgstr "已达到最大收件人数量(%d)"
+
+msgid "IDS_MSGC_BODY_DUPLICATED_RECIPIENT"
+msgstr "重复的收件人"
+
+msgid "IDS_MSGF_SK_FORWARD_LITE"
+msgstr "转发"
+
+msgid "IDS_MSGF_POP_UNABLE_TO_SAVE"
+msgstr "无法存储。"
+
+msgid "IDS_MSGF_POP_UNABLE_TO_DELETE"
+msgstr "无法删除"
+
+msgid "IDS_MSGF_POP_UNABLE_TO_COPY"
+msgstr "无法复制"
+
+msgid "IDS_MSGF_POP_SOME_CHARACTERS_MAY_BE_LOST_CONTINUE_Q"
+msgstr "可能丢失部分字符。\n继续？"
+
+msgid "IDS_MSGF_POP_SIM_NOT_INSERTED"
+msgstr "未插入 SIM 卡。"
+
+msgid "IDS_MSGF_POP_SAVING_FAILED"
+msgstr "储存失败"
+
+msgid "IDS_MSGF_POP_SAVED_IN_MY_FILES"
+msgstr "已保存在我的文件中。"
+
+msgid "IDS_MSGF_POP_RETRIEVING_MESSAGE_FAILED"
+msgstr "取回失败"
+
+msgid "IDS_MSGF_POP_RESTRICTED_CONTENT_TYPE_ATTACH_ANYWAY_Q"
+msgstr "被限制的内容类型。仍然附加？"
+
+msgid "IDS_MSGF_POP_RESTORING_ING"
+msgstr "恢复中..."
+
+msgid "IDS_MSGF_POP_READ_REPORT"
+msgstr "已读报告"
+
+msgid "IDS_MSGF_POP_NO_NUMBER"
+msgstr "无号码"
+
+msgid "IDS_MSGF_POP_NO_ATTACHMENTS"
+msgstr "无附件"
+
+msgid "IDS_MSGF_POP_NEW_MESSAGES"
+msgstr "新信息"
+
+msgid "IDS_MSGF_POP_MESSAGE_COPIED_FROM_SIM_CARD"
+msgstr "从 SIM 卡复制的信息。"
+
+msgid "IDS_MSGF_POP_MAXIMUM_NUMBER_OF_RECIPIENTS_IS_PD_SOME_RECIPIENTS_MAY_BE_LOST"
+msgstr "最大收件人数为 %d。部分收件人可能会丢失。"
+
+msgid "IDS_MSGF_POP_MAXIMUM_NUMBER_OF_ATTACHMENTS_HPS_EXCEEDED"
+msgstr "已超过最大附件数 (%s)。"
+
+msgid "IDS_MSGF_POP_MAXIMUM_CHARACTERS"
+msgstr "已达到最大字符限制"
+
+msgid "IDS_MSGF_POP_IN_PROGRESS_ING"
+msgstr "进行中..."
+
+msgid "IDS_MSGF_POP_INTIALISING"
+msgstr "初始化中..."
+
+msgid "IDS_MSGF_POP_IF_YOU_DONT_WANT_TO_REPLACE_THE_FILE_RENAME_IT"
+msgstr "如果您不想替换文件，请重命名。"
+
+msgid "IDS_MSGF_POP_HELP_PAGE_MESSAGE_FOR_ONE_FILE"
+msgstr "此信息包含一个未显示的附件。"
+
+msgid "IDS_MSGF_POP_HELP_PAGE_MESSAGE"
+msgstr "此信息包含未显示的附件。"
+
+msgid "IDS_MSGF_POP_FILE_NAME_ALREADY_EXISTS"
+msgstr "文件名已存在"
+
+msgid "IDS_MSGF_POP_CONVERTING_TO_TEXT_MESSAGE_ING"
+msgstr "正在转换成短信…"
+
+msgid "IDS_MSGF_POP_CONVERTING_TO_MULTIMEDIA_MESSAGE_ING"
+msgstr "正在转换成彩信…"
+
+msgid "IDS_MSGF_POP_ABOUT_TO_GO_ONLINE_CONTINUE_Q"
+msgstr "您将上网（%s）。 继续？"
+
+msgid "IDS_MSGF_OPT_TEXT_MESSAGE"
+msgstr "短信"
+
+msgid "IDS_MSGF_OPT_SENDER_ABB"
+msgstr "发件人"
+
+msgid "IDS_MSGF_OPT_SAVE_ATTACHMENT"
+msgstr "存储附件"
+
+msgid "IDS_MSGF_OPT_INSTALL"
+msgstr "安装"
+
+msgid "IDS_MSGF_OPT_EDIT_MESSAGE"
+msgstr "编辑信息"
+
+msgid "IDS_MSGF_OPT_DELETE_MESSAGES"
+msgstr "删除信息"
+
+msgid "IDS_MSGF_HEADER_SELECT_MESSAGES"
+msgstr "选择信息"
+
+msgid "IDS_MSGF_HEADER_SAVE_ALL"
+msgstr "全部保存"
+
+msgid "IDS_MSGF_HEADER_MESSAGE_DETAILS"
+msgstr "消息详情"
+
+msgid "IDS_MSGF_HEADER_EXPIRES_C_PS"
+msgstr "到期时间： %s"
+
+msgid "IDS_MSGF_BUTTON_SAVE_ALL_ATTACHMENTS_ABB"
+msgstr "保存所有附件"
+
+msgid "IDS_MSGF_BODY_TO_C"
+msgstr "收件人："
+
+msgid "IDS_MSGF_BODY_TEXT_MESSAGES"
+msgstr "短信设置"
+
+msgid "IDS_MSGF_BODY_SIM_MEMORY_FULL_DELETE_SOME_ITEMS"
+msgstr "SIM 卡内存已满。请删除部分内容。"
+
+msgid "IDS_MSGF_BODY_SENT_M_DATE_C"
+msgstr "已发送："
+
+msgid "IDS_MSGF_BODY_REQUESTED"
+msgstr "已发出请求"
+
+msgid "IDS_MSGF_BODY_RECEIVED_M_DATE_C"
+msgstr "已接收："
+
+msgid "IDS_MSGF_BODY_READ_REPORT"
+msgstr "已读报告"
+
+msgid "IDS_MSGF_BODY_PUSH_MESSAGES"
+msgstr "推送信息"
+
+msgid "IDS_MSGF_BODY_PD_MESSAGES"
+msgstr "%d 条信息"
+
+msgid "IDS_MSGF_BODY_PD_CONVERSATIONS"
+msgstr "%d 个会话"
+
+msgid "IDS_MSGF_BODY_NO_NAME"
+msgstr "无姓名"
+
+msgid "IDS_MSGF_BODY_MULTIMEDIA_MESSAGE_NOTIFICATION"
+msgstr "彩信通知"
+
+msgid "IDS_MSGF_BODY_MULTIMEDIA_MESSAGE"
+msgstr "彩信"
+
+msgid "IDS_MSGF_BODY_MMSREADREPLYMSGREAD"
+msgstr "阅读"
+
+msgid "IDS_MSGF_BODY_MMSDELIVERYMSGREJECTED"
+msgstr "信息已拒绝"
+
+msgid "IDS_MSGF_BODY_MMS"
+msgstr "彩信"
+
+msgid "IDS_MSGF_BODY_MESSAGE_SIZE"
+msgstr "信息大小"
+
+msgid "IDS_MSGF_BODY_MESSAGE_OPTIONS"
+msgstr "信息选项"
+
+msgid "IDS_MSGF_BODY_MESSAGE_DELIVERED"
+msgstr "信息已送达"
+
+msgid "IDS_MSGF_BODY_MAXIMUM_NUMBER_OF_ATTACHMENTS_HP1SS_EXCEEDED_ONLY_FIRST_P2SS_WILL_BE_ADDED"
+msgstr "已超过附件最大数量 (%1$s)。仅前 %2$s 将被添加。"
+
+msgid "IDS_MSGF_BODY_INVALID_RECIPIENT"
+msgstr "无效收件人。"
+
+msgid "IDS_MSGF_BODY_FROM"
+msgstr "发件人"
+
+msgid "IDS_MSGF_BODY_FLFROM"
+msgstr "发件人："
+
+msgid "IDS_MSGF_BODY_DETAILSSENDINGFAILED"
+msgstr "发送失败"
+
+msgid "IDS_MSGF_BODY_DELIVERY_REPORT"
+msgstr "送达报告"
+
+msgid "IDS_MSGF_BODY_CP_MESSAGES"
+msgstr "CP信息"
+
+msgid "IDS_MSGF_BODY_COPY_TEXT"
+msgstr "复制文本"
+
+msgid "IDS_MSGF_BODY_CB_MESSAGES"
+msgstr "小区信息"
+
+msgid "IDS_MSGF_BODY_1_MESSAGE"
+msgstr "1 message"
+
+msgid "IDS_MSGF_BODY_1_CONVERSATION"
+msgstr "%1$d 个会话"
+
+msgid "IDS_MSGS_BODY_REQUEST_A_READ_REPORT_FOR_EACH_MESSAGE_YOU_SEND"
+msgstr "为您发送的每条信息请求已读报告。"
+
+msgid "IDS_MSGS_BODY_REQUEST_A_DELIVERY_REPORT_FOR_EACH_MESSAGE_YOU_SEND"
+msgstr "为您发送的每条信息请求送达报告。"
+
+msgid "IDS_MSGS_BODY_RADIO_BUTTON"
+msgstr "单选按钮"
+
+msgid "IDS_MSGS_BODY_ON_OFF_BUTTON_T_TTS"
+msgstr "开/关按钮"
+
+msgid "IDS_MSGS_BODY_EXPANDABLE_LIST_T_TTS"
+msgstr "可展开列表"
+
+msgid "IDS_MSGS_BODY_AUTOMATICALLY_RETRIEVE_MMS_MESSAGES"
+msgstr "自动获取彩信信息。"
+
+msgid "IDS_MSG_TPOP_UNABLE_TO_PREVIEW_FILE_UNSUPPORTED_FILE_TYPE"
+msgstr "无法预览文件。不支持的文件类型。"
+
+msgid "IDS_MSG_TPOP_UNABLE_TO_ATTACH_FILE_FILE_FORMAT_NOT_SUPPORTED"
+msgstr "无法附加文件。不支持该文件格式。"
+
+msgid "IDS_MSG_TPOP_UNABLE_TO_ADD_SOME_RECIPIENTS_NUMBERS_NOT_VALID"
+msgstr "无法添加部分收件人。号码无效。"
+
+msgid "IDS_MSG_TPOP_UNABLE_TO_ADD_RECIPIENT_NUMBER_NOT_VALID"
+msgstr "无法添加收件人。号码无效。"
+
+msgid "IDS_MSG_TPOP_UNABLE_TO_ADD_RECIPIENTS_NUMBERS_NOT_VALID"
+msgstr "无法添加收件人。号码无效。"
+
+msgid "IDS_MSG_TPOP_UNABLE_TO_ADD_ATTACHMENT_MAXIMUM_NUMBER_OF_ATTACHMENTS_HPD_REACHED"
+msgstr "无法添加附件。已达到最大附件数 (%d)。"
+
+msgid "IDS_MSG_TPOP_THIS_NUMBER_IS_NOT_VALID"
+msgstr "该号码无效"
+
+msgid "IDS_MSG_TPOP_SOME_RECIPIENTS_ALREADY_ADDED"
+msgstr "部分收件人已添加"
+
+msgid "IDS_MSG_TPOP_SELECTED_MESSAGES_COPIED_TO_MOBILE_DEVICE"
+msgstr "选中的信息已复制至移动设备"
+
+msgid "IDS_MSG_TPOP_PD_MESSAGES_MOVED_TO_MESSAGE_LIST"
+msgstr "%d 条信息已移至信息列表"
+
+msgid "IDS_MSG_TPOP_NUMBER_REMOVED_FROM_MESSAGE_BLOCK_LIST"
+msgstr "号码已从信息黑名单中移除"
+
+msgid "IDS_MSG_TPOP_NUMBER_ADDED_TO_MESSAGE_BLOCK_LIST"
+msgstr "号码已添加至信息黑名单"
+
+msgid "IDS_MSG_TPOP_NETWORK_NOT_AVAILABLE_MESSAGE_WILL_BE_SENT_WHEN_CONNECTED_TO_NETWORK"
+msgstr "网络不可用。信息将在连接至网络时发送。"
+
+msgid "IDS_MSG_TPOP_MESSAGE_COPIED_TO_PS_SIM_CARD"
+msgstr "信息已复制至%s SIM 卡"
+
+msgid "IDS_MSG_TPOP_MAXIMUM_NUMBER_OF_CHARACTERS_EXCEEDED"
+msgstr "已超过最大字符数"
+
+msgid "IDS_MSG_TPOP_MAXIMUM_MESSAGE_SIZE_HPS_EXCEEDED_RESIZING_ATTACHMENTS_ING"
+msgstr "已超过最大信息大小 (%s)。正在调整附件大小..."
+
+msgid "IDS_MSG_TPOP_INVALID_CHARACTER_ENTERED"
+msgstr "输入的字符无效"
+
+msgid "IDS_MSG_TPOP_ADD_RECIPIENTS"
+msgstr "添加收件人"
+
+msgid "IDS_MSG_TPOP_1_MESSAGE_MOVED_TO_MESSAGE_LIST"
+msgstr "1 条信息已移至信息列表"
+
+msgid "IDS_MSG_TMBODY_TEXT_MESSAGES"
+msgstr "短信"
+
+msgid "IDS_MSG_TMBODY_SOUND"
+msgstr "声音"
+
+msgid "IDS_MSG_TMBODY_MULTIMEDIA_MESSAGES"
+msgstr "彩信"
+
+msgid "IDS_MSG_TMBODY_MESSAGES_ON_SIM_CARD"
+msgstr "SIM 卡上的信息"
+
+msgid "IDS_MSG_TMBODY_INPUT_MODE"
+msgstr "输入模式"
+
+msgid "IDS_MSG_TMBODY_AUTO_RETRIEVE_WHILE_ROAMING"
+msgstr "漫游时自动获取"
+
+msgid "IDS_MSG_TMBODY_AUTO_RETRIEVE"
+msgstr "自动获取"
+
+msgid "IDS_MSG_SK_SEND_NOW"
+msgstr "立即发送"
+
+msgid "IDS_MSG_SBODY_SELECT_AN_INPUT_MODE_FOR_COMPOSING_MESSAGES"
+msgstr "选择编写信息的输入模式"
+
+msgid "IDS_MSG_SBODY_NONE_M_STATUS"
+msgstr "无"
+
+msgid "IDS_MSG_SBODY_MANAGE_THE_MESSAGES_STORED_ON_YOUR_SIM_CARD"
+msgstr "管理 SIM 卡上存储的信息"
+
+msgid "IDS_MSG_POP_UNABLE_TO_SEND_SCHEDULED_MESSAGE_SET_ANOTHER_TIME"
+msgstr "无法发送定时信息。设置其他时间。"
+
+msgid "IDS_MSG_POP_UNABLE_TO_ATTACH_FILE_FILE_SIZE_TOO_LARGE_TRY_SENDING_VIA_EMAIL_BLUETOOTH_WI_FI_ETC"
+msgstr "无法添加文件。文件过大。尝试通过电子邮件、蓝牙、Wi-Fi 等发送。"
+
+msgid "IDS_MSG_POP_TO_SEND_THIS_MULTIMEDIA_MESSAGE_THE_DEVICE_WILL_CONNECT_TO_A_DIFFERENT_MOBILE_NETWORK_THIS_WILL_DISCONNECT_YOUR_DEVICE_FROM_YOUR_MSG"
+msgstr "若要发送该彩信，设备将连接至不同的移动网络。这将会从当前的移动网络断开您的设备连接。"
+
+msgid "IDS_MSG_POP_TO_DOWNLOAD_THIS_MULTIMEDIA_MESSAGE_THE_DEVICE_WILL_CONNECT_TO_A_DIFFERENT_MOBILE_NETWORK_MSG"
+msgstr "若要下载该彩信，设备将连接至不同的移动网络。这将会从当前的移动网络断开您的设备连接。"
+
+msgid "IDS_MSG_POP_THIS_MESSAGE_WILL_BE_RESENT"
+msgstr "将重新发送该信息。"
+
+msgid "IDS_MSG_POP_PD_MESSAGES_WILL_BE_DELETED"
+msgstr "%d条信息将被删除。"
+
+msgid "IDS_MSG_POP_PD_CONVERSATIONS_WILL_BE_DELETED"
+msgstr "将删除 %d 个对话。"
+
+msgid "IDS_MSG_POP_NO_TEMPLATES_IN_LIST"
+msgstr "列表中没有模板"
+
+msgid "IDS_MSG_POP_INCLUDE_ORIGINAL_TEXT_IN_OUTGOING_MESSAGE"
+msgstr "在发出信息中包括原始文本"
+
+msgid "IDS_MSG_POP_DURATION_MUST_BE_SHORTER_THAN_PD_SECONDS"
+msgstr "持续时间必须短于 %d 秒"
+
+msgid "IDS_MSG_POP_1_MESSAGE_WILL_BE_DELETED"
+msgstr "将删除 1 条消息。"
+
+msgid "IDS_MSG_POP_1_CONVERSATION_WILL_BE_DELETED"
+msgstr "将删除 1 个对话。"
+
+msgid "IDS_MSG_OPT_VIEW_DETAILS_ABB"
+msgstr "查看详细资料"
+
+msgid "IDS_MSG_OPT_VIEW_CONTACT_DETAILS_ABB"
+msgstr "查看联系人详情"
+
+msgid "IDS_MSG_OPT_VIEW_AS_SLIDESHOW_ABB"
+msgstr "作为幻灯片查看"
+
+msgid "IDS_MSG_OPT_UPDATE_CONTACT"
+msgstr "更新联系人"
+
+msgid "IDS_MSG_OPT_UNICODE"
+msgstr "单一码"
+
+msgid "IDS_MSG_OPT_TAKE_PICTURE_ABB"
+msgstr "拍照"
+
+msgid "IDS_MSG_OPT_SAVE_ATTACHMENTS_ABB"
+msgstr "保存附件"
+
+msgid "IDS_MSG_OPT_RESEND"
+msgstr "重新发送"
+
+msgid "IDS_MSG_OPT_REPLY"
+msgstr "回复"
+
+msgid "IDS_MSG_OPT_REMOVE_FROM_BLOCK_LIST_ABB"
+msgstr "从黑名单中移除"
+
+msgid "IDS_MSG_OPT_RECORD_AUDIO_FILE_ABB"
+msgstr "录音文件"
+
+msgid "IDS_MSG_OPT_QUICK_RESPONSE_ABB"
+msgstr "快速回复"
+
+msgid "IDS_MSG_OPT_MAKE_VOICE_CALL"
+msgstr "拨打语音电话"
+
+msgid "IDS_MSG_OPT_GSM_ALPHABET_ABB"
+msgstr "GSM 字母"
+
+msgid "IDS_MSG_OPT_EXPORT_TO_DEVICE_MEMORY"
+msgstr "导出到手机内存"
+
+msgid "IDS_MSG_OPT_DELETE_MESSAGE"
+msgstr "删除信息"
+
+msgid "IDS_MSG_OPT_DELETE_CONVERSATION_ABB"
+msgstr "删除对话"
+
+msgid "IDS_MSG_OPT_CREATE_CONTACT_ABB"
+msgstr "新建联系人"
+
+msgid "IDS_MSG_OPT_COPY_TO_SIM_CARD_ABB"
+msgstr "复制至 SIM 卡"
+
+msgid "IDS_MSG_OPT_COPY_TO_DEVICE_ABB"
+msgstr "复制至设备"
+
+msgid "IDS_MSG_OPT_COPY_TEXT"
+msgstr "复制文本"
+
+msgid "IDS_MSG_OPT_COPY"
+msgstr "复制"
+
+msgid "IDS_MSG_OPT_BACK_UP"
+msgstr "备份"
+
+msgid "IDS_MSG_OPT_AUTOMATIC"
+msgstr "自动"
+
+msgid "IDS_MSG_OPT_AUDIO_FILES_ABB2"
+msgstr "音频文件"
+
+msgid "IDS_MSG_OPT_ATTACHMENT_ABB"
+msgstr "附件"
+
+msgid "IDS_MSG_OPT_ADD_TO_CONTACTS_ABB"
+msgstr "添加至联系人"
+
+msgid "IDS_MSG_OPT_ADD_TO_BLOCK_LIST_ABB"
+msgstr "添加至黑名单"
+
+msgid "IDS_MSG_OPT_ADD_RECIPIENTS_ABB"
+msgstr "添加收件人"
+
+msgid "IDS_MSG_NPBODY_SEARCH"
+msgstr "搜索"
+
+msgid "IDS_MSG_NPBODY_NO_RESULTS_FOUND_ABB"
+msgstr "未找到结果"
+
+msgid "IDS_MSG_NPBODY_NO_QUICK_RESPONSES"
+msgstr "无快速回复"
+
+msgid "IDS_MSG_NPBODY_NO_PHRASES_BLOCKED"
+msgstr "没有已拦截的短语"
+
+msgid "IDS_MSG_NPBODY_NO_MESSAGES_ON_SIM_CARD"
+msgstr "SIM 卡上没有信息"
+
+msgid "IDS_MSG_NPBODY_NO_MESSAGES"
+msgstr "无信息"
+
+msgid "IDS_MSG_NPBODY_NO_BLOCKED_NUMBERS"
+msgstr "没有已设置为拦截的号码"
+
+msgid "IDS_MSG_MBODY_VIBRATION"
+msgstr "振动"
+
+msgid "IDS_MSG_MBODY_UNKNOWN_NUMBER"
+msgstr "未知号码"
+
+msgid "IDS_MSG_MBODY_TEXT_MESSAGE_CENTRE_NUMBER_ABB"
+msgstr "短信中心号码"
+
+msgid "IDS_MSG_HEADER_TEXT_MESSAGES_ABB"
+msgstr "短信"
+
+msgid "IDS_MSG_HEADER_SWITCH_MOBILE_NETWORK_ABB2"
+msgstr "切换移动网络"
+
+msgid "IDS_MSG_HEADER_SMS_CENTRE_ABB2"
+msgstr "短信中心"
+
+msgid "IDS_MSG_HEADER_SELECT_RECIPIENT"
+msgstr "选择收件人"
+
+msgid "IDS_MSG_HEADER_PD_SELECTED_ABB3"
+msgstr "已选中 %d 个"
+
+msgid "IDS_MSG_HEADER_MESSAGES_ON_SIM_CARD_ABB"
+msgstr "SIM 卡上的信息"
+
+msgid "IDS_MSG_HEADER_INPUT_MODE_ABB"
+msgstr "输入法"
+
+msgid "IDS_MSG_HEADER_FILE_SIZE_TOO_LARGE_ABB"
+msgstr "文件太大"
+
+msgid "IDS_MSG_HEADER_FAILED_TO_SEND_MESSAGE_ABB"
+msgstr "发送信息失败"
+
+msgid "IDS_MSG_HEADER_DISCARD_MESSAGE_M_CLOSE_ABB"
+msgstr "舍弃信息"
+
+msgid "IDS_MSG_HEADER_CREATE"
+msgstr "创建"
+
+msgid "IDS_MSG_HEADER_ADD_CONTENT_ABB"
+msgstr "添加内容"
+
+msgid "IDS_MSG_BUTTON_SWITCH_ABB2"
+msgstr "切换"
+
+msgid "IDS_MSG_BUTTON_SAVE_ABB2"
+msgstr "保存"
+
+msgid "IDS_MSG_BUTTON_RESEND_ABB"
+msgstr "重新发送"
+
+msgid "IDS_MSG_BUTTON_DISCARD_ABB"
+msgstr "放弃"
+
+msgid "IDS_MSG_BUTTON_DELETE_ABB4"
+msgstr "删除"
+
+msgid "IDS_MSG_BUTTON_CANCEL_ABB2"
+msgstr "取消"
+
+msgid "IDS_MSG_BUTTON2_CONTACTS_ABB_M_APPLICATION_NAME"
+msgstr "联系人"
+
+msgid "IDS_MSG_BODY_YOU_HAVE_SELECTED_A_SOUND_N_SHOT_FILE_SOUND_DATA_IS_NOT_SUPPORTED_FOR_MMS_SO_ONLY_THE_PICTURE_WILL_BE_ATTACHED"
+msgstr "您已选择有声拍摄文件。声音数据不支持彩信，因此只能附加照片。"
+
+msgid "IDS_MSG_BODY_WAITING_TO_SEND_ING_M_STATUS"
+msgstr "正在等待发送..."
+
+msgid "IDS_MSG_BODY_UNABLE_TO_SEND_THIS_MESSAGE_INSERT_YOUR_SIM_CARD_AND_TRY_AGAIN"
+msgstr "无法发送本信息。插入 SIM 卡然后重试。"
+
+msgid "IDS_MSG_BODY_TYPE_C"
+msgstr "类型："
+
+msgid "IDS_MSG_BODY_TO_USE_RESTRICTED_MEDIA_TYPES_CHANGE_YOUR_MMS_CREATION_MODE_SETTING"
+msgstr "若要使用限制媒体类型，更改您的彩信创建模式设置。"
+
+msgid "IDS_MSG_BODY_TIME_SENT_C"
+msgstr "发送时间："
+
+msgid "IDS_MSG_BODY_TIME_RECEIVED_C"
+msgstr "接收时间："
+
+msgid "IDS_MSG_BODY_STATUS_C"
+msgstr "状态："
+
+msgid "IDS_MSG_BODY_SENT_M_STATUS"
+msgstr "已发送。"
+
+msgid "IDS_MSG_BODY_SENDING_ING_M_STATUS_ABB"
+msgstr "发送中..."
+
+msgid "IDS_MSG_BODY_SENDING_FAILED_M_STATUS"
+msgstr "发送失败"
+
+msgid "IDS_MSG_BODY_RETRIEVE_MESSAGES_AUTOMATICALLY_WHILE_ROAMING"
+msgstr "漫游时自动获取信息。"
+
+msgid "IDS_MSG_BODY_RETRIEVE_MESSAGES_AUTOMATICALLY"
+msgstr "自动获取信息。"
+
+msgid "IDS_MSG_BODY_READ_REPORT_C_PS"
+msgstr "已读报告：%s"
+
+msgid "IDS_MSG_BODY_OTHER_PERSON"
+msgstr "其他人"
+
+msgid "IDS_MSG_BODY_MEMO_T_MAINMENU"
+msgstr "备忘录"
+
+msgid "IDS_MSG_BODY_FAILED_M_STATUS_ABB2"
+msgstr "失败"
+
+msgid "IDS_MSG_BODY_ENTER_TEXT_M_NOUN"
+msgstr "输入文本"
+
+msgid "IDS_MSG_BODY_DRAFT_M_STATUS_ABB"
+msgstr "草稿"
+
+msgid "IDS_MSG_BODY_DELIVERY_REPORT_C_PS"
+msgstr "送达报告：%s"
+
+msgid "IDS_MSG_BODY_CB_MESSAGE"
+msgstr "小区广播信息"
+
+msgid "IDS_MSG_BODY_CALENDAR_M_APPLICATION_NAME_ABB"
+msgstr "日历"
+
+msgid "IDS_MSG_BODY_AFTER_YOU_SEND_OR_RECEIVE_MESSAGES_THEY_WILL_BE_SHOWN_HERE"
+msgstr "在发送或接收信息后，其将显示在此处。"
+
+msgid "IDS_MSG_BODY_AFTER_YOU_CREATE_QUICK_RESPONSES_THEY_WILL_BE_SHOWN_HERE"
+msgstr "创建快速响应后，其将显示在此处。"
+
+msgid "IDS_MSG_BODY_AFTER_YOU_COPY_MESSAGES_TO_THE_SIM_CARD_THEY_WILL_BE_SHOWN_HERE"
+msgstr "信息复制至 SIM 卡后，其将显示在此处。"
+
+msgid "IDS_MSG_BODY_AFTER_YOU_ADD_PHRASES_THEY_WILL_BE_SHOWN_HERE"
+msgstr "添加短语后，其将显示在此处。"
+
+msgid "IDS_MSG_BODY_AFTER_YOU_ADD_NUMBERS_TO_THE_MESSAGE_BLOCK_LIST_THEY_WILL_BE_SHOWN_HERE"
+msgstr "将号码添加至信息黑名单后，其将显示在此处。"
+
+msgid "IDS_MSG_ACBUTTON_DELETE_ABB"
+msgstr "删除"
+
+msgid "IDS_MSGC_POP_UNSUPPORTED_MEDIA_TYPE"
+msgstr "不支持的媒体类型"
+
+msgid "IDS_MSGC_POP_LOW_BATTERY"
+msgstr "电量不足。"
+
+msgid "IDS_MSGC_POP_CANCELLED"
+msgstr "已取消"
+
+msgid "IDS_MSGC_OPT_EMAIL"
+msgstr "电子邮件"
+
+msgid "IDS_MSGC_OPT_EDITITEM_VIEW"
+msgstr "查看"
+
+msgid "IDS_MSGC_OPT_EDITITEM_REMOVE"
+msgstr "移除"
+
+msgid "IDS_MSGC_OPT_EDITITEM_PLAY"
+msgstr "播放"
+
+msgid "IDS_MSGC_OPT_CHANGE_RECIPIENTS_TO"
+msgstr "至"
+
+msgid "IDS_MSGC_HEADER_PREVIEW"
+msgstr "预览"
+
+msgid "IDS_MSGC_BODY_ENTER_SUBJECT"
+msgstr "请输入主题"
+
+msgid "IDS_MSGF_POP_UNABLE_TO_FIND_LOCATION"
+msgstr "无法找到位置。"
+
+msgid "IDS_MSGF_POP_REJECTED"
+msgstr "被拒绝"
+
+msgid "IDS_MSGF_POP_DELETING"
+msgstr "删除中.."
+
+msgid "IDS_MSGF_POP_COPIED_TO_CLIPBOARD"
+msgstr "已复制到剪贴板"
+
+msgid "IDS_MSGF_POP_BLOCK_PS_Q"
+msgstr "是否要阻止%s？"
+
+msgid "IDS_MSGF_OPT_SUBJECT_COLON"
+msgstr "主题："
+
+msgid "IDS_MSGF_OPT_SENDER_VIA_EMAIL"
+msgstr "发信人通过电子邮件"
+
+msgid "IDS_MSGF_OPT_SELECT"
+msgstr "选择"
+
+msgid "IDS_MSGF_OPT_SAVE"
+msgstr "保存"
+
+msgid "IDS_MSGF_OPT_REMOVE"
+msgstr "移除"
+
+msgid "IDS_MSGF_OPT_FORWARD"
+msgstr "转发"
+
+msgid "IDS_MSGF_OPT_DELETE_Q"
+msgstr "删除？"
+
+msgid "IDS_MSGF_HEADER_ADVANCED_SEARCH"
+msgstr "高级搜索"
+
+msgid "IDS_MSGF_BODY_UNKNOWN"
+msgstr "未知"
+
+msgid "IDS_MSGF_BODY_SETTINGS"
+msgstr "设置"
+
+msgid "IDS_MSGF_BODY_RECIPIENTS"
+msgstr "收件人"
+
+msgid "IDS_MSGF_BODY_RECEIVED"
+msgstr "已接收"
+
+msgid "IDS_MSGF_BODY_OTHER"
+msgstr "其它"
+
+msgid "IDS_MSGF_BODY_NO_SUBJECT"
+msgstr "没有主题"
+
+msgid "IDS_MSGF_BODY_MSGSIZE_KB"
+msgstr "KB"
+
+msgid "IDS_MSGF_BODY_MESSAGE"
+msgstr "信息"
+
+msgid "IDS_MSGF_BODY_ME"
+msgstr "我"
+
+msgid "IDS_MSGF_BODY_EXPIRED"
+msgstr "已过期"
+
+msgid "IDS_MSGF_BODY_ALL"
+msgstr "全部"
+
+msgid "IDS_MSG_SK_NO_ABB"
+msgstr "否"
+
+msgid "IDS_MSG_POP_YOUR_MESSAGE_WILL_BE_DISCARDED_NO_RECIPIENTS_HAVE_BEEN_SELECTED"
+msgstr "没有选中收件人，将放弃您的信息。"
+
+msgid "IDS_MSG_POP_UNABLE_TO_PLAY_DURING_CALL"
+msgstr "通话中无法播放"
+
+msgid "IDS_MSG_POP_INCOMING_MESSAGES_ONLY"
+msgstr "仅限传入信息"
+
+msgid "IDS_MSG_POP_DELETED"
+msgstr "已删除"
+
+msgid "IDS_MSG_OPT_VIDEOS"
+msgstr "视频"
+
+msgid "IDS_MSG_OPT_TEXT"
+msgstr "文本"
+
+msgid "IDS_MSG_OPT_SETTINGS"
+msgstr "设置"
+
+msgid "IDS_MSG_OPT_SEARCH"
+msgstr "搜索"
+
+msgid "IDS_MSG_OPT_RECORD_VIDEO_ABB"
+msgstr "录制视频"
+
+msgid "IDS_MSG_OPT_NONE"
+msgstr "无"
+
+msgid "IDS_MSG_OPT_IMAGES"
+msgstr "图片"
+
+msgid "IDS_MSG_OPT_EDIT"
+msgstr "编辑"
+
+msgid "IDS_MSG_OPT_DELETE"
+msgstr "删除"
+
+msgid "IDS_MSG_OPT_DEFAULT"
+msgstr "默认"
+
+msgid "IDS_MSG_MBODY_SELECT_ALL"
+msgstr "全选"
+
+msgid "IDS_MSG_MBODY_ALERTS"
+msgstr "提醒"
+
+msgid "IDS_MSG_HEADER_TRANSLATE"
+msgstr "翻译"
+
+msgid "IDS_MSG_HEADER_SETTINGS"
+msgstr "设置"
+
+msgid "IDS_MSG_HEADER_MESSAGES"
+msgstr "信息"
+
+msgid "IDS_MSG_HEADER_DELETE"
+msgstr "删除"
+
+msgid "IDS_MSG_HEADER_ATTENTION"
+msgstr "注意"
+
+msgid "IDS_MSG_BUTTON_REMOVE_ABB"
+msgstr "移除"
+
+msgid "IDS_MSG_BUTTON_OK_ABB"
+msgstr "确定"
+
+msgid "IDS_MSG_BUTTON_DOWNLOAD_ABB3"
+msgstr "下载"
+
+msgid "IDS_MSG_BUTTON_CANCEL_ABB"
+msgstr "取消"
+
+msgid "IDS_MSG_BODY_YES"
+msgstr "是"
+
+msgid "IDS_MSG_BODY_TICK_BOX_T_TTS"
+msgstr "勾选框"
+
+msgid "IDS_MSG_BODY_SEC"
+msgstr "秒"
+
+msgid "IDS_MSG_BODY_MESSAGE"
+msgstr "信息"
+
+msgid "IDS_MSG_BUTTON_SEND_ABB5"
+msgstr "发送"
+
+msgid "IDS_MSG_BUTTON_SEND_ABB3"
+msgstr "发送"
+
+msgid "IDS_MSG_ACBUTTON_SEND_ABB3"
+msgstr "发送"
+
+msgid "IDS_ST_BODY_LOADING_ING"
+msgstr "载入中…"
+
+msgid "IDS_MSGS_BODY_NOTIFICATIONS"
+msgstr "通知"
+
+msgid "IDS_MSG_HEADER_ME"
+msgstr "我"
+
+msgid "IDS_MSG_BODY_UNKNOWN"
+msgstr "未知"
+
+msgid "IDS_MSG_TMBODY_ADD_OR_REMOVE_RECIPIENTS"
+msgstr "添加或移除接收者"
+
+msgid "IDS_MSG_POP_THE_SENDER_HAS_REQUESTED_A_READ_REPORT_TAP_SEND_TO_SEND_ONE"
+msgstr "发件人请求了已读报告。若要发送已读报告，请点击【发送】。"
+
+msgid "IDS_MSGF_OPT_SEND_READ_REPORT"
+msgstr "发送已读报告"
+
+msgid "IDS_MSG_HEADER_COMPOSE_MESSAGE_ABB"
+msgstr "编写信息"
+
+msgid "IDS_MSG_POP_NO_VALID_RECIPIENTS_HAVE_BEEN_ADDED_THIS_MESSAGE_WILL_BE_DISCARDED"
+msgstr "没有添加有效收件人，将放弃您的信息。"
+

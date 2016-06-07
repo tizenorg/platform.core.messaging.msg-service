@@ -1,0 +1,945 @@
+msgid "IDS_COM_BODY_HOME"
+msgstr "საწყისი გვერდი"
+
+msgid "IDS_MSGC_POP_DATA_ROAMING_IS_DISABLED_ENABLE_DATA_ROAMING_AND_TRY_AGAIN"
+msgstr "მონაცემთა გადაცემა როუმინგის დროს გამორთულია. ჩართეთ მონაცემთა გადაცემა როუმინგის დროს და ისევ ცადეთ."
+
+msgid "IDS_MSG_ACBUTTON_CANCEL_ABB"
+msgstr "გაუქმება"
+
+msgid "IDS_MSG_ACBUTTON_DONE_ABB"
+msgstr "მზადაა"
+
+msgid "IDS_MSGF_POP_NEW_MESSAGE"
+msgstr "ახალი შეტყობინება"
+
+msgid "IDS_COM_BUTTON_SHARE"
+msgstr "გაზიარ."
+
+msgid "IDS_COM_BODY_UNKNOWN"
+msgstr "უცნობი"
+
+msgid "IDS_COM_BODY_MOBILE"
+msgstr "მობილური"
+
+msgid "IDS_MSGC_POP_MOBILE_DATA_IS_DISABLED_ENABLE_MOBILE_DATA_AND_TRY_AGAIN"
+msgstr "მობილური მონაცემები გამორთულია. ჩართეთ მობილურ მონაცემთა გადაცემა და ისევ ცადეთ."
+
+msgid "IDS_TPLATFORM_ACBUTTON_SEND_ABB"
+msgstr "გაგზავნა"
+
+msgid "IDS_MSGC_POP_UNABLE_TO_SEND_MESSAGES_WHILE_IN_FLIGHT_MODE_DISABLE_FLIGHT_MODE_AND_TRY_AGAIN"
+msgstr "წერილების გაგზავნა შეუძლებელია ფრენის რეჟიმში. გამორთეთ ფრენის რეჟიმი და ისევ ცადეთ."
+
+msgid "IDS_MSGC_POP_UNABLE_TO_ADD_FILE_IS_FORWARD_LOCKED"
+msgstr "ვერ გადამისამართდება.\nფაილის გადამისამართება დაბლოკილია."
+
+msgid "IDS_MSGC_POP_THERE_IS_NOT_ENOUGH_SPACE_IN_YOUR_DEVICE_STORAGE_GO_TO_SETTINGS_POWER_AND_STORAGE_STORAGE_THEN_DELETE_SOME_FILES_AND_TRY_AGAIN"
+msgstr "მოწყობილობის მეხსიერებაში არ არის საკმარისი ადგილი. გახსენით პარამეტრები > ენერგია და საცავი > მეხსიერება და წაშალეთ ზოგიერთი ფაილი, შემდეგ კი ისევ სცადეთ."
+
+msgid "IDS_MSGC_POP_TEXT_AT_TOP"
+msgstr "ტექსტი ზემოთ"
+
+msgid "IDS_MSGC_POP_TEXT_AT_BOTTOM"
+msgstr "ტექსტი ქვემოთ"
+
+msgid "IDS_MSGC_POP_SELECT_LAYOUT"
+msgstr "განლაგების შერჩევა"
+
+msgid "IDS_MSGC_POP_MMSCANTADD"
+msgstr "შინაარსის დამატება შეუძლებელია."
+
+msgid "IDS_MSGC_POP_MESSAGE_SCHEDULED_TO_BE_SENT_TO_PS_SEND_NOW_Q"
+msgstr "წერილი დანიშნულ დროს გაიგზავნება მიმღებთან „%s“. გაგზავნით ახლა?"
+
+msgid "IDS_MSGC_POP_MAXIMUM_MESSAGE_SIZE_REACHED"
+msgstr "მიღწეულია წერილის მაქსიმალური ზომა."
+
+msgid "IDS_MSGC_POP_DURATION_MUST_BE_AT_LEAST_PD_SECONDS"
+msgstr "ხანგრძლივობა უნდა იყოს მინიმუმ %d წამი."
+
+msgid "IDS_MSGC_POP_DISABLING_FLIGHT_MODE_ING"
+msgstr "ითიშება ფრენის რეჟიმი..."
+
+msgid "IDS_MSGC_POP_COPIED_TO_SIM_CARD"
+msgstr "ასლი გადაიწერა SIM ბარათზე."
+
+msgid "IDS_MSGC_OPT_USE_OTHER_CONTACT_INFO_ABB"
+msgstr "შეცვალეთ საკონტ. ინფო"
+
+msgid "IDS_MSGC_OPT_SEND_VIA"
+msgstr "გააგზავნე"
+
+msgid "IDS_MSGC_OPT_IMAGE"
+msgstr "სურათი"
+
+msgid "IDS_MSGC_OPT_EDIT_ITEM_REPLACE"
+msgstr "შეცვლა"
+
+msgid "IDS_MSGC_OPT_CANCEL_MESSAGE"
+msgstr "წერილის გაუქმება"
+
+msgid "IDS_MSGC_HEADER_RECIPIENT_LIST"
+msgstr "ადრესატების სია"
+
+msgid "IDS_MSGC_HEADER_DURATION_FOR_SLIDE_PD_PD"
+msgstr "სლაიდის ხანგრძლივობაა %d/%d"
+
+msgid "IDS_MSGC_BODY_WAIT_WHILE_ITEMS_ARE_ADDED_TO_SLIDESHOW"
+msgstr "დაელოდეთ, სანამ ელემენტებო დაემატება სლაიდშოუს."
+
+msgid "IDS_MSGC_BODY_UNABLE_TO_SEND_MESSAGE"
+msgstr "წერილის გაგზავნა შეუძლებელია."
+
+msgid "IDS_MSGC_BODY_SELECT_RINGTONE"
+msgstr "ზარის მელოდიის არჩევა"
+
+msgid "IDS_MSGC_BODY_READ_REPORT_WILL_BE_SENT"
+msgstr "წაკითხვის შესახებ შეტყობინება გაიგზავნება."
+
+msgid "IDS_MSGC_BODY_NOT_REQUESTED"
+msgstr "არ არის მოთხოვნილი"
+
+msgid "IDS_MSGC_BODY_MAXIMUM_NUMBER_OF_RECIPIENTS_HPD_REACHED"
+msgstr "მიღწეულია მიმღებთა მაქსიმალური რაოდენობა (%d)."
+
+msgid "IDS_MSGC_BODY_DUPLICATED_RECIPIENT"
+msgstr "გამეორებული მიმღები."
+
+msgid "IDS_MSGF_SK_FORWARD_LITE"
+msgstr "გადაგზ."
+
+msgid "IDS_MSGF_POP_UNABLE_TO_SAVE"
+msgstr "ვერ შეინახავთ."
+
+msgid "IDS_MSGF_POP_UNABLE_TO_DELETE"
+msgstr "წაშლა შეუძლებელია."
+
+msgid "IDS_MSGF_POP_UNABLE_TO_COPY"
+msgstr "ვერ დაკოპირდება."
+
+msgid "IDS_MSGF_POP_SOME_CHARACTERS_MAY_BE_LOST_CONTINUE_Q"
+msgstr "ზოგიერთი სიმბოლო შეიძლება დაიკარგოს.\nგანაგრძობთ?"
+
+msgid "IDS_MSGF_POP_SIM_NOT_INSERTED"
+msgstr "SIM არ დევს."
+
+msgid "IDS_MSGF_POP_SAVING_FAILED"
+msgstr "ვერ შეინახა."
+
+msgid "IDS_MSGF_POP_SAVED_IN_MY_FILES"
+msgstr "შენახულია ჩემს ფაილებში."
+
+msgid "IDS_MSGF_POP_RETRIEVING_MESSAGE_FAILED"
+msgstr "წერილის მიღება ვერ შესრულდა"
+
+msgid "IDS_MSGF_POP_RESTRICTED_CONTENT_TYPE_ATTACH_ANYWAY_Q"
+msgstr "შინაარსის ტიპი შეზღუდულია. მაინც მიამაგრებთ?"
+
+msgid "IDS_MSGF_POP_RESTORING_ING"
+msgstr "აღდგენა..."
+
+msgid "IDS_MSGF_POP_READ_REPORT"
+msgstr "წაკითხვის რეპორტი"
+
+msgid "IDS_MSGF_POP_NO_NUMBER"
+msgstr "ნომერი არ არის"
+
+msgid "IDS_MSGF_POP_NO_ATTACHMENTS"
+msgstr "მიბმული ფაილების გარეშე"
+
+msgid "IDS_MSGF_POP_NEW_MESSAGES"
+msgstr "ახალი წერილები"
+
+msgid "IDS_MSGF_POP_MESSAGE_COPIED_FROM_SIM_CARD"
+msgstr "წერილის დაკოპირდა SIM ბარათიდან."
+
+msgid "IDS_MSGF_POP_MAXIMUM_NUMBER_OF_RECIPIENTS_IS_PD_SOME_RECIPIENTS_MAY_BE_LOST"
+msgstr "მიმღებთა მაქსიმალური რაოდენობაა %d. ზოგიერთი მიმღები შეიძლება დაიკარგოს."
+
+msgid "IDS_MSGF_POP_MAXIMUM_NUMBER_OF_ATTACHMENTS_HPS_EXCEEDED"
+msgstr "გადაჭარბებულია მიმაგრებული ფაილების მაქსიმალური რაოდენობა (%s)."
+
+msgid "IDS_MSGF_POP_MAXIMUM_CHARACTERS"
+msgstr "მიღწეულია სიმბოლოების მაქსიმალური რაოდენობა."
+
+msgid "IDS_MSGF_POP_IN_PROGRESS_ING"
+msgstr "მიმდინარეობს..."
+
+msgid "IDS_MSGF_POP_INTIALISING"
+msgstr "ინიციალიზაცია..."
+
+msgid "IDS_MSGF_POP_IF_YOU_DONT_WANT_TO_REPLACE_THE_FILE_RENAME_IT"
+msgstr "თუ არ გსურთ გადაეწეროს არსებულ ფაილს, შეცვალეთ სახელი."
+
+msgid "IDS_MSGF_POP_HELP_PAGE_MESSAGE_FOR_ONE_FILE"
+msgstr "წერილზე მიმაგრებულია ფაილი, რომელიც არ ჩანს."
+
+msgid "IDS_MSGF_POP_HELP_PAGE_MESSAGE"
+msgstr "ეს წერილი შეიცავს მიმაგრებულ ფაილებს, რომლებიც არ ჩანს."
+
+msgid "IDS_MSGF_POP_FILE_NAME_ALREADY_EXISTS"
+msgstr "ფაილის სახელი უკვე არსებობს."
+
+msgid "IDS_MSGF_POP_CONVERTING_TO_TEXT_MESSAGE_ING"
+msgstr "სრულდება ტექსტურ წერილად გადაკეთება..."
+
+msgid "IDS_MSGF_POP_CONVERTING_TO_MULTIMEDIA_MESSAGE_ING"
+msgstr "სრულდება მულტიმედიურ წერილად გადაკეთება..."
+
+msgid "IDS_MSGF_POP_ABOUT_TO_GO_ONLINE_CONTINUE_Q"
+msgstr "ონლაინზე გადასვლას აპირებთ(%s). განვაგრძო?"
+
+msgid "IDS_MSGF_OPT_TEXT_MESSAGE"
+msgstr "ტექსტური შეტყობინება"
+
+msgid "IDS_MSGF_OPT_SENDER_ABB"
+msgstr "გამგზავნი"
+
+msgid "IDS_MSGF_OPT_SAVE_ATTACHMENT"
+msgstr "მიმაგრებული ფაილის შენახვა"
+
+msgid "IDS_MSGF_OPT_INSTALL"
+msgstr "დაინსტალირება"
+
+msgid "IDS_MSGF_OPT_EDIT_MESSAGE"
+msgstr "წერილის შესწორება"
+
+msgid "IDS_MSGF_OPT_DELETE_MESSAGES"
+msgstr "წერილების წაშლა"
+
+msgid "IDS_MSGF_HEADER_SELECT_MESSAGES"
+msgstr "აირჩიეთ შეტყობინებები"
+
+msgid "IDS_MSGF_HEADER_SAVE_ALL"
+msgstr "ყველაფრის შენახვა"
+
+msgid "IDS_MSGF_HEADER_MESSAGE_DETAILS"
+msgstr "წერილის დეტალები"
+
+msgid "IDS_MSGF_HEADER_EXPIRES_C_PS"
+msgstr "ვადა: %s"
+
+msgid "IDS_MSGF_BUTTON_SAVE_ALL_ATTACHMENTS_ABB"
+msgstr "დანართების შენახვა"
+
+msgid "IDS_MSGF_BODY_TO_C"
+msgstr "ვის:"
+
+msgid "IDS_MSGF_BODY_TEXT_MESSAGES"
+msgstr "ტექსტური შეტყობინებები"
+
+msgid "IDS_MSGF_BODY_SIM_MEMORY_FULL_DELETE_SOME_ITEMS"
+msgstr "SIM მეხსიერება გაივსო. წაშალეთ ზოგიერთი ელემენტი."
+
+msgid "IDS_MSGF_BODY_SENT_M_DATE_C"
+msgstr "გაგზავნილი:"
+
+msgid "IDS_MSGF_BODY_REQUESTED"
+msgstr "მოთხოვნილია."
+
+msgid "IDS_MSGF_BODY_RECEIVED_M_DATE_C"
+msgstr "მიღებულია:"
+
+msgid "IDS_MSGF_BODY_READ_REPORT"
+msgstr "წაკითხვის რეპორტი"
+
+msgid "IDS_MSGF_BODY_PUSH_MESSAGES"
+msgstr "წერილების ლოდინი"
+
+msgid "IDS_MSGF_BODY_PD_MESSAGES"
+msgstr "%d წერილი"
+
+msgid "IDS_MSGF_BODY_PD_CONVERSATIONS"
+msgstr "%d საუბარი"
+
+msgid "IDS_MSGF_BODY_NO_NAME"
+msgstr "უსახელო"
+
+msgid "IDS_MSGF_BODY_MULTIMEDIA_MESSAGE_NOTIFICATION"
+msgstr "მულტიმედიური წერილის შეტყობინება"
+
+msgid "IDS_MSGF_BODY_MULTIMEDIA_MESSAGE"
+msgstr "მულტიმედიური შეტყობინება"
+
+msgid "IDS_MSGF_BODY_MMSREADREPLYMSGREAD"
+msgstr "წაკითხვა"
+
+msgid "IDS_MSGF_BODY_MMSDELIVERYMSGREJECTED"
+msgstr "წერილი უარყოფილია."
+
+msgid "IDS_MSGF_BODY_MMS"
+msgstr "MMS"
+
+msgid "IDS_MSGF_BODY_MESSAGE_SIZE"
+msgstr "წერილის ზომა"
+
+msgid "IDS_MSGF_BODY_MESSAGE_OPTIONS"
+msgstr "წერილის პარამეტრები"
+
+msgid "IDS_MSGF_BODY_MESSAGE_DELIVERED"
+msgstr "შეტყობინ. მივიდა"
+
+msgid "IDS_MSGF_BODY_MAXIMUM_NUMBER_OF_ATTACHMENTS_HP1SS_EXCEEDED_ONLY_FIRST_P2SS_WILL_BE_ADDED"
+msgstr "გადაჭარბებულია მიმაგრებული ფაილების მაქსიმალური რაოდენობა (%1$s). მხოლოდ პირველი %2$s დაემატება."
+
+msgid "IDS_MSGF_BODY_INVALID_RECIPIENT"
+msgstr "მიმღები არასწორია."
+
+msgid "IDS_MSGF_BODY_FROM"
+msgstr "საიდან"
+
+msgid "IDS_MSGF_BODY_FLFROM"
+msgstr "ვისგან:"
+
+msgid "IDS_MSGF_BODY_DETAILSSENDINGFAILED"
+msgstr "ვერ გაიგზავნა."
+
+msgid "IDS_MSGF_BODY_DELIVERY_REPORT"
+msgstr "მიტანის რეპორტი"
+
+msgid "IDS_MSGF_BODY_CP_MESSAGES"
+msgstr "CP წერილები"
+
+msgid "IDS_MSGF_BODY_COPY_TEXT"
+msgstr "ტექსტის კოპირება"
+
+msgid "IDS_MSGF_BODY_CB_MESSAGES"
+msgstr "CB წერილები"
+
+msgid "IDS_MSGF_BODY_1_MESSAGE"
+msgstr "1 წერილი"
+
+msgid "IDS_MSGF_BODY_1_CONVERSATION"
+msgstr "1 საუბარი"
+
+msgid "IDS_MSGS_BODY_REQUEST_A_READ_REPORT_FOR_EACH_MESSAGE_YOU_SEND"
+msgstr "მოითხოვეთ წაკითხვის შესახებ შეტყობინება, თქვენს მიერ გაგზავნილი ყოველი წერილისთვის."
+
+msgid "IDS_MSGS_BODY_REQUEST_A_DELIVERY_REPORT_FOR_EACH_MESSAGE_YOU_SEND"
+msgstr "მოითხოვეთ წერილის მიტანის შესახებ შეტყობინება, თქვენს მიერ გაგზავნილი ყოველი წერილისთვის."
+
+msgid "IDS_MSGS_BODY_RADIO_BUTTON"
+msgstr "მოსანიშნი წრე"
+
+msgid "IDS_MSGS_BODY_ON_OFF_BUTTON_T_TTS"
+msgstr "ჩართვა-გამორთვის ღილაკი"
+
+msgid "IDS_MSGS_BODY_EXPANDABLE_LIST_T_TTS"
+msgstr "ჩამოსაშლელი სია"
+
+msgid "IDS_MSGS_BODY_AUTOMATICALLY_RETRIEVE_MMS_MESSAGES"
+msgstr "MMS შეტყობინებების ავტომატური მიღება."
+
+msgid "IDS_MSG_TPOP_UNABLE_TO_PREVIEW_FILE_UNSUPPORTED_FILE_TYPE"
+msgstr "ფაილს ვერ გადახედავთ. ფაილის ტიპი გაუთვალისწინებელია."
+
+msgid "IDS_MSG_TPOP_UNABLE_TO_ATTACH_FILE_FILE_FORMAT_NOT_SUPPORTED"
+msgstr "ფაილს ვერ მიამაგრებთ. ფაილის ფორმატი არ არის გათვალისწინებული."
+
+msgid "IDS_MSG_TPOP_UNABLE_TO_ADD_SOME_RECIPIENTS_NUMBERS_NOT_VALID"
+msgstr "ზოგიერთი მიმღების დამატება შეუძლებელია. ნომრები არასწორია."
+
+msgid "IDS_MSG_TPOP_UNABLE_TO_ADD_RECIPIENT_NUMBER_NOT_VALID"
+msgstr "მიმღების დამატება შეუძლებელია. ნომერი არასწორია."
+
+msgid "IDS_MSG_TPOP_UNABLE_TO_ADD_RECIPIENTS_NUMBERS_NOT_VALID"
+msgstr "მიმღებთა დამატება შეუძლებელია. ნომრები არასწორია."
+
+msgid "IDS_MSG_TPOP_UNABLE_TO_ADD_ATTACHMENT_MAXIMUM_NUMBER_OF_ATTACHMENTS_HPD_REACHED"
+msgstr "დანართის დამატება შეუძლებელია. მიღწეულია დანართების მაქსიმალური რაოდენობა (%d)."
+
+msgid "IDS_MSG_TPOP_THIS_NUMBER_IS_NOT_VALID"
+msgstr "ეს ნომერი არასწორია."
+
+msgid "IDS_MSG_TPOP_SOME_RECIPIENTS_ALREADY_ADDED"
+msgstr "ზოგიერთი მიმღები უკვე დამატებულია."
+
+msgid "IDS_MSG_TPOP_SELECTED_MESSAGES_COPIED_TO_MOBILE_DEVICE"
+msgstr "შერჩეული შეტყობინებები დაკოპირდა მობილურ მოწყობილობაში."
+
+msgid "IDS_MSG_TPOP_PD_MESSAGES_MOVED_TO_MESSAGE_LIST"
+msgstr "%d შეტყობინება გადავიდა შეტყობინებების სიაში."
+
+msgid "IDS_MSG_TPOP_NUMBER_REMOVED_FROM_MESSAGE_BLOCK_LIST"
+msgstr "ნომერი წაიშალა შეტყობინებების დაბლოკვის სიიდან."
+
+msgid "IDS_MSG_TPOP_NUMBER_ADDED_TO_MESSAGE_BLOCK_LIST"
+msgstr "ნომერი დაემატა შეტყობინების დაბლოკვის სიაში."
+
+msgid "IDS_MSG_TPOP_NETWORK_NOT_AVAILABLE_MESSAGE_WILL_BE_SENT_WHEN_CONNECTED_TO_NETWORK"
+msgstr "ქსელი მიუწვდომელია. შეტყობინება გაიგზავნება, როცა დამყარდება კავშირი ქსელთან."
+
+msgid "IDS_MSG_TPOP_MESSAGE_COPIED_TO_PS_SIM_CARD"
+msgstr "შეტყობინების ასლი გადაიწერა %s SIM ბარათზე."
+
+msgid "IDS_MSG_TPOP_MAXIMUM_NUMBER_OF_CHARACTERS_EXCEEDED"
+msgstr "გადაჭარბებულია სიმბოლოების მაქსიმალური რაოდენობა."
+
+msgid "IDS_MSG_TPOP_MAXIMUM_MESSAGE_SIZE_HPS_EXCEEDED_RESIZING_ATTACHMENTS_ING"
+msgstr "გადაჭარბებულია შეტყობინების მაქსიმალური ზომა (%s). იცვლება დანართების ზომა..."
+
+msgid "IDS_MSG_TPOP_INVALID_CHARACTER_ENTERED"
+msgstr "შეყვანილია არასწორი სიმბოლო"
+
+msgid "IDS_MSG_TPOP_ADD_RECIPIENTS"
+msgstr "მიმღებთა დამატება."
+
+msgid "IDS_MSG_TPOP_1_MESSAGE_MOVED_TO_MESSAGE_LIST"
+msgstr "შეტყობინებების სიაში გადავიდა 1 შეტყობინება."
+
+msgid "IDS_MSG_TMBODY_TEXT_MESSAGES"
+msgstr "ტექსტური შეტყობინებები"
+
+msgid "IDS_MSG_TMBODY_SOUND"
+msgstr "ხმა"
+
+msgid "IDS_MSG_TMBODY_MULTIMEDIA_MESSAGES"
+msgstr "მულტიმედიური შეტყობინებები"
+
+msgid "IDS_MSG_TMBODY_MESSAGES_ON_SIM_CARD"
+msgstr "შეტყობინებები SIM ბარათზე"
+
+msgid "IDS_MSG_TMBODY_INPUT_MODE"
+msgstr "ტექსტის აკრეფის რეჟიმი"
+
+msgid "IDS_MSG_TMBODY_AUTO_RETRIEVE_WHILE_ROAMING"
+msgstr "ავტომატური მიღება როუმინგში"
+
+msgid "IDS_MSG_TMBODY_AUTO_RETRIEVE"
+msgstr "ავტომატური მიღება"
+
+msgid "IDS_MSG_SK_SEND_NOW"
+msgstr "გაგზავნეთ"
+
+msgid "IDS_MSG_SBODY_SELECT_AN_INPUT_MODE_FOR_COMPOSING_MESSAGES"
+msgstr "აირჩიეთ ტესტის აკრეფის რეჟიმი შეტყობინების შესადგენად."
+
+msgid "IDS_MSG_SBODY_NONE_M_STATUS"
+msgstr "არცერთი"
+
+msgid "IDS_MSG_SBODY_MANAGE_THE_MESSAGES_STORED_ON_YOUR_SIM_CARD"
+msgstr "დაალაგეთ SIM ბარათზე შენახული წერილები."
+
+msgid "IDS_MSG_POP_UNABLE_TO_SEND_SCHEDULED_MESSAGE_SET_ANOTHER_TIME"
+msgstr "დაგეგმილი წერილის გაგზავნა შეუძლებელია. დააყენეთ სხვა დრო."
+
+msgid "IDS_MSG_POP_UNABLE_TO_ATTACH_FILE_FILE_SIZE_TOO_LARGE_TRY_SENDING_VIA_EMAIL_BLUETOOTH_WI_FI_ETC"
+msgstr "ფაილს ვერ მიამაგრებთ. ფაილის ზომა ძალზე დიდია. შეეცადეთ გაგზავნოთ ელფოსტით, Bluetooth-ით, Wi-Fi-ით და ა.შ."
+
+msgid "IDS_MSG_POP_TO_SEND_THIS_MULTIMEDIA_MESSAGE_THE_DEVICE_WILL_CONNECT_TO_A_DIFFERENT_MOBILE_NETWORK_THIS_WILL_DISCONNECT_YOUR_DEVICE_FROM_YOUR_MSG"
+msgstr "ამ მულტიმედიური შეტყობინების გასაგზავნად, მოწყობილობა დაუკავშირდება სხვა მობილურ ქსელს. ამით მოწყობილობა შეწყვეტს კავშირს მიმდინარე მობილურ ქსელთან."
+
+msgid "IDS_MSG_POP_TO_DOWNLOAD_THIS_MULTIMEDIA_MESSAGE_THE_DEVICE_WILL_CONNECT_TO_A_DIFFERENT_MOBILE_NETWORK_MSG"
+msgstr "ამ მულტიმედიური შეტყობინების ჩამოსატვირთად, მოწყობილობა დაუკავშირდება სხვა მობილურ ქსელს. ამით მოწყობილობა შეწყვეტს კავშირს მიმდინარე მობილურ ქსელთან."
+
+msgid "IDS_MSG_POP_THIS_MESSAGE_WILL_BE_RESENT"
+msgstr "ეს შეტყობინება თავიდან გაიგზავნება."
+
+msgid "IDS_MSG_POP_PD_MESSAGES_WILL_BE_DELETED"
+msgstr "%d წერილი წაიშლება."
+
+msgid "IDS_MSG_POP_PD_CONVERSATIONS_WILL_BE_DELETED"
+msgstr "%d საუბარი წაიშლება."
+
+msgid "IDS_MSG_POP_NO_TEMPLATES_IN_LIST"
+msgstr "შაბლონები არ არის სიაში"
+
+msgid "IDS_MSG_POP_INCLUDE_ORIGINAL_TEXT_IN_OUTGOING_MESSAGE"
+msgstr "თავდაპირველი ტექსტი დაემატოს გაგზავნილ წერილს"
+
+msgid "IDS_MSG_POP_DURATION_MUST_BE_SHORTER_THAN_PD_SECONDS"
+msgstr "ხანგრძლივობა უნდა იყოს %d წამზე ნაკლები."
+
+msgid "IDS_MSG_POP_1_MESSAGE_WILL_BE_DELETED"
+msgstr "წაიშლება 1 წერილი."
+
+msgid "IDS_MSG_POP_1_CONVERSATION_WILL_BE_DELETED"
+msgstr "1 ელემენტი წაიშლება."
+
+msgid "IDS_MSG_OPT_VIEW_DETAILS_ABB"
+msgstr "დეტალების ნახვა"
+
+msgid "IDS_MSG_OPT_VIEW_CONTACT_DETAILS_ABB"
+msgstr "იხილეთ საკონტაქტო მონაცემები"
+
+msgid "IDS_MSG_OPT_VIEW_AS_SLIDESHOW_ABB"
+msgstr "ნახეთ სლაიდშოუს სახით"
+
+msgid "IDS_MSG_OPT_UPDATE_CONTACT"
+msgstr "კონტაქტის განახლება"
+
+msgid "IDS_MSG_OPT_UNICODE"
+msgstr "უნიკოდი"
+
+msgid "IDS_MSG_OPT_TAKE_PICTURE_ABB"
+msgstr "სურათის გადაღება"
+
+msgid "IDS_MSG_OPT_SAVE_ATTACHMENTS_ABB"
+msgstr "დანართების შენახვა"
+
+msgid "IDS_MSG_OPT_RESEND"
+msgstr "ისევ გაგზავნა"
+
+msgid "IDS_MSG_OPT_REPLY"
+msgstr "პასუხი"
+
+msgid "IDS_MSG_OPT_REMOVE_FROM_BLOCK_LIST_ABB"
+msgstr "დაბლოკილთა სიიდან ამოშლა"
+
+msgid "IDS_MSG_OPT_RECORD_AUDIO_FILE_ABB"
+msgstr "აუდიოფაილის\nჩაწერა"
+
+msgid "IDS_MSG_OPT_QUICK_RESPONSE_ABB"
+msgstr "სწრაფი პასუხი"
+
+msgid "IDS_MSG_OPT_MAKE_VOICE_CALL"
+msgstr "ხმოვანი ზარის განხორციელება"
+
+msgid "IDS_MSG_OPT_GSM_ALPHABET_ABB"
+msgstr "GSM-ანბანი"
+
+msgid "IDS_MSG_OPT_EXPORT_TO_DEVICE_MEMORY"
+msgstr "ექსპორტირება აპარატის მეხსიერებაში"
+
+msgid "IDS_MSG_OPT_DELETE_MESSAGE"
+msgstr "წერილის წაშლა"
+
+msgid "IDS_MSG_OPT_DELETE_CONVERSATION_ABB"
+msgstr "საუბრის წაშლა"
+
+msgid "IDS_MSG_OPT_CREATE_CONTACT_ABB"
+msgstr "ახალი კონტაქტი"
+
+msgid "IDS_MSG_OPT_COPY_TO_SIM_CARD_ABB"
+msgstr "გადაწერეთ ასლი SIM ბარათზე"
+
+msgid "IDS_MSG_OPT_COPY_TO_DEVICE_ABB"
+msgstr "ასლის გადაწერა მოწყობილობაში"
+
+msgid "IDS_MSG_OPT_COPY_TEXT"
+msgstr "ტექსტის კოპირება"
+
+msgid "IDS_MSG_OPT_COPY"
+msgstr "ასლი"
+
+msgid "IDS_MSG_OPT_BACK_UP"
+msgstr "დამარქაფება"
+
+msgid "IDS_MSG_OPT_AUTOMATIC"
+msgstr "ავტომატური"
+
+msgid "IDS_MSG_OPT_AUDIO_FILES_ABB2"
+msgstr "აუდიოფაილები"
+
+msgid "IDS_MSG_OPT_ATTACHMENT_ABB"
+msgstr "დანართი"
+
+msgid "IDS_MSG_OPT_ADD_TO_CONTACTS_ABB"
+msgstr "კონტაქტებში დამატება"
+
+msgid "IDS_MSG_OPT_ADD_TO_BLOCK_LIST_ABB"
+msgstr "დაბლოკილთა სიაში დამატება"
+
+msgid "IDS_MSG_OPT_ADD_RECIPIENTS_ABB"
+msgstr "ადრესატების დამატება"
+
+msgid "IDS_MSG_NPBODY_SEARCH"
+msgstr "ძებნა"
+
+msgid "IDS_MSG_NPBODY_NO_RESULTS_FOUND_ABB"
+msgstr "შედეგები არ მოიძებნა"
+
+msgid "IDS_MSG_NPBODY_NO_QUICK_RESPONSES"
+msgstr "სწრაფი პასუხები არ არის"
+
+msgid "IDS_MSG_NPBODY_NO_PHRASES_BLOCKED"
+msgstr "ფრაზები არ არის დაბლოკილი"
+
+msgid "IDS_MSG_NPBODY_NO_MESSAGES_ON_SIM_CARD"
+msgstr "შეტყობინებები არ არის SIM ბარათზე"
+
+msgid "IDS_MSG_NPBODY_NO_MESSAGES"
+msgstr "შეტყობინებები არ არის"
+
+msgid "IDS_MSG_NPBODY_NO_BLOCKED_NUMBERS"
+msgstr "დაბლოკილი ნომრები არ არის"
+
+msgid "IDS_MSG_MBODY_VIBRATION"
+msgstr "ვიბრაცია"
+
+msgid "IDS_MSG_MBODY_UNKNOWN_NUMBER"
+msgstr "უცნობი ნომერი"
+
+msgid "IDS_MSG_MBODY_TEXT_MESSAGE_CENTRE_NUMBER_ABB"
+msgstr "SMS ცენტრის ნომერი"
+
+msgid "IDS_MSG_HEADER_TEXT_MESSAGES_ABB"
+msgstr "ტექსტური შეტყობინებები"
+
+msgid "IDS_MSG_HEADER_SWITCH_MOBILE_NETWORK_ABB2"
+msgstr "მობილური ქსელის გადართვა"
+
+msgid "IDS_MSG_HEADER_SMS_CENTRE_ABB2"
+msgstr "SMS ცენტრი"
+
+msgid "IDS_MSG_HEADER_SELECT_RECIPIENT"
+msgstr "აირჩიეთ მიმღები"
+
+msgid "IDS_MSG_HEADER_PD_SELECTED_ABB3"
+msgstr "%d არჩეულია"
+
+msgid "IDS_MSG_HEADER_MESSAGES_ON_SIM_CARD_ABB"
+msgstr "შეტყობინებები SIM ბარათზე"
+
+msgid "IDS_MSG_HEADER_INPUT_MODE_ABB"
+msgstr "ტექსტის აკრეფის რეჟიმი"
+
+msgid "IDS_MSG_HEADER_FILE_SIZE_TOO_LARGE_ABB"
+msgstr "ფაილის ზომა ძალიან დიდია"
+
+msgid "IDS_MSG_HEADER_FAILED_TO_SEND_MESSAGE_ABB"
+msgstr "შეტყობინება ვერ გაიგზავნა"
+
+msgid "IDS_MSG_HEADER_DISCARD_MESSAGE_M_CLOSE_ABB"
+msgstr "წერილის წაშლა"
+
+msgid "IDS_MSG_HEADER_CREATE"
+msgstr "შექმნა"
+
+msgid "IDS_MSG_HEADER_ADD_CONTENT_ABB"
+msgstr "მასალის დამატება"
+
+msgid "IDS_MSG_BUTTON_SWITCH_ABB2"
+msgstr "გადართვა"
+
+msgid "IDS_MSG_BUTTON_SAVE_ABB2"
+msgstr "შენახვა"
+
+msgid "IDS_MSG_BUTTON_RESEND_ABB"
+msgstr "ისევ გაგზავნა"
+
+msgid "IDS_MSG_BUTTON_DISCARD_ABB"
+msgstr "წაშლა"
+
+msgid "IDS_MSG_BUTTON_DELETE_ABB4"
+msgstr "წაშლა"
+
+msgid "IDS_MSG_BUTTON_CANCEL_ABB2"
+msgstr "გაუქმება"
+
+msgid "IDS_MSG_BUTTON2_CONTACTS_ABB_M_APPLICATION_NAME"
+msgstr "კონტაქტები"
+
+msgid "IDS_MSG_BODY_YOU_HAVE_SELECTED_A_SOUND_N_SHOT_FILE_SOUND_DATA_IS_NOT_SUPPORTED_FOR_MMS_SO_ONLY_THE_PICTURE_WILL_BE_ATTACHED"
+msgstr "თქვენ არჩეული გაქვთ „ხმა და გადაღების“ ფაილი. ხმა არ მუშაობს MMS-ში და მიმაგრდება მხოლოდ სურათი"
+
+msgid "IDS_MSG_BODY_WAITING_TO_SEND_ING_M_STATUS"
+msgstr "ელოდება გაგზავნას..."
+
+msgid "IDS_MSG_BODY_UNABLE_TO_SEND_THIS_MESSAGE_INSERT_YOUR_SIM_CARD_AND_TRY_AGAIN"
+msgstr "ეს წერილი ვერ იგზავნება. ჩადეთ SIM ბარათი და ისევ მოსინჯეთ"
+
+msgid "IDS_MSG_BODY_TYPE_C"
+msgstr "ტიპი:"
+
+msgid "IDS_MSG_BODY_TO_USE_RESTRICTED_MEDIA_TYPES_CHANGE_YOUR_MMS_CREATION_MODE_SETTING"
+msgstr "შეზღუდული მედიას ტიპების გამოსაყენებლად, შეცვალეთ MMS-ის შექმნის პარამეტრები."
+
+msgid "IDS_MSG_BODY_TIME_SENT_C"
+msgstr "გაგზავნის დრო:"
+
+msgid "IDS_MSG_BODY_TIME_RECEIVED_C"
+msgstr "მიღების დრო:"
+
+msgid "IDS_MSG_BODY_STATUS_C"
+msgstr "სტატუსი:"
+
+msgid "IDS_MSG_BODY_SENT_M_STATUS"
+msgstr "გაიგზავნა"
+
+msgid "IDS_MSG_BODY_SENDING_ING_M_STATUS_ABB"
+msgstr "იგზავნ..."
+
+msgid "IDS_MSG_BODY_SENDING_FAILED_M_STATUS"
+msgstr "ვერ გაიგზავნა"
+
+msgid "IDS_MSG_BODY_RETRIEVE_MESSAGES_AUTOMATICALLY_WHILE_ROAMING"
+msgstr "ავტომატურად მიიღეთ შეტყობინებები როუმინგის დროს."
+
+msgid "IDS_MSG_BODY_RETRIEVE_MESSAGES_AUTOMATICALLY"
+msgstr "მიიღეთ შეტყობინებები ავტომატურად."
+
+msgid "IDS_MSG_BODY_READ_REPORT_C_PS"
+msgstr "წაკითხვის შეტყობინება. %s"
+
+msgid "IDS_MSG_BODY_OTHER_PERSON"
+msgstr "სხვა პიროვნება"
+
+msgid "IDS_MSG_BODY_MEMO_T_MAINMENU"
+msgstr "სამახსოვრო"
+
+msgid "IDS_MSG_BODY_FAILED_M_STATUS_ABB2"
+msgstr "ჩაიშალა"
+
+msgid "IDS_MSG_BODY_ENTER_TEXT_M_NOUN"
+msgstr "შეიყვანეთ ტექსტი"
+
+msgid "IDS_MSG_BODY_DRAFT_M_STATUS_ABB"
+msgstr "მონახაზი"
+
+msgid "IDS_MSG_BODY_DELIVERY_REPORT_C_PS"
+msgstr "მიტანის შეტყობინება: %s"
+
+msgid "IDS_MSG_BODY_CB_MESSAGE"
+msgstr "CB შეტყობინება"
+
+msgid "IDS_MSG_BODY_CALENDAR_M_APPLICATION_NAME_ABB"
+msgstr "კალენდარი"
+
+msgid "IDS_MSG_BODY_AFTER_YOU_SEND_OR_RECEIVE_MESSAGES_THEY_WILL_BE_SHOWN_HERE"
+msgstr "შეტყობინებების გაგზავნის ან მიღების შემდეგ, ისინი გამოჩნდება აქ."
+
+msgid "IDS_MSG_BODY_AFTER_YOU_CREATE_QUICK_RESPONSES_THEY_WILL_BE_SHOWN_HERE"
+msgstr "როდესაც სწრაფ პასუხებს შექმნით, ისინი გამოჩნდება აქ."
+
+msgid "IDS_MSG_BODY_AFTER_YOU_COPY_MESSAGES_TO_THE_SIM_CARD_THEY_WILL_BE_SHOWN_HERE"
+msgstr "სურათების ასლის SIM-ზე გადაწერის შემდეგ, ისინი გამოჩნდება აქ."
+
+msgid "IDS_MSG_BODY_AFTER_YOU_ADD_PHRASES_THEY_WILL_BE_SHOWN_HERE"
+msgstr "ფრაზების დამატების შემდეგ ისინი გამოჩნდება აქ."
+
+msgid "IDS_MSG_BODY_AFTER_YOU_ADD_NUMBERS_TO_THE_MESSAGE_BLOCK_LIST_THEY_WILL_BE_SHOWN_HERE"
+msgstr "შეტყობინებების დაბლოკვის სიაში ნომრების დამატების შემდეგ, ისინი გამოჩნდება აქ."
+
+msgid "IDS_MSG_ACBUTTON_DELETE_ABB"
+msgstr "წაშლა"
+
+msgid "IDS_MSGC_POP_UNSUPPORTED_MEDIA_TYPE"
+msgstr "მედიის ტიპი გაუთვალისწინებელია."
+
+msgid "IDS_MSGC_POP_LOW_BATTERY"
+msgstr "კვების ელემენტი იცლება."
+
+msgid "IDS_MSGC_POP_CANCELLED"
+msgstr "გაუქმებულია."
+
+msgid "IDS_MSGC_OPT_EMAIL"
+msgstr "ელ-ფოსტა"
+
+msgid "IDS_MSGC_OPT_EDITITEM_VIEW"
+msgstr "ნახვა"
+
+msgid "IDS_MSGC_OPT_EDITITEM_REMOVE"
+msgstr "წაშლა"
+
+msgid "IDS_MSGC_OPT_EDITITEM_PLAY"
+msgstr "დაკვრა"
+
+msgid "IDS_MSGC_OPT_CHANGE_RECIPIENTS_TO"
+msgstr "ვის"
+
+msgid "IDS_MSGC_HEADER_PREVIEW"
+msgstr "გადახედვა"
+
+msgid "IDS_MSGC_BODY_ENTER_SUBJECT"
+msgstr "ჩაწერეთ თემა."
+
+msgid "IDS_MSGF_POP_UNABLE_TO_FIND_LOCATION"
+msgstr "ლოკაციის პოვნა შეუძლებელია."
+
+msgid "IDS_MSGF_POP_REJECTED"
+msgstr "უარყოფილია."
+
+msgid "IDS_MSGF_POP_DELETING"
+msgstr "წაშლა..."
+
+msgid "IDS_MSGF_POP_COPIED_TO_CLIPBOARD"
+msgstr "ასლი შენახულია ბუფერში."
+
+msgid "IDS_MSGF_POP_BLOCK_PS_Q"
+msgstr "დაიბლოკოს %s?"
+
+msgid "IDS_MSGF_OPT_SUBJECT_COLON"
+msgstr "თემა:"
+
+msgid "IDS_MSGF_OPT_SENDER_VIA_EMAIL"
+msgstr "ელ.ფოსტით გაგზავნა"
+
+msgid "IDS_MSGF_OPT_SELECT"
+msgstr "არჩევა"
+
+msgid "IDS_MSGF_OPT_SAVE"
+msgstr "შენახვა"
+
+msgid "IDS_MSGF_OPT_REMOVE"
+msgstr "წაშლა"
+
+msgid "IDS_MSGF_OPT_FORWARD"
+msgstr "გადამისამართება"
+
+msgid "IDS_MSGF_OPT_DELETE_Q"
+msgstr "წაიშალოს?"
+
+msgid "IDS_MSGF_HEADER_ADVANCED_SEARCH"
+msgstr "გაფართოებული ძიება"
+
+msgid "IDS_MSGF_BODY_UNKNOWN"
+msgstr "უცნობი"
+
+msgid "IDS_MSGF_BODY_SETTINGS"
+msgstr "პარამეტრები"
+
+msgid "IDS_MSGF_BODY_RECIPIENTS"
+msgstr "მიმღები"
+
+msgid "IDS_MSGF_BODY_RECEIVED"
+msgstr "მიღებულია."
+
+msgid "IDS_MSGF_BODY_OTHER"
+msgstr "სხვა"
+
+msgid "IDS_MSGF_BODY_NO_SUBJECT"
+msgstr "არ არის თემა"
+
+msgid "IDS_MSGF_BODY_MSGSIZE_KB"
+msgstr "KB"
+
+msgid "IDS_MSGF_BODY_MESSAGE"
+msgstr "შეტყობინება"
+
+msgid "IDS_MSGF_BODY_ME"
+msgstr "მე"
+
+msgid "IDS_MSGF_BODY_EXPIRED"
+msgstr "ვადა გაუვიდა"
+
+msgid "IDS_MSGF_BODY_ALL"
+msgstr "ყველა"
+
+msgid "IDS_MSG_SK_NO_ABB"
+msgstr "არა"
+
+msgid "IDS_MSG_POP_YOUR_MESSAGE_WILL_BE_DISCARDED_NO_RECIPIENTS_HAVE_BEEN_SELECTED"
+msgstr "თქვენი წერილი წაიშლება. მიმღები არ არის არჩეული."
+
+msgid "IDS_MSG_POP_UNABLE_TO_PLAY_DURING_CALL"
+msgstr "ვერ დაუკრავთ ზარის დროს."
+
+msgid "IDS_MSG_POP_INCOMING_MESSAGES_ONLY"
+msgstr "მხოლოდ შემომავალი წერილები"
+
+msgid "IDS_MSG_POP_DELETED"
+msgstr "წაშლილია."
+
+msgid "IDS_MSG_OPT_VIDEOS"
+msgstr "ვიდეოები"
+
+msgid "IDS_MSG_OPT_TEXT"
+msgstr "ტექსტი"
+
+msgid "IDS_MSG_OPT_SETTINGS"
+msgstr "პარამეტრები"
+
+msgid "IDS_MSG_OPT_SEARCH"
+msgstr "ძებნა"
+
+msgid "IDS_MSG_OPT_RECORD_VIDEO_ABB"
+msgstr "ვიდეოს ჩაწერა"
+
+msgid "IDS_MSG_OPT_NONE"
+msgstr "არც ერთი"
+
+msgid "IDS_MSG_OPT_IMAGES"
+msgstr "გამოსახულებები"
+
+msgid "IDS_MSG_OPT_EDIT"
+msgstr "შეცვლა"
+
+msgid "IDS_MSG_OPT_DELETE"
+msgstr "წაშლა"
+
+msgid "IDS_MSG_OPT_DEFAULT"
+msgstr "ნაგულისხმევი"
+
+msgid "IDS_MSG_MBODY_SELECT_ALL"
+msgstr "ყველას არჩევა"
+
+msgid "IDS_MSG_MBODY_ALERTS"
+msgstr "სიგნალები"
+
+msgid "IDS_MSG_HEADER_TRANSLATE"
+msgstr "თარგმნა"
+
+msgid "IDS_MSG_HEADER_SETTINGS"
+msgstr "პარამეტრები"
+
+msgid "IDS_MSG_HEADER_MESSAGES"
+msgstr "შეტყობინებები"
+
+msgid "IDS_MSG_HEADER_DELETE"
+msgstr "წაშლა"
+
+msgid "IDS_MSG_HEADER_ATTENTION"
+msgstr "ყურადღება"
+
+msgid "IDS_MSG_BUTTON_REMOVE_ABB"
+msgstr "წაშლა"
+
+msgid "IDS_MSG_BUTTON_OK_ABB"
+msgstr "კი"
+
+msgid "IDS_MSG_BUTTON_DOWNLOAD_ABB3"
+msgstr "ჩამოტვირთ."
+
+msgid "IDS_MSG_BUTTON_CANCEL_ABB"
+msgstr "გაუქმება"
+
+msgid "IDS_MSG_BODY_YES"
+msgstr "დიახ"
+
+msgid "IDS_MSG_BODY_TICK_BOX_T_TTS"
+msgstr "მონიშნეთ უჯრა"
+
+msgid "IDS_MSG_BODY_SEC"
+msgstr "წმ."
+
+msgid "IDS_MSG_BODY_MESSAGE"
+msgstr "შეტყობინება"
+
+msgid "IDS_MSG_BUTTON_SEND_ABB5"
+msgstr "გგზ."
+
+msgid "IDS_MSG_BUTTON_SEND_ABB3"
+msgstr "გაგზ."
+
+msgid "IDS_MSG_ACBUTTON_SEND_ABB3"
+msgstr "გგზ."
+
+msgid "IDS_ST_BODY_LOADING_ING"
+msgstr "იტვირთება..."
+
+msgid "IDS_MSGS_BODY_NOTIFICATIONS"
+msgstr "შეტყობინებები"
+
+msgid "IDS_MSG_HEADER_ME"
+msgstr "მე"
+
+msgid "IDS_MSG_BODY_UNKNOWN"
+msgstr "უცნობი"
+
+msgid "IDS_MSG_TMBODY_ADD_OR_REMOVE_RECIPIENTS"
+msgstr "მიმღებთა დამატება ან წაშლა"
+
+msgid "IDS_MSG_POP_THE_SENDER_HAS_REQUESTED_A_READ_REPORT_TAP_SEND_TO_SEND_ONE"
+msgstr "აბონენტმა მოითხოვა წაკითხვის დადასტურება. გასაგზავნად შეეხეთ „გაგზავნა“-ს."
+
+msgid "IDS_MSGF_OPT_SEND_READ_REPORT"
+msgstr "წაკითხვის შესახებ შეტყობინების გაგზავნა"
+
+msgid "IDS_MSG_HEADER_COMPOSE_MESSAGE_ABB"
+msgstr "შეადგინეთ შეტყობინება"
+
+msgid "IDS_MSG_POP_NO_VALID_RECIPIENTS_HAVE_BEEN_ADDED_THIS_MESSAGE_WILL_BE_DISCARDED"
+msgstr "ქმედითი ადრესატები არ არის დამატებული. ეს შეტყობინება წაიშლება."
+

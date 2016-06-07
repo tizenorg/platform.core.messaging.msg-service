@@ -1,0 +1,945 @@
+msgid "IDS_COM_BODY_HOME"
+msgstr "Etxea"
+
+msgid "IDS_MSGC_POP_DATA_ROAMING_IS_DISABLED_ENABLE_DATA_ROAMING_AND_TRY_AGAIN"
+msgstr "Datu ibiltaritza desgaituta dago. Gaitu datu ibiltaritza eta saiatu berriro."
+
+msgid "IDS_MSG_ACBUTTON_CANCEL_ABB"
+msgstr "UTZI"
+
+msgid "IDS_MSG_ACBUTTON_DONE_ABB"
+msgstr "EGINA"
+
+msgid "IDS_MSGF_POP_NEW_MESSAGE"
+msgstr "Mezu berria"
+
+msgid "IDS_COM_BUTTON_SHARE"
+msgstr "Partek."
+
+msgid "IDS_COM_BODY_UNKNOWN"
+msgstr "Ezezaguna"
+
+msgid "IDS_COM_BODY_MOBILE"
+msgstr "Mugikorra"
+
+msgid "IDS_MSGC_POP_MOBILE_DATA_IS_DISABLED_ENABLE_MOBILE_DATA_AND_TRY_AGAIN"
+msgstr "Datu mugikorrak desgaituta daude. Gaitu datu mugikorrak eta saiatu berriro."
+
+msgid "IDS_TPLATFORM_ACBUTTON_SEND_ABB"
+msgstr "BIDALI"
+
+msgid "IDS_MSGC_POP_UNABLE_TO_SEND_MESSAGES_WHILE_IN_FLIGHT_MODE_DISABLE_FLIGHT_MODE_AND_TRY_AGAIN"
+msgstr "Ezin izan dira mezuak bidali Hegaldi moduan. Ezgaitu Hegaldi modua eta saiatu berriz."
+
+msgid "IDS_MSGC_POP_UNABLE_TO_ADD_FILE_IS_FORWARD_LOCKED"
+msgstr "Ezin da birbidali.\nFitxategi birbidaltzea blokeatuta dago"
+
+msgid "IDS_MSGC_POP_THERE_IS_NOT_ENOUGH_SPACE_IN_YOUR_DEVICE_STORAGE_GO_TO_SETTINGS_POWER_AND_STORAGE_STORAGE_THEN_DELETE_SOME_FILES_AND_TRY_AGAIN"
+msgstr "Ez dago nahikoa espazio gailuaren biltegian. Joan Ezarpenak > Bateria eta biltegia > Biltegia aukerara, ezabatu fitxategi batzuk eta saiatu berriz."
+
+msgid "IDS_MSGC_POP_TEXT_AT_TOP"
+msgstr "Testua goran"
+
+msgid "IDS_MSGC_POP_TEXT_AT_BOTTOM"
+msgstr "Testua behean"
+
+msgid "IDS_MSGC_POP_SELECT_LAYOUT"
+msgstr "Aukeratu diseinua"
+
+msgid "IDS_MSGC_POP_MMSCANTADD"
+msgstr "Ezin da edukia gehitu"
+
+msgid "IDS_MSGC_POP_MESSAGE_SCHEDULED_TO_BE_SENT_TO_PS_SEND_NOW_Q"
+msgstr "Programatutako mezua %s-(e)ri bidaliko zaio. Bidali orain?"
+
+msgid "IDS_MSGC_POP_MAXIMUM_MESSAGE_SIZE_REACHED"
+msgstr "Mezuaren tamaina maximora iritsi zara"
+
+msgid "IDS_MSGC_POP_DURATION_MUST_BE_AT_LEAST_PD_SECONDS"
+msgstr "Iraupenak gutxienez %d segundo izan behar ditu"
+
+msgid "IDS_MSGC_POP_DISABLING_FLIGHT_MODE_ING"
+msgstr "Hegaldi modua desgaitzen..."
+
+msgid "IDS_MSGC_POP_COPIED_TO_SIM_CARD"
+msgstr "SIM txartelean kopiatuta"
+
+msgid "IDS_MSGC_OPT_USE_OTHER_CONTACT_INFO_ABB"
+msgstr "Erabili beste kontaktuen info."
+
+msgid "IDS_MSGC_OPT_SEND_VIA"
+msgstr "Honen bidez bidali"
+
+msgid "IDS_MSGC_OPT_IMAGE"
+msgstr "Irudia"
+
+msgid "IDS_MSGC_OPT_EDIT_ITEM_REPLACE"
+msgstr "Ordezkatu"
+
+msgid "IDS_MSGC_OPT_CANCEL_MESSAGE"
+msgstr "Utzi mezua"
+
+msgid "IDS_MSGC_HEADER_RECIPIENT_LIST"
+msgstr "Hartzaile zerrenda"
+
+msgid "IDS_MSGC_HEADER_DURATION_FOR_SLIDE_PD_PD"
+msgstr "Diapositibaren iraupena %d/%d"
+
+msgid "IDS_MSGC_BODY_WAIT_WHILE_ITEMS_ARE_ADDED_TO_SLIDESHOW"
+msgstr "Itxaron elementuak diaporamara gehitzen diren bitartean"
+
+msgid "IDS_MSGC_BODY_UNABLE_TO_SEND_MESSAGE"
+msgstr "Ezin da mezua bidali"
+
+msgid "IDS_MSGC_BODY_SELECT_RINGTONE"
+msgstr "Aukeratu dei tonua"
+
+msgid "IDS_MSGC_BODY_READ_REPORT_WILL_BE_SENT"
+msgstr "Irakurritze-txostena bidaliko da"
+
+msgid "IDS_MSGC_BODY_NOT_REQUESTED"
+msgstr "Ez eskatua"
+
+msgid "IDS_MSGC_BODY_MAXIMUM_NUMBER_OF_RECIPIENTS_HPD_REACHED"
+msgstr "Gehienezko hartzaile kopurura (%d) iritsi zara"
+
+msgid "IDS_MSGC_BODY_DUPLICATED_RECIPIENT"
+msgstr "Hartzaile bikoiztua"
+
+msgid "IDS_MSGF_SK_FORWARD_LITE"
+msgstr "Birbidali"
+
+msgid "IDS_MSGF_POP_UNABLE_TO_SAVE"
+msgstr "Ezin da gorde"
+
+msgid "IDS_MSGF_POP_UNABLE_TO_DELETE"
+msgstr "Ezin da ezabatu"
+
+msgid "IDS_MSGF_POP_UNABLE_TO_COPY"
+msgstr "Ezin da kopiatu"
+
+msgid "IDS_MSGF_POP_SOME_CHARACTERS_MAY_BE_LOST_CONTINUE_Q"
+msgstr "Baliteke karaktere batzuk galtzea.\nJarraitu?"
+
+msgid "IDS_MSGF_POP_SIM_NOT_INSERTED"
+msgstr "SIM ez da sartu"
+
+msgid "IDS_MSGF_POP_SAVING_FAILED"
+msgstr "Errorea gordetzerakoan"
+
+msgid "IDS_MSGF_POP_SAVED_IN_MY_FILES"
+msgstr "Nire fitxategietan gordeta"
+
+msgid "IDS_MSGF_POP_RETRIEVING_MESSAGE_FAILED"
+msgstr "Mezua berreskuratzeak huts egin du"
+
+msgid "IDS_MSGF_POP_RESTRICTED_CONTENT_TYPE_ATTACH_ANYWAY_Q"
+msgstr "Eduki mota mugatua. Erantsi hala ere?"
+
+msgid "IDS_MSGF_POP_RESTORING_ING"
+msgstr "Berrezartzen..."
+
+msgid "IDS_MSGF_POP_READ_REPORT"
+msgstr "Irakurketa txostena"
+
+msgid "IDS_MSGF_POP_NO_NUMBER"
+msgstr "Zenbakirik gabe"
+
+msgid "IDS_MSGF_POP_NO_ATTACHMENTS"
+msgstr "Ez dago eranskinik"
+
+msgid "IDS_MSGF_POP_NEW_MESSAGES"
+msgstr "Mezu berriak"
+
+msgid "IDS_MSGF_POP_MESSAGE_COPIED_FROM_SIM_CARD"
+msgstr "Mezua SIM txarteletik kopiatu da"
+
+msgid "IDS_MSGF_POP_MAXIMUM_NUMBER_OF_RECIPIENTS_IS_PD_SOME_RECIPIENTS_MAY_BE_LOST"
+msgstr "Hartzaileen kopurua gehienez %d da. Litekeena da hainbat galtzea."
+
+msgid "IDS_MSGF_POP_MAXIMUM_NUMBER_OF_ATTACHMENTS_HPS_EXCEEDED"
+msgstr "Eranskinen gehienezko kopurua (%s) gainditu duzu"
+
+msgid "IDS_MSGF_POP_MAXIMUM_CHARACTERS"
+msgstr "Gehienezko karaktere kopurura heldu zara."
+
+msgid "IDS_MSGF_POP_IN_PROGRESS_ING"
+msgstr "Abian..."
+
+msgid "IDS_MSGF_POP_INTIALISING"
+msgstr "Abiarazten..."
+
+msgid "IDS_MSGF_POP_IF_YOU_DONT_WANT_TO_REPLACE_THE_FILE_RENAME_IT"
+msgstr "Ez baduzu fitxategia ordezkatu nahi, aldatu izena"
+
+msgid "IDS_MSGF_POP_HELP_PAGE_MESSAGE_FOR_ONE_FILE"
+msgstr "Mezu honek erakusten ez den fitxategi bat dauka"
+
+msgid "IDS_MSGF_POP_HELP_PAGE_MESSAGE"
+msgstr "Mezu honi erantsitako fitxategiak ez dira erakutsi"
+
+msgid "IDS_MSGF_POP_FILE_NAME_ALREADY_EXISTS"
+msgstr "Fitxategiaren izena dagoeneko bada"
+
+msgid "IDS_MSGF_POP_CONVERTING_TO_TEXT_MESSAGE_ING"
+msgstr "Testu mezu bihurtzen..."
+
+msgid "IDS_MSGF_POP_CONVERTING_TO_MULTIMEDIA_MESSAGE_ING"
+msgstr "Multimedia mezu bihurtzen..."
+
+msgid "IDS_MSGF_POP_ABOUT_TO_GO_ONLINE_CONTINUE_Q"
+msgstr "Linean egoteko abian zaude (%s). Jarraitu?"
+
+msgid "IDS_MSGF_OPT_TEXT_MESSAGE"
+msgstr "Testu mezua"
+
+msgid "IDS_MSGF_OPT_SENDER_ABB"
+msgstr "Igorlea"
+
+msgid "IDS_MSGF_OPT_SAVE_ATTACHMENT"
+msgstr "Eranskina gorde"
+
+msgid "IDS_MSGF_OPT_INSTALL"
+msgstr "Instalatu"
+
+msgid "IDS_MSGF_OPT_EDIT_MESSAGE"
+msgstr "Mezua editatu"
+
+msgid "IDS_MSGF_OPT_DELETE_MESSAGES"
+msgstr "Ezabatu mezuak"
+
+msgid "IDS_MSGF_HEADER_SELECT_MESSAGES"
+msgstr "Aukeratu mezuak"
+
+msgid "IDS_MSGF_HEADER_SAVE_ALL"
+msgstr "Denak gorde"
+
+msgid "IDS_MSGF_HEADER_MESSAGE_DETAILS"
+msgstr "Mezuari buruzko xehetasunak"
+
+msgid "IDS_MSGF_HEADER_EXPIRES_C_PS"
+msgstr "Iraungitzea: %s"
+
+msgid "IDS_MSGF_BUTTON_SAVE_ALL_ATTACHMENTS_ABB"
+msgstr "Gorde eranskin denak"
+
+msgid "IDS_MSGF_BODY_TO_C"
+msgstr "Nori:"
+
+msgid "IDS_MSGF_BODY_TEXT_MESSAGES"
+msgstr "Testu mezuak"
+
+msgid "IDS_MSGF_BODY_SIM_MEMORY_FULL_DELETE_SOME_ITEMS"
+msgstr "SIM memoria beteta. Ezabatu elementu batzuk."
+
+msgid "IDS_MSGF_BODY_SENT_M_DATE_C"
+msgstr "Bidalia:"
+
+msgid "IDS_MSGF_BODY_REQUESTED"
+msgstr "Eskatuta"
+
+msgid "IDS_MSGF_BODY_RECEIVED_M_DATE_C"
+msgstr "Jasoa:"
+
+msgid "IDS_MSGF_BODY_READ_REPORT"
+msgstr "Irakurketa txostena"
+
+msgid "IDS_MSGF_BODY_PUSH_MESSAGES"
+msgstr "Difusio mezuak"
+
+msgid "IDS_MSGF_BODY_PD_MESSAGES"
+msgstr "%d mezu"
+
+msgid "IDS_MSGF_BODY_PD_CONVERSATIONS"
+msgstr "%d hizketaldi"
+
+msgid "IDS_MSGF_BODY_NO_NAME"
+msgstr "Izenik gabe"
+
+msgid "IDS_MSGF_BODY_MULTIMEDIA_MESSAGE_NOTIFICATION"
+msgstr "Multimedia mezuaren jakinarazpena"
+
+msgid "IDS_MSGF_BODY_MULTIMEDIA_MESSAGE"
+msgstr "Multimedia mezua"
+
+msgid "IDS_MSGF_BODY_MMSREADREPLYMSGREAD"
+msgstr "Irakurri"
+
+msgid "IDS_MSGF_BODY_MMSDELIVERYMSGREJECTED"
+msgstr "Mezua ukatu egin da"
+
+msgid "IDS_MSGF_BODY_MMS"
+msgstr "MMS"
+
+msgid "IDS_MSGF_BODY_MESSAGE_SIZE"
+msgstr "Mezu tamaina"
+
+msgid "IDS_MSGF_BODY_MESSAGE_OPTIONS"
+msgstr "Mezu aukerak"
+
+msgid "IDS_MSGF_BODY_MESSAGE_DELIVERED"
+msgstr "Mezua bidali da"
+
+msgid "IDS_MSGF_BODY_MAXIMUM_NUMBER_OF_ATTACHMENTS_HP1SS_EXCEEDED_ONLY_FIRST_P2SS_WILL_BE_ADDED"
+msgstr "Eranskinen gehienezko kopurua (%1$s) gainditu duzu. Lehenengo %2$s-ak soilik gehituko dira."
+
+msgid "IDS_MSGF_BODY_INVALID_RECIPIENT"
+msgstr "Hartzaile baliogabea"
+
+msgid "IDS_MSGF_BODY_FROM"
+msgstr "Nork"
+
+msgid "IDS_MSGF_BODY_FLFROM"
+msgstr "Igorlea:"
+
+msgid "IDS_MSGF_BODY_DETAILSSENDINGFAILED"
+msgstr "Bidaltzerakoan akatsa"
+
+msgid "IDS_MSGF_BODY_DELIVERY_REPORT"
+msgstr "Banaketa txostena"
+
+msgid "IDS_MSGF_BODY_CP_MESSAGES"
+msgstr "CP mezuak"
+
+msgid "IDS_MSGF_BODY_COPY_TEXT"
+msgstr "Kopiatu testua"
+
+msgid "IDS_MSGF_BODY_CB_MESSAGES"
+msgstr "CB mezuak"
+
+msgid "IDS_MSGF_BODY_1_MESSAGE"
+msgstr "Mezu 1"
+
+msgid "IDS_MSGF_BODY_1_CONVERSATION"
+msgstr "Hizketaldi 1"
+
+msgid "IDS_MSGS_BODY_REQUEST_A_READ_REPORT_FOR_EACH_MESSAGE_YOU_SEND"
+msgstr "Eskatu irakurketa txostena bidaltzen duzun mezu bakoitzarekin"
+
+msgid "IDS_MSGS_BODY_REQUEST_A_DELIVERY_REPORT_FOR_EACH_MESSAGE_YOU_SEND"
+msgstr "Eskatu bidalketa txostena bidaltzen duzun mezu bakoitzarekin"
+
+msgid "IDS_MSGS_BODY_RADIO_BUTTON"
+msgstr "Irratiaren botoia"
+
+msgid "IDS_MSGS_BODY_ON_OFF_BUTTON_T_TTS"
+msgstr "Pizteko/itzaltzeko botoia"
+
+msgid "IDS_MSGS_BODY_EXPANDABLE_LIST_T_TTS"
+msgstr "Zerrenda zabalgarria"
+
+msgid "IDS_MSGS_BODY_AUTOMATICALLY_RETRIEVE_MMS_MESSAGES"
+msgstr "Berreskuratu MMS mezuak automatikoki"
+
+msgid "IDS_MSG_TPOP_UNABLE_TO_PREVIEW_FILE_UNSUPPORTED_FILE_TYPE"
+msgstr "Ezin da fitxategiaren aurrebista ikusi. Fitxategi mota hau ez da onartzen."
+
+msgid "IDS_MSG_TPOP_UNABLE_TO_ATTACH_FILE_FILE_FORMAT_NOT_SUPPORTED"
+msgstr "Ezin da fitxategia erantsi. Fitxategiaren formatua ez da onartzen."
+
+msgid "IDS_MSG_TPOP_UNABLE_TO_ADD_SOME_RECIPIENTS_NUMBERS_NOT_VALID"
+msgstr "Ezin dira hainbat hartzaile gehitu. Zenbakiak baliogabeak dira."
+
+msgid "IDS_MSG_TPOP_UNABLE_TO_ADD_RECIPIENT_NUMBER_NOT_VALID"
+msgstr "Ezin da hartzailea gehitu. Zenbakia baliogabea da."
+
+msgid "IDS_MSG_TPOP_UNABLE_TO_ADD_RECIPIENTS_NUMBERS_NOT_VALID"
+msgstr "Ezin dira hartzaileak gehitu. Zenbakiak baliogabeak dira."
+
+msgid "IDS_MSG_TPOP_UNABLE_TO_ADD_ATTACHMENT_MAXIMUM_NUMBER_OF_ATTACHMENTS_HPD_REACHED"
+msgstr "Ezin da eranskina gehitu. Eranskinen gehieneko kopurura (%d) iritsi zara."
+
+msgid "IDS_MSG_TPOP_THIS_NUMBER_IS_NOT_VALID"
+msgstr "Zenbaki honek ez du balio."
+
+msgid "IDS_MSG_TPOP_SOME_RECIPIENTS_ALREADY_ADDED"
+msgstr "Hartzaile batzuk gehitu dira jada."
+
+msgid "IDS_MSG_TPOP_SELECTED_MESSAGES_COPIED_TO_MOBILE_DEVICE"
+msgstr "Hautatutako mezuak gailu mugikorrean kopiatuko dira."
+
+msgid "IDS_MSG_TPOP_PD_MESSAGES_MOVED_TO_MESSAGE_LIST"
+msgstr "%d mezu zerrendara mugitu dira."
+
+msgid "IDS_MSG_TPOP_NUMBER_REMOVED_FROM_MESSAGE_BLOCK_LIST"
+msgstr "Blokeatutako mezuen zerrendatik kendu da zenbakia."
+
+msgid "IDS_MSG_TPOP_NUMBER_ADDED_TO_MESSAGE_BLOCK_LIST"
+msgstr "Blokeatutako mezuen zerrendan gehitu da zenbakia."
+
+msgid "IDS_MSG_TPOP_NETWORK_NOT_AVAILABLE_MESSAGE_WILL_BE_SENT_WHEN_CONNECTED_TO_NETWORK"
+msgstr "Sarea ez dago erabilgarri. Mezua sarera konektatuta zaudenean bidaliko da."
+
+msgid "IDS_MSG_TPOP_MESSAGE_COPIED_TO_PS_SIM_CARD"
+msgstr "Mezua %s SIM txartelean kopiatu da."
+
+msgid "IDS_MSG_TPOP_MAXIMUM_NUMBER_OF_CHARACTERS_EXCEEDED"
+msgstr "Gehieneko karaktere kopurua gainditu da."
+
+msgid "IDS_MSG_TPOP_MAXIMUM_MESSAGE_SIZE_HPS_EXCEEDED_RESIZING_ATTACHMENTS_ING"
+msgstr "Mezuen gehieneko neurria (%s) gainditu duzu. Eranskinen neurria aldatzen..."
+
+msgid "IDS_MSG_TPOP_INVALID_CHARACTER_ENTERED"
+msgstr "Karaktere baliogabea sartu duzu."
+
+msgid "IDS_MSG_TPOP_ADD_RECIPIENTS"
+msgstr "Gehitu hartzaileak."
+
+msgid "IDS_MSG_TPOP_1_MESSAGE_MOVED_TO_MESSAGE_LIST"
+msgstr "Mezu 1 mezu zerrendara mugitu da."
+
+msgid "IDS_MSG_TMBODY_TEXT_MESSAGES"
+msgstr "Testu mezuak"
+
+msgid "IDS_MSG_TMBODY_SOUND"
+msgstr "Soinua"
+
+msgid "IDS_MSG_TMBODY_MULTIMEDIA_MESSAGES"
+msgstr "Multimedia mezuak"
+
+msgid "IDS_MSG_TMBODY_MESSAGES_ON_SIM_CARD"
+msgstr "SIM txarteleko mezuak"
+
+msgid "IDS_MSG_TMBODY_INPUT_MODE"
+msgstr "Sarrera modua"
+
+msgid "IDS_MSG_TMBODY_AUTO_RETRIEVE_WHILE_ROAMING"
+msgstr "Berreskuratu aut. ibiltaritzan"
+
+msgid "IDS_MSG_TMBODY_AUTO_RETRIEVE"
+msgstr "Berreskuratu automatikoki"
+
+msgid "IDS_MSG_SK_SEND_NOW"
+msgstr "Bid. or."
+
+msgid "IDS_MSG_SBODY_SELECT_AN_INPUT_MODE_FOR_COMPOSING_MESSAGES"
+msgstr "Hautatu mezuak idazteko sarrera modua."
+
+msgid "IDS_MSG_SBODY_NONE_M_STATUS"
+msgstr "Bat ere ez"
+
+msgid "IDS_MSG_SBODY_MANAGE_THE_MESSAGES_STORED_ON_YOUR_SIM_CARD"
+msgstr "Kudeatu SIM txartelean gordetako mezuak."
+
+msgid "IDS_MSG_POP_UNABLE_TO_SEND_SCHEDULED_MESSAGE_SET_ANOTHER_TIME"
+msgstr "Ezin da programatutako mezua bidali. Ezarri beste ordu bat."
+
+msgid "IDS_MSG_POP_UNABLE_TO_ATTACH_FILE_FILE_SIZE_TOO_LARGE_TRY_SENDING_VIA_EMAIL_BLUETOOTH_WI_FI_ETC"
+msgstr "Ezin izan da fitxategia atxiki. Handiegia da. Saiatu posta elektroniko, Bluetooth, Wi-Fi, eta abarren bidez bidaltzen"
+
+msgid "IDS_MSG_POP_TO_SEND_THIS_MULTIMEDIA_MESSAGE_THE_DEVICE_WILL_CONNECT_TO_A_DIFFERENT_MOBILE_NETWORK_THIS_WILL_DISCONNECT_YOUR_DEVICE_FROM_YOUR_MSG"
+msgstr "Multimedia mezu hau bidaltzeko, gailua beste sare mugikor batera konektatuko da. Horrek gailua sare mugikor honetatik deskonektatuko du."
+
+msgid "IDS_MSG_POP_TO_DOWNLOAD_THIS_MULTIMEDIA_MESSAGE_THE_DEVICE_WILL_CONNECT_TO_A_DIFFERENT_MOBILE_NETWORK_MSG"
+msgstr "Multimedia mezu hau deskargatzeko, gailua beste sare mugikor batera konektatuko da. Horrek gailua sare mugikor honetatik deskonektatuko du."
+
+msgid "IDS_MSG_POP_THIS_MESSAGE_WILL_BE_RESENT"
+msgstr "Mezu hau berriz erabiliko da."
+
+msgid "IDS_MSG_POP_PD_MESSAGES_WILL_BE_DELETED"
+msgstr "%d mezu ezabatuko dira"
+
+msgid "IDS_MSG_POP_PD_CONVERSATIONS_WILL_BE_DELETED"
+msgstr "%d hizketaldi ezabatuko dira."
+
+msgid "IDS_MSG_POP_NO_TEMPLATES_IN_LIST"
+msgstr "Txantiloirik ez zerrendan"
+
+msgid "IDS_MSG_POP_INCLUDE_ORIGINAL_TEXT_IN_OUTGOING_MESSAGE"
+msgstr "Txertatu jatorrizko testua irteera mezuan"
+
+msgid "IDS_MSG_POP_DURATION_MUST_BE_SHORTER_THAN_PD_SECONDS"
+msgstr "Iraupena %d segundokoa baino laburragoa izan behar da"
+
+msgid "IDS_MSG_POP_1_MESSAGE_WILL_BE_DELETED"
+msgstr "Mezu 1 ezabatuko da"
+
+msgid "IDS_MSG_POP_1_CONVERSATION_WILL_BE_DELETED"
+msgstr "Hizketaldi 1 ezabatuko da."
+
+msgid "IDS_MSG_OPT_VIEW_DETAILS_ABB"
+msgstr "Ikusi xehetasunak"
+
+msgid "IDS_MSG_OPT_VIEW_CONTACT_DETAILS_ABB"
+msgstr "Ikusi kontaktu xehetasunak"
+
+msgid "IDS_MSG_OPT_VIEW_AS_SLIDESHOW_ABB"
+msgstr "Ikusi diaporama bezala"
+
+msgid "IDS_MSG_OPT_UPDATE_CONTACT"
+msgstr "Eguneratu kontaktua"
+
+msgid "IDS_MSG_OPT_UNICODE"
+msgstr "Unicode"
+
+msgid "IDS_MSG_OPT_TAKE_PICTURE_ABB"
+msgstr "Atera argazkia"
+
+msgid "IDS_MSG_OPT_SAVE_ATTACHMENTS_ABB"
+msgstr "Gorde eranskinak"
+
+msgid "IDS_MSG_OPT_RESEND"
+msgstr "Birbidali"
+
+msgid "IDS_MSG_OPT_REPLY"
+msgstr "Erantzun"
+
+msgid "IDS_MSG_OPT_REMOVE_FROM_BLOCK_LIST_ABB"
+msgstr "Kendu blokeatutakoen zerrendatik"
+
+msgid "IDS_MSG_OPT_RECORD_AUDIO_FILE_ABB"
+msgstr "Grabatu audio fitxategia"
+
+msgid "IDS_MSG_OPT_QUICK_RESPONSE_ABB"
+msgstr "Erantzun azkarra"
+
+msgid "IDS_MSG_OPT_MAKE_VOICE_CALL"
+msgstr "Egin ahots deia"
+
+msgid "IDS_MSG_OPT_GSM_ALPHABET_ABB"
+msgstr "GSM alfabetoa"
+
+msgid "IDS_MSG_OPT_EXPORT_TO_DEVICE_MEMORY"
+msgstr "Esportatu gailuaren memoriara"
+
+msgid "IDS_MSG_OPT_DELETE_MESSAGE"
+msgstr "Ezabatu mezua"
+
+msgid "IDS_MSG_OPT_DELETE_CONVERSATION_ABB"
+msgstr "Ezabatu elkarrizketa"
+
+msgid "IDS_MSG_OPT_CREATE_CONTACT_ABB"
+msgstr "Sortu kontaktua"
+
+msgid "IDS_MSG_OPT_COPY_TO_SIM_CARD_ABB"
+msgstr "Kopiatu SIM txartelean"
+
+msgid "IDS_MSG_OPT_COPY_TO_DEVICE_ABB"
+msgstr "Kopiatu gailura"
+
+msgid "IDS_MSG_OPT_COPY_TEXT"
+msgstr "Kopiatu testua"
+
+msgid "IDS_MSG_OPT_COPY"
+msgstr "Kopiatu"
+
+msgid "IDS_MSG_OPT_BACK_UP"
+msgstr "Babes kopia"
+
+msgid "IDS_MSG_OPT_AUTOMATIC"
+msgstr "Automatikoa"
+
+msgid "IDS_MSG_OPT_AUDIO_FILES_ABB2"
+msgstr "Audio fitxategiak"
+
+msgid "IDS_MSG_OPT_ATTACHMENT_ABB"
+msgstr "Eranskina"
+
+msgid "IDS_MSG_OPT_ADD_TO_CONTACTS_ABB"
+msgstr "Gehitu Kontaktuetara"
+
+msgid "IDS_MSG_OPT_ADD_TO_BLOCK_LIST_ABB"
+msgstr "Gehitu blokeatutakoen zerrendan"
+
+msgid "IDS_MSG_OPT_ADD_RECIPIENTS_ABB"
+msgstr "Gehitu hartzaileak"
+
+msgid "IDS_MSG_NPBODY_SEARCH"
+msgstr "Bilatu"
+
+msgid "IDS_MSG_NPBODY_NO_RESULTS_FOUND_ABB"
+msgstr "Ez da emaitzarik aurkitu"
+
+msgid "IDS_MSG_NPBODY_NO_QUICK_RESPONSES"
+msgstr "Erantzun azkarrik ez"
+
+msgid "IDS_MSG_NPBODY_NO_PHRASES_BLOCKED"
+msgstr "Ez dago blokeatutako esaldirik"
+
+msgid "IDS_MSG_NPBODY_NO_MESSAGES_ON_SIM_CARD"
+msgstr "Ez dago mezurik SIM txartelean"
+
+msgid "IDS_MSG_NPBODY_NO_MESSAGES"
+msgstr "Ez dago mezurik"
+
+msgid "IDS_MSG_NPBODY_NO_BLOCKED_NUMBERS"
+msgstr "Ez dago blokeatutako zenbakirik"
+
+msgid "IDS_MSG_MBODY_VIBRATION"
+msgstr "Bibrazioa"
+
+msgid "IDS_MSG_MBODY_UNKNOWN_NUMBER"
+msgstr "Zenbaki ezezaguna"
+
+msgid "IDS_MSG_MBODY_TEXT_MESSAGE_CENTRE_NUMBER_ABB"
+msgstr "Testu mezu zentroko zenbakia"
+
+msgid "IDS_MSG_HEADER_TEXT_MESSAGES_ABB"
+msgstr "Testu mezuak"
+
+msgid "IDS_MSG_HEADER_SWITCH_MOBILE_NETWORK_ABB2"
+msgstr "Aldatu sare mugikorra"
+
+msgid "IDS_MSG_HEADER_SMS_CENTRE_ABB2"
+msgstr "SMS zentroa"
+
+msgid "IDS_MSG_HEADER_SELECT_RECIPIENT"
+msgstr "Aukeratu hartzailea"
+
+msgid "IDS_MSG_HEADER_PD_SELECTED_ABB3"
+msgstr "%d hautatuta"
+
+msgid "IDS_MSG_HEADER_MESSAGES_ON_SIM_CARD_ABB"
+msgstr "SIM txarteleko mezuak"
+
+msgid "IDS_MSG_HEADER_INPUT_MODE_ABB"
+msgstr "Sarrera modua"
+
+msgid "IDS_MSG_HEADER_FILE_SIZE_TOO_LARGE_ABB"
+msgstr "Fitxategia handiegia da"
+
+msgid "IDS_MSG_HEADER_FAILED_TO_SEND_MESSAGE_ABB"
+msgstr "Ezin da mezua bidali"
+
+msgid "IDS_MSG_HEADER_DISCARD_MESSAGE_M_CLOSE_ABB"
+msgstr "Baztertu mezua"
+
+msgid "IDS_MSG_HEADER_CREATE"
+msgstr "Sortu"
+
+msgid "IDS_MSG_HEADER_ADD_CONTENT_ABB"
+msgstr "Gehitu edukia"
+
+msgid "IDS_MSG_BUTTON_SWITCH_ABB2"
+msgstr "Aldatu"
+
+msgid "IDS_MSG_BUTTON_SAVE_ABB2"
+msgstr "Gorde"
+
+msgid "IDS_MSG_BUTTON_RESEND_ABB"
+msgstr "Birbidali"
+
+msgid "IDS_MSG_BUTTON_DISCARD_ABB"
+msgstr "Baztertu"
+
+msgid "IDS_MSG_BUTTON_DELETE_ABB4"
+msgstr "Ezabatu"
+
+msgid "IDS_MSG_BUTTON_CANCEL_ABB2"
+msgstr "Utzi"
+
+msgid "IDS_MSG_BUTTON2_CONTACTS_ABB_M_APPLICATION_NAME"
+msgstr "Kontaktuak"
+
+msgid "IDS_MSG_BODY_YOU_HAVE_SELECTED_A_SOUND_N_SHOT_FILE_SOUND_DATA_IS_NOT_SUPPORTED_FOR_MMS_SO_ONLY_THE_PICTURE_WILL_BE_ATTACHED"
+msgstr "Sound & shot fitxategia hautatu duzu. MMS-ek ez dituzte soinu datuak onartzen; beraz, argazkia soilik erantsiko da."
+
+msgid "IDS_MSG_BODY_WAITING_TO_SEND_ING_M_STATUS"
+msgstr "Bidaltzeko zain..."
+
+msgid "IDS_MSG_BODY_UNABLE_TO_SEND_THIS_MESSAGE_INSERT_YOUR_SIM_CARD_AND_TRY_AGAIN"
+msgstr "Ezin da mezu hau bidali. Txertatu zure SIM txartela eta saiatu berriz."
+
+msgid "IDS_MSG_BODY_TYPE_C"
+msgstr "Mota:"
+
+msgid "IDS_MSG_BODY_TO_USE_RESTRICTED_MEDIA_TYPES_CHANGE_YOUR_MMS_CREATION_MODE_SETTING"
+msgstr "Mugatutako multimedia mota erabiltzeko, aldatu zure MMS sorrera moduaren ezarpena"
+
+msgid "IDS_MSG_BODY_TIME_SENT_C"
+msgstr "Bidalketa ordua:"
+
+msgid "IDS_MSG_BODY_TIME_RECEIVED_C"
+msgstr "Jasotze ordua:"
+
+msgid "IDS_MSG_BODY_STATUS_C"
+msgstr "Egoera:"
+
+msgid "IDS_MSG_BODY_SENT_M_STATUS"
+msgstr "Bidalita"
+
+msgid "IDS_MSG_BODY_SENDING_ING_M_STATUS_ABB"
+msgstr "Bidaltzen"
+
+msgid "IDS_MSG_BODY_SENDING_FAILED_M_STATUS"
+msgstr "Bidalketak huts egin du"
+
+msgid "IDS_MSG_BODY_RETRIEVE_MESSAGES_AUTOMATICALLY_WHILE_ROAMING"
+msgstr "Berreskuratu mezuak automatikoki ibiltaritzan."
+
+msgid "IDS_MSG_BODY_RETRIEVE_MESSAGES_AUTOMATICALLY"
+msgstr "Berreskuratu mezuak automatikoki."
+
+msgid "IDS_MSG_BODY_READ_REPORT_C_PS"
+msgstr "Irakurketa txostena: %s"
+
+msgid "IDS_MSG_BODY_OTHER_PERSON"
+msgstr "Beste pertsona bat"
+
+msgid "IDS_MSG_BODY_MEMO_T_MAINMENU"
+msgstr "Memoranduma"
+
+msgid "IDS_MSG_BODY_FAILED_M_STATUS_ABB2"
+msgstr "Hutsa"
+
+msgid "IDS_MSG_BODY_ENTER_TEXT_M_NOUN"
+msgstr "Adierazi testua"
+
+msgid "IDS_MSG_BODY_DRAFT_M_STATUS_ABB"
+msgstr "Zirrib."
+
+msgid "IDS_MSG_BODY_DELIVERY_REPORT_C_PS"
+msgstr "Bidalketa txostena: %s"
+
+msgid "IDS_MSG_BODY_CB_MESSAGE"
+msgstr "CB mezua"
+
+msgid "IDS_MSG_BODY_CALENDAR_M_APPLICATION_NAME_ABB"
+msgstr "Egutegia"
+
+msgid "IDS_MSG_BODY_AFTER_YOU_SEND_OR_RECEIVE_MESSAGES_THEY_WILL_BE_SHOWN_HERE"
+msgstr "Mezuak bidali edo jaso ondoren, hemen erakutsiko dira."
+
+msgid "IDS_MSG_BODY_AFTER_YOU_CREATE_QUICK_RESPONSES_THEY_WILL_BE_SHOWN_HERE"
+msgstr "Erantzun azkarrak sortu ondoren, hemen erakutsiko dira."
+
+msgid "IDS_MSG_BODY_AFTER_YOU_COPY_MESSAGES_TO_THE_SIM_CARD_THEY_WILL_BE_SHOWN_HERE"
+msgstr "Mezuak SIM txartelean kopiatu ondoren, hemen erakutsiko dira."
+
+msgid "IDS_MSG_BODY_AFTER_YOU_ADD_PHRASES_THEY_WILL_BE_SHOWN_HERE"
+msgstr "Esaldiak gehitu ondoren, hemen erakutsiko dira."
+
+msgid "IDS_MSG_BODY_AFTER_YOU_ADD_NUMBERS_TO_THE_MESSAGE_BLOCK_LIST_THEY_WILL_BE_SHOWN_HERE"
+msgstr "Blokeatutako mezuen zerrendan zenbakiak gehitu ondoren, hemen erakutsiko dira."
+
+msgid "IDS_MSG_ACBUTTON_DELETE_ABB"
+msgstr "EZABATU"
+
+msgid "IDS_MSGC_POP_UNSUPPORTED_MEDIA_TYPE"
+msgstr "Media mota ez bateragarria"
+
+msgid "IDS_MSGC_POP_LOW_BATTERY"
+msgstr "Bateria gutxi"
+
+msgid "IDS_MSGC_POP_CANCELLED"
+msgstr "Ezeztatua"
+
+msgid "IDS_MSGC_OPT_EMAIL"
+msgstr "Helbide elektronikoa"
+
+msgid "IDS_MSGC_OPT_EDITITEM_VIEW"
+msgstr "Ikusi"
+
+msgid "IDS_MSGC_OPT_EDITITEM_REMOVE"
+msgstr "Kendu"
+
+msgid "IDS_MSGC_OPT_EDITITEM_PLAY"
+msgstr "Erreproduzitu"
+
+msgid "IDS_MSGC_OPT_CHANGE_RECIPIENTS_TO"
+msgstr "Hartzailea"
+
+msgid "IDS_MSGC_HEADER_PREVIEW"
+msgstr "Aurrebista"
+
+msgid "IDS_MSGC_BODY_ENTER_SUBJECT"
+msgstr "Gaia idatzi"
+
+msgid "IDS_MSGF_POP_UNABLE_TO_FIND_LOCATION"
+msgstr "Ezin da kokapena aurkitu"
+
+msgid "IDS_MSGF_POP_REJECTED"
+msgstr "Ezetsita"
+
+msgid "IDS_MSGF_POP_DELETING"
+msgstr "Ezabatzen..."
+
+msgid "IDS_MSGF_POP_COPIED_TO_CLIPBOARD"
+msgstr "Arbelera kopiatu da"
+
+msgid "IDS_MSGF_POP_BLOCK_PS_Q"
+msgstr "%s blokeatu?"
+
+msgid "IDS_MSGF_OPT_SUBJECT_COLON"
+msgstr "Gaia:"
+
+msgid "IDS_MSGF_OPT_SENDER_VIA_EMAIL"
+msgstr "Posta elektroniko bidezko bidaltzailea"
+
+msgid "IDS_MSGF_OPT_SELECT"
+msgstr "Aukeratu"
+
+msgid "IDS_MSGF_OPT_SAVE"
+msgstr "Gorde"
+
+msgid "IDS_MSGF_OPT_REMOVE"
+msgstr "Kendu"
+
+msgid "IDS_MSGF_OPT_FORWARD"
+msgstr "Birbidali"
+
+msgid "IDS_MSGF_OPT_DELETE_Q"
+msgstr "Ezabatu?"
+
+msgid "IDS_MSGF_HEADER_ADVANCED_SEARCH"
+msgstr "Bilaketa aurreratua"
+
+msgid "IDS_MSGF_BODY_UNKNOWN"
+msgstr "Ezezaguna"
+
+msgid "IDS_MSGF_BODY_SETTINGS"
+msgstr "Ezarpenak"
+
+msgid "IDS_MSGF_BODY_RECIPIENTS"
+msgstr "Hartzaileak"
+
+msgid "IDS_MSGF_BODY_RECEIVED"
+msgstr "Jasota"
+
+msgid "IDS_MSGF_BODY_OTHER"
+msgstr "Besterik"
+
+msgid "IDS_MSGF_BODY_NO_SUBJECT"
+msgstr "Gairik gabe"
+
+msgid "IDS_MSGF_BODY_MSGSIZE_KB"
+msgstr "KB"
+
+msgid "IDS_MSGF_BODY_MESSAGE"
+msgstr "Mezua"
+
+msgid "IDS_MSGF_BODY_ME"
+msgstr "Nik "
+
+msgid "IDS_MSGF_BODY_EXPIRED"
+msgstr "Iraungia"
+
+msgid "IDS_MSGF_BODY_ALL"
+msgstr "Guztiak"
+
+msgid "IDS_MSG_SK_NO_ABB"
+msgstr "Ez"
+
+msgid "IDS_MSG_POP_YOUR_MESSAGE_WILL_BE_DISCARDED_NO_RECIPIENTS_HAVE_BEEN_SELECTED"
+msgstr "Zure mezua baztertuko da. Ez da hartzailerik hautatu."
+
+msgid "IDS_MSG_POP_UNABLE_TO_PLAY_DURING_CALL"
+msgstr "Ezin da deian zehar erreproduzitu"
+
+msgid "IDS_MSG_POP_INCOMING_MESSAGES_ONLY"
+msgstr "Sarrera mezuak soilik"
+
+msgid "IDS_MSG_POP_DELETED"
+msgstr "Ezabatua"
+
+msgid "IDS_MSG_OPT_VIDEOS"
+msgstr "Bideoak"
+
+msgid "IDS_MSG_OPT_TEXT"
+msgstr "Testua"
+
+msgid "IDS_MSG_OPT_SETTINGS"
+msgstr "Ezarpenak"
+
+msgid "IDS_MSG_OPT_SEARCH"
+msgstr "Bilatu"
+
+msgid "IDS_MSG_OPT_RECORD_VIDEO_ABB"
+msgstr "Grabatu bideoa"
+
+msgid "IDS_MSG_OPT_NONE"
+msgstr "Bat ere ez"
+
+msgid "IDS_MSG_OPT_IMAGES"
+msgstr "Irudiak"
+
+msgid "IDS_MSG_OPT_EDIT"
+msgstr "Editatu"
+
+msgid "IDS_MSG_OPT_DELETE"
+msgstr "Ezabatu"
+
+msgid "IDS_MSG_OPT_DEFAULT"
+msgstr "Lehenetsia"
+
+msgid "IDS_MSG_MBODY_SELECT_ALL"
+msgstr "Hautatu denak"
+
+msgid "IDS_MSG_MBODY_ALERTS"
+msgstr "Alertak"
+
+msgid "IDS_MSG_HEADER_TRANSLATE"
+msgstr "Itzuli"
+
+msgid "IDS_MSG_HEADER_SETTINGS"
+msgstr "Ezarpenak"
+
+msgid "IDS_MSG_HEADER_MESSAGES"
+msgstr "Mezuak"
+
+msgid "IDS_MSG_HEADER_DELETE"
+msgstr "Ezabatu"
+
+msgid "IDS_MSG_HEADER_ATTENTION"
+msgstr "Oharra"
+
+msgid "IDS_MSG_BUTTON_REMOVE_ABB"
+msgstr "Kendu"
+
+msgid "IDS_MSG_BUTTON_OK_ABB"
+msgstr "Ados"
+
+msgid "IDS_MSG_BUTTON_DOWNLOAD_ABB3"
+msgstr "Deskargatu"
+
+msgid "IDS_MSG_BUTTON_CANCEL_ABB"
+msgstr "Utzi"
+
+msgid "IDS_MSG_BODY_YES"
+msgstr "Bai"
+
+msgid "IDS_MSG_BODY_TICK_BOX_T_TTS"
+msgstr "Markatze laukia"
+
+msgid "IDS_MSG_BODY_SEC"
+msgstr "seg"
+
+msgid "IDS_MSG_BODY_MESSAGE"
+msgstr "Mezua"
+
+msgid "IDS_MSG_BUTTON_SEND_ABB5"
+msgstr "Bidali"
+
+msgid "IDS_MSG_BUTTON_SEND_ABB3"
+msgstr "Bid."
+
+msgid "IDS_MSG_ACBUTTON_SEND_ABB3"
+msgstr "BID."
+
+msgid "IDS_ST_BODY_LOADING_ING"
+msgstr "Kargatzen..."
+
+msgid "IDS_MSGS_BODY_NOTIFICATIONS"
+msgstr "Jakinarazpenak"
+
+msgid "IDS_MSG_HEADER_ME"
+msgstr "Nik "
+
+msgid "IDS_MSG_BODY_UNKNOWN"
+msgstr "Ezezaguna"
+
+msgid "IDS_MSG_TMBODY_ADD_OR_REMOVE_RECIPIENTS"
+msgstr "Gehitu edo kendu hartzaileak"
+
+msgid "IDS_MSG_POP_THE_SENDER_HAS_REQUESTED_A_READ_REPORT_TAP_SEND_TO_SEND_ONE"
+msgstr "Bidaltzaileak irakurketa txostena eskatu du. Bidaltzeko, ukitu Bidali."
+
+msgid "IDS_MSGF_OPT_SEND_READ_REPORT"
+msgstr "Irakurtze txostena bidali"
+
+msgid "IDS_MSG_HEADER_COMPOSE_MESSAGE_ABB"
+msgstr "Sortu mezua"
+
+msgid "IDS_MSG_POP_NO_VALID_RECIPIENTS_HAVE_BEEN_ADDED_THIS_MESSAGE_WILL_BE_DISCARDED"
+msgstr "Ez da balio duen hartzailerik gehitu. Mezu hau baztertuko da."
+

@@ -1,0 +1,945 @@
+msgid "IDS_COM_BODY_HOME"
+msgstr "Domači"
+
+msgid "IDS_MSGC_POP_DATA_ROAMING_IS_DISABLED_ENABLE_DATA_ROAMING_AND_TRY_AGAIN"
+msgstr "Podatkovno gostovanje je onemogočeno. Omogočite ga in poskusite znova."
+
+msgid "IDS_MSG_ACBUTTON_CANCEL_ABB"
+msgstr "PREKLIČI"
+
+msgid "IDS_MSG_ACBUTTON_DONE_ABB"
+msgstr "KONČANO"
+
+msgid "IDS_MSGF_POP_NEW_MESSAGE"
+msgstr "Novo sporočilo"
+
+msgid "IDS_COM_BUTTON_SHARE"
+msgstr "Soupor."
+
+msgid "IDS_COM_BODY_UNKNOWN"
+msgstr "Neznano"
+
+msgid "IDS_COM_BODY_MOBILE"
+msgstr "Mobilni"
+
+msgid "IDS_MSGC_POP_MOBILE_DATA_IS_DISABLED_ENABLE_MOBILE_DATA_AND_TRY_AGAIN"
+msgstr "Mobilni podatki so onemogočeni. Omogočite jih in poskusite znova."
+
+msgid "IDS_TPLATFORM_ACBUTTON_SEND_ABB"
+msgstr "POŠLJI"
+
+msgid "IDS_MSGC_POP_UNABLE_TO_SEND_MESSAGES_WHILE_IN_FLIGHT_MODE_DISABLE_FLIGHT_MODE_AND_TRY_AGAIN"
+msgstr "Ko je omogočen način letenja, pošiljanje sporočil ni mogoče. Onemogočite način letenja in poskusite znova."
+
+msgid "IDS_MSGC_POP_UNABLE_TO_ADD_FILE_IS_FORWARD_LOCKED"
+msgstr "Dodajanje ni mogoče. Datoteka ima onemogočeno posredovanje."
+
+msgid "IDS_MSGC_POP_THERE_IS_NOT_ENOUGH_SPACE_IN_YOUR_DEVICE_STORAGE_GO_TO_SETTINGS_POWER_AND_STORAGE_STORAGE_THEN_DELETE_SOME_FILES_AND_TRY_AGAIN"
+msgstr "V shrambi naprave ni dovolj prostora. Pojdite v meni Nastavitve > Energija in shramba > Shramba, izbrišite nekaj datotek in poskusite znova."
+
+msgid "IDS_MSGC_POP_TEXT_AT_TOP"
+msgstr "Besedilo na vrhu"
+
+msgid "IDS_MSGC_POP_TEXT_AT_BOTTOM"
+msgstr "Besedilo na dnu"
+
+msgid "IDS_MSGC_POP_SELECT_LAYOUT"
+msgstr "Izberite postavitev"
+
+msgid "IDS_MSGC_POP_MMSCANTADD"
+msgstr "Vsebine ni mogoče dodati."
+
+msgid "IDS_MSGC_POP_MESSAGE_SCHEDULED_TO_BE_SENT_TO_PS_SEND_NOW_Q"
+msgstr "Sporočilo je nastavljeno, da bo poslano osebi %s. Želite poslati?"
+
+msgid "IDS_MSGC_POP_MAXIMUM_MESSAGE_SIZE_REACHED"
+msgstr "Največja dovoljena velikost sporočila je dosežena."
+
+msgid "IDS_MSGC_POP_DURATION_MUST_BE_AT_LEAST_PD_SECONDS"
+msgstr "Trajati mora vsaj %d sekund."
+
+msgid "IDS_MSGC_POP_DISABLING_FLIGHT_MODE_ING"
+msgstr "Onemogočanje načina letenja ..."
+
+msgid "IDS_MSGC_POP_COPIED_TO_SIM_CARD"
+msgstr "Kopirano na kartico SIM."
+
+msgid "IDS_MSGC_OPT_USE_OTHER_CONTACT_INFO_ABB"
+msgstr "Up. druge pod. za stik"
+
+msgid "IDS_MSGC_OPT_SEND_VIA"
+msgstr "Pošlji prek"
+
+msgid "IDS_MSGC_OPT_IMAGE"
+msgstr "Slika"
+
+msgid "IDS_MSGC_OPT_EDIT_ITEM_REPLACE"
+msgstr "Zamenjaj"
+
+msgid "IDS_MSGC_OPT_CANCEL_MESSAGE"
+msgstr "Prekliči sporočilo"
+
+msgid "IDS_MSGC_HEADER_RECIPIENT_LIST"
+msgstr "Seznam prejemnikov"
+
+msgid "IDS_MSGC_HEADER_DURATION_FOR_SLIDE_PD_PD"
+msgstr "Trajanje za diapozitiv %d/%d"
+
+msgid "IDS_MSGC_BODY_WAIT_WHILE_ITEMS_ARE_ADDED_TO_SLIDESHOW"
+msgstr "Počakajte, da se elementi dodajo diapozitivu."
+
+msgid "IDS_MSGC_BODY_UNABLE_TO_SEND_MESSAGE"
+msgstr "Ni mogoče poslati sporočila."
+
+msgid "IDS_MSGC_BODY_SELECT_RINGTONE"
+msgstr "Izberi melodijo zvonjenja"
+
+msgid "IDS_MSGC_BODY_READ_REPORT_WILL_BE_SENT"
+msgstr "Poročilo o branju bo poslano."
+
+msgid "IDS_MSGC_BODY_NOT_REQUESTED"
+msgstr "Ni zahtevano"
+
+msgid "IDS_MSGC_BODY_MAXIMUM_NUMBER_OF_RECIPIENTS_HPD_REACHED"
+msgstr "Doseženo je največje dovoljeno število prejemnikov (%d)."
+
+msgid "IDS_MSGC_BODY_DUPLICATED_RECIPIENT"
+msgstr "Prejemnik je podvojen."
+
+msgid "IDS_MSGF_SK_FORWARD_LITE"
+msgstr "Posred."
+
+msgid "IDS_MSGF_POP_UNABLE_TO_SAVE"
+msgstr "Shranjevanje neuspešno."
+
+msgid "IDS_MSGF_POP_UNABLE_TO_DELETE"
+msgstr "Brisanje ni mogoče."
+
+msgid "IDS_MSGF_POP_UNABLE_TO_COPY"
+msgstr "Ni mogoče kopirati."
+
+msgid "IDS_MSGF_POP_SOME_CHARACTERS_MAY_BE_LOST_CONTINUE_Q"
+msgstr "Nekaj znakov bo morda izgubljenih.\nNadaljujem?"
+
+msgid "IDS_MSGF_POP_SIM_NOT_INSERTED"
+msgstr "SIM ni vstavljena."
+
+msgid "IDS_MSGF_POP_SAVING_FAILED"
+msgstr "Shranjevanje ni uspelo."
+
+msgid "IDS_MSGF_POP_SAVED_IN_MY_FILES"
+msgstr "Shranjeno v Moje datoteke."
+
+msgid "IDS_MSGF_POP_RETRIEVING_MESSAGE_FAILED"
+msgstr "Nalaganje sporočila ni uspelo"
+
+msgid "IDS_MSGF_POP_RESTRICTED_CONTENT_TYPE_ATTACH_ANYWAY_Q"
+msgstr "Omejena vrsta vsebine. Vseeno pripnem?"
+
+msgid "IDS_MSGF_POP_RESTORING_ING"
+msgstr "Obnavljanje..."
+
+msgid "IDS_MSGF_POP_READ_REPORT"
+msgstr "Poročilo o branju"
+
+msgid "IDS_MSGF_POP_NO_NUMBER"
+msgstr "Ni številke"
+
+msgid "IDS_MSGF_POP_NO_ATTACHMENTS"
+msgstr "Ni prilog"
+
+msgid "IDS_MSGF_POP_NEW_MESSAGES"
+msgstr "Nova sporočila"
+
+msgid "IDS_MSGF_POP_MESSAGE_COPIED_FROM_SIM_CARD"
+msgstr "Sporočilo je kopirano s kartice SIM."
+
+msgid "IDS_MSGF_POP_MAXIMUM_NUMBER_OF_RECIPIENTS_IS_PD_SOME_RECIPIENTS_MAY_BE_LOST"
+msgstr "Največje dovoljeno število prejemnikov je %d. Nekaj prejemnikov se je morda izgubilo."
+
+msgid "IDS_MSGF_POP_MAXIMUM_NUMBER_OF_ATTACHMENTS_HPS_EXCEEDED"
+msgstr "Največje dovoljeno število prilog (%s) je preseženo."
+
+msgid "IDS_MSGF_POP_MAXIMUM_CHARACTERS"
+msgstr "Doseženo je največje dovoljeno število znakov."
+
+msgid "IDS_MSGF_POP_IN_PROGRESS_ING"
+msgstr "V teku..."
+
+msgid "IDS_MSGF_POP_INTIALISING"
+msgstr "Inicializacija"
+
+msgid "IDS_MSGF_POP_IF_YOU_DONT_WANT_TO_REPLACE_THE_FILE_RENAME_IT"
+msgstr "Če ne želite prepisati datoteke, jo preimenujte."
+
+msgid "IDS_MSGF_POP_HELP_PAGE_MESSAGE_FOR_ONE_FILE"
+msgstr "Sporočilo vsebuje pripeto datoteko, ki ni prikazana."
+
+msgid "IDS_MSGF_POP_HELP_PAGE_MESSAGE"
+msgstr "To sporočilo vključuje priložene datoteke, ki niso prikazane."
+
+msgid "IDS_MSGF_POP_FILE_NAME_ALREADY_EXISTS"
+msgstr "Ime datoteke že obstaja."
+
+msgid "IDS_MSGF_POP_CONVERTING_TO_TEXT_MESSAGE_ING"
+msgstr "Pretvarjam v sporočilo SMS ..."
+
+msgid "IDS_MSGF_POP_CONVERTING_TO_MULTIMEDIA_MESSAGE_ING"
+msgstr "Pretvarjam v sporočilo MMS ..."
+
+msgid "IDS_MSGF_POP_ABOUT_TO_GO_ONLINE_CONTINUE_Q"
+msgstr "Vzpostavili boste povezavo (%s). Nadaljujem?"
+
+msgid "IDS_MSGF_OPT_TEXT_MESSAGE"
+msgstr "Besedilno sporočilo"
+
+msgid "IDS_MSGF_OPT_SENDER_ABB"
+msgstr "Pošiljatelj"
+
+msgid "IDS_MSGF_OPT_SAVE_ATTACHMENT"
+msgstr "Shrani prilogo"
+
+msgid "IDS_MSGF_OPT_INSTALL"
+msgstr "Namesti"
+
+msgid "IDS_MSGF_OPT_EDIT_MESSAGE"
+msgstr "Uredi sporočilo"
+
+msgid "IDS_MSGF_OPT_DELETE_MESSAGES"
+msgstr "Izbriši sporočila"
+
+msgid "IDS_MSGF_HEADER_SELECT_MESSAGES"
+msgstr "Izberite sporočila"
+
+msgid "IDS_MSGF_HEADER_SAVE_ALL"
+msgstr "Shrani vse"
+
+msgid "IDS_MSGF_HEADER_MESSAGE_DETAILS"
+msgstr "Podrobnosti sporočila"
+
+msgid "IDS_MSGF_HEADER_EXPIRES_C_PS"
+msgstr "Poteče: %s"
+
+msgid "IDS_MSGF_BUTTON_SAVE_ALL_ATTACHMENTS_ABB"
+msgstr "Shrani vse priloge"
+
+msgid "IDS_MSGF_BODY_TO_C"
+msgstr "Za:"
+
+msgid "IDS_MSGF_BODY_TEXT_MESSAGES"
+msgstr "Besedilna sporočila"
+
+msgid "IDS_MSGF_BODY_SIM_MEMORY_FULL_DELETE_SOME_ITEMS"
+msgstr "Pomnilnik kartice SIM je poln. Izbrišite nekaj elementov."
+
+msgid "IDS_MSGF_BODY_SENT_M_DATE_C"
+msgstr "Poslano:"
+
+msgid "IDS_MSGF_BODY_REQUESTED"
+msgstr "Zahtevano."
+
+msgid "IDS_MSGF_BODY_RECEIVED_M_DATE_C"
+msgstr "Prejeto:"
+
+msgid "IDS_MSGF_BODY_READ_REPORT"
+msgstr "Poročilo o branju"
+
+msgid "IDS_MSGF_BODY_PUSH_MESSAGES"
+msgstr "Potisna sporočila"
+
+msgid "IDS_MSGF_BODY_PD_MESSAGES"
+msgstr "%d sporočil"
+
+msgid "IDS_MSGF_BODY_PD_CONVERSATIONS"
+msgstr "%d pogovorov"
+
+msgid "IDS_MSGF_BODY_NO_NAME"
+msgstr "Brez imena"
+
+msgid "IDS_MSGF_BODY_MULTIMEDIA_MESSAGE_NOTIFICATION"
+msgstr "Obvestilo o sporočilu MMS"
+
+msgid "IDS_MSGF_BODY_MULTIMEDIA_MESSAGE"
+msgstr "Multimedijsko sporočilo"
+
+msgid "IDS_MSGF_BODY_MMSREADREPLYMSGREAD"
+msgstr "Preberi"
+
+msgid "IDS_MSGF_BODY_MMSDELIVERYMSGREJECTED"
+msgstr "Sporočilo je zavrnjeno."
+
+msgid "IDS_MSGF_BODY_MMS"
+msgstr "MMS"
+
+msgid "IDS_MSGF_BODY_MESSAGE_SIZE"
+msgstr "Velikost sporočila"
+
+msgid "IDS_MSGF_BODY_MESSAGE_OPTIONS"
+msgstr "Možnosti sporočila"
+
+msgid "IDS_MSGF_BODY_MESSAGE_DELIVERED"
+msgstr "Sporočilo je dostavljeno"
+
+msgid "IDS_MSGF_BODY_MAXIMUM_NUMBER_OF_ATTACHMENTS_HP1SS_EXCEEDED_ONLY_FIRST_P2SS_WILL_BE_ADDED"
+msgstr "Preseženo je največje dovoljeno število prilog (%1$s). Samo prvih %2$s bo dodanih."
+
+msgid "IDS_MSGF_BODY_INVALID_RECIPIENT"
+msgstr "Neveljaven prejemnik."
+
+msgid "IDS_MSGF_BODY_FROM"
+msgstr "Od"
+
+msgid "IDS_MSGF_BODY_FLFROM"
+msgstr "Od:"
+
+msgid "IDS_MSGF_BODY_DETAILSSENDINGFAILED"
+msgstr "Pošiljanje ni uspelo."
+
+msgid "IDS_MSGF_BODY_DELIVERY_REPORT"
+msgstr "Poročilo o dostavi"
+
+msgid "IDS_MSGF_BODY_CP_MESSAGES"
+msgstr "Sporočila CP"
+
+msgid "IDS_MSGF_BODY_COPY_TEXT"
+msgstr "Kopiraj besedilo"
+
+msgid "IDS_MSGF_BODY_CB_MESSAGES"
+msgstr "Sporočila v celici"
+
+msgid "IDS_MSGF_BODY_1_MESSAGE"
+msgstr "1 sporočilo"
+
+msgid "IDS_MSGF_BODY_1_CONVERSATION"
+msgstr "1 pogovor"
+
+msgid "IDS_MSGS_BODY_REQUEST_A_READ_REPORT_FOR_EACH_MESSAGE_YOU_SEND"
+msgstr "Zahtevaj poročilo o branju za vsako poslano sporočilo."
+
+msgid "IDS_MSGS_BODY_REQUEST_A_DELIVERY_REPORT_FOR_EACH_MESSAGE_YOU_SEND"
+msgstr "Zahtevaj poročilo o dostavi za vsako poslano sporočilo."
+
+msgid "IDS_MSGS_BODY_RADIO_BUTTON"
+msgstr "Gumb za radio"
+
+msgid "IDS_MSGS_BODY_ON_OFF_BUTTON_T_TTS"
+msgstr "Gumb za vklop/izklop"
+
+msgid "IDS_MSGS_BODY_EXPANDABLE_LIST_T_TTS"
+msgstr "Razširljiv seznam"
+
+msgid "IDS_MSGS_BODY_AUTOMATICALLY_RETRIEVE_MMS_MESSAGES"
+msgstr "Samodejno prejemanje sporočil MMS."
+
+msgid "IDS_MSG_TPOP_UNABLE_TO_PREVIEW_FILE_UNSUPPORTED_FILE_TYPE"
+msgstr "Predogled datoteke ni mogoč. Nepodprta vrsta datoteke."
+
+msgid "IDS_MSG_TPOP_UNABLE_TO_ATTACH_FILE_FILE_FORMAT_NOT_SUPPORTED"
+msgstr "Datoteke ni mogoče priložiti. Oblika zapisa datoteke ni podprta."
+
+msgid "IDS_MSG_TPOP_UNABLE_TO_ADD_SOME_RECIPIENTS_NUMBERS_NOT_VALID"
+msgstr "Nekaterih prejemnikov ni mogoče dodati. Številke niso veljavne."
+
+msgid "IDS_MSG_TPOP_UNABLE_TO_ADD_RECIPIENT_NUMBER_NOT_VALID"
+msgstr "Prejemnika ni mogoče dodati. Številka ni veljavna."
+
+msgid "IDS_MSG_TPOP_UNABLE_TO_ADD_RECIPIENTS_NUMBERS_NOT_VALID"
+msgstr "Prejemnikov ni mogoče dodati. Številke niso veljavne."
+
+msgid "IDS_MSG_TPOP_UNABLE_TO_ADD_ATTACHMENT_MAXIMUM_NUMBER_OF_ATTACHMENTS_HPD_REACHED"
+msgstr "Priloge ni mogoče dodati. Doseženo je največje dovoljeno število prilog (%d)."
+
+msgid "IDS_MSG_TPOP_THIS_NUMBER_IS_NOT_VALID"
+msgstr "Ta številka ni veljavna."
+
+msgid "IDS_MSG_TPOP_SOME_RECIPIENTS_ALREADY_ADDED"
+msgstr "Nekateri prejemniki so že dodani."
+
+msgid "IDS_MSG_TPOP_SELECTED_MESSAGES_COPIED_TO_MOBILE_DEVICE"
+msgstr "Izbrana sporočila bodo kopirana v mobilno napravo."
+
+msgid "IDS_MSG_TPOP_PD_MESSAGES_MOVED_TO_MESSAGE_LIST"
+msgstr "Na seznam sporočil je bilo premaknjenih toliko sporočil: %d."
+
+msgid "IDS_MSG_TPOP_NUMBER_REMOVED_FROM_MESSAGE_BLOCK_LIST"
+msgstr "Številka odstranjena s seznama za blokiranje sporočil."
+
+msgid "IDS_MSG_TPOP_NUMBER_ADDED_TO_MESSAGE_BLOCK_LIST"
+msgstr "Številka dodana na seznam za blokiranje sporočil."
+
+msgid "IDS_MSG_TPOP_NETWORK_NOT_AVAILABLE_MESSAGE_WILL_BE_SENT_WHEN_CONNECTED_TO_NETWORK"
+msgstr "Omrežje ni na voljo. Sporočilo bo poslano, ko se povežete z omrežjem."
+
+msgid "IDS_MSG_TPOP_MESSAGE_COPIED_TO_PS_SIM_CARD"
+msgstr "Sporočilo je bilo kopirano na kartico SIM %s."
+
+msgid "IDS_MSG_TPOP_MAXIMUM_NUMBER_OF_CHARACTERS_EXCEEDED"
+msgstr "Največje dovoljeno število znakov je preseženo."
+
+msgid "IDS_MSG_TPOP_MAXIMUM_MESSAGE_SIZE_HPS_EXCEEDED_RESIZING_ATTACHMENTS_ING"
+msgstr "Največja dovoljena velikost sporočila (%s) je presežena. Spreminjanje velikosti priloge ..."
+
+msgid "IDS_MSG_TPOP_INVALID_CHARACTER_ENTERED"
+msgstr "Vnesli ste neveljaven znak."
+
+msgid "IDS_MSG_TPOP_ADD_RECIPIENTS"
+msgstr "Dodajte prejemnike."
+
+msgid "IDS_MSG_TPOP_1_MESSAGE_MOVED_TO_MESSAGE_LIST"
+msgstr "Na seznam sporočil je bilo premaknjeno 1 sporočilo."
+
+msgid "IDS_MSG_TMBODY_TEXT_MESSAGES"
+msgstr "Besedilna sporočila"
+
+msgid "IDS_MSG_TMBODY_SOUND"
+msgstr "Zvok"
+
+msgid "IDS_MSG_TMBODY_MULTIMEDIA_MESSAGES"
+msgstr "Večpredstavnostna sporočila"
+
+msgid "IDS_MSG_TMBODY_MESSAGES_ON_SIM_CARD"
+msgstr "Sporočila na kartici SIM"
+
+msgid "IDS_MSG_TMBODY_INPUT_MODE"
+msgstr "Način vnosa"
+
+msgid "IDS_MSG_TMBODY_AUTO_RETRIEVE_WHILE_ROAMING"
+msgstr "Samodejno prejem. na gostovanju"
+
+msgid "IDS_MSG_TMBODY_AUTO_RETRIEVE"
+msgstr "Samodejno prejemanje"
+
+msgid "IDS_MSG_SK_SEND_NOW"
+msgstr "Poš. zdaj"
+
+msgid "IDS_MSG_SBODY_SELECT_AN_INPUT_MODE_FOR_COMPOSING_MESSAGES"
+msgstr "Izberite način vnosa za sestavljanje sporočil."
+
+msgid "IDS_MSG_SBODY_NONE_M_STATUS"
+msgstr "Brez"
+
+msgid "IDS_MSG_SBODY_MANAGE_THE_MESSAGES_STORED_ON_YOUR_SIM_CARD"
+msgstr "Upravljanje sporočil, shranjenih na kartici SIM."
+
+msgid "IDS_MSG_POP_UNABLE_TO_SEND_SCHEDULED_MESSAGE_SET_ANOTHER_TIME"
+msgstr "Načrtovanega sporočila ni mogoče poslati. Nastavite drugo uro."
+
+msgid "IDS_MSG_POP_UNABLE_TO_ATTACH_FILE_FILE_SIZE_TOO_LARGE_TRY_SENDING_VIA_EMAIL_BLUETOOTH_WI_FI_ETC"
+msgstr "Datoteke ni mogoče priložiti. Datoteka je prevelika. Poskusite poslati prek E-pošte, vmesnika Bluetooth, omrežja Wi-Fi ipd."
+
+msgid "IDS_MSG_POP_TO_SEND_THIS_MULTIMEDIA_MESSAGE_THE_DEVICE_WILL_CONNECT_TO_A_DIFFERENT_MOBILE_NETWORK_THIS_WILL_DISCONNECT_YOUR_DEVICE_FROM_YOUR_MSG"
+msgstr "Zaradi pošiljanja tega večpredstavnostnega sporočila se bo naprava povezala z drugim mobilnim omrežjem. S tem bo prekinjena povezava naprave s trenutnim mobilnim omrežjem."
+
+msgid "IDS_MSG_POP_TO_DOWNLOAD_THIS_MULTIMEDIA_MESSAGE_THE_DEVICE_WILL_CONNECT_TO_A_DIFFERENT_MOBILE_NETWORK_MSG"
+msgstr "Zaradi prenosa tega večpredstavnostnega sporočila se bo naprava povezala z drugim mobilnim omrežjem. S tem bo prekinjena povezava naprave s trenutnim mobilnim omrežjem."
+
+msgid "IDS_MSG_POP_THIS_MESSAGE_WILL_BE_RESENT"
+msgstr "To sporočilo bo znova poslano."
+
+msgid "IDS_MSG_POP_PD_MESSAGES_WILL_BE_DELETED"
+msgstr "%d sporočil bo izbrisanih."
+
+msgid "IDS_MSG_POP_PD_CONVERSATIONS_WILL_BE_DELETED"
+msgstr "Število pogovorov, ki bodo izbrisani: %d."
+
+msgid "IDS_MSG_POP_NO_TEMPLATES_IN_LIST"
+msgstr "Na seznamu ni predlog"
+
+msgid "IDS_MSG_POP_INCLUDE_ORIGINAL_TEXT_IN_OUTGOING_MESSAGE"
+msgstr "Vključi prvotno besedilo v odhodno sporočilo"
+
+msgid "IDS_MSG_POP_DURATION_MUST_BE_SHORTER_THAN_PD_SECONDS"
+msgstr "Trajanje mora biti krajše od %d s."
+
+msgid "IDS_MSG_POP_1_MESSAGE_WILL_BE_DELETED"
+msgstr "1 sporočilo bo izbrisano."
+
+msgid "IDS_MSG_POP_1_CONVERSATION_WILL_BE_DELETED"
+msgstr "Izbrisan bo 1 pogovor."
+
+msgid "IDS_MSG_OPT_VIEW_DETAILS_ABB"
+msgstr "Prikaz podrobnosti"
+
+msgid "IDS_MSG_OPT_VIEW_CONTACT_DETAILS_ABB"
+msgstr "Prikaz podrobnosti stika"
+
+msgid "IDS_MSG_OPT_VIEW_AS_SLIDESHOW_ABB"
+msgstr "Prikaži kot diaprojekcijo"
+
+msgid "IDS_MSG_OPT_UPDATE_CONTACT"
+msgstr "Posodobite stik"
+
+msgid "IDS_MSG_OPT_UNICODE"
+msgstr "Unicode"
+
+msgid "IDS_MSG_OPT_TAKE_PICTURE_ABB"
+msgstr "Slikaj"
+
+msgid "IDS_MSG_OPT_SAVE_ATTACHMENTS_ABB"
+msgstr "Shrani priloge"
+
+msgid "IDS_MSG_OPT_RESEND"
+msgstr "Znova pošlji"
+
+msgid "IDS_MSG_OPT_REPLY"
+msgstr "Odgovor"
+
+msgid "IDS_MSG_OPT_REMOVE_FROM_BLOCK_LIST_ABB"
+msgstr "Odstr. s seznama za blokiranje"
+
+msgid "IDS_MSG_OPT_RECORD_AUDIO_FILE_ABB"
+msgstr "Snemanje zvočne datoteke"
+
+msgid "IDS_MSG_OPT_QUICK_RESPONSE_ABB"
+msgstr "Hiter odziv"
+
+msgid "IDS_MSG_OPT_MAKE_VOICE_CALL"
+msgstr "Vzpostavi glasovni klic"
+
+msgid "IDS_MSG_OPT_GSM_ALPHABET_ABB"
+msgstr "Abeceda GSM"
+
+msgid "IDS_MSG_OPT_EXPORT_TO_DEVICE_MEMORY"
+msgstr "Izvoz iz pomnilnika naprave"
+
+msgid "IDS_MSG_OPT_DELETE_MESSAGE"
+msgstr "Izbrišite sporočilo"
+
+msgid "IDS_MSG_OPT_DELETE_CONVERSATION_ABB"
+msgstr "Izbrišite pogovor"
+
+msgid "IDS_MSG_OPT_CREATE_CONTACT_ABB"
+msgstr "Ustvarite stik"
+
+msgid "IDS_MSG_OPT_COPY_TO_SIM_CARD_ABB"
+msgstr "Kopiraj na kartico SIM"
+
+msgid "IDS_MSG_OPT_COPY_TO_DEVICE_ABB"
+msgstr "Kopiraj v napravo"
+
+msgid "IDS_MSG_OPT_COPY_TEXT"
+msgstr "Kopiraj besedilo"
+
+msgid "IDS_MSG_OPT_COPY"
+msgstr "Kopiraj"
+
+msgid "IDS_MSG_OPT_BACK_UP"
+msgstr "Varnostno kopiranje"
+
+msgid "IDS_MSG_OPT_AUTOMATIC"
+msgstr "Samodejno"
+
+msgid "IDS_MSG_OPT_AUDIO_FILES_ABB2"
+msgstr "Zvočne datoteke"
+
+msgid "IDS_MSG_OPT_ATTACHMENT_ABB"
+msgstr "Priloga"
+
+msgid "IDS_MSG_OPT_ADD_TO_CONTACTS_ABB"
+msgstr "Dodaj v Stike"
+
+msgid "IDS_MSG_OPT_ADD_TO_BLOCK_LIST_ABB"
+msgstr "Dod. na seznam za blokiranje"
+
+msgid "IDS_MSG_OPT_ADD_RECIPIENTS_ABB"
+msgstr "Dodaj prejemnike"
+
+msgid "IDS_MSG_NPBODY_SEARCH"
+msgstr "Iskanje"
+
+msgid "IDS_MSG_NPBODY_NO_RESULTS_FOUND_ABB"
+msgstr "Ni najdenih rezultatov"
+
+msgid "IDS_MSG_NPBODY_NO_QUICK_RESPONSES"
+msgstr "Ni hitrih odzivov"
+
+msgid "IDS_MSG_NPBODY_NO_PHRASES_BLOCKED"
+msgstr "Ni blokiranih besednih zvez"
+
+msgid "IDS_MSG_NPBODY_NO_MESSAGES_ON_SIM_CARD"
+msgstr "Na kartici SIM ni sporočil"
+
+msgid "IDS_MSG_NPBODY_NO_MESSAGES"
+msgstr "Ni sporočil"
+
+msgid "IDS_MSG_NPBODY_NO_BLOCKED_NUMBERS"
+msgstr "Ni blokiranih številk"
+
+msgid "IDS_MSG_MBODY_VIBRATION"
+msgstr "Vibriranje"
+
+msgid "IDS_MSG_MBODY_UNKNOWN_NUMBER"
+msgstr "Neznana številka"
+
+msgid "IDS_MSG_MBODY_TEXT_MESSAGE_CENTRE_NUMBER_ABB"
+msgstr "Štev. centra za bes. sporočila"
+
+msgid "IDS_MSG_HEADER_TEXT_MESSAGES_ABB"
+msgstr "Besedilna sporočila"
+
+msgid "IDS_MSG_HEADER_SWITCH_MOBILE_NETWORK_ABB2"
+msgstr "Preklopite mobilno omrežje"
+
+msgid "IDS_MSG_HEADER_SMS_CENTRE_ABB2"
+msgstr "Center SMS"
+
+msgid "IDS_MSG_HEADER_SELECT_RECIPIENT"
+msgstr "Izberite prejemnika"
+
+msgid "IDS_MSG_HEADER_PD_SELECTED_ABB3"
+msgstr "Št. izbranih: %d"
+
+msgid "IDS_MSG_HEADER_MESSAGES_ON_SIM_CARD_ABB"
+msgstr "Sporočila na kartici SIM"
+
+msgid "IDS_MSG_HEADER_INPUT_MODE_ABB"
+msgstr "Način vnosa"
+
+msgid "IDS_MSG_HEADER_FILE_SIZE_TOO_LARGE_ABB"
+msgstr "Datoteka je prevelika"
+
+msgid "IDS_MSG_HEADER_FAILED_TO_SEND_MESSAGE_ABB"
+msgstr "Sporočila ni uspelo poslati"
+
+msgid "IDS_MSG_HEADER_DISCARD_MESSAGE_M_CLOSE_ABB"
+msgstr "Zavrzite sporočilo"
+
+msgid "IDS_MSG_HEADER_CREATE"
+msgstr "Ustvarite"
+
+msgid "IDS_MSG_HEADER_ADD_CONTENT_ABB"
+msgstr "Dodajte vsebino"
+
+msgid "IDS_MSG_BUTTON_SWITCH_ABB2"
+msgstr "Preklopi"
+
+msgid "IDS_MSG_BUTTON_SAVE_ABB2"
+msgstr "Shrani"
+
+msgid "IDS_MSG_BUTTON_RESEND_ABB"
+msgstr "Znova pošlji"
+
+msgid "IDS_MSG_BUTTON_DISCARD_ABB"
+msgstr "Zavrzi"
+
+msgid "IDS_MSG_BUTTON_DELETE_ABB4"
+msgstr "Izbrišite"
+
+msgid "IDS_MSG_BUTTON_CANCEL_ABB2"
+msgstr "Prekliči"
+
+msgid "IDS_MSG_BUTTON2_CONTACTS_ABB_M_APPLICATION_NAME"
+msgstr "Stiki"
+
+msgid "IDS_MSG_BODY_YOU_HAVE_SELECTED_A_SOUND_N_SHOT_FILE_SOUND_DATA_IS_NOT_SUPPORTED_FOR_MMS_SO_ONLY_THE_PICTURE_WILL_BE_ATTACHED"
+msgstr "Izbrali ste datoteko funkcije zvok+slikanje. Zvočni podatki niso podprti za sporočila MMS, zato bo pripeta samo slika."
+
+msgid "IDS_MSG_BODY_WAITING_TO_SEND_ING_M_STATUS"
+msgstr "Čakanje na pošiljanje ..."
+
+msgid "IDS_MSG_BODY_UNABLE_TO_SEND_THIS_MESSAGE_INSERT_YOUR_SIM_CARD_AND_TRY_AGAIN"
+msgstr "Tega sporočila ni mogoče poslati. Vstavite kartico SIM in poskusite znova."
+
+msgid "IDS_MSG_BODY_TYPE_C"
+msgstr "Vrsta:"
+
+msgid "IDS_MSG_BODY_TO_USE_RESTRICTED_MEDIA_TYPES_CHANGE_YOUR_MMS_CREATION_MODE_SETTING"
+msgstr "Če želite uporabljati omejene vrste predstavnostne vsebine, spremenite nastavitev načina ustvarjanja sporočil MMS."
+
+msgid "IDS_MSG_BODY_TIME_SENT_C"
+msgstr "Ura pošiljanja:"
+
+msgid "IDS_MSG_BODY_TIME_RECEIVED_C"
+msgstr "Ura prejema:"
+
+msgid "IDS_MSG_BODY_STATUS_C"
+msgstr "Stanje"
+
+msgid "IDS_MSG_BODY_SENT_M_STATUS"
+msgstr "Poslano"
+
+msgid "IDS_MSG_BODY_SENDING_ING_M_STATUS_ABB"
+msgstr "Pošiljanje ..."
+
+msgid "IDS_MSG_BODY_SENDING_FAILED_M_STATUS"
+msgstr "Pošiljanje ni uspelo"
+
+msgid "IDS_MSG_BODY_RETRIEVE_MESSAGES_AUTOMATICALLY_WHILE_ROAMING"
+msgstr "Samodejno prejemanje sporočil med gostovanjem."
+
+msgid "IDS_MSG_BODY_RETRIEVE_MESSAGES_AUTOMATICALLY"
+msgstr "Samodejno prejemanje sporočil."
+
+msgid "IDS_MSG_BODY_READ_REPORT_C_PS"
+msgstr "Poročilo o branju: %s"
+
+msgid "IDS_MSG_BODY_OTHER_PERSON"
+msgstr "Druga oseba"
+
+msgid "IDS_MSG_BODY_MEMO_T_MAINMENU"
+msgstr "Beležka"
+
+msgid "IDS_MSG_BODY_FAILED_M_STATUS_ABB2"
+msgstr "Ni uspelo"
+
+msgid "IDS_MSG_BODY_ENTER_TEXT_M_NOUN"
+msgstr "Vnesite besedilo"
+
+msgid "IDS_MSG_BODY_DRAFT_M_STATUS_ABB"
+msgstr "Osnutek"
+
+msgid "IDS_MSG_BODY_DELIVERY_REPORT_C_PS"
+msgstr "Poročilo o dostavi: %s"
+
+msgid "IDS_MSG_BODY_CB_MESSAGE"
+msgstr "Sporočilo v celici"
+
+msgid "IDS_MSG_BODY_CALENDAR_M_APPLICATION_NAME_ABB"
+msgstr "Koledar"
+
+msgid "IDS_MSG_BODY_AFTER_YOU_SEND_OR_RECEIVE_MESSAGES_THEY_WILL_BE_SHOWN_HERE"
+msgstr "Ko pošljete ali prejmete sporočila, bodo prikazana tukaj."
+
+msgid "IDS_MSG_BODY_AFTER_YOU_CREATE_QUICK_RESPONSES_THEY_WILL_BE_SHOWN_HERE"
+msgstr "Ko ustvarite hitre odzive, bodo prikazani tukaj."
+
+msgid "IDS_MSG_BODY_AFTER_YOU_COPY_MESSAGES_TO_THE_SIM_CARD_THEY_WILL_BE_SHOWN_HERE"
+msgstr "Ko sporočila kopirate na kartico SIM, bodo prikazana tukaj."
+
+msgid "IDS_MSG_BODY_AFTER_YOU_ADD_PHRASES_THEY_WILL_BE_SHOWN_HERE"
+msgstr "Ko dodate besedne zveze, bodo prikazane tukaj."
+
+msgid "IDS_MSG_BODY_AFTER_YOU_ADD_NUMBERS_TO_THE_MESSAGE_BLOCK_LIST_THEY_WILL_BE_SHOWN_HERE"
+msgstr "Ko na seznam za blokiranje sporočil dodate številke, bodo prikazane tukaj."
+
+msgid "IDS_MSG_ACBUTTON_DELETE_ABB"
+msgstr "IZBRIŠI"
+
+msgid "IDS_MSGC_POP_UNSUPPORTED_MEDIA_TYPE"
+msgstr "Nepodprta vrsta medija."
+
+msgid "IDS_MSGC_POP_LOW_BATTERY"
+msgstr "Baterija prazna."
+
+msgid "IDS_MSGC_POP_CANCELLED"
+msgstr "Preklicano."
+
+msgid "IDS_MSGC_OPT_EMAIL"
+msgstr "E-pošta"
+
+msgid "IDS_MSGC_OPT_EDITITEM_VIEW"
+msgstr "Poglej"
+
+msgid "IDS_MSGC_OPT_EDITITEM_REMOVE"
+msgstr "Odstrani"
+
+msgid "IDS_MSGC_OPT_EDITITEM_PLAY"
+msgstr "Predvajaj"
+
+msgid "IDS_MSGC_OPT_CHANGE_RECIPIENTS_TO"
+msgstr "Za"
+
+msgid "IDS_MSGC_HEADER_PREVIEW"
+msgstr "Predogled"
+
+msgid "IDS_MSGC_BODY_ENTER_SUBJECT"
+msgstr "Vnesite zadevo."
+
+msgid "IDS_MSGF_POP_UNABLE_TO_FIND_LOCATION"
+msgstr "Lokacije ni mogoče najti."
+
+msgid "IDS_MSGF_POP_REJECTED"
+msgstr "Zavrnjeno."
+
+msgid "IDS_MSGF_POP_DELETING"
+msgstr "Brišem"
+
+msgid "IDS_MSGF_POP_COPIED_TO_CLIPBOARD"
+msgstr "Kopirano v odložišče."
+
+msgid "IDS_MSGF_POP_BLOCK_PS_Q"
+msgstr "Blokiram osebo %s?"
+
+msgid "IDS_MSGF_OPT_SUBJECT_COLON"
+msgstr "Zadeva:"
+
+msgid "IDS_MSGF_OPT_SENDER_VIA_EMAIL"
+msgstr "Pošlji preko e-pošte"
+
+msgid "IDS_MSGF_OPT_SELECT"
+msgstr "Izberi"
+
+msgid "IDS_MSGF_OPT_SAVE"
+msgstr "Shrani"
+
+msgid "IDS_MSGF_OPT_REMOVE"
+msgstr "Odstrani"
+
+msgid "IDS_MSGF_OPT_FORWARD"
+msgstr "Posreduj"
+
+msgid "IDS_MSGF_OPT_DELETE_Q"
+msgstr "Izbrišem?"
+
+msgid "IDS_MSGF_HEADER_ADVANCED_SEARCH"
+msgstr "Napredno iskanje"
+
+msgid "IDS_MSGF_BODY_UNKNOWN"
+msgstr "Neznano"
+
+msgid "IDS_MSGF_BODY_SETTINGS"
+msgstr "Nastavitve"
+
+msgid "IDS_MSGF_BODY_RECIPIENTS"
+msgstr "Prejemniki"
+
+msgid "IDS_MSGF_BODY_RECEIVED"
+msgstr "Prejeto."
+
+msgid "IDS_MSGF_BODY_OTHER"
+msgstr "Drugo"
+
+msgid "IDS_MSGF_BODY_NO_SUBJECT"
+msgstr "Ni zadeve"
+
+msgid "IDS_MSGF_BODY_MSGSIZE_KB"
+msgstr "KB"
+
+msgid "IDS_MSGF_BODY_MESSAGE"
+msgstr "Sporočilo"
+
+msgid "IDS_MSGF_BODY_ME"
+msgstr "Jaz"
+
+msgid "IDS_MSGF_BODY_EXPIRED"
+msgstr "Veljavnost je potekla"
+
+msgid "IDS_MSGF_BODY_ALL"
+msgstr "Vse"
+
+msgid "IDS_MSG_SK_NO_ABB"
+msgstr "Ne"
+
+msgid "IDS_MSG_POP_YOUR_MESSAGE_WILL_BE_DISCARDED_NO_RECIPIENTS_HAVE_BEEN_SELECTED"
+msgstr "Vaše sporočilo bo zavrženo. Noben prejemnik ni izbran."
+
+msgid "IDS_MSG_POP_UNABLE_TO_PLAY_DURING_CALL"
+msgstr "Ni mogoče predvajati med klicem."
+
+msgid "IDS_MSG_POP_INCOMING_MESSAGES_ONLY"
+msgstr "Samo dohodna sporočila"
+
+msgid "IDS_MSG_POP_DELETED"
+msgstr "Izbrisano."
+
+msgid "IDS_MSG_OPT_VIDEOS"
+msgstr "Videoposnetki"
+
+msgid "IDS_MSG_OPT_TEXT"
+msgstr "Besedilo"
+
+msgid "IDS_MSG_OPT_SETTINGS"
+msgstr "Nastavitve"
+
+msgid "IDS_MSG_OPT_SEARCH"
+msgstr "Iskanje"
+
+msgid "IDS_MSG_OPT_RECORD_VIDEO_ABB"
+msgstr "Posnemi video"
+
+msgid "IDS_MSG_OPT_NONE"
+msgstr "Brez"
+
+msgid "IDS_MSG_OPT_IMAGES"
+msgstr "Slike"
+
+msgid "IDS_MSG_OPT_EDIT"
+msgstr "Uredi"
+
+msgid "IDS_MSG_OPT_DELETE"
+msgstr "Izbriši"
+
+msgid "IDS_MSG_OPT_DEFAULT"
+msgstr "Privzeto"
+
+msgid "IDS_MSG_MBODY_SELECT_ALL"
+msgstr "Izberi vse"
+
+msgid "IDS_MSG_MBODY_ALERTS"
+msgstr "Opozorila"
+
+msgid "IDS_MSG_HEADER_TRANSLATE"
+msgstr "Prevedi"
+
+msgid "IDS_MSG_HEADER_SETTINGS"
+msgstr "Nastavitve"
+
+msgid "IDS_MSG_HEADER_MESSAGES"
+msgstr "Sporočila"
+
+msgid "IDS_MSG_HEADER_DELETE"
+msgstr "Izbriši"
+
+msgid "IDS_MSG_HEADER_ATTENTION"
+msgstr "Pozor"
+
+msgid "IDS_MSG_BUTTON_REMOVE_ABB"
+msgstr "Odstrani"
+
+msgid "IDS_MSG_BUTTON_OK_ABB"
+msgstr "V redu"
+
+msgid "IDS_MSG_BUTTON_DOWNLOAD_ABB3"
+msgstr "Prenos"
+
+msgid "IDS_MSG_BUTTON_CANCEL_ABB"
+msgstr "Prekliči"
+
+msgid "IDS_MSG_BODY_YES"
+msgstr "Da"
+
+msgid "IDS_MSG_BODY_TICK_BOX_T_TTS"
+msgstr "Polje za potrditev"
+
+msgid "IDS_MSG_BODY_SEC"
+msgstr "sek"
+
+msgid "IDS_MSG_BODY_MESSAGE"
+msgstr "Sporočilo"
+
+msgid "IDS_MSG_BUTTON_SEND_ABB5"
+msgstr "Poš."
+
+msgid "IDS_MSG_BUTTON_SEND_ABB3"
+msgstr "Pošl."
+
+msgid "IDS_MSG_ACBUTTON_SEND_ABB3"
+msgstr "POŠ."
+
+msgid "IDS_ST_BODY_LOADING_ING"
+msgstr "Nalaganje..."
+
+msgid "IDS_MSGS_BODY_NOTIFICATIONS"
+msgstr "Obvestila"
+
+msgid "IDS_MSG_HEADER_ME"
+msgstr "Jaz"
+
+msgid "IDS_MSG_BODY_UNKNOWN"
+msgstr "Neznano"
+
+msgid "IDS_MSG_TMBODY_ADD_OR_REMOVE_RECIPIENTS"
+msgstr "Dodajte ali odstran. prejemnike"
+
+msgid "IDS_MSG_POP_THE_SENDER_HAS_REQUESTED_A_READ_REPORT_TAP_SEND_TO_SEND_ONE"
+msgstr "Pošiljatelj zahteva poročilo o branju. Pritisnite Pošlji, da mu ga pošljete."
+
+msgid "IDS_MSGF_OPT_SEND_READ_REPORT"
+msgstr "Pošlji poročilo o branju"
+
+msgid "IDS_MSG_HEADER_COMPOSE_MESSAGE_ABB"
+msgstr "Sestavi sporočilo"
+
+msgid "IDS_MSG_POP_NO_VALID_RECIPIENTS_HAVE_BEEN_ADDED_THIS_MESSAGE_WILL_BE_DISCARDED"
+msgstr "Dodali niste nobenega veljavnega prejemnika. To sporočilo bo zavrženo."
+

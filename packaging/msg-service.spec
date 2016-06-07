@@ -57,6 +57,7 @@ BuildRequires: pkgconfig(vconf)
 BuildRequires: pkgconfig(contacts-service2)
 %endif
 %if "%{?profile}" == "mobile"
+BuildRequires: gettext-tools
 BuildRequires: hash-signer
 BuildRequires: pkgconfig(badge)
 BuildRequires: pkgconfig(callmgr_client)
@@ -131,6 +132,8 @@ Description: Message manager application
 %define APP_PKGNAME	org.tizen.msg-manager
 %define APP_PREFIX	%{TZ_SYS_RO_APP}/%{APP_PKGNAME}
 %define APP_BINDIR	%{APP_PREFIX}/bin
+%define APP_RESDIR	%{APP_PREFIX}/res
+%define APP_LOCALEDIR	%{APP_RESDIR}/locale
 %define APP_MANIFESTDIR	%{TZ_SYS_RO_PACKAGES}
 %endif
 
@@ -143,11 +146,13 @@ cmake . -DCMAKE_INSTALL_PREFIX=%{_prefix} \
 %if "%{?profile}" == "mobile"
 		-DAPP_MANIFESTDIR=%{APP_MANIFESTDIR}   \
 		-DAPP_BINDIR=%{APP_BINDIR}   \
+		-DAPP_LOCALEDIR=%{APP_LOCALEDIR}   \
 %endif
 		-DTZ_SYS_RO_APP=%TZ_SYS_RO_APP \
 		-DTZ_SYS_DATA=%TZ_SYS_DATA \
 		-DTZ_SYS_DB=%TZ_SYS_DB \
 		-DTZ_SYS_HOME=%TZ_SYS_HOME \
+		-DTZ_SYS_BIN=%TZ_SYS_BIN \
 %ifarch i586
 -D_TIZEN_I586_ENABLED:BOOL=ON \
 %else
@@ -290,6 +295,7 @@ setfacl -m group:priv_message_write:rw %{TZ_SYS_DATA}/msg-service/ipcdata
 %{APP_MANIFESTDIR}/*.xml
 %{APP_PREFIX}/author-signature.xml
 %{APP_PREFIX}/signature1.xml
+%{APP_RESDIR}/*
 %endif
 
 %changelog

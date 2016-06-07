@@ -1,0 +1,945 @@
+msgid "IDS_COM_BODY_HOME"
+msgstr "Asosiy"
+
+msgid "IDS_MSGC_POP_DATA_ROAMING_IS_DISABLED_ENABLE_DATA_ROAMING_AND_TRY_AGAIN"
+msgstr "Ma’lumot roumingi o‘chirilgan. Ma’lumot roumingini yoqing va qayta urinib ko‘ring."
+
+msgid "IDS_MSG_ACBUTTON_CANCEL_ABB"
+msgstr "BEKOR QILISH"
+
+msgid "IDS_MSG_ACBUTTON_DONE_ABB"
+msgstr "BAJARILDI"
+
+msgid "IDS_MSGF_POP_NEW_MESSAGE"
+msgstr "Yangi xabar"
+
+msgid "IDS_COM_BUTTON_SHARE"
+msgstr "Ulash."
+
+msgid "IDS_COM_BODY_UNKNOWN"
+msgstr "Noma’lum"
+
+msgid "IDS_COM_BODY_MOBILE"
+msgstr "Mobil"
+
+msgid "IDS_MSGC_POP_MOBILE_DATA_IS_DISABLED_ENABLE_MOBILE_DATA_AND_TRY_AGAIN"
+msgstr "Mobil ma’lumot o‘chirilgan. Mobil ma’lumotni yoqing va qayta urinib ko‘ring."
+
+msgid "IDS_TPLATFORM_ACBUTTON_SEND_ABB"
+msgstr "YUBORISH"
+
+msgid "IDS_MSGC_POP_UNABLE_TO_SEND_MESSAGES_WHILE_IN_FLIGHT_MODE_DISABLE_FLIGHT_MODE_AND_TRY_AGAIN"
+msgstr "Parvoz rejimida xabarlar yuborib bo‘lmaydi. Parvoz rejimini o‘chiring va qayta urinib ko‘ring."
+
+msgid "IDS_MSGC_POP_UNABLE_TO_ADD_FILE_IS_FORWARD_LOCKED"
+msgstr "Boshqaga yo‘naltirib bo‘lmaydi.\nFayl boshqaga yo‘naltirishdan bloklangan."
+
+msgid "IDS_MSGC_POP_THERE_IS_NOT_ENOUGH_SPACE_IN_YOUR_DEVICE_STORAGE_GO_TO_SETTINGS_POWER_AND_STORAGE_STORAGE_THEN_DELETE_SOME_FILES_AND_TRY_AGAIN"
+msgstr "Qurilmangiz xotirasida yetarli bo‘sh joy mavjud emas. Parametrlar > Quvvat va xotira > Xotiraga o‘ting, so‘ngra ba’zi fayllarni yo‘q qiling va qayta urinib ko‘ring."
+
+msgid "IDS_MSGC_POP_TEXT_AT_TOP"
+msgstr "Matn yuqorida"
+
+msgid "IDS_MSGC_POP_TEXT_AT_BOTTOM"
+msgstr "Matnni eng quyi qismga joylashtirish"
+
+msgid "IDS_MSGC_POP_SELECT_LAYOUT"
+msgstr "Dizayn tanlash"
+
+msgid "IDS_MSGC_POP_MMSCANTADD"
+msgstr "Tarkib qo‘shib bo‘lmaydi."
+
+msgid "IDS_MSGC_POP_MESSAGE_SCHEDULED_TO_BE_SENT_TO_PS_SEND_NOW_Q"
+msgstr "Xabar %sga yuboriladigan qilib rejalashtirildi. Hozir yuborilsinmi?"
+
+msgid "IDS_MSGC_POP_MAXIMUM_MESSAGE_SIZE_REACHED"
+msgstr "Xabar o‘lchami maksimal miqdordan oshib ketdi."
+
+msgid "IDS_MSGC_POP_DURATION_MUST_BE_AT_LEAST_PD_SECONDS"
+msgstr "Davomlilik kamida %d soniya bolishi lozim."
+
+msgid "IDS_MSGC_POP_DISABLING_FLIGHT_MODE_ING"
+msgstr "Parvoz rejimi o‘chirilmoqda..."
+
+msgid "IDS_MSGC_POP_COPIED_TO_SIM_CARD"
+msgstr "SIM-kartaga nusxa ko‘chirildi."
+
+msgid "IDS_MSGC_OPT_USE_OTHER_CONTACT_INFO_ABB"
+msgstr "Boshqa kntk ma’l. foyd"
+
+msgid "IDS_MSGC_OPT_SEND_VIA"
+msgstr "Quyidagi orqali yuborish"
+
+msgid "IDS_MSGC_OPT_IMAGE"
+msgstr "Tasvir"
+
+msgid "IDS_MSGC_OPT_EDIT_ITEM_REPLACE"
+msgstr "Almashtirish"
+
+msgid "IDS_MSGC_OPT_CANCEL_MESSAGE"
+msgstr "Xabarni bekor qilish"
+
+msgid "IDS_MSGC_HEADER_RECIPIENT_LIST"
+msgstr "Oluvchilar ro‘yxati"
+
+msgid "IDS_MSGC_HEADER_DURATION_FOR_SLIDE_PD_PD"
+msgstr "Slayd davomiyligi: %d/%d"
+
+msgid "IDS_MSGC_BODY_WAIT_WHILE_ITEMS_ARE_ADDED_TO_SLIDESHOW"
+msgstr "Elementlar slayd-shouga qo‘shilguniga qadar kutib turing."
+
+msgid "IDS_MSGC_BODY_UNABLE_TO_SEND_MESSAGE"
+msgstr "Xabarni yuborib bo‘lmaydi."
+
+msgid "IDS_MSGC_BODY_SELECT_RINGTONE"
+msgstr "Rington tanlash"
+
+msgid "IDS_MSGC_BODY_READ_REPORT_WILL_BE_SENT"
+msgstr "O‘qilgan hisobot yuboriladi."
+
+msgid "IDS_MSGC_BODY_NOT_REQUESTED"
+msgstr "Talab qilinmaydi"
+
+msgid "IDS_MSGC_BODY_MAXIMUM_NUMBER_OF_RECIPIENTS_HPD_REACHED"
+msgstr "Qabul qiluvchilar soni ruxsat etilgan maksimal miqdorga (%d) yetdi."
+
+msgid "IDS_MSGC_BODY_DUPLICATED_RECIPIENT"
+msgstr "Takrorlanadigan qabul qiluvchi."
+
+msgid "IDS_MSGF_SK_FORWARD_LITE"
+msgstr "Bosh/yub"
+
+msgid "IDS_MSGF_POP_UNABLE_TO_SAVE"
+msgstr "Saqlab bo‘lmaydi."
+
+msgid "IDS_MSGF_POP_UNABLE_TO_DELETE"
+msgstr "Yo‘q qilib bo‘lmaydi."
+
+msgid "IDS_MSGF_POP_UNABLE_TO_COPY"
+msgstr "Nusxa ko‘chirib bo‘lmaydi."
+
+msgid "IDS_MSGF_POP_SOME_CHARACTERS_MAY_BE_LOST_CONTINUE_Q"
+msgstr "Ba’zi belgilar yo‘qotilishi mumkin. Davom ettirilsinmi?"
+
+msgid "IDS_MSGF_POP_SIM_NOT_INSERTED"
+msgstr "SIM-karta kiritilmadi."
+
+msgid "IDS_MSGF_POP_SAVING_FAILED"
+msgstr "Saqlab bo‘lmadi."
+
+msgid "IDS_MSGF_POP_SAVED_IN_MY_FILES"
+msgstr "Fayllarimda saqlangan."
+
+msgid "IDS_MSGF_POP_RETRIEVING_MESSAGE_FAILED"
+msgstr "Xabarni qayta olish bajarilmadi"
+
+msgid "IDS_MSGF_POP_RESTRICTED_CONTENT_TYPE_ATTACH_ANYWAY_Q"
+msgstr "Taqiqlangan tarkib turi. Baribir biriktirilsinmi?"
+
+msgid "IDS_MSGF_POP_RESTORING_ING"
+msgstr "Tiklanmoqda..."
+
+msgid "IDS_MSGF_POP_READ_REPORT"
+msgstr "O‘qilgan haqidagi hisobot"
+
+msgid "IDS_MSGF_POP_NO_NUMBER"
+msgstr "Raqam yo‘q"
+
+msgid "IDS_MSGF_POP_NO_ATTACHMENTS"
+msgstr "Biriktirmalar yo‘q"
+
+msgid "IDS_MSGF_POP_NEW_MESSAGES"
+msgstr "Yangi xabarlar"
+
+msgid "IDS_MSGF_POP_MESSAGE_COPIED_FROM_SIM_CARD"
+msgstr "Xabar SIM-kartadan nusxa ko‘chirildi."
+
+msgid "IDS_MSGF_POP_MAXIMUM_NUMBER_OF_RECIPIENTS_IS_PD_SOME_RECIPIENTS_MAY_BE_LOST"
+msgstr "Qabul qiluvchilarning maksimal soni: %d. Ba’zi qabul qiluvchilar yo‘qotilishi mumkin."
+
+msgid "IDS_MSGF_POP_MAXIMUM_NUMBER_OF_ATTACHMENTS_HPS_EXCEEDED"
+msgstr "Biriktirmalar soni maksimal miqdordan (%s) oshib ketdi."
+
+msgid "IDS_MSGF_POP_MAXIMUM_CHARACTERS"
+msgstr "Belgilar soni ruxsat etilgan maksimal miqdorga yetdi."
+
+msgid "IDS_MSGF_POP_IN_PROGRESS_ING"
+msgstr "Bajarilmoqda..."
+
+msgid "IDS_MSGF_POP_INTIALISING"
+msgstr "Initsializatsiyalanmoqda..."
+
+msgid "IDS_MSGF_POP_IF_YOU_DONT_WANT_TO_REPLACE_THE_FILE_RENAME_IT"
+msgstr "Faylni almashtirishni istamasangiz, uning nomini o‘zgartiring."
+
+msgid "IDS_MSGF_POP_HELP_PAGE_MESSAGE_FOR_ONE_FILE"
+msgstr "Ushbu xabar ko‘rsatilmagan biriktimaga ega."
+
+msgid "IDS_MSGF_POP_HELP_PAGE_MESSAGE"
+msgstr "Ushbu xabarda ko‘rsatilmagan biriktirilgan fayllar mavjud."
+
+msgid "IDS_MSGF_POP_FILE_NAME_ALREADY_EXISTS"
+msgstr "Fayl nomi avvaldan mavjud."
+
+msgid "IDS_MSGF_POP_CONVERTING_TO_TEXT_MESSAGE_ING"
+msgstr "Matn xabariga o‘girish..."
+
+msgid "IDS_MSGF_POP_CONVERTING_TO_MULTIMEDIA_MESSAGE_ING"
+msgstr "Multimedia xabariga o‘girish..."
+
+msgid "IDS_MSGF_POP_ABOUT_TO_GO_ONLINE_CONTINUE_Q"
+msgstr "Internetga ulanish arafasidasiz(%s). Davom ettirilsinmi?"
+
+msgid "IDS_MSGF_OPT_TEXT_MESSAGE"
+msgstr "Matnli xabar"
+
+msgid "IDS_MSGF_OPT_SENDER_ABB"
+msgstr "Yuboruvchi"
+
+msgid "IDS_MSGF_OPT_SAVE_ATTACHMENT"
+msgstr "Biriktirmani saqlash"
+
+msgid "IDS_MSGF_OPT_INSTALL"
+msgstr "O‘rnatish"
+
+msgid "IDS_MSGF_OPT_EDIT_MESSAGE"
+msgstr "Xabarni tahrirlash"
+
+msgid "IDS_MSGF_OPT_DELETE_MESSAGES"
+msgstr "Xabarlarni yo‘q qilish"
+
+msgid "IDS_MSGF_HEADER_SELECT_MESSAGES"
+msgstr "Xabarlarni tanlash"
+
+msgid "IDS_MSGF_HEADER_SAVE_ALL"
+msgstr "Barchasini saqlash"
+
+msgid "IDS_MSGF_HEADER_MESSAGE_DETAILS"
+msgstr "Xabar tafsilotlari"
+
+msgid "IDS_MSGF_HEADER_EXPIRES_C_PS"
+msgstr "Amal qilish muddati: %s"
+
+msgid "IDS_MSGF_BUTTON_SAVE_ALL_ATTACHMENTS_ABB"
+msgstr "Bari biriktir. saqla"
+
+msgid "IDS_MSGF_BODY_TO_C"
+msgstr "Kimga:"
+
+msgid "IDS_MSGF_BODY_TEXT_MESSAGES"
+msgstr "Matnli xabarlar"
+
+msgid "IDS_MSGF_BODY_SIM_MEMORY_FULL_DELETE_SOME_ITEMS"
+msgstr "SIM-karta xotirasi to‘la. Ba’zi elementlarni o'chiring."
+
+msgid "IDS_MSGF_BODY_SENT_M_DATE_C"
+msgstr "Yuborildi:"
+
+msgid "IDS_MSGF_BODY_REQUESTED"
+msgstr "Talab qilindi."
+
+msgid "IDS_MSGF_BODY_RECEIVED_M_DATE_C"
+msgstr "Olindi:"
+
+msgid "IDS_MSGF_BODY_READ_REPORT"
+msgstr "O‘qilgan haqidagi hisobot"
+
+msgid "IDS_MSGF_BODY_PUSH_MESSAGES"
+msgstr "Tanlash xabarlari"
+
+msgid "IDS_MSGF_BODY_PD_MESSAGES"
+msgstr "%d xabar"
+
+msgid "IDS_MSGF_BODY_PD_CONVERSATIONS"
+msgstr "%d suhbat"
+
+msgid "IDS_MSGF_BODY_NO_NAME"
+msgstr "Nom yo‘q"
+
+msgid "IDS_MSGF_BODY_MULTIMEDIA_MESSAGE_NOTIFICATION"
+msgstr "Multimedia xabari eslatmasi"
+
+msgid "IDS_MSGF_BODY_MULTIMEDIA_MESSAGE"
+msgstr "Multimedia xabari"
+
+msgid "IDS_MSGF_BODY_MMSREADREPLYMSGREAD"
+msgstr "O‘qilganlar"
+
+msgid "IDS_MSGF_BODY_MMSDELIVERYMSGREJECTED"
+msgstr "Xabar rad etildi."
+
+msgid "IDS_MSGF_BODY_MMS"
+msgstr "MMS"
+
+msgid "IDS_MSGF_BODY_MESSAGE_SIZE"
+msgstr "Xabar o‘lchami"
+
+msgid "IDS_MSGF_BODY_MESSAGE_OPTIONS"
+msgstr "Xabar opsiyalari"
+
+msgid "IDS_MSGF_BODY_MESSAGE_DELIVERED"
+msgstr "Xabar yetkazildi"
+
+msgid "IDS_MSGF_BODY_MAXIMUM_NUMBER_OF_ATTACHMENTS_HP1SS_EXCEEDED_ONLY_FIRST_P2SS_WILL_BE_ADDED"
+msgstr "Biriktirmalar soni ruxsat etilgan maksimal miqdordan (%1$s) oshib ketdi. Faqat birinchi %2$s qo‘shiladi."
+
+msgid "IDS_MSGF_BODY_INVALID_RECIPIENT"
+msgstr "Noto'g'ri qabul qilib oluvchi."
+
+msgid "IDS_MSGF_BODY_FROM"
+msgstr "Quyidagidan"
+
+msgid "IDS_MSGF_BODY_FLFROM"
+msgstr "Quyidagidan:"
+
+msgid "IDS_MSGF_BODY_DETAILSSENDINGFAILED"
+msgstr "Yuborib bo‘lmadi."
+
+msgid "IDS_MSGF_BODY_DELIVERY_REPORT"
+msgstr "Yetkazilganlik haqidagi hisobot"
+
+msgid "IDS_MSGF_BODY_CP_MESSAGES"
+msgstr "CP messages"
+
+msgid "IDS_MSGF_BODY_COPY_TEXT"
+msgstr "Matndan nusxa olish"
+
+msgid "IDS_MSGF_BODY_CB_MESSAGES"
+msgstr "CB xabarlari"
+
+msgid "IDS_MSGF_BODY_1_MESSAGE"
+msgstr "1 xabar"
+
+msgid "IDS_MSGF_BODY_1_CONVERSATION"
+msgstr "1 suhbat"
+
+msgid "IDS_MSGS_BODY_REQUEST_A_READ_REPORT_FOR_EACH_MESSAGE_YOU_SEND"
+msgstr "Yuborgan har bir xabaringiz uchun o‘qilganlik haqidagi xabarnoma talab qilish."
+
+msgid "IDS_MSGS_BODY_REQUEST_A_DELIVERY_REPORT_FOR_EACH_MESSAGE_YOU_SEND"
+msgstr "Yuborgan har bir xabaringiz uchun yetib borganlik haqidagi xabarnoma talab qilish."
+
+msgid "IDS_MSGS_BODY_RADIO_BUTTON"
+msgstr "Radio tugma"
+
+msgid "IDS_MSGS_BODY_ON_OFF_BUTTON_T_TTS"
+msgstr "Yoqish/o‘chirish tugmasi"
+
+msgid "IDS_MSGS_BODY_EXPANDABLE_LIST_T_TTS"
+msgstr "Kengaytiriladigan ro‘yxat"
+
+msgid "IDS_MSGS_BODY_AUTOMATICALLY_RETRIEVE_MMS_MESSAGES"
+msgstr "MMS xabarlarini avtomatik ravishda olish."
+
+msgid "IDS_MSG_TPOP_UNABLE_TO_PREVIEW_FILE_UNSUPPORTED_FILE_TYPE"
+msgstr "Faylni dastlabki ko‘rib chiqib bo‘lmaydi. Qo‘llab-quvvatlanmaydigan fayl turi."
+
+msgid "IDS_MSG_TPOP_UNABLE_TO_ATTACH_FILE_FILE_FORMAT_NOT_SUPPORTED"
+msgstr "Faylni biriktirib bo‘lmaydi. Fayl formati qo‘llab-quvvatlanmaydi."
+
+msgid "IDS_MSG_TPOP_UNABLE_TO_ADD_SOME_RECIPIENTS_NUMBERS_NOT_VALID"
+msgstr "Ba’zi oluvchilarni qo‘shib bo‘lmaydi. Raqamlar noto‘g‘ri."
+
+msgid "IDS_MSG_TPOP_UNABLE_TO_ADD_RECIPIENT_NUMBER_NOT_VALID"
+msgstr "Oluvchini qo‘shib bo‘lmaydi. Raqam noto‘g‘ri."
+
+msgid "IDS_MSG_TPOP_UNABLE_TO_ADD_RECIPIENTS_NUMBERS_NOT_VALID"
+msgstr "Oluvchilarni qo‘shib bo‘lmaydi. Raqamlar noto‘g‘ri."
+
+msgid "IDS_MSG_TPOP_UNABLE_TO_ADD_ATTACHMENT_MAXIMUM_NUMBER_OF_ATTACHMENTS_HPD_REACHED"
+msgstr "Biriktirmani qo‘shib bo‘lmaydi. Biriktirmalar soni maksimal miqdorga (%d) yetdi."
+
+msgid "IDS_MSG_TPOP_THIS_NUMBER_IS_NOT_VALID"
+msgstr "Bu raqam noto‘g‘ri."
+
+msgid "IDS_MSG_TPOP_SOME_RECIPIENTS_ALREADY_ADDED"
+msgstr "Ba’zi oluvchilar avvalroq qo‘shilgan."
+
+msgid "IDS_MSG_TPOP_SELECTED_MESSAGES_COPIED_TO_MOBILE_DEVICE"
+msgstr "Tanlangan xabarlardan mobil qurilmaga nusxa ko‘chirildi."
+
+msgid "IDS_MSG_TPOP_PD_MESSAGES_MOVED_TO_MESSAGE_LIST"
+msgstr "%d ta xabar xabarlar ro‘yxatiga ko‘chirildi."
+
+msgid "IDS_MSG_TPOP_NUMBER_REMOVED_FROM_MESSAGE_BLOCK_LIST"
+msgstr "Raqam bloklangan xabarlar ro‘yxatiga olib tashlandi."
+
+msgid "IDS_MSG_TPOP_NUMBER_ADDED_TO_MESSAGE_BLOCK_LIST"
+msgstr "Raqam bloklangan xabarlar ro‘yxatiga qo‘shildi."
+
+msgid "IDS_MSG_TPOP_NETWORK_NOT_AVAILABLE_MESSAGE_WILL_BE_SENT_WHEN_CONNECTED_TO_NETWORK"
+msgstr "Tarmoqdan foydalanib bo‘lmaydi. Tarmoqqa ulanganda, xabar yuboriladi."
+
+msgid "IDS_MSG_TPOP_MESSAGE_COPIED_TO_PS_SIM_CARD"
+msgstr "Xabardan %s SIM-kartaga nusxa olindi."
+
+msgid "IDS_MSG_TPOP_MAXIMUM_NUMBER_OF_CHARACTERS_EXCEEDED"
+msgstr "Belgilar soni maksimal miqdordan oshib ketdi."
+
+msgid "IDS_MSG_TPOP_MAXIMUM_MESSAGE_SIZE_HPS_EXCEEDED_RESIZING_ATTACHMENTS_ING"
+msgstr "Fayl o‘lchami maksimal miqdordan (%s) oshib ketdi. Biriktirmalar hajmi o‘zgartirilmoqda..."
+
+msgid "IDS_MSG_TPOP_INVALID_CHARACTER_ENTERED"
+msgstr "Mumkin bo‘lmagan belgi kiritildi"
+
+msgid "IDS_MSG_TPOP_ADD_RECIPIENTS"
+msgstr "Oluvchilarni qo‘shing."
+
+msgid "IDS_MSG_TPOP_1_MESSAGE_MOVED_TO_MESSAGE_LIST"
+msgstr "1 ta xabar xabarlar ro‘yxatiga ko‘chirildi."
+
+msgid "IDS_MSG_TMBODY_TEXT_MESSAGES"
+msgstr "Matnli xabarlar"
+
+msgid "IDS_MSG_TMBODY_SOUND"
+msgstr "Ovoz"
+
+msgid "IDS_MSG_TMBODY_MULTIMEDIA_MESSAGES"
+msgstr "Multimedia xabarlari"
+
+msgid "IDS_MSG_TMBODY_MESSAGES_ON_SIM_CARD"
+msgstr "SIM-kartadagi xabarlar"
+
+msgid "IDS_MSG_TMBODY_INPUT_MODE"
+msgstr "Kiritish rejimi"
+
+msgid "IDS_MSG_TMBODY_AUTO_RETRIEVE_WHILE_ROAMING"
+msgstr "Rouming vaqtida avtomatik olish"
+
+msgid "IDS_MSG_TMBODY_AUTO_RETRIEVE"
+msgstr "Avtomatik olish"
+
+msgid "IDS_MSG_SK_SEND_NOW"
+msgstr "Hozir/yub"
+
+msgid "IDS_MSG_SBODY_SELECT_AN_INPUT_MODE_FOR_COMPOSING_MESSAGES"
+msgstr "Xabarlar yaratish uchun kiritish rejimini tanlang."
+
+msgid "IDS_MSG_SBODY_NONE_M_STATUS"
+msgstr "Yo‘q"
+
+msgid "IDS_MSG_SBODY_MANAGE_THE_MESSAGES_STORED_ON_YOUR_SIM_CARD"
+msgstr "SIM-kartangizda saqlangan xabarlarni boshqaring."
+
+msgid "IDS_MSG_POP_UNABLE_TO_SEND_SCHEDULED_MESSAGE_SET_ANOTHER_TIME"
+msgstr "Rejadagi xabarni yuborib bo‘lmaydi. Boshqa vaqt o‘rnating."
+
+msgid "IDS_MSG_POP_UNABLE_TO_ATTACH_FILE_FILE_SIZE_TOO_LARGE_TRY_SENDING_VIA_EMAIL_BLUETOOTH_WI_FI_ETC"
+msgstr "Faylni biriktirib bo‘lmaydi. Fayl o‘lchami juda katta. E-pochta, Bluetooth, Wi-Fi va boshq. orqali yuborib ko‘ring."
+
+msgid "IDS_MSG_POP_TO_SEND_THIS_MULTIMEDIA_MESSAGE_THE_DEVICE_WILL_CONNECT_TO_A_DIFFERENT_MOBILE_NETWORK_THIS_WILL_DISCONNECT_YOUR_DEVICE_FROM_YOUR_MSG"
+msgstr "Ushbu multimedia xabarini yuborish uchun qurilma boshqa mobil tarmoqqa ulanadi. Bu qurilmangizni joriy mobil tarmog‘ingizdan uzadi."
+
+msgid "IDS_MSG_POP_TO_DOWNLOAD_THIS_MULTIMEDIA_MESSAGE_THE_DEVICE_WILL_CONNECT_TO_A_DIFFERENT_MOBILE_NETWORK_MSG"
+msgstr "Ushbu multimedia xabarini yuklab olish uchun qurilma boshqa mobil tarmoqqa ualanadi. Bu qurilmangizni joriy mobil tarmog‘ingizdan uzadi."
+
+msgid "IDS_MSG_POP_THIS_MESSAGE_WILL_BE_RESENT"
+msgstr "Ushbu xabar qayta yuboriladi."
+
+msgid "IDS_MSG_POP_PD_MESSAGES_WILL_BE_DELETED"
+msgstr "%d ta xabar o'chiriladi."
+
+msgid "IDS_MSG_POP_PD_CONVERSATIONS_WILL_BE_DELETED"
+msgstr "%dta suhbat yo‘q qilinadi."
+
+msgid "IDS_MSG_POP_NO_TEMPLATES_IN_LIST"
+msgstr "Ro‘yxatda shablonlar yo‘q"
+
+msgid "IDS_MSG_POP_INCLUDE_ORIGINAL_TEXT_IN_OUTGOING_MESSAGE"
+msgstr "Chiquvchi xabarga birlamchi matn kiritilsin"
+
+msgid "IDS_MSG_POP_DURATION_MUST_BE_SHORTER_THAN_PD_SECONDS"
+msgstr "Davomlilik %d soniyadan qisqa bo‘lishi lozim."
+
+msgid "IDS_MSG_POP_1_MESSAGE_WILL_BE_DELETED"
+msgstr "1 xabar o'chiriladi."
+
+msgid "IDS_MSG_POP_1_CONVERSATION_WILL_BE_DELETED"
+msgstr "1 ta veb-hujjat o‘chiriladi."
+
+msgid "IDS_MSG_OPT_VIEW_DETAILS_ABB"
+msgstr "Tafsilotlarni ko‘rib chiqish"
+
+msgid "IDS_MSG_OPT_VIEW_CONTACT_DETAILS_ABB"
+msgstr "Kontakt tafsilotini ko‘rish"
+
+msgid "IDS_MSG_OPT_VIEW_AS_SLIDESHOW_ABB"
+msgstr "Slayd-shou sifatida ko‘rish"
+
+msgid "IDS_MSG_OPT_UPDATE_CONTACT"
+msgstr "Kontaktni yangilash"
+
+msgid "IDS_MSG_OPT_UNICODE"
+msgstr "Yunikod"
+
+msgid "IDS_MSG_OPT_TAKE_PICTURE_ABB"
+msgstr "Rasmga olish"
+
+msgid "IDS_MSG_OPT_SAVE_ATTACHMENTS_ABB"
+msgstr "Biriktirmalarni saqlash"
+
+msgid "IDS_MSG_OPT_RESEND"
+msgstr "Qayta yuborish"
+
+msgid "IDS_MSG_OPT_REPLY"
+msgstr "Javob berish"
+
+msgid "IDS_MSG_OPT_REMOVE_FROM_BLOCK_LIST_ABB"
+msgstr "Blk. ro‘yxatidan ol/tashla"
+
+msgid "IDS_MSG_OPT_RECORD_AUDIO_FILE_ABB"
+msgstr "Audio faylni\nyozib olish"
+
+msgid "IDS_MSG_OPT_QUICK_RESPONSE_ABB"
+msgstr "Tezkor javob"
+
+msgid "IDS_MSG_OPT_MAKE_VOICE_CALL"
+msgstr "Ovozli qo‘ng‘iroqni amalga oshirish"
+
+msgid "IDS_MSG_OPT_GSM_ALPHABET_ABB"
+msgstr "GSM alifbo"
+
+msgid "IDS_MSG_OPT_EXPORT_TO_DEVICE_MEMORY"
+msgstr "Qurilma xotirasiga eksport qilish"
+
+msgid "IDS_MSG_OPT_DELETE_MESSAGE"
+msgstr "Xabarni yo‘q qilish"
+
+msgid "IDS_MSG_OPT_DELETE_CONVERSATION_ABB"
+msgstr "Suhbatni yo‘q qilish"
+
+msgid "IDS_MSG_OPT_CREATE_CONTACT_ABB"
+msgstr "Kontakt yaratish"
+
+msgid "IDS_MSG_OPT_COPY_TO_SIM_CARD_ABB"
+msgstr "SIM-kartaga nusxa ko‘chirish"
+
+msgid "IDS_MSG_OPT_COPY_TO_DEVICE_ABB"
+msgstr "Qurilmaga nusxa ko‘chirish"
+
+msgid "IDS_MSG_OPT_COPY_TEXT"
+msgstr "Matndan nusxa olish"
+
+msgid "IDS_MSG_OPT_COPY"
+msgstr "Nusxa ko‘chirish"
+
+msgid "IDS_MSG_OPT_BACK_UP"
+msgstr "Arxivlash"
+
+msgid "IDS_MSG_OPT_AUTOMATIC"
+msgstr "Avtomatik"
+
+msgid "IDS_MSG_OPT_AUDIO_FILES_ABB2"
+msgstr "Audio fayllar"
+
+msgid "IDS_MSG_OPT_ATTACHMENT_ABB"
+msgstr "Biriktirma"
+
+msgid "IDS_MSG_OPT_ADD_TO_CONTACTS_ABB"
+msgstr "Kontaktlarga qo‘shish"
+
+msgid "IDS_MSG_OPT_ADD_TO_BLOCK_LIST_ABB"
+msgstr "Blk. ro‘yxatiga qo‘shish"
+
+msgid "IDS_MSG_OPT_ADD_RECIPIENTS_ABB"
+msgstr "Oluvchilarni qo‘shish"
+
+msgid "IDS_MSG_NPBODY_SEARCH"
+msgstr "Qidirish"
+
+msgid "IDS_MSG_NPBODY_NO_RESULTS_FOUND_ABB"
+msgstr "Natijalar topilmadi"
+
+msgid "IDS_MSG_NPBODY_NO_QUICK_RESPONSES"
+msgstr "Tezkor javoblar yo‘q"
+
+msgid "IDS_MSG_NPBODY_NO_PHRASES_BLOCKED"
+msgstr "Iboralar bloklanmagan"
+
+msgid "IDS_MSG_NPBODY_NO_MESSAGES_ON_SIM_CARD"
+msgstr "SIM-kartada xabarlar mavjud emas"
+
+msgid "IDS_MSG_NPBODY_NO_MESSAGES"
+msgstr "Xabarlar yo‘q"
+
+msgid "IDS_MSG_NPBODY_NO_BLOCKED_NUMBERS"
+msgstr "Bloklangan raqamlar yo‘q"
+
+msgid "IDS_MSG_MBODY_VIBRATION"
+msgstr "Vibratsiya"
+
+msgid "IDS_MSG_MBODY_UNKNOWN_NUMBER"
+msgstr "Noma'lum raqam"
+
+msgid "IDS_MSG_MBODY_TEXT_MESSAGE_CENTRE_NUMBER_ABB"
+msgstr "Matnli xabar markazi raqami"
+
+msgid "IDS_MSG_HEADER_TEXT_MESSAGES_ABB"
+msgstr "Matnli xabarlar"
+
+msgid "IDS_MSG_HEADER_SWITCH_MOBILE_NETWORK_ABB2"
+msgstr "Mobil tarmoqni almashtirish"
+
+msgid "IDS_MSG_HEADER_SMS_CENTRE_ABB2"
+msgstr "SMS markaz"
+
+msgid "IDS_MSG_HEADER_SELECT_RECIPIENT"
+msgstr "Qabul qiluvchini tanlang"
+
+msgid "IDS_MSG_HEADER_PD_SELECTED_ABB3"
+msgstr "%d tanlandi"
+
+msgid "IDS_MSG_HEADER_MESSAGES_ON_SIM_CARD_ABB"
+msgstr "SIM-kartadagi xabarlar"
+
+msgid "IDS_MSG_HEADER_INPUT_MODE_ABB"
+msgstr "Kiritish rejimi"
+
+msgid "IDS_MSG_HEADER_FILE_SIZE_TOO_LARGE_ABB"
+msgstr "Fayl hajmi juda katta"
+
+msgid "IDS_MSG_HEADER_FAILED_TO_SEND_MESSAGE_ABB"
+msgstr "Xabarni yuborib bo‘lmadi"
+
+msgid "IDS_MSG_HEADER_DISCARD_MESSAGE_M_CLOSE_ABB"
+msgstr "Xabarni tashlash"
+
+msgid "IDS_MSG_HEADER_CREATE"
+msgstr "Yaratish"
+
+msgid "IDS_MSG_HEADER_ADD_CONTENT_ABB"
+msgstr "Tarkib qo‘shish"
+
+msgid "IDS_MSG_BUTTON_SWITCH_ABB2"
+msgstr "Almashtirish"
+
+msgid "IDS_MSG_BUTTON_SAVE_ABB2"
+msgstr "Saqlash"
+
+msgid "IDS_MSG_BUTTON_RESEND_ABB"
+msgstr "Qayta yuborish"
+
+msgid "IDS_MSG_BUTTON_DISCARD_ABB"
+msgstr "Rad etish"
+
+msgid "IDS_MSG_BUTTON_DELETE_ABB4"
+msgstr "Yo‘q qilish"
+
+msgid "IDS_MSG_BUTTON_CANCEL_ABB2"
+msgstr "Bekor qilish"
+
+msgid "IDS_MSG_BUTTON2_CONTACTS_ABB_M_APPLICATION_NAME"
+msgstr "Kontaktlar"
+
+msgid "IDS_MSG_BODY_YOU_HAVE_SELECTED_A_SOUND_N_SHOT_FILE_SOUND_DATA_IS_NOT_SUPPORTED_FOR_MMS_SO_ONLY_THE_PICTURE_WILL_BE_ATTACHED"
+msgstr "Siz ovozli kadr faylini tanladingiz. MMS uchun ovoz ma’lumotlari qo‘llab-quvvatlanmaydi, shu sababli faqat rasm biriktiriladi"
+
+msgid "IDS_MSG_BODY_WAITING_TO_SEND_ING_M_STATUS"
+msgstr "Yuborish kutilmoqda..."
+
+msgid "IDS_MSG_BODY_UNABLE_TO_SEND_THIS_MESSAGE_INSERT_YOUR_SIM_CARD_AND_TRY_AGAIN"
+msgstr "Ushbu xabarni yuborib bo‘lmaydi. SIM-kartangizni kiriting va qayta urinib ko‘ring"
+
+msgid "IDS_MSG_BODY_TYPE_C"
+msgstr "Tur:"
+
+msgid "IDS_MSG_BODY_TO_USE_RESTRICTED_MEDIA_TYPES_CHANGE_YOUR_MMS_CREATION_MODE_SETTING"
+msgstr "Cheklangan media turlaridan foydalanish uchun, MMS yaratish rejimi parametrini o‘zgartiring."
+
+msgid "IDS_MSG_BODY_TIME_SENT_C"
+msgstr "Yuborilgan vaqt:"
+
+msgid "IDS_MSG_BODY_TIME_RECEIVED_C"
+msgstr "Olingan vaqt:"
+
+msgid "IDS_MSG_BODY_STATUS_C"
+msgstr "Holat:"
+
+msgid "IDS_MSG_BODY_SENT_M_STATUS"
+msgstr "Yuborildi"
+
+msgid "IDS_MSG_BODY_SENDING_ING_M_STATUS_ABB"
+msgstr "Yubor..."
+
+msgid "IDS_MSG_BODY_SENDING_FAILED_M_STATUS"
+msgstr "Yuborib bo‘lmadi"
+
+msgid "IDS_MSG_BODY_RETRIEVE_MESSAGES_AUTOMATICALLY_WHILE_ROAMING"
+msgstr "Rouming vaqtida xabarlarni avtomatik ravishda qaytaring."
+
+msgid "IDS_MSG_BODY_RETRIEVE_MESSAGES_AUTOMATICALLY"
+msgstr "Xabarlarni avtomatik ravishda qaytaring."
+
+msgid "IDS_MSG_BODY_READ_REPORT_C_PS"
+msgstr "O‘qilganlik haqidagi hisobot: %s"
+
+msgid "IDS_MSG_BODY_OTHER_PERSON"
+msgstr "Boshqa shaxs"
+
+msgid "IDS_MSG_BODY_MEMO_T_MAINMENU"
+msgstr "Yozuv"
+
+msgid "IDS_MSG_BODY_FAILED_M_STATUS_ABB2"
+msgstr "Xato"
+
+msgid "IDS_MSG_BODY_ENTER_TEXT_M_NOUN"
+msgstr "Matn kiriting"
+
+msgid "IDS_MSG_BODY_DRAFT_M_STATUS_ABB"
+msgstr "Qoralama"
+
+msgid "IDS_MSG_BODY_DELIVERY_REPORT_C_PS"
+msgstr "Yetkazilganlik haqida hisobot: %s"
+
+msgid "IDS_MSG_BODY_CB_MESSAGE"
+msgstr "CB xabari"
+
+msgid "IDS_MSG_BODY_CALENDAR_M_APPLICATION_NAME_ABB"
+msgstr "Kalendar"
+
+msgid "IDS_MSG_BODY_AFTER_YOU_SEND_OR_RECEIVE_MESSAGES_THEY_WILL_BE_SHOWN_HERE"
+msgstr "Xabarlarni yuborganingizdan yoki olganingizdan so‘ng, ular bu yerda ko‘rsatiladi."
+
+msgid "IDS_MSG_BODY_AFTER_YOU_CREATE_QUICK_RESPONSES_THEY_WILL_BE_SHOWN_HERE"
+msgstr "Tezkor javoblarni yaratganingizdan so‘ng, ular bu yerda ko‘rsatiladi."
+
+msgid "IDS_MSG_BODY_AFTER_YOU_COPY_MESSAGES_TO_THE_SIM_CARD_THEY_WILL_BE_SHOWN_HERE"
+msgstr "Xabarlardan SIM-kartaga nusxa ko‘chirganingizdan so‘ng, ular bu yerda ko‘rsatiladi."
+
+msgid "IDS_MSG_BODY_AFTER_YOU_ADD_PHRASES_THEY_WILL_BE_SHOWN_HERE"
+msgstr "Jumlalarni qo‘shganingizdan so‘ng, ular bu yerda ko‘rsatiladi."
+
+msgid "IDS_MSG_BODY_AFTER_YOU_ADD_NUMBERS_TO_THE_MESSAGE_BLOCK_LIST_THEY_WILL_BE_SHOWN_HERE"
+msgstr "Xabarlari bloklanadigan ro‘yxatga raqamlar qo‘shganingizdan so‘ng, ular bu yerda ko‘rsatiladi."
+
+msgid "IDS_MSG_ACBUTTON_DELETE_ABB"
+msgstr "O‘CHIRISH"
+
+msgid "IDS_MSGC_POP_UNSUPPORTED_MEDIA_TYPE"
+msgstr "Qo‘llab-quvvatlanmaydigan media turi."
+
+msgid "IDS_MSGC_POP_LOW_BATTERY"
+msgstr "Batareya quvvati kam."
+
+msgid "IDS_MSGC_POP_CANCELLED"
+msgstr "Bekor qilingan."
+
+msgid "IDS_MSGC_OPT_EMAIL"
+msgstr "E-pochta"
+
+msgid "IDS_MSGC_OPT_EDITITEM_VIEW"
+msgstr "Ko‘rib chiqish"
+
+msgid "IDS_MSGC_OPT_EDITITEM_REMOVE"
+msgstr "Olib tashlash"
+
+msgid "IDS_MSGC_OPT_EDITITEM_PLAY"
+msgstr "O‘ynatmoq"
+
+msgid "IDS_MSGC_OPT_CHANGE_RECIPIENTS_TO"
+msgstr "Kimga"
+
+msgid "IDS_MSGC_HEADER_PREVIEW"
+msgstr "Oldindan ko'r. chiq."
+
+msgid "IDS_MSGC_BODY_ENTER_SUBJECT"
+msgstr "Mavzu kiriting."
+
+msgid "IDS_MSGF_POP_UNABLE_TO_FIND_LOCATION"
+msgstr "Joylashuvni topib bo‘lmaydi."
+
+msgid "IDS_MSGF_POP_REJECTED"
+msgstr "Rad etildi."
+
+msgid "IDS_MSGF_POP_DELETING"
+msgstr "O'chirilmoqda…"
+
+msgid "IDS_MSGF_POP_COPIED_TO_CLIPBOARD"
+msgstr "Buferga nusxa olindi."
+
+msgid "IDS_MSGF_POP_BLOCK_PS_Q"
+msgstr "%s bloklansinmi?"
+
+msgid "IDS_MSGF_OPT_SUBJECT_COLON"
+msgstr "Mavzu:"
+
+msgid "IDS_MSGF_OPT_SENDER_VIA_EMAIL"
+msgstr "Elektron pochta orqali yuborish"
+
+msgid "IDS_MSGF_OPT_SELECT"
+msgstr "Tanlash"
+
+msgid "IDS_MSGF_OPT_SAVE"
+msgstr "Saqlash"
+
+msgid "IDS_MSGF_OPT_REMOVE"
+msgstr "Olib tashlash"
+
+msgid "IDS_MSGF_OPT_FORWARD"
+msgstr "Boshqaga yo‘naltirish"
+
+msgid "IDS_MSGF_OPT_DELETE_Q"
+msgstr "O'chirilsinmi?"
+
+msgid "IDS_MSGF_HEADER_ADVANCED_SEARCH"
+msgstr "Kengaytirilgan qidiruv"
+
+msgid "IDS_MSGF_BODY_UNKNOWN"
+msgstr "Noma’lum"
+
+msgid "IDS_MSGF_BODY_SETTINGS"
+msgstr "Parametrlar"
+
+msgid "IDS_MSGF_BODY_RECIPIENTS"
+msgstr "Oluvchilar"
+
+msgid "IDS_MSGF_BODY_RECEIVED"
+msgstr "Qabul qilindi."
+
+msgid "IDS_MSGF_BODY_OTHER"
+msgstr "Boshqa"
+
+msgid "IDS_MSGF_BODY_NO_SUBJECT"
+msgstr "Mavzu yo‘q"
+
+msgid "IDS_MSGF_BODY_MSGSIZE_KB"
+msgstr "KB"
+
+msgid "IDS_MSGF_BODY_MESSAGE"
+msgstr "Xabar"
+
+msgid "IDS_MSGF_BODY_ME"
+msgstr "Men"
+
+msgid "IDS_MSGF_BODY_EXPIRED"
+msgstr "Amal qilish muddati tugadi"
+
+msgid "IDS_MSGF_BODY_ALL"
+msgstr "Barchasi"
+
+msgid "IDS_MSG_SK_NO_ABB"
+msgstr "Yo‘q"
+
+msgid "IDS_MSG_POP_YOUR_MESSAGE_WILL_BE_DISCARDED_NO_RECIPIENTS_HAVE_BEEN_SELECTED"
+msgstr "Xabaringiz tashlanadi. Oluvchilar tanlanmagan."
+
+msgid "IDS_MSG_POP_UNABLE_TO_PLAY_DURING_CALL"
+msgstr "Qo‘ng‘iroq mobaynida o‘ynatib bo‘lmaydi."
+
+msgid "IDS_MSG_POP_INCOMING_MESSAGES_ONLY"
+msgstr "Faqat kiruvchi xabarlar"
+
+msgid "IDS_MSG_POP_DELETED"
+msgstr "O'chirildi."
+
+msgid "IDS_MSG_OPT_VIDEOS"
+msgstr "Videolar"
+
+msgid "IDS_MSG_OPT_TEXT"
+msgstr "Matn"
+
+msgid "IDS_MSG_OPT_SETTINGS"
+msgstr "Parametrlar"
+
+msgid "IDS_MSG_OPT_SEARCH"
+msgstr "Qidirish"
+
+msgid "IDS_MSG_OPT_RECORD_VIDEO_ABB"
+msgstr "Video yozib olish"
+
+msgid "IDS_MSG_OPT_NONE"
+msgstr "Hech qaysi"
+
+msgid "IDS_MSG_OPT_IMAGES"
+msgstr "Tasvirlar"
+
+msgid "IDS_MSG_OPT_EDIT"
+msgstr "Tahrirlash"
+
+msgid "IDS_MSG_OPT_DELETE"
+msgstr "O'chirish"
+
+msgid "IDS_MSG_OPT_DEFAULT"
+msgstr "Birlamchi"
+
+msgid "IDS_MSG_MBODY_SELECT_ALL"
+msgstr "Hammasini belgilash"
+
+msgid "IDS_MSG_MBODY_ALERTS"
+msgstr "Signallar"
+
+msgid "IDS_MSG_HEADER_TRANSLATE"
+msgstr "Tarjima qilish"
+
+msgid "IDS_MSG_HEADER_SETTINGS"
+msgstr "Parametrlar"
+
+msgid "IDS_MSG_HEADER_MESSAGES"
+msgstr "Xabarlar"
+
+msgid "IDS_MSG_HEADER_DELETE"
+msgstr "Yo‘q qilish"
+
+msgid "IDS_MSG_HEADER_ATTENTION"
+msgstr "Diqqat"
+
+msgid "IDS_MSG_BUTTON_REMOVE_ABB"
+msgstr "Ol/tashla"
+
+msgid "IDS_MSG_BUTTON_OK_ABB"
+msgstr "OK"
+
+msgid "IDS_MSG_BUTTON_DOWNLOAD_ABB3"
+msgstr "Yuklab ol"
+
+msgid "IDS_MSG_BUTTON_CANCEL_ABB"
+msgstr "Bekor qilish"
+
+msgid "IDS_MSG_BODY_YES"
+msgstr "Ha"
+
+msgid "IDS_MSG_BODY_TICK_BOX_T_TTS"
+msgstr "Belgilash katakchasi"
+
+msgid "IDS_MSG_BODY_SEC"
+msgstr "soniya"
+
+msgid "IDS_MSG_BODY_MESSAGE"
+msgstr "Xabar"
+
+msgid "IDS_MSG_BUTTON_SEND_ABB5"
+msgstr "Yub."
+
+msgid "IDS_MSG_BUTTON_SEND_ABB3"
+msgstr "Yubor"
+
+msgid "IDS_MSG_ACBUTTON_SEND_ABB3"
+msgstr "YUB"
+
+msgid "IDS_ST_BODY_LOADING_ING"
+msgstr "Yuklanmoqda..."
+
+msgid "IDS_MSGS_BODY_NOTIFICATIONS"
+msgstr "Ma'lumotnomalar"
+
+msgid "IDS_MSG_HEADER_ME"
+msgstr "Men"
+
+msgid "IDS_MSG_BODY_UNKNOWN"
+msgstr "Noma’lum"
+
+msgid "IDS_MSG_TMBODY_ADD_OR_REMOVE_RECIPIENTS"
+msgstr "Oluvchi qo‘sh yoki olib tashla"
+
+msgid "IDS_MSG_POP_THE_SENDER_HAS_REQUESTED_A_READ_REPORT_TAP_SEND_TO_SEND_ONE"
+msgstr "Yuboruvchi o‘qilganlik haqidagi hisobotni talab qilgan. Uni yuborish uchun Yuborish tugmasiga teging."
+
+msgid "IDS_MSGF_OPT_SEND_READ_REPORT"
+msgstr "O‘qilganlik haqida hisobot yuborish"
+
+msgid "IDS_MSG_HEADER_COMPOSE_MESSAGE_ABB"
+msgstr "Xabar yaratish"
+
+msgid "IDS_MSG_POP_NO_VALID_RECIPIENTS_HAVE_BEEN_ADDED_THIS_MESSAGE_WILL_BE_DISCARDED"
+msgstr "To‘g‘ri oluvchi kontaktlar kiritilmagan. Ushbu xabar tashlanadi."
+

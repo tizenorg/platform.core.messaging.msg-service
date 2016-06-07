@@ -1,0 +1,945 @@
+msgid "IDS_COM_BODY_HOME"
+msgstr "Дома"
+
+msgid "IDS_MSGC_POP_DATA_ROAMING_IS_DISABLED_ENABLE_DATA_ROAMING_AND_TRY_AGAIN"
+msgstr "Податочниот роаминг е исклучен. Вклучете податочен роаминг и обидете се повторно."
+
+msgid "IDS_MSG_ACBUTTON_CANCEL_ABB"
+msgstr "ОТКАЖИ"
+
+msgid "IDS_MSG_ACBUTTON_DONE_ABB"
+msgstr "ГОТОВО"
+
+msgid "IDS_MSGF_POP_NEW_MESSAGE"
+msgstr "Нова порака"
+
+msgid "IDS_COM_BUTTON_SHARE"
+msgstr "Сподели"
+
+msgid "IDS_COM_BODY_UNKNOWN"
+msgstr "Непознато"
+
+msgid "IDS_COM_BODY_MOBILE"
+msgstr "Мобилен"
+
+msgid "IDS_MSGC_POP_MOBILE_DATA_IS_DISABLED_ENABLE_MOBILE_DATA_AND_TRY_AGAIN"
+msgstr "Мобилните податоци се исклучени. Вклучете мобилни податоци и обидете се повторно."
+
+msgid "IDS_TPLATFORM_ACBUTTON_SEND_ABB"
+msgstr "ПРАТИ"
+
+msgid "IDS_MSGC_POP_UNABLE_TO_SEND_MESSAGES_WHILE_IN_FLIGHT_MODE_DISABLE_FLIGHT_MODE_AND_TRY_AGAIN"
+msgstr "Не може да се праќаат пораки во режимот за летало. Исклучете го режимот за летало и обидете се повторно."
+
+msgid "IDS_MSGC_POP_UNABLE_TO_ADD_FILE_IS_FORWARD_LOCKED"
+msgstr "Не може да се препрати. Фајлот е заклучена за препраќање."
+
+msgid "IDS_MSGC_POP_THERE_IS_NOT_ENOUGH_SPACE_IN_YOUR_DEVICE_STORAGE_GO_TO_SETTINGS_POWER_AND_STORAGE_STORAGE_THEN_DELETE_SOME_FILES_AND_TRY_AGAIN"
+msgstr "Нема доволно место во меморијата на уредот. Одете во Поставувања > Енергија и меморија > Меморија, избришете некој фајл и обидете се повторно."
+
+msgid "IDS_MSGC_POP_TEXT_AT_TOP"
+msgstr "Текстот одозгора"
+
+msgid "IDS_MSGC_POP_TEXT_AT_BOTTOM"
+msgstr "Текст одоздола"
+
+msgid "IDS_MSGC_POP_SELECT_LAYOUT"
+msgstr "Изберете изглед"
+
+msgid "IDS_MSGC_POP_MMSCANTADD"
+msgstr "Не може да се додаде содржина."
+
+msgid "IDS_MSGC_POP_MESSAGE_SCHEDULED_TO_BE_SENT_TO_PS_SEND_NOW_Q"
+msgstr "Пораката е закажана за праќање на %s. Да се прати сега?"
+
+msgid "IDS_MSGC_POP_MAXIMUM_MESSAGE_SIZE_REACHED"
+msgstr "Достигната е максималната големина за порака."
+
+msgid "IDS_MSGC_POP_DURATION_MUST_BE_AT_LEAST_PD_SECONDS"
+msgstr "Траењето мора да биде барем %d секунди."
+
+msgid "IDS_MSGC_POP_DISABLING_FLIGHT_MODE_ING"
+msgstr "Се исклучува режимот за летало..."
+
+msgid "IDS_MSGC_POP_COPIED_TO_SIM_CARD"
+msgstr "Копирано на SIM-картичката."
+
+msgid "IDS_MSGC_OPT_USE_OTHER_CONTACT_INFO_ABB"
+msgstr "Кор.др.инфо.за контакт"
+
+msgid "IDS_MSGC_OPT_SEND_VIA"
+msgstr "Прати преку"
+
+msgid "IDS_MSGC_OPT_IMAGE"
+msgstr "Слика"
+
+msgid "IDS_MSGC_OPT_EDIT_ITEM_REPLACE"
+msgstr "Замени"
+
+msgid "IDS_MSGC_OPT_CANCEL_MESSAGE"
+msgstr "Откажи порака"
+
+msgid "IDS_MSGC_HEADER_RECIPIENT_LIST"
+msgstr "Листа на приматели"
+
+msgid "IDS_MSGC_HEADER_DURATION_FOR_SLIDE_PD_PD"
+msgstr "Времетраење за слајд %d/%d"
+
+msgid "IDS_MSGC_BODY_WAIT_WHILE_ITEMS_ARE_ADDED_TO_SLIDESHOW"
+msgstr "Почекајте додека се додаваат записи во слајдовите."
+
+msgid "IDS_MSGC_BODY_UNABLE_TO_SEND_MESSAGE"
+msgstr "Не може да се прати пораката."
+
+msgid "IDS_MSGC_BODY_SELECT_RINGTONE"
+msgstr "Избери ѕвонење"
+
+msgid "IDS_MSGC_BODY_READ_REPORT_WILL_BE_SENT"
+msgstr "Ќе се испрати извештај за прочитаност."
+
+msgid "IDS_MSGC_BODY_NOT_REQUESTED"
+msgstr "Не е побарано"
+
+msgid "IDS_MSGC_BODY_MAXIMUM_NUMBER_OF_RECIPIENTS_HPD_REACHED"
+msgstr "Достигнат е максималниот број приматели (%d)."
+
+msgid "IDS_MSGC_BODY_DUPLICATED_RECIPIENT"
+msgstr "Дуплиран примател."
+
+msgid "IDS_MSGF_SK_FORWARD_LITE"
+msgstr "Препр."
+
+msgid "IDS_MSGF_POP_UNABLE_TO_SAVE"
+msgstr "Не може да се меморира."
+
+msgid "IDS_MSGF_POP_UNABLE_TO_DELETE"
+msgstr "Не може да се избрише."
+
+msgid "IDS_MSGF_POP_UNABLE_TO_COPY"
+msgstr "Не може да се копира."
+
+msgid "IDS_MSGF_POP_SOME_CHARACTERS_MAY_BE_LOST_CONTINUE_Q"
+msgstr "Некои знаци може да се изгубат.\nДа се продолжи?"
+
+msgid "IDS_MSGF_POP_SIM_NOT_INSERTED"
+msgstr "Не е вметнат SIM."
+
+msgid "IDS_MSGF_POP_SAVING_FAILED"
+msgstr "Неуспешно снимање."
+
+msgid "IDS_MSGF_POP_SAVED_IN_MY_FILES"
+msgstr "Сочувано во Мои фајлови."
+
+msgid "IDS_MSGF_POP_RETRIEVING_MESSAGE_FAILED"
+msgstr "Неуспешно вчитување на пораките"
+
+msgid "IDS_MSGF_POP_RESTRICTED_CONTENT_TYPE_ATTACH_ANYWAY_Q"
+msgstr "Ограничен вид содржина. Сепак приложи?"
+
+msgid "IDS_MSGF_POP_RESTORING_ING"
+msgstr "Се обновува..."
+
+msgid "IDS_MSGF_POP_READ_REPORT"
+msgstr "Извештај за прочитаност"
+
+msgid "IDS_MSGF_POP_NO_NUMBER"
+msgstr "Нема број"
+
+msgid "IDS_MSGF_POP_NO_ATTACHMENTS"
+msgstr "Без прилози"
+
+msgid "IDS_MSGF_POP_NEW_MESSAGES"
+msgstr "Нови пораки"
+
+msgid "IDS_MSGF_POP_MESSAGE_COPIED_FROM_SIM_CARD"
+msgstr "Пораката е ископирана од SIM-картичката."
+
+msgid "IDS_MSGF_POP_MAXIMUM_NUMBER_OF_RECIPIENTS_IS_PD_SOME_RECIPIENTS_MAY_BE_LOST"
+msgstr "Максимален број приматели е %d. Некои приматели може да се изгубат."
+
+msgid "IDS_MSGF_POP_MAXIMUM_NUMBER_OF_ATTACHMENTS_HPS_EXCEEDED"
+msgstr "Надминат е максималниот број прилози (%s)."
+
+msgid "IDS_MSGF_POP_MAXIMUM_CHARACTERS"
+msgstr "Достигнат е максималниот број знаци."
+
+msgid "IDS_MSGF_POP_IN_PROGRESS_ING"
+msgstr "Во тек..."
+
+msgid "IDS_MSGF_POP_INTIALISING"
+msgstr "Започнување..."
+
+msgid "IDS_MSGF_POP_IF_YOU_DONT_WANT_TO_REPLACE_THE_FILE_RENAME_IT"
+msgstr "Ако не сакате да се замени фајлот, преименувајте го."
+
+msgid "IDS_MSGF_POP_HELP_PAGE_MESSAGE_FOR_ONE_FILE"
+msgstr "Пораката содржи неприкажан приложен фајл."
+
+msgid "IDS_MSGF_POP_HELP_PAGE_MESSAGE"
+msgstr "Пораката содржи неприкажани приложени фајлови."
+
+msgid "IDS_MSGF_POP_FILE_NAME_ALREADY_EXISTS"
+msgstr "Името на фајлот веќе постои."
+
+msgid "IDS_MSGF_POP_CONVERTING_TO_TEXT_MESSAGE_ING"
+msgstr "Се претвора во SMS..."
+
+msgid "IDS_MSGF_POP_CONVERTING_TO_MULTIMEDIA_MESSAGE_ING"
+msgstr "Претворање во мултимедијална порака..."
+
+msgid "IDS_MSGF_POP_ABOUT_TO_GO_ONLINE_CONTINUE_Q"
+msgstr "Ќе бидете поврзани на Интернет (%s). Сепак продолжи?"
+
+msgid "IDS_MSGF_OPT_TEXT_MESSAGE"
+msgstr "Текст порака"
+
+msgid "IDS_MSGF_OPT_SENDER_ABB"
+msgstr "На праќачот"
+
+msgid "IDS_MSGF_OPT_SAVE_ATTACHMENT"
+msgstr "Сочувај прилог"
+
+msgid "IDS_MSGF_OPT_INSTALL"
+msgstr "Инсталирај"
+
+msgid "IDS_MSGF_OPT_EDIT_MESSAGE"
+msgstr "Измени порака"
+
+msgid "IDS_MSGF_OPT_DELETE_MESSAGES"
+msgstr "Избриши пораки"
+
+msgid "IDS_MSGF_HEADER_SELECT_MESSAGES"
+msgstr "Избери пораки"
+
+msgid "IDS_MSGF_HEADER_SAVE_ALL"
+msgstr "Меморирај сè"
+
+msgid "IDS_MSGF_HEADER_MESSAGE_DETAILS"
+msgstr "Детали за пораката"
+
+msgid "IDS_MSGF_HEADER_EXPIRES_C_PS"
+msgstr "Застарува: %s"
+
+msgid "IDS_MSGF_BUTTON_SAVE_ALL_ATTACHMENTS_ABB"
+msgstr "Соч. ги сите прилози"
+
+msgid "IDS_MSGF_BODY_TO_C"
+msgstr "До:"
+
+msgid "IDS_MSGF_BODY_TEXT_MESSAGES"
+msgstr "Текст пораки"
+
+msgid "IDS_MSGF_BODY_SIM_MEMORY_FULL_DELETE_SOME_ITEMS"
+msgstr "Меморијата на SIM-от е полна. Избришете некој запис."
+
+msgid "IDS_MSGF_BODY_SENT_M_DATE_C"
+msgstr "Пратено на:"
+
+msgid "IDS_MSGF_BODY_REQUESTED"
+msgstr "Побарано."
+
+msgid "IDS_MSGF_BODY_RECEIVED_M_DATE_C"
+msgstr "Примено на:"
+
+msgid "IDS_MSGF_BODY_READ_REPORT"
+msgstr "Извештај за прочитаност"
+
+msgid "IDS_MSGF_BODY_PUSH_MESSAGES"
+msgstr "Push пораки"
+
+msgid "IDS_MSGF_BODY_PD_MESSAGES"
+msgstr "%d пораки"
+
+msgid "IDS_MSGF_BODY_PD_CONVERSATIONS"
+msgstr "%d разговори"
+
+msgid "IDS_MSGF_BODY_NO_NAME"
+msgstr "Нема име"
+
+msgid "IDS_MSGF_BODY_MULTIMEDIA_MESSAGE_NOTIFICATION"
+msgstr "Известување за мултимедијална порака"
+
+msgid "IDS_MSGF_BODY_MULTIMEDIA_MESSAGE"
+msgstr "Мултимед.порака"
+
+msgid "IDS_MSGF_BODY_MMSREADREPLYMSGREAD"
+msgstr "Читање"
+
+msgid "IDS_MSGF_BODY_MMSDELIVERYMSGREJECTED"
+msgstr "Пораката е одбиена."
+
+msgid "IDS_MSGF_BODY_MMS"
+msgstr "MMS"
+
+msgid "IDS_MSGF_BODY_MESSAGE_SIZE"
+msgstr "Големина на пораката"
+
+msgid "IDS_MSGF_BODY_MESSAGE_OPTIONS"
+msgstr "Опции за пораките"
+
+msgid "IDS_MSGF_BODY_MESSAGE_DELIVERED"
+msgstr "Пораката е испорачана"
+
+msgid "IDS_MSGF_BODY_MAXIMUM_NUMBER_OF_ATTACHMENTS_HP1SS_EXCEEDED_ONLY_FIRST_P2SS_WILL_BE_ADDED"
+msgstr "Надминат е максималниот број прилози (%1$s). Ќе се приложат само првите %2$s."
+
+msgid "IDS_MSGF_BODY_INVALID_RECIPIENT"
+msgstr "Неважечки примател."
+
+msgid "IDS_MSGF_BODY_FROM"
+msgstr "Од"
+
+msgid "IDS_MSGF_BODY_FLFROM"
+msgstr "Од:"
+
+msgid "IDS_MSGF_BODY_DETAILSSENDINGFAILED"
+msgstr "Неуспешно праќање."
+
+msgid "IDS_MSGF_BODY_DELIVERY_REPORT"
+msgstr "Извештај за испорака"
+
+msgid "IDS_MSGF_BODY_CP_MESSAGES"
+msgstr "CP-пораки"
+
+msgid "IDS_MSGF_BODY_COPY_TEXT"
+msgstr "Копирај текст"
+
+msgid "IDS_MSGF_BODY_CB_MESSAGES"
+msgstr "Инфо-пораки"
+
+msgid "IDS_MSGF_BODY_1_MESSAGE"
+msgstr "1 порака"
+
+msgid "IDS_MSGF_BODY_1_CONVERSATION"
+msgstr "1 разговор"
+
+msgid "IDS_MSGS_BODY_REQUEST_A_READ_REPORT_FOR_EACH_MESSAGE_YOU_SEND"
+msgstr "Барај извештај за прочитаност за секоја пратена порака."
+
+msgid "IDS_MSGS_BODY_REQUEST_A_DELIVERY_REPORT_FOR_EACH_MESSAGE_YOU_SEND"
+msgstr "Барај извештај за испорака за секоја пратена порака."
+
+msgid "IDS_MSGS_BODY_RADIO_BUTTON"
+msgstr "Радио копче"
+
+msgid "IDS_MSGS_BODY_ON_OFF_BUTTON_T_TTS"
+msgstr "Копче вклучено/исклучено"
+
+msgid "IDS_MSGS_BODY_EXPANDABLE_LIST_T_TTS"
+msgstr "Листа што се проширува"
+
+msgid "IDS_MSGS_BODY_AUTOMATICALLY_RETRIEVE_MMS_MESSAGES"
+msgstr "Автоматаско примање пораки MMS."
+
+msgid "IDS_MSG_TPOP_UNABLE_TO_PREVIEW_FILE_UNSUPPORTED_FILE_TYPE"
+msgstr "Не може да се прегледа фајлот. Неподдржан вид фајл."
+
+msgid "IDS_MSG_TPOP_UNABLE_TO_ATTACH_FILE_FILE_FORMAT_NOT_SUPPORTED"
+msgstr "Не може да се приложи фајлот. Форматот на фајлот не е поддржан."
+
+msgid "IDS_MSG_TPOP_UNABLE_TO_ADD_SOME_RECIPIENTS_NUMBERS_NOT_VALID"
+msgstr "Не може да се додадат некои приматели. Броевите не се важечки."
+
+msgid "IDS_MSG_TPOP_UNABLE_TO_ADD_RECIPIENT_NUMBER_NOT_VALID"
+msgstr "Не може да се додаде примател. Бројот не е важечки."
+
+msgid "IDS_MSG_TPOP_UNABLE_TO_ADD_RECIPIENTS_NUMBERS_NOT_VALID"
+msgstr "Не може да се додадат приматели. Броевите не се важечки."
+
+msgid "IDS_MSG_TPOP_UNABLE_TO_ADD_ATTACHMENT_MAXIMUM_NUMBER_OF_ATTACHMENTS_HPD_REACHED"
+msgstr "Не може да се додадат уште прилози. Достигнат е максималниот број прилози (%d)."
+
+msgid "IDS_MSG_TPOP_THIS_NUMBER_IS_NOT_VALID"
+msgstr "Бројот е неважечки."
+
+msgid "IDS_MSG_TPOP_SOME_RECIPIENTS_ALREADY_ADDED"
+msgstr "Некои приматели се веќе додадени."
+
+msgid "IDS_MSG_TPOP_SELECTED_MESSAGES_COPIED_TO_MOBILE_DEVICE"
+msgstr "Избраните пораки се ископирани на мобилниот уред."
+
+msgid "IDS_MSG_TPOP_PD_MESSAGES_MOVED_TO_MESSAGE_LIST"
+msgstr "%d пораки се преместени во листата пораки."
+
+msgid "IDS_MSG_TPOP_NUMBER_REMOVED_FROM_MESSAGE_BLOCK_LIST"
+msgstr "Бројот е отстранет од листата блокирани пораки."
+
+msgid "IDS_MSG_TPOP_NUMBER_ADDED_TO_MESSAGE_BLOCK_LIST"
+msgstr "Бројот е додаден во листата блокирани пораки."
+
+msgid "IDS_MSG_TPOP_NETWORK_NOT_AVAILABLE_MESSAGE_WILL_BE_SENT_WHEN_CONNECTED_TO_NETWORK"
+msgstr "Мрежата е недостапна. Пораката ќе се испрати кога ќе се поврзете со мрежа."
+
+msgid "IDS_MSG_TPOP_MESSAGE_COPIED_TO_PS_SIM_CARD"
+msgstr "Пораката е ископирана на SIM-картичката %s."
+
+msgid "IDS_MSG_TPOP_MAXIMUM_NUMBER_OF_CHARACTERS_EXCEEDED"
+msgstr "Надминат е максималниот број знаци."
+
+msgid "IDS_MSG_TPOP_MAXIMUM_MESSAGE_SIZE_HPS_EXCEEDED_RESIZING_ATTACHMENTS_ING"
+msgstr "Надмината е максималната големина за пораки (%s). Се менува големината на прилозите..."
+
+msgid "IDS_MSG_TPOP_INVALID_CHARACTER_ENTERED"
+msgstr "Внесен е неправилен знак."
+
+msgid "IDS_MSG_TPOP_ADD_RECIPIENTS"
+msgstr "Додај приматели."
+
+msgid "IDS_MSG_TPOP_1_MESSAGE_MOVED_TO_MESSAGE_LIST"
+msgstr "1 порака е преместена во листата пораки."
+
+msgid "IDS_MSG_TMBODY_TEXT_MESSAGES"
+msgstr "Текстуални пораки"
+
+msgid "IDS_MSG_TMBODY_SOUND"
+msgstr "Звук"
+
+msgid "IDS_MSG_TMBODY_MULTIMEDIA_MESSAGES"
+msgstr "Мултимедијални пораки"
+
+msgid "IDS_MSG_TMBODY_MESSAGES_ON_SIM_CARD"
+msgstr "Пораки на SIM-картичката"
+
+msgid "IDS_MSG_TMBODY_INPUT_MODE"
+msgstr "Режим за внесување"
+
+msgid "IDS_MSG_TMBODY_AUTO_RETRIEVE_WHILE_ROAMING"
+msgstr "Автоматско преземање во роаминг"
+
+msgid "IDS_MSG_TMBODY_AUTO_RETRIEVE"
+msgstr "Автоматско преземање"
+
+msgid "IDS_MSG_SK_SEND_NOW"
+msgstr "Испрати"
+
+msgid "IDS_MSG_SBODY_SELECT_AN_INPUT_MODE_FOR_COMPOSING_MESSAGES"
+msgstr "Изберете режим за внесување за составување пораки."
+
+msgid "IDS_MSG_SBODY_NONE_M_STATUS"
+msgstr "Ништо"
+
+msgid "IDS_MSG_SBODY_MANAGE_THE_MESSAGES_STORED_ON_YOUR_SIM_CARD"
+msgstr "Уредување на пораките зачувани на SIM-картичката."
+
+msgid "IDS_MSG_POP_UNABLE_TO_SEND_SCHEDULED_MESSAGE_SET_ANOTHER_TIME"
+msgstr "Не може да се прати закажаната порака. Одредете друго време."
+
+msgid "IDS_MSG_POP_UNABLE_TO_ATTACH_FILE_FILE_SIZE_TOO_LARGE_TRY_SENDING_VIA_EMAIL_BLUETOOTH_WI_FI_ETC"
+msgstr "Не може да се приложи фајлот. Преголем е. Обидете се да го пратите преку Email, Bluetooth, Wi-Fi итн."
+
+msgid "IDS_MSG_POP_TO_SEND_THIS_MULTIMEDIA_MESSAGE_THE_DEVICE_WILL_CONNECT_TO_A_DIFFERENT_MOBILE_NETWORK_THIS_WILL_DISCONNECT_YOUR_DEVICE_FROM_YOUR_MSG"
+msgstr "За да ја пратите оваа мултимедијална порака, уредот ќе се поврзе со друга мобилна мрежа. Тоа ќе ја прекине врската на уредот со моменталната мобилна мрежа."
+
+msgid "IDS_MSG_POP_TO_DOWNLOAD_THIS_MULTIMEDIA_MESSAGE_THE_DEVICE_WILL_CONNECT_TO_A_DIFFERENT_MOBILE_NETWORK_MSG"
+msgstr "За да ја преземете оваа мултимедијална порака, уредот ќе се поврзе со друга мобилна мрежа. Тоа ќе ја прекине врската на уредот со моменталната мобилна мрежа."
+
+msgid "IDS_MSG_POP_THIS_MESSAGE_WILL_BE_RESENT"
+msgstr "Пораката ќе се прати повторно."
+
+msgid "IDS_MSG_POP_PD_MESSAGES_WILL_BE_DELETED"
+msgstr "%d пораки ќе се избришат."
+
+msgid "IDS_MSG_POP_PD_CONVERSATIONS_WILL_BE_DELETED"
+msgstr "%d разговори ќе се избришат."
+
+msgid "IDS_MSG_POP_NO_TEMPLATES_IN_LIST"
+msgstr "Нема урнеци на листата"
+
+msgid "IDS_MSG_POP_INCLUDE_ORIGINAL_TEXT_IN_OUTGOING_MESSAGE"
+msgstr "Вклучи го оригиналниот текст во појдовната порака"
+
+msgid "IDS_MSG_POP_DURATION_MUST_BE_SHORTER_THAN_PD_SECONDS"
+msgstr "Траењето мора да биде пократко од %d секунди."
+
+msgid "IDS_MSG_POP_1_MESSAGE_WILL_BE_DELETED"
+msgstr "1 порака ќе се избрише."
+
+msgid "IDS_MSG_POP_1_CONVERSATION_WILL_BE_DELETED"
+msgstr "1 разговор ќе се избрише."
+
+msgid "IDS_MSG_OPT_VIEW_DETAILS_ABB"
+msgstr "Види детали"
+
+msgid "IDS_MSG_OPT_VIEW_CONTACT_DETAILS_ABB"
+msgstr "Види детали за контакт"
+
+msgid "IDS_MSG_OPT_VIEW_AS_SLIDESHOW_ABB"
+msgstr "Види како слајдови"
+
+msgid "IDS_MSG_OPT_UPDATE_CONTACT"
+msgstr "Ажурирај контакт"
+
+msgid "IDS_MSG_OPT_UNICODE"
+msgstr "Уникод"
+
+msgid "IDS_MSG_OPT_TAKE_PICTURE_ABB"
+msgstr "Сликај"
+
+msgid "IDS_MSG_OPT_SAVE_ATTACHMENTS_ABB"
+msgstr "Сочувај прилози"
+
+msgid "IDS_MSG_OPT_RESEND"
+msgstr "Прати повторно"
+
+msgid "IDS_MSG_OPT_REPLY"
+msgstr "Одговори"
+
+msgid "IDS_MSG_OPT_REMOVE_FROM_BLOCK_LIST_ABB"
+msgstr "Отстрани од блокирани"
+
+msgid "IDS_MSG_OPT_RECORD_AUDIO_FILE_ABB"
+msgstr "Сними звучен фајл"
+
+msgid "IDS_MSG_OPT_QUICK_RESPONSE_ABB"
+msgstr "Брз одговор"
+
+msgid "IDS_MSG_OPT_MAKE_VOICE_CALL"
+msgstr "Упати гласовен повик"
+
+msgid "IDS_MSG_OPT_GSM_ALPHABET_ABB"
+msgstr "GSM alphabet"
+
+msgid "IDS_MSG_OPT_EXPORT_TO_DEVICE_MEMORY"
+msgstr "Извези во меморијата на уредот"
+
+msgid "IDS_MSG_OPT_DELETE_MESSAGE"
+msgstr "Избриши порака"
+
+msgid "IDS_MSG_OPT_DELETE_CONVERSATION_ABB"
+msgstr "Избриши разговор"
+
+msgid "IDS_MSG_OPT_CREATE_CONTACT_ABB"
+msgstr "Направи контакт"
+
+msgid "IDS_MSG_OPT_COPY_TO_SIM_CARD_ABB"
+msgstr "Копирај на SIM-картичка"
+
+msgid "IDS_MSG_OPT_COPY_TO_DEVICE_ABB"
+msgstr "Копирај на уредот"
+
+msgid "IDS_MSG_OPT_COPY_TEXT"
+msgstr "Копирај текст"
+
+msgid "IDS_MSG_OPT_COPY"
+msgstr "Копирај"
+
+msgid "IDS_MSG_OPT_BACK_UP"
+msgstr "Резервна копија"
+
+msgid "IDS_MSG_OPT_AUTOMATIC"
+msgstr "Автоматски"
+
+msgid "IDS_MSG_OPT_AUDIO_FILES_ABB2"
+msgstr "Звучни фајлови"
+
+msgid "IDS_MSG_OPT_ATTACHMENT_ABB"
+msgstr "Прилог"
+
+msgid "IDS_MSG_OPT_ADD_TO_CONTACTS_ABB"
+msgstr "Додај во Контакти"
+
+msgid "IDS_MSG_OPT_ADD_TO_BLOCK_LIST_ABB"
+msgstr "Додај во Блокирани"
+
+msgid "IDS_MSG_OPT_ADD_RECIPIENTS_ABB"
+msgstr "Додај приматели"
+
+msgid "IDS_MSG_NPBODY_SEARCH"
+msgstr "Пребарување"
+
+msgid "IDS_MSG_NPBODY_NO_RESULTS_FOUND_ABB"
+msgstr "Нема резултати"
+
+msgid "IDS_MSG_NPBODY_NO_QUICK_RESPONSES"
+msgstr "Нема брзи одговори"
+
+msgid "IDS_MSG_NPBODY_NO_PHRASES_BLOCKED"
+msgstr "Нема блокирани фрази"
+
+msgid "IDS_MSG_NPBODY_NO_MESSAGES_ON_SIM_CARD"
+msgstr "Нема пораки на SIM-картичката"
+
+msgid "IDS_MSG_NPBODY_NO_MESSAGES"
+msgstr "Нема пораки"
+
+msgid "IDS_MSG_NPBODY_NO_BLOCKED_NUMBERS"
+msgstr "Нема блокирани броеви"
+
+msgid "IDS_MSG_MBODY_VIBRATION"
+msgstr "Вибрации"
+
+msgid "IDS_MSG_MBODY_UNKNOWN_NUMBER"
+msgstr "Непознат број"
+
+msgid "IDS_MSG_MBODY_TEXT_MESSAGE_CENTRE_NUMBER_ABB"
+msgstr "Број на цент. за текст.пораки"
+
+msgid "IDS_MSG_HEADER_TEXT_MESSAGES_ABB"
+msgstr "Текстуални пораки"
+
+msgid "IDS_MSG_HEADER_SWITCH_MOBILE_NETWORK_ABB2"
+msgstr "Смени мобилна мрежа"
+
+msgid "IDS_MSG_HEADER_SMS_CENTRE_ABB2"
+msgstr "SMS-центар"
+
+msgid "IDS_MSG_HEADER_SELECT_RECIPIENT"
+msgstr "Изберете примател"
+
+msgid "IDS_MSG_HEADER_PD_SELECTED_ABB3"
+msgstr "%d избрани"
+
+msgid "IDS_MSG_HEADER_MESSAGES_ON_SIM_CARD_ABB"
+msgstr "Пораки на SIM-картичката"
+
+msgid "IDS_MSG_HEADER_INPUT_MODE_ABB"
+msgstr "Режим за внесување"
+
+msgid "IDS_MSG_HEADER_FILE_SIZE_TOO_LARGE_ABB"
+msgstr "Фајлот е преголем"
+
+msgid "IDS_MSG_HEADER_FAILED_TO_SEND_MESSAGE_ABB"
+msgstr "Неуспешно праќање порака"
+
+msgid "IDS_MSG_HEADER_DISCARD_MESSAGE_M_CLOSE_ABB"
+msgstr "Отфрли порака"
+
+msgid "IDS_MSG_HEADER_CREATE"
+msgstr "Направи"
+
+msgid "IDS_MSG_HEADER_ADD_CONTENT_ABB"
+msgstr "Додај содржина"
+
+msgid "IDS_MSG_BUTTON_SWITCH_ABB2"
+msgstr "Префрли"
+
+msgid "IDS_MSG_BUTTON_SAVE_ABB2"
+msgstr "Сочувај"
+
+msgid "IDS_MSG_BUTTON_RESEND_ABB"
+msgstr "Прати повторно"
+
+msgid "IDS_MSG_BUTTON_DISCARD_ABB"
+msgstr "Отфрли"
+
+msgid "IDS_MSG_BUTTON_DELETE_ABB4"
+msgstr "Избриши"
+
+msgid "IDS_MSG_BUTTON_CANCEL_ABB2"
+msgstr "Откажи"
+
+msgid "IDS_MSG_BUTTON2_CONTACTS_ABB_M_APPLICATION_NAME"
+msgstr "Контакти"
+
+msgid "IDS_MSG_BODY_YOU_HAVE_SELECTED_A_SOUND_N_SHOT_FILE_SOUND_DATA_IS_NOT_SUPPORTED_FOR_MMS_SO_ONLY_THE_PICTURE_WILL_BE_ATTACHED"
+msgstr "Избравте фајл за звук и слика. Звучните податоци не се поддржани за MMS, па ќе се приложи само сликата."
+
+msgid "IDS_MSG_BODY_WAITING_TO_SEND_ING_M_STATUS"
+msgstr "Се чека да се прати..."
+
+msgid "IDS_MSG_BODY_UNABLE_TO_SEND_THIS_MESSAGE_INSERT_YOUR_SIM_CARD_AND_TRY_AGAIN"
+msgstr "Не може да се прати поракава. Вметнете ја својата SIM-картичка и обидете се повторно."
+
+msgid "IDS_MSG_BODY_TYPE_C"
+msgstr "Тип:"
+
+msgid "IDS_MSG_BODY_TO_USE_RESTRICTED_MEDIA_TYPES_CHANGE_YOUR_MMS_CREATION_MODE_SETTING"
+msgstr "За да користите ограничени видови медиуми, сменете ги поставки за правење MMS."
+
+msgid "IDS_MSG_BODY_TIME_SENT_C"
+msgstr "Време на праќање:"
+
+msgid "IDS_MSG_BODY_TIME_RECEIVED_C"
+msgstr "Време на примање:"
+
+msgid "IDS_MSG_BODY_STATUS_C"
+msgstr "Состојба:"
+
+msgid "IDS_MSG_BODY_SENT_M_STATUS"
+msgstr "Пратени"
+
+msgid "IDS_MSG_BODY_SENDING_ING_M_STATUS_ABB"
+msgstr "Се праќа..."
+
+msgid "IDS_MSG_BODY_SENDING_FAILED_M_STATUS"
+msgstr "Неуспешно праќање"
+
+msgid "IDS_MSG_BODY_RETRIEVE_MESSAGES_AUTOMATICALLY_WHILE_ROAMING"
+msgstr "Преземај пораки автоматски во роаминг."
+
+msgid "IDS_MSG_BODY_RETRIEVE_MESSAGES_AUTOMATICALLY"
+msgstr "Преземај пораки автоматски."
+
+msgid "IDS_MSG_BODY_READ_REPORT_C_PS"
+msgstr "Извештај за прочитаност: %s"
+
+msgid "IDS_MSG_BODY_OTHER_PERSON"
+msgstr "Друго лице"
+
+msgid "IDS_MSG_BODY_MEMO_T_MAINMENU"
+msgstr "Белешка"
+
+msgid "IDS_MSG_BODY_FAILED_M_STATUS_ABB2"
+msgstr "Неуспешно"
+
+msgid "IDS_MSG_BODY_ENTER_TEXT_M_NOUN"
+msgstr "Внесете текст"
+
+msgid "IDS_MSG_BODY_DRAFT_M_STATUS_ABB"
+msgstr "Нацрт"
+
+msgid "IDS_MSG_BODY_DELIVERY_REPORT_C_PS"
+msgstr "Извештај за испорака: %s"
+
+msgid "IDS_MSG_BODY_CB_MESSAGE"
+msgstr "Инфо-порака"
+
+msgid "IDS_MSG_BODY_CALENDAR_M_APPLICATION_NAME_ABB"
+msgstr "Календар"
+
+msgid "IDS_MSG_BODY_AFTER_YOU_SEND_OR_RECEIVE_MESSAGES_THEY_WILL_BE_SHOWN_HERE"
+msgstr "Откако ќе пратите или примите пораки, ќе се прикажат тука."
+
+msgid "IDS_MSG_BODY_AFTER_YOU_CREATE_QUICK_RESPONSES_THEY_WILL_BE_SHOWN_HERE"
+msgstr "Откако ќе направите брзи одговори, ќе се прикажат тука."
+
+msgid "IDS_MSG_BODY_AFTER_YOU_COPY_MESSAGES_TO_THE_SIM_CARD_THEY_WILL_BE_SHOWN_HERE"
+msgstr "Откако ќе ископирате пораки на SIM-картичката, ќе се прикажат тука."
+
+msgid "IDS_MSG_BODY_AFTER_YOU_ADD_PHRASES_THEY_WILL_BE_SHOWN_HERE"
+msgstr "Откако ќе додадете фрази, ќе се прикажат тука."
+
+msgid "IDS_MSG_BODY_AFTER_YOU_ADD_NUMBERS_TO_THE_MESSAGE_BLOCK_LIST_THEY_WILL_BE_SHOWN_HERE"
+msgstr "Откако ќе додадете броеви во листата за блокирање пораки, ќе се прикажат тука."
+
+msgid "IDS_MSG_ACBUTTON_DELETE_ABB"
+msgstr "ИЗБРИШИ"
+
+msgid "IDS_MSGC_POP_UNSUPPORTED_MEDIA_TYPE"
+msgstr "Неподдржан тип на медиум."
+
+msgid "IDS_MSGC_POP_LOW_BATTERY"
+msgstr "Батеријата е празна."
+
+msgid "IDS_MSGC_POP_CANCELLED"
+msgstr "Откажано."
+
+msgid "IDS_MSGC_OPT_EMAIL"
+msgstr "Е-пошта"
+
+msgid "IDS_MSGC_OPT_EDITITEM_VIEW"
+msgstr "Прикажи"
+
+msgid "IDS_MSGC_OPT_EDITITEM_REMOVE"
+msgstr "Отстрани"
+
+msgid "IDS_MSGC_OPT_EDITITEM_PLAY"
+msgstr "Емитувај"
+
+msgid "IDS_MSGC_OPT_CHANGE_RECIPIENTS_TO"
+msgstr "До"
+
+msgid "IDS_MSGC_HEADER_PREVIEW"
+msgstr "Прикажи"
+
+msgid "IDS_MSGC_BODY_ENTER_SUBJECT"
+msgstr "Внесете наслов."
+
+msgid "IDS_MSGF_POP_UNABLE_TO_FIND_LOCATION"
+msgstr "Не може да се најде локацијата."
+
+msgid "IDS_MSGF_POP_REJECTED"
+msgstr "Отфрлено."
+
+msgid "IDS_MSGF_POP_DELETING"
+msgstr "Се брише..."
+
+msgid "IDS_MSGF_POP_COPIED_TO_CLIPBOARD"
+msgstr "Ископирано во посредната меморија."
+
+msgid "IDS_MSGF_POP_BLOCK_PS_Q"
+msgstr "Блокирај %s?"
+
+msgid "IDS_MSGF_OPT_SUBJECT_COLON"
+msgstr "Наслов:"
+
+msgid "IDS_MSGF_OPT_SENDER_VIA_EMAIL"
+msgstr "На праќачот по email"
+
+msgid "IDS_MSGF_OPT_SELECT"
+msgstr "Избери"
+
+msgid "IDS_MSGF_OPT_SAVE"
+msgstr "Сочувај"
+
+msgid "IDS_MSGF_OPT_REMOVE"
+msgstr "Отстрани"
+
+msgid "IDS_MSGF_OPT_FORWARD"
+msgstr "Препрати"
+
+msgid "IDS_MSGF_OPT_DELETE_Q"
+msgstr "Да се избрише?"
+
+msgid "IDS_MSGF_HEADER_ADVANCED_SEARCH"
+msgstr "Напредно пребарување"
+
+msgid "IDS_MSGF_BODY_UNKNOWN"
+msgstr "Непознато"
+
+msgid "IDS_MSGF_BODY_SETTINGS"
+msgstr "Поставувања"
+
+msgid "IDS_MSGF_BODY_RECIPIENTS"
+msgstr "Приматели"
+
+msgid "IDS_MSGF_BODY_RECEIVED"
+msgstr "Примено."
+
+msgid "IDS_MSGF_BODY_OTHER"
+msgstr "Друго"
+
+msgid "IDS_MSGF_BODY_NO_SUBJECT"
+msgstr "Нема наслов"
+
+msgid "IDS_MSGF_BODY_MSGSIZE_KB"
+msgstr "KB"
+
+msgid "IDS_MSGF_BODY_MESSAGE"
+msgstr "Порака"
+
+msgid "IDS_MSGF_BODY_ME"
+msgstr "Мене"
+
+msgid "IDS_MSGF_BODY_EXPIRED"
+msgstr "Застарено"
+
+msgid "IDS_MSGF_BODY_ALL"
+msgstr "Сите"
+
+msgid "IDS_MSG_SK_NO_ABB"
+msgstr "Не"
+
+msgid "IDS_MSG_POP_YOUR_MESSAGE_WILL_BE_DISCARDED_NO_RECIPIENTS_HAVE_BEEN_SELECTED"
+msgstr "Пораката ќе се отфрли. Не се избрани приматели."
+
+msgid "IDS_MSG_POP_UNABLE_TO_PLAY_DURING_CALL"
+msgstr "Не може да се пушти за време на разговор."
+
+msgid "IDS_MSG_POP_INCOMING_MESSAGES_ONLY"
+msgstr "Само дојдовни пораки"
+
+msgid "IDS_MSG_POP_DELETED"
+msgstr "Избришано."
+
+msgid "IDS_MSG_OPT_VIDEOS"
+msgstr "Видео-записи"
+
+msgid "IDS_MSG_OPT_TEXT"
+msgstr "Текст"
+
+msgid "IDS_MSG_OPT_SETTINGS"
+msgstr "Поставувања"
+
+msgid "IDS_MSG_OPT_SEARCH"
+msgstr "Пребарување"
+
+msgid "IDS_MSG_OPT_RECORD_VIDEO_ABB"
+msgstr "Сними видео"
+
+msgid "IDS_MSG_OPT_NONE"
+msgstr "Ништо"
+
+msgid "IDS_MSG_OPT_IMAGES"
+msgstr "Слики"
+
+msgid "IDS_MSG_OPT_EDIT"
+msgstr "Измени"
+
+msgid "IDS_MSG_OPT_DELETE"
+msgstr "Избриши"
+
+msgid "IDS_MSG_OPT_DEFAULT"
+msgstr "Основно"
+
+msgid "IDS_MSG_MBODY_SELECT_ALL"
+msgstr "Избери ги сите"
+
+msgid "IDS_MSG_MBODY_ALERTS"
+msgstr "Известувања"
+
+msgid "IDS_MSG_HEADER_TRANSLATE"
+msgstr "Преведи"
+
+msgid "IDS_MSG_HEADER_SETTINGS"
+msgstr "Поставувања"
+
+msgid "IDS_MSG_HEADER_MESSAGES"
+msgstr "Пораки"
+
+msgid "IDS_MSG_HEADER_DELETE"
+msgstr "Избриши"
+
+msgid "IDS_MSG_HEADER_ATTENTION"
+msgstr "Внимание"
+
+msgid "IDS_MSG_BUTTON_REMOVE_ABB"
+msgstr "Отстрани"
+
+msgid "IDS_MSG_BUTTON_OK_ABB"
+msgstr "OK"
+
+msgid "IDS_MSG_BUTTON_DOWNLOAD_ABB3"
+msgstr "Преземи"
+
+msgid "IDS_MSG_BUTTON_CANCEL_ABB"
+msgstr "Откажи"
+
+msgid "IDS_MSG_BODY_YES"
+msgstr "Да"
+
+msgid "IDS_MSG_BODY_TICK_BOX_T_TTS"
+msgstr "Квадрат за штиклирање"
+
+msgid "IDS_MSG_BODY_SEC"
+msgstr "сек."
+
+msgid "IDS_MSG_BODY_MESSAGE"
+msgstr "Порака"
+
+msgid "IDS_MSG_BUTTON_SEND_ABB5"
+msgstr "Исп."
+
+msgid "IDS_MSG_BUTTON_SEND_ABB3"
+msgstr "Прати"
+
+msgid "IDS_MSG_ACBUTTON_SEND_ABB3"
+msgstr "ПРАТИ"
+
+msgid "IDS_ST_BODY_LOADING_ING"
+msgstr "Активирање..."
+
+msgid "IDS_MSGS_BODY_NOTIFICATIONS"
+msgstr "Известувања"
+
+msgid "IDS_MSG_HEADER_ME"
+msgstr "Мене"
+
+msgid "IDS_MSG_BODY_UNKNOWN"
+msgstr "Непознато"
+
+msgid "IDS_MSG_TMBODY_ADD_OR_REMOVE_RECIPIENTS"
+msgstr "Додав. или отстран. приматели"
+
+msgid "IDS_MSG_POP_THE_SENDER_HAS_REQUESTED_A_READ_REPORT_TAP_SEND_TO_SEND_ONE"
+msgstr "Испраќачот побара извештај за прочитаност. Допрете Прати за да пратите."
+
+msgid "IDS_MSGF_OPT_SEND_READ_REPORT"
+msgstr "Праќај извештај за прочитано"
+
+msgid "IDS_MSG_HEADER_COMPOSE_MESSAGE_ABB"
+msgstr "Состави порака"
+
+msgid "IDS_MSG_POP_NO_VALID_RECIPIENTS_HAVE_BEEN_ADDED_THIS_MESSAGE_WILL_BE_DISCARDED"
+msgstr "Не се додадени важечки приматели. Поракава ќе се отфрли."
+

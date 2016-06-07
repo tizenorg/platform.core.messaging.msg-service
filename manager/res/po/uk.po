@@ -1,0 +1,945 @@
+msgid "IDS_COM_BODY_HOME"
+msgstr "Дім"
+
+msgid "IDS_MSGC_POP_DATA_ROAMING_IS_DISABLED_ENABLE_DATA_ROAMING_AND_TRY_AGAIN"
+msgstr "Передачу даних у роумінгу вимкнено. Ввімкніть передачу даних у роумінгу та спробуйте ще раз."
+
+msgid "IDS_MSG_ACBUTTON_CANCEL_ABB"
+msgstr "СКАСУВАТИ"
+
+msgid "IDS_MSG_ACBUTTON_DONE_ABB"
+msgstr "ГОТОВО"
+
+msgid "IDS_MSGF_POP_NEW_MESSAGE"
+msgstr "Нове повідомлення"
+
+msgid "IDS_COM_BUTTON_SHARE"
+msgstr "Надісл."
+
+msgid "IDS_COM_BODY_UNKNOWN"
+msgstr "Невідомо"
+
+msgid "IDS_COM_BODY_MOBILE"
+msgstr "Мобільний"
+
+msgid "IDS_MSGC_POP_MOBILE_DATA_IS_DISABLED_ENABLE_MOBILE_DATA_AND_TRY_AGAIN"
+msgstr "Використання мобільних даних вимкнено. Увімкніть використання мобільних даних і спробуйте ще раз."
+
+msgid "IDS_TPLATFORM_ACBUTTON_SEND_ABB"
+msgstr "НАДІСЛАТИ"
+
+msgid "IDS_MSGC_POP_UNABLE_TO_SEND_MESSAGES_WHILE_IN_FLIGHT_MODE_DISABLE_FLIGHT_MODE_AND_TRY_AGAIN"
+msgstr "Неможливо надсилати повідомлення в режимі без зв’язку. Вимкніть режим без зв'язку та спробуйте ще раз."
+
+msgid "IDS_MSGC_POP_UNABLE_TO_ADD_FILE_IS_FORWARD_LOCKED"
+msgstr "Неможливо переслати.\nЗаблоковано пересилання файлу."
+
+msgid "IDS_MSGC_POP_THERE_IS_NOT_ENOUGH_SPACE_IN_YOUR_DEVICE_STORAGE_GO_TO_SETTINGS_POWER_AND_STORAGE_STORAGE_THEN_DELETE_SOME_FILES_AND_TRY_AGAIN"
+msgstr "Недостатньо вільного місця в місці збереження на пристрої. Перейдіть до меню «Налаштування» > «Живлення та місце збереження» > «Місце збереження» та видаліть деякі файли, а потім спробуйте ще раз."
+
+msgid "IDS_MSGC_POP_TEXT_AT_TOP"
+msgstr "Текст вгорі"
+
+msgid "IDS_MSGC_POP_TEXT_AT_BOTTOM"
+msgstr "Текст внизу"
+
+msgid "IDS_MSGC_POP_SELECT_LAYOUT"
+msgstr "Вибір макета"
+
+msgid "IDS_MSGC_POP_MMSCANTADD"
+msgstr "Неможливо додати вміст."
+
+msgid "IDS_MSGC_POP_MESSAGE_SCHEDULED_TO_BE_SENT_TO_PS_SEND_NOW_Q"
+msgstr "Надсилання повідомлення заплановано на %s. Надіслати зараз?"
+
+msgid "IDS_MSGC_POP_MAXIMUM_MESSAGE_SIZE_REACHED"
+msgstr "Досягнуто максимального розміру повідомлення."
+
+msgid "IDS_MSGC_POP_DURATION_MUST_BE_AT_LEAST_PD_SECONDS"
+msgstr "Тривалість має становити принаймні %d сек."
+
+msgid "IDS_MSGC_POP_DISABLING_FLIGHT_MODE_ING"
+msgstr "Вимкнення режиму без зв’язку..."
+
+msgid "IDS_MSGC_POP_COPIED_TO_SIM_CARD"
+msgstr "Скопійовано на SIM-картку."
+
+msgid "IDS_MSGC_OPT_USE_OTHER_CONTACT_INFO_ABB"
+msgstr "Вик. інші конт. дані"
+
+msgid "IDS_MSGC_OPT_SEND_VIA"
+msgstr "Надіслати через"
+
+msgid "IDS_MSGC_OPT_IMAGE"
+msgstr "Зображення"
+
+msgid "IDS_MSGC_OPT_EDIT_ITEM_REPLACE"
+msgstr "Замінити"
+
+msgid "IDS_MSGC_OPT_CANCEL_MESSAGE"
+msgstr "Скасувати надсилання повідомлення"
+
+msgid "IDS_MSGC_HEADER_RECIPIENT_LIST"
+msgstr "Список одержувачів"
+
+msgid "IDS_MSGC_HEADER_DURATION_FOR_SLIDE_PD_PD"
+msgstr "Тривалість слайда %d/%d"
+
+msgid "IDS_MSGC_BODY_WAIT_WHILE_ITEMS_ARE_ADDED_TO_SLIDESHOW"
+msgstr "Зачекайте, доки об’єкти буде додано до повідомлення."
+
+msgid "IDS_MSGC_BODY_UNABLE_TO_SEND_MESSAGE"
+msgstr "Неможливо надіслати повідомлення."
+
+msgid "IDS_MSGC_BODY_SELECT_RINGTONE"
+msgstr "Вибір звука дзвінка"
+
+msgid "IDS_MSGC_BODY_READ_REPORT_WILL_BE_SENT"
+msgstr "Буде надіслано звіт про прочитання."
+
+msgid "IDS_MSGC_BODY_NOT_REQUESTED"
+msgstr "Немає запитів"
+
+msgid "IDS_MSGC_BODY_MAXIMUM_NUMBER_OF_RECIPIENTS_HPD_REACHED"
+msgstr "Досягнуто максимальної кількості одержувачів (%d)."
+
+msgid "IDS_MSGC_BODY_DUPLICATED_RECIPIENT"
+msgstr "Повторення одержувача."
+
+msgid "IDS_MSGF_SK_FORWARD_LITE"
+msgstr "Перес."
+
+msgid "IDS_MSGF_POP_UNABLE_TO_SAVE"
+msgstr "Неможливо зберегти."
+
+msgid "IDS_MSGF_POP_UNABLE_TO_DELETE"
+msgstr "Неможливо видалити."
+
+msgid "IDS_MSGF_POP_UNABLE_TO_COPY"
+msgstr "Неможливо скопіювати."
+
+msgid "IDS_MSGF_POP_SOME_CHARACTERS_MAY_BE_LOST_CONTINUE_Q"
+msgstr "Деякі символи може бути втрачено.\nПродовжити?"
+
+msgid "IDS_MSGF_POP_SIM_NOT_INSERTED"
+msgstr "SIM-картку не вставлено."
+
+msgid "IDS_MSGF_POP_SAVING_FAILED"
+msgstr "Збій збереження."
+
+msgid "IDS_MSGF_POP_SAVED_IN_MY_FILES"
+msgstr "Збережено в моїх файлах."
+
+msgid "IDS_MSGF_POP_RETRIEVING_MESSAGE_FAILED"
+msgstr "Збій отримання повідомлення"
+
+msgid "IDS_MSGF_POP_RESTRICTED_CONTENT_TYPE_ATTACH_ANYWAY_Q"
+msgstr "Заборонений тип вмісту. Все одно вкласти?"
+
+msgid "IDS_MSGF_POP_RESTORING_ING"
+msgstr "Відновлення..."
+
+msgid "IDS_MSGF_POP_READ_REPORT"
+msgstr "Звіт про прочитання"
+
+msgid "IDS_MSGF_POP_NO_NUMBER"
+msgstr "Немає номера"
+
+msgid "IDS_MSGF_POP_NO_ATTACHMENTS"
+msgstr "Без вкладень"
+
+msgid "IDS_MSGF_POP_NEW_MESSAGES"
+msgstr "Нових повідомлень"
+
+msgid "IDS_MSGF_POP_MESSAGE_COPIED_FROM_SIM_CARD"
+msgstr "Повідомлення скопійовано із SIM-картки."
+
+msgid "IDS_MSGF_POP_MAXIMUM_NUMBER_OF_RECIPIENTS_IS_PD_SOME_RECIPIENTS_MAY_BE_LOST"
+msgstr "Максимальна кількість одержувачів складає %d. Деякі одержувачі можуть бути втрачені."
+
+msgid "IDS_MSGF_POP_MAXIMUM_NUMBER_OF_ATTACHMENTS_HPS_EXCEEDED"
+msgstr "Перевищено максимальну кількість вкладень: %s."
+
+msgid "IDS_MSGF_POP_MAXIMUM_CHARACTERS"
+msgstr "Досягнуто максимальної кількості символів."
+
+msgid "IDS_MSGF_POP_IN_PROGRESS_ING"
+msgstr "Триває відправка..."
+
+msgid "IDS_MSGF_POP_INTIALISING"
+msgstr "Ініціалізація..."
+
+msgid "IDS_MSGF_POP_IF_YOU_DONT_WANT_TO_REPLACE_THE_FILE_RENAME_IT"
+msgstr "Якщо не потрібно замінити файл, перейменуйте його."
+
+msgid "IDS_MSGF_POP_HELP_PAGE_MESSAGE_FOR_ONE_FILE"
+msgstr "Це повідомлення включає приєднаний файл, що не відображений."
+
+msgid "IDS_MSGF_POP_HELP_PAGE_MESSAGE"
+msgstr "Це повідомлення включає приєднані файли, що не відображені."
+
+msgid "IDS_MSGF_POP_FILE_NAME_ALREADY_EXISTS"
+msgstr "Файл з такою назвою вже існує."
+
+msgid "IDS_MSGF_POP_CONVERTING_TO_TEXT_MESSAGE_ING"
+msgstr "Перетворення на SMS-повідомлення..."
+
+msgid "IDS_MSGF_POP_CONVERTING_TO_MULTIMEDIA_MESSAGE_ING"
+msgstr "Перетворення на MMS-повідомлення..."
+
+msgid "IDS_MSGF_POP_ABOUT_TO_GO_ONLINE_CONTINUE_Q"
+msgstr "Підключення до інтернету (%s) Продовжити?"
+
+msgid "IDS_MSGF_OPT_TEXT_MESSAGE"
+msgstr "SMS"
+
+msgid "IDS_MSGF_OPT_SENDER_ABB"
+msgstr "Відправник"
+
+msgid "IDS_MSGF_OPT_SAVE_ATTACHMENT"
+msgstr "Зберегти вкладення"
+
+msgid "IDS_MSGF_OPT_INSTALL"
+msgstr "Установити"
+
+msgid "IDS_MSGF_OPT_EDIT_MESSAGE"
+msgstr "Редагувати повідомлення"
+
+msgid "IDS_MSGF_OPT_DELETE_MESSAGES"
+msgstr "Видалити повідомлення"
+
+msgid "IDS_MSGF_HEADER_SELECT_MESSAGES"
+msgstr "Виберіть повідомлення"
+
+msgid "IDS_MSGF_HEADER_SAVE_ALL"
+msgstr "Зберегти все"
+
+msgid "IDS_MSGF_HEADER_MESSAGE_DETAILS"
+msgstr "Деталі повідомлення"
+
+msgid "IDS_MSGF_HEADER_EXPIRES_C_PS"
+msgstr "Дійсне до: %s"
+
+msgid "IDS_MSGF_BUTTON_SAVE_ALL_ATTACHMENTS_ABB"
+msgstr "Збер. всі вкладення"
+
+msgid "IDS_MSGF_BODY_TO_C"
+msgstr "Кому:"
+
+msgid "IDS_MSGF_BODY_TEXT_MESSAGES"
+msgstr "SMS-повідомлення"
+
+msgid "IDS_MSGF_BODY_SIM_MEMORY_FULL_DELETE_SOME_ITEMS"
+msgstr "Пам’ять SIM-картки заповнено. Видаліть деякі об’єкти."
+
+msgid "IDS_MSGF_BODY_SENT_M_DATE_C"
+msgstr "Надіслано:"
+
+msgid "IDS_MSGF_BODY_REQUESTED"
+msgstr "Запитано."
+
+msgid "IDS_MSGF_BODY_RECEIVED_M_DATE_C"
+msgstr "Отримано:"
+
+msgid "IDS_MSGF_BODY_READ_REPORT"
+msgstr "Звіт про прочитання"
+
+msgid "IDS_MSGF_BODY_PUSH_MESSAGES"
+msgstr "Push-повідомлення"
+
+msgid "IDS_MSGF_BODY_PD_MESSAGES"
+msgstr "%d повід."
+
+msgid "IDS_MSGF_BODY_PD_CONVERSATIONS"
+msgstr "%d розмов"
+
+msgid "IDS_MSGF_BODY_NO_NAME"
+msgstr "Немає імені"
+
+msgid "IDS_MSGF_BODY_MULTIMEDIA_MESSAGE_NOTIFICATION"
+msgstr "Сповіщення про MMS-повідомлення"
+
+msgid "IDS_MSGF_BODY_MULTIMEDIA_MESSAGE"
+msgstr "MMS-повідомлення"
+
+msgid "IDS_MSGF_BODY_MMSREADREPLYMSGREAD"
+msgstr "Прочитане"
+
+msgid "IDS_MSGF_BODY_MMSDELIVERYMSGREJECTED"
+msgstr "Повідомлення відхилено."
+
+msgid "IDS_MSGF_BODY_MMS"
+msgstr "MMS"
+
+msgid "IDS_MSGF_BODY_MESSAGE_SIZE"
+msgstr "Розмір повідомлення"
+
+msgid "IDS_MSGF_BODY_MESSAGE_OPTIONS"
+msgstr "Параметри повідомлення"
+
+msgid "IDS_MSGF_BODY_MESSAGE_DELIVERED"
+msgstr "Повідомлення доставлено"
+
+msgid "IDS_MSGF_BODY_MAXIMUM_NUMBER_OF_ATTACHMENTS_HP1SS_EXCEEDED_ONLY_FIRST_P2SS_WILL_BE_ADDED"
+msgstr "Перевищено максимальну кількість вкладень: %1$s. Буде додано лише перші %2$s."
+
+msgid "IDS_MSGF_BODY_INVALID_RECIPIENT"
+msgstr "Хибний одержувач."
+
+msgid "IDS_MSGF_BODY_FROM"
+msgstr "Від"
+
+msgid "IDS_MSGF_BODY_FLFROM"
+msgstr "Від:"
+
+msgid "IDS_MSGF_BODY_DETAILSSENDINGFAILED"
+msgstr "Збій надсилання."
+
+msgid "IDS_MSGF_BODY_DELIVERY_REPORT"
+msgstr "Звіт про доставку"
+
+msgid "IDS_MSGF_BODY_CP_MESSAGES"
+msgstr "CP-повідомлення"
+
+msgid "IDS_MSGF_BODY_COPY_TEXT"
+msgstr "Копіювати текст"
+
+msgid "IDS_MSGF_BODY_CB_MESSAGES"
+msgstr "CB-повідомлення"
+
+msgid "IDS_MSGF_BODY_1_MESSAGE"
+msgstr "1 повідомлення"
+
+msgid "IDS_MSGF_BODY_1_CONVERSATION"
+msgstr "1 розмова"
+
+msgid "IDS_MSGS_BODY_REQUEST_A_READ_REPORT_FOR_EACH_MESSAGE_YOU_SEND"
+msgstr "Запитувати звіт про прочитання для кожного надісланого повідомлення."
+
+msgid "IDS_MSGS_BODY_REQUEST_A_DELIVERY_REPORT_FOR_EACH_MESSAGE_YOU_SEND"
+msgstr "Запитувати звіт про доставку для кожного надісланого повідомлення."
+
+msgid "IDS_MSGS_BODY_RADIO_BUTTON"
+msgstr "Перемикач"
+
+msgid "IDS_MSGS_BODY_ON_OFF_BUTTON_T_TTS"
+msgstr "Кнопка ввімкнення/вимкнення"
+
+msgid "IDS_MSGS_BODY_EXPANDABLE_LIST_T_TTS"
+msgstr "Розширений список"
+
+msgid "IDS_MSGS_BODY_AUTOMATICALLY_RETRIEVE_MMS_MESSAGES"
+msgstr "Автоматично отримувати MMS-повідомлення."
+
+msgid "IDS_MSG_TPOP_UNABLE_TO_PREVIEW_FILE_UNSUPPORTED_FILE_TYPE"
+msgstr "Неможливо здійснити попередній перегляд файла. Непідтримуваний тип файла."
+
+msgid "IDS_MSG_TPOP_UNABLE_TO_ATTACH_FILE_FILE_FORMAT_NOT_SUPPORTED"
+msgstr "Неможливо вкласти файл. Формат файлу не підтримується."
+
+msgid "IDS_MSG_TPOP_UNABLE_TO_ADD_SOME_RECIPIENTS_NUMBERS_NOT_VALID"
+msgstr "Неможливо додати деяких одержувачів. Номери недійсні."
+
+msgid "IDS_MSG_TPOP_UNABLE_TO_ADD_RECIPIENT_NUMBER_NOT_VALID"
+msgstr "Неможливо додати одержувача. Номер недійсний."
+
+msgid "IDS_MSG_TPOP_UNABLE_TO_ADD_RECIPIENTS_NUMBERS_NOT_VALID"
+msgstr "Неможливо додати одержувачів. Номери недійсні."
+
+msgid "IDS_MSG_TPOP_UNABLE_TO_ADD_ATTACHMENT_MAXIMUM_NUMBER_OF_ATTACHMENTS_HPD_REACHED"
+msgstr "Неможливо додати вкладення. Досягнуто максимальної кількості вкладень (%d)."
+
+msgid "IDS_MSG_TPOP_THIS_NUMBER_IS_NOT_VALID"
+msgstr "Цей номер недійсний."
+
+msgid "IDS_MSG_TPOP_SOME_RECIPIENTS_ALREADY_ADDED"
+msgstr "Деяких отримувачів вже додано."
+
+msgid "IDS_MSG_TPOP_SELECTED_MESSAGES_COPIED_TO_MOBILE_DEVICE"
+msgstr "Вибрані повідомлення скопійовано на мобільний пристрій."
+
+msgid "IDS_MSG_TPOP_PD_MESSAGES_MOVED_TO_MESSAGE_LIST"
+msgstr "%d повідомлень переміщено до списку повідомлень."
+
+msgid "IDS_MSG_TPOP_NUMBER_REMOVED_FROM_MESSAGE_BLOCK_LIST"
+msgstr "Номер видалено зі списку блокування повідомлень."
+
+msgid "IDS_MSG_TPOP_NUMBER_ADDED_TO_MESSAGE_BLOCK_LIST"
+msgstr "Номер додано до списку блокування повідомлень."
+
+msgid "IDS_MSG_TPOP_NETWORK_NOT_AVAILABLE_MESSAGE_WILL_BE_SENT_WHEN_CONNECTED_TO_NETWORK"
+msgstr "Мережа недоступна. Повідомлення буде надіслано після підключення до мережі."
+
+msgid "IDS_MSG_TPOP_MESSAGE_COPIED_TO_PS_SIM_CARD"
+msgstr "Повідомлення скопійовано на SIM-карту %s."
+
+msgid "IDS_MSG_TPOP_MAXIMUM_NUMBER_OF_CHARACTERS_EXCEEDED"
+msgstr "Перевищено максимальну кількість символів."
+
+msgid "IDS_MSG_TPOP_MAXIMUM_MESSAGE_SIZE_HPS_EXCEEDED_RESIZING_ATTACHMENTS_ING"
+msgstr "Перевищено максимальний розмір повідомлення (%s). Змінення розміру вкладень..."
+
+msgid "IDS_MSG_TPOP_INVALID_CHARACTER_ENTERED"
+msgstr "Введено хибний символ"
+
+msgid "IDS_MSG_TPOP_ADD_RECIPIENTS"
+msgstr "Додайте одержувачів."
+
+msgid "IDS_MSG_TPOP_1_MESSAGE_MOVED_TO_MESSAGE_LIST"
+msgstr "1 повідомлення переміщено до списку повідомлень."
+
+msgid "IDS_MSG_TMBODY_TEXT_MESSAGES"
+msgstr "SMS-повідомлення"
+
+msgid "IDS_MSG_TMBODY_SOUND"
+msgstr "Звук"
+
+msgid "IDS_MSG_TMBODY_MULTIMEDIA_MESSAGES"
+msgstr "MMS-повідомлення"
+
+msgid "IDS_MSG_TMBODY_MESSAGES_ON_SIM_CARD"
+msgstr "Повідомлення на SIM-карті"
+
+msgid "IDS_MSG_TMBODY_INPUT_MODE"
+msgstr "Режим введення"
+
+msgid "IDS_MSG_TMBODY_AUTO_RETRIEVE_WHILE_ROAMING"
+msgstr "Автоотримання в роумінгу"
+
+msgid "IDS_MSG_TMBODY_AUTO_RETRIEVE"
+msgstr "Автоотримання"
+
+msgid "IDS_MSG_SK_SEND_NOW"
+msgstr "Надіслати зараз"
+
+msgid "IDS_MSG_SBODY_SELECT_AN_INPUT_MODE_FOR_COMPOSING_MESSAGES"
+msgstr "Виберіть режим введення для створення повідомлень."
+
+msgid "IDS_MSG_SBODY_NONE_M_STATUS"
+msgstr "Немає"
+
+msgid "IDS_MSG_SBODY_MANAGE_THE_MESSAGES_STORED_ON_YOUR_SIM_CARD"
+msgstr "Керування повідомленнями, збереженими на SIM-карті."
+
+msgid "IDS_MSG_POP_UNABLE_TO_SEND_SCHEDULED_MESSAGE_SET_ANOTHER_TIME"
+msgstr "Неможливо надіслати заплановане повідомлення. Встановіть інший час."
+
+msgid "IDS_MSG_POP_UNABLE_TO_ATTACH_FILE_FILE_SIZE_TOO_LARGE_TRY_SENDING_VIA_EMAIL_BLUETOOTH_WI_FI_ETC"
+msgstr "Неможливо вкласти файл. Завеликий файл. Спробуйте передати за допомогою електронної пошти, Bluetooth, Wi-Fi тощо."
+
+msgid "IDS_MSG_POP_TO_SEND_THIS_MULTIMEDIA_MESSAGE_THE_DEVICE_WILL_CONNECT_TO_A_DIFFERENT_MOBILE_NETWORK_THIS_WILL_DISCONNECT_YOUR_DEVICE_FROM_YOUR_MSG"
+msgstr "Щоб надіслати це MMS-повідомлення, пристрій буде підключено до іншої мобільної мережі. Це призведе до відключення пристрою від поточної мобільної мережі."
+
+msgid "IDS_MSG_POP_TO_DOWNLOAD_THIS_MULTIMEDIA_MESSAGE_THE_DEVICE_WILL_CONNECT_TO_A_DIFFERENT_MOBILE_NETWORK_MSG"
+msgstr "Для завантаження цього MMS-повідомлення пристрій буде підключено до іншої мобільної мережі. Це призведе до відключення пристрою від поточної мобільної мережі."
+
+msgid "IDS_MSG_POP_THIS_MESSAGE_WILL_BE_RESENT"
+msgstr "Це повідомлення буде надіслано повторно."
+
+msgid "IDS_MSG_POP_PD_MESSAGES_WILL_BE_DELETED"
+msgstr "Буде видалено повідомлень: %d"
+
+msgid "IDS_MSG_POP_PD_CONVERSATIONS_WILL_BE_DELETED"
+msgstr "Буде видалено стільки розмов: %d."
+
+msgid "IDS_MSG_POP_NO_TEMPLATES_IN_LIST"
+msgstr "У списку немає шаблонів"
+
+msgid "IDS_MSG_POP_INCLUDE_ORIGINAL_TEXT_IN_OUTGOING_MESSAGE"
+msgstr "Додати оригінальний текст до вихідного повідомлення"
+
+msgid "IDS_MSG_POP_DURATION_MUST_BE_SHORTER_THAN_PD_SECONDS"
+msgstr "Тривалість має бути меншою за %d сек."
+
+msgid "IDS_MSG_POP_1_MESSAGE_WILL_BE_DELETED"
+msgstr "Буде видалено повідомлень: 1"
+
+msgid "IDS_MSG_POP_1_CONVERSATION_WILL_BE_DELETED"
+msgstr "1 розмову буде видалено"
+
+msgid "IDS_MSG_OPT_VIEW_DETAILS_ABB"
+msgstr "Переглянути відомості"
+
+msgid "IDS_MSG_OPT_VIEW_CONTACT_DETAILS_ABB"
+msgstr "Переглянути контактні дані"
+
+msgid "IDS_MSG_OPT_VIEW_AS_SLIDESHOW_ABB"
+msgstr "Переглянути в режимі слайд-шоу"
+
+msgid "IDS_MSG_OPT_UPDATE_CONTACT"
+msgstr "Оновити контакт"
+
+msgid "IDS_MSG_OPT_UNICODE"
+msgstr "Юнікод"
+
+msgid "IDS_MSG_OPT_TAKE_PICTURE_ABB"
+msgstr "Зробити знімок"
+
+msgid "IDS_MSG_OPT_SAVE_ATTACHMENTS_ABB"
+msgstr "Зберегти вкладення"
+
+msgid "IDS_MSG_OPT_RESEND"
+msgstr "Надіслати повторно"
+
+msgid "IDS_MSG_OPT_REPLY"
+msgstr "Відповісти"
+
+msgid "IDS_MSG_OPT_REMOVE_FROM_BLOCK_LIST_ABB"
+msgstr "Видалити зі спис. блокування"
+
+msgid "IDS_MSG_OPT_RECORD_AUDIO_FILE_ABB"
+msgstr "Записати\nаудіофайл"
+
+msgid "IDS_MSG_OPT_QUICK_RESPONSE_ABB"
+msgstr "Швидка відповідь"
+
+msgid "IDS_MSG_OPT_MAKE_VOICE_CALL"
+msgstr "Здійснити голосовий виклик"
+
+msgid "IDS_MSG_OPT_GSM_ALPHABET_ABB"
+msgstr "Алфавіт GSM"
+
+msgid "IDS_MSG_OPT_EXPORT_TO_DEVICE_MEMORY"
+msgstr "Експортувати в пам’ять пристрою"
+
+msgid "IDS_MSG_OPT_DELETE_MESSAGE"
+msgstr "Видалити повідомлення"
+
+msgid "IDS_MSG_OPT_DELETE_CONVERSATION_ABB"
+msgstr "Видалити розмову"
+
+msgid "IDS_MSG_OPT_CREATE_CONTACT_ABB"
+msgstr "Створити контакт"
+
+msgid "IDS_MSG_OPT_COPY_TO_SIM_CARD_ABB"
+msgstr "Копіювати на SIM-карту"
+
+msgid "IDS_MSG_OPT_COPY_TO_DEVICE_ABB"
+msgstr "Копіювати на пристрій"
+
+msgid "IDS_MSG_OPT_COPY_TEXT"
+msgstr "Копіювати текст"
+
+msgid "IDS_MSG_OPT_COPY"
+msgstr "Копіювати"
+
+msgid "IDS_MSG_OPT_BACK_UP"
+msgstr "Резервне копіювання"
+
+msgid "IDS_MSG_OPT_AUTOMATIC"
+msgstr "Автоматично"
+
+msgid "IDS_MSG_OPT_AUDIO_FILES_ABB2"
+msgstr "Аудіофайли"
+
+msgid "IDS_MSG_OPT_ATTACHMENT_ABB"
+msgstr "Вкладення"
+
+msgid "IDS_MSG_OPT_ADD_TO_CONTACTS_ABB"
+msgstr "Додати до контактів"
+
+msgid "IDS_MSG_OPT_ADD_TO_BLOCK_LIST_ABB"
+msgstr "Додати до списку блокування"
+
+msgid "IDS_MSG_OPT_ADD_RECIPIENTS_ABB"
+msgstr "Додати одержувачів"
+
+msgid "IDS_MSG_NPBODY_SEARCH"
+msgstr "Пошук"
+
+msgid "IDS_MSG_NPBODY_NO_RESULTS_FOUND_ABB"
+msgstr "Результів не знайдено"
+
+msgid "IDS_MSG_NPBODY_NO_QUICK_RESPONSES"
+msgstr "Немає швидких відповідей"
+
+msgid "IDS_MSG_NPBODY_NO_PHRASES_BLOCKED"
+msgstr "Немає заблокованих фраз"
+
+msgid "IDS_MSG_NPBODY_NO_MESSAGES_ON_SIM_CARD"
+msgstr "Немає повідомлень на SIM-карті"
+
+msgid "IDS_MSG_NPBODY_NO_MESSAGES"
+msgstr "Немає повідомлень"
+
+msgid "IDS_MSG_NPBODY_NO_BLOCKED_NUMBERS"
+msgstr "Немає заблокованих номерів"
+
+msgid "IDS_MSG_MBODY_VIBRATION"
+msgstr "Вібрація"
+
+msgid "IDS_MSG_MBODY_UNKNOWN_NUMBER"
+msgstr "Невідомий номер"
+
+msgid "IDS_MSG_MBODY_TEXT_MESSAGE_CENTRE_NUMBER_ABB"
+msgstr "Номер SMS-центру"
+
+msgid "IDS_MSG_HEADER_TEXT_MESSAGES_ABB"
+msgstr "SMS-повідомлення"
+
+msgid "IDS_MSG_HEADER_SWITCH_MOBILE_NETWORK_ABB2"
+msgstr "Змінення мобільної мережі"
+
+msgid "IDS_MSG_HEADER_SMS_CENTRE_ABB2"
+msgstr "SMS-центр"
+
+msgid "IDS_MSG_HEADER_SELECT_RECIPIENT"
+msgstr "Вибір одержувача"
+
+msgid "IDS_MSG_HEADER_PD_SELECTED_ABB3"
+msgstr "Вибрано: %d"
+
+msgid "IDS_MSG_HEADER_MESSAGES_ON_SIM_CARD_ABB"
+msgstr "Повідомлення на SIM-карті"
+
+msgid "IDS_MSG_HEADER_INPUT_MODE_ABB"
+msgstr "Режим введення"
+
+msgid "IDS_MSG_HEADER_FILE_SIZE_TOO_LARGE_ABB"
+msgstr "Завеликий файл"
+
+msgid "IDS_MSG_HEADER_FAILED_TO_SEND_MESSAGE_ABB"
+msgstr "Не вдалося надіслати повідомл"
+
+msgid "IDS_MSG_HEADER_DISCARD_MESSAGE_M_CLOSE_ABB"
+msgstr "Відхилення повідомлення"
+
+msgid "IDS_MSG_HEADER_CREATE"
+msgstr "Створення"
+
+msgid "IDS_MSG_HEADER_ADD_CONTENT_ABB"
+msgstr "Додавання вмісту"
+
+msgid "IDS_MSG_BUTTON_SWITCH_ABB2"
+msgstr "Переключити"
+
+msgid "IDS_MSG_BUTTON_SAVE_ABB2"
+msgstr "Зберегти"
+
+msgid "IDS_MSG_BUTTON_RESEND_ABB"
+msgstr "Надіс.повторно"
+
+msgid "IDS_MSG_BUTTON_DISCARD_ABB"
+msgstr "Відхилити"
+
+msgid "IDS_MSG_BUTTON_DELETE_ABB4"
+msgstr "Видалити"
+
+msgid "IDS_MSG_BUTTON_CANCEL_ABB2"
+msgstr "Скасувати"
+
+msgid "IDS_MSG_BUTTON2_CONTACTS_ABB_M_APPLICATION_NAME"
+msgstr "Контакти"
+
+msgid "IDS_MSG_BODY_YOU_HAVE_SELECTED_A_SOUND_N_SHOT_FILE_SOUND_DATA_IS_NOT_SUPPORTED_FOR_MMS_SO_ONLY_THE_PICTURE_WILL_BE_ATTACHED"
+msgstr "Вибрано файл зі звуком. Можна вкласти лише фотографію, оскільки дані звуку не підтримуються для MMS-повідомлень"
+
+msgid "IDS_MSG_BODY_WAITING_TO_SEND_ING_M_STATUS"
+msgstr "Очікування надсилання..."
+
+msgid "IDS_MSG_BODY_UNABLE_TO_SEND_THIS_MESSAGE_INSERT_YOUR_SIM_CARD_AND_TRY_AGAIN"
+msgstr "Неможливо надіслати це повідомлення. Вставте SIM-картку та спробуйте ще раз"
+
+msgid "IDS_MSG_BODY_TYPE_C"
+msgstr "Тип:"
+
+msgid "IDS_MSG_BODY_TO_USE_RESTRICTED_MEDIA_TYPES_CHANGE_YOUR_MMS_CREATION_MODE_SETTING"
+msgstr "Змініть установки режиму створення MMS-повідомлення, щоб використовувати обмежені типи медіафайлів."
+
+msgid "IDS_MSG_BODY_TIME_SENT_C"
+msgstr "Час надсилання:"
+
+msgid "IDS_MSG_BODY_TIME_RECEIVED_C"
+msgstr "Час отримання:"
+
+msgid "IDS_MSG_BODY_STATUS_C"
+msgstr "Стан:"
+
+msgid "IDS_MSG_BODY_SENT_M_STATUS"
+msgstr "Надіслано"
+
+msgid "IDS_MSG_BODY_SENDING_ING_M_STATUS_ABB"
+msgstr "Надсил..."
+
+msgid "IDS_MSG_BODY_SENDING_FAILED_M_STATUS"
+msgstr "Збій надсилання"
+
+msgid "IDS_MSG_BODY_RETRIEVE_MESSAGES_AUTOMATICALLY_WHILE_ROAMING"
+msgstr "Автоматичне отримання повідомлень у роумінгу."
+
+msgid "IDS_MSG_BODY_RETRIEVE_MESSAGES_AUTOMATICALLY"
+msgstr "Автоматичне отримання повідомлень."
+
+msgid "IDS_MSG_BODY_READ_REPORT_C_PS"
+msgstr "Звіт про прочитання: %s"
+
+msgid "IDS_MSG_BODY_OTHER_PERSON"
+msgstr "Інший користувач"
+
+msgid "IDS_MSG_BODY_MEMO_T_MAINMENU"
+msgstr "Нагаду-\nвання"
+
+msgid "IDS_MSG_BODY_FAILED_M_STATUS_ABB2"
+msgstr "Збій"
+
+msgid "IDS_MSG_BODY_ENTER_TEXT_M_NOUN"
+msgstr "Введіть текст"
+
+msgid "IDS_MSG_BODY_DRAFT_M_STATUS_ABB"
+msgstr "Чернетка"
+
+msgid "IDS_MSG_BODY_DELIVERY_REPORT_C_PS"
+msgstr "Звіт про доставку: %s"
+
+msgid "IDS_MSG_BODY_CB_MESSAGE"
+msgstr "CB-повідомлення"
+
+msgid "IDS_MSG_BODY_CALENDAR_M_APPLICATION_NAME_ABB"
+msgstr "Календар"
+
+msgid "IDS_MSG_BODY_AFTER_YOU_SEND_OR_RECEIVE_MESSAGES_THEY_WILL_BE_SHOWN_HERE"
+msgstr "Після надсилання або отримання повідомлень їх буде відображено тут."
+
+msgid "IDS_MSG_BODY_AFTER_YOU_CREATE_QUICK_RESPONSES_THEY_WILL_BE_SHOWN_HERE"
+msgstr "Після створення швидких відповідей їх буде відображено тут."
+
+msgid "IDS_MSG_BODY_AFTER_YOU_COPY_MESSAGES_TO_THE_SIM_CARD_THEY_WILL_BE_SHOWN_HERE"
+msgstr "Після копіювання повідомлень на SIM-карту їх буде відображено тут."
+
+msgid "IDS_MSG_BODY_AFTER_YOU_ADD_PHRASES_THEY_WILL_BE_SHOWN_HERE"
+msgstr "Після додавання фраз їх буде відображено тут."
+
+msgid "IDS_MSG_BODY_AFTER_YOU_ADD_NUMBERS_TO_THE_MESSAGE_BLOCK_LIST_THEY_WILL_BE_SHOWN_HERE"
+msgstr "Після додавання номерів до списку блокування повідомлень їх буде відображено тут."
+
+msgid "IDS_MSG_ACBUTTON_DELETE_ABB"
+msgstr "ВИДАЛИТИ"
+
+msgid "IDS_MSGC_POP_UNSUPPORTED_MEDIA_TYPE"
+msgstr "Формат не підтримується."
+
+msgid "IDS_MSGC_POP_LOW_BATTERY"
+msgstr "Батарея розряджена."
+
+msgid "IDS_MSGC_POP_CANCELLED"
+msgstr "Скасовано."
+
+msgid "IDS_MSGC_OPT_EMAIL"
+msgstr "Email"
+
+msgid "IDS_MSGC_OPT_EDITITEM_VIEW"
+msgstr "Переглянути"
+
+msgid "IDS_MSGC_OPT_EDITITEM_REMOVE"
+msgstr "Видалити"
+
+msgid "IDS_MSGC_OPT_EDITITEM_PLAY"
+msgstr "Відтворити"
+
+msgid "IDS_MSGC_OPT_CHANGE_RECIPIENTS_TO"
+msgstr "Кому"
+
+msgid "IDS_MSGC_HEADER_PREVIEW"
+msgstr "Перегляд"
+
+msgid "IDS_MSGC_BODY_ENTER_SUBJECT"
+msgstr "Введіть тему."
+
+msgid "IDS_MSGF_POP_UNABLE_TO_FIND_LOCATION"
+msgstr "Неможливо знайти розташування."
+
+msgid "IDS_MSGF_POP_REJECTED"
+msgstr "Відхилено."
+
+msgid "IDS_MSGF_POP_DELETING"
+msgstr "Видалення..."
+
+msgid "IDS_MSGF_POP_COPIED_TO_CLIPBOARD"
+msgstr "Скопійовано в буфер обміну."
+
+msgid "IDS_MSGF_POP_BLOCK_PS_Q"
+msgstr "Заблокувати %s?"
+
+msgid "IDS_MSGF_OPT_SUBJECT_COLON"
+msgstr "Тема:"
+
+msgid "IDS_MSGF_OPT_SENDER_VIA_EMAIL"
+msgstr "Відправнику через Email"
+
+msgid "IDS_MSGF_OPT_SELECT"
+msgstr "Вибрати"
+
+msgid "IDS_MSGF_OPT_SAVE"
+msgstr "Зберегти"
+
+msgid "IDS_MSGF_OPT_REMOVE"
+msgstr "Видалити"
+
+msgid "IDS_MSGF_OPT_FORWARD"
+msgstr "Переслати"
+
+msgid "IDS_MSGF_OPT_DELETE_Q"
+msgstr "Видалити?"
+
+msgid "IDS_MSGF_HEADER_ADVANCED_SEARCH"
+msgstr "Додатковий пошук"
+
+msgid "IDS_MSGF_BODY_UNKNOWN"
+msgstr "Невідомо"
+
+msgid "IDS_MSGF_BODY_SETTINGS"
+msgstr "Налаштування"
+
+msgid "IDS_MSGF_BODY_RECIPIENTS"
+msgstr "Одержувачі"
+
+msgid "IDS_MSGF_BODY_RECEIVED"
+msgstr "Отримано."
+
+msgid "IDS_MSGF_BODY_OTHER"
+msgstr "Інша"
+
+msgid "IDS_MSGF_BODY_NO_SUBJECT"
+msgstr "Немає теми"
+
+msgid "IDS_MSGF_BODY_MSGSIZE_KB"
+msgstr "КБ"
+
+msgid "IDS_MSGF_BODY_MESSAGE"
+msgstr "Повідомлення"
+
+msgid "IDS_MSGF_BODY_ME"
+msgstr "Я"
+
+msgid "IDS_MSGF_BODY_EXPIRED"
+msgstr "Термін дії вже минув"
+
+msgid "IDS_MSGF_BODY_ALL"
+msgstr "Всі"
+
+msgid "IDS_MSG_SK_NO_ABB"
+msgstr "Ні"
+
+msgid "IDS_MSG_POP_YOUR_MESSAGE_WILL_BE_DISCARDED_NO_RECIPIENTS_HAVE_BEEN_SELECTED"
+msgstr "Повідомлення буде скасовано. Одержувачів не вибрано."
+
+msgid "IDS_MSG_POP_UNABLE_TO_PLAY_DURING_CALL"
+msgstr "Неможливо відтворити під час виклику."
+
+msgid "IDS_MSG_POP_INCOMING_MESSAGES_ONLY"
+msgstr "Лише вхідні повідомлення"
+
+msgid "IDS_MSG_POP_DELETED"
+msgstr "Видалено."
+
+msgid "IDS_MSG_OPT_VIDEOS"
+msgstr "Відео"
+
+msgid "IDS_MSG_OPT_TEXT"
+msgstr "Текст"
+
+msgid "IDS_MSG_OPT_SETTINGS"
+msgstr "Налаштування"
+
+msgid "IDS_MSG_OPT_SEARCH"
+msgstr "Пошук"
+
+msgid "IDS_MSG_OPT_RECORD_VIDEO_ABB"
+msgstr "Записати відео"
+
+msgid "IDS_MSG_OPT_NONE"
+msgstr "Немає"
+
+msgid "IDS_MSG_OPT_IMAGES"
+msgstr "Зображення"
+
+msgid "IDS_MSG_OPT_EDIT"
+msgstr "Редагувати"
+
+msgid "IDS_MSG_OPT_DELETE"
+msgstr "Видалити"
+
+msgid "IDS_MSG_OPT_DEFAULT"
+msgstr "Стандартний"
+
+msgid "IDS_MSG_MBODY_SELECT_ALL"
+msgstr "Вибрати всі"
+
+msgid "IDS_MSG_MBODY_ALERTS"
+msgstr "Сповіщення"
+
+msgid "IDS_MSG_HEADER_TRANSLATE"
+msgstr "Переклад"
+
+msgid "IDS_MSG_HEADER_SETTINGS"
+msgstr "Налаштування"
+
+msgid "IDS_MSG_HEADER_MESSAGES"
+msgstr "Повідомлення"
+
+msgid "IDS_MSG_HEADER_DELETE"
+msgstr "Видалити"
+
+msgid "IDS_MSG_HEADER_ATTENTION"
+msgstr "Увага"
+
+msgid "IDS_MSG_BUTTON_REMOVE_ABB"
+msgstr "Видалити"
+
+msgid "IDS_MSG_BUTTON_OK_ABB"
+msgstr "ОК"
+
+msgid "IDS_MSG_BUTTON_DOWNLOAD_ABB3"
+msgstr "Завантаж."
+
+msgid "IDS_MSG_BUTTON_CANCEL_ABB"
+msgstr "Скасувати"
+
+msgid "IDS_MSG_BODY_YES"
+msgstr "Так"
+
+msgid "IDS_MSG_BODY_TICK_BOX_T_TTS"
+msgstr "Встановіть прапорець"
+
+msgid "IDS_MSG_BODY_SEC"
+msgstr "сек."
+
+msgid "IDS_MSG_BODY_MESSAGE"
+msgstr "Повідомлення"
+
+msgid "IDS_MSG_BUTTON_SEND_ABB5"
+msgstr "Над."
+
+msgid "IDS_MSG_BUTTON_SEND_ABB3"
+msgstr "Над."
+
+msgid "IDS_MSG_ACBUTTON_SEND_ABB3"
+msgstr "НАД."
+
+msgid "IDS_ST_BODY_LOADING_ING"
+msgstr "Завантаження..."
+
+msgid "IDS_MSGS_BODY_NOTIFICATIONS"
+msgstr "Сповіщення"
+
+msgid "IDS_MSG_HEADER_ME"
+msgstr "Я"
+
+msgid "IDS_MSG_BODY_UNKNOWN"
+msgstr "Невідомо"
+
+msgid "IDS_MSG_TMBODY_ADD_OR_REMOVE_RECIPIENTS"
+msgstr "Додати або видалити учасників"
+
+msgid "IDS_MSG_POP_THE_SENDER_HAS_REQUESTED_A_READ_REPORT_TAP_SEND_TO_SEND_ONE"
+msgstr "Відправник надіслав запит звіту про прочитання. Щоб надіслати його, торкніться «Надіслати»."
+
+msgid "IDS_MSGF_OPT_SEND_READ_REPORT"
+msgstr "Надіслати звіт про прочитання"
+
+msgid "IDS_MSG_HEADER_COMPOSE_MESSAGE_ABB"
+msgstr "Створення повідомлення"
+
+msgid "IDS_MSG_POP_NO_VALID_RECIPIENTS_HAVE_BEEN_ADDED_THIS_MESSAGE_WILL_BE_DISCARDED"
+msgstr "Дійсних одержувачів не вибрано. Це повідомлення буде скасовано."
+
