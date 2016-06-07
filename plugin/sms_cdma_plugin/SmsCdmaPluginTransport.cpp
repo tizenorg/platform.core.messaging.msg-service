@@ -371,7 +371,7 @@ void SmsPluginTransport::submitRequest(sms_request_info_s *pReqInfo)
 		if (retStatus == SMS_NETWORK_SEND_FAIL_FDN_RESTRICED)
 			MsgInsertTicker("Unable to send the message while Fixed dialling mode is enabled", SMS_FDN_RESTRICTED, true, 0);
 		else if (retStatus == SMS_NETWORK_SEND_PENDING)
-			MsgInsertTicker("Unable to send message. It will be sent when service available.", SMS_MESSAGE_SENDING_PENDING, true, 0);
+			MsgInsertTicker("Network not available. Message will be sent when connected to network.", SMS_MESSAGE_SENDING_PENDING, true, 0);
 		else
 			MsgInsertTicker("Sending SMS is failed", SMS_MESSAGE_SENDING_FAIL, true, pReqInfo->msgInfo.msgId);
 	}

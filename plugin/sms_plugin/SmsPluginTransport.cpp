@@ -250,7 +250,7 @@ void SmsPluginTransport::submitRequest(SMS_REQUEST_INFO_S *pReqInfo)
 				if (svc_type < TAPI_NETWORK_SERVICE_TYPE_2G) {
 					MSG_DEBUG("Network service is not available : [%d]", svc_type);
 					SmsPluginEventHandler::instance()->handleSentStatus(MSG_NETWORK_SEND_PENDING);
-					MsgInsertTicker("Unable to send message. It will be sent when service available.", SMS_MESSAGE_SENDING_PENDING, false, 0);
+					MsgInsertTicker("Network not available. Message will be sent when connected to network.", SMS_MESSAGE_SENDING_PENDING, false, 0);
 					goto _RETURN_FUNC;
 				}
 
