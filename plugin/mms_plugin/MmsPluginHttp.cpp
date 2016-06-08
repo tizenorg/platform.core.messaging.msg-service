@@ -672,7 +672,7 @@ MMS_HTTP_ERROR_E MmsPluginHttpAgent::startTransaction()
 	__http_print_profile(session_option);
 
 	if (rc != 0) {
-		MSG_ERR("curl_easy_perform return error rc [%d]", rc);
+		MSG_ERR("__http_multi_perform return error rc [%d]", rc);
 		http_error = MMS_HTTP_ERROR_TRANSACTION;
 	}
 
