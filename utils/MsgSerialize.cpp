@@ -626,9 +626,11 @@ int MsgSerializeMms(const MMS_DATA_S *pMsgData, char **pValue)
 
 	MSG_DEBUG("Serialize bufsize = %d", bufsize);
 
-	buf = (char *)calloc(1, bufsize);
+	buf = new char[bufsize];
 	if (buf == NULL)
 		return -1;
+
+	memset(buf, 0x00, bufsize);
 
 	int serial_index = 0;
 	int offset = 0;

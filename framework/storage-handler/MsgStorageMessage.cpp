@@ -2094,7 +2094,7 @@ msg_error_t MsgStoGetMessage(msg_message_id_t msgId, MSG_MESSAGE_INFO_S *pMsg, M
 		err =  plg->getMmsMessage(pMsg, pSendOptInfo, &pDestMsg);
 		if (err != MSG_SUCCESS) {
 			if (pDestMsg) {
-				free(pDestMsg);
+				delete [] pDestMsg;
 				pDestMsg = NULL;
 			}
 			return MSG_ERR_STORAGE_ERROR;
@@ -2110,7 +2110,7 @@ msg_error_t MsgStoGetMessage(msg_message_id_t msgId, MSG_MESSAGE_INFO_S *pMsg, M
 
 			if (MsgCreateFileName(tempFileName) == false) {
 				if(pDestMsg) {
-					free(pDestMsg);
+					delete [] pDestMsg;
 					pDestMsg = NULL;
 				}
 				return MSG_ERR_STORAGE_ERROR;
@@ -2119,7 +2119,7 @@ msg_error_t MsgStoGetMessage(msg_message_id_t msgId, MSG_MESSAGE_INFO_S *pMsg, M
 
 			if (MsgWriteIpcFile(tempFileName, pDestMsg, pMsg->dataSize) == false) {
 				if(pDestMsg) {
-					free(pDestMsg);
+					delete [] pDestMsg;
 					pDestMsg = NULL;
 				}
 				return MSG_ERR_STORAGE_ERROR;
@@ -2134,7 +2134,7 @@ msg_error_t MsgStoGetMessage(msg_message_id_t msgId, MSG_MESSAGE_INFO_S *pMsg, M
 		pMsg->dataSize = temp_size; /*raw file size; */
 
 		if (pDestMsg) {
-			free(pDestMsg);
+			delete [] pDestMsg;
 			pDestMsg = NULL;
 		}
 	}

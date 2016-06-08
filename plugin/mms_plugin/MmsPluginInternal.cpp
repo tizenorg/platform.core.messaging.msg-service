@@ -240,7 +240,7 @@ bool MmsPluginInternal::processNotiInd(MSG_MESSAGE_INFO_S *pMsgInfo, MSG_REQUEST
 			snprintf(pMsgInfo->msgData, sizeof(pMsgInfo->msgData), "%s", pTempFileName);
 		}
 
-		free(pSerializedMms);
+		delete [] pSerializedMms;
 	}
 
 		MsgMmsRelease(&mms_data);

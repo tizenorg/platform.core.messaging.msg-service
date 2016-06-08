@@ -1165,7 +1165,7 @@ char *MsgVMessageEncode(MSG_MESSAGE_INFO_S *pMsg)
 		pObject->valueCount = 1;
 
 		if (pFileData) {
-			free(pFileData);
+			delete [] pFileData;
 			pFileData = NULL;
 		}
 	}

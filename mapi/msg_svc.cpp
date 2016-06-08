@@ -461,12 +461,12 @@ static int _release_msg_struct(msg_struct_t *msg_struct_handle)
 		pCond->sortRule = NULL;
 
 		if (pCond->pAddressVal) {
-			delete pCond->pAddressVal;
+			delete [] pCond->pAddressVal;
 			pCond->pAddressVal = NULL;
 		}
 
 		if (pCond->pTextVal) {
-			delete pCond->pTextVal;
+			delete [] pCond->pTextVal;
 			pCond->pTextVal = NULL;
 		}
 

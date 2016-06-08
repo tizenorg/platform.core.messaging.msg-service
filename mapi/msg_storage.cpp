@@ -2245,7 +2245,7 @@ int msg_list_condition_set_str(void *condition_info, int field, const char *valu
 	case MSG_LIST_CONDITION_ADDRESS_VALUE_STR:
 		if (size) {
 			if (cond->pAddressVal) {
-				delete cond->pAddressVal;
+				delete [] cond->pAddressVal;
 				cond->pAddressVal = NULL;
 			}
 			cond->pAddressVal = (char *)new char[size+1];
@@ -2259,7 +2259,7 @@ int msg_list_condition_set_str(void *condition_info, int field, const char *valu
 	case MSG_LIST_CONDITION_TEXT_VALUE_STR:
 		if (size) {
 			if (cond->pTextVal) {
-				delete cond->pTextVal;
+				delete [] cond->pTextVal;
 				cond->pTextVal = NULL;
 			}
 			cond->pTextVal = (char *)new char[size+1];
