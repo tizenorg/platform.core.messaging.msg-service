@@ -1100,6 +1100,20 @@ void setActiveProperty(notification_h noti_h, MSG_MGR_NOTI_INFO_S *noti_info)
 		MSG_MGR_DEBUG("Fail to notification_set_led.");
 	}
 
+	/* set execute option and property */
+	switch (noti_info->type) {
+	case MSG_MGR_NOTI_TYPE_NORMAL:
+		notification_set_launch_option(noti_h, NOTIFICATION_LAUNCH_OPTION_APP_CONTROL, noti_info->active_noti_svc_h[2]);
+		notification_set_property(noti_h, NOTIFICATION_PROP_DISABLE_AUTO_DELETE);
+		break;
+	case MSG_MGR_NOTI_TYPE_CLASS0:
+		notification_set_launch_option(noti_h, NOTIFICATION_LAUNCH_OPTION_APP_CONTROL, noti_info->active_noti_svc_h[2]);
+		break;
+	default:
+		MSG_MGR_DEBUG("No matching type for notification_set_launch_option() [%d]", noti_info->type);
+		break;
+	}
+
 	/* set applist */
 	noti_err = notification_set_display_applist(noti_h, NOTIFICATION_DISPLAY_APP_ACTIVE);
 	if (noti_err != NOTIFICATION_ERROR_NONE) {
@@ -1264,14 +1278,6 @@ void setActiveNotification(notification_h noti_h, MSG_MGR_NOTI_INFO_S *noti_info
 
 	int noti_err = NOTIFICATION_ERROR_NONE;
 
-	setActiveProperty(noti_h, noti_info);
-
-	setTextDomain(noti_h, noti_info->type);
-
-	setActiveText(noti_h, noti_info);
-
-	setActiveIcon(noti_h, noti_info);
-
 	if (noti_info->active_noti_button_num > 1) {
 		createServiceHandle(&noti_info->active_noti_svc_h[0]);
 		if (noti_info->active_noti_svc_h[0]) {
@@ -1327,6 +1333,14 @@ void setActiveNotification(notification_h noti_h, MSG_MGR_NOTI_INFO_S *noti_info
 
 		setNotiText(noti_h, NOTIFICATION_TEXT_TYPE_BUTTON_1, "View", NULL);
 	}
+
+	setActiveProperty(noti_h, noti_info);
+
+	setTextDomain(noti_h, noti_info->type);
+
+	setActiveText(noti_h, noti_info);
+
+	setActiveIcon(noti_h, noti_info);
 
 	noti_err = notification_post(noti_h);
 	if (noti_err != NOTIFICATION_ERROR_NONE) {
