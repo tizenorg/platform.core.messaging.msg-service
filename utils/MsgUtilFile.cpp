@@ -29,8 +29,6 @@
 
 #include <thumbnail_util.h>
 #include <image_util.h>
-#include <TCSImpl.h>
-#include <TCSErrorCodes.h>
 
 #include "MsgStorageTypes.h"
 #include "MsgDebug.h"
@@ -1234,6 +1232,7 @@ void MsgGetMimeType(char *filePath, char *mimeType, int size)
 int MsgTcsScanFile(const char *filepath, int *bLevel)
 {
 	MSG_BEGIN();
+#if 0
 	TCSLIB_HANDLE hLib;
 	TCSScanResult result;
 	TCSDetected* pDetected;
@@ -1289,7 +1288,10 @@ int MsgTcsScanFile(const char *filepath, int *bLevel)
 
 	if (bLevel)
 		*bLevel = ret_b_level;
-
+#else
+	if (bLevel)
+		*bLevel = -1;
+#endif
 	MSG_END();
 
 	return 0;
