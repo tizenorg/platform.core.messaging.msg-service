@@ -27,6 +27,7 @@
 #include <fcntl.h>
 #include <libgen.h>
 
+#include <csr-content-screening.h>
 #include <thumbnail_util.h>
 #include <image_util.h>
 
@@ -1232,11 +1233,9 @@ void MsgGetMimeType(char *filePath, char *mimeType, int size)
 int MsgTcsScanFile(const char *filepath, int *bLevel)
 {
 	MSG_BEGIN();
-#if 0
-	TCSLIB_HANDLE hLib;
-	TCSScanResult result;
-	TCSDetected* pDetected;
-	int rtn, i;
+	csr_cs_context_h csr_handle = NULL;
+	csr_cs_malware_h detected = NULL;
+	int ret = 0;
 	int ret_b_level = -1;
 
 	if (MsgAccessFile(filepath, R_OK) == false) {
@@ -1246,52 +1245,50 @@ int MsgTcsScanFile(const char *filepath, int *bLevel)
 
 	MSG_SEC_DEBUG("Scanning file name : %s\n", filepath);
 
-	hLib = TCSLibraryOpen();
-	if(hLib == INVALID_TCSLIB_HANDLE) {
-		MSG_DEBUG("TCSLibraryOpen error\n");
+	ret = csr_cs_context_create(&csr_handle);
+	if (ret != CSR_ERROR_NONE) {
+		MSG_DEBUG("csr_cs_context_create error: err = %d\n", ret);
 		return -1;
 	}
 
-	rtn = TCSScanFile(hLib, filepath, TCS_DTYPE_UNKNOWN, TCS_SA_SCANONLY, 1, &result);
-	if(rtn == 0)
-	{
-		MSG_DEBUG("Detected malware number: %d\n", result.iNumDetected);
-		i = result.iNumDetected;
-		pDetected = result.pDList;
-		while(i && pDetected)
-		{
-			int temp_b_level;
-			int temp_s_class;
-			MSG_SEC_DEBUG(" +-- Malware [%d] Name: %s\n", i, pDetected->pszName);
-			MSG_DEBUG(" +-- Malware [%d] uAction: %u : 0x%04x\n", i, pDetected->uAction, pDetected->uAction);
+	ret = csr_cs_scan_file(csr_handle, filepath, &detected);
+	if (ret == CSR_ERROR_NONE) {
+		if (detected) {
+			csr_cs_severity_level_e severity;
+			char *name = NULL;
 
-			temp_b_level  = (pDetected->uAction & 0xFF00) >> 8;
-			MSG_DEBUG(" +-- Malware [%d] Behavior level: %u\n", i, temp_b_level);
-
-			if (ret_b_level == -1 || ret_b_level < temp_b_level) {
-				ret_b_level = temp_b_level;
+			ret = csr_cs_malware_get_severity(detected, &severity);
+			if (ret != CSR_ERROR_NONE) {
+				MSG_DEBUG("csr_cs_malware_get_severity error: err = %d\n", ret);
 			}
 
-			temp_s_class  = (pDetected->uAction & 0x00FF);
-			MSG_DEBUG(" +-- Malware [%d] Severity class: %u\n", i, temp_s_class);
+			ret = csr_cs_malware_get_name(detected, &name);
+			if (ret != CSR_ERROR_NONE) {
+				MSG_DEBUG("csr_cs_malware_get_name error: err = %d\n", ret);
+			}
 
-			pDetected = pDetected->pNext;
-			i --;
+			MSG_SEC_DEBUG(" +-- Malware Name: [%s]\n", name);
+			MSG_DEBUG(" +-- Malware Severity class: %d\n", severity);
+
+			ret_b_level = (int)severity;
+
+			if (name) {
+				free(name);
+				name = NULL;
+			}
 		}
-
-		result.pfFreeResult(&result);
 	} else {
-		MSG_DEBUG("TCSScanFile fail: err = %d\n", rtn);
+		MSG_DEBUG("csr_cs_scan_file fail: err = %d\n", ret);
 	}
 
-	TCSLibraryClose(hLib);
+	ret = csr_cs_context_destroy(csr_handle);
+	if (ret != CSR_ERROR_NONE) {
+		MSG_DEBUG("csr_cs_context_destroy error: err = %d\n", ret);
+	}
 
 	if (bLevel)
 		*bLevel = ret_b_level;
-#else
-	if (bLevel)
-		*bLevel = -1;
-#endif
+
 	MSG_END();
 
 	return 0;
