@@ -397,7 +397,7 @@ static int __msgsvc_vmsg_append_str(char **buf, int *buf_size, int len, const ch
                                       if ( !pObject )\
 {\
    vmsg_free_vtree_memory(pMessage);\
-   return false;\
+   return NULL;\
 }\
 if (pMessage->pTop == NULL)\
 {\
@@ -414,7 +414,7 @@ pMessage->pCur = pObject;
                                       if ( !pObject )\
 {\
    vmsg_free_vtree_memory(pMessage);\
-   return false;\
+   return NULL;\
 }\
 if (pBody->pTop == NULL)\
 {\
@@ -431,7 +431,7 @@ pBody->pCur = pObject;
                                       if ( !pObject )\
 {\
    vmsg_free_vtree_memory(pMessage);\
-   return false;\
+   return NULL;\
 }\
 if (pCard->pTop == NULL)\
 {\
@@ -453,7 +453,7 @@ pCard->pCur = pObject;
       free(pObject);\
       pObject = NULL;\
    }\
-   return false;\
+   return NULL;\
 }
 
 

@@ -3989,7 +3989,7 @@ char *MsgChangeHexString(char *pOrg)
 	int index = 0;
 
 	if (pOrg == NULL)
-		return false;
+		return NULL;
 
 	cLen = strlen(pOrg);
 
