@@ -18,7 +18,7 @@
 #define __MSG_DEBUG_H__
 
 /*==================================================================================================
-                                         INCLUDE FILES
+											INCLUDE FILES
 ==================================================================================================*/
 #include <sys/types.h>
 #include <unistd.h>
@@ -30,7 +30,7 @@
 #include "MsgCmdTypes.h"
 
 /*==================================================================================================
-                                    DEFINES
+											DEFINES
 ==================================================================================================*/
 #define USER_TAG "MSG_FW"
 #undef LOG_TAG
@@ -126,7 +126,7 @@
 		if (expr) {\
 			MSG_ERR(fmt, ##__VA_ARGS__);\
 			return (val);\
-		}\
+		} \
 	} while (0)
 
 #define MSG_ERR_RET_M(expr, fmt, ...)\
@@ -134,14 +134,14 @@
 		if (expr) {\
 			MSG_ERR(fmt, ##__VA_ARGS__);\
 			return;\
-		}\
+		} \
 	} while (0)
 
 #define MSG_WARN_M(expr, fmt, ...)\
 	do { \
 		if (expr) {\
 			MSG_WARN(fmt, ##__VA_ARGS__);\
-		}\
+		} \
 	} while (0)
 
 /*profile log macros*/
@@ -159,7 +159,7 @@
 		gettimeofday(&__prf_2_##pfid, 0);\
 		long __ds = __prf_2_##pfid.tv_sec - __prf_1_##pfid.tv_sec;\
 		long __dm = __prf_2_##pfid.tv_usec - __prf_1_##pfid.tv_usec;\
-		if ( __dm < 0 ) { __ds--; __dm = 1000000 + __dm; } \
+		if (__dm < 0) { __ds--; __dm = 1000000 + __dm; } \
 		SLOGD("**PROFILE** [MSGFW: %s: %s() %u ~ %u] " #pfid " -> Elapsed Time: %u.%06u seconds\n", \
 		rindex(__FILE__, '/')+1, \
 		__FUNCTION__, \
@@ -185,14 +185,14 @@ int get_tid();
 
 #define MSG_BEGIN() \
 	do { \
-        printf("\n[%d] BEGIN >>>> %s() at [MSGFW: %s: %d]\n", get_tid(), __FUNCTION__, rindex(__FILE__, '/')+1,  __LINE__);\
-    } while (0)
+		printf("\n[%d] BEGIN >>>> %s() at [MSGFW: %s: %d]\n", get_tid(), __FUNCTION__, rindex(__FILE__, '/')+1,  __LINE__);\
+	} while (0)
 
 #define MSG_END() \
 	do { \
-        printf("\n[%d] END   <<<< %s() at [MSGFW: %s: %d]\n", get_tid(), __FUNCTION__, rindex(__FILE__, '/')+1,  __LINE__); \
-    } \
-    while (0)
+		printf("\n[%d] END   <<<< %s() at [MSGFW: %s: %d]\n", get_tid(), __FUNCTION__, rindex(__FILE__, '/')+1,  __LINE__); \
+	} \
+	while (0)
 
 #define MSG_PROFILE_BEGIN(pfid) \
 	unsigned int __prf_l1_##pfid = __LINE__;    \
@@ -208,7 +208,7 @@ int get_tid();
 		gettimeofday(&__prf_2_##pfid, 0);\
 		long __ds = __prf_2_##pfid.tv_sec - __prf_1_##pfid.tv_sec;\
 		long __dm = __prf_2_##pfid.tv_usec - __prf_1_##pfid.tv_usec;\
-		if ( __dm < 0 ) { __ds--; __dm = 1000000 + __dm; } \
+		if (__dm < 0) { __ds--; __dm = 1000000 + __dm; } \
 		printf("**PROFILE** [MSGFW: %s: %s() %u ~ %u] " #pfid                            \
 		" -> Elapsed Time: %u.%06u seconds\n",                    \
 		rindex(__FILE__, '/')+1,                \
@@ -240,7 +240,7 @@ int get_tid();
 		gettimeofday(&__prf_2_##pfid, 0);\
 		long __ds = __prf_2_##pfid.tv_sec - __prf_1_##pfid.tv_sec;\
 		long __dm = __prf_2_##pfid.tv_usec - __prf_1_##pfid.tv_usec;\
-		if ( __dm < 0 ) { __ds--; __dm = 1000000 + __dm; } \
+		if (__dm < 0) { __ds--; __dm = 1000000 + __dm; } \
 		printf("**PROFILE** [MSGFW: %s: %s() %u ~ %u] " #pfid                            \
 		" -> Elapsed Time: %u.%06u seconds\n",                    \
 		rindex(__FILE__, '/')+1,                \
@@ -258,12 +258,12 @@ int get_tid();
 	({\
 		if (x != NULL) {\
 		free(x);\
-		x = NULL;}\
+		x = NULL; } \
 	})
 
 
 /*==================================================================================================
-									 FUNCTION PROTOTYPES
+											FUNCTION PROTOTYPES
 ==================================================================================================*/
 
 const char * MsgDbgCmdStr(MSG_CMD_TYPE_T cmdType);

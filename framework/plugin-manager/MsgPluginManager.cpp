@@ -860,21 +860,21 @@ MsgPlugin::MsgPlugin(MSG_MAIN_TYPE_T mainType, const char *libPath): mSupportedM
 		THROW(MsgException::PLUGIN_ERROR, "ERROR to create plugin handle");
 
 	MSG_PLUGIN_LISTENER_S fwListener = {0};
-	fwListener.pfSentStatusCb 					= &MsgSentStatusListener;
-	fwListener.pfStorageChangeCb 			= &MsgStorageChangeListener;
-	fwListener.pfMsgIncomingCb 				= &MsgIncomingMessageListener;
-	fwListener.pfInitSimBySatCb				= &MsgInitSimBySatListener;
-	fwListener.pfSyncMLMsgIncomingCb 	= &MsgIncomingSyncMLMessageListener;
-	fwListener.pfLBSMsgIncomingCb 		= &MsgIncomingLBSMessageListener;
-	fwListener.pfMmsConfIncomingCb 		= &MsgMmsConfIncomingListener;
-	fwListener.pfPushMsgIncomingCb 		= &MsgIncomingPushMessageListener;
-	fwListener.pfCBMsgIncomingCb 			= &MsgIncomingCBMessageListener;
-	fwListener.pfSimMsgIncomingCb 		= &MsgSimMessageListener;
-	fwListener.pfResendMessageCb 		= &MsgResendMessageListener;
+	fwListener.pfSentStatusCb			= &MsgSentStatusListener;
+	fwListener.pfStorageChangeCb		= &MsgStorageChangeListener;
+	fwListener.pfMsgIncomingCb			= &MsgIncomingMessageListener;
+	fwListener.pfInitSimBySatCb			= &MsgInitSimBySatListener;
+	fwListener.pfSyncMLMsgIncomingCb	= &MsgIncomingSyncMLMessageListener;
+	fwListener.pfLBSMsgIncomingCb		= &MsgIncomingLBSMessageListener;
+	fwListener.pfMmsConfIncomingCb		= &MsgMmsConfIncomingListener;
+	fwListener.pfPushMsgIncomingCb		= &MsgIncomingPushMessageListener;
+	fwListener.pfCBMsgIncomingCb		= &MsgIncomingCBMessageListener;
+	fwListener.pfSimMsgIncomingCb		= &MsgSimMessageListener;
+	fwListener.pfResendMessageCb		= &MsgResendMessageListener;
 #ifdef FEATURE_SMS_CDMA
 	fwListener.pfCheckUniquenessCb		= &MsgCheckUniquenessListener;
 #endif
-	fwListener.pfSimInitImsiCb 		= &MsgSimImsiListener;
+	fwListener.pfSimInitImsiCb		= &MsgSimImsiListener;
 
 	if (registerListener(&fwListener) != MSG_SUCCESS)
 		THROW(MsgException::PLUGIN_ERROR, "ERROR to register listener");

@@ -19,7 +19,7 @@
 
 
 /*==================================================================================================
-                                         INCLUDE FILES
+											INCLUDE FILES
 ==================================================================================================*/
 #include "MsgMutex.h"
 #include "MsgSettingTypes.h"
@@ -37,7 +37,7 @@ typedef map <int, SMS_SIM_MWI_INFO_S> simMwiInfoMap;
 typedef map <int, MSG_CBMSG_OPT_S>	cbOptMap;
 
 /*==================================================================================================
-                                     CLASS DEFINITIONS
+											CLASS DEFINITIONS
 ==================================================================================================*/
 class SmsPluginSetting
 {
@@ -111,8 +111,8 @@ private:
 	std::list<TapiHandle *> tel_handle_list;
 
 	/* Setting values for keeping in setting instance */
-	smscListMap 			smscList;
-	MSG_SIM_STATUS_T 		simStatus[MAX_TELEPHONY_HANDLE_CNT+1];
+	smscListMap			smscList;
+	MSG_SIM_STATUS_T		simStatus[MAX_TELEPHONY_HANDLE_CNT+1];
 	MSG_SMSC_DATA_S			smscData[MAX_TELEPHONY_HANDLE_CNT+1];
 	smsSimMailboxListMap	simMailboxList;
 	simMwiInfoMap			simMwiInfo;
@@ -122,10 +122,10 @@ private:
 	bool	bTapiResult;
 	int		paramCnt;
 	int		selectedParam;
-	int 	selectedSimIndex;
-	char 	meImei[MAX_ME_IMEI_LEN + 1];
+	int	selectedSimIndex;
+	char	meImei[MAX_ME_IMEI_LEN + 1];
 
-	bool 	bMbdnEnable[MAX_TELEPHONY_HANDLE_CNT];
+	bool	bMbdnEnable[MAX_TELEPHONY_HANDLE_CNT];
 
 	MsgMutex mx;
 	MsgCndVar cv;

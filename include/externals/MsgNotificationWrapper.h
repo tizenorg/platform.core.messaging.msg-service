@@ -18,12 +18,12 @@
 #define MSG_NOTIFICATION_WRAPPER_H
 
 /*==================================================================================================
-                                         INCLUDE FILES
+											INCLUDE FILES
 ==================================================================================================*/
 #include "MsgInternalTypes.h"
 
 /*==================================================================================================
-                                         DEFINES
+											DEFINES
 ==================================================================================================*/
 #define MSG_APP_PACKAGE_NAME	"message"
 
@@ -87,8 +87,7 @@ enum _msg_active_notification_type_e {
 	MSG_ACTIVE_NOTI_TYPE_INSTANT,
 };
 
-enum _MSG_SOUND_TYPE_E
-{
+enum _MSG_SOUND_TYPE_E {
 	MSG_SOUND_PLAY_DEFAULT = 0,
 	MSG_SOUND_PLAY_USER,
 	MSG_SOUND_PLAY_EMERGENCY,

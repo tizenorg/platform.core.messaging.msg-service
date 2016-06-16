@@ -18,9 +18,9 @@
 #define MSG_MMS_TYPES_H
 
 /**
- *	@file 		MsgMmsTypes.h
- *	@brief 		Defines MMS types of messaging framework
- *	@version 	1.0
+ *	@file			MsgMmsTypes.h
+ *	@brief			Defines MMS types of messaging framework
+ *	@version		1.0
  */
 
 /**
@@ -31,7 +31,7 @@
  */
 
 /*==================================================================================================
-                                         INCLUDE FILES
+											INCLUDE FILES
 ==================================================================================================*/
 #include "MsgTypes.h"
 
@@ -48,13 +48,12 @@
 typedef GList MMSList;
 
 /*==================================================================================================
-                                         STRUCTURES
+											STRUCTURES
 ==================================================================================================*/
-
 /**
  *	@brief	Represents text information.
  */
-typedef struct  {
+typedef struct {
 	char			szTransInId[MAX_SMIL_TRANSIN_ID + 1];  /**< Indicates the In SMIL transition id */
 	char			szTransOutId[MAX_SMIL_TRANSOUT_ID + 1]; /**< Indicates the Out SMIL transition id */
 	int				nRepeat; /**< Indicates the text needs to be displayed repeatedly */
@@ -69,7 +68,7 @@ typedef struct  {
 	MmsTextDirection	nDirection; /**< Indicates the text direction type. see enum MmsTextDirection */
 	int				nSize;	/**< Indicates the font size */
 	int				nColor; /**< Indicates the font color */
-}MmsSmilText;
+} MmsSmilText;
 
 /**
  *	@brief	Represents video information.
@@ -82,13 +81,12 @@ typedef struct {
 	int				nEnd;	/**< Indicates the end time */
 	int				nDurTime;  /**< Indicates the duration */
 	int				nBgColor;  /**< Indicates the background color of the text */
-}MmsSmilAVI;
+} MmsSmilAVI;
 
 /**
  *	@brief	Represents media information.
  */
-typedef struct
-{
+typedef struct {
 	MmsSmilMediaType	mediatype; /**< Indicates the SMIL media type. see enum MmsSmilMediaType */
 
 	char			szSrc[MSG_FILEPATH_LEN_MAX + 1];/**< Indicates the media source name */
@@ -111,8 +109,7 @@ typedef struct
 /**
  *	@brief	Represents attachment information.
  */
-typedef struct
-{
+typedef struct {
 	MimeType	mediatype;	/**< Indicates the file mime type. see enum MimeType */
 	char		szFileName[MSG_FILENAME_LEN_MAX + 1]; /**< Indicates the file name */
 	char		szFilePath[MSG_FILEPATH_LEN_MAX + 1]; /**< Indicates the file path */
@@ -125,32 +122,29 @@ typedef struct
 /**
  *	@brief	Represents SMIL page information.
  */
-typedef struct
-{
+typedef struct {
 	int		mediaCnt;	/**< The count of the media */
-	GList 	*medialist;	/**< The pointer to media list */
+	GList	*medialist;	/**< The pointer to media list */
 	int		nDur;	/**< Indicates the duration of the page */
 	int		nBegin; /**< Indicates the begin time of the page */
 	int		nEnd;	 /**< Indicates the end time of the page */
 	int		nMin;	/**< Indicates the min attribute of the page */
 	int		nMax;	/**< Indicates the max attribute of the page */
 	int		nRepeat;	/**< Indicates the page needs to be displayed repeatedly */
-}MMS_PAGE_S;
+} MMS_PAGE_S;
 
 /**
  *	@brief	Represents length information.
  */
-typedef struct
-{
-	bool 	bUnitPercent; /**< Indicates the length is in percentage(%) or not */
+typedef struct {
+	bool	bUnitPercent; /**< Indicates the length is in percentage(%) or not */
 	int	value;	/**< Indicates the value for length */
 } MMS_LENGTH;
 
 /**
  *	@brief	Represents SMIL region information.
  */
-typedef struct
-{
+typedef struct {
 	char				szID[MAX_SMIL_REGION_ID + 1]; /**< Indicates the ID of region information */
 	MMS_LENGTH		nLeft; /**< Indicates the left co-ordinate of the region */
 	MMS_LENGTH		nTop; /**< Indicates the top co-ordinate of the region */
@@ -164,59 +158,54 @@ typedef struct
 /**
  *	@brief	Represents SMIL root layout information.
  */
-typedef struct
-{
+typedef struct {
 	MMS_LENGTH	width;		/**< Indicates the width of the root layout */
 	MMS_LENGTH	height;		/**< Indicates the height of the root layout, '%' rate should be supported */
 	bool		bBgColor;	/**< Indicates the background color set in the root layout */
 	int			bgColor;		/**< Indicates the background color of the root layout */
-}MMS_SMIL_ROOTLAYOUT;
+} MMS_SMIL_ROOTLAYOUT;
 
 
 /**
  *	@brief	Represents SMIL transition information.
  */
-typedef struct
-{
+typedef struct {
 	char					szID[MAX_SMIL_TRANSITION_ID + 1];	/**< Indicates the ID of transition information */
 	MmsSmilTransType		nType;					/**< Indicates the transition type. see enum MmsSmilTransType */
 	MmsSmilTransSubType	nSubType;				/**< Indicates the transition sub type. see enum MmsSmilTransSubType */
 	int					nDur;					/**< Indicates the transition duration */
-}MMS_SMIL_TRANSITION;
+} MMS_SMIL_TRANSITION;
 
 
 /**
  *	@brief	Represents SMIL meta information.
  */
-typedef struct
-{
+typedef struct {
 	char		szID[MAX_SMIL_META_ID + 1];				/**< Indicates the ID of meta information */
 	char		szName[MAX_SMIL_META_NAME + 1];		/**< Indicates the Name */
 	char		szContent[MAX_SMIL_META_CONTENT + 1];	/**< Indicates the content */
-}MMS_SMIL_META;
+} MMS_SMIL_META;
 
 
 /**
  *	@brief	Represents application id information for JAVA MMS msg.
  */
-typedef struct
-{
-	bool 			valid;										/**< Indicates whether application id information is used or not. */
-	char 			appId[MAX_MMS_JAVA_APPID_LEN + 1];			/**< application id, it should not exceed 32 chars */
-	char 			replyToAppId[MAX_MMS_JAVA_APPID_LEN + 1];	/**< reply to application id, application id, it should not exceeded 32 chars */
-}MMS_APPID_INFO_S;
+typedef struct {
+	bool			valid;										/**< Indicates whether application id information is used or not. */
+	char			appId[MAX_MMS_JAVA_APPID_LEN + 1];			/**< application id, it should not exceed 32 chars */
+	char			replyToAppId[MAX_MMS_JAVA_APPID_LEN + 1];	/**< reply to application id, application id, it should not exceeded 32 chars */
+} MMS_APPID_INFO_S;
 
 
 
 #define		MAX_FULL_PATH_SIZE_S	160	/* max length for internal file path */
 
-typedef struct
-{
+typedef struct {
 	char					szMsgID[MMS_MSG_ID_LEN + 1];
 	char					retrievedFilePath[MAX_FULL_PATH_SIZE_S + 1];
 	char					szTrID[MMS_TR_ID_LEN + 1];
 	MMS_APPID_INFO_S	msgAppId;
-}MMS_RECV_DATA_S;
+} MMS_RECV_DATA_S;
 
 typedef struct _MMS_ADDRESS_DATA_S {
 	int address_type;
@@ -226,8 +215,7 @@ typedef struct _MMS_ADDRESS_DATA_S {
 /**
  *	@brief	Represents MMS header data.
  */
-typedef struct _MMS_HEADER_DATA_S
-{
+typedef struct _MMS_HEADER_DATA_S {
 	MMSList *bcc;		/* Bcc */
 	MMSList *cc;		/* Cc */
 	char contentLocation[MMS_LOCATION_LEN + 1];
@@ -241,10 +229,10 @@ typedef struct _MMS_HEADER_DATA_S
 	char messageID[MSG_MSG_ID_LEN + 1];
 	int messageType;			/* MmsMsgType : ex) sendreq	*/
 	int mmsVersion;				/* 1.0 1.3 */
-	int messageSize; 			/* X-Mms-Message-Size */
+	int messageSize;			/* X-Mms-Message-Size */
 	int mmsPriority;			/* _MSG_PRIORITY_TYPE_E : Low | Normal | High */
 	bool bReadReport;			/* X-Mms-Read-Report */
-	bool bHideAddress;			/* X-Mms-Sender-Visibility 	*/
+	bool bHideAddress;			/* X-Mms-Sender-Visibility	*/
 	msg_delivery_report_status_t mmsStatus; /* X-Mms-Status */
 	char szSubject[MAX_SUBJECT_LEN + 1];	/* Subject */
 	MMSList *to;				/* to */
@@ -298,8 +286,7 @@ typedef struct _MMS_HEADER_DATA_S
 /**
  *	@brief	Represents MMS multipart data.
  */
-typedef struct
-{
+typedef struct {
 	MimeType	type;	/**< Indicates the multipart mime type. see enum MimeType */
 	char		szContentType[MSG_MSG_ID_LEN + 1];		/**< Indicates the content type */
 	char		szFileName[MSG_FILENAME_LEN_MAX + 1];		/**< Indicates the file name */
@@ -311,29 +298,28 @@ typedef struct
 	char *pMultipartData;
 	size_t nMultipartDataLen;
 	int		tcs_bc_level;	/** detect malware type **/
-	int 	malware_allow;
+	int	malware_allow;
 	char		szThumbFilePath[MSG_FILEPATH_LEN_MAX + 1];		/**< Indicates the thubnail file path */
 } MMS_MULTIPART_DATA_S;
 
 /**
  *	@brief	Represents MMS message data.
  */
-typedef struct _MMS_MESSAGE_DATA_S
-{
-	int 					backup_type; /**< normal = 0|| backup = 1; */
+typedef struct _MMS_MESSAGE_DATA_S {
+	int					backup_type; /**< normal = 0|| backup = 1; */
 	char					szSmilFilePath[MSG_FILEPATH_LEN_MAX + 1];	/**< Indicates the SMIL file path */
 	int						pageCnt;	/**< The count of the SMIL pages */
 	GList					*pagelist;	/**< The pointer to SMIL pages list */
 	int						regionCnt;	/**< The count of the SMIL regions */
-	GList 					*regionlist;	/**< The pointer to SMIL regions list */
+	GList					*regionlist;	/**< The pointer to SMIL regions list */
 	int						attachCnt;	/**< The count of the attachments */
-	GList 					*attachlist;	/**< The pointer to attachment list */
+	GList					*attachlist;	/**< The pointer to attachment list */
 	int						transitionCnt;	/**< The count of the SMIL transitions information */
-	GList 					*transitionlist;	/**< The pointer to SMIL transitions list */
+	GList					*transitionlist;	/**< The pointer to SMIL transitions list */
 	int						metaCnt;	/**< The count of the SMIL meta information */
-	GList 					*metalist;	/**< The pointer to SMIL meta list */
+	GList					*metalist;	/**< The pointer to SMIL meta list */
 	MMS_SMIL_ROOTLAYOUT		rootlayout;	/**< Indicates the root layout information */
-	MMS_APPID_INFO_S 		msgAppId;
+	MMS_APPID_INFO_S		msgAppId;
 	MMS_HEADER_DATA_S header; /**< use for scloud */
 	MMS_MULTIPART_DATA_S smil;/**< use for scloud */
 } MMS_MESSAGE_DATA_S;
@@ -341,8 +327,7 @@ typedef struct _MMS_MESSAGE_DATA_S
 /**
  *	@brief	Represents MMS message data.
  */
-typedef struct
-{
+typedef struct {
 	int backup_type; /* none = 0 || scloud backup = 1 || kies backup = 2; */
 	MMS_HEADER_DATA_S *header; /**< The header struct of MMS*/
 	MMS_MULTIPART_DATA_S *smil;

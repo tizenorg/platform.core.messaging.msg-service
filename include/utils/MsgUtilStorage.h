@@ -19,7 +19,7 @@
 
 
 /*==================================================================================================
-                                         INCLUDE FILES
+											INCLUDE FILES
 ==================================================================================================*/
 #include "MsgInternalTypes.h"
 #include "MsgStorageTypes.h"
@@ -27,7 +27,7 @@
 #include "MsgSettingTypes.h"
 
 /*==================================================================================================
-					FUNCTION PROTOTYPES
+											FUNCTION PROTOTYPES
 ==================================================================================================*/
 /* Common Function */
 unsigned int MsgStoAddMessageTable(MsgDbHandler *pDbHandle, const MSG_MESSAGE_INFO_S *pMsgInfo);

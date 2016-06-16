@@ -31,8 +31,7 @@ extern "C" {
 * @enum vMsgType
 * This enumeration defines the property of vcard.
 */
-typedef enum
-{
+typedef enum {
 	VMSG_TYPE_BEGIN,
 	VMSG_TYPE_END,
 	VMSG_TYPE_TEL,
@@ -45,7 +44,7 @@ typedef enum
 	VMSG_TYPE_STATUS,
 	VMSG_TYPE_MSGTYPE,
 	VMSG_TYPE_DATE,
-}vMsgType;
+} vMsgType;
 
 #define VMSG_TYPE_NUM	12		/**< number of vcard type */
 
@@ -53,15 +52,14 @@ typedef enum
 * @enum vMsgParamName
 * This enumeration defines the name of vcard parameter.
 */
-typedef enum
-{
+typedef enum {
 	VMSG_PARAM_CHARSET,		/**<This is charset parameter. */
 	VMSG_PARAM_CONTEXT,		/**<This is context parameter. */
 	VMSG_PARAM_ENCODING,	/**<This is encoding parameter. */
 	VMSG_PARAM_LANGUAGE,	/**<This is language parameter. */
 	VMSG_PARAM_TYPE,			/**<This is type parameter. */
 	VMSG_PARAM_VALUE		/**<This is value parameter. */
-}vMsgParamName;
+} vMsgParamName;
 
 #define VMSG_PARAM_NUM		6	/**< number of vcard parameter */
 
@@ -69,14 +67,13 @@ typedef enum
 * @enum vMsgParamName
 * This enumeration defines the value of encoding parameter.
 */
-typedef enum
-{
+typedef enum {
 	VMSG_ENC_PARAM_B,					/**<This is b encoding parameter. */
 	VMSG_ENC_PARAM_BASE64,				/**<This isbase64 encoding parameter. */
 	VMSG_ENC_PARAM_QUOTED_PRINTABLE,	/**<This is quoted printable encoding parameter. */
 	VMSG_ENC_PARAM_7BIT,				/**<This is 7 bit encoding parameter. */
 	VMSG_ENC_PARAM_8BIT					/**<This is 8 bit encoding parameter. */
-}vMsgEncVal;
+} vMsgEncVal;
 
 #define VMSG_ENCODE_PARAM_NUM	5	/**< number of vcard encoding parameter */
 
@@ -84,13 +81,12 @@ typedef enum
 * @enum vMsgCharsetVal
 * This enumeration defines the value of charset parameter.
 */
-typedef enum
-{
+typedef enum {
 	VMSG_CHARSET_PARAM_UTF_8,		/**<This is utf-8 charset parameter. */
 	VMSG_CHARSET_PARAM_UTF_16,		/**<This is utf-16 charset parameter. */
 	VMSG_CHARSET_PARAM_SHIFT_JIS,	/**<This is shift-jis charset parameter. */
 	VMSG_CHARSET_PARAM_ISO_8859_1	/**<This is iso-8859-1 charset parameter. */
-}vMsgCharsetVal;
+} vMsgCharsetVal;
 
 #define VMSG_CHARSET_PARAM_NUM  4	/**< number of vcard charset parameter */
 
@@ -98,8 +94,7 @@ typedef enum
 * @enum vMsgValVal
 * This enumeration defines the value of value parameter.
 */
-typedef enum
-{
+typedef enum {
 	VMSG_VALUE_PARAM_BINARY,		/**<This is binary value parameter. */
 	VMSG_VALUE_PARAM_BOOLEAN,		/**<This is boolean value parameter. */
 	VMSG_VALUE_PARAM_DATE,			/**<This is date value parameter. */
@@ -113,7 +108,7 @@ typedef enum
 	VMSG_VALUE_PARAM_URL,				/**<This is url value parameter. */
 	VMSG_VALUE_PARAM_UTC_OFFSET,		/**<This is utc offset value parameter. */
 	VMSG_VALUE_PARAM_VMSG				/**<This is vcard value parameter. */
-}vMsgValVal;
+} vMsgValVal;
 
 #define VMSG_VALUE_PARAM_NUM		13		/**< number of vcard value parameter */
 
@@ -121,8 +116,7 @@ typedef enum
 * @enum vMsgValVal
 * This enumeration defines the value of type parameter.
 */
-typedef enum
-{
+typedef enum {
 	VMSG_TYPE_PARAM_AIFF,		/**<This is aiff type parameter. */
 	VMSG_TYPE_PARAM_BBS,		/**<This is bbs type parameter. */
 	VMSG_TYPE_PARAM_CAR,		/**<This is car type parameter. */
@@ -153,7 +147,7 @@ typedef enum
 	VMSG_TYPE_PARAM_ETC,		/**<This is etc type parameter. */
 	VMSG_TYPE_PARAM_X400,		/**<This is X400 type parameter. */
 	VMSG_TYPE_PARAM_X_IRMC_N	/**<This is X-IRMC-N type parameter. */
-}vMsgTypeVal;
+} vMsgTypeVal;
 
 #define VMSG_TYPE_PARAM_NUM		30		/**< number of vcard type parameter */
 

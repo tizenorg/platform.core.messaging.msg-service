@@ -18,7 +18,7 @@
 #define MSG_SPAM_FILTER_H
 
 /*==================================================================================================
-                                         INCLUDE FILES
+											INCLUDE FILES
 ==================================================================================================*/
 #include "MsgFilterTypes.h"
 #include "MsgStorageTypes.h"
@@ -27,7 +27,7 @@
 
 
 /*==================================================================================================
-                                     FUNCTION PROTOTYPES
+											FUNCTION PROTOTYPES
 ==================================================================================================*/
 msg_error_t MsgSetFilterOperation(bool bSetFlag);
 msg_error_t MsgGetFilterOperation(bool *pSetFlag);

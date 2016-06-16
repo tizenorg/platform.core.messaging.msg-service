@@ -284,7 +284,7 @@ int SmsPluginParamCodec::decodeAddress(const unsigned char *pTpdu, SMS_ADDRESS_S
 		convertBcdToDigit(&(pTpdu[offset]), bcdLen, &((pAddress->address)[0]));
 	}
 
-	offset += 	bcdLen;
+	offset +=	bcdLen;
 
 /*	MSG_DEBUG("address [%s]", pAddress->address);
 */

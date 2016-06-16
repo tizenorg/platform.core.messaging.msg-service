@@ -19,7 +19,7 @@
 
 /* #define USE_GCONF */
 /*==================================================================================================
-                                         INCLUDE FILES
+											INCLUDE FILES
 ==================================================================================================*/
 #include "MsgInternalTypes.h"
 
@@ -31,34 +31,33 @@
 #endif
 
 /*==================================================================================================
-                                         STRUCTURES
+											STRUCTURES
 ==================================================================================================*/
 #ifdef USE_GCONF
-typedef struct _MSG_GOBJECT_CLIENT_S
-{
+typedef struct _MSG_GOBJECT_CLIENT_S {
 	GObject* object;
-}MSG_GOBJECT_CLIENT_S;
+} MSG_GOBJECT_CLIENT_S;
 #endif
 
 
 typedef void (*_vconf_change_cb)(keynode_t *key, void* data);
 
 /*==================================================================================================
-                                     FUNCTION PROTOTYPES
+											FUNCTION PROTOTYPES
 ==================================================================================================*/
-msg_error_t 	MsgSettingSetString(const char *pKey, const char *pSetValue);
-msg_error_t 	MsgSettingSetInt(const char *pKey, int nSetValue);
-msg_error_t 	MsgSettingSetBool(const char *pKey, bool bSetValue);
+msg_error_t MsgSettingSetString(const char *pKey, const char *pSetValue);
+msg_error_t MsgSettingSetInt(const char *pKey, int nSetValue);
+msg_error_t MsgSettingSetBool(const char *pKey, bool bSetValue);
 
-msg_error_t 	MsgSettingGetString(const char *pKey, char **pVal);
-msg_error_t		MsgSettingGetInt(const char *pKey, int *pVal);
-msg_error_t 	MsgSettingGetBool(const char *pKey, bool *pVal);
+msg_error_t MsgSettingGetString(const char *pKey, char **pVal);
+msg_error_t MsgSettingGetInt(const char *pKey, int *pVal);
+msg_error_t MsgSettingGetBool(const char *pKey, bool *pVal);
 
-msg_error_t 	MsgSettingHandleNewMsg(int SmsCnt, int MmsCnt);
-msg_error_t 	MsgSettingSetIndicator(int SmsCnt, int MmsCnt);
+msg_error_t MsgSettingHandleNewMsg(int SmsCnt, int MmsCnt);
+msg_error_t MsgSettingSetIndicator(int SmsCnt, int MmsCnt);
 
 int	MsgSettingGetAutoReject();
-bool	MsgSettingGetUnknownAutoReject();
+bool MsgSettingGetUnknownAutoReject();
 
 msg_error_t MsgSettingRegVconfCBCommon(const char *pKey, _vconf_change_cb pCb);
 msg_error_t MsgSettingRemoveVconfCBCommon(const char *pKey, _vconf_change_cb pCb);

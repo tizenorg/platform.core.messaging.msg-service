@@ -19,7 +19,7 @@
 
 
 /*==================================================================================================
-                                         INCLUDE FILES
+										INCLUDE FILES
 ==================================================================================================*/
 #include "MsgMutex.h"
 
@@ -38,7 +38,7 @@ extern "C"
 }
 
 /*==================================================================================================
-                                     CLASS DEFINITIONS
+										CLASS DEFINITIONS
 ==================================================================================================*/
 class SmsPluginStorage
 {
@@ -85,7 +85,7 @@ private:
 	MSG_ADDRESS_INFO_S addrInfo;
 
 	std::list<PUSH_APPLICATION_INFO_S> pushAppInfoList;
-//	unsigned char tmpMsgRef;
+	/* unsigned char tmpMsgRef; */
 };
 
 #endif /* SMS_PLUGIN_STORAGE_H */

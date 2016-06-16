@@ -18,7 +18,7 @@
 #define MSG_PLUGIN_MANAGER_H
 
 /*==================================================================================================
-                                         INCLUDE FILES
+											INCLUDE FILES
 ==================================================================================================*/
 #include <map>
 
@@ -27,12 +27,12 @@
 #include "MsgCppTypes.h"
 
 /*==================================================================================================
-                                    DEFINES
+											DEFINES
 ==================================================================================================*/
 
 
 /*==================================================================================================
-                                     CLASS DEFINITIONS
+											CLASS DEFINITIONS
 ==================================================================================================*/
 class MsgPlugin
 {
@@ -72,19 +72,19 @@ public:
 	msg_error_t restoreMsg(MSG_MESSAGE_INFO_S *pMsgInfo, char* pRecvBody, int rcvdBodyLen, char* filePath);
 
 	operator void*() const {
-		return (mSupportedMsg == MSG_UNKNOWN_TYPE)? NULL:(void*) this;
+		return (mSupportedMsg == MSG_UNKNOWN_TYPE) ? NULL:(void*) this;
 	}
 
 private:
-	MSG_MAIN_TYPE_T 			mSupportedMsg;
-	MSG_PLUGIN_HANDLER_S 	mPlgHandler;
+	MSG_MAIN_TYPE_T			mSupportedMsg;
+	MSG_PLUGIN_HANDLER_S	mPlgHandler;
 
 	void	*mLibHandler;    /* plugin library pointer */
 };
 
 
 /*==================================================================================================
-                                     GLOBAL VARIABLES
+											GLOBAL VARIABLES
 ==================================================================================================*/
 typedef std::map<MSG_MAIN_TYPE_T, MsgPlugin*> MsgPluginMap;
 
@@ -93,14 +93,14 @@ typedef struct {
 	const char *path;
 } MSG_PLG_TABLE_T;
 
-const static MSG_PLG_TABLE_T __msg_plg_items[] = {
+static const MSG_PLG_TABLE_T __msg_plg_items[] = {
 	{ MSG_SMS_TYPE, "/usr/lib/libmsg_sms_plugin.so" },
 	{ MSG_MMS_TYPE, "/usr/lib/libmsg_mms_plugin.so" }
 };
 
 
 /*==================================================================================================
-                                     CLASS DEFINITIONS
+									CLASS DEFINITIONS
 ==================================================================================================*/
 class MsgPluginManager
 {

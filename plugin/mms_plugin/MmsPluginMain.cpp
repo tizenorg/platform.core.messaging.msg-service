@@ -274,7 +274,7 @@ msg_error_t MmsComposeReadReport(MSG_MESSAGE_INFO_S *pMsgInfo)
 	MSG_BEGIN();
 
 	try {
- 		MmsPluginStorage::instance()->composeReadReport(pMsgInfo);
+		MmsPluginStorage::instance()->composeReadReport(pMsgInfo);
 	} catch (MsgException& e) {
 		MSG_FATAL("%s", e.what());
 		return MSG_ERR_PLUGIN_STORAGE;

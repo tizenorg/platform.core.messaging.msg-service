@@ -1401,9 +1401,9 @@ __CATCH:
 /**
  * Decode Encoded Content type
  *
- * @param 	pEncodedData	[in] ContentType encoded data
+ * @param	pEncodedData	[in] ContentType encoded data
  * @param	pMsgType		[out] Decoded MsgType
- * @return 	Decoded address list
+ * @return	Decoded address list
  */
 static int __MmsBinaryDecodeContentType(FILE *pFile, MsgType *pMsgType, int totalLength)
 {
@@ -2467,7 +2467,7 @@ __CATCH:
 /**
  * Decode uintvar to 32bit unsigned integer
  *
- * @param 	pEncodedData    [in] encoded data
+ * @param	pEncodedData    [in] encoded data
  * @param	pUintVar		[out] Decode uintvar (32bit unsigned integer)
  * @return	The length of uintvar (-1, if cannot be converted to a uintvar)
  *
@@ -2528,9 +2528,9 @@ __CATCH:
 /**
  * Decode uintvar to 32bit unsigned integer by uintvar length
  *
- * @param 	pEncodedData [in] uintvar encoded data
- * @param 	length		 [in] length of integer value
- * @return 	unsigned integer value
+ * @param	pEncodedData [in] uintvar encoded data
+ * @param	length		 [in] length of integer value
+ * @return	unsigned integer value
  */
 static UINT32 __MmsHeaderDecodeIntegerByLength(FILE *pFile, UINT32 length, int totalLength)
 {
@@ -2600,9 +2600,9 @@ __CATCH:
 /**
  * Decode uintvar to 32bit unsigned integer by uintvar length
  *
- * @param 	pEncodedData	[in]  uintvar encoded data
+ * @param	pEncodedData	[in]  uintvar encoded data
  * @param	pInteger		[out] Decode integer value (long/short)
- * @return 	unsigned integer value (-1, if cannot be converted to unsigned integer value)
+ * @return	unsigned integer value (-1, if cannot be converted to unsigned integer value)
  */
 static bool __MmsBinaryDecodeInteger(FILE *pFile, UINT32 *pInteger, int *pIntLen, int totalLength)
 {
@@ -2684,7 +2684,7 @@ __CATCH:
 /**
  * Decode uintvar to 32bit unsigned integer by uintvar length
  *
- * @return 	1  : Success
+ * @return	1  : Success
  *			0  : This is not Value Length type data
  *			-1 : Requires System error report
  */
@@ -2740,7 +2740,7 @@ __CATCH:
 /**
  * Decode uintvar to 32bit unsigned integer by uintvar length
  *
- * @return 	1  : Success
+ * @return	1  : Success
  *			0  : This is not Value Length type data
  *			-1 : Requires System error report
  * @ defference : if there is not length-quote, consider it as short length.
@@ -2797,10 +2797,10 @@ __CATCH:
 /**
  * Decode QuotedString
  *
- * @param 	pEncodedData	[in] QuotedString encoded data
+ * @param	pEncodedData	[in] QuotedString encoded data
  * @param	szBuff			[out] Decoded quoted string
  * @param	bufLen			[out] Buffer length
- * @return 	length of quoted string
+ * @return	length of quoted string
  */
 static int __MmsBinaryDecodeQuotedString(FILE *pFile, char *szBuff, int bufLen, int totalLength)
 {
@@ -2821,7 +2821,7 @@ static int __MmsBinaryDecodeQuotedString(FILE *pFile, char *szBuff, int bufLen, 
 	memset(szBuff, 0, bufLen);
 
 	if (__MsgLoadDataToDecodeBuffer(pFile, &gpCurMmsDecodeBuff, &gCurMmsDecodeBuffPos, &gMmsDecodeCurOffset,
-						  			 gpMmsDecodeBuf1, gpMmsDecodeBuf2, gMmsDecodeMaxLen, &gMmsDecodeBufLen, totalLength) == false) {
+									 gpMmsDecodeBuf1, gpMmsDecodeBuf2, gMmsDecodeMaxLen, &gMmsDecodeBufLen, totalLength) == false) {
 		MSG_DEBUG("fail to load to buffer");
 		goto __CATCH;
 	}
@@ -2879,7 +2879,7 @@ static int __MmsBinaryDecodeQuotedString(FILE *pFile, char *szBuff, int bufLen, 
 		}
 
 		if (__MsgLoadDataToDecodeBuffer(pFile, &gpCurMmsDecodeBuff, &gCurMmsDecodeBuffPos, &gMmsDecodeCurOffset,
-							 			gpMmsDecodeBuf1, gpMmsDecodeBuf2, gMmsDecodeMaxLen, &gMmsDecodeBufLen, totalLength) == false) {
+										gpMmsDecodeBuf1, gpMmsDecodeBuf2, gMmsDecodeMaxLen, &gMmsDecodeBufLen, totalLength) == false) {
 			MSG_DEBUG("fail to load to buffer");
 			goto __CATCH;
 		}
@@ -2936,10 +2936,10 @@ __CATCH:
 /**
  * Decode Text
  *
- * @param 	pEncodedData	[in] QuotedString encoded data
+ * @param	pEncodedData	[in] QuotedString encoded data
  * @param	szBuff			[out] Decoded quoted string
  * @param	bufLen			[out] Buffer length
- * @return 	length of decode text string
+ * @return	length of decode text string
  */
 static int __MmsBinaryDecodeText(FILE *pFile, char *szBuff, int bufLen, int totalLength)
 {
@@ -2967,7 +2967,7 @@ static int __MmsBinaryDecodeText(FILE *pFile, char *szBuff, int bufLen, int tota
 	memset(szBuff, 0, bufLen);
 
 	if (__MsgLoadDataToDecodeBuffer(pFile, &gpCurMmsDecodeBuff, &gCurMmsDecodeBuffPos, &gMmsDecodeCurOffset,
-						  			gpMmsDecodeBuf1, gpMmsDecodeBuf2, gMmsDecodeMaxLen, &gMmsDecodeBufLen, totalLength) == false) {
+									gpMmsDecodeBuf1, gpMmsDecodeBuf2, gMmsDecodeMaxLen, &gMmsDecodeBufLen, totalLength) == false) {
 		MSG_DEBUG("fail to load to buffer");
 		goto __CATCH;
 	}
@@ -3271,9 +3271,9 @@ __CATCH:
 /**
  * Decode Charset
  *
- * @param 	pEncodedData	[in] QuotedString encoded data
+ * @param	pEncodedData	[in] QuotedString encoded data
  * @param	nCharSet		[out] Decoded character set
- * @return 	length of charset value
+ * @return	length of charset value
  */
 static bool __MmsBinaryDecodeCharset(FILE *pFile, UINT32 *nCharSet, int *pCharSetLen, int totalLength)
 {
@@ -3318,10 +3318,10 @@ __CATCH:
 /**
  * Decode EncodedString
  *
- * @param 	pEncodedData	[in] QuotedString encoded data
+ * @param	pEncodedData	[in] QuotedString encoded data
  * @param	szBuff			[out] Decoded string buffer
  * @param	bufLen			[in]  Decoded buffer length
- * @return 	length of decoded string length
+ * @return	length of decoded string length
  */
 static bool __MmsBinaryDecodeEncodedString(FILE *pFile, char *szBuff, int bufLen, int totalLength)
 {
@@ -3443,9 +3443,9 @@ __CATCH:
 /**
  * Decode Encoded Addresses
  *
- * @param 	pEncodedData	[in] QuotedString encoded data
+ * @param	pEncodedData	[in] QuotedString encoded data
  * @param	pAddrLength		[out] Decoded address length
- * @return 	Decoded address list
+ * @return	Decoded address list
  */
 MsgHeaderAddress *__MmsDecodeEncodedAddress(FILE *pFile, int totalLength)
 {
@@ -3539,9 +3539,9 @@ __CATCH:
 /**
  * Decode Encoded Pointer String
  *
- * @param 	pEncodedData	[in] Long integer encoded data
+ * @param	pEncodedData	[in] Long integer encoded data
  * @param	pLongInteger	[out] Decoded long integer
- * @return 	Decoded address list
+ * @return	Decoded address list
  */
 static bool __MmsDecodeLongInteger(FILE *pFile, UINT32 *pLongInteger, int totalLength)
 {
@@ -3813,7 +3813,7 @@ bool MmsReadMsgBody(msg_message_id_t msgID, bool bSavePartsAsTempFiles, bool bRe
 			pMsg->nPartCount++;
 	}
 
-	/* 	make temporary	*/
+	/*	make temporary	*/
 	snprintf(szTempMediaDir, MSG_FILEPATH_LEN_MAX, "%s%s.dir", MSG_DATA_PATH, pMsg->szFileName);
 
 	if (MsgIsMultipart(pMsg->msgType.type) == true) {
@@ -6120,7 +6120,7 @@ void MmsPluginDecoder::decodeMmsPdu(MmsMsg *pMsg, msg_message_id_t msgID, const 
 			pMsg->nPartCount++;
 	}
 
-	/* 	make temporary	*/
+	/*	make temporary	*/
 	snprintf(szTempMediaDir, MSG_FILEPATH_LEN_MAX, "%s%s.dir", MSG_DATA_PATH, pMsg->szFileName);
 
 	if (MsgIsMultipart(pMsg->msgType.type) == true) {

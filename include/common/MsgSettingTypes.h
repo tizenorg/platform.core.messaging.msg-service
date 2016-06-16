@@ -18,9 +18,9 @@
 #define MSG_SETTING_TYPES_H
 
 /**
- *	@file 		MsgSettingTypes.h
- *	@brief 		Defines setting types of messaging framework
- *	@version 	1.0
+ *	@file			MsgSettingTypes.h
+ *	@brief			Defines setting types of messaging framework
+ *	@version		1.0
  */
 
 /**
@@ -31,7 +31,7 @@
  */
 
 /*==================================================================================================
-                                         INCLUDE FILES
+											INCLUDE FILES
 ==================================================================================================*/
 #include "MsgTypes.h"
 #include "MsgStorageTypes.h"
@@ -43,7 +43,7 @@
  */
 
 /*==================================================================================================
-                                         TYPES
+											TYPES
 ==================================================================================================*/
 
 /**
@@ -193,14 +193,13 @@ typedef int MSG_RINGTONE_TYPE_T;
 
 
 /*==================================================================================================
-                                         STRUCTURES
+											STRUCTURES
 ==================================================================================================*/
 
 /**
  *	@brief	Represents SMSC address information.
  */
-typedef struct
-{
+typedef struct {
 	MSG_SMS_TON_T			ton;								/**< Type of number */
 	MSG_SMS_NPI_T			npi;								/**< Numbering plan ID */
 	char						address[SMSC_ADDR_MAX+1];		/**< SMSC address */
@@ -210,8 +209,7 @@ typedef struct
 /**
  *	@brief	Represents SMSC data information.
  */
-typedef struct
-{
+typedef struct {
 	MSG_SMS_PID_T			pid;							/**< Protocol idendifier */
 	MSG_VAL_PERIOD_T		valPeriod;					/**< Validity period value */
 	char						name[SMSC_NAME_MAX+1];		/**< SMSC name */
@@ -222,36 +220,33 @@ typedef struct
 /**
  *	@brief	Represents an SMSC list.
  */
-typedef struct
-{
+typedef struct {
 	int						index;						/**< SMSC index for Updating information */
 	int						selected;					/**< Selected SMSC index */
 	int						totalCnt;							/**< The count of total SMSC addresses */
 	MSG_SMSC_DATA_S			smscData[SMSC_LIST_MAX];		/**< SMSC data information list*/
-	msg_sim_slot_id_t 		simIndex;
-}MSG_SMSC_LIST_S;
+	msg_sim_slot_id_t		simIndex;
+} MSG_SMSC_LIST_S;
 
 
 /**
  *	@brief	Represents an SMSC list.
  */
-typedef struct
-{
+typedef struct {
 	int						index;					/**< SMSC index for Updating information */
 	int						selected;				/**< Selected SMSC index */
 	msg_struct_list_s		*smsc_list;			/**< SMSC data information list*/
-	msg_sim_slot_id_t 		simIndex;
-}MSG_SMSC_LIST_HIDDEN_S;
+	msg_sim_slot_id_t		simIndex;
+} MSG_SMSC_LIST_HIDDEN_S;
 
 
 /**
  *	@brief	Represents the information of a cell broadcasting channel.
  */
-typedef struct
-{
+typedef struct {
 	bool			bActivate;							/**< Indicates whether the CB channel is activate or passive. */
-	unsigned int 	from;								/**< Indicates the start ID of a CB channel range. */
-	unsigned int 	to;									/**< Indicates the end ID of a CB channel range. */
+	unsigned int	from;								/**< Indicates the start ID of a CB channel range. */
+	unsigned int	to;									/**< Indicates the end ID of a CB channel range. */
 	unsigned short ctg;								/**< Indicates the category of a CB. (for 3gpp2)*/
 	unsigned short lang;								/**< Indicates the language of a CB. (for 3gpp2)*/
 	char			name[CB_CHANNEL_NAME_MAX+1];		/**< Indicates the name of a CB channel. */
@@ -261,8 +256,7 @@ typedef struct
 /**
  *	@brief	Represents cell broadcasting channel information.
  */
-typedef struct
-{
+typedef struct {
 	int						channelCnt;					/**< The count of CB channels */
 	MSG_CB_CHANNEL_INFO_S	channelInfo[CB_CHANNEL_MAX];	/**< The structure of CB channel information */
 } MSG_CB_CHANNEL_S;
@@ -271,41 +265,38 @@ typedef struct
 /**
  *	@brief	Represents an general option.
  */
-typedef struct
-{
+typedef struct {
 	bool					bKeepCopy;			/**< Indicates whether the SMS message copy is kept or not. */
 	MSG_ALERT_TONE_T		alertTone;			/**< Indicates the period of playing alert tone. */
 	bool					bAutoErase;			/**< Indicates whether the auto-erase option is enabled or not. */
 	bool					bBlockUnknownMsg;		/**< Indicates whether unknown sender message is blocked or not. */
 	int						smsLimitCnt;		/**< Indicates the count limitation of sms messages in one conversation */
 	int						mmsLimitCnt;		/**< Indicates the count limitation of sms messages in one conversation */
-	bool 					bNotification;		/**< Indicates whether notification for incoming message is shown or not. */
+	bool					bNotification;		/**< Indicates whether notification for incoming message is shown or not. */
 	bool					bVibration;		/**< Indicates whether vibration for incoming message is run or not. */
 	bool					bPreview;			/**< Indicates whether preview for incoming message is shown or not. */
-	char 					ringtonePath[MSG_FILEPATH_LEN_MAX+1];		/**< Indicates the message ringtone path */
-	int 					ringtoneType;		/**< Indicates the message ringtone type. */
-}MSG_GENERAL_OPT_S;
+	char					ringtonePath[MSG_FILEPATH_LEN_MAX+1];		/**< Indicates the message ringtone path */
+	int					ringtoneType;		/**< Indicates the message ringtone type. */
+} MSG_GENERAL_OPT_S;
 
 
 /**
  *	@brief	Represents an SMS send option.
  */
-typedef struct
-{
+typedef struct {
 	msg_encode_type_t			dcs;					/**< Indicates the string encoding type. */
 	MSG_SMS_NETWORK_MODE_T	netMode;				/**< Indicates the network mode (CS/PS) to send SMS. */
 	bool							bReplyPath;			/**< Indicates whether the SMS reply path is set or not. */
 	bool							bDeliveryReport;		/**< Indicates whether the SMS delivery report will be sent or not. */
 	MSG_SMS_SAVE_STORAGE_T		saveStorage;			/**< Indicates the default storage to save SMS. */
-}MSG_SMS_SENDOPT_S;
+} MSG_SMS_SENDOPT_S;
 
 
 /**
  *	@brief	Represents an MMS send option.
  */
-typedef struct
-{
-	MSG_MMS_MSG_CLASS_TYPE_T 	msgClass;
+typedef struct {
+	MSG_MMS_MSG_CLASS_TYPE_T	msgClass;
 	msg_priority_type_t			priority;				/**< Indicates the priority of the message. */
 	MSG_MMS_EXPIRY_TIME_T		expiryTime;			/**< Indicates the time when the message is to be removed from the MMSC. */
 	MSG_MMS_DELIVERY_TIME_T		deliveryTime;			/**< Indicates the message transmission time which is set in the MMSC. */
@@ -317,7 +308,7 @@ typedef struct
 	bool							bBodyReplying;		/**< Indicates whether the body is included when replying or not. */
 	bool							bHideRecipients;		/**< Indicates whether the recipients are hidden or not. */
 
-	MSG_MMS_REPLY_CHARGING_TYPE_T 	replyCharging;
+	MSG_MMS_REPLY_CHARGING_TYPE_T	replyCharging;
 	unsigned int						replyChargingDeadline;
 	unsigned int /*long*/				replyChargingSize;
 
@@ -328,8 +319,7 @@ typedef struct
 /**
  *	@brief	Represents an MMS receive option.
  */
-typedef struct
-{
+typedef struct {
 	MSG_MMS_HOME_RETRIEVE_TYPE_T		homeNetwork;	/**< Indicates the retrieve type for MMS home network. */
 	MSG_MMS_ABROAD_RETRIEVE_TYPE_T	abroadNetwork;	/**< Indicates the retrieve type for MMS abroad network. */
 #if 0
@@ -345,8 +335,7 @@ typedef struct
 /**
  *	@brief	Represents an MMS style option.
  */
-typedef struct
-{
+typedef struct {
 	unsigned int	fontSize;
 	bool			bFontStyleBold;
 	bool			bFontStyleItalic;
@@ -368,8 +357,7 @@ typedef struct
 /**
  *	@brief	Represents a push message option.
  */
-typedef struct
-{
+typedef struct {
 	bool						bReceive;		/**< Indicates whether the push message is received or not. */
 	MSG_PUSH_SERVICE_TYPE_T	serviceType;		/**< Indicates the service type of a push message. */
 } MSG_PUSHMSG_OPT_S;
@@ -378,8 +366,7 @@ typedef struct
 /**
  *	@brief	Represents a cell broadcasting message option.
  */
-typedef struct
-{
+typedef struct {
 	bool				bReceive;		/**< Indicates whether the CB message is received or not. */
 	int					maxSimCnt;		/**< Indicates the number of channels which can be stored in SIM. */
 	MSG_CB_CHANNEL_S	channelData;		/**< Indicates the cell broadcasting channel information. */
@@ -387,8 +374,7 @@ typedef struct
 	msg_sim_slot_id_t					simIndex;
 } MSG_CBMSG_OPT_S;
 
-typedef struct
-{
+typedef struct {
 	bool					bReceive;		/**< Indicates whether the CB message is received or not. */
 	int					maxSimCnt;		/**< Indicates the number of channels which can be stored in SIM. */
 	msg_struct_list_s	*channelData;		/**< Indicates the cell broadcasting channel information. */
@@ -400,8 +386,7 @@ typedef struct
 /**
  *	@brief	Represents a voice mail number option.
  */
-typedef struct
-{
+typedef struct {
 	char mailNumber[MAX_PHONE_NUMBER_LEN+1];
 	char alpahId[MAX_SIM_XDN_ALPHA_ID_LEN+1];
 	msg_sim_slot_id_t					simIndex;
@@ -412,8 +397,7 @@ typedef struct
 /**
  *	@brief	Represents a MMS size option.
  */
-typedef struct
-{
+typedef struct {
 	int nMsgSize;
 } MSG_MSGSIZE_OPT_S;
 
@@ -421,8 +405,7 @@ typedef struct
 /**
  *	@brief	Represents setting information.
  */
-typedef struct
-{
+typedef struct {
 	MSG_OPTION_TYPE_T	type;		/**< The option type in a setting */
 
 	union {
@@ -437,7 +420,7 @@ typedef struct
 		MSG_VOICEMAIL_OPT_S		voiceMailOpt;		/**< voice mail option */
 		MSG_MSGSIZE_OPT_S		msgSizeOpt;		/**< MMS size option */
 	} option;
-}MSG_SETTING_S;
+} MSG_SETTING_S;
 
 
 /**

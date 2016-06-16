@@ -550,7 +550,7 @@ void MsgMgrSoundPlayMelody(char *pMsgToneFilePath)
 	err = player_start(g_PlayerHandle);
 
 	if (err != PLAYER_ERROR_NONE) {
-	 	MSG_MGR_DEBUG("player_start, FAIL [%x]", err);
+		MSG_MGR_DEBUG("player_start, FAIL [%x]", err);
 	} else {
 		/* Add Timer to stop playing after 5 sec. */
 		/*

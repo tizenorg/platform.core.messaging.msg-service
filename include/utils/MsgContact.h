@@ -18,13 +18,13 @@
 #define MSG_CONTACT_H
 
 /*==================================================================================================
-                                         INCLUDE FILES
+											INCLUDE FILES
 ==================================================================================================*/
 #include "MsgStorageTypes.h"
 #include "MsgInternalTypes.h"
 
 /*==================================================================================================
-                                     FUNCTION PROTOTYPES
+											FUNCTION PROTOTYPES
 ==================================================================================================*/
 msg_error_t MsgGetContactInfo(const MSG_ADDRESS_INFO_S *pAddrInfo, MSG_CONTACT_INFO_S *pContactInfo);
 

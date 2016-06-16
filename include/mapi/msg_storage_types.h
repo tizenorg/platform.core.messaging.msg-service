@@ -18,13 +18,13 @@
 #define MSG_STORAGE_TYPES_H_
 
 /*==================================================================================================
-                                         INCLUDE FILES
+											INCLUDE FILES
 ==================================================================================================*/
 
 #include "msg_types.h"
 
 /*==================================================================================================
-                                         STRUCTURES
+											STRUCTURES
 ==================================================================================================*/
 
 /**
@@ -39,11 +39,11 @@
 typedef struct {
 	int					nCount;				/**< The count of message ID information */
 	msg_message_id_t	*msgIdList;			/**< The pointer to message ID information */
-}msg_id_list_s;
+} msg_id_list_s;
 
 
 /*==================================================================================================
-                                         TYPES
+											TYPES
 ==================================================================================================*/
 
 /**
@@ -96,7 +96,7 @@ typedef void (*msg_storage_change_cb)(msg_handle_t handle, msg_storage_change_ty
 
 
 /*==================================================================================================
-                                         ENUMS
+											ENUMS
 ==================================================================================================*/
 
 /**
@@ -135,8 +135,8 @@ enum _MSG_FOLDER_ID_E {
 enum _MSG_FOLDER_TYPE_E {
 	MSG_FOLDER_TYPE_INBOX = 1,		/**< Inbox folder */
 	MSG_FOLDER_TYPE_OUTBOX,		    /**< Outbox folder */
-	MSG_FOLDER_TYPE_DRAFT, 		    /**< Draft folder */
-	MSG_FOLDER_TYPE_SPAMBOX, 		/**< Spambox folder */
+	MSG_FOLDER_TYPE_DRAFT,		    /**< Draft folder */
+	MSG_FOLDER_TYPE_SPAMBOX,		/**< Spambox folder */
 	MSG_FOLDER_TYPE_USER_DEF		/**< Folder which is created by a user */
 };
 

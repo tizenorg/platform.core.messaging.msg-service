@@ -19,7 +19,7 @@
 
 
 /*==================================================================================================
-                                         INCLUDE FILES
+											INCLUDE FILES
 ==================================================================================================*/
 #include <string>
 #include <map>
@@ -32,20 +32,18 @@ using namespace std;
 
 
 /*==================================================================================================
-                                         VARIABLES AND DEFINES
+											VARIABLES AND DEFINES
 ==================================================================================================*/
 #define MAX_CONCAT_LIST	10
 
-struct CONCAT_DATA_S
-{
+struct CONCAT_DATA_S {
 	int	length;
 	char data[MAX_USER_DATA_LEN+1];
 };
 
 typedef map<unsigned char, CONCAT_DATA_S> concatDataMap;
 
-typedef struct _SMS_CONCAT_MSG_S
-{
+typedef struct _SMS_CONCAT_MSG_S {
 	unsigned short		msgRef;
 	unsigned char		totalSeg;
 	unsigned char		seqNum;
@@ -55,11 +53,10 @@ typedef struct _SMS_CONCAT_MSG_S
 	SMS_DCS_S		dcs;
 	bool				bRead;
 	int				simId;
-	int 			simIndex;
+	int			simIndex;
 } SMS_CONCAT_MSG_S;
 
-typedef struct _SMS_CONCAT_INFO_S
-{
+typedef struct _SMS_CONCAT_INFO_S {
 	unsigned short		msgRef;
 	unsigned char		totalSeg;
 	unsigned char		segCnt;
@@ -76,15 +73,14 @@ typedef struct _SMS_CONCAT_INFO_S
 	int				simIndex;
 } SMS_CONCAT_INFO_S;
 
-typedef struct _SMS_SIM_ID_S
-{
+typedef struct _SMS_SIM_ID_S {
 	unsigned short		msgRef;
 	msg_sim_id_t		simId;
 } SMS_SIM_ID_S;
 
 
 /*==================================================================================================
-                                     CLASS DEFINITIONS
+										CLASS DEFINITIONS
 ==================================================================================================*/
 class SmsPluginConcatHandler
 {

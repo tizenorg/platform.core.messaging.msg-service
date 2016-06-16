@@ -2052,7 +2052,7 @@ unsigned long SmsPluginWapPushHandler::convertXmlCharToSec(char* pDate)
 	struct tm	timeStruct;
 	time_t		nTimeInSec = 0;
 	char			tmpBuf[10];
-	int 			i = 0, index = 0;
+	int			i = 0, index = 0;
 
 	memset(tmpBuf, 0x00, sizeof(tmpBuf));
 	memset(&timeStruct, 0x00, sizeof(struct tm));

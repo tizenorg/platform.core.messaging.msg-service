@@ -137,7 +137,7 @@ void msg_json_gen_set_value(msg_json_gen_object *parent, const char *key, const 
 }
 
 char* msg_json_gen_make_json_msg(msg_json_gen_object *root_obj, unsigned long *len) {
- 	if (root_obj == NULL) {
+	if (root_obj == NULL) {
 		return NULL;
 	}
 	JsonGenerator *generator = json_generator_new();

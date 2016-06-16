@@ -187,17 +187,17 @@ char* __VCardParamEncode(VObject*, int*);
 
 #ifdef VDATA_GROUPNAME_SUPPORTED
 char*	gszGroupName;
-#endif // VDATA_GROUPNAME_SUPPORTED
+#endif /* VDATA_GROUPNAME_SUPPORTED */
 
 
 /**
  * __VCardGetName() compares the string and vCard type, parameter name.
  *
- * @param   	szString  	Name which will compare
+ * @param		szString		Name which will compare
  * @param		pszList[]		Name list of vCard type and param
- * @param		size				Number of total element of list
+ * @param		size			Number of total element of list
  *
- * @return 	index      	The index in the list
+ * @return		index			The index in the list
  */
 int
 __VCardGetName(char* szString, char* pszList[], int size)
@@ -220,11 +220,11 @@ __VCardGetName(char* szString, char* pszList[], int size)
 /**
  * __VCardGetValue() compares the string and vCard type, parameter value.
  *
- * @param   	szString	Value which will compare
+ * @param		szString	Value which will compare
  * @param		list[]		Value list of vCard param
- * @param		size			Number of total element of list
+ * @param		size		Number of total element of list
  *
- * @return  	flag      The value's flag.
+ * @return		flag		The value's flag.
  */
 int
 __VCardGetValue(char* szString, const ValueObj list[], int size)
@@ -263,10 +263,10 @@ __VCardGetValue(char* szString, const ValueObj list[], int size)
  * __VCardGetTypeName() fine the type name and returns the index number
  *
  * @param		pVCardRaw	The raw data
- * @param		pStatus		Decoder status
+ * @param		pStatus	Decoder status
  * @param		pDLen		retrived length
  *
- * @return  	res			The index in type list
+ * @return		res			The index in type list
  */
 int
 __VCardGetTypeName(char* pVCardRaw, int* pStatus, int* pDLen)
@@ -278,7 +278,7 @@ __VCardGetTypeName(char* pVCardRaw, int* pStatus, int* pDLen)
 
 #ifdef VDATA_GROUPNAME_SUPPORTED
 	char*	szGroupName = NULL;
-#endif // VDATA_GROUPNAME_SUPPORTED
+#endif /* VDATA_GROUPNAME_SUPPORTED */
 
 	SysRequireEx(pVCardRaw, UNKNOWN_NAME);
 
@@ -367,10 +367,10 @@ __VCardGetTypeName(char* pVCardRaw, int* pStatus, int* pDLen)
  * __VCardGetParamName() fine the param name and returns the index number
  *
  * @param		pVCardRaw	The raw data
- * @param		pStatus		Decoder status
+ * @param		pStatus	Decoder status
  * @param		pDLen		retrived length
  *
- * @return  	res			The index in type list
+ * @return		res			The index in type list
  */
 int
 __VCardGetParamName(char* pVCardRaw, int* pStatus, int* pDLen)
@@ -411,9 +411,9 @@ __VCardGetParamName(char* pVCardRaw, int* pStatus, int* pDLen)
 			TRIM(name);
 			UPPER(name, i, index);
 			res = __VCardGetName(name, (char**)pszCardParamList, VCARD_PARAM_NUM);
-			if (res == UNKNOWN_NAME) {
+			if (res == UNKNOWN_NAME)
 				(*pDLen) = 0;
-			}
+
 			*pStatus = VCARD_PARAM_VALUE_STATUS;
 			break;
 		}
@@ -497,9 +497,8 @@ __VCardFreeVTreeMemory(VTree * pTree)
 			pNextObj = pCurObj->pSibling;
 			count = pCurObj->valueCount;
 
-			for (i = 0; i < count; i++) {
+			for (i = 0; i < count; i++)
 				VFREE(pCurObj->pszValue[i]);
-			}
 
 #ifdef VDATA_GROUPNAME_SUPPORTED
 			if (pCurObj->pszGroupName)
@@ -545,10 +544,10 @@ __VCardFreeVTreeMemory(VTree * pTree)
  * __VCardGetParamVal() fine the param value and returns value.
  *
  * @param		pVCardRaw	The raw data
- * @param		pStatus		Decoder status
+ * @param		pStatus	Decoder status
  * @param		pDLen		retrived length
  *
- * @return  	buffer  	The result value
+ * @return		buffer		The result value
  */
 char*
 __VCardGetParamVal(char* pVCardRaw, int* pStatus, int* pDLen)
@@ -565,15 +564,15 @@ __VCardGetParamVal(char* pVCardRaw, int* pStatus, int* pDLen)
 		GO_NEXT_CHAR(c, pVCardRaw, pDLen);
 		len++;
 		switch (c) {
-			case VTYPE_TOKEN_SEMICOLON:
-				*pStatus = VCARD_PARAM_NAME_STATUS;
-				break;
-			case VTYPE_TOKEN_COLON:
-				*pStatus = VCARD_TYPE_VALUE_STATUS;
-				break;
-			case VTYPE_TOKEN_COMMA:
-				*pStatus = VCARD_PARAM_VALUE_STATUS;
-				break;
+		case VTYPE_TOKEN_SEMICOLON:
+			*pStatus = VCARD_PARAM_NAME_STATUS;
+			break;
+		case VTYPE_TOKEN_COLON:
+			*pStatus = VCARD_TYPE_VALUE_STATUS;
+			break;
+		case VTYPE_TOKEN_COMMA:
+			*pStatus = VCARD_PARAM_VALUE_STATUS;
+			break;
 		}
 		if (c == VTYPE_TOKEN_SEMICOLON
 				|| c == VTYPE_TOKEN_COLON
@@ -601,9 +600,9 @@ __VCardGetParamVal(char* pVCardRaw, int* pStatus, int* pDLen)
 /**
  * __VCardGetTypeVal() fine the type value and returns value.
  *
- * @param   	pVCardRaw  	The raw data
+ * @param		pVCardRaw		The raw data
  * @param		status			Decoder status
- * @return 	buffer     	The result value
+ * @return		buffer			The result value
  */
 char*
 __VCardGetTypeVal(char* pVCardRaw, int* pStatus, int* pDLen, int enc, VObject* pType)
@@ -704,7 +703,7 @@ __VCardGetTypeVal(char* pVCardRaw, int* pStatus, int* pDLen, int enc, VObject* p
 					len++;
 				}
 			} else if (__VCardGetTypeName(pVCardRaw, &Status, &Len) != UNKNOWN_NAME) {
-                		--len;
+				--len;
 				if ((pBuf = (char *)calloc(1, len)) == NULL) return NULL;
 
 				memset(pBuf, 0x00, len);
@@ -835,7 +834,7 @@ VTree* vcard_decode(char *pCardRaw)
 	int param_status = false;
 	int numberedParam = 0;
 	int enc = 0;
-	//int start_status = 0;
+	/* int start_status = 0; */
 	char* temp = NULL;
 
 	bool vcard_ended = false;
@@ -845,9 +844,9 @@ VTree* vcard_decode(char *pCardRaw)
 	VDATA_TRACE("length of pCardRaw = %d", len);
 
 	pCardRaw = _VUnfoldingNoSpecNew(pCardRaw);
-	if (pCardRaw == NULL) {
+	if (pCardRaw == NULL)
 		return NULL;
-	}
+
 	pCardRawTmp = pCardRaw;
 	len = _VManySpace2Space(pCardRaw);
 
@@ -867,177 +866,176 @@ VTree* vcard_decode(char *pCardRaw)
 			break;
 
 		switch (status) {
-			case VCARD_TYPE_NAME_STATUS:
-				dLen = 0;
-				type = __VCardGetTypeName(pCardRaw, &status, &dLen);
-				pCardRaw += dLen;
+		case VCARD_TYPE_NAME_STATUS:
+			dLen = 0;
+			type = __VCardGetTypeName(pCardRaw, &status, &dLen);
+			pCardRaw += dLen;
 
-				if (type == -1)
-					break;
-
-				switch (type) {
-					case VCARD_TYPE_BEGIN:
-						if (pVCard) {
-							free(pVCard);
-							pVCard = NULL;
-						}
-
-						if ((pVCard = (VTree*)calloc(1,  sizeof(VTree))) == NULL) {
-							//start_status = 1;
-							goto CATCH;
-						}
-
-						memset(pVCard, 0x00, sizeof(VTree));
-
-						dLen = 0;
-						szCardBegin = __VCardGetTypeVal(pCardRaw, &status, &dLen, enc, NULL);
-						pCardRaw += dLen;
-						VFREE(szCardBegin);
-
-						pVCard->treeType = VCARD;
-						pVCard->pTop = NULL;
-						pVCard->pCur = NULL;
-						pVCard->pNext = NULL;
-						break;
-
-					case VCARD_TYPE_END:
-						enc = 0;
-						if (strstr(pCardRaw, "VCARD") != NULL) {
-							pCardRaw += dLen;
-							done = true;
-							vcard_ended = true;
-						} else	{
-							status = VCARD_TYPE_NAME_STATUS;
-							pCardRaw += dLen;
-							/*VFREE(etemp); */
-						}
-						break;
-
-					case UNKNOWN_NAME:
-						break;
-
-					default:
-						if (UNKNOWN_NAME == type || type < 0) {
-							status = VCARD_TYPE_NAME_STATUS;
-							break;
-						}
-
-						if ((pTemp = (VObject*)calloc(1,  sizeof(VObject))) == NULL) {
-							goto CATCH;
-						}
-
-						memset(pTemp, 0, sizeof(VObject));
-						pTemp->property = type;
-
-						if (pVCard->pTop == NULL) {
-							pVCard->pTop = pTemp;
-							pVCard->pCur = pTemp;
-						} else {
-							pVCard->pCur->pSibling = pTemp;
-							pVCard->pCur = pTemp;
-						}
-
-						break;
-				}
-
-				numberedParam = 0;
-				param_status = false;
-				valueCount = 0;
-
-#ifdef VDATA_GROUPNAME_SUPPORTED
-				if (gszGroupName != NULL)
-					pVCard->pCur->pszGroupName = gszGroupName;
-#endif
+			if (type == -1)
 				break;
 
-			case VCARD_PARAM_NAME_STATUS:
-			{
-				dLen = 0;
-				param = __VCardGetParamName(pCardRaw, &status, &dLen);
-				pCardRaw += dLen;
-
-				if (param_status != true) {
-
-					if ((pTmpParam = (VParam*)calloc(1,  sizeof(VParam))) == NULL)
-							goto CATCH;
-
-					param_status = true;
-					pVCard->pCur->pParam = pTmpParam;
-					memset(pTmpParam, 0x00, sizeof(VParam));
-					VDATA_TRACE("pTmpParam : %p", pTmpParam);
-				} else {
-					if ((pTmpParam->pNext = (VParam*)calloc(1,  sizeof(VParam))) == NULL)
-							goto CATCH;
-
-					pTmpParam = pTmpParam->pNext;
-					memset(pTmpParam, 0x00, sizeof(VParam));
-					VDATA_TRACE("pTmpParam : %p", pTmpParam);
+			switch (type) {
+			case VCARD_TYPE_BEGIN:
+				if (pVCard) {
+					free(pVCard);
+					pVCard = NULL;
 				}
 
-				pTmpParam->parameter = param;
+				if ((pVCard = (VTree*)calloc(1,  sizeof(VTree))) == NULL) {
+					/* start_status = 1; */
+					goto CATCH;
+				}
+
+				memset(pVCard, 0x00, sizeof(VTree));
+
+				dLen = 0;
+				szCardBegin = __VCardGetTypeVal(pCardRaw, &status, &dLen, enc, NULL);
+				pCardRaw += dLen;
+				VFREE(szCardBegin);
+
+				pVCard->treeType = VCARD;
+				pVCard->pTop = NULL;
+				pVCard->pCur = NULL;
+				pVCard->pNext = NULL;
+				break;
+
+			case VCARD_TYPE_END:
+				enc = 0;
+				if (strstr(pCardRaw, "VCARD") != NULL) {
+					pCardRaw += dLen;
+					done = true;
+					vcard_ended = true;
+				} else	{
+					status = VCARD_TYPE_NAME_STATUS;
+					pCardRaw += dLen;
+					/*VFREE(etemp); */
+				}
+				break;
+
+			case UNKNOWN_NAME:
+				break;
+
+			default:
+				if (UNKNOWN_NAME == type || type < 0) {
+					status = VCARD_TYPE_NAME_STATUS;
+					break;
+				}
+
+				if ((pTemp = (VObject*)calloc(1,  sizeof(VObject))) == NULL)
+					goto CATCH;
+
+				memset(pTemp, 0, sizeof(VObject));
+				pTemp->property = type;
+
+				if (pVCard->pTop == NULL) {
+					pVCard->pTop = pTemp;
+					pVCard->pCur = pTemp;
+				} else {
+					pVCard->pCur->pSibling = pTemp;
+					pVCard->pCur = pTemp;
+				}
+
 				break;
 			}
-			case VCARD_PARAM_VALUE_STATUS:
-				dLen = 0;
+
+			numberedParam = 0;
+			param_status = false;
+			valueCount = 0;
+
+#ifdef VDATA_GROUPNAME_SUPPORTED
+			if (gszGroupName != NULL)
+				pVCard->pCur->pszGroupName = gszGroupName;
+#endif
+			break;
+
+		case VCARD_PARAM_NAME_STATUS:
+		{
+			dLen = 0;
+			param = __VCardGetParamName(pCardRaw, &status, &dLen);
+			pCardRaw += dLen;
+
+			if (param_status != true) {
+
+				if ((pTmpParam = (VParam*)calloc(1,  sizeof(VParam))) == NULL)
+						goto CATCH;
+
+				param_status = true;
+				pVCard->pCur->pParam = pTmpParam;
+				memset(pTmpParam, 0x00, sizeof(VParam));
+				VDATA_TRACE("pTmpParam : %p", pTmpParam);
+			} else {
+				if ((pTmpParam->pNext = (VParam*)calloc(1,  sizeof(VParam))) == NULL)
+					goto CATCH;
+
+				pTmpParam = pTmpParam->pNext;
+				memset(pTmpParam, 0x00, sizeof(VParam));
+				VDATA_TRACE("pTmpParam : %p", pTmpParam);
+			}
+
+			pTmpParam->parameter = param;
+			break;
+		}
+		case VCARD_PARAM_VALUE_STATUS:
+			dLen = 0;
+			numberedParam = 0;
+			switch (pTmpParam->parameter) {
+			case VCARD_PARAM_TYPE:
+				szValue = __VCardGetParamVal(pCardRaw, &status, &dLen);
+				numberedParam |= __VCardGetValue(szValue, pTypeList, VCARD_TYPE_PARAM_NUM);
+				break;
+			case VCARD_PARAM_VALUE:
+				szValue = __VCardGetParamVal(pCardRaw, &status, &dLen);
+				numberedParam |= __VCardGetValue(szValue, pValueList, VCARD_VALUE_PARAM_NUM);
+				break;
+			case VCARD_PARAM_ENCODING:
+				szValue = __VCardGetParamVal(pCardRaw, &status, &dLen);
+				numberedParam |= __VCardGetValue(szValue, pEncList, VCARD_ENCODE_PARAM_NUM);
+				enc = numberedParam;
+				break;
+			case VCARD_PARAM_CHARSET:
+				szValue = __VCardGetParamVal(pCardRaw, &status, &dLen);
+				numberedParam |= __VCardGetValue(szValue, pCharsetList, VCARD_CHARSET_PARAM_NUM);
+				break;
+			case VCARD_PARAM_CONTEXT:
+			case VCARD_PARAM_LANGUAGE:
+				/* prevent 7605 08.03.13 */
+				szValue = __VCardGetParamVal(pCardRaw, &status, &dLen);
 				numberedParam = 0;
-				switch (pTmpParam->parameter) {
-					case VCARD_PARAM_TYPE:
-						szValue = __VCardGetParamVal(pCardRaw, &status, &dLen);
-						numberedParam |= __VCardGetValue(szValue, pTypeList, VCARD_TYPE_PARAM_NUM);
-						break;
-					case VCARD_PARAM_VALUE:
-						szValue = __VCardGetParamVal(pCardRaw, &status, &dLen);
-						numberedParam |= __VCardGetValue(szValue, pValueList, VCARD_VALUE_PARAM_NUM);
-						break;
-					case VCARD_PARAM_ENCODING:
-						szValue = __VCardGetParamVal(pCardRaw, &status, &dLen);
-						numberedParam |= __VCardGetValue(szValue, pEncList, VCARD_ENCODE_PARAM_NUM);
-						enc = numberedParam;
-						break;
-					case VCARD_PARAM_CHARSET:
-						szValue = __VCardGetParamVal(pCardRaw, &status, &dLen);
-						numberedParam |= __VCardGetValue(szValue, pCharsetList, VCARD_CHARSET_PARAM_NUM);
-						break;
-					case VCARD_PARAM_CONTEXT:
-					case VCARD_PARAM_LANGUAGE:
-						// prevent 7605 08.03.13
-						szValue = __VCardGetParamVal(pCardRaw, &status, &dLen);
-						numberedParam = 0;
-						break;
-					default:
-						szValue = __VCardGetParamVal(pCardRaw, &status, &dLen);
-
-						SET_PARAM_VALUE(numberedParam, szValue, pTypeList, VCARD_TYPE_PARAM_NUM, pTmpParam, VCARD_PARAM_TYPE, enc);
-						SET_PARAM_VALUE(numberedParam, szValue, pValueList, VCARD_VALUE_PARAM_NUM, pTmpParam, VCARD_PARAM_VALUE, enc);
-						SET_PARAM_VALUE(numberedParam, szValue, pEncList, VCARD_ENCODE_PARAM_NUM, pTmpParam, VCARD_PARAM_ENCODING, enc);
-						SET_PARAM_VALUE(numberedParam, szValue, pCharsetList, VCARD_CHARSET_PARAM_NUM, pTmpParam, VCARD_PARAM_CHARSET, enc);
-
-						numberedParam = 0;
-						pCardRaw += dLen;
-						dLen = 0;
-
-						break;
-				}
-
-				VDATA_TRACE("%d, %s, %p", numberedParam, szValue, pTmpParam);
-				pTmpParam->paramValue = numberedParam;
-				pTmpParam->pNext = NULL;
-				VFREE(szValue);
-				pCardRaw += dLen;
 				break;
-			case VCARD_TYPE_VALUE_STATUS:
+			default:
+				szValue = __VCardGetParamVal(pCardRaw, &status, &dLen);
+
+				SET_PARAM_VALUE(numberedParam, szValue, pTypeList, VCARD_TYPE_PARAM_NUM, pTmpParam, VCARD_PARAM_TYPE, enc);
+				SET_PARAM_VALUE(numberedParam, szValue, pValueList, VCARD_VALUE_PARAM_NUM, pTmpParam, VCARD_PARAM_VALUE, enc);
+				SET_PARAM_VALUE(numberedParam, szValue, pEncList, VCARD_ENCODE_PARAM_NUM, pTmpParam, VCARD_PARAM_ENCODING, enc);
+				SET_PARAM_VALUE(numberedParam, szValue, pCharsetList, VCARD_CHARSET_PARAM_NUM, pTmpParam, VCARD_PARAM_CHARSET, enc);
+
+				numberedParam = 0;
+				pCardRaw += dLen;
 				dLen = 0;
-				temp = __VCardGetTypeVal(pCardRaw, &status, &dLen, enc, pVCard->pCur);
 
-				if (valueCount < VDATA_VALUE_COUNT_MAX) {
-					pVCard->pCur->pszValue[valueCount] = temp;
-					valueCount++;
-					pVCard->pCur->valueCount = valueCount;
-				} else
-					VFREE(temp);
-
-				pCardRaw += dLen;
 				break;
+			}
+
+			VDATA_TRACE("%d, %s, %p", numberedParam, szValue, pTmpParam);
+			pTmpParam->paramValue = numberedParam;
+			pTmpParam->pNext = NULL;
+			VFREE(szValue);
+			pCardRaw += dLen;
+			break;
+		case VCARD_TYPE_VALUE_STATUS:
+			dLen = 0;
+			temp = __VCardGetTypeVal(pCardRaw, &status, &dLen, enc, pVCard->pCur);
+
+			if (valueCount < VDATA_VALUE_COUNT_MAX) {
+				pVCard->pCur->pszValue[valueCount] = temp;
+				valueCount++;
+				pVCard->pCur->valueCount = valueCount;
+			} else
+				VFREE(temp);
+
+			pCardRaw += dLen;
+			break;
 		}
 	}
 
@@ -1046,9 +1044,9 @@ VTree* vcard_decode(char *pCardRaw)
 	if (pVCard->pTop == NULL)
 		goto CATCH;
 
-	if (!vcard_ended) {
+	if (!vcard_ended)
 		goto CATCH1;
-	}
+
 	VDATA_TRACE_END
 	return pVCard;
 
@@ -1075,8 +1073,8 @@ char* vcard_encode(VTree *pVCardRaw)
 	char*		pTemp = NULL;
 	int			len;
 	int			total = 0;
-	int 		cnt = 0;
-	int 		lenTypeList = 0;
+	int			cnt = 0;
+	int			lenTypeList = 0;
 
 	LENGTH_TYPE_LIST(pszCardTypeList, lenTypeList);
 
@@ -1087,7 +1085,7 @@ char* vcard_encode(VTree *pVCardRaw)
 	SysRequireEx(pVCardRaw->treeType == VCARD, NULL);
 	SysRequireEx(pVCardRaw->pTop->valueCount > 0, NULL);
 
-	//VDATA_TRACE("START %d %d", pVCardRaw->pTop->property, lenTypeList);
+	/* VDATA_TRACE("START %d %d", pVCardRaw->pTop->property, lenTypeList); */
 
 	for (; cnt < pVCardRaw->pTop->valueCount; cnt++) {
 
@@ -1166,14 +1164,14 @@ __VIsVcardFile(char *pCardRaw, int mode)
 	char *pszVcardBegin = "BEGIN:VCARD";
 
 	switch (mode) {
-		case CHECK_START:
-			for (i = 0; i < 11; i++)
-				if (*pszVcardBegin++ != *pCardRaw++)
-					rtnValue = false;
-			break;
+	case CHECK_START:
+		for (i = 0; i < 11; i++)
+			if (*pszVcardBegin++ != *pCardRaw++)
+				rtnValue = false;
+		break;
 
-		default:
-			rtnValue = false;
+	default:
+		rtnValue = false;
 	}
 	VDATA_TRACE_END
 	return rtnValue;
@@ -1205,10 +1203,10 @@ __VCardTypeEncode(VObject *pTypeObj, char *pType)
 	biLen = pTypeObj->numOfBiData;
 
 #ifdef VDATA_GROUPNAME_SUPPORTED
-	if (pTypeObj->pszGroupName != NULL) {
+	if (pTypeObj->pszGroupName != NULL)
 		len += strlen(pTypeObj->pszGroupName) + 1;
-	}
-#endif // VDATA_GROUPNAME_SUPPORTED
+#endif /* VDATA_GROUPNAME_SUPPORTED */
+
 	if ((szTypeValue = (char *)calloc(1,  total += (len+1))) == NULL) {
 		VDATA_TRACE("__VCardTypeEncode():calloc failed\n");
 		VDATA_TRACE_END
@@ -1220,7 +1218,7 @@ __VCardTypeEncode(VObject *pTypeObj, char *pType)
 		g_strlcat(szTypeValue, pTypeObj->pszGroupName, total - strlen(szTypeValue));
 		g_strlcat(szTypeValue, ".", total - strlen(szTypeValue));
 	}
-#endif // VDATA_GROUPNAME_SUPPORTED
+#endif /* VDATA_GROUPNAME_SUPPORTED */
 	g_strlcat(szTypeValue, pType, total - strlen(szTypeValue));
 
 	pTemp = __VCardParamEncode(pTypeObj, &enc);
@@ -1252,7 +1250,7 @@ __VCardTypeEncode(VObject *pTypeObj, char *pType)
 
 			if (pTypeObj->pszValue[i] != NULL)
 				len += strlen(pTypeObj->pszValue[i]);
-         }
+		}
 	} else {
 		len += biLen;
 	}
@@ -1409,29 +1407,29 @@ __VCardParamEncode(VObject* pTypeObj, int* pEnc)
 
 		/** Set Parameter Value name. */
 		switch (pTemp->parameter) {
-			case VCARD_PARAM_ENCODING:
-				*pEnc = pTemp->paramValue;
-				shift = VCARD_ENCODE_PARAM_NUM;
-				pList = pEncList; bSupported = true;
-				break;
-			case VCARD_PARAM_TYPE:
-				shift = VCARD_TYPE_PARAM_NUM;
-				pList = pTypeList; bSupported = true;
-				break;
-			case VCARD_PARAM_VALUE:
-				shift = VCARD_VALUE_PARAM_NUM;
-				pList = pValueList; bSupported = true;
-				break;
-			case VCARD_PARAM_CHARSET:
-				shift = VCARD_CHARSET_PARAM_NUM;
-				pList = pCharsetList; bSupported = true;
-				break;
-			default:
-				if ((szParam = (char*)realloc(szParam, 5)) == NULL) {
-					VDATA_TRACE_END
-					return NULL;
-				}
-				g_strlcat(szParam, "NONE", 5 - strlen(szParam));
+		case VCARD_PARAM_ENCODING:
+			*pEnc = pTemp->paramValue;
+			shift = VCARD_ENCODE_PARAM_NUM;
+			pList = pEncList; bSupported = true;
+			break;
+		case VCARD_PARAM_TYPE:
+			shift = VCARD_TYPE_PARAM_NUM;
+			pList = pTypeList; bSupported = true;
+			break;
+		case VCARD_PARAM_VALUE:
+			shift = VCARD_VALUE_PARAM_NUM;
+			pList = pValueList; bSupported = true;
+			break;
+		case VCARD_PARAM_CHARSET:
+			shift = VCARD_CHARSET_PARAM_NUM;
+			pList = pCharsetList; bSupported = true;
+			break;
+		default:
+			if ((szParam = (char*)realloc(szParam, 5)) == NULL) {
+				VDATA_TRACE_END
+				return NULL;
+			}
+			g_strlcat(szParam, "NONE", 5 - strlen(szParam));
 		}
 
 		/** exchage parameter value's to string.*/

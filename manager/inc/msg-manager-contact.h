@@ -18,19 +18,19 @@
 #define __MSG_MGR_CONTACT_H__
 
 /*==================================================================================================
-                                         INCLUDE FILES
+										INCLUDE FILES
 ==================================================================================================*/
 #include <msg.h>
 #include <contacts.h>
 
 /*==================================================================================================
-                                    DEFINES
+										DEFINES
 ==================================================================================================*/
 #define MAX_CONTACT_TEXT_LEN 100
 
 
 /*==================================================================================================
-                                         STRUCTURES
+										STRUCTURES
 ==================================================================================================*/
 typedef struct _contactInfo {
 	msg_message_id_t		msgId;
@@ -42,22 +42,20 @@ typedef struct _contactInfo {
 	msg_list_handle_t		addrList;
 } contactInfo;
 
-typedef struct
-{
+typedef struct {
 	msg_contact_id_t	contactId;							/**< Indicates the unique contact ID. */
 	int						addrbookId;							/**< Indicates the address book ID. */
-	char 					firstName[MAX_DISPLAY_NAME_LEN+1];		/**< Indicates the first name of contact. */
-	char 					lastName[MAX_DISPLAY_NAME_LEN+1];		/**< Indicates the last name of contact. */
-	char 					middleName[MAX_DISPLAY_NAME_LEN+1];		/**< Indicates the middle name of contact. */
-	char 					prefix[MAX_DISPLAY_NAME_LEN+1];		/**< Indicates the prefix of contact. */
-	char 					suffix[MAX_DISPLAY_NAME_LEN+1];		/**< Indicates the suffix of contact. */
-	char 					imagePath[MSG_FILEPATH_LEN_MAX+1];		/**< Indicates the image path of contact. */
+	char					firstName[MAX_DISPLAY_NAME_LEN+1];		/**< Indicates the first name of contact. */
+	char					lastName[MAX_DISPLAY_NAME_LEN+1];		/**< Indicates the last name of contact. */
+	char					middleName[MAX_DISPLAY_NAME_LEN+1];		/**< Indicates the middle name of contact. */
+	char					prefix[MAX_DISPLAY_NAME_LEN+1];		/**< Indicates the prefix of contact. */
+	char					suffix[MAX_DISPLAY_NAME_LEN+1];		/**< Indicates the suffix of contact. */
+	char					imagePath[MSG_FILEPATH_LEN_MAX+1];		/**< Indicates the image path of contact. */
 	char						alerttonePath[MSG_FILEPATH_LEN_MAX+1];		/**< Indicates the message alert tone path of contact. */
 	char						vibrationPath[MSG_FILEPATH_LEN_MAX+1];		/**< Indicates the vibration path of contact. */
 } MSG_MGR_CONTACT_INFO_S;
 
-typedef struct
-{
+typedef struct {
 	msg_address_type_t		addressType;													/**< The type of an address in case of an Email or a mobile phone */
 	msg_recipient_type_t		recipientType;													/**< The type of recipient address in case of To, Cc, and Bcc */
 	msg_contact_id_t			contactId;															/**< The contact ID of address */
@@ -66,7 +64,7 @@ typedef struct
 } MSG_MGR_ADDRESS_INFO_S;
 
 /*==================================================================================================
-                                     FUNCTION PROTOTYPES
+										FUNCTION PROTOTYPES
 ==================================================================================================*/
 
 int MsgMgrOpenContactSvc();

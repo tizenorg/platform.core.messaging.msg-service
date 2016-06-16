@@ -18,7 +18,7 @@
 #define __MSG_MUTEX_H__
 
 /*==================================================================================================
-                                         INCLUDE FILES
+											INCLUDE FILES
 ==================================================================================================*/
 #include <iostream>
 #include <pthread.h>
@@ -43,7 +43,8 @@ public:
 	~MsgMutex() { pthread_mutex_destroy(&m); }
 	void lock() { pthread_mutex_lock(&m); }
 
-	int timedlock() {
+	int timedlock()
+	{
 		struct timespec abs_time;
 		clock_gettime(CLOCK_REALTIME, &abs_time);
 		abs_time.tv_sec += 1;
@@ -60,7 +61,7 @@ private:
 class MsgMutexLocker
 {
 public:
-	MsgMutexLocker(MsgMutex& mx) {
+	MsgMutexLocker(MsgMutex &mx) {
 		pm = &mx;
 		pm->lock();
 	}
@@ -79,7 +80,8 @@ public:
 	MsgCndVar() { pthread_cond_init(&c, 0); }
 	~MsgCndVar() { pthread_cond_destroy(&c); }
 	void wait(pthread_mutex_t* m) { pthread_cond_wait(&c, m); }
-	int timedwait(pthread_mutex_t* m, int sec) {
+	int timedwait(pthread_mutex_t* m, int sec)
+	{
 		struct timeval now = {0};
 		struct timespec timeout = {0};
 		gettimeofday(&now, NULL);

@@ -18,14 +18,14 @@
 #define MSG_CMD_HANDLER_H
 
 /*==================================================================================================
-                                         INCLUDE FILES
+												INCLUDE FILES
 ==================================================================================================*/
 #include "MsgCmdTypes.h"
 #include "MsgInternalTypes.h"
 
 
 /*==================================================================================================
-                                     FUNCTION PROTOTYPES
+												FUNCTION PROTOTYPES
 ==================================================================================================*/
 int MsgAddMessageHandler(const MSG_CMD_S *pCmd, char **ppEvent);
 int MsgAddSyncMLMessageHandler(const MSG_CMD_S *pCmd, char **ppEvent);

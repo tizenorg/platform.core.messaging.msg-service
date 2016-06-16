@@ -15,9 +15,9 @@
 */
 
  /**
- *	@file 		MsgPluginInterface.h
- *	@brief 		Defines plug-ins API of messaging framework
- *	@version 	1.0
+ *	@file		MsgPluginInterface.h
+ *	@brief		Defines plug-ins API of messaging framework
+ *	@version	1.0
  */
 
 #ifndef MSG_PLUGIN_INTERFACE_H
@@ -31,7 +31,7 @@
  */
 
 /*==================================================================================================
-                                         INCLUDE FILES
+											INCLUDE FILES
 ==================================================================================================*/
 #include "MsgTransportTypes.h"
 #include "MsgStorageTypes.h"
@@ -51,7 +51,7 @@ extern "C"
  */
 
 /*==================================================================================================
-                                         TYPE DEFINES
+											TYPE DEFINES
 ==================================================================================================*/
 typedef struct _MSG_PLUGIN_HANDLER_S MSG_PLUGIN_HANDLER_S;
 
@@ -59,7 +59,7 @@ typedef struct _MSG_PLUGIN_LISTENER_S MSG_PLUGIN_LISTENER_S;
 
 
 /*==================================================================================================
-                                     FUNCTION PROTOTYPES
+											FUNCTION PROTOTYPES
 ==================================================================================================*/
 
  /**
@@ -1067,10 +1067,9 @@ typedef bool (*MsgPlgCheckUniqueness)(MSG_UNIQUE_INDEX_S *p_msg, msg_message_id_
 typedef msg_error_t (*MsgPlgOnInitImsi)(int sim_idx);
 
 /*==================================================================================================
-                                         STRUCTURES
+									STRUCTURES
 ==================================================================================================*/
-struct _MSG_PLUGIN_LISTENER_S
-{
+struct _MSG_PLUGIN_LISTENER_S {
 	MsgPlgOnSentStatus					pfSentStatusCb;					/** The function pointer of sent status callback. */
 	MsgPlgOnStorageChange			pfStorageChangeCb;			/** The function pointer of storage change callback. */
 	MsgPlgOnMsgIncoming				pfMsgIncomingCb;				/** The function pointer of receive message callback. */
@@ -1079,7 +1078,7 @@ struct _MSG_PLUGIN_LISTENER_S
 	MsgPlgOnLBSMsgIncoming			pfLBSMsgIncomingCb;			/** The function pointer of receive LBS message callback. */
 	MsgPlgOnPushMsgIncoming		pfPushMsgIncomingCb;		/** The function pointer of receive Push message callback. */
 	MsgPlgOnCBMsgIncoming			pfCBMsgIncomingCb;			/** The function pointer of receive cb message callback. */
-	MsgPlgOnMmsConfIncoming 		pfMmsConfIncomingCb;		/** The function pointer of receive MMS conf */
+	MsgPlgOnMmsConfIncoming		pfMmsConfIncomingCb;		/** The function pointer of receive MMS conf */
 	MsgPlgOnSimMessageIncoming	pfSimMsgIncomingCb;			/** The function pointer of sim message callback */
 	MsgPlgOnResendMessage		pfResendMessageCb;
 #ifdef FEATURE_SMS_CDMA
@@ -1089,13 +1088,12 @@ struct _MSG_PLUGIN_LISTENER_S
 };
 
 
-struct _MSG_PLUGIN_HANDLER_S
-{
-	MsgPlgInitialize    				pfInitialize;               		/**< The function pointer of initialize. */
-	MsgPlgFinalize      				pfFinalize;                 		/**< The function pointer of finalize. */
-	MsgPlgRegisterListener 			pfRegisterListener;      		/**< The function pointer of register listener. */
-	MsgPlgSubmitRequest 			pfSubmitRequest;           	/**< The function pointer of submit request. */
-	MsgPlgSaveSimMessage			pfSaveSimMessage;		/**< The function pointer of save SIM msg. */
+struct _MSG_PLUGIN_HANDLER_S {
+	MsgPlgInitialize					pfInitialize;				/**< The function pointer of initialize. */
+	MsgPlgFinalize					pfFinalize;				/**< The function pointer of finalize. */
+	MsgPlgRegisterListener			pfRegisterListener;		/**< The function pointer of register listener. */
+	MsgPlgSubmitRequest			pfSubmitRequest;				/**< The function pointer of submit request. */
+	MsgPlgSaveSimMessage			pfSaveSimMessage;			/**< The function pointer of save SIM msg. */
 	MsgPlgDeleteSimMessage		pfDeleteSimMessage;		/**< The function pointer of delete SIM msg. */
 	MsgPlgSetReadStatus			pfSetReadStatus;			/**< The function pointer of set read status. */
 	MsgPlgSetMemoryStatus		pfSetMemoryStatus;		/**< The function pointer of set memory status. */
@@ -1104,10 +1102,10 @@ struct _MSG_PLUGIN_HANDLER_S
 	MsgPlgRestoreMsg				pfRestoreMsg;
 	MsgPlgAddMessage				pfAddMessage;			/**< The function pointer of  add Message. */
 	MsgPlgProcessReceivedInd		pfProcessReceivedInd;	/**< The function pointer of  Process Notification Ind. */
-	MsgPlgUpdateMessage 			pfUpdateMessage;		/**< The function pointer of Update MMS Message */
-	MsgPlgGetMmsMessage 			pfGetMmsMessage;
+	MsgPlgUpdateMessage			pfUpdateMessage;		/**< The function pointer of Update MMS Message */
+	MsgPlgGetMmsMessage			pfGetMmsMessage;
 	MsgPlgUpdateRejectStatus		pfUpdateRejectStatus;
-	MsgPlgComposeReadReport 		pfComposeReadReport;
+	MsgPlgComposeReadReport		pfComposeReadReport;
 	MsgPlgGetDefaultNetworkSimId	pfGetDefaultNetworkSimId;
 };
 

@@ -18,19 +18,19 @@
 #define MSG_INTERNAL_TYPES_H
 
 /**
- *	@file 		MsgInternalTypes.h
- *	@brief 		Defines types of messaging framework
- *	@version 	1.0
+ *	@file		MsgInternalTypes.h
+ *	@brief		Defines types of messaging framework
+ *	@version	1.0
  */
 
 /*==================================================================================================
-                                         INCLUDE FILES
+											INCLUDE FILES
 ==================================================================================================*/
 #include "MsgMmsTypes.h"
 
 
 /*==================================================================================================
-                                    DEFINES
+											DEFINES
 ==================================================================================================*/
 #define MSG_DATA_ROOT_PATH		TZ_SYS_DATA_PATH"/msg-service/"
 #define MSG_DATA_PATH				MSG_DATA_ROOT_PATH"msgdata/"
@@ -53,7 +53,7 @@
 #define MAX_SIM_MSISDN_LEN	26
 #define MAX_COMMON_INFO_SIZE	20
 #define MAX_VCONFKEY_NAME_LEN	128
-#define MAX_SIM_IMSI_LEN 		16
+#define MAX_SIM_IMSI_LEN		16
 #define MAX_TAPI_SIM_API_TIMEOUT 70
 #define MSG_EVENT_MSG_ID_LEN	(32)
 
@@ -192,7 +192,7 @@
 #define MSG_TELEPHONY_MMS_FEATURE	"http://tizen.org/feature/network.telephony.mms"
 
 /*==================================================================================================
-                                         TYPES
+											TYPES
 ==================================================================================================*/
 
 /**
@@ -219,14 +219,13 @@ typedef unsigned char MSG_CLASS_TYPE_T;
 
 
 /*==================================================================================================
-                                         STRUCTURES
+											STRUCTURES
 ==================================================================================================*/
 
 /**
  *	@brief	Represents a message type.
  */
-typedef struct
-{
+typedef struct {
 	MSG_MAIN_TYPE_T		mainType;	/**< Message main type. See enum _MSG_MAIN_TYPE_E */
 	MSG_SUB_TYPE_T		subType;	/**< Message sub type. See enum _MSG_SUB_TYPE_E */
 	MSG_CLASS_TYPE_T	classType;	/**< Message class type. See enum _MSG_CLASS_TYPE_E */
@@ -236,8 +235,7 @@ typedef struct
 /**
  *	@brief	Represents a message in the framework.
  */
-typedef struct
-{
+typedef struct {
 	msg_message_id_t		msgId;											/**< Indicates the message ID of this message. */
 	msg_thread_id_t			threadId;										/**< Indicates the thread ID. */
 	msg_folder_id_t			folderId;										/**< Indicates the folder ID. */
@@ -270,8 +268,7 @@ typedef struct
 } MSG_MESSAGE_INFO_S;
 
 
-typedef struct
-{
+typedef struct {
 	msg_message_id_t		msgId;									/**< Indicates the message ID of this message. */
 	msg_thread_id_t			threadId;								/**< Indicates the thread ID. */
 	msg_folder_id_t			folderId;								/**< Indicates the folder ID. see enum _MSG_FOLDER_TYPE_E */
@@ -279,7 +276,7 @@ typedef struct
 	MSG_SUB_TYPE_T			subType;								/**< Message sub type. See enum _MSG_SUB_TYPE_E */
 	MSG_CLASS_TYPE_T		classType;								/**< Message class type. See enum _MSG_CLASS_TYPE_E */
 	msg_storage_id_t		storageId;								/**< Indicates where the message is saved. see enum _MSG_FOLDER_TYPE_E*/
-	msg_struct_list_s 		*addr_list;
+	msg_struct_list_s		*addr_list;
 	GList			*addressList;
 	char					replyAddress[MAX_PHONE_NUMBER_LEN+1];	/**< Indicates the reply address. */
 	char					subject[MAX_SUBJECT_LEN+1];				/**< Indicates the message subject. */
@@ -307,8 +304,7 @@ typedef struct
 /**
  *	@brief	Represents message information for thread view.
  */
-typedef struct
-{
+typedef struct {
 	msg_thread_id_t			threadId;															/**< Indicates the thread ID of this peer. */
 	char					threadName[MAX_THREAD_NAME_LEN+1];		/**< Indicates the name of this peer. > */
 	MSG_MAIN_TYPE_T			mainType;								/**< Indicates the latest msg main type. */
@@ -329,8 +325,7 @@ typedef struct
 /**
  *	@brief	Represents message information for conversation view.
  */
-typedef struct
-{
+typedef struct {
 	msg_message_id_t			msgId;									/**< Indicates the message ID of this message. */
 	msg_thread_id_t			threadId;								/**< Indicates the thread ID of this peer. */
 	MSG_MAIN_TYPE_T			mainType;							/**< Message main type. See enum _MSG_MAIN_TYPE_E */
@@ -358,8 +353,7 @@ typedef struct
 	int								simIndex;
 } MSG_CONVERSATION_VIEW_S;
 
-typedef struct
-{
+typedef struct {
 	MimeType	type;	/**< Indicates the multipart mime type. see enum MimeType */
 	char		szContentType[MSG_MSG_ID_LEN + 1];		/**< Indicates the content type */
 	char		szFileName[MSG_FILENAME_LEN_MAX + 1];		/**< Indicates the file name */
@@ -367,7 +361,7 @@ typedef struct
 	char		szContentID[MSG_MSG_ID_LEN + 1];		/**< Indicates the content id */
 	char		szContentLocation[MSG_MSG_ID_LEN + 1];	/**< Indicates the content Location */
 
-	int 		tcs_bc_level;	/** detect malware type **/
+	int		tcs_bc_level;	/** detect malware type **/
 	char		szThumbFilePath[MSG_FILEPATH_LEN_MAX + 1];	/**< Indicates the thumbnail file path */
 } MSG_MMS_MULTIPART_S;
 
@@ -377,8 +371,7 @@ typedef struct
  *	Applications compose a request and send it to the framework via Message handle. \n
  *	This request ID is used to manage the request by the framework.
  */
-typedef struct
-{
+typedef struct {
 	msg_request_id_t		reqId;		/**< Indicates the request ID, which is unique.
 										When applications submit a request to the framework, this value will be set by the framework. */
 	MSG_MESSAGE_INFO_S		msgInfo;	/**< Indicates the message structure to be sent by applications. */
@@ -390,8 +383,7 @@ typedef struct
  *	@brief	Represents proxy information. \n
  *	This stucture contains the information about the status cnf of a sent message.
  */
-typedef struct
-{
+typedef struct {
 	int						listenerFd;		/**< Rx fd for status cnf */
 	unsigned long			handleAddr;		/**< Handle address for status cnf */
 	msg_message_id_t		sentMsgId;		/**< The ID of a sent message for updating message status */
@@ -402,18 +394,16 @@ typedef struct
  *	@brief	Aux data structure for MSG_CMD_REG_INCOMING_MSG_CB. \n
  *	This stucture contains the information about the receiver for msgType and port.
  */
-typedef struct
-{
-	int 				listenerFd;
-	MSG_MAIN_TYPE_T 	msgType;
-	unsigned short 		port;
+typedef struct {
+	int				listenerFd;
+	MSG_MAIN_TYPE_T	msgType;
+	unsigned short		port;
 } MSG_CMD_REG_INCOMING_MSG_CB_S;
 
-typedef struct
-{
-	int 				listenerFd;
-	MSG_MAIN_TYPE_T 	msgType;
-	bool 				bsave;
+typedef struct {
+	int				listenerFd;
+	MSG_MAIN_TYPE_T	msgType;
+	bool				bsave;
 } MSG_CMD_REG_CB_INCOMING_MSG_CB_S;
 
 
@@ -421,10 +411,9 @@ typedef struct
  *	@brief	Aux data structure for MSG_CMD_REG_INCOMING_MMS_CONF_MSG_CB. \n
  *	This stucture contains the information about the receiver for msgType and port.
  */
-typedef struct
-{
-	int 				listenerFd;
-	MSG_MAIN_TYPE_T 	msgType;
+typedef struct {
+	int				listenerFd;
+	MSG_MAIN_TYPE_T	msgType;
 	char appId[MAX_MMS_JAVA_APPID_LEN+1];
 } MSG_CMD_REG_INCOMING_MMS_CONF_MSG_CB_S;
 
@@ -433,10 +422,9 @@ typedef struct
  *	@brief	Aux data structure for MSG_CMD_REG_INCOMING_SYNCML_MSG_CB. \n
  *	This stucture contains the information about the receiver for msgType and port.
  */
-typedef struct
-{
-	int 				listenerFd;
-	MSG_MAIN_TYPE_T 	msgType;
+typedef struct {
+	int				listenerFd;
+	MSG_MAIN_TYPE_T	msgType;
 } MSG_CMD_REG_INCOMING_SYNCML_MSG_CB_S;
 
 
@@ -444,10 +432,9 @@ typedef struct
  *	@brief	Aux data structure for MSG_CMD_REG_INCOMING_LBS_MSG_CB_S. \n
  *	This stucture contains the information about the receiver for msgType and port.
  */
-typedef struct
-{
-	int 				listenerFd;
-	MSG_MAIN_TYPE_T 	msgType;
+typedef struct {
+	int				listenerFd;
+	MSG_MAIN_TYPE_T	msgType;
 } MSG_CMD_REG_INCOMING_LBS_MSG_CB_S;
 
 
@@ -455,10 +442,9 @@ typedef struct
  *	@brief	Aux data structure for MSG_CMD_REG_INCOMING_JAVAMMS_TRID_S. \n
  *	This stucture contains the information about the sent Java MMS messge transactionId.
  */
-typedef struct
-{
-	bool 			posted;
-	char 			id[MMS_TR_ID_LEN+1];
+typedef struct {
+	bool			posted;
+	char			id[MMS_TR_ID_LEN+1];
 	char				pduFileName[MAX_COMMON_INFO_SIZE+1];
 } MSG_CMD_REG_INCOMING_JAVAMMS_TRID_S;
 
@@ -467,24 +453,21 @@ typedef struct
  *	@brief	Aux data structure for MSG_CMD_REG_SYNCML_MSG_OPERATION_CB. \n
  *	This stucture contains the information about the receiver for msgType and port.
  */
-typedef struct
-{
-	int 				listenerFd;
-	MSG_MAIN_TYPE_T 	msgType;
+typedef struct {
+	int				listenerFd;
+	MSG_MAIN_TYPE_T	msgType;
 } MSG_CMD_REG_SYNCML_MSG_OPERATION_CB_S;
 
-typedef struct
-{
-	int 				listenerFd;
-	MSG_MAIN_TYPE_T 	msgType;
+typedef struct {
+	int				listenerFd;
+	MSG_MAIN_TYPE_T	msgType;
 	char appId[MAX_WAPPUSH_ID_LEN+1];
 	char content_type[MAX_WAPPUSH_CONTENT_TYPE_LEN+1];
 } MSG_CMD_REG_INCOMING_PUSH_MSG_CB_S;
 
-typedef struct
-{
-	int 				listenerFd;
-	MSG_MAIN_TYPE_T 	msgType;
+typedef struct {
+	int				listenerFd;
+	MSG_MAIN_TYPE_T	msgType;
 	bool				bsave;
 } MSG_CMD_REG_INCOMING_CB_MSG_CB_S;
 
@@ -492,8 +475,7 @@ typedef struct
 /**
  *	@brief	Represents a CB message in the framework.
  */
-typedef struct
-{
+typedef struct {
 	MSG_SUB_TYPE_T			type;
 	time_t					receivedTime;
 
@@ -509,8 +491,7 @@ typedef struct
 } MSG_CB_MSG_S;
 
 #ifdef FEATURE_SMS_CDMA
-typedef struct _MSG_UNIQUE_INDEX_S
-{
+typedef struct _MSG_UNIQUE_INDEX_S {
 	unsigned short		tele_msgId;
 	char					address[MAX_ADDRESS_VAL_LEN+1];
 	char					sub_address[MAX_ADDRESS_VAL_LEN+1];
@@ -518,8 +499,7 @@ typedef struct _MSG_UNIQUE_INDEX_S
 	int						telesvc_id;
 } MSG_UNIQUE_INDEX_S;
 
-typedef struct
-{
+typedef struct {
 	time_t					receivedTime;
 	unsigned short			serialNum;
 	unsigned short			messageId;	/**< Message Identifier */
@@ -528,7 +508,7 @@ typedef struct
 
 
 /*==================================================================================================
-                                         ENUMS
+											ENUMS
 ==================================================================================================*/
 
 /**
@@ -536,8 +516,7 @@ typedef struct
  *	Three main types of a message are predefined : SMS, MMS, and Email. More main types of a message can be defined here. \n
  *	This enum is used as the value of MSG_MAIN_TYPE_T.
  */
-enum _MSG_MAIN_TYPE_E
-{
+enum _MSG_MAIN_TYPE_E {
 	MSG_UNKNOWN_TYPE = 0,		/**< Unknown main type */
 	MSG_SMS_TYPE,				/**< SMS */
 	MSG_MMS_TYPE,				/**< MMS */
@@ -549,13 +528,12 @@ enum _MSG_MAIN_TYPE_E
  *	Three sub types of a message are predefined : NORMAL, WAPPUSH, and CB. More sub types of a message can be defined here. \n
  *	This enum is used as the value of MSG_SUB_TYPE_T.
  */
-enum _MSG_SUB_TYPE_E
-{
+enum _MSG_SUB_TYPE_E {
 	/* SMS Specific Message Type */
 	MSG_NORMAL_SMS = 0,			/**< Text SMS message */
 	MSG_CB_SMS,					/**< Cell Broadcasting  message */
 	MSG_JAVACB_SMS,				/**< JAVA Cell Broadcasting  message */
-	MSG_TYPE0_SMS,					/**< Short Message Type 0 */
+	MSG_TYPE0_SMS,				/**< Short Message Type 0 */
 	MSG_REPLACE_TYPE1_SMS,		/**< Replace Short Message Type 1 */
 	MSG_REPLACE_TYPE2_SMS,		/**< Replace Short Message Type 2 */
 	MSG_REPLACE_TYPE3_SMS,		/**< Replace Short Message Type 3 */
@@ -578,7 +556,7 @@ enum _MSG_SUB_TYPE_E
 
 	/* MMS Specific Message Type */
 	MSG_SENDREQ_MMS = 24,					/**< MMS Send Request message */
-	MSG_SENDCONF_MMS,				/**< MMS Send Confirm message */
+	MSG_SENDCONF_MMS,					/**< MMS Send Confirm message */
 	MSG_NOTIFICATIONIND_MMS,			/**< MMS Notification Indication message */
 	MSG_GET_MMS,						/**< MMS GET MMS message */
 	MSG_NOTIFYRESPIND_MMS,			/**< MMS Notify Response Indication message */
@@ -591,9 +569,9 @@ enum _MSG_SUB_TYPE_E
 	MSG_READORGIND_MMS,				/**< MMS Read Origin Indication message */
 	MSG_FORWARD_MMS,					/**< MMS Forward message */
 	MSG_FORWARDREQ_MMS,				/**< MMS Forward Request message */
-	MSG_FORWARDCONF_MMS,			/**< MMS Forward Confirm message */
+	MSG_FORWARDCONF_MMS,				/**< MMS Forward Confirm message */
 	MSG_READREPLY_MMS,				/**< MMS Read Reply message */
-	MSG_SENDREQ_JAVA_MMS,  			/**< MMS Send Request message for JAVA MMS */
+	MSG_SENDREQ_JAVA_MMS,			/**< MMS Send Request message for JAVA MMS */
 
 	MSG_ETWS_SMS,
 	MSG_MWI_VOICE2_SMS,			/**< MWI Message Voice for line 2(CPHS)*/
@@ -612,8 +590,7 @@ enum _MSG_SUB_TYPE_E
  *	@brief	Represents the values of File Type of MMS. \n
  *	This enum is used as the value of .
  */
-enum _MSG_MMS_ITEM_TYPE_E
-{
+enum _MSG_MMS_ITEM_TYPE_E {
 	MSG_MMS_ITEM_TYPE_IMG,			/**< Indicates the image media */
 	MSG_MMS_ITEM_TYPE_AUDIO,		/**< Indicates the audio media */
 	MSG_MMS_ITEM_TYPE_VIDEO,		/**< Indicates the video media */

@@ -717,7 +717,7 @@ void SmsPluginSetting::getParamList(MSG_SMSC_LIST_S *pSMSCList)
 			MSG_DEBUG("npi[%d]", pSMSCList->smscData[index].smscAddr.npi);
 			MSG_SEC_DEBUG("address[%s]", pSMSCList->smscData[index].smscAddr.address);
 		} else {
-		 	MSG_DEBUG("######## Get Parameter was Failed !!! #######");
+			MSG_DEBUG("######## Get Parameter was Failed !!! #######");
 		}
 	}
 
@@ -762,7 +762,7 @@ bool SmsPluginSetting::getParam(TapiHandle *handle, int Index, MSG_SMSC_DATA_S *
 	if (getParamEvent(handle, pSmscData) == true) {
 		MSG_DEBUG("######## Get Parameter was Successful !!! #######");
 	} else {
-	 	MSG_ERR("######## Get Parameter was Failed !!! #######");
+		MSG_ERR("######## Get Parameter was Failed !!! #######");
 		return false;
 	}
 
@@ -933,7 +933,7 @@ bool SmsPluginSetting::setCbConfig(const MSG_CBMSG_OPT_S *pCbOpt)
 		if (getResultFromSim() == true) {
 			MSG_DEBUG("######## Set Cb Config was Successful !!! #######");
 		} else {
-		 	MSG_ERR("######## Set Cb Config was Failed !!! #######");
+			MSG_ERR("######## Set Cb Config was Failed !!! #######");
 			return false;
 		}
 	}
@@ -967,7 +967,7 @@ bool SmsPluginSetting::getCbConfig(MSG_CBMSG_OPT_S *pCbOpt)
 	if (getCbConfigEvent(pCbOpt) == true) {
 		MSG_DEBUG("######## Get Cb Config was Successful !!! #######");
 	} else {
-	 	MSG_ERR("######## Get Cb Config was Failed !!! #######");
+		MSG_ERR("######## Get Cb Config was Failed !!! #######");
 		return false;
 	}
 
@@ -1129,7 +1129,7 @@ bool SmsPluginSetting::getVoiceMailInfo(TapiHandle *handle)
 	if (getMailboxInfoEvent() == true) {
 		MSG_DEBUG("######## Get mailbox info was Successful !!! #######");
 	} else {
-	 	MSG_ERR("######## Get mailbox info was Failed !!! #######");
+		MSG_ERR("######## Get mailbox info was Failed !!! #######");
 		return false;
 	}
 
@@ -1296,7 +1296,7 @@ bool SmsPluginSetting::getMwiInfo(TapiHandle *handle)
 	if (getResultFromSim() == true) {
 		MSG_DEBUG("######## Get Mainbox info was Successful !!! #######");
 	} else {
-	 	MSG_DEBUG("######## Get Mainbox info was Failed !!! #######");
+		MSG_DEBUG("######## Get Mainbox info was Failed !!! #######");
 		return false;
 	}
 
@@ -1322,7 +1322,7 @@ bool SmsPluginSetting::getMsisdnInfo(TapiHandle *handle)
 	if (getResultFromSim() == true) {
 		MSG_DEBUG("######## Get Sim msisdn was Successful !!! #######");
 	} else {
-	 	MSG_DEBUG("######## Get Sim msisdn was Failed !!! #######");
+		MSG_DEBUG("######## Get Sim msisdn was Failed !!! #######");
 		return false;
 	}
 
@@ -1348,7 +1348,7 @@ bool SmsPluginSetting::getSimServiceTable(TapiHandle *handle)
 	if (getResultFromSim() == true) {
 		MSG_DEBUG("######## Get SST info was Successful !!! #######");
 	} else {
-	 	MSG_DEBUG("######## Get SST info was Failed !!! #######");
+		MSG_DEBUG("######## Get SST info was Failed !!! #######");
 		return false;
 	}
 

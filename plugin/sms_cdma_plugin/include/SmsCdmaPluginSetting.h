@@ -19,14 +19,14 @@
 
 
 /*==================================================================================================
-                                         INCLUDE FILES
+										INCLUDE FILES
 ==================================================================================================*/
 #include "MsgMutex.h"
 #include "MsgSettingTypes.h"
 
 
 /*==================================================================================================
-                                     CLASS DEFINITIONS
+										CLASS DEFINITIONS
 ==================================================================================================*/
 class SmsPluginSetting
 {
@@ -78,12 +78,12 @@ private:
 	static SmsPluginSetting* pInstance;
 
 	MSG_SMSC_DATA_S		smscData;
-	MSG_CBMSG_OPT_S 	cbOpt;
+	MSG_CBMSG_OPT_S	cbOpt;
 
 	bool		bTapiResult;
 	bool		bUpdateVoicemailByMdn;
 
-	char 	meImei[MAX_ME_IMEI_LEN + 1];
+	char	meImei[MAX_ME_IMEI_LEN + 1];
 
 	MsgMutex mx;
 	MsgCndVar cv;

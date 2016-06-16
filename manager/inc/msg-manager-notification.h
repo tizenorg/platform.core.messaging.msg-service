@@ -18,21 +18,21 @@
 #define __MSG_MGR_NOTIFICATION_H__
 
 /*==================================================================================================
-                                         INCLUDE FILES
+										INCLUDE FILES
 ==================================================================================================*/
 #include <msg.h>
 
 #include <app_control.h>
 
 /*==================================================================================================
-                                    DEFINES
+										DEFINES
 ==================================================================================================*/
 
 #define MSG_NOTI_INTEGRATION
 
 #define MSGFW_MESSAGE_TABLE_NAME				"MSG_MESSAGE_TABLE"
 #define MSGFW_FOLDER_TABLE_NAME					"MSG_FOLDER_TABLE"
-#define MSGFW_ADDRESS_TABLE_NAME    			"MSG_ADDRESS_TABLE"
+#define MSGFW_ADDRESS_TABLE_NAME				"MSG_ADDRESS_TABLE"
 #define MSGFW_CONVERSATION_TABLE_NAME		"MSG_CONVERSATION_TABLE"
 #define MMS_PLUGIN_MESSAGE_TABLE_NAME		"MSG_MMS_MESSAGE_TABLE"
 #define MSGFW_SMS_REPORT_TABLE_NAME		"MSG_SMS_REPORT_TABLE"
@@ -117,7 +117,7 @@
 #define FAILED_TO_SEND_MESSAGE	"IDS_MSG_HEADER_FAILED_TO_SEND_MESSAGE_ABB"
 #define MESSAGE_SIZE_UNIT_KB	"IDS_MSGF_BODY_MSGSIZE_KB"
 #define MESSAGE_SIZE_STRING		"IDS_MSGF_BODY_MESSAGE_SIZE"
-#define MSG_SUBJECT_COLON 	"IDS_MSGF_OPT_SUBJECT_COLON"
+#define MSG_SUBJECT_COLON	"IDS_MSGF_OPT_SUBJECT_COLON"
 #else
 /* system string */
 #define NEW_MESSAGE			"New message"
@@ -157,16 +157,16 @@
 #define FAILED_TO_SEND_MESSAGE	"Failed to send message."
 #define MESSAGE_SIZE_UNIT_KB	"KB"
 #define MESSAGE_SIZE_STRING		"Message Size"
-#define MSG_SUBJECT_COLON 	"Subject:"
+#define MSG_SUBJECT_COLON	"Subject:"
 #endif
 
 
-#define NOTIFICATION_PRIV_ID 	"db/private/msg-service/notification_priv_id"
-#define VOICE_NOTI_ID_1 		"db/private/msg-service/voice_noti_id1"
+#define NOTIFICATION_PRIV_ID	"db/private/msg-service/notification_priv_id"
+#define VOICE_NOTI_ID_1		"db/private/msg-service/voice_noti_id1"
 #define VOICE_NOTI_ID_2			"db/private/msg-service/voice_noti_id2"
-#define CB_NOTI_PRIV_ID 		"db/private/msg-service/cb_noti_priv_id"
-#define SIM_MSG_NOTI_PRIV_ID 	"db/private/msg-service/sim_msg_noti_priv_id"
-#define MSG_SENTFAIL_NOTI_ID 		"db/private/msg-service/sentfail_noti_id"
+#define CB_NOTI_PRIV_ID		"db/private/msg-service/cb_noti_priv_id"
+#define SIM_MSG_NOTI_PRIV_ID	"db/private/msg-service/sim_msg_noti_priv_id"
+#define MSG_SENTFAIL_NOTI_ID		"db/private/msg-service/sentfail_noti_id"
 #define SIM_FULL_NOTI_PRIV_ID	"db/private/msg-service/sim_full_noti_id"
 
 #define MSG_SETTING_NOTIFICATION	"db/private/msg-service/general/notification"
@@ -198,7 +198,7 @@ typedef unsigned char msg_mgr_active_notification_type_t; /* _msg_active_notific
 
 
 /*==================================================================================================
-                                     ENUMS
+										ENUMS
 ==================================================================================================*/
 
 enum _msg_mgr_notification_type_e {
@@ -230,16 +230,14 @@ enum _msg_mgr_active_notification_type_e {
 };
 
 
-enum _msg_maintype_e
-{
+enum _msg_maintype_e {
 	MSG_UNKNOWN_TYPE = 0,		/**< Unknown main type */
 	MSG_SMS_TYPE,				/**< SMS */
 	MSG_MMS_TYPE,				/**< MMS */
 };
 
 
-enum _msg_subtype_e
-{
+enum _msg_subtype_e {
 	/* SMS Specific Message Type */
 	MSG_NORMAL_SMS = 0,			/**< Text SMS message */
 	MSG_CB_SMS,					/**< Cell Broadcasting  message */
@@ -267,7 +265,7 @@ enum _msg_subtype_e
 };
 
 /*==================================================================================================
-                                         STRUCTURES
+										STRUCTURES
 ==================================================================================================*/
 typedef struct _msg_mgr_message_info_s {
 	msg_message_id_t msgId;
@@ -280,7 +278,7 @@ typedef struct _msg_mgr_message_info_s {
 } MSG_MGR_MESSAGE_INFO_S;
 
 /*==================================================================================================
-                                     FUNCTION PROTOTYPES
+										FUNCTION PROTOTYPES
 ==================================================================================================*/
 
 void MsgMgrInitNoti();

@@ -18,7 +18,7 @@
 #define MSG_EXCEPTION_H
 
 /*==================================================================================================
-                                         INCLUDE FILES
+											INCLUDE FILES
 ==================================================================================================*/
 #include <stdexcept>
 #include <string>
@@ -27,7 +27,7 @@ using namespace std;
 
 
 /*==================================================================================================
-                                         DEFINES
+											DEFINES
 ==================================================================================================*/
 #define THROW(errCode, debugFmt, ...) \
 do {\
@@ -35,22 +35,21 @@ do {\
 	snprintf(__debugBuf, 256, debugFmt, ##__VA_ARGS__);\
 	MsgException e(errCode, __debugBuf);\
 	MSG_FATAL("%s [%d]", e.what(), e.errorCode());\
-    throw e; \
+	throw e; \
 } while (0)
 
 
 /*==================================================================================================
-                                     CLASS DEFINITIONS
+											CLASS DEFINITIONS
 ==================================================================================================*/
-class MsgException : public runtime_error /* public exception */
+class MsgException:public runtime_error /* public exception */
 {
 public:
-	MsgException(int errCode, const string& msg = "")
+	MsgException(int errCode, const string &msg = "")
 		: runtime_error(errorStrings[errCode] + " : " +  msg), eCode(errCode) {
 	}
 
-	enum
-	{
+	enum {
 		SUCCESS = 0,
 
 		INVALID_PARAM,

@@ -21,8 +21,8 @@
 #include "MsgDebug.h"
 
 typedef enum {
-        MSG_JSON_GEN_ARRAY,
-        MSG_JSON_GEN_OBJECT
+	MSG_JSON_GEN_ARRAY,
+	MSG_JSON_GEN_OBJECT
 } msg_json_gen_type;
 
 typedef struct msg_json_gen_object_t {
@@ -73,7 +73,7 @@ char* msg_json_gen_make_json_msg(msg_json_gen_object *root_obj, unsigned long *l
 	}
 
 #define MSG_PRINT_PARSER_OBJECT(index, obj) {\
-	switch(obj.type) {\
+	switch (obj.type) {\
 	case MSG_JSON_PARSER_NULL:\
 		MSG_DEBUG("parse obj : idx = %d, key =[%s], type = [%d], value = [%p], value num = [%f]", index, obj.key, obj.type, obj.value, obj.number_value);\
 		break;\
@@ -101,42 +101,42 @@ char* msg_json_gen_make_json_msg(msg_json_gen_object *root_obj, unsigned long *l
 	default:\
 		MSG_DEBUG("parse obj : idx = %d, key =[%s], type = [%d], value = [%p], value num = [%f]", index, obj.key, obj.type, obj.value, obj.number_value);\
 		break;\
-	}\
+	} \
 }
 /**
 *@enum msg_json_parser_value_type
 * This enumerates json-node types.
 */
 typedef enum {
-        MSG_JSON_PARSER_NULL = 0,      /** 0 <null value */
-        MSG_JSON_PARSER_INT,           /** 1 < signed integer value */
-        MSG_JSON_PARSER_UINT,          /** 2 < unsigned integer value */
-        MSG_JSON_PARSER_REAL,          /** 3 < double value */
-        MSG_JSON_PARSER_STRING,        /** 4 < UTF-8 string value */
-        MSG_JSON_PARSER_BOOLEAN,       /** 5 < bool value */
-        MSG_JSON_PARSER_ARRAY,         /** 6 < array value (ordered list) */
-        MSG_JSON_PARSER_OBJECT,        /** 7 < object value */
+	MSG_JSON_PARSER_NULL = 0,      /** 0 <null value */
+	MSG_JSON_PARSER_INT,           /** 1 < signed integer value */
+	MSG_JSON_PARSER_UINT,          /** 2 < unsigned integer value */
+	MSG_JSON_PARSER_REAL,          /** 3 < double value */
+	MSG_JSON_PARSER_STRING,        /** 4 < UTF-8 string value */
+	MSG_JSON_PARSER_BOOLEAN,       /** 5 < bool value */
+	MSG_JSON_PARSER_ARRAY,         /** 6 < array value (ordered list) */
+	MSG_JSON_PARSER_OBJECT,        /** 7 < object value */
 } msg_json_parser_value_type;
 
 typedef void *msg_json_parser_handle;
 
 typedef struct msg_json_parser_object_t {
-        msg_json_parser_value_type type;
-        char *key;
-        void *value;    /** Value of the node. VALID
-                                        only if type is
-                                        MSG_JSON_PARSER_NULL,
-                                        MSG_JSON_PARSER_STRING,
-                                        MSG_JSON_PARSER_ARRAY,
-                                        MSG_JSON_PARSER_OBJECT */
-        double float_value; /** Value of the node. VALID
-                                        only if type is
-                                        MSG_JSON_PARSER_REAL */
-        long long int number_value; /** Value of the node. VALID
-                                        only if type is
-                                        MSG_JSON_PARSER_UINT,
-                                        MSG_JSON_PARSER_INT,
-                                        MSG_JSON_PARSER_BOOLEAN */
+	msg_json_parser_value_type type;
+	char *key;
+	void *value;    /** Value of the node. VALID
+						only if type is
+						MSG_JSON_PARSER_NULL,
+						MSG_JSON_PARSER_STRING,
+						MSG_JSON_PARSER_ARRAY,
+						MSG_JSON_PARSER_OBJECT */
+	double float_value; /** Value of the node. VALID
+						only if type is
+						MSG_JSON_PARSER_REAL */
+	long long int number_value; /** Value of the node. VALID
+						only if type is
+						MSG_JSON_PARSER_UINT,
+						MSG_JSON_PARSER_INT,
+						MSG_JSON_PARSER_BOOLEAN */
 } msg_json_parser_object;
 
 msg_json_parser_handle msg_json_parser_handle_create(void);

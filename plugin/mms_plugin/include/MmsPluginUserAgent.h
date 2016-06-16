@@ -23,36 +23,36 @@
 #include "MmsPluginTypes.h"
 
 class MmsPluginUaManager: public MsgThread {
-	public:
-		static MmsPluginUaManager *instance();
-		virtual void start();
+public:
+	static MmsPluginUaManager *instance();
+	virtual void start();
 
-		void addMmsReqEntity(mmsTranQEntity *req);
-		void getMmsPduData(mmsTranQEntity *qEntity);
-		bool processReceivedData(int msgId, char *pRcvdBody, int rcvdBodyLen, char *retrievedFilePath);
+	void addMmsReqEntity(mmsTranQEntity *req);
+	void getMmsPduData(mmsTranQEntity *qEntity);
+	bool processReceivedData(int msgId, char *pRcvdBody, int rcvdBodyLen, char *retrievedFilePath);
 
-		void lock() { mx.lock(); }
-		void unlock() { mx.unlock(); }
-		void wait() { cv.wait(mx.pMsgMutex()); }
-		void signal() { cv.signal(); }
+	void lock() { mx.lock(); }
+	void unlock() { mx.unlock(); }
+	void wait() { cv.wait(mx.pMsgMutex()); }
+	void signal() { cv.signal(); }
 
-	private:
-		MmsPluginUaManager();
-		~MmsPluginUaManager();
+private:
+	MmsPluginUaManager();
+	~MmsPluginUaManager();
 
-		static MmsPluginUaManager *pInstance;
-		virtual void run();
+	static MmsPluginUaManager *pInstance;
+	virtual void run();
 
-		MsgMutex mx;
-		MsgCndVar cv;
+	MsgMutex mx;
+	MsgCndVar cv;
 
-		MMS_NET_ERROR_T submitHandler(mmsTranQEntity *qEntity);
-		MMS_NET_ERROR_T waitingConf(mmsTranQEntity *qEntity);
+	MMS_NET_ERROR_T submitHandler(mmsTranQEntity *qEntity);
+	MMS_NET_ERROR_T waitingConf(mmsTranQEntity *qEntity);
 
-		/* condition values */
-		bool running;		/* flag for thread running */
+	/* condition values */
+	bool running;		/* flag for thread running */
 
-		MsgSimpleQ<mmsTranQEntity> mmsTranQ; /* transaction q for mms plugin */
+	MsgSimpleQ<mmsTranQEntity> mmsTranQ; /* transaction q for mms plugin */
 };
 
 #endif /* MMS_PLUGIN_USERAGENT_H */

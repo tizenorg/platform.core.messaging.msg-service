@@ -19,7 +19,7 @@
 
 
 /*==================================================================================================
-                                         INCLUDE FILES
+											INCLUDE FILES
 ==================================================================================================*/
 #include "MsgMutex.h"
 
@@ -36,7 +36,7 @@ extern "C"
 }
 
 /*==================================================================================================
-                                     CLASS DEFINITIONS
+											CLASS DEFINITIONS
 ==================================================================================================*/
 class SmsPluginSimMsg
 {
@@ -82,15 +82,15 @@ private:
 
 	msg_sim_id_t				simMsgId;
 	int				delSimMsgId;
-	int 		simIdList[MAX_SIM_SMS_NUM];		/** send total simIds to handleSimMsg **/
+	int		simIdList[MAX_SIM_SMS_NUM];		/** send total simIds to handleSimMsg **/
 
 	MSG_SIM_COUNT_S			simMsgCnt;
 
 	MSG_MESSAGE_INFO_S		simMsgInfo;
 	MSG_ADDRESS_INFO_S		simAddrInfo;
 
-	int 					usedCnt;
-	int 					totalCnt;
+	int					usedCnt;
+	int					totalCnt;
 
 	bool						bTapiResult;
 

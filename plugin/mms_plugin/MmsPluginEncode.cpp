@@ -187,10 +187,10 @@ static void __MmsUnregisterEncodeBuffer2(void)
 }
 
 /**
- * @param 	source [in] originam string
+ * @param	source [in] originam string
  * @param	length [in] gotten from MmsBinaryEncodeTextStringLen()
  * @param	dest [in] buffer to store quted string
- * @return 	changed string length
+ * @return	changed string length
 */
 static bool __MmsBinaryEncodeTextString2(FILE *pFile, UINT8 *source, int length)
 {
@@ -1899,7 +1899,7 @@ static bool __MmsBinaryEncodeMsgPart(FILE *pFile, int contentType, MsgType *pTyp
 		}
 
 		if (MsgWriteDataFromEncodeBuffer(pFile, gpMmsEncodeBuf, &gCurMmsEncodeBuffPos,
-							 				gMmsEncodeMaxLen, &gMmsEncodeCurOffset) == false) {
+											gMmsEncodeMaxLen, &gMmsEncodeCurOffset) == false) {
 			MSG_DEBUG("2. header MsgWriteDataFromEncodeBuffer fail");
 			goto __CATCH;
 		}
@@ -2300,7 +2300,7 @@ static int __MmsBinaryEncodeIntegerLen(UINT32 integer)
 /*
  * This makes value-length by specified integer value
  *
- * @param 	length [in] gotten from MmsBinaryEncodeIntegerLen()
+ * @param	length [in] gotten from MmsBinaryEncodeIntegerLen()
  */
 static bool __MmsBinaryEncodeInteger(FILE *pFile, UINT32 integer, int length)
 {
@@ -2374,7 +2374,7 @@ static int __MmsBinaryEncodeLongIntegerLen(UINT32 integer)
 /*
  * This makes value-length by specified integer value
  *
- * @param 	length [in] gotten from MmsBinaryEncodeIntegerLen()
+ * @param	length [in] gotten from MmsBinaryEncodeIntegerLen()
  */
 static bool __MmsBinaryEncodeLongInteger(FILE *pFile, UINT32 integer, int length)
 {
@@ -2439,10 +2439,10 @@ static int __MmsBinaryEncodeTextStringLen(UINT8 *source)
 }
 
 /*
- * @param 	source [in] originam string
+ * @param	source [in] originam string
  * @param	length [in] gotten from MmsBinaryEncodeTextStringLen()
  * @param	dest [in] buffer to store quted string
- * @return 	changed string length
+ * @return	changed string length
 */
 static bool __MmsBinaryEncodeTextString(FILE *pFile, UINT8 *source, int length)
 {
@@ -2486,8 +2486,8 @@ __CATCH:
 /*
  * Encode 28bit unsigned integer(Maximum) to uintvar
  *
- * @param 	interger [in] integer to be encoded
- * @return 	encoded UINTVAR stream
+ * @param	interger [in] integer to be encoded
+ * @return	encoded UINTVAR stream
 */
 const UINT32 UINTVAR_LENGTH_1 =  0x0000007f;		/* 7bit */
 const UINT32 UINTVAR_LENGTH_2 =  0x00003fff;		/* 14bit */
@@ -2585,8 +2585,8 @@ static int __MmsBinaryEncodeValueLengthLen(UINT32 integer)
 /*
  * This makes value-length by specified integer value
  *
- * @param 	length [in] from MmsBinaryEncodeValueLengthLen()
- * @return 	encoded value-length
+ * @param	length [in] from MmsBinaryEncodeValueLengthLen()
+ * @return	encoded value-length
  */
 static bool __MmsBinaryEncodeValueLength(FILE *pFile, UINT32 integer, int length)
 {
@@ -2644,10 +2644,10 @@ __CATCH:
  * make quoted string
  * Quoted-string = <Octet 34> *TEXT End-of-string
  *
- * @param 	source [in] original string
+ * @param	source [in] original string
  * @param	length [in] length (in bytes) of data
  * @param	dest [out] buffer to store quted string
- * @return 	changed string length
+ * @return	changed string length
 */
 static bool __MmsBinaryEncodeQuotedString(FILE *pFile, UINT8 *source, int length)
 {
@@ -2711,8 +2711,8 @@ __CATCH:
 /*
  * This makes value-length by specified integer value
  *
- * @param 	length [in] from MmsBinaryEncodeEncodedStringLen()
- * @return 	encoded encoded-string
+ * @param	length [in] from MmsBinaryEncodeEncodedStringLen()
+ * @return	encoded encoded-string
  */
 static bool __MmsBinaryEncodeEncodedString(FILE *pFile, UINT8 *source, int length)
 {

@@ -19,7 +19,7 @@
 
 
 /*==================================================================================================
-                                         INCLUDE FILES
+											INCLUDE FILES
 ==================================================================================================*/
 #include <map>
 #include <vector>
@@ -38,13 +38,12 @@ extern "C"
 
 
 /*==================================================================================================
-                                         VARIABLES
+											VARIABLES
 ==================================================================================================*/
 typedef map<unsigned char, SMS_CBMSG_PAGE_S> cbPageMap;
 
 
-typedef struct _CB_PAGE_INFO_S
-{
+typedef struct _CB_PAGE_INFO_S {
 	unsigned char		geoScope;
 	unsigned char		updateNum;
 	unsigned short		msgCode;
@@ -58,7 +57,7 @@ typedef struct _CB_PAGE_INFO_S
 
 
 /*==================================================================================================
-                                     CLASS DEFINITIONS
+											CLASS DEFINITIONS
 ==================================================================================================*/
 class SmsPluginCbMsgHandler
 {

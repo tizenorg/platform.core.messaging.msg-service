@@ -54,7 +54,7 @@ int		__VIsPrintable(char);
 int
 _VIsSpace(char in)
 {
-    if ((in == TAB) || (in == WSP))
+	if ((in == TAB) || (in == WSP))
 		return 1;
 	else
 		return 0;
@@ -70,28 +70,26 @@ _VIsSpace(char in)
 int
 _VRLSpace(char *in)
 {
-    int	i, j;
-    short int	done;
+	int	i, j;
+	short int	done;
 
-    i = 0;
-    done = 0;
+	i = 0;
+	done = 0;
 
-    while (!done && in[i]) {
+	while (!done && in[i]) {
 		if (_VIsSpace(in[i]))
 			i++;
 		else
 			done = 1;
-    }
+	}
 
-    j = 0;
-    while (in[i]) {
+	j = 0;
+	while (in[i])
 		in[j++] = in[i++];
-    }
 
+	in[j] = '\0';
 
-    in[j] = '\0';
-
-    return 0;
+	return 0;
 }
 
 
@@ -104,20 +102,20 @@ _VRLSpace(char *in)
 int
 _VRTSpace(char *in)
 {
-    int			i;
-    short int	done;
+	int			i;
+	short int	done;
 
-    i = strlen(in) - 1;
-    done = 0;
+	i = strlen(in) - 1;
+	done = 0;
 
-    while (!done && !(i < 0)) {
+	while (!done && !(i < 0)) {
 		if (_VIsSpace(in[i]))
 			in[i--] = '\0';
 		else
 			done = 1;
-    }
+	}
 
-    return(0);
+	return(0);
 }
 
 
@@ -173,9 +171,9 @@ _VEscape(char *in)
 	if (buf) {
 		for (i = 0, index = 0; i < len; i++) {
 			c = in[i];
-			if (c == ';')	{
+			if (c == ';')
 				buf[index++] = '\\';
-			}
+
 			buf[index++] = c;
 		}
 
@@ -183,7 +181,7 @@ _VEscape(char *in)
 		free(buf);
 	}
 
-    return(0);
+	return(0);
 }
 
 
@@ -197,11 +195,11 @@ _VEscape(char *in)
 int
 _VManySpace2Space(char *in)
 {
-    int		i, j;
-    int		spaced = 0;
+	int		i, j;
+	int		spaced = 0;
 
-    j = 0;
-    for (i = 0; in[i]; i++) {
+	j = 0;
+	for (i = 0; in[i]; i++) {
 		if (_VIsSpace(in[i])) {
 			if (!spaced) {
 				in[j] = WSP;
@@ -213,12 +211,12 @@ _VManySpace2Space(char *in)
 			in[j] = in[i];
 			j++;
 		}
-    }
+	}
 
 
-    in[j] = '\0';
+	in[j] = '\0';
 
-    return j;
+	return j;
 }
 
 
@@ -231,13 +229,13 @@ _VManySpace2Space(char *in)
 int
 __VFindBase64(char in)
 {
-    int		i;
+	int		i;
 
-    for (i = 0; i < 65; i++) {
+	for (i = 0; i < 65; i++) {
 		if (Base64Table[i] == in)
 			return i;
-    }
-    return -1;
+	}
+	return -1;
 }
 
 
@@ -548,17 +546,17 @@ __VIsNewType(char *pCardRaw)
 	}
 
 
-    for (low = 0, high = VCARD_TYPE_NUM - 1; high >= low; diff < 0 ? (low = i+1) : (high = i-1)) {
+	for (low = 0, high = VCARD_TYPE_NUM - 1; high >= low; diff < 0 ? (low = i+1) : (high = i-1)) {
 		i = (low + high) / 2;
 		diff = strcmp(pszCardTypeList[i], strTypeName);
-		if (diff == 0)  	/* success: found it */
+		if (diff == 0)	/* success: found it */
 			return true;
-    }
+	}
 
 
 
-    return false;
-	//res = __VCardGetName(strTypeName, (char**)pszCardTypeList, VCARD_TYPE_NUM);
+	return false;
+	/* res = __VCardGetName(strTypeName, (char**)pszCardTypeList, VCARD_TYPE_NUM); */
 }
 
 
@@ -596,7 +594,7 @@ __VIsNewTypeforOrg(char *pCardRaw, int vType)
 		else if (vType == VMESSAGE)
 			diff = strcmp(pszMsgTypeList[i], strTypeName);
 
-		if (diff == 0)  	/* success: found it */
+		if (diff == 0)	/* success: found it */
 			return true;
 		else if (!strncmp(strTypeName, "X-", 2))
 			return true;
@@ -604,7 +602,7 @@ __VIsNewTypeforOrg(char *pCardRaw, int vType)
 
 	/* if (count <= 50) return TRUE; */
 
-    return false;
+	return false;
 
 	/* res = __VCardGetName(strTypeName, (char**)pszCardTypeList, VCARD_TYPE_NUM); */
 }
@@ -619,10 +617,8 @@ _VUnfoldingNoSpecNew(char *string)
 
 	len = strlen(string);
 
-	if (!(newString = (char*) calloc(1, len+1))) {
+	if (!(newString = (char*) calloc(1, len+1)))
 		return NULL;
-	}
-
 
 	for (i = 0, j = 0; i < len; i++, j++) {
 

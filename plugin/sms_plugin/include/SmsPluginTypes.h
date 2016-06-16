@@ -19,7 +19,7 @@
 
 
 /*==================================================================================================
-                                         INCLUDE FILES
+										INCLUDE FILES
 ==================================================================================================*/
 #include "MsgTextConvert.h"
 #include "MsgInternalTypes.h"
@@ -32,16 +32,16 @@ extern "C"
 }
 
 /*==================================================================================================
-                                    DEFINES
+										DEFINES
 ==================================================================================================*/
-#define MAX_ADDRESS_LEN 			21 /* including '+' */
-#define MAX_USER_DATA_LEN 			160
-#define MAX_GSM_7BIT_DATA_LEN 		160
-#define MAX_UCS2_DATA_LEN 			140
+#define MAX_ADDRESS_LEN			21 /* including '+' */
+#define MAX_USER_DATA_LEN			160
+#define MAX_GSM_7BIT_DATA_LEN		160
+#define MAX_UCS2_DATA_LEN			140
 /* #define MAX_TPDU_DATA_LEN			165 */
 #define MAX_TPDU_DATA_LEN			255
 #define MAX_SMS_SEND_RETRY			4
-#define MAX_SMSC_LEN 				20
+#define MAX_SMSC_LEN				20
 #define MAX_ADD_PARAM_LEN			12
 #define MAX_DCS_PARAM_LEN			1
 #define MAX_ABS_TIME_PARAM_LEN		7
@@ -67,7 +67,7 @@ extern "C"
 
 
 /*==================================================================================================
-                                         TYPES
+										TYPES
 ==================================================================================================*/
 
 typedef unsigned char SMS_TPDU_TYPE_T;		/* _SMS_TPDU_TYPE_E */
@@ -119,7 +119,7 @@ typedef unsigned char SMS_SIM_MAILBOX_TYPE_T;	/* _SMS_SIM_MAILBOX_TYPE_E */
 typedef unsigned char SMS_NETWORK_STATUS_T;	/* _SMS_NETWORK_STATUS_E */
 
 /*==================================================================================================
-                                    ENUMS
+										ENUMS
 ==================================================================================================*/
 enum _SMS_TPDU_TYPE_E {
 	SMS_TPDU_SUBMIT,
@@ -399,43 +399,43 @@ enum _SMS_CBMSG_TYPE_E {
 
 
 enum _SMS_CBMSG_LANG_TYPE_E {
-	SMS_CBMSG_LANG_GERMAN      		= 0x00,
-	SMS_CBMSG_LANG_ENGLISH     		= 0x01,
-	SMS_CBMSG_LANG_ITALIAN     		= 0x02,
-	SMS_CBMSG_LANG_FRENCH      		= 0x03,
-	SMS_CBMSG_LANG_SPANISH     		= 0x04,
-	SMS_CBMSG_LANG_DUTCH       		= 0x05,
-	SMS_CBMSG_LANG_SWEDISH     	= 0x06,
-	SMS_CBMSG_LANG_DANISH      		= 0x07,
-	SMS_CBMSG_LANG_PORTUGUESE  	= 0x08,
-	SMS_CBMSG_LANG_FINNISH     		= 0x09,
-	SMS_CBMSG_LANG_NORWEGIAN   	= 0x0a,
-	SMS_CBMSG_LANG_GREEK       		= 0x0b,
-	SMS_CBMSG_LANG_TURKISH     		= 0x0c,
-	SMS_CBMSG_LANG_HUNGARIAN  	= 0x0d,
-	SMS_CBMSG_LANG_POLISH      		= 0x0e,
-	SMS_CBMSG_LANG_UNSPECIFIED 	= 0x0f,
+	SMS_CBMSG_LANG_GERMAN			= 0x00,
+	SMS_CBMSG_LANG_ENGLISH			= 0x01,
+	SMS_CBMSG_LANG_ITALIAN			= 0x02,
+	SMS_CBMSG_LANG_FRENCH			= 0x03,
+	SMS_CBMSG_LANG_SPANISH			= 0x04,
+	SMS_CBMSG_LANG_DUTCH				= 0x05,
+	SMS_CBMSG_LANG_SWEDISH			= 0x06,
+	SMS_CBMSG_LANG_DANISH			= 0x07,
+	SMS_CBMSG_LANG_PORTUGUESE		= 0x08,
+	SMS_CBMSG_LANG_FINNISH			= 0x09,
+	SMS_CBMSG_LANG_NORWEGIAN			= 0x0a,
+	SMS_CBMSG_LANG_GREEK				= 0x0b,
+	SMS_CBMSG_LANG_TURKISH			= 0x0c,
+	SMS_CBMSG_LANG_HUNGARIAN			= 0x0d,
+	SMS_CBMSG_LANG_POLISH			= 0x0e,
+	SMS_CBMSG_LANG_UNSPECIFIED		= 0x0f,
 
-	SMS_CBMSG_LANG_ISO639		= 0x10,
+	SMS_CBMSG_LANG_ISO639			= 0x10,
 
-	SMS_CBMSG_LANG_CZECH       		= 0x20,
-	SMS_CBMSG_LANG_HEBREW 		= 0x21,
-	SMS_CBMSG_LANG_ARABIC 		= 0x22,
-	SMS_CBMSG_LANG_RUSSIAN 		= 0x23,
-	SMS_CBMSG_LANG_ICELANDIC 		= 0x24,
-	SMS_CBMSG_LANG_RESERVED_25 	= 0x25,
+	SMS_CBMSG_LANG_CZECH			= 0x20,
+	SMS_CBMSG_LANG_HEBREW		= 0x21,
+	SMS_CBMSG_LANG_ARABIC		= 0x22,
+	SMS_CBMSG_LANG_RUSSIAN		= 0x23,
+	SMS_CBMSG_LANG_ICELANDIC		= 0x24,
+	SMS_CBMSG_LANG_RESERVED_25	= 0x25,
 	SMS_CBMSG_LANG_RESERVED_26	= 0x26,
-	SMS_CBMSG_LANG_RESERVED_27 	= 0x27,
-	SMS_CBMSG_LANG_RESERVED_28 	= 0x28,
-	SMS_CBMSG_LANG_RESERVED_29 	= 0x29,
-	SMS_CBMSG_LANG_RESERVED_2A 	= 0x2a,
-	SMS_CBMSG_LANG_RESERVED_2B 	= 0x2b,
-	SMS_CBMSG_LANG_RESERVED_2C 	= 0x2c,
+	SMS_CBMSG_LANG_RESERVED_27	= 0x27,
+	SMS_CBMSG_LANG_RESERVED_28	= 0x28,
+	SMS_CBMSG_LANG_RESERVED_29	= 0x29,
+	SMS_CBMSG_LANG_RESERVED_2A	= 0x2a,
+	SMS_CBMSG_LANG_RESERVED_2B	= 0x2b,
+	SMS_CBMSG_LANG_RESERVED_2C	= 0x2c,
 	SMS_CBMSG_LANG_RESERVED_2D	= 0x2d,
-	SMS_CBMSG_LANG_RESERVED_2E 	= 0x2e,
-	SMS_CBMSG_LANG_RESERVED_2F 	= 0x2f,
+	SMS_CBMSG_LANG_RESERVED_2E	= 0x2e,
+	SMS_CBMSG_LANG_RESERVED_2F	= 0x2f,
 
-	SMS_CBMSG_LANG_DUMMY       		= 0xFF
+	SMS_CBMSG_LANG_DUMMY			= 0xFF
 };
 
 
@@ -458,8 +458,8 @@ enum _SMS_SIM_EFILE_NAME_E {
 	SMS_SIM_EFILE_USIM_SMSP	= 0x6A42,		/** < USIM SMS parameter */
 	SMS_SIM_EFILE_USIM_SMSS	= 0x6A43,		/** < USIM SMS status */
 	SMS_SIM_EFILE_USIM_CBMI	= 0x6A45,		/** < USIM Cell Broadcast Message Identifier */
-	SMS_SIM_EFILE_USIM_MBDN	= 0x6FC7, 		/** < USIM Mail Box Dialing Number */
- 	SMS_SIM_EFILE_SMS			= 0x6F3C,		/** < Short Messages file */
+	SMS_SIM_EFILE_USIM_MBDN	= 0x6FC7,		/** < USIM Mail Box Dialing Number */
+	SMS_SIM_EFILE_SMS			= 0x6F3C,		/** < Short Messages file */
 	SMS_SIM_EFILE_SMSP			= 0x6F42,		/** < SMS Parameter */
 	SMS_SIM_EFILE_SMSS			= 0x6F43,		/** < SMS Status */
 	SMS_SIM_EFILE_CBMI			= 0x6F45,		/** < Cell Broadcast Message Identifier */
@@ -493,12 +493,12 @@ enum _SMS_NETWORK_STATUS_E {
 
 
 /*==================================================================================================
-                                         STRUCTURES
+										STRUCTURES
 ==================================================================================================*/
 typedef struct _SMS_ADDRESS_S {
-	SMS_TON_T 		ton;
-	SMS_NPI_T 		npi;
-	char 				address[MAX_ADDRESS_LEN+1];        /* < null terminated string */
+	SMS_TON_T		ton;
+	SMS_NPI_T		npi;
+	char				address[MAX_ADDRESS_LEN+1];        /* < null terminated string */
 } SMS_ADDRESS_S;
 
 
@@ -533,8 +533,8 @@ typedef struct _SMS_TIMESTAMP_S {
 	SMS_TIME_FORMAT_T format;
 
 	union {
-		SMS_TIME_REL_S 	relative;
-		SMS_TIME_ABS_S 	absolute;
+		SMS_TIME_REL_S	relative;
+		SMS_TIME_ABS_S	absolute;
 	} time;
 } SMS_TIMESTAMP_S;
 
@@ -580,7 +580,7 @@ typedef struct _SMS_UDH_S {
 		SMS_CONCAT_16BIT_S			concat16bit;
 		SMS_APP_PORT_8BIT_S		appPort8bit;
 		SMS_APP_PORT_16BIT_S		appPort16bit;
-		SMS_SPECIAL_INDICATION_S 	specialInd;
+		SMS_SPECIAL_INDICATION_S	specialInd;
 		MSG_SINGLE_SHIFT_S			singleShift;
 		MSG_LOCKING_SHIFT_S			lockingShift;
 		SMS_ADDRESS_S				alternateAddress;
@@ -591,14 +591,14 @@ typedef struct _SMS_UDH_S {
 typedef struct _SMS_USERDATA_S {
 	int			headerCnt;
 	SMS_UDH_S	header[MAX_UD_HEADER_NUM];
-	int 			length;
-	char 			data[MAX_USER_DATA_LEN+1];
+	int			length;
+	char			data[MAX_USER_DATA_LEN+1];
 } SMS_USERDATA_S;
 
 
 typedef struct _SMS_TPUD_S {
 	int		udl;
-	char 		ud[MAX_USER_DATA_LEN+1];
+	char		ud[MAX_USER_DATA_LEN+1];
 } SMS_TPUD_S;
 
 
@@ -607,7 +607,7 @@ typedef struct _SMS_SUBMIT_S {
 	bool				bStatusReport;
 	bool				bHeaderInd;
 	bool				bReplyPath;
-	unsigned char 		msgRef;
+	unsigned char		msgRef;
 	SMS_VPF_T		vpf;
 	SMS_ADDRESS_S	destAddress;
 	SMS_PID_T		pid;
@@ -617,8 +617,7 @@ typedef struct _SMS_SUBMIT_S {
 } SMS_SUBMIT_S;
 
 
-typedef struct _SMS_SUBMIT_DATA_S
-{
+typedef struct _SMS_SUBMIT_DATA_S {
 	SMS_ADDRESS_S	destAddress;
 	unsigned int		segCount;
 	SMS_USERDATA_S	userData[MAX_SEGMENT_NUM];
@@ -631,7 +630,7 @@ typedef struct _SMS_DELIVER_S {
 	bool				bHeaderInd;
 	bool				bReplyPath;
 	SMS_ADDRESS_S	originAddress;
-	SMS_PID_T 	 	pid;
+	SMS_PID_T		pid;
 	SMS_DCS_S		dcs;
 	SMS_TIMESTAMP_S	timeStamp;
 	SMS_USERDATA_S	userData;
@@ -643,8 +642,8 @@ typedef struct _SMS_DELIVER_REPORT_S {
 	SMS_REPORT_TYPE_T	reportType;
 	bool					bHeaderInd;
 	SMS_FAIL_CAUSE_T		failCause;
-	unsigned char 			paramInd;
-	SMS_PID_T 	 		pid;
+	unsigned char			paramInd;
+	SMS_PID_T			pid;
 	SMS_DCS_S			dcs;
 	SMS_USERDATA_S		userData;
 } SMS_DELIVER_REPORT_S;
@@ -654,13 +653,13 @@ typedef struct _SMS_STATUS_REPORT_S {
 	bool				bMoreMsg;
 	bool				bStatusReport;
 	bool				bHeaderInd;
-	unsigned char 		msgRef;
+	unsigned char		msgRef;
 	SMS_ADDRESS_S	recipAddress;
 	SMS_TIMESTAMP_S	timeStamp;
 	SMS_TIMESTAMP_S	dischargeTime;
 	SMS_STATUS_T	status;
-	unsigned char 		paramInd;
-	SMS_PID_T 	 	pid;
+	unsigned char		paramInd;
+	SMS_PID_T		pid;
 	SMS_DCS_S		dcs;
 	SMS_USERDATA_S	userData;
 } SMS_STATUS_REPORT_S;
@@ -692,9 +691,9 @@ typedef struct _SMS_SENT_INFO_S {
 
 
 typedef struct _SMS_PUSH_APP_INFO_S {
-	char* 				pContentType;
-	char* 				pAppId;
-	SMS_WAP_APP_CODE_T 	appCode;
+	char*				pContentType;
+	char*				pAppId;
+	SMS_WAP_APP_CODE_T	appCode;
 } SMS_PUSH_APP_INFO_S;
 
 
@@ -709,11 +708,11 @@ typedef struct _SMS_CBMSG_DCS_S {
 	SMS_CBMSG_CODING_GROUP_T		codingGroup;		/**< Coding group, GSM 03.38 */
 	SMS_MSG_CLASS_T					classType;		/**< The message class */
 	bool								bCompressed;		/**< if text is compressed this is TRUE */
-	SMS_CODING_SCHEME_T			codingScheme;	/**< How to encode a message. */
-	SMS_CBMSG_LANG_TYPE_T   			langType;
-	unsigned char              				iso639Lang[3]; 	/* 2 GSM chars and a CR char */
+	SMS_CODING_SCHEME_T				codingScheme;	/**< How to encode a message. */
+	SMS_CBMSG_LANG_TYPE_T			langType;
+	unsigned char						iso639Lang[3];	/* 2 GSM chars and a CR char */
 	bool								bUDH;
-	unsigned char                       			rawData;
+	unsigned char						rawData;
 } SMS_CBMSG_DCS_S;
 
 
@@ -730,7 +729,7 @@ typedef struct _SMS_CBMSG_HEADER_S {
 
 typedef struct _SMS_CBMSG_PAGE_S {
 	SMS_CBMSG_TYPE_T			cbMsgType;							/*CBS Msg or SCHEDULE Msg or CBS41 Msg */
-	SMS_CBMSG_HEADER_S		 	pageHeader;							/**< CB Message Header */
+	SMS_CBMSG_HEADER_S			pageHeader;							/**< CB Message Header */
 	int							pageLength;							/**< message string length */
 	char							pageData[MAX_CBMSG_PAGE_SIZE*8/7+1];		/**< user data */
 } SMS_CBMSG_PAGE_S;
@@ -752,7 +751,7 @@ typedef struct _SMS_ETWS_PRIMARY_S {
 	unsigned short				msgId;
 	unsigned short				warningType;
 	unsigned char				warningSecurityInfo[MAX_ETWS_SIZE-6];
-}SMS_ETWS_PRIMARY_S;
+} SMS_ETWS_PRIMARY_S;
 
 
 typedef struct _SMS_WSP_CONTENTS_TYPE_S {
@@ -794,7 +793,7 @@ typedef struct _SMS_WSP_METHOD_TYPE_S {
 typedef struct _SMS_WSP_SECURITY_TYPE_S {
 	char*         SecurityTypeName;
 	unsigned char SecurityTypeCode;
-}SMS_WSP_SECURITY_TYPE_S;
+} SMS_WSP_SECURITY_TYPE_S;
 
 
 /**
@@ -804,7 +803,7 @@ typedef struct {
 	unsigned int	totalCount;			/**< The total number of SIM */
 	int			usedCount;			/**< The used number of SIM */
 	int			indexList[MAX_SIM_SMS_NUM];	/**< The SIM index list */
-}MSG_SIM_COUNT_S;
+} MSG_SIM_COUNT_S;
 
 
 /**
@@ -821,17 +820,17 @@ typedef struct {
  *	@brief	Represents Sim Mailbox information
  */
 typedef struct {
-	int 			b_cphs;
-	int 			rec_index; 								/**< index which stands for the location where record is saved in SIM*/
-	int 			profile_num; 							/**< SIM profile index*/
-	SMS_SIM_MAILBOX_TYPE_T 	mb_type;
-	int 			alpha_id_max_len; 						/**< alpha max length in SIM - READ ONLY*/
-	char 			alpha_id[MAX_SIM_XDN_ALPHA_ID_LEN + 1]; /**< Alpha Identifier */
-	MSG_SMS_TON_T 	ton; 									/**< Type Of Number */
-	MSG_SMS_NPI_T 	npi; 									/**< Number Plan Identity */
-	char 			num[MAX_PHONE_NUMBER_LEN + 1]; 			/**< Dialing Number/SSC String */
-	unsigned char 	cc_id; 									/**< Capability/Configuration Identifier */
-	unsigned char 	ext1_id; 								/**< Extensiion1 Record Identifier */
+	int			b_cphs;
+	int			rec_index;								/**< index which stands for the location where record is saved in SIM*/
+	int			profile_num;							/**< SIM profile index*/
+	SMS_SIM_MAILBOX_TYPE_T	mb_type;
+	int			alpha_id_max_len;						/**< alpha max length in SIM - READ ONLY*/
+	char			alpha_id[MAX_SIM_XDN_ALPHA_ID_LEN + 1]; /**< Alpha Identifier */
+	MSG_SMS_TON_T	ton;									/**< Type Of Number */
+	MSG_SMS_NPI_T	npi;									/**< Number Plan Identity */
+	char			num[MAX_PHONE_NUMBER_LEN + 1];			/**< Dialing Number/SSC String */
+	unsigned char	cc_id;									/**< Capability/Configuration Identifier */
+	unsigned char	ext1_id;								/**< Extensiion1 Record Identifier */
 	int				num_len;									/**< Length of the original number read from SIM*/
 } SMS_SIM_MAILBOX_INFO_S;
 
@@ -849,13 +848,13 @@ typedef struct {
  *	@brief	Represents Message Waiting Indication
  */
 typedef struct {
-	int 			rec_index;
-	unsigned char 	indicator_status; 	/**< Indicator Type*/
-	int 			voice_count; 		/**< VoiceMail Count*/
-	int 			fax_count; 			/**< FAX Count*/
-	int 			email_count; 		/**< Email Count*/
-	int			 	other_count; 		/**< Other Count*/
-	int 			video_count; 		/**< VideoMail Count*/
+	int			rec_index;
+	unsigned char	indicator_status;	/**< Indicator Type*/
+	int			voice_count;		/**< VoiceMail Count*/
+	int			fax_count;			/**< FAX Count*/
+	int			email_count;		/**< Email Count*/
+	int				other_count;		/**< Other Count*/
+	int			video_count;		/**< VideoMail Count*/
 } SMS_SIM_MWI_NORMAL_INFO_S;
 
 
@@ -892,8 +891,8 @@ typedef struct {
  *	@brief	Represents SIM MSISDN Information
  */
 typedef struct {
-	char 	simMsisdn[MAX_SIM_MSISDN_LEN + 1];
-	int 	sim_index;
+	char	simMsisdn[MAX_SIM_MSISDN_LEN + 1];
+	int	sim_index;
 } SMS_SIM_MSISDN_INFO_S;
 
 

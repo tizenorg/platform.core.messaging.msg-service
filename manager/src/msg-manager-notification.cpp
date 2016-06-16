@@ -80,16 +80,16 @@ typedef struct _msg_mgr_noti_info_s
 	char		sender[MSG_NOTI_TEXT_LEN_S+1];
 	char		text[MSG_NOTI_TEXT_LEN+1];
 	char		number[MSG_NOTI_TEXT_LEN_S+1];
-	char 		imagePath[MAX_IMAGE_PATH_LEN+1];		/**< Indicates the image path of contact. */
+	char		imagePath[MAX_IMAGE_PATH_LEN+1];		/**< Indicates the image path of contact. */
 	int			applist;
 	app_control_h		svc_h;
 	app_control_h		active_noti_svc_h[MSG_ACTIVE_NOTI_BUTTON_NUM];
 	msg_message_id_t		msg_id;
 	unsigned char		extra_data;
-	int 		sim_idx;
+	int		sim_idx;
 	int			active_noti_button_num;
-	int 		active_media_cnt;
-	int 		active_media_size;
+	int		active_media_cnt;
+	int		active_media_size;
 	unsigned char	active_subtype;		/**< to distinguish cb, push message */
 	char		active_sender[MSG_NOTI_TEXT_LEN_S+1];
 	char		active_subject[MSG_NOTI_TEXT_LEN_S+1];
@@ -100,7 +100,7 @@ typedef struct _msg_mgr_noti_info_s
 typedef struct _del_noti_info_s
 {
 	msg_mgr_notification_type_t			type;
-	int 		sim_idx;
+	int		sim_idx;
 } DEL_NOTI_INFO_S;
 
 
@@ -1530,8 +1530,8 @@ int getLatestMsgInfo(MSG_MGR_NOTI_INFO_S *noti_info, bool isForInstantMessage)
 	case MSG_MGR_NOTI_TYPE_CB:
 	case MSG_MGR_NOTI_TYPE_SIM:
 #endif
-    {
-    	int smsUnreadCnt = 0;
+	{
+	int smsUnreadCnt = 0;
 		int mmsUnreadCnt = 0;
 
 		char sqlQuery[MAX_QUERY_LEN	+1];
@@ -2337,7 +2337,7 @@ void createInfoData(MSG_MGR_NOTI_INFO_S *noti_info, MSG_MGR_MESSAGE_INFO_S *msg_
 			addServiceExtraData(noti_info->svc_h, "slot_id", slot_id);
 		}
 
-		if (voiceNumber) 	g_free(voiceNumber);
+		if (voiceNumber)	g_free(voiceNumber);
 		if (voiceAlphaId) g_free(voiceAlphaId);
 		break;
 	}

@@ -911,7 +911,7 @@ void MsgProxyListener::handleEvent(const MSG_EVENT_S* pMsgEvent)
 		MsgDecodeMsgInfo((char *)pMsgEvent->data, &msgInfo);
 
 
-	 	MMS_RECV_DATA_S* pMmsRecvData = (MMS_RECV_DATA_S*)msgInfo.msgData;
+		MMS_RECV_DATA_S* pMmsRecvData = (MMS_RECV_DATA_S*)msgInfo.msgData;
 
 		char* appIdKey = (pMmsRecvData->msgAppId.valid)? pMmsRecvData->msgAppId.appId: NULL;
 

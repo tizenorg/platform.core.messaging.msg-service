@@ -78,27 +78,27 @@ MsgTransactionManager::MsgTransactionManager() : running(false), mx(), mxQ(), cv
 /*	Fill in mMsgHandlers, as given in the below. */
 	handlerMap[MSG_CMD_ADD_MSG]				= &MsgAddMessageHandler;
 	handlerMap[MSG_CMD_ADD_SYNCML_MSG]		= &MsgAddSyncMLMessageHandler;
-	handlerMap[MSG_CMD_UPDATE_MSG] 			= &MsgUpdateMessageHandler;
-	handlerMap[MSG_CMD_UPDATE_READ] 			= &MsgUpdateReadStatusHandler;
-	handlerMap[MSG_CMD_UPDATE_PROTECTED]		= &MsgUpdateProtectedStatusHandler;
+	handlerMap[MSG_CMD_UPDATE_MSG]			= &MsgUpdateMessageHandler;
+	handlerMap[MSG_CMD_UPDATE_READ]			= &MsgUpdateReadStatusHandler;
+	handlerMap[MSG_CMD_UPDATE_PROTECTED]	= &MsgUpdateProtectedStatusHandler;
 	handlerMap[MSG_CMD_DELETE_MSG]			= &MsgDeleteMessageHandler;
-	handlerMap[MSG_CMD_DELALL_MSGINFOLDER] 	= &MsgDeleteAllMessageInFolderHandler;
+	handlerMap[MSG_CMD_DELALL_MSGINFOLDER]	= &MsgDeleteAllMessageInFolderHandler;
 	handlerMap[MSG_CMD_MOVE_MSGTOFOLDER]	= &MsgMoveMessageToFolderHandler;
 	handlerMap[MSG_CMD_MOVE_MSGTOSTORAGE]	= &MsgMoveMessageToStorageHandler;
-	handlerMap[MSG_CMD_COUNT_MSG] 			= &MsgCountMessageHandler;
-	handlerMap[MSG_CMD_GET_MSG]			 	= &MsgGetMessageHandler;
+	handlerMap[MSG_CMD_COUNT_MSG]			= &MsgCountMessageHandler;
+	handlerMap[MSG_CMD_GET_MSG]				= &MsgGetMessageHandler;
 
-	handlerMap[MSG_CMD_ADD_FOLDER] 			= &MsgAddFolderHandler;
+	handlerMap[MSG_CMD_ADD_FOLDER]			= &MsgAddFolderHandler;
 	handlerMap[MSG_CMD_UPDATE_FOLDER]		= &MsgUpdateFolderHandler;
-	handlerMap[MSG_CMD_DELETE_FOLDER] 		= &MsgDeleteFolderHandler;
-	handlerMap[MSG_CMD_GET_FOLDERLIST] 		= &MsgGetFolderListHandler;
+	handlerMap[MSG_CMD_DELETE_FOLDER]		= &MsgDeleteFolderHandler;
+	handlerMap[MSG_CMD_GET_FOLDERLIST]		= &MsgGetFolderListHandler;
 
-	handlerMap[MSG_CMD_ADD_FILTER] 			= &MsgAddFilterHandler;
-	handlerMap[MSG_CMD_UPDATE_FILTER]			= &MsgUpdateFilterHandler;
-	handlerMap[MSG_CMD_DELETE_FILTER] 		= &MsgDeleteFilterHandler;
-	handlerMap[MSG_CMD_GET_FILTERLIST] 		= &MsgGetFilterListHandler;
-	handlerMap[MSG_CMD_SET_FILTER_OPERATION] 	= &MsgSetFilterOperationHandler;
-	handlerMap[MSG_CMD_GET_FILTER_OPERATION] 	= &MsgGetFilterOperationHandler;
+	handlerMap[MSG_CMD_ADD_FILTER]			= &MsgAddFilterHandler;
+	handlerMap[MSG_CMD_UPDATE_FILTER]		= &MsgUpdateFilterHandler;
+	handlerMap[MSG_CMD_DELETE_FILTER]		= &MsgDeleteFilterHandler;
+	handlerMap[MSG_CMD_GET_FILTERLIST]		= &MsgGetFilterListHandler;
+	handlerMap[MSG_CMD_SET_FILTER_OPERATION]	= &MsgSetFilterOperationHandler;
+	handlerMap[MSG_CMD_GET_FILTER_OPERATION]	= &MsgGetFilterOperationHandler;
 	handlerMap[MSG_CMD_SET_FILTER_ACTIVATION] = &MsgSetFilterActivationHandler;
 
 	handlerMap[MSG_CMD_SUBMIT_REQ]			= &MsgSubmitReqHandler;
@@ -125,17 +125,17 @@ MsgTransactionManager::MsgTransactionManager() : running(false), mx(), mxQ(), cv
 	handlerMap[MSG_CMD_PLG_INCOMING_LBS_IND] = &MsgIncomingLBSMsgHandler;
 	handlerMap[MSG_CMD_PLG_INIT_SIM_BY_SAT]	= &MsgInitSimBySatHandler;
 
-	handlerMap[MSG_CMD_GET_THREADVIEWLIST] 	= &MsgGetThreadViewListHandler;
-	handlerMap[MSG_CMD_DELETE_THREADMESSAGELIST] 	= &MsgDeleteThreadMessageListHandler;
+	handlerMap[MSG_CMD_GET_THREADVIEWLIST]	= &MsgGetThreadViewListHandler;
+	handlerMap[MSG_CMD_DELETE_THREADMESSAGELIST]	= &MsgDeleteThreadMessageListHandler;
 	handlerMap[MSG_CMD_SET_TEMP_ADDRESS_TABLE]	= &MsgSetTempAddressTableHandler;
 
 	handlerMap[MSG_CMD_GET_CONTACT_COUNT]	= &MsgCountMsgByContactHandler;
-	handlerMap[MSG_CMD_GET_QUICKPANEL_DATA] 	= &MsgGetQuickPanelDataHandler;
-	handlerMap[MSG_CMD_COUNT_BY_MSGTYPE] 	= &MsgCountMsgByTypeHandler;
-	handlerMap[MSG_CMD_RESET_DB] 	= &MsgResetDatabaseHandler;
-	handlerMap[MSG_CMD_GET_MEMSIZE] 	= &MsgGetMemSizeHandler;
+	handlerMap[MSG_CMD_GET_QUICKPANEL_DATA]	= &MsgGetQuickPanelDataHandler;
+	handlerMap[MSG_CMD_COUNT_BY_MSGTYPE]	= &MsgCountMsgByTypeHandler;
+	handlerMap[MSG_CMD_RESET_DB]	= &MsgResetDatabaseHandler;
+	handlerMap[MSG_CMD_GET_MEMSIZE]	= &MsgGetMemSizeHandler;
 
-	handlerMap[MSG_CMD_BACKUP_MESSAGE] 	= &MsgBackupMessageHandler;
+	handlerMap[MSG_CMD_BACKUP_MESSAGE]	= &MsgBackupMessageHandler;
 	handlerMap[MSG_CMD_RESTORE_MESSAGE] = &MsgRestoreMessageHandler;
 
 	handlerMap[MSG_CMD_UPDATE_THREAD_READ] = &MsgUpdateThreadReadStatusHandler;

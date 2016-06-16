@@ -167,11 +167,11 @@ char* __VMsgParamEncode(VObject*, int*);
 /**
  * __VMsgGetName() compares the string and vMsg type, parameter name.
  *
- * @param   	szString  	Name which will compare
+ * @param		szString		Name which will compare
  * @param		pszList[]		Name list of vMsg type and param
- * @param		size				Number of total element of list
+ * @param		size			Number of total element of list
  *
- * @return 	index      	The index in the list
+ * @return		index			The index in the list
  */
 int
 __VMsgGetName(char* szString, char* pszList[], int size)
@@ -194,11 +194,11 @@ __VMsgGetName(char* szString, char* pszList[], int size)
 /**
  * __VMsgGetValue() compares the string and vMsg type, parameter value.
  *
- * @param   	szString	Value which will compare
+ * @param		szString	Value which will compare
  * @param		list[]		Value list of vMsg param
- * @param		size			Number of total element of list
+ * @param		size		Number of total element of list
  *
- * @return  	flag      The value's flag.
+ * @return		flag		The value's flag.
  */
 int
 __VMsgGetValue(char* szString, const ValueObj list[], int size)
@@ -237,10 +237,10 @@ __VMsgGetValue(char* szString, const ValueObj list[], int size)
  * __VMsgGetTypeName() fine the type name and returns the index number
  *
  * @param		pVMsgRaw	The raw data
- * @param		pStatus		Decoder status
+ * @param		pStatus	Decoder status
  * @param		pDLen		retrived length
  *
- * @return  	res			The index in type list
+ * @return		res			The index in type list
  */
 int
 __VMsgGetTypeName(char* pVMsgRaw, int* pStatus, int* pDLen)
@@ -325,10 +325,10 @@ __VMsgGetTypeName(char* pVMsgRaw, int* pStatus, int* pDLen)
  * __VMsgGetParamName() fine the param name and returns the index number
  *
  * @param		pVMsgRaw	The raw data
- * @param		pStatus		Decoder status
+ * @param		pStatus	Decoder status
  * @param		pDLen		retrived length
  *
- * @return  	res			The index in type list
+ * @return		res			The index in type list
  */
 int
 __VMsgGetParamName(char* pVMsgRaw, int* pStatus, int* pDLen)
@@ -369,9 +369,8 @@ __VMsgGetParamName(char* pVMsgRaw, int* pStatus, int* pDLen)
 			TRIM(name);
 			UPPER(name, i, index);
 			res = __VMsgGetName(name, (char**)pszMsgParamList, VMSG_PARAM_NUM);
-			if (res == UNKNOWN_NAME) {
+			if (res == UNKNOWN_NAME)
 				(*pDLen) = 0;
-			}
 			*pStatus = VMSG_PARAM_VALUE_STATUS;
 			break;
 		}
@@ -455,9 +454,8 @@ __VMsgFreeVTreeMemory(VTree * pTree)
 			pNextObj = pCurObj->pSibling;
 			count = pCurObj->valueCount;
 
-			for (i = 0; i < count; i++) {
+			for (i = 0; i < count; i++)
 				VFREE(pCurObj->pszValue[i]);
-			}
 
 			if (pCurObj->pParam) {
 
@@ -498,10 +496,10 @@ __VMsgFreeVTreeMemory(VTree * pTree)
  * __VMsgGetParamVal() fine the param value and returns value.
  *
  * @param		pVMsgRaw	The raw data
- * @param		pStatus		Decoder status
+ * @param		pStatus	Decoder status
  * @param		pDLen		retrived length
  *
- * @return  	buffer  	The result value
+ * @return		buffer		The result value
  */
 char*
 __VMsgGetParamVal(char* pVMsgRaw, int* pStatus, int* pDLen)
@@ -518,15 +516,15 @@ __VMsgGetParamVal(char* pVMsgRaw, int* pStatus, int* pDLen)
 		GO_NEXT_CHAR(c, pVMsgRaw, pDLen);
 		len++;
 		switch (c) {
-			case VTYPE_TOKEN_SEMICOLON:
-				*pStatus = VMSG_PARAM_NAME_STATUS;
-				break;
-			case VTYPE_TOKEN_COLON:
-				*pStatus = VMSG_TYPE_VALUE_STATUS;
-				break;
-			case VTYPE_TOKEN_COMMA:
-				*pStatus = VMSG_PARAM_VALUE_STATUS;
-				break;
+		case VTYPE_TOKEN_SEMICOLON:
+			*pStatus = VMSG_PARAM_NAME_STATUS;
+			break;
+		case VTYPE_TOKEN_COLON:
+			*pStatus = VMSG_TYPE_VALUE_STATUS;
+			break;
+		case VTYPE_TOKEN_COMMA:
+			*pStatus = VMSG_PARAM_VALUE_STATUS;
+			break;
 		}
 		if (c == VTYPE_TOKEN_SEMICOLON
 				|| c == VTYPE_TOKEN_COLON
@@ -548,9 +546,9 @@ __VMsgGetParamVal(char* pVMsgRaw, int* pStatus, int* pDLen)
 /**
  * __VMsgGetTypeVal() fine the type value and returns value.
  *
- * @param   	pVMsgRaw  	The raw data
+ * @param		pVMsgRaw		The raw data
  * @param		status			Decoder status
- * @return 	buffer     	The result value
+ * @return		buffer			The result value
  */
 char*
 __VMsgGetTypeVal(char* pVMsgRaw, int* pStatus, int* pDLen, int enc, VObject* pType)
@@ -818,214 +816,212 @@ VTree* vmsg_decode(char *pMsgRaw)
 			break;
 
 		switch (status) {
-			case VMSG_TYPE_NAME_STATUS:
-				dLen = 0;
-				type = __VMsgGetTypeName(pMsgRaw, &status, &dLen);
+		case VMSG_TYPE_NAME_STATUS:
+			dLen = 0;
+			type = __VMsgGetTypeName(pMsgRaw, &status, &dLen);
 
-				if (type == VMSG_TYPE_BEGIN)
-					pVTree = pMsgRaw;
+			if (type == VMSG_TYPE_BEGIN)
+				pVTree = pMsgRaw;
 
-				pMsgRaw += dLen;
+			pMsgRaw += dLen;
 
-				if (type == -1)
-					break;
-
-				switch (type) {
-					case VMSG_TYPE_BEGIN:
-						dLen = 0;
-						enc = 0;
-						szMsgBegin = __VMsgGetTypeVal(pMsgRaw, &status, &dLen, enc, NULL);
-						pMsgRaw += dLen;
-
-						if (szMsgBegin == NULL)
-							goto CATCH;
-
-						if (!strncmp(szMsgBegin, "VCARD", strlen("VCARD"))) {
-							VDATA_TRACE("pVTree: %s", pVTree);
-							pVCard = vcard_decode(pVTree);
-							pCurrent->pNext = pVCard;
-							pCurrent = pVCard;
-
-							dLen = ((strstr(pMsgRaw, "END:VCARD") + 9) - pMsgRaw);
-							pMsgRaw += dLen;
-						} else {
-
-							if (start_status == 1)
-								goto CATCH;
-
-
-							if (!strncmp(szMsgBegin, "VMSG", strlen("VMSG"))) {
-								if ((pVMsg = (VTree*)calloc(1, sizeof(VTree))) == NULL) {
-									start_status = 1;
-									goto CATCH;
-								}
-								memset(pVMsg, 0x00, sizeof(VTree));
-
-								pVMsg->treeType = VMESSAGE;
-								pVMsg->pTop = NULL;
-								pVMsg->pCur = NULL;
-								pVMsg->pNext = NULL;
-								pCurrent = pVMsg;
-							} else if (!strncmp(szMsgBegin, "VBODY", strlen("VBODY"))) {
-								if ((pVBody = (VTree*)calloc(1, sizeof(VTree))) == NULL) {
-									start_status = 1;
-									goto CATCH;
-								}
-
-								memset(pVBody, 0x00, sizeof(VTree));
-								pVBody->treeType = VBODY;
-								pVBody->pTop = NULL;
-								pVBody->pCur = NULL;
-								pVBody->pNext = NULL;
-								pCurrent->pNext = pVBody;
-								pCurrent = pVBody;
-							}
-						}
-
-						VFREE(szMsgBegin);
-						break;
-
-					case VMSG_TYPE_END:
-						dLen = 0;
-						enc = 0;
-						//szMsgBegin = __VMsgGetTypeVal(pMsgRaw, &status, &dLen, enc, NULL);
-
-						if (!strncmp(pMsgRaw, "VMSG", strlen("VMSG"))) {
-							done = true;
-							vmsg_ended = true;
-						} else {
-							status = VMSG_TYPE_NAME_STATUS;
-							//pMsgRaw += dLen;
-						}
-						VDATA_TRACE("pMsgRaw:%s", pMsgRaw);
-						pMsgRaw += dLen;
-						break;
-
-					case UNKNOWN_NAME:
-						break;
-
-					default:
-						if (UNKNOWN_NAME == type || type < 0) {
-							status = VMSG_TYPE_NAME_STATUS;
-							break;
-						}
-
-						if ((pTemp = (VObject*)calloc(1, sizeof(VObject))) == NULL) {
-							goto CATCH;
-						}
-
-						memset(pTemp, 0, sizeof(VObject));
-						pTemp->property = type;
-
-						if (pCurrent->pTop == NULL) {
-							pCurrent->pTop = pTemp;
-							pCurrent->pCur = pTemp;
-						} else {
-							pCurrent->pCur->pSibling = pTemp;
-							pCurrent->pCur = pTemp;
-						}
-
-						break;
-				}
-
-				numberedParam = 0;
-				param_status = false;
-				valueCount = 0;
+			if (type == -1)
 				break;
 
-			case VMSG_PARAM_NAME_STATUS:
-			{
+			switch (type) {
+			case VMSG_TYPE_BEGIN:
 				dLen = 0;
-				param = __VMsgGetParamName(pMsgRaw, &status, &dLen);
+				enc = 0;
+				szMsgBegin = __VMsgGetTypeVal(pMsgRaw, &status, &dLen, enc, NULL);
 				pMsgRaw += dLen;
 
-				if (param_status != true) {
+				if (szMsgBegin == NULL)
+					goto CATCH;
 
-					if ((pTmpParam = (VParam*)calloc(1, sizeof(VParam))) == NULL)
-							goto CATCH;
+				if (!strncmp(szMsgBegin, "VCARD", strlen("VCARD"))) {
+					VDATA_TRACE("pVTree: %s", pVTree);
+					pVCard = vcard_decode(pVTree);
+					pCurrent->pNext = pVCard;
+					pCurrent = pVCard;
 
-					param_status = true;
-					pCurrent->pCur->pParam = pTmpParam;
-					memset(pTmpParam, 0x00, sizeof(VParam));
-					VDATA_TRACE("pTmpParam : %p", pTmpParam);
+					dLen = ((strstr(pMsgRaw, "END:VCARD") + 9) - pMsgRaw);
+					pMsgRaw += dLen;
 				} else {
-					if ((pTmpParam->pNext = (VParam*)calloc(1, sizeof(VParam))) == NULL)
-							goto CATCH;
 
-					pTmpParam = pTmpParam->pNext;
-					memset(pTmpParam, 0x00, sizeof(VParam));
-					VDATA_TRACE("pTmpParam : %p", pTmpParam);
+					if (start_status == 1)
+						goto CATCH;
+
+					if (!strncmp(szMsgBegin, "VMSG", strlen("VMSG"))) {
+						if ((pVMsg = (VTree*)calloc(1, sizeof(VTree))) == NULL) {
+							start_status = 1;
+							goto CATCH;
+						}
+						memset(pVMsg, 0x00, sizeof(VTree));
+
+						pVMsg->treeType = VMESSAGE;
+						pVMsg->pTop = NULL;
+						pVMsg->pCur = NULL;
+						pVMsg->pNext = NULL;
+						pCurrent = pVMsg;
+					} else if (!strncmp(szMsgBegin, "VBODY", strlen("VBODY"))) {
+						if ((pVBody = (VTree*)calloc(1, sizeof(VTree))) == NULL) {
+							start_status = 1;
+							goto CATCH;
+						}
+
+						memset(pVBody, 0x00, sizeof(VTree));
+						pVBody->treeType = VBODY;
+						pVBody->pTop = NULL;
+						pVBody->pCur = NULL;
+						pVBody->pNext = NULL;
+						pCurrent->pNext = pVBody;
+						pCurrent = pVBody;
+					}
 				}
 
-				pTmpParam->parameter = param;
+				VFREE(szMsgBegin);
+				break;
+
+			case VMSG_TYPE_END:
+				dLen = 0;
+				enc = 0;
+				/* szMsgBegin = __VMsgGetTypeVal(pMsgRaw, &status, &dLen, enc, NULL); */
+
+				if (!strncmp(pMsgRaw, "VMSG", strlen("VMSG"))) {
+					done = true;
+					vmsg_ended = true;
+				} else {
+					status = VMSG_TYPE_NAME_STATUS;
+					/* pMsgRaw += dLen; */
+				}
+				VDATA_TRACE("pMsgRaw:%s", pMsgRaw);
+				pMsgRaw += dLen;
+				break;
+
+			case UNKNOWN_NAME:
+				break;
+
+			default:
+				if (UNKNOWN_NAME == type || type < 0) {
+					status = VMSG_TYPE_NAME_STATUS;
+					break;
+				}
+
+				if ((pTemp = (VObject*)calloc(1, sizeof(VObject))) == NULL)
+					goto CATCH;
+
+				memset(pTemp, 0, sizeof(VObject));
+				pTemp->property = type;
+
+				if (pCurrent->pTop == NULL) {
+					pCurrent->pTop = pTemp;
+					pCurrent->pCur = pTemp;
+				} else {
+					pCurrent->pCur->pSibling = pTemp;
+					pCurrent->pCur = pTemp;
+				}
+
 				break;
 			}
-			case VMSG_PARAM_VALUE_STATUS:
-				dLen = 0;
+
+			numberedParam = 0;
+			param_status = false;
+			valueCount = 0;
+			break;
+
+		case VMSG_PARAM_NAME_STATUS:
+		{
+			dLen = 0;
+			param = __VMsgGetParamName(pMsgRaw, &status, &dLen);
+			pMsgRaw += dLen;
+
+			if (param_status != true) {
+
+				if ((pTmpParam = (VParam*)calloc(1, sizeof(VParam))) == NULL)
+					goto CATCH;
+
+				param_status = true;
+				pCurrent->pCur->pParam = pTmpParam;
+				memset(pTmpParam, 0x00, sizeof(VParam));
+				VDATA_TRACE("pTmpParam : %p", pTmpParam);
+			} else {
+				if ((pTmpParam->pNext = (VParam*)calloc(1, sizeof(VParam))) == NULL)
+					goto CATCH;
+
+				pTmpParam = pTmpParam->pNext;
+				memset(pTmpParam, 0x00, sizeof(VParam));
+				VDATA_TRACE("pTmpParam : %p", pTmpParam);
+			}
+
+			pTmpParam->parameter = param;
+			break;
+		}
+		case VMSG_PARAM_VALUE_STATUS:
+			dLen = 0;
+			numberedParam = 0;
+			switch (pTmpParam->parameter) {
+			case VMSG_PARAM_TYPE:
+				szValue = __VMsgGetParamVal(pMsgRaw, &status, &dLen);
+				numberedParam |= __VMsgGetValue(szValue, pMsgTypeList, VMSG_TYPE_PARAM_NUM);
+				break;
+			case VMSG_PARAM_VALUE:
+				szValue = __VMsgGetParamVal(pMsgRaw, &status, &dLen);
+				numberedParam |= __VMsgGetValue(szValue, pMsgValueList, VMSG_VALUE_PARAM_NUM);
+				break;
+			case VMSG_PARAM_ENCODING:
+				szValue = __VMsgGetParamVal(pMsgRaw, &status, &dLen);
+				numberedParam |= __VMsgGetValue(szValue, pMsgEncList, VMSG_ENCODE_PARAM_NUM);
+				enc = numberedParam;
+				break;
+			case VMSG_PARAM_CHARSET:
+				szValue = __VMsgGetParamVal(pMsgRaw, &status, &dLen);
+				numberedParam |= __VMsgGetValue(szValue, pMsgCharsetList, VMSG_CHARSET_PARAM_NUM);
+				break;
+			case VMSG_PARAM_CONTEXT:
+			case VMSG_PARAM_LANGUAGE:
+				/* prevent 7605 08.03.13 */
+				szValue = __VMsgGetParamVal(pMsgRaw, &status, &dLen);
 				numberedParam = 0;
-				switch (pTmpParam->parameter) {
-					case VMSG_PARAM_TYPE:
-						szValue = __VMsgGetParamVal(pMsgRaw, &status, &dLen);
-						numberedParam |= __VMsgGetValue(szValue, pMsgTypeList, VMSG_TYPE_PARAM_NUM);
-						break;
-					case VMSG_PARAM_VALUE:
-						szValue = __VMsgGetParamVal(pMsgRaw, &status, &dLen);
-						numberedParam |= __VMsgGetValue(szValue, pMsgValueList, VMSG_VALUE_PARAM_NUM);
-						break;
-					case VMSG_PARAM_ENCODING:
-						szValue = __VMsgGetParamVal(pMsgRaw, &status, &dLen);
-						numberedParam |= __VMsgGetValue(szValue, pMsgEncList, VMSG_ENCODE_PARAM_NUM);
-						enc = numberedParam;
-						break;
-					case VMSG_PARAM_CHARSET:
-						szValue = __VMsgGetParamVal(pMsgRaw, &status, &dLen);
-						numberedParam |= __VMsgGetValue(szValue, pMsgCharsetList, VMSG_CHARSET_PARAM_NUM);
-						break;
-					case VMSG_PARAM_CONTEXT:
-					case VMSG_PARAM_LANGUAGE:
-						// prevent 7605 08.03.13
-						szValue = __VMsgGetParamVal(pMsgRaw, &status, &dLen);
-						numberedParam = 0;
-						break;
-					default:
-						szValue = __VMsgGetParamVal(pMsgRaw, &status, &dLen);
-
-						SET_PARAM_VALUE(numberedParam, szValue, pMsgTypeList, VMSG_TYPE_PARAM_NUM, pTmpParam, VMSG_PARAM_TYPE, enc);
-						SET_PARAM_VALUE(numberedParam, szValue, pMsgValueList, VMSG_VALUE_PARAM_NUM, pTmpParam, VMSG_PARAM_VALUE, enc);
-						SET_PARAM_VALUE(numberedParam, szValue, pMsgEncList, VMSG_ENCODE_PARAM_NUM, pTmpParam, VMSG_PARAM_ENCODING, enc);
-						SET_PARAM_VALUE(numberedParam, szValue, pMsgCharsetList, VMSG_CHARSET_PARAM_NUM, pTmpParam, VMSG_PARAM_CHARSET, enc);
-
-						numberedParam = 0;
-						pMsgRaw += dLen;
-						dLen = 0;
-
-						break;
-				}
-
-				VDATA_TRACE("%d, %s, %p", numberedParam, szValue, pTmpParam);
-				pTmpParam->paramValue = numberedParam;
-				pTmpParam->pNext = NULL;
-				VFREE(szValue);
-				pMsgRaw += dLen;
 				break;
-			case VMSG_TYPE_VALUE_STATUS:
+			default:
+				szValue = __VMsgGetParamVal(pMsgRaw, &status, &dLen);
+
+				SET_PARAM_VALUE(numberedParam, szValue, pMsgTypeList, VMSG_TYPE_PARAM_NUM, pTmpParam, VMSG_PARAM_TYPE, enc);
+				SET_PARAM_VALUE(numberedParam, szValue, pMsgValueList, VMSG_VALUE_PARAM_NUM, pTmpParam, VMSG_PARAM_VALUE, enc);
+				SET_PARAM_VALUE(numberedParam, szValue, pMsgEncList, VMSG_ENCODE_PARAM_NUM, pTmpParam, VMSG_PARAM_ENCODING, enc);
+				SET_PARAM_VALUE(numberedParam, szValue, pMsgCharsetList, VMSG_CHARSET_PARAM_NUM, pTmpParam, VMSG_PARAM_CHARSET, enc);
+
+				numberedParam = 0;
+				pMsgRaw += dLen;
 				dLen = 0;
-				temp = __VMsgGetTypeVal(pMsgRaw, &status, &dLen, enc, pCurrent->pCur);
 
-				if (valueCount < VDATA_VALUE_COUNT_MAX) {
-					pCurrent->pCur->pszValue[valueCount] = temp;
-					valueCount++;
-					pCurrent->pCur->valueCount = valueCount;
-					VDATA_TRACE("object property: %d, value: %s", pCurrent->pCur->property, pCurrent->pCur->pszValue[valueCount - 1]);
-				} else
-					VFREE(temp);
-
-				pMsgRaw += dLen;
 				break;
+			}
+
+			VDATA_TRACE("%d, %s, %p", numberedParam, szValue, pTmpParam);
+			pTmpParam->paramValue = numberedParam;
+			pTmpParam->pNext = NULL;
+			VFREE(szValue);
+			pMsgRaw += dLen;
+			break;
+		case VMSG_TYPE_VALUE_STATUS:
+			dLen = 0;
+			temp = __VMsgGetTypeVal(pMsgRaw, &status, &dLen, enc, pCurrent->pCur);
+
+			if (valueCount < VDATA_VALUE_COUNT_MAX) {
+				pCurrent->pCur->pszValue[valueCount] = temp;
+				valueCount++;
+				pCurrent->pCur->valueCount = valueCount;
+				VDATA_TRACE("object property: %d, value: %s", pCurrent->pCur->property, pCurrent->pCur->pszValue[valueCount - 1]);
+			} else
+				VFREE(temp);
+
+			pMsgRaw += dLen;
+			break;
 		}
 	}
 	VDATA_TRACE("pMsgRawTmp: %s", pMsgRawTmp);
-	//VFREE(pMsgRawTmp);
+	/* VFREE(pMsgRawTmp); */
 
 	if (pVMsg->pTop == NULL) {
 		VDATA_TRACE("pVMsg->Top: NULL");
@@ -1065,7 +1061,7 @@ char* vmsg_encode(VTree *pVMsgRaw)
 	char*		pTemp = NULL;
 	int			len;
 	int			total = 0;
-	int 		cnt = 0;
+	int			cnt = 0;
 
 	for (; cnt < pVMsgRaw->pTop->valueCount; cnt++) {
 
@@ -1082,34 +1078,34 @@ char* vmsg_encode(VTree *pVMsgRaw)
 
 	while (true) {
 		switch (pTmpTree->treeType) {
-			case VMESSAGE:
-				if (pVMsgRes) {
-					free(pVMsgRes);
-					pVMsgRes = NULL;
-				}
+		case VMESSAGE:
+			if (pVMsgRes) {
+				free(pVMsgRes);
+				pVMsgRes = NULL;
+			}
 
-				if ((pVMsgRes = (char *)calloc(1, sizeof(char) * (total += 13))) == NULL) {
-					VDATA_TRACE("vmsg_encode:calloc failed\n");
-					VDATA_TRACE_END
-					return NULL;
-				}
-				memcpy(pVMsgRes, "BEGIN:VMSG\r\n", 13);
-				break;
+			if ((pVMsgRes = (char *)calloc(1, sizeof(char) * (total += 13))) == NULL) {
+				VDATA_TRACE("vmsg_encode:calloc failed\n");
+				VDATA_TRACE_END
+				return NULL;
+			}
+			memcpy(pVMsgRes, "BEGIN:VMSG\r\n", 13);
+			break;
 
-			case VBODY:
-				if ((pTmpVMsgRes = (char *)realloc(pVMsgRes,  sizeof(char) * (total += 14))) == NULL) {
-					VDATA_TRACE("vmsg_encode:realloc failed\n");
-					VFREE(pVMsgRes);
-					VDATA_TRACE_END
-					return NULL;
-				}
+		case VBODY:
+			if ((pTmpVMsgRes = (char *)realloc(pVMsgRes,  sizeof(char) * (total += 14))) == NULL) {
+				VDATA_TRACE("vmsg_encode:realloc failed\n");
+				VFREE(pVMsgRes);
+				VDATA_TRACE_END
+				return NULL;
+			}
 
-				pVMsgRes = pTmpVMsgRes;
-				g_strlcat(pVMsgRes, "BEGIN:VBODY\r\n", 13);
-				break;
+			pVMsgRes = pTmpVMsgRes;
+			g_strlcat(pVMsgRes, "BEGIN:VBODY\r\n", 13);
+			break;
 
-			case VCARD:
-				break;
+		case VCARD:
+			break;
 		}
 
 		while (true) {
@@ -1131,7 +1127,7 @@ char* vmsg_encode(VTree *pVMsgRaw)
 
 					len = strlen(encoded);
 
-					if ((pTmpVMsgRes = (char*)realloc(pVMsgRes, (total += len+10))) == NULL) 	{
+					if ((pTmpVMsgRes = (char*)realloc(pVMsgRes, (total += len+10))) == NULL) {
 						VDATA_TRACE("vmsg_encode():realloc failed\n");
 						VFREE(pTemp);
 						VFREE(encoded);
@@ -1172,22 +1168,22 @@ char* vmsg_encode(VTree *pVMsgRaw)
 		}
 
 		switch (pTmpTree->treeType) {
-			case VBODY:
-				if ((pTmpVMsgRes = (char *)realloc(pVMsgRes, (total += 12))) == NULL) {
-					VFREE(pVMsgRes);
-					VDATA_TRACE("vcal_encode():realloc failed\n");
-					return NULL;
-				}
+		case VBODY:
+			if ((pTmpVMsgRes = (char *)realloc(pVMsgRes, (total += 12))) == NULL) {
+				VFREE(pVMsgRes);
+				VDATA_TRACE("vcal_encode():realloc failed\n");
+				return NULL;
+			}
 
-				pVMsgRes = pTmpVMsgRes;
-				g_strlcat(pVMsgRes, "END:VBODY\r\n", 12);
-				break;
+			pVMsgRes = pTmpVMsgRes;
+			g_strlcat(pVMsgRes, "END:VBODY\r\n", 12);
+			break;
 
-			case VCARD:
-				break;
+		case VCARD:
+			break;
 
-			case VMESSAGE:
-				break;
+		case VMESSAGE:
+			break;
 
 		}
 
@@ -1226,14 +1222,14 @@ __VIsVmsgFile(char *pMsgRaw, int mode)
 	char *pszVmsgBegin = "BEGIN:VMSG";
 
 	switch (mode) {
-		case CHECK_START:
-			for (i = 0; i < 10; i++)
-				if (*pszVmsgBegin++ != *pMsgRaw++)
-					rtnValue = false;
-			break;
+	case CHECK_START:
+		for (i = 0; i < 10; i++)
+			if (*pszVmsgBegin++ != *pMsgRaw++)
+				rtnValue = false;
+		break;
 
-		default:
-			rtnValue = false;
+	default:
+		rtnValue = false;
 	}
 	VDATA_TRACE_END
 	return rtnValue;
@@ -1301,7 +1297,7 @@ __VMsgTypeEncode(VObject *pTypeObj, char *pType)
 
 			if (pTypeObj->pszValue[i] != NULL)
 				len += strlen(pTypeObj->pszValue[i]);
-         }
+		}
 	} else
 		len += biLen;
 
@@ -1459,29 +1455,29 @@ __VMsgParamEncode(VObject* pTypeObj, int* pEnc)
 
 		/** Set Parameter Value name. */
 		switch (pTemp->parameter) {
-			case VMSG_PARAM_ENCODING:
-				*pEnc = pMsgEncList[pTemp->paramValue].flag;
-				shift = VMSG_ENCODE_PARAM_NUM;
-				pList = pMsgEncList; bSupported = true;
-				break;
-			case VMSG_PARAM_TYPE:
-				shift = VMSG_TYPE_PARAM_NUM;
-				pList = pMsgTypeList; bSupported = true;
-				break;
-			case VMSG_PARAM_VALUE:
-				shift = VMSG_VALUE_PARAM_NUM;
-				pList = pMsgValueList; bSupported = true;
-				break;
-			case VMSG_PARAM_CHARSET:
-				shift = VMSG_CHARSET_PARAM_NUM;
-				pList = pMsgCharsetList; bSupported = true;
-				break;
-			default:
-				if ((szParam = (char*)realloc(szParam, 5)) == NULL) {
-					VDATA_TRACE_END
-					return NULL;
-				}
-				g_strlcat(szParam, "NONE", strlen("NONE"));
+		case VMSG_PARAM_ENCODING:
+			*pEnc = pMsgEncList[pTemp->paramValue].flag;
+			shift = VMSG_ENCODE_PARAM_NUM;
+			pList = pMsgEncList; bSupported = true;
+			break;
+		case VMSG_PARAM_TYPE:
+			shift = VMSG_TYPE_PARAM_NUM;
+			pList = pMsgTypeList; bSupported = true;
+			break;
+		case VMSG_PARAM_VALUE:
+			shift = VMSG_VALUE_PARAM_NUM;
+			pList = pMsgValueList; bSupported = true;
+			break;
+		case VMSG_PARAM_CHARSET:
+			shift = VMSG_CHARSET_PARAM_NUM;
+			pList = pMsgCharsetList; bSupported = true;
+			break;
+		default:
+			if ((szParam = (char*)realloc(szParam, 5)) == NULL) {
+				VDATA_TRACE_END
+				return NULL;
+			}
+			g_strlcat(szParam, "NONE", strlen("NONE"));
 		}
 
 		/** exchage parameter value's to string.*/

@@ -83,7 +83,7 @@ typedef struct _SMS_WSP_METHOD_TYPE_S {
 typedef struct _SMS_WSP_SECURITY_TYPE_S {
 	char*         SecurityTypeName;
 	unsigned char SecurityTypeCode;
-}SMS_WSP_SECURITY_TYPE_S;
+} SMS_WSP_SECURITY_TYPE_S;
 
 
 typedef struct {
@@ -182,16 +182,16 @@ enum _sms_wap_app_code_e {
 };
 
 
-typedef unsigned char 	sms_network_status_t;	/* _sms_network_status_e */
+typedef unsigned char	sms_network_status_t;	/* _sms_network_status_e */
 
 /********************************************************************************/
-/*								TELESERVICE LAYER 								*/
+/*								TELESERVICE LAYER								*/
 /********************************************************************************/
 
 
-typedef bool 				sms_digit_mode_t;			/* _sms_digit_mode_e */
+typedef bool				sms_digit_mode_t;			/* _sms_digit_mode_e */
 
-typedef bool 				sms_number_mode_t;			/* _sms_number_mode_e */
+typedef bool				sms_number_mode_t;			/* _sms_number_mode_e */
 
 typedef unsigned char		sms_number_type_t;			/* _sms_number_type_e */
 
@@ -199,7 +199,7 @@ typedef unsigned char		sms_number_plan_t;			/* _sms_number_plan_e */
 
 
 typedef enum _sms_message_type_e {
-	SMS_TYPE_RESERVED 		= 0x00,		/* reserved */
+	SMS_TYPE_RESERVED		= 0x00,		/* reserved */
 	SMS_TYPE_DELIVER,					/* mobile-terminated only */
 	SMS_TYPE_SUBMIT,					/* mobile-originated only */
 	SMS_TYPE_CANCEL,					/* mobile-originated only */
@@ -209,7 +209,7 @@ typedef enum _sms_message_type_e {
 	SMS_TYPE_DELIVER_REPORT,			/* mobile-originated only */
 	SMS_TYPE_SUBMIT_REPORT	= 0x08,		/* mobile-terminated only */
 	SMS_TYPE_MAX_VALUE
-}sms_message_type_t;
+} sms_message_type_t;
 
 
 typedef enum _sms_alert_option_e {
@@ -226,7 +226,7 @@ typedef enum _sms_alert_option_e {
 	SMS_ALERT_HIGH_PRIORITY_ONCE,
 	SMS_ALERT_HIGH_PRIORITY_REPEAT,
 	SMS_ALERT_RESERVED
-}sms_alert_option_t;
+} sms_alert_option_t;
 
 
 typedef enum _sms_language_type_e {
@@ -238,7 +238,7 @@ typedef enum _sms_language_type_e {
 	SMS_LAN_KOREAN,
 	SMS_LAN_CHINESE,
 	SMS_LAN_HEBREW,
-}sms_language_type_t;
+} sms_language_type_t;
 
 
 typedef enum _sms_priority_indicator_e {
@@ -246,7 +246,7 @@ typedef enum _sms_priority_indicator_e {
 	SMS_PRIORITY_INTERACTIVE,
 	SMS_PRIORITY_URGENT,
 	SMS_PRIORITY_EMERGENCY
-}sms_priority_indicator_t;
+} sms_priority_indicator_t;
 
 
 typedef enum _sms_privacy_indicator_e {
@@ -254,7 +254,7 @@ typedef enum _sms_privacy_indicator_e {
 	SMS_PRIVACY_RESTRICTED,
 	SMS_PRIVACY_CONFIDENTIAL,
 	SMS_PRIVACY_SECRET
-}sms_privacy_indicator_t;
+} sms_privacy_indicator_t;
 
 
 typedef enum _sms_alert_priority_e {
@@ -262,7 +262,7 @@ typedef enum _sms_alert_priority_e {
 	SMS_ALERT_LOW_PRIORITY,
 	SMS_ALERT_MEDIUM_PRIORITY,
 	SMS_ALERT_HIGH_PRIORITY
-}sms_alert_priority_t;
+} sms_alert_priority_t;
 
 
 typedef enum _sms_display_mode_e {
@@ -270,7 +270,7 @@ typedef enum _sms_display_mode_e {
 	SMS_DISPLAY_DEFAULT_SETTING,
 	SMS_DISPLAY_USER_INVOKE,
 	SMS_DISPLAY_RESERVED
-}sms_display_mode_t;
+} sms_display_mode_t;
 
 
 typedef enum _sms_encoding_type_e {
@@ -287,7 +287,7 @@ typedef enum _sms_encoding_type_e {
 	SMS_ENCODE_GSMDCS = 0xa,
 	SMS_ENCODE_EUCKR = 0x10,
 	SMS_ENCODE_RESERVED
-}sms_encoding_type_t;
+} sms_encoding_type_t;
 
 
 typedef enum _sms_relative_time_e {
@@ -302,7 +302,7 @@ typedef enum _sms_relative_time_e {
 	SMS_REL_TIME_ACTIVE			= 247,
 	SMS_REL_TIME_REGISTRATION	= 248,
 	SMS_REL_TIME_RESERVED
-}sms_relative_time_t;
+} sms_relative_time_t;
 
 
 typedef enum _sms_status_code_e {
@@ -327,7 +327,7 @@ typedef enum _sms_status_code_e {
 	SMS_STATUS_PERMANENT_INVALID_DESTINATION	= 0xCA,
 	SMS_STATUS_PERMANENT_MESSAGE_EXPIRED	= 0xCD,
 	SMS_STATUS_PERMANENT_UNKNOWN_ERROR		= 0xDF,
-}sms_status_code_t;
+} sms_status_code_t;
 
 
 typedef enum _sms_cmae_category_e {
@@ -344,7 +344,7 @@ typedef enum _sms_cmae_category_e {
 	SMS_CMAE_CTG_CBRNE			= 0x0a,
 	SMS_CMAE_CTG_OTHER			= 0x0b,
 	SMS_CMAE_CTG_RESERVED,
-}sms_cmae_category_t;
+} sms_cmae_category_t;
 
 
 typedef enum _sms_cmae_response_type_e {
@@ -357,28 +357,28 @@ typedef enum _sms_cmae_response_type_e {
 	SMS_CMAE_RESP_TYPE_ASSESS				= 0x06,
 	SMS_CMAE_RESP_TYPE_NONE					= 0x07,
 	SMS_CMAE_RESP_TYPE_RESERVED,
-}sms_cmae_response_type_t;
+} sms_cmae_response_type_t;
 
 
 typedef enum _sms_cmae_severity_e {
 	SMS_CMAE_SEVERITY_EXTREME			= 0x0,
 	SMS_CMAE_SEVERITY_SEVERE				= 0x1,
 	SMS_CMAE_SEVERITY_RESERVED,
-}sms_cmae_severity_t;
+} sms_cmae_severity_t;
 
 
 typedef enum _sms_cmae_urgency_e {
 	SMS_CMAE_URGENCY_IMMEDIATE			= 0x0,
 	SMS_CMAE_URGENCY_EXPECTED			= 0x1,
 	SMS_CMAE_URGENCY_RESERVED,
-}sms_cmae_urgency_t;
+} sms_cmae_urgency_t;
 
 
 typedef enum _sms_cmae_certainty_e {
 	SMS_CMAE_CERTAINTY_OBSERVED			= 0x0,
 	SMS_CMAE_CERTAINTY_LIKELY			= 0x1,
 	SMS_CMAE_CERTAINTY_RESERVED,
-}sms_cmae_certainty_t;
+} sms_cmae_certainty_t;
 
 
 typedef enum _sms_cmae_alert_handle_e {
@@ -387,7 +387,7 @@ typedef enum _sms_cmae_alert_handle_e {
 	SMS_CMAE_ALERT_SEVERE					= 0x02,
 	SMS_CMAE_ALERT_AMBER						= 0x03,
 	SMS_CMAE_ALERT_RESERVED,
-}sms_cmae_alert_handle_t;
+} sms_cmae_alert_handle_t;
 
 
 enum _sms_bearer_sub_param_e {
@@ -487,9 +487,9 @@ enum _sms_tp_failure_cause_e {
 
 
 typedef struct _sms_trans_msg_id_s {
-	unsigned short 		msg_id;
+	unsigned short		msg_id;
 	bool				header_ind;
-}sms_trans_msg_id_s;
+} sms_trans_msg_id_s;
 
 
 typedef struct _sms_telesvc_addr_s {
@@ -498,7 +498,7 @@ typedef struct _sms_telesvc_addr_s {
 	sms_number_plan_t	number_plan;
 	unsigned int		addr_len;
 	char				szData[SMS_TRANS_ADDRESS_MAX_LEN + 1];
-}sms_telesvc_addr_s;
+} sms_telesvc_addr_s;
 
 
 typedef struct _sms_reply_option_s {
@@ -506,12 +506,12 @@ typedef struct _sms_reply_option_s {
 	bool	deliver_ack_req;
 	bool	read_ack_req;
 	bool	report_req;
-}sms_reply_option_s;
+} sms_reply_option_s;
 
 
 typedef struct _sms_time_relative_s {
 	sms_relative_time_t		rel_time;
-}sms_time_rel_s;
+} sms_time_rel_s;
 
 typedef struct _sms_time_stamp_s {
 	unsigned char		year;		/* range 00-99 (96~99 : 19xx, 00~95 : 20xx) */
@@ -520,23 +520,23 @@ typedef struct _sms_time_stamp_s {
 	unsigned char		hours;		/* range 0-23 */
 	unsigned char		minutes;	/* range 0-59 */
 	unsigned char		seconds;	/* range 0-59 */
-}sms_time_abs_s;
+} sms_time_abs_s;
 
 
 typedef struct _sms_val_period_s {
-	unsigned char 		format;
+	unsigned char		format;
 	union {
 		sms_time_rel_s	rel_time;
 		sms_time_abs_s	abs_time;
-	}time;
-}sms_val_period_s;
+	} time;
+} sms_val_period_s;
 
 
 typedef struct _sms_encoding_specific_s {
 	sms_encoding_type_t		encode_type;
 	unsigned int			data_len;
-	char 					user_data[SMS_MAX_USER_DATA_LEN +1];
-}sms_encoding_specific_s;
+	char					user_data[SMS_MAX_USER_DATA_LEN +1];
+} sms_encoding_specific_s;
 
 
 typedef struct _sms_ctg_specific_s {
@@ -547,14 +547,14 @@ typedef struct _sms_ctg_specific_s {
 	sms_alert_option_t	alert_option;
 	unsigned int		data_len;
 	char				user_data[SMS_MAX_USER_DATA_LEN +1];
-}sms_ctg_specific_s;
+} sms_ctg_specific_s;
 
 
 typedef struct _sms_svc_ctg_program_data_s {
 	sms_encoding_type_t		encode_type;
 	unsigned int			num_data;
 	sms_ctg_specific_s		*specific_data;
-}sms_svc_ctg_program_data_s;
+} sms_svc_ctg_program_data_s;
 
 
 typedef struct _sms_telesvc_userdata_s {
@@ -562,7 +562,7 @@ typedef struct _sms_telesvc_userdata_s {
 	unsigned char			msg_type;
 	unsigned int			data_len;
 	unsigned char			user_data[SMS_MAX_USER_DATA_LEN +1];
-}sms_telesvc_userdata_s;
+} sms_telesvc_userdata_s;
 
 
 typedef struct _sms_telesvc_cmasdata_s {
@@ -578,8 +578,8 @@ typedef struct _sms_telesvc_cmasdata_s {
 	sms_cmae_alert_handle_t			alert_handle;		/* 00:Presidential 01:Extreme 02:Severe 03:AMBER 04:Test */
 	sms_time_abs_s			expires;
 	sms_language_type_t		language;
-	bool 					is_wrong_recode_type;
-}sms_telesvc_cmasdata_s;
+	bool					is_wrong_recode_type;
+} sms_telesvc_cmasdata_s;
 
 
 typedef struct _sms_enhanced_vmn_s {
@@ -610,7 +610,7 @@ typedef struct _sms_enhanced_vmn_s {
 	sms_number_plan_t				cli_number_plan;
 	unsigned char					cli_num_field;
 	unsigned char					cli_char[SMS_MAX_USER_DATA_LEN+1];
-}sms_enhanced_vmn_s;
+} sms_enhanced_vmn_s;
 
 
 typedef struct _sms_enhanced_vmn_ack_s {
@@ -621,7 +621,7 @@ typedef struct _sms_enhanced_vmn_ack_s {
 
 	unsigned short				da_vm_msg_id[SMS_MAX_NUMBER_OF_ACK+1];
 	unsigned short				pa_vm_msg_id[SMS_MAX_NUMBER_OF_ACK+1];
-}sms_enhanced_vmn_ack_s;
+} sms_enhanced_vmn_ack_s;
 
 
 typedef struct _sms_telesvc_deliver_s {
@@ -644,7 +644,7 @@ typedef struct _sms_telesvc_deliver_s {
 	/* sms_svc_ctg_program_data_s	svc_ctg; */
 	sms_enhanced_vmn_s			enhanced_vmn;
 	sms_enhanced_vmn_ack_s		enhanced_vmn_ack;
-}sms_telesvc_deliver_s;
+} sms_telesvc_deliver_s;
 
 
 typedef struct _sms_telesvc_submit_s {
@@ -661,12 +661,12 @@ typedef struct _sms_telesvc_submit_s {
 	sms_encoding_specific_s		multi_encode_data;
 	unsigned char				deposit_id;
 	/* sms_svc_ctg_program_data_s	svc_ctg; */
-}sms_telesvc_submit_s;
+} sms_telesvc_submit_s;
 
 
 typedef struct _sms_telesvc_cancel_s {
 	sms_trans_msg_id_s		msg_id;
-}sms_telesvc_cancel_s;
+} sms_telesvc_cancel_s;
 
 
 typedef struct _sms_telesvc_user_ack_s {
@@ -676,7 +676,7 @@ typedef struct _sms_telesvc_user_ack_s {
 	sms_time_abs_s				time_stamp;
 	sms_encoding_specific_s		multi_encode_data;
 	unsigned char				deposit_id;
-}sms_telesvc_user_ack_s;
+} sms_telesvc_user_ack_s;
 
 
 typedef struct _sms_telesvc_deliver_ack_s {
@@ -685,7 +685,7 @@ typedef struct _sms_telesvc_deliver_ack_s {
 	sms_time_abs_s				time_stamp;
 	sms_encoding_specific_s		multi_encode_data;
 	sms_status_code_t			msg_status;
-}sms_telesvc_deliver_ack_s;
+} sms_telesvc_deliver_ack_s;
 
 
 typedef struct _sms_telesvc_read_ack_s {
@@ -694,7 +694,7 @@ typedef struct _sms_telesvc_read_ack_s {
 	sms_time_abs_s				time_stamp;
 	sms_encoding_specific_s		multi_encode_data;
 	unsigned char				deposit_id;
-}sms_telesvc_read_ack_s;
+} sms_telesvc_read_ack_s;
 
 typedef struct _sms_telesvc_deliver_report_s {
 	sms_trans_msg_id_s		msg_id;
@@ -702,7 +702,7 @@ typedef struct _sms_telesvc_deliver_report_s {
 	sms_telesvc_userdata_s	user_data;
 	sms_language_type_t		language;
 	unsigned char			multi_encode_data;
-}sms_telesvc_report_s;
+} sms_telesvc_report_s;
 
 
 typedef struct _sms_telesvc_msg_s {
@@ -715,21 +715,21 @@ typedef struct _sms_telesvc_msg_s {
 		sms_telesvc_user_ack_s			user_ack;
 		sms_telesvc_deliver_ack_s		delivery_ack;
 		sms_telesvc_read_ack_s			read_ack;
-		sms_telesvc_report_s 			report;
-	}data;
-}sms_telesvc_msg_s;
+		sms_telesvc_report_s			report;
+	} data;
+} sms_telesvc_msg_s;
 
 
 
 /********************************************************************************/
-/*								TRANSPORT LAYER 								*/
+/*								TRANSPORT LAYER								*/
 /********************************************************************************/
 
-typedef unsigned short 		sms_trans_param_id_t;		/* _sms_trans_param_id_e */
+typedef unsigned short		sms_trans_param_id_t;		/* _sms_trans_param_id_e */
 
-typedef unsigned short 		sms_trans_telesvc_id_t;		/* _sms_trans_telesvc_id_e */
+typedef unsigned short		sms_trans_telesvc_id_t;		/* _sms_trans_telesvc_id_e */
 
-typedef unsigned short 		sms_trans_svc_ctg_t;			/* _sms_trans_svc_ctg_e */
+typedef unsigned short		sms_trans_svc_ctg_t;			/* _sms_trans_svc_ctg_e */
 
 typedef unsigned char		sms_trans_reply_seq_t;
 
@@ -739,7 +739,7 @@ typedef enum _sms_trans_msg_type_e {
 	SMS_TRANS_BROADCAST_MSG		= 0x01,
 	SMS_TRANS_ACK_MSG			= 0x02,
 	SMS_TRANS_TYPE_RESERVED
-}sms_trans_msg_type_t;
+} sms_trans_msg_type_t;
 
 
 enum _sms_trans_param_id_e {
@@ -823,21 +823,21 @@ typedef enum _sms_trans_err_class_e {
 	SMS_TRANS_ERR_CLASS_NONE				= 0x00,
 	SMS_TRANS_ERR_CLASS_TEMPORARY			= 0x02,
 	SMS_TRANS_ERR_CLASS_PERMANENT			= 0x03
-}sms_trans_err_class_t;
+} sms_trans_err_class_t;
 
 
 typedef enum _sms_trans_cause_code_e {
 	SMS_CAUSE_CODE_INVAILD_TELESERVICE_ID		= 0x04,
 	SMS_CAUSE_CODE_SERVICE_TERMINATION_DENIED	= 0x62,
 	SMS_TODO_FILL_THIS_ENUMS
-}sms_trans_cause_code_t;
+} sms_trans_cause_code_t;
 
 
 typedef enum _sms_trans_sub_addr_type_e {
 	SMS_TRANS_SUB_ADDR_NSAP					= 0x00,
 	SMS_TRANS_SUB_ADDR_USER					= 0x01,
 	SMS_TRANS_SUB_ADDR_RESERVED
-}sms_trans_sub_addr_type_t;
+} sms_trans_sub_addr_type_t;
 
 
 
@@ -902,7 +902,7 @@ typedef struct _sms_trans_addr_s {
 	sms_number_plan_t	number_plan;
 	unsigned int		addr_len;
 	char				szData[SMS_TRANS_ADDRESS_MAX_LEN + 1];
-}sms_trans_addr_s;
+} sms_trans_addr_s;
 
 
 typedef struct _sms_trans_sub_addr_s {
@@ -910,14 +910,14 @@ typedef struct _sms_trans_sub_addr_s {
 	bool						odd;
 	unsigned int				addr_len;
 	char						szData[SMS_TRANS_ADDRESS_MAX_LEN + 1];
-}sms_trans_sub_addr_s;
+} sms_trans_sub_addr_s;
 
 
 typedef struct _sms_trans_cause_code_s {
 	sms_trans_reply_seq_t			reply_seq;
 	sms_trans_err_class_t			error_class;
 	sms_trans_cause_code_t			cause_code;
-}sms_trans_cause_code_s;
+} sms_trans_cause_code_s;
 
 
 typedef struct _sms_trans_p2p_msg_s {
@@ -927,20 +927,20 @@ typedef struct _sms_trans_p2p_msg_s {
 	sms_trans_sub_addr_s			sub_address;
 	sms_trans_reply_seq_t			reply_seq;
 	sms_telesvc_msg_s				telesvc_msg;
-}sms_trans_p2p_msg_s;
+} sms_trans_p2p_msg_s;
 
 
 typedef struct _sms_trans_broadcast_msg_s {
 	sms_trans_svc_ctg_t				svc_ctg;
 	sms_telesvc_msg_s				telesvc_msg;
-}sms_trans_broadcast_msg_s;
+} sms_trans_broadcast_msg_s;
 
 
 typedef struct _sms_trans_ack_msg_s {
 	sms_trans_addr_s				address;
 	sms_trans_sub_addr_s			sub_address;
 	sms_trans_cause_code_s			cause_code;
-}sms_trans_ack_msg_s;
+} sms_trans_ack_msg_s;
 
 
 typedef struct _sms_trans_msg_s {
@@ -949,8 +949,8 @@ typedef struct _sms_trans_msg_s {
 		sms_trans_p2p_msg_s			p2p_msg;
 		sms_trans_broadcast_msg_s	cb_msg;
 		sms_trans_ack_msg_s			ack_msg;
-	}data;
-}sms_trans_msg_s;
+	} data;
+} sms_trans_msg_s;
 
 
 #endif /* SMS_CDMA_PLUGIN_TYPES_H */

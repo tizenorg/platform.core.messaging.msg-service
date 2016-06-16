@@ -19,7 +19,7 @@
 
 
 /*==================================================================================================
-                                         INCLUDE FILES
+										INCLUDE FILES
 ==================================================================================================*/
 #include "MsgMutex.h"
 #include "MsgTextConvert.h"
@@ -34,7 +34,7 @@ extern "C"
 }
 
 /*==================================================================================================
-                                     CLASS DEFINITIONS
+										CLASS DEFINITIONS
 ==================================================================================================*/
 class SmsPluginTransport
 {
@@ -72,10 +72,10 @@ private:
 
 	static SmsPluginTransport* pInstance;
 
-	unsigned char 		msgRef;
+	unsigned char		msgRef;
 
-	unsigned char 		msgRef8bit;
-	unsigned short 	msgRef16bit;
+	unsigned char		msgRef8bit;
+	unsigned short	msgRef16bit;
 
 	SMS_NETWORK_STATUS_T curStatus;
 	TelSatMoSmCtrlIndData_t curMoCtrlData;

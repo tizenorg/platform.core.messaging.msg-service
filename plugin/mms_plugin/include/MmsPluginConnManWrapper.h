@@ -23,7 +23,7 @@
 typedef enum {
 	MSG_CM_ERR_NONE = 0,
 	MSG_CM_ERR_UNKNOWN,
- } cm_error_e;
+} cm_error_e;
 
 class MmsPluginCmAgent {
 public:

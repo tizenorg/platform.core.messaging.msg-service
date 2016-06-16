@@ -18,9 +18,9 @@
 #define MSG_FILTER_TYPES_H
 
 /**
- *	@file 		MsgFilterTypes.h
- *	@brief 		Defines filter types of messaging framework
- *	@version 	1.0
+ *	@file			MsgFilterTypes.h
+ *	@brief			Defines filter types of messaging framework
+ *	@version		1.0
  */
 
 /**
@@ -31,7 +31,7 @@
  */
 
 /*==================================================================================================
-                                         INCLUDE FILES
+											INCLUDE FILES
 ==================================================================================================*/
 
 #include "MsgTypes.h"
@@ -43,15 +43,14 @@
  */
 
 /*==================================================================================================
-                                         STRUCTURES
+											STRUCTURES
 ==================================================================================================*/
 
 /**
  *	@brief	Represents filter informatioin. \n
  *	It represents the basic filter unit.
  */
-typedef struct
-{
+typedef struct {
 	msg_filter_id_t			filterId;			/**< Indicates the filter ID. */
 	msg_filter_type_t		filterType;		/**< Indicates the filter type. */
 	char							filterValue[MAX_FILTER_VALUE_LEN+1];	/**< The value of a filter. */

@@ -464,7 +464,7 @@ int MsgTextConvert::convertUTF8ToGSM7bit(OUT unsigned char *pDestText, IN int ma
 /**
 	if srcTextLen ispSrcText should be null terminated
 return :
- 		byte length of converted UCS2 characters
+		byte length of converted UCS2 characters
 			-1 : converting error
 */
 int MsgTextConvert::convertUTF8ToUCS2(OUT unsigned char *pDestText, IN int maxLength, IN const unsigned char *pSrcText, IN int srcTextLen)
@@ -613,7 +613,7 @@ args:
 	IN const unsigned char *pSrcText
 	IN  int srcTextLen		: byte length of UCS2 source text
 return :
- 		byte length of converted UTF8 characters
+		byte length of converted UTF8 characters
 			-1 : The alpha isn't the gsm 7bit code
 */
 int MsgTextConvert::convertUCS2ToUTF8(OUT unsigned char *pDestText, IN int maxLength, IN const unsigned char *pSrcText, IN  int srcTextLen)
@@ -1055,7 +1055,7 @@ int MsgTextConvert::convertUCS2ToASCII(OUT unsigned char *pDestText, IN int maxL
 		int maxLength			: max destination buffer size
 		int srcTextLen			: byte length of source text (gsm7bit)
  return :
- 		byte length of converted UCS2 characters
+		byte length of converted UCS2 characters
 			-1 : The alpha isn't the gsm 7bit code
 */
 int MsgTextConvert::convertGSM7bitToUCS2(OUT unsigned char *pDestText, IN int maxLength, IN const unsigned char *pSrcText, IN int srcTextLen, IN MSG_LANG_INFO_S *pLangInfo)
@@ -1169,7 +1169,7 @@ int MsgTextConvert::convertGSM7bitToUCS2(OUT unsigned char *pDestText, IN int ma
 			} else {
 				lowerByte = g_GSM7BitToUCS2[pSrcText[i]] & 0x00FF;
 				upperByte = (g_GSM7BitToUCS2[pSrcText[i]] & 0xFF00) >> 8;
-	 		}
+			}
 		}
 
 		pDestText[outTextLen++] = upperByte;

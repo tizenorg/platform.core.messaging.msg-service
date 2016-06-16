@@ -19,7 +19,7 @@
 
 
 /*==================================================================================================
-                                         INCLUDE FILES
+										INCLUDE FILES
 ==================================================================================================*/
 #include <wbxml/wbxml.h>
 #include <libxml/parser.h>
@@ -29,21 +29,21 @@
 
 
 /*==================================================================================================
-                                         DEFINES
+										DEFINES
 ==================================================================================================*/
-#define WSP_STANDARD_STR_LEN_MAX        255
-#define LENGTH_QUOTE  0x1F
+#define WSP_STANDARD_STR_LEN_MAX		255
+#define LENGTH_QUOTE						0x1F
 #define	NO_VALUE						0x00
 
 #define WSP_CODE_BUFFER_LEFT_LEN_MAX	1024
 #define WSP_CODE_BUFFER_RIGHT_LEN_MAX	2048
 
-#define  AcStrlen(x) ((x == NULL)?0:strlen(x))
+#define  AcStrlen(x) ((x == NULL) ? 0 : strlen(x))
 #define MIN(a, b)  (((a) < (b)) ? (a) : (b))
 
 
 /*==================================================================================================
-                                     CLASS DEFINITIONS
+										CLASS DEFINITIONS
 ==================================================================================================*/
 class SmsPluginWapPushHandler
 {

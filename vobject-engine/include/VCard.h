@@ -31,8 +31,7 @@ extern "C" {
 * @enum vCardType
 * This enumeration defines the property of vcard.
 */
-typedef enum
-{
+typedef enum {
 	VCARD_TYPE_ADR,			/**<This is address of vcard. */
 	VCARD_TYPE_AGENT,			/**<This is agent of vcard. */
 	VCARD_TYPE_BDAY,			/**<This is bday of vcard. */
@@ -67,7 +66,7 @@ typedef enum
 	VCARD_TYPE_URL,			/**<This is url of vcard. */
 	VCARD_TYPE_VERSION,		/**<This is version of vcard. */
 	VCARD_TYPE_XIRMCLUID		/**<This is xirmcl uid of vcard. */
-}vCardType;
+} vCardType;
 
 #define VCARD_TYPE_NUM	34		/**< number of vcard type */
 
@@ -75,15 +74,14 @@ typedef enum
 * @enum vCardParamName
 * This enumeration defines the name of vcard parameter.
 */
-typedef enum
-{
+typedef enum {
 	VCARD_PARAM_CHARSET,		/**<This is charset parameter. */
 	VCARD_PARAM_CONTEXT,		/**<This is context parameter. */
 	VCARD_PARAM_ENCODING,	/**<This is encoding parameter. */
 	VCARD_PARAM_LANGUAGE,	/**<This is language parameter. */
 	VCARD_PARAM_TYPE,			/**<This is type parameter. */
 	VCARD_PARAM_VALUE		/**<This is value parameter. */
-}vCardParamName;
+} vCardParamName;
 
 #define VCARD_PARAM_NUM		6	/**< number of vcard parameter */
 
@@ -91,14 +89,13 @@ typedef enum
 * @enum vCardParamName
 * This enumeration defines the value of encoding parameter.
 */
-typedef enum
-{
+typedef enum {
 	VCARD_ENC_PARAM_B,					/**<This is b encoding parameter. */
 	VCARD_ENC_PARAM_BASE64,				/**<This isbase64 encoding parameter. */
 	VCARD_ENC_PARAM_QUOTED_PRINTABLE,	/**<This is quoted printable encoding parameter. */
 	VCARD_ENC_PARAM_7BIT,				/**<This is 7 bit encoding parameter. */
 	VCARD_ENC_PARAM_8BIT					/**<This is 8 bit encoding parameter. */
-}vCardEncVal;
+} vCardEncVal;
 
 #define VCARD_ENCODE_PARAM_NUM	5	/**< number of vcard encoding parameter */
 
@@ -106,13 +103,12 @@ typedef enum
 * @enum vCardCharsetVal
 * This enumeration defines the value of charset parameter.
 */
-typedef enum
-{
+typedef enum {
 	VCARD_CHARSET_PARAM_UTF_8,		/**<This is utf-8 charset parameter. */
 	VCARD_CHARSET_PARAM_UTF_16,		/**<This is utf-16 charset parameter. */
 	VCARD_CHARSET_PARAM_SHIFT_JIS,	/**<This is shift-jis charset parameter. */
 	VCARD_CHARSET_PARAM_ISO_8859_1	/**<This is iso-8859-1 charset parameter. */
-}vCardCharsetVal;
+} vCardCharsetVal;
 
 #define VCARD_CHARSET_PARAM_NUM  4	/**< number of vcard charset parameter */
 
@@ -120,8 +116,7 @@ typedef enum
 * @enum vCardValVal
 * This enumeration defines the value of value parameter.
 */
-typedef enum
-{
+typedef enum {
 	VCARD_VALUE_PARAM_BINARY,		/**<This is binary value parameter. */
 	VCARD_VALUE_PARAM_BOOLEAN,		/**<This is boolean value parameter. */
 	VCARD_VALUE_PARAM_DATE,			/**<This is date value parameter. */
@@ -135,7 +130,7 @@ typedef enum
 	VCARD_VALUE_PARAM_URL,				/**<This is url value parameter. */
 	VCARD_VALUE_PARAM_UTC_OFFSET,		/**<This is utc offset value parameter. */
 	VCARD_VALUE_PARAM_VCARD				/**<This is vcard value parameter. */
-}vCardValVal;
+} vCardValVal;
 
 #define VCARD_VALUE_PARAM_NUM		13		/**< number of vcard value parameter */
 
@@ -143,8 +138,7 @@ typedef enum
 * @enum vCardValVal
 * This enumeration defines the value of type parameter.
 */
-typedef enum
-{
+typedef enum {
 	VCARD_TYPE_PARAM_AIFF,		/**<This is aiff type parameter. */
 	VCARD_TYPE_PARAM_BBS,		/**<This is bbs type parameter. */
 	VCARD_TYPE_PARAM_CAR,		/**<This is car type parameter. */
@@ -175,7 +169,7 @@ typedef enum
 	VCARD_TYPE_PARAM_ETC,		/**<This is etc type parameter. */
 	VCARD_TYPE_PARAM_X400,		/**<This is X400 type parameter. */
 	VCARD_TYPE_PARAM_X_IRMC_N	/**<This is X-IRMC-N type parameter. */
-}vCardTypeVal;
+} vCardTypeVal;
 
 #define VCARD_TYPE_PARAM_NUM		30		/**< number of vcard type parameter */
 

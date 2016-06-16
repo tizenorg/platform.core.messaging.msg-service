@@ -19,20 +19,21 @@
 
 
 /*==================================================================================================
-                                         INCLUDE FILES
+											INCLUDE FILES
 ==================================================================================================*/
 #include <pthread.h>
 #include "MsgDebug.h"
 
 /*==================================================================================================
-                                     CLASS DEFINITIONS
+											CLASS DEFINITIONS
 ==================================================================================================*/
 class MsgThread
 {
 public:
 	MsgThread(): thd(0) {};
 
-	virtual void start() {
+	virtual void start()
+	{
 		MSG_DEBUG("MsgThread::Start() called");
 
 		if (pthread_create(&thd, NULL, &MsgThread::thdMain, this) < 0) {
@@ -43,18 +44,21 @@ public:
 		pthread_detach(thd);
 	}
 
-	virtual void stop() {
+	virtual void stop()
+	{
 		MSG_DEBUG("MsgThread::stop() called");
 	}
 
-	void wait() {
+	void wait()
+	{
 		MSG_DEBUG("MsgThread::Wait() called");
 		void* pData;
 		pthread_join(thd, &pData);
 	}
 
 private:
-	static void* thdMain(void* pInst) {
+	static void* thdMain(void* pInst)
+	{
 		MSG_DEBUG("MsgThread::thdMain() called");
 		MsgThread* pt = static_cast<MsgThread*>(pInst);
 		pt->run();
@@ -67,5 +71,5 @@ private:
 };
 
 
-#endif //__MSG_THREAD_H__
+#endif /* __MSG_THREAD_H__ */
 

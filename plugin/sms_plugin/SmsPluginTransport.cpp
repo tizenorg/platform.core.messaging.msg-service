@@ -50,8 +50,8 @@ SmsPluginTransport* SmsPluginTransport::pInstance = NULL;
 
 SmsPluginTransport::SmsPluginTransport()
 {
-	msgRef 		= 0x00;
-	msgRef8bit 	= 0x00;
+	msgRef		= 0x00;
+	msgRef8bit	= 0x00;
 	msgRef16bit	= 0x0000;
 	curStatus	= 0x00;
 	memset(&curMoCtrlData, 0x00, sizeof(curMoCtrlData));

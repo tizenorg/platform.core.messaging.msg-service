@@ -19,7 +19,7 @@
 
 
 /*==================================================================================================
-                                         INCLUDE FILES
+											INCLUDE FILES
 ==================================================================================================*/
 #include <stdio.h>
 #include <string.h>
@@ -27,18 +27,18 @@
 
 
 /*==================================================================================================
-					DEFINES
+											DEFINES
 ==================================================================================================*/
-#define GETSP() ({ unsigned int sp; asm volatile ("mov %0,sp " : "=r"(sp) ); sp;})
+#define GETSP() ({ unsigned int sp; asm volatile ("mov %0,sp " : "=r"(sp)); sp; })
 #define BUF_SIZE				256
-#define PAGE_SIZE       		(1 << 12)
-#define _ALIGN_UP(addr, size)    (((addr)+((size)-1))&(~((size)-1)))
-#define _ALIGN_DOWN(addr, size)  ((addr)&(~((size)-1)))
-#define PAGE_ALIGN(addr)        _ALIGN_DOWN(addr, PAGE_SIZE)
+#define PAGE_SIZE				(1 << 12)
+#define _ALIGN_UP(addr, size)		(((addr)+((size)-1))&(~((size)-1)))
+#define _ALIGN_DOWN(addr, size)		((addr)&(~((size)-1)))
+#define PAGE_ALIGN(addr)				_ALIGN_DOWN(addr, PAGE_SIZE)
 
 
 /*==================================================================================================
-					FUNCTION PROTOTYPES
+											FUNCTION PROTOTYPES
 ==================================================================================================*/
 static inline void
 stack_trim(void)
@@ -61,9 +61,9 @@ stack_trim(void)
 	}
 	fclose(file);
 
-	if(found) {
+	if (found) {
 		sscanf(buf, "%x-", &stacktop);
-		if(madvise((void*)PAGE_ALIGN(stacktop), PAGE_ALIGN(sp)-stacktop, MADV_DONTNEED) < 0)
+		if (madvise((void*)PAGE_ALIGN(stacktop), PAGE_ALIGN(sp)-stacktop, MADV_DONTNEED) < 0)
 			perror("stack madvise fail");
 	}
 }

@@ -28,7 +28,7 @@ public:
 	void composeNotiInd();
 	void composeDeliveryInd();
 	void composeReadOriInd();
-	void composeRetrieveConf(MSG_MESSAGE_INFO_S *pMsgInfo, MSG_SENDINGOPT_INFO_S *pSendOptInfo, MMS_DATA_S *pMmsData){};
+	void composeRetrieveConf(MSG_MESSAGE_INFO_S *pMsgInfo, MSG_SENDINGOPT_INFO_S *pSendOptInfo, MMS_DATA_S *pMmsData) {};
 
 	void composeSendReq(MSG_MESSAGE_INFO_S *pMsgInfo, MSG_SENDINGOPT_INFO_S *pSendOptInfo, MMS_DATA_S *pMmsData);
 

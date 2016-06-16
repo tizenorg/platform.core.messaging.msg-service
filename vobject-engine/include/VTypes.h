@@ -27,7 +27,7 @@
 #define LF				0x0a
 #define TAB				0x09
 #define WSP				0x20
-#define UNKNOWN_NAME 	0x80000000
+#define UNKNOWN_NAME		0x80000000
 
 #define VCARD			0x01
 #define VCALENDAR		0x02
@@ -68,23 +68,20 @@ typedef struct _VObject VObject;
 typedef struct _ValueObj ValueObj;
 typedef struct _VTree VTree;
 
-struct _VTree
-{
+struct _VTree {
 	int			treeType;
 	VObject*	pTop;
 	VObject*	pCur;
 	VTree*		pNext;
 };
 
-struct _VParam
-{
+struct _VParam {
 	int			parameter;
 	int			paramValue;
 	VParam*		pNext;
 };
 
-struct _VObject
-{
+struct _VObject {
 	int			property;
 	VParam*		pParam;
 	int			valueCount;
@@ -97,8 +94,7 @@ struct _VObject
 	char*		pszGroupName; /* VDATA_GROUPNAME_SUPPORTED */
 };
 
-struct _ValueObj
-{
+struct _ValueObj {
 	char*		szName;
 	int			flag;
 };

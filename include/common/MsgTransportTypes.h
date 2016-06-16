@@ -18,9 +18,9 @@
 #define MSG_TRANSPORT_TYPES_H
 
 /**
- *	@file 		MsgTransportTypes.h
- *	@brief 		Defines transport types of messaging framework
- *	@version 	1.0
+ *	@file		MsgTransportTypes.h
+ *	@brief		Defines transport types of messaging framework
+ *	@version	1.0
  */
 
 /**
@@ -31,7 +31,7 @@
  */
 
 /*==================================================================================================
-                                         INCLUDE FILES
+											INCLUDE FILES
 ==================================================================================================*/
 #include "MsgTypes.h"
 #include "MsgStorageTypes.h"
@@ -47,22 +47,21 @@
 
 
 /*==================================================================================================
-                                         STRUCTURES
+											STRUCTURES
 ==================================================================================================*/
 
 /**
  *	@brief	Represents the status of a sent message. \n
  *	This stucture contains the information about the status of a sent message that application has submitted to the framework.
  */
-typedef struct
-{
+typedef struct {
 	msg_request_id_t				reqId;		/**< Indicates the corresponding request Id. */
 	msg_network_status_t		status;		/**< Indicates the status of the corresponding request. Refer to enum _MSG_NETWORK_STATUS_E*/
 } MSG_SENT_STATUS_S;
 
 
 /*==================================================================================================
-                                         TYPES
+											TYPES
 ==================================================================================================*/
 
 

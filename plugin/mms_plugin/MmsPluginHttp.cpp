@@ -642,7 +642,7 @@ MMS_HTTP_ERROR_E MmsPluginHttpAgent::setSession(http_request_info_s &request_inf
 
 	if (transaction_type == MMS_HTTP_TRANSACTION_TYPE_POST) {
 		curl_easy_setopt(session_option, CURLOPT_POST, true);
-	 	curl_easy_setopt(session_option, CURLOPT_POSTFIELDS, request_info.post_data);
+		curl_easy_setopt(session_option, CURLOPT_POSTFIELDS, request_info.post_data);
 		curl_easy_setopt(session_option, CURLOPT_POSTFIELDSIZE, request_info.post_data_len);
 /*		curl_easy_setopt(session_option, CURLOPT_TCP_NODELAY, 1); */
 	}

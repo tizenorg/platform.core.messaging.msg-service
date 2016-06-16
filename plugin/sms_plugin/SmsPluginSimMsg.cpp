@@ -268,7 +268,7 @@ msg_error_t SmsPluginSimMsg::saveSimMessage(const MSG_MESSAGE_INFO_S *pMsgInfo, 
 			if (ret == TAPI_API_SUCCESS) {
 				MSG_DEBUG("########  tel_write_sms_in_sim Success !!!#######");
 			} else {
-			 	MSG_DEBUG("########  tel_write_sms_in_sim Fail !!! return : [%d] #######", ret);
+				MSG_DEBUG("########  tel_write_sms_in_sim Fail !!! return : [%d] #######", ret);
 
 				return MSG_ERR_PLUGIN_STORAGE;
 			}
@@ -298,7 +298,7 @@ msg_error_t SmsPluginSimMsg::saveSimMessage(const MSG_MESSAGE_INFO_S *pMsgInfo, 
 				pSimIdList->simId[pSimIdList->count] = SimId;
 				pSimIdList->count++;
 			} else {
-			 	MSG_DEBUG("########  Saving Msg was Failed !!! SIM ID : [%d] #######", SimId);
+				MSG_DEBUG("########  Saving Msg was Failed !!! SIM ID : [%d] #######", SimId);
 
 				return MSG_ERR_PLUGIN_STORAGE;
 			}
@@ -440,7 +440,7 @@ msg_error_t SmsPluginSimMsg::saveClass2Message(const MSG_MESSAGE_INFO_S *pMsgInf
 			if (tapiRet == TAPI_API_SUCCESS) {
 				MSG_DEBUG("########  tel_write_sms_in_sim Success !!!, segNum = [%d] #######", segCnt);
 			} else {
-			 	MSG_DEBUG("########  tel_write_sms_in_sim Fail !!! return : [%d] #######", tapiRet);
+				MSG_DEBUG("########  tel_write_sms_in_sim Fail !!! return : [%d] #######", tapiRet);
 
 				SmsPluginTransport::instance()->sendDeliverReport(handle, MSG_ERR_STORAGE_ERROR);
 
@@ -467,7 +467,7 @@ void SmsPluginSimMsg::deleteSimMessage(msg_sim_slot_id_t sim_idx, msg_sim_id_t S
 	if (tapiRet == TAPI_API_SUCCESS)
 		MSG_DEBUG("########  tel_delete_sms_in_sim Success !!! #######");
 	else
-	 	THROW(MsgException::SMS_PLG_ERROR, "########  tel_delete_sms_in_sim Fail !!! return : [%d] #######", tapiRet);
+		THROW(MsgException::SMS_PLG_ERROR, "########  tel_delete_sms_in_sim Fail !!! return : [%d] #######", tapiRet);
 
 	int SimId = 0;
 	bool bResult = false;
@@ -507,7 +507,7 @@ void SmsPluginSimMsg::deleteSimMessage(msg_sim_slot_id_t sim_idx, msg_sim_id_t S
 		if (MsgSettingSetInt(keyName, usedCnt) != MSG_SUCCESS)
 			MSG_DEBUG("Error to set config data [%s]", keyName);
 	} else {
-	 	THROW(MsgException::SMS_PLG_ERROR, "########  Deleting Msg was Failed !!! SIM ID : [%d] #######", SimId);
+		THROW(MsgException::SMS_PLG_ERROR, "########  Deleting Msg was Failed !!! SIM ID : [%d] #######", SimId);
 	}
 }
 
@@ -560,7 +560,7 @@ void SmsPluginSimMsg::setReadStatus(msg_sim_slot_id_t sim_idx, msg_sim_id_t SimM
 	if (bResult == true)
 		MSG_DEBUG("######## Setting Read Status was Successful !!!, sim id=[%d] #######", SimId);
 	else
-	 	THROW(MsgException::SMS_PLG_ERROR, "######## Setting Read Status was Failed !!! #######");
+		THROW(MsgException::SMS_PLG_ERROR, "######## Setting Read Status was Failed !!! #######");
 }
 
 
@@ -578,7 +578,7 @@ void SmsPluginSimMsg::getSimMsgCount(TapiHandle *handle, MSG_SIM_COUNT_S *pSimMs
 	if (getSimMsgCntEvent(handle, pSimMsgCnt) == true)
 		MSG_DEBUG("######## Get Sim Msg Count was Successful !!! #######");
 	else
-	 	THROW(MsgException::SMS_PLG_ERROR, "######## Get Sim Msg Count was Failed !!! #######");
+		THROW(MsgException::SMS_PLG_ERROR, "######## Get Sim Msg Count was Failed !!! #######");
 }
 
 
@@ -598,7 +598,7 @@ bool SmsPluginSimMsg::getSimMsg(TapiHandle *handle, msg_sim_id_t SimMsgId, MSG_M
 	if (getSimMsgEvent(handle, pMsgInfo) == true) {
 		MSG_DEBUG("######## Get Sim Msg was Successful !!! #######");
 	} else {
-	 	MSG_DEBUG("######## Get Sim Msg was Failed !!! #######");
+		MSG_DEBUG("######## Get Sim Msg was Failed !!! #######");
 		return false;
 	}
 

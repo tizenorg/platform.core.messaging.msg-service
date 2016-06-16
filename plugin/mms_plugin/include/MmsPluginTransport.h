@@ -20,17 +20,17 @@
 #include "MmsPluginTypes.h"
 
 class MmsPluginTransport {
-	public:
-		static MmsPluginTransport *instance();
+public:
+	static MmsPluginTransport *instance();
 
-		void submitRequest(const MSG_REQUEST_INFO_S *pReqInfo);
-		void cancelRequest(msg_request_id_t reqId);
+	void submitRequest(const MSG_REQUEST_INFO_S *pReqInfo);
+	void cancelRequest(msg_request_id_t reqId);
 
-	private:
-		MmsPluginTransport();
-		~MmsPluginTransport();
+private:
+	MmsPluginTransport();
+	~MmsPluginTransport();
 
-		static MmsPluginTransport *pInstance;
+	static MmsPluginTransport *pInstance;
 };
 
 #endif /* MMS_PLUGIN_TRANSPORT_H */

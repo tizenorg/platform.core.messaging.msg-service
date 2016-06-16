@@ -18,15 +18,16 @@
 #define __MSG_CPP_TYPES_H__
 
 /*==================================================================================================
-                                         INCLUDE FILES
+											INCLUDE FILES
 ==================================================================================================*/
 #include <stdio.h>
 #include <memory>
 
 template <typename T>
-void unique_ptr_deleter(T **ptr) {
-	  if (ptr && *ptr )
-		  delete[] *ptr;
+void unique_ptr_deleter(T **ptr)
+{
+	if (ptr && *ptr)
+		delete[] *ptr;
 }
 
 template <class T>
@@ -44,9 +45,8 @@ public:
 
 	~AutoPtr()
 	{
-		if (ptr)
-		{
-			if ( *ptr )	delete[] *ptr;
+		if (ptr) {
+			if (*ptr)	delete[] *ptr;
 		}
 	}
 };

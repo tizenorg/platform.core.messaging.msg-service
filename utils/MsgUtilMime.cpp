@@ -218,7 +218,7 @@ static const MimeTable mimeTable[] = {
 	{"text/css",											"",					false,		MIME_TEXT_CSS,									MIME_TEXT_CSS,							MIME_APPLICATION_NONE,					MIME_MAINTYPE_TEXT,			0x3d	},
 	{"text/xml",											"",					false,		MIME_TEXT_XML,									MIME_TEXT_XML,							MIME_APPLICATION_NONE,					MIME_MAINTYPE_TEXT,			0x28	},
 	{"text/iMelody",										"imy",				true,		MIME_TEXT_IMELODY,								MIME_TEXT_IMELODY,						MIME_APPLICATION_SOUNDPLAYER,			MIME_MAINTYPE_AUDIO,		UNDEFINED_BINARY	},
-	{"text/calendar",										"ics",				true, 	MIME_TEXT_CALENDAR,								MIME_TEXT_CALENDAR,						MIME_APPLICATION_NONE,					MIME_MAINTYPE_TEXT,		UNDEFINED_BINARY },
+	{"text/calendar",										"ics",				true,	MIME_TEXT_CALENDAR,								MIME_TEXT_CALENDAR,						MIME_APPLICATION_NONE,					MIME_MAINTYPE_TEXT,		UNDEFINED_BINARY },
 
 	/* 136 */
 	{"text/vnd.wap.wmlscript",								"",					false,		MIME_TEXT_VND_WAP_WMLSCRIPT,					MIME_TEXT_VND_WAP_WMLSCRIPT,			MIME_APPLICATION_NONE,					MIME_MAINTYPE_TEXT,			0x09	},

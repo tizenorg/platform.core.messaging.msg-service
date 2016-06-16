@@ -1393,8 +1393,8 @@ void SmsPluginWapPushHandler::handleSIMessage(char* pPushBody, int PushBodyLen, 
 	pushMsg.expires = 0xFFFFFFFF;
 
 	/* setting received time */
-	time_t 	t 		= 	time(NULL);
-	time_t 	utfTime	= 	time(&t);
+	time_t	t		=	time(NULL);
+	time_t	utfTime	=	time(&t);
 
 	pushMsg.received = (unsigned long)utfTime;
 
@@ -1545,8 +1545,8 @@ void SmsPluginWapPushHandler::handleSLMessage(char* pPushBody, int PushBodyLen, 
 	}
 
 	/*  setting received time setting */
-	time_t 	t 		= 	time(NULL);
-	time_t 	utfTime	= 	time(&t);
+	time_t	t		=	time(NULL);
+	time_t	utfTime	=	time(&t);
 
 	pushMsg.received = (unsigned long)utfTime;
 
@@ -1905,7 +1905,7 @@ unsigned long SmsPluginWapPushHandler::convertXmlCharToSec(char* pDate)
 	struct tm	timeStruct;
 	time_t		nTimeInSec = 0;
 	char			tmpBuf[10];
-	int 			i = 0, index = 0;
+	int			i = 0, index = 0;
 
 	memset(tmpBuf, 0x00, sizeof(tmpBuf));
 	memset(&timeStruct, 0x00, sizeof(struct tm));

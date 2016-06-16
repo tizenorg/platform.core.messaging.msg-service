@@ -401,7 +401,7 @@ bool SmsPluginSetting::setCbConfig(const MSG_CBMSG_OPT_S *pCbOpt)
 	if (getResultFromSim() == true) {
 		MSG_DEBUG("######## Set Cb Config was Successful !!! #######");
 	} else {
-	 	MSG_DEBUG("######## Set Cb Config was Failed !!! #######");
+		MSG_DEBUG("######## Set Cb Config was Failed !!! #######");
 		return false;
 	}
 #endif
@@ -426,7 +426,7 @@ bool SmsPluginSetting::getCbConfig(MSG_CBMSG_OPT_S *pCbOpt)
 	if (getCbConfigEvent(pCbOpt) == true) {
 		MSG_DEBUG("######## Get Cb Config was Successful !!! #######");
 	} else {
-	 	MSG_DEBUG("######## Get Cb Config was Failed !!! #######");
+		MSG_DEBUG("######## Get Cb Config was Failed !!! #######");
 		return false;
 	}
 #endif
@@ -602,7 +602,7 @@ bool SmsPluginSetting::getMsisdnInfo(void)
 	if (getResultFromSim() == true) {
 		MSG_DEBUG("######## Get Sim msisdn was Successful !!! #######");
 	} else {
-	 	MSG_DEBUG("######## Get Sim msisdn was Failed !!! #######");
+		MSG_DEBUG("######## Get Sim msisdn was Failed !!! #######");
 		return false;
 	}
 

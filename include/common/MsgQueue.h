@@ -25,7 +25,7 @@ template <typename T>
 class MsgSimpleQ
 {
 public:
-	MsgSimpleQ(){};
+	MsgSimpleQ() {};
 	void pop_front();
 	bool front(T* qItem);
 	void push_front(T const & input);
@@ -34,7 +34,7 @@ public:
 	bool empty();
 	void clear();
 	bool checkExist(T const & qItem, bool(cmp)(T const &, T const &));
-	void remove(T const & qItem, bool(cmp)(T const &, T const &) );
+	void remove(T const & qItem, bool(cmp)(T const &, T const &));
 private:
 	std::list <T> q;
 };
@@ -42,7 +42,7 @@ private:
 template <typename T>
 void MsgSimpleQ<T>::pop_front()
 {
-	if(q.empty()) return;
+	if (q.empty()) return;
 
 	q.pop_front();
 }
@@ -50,7 +50,7 @@ void MsgSimpleQ<T>::pop_front()
 template <typename T>
 bool MsgSimpleQ<T>::front(T* qItem)
 {
-	if( qItem == NULL || q.empty() )
+	if (qItem == NULL || q.empty())
 		return false; /* Fail */
 
 	*qItem = q.front(); /* copy */

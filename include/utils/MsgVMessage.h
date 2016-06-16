@@ -19,14 +19,14 @@
 
 
 /*==================================================================================================
-                                         INCLUDE FILES
+											INCLUDE FILES
 ==================================================================================================*/
 #include "MsgStorageTypes.h"
 #include "MsgInternalTypes.h"
 #include "MsgUtilStorage.h"
 
 /*==================================================================================================
-                                     FUNCTION PROTOTYPES
+											FUNCTION PROTOTYPES
 ==================================================================================================*/
 char* MsgVMessageEncode(MSG_MESSAGE_INFO_S *pMsg);
 char *MsgVMessageEncodeSMS(MSG_MESSAGE_INFO_S *pMsg);

@@ -33,11 +33,11 @@
 typedef struct {
 	GList			*pagelist;
 	GList			*regionlist;
-	GList 			*attachlist;
-	GList 			*transitionlist;
-	GList 			*metalist;
+	GList			*attachlist;
+	GList			*transitionlist;
+	GList			*metalist;
 	MMS_SMIL_ROOTLAYOUT	rootlayout;
-	MMS_APPID_INFO_S 	msgAppId;
+	MMS_APPID_INFO_S	msgAppId;
 	MMS_HEADER_DATA_S header;
 	MMS_MULTIPART_DATA_S smil;
 	GList *multipartlist; /* MMS_MULTIPART_DATA_S */

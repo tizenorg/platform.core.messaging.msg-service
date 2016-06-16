@@ -18,7 +18,7 @@
 #define MSG_TYPES_H_
 
 /*==================================================================================================
-                                    DEFINES
+											DEFINES
 ==================================================================================================*/
 
 #define DEPRECATED __attribute__((deprecated))
@@ -275,7 +275,7 @@
 #define MAX_MIME_TYPE_LEN 64
 
 /*==================================================================================================
-                                         TYPES
+											TYPES
 ==================================================================================================*/
 
 /**
@@ -297,9 +297,9 @@ typedef struct msg_list_handle *msg_list_handle_t;
  * @brief	The structure type representing a message structure list.
  */
 typedef struct {
-    int             nCount;            /**< The count of #msg_struct_t */
-    msg_struct_t    *msg_struct_info;  /**< The #msg_struct_t information list */
-}msg_struct_list_s;
+	int             nCount;            /**< The count of #msg_struct_t */
+	msg_struct_t    *msg_struct_info;  /**< The #msg_struct_t information list */
+} msg_struct_list_s;
 
 
 /**
@@ -450,7 +450,7 @@ typedef unsigned char msg_filter_type_t;
 
 
 /*==================================================================================================
-                                         ENUMS
+											ENUMS
 ==================================================================================================*/
 
 /**
@@ -1156,9 +1156,9 @@ enum _MSG_CLASS_TYPE_E {
  *	        This enum is used as the value of msg_message_type_t.
  */
 enum _MSG_MESSAGE_TYPE_E {
- 	MSG_TYPE_INVALID = 0,               /** < Invalid Type Message */
+	MSG_TYPE_INVALID = 0,               /** < Invalid Type Message */
 
- 	MSG_TYPE_SMS,                       /** < Normal SMS Message */
+	MSG_TYPE_SMS,                       /** < Normal SMS Message */
 	MSG_TYPE_SMS_CB,                    /** < Cell Broadcasting SMS Message */
 	MSG_TYPE_SMS_JAVACB,                /** < JAVA Cell Broadcasting SMS Message */
 	MSG_TYPE_SMS_WAPPUSH,               /** < WAP Push SMS Message */
@@ -1407,8 +1407,8 @@ enum _MSG_PUSH_ACTION_E {
  *  @brief  Enumeration for the type of SyncML Message. \n
  *	        This enum is used as the value of msg_syncml_message_type_t.
  */
- enum _MSG_SYNCML_MESSAGE_TYPE_E {
- 	DM_WBXML,					/** < DM WBXML SyncML Message */
+enum _MSG_SYNCML_MESSAGE_TYPE_E {
+	DM_WBXML,					/** < DM WBXML SyncML Message */
 	DM_XML,						/** < DM XML SyncML Message */
 	DM_NOTIFICATION,			/** < DM Notification SyncML Message */
 
@@ -1419,25 +1419,25 @@ enum _MSG_PUSH_ACTION_E {
 	CP_WBXML,					/** < CP WBXML SyncML Message */
 
 	OTHERS,						/** < Unknown SyncML Message */
- };
+};
 
 
 /**
  *  @brief  Enumeration for the values of a Delivery Report Status. \n
  *	        This enum is used as the value of msg_delivery_report_status_t.
 */
- enum _MSG_DELIVERY_REPORT_STATUS_E  {
-	 MSG_DELIVERY_REPORT_NONE				=	-1,	/**< Indicates the status unavailable */
-	 MSG_DELIVERY_REPORT_EXPIRED 			=	0, 	/**< Indicates the expired status of message */
-	 MSG_DELIVERY_REPORT_SUCCESS			=	1,	/**< Indicates the success status of message */
-	 MSG_DELIVERY_REPORT_REJECTED			=	2, 	/**< Indicates the rejected status of message */
-	 MSG_DELIVERY_REPORT_DEFERRED			=	3, 	/**< Indicates the deferred status of message */
-	 MSG_DELIVERY_REPORT_UNRECOGNISED 		=	4, 	/**< Indicates the unrecognized status of message */
-	 MSG_DELIVERY_REPORT_INDETERMINATE 		=  	5, 	/**< Indicates the intermediate status of message */
-	 MSG_DELIVERY_REPORT_FORWARDED	 		=	6, 	/**< Indicates the forwarded status of message */
-	 MSG_DELIVERY_REPORT_UNREACHABLE  		=	7,	/**< Indicates the unreachable status of message */
-	 MSG_DELIVERY_REPORT_ERROR				=	8,	/**< Indicates the error status of message */
- };
+enum _MSG_DELIVERY_REPORT_STATUS_E  {
+	MSG_DELIVERY_REPORT_NONE				=	-1,	/**< Indicates the status unavailable */
+	MSG_DELIVERY_REPORT_EXPIRED			=	0,	/**< Indicates the expired status of message */
+	MSG_DELIVERY_REPORT_SUCCESS			=	1,	/**< Indicates the success status of message */
+	MSG_DELIVERY_REPORT_REJECTED			=	2,	/**< Indicates the rejected status of message */
+	MSG_DELIVERY_REPORT_DEFERRED			=	3,	/**< Indicates the deferred status of message */
+	MSG_DELIVERY_REPORT_UNRECOGNISED		=	4,	/**< Indicates the unrecognized status of message */
+	MSG_DELIVERY_REPORT_INDETERMINATE		=	5,	/**< Indicates the intermediate status of message */
+	MSG_DELIVERY_REPORT_FORWARDED			=	6,	/**< Indicates the forwarded status of message */
+	MSG_DELIVERY_REPORT_UNREACHABLE		=	7,	/**< Indicates the unreachable status of message */
+	MSG_DELIVERY_REPORT_ERROR				=	8,	/**< Indicates the error status of message */
+};
 
 
 /**
@@ -1445,21 +1445,21 @@ enum _MSG_PUSH_ACTION_E {
  *	        This enum is used as the value of msg_read_report_status_t.
 */
 enum _MSG_READ_REPORT_STATUS_E  {
-	 MSG_READ_REPORT_NONE			= 	-1,	  /**< Indicates the status unavailable */
-	 MSG_READ_REPORT_IS_READ	 	= 	0,	  /**< Indicates the message is read */
-	 MSG_READ_REPORT_IS_DELETED  	= 	1,	  /**< Indicates the message is deleted */
-	 MSG_READ_REPORT_REJECT_BY_USER	=	2,	  /**< Indicates read report reject by user*/
- };
+	MSG_READ_REPORT_NONE			=	-1,		/**< Indicates the status unavailable */
+	MSG_READ_REPORT_IS_READ			=	0,	/**< Indicates the message is read */
+	MSG_READ_REPORT_IS_DELETED		=	1,	/**< Indicates the message is deleted */
+	MSG_READ_REPORT_REJECT_BY_USER	=	2,	/**< Indicates read report reject by user*/
+};
 
 /**
  *  @brief  Enumeration for the values of a Report Type. \n
  *	        This enum is used as the value of msg_read_report_status_t.
 */
 enum _MSG_REPORT_TYPE_E  {
-	 MSG_REPORT_TYPE_DELIVERY	= 	0,      /**< Indicates the type is delivery report*/
-	 MSG_REPORT_TYPE_READ		= 	1,          /**< Indicates the type is read report*/
-	 MSG_REPORT_TYPE_READ_REPORT_SENT = 2,  /**< Indicates the type is read report sent*/
- };
+	MSG_REPORT_TYPE_DELIVERY	=	0,      /**< Indicates the type is delivery report*/
+	MSG_REPORT_TYPE_READ		=	1,          /**< Indicates the type is read report*/
+	MSG_REPORT_TYPE_READ_REPORT_SENT = 2,  /**< Indicates the type is read report sent*/
+};
 
 /* filter */
 /**
@@ -1575,7 +1575,7 @@ typedef enum	_MimeType {
 	MIME_AUDIO_XMF                                      = 0x201a, /**< Indicates the audio xmf type  */
 	MIME_AUDIO_IMY                                      = 0x201b, /**< Indicates the audio imy type  */
 	MIME_AUDIO_MOBILE_XMF                               = 0x201c, /**< Indicates the audio mobile xmf type  */
-	MIME_AUDIO_OGG                               		= 0x201d, /**< Indicates the audio mobile xmf type  */
+	MIME_AUDIO_OGG                                      = 0x201d, /**< Indicates the audio mobile xmf type  */
 
 	/* 86 */
 	MIME_AUDIO_VND_RN_REALAUDIO                         = 0x2100, /**< Indicates the audio rn real audio type  */
@@ -1700,7 +1700,7 @@ typedef enum {
 	MSG_DRM_TYPE_CD		= 2, /**< Indicates the combined delivery */	/* 2004-07-09: combined delivery type */
 	MSG_DRM_TYPE_SD		= 3, /**< Indicates the separate delivery */	/* 2004-07-09: seperate delivery type */
 	MSG_DRM_TYPE_SSD		= 4	 /**< Indicates the special separate delivery */	/* 2005-02-28: add Special Sperate Delivery */
-}MsgDrmType;
+} MsgDrmType;
 
 /**
  *  @brief  Enumeration for the values of a SMIL region type.
@@ -1708,7 +1708,7 @@ typedef enum {
 typedef enum _REGION_FIT_TYPE_T {
 	MMSUI_IMAGE_REGION_FIT_HIDDEN,	 /**< Indicates the hidden fit type */
 	MMSUI_IMAGE_REGION_FIT_MEET,	 /**< Indicates the meet fit type */
-}REGION_FIT_TYPE_T;
+} REGION_FIT_TYPE_T;
 
 
 /**
@@ -1723,7 +1723,7 @@ typedef enum {
 	MMS_SMIL_MEDIA_ANIMATE,           /**< Indicates the animation media */
 	MMS_SMIL_MEDIA_IMG_OR_VIDEO	,     /**< Indicates the image or video media */
 	MMS_SMIL_MEDIA_MAX = 0xffffffff,  /**< Indicates the maximum media type */
-}MmsSmilMediaType;
+} MmsSmilMediaType;
 
 /**
  *  @brief  Enumeration for the values of a SMIL transition type.
@@ -1737,11 +1737,11 @@ typedef enum {
 	MMS_SMIL_TRANS_RANDOMBLOCK = 5,  /**< Indicates the random block transition */
 	MMS_SMIL_TRANS_ZOOMIN = 6,       /**< Indicates the zoom in transition */
 	MMS_SMIL_TRANS_IRISWIPE = 7,     /**< Indicates the iris wipe transition */
- 	MMS_SMIL_TRANS_BOXWIPE = 8,      /**< Indicates the box wipe transition */
+	MMS_SMIL_TRANS_BOXWIPE = 8,      /**< Indicates the box wipe transition */
 	MMS_SMIL_TRANS_FOURBOXWIPE = 9,  /**< Indicates the four box wipe transition */
 	MMS_SMIL_TRANS_PUSHWIPE  = 10,   /**< Indicates the push wipe transition */
 	MMS_SMIL_TRANS_ELLIPSEWIPE  = 11 /**< Indicates the ellipse wipe transition */
-}MmsSmilTransType;
+} MmsSmilTransType;
 
 /**
  *  @brief  Enumeration for the values of a SMIL transition sub type.
@@ -1756,7 +1756,7 @@ typedef enum {
 	MMS_SMIL_TRANS_SUB_HORIZONTAL = 6,    /**< Indicates the horizontal transition */		/* barDoorWipe's default */
 	MMS_SMIL_TRANS_SUB_FROM_RIGHT = 7,    /**< Indicates the from right transition */
 	MMS_SMIL_TRANS_SUB_VERTICAL = 8       /**< Indicates the vertical transition */
-}MmsSmilTransSubType;
+} MmsSmilTransSubType;
 
 /**
  *  @brief  Enumeration for the values of a text font type.
@@ -1767,7 +1767,7 @@ typedef enum {
 	MMS_SMIL_FONT_TYPE_ITALIC = 2,   /**< Indicates the font type italic */
 	MMS_SMIL_FONT_TYPE_BOLD = 3,     /**< Indicates the font type bold */
 	MMS_SMIL_FONT_TYPE_UNDERLINE = 4 /**< Indicates the font type underline */
-}MmsSmilFontType;
+} MmsSmilFontType;
 
 /**
  *  @brief  Enumeration for the values of a MMS text direction.

@@ -19,7 +19,7 @@
 
 
 /*==================================================================================================
-                                         INCLUDE FILES
+										INCLUDE FILES
 ==================================================================================================*/
 #include <map>
 #include <vector>
@@ -35,7 +35,7 @@ extern "C"
 }
 
 /*==================================================================================================
-                                     FUNCTION PROTOTYPES
+										FUNCTION PROTOTYPES
 ==================================================================================================*/
 void TapiEventDeviceReady(TapiHandle *handle, const char *noti_id, void *data, void *user_data);
 
@@ -92,7 +92,7 @@ void TapiEventSimRefreshed(TapiHandle *handle, const char *noti_id, void *data, 
 SMS_NETWORK_STATUS_T convertTapiRespToSmsPlugin(int result);
 
 /*==================================================================================================
-                                     CLASS DEFINITIONS
+										CLASS DEFINITIONS
 ==================================================================================================*/
 class SmsPluginCallback
 {

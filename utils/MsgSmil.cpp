@@ -610,7 +610,7 @@ char *MsgSmilGetRawData(HMsgSmil hSmilDoc)
 
 	if (IsValidSmilDocNo(nSmilDocNo)) {
 		/* xmlSaveFormatFileEnc("-", __gpaMmsSmilDoc[nSmilDocNo]->pSmilDoc, "UTF-8", 1); */
-	 	xmlDocDumpMemory(__gpaMsgSmilDoc[nSmilDocNo]->pSmilDoc, (xmlChar **)(&pszRawData) , NULL);
+		xmlDocDumpMemory(__gpaMsgSmilDoc[nSmilDocNo]->pSmilDoc, (xmlChar **)(&pszRawData) , NULL);
 		if (NULL == pszRawData) {
 			MSG_DEBUG("Invalid pSmilDoc (now wellformed document)");
 		}
@@ -1239,7 +1239,7 @@ xmlNode *MsgSmilCreateMMNode(MMS_MEDIA_S *pstSmilMedia, char *pszContentID)
 		}
 
 #if 0 /* set src attribute cid */
-		char szFilePathWithCid[MSG_MSG_ID_LEN + 5];  	/* for "cid:" */
+		char szFilePathWithCid[MSG_MSG_ID_LEN + 5];		/* for "cid:" */
 		snprintf (szFilePathWithCid, sizeof(szFilePathWithCid), "cid:%s", pszContentID);
 		MsgSmilSetAttribute(pstMedia, (char *)"src", szFilePathWithCid);
 #endif
@@ -1280,8 +1280,8 @@ bool MsgSmilInsertFirstChild(xmlNode *pstParent, xmlNode *pstCurr)
 	MSG_BEGIN();
 
 	 if (NULL == xmlAddChild(pstParent, pstCurr)) {
-		 MSG_SEC_DEBUG("%s Node not added", pstCurr->name);
-	 	bFlag = false;
+		MSG_SEC_DEBUG("%s Node not added", pstCurr->name);
+		bFlag = false;
 	 }
 
 	 MSG_END();
@@ -1299,12 +1299,12 @@ bool MsgSmilInsertNode(xmlNode *pstParent, xmlNode *pstLeftSibling, xmlNode *pst
 			pstLeftSibling = pstLeftSibling->next;
 
 		 if (NULL == xmlAddNextSibling(pstLeftSibling, pstCurr)) {
-			 MSG_SEC_DEBUG("%s Node not added", pstCurr->name);
-		 	bFlag = false;
+			MSG_SEC_DEBUG("%s Node not added", pstCurr->name);
+			bFlag = false;
 		 }
 	} else {
 		 if (NULL == xmlAddChild(pstParent, pstCurr)) {
-			 MSG_SEC_DEBUG("%s Node not added", pstCurr->name);
+			MSG_SEC_DEBUG("%s Node not added", pstCurr->name);
 			bFlag = false;
 		 }
 	}

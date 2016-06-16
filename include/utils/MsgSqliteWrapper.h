@@ -18,20 +18,20 @@
 #define MSG_SQLITE_WRAPPER_H
 
 /*==================================================================================================
-                                    INCLUDE FILES
+											INCLUDE FILES
 ==================================================================================================*/
 #include "MsgTypes.h"
 #include "MsgMutex.h"
 #include <sqlite3.h>
 
 /*==================================================================================================
-                                    DEFINES
+											DEFINES
 ==================================================================================================*/
-#define MSGFW_DB_NAME 			TZ_SYS_DB_PATH"/.msg_service.db"
+#define MSGFW_DB_NAME				TZ_SYS_DB_PATH"/.msg_service.db"
 
 #define MSGFW_MESSAGE_TABLE_NAME				"MSG_MESSAGE_TABLE"
 #define MSGFW_FOLDER_TABLE_NAME					"MSG_FOLDER_TABLE"
-#define MSGFW_ADDRESS_TABLE_NAME    			"MSG_ADDRESS_TABLE"
+#define MSGFW_ADDRESS_TABLE_NAME				"MSG_ADDRESS_TABLE"
 #define MSGFW_CONVERSATION_TABLE_NAME		"MSG_CONVERSATION_TABLE"
 #define MSGFW_SIM_MSG_TABLE_NAME				"MSG_SIM_TABLE"
 #define MSGFW_FILTER_TABLE_NAME					"MSG_FILTER_TABLE"
@@ -70,17 +70,17 @@
 
 #define MSGFW_DB_ESCAPE_CHAR		'\\'
 
-#define SHM_FILE_FOR_DB_LOCK                "/.msg_shm_db_lock"
+#define SHM_FILE_FOR_DB_LOCK		"/.msg_shm_db_lock"
 
 /*==================================================================================================
-                                     FUNCTION PROTOTYPES
+											FUNCTION PROTOTYPES
 ==================================================================================================*/
 void	MsgReleaseMemoryDB();
 msg_error_t MsgConvertStrWithEscape(const char *input, char **output);
 
 
 /*==================================================================================================
-                                     CLASS DEFINITIONS
+											CLASS DEFINITIONS
 ==================================================================================================*/
 class MsgDbHandler
 {

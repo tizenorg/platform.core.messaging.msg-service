@@ -19,7 +19,7 @@
 
 
 /*==================================================================================================
-                                         INCLUDE FILES
+										INCLUDE FILES
 ==================================================================================================*/
 #include "MsgInternalTypes.h"
 #include "MsgMutex.h"
@@ -31,7 +31,7 @@ extern "C"
 }
 
 /*==================================================================================================
-                                     CLASS DEFINITIONS
+										CLASS DEFINITIONS
 ==================================================================================================*/
 class SmsPluginTransport
 {
@@ -59,12 +59,12 @@ private:
 	void convertMsgInfoToPtp(const MSG_MESSAGE_INFO_S *pMsgInfo, sms_trans_p2p_msg_s *pPtpMsg);
 	void convertMsgInfoToSubmit(const MSG_MESSAGE_INFO_S *pMsgInfo, sms_telesvc_submit_s *pSubmit);
 
-	unsigned char 		msgRef;
+	unsigned char		msgRef;
 	unsigned char		msgSeqNum;
 	unsigned char		msgSubmitId;
 
-	unsigned char 		msgRef8bit;
-	unsigned short 		msgRef16bit;
+	unsigned char		msgRef8bit;
+	unsigned short		msgRef16bit;
 
 	sms_network_status_t	curStatus;
 

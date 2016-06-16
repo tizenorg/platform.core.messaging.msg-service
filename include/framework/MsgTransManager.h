@@ -19,7 +19,7 @@
 
 
 /*==================================================================================================
-                                         INCLUDE FILES
+											INCLUDE FILES
 ==================================================================================================*/
 #include <list>
 #include <map>
@@ -38,7 +38,7 @@
 
 
 /*==================================================================================================
-                                         DEFINITION
+											DEFINITION
 ==================================================================================================*/
 typedef std::map<MSG_CMD_TYPE_T, int (*)(const MSG_CMD_S*, char**)> handler_map;
 typedef std::map<int, MSG_PROXY_INFO_S> sentmsg_map;
@@ -54,7 +54,7 @@ typedef std::list<MSG_CMD_REG_SYNCML_MSG_OPERATION_CB_S> syncmlop_list;
 
 
 /*==================================================================================================
-                                     CLASS DEFINITIONS
+											CLASS DEFINITIONS
 ==================================================================================================*/
 class MsgTransactionManager
 {
@@ -62,7 +62,7 @@ public:
 	static MsgTransactionManager* instance();
 
 	void run();
-      void workerEventQueue();
+	void workerEventQueue();
 	void write(int fd, const char* buf, int len);
 
 	/* methods for sent status event */
@@ -82,7 +82,7 @@ public:
 	void setStorageChangeCB(int listenerFd);
 	void setReportMsgCB(int listenerFd);
 
-	javamms_list& getJavaMMSList();
+	javamms_list &getJavaMMSList();
 
 	void broadcastIncomingMsgCB(const msg_error_t err, const MSG_MESSAGE_INFO_S *msgInfo);
 	void broadcastMMSConfCB(const msg_error_t err, const MSG_MESSAGE_INFO_S *msgInfo, const MMS_RECV_DATA_S *mmsRecvData);

@@ -19,7 +19,7 @@
 
 
 /*==================================================================================================
-                                         INCLUDE FILES
+											INCLUDE FILES
 ==================================================================================================*/
 #include "MsgMutex.h"
 #include "MsgQueue.h"
@@ -28,7 +28,7 @@
 
 
 /*==================================================================================================
-                                     CLASS DEFINITIONS
+											CLASS DEFINITIONS
 ==================================================================================================*/
 class SmsPluginUAManager : public MsgThread
 {
@@ -42,10 +42,10 @@ public:
 private:
 	SmsPluginUAManager();
 	~SmsPluginUAManager();
-	void lock() 	{ mx.lock(); };
-	void unlock() 	{ mx.unlock(); };
-	void wait() 	{ cv.wait(mx.pMsgMutex()); };
-	void signal() 	{ cv.signal(); };
+	void lock()	{ mx.lock(); };
+	void unlock()	{ mx.unlock(); };
+	void wait()	{ cv.wait(mx.pMsgMutex()); };
+	void signal()	{ cv.signal(); };
 
 	virtual void run();
 

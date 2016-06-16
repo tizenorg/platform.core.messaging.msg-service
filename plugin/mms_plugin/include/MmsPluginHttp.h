@@ -72,45 +72,48 @@ typedef struct _http_session_info_s {
 } http_request_info_s;
 
 class MmsPluginHttpAgent {
-	public:
-		static MmsPluginHttpAgent *instance();
+public:
+	static MmsPluginHttpAgent *instance();
 
-		MMS_HTTP_ERROR_E httpRequest(http_request_info_s &request_info);
+	MMS_HTTP_ERROR_E httpRequest(http_request_info_s &request_info);
 
-		void setAbortFlag(){
-			MsgMutexLocker locker(mx);
-			abort = true;
-		};
+	void setAbortFlag()
+	{
+		MsgMutexLocker locker(mx);
+		abort = true;
+	};
 
-		bool getAbortFlag(){
-			MsgMutexLocker locker(mx);
-			return abort;
-		};
+	bool getAbortFlag()
+	{
+		MsgMutexLocker locker(mx);
+		return abort;
+	};
 
-	private:
-		static MmsPluginHttpAgent *pInstance;
+private:
+	static MmsPluginHttpAgent *pInstance;
 
-		MmsPluginHttpAgent();
-		~MmsPluginHttpAgent();
+	MmsPluginHttpAgent();
+	~MmsPluginHttpAgent();
 
-		void initSession();
-		MMS_HTTP_ERROR_E setSession(http_request_info_s &request_info);
-		MMS_HTTP_ERROR_E startTransaction();
-		void clearSession();
+	void initSession();
+	MMS_HTTP_ERROR_E setSession(http_request_info_s &request_info);
+	MMS_HTTP_ERROR_E startTransaction();
+	void clearSession();
 
-		void initAbortFlag(){
-			MsgMutexLocker locker(mx);
-			abort = false;
-		};
+	void initAbortFlag()
+	{
+		MsgMutexLocker locker(mx);
+		abort = false;
+	};
 
-		MMS_HTTP_TRANSACTION_TYPE_E transaction_type;
+	MMS_HTTP_TRANSACTION_TYPE_E transaction_type;
 
-		void *session_header;
-		void *session_option;
+	void *session_header;
+	void *session_option;
 
-		FILE *respfile;
-		bool abort;
-		MsgMutex mx;
+	FILE *respfile;
+	bool abort;
+	MsgMutex mx;
 };
 
 #endif /* MMS_PLUGIN_HTTP_H */

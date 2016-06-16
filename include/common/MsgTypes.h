@@ -18,9 +18,9 @@
 #define MSG_TYPES_H
 
 /**
- *	@file 		MsgTypes.h
- *	@brief 		Defines common types of messaging framework
- *	@version 	1.0
+ *	@file			MsgTypes.h
+ *	@brief			Defines common types of messaging framework
+ *	@version		1.0
  */
 
 /**
@@ -31,7 +31,7 @@
  */
 
 /*==================================================================================================
-                                         INCLUDE FILES
+											INCLUDE FILES
 ==================================================================================================*/
 #include <stdlib.h>
 #include <stdio.h>
@@ -47,7 +47,7 @@
  */
 
 /*==================================================================================================
-                                         TYPES
+											TYPES
 ==================================================================================================*/
 
 /**
@@ -75,18 +75,17 @@
 typedef struct _msg_struct {
 	int type;
 	void *data;
-}msg_struct_s;
+} msg_struct_s;
 
 /*==================================================================================================
-                                         STRUCTURES
+											STRUCTURES
 ==================================================================================================*/
 
 /**
  *	@brief	Represents address information.
  */
 
-typedef struct
-{
+typedef struct {
 	msg_address_type_t		addressType;													/**< The type of an address in case of an Email or a mobile phone */
 	msg_recipient_type_t	recipientType;													/**< The type of recipient address in case of To, Cc, and Bcc */
 	msg_contact_id_t			contactId;															/**< The contact ID of address */
@@ -98,8 +97,7 @@ typedef struct
 /**
  *	@brief	Represents port number information.
  */
-typedef struct
-{
+typedef struct {
 	bool				valid;		/**< Indicates whether port information is used or not. */
 	unsigned short		dstPort;		/**< Recipient port number, not greater than 16 bit */
 	unsigned short		srcPort;		/**< Sender port number, not greater than 16 bit */
@@ -109,8 +107,7 @@ typedef struct
 /**
  *	@brief	Represents MMS Sending Option Structure in application.
  */
-typedef struct
-{
+typedef struct {
 	bool					bReadReq;
 	time_t				expiryTime;
 	bool					bUseDeliveryCustomTime;
@@ -122,8 +119,7 @@ typedef struct
 /**
  *	@brief	Represents SMS Sending Option Structure in application.
  */
-typedef struct
-{
+typedef struct {
 	bool bReplyPath;
 } SMS_SENDINGOPT_S;
 
@@ -131,8 +127,7 @@ typedef struct
 /**
  *	@brief	Represents MSG Sending Option Structure in application.
  */
-typedef struct
-{
+typedef struct {
 	bool bSetting;
 	bool bDeliverReq;
 	bool bKeepCopy;
@@ -141,27 +136,24 @@ typedef struct
 } MSG_SENDINGOPT_S;
 
 
-typedef	enum
-{
+typedef	enum {
 	MMS_TIMETYPE_NONE		= -1,	/**< fixme: backward compatibility */
 	MMS_TIMETYPE_ERROR		= -1,	/**< error return in Get method */
 	MMS_TIMETYPE_RELATIVE	= 0,	/**< default */
 	MMS_TIMETYPE_ABSOLUTE   = 1
-}MmsTimeType;
+} MmsTimeType;
 
 
-typedef struct
-{
+typedef struct {
 	MmsTimeType	type;
 	unsigned int	time;
-}MmsTimeStruct;
+} MmsTimeStruct;
 
 
 /**
  *	@brief	Represents MMS Sending Option Structure in framework.
  */
-typedef struct
-{
+typedef struct {
 	bool					bReadReq;
 	bool					bUseDeliveryCustomTime;
 	msg_priority_type_t	priority;
@@ -173,8 +165,7 @@ typedef struct
 /**
  *	@brief	Represents SMS Sending Option Structure in framework.
  */
-typedef struct
-{
+typedef struct {
 	bool	bReplyPath;
 } SMS_SENDINGOPT_INFO_S;
 
@@ -182,15 +173,14 @@ typedef struct
 /**
  *	@brief	Represents MSG Sending Option Structure in framework.
  */
-typedef struct
-{
+typedef struct {
 	bool bSetting;
 	bool bDeliverReq;
 	bool bKeepCopy;
 
 	union {
-		MMS_SENDINGOPT_INFO_S 	mmsSendOptInfo;
-		SMS_SENDINGOPT_INFO_S 	smsSendOptInfo;
+		MMS_SENDINGOPT_INFO_S	mmsSendOptInfo;
+		SMS_SENDINGOPT_INFO_S	smsSendOptInfo;
 	} option;
 } MSG_SENDINGOPT_INFO_S;
 
@@ -200,8 +190,7 @@ typedef struct
  *	Applications compose a request and send it to the framework via Message handle. \n
  *	This request ID is used to manage the request by the framework.
  */
-typedef struct
-{
+typedef struct {
 	msg_request_id_t	reqId;	/**< Indicates the request ID, which is unique.
 									When applications submit a request to the framework, this value will be set by the framework. */
 	msg_struct_t		msg;	/**< Indicates the message structure to be sent by applications. */
@@ -213,14 +202,12 @@ typedef struct
  *	@brief	Represents Address information list.
  */
 
-typedef struct
-{
+typedef struct {
 	msg_contact_id_t		contactId;			/**< The contact id of message common informatioin */
 	MSG_ADDRESS_INFO_S		msgAddrInfo;		/**< The pointer to message common informatioin */
 } MSG_THREAD_LIST_INDEX_S;
 
-typedef struct
-{
+typedef struct {
 	msg_contact_id_t		contactId;			/**< The contact id of message common informatioin */
 	msg_struct_t			msgAddrInfo;		/**< The pointer to message common informatioin */
 } MSG_THREAD_LIST_INDEX_INFO_S;
@@ -229,21 +216,19 @@ typedef struct
 /**
  *	@brief	Represents Peer Count Info.
  */
-typedef struct
-{
+typedef struct {
 	int totalCount;			/**< Indicates the total number of messages from the Peer. */
 	int unReadCount;		/**< Indicates the unread messages from the Peer. */
 	int smsMsgCount;		/**< Indicates the SMS messages from the Peer. */
 	int mmsMsgCount;		/**< Indicates the MMS messages from the Peer. */
-}MSG_THREAD_COUNT_INFO_S;
+} MSG_THREAD_COUNT_INFO_S;
 
 
 /**
  *	@brief	Represents the request information of Push Message (SI, SL).
  */
-typedef struct
-{
-	msg_push_action_t 	action;
+typedef struct {
+	msg_push_action_t	action;
 	unsigned long			received;
 	unsigned long			created;
 	unsigned long			expires;
@@ -256,8 +241,7 @@ typedef struct
 /**
  *	@brief	Represents the request information of Push Message (CO).
  */
-typedef struct
-{
+typedef struct {
 	int		invalObjectCnt;
 	int		invalServiceCnt;
 	char		invalObjectUrl[MAX_PUSH_CACHEOP_INVALID_OBJECT_MAX][MAX_PUSH_CACHEOP_MAX_URL_LEN + 1];
@@ -268,53 +252,48 @@ typedef struct
 /**
  *	@brief	Represents the SyncML Message Information.
  */
-typedef struct
-{
+typedef struct {
 	int					extId;
 	int					pinCode;
 	msg_struct_t		msg;
-}MSG_SYNCML_MESSAGE_S;
+} MSG_SYNCML_MESSAGE_S;
 
 
 /**
  *	@brief	Represents the SyncML Message Data.
  */
- typedef struct
-{
-	msg_syncml_message_type_t 	syncmlType;
-	int                                             	pushBodyLen;
-	char                                            	pushBody[MAX_WAPPUSH_CONTENTS_LEN + 1];
-	int 								wspHeaderLen;
-	char 							wspHeader[MAX_WAPPUSH_CONTENTS_LEN + 1];
-	int 							simIndex;
-}MSG_SYNCML_MESSAGE_DATA_S;
-
-
-/**
- *	@brief	Represents the SyncML Message Data.
- */
- typedef struct
-{
-	char							pushHeader[MAX_WAPPUSH_CONTENTS_LEN + 1];
-	int 							pushBodyLen;
+typedef struct {
+	msg_syncml_message_type_t	syncmlType;
+	int								pushBodyLen;
 	char							pushBody[MAX_WAPPUSH_CONTENTS_LEN + 1];
-}MSG_LBS_MESSAGE_DATA_S;
+	int								wspHeaderLen;
+	char							wspHeader[MAX_WAPPUSH_CONTENTS_LEN + 1];
+	int							simIndex;
+} MSG_SYNCML_MESSAGE_DATA_S;
 
 
-typedef struct
-{
+/**
+ *	@brief	Represents the SyncML Message Data.
+ */
+typedef struct {
 	char							pushHeader[MAX_WAPPUSH_CONTENTS_LEN + 1];
-	int 							pushBodyLen;
+	int							pushBodyLen;
+	char							pushBody[MAX_WAPPUSH_CONTENTS_LEN + 1];
+} MSG_LBS_MESSAGE_DATA_S;
+
+
+typedef struct {
+	char							pushHeader[MAX_WAPPUSH_CONTENTS_LEN + 1];
+	int							pushBodyLen;
 	char							pushBody[MAX_WAPPUSH_CONTENTS_LEN + 1];
 	char							pushAppId[MAX_WAPPUSH_ID_LEN + 1];
 	char							pushContentType[MAX_WAPPUSH_CONTENT_TYPE_LEN + 1];
-}MSG_PUSH_MESSAGE_DATA_S;
+} MSG_PUSH_MESSAGE_DATA_S;
 
 /**
  *	@brief	Represents the Report Status Data.
  */
-typedef struct
-{
+typedef struct {
 	char addressVal[MAX_ADDRESS_VAL_LEN + 1];
 	int type;
 	int status;
@@ -322,17 +301,15 @@ typedef struct
 } MSG_REPORT_STATUS_INFO_S;
 
 
-typedef struct
-{
+typedef struct {
 	char contentType[MAX_WAPPUSH_CONTENT_TYPE_LEN + 1];
 	char appId[MAX_WAPPUSH_ID_LEN + 1];
 	char pkgName[MSG_FILEPATH_LEN_MAX + 1];
 	bool bLaunch;
-}MSG_PUSH_EVENT_INFO_S;
+} MSG_PUSH_EVENT_INFO_S;
 
 
-typedef struct
-{
+typedef struct {
 	msg_message_id_t msg_id;
 	char mime_type[MAX_MIME_TYPE_LEN+1];
 	char media_item[MSG_FILEPATH_LEN_MAX+1];

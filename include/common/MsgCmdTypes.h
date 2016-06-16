@@ -18,19 +18,19 @@
 #define MSG_CMD_TYPES_H
 
 /*==================================================================================================
-                                         INCLUDE FILES
+											INCLUDE FILES
 ==================================================================================================*/
 #include "MsgTypes.h"
 
 
 /*==================================================================================================
-                                         DEFINES
+											DEFINES
 ==================================================================================================*/
 #define MAX_COOKIE_LEN 20
 
 
 /*==================================================================================================
-                                         TYPES
+											TYPES
 ==================================================================================================*/
 typedef unsigned int MSG_CMD_TYPE_T;
 
@@ -38,18 +38,16 @@ typedef unsigned int MSG_EVENT_TYPE_T;
 
 
 /*==================================================================================================
-                                         STRUCTURES
+											STRUCTURES
 ==================================================================================================*/
-typedef struct _MSG_CMD_S
-{
+typedef struct _MSG_CMD_S {
 	MSG_CMD_TYPE_T	cmdType;
 	char				cmdCookie[MAX_COOKIE_LEN];
 	char				cmdData[2];
 } MSG_CMD_S;
 
 
-typedef struct _MSG_EVENT_S
-{
+typedef struct _MSG_EVENT_S {
 	MSG_EVENT_TYPE_T		eventType;
 	msg_error_t			result;
 	char					data[2];
@@ -57,11 +55,10 @@ typedef struct _MSG_EVENT_S
 
 
 /*==================================================================================================
-                                         ENUMS
+											ENUMS
 ==================================================================================================*/
 
-enum _MSG_CMD_TYPE_E
-{
+enum _MSG_CMD_TYPE_E {
 	MSG_CMD_OPEN_HANDLE = 0,
 	MSG_CMD_CLOSE_HANDLE,
 	MSG_CMD_GET_STORAGELIST,
@@ -173,8 +170,7 @@ enum _MSG_CMD_TYPE_E
 	MSG_CMD_NUM
 };
 
-enum _MSG_EVENT_TYPE_E
-{
+enum _MSG_EVENT_TYPE_E {
 	MSG_EVENT_OPEN_HANDLE = 0,
 	MSG_EVENT_CLOSE_HANDLE,
 	MSG_EVENT_GET_STORAGELIST,

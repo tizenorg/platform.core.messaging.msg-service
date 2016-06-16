@@ -19,9 +19,9 @@
 
 
 /**
- *	@file 		MsgStorageTypes.h
- *	@brief 		Defines transport types of messaging framework
- *	@version 	1.0
+ *	@file		MsgStorageTypes.h
+ *	@brief		Defines transport types of messaging framework
+ *	@version	1.0
  */
 
 
@@ -33,7 +33,7 @@
  */
 
 /*==================================================================================================
-                                         INCLUDE FILES
+											INCLUDE FILES
 ==================================================================================================*/
 #include <time.h>
 
@@ -48,14 +48,13 @@
  *	@{
  */
 /*==================================================================================================
-                                         STRUCTURES
+											STRUCTURES
 ==================================================================================================*/
 
 /**
  *	@brief	Represents the count of read/unread messages.
  */
-typedef struct
-{
+typedef struct {
 	int	nReadCnt;		/**< The count of read messages */
 	int	nUnreadCnt;		/**< The count of unread messages */
 	int	nSms;			/**< The count of sms type messages */
@@ -66,9 +65,8 @@ typedef struct
 /**
  *	@brief	Represents a reject message information.
  */
-typedef struct
-{
-	msg_message_id_t		msgId;      		/**< Indicates the unique message ID. */
+typedef struct {
+	msg_message_id_t		msgId;				/**< Indicates the unique message ID. */
 	char						msgText[MAX_MSG_TEXT_LEN+1];	/**< Indicates the message text. */
 	time_t					displayTime;
 } MSG_REJECT_MSG_INFO_S;
@@ -77,10 +75,9 @@ typedef struct
 /**
  *	@brief	Represents folder information.
  */
-typedef struct
-{
-	msg_folder_id_t 	folderId;			/**< Indicates the unique folder ID. */
-	char 				folderName[MAX_FOLDER_NAME_SIZE+1];	/**< Indicates the name of the folder. */
+typedef struct {
+	msg_folder_id_t	folderId;			/**< Indicates the unique folder ID. */
+	char				folderName[MAX_FOLDER_NAME_SIZE+1];	/**< Indicates the name of the folder. */
 	msg_folder_type_t	folderType;		/**< Indicates the folder type. */
 } MSG_FOLDER_INFO_S;
 
@@ -88,16 +85,15 @@ typedef struct
 /**
  *	@brief	Represents contact information.
  */
-typedef struct
-{
+typedef struct {
 	msg_contact_id_t	contactId;							/**< Indicates the unique contact ID. */
 	int						addrbookId;							/**< Indicates the address book ID. */
-	char 					firstName[MAX_DISPLAY_NAME_LEN+1];		/**< Indicates the first name of contact. */
-	char 					lastName[MAX_DISPLAY_NAME_LEN+1];		/**< Indicates the last name of contact. */
-	char 					middleName[MAX_DISPLAY_NAME_LEN+1];		/**< Indicates the middle name of contact. */
-	char 					prefix[MAX_DISPLAY_NAME_LEN+1];		/**< Indicates the prefix of contact. */
-	char 					suffix[MAX_DISPLAY_NAME_LEN+1];		/**< Indicates the suffix of contact. */
-	char 					imagePath[MAX_IMAGE_PATH_LEN+1];		/**< Indicates the image path of contact. */
+	char					firstName[MAX_DISPLAY_NAME_LEN+1];		/**< Indicates the first name of contact. */
+	char					lastName[MAX_DISPLAY_NAME_LEN+1];		/**< Indicates the last name of contact. */
+	char					middleName[MAX_DISPLAY_NAME_LEN+1];		/**< Indicates the middle name of contact. */
+	char					prefix[MAX_DISPLAY_NAME_LEN+1];		/**< Indicates the prefix of contact. */
+	char					suffix[MAX_DISPLAY_NAME_LEN+1];		/**< Indicates the suffix of contact. */
+	char					imagePath[MAX_IMAGE_PATH_LEN+1];		/**< Indicates the image path of contact. */
 	char						alerttonePath[MSG_FILEPATH_LEN_MAX+1];		/**< Indicates the message alert tone path of contact. */
 	char						vibrationPath[MSG_FILEPATH_LEN_MAX+1];		/**< Indicates the vibration path of contact. */
 } MSG_CONTACT_INFO_S;
@@ -108,18 +104,16 @@ typedef struct
  *	The sort rule structure includes a sort type and a sort order. \n
  *	Applications can use the sort rule when querying messages.
  */
-typedef struct
-{
+typedef struct {
 	msg_sort_type_t	sortType;		/**< Indicates the sort type, See enum _MSG_SORT_TYPE_E */
 	bool					bAscending;		/**< Indicates the sort order which is ascending or descending */
-}MSG_SORT_RULE_S;
+} MSG_SORT_RULE_S;
 
 
 /**
  *	@brief	Represents SIM ID List.
  */
-typedef struct
-{
+typedef struct {
 	unsigned int		count;										/**< The total number of SIM Msg ID*/
 	msg_sim_id_t	simId[MAX_SEGMENT_NUM];						/**< The SIM Msg ID List */
 } SMS_SIM_ID_LIST_S;
@@ -128,8 +122,7 @@ typedef struct
 /**
  *	@brief	Represents recipien list information.
  */
-typedef struct
-{
+typedef struct {
 	int						recipientCnt;
 	MSG_ADDRESS_INFO_S*	recipientAddr;
 } MSG_RECIPIENTS_LIST_S;
@@ -138,8 +131,7 @@ typedef struct
 /**
  *	@brief	Represents Message list condition values.
  */
-typedef struct
-{
+typedef struct {
 	msg_folder_id_t			folderId;
 	msg_thread_id_t			threadId;
 	msg_storage_id_t			storageId;
@@ -158,8 +150,7 @@ typedef struct
 } MSG_LIST_CONDITION_S;
 
 
-typedef struct
-{
+typedef struct {
 	int appcode;
 	char appid[MAX_WAPPUSH_ID_LEN];
 } PUSH_APPLICATION_INFO_S;

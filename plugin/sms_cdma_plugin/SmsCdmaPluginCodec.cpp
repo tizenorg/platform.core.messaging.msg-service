@@ -2078,7 +2078,7 @@ int SmsPluginMsgCodec::encodeUserData(const unsigned char* src, unsigned char *d
 
 	unsigned char *tmp = (unsigned char *)calloc(1, src_size+1);
 	for (i = 0; i < src_size; i++) {
-        	tmp[i] = src[i] << 1;
+		tmp[i] = src[i] << 1;
 	}
 
 	j = 0;

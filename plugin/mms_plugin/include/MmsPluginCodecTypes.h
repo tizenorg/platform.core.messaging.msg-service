@@ -68,7 +68,7 @@
 #define	MSG_MMS_CH_ADDR_DELIMETER	MSG_CH_ADDR_DELIMETER
 
 
-typedef unsigned int 			UINT;
+typedef unsigned int			UINT;
 typedef unsigned long int		UINT32;
 typedef unsigned char			UINT8;
 typedef unsigned short int		UINT16;

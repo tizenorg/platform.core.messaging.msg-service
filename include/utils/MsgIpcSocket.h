@@ -18,7 +18,7 @@
 #define __IPCSocket_H__
 
 /*==================================================================================================
-                                         INCLUDE FILES
+											INCLUDE FILES
 ==================================================================================================*/
 #include <sys/types.h>
 #include <map>
@@ -28,9 +28,9 @@
 
 
 /*==================================================================================================
-                                         DEFINES
+											DEFINES
 ==================================================================================================*/
-#define MSG_MAX_IPC_SIZE 50000 // 50 * 1000 = sizeof(msg common info) * max message count
+#define MSG_MAX_IPC_SIZE 50000 /* 50 * 1000 = sizeof(msg common info) * max message count */
 #define MAX_NUM_IPC_CLIENT 10
 
 #define MSG_SOCKET_PATH "/tmp/.msgfw_socket"
@@ -40,17 +40,16 @@
 
 
 /*==================================================================================================
-                                         ENUM
+											ENUM
 ==================================================================================================*/
-typedef enum
-{
+typedef enum {
 	CLOSE_CONNECTION_BY_SIGNAL = 0,
 	CLOSE_CONNECTION_BY_USER = -17,
 } IPC_CONTROL_E;
 
 
 /*==================================================================================================
-                                     CLASS DEFINITIONS
+											CLASS DEFINITIONS
 ==================================================================================================*/
 class MsgIpcClientSocket
 {
@@ -58,18 +57,18 @@ public:
 	MsgIpcClientSocket();
 /*	~MsgIpcClientSocket(); */
 
-	int 	maxFd() { return (maxfd+1); }
-	fd_set 	fdSet() { return fds; }
-	int 	fd() { return sockfd; }
+	int maxFd() { return (maxfd+1); }
+	fd_set fdSet() { return fds; }
+	int fd() { return sockfd; }
 
 	msg_error_t connect(const char *path);
 	msg_error_t close();
 	/* write msg to ipc server */
-	int 	write(const char* buf, unsigned int len);
+	int write(const char* buf, unsigned int len);
 	/* read msg from ipc server */
-	int 	read(char** buf, unsigned int* len);
-	void 	addfd(int fd);
-	int		getRemoteFd() {return remotefd; }
+	int read(char** buf, unsigned int* len);
+	void addfd(int fd);
+	int	getRemoteFd() {return remotefd; }
 private:
 	int readn(char *buf, unsigned int len);
 	int writen(const char *buf, unsigned int len);
@@ -85,20 +84,20 @@ class MsgIpcServerSocket
 public:
 	MsgIpcServerSocket();
 	~MsgIpcServerSocket() { mapFds.clear(); }
-	int 	maxFd() { return (maxfd+1); }
-	fd_set 	fdSet() { return fds; }
-	int 	fd() { return sockfd; }
+	int maxFd() { return (maxfd+1); }
+	fd_set fdSet() { return fds; }
+	int fd() { return sockfd; }
 
 	msg_error_t open(const char *path);
 	msg_error_t accept();
-	void 		close(int fd);
+	void close(int fd);
 
 	/* read msg from client of fd */
-	int 	read(int fd, char** buf, int* len);
+	int read(int fd, char** buf, int* len);
 	/* write msg to ipc client */
-	int 	write(int fd, const char* buf, unsigned int len);
-	void 	addfd(int fd);
-	void    setSockfd(int fd) { sockfd = fd; }
+	int write(int fd, const char* buf, unsigned int len);
+	void addfd(int fd);
+	void setSockfd(int fd) { sockfd = fd; }
 
 private:
 	int readn(int fd, char *buf, unsigned int len);
@@ -108,9 +107,9 @@ private:
 	int sockfd;
 
 	/* information about IPC clients, it is used for select() */
-	fd_set 				fds;
-	int 				maxfd;
-	std::map<int, int> 	mapFds;
+	fd_set fds;
+	int maxfd;
+	std::map<int, int> mapFds;
 };
 
 #endif /*__IPCSocket_H__ */

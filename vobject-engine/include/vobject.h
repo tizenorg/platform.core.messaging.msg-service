@@ -40,7 +40,7 @@ extern "C" {
 	} while (0)
 
 
-#define VDATA_TRACE_LINE() fprintf(stderr, "\n[calendarui] %s:%d\n", __FUNCTION__, __LINE__ )
+#define VDATA_TRACE_LINE() fprintf(stderr, "\n[calendarui] %s:%d\n", __FUNCTION__, __LINE__)
 
 #define SysRequireEx(expr, retValue) \
 	if (!(expr)) { \

@@ -21,13 +21,13 @@
 #include "MsgTypes.h"
 
 /*==================================================================================================
-					DEFINES
+											DEFINES
 ==================================================================================================*/
 
 typedef void (*msg_alarm_cb)(int alarmId);
 
 /*==================================================================================================
-					FUNCTION PROTOTYPES
+											FUNCTION PROTOTYPES
 ==================================================================================================*/
 msg_error_t MsgAlarmRegistration(struct tm *timeInfo, msg_alarm_cb userCB, int *alarmId);
 msg_error_t MsgAlarmRemove(int alarmId);

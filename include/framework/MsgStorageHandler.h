@@ -18,7 +18,7 @@
 #define MSG_STORAGE_HANDLER_H
 
 /*==================================================================================================
-                                         INCLUDE FILES
+											INCLUDE FILES
 ==================================================================================================*/
 #include "MsgStorageTypes.h"
 #include "MsgSettingTypes.h"
@@ -28,7 +28,7 @@
 #include "MsgInternalTypes.h"
 
 /*==================================================================================================
-                                     FUNCTION PROTOTYPES
+											FUNCTION PROTOTYPES
 ==================================================================================================*/
 msg_error_t MsgStoConnectDB();
 msg_error_t MsgStoDisconnectDB();
