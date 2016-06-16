@@ -45,8 +45,8 @@ extern "C" {
 #define SysRequireEx(expr, retValue) \
 	if (!(expr)) { \
 		fprintf(stderr, "INVALID_PARAM (%d lines in %s)\n", __LINE__, __FILE__); \
-		return retValue; }\
-	else {;}
+		return retValue; \
+	}
 #else
 #define USER_TAG "MSG_SERVICE"
 #define VDATA_TRACE(fmt, arg...) \
