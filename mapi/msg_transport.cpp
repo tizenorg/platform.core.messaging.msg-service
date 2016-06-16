@@ -316,6 +316,7 @@ EXPORT_API int msg_syncml_message_operation(msg_handle_t handle, msg_message_id_
 static msg_handle_t msgHandle = NULL;
 static msg_simple_sent_status_cb sentStatusCallback = NULL;
 
+//LCOV_EXCL_START
 static void sent_status_cb_func(msg_handle_t handle, msg_struct_t sent_status, void *user_param)
 {
 /*	MSG_DEBUG("Sent Status [%d]", sent_status->status); */
@@ -332,7 +333,7 @@ static void sent_status_cb_func(msg_handle_t handle, msg_struct_t sent_status, v
 *	MSG_DEBUG("After msg_close_msg_handle.");
 */
 }
-
+//LCOV_EXCL_STOP
 
 static int msg_send_single_sms(const char *phone_num, const char *sms_text, msg_simple_sent_status_cb cb, void *user_param)
 {
@@ -872,7 +873,7 @@ int msg_request_set_struct_handle(msg_struct_s *msg_struct, int field, msg_struc
 	return err;
 }
 
-
+//LCOV_EXCL_START
 int msg_sent_status_get_int(MSG_SENT_STATUS_S *sent_status_info, int field, int *value)
 {
 	if (!sent_status_info)
@@ -894,3 +895,4 @@ int msg_sent_status_get_int(MSG_SENT_STATUS_S *sent_status_info, int field, int 
 
 	return ret;
 }
+//LCOV_EXCL_STOP

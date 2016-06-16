@@ -634,6 +634,7 @@ void msg_message_copy_message(MSG_MESSAGE_HIDDEN_S *pSrc, MSG_MESSAGE_HIDDEN_S *
 	}
 }
 
+//LCOV_EXCL_START
 int msg_cb_message_get_int_value(void *data, int field, int *value)
 {
 	if (!data)
@@ -745,7 +746,7 @@ int msg_cb_message_get_str_value(void *data, int field, char *value, int size)
 
 	return ret;
 }
-
+//LCOV_EXCL_STOP
 
 
 EXPORT_API int msg_get_mms_struct(msg_struct_t msg_struct_handle, msg_struct_t mms_struct_handle)
