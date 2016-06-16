@@ -868,8 +868,8 @@ msg_error_t MsgStoClearConversationTable(MsgDbHandler *pDbHandle)
 
 	memset(sqlQuery, 0x00, sizeof(sqlQuery));
 
-	snprintf(sqlQuery, sizeof(sqlQuery), "DELETE FROM %s \
-			WHERE CONV_ID NOT IN (SELECT CONV_ID FROM %s) AND CONV_ID <> 0;",
+	snprintf(sqlQuery, sizeof(sqlQuery), "DELETE FROM %s "
+			"WHERE CONV_ID NOT IN (SELECT CONV_ID FROM %s) AND CONV_ID <> 0;",
 			MSGFW_CONVERSATION_TABLE_NAME, MSGFW_MESSAGE_TABLE_NAME);
 
 	err = pDbHandle->execQuery(sqlQuery);
@@ -1407,8 +1407,7 @@ bool MsgExistAddress(MsgDbHandler *pDbHandle, MSG_MESSAGE_INFO_S *pMsg,  msg_thr
 	if (err == MSG_ERR_DB_NORECORD) {
 		pDbHandle->freeTable();
 		return false;
-	}
-	else if (err != MSG_SUCCESS) {
+	} else if (err != MSG_SUCCESS) {
 		pDbHandle->freeTable();
 		return false;
 	}
@@ -2359,8 +2358,7 @@ msg_error_t MsgStoGetMessageList(const MSG_LIST_CONDITION_S *pListCond, msg_stru
 		memset(sqlQuerySubset, 0x00, sizeof(sqlQuerySubset));
 		snprintf(sqlQuerySubset, sizeof(sqlQuerySubset), "FROM %s C, %s B, %s A WHERE A.CONV_ID > 0 AND A.CONV_ID = B.CONV_ID AND ",
 			MSGFW_MMS_MULTIPART_TABLE_NAME, MSGFW_ADDRESS_TABLE_NAME, MSGFW_MESSAGE_TABLE_NAME);
-	}
-	else {
+	} else {
 		memset(sqlQuerySubset, 0x00, sizeof(sqlQuerySubset));
 		snprintf(sqlQuerySubset, sizeof(sqlQuerySubset),	"FROM %s B, %s A WHERE A.CONV_ID > 0 AND A.CONV_ID = B.CONV_ID AND ",
 		MSGFW_ADDRESS_TABLE_NAME, MSGFW_MESSAGE_TABLE_NAME);
@@ -2476,8 +2474,7 @@ msg_error_t MsgStoGetMessageList(const MSG_LIST_CONDITION_S *pListCond, msg_stru
 				snprintf(sqlQuerySubset, sizeof(sqlQuerySubset),
 						"AND ((A.MSG_TEXT LIKE ? ESCAPE '%c' OR A.SUBJECT LIKE ? ESCAPE '%c' OR (C.NAME LIKE ? ESCAPE '%c' AND A.MSG_ID = C.MSG_ID AND C.CONTENT_TYPE <> 'application/smil'))) ",
 						MSGFW_DB_ESCAPE_CHAR, MSGFW_DB_ESCAPE_CHAR, MSGFW_DB_ESCAPE_CHAR);
-			}
-			else {
+			} else {
 				snprintf(sqlQuerySubset, sizeof(sqlQuerySubset),
 						"AND ((A.MSG_TEXT LIKE ? ESCAPE '%c' OR A.SUBJECT LIKE ? ESCAPE '%c')) ",
 						MSGFW_DB_ESCAPE_CHAR, MSGFW_DB_ESCAPE_CHAR);
@@ -2492,8 +2489,7 @@ msg_error_t MsgStoGetMessageList(const MSG_LIST_CONDITION_S *pListCond, msg_stru
 				snprintf(sqlQuerySubset, sizeof(sqlQuerySubset),
 						"AND ((A.MSG_TEXT LIKE ? ESCAPE '%c' OR A.SUBJECT LIKE ? ESCAPE '%c' OR (C.NAME LIKE ? ESCAPE '%c' AND A.MSG_ID = C.MSG_ID AND C.CONTENT_TYPE <> 'application/smil')) ",
 						MSGFW_DB_ESCAPE_CHAR, MSGFW_DB_ESCAPE_CHAR, MSGFW_DB_ESCAPE_CHAR);
-			}
-			else {
+			} else {
 				snprintf(sqlQuerySubset, sizeof(sqlQuerySubset),
 						"AND ((A.MSG_TEXT LIKE ? ESCAPE '%c' OR A.SUBJECT LIKE ? ESCAPE '%c') ",
 						MSGFW_DB_ESCAPE_CHAR, MSGFW_DB_ESCAPE_CHAR);

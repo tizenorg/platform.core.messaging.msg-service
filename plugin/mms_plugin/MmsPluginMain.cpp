@@ -249,8 +249,9 @@ msg_error_t MmsUpdateRejectStatus(MSG_MESSAGE_INFO_S *pMsgInfo)
 			MSG_DEBUG("MmsPlgUpdRejectStatus : Encode Notify Response Success");
 			pMsgInfo->dataSize = strlen(pMsgInfo->msgData);
 			pMsgInfo->bTextSms = true;
-		} else
+		} else {
 			MSG_DEBUG("MmsPlgSetRejectStatus : Encode Notify Response Failed");
+		}
 	} catch (MsgException& e) {
 		MSG_FATAL("%s", e.what());
 		return MSG_ERR_PLUGIN_STORAGE;

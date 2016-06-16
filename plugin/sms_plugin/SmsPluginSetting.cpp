@@ -1207,13 +1207,13 @@ void SmsPluginSetting::setMwiInfo(int simIndex, MSG_SUB_TYPE_T type, int count)
 
 	if (pTmpsimMwiInfo.b_cphs) {
 		MSG_DEBUG("b_cphs is set");
-		if (type == MSG_MWI_VOICE_SMS)
+		if (type == MSG_MWI_VOICE_SMS) {
 			pTmpsimMwiInfo.cphs_mwi.b_voice1 = (count > 0 ? 1:0);
-		else if (type == MSG_MWI_VOICE2_SMS)
+		} else if (type == MSG_MWI_VOICE2_SMS) {
 			pTmpsimMwiInfo.cphs_mwi.b_voice2 = (count > 0 ? 1:0);
-		else if (type == MSG_MWI_FAX_SMS)
+		} else if (type == MSG_MWI_FAX_SMS) {
 			pTmpsimMwiInfo.cphs_mwi.b_fax = (count > 0 ? 1:0);
-		else {
+		} else {
 			MSG_DEBUG("There is no type [%d] in CPHS.", type);
 			return;
 		}

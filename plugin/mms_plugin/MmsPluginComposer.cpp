@@ -110,8 +110,8 @@ MMSList *getAddressList(const MSG_MESSAGE_INFO_S *pMsgInfo, int recipientType)
 				pAddressData = MsgMmsCreateAddress(MSG_ADDRESS_TYPE_PLMN, pMsgInfo->addressList[i].addressVal);
 			} else if (pMsgInfo->addressList[i].addressType == MSG_ADDRESS_TYPE_EMAIL) {
 				pAddressData = MsgMmsCreateAddress(MSG_ADDRESS_TYPE_EMAIL, pMsgInfo->addressList[i].addressVal);
-			} else
-				; /* Need to consider IPV4, IPV6, and Alias formatted address */
+			}
+			/* Need to consider IPV4, IPV6, and Alias formatted address */
 
 			if (pAddressData)
 				addressList = g_list_append(addressList, pAddressData);

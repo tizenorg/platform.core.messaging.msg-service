@@ -975,9 +975,9 @@ msg_error_t MsgStoRestoreMessage(const char *filepath, msg_id_list_s **result_id
 			msg_message_id_t * msg_id_list;
 			msg_id_list = (msg_message_id_t*)realloc(msgIdList->msgIdList, sizeof(msg_message_id_t)*(msgIdList->nCount+1));
 
-			if (msg_id_list)
+			if (msg_id_list) {
 				msgIdList->msgIdList = msg_id_list;
-			else {
+			} else {
 				MSG_DEBUG("realloc failed");
 				err = MSG_ERR_UNKNOWN;
 				goto __RETURN;

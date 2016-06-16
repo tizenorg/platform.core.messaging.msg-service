@@ -241,14 +241,12 @@ msg_error_t SmsPluginStorage::checkMessage(MSG_MESSAGE_INFO_S *pMsgInfo)
 		if (pMsgInfo->msgType.classType == MSG_CLASS_0) {
 			pMsgInfo->folderId = 0;
 			err = MSG_SUCCESS;
-		}
-		/*
+/*		}
 		else if (pMsgInfo->msgType.classType == MSG_CLASS_2 &&
 				(pMsgInfo->msgType.subType == MSG_NORMAL_SMS || pMsgInfo->msgType.subType == MSG_REJECT_SMS)) {
 			err = addClass2Message(pMsgInfo);
-		}
-		*/
-		else if (pMsgInfo->msgType.subType == MSG_NOTIFICATIONIND_MMS) {
+*/
+		} else if (pMsgInfo->msgType.subType == MSG_NOTIFICATIONIND_MMS) {
 			err = MSG_SUCCESS;
 		}
 		return err;

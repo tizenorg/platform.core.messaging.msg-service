@@ -261,8 +261,7 @@ static int __msgsvc_vmsg_append_str(char **buf, int *buf_size, int len, const ch
 					*r = '\\';
 					r++;
 					*r = 'n';
-				}
-				else {
+				} else {
 					*r = *s;
 				}
 				break;
@@ -272,9 +271,9 @@ static int __msgsvc_vmsg_append_str(char **buf, int *buf_size, int len, const ch
 				str_len++;
 				if (*buf_size < str_len+len+1) {
 					*buf_size = *buf_size * 2;
-					if (NULL == (tmp = (char *)realloc(*buf, *buf_size)))
+					if (NULL == (tmp = (char *)realloc(*buf, *buf_size))) {
 						return -1;
-					else {
+					} else {
 						int pos_temp = r-(*buf+len);
 						*buf = tmp;
 						r = (char *)(*buf+len+pos_temp);
@@ -293,9 +292,9 @@ static int __msgsvc_vmsg_append_str(char **buf, int *buf_size, int len, const ch
 				str_len++;
 				if (*buf_size < str_len+len+1) {
 					*buf_size = *buf_size * 2;
-					if (NULL == (tmp = (char *)realloc(*buf, *buf_size)))
+					if (NULL == (tmp = (char *)realloc(*buf, *buf_size))) {
 						return -1;
-					else {
+					} else {
 						int pos_temp = r-(*buf+len);
 						*buf = tmp;
 						r = (char *)(*buf+len+pos_temp);
@@ -310,9 +309,9 @@ static int __msgsvc_vmsg_append_str(char **buf, int *buf_size, int len, const ch
 					str_len++;
 					if (*buf_size < str_len+len+1) {
 						*buf_size = *buf_size * 2;
-						if (NULL == (tmp = (char *)realloc(*buf, *buf_size)))
+						if (NULL == (tmp = (char *)realloc(*buf, *buf_size))) {
 							return -1;
-						else {
+						} else {
 							int pos_temp = r-(*buf+len);
 							*buf = tmp;
 							r = (char *)(*buf+len+pos_temp);
@@ -324,17 +323,16 @@ static int __msgsvc_vmsg_append_str(char **buf, int *buf_size, int len, const ch
 					s++;
 					if (*buf_size < str_len+len+1) {
 						*buf_size = *buf_size * 2;
-						if (NULL == (tmp = (char *)realloc(*buf, *buf_size)))
+						if (NULL == (tmp = (char *)realloc(*buf, *buf_size))) {
 							return -1;
-						else {
+						} else {
 							int pos_temp = r-(*buf+len);
 							*buf = tmp;
 							r = (char *)(*buf+len+pos_temp);
 						}
 					}
 					*r = *s;
-				}
-				else {
+				} else {
 					*r = *s;
 				}
 				break;
@@ -345,9 +343,9 @@ static int __msgsvc_vmsg_append_str(char **buf, int *buf_size, int len, const ch
 					str_len++;
 					if (*buf_size < str_len+len+1) {
 						*buf_size = *buf_size * 2;
-						if (NULL == (tmp = (char *)realloc(*buf, *buf_size)))
+						if (NULL == (tmp = (char *)realloc(*buf, *buf_size))) {
 							return -1;
-						else {
+						} else {
 							int pos_temp = r-(*buf+len);
 							*buf = tmp;
 							r = (char *)(*buf+len+pos_temp);
@@ -359,17 +357,16 @@ static int __msgsvc_vmsg_append_str(char **buf, int *buf_size, int len, const ch
 					s++;
 					if (*buf_size < str_len+len+1) {
 						*buf_size = *buf_size * 2;
-						if (NULL == (tmp = (char *)realloc(*buf, *buf_size)))
+						if (NULL == (tmp = (char *)realloc(*buf, *buf_size))) {
 							return -1;
-						else {
+						} else {
 							int pos_temp = r-(*buf+len);
 							*buf = tmp;
 							r = (char *)(*buf+len+pos_temp);
 						}
 					}
 					*r = *s;
-				}
-				else {
+				} else {
 					*r = *s;
 				}
 				break;
@@ -381,8 +378,7 @@ static int __msgsvc_vmsg_append_str(char **buf, int *buf_size, int len, const ch
 			s++;
 		}
 		len_temp = str_len;
-	}
-	else {
+	} else {
 		len_temp = snprintf(*buf+len, *buf_size-len+1, "%s", safe_str);
 	}
 	len += len_temp;
@@ -638,8 +634,7 @@ static inline int __msgsvc_vmsg_add_folding(char **buf, int *buf_size, int buf_l
 			if (NULL == (tmp = (char *)realloc(buf_copy, *buf_size))) {
 				free(buf_copy);
 				return -1;
-			}
-			else {
+			} else {
 				buf_copy = tmp;
 				r = (buf_copy + result_len);
 			}
@@ -652,9 +647,9 @@ static inline int __msgsvc_vmsg_add_folding(char **buf, int *buf_size, int buf_l
 				encode_64 = true;
 		}
 
-		if ('\r' == *s)
+		if ('\r' == *s) {
 			len--;
-		else if ('\n' == *s) {
+		} else if ('\n' == *s) {
 			len = -1;
 			char_len = 0;
 			content_start = false;
@@ -1110,9 +1105,9 @@ char *MsgVMessageEncode(MSG_MESSAGE_INFO_S *pMsg)
 		char* msgText = NULL;
 #if 0
 		char filePath[MSG_FILEPATH_LEN_MAX] = {0, };
-		if(pMsg->msgType.subType == MSG_NOTIFICATIONIND_MMS)
+		if(pMsg->msgType.subType == MSG_NOTIFICATIONIND_MMS) {
 			pFileData = MsgOpenAndReadMmsFile(pMsg->msgData, 0, -1, &fileSize);
-		else {
+		} else {
 			err = MsgStoGetMmsRawFilePath(pDbHandle, pMsg->msgId, filePath);
 
 			if (err != MSG_SUCCESS)
@@ -1431,8 +1426,7 @@ static inline char* __msgsvc_vmsg_translate_charset(char *src, int len)
 				val += sizeof("CHARSET");
 				break;
 			}
-		}
-		else if (':' == *val) {
+		} else if (':' == *val) {
 			return NULL;
 		}
 		val++;
@@ -1488,8 +1482,7 @@ static void __msgsvc_vmsg_get_prefix(char **prefix, char *src)
 		long len = (long)temp - (long)src;
 		*prefix = (char *)calloc(len+1, sizeof(char));
 		snprintf(*prefix, len+1, "%s", src);
-	}
-	else {
+	} else {
 		*prefix = NULL;
 	}
 }
@@ -1548,8 +1541,7 @@ static char* __msgsvc_vmsg_get_val(int ver, char *src, char **prefix, char **des
 
 			cursor++;
 		}
-	}
-	else {
+	} else {
 		while (*cursor) {
 			if ('\r' == *cursor && '\n' == *(cursor+1) && ' ' != *(cursor+2))
 				break;
@@ -1564,8 +1556,7 @@ static char* __msgsvc_vmsg_get_val(int ver, char *src, char **prefix, char **des
 	if (src == cursor) {
 		*dest = NULL;
 		return NULL;
-	}
-	else {
+	} else {
 		int len = 0;
 		char temp = *cursor;
 		char *new_dest;
@@ -1604,9 +1595,9 @@ static int  __msgsvc_vmsg_check_content_type(char **vcard)
 			break;
 	}
 
-	if (VMSG_MAXIMUM_VALUE == i)
+	if (VMSG_MAXIMUM_VALUE == i) {
 		return VMSG_VALUE_NONE;
-	else {
+	} else {
 		*vcard = new_start;
 		return i;
 	}
@@ -1767,8 +1758,7 @@ static inline msg_error_t __msgsvc_vmsg_get_msg_box(MSG_MESSAGE_INFO_S *pMsg, ch
 		pMsg->folderId = MSG_DRAFT_ID;
 		pMsg->direction = MSG_DIRECTION_TYPE_MO;
 		pMsg->networkStatus = MSG_NETWORK_NOT_SEND;
-	}
-	else if (strcmp(temp, content_name[VMSG_INDICATION_MSG_BOX_INBOX]) == 0) {
+	} else if (strcmp(temp, content_name[VMSG_INDICATION_MSG_BOX_INBOX]) == 0) {
 		pMsg->folderId = MSG_INBOX_ID;
 		pMsg->direction = MSG_DIRECTION_TYPE_MT;
 		pMsg->networkStatus = MSG_NETWORK_RECEIVED;
@@ -1776,8 +1766,9 @@ static inline msg_error_t __msgsvc_vmsg_get_msg_box(MSG_MESSAGE_INFO_S *pMsg, ch
 		pMsg->folderId = MSG_SENTBOX_ID;
 		pMsg->direction = MSG_DIRECTION_TYPE_MO;
 		pMsg->networkStatus = MSG_NETWORK_SEND_SUCCESS;
-	} else
+	} else {
 		return MSG_ERR_INVALID_PARAMETER;
+	}
 
 	MSG_DEBUG("pMsg->folderId = %d", pMsg->folderId);
 	return MSG_SUCCESS;
@@ -1796,12 +1787,11 @@ static inline msg_error_t __msgsvc_vmsg_get_msg_type(MSG_MESSAGE_INFO_S *pMsg, c
 		pMsg->msgType.mainType = MSG_SMS_TYPE;
 		pMsg->msgType.subType = MSG_NORMAL_SMS;
 		pMsg->msgType.classType = MSG_CLASS_NONE;
-	}
-	else if (strcmp(temp, content_name[VMSG_INDICATION_MESSAGE_TYPE_INET]) == 0) {
+	} else if (strcmp(temp, content_name[VMSG_INDICATION_MESSAGE_TYPE_INET]) == 0) {
 		/* To do */
-	}
-	else
+	} else {
 		return MSG_ERR_INVALID_PARAMETER;
+	}
 
 	MSG_DEBUG("pMsg->msgType.subType = %d", pMsg->msgType.subType);
 	return MSG_SUCCESS;
@@ -1984,9 +1974,9 @@ static inline msg_error_t __msgsvc_vmsg_get_msg(int ver, char *vmsg, MSG_MESSAGE
 				if (new_start) {
 					cursor = new_start;
 					continue;
-				}
-				else
+				} else {
 					break;
+				}
 			}
 		}
 
@@ -2041,8 +2031,9 @@ static inline msg_error_t __msgsvc_vmsg_get_msg(int ver, char *vmsg, MSG_MESSAGE
 				g_free(val);
 				g_free(prefix);
 				return MSG_SUCCESS;
-			} else
+			} else {
 				break;
+			}
 		default:
 			MSG_ERR("Invalid parameter : __msgsvc_vmsg_check_content_type() Failed(%d)", type);
 			g_free(val);

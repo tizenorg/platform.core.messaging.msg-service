@@ -786,8 +786,7 @@ void SmsPluginCbMsgHandler::convertCbMsgToMsginfo(SMS_CBMSG_S *pCbMsg, MSG_MESSA
 				pCbMsg->msgData[pCbMsg->msgLength-1] == '\r' ||
 				pCbMsg->msgData[pCbMsg->msgLength-1] == '\n') {
 			pCbMsg->msgLength--;
-		}
-		else {
+		} else {
 			break;
 		}
 	}

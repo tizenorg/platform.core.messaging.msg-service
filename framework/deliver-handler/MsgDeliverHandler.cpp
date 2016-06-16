@@ -358,8 +358,7 @@ msg_error_t MsgHandleSMS(MSG_MESSAGE_INFO_S *pMsgInfo, bool *pSendNoti, bool *bO
 		snprintf(pMsgInfo->msgText, sizeof(pMsgInfo->msgText), "%d", voicecnt);
 		pMsgInfo->dataSize = strlen(pMsgInfo->msgText);
 		MSG_DEBUG("Add Voice or other Message");
-	}
-	else {
+	} else {
 		MSG_DEBUG("No matching type [%d]", pMsgInfo->msgType.subType);
 		return err;
 	}

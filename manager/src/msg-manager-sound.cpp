@@ -341,7 +341,7 @@ void MsgMgrSoundPlayStart(const MSG_MGR_ADDRESS_INFO_S *pAddrInfo, MSG_MGR_SOUND
 		return;
 	}
 
-	MSG_MGR_CONTACT_INFO_S contactInfo = {0,};
+	MSG_MGR_CONTACT_INFO_S contactInfo = {0, };
 	if (pAddrInfo) {
 		if (MsgMgrGetContactInfo(pAddrInfo, &contactInfo) != 0) {
 			MSG_MGR_DEBUG("MsgGetContactInfo() fail.");

@@ -459,17 +459,17 @@ void *MsgDecodeBase64(unsigned char *pSrc, unsigned long srcLen, unsigned long *
 
 		/* Convert base64 character into original value */
 
-		if (isupper(c))
+		if (isupper(c)) {
 			c -= 'A';
-		else if (islower(c))
+		} else if (islower(c)) {
 			c -= 'a' - 26;
-		else if (isdigit(c))
+		} else if (isdigit(c)) {
 			c -= '0' - 52;
-		else if (c == '+')
+		} else if (c == '+') {
 			c = 62;
-		else if (c == '/')
+		} else if (c == '/') {
 			c = 63;
-		else if (c == '=') {
+		} else if (c == '=') {
 			switch (e++) {
 			case 2:
 				if (*pSrc != '=') {
@@ -485,8 +485,9 @@ void *MsgDecodeBase64(unsigned char *pSrc, unsigned long srcLen, unsigned long *
 				return ret;
 			}
 			continue;
-		} else
+		} else {
 			continue;					/* Actually, never get here */
+		}
 
 		/* Pad 4*6bit character into 3*8bit character */
 

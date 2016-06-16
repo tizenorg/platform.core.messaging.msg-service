@@ -140,11 +140,11 @@ MSG_SMIL_ERR_E _MsgMMSValidateSMILRegion(MMS_MESSAGE_DATA_S *pMsgData, bool *pbR
 					nMediaCnt++;
 			}
 
-			if (nMediaCnt == 1)
+			if (nMediaCnt == 1) {
 				bfullReg = true;
-			else if (nMediaCnt == 2)
+			} else if (nMediaCnt == 2) {
 				btwoReg = true;
-			else if (nMediaCnt > 2) {
+			} else if (nMediaCnt > 2) {
 				MSG_DEBUG("_MsgMMSValidateSMILRegion: Invalid Region Information\n");
 				eRet = MSG_SMIL_ERR_INVALID_PAGE_INFO;
 				return eRet;
@@ -412,39 +412,44 @@ MSG_SMIL_ERR_E  _MsgMMSValidateSMILPage(MMS_MESSAGE_DATA_S *pMsgData, bool bRegA
 				if ((bImgExists == true) || (bVidExists == true) ||
 					(bImgOrVidExists== true)) {
 					eRet = MSG_SMIL_ERR_SIMILAR_MEDIA_EXISTS;
-				} else
+				} else {
 					bImgExists = true;
+				}
 				break;
 			}
 			case MMS_SMIL_MEDIA_AUDIO: {
 				if ((bAudExists == true) || (bVidExists == true) ||
 					(bImgOrVidExists== true)) {
 					eRet = MSG_SMIL_ERR_SIMILAR_MEDIA_EXISTS;
-				} else
+				} else {
 					bAudExists = true;
+				}
 				break;
 			}
 			case MMS_SMIL_MEDIA_VIDEO: {
 				if ((bImgExists == true) || (bVidExists == true) ||
 					(bImgOrVidExists== true)) {
 					eRet = MSG_SMIL_ERR_SIMILAR_MEDIA_EXISTS;
-				} else
+				} else {
 					bVidExists = true;
+				}
 				break;
 			}
 			case MMS_SMIL_MEDIA_TEXT: {
 				if (bTxtExists == true) {
 					eRet = MSG_SMIL_ERR_SIMILAR_MEDIA_EXISTS;
-				} else
+				} else {
 					bTxtExists = true;
+				}
 				break;
 			}
 			case MMS_SMIL_MEDIA_IMG_OR_VIDEO: {
 				if ((bImgExists == true) || (bVidExists == true) ||
 					(bImgOrVidExists== true)) {
 					eRet = MSG_SMIL_ERR_SIMILAR_MEDIA_EXISTS;
-				} else
+				} else {
 					bImgOrVidExists = true;
+				}
 				break;
 			}
 			default: {
@@ -470,8 +475,9 @@ MSG_SMIL_ERR_E  _MsgMMSValidateSMILPage(MMS_MESSAGE_DATA_S *pMsgData, bool bRegA
 						snprintf(pMedia->regionId, MAX_SMIL_REGION_ID, "%s", MSG_SMIL_DEFAULT_TXT_REG);
 					else
 						snprintf(pMedia->regionId, MAX_SMIL_REGION_ID, "%s", MSG_SMIL_DEFAULT_IMG_REG);
-				} else
+				} else {
 					snprintf(pMedia->regionId, MAX_SMIL_REGION_ID, "%s", MSG_SMIL_DEFAULT_FULL_REG);
+				}
 			}
 			PageRegionIdx++;
 		}

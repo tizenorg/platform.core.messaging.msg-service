@@ -604,8 +604,9 @@ int __MimeGetTableIndexString(const char *szMime)
 			type = __MimeGetMainTypeName(szType);
 			szTmpStart = &szTmpStart[i];
 			break;
-		} else
+		} else {
 			szType[j++] = c;
+		}
 	}
 
 	i = 0;
@@ -629,8 +630,9 @@ int __MimeGetTableIndexString(const char *szMime)
 			if (!strcasecmp(szSubType, "x"))
 				subtype = MIME_SUB_TYPE_X;
 			break;
-		} else
+		} else {
 			szSubType[j++] = c;
+		}
 	}
 
 

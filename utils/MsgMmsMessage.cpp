@@ -753,9 +753,9 @@ bool _MsgMmsDeserializeMessageData(MMS_MESSAGE_DATA_S *pMsgData, const char *pDa
 		offset += sizeof(MMS_ATTACH_S);
 
 		MSG_SEC_DEBUG("[#%2d][%5d][%d attach] drm type [%d],  attach filepath = [%s], content type = [%s]", serial_index++, offset, i, pAttach->drmType, pAttach->szFilePath, pAttach->szContentType);
-		if (strlen(pAttach->szFilePath) >0)
+		if (strlen(pAttach->szFilePath) >0) {
 			pMsgData->attachlist = g_list_append(pMsgData->attachlist, pAttach);
-		else {
+		} else {
 			free(pAttach);
 			pAttach = NULL;
 		}

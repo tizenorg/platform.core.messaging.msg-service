@@ -225,8 +225,7 @@ int msg_message_get_int_value(void *data, int field, int *value)
 					*value = MSG_TYPE_SMS;
 					break;
 			}
-		}
-		else if (msg_data->mainType == MSG_MMS_TYPE) {
+		} else if (msg_data->mainType == MSG_MMS_TYPE) {
 			if (msg_data->subType == MSG_NOTIFICATIONIND_MMS)
 				*value = MSG_TYPE_MMS_NOTI;
 			else if (msg_data->subType == MSG_SENDREQ_JAVA_MMS)

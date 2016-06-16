@@ -1515,8 +1515,7 @@ EXPORT_API int msg_util_calculate_text_length(const char* msg_text, msg_encode_t
 		if ((decodeLen + headerSize) > 160) {
 			headerLen = 1;
 			segSize = ((140 - (headerLen + concat + headerSize)) * 8)/7;
-		}
-		else {
+		} else {
 			segSize = ((140 - headerLen - headerSize) * 8) / 7;
 		}
 

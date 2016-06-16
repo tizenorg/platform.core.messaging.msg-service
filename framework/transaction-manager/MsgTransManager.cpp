@@ -1299,8 +1299,8 @@ _RETURN_ERR:
 	if (p_conf) {
 		cynara_configuration_destroy(p_conf);
 	}
-	return result;
 
+	return result;
 }
 
 

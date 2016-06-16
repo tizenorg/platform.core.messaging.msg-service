@@ -149,7 +149,7 @@ void _incoming_msg_func(app_control_h app_control)
 	msg_message_id_t msg_id = atoi(rcv_msg_id);
 	msg_struct_t msg = NULL;
 	msg_struct_t opt = NULL;
-	contactInfo contact_info = {0,};
+	contactInfo contact_info = {0, };
 	contact_info.msgId = msg_id;
 
 	msg = msg_create_struct(MSG_STRUCT_MESSAGE_INFO);
@@ -210,7 +210,7 @@ void _outgoing_msg_func(app_control_h app_control)
 	msg_message_id_t msg_id = atoi(sent_msg_id);
 	msg_struct_t msg = NULL;
 	msg_struct_t opt = NULL;
-	contactInfo contact_info = {0,};
+	contactInfo contact_info = {0, };
 	contact_info.msgId = msg_id;
 
 	msg = msg_create_struct(MSG_STRUCT_MESSAGE_INFO);
@@ -325,7 +325,7 @@ void _add_noti_func(app_control_h app_control)
 	msg_struct_t msg = NULL;
 	msg_struct_t opt = NULL;
 	msg_list_handle_t addr_list = NULL;
-	MSG_MGR_MESSAGE_INFO_S msg_info = {0,};
+	MSG_MGR_MESSAGE_INFO_S msg_info = {0, };
 	msg_info.msgId = msg_id;
 
 	msg = msg_create_struct(MSG_STRUCT_MESSAGE_INFO);
@@ -432,7 +432,7 @@ void _add_report_noti_func(app_control_h app_control)
 	msg_struct_t msg = NULL;
 	msg_struct_t opt = NULL;
 	msg_list_handle_t addr_list = NULL;
-	MSG_MGR_MESSAGE_INFO_S msg_info = {0,};
+	MSG_MGR_MESSAGE_INFO_S msg_info = {0, };
 	msg_info.msgId = msg_id;
 
 	msg = msg_create_struct(MSG_STRUCT_MESSAGE_INFO);
@@ -505,7 +505,7 @@ void _insert_only_active_noti_func(app_control_h app_control)
 	msg_struct_t msg = NULL;
 	msg_struct_t opt = NULL;
 	msg_list_handle_t addr_list = NULL;
-	MSG_MGR_MESSAGE_INFO_S msg_info = {0,};
+	MSG_MGR_MESSAGE_INFO_S msg_info = {0, };
 	msg_info.msgId = msg_id;
 
 	msg = msg_create_struct(MSG_STRUCT_MESSAGE_INFO);
@@ -624,7 +624,7 @@ void _sound_play_start_func(app_control_h app_control)
 	ret = app_control_get_extra_data(app_control, "address", &addr);
 
 	if (addr) {
-		MSG_MGR_ADDRESS_INFO_S addr_info = {0,};
+		MSG_MGR_ADDRESS_INFO_S addr_info = {0, };
 		snprintf(addr_info.addressVal, MAX_ADDRESS_VAL_LEN, "%s", addr);
 
 		MsgMgrSoundPlayStart(&addr_info, sound_type);
@@ -699,7 +699,7 @@ void service_app_control(app_control_h app_control, void *data)
 
 int main(int argc, char* argv[])
 {
-	service_app_lifecycle_callback_s event_callback = {0,};
+	service_app_lifecycle_callback_s event_callback = {0, };
 
 	event_callback.create = service_app_create;
 	event_callback.terminate = service_app_terminate;

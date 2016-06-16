@@ -446,8 +446,7 @@ void MsgDbHandler::shm_mutex_timedlock(int sec)
 	if (err == EOWNERDEAD) {
 		err = pthread_mutex_consistent(mmapMx);
 		MSG_DEBUG("Previous owner is dead with lock. Fix mutex");
-	}
-	else if (err != 0) {
+	} else if (err != 0) {
 		MSG_FATAL("pthread_mutex_timedlock error [%d]", errno);
 		return;
 	}

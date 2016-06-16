@@ -2457,18 +2457,18 @@ msg_error_t MsgStoCountMsgByContact(const MSG_THREAD_LIST_INDEX_S *pAddrInfo, MS
 	memset(sqlQuery, 0x00, sizeof(sqlQuery));
 
 	if (pAddrInfo->contactId > 0) {
-		snprintf(sqlQuery, sizeof(sqlQuery), "SELECT COUNT(*) AS TOTAL, \
-				SUM(CASE WHEN READ_STATUS = 0 AND FOLDER_ID = %d THEN 1 ELSE 0 END), \
-				SUM(CASE WHEN MAIN_TYPE = %d THEN 1 ELSE 0 END), \
-				SUM(CASE WHEN MAIN_TYPE = %d THEN 1 ELSE 0 END) \
-				FROM (SELECT * FROM %s A  JOIN %s B ON A.CONV_ID = B.CONV_ID WHERE B.CONTACT_ID = %d)",
+		snprintf(sqlQuery, sizeof(sqlQuery), "SELECT COUNT(*) AS TOTAL, "
+				"SUM(CASE WHEN READ_STATUS = 0 AND FOLDER_ID = %d THEN 1 ELSE 0 END), "
+				"SUM(CASE WHEN MAIN_TYPE = %d THEN 1 ELSE 0 END), "
+				"SUM(CASE WHEN MAIN_TYPE = %d THEN 1 ELSE 0 END) "
+				"FROM (SELECT * FROM %s A  JOIN %s B ON A.CONV_ID = B.CONV_ID WHERE B.CONTACT_ID = %d)",
 				MSG_INBOX_ID, MSG_SMS_TYPE, MSG_MMS_TYPE, MSGFW_MESSAGE_TABLE_NAME, MSGFW_ADDRESS_TABLE_NAME, pAddrInfo->contactId);
 	} else {
-		snprintf(sqlQuery, sizeof(sqlQuery), "SELECT COUNT(*) AS TOTAL, \
-				SUM(CASE WHEN READ_STATUS = 0 AND FOLDER_ID = %d THEN 1 ELSE 0 END), \
-				SUM(CASE WHEN MAIN_TYPE = %d THEN 1 ELSE 0 END), \
-				SUM(CASE WHEN MAIN_TYPE = %d THEN 1 ELSE 0 END) \
-				FROM (SELECT * FROM %s A JOIN %s B ON A.CONV_ID = B.CONV_ID WHERE B.ADDRESS_VAL = '%s')",
+		snprintf(sqlQuery, sizeof(sqlQuery), "SELECT COUNT(*) AS TOTAL, "
+				"SUM(CASE WHEN READ_STATUS = 0 AND FOLDER_ID = %d THEN 1 ELSE 0 END), "
+				"SUM(CASE WHEN MAIN_TYPE = %d THEN 1 ELSE 0 END), "
+				"SUM(CASE WHEN MAIN_TYPE = %d THEN 1 ELSE 0 END) "
+				"FROM (SELECT * FROM %s A JOIN %s B ON A.CONV_ID = B.CONV_ID WHERE B.ADDRESS_VAL = '%s')",
 				MSG_INBOX_ID, MSG_SMS_TYPE, MSG_MMS_TYPE, MSGFW_MESSAGE_TABLE_NAME, MSGFW_ADDRESS_TABLE_NAME, pAddrInfo->msgAddrInfo.addressVal);
 	}
 
@@ -3049,13 +3049,11 @@ msg_error_t MsgCheckUniqueness(bool bInsert, msg_message_id_t msgId, MSG_UNIQUE_
 		if (nRowCnt == 0) {
 			MSG_DEBUG("<<<<This incoming message is a new message>>>>");
 			return MSG_SUCCESS;
-		}
-		else {
+		} else {
 			MSG_DEBUG("<<<<This incoming message is a repeated message>>>>");
 			return MSG_ERR_UNKNOWN;
 		}
-	}
-	else {
+	} else {
 		memset(sqlQuery, 0x00, sizeof(sqlQuery));
 		dbHandle->beginTrans();
 

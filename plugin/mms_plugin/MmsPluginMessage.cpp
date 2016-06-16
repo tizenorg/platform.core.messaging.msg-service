@@ -122,8 +122,8 @@ char *MmsComposeAddress(const MSG_MESSAGE_INFO_S *pMsgInfo, int recipientType)
 				addrLen += strlen(pMsgInfo->addressList[i].addressVal);
 			} else if (pMsgInfo->addressList[i].addressType == MSG_ADDRESS_TYPE_EMAIL) {
 				addrLen += strlen(pMsgInfo->addressList[i].addressVal);
-			} else
-				; /* Need to consider IPV4, IPV6, and Alias formatted address */
+			}
+			/*  Need to consider IPV4, IPV6, and Alias formatted address */
 
 			nRecpCnt++;
 		}
@@ -145,8 +145,8 @@ char *MmsComposeAddress(const MSG_MESSAGE_INFO_S *pMsgInfo, int recipientType)
 				MSG_DEBUG("%s", pString);
 			} else if (pMsgInfo->addressList[i].addressType == MSG_ADDRESS_TYPE_EMAIL) {
 				snprintf(pString, MSG_LOCALE_NAME_LEN + MSG_ADDR_LEN + 3, "%s", pMsgInfo->addressList[i].addressVal);
-			} else
-				; /* Need to consider IPV4, IPV6, and Alias formatted address */
+			}
+			/* Need to consider IPV4, IPV6, and Alias formatted address */
 
 			g_strlcat(szCompose, pString, addrLen + 1);
 		}

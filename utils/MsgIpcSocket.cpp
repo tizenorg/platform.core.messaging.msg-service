@@ -227,8 +227,7 @@ bool MsgIpcClientSocket::wait_for_reply()
 	if (err == -1) {
 		MSG_FATAL("select error[%d] fd[%d]", errno, sockfd);
 		return false;
-	}
-	else if (err == 0) {
+	} else if (err == 0) {
 		MSG_FATAL("select timeout fd[%d]", sockfd);
 		return false;
 	}
@@ -262,8 +261,7 @@ int MsgIpcClientSocket::read(char** buf, unsigned int* len)
 	if (n == CLOSE_CONNECTION_BY_SIGNAL) { /* if msgfw gets down, it signals to all IPC clients */
 		MSG_FATAL("sockfd [%d] CLOSE_CONNECTION_BY_SIGNAL", sockfd);
 		return n;
-	}
-	else if (n != sizeof(int)) {
+	} else if (n != sizeof(int)) {
 		MSG_FATAL("WARNING: read header_size[%d] not matched [%d]", n, sizeof(int));
 		return CUSTOM_SOCKET_ERROR;
 	}
@@ -443,9 +441,9 @@ int MsgIpcServerSocket::readn(int fd, char *buf, unsigned int len )
 		if (nread < 0) {
 			MSG_FATAL("read: %s", g_strerror(errno));
 			return nread;
-		}
-		else if (nread == 0)
+		} else if (nread == 0) {
 			break;
+		}
 
 		if (nleft >= (unsigned int)nread)
 			nleft -= nread;
@@ -479,9 +477,7 @@ int MsgIpcServerSocket::read(int fd, char** buf, int* len )
 	if (n == CLOSE_CONNECTION_BY_SIGNAL) {
 		MSG_FATAL("fd %d CLOSE_CONNECTION_BY_SIGNAL", fd);
 		return n;
-	}
-
-	else if (n != sizeof(int)) {
+	} else if (n != sizeof(int)) {
 		MSG_FATAL("readn %d(%d)", n, sizeof(int));
 		return CUSTOM_SOCKET_ERROR;
 	}

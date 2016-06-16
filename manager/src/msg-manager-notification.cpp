@@ -388,7 +388,7 @@ int MsgMgrRefreshNotification(msg_mgr_notification_type_t noti_type, bool bFeedb
 	int bNotification = 1;
 /*	bool bReplyPopup = false; */
 
-	MSG_MGR_NOTI_INFO_S noti_info = {0,};
+	MSG_MGR_NOTI_INFO_S noti_info = {0, };
 	noti_info.type = noti_type;
 	noti_info.id = getPrivId(noti_info.type, -1);
 
@@ -445,7 +445,7 @@ int MsgMgrAddReportNotification(msg_mgr_notification_type_t noti_type, MSG_MGR_M
 	report_notification_s *info = new report_notification_s;
 	memset(info, 0x00, sizeof(report_notification_s));
 
-	MSG_MGR_NOTI_INFO_S noti_info = {0,};
+	MSG_MGR_NOTI_INFO_S noti_info = {0, };
 	noti_info.type = noti_type;
 
 	createInfoData(&noti_info, msg_info);
@@ -952,12 +952,6 @@ void setText(notification_h noti_h, MSG_MGR_NOTI_INFO_S *noti_info)
 			setNotiText(noti_h, NOTIFICATION_TEXT_TYPE_INFO_1, "Message unreachable", UNREACHABLE_MESSAGE);
 		else if (noti_info->extra_data == MSG_DELIVERY_REPORT_ERROR)
 			setNotiText(noti_h, NOTIFICATION_TEXT_TYPE_INFO_1, "Message error", NULL);
-		/* CID 45672: noti_info->extra_data in unsigned char but MSG_READ_REPORT_NONE is -1. So the expression is always false */
-#if 0
-		else if (noti_info->extra_data == MSG_DELIVERY_REPORT_NONE) {
-			/* notification free */
-		}
-#endif
 		else
 			setNotiText(noti_h, NOTIFICATION_TEXT_TYPE_INFO_1, "Message delivered", DELIVERED_MESSAGE);
 
@@ -1213,8 +1207,8 @@ void setSoundAndVibration(notification_h noti_h, char *addressVal, bool bVoiceMa
 {
 	MSG_MGR_BEGIN();
 
-	MSG_MGR_ADDRESS_INFO_S addrInfo = {0,};
-	MSG_MGR_CONTACT_INFO_S contactInfo = {0,};
+	MSG_MGR_ADDRESS_INFO_S addrInfo = {0, };
+	MSG_MGR_CONTACT_INFO_S contactInfo = {0, };
 
 	if (addressVal != NULL) {
 		snprintf(addrInfo.addressVal, sizeof(addrInfo.addressVal), "%s", addressVal);
@@ -1239,9 +1233,9 @@ void setSoundAndVibration(notification_h noti_h, char *addressVal, bool bVoiceMa
 	MsgMgrGetPlayStatus(bVoiceMail, &bPlaySound, &bPlayVibration, &bOnCall);
 
 	if (bPlaySound) {
-		if (msg_tone_file_path)
+		if (msg_tone_file_path) {
 			setNotiSound(noti_h, NOTIFICATION_SOUND_TYPE_USER_DATA, msg_tone_file_path);
-		else {
+		} else {
 			int tmpVal = 0;
 			if (vconf_get_int(MSG_SETTING_RINGTONE_TYPE, &tmpVal) != 0) {
 				MSG_MGR_INFO("MsgSettingGetInt() is failed");
@@ -2057,11 +2051,11 @@ int getLatestMsgInfo(MSG_MGR_NOTI_INFO_S *noti_info, bool isForInstantMessage)
 			noti_info->count = atoi(db_res[col_cnt+6]);
 
 			if (noti_info->count > 0) {
-				MSG_MGR_ADDRESS_INFO_S addrInfo = {0,};
+				MSG_MGR_ADDRESS_INFO_S addrInfo = {0, };
 
 				snprintf(addrInfo.addressVal, MAX_ADDRESS_VAL_LEN, "%s", db_res[col_cnt]);
 
-				MSG_MGR_CONTACT_INFO_S tmpContact = {0,};
+				MSG_MGR_CONTACT_INFO_S tmpContact = {0, };
 
 				MsgMgrGetContactInfo(&addrInfo, &tmpContact);
 
@@ -2385,8 +2379,8 @@ void createInfoData(MSG_MGR_NOTI_INFO_S *noti_info, MSG_MGR_MESSAGE_INFO_S *msg_
 		noti_info->time = msg_info->displayTime;
 		noti_info->extra_data = msg_info->networkStatus;
 
-		MSG_MGR_CONTACT_INFO_S contactInfo = {0,};
-		MSG_MGR_ADDRESS_INFO_S tmpAddressInfo = {0,};
+		MSG_MGR_CONTACT_INFO_S contactInfo = {0, };
+		MSG_MGR_ADDRESS_INFO_S tmpAddressInfo = {0, };
 		if (msg_info->addressVal[0] != '\0') {
 			snprintf(tmpAddressInfo.addressVal, MAX_ADDRESS_VAL_LEN, "%s", msg_info->addressVal);
 			if (_is_valid_email(msg_info->addressVal)) {
@@ -2421,8 +2415,8 @@ void createInfoData(MSG_MGR_NOTI_INFO_S *noti_info, MSG_MGR_MESSAGE_INFO_S *msg_
 		noti_info->layout = NOTIFICATION_LY_NOTI_EVENT_SINGLE;
 		noti_info->time = msg_info->displayTime;
 
-		MSG_MGR_CONTACT_INFO_S contactInfo = {0,};
-		MSG_MGR_ADDRESS_INFO_S tmpAddressInfo = {0,};
+		MSG_MGR_CONTACT_INFO_S contactInfo = {0, };
+		MSG_MGR_ADDRESS_INFO_S tmpAddressInfo = {0, };
 		if (msg_info->addressVal[0] != '\0') {
 			snprintf(tmpAddressInfo.addressVal, MAX_ADDRESS_VAL_LEN, "%s", msg_info->addressVal);
 			if (_is_valid_email(msg_info->addressVal)) {

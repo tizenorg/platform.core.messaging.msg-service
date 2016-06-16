@@ -660,9 +660,9 @@ void SmsPluginEventHandler::convertDeliverTpduToMsginfo(const SMS_DELIVER_S *pTp
 			strftime(displayTime, 32, "%Y-%02m-%02d %T %z", &timeTM);
 			MSG_DEBUG("displayTime [%s]", displayTime);
 		}
-	}
-	else
+	} else {
 		rawtime = time(NULL);
+	}
 
 	msgInfo->displayTime = rawtime;
 

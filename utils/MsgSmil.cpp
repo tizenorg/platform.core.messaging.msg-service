@@ -939,8 +939,9 @@ bool MsgSmilAddRegion(HMsgSmil hSmilDoc, MMS_SMIL_REGION *pstSmilRegion)
 			}
 
 			MsgSmilInsertNode(pstLayoutList, pstRootLayoutList, pstRegion);
-		} else
+		} else {
 			MSG_DEBUG("There is no attribute in <region> node");
+		}
 
 		MSG_END();
 		return true;
@@ -1754,13 +1755,13 @@ void MsgSmilParseNode(MMS_MESSAGE_DATA_S *pMmsMsg, xmlNode *a_node, int depth)
 
 				case ATTRIBUTE_VALUE:
 
-					if (paramType == ATTRIBUTE_SIZE && gCmd[ELEMENT_TEXT] && gMedia)
+					if (paramType == ATTRIBUTE_SIZE && gCmd[ELEMENT_TEXT] && gMedia) {
 						gMedia->sMedia.sText.nSize = MsgSmilGetFontSizeValue((char *)pAttr->children->content);
-					else if (paramType == ATTRIBUTE_FGCOLOR && gCmd[ELEMENT_TEXT] && gMedia)
+					} else if (paramType == ATTRIBUTE_FGCOLOR && gCmd[ELEMENT_TEXT] && gMedia) {
 						gMedia->sMedia.sText.nColor =  MsgSmilGetColorValue(pAttr->children->content);
-					else if (paramType == ATTRIBUTE_BGCOLOR && gCmd[ELEMENT_TEXT] && gMedia)
+					} else if (paramType == ATTRIBUTE_BGCOLOR && gCmd[ELEMENT_TEXT] && gMedia) {
 						gMedia->sMedia.sText.nBgColor =  MsgSmilGetColorValue(pAttr->children->content);
-					else if (paramType == ATTRIBUTE_TEXTFORMAT && gCmd[ELEMENT_TEXT] && gMedia) {
+					} else if (paramType == ATTRIBUTE_TEXTFORMAT && gCmd[ELEMENT_TEXT] && gMedia) {
 						MmsSmilFontType fontType;
 
 						fontType = MsgSmilGetFontTypeValue((char *)pAttr->children->content);

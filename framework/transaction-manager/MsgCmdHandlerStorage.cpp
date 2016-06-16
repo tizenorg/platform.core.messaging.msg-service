@@ -1231,8 +1231,9 @@ int MsgRestoreMessageHandler(const MSG_CMD_S *pCmd, char **ppEvent)
 		} else {
 			MSG_DEBUG("Not Exist msg id list to restore");
 		}
-	} else
+	} else {
 		MSG_DEBUG("Command Handle Fail : MsgStoRestoreMessage()");
+	}
 
 	/* Make Event Data */
 	eventSize = MsgMakeEvent(NULL, 0, MSG_EVENT_RESTORE_MESSAGE, err, (void**)ppEvent);

@@ -156,8 +156,7 @@ msg_error_t MsgGetContactSearchList(const char *pSearchVal, MSG_ADDRESS_INFO_S *
 		ret = contacts_record_get_str(personNumber, _contacts_person_number.normalized_number, &normalizedNumber);
 		if (ret != CONTACTS_ERROR_NONE) {
 			MSG_DEBUG("contacts_record_get_int() Error [%d]", ret);
-		}
-		else if (normalizedNumber) {
+		} else if (normalizedNumber) {
 			MSG_DEBUG("normalizedNumber [%s]", normalizedNumber);
 			strncpy((*pAddrInfo)[index].addressVal, normalizedNumber, MAX_ADDRESS_VAL_LEN);
 		}

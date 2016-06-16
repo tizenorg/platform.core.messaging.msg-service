@@ -425,7 +425,6 @@ void SmsPluginTransport::sendDeliverReport(msg_error_t err, sms_trans_p2p_msg_s 
 		}
 
 	} else if (err == MSG_ERR_MESSAGE_COUNT_FULL) {
-
 		cause_code.error_class = SMS_TRANS_ERR_CLASS_TEMPORARY;
 
 		response = TAPI_NETTEXT_ME_FULL;

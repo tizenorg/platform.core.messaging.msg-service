@@ -463,9 +463,9 @@ int msg_mms_get_int_value(msg_struct_s *msg_struct, int field, int *value)
 			*value = mms_data->header.mmsStatus;
 		} else if (field == MSG_MMS_HEADER_CONTENT_CLASS_INT) {
 			*value = mms_data->header.contentClass;
-		}
-		else
+		} else {
 			err = MSG_ERR_INVALID_PARAMETER;
+		}
 	}
 	break;
 	case MSG_STRUCT_MMS_PAGE: {
@@ -615,34 +615,35 @@ int msg_mms_get_str_value(msg_struct_s *msg_struct, int field, char *value, int 
 			strncpy(value, mms_data->smil.szContentID, size);
 		} else if (field == MSG_MMS_SMIL_MULTIPART_CONTENT_LOCATION_STR) {
 			strncpy(value, mms_data->smil.szContentLocation, size);
-		}
-		else
+		} else {
 			err = MSG_ERR_INVALID_PARAMETER;
+		}
 	}
 	break;
 	case MSG_STRUCT_MMS_MEDIA: {
 		MMS_MEDIA_HIDDEN_S *mms_media_data = (MMS_MEDIA_HIDDEN_S *)msg_struct->data;
-		if (field == MSG_MMS_MEDIA_SRC_STR)
+		if (field == MSG_MMS_MEDIA_SRC_STR) {
 			strncpy(value, mms_media_data->szSrc, size);
-		else if (field == MSG_MMS_MEDIA_FILENAME_STR)
+		} else if (field == MSG_MMS_MEDIA_FILENAME_STR) {
 			strncpy(value, mms_media_data->szFileName, size);
-		else if (field == MSG_MMS_MEDIA_FILEPATH_STR)
+		} else if (field == MSG_MMS_MEDIA_FILEPATH_STR) {
 			strncpy(value, mms_media_data->szFilePath, size);
-		else if (field == MSG_MMS_MEDIA_CONTENT_ID_STR) {
+		} else if (field == MSG_MMS_MEDIA_CONTENT_ID_STR) {
 			if (strlen(mms_media_data->szContentID) > 0)
 				snprintf(value, size, "<%s>", mms_media_data->szContentID);
-		} else if (field == MSG_MMS_MEDIA_REGION_ID_STR)
+		} else if (field == MSG_MMS_MEDIA_REGION_ID_STR) {
 			strncpy(value, mms_media_data->regionId, size);
-		else if (field == MSG_MMS_MEDIA_ALTERNATIVE_STR)
+		} else if (field == MSG_MMS_MEDIA_ALTERNATIVE_STR) {
 			strncpy(value, mms_media_data->szAlt, size);
-		else if (field == MSG_MMS_MEDIA_DRM_FULLPATH_STR)
+		} else if (field == MSG_MMS_MEDIA_DRM_FULLPATH_STR) {
 			strncpy(value, mms_media_data->szDrm2FullPath, size);
-		else if (field == MSG_MMS_MEDIA_CONTENT_LOCATION_STR)
+		} else if (field == MSG_MMS_MEDIA_CONTENT_LOCATION_STR) {
 			strncpy(value, mms_media_data->szContentLocation, size);
-		else if (field == MSG_MMS_MEDIA_CONTENT_TYPE_STR)
+		} else if (field == MSG_MMS_MEDIA_CONTENT_TYPE_STR) {
 			strncpy(value, mms_media_data->szContentType, size);
-		else
+		} else {
 			err = MSG_ERR_INVALID_PARAMETER;
+		}
 	}
 	break;
 	case MSG_STRUCT_MMS_ATTACH: {
@@ -839,11 +840,11 @@ int msg_mms_set_int_value(msg_struct_s *msg_struct, int field, int value)
 	switch (msg_struct->type) {
 	case MSG_STRUCT_MMS: {
 		MMS_DATA_HIDDEN_S *mms_data = (MMS_DATA_HIDDEN_S *)msg_struct->data;
-		if (field == MSG_MMS_ROOTLAYOUT_WIDTH_INT)
+		if (field == MSG_MMS_ROOTLAYOUT_WIDTH_INT) {
 			mms_data->rootlayout.width.value = value;
-		else if (field == MSG_MMS_ROOTLAYOUT_HEIGHT_INT)
+		} else if (field == MSG_MMS_ROOTLAYOUT_HEIGHT_INT) {
 			mms_data->rootlayout.height.value = value;
-		else if (field == MSG_MMS_ROOTLAYOUT_BGCOLOR_INT) {
+		} else if (field == MSG_MMS_ROOTLAYOUT_BGCOLOR_INT) {
 			mms_data->rootlayout.bBgColor = true;
 			mms_data->rootlayout.bgColor = value;
 		} else if (field == MSG_MMS_HEADER_DATE_INT) {
@@ -872,9 +873,9 @@ int msg_mms_set_int_value(msg_struct_s *msg_struct, int field, int value)
 			mms_data->header.mmsStatus = value;
 		} else if (field == MSG_MMS_HEADER_CONTENT_CLASS_INT) {
 			mms_data->header.contentClass = value;
-		}
-		else
+		} else {
 			err = MSG_ERR_INVALID_PARAMETER;
+		}
 	}
 	break;
 	case MSG_STRUCT_MMS_PAGE: {
@@ -919,21 +920,22 @@ int msg_mms_set_int_value(msg_struct_s *msg_struct, int field, int value)
 	break;
 	case MSG_STRUCT_MMS_REGION: {
 		MMS_SMIL_REGION *mms_region_data = (MMS_SMIL_REGION *)msg_struct->data;
-		if (field == MSG_MMS_REGION_LENGTH_LEFT_INT)
+		if (field == MSG_MMS_REGION_LENGTH_LEFT_INT) {
 			mms_region_data->nLeft.value = value;
-		else if (field == MSG_MMS_REGION_LENGTH_TOP_INT)
+		} else if (field == MSG_MMS_REGION_LENGTH_TOP_INT) {
 			mms_region_data->nTop.value = value;
-		else if (field == MSG_MMS_REGION_LENGTH_WIDTH_INT)
+		} else if (field == MSG_MMS_REGION_LENGTH_WIDTH_INT) {
 			mms_region_data->width.value = value;
-		else if (field == MSG_MMS_REGION_LENGTH_HEIGHT_INT)
+		} else if (field == MSG_MMS_REGION_LENGTH_HEIGHT_INT) {
 			mms_region_data->height.value = value;
-		else if (field == MSG_MMS_REGION_BGCOLOR_INT) {
+		} else if (field == MSG_MMS_REGION_BGCOLOR_INT) {
 			mms_region_data->bBgColor = true;
 			mms_region_data->bgColor = value;
-		} else if (field == MSG_MMS_REGION_FIT_TYPE_INT)
+		} else if (field == MSG_MMS_REGION_FIT_TYPE_INT) {
 			mms_region_data->fit = (REGION_FIT_TYPE_T)value;
-		else
+		} else {
 			err = MSG_ERR_INVALID_PARAMETER;
+		}
 	}
 	break;
 	case MSG_STRUCT_MMS_TRANSITION: {
@@ -1003,9 +1005,9 @@ int msg_mms_set_str_value(msg_struct_s *msg_struct, int field, const char *value
 	switch (msg_struct->type) {
 	case MSG_STRUCT_MMS_MEDIA: {
 		MMS_MEDIA_HIDDEN_S *mms_media_data = (MMS_MEDIA_HIDDEN_S *)msg_struct->data;
-		if (field == MSG_MMS_MEDIA_SRC_STR)
+		if (field == MSG_MMS_MEDIA_SRC_STR) {
 			strncpy(mms_media_data->szSrc, value, MSG_FILEPATH_LEN_MAX);
-		else if (field == MSG_MMS_MEDIA_FILENAME_STR) {
+		} else if (field == MSG_MMS_MEDIA_FILENAME_STR) {
 			strncpy(mms_media_data->szFileName, value, MSG_FILEPATH_LEN_MAX);
 		} else if (field == MSG_MMS_MEDIA_FILEPATH_STR) {
 			MSG_SEC_DEBUG("media file path = %s", value);
@@ -1021,20 +1023,21 @@ int msg_mms_set_str_value(msg_struct_s *msg_struct, int field, const char *value
 				strncpy(mms_media_data->szFileName, value, MSG_FILENAME_LEN_MAX);
 				strncpy(mms_media_data->szContentID, value, MSG_MSG_ID_LEN);
 			}
-		} else if (field == MSG_MMS_MEDIA_CONTENT_ID_STR)
+		} else if (field == MSG_MMS_MEDIA_CONTENT_ID_STR) {
 			__removeLessGreaterMark(value, mms_media_data->szContentID, MSG_MSG_ID_LEN);
-		 else if (field == MSG_MMS_MEDIA_REGION_ID_STR)
+		} else if (field == MSG_MMS_MEDIA_REGION_ID_STR) {
 			strncpy(mms_media_data->regionId, value, MAX_SMIL_REGION_ID);
-		else if (field == MSG_MMS_MEDIA_ALTERNATIVE_STR)
+		} else if (field == MSG_MMS_MEDIA_ALTERNATIVE_STR) {
 			strncpy(mms_media_data->szAlt, value, MAX_SMIL_ALT_LEN);
-		else if (field == MSG_MMS_MEDIA_DRM_FULLPATH_STR)
+		} else if (field == MSG_MMS_MEDIA_DRM_FULLPATH_STR) {
 			strncpy(mms_media_data->szDrm2FullPath, value, MSG_FILEPATH_LEN_MAX);
-		else if (field == MSG_MMS_MEDIA_CONTENT_LOCATION_STR)
+		} else if (field == MSG_MMS_MEDIA_CONTENT_LOCATION_STR) {
 			strncpy(mms_media_data->szContentLocation, value, MSG_MSG_ID_LEN);
-		else if (field == MSG_MMS_MEDIA_CONTENT_TYPE_STR)
+		} else if (field == MSG_MMS_MEDIA_CONTENT_TYPE_STR) {
 			strncpy(mms_media_data->szContentType, value, MSG_MSG_ID_LEN);
-		else
+		} else {
 			err = MSG_ERR_INVALID_PARAMETER;
+		}
 	}
 	break;
 	case MSG_STRUCT_MMS_ATTACH: {
@@ -1135,9 +1138,9 @@ int msg_mms_set_str_value(msg_struct_s *msg_struct, int field, const char *value
 			strncpy(mms_data->smil.szContentID, value, sizeof(mms_data->smil.szContentID) - 1 );
 		} else if (field == MSG_MMS_SMIL_MULTIPART_CONTENT_LOCATION_STR) {
 			strncpy(mms_data->smil.szContentLocation, value, sizeof(mms_data->smil.szContentLocation) - 1 );
-		}
-		else
+		} else {
 			err = MSG_ERR_INVALID_PARAMETER;
+		}
 	}
 	break;
 	case MSG_STRUCT_MULTIPART_INFO:
