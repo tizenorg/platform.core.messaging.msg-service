@@ -45,12 +45,17 @@ MsgHandle::~MsgHandle()
 void MsgHandle::openHandle()
 {
 	bool bReady = false;
+	msg_error_t error = MSG_SUCCESS;
 
 	MsgProxyListener::instance()->insertOpenHandleSet(this);
 
 	/* server is currently booting and service is not available until the end of booting */
-	if (MsgSettingGetBool(VCONFKEY_MSG_SERVER_READY, &bReady) != MSG_SUCCESS)
+	error = MsgSettingGetBool(VCONFKEY_MSG_SERVER_READY, &bReady);
+	if (error != MSG_SUCCESS) {
 		MSG_INFO("MsgSettingGetBool() is failed");
+		if (error == MSG_ERR_PERMISSION_DENIED)
+			THROW(MsgException::SECURITY_ERROR, "Client doesn't have permission");
+	}
 
 	if (bReady == false) {
 		THROW(MsgException::SERVER_READY_ERROR, "Msg Server is not ready !!!!!");
