@@ -1345,14 +1345,14 @@ static bool __MmsBinaryDecodeParameter(FILE *pFile, MsgType *pMsgType, int value
 							memset(pMsgType->param.szBoundary, 0, MSG_BOUNDARY_LEN + 1);
 							strncpy(pMsgType->param.szBoundary, szTypeValue, MSG_BOUNDARY_LEN);
 #ifdef FEATURE_JAVA_MMS
-						} else if (strcasecmp(szTypeString, "Application-ID") == 0) {
+						} else if (g_ascii_strcasecmp(szTypeString, "Application-ID") == 0) {
 							pMsgType->param.szApplicationID = (char*) calloc(1, textLength + 1);
 							if (pMsgType->param.szApplicationID) {
 								memset(pMsgType->param.szApplicationID, 0, textLength + 1);
 								strncpy(pMsgType->param.szApplicationID, szTypeValue, textLength);
 								MSG_SEC_DEBUG("Application-ID:%s", pMsgType->param.szApplicationID);
 							}
-						} else if (strcasecmp(szTypeString, "Reply-To-Application-ID") == 0) {
+						} else if (g_ascii_strcasecmp(szTypeString, "Reply-To-Application-ID") == 0) {
 							pMsgType->param.szReplyToApplicationID = (char*)calloc(1, textLength + 1);
 							if (pMsgType->param.szReplyToApplicationID) {
 								memset(pMsgType->param.szReplyToApplicationID, 0, textLength + 1);

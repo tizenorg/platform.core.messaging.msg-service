@@ -454,12 +454,16 @@ void SmsPluginCbMsgHandler::Decode3gCbMsg(TelSmsCbMsg_t *pCbMsg, SMS_CBMSG_PAGE_
 		for (int i = 0; i < pCbPage->pageHeader.totalPages; ++i) {
 			if (pCbPage->pageHeader.dcs.iso639Lang[0]) {
 				dataLen = cbData[7+(i+1)*82 + i] - 2;
-				memcpy(cbMessage + offset, &cbData[7+(i*82)+ i + 2], dataLen);
-				offset += dataLen;
+				if (dataLen > 0) {
+					memcpy(cbMessage + offset, &cbData[7+(i*82)+ i + 2], dataLen);
+					offset += dataLen;
+				}
 			} else {
 				dataLen = cbData[7+(i+1)*82 + i];
-				memcpy(cbMessage + offset, &cbData[7+(i*82)+ i], dataLen);
-				offset += dataLen;
+				if (dataLen > 0) {
+					memcpy(cbMessage + offset, &cbData[7+(i*82)+ i], dataLen);
+					offset += dataLen;
+				}
 			}
 		}
 		dataLen = offset;

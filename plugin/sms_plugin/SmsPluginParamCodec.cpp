@@ -46,30 +46,36 @@ int SmsPluginParamCodec::encodeAddress(const SMS_ADDRESS_S *pAddress, char **ppP
 
 	SMS_TON_T ton;
 
-	*ppParam = new char[MAX_ADD_PARAM_LEN];
+	char *tempParam = new char[MAX_ADD_PARAM_LEN];
+	if (tempParam == NULL)
+		return 0;
+
+	memset(tempParam, 0x00, sizeof(char)*MAX_ADD_PARAM_LEN);
 
 	/* Set Address Length */
 	if (temp[0] == '+') {
-		(*ppParam)[offset++] = strlen(temp) - 1;
+		tempParam[offset++] = strlen(temp) - 1;
 		temp++;
 
 		ton = SMS_TON_INTERNATIONAL;
 	} else {
-		(*ppParam)[offset++] = strlen(temp);
+		tempParam[offset++] = strlen(temp);
 
 		ton = pAddress->ton;
 	}
 
 	/* Set TON, NPI */
-	(*ppParam)[offset++] = 0x80 + (ton << 4) + pAddress->npi;
+	tempParam[offset++] = 0x80 + (ton << 4) + pAddress->npi;
 
-	MSG_DEBUG("Address length is %d.", (*ppParam)[0]);
+	MSG_DEBUG("Address length is %d.", tempParam[0]);
 	MSG_DEBUG("pAddress->ton : %d.", ton);
 	MSG_DEBUG("pAddress->npi : %d.", pAddress->npi);
 
-	length = convertDigitToBcd(temp, strlen(temp), (unsigned char *) &((*ppParam)[offset]));
+	length = convertDigitToBcd(temp, strlen(temp), (unsigned char *) &(tempParam[offset]));
 
 	offset += length;
+
+	*ppParam = tempParam;
 
 	return offset ;
 }

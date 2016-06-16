@@ -1120,6 +1120,7 @@ msg_error_t MsgStoDeleteAllMessageInFolder(msg_folder_id_t folderId, bool bOnlyD
 	MSG_DEBUG("pToDeleteMsgIdList->nCount [%d]", pToDeleteMsgIdList->nCount);
 
 	pToDeleteMsgIdList->msgIdList = (msg_message_id_t *)new char[sizeof(msg_message_id_t) * rowCnt];
+	memset(pToDeleteMsgIdList->msgIdList, 0x00, sizeof(msg_message_id_t) * rowCnt);
 
 	for (int i = 0; i < rowCnt; i++)
 		pToDeleteMsgIdList->msgIdList[i] = dbHandle->getColumnToInt(index++);
@@ -1308,8 +1309,9 @@ msg_error_t MsgStoDeleteAllMessageInFolder(msg_folder_id_t folderId, bool bOnlyD
 	if (pMsgIdList != NULL && pToDeleteMsgIdList->nCount > 0) {
 		pMsgIdList->nCount = pToDeleteMsgIdList->nCount;
 
-		pMsgIdList->msgIdList = (msg_message_id_t *)new char[sizeof(msg_message_id_t)*pToDeleteMsgIdList->nCount];
-		memcpy(pMsgIdList->msgIdList, pToDeleteMsgIdList->msgIdList, sizeof(msg_message_id_t)*pToDeleteMsgIdList->nCount);
+		pMsgIdList->msgIdList = (msg_message_id_t *)new char[sizeof(msg_message_id_t) * pToDeleteMsgIdList->nCount];
+		memset(pMsgIdList->msgIdList, 0x00, sizeof(msg_message_id_t) * pToDeleteMsgIdList->nCount);
+		memcpy(pMsgIdList->msgIdList, pToDeleteMsgIdList->msgIdList, sizeof(msg_message_id_t) * pToDeleteMsgIdList->nCount);
 	}
 
 	/* Create thread  for noti and phone log delete. */

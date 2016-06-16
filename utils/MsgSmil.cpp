@@ -304,10 +304,10 @@ int MsgSmilGetTime(char *pValue)
 	if (strstr(pValue, "ms"))
 		bMSec = true;
 
-	pTemp = (char *)malloc(strlen(pValue) + 1);
+	pTemp = (char *)calloc(1, strlen(pValue) + 1);
 
 	if (NULL == pTemp) {
-		MSG_DEBUG("malloc for <time> attribute is failed");
+		MSG_DEBUG("calloc for <time> attribute is failed");
 		return 0;
 	}
 
