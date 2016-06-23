@@ -24,6 +24,8 @@
 #include "MsgGconfWrapper.h"
 #include "MmsPluginUtil.h"
 
+#define MAX_WAIT_MSECS 30*1000 /* 30 sec */
+
 static void __http_print_profile(CURL *curl);
 static int __http_debug_cb(CURL *input_curl, curl_infotype input_info_type, char *input_data, size_t input_size, void *input_void);
 
@@ -401,37 +403,14 @@ static int __http_multi_perform(void *session)
 	MSG_INFO("curl_multi_perform first end : rcm = %d, still_running = %d", rcm, still_running);
 
 	do {
-		int retval;
-		struct timeval timeout;
-
-		int max_fd = -1;
-		fd_set fd_r;
-		fd_set fd_w;
-		fd_set fd_excp;
-
-		FD_ZERO(&fd_r);
-		FD_ZERO(&fd_w);
-		FD_ZERO(&fd_excp);
-
-		timeout.tv_sec = 120;
-		timeout.tv_usec = 0;
-
-		curl_multi_fdset(multi_handle, &fd_r, &fd_w, &fd_excp, &max_fd);
-
-		retval = select(max_fd+1, &fd_r, &fd_w, &fd_excp, &timeout);
-
-		if (retval == -1) { /* select error */
-			MSG_ERR("select error");
-			ret = -1;
+		int numfds = 0;
+		int retval = curl_multi_wait(multi_handle, NULL, 0, MAX_WAIT_MSECS, &numfds);
+		if(retval != CURLM_OK) {
+			MSG_DEBUG("curl_multi_wait [%d]", retval);
 			break;
-		} else if (retval == 0) {	/* timeout */
-			MSG_ERR("time out");
-			ret = -1;
-			break;
-		} else { /* action */
-			MSG_DEBUG("retval = %d", retval);
-			rcm = curl_multi_perform(multi_handle, &still_running);
 		}
+
+		rcm = curl_multi_perform(multi_handle, &still_running);
 
 		connection_open_flag = MmsPluginCmAgent::instance()->getCmStatus();
 		if (connection_open_flag == false) {
