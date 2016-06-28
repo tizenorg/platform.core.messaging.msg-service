@@ -252,6 +252,7 @@ setfacl -m group:priv_message_write:rw %{TZ_SYS_DATA}/msg-service/ipcdata
 %files
 %manifest msg-service.manifest
 %license LICENSE.APLv2
+%{_bindir}/msg-server
 %{_libdir}/libmsg_plugin_manager.so
 %{_libdir}/libmsg_mapi.so.*
 %{_libdir}/libmsg_framework_handler.so
