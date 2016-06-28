@@ -270,7 +270,6 @@ setfacl -m group:priv_message_write:rw %{TZ_SYS_DATA}/msg-service/ipcdata
 %files tools
 %manifest msg-service-tools.manifest
 %license LICENSE.APLv2
-%caps(cap_chown,cap_dac_override,cap_lease=eip) %{_bindir}/msg-server
 %config(noreplace) %{TZ_SYS_DB}/.msg_service.db*
 %{_unitdir}/msg-server.service
 %{_unitdir}/multi-user.target.wants/msg-server.service
