@@ -1664,7 +1664,6 @@ bool SmsPluginSetting::getMailboxInfoEvent()
 {
 	int ret = 0;
 
-	bTapiResult = false;
 	ret = cv.timedwait(mx.pMsgMutex(), MAX_TAPI_SIM_API_TIMEOUT);
 
 	if (ret == ETIMEDOUT) {
