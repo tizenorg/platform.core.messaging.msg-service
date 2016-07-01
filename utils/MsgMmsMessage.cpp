@@ -1235,6 +1235,20 @@ static bool IsMatchedMedia(MMS_MEDIA_S *media, MMS_MULTIPART_DATA_S *pMultipart)
 		if (strcmp(media->szContentLocation,  szTempContentID) == 0) {
 			return true;
 		}
+
+		if (media->szContentID[0] != '\0') {
+			char *pszExt = strrchr(media->szContentID, '.');
+			if (pszExt) {
+				char tmpContentID[MSG_MSG_ID_LEN+1] = {0};
+				strncpy(tmpContentID, media->szContentID, strlen(media->szContentID));
+				int extLength = strlen(pszExt);
+				int contentIDLength = strlen(media->szContentID);
+				tmpContentID[contentIDLength-extLength] = '\0';
+
+				if (g_strcmp0(tmpContentID, szTempContentID) == 0)
+					return true;
+			}
+		}
 	}
 
 	if (strlen(pMultipart->szContentLocation) > 0) {

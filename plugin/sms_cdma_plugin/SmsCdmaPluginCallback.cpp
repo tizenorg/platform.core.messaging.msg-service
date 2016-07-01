@@ -405,6 +405,7 @@ void TapiEventSetConfigData(TapiHandle *handle, int result, void *data, void *us
 
 	if (data == NULL) {
 		MSG_DEBUG("Error. data is NULL.");
+		SmsPluginSetting::instance()->setResultFromEvent(false);
 		return;
 	}
 

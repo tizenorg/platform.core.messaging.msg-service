@@ -77,16 +77,20 @@ private:
 class MsgCndVar
 {
 public:
-	MsgCndVar() { pthread_cond_init(&c, 0); }
+	MsgCndVar() {
+		pthread_condattr_t attr;
+		pthread_condattr_init(&attr);
+		pthread_condattr_setclock(&attr, CLOCK_MONOTONIC);
+		pthread_cond_init(&c, &attr);
+		pthread_condattr_destroy(&attr);
+	}
 	~MsgCndVar() { pthread_cond_destroy(&c); }
 	void wait(pthread_mutex_t* m) { pthread_cond_wait(&c, m); }
 	int timedwait(pthread_mutex_t* m, int sec)
 	{
-		struct timeval now = {0};
 		struct timespec timeout = {0};
-		gettimeofday(&now, NULL);
-		timeout.tv_sec = now.tv_sec+sec;
-		timeout.tv_nsec = now.tv_usec;
+		clock_gettime(CLOCK_MONOTONIC, &timeout);
+		timeout.tv_sec += sec;
 		int retcode = pthread_cond_timedwait(&c, m, &timeout);
 		return retcode;
 	}

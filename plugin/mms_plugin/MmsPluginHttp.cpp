@@ -626,6 +626,10 @@ MMS_HTTP_ERROR_E MmsPluginHttpAgent::setSession(http_request_info_s &request_inf
 /*		curl_easy_setopt(session_option, CURLOPT_TCP_NODELAY, 1); */
 	}
 
+	if (request_info.dns_list != NULL && strlen(request_info.dns_list) > 1) {
+		curl_easy_setopt(session_option, CURLOPT_DNS_SERVERS, request_info.dns_list);
+	}
+
 	MSG_END();
 	return http_error;
 

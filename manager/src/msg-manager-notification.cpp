@@ -128,7 +128,7 @@ int getAppIcon(const char *app_id, char **icon_path);
 int getLatestMsgInfo(MSG_MGR_NOTI_INFO_S *noti_info, bool isForInstantMessage);
 
 void setProperty(notification_h noti_h, MSG_MGR_NOTI_INFO_S *noti_info);
-void setTextDomain(notification_h noti_h, msg_mgr_notification_type_t noti_type);
+void setTextDomain(notification_h noti_h);
 void setText(notification_h noti_h, MSG_MGR_NOTI_INFO_S *noti_info);
 void setIcon(notification_h noti_h, MSG_MGR_NOTI_INFO_S *noti_info);
 void setSoundAndVibration(notification_h noti_h, char *addressVal, bool bVoiceMail);
@@ -748,7 +748,7 @@ void setProperty(notification_h noti_h, MSG_MGR_NOTI_INFO_S *noti_info)
 }
 
 
-void setTextDomain(notification_h noti_h, msg_mgr_notification_type_t noti_type)
+void setTextDomain(notification_h noti_h)
 {
 	MSG_MGR_BEGIN();
 
@@ -1330,7 +1330,7 @@ void setActiveNotification(notification_h noti_h, MSG_MGR_NOTI_INFO_S *noti_info
 
 	setActiveProperty(noti_h, noti_info);
 
-	setTextDomain(noti_h, noti_info->type);
+	setTextDomain(noti_h);
 
 	setActiveText(noti_h, noti_info);
 
@@ -1365,7 +1365,7 @@ void setNotification(notification_h noti_h, MSG_MGR_NOTI_INFO_S *noti_info, bool
 
 	setProperty(noti_h, noti_info);
 
-	setTextDomain(noti_h, noti_info->type);
+	setTextDomain(noti_h);
 
 	setText(noti_h, noti_info);
 
@@ -2796,7 +2796,7 @@ int MsgMgrInsertInstantMessage(msg_mgr_notification_type_t noti_type)
 			} else if (noti_info.count > 1) {
 				gchar *cnt_string = g_strdup_printf("%i", noti_info.count);
 
-				notiMsg = get_translate_text(MSG_APP_PACKAGE_NAME, MSG_APP_LOCALEDIR, NEW_MESSAGE);
+				notiMsg = get_translate_text(MSG_APP_PACKAGE_NAME, MSG_APP_LOCALEDIR, NEW_MESSAGES);
 				gchar *outString = g_strconcat(cnt_string, " ", notiMsg, NULL);
 				setNotiText(noti, NOTIFICATION_TEXT_TYPE_TITLE, outString, NULL);
 				setNotiText(noti, NOTIFICATION_TEXT_TYPE_CONTENT, noti_info.sender, NULL);

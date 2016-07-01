@@ -580,6 +580,7 @@ void TapiEventSetConfigData(TapiHandle *handle, int result, void *data, void *us
 
 	if (data == NULL) {
 		MSG_ERR("Error. data is NULL. result:%d", result);
+		SmsPluginSetting::instance()->setResultFromSim(false);
 		return;
 	}
 

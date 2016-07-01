@@ -579,6 +579,28 @@ void MmsPluginCmAgent::connection_profile_open_callback(connection_error_e resul
 				MSG_ERR("Failed connection_profile_get_cellular_home_url");
 			}
 
+			this->dns_address_list = (char *)calloc(1, 51);
+			for (int i = 1; i <= 2; i++) {
+				char *dns = NULL;
+				err = connection_profile_get_dns_address(profile, i, CONNECTION_ADDRESS_FAMILY_IPV4, &dns);
+				if (err != CONNECTION_ERROR_NONE) {
+					MSG_ERR("Failed connection_profile_get_cellular_home_url");
+				}
+
+				if (dns != NULL) {
+					MSG_INFO("dns [%s]", dns);
+					if (g_strcmp0(dns, "0.0.0.0")) {
+						if (!(strlen(this->dns_address_list) > 1)) {
+							snprintf(this->dns_address_list, 50, "%s", dns);
+						} else {
+							snprintf(this->dns_address_list  + strlen(this->dns_address_list ), 50 - strlen(this->dns_address_list ), ",%s", dns);
+						}
+					}
+					MSG_FREE(dns);
+				}
+				MSG_INFO("dns list[%s]", this->dns_address_list);
+			}
+
 			isCmOpened = true;
 
 			goto __SIGNAL_RETURN; /* open success */
@@ -671,6 +693,28 @@ void MmsPluginCmAgent::connection_profile_state_changed_cb(connection_profile_st
 		err = connection_profile_get_proxy_address(profile, CONNECTION_ADDRESS_FAMILY_IPV4, &this->proxy_address);
 		if (err != CONNECTION_ERROR_NONE) {
 			MSG_ERR("Failed connection_profile_get_cellular_home_url");
+		}
+
+		this->dns_address_list = (char *)calloc(1, 51);
+		for (int i = 1; i <= 2; i++) {
+			char *dns = NULL;
+			err = connection_profile_get_dns_address(profile, i, CONNECTION_ADDRESS_FAMILY_IPV4, &dns);
+			if (err != CONNECTION_ERROR_NONE) {
+				MSG_ERR("Failed connection_profile_get_cellular_home_url");
+			}
+
+			if (dns != NULL) {
+				MSG_INFO("dns [%s]", dns);
+				if (g_strcmp0(dns, "0.0.0.0")) {
+					if (!(strlen(this->dns_address_list) > 1)) {
+						snprintf(this->dns_address_list, 50, "%s", dns);
+					} else {
+						snprintf(this->dns_address_list  + strlen(this->dns_address_list ), 50 - strlen(this->dns_address_list ), ",%s", dns);
+					}
+				}
+				MSG_FREE(dns);
+			}
+			MSG_INFO("dns list[%s]", this->dns_address_list);
 		}
 
 		isCmOpened = true;

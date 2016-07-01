@@ -593,7 +593,7 @@ msg_error_t MsgSimMessageListener(MSG_MESSAGE_INFO_S *pMsg, int *simIdList, msg_
 
 	MSG_DEBUG("simIdList[0] [%d]", simIdList[0]);
 
-	dataSize += ((sizeof(int)*size) + 1);
+	dataSize += ((sizeof(int))*(size + 1));
 
 	/* composing command */
 	int cmdSize = sizeof(MSG_CMD_S) + dataSize; /* cmd type, MSG_MESSAGE_INFO_S */

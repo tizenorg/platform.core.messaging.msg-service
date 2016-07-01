@@ -1361,11 +1361,15 @@ msg_error_t MsgHandle::regStorageChangeCallback(msg_storage_change_cb onStorageC
 
 	int remoteFd = eventListener->getRemoteFd(); /* fd that is reserved to the "listener thread" by msgfw daemon */
 
-	if (remoteFd == -1 )
+	if (remoteFd == -1 ) {
+		eventListener->stop();
 		return MSG_ERR_INVALID_MSGHANDLE;
+	}
 
-	if (eventListener->regStorageChangeEventCB(this, remoteFd, onStorageChange, pUserParam) == false)
+	if (eventListener->regStorageChangeEventCB(this, remoteFd, onStorageChange, pUserParam) == false) {
+		eventListener->stop();
 		return MSG_ERR_INVALID_PARAMETER;
+	}
 
 	/* Allocate Memory to Command Data */
 	int cmdSize = sizeof(MSG_CMD_S) + sizeof(int); /* cmd type, listenerFd */
