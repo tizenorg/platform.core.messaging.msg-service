@@ -597,7 +597,7 @@ void MsgMgrDeleteNotification(msg_mgr_notification_type_t noti_type, int simInde
 		MSG_MGR_DEBUG("deleted notification ID = [%d] Type = [%d]", notiId, noti_type);
 
 		if (notiId > 0)
-			noti_err = notification_delete_by_priv_id(NULL, NOTIFICATION_TYPE_NOTI, notiId);
+			noti_err = notification_delete_by_priv_id(MSG_DEFAULT_APP_ID, NOTIFICATION_TYPE_NOTI, notiId);
 
 	} else {
 		MSG_MGR_DEBUG("No matching type [%d]", noti_type);
@@ -743,6 +743,11 @@ void setProperty(notification_h noti_h, MSG_MGR_NOTI_INFO_S *noti_info)
 		MSG_MGR_DEBUG("Fail to notification_set_display_applist");
 	}
 
+	/* set pkg name */
+	noti_err = notification_set_pkgname(noti_h, MSG_DEFAULT_APP_ID);
+	if (noti_err != NOTIFICATION_ERROR_NONE) {
+		MSG_MGR_DEBUG("Fail to notification_set_pkgname");
+	}
 
 	MSG_MGR_END();
 }
@@ -1112,6 +1117,12 @@ void setActiveProperty(notification_h noti_h, MSG_MGR_NOTI_INFO_S *noti_info)
 	noti_err = notification_set_display_applist(noti_h, NOTIFICATION_DISPLAY_APP_ACTIVE);
 	if (noti_err != NOTIFICATION_ERROR_NONE) {
 		MSG_MGR_DEBUG("Fail to notification_set_display_applist");
+	}
+
+	/* set pkg name */
+	noti_err = notification_set_pkgname(noti_h, MSG_DEFAULT_APP_ID);
+	if (noti_err != NOTIFICATION_ERROR_NONE) {
+		MSG_MGR_DEBUG("Fail to notification_set_pkgname");
 	}
 
 	MSG_MGR_END();
@@ -1774,7 +1785,7 @@ int getLatestMsgInfo(MSG_MGR_NOTI_INFO_S *noti_info, bool isForInstantMessage)
 
 				if (!isForInstantMessage) {
 					if (noti_info->id > 0 && noti_info->count == 1) {
-						noti_err = notification_delete_by_priv_id(NULL, NOTIFICATION_TYPE_NOTI, noti_info->id);
+						noti_err = notification_delete_by_priv_id(MSG_DEFAULT_APP_ID, NOTIFICATION_TYPE_NOTI, noti_info->id);
 						if (noti_err != NOTIFICATION_ERROR_NONE) {
 							MSG_MGR_DEBUG("Fail to notification_delete_by_priv_id : %d", noti_err);
 						}
@@ -1798,7 +1809,7 @@ int getLatestMsgInfo(MSG_MGR_NOTI_INFO_S *noti_info, bool isForInstantMessage)
 				if (!isForInstantMessage) {
 					/* No unread message. */
 					if (noti_info->id > 0) {
-						noti_err = notification_delete_by_priv_id(NULL, NOTIFICATION_TYPE_NOTI, noti_info->id);
+						noti_err = notification_delete_by_priv_id(MSG_DEFAULT_APP_ID, NOTIFICATION_TYPE_NOTI, noti_info->id);
 						if (noti_err != NOTIFICATION_ERROR_NONE) {
 							MSG_MGR_DEBUG("Fail to notification_delete_by_priv_id : %d", noti_err);
 						}
@@ -1894,7 +1905,7 @@ int getLatestMsgInfo(MSG_MGR_NOTI_INFO_S *noti_info, bool isForInstantMessage)
 			if (!isForInstantMessage) {
 				/* No unread message. */
 				if (noti_info->id > 0) {
-					noti_err = notification_delete_by_priv_id(NULL, NOTIFICATION_TYPE_NOTI, noti_info->id);
+					noti_err = notification_delete_by_priv_id(MSG_DEFAULT_APP_ID, NOTIFICATION_TYPE_NOTI, noti_info->id);
 					if (noti_err != NOTIFICATION_ERROR_NONE) {
 						MSG_MGR_DEBUG("Fail to notification_delete_by_priv_id : %d", noti_err);
 					}
@@ -1992,7 +2003,7 @@ int getLatestMsgInfo(MSG_MGR_NOTI_INFO_S *noti_info, bool isForInstantMessage)
 				if (!isForInstantMessage) {
 					/* No unread message. */
 					if (noti_info->id > 0) {
-						noti_err = notification_delete_by_priv_id(NULL, NOTIFICATION_TYPE_NOTI, noti_info->id);
+						noti_err = notification_delete_by_priv_id(MSG_DEFAULT_APP_ID, NOTIFICATION_TYPE_NOTI, noti_info->id);
 						if (noti_err != NOTIFICATION_ERROR_NONE) {
 							MSG_MGR_DEBUG("Fail to notification_delete_by_priv_id : %d", noti_err);
 						}
@@ -2090,7 +2101,7 @@ int getLatestMsgInfo(MSG_MGR_NOTI_INFO_S *noti_info, bool isForInstantMessage)
 
 				if (!isForInstantMessage) {
 					if (noti_info->id > 0 && noti_info->count == 1) {
-						noti_err = notification_delete_by_priv_id(NULL, NOTIFICATION_TYPE_NOTI, noti_info->id);
+						noti_err = notification_delete_by_priv_id(MSG_DEFAULT_APP_ID, NOTIFICATION_TYPE_NOTI, noti_info->id);
 						if (noti_err != NOTIFICATION_ERROR_NONE) {
 							MSG_MGR_DEBUG("Fail to notification_delete_by_priv_id : %d", noti_err);
 						}
@@ -2108,7 +2119,7 @@ int getLatestMsgInfo(MSG_MGR_NOTI_INFO_S *noti_info, bool isForInstantMessage)
 				if (!isForInstantMessage) {
 					/* No unread message. */
 					if (noti_info->id > 0) {
-						noti_err = notification_delete_by_priv_id(NULL, NOTIFICATION_TYPE_NOTI, noti_info->id);
+						noti_err = notification_delete_by_priv_id(MSG_DEFAULT_APP_ID, NOTIFICATION_TYPE_NOTI, noti_info->id);
 						if (noti_err != NOTIFICATION_ERROR_NONE) {
 							MSG_MGR_DEBUG("Fail to notification_delete_by_priv_id : %d", noti_err);
 						}
@@ -2822,6 +2833,9 @@ int MsgMgrInsertInstantMessage(msg_mgr_notification_type_t noti_type)
 
 	if (notification_set_display_applist(noti, NOTIFICATION_DISPLAY_APP_TICKER) != NOTIFICATION_ERROR_NONE)
 		MSG_MGR_DEBUG("Fail to notification_set_display_applist");
+
+	if (notification_set_pkgname(noti, MSG_DEFAULT_APP_ID) != NOTIFICATION_ERROR_NONE)
+		MSG_MGR_DEBUG("Fail to notification_set_pkgname");
 
 	if (notification_post(noti) != NOTIFICATION_ERROR_NONE)
 		MSG_MGR_DEBUG("Fail to notification_post");
