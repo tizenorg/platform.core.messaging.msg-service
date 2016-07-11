@@ -77,7 +77,7 @@ int MsgMgrGetFileSize(const char *pFileName)
 	struct stat file_stat;
 
 	if (lstat(pFileName, &file_stat)) {
-		MSG_MGR_FATAL("error lstat: %s", g_strerror(errno));
+		MSG_MGR_FATAL("file[%s] error lstat: %s", pFileName, g_strerror(errno));
 		return -1;
 	}
 
@@ -175,7 +175,13 @@ void MsgMgrGetRingtonePath(char *userRingtonePath, char **msg_tone_file_path_p)
 			msg_tone_file_path = NULL;
 		} else {
 			MSG_MGR_DEBUG("Set ringtone to defaultRingtonePath.");
-			strncpy(msg_tone_file_path, defaultRingtonePath, MSG_FILEPATH_LEN_MAX);
+			if (defaultRingtonePath && defaultRingtonePath[0] != '\0') {
+				MSG_MGR_DEBUG("defaultRingtonePath [%s]", defaultRingtonePath);
+				snprintf(msg_tone_file_path, MSG_FILEPATH_LEN_MAX, "%s", defaultRingtonePath);
+			} else {
+				MSG_MGR_DEBUG("defaultRingtonePath is null");
+				msg_tone_file_path = NULL;
+			}
 		}
 	} else {
 		MSG_MGR_DEBUG("Set ringtone to tmpFilePath.");
@@ -357,7 +363,7 @@ void MsgMgrSoundPlayStart(const MSG_MGR_ADDRESS_INFO_S *pAddrInfo, MSG_MGR_SOUND
 	} else if (soundType == MSG_MGR_SOUND_PLAY_DEFAULT) {
 		msg_tone_file_path = new char[MSG_FILEPATH_LEN_MAX+1];
 		memset(msg_tone_file_path, 0x00, sizeof(char)*(MSG_FILEPATH_LEN_MAX+1));
-		strncpy(msg_tone_file_path, DEFAULT_ALERT_FILE, MSG_FILEPATH_LEN_MAX);
+		snprintf(msg_tone_file_path, MSG_FILEPATH_LEN_MAX, "%s", DEFAULT_ALERT_FILE);
 	} else {
 		MsgMgrGetRingtonePath(contactInfo.alerttonePath, &msg_tone_file_path);
 	}
