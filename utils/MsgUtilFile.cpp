@@ -334,6 +334,16 @@ bool MsgOpenAndReadFile(const char *pFileName, char **ppData, int *pDataSize)
 	snprintf(fullPath, MAX_FULL_PATH_SIZE, "%s%s", MSG_IPC_DATA_PATH, pFileName);
 	MSG_SEC_DEBUG("open file name: %s", fullPath);
 
+	struct stat st;
+	if (stat(fullPath, &st) != 0) {
+		MSG_SEC_ERR("stat(%s, &st) != 0", fullPath);
+		return false;
+	}
+	if (S_ISDIR(st.st_mode)) {
+		MSG_ERR("S_ISDIR(st.st_mode)");
+		return false;
+	}
+
 	pFile = MsgOpenFile(fullPath, "rb");
 
 	if (pFile == NULL) {
