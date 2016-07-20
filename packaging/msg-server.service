@@ -6,6 +6,7 @@ After=contacts-service.service
 Type=simple
 User=messaging
 Group=messaging
+SmackProcessLabel=System
 ExecStart=/usr/bin/msg-server
 Restart=always
 MemoryLimit=10M
