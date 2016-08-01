@@ -448,3 +448,9 @@ msg_error_t MsgInsertTicker(const char* pTickerMsg, const char* pLocaleTickerMsg
 #endif /* MSG_WEARABLE_PROFILE */
 	return err;
 }
+
+
+void MsgInitMsgMgr()
+{
+	msg_launch_app(MSG_MGR_APP_ID, NULL);
+}

@@ -113,4 +113,6 @@ void MsgSoundPlayStart(const MSG_ADDRESS_INFO_S *pAddrInfo, MSG_SOUND_TYPE_T sou
 
 void MsgRefreshAllNotification(bool bWithSimNoti, bool bFeedback, msg_active_notification_type_t active_type);
 
+void MsgInitMsgMgr();
+
 #endif

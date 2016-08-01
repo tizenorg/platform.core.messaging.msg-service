@@ -256,6 +256,8 @@ void _refresh_noti_func(app_control_h app_control)
 		MSG_MGR_DEBUG("type [%s]", type);
 		if (g_strcmp0(type, "normal") == 0)
 			noti_type = MSG_MGR_NOTI_TYPE_NORMAL;
+		else if (g_strcmp0(type, "failed") == 0)
+			noti_type = MSG_MGR_NOTI_TYPE_FAILED;
 
 		g_free(type);
 	} else {

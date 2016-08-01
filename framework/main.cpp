@@ -63,6 +63,7 @@ void* InitMsgServer(void*)
 		}
 
 		MsgInitSensor();
+		MsgInitMsgMgr();
 
 		/* plugin manager initialize */
 		MsgPluginManager::instance()->initialize();
